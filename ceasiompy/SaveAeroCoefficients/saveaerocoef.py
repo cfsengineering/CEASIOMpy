@@ -23,6 +23,7 @@ import pandas as pd
 from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.SaveAeroCoefficients.func.plot import plot
 from ceasiompy.SaveAeroCoefficients.func.utils import deal_with_feature
+from ceasiompy.SaveAeroCoefficients.func.response_surface import plot_response_surface
 
 from ceasiompy.utils.ceasiompyutils import (
     call_main,
@@ -37,6 +38,7 @@ from cpacspy.cpacspy import (
 
 from ceasiompy.SaveAeroCoefficients import MODULE_NAME
 from ceasiompy.utils.commonxpath import (
+    RS_XPATH,
     PLOT_XPATH,
     AIRCRAFT_NAME_XPATH,
     AEROMAP_TO_PLOT_XPATH,
@@ -48,7 +50,7 @@ from ceasiompy.utils.commonxpath import (
 # =================================================================================================
 
 
-def main(cpacs: CPACS, wkdir: Path) -> None:
+def main(cpacs: CPACS, results_dir: Path) -> None:
     """
     Save Aero coefficients from the chosen aeroMap in the CPACS file.
     """
@@ -89,8 +91,12 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         title += " - " + uid_crit
         groupby_list.remove("uid")
 
+    response_surface = get_value_or_default(tixi, RS_XPATH + "/Plot", False)
+    if response_surface is True:
+        plot_response_surface(cpacs, results_dir)
+
     # Generate plots
-    plot(wkdir, groupby_list, title, aeromap, criterion)
+    plot(results_dir, groupby_list, title, aeromap, criterion)
 
 
 if __name__ == "__main__":

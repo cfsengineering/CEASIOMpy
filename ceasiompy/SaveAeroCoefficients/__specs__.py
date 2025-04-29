@@ -88,7 +88,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Choose if the response surface must be shown or not",
     xpath=RS_XPATH + "/Plot",
-    gui=True,
+    gui=include_gui,
     gui_name="Response Surface",
     gui_group="Response Surface",
 )
@@ -100,7 +100,7 @@ cpacs_inout.add_input(
     descr="""Variable on X axe of Response Surface  \n Warning !
     The parameter name must match the ones in the CSV file !""",
     xpath=RS_XPATH + "/VariableOnX/Variable",
-    gui=True,
+    gui=include_gui,
     gui_name="Variable on X ",
     gui_group="Response Surface",
 )
@@ -108,10 +108,10 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="x_rSurf_low_limit",
     var_type=float,
-    default_value="0.0",
+    default_value=0.0,
     descr="Low limit of the Variable on X axe of Response Surface",
     xpath=RS_XPATH + "/VariableOnX/LowLimit",
-    gui=True,
+    gui=include_gui,
     gui_name="Low limit of the Variable on X ",
     gui_group="Response Surface",
 )
@@ -119,10 +119,10 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="x_rSurf_high_limit",
     var_type=float,
-    default_value="0.0",
+    default_value=0.0,
     descr="High limit of the Variable on X axe of Response Surface",
     xpath=RS_XPATH + "/VariableOnX/HighLimit",
-    gui=True,
+    gui=include_gui,
     gui_name="High limit of the Variable on X ",
     gui_group="Response Surface",
 )
@@ -134,7 +134,7 @@ cpacs_inout.add_input(
     descr="""Variable on Y axe of Response Surface \n Warning !
     The parameter name must match the ones in the CSV file !""",
     xpath=RS_XPATH + "/VariableOnY/Variable",
-    gui=True,
+    gui=include_gui,
     gui_name="Variable on Y",
     gui_group="Response Surface",
 )
@@ -142,10 +142,10 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="y_rSurf_low_limit",
     var_type=float,
-    default_value="0.0",
+    default_value=0.0,
     descr="Low limit of the Variable on Y axe of Response Surface",
     xpath=RS_XPATH + "/VariableOnY/LowLimit",
-    gui=True,
+    gui=include_gui,
     gui_name="Low limit of the Variable on Y ",
     gui_group="Response Surface",
 )
@@ -153,10 +153,10 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="y_rSurf_high_limit",
     var_type=float,
-    default_value="0.0",
+    default_value=0.0,
     descr="High limit of the Variable on Y axe of Response Surface",
     xpath=RS_XPATH + "/VariableOnY/HighLimit",
-    gui=True,
+    gui=include_gui,
     gui_name="High limit of the Variable on Y",
     gui_group="Response Surface",
 )
@@ -168,7 +168,7 @@ cpacs_inout.add_input(
     descr="""Firts Variable to mantain constant while the response surface is plotted
     \n Warning ! The parameter name must match the ones in the CSV file !""",
     xpath=RS_XPATH + "/FirstConstantVariable",
-    gui=True,
+    gui=include_gui,
     gui_name="First Constant Variable",
     gui_group="Response Surface",
 )
@@ -176,10 +176,10 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="val_of_first_constant_variable",
     var_type=float,
-    default_value="10000",
+    default_value=10000,
     descr="Value of the First Variable to mantain constant while the response surface is plotted",
     xpath=RS_XPATH + "/FirstConstantVariableValue",
-    gui=True,
+    gui=include_gui,
     gui_name="Value of First Constant Variable",
     gui_group="Response Surface",
 )
@@ -191,7 +191,7 @@ cpacs_inout.add_input(
     descr="""Second Variable to mantain constant while the response surface is plotted
     \n Warning! The parameter name must match the ones in the CSV file !""",
     xpath=RS_XPATH + "/SecondConstantVariable",
-    gui=True,
+    gui=include_gui,
     gui_name="Second Constant Variable",
     gui_group="Response Surface",
 )
@@ -199,10 +199,10 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="val_of_second_constant_variable",
     var_type=float,
-    default_value="0",
+    default_value=0.0,
     descr="Value of the Second Variable to mantain constant while the response surface is plotted",
     xpath=RS_XPATH + "/SecondConstantVariableValue",
-    gui=True,
+    gui=include_gui,
     gui_name="Value of Second Constant Variable",
     gui_group="Response Surface",
 )
@@ -213,10 +213,12 @@ cpacs_inout.add_input(
     default_value=None,
     descr="Select aeromaps for scatter points",
     xpath=PLOT_XPATH + "/aeroScatter",
-    gui=True,
+    gui=include_gui,
     gui_name="__AEROMAP_CHECKBOX",
     gui_group="Aeromap list for scatter points",
 )
+
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================

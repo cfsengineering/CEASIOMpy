@@ -6,8 +6,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 This function enables to create the Response Surface of a Surrogate Model created with SMTrain.
 Also the scatter points of the training datasets could be plotted
 
-
-
 | Author: Giacomo Gronda
 | Creation: 2025-03-20
 
@@ -19,37 +17,33 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import matplotlib.pyplot as plt
-import pandas as pd
-from pathlib import Path
 import numpy as np
-from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonxpath import RS_XPATH, PLOT_XPATH
-from cpacspy.cpacsfunctions import (get_value_or_default)
-from cpacspy.cpacspy import CPACS
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from cpacspy.cpacsfunctions import get_value
 from ceasiompy.SMUse.func.config import load_surrogate
-from ceasiompy.SMTrain.func.utils import make_predictions
-from ceasiompy.utils.ceasiompyutils import get_results_directory, get_aeromap_list_from_xpath
+from ceasiompy.SMTrain.func.predictions import make_predictions
+from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
 
-log = get_logger()
+from pathlib import Path
+from cpacspy.cpacspy import CPACS
 
+from ceasiompy import log
+from ceasiompy.utils.commonxpath import (
+    RS_XPATH,
+    PLOT_XPATH,
+)
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
 
 
-def plot_response_surface(cpacs_path):
+def plot_response_surface(cpacs: CPACS, results_dir: Path) -> None:
     """
     Generates and visualizes the response surface
     of an aerodynamic coefficient using a surrogate model.
-
-    This function processes a CPACS file, extracts the necessary parameters for plotting,
-    loads the surrogate model, and visualizes the predicted aerodynamic response surface.
-    It also overlays scatter points from available aerodynamic maps for comparison.
-
-    Args:
-        cpacs_path (str): Path to the CPACS XML file.
 
     Notes:
         - The function extracts variables for the X and Y axes, along with two constant parameters.
@@ -57,35 +51,34 @@ def plot_response_surface(cpacs_path):
         - The resulting surface plot is saved as an image in the results directory.
     """
 
-    cpacs = CPACS(cpacs_path)
-
+    tixi = cpacs.tixi
     # Load the trained surrogate modeland metadata
-    model, coefficient, removed_columns = load_surrogate(cpacs_path)
+    model, coefficient, removed_columns = load_surrogate(cpacs)
 
     # Ensure removed_columns is a list
     if not isinstance(removed_columns, list):
-        print("Warning: removed_columns is not a list, setting to empty list.")
+        log.warning("removed_columns is not a list, setting to empty list.")
         removed_columns = []
 
     # Define the input feature names
     input_columns = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
 
     # Extract X-axis variable and limits
-    x = get_value_or_default(cpacs.tixi, RS_XPATH + "/VariableOnX/Variable", "angleOfAttack")
-    x_low_limit = get_value_or_default(cpacs.tixi, RS_XPATH + "/VariableOnX/LowLimit", "0.0")
-    x_high_limit = get_value_or_default(cpacs.tixi, RS_XPATH + "/VariableOnX/HighLimit", "0.0")
+    x = get_value(tixi, RS_XPATH + "/VariableOnX/Variable")
+    x_low_limit = get_value(tixi, RS_XPATH + "/VariableOnX/LowLimit")
+    x_high_limit = get_value(tixi, RS_XPATH + "/VariableOnX/HighLimit")
 
     # Extract y-axis variable and limits
-    y = get_value_or_default(cpacs.tixi, RS_XPATH + "/VariableOnY/Variable", "machNumber")
-    y_low_limit = get_value_or_default(cpacs.tixi, RS_XPATH + "/VariableOnY/LowLimit", "0.0")
-    y_high_limit = get_value_or_default(cpacs.tixi, RS_XPATH + "/VariableOnY/HighLimit", "0.0")
+    y = get_value(tixi, RS_XPATH + "/VariableOnY/Variable")
+    y_low_limit = get_value(tixi, RS_XPATH + "/VariableOnY/LowLimit")
+    y_high_limit = get_value(tixi, RS_XPATH + "/VariableOnY/HighLimit")
 
     # Extract two constant variables
-    c1 = get_value_or_default(cpacs.tixi, RS_XPATH + "/FirstConstantVariable", "altitude")
-    c1_value = get_value_or_default(cpacs.tixi, RS_XPATH + "/FirstConstantVariableValue", "10000")
+    c1 = get_value(tixi, RS_XPATH + "/FirstConstantVariable")
+    c1_value = get_value(tixi, RS_XPATH + "/FirstConstantVariableValue")
 
-    c2 = get_value_or_default(cpacs.tixi, RS_XPATH + "/SecondConstantVariable", "angleOfSideslip")
-    c2_value = get_value_or_default(cpacs.tixi, RS_XPATH + "/SecondConstantVariableValue", "0")
+    c2 = get_value(tixi, RS_XPATH + "/SecondConstantVariable")
+    c2_value = get_value(tixi, RS_XPATH + "/SecondConstantVariableValue")
 
     # Generate a grid of X and Y values
     x_grid = np.linspace(x_low_limit, x_high_limit, 50)
@@ -93,21 +86,19 @@ def plot_response_surface(cpacs_path):
     X, Y = np.meshgrid(x_grid, y_grid)
 
     # Build the input matrix for model prediction
-    input_data = np.column_stack(
-        [
-            (
-                X.ravel()
-                if col == x
-                else (
-                    Y.ravel()
-                    if col == y
-                    else np.full(X.size, c1_value) if col == c1 else np.full(X.size, c2_value)
-                )
+    input_data = np.column_stack([
+        (
+            X.ravel()
+            if col == x
+            else (
+                Y.ravel()
+                if col == y
+                else np.full(X.size, c1_value) if col == c1 else np.full(X.size, c2_value)
             )
-            for col in input_columns
-            if col not in removed_columns
-        ]
-    )
+        )
+        for col in input_columns
+        if col not in removed_columns
+    ])
 
     # Retrieve aeromaps for scatter plot
     aeromap_for_scatter_xpath = PLOT_XPATH + "/aeroScatter"
@@ -168,9 +159,7 @@ def plot_response_surface(cpacs_path):
     ax.legend()
 
     # Save the plot as an image in the results directory
-    results_dir = get_results_directory("SaveAeroCoefficients")
-    fig_name = "response_surface_" + x + "_vs_" + y + ".png"
-    fig_path = Path(results_dir, fig_name)
+    fig_path = Path(results_dir, "response_surface_" + x + "_vs_" + y + ".png")
     plt.savefig(fig_path)
     plt.close(fig)
 

@@ -318,7 +318,7 @@ def mf_kriging(
     # Extract datasets for different fidelity levels
     X_lf, y_lf, _, _, _ = datasets[LEVEL_ONE]
 
-    # TODO: Understand 
+    # TODO: Understand
     X_mf, y_mf = (
         datasets[LEVEL_TWO][:2]
         if fidelity_level == "Three levels"

@@ -134,7 +134,7 @@ def train_surrogate_model(
 def save_model(
     model: Union[KRG, MFK],
     coefficient_name: str,
-    datasets: Dict, 
+    datasets: Dict,
     results_dir: Path,
 ) -> None:
     """
@@ -172,6 +172,7 @@ def save_model(
     with open(model_path, "wb") as file:
         joblib.dump(model_metadata, file)
     log.info(f"Model saved to {model_path}")
+
 
 def optimize_hyper_parameters(
     objective: Callable,

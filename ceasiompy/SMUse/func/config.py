@@ -39,6 +39,7 @@ from ceasiompy.utils.commonxpath import (
 #   FUNCTIONS
 # =================================================================================================
 
+
 def get_predictions_dataset(cpacs: CPACS, removed_columns: List) -> Dict:
     """
     Extracts the dataset for predictions from the CPACS file

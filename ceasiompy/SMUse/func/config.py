@@ -9,7 +9,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 #   IMPORTS
 # ==============================================================================
 
-import pickle
+import joblib
 
 from pathlib import Path
 from pandas import DataFrame
@@ -34,7 +34,6 @@ from ceasiompy.utils.commonxpath import (
     SM_XPATH,
     SMUSE_XPATH,
 )
-
 
 # =================================================================================================
 #   FUNCTIONS
@@ -116,7 +115,7 @@ def load_surrogate(cpacs: CPACS) -> Tuple[Union[MFK, KRG], str, Dict]:
 
     # Load the model and its metadata
     with open(model_path, "rb") as file:
-        model_metadata = pickle.load(file)
+        model_metadata = joblib.load(file)
 
     model = model_metadata["model"]
     coefficient_name = model_metadata["coefficient"]

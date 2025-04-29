@@ -15,11 +15,11 @@ TODO:
 # ==============================================================================
 
 import os
+import numpy as np
 import streamlit as st
 
 from ceasiompy.PyAVL.pyavl import main as run_avl
 from ceasiompy.SU2Run.su2run import run_SU2_multi
-from sklearn.model_selection import train_test_split
 from ceasiompy.PyAVL.func.results import get_avl_results
 from ceasiompy.SU2Run.func.results import get_su2_results
 from ceasiompy.SMTrain.func.config import retrieve_aeromap_data
@@ -37,9 +37,14 @@ from numpy import ndarray
 from pandas import DataFrame
 from cpacspy.cpacspy import CPACS
 from unittest.mock import MagicMock
-from typing import Dict
+from typing import (
+    List,
+    Dict,
+    Tuple,
+)
 
 from ceasiompy import log
+from ceasiompy.SU2Run import MODULE_NAME as SU2RUN_NAME
 from ceasiompy.PyAVL import (
     AVL_AEROMAP_UID_XPATH,
     MODULE_NAME as PYAVL_NAME,
@@ -54,6 +59,47 @@ from ceasiompy.utils.commonxpath import (
 # =================================================================================================
 
 
+def filter_constant_columns(
+    df: DataFrame,
+    input_columns: List,
+) -> Tuple[DataFrame, Dict]:
+    """
+    Removes input columns that have a single unique value
+    and stores their values separately.
+
+    Args:
+        df (DataFrame): DataFrame containing the dataset.
+        input_columns (list): List of input column names to check.
+
+    Returns:
+        - df_filtered (DataFrame): Filtered dataFrame without constant columns.
+        - removed_columns (Dict): Removed columns with their constant values.
+    """
+
+    columns_to_keep = [col for col in input_columns if df[col].nunique() > 1]
+    removed_columns = {col: df[col].iloc[0] for col in input_columns if col not in columns_to_keep}
+
+    if removed_columns:
+        log.info(f"Removing constant columns: {list(removed_columns.keys())}")
+
+    return df[columns_to_keep], removed_columns
+
+
+def check_nan_inf(*arrays) -> None:
+    """
+    Checks for NaN or infinite values in the given arrays.
+
+    Args:
+        *arrays: Variable number of numpy arrays to check.
+    """
+    for i, arr in enumerate(arrays):
+        arr: ndarray
+        if np.isnan(arr).any():
+            raise ValueError(f"Array {i} contains NaN values.")
+        if np.isinf(arr).any():
+            raise ValueError(f"Array {i} contains infinite values.")
+
+
 def get_val_fraction(train_fraction: float) -> float:
     if not (0 < train_fraction < 1):
         log.warning(
@@ -65,91 +111,6 @@ def get_val_fraction(train_fraction: float) -> float:
     # Convert from "% of train" to "% of test"
     test_val_fraction = 1 - train_fraction
     return test_val_fraction
-
-
-def split_data(
-    fidelity_datasets: Dict,
-    train_fraction: float = 0.7,
-    test_fraction_within_split: float = 0.3,
-    random_state: int = 42,
-) -> Dict[str, ndarray]:
-    """
-    Takes a dictionary of datasets with different fidelity levels and:
-    1. identifies the highest fidelity dataset,
-    2. splits it into training, validation, and test sets based on the specified proportions.
-
-    Args:
-        datasets (Dict): Keys represent fidelity levels with (x, y) values.
-        data_repartition (float = 0.3):
-            Fraction of data reserved for validation and test sets, for example:
-            data_repartition=0.3 means 70% train, 15% val, 15% test
-        val_test_size (float = 0.3):
-            Proportion of validation+test data allocated to the test set.
-        random_state (int, optional): Random seed for reproducibility.
-
-    Returns:
-        Dictionary containing the split datasets.
-    """
-
-    if not fidelity_datasets:
-        raise ValueError("Datasets dictionary is empty.")
-
-    test_val_fraction = get_val_fraction(train_fraction)
-
-    try:
-        highest_fidelity_level = max(fidelity_datasets.keys(), key=lambda k: int(k.split("_")[-1]))
-    except (ValueError, IndexError):
-        raise ValueError(
-            "Dataset keys are not in expected format (e.g., 'fidelity_1', 'fidelity_2')."
-        )
-
-    log.info(f"Using highest fidelity dataset: {highest_fidelity_level}")
-
-    try:
-        # Extract X and y from the highest fidelity level dataset
-        x: ndarray = fidelity_datasets[highest_fidelity_level][0]
-        y: ndarray = fidelity_datasets[highest_fidelity_level][1]
-        if x.shape[0] != y.shape[0]:
-            raise ValueError(
-                "Mismatch between number of samples"
-                f"x has {x.shape[0]} samples, but y has {y.shape[0]}."
-            )
-    except KeyError:
-        raise ValueError(f"Dataset '{highest_fidelity_level}' is incorrectly formatted.")
-
-    log.info(f"Dataset shape - x: {x.shape}, y: {y.shape}")
-
-    # Split into train and test/validation
-    x_train: ndarray
-    x_test: ndarray
-    y_train: ndarray
-    y_test: ndarray
-    x_train, x_test, y_train, y_test = train_test_split(
-        x, y, test_size=test_val_fraction, random_state=random_state
-    )
-
-    if x_test.shape[0] < 1:
-        raise ValueError(
-            f"Not enough samples for validation and test with {train_fraction=}"
-            f"At least 1 samples is needed for test: avaiable {x_test.shape[0]}"
-            f"Try to add some points or change '% of training data'"
-        )
-
-    log.info(f"Train size: {x_train.shape[0]}, Test+Validation size: {x_test.shape[0]}")
-
-    # Split into validation and test
-    x_val: ndarray
-    y_val: ndarray
-    x_val, x_test, y_val, y_test = train_test_split(
-        x_test, y_test, test_size=test_fraction_within_split, random_state=random_state
-    )
-
-    log.info(f"Validation size: {x_val.shape[0]}, Test size: {x_test.shape[0]}")
-
-    return {
-        "x_train": x_train, "x_val": x_val, "x_test": x_test,
-        "y_train": y_train, "y_val": y_val, "y_test": y_test,
-    }
 
 
 def launch_avl(
@@ -190,8 +151,8 @@ def launch_avl(
 
     # Run AVL analysis
     st.session_state = MagicMock()
-    results_dir = get_results_directory(PYAVL_NAME)
     update_cpacs_from_specs(cpacs, PYAVL_NAME)
+    results_dir = get_results_directory(PYAVL_NAME)
     run_avl(cpacs, results_dir)
     get_avl_results(cpacs, results_dir)
 
@@ -268,6 +229,10 @@ def launch_su2(
     # iterations = get_value_or_default(cpacs.tixi, SU2_MAX_ITER_XPATH, 2)
     # nb_proc = get_value_or_default(cpacs.tixi, SU2_NB_CPU_XPATH, get_reasonable_nb_cpu())
     config_file_type = get_value(tixi, SU2_CONFIG_RANS_XPATH)
+
+    # Load default parameters
+    st.session_state = MagicMock()
+    update_cpacs_from_specs(cpacs, SU2RUN_NAME)
 
     rans = (config_file_type == "RANS")
     generate_su2_cfd_config(

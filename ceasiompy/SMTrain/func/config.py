@@ -15,6 +15,7 @@ Get settings from GUI. Manage datasets and perform LHS when required.
 # =================================================================================================
 
 from cpacspy.cpacsfunctions import get_value
+from ceasiompy.SMTrain.func.utils import filter_constant_columns
 from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
 
 from numpy import ndarray
@@ -32,8 +33,8 @@ from cpacspy.cpacspy import (
 from ceasiompy import log
 from ceasiompy.PyAVL import AVL_AEROMAP_UID_XPATH
 from ceasiompy.utils.commonxpath import (
-    SMTRAIN_XPATH,
     SMTRAIN_DOE,
+    SMTRAIN_XPATH,
     SU2_AEROMAP_UID_XPATH,
 )
 
@@ -88,32 +89,6 @@ def get_settings(cpacs: CPACS) -> Tuple[str, float, str, bool, bool, int, bool, 
         avl_or_su2,
         rmse_obj,
     )
-
-
-def filter_constant_columns(
-    df: DataFrame,
-    input_columns: List,
-) -> Tuple[DataFrame, Dict]:
-    """
-    Removes input columns that have a single unique value
-    and stores their values separately.
-
-    Args:
-        df (DataFrame): DataFrame containing the dataset.
-        input_columns (list): List of input column names to check.
-
-    Returns:
-        - df_filtered (DataFrame): Filtered dataFrame without constant columns.
-        - removed_columns (Dict): Removed columns with their constant values.
-    """
-
-    columns_to_keep = [col for col in input_columns if df[col].nunique() > 1]
-    removed_columns = {col: df[col].iloc[0] for col in input_columns if col not in columns_to_keep}
-
-    if removed_columns:
-        log.info(f"Removing constant columns: {list(removed_columns.keys())}")
-
-    return df[columns_to_keep], removed_columns
 
 
 def retrieve_aeromap_data(

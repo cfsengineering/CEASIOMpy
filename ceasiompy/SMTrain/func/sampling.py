@@ -15,6 +15,8 @@ TODO:
 import numpy as np
 import pandas as pd
 
+from sklearn.model_selection import train_test_split
+from ceasiompy.SMTrain.func.utils import get_val_fraction
 from ceasiompy.SMTrain.func.surrogate import make_predictions
 
 from pathlib import Path
@@ -232,3 +234,88 @@ def new_points(
 
     log.warning("No new points found, all have been selected.")
     return None
+
+
+def split_data(
+    fidelity_datasets: Dict,
+    train_fraction: float = 0.7,
+    test_fraction_within_split: float = 0.3,
+    random_state: int = 42,
+) -> Dict[str, ndarray]:
+    """
+    Takes a dictionary of datasets with different fidelity levels and:
+    1. identifies the highest fidelity dataset,
+    2. splits it into training, validation, and test sets based on the specified proportions.
+
+    Args:
+        datasets (Dict): Keys represent fidelity levels with (x, y) values.
+        data_repartition (float = 0.3):
+            Fraction of data reserved for validation and test sets, for example:
+            data_repartition=0.3 means 70% train, 15% val, 15% test
+        val_test_size (float = 0.3):
+            Proportion of validation+test data allocated to the test set.
+        random_state (int, optional): Random seed for reproducibility.
+
+    Returns:
+        Dictionary containing the split datasets.
+    """
+
+    if not fidelity_datasets:
+        raise ValueError("Datasets dictionary is empty.")
+
+    test_val_fraction = get_val_fraction(train_fraction)
+
+    try:
+        highest_fidelity_level = max(fidelity_datasets.keys(), key=lambda k: int(k.split("_")[-1]))
+    except (ValueError, IndexError):
+        raise ValueError(
+            "Dataset keys are not in expected format (e.g., 'fidelity_1', 'fidelity_2')."
+        )
+
+    log.info(f"Using highest fidelity dataset: {highest_fidelity_level}")
+
+    try:
+        # Extract X and y from the highest fidelity level dataset
+        x: ndarray = fidelity_datasets[highest_fidelity_level][0]
+        y: ndarray = fidelity_datasets[highest_fidelity_level][1]
+        if x.shape[0] != y.shape[0]:
+            raise ValueError(
+                "Mismatch between number of samples"
+                f"x has {x.shape[0]} samples, but y has {y.shape[0]}."
+            )
+    except KeyError:
+        raise ValueError(f"Dataset '{highest_fidelity_level}' is incorrectly formatted.")
+
+    log.info(f"Dataset shape - x: {x.shape}, y: {y.shape}")
+
+    # Split into train and test/validation
+    x_train: ndarray
+    x_test: ndarray
+    y_train: ndarray
+    y_test: ndarray
+    x_train, x_test, y_train, y_test = train_test_split(
+        x, y, test_size=test_val_fraction, random_state=random_state
+    )
+
+    if x_test.shape[0] < 1:
+        raise ValueError(
+            f"Not enough samples for validation and test with {train_fraction=}"
+            f"At least 1 samples is needed for test: avaiable {x_test.shape[0]}"
+            f"Try to add some points or change '% of training data'"
+        )
+
+    log.info(f"Train size: {x_train.shape[0]}, Test+Validation size: {x_test.shape[0]}")
+
+    # Split into validation and test
+    x_val: ndarray
+    y_val: ndarray
+    x_val, x_test, y_val, y_test = train_test_split(
+        x_test, y_test, test_size=test_fraction_within_split, random_state=random_state
+    )
+
+    log.info(f"Validation size: {x_val.shape[0]}, Test size: {x_test.shape[0]}")
+
+    return {
+        "x_train": x_train, "x_val": x_val, "x_test": x_test,
+        "y_train": y_train, "y_val": y_val, "y_test": y_test,
+    }

@@ -11,6 +11,15 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 from smt.utils.misc import compute_rmse
 
+from numpy import ndarray
+from pandas import DataFrame
+from smt.applications import MFK
+from smt.surrogate_models import KRG
+from typing import (
+    Dict,
+    Union,
+)
+
 from ceasiompy import log
 
 # =================================================================================================
@@ -18,11 +27,15 @@ from ceasiompy import log
 # =================================================================================================
 
 
-def make_predictions(datasets, model):
+def make_predictions(
+    datasets: Dict[str, Dict[str, ndarray]],
+    model: Union[KRG, MFK],
+) -> Dict[str, Dict[str, ndarray]]:
     predictions_dict = {}
 
     # Iterate through all datasets in the dictionary
     for dataset_name, dataset_content in datasets.items():
+        prediction_dataset: DataFrame
         prediction_dataset = dataset_content["df_filtered"]
 
         # Check if the dataset is empty

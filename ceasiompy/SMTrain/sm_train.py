@@ -31,7 +31,7 @@ import pandas as pd
 from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.SMTrain.func.plot import plot_validation
 from ceasiompy.SMTrain.func.results import get_smt_results
-from ceasiompy.SMTrain.func.train import (
+from ceasiompy.SMTrain.func.train_surrogate import (
     save_model,
     train_surrogate_model,
 )
@@ -43,10 +43,10 @@ from ceasiompy.SMTrain.func.config import (
 from ceasiompy.SMTrain.func.sampling import (
     new_doe,
     new_points,
+    split_data,
     lh_sampling,
 )
 from ceasiompy.SMTrain.func.utils import (
-    split_data,
     launch_avl,
     launch_su2,
 )
@@ -89,10 +89,10 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         # One level fidelity model training
         if fidelity_level == "One level":
             if avl:
-                soft_dataset = launch_avl(cpacs, lh_sampling_path, objective_coefficient)
+                level1_dataset = launch_avl(cpacs, lh_sampling_path, objective_coefficient)
             else:
-                soft_dataset = launch_su2(cpacs, results_dir, SU2RUN_NAME, objective_coefficient)
-            datasets = {"level_1": soft_dataset}
+                level1_dataset = launch_su2(cpacs, results_dir, SU2RUN_NAME, objective_coefficient)
+            datasets = {"level_1": level1_dataset}
             sets = split_data(datasets, data_repartition)
             model, _ = train_surrogate_model(fidelity_level, datasets, sets)
 

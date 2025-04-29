@@ -121,9 +121,9 @@ def get_smu_results(cpacs: CPACS, results_dir: Path) -> None:
         aoa_values = aeromap.get("angleOfAttack").tolist()
         aos_values = aeromap.get("angleOfSideslip").tolist()
 
-        for i in range(len(altitudes)):
+        for i, alt in enumerate(altitudes):
             aeromap.add_coefficients(
-                altitudes[i],
+                alt,
                 mach_numbers[i],
                 aos_values[i],
                 aoa_values[i],

@@ -93,13 +93,16 @@ def write_inouts(
 
     df.fillna("-", inplace=True)
     for i, name in enumerate(df.index):
+        value = inout[0][i]
         if df.loc[name, "setcmd"] != "-":
-            exec("{} = {}".format(name, inout[0][i]))
-            eval(df.loc[name, "setcmd"])
+            # Only allow assignment to tixi elements via XPath
+            xpath = df.loc[name, "setcmd"]
+            create_branch(tixi, xpath)
+            tixi.updateDoubleElement(xpath, value, "%g")
         elif df.loc[name, "getcmd"] != "-":
             xpath = df.loc[name, "getcmd"]
             create_branch(tixi, xpath)
-            tixi.updateDoubleElement(xpath, inout[0][i], "%g")
+            tixi.updateDoubleElement(xpath, value, "%g")
 
 
 def update_cpacs_from_specs(cpacs: CPACS, module_name: str) -> None:

@@ -47,7 +47,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
     # 3. Saves predictions in 'new' dataset
     log.info("Saving predictions")
-    save_new_dataset(datasets, predictions, coefficient)
+    save_new_dataset(datasets, predictions, coefficient, results_dir)
 
     # 4. Udpates aeromap accordingly
     log.info("Updates aeromap")

@@ -25,10 +25,21 @@ from typing import (
 )
 
 from ceasiompy import log
+from ceasiompy.SMTrain import (
+    LEVEL_ONE,
+    LEVEL_TWO,
+)
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def level_to_str(level: int) -> str:
+    if level == 1:
+        return LEVEL_ONE
+    else:
+        return LEVEL_TWO
 
 
 def filter_constant_columns(

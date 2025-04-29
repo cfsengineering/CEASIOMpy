@@ -15,8 +15,11 @@ Get settings from GUI. Manage datasets and perform LHS when required.
 # =================================================================================================
 
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy.SMTrain.func.utils import filter_constant_columns
 from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
+from ceasiompy.SMTrain.func.utils import (
+    level_to_str,
+    filter_constant_columns,
+)
 
 from numpy import ndarray
 from pandas import DataFrame
@@ -187,20 +190,17 @@ def get_datasets_from_aeromaps(
                 ...
             }
     """
-    # Retrieve aeromap uid for training if exists
+    # Initialize variables
+    datasets = {}
+
+    #
     aeromap_uid_list = get_aeromap_for_training(cpacs)
 
-    datasets = {}
     for level, aeromap_uid in enumerate(aeromap_uid_list, start=1):
         log.info(f"Training dataset {level}: {aeromap_uid}")
-        try:
-            datasets[f"level_{level}"] = retrieve_aeromap_data(
-                cpacs, aeromap_uid, objective
-            )
-        except ValueError as e:
-            # TODO: Add debugging messages or conditions in function of errors
-            # is this try except block even necessary ?
-            log.warning(f"Skipping aeromap {aeromap_uid} due to error: {e}")
+        datasets[level_to_str(level)] = retrieve_aeromap_data(
+            cpacs, aeromap_uid, objective
+        )
 
     log.info(f"Datasets retrieved successfully for levels: {list(datasets.keys())}")
     return datasets

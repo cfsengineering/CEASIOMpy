@@ -87,7 +87,19 @@ else
     wget http://archive.ubuntu.com/ubuntu/pool/universe/t/tetgen/tetgen_1.5.0-5build1_amd64.deb || { echo "Failed to download TetGen package"; exit 1; }
 
     # Install the .deb package
-    sudo dpkg -i tetgen_1.5.0-5build1_amd64.deb || { echo "Failed to install TetGen"; sudo apt-get install -f -y || exit 1; }
+    sudo dpkg -i tetgen_1.5.0-5build1_amd64.deb
+    if [ $? -ne 0 ]; then
+        echo "dpkg reported problems, attempting to fix dependencies..."
+        sudo apt-get install -f -y || { echo "Failed to fix dependencies"; exit 1; }
+    fi
+
+    # Verify that TetGen is now installed
+    if command -v tetgen &> /dev/null; then
+        echo "TetGen installed successfully."
+    else
+        echo "TetGen installation failed."
+        exit 1
+    fi
 fi
 
 ## 4. Final Configuration

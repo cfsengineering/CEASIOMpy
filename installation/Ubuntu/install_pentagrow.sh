@@ -130,7 +130,7 @@ fi
 echo "--> Setting up environment"
 
 # Set the run path for Pentagrow
-pentagrow_run_path="$install_dir/pentagrow/bin"
+pentagrow_run_path="$current_dir/INSTALLDIR/pentagrow/bin"
 mkdir -p "$pentagrow_run_path"
 
 echo "install_dir: $install_dir"

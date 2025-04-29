@@ -24,8 +24,7 @@ from numpy import ndarray
 from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
-
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.SU2Run import (
     SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH,
     SU2_DYNAMICDERIVATIVES_AMPLITUDE_XPATH,
     SU2_DYNAMICDERIVATIVES_FREQUENCY_XPATH,

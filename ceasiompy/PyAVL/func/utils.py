@@ -31,7 +31,7 @@ from typing import (
     TextIO,
 )
 
-from ceasiompy.utils.commonxpath import REF_XPATH
+from ceasiompy.utils.commonxpaths import REF_XPATH
 from ceasiompy import (
     log,
     ceasiompy_cfg,

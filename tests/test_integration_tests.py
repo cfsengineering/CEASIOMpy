@@ -5,9 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Integration test for some typical CEASIOMpy workflows.
 
-TODO:
-    Test allworking modules
-
 """
 
 # ====================================================================================================================
@@ -58,7 +55,7 @@ def run_workflow_test(modules_to_run):
 
 
 @pytest.mark.slow
-@pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
+@pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_1():
     run_workflow_test(["CPACSUpdater", "CPACS2GMSH", "SU2Run"])
@@ -69,6 +66,21 @@ def test_integration_1():
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
 def test_integration_2():
     run_workflow_test(["PyAVL", "SaveAeroCoefficients", "Database"])
+    assert True
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
+@pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
+def test_integration_3():
+    run_workflow_test(["CPACS2GMSH", "SMTrain", "SMUse", "SaveAeroCoefficients"])
+    assert True
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
+def test_integration_4():
+    run_workflow_test(["AeroFrame_new"])
     assert True
 
 

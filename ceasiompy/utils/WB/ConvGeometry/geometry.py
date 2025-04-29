@@ -23,7 +23,7 @@ from ceasiompy.utils.WB.ConvGeometry.Fuselage.fusegeom import (
     rel_dist,
 )
 from ceasiompy.utils.ceasiompyutils import get_results_directory
-from ceasiompy.utils.commonxpath import FUSELAGES_XPATH, WINGS_XPATH
+from ceasiompy.utils.commonxpaths import FUSELAGES_XPATH, WINGS_XPATH
 
 from ceasiompy import log
 

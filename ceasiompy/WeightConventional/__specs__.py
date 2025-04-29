@@ -20,7 +20,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy import log
 from ceasiompy.WeightConventional import include_gui
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     FUEL_XPATH,
     GEOM_XPATH,
     MOEM_XPATH,

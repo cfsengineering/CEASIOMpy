@@ -19,7 +19,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
 from ceasiompy.Database import include_gui
-from ceasiompy.utils.commonxpath import DATABASE_STOREDATA_XPATH
+from ceasiompy.utils.commonxpaths import DATABASE_STOREDATA_XPATH
 
 # ==============================================================================
 #   VARIABLE

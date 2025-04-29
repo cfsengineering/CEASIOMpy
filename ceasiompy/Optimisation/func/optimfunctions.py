@@ -37,7 +37,7 @@ from ceasiompy.Optimisation.func.tools import (
 from ceasiompy.SMUse.sm_use import load_surrogate
 from ceasiompy import log
 from ceasiompy.utils.moduleinterfaces import get_all_module_specs
-from ceasiompy.utils.commonxpath import OPTIM_XPATH, SMUSE_XPATH, SU2_FIXED_CL_XPATH
+from ceasiompy.utils.commonxpaths import OPTIM_XPATH, SMUSE_XPATH, SU2_FIXED_CL_XPATH
 from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.utils import COEFS, PARAMS_COEFS
 

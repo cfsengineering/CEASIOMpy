@@ -1,5 +1,5 @@
 from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     REF_XPATH,
     SU2_BC_WALL_XPATH,
     SU2_CONTROL_SURF_XPATH,

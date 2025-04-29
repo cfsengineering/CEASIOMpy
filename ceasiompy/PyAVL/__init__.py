@@ -18,7 +18,7 @@ Initialization for PyAVL module.
 from pathlib import Path
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpath import CEASIOMPY_XPATH
+from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 
 # ==============================================================================
 #   INITIALIZATION

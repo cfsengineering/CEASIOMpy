@@ -23,10 +23,12 @@ from ceasiompy.SMTrain import (
     LEVEL_TWO,
     OBJECTIVES_LIST,
 )
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.SMTrain import (
     SMTRAIN_DOE,
-    SU2MESH_XPATH,
     SMTRAIN_XPATH,
+)
+from ceasiompy.utils.commonxpaths import (
+    SU2MESH_XPATH,
     CEASIOMPY_XPATH,
 )
 

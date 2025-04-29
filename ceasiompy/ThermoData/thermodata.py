@@ -39,7 +39,7 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy import log
 from ceasiompy.utils.commonnames import ENGINE_BOUNDARY_CONDITIONS
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     ENGINE_BC,
     RANGE_XPATH,
     ENGINE_TYPE_XPATH,

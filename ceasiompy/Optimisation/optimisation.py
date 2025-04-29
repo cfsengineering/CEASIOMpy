@@ -60,7 +60,7 @@ from ceasiompy.Optimisation.func.optimfunctions import Routine
 
 from ceasiompy import log
 from ceasiompy.Optimisation import MODULE_NAME
-from ceasiompy.utils.commonxpath import OPTIM_XPATH
+from ceasiompy.utils.commonxpaths import OPTIM_XPATH
 from cpacspy.utils import (
     COEFS,
     PARAMS,

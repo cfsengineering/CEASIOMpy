@@ -21,7 +21,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy import log
 from ceasiompy.CLCalculator import include_gui
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     REF_XPATH,
     CLCALC_XPATH,
     SU2_FIXED_CL_XPATH,

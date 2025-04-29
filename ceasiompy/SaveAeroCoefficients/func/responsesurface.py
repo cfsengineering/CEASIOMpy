@@ -30,7 +30,7 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     RS_XPATH,
     PLOT_XPATH,
 )

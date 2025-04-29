@@ -18,6 +18,7 @@ Initialization for Database module.
 from pathlib import Path
 
 from ceasiompy import log
+from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 
 # ==============================================================================
 #   INITIALIZATION
@@ -35,6 +36,10 @@ RES_DIR = False
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
+
+# xPaths
+DATABASE_XPATH = CEASIOMPY_XPATH + "/Database"
+DATABASE_STOREDATA_XPATH = DATABASE_XPATH + "/StoreData"
 
 # =================================================================================================
 #    MAIN

@@ -8,14 +8,10 @@ called only from here to avoid mistakes.
 XPath may be changed from here to avoid mistakes, but if it is the case, be careful to also change
 xpath and field name in all the test CPACS files, which are in the CEASIOMpy repository.
 
-
-| Author: Aidan jungo
-| Creation: 2021-10-21
-| modification: 2024-01-05 (Mengmeng Zhang, added M-Edge XPATHs )
-| Modified: Leon Deligny
-| Date: 25 March 2025
-
-# TODO: Someome please Organize these paths
+Note:
+    This contains only COMMON xpaths,
+    please do NOT add specific xpaths of your module in here.
+    You can always add specific xpaths in the __init__.py of your module.
 
 """
 
@@ -45,7 +41,6 @@ AIRFOILS_XPATH = "/cpacs/vehicles/profiles/wingAirfoils"
 
 # analyses
 AEROPERFORMANCE_XPATH = "/cpacs/vehicles/aircraft/model/analyses/aeroPerformance"
-
 MASSBREAKDOWN_XPATH = "/cpacs/vehicles/aircraft/model/analyses/massBreakdown"
 
 MTOM_XPATH = MASSBREAKDOWN_XPATH + "/designMasses/mTOM/mass"
@@ -121,80 +116,6 @@ CPACS2SUMO_SUMO_GUI_XPATH = CPACS2SUMO_XPATH + "/GUI"
 SUMO_INCLUDE_PYLON_XPATH = CPACS2SUMO_XPATH + "/engine/includePylon"
 SUMO_INCLUDE_ENGINE_XPATH = CPACS2SUMO_XPATH + "/engine/includeEngine"
 SUMOFILE_XPATH = CPACS2SUMO_XPATH + "/filesPath/sumoFilePath"
-# GMSH
-GMSH_XPATH = MESH_XPATH + "/gmshOptions"
-GMSH_OPEN_GUI_XPATH = GMSH_XPATH + "/open_gui"
-GMSH_SYMMETRY_XPATH = GMSH_XPATH + "/symmetry"
-GMSH_EXPORT_PROP_XPATH = GMSH_XPATH + "/exportPropellers"
-GMSH_FARFIELD_FACTOR_XPATH = GMSH_XPATH + "/farfield_factor"
-GMSH_N_POWER_FACTOR_XPATH = GMSH_XPATH + "/n_power_factor"
-GMSH_N_POWER_FIELD_XPATH = GMSH_XPATH + "/n_power_field"
-GMSH_MESH_TYPE_XPATH = GMSH_XPATH + "/type_mesh"
-GMSH_MESH_SIZE_FARFIELD_XPATH = GMSH_XPATH + "/mesh_size/farfield"
-GMSH_MESH_SIZE_FUSELAGE_XPATH = GMSH_XPATH + "/mesh_size/fuselage/value"
-GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH = GMSH_XPATH + "/mesh_size/fuselage/factor"
-GMSH_MESH_SIZE_WINGS_XPATH = GMSH_XPATH + "/mesh_size/wings/value"
-GMSH_MESH_SIZE_CTRLSURFS_XPATH = GMSH_XPATH + "/mesh_size/controlsurfaces/value"
-GMSH_MESH_SIZE_FACTOR_WINGS_XPATH = GMSH_XPATH + "/mesh_size/wings/factor"
-GMSH_MESH_SIZE_ENGINES_XPATH = GMSH_XPATH + "/mesh_size/engines"
-GMSH_MESH_SIZE_PROPELLERS_XPATH = GMSH_XPATH + "/mesh_size/propellers"
-GMSH_REFINE_FACTOR_XPATH = GMSH_XPATH + "/refine_factor"
-GMSH_REFINE_TRUNCATED_XPATH = GMSH_XPATH + "/refine_truncated"
-GMSH_AUTO_REFINE_XPATH = GMSH_XPATH + "/auto_refine"
-GMSH_INTAKE_PERCENT_XPATH = GMSH_XPATH + "/intake_percent"
-GMSH_EXHAUST_PERCENT_XPATH = GMSH_XPATH + "/exhaust_percent"
-GMSH_MESH_FORMAT_XPATH = GMSH_XPATH + "/type_output_penta"
-GMSH_NUMBER_LAYER_XPATH = GMSH_XPATH + "/number_layer"
-GMSH_H_FIRST_LAYER_XPATH = GMSH_XPATH + "/height_first_layer"
-GMSH_MAX_THICKNESS_LAYER_XPATH = GMSH_XPATH + "/max_thickness_layer"
-GMSH_GROWTH_FACTOR_XPATH = GMSH_XPATH + "/growth_factor"
-GMSH_GROWTH_RATIO_XPATH = GMSH_XPATH + "/growth_ratio"
-GMSH_SURFACE_MESH_SIZE_XPATH = GMSH_XPATH + "min_max_mesh_factor"
-GMSH_FEATURE_ANGLE_XPATH = GMSH_XPATH + "/feature_angle"
-GMSH_CTRLSURF_ANGLE_XPATH = GMSH_XPATH + "/DeflectionAngle"
-
-# SU2
-SU2_XPATH = CEASIOMPY_XPATH + "/aerodynamics/su2"
-SU2_AEROMAP_UID_XPATH = SU2_XPATH + "/aeroMapUID"
-SU2_NB_CPU_XPATH = SU2_XPATH + "/settings/nbCPU"
-SU2_EXTRACT_LOAD_XPATH = SU2_XPATH + "/results/extractLoads"
-SU2_UPDATE_WETTED_AREA_XPATH = SU2_XPATH + "/results/updateWettedArea"
-USED_SU2_MESH_XPATH = SU2_XPATH + "/MeshPath"
-
-SU2_MAX_ITER_XPATH = SU2_XPATH + "/settings/maxIter"
-SU2_CFL_NB_XPATH = SU2_XPATH + "/settings/cflNumber/value"
-SU2_CFL_ADAPT_XPATH = SU2_XPATH + "/settings/cflNumber/adaptation/value"
-SU2_CFL_ADAPT_PARAM_DOWN_XPATH = SU2_XPATH + "/settings/cflNumber/adaptation/factor_down"
-SU2_CFL_ADAPT_PARAM_UP_XPATH = SU2_XPATH + "/settings/cflNumber/adaptation/factor_up"
-SU2_CFL_MIN_XPATH = SU2_XPATH + "/settings/cflNumber/adaptation/min"
-SU2_CFL_MAX_XPATH = SU2_XPATH + "/settings/cflNumber/adaptation/max"
-SU2_MG_LEVEL_XPATH = SU2_XPATH + "/settings/multigridLevel"
-
-SU2_BC_WALL_XPATH = SU2_XPATH + "/boundaryConditions/wall"
-SU2_BC_FARFIELD_XPATH = SU2_XPATH + "/boundaryConditions/farfield"
-
-SU2_FIXED_CL_XPATH = SU2_XPATH + "/fixedCL"
-SU2_TARGET_CL_XPATH = SU2_XPATH + "/targetCL"
-
-SU2_DAMPING_DER_XPATH = SU2_XPATH + "/options/calculateDampingDerivatives"
-SU2_ROTATION_RATE_XPATH = SU2_XPATH + "/options/rotationRate"
-
-SU2_CONTROL_SURF_XPATH = SU2_XPATH + "/ControlSurfaces"
-SU2_CONTROL_SURF_BOOL_XPATH = SU2_CONTROL_SURF_XPATH + "/Bool"
-SU2_CONTROL_SURF_ANGLE_XPATH = SU2_CONTROL_SURF_XPATH + "/Angle"
-SU2_DEF_MESH_XPATH = SU2_XPATH + "/availableDeformedMesh"
-
-SU2_ACTUATOR_DISK_XPATH = SU2_XPATH + "/options/includeActuatorDisk"
-SU2_CONFIG_RANS_XPATH = SU2_XPATH + "/options/config_type"
-
-SU2_DYNAMICDERIVATIVES_XPATH = SU2_XPATH + "/DynamicDerivatives"
-SU2_DYNAMICDERIVATIVES_BOOL_XPATH = SU2_DYNAMICDERIVATIVES_XPATH + "/Bool"
-SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH = SU2_DYNAMICDERIVATIVES_XPATH + "/TimeSize"
-SU2_DYNAMICDERIVATIVES_AMPLITUDE_XPATH = SU2_DYNAMICDERIVATIVES_XPATH + "/Amplitude"
-SU2_DYNAMICDERIVATIVES_FREQUENCY_XPATH = SU2_DYNAMICDERIVATIVES_XPATH + "/AngularFrequency"
-SU2_DYNAMICDERIVATIVES_INNERITER_XPATH = SU2_DYNAMICDERIVATIVES_XPATH + "/InnerIter"
-SU2_DYNAMICDERIVATIVES_DATA_XPATH = SU2_DYNAMICDERIVATIVES_XPATH + "/Data"
-SU2_CEASIOMPYDATA_XPATH = SU2_XPATH + "/CeasiompyData"
 
 # EDGE
 EDGE_XPATH = CEASIOMPY_XPATH + "/aerodynamics/medge"
@@ -238,39 +159,11 @@ WB_FUSELAGE_THICK_XPATH = GEOM_XPATH + "/fuseThick"
 WB_TOILET_LENGTH_XPATH = GEOM_XPATH + "/toiletLength"
 WB_DOUBLE_FLOOR_XPATH = GEOM_XPATH + "/isDoubleFloor"
 
-# Stability
-STABILITY_XPATH = CEASIOMPY_XPATH + "/stability"
-STABILITY_AEROMAP_TO_ANALYZE_XPATH = STABILITY_XPATH + "/aeroMapToAnalyze"
-CHECK_STABILITY_XPATH = STABILITY_XPATH + "/stabilityToCheck"
-
 # PYCYCLE
 ENGINE_TYPE_XPATH = CEASIOMPY_XPATH + "/ThermoData"
 ENGINE_BC = CEASIOMPY_XPATH + "/BC"
 ENGINE_BC_TEMPERATUREOUTLET_XPATH = ENGINE_BC + "/TemperatureOutlet"
 ENGINE_BC_PRESSUREOUTLET_XPATH = ENGINE_BC + "/PressureOutlet"
-
-# DYNAMICSTABILITY
-DYNAMICSTABILITY_XPATH = CEASIOMPY_XPATH + "/DynamicStability"
-DYNAMICSTABILITY_AIRCRAFT_XPATH = DYNAMICSTABILITY_XPATH + "/Aircraft"
-DYNAMICSTABILITY_CEASIOMPYDATA_XPATH = DYNAMICSTABILITY_XPATH + "/CeasiompyData"
-DYNAMICSTABILITY_AEROMAP_UID_XPATH = DYNAMICSTABILITY_XPATH + "/aeroMapUID"
-DYNAMICSTABILITY_NCHORDWISE_XPATH = DYNAMICSTABILITY_XPATH + "/NChordwise"
-DYNAMICSTABILITY_NSPANWISE_XPATH = DYNAMICSTABILITY_XPATH + "/NSpanwise"
-DYNAMICSTABILITY_WINGS_XPATH = DYNAMICSTABILITY_XPATH + "/WingSelection"
-DYNAMICSTABILITY_VISUALIZATION_XPATH = DYNAMICSTABILITY_XPATH + "/Visualization"
-DYNAMICSTABILITY_CGRID_XPATH = DYNAMICSTABILITY_XPATH + "/CGrid"
-DYNAMICSTABILITY_SOFTWARE_XPATH = DYNAMICSTABILITY_XPATH + "/Software"
-DYNAMICSTABILITY_MACHLIST_XPATH = DYNAMICSTABILITY_XPATH + "/Mach"
-
-# CPACSUPDATER
-CPACSUPDATER_XPATH = CEASIOMPY_XPATH + "/CPACSUpdater"
-CPACSUPDATER_CTRLSURF_XPATH = CPACSUPDATER_XPATH + "/CtrlSurf"
-CPACSUPDATER_ADD_CTRLSURFACES_XPATH = CEASIOMPY_XPATH + "/AddControlSurfaces"
-CPACSUPDATER_CPACSCREATOR_XPATH = CPACSUPDATER_XPATH + "/CPACSCreator"
-
-# DATABASE
-DATABASE_XPATH = CEASIOMPY_XPATH + "/Database"
-DATABASE_STOREDATA_XPATH = DATABASE_XPATH + "/StoreData"
 
 # FramAT
 FRAMAT_XPATH = CEASIOMPY_XPATH + "/structure/FramAT"
@@ -282,14 +175,6 @@ FRAMAT_RESULTS_XPATH = FRAMAT_XPATH + "/Results"
 # AeroFrame
 AEROFRAME_XPATH = CEASIOMPY_XPATH + "/aeroelasticity/AeroFrame"
 AEROFRAME_SETTINGS = AEROFRAME_XPATH + "/Settings"
-
-# SMTrain
-SMTRAIN_XPATH = CEASIOMPY_XPATH + "/generalModules/smTrain"
-SMTRAIN_DOE = SMTRAIN_XPATH + "/DoE"
-SMTRAIN_SM_XPATH = SMTRAIN_XPATH + "/surrogateModelPath"
-
-# SMUse
-SMUSE_XPATH = CEASIOMPY_XPATH + "/generalModules/smUse"
 
 # =================================================================================================
 #    MAIN

@@ -56,7 +56,7 @@ from typing import List, Dict, Tuple
 from ceasiompy import log
 from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.CPACS2GMSH import (
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
     GMSH_MESH_SIZE_WINGS_XPATH,
     GMSH_MESH_SIZE_CTRLSURFS_XPATH,

@@ -28,7 +28,7 @@ from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacsfunctions import open_tixi
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     FRAMAT_MATERIAL_XPATH,
     FRAMAT_SECTION_XPATH,
     WINGS_XPATH,

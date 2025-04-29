@@ -70,7 +70,7 @@ from typing import (
 
 from ceasiompy import log
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     WINGS_XPATH,
     PYLONS_XPATH,
     ENGINES_XPATH,

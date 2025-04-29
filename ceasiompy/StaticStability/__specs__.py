@@ -15,7 +15,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
 from ceasiompy.StaticStability import include_gui
-from ceasiompy.utils.commonxpath import STATICSTABILITY_LR_XPATH
+from ceasiompy.utils.commonxpaths import STATICSTABILITY_LR_XPATH
 
 # ==============================================================================
 #   VARIABLE

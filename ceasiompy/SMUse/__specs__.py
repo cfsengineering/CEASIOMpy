@@ -11,11 +11,13 @@ GUI Interface of SMUse.
 #   IMPORTS
 # ==============================================================================
 
+import streamlit as st
+
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
 from ceasiompy.SMUse import include_gui
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     SM_XPATH,
     SMUSE_XPATH,
 )
@@ -31,6 +33,18 @@ cpacs_inout = CPACSInOut()
 # ==============================================================================
 
 cpacs_inout.add_input(
+    var_name="prediction_dataset",
+    var_type=list,
+    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
+    unit=None,
+    descr="Aeromap gives inputs data",
+    xpath=SMUSE_XPATH + "/predictionDataset",
+    gui=include_gui,
+    gui_name="__AEROMAP_CHECKBOX",
+    gui_group="Selected Aeromap",
+)
+
+cpacs_inout.add_input(
     var_name="model_file",
     var_type="pathtype",
     default_value="-",
@@ -39,18 +53,6 @@ cpacs_inout.add_input(
     gui=include_gui,
     gui_name="Model to use",
     gui_group="Model",
-)
-
-cpacs_inout.add_input(
-    var_name="prediction_dataset",
-    var_type=list,
-    default_value=None,
-    unit=None,
-    descr="Aeromap with inputs to be predicted",
-    xpath=SMUSE_XPATH + "/predictionDataset",
-    gui=include_gui,
-    gui_name="__AEROMAP_CHECKBOX",
-    gui_group="Predictions Dataset",
 )
 
 # =================================================================================================

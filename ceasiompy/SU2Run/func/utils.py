@@ -38,9 +38,7 @@ from ceasiompy.SU2Run.func import (
 from ceasiompy.SU2Run import (
     MODULE_DIR,
     TEMPLATE_TYPE,
-    CONTROL_SURFACE_LIST
-)
-from ceasiompy.utils.commonxpath import (
+    CONTROL_SURFACE_LIST,
     USED_SU2_MESH_XPATH,
     SU2_CONTROL_SURF_BOOL_XPATH,
     SU2_CONTROL_SURF_ANGLE_XPATH,

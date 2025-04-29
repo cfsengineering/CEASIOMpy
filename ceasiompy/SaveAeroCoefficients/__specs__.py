@@ -21,7 +21,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy import log
 from ceasiompy.SaveAeroCoefficients import include_gui
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     RS_XPATH,
     PLOT_XPATH,
     AEROMAP_TO_PLOT_XPATH,

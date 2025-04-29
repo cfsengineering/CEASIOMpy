@@ -24,7 +24,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy import log, NO_YES_LIST
 from ceasiompy.SU2Run import include_gui, TEMPLATE_TYPE
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     SU2_AEROMAP_UID_XPATH,
     SU2_DAMPING_DER_XPATH,
     SU2_ROTATION_RATE_XPATH,

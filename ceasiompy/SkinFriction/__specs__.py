@@ -16,7 +16,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy import log
 from ceasiompy.SkinFriction import include_gui
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     SF_XPATH,
     GEOM_XPATH,
     PLOT_XPATH,

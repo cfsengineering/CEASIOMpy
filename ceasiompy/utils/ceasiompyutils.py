@@ -68,7 +68,7 @@ from ceasiompy.utils.moduleinterfaces import (
     MODNAME_INIT,
     MODNAME_SPECS,
 )
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     AIRCRAFT_NAME_XPATH,
     RANGE_CRUISE_ALT_XPATH,
     RANGE_CRUISE_MACH_XPATH,

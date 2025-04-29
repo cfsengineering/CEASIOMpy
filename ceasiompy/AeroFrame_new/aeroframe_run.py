@@ -51,7 +51,7 @@ from ceasiompy.PyAVL import (
     AVL_PLOT_XPATH,
     AVL_AEROMAP_UID_XPATH,
 )
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     FRAMAT_RESULTS_XPATH,
     FRAMAT_MESH_XPATH,
     AEROFRAME_SETTINGS

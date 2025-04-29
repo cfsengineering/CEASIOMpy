@@ -42,7 +42,7 @@ from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
     run_software,
 )
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     REF_XPATH,
     SU2_CONTROL_SURF_XPATH,
     SU2_DEF_MESH_XPATH,

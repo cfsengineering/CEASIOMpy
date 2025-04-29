@@ -23,7 +23,7 @@ from cpacspy.cpacsfunctions import (
 from tixi3.tixi3wrapper import Tixi3
 from markdownpy.markdownpy import MarkdownDoc
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     SU2_XPATH,
     REF_XPATH,
     CLCALC_XPATH,

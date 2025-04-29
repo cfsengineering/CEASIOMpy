@@ -46,7 +46,7 @@ from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     SU2MESH_XPATH,
     SUMO_REFINE_LEVEL_XPATH,
     SUMOFILE_XPATH,

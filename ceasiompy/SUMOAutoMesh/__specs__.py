@@ -1,5 +1,5 @@
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     SU2MESH_XPATH,
     SUMO_REFINE_LEVEL_XPATH,
     SPECIFIED_SUMOFILE_XPATH,

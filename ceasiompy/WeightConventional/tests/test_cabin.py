@@ -19,7 +19,7 @@ import shutil
 from pathlib import Path
 
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
-from ceasiompy.utils.commonxpath import WB_ABREAST_NB_XPATH, WB_PEOPLE_MASS_XPATH
+from ceasiompy.utils.commonxpaths import WB_ABREAST_NB_XPATH, WB_PEOPLE_MASS_XPATH
 from ceasiompy.WeightConventional.func.cabin import (
     Cabin,
     check_aisle_nb,

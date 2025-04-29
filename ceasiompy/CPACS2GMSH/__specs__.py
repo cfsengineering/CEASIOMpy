@@ -18,9 +18,9 @@ GUI Interface of CPACS2GMSH.
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
-from ceasiompy.CPACS2GMSH import include_gui
-
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import SU2MESH_XPATH
+from ceasiompy.CPACS2GMSH import (
+    include_gui,
     GMSH_OPEN_GUI_XPATH,
     GMSH_MESH_TYPE_XPATH,
     GMSH_CTRLSURF_ANGLE_XPATH,
@@ -46,8 +46,8 @@ from ceasiompy.utils.commonxpath import (
     GMSH_EXPORT_PROP_XPATH,
     GMSH_INTAKE_PERCENT_XPATH,
     GMSH_EXHAUST_PERCENT_XPATH,
-    SU2MESH_XPATH,
 )
+
 # ==============================================================================
 #   VARIABLE
 # ==============================================================================

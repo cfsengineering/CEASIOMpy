@@ -31,14 +31,14 @@ from cpacspy.cpacspy import CPACS
 from unittest.mock import MagicMock
 
 from ceasiompy import log
-from ceasiompy.SU2Run import MODULE_NAME as SU2RUN_NAME
 from ceasiompy.PyAVL import (
     AVL_AEROMAP_UID_XPATH,
     MODULE_NAME as PYAVL_NAME,
 )
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.SU2Run import (
     SU2_AEROMAP_UID_XPATH,
     SU2_CONFIG_RANS_XPATH,
+    MODULE_NAME as SU2RUN_NAME,
 )
 
 # ==============================================================================

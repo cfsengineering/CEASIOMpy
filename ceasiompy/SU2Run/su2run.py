@@ -38,7 +38,7 @@ from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
 from ceasiompy.SU2Run import MODULE_NAME
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     SU2_NB_CPU_XPATH,
     SU2_CONFIG_RANS_XPATH,
     SU2_DYNAMICDERIVATIVES_BOOL_XPATH,

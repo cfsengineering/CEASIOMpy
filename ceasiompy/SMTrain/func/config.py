@@ -35,11 +35,11 @@ from cpacspy.cpacspy import (
 
 from ceasiompy import log
 from ceasiompy.PyAVL import AVL_AEROMAP_UID_XPATH
-from ceasiompy.SMTrain import OBJECTIVES_LIST
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.SU2Run import SU2_AEROMAP_UID_XPATH
+from ceasiompy.SMTrain import (
+    OBJECTIVES_LIST,
     SMTRAIN_DOE,
     SMTRAIN_XPATH,
-    SU2_AEROMAP_UID_XPATH,
 )
 
 # =================================================================================================

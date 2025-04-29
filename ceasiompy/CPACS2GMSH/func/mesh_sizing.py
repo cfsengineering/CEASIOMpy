@@ -26,7 +26,7 @@ from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.generalclasses import Transformation
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpath import FUSELAGES_XPATH, WINGS_XPATH
+from ceasiompy.utils.commonxpaths import FUSELAGES_XPATH, WINGS_XPATH
 
 
 # =================================================================================================

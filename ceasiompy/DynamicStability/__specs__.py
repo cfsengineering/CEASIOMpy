@@ -23,7 +23,7 @@ from ceasiompy.PyAVL import SOFTWARE_NAME as AVL_SOFTWARE
 from ceasiompy.SU2Run import SOFTWARE_NAME as SU2_SOFTWARE
 from ceasiompy.DynamicStability import SOFTWARE_NAME as SDSA_SOFTWARE
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     DYNAMICSTABILITY_NCHORDWISE_XPATH,
     DYNAMICSTABILITY_NSPANWISE_XPATH,
     DYNAMICSTABILITY_VISUALIZATION_XPATH,

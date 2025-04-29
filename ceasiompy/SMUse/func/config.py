@@ -30,7 +30,7 @@ from cpacspy.cpacsfunctions import get_value
 from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     SM_XPATH,
     SMUSE_XPATH,
 )

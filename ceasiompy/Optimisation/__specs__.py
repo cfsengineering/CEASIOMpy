@@ -1,6 +1,6 @@
 from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpath import OPTIM_XPATH
+from ceasiompy.utils.commonxpaths import OPTIM_XPATH
 import streamlit as st
 from ceasiompy.Optimisation import include_gui
 

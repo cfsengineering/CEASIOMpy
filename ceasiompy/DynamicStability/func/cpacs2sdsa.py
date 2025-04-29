@@ -45,7 +45,7 @@ from ceasiompy import log
 from ceasiompy.PyAVL import SOFTWARE_NAME as AVL_SOFTWARE
 from ceasiompy.DynamicStability import MODULE_DIR as DYNAMICSTABILITY_DIR
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     REF_XPATH as CPACS_REF_XPATH,
     DYNAMICSTABILITY_CGRID_XPATH,
     DYNAMICSTABILITY_SOFTWARE_XPATH,

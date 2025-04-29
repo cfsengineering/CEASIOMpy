@@ -19,7 +19,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
 from ceasiompy.ExportCSV import include_gui
-from ceasiompy.utils.commonxpath import EXPORT_XPATH
+from ceasiompy.utils.commonxpaths import EXPORT_XPATH
 
 # ==============================================================================
 #   VARIABLE

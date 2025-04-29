@@ -50,10 +50,10 @@ from typing import (
 )
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.CPACSUpdater import CPACSUPDATER_CTRLSURF_XPATH
+from ceasiompy.utils.commonxpaths import (
     WINGS_XPATH,
     AIRFOILS_XPATH,
-    CPACSUPDATER_CTRLSURF_XPATH,
 )
 
 # ==============================================================================

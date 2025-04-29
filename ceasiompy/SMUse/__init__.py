@@ -14,6 +14,7 @@ Initialization for SMUse module.
 from pathlib import Path
 
 from ceasiompy import log
+from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 
 # ==============================================================================
 #   INITIALIZATION
@@ -31,6 +32,9 @@ RES_DIR = True
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
+
+# xPaths
+SMUSE_XPATH = CEASIOMPY_XPATH + "/generalModules/smUse"
 
 # =================================================================================================
 #    MAIN

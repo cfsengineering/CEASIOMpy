@@ -40,8 +40,11 @@ from ceasiompy.SU2Run import MODULE_NAME as SU2RUN_NAME
 from ceasiompy.utils.commonpaths import CEASIOMPY_DB_PATH
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH_NAME
 from ceasiompy.DynamicStability import MODULE_NAME as DYNSTAB_NAME
-
-from ceasiompy.Database.func import TABLE_DICT, ALLOWED_TABLES, ALLOWED_COLUMNS
+from ceasiompy.Database.func import (
+    TABLE_DICT,
+    ALLOWED_TABLES,
+    ALLOWED_COLUMNS,
+)
 
 # ==============================================================================
 #   CLASS

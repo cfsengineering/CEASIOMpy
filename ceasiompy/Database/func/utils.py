@@ -27,7 +27,6 @@ from typing import (
 
 from ceasiompy import log
 from ceasiompy.utils.commonpaths import CEASIOMPY_DB_PATH
-
 from ceasiompy.Database.func import (
     ALLOWED_TABLES,
     ALLOWED_COLUMNS,

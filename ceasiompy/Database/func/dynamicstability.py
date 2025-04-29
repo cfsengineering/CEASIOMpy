@@ -27,7 +27,7 @@ from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.DynamicStability import (
     DYNAMICSTABILITY_NSPANWISE_XPATH,
     DYNAMICSTABILITY_NCHORDWISE_XPATH,
 )

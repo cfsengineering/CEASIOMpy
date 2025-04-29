@@ -34,7 +34,7 @@ from cpacspy.cpacspy import (
 )
 
 from ceasiompy.SaveAeroCoefficients import MODULE_NAME
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     RS_XPATH,
     PLOT_XPATH,
     AIRCRAFT_NAME_XPATH,

@@ -20,7 +20,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy import log
 from ceasiompy.ModuleTemplate import include_gui
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     CEASIOMPY_XPATH,
     FUSELAGES_XPATH,
 )

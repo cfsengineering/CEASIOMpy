@@ -20,7 +20,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy import log
 from ceasiompy.CPACSUpdater import include_gui
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     SUMOFILE_XPATH,
     SUMO_INCLUDE_PYLON_XPATH,
     SUMO_INCLUDE_ENGINE_XPATH,

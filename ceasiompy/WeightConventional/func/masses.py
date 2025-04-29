@@ -19,7 +19,7 @@ from ceasiompy.WeightConventional.func.mtom import estimate_mtom
 from ceasiompy.WeightConventional.func.oem import estimate_oem
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     FUEL_MASS_XPATH,
     MASS_CARGO_XPATH,
     MOEM_XPATH,

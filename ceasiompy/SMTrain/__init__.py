@@ -14,6 +14,7 @@ Initialization for SMTrain module.
 from pathlib import Path
 
 from ceasiompy import log
+from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 
 # ==============================================================================
 #   INITIALIZATION
@@ -39,6 +40,10 @@ LEVEL_TWO = "Two levels"
 # ===== List of potential objectives =====
 OBJECTIVES_LIST = ["cl", "cd", "cs", "cmd", "cml", "cms"]
 
+# xPaths
+SMTRAIN_XPATH = CEASIOMPY_XPATH + "/generalModules/smTrain"
+SMTRAIN_DOE = SMTRAIN_XPATH + "/DoE"
+SMTRAIN_SM_XPATH = SMTRAIN_XPATH + "/surrogateModelPath"
 
 # =================================================================================================
 #    MAIN

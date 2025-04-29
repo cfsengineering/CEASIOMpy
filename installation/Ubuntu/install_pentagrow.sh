@@ -87,7 +87,7 @@ echo "--> Setting up environment"
 pentagrow_run_path="$install_dir/pentagrow/bin"
 mkdir -p "$pentagrow_run_path"
 
-pentagrow_bin_src="$script_dir/../installation/Pentagrow/bin"
+pentagrow_bin_src="$(realpath "$script_dir/../Pentagrow/bin")"
 echo "Pentagrow binary source path: $pentagrow_bin_src"
 echo "Pentagrow run path: $pentagrow_run_path"
 

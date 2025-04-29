@@ -93,15 +93,8 @@ def launch_avl(
     # Reload CPACS file with updated AVL results
     cpacs = CPACS(cpacs.cpacs_file)
 
-    # Validate objective
-    objective_map = {"cl": "cl", "cd": "cd", "cs": "cs", "cmd": "cmd", "cml": "cml", "cms": "cms"}
-    if objective not in objective_map:
-        raise ValueError(
-            f"Invalid objective '{objective}'. Expected one of {list(objective_map.keys())}."
-        )
-
     # Retrieve aerodynamic data
-    dataset = retrieve_aeromap_data(cpacs, aeromap.uid, objective, objective_map)
+    dataset = retrieve_aeromap_data(cpacs, aeromap.uid, objective)
     cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
 
     log.info(f"AVL results extracted for {objective}:")
@@ -185,15 +178,8 @@ def launch_su2(
     # Reload CPACS with updated results
     cpacs = CPACS(cpacs.cpacs_file)
 
-    # Validate objective
-    objective_map = {"cl": "cl", "cd": "cd", "cs": "cs", "cmd": "cmd", "cml": "cml", "cms": "cms"}
-    if objective not in objective_map:
-        raise ValueError(
-            f"Invalid objective '{objective}'. Expected one of {list(objective_map.keys())}."
-        )
-
     # Retrieve aerodynamic data
-    dataset = retrieve_aeromap_data(cpacs, aeromap.uid, objective, objective_map)
+    dataset = retrieve_aeromap_data(cpacs, aeromap.uid, objective)
     cpacs.save_cpacs(cpacs, overwrite=True)
 
     log.info(f"SU2 results extracted for {objective}:")

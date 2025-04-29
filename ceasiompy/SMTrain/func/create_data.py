@@ -14,7 +14,6 @@ import streamlit as st
 
 from ceasiompy.PyAVL.pyavl import main as run_avl
 from ceasiompy.SU2Run.su2run import run_SU2_multi
-from ceasiompy.PyAVL.func.results import get_avl_results
 from ceasiompy.SU2Run.func.results import get_su2_results
 from ceasiompy.SMTrain.func.config import retrieve_aeromap_data
 from ceasiompy.utils.ceasiompyutils import (
@@ -88,7 +87,6 @@ def launch_avl(
     update_cpacs_from_specs(cpacs, PYAVL_NAME)
     results_dir = get_results_directory(PYAVL_NAME)
     run_avl(cpacs, results_dir)
-    get_avl_results(cpacs, results_dir)
 
     log.info(f"----- End of {PYAVL_NAME} -----")
 

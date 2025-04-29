@@ -18,14 +18,13 @@ TODO:
 
 import pandas as pd
 
+from ceasiompy.SaveAeroCoefficients.func.plot import plot
+from ceasiompy.SaveAeroCoefficients.func.utils import deal_with_feature
+from ceasiompy.SaveAeroCoefficients.func.response_surface import plot_response_surface
 from cpacspy.cpacsfunctions import (
     get_value,
     get_value_or_default,
 )
-from ceasiompy.SaveAeroCoefficients.func.plot import plot
-from ceasiompy.SaveAeroCoefficients.func.utils import deal_with_feature
-from ceasiompy.SaveAeroCoefficients.func.response_surface import plot_response_surface
-
 from ceasiompy.utils.ceasiompyutils import (
     call_main,
     get_aeromap_list_from_xpath,
@@ -94,7 +93,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
     plot(results_dir, groupby_list, title, aeromap, criterion)
 
-    if get_value(tixi, RS_XPATH + "/Plot"):
+    if get_value_or_default(tixi, RS_XPATH + "/Plot", False):
         plot_response_surface(cpacs, results_dir)
 
 

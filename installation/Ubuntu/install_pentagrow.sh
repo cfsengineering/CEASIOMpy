@@ -88,8 +88,6 @@ pentagrow_run_path="$install_dir/pentagrow/bin"
 mkdir -p "$pentagrow_run_path"
 
 pentagrow_bin_src="$(realpath "$script_dir/../Pentagrow/bin")"
-echo "Pentagrow binary source path: $pentagrow_bin_src"
-echo "Pentagrow run path: $pentagrow_run_path"
 
 if [ -d "$pentagrow_bin_src" ] && [ -n "$(ls -A "$pentagrow_bin_src" 2>/dev/null)" ]; then
     cp "$pentagrow_bin_src"/* "$pentagrow_run_path/" || { echo "Failed to copy Pentagrow executables."; exit 1; }
@@ -125,7 +123,7 @@ source ~/.bashrc
 
 echo "Testing Pentagrow command:"
 if command -v pentagrow &> /dev/null; then
-    pentagrow --help || pentagrow
+    pentagrow
 else
     echo "Pentagrow not found in PATH (try 'source ~/.bashrc')"
 fi

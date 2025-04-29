@@ -133,9 +133,12 @@ echo "--> Setting up environment"
 pentagrow_run_path="$install_dir/pentagrow/bin"
 mkdir -p "$pentagrow_run_path"
 
-pentagrow_bin_src="$install_dir/installation/Pentagrow/bin"
-echo "Copying Pentagrow binaries from $pentagrow_bin_src to $pentagrow_run_path"
- 
+echo "install_dir: $install_dir"
+echo "Pentagrow run path: $pentagrow_run_path"
+echo "Current directory: $current_dir"
+
+pentagrow_bin_src="$current_dir/installation/Pentagrow/bin"
+echo "Pentagrow binary source path: $pentagrow_bin_src"
 if [ -d "$pentagrow_bin_src" ] && [ -n "$(ls -A "$pentagrow_bin_src" 2>/dev/null)" ]; then
     if cp "$pentagrow_bin_src"/* "$pentagrow_run_path/" 2>/dev/null; then
         echo "Pentagrow executable found and copied successfully."

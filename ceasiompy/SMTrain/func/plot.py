@@ -21,7 +21,7 @@ from typing import (
     Union,
 )
 
-from ceasiompy.SMTrain.func.surrogate import make_predictions
+from ceasiompy.SMTrain.func.predictions import make_predictions
 
 # =================================================================================================
 #   FUNCTIONS

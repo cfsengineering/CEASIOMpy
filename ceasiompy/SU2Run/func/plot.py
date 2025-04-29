@@ -28,10 +28,15 @@ from ceasiompy import log
 #   BACKEND SETTING
 # =================================================================================================
 
-if os.environ.get('DISPLAY', '') == "":
+try:
+    # Try to use TkAgg if DISPLAY is set and Tkinter is available
+    if os.environ.get('DISPLAY', '') != "":
+        matplotlib.use('TkAgg')
+    else:
+        matplotlib.use('Agg')
+except Exception:
+    # Fallback to Agg if TkAgg is not available or fails
     matplotlib.use('Agg')
-else:
-    matplotlib.use('TkAgg')
 
 # =================================================================================================
 #   FUNCTIONS

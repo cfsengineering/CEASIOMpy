@@ -20,11 +20,8 @@ import pandas as pd
 
 from ceasiompy.SaveAeroCoefficients.func.plot import plot
 from ceasiompy.SaveAeroCoefficients.func.utils import deal_with_feature
-from ceasiompy.SaveAeroCoefficients.func.response_surface import plot_response_surface
-from cpacspy.cpacsfunctions import (
-    get_value,
-    get_value_or_default,
-)
+from ceasiompy.SaveAeroCoefficients.func.responsesurface import plot_response_surface
+from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.utils.ceasiompyutils import (
     call_main,
     get_aeromap_list_from_xpath,

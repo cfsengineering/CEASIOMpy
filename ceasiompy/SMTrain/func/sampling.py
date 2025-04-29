@@ -32,6 +32,7 @@ from typing import (
 )
 
 from ceasiompy import log
+from ceasiompy.SMTrain import LEVEL_ONE
 
 # =================================================================================================
 #   FUNCTIONS
@@ -198,7 +199,7 @@ def new_points(
     """
 
     # Retrieve the first fidelity dataset
-    first_dataset = datasets["level_1"]
+    first_dataset = datasets[LEVEL_ONE]
     df: DataFrame
     x, _, df, _, _ = first_dataset  # Unpack dataset
 

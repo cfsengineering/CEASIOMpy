@@ -32,6 +32,7 @@ from cpacspy.cpacspy import (
 
 from ceasiompy import log
 from ceasiompy.PyAVL import AVL_AEROMAP_UID_XPATH
+from ceasiompy.SMTrain import OBJECTIVES_LIST
 from ceasiompy.utils.commonxpath import (
     SMTRAIN_DOE,
     SMTRAIN_XPATH,
@@ -43,18 +44,11 @@ from ceasiompy.utils.commonxpath import (
 # =================================================================================================
 
 
-def get_settings(cpacs: CPACS) -> Tuple[str, float, str, bool, bool, int, bool, str, float]:
+def get_settings(cpacs: CPACS) -> Tuple[str, float, str, bool, bool, int, bool, bool, float]:
     """
     Reads the global and new suggested dataset settings.
-
-    Returns:
-        fidelity_level (str)
-        data_repartition (float): Training data percentage
-        objective (str): model objective
-        show_plot (bool)
-        new_dataset (bool)
-        fraction_of_new_samples (int): Factor for new dataset sample (fraction respect old)
     """
+
     # TODO: Add long paths (remove SMTRAIN_XPATH + ...)
     tixi = cpacs.tixi
     fidelity_level = get_value(tixi, SMTRAIN_XPATH + "/fidelityLevel")
@@ -66,6 +60,10 @@ def get_settings(cpacs: CPACS) -> Tuple[str, float, str, bool, bool, int, bool, 
     doe = get_value(tixi, SMTRAIN_DOE + "/newDoe")
     avl_or_su2 = get_value(tixi, SMTRAIN_DOE + "useAVLorSU2")
     rmse_obj = get_value(tixi, SMTRAIN_DOE + "/rmseThreshold")
+    avl = (avl_or_su2 == "AVL")
+
+    if objective not in OBJECTIVES_LIST:
+        raise ValueError(f"Invalid {objective=}. Choose from {list(OBJECTIVES_LIST.keys())}.")
 
     log.info("SMTrain Settings:")
     log.info(f"Fidelity Level: {fidelity_level}")
@@ -86,7 +84,7 @@ def get_settings(cpacs: CPACS) -> Tuple[str, float, str, bool, bool, int, bool, 
         new_dataset,
         fraction_of_new_samples,
         doe,
-        avl_or_su2,
+        avl,
         rmse_obj,
     )
 
@@ -95,7 +93,6 @@ def retrieve_aeromap_data(
     cpacs: CPACS,
     aeromap_uid: str,
     objective: str,
-    objective_map: Dict,
 ) -> Tuple[ndarray, ndarray, DataFrame, Dict, DataFrame]:
     """
     Retrieves the aerodynamic data from a CPACS aeromap
@@ -115,7 +112,7 @@ def retrieve_aeromap_data(
         "machNumber": activate_aeromap.get("machNumber").tolist(),
         "angleOfAttack": activate_aeromap.get("angleOfAttack").tolist(),
         "angleOfSideslip": activate_aeromap.get("angleOfSideslip").tolist(),
-        objective_map[objective]: activate_aeromap.get(objective_map[objective]).tolist(),
+        objective: activate_aeromap.get(objective).tolist(),
     })
 
     # Skip filtering if there is only one row
@@ -126,7 +123,7 @@ def retrieve_aeromap_data(
     else:
         df_filtered, removed_columns = filter_constant_columns(df, input_columns)
 
-    output = df[objective_map[objective]].values.reshape(-1, 1)
+    output = df[objective].values.reshape(-1, 1)
 
     return df_filtered.values, output, df_filtered, removed_columns, df
 
@@ -172,9 +169,8 @@ def get_aeromap_for_training(cpacs: CPACS) -> List[str]:
 
 def get_datasets_from_aeromaps(
     cpacs: CPACS,
-    fidelity_level: str,  # TODO: Not used ?
     objective: str,
-):
+) -> Dict:
     """
     Extracts datasets from multiple aeromaps
     based on the selected fidelity level and objective.
@@ -186,35 +182,27 @@ def get_datasets_from_aeromaps(
     Returns:
         Dictionary containing datasets for each aeromap level, structured as:
             {
-                "level_1": (inputs, output, df_filtered, removed_columns, df),
-                "level_2": (inputs, output, df_filtered, removed_columns, df),
+                LEVEL_ONE : (inputs, output, df_filtered, removed_columns, df),
+                LEVEL_TWO : (inputs, output, df_filtered, removed_columns, df),
                 ...
             }
     """
     # Retrieve aeromap uid for training if exists
     aeromap_uid_list = get_aeromap_for_training(cpacs)
 
-    # TODO: ???
-    objective_map = {"cl": "cl", "cd": "cd", "cs": "cs", "cmd": "cmd", "cml": "cml", "cms": "cms"}
-
-    if objective not in objective_map:
-        raise ValueError(
-            f"Invalid objective '{objective}'. Choose from {list(objective_map.keys())}."
-        )
-
     datasets = {}
     for level, aeromap_uid in enumerate(aeromap_uid_list, start=1):
         log.info(f"Training dataset {level}: {aeromap_uid}")
         try:
             datasets[f"level_{level}"] = retrieve_aeromap_data(
-                cpacs, aeromap_uid, objective, objective_map
+                cpacs, aeromap_uid, objective
             )
         except ValueError as e:
             # TODO: Add debugging messages or conditions in function of errors
             # is this try except block even necessary ?
             log.warning(f"Skipping aeromap {aeromap_uid} due to error: {e}")
 
-    log.info(f"Datasets retrieved successfully: {list(datasets.keys())}")
+    log.info(f"Datasets retrieved successfully for levels: {list(datasets.keys())}")
     return datasets
 
 

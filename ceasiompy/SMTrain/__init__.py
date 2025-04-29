@@ -32,6 +32,14 @@ RES_DIR = True
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 
+# ===== Level Notations =====
+LEVEL_ONE = "One Level"
+LEVEL_TWO = "Two levels"
+
+# ===== List of potential objectives =====
+OBJECTIVES_LIST = ["cl", "cd", "cs", "cmd", "cml", "cms"]
+
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================

@@ -13,6 +13,8 @@ Functions related to plotting in SMTrain.
 
 import matplotlib.pyplot as plt
 
+from ceasiompy.SMTrain.func.predictions import make_predictions
+
 from pathlib import Path
 from smt.applications import MFK
 from smt.surrogate_models import KRG
@@ -20,8 +22,6 @@ from typing import (
     Dict,
     Union,
 )
-
-from ceasiompy.SMTrain.func.predictions import make_predictions
 
 # =================================================================================================
 #   FUNCTIONS

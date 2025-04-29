@@ -17,7 +17,12 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
 from ceasiompy.SMTrain import include_gui
-# from ceasiompy.utils.commonxpath import SMTRAIN_XPATH
+
+from ceasiompy.SMTrain import (
+    LEVEL_ONE,
+    LEVEL_TWO,
+    OBJECTIVES_LIST,
+)
 from ceasiompy.utils.commonxpath import (
     SMTRAIN_DOE,
     SU2MESH_XPATH,
@@ -38,7 +43,7 @@ cpacs_inout = CPACSInOut()
 cpacs_inout.add_input(
     var_name="fidelity_level",
     var_type=list,
-    default_value=["One level", "Two levels", "Three levels"],
+    default_value=[LEVEL_ONE, LEVEL_TWO],  # TODO: , "Three levels" not implemented yet
     unit=None,
     descr="""Select if you want to train a simple kriging (1 level of fidelity) or you want to
     train a Multi-Fidelity kriging (2 or 3 levels)""",
@@ -62,7 +67,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="objective",
     var_type=list,
-    default_value=["cl", "cd", "cs", "cmd", "cml", "cms"],
+    default_value=OBJECTIVES_LIST,
     unit=None,
     descr="Objective function list for the surrogate model to predict",
     xpath=SMTRAIN_XPATH + "/objective",

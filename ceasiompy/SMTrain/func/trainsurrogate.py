@@ -15,16 +15,27 @@ Functions related to the training of the surrogate model.
 import time
 import joblib
 import numpy as np
+import pandas as pd
 
 from skopt import gp_minimize
 from smt.utils.misc import compute_rmse
 from ceasiompy.SMTrain.func.utils import check_nan_inf
+from ceasiompy.SMTrain.func.sampling import (
+    split_data,
+    new_points,
+)
+from ceasiompy.SMTrain.func.createdata import (
+    launch_avl,
+    launch_su2,
+)
 
 from pathlib import Path
 from numpy import ndarray
+from cpacspy.cpacspy import CPACS
 from smt.applications import MFK
 from smt.surrogate_models import KRG
 from scipy.optimize import OptimizeResult
+from pandas import DataFrame
 from skopt.space import (
     Real,
     Categorical,
@@ -39,6 +50,11 @@ from typing import (
 )
 
 from ceasiompy import log
+from ceasiompy.SMTrain import (
+    LEVEL_ONE,
+    LEVEL_TWO,
+)
+from ceasiompy.SU2Run import MODULE_NAME as SU2RUN_NAME
 
 # =================================================================================================
 #   FUNCTIONS
@@ -300,8 +316,14 @@ def mf_kriging(
     check_nan_inf(x_train, x_val, x_test, y_train, y_val, y_test)
 
     # Extract datasets for different fidelity levels
-    X_lf, y_lf, _, _, _ = datasets["level_1"]
-    X_mf, y_mf = datasets["level_2"][:2] if fidelity_level == "Three levels" else (None, None)
+    X_lf, y_lf, _, _, _ = datasets[LEVEL_ONE]
+
+    # TODO: Understand 
+    X_mf, y_mf = (
+        datasets[LEVEL_TWO][:2]
+        if fidelity_level == "Three levels"
+        else (None, None)
+    )
 
     def objective(params) -> float:
         theta0, corr, poly, opt, nugget, rho_regr, lambda_penalty = params
@@ -338,6 +360,8 @@ def mf_kriging(
         rho_regr=best_params[5],
     )
     model.set_training_values(X_lf, y_lf, name=0)
+
+    # TODO: Level three is configured ?
     if fidelity_level == "Three levels":
         model.set_training_values(X_mf, y_mf, name=1)
 
@@ -348,3 +372,92 @@ def mf_kriging(
     log.info(f"Final RMSE on test set: {rmse_test:.6f}")
 
     return model, rmse_test
+
+
+def run_first_level_training(
+    cpacs: CPACS,
+    results_dir: Path,
+    avl: bool,
+    lh_sampling_path: Path,
+    obj_coef: str,
+    split_ratio: float,
+) -> Tuple[Union[KRG, MFK], Dict[str, ndarray], Dict[str, DataFrame]]:
+    """
+    Run surrogate model training on first level.
+    """
+    if avl:
+        level1_dataset = launch_avl(cpacs, lh_sampling_path, obj_coef)
+    else:
+        level1_dataset = launch_su2(cpacs, results_dir, SU2RUN_NAME, obj_coef)
+    datasets = {LEVEL_ONE: level1_dataset}
+    sets = split_data(datasets, split_ratio)
+    model, _ = train_surrogate_model(LEVEL_ONE, datasets, sets)
+    return model, sets, datasets
+
+
+def run_adaptative_refinement(
+    cpacs: CPACS,
+    results_dir: Path,
+    model: Union[KRG, MFK],
+    datasets: Dict[str, DataFrame],
+    rmse_obj: float,
+    obj_coef: str,
+) -> None:
+    """
+    Iterative improvement using SU2 data.
+    """
+    high_var_pts = []
+    avl_dataset = datasets[LEVEL_ONE]
+    max_iters = len(avl_dataset[0])
+    iteration = 0
+    rmse = float("inf")
+    log.info(f"Starting adaptive refinement with {max_iters=}.")
+
+    while (
+        iteration < max_iters
+        and rmse > rmse_obj
+    ):
+        # 1. Find new high variance points
+        new_point_df = new_points(datasets, model, results_dir, high_var_pts)
+        if new_point_df.empty:
+            log.warning("No new high-variance points found.")
+            break
+        new_point = new_point_df.values[0]
+        high_var_pts.append(new_point)
+
+        # Generate unique SU2 working directory using iteration
+        wkdir_su2 = Path(SU2RUN_NAME) / f"SU2_{iteration}"
+        wkdir_su2.mkdir(parents=True, exist_ok=True)
+        su2_dataset = launch_su2(
+            cpacs,
+            results_dir,
+            wkdir_su2,
+            obj_coef,
+            high_var_pts,
+        )
+
+        if LEVEL_TWO in datasets:
+            # Stack new with old
+            x_old, y_old, df_old, removed_old, df_cl_old = datasets[LEVEL_TWO]
+            x_new, y_new, df_new, _ , df_cl_new = su2_dataset
+
+            x_combined = np.vstack([x_old, x_new])
+            y_combined = np.vstack([y_old, y_new])
+
+            df_combined = pd.concat([df_old, df_new], ignore_index=True)
+            df_cl_combined = pd.concat([df_cl_old, df_cl_new], ignore_index=True)
+
+            datasets[LEVEL_TWO] = (
+                x_combined,
+                y_combined,
+                df_combined,
+                removed_old,  # Kept original from iteration 0
+                df_cl_combined,
+            )
+
+        else:
+            datasets[LEVEL_TWO] = su2_dataset
+
+        sets = split_data(datasets, 0.7, 0.5)  # TODO: Not specified from GUI ???
+        model, rmse = train_surrogate_model(LEVEL_TWO, datasets, sets)
+        iteration += 1

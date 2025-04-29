@@ -28,7 +28,7 @@ from ceasiompy.utils.commonxpath import RS_XPATH, PLOT_XPATH
 from cpacspy.cpacsfunctions import (get_value_or_default)
 from cpacspy.cpacspy import CPACS
 from ceasiompy.SMUse.func.config import load_surrogate
-from ceasiompy.SMTrain.func.smtfunc import make_predictions
+from ceasiompy.SMTrain.func.utils import make_predictions
 from ceasiompy.utils.ceasiompyutils import get_results_directory, get_aeromap_list_from_xpath
 
 log = get_logger()

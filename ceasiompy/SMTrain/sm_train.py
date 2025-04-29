@@ -29,22 +29,26 @@ import numpy as np
 import pandas as pd
 
 from ceasiompy.utils.ceasiompyutils import call_main
+from ceasiompy.SMTrain.func.plot import plot_validation
 from ceasiompy.SMTrain.func.results import get_smt_results
+from ceasiompy.SMTrain.func.train import (
+    save_model,
+    train_surrogate_model,
+)
 from ceasiompy.SMTrain.func.config import (
     get_settings,
     design_of_experiment,
     get_datasets_from_aeromaps,
 )
-from ceasiompy.SMTrain.func.smtfunc import (
-    split_data,
-    train_surrogate_model,
-    save_model,
-    plot_validation,
+from ceasiompy.SMTrain.func.sampling import (
     new_doe,
+    new_points,
     lh_sampling,
+)
+from ceasiompy.SMTrain.func.utils import (
+    split_data,
     launch_avl,
     launch_su2,
-    new_points,
 )
 
 from pathlib import Path
@@ -75,6 +79,8 @@ def main(cpacs: CPACS, results_dir: Path):
         doe, avl_or_su2, rmse_obj,
     ) = get_settings(cpacs)
 
+    avl = (avl_or_su2 == "AVL")
+
     # If DoE is enabled, generate new samples
     if doe is True:
         n_samples, ranges = design_of_experiment(cpacs)
@@ -82,9 +88,9 @@ def main(cpacs: CPACS, results_dir: Path):
 
         # One level fidelity model training
         if fidelity_level == "One level":
-            if avl_or_su2 == "AVL":
+            if avl:
                 soft_dataset = launch_avl(cpacs, lh_sampling_path, objective_coefficient)
-            elif avl_or_su2 == "SU2":
+            else:
                 soft_dataset = launch_su2(cpacs, results_dir, SU2RUN_NAME, objective_coefficient)
             datasets = {"level_1": soft_dataset}
             sets = split_data(datasets, data_repartition)

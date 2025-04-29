@@ -3,13 +3,10 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Get settings from GUI. Manage datasets and perform LHS when required
+Get settings from GUI. Manage datasets and perform LHS when required.
 
 | Author: Giacomo Gronda
 | Creation: 2025-03-20
-
-TODO:
-    *Move some functions to smTfunc
 
 """
 
@@ -17,19 +14,15 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import pandas as pd
-
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
 
 from numpy import ndarray
 from pandas import DataFrame
-from tixi3.tixi3wrapper import Tixi3
 from typing import (
     List,
     Dict,
     Tuple,
-    Union,
 )
 from cpacspy.cpacspy import (
     CPACS,

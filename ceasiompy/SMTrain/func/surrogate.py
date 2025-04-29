@@ -102,7 +102,7 @@ def kriging(
     Trains a kriging model using Bayesian optimization.
 
     Args:
-        param_space (list): List of parameter ranges for Bayesian optimization.
+        param_space (list): Hyper-parameters for Bayesian optimization.
         sets (dict): Dictionary containing training, validation, and test datasets.
         n_calls (int = 50):
             Number of iterations for Bayesian optimization.

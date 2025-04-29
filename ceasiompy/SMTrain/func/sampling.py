@@ -1,0 +1,227 @@
+"""
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+| Author: Giacomo Gronda
+| Creation: 2025-03-20
+
+TODO:
+    *Improve loop and AVL and SU2 settings
+"""
+
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+
+import os
+import numpy as np
+import pandas as pd
+
+from ceasiompy.SMTrain.func.surrogate import make_predictions
+
+from pathlib import Path
+from numpy import ndarray
+from pandas import DataFrame
+from smt.applications import MFK
+from smt.surrogate_models import KRG
+from smt.sampling_methods import LHS
+from typing import (
+    Dict,
+    List,
+    Union,
+)
+
+from ceasiompy import log
+
+# =================================================================================================
+#   FUNCTIONS
+# =================================================================================================
+
+
+def new_doe(datasets, model, fraction_of_new_samples, result_dir):
+    """
+    Generate a new set of suggested sampling points based on model uncertainty.
+
+    This function selects the highest uncertainty points from the dataset with
+    the highest fidelity level and suggests them for additional sampling.
+
+    Args:
+        datasets (dict): A dictionary containing datasets for different fidelity levels.
+                         Expected format: { "fidelity_X": (X, y, df_filt, rmv_col, df) }.
+        model: The trained surrogate model used for making predictions.
+        fraction_of_new_samples (int): Determines the number of new samples by dividing
+                                       the dataset size by this value.
+        result_dir (str): Path to the directory where the new dataset will be saved.
+
+    Returns:
+        None
+    """
+
+    if fraction_of_new_samples <= 0:
+        raise ValueError("Fraction of new samples must be greater than 0.")
+
+    if not datasets:
+        raise ValueError("Datasets dictionary is empty. Cannot generate new DOE points.")
+
+    # Find the dataset with the highest fidelity level (last in the dictionary)
+    try:
+        highest_fidelity_level = max(datasets.keys(), key=lambda k: int(k.split("_")[-1]))
+    except (ValueError, IndexError):
+        raise ValueError(
+            "Invalid fidelity level format in dataset keys. Expected format: 'fidelity_X'."
+        )
+
+    log.info(f"Using highest fidelity dataset: {highest_fidelity_level}")
+
+    try:
+        df_filt: DataFrame
+        x, _, df_filt, rmv_col, df = datasets[highest_fidelity_level]
+    except ValueError:
+        raise ValueError(
+            f"Dataset structure for {highest_fidelity_level} is incorrect."
+            f"Expected tuple (X, y, df_filt, rmv_col, df)."
+        )
+
+    _, y_var = make_predictions(model, x)
+
+    y_var_flat = np.asarray(y_var).flatten()
+    sorted_indices = np.argsort(y_var_flat)[::-1]  # Sort in descending order
+    n_new_samples = max(1, len(x) // fraction_of_new_samples)  # Ensure at least one sample
+    top_n_indices = sorted_indices[:n_new_samples]
+    top_X: ndarray = x[top_n_indices]
+
+    if top_X.shape[0] == 0:
+        log.warning("No new suggested points, file not created.")
+        return
+
+    new_df = pd.DataFrame(top_X, columns=df_filt.columns)
+
+    # Restore removed columns with constant values
+    for col, value in rmv_col.items():
+        new_df[col] = value
+
+    # Keep only input columns
+    input_columns = df.columns[:4]
+    new_df = new_df[input_columns]
+
+    # Save suggested points
+    filename = "suggested_points.csv"
+    output_file_path = os.path.join(result_dir, filename)
+    new_df.to_csv(output_file_path, index=False)
+
+    log.info(f"New suggested points saved in {output_file_path}")
+
+
+def lh_sampling(
+    n_samples: int,
+    ranges: Dict,
+    results_dir: Path,
+    random_state: Union[int, None] = None,
+) -> Path:
+    """
+    Generate a Latin Hypercube Sampling (LHS) dataset within specified variable ranges.
+    Uses the Enhanced Stochastic Evolutionary (ESE) criterion
+    to generate a diverse set of samples within given variable limits.
+
+    Args:
+        n_samples (int): Number of samples to generate.
+        ranges (dict): Dictionary specifying the variable ranges in the format:
+                       { "variable_name": (min_value, max_value) }.
+        results_dir (str): Path to the directory where the sampled dataset will be saved.
+        random_state (int = None): Seed for random number generation to ensure reproducibility.
+    """
+
+    if n_samples <= 0:
+        raise ValueError("New samples must be greater than 0.")
+
+    xlimits = np.array(list(ranges.values()))
+
+    # Identify variables with fixed values (min == max)
+    fixed_cols = [idx for idx, (low, high) in enumerate(xlimits) if low == high]
+
+    sampling = LHS(xlimits=xlimits, criterion="ese", random_state=random_state)
+    samples = sampling(n_samples)
+
+    # maintain constant variables with fixed ranges
+    for idx in fixed_cols:
+        samples[:, idx] = xlimits[idx, 0]
+
+    # Map sampled values back to variable names
+    sampled_dict = {key: samples[:, idx] for idx, key in enumerate(ranges.keys())}
+
+    # Post-process sampled data to apply precision constraints
+    for key in sampled_dict:
+        if key == "altitude":
+            sampled_dict[key] = np.round(sampled_dict[key]).astype(int)  # Convert to int
+        elif key in ["machNumber", "angleOfAttack", "angleOfSideslip"]:
+            sampled_dict[key] = np.round(sampled_dict[key] / 0.01) * 0.01  # Round to nearest 0.01
+
+    # Save sampled dataset
+    sampled_df = pd.DataFrame(sampled_dict)
+    output_file_path = os.path.join(results_dir, "lh_sampling_dataset.csv")
+    sampled_df.to_csv(output_file_path, index=False)
+    log.info(f"LHS dataset saved in {output_file_path}")
+
+    return output_file_path
+
+
+def new_points(
+    datasets: Dict,
+    model: Union[KRG, MFK],
+    results_dir: Path,
+    high_variance_points: List,
+) -> Union[DataFrame, None]:
+    """
+    Selects new sampling points based on variance predictions from a surrogate model.
+
+    This function identifies high-variance points from the `level_1` dataset for adaptive sampling.
+    In the first iteration, it selects the top 6 points with the highest variance. In subsequent
+    iterations, it picks the next highest variance point not previously selected.
+
+    Args:
+        datasets (Dict): Contains different fidelity datasets (expects 'level_1').
+        model (object): Surrogate model used to predict variance.
+        result_dir (Path): Directory where the selected points CSV file will be saved.
+        high_variance_points (List): List of previously selected high-variance points.
+
+    Returns:
+        DataFrame containing the newly selected points.
+        Or None if all high-variance points have already been chosen.
+    """
+
+    # Retrieve the first fidelity dataset
+    first_dataset = datasets["level_1"]
+    df: DataFrame
+    X, _, df, _, _ = first_dataset  # Unpack dataset
+
+    # Compute variance prediction
+    _, y_var = make_predictions(model, X)
+    y_var_flat = np.asarray(y_var).flatten()
+    sorted_indices = np.argsort(y_var_flat)[::-1]  # Sort indices by variance (descending)
+
+    output_file_path = os.path.join(results_dir, "new_points.csv")
+    columns = df.columns
+
+    # First iteration: generate boundary points
+    if not high_variance_points:
+        log.info("First iteration: selecting the first 6 highest variance points.")
+        selected_points = [tuple(X[idx]) for idx in sorted_indices[:6]]
+        high_variance_points.extend(selected_points)
+        sampled_df = DataFrame(selected_points, columns=columns)
+        sampled_df.to_csv(output_file_path, index=False)
+        return sampled_df
+
+    log.info("Selecting next highest variance point.")
+
+    # Convert list of points to a set for fast lookup
+    high_variance_set = set(tuple(p) for p in high_variance_points)
+
+    for idx in sorted_indices:
+        new_point = tuple(X[idx])
+        if new_point not in high_variance_set:
+            high_variance_points.append(new_point)
+            sampled_df = DataFrame([new_point], columns=columns)
+            sampled_df.to_csv(output_file_path, index=False)
+            return sampled_df
+
+    log.warning("No new points found, all have been selected.")
+    return None

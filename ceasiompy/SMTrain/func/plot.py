@@ -4,6 +4,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Functions related to plotting in SMTrain.
+
 """
 
 # ==============================================================================

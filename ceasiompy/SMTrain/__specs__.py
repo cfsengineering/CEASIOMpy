@@ -11,12 +11,19 @@ Initialization for SMTrain module.
 #   IMPORTS
 # ==============================================================================
 
-from ceasiompy.utils.commonxpath import SMTRAIN_XPATH, SMTRAIN_DOE, CEASIOMPY_XPATH, SU2MESH_XPATH
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
 import streamlit as st
-from ceasiompy.SMTrain import include_gui
+
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
+
 from ceasiompy import log
+from ceasiompy.SMTrain import include_gui
 # from ceasiompy.utils.commonxpath import SMTRAIN_XPATH
+from ceasiompy.utils.commonxpath import (
+    SMTRAIN_DOE,
+    SU2MESH_XPATH,
+    SMTRAIN_XPATH,
+    CEASIOMPY_XPATH,
+)
 
 # ==============================================================================
 #   VARIABLE

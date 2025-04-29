@@ -35,7 +35,7 @@ from ceasiompy.Optimisation.func.optimfunctions import (
     gen_doe_csv,
 )
 from ceasiompy.Optimisation.func.tools import change_var_name, is_digit, plot_results, save_results
-from ceasiompy.SMUse.smuse import load_surrogate, write_inouts
+from ceasiompy.SMUse.sm_use import load_surrogate, write_inouts * T
 from ceasiompy import log
 from ceasiompy.utils.ceasiompyutils import run_module
 from ceasiompy.utils.moduleinterfaces import (

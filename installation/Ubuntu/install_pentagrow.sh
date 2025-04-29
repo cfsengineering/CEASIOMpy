@@ -121,6 +121,8 @@ else
     echo "TETGEN_PATH is already set in .bashrc"
 fi
 
+source ~/.bashrc
+
 echo "Testing Pentagrow command:"
 if command -v pentagrow &> /dev/null; then
     pentagrow --help || pentagrow

@@ -4,7 +4,7 @@
 
 :warning: **Warning**
 Adviced to follow [Docker instructions](https://github.com/cfsengineering/CEASIOMpy/blob/main/installation/DOCKER_INSTALLARION.md).
-You can install it manually, but some packages won't be there.
+You can also install it manually, but some packages won't be there.
 
 The basic steps are the following:
 

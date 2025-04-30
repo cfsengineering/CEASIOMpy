@@ -42,6 +42,13 @@ def level_to_str(level: int) -> str:
         return LEVEL_TWO
 
 
+def str_to_level(fidelity_level: str) -> int:
+    if fidelity_level == LEVEL_ONE:
+        return 1
+    else:
+        return 2
+
+
 def filter_constant_columns(
     df: DataFrame,
     input_columns: List,

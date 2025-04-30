@@ -390,7 +390,7 @@ def run_first_level_training(
     else:
         level1_dataset = launch_su2(cpacs, results_dir, SU2RUN_NAME, obj_coef)
     datasets = {LEVEL_ONE: level1_dataset}
-    sets = split_data(datasets, split_ratio)
+    sets = split_data(LEVEL_ONE, datasets, split_ratio)
     model, _ = train_surrogate_model(LEVEL_ONE, datasets, sets)
     return model, sets, datasets
 
@@ -452,6 +452,6 @@ def run_adaptative_refinement(
         else:
             datasets[LEVEL_TWO] = su2_dataset
 
-        sets = split_data(datasets, 0.7, 0.5)  # TODO: Not specified from GUI ???
+        sets = split_data(LEVEL_TWO, datasets, 0.7, 0.5)  # TODO: Not specified from GUI ???
         model, rmse = train_surrogate_model(LEVEL_TWO, datasets, sets)
         iteration += 1

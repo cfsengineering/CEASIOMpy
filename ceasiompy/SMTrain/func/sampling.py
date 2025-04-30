@@ -16,8 +16,11 @@ import numpy as np
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
-from ceasiompy.SMTrain.func.utils import get_val_fraction
 from ceasiompy.SMTrain.func.predictions import make_predictions
+from ceasiompy.SMTrain.func.utils import (
+    str_to_level,
+    get_val_fraction,
+)
 
 from pathlib import Path
 from numpy import ndarray
@@ -238,6 +241,7 @@ def new_points(
 
 
 def split_data(
+    fidelity_level: str,
     fidelity_datasets: Dict,
     train_fraction: float = 0.7,
     test_fraction_within_split: float = 0.3,
@@ -265,27 +269,19 @@ def split_data(
         raise ValueError("Datasets dictionary is empty.")
 
     test_val_fraction = get_val_fraction(train_fraction)
-
-    try:
-        highest_fidelity_level = max(fidelity_datasets.keys(), key=lambda k: int(k.split("_")[-1]))
-    except (ValueError, IndexError):
-        raise ValueError(
-            "Dataset keys are not in expected format (e.g., 'fidelity_1', 'fidelity_2')."
-        )
-
-    log.info(f"Using highest fidelity dataset: {highest_fidelity_level}")
+    log.info(f"Using: {fidelity_level=}")
 
     try:
         # Extract X and y from the highest fidelity level dataset
-        x: ndarray = fidelity_datasets[highest_fidelity_level][0]
-        y: ndarray = fidelity_datasets[highest_fidelity_level][1]
+        x: ndarray = fidelity_datasets[fidelity_level][0]
+        y: ndarray = fidelity_datasets[fidelity_level][1]
         if x.shape[0] != y.shape[0]:
             raise ValueError(
                 "Mismatch between number of samples"
                 f"x has {x.shape[0]} samples, but y has {y.shape[0]}."
             )
     except KeyError:
-        raise ValueError(f"Dataset '{highest_fidelity_level}' is incorrectly formatted.")
+        raise ValueError(f"Dataset '{fidelity_level}' is incorrectly formatted.")
 
     log.info(f"Dataset shape - x: {x.shape}, y: {y.shape}")
 

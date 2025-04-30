@@ -97,8 +97,8 @@ def if_choice_vartype(
 
 
 def order_by_gps(inputs: List) -> OrderedDict:
-    groups = list(OrderedDict.fromkeys([v[6] for v in inputs.values]))
-    expanded: bool = all([v[8] for v in inputs.values])
+    groups = list(OrderedDict.fromkeys([v[6] for v in inputs.values()]))
+    expanded: bool = all([v[8] for v in inputs.values()])
 
     groups_container = OrderedDict()
     for group in groups:

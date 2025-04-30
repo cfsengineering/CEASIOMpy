@@ -6,7 +6,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Functions used to get profile as list of point, either directly from
 the list point in the CPACS file or from the CPACS CST2D curve
 
-
 | Author: Aidan Jungo
 | Creation: 2021-04-26
 

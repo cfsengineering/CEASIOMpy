@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <BodySkeleton akimatg="true" name="Tailboom" origin=" 0 0 0 " rotation=" 0 0 0 ">
+    <BodyFrame center=" 0 0 0 " height="1" name="FrameX0" width="1">
+ 0 -1 
+ 0.5 -0.866025 
+ 0.866025 -0.5 
+ 1 -6.12323e-17 
+ 0.866025 0.5 
+ 0.5 0.866025 
+ 1.22465e-16 1 
+    </BodyFrame>
+    <BodyFrame center=" 3.33 0 0 " height="1" name="FrameX333" width="1">
+ 0 -1 
+ 0.5 -0.866025 
+ 0.866025 -0.5 
+ 1 -6.12323e-17 
+ 0.866025 0.5 
+ 0.5 0.866025 
+ 1.22465e-16 1 
+    </BodyFrame>
+    <BodyFrame center=" 6.67 0 0 " height="1" name="FrameX667" width="1">
+ 0 -1 
+ 0.5 -0.866025 
+ 0.866025 -0.5 
+ 1 -6.12323e-17 
+ 0.866025 0.5 
+ 0.5 0.866025 
+ 1.22465e-16 1 
+    </BodyFrame>
+    <BodyFrame center=" 10 0 0 " height="1" name="FrameX1000" width="1">
+ 0 -1 
+ 0.5 -0.866025 
+ 0.866025 -0.5 
+ 1 -6.12323e-17 
+ 0.866025 0.5 
+ 0.5 0.866025 
+ 1.22465e-16 1 
+    </BodyFrame>
+    <MeshCriterion defaults="true" maxlen="0.229131" maxphi="30" maxstretch="6" minlen="0.0183118" nvmax="1073741824" xcoarse="false"/>
+  </BodySkeleton>

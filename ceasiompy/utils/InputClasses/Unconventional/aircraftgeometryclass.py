@@ -6,7 +6,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The script contains all the geometrical value required for the
 weight unconventional analysis.
 
-
 | Author : Stefano Piccini
 | Date of creation: 2018-11-26
 

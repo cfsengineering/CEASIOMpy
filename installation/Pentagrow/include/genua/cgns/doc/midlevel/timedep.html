@@ -1,0 +1,367 @@
+<!-- CGNS Mid-Level Library - Time-Dependent Data -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="midlevel.css" rel="stylesheet" type="text/css">
+<title> CGNS Mid-Level Library - Time-Dependent Data </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="../user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="index.html"><span class=nav><b>Mid-Level&nbsp;Library</b></span></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="general.html"><b>General&nbsp;Remarks</b></a>)
+(<a href="fileops.html"><b>File&nbsp;Operations</b></a>)
+(<a href="navigating.html"><b>Navigating&nbsp;a&nbsp;CGNS&nbsp;File</b></a>)
+(<a href="error.html"><b>Error&nbsp;Handling</b></a>)
+(<a href="structural.html"><b>Structural&nbsp;Nodes</b></a>)
+(<a href="descriptor.html"><b>Descriptors</b></a>)
+(<a href="physical.html"><b>Physical&nbsp;Data</b></a>)
+(<a href="location.html"><b>Location&nbsp;and&nbsp;Position</b></a>)
+(<a href="auxiliary.html"><b>Auxiliary&nbsp;Data</b></a>)
+(<a href="grid.html"><b>Grid&nbsp;Specification</b></a>)
+(<a href="solution.html"><b>Solution&nbsp;Data</b></a>)
+(<a href="connectivity.html"><b>Grid&nbsp;Connectivity</b></a>)
+(<a href="bc.html"><b>Boundary&nbsp;Conditions</b></a>)
+(<a href="equation.html"><b>Equation&nbsp;Specification</b></a>)
+(<a href="families.html"><b>Families</b></a>)
+(<span class=nav><b>Time-Dependent&nbsp;Data</b></span>)
+(<a href="links.html"><b>Links</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Time-Dependent Data</h2>
+
+<ul>
+<li> <a href="#biter">Base Iterative Data</a>
+     <ul>
+     <li> <tt><b>cg_biter_write</b></tt> - Create <tt>BaseIterativeData_t</tt> node
+     <li> <tt><b>cg_biter_read</b></tt> - Read <tt>BaseIterativeData_t</tt> node
+     </ul>
+<li> <a href="#ziter">Zone Iterative Data</a>
+     <ul>
+     <li> <tt><b>cg_ziter_write</b></tt> - Create <tt>ZoneIterativeData_t</tt> node
+     <li> <tt><b>cg_ziter_read</b></tt> - Read <tt>ZoneIterativeData_t</tt> node
+     </ul>
+<li> <a href="#rigid">Rigid Grid Motion</a>
+     <ul>
+     <li> <tt><b>cg_rigid_motion_write</b></tt> - Create <tt>RigidGridMotion_t</tt> node
+     <li> <tt><b>cg_n_rigid_motions</b></tt> - Get number of <tt>RigidGridMotion_t</tt> nodes
+     <li> <tt><b>cg_rigid_motion_read</b></tt> - Read <tt>RigidGridMotion_t</tt> node
+     </ul>
+<li> <a href="#arbitrary">Arbitrary Grid Motion</a>
+     <ul>
+     <li> <tt><b>cg_arbitrary_motion_write</b></tt> - Create <tt>ArbitraryGridMotion_t</tt> node
+     <li> <tt><b>cg_n_arbitrary_motions</b></tt> - Get number of <tt>ArbitraryGridMotion_t</tt> nodes
+     <li> <tt><b>cg_arbitrary_motion_read</b></tt> - Read <tt>ArbitraryGridMotion_t</tt> node
+     </ul>
+</ul>
+
+<a name="biter"></a>
+<h3>Base Iterative Data</h3>
+
+<i>Node</i>: <tt>BaseIterativeData_t</tt>
+             (<a href="../sids/timedep.html#BaseIterativeData">SIDS</a>,
+              <a href="../filemap/nodes.html#BaseIterativeData">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_biter_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>char *BaseIterName</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>int Nsteps</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_biter_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=out><i>char *BaseIterName</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *Nsteps</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_biter_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>BaseIterName</span>, <span class=in>Nsteps</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_biter_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=out><i>BaseIterName</i></span>, <span class=out><i>Nsteps</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>BaseIterName</tt><td>
+   <td>Name of the <tt>BaseIterativeData_t</tt> node.
+<tr valign=baseline><td>
+   <td><tt>Nsteps</tt><td>
+   <td>Number of time steps or iterations.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<a name="ziter"></a>
+<h3>Zone Iterative Data</h3>
+
+<i>Node</i>: <tt>ZoneIterativeData_t</tt>
+             (<a href="../sids/timedep.html#ZoneIterativeData">SIDS</a>,
+              <a href="../filemap/nodes.html#ZoneIterativeData">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_ziter_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>char *ZoneIterName</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_ziter_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=out><i>char *ZoneIterName</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_ziter_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>ZoneIterName</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_ziter_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=out><i>ZoneIterName</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where 1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>ZoneIterName</tt><td>
+   <td>Name of the <tt>ZoneIterativeData_t</tt> node.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<a name="rigid"></a>
+<h3>Rigid Grid Motion</h3>
+
+<i>Node</i>: <tt>RigidGridMotion_t</tt>
+             (<a href="../sids/timedep.html#RigidGridMotion">SIDS</a>,
+              <a href="../filemap/nodes.html#RigidGridMotion">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_rigid_motion_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>char *RigidGridMotionName</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>RigidGridMotionType_t RigidGridMotionType</span>, <span class=out><i>int *R</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_n_rigid_motions(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *n_rigid_motions</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_rigid_motion_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int R</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>char *RigidGridMotionName</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>RigidGridMotionType_t RigidGridMotionType</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_rigid_motion_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>RigidGridMotionName</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>RigidGridMotionType</span>, <span class=out><i>R</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_n_rigid_motions_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=out><i>n_rigid_motions</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_rigid_motion_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>R</span>, <span class=out><i>RigidGridMotionName</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>RigidGridMotionType</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where 1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>RigidGridMotionName</tt><td>
+   <td>Name of the <tt>RigidGridMotion_t</tt> node.
+<tr valign=baseline><td>
+   <td><tt>RigidGridMotionType</tt><td>
+   <td>Type of rigid grid motion.
+       The admissible types are <tt>Null</tt>, <tt>UserDefined</tt>,
+       <tt>ConstantRate</tt>, and <tt>VariableRate</tt>.
+<tr valign=baseline><td>
+   <td><tt>n_rigid_motions</tt><td>
+   <td>Number of <tt>RigidGridMotion_t</tt> nodes under zone <tt>Z</tt>.
+<tr valign=baseline><td>
+   <td><tt>R</tt><td>
+   <td>Rigid rotation index number, where 1 &le; <tt>R</tt> &le; <tt>n_rigid_motions</tt>.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<a name="arbitrary"></a>
+<h3>Arbitrary Grid Motion</h3>
+
+<i>Node</i>: <tt>ArbitraryGridMotion_t</tt>
+             (<a href="../sids/timedep.html#ArbitraryGridMotion">SIDS</a>,
+              <a href="../filemap/nodes.html#ArbitraryGridMotion">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_arbitrary_motion_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>char *ArbitraryGridMotionName</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>ArbitraryGridMotionType_t ArbitraryGridMotionType</span>, <span class=out><i>int *A</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_n_arbitrary_motions(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *n_arbitrary_motions</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_arbitrary_motion_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int A</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>char *ArbitraryGridMotionName</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>ArbitraryGridMotionType_t ArbitraryGridMotionType</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_arbitrary_motion_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>ArbitraryGridMotionName</span>, <span class=in>ArbitraryGridMotionType</span>, <span class=out><i>A</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_n_arbitrary_motions_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=out><i>n_arbitrary_motions</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_arbitrary_motion_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>A</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>ArbitraryGridMotionName</i></span>, <span class=out><i>ArbitraryGridMotionType</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where 1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>ArbitraryGridMotionName</tt><td>
+   <td>Name of the <tt>ArbitraryGridMotion_t</tt> node.
+<tr valign=baseline><td>
+   <td><tt>ArbitraryGridMotionType</tt><td>
+   <td>Type of arbitrary grid motion.
+       The admissible types are <tt>Null</tt>, <tt>UserDefined</tt>,
+       <tt>NonDeformingGrid</tt>, and <tt>DeformingGrid</tt>.
+<tr valign=baseline><td>
+   <td><tt>n_arbitrary_motions</tt><td>
+   <td>Number of <tt>ArbitraryGridMotion_t</tt> nodes under zone <tt>Z</tt>.
+<tr valign=baseline><td>
+   <td><tt>A</tt><td>
+   <td>Arbitrary grid motion index number, where 1 &le; <tt>A</tt> &le; <tt>n_arbitrary_motions</tt>.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 25 Oct 2001
+
+</body>
+</html>

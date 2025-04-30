@@ -18,7 +18,6 @@ Range main module for preliminary design on conventional aircraft, it evaluates:
     ToolInput folder after copying it into the ToolOutput
     folder as ToolOutput.xml
 
-
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
 

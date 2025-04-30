@@ -8,7 +8,6 @@ Functions to generate the actuator disk file for SU2.
 Source:
     https://github.com/su2code/SU2/blob/master/TestCases/rans/actuatordisk_variable_load/ActuatorDisk.dat
 
-
 | Author : Aidan Jungo and Giacomo Benedetti
 | Creation: 2022-12-05
 | Modified: Leon Deligny

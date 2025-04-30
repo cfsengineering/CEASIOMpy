@@ -1,0 +1,14 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+ <qresource>
+     <file>airfoils/ceasiom.gbf</file>
+     <file>airfoils/nlf.gbf</file>
+     <file>airfoils/historical.gbf</file>
+     <file>airfoils/research.gbf</file> 
+     <file>airfoils/eppler.gbf</file>
+     <file>airfoils/fxwortmann.gbf</file>     
+     <file>airfoils/selig.gbf</file>
+     <file>airfoils/althaus.gbf</file>
+     <file>airfoils/lowreynolds.gbf</file>
+</qresource>
+</RCC>

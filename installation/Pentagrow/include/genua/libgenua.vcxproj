@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{78E969BA-50A8-337C-ABAF-2F90DD80BA33}</ProjectGuid>
+    <RootNamespace>genua</RootNamespace>
+    <Keyword>Qt4VSv1.0</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>8.1</WindowsTargetPlatformMinVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <OutputDirectory>..\..\lib64\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <IntermediateDirectory>build-msvc-64-release\</IntermediateDirectory>
+    <PrimaryOutput>genua</PrimaryOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <OutputDirectory>..\..\lib64\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <IntermediateDirectory>build-msvc-64-debug\</IntermediateDirectory>
+    <PrimaryOutput>genua_debug</PrimaryOutput>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" />
+  </ImportGroup>
+  <ImportGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">..\..\lib64\</OutDir>
+    <IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">build-msvc-64-release\</IntDir>
+    <TargetName Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">genua</TargetName>
+    <IgnoreImportLibrary Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">true</IgnoreImportLibrary>
+    <OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">..\..\lib64\</OutDir>
+    <IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">build-msvc-64-debug\</IntDir>
+    <TargetName Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">genua_debug</TargetName>
+    <IgnoreImportLibrary Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;..;..\boost;..\..\include;..\eigen;..\..\include;..\..\include\hdf5;cgns;cgns\adf;expat;zlib;C:\Qt\5.12.3\msvc2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>build-msvc-64-release\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4100;4244;4068;4267;4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ObjectFileName>build-msvc-64-release\</ObjectFileName>
+      <OpenMPSupport>true</OpenMPSupport>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;BOOST_THREAD_USE_LIB;HAVE_RPLY;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_NO_LAPACK;HAVE_SPACENAV;HAVE_TBB;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_SECURE_SCL=0;_ITERATOR_DEBUG_LEVEL=0;NDEBUG;ARCH_SSE2;_REENTRANT;XML_STATIC;XML_BUILDING_EXPAT;NOCRYPT;_REENTRANT;HAVE_RPLY;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName></ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)\genua.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;BOOST_THREAD_USE_LIB;HAVE_RPLY;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_NO_LAPACK;HAVE_SPACENAV;HAVE_TBB;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_SECURE_SCL=0;_ITERATOR_DEBUG_LEVEL=0;NDEBUG;ARCH_SSE2;_REENTRANT;XML_STATIC;XML_BUILDING_EXPAT;NOCRYPT;_REENTRANT;HAVE_RPLY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;..;..\boost;..\..\include;..\eigen;..\..\include;..\..\include\hdf5;cgns;cgns\adf;expat;zlib;C:\Qt\5.12.3\msvc2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zo -bigobj -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>build-msvc-64-debug\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4100;4244;4068;4267;4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>build-msvc-64-debug\</ObjectFileName>
+      <OpenMPSupport>true</OpenMPSupport>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;BOOST_THREAD_USE_LIB;HAVE_RPLY;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_NO_LAPACK;HAVE_SPACENAV;HAVE_TBB;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_ITERATOR_DEBUG_LEVEL=1;ARCH_SSE2;_REENTRANT;XML_STATIC;XML_BUILDING_EXPAT;NOCRYPT;_REENTRANT;HAVE_RPLY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)\genua_debug.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;BOOST_THREAD_USE_LIB;HAVE_RPLY;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_NO_LAPACK;HAVE_SPACENAV;HAVE_TBB;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_ITERATOR_DEBUG_LEVEL=1;ARCH_SSE2;_REENTRANT;XML_STATIC;XML_BUILDING_EXPAT;NOCRYPT;_REENTRANT;HAVE_RPLY;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="cgns\adf\ADF_fortran_2_c.c" />
+    <ClCompile Include="cgns\adf\ADF_interface.c" />
+    <ClCompile Include="cgns\adf\ADF_internals.c" />
+    <ClCompile Include="abstractlinearsolver.cpp" />
+    <ClCompile Include="cgns\adf_cond.c" />
+    <ClCompile Include="cgns\adf_ftoc.c" />
+    <ClCompile Include="zlib\adler32.c" />
+    <ClCompile Include="atmosphere.cpp" />
+    <ClCompile Include="yaml-cpp\binary.cpp" />
+    <ClCompile Include="binfilenode.cpp" />
+    <ClCompile Include="blob.cpp" />
+    <ClCompile Include="bounds.cpp" />
+    <ClCompile Include="boxsearchtree.cpp" />
+    <ClCompile Include="cgns\cg_ftoc.c" />
+    <ClCompile Include="cgns\cg_malloc.c" />
+    <ClCompile Include="cgmesh.cpp" />
+    <ClCompile Include="cgns\cgns_error.c" />
+    <ClCompile Include="cgns\cgns_internals.c" />
+    <ClCompile Include="cgnsboco.cpp" />
+    <ClCompile Include="cgnsdescriptor.cpp" />
+    <ClCompile Include="cgnsfile.cpp" />
+    <ClCompile Include="cgns\cgnslib.c" />
+    <ClCompile Include="cgnssection.cpp" />
+    <ClCompile Include="cgnssol.cpp" />
+    <ClCompile Include="cgnszone.cpp" />
+    <ClCompile Include="cgstrip.cpp" />
+    <ClCompile Include="color.cpp" />
+    <ClCompile Include="zlib\compress.c" />
+    <ClCompile Include="configparser.cpp" />
+    <ClCompile Include="connectmap.cpp" />
+    <ClCompile Include="yaml-cpp\convert.cpp" />
+    <ClCompile Include="zlib\crc32.c" />
+    <ClCompile Include="dbprint.cpp" />
+    <ClCompile Include="zlib\deflate.c" />
+    <ClCompile Include="dimsearchtree.cpp" />
+    <ClCompile Include="yaml-cpp\directives.cpp" />
+    <ClCompile Include="dyntritree.cpp" />
+    <ClCompile Include="edgecurve.cpp" />
+    <ClCompile Include="edgeface.cpp" />
+    <ClCompile Include="eig.cpp" />
+    <ClCompile Include="element.cpp" />
+    <ClCompile Include="yaml-cpp\emit.cpp" />
+    <ClCompile Include="yaml-cpp\emitfromevents.cpp" />
+    <ClCompile Include="yaml-cpp\emitter.cpp" />
+    <ClCompile Include="yaml-cpp\emitterstate.cpp" />
+    <ClCompile Include="yaml-cpp\emitterutils.cpp" />
+    <ClCompile Include="yaml-cpp\exp.cpp" />
+    <ClCompile Include="facebubble.cpp" />
+    <ClCompile Include="ffanode.cpp" />
+    <ClCompile Include="fftbase.cpp" />
+    <ClCompile Include="grulayer.cpp" />
+    <ClCompile Include="zlib\gzio.c" />
+    <ClCompile Include="hdf5file.cpp" />
+    <ClCompile Include="hybridmesh.cpp" />
+    <ClCompile Include="implicittree.cpp" />
+    <ClCompile Include="zlib\infback.c" />
+    <ClCompile Include="zlib\inffast.c" />
+    <ClCompile Include="zlib\inflate.c" />
+    <ClCompile Include="zlib\inftrees.c" />
+    <ClCompile Include="zlib\ioapi.c" />
+    <ClCompile Include="iobuffer.cpp" />
+    <ClCompile Include="ioutil.cpp" />
+    <ClCompile Include="linearlayer.cpp" />
+    <ClCompile Include="logger.cpp" />
+    <ClCompile Include="lse.cpp" />
+    <ClCompile Include="lz4\lz4.c" />
+    <ClCompile Include="lz4\lz4hc.c" />
+    <ClCompile Include="lz4stream.cpp" />
+    <ClCompile Include="yaml-cpp\memory.cpp" />
+    <ClCompile Include="meshfields.cpp" />
+    <ClCompile Include="meshslice.cpp" />
+    <ClCompile Include="mxannotated.cpp" />
+    <ClCompile Include="mxelementfunction.cpp" />
+    <ClCompile Include="mxelementtree.cpp" />
+    <ClCompile Include="mxfieldbuffer.cpp" />
+    <ClCompile Include="mxmesh-cgns.cpp" />
+    <ClCompile Include="mxmesh-formats.cpp" />
+    <ClCompile Include="mxmesh-hdf5.cpp" />
+    <ClCompile Include="mxmesh.cpp" />
+    <ClCompile Include="mxmeshboco.cpp" />
+    <ClCompile Include="mxmeshdeform-lapack.cpp" />
+    <ClCompile Include="mxmeshdeform.cpp" />
+    <ClCompile Include="mxmeshfield.cpp" />
+    <ClCompile Include="mxmeshsection.cpp" />
+    <ClCompile Include="mxmeshslice.cpp" />
+    <ClCompile Include="mxsolutiontree.cpp" />
+    <ClCompile Include="mxstreamer.cpp" />
+    <ClCompile Include="yaml-cpp\node.cpp" />
+    <ClCompile Include="yaml-cpp\node_data.cpp" />
+    <ClCompile Include="yaml-cpp\nodebuilder.cpp" />
+    <ClCompile Include="yaml-cpp\nodeevents.cpp" />
+    <ClCompile Include="yaml-cpp\null.cpp" />
+    <ClCompile Include="yaml-cpp\ostream_wrapper.cpp" />
+    <ClCompile Include="parallelfilter.cpp" />
+    <ClCompile Include="parallelzipfilter.cpp" />
+    <ClCompile Include="parbilu.cpp" />
+    <ClCompile Include="yaml-cpp\parse.cpp" />
+    <ClCompile Include="yaml-cpp\parser.cpp" />
+    <ClCompile Include="pattern.cpp" />
+    <ClCompile Include="piegl.cpp" />
+    <ClCompile Include="plane.cpp" />
+    <ClCompile Include="planefit.cpp" />
+    <ClCompile Include="point.cpp" />
+    <ClCompile Include="preshinghashtable.cpp" />
+    <ClCompile Include="quantbuffer.cpp" />
+    <ClCompile Include="rcindexmap.cpp" />
+    <ClCompile Include="yaml-cpp\regex_yaml.cpp" />
+    <ClCompile Include="rng.cpp" />
+    <ClCompile Include="rply\rply.c" />
+    <ClCompile Include="rsearchtree.cpp" />
+    <ClCompile Include="yaml-cpp\scanner.cpp" />
+    <ClCompile Include="yaml-cpp\scanscalar.cpp" />
+    <ClCompile Include="yaml-cpp\scantag.cpp" />
+    <ClCompile Include="yaml-cpp\scantoken.cpp" />
+    <ClCompile Include="sdirk.cpp" />
+    <ClCompile Include="yaml-cpp\simplekey.cpp" />
+    <ClCompile Include="yaml-cpp\singledocparser.cpp" />
+    <ClCompile Include="sparseblockmatrix.cpp" />
+    <ClCompile Include="sparsitycounter.cpp" />
+    <ClCompile Include="splinebasis.cpp" />
+    <ClCompile Include="splinefitter.cpp" />
+    <ClCompile Include="stanfordsolver.cpp" />
+    <ClCompile Include="steptransform.cpp" />
+    <ClCompile Include="yaml-cpp\stream.cpp" />
+    <ClCompile Include="strtod.c" />
+    <ClCompile Include="strutils.cpp" />
+    <ClCompile Include="surfacestreamlines.cpp" />
+    <ClCompile Include="syncedstream.cpp" />
+    <ClCompile Include="sysinfo.cpp" />
+    <ClCompile Include="yaml-cpp\tag.cpp" />
+    <ClCompile Include="tasksystem.cpp" />
+    <ClCompile Include="threadpool_boost.cpp" />
+    <ClCompile Include="trafo.cpp" />
+    <ClCompile Include="zlib\trees.c" />
+    <ClCompile Include="triangulation.cpp" />
+    <ClCompile Include="triedge.cpp" />
+    <ClCompile Include="triface.cpp" />
+    <ClCompile Include="rply\trimesh-rply.cpp" />
+    <ClCompile Include="trimesh.cpp" />
+    <ClCompile Include="triset.cpp" />
+    <ClCompile Include="typecode.cpp" />
+    <ClCompile Include="zlib\uncompr.c" />
+    <ClCompile Include="unv58dataset.cpp" />
+    <ClCompile Include="zlib\unzip.c" />
+    <ClCompile Include="volwavedrag.cpp" />
+    <ClCompile Include="xcept.cpp" />
+    <ClCompile Include="xmlelement-hdf5.cpp" />
+    <ClCompile Include="xmlelement.cpp" />
+    <ClCompile Include="expat\xmlparse.c" />
+    <ClCompile Include="expat\xmlrole.c" />
+    <ClCompile Include="expat\xmltok.c" />
+    <ClCompile Include="lz4\xxhash.c" />
+    <ClCompile Include="zlib\zip.c" />
+    <ClCompile Include="zipfile.cpp" />
+    <ClCompile Include="zlib\zutil.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cgns\adf\ADF.h" />
+    <ClInclude Include="cgns\adf\ADF_fbind.h" />
+    <ClInclude Include="cgns\adf\ADF_internals.h" />
+    <ClInclude Include="abstractlinearsolver.h" />
+    <ClInclude Include="algo.h" />
+    <ClInclude Include="allocator.h" />
+    <ClInclude Include="yaml-cpp\anchor.h" />
+    <ClInclude Include="yaml-cpp\contrib\anchordict.h" />
+    <ClInclude Include="expat\ascii.h" />
+    <ClInclude Include="expat\asciitab.h" />
+    <ClInclude Include="atmosphere.h" />
+    <ClInclude Include="atomicop.h" />
+    <ClInclude Include="avxemu.h" />
+    <ClInclude Include="avxtrigo.h" />
+    <ClInclude Include="avxtrigo_inc.h" />
+    <ClInclude Include="b64arrayops.h" />
+    <ClInclude Include="basicedge.h" />
+    <ClInclude Include="basictriangle.h" />
+    <ClInclude Include="benzispai.h" />
+    <ClInclude Include="benzitbb.h" />
+    <ClInclude Include="yaml-cpp\binary.h" />
+    <ClInclude Include="binfilenode.h" />
+    <ClInclude Include="bitfiddle.h" />
+    <ClInclude Include="blob.h" />
+    <ClInclude Include="yaml-cpp\node\detail\bool_type.h" />
+    <ClInclude Include="bounds.h" />
+    <ClInclude Include="boxsearchtree.h" />
+    <ClInclude Include="cbvops.h" />
+    <ClInclude Include="cgns\cg_malloc.h" />
+    <ClInclude Include="cgmesh.h" />
+    <ClInclude Include="cgns\cgnsKeywords.h" />
+    <ClInclude Include="cgns\cgns_header.h" />
+    <ClInclude Include="cgnsboco.h" />
+    <ClInclude Include="cgnsdescriptor.h" />
+    <ClInclude Include="cgnsfile.h" />
+    <ClInclude Include="cgnsfwd.h" />
+    <ClInclude Include="cgns\cgnslib.h" />
+    <ClInclude Include="cgns\cgnslib_f.h" />
+    <ClInclude Include="cgnssection.h" />
+    <ClInclude Include="cgnssol.h" />
+    <ClInclude Include="cgns\cgnswin_f.h" />
+    <ClInclude Include="cgnszone.h" />
+    <ClInclude Include="cgstrip.h" />
+    <ClInclude Include="yaml-cpp\collectionstack.h" />
+    <ClInclude Include="color.h" />
+    <ClInclude Include="configparser.h" />
+    <ClInclude Include="connectmap.h" />
+    <ClInclude Include="yaml-cpp\node\convert.h" />
+    <ClInclude Include="convertingsolver.h" />
+    <ClInclude Include="craig.h" />
+    <ClInclude Include="zlib\crc32.h" />
+    <ClInclude Include="csrmatrix.h" />
+    <ClInclude Include="dbprint.h" />
+    <ClInclude Include="defines.h" />
+    <ClInclude Include="zlib\deflate.h" />
+    <ClInclude Include="dimsearchtree.h" />
+    <ClInclude Include="yaml-cpp\directives.h" />
+    <ClInclude Include="yaml-cpp\dll.h" />
+    <ClInclude Include="dmatrix.h" />
+    <ClInclude Include="dmatrix_ops.h" />
+    <ClInclude Include="double2.h" />
+    <ClInclude Include="double4.h" />
+    <ClInclude Include="dvector.h" />
+    <ClInclude Include="dvector_ops.h" />
+    <ClInclude Include="dyntritree.h" />
+    <ClInclude Include="edgecurve.h" />
+    <ClInclude Include="edgeface.h" />
+    <ClInclude Include="eig.h" />
+    <ClInclude Include="eigensparsesolver.h" />
+    <ClInclude Include="element.h" />
+    <ClInclude Include="yaml-cpp\node\emit.h" />
+    <ClInclude Include="yaml-cpp\emitfromevents.h" />
+    <ClInclude Include="yaml-cpp\emitter.h" />
+    <ClInclude Include="yaml-cpp\emitterdef.h" />
+    <ClInclude Include="yaml-cpp\emittermanip.h" />
+    <ClInclude Include="yaml-cpp\emitterstate.h" />
+    <ClInclude Include="yaml-cpp\emitterstyle.h" />
+    <ClInclude Include="yaml-cpp\emitterutils.h" />
+    <ClInclude Include="enumobject.h" />
+    <ClInclude Include="yaml-cpp\eventhandler.h" />
+    <ClInclude Include="yaml-cpp\exceptions.h" />
+    <ClInclude Include="yaml-cpp\exp.h" />
+    <ClInclude Include="expat\expat.h" />
+    <ClInclude Include="expat\expat_config.h" />
+    <ClInclude Include="expat\expat_external.h" />
+    <ClInclude Include="facebubble.h" />
+    <ClInclude Include="ffanode.h" />
+    <ClInclude Include="fftbase.h" />
+    <ClInclude Include="flagset.h" />
+    <ClInclude Include="float4.h" />
+    <ClInclude Include="float8.h" />
+    <ClInclude Include="floatcompressor.h" />
+    <ClInclude Include="forkjoingroup.h" />
+    <ClInclude Include="cgns\fortran_macros.h" />
+    <ClInclude Include="forward.h" />
+    <ClInclude Include="gaussline.h" />
+    <ClInclude Include="gausstriag.h" />
+    <ClInclude Include="yaml-cpp\contrib\graphbuilder.h" />
+    <ClInclude Include="yaml-cpp\contrib\graphbuilderadapter.h" />
+    <ClInclude Include="grulayer.h" />
+    <ClInclude Include="hammertriag.h" />
+    <ClInclude Include="hdf5file.h" />
+    <ClInclude Include="hybridmesh.h" />
+    <ClInclude Include="expat\iasciitab.h" />
+    <ClInclude Include="ifmkl.h" />
+    <ClInclude Include="yaml-cpp\node\detail\impl.h" />
+    <ClInclude Include="yaml-cpp\node\impl.h" />
+    <ClInclude Include="implicittree.h" />
+    <ClInclude Include="yaml-cpp\indentation.h" />
+    <ClInclude Include="zlib\inffast.h" />
+    <ClInclude Include="zlib\inffixed.h" />
+    <ClInclude Include="zlib\inflate.h" />
+    <ClInclude Include="zlib\inftrees.h" />
+    <ClInclude Include="expat\internal.h" />
+    <ClInclude Include="zlib\ioapi.h" />
+    <ClInclude Include="iobuffer.h" />
+    <ClInclude Include="ioglue.h" />
+    <ClInclude Include="ioutil.h" />
+    <ClInclude Include="yaml-cpp\node\detail\iterator.h" />
+    <ClInclude Include="yaml-cpp\node\iterator.h" />
+    <ClInclude Include="yaml-cpp\node\detail\iterator_fwd.h" />
+    <ClInclude Include="kdop.h" />
+    <ClInclude Include="lapack.h" />
+    <ClInclude Include="lapack_interface.h" />
+    <ClInclude Include="lapack_overload.h" />
+    <ClInclude Include="expat\latin1tab.h" />
+    <ClInclude Include="legendre.h" />
+    <ClInclude Include="line.h" />
+    <ClInclude Include="linearlayer.h" />
+    <ClInclude Include="lls.h" />
+    <ClInclude Include="lockedqueue.h" />
+    <ClInclude Include="logger.h" />
+    <ClInclude Include="looptask.h" />
+    <ClInclude Include="lse.h" />
+    <ClInclude Include="lsmr.h" />
+    <ClInclude Include="lsqr.h" />
+    <ClInclude Include="lu.h" />
+    <ClInclude Include="lz4\lz4.h" />
+    <ClInclude Include="lz4\lz4hc.h" />
+    <ClInclude Include="lz4stream.h" />
+    <ClInclude Include="expat\macconfig.h" />
+    <ClInclude Include="yaml-cpp\mark.h" />
+    <ClInclude Include="matrixview.h" />
+    <ClInclude Include="memberfun.h" />
+    <ClInclude Include="yaml-cpp\node\detail\memory.h" />
+    <ClInclude Include="meshfields.h" />
+    <ClInclude Include="meshslice.h" />
+    <ClInclude Include="morton.h" />
+    <ClInclude Include="murmur.h" />
+    <ClInclude Include="mvop.h" />
+    <ClInclude Include="mxannotated.h" />
+    <ClInclude Include="mxelementfunction.h" />
+    <ClInclude Include="mxelementtree.h" />
+    <ClInclude Include="mxfieldbuffer.h" />
+    <ClInclude Include="mxmesh.h" />
+    <ClInclude Include="mxmeshboco.h" />
+    <ClInclude Include="mxmeshdeform.h" />
+    <ClInclude Include="mxmeshfield.h" />
+    <ClInclude Include="mxmeshsection.h" />
+    <ClInclude Include="mxmeshslice.h" />
+    <ClInclude Include="mxmeshtypes.h" />
+    <ClInclude Include="mxsolutiontree.h" />
+    <ClInclude Include="mxstreamer.h" />
+    <ClInclude Include="expat\nametab.h" />
+    <ClInclude Include="ndarray.h" />
+    <ClInclude Include="ndarraybase.h" />
+    <ClInclude Include="ndarrayview.h" />
+    <ClInclude Include="ndpointtree.h" />
+    <ClInclude Include="yaml-cpp\node\detail\node.h" />
+    <ClInclude Include="yaml-cpp\node\node.h" />
+    <ClInclude Include="yaml-cpp\node\detail\node_data.h" />
+    <ClInclude Include="yaml-cpp\node\detail\node_iterator.h" />
+    <ClInclude Include="yaml-cpp\node\detail\node_ref.h" />
+    <ClInclude Include="yaml-cpp\nodebuilder.h" />
+    <ClInclude Include="yaml-cpp\nodeevents.h" />
+    <ClInclude Include="yaml-cpp\null.h" />
+    <ClInclude Include="nzhashtable.h" />
+    <ClInclude Include="omp_forward.h" />
+    <ClInclude Include="packetstream.h" />
+    <ClInclude Include="parallel_algo.h" />
+    <ClInclude Include="parallel_loop.h" />
+    <ClInclude Include="parallelfilter.h" />
+    <ClInclude Include="parallelzipfilter.h" />
+    <ClInclude Include="parbilu.h" />
+    <ClInclude Include="yaml-cpp\node\parse.h" />
+    <ClInclude Include="yaml-cpp\parser.h" />
+    <ClInclude Include="pattern.h" />
+    <ClInclude Include="piegl.h" />
+    <ClInclude Include="plane.h" />
+    <ClInclude Include="point.h" />
+    <ClInclude Include="pointblock.h" />
+    <ClInclude Include="preshinghashtable.h" />
+    <ClInclude Include="primitives.h" />
+    <ClInclude Include="programversion.h" />
+    <ClInclude Include="propmacro.h" />
+    <ClInclude Include="pstl.h" />
+    <ClInclude Include="ptinpoly.h" />
+    <ClInclude Include="yaml-cpp\node\ptr.h" />
+    <ClInclude Include="yaml-cpp\ptr_stack.h" />
+    <ClInclude Include="yaml-cpp\ptr_vector.h" />
+    <ClInclude Include="quantbuffer.h" />
+    <ClInclude Include="radialsort.h" />
+    <ClInclude Include="rbrotation.h" />
+    <ClInclude Include="rcindexmap.h" />
+    <ClInclude Include="yaml-cpp\regex_yaml.h" />
+    <ClInclude Include="yaml-cpp\regeximpl.h" />
+    <ClInclude Include="rng.h" />
+    <ClInclude Include="rply\rply.h" />
+    <ClInclude Include="rply\rplyfile.h" />
+    <ClInclude Include="rsearchtree.h" />
+    <ClInclude Include="scalarspline.h" />
+    <ClInclude Include="yaml-cpp\scanner.h" />
+    <ClInclude Include="yaml-cpp\scanscalar.h" />
+    <ClInclude Include="yaml-cpp\scantag.h" />
+    <ClInclude Include="schur.h" />
+    <ClInclude Include="scopedsetting.h" />
+    <ClInclude Include="sdirk.h" />
+    <ClInclude Include="semaphore.h" />
+    <ClInclude Include="yaml-cpp\setting.h" />
+    <ClInclude Include="sharedvector.h" />
+    <ClInclude Include="simdbase.h" />
+    <ClInclude Include="simdqr.h" />
+    <ClInclude Include="simdsupport.h" />
+    <ClInclude Include="simdtype.h" />
+    <ClInclude Include="yaml-cpp\singledocparser.h" />
+    <ClInclude Include="smallqr.h" />
+    <ClInclude Include="smatrix.h" />
+    <ClInclude Include="smatrix_ops.h" />
+    <ClInclude Include="sparse.h" />
+    <ClInclude Include="sparseblock.h" />
+    <ClInclude Include="sparseblockmatrix.h" />
+    <ClInclude Include="sparsebuilder.h" />
+    <ClInclude Include="sparsitycounter.h" />
+    <ClInclude Include="spinbarrier.h" />
+    <ClInclude Include="splinebasis.h" />
+    <ClInclude Include="splinefitter.h" />
+    <ClInclude Include="spvector.h" />
+    <ClInclude Include="sse.h" />
+    <ClInclude Include="ssemalloc.h" />
+    <ClInclude Include="ssetrigo.h" />
+    <ClInclude Include="stanfordsolver.h" />
+    <ClInclude Include="steptransform.h" />
+    <ClInclude Include="yaml-cpp\stlemitter.h" />
+    <ClInclude Include="strconv.h" />
+    <ClInclude Include="yaml-cpp\stream.h" />
+    <ClInclude Include="yaml-cpp\stringsource.h" />
+    <ClInclude Include="strutils.h" />
+    <ClInclude Include="surfacestreamlines.h" />
+    <ClInclude Include="svd.h" />
+    <ClInclude Include="svector.h" />
+    <ClInclude Include="svector_ops.h" />
+    <ClInclude Include="syncedstream.h" />
+    <ClInclude Include="synchron.h" />
+    <ClInclude Include="synchron_boost.h" />
+    <ClInclude Include="sysinfo.h" />
+    <ClInclude Include="yaml-cpp\tag.h" />
+    <ClInclude Include="taskgroup.h" />
+    <ClInclude Include="tasksystem.h" />
+    <ClInclude Include="theodorsen.h" />
+    <ClInclude Include="threadpool.h" />
+    <ClInclude Include="threadtask.h" />
+    <ClInclude Include="timing.h" />
+    <ClInclude Include="tlscontainer.h" />
+    <ClInclude Include="yaml-cpp\token.h" />
+    <ClInclude Include="trafo.h" />
+    <ClInclude Include="yaml-cpp\traits.h" />
+    <ClInclude Include="transformation.h" />
+    <ClInclude Include="zlib\trees.h" />
+    <ClInclude Include="triangulation.h" />
+    <ClInclude Include="triedge.h" />
+    <ClInclude Include="triface.h" />
+    <ClInclude Include="trigo.h" />
+    <ClInclude Include="trimesh.h" />
+    <ClInclude Include="triset.h" />
+    <ClInclude Include="yaml-cpp\node\type.h" />
+    <ClInclude Include="typecode.h" />
+    <ClInclude Include="unroll.h" />
+    <ClInclude Include="unv58dataset.h" />
+    <ClInclude Include="zlib\unzip.h" />
+    <ClInclude Include="expat\utf8tab.h" />
+    <ClInclude Include="viewptr.h" />
+    <ClInclude Include="volwavedrag.h" />
+    <ClInclude Include="expat\winconfig.h" />
+    <ClInclude Include="xcept.h" />
+    <ClInclude Include="xmlelement.h" />
+    <ClInclude Include="expat\xmlrole.h" />
+    <ClInclude Include="expat\xmltok.h" />
+    <ClInclude Include="expat\xmltok_impl.c" />
+    <ClInclude Include="expat\xmltok_impl.h" />
+    <ClInclude Include="expat\xmltok_ns.c" />
+    <ClInclude Include="lz4\xxhash.h" />
+    <ClInclude Include="yaml-cpp\yaml.h" />
+    <ClInclude Include="yaml.h" />
+    <ClInclude Include="zlib\zconf.h" />
+    <ClInclude Include="zlib\zip.h" />
+    <ClInclude Include="zipfile.h" />
+    <ClInclude Include="zlib\zlib.h" />
+    <ClInclude Include="zlib\zutil.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

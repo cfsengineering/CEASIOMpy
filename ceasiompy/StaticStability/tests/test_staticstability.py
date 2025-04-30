@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for StaticStability module.
 
-
 | Author: Leon Deligny
 | Creation: 21 March 2025
 

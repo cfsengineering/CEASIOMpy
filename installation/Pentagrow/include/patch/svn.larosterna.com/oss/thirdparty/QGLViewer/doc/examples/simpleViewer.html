@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>libQGLViewer simpleViewer example</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link href="../qglviewer.css" rel="stylesheet" type="text/css" />
+  <link rel="shortcut icon" href="../images/qglviewer.ico" type="image/x-icon" />
+  <link rel="icon" href="../images/qglviewer.icon.png" type="image/png" />
+</head>
+<body>
+
+<div class="banner">
+ <a class="qindex" href="../index.html">Home</a>
+ <a class="qindex" href="../refManual/hierarchy.html">Documentation</a>
+ <a class="qindex" href="../download.html">Download</a>
+ <a class="qindex highlight" href="index.html">Examples</a>
+ <a class="qindex" href="../developer.html">Developer</a>
+</div>
+
+<h1>The simpleViewer example</h1>
+
+<center>
+  <img src="../images/simpleViewer.jpg" width="330" height="228" alt="simpleViewer"/>
+</center>
+
+<p>
+ The simplest application example: 20 lines of code and yet all the power !
+</p>
+<p>
+ A Viewer class is derived from QGLViewer and its <code>draw()</code> function is overloaded to
+ specify the user defined OpenGL orders that describe the scene.
+</p>
+<p>
+ This is the first example you should try, as it explains some of the default keyboard shortcuts
+ and the mouse behavior of the viewer.
+</p>
+<p>
+ This example can be cut and pasted to start the development of a new application.
+</p>
+<h2>simpleViewer.h</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;QGLViewer/qglviewer.h&gt;</font>
+
+<b><font color="#0000FF">class</font></b> Viewer <font color="#990000">:</font> <b><font color="#0000FF">public</font></b> QGLViewer
+<font color="#FF0000">{</font>
+<b><font color="#0000FF">protected</font></b> <font color="#990000">:</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">draw</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">init</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> QString <b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b><font color="#990000">;</font>
+<font color="#FF0000">}</font><font color="#990000">;</font>
+</tt></pre>
+
+
+<h2>simpleViewer.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">"simpleViewer.h"</font>
+
+<b><font color="#0000FF">using</font></b> <b><font color="#0000FF">namespace</font></b> std<font color="#990000">;</font>
+
+<i><font color="#9A1900">// Draws a spiral</font></i>
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">draw</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> nbSteps <font color="#990000">=</font> <font color="#993399">200.0</font><font color="#990000">;</font>
+
+  <b><font color="#000000">glBegin</font></b><font color="#990000">(</font>GL_QUAD_STRIP<font color="#990000">);</font>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font><font color="#009900">int</font> i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;</font>nbSteps<font color="#990000">;</font> <font color="#990000">++</font>i<font color="#990000">)</font>
+    <font color="#FF0000">{</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> ratio <font color="#990000">=</font> i<font color="#990000">/</font>nbSteps<font color="#990000">;</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> angle <font color="#990000">=</font> <font color="#993399">21.0</font><font color="#990000">*</font>ratio<font color="#990000">;</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> c <font color="#990000">=</font> <b><font color="#000000">cos</font></b><font color="#990000">(</font>angle<font color="#990000">);</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> s <font color="#990000">=</font> <b><font color="#000000">sin</font></b><font color="#990000">(</font>angle<font color="#990000">);</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> r1 <font color="#990000">=</font> <font color="#993399">1.0</font> <font color="#990000">-</font> <font color="#993399">0</font><font color="#990000">.</font>8f<font color="#990000">*</font>ratio<font color="#990000">;</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> r2 <font color="#990000">=</font> <font color="#993399">0</font><font color="#990000">.</font>8f <font color="#990000">-</font> <font color="#993399">0</font><font color="#990000">.</font>8f<font color="#990000">*</font>ratio<font color="#990000">;</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> alt <font color="#990000">=</font> ratio <font color="#990000">-</font> <font color="#993399">0</font><font color="#990000">.</font>5f<font color="#990000">;</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> nor <font color="#990000">=</font> <font color="#993399">0</font><font color="#990000">.</font>5f<font color="#990000">;</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> up <font color="#990000">=</font> <b><font color="#000000">sqrt</font></b><font color="#990000">(</font><font color="#993399">1.0</font><font color="#990000">-</font>nor<font color="#990000">*</font>nor<font color="#990000">);</font>
+      <b><font color="#000000">glColor3f</font></b><font color="#990000">(</font><font color="#993399">1.0</font><font color="#990000">-</font>ratio<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>2f <font color="#990000">,</font> ratio<font color="#990000">);</font>
+      <b><font color="#000000">glNormal3f</font></b><font color="#990000">(</font>nor<font color="#990000">*</font>c<font color="#990000">,</font> up<font color="#990000">,</font> nor<font color="#990000">*</font>s<font color="#990000">);</font>
+      <b><font color="#000000">glVertex3f</font></b><font color="#990000">(</font>r1<font color="#990000">*</font>c<font color="#990000">,</font> alt<font color="#990000">,</font> r1<font color="#990000">*</font>s<font color="#990000">);</font>
+      <b><font color="#000000">glVertex3f</font></b><font color="#990000">(</font>r2<font color="#990000">*</font>c<font color="#990000">,</font> alt<font color="#990000">+</font><font color="#993399">0</font><font color="#990000">.</font>05f<font color="#990000">,</font> r2<font color="#990000">*</font>s<font color="#990000">);</font>
+    <font color="#FF0000">}</font>
+  <b><font color="#000000">glEnd</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">init</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <i><font color="#9A1900">// Restore previous viewer state.</font></i>
+  <b><font color="#000000">restoreStateFromFile</font></b><font color="#990000">();</font>
+  
+  <i><font color="#9A1900">// Opens help window</font></i>
+  <b><font color="#000000">help</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+QString Viewer<font color="#990000">::</font><b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b>
+<font color="#FF0000">{</font>
+  QString <b><font color="#000000">text</font></b><font color="#990000">(</font><font color="#FF0000">"&lt;h2&gt;S i m p l e V i e w e r&lt;/h2&gt;"</font><font color="#990000">);</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"Use the mouse to move the camera around the object. "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"You can respectively revolve around, zoom and translate with the three mouse buttons. "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"Left and middle buttons pressed together rotate around the camera view direction axis&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"Pressing &lt;b&gt;Alt&lt;/b&gt; and one of the function keys (&lt;b&gt;F1&lt;/b&gt;..&lt;b&gt;F12&lt;/b&gt;) defines a camera keyFrame. "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"Simply press the function key again to restore it. Several keyFrames define a "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"camera path. Paths are saved when you quit the application and restored at next start.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"Press &lt;b&gt;F&lt;/b&gt; to display the frame rate, &lt;b&gt;A&lt;/b&gt; for the world axis, "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"&lt;b&gt;Alt+Return&lt;/b&gt; for full screen mode and &lt;b&gt;Control+S&lt;/b&gt; to save a snapshot. "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"See the &lt;b&gt;Keyboard&lt;/b&gt; tab in this window for a complete shortcut list.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"Double clicks automates single click actions: A left button double click aligns the closer axis with the camera (if close enough). "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"A middle button double click fits the zoom of the camera and the right button re-centers the scene.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"A left button double click while holding right button pressed defines the camera &lt;i&gt;Revolve Around Point&lt;/i&gt;. "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"See the &lt;b&gt;Mouse&lt;/b&gt; tab and the documentation web pages for details.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"Press &lt;b&gt;Escape&lt;/b&gt; to exit the viewer."</font><font color="#990000">;</font>
+  <b><font color="#0000FF">return</font></b> text<font color="#990000">;</font>
+<font color="#FF0000">}</font>
+</tt></pre>
+
+
+<h2>main.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">"simpleViewer.h"</font>
+<b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;qapplication.h&gt;</font>
+
+<font color="#009900">int</font> <b><font color="#000000">main</font></b><font color="#990000">(</font><font color="#009900">int</font> argc<font color="#990000">,</font> <font color="#009900">char</font><font color="#990000">**</font> argv<font color="#990000">)</font>
+<font color="#FF0000">{</font>
+  <i><font color="#9A1900">// Read command lines arguments.</font></i>
+  QApplication <b><font color="#000000">application</font></b><font color="#990000">(</font>argc<font color="#990000">,</font>argv<font color="#990000">);</font>
+
+  <i><font color="#9A1900">// Instantiate the viewer.</font></i>
+  Viewer viewer<font color="#990000">;</font>
+
+<b><font color="#000080">#if</font></b> QT_VERSION <font color="#990000">&lt;</font> <font color="#993399">0x040000</font>
+  <i><font color="#9A1900">// Set the viewer as the application main widget.</font></i>
+  application<font color="#990000">.</font><b><font color="#000000">setMainWidget</font></b><font color="#990000">(&amp;</font>viewer<font color="#990000">);</font>
+<b><font color="#000080">#else</font></b>
+  viewer<font color="#990000">.</font><b><font color="#000000">setWindowTitle</font></b><font color="#990000">(</font><font color="#FF0000">"simpleViewer"</font><font color="#990000">);</font>
+<b><font color="#000080">#endif</font></b>
+
+  <i><font color="#9A1900">// Make the viewer window visible on screen.</font></i>
+  viewer<font color="#990000">.</font><b><font color="#000000">show</font></b><font color="#990000">();</font>
+
+  <i><font color="#9A1900">// Run main loop.</font></i>
+  <b><font color="#0000FF">return</font></b> application<font color="#990000">.</font><b><font color="#000000">exec</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+</tt></pre>
+
+
+
+<p>
+  Back to the <a href="index.html">examples main page</a>.
+</p>
+
+<p>
+  <a href="http://validator.w3.org/check/referer"><img src="../images/xhtml.png" alt="Valid XHTML 1.0!" height="31" width="88"/></a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer"><img src="../images/css.png" width="88" height="31" alt="Valid CSS!"/></a>
+<i>Last modified on Tuesday, September 30, 2008.</i>
+</p>
+
+</body>
+</html>

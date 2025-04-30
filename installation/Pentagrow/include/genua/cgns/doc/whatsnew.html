@@ -1,0 +1,1828 @@
+<!-- CGNS Documentation "What's New?" page -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="cgns.css" rel="stylesheet" type="text/css">
+<title> CGNS Documentation - What's New? </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="midlevel/index.html"><b>Mid-Level&nbsp;Library</b></a>)
+(<a href="adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<br><br>
+<table>
+<tr>
+   <td><img src="logo/cgns_color.gif" width=150 alt="CGNS logo">
+   <td><tt>&nbsp;&nbsp;</tt>
+   <td><h1>CFD&nbsp;General&nbsp;Notation&nbsp;System<br>
+       What's&nbsp;New?</h1>
+</table>
+
+<ul>
+<li> <a href="#documentation">CGNS Documentation</a>
+<li> <a href="http://cgns.sourceforge.net/news.html">CGNS Software</a>
+     <img src="external.png" alt="external link">
+</ul>
+
+<a name="documentation"></a>
+<h3>CGNS Documentation</h3>
+
+<table>
+<tr valign=baseline>
+<td> <b>12&nbsp;Mar&nbsp;2008</b>
+<td> <ul>
+     <li> In the <a href="cgnstools/index.html">CGNS Tools and
+          Utilities</a>, modified the description of ADF_Edit to note
+          that it's been superseded by the more capable
+          <a href="cgnstools/adfviewer/index.html">ADFviewer</a>.
+     <li> In the <a href="overview/index.html">Overview and
+          Entry-Level Document</a>, removed references to the utility
+          ADF_Edit, in favor of
+          <a href="cgnstools/adfviewer/index.html">ADFviewer</a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>7&nbsp;Mar&nbsp;2008</b>
+<td> <ul>
+     <li> Modified the <a href="user/index.html">User's Guide to CGNS</a>,
+          primarily in the section on
+          <a href="user/started.html#sec:bcunstr">writing boundary
+          conditions for an unstructured grid</a> to illustrate the
+          recommended procedure using <tt>ElementList</tt>, rather than
+          <tt>PointList</tt> with <tt>GridLocation=FaceCenter</tt>.
+          Also removed references to the utility ADF_Edit, in favor of
+          <a href="cgnstools/adfviewer/index.html">ADFviewer</a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>8&nbsp;Feb&nbsp;2008</b>
+<td> <ul>
+     <li> Added HTML versions of all the PDF attachments to meeting and
+          telecon minutes.
+     </ul>
+<tr valign=baseline>
+<td> <b>29&nbsp;Jan&nbsp;2008</b>
+<td> <ul>
+     <li> Added HTML versions of (almost) all the
+          <a href="index.html#Slides">slide presentations</a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>23&nbsp;Jan&nbsp;2008</b>
+<td> <ul>
+     <li> Added HTML versions of the following papers.
+          <ul>
+          <li> <a href="papers/aiaa00-0681.html">"Advances in the CGNS
+               Database Standard for Aerodynamics and CFD"</a> (AIAA
+               Paper 2000-0681)
+          <li> <a href="papers/aiaa02-0752.html">"CFD General Notation
+               System (CGNS): Status and Future Directions"</a> (AIAA
+               Paper 2002-0752)
+          <li> <a href="papers/aiaa05-1381.html">"Benchmarking Parallel
+               I/O Performance for Computational Fluid Dynamics
+               Applications"</a> (AIAA Paper 2005-1381)
+          </ul>
+     </ul>
+<tr valign=baseline>
+<td> <b>18&nbsp;Jan&nbsp;2008</b>
+<td> <ul>
+     <li> Posted draft minutes from the Jan 6 CGNS Steering Committee
+          meeting.
+          (<a href="minutes/meeting_jan08.html">HTML</a>,
+          <a href="minutes/meeting_jan08.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>5&nbsp;Dec&nbsp;2007</b>
+<td> <ul>
+     <li> Added an "external link" symbol
+          (<img src="external.png" alt="external link symbol">) to all
+          links to non-NASA sites, per NASA policy.
+     </ul>
+<tr valign=baseline>
+<td> <b>29&nbsp;Nov&nbsp;2007</b>
+<td> <ul>
+     <li> Posted draft minutes from the Nov 28 CGNS Steering Committee
+          telecon.
+          (<a href="minutes/telecon_nov07.html">HTML</a>,
+          <a href="minutes/telecon_nov07.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>7&nbsp;Nov&nbsp;2007</b>
+<td> <ul>
+     <li> Modified the description of the
+          <a href="sids/floweqn.html#TurbulenceModel"><tt>TurbulenceModel_t</tt></a>
+          structure to add references to the specific models that correspond
+          to the <tt>TurbulenceModelType</tt> names, and to add a
+          recommendation for handling subsequent changes to the models.
+     <li> In the <a href="user/index.html">User's Guide to CGNS</a>,
+          added a note that it was originally published as
+          NASA/TM-2001-211236, October 2001.
+     </ul>
+<tr valign=baseline>
+<td> <b>9&nbsp;Oct&nbsp;2007</b>
+<td> <ul>
+     <li> Modified the list of
+          <a href="charter/organization.html#representation">current
+          member organizations</a> in the <i>CGNS Steering Committee
+          Charter</i> to reflect the name change of Thaerocomp Technical
+          Corporation to TTC Technologies.
+     </ul>
+<tr valign=baseline>
+<td> <b>19&nbsp;Sep&nbsp;2007</b>
+<td> <ul>
+     <li> Posted minutes from the Sept 12 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_sep07.html">HTML</a>,
+          <a href="minutes/telecon_sep07.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>14&nbsp;Sep&nbsp;2007</b>
+<td> <ul>
+     <li> Due to the release of CGNS Version 2.5, the CGNS documentation
+          has been moved as shown below:
+          <ul type=circle>
+          <li> CGNS Version 2.5<br>
+               <a href="http://www.grc.nasa.gov/WWW/cgns/index.html">http://www.grc.nasa.gov/WWW/cgns/index.html</a>
+          <li> CGNS Version 2.4<br>
+               <a href="http://www.grc.nasa.gov/WWW/cgns/rel2.4/index.html">http://www.grc.nasa.gov/WWW/cgns/rel2.4/index.html</a>
+          </ul>
+     <li> Documentation for CGNS Version 2.3 has been deleted.
+     <li> Updated the <a href="overview/index.html">Overview and
+          Entry-Level Document</a> to reflect the release of
+          CGNS Version 2.5.
+     <li> In the <i>SIDS</i> document, modified the description of the
+          <a href="sids/cnct.html#GridConnectivity"><tt>GridConnectivity_t</tt></a>
+          structure to clarify the use of <tt>CellListDonor</tt>
+          and <tt>InterpolantsDonor</tt> for both structured and
+          unstructured grids.
+          Also added some <a href="sids/cnct.html#cnct_gen_example">General
+          Interface Connectivity Examples</a>.
+     <li> Modified the <i>CGNS Steering Committee Charter</i> to add
+          <a href="http://www.conceptsnrec.com/">Concepts NREC</a> 
+          <img src="external.png" alt="external link"> to the list of
+          <a href="charter/organization.html#representation">current
+          member organizations</a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>11&nbsp;July&nbsp;2007</b>
+<td> <ul>
+     <li> Updated the <a href="sids/index.html">SIDS document</a> to
+          include information on the newly-released AIAA Recommended
+          Practice R-101A-2005, and made the
+          <a href="sids/aiaa/R_101A_2005.pdf">PDF version of the
+          Recommended Practice</a> available.
+     </ul>
+<tr valign=baseline>
+<td> <b>5&nbsp;July&nbsp;2007</b>
+<td> <ul>
+     <li> In the <a href="sids/index.html">SIDS document</a>, rearranged
+          discussion of the AIAA Recommended Practice version of the
+          SIDS, noting that it's out of date, and removed links to it on
+          the CGNS documentation home page.
+     </ul>
+<tr valign=baseline>
+<td> <b>19&nbsp;June&nbsp;2007</b>
+<td> <ul>
+     <li> Posted minutes from the May 22 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_may07.html">HTML</a>,
+          <a href="minutes/telecon_may07.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>26&nbsp;Mar&nbsp;2007</b>
+<td> <ul>
+     <li> Posted minutes from the Mar 21 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_mar07.html">HTML</a>,
+          <a href="minutes/telecon_mar07.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>30&nbsp;Jan&nbsp;2007</b>
+<td> <ul>
+     <li> Corrected a minor error in Mid-Level Library document,
+          changing the error status names <tt>ALL_OK</tt>, <tt>ERROR</tt>,
+          <tt>NODE_NOT_FOUND</tt>, and <tt>INCORRECT_PATH</tt> to
+          <tt>CG_OK</tt>, <tt>CG_ERROR</tt>, <tt>CG_NODE_NOT_FOUND</tt>, and
+          <tt>CG_INCORRECT_PATH</tt>, respectively.
+     </ul>
+<tr valign=baseline>
+<td> <b>17&nbsp;Jan&nbsp;2007</b>
+<td> <ul>
+     <li> Corrected an error in SIDS document, in the description of
+          the unstructured grid element numbering conventions for 
+          <a href="sids/conv.html#unst_pyramid">pyramid elements</a>.
+          For the <tt>PYRA_14</tt> element, node 14 should be at the
+          center of the quadrilateral face, not the center of the
+          element.
+     <li> Several modifications to the <i>Mid-Level Library</i> manual,
+          for consistency with the current CGNS Version 2.5 beta.
+          <ul type=circle>
+          <li> New functions to
+               <a href="midlevel/fileops.html#openclose">check file
+               validity</a> and
+               <a href="midlevel/fileops.html#configure">configure some
+               internal CGNS library options</a>.
+          <li> Additional functions providing alternate ways to
+               <a href="midlevel/navigating.html#goto">access a node.</a>
+          <li> Changes in the use of functions for partial writes of
+               <a href="midlevel/grid.html#gridcoordinates">coordinate</a>,
+               <a href="midlevel/grid.html#elements">element</a>,
+               and <a href="midlevel/solution.html#flowsolution">solution</a>
+               data.
+               The result is now always the union of the existing and
+               new data.
+               As part of this, the functions <tt>cg_section_read_ext</tt>
+               and <tt>cg_elements_read_ext</tt> are no longer needed
+               and have been removed, and new functions
+               <tt>cg_ElementPartialSize</tt> and
+               <tt>cg_elements_partial_read</tt> have been added.
+          </ul>
+     <li> Corrected typo in the data type of the argument <tt>data</tt>
+          in the Mid-Level Library function
+          <a href="midlevel/auxiliary.html#free"><tt>cg_free</tt></a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>30&nbsp;Nov&nbsp;2006</b>
+<td> <ul>
+     <li> Corrected error in the table at the top of the
+          <a href="cgnstools/utilities/export.html">Export Utilities</a>
+          section.
+          <tt>cgns_to_tecplot</tt> converts from CGNS to Tecplot, not
+          the other way round.
+     </ul>
+<tr valign=baseline>
+<td> <b>16&nbsp;Oct&nbsp;2006</b>
+<td> <ul>
+     <li> Corrected an error in the <i>Mid-Level Library</i> manual, in
+          the argument list for
+          <a href="midlevel/connectivity.html#general"><tt>cg_conn_write_short</tt></a>.
+          Even though the specific cell connectivity data aren't needed,
+          the name of the donor zone is still required.
+          Thanks to Thorsten Schwarz for spotting the problem.
+     </ul>
+<tr valign=baseline>
+<td> <b>11&nbsp;Oct&nbsp;2006</b>
+<td> <ul>
+     <li> Posted minutes from the Oct 4 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_oct06.html">HTML</a>,
+          <a href="minutes/telecon_oct06.pdf">PDF</a>).
+     <li> In the CGNS <i>Steering Committee Charter</i>, added
+          <a href="http://www.tecplot.com">Tecplot</a>
+          <img src="external.png" alt="external link"> to the list of
+          <a href="charter/organization.html#representation">current
+          member organizations</a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>25&nbsp;Sep&nbsp;2006</b>
+<td> <ul>
+     <li> Updated some links and contact points listed in the
+          <a href="overview/applications.html">Applications Software</a>
+          section of the CGNS <i>Overview and Entry-Level Document</i>.
+     </ul>
+<tr valign=baseline>
+<td> <b>5&nbsp;Sep&nbsp;2006</b>
+<td> <ul>
+     <li> In the CGNS <i>Steering Committee Charter</i>,
+          <ul type=circle>
+          <li> Added Thaerocomp to the list of
+               <a href="charter/organization.html#representation">current
+               member organizations</a>.
+          <li> Added a paragraph in the
+               <a href="charter/organization.html#representation">Representation</a>
+               section about the responsibilities of individual Steering
+               Committee members.
+          </ul>
+     <li> In the <i>Mid-Level Library</i>, modified the description of
+          the <tt>size</tt> argument for the
+          <a href="midlevel/structural.html#zone">Zone Information
+          routines</a>, attempting to clarify the definition for
+          unstructured grids.
+     <li> In the <i>SIDS</i>,
+          <ul type=circle>
+          <li> Modified the description of <tt>VertexSize</tt> for the
+               <a href="sids/cgnsbase.html#Zone"><tt>Zone_t</tt></a> structure
+               to clarify its definition for unstructured grids.
+          <li> Modified the description of the 
+               <a href="sids/cnct.html#GridConnectivity"><tt>GridConnectivity_t</tt></a>
+               structure to allow <tt>GridLocation</tt> to be
+               either <tt>Vertex</tt> or <tt>FaceCenter</tt> for
+               <tt>Abutting</tt> and <tt>Abutting1to1</tt> interfaces.
+          </ul>
+     </ul>
+<tr valign=baseline>
+<td> <b>8&nbsp;Aug&nbsp;2006</b>
+<td> <ul>
+     <li> Posted minutes from the Aug 2 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_aug06.html">HTML</a>,
+          <a href="minutes/telecon_aug06.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>28&nbsp;July&nbsp;2006</b>
+<td> <ul>
+     <li> Various changes due to the new capability for
+          <a href="sids/conv.html#rind_unstruct">rind data with
+          unstructured grids</a>.
+          <ul type=circle>
+          <li> In the <i>SIDS</i> document, changes to the descriptions
+               and/or components of the following structures:
+               <a href="sids/build.html#Rind"><tt>Rind_t</tt></a>,
+               <a href="sids/gridflow.html#GridCoordinates"><tt>GridCoordinates_t</tt></a>,
+               <a href="sids/gridflow.html#Elements"><tt>Elements_t</tt></a>,
+               <a href="sids/gridflow.html#FlowSolution"><tt>FlowSolution_t</tt></a>,
+               <a href="sids/timedep.html#ArbitraryGridMotion"><tt>ArbitraryGridMotion_t</tt></a>,
+               <a href="sids/misc.html#DiscreteData"><tt>DiscreteData_t</tt></a>.
+          <li> In the <i>SIDS-to-ADF File Mapping Manual</i>, changes to
+               the descriptions of the
+               <a href="filemap/nodes.html#Rind"><tt>Rind_t</tt></a>,
+               <a href="filemap/nodes.html#GridCoordinates"><tt>GridCoordinates_t</tt></a>, and
+               <a href="filemap/nodes.html#FlowSolution"><tt>FlowSolution_t</tt></a>
+               nodes, and to the figures for the
+               <a href="filemap/figures/GridCoordinates.html"><tt>GridCoordinates_t</tt></a>,
+               <a href="filemap/figures/Elements.html"><tt>Elements_t</tt></a>, and
+               <a href="filemap/figures/FlowSolution.html"><tt>FlowSolution_t</tt></a>
+               nodes.
+               Corresponding changes were also made in the
+               <i>SIDS-to-HDF File Mapping Manual</i>.
+          <li> In the <i>Mid-Level Library</i> manual, changes in the
+               <a href="midlevel/location.html#rind">Rind Layers</a>
+               section.
+          <li> In the <i>User's Guide to CGNS</i>, wording changes in the
+               sections describing a single-zone grid and flow solution for
+               <a href="user/started.html#sec:flowsoln:rind">structured</a> and
+               <a href="user/started.html#sec:unstrflow">unstructured</a>
+               grids, and in the
+               <a href="user/sids.html#sec:sidsexample">Structured Zone
+               Example</a> in the "Overview of the SIDS" section.
+          </ul>
+     <li> Added the Mid-Level Library function
+          <a href="midlevel/auxiliary.html#free"><tt>cg_free</tt></a>,
+          which frees memory allocated by the library for character data
+          returned by some routines.
+     <li> Made the following mods due to the SIDS change making zone
+          connectivity donor information optional for generalized
+          multizone interfaces.
+          <ul type=circle>
+          <li> Modified the description of the
+               <a href="sids/cnct.html#GridConnectivity"><tt>GridConnectivity_t</tt>
+               structure</a> in the <i>SIDS</i> document.
+          <li> In the <a href="filemap/figures/GridConnectivity.html"><tt>GridConnectivity</tt>
+               node figure</a> in both the <i>SIDS-to-ADF</i> and
+               <i>SIDS-to-HDF File Mapping Manual</i>, changed the
+               Cardinality of <tt>CellListDonor/PointListDonor</tt> from
+               "1" to "0,1".
+          <li> Added the function <a href="midlevel/connectivity.html#general"><tt>cg_conn_write_short</tt></a>
+               in the <i>Mid-Level Library Manual</i>, to write
+               generalized zone connectivity data without donor
+               information.
+          </ul>
+     <li> In the <i>SIDS</i> document, added a sentence to the
+          description of <tt>ElementRange</tt> for the
+          <a href="sids/gridflow.html#Elements"><tt>Elements_t</tt></a>
+          structure to clarify the use of the global numbering system.
+     </ul>
+<tr valign=baseline>
+<td> <b>14&nbsp;June&nbsp;2006</b>
+<td> <ul>
+     <li> Added slides from the special
+          <a href="index.html#slides:tutorial_jun06">"CGNS Tutorial
+          Session"</a> at the 36th AIAA Fluid Dynamics Conference in San
+          Francisco, California, June 5-8, 2006.
+     </ul>
+<tr valign=baseline>
+<td> <b>17&nbsp;May&nbsp;2006</b>
+<td> <ul>
+     <li> Posted minutes from the May 10 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_may06.html">HTML</a>,
+          <a href="minutes/telecon_may06.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>13&nbsp;Apr&nbsp;2006</b>
+<td> <ul>
+     <li> Updated the paragraph in the <i>Overview and Entry-Level
+          Document</i> about the status of the
+          <a href="overview/history.html#status">inclusion of CGNS as
+          part of an ISO standard</a>.
+     <li> In the list of
+          <a href="charter/organization.html#representation">current
+          member organizations</a> in the CGNS <i>Steering Committee
+          Charter</i>, changed the name "ICEM CFD Engineering" to
+          "ANSYS-ICEM CFD".
+     </ul>
+<tr valign=baseline>
+<td> <b>10&nbsp;Apr&nbsp;2006</b>
+<td> <ul>
+     <li> Updated some links and contact points listed in the
+          <a href="overview/applications.html">Applications Software</a>
+          section of the CGNS <i>Overview and Entry-Level Document</i>.
+     </ul>
+<tr valign=baseline>
+<td> <b>27&nbsp;Mar&nbsp;2006</b>
+<td> <ul>
+     <li> Added <a href="http://www.pnl.gov/">Pacific Northwest National
+          Laboratory</a> <img src="external.png" alt="external link">
+          to the list of
+          <a href="charter/organization.html#representation">current
+          member organizations</a> in the CGNS <i>Steering Committee
+          Charter</i>.
+     <li> Posted minutes from the Mar 22 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_mar06.html">HTML</a>,
+          <a href="minutes/telecon_mar06.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>1&nbsp;Mar&nbsp;2006</b>
+<td> <ul>
+     <li> Corrected a couple of typos in the
+          <a href="sids/timedep.html">Time-Dependent Flow</a> and
+          <a href="sids/dataname.html">Conventions for Data-Name
+          Identifiers</a> sections of the SIDS document, and
+          in the <a href="midlevel/navigating.html">Navigating
+          a CGNS File</a> section of the <i>Mid-Level Library
+          Manual</i> (where <tt>FlowSolution</tt> had been written as
+          <tt>FlowSolutions</tt>).
+     </ul>
+<tr valign=baseline>
+<td> <b>3&nbsp;Feb&nbsp;2006</b>
+<td> <ul>
+     <li> In the <i>Mid-Level Library Manual</i>, corrected a typo in
+          the name of the Fortran routine
+          <a href="midlevel/physical.html#dataarray"><tt>cg_array_read_as_f</tt></a>,
+          used to read data arrays (the "<tt>_f</tt>" was left off).
+     </ul>
+<tr valign=baseline>
+<td> <b>17&nbsp;Jan&nbsp;2006</b>
+<td> <ul>
+     <li> Updated (and alphabetized) the list of
+          <a href="charter/organization.html#representation">current
+          member organizations</a> in the CGNS <i>Steering Committee
+          Charter</i>.
+     <li> Posted minutes from the Jan 11 CGNS Steering Committee meeting.
+          (<a href="minutes/meeting_jan06.html">HTML</a>,
+          <a href="minutes/meeting_jan06.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>10&nbsp;Jan&nbsp;2006</b>
+<td> <ul>
+     <li> Corrected a typo in the PDF version of the SIDS document
+          involving an escaped underscore.
+          Thanks to Marc Poinot for spotting it.
+     </ul>
+<tr valign=baseline>
+<td> <b>21&nbsp;Dec&nbsp;2005</b>
+<td> <ul>
+     <li> Updated all links to the
+          <a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">NASA
+          Privacy and Accessibility Policies</a> to conform with the
+          latest NASA requirement.
+     </ul>
+<tr valign=baseline>
+<td> <b>15&nbsp;Dec&nbsp;2005</b>
+<td> <ul>
+     <li> In the <i>SIDS</i> document,
+          <ul type=circle>
+          <li> Added a paragraph at the start of the
+               <a href="sids/intro.html">Introduction</a> intended to
+               better explain the importance and benefits of using CGNS.
+          <li> Added a bit to the description of the
+               <a href="sids/gridflow.html#RotatingCoordinates"><tt>RotatingCoordinates_t</tt></a> 
+               data structure to more clearly explain its use, and
+               deleted the sentence saying that it doesn't cover cases
+               where the zone interfaces are not perpendicular to the
+               axis of rotation.
+          <li> Made a few other changes in various places to correct
+               typos and add clarification.
+          </ul>
+          Thanks to Kurt Weber for his review of the updated AIAA
+          Recommended Practice, and for suggesting these changes.
+     </ul>
+<tr valign=baseline>
+<td> <b>7&nbsp;Dec&nbsp;2005</b>
+<td> <ul>
+     <li> Modified the <a href="user/index.html">User's Guide to
+          CGNS</a> to refer users to the 
+          <a href="http://sourceforge.net/projects/cgns">CGNS site at
+          SourceForge</a> <img src="external.png" alt="external link">
+          to download the source code examples.
+     </ul>
+<tr valign=baseline>
+<td> <b>21&nbsp;Nov&nbsp;2005</b>
+<td> <ul>
+     <li> Eliminated most usage of images for equation elements
+          throughout the HTML version of the CGNS documentation, in
+          favor of the appropriate HTML character entities.
+          E.g., instead of using a GIF image to represent the Greek
+          letter rho, the character entity &amp;rho; is used instead.
+          Images were originally used because HTML browsers typically
+          didn't support character entities for many of the symbols
+          that were used.
+          Current-generation browsers, however, are much better.
+          Mozilla Firefox 1.0.7 supports all the character entities used
+          in the CGNS documentation, and Microsoft Internet Explorer 6.0
+          supports all but a couple.
+          See the list of standard HTML 4.0 character entities for
+          <a href="http://www.htmlhelp.com/reference/html40/entities/symbols.html">Symbols
+          and Greek Letters</a> <img src="external.png" alt="external link">
+          to see how they are displayed in your browser.
+     </ul>
+<tr valign=baseline>
+<td> <b>17&nbsp;Nov&nbsp;2005</b>
+<td> <ul>
+     <li> Corrected typos in the <a href="midlevel/solution.html">Solution
+          Data</a> section of the <i>Mid-Level Library</i> manual.
+          (<tt>GridLocation_t</tt> was mistakenly written as
+          <tt>GridLocationType_t</tt>.)
+     </ul>
+<tr valign=baseline>
+<td> <b>16&nbsp;Nov&nbsp;2005</b>
+<td> <ul>
+     <li> Corrected a minor cross-referencing error in the PDF version of
+          the SIDS document.
+     </ul>
+<tr valign=baseline>
+<td> <b>2&nbsp;Nov&nbsp;2005</b>
+<td> <ul>
+     <li> In the description of the
+          <a href="midlevel/connectivity.html#general">Generalized
+          Connectivity</a> routines in the <i>Mid-Level Library
+          Manual</i>, clarified the definitions of <tt>ndata_donor</tt>
+          and <tt>donor_data</tt>.
+     </ul>
+<tr valign=baseline>
+<td> <b>19&nbsp;Oct&nbsp;2005</b>
+<td> <ul>
+     <li> In the description of
+          <a href="sids/cnct.html#GridConnectivity"><tt>GridConnectivity_t</tt></a>,
+          in the <a href="sids/cnct.html">Multizone Interface Connectivity</a>
+          section of the <i>SIDS</i> document, modified the description
+          of the use of <tt>GridLocation</tt> to clarify its allowed
+          values for different types of interfaces.
+     </ul>
+<tr valign=baseline>
+<td> <b>18&nbsp;Oct&nbsp;2005</b>
+<td> <ul>
+     <li> Added a couple of sentences in the
+          <a href="sids/cnct.html">Multizone Interface Connectivity</a>
+          and <a href="sids/bc.html">Boundary Conditions</a> sections of
+          the <i>SIDS</i> document to clarify that a given zone boundary
+          segment is intended to be defined as either a boundary
+          condition segment or a multizone connectivity segment, but not
+          both.
+     </ul>
+<tr valign=baseline>
+<td> <b>17&nbsp;Oct&nbsp;2005</b>
+<td> <ul>
+     <li> Updated the <a href="overview/elements.html">Elements and
+          Documentation</a> section of the <i>Overview and Entry-Level
+          Document</i> to reflect the option of using HDF instead of ADF.
+          (Thanks to Chris Rumsey for doing the update.)
+     </ul>
+<tr valign=baseline>
+<td> <b>5&nbsp;Oct&nbsp;2005</b>
+<td> <ul>
+     <li> Posted minutes from the Oct 4 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_oct05.html">HTML</a>,
+          <a href="minutes/telecon_oct05.pdf">PDF</a>).
+     <li> Added <a href="papers/erf31-107.pdf">ERF Paper 31-107</a>,
+          titled "Application of CGNS software components for
+          helicopter blade fluid-structure strong coupling," by M. Poinot,
+          M. Costes, and B. Cantaloube, presented at the 31st European
+          Rotorcraft Forum, Florence, Italy. [PDF (174K, 10 pages)]
+     </ul>
+<tr valign=baseline>
+<td> <b>7&nbsp;Sep&nbsp;2005</b>
+<td> <ul>
+     <li> In the <a href="overview/history.html">History</a> section of
+          the <i>Overview</i> document, added a sentence crediting
+          ONERA, ICEM CFD, and AEDC for the addition of support for HDF5.
+     </ul>
+<tr valign=baseline>
+<td> <b>6&nbsp;Sep&nbsp;2005</b>
+<td> <ul>
+     <li> Due to the release of CGNS Version 2.4, the CGNS documentation
+          has been moved as shown below:
+          <ul type=circle>
+          <li> CGNS Version 2.4<br>
+               <a href="http://www.grc.nasa.gov/WWW/cgns/rel2.4/index.html">http://www.grc.nasa.gov/WWW/cgns/index.html</a>
+          <li> CGNS Version 2.3<br>
+               <a href="http://www.grc.nasa.gov/WWW/cgns/rel2.3/index.html">http://www.grc.nasa.gov/WWW/cgns/rel2.3/index.html</a>
+          </ul>
+     <li> Documentation for CGNS Version 2.2 has been deleted.
+     <li> Added the <a href="filemap_hdf/index.html">SIDS-to-HDF
+          File Mapping Manual</a>, created by Marc Poinot using the
+          <i>SIDS-to-ADF File Mapping Manual</i> as a basis.
+     <li> Updated the <a href="overview/index.html">Overview and
+          Entry-Level Document</a> to reflect the release of
+          CGNS Version 2.4, and the option of using HDF instead of ADF.
+     <li> Modified the CGNS Steering Committee Charter to note the
+          addition of the HDF5 option, change the
+          <a href="charter/license.html">license</a>
+          covering the allowed distribution and use of the CGNS software,
+          and to update a few links.
+     <li> Added a note in the <a href="user/intro.html">Introduction</a>
+          section of the <i>User's Guide</i> about the option of using
+          HDF instead of ADF as the underlying database manager.
+     <li> Minor modifications to the <i>SIDS</i> document, in the
+          <a href="sids/intro.html">Introduction</a>,
+          <a href="sids/conv.html">Conventions</a>,
+          <a href="sids/cgnsbase.html">Hierarchical Structures</a>,
+          <a href="sids/cnct.html">Multizone Interface Connectivity</a>,
+          and <a href="sids/bc.html">Boundary Conditions</a> sections,
+          due to the option of using HDF instead of ADF.
+     <li> Minor modifications to the <i>Mid-Level Library</i> document,
+          in the <a href="midlevel/index.html">Introduction</a>,
+          <a href="midlevel/general.html">General Remarks</a>,
+          <a href="midlevel/fileops.html#openclose">Opening and Closing
+          a CGNS File</a>, and <a href="midlevel/navigating.html">Navigating
+          a CGNS File</a> sections, due to the option of using HDF
+          instead of ADF.
+     <li> Minor modifications to the <i>SIDS-to-ADF File Mapping Manual</i>,
+          in the <a href="filemap/brief.html">Brief Description of CGNS</a>,
+          <a href="filemap/documentation.html">CGNS Documentation</a>, and
+          <a href="filemap/adfsummary.html">Summary Description of ADF</a>,
+          sections, due to the option of using HDF instead of ADF.
+     <li> Added a note to the list of <a href="structures.html">CGNS
+          Data Structures</a> saying that the "File Mapping" links
+          connect to the <i>SIDS-to-ADF File Mapping Manual</i>.
+     <li> Added the <i>SIDS-to-HDF File Mapping Manual</i> to the lists
+          in the instructions for downloading the
+          <a href="install_html.html">HTML</a> and
+          <a href="install_tex.html">LaTeX</a> source files.
+     <li> Added the <a href="sitemaps/filemap_hdf.html">SIDS-to-HDF File
+          Mapping Manual</a> to the document
+          <a href="sitemaps/index.html">sitemaps</a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>23&nbsp;Aug&nbsp;2005</b>
+<td> <ul>
+     <li> Posted slides <a href="slides/nasa-ames.ppt">CFD General
+          Notation System</a>, an overview of the CGNS project and its
+          current status, presented by Bruce Wedan of ANSYS/ICEM CFD at
+          NASA Ames, Jan 2005. [PowerPoint (345K, 46 pages)].
+     <li> In the <i>Mid-Level Library</i> manual, added a paragraph to
+          the description of the function
+          <a href="midlevel/bc.html#bcdata"><tt>cg_bcdata_write</tt></a>
+          about writing the boundary condition data itself.
+     </ul>
+<tr valign=baseline>
+<td> <b>14&nbsp;Jul&nbsp;2005</b>
+<td> <ul>
+     <li> Modified the information on the <a href="index.html">CGNS
+          Documentation Home Page</a> about the
+          <a href="https://lists.nasa.gov/mailman/listinfo/cgnstalk">CGNStalk
+          mailing list</a>, due to the move to a new list server.
+     </ul>
+<tr valign=baseline>
+<td> <b>20&nbsp;Jun&nbsp;2005</b>
+<td> <ul>
+     <li> Updated the documentation for consistency with CGNS version 2.4.
+          In the <a href="sids/index.html">SIDS document</a> this includes:
+          <ul type=circle>
+          <li> <a href="sids/cnct.html#GridConnectivityProperty"><tt>GridConnectivityProperty_t</tt></a>
+               has been added to the
+               <a href="sids/cnct.html#GridConnectivity1to1"><tt>GridConnectivity1to1_t</tt></a>
+               data structure.
+          <li> <a href="sids/build.html#GridLocation"><tt>GridLocation_t</tt></a>,
+               <tt>PointRange</tt>, and <tt>PointList</tt> have been added
+               to the <a href="sids/bc.html#BCDataSet"><tt>BCDataSet_t</tt></a>
+               data structure, allowing boundary conditions to be
+               specified at locations different from those used to
+               defined the BC patch.
+               An <a href="sids/bc.html#ex:bc6">example</a> of this has
+               also been added.
+          <li> Data structures have been added to
+               <a href="sids/floweqn.html#FlowEquationSet"><tt>FlowEquationSet_t</tt></a>
+               for describing the electric field, magnetic field, and
+               conductivity models used for
+               <a href="sids/floweqn.html#EM">electromagnetic flows</a>.
+               Corresponding recommended
+               <a href="sids/floweqn.html#t:id_EM">data-name identifiers</a>
+               have also been added.
+          <li> <a href="sids/gridflow.html#RotatingCoordinates"><tt>RotatingCoordinates_t</tt></a>
+               has been added to the
+               <a href="sids/misc.html#Family"><tt>Family_t</tt></a>
+               data structure.
+          <li> A <a href="sids/bc.html#BCDataSet"><tt>BCDataSet_t</tt></a>
+               list has been added to the
+               <a href="sids/misc.html#FamilyBC"><tt>FamilyBC_t</tt></a>
+               data structure, allowing specification of boundary
+               condition data arrays for CFD families.
+          <li> <a href="sids/build.html#GridLocation"><tt>GridLocation_t</tt></a>,
+               <tt>PointRange</tt>, <tt>PointList</tt>,
+               <a href="sids/cgnsbase.html#FamilyName"><tt>FamilyName_t</tt></a>,
+               <a href="sids/misc.html#UserDefinedData"><tt>UserDefinedData_t</tt></a>,
+               and <a href="sids/cgnsbase.html#Ordinal"><tt>Ordinal</tt></a>
+               have been added to the
+               <a href="sids/misc.html#UserDefinedData"><tt>UserDefinedData_t</tt></a>
+               data structure.
+          <li> The <a href="sids/build.html#DimensionalUnits"><tt>DimensionalUnits_t</tt></a>
+               and <a href="sids/build.html#DimensionalExponents"><tt>DimensionalExponents_t</tt></a>
+               structures have been expanded to include units for
+               electric current, substance amount, and luminous
+               intensity.
+          </ul>
+          In the <a href="filemap/index.html">SIDS-to-ADF File Mapping Manual</a>:
+          <ul type=circle>
+          <li> Details have been added for the new nodes
+               <a href="filemap/nodes.html#AdditionalUnits"><tt>AdditionalUnits_t</tt></a>,
+               <a href="filemap/nodes.html#AdditionalExponents"><tt>AdditionalExponents_t</tt></a>,
+               <a href="filemap/nodes.html#EMElectricFieldModel"><tt>EMElectricFieldModel_t</tt></a>,
+               <a href="filemap/nodes.html#EMMagneticFieldModel"><tt>EMMagneticFieldModel_t</tt></a>,
+               <a href="filemap/nodes.html#EMConductivityModel"><tt>EMConductivityModel_t</tt></a>.
+          <li> The description of <tt>ListLength</tt> for the
+               <a href="filemap/nodes.html#BCDataSet"><tt>BCDataSet_t</tt></a> node has been
+               modified due to the addition of <tt>GridLocation_t</tt> to
+               the <a href="sids/bc.html#BCDataSet"><tt>BCDataSet_t</tt></a>
+               structure.
+          <li> Minor modifications to some of the
+               <a href="filemap/figures.html">File Mapping Figures</a>
+               due to the addition of optional child nodes to some
+               nodes, primarily affecting
+               <a href="filemap/general.html#cardinality">Cardinality</a>
+               values.
+          <li> Added new child nodes in the
+               <a href="filemap/figures/GridConnectivity1to1.html"><tt>GridConnectivity1to1</tt><a>, 
+               <a href="filemap/figures/BCDataSet.html"><tt>BCDataSet</tt><a>,
+               <a href="filemap/figures/FlowEquationSet.html"><tt>FlowEquationSet</tt><a>,
+               <a href="filemap/figures/Family.html"><tt>Family</tt><a>, and
+               <a href="filemap/figures/UserDefinedData.html"><tt>UserDefinedData</tt><a>
+               figures.
+          <li> Added new figures for the
+               <a href="filemap/figures/DimensionalExponents.html"><tt>DimensionalExponents</tt><a>, 
+               <a href="filemap/figures/DimensionalUnits.html"><tt>DimensionalUnits</tt><a>,
+               <a href="filemap/figures/EMElectricFieldModel.html"><tt>EMElectricFieldModel</tt><a>,
+               <a href="filemap/figures/EMMagneticFieldModel.html"><tt>EMMagneticFieldModel</tt><a>,
+               <a href="filemap/figures/EMConductivityModel.html"><tt>EMConductivityModel</tt><a>, and
+               <a href="filemap/figures/FamilyBC.html"><tt>FamilyBC</tt><a>
+               nodes.
+          </ul>
+          And in the <a href="midlevel/index.html">Mid-Level Library
+          manual</a>:
+          <ul type=circle>
+          <li> In the list of <a href="midlevel/general.html#typedefs">Typedefs</a>,
+               added the typedefs <tt>ElectricCurrentUnits_t</tt>,
+               <tt>SubstanceAmountUnits_t</tt>, and
+               <tt>LuminousIntensityUnits_t</tt>, and added some new key
+               words to the <tt>ModelType_t</tt> typedef.
+          <li> Modified the description of the routines for reading/writing
+               dimensional <a href="midlevel/physical.html#dimensionalunits">units</a>
+               and <a href="midlevel/physical.html#dimensionalexponents">exponents</a>
+               due to the addition of electric current, substance
+               amount, and luminous intensity.
+          <li> Added routines for
+               <a href="midlevel/location.html#ptset">reading/writing
+               point sets</a> (i.e., <tt>PointRange</tt> and
+               <tt>PointList</tt> nodes).
+          <li> For <a href="midlevel/auxiliary.html#userdefined">user-defined
+               data</a>, added detail about reading/writing point set
+               information.
+          <li> Added a routine for
+               <a href="midlevel/grid.html#gridcoordinates_original">writing a
+               partial set of grid coordinates</a>.
+          <li> Added new routines related to
+               <a href="midlevel/grid.html#elements">element connectivity</a>, 
+               including routines for reading/writing partial lists of
+               element and parent data</a>.
+          <li> Added a routine for
+               <a href="midlevel/solution.html#flowsolution_array">writing a
+               partial flow solution</a>.
+          <li> Added routines for
+               <a href="midlevel/connectivity.html#connproperty">reading/writing
+               special grid connectivity information</a> for 1-to-1 grid
+               connectivity.
+          <li> Added detail about
+               <a href="midlevel/bc.html#bcdataset">reading/writing point
+               set information</a> to <tt>BCDataSet_t</tt> nodes that
+               are children of a <tt>BC_t</tt> node.
+          <li> Added routines for
+               <a href="midlevel/bc.html#bcdataset_family">reading/writing
+               <tt>BCDataSet_t</tt> nodes for a CFD family</a>.
+          <li> Added a routine for
+               <a href="midlevel/equation.html#flowequationset">reading
+               electromagnetic equation set info</a>, and added
+               <a href="midlevel/equation.html#auxiliary">types for
+               electromagnetic models</a>.
+          </ul>
+     </ul>
+<tr valign=baseline>
+<td> <b>6&nbsp;Jun&nbsp;2005</b>
+<td> <ul>
+     <li> Posted minutes from the May 25 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_may05.html">HTML</a>,
+          <a href="minutes/telecon_may05.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>27&nbsp;May&nbsp;2005</b>
+<td> <ul>
+     <li> Updated some links and contact points listed in the
+          <a href="overview/applications.html">Applications Software</a>
+          section of the CGNS <i>Overview and Entry-Level Document</i>.
+     </ul>
+<tr valign=baseline>
+<td> <b>26&nbsp;May&nbsp;2005</b>
+<td> <ul>
+     <li> Modified the <a href="charter/organization.html">Organization/Bylaws</a>
+          section of the CGNS <i>Steering Committee Charter</i> to allow
+          the appointment of a Vice-Chairperson.
+     </ul>
+<tr valign=baseline>
+<td> <b>22&nbsp;Mar&nbsp;2005</b>
+<td> <ul>
+     <li> Posted minutes from the Mar 16 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_mar05.html">HTML</a>,
+          <a href="minutes/telecon_mar05.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>4&nbsp;Feb&nbsp;2005</b>
+<td> <ul>
+     <li> Added <a href="papers/aiaa05-1381.pdf">AIAA Paper
+          2005-1381</a>, titled "Benchmarking Parallel I/O Performance
+          for Computational Fluid Dynamics Applications," by P. D.
+          Pakalapati and T. Hauser, presented at the 43rd AIAA Aerospace
+          Sciences Meeting and Exhibit. [PDF (3.6M, 8 pages)]
+     </ul>
+<tr valign=baseline>
+<td> <b>24&nbsp;Jan&nbsp;2005</b>
+<td> <ul>
+     <li> Corrected an error in the <i>Mid-Level Library</i> manual, in
+          the description of the
+          <a href="midlevel/physical.html#dataconversion">data conversion
+          routines</a> <tt>cg_conversion_write</tt> and
+          <tt>cg_conversion_read</tt>.
+          The scale and offset factors are stored in a two-element array,
+          not as separate scalars.
+     <li> Corrected an error in the <i>SIDS</i> document, in the
+          <a href="sids/gridflow.html#element_example"><tt>Elements_t</tt>
+          data structure examples</a>.
+          The examples included <tt>DataArray_t</tt> data structures
+          defining <tt>ParentData</tt> for 3-D elements, where it
+          doesn't apply.
+     <li> In the list of <a href="index.html#Papers">CGNS-related
+          conference papers</a>, added R. Magnan as an author for AIAA
+          Paper 2005-0334.
+          Apologies for inadvertantly omitting him in the original update.
+     </ul>
+<tr valign=baseline>
+<td> <b>19&nbsp;Jan&nbsp;2005</b>
+<td> <ul>
+     <li> Added <a href="papers/aiaa05-0334.pdf">AIAA Paper
+          2005-0334</a>, titled "CGNS-Based Data Model for Turbine Blade
+          Optimization," by H. Iepan, F. Guibault, M.-G. Vallet, and
+          R. Magnan, presented at the 43rd AIAA Aerospace Sciences
+          Meeting and Exhibit. [PDF (379K, 11 pages)]
+     </ul>
+<tr valign=baseline>
+<td> <b>18&nbsp;Jan&nbsp;2005</b>
+<td> <ul>
+     <li> Posted minutes from the Jan 12 CGNS Steering Committee meeting.
+          (<a href="minutes/meeting_jan05.html">HTML</a>,
+          <a href="minutes/meeting_jan05.pdf">PDF</a>).
+     <li> Added <a href="papers/aiaa05-1155.pdf">AIAA Paper 2005-1155</a>,
+          titled "Checking CFD interfaces in a multi-disciplinary workflow
+          with an XML/CGNS compiler" by M. Poinot, E. Montreuil, and E.
+          Henaux, presented at the 43rd AIAA Aerospace Sciences Meeting
+          and Exhibit. [PDF (662K, 11 pages)]
+     </ul>
+<tr valign=baseline>
+<td> <b>19&nbsp;Nov&nbsp;2004</b>
+<td> <ul>
+     <li> Corrected (as Marc Poinot put it) the "smallest typo
+          ever known", in the "Deforming Grid Motion" example in the
+          <a href="sids/timedep.html">Time-Dependent Flow</a> section
+          of the <i>SIDS</i> document.
+          Thanks to Marc for spotting this.
+     <li> Modified the <i>Steering Committee Charter</i> to add Utah
+          State University, Stanford University, and ANSYS-CFX as
+          <a href="charter/organization.html#representation">Steering
+          Committee members</a>.
+     <li> Posted minutes from the Nov 17 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_nov04.html">HTML</a>,
+          <a href="minutes/telecon_nov04.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>20&nbsp;Oct&nbsp;2004</b>
+<td> <ul>
+     <li> Corrected an error in the section on
+          <a href="sids/conv.html#unst_pyramid">Unstructured Grid Element
+          Numbering Conventions</a> in the <i>SIDS</i> document.
+          For pyramid elements, the oriented edges for face <tt>F4</tt>
+          were listed as <tt>E6,E8,-E7</tt>, and the correct values
+          are <tt>E3,E8,-E7</tt>.
+          Thanks to Alan Sayre for spotting this.
+     </ul>
+<tr valign=baseline>
+<td> <b>6&nbsp;Oct&nbsp;2004</b>
+<td> <ul>
+     <li> Added <tt>SoundIntensityDB</tt> (sound intensity level in decibels)
+          and <tt>SoundIntensity</tt> (sound power per unit area) to the
+          list of recommended <a href="sids/dataname.html#dataname_flow">flow
+          solution data-name identifiers</a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>30&nbsp;Sep&nbsp;2004</b>
+<td> <ul>
+     <li> Posted minutes from the Sep 28 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_sep04.html">HTML</a>,
+          <a href="minutes/telecon_sep04.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>29&nbsp;Sep&nbsp;2004</b>
+<td> <ul>
+     <li> Added files and instructions for
+          <a href="install_tex.html">downloading and using the LaTeX
+          source for the CGNS documentation</a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>7&nbsp;Jul&nbsp;2004</b>
+<td> <ul>
+     <li> Posted minutes from the June 30 CGNS Steering Committee meeting.
+          (<a href="minutes/meeting_jun04.html">HTML</a>,
+          <a href="minutes/meeting_jun04.pdf">PDF</a>).
+     <li> Added <a href="papers/aiaa04-2142.pdf">AIAA Paper 2004-2142</a>,
+          titled "Impact of CGNS on CFD Workflow" by M. Poinot,
+          C. L. Rumsey, and M. Mani, presented at the 34th AIAA Fluid
+          Dynamics Conference and Exhibit. [PDF (729K, 12 pages)]
+     </ul>
+<tr valign=baseline>
+<td> <b>22&nbsp;Jun&nbsp;2004</b>
+<td> <ul>
+     <li> Added <a href="papers/aiaa04-1088.pdf">AIAA Paper 2004-1088</a>,
+          titled "Parallel I/O for the CGNS system" by Th. Hauser,
+          presented at the 42nd AIAA Aerospace Sciences
+          Meeting and Exhibit. [PDF (1.5M, 11 pages)]
+     </ul>
+<tr valign=baseline>
+<td> <b>2&nbsp;Jun&nbsp;2004</b>
+<td> <ul>
+     <li> Removed the wording "in the same manner as grid connectivity"
+          in the description of the <a href="filemap/nodes.html#BC">BC_t
+          node</a> in the <i>SIDS-to-ADF File Mapping Manual</i>, that
+          was inadvertantly left in when the documentation was updated
+          with the release of CGNS Version 2.3.
+     </ul>
+<tr valign=baseline>
+<td> <b>18&nbsp;May&nbsp;2004</b>
+<td> <ul>
+     <li> Changed the description of
+          <a href="midlevel/descriptor.html#ordinal"><tt>Ordinal</tt></a>
+          in the <i>Mid-Level Library</i> manual to say that it may be
+          any integer value, and is not limited to values &gt; 0.
+     </ul>
+<tr valign=baseline>
+<td> <b>2&nbsp;Apr&nbsp;2004</b>
+<td> <ul>
+     <li> Posted minutes from the Mar 25 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_mar04.html">HTML</a>,
+          <a href="minutes/telecon_mar04.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>26&nbsp;Mar&nbsp;2004</b>
+<td> <ul>
+     <li> Due to the release of CGNS Version 2.3, the CGNS documentation
+          has been moved as shown below:
+          <ul type=circle>
+          <li> CGNS Version 2.3<br>
+               <a href="http://www.grc.nasa.gov/WWW/cgns/rel2.3/index.html">http://www.grc.nasa.gov/WWW/cgns/index.html</a>
+          <li> CGNS Version 2.2<br>
+               <a href="http://www.grc.nasa.gov/WWW/cgns/rel2.2/index.html">http://www.grc.nasa.gov/WWW/cgns/rel2.2/index.html</a>
+          </ul>
+     <li> Documentation for CGNS Version 2.1 has been deleted.
+     <li> Updated the <a href="overview/index.html">Overview</a> document
+          to reflect the release of CGNS Version 2.3.
+     </ul>
+<tr valign=baseline>
+<td> <b>19&nbsp;Mar&nbsp;2004</b>
+<td> <ul>
+     <li> Removed the web page showing access stats for the CGNS
+          documentation web pages.
+          The widespread use of indexing robots for search engines, and
+          the local use of link validation tools, have made the access
+          stats pretty meaningless.
+     </ul>
+<tr valign=baseline>
+<td> <b>13&nbsp;Feb&nbsp;2004</b>
+<td> <ul>
+     <li> Changed the description of the
+          <a href="sids/bc.html#BC"><tt>BC_t</tt> data structure</a>
+          in the <i>SIDS</i> manual to reflect the addition of
+          <tt>ElementRange</tt> and <tt>ElementList</tt>.
+     <li> In the <i>Mid-Level Library</i> manual, modified the
+          description of the routines related to the
+          <a href="midlevel/bc.html#bc">Boundary Condition Type and
+          Location</a> to reflect the addition of <tt>ElementRange</tt>
+          and <tt>ElementList</tt> in the <tt>BC_t</tt> structure.
+     <li> In the <i>File Mapping</i> manual, modified the
+          <a href="filemap/figures/BC.html"><tt>BC_t</tt> figure</a>
+          to reflect the addition of <tt>ElementRange</tt> and
+          <tt>ElementList</tt>.
+     <li> In the <i>User's Guide to CGNS</i>, modified the
+          <a href="user/started.html">"Getting Started" section</a>
+          to reflect the addition of <tt>ElementRange</tt> and
+          <tt>ElementList</tt> in the <tt>BC_t</tt> structure.
+     </ul>
+<tr valign=baseline>
+<td> <b>29&nbsp;Jan&nbsp;2004</b>
+<td> <ul>
+     <li> Changed names of some .gif files used in the HTML version of
+          the <a href="sids/index.html">SIDS document</a>, to avoid file
+          name conflicts on Windows systems, which (unfortunately) uses
+          case-insensitive file names.
+     </ul>
+<tr valign=baseline>
+<td> <b>13&nbsp;Jan&nbsp;2004</b>
+<td> <ul>
+     <li> Updated <a href="charter/index.html">CGNS Steering Committee
+          Charter</a>.
+     <li> Posted minutes from the Jan 7 CGNS Steering Committee meeting.
+          (<a href="minutes/meeting_jan04.html">HTML</a>,
+          <a href="minutes/meeting_jan04.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>24&nbsp;Nov&nbsp;2003</b>
+<td> <ul>
+     <li> Posted minutes from the Nov 20 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_nov03.html">HTML</a>,
+          <a href="minutes/telecon_nov03.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>24&nbsp;Sep&nbsp;2003</b>
+<td> <ul>
+     <li> Posted minutes from the Sep 18 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_sep03.html">HTML</a>,
+          <a href="minutes/telecon_sep03.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>12&nbsp;Sep&nbsp;2003</b>
+<td> <ul>
+     <li> Corrected typos in the <a href="midlevel/connectivity.html">Grid
+          Connectivity</a> section of the <i>Mid-Level Library</i> manual.
+          (<tt>GridLocation_t</tt> was mistakenly written as
+          <tt>GridLocationType_t</tt>.)
+     </ul>
+<tr valign=baseline>
+<td> <b>4&nbsp;Jun&nbsp;2003</b>
+<td> <ul>
+     <li> Added an <a href="structures.html">alphabetical list of data
+          structures</a>, with links to the appropriate sections in the
+          various manuals. 
+     </ul>
+<tr valign=baseline>
+<td> <b>2&nbsp;Jun&nbsp;2003</b>
+<td> <ul>
+     <li> Posted minutes from the May 29 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_may03.html">HTML</a>,
+          <a href="minutes/telecon_may03.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>20&nbsp;May&nbsp;2003</b>
+<td> <ul>
+     <li> Added documentation for the <a href="cgnstools/index.html">CGNS
+          Tools and Utilities</a>, including
+          <a href="cgnstools/adfviewer/index.html">ADFviewer</a>,
+          <a href="cgnstools/cgnsplot/index.html">CGNSplot</a>, and
+          <a href="cgnstools/utilities/index.html">other utilities</a>
+          included in the <i>CGNStools</i> package.
+     </ul>
+<tr valign=baseline>
+<td> <b>13&nbsp;May&nbsp;2003</b>
+<td> <ul>
+     <li> Due to the release of production Version 2.2 of the CGNS software,
+          the CGNS documentation has been moved as shown below:
+          <ul type=circle>
+          <li> Software Release 2.2<br>
+               <a href="http://www.grc.nasa.gov/WWW/cgns/rel2.2/index.html">http://www.grc.nasa.gov/WWW/cgns/index.html</a>
+          <li> Software Release 2.1<br>
+               <a href="http://www.grc.nasa.gov/WWW/cgns/rel2.1/index.html">http://www.grc.nasa.gov/WWW/cgns/rel2.1/index.html</a>
+          </ul>
+     <li> Documentation for Software Release 2.0 has been deleted.
+     <li> Updated the <a href="overview/index.html">Overview</a> document
+          to reflect the release of Version 2.2 of the CGNS software.
+     <li> In the <i>ADF User's Guide</i>, modified the section on
+          <a href="adf/library.html#acquiring">Acquiring the Software
+          and Documentation</a> to reflect the current use of
+          <a href="http://sourceforge.net/projects/cgns">SourceForge</a>
+          <img src="external.png" alt="external link"> for distribution.
+     <li> In the <i>Mid-Level Library</i>, modified the section on
+          <a href="midlevel/general.html#acquiring">Acquiring the Software
+          and Documentation</a> to reflect the current use of
+          <a href="http://sourceforge.net/projects/cgns">SourceForge</a>
+          <img src="external.png" alt="external link"> for distribution.
+     </ul>
+<tr valign=baseline>
+<td> <b>29&nbsp;Apr&nbsp;2003</b>
+<td> <ul>
+     <li> Added <a href="sitemaps/index.html">site maps</a> for the
+          major CGNS documents.
+     </ul>
+<tr valign=baseline>
+<td> <b>23&nbsp;Apr&nbsp;2003</b>
+<td> <ul>
+     <li> A search capability has been added.
+          Words and/or phrases may be searched for in a specific
+          document, or in all documents combined.
+     </ul>
+<tr valign=baseline>
+<td> <b>27&nbsp;Mar&nbsp;2003</b>
+<td> <ul>
+     <li> Added a paragraph about the CGNStalk mailing list, with a link
+          to the
+          <a href="https://lists.nasa.gov/mailman/private/cgnstalk">list
+          archive</a>.
+     <li> Modified the description of
+          <a href="midlevel/navigating.html#goto"><tt>cg_goto</tt></a> in
+          the <a href="midlevel/index.html">Mid-Level Library manual</a>
+          to note that when accessing a <tt>BCData_t</tt> node,
+          the index must be set to either <tt>Dirichlet</tt> or
+          <tt>Neumann</tt>.
+     </ul>
+<tr valign=baseline>
+<td> <b>26&nbsp;Mar&nbsp;2003</b>
+<td> <ul>
+     <li> Posted minutes from the Mar 20 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_mar03.html">HTML</a>,
+          <a href="minutes/telecon_mar03.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>20&nbsp;Mar&nbsp;2003</b>
+<td> <ul>
+     <li> Added a sentence to the description of the
+          <a href="sids/bc.html#ZoneBC"><tt>ZoneBC_t</tt> data structure</a>
+          in the <a href="sids/index.html">SIDS document</a> to clarify
+          that each boundary condition patch must be represented by a
+          single <tt>BC_t</tt> data structure.
+     <li> Expanded Note 2 for the <a href="sids/bc.html#BC"><tt>BC_t</tt>
+          data structure</a> in the <a href="sids/index.html">SIDS
+          document</a>, to add some discussion about the interpretation
+          of the points defining a BC patch when <tt>GridLocation</tt>
+          is set to <tt>Vertex</tt>.
+     </ul>
+<tr valign=baseline>
+<td> <b>28&nbsp;Jan&nbsp;2003</b>
+<td> <ul>
+     <li> Added a separate page describing the <a href="aiaa.html">AIAA
+          Recommended Practice R-101-2002</a>, with a more obvious link
+          near the top of the <a href="index.html">CGNS Documentation
+          Home Page</a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>23&nbsp;Jan&nbsp;2003</b>
+<td> <ul>
+     <li> Added a paragraph to the <a href="index.html">CGNS
+          Documentation Home Page</a>, in the description of the SIDS
+          document, noting that it represents a draft revision
+          of the AIAA Recommended Practice, with links to the
+          <a href="http://www.aiaa.org/store/storeproductdetail.cfm?ID=1063">AIAA
+          Online Store</a> <img src="external.png" alt="external link">
+          and to the  <a href="sids/aiaa/R_101_2002.pdf">PDF version of
+          the Recommended Practice</a>.
+     <li> Updated the <a href="overview/history.html#standards">History and
+          Current Status</a> section to reflect the publication of the
+          AIAA Recommended Practice.
+     <li> In the SIDS document, corrected use of <tt>ParentData</tt> in
+          the <a href="sids/gridflow.html#element_example">examples of
+          the <tt>Elements_t</tt> data structure</a>; change suggested
+          by Diane Poirier an embarrassingly long time ago.
+     </ul>
+<tr valign=baseline>
+<td> <b>22&nbsp;Jan&nbsp;2003</b>
+<td> <ul>
+     <li> Added a paragraph to the <a href="sids/index.html">SIDS
+          document</a> noting that it represents a draft revision
+          of the AIAA Recommended Practice, and made the
+          <a href="sids/aiaa/R_101_2002.pdf">PDF version of the Recommended
+          Practice</a> available.
+     </ul>
+<tr valign=baseline>
+<td> <b>15&nbsp;Jan&nbsp;2003</b>
+<td> <ul>
+     <li> Posted minutes from the Jan 6 CGNS Steering Committee meeting.
+          (<a href="minutes/meeting_jan03.html">HTML</a>,
+          <a href="minutes/meeting_jan03.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>10&nbsp;Dec&nbsp;2002</b>
+<td> <ul>
+     <li> In the <a href="overview/index.html">Overview</a> document,
+          added an entry for the CGNS Tools in the list of
+          <a href="overview/applications.html#utilities">CGNS Utilities</a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>6&nbsp;Dec&nbsp;2002</b>
+<td> <ul>
+     <li> Posted minutes from the Dec 4 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_dec02.html">HTML</a>,
+          <a href="minutes/telecon_dec02.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>26&nbsp;Sep&nbsp;2002</b>
+<td> <ul>
+     <li> Posted minutes from the Sep 18 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_sep02.html">HTML</a>,
+          <a href="minutes/telecon_sep02.pdf">PDF</a>).
+     <li> In the
+          <a href="midlevel/general.html#typedefs">General Remarks/Typedefs
+          section</a> of the <a href="midlevel/index.html">Mid-Level Library
+          manual</a>, added the typedefs <tt>WallFunctionType_t</tt>,
+          <tt>AreaType_t</tt>, and <tt>AverageInterfaceType_t</tt>.
+     </ul>
+<tr valign=baseline>
+<td> <b>25&nbsp;Sep&nbsp;2002</b>
+<td> <ul>
+     <li> In the <a href="midlevel/index.html">Mid-Level Library
+          manual</a>:
+          <ul type=circle>
+          <li> Corrected a minor error in the syntax of the C call for
+               <a href="midlevel/families.html#geometry"><tt>cg_geo_read</tt></a>.
+          <li> Added several nodes to the list of nodes that can't be
+               deleted by
+               <a href="midlevel/navigating.html#delete"><tt>cg_delete_node</tt></a>.
+          <li> Corrected the order of arguments for the routines used to
+               read and write
+               <a href="midlevel/grid.html#rotatingcoordinates">rotating coordinates</a>.
+          </ul>
+     <li> In the HTML version of the <a href="sids/index.html">SIDS
+          document</a>, fixed a typo in the definition of the
+          <a href="sids/cnct.html#OversetHoles"><tt>OversetHoles_t</tt></a>
+          data structure.
+     </ul>
+<tr valign=baseline>
+<td> <b>20&nbsp;Sep&nbsp;2002</b>
+<td> <ul>
+     <li> Updated the documentation for consistency with Release 2.2,
+          Beta 1, of the CGNS software.
+          In the <a href="sids/index.html">SIDS document</a> this includes:
+          <ul type=circle>
+          <li> New data structures
+               <a href="sids/gridflow.html#Axisymmetry"><tt>Axisymmetry_t</tt></a>,
+               <a href="sids/gridflow.html#RotatingCoordinates"><tt>RotatingCoordinates_t</tt></a>,
+               <a href="sids/cnct.html#GridConnectivityProperty"><tt>GridConnectivityProperty_t</tt></a>,
+               <a href="sids/cnct.html#Periodic"><tt>Periodic_t</tt></a>,
+               <a href="sids/cnct.html#AverageInterface"><tt>AverageInterface_t</tt></a>,
+               <a href="sids/bc.html#BCProperty"><tt>BCProperty_t</tt></a>,
+               <a href="sids/bc.html#WallFunction"><tt>WallFunction_t</tt></a>,
+               <a href="sids/bc.html#Area"><tt>Area_t</tt></a>, and
+               <a href="sids/misc.html#Gravity"><tt>Gravity_t</tt></a>.
+          <li> New <a href="sids/dataname.html#dataname_flow">flow solution
+               data-name identifiers</a> for variables in rotating
+               coordinate systems.
+          </ul>
+          In the <a href="filemap/index.html">File Mapping Manual</a>:
+          <ul type=circle>
+          <li> Detailed descriptions for the
+               <a href="filemap/nodes.html#Axisymmetry"><tt>Axisymmetry_t</tt></a>,
+               <a href="filemap/nodes.html#RotatingCoordinates"><tt>RotatingCoordinates_t</tt></a>,
+               <a href="filemap/nodes.html#GridConnectivityProperty"><tt>GridConnectivityProperty_t</tt></a>,
+               <a href="filemap/nodes.html#Periodic"><tt>Periodic_t</tt></a>,
+               <a href="filemap/nodes.html#AverageInterface"><tt>AverageInterface_t</tt></a>,
+               <a href="filemap/nodes.html#BCProperty"><tt>BCProperty_t</tt></a>,
+               <a href="filemap/nodes.html#WallFunction"><tt>WallFunction_t</tt></a>,
+               <a href="filemap/nodes.html#Area"><tt>Area_t</tt></a>, and
+               <a href="filemap/nodes.html#Gravity"><tt>Gravity_t</tt></a>
+               nodes.
+          <li> Added figures for the
+               <a href="filemap/figures/Axisymmetry.html"><tt>Axisymmetry_t</tt></a>,
+               <a href="filemap/figures/RotatingCoordinates.html"><tt>RotatingCoordinates_t</tt></a>,
+               <a href="filemap/figures/GridConnectivityProperty.html"><tt>GridConnectivityProperty_t</tt></a>,
+               <a href="filemap/figures/Periodic.html"><tt>Periodic_t</tt></a>,
+               <a href="filemap/figures/AverageInterface.html"><tt>AverageInterface_t</tt></a>,
+               <a href="filemap/figures/BCProperty.html"><tt>BCProperty_t</tt></a>,
+               <a href="filemap/figures/WallFunction.html"><tt>WallFunction_t</tt></a>,
+               <a href="filemap/figures/Area.html"><tt>Area_t</tt></a>, and
+               <a href="filemap/figures/Gravity.html"><tt>Gravity_t</tt></a>
+               nodes.
+          </ul>
+          And in the <a href="midlevel/index.html">Mid-Level Library
+          manual</a>:
+          <ul type=circle>
+          <li> Added the routine
+               <a href="midlevel/navigating.html#delete"><tt>cg_delete_node</tt></a>
+               for deleting a node.
+          <li> Added routines for reading/writing the 
+               <a href="midlevel/grid.html#axisymmetry"><tt>Axisymmetry_t</tt></a>,
+               <a href="midlevel/grid.html#rotatingcoordinates"><tt>RotatingCoordinates_t</tt></a>,
+               <a href="midlevel/connectivity.html#connproperty"><tt>GridConnectivityProperty_t</tt></a>,
+               <a href="midlevel/bc.html#bcproperty"><tt>BCProperty_t</tt></a>, and
+               <a href="midlevel/auxiliary.html#gravity"><tt>Gravity_t</tt></a>
+               nodes.
+          </ul>
+     </ul>
+<tr valign=baseline>
+<td> <b>12&nbsp;Sep&nbsp;2002</b>
+<td> <ul>
+     <li> Added an <a href="user/faq.html">FAQ</a> in the
+          <a href="user/index.html">User's Guide to CGNS</a> about
+          writing data sets associated with boundary conditions.
+     </ul>
+<tr valign=baseline>
+<td> <b>6&nbsp;Sep&nbsp;2002</b>
+<td> <ul>
+     <li> In the PDF version of the <a href="midlevel/midlevel.pdf">Mid-Level
+     Library manual</a>, corrected a typo in the definition of
+     "<tt>A</tt>" in Section 8.1.
+     </ul>
+<tr valign=baseline>
+<td> <b>23&nbsp;Aug&nbsp;2002</b>
+<td> <ul>
+     <li> Fixed a typo in the equations for the lift and drag coefficients
+          in the <a href="sids/dataname.html">Conventions for Data-Name
+          Identifiers</a> section of the <a href="sids/index.html">SIDS
+          document</a>.
+          In the denominator, the area is <i>S</i><sub>ref</sub>, not
+          <i>S</i>.
+     </ul>
+<tr valign=baseline>
+<td> <b>20&nbsp;Aug&nbsp;2002</b>
+<td> <ul>
+     <li> Corrected error in the <a href="sids/index.html">SIDS
+          document</a>.
+          In the <a href="sids/misc.html#GeometryReference"><tt>GeometryReference_t</tt></a>
+          data structure, <tt>GeometryFormat_t</tt> and
+          <tt>GeometryFile_t</tt> are required, not optional.
+     </ul>
+<tr valign=baseline>
+<td> <b>12&nbsp;Aug&nbsp;2002</b>
+<td> <ul>
+     <li> In the PDF version of the <a href="midlevel/midlevel.pdf">Mid-Level
+          Library manual</a>, corrected error in the input/output labeling
+          for <i>fn</i> in the <tt>cg_open</tt>, <tt>cg_version</tt>, and
+          <tt>cg_close</tt> routines.
+     </ul>
+<tr valign=baseline>
+<td> <b>30&nbsp;Jul&nbsp;2002</b>
+<td> <ul>
+     <li> Updated the <a href="overview/index.html">Overview</a> document
+          to reflect the release of Version 2.1 of the CGNS software on
+          May 24, 2002.
+     </ul>
+<tr valign=baseline>
+<td> <b>3&nbsp;Jul&nbsp;2002</b>
+<td> <ul>
+     <li> Posted slides presented by John Steinbrenner of Pointwise, Inc.,
+          at the 8th International Conference on Numerical Grid Generation
+          in Honolulu, Hawaii, June 2-6, 2002.
+          [<a href="slides/cgns_8isgg.pdf">PDF</a> (131K, 12 pages),
+          <a href="slides/cgns_8isgg.ppt">PowerPoint</a> (143K, 12 pages)].
+     </ul>
+<tr valign=baseline>
+<td> <b>2&nbsp;Jul&nbsp;2002</b>
+<td> <ul>
+     <li> Posted minutes from the June 24 CGNS Steering Committee meeting.
+          (<a href="minutes/meeting_jun02.html">HTML</a>,
+          <a href="minutes/meeting_jun02.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>31&nbsp;May&nbsp;2002</b>
+<td> <ul>
+     <li> Due to the release of production Version 2.1 of the CGNS software
+          on May 24, the CGNS documentation has been moved as shown below:
+          <ul type=circle>
+          <li> Software Release 2.1<br>
+               <a href="http://www.grc.nasa.gov/WWW/cgns/rel2.1/index.html">http://www.grc.nasa.gov/WWW/cgns/index.html</a>
+          <li> Software Release 2.0<br>
+               <a href="http://www.grc.nasa.gov/WWW/cgns/rel2.0/index.html">http://www.grc.nasa.gov/WWW/cgns/rel2.0/index.html</a>
+          </ul>
+     </ul>
+<tr valign=baseline>
+<td> <b>23&nbsp;May&nbsp;2002</b>
+<td> <ul>
+     <li> Corrected a minor error in the
+          <a href="sids/cnct.html#OversetHoles"><tt>OversetHoles_t</tt></a>
+          structure definition.
+          <tt>PointRange</tt> and <tt>PointList</tt> are not both
+          optional; one must be specified, but not both.
+     </ul>
+<tr valign=baseline>
+<td> <b>22&nbsp;May&nbsp;2002</b>
+<td> <ul>
+     <li> Posted minutes from the May 15 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_may02.html">HTML</a>,
+          <a href="minutes/telecon_may02.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>20&nbsp;May&nbsp;2002</b>
+<td> <ul>
+     <li> In the <a href="overview/index.html">Overview and Entry-Level
+          Document</a>, corrected the location of APPT in the tables in
+          the <a href="overview/applications.html#major">CGNS-Compatible
+          Applications</a> section
+     </ul>
+<tr valign=baseline>
+<td> <b>7&nbsp;May&nbsp;2002</b>
+<td> <ul>
+     <li> Added the document version number and the applicable CGNS
+          software release number to the home or title page for each
+          of the CGNS documents.
+          Also added the CGNS logo, and in the HTML version changed
+          the heading color to match the logo.
+     <li> Updated and reorganized the
+          <a href="overview/index.html">Overview and Entry-Level
+          Document</a>.
+     <li> Modified the definition of <tt>NormalListFlag</tt> for the
+          <a href="midlevel/bc.html#bc">Boundary Condition Type and
+          Location</a> routines in the <i>Mid-Level Library</i> manual.
+     <li> Added a list summarizing the <a href="changes.html">change
+          history</a> for the CGNS documentation.
+     </ul>
+<tr valign=baseline>
+<td> <b>25&nbsp;Mar&nbsp;2002</b>
+<td> <ul>
+     <li> In the SIDS document, modified the introductory paragraph under
+          <a href="sids/dataname.html#dataname_force">Forces and
+          Moments</a> in the <a href="sids/dataname.html">Conventions
+          for Data-Name Identifiers</a> section to note that the standard
+          location for storing forces and moments is under a
+          <tt>ConvergenceHistory_t</tt> node.
+     </ul>
+<tr valign=baseline>
+<td> <b>20&nbsp;Mar&nbsp;2002</b>
+<td> <ul>
+     <li> Posted minutes from the Mar 13 CGNS Steering Committee telecon.
+          (<a href="minutes/telecon_mar02.html">HTML</a>,
+          <a href="minutes/telecon_mar02.pdf">PDF</a>).
+     </ul>
+<tr valign=baseline>
+<td> <b>15&nbsp;Mar&nbsp;2002</b>
+<td> <ul>
+     <li> In the <i>ADF User's Guide</i>, added documentation for the
+          routines
+          <a href="adf/subs_io.html#Read_Block_Data"><tt>ADF_Read_Block_Data</tt></a> and
+          <a href="adf/subs_io.html#Write_Block_Data"><tt>ADF_Write_Block_Data</tt></a>,
+          for reading/writing a contiguous block of data to/from
+          a node.
+     </ul>
+<tr valign=baseline>
+<td> <b>13&nbsp;Mar&nbsp;2002</b>
+<td> <ul>
+     <li> Clarified/fixed the units for <tt>HeatOfFormationSymbol</tt>,
+          <tt>HeatOfFormation</tt>, and <tt>VibrationalElectronEnergy</tt>
+          in the lists of data-name identifiers for
+          <a href="sids/floweqn.html#t:id_chemicalkinetics">Chemical
+          Kinetics Models</a> and
+          <a href="sids/dataname.html#t:id_flow">Flow Solution Quantities</a>
+     </ul>
+<tr valign=baseline>
+<td> <b>11&nbsp;Mar&nbsp;2002</b>
+<td> <ul>
+     <li> Changed the three non-PDF <a href="index.html#Slides">slide
+          presentations</a> to PDF files, supplied by Diane Poirier.
+          (Thanks, Diane!)
+     </ul>
+<tr valign=baseline>
+<td> <b>6&nbsp;Mar&nbsp;2002</b>
+<td> <ul>
+     <li> Added a page with the monthly access statistics for the CGNS
+          documentation web site.
+     </ul>
+<tr valign=baseline>
+<td> <b>14&nbsp;Feb&nbsp;2002</b>
+<td> <ul>
+     <li> In the SIDS document:
+          <ul type=circle>
+          <li> Modified the
+               <a href="sids/floweqn.html#GasModel"><tt>GasModelType_t</tt></a>
+               enumeration, and added the
+               <a href="sids/floweqn.html#ThermalRelaxationModel"><tt>ThermalRelaxationModel_t</tt></a>
+               and <a href="sids/floweqn.html#ChemicalKineticsModel"><tt>ChemicalKineticsModel_t</tt></a>
+               data structures, for supporting multi-species flows and
+               chemistry.
+          <li> Added <a href="sids/dataname.html#dataname_flow">flow solution
+               data-name identifiers</a> for multi-species flows and
+               chemistry.
+          <li> Added the
+               <a href="sids/misc.html#UserDefinedData"><tt>UserDefinedData_t</tt></a>
+               data structure for the storage of arbitrary user defined
+               data in <tt>Descriptor_t</tt> and <tt>DataArray_t</tt>
+               children without the restrictions or implicit meanings
+               imposed on these node types at other node locations.
+          </ul>
+     <li> In the File Mapping Manual:
+          <ul type=circle>
+          <li> Added the detailed node descriptions for the
+               <a href="filemap/nodes.html#ThermalRelaxationModel"><tt>ThermalRelaxationModel_t</tt></a>,
+               <a href="filemap/nodes.html#ChemicalKineticsModel"><tt>ChemicalKineticsModel_t</tt></a>, and
+               <a href="filemap/nodes.html#UserDefinedData"><tt>UserDefinedData_t</tt></a>
+               nodes.
+          <li> Added a <tt>UserDefinedData_t</tt> child to many of the
+               <a href="filemap/figures.html">File Mapping Figures</a>
+          <li> Added <tt>ThermalRelaxationModel_t</tt> and
+               <tt>ChemicalKineticsModel_t</tt> children to the
+               <a href="filemap/figures/FlowEquationSet.html"><tt>FlowEquationSet</tt></a>
+               figure.
+          <li> Added figures for the
+               <a href="filemap/figures/ThermalRelaxationModel.html"><tt>ThermalRelaxationModel</tt></a>,
+               <a href="filemap/figures/ChemicalKineticsModel.html"><tt>ChemicalKineticsModel</tt></a>, and 
+               <a href="filemap/figures/UserDefinedData.html"><tt>UserDefinedData</tt></a>
+               nodes.
+          </ul>
+     <li> In the Mid-Level Library Manual:
+          <ul type=circle>
+          <li> Added <a href="midlevel/auxiliary.html#userdefined">routines
+               for including user-defined data</a>.
+          <li> Added <a href="midlevel/equation.html">material related
+               to multi-species flows and chemistry.</a>.
+          <li> Added <a href="midlevel/links.html">routines for links in
+               CGNS files</a>.
+          </ul>
+     <li> In the User's Guide:
+          <ul type=circle>
+          <li> Added a bit to the section on
+               <a href="user/additional.html#sec:links">Using Links</a>.
+          </ul>
+     </ul>
+<tr valign=baseline>
+<td> <b>5&nbsp;Feb&nbsp;2002</b>
+<td> <ul>
+     <li> Added HTML versions of the <a href="index.html#Minutes">minutes
+          for all the CGNS Steering Committee Meetings and Telecons</a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>4&nbsp;Feb&nbsp;2002</b>
+<td> <ul>
+     <li> Changed the attachments to the minutes from the 
+          Jan 14 CGNS Steering Committee meeting to PDF files,
+          supplied by Diane Poirier.  (Thanks, Diane!)
+     </ul>
+<tr valign=baseline>
+<td> <b>31&nbsp;Jan&nbsp;2002</b>
+<td> <ul>
+     <li> Posted <a href="minutes/meeting_jan02.pdf">minutes from the
+          Jan 14 CGNS Steering Committee meeting in Reno, NV</a>,
+          along with PDF files for the following presentations:
+          <ul type=circle>
+          <li> <a href="minutes/attachments/jan02_ISO.pdf">ISO Status</a>
+               (Ray Cosner)
+          <li> <a href="minutes/attachments/jan02_documentation.pdf">Documentation</a>
+               (Theresa Benyo)
+          <li> <a href="minutes/attachments/jan02_extensions.pdf">Extension Status</a>
+               (Chris Rumsey)
+          <li> <a href="minutes/attachments/jan02_PyCGNS-intro.pdf">PyCGNS</a>
+               (Marc Poinot)
+          </ul>
+     </ul>
+<tr valign=baseline>
+<td> <b>25&nbsp;Jan&nbsp;2002</b>
+<td> <ul>
+     <li> Added <a href="papers/aiaa02-0752.pdf">AIAA Paper 2002-0752</a>,
+          titled "CFD General Notation System (CGNS): Status and Future
+          Directions", presented at the 40th AIAA Aerospace Sciences
+          Meeting and Exhibit. [PDF (289K, 13 pages)]
+     </ul>
+<tr valign=baseline>
+<td> <b>23&nbsp;Jan&nbsp;2002</b>
+<td> <ul>
+     <li> Added the <a href="charter/index.html">CGNS Steering Committee
+          charter</a>.
+     <li> Changed the link for the software change history to point to
+          the <a href="http://cgns.sourceforge.net/Revisions.html">CGNS Software
+          Revisions</a> <img src="external.png" alt="external link"> page
+          on the <a href="http://cgns.sourceforge.net/">cgns.sourceforge.net</a> web
+          site, which is more up-to-date.
+     </ul>
+<tr valign=baseline>
+<td> <b>14&nbsp;Nov&nbsp;2001</b>
+<td> <ul>
+     <li> Posted <a href="minutes/telecon_nov01.pdf">minutes from the
+          Nov 6 CGNS Steering Committee telecon</a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>2&nbsp;Nov&nbsp;2001</b>
+<td> <ul>
+     <li> Changed the cardinality of <tt>FamilyBC_t</tt> to (0,1).
+          This affects:
+          <ul type=circle>
+          <li> the description of the
+               <a href="filemap/nodes.html#FamilyBC"><tt>FamilyBC_t</tt></a>
+               node in the <a href="filemap/index.html">File Mapping
+               Manual</a>
+          <li> the definitions of
+               <a href="midlevel/families.html#family"><tt>nFamBC</tt></a> and
+               <a href="midlevel/families.html#familybc"><tt>BC</tt></a> in the
+               <a href="midlevel/index.html">Mid-Level Library Manual</a>.
+          </ul>
+     <li> Modified the docs to reflect the fact that the cardinality of
+          <tt>GeometryReference_t</tt> is (0,<i>N</i>).
+          This affects:
+          <ul type=circle>
+          <li> the description of the
+               <a href="sids/misc.html#Family"><tt>Family_t</tt></a> and
+               <a href="sids/misc.html#GeometryReference"><tt>GeometryReference_t</tt></a>
+               structures in the <a href="sids/index.html">SIDS Manual</a>
+          <li> the text for the
+               <a href="filemap/nodes.html#familygroup">Family Group</a>
+               nodes in the <a href="filemap/index.html">File Mapping
+               Manual</a>.
+          </ul>
+     <li> Added the <tt>FamilySpecified</tt> boundary condition type, for
+          specifying boundary conditions for a family.
+          This affects:
+          <ul type=circle>
+          <li> the <a href="midlevel/general.html#typedefs">list of
+               typedefs</a> in the
+               <a href="midlevel/index.html">Mid-Level Library Manual</a>
+          <li> the definition of
+               <a href="midlevel/bc.html#bc"><tt>bocotype</tt></a>
+               in the <a href="midlevel/index.html">Mid-Level Library
+               Manual</a>
+          <li> the description of
+               <a href="sids/bc.html#FamilyName"><tt>FamilyName</tt></a>
+               for the <a href="sids/bc.html#BC"><tt>BC_t</tt></a>
+               structure in the <a href="sids/index.html">SIDS Manual</a>
+          <li> the description of the
+               <a href="sids/bc.html#BCType"><tt>BCTypeSimple_t</tt></a>
+               structure and the table of
+               <a href="sids/bc.html#t:BCTypeSimple">Simple Boundary Condition
+               Types</a> in the <a href="sids/index.html">SIDS Manual</a>
+          <li> the description of the
+               <a href="sids/misc.html#Family"><tt>Family_t</tt></a>
+               structure in the <a href="sids/index.html">SIDS Manual</a>
+          </ul>
+     <li> Tried to clarify the definition of the family name, by adding
+          to the description of
+          <a href="filemap/nodes.html#FamilyName"><tt>FamilyName_t</tt></a>
+          node in the <a href="filemap/index.html">File Mapping Manual</a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>1&nbsp;Nov&nbsp;2001</b>
+<td> <ul>
+     <li> Added files and instructions for
+          <a href="install_html.html">installing the HTML version of
+          the CGNS documentation on a local system</a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>10&nbsp;Oct&nbsp;2001</b>
+<td> <ul>
+     <li> In the <a href="filemap/index.html">File Mapping Manual</a>,
+          corrected the cardinality specified for the
+          <a href="filemap/nodes.html#FamilyName">FamilyName_t</a> node.
+     </ul>
+<tr valign=baseline>
+<td> <b>26&nbsp;Sep&nbsp;2001</b>
+<td> <ul>
+     <li> In the SIDS document, fixed error in the units listed for the
+          ideal gas constant in the tables of
+          <a href="sids/floweqn.html#t:id_perfect">Data-Name Identifiers
+          for Perfect Gas</a> and
+          <a href="sids/dataname.html#t:id_flow">Data-Name Identifiers
+          for Flow Solution Quantities</a>.
+     <li> In the <i>Mid-Level Library</i> manual, fixed error in the
+          description of the <tt>donor_datatype</tt> argument for the
+          <a href="midlevel/connectivity.html#general">Generalized
+          Connectivity</a> functions.
+     </ul>
+<tr valign=baseline>
+<td> <b>17&nbsp;Sep&nbsp;2001</b>
+<td> <ul>
+     <li> Posted <a href="minutes/telecon_sep01.pdf">minutes from the
+          Sep 6 CGNS Steering Committee telecon</a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>6&nbsp;Sep&nbsp;2001</b>
+<td> <ul>
+     <li> Posted <a href="minutes/meeting_jun01.pdf">minutes from the
+          June 12 CGNS Steering Committee Meeting in Anaheim, CA</a>.
+          (And, I apologize for the delay.)
+     </ul>
+<tr valign=baseline>
+<td> <b>23&nbsp;Aug&nbsp;2001</b>
+<td> <ul>
+     <li> The <a href="user/index.html">User's Guide to CGNS</a> has
+          been updated, with new sections on
+          <a href="user/additional.html#sec:timedep">time-dependent data</a>
+          and <a href="user/plot3d.html">guidelines for writing and
+          reading PLOT3D data</a> in CGNS files.
+     </ul>
+<tr valign=baseline>
+<td> <b>21&nbsp;Aug&nbsp;2001</b>
+<td> <ul>
+     <li> Corrected an couple of errors in the
+          <a href="filemap/index.html">File Mapping Manual</a>.
+          The <a href="filemap/nodes.html#bcgroup">InwardNormalIndex</a>
+          is actually a vector with <tt>IndexDimension</tt> elements,
+          and the name of the
+          <a href="filemap/nodes.html#GeometryEntity">GeometryEntity_t
+          node</a> is user defined, not <tt>GeometryEntity</tt>.
+     </ul>
+<tr valign=baseline>
+<td> <b>10&nbsp;Jul&nbsp;2001</b>
+<td> <ul>
+     <li> In the <a href="midlevel/index.html">Mid-Level Library</a>
+          manual, changed to a <font color="#990000"><i>slanted red</i></font>
+          font for the output variables, to better distinguish them
+          from the input variables.
+     </ul>
+<tr valign=baseline>
+<td> <b>27&nbsp;Jun&nbsp;2001</b>
+<td> <ul>
+     <li> Corrected a minor bug in the
+          <a href="sids/gridflow.html#flow_example">Flow Solution
+          Example</a> in the SIDS manual.
+          The nondimensionalization factor for the momentum in the
+          example is <tt>sqrt</tt>(<i>p</i><tt>*</tt><i>rho</i>), not
+          <tt>sqrt</tt>(<i>p</i><tt>/</tt><i>rho</i>), and the corresponding
+          <tt>ConversionScale</tt> values for <tt>MomentumX</tt> and
+          <tt>MomentumY</tt> are both 352.446.
+     </ul>
+<tr valign=baseline>
+<td> <b>17&nbsp;Apr&nbsp;2001</b>
+<td> <ul>
+     <li> Reorganized the <a href="midlevel/index.html">Mid-Level
+          Library</a> manual, and created a PDF version.
+          The content is basically the same as the previous version,
+          but mostly follows the organization used in the
+          <a href="filemap/nodes.html">Detailed CGNS Node Descriptions</a>
+          section of the <a href="filemap/index.html">File Mapping Manual</a>.
+     <li> Converted the hard-copy version of the
+          <a href="adf/adf.pdf">ADF User's Guide</a> to LaTeX, and
+          added an <a href="adf/index.html">HTML version</a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>5&nbsp;Apr&nbsp;2001</b>
+<td> <ul>
+     <li> Posted <a href="minutes/telecon_mar01.pdf">minutes from the
+          Mar 14 CGNS Steering Committee telecon</a>.
+     </ul>
+<tr valign=baseline>
+<td> <b>14&nbsp;Mar&nbsp;2001</b>
+<td> <ul>
+     <li> In the SIDS manual, added statements in the sections describing the
+          <a href="sids/timedep.html#BaseIterativeData"><tt>BaseIterativeData_t</tt></a>
+          and <a href="sids/timedep.html#ZoneIterativeData"><tt>ZoneIterativeData_t</tt></a>
+          data structures clarifying that iterative data stored in a
+          CGNS database corresponds to values at the end of the
+          associated iteration.
+     </ul>
+<tr valign=baseline>
+<td> <b>7 Mar 2001</b>
+<td> <ul>
+     <li> In the SIDS manual, added a statement in the
+          <a href="sids/conv.html#unst_2d">2-D (Surface) Elements</a>
+          subsection clarifying the normal direction for 2-D
+          unstructured grid elements.
+     <li> In the SIDS manual, added a statement in the section on
+          <a href="sids/dataname.html#dataname_flow">data-name
+          identifiers for flowfield variables</a> stating that for
+          vector quantities, data-name identifiers for components in
+          cylindrical and spherical coordinates are established, even
+          when they're not explicitly listed.
+     </ul>
+<tr valign=baseline>
+<td> <b>6&nbsp;Mar&nbsp;2001</b>
+<td> <ul>
+     <li> Included software change history in this "What's New?" page.
+     </ul>
+<tr valign=baseline>
+<td> <b>22&nbsp;Feb&nbsp;2001</b>
+<td> <ul>
+     <li> Documentation web pages moved to
+          <a href="index.html">http://www.grc.nasa.gov/WWW/cgns/</a>.
+     <li> Added HTML versions of the <a href="overview/index.html">CGNS
+          Overview and Entry-Level Document</a>, <a href="user/index.html">A
+          User's Guide to CGNS</a>, and the
+          <a href="filemap/index.html">SIDS-to-ADF File Mapping Manual</a>.
+          Also converted the hard-copy versions of the
+          <a href="overview/overview.pdf">CGNS Overview and Entry-Level
+          Document</a> and the <a href="filemap/filemap.pdf">SIDS-to-ADF
+          File Mapping Manual</a> to LaTeX.
+     <li> Corrected some errors in the description of
+          <a href="sids/timedep.html#ArbitraryGridMotion"><tt>ArbitraryGridMotion_t</tt></a>
+          in the SIDS manual.
+     <li> Updated the <a href="filemap/index.html">SIDS-to-ADF File Mapping
+          Manual</a> for consistency with the current version of the SIDS.
+          Modified the description of the
+          <a href="filemap/nodes.html#CGNSBase"><tt>CGNSBase_t</tt></a>
+          node, noting that current CGNS conventions require that it be
+          located directly below the ADF root node, and added a description
+          of the
+          <a href="filemap/nodes.html#CGNSLibraryVersion"><tt>CGNSLibraryVersion_t</tt></a>
+          node.
+     </ul>
+</table>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+For more information about CGNS, please see the
+<a href="http://cgns.sourceforge.net/">CGNS home page</a>
+<img src="external.png" alt="external link">.
+Specific questions about the use of CGNS may be addressed to the
+<a href="http://cgns.sourceforge.net/CGNStalk.html">CGNStalk mailing list</a>
+<img src="external.png" alt="external link">.
+<p>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 12 Mar 2008
+
+</body>
+</html>

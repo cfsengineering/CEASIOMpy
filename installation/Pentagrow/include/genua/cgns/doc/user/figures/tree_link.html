@@ -1,0 +1,86 @@
+<!-- A User's Guide to CGNS - longdesc for CGNS layout with a link -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="../user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - CGNS layout with a link </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<p>
+This diagram illustrates the use of a link from one CGNS file to grid
+coordinates stored in a separate CGNS file.
+
+<p>
+The diagram shows two CGNS files.
+File 1, on the left, has the following CGNS base node.
+<ul>
+<li> Name: <tt>FlowSolutionBase</tt><br>
+     Label: <tt>CGNSBase_t</tt><br>
+     Data: <tt>CellDimension</tt>=3, <tt>PhysicalDimension</tt>=3
+</ul>
+The CGNS base node in File 2, on the right, is:
+<ul>
+<li> Name: <tt>GridBase</tt><br>
+     Label: <tt>CGNSBase_t</tt><br>
+     Data: <tt>CellDimension</tt>=3, <tt>PhysicalDimension</tt>=3
+</ul>
+
+<p>
+Both files contain identical <tt>Zone_t</tt> nodes below the
+<tt>CGNSBase_t</tt> node, as follows.
+
+<ul>
+<li> Name: <tt>Zone 1</tt><br>
+     Label: <tt>Zone_t</tt><br>
+     Data: <tt>VertexSize</tt>=(21,17,9), <tt>CellSize</tt>=(20,16,8),
+           <tt>VertexSizeBoundary</tt>=(0,0,0)
+</ul>
+
+<p>
+In File 2, below the <tt>Zone_t</tt> node are the following two nodes.
+<ul>
+<li> Name: <tt>GridCoordinates</tt><br>
+     Label: <tt>GridCoordinates_t</tt><br>
+     Data: <tt>MT</tt>
+<li> Name: <tt>ZoneType</tt><br>
+     Label: <tt>ZoneType_t</tt><br>
+     Data: <tt>Structured</tt>
+</ul>
+The grid coordinates themselves are stored in children of the
+<tt>GridCoordinates_t</tt> node, not shown in detail in the figure.
+
+<p>
+In File 1, below the <tt>Zone_t</tt> node are the following two nodes.
+<ul>
+<li> Name: <tt>FlowSolution</tt><br>
+     Label: <tt>FlowSolution_t</tt><br>
+     Data: <tt>MT</tt>
+<li> Name: <tt>ZoneType</tt><br>
+     Label: <tt>ZoneType_t</tt><br>
+     Data: <tt>Structured</tt>
+</ul>
+The flow solution itself is stored in children of the
+<tt>FlowSolution_t</tt> node, not shown in detail in the figure.
+
+<p>
+In File 1, in addition to the <tt>FlowSolution_t</tt> and
+<tt>ZoneType_t</tt> child nodes, the <tt>Zone_t</tt> node is linked to
+the <tt>GridCoordinates_t</tt> node in File 2.
+To the user, the <tt>GridCoordinates_t</tt> node in File 2 appears as
+a child of the <tt>Zone_t</tt> node in File 1.
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 3 Sept 2002
+
+</body>
+</html>

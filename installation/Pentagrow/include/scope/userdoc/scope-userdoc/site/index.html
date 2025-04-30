@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="None">
+  
+  <link rel="shortcut icon" href="./img/favicon.ico">
+  <title>Home - scope user manual</title>
+
+  <link rel="stylesheet" href="./css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="./css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="./css/highlight.css">
+  <link href="./larosterna.css" rel="stylesheet">
+  <link href="./offlinefonts.css" rel="stylesheet">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Home";
+    var mkdocs_page_input_path = "index.md";
+    var mkdocs_page_url = "/index.html";
+  </script>
+  
+  <script src="./js/jquery-2.1.1.min.js"></script>
+  <script src="./js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="./js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="icon icon-home"> scope user manual</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="index.html">Home</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#scope-user-manual">scope user manual</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#basic-concepts">Basic Concepts</a></li>
+        
+            <li><a class="toctree-l3" href="#examples">Examples</a></li>
+        
+            <li><a class="toctree-l3" href="#scope-is-not-paraview">Scope is not Paraview</a></li>
+        
+            <li><a class="toctree-l3" href="#state-of-documentation">State of Documentation</a></li>
+        
+            <li><a class="toctree-l3" href="#license">License</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="formats/index.html">File Formats</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="display/index.html">Data Display</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="edit/index.html">Mesh Editing</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="mapping/index.html">Deformation Mapping</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="loads/index.html">Load Analysis</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">scope user manual</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Home</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="scope-user-manual">scope user manual</h1>
+<p>Scope displays meshes for computational fluid dynamics (CFD), structural 
+analysis and is meant to support many common operations in the fields of
+flight dynamics and aeroelasticity.</p>
+<h2 id="basic-concepts">Basic Concepts</h2>
+<p>Scope loads a variety of <a href="formats/index.html">mesh file formats</a>; all of these files 
+contain discretized information, that is, data defined in terms of nodes 
+(grid points) and elements; scope does not handle continuous geometry, such as,
+for example, surfaces defined in CAD systems adn stored in IGES or STEP files.</p>
+<p><a href="display/index.html#inspecting-meshes">Meshes analysis</a> functions allow to generate sectional views through volume meshes. Quality criteria can be evaluated in order to locate and highlight low-quality elements.</p>
+<p>In many cases, scope will also import data fields associated with these meshes. <a href="display/index.html#scalar-fields">Scalar fields</a> can be displayed as color contours; vector fields can be turned into <a href="display/index.html#streamlines">surface streamlines</a>. Sectioning tools permit to generate XY-plots of surface data. </p>
+<p>Originally, scope was implemented to support <a href="http://urn.kb.se/resolve?urn=urn:nbn:se:kth:diva-584">research</a> in the field of aeroelasticity. It has since been used as a visualization and post-processing back-end for <a href="http://dx.doi.org/10.2514/1.C031738">another solver</a> and to support work on <a href="http://dx.doi.org/10.1016/j.cad.2015.06.010">automatic mesh generation</a>.</p>
+<h2 id="examples">Examples</h2>
+<h3 id="map-mesh-deformation">Map mesh deformation</h3>
+<p>Aeroelastic analyses regularly require that deformations of a structural model are translated to the wetted surface of a dissimilar aerodynamic mesh. Scope implements <a href="mapping/index.html">different algorithms</a> which can deal with many industrially relevant cases with complex geometry and discontinuous displacements.</p>
+<h3 id="generate-flight-loads">Generate flight loads</h3>
+<p>Different types of <a href="loads/index.html">structural loads</a> can be generated from one or a collection of aerodynamic solutions. </p>
+<h3 id="convert-mesh-formats">Convert mesh formats</h3>
+<p>Scope can be use simply to convert between <a href="formats/index.html">mesh formats</a> (say, from the format used for the DLR TAU solver to Stanford&rsquo;s SU2 solver format), without the need to go through a commercial tool.</p>
+<h2 id="scope-is-not-paraview">Scope is not Paraview</h2>
+<p>Scope does not attempt to replace <a href="http://www.paraview.org">Paraview</a>, which is far more flexible and most likely more suitable for many applications. Instead, Scope will often be able to convert your analysis results to a <a href="formats/index.html">file format</a> readable by Paraview for further postprocessing.</p>
+<h2 id="state-of-documentation">State of Documentation</h2>
+<p>This user manual makes no claim to completeness; with time, some sections may become outdated or inaccurate. <a href="mailto:david@larosterna.com">Contact</a> the author if you would like to fund improved documentation.</p>
+<h2 id="license">License</h2>
+<p>Scope is available in source code form under the terms of the <a href="http://www.gnu.org/licenses/gpl-3.0.en.html">GNU Public License</a>. Compiled versions are regularly updated for use on Mac OS X, Windows and some Linux distibutions. </p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="formats/index.html" class="btn btn-neutral float-right" title="File Formats">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+      <p>2016 <a href=mailto:david@larosterna.com>David Eller</a></p>
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+        <span style="margin-left: 15px"><a href="formats/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="./js/theme.js"></script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 0.16.3
+Build Date UTC : 2017-06-15 13:34:48
+-->

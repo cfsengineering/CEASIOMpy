@@ -1,0 +1,58 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<BodySkeleton rotation=" 0 0 0 " akimatg="true" origin=" 25.5 9 -2 " name="RightInboardNacelle" >
+  <BodyFrame width="1.77" center=" 0 0 0 " height="1.77" name="FrameX0" >
+ 0 -1 
+ 0.5 -0.866025 
+ 0.866025 -0.5 
+ 1 -6.12323e-17 
+ 0.866025 0.5 
+ 0.5 0.866025 
+ 1.22465e-16 1 
+    </BodyFrame>
+  <BodyFrame width="2.15" center=" 0.259115 0 0 " height="2.15" name="FrameX61" >
+ 0 -1 
+ 0.5 -0.866025 
+ 0.866025 -0.5 
+ 1 -6.12323e-17 
+ 0.866025 0.5 
+ 0.5 0.866025 
+ 1.22465e-16 1 
+    </BodyFrame>
+  <BodyFrame width="2.33" center=" 0.929829 0 0 " height="2.33" name="Frame230" >
+ 0 -1 
+ 0.5 -0.866025 
+ 0.866025 -0.5 
+ 1 -6.12323e-17 
+ 0.866025 0.5 
+ 0.5 0.866025 
+ 1.22465e-16 1 
+    </BodyFrame>
+  <BodyFrame width="2.38" center=" 2.05329 0 0 " height="2.38" name="FrameX383" >
+ 0 -1 
+ 0.5 -0.866025 
+ 0.866025 -0.5 
+ 1 -6.12323e-17 
+ 0.866025 0.5 
+ 0.5 0.866025 
+ 1.22465e-16 1 
+    </BodyFrame>
+  <BodyFrame width="2" center=" 3.30525 0 0 " height="2" name="FrameX815" >
+ 0 -1 
+ 0.5 -0.866025 
+ 0.866025 -0.5 
+ 1 -6.12323e-17 
+ 0.866025 0.5 
+ 0.5 0.866025 
+ 1.22465e-16 1 
+    </BodyFrame>
+  <BodyFrame width="1.14" center=" 4.6 0 0 " height="1.14" name="FrameX1000" >
+ 0 -1 
+ 0.5 -0.866025 
+ 0.866025 -0.5 
+ 1 -6.12323e-17 
+ 0.866025 0.5 
+ 0.5 0.866025 
+ 1.22465e-16 1 
+    </BodyFrame>
+  <MeshCriterion xcoarse="false" defaults="true" maxlen="0.345" maxstretch="5" minlen="0.136239" nvmax="1073741824" postrefine="true" smoothing="true" maxphi="30" />
+</BodySkeleton>

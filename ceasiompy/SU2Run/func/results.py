@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Extract results from SU2 calculations and save them in a CPACS file.
 
-
 | Author: Aidan Jungo
 | Creation: 2019-10-02
 

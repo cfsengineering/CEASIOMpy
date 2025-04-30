@@ -6,7 +6,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 List of paths which are used in CEASIOMpy, if possible base paths must be
 called only from here to avoid mistakes.
 
-
 | Author: Aidan jungo
 | Creation: 2022-04-28
 | Modified: Leon Deligny
@@ -43,7 +42,8 @@ TESTCEASIOMPY_DB_PATH = Path(
     "Database",
     "tests",
     "databases",
-    "testceasiompy.db")
+    "testceasiompy.db",
+)
 
 # /CEASIOMpy/documents/logos/CEASIOMpy_main_logos.png
 CEASIOMPY_LOGO_PATH = Path(CEASIOMPY_PATH, "documents", "logos", "CEASIOMpy_512px.png")

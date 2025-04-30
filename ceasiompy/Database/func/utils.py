@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Utils for Database module.
 
-
 | Author: Leon Deligny
 | Creation: 2025-Mar-03
 

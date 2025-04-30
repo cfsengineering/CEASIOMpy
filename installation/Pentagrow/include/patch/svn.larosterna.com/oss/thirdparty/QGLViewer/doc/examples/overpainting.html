@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>libQGLViewer overpainting example</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link href="../qglviewer.css" rel="stylesheet" type="text/css" />
+  <link rel="shortcut icon" href="../images/qglviewer.ico" type="image/x-icon" />
+  <link rel="icon" href="../images/qglviewer.icon.png" type="image/png" />
+</head>
+<body>
+
+<div class="banner">
+ <a class="qindex" href="../index.html">Home</a>
+ <a class="qindex" href="../refManual/hierarchy.html">Documentation</a>
+ <a class="qindex" href="../download.html">Download</a>
+ <a class="qindex highlight" href="index.html">Examples</a>
+ <a class="qindex" href="../developer.html">Developer</a>
+</div>
+
+<h1>The overpainting example</h1>
+
+<center>
+  <img src="../images/overpainting.jpg" width="330" height="228" alt="overpainting"/>
+</center>
+
+<p>
+ Mixing OpenGL (3D) and QPainter (2D) drawing in the same viewer.
+</p>
+<p>
+ A semi-transparent eounded square is painted in 2D using a QPainter on top of a classical 3D OpenGL rendering.
+ Useful to add 2D objects (annotations, menus, head-up display) to your viewers.
+</p>
+<p>
+ Inspired from the Qt's overpainting example. Note that this functionnality is only available with Qt 4.
+</p>
+<h2>viewer.h</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;QGLViewer/qglviewer.h&gt;</font>
+
+<b><font color="#0000FF">class</font></b> QPaintEvent<font color="#990000">;</font>
+<b><font color="#0000FF">class</font></b> QPainter<font color="#990000">;</font>
+
+<b><font color="#0000FF">class</font></b> Viewer <font color="#990000">:</font> <b><font color="#0000FF">public</font></b> QGLViewer
+<font color="#FF0000">{</font>
+<b><font color="#0000FF">public</font></b> <font color="#990000">:</font>
+  <b><font color="#000000">Viewer</font></b><font color="#990000">(</font>QWidget<font color="#990000">*</font> parent <font color="#990000">=</font> <font color="#993399">0</font><font color="#990000">);</font>
+
+<b><font color="#0000FF">protected</font></b> <font color="#990000">:</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">draw</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">init</font></b><font color="#990000">();</font>
+  <font color="#009900">void</font> <b><font color="#000000">drawOverpaint</font></b><font color="#990000">(</font>QPainter <font color="#990000">*</font>painter<font color="#990000">);</font>
+
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">paintGL</font></b><font color="#990000">()</font> <font color="#FF0000">{</font> <b><font color="#000000">update</font></b><font color="#990000">();</font> <font color="#FF0000">}</font><font color="#990000">;</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">paintEvent</font></b><font color="#990000">(</font>QPaintEvent <font color="#990000">*</font>event<font color="#990000">);</font>
+  <i><font color="#9A1900">// Could be overloaded to defer final initializations</font></i>
+  <i><font color="#9A1900">//virtual void showEvent(QShowEvent *event);</font></i>
+
+  <b><font color="#0000FF">virtual</font></b> QString <b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b><font color="#990000">;</font>
+<font color="#FF0000">}</font><font color="#990000">;</font>
+</tt></pre>
+
+
+<h2>main.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">"viewer.h"</font>
+<b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;qapplication.h&gt;</font>
+
+<font color="#009900">int</font> <b><font color="#000000">main</font></b><font color="#990000">(</font><font color="#009900">int</font> argc<font color="#990000">,</font> <font color="#009900">char</font><font color="#990000">**</font> argv<font color="#990000">)</font>
+<font color="#FF0000">{</font>
+  QApplication <b><font color="#000000">application</font></b><font color="#990000">(</font>argc<font color="#990000">,</font>argv<font color="#990000">);</font>
+  Viewer viewer<font color="#990000">;</font>
+
+<b><font color="#000080">#if</font></b> QT_VERSION <font color="#990000">&lt;</font> <font color="#993399">0x040000</font>
+  application<font color="#990000">.</font><b><font color="#000000">setMainWidget</font></b><font color="#990000">(&amp;</font>viewer<font color="#990000">);</font>
+<b><font color="#000080">#else</font></b>
+  viewer<font color="#990000">.</font><b><font color="#000000">setWindowTitle</font></b><font color="#990000">(</font><font color="#FF0000">"overpainting"</font><font color="#990000">);</font>
+<b><font color="#000080">#endif</font></b>
+
+  viewer<font color="#990000">.</font><b><font color="#000000">show</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">return</font></b> application<font color="#990000">.</font><b><font color="#000000">exec</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+</tt></pre>
+
+
+<h2>viewer.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">"viewer.h"</font>
+
+<b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;QPainter&gt;</font>
+
+<b><font color="#0000FF">using</font></b> <b><font color="#0000FF">namespace</font></b> std<font color="#990000">;</font>
+
+<b><font color="#000080">#ifndef</font></b> GL_MULTISAMPLE
+<b><font color="#000080">#define</font></b> GL_MULTISAMPLE  <font color="#993399">0x809D</font>
+<b><font color="#000080">#endif</font></b>
+
+Viewer<font color="#990000">::</font><b><font color="#000000">Viewer</font></b><font color="#990000">(</font>QWidget<font color="#990000">*</font> parent<font color="#990000">)</font>
+<font color="#990000">:</font> <b><font color="#000000">QGLViewer</font></b><font color="#990000">(</font><b><font color="#000000">QGLFormat</font></b><font color="#990000">(</font>QGL<font color="#990000">::</font>SampleBuffers<font color="#990000">),</font> parent<font color="#990000">)</font> <font color="#FF0000">{</font>
+  <b><font color="#000000">setAttribute</font></b><font color="#990000">(</font>Qt<font color="#990000">::</font>WA_NoSystemBackground<font color="#990000">);</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">drawOverpaint</font></b><font color="#990000">(</font>QPainter <font color="#990000">*</font>painter<font color="#990000">)</font> <font color="#FF0000">{</font>
+	painter<font color="#990000">-&gt;</font><b><font color="#000000">save</font></b><font color="#990000">();</font>
+    painter<font color="#990000">-&gt;</font><b><font color="#000000">translate</font></b><font color="#990000">(</font><b><font color="#000000">width</font></b><font color="#990000">()/</font><font color="#993399">2</font><font color="#990000">,</font> <b><font color="#000000">height</font></b><font color="#990000">()/</font><font color="#993399">2</font><font color="#990000">);</font>
+	QRadialGradient <b><font color="#000000">radialGrad</font></b><font color="#990000">(</font><b><font color="#000000">QPointF</font></b><font color="#990000">(-</font><font color="#993399">40</font><font color="#990000">,</font> <font color="#990000">-</font><font color="#993399">40</font><font color="#990000">),</font> <font color="#993399">100</font><font color="#990000">);</font>
+	radialGrad<font color="#990000">.</font><b><font color="#000000">setColorAt</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">,</font> <b><font color="#000000">QColor</font></b><font color="#990000">(</font><font color="#993399">255</font><font color="#990000">,</font> <font color="#993399">255</font><font color="#990000">,</font> <font color="#993399">255</font><font color="#990000">,</font> <font color="#993399">100</font><font color="#990000">));</font>
+	radialGrad<font color="#990000">.</font><b><font color="#000000">setColorAt</font></b><font color="#990000">(</font><font color="#993399">1</font><font color="#990000">,</font> <b><font color="#000000">QColor</font></b><font color="#990000">(</font><font color="#993399">200</font><font color="#990000">,</font> <font color="#993399">200</font><font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">,</font> <font color="#993399">100</font><font color="#990000">));</font> 
+    painter<font color="#990000">-&gt;</font><b><font color="#000000">setBrush</font></b><font color="#990000">(</font><b><font color="#000000">QBrush</font></b><font color="#990000">(</font>radialGrad<font color="#990000">));</font>
+	painter<font color="#990000">-&gt;</font><b><font color="#000000">drawRoundRect</font></b><font color="#990000">(-</font><font color="#993399">100</font><font color="#990000">,</font> <font color="#990000">-</font><font color="#993399">100</font><font color="#990000">,</font> <font color="#993399">200</font><font color="#990000">,</font> <font color="#993399">200</font><font color="#990000">);</font>
+    painter<font color="#990000">-&gt;</font><b><font color="#000000">restore</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+<i><font color="#9A1900">// Draws a spiral</font></i>
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">draw</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> nbSteps <font color="#990000">=</font> <font color="#993399">200.0</font><font color="#990000">;</font>
+
+  <b><font color="#000000">glBegin</font></b><font color="#990000">(</font>GL_QUAD_STRIP<font color="#990000">);</font>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font><font color="#009900">int</font> i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;</font>nbSteps<font color="#990000">;</font> <font color="#990000">++</font>i<font color="#990000">)</font>
+    <font color="#FF0000">{</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> ratio <font color="#990000">=</font> i<font color="#990000">/</font>nbSteps<font color="#990000">;</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> angle <font color="#990000">=</font> <font color="#993399">21.0</font><font color="#990000">*</font>ratio<font color="#990000">;</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> c <font color="#990000">=</font> <b><font color="#000000">cos</font></b><font color="#990000">(</font>angle<font color="#990000">);</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> s <font color="#990000">=</font> <b><font color="#000000">sin</font></b><font color="#990000">(</font>angle<font color="#990000">);</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> r1 <font color="#990000">=</font> <font color="#993399">1.0</font> <font color="#990000">-</font> <font color="#993399">0</font><font color="#990000">.</font>8f<font color="#990000">*</font>ratio<font color="#990000">;</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> r2 <font color="#990000">=</font> <font color="#993399">0</font><font color="#990000">.</font>8f <font color="#990000">-</font> <font color="#993399">0</font><font color="#990000">.</font>8f<font color="#990000">*</font>ratio<font color="#990000">;</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> alt <font color="#990000">=</font> ratio <font color="#990000">-</font> <font color="#993399">0</font><font color="#990000">.</font>5f<font color="#990000">;</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> nor <font color="#990000">=</font> <font color="#993399">0</font><font color="#990000">.</font>5f<font color="#990000">;</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> up <font color="#990000">=</font> <b><font color="#000000">sqrt</font></b><font color="#990000">(</font><font color="#993399">1.0</font><font color="#990000">-</font>nor<font color="#990000">*</font>nor<font color="#990000">);</font>
+      <b><font color="#000000">glColor3f</font></b><font color="#990000">(</font><font color="#993399">1.0</font><font color="#990000">-</font>ratio<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>2f <font color="#990000">,</font> ratio<font color="#990000">);</font>
+      <b><font color="#000000">glNormal3f</font></b><font color="#990000">(</font>nor<font color="#990000">*</font>c<font color="#990000">,</font> up<font color="#990000">,</font> nor<font color="#990000">*</font>s<font color="#990000">);</font>
+      <b><font color="#000000">glVertex3f</font></b><font color="#990000">(</font>r1<font color="#990000">*</font>c<font color="#990000">,</font> alt<font color="#990000">,</font> r1<font color="#990000">*</font>s<font color="#990000">);</font>
+      <b><font color="#000000">glVertex3f</font></b><font color="#990000">(</font>r2<font color="#990000">*</font>c<font color="#990000">,</font> alt<font color="#990000">+</font><font color="#993399">0</font><font color="#990000">.</font>05f<font color="#990000">,</font> r2<font color="#990000">*</font>s<font color="#990000">);</font>
+    <font color="#FF0000">}</font>
+  <b><font color="#000000">glEnd</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">init</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <b><font color="#000000">restoreStateFromFile</font></b><font color="#990000">();</font>
+  <b><font color="#000000">help</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">paintEvent</font></b><font color="#990000">(</font>QPaintEvent <font color="#990000">*</font>event<font color="#990000">)</font>
+<font color="#FF0000">{</font>
+	<b><font color="#000000">Q_UNUSED</font></b><font color="#990000">(</font>event<font color="#990000">)</font>
+    QPainter painter<font color="#990000">;</font>
+    painter<font color="#990000">.</font><b><font color="#000000">begin</font></b><font color="#990000">(</font><b><font color="#0000FF">this</font></b><font color="#990000">);</font>
+    painter<font color="#990000">.</font><b><font color="#000000">setRenderHint</font></b><font color="#990000">(</font>QPainter<font color="#990000">::</font>Antialiasing<font color="#990000">);</font>
+
+	<i><font color="#9A1900">// Save current OpenGL state</font></i>
+    <b><font color="#000000">glPushAttrib</font></b><font color="#990000">(</font>GL_ALL_ATTRIB_BITS<font color="#990000">);</font>
+    <b><font color="#000000">glMatrixMode</font></b><font color="#990000">(</font>GL_PROJECTION<font color="#990000">);</font>
+    <b><font color="#000000">glPushMatrix</font></b><font color="#990000">();</font>
+    <b><font color="#000000">glMatrixMode</font></b><font color="#990000">(</font>GL_MODELVIEW<font color="#990000">);</font>
+    <b><font color="#000000">glPushMatrix</font></b><font color="#990000">();</font>
+
+	<i><font color="#9A1900">// Reset OpenGL parameters</font></i>
+    <b><font color="#000000">glShadeModel</font></b><font color="#990000">(</font>GL_SMOOTH<font color="#990000">);</font>
+    <b><font color="#000000">glEnable</font></b><font color="#990000">(</font>GL_DEPTH_TEST<font color="#990000">);</font>
+    <b><font color="#000000">glEnable</font></b><font color="#990000">(</font>GL_CULL_FACE<font color="#990000">);</font>
+    <b><font color="#000000">glEnable</font></b><font color="#990000">(</font>GL_LIGHTING<font color="#990000">);</font>
+    <b><font color="#000000">glEnable</font></b><font color="#990000">(</font>GL_LIGHT0<font color="#990000">);</font>
+    <b><font color="#000000">glEnable</font></b><font color="#990000">(</font>GL_MULTISAMPLE<font color="#990000">);</font>
+    <b><font color="#0000FF">static</font></b> GLfloat lightPosition<font color="#990000">[</font><font color="#993399">4</font><font color="#990000">]</font> <font color="#990000">=</font> <font color="#FF0000">{</font> <font color="#993399">1.0</font><font color="#990000">,</font> <font color="#993399">5.0</font><font color="#990000">,</font> <font color="#993399">5.0</font><font color="#990000">,</font> <font color="#993399">1.0</font> <font color="#FF0000">}</font><font color="#990000">;</font>
+    <b><font color="#000000">glLightfv</font></b><font color="#990000">(</font>GL_LIGHT0<font color="#990000">,</font> GL_POSITION<font color="#990000">,</font> lightPosition<font color="#990000">);</font>
+    <b><font color="#000000">qglClearColor</font></b><font color="#990000">(</font><b><font color="#000000">backgroundColor</font></b><font color="#990000">());</font>
+	
+	<i><font color="#9A1900">// Classical 3D drawing, usually performed by paintGL().</font></i>
+	<b><font color="#000000">preDraw</font></b><font color="#990000">();</font>
+	<b><font color="#000000">draw</font></b><font color="#990000">();</font>
+    <b><font color="#000000">postDraw</font></b><font color="#990000">();</font>
+
+	<i><font color="#9A1900">// Restore OpenGL state</font></i>
+    <b><font color="#000000">glMatrixMode</font></b><font color="#990000">(</font>GL_MODELVIEW<font color="#990000">);</font>
+    <b><font color="#000000">glPopMatrix</font></b><font color="#990000">();</font>
+    <b><font color="#000000">glMatrixMode</font></b><font color="#990000">(</font>GL_PROJECTION<font color="#990000">);</font>
+    <b><font color="#000000">glPopMatrix</font></b><font color="#990000">();</font>
+    <b><font color="#000000">glPopAttrib</font></b><font color="#990000">();</font>
+
+    <b><font color="#000000">drawOverpaint</font></b><font color="#990000">(&amp;</font>painter<font color="#990000">);</font>
+
+    painter<font color="#990000">.</font><b><font color="#000000">end</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+QString Viewer<font color="#990000">::</font><b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b>
+<font color="#FF0000">{</font>
+  QString <b><font color="#000000">text</font></b><font color="#990000">(</font><font color="#FF0000">"&lt;h2&gt;O v e r p a i n t&lt;/h2&gt;"</font><font color="#990000">);</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"."</font><font color="#990000">;</font>
+  <b><font color="#0000FF">return</font></b> text<font color="#990000">;</font>
+<font color="#FF0000">}</font>
+</tt></pre>
+
+
+
+<p>
+  Back to the <a href="index.html">examples main page</a>.
+</p>
+
+<p>
+  <a href="http://validator.w3.org/check/referer"><img src="../images/xhtml.png" alt="Valid XHTML 1.0!" height="31" width="88"/></a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer"><img src="../images/css.png" width="88" height="31" alt="Valid CSS!"/></a>
+<i>Last modified on Tuesday, September 30, 2008.</i>
+</p>
+
+</body>
+</html>

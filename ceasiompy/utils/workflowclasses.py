@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Classes to run ceasiompy workflows
 
-
 | Author : Aidan Jungo
 | Creation: 2019-10-04
 
@@ -31,8 +30,12 @@ from ceasiompy.utils.moduleinterfaces import get_module_list
 
 from ceasiompy import log
 from ceasiompy.utils.moduleinterfaces import MODNAME_INIT
-
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH, LOGFILE, MODULES_DIR_PATH
+from ceasiompy.utils.commonpaths import (
+    LOGFILE,
+    WKDIR_PATH,
+    CPACS_FILES_PATH,
+    MODULES_DIR_PATH,
+)
 
 #
 OPTIM_METHOD = ["Optimisation", "DOE"]
@@ -169,7 +172,7 @@ class Workflow:
 
     def __init__(self) -> None:
 
-        self.working_dir = Path().cwd()
+        self.working_dir = WKDIR_PATH
         self.cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml").resolve()
         self.current_wkflow_dir = None
 
@@ -267,6 +270,7 @@ class Workflow:
             wkdir, "Workflow_" + wkflow_idx)
         self.current_wkflow_dir.mkdir()
 
+        print(f'{self.cpacs_in=}')
         # Copy CPACS to the workflow dir
         if not self.cpacs_in.exists():
             raise FileNotFoundError(f"{self.cpacs_in} has not been found!")

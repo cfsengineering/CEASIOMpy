@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Streamlit utils functions for CEASIOMpy
 
-
 | Author : Aidan Jungo
 | Creation: 2022-12-01
 

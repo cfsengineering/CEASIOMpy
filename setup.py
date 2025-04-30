@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# Author: Aaron Dettmann
-# Modif: Aidan Jungo
-# Modif: Giacomo Benedetti
-
 import platform
 import setuptools
 from pathlib import Path
@@ -16,12 +12,11 @@ AUTHOR = "CFS Engineering"
 EMAIL = "giacomo.benedetti@cfse.ch"
 DESCRIPTION = "A conceptual aircraft design environment"
 URL = "https://github.com/cfsengineering/CEASIOMpy"
-REQUIRES_PYTHON = ">=3.8.0"
+REQUIRES_PYTHON = ">=3.11.11"
 REQUIRED = ["numpy"]
 README = "README.md"
 PACKAGE_DIR = "."
 LICENSE = "LICENSE"
-
 SCRIPTS = [str(Path("src/bin/ceasiompy_exec.py"))]
 
 # Windows

@@ -1,0 +1,17 @@
+
+How to generate a custom MKL subset
+=================================== 
+
+Use the mkl builder tool in
+
+C:\Program Files (x86)\Intel\Composer XE 2013 SP1\mkl\tools\builder
+
+to create a import lib / dll pair using the call
+
+nmake libintel64 export=sumo_lapack_list.txt manifest=embed name=mkl_sumo buf_lib=
+
+where the text file sumo_lapack_list contains the symbols needed. These symbols
+can be determined by removing the MKL from the link line and checking the linker
+output of the failed link stage.
+
+Distribute mkl_sumo.dll with the application set.

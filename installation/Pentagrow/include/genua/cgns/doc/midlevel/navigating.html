@@ -1,0 +1,402 @@
+<!-- CGNS Mid-Level Library - Navigating a CGNS File -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="midlevel.css" rel="stylesheet" type="text/css">
+<title> CGNS Mid-Level Library - Navigating a CGNS File </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="../user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="index.html"><span class=nav><b>Mid-Level&nbsp;Library</b></span></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="general.html"><b>General&nbsp;Remarks</b></a>)
+(<a href="fileops.html"><b>File&nbsp;Operations</b></a>)
+(<span class=nav><b>Navigating&nbsp;a&nbsp;CGNS&nbsp;File</b></span>)
+(<a href="error.html"><b>Error&nbsp;Handling</b></a>)
+(<a href="structural.html"><b>Structural&nbsp;Nodes</b></a>)
+(<a href="descriptor.html"><b>Descriptors</b></a>)
+(<a href="physical.html"><b>Physical&nbsp;Data</b></a>)
+(<a href="location.html"><b>Location&nbsp;and&nbsp;Position</b></a>)
+(<a href="auxiliary.html"><b>Auxiliary&nbsp;Data</b></a>)
+(<a href="grid.html"><b>Grid&nbsp;Specification</b></a>)
+(<a href="solution.html"><b>Solution&nbsp;Data</b></a>)
+(<a href="connectivity.html"><b>Grid&nbsp;Connectivity</b></a>)
+(<a href="bc.html"><b>Boundary&nbsp;Conditions</b></a>)
+(<a href="equation.html"><b>Equation&nbsp;Specification</b></a>)
+(<a href="families.html"><b>Families</b></a>)
+(<a href="timedep.html"><b>Time-Dependent&nbsp;Data</b></a>)
+(<a href="links.html"><b>Links</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Navigating a CGNS File</h2>
+
+<ul>
+<li> <a href="#goto">Accessing a Node</a>
+     <ul>
+     <li> <tt><b>cg_goto</b></tt> - Access a node via label/name, index pairs
+     <li> <tt><b>cg_gorel</b></tt> - Access a node via relative path
+     <li> <tt><b>cg_gopath</b></tt> - Access a node via pathname
+     <li> <tt><b>cg_golist</b></tt> - Access a node via arrays of labels and indices
+     <li> <tt><b>cg_where</b></tt> - Get path to current node
+     </ul>
+<li> <a href="#delete">Deleting a Node</a>
+     <ul>
+     <li> <tt><b>cg_delete_node</b></tt> - Delete a node
+     </ul>
+</ul>
+
+<a name="goto"></a>
+<h3>Accessing a Node</h3>
+
+<br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_goto(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>...</span>, <span class=in>"end"</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_gorel(<span class=in>int fn</span>, <span class=in>...</span>, <span class=in>"end"</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_gopath(<span class=in>int fn</span>, <span class=in>const char *path</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_golist(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int depth</span>, <span class=in>char **label</span>, <span class=in>int *index</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_gowhere(<span class=in>int *fn</span>, <span class=in>int *B</span>, <span class=out><i>int *depth</i></span>, <span class=out><i>char **label</i></span>, <span class=out><i>int *index</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_goto_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=out><i>ier</i></span>, <span class=in>...</span>, <span class=in>'end'</span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_gorel_f(<span class=in>fn</span>, <span class=out><i>ier</i></span>, <span class=in>...</span>, <span class=in>'end'</span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_gopath_f(<span class=in>fn</span>, <span class=out><i>ier</i></span>, <span class=in>path</span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<br><br>
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<br><br>
+<tr valign=baseline><td>
+   <td><tt>...</tt><td>
+   <td>Variable argument list used to specify the path to a node.
+       It is composed of an unlimited list of pair-arguments identifying
+       each node in the path.
+       Nodes may be identified by their label or name.
+       Thus, a pair-argument may be of the form
+<pre>
+   "CGNS_NodeLabel", <i>NodeIndex</i>
+</pre>
+       where <tt>CGNS_NodeLabel</tt> is the node label and
+       <i>NodeIndex</i> is the node index, or
+<pre>
+   "CGNS_NodeName", 0
+</pre>
+       where <tt>CGNS_NodeName</tt> is the node name.
+       The 0 in the second form is required, to indicate that a node
+       name is being specified rather than a node label.
+       In addition, a pair-argument may be specified as
+<pre>
+   "..", 0
+</pre>
+       indicating the parent of the current node.
+       The different pair-argument forms may be intermixed in the same
+       function call.
+       <p>
+       There is one exception to this rule.
+       When accessing a <tt>BCData_t</tt> node, the index must be set to
+       either <tt>Dirichlet</tt> or <tt>Neumann</tt> since only these
+       two types are allowed.
+       (Note that <tt>Dirichlet</tt> and <tt>Neumann</tt> are defined in
+       the include files <i>cgnslib.h</i> and <i>cgnslib_f.h</i>).
+       Since "<tt>Dirichlet</tt>" and "<tt>Neuman</tt>" are also the
+       names for these nodes, you may also use the <tt>"Dirichlet", 0</tt>
+       or <tt>"Neuman", 0</tt> to access the node.
+       See the example below.
+<br><br>
+<tr valign=baseline><td>
+   <td><tt>end</tt><td>
+   <td>The character string <tt>"end"</tt> (or <tt>'end'</tt> for the Fortran
+       function) must be the last argument.
+       It is used to indicate the end of the argument list.
+       You may also use the empty string, <tt>""</tt> (<tt>''</tt> for
+       Fortran), or the <tt>NULL</tt> string in C, to terminate the
+       list.
+<br><br>
+<tr valign=baseline><td>
+   <td><tt>path</tt><td>
+   <td>The pathname for the node to go to.
+       If a position has been already set, this may be a relative
+       path, otherwise it is an absolute path name, starting with
+       <tt>"/Basename"</tt>, where <tt>Basename</tt> is the base under
+       which you wish to move.
+<br><br>
+<tr valign=baseline><td>
+   <td><tt>depth</tt><td>
+   <td>Depth of the path list.
+       The maximum depth is defined in <i>cgnslib.h</i> by
+       <tt>CG_MAX_GOTO_DEPTH</tt>, and is currently equal to 20.
+<br><br>
+<tr valign=baseline><td>
+   <td><tt>label</tt><td>
+   <td>Array of node labels for the path.
+       This argument may be passed as <tt>NULL</tt> to
+       <tt>cg_where()</tt>, otherwise it must be dimensioned by the
+       calling program.
+       The maximum size required is <tt>label[MAX_GO_TO_DEPTH][33]</tt>.
+       You may call <tt>cg_where()</tt> with both <tt>label</tt> and
+       <tt>index</tt> set to <tt>NULL</tt> in order to get the current
+       depth, then dimension to that value.
+<br><br>
+<tr valign=baseline><td>
+   <td><tt>index</tt><td>
+   <td>Array of node indices for the path.
+       This argument may be passed as <tt>NULL</tt> to
+       <tt>cg_where()</tt>, otherwise it must be dimensioned by the
+       calling program.
+       The maximum size required is <tt>index[MAX_GO_TO_DEPTH]</tt>.
+       You may call <tt>cg_where()</tt> with both <tt>label</tt> and
+       <tt>index</tt> set to <tt>NULL</tt> in order to get the current
+       depth, then dimension to that value.
+<br><br>
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+       The possible values, with the corresponding C names (or Fortran
+       parameters) defined in <i>cgnslib.h</i> (or <i>cgnslib_f.h</i>)
+       are listed below.<br><br>
+       <table cellspacing=0 cellpadding=0 noborder>
+       <tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+          <th scope=col>Value</td><td><tt>&nbsp;&nbsp;</tt></td>
+          <th align=left scope=col>Name/Parameter</td>
+       <tr valign=baseline><td></td>
+          <td align=center>0</td><td></td>
+          <td><tt>CG_OK</tt></td>
+       <tr valign=baseline><td></td>
+          <td align=center>1</td><td></td>
+          <td><tt>CG_ERROR</tt></td>
+       <tr valign=baseline><td></td>
+          <td align=center>2</td><td></td>
+          <td><tt>CG_NODE_NOT_FOUND</tt></td>
+       <tr valign=baseline><td></td>
+          <td align=center>3</td><td></td>
+          <td><tt>CG_INCORRECT_PATH</tt></td>
+       </table><br>
+       For non-zero values, an error message may be printed using
+       <a href="error.html"><tt>cg_error_print()</tt></a>.
+</table>
+
+<p>
+This function allows access to any parent-type nodes in a CGNS file.
+A parent-type node is one that can have children.
+Nodes that cannot have children, like <tt>Descriptor_t</tt>, are
+not supported by this function.
+
+<p>
+To illustrate the use of the above routines, assume you have a file with
+CGNS index number <tt>filenum</tt>, a base node named <tt>Base</tt>
+with index number <tt>basenum</tt>, 2 zones (named <tt>Zone1</tt>
+and <tt>Zone2</tt>, with indices 1 and 2), and user-defined data
+(<tt>User</tt>, index 1) below each zone.
+To move to the user-defined data node under zone 1, you may use any of
+the following:
+<pre>
+   cg_goto(filenum, basenum, "Zone_t", 1, "UserDefinedData_t", 1, NULL);
+   cg_goto(filenum, basenum "Zone1", 0, "UserDefinedData_t", 1, NULL);
+   cg_goto(filenum, basenum, "Zone_t", 1, "User", 0, NULL);
+   cg_goto(filenum, basenum, "Zone1", 0, "User", 0, NULL);
+   cg_gopath(filenum, "/Base/Zone1/User");
+</pre>
+Now, to change to the user-defined data node under zone 2, you may use
+the full path specification as above, or else a relative path, using one
+of the following:
+<pre>
+   cg_gorel(filenum, "..", 0, "..", 0, "Zone_t", 2, "UserDefinedData_t", 1, NULL);
+   cg_gorel(filenum, "..", 0, "..", 0, "Zone2", 0, "UserDefinedData_t", 1, NULL);
+   cg_gorel(filenum, "..", 0, "..", 0, "Zone_t", 2, "User", 0, NULL);
+   cg_gorel(filenum, "..", 0, "..", 0, "Zone2", 0, "User", 0, NULL);
+   cg_gopath(filenum, "../../Zone2/User");
+</pre>
+
+<p>
+Shown below are some additional examples of various uses of these
+routines, in both C and Fortran, where <tt>fn</tt>, <tt>B</tt>,
+<tt>Z</tt>, etc., are index numbers.
+<pre>
+   ier = cg_goto(fn, B, "Zone_t", Z, "FlowSolution_t", F, "..", 0, "MySolution", 0, "end");
+
+   ier = cg_gorel(fn, "..", 0, "FlowSolution_t", F, NULL);
+
+   ier = cg_gopath(fn, "/MyBase/MyZone/MySolution");
+
+   ier = cg_gopath(fn, "../../MyZoneBC");
+
+   call cg_goto_f(fn, B, ier, 'Zone_t', Z, 'GasModel_t', 1, 'DataArray_t', A, 'end')
+
+   call cg_goto_f(fn, B, ier, 'Zone_t', Z, 'ZoneBC_t', 1, 'BC_t', BC, 'BCDataSet_t', S,
+                  'BCData_t', Dirichlet, 'end')
+
+   call cg_gorel_f(fn, ier, '..', 0, 'Neumann', 0, '')
+</pre>
+
+<a name="delete"></a>
+<h3>Deleting a Node</h3>
+
+<br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_delete_node(<span class=in>char *NodeName</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_delete_node_f(<span class=in>NodeName</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>NodeName</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Name of the child to be deleted.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+The function <tt>cg_delete_node</tt> is used is conjunction with
+<a href="#goto"><tt>cg_goto</tt></a>.
+Once positioned at a parent node with <tt>cg_goto</tt>, a child of
+this node can be deleted with <tt>cg_delete_node</tt>.
+This function requires a single argument, <tt>NodeName</tt>, which is
+the name of the child to be deleted.
+
+<p>
+Since the highest level that can be pointed to with <tt>cg_goto</tt> is
+a base node for a CGNS database
+(<a href="../sids/cgnsbase.html#CGNSBase"><tt>CGNSBase_t</tt></a>), the
+highest-level nodes that can be deleted are the children of a
+<tt>CGNSBase_t</tt> node.
+In other words, nodes located directly under the ADF (or HDF) root node
+(<a href="../sids/cgnsbase.html#CGNSBase"><tt>CGNSBase_t</tt></a> and
+<a href="../sids/cgnsbase.html#CGNSLibraryVersion"><tt>CGNSLibraryVersion_t</tt></a>)
+can not be deleted with <tt>cg_delete</tt>.
+
+<p>
+A few other nodes are not allowed to be deleted from the database
+because these are required nodes as defined by the SIDS, and deleting
+them would make the file non-CGNS compliant.
+These are:
+<ul>
+<li> Under <a href="../sids/cgnsbase.html#Zone"><tt>Zone_t</tt></a>:
+     <tt>ZoneType</tt> 
+<li> Under <a href="../sids/cnct.html#GridConnectivity1to1"><tt>GridConnectivity1to1_t</tt></a>:
+     <tt>PointRange, PointRangeDonor, Transform</tt>
+<li> Under <a href="../sids/cnct.html#OversetHoles"><tt>OversetHoles_t</tt></a>:
+     <tt>PointList</tt> and any <tt>IndexRange_t</tt>
+<li> Under <a href="../sids/cnct.html#GridConnectivity"><tt>GridConnectivity_t</tt></a>:
+     <tt>PointRange, PointList, CellListDonor, PointListDonor</tt>
+<li> Under <a href="../sids/bc.html#BC"><tt>BC_t</tt></a>:
+     <tt>PointList, PointRange</tt>
+<li> Under <a href="../sids/misc.html#GeometryReference"><tt>GeometryReference_t</tt></a>:
+     <tt>GeometryFile, GeometryFormat</tt>
+<li> Under <a href="../sids/gridflow.html#Elements"><tt>Elements_t</tt></a>:
+     <tt>ElementRange, ElementConnectivity</tt>
+<li> Under <a href="../sids/misc.html#Gravity"><tt>Gravity_t</tt></a>:
+     <tt>GravityVector</tt>
+<li> Under <a href="../sids/gridflow.html#Axisymmetry"><tt>Axisymmetry_t</tt></a>:
+     <tt>AxisymmetryReferencePoint, AxisymmetryAxisVector</tt>
+<li> Under <a href="../sids/gridflow.html#RotatingCoordinates"><tt>RotatingCoordinates_t</tt></a>:
+     <tt>RotationCenter, RotationRateVector</tt>
+<li> Under <a href="../sids/cnct.html#Periodic"><tt>Periodic_t</tt></a>:
+     <tt>RotationCenter, RotationAngle, Translation</tt>
+<li> Under <a href="../sids/cnct.html#AverageInterface"><tt>AverageInterface_t</tt></a>:
+     <tt>AverageInterfaceType</tt>
+<li> Under <a href="../sids/bc.html#WallFunction"><tt>WallFunction_t</tt></a>:
+     <tt>WallFunctionType</tt>
+<li> Under <a href="../sids/bc.html#Area"><tt>Area_t</tt></a>:
+     <tt>AreaType, SurfaceArea, RegionName</tt>
+</ul>
+
+<p>
+When a child node is deleted, both the database and the file on disk are
+updated to remove the node.
+One must be careful not to delete a node from within a loop of that node
+type.
+For example, if the number of zones below a <tt>CGNSBase_t</tt> node is
+<tt>nzones</tt>, a zone should never be deleted from within a zone loop!
+By deleting a zone, the total number of zones (<tt>nzones</tt>) changes,
+as well as the zone indexing.
+Suppose for example that <tt>nzones</tt> is 5, and that the third zone
+is deleted.
+After calling <tt>cg_delete_node</tt>, <tt>nzones</tt> is changed to 4,
+and the zones originally indexed 4 and 5 are now indexed 3 and 4.
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 30 Jan 2007
+
+</body>
+</html>

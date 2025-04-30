@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>libQGLViewer screenCoordSystem example</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link href="../qglviewer.css" rel="stylesheet" type="text/css" />
+  <link rel="shortcut icon" href="../images/qglviewer.ico" type="image/x-icon" />
+  <link rel="icon" href="../images/qglviewer.icon.png" type="image/png" />
+</head>
+<body>
+
+<div class="banner">
+ <a class="qindex" href="../index.html">Home</a>
+ <a class="qindex" href="../refManual/hierarchy.html">Documentation</a>
+ <a class="qindex" href="../download.html">Download</a>
+ <a class="qindex highlight" href="index.html">Examples</a>
+ <a class="qindex" href="../developer.html">Developer</a>
+</div>
+
+<h1>The screenCoordSystem example</h1>
+
+<center>
+  <img src="../images/screenCoordSystem.jpg" width="330" height="228" alt="screenCoordSystem"/>
+</center>
+
+<p>
+ A saucers control viewer that illustrates the screen coordinate system feature.
+</p>
+<p>
+ Use <code>startScreenCoordinatesSystem()</code> and <code>stopScreenCoordinatesSystem()</code> to
+ set this mode. Once this mode has been activated in <code>draw()</code>, the X,Y coordinates
+ correspond to the pixel units (origin in the lower left corner). Combined with the
+ <code>camera()->projectedCoordinatesOf()</code>, this feature enable the mix of 2D and 3D drawing.
+</p>
+<p>
+ In this example, the arrows that designate the saucers seem to be attached to the object. Of
+ course, such 2D drawing could have been computed in 3D, but this implies complex geometric
+ computations to make the arrow always face the camera and this method is much simpler.
+</p>
+<h2>screenCoordSystem.h</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;QGLViewer/qglviewer.h&gt;</font>
+<b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;qcolor.h&gt;</font>
+
+<b><font color="#0000FF">class</font></b> Viewer <font color="#990000">:</font> <b><font color="#0000FF">public</font></b> QGLViewer
+<font color="#FF0000">{</font>
+<b><font color="#0000FF">protected</font></b> <font color="#990000">:</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">init</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">draw</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> QString <b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b><font color="#990000">;</font>
+
+<b><font color="#0000FF">private</font></b> <font color="#990000">:</font>
+  <font color="#009900">void</font> <b><font color="#000000">drawSaucer</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b><font color="#990000">;</font>
+
+<b><font color="#000080">#if</font></b> WIN32 <font color="#990000">&amp;&amp;</font> QT_VERSION <font color="#990000">&lt;</font> <font color="#993399">0x030000</font>
+<b><font color="#000080"># define</font></b> nbSaucers <font color="#993399">10</font>
+<b><font color="#000080">#else</font></b>
+  <b><font color="#0000FF">static</font></b> <b><font color="#0000FF">const</font></b> <font color="#009900">int</font> nbSaucers <font color="#990000">=</font> <font color="#993399">10</font><font color="#990000">;</font>
+<b><font color="#000080">#endif</font></b>
+  qglviewer<font color="#990000">::</font>Frame saucerPos<font color="#990000">[</font>nbSaucers<font color="#990000">];</font>
+  QColor saucerColor<font color="#990000">[</font>nbSaucers<font color="#990000">];</font>
+<font color="#FF0000">}</font><font color="#990000">;</font>
+</tt></pre>
+
+
+<h2>screenCoordSystem.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">"screenCoordSystem.h"</font>
+<b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;stdio.h&gt;</font>
+<b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;stdlib.h&gt;</font> <i><font color="#9A1900">// RAND_MAX</font></i>
+
+<b><font color="#0000FF">using</font></b> <b><font color="#0000FF">namespace</font></b> qglviewer<font color="#990000">;</font>
+<b><font color="#0000FF">using</font></b> <b><font color="#0000FF">namespace</font></b> std<font color="#990000">;</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">init</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font><font color="#009900">int</font> i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;</font>nbSaucers<font color="#990000">;</font> i<font color="#990000">++)</font>
+    <font color="#FF0000">{</font>
+      Vec pos<font color="#990000">;</font>
+      pos<font color="#990000">.</font>x <font color="#990000">=</font> <b><font color="#000000">rand</font></b><font color="#990000">()</font> <font color="#990000">/</font> <b><font color="#0000FF">static_cast</font></b><font color="#990000">&lt;</font><font color="#009900">float</font><font color="#990000">&gt;(</font>RAND_MAX<font color="#990000">)</font> <font color="#990000">-</font> <font color="#993399">0.5</font><font color="#990000">;</font>
+      pos<font color="#990000">.</font>y <font color="#990000">=</font> <b><font color="#000000">rand</font></b><font color="#990000">()</font> <font color="#990000">/</font> <b><font color="#0000FF">static_cast</font></b><font color="#990000">&lt;</font><font color="#009900">float</font><font color="#990000">&gt;(</font>RAND_MAX<font color="#990000">)</font> <font color="#990000">-</font> <font color="#993399">0.5</font><font color="#990000">;</font>
+      pos<font color="#990000">.</font>z <font color="#990000">=</font> <b><font color="#000000">rand</font></b><font color="#990000">()</font> <font color="#990000">/</font> <b><font color="#0000FF">static_cast</font></b><font color="#990000">&lt;</font><font color="#009900">float</font><font color="#990000">&gt;(</font>RAND_MAX<font color="#990000">)</font> <font color="#990000">-</font> <font color="#993399">0.5</font><font color="#990000">;</font>
+
+      Quaternion <b><font color="#000000">ori</font></b><font color="#990000">(</font><b><font color="#000000">Vec</font></b><font color="#990000">(</font><b><font color="#0000FF">static_cast</font></b><font color="#990000">&lt;</font><font color="#009900">float</font><font color="#990000">&gt;(</font><b><font color="#000000">rand</font></b><font color="#990000">())</font> <font color="#990000">/</font> RAND_MAX<font color="#990000">,</font>
+			  <b><font color="#0000FF">static_cast</font></b><font color="#990000">&lt;</font><font color="#009900">float</font><font color="#990000">&gt;(</font><b><font color="#000000">rand</font></b><font color="#990000">())</font> <font color="#990000">/</font> RAND_MAX<font color="#990000">,</font>
+			  <b><font color="#0000FF">static_cast</font></b><font color="#990000">&lt;</font><font color="#009900">float</font><font color="#990000">&gt;(</font><b><font color="#000000">rand</font></b><font color="#990000">())</font> <font color="#990000">/</font> RAND_MAX<font color="#990000">),</font>
+		      <b><font color="#000000">rand</font></b><font color="#990000">()</font> <font color="#990000">/</font> <b><font color="#0000FF">static_cast</font></b><font color="#990000">&lt;</font><font color="#009900">float</font><font color="#990000">&gt;(</font>RAND_MAX<font color="#990000">)</font> <font color="#990000">*</font> M_PI<font color="#990000">);</font>
+
+      saucerPos<font color="#990000">[</font>i<font color="#990000">].</font><b><font color="#000000">setPosition</font></b><font color="#990000">(</font>pos<font color="#990000">);</font>
+      saucerPos<font color="#990000">[</font>i<font color="#990000">].</font><b><font color="#000000">setOrientation</font></b><font color="#990000">(</font>ori<font color="#990000">);</font>
+
+      saucerColor<font color="#990000">[</font>i<font color="#990000">].</font><b><font color="#000000">setRgb</font></b><font color="#990000">(</font><font color="#009900">int</font><font color="#990000">(</font><font color="#993399">255.0</font> <font color="#990000">*</font> <b><font color="#000000">rand</font></b><font color="#990000">()</font> <font color="#990000">/</font> <b><font color="#0000FF">static_cast</font></b><font color="#990000">&lt;</font><font color="#009900">float</font><font color="#990000">&gt;(</font>RAND_MAX<font color="#990000">)),</font>
+			    <font color="#009900">int</font><font color="#990000">(</font><font color="#993399">255.0</font> <font color="#990000">*</font> <b><font color="#000000">rand</font></b><font color="#990000">()</font> <font color="#990000">/</font> <b><font color="#0000FF">static_cast</font></b><font color="#990000">&lt;</font><font color="#009900">float</font><font color="#990000">&gt;(</font>RAND_MAX<font color="#990000">)),</font>
+			    <font color="#009900">int</font><font color="#990000">(</font><font color="#993399">255.0</font> <font color="#990000">*</font> <b><font color="#000000">rand</font></b><font color="#990000">()</font> <font color="#990000">/</font> <b><font color="#0000FF">static_cast</font></b><font color="#990000">&lt;</font><font color="#009900">float</font><font color="#990000">&gt;(</font>RAND_MAX<font color="#990000">)));</font>
+    <font color="#FF0000">}</font>
+
+  <b><font color="#000000">restoreStateFromFile</font></b><font color="#990000">();</font>
+  <b><font color="#000000">help</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+QString Viewer<font color="#990000">::</font><b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b>
+<font color="#FF0000">{</font>
+  QString <b><font color="#000000">text</font></b><font color="#990000">(</font><font color="#FF0000">"&lt;h2&gt;S c r e e n C o o r d S y s t e m&lt;/h2&gt;"</font><font color="#990000">);</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"This example illustrates the &lt;i&gt;startScreenCoordinatesSystem()&lt;/i&gt; function "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"which enables a GL drawing directly into the screen coordinate system.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"The arrows are drawned using this method. The screen projection coordinates "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"of the objects is determined using &lt;code&gt;camera()-&gt;projectedCoordinatesOf()&lt;/code&gt;, "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"thus &lt;i&gt;attaching&lt;/i&gt; the 2D arrows to 3D objects."</font><font color="#990000">;</font>
+  <b><font color="#0000FF">return</font></b> text<font color="#990000">;</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">drawSaucer</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b>
+<font color="#FF0000">{</font>
+  <b><font color="#0000FF">static</font></b> GLUquadric<font color="#990000">*</font> quadric <font color="#990000">=</font> <b><font color="#000000">gluNewQuadric</font></b><font color="#990000">();</font>
+
+  <b><font color="#000000">glTranslatef</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#990000">-</font><font color="#993399">0</font><font color="#990000">.</font>014f<font color="#990000">);</font>
+  <b><font color="#000000">gluCylinder</font></b><font color="#990000">(</font>quadric<font color="#990000">,</font> <font color="#993399">0.015</font><font color="#990000">,</font> <font color="#993399">0.03</font><font color="#990000">,</font> <font color="#993399">0.004</font><font color="#990000">,</font> <font color="#993399">32</font><font color="#990000">,</font> <font color="#993399">1</font><font color="#990000">);</font>
+  <b><font color="#000000">glTranslatef</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>004f<font color="#990000">);</font>
+  <b><font color="#000000">gluCylinder</font></b><font color="#990000">(</font>quadric<font color="#990000">,</font> <font color="#993399">0.03</font><font color="#990000">,</font> <font color="#993399">0.04</font><font color="#990000">,</font> <font color="#993399">0.01</font><font color="#990000">,</font> <font color="#993399">32</font><font color="#990000">,</font> <font color="#993399">1</font><font color="#990000">);</font>
+  <b><font color="#000000">glTranslatef</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>01f<font color="#990000">);</font>
+  <b><font color="#000000">gluCylinder</font></b><font color="#990000">(</font>quadric<font color="#990000">,</font> <font color="#993399">0.05</font><font color="#990000">,</font> <font color="#993399">0.03</font><font color="#990000">,</font> <font color="#993399">0.02</font><font color="#990000">,</font> <font color="#993399">32</font><font color="#990000">,</font> <font color="#993399">1</font><font color="#990000">);</font>
+  <b><font color="#000000">glTranslatef</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>02f<font color="#990000">);</font>
+  <b><font color="#000000">gluCylinder</font></b><font color="#990000">(</font>quadric<font color="#990000">,</font> <font color="#993399">0.03</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.003</font><font color="#990000">,</font> <font color="#993399">32</font><font color="#990000">,</font> <font color="#993399">1</font><font color="#990000">);</font>
+  <b><font color="#000000">glTranslatef</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#990000">-</font><font color="#993399">0</font><font color="#990000">.</font>02f<font color="#990000">);</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">draw</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <b><font color="#0000FF">static</font></b> Vec proj<font color="#990000">[</font>nbSaucers<font color="#990000">];</font>
+
+  <font color="#009900">int</font> i<font color="#990000">;</font>
+  <i><font color="#9A1900">// Draw 3D flying saucers</font></i>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font>i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;</font>nbSaucers<font color="#990000">;</font> i<font color="#990000">++)</font>
+    <font color="#FF0000">{</font>
+      <b><font color="#000000">glPushMatrix</font></b><font color="#990000">();</font>
+      <b><font color="#000000">glMultMatrixd</font></b><font color="#990000">(</font>saucerPos<font color="#990000">[</font>i<font color="#990000">].</font><b><font color="#000000">matrix</font></b><font color="#990000">());</font>
+      <b><font color="#000000">qglColor</font></b><font color="#990000">(</font>saucerColor<font color="#990000">[</font>i<font color="#990000">]);</font>
+      <b><font color="#000000">drawSaucer</font></b><font color="#990000">();</font>
+      <b><font color="#000000">glPopMatrix</font></b><font color="#990000">();</font>
+    <font color="#FF0000">}</font>
+
+  <i><font color="#9A1900">// Draw the arrows</font></i>
+  <b><font color="#000000">qglColor</font></b><font color="#990000">(</font><b><font color="#000000">foregroundColor</font></b><font color="#990000">());</font>
+  <b><font color="#000000">startScreenCoordinatesSystem</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font>i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;</font>nbSaucers<font color="#990000">;</font> i<font color="#990000">++)</font>
+    <font color="#FF0000">{</font>
+      <b><font color="#000000">glBegin</font></b><font color="#990000">(</font>GL_POLYGON<font color="#990000">);</font>
+      proj<font color="#990000">[</font>i<font color="#990000">]</font> <font color="#990000">=</font> <b><font color="#000000">camera</font></b><font color="#990000">()-&gt;</font><b><font color="#000000">projectedCoordinatesOf</font></b><font color="#990000">(</font>saucerPos<font color="#990000">[</font>i<font color="#990000">].</font><b><font color="#000000">position</font></b><font color="#990000">());</font>
+      <i><font color="#9A1900">// The small z offset makes the arrow slightly above the saucer, so that it is always visible</font></i>
+      <b><font color="#000000">glVertex3fv</font></b><font color="#990000">(</font>proj<font color="#990000">[</font>i<font color="#990000">]</font> <font color="#990000">+</font> <b><font color="#000000">Vec</font></b><font color="#990000">(-</font><font color="#993399">55</font><font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">,</font> <font color="#990000">-</font><font color="#993399">0</font><font color="#990000">.</font>001f<font color="#990000">));</font>
+      <b><font color="#000000">glVertex3fv</font></b><font color="#990000">(</font>proj<font color="#990000">[</font>i<font color="#990000">]</font> <font color="#990000">+</font> <b><font color="#000000">Vec</font></b><font color="#990000">(-</font><font color="#993399">17</font><font color="#990000">,-</font><font color="#993399">5</font><font color="#990000">,</font> <font color="#990000">-</font><font color="#993399">0</font><font color="#990000">.</font>001f<font color="#990000">));</font>
+      <b><font color="#000000">glVertex3fv</font></b><font color="#990000">(</font>proj<font color="#990000">[</font>i<font color="#990000">]</font> <font color="#990000">+</font> <b><font color="#000000">Vec</font></b><font color="#990000">(</font> <font color="#990000">-</font><font color="#993399">5</font><font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">,</font> <font color="#990000">-</font><font color="#993399">0</font><font color="#990000">.</font>001f<font color="#990000">));</font>
+      <b><font color="#000000">glVertex3fv</font></b><font color="#990000">(</font>proj<font color="#990000">[</font>i<font color="#990000">]</font> <font color="#990000">+</font> <b><font color="#000000">Vec</font></b><font color="#990000">(-</font><font color="#993399">17</font><font color="#990000">,</font> <font color="#993399">5</font><font color="#990000">,</font> <font color="#990000">-</font><font color="#993399">0</font><font color="#990000">.</font>001f<font color="#990000">));</font>
+      <b><font color="#000000">glEnd</font></b><font color="#990000">();</font>
+    <font color="#FF0000">}</font>
+  <b><font color="#000000">stopScreenCoordinatesSystem</font></b><font color="#990000">();</font>
+
+  <i><font color="#9A1900">// Draw text id</font></i>
+  <b><font color="#000000">glDisable</font></b><font color="#990000">(</font>GL_LIGHTING<font color="#990000">);</font>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font>i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;</font>nbSaucers<font color="#990000">;</font> i<font color="#990000">++)</font>
+    <b><font color="#000000">drawText</font></b><font color="#990000">(</font><font color="#009900">int</font><font color="#990000">(</font>proj<font color="#990000">[</font>i<font color="#990000">].</font>x<font color="#990000">)-</font><font color="#993399">60</font><font color="#990000">,</font> <font color="#009900">int</font><font color="#990000">(</font>proj<font color="#990000">[</font>i<font color="#990000">].</font>y<font color="#990000">)+</font><font color="#993399">4</font><font color="#990000">,</font> QString<font color="#990000">::</font><b><font color="#000000">number</font></b><font color="#990000">(</font>i<font color="#990000">));</font>
+  <b><font color="#000000">glEnable</font></b><font color="#990000">(</font>GL_LIGHTING<font color="#990000">);</font>
+<font color="#FF0000">}</font>
+
+
+</tt></pre>
+
+
+<h2>main.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">"screenCoordSystem.h"</font>
+<b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;qapplication.h&gt;</font>
+
+<font color="#009900">int</font> <b><font color="#000000">main</font></b><font color="#990000">(</font><font color="#009900">int</font> argc<font color="#990000">,</font> <font color="#009900">char</font><font color="#990000">**</font> argv<font color="#990000">)</font>
+<font color="#FF0000">{</font>
+  QApplication <b><font color="#000000">application</font></b><font color="#990000">(</font>argc<font color="#990000">,</font>argv<font color="#990000">);</font>
+
+  Viewer viewer<font color="#990000">;</font>
+
+<b><font color="#000080">#if</font></b> QT_VERSION <font color="#990000">&lt;</font> <font color="#993399">0x040000</font>
+  application<font color="#990000">.</font><b><font color="#000000">setMainWidget</font></b><font color="#990000">(&amp;</font>viewer<font color="#990000">);</font>
+<b><font color="#000080">#else</font></b>
+  viewer<font color="#990000">.</font><b><font color="#000000">setWindowTitle</font></b><font color="#990000">(</font><font color="#FF0000">"screenCoordSystem"</font><font color="#990000">);</font>
+<b><font color="#000080">#endif</font></b>
+
+  viewer<font color="#990000">.</font><b><font color="#000000">show</font></b><font color="#990000">();</font>
+
+  <b><font color="#0000FF">return</font></b> application<font color="#990000">.</font><b><font color="#000000">exec</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+</tt></pre>
+
+
+
+<p>
+  Back to the <a href="index.html">examples main page</a>.
+</p>
+
+<p>
+  <a href="http://validator.w3.org/check/referer"><img src="../images/xhtml.png" alt="Valid XHTML 1.0!" height="31" width="88"/></a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer"><img src="../images/css.png" width="88" height="31" alt="Valid CSS!"/></a>
+<i>Last modified on Tuesday, September 30, 2008.</i>
+</p>
+
+</body>
+</html>

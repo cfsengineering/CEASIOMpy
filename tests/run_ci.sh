@@ -13,7 +13,6 @@ Help()
    echo
 }
 
-
 run_black()
 {
     echo -e "\n-----------"

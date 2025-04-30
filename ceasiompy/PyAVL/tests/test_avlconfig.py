@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions of 'ceasiompy/PyAVL/func/avlconfig.py'
 
-
 | Author : Romain Gauthier
 | Creation: 2024-06-06
 | Modified: Leon Deligny

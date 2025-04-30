@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions of 'ceasiompy/SU2Run/func/su2actuatordisk.py'
 
-
 | Author : Aidan Jungo and Giacomo Benedetti
 | Creation: 2022-12-05
 

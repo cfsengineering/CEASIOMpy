@@ -1,0 +1,499 @@
+<!-- CGNS Mid-Level Library - Auxiliary Data -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="midlevel.css" rel="stylesheet" type="text/css">
+<title> CGNS Mid-Level Library - Auxiliary Data </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="../user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="index.html"><span class=nav><b>Mid-Level&nbsp;Library</b></span></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="general.html"><b>General&nbsp;Remarks</b></a>)
+(<a href="fileops.html"><b>File&nbsp;Operations</b></a>)
+(<a href="navigating.html"><b>Navigating&nbsp;a&nbsp;CGNS&nbsp;File</b></a>)
+(<a href="error.html"><b>Error&nbsp;Handling</b></a>)
+(<a href="structural.html"><b>Structural&nbsp;Nodes</b></a>)
+(<a href="descriptor.html"><b>Descriptors</b></a>)
+(<a href="physical.html"><b>Physical&nbsp;Data</b></a>)
+(<a href="location.html"><b>Location&nbsp;and&nbsp;Position</b></a>)
+(<span class=nav><b>Auxiliary&nbsp;Data</b></span>)
+(<a href="grid.html"><b>Grid&nbsp;Specification</b></a>)
+(<a href="solution.html"><b>Solution&nbsp;Data</b></a>)
+(<a href="connectivity.html"><b>Grid&nbsp;Connectivity</b></a>)
+(<a href="bc.html"><b>Boundary&nbsp;Conditions</b></a>)
+(<a href="equation.html"><b>Equation&nbsp;Specification</b></a>)
+(<a href="families.html"><b>Families</b></a>)
+(<a href="timedep.html"><b>Time-Dependent&nbsp;Data</b></a>)
+(<a href="links.html"><b>Links</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Auxiliary Data</h2>
+
+<ul>
+<li> <a href="#refstate">Reference State</a>
+     <ul>
+     <li> <tt><b>cg_state_write</b></tt> - Create <tt>ReferenceState_t</tt> node
+     <li> <tt><b>cg_state_size</b></tt> - Get length of reference state description string.
+     <li> <tt><b>cg_state_read</b></tt> - Read text description of reference state.
+     </ul>
+<li> <a href="#gravity">Gravity</a>
+     <ul>
+     <li> <tt><b>cg_gravity_write</b></tt> - Create <tt>Gravity_t</tt> node
+     <li> <tt><b>cg_gravity_read</b></tt> - Read <tt>Gravity_t</tt> node
+     </ul>
+<li> <a href="#convergence">Convergence History</a>
+     <ul>
+     <li> <tt><b>cg_convergence_write</b></tt> - Create <tt>ConvergenceHistory_t</tt> node
+     <li> <tt><b>cg_convergence_read</b></tt> - Read <tt>ConvergenceHistory_t</tt> node
+     </ul>
+<li> <a href="#integral">Integral Data</a>
+     <ul>
+     <li> <tt><b>cg_integral_write</b></tt> - Create <tt>IntegralData_t</tt> node
+     <li> <tt><b>cg_nintegrals</b></tt> - Get number of <tt>IntegralData_t</tt> nodes
+     <li> <tt><b>cg_integral_read</b></tt> - Get name of an <tt>IntegralData_t</tt> node
+     </ul>
+<li> <a href="#userdefined">User-Defined Data</a>
+     <ul>
+     <li> <tt><b>cg_user_data_write</b></tt> - Create <tt>UserDefinedData_t</tt> node
+     <li> <tt><b>cg_nuser_data</b></tt> - Get number of <tt>UserDefinedData_t</tt> nodes
+     <li> <tt><b>cg_user_data_read</b></tt> - Get name of an <tt>UserDefinedData_t</tt> node
+     </ul>
+<li> <a href="#free">Freeing Memory</a>
+     <ul>
+     <li> <tt><b>cg_free</b></tt> - Release library-allocated memory
+     </ul>
+</ul>
+
+<a name="refstate"></a>
+<h3>Reference State</h3>
+
+<i>Node</i>: <tt>ReferenceState_t</tt>
+             (<a href="../sids/misc.html#ReferenceState">SIDS</a>,
+              <a href="../filemap/nodes.html#ReferenceState">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_state_write(<span class=in>char *StateDescription</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_state_read(<span class=out><i>char **StateDescription</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_state_write_f(<span class=in>StateDescription</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_state_size_f(<span class=out><i>Size</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_state_read_f(<span class=out><i>StateDescription</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>StateDescription</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Text description of reference state.
+<tr valign=baseline><td>
+   <td><tt>Size</tt><td>
+   <td>Number of characters in the <tt>StateDescription</tt> string
+       (Fortran interface only).
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+The function <tt>cg_state_write</tt> creates the
+<tt>ReferenceState_t</tt> node and must be called even if
+<tt>StateDescription</tt> is undefined (i.e., a blank string).
+The descriptors, data arrays, data class, and dimensional units
+characterizing the <tt>ReferenceState_t</tt> data structure may be added
+to this data structure after its creation.
+
+<p>
+The function <tt>cg_state_read</tt> reads the <tt>StateDescription</tt>
+of the local <tt>ReferenceState_t</tt> node.
+If <tt>StateDescription</tt> is undefined in the CGNS database, this
+function returns a null string.
+If <tt>StateDescription</tt> exists, the library will allocate the space
+to store the description string, and return the description string to
+the application.
+It is the responsibility of the application to free this space when it
+is no longer needed by a call to
+<a href="#free"><tt>cg_free(StateDescription)</tt></a>.
+
+<a name="gravity"></a>
+<h3>Gravity</h3>
+
+<i>Node</i>: <tt>Gravity_t</tt>
+             (<a href="../sids/misc.html#Gravity">SIDS</a>,
+              <a href="../filemap/nodes.html#Gravity">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_gravity_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>float *GravityVector</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_gravity_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=out><i>float *GravityVector</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_gravity_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>GravityVector</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m<br>
+<tr><td nowrap>
+        <tt><b>call cg_gravity_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=out><i>GravityVector</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>GravityVector</tt><td>
+   <td>Components of the gravity vector.
+       The number of components must equal <tt>PhysicalDimension</tt>.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<a name="convergence"></a>
+<h3>Convergence History</h3>
+
+<i>Node</i>: <tt>ConvergenceHistory_t</tt>
+             (<a href="../sids/misc.html#ConvergenceHistory">SIDS</a>,
+              <a href="../filemap/nodes.html#ConvergenceHistory">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_convergence_write(<span class=in>int niterations</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>char *NormDefinitions</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_convergence_read(<span class=out><i>int *niterations</i></span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>char **NormDefinitions</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_convergence_write_f(<span class=in>niterations</span>, <span class=in>NormDefinitions</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m<br>
+<tr><td nowrap>
+        <tt><b>call cg_convergence_read_f(<span class=out><i>niterations</i></span>, <span class=out><i>NormDefinitions</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>niterations</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Number of iterations for which convergence information is recorded.
+<tr valign=baseline><td>
+   <td><tt>NormDefinitions</tt><td>
+   <td>Description of the convergence information recorded in the data arrays.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+The function <tt>cg_convergence_write</tt> creates a
+<tt>ConvergenceHistory_t</tt> node.
+It must be the first one called when recording convergence history data.
+The <tt>NormDefinitions</tt> may be left undefined (i.e., a blank string).
+After creation of this node, the descriptors, data arrays, data class,
+and dimensional units characterizing the <tt>ConvergenceHistory_t</tt>
+data structure may be added.
+
+<p>
+The function <tt>cg_convergence_read</tt> reads a
+<tt>ConvergenceHistory_t</tt> node.
+If <tt>NormDefinitions</tt> is not defined in the CGNS database, this
+function returns a null string.
+If <tt>NormDefinitions</tt> exists, the library will allocate the space
+to store the description string, and return the description string to
+the application.
+It is the responsibility of the application to free this space when it
+is no longer needed by a call to
+<a href="#free"><tt>cg_free(NormDefinitions)</tt></a>.
+
+<a name="integral"></a>
+<h3>Integral Data</h3>
+
+<i>Node</i>: <tt>IntegralData_t</tt>
+             (<a href="../sids/misc.html#IntegralData">SIDS</a>,
+              <a href="../filemap/nodes.html#IntegralData">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_integral_write(<span class=in>char *Name</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_nintegrals(<span class=out><i>int *nintegrals</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_integral_read(<span class=in>int Index</span>, <span class=out><i>char *Name</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_integral_write_f(<span class=in>Name</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_nintegrals_f(<span class=out><i>nintegrals</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_integral_read_f(<span class=in>Index</span>, <span class=out><i>Name</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>Name</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Name of the <tt>IntegralData_t</tt> data structure.
+<tr valign=baseline><td>
+   <td><tt>nintegrals</tt><td>
+   <td>Number of <tt>IntegralData_t</tt> nodes under current node.
+<tr valign=baseline><td>
+   <td><tt>Index</tt><td>
+   <td>Integral data index number, where 1 &le; <tt>Index</tt> &le; <tt>nintegrals</tt>.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<a name="userdefined"></a>
+<h3>User-Defined Data</h3>
+
+<i>Node</i>: <tt>UserDefinedData_t</tt>
+             (<a href="../sids/misc.html#UserDefinedData">SIDS</a>,
+              <a href="../filemap/nodes.html#UserDefinedData">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_user_data_write(<span class=in>char *Name</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_nuser_data(<span class=out><i>int *nuserdata</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_user_data_read(<span class=in>int Index</span>, <span class=out><i>char *Name</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_user_data_write_f(<span class=in>Name</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_nuser_data_f(<span class=out><i>nuserdata</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_user_data_read_f(<span class=in>Index</span>, <span class=out><i>Name</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>nuserdata</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Number of <tt>UserDefinedData_t</tt> nodes under current node.
+<tr valign=baseline><td>
+   <td><tt>Name</tt><td>
+   <td>Name of the <tt>UserDefinedData_t</tt> node.
+<tr valign=baseline><td>
+   <td><tt>Index</tt><td>
+   <td>User-defined data index number, where 1 &le; <tt>Index</tt> &le; <tt>nuserdata</tt>.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+After accessing a particular <tt>UserDefinedData_t</tt> node using
+<a href="navigating.html#goto"><tt>cg_goto</tt></a>, the
+<a href="location.html#ptset">Point Set functions</a> may be used to
+read or write point set information for the node.
+The function <a href="location.html#gridlocation"><tt>cg_gridlocation_write</tt></a>
+may also be used to specify the location of the data with respect to the
+grid (e.g., <tt>Vertex</tt> or <tt>FaceCenter</tt>).
+
+<p>
+Multiple levels of <tt>UserDefinedData_t</tt> nodes may be written and
+retrieved by positioning via <a href="navigating.html#goto"><tt>cg_goto</tt></a>.
+E.g.,
+<pre>
+   ier = cg_goto(fn, B, "Zone_t", Z, "UserDefinedData_t", ud1, 
+                 "UserDefinedData_t", ud2, "UserDefinedData_t", ud3, "end");
+</pre>
+
+
+<a name="free"></a>
+<h3>Freeing Memory</h3>
+
+<br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_free(<span class=in>void *data</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>data</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Data allocated by the Mid-Level Library.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+This function does not affect the structure of a CGNS file; it is
+provided as a convenience to free memory allocated by the Mid-Level
+Library.
+This isn't necessary in Fortran, and thus an equivalent Fortran function
+is not provided.
+
+<p>
+The functions that are used to allocate memory for return values are
+<a href="descriptor.html#descriptor"><tt>cg_descriptor_read</tt></a>,
+<a href="#convergence"><tt>cg_convergence_read</tt></a>,
+<a href="families.html#geometry"><tt>cg_geo_read</tt></a>,
+<a href="links.html"><tt>cg_link_read</tt></a>,
+and <a href="#refstate"><tt>cg_state_read</tt></a>.
+Each of these may allocate space to contain the data returned
+to the application.
+It is the responsibility of the application to free this data when it is
+no longer needed.
+Calling <tt>cg_free</tt> is identical to calling the standard C function
+<tt>free</tt>, however it is probably safer in that the memory is
+freed in the same module in which it is created, particularly when the
+Mid-Level Library is a shared library or DLL.
+The routine checks for NULL data and will return <tt>CG_ERROR</tt> in
+this case, otherwise it returns <tt>CG_OK</tt>.
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 12 Jan 2007
+
+</body>
+</html>

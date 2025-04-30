@@ -1,0 +1,668 @@
+<!-- A User's Guide to CGNS - Overview of the SIDS -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - Overview of the SIDS</title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="index.html"><span class=nav><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></span></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../midlevel/index.html"><b>Mid-Level&nbsp;Library</b></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="intro.html"><b>Introduction</b></a>)
+(<a href="started.html"><b>Getting&nbsp;Started</b></a>)
+(<a href="additional.html"><b>Additional&nbsp;Information</b></a>)
+(<a href="trouble.html"><b>Troubleshooting</b></a>)
+(<a href="faq.html"><b>Frequently&nbsp;Asked&nbsp;Questions</b></a>)
+(<a href="examples.html"><b>Example&nbsp;Computer&nbsp;Codes</b></a>)
+(<span class=nav><b>Overview&nbsp;of&nbsp;the&nbsp;SIDS</b></span>)
+(<a href="plot3d.html"><b>Guideline&nbsp;for&nbsp;PLOT3D&nbsp;Variables</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Overview of the SIDS</h2>
+
+<ul>
+<li> <a href="#sec:bigpicture">The Big Picture</a>
+<li> <a href="#sec:lowerlevels">Implementation at the Lower Levels of the Hierarchy</a>
+<li> <a href="#sec:bcs">Boundary Conditions</a>
+<li> <a href="#sec:connectivity">Zone Connectivity</a>
+<li> <a href="#sec:sidsexample">Structured Zone Example</a>
+</ul>
+
+<a name="sec:bigpicture"></a>
+<h3>The Big Picture</h3>
+
+<p>
+As mentioned in the <a href="intro.html">Introduction</a>, a 
+CGNS file is organized into a set of "nodes" in a tree-like
+structure, in much the same way as directories are
+organized in the UNIX environment.
+Each node is identified by both a label and a name.
+Most node <em>labels</em> are given by a series of characters 
+followed by "_t".  There are generally very strict rules
+governing the labeling conventions in a CGNS file.  Node <em>names</em> 
+are sometimes user-defined, but sometimes must also follow 
+strict naming conventions.  The label identifies
+a "<em>type</em>."  For example, <tt>Zone_t</tt> identifies a Zone-type
+node, and <tt>DataArray_t</tt> identifies a type of node that contains
+a data array.  The name identifies a specific instance of
+the particular node type.  For example, <tt>Density</tt> is the name of
+a node of type <tt>DataArray_t</tt> that contains an array of densities.
+
+<p>
+As you become more familiar with how CGNS files are
+organized, you will notice that,
+generally, the higher you are in the CGNS hierarchy, the more
+important the label is (names tend to be user-defined); whereas
+the lower you are in the hierarchy, the more important the
+name is.  This convention arises because at the higher levels,
+the broader categories are established, and are used to determine
+"where to go" in the hierarchy.   At the lower levels, the category becomes
+less important because this is the region where you are
+searching for specific items.
+
+<p>
+Throughout the remainder of this
+first section, we will primarily be referring to the nodes by their
+<em>label</em>, because we are focusing on the "big picture."
+In later sections, as we get into specific examples,
+both names and labels will be referred to.
+
+<p>
+It is important to note at this point that the SIDS document
+specifies the layout of the CGNS file, in terms of parents
+and children.  However, when a given piece of information is
+listed as being "under" a node, there are actually two possibilities:
+the information can be stored <i>as data <u>in</u> the current node</i>,
+or it can be stored <i>as data <u>in or under</u> a separate child node</i>.
+This distinction is illustrated in the figure below.
+The <a href="../filemap/index.html">SIDS-to-ADF File Mapping Manual</a>
+determines which of the two
+possibilities are used for each situation, and must always be
+consulted along with the <a href="../sids/index.html">SIDS document</a>.
+(Note there is also a <a href="../filemap_hdf/index.html">SIDS-to-HDF
+File Mapping Manual</a> available.)
+Throughout the remainder
+of this section, the location of information (whether
+as data or as a separate child node) will always be explicitly
+specified, according to the SIDS-to-ADF mapping document.
+
+<a name="FIGdataorchild"></a>
+<p>
+<center>
+<img src="figures/dataorchild.gif"
+     alt="Diagram showing options for data 'under' a node"
+     longdesc="figures/dataorchild.html">
+<br><br>
+Two possible treatments of a parent node with sets
+of data "under" it.
+</center>
+
+<p>
+The remainder of this section attempts to summarize the most
+important and most commonly-used aspects of the SIDS.  It does not
+cover all possible nodes or situations.  It is intended as a 
+general overview only.  It is also likely
+that future extensions to the SIDS will add additional capabilities
+beyond what we cover here.
+
+<p>
+The top, or entry-level, of the CGNS file is always what is 
+referred to as the "root node."  Children to be found
+directly under this node are the node <tt>CGNSLibraryVersion_t</tt> and
+one or more <tt>CGNSBase_t</tt> nodes.  The <tt>CGNSLibraryVersion_t</tt> node
+has, as its data, the version (release) number
+of the CGNS standard as defined by the SIDS.
+The <tt>CGNSBase_t</tt> node represents the top level for a given
+database, or "case."
+Most CGNS files will only have one <tt>CGNSBase_t</tt> node, although
+the SIDS allows for any number in order to remain extensible
+and to allow for the possibility of having more than one
+"case" in a single file.  Here, the definition of "case"
+is left open.  For the remainder of this section, we assume that
+there is only one <tt>CGNSBase_t</tt> node within a given CGNS file.
+
+<p>
+The <tt>CGNSBase_t</tt> node may have, as its children, the following
+nodes:  <tt>Zone_t</tt>, <tt>ConvergenceHistory_t</tt>,
+<tt>BaseIterativeData_t</tt>,  <tt>SimulationType_t</tt>,
+<tt>Family_t</tt>, <tt>IntegralData_t</tt>,
+<tt>DataClass_t</tt>, <tt>FlowEquationSet_t</tt>, 
+<tt>DimensionalUnits_t</tt>, <tt>ReferenceState_t</tt>,
+<tt>Axisymmetry_t</tt>, <tt>RotatingCoordinates_t</tt>,
+<tt>Gravity_t</tt>, <tt>UserDefinedData_t</tt>,and
+<tt>Descriptor_t</tt>.
+
+<p>
+The <tt>Zone_t</tt> node gives information about a particular zone of
+the grid; most of the data in the CGNS file is usually found 
+under this node.  Any 
+number of <tt>Zone_t</tt> nodes is allowed at this level.  Its children will 
+be described in greater detail below.  <tt>ConvergenceHistory_t</tt>
+contains solution history information typically output by many
+CFD codes, such as residual, lift, drag, etc. as a function of
+iteration number.  By convention, its name is
+<tt>GlobalConvergenceHistory</tt>.
+A <tt>ConvergenceHistory_t</tt> node can exist under the
+<tt>Zone_t</tt> node as well, but there, its name is by convention
+<tt>ZoneConvergenceHistory</tt>.
+<tt>BaseIterativeData_t</tt> stores information relating to the times
+and/or iteration numbers for a database in which flow solutions and/or
+grids at multiple times are stored.
+<tt>SimulationType_t</tt> describes the type of simulation stored (i.e.,
+<tt>TimeAccurate</tt> or <tt>NonTimeAccurate</tt>).
+<tt>Family_t</tt> is generally used to tie the grid to geometric CAD
+data, or to link certain entities together as a common part (e.g.,
+"wing," "strut," etc.).
+Any number of <tt>Family_t</tt> nodes is allowed.
+<tt>Axisymmetry_t</tt>, <tt>RotatingCoordinates_t</tt>, and
+<tt>Gravity_t</tt> are used for specific situations; details can be
+found in the SIDS.
+
+<p>
+The remaining nodes allowed under <tt>CGNSBase_t</tt> are somewhat
+more generic, and can exist at other levels in the hierarchy
+beside this one.  They are briefly described here.
+<tt>IntegralData_t</tt> is a "catch-all" node for storing any 
+desired sets of generic data.  Any number of <tt>IntegralData_t</tt>
+nodes is allowed at this level. 
+<tt>DataClass_t</tt> (which, by convention, has the name <tt>DataClass</tt>)
+indicates the form that the data in the <tt>CGNSBase_t</tt> is
+stored, for example:  <tt>Dimensional</tt>, <tt>NormalizedByDimensional</tt>,
+or <tt>NormalizedByUnknownDimensional</tt>.
+<tt>FlowEquationSet_t</tt> 
+(which, by convention, has the name <tt>FlowEquationSet</tt>)
+defines the equations used in the CFD
+simulation.  <tt>DimensionalUnits_t</tt> (which, by convention, has the name 
+<tt>DimensionalUnits</tt>)
+defines the dimensional units used (if any).  <tt>ReferenceState_t</tt>
+(which, by convention, has the name <tt>ReferenceState</tt>)
+defines a reference state.  This node is where quantities such
+as Reynolds number, Mach number, and other reference quantities
+that define the flow field conditions and/or the 
+nondimensionalizations are stored.
+<tt>UserDefinedData_t</tt> is used to store user-defined data that is
+(by definition) not part of the SIDS standard.
+Finally, <tt>Descriptor_t</tt> is used to store descriptor strings. 
+Any number of <tt>Descriptor_t</tt> nodes is allowed at this level.
+
+<a name="dimensions"></a>
+<p>
+The data stored within the <tt>CGNSBase_t</tt> node itself are the 
+<tt>CellDimension</tt> and the <tt>PhysicalDimension</tt>.
+The <tt>CellDimension</tt> is the dimensionality of the cells in the
+mesh (e.g., 3 for volume cell, 2 for face cell).
+The <tt>PhysicalDimension</tt> is the number of coordinates required to
+define a node position (e.g., 1 for 1-D, 2 for 2-D, 3 for 3-D).
+The index dimension, which is the number of different indices
+required to reference a node (e.g., 1=<i>i</i>, 2=<i>i</i>,<i>j</i>,
+3=<i>i</i>,<i>j</i>,<i>k</i>), is not stored, but can be
+determined for each zone based on its type (<tt>Structured</tt> or
+<tt>Unstructured</tt>).
+If
+<tt>Structured</tt>, the index dimension is the same as <tt>CellDimension</tt>.
+If <tt>Unstructured</tt>, the index dimension is 1.
+
+<p>
+Much information can be stored under <tt>Zone_t</tt>.  Because this is
+an overview, we do not go through it all here.  Instead, we only
+highlight the features that most users are likely to use. 
+<tt>ZoneType_t</tt> (which, by convention, has the name <tt>ZoneType</tt>)
+stores the name <tt>Structured</tt> or <tt>Unstructured</tt>.
+<tt>GridCoordinates_t</tt> is the parent node of the grid coordinates 
+arrays, such as <tt>CoordinateX</tt>, <tt>CoordinateY</tt>, 
+and <tt>CoordinateZ</tt>.  
+Any number of <tt>GridCoordinates_t</tt> nodes are
+allowed at this level (to handle the case of deforming
+grids).  By convention, the original grid coordinates
+has the name <tt>GridCoordinates</tt>.
+<tt>FlowSolution_t</tt> stores under it nodes which contain the flow
+solution; for example, <tt>Density</tt>, <tt>VelocityX</tt>, 
+<tt>VelocityY</tt>,
+<tt>VelocityZ</tt>, and <tt>Pressure</tt>.
+It also gives the location at which the solution is stored (e.g.,
+<tt>CellCenter</tt>, <tt>Vertex</tt>), and includes the possibility for
+including <tt>Rind</tt> (ghost cell or ghost point) information.
+Any number of <tt>FlowSolution_t</tt> nodes are
+allowed at this level.  The <tt>Elements_t</tt> data structure holds
+unstructured element data such as connectivity, neighbors,
+etc.  Any number of 
+<tt>Elements_t</tt> nodes are allowed at this level.
+<tt>ZoneIterativeData_t</tt> stores information necessary
+for a database in which flow solutions at multiple times are stored.
+Other important nodes under <tt>Zone_t</tt> are <tt>ZoneBC_t</tt>
+(which, by convention, has the name <tt>ZoneBC</tt>)
+and <tt>ZoneGridConnectivity_t</tt> (which, by convention, has the name 
+<tt>ZoneGridConnectivity</tt>).  These store the boundary conditions and
+the grid connectivity information, respectively.
+More will be said about these nodes later.
+
+<p>
+The data stored within the <tt>Zone_t</tt> node itself are
+the <tt>VertexSize</tt>, the <tt>CellSize</tt>, and the
+<tt>VertexSizeBoundary</tt>.
+These are dimensioned by the index dimension, and give the number of
+vertices, the number of cells, and the number of boundary vertices (used
+for sorted elements in unstructured zones only), respectively.
+
+<a name="Zonenaming"></a>
+<p>
+An important point to note here is that the API sorts the <tt>Zone_t</tt>
+nodes alphanumerically according to their <em>name</em> when
+it reads them.  This
+was deemed necessary because most CFD codes currently perform
+operations on the zones of multiple-zone grids in a certain order.
+To duplicate existing non-CGNS applications, it is 
+necessary to insure that zones can be read in the desired
+sequence.  (ADF does not necessarily retrieve data in the same 
+order in which it was stored, so the API reader for zones was
+built to do this.)  Hence, when <em>naming</em> zones, the user should
+make sure they are named alphanumerically (if an ordering is
+desired).
+
+<p>
+For example, the naming convention <tt>ZoneN</tt>, where N is the zone
+number, is alphanumeric only up to <tt>Zone9</tt>.
+<tt>Zone10</tt> through <tt>Zone19</tt> would get sorted between
+<tt>Zone1</tt> and <tt>Zone2</tt>, and so on.
+Spaces are allowed in names, so <tt>Zone&nbsp;&nbsp;N</tt>,
+with two spaces, (e.g., <tt>Zone&nbsp;&nbsp;1</tt>,
+<tt>Zone&nbsp;&nbsp;2</tt>,... <tt>Zone&nbsp;99</tt>,
+<tt>Zone100</tt>,...) is alphanumeric up to <tt>Zone999</tt>.
+Other zone naming conventions are certainly possible, and are completely
+up to the user to define appropriately.
+
+<p>
+A summary graphic of the overall layout of a typical CGNS file 
+is given below.  
+This figure shows the hierarchical data structure,
+and the relative locations of the nodes.  It also indicates
+(informally) what data, if any, is stored <em>within</em> each node.
+
+<a name="FIGoverviewSTR"></a>
+<p>
+<center>
+<img src="figures/overviewSTR.gif"
+     alt="Diagram showing layout of a typical CGNS file"
+     longdesc="figures/overviewSTR.html">
+<br><br>
+Hierarchical structure of a typical CGNS file (structured
+grid type).
+</center>
+
+<br>
+Note that all possible nodes are <em>not</em>
+included here.  In particular, note that <tt>Elements_t</tt> nodes are
+not shown under <tt>Zone_t</tt>; 
+<i>the</i> <tt>Elements_t</tt> <i>nodes would be present
+for an unstructured zone</i>.  
+Also note that nodes that occur
+under <tt>ZoneBC_t</tt> and <tt>ZoneGridConnectivity_t</tt> have been omitted;
+these will also be covered below.
+Optional nodes such as 
+<tt>SimulationType_t</tt> (under <tt>CGNSBase_t</tt>) are not included.
+And finally, note that multiple <tt>GridCoordinates_t</tt> and
+<tt>FlowSolution_t</tt> nodes are allowed, but we show in the figure
+only one of each.
+Multiple <tt>FlowSolution_t</tt> nodes are usually only used in
+the situation when multiple times of time-accurate data are
+stored, and multiple <tt>GridCoordinates_t</tt> nodes are used
+for deforming grids.
+
+<a name="sec:lowerlevels"></a>
+<h3>Implementation at the Lower Levels of the Hierarchy</h3>
+
+<p>
+Most of the actual data is at the lower levels of the CGNS
+hierarchy.  We do not go into great detail here; the examples 
+in the main body of this document serve as instruction for this.
+However, there are several general items of importance 
+related to the storage of data that are appropriate to mention
+here.
+
+<p>
+Many specific items, variables, and conditions that relate to CFD
+data are specified in the SIDS.
+These are <a href="../sids/dataname.html">standardized <em>names</em></a>
+that must be used in order that other users will understand
+what is in your CGNS file.
+For example, the static density must
+be called <tt>Density</tt>.  Any other name may not be recognized by other
+users.  In fact, if another application code expects "<tt>Density</tt>," but
+you name it "<tt>density</tt>" (lower case "<tt>d</tt>"), then chances are the
+other code's search will fail.
+
+<p>
+Naturally, the items listed in the SIDS
+cannot cover all possible items required by users.
+Hence, the SIDS allows for the use of the 
+type <tt>UserDefinedData_t</tt> for any special type not covered.
+For example, there are currently only a limited number of
+defined names for turbulence models in the SIDS (e.g.,
+<tt>OneEquation_SpalartAllmaras</tt>).  As everyone knows, there
+are a <em>huge</em> number of turbulence models and turbulence model
+variants that exist, so that the SIDS cannot hope to
+define standardized names for all of them.  The type <tt>UserDefinedData_t</tt>
+covers this situation.
+
+<p>
+When <tt>UserDefinedData_t</tt> is used, however, the user runs the risk
+that others will be unable to interpret the CGNS file.
+We therefore recommend that whenever a <tt>UserDefinedData_t</tt> type is
+unavoidable, the user also include a companion <tt>Descriptor_t</tt>
+node to specify what was done.
+
+<p>
+It is possible that, if certain items are found to be used more heavily
+as time goes on, that standardized names may be created and added to the
+SIDS in the future.
+
+<a name="sec:bcs"></a>
+<h3>Boundary Conditions</h3>
+
+<p>
+The boundary conditions hierarchical structure in CGNS can appear
+to be somewhat daunting at first.  Because the CGNS team decided
+to make the boundary condition information as descriptive as possible
+and easily extensible to complex situations, there are many
+layers possible in the hierarchy, and the usage rules can
+become complex.
+
+<p>
+However, the SIDS allows for use of simplified versions of the
+<tt>ZoneBC_t</tt> node, which are easier to understand and adopt.
+Essentially, the simplified versions "cut off" the hierarchy
+at a higher level than the full-blown 
+SIDS boundary condition description.  The
+implication of this is that application codes that use
+a simplified version must interpret what is meant by each 
+particular boundary condition type, without the help of the CGNS file.
+
+<p>
+For example, the boundary condition 
+type <tt>BCFarfield</tt> indicates a boundary condition
+applied to a far field boundary.  Most CFD codes have this type,
+which performs different functions depending upon whether the
+local flow field is inflow or outflow, subsonic or supersonic.
+The full-blown SIDS description of <tt>BCFarfield</tt> attempts to
+describe in some detail the methodology involved in this boundary
+condition.  However, if the user chooses to use the minimal "cut off"
+version, the only information regarding the function of the
+boundary condition that is stored in the CGNS file is the
+<em>name</em> <tt>BCFarfield</tt>.
+An application code must determine from this name alone what is meant.
+
+<a name="FIGbc"></a>
+<p>
+<center>
+<img src="figures/bc.gif"
+     alt="Diagram showing lowest allowed and fully SIDS-compliant boundary condition implementation levels"
+     longdesc="figures/bc.html">
+<br><br>
+General hierarchical structure of <tt>ZoneBC_t</tt>.
+</center>
+
+<p>
+Example hierarchical structures for both the simplest 
+implementation as well as the full-blown implementation
+of the <tt>ZoneBC_t</tt> node are shown in the above figure.  (These
+hierarchies make use of an <tt>IndexRange_t</tt> node.  It is
+also possible to use an <tt>IndexArray_t</tt>, which gives a complete
+list of boundary indices or elements, rather than a
+range.)  Note that an intermediate structure, where <tt>BCDataSet_t</tt> and
+<tt>BCTypeSimple_t</tt> are both given but <tt>DirichletData</tt> and
+<tt>NeumannData</tt> are not, is also allowed.
+
+<p>
+Many boundary condition types are currently defined in the SIDS,
+but they by no means cover all possible boundary conditions.
+The type <tt>UserDefinedData_t</tt> can be used for any special type not
+covered that the user finds impossible to describe using the existing
+SIDS.  When <tt>UserDefinedData_t</tt> is used,
+a companion descriptor node is helpful to describe what was done.
+
+<a name="sec:connectivity"></a>
+<h3>Zone Connectivity</h3>
+
+<p>
+It is often desirable to specify zone connectivity information when
+parts of a zone connect with parts of another zone or itself.  The
+connectivity information tells how zones fit together or how a
+zone twists to reconnect with itself; the information
+is needed by most CFD flow solvers.
+
+<p>
+There are three types of connectivity that can occur:  point-by-point,
+patched, and overset.  The point-by-point, or 1-to-1, type occurs
+when the edges of zones abut, and grid vertices from one patch
+exactly correspond with grid vertices from the other, with no
+points missing a partner.  The patched type occurs when
+the edges of zones abut, but there is not a correspondence of the
+points, or they are not partnered with another point.  The 
+overset type occurs when zones overlap one another (or a zone overlaps
+itself).
+
+<p>
+The SIDS allows for the specification of each of these types of zone 
+connectivity under the <tt>ZoneGridConnectivity_t</tt> node.  All three
+types can be implemented through the general <tt>GridConnectivity_t</tt> 
+subnode (overset also requires the use of <tt>OversetHoles_t</tt> nodes).
+However, the 1-to-1 type can also utilize, in certain
+circumstances, the more specific <tt>GridConnectivity1to1_t</tt> subnode.
+
+<p>
+The following figure shows a sample hierarchy starting at the
+<tt>ZoneGridConnectivity_t</tt> node, for a 1-to-1 type of interface
+using a <tt>GridConnectivity1to1_t</tt> subnode.  Note in this figure that
+we now list the name, label, and data within each node.  For this
+structure, the naming convention at the bottom level
+is particularly important, and
+is actually more descriptive than the labels.  In fact, the label
+for the <tt>Transform</tt> node is very strange, and does not even follow 
+the usual "_t" convention.
+As can be seen in the figure, multiple nodes are allowed under
+the <tt>ZoneGridConnectivity_t</tt> node.  These can be any combination of
+<tt>GridConnectivity1to1_t</tt>, <tt>GridConnectivity_t</tt>, 
+<tt>OversetHoles_t</tt>, or <tt>Descriptor_t</tt> nodes.
+
+<a name="FIGconnectivity"></a>
+<p>
+<center>
+<img src="figures/connectivity.gif"
+     alt="Diagram showing hierarchy below ZoneGridConnectivity_t node for a 1-to-1 interface"
+     longdesc="figures/connectivity.html">
+<br><br>
+Hierarchical structure of <tt>ZoneGridConnectivity_t</tt> for a
+1-to-1 interface.
+</center>
+
+<p>
+A sample hierarchy (again starting at the <tt>ZoneGridConnectivity_t</tt>
+node) is shown in the next figure
+for an <em>overset</em> interface using a <tt>GridConnectivity_t</tt> 
+subnode.  The case for a <em>patched</em> interface would look the
+same, except there would be no <tt>OversetHoles_t</tt> node
+or its children and <tt>GridConnectivityType</tt> would be <tt>Abutting</tt>.
+Note that <tt>CellListDonor</tt> 
+and <tt>InterpolantsDonor</tt> are used for
+patched or overset interfaces.
+(<tt>PointListDonor</tt> can be used in their place if the interface is
+1-to-1.)
+See the <a href="../sids/index.html">SIDS document</a> and the
+<a href="../filemap/index.html">file mapping manual</a> for details.)
+
+<a name="FIGconnectivityU"></a>
+<p>
+<center>
+<img src="figures/connectivityU.gif"
+     alt="Diagram showing hierarchy below ZoneGridConnectivity_t node for an overset interface"
+     longdesc="figures/connectivityU.html">
+<br><br>
+Hierarchical structure of <tt>ZoneGridConnectivity_t</tt> for an
+overset interface.
+</center>
+
+<a name="sec:sidsexample"></a>
+<h3>Structured Zone Example</h3>
+
+<p>
+The following is an example for a structured grid.
+It corresponds with the <a href="../sids/cnct.html#ex:1to1a">"1-to-1
+Abutting of Complete Faces" example</a> in the SIDS document.
+It is a 3-D two-zone case, where the two zones are connected in
+a 1-to-1 fashion at one of each of their faces.  Zone 1 is
+9 &times; 17 &times; 11 and zone 2 is 9 &times; 17 &times; 21.
+The <i>k</i>-max face of zone 1 abuts the <i>k</i>-min face of zone 2.
+
+<p>
+The hierarchy is shown in the following four figures.  
+Only directly relevant parts of the
+hierarchy are shown here for clarity.  For example, <tt>DataClass_t</tt>,
+<tt>ReferenceState_t</tt>, <tt>ConvergenceHistory_t</tt>, 
+<tt>FlowEquationSet_t</tt>, and <tt>ZoneBC_t</tt> 
+have all been left off.  However, these (and other) items are
+<em>not</em> required, and the figure still represents a valid
+SIDS-compliant CGNS file.  Note that a data type of MT
+indicates that there is no data stored in the node.
+
+<a name="FIGstr_exampleA"></a>
+<p>
+<center>
+<img src="figures/str_exampleA.gif"
+     alt="Diagram showing top-level nodes for two-zone example"
+     longdesc="figures/str_exampleA.html">
+<br><br>
+CGNS top levels for a case composed of 2 structured zones.
+</center>
+
+<a name="FIGstr_exampleB"></a>
+<p>
+<center>
+<img src="figures/str_exampleB.gif"
+     alt="Diagram showing GridCoordinate_t children for two-zone example"
+     longdesc="figures/str_exampleB.html">
+<br><br>
+<tt>GridCoordinate_t</tt> nodes of structured zone example.
+</center>
+
+<a name="FIGstr_exampleC"></a>
+<p>
+<center>
+<img src="figures/str_exampleC.gif"
+     alt="Diagram showing FlowSolution_t children for two-zone example"
+     longdesc="figures/str_exampleC.html">
+<br><br>
+<tt>FlowSolution_t</tt> nodes of structured zone example.
+</center>
+
+<a name="FIGstr_exampleD"></a>
+<p>
+<center>
+<img src="figures/str_exampleD.gif"
+     alt="Diagram showing ZoneGridConnectivity_t children for two-zone example"
+     longdesc="figures/str_exampleD.html">
+<br><br>
+<tt>ZoneGridConnectivity_t</tt> nodes of structured zone example.
+</center>
+
+<p>
+In this example, the flow solution in zone 1 is given at cell
+centers, whereas the flow solution in zone 2 is given at the
+vertices (see the <a href="#FIGstr_exampleC"><tt>FlowSolution_t</tt>
+figure</a>).  
+In other words, the zone 1 solution points <em>do not</em>
+correspond with the grid points (as they do in zone 2).  
+They are defined <em>within</em> the volumes surrounded by the
+grid points.
+This example is constructed this way for the
+purpose of illustration, but it is unusual; typically one would use 
+only a single flow solution data location
+for the entire file.
+
+<p>
+This example also illustrates the use of the <tt>Rind_t</tt> node, and how
+it affects the data arrays under a <tt>FlowSolution_t</tt>.  A rind
+node under <tt>FlowSolution_t</tt> is used
+to indicate that the flow solution is outputting
+additional rind or "ghost" data outside one or more boundaries
+of the zone.
+(A rind node can also be used under <tt>GridCoordinates_t</tt>
+and <tt>DiscreteData_t</tt>.)
+See the SIDS document for a <a href="../sids/build.html#Rind">more
+complete description</a>.  In zone 1 in this example, 
+there are no additional ghost cell
+data in the <i>i</i>-direction, there is one ghost cell next to
+each of <i>j</i>-min and <i>j</i>-max, and there are 3 ghost cells next
+to <i>k</i>-min and 2 next to <i>k</i>-max.  (Admittedly, this example is
+very contrived - most applications would be more consistent
+in their use of rind cells.)
+Because of the rind cells, the <i>i</i>, <i>j</i>, and <i>k</i> ranges of
+all flow solution data arrays in zone 1 are extended appropriately.
+
+<p>
+It is very important for the user to realize that including rind 
+cells affects how the data is stored in the <tt>DataArray_t</tt>'s.
+In other words, when reading a CGNS file one cannot ignore
+<tt>Rind_t</tt> nodes if they are present, and attempting to read
+the <tt>DataArray_t</tt>'s using unmodified <tt>VertexSize</tt> or 
+<tt>CellSize</tt> dimensions
+will result in the retrieval of nonsensical data.
+
+<p>
+Note that the SIDS specifies many defaults.  For example, the
+default <tt>Transform</tt> values are (1,2,3), and the default
+<tt>GridLocation</tt> is <tt>Vertex</tt>.  
+Hence, the nodes that contain these particular
+values in the example are not strictly necessary.
+The API sometimes leaves out default information.
+
+<p>
+Another important fact is illustrated in this example.  When the names
+of a type of node (of given label) are user defined, 
+the names must be <em>different</em> if they
+have the same parent node.
+For example, the two <tt>Zone_t</tt> nodes in this example
+must have different names (recall the earlier discussion of
+<a href="#Zonenaming">zone naming</a>).
+However, if they are located in different places in the hierarchy, two
+nodes with the same label can have the same name.  For example, 
+both of the <tt>FlowSolution_t</tt> nodes, located in two different
+zones, have been given the same user-defined
+name:  "<tt>My Soln</tt>" in the example.
+
+<p>
+Finally, although the <tt>ZoneBC_t</tt> nodes were not included in this
+example, note that if they were, they should describe the boundary
+conditions on all boundary faces <em>except</em> the 
+<i>k</i>-max face of zone 1 and the <i>k</i>-min face of zone 2.  These
+two faces would not be included in the boundary conditions because they
+are already defined as connectivity interfaces.
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 7 Mar 2008
+
+</body>
+</html>

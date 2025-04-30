@@ -1,0 +1,341 @@
+<!-- CGNS Mid-Level Library - Structural Nodes -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="midlevel.css" rel="stylesheet" type="text/css">
+<title> CGNS Mid-Level Library - Structural Nodes </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="../user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="index.html"><span class=nav><b>Mid-Level&nbsp;Library</b></span></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="general.html"><b>General&nbsp;Remarks</b></a>)
+(<a href="fileops.html"><b>File&nbsp;Operations</b></a>)
+(<a href="navigating.html"><b>Navigating&nbsp;a&nbsp;CGNS&nbsp;File</b></a>)
+(<a href="error.html"><b>Error&nbsp;Handling</b></a>)
+(<span class=nav><b>Structural&nbsp;Nodes</b></span>)
+(<a href="descriptor.html"><b>Descriptors</b></a>)
+(<a href="physical.html"><b>Physical&nbsp;Data</b></a>)
+(<a href="location.html"><b>Location&nbsp;and&nbsp;Position</b></a>)
+(<a href="auxiliary.html"><b>Auxiliary&nbsp;Data</b></a>)
+(<a href="grid.html"><b>Grid&nbsp;Specification</b></a>)
+(<a href="solution.html"><b>Solution&nbsp;Data</b></a>)
+(<a href="connectivity.html"><b>Grid&nbsp;Connectivity</b></a>)
+(<a href="bc.html"><b>Boundary&nbsp;Conditions</b></a>)
+(<a href="equation.html"><b>Equation&nbsp;Specification</b></a>)
+(<a href="families.html"><b>Families</b></a>)
+(<a href="timedep.html"><b>Time-Dependent&nbsp;Data</b></a>)
+(<a href="links.html"><b>Links</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Structural Nodes</h2>
+
+<ul>
+<li> <a href="#base">CGNS Base Information</a>
+     <ul>
+     <li> <tt><b>cg_base_write</b></tt> - Create and/or write to a CGNS base node
+     <li> <tt><b>cg_nbases</b></tt> - Get number of CGNS base nodes in file
+     <li> <tt><b>cg_base_read</b></tt> - Read CGNS base information
+     </ul>
+<li> <a href="#zone">Zone Information</a>
+     <ul>
+     <li> <tt><b>cg_zone_write</b></tt> - Create and/or write to a zone node
+     <li> <tt><b>cg_nzones</b></tt> - Get number of zones in base
+     <li> <tt><b>cg_zone_read</b></tt> - Read zone information
+     <li> <tt><b>cg_zone_type</b></tt> - Get type of zone (structured or unstructured)
+     </ul>
+<li> <a href="#simulationtype">Simulation Type</a>
+     <ul>
+     <li> <tt><b>cg_simulation_type_write</b></tt> - Write simulation type
+     <li> <tt><b>cg_simulation_type_read</b></tt> - Read simulation type
+     </ul>
+</ul>
+
+<a name="base"></a>
+<h3>CGNS Base Information</h3>
+
+<i>Node</i>: <tt>CGNSBase_t</tt>
+             (<a href="../sids/cgnsbase.html#CGNSBase">SIDS</a>,
+              <a href="../filemap/nodes.html#CGNSBase">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_base_write(<span class=in>int fn</span>, <span class=in>char *basename</span>, <span class=in>int cell_dim</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>int phys_dim</span>, <span class=out><i>int *B</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_nbases(<span class=in>int fn</span>, <span class=out><i>int *nbases</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_base_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=out><i>char *basename</i></span>, <span class=out><i>int *cell_dim</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *phys_dim</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_base_write_f(<span class=in>fn</span>, <span class=in>basename</span>, <span class=in>cell_dim</span>, <span class=in>phys_dim</span>, <span class=out><i>B</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_nbases_f(<span class=in>fn</span>, <span class=out><i>nbases</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_base_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=out><i>basename</i></span>, <span class=out><i>cell_dim</i></span>, <span class=out><i>phys_dim</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>nbases</tt><td>
+   <td>Number of bases present in the CGNS file <tt>fn</tt>.
+<tr valign=baseline><td>
+   <td><tt>basename</tt><td>
+   <td>Name of the base.
+<tr valign=baseline><td>
+   <td><tt>cell_dim</tt><td>
+   <td>Dimension of the cells; 3 for volume cells, 2 for surface cells.
+<tr valign=baseline><td>
+   <td><tt>phys_dim</tt><td>
+   <td>Number of coordinates required to define a vector in the field.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<a name="zone"></a>
+<h3>Zone Information</h3>
+
+<i>Node</i>: <tt>Zone_t</tt>
+             (<a href="../sids/cgnsbase.html#Zone">SIDS</a>,
+              <a href="../filemap/nodes.html#Zone">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_zone_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>char *zonename</span>, <span class=in>int *size</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>ZoneType_t zonetype</span>, <span class=out><i>int *Z</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_nzones(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=out><i>int *nzones</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_zone_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=out><i>char *zonename</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *size</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_zone_type(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=out><i>ZoneType_t *zonetype</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_zone_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>zonename</span>, <span class=in>size</span>, <span class=in>zonetype</span>, <span class=out><i>Z</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_nzones_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=out><i>nzones</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_zone_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=out><i>zonename</i></span>, <span class=out><i>size</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_zone_type_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=out><i>zonetype</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where 1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>nzones</tt><td>
+   <td>Number of zones present in base <tt>B</tt>.
+<tr valign=baseline><td>
+   <td><tt>zonename</tt><td>
+   <td>Name of the zone.
+<tr valign=baseline><td>
+   <td><tt>size</tt><td>
+   <td>Number of vertices, cells, and boundary vertices in each
+       (<i>index</i>)-dimension.
+       <p>
+       Note that for unstructured grids, the number of cells is the
+       number of highest order elements.
+       Thus, in three dimensions it's the number of 3-D cells, and in
+       two dimensions it's the number of 2-D cells.
+       <p>
+       Also for unstructured grids, if the nodes are sorted between
+       internal nodes and boundary nodes, the optional parameter
+       <tt>NBoundVertex</tt> must be set equal to the number of boundary
+       nodes.
+       By default, <tt>NBoundVertex</tt> equals zero, meaning that the
+       nodes are unsorted.
+       <p>
+       Note that a non-zero value for <tt>NBoundVertex</tt> only applies
+       to unstructured grids.
+       For structured grids, the <tt>NBoundVertex</tt> parameter always
+       equals 0 in all directions.<br><br>
+       <table cellspacing=0 cellpadding=0 noborder>
+       <tr valign=baseline>
+          <th align=left scope=col>Mesh Type</td><td><tt>&nbsp;&nbsp;</tt></td>
+          <th align=left scope=col>Size
+       <tr valign=baseline>
+          <td nowrap>3D structured</td><td></td>
+          <td><tt>NVertexI, NVertexJ, NVertexK</tt><br>
+              <tt>NCellI, NCellJ, NCellK</tt><br>
+              <tt>NBoundVertexI = 0, NBoundVertexJ = 0, NBoundVertexK = 0</tt>
+       <tr valign=baseline>
+          <td nowrap>2D structured</td><td></td>
+          <td><tt>NVertexI, NVertexJ</tt><br>
+              <tt>NCellI, NCellJ</tt><br>
+              <tt>NBoundVertexI = 0, NBoundVertexJ = 0</tt>
+       <tr valign=baseline>
+          <td>3D unstructured</td><td></td>
+          <td><tt>NVertex, NCell3D, NBoundVertex</tt>
+       <tr valign=baseline>
+          <td>2D unstructured</td><td></td>
+          <td><tt>NVertex, NCell2D, NBoundVertex</tt>
+       </table><br>
+<tr valign=baseline><td>
+   <td><tt>zonetype</tt><td>
+   <td>Type of the zone.
+       The admissible types are <tt>Structured</tt> and <tt>Unstructured</tt>.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+Note that the zones are sorted alphanumerically to insure that
+they can always be retrieved in the same order (for the same
+model).
+
+<a name="simulationtype"></a>
+<h3>Simulation Type</h3>
+
+<i>Node</i>: <tt>SimulationType_t</tt>
+             (<a href="../sids/cgnsbase.html#SimulationType">SIDS</a>,
+              <a href="../filemap/nodes.html#SimulationType">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_simulation_type_write(<span class=in>int fn</span>, <span class=in>int B</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>SimulationType_t SimulationType</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_simulation_type_read(<span class=in>int fn</span>, <span class=in>int B</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>SimulationType_t SimulationType</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_simulation_type_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>SimulationType</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_simulation_type_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=out><i>SimulationType</i></span>, <span class=out><i>ier</i></span>)</b></tt></b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>SimulationType</tt><td>
+   <td>Type of simulation.
+       Valid types are <tt>Null</tt>, <tt>UserDefined</tt>,
+       <tt>TimeAccurate</tt>, and <tt>NonTimeAccurate</tt>.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 5 Sep 2006
+
+</body>
+</html>

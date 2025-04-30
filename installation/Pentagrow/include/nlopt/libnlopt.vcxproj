@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C56A012E-A8A1-37A7-B6DF-F8023C10CD6F}</ProjectGuid>
+    <RootNamespace>nlopt</RootNamespace>
+    <Keyword>Qt4VSv1.0</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>8.1</WindowsTargetPlatformMinVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <OutputDirectory>..\..\lib64\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <IntermediateDirectory>build-msvc-64-release\</IntermediateDirectory>
+    <PrimaryOutput>nlopt</PrimaryOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <OutputDirectory>..\..\lib64\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <IntermediateDirectory>build-msvc-64-debug\</IntermediateDirectory>
+    <PrimaryOutput>nlopt_debug</PrimaryOutput>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" />
+  </ImportGroup>
+  <ImportGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">..\..\lib64\</OutDir>
+    <IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">build-msvc-64-release\</IntDir>
+    <TargetName Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">nlopt</TargetName>
+    <IgnoreImportLibrary Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">true</IgnoreImportLibrary>
+    <OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">..\..\lib64\</OutDir>
+    <IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">build-msvc-64-debug\</IntDir>
+    <TargetName Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">nlopt_debug</TargetName>
+    <IgnoreImportLibrary Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;..;..\boost;..\..\include;..\eigen;..\..\include;..\..\include\hdf5;.;api;auglag;bobyqa;cdirect;cobyla;crs;direct;esch;isres;luksan;mlsl;mma;neldermead;newuoa;praxis;slsqp;stogo;util;C:\Qt\5.12.3\msvc2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>build-msvc-64-release\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4100;4244;4068;4267;4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ObjectFileName>build-msvc-64-release\</ObjectFileName>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;HAVE_RPLY;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_NO_LAPACK;HAVE_SPACENAV;HAVE_TBB;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_SECURE_SCL=0;_ITERATOR_DEBUG_LEVEL=0;NDEBUG;ARCH_SSE2;HAVE_CONFIG_H;HAVE_COPYSIGN;NLOPT_NO_LGPL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName></ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)\nlopt.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;HAVE_RPLY;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_NO_LAPACK;HAVE_SPACENAV;HAVE_TBB;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_SECURE_SCL=0;_ITERATOR_DEBUG_LEVEL=0;NDEBUG;ARCH_SSE2;HAVE_CONFIG_H;HAVE_COPYSIGN;NLOPT_NO_LGPL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;..;..\boost;..\..\include;..\eigen;..\..\include;..\..\include\hdf5;.;api;auglag;bobyqa;cdirect;cobyla;crs;direct;esch;isres;luksan;mlsl;mma;neldermead;newuoa;praxis;slsqp;stogo;util;C:\Qt\5.12.3\msvc2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zo -bigobj -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>build-msvc-64-debug\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4100;4244;4068;4267;4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>build-msvc-64-debug\</ObjectFileName>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;HAVE_RPLY;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_NO_LAPACK;HAVE_SPACENAV;HAVE_TBB;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_ITERATOR_DEBUG_LEVEL=1;ARCH_SSE2;HAVE_CONFIG_H;HAVE_COPYSIGN;NLOPT_NO_LGPL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)\nlopt_debug.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;HAVE_RPLY;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_NO_LAPACK;HAVE_SPACENAV;HAVE_TBB;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_ITERATOR_DEBUG_LEVEL=1;ARCH_SSE2;HAVE_CONFIG_H;HAVE_COPYSIGN;NLOPT_NO_LGPL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="direct\DIRect.c" />
+    <ClCompile Include="direct\DIRserial.c" />
+    <ClCompile Include="direct\DIRsubrout.c" />
+    <ClCompile Include="auglag\auglag.c" />
+    <ClCompile Include="bobyqa\bobyqa.c" />
+    <ClCompile Include="mma\ccsa_quadratic.c" />
+    <ClCompile Include="cdirect\cdirect.c" />
+    <ClCompile Include="crs\crs.c" />
+    <ClCompile Include="api\deprecated.c" />
+    <ClCompile Include="direct\direct_wrap.c" />
+    <ClCompile Include="esch\esch.c" />
+    <ClCompile Include="api\f77api.c" />
+    <ClCompile Include="api\general.c" />
+    <ClCompile Include="stogo\global.cpp" />
+    <ClCompile Include="cdirect\hybrid.c" />
+    <ClCompile Include="isres\isres.c" />
+    <ClCompile Include="stogo\linalg.cpp" />
+    <ClCompile Include="stogo\local.cpp" />
+    <ClCompile Include="mlsl\mlsl.c" />
+    <ClCompile Include="mma\mma.c" />
+    <ClCompile Include="util\mt19937ar.c" />
+    <ClCompile Include="newuoa\newuoa.c" />
+    <ClCompile Include="neldermead\nldrmd.c" />
+    <ClCompile Include="api\optimize.c" />
+    <ClCompile Include="api\options.c" />
+    <ClCompile Include="praxis\praxis.c" />
+    <ClCompile Include="util\qsort_r.c" />
+    <ClCompile Include="util\redblack.c" />
+    <ClCompile Include="util\redblack_test.c" />
+    <ClCompile Include="util\rescale.c" />
+    <ClCompile Include="neldermead\sbplx.c" />
+    <ClCompile Include="slsqp\slsqp.c" />
+    <ClCompile Include="util\sobolseq.c" />
+    <ClCompile Include="stogo\stogo.cpp" />
+    <ClCompile Include="util\stop.c" />
+    <ClCompile Include="util\timer.c" />
+    <ClCompile Include="stogo\tools.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="auglag\auglag.h" />
+    <ClInclude Include="bobyqa\bobyqa.h" />
+    <ClInclude Include="cdirect\cdirect.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="crs\crs.h" />
+    <ClInclude Include="direct\direct-internal.h" />
+    <ClInclude Include="direct\direct.h" />
+    <ClInclude Include="esch\esch.h" />
+    <ClInclude Include="api\f77funcs.h" />
+    <ClInclude Include="api\f77funcs_.h" />
+    <ClInclude Include="stogo\global.h" />
+    <ClInclude Include="isres\isres.h" />
+    <ClInclude Include="stogo\linalg.h" />
+    <ClInclude Include="stogo\local.h" />
+    <ClInclude Include="mlsl\mlsl.h" />
+    <ClInclude Include="mma\mma.h" />
+    <ClInclude Include="neldermead\neldermead.h" />
+    <ClInclude Include="newuoa\newuoa.h" />
+    <ClInclude Include="api\nlopt-internal.h" />
+    <ClInclude Include="util\nlopt-util.h" />
+    <ClInclude Include="api\nlopt.h" />
+    <ClInclude Include="api\nlopt.hpp" />
+    <ClInclude Include="praxis\praxis.h" />
+    <ClInclude Include="util\redblack.h" />
+    <ClInclude Include="stogo\rosen.h" />
+    <ClInclude Include="slsqp\slsqp.h" />
+    <ClInclude Include="util\soboldata.h" />
+    <ClInclude Include="stogo\stogo.h" />
+    <ClInclude Include="stogo\stogo_config.h" />
+    <ClInclude Include="stogo\testfun.h" />
+    <ClInclude Include="stogo\tools.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

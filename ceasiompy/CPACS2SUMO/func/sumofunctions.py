@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Functions used to help the cration of SUMO file
 
-
 | Author: Aidan Jungo
 | Creation: 2021-02-25
 

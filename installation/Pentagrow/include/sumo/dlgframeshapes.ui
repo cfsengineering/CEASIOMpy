@@ -1,0 +1,414 @@
+<ui version="4.0" >
+ <class>DlgFrameShapes</class>
+ <widget class="QDialog" name="DlgFrameShapes" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>326</width>
+    <height>296</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Frame shapes</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" >
+   <item>
+    <widget class="QGroupBox" name="groupBox" >
+     <property name="title" >
+      <string>Special frame shapes</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout" >
+      <property name="fieldGrowthPolicy" >
+       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+      </property>
+      <item row="0" column="0" >
+       <widget class="QRadioButton" name="rbNoConstraints" >
+        <property name="text" >
+         <string>No shape constraints</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <spacer name="horizontalSpacer" >
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0" >
+         <size>
+          <width>77</width>
+          <height>22</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QRadioButton" name="rbCircular" >
+        <property name="text" >
+         <string>Circular section diameter</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QDoubleSpinBox" name="sbCircular" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize" >
+         <size>
+          <width>80</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="alignment" >
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buttonSymbols" >
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="maximum" >
+         <double>999999999.000000000000000</double>
+        </property>
+        <property name="singleStep" >
+         <double>0.200000000000000</double>
+        </property>
+        <property name="value" >
+         <double>1.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" >
+       <widget class="QRadioButton" name="rbSuperellipse" >
+        <property name="text" >
+         <string>Superellipse with exponent</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" >
+       <widget class="QDoubleSpinBox" name="sbSuperellipse" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize" >
+         <size>
+          <width>80</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="alignment" >
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="decimals" >
+         <number>1</number>
+        </property>
+        <property name="minimum" >
+         <double>1.000000000000000</double>
+        </property>
+        <property name="maximum" >
+         <double>9.000000000000000</double>
+        </property>
+        <property name="singleStep" >
+         <double>0.500000000000000</double>
+        </property>
+        <property name="value" >
+         <double>4.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" >
+       <widget class="QRadioButton" name="rbDoubleEllipse" >
+        <property name="text" >
+         <string>Double ellipse with offset</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" >
+       <widget class="QDoubleSpinBox" name="sbDoubleEllipse" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize" >
+         <size>
+          <width>80</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="alignment" >
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="decimals" >
+         <number>2</number>
+        </property>
+        <property name="minimum" >
+         <double>-0.900000000000000</double>
+        </property>
+        <property name="maximum" >
+         <double>0.900000000000000</double>
+        </property>
+        <property name="singleStep" >
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value" >
+         <double>-0.300000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" >
+       <widget class="QRadioButton" name="rbCubicEgg" >
+        <property name="text" >
+         <string>Cubic egg with distortion</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1" >
+       <widget class="QDoubleSpinBox" name="sbCubicEgg" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize" >
+         <size>
+          <width>80</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="alignment" >
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="minimum" >
+         <double>-0.900000000000000</double>
+        </property>
+        <property name="maximum" >
+         <double>0.900000000000000</double>
+        </property>
+        <property name="singleStep" >
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value" >
+         <double>-0.300000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0" >
+       <widget class="QLabel" name="label" >
+        <property name="text" >
+         <string>Number of spline points</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1" >
+       <widget class="QSpinBox" name="sbNPoints" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize" >
+         <size>
+          <width>80</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="alignment" >
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="minimum" >
+         <number>7</number>
+        </property>
+        <property name="maximum" >
+         <number>201</number>
+        </property>
+        <property name="singleStep" >
+         <number>4</number>
+        </property>
+        <property name="value" >
+         <number>15</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+     <zorder>rbNoConstraints</zorder>
+     <zorder>rbCircular</zorder>
+     <zorder>horizontalSpacer</zorder>
+     <zorder>sbCircular</zorder>
+     <zorder>rbSuperellipse</zorder>
+     <zorder>rbDoubleEllipse</zorder>
+     <zorder>sbDoubleEllipse</zorder>
+     <zorder>rbCubicEgg</zorder>
+     <zorder>sbCubicEgg</zorder>
+     <zorder>label</zorder>
+     <zorder>sbNPoints</zorder>
+     <zorder>sbSuperellipse</zorder>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout" >
+     <item>
+      <widget class="QPushButton" name="pbApply" >
+       <property name="text" >
+        <string>&amp;Apply</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>28</width>
+         <height>17</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbCancel" >
+       <property name="text" >
+        <string>&amp;Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbOK" >
+       <property name="text" >
+        <string>&amp;OK</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>rbNoConstraints</tabstop>
+  <tabstop>rbCircular</tabstop>
+  <tabstop>sbCircular</tabstop>
+  <tabstop>rbSuperellipse</tabstop>
+  <tabstop>sbSuperellipse</tabstop>
+  <tabstop>rbDoubleEllipse</tabstop>
+  <tabstop>sbDoubleEllipse</tabstop>
+  <tabstop>rbCubicEgg</tabstop>
+  <tabstop>sbCubicEgg</tabstop>
+  <tabstop>sbNPoints</tabstop>
+  <tabstop>pbApply</tabstop>
+  <tabstop>pbOK</tabstop>
+  <tabstop>pbCancel</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pbOK</sender>
+   <signal>clicked()</signal>
+   <receiver>DlgFrameShapes</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>292</x>
+     <y>273</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>323</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbCancel</sender>
+   <signal>clicked()</signal>
+   <receiver>DlgFrameShapes</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>160</x>
+     <y>268</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>123</x>
+     <y>270</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rbNoConstraints</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>sbNPoints</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>179</x>
+     <y>51</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>228</x>
+     <y>222</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rbCircular</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>sbCircular</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>195</x>
+     <y>81</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>234</x>
+     <y>81</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rbSuperellipse</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>sbSuperellipse</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>210</x>
+     <y>116</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>229</x>
+     <y>117</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rbDoubleEllipse</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>sbDoubleEllipse</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>205</x>
+     <y>151</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>228</x>
+     <y>152</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rbCubicEgg</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>sbCubicEgg</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>195</x>
+     <y>183</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>234</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

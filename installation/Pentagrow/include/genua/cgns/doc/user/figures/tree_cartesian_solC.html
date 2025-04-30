@@ -1,0 +1,51 @@
+<!-- A User's Guide to CGNS - longdesc for CGNS layout with flow
+     solution at cell centers -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="../user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - CGNS layout with flow solution at cell centers </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<p>
+This diagram illustrates the layout of the CGNS file, starting with the
+<tt>FlowSolution_t</tt> node, with the flow solution stored at the cell
+centers.
+
+<p>
+The <tt>FlowSolution_t</tt> node has the following characteristics.
+<ul>
+<li> Name: <tt>FlowSolution</tt><br>
+     Label: <tt>FlowSolution_t</tt><br>
+     Data: <tt>MT</tt>
+</ul>
+
+<p>
+Below the <tt>FlowSolution_t</tt> node are the following three nodes.
+<ul>
+<li> Name: <tt>GridLocation</tt><br>
+     Label: <tt>GridLocation_t</tt><br>
+     Data: <tt>CellCenter</tt>
+<li> Name: <tt>Density</tt><br>
+     Label: <tt>DataArray_t</tt><br>
+     Data: <tt>r(1,1,1)</tt> to <tt>r(20,16,8)</tt>
+<li> Name: <tt>Pressure</tt><br>
+     Label: <tt>DataArray_t</tt><br>
+     Data: <tt>p(1,1,1)</tt> to <tt>p(20,16,8)</tt>
+</ul>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 30 Aug 2002
+
+</body>
+</html>

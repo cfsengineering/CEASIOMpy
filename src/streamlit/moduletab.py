@@ -4,7 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Streamlit Tabs per module function.
-
 | Author : Leon Deligny
 | Creation: 21 March 2025
 
@@ -55,7 +54,7 @@ def if_choice_vartype(
     default_index = int(default_value.index(get_value_or_default(
         session_state.cpacs.tixi,
         xpath + "type",
-        "Other"
+        "CPACS2GMSH mesh"
     )))
 
     selected_type = st.radio(
@@ -73,7 +72,7 @@ def if_choice_vartype(
             key=key,
         )
         session_state.xpath_to_update[xpath] = key
-    elif selected_type == "Other":
+    elif selected_type == "CPACS2GMSH mesh":
         selected_func(
             tixi=session_state.cpacs.tixi,
             xpath=xpath,
@@ -188,7 +187,7 @@ def add_module_tab() -> None:
     dynamic_vartype_map = {
         "Path": path_vartype,
         "db": list_vartype,
-        "Other": else_vartype,
+        "CPACS2GMSH mesh": else_vartype,
     }
 
     # Load each module iteratively

@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 CPACS Creator python launcher
 
-
 | Author : Aidan Jungo
 | Creation: 2018-10-29
 

@@ -34,6 +34,7 @@ from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 MODULE_DIR = Path(__file__).parent
 WORKFLOW_TEST_DIR = Path(MODULE_DIR, "workflow_tests")
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "D150_simple.xml")
+CPACS_RANS = Path(CPACS_FILES_PATH, "labARscaled.xml")
 
 # Remove previous workflow directory and create new one
 if WORKFLOW_TEST_DIR.exists():
@@ -46,11 +47,11 @@ WORKFLOW_TEST_DIR.mkdir()
 # =================================================================================================
 
 
-def run_workflow_test(modules_to_run):
-    """Run a workflow test with the given modules."""
+def run_workflow_test(modules_to_run, cpacs_path=CPACS_IN_PATH):
+    """Run a workflow test with the given modules and optional CPACS path."""
     st.session_state = MagicMock()
     with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(CPACS_IN_PATH), *modules_to_run], test=True)
+        run_modules_list([str(cpacs_path), *modules_to_run])
 
 # =================================================================================================
 #   TESTS
@@ -66,8 +67,17 @@ def test_integration_1():
 
 
 @pytest.mark.slow
-@pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
+@pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
+@pytest.mark.skipif(not shutil.which("pentagrow"), reason="Pentagrow not installed")
+@pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_2():
+    run_workflow_test(["CPACS2GMSH", "SU2Run"], cpacs_path=CPACS_RANS)
+    assert True
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
+def test_integration_3():
     run_workflow_test(["PyAVL", "SaveAeroCoefficients", "Database"])
     assert True
 

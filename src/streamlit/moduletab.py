@@ -107,7 +107,7 @@ def order_by_gps(inputs: List) -> OrderedDict:
         group = f"{v[6]}"
         if group not in expanded_list:
             expanded_list[group] = []
-        expanded_list[group].extend(v[8])
+        expanded_list[group].append(v[8])
 
     groups_container = OrderedDict()
     for group in groups:

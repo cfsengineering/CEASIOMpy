@@ -38,7 +38,7 @@ from ceasiompy.PyAVL import AVL_AEROMAP_UID_XPATH
 from ceasiompy.SU2Run import SU2_AEROMAP_UID_XPATH
 from ceasiompy.SMTrain import (
     OBJECTIVES_LIST,
-    SMTRAIN_XPATH,
+    SMTRAIN_OBJECTIVE_XPATH,
     SMTRAIN_NEWDOE,
     SMTRAIN_NSAMPLES_XPATH,
     SMTRAIN_PLOT_XPATH,
@@ -61,12 +61,10 @@ def get_settings(cpacs: CPACS) -> Tuple[str, float, str, bool, bool, int, bool, 
     """
     Reads the global and new suggested dataset settings.
     """
-
-    # TODO: Add long paths (remove SMTRAIN_XPATH + ...)
     tixi = cpacs.tixi
     fidelity_level = get_value(tixi, SMTRAIN_FIDELITY_LEVEL_XPATH)
     data_repartition = get_value(tixi, SMTRAIN_TRAIN_PERC_XPATH)
-    objective = get_value(tixi, SMTRAIN_XPATH + "/objective")
+    objective = get_value(tixi, SMTRAIN_OBJECTIVE_XPATH)
     show_plot = get_value(tixi, SMTRAIN_PLOT_XPATH)
     new_dataset = get_value(tixi, SMTRAIN_NEW_DATASET)
     fraction_of_new_samples = int(get_value(tixi, SMTRAIN_NEWDATASET_FRAC_XPATH))

@@ -97,11 +97,12 @@ def if_choice_vartype(
 
 
 def order_by_gps(inputs: List) -> OrderedDict:
-    groups = list(OrderedDict.fromkeys([v[6] for _, v in inputs.items()]))
+    groups = list(OrderedDict.fromkeys([v[6] for v in inputs.values]))
+    expanded: bool = all([v[8] for v in inputs.values])
 
     groups_container = OrderedDict()
     for group in groups:
-        groups_container[group] = st.expander(f"**{group}**", expanded=True)
+        groups_container[group] = st.expander(f"**{group}**", expanded=expanded)
 
     return groups_container
 
@@ -210,7 +211,9 @@ def add_module_tab() -> None:
 
             groups_container = order_by_gps(inputs)
 
-            for name, default_value, var_type, unit, xpath, description, group in inputs.values():
+            for (
+                name, default_value, var_type, unit, xpath, description, group, _, _
+            ) in inputs.values():
                 key = f"{m}_{module}_{name.replace(' ', '')}_{group.replace(' ', '')}"
                 process_unit(name, unit)
 

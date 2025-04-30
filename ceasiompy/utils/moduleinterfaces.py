@@ -65,6 +65,7 @@ class _Entry:
         gui_name="",
         gui_group=None,
         test_value=None,
+        expanded=True,
     ) -> None:
         """Template for an entry which describes a module input or output
 
@@ -93,6 +94,7 @@ class _Entry:
         self.gui = gui
         self.gui_name = gui_name
         self.gui_group = gui_group
+        self.expanded = expanded
 
     def filter_unit(self, unit_entry: Union[None, str]) -> Union[None, str]:
         if unit_entry is None:
@@ -160,6 +162,7 @@ class CPACSInOut:
                 entry.descr,
                 entry.gui_group,
                 test_value,
+                entry.expanded,
             )
 
         return gui_settings_dict

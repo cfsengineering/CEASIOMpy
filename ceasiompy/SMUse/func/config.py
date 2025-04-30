@@ -30,7 +30,7 @@ from cpacspy.cpacsfunctions import get_value
 from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
 
 from ceasiompy import log
-from ceasiompy.SMUse import SMUSE_XPATH
+from ceasiompy.SMUse import SMUSE_DATASET
 from ceasiompy.utils.commonxpaths import SM_XPATH
 
 # =================================================================================================
@@ -44,43 +44,31 @@ def get_predictions_dataset(cpacs: CPACS, removed_columns: List) -> Dict:
     by reading the specified aeromaps.
     """
 
-    # Define the XPath to retrieve aeromap UIDs for predictions
-    aeromap_for_predictions_xpath = SMUSE_XPATH + "/predictionDataset"
-    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, aeromap_for_predictions_xpath)
+    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, SMUSE_DATASET)
 
     # Check if there are any aeromaps available
     if not aeromap_uid_list:
         log.error("No aeromaps found in the CPACS file.")
         raise ValueError("No aeromaps available.")
 
-    # Dictionary to store all datasets
     dataset_dict = {}
-
-    # Loop through each aeromap and process the data
-    for idx, aeromap_uid in enumerate(aeromap_uid_list, start=1):  # Start numbering from 1
+    for idx, aeromap_uid in enumerate(aeromap_uid_list, start=1):
         activate_aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
         log.info(f"Prediction dataset: {aeromap_uid}")
-
-        # Define input feature names
-        # input_columns = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
 
         # Ensure that the aeromap exists before processing
         if activate_aeromap is None:
             log.error(f"Aeromap {aeromap_uid} not found.")
             raise ValueError(f"Aeromap {aeromap_uid} does not exist.")
 
-        # Create the original DataFrame from the aeromap data
-        df = DataFrame(
-            {
-                "altitude": activate_aeromap.get("altitude").tolist(),
-                "machNumber": activate_aeromap.get("machNumber").tolist(),
-                "angleOfAttack": activate_aeromap.get("angleOfAttack").tolist(),
-                "angleOfSideslip": activate_aeromap.get("angleOfSideslip").tolist(),
-            }
-        )
+        df = DataFrame({
+            "altitude": activate_aeromap.get("altitude").tolist(),
+            "machNumber": activate_aeromap.get("machNumber").tolist(),
+            "angleOfAttack": activate_aeromap.get("angleOfAttack").tolist(),
+            "angleOfSideslip": activate_aeromap.get("angleOfSideslip").tolist(),
+        })
 
-        # Rimuove le colonne specificate nei metadati del modello, se presenti
         df_filtered = df.drop(
             columns=[col for col in removed_columns if col in df.columns],
             errors="ignore",
@@ -96,9 +84,7 @@ def get_predictions_dataset(cpacs: CPACS, removed_columns: List) -> Dict:
         log.debug(f"Filtered dataset:\n{df_filtered}")
         log.debug(f"Removed columns: {removed_columns}")
 
-    # Return the dictionary containing all processed datasets
     log.info("Completed dataset extraction.")
-
     return dataset_dict
 
 

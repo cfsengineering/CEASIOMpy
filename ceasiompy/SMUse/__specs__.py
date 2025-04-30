@@ -20,6 +20,7 @@ from ceasiompy.utils.commonxpaths import SM_XPATH
 from ceasiompy.SMUse import (
     include_gui,
     SMUSE_XPATH,
+    SMUSE_DATASET,
 )
 
 # ==============================================================================
@@ -38,7 +39,7 @@ cpacs_inout.add_input(
     default_value=st.session_state.cpacs.get_aeromap_uid_list(),
     unit=None,
     descr="Aeromap gives inputs data",
-    xpath=SMUSE_XPATH + "/predictionDataset",
+    xpath=SMUSE_DATASET,
     gui=include_gui,
     gui_name="__AEROMAP_SELECTION",
     gui_group="Selected Aeromap",

@@ -34,7 +34,8 @@ MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 
 # xPaths
-SMUSE_XPATH = CEASIOMPY_XPATH + "/generalModules/smUse"
+SMUSE_XPATH = CEASIOMPY_XPATH + "/SMUse"
+SMUSE_DATASET = SMUSE_XPATH + "/Dataset"
 
 # =================================================================================================
 #    MAIN

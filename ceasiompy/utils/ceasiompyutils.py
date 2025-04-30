@@ -111,7 +111,7 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
     cpacsin_out: CPACSInOut = get_specs_for_module(module_name).cpacs_inout
     inputs = cpacsin_out.get_gui_dict()
 
-    for name, default_value, var_type, _, xpath, _, _, test_value in inputs.values():
+    for name, default_value, var_type, _, xpath, _, _, test_value, _ in inputs.values():
         if test:
             value = test_value
         else:

@@ -38,8 +38,18 @@ from ceasiompy.PyAVL import AVL_AEROMAP_UID_XPATH
 from ceasiompy.SU2Run import SU2_AEROMAP_UID_XPATH
 from ceasiompy.SMTrain import (
     OBJECTIVES_LIST,
-    SMTRAIN_DOE,
     SMTRAIN_XPATH,
+    SMTRAIN_NEWDOE,
+    SMTRAIN_NSAMPLES_XPATH,
+    SMTRAIN_PLOT_XPATH,
+    SMTRAIN_NEW_DATASET,
+    SMTRAIN_AEROMAP_DOE_XPATH,
+    SMTRAIN_AVL_OR_SU2_XPATH,
+    SMTRAIN_THRESHOLD_XPATH,
+    SMTRAIN_TRAIN_PERC_XPATH,
+    SMTRAIN_FIDELITY_LEVEL_XPATH,
+    SMTRAIN_NEWDATASET_FRAC_XPATH,
+    SMTRAIN_AEROMAP_FOR_TRAINING_XPATH,
 )
 
 # =================================================================================================
@@ -54,15 +64,15 @@ def get_settings(cpacs: CPACS) -> Tuple[str, float, str, bool, bool, int, bool, 
 
     # TODO: Add long paths (remove SMTRAIN_XPATH + ...)
     tixi = cpacs.tixi
-    fidelity_level = get_value(tixi, SMTRAIN_XPATH + "/fidelityLevel")
-    data_repartition = get_value(tixi, SMTRAIN_XPATH + "/trainingPercentage")
+    fidelity_level = get_value(tixi, SMTRAIN_FIDELITY_LEVEL_XPATH)
+    data_repartition = get_value(tixi, SMTRAIN_TRAIN_PERC_XPATH)
     objective = get_value(tixi, SMTRAIN_XPATH + "/objective")
-    show_plot = get_value(tixi, SMTRAIN_XPATH + "/ValidationPlot")
-    new_dataset = get_value(tixi, SMTRAIN_XPATH + "/newDataset")
-    fraction_of_new_samples = int(get_value(tixi, SMTRAIN_XPATH + "/newDatasetFraction"))
-    doe = get_value(tixi, SMTRAIN_DOE + "/newDoe")
-    avl_or_su2 = get_value(tixi, SMTRAIN_DOE + "useAVLorSU2")
-    rmse_obj = get_value(tixi, SMTRAIN_DOE + "/rmseThreshold")
+    show_plot = get_value(tixi, SMTRAIN_PLOT_XPATH)
+    new_dataset = get_value(tixi, SMTRAIN_NEW_DATASET)
+    fraction_of_new_samples = int(get_value(tixi, SMTRAIN_NEWDATASET_FRAC_XPATH))
+    doe = get_value(tixi, SMTRAIN_NEWDOE)
+    avl_or_su2 = get_value(tixi, SMTRAIN_AVL_OR_SU2_XPATH)
+    rmse_obj = get_value(tixi, SMTRAIN_THRESHOLD_XPATH)
     avl = (avl_or_su2 == "AVL")
 
     if objective not in OBJECTIVES_LIST:
@@ -134,13 +144,13 @@ def retrieve_aeromap_data(
 def get_aeromap_for_training(cpacs: CPACS) -> List[str]:
     tixi = cpacs.tixi
 
-    if tixi.checkElement(SMTRAIN_XPATH + "/aeromapForTraining"):
+    if tixi.checkElement(SMTRAIN_AEROMAP_FOR_TRAINING_XPATH):
         # Using Aeromap for training
-        aeromap_text = tixi.getTextElement(SMTRAIN_XPATH + "/aeromapForTraining").strip()
+        aeromap_text = tixi.getTextElement(SMTRAIN_AEROMAP_FOR_TRAINING_XPATH).strip()
         if aeromap_text:
             # If there is text use this as a uid
             aeromap_uid_list = get_aeromap_list_from_xpath(
-                cpacs, SMTRAIN_XPATH + "/aeromapForTraining"
+                cpacs, SMTRAIN_AEROMAP_FOR_TRAINING_XPATH
             )
             return aeromap_uid_list
 
@@ -208,8 +218,8 @@ def get_datasets_from_aeromaps(
 
 def get_aeromap(cpacs: CPACS) -> Tuple[DataFrame, int]:
     tixi = cpacs.tixi
-    n_samples = int(get_value(tixi, SMTRAIN_DOE + "/nSamples"))
-    aeromap_uid = get_value(tixi, SMTRAIN_XPATH + "/aeromapForDoe")
+    n_samples = int(get_value(tixi, SMTRAIN_NSAMPLES_XPATH))
+    aeromap_uid = get_value(tixi, SMTRAIN_AEROMAP_DOE_XPATH)
 
     if not aeromap_uid:
         log.error("No aeromap found for DoE in the CPACS file.")

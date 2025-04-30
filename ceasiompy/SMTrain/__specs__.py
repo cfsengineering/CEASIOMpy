@@ -16,20 +16,27 @@ import streamlit as st
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
-from ceasiompy.SMTrain import include_gui
-
-from ceasiompy.SMTrain import (
-    LEVEL_ONE,
-    LEVEL_TWO,
-    OBJECTIVES_LIST,
-)
-from ceasiompy.SMTrain import (
-    SMTRAIN_DOE,
-    SMTRAIN_XPATH,
-)
 from ceasiompy.utils.commonxpaths import (
     SU2MESH_XPATH,
     CEASIOMPY_XPATH,
+)
+from ceasiompy.SMTrain import (
+    include_gui,
+    LEVEL_ONE,
+    LEVEL_TWO,
+    OBJECTIVES_LIST,
+    SMTRAIN_NEWDOE,
+    SMTRAIN_XPATH,
+    SMTRAIN_THRESHOLD_XPATH,
+    SMTRAIN_NSAMPLES_XPATH,
+    SMTRAIN_NEW_DATASET,
+    SMTRAIN_PLOT_XPATH,
+    SMTRAIN_TRAIN_PERC_XPATH,
+    SMTRAIN_AVL_OR_SU2_XPATH,
+    SMTRAIN_AEROMAP_DOE_XPATH,
+    SMTRAIN_FIDELITY_LEVEL_XPATH,
+    SMTRAIN_NEWDATASET_FRAC_XPATH,
+    SMTRAIN_AEROMAP_FOR_TRAINING_XPATH,
 )
 
 # ==============================================================================
@@ -49,21 +56,21 @@ cpacs_inout.add_input(
     unit=None,
     descr="""Select if you want to train a simple kriging (1 level of fidelity) or you want to
     train a Multi-Fidelity kriging (2 or 3 levels)""",
-    xpath=SMTRAIN_XPATH + "/fidelityLevel",
-    gui=True,
+    xpath=SMTRAIN_FIDELITY_LEVEL_XPATH,
+    gui=include_gui,
     gui_name="Choice of fidelity level",
-    gui_group="Global Settings",
+    gui_group="Training Surrogate Settings",
 )
 
 cpacs_inout.add_input(
     var_name="trainig_part",
     var_type=float,
-    default_value="0.7",
+    default_value=0.7,
     descr="Defining the percentage of the data to use to train the model in [0;1]",
-    xpath=SMTRAIN_XPATH + "/trainingPercentage",  # decidere anche divisione test e validation?
+    xpath=SMTRAIN_TRAIN_PERC_XPATH,
     gui=include_gui,
     gui_name=r"% of training data",
-    gui_group="Global Settings",
+    gui_group="Training Surrogate Settings",
 )
 
 cpacs_inout.add_input(
@@ -75,7 +82,7 @@ cpacs_inout.add_input(
     xpath=SMTRAIN_XPATH + "/objective",
     gui=include_gui,
     gui_name="Objective",
-    gui_group="Global Settings",
+    gui_group="Training Surrogate Settings",
 )
 
 cpacs_inout.add_input(
@@ -84,10 +91,10 @@ cpacs_inout.add_input(
     default_value=False,
     unit=None,
     descr="Choose if the validation plot must be shown or not",
-    xpath=SMTRAIN_XPATH + "/ValidationPlot",
+    xpath=SMTRAIN_PLOT_XPATH,
     gui=include_gui,
     gui_name="Validation plot",
-    gui_group="Global Settings",
+    gui_group="Plot Settings",
 )
 
 cpacs_inout.add_input(
@@ -96,10 +103,11 @@ cpacs_inout.add_input(
     default_value=st.session_state.cpacs.get_aeromap_uid_list(),
     unit=None,
     descr="Select, in the RIGHT ORDER, training datasets from the aeromaps",
-    xpath=SMTRAIN_XPATH + "/aeromapForTraining",
+    xpath=SMTRAIN_AEROMAP_FOR_TRAINING_XPATH,
     gui=include_gui,
     gui_name="__AEROMAP_CHECKBOX",
     gui_group="Training Dataset",
+    test_value=["default_aeromap"],
 )
 
 cpacs_inout.add_input(
@@ -109,7 +117,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="""Choose if you want a new suggested dataset to improve the multy-fidelity
     surrogate model""",
-    xpath=SMTRAIN_XPATH + "/newDataset",
+    xpath=SMTRAIN_NEW_DATASET,
     gui=include_gui,
     gui_name="New Dataset",
     gui_group="New Suggested Dataset",
@@ -121,7 +129,7 @@ cpacs_inout.add_input(
     default_value=2,
     unit=None,
     descr="Choose the fraction of new samples for the new dataset",
-    xpath=SMTRAIN_XPATH + "/newDatasetFraction",
+    xpath=SMTRAIN_NEWDATASET_FRAC_XPATH,
     gui=include_gui,
     gui_name="Fraction of new samples",
     gui_group="New Suggested Dataset",
@@ -134,7 +142,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="""Choose if you want to start a Design of Experiments with the Latin
     Hypercube Sampling""",
-    xpath=SMTRAIN_DOE + "/newDoe",
+    xpath=SMTRAIN_NEWDOE,
     gui=include_gui,
     gui_name="Design of Experiments",
     gui_group="Design of Experiments",
@@ -146,22 +154,10 @@ cpacs_inout.add_input(
     default_value=None,
     unit=None,
     descr="Select the aeromap with ranges for the Design of Experiments",
-    xpath=SMTRAIN_XPATH + "/aeromapForDoe",
+    xpath=SMTRAIN_AEROMAP_DOE_XPATH,
     gui=include_gui,
     gui_name="__AEROMAP_CHECKBOX",
     gui_group="Dataset with ranges",
-)
-
-cpacs_inout.add_input(
-    var_name="number_of_samples",
-    var_type=int,
-    default_value=100,  # devono essere 2 o piu!!
-    unit=None,
-    descr="Choose the number of samples",
-    xpath=SMTRAIN_DOE + "/nSamples",
-    gui=include_gui,
-    gui_name="Number of samples",
-    gui_group="Design of Experiments",
 )
 
 cpacs_inout.add_input(
@@ -170,10 +166,23 @@ cpacs_inout.add_input(
     default_value=["AVL", "SU2"],
     unit=None,
     descr="""Choose if you want to use AVL or SU2 for low fidelity simulation""",
-    xpath=SMTRAIN_DOE + "useAVLorSU2",
-    gui=True,
+    xpath=SMTRAIN_AVL_OR_SU2_XPATH,
+    gui=include_gui,
     gui_name="Use of AVL or SU2 for low fidelity simulations",
     gui_group="Design of Experiments",
+)
+
+cpacs_inout.add_input(
+    var_name="number_of_samples",
+    var_type=int,
+    default_value=100,
+    unit=None,
+    descr="Choose the number of samples",
+    xpath=SMTRAIN_NSAMPLES_XPATH,
+    gui=include_gui,
+    gui_name="Number of samples",
+    gui_group="Design of Experiments",
+    test_value=1,
 )
 
 cpacs_inout.add_input(
@@ -183,9 +192,9 @@ cpacs_inout.add_input(
     unit="1",
     descr="Absolute path of the SU2 mesh",
     xpath=SU2MESH_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="SU2 Mesh",
-    gui_group="Design of Experiments",
+    gui_group="SU2 Parameters",
 )
 
 cpacs_inout.add_input(
@@ -194,10 +203,10 @@ cpacs_inout.add_input(
     default_value=0.05,
     unit=None,
     descr="Selects the model's RMSE threshold value for Bayesian optimisation",
-    xpath=SMTRAIN_DOE + "/rmseThreshold",
+    xpath=SMTRAIN_THRESHOLD_XPATH,
     gui=include_gui,
     gui_name="RMSE Threshold",
-    gui_group="Design of Experiments",
+    gui_group="SU2 Parameters",
 )
 
 # ==============================================================================

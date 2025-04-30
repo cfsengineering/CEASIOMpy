@@ -6,7 +6,7 @@
 Adviced to follow [Docker instructions](https://github.com/cfsengineering/CEASIOMpy/blob/main/installation/DOCKER_INSTALLARION.md).
 You can also install it manually, but some packages won't be there.
 
-The basic steps are the following:
+If you want to install CEASIOMpy manually, you should follow these steps:
 
 - Install [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
 - Clone the [CEASIOMpy](https://github.com/cfsengineering/CEASIOMpy) repository

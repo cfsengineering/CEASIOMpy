@@ -23,7 +23,7 @@ from cpacspy.cpacspy import (
 from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import SMUSE_XPATH
+from ceasiompy.SMUse import SMUSE_XPATH
 
 # =================================================================================================
 #   FUNCTIONS

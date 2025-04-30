@@ -85,8 +85,8 @@ def launch_avl(
     # Run AVL analysis
     st.session_state = MagicMock()
     update_cpacs_from_specs(cpacs, PYAVL_NAME)
-    results_dir = get_results_directory(PYAVL_NAME)
-    run_avl(cpacs, results_dir)
+    pyavl_results_dir = get_results_directory(PYAVL_NAME)
+    run_avl(cpacs, pyavl_results_dir)
 
     log.info(f"----- End of {PYAVL_NAME} -----")
 

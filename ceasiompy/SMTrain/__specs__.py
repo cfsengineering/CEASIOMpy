@@ -95,6 +95,7 @@ cpacs_inout.add_input(
     gui=include_gui,
     gui_name="Validation plot",
     gui_group="Plot Settings",
+    expanded=False,
 )
 
 cpacs_inout.add_input(

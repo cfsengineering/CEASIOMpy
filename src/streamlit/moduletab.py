@@ -32,7 +32,10 @@ from src.streamlit.guiobjects import (
     multiselect_vartype,
 )
 
-from typing import List
+from typing import (
+    List,
+    Dict,
+)
 from collections import OrderedDict
 
 from ceasiompy import log
@@ -98,11 +101,18 @@ def if_choice_vartype(
 
 def order_by_gps(inputs: List) -> OrderedDict:
     groups = list(OrderedDict.fromkeys([v[6] for v in inputs.values()]))
-    expanded: bool = not all([v[8] for v in inputs.values()])
+
+    expanded_list: Dict[str, List[bool]] = {}
+    for v in inputs.values():
+        group = v[6]
+        expanded_list[group].extend(v[8])
 
     groups_container = OrderedDict()
     for group in groups:
-        groups_container[group] = st.expander(f"**{group}**", expanded=expanded)
+        groups_container[group] = st.expander(
+            f"**{group}**",
+            expanded=all(expanded_list[group]),
+        )
 
     return groups_container
 

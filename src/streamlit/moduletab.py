@@ -104,7 +104,9 @@ def order_by_gps(inputs: List) -> OrderedDict:
 
     expanded_list: Dict[str, List[bool]] = {}
     for v in inputs.values():
-        group = v[6]
+        group = f"{v[6]}"
+        if group not in expanded_list:
+            expanded_list[group] = []
         expanded_list[group].extend(v[8])
 
     groups_container = OrderedDict()

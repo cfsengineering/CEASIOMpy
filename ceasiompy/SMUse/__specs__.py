@@ -19,7 +19,6 @@ from ceasiompy import log
 from ceasiompy.utils.commonxpaths import SM_XPATH
 from ceasiompy.SMUse import (
     include_gui,
-    SMUSE_XPATH,
     SMUSE_DATASET,
 )
 

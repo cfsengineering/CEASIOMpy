@@ -5433,13 +5433,10 @@
                 <atmosphericModel>ISA</atmosphericModel>
               </boundaryConditions>
               <aeroPerformanceMap>
-                <altitude mapType="vector">0;0;0;0</altitude>
-                <machNumber mapType="vector">0.3;0.3;0.3;0.3</machNumber>
-                <angleOfAttack mapType="vector">0;10;0;10</angleOfAttack>
-                <angleOfSideslip mapType="vector">0;0;10;10</angleOfSideslip>
-                <cl mapType="vector">0.1;0.1;0.1;0.1</cl>
-                <cd mapType="vector">0.01;0.01;0.01;0.01</cd>
-                <cs mapType="vector">0.001;0.001;0.001;0.001</cs>
+                <altitude mapType="vector">0;0;0;0;1000;1000;1000;1000</altitude>
+                <machNumber mapType="vector">0.3;0.3;0.3;0.3;0.5;0.5;0.5;0.5</machNumber>
+                <angleOfAttack mapType="vector">0;10;0;10;0;10;0;10</angleOfAttack>
+                <angleOfSideslip mapType="vector">0;0;10;10;0;0;10;10</angleOfSideslip>
               </aeroPerformanceMap>
             </aeroMap>
           </aeroPerformance>

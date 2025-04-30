@@ -82,14 +82,14 @@ def test_integration_3():
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
-def test_integration_3():
+def test_integration_4():
     run_workflow_test(["CPACS2GMSH", "SMTrain", "SMUse", "SaveAeroCoefficients"])
     assert True
 
 
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
-def test_integration_4():
+def test_integration_5():
     run_workflow_test(["AeroFrame_new"])
     assert True
 

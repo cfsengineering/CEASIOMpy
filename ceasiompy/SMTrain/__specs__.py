@@ -158,9 +158,8 @@ cpacs_inout.add_input(
     descr="Select the aeromap with ranges for the Design of Experiments",
     xpath=SMTRAIN_AEROMAP_DOE_XPATH,
     gui=include_gui,
-    gui_name="__AEROMAP_CHECKBOX",
+    gui_name="__AEROMAP_SELECTION",
     gui_group="Design of Experiments",
-    test_value=["aeromap_empty"],
 )
 
 cpacs_inout.add_input(

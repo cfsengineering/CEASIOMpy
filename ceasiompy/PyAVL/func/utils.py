@@ -65,7 +65,7 @@ def split_dir(dir_name: str, index: int, param: str) -> float:
     return float(dir_name.split("_")[index].split(param)[1])
 
 
-def split_line(line: str, index: int):
+def split_line(line: str, index: int) -> float:
     return float(line.split("=")[index].strip().split()[0])
 
 

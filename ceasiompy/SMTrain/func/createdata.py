@@ -85,18 +85,12 @@ def launch_avl(
     # Update CPACS with the new aeromap
     tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap.uid)
     cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
+    run_avl(cpacs, results_dir=get_results_directory(PYAVL_NAME))
 
-    pyavl_results_dir = get_results_directory(PYAVL_NAME)
-    run_avl(cpacs, pyavl_results_dir)
-
-    log.info(f"----- End of {PYAVL_NAME} -----")
-
-    # Reload CPACS file with updated AVL results
-    cpacs = CPACS(cpacs.cpacs_file)
-
-    # Retrieve aerodynamic data
+    # Retrieve aerodynamic data, save then overwrite cpacs file
     dataset = retrieve_aeromap_data(cpacs, aeromap.uid, objective)
     cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
+    cpacs = CPACS(cpacs.cpacs_file)
 
     log.info(f"AVL results extracted for {objective}:")
     log.info(dataset)

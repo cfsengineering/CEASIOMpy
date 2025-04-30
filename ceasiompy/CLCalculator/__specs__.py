@@ -20,12 +20,13 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
 from ceasiompy.CLCalculator import include_gui
-
+from ceasiompy.SU2Run import (
+    SU2_FIXED_CL_XPATH,
+    SU2_TARGET_CL_XPATH,
+)
 from ceasiompy.utils.commonxpaths import (
     REF_XPATH,
     CLCALC_XPATH,
-    SU2_FIXED_CL_XPATH,
-    SU2_TARGET_CL_XPATH,
 )
 
 # ==============================================================================

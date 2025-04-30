@@ -64,7 +64,8 @@ class _Entry:
         gui=False,
         gui_name="",
         gui_group=None,
-    ):
+        test_value=None,
+    ) -> None:
         """Template for an entry which describes a module input or output
 
         Args:
@@ -83,6 +84,7 @@ class _Entry:
         self.var_name = var_name
         self.var_type = var_type
         self.default_value = default_value
+        self.test_value = test_value
         self.unit = self.filter_unit(unit)
         self.descr = descr
         self.xpath = xpath
@@ -141,6 +143,13 @@ class CPACSInOut:
             if not entry.gui:
                 continue
 
+            # Logic here should be correct
+            # If entry.test_value is not specified
+            # and entry.default_value is None, we still get None
+            test_value = entry.test_value
+            if test_value is None:
+                test_value = entry.default_value
+
             # Every GUI element is identified by a random key
             gui_settings_dict[str(uuid.uuid4())] = (
                 entry.gui_name,
@@ -150,6 +159,7 @@ class CPACSInOut:
                 entry.xpath,
                 entry.descr,
                 entry.gui_group,
+                test_value,
             )
 
         return gui_settings_dict

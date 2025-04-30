@@ -73,7 +73,7 @@ def get_balance_unc_estimations(cpacs_path, cpacs_out_path):
 
     Args:
         cpacs_path (str): Path to CPACS file
-        cpacs_out_path (str):Path to CPACS output file
+        cpacs_out_path (str): Path to CPACS output file
 
     """
 

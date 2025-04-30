@@ -40,7 +40,7 @@ cpacs_inout.add_input(
     descr="Aeromap gives inputs data",
     xpath=SMUSE_XPATH + "/predictionDataset",
     gui=include_gui,
-    gui_name="__AEROMAP_CHECKBOX",
+    gui_name="__AEROMAP_SELECTION",
     gui_group="Selected Aeromap",
 )
 

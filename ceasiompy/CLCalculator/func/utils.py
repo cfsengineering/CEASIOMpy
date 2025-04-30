@@ -22,13 +22,14 @@ from cpacspy.cpacsfunctions import (
 
 from tixi3.tixi3wrapper import Tixi3
 from markdownpy.markdownpy import MarkdownDoc
-
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.SU2Run import (
     SU2_XPATH,
-    REF_XPATH,
-    CLCALC_XPATH,
     SU2_FIXED_CL_XPATH,
     SU2_TARGET_CL_XPATH,
+)
+from ceasiompy.utils.commonxpaths import (
+    REF_XPATH,
+    CLCALC_XPATH,
     MASSBREAKDOWN_XPATH,
 )
 

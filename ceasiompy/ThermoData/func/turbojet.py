@@ -5,11 +5,11 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Function to run the PyCycle code for the turbojet engine
 
-
-| Author: Francesco Marcucci
-| Creation: 2023-12-12
-
 """
+
+# =================================================================================================
+#   IMPORTS
+# =================================================================================================
 
 import openmdao.api as om
 

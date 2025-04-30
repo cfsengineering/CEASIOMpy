@@ -38,12 +38,11 @@ from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
 from ceasiompy.utils.commonnames import ENGINE_BOUNDARY_CONDITIONS
-
+from ceasiompy.SU2Run import SU2_AEROMAP_UID_XPATH
 from ceasiompy.utils.commonxpaths import (
     ENGINE_BC,
     RANGE_XPATH,
     ENGINE_TYPE_XPATH,
-    SU2_AEROMAP_UID_XPATH,
     RANGE_CRUISE_ALT_XPATH,
     RANGE_CRUISE_MACH_XPATH,
 )

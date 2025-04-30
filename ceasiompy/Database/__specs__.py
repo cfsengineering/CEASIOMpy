@@ -18,8 +18,10 @@ GUI Interface of Database.
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
-from ceasiompy.Database import include_gui
-from ceasiompy.utils.commonxpaths import DATABASE_STOREDATA_XPATH
+from ceasiompy.Database import (
+    include_gui,
+    DATABASE_STOREDATA_XPATH,
+)
 
 # ==============================================================================
 #   VARIABLE

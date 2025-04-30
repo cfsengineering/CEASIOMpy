@@ -47,6 +47,10 @@ from ceasiompy.DynamicStability import MODULE_DIR as DYNAMICSTABILITY_DIR
 
 from ceasiompy.utils.commonxpaths import (
     REF_XPATH as CPACS_REF_XPATH,
+)
+
+from ceasiompy.DynamicStability import (
+    ALT,
     DYNAMICSTABILITY_CGRID_XPATH,
     DYNAMICSTABILITY_SOFTWARE_XPATH,
     DYNAMICSTABILITY_MACHLIST_XPATH,
@@ -54,8 +58,6 @@ from ceasiompy.utils.commonxpaths import (
     DYNAMICSTABILITY_NCHORDWISE_XPATH,
     DYNAMICSTABILITY_VISUALIZATION_XPATH,
 )
-
-from ceasiompy.DynamicStability import ALT
 from ceasiompy.DynamicStability.func import (
     ROOT_XPATH,
     AERO_XPATH,

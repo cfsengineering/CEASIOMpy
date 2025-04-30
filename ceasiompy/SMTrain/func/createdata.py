@@ -84,7 +84,7 @@ def launch_avl(
 
     # Run AVL analysis
     st.session_state = MagicMock()
-    update_cpacs_from_specs(cpacs, PYAVL_NAME)
+    update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
     pyavl_results_dir = get_results_directory(PYAVL_NAME)
     run_avl(cpacs, pyavl_results_dir)
 
@@ -157,7 +157,7 @@ def launch_su2(
 
     # Load default parameters
     st.session_state = MagicMock()
-    update_cpacs_from_specs(cpacs, SU2RUN_NAME)
+    update_cpacs_from_specs(cpacs, SU2RUN_NAME, test=True)
 
     rans = (config_file_type == "RANS")
     generate_su2_cfd_config(

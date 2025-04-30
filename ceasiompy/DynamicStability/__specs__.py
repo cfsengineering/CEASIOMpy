@@ -18,12 +18,11 @@ GUI Interface of DynamicStability.
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
-from ceasiompy.DynamicStability import include_gui
 from ceasiompy.PyAVL import SOFTWARE_NAME as AVL_SOFTWARE
 from ceasiompy.SU2Run import SOFTWARE_NAME as SU2_SOFTWARE
-from ceasiompy.DynamicStability import SOFTWARE_NAME as SDSA_SOFTWARE
-
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.DynamicStability import (
+    include_gui,
+    SOFTWARE_NAME as SDSA_SOFTWARE,
     DYNAMICSTABILITY_NCHORDWISE_XPATH,
     DYNAMICSTABILITY_NSPANWISE_XPATH,
     DYNAMICSTABILITY_VISUALIZATION_XPATH,

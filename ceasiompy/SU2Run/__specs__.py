@@ -22,9 +22,9 @@ from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log, NO_YES_LIST
-from ceasiompy.SU2Run import include_gui, TEMPLATE_TYPE
-
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.SU2Run import (
+    include_gui,
+    TEMPLATE_TYPE,
     SU2_AEROMAP_UID_XPATH,
     SU2_DAMPING_DER_XPATH,
     SU2_ROTATION_RATE_XPATH,
@@ -43,21 +43,24 @@ from ceasiompy.utils.commonxpaths import (
     SU2_UPDATE_WETTED_AREA_XPATH,
     SU2_EXTRACT_LOAD_XPATH,
     SU2_ACTUATOR_DISK_XPATH,
-    PROPELLER_THRUST_XPATH,
-    PROPELLER_BLADE_LOSS_XPATH,
     SU2_DYNAMICDERIVATIVES_BOOL_XPATH,
     SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH,
     SU2_DYNAMICDERIVATIVES_AMPLITUDE_XPATH,
     SU2_DYNAMICDERIVATIVES_FREQUENCY_XPATH,
     SU2_DYNAMICDERIVATIVES_INNERITER_XPATH,
     USED_SU2_MESH_XPATH,
-    RANGE_CRUISE_MACH_XPATH,
-    RANGE_CRUISE_ALT_XPATH,
     SU2_TARGET_CL_XPATH,
     SU2_FIXED_CL_XPATH,
-    GEOM_XPATH,
     SU2_BC_WALL_XPATH,
     SU2_BC_FARFIELD_XPATH,
+)
+
+from ceasiompy.utils.commonxpaths import (
+    PROPELLER_THRUST_XPATH,
+    PROPELLER_BLADE_LOSS_XPATH,
+    RANGE_CRUISE_MACH_XPATH,
+    RANGE_CRUISE_ALT_XPATH,
+    GEOM_XPATH,
     AEROPERFORMANCE_XPATH,
 )
 
@@ -170,13 +173,14 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="max_iter",
     var_type=int,
-    default_value=1,
+    default_value=1000,
     unit=None,
     descr="Maximum number of iterations performed by SU2",
     xpath=SU2_MAX_ITER_XPATH,
     gui=include_gui,
     gui_name="Maximum iterations",
     gui_group="SU2 Parameters",
+    test_value=1,
 )
 
 cpacs_inout.add_input(
@@ -288,7 +292,6 @@ cpacs_inout.add_input(
 )
 
 # Actuator disk
-
 cpacs_inout.add_input(
     var_name="include_actuator_disk",
     var_type=bool,

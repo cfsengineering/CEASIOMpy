@@ -43,6 +43,8 @@ OBJECTIVES_LIST = ["cl", "cd", "cs", "cmd", "cml", "cms"]
 # xPaths
 SMTRAIN_XPATH = CEASIOMPY_XPATH + "/SMTrain"
 
+SMTRAIN_OBJECTIVE_XPATH = SMTRAIN_XPATH + "/Objective"
+
 SMTRAIN_AEROMAP_DOE_XPATH = SMTRAIN_XPATH + "/aeromapForDoe"
 
 SMTRAIN_DOE = SMTRAIN_XPATH + "/DesignOfExperiment"

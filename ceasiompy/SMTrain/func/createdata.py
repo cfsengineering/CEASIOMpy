@@ -79,7 +79,7 @@ def launch_avl(
     aeromap.save()
 
     # Update CPACS with the new aeromap
-    add_value(tixi, AVL_AEROMAP_UID_XPATH, aeromap.uid)
+    tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap.uid)
     cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
 
     # Run AVL analysis

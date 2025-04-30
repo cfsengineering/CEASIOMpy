@@ -82,12 +82,12 @@ def check_nan_inf(*arrays) -> None:
     Args:
         *arrays: Variable number of numpy arrays to check.
     """
-    for i, arr in enumerate(arrays):
+    for i, arr in enumerate(arrays, start=1):
         arr: ndarray
         if np.isnan(arr).any():
-            raise ValueError(f"Array {i} contains NaN values.")
+            raise ValueError(f"Array {arr} at {i} contains NaN values.")
         if np.isinf(arr).any():
-            raise ValueError(f"Array {i} contains infinite values.")
+            raise ValueError(f"Array {arr} at {i} contains infinite values.")
 
 
 def get_val_fraction(train_fraction: float) -> float:

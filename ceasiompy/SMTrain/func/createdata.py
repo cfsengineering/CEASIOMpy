@@ -78,13 +78,14 @@ def launch_avl(
     aeromap = cpacs.create_aeromap_from_csv(lh_sampling_path)
     aeromap.save()
 
-    # Update CPACS with the new aeromap
-    add_value(tixi, AVL_AEROMAP_UID_XPATH, aeromap.uid)
-    cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
-
     # Run AVL analysis
     st.session_state = MagicMock()
     update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
+    
+    # Update CPACS with the new aeromap
+    tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap.uid)
+    cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
+
     pyavl_results_dir = get_results_directory(PYAVL_NAME)
     run_avl(cpacs, pyavl_results_dir)
 

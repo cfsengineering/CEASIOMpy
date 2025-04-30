@@ -99,7 +99,7 @@ def get_hyperparam_space(sets: Dict[str, ndarray]) -> List[str]:
 
 
 def train_surrogate_model(
-    fidelity_level: Literal["One level", "Multi Fidelity"],
+    fidelity_level: str,
     datasets: Dict,
     sets: Dict[str, ndarray],
 ) -> Tuple[Union[KRG, MFK], float]:
@@ -118,7 +118,7 @@ def train_surrogate_model(
             Use ["constant"]
 
     Args:
-        fidelity_level (str): Either "One level" or "Multi Fidelity".
+        fidelity_level (str): Either LEVEL_ONE or LEVEL_TWO.
         datasets (Dict): Contains datasets for different fidelity levels.
         sets (Dict):
             Contains the split datasets. Expected keys:
@@ -131,12 +131,12 @@ def train_surrogate_model(
 
     hyperparam_space = get_hyperparam_space(sets)
 
-    if fidelity_level == "One level":
+    if fidelity_level == LEVEL_ONE:
         model, rmse = kriging(
             param_space=hyperparam_space,
             sets=sets
         )
-    elif fidelity_level == "Multi Fidelity":
+    elif fidelity_level == LEVEL_TWO:
         model, rmse = mf_kriging(
             fidelity_level=fidelity_level,
             datasets=datasets,

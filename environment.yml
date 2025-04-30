@@ -7,6 +7,8 @@
 #
 # See also: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
 
+# For mac users: source ~/miniforge3/bin/activate
+
 name: ceasiompy
 
 channels:

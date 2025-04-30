@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Functions to manipulate SU2 configuration and results.
 
-
 | Author : Aidan Jungo
 | Creation: 2019-09-30
 | Modified: Leon Deligny

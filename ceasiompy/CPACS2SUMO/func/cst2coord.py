@@ -17,7 +17,6 @@ Adapted from:   Airfoil generation using CST parameterization method
                 by Pramudita Satria Palar
                 http://www.mathworks.com/matlabcentral/fileexchange/42239-airfoil-generation-using-cst-parameterization-method
 
-
 | Author: Aidan Jungo
 | Creation: 2021-04-26
 

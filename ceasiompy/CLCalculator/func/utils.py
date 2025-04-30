@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Utils for CLCalculator.
 
-
 | Author: Leon Deligny
 | Creation: 25 March 2025
 

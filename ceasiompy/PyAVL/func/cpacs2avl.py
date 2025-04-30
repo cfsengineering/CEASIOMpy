@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Script to convert CPACS file geometry into AVL geometry
 
-
 | Author: Romain Gauthier
 | Adapted from : Aidan Jungo script cpacs2sumo.py
 | Creation: 2024-03-14

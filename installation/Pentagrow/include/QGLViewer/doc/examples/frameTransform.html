@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>libQGLViewer frameTransform example</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link href="../qglviewer.css" rel="stylesheet" type="text/css" />
+  <link rel="shortcut icon" href="../images/qglviewer.ico" type="image/x-icon" />
+  <link rel="icon" href="../images/qglviewer.icon.png" type="image/png" />
+</head>
+<body>
+
+<div class="banner">
+ <a class="qindex" href="../index.html">Home</a>
+ <a class="qindex" href="../refManual/hierarchy.html">Documentation</a>
+ <a class="qindex" href="../download.html">Download</a>
+ <a class="qindex highlight" href="index.html">Examples</a>
+ <a class="qindex" href="../developer.html">Developer</a>
+</div>
+
+<h1>The frameTransform example</h1>
+
+<center>
+  <img src="../images/frameTransform.jpg" width="330" height="228" alt="frameTransform"/>
+</center>
+
+<p>
+ Coordinate transformation between different Frames.
+</p>
+<p>
+ This example illustrates the camera and world coordinate systems relationship. The position of the
+ camera in the world coordinate system is printed from <code>camera()->position()</code>.
+ Symmetrically, the position of the world origin is given in the camera coordinate system by
+ <code>camera()->cameraCoordinatesOf(0,0,0)</code>.
+</p>
+<p>
+ Three sets of lines (red, green, blue) are drawn. They have different starting points, but common
+ end points, located on a circle in the XY plane.
+</p>
+<p>
+ All the red lines start from the camera position, and will hence always be aligned with the
+ viewing direction, making them invisible.
+</p>
+<p>
+ The green lines starting points' positions are determined from the camera coordinate system, using
+ <code>camera()->worldCoordinatesOf()</code>. As a result, these points will seem to be fixed on
+ the screen, even when the camera is moved
+</p>
+<p>
+ Finally, the blue lines are classically defined in the world coordinate system, and will move with
+ the camera.
+</p>
+<p>
+ Beautiful Moire pattern can be obtained with a proper rotation.
+</p>
+<h2>frameTransform.h</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;QGLViewer/qglviewer.h&gt;</font>
+
+<b><font color="#0000FF">class</font></b> Viewer <font color="#990000">:</font> <b><font color="#0000FF">public</font></b> QGLViewer
+<font color="#FF0000">{</font>
+<b><font color="#0000FF">protected</font></b> <font color="#990000">:</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">draw</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">init</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> QString <b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b><font color="#990000">;</font>
+<font color="#FF0000">}</font><font color="#990000">;</font>
+</tt></pre>
+
+
+<h2>frameTransform.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">"frameTransform.h"</font>
+
+<b><font color="#0000FF">using</font></b> <b><font color="#0000FF">namespace</font></b> std<font color="#990000">;</font>
+<b><font color="#0000FF">using</font></b> <b><font color="#0000FF">namespace</font></b> qglviewer<font color="#990000">;</font> <i><font color="#9A1900">// Vec</font></i>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">init</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <b><font color="#000000">restoreStateFromFile</font></b><font color="#990000">();</font>
+
+  <b><font color="#000000">setSceneRadius</font></b><font color="#990000">(</font><font color="#993399">1.5</font><font color="#990000">);</font>
+  <b><font color="#000000">showEntireScene</font></b><font color="#990000">();</font>
+  <b><font color="#000000">setAxisIsDrawn</font></b><font color="#990000">();</font>
+  <b><font color="#000000">glDisable</font></b><font color="#990000">(</font>GL_LIGHTING<font color="#990000">);</font>
+
+  <b><font color="#000000">help</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">draw</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <i><font color="#9A1900">// Draws line sets (red, green, blue) with different origins, but with a common</font></i>
+  <i><font color="#9A1900">// end point, located on a circle in the XY plane.</font></i>
+  <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> nbLines <font color="#990000">=</font> <font color="#993399">50.0</font><font color="#990000">;</font>
+
+  <b><font color="#000000">glBegin</font></b><font color="#990000">(</font>GL_LINES<font color="#990000">);</font>
+
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font><font color="#009900">float</font> i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;</font>nbLines<font color="#990000">;</font> <font color="#990000">++</font>i<font color="#990000">)</font>
+    <font color="#FF0000">{</font>
+      <font color="#009900">float</font> angle <font color="#990000">=</font> <font color="#993399">2.0</font><font color="#990000">*</font>M_PI<font color="#990000">*</font>i<font color="#990000">/</font>nbLines<font color="#990000">;</font>
+
+      <b><font color="#000000">glColor3f</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">.</font>8f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>2f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>2f<font color="#990000">);</font>
+      <i><font color="#9A1900">// These lines will never be seen as they are always aligned with the viewing direction.</font></i>
+      <b><font color="#000000">glVertex3fv</font></b><font color="#990000">(</font><b><font color="#000000">camera</font></b><font color="#990000">()-&gt;</font><b><font color="#000000">position</font></b><font color="#990000">());</font>
+      <b><font color="#000000">glVertex3f </font></b><font color="#990000">(</font><b><font color="#000000">cos</font></b><font color="#990000">(</font>angle<font color="#990000">),</font> <b><font color="#000000">sin</font></b><font color="#990000">(</font>angle<font color="#990000">),</font> <font color="#993399">0.0</font><font color="#990000">);</font>
+
+      <b><font color="#000000">glColor3f</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">.</font>2f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>8f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>2f<font color="#990000">);</font>
+      <i><font color="#9A1900">// World Coordinates are infered from the camera, and seem to be immobile in the screen.</font></i>
+      <b><font color="#000000">glVertex3fv</font></b><font color="#990000">(</font><b><font color="#000000">camera</font></b><font color="#990000">()-&gt;</font><b><font color="#000000">worldCoordinatesOf</font></b><font color="#990000">(</font><b><font color="#000000">Vec</font></b><font color="#990000">(.</font><font color="#993399">3</font><font color="#990000">*</font><b><font color="#000000">cos</font></b><font color="#990000">(</font>angle<font color="#990000">),</font> <font color="#990000">.</font><font color="#993399">3</font><font color="#990000">*</font><b><font color="#000000">sin</font></b><font color="#990000">(</font>angle<font color="#990000">),</font> <font color="#990000">-</font><font color="#993399">2.0</font><font color="#990000">)));</font>
+      <b><font color="#000000">glVertex3f </font></b><font color="#990000">(</font><b><font color="#000000">cos</font></b><font color="#990000">(</font>angle<font color="#990000">),</font> <b><font color="#000000">sin</font></b><font color="#990000">(</font>angle<font color="#990000">),</font> <font color="#993399">0.0</font><font color="#990000">);</font>
+
+      <b><font color="#000000">glColor3f</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">.</font>2f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>2f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>8f<font color="#990000">);</font>
+      <i><font color="#9A1900">// These lines are defined in the world coordinate system and will move with the camera.</font></i>
+      <b><font color="#000000">glVertex3f</font></b><font color="#990000">(</font><font color="#993399">1.5</font><font color="#990000">*</font><b><font color="#000000">cos</font></b><font color="#990000">(</font>angle<font color="#990000">),</font> <font color="#993399">1.5</font><font color="#990000">*</font><b><font color="#000000">sin</font></b><font color="#990000">(</font>angle<font color="#990000">),</font> <font color="#990000">-</font><font color="#993399">1.0</font><font color="#990000">);</font>
+      <b><font color="#000000">glVertex3f</font></b><font color="#990000">(</font><b><font color="#000000">cos</font></b><font color="#990000">(</font>angle<font color="#990000">),</font> <b><font color="#000000">sin</font></b><font color="#990000">(</font>angle<font color="#990000">),</font> <font color="#993399">0.0</font><font color="#990000">);</font>
+    <font color="#FF0000">}</font>
+  <b><font color="#000000">glEnd</font></b><font color="#990000">();</font>
+
+  <i><font color="#9A1900">// Here, the camera position in world coord. system  is camera()-&gt;position().</font></i>
+  <i><font color="#9A1900">// The world origin position in camera frame can be obtained from camera()-&gt;cameraCoordinatesOf(Vec(0.0, 0.0, 0.0))</font></i>
+<font color="#FF0000">}</font>
+
+QString Viewer<font color="#990000">::</font><b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b>
+<font color="#FF0000">{</font>
+  QString <b><font color="#000000">text</font></b><font color="#990000">(</font><font color="#FF0000">"&lt;h2&gt;F r a m e T r a n s f o r m&lt;/h2&gt;"</font><font color="#990000">);</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"This example illustrates how easy it is to switch between the camera and "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"the world coordinate systems using the &lt;i&gt;camera()-&gt;cameraCoordinatesOf()&lt;/i&gt; "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"and &lt;i&gt;camera::worldCoordinatesOf()&lt;/i&gt; functions.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"You can create your own hierarchy of local coordinates systems and each of "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"them can be manipulated with the mouse (see the &lt;i&gt;manipulatedFrame&lt;/i&gt; and &lt;i&gt;luxo&lt;/i&gt; examples). "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"Standard functions allow you to convert from any local frame to any other, "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"the world/camera conversion presented here simply being an illustration.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"See &lt;i&gt;examples/frameTransform.html&lt;/i&gt; for an explanation of the meaning of these weird lines."</font><font color="#990000">;</font>
+  <b><font color="#0000FF">return</font></b> text<font color="#990000">;</font>
+<font color="#FF0000">}</font>
+
+</tt></pre>
+
+
+<h2>main.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">"frameTransform.h"</font>
+<b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;qapplication.h&gt;</font>
+
+<font color="#009900">int</font> <b><font color="#000000">main</font></b><font color="#990000">(</font><font color="#009900">int</font> argc<font color="#990000">,</font> <font color="#009900">char</font><font color="#990000">**</font> argv<font color="#990000">)</font>
+<font color="#FF0000">{</font>
+  QApplication <b><font color="#000000">application</font></b><font color="#990000">(</font>argc<font color="#990000">,</font>argv<font color="#990000">);</font>
+
+  Viewer viewer<font color="#990000">;</font>
+
+<b><font color="#000080">#if</font></b> QT_VERSION <font color="#990000">&lt;</font> <font color="#993399">0x040000</font>
+  application<font color="#990000">.</font><b><font color="#000000">setMainWidget</font></b><font color="#990000">(&amp;</font>viewer<font color="#990000">);</font>
+<b><font color="#000080">#else</font></b>
+  viewer<font color="#990000">.</font><b><font color="#000000">setWindowTitle</font></b><font color="#990000">(</font><font color="#FF0000">"frameTransform"</font><font color="#990000">);</font>
+<b><font color="#000080">#endif</font></b>
+
+  viewer<font color="#990000">.</font><b><font color="#000000">show</font></b><font color="#990000">();</font>
+
+  <b><font color="#0000FF">return</font></b> application<font color="#990000">.</font><b><font color="#000000">exec</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+</tt></pre>
+
+
+
+<p>
+  Back to the <a href="index.html">examples main page</a>.
+</p>
+
+<p>
+  <a href="http://validator.w3.org/check/referer"><img src="../images/xhtml.png" alt="Valid XHTML 1.0!" height="31" width="88"/></a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer"><img src="../images/css.png" width="88" height="31" alt="Valid CSS!"/></a>
+<i>Last modified on Tuesday, September 30, 2008.</i>
+</p>
+
+</body>
+</html>

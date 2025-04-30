@@ -63,6 +63,10 @@ jobs:
     - name: Install SU2
       shell: bash -l {0}
       run: installation/Ubuntu/install_su2.sh
+
+    - name: Install Pentagrow
+      shell: bash -l {0}
+      run: installation/Ubuntu/install_pentagrow.sh
         
     - name: Run integration tests
       shell: bash -l {0}

@@ -3,7 +3,19 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
+<<<<<<< HEAD
 Module to run SU2 Calculation in CEASIOMpy.
+=======
+Module to run SU2 Calculation in CEASIOMpy
+
+| Author : Aidan Jungo
+| Creation: 2018-11-06
+| Modified: Leon Deligny
+| Date: 24-Feb-2025
+
+TODO:
+    * Check platform with -> sys.platform
+>>>>>>> origin/main
 
 """
 

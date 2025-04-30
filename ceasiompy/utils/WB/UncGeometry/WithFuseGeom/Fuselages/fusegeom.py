@@ -6,7 +6,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The scrpt will analyse the fuselage geometry from cpacs file for an
 unconventional aircraft.
 
-
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
 

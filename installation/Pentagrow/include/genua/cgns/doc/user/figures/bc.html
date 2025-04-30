@@ -1,0 +1,46 @@
+<!-- A User's Guide to CGNS - longdesc for boundary condition implementation levels -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="../user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - boundary condition implementation levels </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<p>
+This diagram illustrates the simplest as well as the fully SIDS-compliant
+implementation of the <tt>ZoneBC_t</tt> node.
+In both cases, the <tt>ZoneBC_t</tt> node has a child <tt>BC_t</tt>
+node, with data "<tt>BCType</tt>".
+
+<p>
+In the lowest-level boundary condition implementation allowed, shown on
+the left, the <tt>BC_t</tt> node has a single child <tt>IndexRange_t</tt>
+node, with data "index range".
+The application code must interpret the meaning of <tt>BCType</tt>.
+
+<p>
+In the fully SIDS-compliant boundary condition implementation, shown on
+the right, the <tt>BC_t</tt> node again has a child <tt>IndexRange_t</tt>
+node, with data "index range", but also has multiple <tt>BCDataSet_t</tt>
+child nodes, with the data "<tt>BCTypeSimple</tt>".
+Each of these <tt>BCDataSet_t</tt> nodes in turn has two <tt>BCData_t</tt>
+child nodes, one named <tt>DirichletData</tt> and the other named
+<tt>NeumannData</tt>.
+Finally, the <tt>BCData_t</tt> nodes each have a child <tt>DataArray_t</tt>
+node, with the data "BC quantities".
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 4 Sept 2002
+
+</body>
+</html>

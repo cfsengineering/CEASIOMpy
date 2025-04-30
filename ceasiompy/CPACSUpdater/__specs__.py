@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI Interface of CPACSUpdater.
 
-
 | Author: Leon Deligny
 | Creation: 14-Mar-2025
 

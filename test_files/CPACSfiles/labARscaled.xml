@@ -1031,7 +1031,7 @@
       <mesh>
         <gmshOptions>
           <open_gui>False</open_gui>
-          <type_mesh>Euler</type_mesh>
+          <type_mesh>RANS</type_mesh>
           <symmetry>False</symmetry>
           <farfield_factor>10.0</farfield_factor>
           <mesh_size>

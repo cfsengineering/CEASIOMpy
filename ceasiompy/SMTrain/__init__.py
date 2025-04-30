@@ -5,6 +5,9 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Initialization for SMTrain module.
 
+| Author: Leon Deligny
+| Creation: 18-Mar-2025
+
 """
 
 # ==============================================================================

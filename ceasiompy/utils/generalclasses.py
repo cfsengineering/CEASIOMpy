@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 General classes to get transformation from any part of a CPACS file
 
-
 | Author: Aidan Jungo
 | Creation: 2021-02-25
 

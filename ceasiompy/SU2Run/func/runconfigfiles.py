@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module to run SU2 configuration files in CEASIOMpy.
 
-
 | Author: Leon Deligny
 | Creation: 20 March 2025
 

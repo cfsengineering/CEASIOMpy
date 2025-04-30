@@ -1,0 +1,303 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>libQGLViewer mouseGrabber example</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link href="../qglviewer.css" rel="stylesheet" type="text/css" />
+  <link rel="shortcut icon" href="../images/qglviewer.ico" type="image/x-icon" />
+  <link rel="icon" href="../images/qglviewer.icon.png" type="image/png" />
+</head>
+<body>
+
+<div class="banner">
+ <a class="qindex" href="../index.html">Home</a>
+ <a class="qindex" href="../refManual/hierarchy.html">Documentation</a>
+ <a class="qindex" href="../download.html">Download</a>
+ <a class="qindex highlight" href="index.html">Examples</a>
+ <a class="qindex" href="../developer.html">Developer</a>
+</div>
+
+<h1>The mouseGrabber example</h1>
+
+<center>
+  <img src="../images/mouseGrabber.jpg" width="330" height="228" alt="mouseGrabber"/>
+</center>
+
+<p>
+ <code>MouseGrabber</code>s enable complex mouse interaction.
+</p>
+<p>
+ A <code>MouseGrabber</code> is an abstract class which defines objects that are sensitive to the
+ mouse. When activated, they grab the mouse events. Possible applications are interactive 2D or 3D
+ GUI, object auto-selection, auto drop-down menu and much more.
+</p>
+<p>
+ <code>ManipulatedFrame</code> are indeed <code>MouseGrabbers</code> as is illustrated here. Simply
+ hover on a spiral to automatically "select" it. Mouse events will then be grabbed by the
+ associated <code>ManipulatedFrame</code>, which can be moved without any key press or GUI
+ interaction. Useful to easily manipulate scene objects. Note that by default, a
+ <code>ManipulatedFrame</code> grabs the mouse when the cursor is close enough to its
+ <code>position()</code>. You may want to overload the <code>checkIfGrabsMouse()</code> function to
+ define a more complex grabbing test.
+</p>
+<p>
+ That's what is done in the <code>CameraPathPlayer</code> class, which is associated to a Camera
+ keyFrame paths or position. It is displayed as a text on the left hand side of the window (when
+ its associated path is defined). It reacts to mouse hovering and clicking the text will play
+ (resp. restore) the Camera path (resp. position).
+</p>
+<h2>mouseGrabber.h</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;QGLViewer/qglviewer.h&gt;</font>
+
+<b><font color="#0000FF">class</font></b> CameraPathPlayer <font color="#990000">:</font> <b><font color="#0000FF">public</font></b> qglviewer<font color="#990000">::</font>MouseGrabber
+<font color="#FF0000">{</font>
+<b><font color="#0000FF">public</font></b><font color="#990000">:</font>
+  <b><font color="#000000">CameraPathPlayer</font></b><font color="#990000">(</font><font color="#009900">int</font> nb<font color="#990000">)</font> <font color="#990000">:</font> <b><font color="#000000">pathNb</font></b><font color="#990000">(</font>nb<font color="#990000">)</font> <font color="#FF0000">{}</font><font color="#990000">;</font>
+  <font color="#009900">void</font> <b><font color="#000000">checkIfGrabsMouse</font></b><font color="#990000">(</font><font color="#009900">int</font> x<font color="#990000">,</font> <font color="#009900">int</font> y<font color="#990000">,</font> <b><font color="#0000FF">const</font></b> qglviewer<font color="#990000">::</font>Camera<font color="#990000">*</font> <b><font color="#0000FF">const</font></b> camera<font color="#990000">);</font>
+  <font color="#009900">int</font> <b><font color="#000000">yPos</font></b><font color="#990000">()</font> <font color="#FF0000">{</font> <b><font color="#0000FF">return</font></b> <font color="#993399">25</font><font color="#990000">*</font>pathNb<font color="#990000">;</font> <font color="#FF0000">}</font><font color="#990000">;</font>
+
+<b><font color="#0000FF">protected</font></b><font color="#990000">:</font>
+  <font color="#009900">void</font> <b><font color="#000000">mousePressEvent</font></b><font color="#990000">(</font>QMouseEvent<font color="#990000">*</font> <b><font color="#0000FF">const</font></b><font color="#990000">,</font> qglviewer<font color="#990000">::</font>Camera<font color="#990000">*</font> <b><font color="#0000FF">const</font></b> camera<font color="#990000">)</font> <font color="#FF0000">{</font> camera<font color="#990000">-&gt;</font><b><font color="#000000">playPath</font></b><font color="#990000">(</font>pathNb<font color="#990000">);</font> <font color="#FF0000">}</font><font color="#990000">;</font>
+
+<b><font color="#0000FF">private</font></b><font color="#990000">:</font>
+  <font color="#009900">int</font> pathNb<font color="#990000">;</font>
+<font color="#FF0000">}</font><font color="#990000">;</font>
+
+
+<b><font color="#0000FF">class</font></b> Spiral
+<font color="#FF0000">{</font>
+<b><font color="#0000FF">public</font></b><font color="#990000">:</font>
+  <font color="#009900">void</font> <b><font color="#000000">draw</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b><font color="#990000">;</font>
+  <font color="#009900">void</font> <b><font color="#000000">setPosition</font></b><font color="#990000">(</font><b><font color="#0000FF">const</font></b> qglviewer<font color="#990000">::</font>Vec<font color="#990000">&amp;</font> pos<font color="#990000">)</font> <font color="#FF0000">{</font> mf_<font color="#990000">.</font><b><font color="#000000">setPosition</font></b><font color="#990000">(</font>pos<font color="#990000">);</font> <font color="#FF0000">}</font><font color="#990000">;</font>
+
+<b><font color="#0000FF">private</font></b><font color="#990000">:</font>
+  qglviewer<font color="#990000">::</font>ManipulatedFrame mf_<font color="#990000">;</font>
+<font color="#FF0000">}</font><font color="#990000">;</font>
+
+
+<b><font color="#0000FF">class</font></b> Viewer <font color="#990000">:</font> <b><font color="#0000FF">public</font></b> QGLViewer
+<font color="#FF0000">{</font>
+<b><font color="#0000FF">protected</font></b> <font color="#990000">:</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">init</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">draw</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> QString <b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b><font color="#990000">;</font>
+
+  <font color="#009900">void</font> <b><font color="#000000">displayPlayers</font></b><font color="#990000">();</font>
+  <font color="#009900">void</font> <b><font color="#000000">updatePlayers</font></b><font color="#990000">();</font>
+
+<b><font color="#0000FF">private</font></b><font color="#990000">:</font>
+  CameraPathPlayer<font color="#990000">**</font> player_<font color="#990000">;</font>
+  <font color="#009900">int</font> nbPlayers_<font color="#990000">;</font>
+<b><font color="#000080">#if</font></b> QT_VERSION <font color="#990000">&lt;</font> <font color="#993399">0x040000</font>
+  QValueVector<font color="#990000">&lt;</font>Spiral<font color="#990000">&gt;</font> spiral_<font color="#990000">;</font>
+<b><font color="#000080">#else</font></b>
+  QList<font color="#990000">&lt;</font>Spiral<font color="#990000">&gt;</font> spiral_<font color="#990000">;</font>
+<b><font color="#000080">#endif</font></b>
+<font color="#FF0000">}</font><font color="#990000">;</font>
+</tt></pre>
+
+
+<h2>mouseGrabber.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">"mouseGrabber.h"</font>
+
+<b><font color="#0000FF">using</font></b> <b><font color="#0000FF">namespace</font></b> qglviewer<font color="#990000">;</font>
+<b><font color="#0000FF">using</font></b> <b><font color="#0000FF">namespace</font></b> std<font color="#990000">;</font>
+
+<font color="#009900">void</font> CameraPathPlayer<font color="#990000">::</font><b><font color="#000000">checkIfGrabsMouse</font></b><font color="#990000">(</font><font color="#009900">int</font> x<font color="#990000">,</font> <font color="#009900">int</font> y<font color="#990000">,</font> <b><font color="#0000FF">const</font></b> Camera<font color="#990000">*</font> <b><font color="#0000FF">const</font></b><font color="#990000">)</font>
+<font color="#FF0000">{</font>
+  <i><font color="#9A1900">// Rectangular activation array - May have to be tune depending on your default font size</font></i>
+  <b><font color="#000000">setGrabsMouse</font></b><font color="#990000">((</font>x <font color="#990000">&lt;</font> <font color="#993399">80</font><font color="#990000">)</font> <font color="#990000">&amp;&amp;</font> <font color="#990000">(</font>y<font color="#990000">&lt;</font><b><font color="#000000">yPos</font></b><font color="#990000">())</font> <font color="#990000">&amp;&amp;</font> <font color="#990000">((</font><b><font color="#000000">yPos</font></b><font color="#990000">()-</font>y<font color="#990000">)</font> <font color="#990000">&lt;</font> <font color="#993399">16</font><font color="#990000">));</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">displayPlayers</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font><font color="#009900">int</font> i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;</font>nbPlayers_<font color="#990000">;</font> <font color="#990000">++</font>i<font color="#990000">)</font>
+    <font color="#FF0000">{</font>
+      CameraPathPlayer<font color="#990000">*</font> cpp <font color="#990000">=</font> player_<font color="#990000">[</font>i<font color="#990000">];</font>
+      <b><font color="#0000FF">if</font></b> <font color="#990000">(</font>cpp<font color="#990000">)</font>
+	<font color="#FF0000">{</font>
+	  QString s<font color="#990000">;</font>
+	  <b><font color="#0000FF">if</font></b> <font color="#990000">(</font>cpp<font color="#990000">-&gt;</font><b><font color="#000000">grabsMouse</font></b><font color="#990000">())</font>
+	    <font color="#FF0000">{</font>
+	      <b><font color="#000000">glColor3f</font></b><font color="#990000">(</font><font color="#993399">1</font><font color="#990000">,</font><font color="#993399">1</font><font color="#990000">,</font><font color="#993399">1</font><font color="#990000">);</font>
+	      <b><font color="#0000FF">if</font></b> <font color="#990000">(</font><b><font color="#000000">camera</font></b><font color="#990000">()-&gt;</font><b><font color="#000000">keyFrameInterpolator</font></b><font color="#990000">(</font>i<font color="#990000">)-&gt;</font><b><font color="#000000">numberOfKeyFrames</font></b><font color="#990000">()</font> <font color="#990000">&gt;</font> <font color="#993399">1</font><font color="#990000">)</font>
+		s <font color="#990000">=</font> <font color="#FF0000">"Play path F"</font> <font color="#990000">+</font> QString<font color="#990000">::</font><b><font color="#000000">number</font></b><font color="#990000">(</font>i<font color="#990000">);</font>
+	      <b><font color="#0000FF">else</font></b>
+		s <font color="#990000">=</font> <font color="#FF0000">"Restore pos F"</font> <font color="#990000">+</font> QString<font color="#990000">::</font><b><font color="#000000">number</font></b><font color="#990000">(</font>i<font color="#990000">);</font>
+	    <font color="#FF0000">}</font>
+	  <b><font color="#0000FF">else</font></b>
+	    <font color="#FF0000">{</font>
+	      <b><font color="#000000">glColor3f</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">.</font>6f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>6f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>6f<font color="#990000">);</font>
+	      <b><font color="#0000FF">if</font></b> <font color="#990000">(</font><b><font color="#000000">camera</font></b><font color="#990000">()-&gt;</font><b><font color="#000000">keyFrameInterpolator</font></b><font color="#990000">(</font>i<font color="#990000">)-&gt;</font><b><font color="#000000">numberOfKeyFrames</font></b><font color="#990000">()</font> <font color="#990000">&gt;</font> <font color="#993399">1</font><font color="#990000">)</font>
+		s <font color="#990000">=</font> <font color="#FF0000">"Path F"</font> <font color="#990000">+</font> QString<font color="#990000">::</font><b><font color="#000000">number</font></b><font color="#990000">(</font>i<font color="#990000">);</font>
+	      <b><font color="#0000FF">else</font></b>
+		s <font color="#990000">=</font> <font color="#FF0000">"Pos F"</font> <font color="#990000">+</font> QString<font color="#990000">::</font><b><font color="#000000">number</font></b><font color="#990000">(</font>i<font color="#990000">);</font>
+	    <font color="#FF0000">}</font>
+	  <b><font color="#000000">drawText</font></b><font color="#990000">(</font><font color="#993399">10</font><font color="#990000">,</font> cpp<font color="#990000">-&gt;</font><b><font color="#000000">yPos</font></b><font color="#990000">()-</font><font color="#993399">3</font><font color="#990000">,</font> s<font color="#990000">);</font>
+	<font color="#FF0000">}</font>
+    <font color="#FF0000">}</font>
+<font color="#FF0000">}</font>
+
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">updatePlayers</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font><font color="#009900">int</font> i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;</font>nbPlayers_<font color="#990000">;</font> <font color="#990000">++</font>i<font color="#990000">)</font>
+    <font color="#FF0000">{</font>
+      <i><font color="#9A1900">// Check if CameraPathPlayer is still valid</font></i>
+      <b><font color="#0000FF">if</font></b> <font color="#990000">((</font>player_<font color="#990000">[</font>i<font color="#990000">])</font> <font color="#990000">&amp;&amp;</font> <font color="#990000">(!</font><b><font color="#000000">camera</font></b><font color="#990000">()-&gt;</font><b><font color="#000000">keyFrameInterpolator</font></b><font color="#990000">(</font>i<font color="#990000">)))</font>
+	<font color="#FF0000">{</font>
+	  <b><font color="#0000FF">delete</font></b> player_<font color="#990000">[</font>i<font color="#990000">];</font>
+	  player_<font color="#990000">[</font>i<font color="#990000">]</font> <font color="#990000">=</font> NULL<font color="#990000">;</font>
+	<font color="#FF0000">}</font>
+      <i><font color="#9A1900">// Or add it if needed</font></i>
+      <b><font color="#0000FF">if</font></b> <font color="#990000">((</font><b><font color="#000000">camera</font></b><font color="#990000">()-&gt;</font><b><font color="#000000">keyFrameInterpolator</font></b><font color="#990000">(</font>i<font color="#990000">))</font> <font color="#990000">&amp;&amp;</font> <font color="#990000">(!</font>player_<font color="#990000">[</font>i<font color="#990000">]))</font>
+	player_<font color="#990000">[</font>i<font color="#990000">]</font> <font color="#990000">=</font> <b><font color="#0000FF">new</font></b> <b><font color="#000000">CameraPathPlayer</font></b><font color="#990000">(</font>i<font color="#990000">);</font>
+    <font color="#FF0000">}</font>
+<font color="#FF0000">}</font>
+
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">init</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <i><font color="#9A1900">// Absolutely needed for MouseGrabber</font></i>
+  <b><font color="#000000">setMouseTracking</font></b><font color="#990000">(</font><b><font color="#0000FF">true</font></b><font color="#990000">);</font>
+
+  <i><font color="#9A1900">// In order to make the manipulatedFrame displacements clearer</font></i>
+  <b><font color="#000000">setAxisIsDrawn</font></b><font color="#990000">();</font>
+
+  <i><font color="#9A1900">// Initialize the CameraPathPlayer MouseGrabber array</font></i>
+  nbPlayers_ <font color="#990000">=</font> <font color="#993399">12</font><font color="#990000">;</font>
+  player_ <font color="#990000">=</font> <b><font color="#0000FF">new</font></b> CameraPathPlayer<font color="#990000">*[</font>nbPlayers_<font color="#990000">];</font>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font><font color="#009900">int</font> i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;</font>nbPlayers_<font color="#990000">;</font> <font color="#990000">++</font>i<font color="#990000">)</font>
+    player_<font color="#990000">[</font>i<font color="#990000">]</font> <font color="#990000">=</font> NULL<font color="#990000">;</font>
+
+  <i><font color="#9A1900">// Create a scene with several spirals.</font></i>
+  <b><font color="#0000FF">const</font></b> <font color="#009900">int</font> nbSpirals <font color="#990000">=</font> <font color="#993399">7</font><font color="#990000">;</font>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font><font color="#009900">int</font> i <font color="#990000">=</font> <font color="#990000">-</font>nbSpirals<font color="#990000">/</font><font color="#993399">2</font><font color="#990000">;</font> i<font color="#990000">&lt;=</font>nbSpirals<font color="#990000">/</font><font color="#993399">2</font><font color="#990000">;</font> <font color="#990000">++</font>i<font color="#990000">)</font>
+    <font color="#FF0000">{</font>
+      Spiral s<font color="#990000">;</font>
+      s<font color="#990000">.</font><b><font color="#000000">setPosition</font></b><font color="#990000">(</font><b><font color="#000000">Vec</font></b><font color="#990000">(</font><font color="#993399">1</font><font color="#990000">.</font>8f<font color="#990000">*</font>i<font color="#990000">/</font>nbSpirals<font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">));</font>
+      spiral_<font color="#990000">.</font><b><font color="#000000">push_back</font></b><font color="#990000">(</font>s<font color="#990000">);</font>
+    <font color="#FF0000">}</font>
+
+  <b><font color="#000000">restoreStateFromFile</font></b><font color="#990000">();</font>
+
+  <b><font color="#000000">help</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">draw</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+<b><font color="#000080">#if</font></b> QT_VERSION <font color="#990000">&lt;</font> <font color="#993399">0x040000</font>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font>QValueVector<font color="#990000">&lt;</font>Spiral<font color="#990000">&gt;::</font>const_iterator it<font color="#990000">=</font>spiral_<font color="#990000">.</font><b><font color="#000000">begin</font></b><font color="#990000">(),</font> end<font color="#990000">=</font>spiral_<font color="#990000">.</font><b><font color="#000000">end</font></b><font color="#990000">();</font> it <font color="#990000">!=</font> end<font color="#990000">;</font> <font color="#990000">++</font>it<font color="#990000">)</font>
+<b><font color="#000080">#else</font></b>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font>QList<font color="#990000">&lt;</font>Spiral<font color="#990000">&gt;::</font>const_iterator it<font color="#990000">=</font>spiral_<font color="#990000">.</font><b><font color="#000000">begin</font></b><font color="#990000">(),</font> end<font color="#990000">=</font>spiral_<font color="#990000">.</font><b><font color="#000000">end</font></b><font color="#990000">();</font> it <font color="#990000">!=</font> end<font color="#990000">;</font> <font color="#990000">++</font>it<font color="#990000">)</font>
+<b><font color="#000080">#endif</font></b>
+    <font color="#990000">(*</font>it<font color="#990000">).</font><b><font color="#000000">draw</font></b><font color="#990000">();</font>
+
+  <b><font color="#000000">updatePlayers</font></b><font color="#990000">();</font>
+  <b><font color="#000000">glDisable</font></b><font color="#990000">(</font>GL_LIGHTING<font color="#990000">);</font>
+  <b><font color="#000000">displayPlayers</font></b><font color="#990000">();</font>
+  <b><font color="#000000">glEnable</font></b><font color="#990000">(</font>GL_LIGHTING<font color="#990000">);</font>
+<font color="#FF0000">}</font>
+
+
+QString Viewer<font color="#990000">::</font><b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b>
+<font color="#FF0000">{</font>
+  QString <b><font color="#000000">text</font></b><font color="#990000">(</font><font color="#FF0000">"&lt;h2&gt;M o u s e G r a b b e r &lt;/h2&gt;"</font><font color="#990000">);</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"This example illustrates the use of &lt;i&gt;MouseGrabber&lt;/i&gt;, which is an abstract "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"class for objects that react (usually when the mouse hovers over them).&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"Define new camera paths (or positions) using &lt;b&gt;Alt&lt;/b&gt;+[&lt;b&gt;F1&lt;/b&gt;-&lt;b&gt;F12&lt;/b&gt;]. "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"New &lt;i&gt;MouseGrabbers&lt;/i&gt; are then created and displayed in the upper left corner. "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"Note how they react when the mouse hovers, and click them to play the associated path.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"&lt;i&gt;ManipulatedFrame&lt;/i&gt;, such as the ones which define the spirals' positions, are "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"also &lt;i&gt;MouseGrabbers&lt;/i&gt;. When the mouse is close to the spiral center, the &lt;i&gt;ManipulatedFrame&lt;/i&gt; "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"will grab to mouse click (as if the &lt;b&gt;Control&lt;/b&gt; key was pressed). This is very convenient "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"to intuitively move scene objects (such as lights) without any key or GUI interaction.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"Note that &lt;code&gt;setMouseTracking()&lt;/code&gt; must be enabled to use &lt;i&gt;MouseGrabbers&lt;/i&gt;."</font><font color="#990000">;</font>
+  <b><font color="#0000FF">return</font></b> text<font color="#990000">;</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Spiral<font color="#990000">::</font><b><font color="#000000">draw</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b>
+<font color="#FF0000">{</font>
+  <b><font color="#000000">glPushMatrix</font></b><font color="#990000">();</font>
+  <b><font color="#000000">glMultMatrixd</font></b><font color="#990000">(</font>mf_<font color="#990000">.</font><b><font color="#000000">matrix</font></b><font color="#990000">());</font>
+
+  <i><font color="#9A1900">// Draw a spiral</font></i>
+  <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> nbSteps <font color="#990000">=</font> <font color="#993399">100.0</font><font color="#990000">;</font>
+  <b><font color="#000000">glBegin</font></b><font color="#990000">(</font>GL_QUAD_STRIP<font color="#990000">);</font>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font><font color="#009900">float</font> i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;</font>nbSteps<font color="#990000">;</font> <font color="#990000">++</font>i<font color="#990000">)</font>
+    <font color="#FF0000">{</font>
+      <font color="#009900">float</font> ratio <font color="#990000">=</font> i<font color="#990000">/</font>nbSteps<font color="#990000">;</font>
+      <font color="#009900">float</font> angle <font color="#990000">=</font> <font color="#993399">21.0</font><font color="#990000">*</font>ratio<font color="#990000">;</font>
+      <font color="#009900">float</font> c <font color="#990000">=</font> <b><font color="#000000">cos</font></b><font color="#990000">(</font>angle<font color="#990000">);</font>
+      <font color="#009900">float</font> s <font color="#990000">=</font> <b><font color="#000000">sin</font></b><font color="#990000">(</font>angle<font color="#990000">);</font>
+      <font color="#009900">float</font> r1 <font color="#990000">=</font> <font color="#993399">0.2</font> <font color="#990000">-</font> <font color="#993399">0.15</font><font color="#990000">*</font>ratio<font color="#990000">;</font>
+      <font color="#009900">float</font> r2 <font color="#990000">=</font> <font color="#993399">0.16</font> <font color="#990000">-</font> <font color="#993399">0.15</font><font color="#990000">*</font>ratio<font color="#990000">;</font>
+      <font color="#009900">float</font> alt <font color="#990000">=</font> <font color="#993399">0</font><font color="#990000">.</font>2f <font color="#990000">*</font> <font color="#990000">(</font>ratio <font color="#990000">-</font> <font color="#993399">0.5</font><font color="#990000">);</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> nor <font color="#990000">=</font> <font color="#990000">.</font><font color="#993399">5</font><font color="#990000">;</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> up <font color="#990000">=</font> <b><font color="#000000">sqrt</font></b><font color="#990000">(</font><font color="#993399">1.0</font><font color="#990000">-</font>nor<font color="#990000">*</font>nor<font color="#990000">);</font>
+
+      <b><font color="#0000FF">if</font></b> <font color="#990000">(</font>mf_<font color="#990000">.</font><b><font color="#000000">grabsMouse</font></b><font color="#990000">())</font>
+	<b><font color="#000000">glColor3f</font></b><font color="#990000">(</font><font color="#993399">1</font><font color="#990000">-</font>ratio<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>8f <font color="#990000">,</font> ratio<font color="#990000">/</font><font color="#993399">2.0</font><font color="#990000">);</font>
+      <b><font color="#0000FF">else</font></b>
+	<b><font color="#000000">glColor3f</font></b><font color="#990000">(</font><font color="#993399">1</font><font color="#990000">-</font>ratio<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>2f <font color="#990000">,</font> ratio<font color="#990000">);</font>
+
+      <b><font color="#000000">glNormal3f</font></b><font color="#990000">(</font>nor<font color="#990000">*</font>c<font color="#990000">,</font> up<font color="#990000">,</font> nor<font color="#990000">*</font>s<font color="#990000">);</font>
+      <b><font color="#000000">glVertex3f</font></b><font color="#990000">(</font>r1<font color="#990000">*</font>c<font color="#990000">,</font> alt<font color="#990000">,</font> r1<font color="#990000">*</font>s<font color="#990000">);</font>
+      <b><font color="#000000">glVertex3f</font></b><font color="#990000">(</font>r2<font color="#990000">*</font>c<font color="#990000">,</font> alt<font color="#990000">+</font><font color="#993399">0.01</font><font color="#990000">,</font> r2<font color="#990000">*</font>s<font color="#990000">);</font>
+    <font color="#FF0000">}</font>
+  <b><font color="#000000">glEnd</font></b><font color="#990000">();</font>
+
+  <b><font color="#000000">glPopMatrix</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+</tt></pre>
+
+
+<h2>main.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">"mouseGrabber.h"</font>
+<b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;qapplication.h&gt;</font>
+
+<font color="#009900">int</font> <b><font color="#000000">main</font></b><font color="#990000">(</font><font color="#009900">int</font> argc<font color="#990000">,</font> <font color="#009900">char</font><font color="#990000">**</font> argv<font color="#990000">)</font>
+<font color="#FF0000">{</font>
+  QApplication <b><font color="#000000">application</font></b><font color="#990000">(</font>argc<font color="#990000">,</font>argv<font color="#990000">);</font>
+
+  Viewer viewer<font color="#990000">;</font>
+
+<b><font color="#000080">#if</font></b> QT_VERSION <font color="#990000">&lt;</font> <font color="#993399">0x040000</font>
+  application<font color="#990000">.</font><b><font color="#000000">setMainWidget</font></b><font color="#990000">(&amp;</font>viewer<font color="#990000">);</font>
+<b><font color="#000080">#else</font></b>
+  viewer<font color="#990000">.</font><b><font color="#000000">setWindowTitle</font></b><font color="#990000">(</font><font color="#FF0000">"mouseGrabber"</font><font color="#990000">);</font>
+<b><font color="#000080">#endif</font></b>
+
+  viewer<font color="#990000">.</font><b><font color="#000000">show</font></b><font color="#990000">();</font>
+
+  <b><font color="#0000FF">return</font></b> application<font color="#990000">.</font><b><font color="#000000">exec</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+</tt></pre>
+
+
+
+<p>
+  Back to the <a href="index.html">examples main page</a>.
+</p>
+
+<p>
+  <a href="http://validator.w3.org/check/referer"><img src="../images/xhtml.png" alt="Valid XHTML 1.0!" height="31" width="88"/></a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer"><img src="../images/css.png" width="88" height="31" alt="Valid CSS!"/></a>
+<i>Last modified on Tuesday, September 30, 2008.</i>
+</p>
+
+</body>
+</html>

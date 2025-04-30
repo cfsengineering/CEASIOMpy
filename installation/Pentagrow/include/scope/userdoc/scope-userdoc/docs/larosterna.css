@@ -1,0 +1,37 @@
+
+a {
+  color: #820505;
+}
+
+h3, h4, h5, h6 {
+  color: black;
+}
+
+.wy-side-nav-search {
+  background-color: #820505;
+}
+
+.wy-nav-top {
+  background-color: #820505;
+}
+
+.rst-content dl:not(.docutils) dt {
+  background: #f0f0f0;
+  color: #820505;
+  border-bottom: solid 1px black;	
+  border-top: solid 1px black;		
+}
+
+.rst-content .tip, .rst-content .note {
+  background: #f0f0f0;
+}
+
+.rst-content .note .admonition-title {
+    background: #820505;
+}
+
+.rst-content .tip .admonition-title {
+    background: #343131;
+}
+
+

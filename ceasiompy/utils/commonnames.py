@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 File to store the common names of files used in CEASIOMpy.
 
-
 | Author: Aidan jungo
 | Creation: 2022-05-13
 | Modified: Leon Deligny

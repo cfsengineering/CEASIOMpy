@@ -1,0 +1,669 @@
+<!-- CGNS Mid-Level Library - Grid Specification -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="midlevel.css" rel="stylesheet" type="text/css">
+<title> CGNS Mid-Level Library - Grid Specification </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="../user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="index.html"><span class=nav><b>Mid-Level&nbsp;Library</b></span></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="general.html"><b>General&nbsp;Remarks</b></a>)
+(<a href="fileops.html"><b>File&nbsp;Operations</b></a>)
+(<a href="navigating.html"><b>Navigating&nbsp;a&nbsp;CGNS&nbsp;File</b></a>)
+(<a href="error.html"><b>Error&nbsp;Handling</b></a>)
+(<a href="structural.html"><b>Structural&nbsp;Nodes</b></a>)
+(<a href="descriptor.html"><b>Descriptors</b></a>)
+(<a href="physical.html"><b>Physical&nbsp;Data</b></a>)
+(<a href="location.html"><b>Location&nbsp;and&nbsp;Position</b></a>)
+(<a href="auxiliary.html"><b>Auxiliary&nbsp;Data</b></a>)
+(<span class=nav><b>Grid&nbsp;Specification</b></span>)
+(<a href="solution.html"><b>Solution&nbsp;Data</b></a>)
+(<a href="connectivity.html"><b>Grid&nbsp;Connectivity</b></a>)
+(<a href="bc.html"><b>Boundary&nbsp;Conditions</b></a>)
+(<a href="equation.html"><b>Equation&nbsp;Specification</b></a>)
+(<a href="families.html"><b>Families</b></a>)
+(<a href="timedep.html"><b>Time-Dependent&nbsp;Data</b></a>)
+(<a href="links.html"><b>Links</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Grid Specification</h2>
+
+<ul>
+<li> <a href="#gridcoordinates">Zone Grid Coordinates</a>
+     <ul>
+     <li> <tt><b>cg_grid_write</b></tt> - Create a <tt>GridCoordinates_t</tt> node
+     <li> <tt><b>cg_ngrids</b></tt> - Get number of <tt>GridCoordinates_t</tt> nodes
+     <li> <tt><b>cg_grid_read</b></tt> - Get name of a <tt>GridCoordinates_t</tt> node
+     <li> <tt><b>cg_coord_write</b></tt> - Write grid coordinates
+     <li> <tt><b>cg_coord_partial_write</b></tt> - Write subset of grid coordinates
+     <li> <tt><b>cg_ncoords</b></tt> - Get number of coordinate arrays
+     <li> <tt><b>cg_coord_info</b></tt> - Get info about a coordinate array
+     <li> <tt><b>cg_coord_read</b></tt> - Read grid coordinates
+     </ul>
+<li> <a href="#elements">Element Connectivity</a>
+     <ul>
+     <li> <tt><b>cg_section_write</b></tt> - Write element data
+     <li> <tt><b>cg_section_partial_write</b></tt> - Write subset of element data
+     <li> <tt><b>cg_parent_data_write</b></tt> - Write parent info for an element section
+     <li> <tt><b>cg_parent_data_partial_write</b></tt> - Write subset of parent info for an element section
+     <li> <tt><b>cg_nsections</b></tt> - Get number of element sections
+     <li> <tt><b>cg_section_read</b></tt> - Get info for an element section
+     <li> <tt><b>cg_ElementDataSize</b></tt> - Get size of element connectivity data array
+     <li> <tt><b>cg_ElementPartialSize</b></tt> - Get size of element connectivity data array for partial read
+     <li> <tt><b>cg_elements_read</b></tt> - Read element data
+     <li> <tt><b>cg_elements_partial_read</b></tt> - Read subset of element data
+     <li> <tt><b>cg_npe</b></tt> - Get number of nodes for an element type
+     </ul>
+<li> <a href="#axisymmetry">Axisymmetry</a>
+     <ul>
+     <li> <tt><b>cg_axisym_write</b></tt> - Create axisymmetry data
+     <li> <tt><b>cg_axisym_read</b></tt> - Read axisymmetry data
+     </ul>
+<li> <a href="#rotatingcoordinates">Rotating Coordinates</a>
+     <ul>
+     <li> <tt><b>cg_rotating_write</b></tt> - Create rotating coordinates data
+     <li> <tt><b>cg_rotating_read</b></tt> - Read rotating coordinates data
+     </ul>
+</ul>
+
+<a name="gridcoordinates"></a>
+<h3>Zone Grid Coordinates</h3>
+
+<i>Node</i>: <tt>GridCoordinates_t</tt>
+             (<a href="../sids/gridflow.html#GridCoordinates">SIDS</a>,
+              <a href="../filemap/nodes.html#GridCoordinates">File Mapping</a>)
+
+<p>
+<tt>GridCoordinates_t</tt> nodes are used to describe grids associated
+with a particular zone.
+The original grid must be described by a <tt>GridCoordinates_t</tt> node
+named <tt>GridCoordinates</tt>.
+Additional <tt>GridCoordinates_t</tt> nodes may be used, with user-defined
+names, to store grids at multiple time steps or iterations.
+In addition to the discussion of the <tt>GridCoordinates_t</tt> node
+in the <a href="../sids/gridflow.html#GridCoordinates">SIDS</a> and
+<a href="../filemap/nodes.html#GridCoordinates">File Mapping</a> manuals,
+see the discussion of the
+<a href="../sids/timedep.html#ZoneIterativeData"><tt>ZoneIterativeData_t</tt></a>
+and <a href="../sids/timedep.html#ArbitraryGridMotion"><tt>ArbitraryGridMotion_t</tt></a>
+nodes in the SIDS manual.
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_grid_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>char *GridCoordName</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *G</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_ngrids(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=out><i>int *ngrids</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_grid_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int G</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>char *GridCoordName</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_grid_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>GridCoordName</span>, <span class=out><i>G</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_ngrids_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=out><i>ngrids</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_grid_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>G</span>, <span class=out><i>GridCoordName</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where 1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>G</tt><td>
+   <td>Grid index number, where
+       1 &le; <tt>G</tt> &le; <tt>ngrids</tt>.
+<tr valign=baseline><td>
+   <td><tt>ngrids</tt><td>
+   <td>Number of <tt>GridCoordinates_t</tt> nodes for zone <tt>Z</tt>.
+<tr valign=baseline><td>
+   <td><tt>GridCoordinateName</tt><td>
+   <td>Name of the <tt>GridCoordinates_t</tt> node.
+       Note that the name "<tt>GridCoordinates</tt>" is reserved for the
+       original grid and must be the first <tt>GridCoordinates_t</tt>
+       node to be defined. 
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+The above functions are applicable to any <tt>GridCoordinates_t</tt> node.
+
+<a name="gridcoordinates_original"></a>
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_coord_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>DataType_t datatype</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>char *coordname</span>, <span class=in>void *coord_array</span>, <span class=out><i>int *C</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_coord_partial_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>DataType_t datatype</span>, <span class=in>char *coordname</span>, <span class=in>int *range_min</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>int *range_max</span>, <span class=in>void *coord_array</span>, <span class=out><i>int *C</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_ncoords(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=out><i>int *ncoords</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_coord_info(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int C</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>DataType_t *datatype</i></span>, <span class=out><i>char *coordname</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_coord_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>char *coordname</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>DataType_t datatype</span>, <span class=in>int *range_min</span>, <span class=in>int *range_max</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>void *coord_array</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_coord_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>datatype</span>, <span class=in>coordname</span>, <span class=in>coord_array</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>C</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_coord_partial_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>datatype</span>, <span class=in>coordname</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>range_min</span>, <span class=in>range_max</span>, <span class=in>coord_array</span>, <span class=out><i>C</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_ncoords_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=out><i>ncoords</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_coord_info_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>C</span>, <span class=out><i>datatype</i></span>, <span class=out><i>coordname</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_coord_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>coordname</span>, <span class=in>datatype</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>range_min</span>, <span class=in>range_max</span>, <span class=out><i>coord_array</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where 1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>C</tt><td>
+   <td>Coordinate array index number, where
+       1 &le; <tt>C</tt> &le; <tt>ncoords</tt>.
+<tr valign=baseline><td>
+   <td><tt>ncoords</tt><td>
+   <td>Number of coordinate arrays for zone <tt>Z</tt>.
+<tr valign=baseline><td>
+   <td><tt>datatype</tt><td>
+   <td>Data type in which the coordinate array is written.
+       Admissible data types for a coordinate array are <tt>RealSingle</tt>
+       and <tt>RealDouble</tt>.
+<tr valign=baseline><td>
+   <td><tt>coordname</tt><td>
+   <td>Name of the coordinate array.
+       It is strongly advised to use the
+       <a href="../sids/dataname.html#dataname_grid">SIDS nomenclature
+       conventions</a> when naming the coordinate arrays to insure file
+       compatibility.
+<tr valign=baseline><td>
+   <td><tt>range_min</tt><td>
+   <td>Lower range index (eg., <tt>imin, jmin, kmin</tt>).
+<tr valign=baseline><td>
+   <td><tt>range_max</tt><td>
+   <td>Upper range index (eg., <tt>imax, jmax, kmax</tt>).
+<tr valign=baseline><td>
+   <td><tt>coord_array</tt><td>
+   <td>Array of coordinate values for the range prescribed.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+The above functions are applicable <em>only</em> to the 
+<tt>GridCoordinates_t</tt> node named <tt>GridCoordinates</tt>, used
+for the original grid in a zone.
+Coordinates for additional <tt>GridCoordinates_t</tt> nodes in a zone
+must be read and written using the
+<a href="physical.html#dataarray"><tt>cg_array_<i>xxx</i></tt> functions</a>.
+
+<p>
+When writing, the function <tt>cg_coord_write</tt> will
+automatically write the full range of coordinates (i.e., the entire
+<tt>coord_array</tt>).
+The function <tt>cg_coord_partial_write</tt> may be used to write
+only a subset of <tt>coord_array</tt>.
+When using the partial write, any existing data as defined by
+<tt>range_min</tt> and <tt>range_max</tt> will be overwritten by the new
+values.
+All other values will not be affected.
+
+<p>
+The function <tt>cg_coord_read</tt> returns the coordinate array
+<tt>coord_array</tt>, for the range prescribed by <tt>range_min</tt> and
+<tt>range_max</tt>.
+The array is returned to the application in the data type requested in
+<tt>datatype</tt>.
+This data type does not need to be the same as the one in which the
+coordinates are stored in the file.
+A coordinate array stored as double precision in the CGNS file can be
+returned to the application as single precision, or vice versa.
+
+<p>
+In Fortran, when using <tt>cg_coord_read_f</tt> to read 2D or 3D
+coordinates, the extent of each dimension of <tt>coord_array</tt> must
+be consistent with the requested range.
+When reading a 1D solution, the declared size can be larger than the
+requested range.
+For example, for a 2D zone with 100 &times; 50 vertices, if
+<tt>range_min</tt> and <tt>range_max</tt> are set to (11,11) and (20,20)
+to read a subset of the coordinates, then <tt>coord_array</tt> must be
+dimensioned (10,10).
+If <tt>coord_array</tt> is declared larger (e.g., (100,50)) the
+indices for the returned coordinates will be wrong.
+
+<a name="elements"></a>
+<h3>Element Connectivity</h3>
+
+<i>Node</i>: <tt>Elements_t</tt>
+             (<a href="../sids/gridflow.html#Elements">SIDS</a>,
+              <a href="../filemap/nodes.html#Elements">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_section_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>char *ElementSectionName</span>, <span class=in>ElementType_t type</span>, <span class=in>int start</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>int end</span>, <span class=in>int nbndry</span>, <span class=in>int *Elements</span>, <span class=out><i>int *S</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_section_partial_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>char *ElementSectionName</span>, <span class=in>ElementType_t type</span>, <span class=in>int start</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>int end</span>, <span class=in>int nbndry</span>, <span class=in>int *Elements</span>, <span class=out><i>int *S</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_parent_data_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int S</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *ParentData</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_parent_data_partial_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int S</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>int start</span>, <span class=in>int end</span>, <span class=out><i>int *ParentData</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_nsections(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=out><i>int *nsections</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_section_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int S</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>char *ElementSectionName</i></span>, <span class=out><i>ElementType_t *type</i></span>, <span class=out><i>int *start</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *end</i></span>, <span class=out><i>int *nbndry</i></span>, <span class=out><i>int *parent_flag</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_ElementDataSize(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int S</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *ElementDataSize</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_ElementPartialSize(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int S</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>int start</span>, <span class=in>int end</span>, <span class=out><i>int *ElementDataSize</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_elements_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int S</span>, <span class=out><i>int *Elements</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *ParentData</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_elements_partial_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int S</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>int start</span>, <span class=in>int end</span>, <span class=out><i>int *Elements</i></span>, <span class=out><i>int *ParentData</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_npe(<span class=in>ElementType_t type</span>, <span class=out><i>int *npe</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_section_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>ElementSectionName</span>, <span class=in>type</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>start</span>, <span class=in>end</span>, <span class=in>nbndry</span>, <span class=in>Elements</span>, <span class=out><i>S</i></span>, <span class=out><i>ier</i></span>)<br>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_section_partial_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>ElementSectionName</span>, <span class=in>type</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>start</span>, <span class=in>end</span>, <span class=in>nbndry</span>, <span class=in>Elements</span>, <span class=out><i>S</i></span>, <span class=out><i>ier</i></span>)<br>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_parent_data_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>S</span>, <span class=out><i>ParentData</i></span>, <span class=out><i>ier</i></span>)<br>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_parent_data_partial_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>S</span>, <span class=in>start</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>end</span>, <span class=out><i>ParentData</i></span>, <span class=out><i>ier</i></span>)<br>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_nsections_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=out><i>nsections</i></span>, <span class=out><i>ier</i></span>)<br>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_section_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>S</span>, <span class=out><i>ElementSectionName</i></span>, <span class=out><i>type</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>start</i></span>, <span class=out><i>end</i></span>, <span class=out><i>nbndry</i></span>, <span class=out><i>parent_flag</i></span>, <span class=out><i>ier</i></span>)<br>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_ElementDataSize_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>S</span>, <span class=out><i>ElementDataSize</i></span>, <span class=out><i>ier</i></span>)<br>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_ElementPartialSize_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>S</span>, <span class=in>start</span>, <span class=in>end</span>, <span class=out><i>ElementDataSize</i></span>, <span class=out><i>ier</i></span>)<br>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_elements_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>S</span>, <span class=out><i>Elements</i></span>, <span class=out><i>ParentData</i></span>, <span class=out><i>ier</i></span>)<br>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_elements_partial_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>S</span>, <span class=in>start</span>, <span class=in>end</span>, <span class=out><i>Elements</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>ParentData</i></span>, <span class=out><i>ier</i></span>)<br>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_npe_f(<span class=in>type</span>, <span class=out><i>npe</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where 1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>ElementSectionName</tt><td>
+   <td>Name of the <tt>Elements_t</tt> node.
+<tr valign=baseline><td>
+   <td><tt>type</tt><td>
+   <td>Type of element.
+       See the eligible types for <tt>ElementType_t</tt> in the
+       <a href="general.html#typedefs">Typedefs</a> section.
+<tr valign=baseline><td>
+   <td><tt>start</tt><td>
+   <td>Index of first element in the section.
+<tr valign=baseline><td>
+   <td><tt>end</tt><td>
+   <td>Index of last element in the section.
+<tr valign=baseline><td>
+   <td><tt>nbndry</tt><td>
+   <td>Index of last boundary element in the section.
+       Set to zero if the elements are unsorted.
+<tr valign=baseline><td>
+   <td><tt>nsections</tt><td>
+   <td>Number of element sections.
+<tr valign=baseline><td>
+   <td><tt>S</tt><td>
+   <td>Element section index, where
+       1 &le; <tt>S</tt> &le; <tt>nsections</tt>.
+<tr valign=baseline><td>
+   <td><tt>parent_flag</tt><td>
+   <td>Flag indicating if the parent data are defined.
+       If the parent data exist, <tt>parent_flag</tt> is set to 1;
+       otherwise it is set to 0.
+<tr valign=baseline><td>
+   <td><tt>ElementDataSize</tt><td>
+   <td>Number of element connectivity data values.
+<tr valign=baseline><td>
+   <td><tt>Elements</tt><td>
+   <td>Element connectivity data.
+<tr valign=baseline><td>
+   <td><tt>ParentData</tt><td>
+   <td>For boundary or interface elements, this array contains
+       information on the cell(s) and cell face(s) sharing the element.
+       If you do not need to read the <tt>ParentData</tt> when reading
+       the <tt>ElementData</tt>, you may set the value to <tt>NULL</tt>.
+<tr valign=baseline><td>
+   <td><tt>npe</tt><td>
+   <td>Number of nodes for an element of type <tt>type</tt>.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+If the specified <tt>Elements_t</tt> node doesn't yet exist, it may be
+created using either <tt>cg_section_write</tt> or
+<tt>cg_section_partial_write</tt>.
+The function <tt>cg_section_write</tt> writes the full range as
+indicated by <tt>start</tt> and <tt>end</tt>.
+The <tt>cg_section_partial_write</tt> function will add the elements
+(and parent data if it exists) to any existing data, replacing the range
+as indicated by <tt>start</tt> and <tt>end</tt> with the new values.
+Any holes in the data due to the partial writes will be filled with
+zeros.
+
+<p>
+The function <tt>cg_elements_read</tt> returns all of the element
+connectivity and parent data.
+Specified subsets of the element connectivity and parent data may be
+read using <tt>cg_elements_partial_read</tt>.
+
+<a name="axisymmetry"></a>
+<h3>Axisymmetry</h3>
+
+<i>Node</i>: <tt>Axisymmetry_t</tt>
+             (<a href="../sids/gridflow.html#Axisymmetry">SIDS</a>,
+              <a href="../filemap/nodes.html#Axisymmetry">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_axisym_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>float *ReferencePoint</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>float *AxisVector</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_axisym_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=out><i>float *ReferencePoint</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>float *AxisVector</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_axisym_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>ReferencePoint</span>, <span class=in>AxisVector</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_axisym_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=out><i>ReferencePoint</i></span>, <span class=out><i>AxisVector</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>ReferencePoint</tt><td>
+   <td>Origin used for defining the axis of rotation.
+<tr valign=baseline><td>
+   <td><tt>AxisVector</tt><td>
+   <td>Direction cosines of the axis of rotation, through the reference
+       point.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+This node can only be used for a bi-dimensional model, i.e.,
+<tt>PhysicalDimension</tt> must equal two.
+
+<a name="rotatingcoordinates"></a>
+<h3>Rotating Coordinates</h3>
+
+<i>Node</i>: <tt>RotatingCoordinates_t</tt>
+             (<a href="../sids/gridflow.html#RotatingCoordinates">SIDS</a>,
+              <a href="../filemap/nodes.html#RotatingCoordinates">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_rotating_write(<span class=in>float *RotationRateVector</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>float *RotationCenter</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_rotating_read(<span class=out><i>float *RotationRateVector</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>float *RotationCenter</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_rotating_write_f(<span class=in>RotationRateVector</span>, <span class=in>RotationCenter</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_rotating_read_f(<span class=out><i>RotationRateVector</i></span>, <span class=out><i>RotationCenter</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>RotationRateVector</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Components of the angular velocity of the grid about the center
+       of rotation.
+<tr valign=baseline><td>
+   <td><tt>RotationCenter</tt><td>
+   <td>Coordinates of the center of rotation.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 26 Jan 2007
+
+</body>
+</html>

@@ -5,6 +5,12 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI Interface of SkinFriction.
 
+<<<<<<< HEAD
+=======
+| Author: Leon Deligny
+| Creation: 18-Mar-2025
+
+>>>>>>> origin/main
 """
 
 # ==============================================================================

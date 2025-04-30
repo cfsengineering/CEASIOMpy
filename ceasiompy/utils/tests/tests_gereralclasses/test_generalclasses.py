@@ -6,7 +6,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Test functions for 'ceasiompy/utils/generalclasses.py'
 
 
-
 | Author : Aidan Jungo
 | Creation: 2021-12-13
 

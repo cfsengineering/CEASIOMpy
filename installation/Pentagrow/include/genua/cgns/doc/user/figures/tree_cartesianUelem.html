@@ -1,0 +1,76 @@
+<!-- A User's Guide to CGNS - longdesc for CGNS layout of Elements_t
+     boundary face nodes -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="../user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - CGNS layout of Elements_t boundary face nodes </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<p>
+This diagram illustrates the use of additional <tt>Elements_t</tt> nodes
+under <tt>Zone_t</tt> to separately list the boundary elements.
+
+<p>
+For this example, there are three additional nodes, as follows.
+<ul>
+<li> Name: <tt>InflowElem</tt><br>
+     Label: <tt>Elements_t</tt><br>
+     Data: <tt>ElementType</tt>=<tt>QUAD_4</tt>,
+           <tt>ElementSizeBoundary</tt>=0
+<li> Name: <tt>OutflowElem</tt><br>
+     Label: <tt>Elements_t</tt><br>
+     Data: <tt>ElementType</tt>=<tt>QUAD_4</tt>,
+           <tt>ElementSizeBoundary</tt>=0
+<li> Name: <tt>SidewallElem</tt><br>
+     Label: <tt>Elements_t</tt><br>
+     Data: <tt>ElementType</tt>=<tt>QUAD_4</tt>,
+           <tt>ElementSizeBoundary</tt>=0
+</ul>
+
+<p>
+Below each of the added <tt>Elements_t</tt> nodes are two nodes
+defining the element range and connectivity data for that boundary.
+For <tt>InflowElem</tt>, these nodes are:
+<ul>
+<li> Name: <tt>ElementRange</tt><br>
+     Label: <tt>IndexRange_t</tt><br>
+     Data: 2561,2688
+<li> Name: <tt>ElementConnectivity</tt><br>
+     Label: <tt>DataArray_t</tt><br>
+     Data: <tt>jelem(1,1)</tt> to <tt>jelem(4,128)</tt>
+</ul>
+For <tt>OutflowElem</tt>, they're:
+<ul>
+<li> Name: <tt>ElementRange</tt><br>
+     Label: <tt>IndexRange_t</tt><br>
+     Data: 2689,2816
+<li> Name: <tt>ElementConnectivity</tt><br>
+     Label: <tt>DataArray_t</tt><br>
+     Data: <tt>kelem(1,1)</tt> to <tt>kelem(4,128)</tt>
+</ul>
+And for <tt>SidewallElem</tt>:
+<ul>
+<li> Name: <tt>ElementRange</tt><br>
+     Label: <tt>IndexRange_t</tt><br>
+     Data: 2817,3776
+<li> Name: <tt>ElementConnectivity</tt><br>
+     Label: <tt>DataArray_t</tt><br>
+     Data: <tt>nelem(1,1)</tt> to <tt>nelem(4,960)</tt>
+</ul>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 30 Aug 2002
+
+</body>
+</html>

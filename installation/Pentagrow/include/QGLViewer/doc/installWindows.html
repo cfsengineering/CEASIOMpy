@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>libQGLViewer installation on Windows</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link href="qglviewer.css" rel="stylesheet" type="text/css" />
+  <link rel="shortcut icon" href="images/qglviewer.ico" type="image/x-icon" />
+  <link rel="icon" href="images/qglviewer.icon.png" type="image/png" />
+  <style type="text/css">
+   a.download { margin-left:50px; }
+   a.download span { color: white; font-weight:bold; font-size:larger; padding:4px 12px; background-color:#9999CC; border:1px solid black; margin-left:10px; }
+   a.download:hover span { background-color:#BBBBDD; border-color:#AAD; }
+  </style>
+</head>
+<body>
+
+<div class="banner">
+  <a class="qindex" href="index.html">Home</a>
+  <a class="qindex" href="refManual/hierarchy.html">Documentation</a>
+  <a class="qindex highlight" href="download.html">Download</a>
+  <a class="qindex" href="examples/index.html">Examples</a>
+  <a class="qindex" href="developer.html">Developer</a>
+</div>
+
+<h1>libQGLViewer installation<br/>
+on <img src="images/windows.png" width="55" height="54" alt="windows"/> Windows</h1>
+
+The installer allows you to evaluate the library from its demonstration examples and its documentation and to start creating your own programs. 
+The library and the examples were here compiled using (and can be used with) MinGW and the open source version of Qt.
+
+<p><a href="http://www.libqglviewer.com/src/libQGLViewer-installer.exe" class="download">
+<img src="images/downloadButton.jpg" width="41" height="46" align="middle" alt="download"/>
+<span>Download the libQGLViewer installer</span>
+</a></p>
+
+This source code is released under the GPL license. If you are using libQGLViewer in a
+commercial application, you need to purchase a <a href="mailto:contact@libqglviewer.com?Subject=Commercial license">libQGLViewer commercial license</a>. 
+
+
+<h2>Compilation from the sources</h2>
+
+If you want to compile the library from its sources, first download and install the latest Qt version from the 
+<a href="http://www.trolltech.com/products/qt/downloads">Trolltech web site</a>.
+
+<p>
+Then download and unzip <a href="http://www.libqglviewer.com/src/libQGLViewer-2.3.1.zip">libQGLViewer-2.3.1.zip</a>.
+</p>
+
+<a name="mingw"></a>&bull; If you use the <b>MinGW</b> compiler (available when you install the OpenSource Qt 4 version), 
+launch the <i>Qt 4.x Command Prompt</i> from the <i>Start</i> menu and type:
+<pre>
+cd \path\to\libQGLViewer-2.3.1\QGLViewer
+qmake
+make
+</pre>
+
+<a name="qtVisual"></a>&bull; If you use the Qt integration in <b>Visual Studio</b> (provided with the commercial Qt edition),
+open <code>QGLViewer/QGLViewer.pro</code> using the <i>Qt - Open solution from .pro file</i> menu and generate the solution<span class="redStar">*</span>.
+
+<p>
+Copy the resulting <code>QGLViewer2.dll</code> to a system
+shared directory such as <code>C:\Windows\System32</code>. An other option is to copy it to every executable's directory.
+
+<p>
+Then see the <a href="compilation.html">compilation with libQGLViewer</a> page for details on examples' compilation.
+</p>
+
+
+<div style="font-size:smaller">
+<!--
+<span class="redStar">*</span> Names differ between the different Visual Studio versions:
+
+<table class="blue">
+<tr><th>Visual Studio 200X</th><th>Visual Studio 6</th></tr>
+<tr><td>Qt - Open solution from .pro file</td><td>Open/Generate Qt Project icon</td></tr>
+<tr class="even"><td>Tools - Add-Ins manager</td><td>Tools - Customize - Add-ins and Macro Files/QMsDev Add in</td></tr>
+</table>
+-->
+<span class="redStar">*</span>
+A <code>LNK4068 /MACHINE</code> warning message can be fixed by editing <i>Project - Properties of QGLViewer - Configuration properties - Link editor - Advanced - Target Computer</i>.
+
+<p>
+Visual Studio 6 only: Use <i>File-Open workspace</i> to open the <code>.dsp</code> generated file, and select <i>Release</i> as the <i>Build/Active Configuration</i>.
+</p>
+
+If needed, the <code>.vcproj</code> file can be generated from the <code>.pro</code> file by typing <code>qmake -t vclib QGLViewer.pro</code> in a Qt command line.
+
+<!--
+<p>
+If your Qt version is lower than 3.1, you have to install the <a
+href="http://www.xmission.com/~nate/glut.html">GLUT library</a> in order to have text display. Add
+the paths to GLUT in your <code>Include</code> and <code>Library</code>
+<i>Project-Properties</i><span class="redStar">*</span>, and copy <code>glut32.dll</code> in a
+library directory.
+</p>
+ -->
+</div>
+
+
+
+
+
+<a name="plugin"></a>
+<h2><img src="images/qt.png" width="38" height="40" alt="Qt"/> Installation of the designer plugin</h2>
+
+The compilation and installation of the QGLViewer designer plugin is optional. It eases
+the creation of user interfaces that feature a QGLViewer widget using Qt designer. Simply drag and drop the QGLViewer icon
+that appears in the designer's <code>Display Widgets</code> tab to add it to your interface:
+
+<p>
+ &nbsp; &nbsp; &nbsp; &nbsp; <img src="images/designerplugin.jpg" width="638" height="222" alt="designer plugin" />
+</p>
+
+When added to your user interface, the widget displays the standard spiral, which can be manipulated
+when you test your interface. All the viewers' signals and slots are available and can be connected to the rest of your interface.
+
+<p>
+To compile the plugin, open the <code>designerPlugin.pro</code> file to create your workspace.
+Install the resulting plugin library (<code>qglviewerplugin.dll</code>) in <code>$QTDIR\plugins\designer</code> and/or
+<code>C:\Program Files\Trolltech\Qt VS Integration\plugins</code> to use it with the Visual Studio
+integrated designer. Note that you also have to install the <code>QGLViewer2.dll</code> in <code>C:\Windows\System32</code> (as described above).
+Although successfully tested, this procedure does not seem to be sufficient with certain configurations, any explanation is more than welcome.
+</p>
+
+To create your own designer plugin for your derived QGLViewer class, start from this code and change a few lines as explained in the source.
+
+<p>
+With Qt version 3, an alternative to this plugin is to add a "Custom Widget" using the
+<i>Tools/Custom</i> designer menu. Select <i>Load Descriptions...</i> and provide the
+<code>qglviewer.cw</code> custom widget description file, located in the QGLViewer header files
+directory. You can customize this description for your own classes, with your own signals and slots and the header
+file path.
+</p>
+
+See the <a href="examples/interface.html">interface example</a> for an illustration of a user
+interface that includes a QGLViewer.
+
+
+<p>
+Please <a href="mailto:contact@libqglviewer.com">let me know</a> if you encounter installation problems.
+</p>
+
+<p>
+  <a href="http://validator.w3.org/check/referer"><img src="images/xhtml.png" alt="Valid XHTML 1.0!" height="31" width="88"/></a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer"><img src="images/css.png" alt="Valid CSS!" width="88" height="31"/></a>
+  <i>Last modified on Tuesday, September 30, 2008.</i>
+</p>
+    
+</body>
+</html>

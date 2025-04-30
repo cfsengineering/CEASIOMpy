@@ -1,0 +1,249 @@
+<!-- A User's Guide to CGNS - Example Computer Codes -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - Example Computer Codes</title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="index.html"><span class=nav><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></span></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../midlevel/index.html"><b>Mid-Level&nbsp;Library</b></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="intro.html"><b>Introduction</b></a>)
+(<a href="started.html"><b>Getting&nbsp;Started</b></a>)
+(<a href="additional.html"><b>Additional&nbsp;Information</b></a>)
+(<a href="trouble.html"><b>Troubleshooting</b></a>)
+(<a href="faq.html"><b>Frequently&nbsp;Asked&nbsp;Questions</b></a>)
+(<span class=nav><b>Example&nbsp;Computer&nbsp;Codes</b></span>)
+(<a href="sids.html"><b>Overview&nbsp;of&nbsp;the&nbsp;SIDS</b></a>)
+(<a href="plot3d.html"><b>Guideline&nbsp;for&nbsp;PLOT3D&nbsp;Variables</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Example Computer Codes</h2>
+
+The following computer codes are complete, workable versions of the codes
+mentioned in the text of this User's Guide (plus some that are
+not mentioned).  They can be obtained from the
+<a href="http://sourceforge.net/projects/cgns">CGNS site at SourceForge</a>
+<img src="../external.png" alt="external link">.
+They read and write very simple example CGNS files, in order to help
+the user understand the CGNS concepts as well as the usage of the API calls.
+Instructions for compiling them on LINUX systems is contained in comment
+lines in each program. 
+The following codes are written in both FORTRAN and C.
+
+Note that these programs are very unsophisticated, purposefully
+for ease of readability.  Real working codes would be written more
+generally, with more checks, and would <em>not</em> be as hardwired for
+particular cases. The codes are listed here by corresponding section.
+
+<h3>Structured Grid</h3>
+
+<h4><a href="started.html#sec:singlegrid">Single-Zone Structured Grid</a></h4>
+
+<table cellspacing=0 cellpadding=0 border=0>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>write_grid_str.f</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>writes grid
+<tr valign=baseline><td>
+   <td><tt>write_grid_str.c</tt><td>
+   <td>writes grid (C-program example)
+<tr valign=baseline><td>
+   <td><tt>read_grid_str.f</tt><td>
+   <td>reads grid
+</table>
+
+<h4><a href="started.html#sec:flowsoln">Single-Zone Structured Grid and Flow Solution</a></h4>
+
+<table cellspacing=0 cellpadding=0 border=0>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>write_flowvert_str.f</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>writes vertex-based flow solution
+<tr valign=baseline><td>
+   <td><tt>read_flowvert_str.f</tt><td>
+   <td>reads vertex-based flow solution
+<tr valign=baseline><td>
+   <td><tt>write_flowcent_str.f</tt><td>
+   <td>writes cell centered flow solution
+<tr valign=baseline><td>
+   <td><tt>read_flowcent_str.f</tt><td>
+   <td> reads cell centered flow solution
+<tr valign=baseline><td>
+   <td><tt>write_flowcentrind_str.f</tt><td>
+   <td>writes cell centered flow solution with rind cells
+<tr valign=baseline><td>
+   <td><tt>read_flowcentrind_str.f</tt><td>
+   <td>reads cell centered flow solution with rind cells
+</table>
+
+<h4><a href="started.html#sec:bcstruct">Single-Zone Structured Grid with Boundary Conditions</a></h4>
+
+<table cellspacing=0 cellpadding=0 border=0>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>write_bc_str.f</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>writes <tt>PointRange</tt> boundary condition patches
+<tr valign=baseline><td>
+   <td><tt>read_bc_str.f</tt><td>
+   <td>reads <tt>PointRange</tt> boundary condition patches
+<tr valign=baseline><td>
+   <td><tt>write_bcpnts_str.f</tt><td>
+   <td>writes <tt>PointList</tt> boundary condition patches
+<tr valign=baseline><td>
+   <td><tt>read_bcpnts_str.f</tt><td>
+   <td>reads <tt>PointList</tt> boundary condition patches
+</table>
+
+<h4><a href="started.html#sec:str1to1">Multi-Zone Structured Grid with 1-to-1 Connectivity</a></h4>
+
+<table cellspacing=0 cellpadding=0 border=0>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>write_grid2zn_str.f</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>writes 2-zone grid
+<tr valign=baseline><td>
+   <td><tt>read_grid2zn_str.f</tt><td>
+   <td>reads 2-zone grid
+<tr valign=baseline><td>
+   <td><tt>write_con2zn_str.f</tt><td>
+   <td>writes 1-to-1 connectivity for 2-zone example
+<tr valign=baseline><td>
+   <td><tt>read_con2zn_str.f</tt><td>
+   <td>reads 1-to-1 connectivity for 2-zone example
+<tr valign=baseline><td>
+   <td><tt>write_con2zn_genrl_str.f</tt><td>
+   <td>writes general 1-to-1 connectivity for 2-zone example
+<tr valign=baseline><td>
+   <td><tt>read_con2zn_genrl_str.f</tt><td>
+   <td>reads general 1-to-1 connectivity for 2-zone example
+</table>
+
+<h3>Unstructured Grid</h3>
+
+<h4><a href="started.html#sec:unstrgrid">Single-Zone Unstructured Grid</a></h4>
+
+<table cellspacing=0 cellpadding=0 border=0>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>write_grid_unst.f</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>writes grid
+<tr valign=baseline><td>
+   <td><tt>read_grid_unst.f</tt><td>
+   <td>reads grid
+</table>
+
+<h4><a href="started.html#sec:unstrflow">Single-Zone Unstructured Grid and Flow Solution</a></h4>
+
+<table cellspacing=0 cellpadding=0 border=0>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>write_flowvert_unst.f</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>writes vertex-based flow solution
+<tr valign=baseline><td>
+   <td><tt>read_flowvert_unst.f</tt><td>
+   <td>reads vertex-based flow solution
+</table>
+
+<h4><a href="started.html#sec:bcunstr">Single-Zone Unstructured Grid with Boundary Conditions</a></h4>
+
+<table cellspacing=0 cellpadding=0 border=0>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>write_bcpnts_unst.f</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>writes <tt>PointList</tt> boundary condition patches (<tt>FaceCenter</tt>)
+<tr valign=baseline><td>
+   <td><tt>read_bcpnts_unst.f</tt><td>
+   <td>reads <tt>PointList</tt> boundary condition patches (<tt>FaceCenter</tt>)
+</table>
+
+<h3>General</h3>
+
+<h4><a href="additional.html#sec:converge">Convergence History</a></h4>
+
+<table cellspacing=0 cellpadding=0 border=0>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>write_convergence.f</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>writes convergence history
+<tr valign=baseline><td>
+   <td><tt>read_convergence.f</tt><td>
+   <td>reads convergence history
+</table>
+
+<h4><a href="additional.html#sec:descript">Descriptor Nodes</a></h4>
+
+<table cellspacing=0 cellpadding=0 border=0>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>write_descriptor.f</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>writes descriptor node under <tt>CGNSBase_t</tt>
+<tr valign=baseline><td>
+   <td><tt>read_descriptor.f</tt><td>
+   <td>reads descriptor node under <tt>CGNSBase_t</tt>
+</table>
+
+<h4><a href="additional.html#sec:dimens">Dimensional Data</a></h4>
+
+<table cellspacing=0 cellpadding=0 border=0>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>write_dimensional.f</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>writes dimensional data to an existing grid + flow solution
+<tr valign=baseline><td>
+   <td><tt>read_dimensional.f</tt><td>
+   <td>reads dimensional data from an existing grid + flow solution
+</table>
+
+<h4><a href="additional.html#sec:nondimens">Nondimensional Data</a></h4>
+
+<table cellspacing=0 cellpadding=0 border=0>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>write_nondimensional.f</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>writes nondimensional data to an existing CGNS file
+<tr valign=baseline><td>
+   <td><tt>read_nondimensional.f</tt><td>
+   <td>reads nondimensional data from an existing CGNS file
+</table>
+
+<h4><a href="additional.html#sec:floweqns">Flow Equation Sets</a></h4>
+
+<table cellspacing=0 cellpadding=0 border=0>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>write_floweqn_str.f</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>writes flow equation information for structured example
+<tr valign=baseline><td>
+   <td><tt>read_floweqn_str.f</tt><td>
+   <td>reads flow equation information for structured example
+</table>
+
+<h4><a href="additional.html#sec:timedep">Time-Dependent Data</a></h4>
+
+<table cellspacing=0 cellpadding=0 border=0>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>write_timevert_str.f</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>writes time-dependent flow soln (as Vertex) for structured example
+<tr valign=baseline><td>
+   <td><tt>read_timevert_str.f</tt><td>
+   <td>reads time-dependent flow soln (as Vertex) for structured example
+</table>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 7 Mar 2008
+
+</body>
+</html>

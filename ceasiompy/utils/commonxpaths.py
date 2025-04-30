@@ -8,10 +8,20 @@ called only from here to avoid mistakes.
 XPath may be changed from here to avoid mistakes, but if it is the case, be careful to also change
 xpath and field name in all the test CPACS files, which are in the CEASIOMpy repository.
 
+<<<<<<< HEAD:ceasiompy/utils/commonxpaths.py
 Note:
     This contains only COMMON xpaths,
     please do NOT add specific xpaths of your module in here.
     You can always add specific xpaths in the __init__.py of your module.
+=======
+| Author: Aidan jungo
+| Creation: 2021-10-21
+| modification: 2024-01-05 (Mengmeng Zhang, added M-Edge XPATHs )
+| Modified: Leon Deligny
+| Date: 25 March 2025
+
+# TODO: Someome please Organize these paths
+>>>>>>> origin/main:ceasiompy/utils/commonxpath.py
 
 """
 

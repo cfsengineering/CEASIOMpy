@@ -5,9 +5,10 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Main Streamlit page for CEASIOMpy GUI.
 
-
 | Author : Aidan Jungo
 | Creation: 2022-09-09
+| Author: Leon Deligny
+| Modified: 16th April 2025
 
 """
 
@@ -15,23 +16,18 @@ Main Streamlit page for CEASIOMpy GUI.
 #    IMPORTS
 # =================================================================================================
 
-import pyvista as pv
+import numpy as np
 import streamlit as st
+import plotly.graph_objects as go
 
-from stpyvista import stpyvista
-from src.streamlit.streamlitutils import (
-    create_sidebar,
-)
+from src.streamlit.streamlitutils import create_sidebar
 
+from stl import mesh
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy.utils.commonpaths import WKDIR_PATH
-from ceasiompy.utils.commonnames import (
-    CEASIOMPY_BEIGE,
-    CEASIOMPY_ORANGE,
-)
 
 # =================================================================================================
 #    CONSTANTS
@@ -55,6 +51,7 @@ def section_select_cpacs():
     if "workflow" not in st.session_state:
         st.session_state.workflow = Workflow()
 
+    WKDIR_PATH.mkdir(parents=True, exist_ok=True)
     st.session_state.workflow.working_dir = WKDIR_PATH
     st.markdown("#### CPACS file")
 
@@ -88,43 +85,63 @@ def section_select_cpacs():
     # Display the file uploader widget with the previously uploaded file
     if "cpacs_file_path" in st.session_state and st.session_state.cpacs_file_path:
         st.success(f"Uploaded file: {st.session_state.cpacs_file_path}")
+        section_3D_view()
 
 
-def section_3D_view():
+def section_3D_view() -> None:
     """
     Shows a 3D view of the aircraft by exporting a STL file.
-    The pyvista viewer is based on:
-        https://github.com/edsaac/streamlit-PyVista-viewer
     """
 
-    st.markdown("##### 3D view")
-
-    if "cpacs" not in st.session_state:
-        st.warning("No CPACS file has been selected!")
-        return
-    else:
-        stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
-
+    stl_file = Path(
+        st.session_state.workflow.working_dir,
+        "aircraft.stl"
+    )
+    if (
+        hasattr(st.session_state.cpacs, "aircraft")
+        and hasattr(st.session_state.cpacs.aircraft, "tigl")
+    ):
         st.session_state.cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
+    your_mesh = mesh.Mesh.from_file(stl_file)
+    triangles = your_mesh.vectors.reshape(-1, 3)
+    vertices, indices = np.unique(triangles, axis=0, return_inverse=True)
+    i, j, k = indices[0::3], indices[1::3], indices[2::3]
+    x, y, z = vertices.T
 
-        # Using pythreejs as pyvista backend
-        pv.set_jupyter_backend("static")
+    # Compute bounds and cube size
+    min_x, max_x = np.min(x), np.max(x)
+    min_y, max_y = np.min(y), np.max(y)
+    min_z, max_z = np.min(z), np.max(z)
+    center_x = (min_x + max_x) / 2
+    center_y = (min_y + max_y) / 2
+    center_z = (min_z + max_z) / 2
+    max_range = max(max_x - min_x, max_y - min_y, max_z - min_z) / 2
 
-        # Initialize pyvista reader and plotter
-        plotter = pv.Plotter(border=False, window_size=[572, 600])
-        plotter.background_color = CEASIOMPY_BEIGE
-        reader = pv.STLReader(str(stl_file))
+    # Set axis limits so the mesh is centered in a cube
+    x_range = [center_x - max_range, center_x + max_range]
+    y_range = [center_y - max_range, center_y + max_range]
+    z_range = [center_z - max_range, center_z + max_range]
 
-        # Read data and send to plotter
-        mesh = reader.read()
-        plotter.add_mesh(mesh, color=CEASIOMPY_ORANGE)
+    fig = go.Figure(data=[
+        go.Mesh3d(
+            x=x, y=y, z=z,
+            i=i, j=j, k=k,
+            color='orange', opacity=0.5
+        )
+    ])
+    fig.update_layout(
+        width=900,
+        height=700,
+        margin=dict(l=0, r=0, t=0, b=0),
+        scene=dict(
+            xaxis=dict(range=x_range),
+            yaxis=dict(range=y_range),
+            zaxis=dict(range=z_range),
+            aspectmode="cube"
+        )
+    )
+    st.plotly_chart(fig, use_container_width=False)
 
-        # Camera
-        plotter.camera.azimuth = 110.0
-        plotter.camera.elevation = -20.0
-        plotter.camera.zoom(1.4)
-
-        stpyvista(plotter)
 
 # =================================================================================================
 #    MAIN
@@ -150,4 +167,3 @@ if __name__ == "__main__":
     st.title(PAGE_NAME)
 
     section_select_cpacs()
-    section_3D_view()

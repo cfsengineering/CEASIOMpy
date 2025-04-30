@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BodySkeleton akimatg="true" name="CeasiomNacelle" origin=" 0 0 0 " rotation=" 0 0 0 ">
+<BodyFrame center=" 0 0 0 " height="0.81" name="FrameX0" width="0.81">
+0 -1 
+0.5 -0.866025 
+0.866025 -0.5 
+1 -6.12323e-17 
+0.866025 0.5 
+0.5 0.866025 
+1.22465e-16 1 
+</BodyFrame>
+<BodyFrame center=" 0.176 0 0 " height="0.934" name="FrameX61" width="0.934">
+0 -1 
+0.5 -0.866025 
+0.866025 -0.5 
+1 -6.12323e-17 
+0.866025 0.5 
+0.5 0.866025 
+1.22465e-16 1 
+</BodyFrame>
+<BodyFrame center=" 0.458 0 0 " height="1.02" name="Frame230" width="1.02">
+0 -1 
+0.5 -0.866025 
+0.866025 -0.5 
+1 -6.12323e-17 
+0.866025 0.5 
+0.5 0.866025 
+1.22465e-16 1 
+</BodyFrame>
+<BodyFrame center=" 0.863 0 0 " height="1.02" name="FrameX383" width="1.02">
+0 -1 
+0.5 -0.866025 
+0.866025 -0.5 
+1 -6.12323e-17 
+0.866025 0.5 
+0.5 0.866025 
+1.22465e-16 1 
+</BodyFrame>
+<BodyFrame center=" 1.39 0 0 " height="0.846" name="FrameX815" width="0.846">
+0 -1 
+0.5 -0.866025 
+0.866025 -0.5 
+1 -6.12323e-17 
+0.866025 0.5 
+0.5 0.866025 
+1.22465e-16 1 
+</BodyFrame>
+<BodyFrame center=" 2 0 0 " height="0.406" name="FrameX1000" width="0.406">
+0 -1 
+0.5 -0.866025 
+0.866025 -0.5 
+1 -6.12323e-17 
+0.866025 0.5 
+0.5 0.866025 
+1.22465e-16 1 
+</BodyFrame>
+<Caps height_north="0" height_south="0"/>
+<MeshCriterion defaults="true" maxlen="0.493021" maxphi="30" maxstretch="6" minlen="0.0493021" nvmax="1073741824" xcoarse="false"/>
+</BodySkeleton>

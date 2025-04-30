@@ -1,0 +1,73 @@
+<!-- A User's Guide to CGNS - longdesc for CGNS layout for nondimensional
+     data with arbitrary reference state -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="../user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - CGNS layout for nondimensional data with arbitrary reference state </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<p>
+This diagram illustrates the layout of the relevant parts of the CGNS
+file for nondimensional data with an arbitrary reference state.
+
+<p>
+The base node of the CGNS database (just below the root node of the ADF
+file) has the following characteristics.
+<ul>
+<li> Name: <tt>Base</tt><br>
+     Label: <tt>CGNSBase_t</tt><br>
+     Data: <tt>CellDimension</tt>=3, <tt>PhysicalDimension</tt>=3
+</ul>
+
+<p>
+Just below the <tt>CGNSBase_t</tt> node are multiple nodes, with the
+following two nodes shown in detail.
+<ul>
+<li> Name: <tt>ReferenceState</tt><br>
+     Label: <tt>ReferenceState_t</tt><br>
+     Data: <tt>MT</tt>
+<li> Name: <tt>DataClass</tt><br>
+     Label: <tt>DataClass_t</tt><br>
+     Data: <tt>NormalizedByUnknownDimensional</tt>
+</ul>
+
+<p>
+Below the <tt>ReferenceState_t</tt> node are multiple nodes, with the
+following three nodes shown in detail.
+<ul>
+<li> Name: <tt>ReferenceStateDescription</tt><br>
+     Label: <tt>Descriptor_t</tt><br>
+     Data: <tt>ReferenceQuantities</tt>
+<li> Name: <tt>Mach</tt><br>
+     Label: <tt>DataArray_t</tt><br>
+     Data: 4.6
+<li> Name: <tt>Density</tt><br>
+     Label: <tt>DataArray_t</tt><br>
+     Data: 1.0
+</ul>
+
+<p>
+Finally, below the <tt>DataArray_t</tt> node defining the Mach number,
+is:
+<ul>
+<li> Name: <tt>DataClass</tt><br>
+     Label: <tt>DataClass_t</tt><br>
+     Data: <tt>NondimensionalParameter</tt>
+</ul>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 3 Sept 2002
+
+</body>
+</html>

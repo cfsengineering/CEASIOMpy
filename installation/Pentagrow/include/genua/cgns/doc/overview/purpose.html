@@ -1,0 +1,112 @@
+<!-- CGNS Overview - Purpose and Scope -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="overview.css" rel="stylesheet" type="text/css">
+<title> CGNS Overview - Purpose and Scope </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="index.html"><span class=nav><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></span></a>)
+(<a href="../user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../midlevel/index.html"><b>Mid-Level&nbsp;Library</b></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<span class=nav><b>Purpose&nbsp;and&nbsp;Scope</b></span>)
+(<a href="description.html"><b>General&nbsp;Description</b></a>)
+(<a href="elements.html"><b>Elements&nbsp;and&nbsp;Documentation</b></a>)
+(<a href="applications.html"><b>Applications&nbsp;Software</b></a>)
+(<a href="acquiring.html"><b>Acquiring&nbsp;CGNS</b></a>)
+(<a href="history.html"><b>History&nbsp;and&nbsp;Current&nbsp;Status</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Purpose and Scope</h2>
+
+<p>
+The general purpose of CGNS is to provide a standard for recording and
+recovering computer data associated with the numerical solution of the
+equations of fluid dynamics.
+
+<p>
+CGNS consists of a collection of conventions, and software implementing
+those conventions, for the storage and retrieval of CFD (Computational
+Fluid Dynamics) data.
+The system consists of two parts: (1) a standard format for recording
+the data, and (2) software that reads, writes, and modifies data in that
+format.
+The format is a conceptual entity established by the documentation, and
+is intended to be general, portable, expandable, and durable.
+The software is a physical product supplied to enable developers to
+access and produce data recorded in that format.
+All CGNS software is completely free and open to anyone. 
+
+<p>
+The CGNS standard, applied through the use of the supplied software, is
+intended to:
+
+<ul>
+<li> facilitate the exchange of CFD data
+   <ul>
+   <li> between sites
+   <li> between applications codes
+   <li> across computing platforms
+   </ul>
+<li> stabilize the archiving of CFD data
+</ul>
+
+<p>
+The principal target of CGNS is data normally associated with
+compressible viscous flow (i.e., the Navier-Stokes equations), but the
+standard is also applicable to subclasses such as Euler and potential
+flows.
+The CGNS standard addresses the following types of data.
+
+<ul>
+<li> Structured, unstructured, and hybrid grids
+<li> Flow solution data, which may be nodal, cell-centered,
+     face-centered, or edge-centered
+<li> Multizone interface connectivity, both abutting and overset
+<li> Boundary conditions
+<li> Flow equation descriptions, including the equation of state,
+     viscosity and thermal conductivity models, turbulence models,
+     and multi-species chemistry models
+<li> Time-dependent flow, including moving and deforming grids
+<li> Dimensional units and nondimensionalization information
+<li> Reference states
+<li> Convergence history
+<li> Association to CAD geometry definitions
+</ul>
+
+<p>
+Much of the standard and the software is applicable to computational
+field physics in general.
+Disciplines other than fluid dynamics would need to augment the data
+definitions and storage conventions, but the fundamental database
+software, which provides platform independence, is not specific to fluid
+dynamics.
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 13 Mar 2002
+
+</body>
+</html>

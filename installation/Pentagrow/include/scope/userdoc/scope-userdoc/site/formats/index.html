@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>File Formats - scope user manual</title>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  <link href="../larosterna.css" rel="stylesheet">
+  <link href="../offlinefonts.css" rel="stylesheet">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "File Formats";
+    var mkdocs_page_input_path = "formats.md";
+    var mkdocs_page_url = "/formats/index.html";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="icon icon-home"> scope user manual</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../index.html">Home</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="index.html">File Formats</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#supported-file-formats">Supported File Formats</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#mesh-data">Mesh Data</a></li>
+        
+            <li><a class="toctree-l3" href="#computational-results">Computational Results</a></li>
+        
+            <li><a class="toctree-l3" href="#mass-import">Mass import</a></li>
+        
+            <li><a class="toctree-l3" href="#native-format">Native Format</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../display/index.html">Data Display</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../edit/index.html">Mesh Editing</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../mapping/index.html">Deformation Mapping</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../loads/index.html">Load Analysis</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">scope user manual</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>File Formats</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="supported-file-formats">Supported File Formats</h1>
+<p>Scope has built-in support for many file formats. </p>
+<h2 id="mesh-data">Mesh Data</h2>
+<p>Mesh files in the following formats can be imported into scope:</p>
+<ul>
+<li>Native .zml files (see below)</li>
+<li><a href="http://cgns.github.io/">CGNS</a> version 2.53 based on ADF (not HDF)</li>
+<li><a href="https://github.com/su2code/SU2/wiki/Mesh-File">SU2</a> mesh files (.su2)</li>
+<li>NASTRAN bulk data files (most, but not all, element types)</li>
+<li><a href="http://elib.dlr.de/90979/">TAU</a> mesh files (tetrahedral and hybrid, .taumesh)</li>
+<li>Legacy VTK format files (.vtk)</li>
+<li>TetGen meshes (.node/.element/.faces)</li>
+<li>EDGE mesh files (.bmesh)</li>
+<li>STL mesh files, both binary and plain text format</li>
+<li>Limited support for Abaqus input files (.inp)</li>
+</ul>
+<h2 id="computational-results">Computational Results</h2>
+<p>Mesh files in the following formats can be imported into scope:</p>
+<ul>
+<li>Native .zml files (see below)</li>
+<li><a href="http://cgns.github.io/">CGNS</a> version 2.53 based on ADF (not HDF)</li>
+<li><a href="http://su2.stanford.edu/">SU2</a> mesh files (.su2)</li>
+<li>NASTRAN punch files (.pch)</li>
+<li>Legacy VTK format files (.vtk)</li>
+<li>EDGE fluid data and boundary deformation data (.bout, .bdis)</li>
+<li><a href="http://www.icas.org/media/pdf/ICAS%20Congress%20General%20Lectures/ICAS%201990%20Stockholm%20-%20proceedings%20content.pdf">AEREL</a> results from AERELPLOT 
+format files</li>
+<li>Data can be written to the <a href="http://www-vis.lbl.gov/NERSC/Software/ensight/doc/OnlineHelp/UM-C11.pdf">Ensight Gold</a> file format which is most convenient for importing data into <a href="../www.paraview.org/">Paraview</a>. </li>
+</ul>
+<h2 id="mass-import">Mass import</h2>
+<p>There are many situations where a certain mesh file is used for a large number of simulations (or &lsquo;subcases&rsquo;). Some simulation software directly supports writing a single output file containing these many subcases, while others (such as EDGE or SU2) write one output file for each case. With scope, it is possible to load arbitrarily many such result files, optionally <a href="../edit/index.html#mesh-size-reduction">reduce file size</a> by eliminating volume elements, and store the merged mesh and results in a single native file.</p>
+<p>In order to import multiple result runs into a single native file, load first the corresponding mesh <em>geometry</em>, e.g. a .bmsh file. Once the mesh is available, scope will permit the selection multiple files in the file selection dialog opened by the <strong>Load</strong> function.</p>
+<p>When an automated approach is preferred for use in scripting, the small command-line utility program <code>mergefields</code> can be called upon to join multiple solution files into a single one. An example command-line call used to merge multiple SU2 solution files (for different angles of attack) in VTK format would look as follows:</p>
+<pre><code>mergefields run1.vtk=&quot;Alpha=+1&quot; run3.vtk=&quot;Alpha=+3&quot; run5.vtk=&quot;Alpha=+5&quot;
+</code></pre>
+
+<p>This call would generate a new file named <code>merged.zml</code> that contains three subcases with all fields from the three separate solution files. Such a merged file is especially useful when structural loads are to be generated for all of these solutions.</p>
+<p>Finally, note that merged CFD files can become very large indeed. Loading and saving such files can be rather slow when accessing mapped network drives on Windows 7, XP, 2008, 2012. This is an inherent limitation of the operating system functions which needs to be <a href="https://support.microsoft.com/en-us/help/10118/troubleshooting-slow-file-copying-in-windows">resolved</a> by system administration.    </p>
+<h2 id="native-format">Native Format</h2>
+<p>Scope also supports a fairly efficient native binary file format, for which the extension .zml is used. Binary files are compressed (currently using <a href="https://cyan4973.github.io/lz4/">LZ4</a> or <a href="http://www.zlib.net/">zlib</a>, but that may change) and can be converted to a human-readable and editable plain text XML format, either from within scope (Menu <strong>File</strong>, option <strong>Export</strong>, select <strong>Plain XML</strong>) or using the command-line utility <strong>zml2xml</strong>. Another command-line utility named <strong>zmlprint</strong> can be used to inspect the data structure of a native format file. Typical output of this utility looks like this:</p>
+<pre><code>Recognized GBF file format; summary: 
+Node: MxMesh
+Block: 0
+2 attributes: 
+[0] gbf_format_generator = XmlElement
+[1] gbf_format_payload_type = Empty
+  Node: MxNote
+  Block: 0
+  2 attributes: 
+  [0] gbf_format_generator = XmlElement
+  [1] gbf_format_payload_type = Empty
+    Node: NastranGID
+    Block: 62872
+    5 attributes: 
+    [0] gbf_format_generator = XmlElement
+    [1] bdata_bytes = 62872
+    [2] bdata_type = Int32
+    [3] count = 15718
+    [4] gbf_format_payload_type = Int32
+    End of Node: [NastranGID]
+  End of Node: [MxNote]
+  Node: MxSolutionTree
+  Block: 0
+  4 attributes: 
+  [0] gbf_format_generator = XmlElement
+  [1] children = 2
+  [2] name = Results
+  [3] gbf_format_payload_type = Empty
+    Node: MxNote
+    Block: 0
+    2 attributes: 
+    [0] gbf_format_generator = XmlElement
+    [1] gbf_format_payload_type = Empty
+    End of Node: [MxNote]
+    Node: MxSolutionTree
+    Block: 0
+    4 attributes: 
+    [0] gbf_format_generator = XmlElement
+    [1] children = 0
+    [2] name = Displacements
+    [3] gbf_format_payload_type = Empty
+      Node: MxNote
+      Block: 0
+      2 attributes: 
+      [0] gbf_format_generator = XmlElement
+      [1] gbf_format_payload_type = Empty
+      End of Node: [MxNote]
+      Node: Fields
+      Block: 256
+      5 attributes: 
+      [0] gbf_format_generator = XmlElement
+      [1] bdata_bytes = 256
+      [2] bdata_type = Int32
+      [3] count = 64
+      [4] gbf_format_payload_type = Int32
+      End of Node: [Fields]
+    End of Node: [MxSolutionTree]
+[...]
+ Node: MxMeshField
+  Block: 754464
+  9 attributes: 
+  [0] gbf_format_generator = XmlElement
+  [1] bdata_bytes = 754464
+  [2] bdata_type = Float64
+  [3] class = displacement
+  [4] dimension = 6
+  [5] name = Displacement 11
+  [6] nodal_field = true
+  [7] solution_index = 0
+  [8] gbf_format_payload_type = Float64
+    Node: MxNote
+    Block: 0
+    2 attributes: 
+    [0] gbf_format_generator = XmlElement
+    [1] gbf_format_payload_type = Empty
+    End of Node: [MxNote]
+  End of Node: [MxMeshField]
+  Node: MxMeshField
+  Block: 754464
+  9 attributes: 
+  [0] gbf_format_generator = XmlElement
+  [1] bdata_bytes = 754464
+  [2] bdata_type = Float64
+  [3] class = displacement
+  [4] dimension = 6
+  [5] name = Displacement 12
+  [6] nodal_field = true
+  [7] solution_index = 0
+  [8] gbf_format_payload_type = Float64
+    Node: MxNote
+    Block: 0
+    2 attributes: 
+    [0] gbf_format_generator = XmlElement
+    [1] gbf_format_payload_type = Empty
+    End of Node: [MxNote]
+  End of Node: [MxMeshField]
+[...]
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../display/index.html" class="btn btn-neutral float-right" title="Data Display">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../index.html" class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+      <p>2016 <a href=mailto:david@larosterna.com>David Eller</a></p>
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../display/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../js/theme.js"></script>
+
+</body>
+</html>

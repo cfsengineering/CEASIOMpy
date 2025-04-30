@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 This script store all the aircraft masses ...
 
-
 | Author : Aidan Jungo
 | Creation: 2022-06-01
 

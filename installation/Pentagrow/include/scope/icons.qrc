@@ -1,0 +1,27 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/fileopen.png</file>
+        <file>icons/filesave.png</file>
+        <file>icons/filesaveas.png</file>
+        <file>icons/help.png</file>
+        <file>icons/snapshot.png</file>
+        <file>icons/configure.png</file>
+        <file>icons/exit.png</file>
+        <file>icons/movies.png</file>
+        <file>icons/contours.png</file>
+        <file>icons/fullscreen.png</file>
+        <file>icons/noseup.png</file>
+        <file>icons/modeshape.png</file>
+        <file>icons/play.png</file>
+        <file>icons/stop.png</file>
+        <file>icons/info.png</file>
+        <file>icons/node.png</file>
+        <file>icons/triangle.png</file>
+        <file>icons/meshcut.png</file>
+        <file>icons/dataslice.png</file>
+        <file>icons/close_window.png</file>
+        <file>icons/new_window.png</file>
+        <file>icons/lock.png</file>
+        <file>icons/unlock.png</file>
+    </qresource>
+</RCC>

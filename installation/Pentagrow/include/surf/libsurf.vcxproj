@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1B1EA6EA-F1CE-34BC-84CD-E134F94D9D44}</ProjectGuid>
+    <RootNamespace>surf</RootNamespace>
+    <Keyword>Qt4VSv1.0</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>8.1</WindowsTargetPlatformMinVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <OutputDirectory>..\..\lib64\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <IntermediateDirectory>build-msvc-64-release\</IntermediateDirectory>
+    <PrimaryOutput>surf</PrimaryOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <OutputDirectory>..\..\lib64\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <IntermediateDirectory>build-msvc-64-debug\</IntermediateDirectory>
+    <PrimaryOutput>surf_debug</PrimaryOutput>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" />
+  </ImportGroup>
+  <ImportGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">..\..\lib64\</OutDir>
+    <IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">build-msvc-64-release\</IntDir>
+    <TargetName Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">surf</TargetName>
+    <IgnoreImportLibrary Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">true</IgnoreImportLibrary>
+    <OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">..\..\lib64\</OutDir>
+    <IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">build-msvc-64-debug\</IntDir>
+    <TargetName Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">surf_debug</TargetName>
+    <IgnoreImportLibrary Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;..;..\boost;..\..\include;..\eigen;..\..\include;..\..\include\hdf5;..;C:\Qt\5.12.3\msvc2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>build-msvc-64-release\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4100;4244;4068;4267;4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ObjectFileName>build-msvc-64-release\</ObjectFileName>
+      <OpenMPSupport>true</OpenMPSupport>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;BOOST_THREAD_USE_LIB;HAVE_RPLY;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_NO_LAPACK;HAVE_SPACENAV;HAVE_TBB;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_SECURE_SCL=0;_ITERATOR_DEBUG_LEVEL=0;NDEBUG;ARCH_SSE2;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName></ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)\surf.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;BOOST_THREAD_USE_LIB;HAVE_RPLY;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_NO_LAPACK;HAVE_SPACENAV;HAVE_TBB;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_SECURE_SCL=0;_ITERATOR_DEBUG_LEVEL=0;NDEBUG;ARCH_SSE2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;..;..\boost;..\..\include;..\eigen;..\..\include;..\..\include\hdf5;..;C:\Qt\5.12.3\msvc2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zo -bigobj -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>build-msvc-64-debug\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4100;4244;4068;4267;4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>build-msvc-64-debug\</ObjectFileName>
+      <OpenMPSupport>true</OpenMPSupport>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;BOOST_THREAD_USE_LIB;HAVE_RPLY;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_NO_LAPACK;HAVE_SPACENAV;HAVE_TBB;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_ITERATOR_DEBUG_LEVEL=1;ARCH_SSE2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)\surf_debug.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;BOOST_THREAD_USE_LIB;HAVE_RPLY;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_NO_LAPACK;HAVE_SPACENAV;HAVE_TBB;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_ITERATOR_DEBUG_LEVEL=1;ARCH_SSE2;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="abstractcurve.cpp" />
+    <ClCompile Include="abstractuvcurve.cpp" />
+    <ClCompile Include="airfoil.cpp" />
+    <ClCompile Include="airfoilcollection.cpp" />
+    <ClCompile Include="airfoilfitter.cpp" />
+    <ClCompile Include="airfoillibrary.cpp" />
+    <ClCompile Include="assembly.cpp" />
+    <ClCompile Include="asycomponent.cpp" />
+    <ClCompile Include="basicpart.cpp" />
+    <ClCompile Include="beziersegment.cpp" />
+    <ClCompile Include="capcomponent.cpp" />
+    <ClCompile Include="cascademesh.cpp" />
+    <ClCompile Include="circulararc.cpp" />
+    <ClCompile Include="compositecurve.cpp" />
+    <ClCompile Include="curve.cpp" />
+    <ClCompile Include="cylinder.cpp" />
+    <ClCompile Include="dcgeometry.cpp" />
+    <ClCompile Include="dcmeshcrit.cpp" />
+    <ClCompile Include="dcmeshgenerator.cpp" />
+    <ClCompile Include="dcplanegeometry.cpp" />
+    <ClCompile Include="dcspatialgeometry.cpp" />
+    <ClCompile Include="delaunaycore.cpp" />
+    <ClCompile Include="dispinterpolator.cpp" />
+    <ClCompile Include="dnboxadaptor.cpp" />
+    <ClCompile Include="dnmesh.cpp" />
+    <ClCompile Include="dnrefine.cpp" />
+    <ClCompile Include="dnrfregion.cpp" />
+    <ClCompile Include="dnwingcriterion.cpp" />
+    <ClCompile Include="edgefaceisec.cpp" />
+    <ClCompile Include="efimprove.cpp" />
+    <ClCompile Include="eggframe.cpp" />
+    <ClCompile Include="elementproperty.cpp" />
+    <ClCompile Include="ellipframe.cpp" />
+    <ClCompile Include="endcap.cpp" />
+    <ClCompile Include="facetree.cpp" />
+    <ClCompile Include="flapspec.cpp" />
+    <ClCompile Include="fsielement.cpp" />
+    <ClCompile Include="fsimesh.cpp" />
+    <ClCompile Include="guige.c" />
+    <ClCompile Include="hexboxpart.cpp" />
+    <ClCompile Include="iges100.cpp" />
+    <ClCompile Include="iges102.cpp" />
+    <ClCompile Include="iges108.cpp" />
+    <ClCompile Include="iges110.cpp" />
+    <ClCompile Include="iges116.cpp" />
+    <ClCompile Include="iges118.cpp" />
+    <ClCompile Include="iges120.cpp" />
+    <ClCompile Include="iges124.cpp" />
+    <ClCompile Include="iges126.cpp" />
+    <ClCompile Include="iges128.cpp" />
+    <ClCompile Include="iges142.cpp" />
+    <ClCompile Include="iges144.cpp" />
+    <ClCompile Include="iges308.cpp" />
+    <ClCompile Include="iges314.cpp" />
+    <ClCompile Include="iges402.cpp" />
+    <ClCompile Include="iges406.cpp" />
+    <ClCompile Include="iges408.cpp" />
+    <ClCompile Include="igesentity.cpp" />
+    <ClCompile Include="igesfile.cpp" />
+    <ClCompile Include="igessection.cpp" />
+    <ClCompile Include="initgrid.cpp" />
+    <ClCompile Include="instance.cpp" />
+    <ClCompile Include="instancesurf.cpp" />
+    <ClCompile Include="intersect.cpp" />
+    <ClCompile Include="lazyisectree.cpp" />
+    <ClCompile Include="linearsurf.cpp" />
+    <ClCompile Include="linecurve.cpp" />
+    <ClCompile Include="loadipol.cpp" />
+    <ClCompile Include="longcapsurf.cpp" />
+    <ClCompile Include="mappedcurve.cpp" />
+    <ClCompile Include="materialproperty.cpp" />
+    <ClCompile Include="meshcomponent.cpp" />
+    <ClCompile Include="meshgenerator.cpp" />
+    <ClCompile Include="meshpatch.cpp" />
+    <ClCompile Include="meshsections.cpp" />
+    <ClCompile Include="moeller.c" />
+    <ClCompile Include="multisurfprojector.cpp" />
+    <ClCompile Include="naca6.c" />
+    <ClCompile Include="naca6generator.cpp" />
+    <ClCompile Include="nstcoordsys.cpp" />
+    <ClCompile Include="nstelements.cpp" />
+    <ClCompile Include="nstelementstress.cpp" />
+    <ClCompile Include="nstmesh.cpp" />
+    <ClCompile Include="nstreader.cpp" />
+    <ClCompile Include="nstrecord.cpp" />
+    <ClCompile Include="nststressfield.cpp" />
+    <ClCompile Include="openframe.cpp" />
+    <ClCompile Include="patchmerger.cpp" />
+    <ClCompile Include="patchmeshgenerator.cpp" />
+    <ClCompile Include="paver.cpp" />
+    <ClCompile Include="pentagrow.cpp" />
+    <ClCompile Include="planarmesh.cpp" />
+    <ClCompile Include="planesurface.cpp" />
+    <ClCompile Include="polysplinecurve.cpp" />
+    <ClCompile Include="polysplinesurf.cpp" />
+    <ClCompile Include="product.cpp" />
+    <ClCompile Include="producttree.cpp" />
+    <ClCompile Include="rationalsplinecurve.cpp" />
+    <ClCompile Include="rationalsplinesurface.cpp" />
+    <ClCompile Include="rbfinterpolator.cpp" />
+    <ClCompile Include="revosurf.cpp" />
+    <ClCompile Include="ringcapsurf.cpp" />
+    <ClCompile Include="rotsurf.cpp" />
+    <ClCompile Include="roundcapsurf.cpp" />
+    <ClCompile Include="skinsurf.cpp" />
+    <ClCompile Include="slavedwake.cpp" />
+    <ClCompile Include="smbodymesh.cpp" />
+    <ClCompile Include="smribmesh.cpp" />
+    <ClCompile Include="smwingmesh.cpp" />
+    <ClCompile Include="splinecapsurf.cpp" />
+    <ClCompile Include="spotrefine.cpp" />
+    <ClCompile Include="srfprojector.cpp" />
+    <ClCompile Include="step.cpp" />
+    <ClCompile Include="step_ap203.cpp" />
+    <ClCompile Include="stepentity.cpp" />
+    <ClCompile Include="stepentitycreator.cpp" />
+    <ClCompile Include="stepfile.cpp" />
+    <ClCompile Include="stepline.cpp" />
+    <ClCompile Include="steplistrep.cpp" />
+    <ClCompile Include="stitchedsurf.cpp" />
+    <ClCompile Include="subsurface.cpp" />
+    <ClCompile Include="surface.cpp" />
+    <ClCompile Include="surfinterpolator.cpp" />
+    <ClCompile Include="symframe.cpp" />
+    <ClCompile Include="symsurf.cpp" />
+    <ClCompile Include="tetboundarygroup.cpp" />
+    <ClCompile Include="tetmesh.cpp" />
+    <ClCompile Include="tgrefiner.cpp" />
+    <ClCompile Include="topoedge.cpp" />
+    <ClCompile Include="topoface.cpp" />
+    <ClCompile Include="topoisecsegment.cpp" />
+    <ClCompile Include="topology.cpp" />
+    <ClCompile Include="topopart.cpp" />
+    <ClCompile Include="toposegmchain.cpp" />
+    <ClCompile Include="topovertex.cpp" />
+    <ClCompile Include="transurf.cpp" />
+    <ClCompile Include="trimmedsurf.cpp" />
+    <ClCompile Include="tritetwriter.cpp" />
+    <ClCompile Include="tticonnection.cpp" />
+    <ClCompile Include="ttinode.cpp" />
+    <ClCompile Include="ttintersection.cpp" />
+    <ClCompile Include="ttintersector.cpp" />
+    <ClCompile Include="ttitopology.cpp" />
+    <ClCompile Include="uvcubiccurve.cpp" />
+    <ClCompile Include="uvmapdelaunay.cpp" />
+    <ClCompile Include="uvmapping.cpp" />
+    <ClCompile Include="uvpolyline.cpp" />
+    <ClCompile Include="wakecomponent.cpp" />
+    <ClCompile Include="wakesurf.cpp" />
+    <ClCompile Include="wingletblend.cpp" />
+    <ClCompile Include="wingpart.cpp" />
+    <ClCompile Include="wingtiparc.cpp" />
+    <ClCompile Include="wingtipcap.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="abstractcurve.h" />
+    <ClInclude Include="abstractuvcurve.h" />
+    <ClInclude Include="airfoil.h" />
+    <ClInclude Include="airfoilcollection.h" />
+    <ClInclude Include="airfoilfitter.h" />
+    <ClInclude Include="airfoillibrary.h" />
+    <ClInclude Include="assembly.h" />
+    <ClInclude Include="asycomponent.h" />
+    <ClInclude Include="basicpart.h" />
+    <ClInclude Include="beziersegment.h" />
+    <ClInclude Include="capcomponent.h" />
+    <ClInclude Include="cascademesh.h" />
+    <ClInclude Include="circulararc.h" />
+    <ClInclude Include="compositecurve.h" />
+    <ClInclude Include="curve.h" />
+    <ClInclude Include="cylinder.h" />
+    <ClInclude Include="dcedge.h" />
+    <ClInclude Include="dcedgetable.h" />
+    <ClInclude Include="dcface.h" />
+    <ClInclude Include="dcfaceset.h" />
+    <ClInclude Include="dcgeometry.h" />
+    <ClInclude Include="dcmeshcrit.h" />
+    <ClInclude Include="dcmeshgenerator.h" />
+    <ClInclude Include="dcplanegeometry.h" />
+    <ClInclude Include="dcspatialgeometry.h" />
+    <ClInclude Include="delaunaycore.h" />
+    <ClInclude Include="dispinterpolator.h" />
+    <ClInclude Include="dnboxadaptor.h" />
+    <ClInclude Include="dnedge.h" />
+    <ClInclude Include="dnmesh.h" />
+    <ClInclude Include="dnrefine.h" />
+    <ClInclude Include="dnrfregion.h" />
+    <ClInclude Include="dntriangle.h" />
+    <ClInclude Include="dnvertex.h" />
+    <ClInclude Include="dnwingcriterion.h" />
+    <ClInclude Include="edgefaceisec.h" />
+    <ClInclude Include="efimprove.h" />
+    <ClInclude Include="eggframe.h" />
+    <ClInclude Include="elementproperty.h" />
+    <ClInclude Include="ellipframe.h" />
+    <ClInclude Include="endcap.h" />
+    <ClInclude Include="facetree.h" />
+    <ClInclude Include="flapspec.h" />
+    <ClInclude Include="forward.h" />
+    <ClInclude Include="fsielement.h" />
+    <ClInclude Include="fsimesh.h" />
+    <ClInclude Include="guige.h" />
+    <ClInclude Include="hexboxpart.h" />
+    <ClInclude Include="iges.h" />
+    <ClInclude Include="iges100.h" />
+    <ClInclude Include="iges102.h" />
+    <ClInclude Include="iges108.h" />
+    <ClInclude Include="iges110.h" />
+    <ClInclude Include="iges116.h" />
+    <ClInclude Include="iges118.h" />
+    <ClInclude Include="iges120.h" />
+    <ClInclude Include="iges124.h" />
+    <ClInclude Include="iges126.h" />
+    <ClInclude Include="iges128.h" />
+    <ClInclude Include="iges142.h" />
+    <ClInclude Include="iges144.h" />
+    <ClInclude Include="iges308.h" />
+    <ClInclude Include="iges314.h" />
+    <ClInclude Include="iges402.h" />
+    <ClInclude Include="iges406.h" />
+    <ClInclude Include="iges408.h" />
+    <ClInclude Include="igesdirentry.h" />
+    <ClInclude Include="igesentity.h" />
+    <ClInclude Include="igesfile.h" />
+    <ClInclude Include="igesline.h" />
+    <ClInclude Include="igessection.h" />
+    <ClInclude Include="initgrid.h" />
+    <ClInclude Include="instance.h" />
+    <ClInclude Include="instancesurf.h" />
+    <ClInclude Include="intersect.h" />
+    <ClInclude Include="lazyisectree.h" />
+    <ClInclude Include="linearsurf.h" />
+    <ClInclude Include="linecurve.h" />
+    <ClInclude Include="loadipol.h" />
+    <ClInclude Include="longcapsurf.h" />
+    <ClInclude Include="mappedcurve.h" />
+    <ClInclude Include="materialproperty.h" />
+    <ClInclude Include="meshcomponent.h" />
+    <ClInclude Include="meshgenerator.h" />
+    <ClInclude Include="meshpatch.h" />
+    <ClInclude Include="meshsections.h" />
+    <ClInclude Include="multisurfprojector.h" />
+    <ClInclude Include="naca6.h" />
+    <ClInclude Include="naca6generator.h" />
+    <ClInclude Include="nstcoordsys.h" />
+    <ClInclude Include="nstelements.h" />
+    <ClInclude Include="nstelementstress.h" />
+    <ClInclude Include="nstmesh.h" />
+    <ClInclude Include="nstreader.h" />
+    <ClInclude Include="nstrecord.h" />
+    <ClInclude Include="nststressfield.h" />
+    <ClInclude Include="openframe.h" />
+    <ClInclude Include="patchmerger.h" />
+    <ClInclude Include="patchmeshgenerator.h" />
+    <ClInclude Include="paver.h" />
+    <ClInclude Include="pentagrow.h" />
+    <ClInclude Include="planarmesh.h" />
+    <ClInclude Include="planesurface.h" />
+    <ClInclude Include="polysplinecurve.h" />
+    <ClInclude Include="polysplinesurf.h" />
+    <ClInclude Include="product.h" />
+    <ClInclude Include="producttree.h" />
+    <ClInclude Include="rationalsplinecurve.h" />
+    <ClInclude Include="rationalsplinesurface.h" />
+    <ClInclude Include="rbfinterpolator.h" />
+    <ClInclude Include="revosurf.h" />
+    <ClInclude Include="ringcapsurf.h" />
+    <ClInclude Include="rotsurf.h" />
+    <ClInclude Include="roundcapsurf.h" />
+    <ClInclude Include="sides.h" />
+    <ClInclude Include="skinsurf.h" />
+    <ClInclude Include="slavedwake.h" />
+    <ClInclude Include="smbodymesh.h" />
+    <ClInclude Include="smribmesh.h" />
+    <ClInclude Include="smwingmesh.h" />
+    <ClInclude Include="splinecapsurf.h" />
+    <ClInclude Include="spotrefine.h" />
+    <ClInclude Include="srfprojector.h" />
+    <ClInclude Include="step.h" />
+    <ClInclude Include="step_ap203.h" />
+    <ClInclude Include="stepentity.h" />
+    <ClInclude Include="stepentitycreator.h" />
+    <ClInclude Include="stepfile.h" />
+    <ClInclude Include="stepline.h" />
+    <ClInclude Include="steplistrep.h" />
+    <ClInclude Include="stitchedsurf.h" />
+    <ClInclude Include="subsurface.h" />
+    <ClInclude Include="surface.h" />
+    <ClInclude Include="surfinterpolator.h" />
+    <ClInclude Include="symframe.h" />
+    <ClInclude Include="symsurf.h" />
+    <ClInclude Include="tetboundarygroup.h" />
+    <ClInclude Include="tetmesh.h" />
+    <ClInclude Include="tgrefiner.h" />
+    <ClInclude Include="topoedge.h" />
+    <ClInclude Include="topoface.h" />
+    <ClInclude Include="topoisecsegment.h" />
+    <ClInclude Include="topology.h" />
+    <ClInclude Include="topopart.h" />
+    <ClInclude Include="toposegmchain.h" />
+    <ClInclude Include="topovertex.h" />
+    <ClInclude Include="transurf.h" />
+    <ClInclude Include="trimmedsurf.h" />
+    <ClInclude Include="tritetwriter.h" />
+    <ClInclude Include="tticonnection.h" />
+    <ClInclude Include="ttinode.h" />
+    <ClInclude Include="ttintersection.h" />
+    <ClInclude Include="ttintersector.h" />
+    <ClInclude Include="ttitopology.h" />
+    <ClInclude Include="uvcubiccurve.h" />
+    <ClInclude Include="uvmapdelaunay.h" />
+    <ClInclude Include="uvmapping.h" />
+    <ClInclude Include="uvpolyline.h" />
+    <ClInclude Include="uvsplinecurve.h" />
+    <ClInclude Include="wakecomponent.h" />
+    <ClInclude Include="wakesurf.h" />
+    <ClInclude Include="wingletblend.h" />
+    <ClInclude Include="wingpart.h" />
+    <ClInclude Include="wingtiparc.h" />
+    <ClInclude Include="wingtipcap.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

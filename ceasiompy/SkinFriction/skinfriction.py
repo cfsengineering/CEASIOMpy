@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Calculate skin friction drag coefficient
 
-
 | Author: Aidan Jungo
 | Creation: 2019-06-13
 

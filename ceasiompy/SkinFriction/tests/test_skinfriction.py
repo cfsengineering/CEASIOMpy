@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'lib/SkinFriction/skinfriction.py'
 
-
 | Author : Aidan Jungo
 | Creation: 2019-07-17
 

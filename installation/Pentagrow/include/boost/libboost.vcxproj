@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E4843367-8995-32C6-B007-2D2C38B85B3E}</ProjectGuid>
+    <RootNamespace>boost_components</RootNamespace>
+    <Keyword>Qt4VSv1.0</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>8.1</WindowsTargetPlatformMinVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <OutputDirectory>..\..\lib64\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <IntermediateDirectory>build-msvc-64-release\</IntermediateDirectory>
+    <PrimaryOutput>boost_components</PrimaryOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <OutputDirectory>..\..\lib64\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <IntermediateDirectory>build-msvc-64-debug\</IntermediateDirectory>
+    <PrimaryOutput>boost_components_debug</PrimaryOutput>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" />
+  </ImportGroup>
+  <ImportGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">..\..\lib64\</OutDir>
+    <IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">build-msvc-64-release\</IntDir>
+    <TargetName Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">boost_components</TargetName>
+    <IgnoreImportLibrary Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">true</IgnoreImportLibrary>
+    <OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">..\..\lib64\</OutDir>
+    <IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">build-msvc-64-debug\</IntDir>
+    <TargetName Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">boost_components_debug</TargetName>
+    <IgnoreImportLibrary Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;.;C:/Users/david/Documents/Develop/src/boost/.libs/boost/libs/math/src/tr1;..;.;..\..\include;..\eigen;..\..\include\hdf5;C:\Qt\5.12.3\msvc2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>build-msvc-64-release\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4100;4244;4068;4267;4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ObjectFileName>build-msvc-64-release\</ObjectFileName>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_REENTRANT;HAVE_RPLY;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_NO_LAPACK;HAVE_SPACENAV;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_SECURE_SCL=0;_ITERATOR_DEBUG_LEVEL=0;NDEBUG;ARCH_SSE2;BOOST_THREAD_PROVIDES_FUTURE;BOOST_THREAD_VERSION=4;BOOST_THREAD_BUILD_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName></ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)\boost_components.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_REENTRANT;HAVE_RPLY;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_NO_LAPACK;HAVE_SPACENAV;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_SECURE_SCL=0;_ITERATOR_DEBUG_LEVEL=0;NDEBUG;ARCH_SSE2;BOOST_THREAD_PROVIDES_FUTURE;BOOST_THREAD_VERSION=4;BOOST_THREAD_BUILD_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;.;C:/Users/david/Documents/Develop/src/boost/.libs/boost/libs/math/src/tr1;..;.;..\..\include;..\eigen;..\..\include\hdf5;C:\Qt\5.12.3\msvc2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zo -bigobj -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>build-msvc-64-debug\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4100;4244;4068;4267;4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>build-msvc-64-debug\</ObjectFileName>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_REENTRANT;HAVE_RPLY;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_NO_LAPACK;HAVE_SPACENAV;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_ITERATOR_DEBUG_LEVEL=1;ARCH_SSE2;BOOST_THREAD_PROVIDES_FUTURE;BOOST_THREAD_VERSION=4;BOOST_THREAD_BUILD_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)\boost_components_debug.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_REENTRANT;HAVE_RPLY;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_NO_LAPACK;HAVE_SPACENAV;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_ITERATOR_DEBUG_LEVEL=1;ARCH_SSE2;BOOST_THREAD_PROVIDES_FUTURE;BOOST_THREAD_VERSION=4;BOOST_THREAD_BUILD_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="libs\regex\src\c_regex_traits.cpp" />
+    <ClCompile Include="libs\chrono\src\chrono.cpp" />
+    <ClCompile Include="libs\exception\src\clone_current_exception_non_intrusive.cpp" />
+    <ClCompile Include="libs\program_options\src\cmdline.cpp" />
+    <ClCompile Include="libs\filesystem\src\codecvt_error_category.cpp" />
+    <ClCompile Include="libs\program_options\src\config_file.cpp" />
+    <ClCompile Include="libs\program_options\src\convert.cpp" />
+    <ClCompile Include="libs\regex\src\cpp_regex_traits.cpp" />
+    <ClCompile Include="libs\regex\src\cregex.cpp" />
+    <ClCompile Include="libs\date_time\src\gregorian\date_generators.cpp" />
+    <ClCompile Include="libs\container\src\dlmalloc.cpp" />
+    <ClCompile Include="libs\libsystem\src\error_code.cpp" />
+    <ClCompile Include="libs\regex\src\fileiter.cpp" />
+    <ClCompile Include="libs\filesystem\src\filesystem_utf8_codecvt_facet.cpp" />
+    <ClCompile Include="libs\thread\src\future.cpp" />
+    <ClCompile Include="libs\container\src\global_resource.cpp" />
+    <ClCompile Include="libs\date_time\src\gregorian\greg_month.cpp" />
+    <ClCompile Include="libs\date_time\src\gregorian\greg_weekday.cpp" />
+    <ClCompile Include="libs\regex\src\instances.cpp" />
+    <ClCompile Include="libs\atomic\src\lockpool.cpp" />
+    <ClCompile Include="libs\container\src\monotonic_buffer_resource.cpp" />
+    <ClCompile Include="libs\filesystem\src\operations.cpp" />
+    <ClCompile Include="libs\program_options\src\options_description.cpp" />
+    <ClCompile Include="libs\program_options\src\parsers.cpp" />
+    <ClCompile Include="libs\filesystem\src\path.cpp" />
+    <ClCompile Include="libs\filesystem\src\path_traits.cpp" />
+    <ClCompile Include="libs\container\src\pool_resource.cpp" />
+    <ClCompile Include="libs\filesystem\src\portability.cpp" />
+    <ClCompile Include="libs\program_options\src\positional_options.cpp" />
+    <ClCompile Include="libs\regex\src\posix_api.cpp" />
+    <ClCompile Include="libs\chrono\src\process_cpu_clocks.cpp" />
+    <ClCompile Include="libs\program_options\src\progopt_utf8_codecvt_facet.cpp" />
+    <ClCompile Include="libs\regex\src\regex.cpp" />
+    <ClCompile Include="libs\regex\src\regex_raw_buffer.cpp" />
+    <ClCompile Include="libs\regex\src\regex_traits_defaults.cpp" />
+    <ClCompile Include="libs\program_options\src\split.cpp" />
+    <ClCompile Include="libs\regex\src\static_mutex.cpp" />
+    <ClCompile Include="libs\container\src\synchronized_pool_resource.cpp" />
+    <ClCompile Include="libs\thread\src\win32\thread.cpp" />
+    <ClCompile Include="libs\chrono\src\thread_clock.cpp" />
+    <ClCompile Include="libs\thread\src\win32\tss_dll.cpp" />
+    <ClCompile Include="libs\thread\src\tss_null.cpp" />
+    <ClCompile Include="libs\thread\src\win32\tss_pe.cpp" />
+    <ClCompile Include="libs\filesystem\src\unique_path.cpp" />
+    <ClCompile Include="libs\container\src\unsynchronized_pool_resource.cpp" />
+    <ClCompile Include="libs\regex\src\usinstances.cpp" />
+    <ClCompile Include="libs\program_options\src\value_semantic.cpp" />
+    <ClCompile Include="libs\program_options\src\variables_map.cpp" />
+    <ClCompile Include="libs\regex\src\w32_regex_traits.cpp" />
+    <ClCompile Include="libs\regex\src\wc_regex_traits.cpp" />
+    <ClCompile Include="libs\regex\src\wide_posix_api.cpp" />
+    <ClCompile Include="libs\filesystem\src\windows_file_codecvt.cpp" />
+    <ClCompile Include="libs\program_options\src\winmain.cpp" />
+    <ClCompile Include="libs\regex\src\winstances.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

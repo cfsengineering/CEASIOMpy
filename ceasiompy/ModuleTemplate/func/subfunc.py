@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Small description of the script
 
-
 | Author: Name
 | Creation: day month year
 

@@ -6,7 +6,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The script evaluate the wings geometry for an unconventional
 aircraft without fuselage.
 
-
 | Author : Stefano Piccini
 | Date of creation: 2018-12-07
 

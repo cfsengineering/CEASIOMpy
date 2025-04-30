@@ -1,0 +1,76 @@
+<!-- A User's Guide to CGNS - longdesc for CGNS layout for simple
+     Cartesian structured grid -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="../user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - CGNS layout for simple Cartesian structured grid </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<p>
+This diagram illustrates the layout of the CGNS file for the simple
+Cartesian structured grid used in this example.
+
+<p>
+Just below the root node of the ADF file are two nodes with the
+following characteristics.
+<ul>
+<li> Name: <tt>CGNSLibraryVersion</tt><br>
+     Label: <tt>CGNSLibraryVersion_t</tt><br>
+     Data: (version number)
+<li> Name: <tt>Base</tt><br>
+     Label: <tt>CGNSBase_t</tt><br>
+     Data: <tt>CellDimension</tt>=3, <tt>PhysicalDimension</tt>=3
+</ul>
+
+<p>
+Just below the <tt>CGNSBase_t</tt> node is a <tt>Zone_t</tt> node, with:
+<ul>
+<li> Name: <tt>Zone 1</tt><br>
+     Label: <tt>Zone_t</tt><br>
+     Data: <tt>VertexSize</tt>=(21,17,9), <tt>CellSize</tt>=(20,16,8),
+           <tt>VertexSizeBoundary</tt>=(0,0,0)
+</ul>
+
+<p>
+At the next level, below the <tt>Zone_t</tt> node are the following two
+nodes.
+<ul>
+<li> Name: <tt>ZoneType</tt><br>
+     Label: <tt>ZoneType_t</tt><br>
+     Data: <tt>Structured</tt>
+<li> Name: <tt>GridCoordinates</tt><br>
+     Label: <tt>GridCoordinates_t</tt><br>
+     Data: <tt>MT</tt>
+</ul>
+
+<p>
+And below the <tt>GridCoordinates_t</tt> node are three nodes defining
+the grid coordinates.
+<ul>
+<li> Name: <tt>CoordinateX</tt><br>
+     Label: <tt>DataArray_t</tt><br>
+     Data: <tt>x(1,1,1)</tt> to <tt>x(21,17,9)</tt>
+<li> Name: <tt>CoordinateY</tt><br>
+     Label: <tt>DataArray_t</tt><br>
+     Data: <tt>y(1,1,1)</tt> to <tt>y(21,17,9)</tt>
+<li> Name: <tt>CoordinateZ</tt><br>
+     Label: <tt>DataArray_t</tt><br>
+     Data: <tt>z(1,1,1)</tt> to <tt>z(21,17,9)</tt>
+</ul>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 30 Aug 2002
+
+</body>
+</html>

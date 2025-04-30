@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SurfaceCollection>
+  <SkinSurf akima="true" interpolation="local" name="Fuselage">
+    <SymFrame name="Frame1">
+      <InterpolationPoints count="7">
+<![CDATA[ 0 0 0.109992 
+ 0 0.01 0.112672 
+ 0 0.0173205 0.119996 
+ 0 0.02 0.13 
+ 0 0.0173205 0.140004 
+ 0 0.01 0.147328 
+ 0 2.4493e-18 0.150008 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="Frame2">
+      <InterpolationPoints count="7">
+<![CDATA[ 0.106855 0 0.020955 
+ 0.106855 0.0545 0.0355643 
+ 0.106855 0.0943967 0.0754775 
+ 0.106855 0.109 0.13 
+ 0.106855 0.0943967 0.184523 
+ 0.106855 0.0545 0.224436 
+ 0.106855 1.33487e-17 0.239045 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="Frame3">
+      <InterpolationPoints count="7">
+<![CDATA[ 0.238886 0 -0.042071 
+ 0.238886 0.086 -0.0190178 
+ 0.238886 0.148956 0.0439645 
+ 0.238886 0.172 0.13 
+ 0.238886 0.148956 0.216035 
+ 0.238886 0.086 0.279018 
+ 0.238886 2.1064e-17 0.302071 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="Frame4">
+      <InterpolationPoints count="9">
+<![CDATA[ 0.364408 0 -0.151199 
+ 0.364408 0.114596 -0.129089 
+ 0.364408 0.179604 -0.0424673 
+ 0.364408 0.239689 0.0891986 
+ 0.364408 0.23796 0.169629 
+ 0.364408 0.202128 0.255537 
+ 0.364408 0.141643 0.308861 
+ 0.364408 0.0760667 0.339731 
+ 0.364408 3.10196e-17 0.347594 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="Frame116">
+      <InterpolationPoints count="8">
+<![CDATA[ 0.758851 -1.49848e-17 -0.314494 
+ 0.758851 0.189516 -0.276916 
+ 0.758851 0.33441 -0.135017 
+ 0.758851 0.379319 0.0278066 
+ 0.758851 0.362918 0.190817 
+ 0.758851 0.280731 0.328731 
+ 0.758851 0.139785 0.39095 
+ 0.758851 -2.2627e-17 0.404224 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="Frame5">
+      <InterpolationPoints count="7">
+<![CDATA[ 1.03531 0 -0.367527 
+ 1.03531 0.24797 -0.322828 
+ 1.03531 0.391861 -0.166428 
+ 1.03531 0.452483 0.0346713 
+ 1.03531 0.418244 0.213728 
+ 1.03531 0.319663 0.359957 
+ 1.03531 5.54115e-17 0.436869 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="Frame6">
+      <InterpolationPoints count="7">
+<![CDATA[ 1.79853 0 -0.430944 
+ 1.79853 0.384916 -0.334898 
+ 1.79853 0.508767 -0.117823 
+ 1.79853 0.55 0.173395 
+ 1.79853 0.476314 0.465725 
+ 1.79853 0.298543 0.699057 
+ 1.79853 6.73536e-17 0.758056 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="Frame7">
+      <InterpolationPoints count="7">
+<![CDATA[ 3.06058 0 -0.394065 
+ 3.06058 0.384507 -0.292949 
+ 3.06058 0.456242 -0.108045 
+ 3.06058 0.50107 0.179745 
+ 3.06058 0.433939 0.46665 
+ 3.06058 0.294514 0.694209 
+ 3.06058 6.13615e-17 0.753555 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="Frame8">
+      <InterpolationPoints count="7">
+<![CDATA[ 3.84555 0 -0.245446 
+ 3.84555 0.163859 -0.190563 
+ 3.84555 0.283812 -0.0406208 
+ 3.84555 0.327719 0.164204 
+ 3.84555 0.283812 0.369029 
+ 3.84555 0.163859 0.518971 
+ 3.84555 4.01327e-17 0.573854 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="Frame9">
+      <InterpolationPoints count="7">
+<![CDATA[ 4.54528 -4.06079e-08 -0.10775 
+ 4.54528 0.115909 -0.0620801 
+ 4.54528 0.192155 0.0484584 
+ 4.54528 0.216481 0.181629 
+ 4.54528 0.19019 0.313001 
+ 4.54528 0.113407 0.417696 
+ 4.54528 4.06079e-08 0.459469 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="Frame10">
+      <InterpolationPoints count="7">
+<![CDATA[ 5.73717 0 0.0381695 
+ 5.73717 0.06411 0.0597209 
+ 5.73717 0.111042 0.1186 
+ 5.73717 0.12822 0.199031 
+ 5.73717 0.111042 0.279462 
+ 5.73717 0.06411 0.338341 
+ 5.73717 1.57019e-17 0.359893 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="Frame11">
+      <InterpolationPoints count="11">
+<![CDATA[ 6.5 0 0.1405 
+ 6.5 0.0127299 0.142346 
+ 6.5 0.0175568 0.147991 
+ 6.5 0.0205975 0.157883 
+ 6.5 0.0223326 0.173586 
+ 6.5 0.0229 0.215 
+ 6.5 0.0223326 0.256414 
+ 6.5 0.0205975 0.272117 
+ 6.5 0.0175568 0.282009 
+ 6.5 0.0127299 0.287654 
+ 6.5 2.5342e-10 0.2895 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <MeshCriterion defaults="false" maxlen="0.25" maxphi="30" maxstretch="6" minlen="0.00977" nvmax="1073741824" xcoarse="false"/>
+    <Cap height="1" shape="RingCap" side="south"/>
+    <Cap height="1" shape="RingCap" side="north"/>
+  </SkinSurf>
+</SurfaceCollection>

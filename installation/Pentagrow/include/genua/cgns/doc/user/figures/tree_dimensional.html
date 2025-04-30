@@ -1,0 +1,92 @@
+<!-- A User's Guide to CGNS - longdesc for CGNS layout for flow solution
+     at cell centers with dimensional data -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="../user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - CGNS layout for flow solution at cell centers with dimensional data </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<p>
+This diagram illustrates the layout of the relevant parts of the CGNS
+file with the flow solution at cell centers and dimensional data.
+
+<p>
+The base node of the CGNS database (just below the root node of the ADF
+file) has the following characteristics.
+<ul>
+<li> Name: <tt>Base</tt><br>
+     Label: <tt>CGNSBase_t</tt><br>
+     Data: <tt>CellDimension</tt>=3, <tt>PhysicalDimension</tt>=3
+</ul>
+
+<p>
+Just below the <tt>CGNSBase_t</tt> node are the following three nodes.
+<ul>
+<li> Name: <tt>Zone 1</tt><br>
+     Label: <tt>Zone_t</tt><br>
+     Data: <tt>VertexSize</tt>=(21,17,9),
+           <tt>CellSize</tt>=(20,16,8),
+           <tt>VertexSizeBoundary</tt>=(0,0,0)
+<li> Name: <tt>DimensionalUnits</tt><br>
+     Label: <tt>DimensionalUnits_t</tt><br>
+     Data: <tt>(Kilogram, Meter, Second, Kelvin, Degree)</tt>
+<li> Name: <tt>DataClass</tt><br>
+     Label: <tt>DataClass_t</tt><br>
+     Data: <tt>Dimensional</tt>
+</ul>
+
+<p>
+Below the <tt>Zone_t</tt> node are multiple nodes.
+The only one with details shown in the figure is:
+<ul>
+<li> Name: <tt>FlowSolution</tt><br>
+     Label: <tt>FlowSolution_t</tt><br>
+     Data: <tt>MT</tt>
+</ul>
+
+<p>
+Below the <tt>FlowSolution_t</tt> node are the following three nodes.
+<ul>
+<li> Name: <tt>GridLocation</tt><br>
+     Label: <tt>GridLocation_t</tt><br>
+     Data: <tt>CellCenter</tt>
+<li> Name: <tt>Density</tt><br>
+     Label: <tt>DataArray_t</tt><br>
+     Data: <tt>r(1,1,1)</tt> to <tt>r(20,16,8)</tt>
+<li> Name: <tt>Pressure</tt><br>
+     Label: <tt>DataArray_t</tt><br>
+     Data: <tt>p(1,1,1)</tt> to <tt>p(20,16,8)</tt>
+</ul>
+
+<p>
+Below each of the <tt>DataArray_t</tt> nodes is a child node defining the
+dimensional exponents.
+For the density, this is:
+<ul>
+<li> Name: <tt>DimensionalExponents</tt><br>
+     Label: <tt>DimensionalExponents_t</tt><br>
+     Data: (+1,-3,0,0,0)
+</ul>
+And for the pressure:
+<ul>
+<li> Name: <tt>DimensionalExponents</tt><br>
+     Label: <tt>DimensionalExponents_t</tt><br>
+     Data: (+1,-1,-2,0,0)
+</ul>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 3 Sept 2002
+
+</body>
+</html>

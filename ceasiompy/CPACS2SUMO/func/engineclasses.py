@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerlands
 
 Classes to save engine/nacelle value for CPACS2SUMO
 
-
 | Author: Aidan Jungo
 | Creation: 2021-02-25
 

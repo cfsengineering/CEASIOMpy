@@ -1,0 +1,80 @@
+<!-- A User's Guide to CGNS - longdesc for CGNS layout for structured
+     grid example, ZoneGridConnectivity_t children -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="../user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - CGNS layout for structured grid example, ZoneGridConnectivity_t children </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<p>
+This diagram shows the children of the <tt>ZoneGridConnectivity_t</tt> node
+in the CGNS file for the two-zone structured grid example.
+
+<p>
+For <tt>Zone1</tt> the <tt>ZoneGridConnectivity_t</tt> node has the
+child node:
+<ul>
+<li> Name: <tt>KMax</tt><br>
+     Label: <tt>GridConnectivity1to1_t</tt><br>
+     Data: <tt>Zone2</tt>
+</ul>
+
+<p>
+This <tt>GridConnectivity1to1_t</tt> node in turn has the following
+three child nodes.
+<ul>
+<li> Name: <tt>Transform</tt><br>
+     Label: "<tt>int[IndexDimension]</tt>"<br>
+     Data: (1,2,3)
+<li> Name: <tt>PointRange</tt><br>
+     Label: <tt>IndexRange_t</tt><br>
+     Data: (1,1,11)(9,17,11)
+<li> Name: <tt>PointRangeDonor</tt><br>
+     Label: <tt>IndexRange_t</tt><br>
+     Data: (1,1,1)(9,17,1)
+</ul>
+
+<p>
+For <tt>Zone2</tt> the <tt>ZoneGridConnectivity_t</tt> node has the
+child node:
+<ul>
+<li> Name: <tt>KMin</tt><br>
+     Label: <tt>GridConnectivity1to1_t</tt><br>
+     Data: <tt>Zone1</tt>
+</ul>
+
+<p>
+This <tt>GridConnectivity1to1_t</tt> node in turn has the following
+three child nodes.
+<ul>
+<li> Name: <tt>Transform</tt><br>
+     Label: "<tt>int[IndexDimension]</tt>"<br>
+     Data: (1,2,3)
+<li> Name: <tt>PointRange</tt><br>
+     Label: <tt>IndexRange_t</tt><br>
+     Data: (1,1,1)(9,17,1)
+<li> Name: <tt>PointRangeDonor</tt><br>
+     Label: <tt>IndexRange_t</tt><br>
+     Data: (1,1,11)(9,17,11)
+</ul>
+
+<p>
+Note that the names of the <tt>GridConnectivity1to1_t</tt> nodes are
+user defined.
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 4 Sept 2002
+
+</body>
+</html>

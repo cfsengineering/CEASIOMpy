@@ -5,6 +5,12 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Initialization for CPACS2Gmsh module.
 
+<<<<<<< HEAD
+=======
+| Author: Leon Deligny
+| Creation: 18-Mar-2025
+
+>>>>>>> origin/main
 """
 
 # ==============================================================================

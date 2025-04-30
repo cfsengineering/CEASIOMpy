@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module to create a simple SU2 mesh from SUMO file (.smx)
 
-
 | Author : Aidan Jungo
 | Creation: 2018-10-29
 

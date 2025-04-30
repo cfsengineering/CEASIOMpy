@@ -1,0 +1,532 @@
+<!-- A User's Guide to CGNS - Guideline for PLOT3D Variables -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - Guideline for PLOT3D Variables</title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="index.html"><span class=nav><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></span></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../midlevel/index.html"><b>Mid-Level&nbsp;Library</b></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="intro.html"><b>Introduction</b></a>)
+(<a href="started.html"><b>Getting&nbsp;Started</b></a>)
+(<a href="additional.html"><b>Additional&nbsp;Information</b></a>)
+(<a href="trouble.html"><b>Troubleshooting</b></a>)
+(<a href="faq.html"><b>Frequently&nbsp;Asked&nbsp;Questions</b></a>)
+(<a href="examples.html"><b>Example&nbsp;Computer&nbsp;Codes</b></a>)
+(<a href="sids.html"><b>Overview&nbsp;of&nbsp;the&nbsp;SIDS</b></a>)
+(<span class=nav><b>Guideline&nbsp;for&nbsp;PLOT3D&nbsp;Variables</b></span>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Guideline for PLOT3D Variables</h2>
+
+<ul>
+<li> <a href="#sec:dimensional">Dimensional Data</a>
+<li> <a href="#sec:NormalizedByDimensional">NormalizedByDimensional Data</a>
+<li> <a href="#sec:NormalizedByUnknownDimensional">NormalizedByUnknownDimensional Data</a>
+<li> <a href="#sec:notes">Notes</a>
+</ul>
+
+<p>
+The broad scope of CGNS allows users to essentially
+put <em>anything</em> into a CGNS file.  While this is useful from the
+perspective of extensibility, it also makes it more difficult
+to read someone else's CGNS file without an elaborate
+array of checks and translators.  This is true
+not only because of the many choices of variables to output, but also
+because CGNS allows many forms of dimensional and nondimensional
+data.
+
+<p>
+Many people in the CFD community currently output structured-grids and
+corresponding flow field data in PLOT3D format [Walatka, P. P., Buning,
+P. G.,  Pierce, L., Elson, P. A., "PLOT3D User's Guide," NASA TM 101067,
+March 1990], particularly for use in postprocessing visualization
+programs.
+It has, in some sense, become a <em>de facto</em> standard for
+sharing structured CFD data.  Because this format is so widely used, we give
+a guideline in this section for outputting and reading this type
+of data in a CGNS file.  If you follow this guideline, then it is more likely
+that other users will be able to easily read and interpret your
+CGNS files.  
+
+<p>
+The PLOT3D standard grid variables are (in 3-D) <i>x</i>, <i>y</i>, and
+<i>z</i>.
+These coordinates may be dimensional or nondimensional.
+To follow this guideline, the three coordinates <tt>CoordinateX</tt>,
+<tt>CoordinateY</tt>, and <tt>CoordinateZ</tt> (either dimensional or
+nondimensional) must be given.
+There also may be "iblank" information, associated with overset grids.
+If used, the list of overset holes is stored under
+<a href="../sids/cnct.html#OversetHoles"><tt>OversetHoles_t</tt></a> nodes.
+This section does not cover the various dimensionalization and
+nondimensionalization options for the grid coordinates.
+By and large, from the point of view of portability, the issue of units
+and/or nondimensionalization for grid coordinates is not as crucial as
+it is for the "Q" variables, which is covered in great detail below.
+However, one should follow the SIDS standard and appropriately define
+within the CGNS file the grid's units or nondimensionalizations used.
+
+<p>
+The PLOT3D standard "Q" variables are (in 3-D):
+
+<br><br>
+<table cellspacing=0 cellpadding=0 border=0>
+<tr valign=baseline><td>&nbsp;&nbsp;&nbsp;
+   <td><i>&rho;</i> / <i>&rho;<sub>ref</sub></i><td><tt>&nbsp;</tt>
+   <td>=<td><tt>&nbsp;</tt>
+   <td>nondimensional density
+<tr valign=baseline><td>
+   <td><i>&rho;u</i> / (<i>&rho;<sub>ref</sub>&nbsp;a<sub>ref</sub></i>)<td>
+   <td>=<td>
+   <td>nondimensional <i>x</i>-momentum
+<tr valign=baseline><td>
+   <td><i>&rho;v</i> / (<i>&rho;<sub>ref</sub>&nbsp;a<sub>ref</sub></i>)<td>
+   <td>=<td>
+   <td>nondimensional <i>y</i>-momentum
+<tr valign=baseline><td>
+   <td><i>&rho;w</i> / (<i>&rho;<sub>ref</sub>&nbsp;a<sub>ref</sub></i>)<td>
+   <td>=<td>
+   <td>nondimensional <i>z</i>-momentum
+<tr valign=baseline><td>
+   <td><i>&rho;e</i><sub>0</sub> / (<i>&rho;<sub>ref</sub>&nbsp;a</i><sup>2</sup><i><sub>ref</sub></i>)<td>
+   <td>=<td>
+   <td>nondimensional total energy per unit volume
+</table>
+<br>
+
+where <i>a</i> is the speed of sound and <i>ref</i> indicates
+a reference state.  Standard PLOT3D Q files also
+specify a reference Mach number, Reynolds number, angle of attack, and
+time value.  For the purposes of this discussion, the time value will
+not be addressed.
+CGNS does have the capability for storing
+<a href="additional.html#sec:timedep">time-accurate data</a> if
+needed, but time-accurate data is not covered in this PLOT3D guideline.
+We include below the CGNS convention for
+storing Mach number, Reynolds number, and (indirectly) angle of attack.
+
+<p>
+Each of the 5 flow field variables above has a standard name,
+defined in the SIDS.  They are, respectively: <tt>Density</tt>,
+<tt>MomentumX</tt>, <tt>MomentumY</tt>, <tt>MomentumZ</tt>, and
+<tt>EnergyStagnationDensity</tt>.
+To follow this guideline, these are the 5 variables that should be
+output to your CGNS file (in 3-D), and are also the ones that you should
+expect to read, given someone else's CGNS file, if they are following
+this guideline.
+
+<p>
+Multiple bases are allowed in CGNS, but, to further enhance
+portability of PLOT3D-like datasets, only one <tt>CGNSBase_t</tt> node is 
+recommended under this guideline.  In other words, multiple cases
+(such as different angles of attack) should be stored in separate
+CGNS files with single bases, rather than in a single file with multiple bases.
+
+<p>
+The three most common types of data that one may output in a CGNS file are:
+<br><br>
+   &nbsp;&nbsp;&nbsp;<tt>DataClass = Dimensional</tt><br>
+   &nbsp;&nbsp;&nbsp;<tt>DataClass = NormalizedByDimensional</tt><br>
+   &nbsp;&nbsp;&nbsp;<tt>DataClass = NormalizedByUnknownDimensional</tt>
+
+<p>
+The first category indicates that the data has dimensional units.
+The second category indicates that
+the data has been nondimensionalized by <em>known</em> reference
+values, which are specified in the CGNS file.  
+The third category indicates that the data is nondimensional,
+but the reference values are
+unspecified or unknown.  Because CGNS deals with each of these in a 
+slightly different way, we will give the guideline for each of
+these three classes in separate subsections.
+
+<a name="sec:dimensional"></a>
+<h3>Dimensional Data</h3>
+
+<p>
+To output dimensional data:
+
+<ol>
+<li> Under <tt>CGNSBase_t</tt>, set <tt>DataClass = Dimensional</tt>.
+<br><br>
+<li> Under <tt>CGNSBase_t</tt>, put a <tt>ReferenceState</tt>; and under
+     <tt>ReferenceState</tt>, put the dimensional reference
+     values of <tt>Density</tt> and <tt>VelocitySound</tt>.
+     Under this guideline, the units of these
+     must be consistent with one another and with the units
+     of <tt>Density</tt>, <tt>MomentumX</tt>, <tt>MomentumY</tt>,
+     <tt>MomentumZ</tt>, and <tt>EnergyStagnationDensity</tt> given
+     under <tt>FlowSolution</tt> (e.g., all MKS units).
+     Also under <tt>ReferenceState</tt>,
+     put <tt>Mach</tt>, <tt>Reynolds</tt>,
+     <tt>VelocityX</tt>, <tt>VelocityY</tt>, and <tt>VelocityZ</tt>.  
+<br><br>
+<li> Under <tt>FlowSolution</tt>, put the dimensional variables
+     <tt>Density</tt>, <tt>MomentumX</tt>, <tt>MomentumY</tt>,
+     <tt>MomentumZ</tt>, and <tt>EnergyStagnationDensity</tt>.
+     Under this guideline, the units of these 5 variables
+     must be consistent with one another and with the
+     units of <tt>Density</tt> and <tt>VelocitySound</tt> in 
+     <tt>ReferenceState</tt>.
+</ol>
+
+To read dimensional data (i.e., if <tt>DataClass = Dimensional</tt>
+under <tt>CGNSBase_t</tt>):
+
+<ol>
+<li> Under <tt>ReferenceState</tt> (directly under <tt>CGNSBase_t</tt>),
+     read <tt>Density</tt>, <tt>VelocitySound</tt>,
+     <tt>Mach</tt>, and <tt>Reynolds</tt>.
+     Also read <tt>VelocityX</tt>, <tt>VelocityY</tt>, and <tt>VelocityZ</tt>
+     if an angle of attack of the reference state is needed.
+<br><br>
+<li> Under <tt>FlowSolution</tt>, read
+     <tt>Density</tt>, <tt>MomentumX</tt>, <tt>MomentumY</tt>,
+     <tt>MomentumZ</tt>, and 
+     <tt>EnergyStagnationDensity</tt>.
+<br><br>
+<li> To obtain the PLOT3D Q variables, do the following:
+     <br><br>
+     <table cellspacing=0 cellpadding=0 border=0>
+     <tr valign=baseline><td>&nbsp;&nbsp;&nbsp;
+        <td><i>&rho;</i> / <i>&rho;<sub>ref</sub></i><td><tt>&nbsp;</tt>
+        <td>=<td><tt>&nbsp;</tt>
+        <td><tt>Density</tt>&nbsp;/&nbsp;<tt>Density(ref)</tt>
+     <tr valign=baseline><td>
+        <td><i>&rho;u</i> / (<i>&rho;<sub>ref</sub>&nbsp;a<sub>ref</sub></i>)<td>
+        <td>=<td>
+        <td><tt>MomentumX</tt>&nbsp;/&nbsp;(<tt>Density(ref)&nbsp;*&nbsp;VelocitySound(ref)</tt>)
+     <tr valign=baseline><td>
+        <td><i>&rho;v</i> / (<i>&rho;<sub>ref</sub>&nbsp;a<sub>ref</sub></i>)<td>
+        <td>=<td>
+        <td><tt>MomentumY</tt>&nbsp;/&nbsp;(<tt>Density(ref)&nbsp;*&nbsp;VelocitySound(ref)</tt>)
+     <tr valign=baseline><td>
+        <td><i>&rho;w</i> / (<i>&rho;<sub>ref</sub>&nbsp;a<sub>ref</sub></i>)<td>
+        <td>=<td>
+        <td><tt>MomentumZ</tt>&nbsp;/&nbsp;(<tt>Density(ref)&nbsp;*&nbsp;VelocitySound(ref)</tt>)
+     <tr valign=baseline><td>
+        <td><i>&rho;e</i><sub>0</sub> / (<i>&rho;<sub>ref</sub>&nbsp;a</i><sup>2</sup><i><sub>ref</sub></i>)<td>
+        <td>=<td>
+        <td><tt>EnergyStagnationDensity</tt>&nbsp;/<br>
+            (<tt>Density(ref)&nbsp;*&nbsp;VelocitySound(ref)</tt><sup>2</sup>)
+     </table>
+</ol>
+
+<a name="sec:NormalizedByDimensional"></a>
+<h3>NormalizedByDimensional Data</h3>
+
+<p>
+To output nondimensional data with known normalizations:
+
+<ol>
+<li> Under <tt>CGNSBase_t</tt>, set <tt>DataClass = NormalizedByDimensional</tt>.
+<br><br>
+<li> Under <tt>CGNSBase_t</tt>, put a <tt>ReferenceState</tt>; and under
+     <tt>ReferenceState</tt>, put <tt>Mach</tt>, <tt>Reynolds</tt>,
+     <tt>VelocityX</tt>, <tt>VelocityY</tt>, and <tt>VelocityZ</tt>.
+     Then put either:
+     <br><br>
+     <ul type=disc>
+     <li> The <em>dimensional</em> reference
+          values of <tt>Density</tt> and <tt>VelocitySound</tt>.
+          Under this guideline, the units of these must be
+          consistent with one another and with the units of the
+          <em>raw</em> (dimensional) data <tt>Density</tt>,
+          <tt>MomentumX</tt>, <tt>MomentumY</tt>, <tt>MomentumZ</tt>,
+          and <tt>EnergyStagnationDensity</tt> given under
+          <tt>FlowSolution</tt>, prior to normalization.
+     <br><br>
+     <li> The <em>nondimensional</em> reference values of
+          <tt>Density</tt> and <tt>VelocitySound</tt>, along
+          with their corresponding <tt>ConversionScale</tt> and
+          <tt>ConversionOffset</tt> values.
+          Under this guideline, the units of the <em>raw</em>
+          (dimensional) <tt>Density</tt> and <tt>VelocitySound</tt>,
+          prior to normalization using <tt>ConversionScale</tt> and
+          <tt>ConversionOffset</tt>, must be consistent with one another
+          and with the units of the <em>raw</em> (dimensional) data
+          <tt>Density</tt>, <tt>MomentumX</tt>, <tt>MomentumY</tt>,
+          <tt>MomentumZ</tt>, and <tt>EnergyStagnationDensity</tt> given
+          under <tt>FlowSolution</tt>, prior to normalization.
+     </ul>
+<br>
+<li> Under <tt>FlowSolution</tt>, put the nondimensional variables
+     <tt>Density</tt>, <tt>MomentumX</tt>, <tt>MomentumY</tt>,
+     <tt>MomentumZ</tt>, and <tt>EnergyStagnationDensity</tt>,
+     along with their corresponding <tt>ConversionScale</tt> and
+     <tt>ConversionOffset</tt> values.
+     Under this guideline, the units of the <em>raw</em>
+     (dimensional) variables, prior to normalization using
+     <tt>ConversionScale</tt> and <tt>ConversionOffset</tt>, must be
+     consistent with one another and with the units of the <em>raw</em>
+     (dimensional) <tt>Density</tt> and <tt>VelocitySound</tt> in
+     <tt>ReferenceState</tt>.
+</ol>
+
+To read nondimensional data with known normalizations (i.e., if
+<tt>DataClass = NormalizedByDimensional</tt> under <tt>CGNSBase_t</tt>):
+
+<ol>
+<li> Under <tt>ReferenceState</tt> (directly under <tt>CGNSBase_t</tt>),
+     read <tt>Density</tt> and <tt>VelocitySound</tt>.
+     Also read their <tt>ConversionScale</tt> and
+     <tt>ConversionOffset</tt> values if they are present.
+     Additionally, read <tt>Mach</tt> and <tt>Reynolds</tt>.
+     Also read <tt>VelocityX</tt>, <tt>VelocityY</tt>, and
+     <tt>VelocityZ</tt> if an angle of attack of the reference state is
+     needed.
+<br><br>
+<li> Under <tt>FlowSolution</tt>, read Density</tt>,
+     <tt><tt>MomentumX</tt>, <tt>MomentumY</tt>, MomentumZ</tt>, and
+     <tt>EnergyStagnationDensity</tt>.
+     Also read each <tt>ConversionScale</tt> and <tt>ConversionOffset</tt>.
+<br><br>
+<li> To obtain the PLOT3D Q variables, do the following.
+     First, <em>only if they were given as nondimensional
+     quantities</em> (indicated by a <tt>'</tt> below), recover the
+     <em>raw</em> (dimensional) reference values of <tt>Density</tt> and
+     <tt>VelocitySound</tt>, via:
+     <br><br>
+     <nobr>
+        &nbsp;&nbsp;&nbsp;<tt>Density(ref) = Density'(ref)*ConversionScale + ConversionOffset</tt>
+        <br>
+        &nbsp;&nbsp;&nbsp;<tt>VelocitySound(ref) = VelocitySound'(ref)*ConversionScale + ConversionOffset</tt>
+     </nobr>
+
+     <br><br>
+     Then do:
+     <br><br>
+     <table cellspacing=0 cellpadding=0 border=0>
+     <tr valign=baseline><td>&nbsp;&nbsp;&nbsp;
+        <td><i>&rho;</i> / <i>&rho;<sub>ref</sub></i><td><tt>&nbsp;</tt>
+        <td>=<td><tt>&nbsp;</tt>
+        <td>(<tt>Density*ConversionScale&nbsp;+&nbsp;ConversionOffset</tt>)&nbsp;/<br>
+            <tt>Density(ref)</tt>
+     <tr valign=baseline><td>
+        <td><i>&rho;u</i> / (<i>&rho;<sub>ref</sub>&nbsp;a<sub>ref</sub></i>)<td>
+        <td>=<td>
+        <td>(<tt>MomentumX*ConversionScale&nbsp;+&nbsp;ConversionOffset</tt>)&nbsp;/<br>
+            (<tt>Density(ref)&nbsp;*&nbsp;VelocitySound(ref)</tt>)
+     <tr valign=baseline><td>
+        <td><i>&rho;v</i> / (<i>&rho;<sub>ref</sub>&nbsp;a<sub>ref</sub></i>)<td>
+        <td>=<td>
+        <td>(<tt>MomentumY*ConversionScale&nbsp;+&nbsp;ConversionOffset</tt>)&nbsp;/<br>
+            (<tt>Density(ref)&nbsp;*&nbsp;VelocitySound(ref)</tt>)
+     <tr valign=baseline><td>
+        <td><i>&rho;w</i> / (<i>&rho;<sub>ref</sub>&nbsp;a<sub>ref</sub></i>)<td>
+        <td>=<td>
+        <td>(<tt>MomentumZ*ConversionScale&nbsp;+&nbsp;ConversionOffset</tt>)&nbsp;/<br>
+            (<tt>Density(ref)&nbsp;*&nbsp;VelocitySound(ref)</tt>)
+     <tr valign=baseline><td>
+        <td><i>&rho;e</i><sub>0</sub> / (<i>&rho;<sub>ref</sub>&nbsp;a</i><sup>2</sup><i><sub>ref</sub></i>)<td>
+        <td>=<td>
+        <td>(<tt>EnergyStagnationDensity*ConversionScale&nbsp;+&nbsp;ConversionOffset</tt>)&nbsp;/<br>
+            (<tt>Density(ref)&nbsp;*&nbsp;VelocitySound(ref)</tt><sup>2</sup>)
+     </table>
+</ol>
+
+<p>
+Note that it is possible that the conversion scale and offset for the
+PLOT3D Q variables may correspond to the reference conditions.
+This would imply that the variables could be directly output, without
+the above conversions needed.
+However, CGNS allows the variables to be normalized by properties
+independent of the reference conditions, so the above procedure is
+recommended to avoid ambiguity.
+
+<a name="sec:NormalizedByUnknownDimensional"></a>
+<h3>NormalizedByUnknownDimensional Data</h3>
+
+<p>
+To output nondimensional data with unknown normalizations:
+
+<ol>
+<li> Under <tt>CGNSBase_t</tt>, set <tt>DataClass =
+     NormalizedByUnknownDimensional</tt>.
+<br><br>
+<li> Under <tt>CGNSBase_t</tt>, put a <tt>ReferenceState</tt>; and under
+     <tt>ReferenceState</tt>, put 
+     <tt>Density</tt> = 1 and <tt>VelocitySound</tt> = 1.
+     Also, put <tt>Mach</tt>, <tt>Reynolds</tt>,
+     <tt>VelocityX</tt>, <tt>VelocityY</tt>, and <tt>VelocityZ</tt>. 
+<br><br>
+<li> Under <tt>FlowSolution</tt>, put the nondimensional variables
+     <tt>Density</tt>, <tt>MomentumX</tt>, <tt>MomentumY</tt>,
+     <tt>MomentumZ</tt>, and <tt>EnergyStagnationDensity</tt>. 
+     These must be nondimensionalized as:
+     <i>&rho;</i>/<i>&rho;<sub>ref</sub></i>,
+     <i>&rho;u</i>/(<i>&rho;<sub>ref</sub>&nbsp;a<sub>ref</sub></i>),
+     <i>&rho;v</i>/(<i>&rho;<sub>ref</sub>&nbsp;a<sub>ref</sub></i>),
+     <i>&rho;w</i>/(<i>&rho;<sub>ref</sub>&nbsp;a<sub>ref</sub></i>),
+     <i>&rho;e</i><sub>0</sub>/(<i>&rho;<sub>ref</sub>&nbsp;a</i><sup>2</sup><i><sub>ref</sub></i>).
+</ol>
+
+(Setting <tt>Density</tt> = 1 and <tt>VelocitySound</tt> = 1 in the
+<tt>ReferenceState</tt> defines the particular nondimensionalization
+defined above for the PLOT3D variables; see the SIDS document
+for <a href="../sids/data.html#normbyunkdim">details and other examples</a>.)
+To read nondimensional data with unknown normalizations
+(i.e., if <tt>DataClass = NormalizedByUnknownDimensional</tt>
+under <tt>CGNSBase_t</tt>):
+
+<ol>
+<li> Check under <tt>ReferenceState</tt> (directly under <tt>CGNSBase_t</tt>),
+     to be sure that <tt>Density</tt> = 1 and <tt>VelocitySound</tt> = 1.
+     Then, read <tt>Mach</tt> and <tt>Reynolds</tt>.
+     Also read <tt>VelocityX</tt>, <tt>VelocityY</tt>, and <tt>VelocityZ</tt>
+     if an angle of attack of the reference state is needed.
+<br><br>
+<li> Under <tt>FlowSolution</tt>, read
+     <tt>Density</tt>, <tt>MomentumX</tt>, <tt>MomentumY</tt>,
+     <tt>MomentumZ</tt>, and 
+     <tt>EnergyStagnationDensity</tt>.
+</ol>
+
+Nothing needs to be done in this case to obtain the PLOT3D Q variables.
+They are already in the correct form.
+
+<a name="sec:notes"></a>
+<h3>Notes</h3>
+
+<ol>
+<li> In addition to the flow field variables <tt>Density</tt>,
+     <tt>MomentumX</tt>, <tt>MomentumY</tt>, <tt>MomentumZ</tt>, and
+     <tt>EnergyStagnationDensity</tt> (under <tt>FlowSolution</tt>), you
+     may also output additional variables if desired, but be sure these
+     5 are present.
+<br><br>
+<li> Other reference values may also be placed under
+     <tt>ReferenceState</tt> (for example, <tt>LengthReference</tt>
+     may be needed to define the reference length associated
+     with the grid coordinates), but the use of <tt>Density</tt>
+     and <tt>VelocitySound</tt> is sufficient to define the
+     nondimensionalizations of the PLOT3D Q variables.
+<br><br>
+<li> The quantities <tt>Mach</tt>, <tt>Reynolds</tt>,
+     <tt>VelocityX</tt>, <tt>VelocityY</tt>, <tt>VelocityZ</tt>,
+     <tt>Density</tt>, and <tt>VelocitySound</tt> (plus anything else)
+     under <tt>ReferenceState</tt> must all represent the same reference
+     state of the flow.
+     For external aerodynamics, this is usually taken to be the free
+     stream, but it does not have to be.
+<br><br>
+<li> The velocity components are used, in the PLOT3D sense, solely to
+     provide an angle of attack of the flow field at the reference
+     state.
+     The definition of angle of attack itself is non-unique in 3-D, so
+     there is therefore no SIDS standard for it.
+     For example, one possible set of angle definitions assumes that the
+     <i>z</i>-direction is "up," and uses:
+     <br><br>
+     <table cellspacing=0 cellpadding=0 border=0>
+     <tr valign=baseline><td>&nbsp;&nbsp;&nbsp;
+        <td><i>u</i><td><tt>&nbsp;</tt>
+        <td>=<td><tt>&nbsp;</tt>
+        <td><i>V</i> cos <i>&beta;</i> cos <i>&alpha;</i>
+     <tr valign=baseline><td>
+        <td><i>v</i><td><tt>&nbsp;</tt>
+        <td>=<td>
+        <td>&minus;<i>V</i> sin <i>&beta;</i>
+     <tr valign=baseline><td>
+        <td><i>w</i><td><tt>&nbsp;</tt>
+        <td>=<td>
+        <td><i>V</i> cos <i>&beta;</i> sin <i>&alpha;</i>
+     </table>
+     <br>
+     where <i>V</i> = (<i>u</i><sup>2</sup> + <i>v</i><sup>2</sup> +
+     <i>w</i><sup>2</sup>)<sup>1/2</sup>, <i>&alpha;</i> is angle of attack,
+     and <i>&beta;</i> is angle of sideslip.
+     Thus, an angle of attack can be obtained using <i>&alpha;</i> =
+     tan<sup>&minus;1</sup>(<i>w</i>/<i>u</i>), where <i>u</i> = <tt>VelocityX</tt>
+     and <i>w</i> = <tt>VelocityZ</tt>.
+<br><br>
+<li> When reading someone else's CGNS file, a low-level approach to
+     interpret and/or use it appropriately would be the following.
+     First, check to see that there is only one <tt>CGNSBase_t</tt> node.
+     (As discussed above, multiple bases are allowed in general, but
+     under this guideline only one base should exist.)
+     Second, insure that the variables <tt>CoordinateX</tt>,
+     <tt>CoordinateY</tt>, and <tt>CoordinateZ</tt> exist under each
+     zone's <tt>GridCoordinates_t</tt> node, and that the variables
+     <tt>Density</tt>, <tt>MomentumX</tt>, <tt>MomentumY</tt>,
+     <tt>MomentumZ</tt>, and <tt>EnergyStagnationDensity</tt> exist
+     under each zone's <tt>FlowSolution_t</tt> node.
+     (Note: for time-accurate datasets there may be multiple
+     <tt>GridCoordinates_t</tt> and <tt>FlowSolution_t</tt> nodes under
+     each zone - see the section on
+     <a href="additional.html#sec:timedep">time-dependent data</a> - but
+     this situation is not covered under the current PLOT3D guideline.)
+     Then, search for the following characteristics in the file:
+     <br><br>
+     <ul type=disk>
+     <li> If <tt>DataClass</tt> = <tt>Dimensional</tt>,
+          then <tt>ReferenceState</tt> (directly under
+          <tt>CGNSBase_t</tt>) <em>must</em> contain <tt>Density</tt>,
+          <tt>VelocitySound</tt>, <tt>Mach</tt>, and <tt>Reynolds</tt>.
+          <tt>VelocityX</tt>, <tt>VelocityY</tt>, and <tt>VelocityZ</tt>
+          are needed under <tt>ReferenceState</tt> only if a reference
+          angle of attack is required.
+     <br><br>
+     <li> If <tt>DataClass = NormalizedByDimensional</tt>,
+          then <tt>ReferenceState</tt> (directly under
+          <tt>CGNSBase_t</tt>) <em>must</em> contain <tt>Density</tt>,
+          <tt>VelocitySound</tt>, <tt>Mach</tt>, and <tt>Reynolds</tt>.
+          <tt>VelocityX</tt>, <tt>VelocityY</tt>, and <tt>VelocityZ</tt>
+          are needed under <tt>ReferenceState</tt> only if a reference
+          angle of attack is required.
+          Furthermore, a <tt>ConversionScale</tt> and
+          <tt>ConversionOffset</tt> must exist for each of the 5 flow
+          field variables under <tt>FlowSolution</tt>.
+          <tt>ConversionScale</tt> and <tt>ConversionOffset</tt> may or
+          may not exist for the variables under <tt>ReferenceState</tt>.
+     <br><br>
+     <li> If <tt>DataClass = NormalizedByUnknownDimensional</tt>,
+          then <tt>ReferenceState</tt> (directly under
+          <tt>CGNSBase_t</tt>) <em>must</em> contain <tt>Density</tt> =
+          1, <tt>VelocitySound</tt> = 1, as well as <tt>Mach</tt>, and
+          <tt>Reynolds</tt>.
+          <tt>VelocityX</tt>, <tt>VelocityY</tt>, and <tt>VelocityZ</tt>
+          are needed under <tt>ReferenceState</tt> only if a reference
+          angle of attack is required.
+     </ul>
+     <br>
+     If these conditions are met, then a low-level reader could assume
+     that the guidelines outlined in the above subsections were
+     followed, and the PLOT3D variables could easily be obtained using
+     the procedures given.
+     A more advanced reader would probably check for consistency in the
+     dimensions and conversion scales, to ensure compliance with the
+     guidelines.
+</ol>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 7 Mar 2008
+
+</body>
+</html>

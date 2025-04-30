@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI Interface of CPACS2GMSH.
 
-
 | Author: Leon Deligny
 | Creation: 18-Mar-2025
 

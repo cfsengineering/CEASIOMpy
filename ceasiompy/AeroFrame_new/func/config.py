@@ -487,9 +487,9 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
     Yte = Yle
     Zte = Zle
 
-    for i in range(len(Xle)):
+    for i, xle in enumerate(Xle):
         leading_edge.append({
-            "x": Xle[i],
+            "x": xle,
             "y": Yle[i],
             "z": Zle[i],
             "Fx": 0.0,
@@ -497,9 +497,9 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
             "Fz": 0.0
         })
 
-    for i in range(len(Xte)):
+    for i, xte in enumerate(Xte):
         trailing_edge.append({
-            "x": Xte[i],
+            "x": xte,
             "y": Yte[i],
             "z": Zte[i],
             "Fx": 0.0,
@@ -604,6 +604,7 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
     return wing_df, centerline_df, internal_load_df
 
 
+# TODO: Reduce complexity
 def compute_cross_section(cpacs_path):
     """
     Function 'compute_cross_section' computes the area, the second moments of area,

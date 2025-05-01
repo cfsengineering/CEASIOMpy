@@ -21,7 +21,6 @@ import shutil
 import importlib
 
 from ceasiompy.utils.moduleinterfaces import get_module_list
-from ceasiompy.Optimisation.optimisation import routine_launcher
 from ceasiompy.utils.ceasiompylogger import add_to_runworkflow_history
 from ceasiompy.utils.ceasiompyutils import change_working_dir, run_module, get_results_directory
 

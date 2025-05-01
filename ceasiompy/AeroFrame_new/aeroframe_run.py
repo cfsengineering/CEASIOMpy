@@ -74,6 +74,8 @@ MODULE_NAME = MODULE_DIR.name
 #   FUNCTIONS
 # =================================================================================================
 
+
+# TODO: Reduce complexity
 def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
     """Function to execute the aeroelastic-loop.
 

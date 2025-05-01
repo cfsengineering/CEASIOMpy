@@ -132,7 +132,8 @@ def duplicate_elements(tixi: Tixi3, *lists: List) -> Tuple[List, ...]:
 
     # If you do not wish to expand values
     if  not get_value(tixi, AVL_EXPAND_VALUES_XPATH):
-        return tuple(lists) + (lists[-1], lists[-1])
+        cst_list = len(lists[0]) * [lists[-1][0]]
+        return tuple(lists[:-1]) + (cst_list, cst_list, cst_list)
 
     *initial_lists, last_list = lists
     combinations = list(product(*initial_lists))

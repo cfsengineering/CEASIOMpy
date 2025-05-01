@@ -98,7 +98,7 @@ def filter_constant_columns(
     return df[columns_to_keep], removed_columns
 
 
-def check_nan_inf(*arrays) -> None:
+def check_nan_inf(*arrays: Tuple[ndarray, ...]) -> None:
     """
     Checks for NaN or infinite values in the given arrays.
 
@@ -106,7 +106,6 @@ def check_nan_inf(*arrays) -> None:
         *arrays: Variable number of numpy arrays to check.
     """
     for i, arr in enumerate(arrays, start=1):
-        arr: ndarray
         if np.isnan(arr).any():
             raise ValueError(f"Array {arr} at {i} contains NaN values.")
         if np.isinf(arr).any():

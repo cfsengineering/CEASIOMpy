@@ -281,16 +281,16 @@ def get_module_list(only_active=True):
 
         init = get_init_for_module(module_name, raise_error=False)
         try:
-            module_status = init.module_status
+            MODULE_STATUS = init.MODULE_STATUS
         except AttributeError:
-            module_status = False
+            MODULE_STATUS = False
             if module_name != "utils":
                 log.warning(
                     f"Module status of {module_name} is not define in its __init__.py file."
                 )
 
         if only_active:
-            if module_status:
+            if MODULE_STATUS:
                 module_list.append(module_name)
         else:
             module_list.append(module_name)

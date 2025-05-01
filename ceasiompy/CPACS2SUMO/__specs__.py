@@ -17,7 +17,7 @@ GUI Interface of CPACS2SUMO.
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
-from ceasiompy.CPACSUpdater import include_gui
+from ceasiompy.CPACSUpdater import INCLUDE_GUI
 
 from ceasiompy.CPACS2SUMO import (
     CPACS2SUMOFILE_XPATH,
@@ -43,7 +43,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="True -> Opens SUMO at the end of CPACS2SUMO module",
     xpath=CPACS2SUMO_SUMO_GUI_XPATH,
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Open SUMO's GUI",
     gui_group="SUMO GUI Setting",
 )
@@ -55,7 +55,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Convert engine from CEASIOMpy",
     xpath=CPACS2SUMO_INCLUDE_ENGINE_XPATH,
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Include engine",
     gui_group="Mesh Settings",
 )
@@ -67,7 +67,7 @@ cpacs_inout.add_input(
     unit="1",
     descr="Convert engine from CEASIOMpy",
     xpath=CPACS2SUMO_INCLUDE_PYLON_XPATH,
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Include pylon",
     gui_group="Mesh Settings",
 )

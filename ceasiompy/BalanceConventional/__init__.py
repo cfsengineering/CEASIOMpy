@@ -25,12 +25,12 @@ from ceasiompy import log
 # ===== Module Status =====
 # True if the module is active.
 # False if the module is disabled (not working or not ready).
-module_status = False
+MODULE_STATUS = False
 
 # ===== Include GUI =====
 # True if you want to add a GUI for this module.
 # False if module is desactivated or no GUI to be displayed.
-include_gui = False
+INCLUDE_GUI = False
 
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent

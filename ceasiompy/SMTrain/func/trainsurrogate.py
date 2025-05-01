@@ -141,8 +141,8 @@ def train_surrogate_model(
             param_space=hyperparam_space,
             sets=sets
         )
-    # elif fidelity_level == LEVEL_TWO:
     else:
+        # It will always be multi-fidelity level if not 1
         return mf_kriging(
             fidelity_level=fidelity_level,
             datasets=datasets,

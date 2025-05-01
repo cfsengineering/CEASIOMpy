@@ -17,7 +17,7 @@ GUI Interface of WeightConventional.
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
-from ceasiompy.WeightConventional import include_gui
+from ceasiompy.WeightConventional import INCLUDE_GUI
 
 from ceasiompy.utils.commonxpaths import (
     FUEL_XPATH,
@@ -61,7 +61,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="0: no 2nd floor, 1: full 2nd floor (A380), 2: half 2nd floor (B747)",
     xpath=WB_DOUBLE_FLOOR_XPATH,
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Double deck",
     gui_group="User inputs",
 )
@@ -73,7 +73,7 @@ cpacs_inout.add_input(
     unit="[kg]",
     descr="Maximum payload allowed, set 0 if equal to max passenger mass.",
     xpath=WB_MAX_PAYLOAD_XPATH,
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Max payload",
     gui_group="User inputs",
 )
@@ -85,7 +85,7 @@ cpacs_inout.add_input(
     unit="[l]",
     descr="Maximum fuel volume allowed [l]",
     xpath=WB_MAX_FUEL_VOL_XPATH,
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Max Fuel volum",
     gui_group="User inputs",
 )
@@ -97,7 +97,7 @@ cpacs_inout.add_input(
     unit="[kg]",
     descr="Cargo mass [kg]",
     xpath=MASS_CARGO_XPATH,
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Mass cargo",
     gui_group="User inputs",
 )
@@ -109,7 +109,7 @@ cpacs_inout.add_input(
     unit="[kg/m^3]",
     descr="Fuel density [kg/m^3]",
     xpath=FUEL_XPATH + "/density",
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Fuel density",
     gui_group="User inputs",
 )
@@ -121,7 +121,7 @@ cpacs_inout.add_input(
     unit=None,
     descr='"True" only if the aircraft is a turboprop',
     xpath=PROP_XPATH + "/turboprop",
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Turboprop",
     gui_group="User inputs",
 )
@@ -133,7 +133,7 @@ cpacs_inout.add_input(
     unit="[%]",
     descr="Fuselage thickness, percentage of fuselage width",
     xpath=GEOM_XPATH + "/fuseThick",
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Fuselage thickness",
     gui_group="Fuselage",
 )
@@ -146,7 +146,7 @@ cpacs_inout.add_input(
     unit="[m]",
     descr="Seats length",
     xpath=GEOM_XPATH + "/seatLength",
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Seat length",
     gui_group="Inside dimension",
 )
@@ -158,7 +158,7 @@ cpacs_inout.add_input(
     unit="[m]",
     descr="Seats width",
     xpath=GEOM_XPATH + "/seatWidth",
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Seat width",
     gui_group="Inside dimension",
 )
@@ -170,7 +170,7 @@ cpacs_inout.add_input(
     unit="[m]",
     descr="Aisles width",
     xpath=GEOM_XPATH + "/aisleWidth",
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Aisles width",
     gui_group="Inside dimension",
 )
@@ -182,7 +182,7 @@ cpacs_inout.add_input(
     unit="[m]",
     descr="Common space length",
     xpath=GEOM_XPATH + "/toiletLength",
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Toilet length",
     gui_group="Inside dimension",
 )

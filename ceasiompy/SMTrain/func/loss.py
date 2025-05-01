@@ -79,9 +79,6 @@ def compute_multi_level_loss(
     model.set_training_values(x_fl_train, y_fl_train, name=LEVEL_ONE)
     model.set_training_values(x_ml_train, y_ml_train, name=LEVEL_TWO)
     model.train()
-    rmse = (
-        compute_rmse(model, x_, y_) + params[6] * np.mean(model.predict_variances(x_))
-    )
     return model, compute_loss(model, params[6], x_, y_)
 
 

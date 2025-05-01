@@ -84,8 +84,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     # 2. Train surrogate model
     if doe:
         # Generate new samples
-        n_samples, ranges = design_of_experiment(cpacs)
-        lh_sampling_path = lh_sampling(n_samples, ranges, results_dir)
+        lh_sampling_path = lh_sampling(cpacs, results_dir)
 
         # One level fidelity model training
         if fidelity_level == LEVEL_ONE:

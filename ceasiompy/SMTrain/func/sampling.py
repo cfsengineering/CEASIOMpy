@@ -16,15 +16,14 @@ import numpy as np
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
+from ceasiompy.SMTrain.func.utils import get_val_fraction
+from ceasiompy.SMTrain.func.config import design_of_experiment
 from ceasiompy.SMTrain.func.predictions import make_predictions
-from ceasiompy.SMTrain.func.utils import (
-    str_to_level,
-    get_val_fraction,
-)
 
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
+from cpacspy.cpacspy import CPACS
 from smt.applications import MFK
 from smt.surrogate_models import KRG
 from smt.sampling_methods import LHS
@@ -47,7 +46,7 @@ def new_doe(
     model: Union[KRG, MFK],
     fraction_of_new_samples: int,
     result_dir: Path,
-):
+) -> None:
     """
     Generate a new set of suggested sampling points based on model uncertainty.
 
@@ -124,10 +123,9 @@ def new_doe(
 
 
 def lh_sampling(
-    n_samples: int,
-    ranges: Dict,
+    cpacs: CPACS,
     results_dir: Path,
-    random_state: Union[int, None] = None,
+    random_state: int = 42,
 ) -> Path:
     """
     Generate a Latin Hypercube Sampling (LHS) dataset within specified variable ranges.
@@ -140,26 +138,23 @@ def lh_sampling(
             Dictionary specifying the variable ranges in the format:
             { "variable_name": (min_value, max_value) }.
         results_dir (Path): Where the sampled dataset will be saved.
-        random_state (int = None): Seed for random number generation to ensure reproducibility.
+        random_state (int = 42): Seed for random number generation to ensure reproducibility.
     """
-
-    if n_samples <= 0:
-        raise ValueError("New samples must be greater than 0.")
-
+    n_samples, ranges = design_of_experiment(cpacs)
     xlimits = np.array(list(ranges.values()))
-
-    # Identify variables with fixed values (min == max)
-    fixed_cols = [idx for idx, (low, high) in enumerate(xlimits) if low == high]
 
     sampling = LHS(xlimits=xlimits, criterion="ese", random_state=random_state)
     samples = sampling(n_samples)
 
-    # maintain constant variables with fixed ranges
+    # Maintain constant variables with fixed ranges
+    fixed_cols = [idx for idx, (low, high) in enumerate(xlimits) if low == high]
     for idx in fixed_cols:
         samples[:, idx] = xlimits[idx, 0]
 
-    # Map sampled values back to variable names
-    sampled_dict = {key: samples[:, idx] for idx, key in enumerate(ranges.keys())}
+    sampled_dict = {
+        key: samples[:, idx]
+        for idx, key in enumerate(ranges.keys())
+    }
 
     # Post-process sampled data to apply precision constraints
     for key in sampled_dict:

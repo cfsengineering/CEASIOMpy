@@ -212,6 +212,8 @@ def design_of_experiment(cpacs: CPACS) -> Tuple[int, Dict]:
     """
     tixi = cpacs.tixi
     n_samples = int(get_value(tixi, SMTRAIN_NSAMPLES_XPATH))
+    if n_samples <= 0:
+        raise ValueError("New samples must be greater than 0.")
     max_alt = int(get_value(tixi, SMTRAIN_MAX_ALT))
     max_mach = float(get_value(tixi, SMTRAIN_MAX_MACH))
     max_aoa = int(get_value(tixi, SMTRAIN_MAX_AOA))

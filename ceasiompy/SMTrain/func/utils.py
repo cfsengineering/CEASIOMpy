@@ -34,6 +34,15 @@ from ceasiompy.SMTrain import (
 #   FUNCTIONS
 # =================================================================================================
 
+def unpack_data(
+    sets: Dict[str, ndarray]
+) -> Tuple[ndarray, ndarray, ndarray, ndarray, ndarray, ndarray]:
+    # Extract training, validation, and test sets
+    x_train, x_val, x_test = sets["x_train"], sets["x_val"], sets["x_test"]
+    y_train, y_val, y_test = sets["y_train"], sets["y_val"], sets["y_test"]
+    check_nan_inf(x_train, x_val, x_test, y_train, y_val, y_test)
+    return x_train, x_val, x_test, y_train, y_val, y_test
+
 
 def level_to_str(level: int) -> str:
     if level == 1:

@@ -27,7 +27,6 @@ from ceasiompy.SMTrain import (
     OBJECTIVES_LIST,
     SMTRAIN_XPATH,
     SMTRAIN_NEWDOE,
-    SMTRAIN_XPATH,
     SMTRAIN_MAX_ALT,
     SMTRAIN_MAX_MACH,
     SMTRAIN_MAX_AOA,
@@ -106,7 +105,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="training_datasets",
     var_type=list,
-    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
+    default_value=st.session_state.cpacs.get_aeromap_uid_list().reverse(),
     unit=None,
     descr="Select, in the RIGHT ORDER, training datasets from the aeromaps",
     xpath=SMTRAIN_AEROMAP_FOR_TRAINING_XPATH,

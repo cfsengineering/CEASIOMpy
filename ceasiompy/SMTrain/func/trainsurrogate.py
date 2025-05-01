@@ -19,7 +19,7 @@ import pandas as pd
 
 from skopt import gp_minimize
 from smt.utils.misc import compute_rmse
-from ceasiompy.SMTrain.func.utils import check_nan_inf
+from ceasiompy.SMTrain.func.utils import unpack_data
 from ceasiompy.SMTrain.func.sampling import (
     split_data,
     new_points,
@@ -45,7 +45,6 @@ from typing import (
     Dict,
     Tuple,
     Union,
-    Literal,
     Callable,
 )
 
@@ -132,19 +131,18 @@ def train_surrogate_model(
     hyperparam_space = get_hyperparam_space(sets)
 
     if fidelity_level == LEVEL_ONE:
-        model, rmse = kriging(
+        return kriging(
             param_space=hyperparam_space,
             sets=sets
         )
-    elif fidelity_level == LEVEL_TWO:
-        model, rmse = mf_kriging(
+    # elif fidelity_level == LEVEL_TWO:
+    else:
+        return mf_kriging(
             fidelity_level=fidelity_level,
             datasets=datasets,
             param_space=hyperparam_space,
             sets=sets,
         )
-
-    return model, rmse
 
 
 def save_model(
@@ -227,7 +225,7 @@ def optimize_hyper_parameters(
 
 def kriging(
     param_space: List,
-    sets: Dict,
+    sets: Dict[str, ndarray],
     n_calls: int = 50,
     random_state: int = 42,
 ) -> Tuple[KRG, float]:
@@ -245,53 +243,76 @@ def kriging(
     Returns:
         tuple: Trained kriging model and RMSE on the test set.
     """
-
-    # Extract training, validation, and test sets
-    x_train, x_val, x_test = sets["x_train"], sets["x_val"], sets["x_test"]
-    y_train, y_val, y_test = sets["y_train"], sets["y_val"], sets["y_test"]
-
-    # Check for NaN or infinite values in the datasets
-    check_nan_inf(x_train, x_test, x_val, y_train, y_test, y_val)
+    x_train, x_test, x_val, y_train, y_test, y_val = unpack_data(sets)
 
     def objective(params) -> float:
         """
         Needs to have params as an argument (gp_minimize restriction).
         """
-        theta0, corr, poly, opt, nugget, _, lambda_penalty = params
-
-        # Initialize and train the kriging model
-        model = KRG(theta0=[theta0], corr=corr, poly=poly, hyper_opt=opt, nugget=nugget)
-        model.set_training_values(x_train, y_train)
-        model.train()
-        loss = (
-            compute_rmse(model, x_val, y_val)
-            + lambda_penalty * np.mean(model.predict_variances(x_val))
+        _, loss = compute_loss(
+            params,
+            model_type="KRG",
+            x_train=x_train,
+            y_train=y_train,
+            x_=x_val,
+            y_=y_val,
         )
 
         return loss
 
+    # Then evaluate on the optimized hyper parameters
     best_params = optimize_hyper_parameters(objective, param_space, n_calls, random_state)
-
-    # Assess kriging model on the optimal parameters
-    model = KRG(
-        theta0=[best_params[0]],
-        corr=best_params[1],
-        poly=best_params[2],
-        hyper_opt=best_params[3],
-        nugget=best_params[4],
+    best_model, best_loss = compute_loss(
+        best_params,
+        model_type="KRG",
+        x_train=x_train,
+        y_train=y_train,
+        x_=x_test,
+        y_=y_test,
     )
+    log.info(f"Final RMSE on test set: {best_loss:.6f}")
 
+    return best_model, best_loss
+
+
+def compute_loss(
+    params: Tuple,
+    model_type: str,
+    x_train: ndarray,
+    y_train: ndarray,
+    x_: ndarray,
+    y_: ndarray,
+) -> Tuple[Union[KRG, MFK], float]:
+    """
+    Returns model and the loss for this model on the x_, y_ set.
+    """
+    if model_type == "KRG":
+        model = KRG(
+            theta0=[params[0]],
+            corr=params[1],
+            poly=params[2],
+            hyper_opt=params[3],
+            nugget=params[4],
+        )
+    else:
+        model = MFK(
+            theta0=[params[0]],
+            corr=params[1],
+            poly=params[2],
+            hyper_opt=params[3],
+            nugget=params[4],
+            rho_regr=params[5],
+        )
     model.set_training_values(x_train, y_train)
     model.train()
-
-    rmse_test = compute_rmse(model, x_test, y_test)
-    log.info(f"Final RMSE on test set: {rmse_test:.6f}")
-
-    return model, rmse_test
+    rmse = (
+        compute_rmse(model, x_, y_) + params[6] * np.mean(model.predict_variances(x_))
+    )
+    return model, rmse
 
 
 def mf_kriging(
-    fidelity_level: Literal["Two levels", "Three levels"],  # TODO: Three levels ?
+    fidelity_level: str,
     datasets: Dict,
     param_space: List,
     sets: Dict,
@@ -309,69 +330,41 @@ def mf_kriging(
         n_calls (int = 30): Number of iterations for Bayesian optimization.
         random_state (int = 42): Random seed for reproducibility.
     """
-
-    # Extract training, validation, and test sets
-    x_train, x_val, x_test = sets["x_train"], sets["x_val"], sets["x_test"]
-    y_train, y_val, y_test = sets["y_train"], sets["y_val"], sets["y_test"]
-    check_nan_inf(x_train, x_val, x_test, y_train, y_val, y_test)
+    x_train, x_test, x_val, y_train, y_test, y_val = unpack_data(sets)
 
     # Extract datasets for different fidelity levels
-    X_lf, y_lf, _, _, _ = datasets[LEVEL_ONE]
+    x_lf, y_lf = datasets[LEVEL_ONE][:2]
+    x_train, y_train = np.vstack([x_train, x_lf]), np.vstack([y_train, y_lf])
 
-    # TODO: Understand
-    X_mf, y_mf = (
-        datasets[LEVEL_TWO][:2]
-        if fidelity_level == "Three levels"
-        else (None, None)
-    )
+    # Add the LEVEL_TWO fidelity data if we are on a 3d level
+    if fidelity_level == "Three levels":
+        x_mf, y_mf = datasets[LEVEL_TWO][:2]
+        x_train, y_train = np.vstack([x_train, x_mf]), np.vstack([y_train, y_mf])
 
     def objective(params) -> float:
-        theta0, corr, poly, opt, nugget, rho_regr, lambda_penalty = params
-
-        model = MFK(
-            theta0=[theta0],
-            corr=corr,
-            poly=poly,
-            hyper_opt=opt,
-            nugget=nugget,
-            rho_regr=rho_regr,
+        _, loss = compute_loss(
+            params,
+            model_type="MFK",
+            x_train=x_train,
+            y_train=y_train,
+            x_=x_val,
+            y_=y_val,    
         )
-        model.set_training_values(X_lf, y_lf, name=0)
-        if fidelity_level == "Three levels":
-            model.set_training_values(X_mf, y_mf, name=1)
-        model.set_training_values(x_train, y_train)
-        model.train()
 
-        loss = (
-            compute_rmse(model, x_val, y_val)
-            + lambda_penalty * np.mean(model.predict_variances(x_val))
-        )
         return loss
 
     best_params = optimize_hyper_parameters(objective, param_space, n_calls, random_state)
-
-    # Assess multi-fidelity kriging model on the optimal parameters
-    model = MFK(
-        theta0=[best_params[0]],
-        corr=best_params[1],
-        poly=best_params[2],
-        hyper_opt=best_params[3],
-        nugget=best_params[4],
-        rho_regr=best_params[5],
+    best_model, best_loss = compute_loss(
+        best_params,
+        model_type="MFK",
+        x_train=x_train,
+        y_train=y_train,
+        x_=x_val,
+        y_=y_val,    
     )
-    model.set_training_values(X_lf, y_lf, name=0)
+    log.info(f"Final RMSE on test set: {best_loss:.6f}")
 
-    # TODO: Level three is configured ?
-    if fidelity_level == "Three levels":
-        model.set_training_values(X_mf, y_mf, name=1)
-
-    model.set_training_values(x_train, y_train)
-    model.train()
-
-    rmse_test = compute_rmse(model, x_test, y_test)
-    log.info(f"Final RMSE on test set: {rmse_test:.6f}")
-
-    return model, rmse_test
+    return best_model, best_loss
 
 
 def run_first_level_training(

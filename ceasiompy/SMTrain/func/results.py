@@ -78,11 +78,3 @@ def get_smt_results(cpacs: CPACS, results_dir: Path) -> None:
     if surrogate_model_path:
         create_branch(tixi, SM_XPATH)
         add_value(tixi, SM_XPATH, surrogate_model_path)
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

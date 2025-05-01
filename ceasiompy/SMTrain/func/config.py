@@ -75,20 +75,7 @@ def get_settings(cpacs: CPACS) -> Tuple[str, float, str, bool, bool, int, bool, 
     avl_or_su2 = get_value(tixi, SMTRAIN_AVL_OR_SU2_XPATH)
     rmse_obj = get_value(tixi, SMTRAIN_THRESHOLD_XPATH)
     avl = (avl_or_su2 == "AVL")
-
-    if objective not in OBJECTIVES_LIST:
-        raise ValueError(f"Invalid {objective=}. Choose from {list(OBJECTIVES_LIST.keys())}.")
-
-    log.info("SMTrain Settings:")
-    log.info(f"Fidelity Level: {fidelity_level}")
-    log.info(f"Data Repartition: {data_repartition}")
-    log.info(f"Objective: {objective}")
-    log.info(f"Show Plot: {show_plot}")
-    log.info(f"New Dataset: {new_dataset}")
-    log.info(f"Fraction of New Samples: {fraction_of_new_samples}")
-    log.info(f"DoE Enabled: {doe}")
-    log.info(f"Aerodynamic Solver: {avl_or_su2}")
-    log.info(f"RMSE Threshold: {rmse_obj}")
+    log.info(f"Surrogate's model {objective=} with {fidelity_level=}")
 
     return (
         fidelity_level,

@@ -5437,6 +5437,7 @@
                 <machNumber mapType="vector">0.3;0.3;0.3;0.3;0.5;0.5;0.5;0.5</machNumber>
                 <angleOfAttack mapType="vector">0;10;0;10;0;10;0;10</angleOfAttack>
                 <angleOfSideslip mapType="vector">0;0;10;10;0;0;10;10</angleOfSideslip>
+                <cl mapType="vector">0.1;0.1;0.1;0.1;0.1;0.1;0.1;0.1</cl>
               </aeroPerformanceMap>
             </aeroMap>
           </aeroPerformance>

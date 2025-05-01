@@ -119,7 +119,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             )
 
     else:
-        # Load existing datasets from CSV
         datasets = get_datasets_from_aeromaps(cpacs, obj_coef)
         sets = split_data(fidelity_level, datasets, split_ratio)
         model, _ = train_surrogate_model(fidelity_level, datasets, sets)

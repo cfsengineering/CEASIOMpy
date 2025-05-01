@@ -17,6 +17,7 @@ Utils for PyAVL module.
 import numpy as np
 
 from pydantic import validate_call
+from cpacspy.cpacsfunctions import get_value
 
 from pathlib import Path
 from numpy import ndarray
@@ -31,6 +32,7 @@ from typing import (
 )
 
 from ceasiompy.utils.commonxpaths import REF_XPATH
+from ceasiompy.PyAVL import AVL_EXPAND_VALUES_XPATH
 from ceasiompy import (
     log,
     ceasiompy_cfg,
@@ -110,7 +112,7 @@ def to_cpacs_format(point: Point) -> str:
 
 
 @validate_call(config=ceasiompy_cfg)
-def duplicate_elements(*lists: List) -> Tuple[List, ...]:
+def duplicate_elements(tixi: Tixi3, *lists: List) -> Tuple[List, ...]:
     """
     Duplicates lists such that there is a unique combination of them
     and the last three lists are zero-independent.
@@ -127,7 +129,8 @@ def duplicate_elements(*lists: List) -> Tuple[List, ...]:
         (Tuple[List, ...]): Number of *lists + 2, where the 3 last lists are zero-independent.
 
     """
-    if len(lists) < 2:
+
+    if len(lists) < 2 or get_value(tixi, AVL_EXPAND_VALUES_XPATH):
         return tuple(lists)
 
     *initial_lists, last_list = lists

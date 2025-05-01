@@ -77,6 +77,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         new_roll_rate_list,
         new_yaw_rate_list
     ) = duplicate_elements(
+        tixi,
         list(set(alt_list)),
         list(set(mach_list)),
         list(set(aoa_list)),
@@ -144,6 +145,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             new_elevator_list,
             new_rudder_list
         ) = duplicate_elements(
+            tixi,
             list(set(alt_list)),
             list(set(mach_list)),
             list(set(aoa_list)),

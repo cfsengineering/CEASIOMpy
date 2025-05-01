@@ -34,6 +34,7 @@ from ceasiompy.SMTrain import (
 #   FUNCTIONS
 # =================================================================================================
 
+
 def unpack_data(
     sets: Dict[str, ndarray]
 ) -> Tuple[ndarray, ndarray, ndarray, ndarray, ndarray, ndarray]:

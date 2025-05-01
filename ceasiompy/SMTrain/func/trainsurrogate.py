@@ -348,7 +348,7 @@ def mf_kriging(
             x_train=x_train,
             y_train=y_train,
             x_=x_val,
-            y_=y_val,    
+            y_=y_val,
         )
 
         return loss
@@ -360,7 +360,7 @@ def mf_kriging(
         x_train=x_train,
         y_train=y_train,
         x_=x_val,
-        y_=y_val,    
+        y_=y_val,
     )
     log.info(f"Final RMSE on test set: {best_loss:.6f}")
 

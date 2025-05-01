@@ -30,7 +30,6 @@ from ceasiompy.SMTrain.func.plot import plot_validation
 from ceasiompy.SMTrain.func.results import get_smt_results
 from ceasiompy.SMTrain.func.config import (
     get_settings,
-    design_of_experiment,
     get_datasets_from_aeromaps,
 )
 from ceasiompy.SMTrain.func.sampling import (
@@ -50,7 +49,6 @@ from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
 from ceasiompy.SMTrain import (
-    LEVEL_ONE,
     LEVEL_TWO,
     MODULE_NAME,
 )
@@ -78,7 +76,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         show_plot,
         new_dataset,
         fraction_of_new_samples,
-        doe, avl, rmse_obj,
+        doe, rmse_obj,
     ) = get_settings(cpacs)
 
     # 2. Train surrogate model
@@ -87,27 +85,14 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         lh_sampling_path = lh_sampling(cpacs, results_dir)
 
         # One level fidelity model training
-        if fidelity_level == LEVEL_ONE:
-            model, sets, datasets = run_first_level_training(
-                cpacs=cpacs,
-                results_dir=results_dir,
-                avl=avl,
-                lh_sampling_path=lh_sampling_path,
-                obj_coef=obj_coef,
-                split_ratio=split_ratio,
-            )
+        model, sets, datasets = run_first_level_training(
+            cpacs=cpacs,
+            lh_sampling_path=lh_sampling_path,
+            obj_coef=obj_coef,
+            split_ratio=split_ratio,
+        )
 
-        elif fidelity_level == LEVEL_TWO:
-            # Train the first-level (low-fidelity) model using AVL
-            model, sets, datasets = run_first_level_training(
-                cpacs=cpacs,
-                results_dir=results_dir,
-                avl=True,
-                lh_sampling_path=lh_sampling_path,
-                obj_coef=obj_coef,
-                split_ratio=split_ratio,
-            )
-
+        if fidelity_level == LEVEL_TWO:
             run_adaptative_refinement(
                 cpacs,
                 results_dir,

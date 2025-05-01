@@ -18,8 +18,11 @@ import numpy as np
 import pandas as pd
 
 from skopt import gp_minimize
-from smt.utils.misc import compute_rmse
-from ceasiompy.SMTrain.func.utils import unpack_data
+from ceasiompy.SMTrain.func.loss import compute_loss
+from ceasiompy.SMTrain.func.utils import (
+    log_params,
+    unpack_data,
+)
 from ceasiompy.SMTrain.func.sampling import (
     split_data,
     new_points,
@@ -207,20 +210,12 @@ def optimize_hyper_parameters(
         random_state=random_state
     )
     total_time = time.time() - start_time
-
-    # Retrieve and log the best hyperparameters
-    best_params = result.x
-    log.info("Best hyperparameters found:")
-    log.info(f"Theta0: {best_params[0]}")
-    log.info(f"Correlation: {best_params[1]}")
-    log.info(f"Polynomial: {best_params[2]}")
-    log.info(f"Optimizer: {best_params[3]}")
-    log.info(f"Nugget: {best_params[4]}")
-    log.info(f"Rho regressor: {best_params[5]}")
-    log.info(f"Penalty weight (λ): {best_params[6]}")
-    log.info(f"Lowest RMSE obtained: {result.fun:.6f}")
     log.info(f"Total optimization time: {total_time:.2f} seconds ({total_time / 60:.2f} minutes)")
-    return best_params
+
+    log.info("Best hyperparameters found:")
+    log_params(result)
+
+    return result.x
 
 
 def kriging(
@@ -275,42 +270,6 @@ def kriging(
     return best_model, best_loss
 
 
-def compute_loss(
-    params: Tuple,
-    model_type: str,
-    x_train: ndarray,
-    y_train: ndarray,
-    x_: ndarray,
-    y_: ndarray,
-) -> Tuple[Union[KRG, MFK], float]:
-    """
-    Returns model and the loss for this model on the x_, y_ set.
-    """
-    if model_type == "KRG":
-        model = KRG(
-            theta0=[params[0]],
-            corr=params[1],
-            poly=params[2],
-            hyper_opt=params[3],
-            nugget=params[4],
-        )
-    else:
-        model = MFK(
-            theta0=[params[0]],
-            corr=params[1],
-            poly=params[2],
-            hyper_opt=params[3],
-            nugget=params[4],
-            rho_regr=params[5],
-        )
-    model.set_training_values(x_train, y_train)
-    model.train()
-    rmse = (
-        compute_rmse(model, x_, y_) + params[6] * np.mean(model.predict_variances(x_))
-    )
-    return model, rmse
-
-
 def mf_kriging(
     fidelity_level: str,
     datasets: Dict,
@@ -359,8 +318,8 @@ def mf_kriging(
         model_type="MFK",
         x_train=x_train,
         y_train=y_train,
-        x_=x_val,
-        y_=y_val,
+        x_=x_test,
+        y_=y_test,
     )
     log.info(f"Final RMSE on test set: {best_loss:.6f}")
 
@@ -369,19 +328,14 @@ def mf_kriging(
 
 def run_first_level_training(
     cpacs: CPACS,
-    results_dir: Path,
-    avl: bool,
     lh_sampling_path: Path,
     obj_coef: str,
     split_ratio: float,
 ) -> Tuple[Union[KRG, MFK], Dict[str, ndarray], Dict[str, DataFrame]]:
     """
-    Run surrogate model training on first level.
+    Run surrogate model training on first level of fidelity (AVL).
     """
-    if avl:
-        level1_dataset = launch_avl(cpacs, lh_sampling_path, obj_coef)
-    else:
-        level1_dataset = launch_su2(cpacs, results_dir, SU2RUN_NAME, obj_coef)
+    level1_dataset = launch_avl(cpacs, lh_sampling_path, obj_coef)
     datasets = {LEVEL_ONE: level1_dataset}
     sets = split_data(LEVEL_ONE, datasets, split_ratio)
     model, _ = train_surrogate_model(LEVEL_ONE, datasets, sets)

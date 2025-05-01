@@ -18,6 +18,7 @@ import numpy as np
 
 from numpy import ndarray
 from pandas import DataFrame
+from scipy.optimize import OptimizeResult
 from typing import (
     List,
     Dict,
@@ -33,6 +34,18 @@ from ceasiompy.SMTrain import (
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def log_params(result: OptimizeResult) -> None:
+    params = result.x
+    log.info(f"Theta0: {params[0]}")
+    log.info(f"Correlation: {params[1]}")
+    log.info(f"Polynomial: {params[2]}")
+    log.info(f"Optimizer: {params[3]}")
+    log.info(f"Nugget: {params[4]}")
+    log.info(f"Rho regressor: {params[5]}")
+    log.info(f"Penalty weight (λ): {params[6]}")
+    log.info(f"Lowest RMSE obtained: {result.fun:.6f}")
 
 
 def unpack_data(

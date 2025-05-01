@@ -37,10 +37,9 @@ from ceasiompy.SMTrain import (
     SMTRAIN_PLOT_XPATH,
     SMTRAIN_OBJECTIVE_XPATH,
     SMTRAIN_TRAIN_PERC_XPATH,
-    SMTRAIN_AVL_OR_SU2_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
     SMTRAIN_NEWDATASET_FRAC_XPATH,
-    SMTRAIN_AEROMAP_FOR_TRAINING_XPATH,
+    SMTRAIN_TRAINING_AEROMAP_XPATH,
 )
 
 # ==============================================================================
@@ -92,13 +91,14 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="show_validation_plot",
     var_type=bool,
-    default_value=False,
+    default_value=True,
     unit=None,
     descr="Choose if the validation plot must be shown or not",
     xpath=SMTRAIN_PLOT_XPATH,
     gui=include_gui,
     gui_name="Validation plot",
     gui_group="Plot Settings",
+    test_value=False,
     expanded=False,
 )
 
@@ -108,7 +108,7 @@ cpacs_inout.add_input(
     default_value=st.session_state.cpacs.get_aeromap_uid_list().reverse(),
     unit=None,
     descr="Select, in the RIGHT ORDER, training datasets from the aeromaps",
-    xpath=SMTRAIN_AEROMAP_FOR_TRAINING_XPATH,
+    xpath=SMTRAIN_TRAINING_AEROMAP_XPATH,
     gui=include_gui,
     gui_name="__AEROMAP_SELECTION",
     gui_group="Training Dataset",
@@ -198,18 +198,6 @@ cpacs_inout.add_input(
     xpath=SMTRAIN_MAX_AOS,
     gui=include_gui,
     gui_name="Maximum angle of sideslip Range",
-    gui_group="Design of Experiments",
-)
-
-cpacs_inout.add_input(
-    var_name="use_avl_or_su2",
-    var_type=list,
-    default_value=["AVL", "SU2"],
-    unit=None,
-    descr="""Choose if you want to use AVL or SU2 for low fidelity simulation""",
-    xpath=SMTRAIN_AVL_OR_SU2_XPATH,
-    gui=include_gui,
-    gui_name="Use of AVL or SU2 for low fidelity simulations",
     gui_group="Design of Experiments",
 )
 

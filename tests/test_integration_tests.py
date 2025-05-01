@@ -23,6 +23,13 @@ from src.bin.ceasiompy_exec import run_modules_list
 from ceasiompy.utils.ceasiompyutils import change_working_dir
 
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
+from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
+from ceasiompy.CPACSUpdater import MODULE_NAME as CPACSUPDATER
+from ceasiompy.PyAVL import MODULE_NAME as PYAVL
+from ceasiompy.SaveAeroCoefficients import MODULE_NAME as SAVEAEROCOEF
+from ceasiompy.Database import MODULE_NAME as DATABASE
+from ceasiompy.SMTrain import MODULE_NAME as SMTRAIN
 
 # =================================================================================================
 #   CONSTANTS
@@ -59,7 +66,7 @@ def run_workflow_test(modules_to_run, cpacs_path=CPACS_IN_PATH):
 @pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_1():
-    run_workflow_test(["CPACSUpdater", "CPACS2GMSH", "SU2Run"])
+    run_workflow_test([CPACSUPDATER, CPACS2GMSH, SU2RUN])
     assert True
 
 
@@ -68,14 +75,14 @@ def test_integration_1():
 @pytest.mark.skipif(not shutil.which("pentagrow"), reason="Pentagrow not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_2():
-    run_workflow_test(["CPACS2GMSH", "SU2Run"], cpacs_path=CPACS_RANS)
+    run_workflow_test([CPACS2GMSH, SU2RUN], cpacs_path=CPACS_RANS)
     assert True
 
 
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
 def test_integration_3():
-    run_workflow_test(["PyAVL", "SaveAeroCoefficients", "Database"])
+    run_workflow_test([PYAVL, SAVEAEROCOEF, DATABASE])
     assert True
 
 
@@ -83,7 +90,7 @@ def test_integration_3():
 @pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
 def test_integration_4():
-    run_workflow_test(["CPACS2GMSH", "SMTrain", "SMUse", "SaveAeroCoefficients"])
+    run_workflow_test([CPACS2GMSH, SMTRAIN, "SMUse", SAVEAEROCOEF])
     assert True
 
 

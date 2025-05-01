@@ -25,8 +25,13 @@ from ceasiompy.SMTrain import (
     LEVEL_ONE,
     LEVEL_TWO,
     OBJECTIVES_LIST,
+    SMTRAIN_XPATH,
     SMTRAIN_NEWDOE,
     SMTRAIN_XPATH,
+    SMTRAIN_MAX_ALT,
+    SMTRAIN_MAX_MACH,
+    SMTRAIN_MAX_AOA,
+    SMTRAIN_MAX_AOS,
     SMTRAIN_THRESHOLD_XPATH,
     SMTRAIN_NSAMPLES_XPATH,
     SMTRAIN_NEW_DATASET,
@@ -34,7 +39,6 @@ from ceasiompy.SMTrain import (
     SMTRAIN_OBJECTIVE_XPATH,
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_AVL_OR_SU2_XPATH,
-    SMTRAIN_AEROMAP_DOE_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
     SMTRAIN_NEWDATASET_FRAC_XPATH,
     SMTRAIN_AEROMAP_FOR_TRAINING_XPATH,
@@ -151,14 +155,50 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="dataset_for_doe",
-    var_type=list,
-    default_value=None,
-    unit=None,
-    descr="Select the aeromap with ranges for the Design of Experiments",
-    xpath=SMTRAIN_AEROMAP_DOE_XPATH,
+    var_name="max_altitute",
+    var_type=int,
+    default_value=1000,
+    unit="m",
+    descr="Choose the maximum altitude (>=0)",
+    xpath=SMTRAIN_MAX_ALT,
     gui=include_gui,
-    gui_name="__AEROMAP_SELECTION",
+    gui_name="Maximum altitude Range",
+    gui_group="Design of Experiments",
+)
+
+cpacs_inout.add_input(
+    var_name="max_mach",
+    var_type=float,
+    default_value=0.4,
+    unit=None,
+    descr="Choose the maximum mach number (>=0.1)",
+    xpath=SMTRAIN_MAX_MACH,
+    gui=include_gui,
+    gui_name="Maximum mach Number Range",
+    gui_group="Design of Experiments",
+)
+
+cpacs_inout.add_input(
+    var_name="max_aoa",
+    var_type=int,
+    default_value=15,
+    unit="deg",
+    descr="Choose the maximum angle of attack (>=0)",
+    xpath=SMTRAIN_MAX_AOA,
+    gui=include_gui,
+    gui_name="Maximum angle of attack Range",
+    gui_group="Design of Experiments",
+)
+
+cpacs_inout.add_input(
+    var_name="max_aos",
+    var_type=int,
+    default_value=15,
+    unit="deg",
+    descr="Choose the maximum angle of sideslip (>=0)",
+    xpath=SMTRAIN_MAX_AOS,
+    gui=include_gui,
+    gui_name="Maximum angle of sideslip Range",
     gui_group="Design of Experiments",
 )
 
@@ -177,7 +217,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="number_of_samples",
     var_type=int,
-    default_value=100,
+    default_value=10,
     unit=None,
     descr="Choose the number of samples",
     xpath=SMTRAIN_NSAMPLES_XPATH,

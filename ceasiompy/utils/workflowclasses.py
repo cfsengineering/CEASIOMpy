@@ -269,7 +269,6 @@ class Workflow:
             wkdir, "Workflow_" + wkflow_idx)
         self.current_wkflow_dir.mkdir()
 
-        print(f'{self.cpacs_in=}')
         # Copy CPACS to the workflow dir
         if not self.cpacs_in.exists():
             raise FileNotFoundError(f"{self.cpacs_in} has not been found!")

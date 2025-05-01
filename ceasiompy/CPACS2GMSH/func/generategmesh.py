@@ -867,13 +867,9 @@ def generate_gmsh(
         log.info(f"New Dimension: {dim}, Tag: {tag}, Name: {name}")
 
     if surf is None:
-        surface_mesh_path = Path(results_dir, "surface_mesh.msh")
-        gmsh.write(str(surface_mesh_path))
-        # cgnsmesh_path = Path(results_dir, "mesh.cgns")
-        # gmsh.write(str(cgnsmesh_path))
+        write_gmsh(results_dir, "surface_mesh.msh")
     else:
-        surface_mesh_path = Path(results_dir, f"surface_mesh_{surf}_{angle}.msh")
-        gmsh.write(str(surface_mesh_path))
+        write_gmsh(results_dir, f"surface_mesh_{surf}_{angle}.msh")
 
     if bool_(open_gmsh):
         log.info("Result of 2D surface mesh")
@@ -898,9 +894,11 @@ def generate_gmsh(
 
     if surf is None:
         su2mesh_path = write_gmsh(results_dir, "mesh.su2")
+        write_gmsh(results_dir, "mesh.msh")
     else:
         mesh_name = f"mesh_{surf}_{angle}"
         su2mesh_path = write_gmsh(results_dir, f"{mesh_name}.su2")
+        write_gmsh(results_dir, f"{mesh_name}.msh")
 
     process_gmsh_log(gmsh.logger.get())
 

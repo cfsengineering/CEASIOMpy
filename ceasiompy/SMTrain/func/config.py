@@ -40,10 +40,13 @@ from ceasiompy.SMTrain import (
     OBJECTIVES_LIST,
     SMTRAIN_OBJECTIVE_XPATH,
     SMTRAIN_NEWDOE,
+    SMTRAIN_MAX_ALT,
+    SMTRAIN_MAX_MACH,
+    SMTRAIN_MAX_AOA,
+    SMTRAIN_MAX_AOS,
     SMTRAIN_NSAMPLES_XPATH,
     SMTRAIN_PLOT_XPATH,
     SMTRAIN_NEW_DATASET,
-    SMTRAIN_AEROMAP_DOE_XPATH,
     SMTRAIN_AVL_OR_SU2_XPATH,
     SMTRAIN_THRESHOLD_XPATH,
     SMTRAIN_TRAIN_PERC_XPATH,
@@ -214,55 +217,28 @@ def get_datasets_from_aeromaps(
     return datasets
 
 
-def get_aeromap(cpacs: CPACS) -> Tuple[DataFrame, int]:
-    tixi = cpacs.tixi
-    n_samples = int(get_value(tixi, SMTRAIN_NSAMPLES_XPATH))
-    aeromap_uid = get_value(tixi, SMTRAIN_AEROMAP_DOE_XPATH)
-
-    if not aeromap_uid:
-        log.error("No aeromap found for DoE in the CPACS file.")
-        raise ValueError("No aeromap available for DoE.")
-
-    log.info(f"Aeromap for DoE: {aeromap_uid}")
-    aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
-
-    return aeromap.df, n_samples
-
-
 def design_of_experiment(cpacs: CPACS) -> Tuple[int, Dict]:
     """
     Retrieves the aeromap data,
     extracts the range for each input variable,
     and returns the number of samples and the defined ranges.
     """
+    tixi = cpacs.tixi
+    n_samples = int(get_value(tixi, SMTRAIN_NSAMPLES_XPATH))
+    max_alt = int(get_value(tixi, SMTRAIN_MAX_ALT))
+    max_mach = float(get_value(tixi, SMTRAIN_MAX_MACH))
+    max_aoa = int(get_value(tixi, SMTRAIN_MAX_AOA))
+    max_aos = int(get_value(tixi, SMTRAIN_MAX_AOS))
 
-    aeromap_df, n_samples = get_aeromap(cpacs)
-
-    try:
-        ranges = {
-            "altitude": [
-                aeromap_df["altitude"].iloc[0],
-                aeromap_df["altitude"].iloc[1],
-            ],
-            "machNumber": [
-                aeromap_df["machNumber"].iloc[0],
-                aeromap_df["machNumber"].iloc[1],
-            ],
-            "angleOfAttack": [
-                aeromap_df["angleOfAttack"].iloc[0],
-                aeromap_df["angleOfAttack"].iloc[1],
-            ],
-            "angleOfSideslip": [
-                aeromap_df["angleOfSideslip"].iloc[0],
-                aeromap_df["angleOfSideslip"].iloc[1],
-            ],
-        }
-
-    except IndexError as e:
-        log.error(f"Error accessing aeromap data: {e}")
-        raise ValueError("Some issues with ranges provided")
-
-    log.info(f"DoE settings - n_samples: {n_samples}, ranges: {ranges}")
+    ranges: Dict[str, List[float]] = {
+        "altitude": [0, max_alt],
+        "machNumber": [0.1, max_mach],
+        "angleOfAttack": [0, max_aoa],
+        "angleOfSideslip": [0, max_aos],
+    }
+    log.info(f"Design of Experiment Settings for {n_samples=}.")
+    for key, value in ranges.items():
+        log.info(f"{value[0]} <= {key} <= {value[1]}")
 
     return n_samples, ranges
 

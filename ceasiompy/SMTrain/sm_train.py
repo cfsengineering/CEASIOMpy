@@ -30,16 +30,16 @@ from ceasiompy.SMTrain.func.plot import plot_validation
 from ceasiompy.SMTrain.func.results import get_smt_results
 from ceasiompy.SMTrain.func.config import (
     get_settings,
-    get_datasets_from_aeromaps,
+    # get_datasets_from_aeromaps,
 )
 from ceasiompy.SMTrain.func.sampling import (
-    new_doe,
-    split_data,
+    # new_doe,
+    # split_data,
     lh_sampling,
 )
 from ceasiompy.SMTrain.func.trainsurrogate import (
     save_model,
-    train_surrogate_model,
+    # train_surrogate_model,
     run_first_level_training,
     run_adaptative_refinement,
 )
@@ -74,40 +74,38 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         split_ratio,
         obj_coef,
         show_plot,
-        new_dataset,
-        fraction_of_new_samples,
-        doe, rmse_obj,
+        rmse_obj,
     ) = get_settings(cpacs)
 
     # 2. Train surrogate model
-    if doe:
-        # Generate new samples
-        lh_sampling_path = lh_sampling(cpacs, results_dir)
+    # if doe:
+    # Generate new samples
+    lh_sampling_path = lh_sampling(cpacs, results_dir)
 
-        # One level fidelity model training
-        model, sets, datasets = run_first_level_training(
-            cpacs=cpacs,
-            lh_sampling_path=lh_sampling_path,
-            obj_coef=obj_coef,
-            split_ratio=split_ratio,
+    # One level fidelity model training
+    model, sets, datasets = run_first_level_training(
+        cpacs=cpacs,
+        lh_sampling_path=lh_sampling_path,
+        obj_coef=obj_coef,
+        split_ratio=split_ratio,
+    )
+
+    if fidelity_level == LEVEL_TWO:
+        run_adaptative_refinement(
+            cpacs,
+            results_dir,
+            model,
+            datasets,
+            rmse_obj,
+            obj_coef,
         )
 
-        if fidelity_level == LEVEL_TWO:
-            run_adaptative_refinement(
-                cpacs,
-                results_dir,
-                model,
-                datasets,
-                rmse_obj,
-                obj_coef,
-            )
-
-    else:
-        datasets = get_datasets_from_aeromaps(cpacs, obj_coef)
-        sets = split_data(fidelity_level, datasets, split_ratio)
-        model, _ = train_surrogate_model(fidelity_level, datasets, sets)
-        if new_dataset:
-            new_doe(datasets, model, fraction_of_new_samples, results_dir)
+    # else:
+    #     datasets = get_datasets_from_aeromaps(cpacs, obj_coef)
+    #     sets = split_data(fidelity_level, datasets, split_ratio)
+    #     model, _ = train_surrogate_model(fidelity_level, datasets, sets)
+    #     if new_dataset:
+    #         new_doe(datasets, model, fraction_of_new_samples, results_dir)
 
     # 3. Plot, save and get results
     if show_plot:

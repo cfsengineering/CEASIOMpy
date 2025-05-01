@@ -46,26 +46,30 @@ OBJECTIVES_LIST = ["cl", "cd", "cs", "cmd", "cml", "cms"]
 # xPaths
 SMTRAIN_XPATH = CEASIOMPY_XPATH + "/SMTrain"
 
+# Surrogate model settings
 SMTRAIN_OBJECTIVE_XPATH = SMTRAIN_XPATH + "/Objective"
+SMTRAIN_FIDELITY_LEVEL_XPATH = SMTRAIN_XPATH + "/FidelityLevel"
+SMTRAIN_TRAIN_PERC_XPATH = SMTRAIN_XPATH + "/TrainingPercentage"
 
+# Plot
+SMTRAIN_PLOT_XPATH = SMTRAIN_XPATH + "/ValidationPlot"
+
+# Design Of Experiment
 SMTRAIN_DOE = SMTRAIN_XPATH + "/DesignOfExperiment"
-SMTRAIN_NEWDOE = SMTRAIN_DOE + "/NewDoe"
+# SMTRAIN_NEWDOE = SMTRAIN_DOE + "/NewDoe"
 SMTRAIN_THRESHOLD_XPATH = SMTRAIN_DOE + "/rmseThreshold"
 SMTRAIN_NSAMPLES_XPATH = SMTRAIN_DOE + "/nSamples"
 
+# Range
 SMTRAIN_MAX_ALT = SMTRAIN_XPATH + "/MaxAltitude"
 SMTRAIN_MAX_MACH = SMTRAIN_XPATH + "/MaxMach"
 SMTRAIN_MAX_AOA = SMTRAIN_XPATH + "/MaxAngleOfAttack"
 SMTRAIN_MAX_AOS = SMTRAIN_XPATH + "/MaxAngleOfSideslip"
 
-SMTRAIN_SM_XPATH = SMTRAIN_XPATH + "/SurrogateModelPath"
-SMTRAIN_FIDELITY_LEVEL_XPATH = SMTRAIN_XPATH + "/FidelityLevel"
-SMTRAIN_TRAIN_PERC_XPATH = SMTRAIN_XPATH + "/TrainingPercentage"
-SMTRAIN_PLOT_XPATH = SMTRAIN_XPATH + "/ValidationPlot"
-SMTRAIN_NEW_DATASET = SMTRAIN_XPATH + "/NewDataset"
+# SMTRAIN_NEW_DATASET = SMTRAIN_XPATH + "/NewDataset"
+# SMTRAIN_NEWDATASET_FRAC_XPATH = SMTRAIN_XPATH + "/NewDatasetFraction"
 
 SMTRAIN_TRAINING_AEROMAP_XPATH = SMTRAIN_XPATH + "/AeromapForTraining"
-SMTRAIN_NEWDATASET_FRAC_XPATH = SMTRAIN_XPATH + "/NewDatasetFraction"
 
 # =================================================================================================
 #    MAIN

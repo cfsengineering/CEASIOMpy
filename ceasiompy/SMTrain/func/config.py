@@ -38,18 +38,18 @@ from ceasiompy.PyAVL import AVL_AEROMAP_UID_XPATH
 from ceasiompy.SU2Run import SU2_AEROMAP_UID_XPATH
 from ceasiompy.SMTrain import (
     SMTRAIN_OBJECTIVE_XPATH,
-    SMTRAIN_NEWDOE,
+    # SMTRAIN_NEWDOE,
     SMTRAIN_MAX_ALT,
     SMTRAIN_MAX_MACH,
     SMTRAIN_MAX_AOA,
     SMTRAIN_MAX_AOS,
     SMTRAIN_NSAMPLES_XPATH,
     SMTRAIN_PLOT_XPATH,
-    SMTRAIN_NEW_DATASET,
+    # SMTRAIN_NEW_DATASET,
     SMTRAIN_THRESHOLD_XPATH,
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
-    SMTRAIN_NEWDATASET_FRAC_XPATH,
+    # SMTRAIN_NEWDATASET_FRAC_XPATH,
     SMTRAIN_TRAINING_AEROMAP_XPATH,
 )
 
@@ -67,9 +67,9 @@ def get_settings(cpacs: CPACS) -> Tuple[str, float, str, bool, bool, int, bool, 
     data_repartition = get_value(tixi, SMTRAIN_TRAIN_PERC_XPATH)
     objective = get_value(tixi, SMTRAIN_OBJECTIVE_XPATH)
     show_plot = get_value(tixi, SMTRAIN_PLOT_XPATH)
-    new_dataset = get_value(tixi, SMTRAIN_NEW_DATASET)
-    fraction_of_new_samples = int(get_value(tixi, SMTRAIN_NEWDATASET_FRAC_XPATH))
-    doe = get_value(tixi, SMTRAIN_NEWDOE)
+    # new_dataset = get_value(tixi, SMTRAIN_NEW_DATASET)
+    # fraction_of_new_samples = int(get_value(tixi, SMTRAIN_NEWDATASET_FRAC_XPATH))
+    # doe = get_value(tixi, SMTRAIN_NEWDOE)
     rmse_obj = get_value(tixi, SMTRAIN_THRESHOLD_XPATH)
     log.info(f"Surrogate's model {objective=} with {fidelity_level=}")
 
@@ -78,9 +78,9 @@ def get_settings(cpacs: CPACS) -> Tuple[str, float, str, bool, bool, int, bool, 
         data_repartition,
         objective,
         show_plot,
-        new_dataset,
-        fraction_of_new_samples,
-        doe,
+        # new_dataset,
+        # fraction_of_new_samples,
+        # doe,
         rmse_obj,
     )
 

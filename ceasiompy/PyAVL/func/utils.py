@@ -130,7 +130,8 @@ def duplicate_elements(tixi: Tixi3, *lists: List) -> Tuple[List, ...]:
 
     """
 
-    if len(lists) < 2 or get_value(tixi, AVL_EXPAND_VALUES_XPATH):
+    # If only one list or that you do not wish to expand values
+    if len(lists) < 2 or not get_value(tixi, AVL_EXPAND_VALUES_XPATH):
         return tuple(lists)
 
     *initial_lists, last_list = lists

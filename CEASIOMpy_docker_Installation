@@ -29,6 +29,7 @@ WORKDIR /CEASIOMpy/installation/Ubuntu/
 # Download only the required installation scripts
 RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/Ubuntu/install_pyavl.sh && \
     wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/Ubuntu/install_su2.sh
+    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/Ubuntu/install_pentagrow.sh
 
 # Make the scripts executable
 RUN chmod +x install_*.sh

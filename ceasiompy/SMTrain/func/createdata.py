@@ -30,6 +30,7 @@ from cpacspy.cpacspy import CPACS
 from unittest.mock import MagicMock
 
 from ceasiompy import log
+from ceasiompy.SMTrain.func import LH_SAMPLING_DATA
 from ceasiompy.PyAVL import (
     AVL_AEROMAP_UID_XPATH,
     MODULE_NAME as PYAVL_NAME,
@@ -66,12 +67,10 @@ def launch_avl(
         DataFrame: Contains AVL results for the requested objective.
     """
     tixi = cpacs.tixi
-    if not lh_sampling_path.is_file():
-        raise FileNotFoundError(f"LHS dataset not found: {lh_sampling_path}")
 
     # Remove existing aeromap if present
-    if tixi.uIDCheckExists("lh_sampling_dataset"):
-        cpacs.delete_aeromap("lh_sampling_dataset")
+    if tixi.uIDCheckExists(LH_SAMPLING_DATA):
+        cpacs.delete_aeromap(LH_SAMPLING_DATA)
 
     # Create and save new aeromap from LHS dataset
     aeromap = cpacs.create_aeromap_from_csv(lh_sampling_path)
@@ -117,7 +116,7 @@ def launch_su2(
 
     # Select dataset based on high-variance points or LHS sampling
     if high_variance_points is None:
-        aeromap_uid = "lh_sampling_dataset"
+        aeromap_uid = LH_SAMPLING_DATA
     else:
         aeromap_uid = "new_points"
     dataset_path = results_dir / f"{aeromap_uid}.csv"

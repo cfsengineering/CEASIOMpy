@@ -225,11 +225,3 @@ def design_of_experiment(cpacs: CPACS) -> Tuple[int, Dict]:
         log.info(f"{value[0]} <= {key} <= {value[1]}")
 
     return n_samples, ranges
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

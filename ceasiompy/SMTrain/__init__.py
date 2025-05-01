@@ -16,7 +16,6 @@ Initialization for SMTrain module.
 
 from pathlib import Path
 
-from ceasiompy import log
 from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 
 # ==============================================================================
@@ -70,10 +69,3 @@ SMTRAIN_MAX_AOS = SMTRAIN_XPATH + "/MaxAngleOfSideslip"
 # SMTRAIN_NEWDATASET_FRAC_XPATH = SMTRAIN_XPATH + "/NewDatasetFraction"
 
 SMTRAIN_TRAINING_AEROMAP_XPATH = SMTRAIN_XPATH + "/AeromapForTraining"
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

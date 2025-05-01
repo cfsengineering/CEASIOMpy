@@ -15,7 +15,6 @@ import streamlit as st
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.utils.commonxpaths import (
     SU2MESH_XPATH,
     CEASIOMPY_XPATH,
@@ -257,10 +256,3 @@ cpacs_inout.add_output(
     descr="path of the trained surrogate model",
     xpath=SMTRAIN_XPATH + "/surrogateModelPath",
 )
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

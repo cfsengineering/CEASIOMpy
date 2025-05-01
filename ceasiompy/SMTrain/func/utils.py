@@ -124,11 +124,3 @@ def get_val_fraction(train_fraction: float) -> float:
     # Convert from "% of train" to "% of test"
     test_val_fraction = 1 - train_fraction
     return test_val_fraction
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

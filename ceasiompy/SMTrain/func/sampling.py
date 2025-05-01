@@ -1,11 +1,10 @@
 """
+CEASIOMpy: Conceptual Aircraft Design Software
+
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-| Author: Giacomo Gronda
-| Creation: 2025-03-20
+Sampling strategies for SMTrain.
 
-TODO:
-    *Improve loop and AVL and SU2 settings
 """
 
 # ==============================================================================
@@ -35,6 +34,7 @@ from typing import (
 
 from ceasiompy import log
 from ceasiompy.SMTrain import LEVEL_ONE
+from ceasiompy.SMTrain.func import LH_SAMPLING_DATA_CSV
 
 # =================================================================================================
 #   FUNCTIONS
@@ -165,7 +165,7 @@ def lh_sampling(
 
     # Save sampled dataset
     sampled_df = DataFrame(sampled_dict)
-    output_file_path = results_dir / "lh_sampling_dataset.csv"
+    output_file_path = results_dir / LH_SAMPLING_DATA_CSV
     sampled_df.to_csv(output_file_path, index=False)
     log.info(f"LHS dataset saved in {output_file_path}")
 

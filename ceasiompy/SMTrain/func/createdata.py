@@ -91,8 +91,9 @@ def launch_avl(
     cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
     cpacs = CPACS(cpacs.cpacs_file)
 
+    _, _, _, _, df = dataset
     log.info(f"AVL results extracted for {objective}:")
-    log.info(dataset)
+    log.info(df)
 
     return dataset
 

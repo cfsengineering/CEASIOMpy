@@ -23,44 +23,72 @@ from typing import (
     Union,
 )
 
+from ceasiompy.SMTrain import (
+    LEVEL_ONE,
+    LEVEL_TWO,
+)
+
 
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
 
 
-def compute_loss(
+def compute_first_level_loss(
     params: Tuple,
-    model_type: str,
     x_train: ndarray,
     y_train: ndarray,
     x_: ndarray,
     y_: ndarray,
-) -> Tuple[Union[KRG, MFK], float]:
+) -> Tuple[KRG, float]:
     """
     Returns model and the loss for this model on the x_, y_ set.
     """
-    print(f"{params[0]=}")
-    if model_type == "KRG":
-        model = KRG(
-            theta0=[params[0]],
-            corr=params[1],
-            poly=params[2],
-            hyper_opt=params[3],
-            nugget=params[4],
-        )
-    else:
-        model = MFK(
-            theta0=[params[0]],
-            corr=params[1],
-            poly=params[2],
-            hyper_opt=params[3],
-            nugget=params[4],
-            rho_regr=params[5],
-        )
+    model = KRG(
+        theta0=[params[0]],
+        corr=f"{params[1]}",
+        poly=params[2],
+        hyper_opt=params[3],
+        nugget=params[4],
+    )
     model.set_training_values(x_train, y_train)
+    model.train()
+    return model, compute_loss(model, params[6], x_, y_)
+
+
+def compute_multi_level_loss(
+    params: Tuple,
+    x_fl_train: ndarray,
+    y_fl_train: ndarray,
+    x_ml_train: ndarray,
+    y_ml_train: ndarray,
+    x_: ndarray,
+    y_: ndarray,
+) -> Tuple[MFK, float]:
+    """
+    Returns model and the loss for this model on the x_, y_ set.
+    """
+    model = MFK(
+        theta0=[params[0]],
+        corr=f"{params[1]}",
+        poly=params[2],
+        hyper_opt=params[3],
+        nugget=params[4],
+        rho_regr=params[5],
+    )
+    model.set_training_values(x_fl_train, y_fl_train, name=LEVEL_ONE)
+    model.set_training_values(x_ml_train, y_ml_train, name=LEVEL_TWO)
     model.train()
     rmse = (
         compute_rmse(model, x_, y_) + params[6] * np.mean(model.predict_variances(x_))
     )
-    return model, rmse
+    return model, compute_loss(model, params[6], x_, y_)
+
+
+def compute_loss(
+    model: Union[KRG, MFK],
+    lambda_penalty: float,
+    x_: ndarray,
+    y_: ndarray,
+) -> float:
+    return compute_rmse(model, x_, y_) + lambda_penalty * np.mean(model.predict_variances(x_))

@@ -3,14 +3,11 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-<<<<<<< HEAD
-=======
 Test functions for 'ceasiompy/SaveAeroCoefficients/saveaerocoef.py'
 
 | Author : Aidan Jungo
 | Creation: 2022-09-23
 
->>>>>>> origin/main
 """
 
 # =================================================================================================

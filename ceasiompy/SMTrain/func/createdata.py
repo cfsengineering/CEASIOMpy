@@ -9,7 +9,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 #   IMPORTS
 # ==============================================================================
 
-import os
 import streamlit as st
 
 from ceasiompy.PyAVL.pyavl import main as run_avl
@@ -114,18 +113,16 @@ def launch_su2(
     4. Retrieves the results
 
     """
-
     tixi = cpacs.tixi
 
     # Select dataset based on high-variance points or LHS sampling
     if high_variance_points is None:
-        dataset_path = os.path.join(results_dir, "lh_sampling_dataset.csv")
         aeromap_uid = "lh_sampling_dataset"
     else:
-        dataset_path = os.path.join(results_dir, "new_points.csv")
         aeromap_uid = "new_points"
+    dataset_path = results_dir / f"{aeromap_uid}.csv"
 
-    if not os.path.exists(dataset_path):
+    if not dataset_path.is_file():
         raise FileNotFoundError(f"Dataset not found: {dataset_path}")
 
     # Remove existing aeromap if present

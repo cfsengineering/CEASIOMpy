@@ -375,7 +375,7 @@ def run_adaptative_refinement(
         # Generate unique SU2 working directory using iteration
         wkdir_su2 = Path(SU2RUN_NAME) / f"SU2_{iteration}"
         wkdir_su2.mkdir(parents=True, exist_ok=True)
-        su2_dataset = launch_su2(
+        dataset = launch_su2(
             cpacs=cpacs,
             results_dir=results_dir,
             results_dir_su2=wkdir_su2,
@@ -386,7 +386,7 @@ def run_adaptative_refinement(
         if LEVEL_TWO in datasets:
             # Stack new with old
             x_old, y_old, df_old, removed_old, df_cl_old = datasets[LEVEL_TWO]
-            x_new, y_new, df_new, _ , df_cl_new = su2_dataset
+            x_new, y_new, df_new, _ , df_cl_new = dataset
 
             datasets[LEVEL_TWO] = (
                 np.vstack([x_old, x_new]),
@@ -397,7 +397,7 @@ def run_adaptative_refinement(
             )
 
         else:
-            datasets[LEVEL_TWO] = su2_dataset
+            datasets[LEVEL_TWO] = dataset
 
         sets = split_data(LEVEL_TWO, datasets, 0.7, 0.5)  # TODO: Not specified from GUI ???
         model, rmse = train_surrogate_model(LEVEL_TWO, datasets, sets)

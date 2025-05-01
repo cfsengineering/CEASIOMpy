@@ -46,7 +46,7 @@ def compute_first_level_loss(
     """
     model = KRG(
         theta0=[params[0]],
-        corr=f"{params[1]}",
+        corr=params[1],
         poly=params[2],
         hyper_opt=params[3],
         nugget=params[4],
@@ -70,7 +70,7 @@ def compute_multi_level_loss(
     """
     model = MFK(
         theta0=[params[0]],
-        corr=f"{params[1]}",
+        corr=params[1],
         poly=params[2],
         hyper_opt=params[3],
         nugget=params[4],

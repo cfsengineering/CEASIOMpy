@@ -1,3 +1,2 @@
-ignore_paths:
-  - "/installation/Pentagrow/**"
-  - "**/Pentagrow/**"             
+exclude:
+  - installation/Pentagrow

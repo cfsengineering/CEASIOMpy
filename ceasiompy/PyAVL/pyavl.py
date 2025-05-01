@@ -69,25 +69,12 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     #
     # 2. p, q, r
     (
-        new_alt_list,
-        new_mach_list,
-        new_aoa_list,
-        new_aos_list,
-        new_pitch_rate_list,
-        new_roll_rate_list,
-        new_yaw_rate_list
+        new_alt_list, new_mach_list, new_aoa_list, new_aos_list,
+        new_pitch_rate_list, new_roll_rate_list, new_yaw_rate_list,
     ) = duplicate_elements(
-        tixi,
-        list(set(alt_list)),
-        list(set(mach_list)),
-        list(set(aoa_list)),
-        list(set(aos_list)),
-        list(set(rotation_rate_list)),
+        tixi, alt_list, mach_list, aoa_list, aos_list, rotation_rate_list,
     )
     first_cases = len(new_alt_list)
-
-    print(f"Before {alt_list=}")
-    print(f"After {new_alt_list=}")
 
     for i_case, alt in enumerate(new_alt_list):
         mach = new_mach_list[i_case]
@@ -141,18 +128,10 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         #
         # 3. aileron, elevator, rudder
         (
-            new_alt_list,
-            new_mach_list,
-            new_aoa_list,
-            new_aileron_list,
-            new_elevator_list,
-            new_rudder_list
+            new_alt_list, new_mach_list, new_aoa_list,
+            new_aileron_list, new_elevator_list, new_rudder_list,
         ) = duplicate_elements(
-            tixi,
-            list(set(alt_list)),
-            list(set(mach_list)),
-            list(set(aoa_list)),
-            list(set(control_surface_list)),
+            tixi, alt_list, mach_list, aoa_list, control_surface_list,
         )
 
         # Iterate through each case

@@ -18,7 +18,10 @@ GUI Interface of SaveAeroCoefficients.
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
-from ceasiompy.SaveAeroCoefficients import INCLUDE_GUI
+from ceasiompy.SaveAeroCoefficients import (
+    INCLUDE_GUI,
+    AEROMAP_FEATURES,
+)
 
 from ceasiompy.utils.commonxpaths import (
     RS_XPATH,
@@ -163,7 +166,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="first_constant_variable",
     var_type=list,
-    default_value=["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"],
+    default_value=AEROMAP_FEATURES,
     descr="""Firts Variable to mantain constant while the response surface is plotted
     \n Warning ! The parameter name must match the ones in the CSV file !""",
     xpath=RS_XPATH + "/FirstConstantVariable",

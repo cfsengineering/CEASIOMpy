@@ -20,7 +20,6 @@ from cpacspy.cpacspy import (
     AeroMap,
 )
 from typing import (
-    List,
     Dict,
     Tuple,
     Union,

@@ -24,10 +24,16 @@ from cpacspy.cpacsfunctions import (
     add_value,
     get_value,
 )
+
 from pathlib import Path
+from numpy import ndarray
 from pandas import DataFrame
 from cpacspy.cpacspy import CPACS
 from unittest.mock import MagicMock
+from typing import (
+    Dict,
+    Tuple,
+)
 
 from ceasiompy import log
 from ceasiompy.SMTrain.func import LH_SAMPLING_DATA
@@ -50,7 +56,7 @@ def launch_avl(
     cpacs: CPACS,
     lh_sampling_path: Path,
     objective: str,
-) -> DataFrame:
+) -> Tuple[ndarray, ndarray, DataFrame, Dict, DataFrame]:
     """
     Executes AVL aerodynamic analysis running PyAVL Module
 

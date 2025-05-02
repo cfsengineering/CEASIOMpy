@@ -15,7 +15,6 @@ import streamlit as st
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.utils.commonxpaths import SM_XPATH
 from ceasiompy.SMUse import (
     INCLUDE_GUI,
@@ -33,18 +32,6 @@ cpacs_inout = CPACSInOut()
 # ==============================================================================
 
 cpacs_inout.add_input(
-    var_name="prediction_dataset",
-    var_type=list,
-    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
-    unit=None,
-    descr="Aeromap gives inputs data",
-    xpath=SMUSE_DATASET,
-    gui=INCLUDE_GUI,
-    gui_name="__AEROMAP_SELECTION",
-    gui_group="Selected Aeromap",
-)
-
-cpacs_inout.add_input(
     var_name="model_file",
     var_type="pathtype",
     default_value="-",
@@ -53,4 +40,16 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Model to use",
     gui_group="Model",
+)
+
+cpacs_inout.add_input(
+    var_name="prediction_dataset",
+    var_type=list,
+    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
+    unit=None,
+    descr="Dataset on which to make the predictions",
+    xpath=SMUSE_DATASET,
+    gui=INCLUDE_GUI,
+    gui_name="__AEROMAP_SELECTION",
+    gui_group="Selected Aeromap",
 )

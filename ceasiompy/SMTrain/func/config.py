@@ -37,6 +37,7 @@ from ceasiompy import log
 from ceasiompy.PyAVL import AVL_AEROMAP_UID_XPATH
 from ceasiompy.SU2Run import SU2_AEROMAP_UID_XPATH
 from ceasiompy.SMTrain import (
+    AEROMAP_FEATURES,
     SMTRAIN_OBJECTIVE_XPATH,
     # SMTRAIN_NEWDOE,
     SMTRAIN_MAX_ALT,
@@ -95,7 +96,6 @@ def retrieve_aeromap_data(
     and prepares input-output data for training.
     """
 
-    input_columns = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
     activate_aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
     if activate_aeromap is None:
@@ -111,13 +111,16 @@ def retrieve_aeromap_data(
         objective: activate_aeromap.get(objective).tolist(),
     })
 
+    # If retrieve data from database
+    # Append the data here
+
     # Skip filtering if there is only one row
     # (important for adaptive sampling)
     if len(df) == 1:
         df_filtered = df.iloc[:, :4].copy()
         removed_columns = {}
     else:
-        df_filtered, removed_columns = filter_constant_columns(df, input_columns)
+        df_filtered, removed_columns = filter_constant_columns(df, AEROMAP_FEATURES)
 
     output = df[objective].values.reshape(-1, 1)
 

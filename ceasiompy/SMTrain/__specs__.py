@@ -65,10 +65,10 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="trainig_part",
+    var_name="training_part",
     var_type=float,
     default_value=0.7,
-    descr="Defining the percentage of the data to use to train the model in [0;1]",
+    descr="Defining the percentage of the data to use to train the model in [0, 1]",
     xpath=SMTRAIN_TRAIN_PERC_XPATH,
     gui=INCLUDE_GUI,
     gui_name=r"% of training data",

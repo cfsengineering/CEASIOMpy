@@ -30,6 +30,7 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
+from ceasiompy.SaveAeroCoefficients import AEROMAP_FEATURES
 from ceasiompy.utils.commonxpaths import (
     RS_XPATH,
     PLOT_XPATH,
@@ -61,9 +62,6 @@ def plot_response_surface(cpacs: CPACS, results_dir: Path) -> None:
         log.warning("removed_columns is not a list, setting to empty list.")
         removed_columns = []
 
-    # Define the input feature names
-    input_columns = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
-
     # Extract X-axis variable and limits
     x = get_value(tixi, RS_XPATH + "/VariableOnX/Variable")
     x_low_limit = get_value(tixi, RS_XPATH + "/VariableOnX/LowLimit")
@@ -87,17 +85,15 @@ def plot_response_surface(cpacs: CPACS, results_dir: Path) -> None:
     X, Y = np.meshgrid(x_grid, y_grid)
 
     # Build the input matrix for model prediction
-    input_data = np.column_stack([
-        (
-            X.ravel()
-            if col == x
-            else (
-                Y.ravel()
-                if col == y
-                else np.full(X.size, c1_value) if col == c1 else np.full(X.size, c2_value)
-            )
-        )
-        for col in input_columns
+    input_data = np.column_stack([(
+        X.ravel()
+        if col == x
+        else (
+            Y.ravel()
+            if col == y
+            else np.full(X.size, c1_value) if col == c1 else np.full(X.size, c2_value)
+        ))
+        for col in AEROMAP_FEATURES
         if col not in removed_columns
     ])
 
@@ -160,8 +156,7 @@ def plot_response_surface(cpacs: CPACS, results_dir: Path) -> None:
     ax.legend()
 
     # Save the plot as an image in the results directory
-    fig_path = Path(results_dir, "response_surface_" + x + "_vs_" + y + ".png")
-    plt.savefig(fig_path)
+    plt.savefig(Path(results_dir, "response_surface_" + x + "_vs_" + y + ".png"))
     plt.close(fig)
 
 

@@ -42,7 +42,10 @@ LEVEL_TWO = "Two levels"
 # ===== List of potential objectives =====
 OBJECTIVES_LIST = ["cl", "cd", "cs", "cmd", "cml", "cms"]
 
-# xPaths
+# ===== List of an aeromap (basic) features =====
+AEROMAP_FEATURES = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
+
+# ===== xPaths =====
 SMTRAIN_XPATH = CEASIOMPY_XPATH + "/SMTrain"
 
 # Surrogate model settings

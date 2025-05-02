@@ -35,6 +35,9 @@ RES_DIR = True
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 
+# ===== List of (basic) aeromap features =====
+AEROMAP_FEATURES = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
+
 # None options
 NONE_LIST = ["None", "NONE", "No", "NO", "N", "n", "-", " ", ""]  # ?
 

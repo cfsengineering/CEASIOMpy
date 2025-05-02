@@ -21,8 +21,10 @@ import streamlit as st
 from streamlitutils import create_sidebar
 from ceasiompy.utils.moduleinterfaces import get_module_list
 
+from ceasiompy.SMUse import MODULE_NAME as SMUSE
 from ceasiompy.PyAVL import MODULE_NAME as PYAVL
 from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
+from ceasiompy.SMTrain import MODULE_NAME as SMTRAIN
 from ceasiompy.Database import MODULE_NAME as DATABASE
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
 from ceasiompy.CPACSUpdater import MODULE_NAME as CPACSUPDATER
@@ -59,6 +61,7 @@ def section_predefined_workflow():
         [CPACSUPDATER, "CPACSCreator", CPACS2GMSH, DATABASE],
         [CPACSUPDATER, CPACS2GMSH, SU2RUN, "ExportCSV"],
         [CPACS2GMSH, "ThermoData", SU2RUN, "SkinFriction"],
+        [SMTRAIN, SMUSE, SAVEAEROCOEF],
         # ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"],
     ]
 

@@ -133,7 +133,7 @@ if __name__ == "__main__":
 
     st.title(PAGE_NAME)
 
-    if st.session_state.last_page != PAGE_NAME:
+    if "last_page" in st.session_state and st.session_state.last_page != PAGE_NAME:
         save_cpacs_file()
 
     workflow_buttons()

@@ -5,9 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Plot Aerodynamic coefficients from CPACS v3 aeroMaps
 
-| Author: Aidan jungo
-| Creation: 2019-08-19
-
 TODO:
     * add plot vs Mach, vs sideslip angle, damping derivatives, CS deflections
 """
@@ -33,10 +30,12 @@ from cpacspy.cpacspy import (
     AeroMap,
 )
 
-from ceasiompy.SaveAeroCoefficients import MODULE_NAME
+from ceasiompy.SaveAeroCoefficients import (
+    CRIT_XPATH,
+    MODULE_NAME,
+)
 from ceasiompy.utils.commonxpaths import (
     RS_XPATH,
-    PLOT_XPATH,
     AIRCRAFT_NAME_XPATH,
     AEROMAP_TO_PLOT_XPATH,
 )
@@ -74,10 +73,9 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     title = tixi.getTextElement(AIRCRAFT_NAME_XPATH)
     criterion = pd.Series([True] * len(aeromap.index))
 
-    crit_xpath = PLOT_XPATH + "/criterion"
-    alt_crit = get_value_or_default(tixi, crit_xpath + "/alt", "None")
-    mach_crit = get_value_or_default(tixi, crit_xpath + "/mach", "None")
-    aos_crit = get_value_or_default(tixi, crit_xpath + "/aos", "None")
+    alt_crit = get_value_or_default(tixi, CRIT_XPATH + "/alt", "None")
+    mach_crit = get_value_or_default(tixi, CRIT_XPATH + "/mach", "None")
+    aos_crit = get_value_or_default(tixi, CRIT_XPATH + "/aos", "None")
 
     deal_with_feature(title, criterion, aeromap, groupby_list, "altitude", alt_crit)
     deal_with_feature(title, criterion, aeromap, groupby_list, "machNumber", mach_crit)

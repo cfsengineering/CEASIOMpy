@@ -5,9 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Plot Aerodynamic coefficients from CPACS v3 aeroMaps
 
-| Author: Leon Deligny
-| Creation: 27 march 2025
-
 """
 
 # =================================================================================================
@@ -85,12 +82,3 @@ def plot(wkdir: Path, groupby_list: List, title: str, aeromap, criterion) -> Non
     fig_path = Path(wkdir, fig_name)
     plt.savefig(fig_path)
     log.info(f"Figure saved at: {fig_path}")
-
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

@@ -127,6 +127,7 @@ def retrieve_aeromap_data(
         data = ceasiompy_db.get_data(
             table_name="avl_data",
             columns=["alt", "mach", "alpha", "beta", objective],
+            db_close=True,
             filters=[
                 f"mach IN (0.0, {ranges['machNumber']})",
                 f"aircraft = '{aircraft}'",
@@ -138,8 +139,8 @@ def retrieve_aeromap_data(
                 "rb_2V = 0.0",
             ]
         )
-        ceasiompy_db.close()
-        data_df = pd.DataFrame(data, columns=df.columns)
+        log.info(f"Importing from ceasiompy.db {data=}")
+        data_df = DataFrame(data, columns=df.columns)
         df = pd.concat([df, data_df], ignore_index=True)
 
         # Post processing

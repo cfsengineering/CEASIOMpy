@@ -126,19 +126,24 @@ def retrieve_aeromap_data(
         ceasiompy_db = CeasiompyDb()
         data = ceasiompy_db.get_data(
             table_name="avl_data",
-            columns=["mach", "alt", "alpha", "beta", objective],
+            columns=["alt", "mach", "alpha", "beta", objective],
             filters=[
-                f"mach IN (0.0, {ranges['mach']})",
+                f"mach IN (0.0, {ranges['machNumber']})",
                 f"aircraft = '{aircraft}'",
-                f"alt IN ()",
-                "beta IN (0.0)",
+                f"alt IN (0.0, {ranges['altitude']})",
+                f"alpha IN (0.0, {ranges['angleOfAttack']})",
+                f"beta IN (0.0, {ranges['angleOfSideslip']})",
                 "pb_2V = 0.0",
                 "qc_2V = 0.0",
                 "rb_2V = 0.0",
             ]
         )
         ceasiompy_db.close()
-        df = pd.concat([df, data], )
+        data_df = pd.DataFrame(data, columns=df.columns)
+        df = pd.concat([df, data_df], ignore_index=True)
+
+        # Post processing
+        df = df.drop_duplicates(ignore_index=True)
 
     # Skip filtering if there is only one row
     # (important for adaptive sampling)

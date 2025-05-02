@@ -16,8 +16,13 @@ TODO:
 
 import numpy as np
 
+from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
+from cpacspy.cpacspy import (
+    CPACS,
+    AeroMap,
+)
 from scipy.optimize import OptimizeResult
 from typing import (
     List,
@@ -26,6 +31,7 @@ from typing import (
 )
 
 from ceasiompy import log
+from ceasiompy.SMTrain.func import LH_SAMPLING_DATA
 from ceasiompy.SMTrain import (
     LEVEL_ONE,
     LEVEL_TWO,
@@ -34,6 +40,37 @@ from ceasiompy.SMTrain import (
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def create_aeromap_from_varpts(
+    cpacs: CPACS,
+    results_dir: Path,
+    high_variance_points: str,
+) -> AeroMap:
+
+    # Select dataset based on high-variance points or LHS sampling
+    if high_variance_points is None:
+        aeromap_uid = LH_SAMPLING_DATA
+    else:
+        aeromap_uid = "new_points"
+    dataset_path = results_dir / f"{aeromap_uid}.csv"
+
+    if not dataset_path.is_file():
+        raise FileNotFoundError(f"Dataset not found: {dataset_path}")
+
+    # Remove existing aeromap if present
+    if cpacs.tixi.uIDCheckExists(aeromap_uid):
+        cpacs.delete_aeromap(aeromap_uid)
+
+    # Create and save new aeromap from the dataset
+    aeromap = cpacs.create_aeromap_from_csv(dataset_path)
+    if not aeromap:
+        raise ValueError(f"Failed to create aeromap '{aeromap_uid}'.")
+
+    aeromap.save()
+    log.info(f"Selected aeromap: {aeromap_uid}")
+
+    return aeromap
 
 
 def log_params(result: OptimizeResult) -> None:
@@ -89,8 +126,16 @@ def filter_constant_columns(
         - removed_columns (Dict): Removed columns with their constant values.
     """
 
-    columns_to_keep = [col for col in input_columns if df[col].nunique() > 1]
-    removed_columns = {col: df[col].iloc[0] for col in input_columns if col not in columns_to_keep}
+    columns_to_keep = [
+        col
+        for col in input_columns
+        if df[col].nunique() > 1
+    ]
+    removed_columns = {
+        col: df[col].iloc[0]
+        for col in input_columns
+        if col not in columns_to_keep
+    }
 
     if removed_columns:
         log.info(f"Removing constant columns: {list(removed_columns.keys())}")

@@ -51,11 +51,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         2. For each .su2 file create a .cfg configuration file.
         3. Run each .cfg file in SU2_CFD.
         4. Retrieve force files results in configuration directory.
-
-    Args:
-        cpacs (CPACS): Input CPACS file.
-        wkdir (Path): SU2Run Results directory.
-
     """
 
     # Define variable

@@ -11,25 +11,21 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 import streamlit as st
 
+from cpacspy.cpacsfunctions import get_value
 from ceasiompy.PyAVL.pyavl import main as run_avl
-from ceasiompy.SU2Run.su2run import run_SU2_multi
-from ceasiompy.SU2Run.func.results import get_su2_results
+from ceasiompy.SU2Run.su2run import main as run_su2
 from ceasiompy.SMTrain.func.config import retrieve_aeromap_data
+from ceasiompy.SMTrain.func.utils import create_aeromap_from_varpts
 from ceasiompy.utils.ceasiompyutils import (
     update_cpacs_from_specs,
     get_results_directory,
-)
-from ceasiompy.SU2Run.func.config import generate_su2_cfd_config
-from cpacspy.cpacsfunctions import (
-    add_value,
-    get_value,
 )
 
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
-from cpacspy.cpacspy import CPACS
 from unittest.mock import MagicMock
+from cpacspy.cpacspy import CPACS
 from typing import (
     Dict,
     Tuple,
@@ -37,13 +33,14 @@ from typing import (
 
 from ceasiompy import log
 from ceasiompy.SMTrain.func import LH_SAMPLING_DATA
+from ceasiompy.SMTrain import SMTRAIN_USED_SU2_MESH_XPATH
 from ceasiompy.PyAVL import (
     AVL_AEROMAP_UID_XPATH,
     MODULE_NAME as PYAVL_NAME,
 )
 from ceasiompy.SU2Run import (
+    USED_SU2_MESH_XPATH,
     SU2_AEROMAP_UID_XPATH,
-    SU2_CONFIG_RANS_XPATH,
     MODULE_NAME as SU2RUN_NAME,
 )
 
@@ -108,7 +105,6 @@ def launch_avl(
 def launch_su2(
     cpacs: CPACS,
     results_dir: Path,
-    results_dir_su2: Path,
     objective: str,
     high_variance_points=None,  # TODO: For sure there is an issue with this argument
 ) -> DataFrame:
@@ -122,67 +118,30 @@ def launch_su2(
 
     """
     tixi = cpacs.tixi
-
-    # Select dataset based on high-variance points or LHS sampling
-    if high_variance_points is None:
-        aeromap_uid = LH_SAMPLING_DATA
-    else:
-        aeromap_uid = "new_points"
-    dataset_path = results_dir / f"{aeromap_uid}.csv"
-
-    if not dataset_path.is_file():
-        raise FileNotFoundError(f"Dataset not found: {dataset_path}")
-
-    # Remove existing aeromap if present
-    if tixi.uIDCheckExists(aeromap_uid):
-        cpacs.delete_aeromap(aeromap_uid)
-
-    # Create and save new aeromap from the dataset
-    aeromap = cpacs.create_aeromap_from_csv(dataset_path)
-    if not aeromap:
-        raise ValueError(f"Failed to create aeromap '{aeromap_uid}'.")
-
-    aeromap.save()
-
-    add_value(cpacs.tixi, SU2_AEROMAP_UID_XPATH, aeromap.uid)
-    cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
-
-    log.info(f"Selected aeromap: {aeromap_uid}")
-
-    # Determine SU2 configuration
-    cpacs = CPACS(cpacs.cpacs_file)
-    # iterations = get_value_or_default(cpacs.tixi, SU2_MAX_ITER_XPATH, 2)
-    # nb_proc = get_value_or_default(cpacs.tixi, SU2_NB_CPU_XPATH, get_reasonable_nb_cpu())
-    config_file_type = get_value(tixi, SU2_CONFIG_RANS_XPATH)
+    aeromap = create_aeromap_from_varpts(cpacs, results_dir, high_variance_points)
 
     # Load default parameters
     st.session_state = MagicMock()
     update_cpacs_from_specs(cpacs, SU2RUN_NAME, test=True)
 
-    rans = (config_file_type == "RANS")
-    generate_su2_cfd_config(
-        cpacs=cpacs,
-        wkdir=results_dir_su2,
-        su2_mesh_paths=[],
-        mesh_markers=[],
-        rans=rans,
-        dyn_stab=False,
-    )
-
-    # Execute SU2 simulation
-    run_SU2_multi(results_dir_su2)
-    get_su2_results(cpacs, results_dir_su2)
-
-    log.info("----- End of " + "SU2Run" + " -----")
-
-    # Reload CPACS with updated results
+    # Update CPACS with the new aeromap
+    tixi.updateTextElement(SU2_AEROMAP_UID_XPATH, aeromap.uid)
+    
+    # Update CPACS with dynamic mesh path and settings
+    su2_mesh_path = get_value(tixi, SMTRAIN_USED_SU2_MESH_XPATH)
+    tixi.updateTextElement(USED_SU2_MESH_XPATH, su2_mesh_path)
+    cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
     cpacs = CPACS(cpacs.cpacs_file)
+    run_su2(cpacs, results_dir=get_results_directory(SU2RUN_NAME))
 
-    # Retrieve aerodynamic data
+    # Retrieve aerodynamic data, save then overwrite cpacs file
+    cpacs = CPACS(cpacs.cpacs_file)
     dataset = retrieve_aeromap_data(cpacs, aeromap.uid, objective)
     cpacs.save_cpacs(cpacs, overwrite=True)
 
-    log.info(f"SU2 results extracted for {objective}:")
-    log.info(dataset)
+    # Log the generated dataset, with objective values
+    _, _, _, _, df = dataset
+    log.info(f"AVL results extracted for {objective}:")
+    log.info(df)
 
     return dataset

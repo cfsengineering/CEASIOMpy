@@ -48,6 +48,12 @@ AEROMAP_FEATURES = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"
 # ===== xPaths =====
 SMTRAIN_XPATH = CEASIOMPY_XPATH + "/SMTrain"
 
+# Enriching dataset from previously computed values with AVL
+SMTRAIN_AVL_DATABASE_XPATH = SMTRAIN_XPATH + "/AVLDatabase"
+
+# Mesh for SU2 enriching data
+SMTRAIN_USED_SU2_MESH_XPATH = SMTRAIN_XPATH + "/Usedsu2mesh"
+
 # Surrogate model settings
 SMTRAIN_OBJECTIVE_XPATH = SMTRAIN_XPATH + "/Objective"
 SMTRAIN_FIDELITY_LEVEL_XPATH = SMTRAIN_XPATH + "/FidelityLevel"

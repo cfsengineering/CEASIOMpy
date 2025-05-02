@@ -14,8 +14,13 @@ Get settings from GUI. Manage datasets and perform LHS when required.
 #   IMPORTS
 # =================================================================================================
 
+import pandas as pd
+
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
+from ceasiompy.utils.ceasiompyutils import (
+    aircraft_name,
+    get_aeromap_list_from_xpath,
+)   
 from ceasiompy.SMTrain.func.utils import (
     level_to_str,
     filter_constant_columns,
@@ -23,6 +28,7 @@ from ceasiompy.SMTrain.func.utils import (
 
 from numpy import ndarray
 from pandas import DataFrame
+from ceasiompy.Database.func.storing import CeasiompyDb
 from typing import (
     List,
     Dict,
@@ -50,6 +56,7 @@ from ceasiompy.SMTrain import (
     SMTRAIN_THRESHOLD_XPATH,
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
+    SMTRAIN_AVL_DATABASE_XPATH,
     # SMTRAIN_NEWDATASET_FRAC_XPATH,
     SMTRAIN_TRAINING_AEROMAP_XPATH,
 )
@@ -95,7 +102,7 @@ def retrieve_aeromap_data(
     Retrieves the aerodynamic data from a CPACS aeromap
     and prepares input-output data for training.
     """
-
+    tixi = cpacs.tixi
     activate_aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
     if activate_aeromap is None:
@@ -113,6 +120,25 @@ def retrieve_aeromap_data(
 
     # If retrieve data from database
     # Append the data here
+    if get_value(tixi, SMTRAIN_AVL_DATABASE_XPATH):
+        _, ranges = design_of_experiment(cpacs)
+        aircraft: str = aircraft_name(tixi)
+        ceasiompy_db = CeasiompyDb()
+        data = ceasiompy_db.get_data(
+            table_name="avl_data",
+            columns=["mach", "alt", "alpha", "beta", objective],
+            filters=[
+                f"mach IN (0.0, {ranges['mach']})",
+                f"aircraft = '{aircraft}'",
+                f"alt IN ()",
+                "beta IN (0.0)",
+                "pb_2V = 0.0",
+                "qc_2V = 0.0",
+                "rb_2V = 0.0",
+            ]
+        )
+        ceasiompy_db.close()
+        df = pd.concat([df, data], )
 
     # Skip filtering if there is only one row
     # (important for adaptive sampling)

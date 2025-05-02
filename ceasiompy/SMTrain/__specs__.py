@@ -11,20 +11,13 @@ Initialization for SMTrain module.
 #   IMPORTS
 # ==============================================================================
 
-import streamlit as st
-
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy.utils.commonxpaths import (
-    SU2MESH_XPATH,
-    CEASIOMPY_XPATH,
-)
 from ceasiompy.SMTrain import (
     INCLUDE_GUI,
     LEVEL_ONE,
     LEVEL_TWO,
     OBJECTIVES_LIST,
-    SMTRAIN_XPATH,
     # SMTRAIN_NEWDOE,
     SMTRAIN_MAX_ALT,
     SMTRAIN_MAX_MACH,
@@ -38,7 +31,8 @@ from ceasiompy.SMTrain import (
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
     # SMTRAIN_NEWDATASET_FRAC_XPATH,
-    SMTRAIN_TRAINING_AEROMAP_XPATH,
+    SMTRAIN_AVL_DATABASE_XPATH,
+    SMTRAIN_USED_SU2_MESH_XPATH,
 )
 
 # ==============================================================================
@@ -102,16 +96,31 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="training_datasets",
-    var_type=list,
-    default_value=st.session_state.cpacs.get_aeromap_uid_list().reverse(),
+    var_name="avl_dataset_enriching",
+    var_type=bool,
+    default_value=True,
     unit=None,
-    descr="Select, in the RIGHT ORDER, training datasets from the aeromaps",
-    xpath=SMTRAIN_TRAINING_AEROMAP_XPATH,
+    descr="Enrich your dataset from previously computed AVL values stored in ceasiompy.db",
+    xpath=SMTRAIN_AVL_DATABASE_XPATH,
     gui=INCLUDE_GUI,
-    gui_name="__AEROMAP_SELECTION",
-    gui_group="Training Dataset",
+    gui_name="Data from ceasiompy.db",
+    gui_group="Data Enriching Settings",
+    test_value=False,
+    expanded=True,
 )
+
+
+# cpacs_inout.add_input(
+#     var_name="training_datasets",
+#     var_type=list,
+#     default_value=st.session_state.cpacs.get_aeromap_uid_list().reverse(),
+#     unit=None,
+#     descr="Select, in the RIGHT ORDER, training datasets from the aeromaps",
+#     xpath=SMTRAIN_TRAINING_AEROMAP_XPATH,
+#     gui=INCLUDE_GUI,
+#     gui_name="__AEROMAP_SELECTION",
+#     gui_group="Training Dataset",
+# )
 
 # cpacs_inout.add_input(
 #     var_name="new_dataset",
@@ -214,14 +223,14 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="su2_mesh_path",
-    var_type="pathtype",
-    default_value="-",
+    var_name="smtrain_mesh_choice",
+    var_type="DynamicChoice",
+    default_value=["CPACS2GMSH mesh", "Path", "db"],
     unit=None,
-    descr="Absolute path of the SU2 mesh",
-    xpath=SU2MESH_XPATH,
+    descr="Choose from where to upload the mesh",
+    xpath=SMTRAIN_USED_SU2_MESH_XPATH,
     gui=INCLUDE_GUI,
-    gui_name="SU2 Mesh",
+    gui_name="Choose mesh",
     gui_group="SU2 Parameters",
 )
 
@@ -235,24 +244,4 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="RMSE Threshold",
     gui_group="SU2 Parameters",
-)
-
-# ==============================================================================
-#   GUI OUTPUTS
-# ==============================================================================
-
-cpacs_inout.add_output(
-    var_name="output",
-    default_value=None,
-    unit="1",
-    descr="Description of the output",
-    xpath=CEASIOMPY_XPATH + "/test/myOutput",
-)
-
-cpacs_inout.add_output(
-    var_name="surrogateModel",
-    default_value=None,
-    unit="1",
-    descr="path of the trained surrogate model",
-    xpath=SMTRAIN_XPATH + "/surrogateModelPath",
 )

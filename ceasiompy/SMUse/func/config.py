@@ -40,7 +40,6 @@ from ceasiompy.utils.commonxpaths import SM_XPATH
 
 def get_predictions_dataset(
     cpacs: CPACS
-    #, removed_columns: List
 ) -> Dict:
     """
     Extracts the dataset for predictions from the CPACS file

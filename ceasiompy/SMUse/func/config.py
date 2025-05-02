@@ -38,7 +38,10 @@ from ceasiompy.utils.commonxpaths import SM_XPATH
 # =================================================================================================
 
 
-def get_predictions_dataset(cpacs: CPACS, removed_columns: List) -> Dict:
+def get_predictions_dataset(
+    cpacs: CPACS
+    #, removed_columns: List
+) -> Dict:
     """
     Extracts the dataset for predictions from the CPACS file
     by reading the specified aeromaps.
@@ -69,20 +72,22 @@ def get_predictions_dataset(cpacs: CPACS, removed_columns: List) -> Dict:
             "angleOfSideslip": activate_aeromap.get("angleOfSideslip").tolist(),
         })
 
-        df_filtered = df.drop(
-            columns=[col for col in removed_columns if col in df.columns],
-            errors="ignore",
-        )
+        # df_filtered = df.drop(
+        #     columns=[col for col in removed_columns if col in df.columns],
+        #     errors="ignore",
+        # )
+
+        df_filtered = df
 
         # Store results in the dictionary
         dataset_dict[f"prediction_dataset_{idx}"] = {
             "df_filtered": df_filtered,  # Filtered DataFrame (without constant columns)
-            "removed_columns": removed_columns,  # List of removed constant columns
+            # "removed_columns": removed_columns,  # List of removed constant columns
             "df_original": df,  # Original unfiltered DataFrame
         }
 
         log.debug(f"Filtered dataset:\n{df_filtered}")
-        log.debug(f"Removed columns: {removed_columns}")
+        # log.debug(f"Removed columns: {removed_columns}")
 
     log.info("Completed dataset extraction.")
     return dataset_dict
@@ -104,13 +109,13 @@ def load_surrogate(cpacs: CPACS) -> Tuple[Union[MFK, KRG], str, Dict]:
 
     model = model_metadata["model"]
     coefficient_name = model_metadata["coefficient"]
-    removed_columns = model_metadata["removed_columns"]
+    # removed_columns = model_metadata["removed_columns"]
 
     log.info("Surrogate model successfully loaded.")
     log.debug(f"Model: {model}")
     log.debug(f"Coefficient name: {coefficient_name}")
-    log.debug(f"Removed columns: {removed_columns}")
+    # log.debug(f"Removed columns: {removed_columns}")
 
-    dataset_dict = get_predictions_dataset(cpacs, removed_columns)
+    dataset_dict = get_predictions_dataset(cpacs)  # , removed_columns
 
     return model, coefficient_name, dataset_dict

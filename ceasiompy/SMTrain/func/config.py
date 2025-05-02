@@ -121,7 +121,7 @@ def retrieve_aeromap_data(
     # If retrieve data from database
     # Append the data here
     if get_value(tixi, SMTRAIN_AVL_DATABASE_XPATH):
-        _, ranges = design_of_experiment(cpacs)
+        # _, ranges = design_of_experiment(cpacs)
         aircraft: str = aircraft_name(tixi)
         ceasiompy_db = CeasiompyDb()
         data = ceasiompy_db.get_data(
@@ -129,11 +129,11 @@ def retrieve_aeromap_data(
             columns=["alt", "mach", "alpha", "beta", objective],
             db_close=True,
             filters=[
-                f"mach IN ({ranges['machNumber'][0]}, {ranges['machNumber'][1]})",
+                # f"mach IN ({ranges['machNumber'][0]}, {ranges['machNumber'][1]})",
                 f"aircraft = '{aircraft}'",
-                f"alt IN ({ranges['altitude'][0]}, {ranges['altitude'][1]})",
-                f"alpha IN ({ranges['angleOfAttack'][0]}, {ranges['angleOfAttack'][1]})",
-                f"beta IN ({ranges['angleOfSideslip'][0]}, {ranges['angleOfSideslip'][1]})",
+                # f"alt IN ({ranges['altitude'][0]}, {ranges['altitude'][1]})",
+                # f"alpha IN ({ranges['angleOfAttack'][0]}, {ranges['angleOfAttack'][1]})",
+                # f"beta IN ({ranges['angleOfSideslip'][0]}, {ranges['angleOfSideslip'][1]})",
                 "pb_2V = 0.0",
                 "qc_2V = 0.0",
                 "rb_2V = 0.0",

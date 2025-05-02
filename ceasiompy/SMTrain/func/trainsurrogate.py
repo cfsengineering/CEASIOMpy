@@ -175,17 +175,17 @@ def save_model(
 
     # Find the dataset with the highest fidelity level (last in the dictionary)
     # Ensure fidelity levels are correctly extracted
-    try:
-        highest_fidelity_level = max(datasets.keys(), key=lambda k: int(k.split("_")[-1]))
-    except (ValueError, IndexError):
-        raise ValueError(
-            "Invalid fidelity level format in dataset keys. Expected format: 'fidelity_X'."
-        )
+    # try:
+    #     highest_fidelity_level = max(datasets.keys(), key=lambda k: int(k.split("_")[-1]))
+    # except (ValueError, IndexError):
+    #     raise ValueError(
+    #         "Invalid fidelity level format in dataset keys. Expected format: 'fidelity_X'."
+    #     )
 
     model_metadata = {
         "model": model,
         "coefficient": coefficient_name,
-        "removed_columns": list(datasets[highest_fidelity_level][3].keys()),
+        # "removed_columns": list(datasets[highest_fidelity_level][3].keys()),
     }
 
     model_path = results_dir / f"surrogateModel_{coefficient_name}.pkl"
@@ -214,7 +214,6 @@ def optimize_hyper_parameters(
     )
     total_time = time.time() - start_time
     log.info(f"Total optimization time: {total_time:.2f} seconds ({total_time / 60:.2f} minutes)")
-
     log.info("Best hyperparameters found:")
     log_params(result)
 

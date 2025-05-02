@@ -40,6 +40,7 @@ def compute_loss(
     """
     Returns model and the loss for this model on the x_, y_ set.
     """
+    print(f"{params[1]}")
     if model_type == "KRG":
         model = KRG(
             theta0=[params[0]],

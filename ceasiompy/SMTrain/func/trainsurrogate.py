@@ -89,7 +89,7 @@ def get_hyperparam_space(sets: Dict[str, ndarray]) -> List[str]:
 
     hyperparam_space = [
         Real(0.0001, 10, name="theta0"),
-        Categorical(["abs_exp", "squar_exp", "matern52", "matern32"], name="corr"),
+        Categorical(["abs_exp", "matern52", "matern32"], name="corr"),  # TODO: 'squar_exp' does not work
         Categorical(poly_options, name="poly"),
         Categorical(["Cobyla", "TNC"], name="opt"),
         Real(1e-12, 1e-4, name="nugget"),

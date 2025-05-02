@@ -56,7 +56,7 @@ def get_smt_results(cpacs: CPACS, results_dir: Path) -> None:
         suggested_points_path = None
 
     # Find the surrogate model file
-    surrofate_files = results_dir / "surrogateModel_*.pkl"
+    surrofate_files = str(results_dir / "surrogateModel_*.pkl")
     surrogate_model_files = glob.glob(surrofate_files)
     surrogate_model_path = (
         surrogate_model_files[0]

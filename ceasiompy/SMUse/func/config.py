@@ -114,11 +114,3 @@ def load_surrogate(cpacs: CPACS) -> Tuple[Union[MFK, KRG], str, Dict]:
     dataset_dict = get_predictions_dataset(cpacs, removed_columns)
 
     return model, coefficient_name, dataset_dict
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

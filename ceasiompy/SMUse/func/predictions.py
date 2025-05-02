@@ -57,11 +57,3 @@ def make_predictions(
         predictions_dict[dataset_name] = {"predictions": y_pred, "rmse": rmse}
 
     return predictions_dict
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

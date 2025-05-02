@@ -126,11 +126,3 @@ def get_smu_results(cpacs: CPACS, results_dir: Path) -> None:
 
         log.info(f"Updated aeromap {aeromap_uid} with {coef_column} values.")
         aeromap.save()
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

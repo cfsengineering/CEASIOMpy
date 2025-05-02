@@ -44,7 +44,7 @@ def save_new_dataset(
 
     for dataset_name, dataset_content in datasets.items():
         df_filtered = dataset_content["df_filtered"]
-        removed_columns = dataset_content["removed_columns"]
+        # removed_columns = dataset_content["removed_columns"]
         df_original = dataset_content["df_original"]
 
         if dataset_name not in predictions_dict:
@@ -54,8 +54,8 @@ def save_new_dataset(
         predictions = predictions_dict[dataset_name]["predictions"]
 
         # Restore removed columns with their original constant values
-        for col in removed_columns:
-            df_filtered[col] = df_original[col]
+        # for col in removed_columns:
+        #     df_filtered[col] = df_original[col]
 
         log.info(f"Updated dataset: {dataset_name}")
 

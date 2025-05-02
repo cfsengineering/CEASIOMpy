@@ -44,6 +44,9 @@ CEASIOMpy is based on the open-standard format [CPACS](https://www.cpacs.de/), a
 
 To install CEASIOMpy, please refer to the [installation page](installation/INSTALLATION.md), it will guide you through the installation process depending on your system.
 
+A video which explains how to install CEASIOMpy on Docker is now available!
+[![CEASIOMpy Docker Installation](installation/docker_installation.png)](https://www.youtube.com/watch?v=KTS1-6AsReU)
+
 ## Usage
 
 ### Demo

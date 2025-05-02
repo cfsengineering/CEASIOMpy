@@ -40,9 +40,3 @@ MODULE_NAME = MODULE_DIR.name
 SMUSE_XPATH = CEASIOMPY_XPATH + "/SMUse"
 SMUSE_DATASET = SMUSE_XPATH + "/Dataset"
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

@@ -24,6 +24,7 @@ from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
 
 from ceasiompy import log
 from ceasiompy.SMUse import SMUSE_XPATH
+from ceasiompy.SMTrain import OBJECTIVES_LIST
 
 # =================================================================================================
 #   FUNCTIONS
@@ -31,8 +32,8 @@ from ceasiompy.SMUse import SMUSE_XPATH
 
 
 def save_new_dataset(
-    datasets: Dict,
-    predictions_dict: Dict,
+    datasets: Dict[str, Dict[str, DataFrame]],
+    predictions_dict: Dict[str, Dict[str, DataFrame]],
     coefficient: str,
     results_dir: Path,
 ) -> None:
@@ -42,8 +43,6 @@ def save_new_dataset(
     """
 
     for dataset_name, dataset_content in datasets.items():
-        df_filtered: DataFrame
-        df_original: DataFrame
         df_filtered = dataset_content["df_filtered"]
         removed_columns = dataset_content["removed_columns"]
         df_original = dataset_content["df_original"]
@@ -88,24 +87,20 @@ def get_smu_results(cpacs: CPACS, results_dir: Path) -> None:
     if not csv_files:
         raise FileNotFoundError(f"No prediction dataset files found in {results_dir}")
 
-    valid_coefficients = {"cl", "cd", "cs", "cmd", "cml", "cms"}
-
-    aeromap_with_predictions_xpath = SMUSE_XPATH + "/predictionDataset"
-    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, aeromap_with_predictions_xpath)
+    aeromap_uid_list = get_aeromap_list_from_xpath(
+        cpacs, SMUSE_XPATH + "/predictionDataset"
+    )
 
     log.info(f"Aeromap UIDs: {aeromap_uid_list}")
 
-    # Associa ogni aeromap con il relativo dataset CSV
     for aeromap_uid, file_name in zip(aeromap_uid_list, csv_files):
-        file_path = os.path.join(results_dir, file_name)
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(results_dir / file_name)
 
         if df.shape[1] < 5:
             raise ValueError(f"Invalid dataset format in {file_name}")
 
         coef_column = df.columns[4]  # The coefficient column
-
-        if coef_column not in valid_coefficients:
+        if coef_column not in OBJECTIVES_LIST:
             raise ValueError(f"Invalid coefficient: {coef_column} in {file_name}")
 
         aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
@@ -115,7 +110,6 @@ def get_smu_results(cpacs: CPACS, results_dir: Path) -> None:
             continue
 
         log.info(f"Updating aeromap: {aeromap_uid} with {file_name}")
-
         altitudes = aeromap.get("altitude").tolist()
         mach_numbers = aeromap.get("machNumber").tolist()
         aoa_values = aeromap.get("angleOfAttack").tolist()

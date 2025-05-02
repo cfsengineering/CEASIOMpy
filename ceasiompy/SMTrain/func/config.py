@@ -20,7 +20,7 @@ from cpacspy.cpacsfunctions import get_value
 from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
     get_aeromap_list_from_xpath,
-)   
+)
 from ceasiompy.SMTrain.func.utils import (
     level_to_str,
     filter_constant_columns,
@@ -129,11 +129,11 @@ def retrieve_aeromap_data(
             columns=["alt", "mach", "alpha", "beta", objective],
             db_close=True,
             filters=[
-                f"mach IN (0.0, {ranges['machNumber']})",
+                f"mach IN ({ranges['machNumber'][0]}, {ranges['machNumber'][1]})",
                 f"aircraft = '{aircraft}'",
-                f"alt IN (0.0, {ranges['altitude']})",
-                f"alpha IN (0.0, {ranges['angleOfAttack']})",
-                f"beta IN (0.0, {ranges['angleOfSideslip']})",
+                f"alt IN ({ranges['altitude'][0]}, {ranges['altitude'][1]})",
+                f"alpha IN ({ranges['angleOfAttack'][0]}, {ranges['angleOfAttack'][1]})",
+                f"beta IN ({ranges['angleOfSideslip'][0]}, {ranges['angleOfSideslip'][1]})",
                 "pb_2V = 0.0",
                 "qc_2V = 0.0",
                 "rb_2V = 0.0",

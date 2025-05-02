@@ -133,8 +133,9 @@ if __name__ == "__main__":
 
     st.title(PAGE_NAME)
 
-    # Save settings, add buttons and log
-    save_cpacs_file()
+    if st.session_state.last_page != PAGE_NAME:
+        save_cpacs_file()
+
     workflow_buttons()
     show_logs()
 

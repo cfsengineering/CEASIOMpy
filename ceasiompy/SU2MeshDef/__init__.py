@@ -21,10 +21,10 @@ from pathlib import Path
 # ==============================================================================
 
 # ===== Module Status =====
-module_status = False
+MODULE_STATUS = False
 
 # ===== Include GUI =====
-include_gui = False
+INCLUDE_GUI = False
 
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent

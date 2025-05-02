@@ -2,12 +2,12 @@ from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpaths import OPTIM_XPATH
 import streamlit as st
-from ceasiompy.Optimisation import include_gui
+from ceasiompy.Optimisation import INCLUDE_GUI
 
 # ===== Module Status =====
 # True if the module is active
 # False if the module is disabled (not working or not ready)
-module_status = False
+MODULE_STATUS = False
 
 # ===== Results directory path =====
 
@@ -29,7 +29,7 @@ cpacs_inout.add_input(
     descr="""Objective function of the optimisation problem. \n Warning !
     The parameters name must match the ones in the CSV file !""",
     xpath=OPTIM_XPATH + "/objective",
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Objective",
     gui_group="Global settings",
 )
@@ -53,7 +53,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Objective function of the optimisation problem",
     xpath=OPTIM_XPATH + "/minmax",
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Optimisation goal",
     gui_group="Optimisation settings",
 )
@@ -80,7 +80,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Number of iterations to do",
     xpath=OPTIM_XPATH + "/iterationNB",
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Max number of iterations",
     gui_group="Optimisation settings",
 )
@@ -92,7 +92,7 @@ cpacs_inout.add_input(
     unit="-",
     descr="Tolerance criterion",
     xpath=OPTIM_XPATH + "/tolerance",
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Tolerance",
     gui_group="Optimisation settings",
 )
@@ -114,7 +114,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Choose the type of sample generator",
     xpath=OPTIM_XPATH + "/parameters/DoE/driver",
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Driver (DoE)",
     gui_group="DoE settings",
 )
@@ -126,7 +126,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Needed to indicate the number of samples to be generated",
     xpath=OPTIM_XPATH + "/parameters/DoE/sampleNB",
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Sample # parameter",
     gui_group="DoE settings",
 )
@@ -150,7 +150,7 @@ cpacs_inout.add_input(
     unit="iteration",
     descr="Save file every X iteration",
     xpath=OPTIM_XPATH + "/saving/perIter",
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Saving geometry every",
     gui_group="Configuration",
 )

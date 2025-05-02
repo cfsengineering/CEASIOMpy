@@ -240,7 +240,7 @@ from ceasiompy.utils.commonxpath import FUSELAGES_XPATH, WINGS_XPATH
 # ===== Module Status =====
 # True if the module is active
 # False if the module is disabled (not working or not ready)
-module_status = False
+MODULE_STATUS = False
 
 # ===== CPACS inputs and outputs =====
 
@@ -304,7 +304,7 @@ cpacs_inout.add_input(
     var_type=list,
     default_value=None,
     xpath='/cpacs/toolspecific/CEASIOMpy/test/aeroMapCheckBoxSelection',
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name='__AEROMAP_CHECKBOX',
 )
 

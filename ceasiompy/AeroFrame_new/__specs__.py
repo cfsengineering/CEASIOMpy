@@ -20,7 +20,7 @@ import streamlit as st
 # ===== Module Status =====
 # True if the module is active
 # False if the module is disabled (not working or not ready)
-module_status = True
+MODULE_STATUS = True
 
 RESULTS_DIR = Path("Results", "AeroFrame_new")
 

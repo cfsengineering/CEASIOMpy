@@ -18,7 +18,10 @@ import numpy as np
 import pandas as pd
 
 from skopt import gp_minimize
-from ceasiompy.SMTrain.func.loss import compute_loss
+from ceasiompy.SMTrain.func.loss import (
+    compute_first_level_loss,
+    compute_multi_level_loss,
+)
 from ceasiompy.SMTrain.func.utils import (
     log_params,
     unpack_data,
@@ -138,8 +141,8 @@ def train_surrogate_model(
             param_space=hyperparam_space,
             sets=sets
         )
-    # elif fidelity_level == LEVEL_TWO:
     else:
+        # It will always be multi-fidelity level if not 1
         return mf_kriging(
             fidelity_level=fidelity_level,
             datasets=datasets,
@@ -244,9 +247,8 @@ def kriging(
         """
         Needs to have params as an argument (gp_minimize restriction).
         """
-        _, loss = compute_loss(
+        _, loss = compute_first_level_loss(
             params,
-            model_type="KRG",
             x_train=x_train,
             y_train=y_train,
             x_=x_val,
@@ -257,9 +259,8 @@ def kriging(
 
     # Then evaluate on the optimized hyper parameters
     best_params = optimize_hyper_parameters(objective, param_space, n_calls, random_state)
-    best_model, best_loss = compute_loss(
+    best_model, best_loss = compute_first_level_loss(
         best_params,
-        model_type="KRG",
         x_train=x_train,
         y_train=y_train,
         x_=x_test,
@@ -298,12 +299,10 @@ def mf_kriging(
     # Add the LEVEL_TWO fidelity data if we are on a 3d level
     if fidelity_level == "Three levels":
         x_mf, y_mf = datasets[LEVEL_TWO][:2]
-        x_train, y_train = np.vstack([x_train, x_mf]), np.vstack([y_train, y_mf])
 
     def objective(params) -> float:
-        _, loss = compute_loss(
+        _, loss = compute_multi_level_loss(
             params,
-            model_type="MFK",
             x_train=x_train,
             y_train=y_train,
             x_=x_val,
@@ -313,11 +312,12 @@ def mf_kriging(
         return loss
 
     best_params = optimize_hyper_parameters(objective, param_space, n_calls, random_state)
-    best_model, best_loss = compute_loss(
+    best_model, best_loss = compute_multi_level_loss(
         best_params,
-        model_type="MFK",
-        x_train=x_train,
-        y_train=y_train,
+        x_fl_train=x_train,
+        y_fl_train=y_train,
+        x_ml_train=x_mf,
+        y_ml_train=y_lf,
         x_=x_test,
         y_=y_test,
     )

@@ -18,7 +18,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import SM_XPATH
 from ceasiompy.SMUse import (
-    include_gui,
+    INCLUDE_GUI,
     SMUSE_DATASET,
 )
 
@@ -39,7 +39,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Aeromap gives inputs data",
     xpath=SMUSE_DATASET,
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="__AEROMAP_SELECTION",
     gui_group="Selected Aeromap",
 )
@@ -50,7 +50,7 @@ cpacs_inout.add_input(
     default_value="-",
     descr="File that contains a trained model",
     xpath=SM_XPATH,
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Model to use",
     gui_group="Model",
 )

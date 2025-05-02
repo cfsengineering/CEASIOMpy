@@ -17,7 +17,7 @@ from ceasiompy.utils.commonxpaths import (
 # ===== Module Status =====
 # True if the module is active
 # False if the module is disabled (not working or not ready)
-module_status = False
+MODULE_STATUS = False
 
 # ===== Results directory path =====
 

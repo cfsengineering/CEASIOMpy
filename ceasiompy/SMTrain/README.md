@@ -5,21 +5,21 @@
 
 **Categories:** Optimisation, Surrogate Modeling
 
-**State**: :x: must be refactored to work with the new version of the code (see [Issue #147](https://github.com/cfsengineering/CEASIOMpy/issues/147))
-
-`SMTrain` is a module to train a surrogate model, with data calculated with CEASIOMpy.
+`SMTrain` is a module to train a surrogate model, with data computed using CEASIOMpy.
 
 ## Inputs
 
-`SMTrain` takes as input a CPACS file, it must contained a path to a CSV file with the training dataset in it, or an aeromap can be chosen instead. However the aeromap must have the outputs (cl, cd, ...).
+`SMTrain` takes as input a CPACS file.
 
 ## Analyses
 
-`SMTrain` module generates a surrogate model by using a dataset which contains a list of inputs with their corresponding outputs. Therefore any parameters can be given to create a surrogate.
+`SMTrain` module generates:
+    - data depending on the chosen fidelity level (1: AVL, 2: Euler_SU2). In the GUI of CEASIOMpy, you chan choose the range of these values.
+    - a surrogate model with already fixed Hyper-parameters
 
 ## Outputs
 
-`SMTrain` outputs a CPACS files with the new values set by the user. It will be ready to be used by the next module in the workflow.
+`SMTrain` outputs a CPACS files with the new values set by the user in the aeromap lh_sampling_data.
 
 ## Installation or requirements
 
@@ -27,9 +27,7 @@
 
 ## Limitations
 
-For now the specific training options for a model are not implemented in the GUI and must be modified within the code.
+1. Can not choose the Hyper-parameters of the surrogate model
 
 ## More information
-
-* [SMUse module](../SMUse/README.md)
-* [SMT: Surrogate Modeling Toolbox](https://smt.readthedocs.io/en/latest/)
+- [SMT: Surrogate Modeling Toolbox](https://smt.readthedocs.io/en/latest/)

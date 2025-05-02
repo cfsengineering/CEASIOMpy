@@ -217,7 +217,7 @@ cpacs_inout.add_input(
     var_name="su2_mesh_path",
     var_type="pathtype",
     default_value="-",
-    unit="1",
+    unit=None,
     descr="Absolute path of the SU2 mesh",
     xpath=SU2MESH_XPATH,
     gui=INCLUDE_GUI,

@@ -45,6 +45,10 @@ def get_smt_results(cpacs: CPACS, results_dir: Path) -> None:
     Add aeromap.
     """
 
+    # TODO: Understand why need to reload
+    # Reload CPACS file
+    cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
+    cpacs = CPACS(cpacs.cpacs_file)
     tixi = cpacs.tixi
 
     # Path to "suggested_points.csv"

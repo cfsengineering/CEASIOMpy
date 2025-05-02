@@ -44,10 +44,9 @@ def compute_first_level_loss(
     """
     Returns model and the loss for this model on the x_, y_ set.
     """
-    print(f"{params[1]=}")
     model = KRG(
         theta0=[params[0]],
-        corr=params[1],
+        corr=str(params[1]),  # Important to convert to str format
         poly=params[2],
         hyper_opt=params[3],
         nugget=params[4],

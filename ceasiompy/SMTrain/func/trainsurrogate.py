@@ -256,8 +256,8 @@ def kriging(
 
         return loss
 
-    # Then evaluate on the optimized hyper parameters
     best_params = optimize_hyper_parameters(objective, param_space, n_calls, random_state)
+    log.info("Evaluating on optimized hyper-parameters")
     best_model, best_loss = compute_first_level_loss(
         best_params,
         x_train=x_train,

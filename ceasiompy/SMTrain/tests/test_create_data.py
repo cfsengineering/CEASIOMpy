@@ -23,6 +23,7 @@ from ceasiompy.utils.ceasiompytest import CeasiompyTest
 #   CLASSES
 # =================================================================================================
 
+
 class TestCreateData(CeasiompyTest):
 
     @log_test

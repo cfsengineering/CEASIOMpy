@@ -65,8 +65,18 @@ class TestCreateData(CeasiompyTest):
         self.assertGreaterEqual(df["angleOfSideslip"].iloc[0], 0)
         self.assertLessEqual(df["angleOfSideslip"].iloc[0], MAX_AOS)
 
-        print(df)
+        # Check values
+        self.assertEqual(df["altitude"][0], 187)
+        self.assertEqual(df["altitude"][1], 578)
 
+        self.assertEqual(df["machNumber"][0], 0.20)
+        self.assertEqual(df["machNumber"][1], 0.22)
+
+        self.assertEqual(df["angleOfAttack"][0], 5.49)
+        self.assertEqual(df["angleOfAttack"][1], 7.94)
+
+        self.assertEqual(df["angleOfSideslip"][0], 14.0)
+        self.assertEqual(df["angleOfSideslip"][1], 4.49)
 
     # @log_test
     # def test_split_data(self) -> None:

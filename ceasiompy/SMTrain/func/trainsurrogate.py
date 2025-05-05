@@ -64,10 +64,6 @@ from ceasiompy.utils.commonxpaths import (
     SM_XPATH,
     SUGGESTED_POINTS_XPATH,
 )
-from ceasiompy.SMTrain import (
-    LEVEL_ONE,
-    LEVEL_TWO,
-)
 
 # =================================================================================================
 #   FUNCTIONS
@@ -130,8 +126,8 @@ def get_hyperparam_space(
 
 def train_surrogate_model(
     level1_sets: Dict[str, ndarray],
-    level2_sets: Union[Dict[str, ndarray], None],
-    level3_sets: Union[Dict[str, ndarray], None],
+    level2_sets: Union[Dict[str, ndarray], None] = None,
+    level3_sets: Union[Dict[str, ndarray], None] = None,
 ) -> Tuple[Union[KRG, MFK], float]:
     """
     Train a surrogate model using kriging or Multi-Fidelity kriging:
@@ -394,7 +390,8 @@ def run_adaptative_refinement(
         objective: [],
     })
 
-    for iteration, _ in enumerate(level1_sets["x_train"]):
+    for _, _ in enumerate(level1_sets["x_train"]):
+
         # Find new high variance points
         new_point_df = new_points(
             level1_sets,

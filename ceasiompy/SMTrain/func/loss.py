@@ -63,8 +63,8 @@ def compute_multi_level_loss(
     y_fl_train: ndarray,
     x_sl_train: Union[ndarray, None],
     y_sl_train: Union[ndarray, None],
-    x_rl_train: Union[ndarray, None],
-    y_rl_train: Union[ndarray, None],
+    x_tl_train: Union[ndarray, None],
+    y_tl_train: Union[ndarray, None],
     x_: ndarray,
     y_: ndarray,
 ) -> Tuple[MFK, float]:
@@ -82,8 +82,8 @@ def compute_multi_level_loss(
     model.set_training_values(x_fl_train, y_fl_train, name=LEVEL_ONE)
     if x_sl_train is not None:
         model.set_training_values(x_sl_train, y_sl_train, name=LEVEL_TWO)
-    if x_rl_train is not None:
-        model.set_training_values(x_rl_train, y_rl_train, name=LEVEL_THREE)
+    if x_tl_train is not None:
+        model.set_training_values(x_tl_train, y_tl_train, name=LEVEL_THREE)
     model.train()
     return model, compute_loss(model, params[6], x_, y_)
 

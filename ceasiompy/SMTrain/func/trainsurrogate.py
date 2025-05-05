@@ -357,7 +357,7 @@ def mf_kriging(
 
 def run_first_level_training(
     cpacs: CPACS,
-    lh_sampling_path: Path,
+    lh_sampling_path: Union[Path, None],
     obj_coef: str,
     split_ratio: float,
 ) -> Tuple[Union[KRG, MFK], Dict[str, ndarray], Dict[str, DataFrame]]:

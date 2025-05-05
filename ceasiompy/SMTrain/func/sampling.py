@@ -125,7 +125,7 @@ def lh_sampling(
     ranges: Dict,
     results_dir: Path,
     random_state: int = 42,
-) -> Path:
+) -> Union[Path, None]:
     """
     Generate a Latin Hypercube Sampling (LHS) dataset within specified variable ranges.
     Uses the Enhanced Stochastic Evolutionary (ESE) criterion
@@ -140,7 +140,11 @@ def lh_sampling(
         random_state (int = 42): Seed for random number generation to ensure reproducibility.
     """
     if n_samples < 2:
-        raise ValueError("Can not apply LHS on strictly less than 2 samples.")
+        log.info(
+            "Can not apply LHS on strictly less than 2 samples."
+            "Will use data from ceasiompy.db."
+        )
+        return None
 
     xlimits = np.array(list(ranges.values()))
 

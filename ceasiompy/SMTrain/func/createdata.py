@@ -17,18 +17,22 @@ from ceasiompy.SU2Run.su2run import main as run_su2
 from ceasiompy.SMTrain.func.config import retrieve_aeromap_data
 from ceasiompy.SMTrain.func.utils import create_aeromap_from_varpts
 from ceasiompy.utils.ceasiompyutils import (
-    update_cpacs_from_specs,
     get_results_directory,
+    update_cpacs_from_specs,
 )
 
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
 from unittest.mock import MagicMock
-from cpacspy.cpacspy import CPACS
+from cpacspy.cpacspy import (
+    CPACS,
+    AeroMap,
+)
 from typing import (
     Dict,
     Tuple,
+    Union,
 )
 
 from ceasiompy import log
@@ -51,7 +55,7 @@ from ceasiompy.SU2Run import (
 
 def launch_avl(
     cpacs: CPACS,
-    lh_sampling_path: Path,
+    lh_sampling_path: Union[Path, None],
     objective: str,
 ) -> Tuple[ndarray, ndarray, DataFrame, Dict, DataFrame]:
     """
@@ -75,19 +79,22 @@ def launch_avl(
     if tixi.uIDCheckExists(LH_SAMPLING_DATA):
         cpacs.delete_aeromap(LH_SAMPLING_DATA)
 
-    # Create and save new aeromap from LHS dataset
-    aeromap = cpacs.create_aeromap_from_csv(lh_sampling_path)
+    aeromap = AeroMap(tixi, uid="ceasiompy_db", create_new=True)
     aeromap.save()
+    if lh_sampling_path is not None:
+        # Overwrite aeromap from LHS dataset
+        aeromap = cpacs.create_aeromap_from_csv(lh_sampling_path)
+        aeromap.save()
 
-    # Run AVL analysis
-    st.session_state = MagicMock()
-    update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
+        # Run AVL analysis
+        st.session_state = MagicMock()
+        update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
 
-    # Update CPACS with the new aeromap
-    tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap.uid)
-    cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
-    cpacs = CPACS(cpacs.cpacs_file)
-    run_avl(cpacs, results_dir=get_results_directory(PYAVL_NAME))
+        # Update CPACS with the new aeromap
+        tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap.uid)
+        cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
+        cpacs = CPACS(cpacs.cpacs_file)
+        run_avl(cpacs, results_dir=get_results_directory(PYAVL_NAME))
 
     # Retrieve aerodynamic data, save then overwrite cpacs file
     dataset = retrieve_aeromap_data(cpacs, aeromap.uid, objective)
@@ -96,7 +103,7 @@ def launch_avl(
 
     # Log the generated dataset, with objective values
     _, _, _, _, df = dataset
-    log.info(f"AVL results extracted for {objective}:")
+    log.info(f"Level one results extracted for {objective}:")
     log.info(df)
 
     return dataset

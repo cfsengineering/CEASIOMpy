@@ -11,6 +11,7 @@ Test functions for create_data functions in SMTrain module.
 #   IMPORTS
 # =================================================================================================
 
+from copy import deepcopy
 from ceasiompy.utils.decorators import log_test
 from ceasiompy.SMTrain.func.createdata import retrieve_aeromap_data
 from cpacspy.cpacsfunctions import (
@@ -22,7 +23,6 @@ from unittest import main
 from pandas import DataFrame
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
-from numpy import isnan
 from ceasiompy.SMTrain import SMTRAIN_AVL_DATABASE_XPATH
 
 # =================================================================================================
@@ -35,7 +35,7 @@ class TestConfig(CeasiompyTest):
     @log_test
     def test_retrieve_aeromap_data(self) -> None:
         # Load the default test
-        cpacs = self.test_cpacs
+        cpacs = deepcopy(self.test_cpacs)
         tixi = cpacs.tixi
 
         # Specify to not add data from ceasiompy.db

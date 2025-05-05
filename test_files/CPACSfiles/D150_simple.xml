@@ -5105,19 +5105,6 @@
                 <cs mapType="vector">0.001;0.001;0.001;0.001;0.001;0.001;0.001;0.001</cs>
               </aeroPerformanceMap>
             </aeroMap>
-            <aeroMap uID="lh_sampling_data">
-              <aeroPerformanceMap>
-                <altitude mapType="vector">187;578</altitude>
-                <machNumber mapType="vector">0.2;0.22</machNumber>
-                <angleOfSideslip mapType="vector">14;4.49</angleOfSideslip>
-                <angleOfAttack mapType="vector">5.49;7.94</angleOfAttack>
-              </aeroPerformanceMap>
-              <name>lh_sampling_data</name>
-              <description></description>
-              <boundaryConditions>
-                <atmosphericModel>ISA</atmosphericModel>
-              </boundaryConditions>
-            </aeroMap>
           </aeroPerformance>
         </analyses>
       </model>

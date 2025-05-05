@@ -14,16 +14,10 @@ Get settings from GUI. Manage datasets and perform LHS when required.
 #   IMPORTS
 # =================================================================================================
 
-import pandas as pd
-
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
     # get_aeromap_list_from_xpath,
-)
-from ceasiompy.SMTrain.func.utils import (
-    # level_to_str,
-    filter_constant_columns,
 )
 
 from tixi3.tixi3wrapper import Tixi3
@@ -43,7 +37,6 @@ from ceasiompy import log
 # from ceasiompy.PyAVL import AVL_AEROMAP_UID_XPATH
 # from ceasiompy.SU2Run import SU2_AEROMAP_UID_XPATH
 from ceasiompy.SMTrain import (
-    AEROMAP_FEATURES,
     SMTRAIN_OBJECTIVE_XPATH,
     # SMTRAIN_NEWDOE,
     SMTRAIN_MAX_ALT,
@@ -56,7 +49,6 @@ from ceasiompy.SMTrain import (
     SMTRAIN_THRESHOLD_XPATH,
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
-    SMTRAIN_AVL_DATABASE_XPATH,
     # SMTRAIN_NEWDATASET_FRAC_XPATH,
     # SMTRAIN_TRAINING_AEROMAP_XPATH,
 )

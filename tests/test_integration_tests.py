@@ -22,10 +22,10 @@ from unittest.mock import MagicMock
 from src.bin.ceasiompy_exec import run_modules_list
 from ceasiompy.utils.ceasiompyutils import change_working_dir
 
-from ceasiompy.SMUse import MODULE_NAME as SMUSE
+# from ceasiompy.SMUse import MODULE_NAME as SMUSE
 from ceasiompy.PyAVL import MODULE_NAME as PYAVL
 from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
-from ceasiompy.SMTrain import MODULE_NAME as SMTRAIN
+# from ceasiompy.SMTrain import MODULE_NAME as SMTRAIN
 from ceasiompy.Database import MODULE_NAME as DATABASE
 from ceasiompy.ExportCSV import MODULE_NAME as EXPORTCSV
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH

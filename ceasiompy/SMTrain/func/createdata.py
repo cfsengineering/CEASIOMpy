@@ -26,7 +26,6 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 
 from pathlib import Path
-from numpy import ndarray
 from pandas import DataFrame
 from unittest.mock import MagicMock
 from cpacspy.cpacspy import (
@@ -34,7 +33,6 @@ from cpacspy.cpacspy import (
     AeroMap,
 )
 from typing import (
-    Dict,
     Tuple,
     Union,
 )

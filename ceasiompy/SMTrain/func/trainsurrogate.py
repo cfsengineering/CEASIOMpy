@@ -29,8 +29,6 @@ from ceasiompy.SMTrain.func.loss import (
 from ceasiompy.SMTrain.func.utils import (
     log_params,
     unpack_data,
-    str_to_level,
-    generate_su2_wkdir,
 )
 from ceasiompy.SMTrain.func.sampling import (
     split_data,
@@ -374,7 +372,7 @@ def run_adaptative_refinement(
     model: Union[KRG, MFK],
     datasets: Dict[str, DataFrame],
     rmse_obj: float,
-    obj_coef: str,
+    objective: str,
 ) -> None:
     """
     Iterative improvement using SU2 data.
@@ -400,8 +398,7 @@ def run_adaptative_refinement(
         dataset = launch_su2(
             cpacs=cpacs,
             results_dir=results_dir,
-            results_dir_su2=generate_su2_wkdir(iteration),
-            objective=obj_coef,
+            objective=objective,
             high_variance_points=high_var_pts,
         )
 
@@ -422,5 +419,8 @@ def run_adaptative_refinement(
             datasets[LEVEL_TWO] = dataset
 
         sets = split_data(LEVEL_TWO, datasets, 0.7, 0.5)  # TODO: Not specified from GUI ???
-        model, rmse = train_surrogate_model(LEVEL_TWO, datasets, sets)
+        model, rmse = train_surrogate_model(
+            fidelity_level=LEVEL_TWO,
+            sets=sets,
+        )
         iteration += 1

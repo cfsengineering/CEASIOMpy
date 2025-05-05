@@ -22,11 +22,6 @@ from ceasiompy.SMTrain.func.sampling import (
 from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
-from ceasiompy.SMTrain import (
-    LEVEL_ONE,
-    LEVEL_TWO,
-)
-
 # =================================================================================================
 #   CLASSES
 # =================================================================================================

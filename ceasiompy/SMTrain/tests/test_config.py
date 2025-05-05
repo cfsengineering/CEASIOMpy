@@ -48,7 +48,7 @@ class TestConfig(CeasiompyTest):
             aeromap_uid="aeromap_empty",
             objective="cl",
         )
-        
+
         self.assertEqual(aeromap_array.tolist(), [[0.0, 0.3, 0.0, 0.0]])
         self.assertTrue(isnan(objective_array[0][0]))
         self.assertTrue(

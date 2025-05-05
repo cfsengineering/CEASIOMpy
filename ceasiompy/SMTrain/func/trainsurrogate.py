@@ -153,7 +153,7 @@ def train_surrogate_model(
     hyperparam_space = get_hyperparam_space(
         level1_sets, level2_sets, level3_sets
     )
-        
+
     if level2_sets is not None or level3_sets is not None:
         # It will always be multi-fidelity level if not 1
         return mf_kriging(
@@ -188,10 +188,13 @@ def save_model(
 
     model_path = results_dir / f"surrogateModel_{coefficient_name}.pkl"
     with open(model_path, "wb") as file:
-        joblib.dump({
-        "model": model,
-        "coefficient": coefficient_name,
-    }, file)
+        joblib.dump(
+            value={
+                "model": model,
+                "coefficient": coefficient_name,
+            },
+            filename=file,
+        )
     log.info(f"Model saved to {model_path}")
 
     create_branch(tixi, SM_XPATH)
@@ -372,7 +375,7 @@ def run_adaptative_refinement(
     """
     Iterative improvement using SU2 data.
     """
-    log.info(f"Starting adaptive refinement.")
+    log.info("Starting adaptive refinement.")
     high_var_pts = []
     rmse = float("inf")
     df = DataFrame({

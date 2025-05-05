@@ -162,7 +162,7 @@ def save_model(
     coefficient_name: str,
     datasets: Dict,
     results_dir: Path,
-) -> None:
+) -> CPACS:
     """
     Save the trained surrogate model along with its metadata.
 
@@ -220,6 +220,8 @@ def save_model(
     create_branch(tixi, SM_XPATH)
     add_value(tixi, SM_XPATH, surrogate_model_path)
     log.info("Finished Saving model.")
+
+    return cpacs
 
 
 def optimize_hyper_parameters(

@@ -28,6 +28,7 @@ from typing import (
     List,
     Dict,
     Tuple,
+    Union,
 )
 
 from ceasiompy import log
@@ -42,6 +43,26 @@ from ceasiompy.SMTrain import (
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def concatenate_if_not_none(list_arrays: List[ndarray]) -> ndarray:
+    return np.concatenate(
+        [
+            arr
+            for arr in list_arrays
+            if arr is not None
+        ], axis=0
+    )
+
+
+def collect_level_data(
+    level_sets: Dict[str, ndarray]
+) -> Tuple[Union[ndarray, None], ...]:
+    if level_sets is not None:
+        x_train, x_test, x_val, y_train, y_test, y_val = unpack_data(level_sets)
+        return (x_train, y_train, x_val, y_val, x_test, y_test)
+    else:
+        return (None, None, None, None, None, None)
 
 
 def get_columns(objective: str) -> List[str]:

@@ -25,16 +25,13 @@ from ceasiompy.utils.ceasiompyutils import (
     update_cpacs_from_specs,
 )
 
+from typing import Union
 from pathlib import Path
 from pandas import DataFrame
 from unittest.mock import MagicMock
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
-)
-from typing import (
-    Tuple,
-    Union,
 )
 
 from ceasiompy import log
@@ -62,18 +59,12 @@ def launch_avl(
     cpacs: CPACS,
     lh_sampling_path: Union[Path, None],
     objective: str,
-) -> Tuple[DataFrame]:
+) -> DataFrame:
     """
     Executes AVL aerodynamic analysis running PyAVL Module
 
     This function processes a CPACS file, integrates a new aeromap from a previously
     generated dataset, and runs PyAVL module to compute aerodynamic coefficients.
-
-    Args:
-        result_dir (str): Directory where AVL results and intermediate files are stored.
-        cpacs_path (str): Path to the CPACS XML file.
-        objective (str): The aerodynamic coefficient to extract from the AVL results.
-            Expected values: ["cl", "cd", "cs", "cmd", "cml", "cms"].
 
     Returns:
         DataFrame: Contains AVL results for the requested objective.

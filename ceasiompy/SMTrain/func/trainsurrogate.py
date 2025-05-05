@@ -28,6 +28,8 @@ from ceasiompy.SMTrain.func.loss import (
 from ceasiompy.SMTrain.func.utils import (
     log_params,
     unpack_data,
+    collect_level_data,
+    concatenate_if_not_none,
 )
 from ceasiompy.SMTrain.func.sampling import (
     split_data,
@@ -291,41 +293,45 @@ def kriging(
 
 
 def mf_kriging(
-    fidelity_level: str,
-    datasets: Dict,
     param_space: List,
-    level1_sets: Dict,
-    n_calls: int = 30,
+    level1_sets: Dict[str, ndarray],
+    level2_sets: Union[Dict[str, ndarray], None],
+    level3_sets: Union[Dict[str, ndarray], None],
+    n_calls: int = 10,
     random_state: int = 42,
 ) -> Tuple[MFK, float]:
     """
     Trains a multi-fidelity kriging model with 2 or 3 fidelity levels.
 
     Args:
-        fidelity_level (str): Either 'Two levels' or 'Three levels'.
-        datasets (dict): Contains datasets for different fidelity levels.
         param_space (list): List of parameter ranges for Bayesian optimization.
         sets (dict): Training, validation, and test datasets.
         n_calls (int = 30): Number of iterations for Bayesian optimization.
         random_state (int = 42): Random seed for reproducibility.
     """
-    x_train, x_test, x_val, y_train, y_test, y_val = unpack_data(level1_sets)
+    (
+        x_fl_train, y_fl_train, x_val1,
+        y_val1, x_test1, y_test1,
+    ) = unpack_data(level1_sets)
 
-    # Extract datasets for different fidelity levels
-    x_lf, y_lf = datasets[LEVEL_ONE][:2]
-    x_train, y_train = np.vstack([x_train, x_lf]), np.vstack([y_train, y_lf])
+    x_sl_train, y_sl_train, x_val2, y_val2, x_test2, y_test2 = collect_level_data(level2_sets)
+    x_tl_train, y_tl_train, x_val3, y_val3, x_test3, y_test3 = collect_level_data(level3_sets)
 
-    # Add the LEVEL_TWO fidelity data if we are on a 3d level
-    if fidelity_level == "Three levels":
-        x_mf, y_mf = datasets[LEVEL_TWO][:2]
+    # Gather all non-None validation and test sets
+    x_val = concatenate_if_not_none([x_val1, x_val2, x_val3])
+    y_val = concatenate_if_not_none([y_val1, y_val2, y_val3])
+    x_test = concatenate_if_not_none([x_test1, x_test2, x_test3])
+    y_test = concatenate_if_not_none([y_test1, y_test2, y_test3])
 
     def objective(params) -> float:
         _, loss = compute_multi_level_loss(
             params,
-            x_fl_train=x_train,
-            y_fl_train=y_train,
-            x_ml_train=x_mf,
-            y_ml_train=y_mf,
+            x_fl_train=x_fl_train,
+            y_fl_train=y_fl_train,
+            x_sl_train=x_sl_train,
+            y_sl_train=y_sl_train,
+            x_tl_train=x_tl_train,
+            y_tl_train=y_tl_train,
             x_=x_val,
             y_=y_val,
         )
@@ -335,10 +341,12 @@ def mf_kriging(
     best_params = optimize_hyper_parameters(objective, param_space, n_calls, random_state)
     best_model, best_loss = compute_multi_level_loss(
         best_params,
-        x_fl_train=x_train,
-        y_fl_train=y_train,
-        x_ml_train=x_mf,
-        y_ml_train=y_lf,
+        x_fl_train=x_fl_train,
+        y_fl_train=y_fl_train,
+        x_sl_train=x_sl_train,
+        y_sl_train=y_sl_train,
+        x_tl_train=x_tl_train,
+        y_tl_train=y_tl_train,
         x_=x_test,
         y_=y_test,
     )

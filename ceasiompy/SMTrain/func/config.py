@@ -15,6 +15,7 @@ Get settings from GUI. Manage datasets and perform LHS when required.
 # =================================================================================================
 
 from cpacspy.cpacsfunctions import get_value
+from ceasiompy.SMTrain.func.utils import get_columns
 from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
     # get_aeromap_list_from_xpath,
@@ -136,10 +137,7 @@ def retrieve_ceasiompy_db_data(
     log.info(f"Importing from ceasiompy.db {data=}")
     data_df = DataFrame(
         data,
-        columns=[
-            "altitude", "machNumber", "angleOfAttack", "angleOfSideslip",
-            objective
-        ],
+        columns=get_columns(objective),
     ).drop_duplicates(ignore_index=True)
 
     return data_df
@@ -227,8 +225,13 @@ def design_of_experiment(cpacs: CPACS) -> Tuple[int, Dict]:
     """
     tixi = cpacs.tixi
     n_samples = int(get_value(tixi, SMTRAIN_NSAMPLES_XPATH))
-    if n_samples <= 0:
-        raise ValueError("New samples must be greater than 0.")
+    if n_samples < 0:
+        raise ValueError(
+            "New samples can not be negative."
+            "If you solely intend to use the data from ceasiompy.db, "
+            "leave n_samples to 0."
+            "Otherwise, try choose a high-enough n_samples >=7."
+        )
     max_alt = int(get_value(tixi, SMTRAIN_MAX_ALT))
     max_mach = float(get_value(tixi, SMTRAIN_MAX_MACH))
     max_aoa = int(get_value(tixi, SMTRAIN_MAX_AOA))

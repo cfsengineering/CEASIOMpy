@@ -26,6 +26,7 @@ from typing import (
 from ceasiompy.SMTrain import (
     LEVEL_ONE,
     LEVEL_TWO,
+    LEVEL_THREE,
 )
 
 
@@ -60,8 +61,10 @@ def compute_multi_level_loss(
     params: Tuple,
     x_fl_train: ndarray,
     y_fl_train: ndarray,
-    x_ml_train: ndarray,
-    y_ml_train: ndarray,
+    x_sl_train: Union[ndarray, None],
+    y_sl_train: Union[ndarray, None],
+    x_rl_train: Union[ndarray, None],
+    y_rl_train: Union[ndarray, None],
     x_: ndarray,
     y_: ndarray,
 ) -> Tuple[MFK, float]:
@@ -77,7 +80,10 @@ def compute_multi_level_loss(
         rho_regr=params[5],
     )
     model.set_training_values(x_fl_train, y_fl_train, name=LEVEL_ONE)
-    model.set_training_values(x_ml_train, y_ml_train, name=LEVEL_TWO)
+    if x_sl_train is not None:
+        model.set_training_values(x_sl_train, y_sl_train, name=LEVEL_TWO)
+    if x_rl_train is not None:
+        model.set_training_values(x_rl_train, y_rl_train, name=LEVEL_THREE)
     model.train()
     return model, compute_loss(model, params[6], x_, y_)
 

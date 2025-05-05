@@ -23,7 +23,6 @@ import matplotlib.pyplot as plt
 
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.SMUse.func.config import load_surrogate
-from ceasiompy.SMTrain.func.predictions import make_predictions
 from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
 
 from pathlib import Path

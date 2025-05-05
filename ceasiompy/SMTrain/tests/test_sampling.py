@@ -22,7 +22,6 @@ from ceasiompy.SMTrain.func.sampling import (
 from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
-
 # =================================================================================================
 #   CLASSES
 # =================================================================================================

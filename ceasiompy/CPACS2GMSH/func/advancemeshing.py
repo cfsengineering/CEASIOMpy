@@ -24,6 +24,7 @@ TODO:
 from ceasiompy.CPACS2GMSH.func.gmsh_utils import MESH_COLORS
 import gmsh
 import numpy as np
+import math
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 
@@ -144,6 +145,7 @@ def min_fields(mesh_fields):
     gmsh.model.mesh.field.setNumbers(
         mesh_fields["nbfields"], "FieldsList", mesh_fields["restrict_fields"]
     )
+    # log.info(f"Set min field with {mesh_fields["restrict_fields"]}")
     gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
 
     # When background mesh is used those options must be set to zero
@@ -442,6 +444,7 @@ def refine_small_surfaces(
 
     - if the surface area is very small compare to the mesh size of the part mesh
     the surface is remeshed with a smaller mesh size
+    --> With parameters by default, if with mesh size we have less than 150 triangles in the surface, we set the mesh size to have 150 triangles
 
 
     Args:
@@ -474,7 +477,7 @@ def refine_small_surfaces(
 
     """
 
-    # Get the area of an equilateral triangle with mesh size fuselage
+    # Get the area of an equilateral triangle with the expected mesh size of the part
     mesh_triangle_surf = (3**0.5 / 4) * (part.mesh_size**2)
 
     refined_surfaces = []
@@ -487,6 +490,7 @@ def refine_small_surfaces(
 
             # Refine the surface
             new_mesh_size = ((area / (nb_min_triangle)) / 0.43301270) ** 0.5
+            # computation : we want areaoftriangle to be totalarea/nbtriangle, and area of triangle = sqrt(3)/4 * (side = mesh size)^2
 
             # Set the color to indicate the bad surfaces
             gmsh.model.setColor([(2, surface_tag)],
@@ -517,6 +521,7 @@ def refine_small_surfaces(
                 f"{new_mesh_size} + ({mesh_size_farfield} - {new_mesh_size})*"
                 f"(F{distance_field_tag}/{aircraft_charact_length})^{n_power}",
             )
+            log.info(f"refine surface {surface_tag}")
 
             mesh_fields = restrict_fields(
                 mesh_fields, 3, final_domain_volume_tag)
@@ -524,6 +529,198 @@ def refine_small_surfaces(
     log.info(f"Surface mesh of {part.uid} was insufficient")
 
     return refined_surfaces, mesh_fields
+
+
+def refine_lines_with_acute_angles(
+    te_le_already_refined, refine, aircraft_parts, mesh_fields, mesh_size_by_part, n_power
+):
+    """
+    Function to refine the mesh along edges with really small angles (as done for the leading and trailing edges, but for others)
+
+    Each line is inspected :
+
+    - if the angle between the adjacent surfaces is smaller than 72 degrees, we refine along this line
+    --> To compute the angle, we get the nodes along the line, then the normal at these nodes for each surface and compute the scalar product which is the cosinus
+
+
+    Args:
+    ----------
+    te_le_already_refined : list of int
+        list of the tags of the lines already refined in the function "refine_le_te"
+    refine : float
+        refinement factor
+    aircraft_parts : list of ModelPart
+        list of all the parts in the aircraft
+    mesh_fields : dict
+        mesh_fields["nbfields"] : number of existing mesh field in the model,
+        each field must be created with a different index !!!
+        mesh_fields["restrict_fields"] : list of the restrict fields,
+        this is the list to be use for the final "Min" background field
+    mesh_size_by_part : dict
+        dictionary of the mesh size depending on the type of part
+    n_power : float
+        power of the power law for the refinement
+    ...
+    Returns:
+    ----------
+    mesh_fields : dict
+        mesh_fields["nbfields"] : number of existing mesh field in the model
+
+    """
+
+    # Need a mesh to create the nodes along the lines
+    log.info("Must first generate a 1D mesh")
+    gmsh.model.mesh.generate(1)
+    gmsh.model.occ.synchronize()
+    # First we need to find which lines are the ones we want to refine
+    log.info(f"Now finding which lines need refinement")
+    lines = gmsh.model.getEntities(1)
+    lines_with_angles_tag = []
+    total = len(lines)
+    step_lines = len(lines) // 10
+
+    for (dim, line) in lines:
+        # Show progress
+        if line % step_lines == 0:
+            log.info(f"{math.floor(line/total*100)}% done")
+
+        foundbigangle = False
+        # Get the adjacent surface, and the nodes
+        surfs, points = gmsh.model.getAdjacencies(dim, line)
+        tags, coord, param = gmsh.model.mesh.getNodes(1, line)
+        nbpoints = len(coord) // 3
+        # Select at most 40 nodes (but 20 evenly spaces if too big)
+        step = nbpoints // 20
+        if nbpoints < 40:
+            coord_small = coord
+        else:
+            coord_small = []
+            for i in range(20):
+                coord_small.extend(
+                    [coord[step * 3 * i], coord[step * 3 * i + 1], coord[step * 3 * i + 2]])
+
+        # Now test for every 2 surfaces along line (usually always one or two surfaces total)
+        # And if one, can't be a weird angle
+        for k in range(len(surfs)):
+            i = surfs[k]
+            params_i = gmsh.model.getParametrization(2, i, coord_small)
+            for l in range(k + 1, len(surfs)):
+                j = surfs[l]
+                params_j = gmsh.model.getParametrization(2, j, coord_small)
+                for a in range(len(coord_small) // 3):
+                    # For each point, get the normal to the surface
+                    normal_i = gmsh.model.getNormal(
+                        i, [params_i[2 * a], params_j[2 * a + 1]])
+                    normal_j = gmsh.model.getNormal(
+                        j, [params_i[2 * a], params_j[2 * a + 1]])
+                    # Compute cos of the angle between the normals (their norms are 1, so is equal to scalar product)
+                    cosalpha = (
+                        normal_i[0] * normal_j[0] + normal_i[1] * normal_j[1] + normal_i[2] * normal_j[2])
+                    if cosalpha < -0.3:  # (more than 72 degrees from being flat)
+                        lines_with_angles_tag.append(line)
+                        foundbigangle = True
+                        break
+                if foundbigangle:
+                    break
+            if foundbigangle:
+                break
+
+    # Old version kept because the new one doesn't work
+    # But is really really slow and inefficient
+    '''
+    for (dim, line) in lines:
+        if line % step == 0:
+            log.info(f"{math.floor(line/total*100)}% done")
+        foundbigangle = False
+        surfs, points = gmsh.model.getAdjacencies(dim, line)
+        tags_coords_params = {-1: "yay"}
+        for i in surfs:
+            tags, coord, param = gmsh.model.mesh.getNodes(2, i, True)
+            dict = {'tags': tags, 'coord': coord, 'param': param}
+            tags_coords_params[i] = dict
+        for k in range(len(surfs)):
+            i = surfs[k]
+            coordi = tags_coords_params[i]['coord']
+            for l in range(k + 1, len(surfs)):
+                j = surfs[l]
+                coordj = tags_coords_params[j]['coord']
+
+                for a in range(len(coordi) // 3):
+                    for b in range(len(coordj) // 3):
+                        if coordi[3 * a] == coordj[3 * b] and coordi[3 * a + 1] == coordj[3 * b + 1] and coordi[3 * a + 2] == coordj[3 * b + 2]:
+                            normal_i = gmsh.model.getNormal(
+                                i, [tags_coords_params[i]['param'][2 * a], tags_coords_params[i]['param'][2 * a + 1]])
+                            normal_j = gmsh.model.getNormal(
+                                j, [tags_coords_params[j]['param'][2 * b], tags_coords_params[j]['param'][2 * b + 1]])
+                            norm_of_i = math.sqrt(
+                                normal_i[0]**2 + normal_i[1]**2 + normal_i[2]**2)  # is it always one?
+                            norm_of_j = math.sqrt(
+                                normal_j[0]**2 + normal_j[1]**2 + normal_j[2]**2)
+                            cosalpha = (
+                                normal_i[0] * normal_j[0] + normal_i[1] * normal_j[1] + normal_i[2] * normal_j[2]) / (norm_of_i * norm_of_j)
+                            # print(a, b, cosalpha)
+                            if cosalpha < -0.3:  # (more than 45 degrees from being flat)
+                                lines_with_angles_tag.append(line)
+                                foundbigangle = True
+                                break
+                    if foundbigangle:
+                        break
+                if foundbigangle:
+                    break
+            if foundbigangle:
+                break
+    '''
+
+    lines_with_angles_tag = [l for l in lines_with_angles_tag if l not in te_le_already_refined]
+    log.info(f"Lines to be refined are {lines_with_angles_tag}")
+    log.info("Now start setting refinement")
+
+    for part in aircraft_parts:
+        surfaces_tags = part.surfaces_tags
+        mesh_size = mesh_size_by_part[part.part_type]
+        bb = part.bounding_box
+        size = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
+        size.sort()
+        # Choose refinement to go on 1/4 of the length of the second smallest size (somehow usually the correct length)
+        m = size[1] / 4
+        for s in surfaces_tags:
+            # Get all the lines that are adjacent and need refinement
+            [adjacent_vols, adjacent_lines] = gmsh.model.getAdjacencies(2, s)
+            lines_to_refine = list(set(adjacent_lines) & set(lines_with_angles_tag))
+            for l in lines_to_refine:
+                log.info(f"Refining line {l} in surface {s} in part {part.uid}")
+
+                # 1 : Math eval field
+                mesh_fields["nbfields"] += 1
+                gmsh.model.mesh.field.add("Distance", mesh_fields["nbfields"])
+                gmsh.model.mesh.field.setNumbers(
+                    mesh_fields["nbfields"], "CurvesList", [l])
+                gmsh.model.mesh.field.setNumber(
+                    mesh_fields["nbfields"], "Sampling", 200)
+
+                # 2 : Create a mesh function for the line (Matheval field)
+                mesh_fields["nbfields"] += 1
+                gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
+                gmsh.model.mesh.field.setString(
+                    mesh_fields["nbfields"],
+                    "F",
+                    f"({mesh_size}/{refine}) + "
+                    f"{mesh_size}*(1-(1/{refine}))*"
+                    f"(F{mesh_fields['nbfields']-1}/{m})^{n_power}",
+                )
+
+                # 3 : Create the restrict field
+                mesh_fields["nbfields"] += 1
+                gmsh.model.mesh.field.add("Restrict", mesh_fields["nbfields"])
+                gmsh.model.mesh.field.setNumbers(
+                    mesh_fields["nbfields"], "SurfacesList", [s])
+                gmsh.model.mesh.field.setNumber(
+                    mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1)
+                mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
+                gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
+                gmsh.model.occ.synchronize()
+
+    return mesh_fields
 
 
 # =================================================================================================

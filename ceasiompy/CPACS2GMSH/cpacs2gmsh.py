@@ -181,7 +181,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
             auto_refine=auto_refine,
             farfield_size_factor=farfield_factor
         )
-
+        '''
         if gmesh_path.exists():
             log.info("Mesh file exists. Proceeding to 3D mesh generation")
             mesh_path = pentagrow_3d_mesh(
@@ -201,7 +201,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
                 log.info("SU2 Mesh has been correctly generated.")
         else:
             log.error("Error in generating SU2 mesh")
-
+        '''
     # Save CPACS
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 

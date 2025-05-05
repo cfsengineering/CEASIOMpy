@@ -219,7 +219,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Number of samples",
     gui_group="Design of Experiments",
-    test_value=1,
+    test_value=7,
 )
 
 cpacs_inout.add_input(

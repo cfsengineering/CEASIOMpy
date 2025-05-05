@@ -11,13 +11,17 @@ Functions related to the training of the surrogate model.
 #   IMPORTS
 # ==============================================================================
 
-
+import glob
 import time
 import joblib
 import numpy as np
 import pandas as pd
 
 from skopt import gp_minimize
+from cpacspy.cpacsfunctions import (
+    add_value,
+    create_branch,
+)
 from ceasiompy.SMTrain.func.loss import (
     compute_first_level_loss,
     compute_multi_level_loss,
@@ -56,11 +60,11 @@ from typing import (
 )
 
 from ceasiompy import log
+from ceasiompy.utils.commonxpaths import SM_XPATH
 from ceasiompy.SMTrain import (
     LEVEL_ONE,
     LEVEL_TWO,
 )
-from ceasiompy.SU2Run import MODULE_NAME as SU2RUN_NAME
 
 # =================================================================================================
 #   FUNCTIONS
@@ -153,6 +157,7 @@ def train_surrogate_model(
 
 
 def save_model(
+    cpacs: CPACS,
     model: Union[KRG, MFK],
     coefficient_name: str,
     datasets: Dict,
@@ -167,12 +172,11 @@ def save_model(
         datasets (Dict): Contains different fidelity datasets.
         results_dir (Path): Where the model will be saved.
     """
+    tixi = cpacs.tixi
 
     if not datasets:
         log.warning("Datasets dictionary is empty.")
         raise ValueError("Datasets dictionary is empty. Cannot save the model.")
-
-    log.info("Saving model")
 
     # Find the dataset with the highest fidelity level (last in the dictionary)
     # Ensure fidelity levels are correctly extracted
@@ -193,6 +197,23 @@ def save_model(
     with open(model_path, "wb") as file:
         joblib.dump(model_metadata, file)
     log.info(f"Model saved to {model_path}")
+
+    # Find the surrogate model file
+    surrofate_files = str(results_dir / "surrogateModel_*.pkl")
+    surrogate_model_files = glob.glob(surrofate_files)
+    surrogate_model_path = (
+        surrogate_model_files[0]
+        if surrogate_model_files
+        else None
+    )
+
+    if not surrogate_model_path:
+        log.info("No surrogateModel_*.pkl file found.")
+        return None
+
+    create_branch(tixi, SM_XPATH)
+    add_value(tixi, SM_XPATH, surrogate_model_path)
+    log.info("Finished Saving model.")
 
 
 def optimize_hyper_parameters(

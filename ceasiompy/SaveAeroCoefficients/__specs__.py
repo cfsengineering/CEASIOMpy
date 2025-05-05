@@ -54,7 +54,7 @@ cpacs_inout.add_input(
     descr="Altitude inclusion criteria",
     xpath=PLOT_XPATH + "/criterion/alt",
     gui=INCLUDE_GUI,
-    gui_name="Altitdue criteria",
+    gui_name="Altitude criteria",
     gui_group="Plot vs AoA",
 )
 

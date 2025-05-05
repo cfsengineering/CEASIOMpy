@@ -112,7 +112,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         log.info("Validation plots.")
         plot_validation(model, sets, obj_coef, results_dir)
 
-    save_model(model, obj_coef, datasets, results_dir)
+    save_model(cpacs, model, obj_coef, datasets, results_dir)
     get_smt_results(cpacs, results_dir)
 
 

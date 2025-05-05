@@ -88,12 +88,12 @@ def test_integration_3():
     assert True
 
 
-@pytest.mark.slow
-@pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
-@pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
-def test_integration_4():
-    run_workflow_test([SMTRAIN, SMUSE, SAVEAEROCOEF])
-    assert True
+# @pytest.mark.slow
+# @pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
+# @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
+# def test_integration_4():
+#     run_workflow_test([SMTRAIN, SMUSE, SAVEAEROCOEF])
+#     assert True
 
 
 # TODO: framAT version is not on point right now

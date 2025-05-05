@@ -5107,10 +5107,10 @@
             </aeroMap>
             <aeroMap uID="lh_sampling_data">
               <aeroPerformanceMap>
-                <altitude mapType="vector">125;867;385</altitude>
-                <machNumber mapType="vector">0.18;0.28;0.16</machNumber>
-                <angleOfSideslip mapType="vector">14.85;9.33;2.99</angleOfSideslip>
-                <angleOfAttack mapType="vector">3.66;5.29;10.1</angleOfAttack>
+                <altitude mapType="vector">187;578</altitude>
+                <machNumber mapType="vector">0.2;0.22</machNumber>
+                <angleOfSideslip mapType="vector">14;4.49</angleOfSideslip>
+                <angleOfAttack mapType="vector">5.49;7.94</angleOfAttack>
               </aeroPerformanceMap>
               <name>lh_sampling_data</name>
               <description></description>
@@ -5356,7 +5356,7 @@
           <Nchordwise>20</Nchordwise>
           <Nspanwise>50</Nspanwise>
         </VortexDistribution>
-        <NbCPU>2</NbCPU>
+        <NbCPU>5</NbCPU>
         <FreestreamMach>0.6</FreestreamMach>
         <PlotLift>false</PlotLift>
         <SavePlots>false</SavePlots>

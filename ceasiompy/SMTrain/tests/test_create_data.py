@@ -33,7 +33,7 @@ class TestCreateData(CeasiompyTest):
         launch_avl(
             cpacs=self.test_cpacs,
             lh_sampling_path=lh_sampling(
-                n_samples=1,  # Run AVL at least once
+                n_samples=2,  # Run AVL at least once
                 ranges={
                     "altitude": [0, MAX_ALT],
                     "machNumber": [0.1, MAX_MACH],

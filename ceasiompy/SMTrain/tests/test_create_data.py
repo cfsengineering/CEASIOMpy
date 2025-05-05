@@ -41,6 +41,7 @@ class TestCreateData(CeasiompyTest):
                     "angleOfSideslip": [0, MAX_AOS],
                 },
                 results_dir=current_workflow_dir(),  # Where to store AVL results
+                random_state=42,
             ),
             objective="cl",
         )

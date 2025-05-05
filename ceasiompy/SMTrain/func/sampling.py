@@ -139,6 +139,9 @@ def lh_sampling(
         results_dir (Path): Where the sampled dataset will be saved.
         random_state (int = 42): Seed for random number generation to ensure reproducibility.
     """
+    if n_samples < 2:
+        raise ValueError("Can not apply LHS on strictly less than 2 samples.")
+
     xlimits = np.array(list(ranges.values()))
 
     sampling = LHS(xlimits=xlimits, criterion="ese", random_state=random_state)

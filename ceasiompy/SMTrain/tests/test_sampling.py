@@ -22,10 +22,6 @@ from ceasiompy.SMTrain.func.sampling import (
 from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
-from ceasiompy.SMTrain import (
-    LEVEL_ONE,
-    LEVEL_TWO,
-)
 
 # =================================================================================================
 #   CLASSES
@@ -39,7 +35,7 @@ class TestCreateData(CeasiompyTest):
         MAX_MACH = 0.3
         MAX_AOA = MAX_AOS = 15.0
         lh_sampling_path = lh_sampling(
-            n_samples=1,  # Run AVL at least once
+            n_samples=2,  # Run AVL at least once
             ranges={
                 "altitude": [0, MAX_ALT],
                 "machNumber": [0.1, MAX_MACH],

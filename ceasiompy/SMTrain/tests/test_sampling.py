@@ -34,7 +34,7 @@ class TestCreateData(CeasiompyTest):
         MAX_MACH = 0.3
         MAX_AOA = MAX_AOS = 15.0
         lh_sampling_path = lh_sampling(
-            n_samples=1,  # Run AVL at least once
+            n_samples=2,  # Run AVL at least once
             ranges={
                 "altitude": [0, MAX_ALT],
                 "machNumber": [0.1, MAX_MACH],
@@ -64,8 +64,18 @@ class TestCreateData(CeasiompyTest):
         self.assertGreaterEqual(df["angleOfSideslip"].iloc[0], 0)
         self.assertLessEqual(df["angleOfSideslip"].iloc[0], MAX_AOS)
 
-        print(df)
+        # Check values
+        self.assertEqual(df["altitude"][0], 187)
+        self.assertEqual(df["altitude"][1], 578)
 
+        self.assertEqual(df["machNumber"][0], 0.20)
+        self.assertEqual(df["machNumber"][1], 0.22)
+
+        self.assertEqual(df["angleOfAttack"][0], 5.49)
+        self.assertEqual(df["angleOfAttack"][1], 7.94)
+
+        self.assertEqual(df["angleOfSideslip"][0], 14.0)
+        self.assertEqual(df["angleOfSideslip"][1], 4.49)
 
     # @log_test
     # def test_split_data(self) -> None:

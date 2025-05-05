@@ -14,9 +14,10 @@ Sampling strategies for SMTrain.
 import numpy as np
 
 from sklearn.model_selection import train_test_split
-from ceasiompy.SMTrain.func.utils import get_val_fraction
-from ceasiompy.SMTrain.func.predictions import make_predictions
-
+from ceasiompy.SMTrain.func.utils import (
+    get_columns,
+    get_val_fraction,
+)
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
@@ -30,7 +31,6 @@ from typing import (
 )
 
 from ceasiompy import log
-from ceasiompy.SMTrain import LEVEL_ONE
 from ceasiompy.SMTrain.func import LH_SAMPLING_DATA_CSV
 
 # =================================================================================================
@@ -177,7 +177,8 @@ def lh_sampling(
 
 
 def new_points(
-    datasets: Dict,
+    sets: Dict[str, ndarray],
+    objective: str,
     model: Union[KRG, MFK],
     results_dir: Path,
     high_variance_points: List,
@@ -201,17 +202,14 @@ def new_points(
     """
 
     # Retrieve the first fidelity dataset
-    first_dataset = datasets[LEVEL_ONE]
-    df: DataFrame
-    x, _, df, _, _ = first_dataset  # Unpack dataset
+    x = sets["x_train"]
+    columns = get_columns(objective)
 
     # Compute variance prediction
-    _, y_var = make_predictions(model, x)
-    y_var_flat = np.asarray(y_var).flatten()
+    y_var_flat = np.asarray(model.predict_variances(x)).flatten()
     sorted_indices = np.argsort(y_var_flat)[::-1]  # Sort indices by variance (descending)
 
     output_file_path = results_dir / "new_points.csv"
-    columns = df.columns
 
     # First iteration: generate boundary points
     if not high_variance_points:
@@ -250,9 +248,6 @@ def split_data(
     Splits dataframe into training, validation, and test sets based on the specified proportions.
     """
 
-    test_val_fraction = get_val_fraction(train_fraction)
-
-    # convert to arrays ?
     x = df.drop(columns=[objective]).to_numpy()
     y = df[objective].to_numpy()
 
@@ -262,7 +257,9 @@ def split_data(
     y_train: ndarray
     y_test: ndarray
     x_train, x_test, y_train, y_test = train_test_split(
-        x, y, test_size=test_val_fraction, random_state=random_state
+        x, y,
+        test_size=get_val_fraction(train_fraction),
+        random_state=random_state,
     )
 
     if x_test.shape[0] < 1:
@@ -278,7 +275,9 @@ def split_data(
     x_val: ndarray
     y_val: ndarray
     x_val, x_test, y_val, y_test = train_test_split(
-        x_test, y_test, test_size=test_fraction_within_split, random_state=random_state
+        x_test, y_test,
+        test_size=test_fraction_within_split,
+        random_state=random_state,
     )
 
     log.info(f"Validation size: {x_val.shape[0]}, Test size: {x_test.shape[0]}")

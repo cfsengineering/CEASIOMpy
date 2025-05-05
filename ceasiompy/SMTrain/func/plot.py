@@ -13,7 +13,7 @@ Functions related to plotting in SMTrain.
 
 import matplotlib.pyplot as plt
 
-from ceasiompy.SMTrain.func.predictions import make_predictions
+from smt.utils.misc import compute_rmse
 
 from pathlib import Path
 from numpy import ndarray
@@ -23,6 +23,8 @@ from typing import (
     Dict,
     Union,
 )
+
+from ceasiompy import log
 
 # =================================================================================================
 #   FUNCTIONS
@@ -41,8 +43,10 @@ def plot_validation(
     y_test: ndarray
     x_test, y_test = sets["x_test"], sets["y_test"]
     y_test_range = [y_test.min(), y_test.max()]
-    predictions, _ = make_predictions(model, x_test, y_test)
+    predictions = model.predict_values(x_test)
+    log.info(f"kriging, rms err: {compute_rmse(model, x_test, y_test)}")
 
+    # Create figure
     fig = plt.figure(figsize=(6, 6))
     plt.scatter(y_test, predictions, color="blue", alpha=0.5)
     plt.plot(y_test_range, y_test_range, "r--", lw=2)

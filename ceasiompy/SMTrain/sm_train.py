@@ -13,12 +13,10 @@ depending on the level of fidelity chosen.
 | Creation: 2025-03-20
 
 TODO:
-    * Create test functions
     * Adapt SaveAeroCoefficient for the adaptive sampling
-    * More test on adaptive sampling
+    * More tests on adaptive sampling
     * Never tested with 3 levels of fidelity
     * Define how to change AVL and SU2 settings
-
 """
 
 # ==============================================================================
@@ -27,20 +25,15 @@ TODO:
 
 from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.SMTrain.func.plot import plot_validation
-from ceasiompy.SMTrain.func.results import get_smt_results
 from ceasiompy.SMTrain.func.config import (
     get_settings,
     design_of_experiment,
-    # get_datasets_from_aeromaps,
 )
 from ceasiompy.SMTrain.func.sampling import (
-    # new_doe,
-    # split_data,
     lh_sampling,
 )
 from ceasiompy.SMTrain.func.trainsurrogate import (
     save_model,
-    # train_surrogate_model,
     run_first_level_training,
     run_adaptative_refinement,
 )
@@ -66,7 +59,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
     1. Retrieve settings from the CPACS file
     2. Train surrogate model
-    3. Plot, save and get results
+    3. Plot and save model
     """
 
     # 1. Retrieve settings from the CPACS file
@@ -114,8 +107,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         log.info("Validation plots.")
         plot_validation(model, sets, objective, results_dir)
 
-    cpacs = save_model(cpacs, model, objective, datasets, results_dir)
-    get_smt_results(cpacs, results_dir)
+    save_model(cpacs, model, objective, results_dir)
 
 
 if __name__ == "__main__":

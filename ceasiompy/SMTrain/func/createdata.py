@@ -149,12 +149,10 @@ def launch_su2(
 
     # Retrieve aerodynamic data, save then overwrite cpacs file
     cpacs = CPACS(cpacs.cpacs_file)
-    dataset = retrieve_aeromap_data(cpacs, aeromap.uid, objective)
+    df = retrieve_aeromap_data(cpacs, aeromap.uid, objective)
     cpacs.save_cpacs(cpacs, overwrite=True)
 
-    # Log the generated dataset, with objective values
-    _, _, _, _, df = dataset
-    log.info(f"AVL results extracted for {objective}:")
+    log.info(f"Level two results extracted for {objective}:")
     log.info(df)
 
-    return dataset
+    return df

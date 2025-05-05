@@ -112,7 +112,8 @@ def plot_response_surface(cpacs: CPACS, results_dir: Path) -> None:
     full_aeromap_df = pd.concat(aeromap_df_list, ignore_index=True)
 
     # Make predictions using the surrogate model
-    pred_values, _ = make_predictions(model, input_data)
+    pred_values = model.predict_values(input_data)
+
     Z = pred_values.reshape(X.shape)
 
     # Create the 3D plot

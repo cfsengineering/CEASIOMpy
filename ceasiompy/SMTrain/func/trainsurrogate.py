@@ -11,11 +11,9 @@ Functions related to the training of the surrogate model.
 #   IMPORTS
 # ==============================================================================
 
-import glob
 import time
 import joblib
 import numpy as np
-import pandas as pd
 
 from pandas import concat
 from skopt import gp_minimize
@@ -42,11 +40,11 @@ from ceasiompy.SMTrain.func.createdata import (
 
 from pathlib import Path
 from numpy import ndarray
+from pandas import DataFrame
 from cpacspy.cpacspy import CPACS
 from smt.applications import MFK
 from smt.surrogate_models import KRG
 from scipy.optimize import OptimizeResult
-from pandas import DataFrame
 from skopt.space import (
     Real,
     Categorical,
@@ -60,7 +58,10 @@ from typing import (
 )
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import SM_XPATH
+from ceasiompy.utils.commonxpaths import (
+    SM_XPATH,
+    SUGGESTED_POINTS_XPATH,
+)
 from ceasiompy.SMTrain import (
     LEVEL_ONE,
     LEVEL_TWO,
@@ -71,8 +72,25 @@ from ceasiompy.SMTrain import (
 # =================================================================================================
 
 
-def get_hyperparam_space(sets: Dict[str, ndarray]) -> List[str]:
-    n_samples, n_features = sets["x_train"].shape
+def get_hyperparam_space(
+    level1_sets: Dict[str, ndarray],
+    level2_sets: Union[Dict[str, ndarray], None],
+    level3_sets: Union[Dict[str, ndarray], None],
+) -> List[str]:
+    """
+    Get Hyper-parameters space from the different fidelity datasets.
+    Uniquely determined by the training set x_train.
+    """
+
+    # Concatenate only non-None arrays
+    arrays = [level1_sets["x_train"]]
+    if level2_sets is not None:
+        arrays.append(level2_sets["x_train"])
+    if level3_sets is not None:
+        arrays.append(level3_sets["x_train"])
+
+    x_train = np.concatenate(arrays, axis=0)
+    n_samples, n_features = x_train.shape
 
     # Determine allowed polynomial regression types based on sample count
     if n_samples > ((n_features + 1) * (n_features + 2) / 2):
@@ -109,8 +127,9 @@ def get_hyperparam_space(sets: Dict[str, ndarray]) -> List[str]:
 
 
 def train_surrogate_model(
-    fidelity_level: str,
-    sets: Dict[str, ndarray],
+    level1_sets: Dict[str, ndarray],
+    level2_sets: Union[Dict[str, ndarray], None],
+    level3_sets: Union[Dict[str, ndarray], None],
 ) -> Tuple[Union[KRG, MFK], float]:
     """
     Train a surrogate model using kriging or Multi-Fidelity kriging:
@@ -131,20 +150,22 @@ def train_surrogate_model(
         rmse (float): Root Mean Square Error of the trained model.
     """
 
-    hyperparam_space = get_hyperparam_space(sets)
-
-    if fidelity_level == LEVEL_ONE:
-        return kriging(
-            param_space=hyperparam_space,
-            sets=sets,
-        )
-    else:
+    hyperparam_space = get_hyperparam_space(
+        level1_sets, level2_sets, level3_sets
+    )
+        
+    if level2_sets is not None or level3_sets is not None:
         # It will always be multi-fidelity level if not 1
         return mf_kriging(
-            fidelity_level=fidelity_level,
-            datasets={},  # Not implemented yet
             param_space=hyperparam_space,
-            sets=sets,
+            level1_sets=level1_sets,
+            level2_sets=level2_sets,
+            level3_sets=level3_sets,
+        )
+    else:
+        return kriging(
+            param_space=hyperparam_space,
+            sets=level1_sets,
         )
 
 
@@ -152,68 +173,42 @@ def save_model(
     cpacs: CPACS,
     model: Union[KRG, MFK],
     coefficient_name: str,
-    datasets: Dict,
     results_dir: Path,
-) -> CPACS:
+) -> None:
     """
     Save the trained surrogate model along with its metadata.
 
     Args:
+        cpacs: CPACS file.
         model: Trained surrogate model.
         coefficient_name (str): Name of the aerodynamic coefficient (e.g., "cl" or "cd").
-        datasets (Dict): Contains different fidelity datasets.
         results_dir (Path): Where the model will be saved.
     """
     tixi = cpacs.tixi
 
-    if not datasets:
-        log.warning("Datasets dictionary is empty.")
-        raise ValueError("Datasets dictionary is empty. Cannot save the model.")
-
-    # Find the dataset with the highest fidelity level (last in the dictionary)
-    # Ensure fidelity levels are correctly extracted
-    # try:
-    #     highest_fidelity_level = max(datasets.keys(), key=lambda k: int(k.split("_")[-1]))
-    # except (ValueError, IndexError):
-    #     raise ValueError(
-    #         "Invalid fidelity level format in dataset keys. Expected format: 'fidelity_X'."
-    #     )
-
-    model_metadata = {
-        "model": model,
-        "coefficient": coefficient_name,
-        # "removed_columns": list(datasets[highest_fidelity_level][3].keys()),
-    }
-
     model_path = results_dir / f"surrogateModel_{coefficient_name}.pkl"
     with open(model_path, "wb") as file:
-        joblib.dump(model_metadata, file)
+        joblib.dump({
+        "model": model,
+        "coefficient": coefficient_name,
+    }, file)
     log.info(f"Model saved to {model_path}")
 
-    # Find the surrogate model file
-    surrofate_files = str(results_dir / "surrogateModel_*.pkl")
-    surrogate_model_files = glob.glob(surrofate_files)
-    surrogate_model_path = (
-        surrogate_model_files[0]
-        if surrogate_model_files
-        else None
-    )
-
-    if not surrogate_model_path:
-        log.info("No surrogateModel_*.pkl file found.")
-        return None
-
-    # TODO: Understand why need to reload
-    # Reload CPACS file
-    cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
-    cpacs = CPACS(cpacs.cpacs_file)
-    tixi = cpacs.tixi
-
     create_branch(tixi, SM_XPATH)
-    add_value(tixi, SM_XPATH, surrogate_model_path)
+    add_value(tixi, SM_XPATH, model_path)
     log.info("Finished Saving model.")
 
-    return cpacs
+    # Path to "suggested_points.csv"
+    suggested_points_path = results_dir / "suggested_points.csv"
+    if not suggested_points_path.is_file():
+        log.info(f"File not found: {suggested_points_path}")
+        return None
+
+    create_branch(tixi, SUGGESTED_POINTS_XPATH)
+    add_value(tixi, SUGGESTED_POINTS_XPATH, suggested_points_path)
+    aeromap = cpacs.create_aeromap_from_csv(suggested_points_path)
+    aeromap.save()
+    log.info(f"New aeromap with suggested points: {aeromap}")
 
 
 def optimize_hyper_parameters(
@@ -296,7 +291,7 @@ def mf_kriging(
     fidelity_level: str,
     datasets: Dict,
     param_space: List,
-    sets: Dict,
+    level1_sets: Dict,
     n_calls: int = 30,
     random_state: int = 42,
 ) -> Tuple[MFK, float]:
@@ -311,7 +306,7 @@ def mf_kriging(
         n_calls (int = 30): Number of iterations for Bayesian optimization.
         random_state (int = 42): Random seed for reproducibility.
     """
-    x_train, x_test, x_val, y_train, y_test, y_val = unpack_data(sets)
+    x_train, x_test, x_val, y_train, y_test, y_val = unpack_data(level1_sets)
 
     # Extract datasets for different fidelity levels
     x_lf, y_lf = datasets[LEVEL_ONE][:2]
@@ -359,44 +354,52 @@ def run_first_level_training(
     Run surrogate model training on first level of fidelity (AVL).
     """
     level1_df = launch_avl(cpacs, lh_sampling_path, objective)
-    sets = split_data(level1_df, objective, split_ratio)
+    level1_sets = split_data(level1_df, objective, split_ratio)
     model, _ = train_surrogate_model(
-        fidelity_level=LEVEL_ONE,
-        sets=sets,
+        level1_sets=level1_sets,
     )
-    return model, sets
+    return model, level1_sets
 
 
 def run_adaptative_refinement(
     cpacs: CPACS,
     results_dir: Path,
     model: Union[KRG, MFK],
-    sets: Dict[str, ndarray],
+    level1_sets: Dict[str, ndarray],
     rmse_obj: float,
     objective: str,
 ) -> None:
     """
     Iterative improvement using SU2 data.
     """
+    log.info(f"Starting adaptive refinement.")
     high_var_pts = []
-    max_iters = len(sets["x_train"])
-    iteration = 0
     rmse = float("inf")
-    log.info(f"Starting adaptive refinement with {max_iters=}.")
+    df = DataFrame({
+        "altitude": [],
+        "machNumber": [],
+        "angleOfAttack": [],
+        "angleOfSideslip": [],
+        objective: [],
+    })
 
-    level_2_sets: Dict[str, ndarray]
+    for iteration, _ in enumerate(level1_sets["x_train"]):
+        # Find new high variance points
+        new_point_df = new_points(
+            level1_sets,
+            objective,
+            model,
+            results_dir,
+            high_var_pts
+        )
 
-    while (
-        iteration < max_iters
-        and rmse > rmse_obj
-    ):
-        # 1. Find new high variance points
-        new_point_df = new_points(datasets, model, results_dir, high_var_pts)
+        # 1st Breaking condition
         if new_point_df.empty or (new_point_df is None):
             log.warning("No new high-variance points found.")
             break
         high_var_pts.append(new_point_df.values[0])
 
+        # Get data from SU2 at the high variance points
         new_df = launch_su2(
             cpacs=cpacs,
             results_dir=results_dir,
@@ -407,12 +410,11 @@ def run_adaptative_refinement(
         # Stack new with old
         df = concat([new_df, df], ignore_index=True)
 
-        sets = split_data(
-            df=df,
-            objective=objective,   
-        )
         model, rmse = train_surrogate_model(
-            fidelity_level=LEVEL_TWO,
-            sets=sets,
+            level1_sets=level1_sets,
+            level2_sets=split_data(df, objective),
         )
-        iteration += 1
+
+        # 2nd Breaking condition
+        if rmse > rmse_obj:
+            break

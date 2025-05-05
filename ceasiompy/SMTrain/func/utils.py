@@ -36,11 +36,17 @@ from ceasiompy.SU2Run import MODULE_NAME as SU2RUN_NAME
 from ceasiompy.SMTrain import (
     LEVEL_ONE,
     LEVEL_TWO,
+    AEROMAP_FEATURES,
 )
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def get_columns(objective: str) -> List[str]:
+    aeromap_features = AEROMAP_FEATURES.copy()
+    return aeromap_features.append(objective)
 
 
 def generate_su2_wkdir(iteration: int) -> None:

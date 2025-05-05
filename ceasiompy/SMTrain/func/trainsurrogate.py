@@ -211,6 +211,12 @@ def save_model(
         log.info("No surrogateModel_*.pkl file found.")
         return None
 
+    # TODO: Understand why need to reload
+    # Reload CPACS file
+    cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
+    cpacs = CPACS(cpacs.cpacs_file)
+    tixi = cpacs.tixi
+
     create_branch(tixi, SM_XPATH)
     add_value(tixi, SM_XPATH, surrogate_model_path)
     log.info("Finished Saving model.")

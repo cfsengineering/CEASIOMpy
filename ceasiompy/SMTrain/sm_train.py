@@ -30,6 +30,7 @@ from ceasiompy.SMTrain.func.plot import plot_validation
 from ceasiompy.SMTrain.func.results import get_smt_results
 from ceasiompy.SMTrain.func.config import (
     get_settings,
+    design_of_experiment,
     # get_datasets_from_aeromaps,
 )
 from ceasiompy.SMTrain.func.sampling import (
@@ -80,7 +81,8 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     # 2. Train surrogate model
     # if doe:
     # Generate new samples
-    lh_sampling_path = lh_sampling(cpacs, results_dir)
+    n_samples, ranges = design_of_experiment(cpacs)
+    lh_sampling_path = lh_sampling(n_samples, ranges, results_dir)
 
     # One level fidelity model training
     model, sets, datasets = run_first_level_training(

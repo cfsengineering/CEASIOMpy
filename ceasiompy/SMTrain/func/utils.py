@@ -32,6 +32,7 @@ from typing import (
 
 from ceasiompy import log
 from ceasiompy.SMTrain.func import LH_SAMPLING_DATA
+from ceasiompy.SU2Run import MODULE_NAME as SU2RUN_NAME
 from ceasiompy.SMTrain import (
     LEVEL_ONE,
     LEVEL_TWO,
@@ -40,6 +41,14 @@ from ceasiompy.SMTrain import (
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def generate_su2_wkdir(iteration: int) -> None:
+    """
+    Generate unique SU2 working directory using iteration
+    """
+    wkdir_su2 = Path(SU2RUN_NAME) / f"SU2_{iteration}"
+    wkdir_su2.mkdir(parents=True, exist_ok=True)
 
 
 def create_aeromap_from_varpts(

@@ -25,6 +25,7 @@ from ceasiompy.SMTrain.func.loss import (
 from ceasiompy.SMTrain.func.utils import (
     log_params,
     unpack_data,
+    generate_su2_wkdir,
 )
 from ceasiompy.SMTrain.func.sampling import (
     split_data,
@@ -302,8 +303,10 @@ def mf_kriging(
     def objective(params) -> float:
         _, loss = compute_multi_level_loss(
             params,
-            x_train=x_train,
-            y_train=y_train,
+            x_fl_train=x_train,
+            y_fl_train=y_train,
+            x_ml_train=x_mf,
+            y_ml_train=y_mf,
             x_=x_val,
             y_=y_val,
         )
@@ -365,19 +368,15 @@ def run_adaptative_refinement(
     ):
         # 1. Find new high variance points
         new_point_df = new_points(datasets, model, results_dir, high_var_pts)
-        if new_point_df.empty:
+        if new_point_df.empty or (new_point_df is None):
             log.warning("No new high-variance points found.")
             break
-        new_point = new_point_df.values[0]
-        high_var_pts.append(new_point)
+        high_var_pts.append(new_point_df.values[0])
 
-        # Generate unique SU2 working directory using iteration
-        wkdir_su2 = Path(SU2RUN_NAME) / f"SU2_{iteration}"
-        wkdir_su2.mkdir(parents=True, exist_ok=True)
         dataset = launch_su2(
             cpacs=cpacs,
             results_dir=results_dir,
-            results_dir_su2=wkdir_su2,
+            results_dir_su2=generate_su2_wkdir(iteration),
             objective=obj_coef,
             high_variance_points=high_var_pts,
         )

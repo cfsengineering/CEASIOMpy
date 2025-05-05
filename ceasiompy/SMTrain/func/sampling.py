@@ -12,7 +12,6 @@ Sampling strategies for SMTrain.
 # ==============================================================================
 
 import numpy as np
-import pandas as pd
 
 from sklearn.model_selection import train_test_split
 from ceasiompy.SMTrain.func.utils import get_val_fraction
@@ -241,49 +240,21 @@ def new_points(
 
 
 def split_data(
-    fidelity_level: str,
-    fidelity_datasets: Dict,
+    df: DataFrame,
+    objective: str,
     train_fraction: float = 0.7,
     test_fraction_within_split: float = 0.3,
     random_state: int = 42,
 ) -> Dict[str, ndarray]:
     """
-    Takes a dictionary of datasets with different fidelity levels and:
-    1. identifies the highest fidelity dataset,
-    2. splits it into training, validation, and test sets based on the specified proportions.
-
-    Args:
-        datasets (Dict): Keys represent fidelity levels with (x, y) values.
-        data_repartition (float = 0.3):
-            Fraction of data reserved for validation and test sets, for example:
-            data_repartition=0.3 means 70% train, 15% val, 15% test
-        val_test_size (float = 0.3):
-            Proportion of validation+test data allocated to the test set.
-        random_state (int, optional): Random seed for reproducibility.
-
-    Returns:
-        Dictionary containing the split datasets.
+    Splits dataframe into training, validation, and test sets based on the specified proportions.
     """
 
-    if not fidelity_datasets:
-        raise ValueError("Datasets dictionary is empty.")
-
     test_val_fraction = get_val_fraction(train_fraction)
-    log.info(f"Using: {fidelity_level=}")
 
-    try:
-        # Extract X and y from the highest fidelity level dataset
-        x: ndarray = fidelity_datasets[fidelity_level][0]
-        y: ndarray = fidelity_datasets[fidelity_level][1]
-        if x.shape[0] != y.shape[0]:
-            raise ValueError(
-                "Mismatch between number of samples"
-                f"x has {x.shape[0]} samples, but y has {y.shape[0]}."
-            )
-    except KeyError:
-        raise ValueError(f"Dataset '{fidelity_level}' is incorrectly formatted.")
-
-    log.info(f"Dataset shape - x: {x.shape}, y: {y.shape}")
+    # convert to arrays ?
+    x = df.drop(columns=[objective]).to_numpy()
+    y = df[objective].to_numpy()
 
     # Split into train and test/validation
     x_train: ndarray

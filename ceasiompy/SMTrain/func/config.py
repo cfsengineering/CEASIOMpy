@@ -26,7 +26,7 @@ from ceasiompy.SMTrain.func.utils import (
     filter_constant_columns,
 )
 
-from numpy import ndarray
+from tixi3.tixi3wrapper import Tixi3
 from pandas import DataFrame
 from ceasiompy.Database.func.storing import CeasiompyDb
 from typing import (
@@ -97,20 +97,18 @@ def retrieve_aeromap_data(
     cpacs: CPACS,
     aeromap_uid: str,
     objective: str,
-) -> Tuple[ndarray, ndarray, DataFrame, Dict, DataFrame]:
+) -> DataFrame:
     """
     Retrieves the aerodynamic data from a CPACS aeromap
     and prepares input-output data for training.
     """
-    tixi = cpacs.tixi
     activate_aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
-
     if activate_aeromap is None:
         raise ValueError(f"Aeromap {aeromap_uid} does not exist.")
 
     log.info(f"Aeromap {aeromap_uid} retrieved successfully.")
 
-    df = DataFrame({
+    return DataFrame({
         "altitude": activate_aeromap.get("altitude").tolist(),
         "machNumber": activate_aeromap.get("machNumber").tolist(),
         "angleOfAttack": activate_aeromap.get("angleOfAttack").tolist(),
@@ -118,46 +116,41 @@ def retrieve_aeromap_data(
         objective: activate_aeromap.get(objective).tolist(),
     })
 
-    # If retrieve data from database
-    # Append the data here
-    if get_value(tixi, SMTRAIN_AVL_DATABASE_XPATH):
-        # _, ranges = design_of_experiment(cpacs)
-        aircraft: str = aircraft_name(tixi)
-        ceasiompy_db = CeasiompyDb()
-        data = ceasiompy_db.get_data(
-            table_name="avl_data",
-            columns=["alt", "mach", "alpha", "beta", objective],
-            db_close=True,
-            filters=[
-                # f"mach IN ({ranges['machNumber'][0]}, {ranges['machNumber'][1]})",
-                f"aircraft = '{aircraft}'",
-                # f"alt IN ({ranges['altitude'][0]}, {ranges['altitude'][1]})",
-                # f"alpha IN ({ranges['angleOfAttack'][0]}, {ranges['angleOfAttack'][1]})",
-                # f"beta IN ({ranges['angleOfSideslip'][0]}, {ranges['angleOfSideslip'][1]})",
-                "pb_2V = 0.0",
-                "qc_2V = 0.0",
-                "rb_2V = 0.0",
-            ]
-        )
-        log.info(f"Importing from ceasiompy.db {data=}")
-        data_df = DataFrame(data, columns=df.columns)
-        df = pd.concat([df, data_df], ignore_index=True)
 
-        # Post processing
-        df = df.drop_duplicates(ignore_index=True)
+def retrieve_ceasiompy_db_data(
+    tixi: Tixi3,
+    objective: str,
+) -> DataFrame:
+    """
+    Get data from ceasiompy.db used in previous AVL computations.
+    """
+    aircraft: str = aircraft_name(tixi)
+    ceasiompy_db = CeasiompyDb()
+    data = ceasiompy_db.get_data(
+        table_name="avl_data",
+        columns=["alt", "mach", "alpha", "beta", objective],
+        db_close=True,
+        filters=[
+            # f"mach IN ({ranges['machNumber'][0]}, {ranges['machNumber'][1]})",
+            f"aircraft = '{aircraft}'",
+            # f"alt IN ({ranges['altitude'][0]}, {ranges['altitude'][1]})",
+            # f"alpha IN ({ranges['angleOfAttack'][0]}, {ranges['angleOfAttack'][1]})",
+            # f"beta IN ({ranges['angleOfSideslip'][0]}, {ranges['angleOfSideslip'][1]})",
+            "pb_2V = 0.0",
+            "qc_2V = 0.0",
+            "rb_2V = 0.0",
+        ]
+    )
+    log.info(f"Importing from ceasiompy.db {data=}")
+    data_df = DataFrame(
+        data,
+        columns=[
+            "altitude", "machNumber", "angleOfAttack", "angleOfSideslip",
+            objective
+        ],
+    ).drop_duplicates(ignore_index=True)
 
-    # Skip filtering if there is only one row
-    # (important for adaptive sampling)
-    if len(df) == 1:
-        df_filtered = df.iloc[:, :4].copy()
-        removed_columns = {}
-    else:
-        df_filtered, removed_columns = filter_constant_columns(df, AEROMAP_FEATURES)
-
-    output = df[objective].values.reshape(-1, 1)
-
-    return df_filtered.values, output, df_filtered, removed_columns, df
-
+    return data_df
 
 # def get_aeromap_for_training(cpacs: CPACS) -> List[str]:
 #     tixi = cpacs.tixi

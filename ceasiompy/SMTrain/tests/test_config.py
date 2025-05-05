@@ -11,8 +11,6 @@ Test functions for create_data functions in SMTrain module.
 #   IMPORTS
 # =================================================================================================
 
-
-from numpy import array
 from ceasiompy.utils.decorators import log_test
 from ceasiompy.SMTrain.func.createdata import retrieve_aeromap_data
 from cpacspy.cpacsfunctions import (
@@ -43,23 +41,10 @@ class TestConfig(CeasiompyTest):
         # Specify to not add data from ceasiompy.db
         create_branch(tixi, SMTRAIN_AVL_DATABASE_XPATH)
         add_value(tixi, SMTRAIN_AVL_DATABASE_XPATH, False)
-        aeromap_array, objective_array, df_aeromap, _, full_df = retrieve_aeromap_data(
+        full_df = retrieve_aeromap_data(
             cpacs=cpacs,
             aeromap_uid="aeromap_empty",
             objective="cl",
-        )
-
-        self.assertEqual(aeromap_array.tolist(), [[0.0, 0.3, 0.0, 0.0]])
-        self.assertTrue(isnan(objective_array[0][0]))
-        self.assertTrue(
-            df_aeromap.equals(
-                DataFrame({
-                    "altitude": [0.0],
-                    "machNumber": [0.3],
-                    "angleOfAttack": [0.0],
-                    "angleOfSideslip": [0.0],
-                })
-            )
         )
         self.assertTrue(
             full_df.equals(

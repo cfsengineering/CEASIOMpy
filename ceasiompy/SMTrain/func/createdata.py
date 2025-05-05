@@ -11,11 +11,15 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 import streamlit as st
 
+from pandas import concat
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.PyAVL.pyavl import main as run_avl
 from ceasiompy.SU2Run.su2run import main as run_su2
-from ceasiompy.SMTrain.func.config import retrieve_aeromap_data
 from ceasiompy.SMTrain.func.utils import create_aeromap_from_varpts
+from ceasiompy.SMTrain.func.config import (
+    retrieve_aeromap_data,
+    retrieve_ceasiompy_db_data,
+)
 from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
     update_cpacs_from_specs,
@@ -37,7 +41,10 @@ from typing import (
 
 from ceasiompy import log
 from ceasiompy.SMTrain.func import LH_SAMPLING_DATA
-from ceasiompy.SMTrain import SMTRAIN_USED_SU2_MESH_XPATH
+from ceasiompy.SMTrain import (
+    SMTRAIN_AVL_DATABASE_XPATH,
+    SMTRAIN_USED_SU2_MESH_XPATH,
+)
 from ceasiompy.PyAVL import (
     AVL_AEROMAP_UID_XPATH,
     MODULE_NAME as PYAVL_NAME,
@@ -57,7 +64,7 @@ def launch_avl(
     cpacs: CPACS,
     lh_sampling_path: Union[Path, None],
     objective: str,
-) -> Tuple[ndarray, ndarray, DataFrame, Dict, DataFrame]:
+) -> Tuple[DataFrame]:
     """
     Executes AVL aerodynamic analysis running PyAVL Module
 
@@ -80,7 +87,6 @@ def launch_avl(
         cpacs.delete_aeromap(LH_SAMPLING_DATA)
 
     aeromap = AeroMap(tixi, uid="ceasiompy_db", create_new=True)
-    aeromap.save()
     if lh_sampling_path is not None:
         # Overwrite aeromap from LHS dataset
         aeromap = cpacs.create_aeromap_from_csv(lh_sampling_path)
@@ -95,18 +101,20 @@ def launch_avl(
         cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
         cpacs = CPACS(cpacs.cpacs_file)
         run_avl(cpacs, results_dir=get_results_directory(PYAVL_NAME))
+        df_aeromap = retrieve_aeromap_data(cpacs, aeromap.uid, objective)
 
-    # Retrieve aerodynamic data, save then overwrite cpacs file
-    dataset = retrieve_aeromap_data(cpacs, aeromap.uid, objective)
+    if get_value(tixi, SMTRAIN_AVL_DATABASE_XPATH):
+        df_db = retrieve_ceasiompy_db_data(tixi, objective)
+        df_aeromap = concat([df_aeromap, df_db], ignore_index=True)
+
     cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
     cpacs = CPACS(cpacs.cpacs_file)
 
     # Log the generated dataset, with objective values
-    _, _, _, _, df = dataset
     log.info(f"Level one results extracted for {objective}:")
-    log.info(df)
+    log.info(df_aeromap)
 
-    return dataset
+    return df_aeromap
 
 
 def launch_su2(

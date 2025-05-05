@@ -29,6 +29,7 @@ from ceasiompy.SMTrain.func.loss import (
 from ceasiompy.SMTrain.func.utils import (
     log_params,
     unpack_data,
+    str_to_level,
     generate_su2_wkdir,
 )
 from ceasiompy.SMTrain.func.sampling import (
@@ -110,7 +111,6 @@ def get_hyperparam_space(sets: Dict[str, ndarray]) -> List[str]:
 
 def train_surrogate_model(
     fidelity_level: str,
-    datasets: Dict,
     sets: Dict[str, ndarray],
 ) -> Tuple[Union[KRG, MFK], float]:
     """
@@ -127,13 +127,6 @@ def train_surrogate_model(
         else
             Use ["constant"]
 
-    Args:
-        fidelity_level (str): Either LEVEL_ONE or LEVEL_TWO.
-        datasets (Dict): Contains datasets for different fidelity levels.
-        sets (Dict):
-            Contains the split datasets. Expected keys:
-            "x_train", "x_val", "x_test", "y_train", "y_val", "y_test".
-
     Returns:
         model: Trained surrogate model (kriging or Multi-Fidelity kriging).
         rmse (float): Root Mean Square Error of the trained model.
@@ -144,13 +137,13 @@ def train_surrogate_model(
     if fidelity_level == LEVEL_ONE:
         return kriging(
             param_space=hyperparam_space,
-            sets=sets
+            sets=sets,
         )
     else:
         # It will always be multi-fidelity level if not 1
         return mf_kriging(
             fidelity_level=fidelity_level,
-            datasets=datasets,
+            datasets={},  # Not implemented yet
             param_space=hyperparam_space,
             sets=sets,
         )
@@ -360,17 +353,19 @@ def mf_kriging(
 def run_first_level_training(
     cpacs: CPACS,
     lh_sampling_path: Union[Path, None],
-    obj_coef: str,
+    objective: str,
     split_ratio: float,
-) -> Tuple[Union[KRG, MFK], Dict[str, ndarray], Dict[str, DataFrame]]:
+) -> Tuple[Union[KRG, MFK], Dict[str, ndarray]]:
     """
     Run surrogate model training on first level of fidelity (AVL).
     """
-    level1_dataset = launch_avl(cpacs, lh_sampling_path, obj_coef)
-    datasets = {LEVEL_ONE: level1_dataset}
-    sets = split_data(LEVEL_ONE, datasets, split_ratio)
-    model, _ = train_surrogate_model(LEVEL_ONE, datasets, sets)
-    return model, sets, datasets
+    level1_df = launch_avl(cpacs, lh_sampling_path, objective)
+    sets = split_data(level1_df, objective, split_ratio)
+    model, _ = train_surrogate_model(
+        fidelity_level=LEVEL_ONE,
+        sets=sets,
+    )
+    return model, sets
 
 
 def run_adaptative_refinement(

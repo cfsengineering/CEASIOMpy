@@ -73,7 +73,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     (
         fidelity_level,
         split_ratio,
-        obj_coef,
+        objective,
         show_plot,
         rmse_obj,
     ) = get_settings(cpacs)
@@ -88,7 +88,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     model, sets, datasets = run_first_level_training(
         cpacs=cpacs,
         lh_sampling_path=lh_sampling_path,
-        obj_coef=obj_coef,
+        objective=objective,
         split_ratio=split_ratio,
     )
 
@@ -99,7 +99,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             model,
             datasets,
             rmse_obj,
-            obj_coef,
+            objective,
         )
 
     # else:
@@ -112,9 +112,9 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     # 3. Plot, save and get results
     if show_plot:
         log.info("Validation plots.")
-        plot_validation(model, sets, obj_coef, results_dir)
+        plot_validation(model, sets, objective, results_dir)
 
-    cpacs = save_model(cpacs, model, obj_coef, datasets, results_dir)
+    cpacs = save_model(cpacs, model, objective, datasets, results_dir)
     get_smt_results(cpacs, results_dir)
 
 

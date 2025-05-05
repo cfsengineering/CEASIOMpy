@@ -11,12 +11,20 @@ Test functions for create_data functions in SMTrain module.
 #   IMPORTS
 # =================================================================================================
 
+
+from numpy import array
 from ceasiompy.utils.decorators import log_test
 from ceasiompy.SMTrain.func.createdata import retrieve_aeromap_data
+from cpacspy.cpacsfunctions import (
+    add_value,
+    create_branch,
+)
 
 from unittest import main
+from pandas import DataFrame
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
+from numpy import isnan
 from ceasiompy.SMTrain import SMTRAIN_AVL_DATABASE_XPATH
 
 # =================================================================================================
@@ -30,16 +38,40 @@ class TestConfig(CeasiompyTest):
     def test_retrieve_aeromap_data(self) -> None:
         # Load the default test
         cpacs = self.test_cpacs
+        tixi = cpacs.tixi
 
         # Specify to not add data from ceasiompy.db
-        cpacs.tixi.updateBooleanElement(SMTRAIN_AVL_DATABASE_XPATH, False)
-        output = retrieve_aeromap_data(
+        create_branch(tixi, SMTRAIN_AVL_DATABASE_XPATH)
+        add_value(tixi, SMTRAIN_AVL_DATABASE_XPATH, False)
+        aeromap_array, objective_array, df_aeromap, _, full_df = retrieve_aeromap_data(
             cpacs=cpacs,
             aeromap_uid="aeromap_empty",
             objective="cl",
         )
-        print(output)
-
+        
+        self.assertEqual(aeromap_array.tolist(), [[0.0, 0.3, 0.0, 0.0]])
+        self.assertTrue(isnan(objective_array[0][0]))
+        self.assertTrue(
+            df_aeromap.equals(
+                DataFrame({
+                    "altitude": [0.0],
+                    "machNumber": [0.3],
+                    "angleOfAttack": [0.0],
+                    "angleOfSideslip": [0.0],
+                })
+            )
+        )
+        self.assertTrue(
+            full_df.equals(
+                DataFrame({
+                    "altitude": [0.0],
+                    "machNumber": [0.3],
+                    "angleOfAttack": [0.0],
+                    "angleOfSideslip": [0.0],
+                    "cl": [float("nan")],
+                })
+            )
+        )
 
 # =================================================================================================
 #    MAIN

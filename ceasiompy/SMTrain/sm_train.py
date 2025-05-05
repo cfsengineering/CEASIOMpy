@@ -85,7 +85,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     lh_sampling_path = lh_sampling(n_samples, ranges, results_dir)
 
     # One level fidelity model training
-    model, sets, datasets = run_first_level_training(
+    model, sets = run_first_level_training(
         cpacs=cpacs,
         lh_sampling_path=lh_sampling_path,
         objective=objective,
@@ -97,7 +97,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             cpacs,
             results_dir,
             model,
-            datasets,
+            sets,
             rmse_obj,
             objective,
         )

@@ -17,6 +17,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
+from pandas import concat
 from skopt import gp_minimize
 from cpacspy.cpacsfunctions import (
     add_value,
@@ -370,7 +371,7 @@ def run_adaptative_refinement(
     cpacs: CPACS,
     results_dir: Path,
     model: Union[KRG, MFK],
-    datasets: Dict[str, DataFrame],
+    sets: Dict[str, ndarray],
     rmse_obj: float,
     objective: str,
 ) -> None:
@@ -378,11 +379,12 @@ def run_adaptative_refinement(
     Iterative improvement using SU2 data.
     """
     high_var_pts = []
-    avl_dataset = datasets[LEVEL_ONE]
-    max_iters = len(avl_dataset[0])
+    max_iters = len(sets["x_train"])
     iteration = 0
     rmse = float("inf")
     log.info(f"Starting adaptive refinement with {max_iters=}.")
+
+    level_2_sets: Dict[str, ndarray]
 
     while (
         iteration < max_iters
@@ -395,30 +397,20 @@ def run_adaptative_refinement(
             break
         high_var_pts.append(new_point_df.values[0])
 
-        dataset = launch_su2(
+        new_df = launch_su2(
             cpacs=cpacs,
             results_dir=results_dir,
             objective=objective,
             high_variance_points=high_var_pts,
         )
 
-        if LEVEL_TWO in datasets:
-            # Stack new with old
-            x_old, y_old, df_old, removed_old, df_cl_old = datasets[LEVEL_TWO]
-            x_new, y_new, df_new, _ , df_cl_new = dataset
+        # Stack new with old
+        df = concat([new_df, df], ignore_index=True)
 
-            datasets[LEVEL_TWO] = (
-                np.vstack([x_old, x_new]),
-                np.vstack([y_old, y_new]),
-                pd.concat([df_old, df_new], ignore_index=True),
-                removed_old,  # Kept original from iteration 0
-                pd.concat([df_cl_old, df_cl_new], ignore_index=True),
-            )
-
-        else:
-            datasets[LEVEL_TWO] = dataset
-
-        sets = split_data(LEVEL_TWO, datasets, 0.7, 0.5)  # TODO: Not specified from GUI ???
+        sets = split_data(
+            df=df,
+            objective=objective,   
+        )
         model, rmse = train_surrogate_model(
             fidelity_level=LEVEL_TWO,
             sets=sets,

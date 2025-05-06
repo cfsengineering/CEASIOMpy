@@ -155,7 +155,7 @@ def train_surrogate_model(
             param_space=hyperparam_space,
             level1_sets=level1_sets,
             level2_sets=level2_sets,
-            level3_sets=level3_sets,
+            # level3_sets=level3_sets,
         )
     else:
         return kriging(
@@ -277,7 +277,7 @@ def mf_kriging(
     param_space: List,
     level1_sets: Dict[str, ndarray],
     level2_sets: Union[Dict[str, ndarray], None],
-    level3_sets: Union[Dict[str, ndarray], None],
+    # level3_sets: Union[Dict[str, ndarray], None],
     n_calls: int = 10,
     random_state: int = 42,
 ) -> Tuple[MFK, float]:
@@ -292,14 +292,13 @@ def mf_kriging(
     """
     x_fl_train, x_val1, x_test1, y_fl_train, y_val1, y_test1 = unpack_data(level1_sets)
     x_sl_train, x_val2, x_test2, y_sl_train, y_val2, y_test2 = collect_level_data(level2_sets)
-    x_tl_train, x_val3, x_test3, y_tl_train, y_val3, y_test3 = collect_level_data(level3_sets)
+    # x_tl_train, x_val3, x_test3, y_tl_train, y_val3, y_test3 = collect_level_data(level3_sets)
 
-    log.info(f"{x_tl_train}")
     # Gather all non-None validation and test sets
-    x_val = concatenate_if_not_none([x_val1, x_val2, x_val3])
-    y_val = concatenate_if_not_none([y_val1, y_val2, y_val3])
-    x_test = concatenate_if_not_none([x_test1, x_test2, x_test3])
-    y_test = concatenate_if_not_none([y_test1, y_test2, y_test3])
+    x_val = concatenate_if_not_none([x_val1, x_val2])
+    y_val = concatenate_if_not_none([y_val1, y_val2])
+    x_test = concatenate_if_not_none([x_test1, x_test2])
+    y_test = concatenate_if_not_none([y_test1, y_test2])
 
     def objective(params) -> float:
         _, loss = compute_multi_level_loss(
@@ -308,8 +307,8 @@ def mf_kriging(
             y_fl_train=y_fl_train,
             x_sl_train=x_sl_train,
             y_sl_train=y_sl_train,
-            x_tl_train=x_tl_train,
-            y_tl_train=y_tl_train,
+            # x_tl_train=x_tl_train,
+            # y_tl_train=y_tl_train,
             x_=x_val,
             y_=y_val,
         )
@@ -323,8 +322,8 @@ def mf_kriging(
         y_fl_train=y_fl_train,
         x_sl_train=x_sl_train,
         y_sl_train=y_sl_train,
-        x_tl_train=x_tl_train,
-        y_tl_train=y_tl_train,
+        # x_tl_train=x_tl_train,
+        # y_tl_train=y_tl_train,
         x_=x_test,
         y_=y_test,
     )

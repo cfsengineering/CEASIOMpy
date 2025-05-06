@@ -100,6 +100,7 @@ def retrieve_aeromap_data(
         columns=get_columns(objective),
     )
 
+
 def retrieve_ceasiompy_db_data(
     tixi: Tixi3,
     objective: str,

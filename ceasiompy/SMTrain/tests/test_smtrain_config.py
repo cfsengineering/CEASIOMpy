@@ -29,17 +29,17 @@ class TestConfig(CeasiompyTest):
     def test_retrieve_aeromap_data(self) -> None:
         full_df = retrieve_aeromap_data(
             cpacs=self.test_cpacs,
-            aeromap_uid="aeromap_empty",
+            aeromap_uid="test_apm",
             objective="cl",
         )
         self.assertTrue(
             full_df.equals(
                 DataFrame({
-                    "altitude": [0.0],
-                    "machNumber": [0.3],
-                    "angleOfAttack": [0.0],
-                    "angleOfSideslip": [0.0],
-                    "cl": [float("nan")],
+                    "altitude": [0, 0, 0, 0, 1000, 1000, 1000, 1000],
+                    "machNumber": [0.3, 0.3, 0.3, 0.3, 0.5, 0.5, 0.5, 0.5],
+                    "angleOfAttack": [0, 10, 0, 10, 0, 10, 0, 10],
+                    "angleOfSideslip": [0, 0, 10, 10, 0, 0, 10, 10],
+                    "cl": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
                 })
             )
         )

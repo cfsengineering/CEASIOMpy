@@ -125,10 +125,10 @@ def new_points(
     # First iteration: generate boundary points
     output_file_path = results_dir / "new_points.csv"
     if not high_var_pts:
-        log.info("First iteration: selecting the first 3 highest variance points.")
+        log.info("First iteration: selecting the first 5 highest variance points.")
         selected_points = [
             tuple(x_array[idx])
-            for idx in sorted_indices[:3]
+            for idx in sorted_indices[:5]
         ]
         high_var_pts.extend(selected_points)
         sampled_df = DataFrame(selected_points, columns=AEROMAP_FEATURES)

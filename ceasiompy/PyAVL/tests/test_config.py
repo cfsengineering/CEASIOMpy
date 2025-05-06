@@ -3,36 +3,30 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Test functions of 'ceasiompy/PyAVL/func/avlconfig.py'
-
-| Author : Romain Gauthier
-| Creation: 2024-06-06
-| Modified: Leon Deligny
-| Date: 21 March 2025
-
+Test functions for config.py
 """
 
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
 
-import unittest
-
-from pathlib import Path
-
 from ceasiompy.utils.decorators import log_test
 from ceasiompy.PyAVL.func.config import write_command_file
-
 from ceasiompy.utils.ceasiompyutils import (
     current_workflow_dir,
     get_aeromap_conditions,
 )
 
+from pathlib import Path
+from unittest import main
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
-from ceasiompy.PyAVL import MODULE_DIR, AVL_AEROMAP_UID_XPATH
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy.PyAVL import (
+    MODULE_DIR,
+    AVL_AEROMAP_UID_XPATH,
+)
 
 
 # =================================================================================================
@@ -98,4 +92,4 @@ class TestModuleTemplate(CeasiompyTest):
 
 
 if __name__ == "__main__":
-    unittest.main(verbosity=0)
+    main(verbosity=0)

@@ -21,11 +21,8 @@ More details at: https://web.mit.edu/drela/Public/web/avl/AVL_User_Primer.pdf.
 from pydantic import validate_call
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.PyAVL.func.utils import get_atmospheric_cond
+from ceasiompy.utils.ceasiompyutils import get_aeromap_conditions
 from ceasiompy.utils.mathsfunctions import non_dimensionalize_rate
-from ceasiompy.utils.ceasiompyutils import (
-    bool_,
-    get_aeromap_conditions,
-)
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
@@ -66,7 +63,7 @@ def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
     tixi = cpacs.tixi
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, AVL_AEROMAP_UID_XPATH)
 
-    save_fig = bool_(get_value(tixi, AVL_PLOT_XPATH))
+    save_fig = get_value(tixi, AVL_PLOT_XPATH)
     rotation_rates_float = get_value(tixi, AVL_ROTRATES_XPATH)
     control_surface_float = get_value(tixi, AVL_CTRLSURF_ANGLES_XPATH)
 

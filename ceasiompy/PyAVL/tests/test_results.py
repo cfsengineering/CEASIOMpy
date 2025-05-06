@@ -3,20 +3,12 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Test functions of 'ceasiompy/PyAVL/func/avlresults.py'
-
-| Author : Romain Gauthier
-| Creation: 2024-06-07
-| Modified: Leon Deligny
-| Date: 21 March 2025
-
+Test functions for results.py
 """
 
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
-
-import unittest
 
 from ceasiompy.utils.decorators import log_test
 from ceasiompy.PyAVL.func.results import get_avl_aerocoefs
@@ -24,6 +16,7 @@ from ceasiompy.PyAVL.func.plot import plot_lift_distribution
 from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 
 from pathlib import Path
+from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
 from ceasiompy.PyAVL import MODULE_DIR
@@ -78,4 +71,4 @@ class TestAvlResults(CeasiompyTest):
 
 
 if __name__ == "__main__":
-    unittest.main(verbosity=0)
+    main(verbosity=0)

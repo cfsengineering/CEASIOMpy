@@ -80,9 +80,9 @@ def compute_multi_level_loss(
         rho_regr=params[5],
     )
     model.set_training_values(x_fl_train, y_fl_train, name=LEVEL_ONE)
-    if x_sl_train is not None:
+    if x_sl_train is not None and y_sl_train is not None:
         model.set_training_values(x_sl_train, y_sl_train, name=LEVEL_TWO)
-    if x_tl_train is not None:
+    if x_tl_train is not None and y_tl_train is not None:
         model.set_training_values(x_tl_train, y_tl_train, name=LEVEL_THREE)
     model.train()
     return model, compute_loss(model, params[6], x_, y_)

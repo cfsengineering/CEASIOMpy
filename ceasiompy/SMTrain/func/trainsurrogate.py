@@ -282,7 +282,7 @@ def mf_kriging(
     random_state: int = 42,
 ) -> Tuple[MFK, float]:
     """
-    Trains a multi-fidelity kriging model with 2 or 3 fidelity levels.
+    Trains a multi-fidelity kriging model with 2/3 fidelity levels.
 
     Args:
         param_space (list): List of parameter ranges for Bayesian optimization.

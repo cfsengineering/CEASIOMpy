@@ -18,6 +18,7 @@ from ceasiompy.SMTrain.func.utils import (
     get_columns,
     get_val_fraction,
 )
+
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame

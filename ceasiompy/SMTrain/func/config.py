@@ -4,10 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Get settings from GUI. Manage datasets and perform LHS when required.
-
-| Author: Giacomo Gronda
-| Creation: 2025-03-20
-
 """
 
 # =================================================================================================
@@ -16,13 +12,10 @@ Get settings from GUI. Manage datasets and perform LHS when required.
 
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.SMTrain.func.utils import get_columns
-from ceasiompy.utils.ceasiompyutils import (
-    aircraft_name,
-    # get_aeromap_list_from_xpath,
-)
+from ceasiompy.utils.ceasiompyutils import aircraft_name
 
-from tixi3.tixi3wrapper import Tixi3
 from pandas import DataFrame
+from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.Database.func.storing import CeasiompyDb
 from typing import (
     List,
@@ -35,23 +28,17 @@ from cpacspy.cpacspy import (
 )
 
 from ceasiompy import log
-# from ceasiompy.PyAVL import AVL_AEROMAP_UID_XPATH
-# from ceasiompy.SU2Run import SU2_AEROMAP_UID_XPATH
 from ceasiompy.SMTrain import (
-    SMTRAIN_OBJECTIVE_XPATH,
-    # SMTRAIN_NEWDOE,
     SMTRAIN_MAX_ALT,
-    SMTRAIN_MAX_MACH,
     SMTRAIN_MAX_AOA,
     SMTRAIN_MAX_AOS,
-    SMTRAIN_NSAMPLES_XPATH,
+    SMTRAIN_MAX_MACH,
     SMTRAIN_PLOT_XPATH,
-    # SMTRAIN_NEW_DATASET,
+    SMTRAIN_NSAMPLES_XPATH,
+    SMTRAIN_OBJECTIVE_XPATH,
     SMTRAIN_THRESHOLD_XPATH,
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
-    # SMTRAIN_NEWDATASET_FRAC_XPATH,
-    # SMTRAIN_TRAINING_AEROMAP_XPATH,
 )
 
 # =================================================================================================
@@ -68,9 +55,6 @@ def get_settings(cpacs: CPACS) -> Tuple[str, float, str, bool, bool, int, bool, 
     data_repartition = get_value(tixi, SMTRAIN_TRAIN_PERC_XPATH)
     objective = get_value(tixi, SMTRAIN_OBJECTIVE_XPATH)
     show_plot = get_value(tixi, SMTRAIN_PLOT_XPATH)
-    # new_dataset = get_value(tixi, SMTRAIN_NEW_DATASET)
-    # fraction_of_new_samples = int(get_value(tixi, SMTRAIN_NEWDATASET_FRAC_XPATH))
-    # doe = get_value(tixi, SMTRAIN_NEWDOE)
     rmse_obj = get_value(tixi, SMTRAIN_THRESHOLD_XPATH)
     log.info(f"Surrogate's model {objective=} with {fidelity_level=}")
 
@@ -79,9 +63,6 @@ def get_settings(cpacs: CPACS) -> Tuple[str, float, str, bool, bool, int, bool, 
         data_repartition,
         objective,
         show_plot,
-        # new_dataset,
-        # fraction_of_new_samples,
-        # doe,
         rmse_obj,
     )
 
@@ -141,80 +122,6 @@ def retrieve_ceasiompy_db_data(
     ).drop_duplicates(ignore_index=True)
 
     return data_df
-
-# def get_aeromap_for_training(cpacs: CPACS) -> List[str]:
-#     tixi = cpacs.tixi
-
-#     if tixi.checkElement(SMTRAIN_TRAINING_AEROMAP_XPATH):
-#         # Using Aeromap for training
-#         aeromap_text = tixi.getTextElement(SMTRAIN_TRAINING_AEROMAP_XPATH).strip()
-#         if aeromap_text:
-#             # If there is text use this as a uid
-#             aeromap_uid_list = get_aeromap_list_from_xpath(
-#                 cpacs, SMTRAIN_TRAINING_AEROMAP_XPATH
-#             )
-#             return aeromap_uid_list
-
-#     # Otherwise check 'AVL_AEROMAP_UID_XPATH'
-#     if tixi.checkElement(AVL_AEROMAP_UID_XPATH):
-#         avl_text = tixi.getTextElement(AVL_AEROMAP_UID_XPATH).strip()
-#         if avl_text:
-#             aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, AVL_AEROMAP_UID_XPATH)
-#             return aeromap_uid_list
-
-#     # Otherwise check 'SU2_AEROMAP_UID_XPATH'
-#     if tixi.checkElement(SU2_AEROMAP_UID_XPATH):
-#         su2_text = tixi.getTextElement(SU2_AEROMAP_UID_XPATH).strip()
-#         if su2_text:
-#             aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, SU2_AEROMAP_UID_XPATH)
-#             return aeromap_uid_list
-
-#     # If no valid aeromap is found
-#     # use the default aeromap
-#     if aeromap_uid_list is None:
-#         aeromap_uid_list = cpacs.get_aeromap_uid_list()
-
-#     if not aeromap_uid_list:
-#         # If the list is empty then no aeromaps were found
-#         raise ValueError("No aeromaps available.")
-
-#     return aeromap_uid_list
-
-
-# def get_datasets_from_aeromaps(
-#     cpacs: CPACS,
-#     objective: str,
-# ) -> Dict:
-#     """
-#     Extracts datasets from multiple aeromaps
-#     based on the selected fidelity level and objective.
-
-#     Note:
-#         If SMTrain is used after PyAVL or SU2Run in the Workflow,
-#         it will retrieve their updated aeromaps.
-
-#     Returns:
-#         Dictionary containing datasets for each aeromap level, structured as:
-#             {
-#                 LEVEL_ONE : (inputs, output, df_filtered, removed_columns, df),
-#                 LEVEL_TWO : (inputs, output, df_filtered, removed_columns, df),
-#                 ...
-#             }
-#     """
-#     # Initialize variables
-#     datasets = {}
-
-#     #
-#     aeromap_uid_list = get_aeromap_for_training(cpacs)
-
-#     for level, aeromap_uid in enumerate(aeromap_uid_list, start=1):
-#         log.info(f"Training dataset {level}: {aeromap_uid}")
-#         datasets[level_to_str(level)] = retrieve_aeromap_data(
-#             cpacs, aeromap_uid, objective
-#         )
-
-#     log.info(f"Datasets retrieved successfully for levels: {list(datasets.keys())}")
-#     return datasets
 
 
 def design_of_experiment(cpacs: CPACS) -> Tuple[int, Dict]:

@@ -18,19 +18,16 @@ from ceasiompy.SMTrain import (
     LEVEL_ONE,
     LEVEL_TWO,
     OBJECTIVES_LIST,
-    # SMTRAIN_NEWDOE,
     SMTRAIN_MAX_ALT,
     SMTRAIN_MAX_MACH,
     SMTRAIN_MAX_AOA,
     SMTRAIN_MAX_AOS,
     SMTRAIN_THRESHOLD_XPATH,
     SMTRAIN_NSAMPLES_XPATH,
-    # SMTRAIN_NEW_DATASET,
     SMTRAIN_PLOT_XPATH,
     SMTRAIN_OBJECTIVE_XPATH,
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
-    # SMTRAIN_NEWDATASET_FRAC_XPATH,
     SMTRAIN_AVL_DATABASE_XPATH,
     SMTRAIN_USED_SU2_MESH_XPATH,
 )
@@ -108,58 +105,6 @@ cpacs_inout.add_input(
     test_value=False,
     expanded=True,
 )
-
-
-# cpacs_inout.add_input(
-#     var_name="training_datasets",
-#     var_type=list,
-#     default_value=st.session_state.cpacs.get_aeromap_uid_list().reverse(),
-#     unit=None,
-#     descr="Select, in the RIGHT ORDER, training datasets from the aeromaps",
-#     xpath=SMTRAIN_TRAINING_AEROMAP_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="__AEROMAP_SELECTION",
-#     gui_group="Training Dataset",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="new_dataset",
-#     var_type=bool,
-#     default_value=False,
-#     unit=None,
-#     descr="""Choose if you want a new suggested dataset to improve the multy-fidelity
-#     surrogate model""",
-#     xpath=SMTRAIN_NEW_DATASET,
-#     gui=INCLUDE_GUI,
-#     gui_name="New Dataset",
-#     gui_group="New Suggested Dataset",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="fraction_of_new_samples",
-#     var_type=int,
-#     default_value=2,
-#     unit=None,
-#     descr="Choose the fraction of new samples for the new dataset",
-#     xpath=SMTRAIN_NEWDATASET_FRAC_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Fraction of new samples",
-#     gui_group="New Suggested Dataset",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="design_of_experiment_bool",
-#     var_type=bool,
-#     default_value=False,
-#     unit=None,
-#     descr="""Choose if you want to start a Design of Experiments with the Latin
-#     Hypercube Sampling""",
-#     xpath=SMTRAIN_NEWDOE,
-#     gui=INCLUDE_GUI,
-#     gui_name="Design of Experiments",
-#     gui_group="Design of Experiments",
-#     test_value=True,
-# )
 
 cpacs_inout.add_input(
     var_name="max_altitute",

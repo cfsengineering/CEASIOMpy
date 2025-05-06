@@ -88,7 +88,7 @@ def get_smu_results(
                 mach=mach_numbers[i],
                 aos=aos_values[i],
                 aoa=aoa_values[i],
-                objective=df[objective][i],
+                **{objective: df[objective][i]},
             )
 
         log.info(f"Updated aeromap {aeromap_uid} with {objective} values.")

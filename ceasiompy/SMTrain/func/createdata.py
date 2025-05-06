@@ -127,21 +127,16 @@ def launch_su2(
     st.session_state = MagicMock()
     update_cpacs_from_specs(cpacs, SU2RUN_NAME, test=True)
 
-    # Update CPACS with the new aeromap
+    # Update CPACS with the new aeromap and dynamic mesh path
     tixi.updateTextElement(SU2_AEROMAP_UID_XPATH, aeromap.uid)
-
-    # Update CPACS with dynamic mesh path and settings
     su2_mesh_path = get_value(tixi, SMTRAIN_USED_SU2_MESH_XPATH)
     tixi.updateTextElement(USED_SU2_MESH_XPATH, su2_mesh_path)
-    cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
-    cpacs = CPACS(cpacs.cpacs_file)
+
+    # Run SU2 calculations
     run_su2(cpacs, results_dir=get_results_directory(SU2RUN_NAME))
 
     # Retrieve aerodynamic data, save then overwrite cpacs file
-    cpacs = CPACS(cpacs.cpacs_file)
     df = retrieve_aeromap_data(cpacs, aeromap.uid, objective)
-    cpacs.save_cpacs(cpacs, overwrite=True)
-
     log.info(f"Level two results extracted for {objective}:")
     log.info(df)
 

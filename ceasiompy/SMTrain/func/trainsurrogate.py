@@ -25,12 +25,6 @@ from ceasiompy.SMTrain.func.loss import (
     compute_first_level_loss,
     compute_multi_level_loss,
 )
-from ceasiompy.SMTrain.func.utils import (
-    log_params,
-    unpack_data,
-    collect_level_data,
-    concatenate_if_not_none,
-)
 from ceasiompy.SMTrain.func.sampling import (
     split_data,
     new_points,
@@ -38,6 +32,12 @@ from ceasiompy.SMTrain.func.sampling import (
 from ceasiompy.SMTrain.func.createdata import (
     launch_avl,
     launch_su2,
+)
+from ceasiompy.SMTrain.func.utils import (
+    log_params,
+    unpack_data,
+    collect_level_data,
+    concatenate_if_not_none,
 )
 
 from pathlib import Path
@@ -60,10 +60,7 @@ from typing import (
 )
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import (
-    SM_XPATH,
-    SUGGESTED_POINTS_XPATH,
-)
+from ceasiompy.utils.commonxpaths import SM_XPATH
 
 # =================================================================================================
 #   FUNCTIONS

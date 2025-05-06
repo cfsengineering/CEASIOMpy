@@ -54,9 +54,9 @@ cpacs_inout.add_input(
     default_value=st.session_state.cpacs.get_aeromap_uid_list(),
     unit=None,
     descr=(
-        "Datasets on which to make the predictions, " \
-        "First aeromap: First level of fidelity. " \
-        "Second aeromap: Second level of fidelity. " \
+        "Datasets on which to make the predictions, "
+        "First aeromap: First level of fidelity. "
+        "Second aeromap: Second level of fidelity. "
         "Third aeromap: Second level of fidelity. ",
     ),
     xpath=SMUSE_DATASET_XPATH,

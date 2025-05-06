@@ -580,6 +580,9 @@ def refine_lines_with_acute_angles(
     total = len(lines)
     step_lines = len(lines) // 10
 
+    # A better and faster solution, but somehow doesn't work.
+    # The problem seems to be sometimes the normal we get doesn't make sense
+    '''
     for (dim, line) in lines:
         # Show progress
         if line % step_lines == 0:
@@ -625,20 +628,21 @@ def refine_lines_with_acute_angles(
                     break
             if foundbigangle:
                 break
-
-    # Old version kept because the new one doesn't work
-    # But is really really slow and inefficient
     '''
+
+    # We see every line
     for (dim, line) in lines:
-        if line % step == 0:
+        if line % step_lines == 0:
             log.info(f"{math.floor(line/total*100)}% done")
         foundbigangle = False
         surfs, points = gmsh.model.getAdjacencies(dim, line)
         tags_coords_params = {-1: "yay"}
+        # For each adjacent surface, get all the nodes
         for i in surfs:
             tags, coord, param = gmsh.model.mesh.getNodes(2, i, True)
             dict = {'tags': tags, 'coord': coord, 'param': param}
             tags_coords_params[i] = dict
+        # Now see the surfaces two by two, to see their intersection
         for k in range(len(surfs)):
             i = surfs[k]
             coordi = tags_coords_params[i]['coord']
@@ -646,21 +650,19 @@ def refine_lines_with_acute_angles(
                 j = surfs[l]
                 coordj = tags_coords_params[j]['coord']
 
+                # Now search for nodes that are in both surfaces
                 for a in range(len(coordi) // 3):
                     for b in range(len(coordj) // 3):
                         if coordi[3 * a] == coordj[3 * b] and coordi[3 * a + 1] == coordj[3 * b + 1] and coordi[3 * a + 2] == coordj[3 * b + 2]:
+                            # if here, we have found a node that is in both. Get the normal at this node of the two surfaces
                             normal_i = gmsh.model.getNormal(
                                 i, [tags_coords_params[i]['param'][2 * a], tags_coords_params[i]['param'][2 * a + 1]])
                             normal_j = gmsh.model.getNormal(
                                 j, [tags_coords_params[j]['param'][2 * b], tags_coords_params[j]['param'][2 * b + 1]])
-                            norm_of_i = math.sqrt(
-                                normal_i[0]**2 + normal_i[1]**2 + normal_i[2]**2)  # is it always one?
-                            norm_of_j = math.sqrt(
-                                normal_j[0]**2 + normal_j[1]**2 + normal_j[2]**2)
-                            cosalpha = (
-                                normal_i[0] * normal_j[0] + normal_i[1] * normal_j[1] + normal_i[2] * normal_j[2]) / (norm_of_i * norm_of_j)
-                            # print(a, b, cosalpha)
-                            if cosalpha < -0.3:  # (more than 45 degrees from being flat)
+                            # Compute  cosinus which is the scalar product as the normals are of norm 1
+                            cosalpha = (normal_i[0] * normal_j[0] + normal_i[1]
+                                        * normal_j[1] + normal_i[2] * normal_j[2])
+                            if cosalpha < -0.7:  # (more than 45 degrees from being flat)
                                 lines_with_angles_tag.append(line)
                                 foundbigangle = True
                                 break
@@ -670,7 +672,6 @@ def refine_lines_with_acute_angles(
                     break
             if foundbigangle:
                 break
-    '''
 
     lines_with_angles_tag = [l for l in lines_with_angles_tag if l not in te_le_already_refined]
     log.info(f"Lines to be refined are {lines_with_angles_tag}")

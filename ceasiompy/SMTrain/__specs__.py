@@ -13,6 +13,7 @@ Initialization for SMTrain module.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
+from ceasiompy.SU2Run import SU2_MAX_ITER_XPATH
 from ceasiompy.utils.commonxpaths import USED_SU2_MESH_XPATH
 from ceasiompy.SMTrain import (
     INCLUDE_GUI,
@@ -45,7 +46,7 @@ cpacs_inout = CPACSInOut()
 cpacs_inout.add_input(
     var_name="fidelity_level",
     var_type=list,
-    default_value=[LEVEL_ONE, LEVEL_TWO],  # TODO: , "Three levels" not implemented yet
+    default_value=[LEVEL_TWO, LEVEL_ONE],  # TODO: , "Three levels" not implemented yet
     unit=None,
     descr="""Select if you want to train a simple kriging (1 level of fidelity) or you want to
     train a Multi-Fidelity kriging (2 or 3 levels)""",
@@ -189,4 +190,17 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="RMSE Threshold",
     gui_group="Second Level of Fidelity Parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="max_iter",
+    var_type=int,
+    default_value=1000,
+    unit=None,
+    descr="Maximum number of iterations performed by SU2",
+    xpath=SU2_MAX_ITER_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Maximum iterations",
+    gui_group="SU2 Parameters",
+    test_value=1,
 )

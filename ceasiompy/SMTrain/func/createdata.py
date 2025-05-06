@@ -35,6 +35,7 @@ from cpacspy.cpacspy import (
 )
 
 from ceasiompy import log
+from ceasiompy.SU2Run import SU2_MAX_ITER_XPATH
 from ceasiompy.SMTrain.func import LH_SAMPLING_DATA
 from ceasiompy.SMTrain import SMTRAIN_AVL_DATABASE_XPATH
 from ceasiompy.PyAVL import (
@@ -133,11 +134,13 @@ def launch_su2(
         su2_mesh_path = get_value(tixi, USED_SU2_MESH_XPATH)
 
     su2_mesh_path_type = get_value(tixi, USED_SU2_MESH_XPATH + "type")
+    max_iters = get_value(tixi, SU2_MAX_ITER_XPATH)
     update_cpacs_from_specs(cpacs, SU2RUN_NAME, test=True)
 
     # Update CPACS with the new aeromap and su2 mesh paths
     tixi.updateTextElement(USED_SU2_MESH_XPATH + "type", su2_mesh_path_type)
     tixi.updateTextElement(SU2_AEROMAP_UID_XPATH, aeromap.uid)
+    tixi.updateTextElement(SU2_MAX_ITER_XPATH, max_iters)
 
     if su2mesh is not None:
         tixi.updateTextElement(SU2MESH_XPATH, su2mesh)

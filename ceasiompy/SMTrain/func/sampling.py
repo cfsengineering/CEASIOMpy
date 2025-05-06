@@ -125,10 +125,10 @@ def new_points(
     # First iteration: generate boundary points
     output_file_path = results_dir / "new_points.csv"
     if not high_var_pts:
-        log.info("First iteration: selecting the first 5 highest variance points.")
+        log.info("First iteration: selecting the first 7 highest variance points.")
         selected_points = [
             tuple(x_array[idx])
-            for idx in sorted_indices[:5]
+            for idx in sorted_indices[:7]
         ]
         high_var_pts.extend(selected_points)
         sampled_df = DataFrame(selected_points, columns=AEROMAP_FEATURES)
@@ -191,6 +191,13 @@ def split_data(
         test_size=test_fraction_within_split,
         random_state=random_state,
     )
+
+    if x_val.shape[0] < 1:
+        raise ValueError(
+            f"Not enough samples for validation and test with {train_fraction=}"
+            f"At least 1 samples is needed for test: avaiable {x_val.shape[0]}"
+            f"Try to add some points or change '% of training data'"
+        )
 
     log.info(f"Validation size: {x_val.shape[0]}, Test size: {x_test.shape[0]}")
 

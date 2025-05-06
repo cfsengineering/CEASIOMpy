@@ -22,12 +22,10 @@ TODO:
 
 from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.SMTrain.func.plot import plot_validation
+from ceasiompy.SMTrain.func.sampling import lh_sampling
 from ceasiompy.SMTrain.func.config import (
     get_settings,
     design_of_experiment,
-)
-from ceasiompy.SMTrain.func.sampling import (
-    lh_sampling,
 )
 from ceasiompy.SMTrain.func.trainsurrogate import (
     save_model,
@@ -43,7 +41,6 @@ from ceasiompy.SMTrain import (
     LEVEL_TWO,
     MODULE_NAME,
 )
-
 
 # =================================================================================================
 #    MAIN

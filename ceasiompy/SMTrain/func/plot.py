@@ -35,7 +35,7 @@ def plot_validation(
     model: Union[KRG, MFK],
     sets: Dict,
     label: str,
-    result_dir: Path,
+    results_dir: Path,
 ) -> None:
     """
     Generates a Predicted vs Actual plot for model validation.
@@ -54,5 +54,5 @@ def plot_validation(
     plt.xlabel(f"Actual {label}")
     plt.ylabel(f"Predicted {label}")
     plt.grid()
-    plt.savefig(Path(result_dir, "validation_plot_" + label + ".png"))
+    plt.savefig(Path(results_dir, "validation_plot_" + label + ".png"))
     plt.close(fig)

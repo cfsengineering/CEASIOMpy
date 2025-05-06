@@ -170,7 +170,7 @@ def train_surrogate_model(
 def save_model(
     cpacs: CPACS,
     model: Union[KRG, MFK],
-    coefficient_name: str,
+    objective: str,
     results_dir: Path,
 ) -> None:
     """
@@ -184,12 +184,12 @@ def save_model(
     """
     tixi = cpacs.tixi
 
-    model_path = results_dir / f"surrogateModel_{coefficient_name}.pkl"
+    model_path = results_dir / f"surrogateModel_{objective}.pkl"
     with open(model_path, "wb") as file:
         joblib.dump(
             value={
                 "model": model,
-                "coefficient": coefficient_name,
+                "coefficient": objective,
             },
             filename=file,
         )

@@ -72,12 +72,11 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     ) = get_settings(cpacs)
 
     # 2. Train surrogate model
-    # if doe:
-    # Generate new samples
+    # Get and Generate new samples if necessary
     n_samples, ranges = design_of_experiment(cpacs)
     lh_sampling_path = lh_sampling(n_samples, ranges, results_dir)
 
-    # One level fidelity model training
+    # First level fidelity training
     model, sets = run_first_level_training(
         cpacs=cpacs,
         lh_sampling_path=lh_sampling_path,
@@ -85,15 +84,19 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         split_ratio=split_ratio,
     )
 
+    # Second level fidelity training
     if fidelity_level == LEVEL_TWO:
         run_adaptative_refinement(
-            cpacs,
-            results_dir,
-            model,
-            sets,
-            rmse_obj,
-            objective,
+            cpacs=cpacs,
+            results_dir=results_dir,
+            model=model,
+            level1_sets=sets,
+            rmse_obj=rmse_obj,
+            objective=objective,
         )
+
+    # Second level fidelity training
+    # TODO: if fidelity_level == LEVEL_THREE:
 
     # 3. Plot, save and get results
     if show_plot:

@@ -51,7 +51,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="prediction_dataset",
     var_type=list,
-    default_value=None,
+    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
     unit=None,
     descr=(
         # TODO: Write now can only do first aeromap

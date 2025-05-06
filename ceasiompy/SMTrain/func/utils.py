@@ -65,8 +65,7 @@ def collect_level_data(
     level_sets: Dict[str, ndarray]
 ) -> Tuple[Union[ndarray, None], ...]:
     if level_sets is not None:
-        x_train, x_test, x_val, y_train, y_test, y_val = unpack_data(level_sets)
-        return x_train, x_test, x_val, y_train, y_test, y_val
+        return unpack_data(level_sets)
     else:
         return None, None, None, None, None, None
 

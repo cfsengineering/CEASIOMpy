@@ -536,6 +536,7 @@ def refine_lines_with_acute_angles(
 ):
     """
     Function to refine the mesh along edges with really small angles (as done for the leading and trailing edges, but for others)
+    WARNING : this function does not work for now. I feel like there is a problem when retrieving normals (often get (1,0,0) even when does not make sense)
 
     Each line is inspected :
 

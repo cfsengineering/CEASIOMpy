@@ -10,6 +10,8 @@ Get settings from GUI. Manage datasets and perform LHS when required.
 #   IMPORTS
 # =================================================================================================
 
+import numpy as np
+
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.SMTrain.func.utils import get_columns
 from ceasiompy.utils.ceasiompyutils import aircraft_name
@@ -77,19 +79,26 @@ def retrieve_aeromap_data(
     and prepares input-output data for training.
     """
     activate_aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
-    if activate_aeromap is None:
-        raise ValueError(f"Aeromap {aeromap_uid} does not exist.")
-
     log.info(f"Aeromap {aeromap_uid} retrieved successfully.")
 
-    return DataFrame({
-        "altitude": activate_aeromap.get("altitude").tolist(),
-        "machNumber": activate_aeromap.get("machNumber").tolist(),
-        "angleOfAttack": activate_aeromap.get("angleOfAttack").tolist(),
-        "angleOfSideslip": activate_aeromap.get("angleOfSideslip").tolist(),
-        objective: activate_aeromap.get(objective).tolist(),
-    })
+    # Extract data as lists
+    altitude = activate_aeromap.get("altitude").tolist()
+    mach = activate_aeromap.get("machNumber").tolist()
+    aoa = activate_aeromap.get("angleOfAttack").tolist()
+    aos = activate_aeromap.get("angleOfSideslip").tolist()
+    obj = activate_aeromap.get(objective).tolist()
 
+    # Only keep rows where objective is not nan
+    filtered = [
+        (alt, m, a, s, o)
+        for alt, m, a, s, o in zip(altitude, mach, aoa, aos, obj)
+        if not np.isnan(o)
+    ]
+
+    return DataFrame(
+        filtered,
+        columns=get_columns(objective),
+    )
 
 def retrieve_ceasiompy_db_data(
     tixi: Tixi3,

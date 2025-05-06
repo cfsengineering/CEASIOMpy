@@ -35,11 +35,11 @@ class TestConfig(CeasiompyTest):
         self.assertTrue(
             full_df.equals(
                 DataFrame({
-                    "altitude": [0,0,0,0,1000,1000,1000,1000],
-                    "machNumber": [0.3,0.3,0.3,0.3,0.5,0.5,0.5,0.5],
-                    "angleOfAttack": [0,10,0,10,0,10,0,10],
-                    "angleOfSideslip": [0,0,10,10,0,0,10,10],
-                    "cl": [0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1],
+                    "altitude": [0, 0, 0, 0, 1000, 1000, 1000, 1000],
+                    "machNumber": [0.3, 0.3, 0.3, 0.3, 0.5, 0.5, 0.5, 0.5],
+                    "angleOfAttack": [0, 10, 0, 10, 0, 10, 0, 10],
+                    "angleOfSideslip": [0, 0, 10, 10, 0, 0, 10, 10],
+                    "cl": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
                 })
             )
         )

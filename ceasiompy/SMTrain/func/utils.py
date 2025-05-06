@@ -62,12 +62,12 @@ def concatenate_if_not_none(
 
 
 def collect_level_data(
-    level_sets: Dict[str, ndarray]
+    level_sets: Union[Dict[str, ndarray], None],
 ) -> Tuple[Union[ndarray, None], ...]:
-    if level_sets is not None:
-        return unpack_data(level_sets)
-    else:
+    if level_sets is None:
         return None, None, None, None, None, None
+    else:
+        return unpack_data(level_sets)
 
 
 def get_columns(objective: str) -> List[str]:

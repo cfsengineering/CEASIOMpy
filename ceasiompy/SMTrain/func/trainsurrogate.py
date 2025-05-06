@@ -290,7 +290,7 @@ def mf_kriging(
         n_calls (int = 30): Number of iterations for Bayesian optimization.
         random_state (int = 42): Random seed for reproducibility.
     """
-    x_fl_train, x_val1, x_test1, y_fl_train, y_val1, y_test1 = unpack_data(level1_sets)
+    x_fl_train, x_val1, x_test1, y_fl_train, y_val1, y_test1 = collect_level_data(level1_sets)
     x_sl_train, x_val2, x_test2, y_sl_train, y_val2, y_test2 = collect_level_data(level2_sets)
     # x_tl_train, x_val3, x_test3, y_tl_train, y_val3, y_test3 = collect_level_data(level3_sets)
 
@@ -396,10 +396,11 @@ def run_adaptative_refinement(
 
         # Stack new with old
         df = concat([new_df, df], ignore_index=True)
+        level2_sets=split_data(df, objective)
 
         model, rmse = train_surrogate_model(
             level1_sets=level1_sets,
-            level2_sets=split_data(df, objective),
+            level2_sets=level2_sets,
         )
 
         # 2nd Breaking condition

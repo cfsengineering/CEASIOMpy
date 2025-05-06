@@ -94,18 +94,18 @@ def get_hyperparam_space(
     if n_samples > ((n_features + 1) * (n_features + 2) / 2):
         poly_options = ["constant", "linear", "quadratic"]
         x = (n_features + 1) * (n_features + 2) / 2
-        log.info(f"Training points (n_samples): {n_samples}>{x} -> poly_options: {poly_options}")
+        log.info(f"Training points (n_samples): {x}<{n_samples} -> poly_options: {poly_options}")
     elif n_samples > (n_features + 2):
         poly_options = ["constant", "linear"]
         x = (n_features + 1) * (n_features + 2) / 2
         y = n_features + 2
         log.info(
-            f"Training points (n_samples): {y}<{n_samples}<{x} -> poly_options: {poly_options}"
+            f"Training points (n_samples): {y}<{n_samples}<={x} -> poly_options: {poly_options}"
         )
     elif n_samples > 2:
         poly_options = ["constant"]
         y = n_features + 2
-        log.info(f"Training points (n_samples): {n_samples}<{y} -> poly_options: {poly_options}")
+        log.info(f"Training points (n_samples): {n_samples}<={y} -> poly_options: {poly_options}")
     else:
         raise Warning(
             f"Number of training points must be greater than 2, current size: {n_samples}"
@@ -350,9 +350,7 @@ def run_first_level_training(
     """
     level1_df = launch_avl(cpacs, lh_sampling_path, objective)
     level1_sets = split_data(level1_df, objective, split_ratio)
-    model, _ = train_surrogate_model(
-        level1_sets=level1_sets,
-    )
+    model, _ = train_surrogate_model(level1_sets)
     return model, level1_sets
 
 

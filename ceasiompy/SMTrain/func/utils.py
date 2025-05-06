@@ -47,11 +47,12 @@ from ceasiompy.SMTrain import (
 
 def concatenate_if_not_none(list_arrays: List[ndarray]) -> ndarray:
     return np.concatenate(
-        [
+        arrays=[
             arr
             for arr in list_arrays
             if arr is not None
-        ], axis=0
+        ],
+        axis=0,
     )
 
 
@@ -127,8 +128,7 @@ def unpack_data(
     # Extract training, validation, and test sets
     x_train, x_val, x_test = sets["x_train"], sets["x_val"], sets["x_test"]
     y_train, y_val, y_test = sets["y_train"], sets["y_val"], sets["y_test"]
-    check_nan_inf(x_train, x_val, x_test, y_train, y_val, y_test)
-    return x_train, x_val, x_test, y_train, y_val, y_test
+    return check_nan_inf(x_train, x_val, x_test, y_train, y_val, y_test)
 
 
 def level_to_str(level: int) -> str:
@@ -179,18 +179,24 @@ def filter_constant_columns(
     return df[columns_to_keep], removed_columns
 
 
-def check_nan_inf(*arrays: Tuple[ndarray, ...]) -> None:
+def check_nan_inf(*arrays: Tuple[ndarray, ...]) -> Tuple[ndarray, ...]:
     """
     Checks for NaN or infinite values in the given arrays.
 
     Args:
         *arrays: Variable number of numpy arrays to check.
     """
+    new_arrays = []
     for i, arr in enumerate(arrays, start=1):
-        if np.isnan(arr).any():
-            raise ValueError(f"Array {arr} at {i} contains NaN values.")
-        if np.isinf(arr).any():
-            raise ValueError(f"Array {arr} at {i} contains infinite values.")
+        has_nan = np.isnan(arr).any()
+        has_inf = np.isinf(arr).any()
+        if has_nan:
+            log.warning(f"Array at position {i} contains NaN values and will be excluded.")
+        if has_inf:
+            log.warning(f"Array at position {i} contains infinite values and will be excluded.")
+        if not (has_nan or has_inf):
+            new_arrays.append(arr)
+    return tuple(new_arrays)
 
 
 def get_val_fraction(train_fraction: float) -> float:

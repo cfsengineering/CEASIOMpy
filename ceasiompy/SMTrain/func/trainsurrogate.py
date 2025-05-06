@@ -362,7 +362,6 @@ def run_adaptative_refinement(
     """
     Iterative improvement using SU2 data.
     """
-    log.info("Starting adaptive refinement.")
     high_var_pts = []
     rmse = float("inf")
     df = DataFrame({
@@ -372,16 +371,18 @@ def run_adaptative_refinement(
         "angleOfSideslip": [],
         objective: [],
     })
+    x_array = level1_sets["x_train"]
+    nb_iters = len(x_array)
+    log.info(f"Starting adaptive refinement with maximum {nb_iters=}.")
 
-    for _, _ in enumerate(level1_sets["x_train"]):
-
+    for _ in range(nb_iters):
         # Find new high variance points
         new_point_df = new_points(
-            level1_sets,
-            objective,
-            model,
-            results_dir,
-            high_var_pts
+            x_array=x_array,
+            objective=objective,
+            model=model,
+            results_dir=results_dir,
+            high_var_pts=high_var_pts,
         )
 
         # 1st Breaking condition

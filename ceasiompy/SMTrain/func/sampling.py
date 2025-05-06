@@ -14,10 +14,7 @@ Sampling strategies for SMTrain.
 import numpy as np
 
 from sklearn.model_selection import train_test_split
-from ceasiompy.SMTrain.func.utils import (
-    get_columns,
-    get_val_fraction,
-)
+from ceasiompy.SMTrain.func.utils import get_val_fraction
 
 from pathlib import Path
 from numpy import ndarray
@@ -32,6 +29,7 @@ from typing import (
 )
 
 from ceasiompy import log
+from ceasiompy.SMTrain import AEROMAP_FEATURES
 from ceasiompy.SMTrain.func import LH_SAMPLING_DATA_CSV
 
 # =================================================================================================
@@ -97,11 +95,11 @@ def lh_sampling(
 
 
 def new_points(
-    sets: Dict[str, ndarray],
+    x_array: ndarray,
     objective: str,
     model: Union[KRG, MFK],
     results_dir: Path,
-    high_variance_points: List,
+    high_var_pts: List,
 ) -> Union[DataFrame, None]:
     """
     Selects new sampling points based on variance predictions from a surrogate model.
@@ -121,35 +119,33 @@ def new_points(
         Or None if all high-variance points have already been chosen.
     """
 
-    # Retrieve the first fidelity dataset
-    x = sets["x_train"]
-    columns = get_columns(objective)
-
     # Compute variance prediction
-    y_var_flat = np.asarray(model.predict_variances(x)).flatten()
+    y_var_flat = np.asarray(model.predict_variances(x_array)).flatten()
     sorted_indices = np.argsort(y_var_flat)[::-1]  # Sort indices by variance (descending)
 
-    output_file_path = results_dir / "new_points.csv"
-
     # First iteration: generate boundary points
-    if not high_variance_points:
+    output_file_path = results_dir / "new_points.csv"
+    if not high_var_pts:
         log.info("First iteration: selecting the first 3 highest variance points.")
-        selected_points = [tuple(x[idx]) for idx in sorted_indices[:3]]
-        high_variance_points.extend(selected_points)
-        sampled_df = DataFrame(selected_points, columns=columns)
+        selected_points = [
+            tuple(x_array[idx])
+            for idx in sorted_indices[:3]
+        ]
+        high_var_pts.extend(selected_points)
+        sampled_df = DataFrame(selected_points, columns=AEROMAP_FEATURES)
         sampled_df.to_csv(output_file_path, index=False)
         return sampled_df
 
     log.info("Selecting next highest variance point.")
 
     # Convert list of points to a set for fast lookup
-    high_variance_set = set(tuple(p) for p in high_variance_points)
+    high_variance_set = set(tuple(p) for p in high_var_pts)
 
     for idx in sorted_indices:
-        new_point = tuple(x[idx])
+        new_point = tuple(x_array[idx])
         if new_point not in high_variance_set:
-            high_variance_points.append(new_point)
-            sampled_df = DataFrame([new_point], columns=columns)
+            high_var_pts.append(new_point)
+            sampled_df = DataFrame([new_point], columns=AEROMAP_FEATURES)
             sampled_df.to_csv(output_file_path, index=False)
             return sampled_df
 

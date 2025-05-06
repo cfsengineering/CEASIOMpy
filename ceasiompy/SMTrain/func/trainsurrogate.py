@@ -291,8 +291,8 @@ def mf_kriging(
         random_state (int = 42): Random seed for reproducibility.
     """
     (
-        x_fl_train, y_fl_train, x_val1,
-        y_val1, x_test1, y_test1,
+        x_fl_train, x_val1, x_test1,
+        y_fl_train, y_val1, y_test1,
     ) = unpack_data(level1_sets)
 
     x_sl_train, y_sl_train, x_val2, y_val2, x_test2, y_test2 = collect_level_data(level2_sets)

@@ -201,6 +201,6 @@ cpacs_inout.add_input(
     xpath=SU2_MAX_ITER_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Maximum iterations",
-    gui_group="SU2 Parameters",
+    gui_group="Second Level of Fidelity Parameters",
     test_value=1,
 )

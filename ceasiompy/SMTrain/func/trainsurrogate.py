@@ -396,11 +396,10 @@ def run_adaptative_refinement(
 
         # Stack new with old
         df = concat([new_df, df], ignore_index=True)
-        level2_sets=split_data(df, objective)
 
         model, rmse = train_surrogate_model(
             level1_sets=level1_sets,
-            level2_sets=level2_sets,
+            level2_sets=split_data(df, objective),
         )
 
         # 2nd Breaking condition

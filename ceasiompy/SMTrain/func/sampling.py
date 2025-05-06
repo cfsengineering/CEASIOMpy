@@ -140,7 +140,7 @@ def lh_sampling(
     """
     if n_samples < 2:
         log.info(
-            "Can not apply LHS on strictly less than 2 samples."
+            "Can not apply LHS on strictly less than 2 samples. "
             "Will use data from ceasiompy.db."
         )
         return None

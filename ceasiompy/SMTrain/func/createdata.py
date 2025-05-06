@@ -88,8 +88,6 @@ def launch_avl(
 
         # Update CPACS with the new aeromap
         tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap.uid)
-        cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
-        cpacs = CPACS(cpacs.cpacs_file)
         run_avl(cpacs, results_dir=get_results_directory(PYAVL_NAME))
         df_aeromap = retrieve_aeromap_data(cpacs, aeromap.uid, objective)
 
@@ -99,9 +97,6 @@ def launch_avl(
             df_aeromap = concat([df_aeromap, df_db], ignore_index=True)
         else:
             df_aeromap = df_db
-
-    cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
-    cpacs = CPACS(cpacs.cpacs_file)
 
     # Log the generated dataset, with objective values
     log.info(f"Level one results extracted for {objective}:")

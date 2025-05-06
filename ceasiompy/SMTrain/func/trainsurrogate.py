@@ -376,10 +376,9 @@ def run_adaptative_refinement(
     log.info(f"Starting adaptive refinement with maximum {nb_iters=}.")
 
     for _ in range(nb_iters):
-        # Find new high variance points
+        # Find new high variance points based on inputs x_train
         new_point_df = new_points(
             x_array=x_array,
-            objective=objective,
             model=model,
             results_dir=results_dir,
             high_var_pts=high_var_pts,

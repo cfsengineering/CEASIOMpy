@@ -96,7 +96,6 @@ def lh_sampling(
 
 def new_points(
     x_array: ndarray,
-    objective: str,
     model: Union[KRG, MFK],
     results_dir: Path,
     high_var_pts: List,

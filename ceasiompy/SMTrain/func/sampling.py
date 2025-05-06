@@ -133,8 +133,8 @@ def new_points(
 
     # First iteration: generate boundary points
     if not high_variance_points:
-        log.info("First iteration: selecting the first 6 highest variance points.")
-        selected_points = [tuple(x[idx]) for idx in sorted_indices[:6]]
+        log.info("First iteration: selecting the first 3 highest variance points.")
+        selected_points = [tuple(x[idx]) for idx in sorted_indices[:3]]
         high_variance_points.extend(selected_points)
         sampled_df = DataFrame(selected_points, columns=columns)
         sampled_df.to_csv(output_file_path, index=False)

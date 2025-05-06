@@ -67,7 +67,7 @@ def collect_level_data(
 
 def get_columns(objective: str) -> List[str]:
     aeromap_features = AEROMAP_FEATURES.copy()
-    return aeromap_features.append(objective)
+    return aeromap_features + [objective]
 
 
 def generate_su2_wkdir(iteration: int) -> None:

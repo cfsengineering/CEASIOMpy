@@ -254,8 +254,6 @@ def split_data(
     # Split into train and test/validation
     x_train: ndarray
     x_test: ndarray
-    y_train: ndarray
-    y_test: ndarray
     x_train, x_test, y_train, y_test = train_test_split(
         x, y,
         test_size=get_val_fraction(train_fraction),
@@ -273,7 +271,6 @@ def split_data(
 
     # Split into validation and test
     x_val: ndarray
-    y_val: ndarray
     x_val, x_test, y_val, y_test = train_test_split(
         x_test, y_test,
         test_size=test_fraction_within_split,

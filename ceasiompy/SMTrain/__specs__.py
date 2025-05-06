@@ -176,7 +176,7 @@ cpacs_inout.add_input(
     xpath=USED_SU2_MESH_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Choose mesh",
-    gui_group="Data Settings",
+    gui_group="Second Level of Fidelity Parameters",
 )
 
 cpacs_inout.add_input(
@@ -188,5 +188,5 @@ cpacs_inout.add_input(
     xpath=SMTRAIN_THRESHOLD_XPATH,
     gui=INCLUDE_GUI,
     gui_name="RMSE Threshold",
-    gui_group="SU2 Parameters",
+    gui_group="Second Level of Fidelity Parameters",
 )

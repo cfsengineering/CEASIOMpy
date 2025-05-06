@@ -48,7 +48,7 @@ from ceasiompy.SMTrain import (
 
 def concatenate_if_not_none(list_arrays: List[ndarray]) -> ndarray:
     return np.concatenate(
-        arrays=[
+        [
             arr
             for arr in list_arrays
             if arr is not None

@@ -77,6 +77,7 @@ CLCALC_XPATH = CEASIOMPY_XPATH + "/aerodynamics/clCalculation"
 PLOT_XPATH = CEASIOMPY_XPATH + "/aerodynamics/plotAeroCoefficient"
 RS_XPATH = PLOT_XPATH + "/responseSurface"
 AEROMAP_TO_PLOT_XPATH = PLOT_XPATH + "/aeroMapToPlot"
+USED_SU2_MESH_XPATH = CEASIOMPY_XPATH + "/MeshPath"
 
 SF_XPATH = CEASIOMPY_XPATH + "/aerodynamics/skinFriction"
 

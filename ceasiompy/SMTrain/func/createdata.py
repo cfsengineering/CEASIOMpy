@@ -35,12 +35,8 @@ from cpacspy.cpacspy import (
 )
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import USED_SU2_MESH_XPATH
 from ceasiompy.SMTrain.func import LH_SAMPLING_DATA
-from ceasiompy.SMTrain import (
-    SMTRAIN_AVL_DATABASE_XPATH,
-    SMTRAIN_USED_SU2_MESH_XPATH,
-)
+from ceasiompy.SMTrain import SMTRAIN_AVL_DATABASE_XPATH
 from ceasiompy.PyAVL import (
     AVL_AEROMAP_UID_XPATH,
     MODULE_NAME as PYAVL_NAME,
@@ -48,6 +44,10 @@ from ceasiompy.PyAVL import (
 from ceasiompy.SU2Run import (
     SU2_AEROMAP_UID_XPATH,
     MODULE_NAME as SU2RUN_NAME,
+)
+from ceasiompy.utils.commonxpaths import (
+    SU2MESH_XPATH,
+    USED_SU2_MESH_XPATH,
 )
 
 # ==============================================================================
@@ -121,18 +121,28 @@ def launch_su2(
 
     """
     tixi = cpacs.tixi
+    su2mesh, su2_mesh_path = None, None
     aeromap = create_aeromap_from_varpts(cpacs, results_dir, high_variance_points)
 
     # Load default parameters
     st.session_state = MagicMock()
-    su2_mesh_path = get_value(tixi, USED_SU2_MESH_XPATH)
+
+    if tixi.checkElement(SU2MESH_XPATH):
+        su2mesh = get_value(tixi, SU2MESH_XPATH)
+    if tixi.checkElement(USED_SU2_MESH_XPATH):
+        su2_mesh_path = get_value(tixi, USED_SU2_MESH_XPATH)
+
     su2_mesh_path_type = get_value(tixi, USED_SU2_MESH_XPATH + "type")
     update_cpacs_from_specs(cpacs, SU2RUN_NAME, test=True)
 
     # Update CPACS with the new aeromap and su2 mesh paths
-    tixi.updateTextElement(SU2_AEROMAP_UID_XPATH, aeromap.uid)
-    tixi.updateTextElement(USED_SU2_MESH_XPATH, su2_mesh_path)
     tixi.updateTextElement(USED_SU2_MESH_XPATH + "type", su2_mesh_path_type)
+    tixi.updateTextElement(SU2_AEROMAP_UID_XPATH, aeromap.uid)
+
+    if su2mesh is not None:
+        tixi.updateTextElement(SU2MESH_XPATH, su2mesh)
+    if su2_mesh_path is not None:
+        tixi.updateTextElement(USED_SU2_MESH_XPATH, su2_mesh_path)
 
     # Run SU2 calculations
     run_su2(cpacs, results_dir=get_results_directory(SU2RUN_NAME))

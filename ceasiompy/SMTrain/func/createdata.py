@@ -97,6 +97,8 @@ def launch_avl(
         df_db = retrieve_ceasiompy_db_data(tixi, objective)
         if df_aeromap is not None:
             df_aeromap = concat([df_aeromap, df_db], ignore_index=True)
+        else:
+            df_aeromap = df_db
 
     cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
     cpacs = CPACS(cpacs.cpacs_file)

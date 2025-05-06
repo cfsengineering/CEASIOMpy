@@ -194,11 +194,18 @@ def check_nan_inf(*arrays: Tuple[ndarray, ...]) -> Tuple[ndarray, ...]:
     Returns:
         Tuple of arrays with rows containing NaN or Inf in any array removed.
     """
-    # Find mask of valid rows (True if all arrays are finite at that row)
-    masks = [np.isfinite(arr).all(axis=1) if arr.ndim > 1 else np.isfinite(arr) for arr in arrays]
+    masks = [
+        np.isfinite(arr).all(axis=1)
+        if arr.ndim > 1
+        else np.isfinite(arr)
+        for arr in arrays
+    ]
     valid_mask = np.logical_and.reduce(masks)
     if not valid_mask.all():
-        log.warning(f"Removed {np.size(valid_mask) - np.count_nonzero(valid_mask)} rows containing NaN or Inf values.")
+        log.warning(
+            f"Removed {np.size(valid_mask) - np.count_nonzero(valid_mask)} "
+            "rows containing NaN or Inf values."
+        )
     return tuple(arr[valid_mask] for arr in arrays)
 
 

@@ -40,6 +40,12 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Model to use",
     gui_group="Model",
+    # Temporary work around
+    test_value=(
+        "/home/runner/work/CEASIOMpy/CEASIOMpy/WKDIR"
+        "/Workflow_004/01_SMTrain/ToolOutput.xml"
+    ),
+    expanded=False,
 )
 
 cpacs_inout.add_input(

@@ -4,9 +4,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Script to train a Surrogate Model in CEASIOMPY.
-The surrogate model can be trained either through a csv file containing the inputs and outputs,
-or by carrying out a Design of Experiments after providing the domain extremes.
-Either kriging or Multi-Fidelity kriging algorithm can be used,
+Either (1) Kriging or (2-3) Multi-Fidelity Kriging model can be used,
 depending on the level of fidelity chosen.
 
 | Author: Giacomo Gronda
@@ -16,7 +14,6 @@ TODO:
     * Adapt SaveAeroCoefficient for the adaptive sampling
     * More tests on adaptive sampling
     * Never tested with 3 levels of fidelity
-    * Define how to change AVL and SU2 settings
 """
 
 # ==============================================================================

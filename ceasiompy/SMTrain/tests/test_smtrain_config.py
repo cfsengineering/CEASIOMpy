@@ -29,7 +29,7 @@ class TestConfig(CeasiompyTest):
     def test_retrieve_aeromap_data(self) -> None:
         full_df = retrieve_aeromap_data(
             cpacs=self.test_cpacs,
-            aeromap_uid="aeromap_empty",
+            aeromap_uid="test_apm",
             objective="cl",
         )
         self.assertTrue(

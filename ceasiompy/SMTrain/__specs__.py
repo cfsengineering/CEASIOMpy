@@ -13,6 +13,7 @@ Initialization for SMTrain module.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
+from ceasiompy.utils.commonxpaths import USED_SU2_MESH_XPATH
 from ceasiompy.SMTrain import (
     INCLUDE_GUI,
     LEVEL_ONE,
@@ -29,7 +30,6 @@ from ceasiompy.SMTrain import (
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
     SMTRAIN_AVL_DATABASE_XPATH,
-    SMTRAIN_USED_SU2_MESH_XPATH,
 )
 
 # ==============================================================================
@@ -168,15 +168,15 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="smtrain_mesh_choice",
+    var_name="mesh_choice",
     var_type="DynamicChoice",
     default_value=["CPACS2GMSH mesh", "Path", "db"],
     unit=None,
     descr="Choose from where to upload the mesh",
-    xpath=SMTRAIN_USED_SU2_MESH_XPATH,
+    xpath=USED_SU2_MESH_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Choose mesh",
-    gui_group="SU2 Parameters",
+    gui_group="Data Settings",
 )
 
 cpacs_inout.add_input(

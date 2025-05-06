@@ -35,6 +35,7 @@ from cpacspy.cpacspy import (
 )
 
 from ceasiompy import log
+from ceasiompy.utils.commonxpaths import USED_SU2_MESH_XPATH
 from ceasiompy.SMTrain.func import LH_SAMPLING_DATA
 from ceasiompy.SMTrain import (
     SMTRAIN_AVL_DATABASE_XPATH,
@@ -45,7 +46,6 @@ from ceasiompy.PyAVL import (
     MODULE_NAME as PYAVL_NAME,
 )
 from ceasiompy.SU2Run import (
-    USED_SU2_MESH_XPATH,
     SU2_AEROMAP_UID_XPATH,
     MODULE_NAME as SU2RUN_NAME,
 )
@@ -109,7 +109,7 @@ def launch_su2(
     cpacs: CPACS,
     results_dir: Path,
     objective: str,
-    high_variance_points=None,  # TODO: For sure there is an issue with this argument
+    high_variance_points: Union[str, None] = None,
 ) -> DataFrame:
     """
     Executes SU2 CFD analysis using an aeromap or high-variance points.
@@ -125,12 +125,14 @@ def launch_su2(
 
     # Load default parameters
     st.session_state = MagicMock()
+    su2_mesh_path = get_value(tixi, USED_SU2_MESH_XPATH)
+    su2_mesh_path_type = get_value(tixi, USED_SU2_MESH_XPATH + "type")
     update_cpacs_from_specs(cpacs, SU2RUN_NAME, test=True)
 
-    # Update CPACS with the new aeromap and dynamic mesh path
+    # Update CPACS with the new aeromap and su2 mesh paths
     tixi.updateTextElement(SU2_AEROMAP_UID_XPATH, aeromap.uid)
-    su2_mesh_path = get_value(tixi, SMTRAIN_USED_SU2_MESH_XPATH)
     tixi.updateTextElement(USED_SU2_MESH_XPATH, su2_mesh_path)
+    tixi.updateTextElement(USED_SU2_MESH_XPATH + "type", su2_mesh_path_type)
 
     # Run SU2 calculations
     run_su2(cpacs, results_dir=get_results_directory(SU2RUN_NAME))

@@ -77,6 +77,7 @@ from ceasiompy.utils.commonnames import (
 )
 from ceasiompy.utils.commonxpaths import (
     SU2MESH_XPATH,
+    USED_SU2_MESH_XPATH,
     ENGINE_TYPE_XPATH,
     PROPELLER_THRUST_XPATH,
     PROPELLER_BLADE_LOSS_XPATH,
@@ -84,7 +85,6 @@ from ceasiompy.utils.commonxpaths import (
     ENGINE_BC_TEMPERATUREOUTLET_XPATH,
 )
 from ceasiompy.SU2Run import (
-    USED_SU2_MESH_XPATH,
     SU2_CFL_NB_XPATH,
     SU2_BC_WALL_XPATH,
     SU2_CFL_MAX_XPATH,

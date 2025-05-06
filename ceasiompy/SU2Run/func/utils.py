@@ -30,6 +30,7 @@ from typing import (
 )
 
 from ceasiompy import log
+from ceasiompy.utils.commonxpaths import USED_SU2_MESH_XPATH
 from ceasiompy.SU2Run.func import (
     SU2_FORCES_MOM,
     AERO_COEFFICIENTS,
@@ -38,7 +39,6 @@ from ceasiompy.SU2Run import (
     MODULE_DIR,
     TEMPLATE_TYPE,
     CONTROL_SURFACE_LIST,
-    USED_SU2_MESH_XPATH,
     SU2_CONTROL_SURF_BOOL_XPATH,
     SU2_CONTROL_SURF_ANGLE_XPATH,
     SU2_AEROMAP_UID_XPATH,

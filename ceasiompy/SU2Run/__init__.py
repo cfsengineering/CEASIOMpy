@@ -54,7 +54,6 @@ SU2_AEROMAP_UID_XPATH = SU2_XPATH + "/aeroMapUID"
 SU2_NB_CPU_XPATH = SU2_XPATH + "/settings/nbCPU"
 SU2_EXTRACT_LOAD_XPATH = SU2_XPATH + "/results/extractLoads"
 SU2_UPDATE_WETTED_AREA_XPATH = SU2_XPATH + "/results/updateWettedArea"
-USED_SU2_MESH_XPATH = SU2_XPATH + "/MeshPath"
 
 SU2_MAX_ITER_XPATH = SU2_XPATH + "/settings/maxIter"
 SU2_CFL_NB_XPATH = SU2_XPATH + "/settings/cflNumber/value"

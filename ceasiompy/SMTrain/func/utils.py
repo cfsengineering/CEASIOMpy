@@ -83,7 +83,7 @@ def generate_su2_wkdir(iteration: int) -> None:
 def create_aeromap_from_varpts(
     cpacs: CPACS,
     results_dir: Path,
-    high_variance_points: str,
+    high_variance_points: Union[str, None],
 ) -> AeroMap:
 
     # Select dataset based on high-variance points or LHS sampling

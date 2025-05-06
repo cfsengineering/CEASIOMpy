@@ -186,22 +186,20 @@ def filter_constant_columns(
 
 def check_nan_inf(*arrays: Tuple[ndarray, ...]) -> Tuple[ndarray, ...]:
     """
-    Checks for NaN or infinite values in the given arrays.
+    Removes elements at positions where any array contains NaN or infinite values.
 
     Args:
         *arrays: Variable number of numpy arrays to check.
+
+    Returns:
+        Tuple of arrays with rows containing NaN or Inf in any array removed.
     """
-    new_arrays = []
-    for i, arr in enumerate(arrays, start=1):
-        has_nan = np.isnan(arr).any()
-        has_inf = np.isinf(arr).any()
-        if has_nan:
-            log.warning(f"Array at position {i} contains NaN values and will be excluded.")
-        if has_inf:
-            log.warning(f"Array at position {i} contains infinite values and will be excluded.")
-        if not (has_nan or has_inf):
-            new_arrays.append(arr)
-    return tuple(new_arrays)
+    # Find mask of valid rows (True if all arrays are finite at that row)
+    masks = [np.isfinite(arr).all(axis=1) if arr.ndim > 1 else np.isfinite(arr) for arr in arrays]
+    valid_mask = np.logical_and.reduce(masks)
+    if not valid_mask.all():
+        log.warning(f"Removed {np.size(valid_mask) - np.count_nonzero(valid_mask)} rows containing NaN or Inf values.")
+    return tuple(arr[valid_mask] for arr in arrays)
 
 
 def get_val_fraction(train_fraction: float) -> float:

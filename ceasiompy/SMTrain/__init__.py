@@ -38,7 +38,7 @@ MODULE_NAME = MODULE_DIR.name
 # ===== Level Notations =====
 LEVEL_ONE = "One level"
 LEVEL_TWO = "Two levels"
-LEVEL_THREE = "Three levels"
+w = "Three levels"
 
 # ===== List of potential objectives =====
 OBJECTIVES_LIST = ["cl", "cd", "cs", "cmd", "cml", "cms"]

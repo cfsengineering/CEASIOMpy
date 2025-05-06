@@ -76,6 +76,7 @@ def launch_avl(
         cpacs.delete_aeromap(LH_SAMPLING_DATA)
 
     aeromap = AeroMap(tixi, uid="ceasiompy_db", create_new=True)
+    df_aeromap = None
     if lh_sampling_path is not None:
         # Overwrite aeromap from LHS dataset
         aeromap = cpacs.create_aeromap_from_csv(lh_sampling_path)
@@ -94,7 +95,8 @@ def launch_avl(
 
     if get_value(tixi, SMTRAIN_AVL_DATABASE_XPATH):
         df_db = retrieve_ceasiompy_db_data(tixi, objective)
-        df_aeromap = concat([df_aeromap, df_db], ignore_index=True)
+        if df_aeromap is not None:
+            df_aeromap = concat([df_aeromap, df_db], ignore_index=True)
 
     cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
     cpacs = CPACS(cpacs.cpacs_file)

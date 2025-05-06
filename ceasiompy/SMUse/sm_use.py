@@ -39,7 +39,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
     # 1.Loads a pre-trained surrogate model
     log.info("Loading pre-trained surrogate model")
-    model, coefficient, datasets = load_surrogate(cpacs)
+    model, objective, datasets = load_surrogate(cpacs)
 
     # 2. Makes aerodynamic predictions
     log.info("Making predictions")
@@ -47,11 +47,11 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
     # 3. Saves predictions in 'new' dataset
     log.info("Saving predictions")
-    save_new_dataset(datasets, predictions, coefficient, results_dir)
+    save_new_dataset(datasets, predictions, objective, results_dir)
 
     # 4. Udpates aeromap accordingly
     log.info("Updates aeromap")
-    get_smu_results(cpacs, results_dir)
+    get_smu_results(cpacs, results_dir, objective)
 
 
 if __name__ == "__main__":

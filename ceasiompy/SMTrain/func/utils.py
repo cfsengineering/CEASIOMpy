@@ -37,6 +37,7 @@ from ceasiompy.SU2Run import MODULE_NAME as SU2RUN_NAME
 from ceasiompy.SMTrain import (
     LEVEL_ONE,
     LEVEL_TWO,
+    LEVEL_THREE,
     AEROMAP_FEATURES,
 )
 
@@ -134,15 +135,19 @@ def unpack_data(
 def level_to_str(level: int) -> str:
     if level == 1:
         return LEVEL_ONE
-    else:
+    elif level == 2:
         return LEVEL_TWO
+    else:
+        return LEVEL_THREE
 
 
 def str_to_level(fidelity_level: str) -> int:
     if fidelity_level == LEVEL_ONE:
         return 1
-    else:
+    elif fidelity_level == LEVEL_TWO:
         return 2
+    else:
+        return 3
 
 
 def filter_constant_columns(

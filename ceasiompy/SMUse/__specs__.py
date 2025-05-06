@@ -18,7 +18,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpaths import SM_XPATH
 from ceasiompy.SMUse import (
     INCLUDE_GUI,
-    SMUSE_DATASET,
+    SMUSE_DATASET_XPATH,
 )
 
 # ==============================================================================
@@ -53,9 +53,15 @@ cpacs_inout.add_input(
     var_type=list,
     default_value=st.session_state.cpacs.get_aeromap_uid_list(),
     unit=None,
-    descr="Dataset on which to make the predictions",
-    xpath=SMUSE_DATASET,
+    descr=(
+        "Datasets on which to make the predictions, " \
+        "First aeromap: First level of fidelity. " \
+        "Second aeromap: Second level of fidelity. " \
+        "Third aeromap: Second level of fidelity. ",
+    ),
+    xpath=SMUSE_DATASET_XPATH,
     gui=INCLUDE_GUI,
-    gui_name="__AEROMAP_SELECTION",
+    gui_name="__AEROMAP_CHECKBOX",
     gui_group="Selected Aeromap",
+    test_value=["test_apm"],
 )

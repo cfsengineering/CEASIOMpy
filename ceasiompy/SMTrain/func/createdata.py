@@ -134,7 +134,7 @@ def launch_su2(
         su2_mesh_path = get_value(tixi, USED_SU2_MESH_XPATH)
 
     su2_mesh_path_type = get_value(tixi, USED_SU2_MESH_XPATH + "type")
-    max_iters = int(get_value(tixi, SU2_MAX_ITER_XPATH))
+    max_iters = str(get_value(tixi, SU2_MAX_ITER_XPATH))
     update_cpacs_from_specs(cpacs, SU2RUN_NAME, test=True)
 
     # Update CPACS with the new aeromap and su2 mesh paths

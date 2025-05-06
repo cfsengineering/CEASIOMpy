@@ -93,7 +93,7 @@ def test_integration_3():
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_4():
-    run_workflow_test([SMTRAIN, SMUSE, SAVEAEROCOEF])
+    run_workflow_test([CPACS2GMSH, SMTRAIN, SMUSE, SAVEAEROCOEF])
     assert True
 
 

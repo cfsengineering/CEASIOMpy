@@ -46,15 +46,20 @@ from ceasiompy.SMTrain import (
 # =================================================================================================
 
 
-def concatenate_if_not_none(list_arrays: List[ndarray]) -> ndarray:
-    return np.concatenate(
-        arrays=[
-            arr
-            for arr in list_arrays
-            if arr is not None
-        ],
-        axis=0,
-    )
+def concatenate_if_not_none(
+    list_arrays: List[Union[ndarray, None]]
+) -> ndarray:
+    """
+    Concatenates arrays in the list that are not None.
+    """
+    # Filter out None values
+    valid_arrays = [arr for arr in list_arrays if arr is not None]
+    log.info(f"Concatenating arrays with shapes: {valid_arrays}")
+    # If no valid arrays, raise an error or return an empty array
+    if not valid_arrays:
+        raise ValueError("All arrays are None. Cannot concatenate.")
+
+    return np.concatenate(valid_arrays, axis=0)
 
 
 def collect_level_data(

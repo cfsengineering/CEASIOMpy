@@ -140,7 +140,7 @@ def launch_su2(
     # Update CPACS with the new aeromap and su2 mesh paths
     tixi.updateTextElement(USED_SU2_MESH_XPATH + "type", su2_mesh_path_type)
     tixi.updateTextElement(SU2_AEROMAP_UID_XPATH, aeromap.uid)
-    tixi.updateIntegerElement(SU2_MAX_ITER_XPATH, max_iters)
+    tixi.updateTextElement(SU2_MAX_ITER_XPATH, max_iters)
 
     if su2mesh is not None:
         tixi.updateTextElement(SU2MESH_XPATH, su2mesh)

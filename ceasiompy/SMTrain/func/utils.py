@@ -54,7 +54,6 @@ def concatenate_if_not_none(
     """
     # Filter out None values
     valid_arrays = [arr for arr in list_arrays if arr is not None]
-    log.info(f"Concatenating arrays with shapes: {valid_arrays}")
     # If no valid arrays, raise an error or return an empty array
     if not valid_arrays:
         raise ValueError("All arrays are None. Cannot concatenate.")
@@ -67,9 +66,9 @@ def collect_level_data(
 ) -> Tuple[Union[ndarray, None], ...]:
     if level_sets is not None:
         x_train, x_test, x_val, y_train, y_test, y_val = unpack_data(level_sets)
-        return (x_train, y_train, x_val, y_val, x_test, y_test)
+        return x_train, x_test, x_val, y_train, y_test, y_val
     else:
-        return (None, None, None, None, None, None)
+        return None, None, None, None, None, None
 
 
 def get_columns(objective: str) -> List[str]:

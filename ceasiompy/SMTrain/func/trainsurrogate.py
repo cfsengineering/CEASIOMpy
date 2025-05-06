@@ -199,18 +199,6 @@ def save_model(
     add_value(tixi, SM_XPATH, model_path)
     log.info("Finished Saving model.")
 
-    # Path to "suggested_points.csv"
-    suggested_points_path = results_dir / "suggested_points.csv"
-    if not suggested_points_path.is_file():
-        log.info(f"File not found: {suggested_points_path}")
-        return None
-
-    create_branch(tixi, SUGGESTED_POINTS_XPATH)
-    add_value(tixi, SUGGESTED_POINTS_XPATH, suggested_points_path)
-    aeromap = cpacs.create_aeromap_from_csv(suggested_points_path)
-    aeromap.save()
-    log.info(f"New aeromap with suggested points: {aeromap}")
-
 
 def optimize_hyper_parameters(
     objective: Callable,

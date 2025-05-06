@@ -42,8 +42,8 @@ cpacs_inout.add_input(
     gui_group="Model",
     # Temporary work around
     test_value=(
-        "/home/runner/work/CEASIOMpy/CEASIOMpy/WKDIR"
-        "/Workflow_004/01_SMTrain/ToolOutput.xml"
+        "/home/runner/work/CEASIOMpy/CEASIOMpy/WKDIR/Workflow_004"
+        "/Results/SMTrain/surrogateModel_cl.pkl"
     ),
     expanded=False,
 )

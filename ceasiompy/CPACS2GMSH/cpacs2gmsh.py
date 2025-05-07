@@ -7,7 +7,7 @@ Small description of the script
 
 | Author:Tony Govoni
 | Creation: 2022-03-22
-| Modified by: Giacomo Benedetti, Guido Vallifuoco
+| Modified by: Giacomo Benedetti, Guido Vallifuoco, Cassandre Renaud
 | Date: 2024-02-01
 | Modified by: Leon Deligny
 | Date: 06 March 2025

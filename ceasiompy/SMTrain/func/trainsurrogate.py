@@ -155,7 +155,7 @@ def train_surrogate_model(
             param_space=hyperparam_space,
             level1_sets=level1_sets,
             level2_sets=level2_sets,
-            # level3_sets=level3_sets,
+            level3_sets=level3_sets,
         )
     else:
         return kriging(

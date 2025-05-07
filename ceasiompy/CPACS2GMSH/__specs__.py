@@ -240,6 +240,18 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
+    var_name="refine_factor_sharp_edges",
+    var_type=float,
+    default_value=2.0,
+    unit="1",
+    descr="Refinement factor of other sharp edges mesh",
+    xpath=GMSH_REFINE_FACTOR_SHARP_EDGES_XPATH,
+    gui=True,
+    gui_name="other sharp edges refinement factor",
+    gui_group="Advanced Euler mesh parameters",
+)
+
+cpacs_inout.add_input(
     var_name="n_layer",
     var_type=int,
     default_value=20,

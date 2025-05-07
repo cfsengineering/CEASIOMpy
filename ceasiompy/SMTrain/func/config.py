@@ -134,7 +134,7 @@ def retrieve_ceasiompy_db_data(
     return data_df
 
 
-def design_of_experiment(cpacs: CPACS) -> Tuple[int, Dict]:
+def design_of_experiment(cpacs: CPACS) -> Tuple[int, Dict[str, List[float]]]:
     """
     Retrieves the aeromap data,
     extracts the range for each input variable,
@@ -149,8 +149,10 @@ def design_of_experiment(cpacs: CPACS) -> Tuple[int, Dict]:
             "leave n_samples to 0."
             "Otherwise, try choose a high-enough n_samples >=7."
         )
+
+    # Get the max ranges values
     max_alt = int(get_value(tixi, SMTRAIN_MAX_ALT))
-    max_mach = float(get_value(tixi, SMTRAIN_MAX_MACH))
+    max_mach = float(get_value(tixi, SMTRAIN_MAX_MACH))  # .X numbers
     max_aoa = int(get_value(tixi, SMTRAIN_MAX_AOA))
     max_aos = int(get_value(tixi, SMTRAIN_MAX_AOS))
 

@@ -72,7 +72,7 @@ def compute_multi_level_loss(
         nugget=params[4],
         rho_regr=params[5],
     )
-    model.set_training_values(x_fl_train, y_fl_train, name=1)
+    model.set_training_values(x_fl_train, y_fl_train)
     if x_sl_train is not None and y_sl_train is not None:
         model.set_training_values(x_sl_train, y_sl_train, name=2)
     if x_tl_train is not None and y_tl_train is not None:

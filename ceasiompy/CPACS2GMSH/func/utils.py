@@ -28,7 +28,7 @@ from ceasiompy.utils.configfiles import ConfigFile
 
 from ceasiompy import log
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.CPACS2GMSH import (
     GMSH_AUTO_REFINE_XPATH,
     GMSH_EXHAUST_PERCENT_XPATH,
     GMSH_FARFIELD_FACTOR_XPATH,

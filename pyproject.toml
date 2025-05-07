@@ -19,15 +19,14 @@ markers = [
 omit = [
   "*/__init__.py",
   "*/__specs__.py",
-  "*/AeroFrame/*",
   "*/BalanceConventional/*",
   "*/BalanceUnconventional/*",
   "*/CPACSUpdater/*",
   "*/ModuleTemplate/*",
   "*/Optimisation/*",
+  "*/SMTrain.old/*",
+  "*/SMUse.old/*",
   "*/Range/*",
-  "*/SMTrain/*",
-  "*/SMUse/*",
   "*/SU2MeshDef/*",
   "*/WeightUnconventional/*",
 ]

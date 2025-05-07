@@ -20,10 +20,6 @@ Adapted from:   Airfoil generation using CST parameterization method
 | Author: Aidan Jungo
 | Creation: 2021-04-26
 
-TODO:
-
-    *
-
 """
 
 # =================================================================================================

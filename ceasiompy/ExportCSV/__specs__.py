@@ -17,8 +17,8 @@ GUI Interface of ExportCSV.
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
-from ceasiompy.ExportCSV import include_gui
-from ceasiompy.utils.commonxpath import EXPORT_XPATH
+from ceasiompy.ExportCSV import INCLUDE_GUI
+from ceasiompy.utils.commonxpaths import EXPORT_XPATH
 
 # ==============================================================================
 #   VARIABLE
@@ -36,7 +36,7 @@ cpacs_inout.add_input(
     default_value=None,
     descr="List of aeroMap to plot",
     xpath=EXPORT_XPATH + "/aeroMapToExport",
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="__AEROMAP_CHECKBOX",
     gui_group="Aeromap settings",
 )

@@ -5,9 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Integration test for some typical CEASIOMpy workflows.
 
-TODO:
-    Test allworking modules
-
 """
 
 # ====================================================================================================================
@@ -25,7 +22,16 @@ from unittest.mock import MagicMock
 from src.bin.ceasiompy_exec import run_modules_list
 from ceasiompy.utils.ceasiompyutils import change_working_dir
 
+from ceasiompy.SMUse import MODULE_NAME as SMUSE
+from ceasiompy.PyAVL import MODULE_NAME as PYAVL
+from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
+from ceasiompy.SMTrain import MODULE_NAME as SMTRAIN
+from ceasiompy.Database import MODULE_NAME as DATABASE
+from ceasiompy.ExportCSV import MODULE_NAME as EXPORTCSV
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
+from ceasiompy.CPACSUpdater import MODULE_NAME as CPACSUPDATER
+from ceasiompy.SaveAeroCoefficients import MODULE_NAME as SAVEAEROCOEF
 
 # =================================================================================================
 #   CONSTANTS
@@ -59,10 +65,10 @@ def run_workflow_test(modules_to_run, cpacs_path=CPACS_IN_PATH):
 
 
 @pytest.mark.slow
-@pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
+@pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_1():
-    run_workflow_test(["CPACSUpdater", "CPACS2GMSH", "SU2Run"])
+    run_workflow_test([CPACSUPDATER, CPACS2GMSH, SU2RUN])
     assert True
 
 
@@ -71,15 +77,32 @@ def test_integration_1():
 @pytest.mark.skipif(not shutil.which("pentagrow"), reason="Pentagrow not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_2():
-    run_workflow_test(["CPACS2GMSH", "SU2Run"], cpacs_path=CPACS_RANS)
+    run_workflow_test([CPACS2GMSH, SU2RUN, EXPORTCSV], cpacs_path=CPACS_RANS)
     assert True
 
 
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
 def test_integration_3():
-    run_workflow_test(["PyAVL", "SaveAeroCoefficients", "Database"])
+    run_workflow_test([PYAVL, SAVEAEROCOEF, DATABASE])
     assert True
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
+@pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
+@pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
+def test_integration_4():
+    run_workflow_test([CPACS2GMSH, SMTRAIN, SMUSE, SAVEAEROCOEF])
+    assert True
+
+
+# TODO: framAT version is not on point right now
+# @pytest.mark.slow
+# @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
+# def test_integration_5():
+#     run_workflow_test(["AeroFrame_new"])
+#     assert True
 
 
 # =================================================================================================

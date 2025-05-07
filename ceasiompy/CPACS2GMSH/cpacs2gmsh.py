@@ -43,14 +43,11 @@ from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
 
-from ceasiompy.utils.commonxpath import (
-    SU2MESH_XPATH,
-    GMSH_CTRLSURF_ANGLE_XPATH,
-)
-
+from ceasiompy.utils.commonxpaths import SU2MESH_XPATH
 from ceasiompy.CPACS2GMSH import (
     MODULE_NAME,
     CONTROL_SURFACES_LIST,
+    GMSH_CTRLSURF_ANGLE_XPATH,
 )
 
 # =================================================================================================

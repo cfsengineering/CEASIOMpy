@@ -23,10 +23,10 @@ from ceasiompy import log
 # ==============================================================================
 
 # ===== Module Status =====
-module_status = True
+MODULE_STATUS = True
 
 # ===== Include GUI =====
-include_gui = True
+INCLUDE_GUI = True
 
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent

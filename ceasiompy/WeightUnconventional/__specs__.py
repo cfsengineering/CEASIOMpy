@@ -1,23 +1,16 @@
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     CAB_CREW_XPATH,
     FUEL_XPATH,
     GEOM_XPATH,
     MASS_CARGO_XPATH,
     MASSBREAKDOWN_XPATH,
-    WB_MASS_LIMIT_XPATH,
     PASS_XPATH,
-    PILOTS_XPATH,
     PROP_XPATH,
     WB_DOUBLE_FLOOR_XPATH,
     WB_MAX_FUEL_VOL_XPATH,
     WB_MAX_PAYLOAD_XPATH,
 )
-
-# ===== Module Status =====
-# True if the module is active
-# False if the module is disabled (not working or not ready)
-module_status = False
 
 # ===== CPACS inputs and outputs =====
 

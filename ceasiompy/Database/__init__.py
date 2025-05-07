@@ -17,16 +17,17 @@ Initialization for Database module.
 from pathlib import Path
 
 from ceasiompy import log
+from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
 
 # ===== Module Status =====
-module_status = True
+MODULE_STATUS = True
 
 # ===== Include GUI =====
-include_gui = True
+INCLUDE_GUI = True
 
 # ===== Add a Results Directory =====
 RES_DIR = False
@@ -34,6 +35,10 @@ RES_DIR = False
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
+
+# xPaths
+DATABASE_XPATH = CEASIOMPY_XPATH + "/Database"
+DATABASE_STOREDATA_XPATH = DATABASE_XPATH + "/StoreData"
 
 # =================================================================================================
 #    MAIN

@@ -4,10 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Extract results from AVL calculations and save them in a CPACS file.
-
-| Author: Leon Deligny
-| Creation: 2025-Feb-14
-
 """
 
 # =================================================================================================
@@ -126,6 +122,7 @@ def add_coefficients_in_aeromap(
         plot_lift_distribution(fs_file_path, aoa, aos, mach, alt, wkdir=config_dir)
 
     aeromap_uid = get_value(tixi, AVL_AEROMAP_UID_XPATH)
+    log.info(f"Loading coefficients in {aeromap_uid=}")
     aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
     filt = get_filter(aeromap.df, [alt], [mach], [aos], [aoa])

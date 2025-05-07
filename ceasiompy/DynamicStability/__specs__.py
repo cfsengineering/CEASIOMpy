@@ -17,12 +17,11 @@ GUI Interface of DynamicStability.
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
-from ceasiompy.DynamicStability import include_gui
 from ceasiompy.PyAVL import SOFTWARE_NAME as AVL_SOFTWARE
 from ceasiompy.SU2Run import SOFTWARE_NAME as SU2_SOFTWARE
-from ceasiompy.DynamicStability import SOFTWARE_NAME as SDSA_SOFTWARE
-
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.DynamicStability import (
+    INCLUDE_GUI,
+    SOFTWARE_NAME as SDSA_SOFTWARE,
     DYNAMICSTABILITY_NCHORDWISE_XPATH,
     DYNAMICSTABILITY_NSPANWISE_XPATH,
     DYNAMICSTABILITY_VISUALIZATION_XPATH,
@@ -48,7 +47,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Which data from ceasiompy.db to use.",
     xpath=DYNAMICSTABILITY_SOFTWARE_XPATH,
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Use data from which software",
     gui_group="Software Settings",
 )
@@ -60,7 +59,7 @@ cpacs_inout.add_input(
     unit="mach",
     descr=f"List of mach numbers used in {SDSA_SOFTWARE}",
     xpath=DYNAMICSTABILITY_MACHLIST_XPATH,
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Mach List",
     gui_group="Mach Settings",
 )
@@ -72,7 +71,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Select the number of chordwise vortices",
     xpath=DYNAMICSTABILITY_NCHORDWISE_XPATH,
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Number of chordwise vortices",
     gui_group="Chordwise Settings",
 )
@@ -84,7 +83,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Select the number of spanwise vortices",
     xpath=DYNAMICSTABILITY_NSPANWISE_XPATH,
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="Number of spanwise vortices",
     gui_group="Spanwise Settings",
 )
@@ -96,7 +95,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Visualization of the aerogrid the DLM is going to use",
     xpath=DYNAMICSTABILITY_VISUALIZATION_XPATH,
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="aerogrid visualization",
     gui_group="Visualization",
 )
@@ -108,7 +107,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Select the cGrid path",
     xpath=DYNAMICSTABILITY_CGRID_XPATH,
-    gui=include_gui,
+    gui=INCLUDE_GUI,
     gui_name="cGrid path",
     gui_group="cGrid Setting",
 )

@@ -7,7 +7,7 @@
 #
 # See also: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
 
-# For mac users install MiniForge3 and use:
+# For mac users install MiniForge3 (source ~/miniforge3/bin/activate) and use:
 #       CONDA_SUBDIR=osx-64 conda env create -f environment.yml
 
 name: ceasiompy
@@ -60,3 +60,4 @@ dependencies:
     - streamlit==1.44.1
     - streamlit-autorefresh
     - vtk==9.3.0
+    - scikit-optimize==0.10.2

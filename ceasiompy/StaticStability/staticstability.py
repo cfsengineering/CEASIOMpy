@@ -26,7 +26,7 @@ from markdownpy.markdownpy import MarkdownDoc
 
 from ceasiompy import log
 from ceasiompy.StaticStability import MODULE_NAME
-from ceasiompy.utils.commonxpath import STATICSTABILITY_LR_XPATH
+from ceasiompy.utils.commonxpaths import STATICSTABILITY_LR_XPATH
 
 # =================================================================================================
 #    MAIN

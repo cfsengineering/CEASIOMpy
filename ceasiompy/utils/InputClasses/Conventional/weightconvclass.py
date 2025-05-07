@@ -22,7 +22,7 @@ TODO:
 
 
 from cpacspy.cpacsfunctions import add_uid, get_value_or_default
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     F_XPATH,
     GEOM_XPATH,
     MASS_CARGO_XPATH,

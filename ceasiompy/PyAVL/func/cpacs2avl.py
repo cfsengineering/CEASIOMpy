@@ -4,13 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Script to convert CPACS file geometry into AVL geometry
-
-| Author: Romain Gauthier
-| Adapted from : Aidan Jungo script cpacs2sumo.py
-| Creation: 2024-03-14
-| Modified: Leon Deligny
-| Date: 11-Mar-2025
-
 """
 
 # ==============================================================================
@@ -67,7 +60,7 @@ from ceasiompy.PyAVL import (
     AVL_NCHORDWISE_XPATH,
     AVL_FREESTREAM_MACH_XPATH,
 )
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     AREA_XPATH,
     WINGS_XPATH,
     LENGTH_XPATH,

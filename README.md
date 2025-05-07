@@ -127,8 +127,8 @@ There are many different modules available in CEASIOMpy that can be combined to 
 
 - [ModuleTemplate](ceasiompy/ModuleTemplate/README.md) :heavy_check_mark:
 - [Optimisation](ceasiompy/Optimisation/README.md) :x:
-- [SMTrain](ceasiompy/SMTrain/README.md) :x:
-- [SMUse](ceasiompy/SMUse/README.md) :x:
+- [SMTrain](ceasiompy/SMTrain/README.md) :heavy_check_mark:
+- [SMUse](ceasiompy/SMUse/README.md) :heavy_check_mark:
 - [ThermoData](ceasiompy/ThermoData/README.md) :heavy_check_mark:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_geometry.png">

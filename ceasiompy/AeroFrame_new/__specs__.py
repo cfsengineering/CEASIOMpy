@@ -6,7 +6,7 @@ from ceasiompy.PyAVL import (
     AVL_VORTEX_DISTR_XPATH,
     AVL_AEROMAP_UID_XPATH,
 )
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     CEASIOMPY_XPATH,
     AEROPERFORMANCE_XPATH,
     FRAMAT_MATERIAL_XPATH,
@@ -20,7 +20,7 @@ import streamlit as st
 # ===== Module Status =====
 # True if the module is active
 # False if the module is disabled (not working or not ready)
-module_status = True
+MODULE_STATUS = True
 
 RESULTS_DIR = Path("Results", "AeroFrame_new")
 

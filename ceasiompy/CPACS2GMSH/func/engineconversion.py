@@ -19,7 +19,7 @@ TODO:
 # ==============================================================================
 
 from pathlib import Path
-from ceasiompy.utils.commonxpath import ENGINES_XPATH
+from ceasiompy.utils.commonxpaths import ENGINES_XPATH
 import gmsh
 import numpy as np
 from ceasiompy.CPACS2SUMO.func.engineclasses import Engine

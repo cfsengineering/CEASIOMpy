@@ -20,7 +20,6 @@ from ceasiompy.utils.ceasiompyutils import change_working_dir, get_results_direc
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
-
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.SaveAeroCoefficients import MODULE_NAME, MODULE_DIR
 

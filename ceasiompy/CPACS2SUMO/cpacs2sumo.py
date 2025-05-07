@@ -69,18 +69,21 @@ from typing import (
 
 from ceasiompy import log
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     WINGS_XPATH,
     PYLONS_XPATH,
     ENGINES_XPATH,
-    SUMOFILE_XPATH,
     FUSELAGES_XPATH,
-    SUMO_INCLUDE_PYLON_XPATH,
-    SUMO_INCLUDE_ENGINE_XPATH,
-    CPACS2SUMO_SUMO_GUI_XPATH,
 )
 
-from ceasiompy.CPACS2SUMO import MODULE_NAME, MODULE_DIR
+from ceasiompy.CPACS2SUMO import (
+    MODULE_NAME,
+    MODULE_DIR,
+    CPACS2SUMO_SUMO_GUI_XPATH,
+    CPACS2SUMOFILE_XPATH,
+    CPACS2SUMO_INCLUDE_PYLON_XPATH,
+    CPACS2SUMO_INCLUDE_ENGINE_XPATH,
+)
 
 # =================================================================================================
 #   FUNCTIONS
@@ -508,7 +511,7 @@ def convert_enginepylons(tixi: Tixi3, sumo: Tixi3) -> None:
 
     element = "enginePylon"
 
-    include_pylon = get_value_or_default(tixi, SUMO_INCLUDE_PYLON_XPATH, False)
+    include_pylon = get_value_or_default(tixi, CPACS2SUMO_INCLUDE_PYLON_XPATH, False)
     if include_pylon:
         pylon_cnt = elements_number(tixi, PYLONS_XPATH, element)
     else:
@@ -717,7 +720,7 @@ def convert_engines(tixi: Tixi3, sumo: Tixi3) -> None:
     """
 
     include_engine = bool_(get_value_or_default(
-        tixi, SUMO_INCLUDE_ENGINE_XPATH, False))
+        tixi, CPACS2SUMO_INCLUDE_ENGINE_XPATH, False))
 
     if include_engine:
         engine_cnt = elements_number(tixi, ENGINES_XPATH, "engine")
@@ -921,8 +924,8 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     sumo_file_path = str(Path(wkdir, "ToolOutput.smx"))
 
     log.info(f"Saving sumo at {sumo_file_path}.")
-    create_branch(tixi, SUMOFILE_XPATH)
-    tixi.updateTextElement(SUMOFILE_XPATH, sumo_file_path)
+    create_branch(tixi, CPACS2SUMOFILE_XPATH)
+    tixi.updateTextElement(CPACS2SUMOFILE_XPATH, sumo_file_path)
 
     # Save SMX file
     sumo.save(sumo_file_path)

@@ -21,10 +21,10 @@ from pathlib import Path
 # ==============================================================================
 
 # ===== Module Status =====
-module_status = True
+MODULE_STATUS = True
 
 # ===== Include GUI =====
-include_gui = True
+INCLUDE_GUI = True
 
 # ===== Add a Results Directory =====
 RES_DIR = True

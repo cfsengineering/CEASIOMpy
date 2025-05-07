@@ -15,20 +15,15 @@ Transfer CPACS unsteady data into SDSA with the correct file format (for referen
 # =================================================================================================
 
 import shutil
-
 import numpy as np
 
+from ceasiompy.utils.ceasiompyutils import aircraft_name
 from ceasiompy.DynamicStability.func.utils import sdsa_format
 from ceasiompy.DynamicStability.func.alphamax import get_alpha_max
 from ceasiompy.DynamicStability.func.steadyderivatives import get_tables_values
-
 from cpacspy.cpacsfunctions import (
     get_value,
     open_tixi,
-)
-from ceasiompy.utils.ceasiompyutils import (
-    bool_,
-    aircraft_name,
 )
 from ceasiompy.DynamicStability.func.dotderivatives import (
     get_main_wing_le,
@@ -43,9 +38,9 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy import log
 from ceasiompy.PyAVL import SOFTWARE_NAME as AVL_SOFTWARE
 from ceasiompy.DynamicStability import MODULE_DIR as DYNAMICSTABILITY_DIR
-
-from ceasiompy.utils.commonxpath import (
-    REF_XPATH as CPACS_REF_XPATH,
+from ceasiompy.utils.commonxpaths import REF_XPATH as CPACS_REF_XPATH
+from ceasiompy.DynamicStability import (
+    ALT,
     DYNAMICSTABILITY_CGRID_XPATH,
     DYNAMICSTABILITY_SOFTWARE_XPATH,
     DYNAMICSTABILITY_MACHLIST_XPATH,
@@ -53,8 +48,6 @@ from ceasiompy.utils.commonxpath import (
     DYNAMICSTABILITY_NCHORDWISE_XPATH,
     DYNAMICSTABILITY_VISUALIZATION_XPATH,
 )
-
-from ceasiompy.DynamicStability import ALT
 from ceasiompy.DynamicStability.func import (
     ROOT_XPATH,
     AERO_XPATH,
@@ -151,7 +144,7 @@ class SDSAFile:
         self.aircraft_name: str = aircraft_name(self.tixi)
         mach_str: str = get_value(self.tixi, DYNAMICSTABILITY_MACHLIST_XPATH)
 
-        self.plot = bool_(get_value(self.tixi, DYNAMICSTABILITY_VISUALIZATION_XPATH))
+        self.plot = get_value(self.tixi, DYNAMICSTABILITY_VISUALIZATION_XPATH)
 
         log.info(f"self.plot {self.plot}")
 

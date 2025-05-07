@@ -10,9 +10,6 @@ Module to run SU2 Calculation in CEASIOMpy
 | Modified: Leon Deligny
 | Date: 24-Feb-2025
 
-TODO:
-    * Check platform with -> sys.platform
-
 """
 
 # =================================================================================================
@@ -20,12 +17,9 @@ TODO:
 # =================================================================================================
 
 from cpacspy.cpacsfunctions import get_value
+from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.SU2Run.func.results import get_su2_results
 from ceasiompy.SU2Run.func.runconfigfiles import run_SU2_multi
-from ceasiompy.utils.ceasiompyutils import (
-    bool_,
-    call_main,
-)
 from ceasiompy.SU2Run.func.config import (
     define_markers,
     load_su2_mesh_paths,
@@ -36,8 +30,8 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-from ceasiompy.SU2Run import MODULE_NAME
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.SU2Run import (
+    MODULE_NAME,
     SU2_NB_CPU_XPATH,
     SU2_CONFIG_RANS_XPATH,
     SU2_DYNAMICDERIVATIVES_BOOL_XPATH,
@@ -57,11 +51,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         2. For each .su2 file create a .cfg configuration file.
         3. Run each .cfg file in SU2_CFD.
         4. Retrieve force files results in configuration directory.
-
-    Args:
-        cpacs (CPACS): Input CPACS file.
-        wkdir (Path): SU2Run Results directory.
-
     """
 
     # Define variable
@@ -81,7 +70,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     mesh_markers = define_markers(tixi, su2_mesh_paths[0])
 
     # 2. Create configuration files
-    if bool_(get_value(tixi, SU2_DYNAMICDERIVATIVES_BOOL_XPATH)):
+    if get_value(tixi, SU2_DYNAMICDERIVATIVES_BOOL_XPATH):
         log.info("----- Generating Dynamic Stability ConfigFile -----")
 
         generate_su2_cfd_config(

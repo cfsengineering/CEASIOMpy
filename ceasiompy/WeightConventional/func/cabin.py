@@ -17,7 +17,7 @@ This script estimates all the cabin related parameters (Crew, passenger, equipme
 import math
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     WB_ABREAST_NB_XPATH,
     WB_AISLE_WIDTH_XPATH,
     WB_CAB_CREW_NB_XPATH,

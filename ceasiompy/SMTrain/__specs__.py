@@ -178,6 +178,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Choose mesh",
     gui_group="Second Level of Fidelity Parameters",
+    test_value=["CPACS2GMSH mesh"],
 )
 
 cpacs_inout.add_input(

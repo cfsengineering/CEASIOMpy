@@ -23,13 +23,6 @@ from typing import (
     Union,
 )
 
-from ceasiompy.SMTrain import (
-    LEVEL_ONE,
-    LEVEL_TWO,
-    # LEVEL_THREE,
-)
-
-
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
@@ -63,8 +56,8 @@ def compute_multi_level_loss(
     y_fl_train: ndarray,
     x_sl_train: Union[ndarray, None],
     y_sl_train: Union[ndarray, None],
-    # x_tl_train: Union[ndarray, None],
-    # y_tl_train: Union[ndarray, None],
+    x_tl_train: Union[ndarray, None],
+    y_tl_train: Union[ndarray, None],
     x_: ndarray,
     y_: ndarray,
 ) -> Tuple[MFK, float]:
@@ -73,17 +66,17 @@ def compute_multi_level_loss(
     """
     model = MFK(
         theta0=[params[0]],
-        corr=params[1],
+        corr=str(params[1]),
         poly=params[2],
         hyper_opt=params[3],
         nugget=params[4],
         rho_regr=params[5],
     )
-    model.set_training_values(x_fl_train, y_fl_train, name=LEVEL_ONE)
-    # if x_sl_train is not None and y_sl_train is not None:
-    model.set_training_values(x_sl_train, y_sl_train, name=LEVEL_TWO)
-    # if x_tl_train is not None and y_tl_train is not None:
-    #     model.set_training_values(x_tl_train, y_tl_train, name=LEVEL_THREE)
+    model.set_training_values(x_fl_train, y_fl_train, name=1)
+    if x_sl_train is not None and y_sl_train is not None:
+        model.set_training_values(x_sl_train, y_sl_train, name=2)
+    if x_tl_train is not None and y_tl_train is not None:
+        model.set_training_values(x_tl_train, y_tl_train, name=3)
     model.train()
     return model, compute_loss(model, params[6], x_, y_)
 

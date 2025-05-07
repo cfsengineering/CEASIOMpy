@@ -131,7 +131,9 @@ def launch_su2(
     if tixi.checkElement(SU2MESH_XPATH):
         su2mesh = get_value(tixi, SU2MESH_XPATH)
     if tixi.checkElement(USED_SU2_MESH_XPATH):
-        su2_mesh_path = get_value(tixi, USED_SU2_MESH_XPATH)
+        su2_mesh_path = tixi.getTextElement(USED_SU2_MESH_XPATH)
+        if not su2_mesh_path:
+            su2_mesh_path = None
 
     su2_mesh_path_type = get_value(tixi, USED_SU2_MESH_XPATH + "type")
     max_iters = str(get_value(tixi, SU2_MAX_ITER_XPATH))

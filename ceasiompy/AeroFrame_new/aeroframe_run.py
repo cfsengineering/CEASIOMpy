@@ -366,7 +366,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     # First AVL run
     log.info("----- AVL: Calculation 1 -----")
 
-    # First AVL run 
+    # First AVL run
     # You need to first load the default values of AVL
     # Then you add back the ones that you wanted to specify...
     run_avl(cpacs, results_dir)

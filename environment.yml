@@ -10,6 +10,8 @@
 # For mac users install MiniForge3 (source ~/miniforge3/bin/activate) and use:
 #       CONDA_SUBDIR=osx-64 conda env create -f environment.yml
 
+# Update conda with: conda update -n base -c conda-forge conda
+
 name: ceasiompy
 
 channels:

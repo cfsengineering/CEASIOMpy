@@ -27,6 +27,7 @@ from cpacspy.cpacspy import CPACS
 
 from ceasiompy.PyAVL.pyavl import main as run_avl
 from ceasiompy.utils.ceasiompyutils import call_main
+from ceasiompy.PyAVL.func.utils import create_case_dir
 from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
 from ceasiompy.utils.ceasiompyutils import get_aeromap_conditions
 from cpacspy.cpacsfunctions import (
@@ -43,7 +44,7 @@ from ceasiompy.AeroFrame_new.func.plot import (
     plot_deformed_wing
 )
 from ceasiompy.AeroFrame_new.func.config import (
-    read_AVL_fe_file,
+    read_avl_fe_file,
     create_framat_model,
     get_material_properties,
     get_section_properties,
@@ -71,7 +72,12 @@ from ceasiompy.PyAVL import (
 
 
 # TODO: Reduce complexity
-def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
+def aeroelastic_loop(
+    cpacs,
+    results_dir,
+    case_dir_path,
+    q, xyz, fxyz
+):
     """Function to execute the aeroelastic-loop.
 
     Function 'aeroelastic_loop' executes the aeroelastic-loop,
@@ -90,12 +96,10 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
         res (list): residual of the mid-chord wing tip deflection.
     """
 
-    cpacs = CPACS(cpacs_path)
-
-    AVL_ITER1_PATH = Path(CASE_PATH, "Iteration_1", "AVL")
+    AVL_ITER1_PATH = Path(case_dir_path, "Iteration_1", "AVL")
 
     # Get the path to the undeformed/initial AVL geometry
-    for path in AVL_ITER1_PATH.glob('*.avl'):
+    for path in results_dir.glob('*.avl'):
         AVL_UNDEFORMED_PATH = path
     AVL_UNDEFORMED_COMMAND = Path(AVL_ITER1_PATH, "avl_commands.txt")
 
@@ -111,10 +115,10 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
         wg_center_z_list,
         wg_chord_list,
         wg_scaling
-    ) = compute_cross_section(cpacs_path)
+    ) = compute_cross_section(cpacs)
 
     # Get the properties of the wing material and the number of beam nodes to use
-    young_modulus, shear_modulus, material_density = get_material_properties(cpacs_path)
+    young_modulus, shear_modulus, material_density = get_material_properties(cpacs)
     N_beam = get_value_or_default(cpacs.tixi, FRAMAT_MESH_XPATH + "/NumberNodes", 8)
 
     # Define the coordinates of the wing root and tip
@@ -155,7 +159,7 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
                         Zle_array[-1]])
 
     # Get cross-section properties from CPACS file (if constants)
-    area_const, Ix_const, Iy_const = get_section_properties(cpacs_path)
+    area_const, Ix_const, Iy_const = get_section_properties(cpacs)
 
     if area_const > 0:
         area_list = area_const * np.ones(len(wg_center_y_list))
@@ -189,10 +193,10 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
         log.info("")
         log.info(f"----- FramAT: Deformation {n_iter} -----")
 
-        Path(CASE_PATH, f"Iteration_{n_iter + 1}", "AVL").mkdir(parents=True, exist_ok=True)
-        Path(CASE_PATH, f"Iteration_{n_iter}", "FramAT").mkdir(parents=True, exist_ok=True)
-        AVL_ITER_PATH = Path(CASE_PATH, f"Iteration_{n_iter + 1}", "AVL")
-        FRAMAT_ITER_PATH = Path(CASE_PATH, f"Iteration_{n_iter}", "FramAT")
+        Path(case_dir_path, f"Iteration_{n_iter + 1}", "AVL").mkdir(parents=True, exist_ok=True)
+        Path(case_dir_path, f"Iteration_{n_iter}", "FramAT").mkdir(parents=True, exist_ok=True)
+        AVL_ITER_PATH = Path(case_dir_path, f"Iteration_{n_iter + 1}", "AVL")
+        FRAMAT_ITER_PATH = Path(case_dir_path, f"Iteration_{n_iter}", "FramAT")
         AVL_DEFORMED_PATH = Path(AVL_ITER_PATH, "deformed.avl")
         AVL_DEFORMED_COMMAND = Path(AVL_ITER_PATH, "avl_commands.txt")
 
@@ -217,7 +221,7 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
                                    Iy_profile,
                                    chord_profile,
                                    twist_profile,
-                                   CASE_PATH,
+                                   case_dir_path,
                                    AVL_UNDEFORMED_PATH,
                                    wg_scaling)
 
@@ -283,7 +287,7 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
 
         # Read the new forces file to extract the loads
         FE_PATH = Path(AVL_ITER_PATH, "fe.txt")
-        _, _, _, xyz_list, p_xyz_list, _ = read_AVL_fe_file(FE_PATH, plot=False)
+        _, _, _, xyz_list, p_xyz_list, _ = read_avl_fe_file(FE_PATH, plot=False)
 
         xyz = xyz_list[0]
         fxyz = np.array(p_xyz_list[0]) * q
@@ -368,7 +372,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
     # First AVL run
     # You need to first load the default values of AVL
-    # Then you add back the ones that you wanted to specify...
+    # Then you add back the ones that you wanted to specify.
     run_avl(cpacs, results_dir)
 
     for i_case, _ in enumerate(alt_list):
@@ -380,38 +384,47 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         Atm = Atmosphere(alt)
         fluid_density = Atm.density[0]
         fluid_velocity = Atm.speed_of_sound[0] * mach
-        q = 0.5 * fluid_density * fluid_velocity**2
+        rho = 0.5 * fluid_density * fluid_velocity**2
 
-        case_dir_name = (
-            f"Case{str(i_case).zfill(2)}_alt{alt}_mach{round(mach, 2)}"
-            f"_aoa{round(aoa, 1)}_aos{round(aos, 1)}"
+        case_dir_path = create_case_dir(
+            results_dir,
+            i_case,
+            alt,
+            mach=mach,
+            aoa=aoa,
+            aos=aos,
+            q=0.0,
+            p=0.0,
+            r=0.0,
         )
+        Path(case_dir_path, "Iteration_1", "AVL").mkdir(parents=True, exist_ok=True)
 
-        CASE_PATH = Path(results_dir, case_dir_name)
-        Path(CASE_PATH, "Iteration_1", "AVL").mkdir(parents=True, exist_ok=True)
-        AVL_ITER_PATH = Path(CASE_PATH, "Iteration_1", "AVL")
+        avl_iter_path = Path(case_dir_path, "Iteration_1", "AVL")
 
-        for file_path in CASE_PATH.iterdir():
+        for file_path in case_dir_path.iterdir():
             if file_path.is_file():
-                shutil.move(str(file_path), str(AVL_ITER_PATH / file_path.name))
+                shutil.move(str(file_path), str(avl_iter_path / file_path.name))
 
-        FE_PATH = Path(AVL_ITER_PATH, "fe.txt")
-        _, _, _, xyz_list, p_xyz_list, _ = read_AVL_fe_file(FE_PATH, plot=False)
+        fe_path = Path(avl_iter_path, "fe.txt")
+        _, _, _, xyz_list, p_xyz_list, _ = read_avl_fe_file(fe_path, plot=False)
 
-        f_xyz_array = np.array(p_xyz_list) * q
+        f_xyz_array = np.array(p_xyz_list) * rho
 
         # Start the aeroelastic loop
-        tip_deflection, residuals = aeroelastic_loop(cpacs_path,
-                                                     CASE_PATH,
-                                                     q,
-                                                     xyz_list[0],
-                                                     f_xyz_array[0])
+        tip_deflection, residuals = aeroelastic_loop(
+            cpacs,
+            results_dir,
+            case_dir_path,
+            rho,
+            xyz_list[0],
+            f_xyz_array[0],
+        )
 
         # Write results in CPACS out
         create_branch(tixi, FRAMAT_RESULTS_XPATH + "/TipDeflection")
         tixi.updateDoubleElement(FRAMAT_RESULTS_XPATH + "/TipDeflection", tip_deflection[-1], "%g")
 
-        plot_convergence(tip_deflection, residuals, wkdir=CASE_PATH)
+        plot_convergence(tip_deflection, residuals, wkdir=case_dir_path)
 
 
 # =================================================================================================

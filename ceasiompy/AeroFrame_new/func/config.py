@@ -16,7 +16,6 @@ from AVL 'fe.txt' element force file
 # ==============================================================================
 
 import re
-import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -25,6 +24,10 @@ from scipy.spatial.distance import cdist
 from cpacspy.cpacsfunctions import open_tixi
 from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
+from ceasiompy.utils.geometryfunctions import (
+    sum_points,
+    get_positionings,
+)
 from ceasiompy.utils.mathsfunctions import (
     euler2fix,
     rotate_points,
@@ -39,8 +42,8 @@ from pathlib import Path
 from scipy import interpolate
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.generalclasses import (
+    Point,
     Transformation,
-    SimpleNamespace,
 )
 
 from ceasiompy import log
@@ -173,7 +176,7 @@ def parse_AVL_surface(string):
     return surface_name, nspanwise, nchord_strip, xyz, p_xyz, slope_list
 
 
-def read_AVL_fe_file(FE_PATH, plot=False):
+def read_avl_fe_file(FE_PATH, plot=False):
     """Function to read AVL 'fe.txt' element force file,
     and extract the aerodynamic loads calling the function
     'parse_AVL_surface'.
@@ -355,7 +358,7 @@ def create_framat_model(young_modulus, shear_modulus, material_density,
     return model
 
 
-def get_material_properties(cpacs_path):
+def get_material_properties(cpacs):
     """Function to read the material properties for structural
     calculations.
 
@@ -372,20 +375,19 @@ def get_material_properties(cpacs_path):
         material_density (float): Density of the material [kg/m^3].
 
     """
-    cpacs = CPACS(cpacs_path)
-
-    young_modulus = get_value_or_default(cpacs.tixi,
+    tixi = cpacs.tixi
+    young_modulus = get_value_or_default(tixi,
                                          FRAMAT_MATERIAL_XPATH + "/YoungModulus", 70)
 
-    shear_modulus = get_value_or_default(cpacs.tixi,
+    shear_modulus = get_value_or_default(tixi,
                                          FRAMAT_MATERIAL_XPATH + "/ShearModulus", 27)
 
-    material_density = get_value_or_default(cpacs.tixi, FRAMAT_MATERIAL_XPATH + "/Density", 1960)
+    material_density = get_value_or_default(tixi, FRAMAT_MATERIAL_XPATH + "/Density", 1960)
 
     return young_modulus, shear_modulus, material_density
 
 
-def get_section_properties(cpacs_path):
+def get_section_properties(cpacs):
     """Function reads the cross-section properties for structural
     calculations.
 
@@ -402,11 +404,11 @@ def get_section_properties(cpacs_path):
         Iy (float): second moment of area about the x-axis [m^4].
 
     """
-    cpacs = CPACS(cpacs_path)
+    tixi = cpacs.tixi
 
-    area = get_value_or_default(cpacs.tixi, FRAMAT_SECTION_XPATH + "/Area", -1)
-    Ix = get_value_or_default(cpacs.tixi, FRAMAT_SECTION_XPATH + "/Ix", -1)
-    Iy = get_value_or_default(cpacs.tixi, FRAMAT_SECTION_XPATH + "/Iy", -1)
+    area = get_value_or_default(tixi, FRAMAT_SECTION_XPATH + "/Area", -1)
+    Ix = get_value_or_default(tixi, FRAMAT_SECTION_XPATH + "/Ix", -1)
+    Iy = get_value_or_default(tixi, FRAMAT_SECTION_XPATH + "/Iy", -1)
 
     return area, Ix, Iy
 
@@ -613,7 +615,7 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
 
 
 # TODO: Reduce complexity
-def compute_cross_section(cpacs_path):
+def compute_cross_section(cpacs):
     """
     Function 'compute_cross_section' computes the area, the second moments of area,
     and additional geometric properties of each cross-section of the wing.
@@ -638,7 +640,7 @@ def compute_cross_section(cpacs_path):
         wg_chord_list (list): list of the chord length of each cross-section [m].
 
     """
-    tixi = open_tixi(cpacs_path)
+    tixi = cpacs.tixi
 
     # Wing(s) ------------------------------------------------------------------
     if tixi.checkElement(WINGS_XPATH):
@@ -681,76 +683,7 @@ def compute_cross_section(cpacs_path):
                       round(wing_transf.scaling.z, 3)]
 
         # Positionings
-        if tixi.checkElement(wing_xpath + "/positionings"):
-            pos_cnt = tixi.getNamedChildrenCount(wing_xpath + "/positionings", "positioning")
-            log.info(str(pos_cnt) + ' "positioning" has been found : ')
-
-            pos_x_list = []
-            pos_y_list = []
-            pos_z_list = []
-            from_sec_list = []
-            to_sec_list = []
-
-            for i_pos in range(pos_cnt):
-                pos_xpath = wing_xpath + "/positionings/positioning[" + str(i_pos + 1) + "]"
-
-                length = tixi.getDoubleElement(pos_xpath + "/length")
-                sweep_deg = tixi.getDoubleElement(pos_xpath + "/sweepAngle")
-                sweep = math.radians(sweep_deg)
-                dihedral_deg = tixi.getDoubleElement(pos_xpath + "/dihedralAngle")
-                dihedral = math.radians(dihedral_deg)
-
-                # Get the corresponding translation of each positioning
-                pos_x_list.append(length * math.sin(sweep))
-                pos_y_list.append(length * math.cos(dihedral) * math.cos(sweep))
-                pos_z_list.append(length * math.sin(dihedral) * math.cos(sweep))
-
-                # Get which section are connected by the positioning
-                if tixi.checkElement(pos_xpath + "/fromSectionUID"):
-                    from_sec = tixi.getTextElement(pos_xpath + "/fromSectionUID")
-                else:
-                    from_sec = ""
-                from_sec_list.append(from_sec)
-
-                if tixi.checkElement(pos_xpath + "/toSectionUID"):
-                    to_sec = tixi.getTextElement(pos_xpath + "/toSectionUID")
-                else:
-                    to_sec = ""
-                to_sec_list.append(to_sec)
-
-            # Re-loop though the positioning to re-order them
-            for j_pos in range(pos_cnt):
-                if from_sec_list[j_pos] == "":
-                    prev_pos_x = 0
-                    prev_pos_y = 0
-                    prev_pos_z = 0
-                elif from_sec_list[j_pos] == to_sec_list[j_pos - 1]:
-                    prev_pos_x = pos_x_list[j_pos - 1]
-                    prev_pos_y = pos_y_list[j_pos - 1]
-                    prev_pos_z = pos_z_list[j_pos - 1]
-                else:
-                    index_prev = to_sec_list.index(from_sec_list[j_pos])
-                    prev_pos_x = pos_x_list[index_prev]
-                    prev_pos_y = pos_y_list[index_prev]
-                    prev_pos_z = pos_z_list[index_prev]
-
-                pos_x_list[j_pos] += prev_pos_x
-                pos_y_list[j_pos] += prev_pos_y
-                pos_z_list[j_pos] += prev_pos_z
-
-        else:
-            log.warning('No "positionings" have been found!')
-            pos_cnt = 0
-
-        # Sections
-        sec_cnt = tixi.getNamedChildrenCount(wing_xpath + "/sections", "section")
-        log.info("    -" + str(sec_cnt) + " wing sections have been found")
-
-        if pos_cnt == 0:
-            pos_x_list = [0.0] * sec_cnt
-            pos_y_list = [0.0] * sec_cnt
-            pos_z_list = [0.0] * sec_cnt
-
+        sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(tixi, wing_xpath, "wing")
         for i_sec in range(sec_cnt):
             sec_xpath = wing_xpath + "/sections/section[" + str(i_sec + 1) + "]"
             sec_uid = tixi.getTextAttribute(sec_xpath, "uID")
@@ -802,13 +735,12 @@ def compute_cross_section(cpacs_path):
 
                 # Add rotation from element and sections
                 # Adding the two angles: Maybe not work in every case!!!
-                add_rotation = SimpleNamespace()
-                add_rotation.x = elem_transf.rotation.x + \
-                    sec_transf.rotation.x + wg_sk_transf.rotation.x
-                add_rotation.y = elem_transf.rotation.y + \
-                    sec_transf.rotation.y + wg_sk_transf.rotation.y
-                add_rotation.z = elem_transf.rotation.z + \
-                    sec_transf.rotation.z + wg_sk_transf.rotation.z
+                x, y, z = sum_points(
+                    elem_transf.rotation,
+                    sec_transf.rotation,
+                    sec_transf.rotation
+                )
+                add_rotation = Point(x, y, z)
 
                 # Get Section rotation
                 wg_sec_rot = euler2fix(add_rotation)

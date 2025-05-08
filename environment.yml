@@ -61,3 +61,4 @@ dependencies:
     - streamlit-autorefresh
     - vtk==9.3.0
     - scikit-optimize==0.10.2
+    - framat==0.5

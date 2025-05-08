@@ -264,7 +264,7 @@ def get_force_files(config_dir: Path) -> Tuple[Path, Path]:
     st_file_path = Path(config_dir, "st.txt")
     if not st_file_path.exists():
         raise FileNotFoundError(
-            f"No result total forces 'st.txt' file have been found at {st_file_path}. "
+            f"No result total forces 'st.txt' file have been found at {st_file_path}"
         )
 
     fs_file_path = Path(config_dir, "fs.txt")

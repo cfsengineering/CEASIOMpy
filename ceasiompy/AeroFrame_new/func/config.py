@@ -14,32 +14,40 @@ from AVL 'fe.txt' element force file
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
+
 import re
+import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import math
-from pathlib import Path
+
 from scipy.spatial.distance import cdist
-from scipy import interpolate
-from framat import Model
-
-from cpacspy.cpacspy import CPACS
-from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacsfunctions import open_tixi
-
-from ceasiompy.utils.commonxpaths import (
-    FRAMAT_MATERIAL_XPATH,
-    FRAMAT_SECTION_XPATH,
-    WINGS_XPATH,
-)
-from ceasiompy import log
-from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
-from ceasiompy.utils.mathsfunctions import euler2fix, rotate_points
+from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
+from ceasiompy.utils.mathsfunctions import (
+    euler2fix,
+    rotate_points,
+)
 from ceasiompy.AeroFrame_new.func.utils import (
     PolyArea,
     second_moments_of_area,
+)
+
+from framat import Model
+from pathlib import Path
+from scipy import interpolate
+from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.generalclasses import (
+    Transformation,
+    SimpleNamespace,
+)
+
+from ceasiompy import log
+from ceasiompy.utils.commonxpaths import WINGS_XPATH
+from ceasiompy.AeroFrame_new import (
+    FRAMAT_MATERIAL_XPATH,
+    FRAMAT_SECTION_XPATH,
 )
 
 # =================================================================================================
@@ -1056,11 +1064,3 @@ def interpolate_leading_edge(AVL_UNDEFORMED_PATH,
     interpolated_Zle = interpolated_points[:, 2]
 
     return Xle_array, Yle_array, Zle_array, interpolated_Xle, interpolated_Yle, interpolated_Zle
-
-    # =================================================================================================
-    #    MAIN
-    # =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

@@ -54,15 +54,15 @@ from ceasiompy.AeroFrame_new.func.config import (
 )
 
 from ceasiompy import log
-from ceasiompy.AeroFrame_new import MODULE_NAME
+from ceasiompy.AeroFrame_new import (
+    MODULE_NAME,
+    FRAMAT_RESULTS_XPATH,
+    FRAMAT_MESH_XPATH,
+    AEROFRAME_SETTINGS,
+)
 from ceasiompy.PyAVL import (
     AVL_PLOT_XPATH,
     AVL_AEROMAP_UID_XPATH,
-)
-from ceasiompy.utils.commonxpaths import (
-    FRAMAT_RESULTS_XPATH,
-    FRAMAT_MESH_XPATH,
-    AEROFRAME_SETTINGS
 )
 
 # =================================================================================================
@@ -366,7 +366,9 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     # First AVL run
     log.info("----- AVL: Calculation 1 -----")
 
-    # First AVL run
+    # First AVL run 
+    # You need to first load the default values of AVL
+    # Then you add back the ones that you wanted to specify...
     run_avl(cpacs, results_dir)
 
     for i_case, _ in enumerate(alt_list):

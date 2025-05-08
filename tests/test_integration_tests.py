@@ -97,12 +97,11 @@ def test_integration_4():
     assert True
 
 
-# TODO: framAT version is not on point right now
-# @pytest.mark.slow
-# @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
-# def test_integration_5():
-#     run_workflow_test(["AeroFrame_new"])
-#     assert True
+@pytest.mark.slow
+@pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
+def test_integration_5():
+    run_workflow_test(["AeroFrame_new"])
+    assert True
 
 
 # =================================================================================================

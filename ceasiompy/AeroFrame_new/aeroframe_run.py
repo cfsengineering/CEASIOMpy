@@ -14,18 +14,34 @@ aerodynamic loads and FramAT for structural calculations.
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
-from ceasiompy import log
 
-from ceasiompy.utils.ceasiompyutils import call_main
+import shutil
+import subprocess
+import numpy as np
+import pandas as pd
+
+from pathlib import Path
+from scipy import interpolate
+from ambiance import Atmosphere
+from cpacspy.cpacspy import CPACS
 
 from ceasiompy.PyAVL.pyavl import main as run_avl
+from ceasiompy.utils.ceasiompyutils import call_main
+from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
 from ceasiompy.utils.ceasiompyutils import get_aeromap_conditions
 from cpacspy.cpacsfunctions import (
     get_value_or_default,
     create_branch,
 )
-
-from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
+from ceasiompy.AeroFrame_new.func.results import (
+    compute_deformations,
+    plot_translations_rotations,
+    plot_convergence
+)
+from ceasiompy.AeroFrame_new.func.plot import (
+    plot_fem_mesh,
+    plot_deformed_wing
+)
 from ceasiompy.AeroFrame_new.func.config import (
     read_AVL_fe_file,
     create_framat_model,
@@ -37,16 +53,8 @@ from ceasiompy.AeroFrame_new.func.config import (
     write_deformed_command
 )
 
-from ceasiompy.AeroFrame_new.func.results import (
-    compute_deformations,
-    plot_translations_rotations,
-    plot_convergence
-)
-from ceasiompy.AeroFrame_new.func.plot import (
-    plot_fem_mesh,
-    plot_deformed_wing
-)
-
+from ceasiompy import log
+from ceasiompy.AeroFrame_new import MODULE_NAME
 from ceasiompy.PyAVL import (
     AVL_PLOT_XPATH,
     AVL_AEROMAP_UID_XPATH,
@@ -56,19 +64,6 @@ from ceasiompy.utils.commonxpaths import (
     FRAMAT_MESH_XPATH,
     AEROFRAME_SETTINGS
 )
-from cpacspy.cpacspy import CPACS
-
-from pathlib import Path
-from ambiance import Atmosphere
-import numpy as np
-from scipy import interpolate
-import subprocess
-import pandas as pd
-import shutil
-
-MODULE_DIR = Path(__file__).parent
-MODULE_NAME = MODULE_DIR.name
-
 
 # =================================================================================================
 #   FUNCTIONS
@@ -349,22 +344,17 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
     return delta_tip, res
 
 
-def main(cpacs: CPACS, wkdir: Path) -> None:
+def main(cpacs: CPACS, results_dir: Path) -> None:
     """Function to run aeroelastic calculations.
 
     Function 'aeroframe_run' runs aeroelastic calculations
     coupling AVL and FramAT, using a CPACS file
     as input.
-
-    Args:
-        cpacs_path (Path): path to the CPACS input file.
-        cpacs_out_path (Path): path to the CPACS output file.
-        wkdir (Path): path to the working directory.
     """
     cpacs_path = cpacs.cpacs_file
     tixi = cpacs.tixi
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
-        cpacs_path,
+        cpacs,
         AVL_AEROMAP_UID_XPATH
     )
     log.info("FLIGHT CONDITIONS:")
@@ -377,7 +367,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     log.info("----- AVL: Calculation 1 -----")
 
     # First AVL run
-    run_avl(cpacs, wkdir)
+    run_avl(cpacs, results_dir)
 
     for i_case, _ in enumerate(alt_list):
         alt = alt_list[i_case]
@@ -395,7 +385,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
             f"_aoa{round(aoa, 1)}_aos{round(aos, 1)}"
         )
 
-        CASE_PATH = Path(wkdir, case_dir_name)
+        CASE_PATH = Path(results_dir, case_dir_name)
         Path(CASE_PATH, "Iteration_1", "AVL").mkdir(parents=True, exist_ok=True)
         AVL_ITER_PATH = Path(CASE_PATH, "Iteration_1", "AVL")
 

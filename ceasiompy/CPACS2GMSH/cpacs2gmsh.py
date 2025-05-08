@@ -7,10 +7,12 @@ Small description of the script
 
 | Author:Tony Govoni
 | Creation: 2022-03-22
-| Modified by: Giacomo Benedetti, Guido Vallifuoco, Cassandre Renaud
+| Modified by: Giacomo Benedetti, Guido Vallifuoco
 | Date: 2024-02-01
 | Modified by: Leon Deligny
 | Date: 06 March 2025
+| Modified by: Cassandre Renaud
+| Date: 08 May 2025
 
 """
 
@@ -80,7 +82,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
         n_power_factor, n_power_field,
         fuselage_mesh_size_factor, wing_mesh_size_factor,
         mesh_size_engines, mesh_size_propellers,
-        refine_factor, refine_truncated, auto_refine,
+        refine_factor, refine_truncated, auto_refine, refine_factor_sharp_edges,
         intake_percent, exhaust_percent,
         n_layer, h_first_layer, max_layer_thickness,
         growth_factor, growth_ratio,
@@ -115,11 +117,19 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
         )
     else:
         gmesh_path, fuselage_maxlen = generate_2d_mesh_for_pentagrow(
-            tixi,
+            cpacs,
             brep_dir,
             wkdir,
             open_gmsh=open_gmsh,
-            min_max_mesh_factor=min_max_mesh_factor,
+            refine_factor=refine_factor,
+            refine_truncated=refine_truncated,
+            refine_factor_sharp_edges=refine_factor_sharp_edges,
+            fuselage_mesh_size_factor=fuselage_mesh_size_factor,
+            wing_mesh_size_factor=wing_mesh_size_factor,
+            mesh_size_engines=mesh_size_engines,
+            mesh_size_propellers=mesh_size_propellers,
+            auto_refine=auto_refine,
+            farfield_size_factor=farfield_factor
         )
 
         if gmesh_path.exists():

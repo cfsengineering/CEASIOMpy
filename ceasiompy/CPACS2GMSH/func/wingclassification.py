@@ -69,6 +69,9 @@ class ModelPart:
 
         self.wing_sections = []
 
+        # Bounding box (used in RANS)
+        self.bounding_box = []
+
     def associate_child_to_parent(self, child_dimtag):
         """
         Function to associate a child to a parent.
@@ -195,7 +198,7 @@ def detect_normal_profile(le_te_pair: List, line_comp1, line_comp2):
 
     lines = sorted(list(set([line_comp1["line_tag"], line_comp2["line_tag"]])))
 
-    # Check if lines are not already in the founded list
+    # Check if lines are not already in the found list
     if lines in le_te_pair:
         return le_te_pair, False
 

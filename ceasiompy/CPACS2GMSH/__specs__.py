@@ -14,6 +14,8 @@ GUI Interface of CPACS2GMSH.
 #   IMPORTS
 # ==============================================================================
 
+from pathlib import Path
+
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
@@ -34,6 +36,7 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_N_POWER_FIELD_XPATH,
     GMSH_REFINE_FACTOR_XPATH,
     GMSH_REFINE_TRUNCATED_XPATH,
+    GMSH_REFINE_FACTOR_SHARP_EDGES_XPATH,
     GMSH_AUTO_REFINE_XPATH,
     GMSH_NUMBER_LAYER_XPATH,
     GMSH_H_FIRST_LAYER_XPATH,
@@ -239,7 +242,17 @@ cpacs_inout.add_input(
     gui_group="Advanced Euler mesh parameters",
 )
 
-# hello
+cpacs_inout.add_input(
+    var_name="refine_factor_sharp_edges",
+    var_type=float,
+    default_value=1.0,
+    unit="1",
+    descr="Refinement factor of other sharp edges mesh",
+    xpath=GMSH_REFINE_FACTOR_SHARP_EDGES_XPATH,
+    gui=True,
+    gui_name="other sharp edges refinement factor",
+    gui_group="Advanced Euler mesh parameters",
+)
 
 cpacs_inout.add_input(
     var_name="n_layer",

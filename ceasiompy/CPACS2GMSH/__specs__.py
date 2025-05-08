@@ -245,7 +245,7 @@ cpacs_inout.add_input(
     default_value=1.0,
     unit="1",
     descr="Refinement factor of other sharp edges mesh",
-    xpath=GMSH_REFINE_FACTOR_SHARP_EDGES_XPATH,
+    xpath=GMSH_REFINE_FACTOR_XPATH,
     gui=True,
     gui_name="other sharp edges refinement factor",
     gui_group="Advanced Euler mesh parameters",

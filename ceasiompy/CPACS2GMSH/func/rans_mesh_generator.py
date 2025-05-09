@@ -241,8 +241,8 @@ def generate_2d_mesh_for_pentagrow(
     mesh_size_by_group["vort"] = mesh_size_by_group["fuselage"] / 8
 
     log.info(
-        f"Mesh size fuselage={  ((fuselage_maxlen + fuselage_minlen) / 2) /\
-            fuselage_mesh_size_factor :.3f} m")
+        f"Mesh size fuselage={
+            ((fuselage_maxlen + fuselage_minlen) / 2) / fuselage_mesh_size_factor : .3f} m")
     log.info(
         f"Mesh size wing={((wing_maxlen * 0.8 + wing_minlen) /2) / wing_mesh_size_factor:.3f} m")
     log.info(f"Mesh size engine={mesh_size_engines:.3f} m")

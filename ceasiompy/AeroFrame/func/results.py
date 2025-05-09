@@ -8,24 +8,19 @@ and plot the convergence.
 
 | Author: Romain Gauthier
 | Creation: 2024-06-17
-
-TODO:
-
-    * Things to improve...
-
 """
 
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
+
+import math
 import numpy as np
 import pandas as pd
-import math
 import matplotlib.pyplot as plt
+
 from pathlib import Path
 from scipy import interpolate
-
-from ceasiompy import log
 
 # =================================================================================================
 #   FUNCTIONS
@@ -224,12 +219,3 @@ def plot_convergence(tip_deflection, res, wkdir):
 
     fig.tight_layout()
     fig.savefig(Path(wkdir, "deflection_convergence.png"))
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-
-    log.info("Nothing to execute!")

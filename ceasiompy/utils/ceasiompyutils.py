@@ -629,7 +629,7 @@ def get_part_type(tixi, part_uid: str, print_info=True) -> str:
         "vehicles/rotorcraft/model/rotors/rotor" : "rotor",
     }
 
-    for (path_name, part_name) in path_part:
+    for (path_name, part_name) in path_part.items():
         if path_name in part_xpath:
             if print_info:
                 log.info(f"'{part_uid}' is a {part_name}")

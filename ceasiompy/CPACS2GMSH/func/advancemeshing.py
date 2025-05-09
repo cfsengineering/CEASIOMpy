@@ -641,13 +641,22 @@ def refine_lines_with_acute_angles(
                 # Now search for nodes that are in both surfaces
                 for a in range(len(coordi) // 3):
                     for b in range(len(coordj) // 3):
-                        if coordi[3 * a] == coordj[3 * b] and coordi[3 * a + 1] == coordj[3 * b + 1] and coordi[3 * a + 2] == coordj[3 * b + 2]:
-                            # if here, we have found a node that is in both. Get the normal at this node of the two surfaces
+                        if coordi[3 * a] == coordj[3 * b] and\
+                            coordi[3 * a + 1] == coordj[3 * b + 1] and\
+                                coordi[3 * a + 2] == coordj[3 * b + 2]:
+                            # if here, we have found a node that is in both. Get the normal at
+                            # this node of the two surfaces
                             normal_i = gmsh.model.getNormal(
-                                i, [tags_coords_params[i]['param'][2 * a], tags_coords_params[i]['param'][2 * a + 1]])
+                                i,
+                                [tags_coords_params[i]['param'][2 * a],
+                                 tags_coords_params[i]['param'][2 * a + 1]])
                             normal_j = gmsh.model.getNormal(
-                                j, [tags_coords_params[j]['param'][2 * b], tags_coords_params[j]['param'][2 * b + 1]])
-                            # Compute  cosinus which is the scalar product as the normals are of norm 1
+                                j,
+                                [tags_coords_params[j]['param'][2 * b],
+                                 tags_coords_params[j]['param'][2 * b + 1]]
+                            )
+                            # Compute  cosinus which is the scalar product as the normals
+                            # are of norm 1
                             cosalpha = (normal_i[0] * normal_j[0] + normal_i[1]
                                         * normal_j[1] + normal_i[2] * normal_j[2])
                             if cosalpha < -0.7:  # (more than 45 degrees from being flat)
@@ -671,20 +680,21 @@ def refine_lines_with_acute_angles(
         bb = part.bounding_box
         size = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
         size.sort()
-        # Choose refinement to go on 1/4 of the length of the second smallest size (somehow usually the correct length)
+        # Choose refinement to go on 1/4 of the length of the second smallest size
+        # (somehow usually the correct length)
         m = size[1] / 4
         for s in surfaces_tags:
             # Get all the lines that are adjacent and need refinement
             [_, adjacent_lines] = gmsh.model.getAdjacencies(2, s)
             lines_to_refine = list(set(adjacent_lines) & set(lines_with_angles_tag))
-            for l in lines_to_refine:
-                log.info(f"Refining line {l} in surface {s} in part {part.uid}")
+            for line in lines_to_refine:
+                log.info(f"Refining line {line} in surface {s} in part {part.uid}")
 
                 # 1 : Math eval field
                 mesh_fields["nbfields"] += 1
                 gmsh.model.mesh.field.add("Distance", mesh_fields["nbfields"])
                 gmsh.model.mesh.field.setNumbers(
-                    mesh_fields["nbfields"], "CurvesList", [l])
+                    mesh_fields["nbfields"], "CurvesList", [line])
                 gmsh.model.mesh.field.setNumber(
                     mesh_fields["nbfields"], "Sampling", 200)
 

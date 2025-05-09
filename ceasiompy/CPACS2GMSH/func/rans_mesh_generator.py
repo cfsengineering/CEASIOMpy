@@ -106,17 +106,21 @@ def generate_2d_mesh_for_pentagrow(
     refine_factor : float
         Factor of refinement along le and te of wings
     refine_truncated : bool
-        If set to true, the refinement can change to match the truncated te thickness
+        If set to true, the refinement can change to match the truncated
+        te thickness
     refine_factor_sharp_edges :float
         Factor of refinement along the edges that are sharp but not le and te
     n_power_factor : float
-        Power of how much refinement on the le and te (and for now in the "refine acute angle" as well)
+        Power of how much refinement on the le and te (and for now in the
+        "refine acute angle" as well)
     n_power_field: float
         Coefficient ?? (Idk but not used here) 
     fuselage_mesh_size_factor : float
-        Factor of the fuselage mesh size : the mesh size will be the mean fuselage width divided by this factor
+        Factor of the fuselage mesh size : the mesh size will be the mean 
+        fuselage width divided by this factor
     wing_mesh_size_factor : float
-        Factor of the wing mesh size : the mesh size will be the mean fuselage width divided by this factor
+        Factor of the wing mesh size : the mesh size will be the mean 
+        fuselage width divided by this factor
     mesh_size_engines : float
         Size of the engines mesh
     mesh_size_propellers : float
@@ -246,8 +250,10 @@ def generate_2d_mesh_for_pentagrow(
     mesh_fields = {"nbfields": 0, "restrict_fields": []}
     # Now fix the mesh size for every part
     for model_part in aircraft_parts:
-        # Take the right mesh size (name physical group should be wing or fuselage or engine or propeller or rotor or pylon or vort)
-        if "vort" in model_part.uid:  # TODO, has been here bc of one airplane where it needs to be smaller
+        # Take the right mesh size (name physical group should be wing or fuselage
+        # or engine or propeller or rotor or pylon or vort)
+        if "vort" in model_part.uid:  # TODO, has been here bc of one airplane
+            # where it needs to be smaller
             lc = mesh_size_by_group["vort"]
         else:
             lc = mesh_size_by_group[model_part.part_type]
@@ -267,7 +273,7 @@ def generate_2d_mesh_for_pentagrow(
     # Now do the refinement on the le and te
     if refine_factor != 1:
         log.info("Start refinement of leading and trailing edge")
-        # We want the lines already refined so we don't refined them afgain in the second function
+        # We want the lines already refined so we don't refined them again in the second function
         mesh_fields, te_le_already_refined = refine_le_te(
             aircraft_parts, mesh_size_by_group["wing"], mesh_fields, refine_factor, refine_truncated=refine_truncated, n_power_factor=n_power_factor)
         log.info("Finished refinement of leading and trailing edge")
@@ -386,7 +392,8 @@ Returns:
             intersect = gmsh.model.occ.intersect(
                 entities1, entities2, removeObject=False, removeTool=False)[0]
             gmsh.model.occ.synchronize()
-            # What's missing is that he sadly doesn't recognize the intersection by a face (only volume) (but rarely a problem)
+            # What's missing is that he sadly doesn't recognize the intersection by a face (only
+            # volume) (but rarely a problem)
 
             # Check if there is an intersection (i.e. there will be a dimtag in intersect)
             if len(intersect):
@@ -426,7 +433,8 @@ def fusing_parts(
 
     # Secondly we take care of the fusion to create the airfoil
 
-    # Keep count of how many times it didn't work (if error or some seperate part, could loop forever)
+    # Keep count of how many times it didn't work (if error or some seperate part,
+    # could loop forever)
     counter = 0
     while len(parts_dimtag) > 1:
         # Choose two entities to fuse
@@ -507,7 +515,8 @@ def sort_surfaces_and_create_physical_groups(
     """
     # Now we sort the surfaces by part (to name them & set mesh size)
 
-    # Get all the surfaces, classified by part with bounding boxes (might take too many, will be dealt with after)
+    # Get all the surfaces, classified by part with bounding boxes (might take too many,
+    # will be dealt with after)
 
     log.info("Start the classification of surfaces by parts")
     for model_part in aircraft_parts:
@@ -526,7 +535,8 @@ def sort_surfaces_and_create_physical_groups(
     # First reimport all the shapes, get their new tags and names
     newaircraft_parts = []
     for brep_file in brep_files:
-        # Import the part and create the aircraft part object (and translate them as the original were translated)
+        # Import the part and create the aircraft part object (and translate them as the
+        # original were translated)
         part_entities = gmsh.model.occ.importShapes(
             str(brep_file), highestDimOnly=False)
         gmsh.model.occ.translate(
@@ -544,7 +554,8 @@ def sort_surfaces_and_create_physical_groups(
 
         newaircraft_parts.append(part_obj)
 
-    # Reorder the imported shape so that it is in same order than our previous ones (i.e. vectors surfaces by part and newpart name tag type have save brep name at same index)
+    # Reorder the imported shape so that it is in same order than our previous ones
+    # (i.e. vectors surfaces by part and newpart name tag type have save brep name at same index)
     for i in range(len(aircraft_parts)):
         old_part = aircraft_parts[i]
         for j in range(len(newaircraft_parts)):
@@ -566,16 +577,22 @@ def sort_surfaces_and_create_physical_groups(
         # Now deal with it if in more than one part
         if len(parts_in) > 1:
             for i in parts_in:
-                # This is maybe overcomplicated, but gmsh doesn't keep the tags of surfaces when fused so we have to find a way to rematch them to their original part
-                # Compute intersection (which is a surface) of surface with the original shape/part. If there is an intersection, it means that it is the shape that the surface was on.
-                # (Precision : gmsh doesn't compute curves (or in general entity of smaller dim) at intersection for some reason, which is why it works.
-                # We only get intersection if the surface is really along/inside the volume, which only happens if it is the volume it comes from.)
+                # This is maybe overcomplicated, but gmsh doesn't keep the tags of surfaces when
+                # fused so we have to find a way to rematch them to their original part
+                # Compute intersection (which is a surface) of surface with the original
+                # shape/part. If there is an intersection, it means that it is the shape
+                # that the surface was on.
+                # (Precision : gmsh doesn't compute curves (or in general entity of smaller dim)
+                # at intersection for some reason, which is why it works.
+                # We only get intersection if the surface is really along/inside the volume,
+                # which only happens if it is the volume it comes from.)
                 intersection = gmsh.model.occ.intersect(
                     [(2, surf)], [newaircraft_parts[i].volume], removeObject=False, removeTool=False)[0]
                 # Remove intersection to have a clean result
                 gmsh.model.occ.remove(intersection, recursive=True)
                 if len(intersection) > 0:
-                    # If found, remove the tag from the others parts, and we have finished for this surface
+                    # If found, remove the tag from the others parts, and we have finished
+                    # for this surface
                     log.info(
                         f"Surface {surf} was in multiple volumes and is classified into part {aircraft_parts[i].uid}")
                     for j in parts_in:
@@ -584,7 +601,8 @@ def sort_surfaces_and_create_physical_groups(
                             aircraft_parts[j].surfaces_tags.remove(surf)
                     break
                 elif i == parts_in[-1]:
-                    # If we are here, we have found no part st the part is in, so there is a problem. We choose a part and hope for the best
+                    # If we are here, we have found no part st the part is in, so there
+                    # is a problem. We choose a part and hope for the best
                     log.info(
                         f"Surface {surf} still in parts {[aircraft_parts[i].uid for i in parts_in]}, take off randomly")
                     for k in range(len(parts_in) - 1):
@@ -597,12 +615,14 @@ def sort_surfaces_and_create_physical_groups(
 
     # Now add the physical group to each part and the surfaces that are now sorted
     for model_part in aircraft_parts:
-        # Just add group and name (which is the brep file without ".brep") to the surfaces of the part computed before
+        # Just add group and name (which is the brep file without ".brep") to the surfaces
+        # of the part computed before
         part_group = gmsh.model.addPhysicalGroup(2, model_part.surfaces_tags)
         name_group = model_part.uid
         gmsh.model.setPhysicalName(2, part_group, name_group)
 
-        # Compute the lines in each part by taking the boundary of surfaces (need them later for wing refinement)
+        # Compute the lines in each part by taking the boundary of surfaces (need them later
+        # for wing refinement)
         model_part.lines = gmsh.model.getBoundary(
             model_part.surfaces, combined=False, oriented=False)
         model_part.lines_tags = [li[1] for li in model_part.lines]

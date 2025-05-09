@@ -535,7 +535,7 @@ def sort_surfaces_and_create_physical_groups(
     all_surfaces_tag = [s[1] for s in all_surfaces]
 
     # First reimport all the shapes, get their new tags and names
-    newaircraft_parts = []
+    new_aircraft_parts = []
     for brep_file in brep_files:
         # Import the part and create the aircraft part object (and translate them as the
         # original were translated)
@@ -554,15 +554,15 @@ def sort_surfaces_and_create_physical_groups(
         part_obj.volume = part_entities[0]
         part_obj.volume_tag = part_entities[0][1]
 
-        newaircraft_parts.append(part_obj)
+        new_aircraft_parts.append(part_obj)
 
     # Reorder the imported shape so that it is in same order than our previous ones
     # (i.e. vectors surfaces by part and newpart name tag type have save brep name at same index)
     for i, old_part in enumerate(aircraft_parts):
-        for j, new_part in enumerate(newaircraft_parts):
+        for j, new_part in enumerate(new_aircraft_parts):
             if old_part.uid == new_part.uid:
-                newaircraft_parts[i], newaircraft_parts[j] = newaircraft_parts[j], \
-                    newaircraft_parts[i]
+                new_aircraft_parts[i], new_aircraft_parts[j] = new_aircraft_parts[j], \
+                    new_aircraft_parts[i]
                 break
 
     # Now for each surface count in how many different part it is
@@ -576,11 +576,11 @@ def sort_surfaces_and_create_physical_groups(
 
         # Now deal with it if in more than one part
         if len(parts_in) > 1:
-            choose_correct_part(parts_in, surf, aircraft_parts, newaircraft_parts)
+            choose_correct_part(parts_in, surf, aircraft_parts, new_aircraft_parts)
 
     # Remove the parts we re-imported, to get a clean result (we won't need them anymore)
     gmsh.model.occ.remove(
-        [model_part.volume for model_part in newaircraft_parts], recursive=True)
+        [model_part.volume for model_part in new_aircraft_parts], recursive=True)
     gmsh.model.occ.synchronize()
 
     # Now add the physical group to each part and the surfaces that are now sorted
@@ -598,7 +598,28 @@ def sort_surfaces_and_create_physical_groups(
         model_part.lines_tags = [li[1] for li in model_part.lines]
 
 
-def choose_correct_part(parts_in, surf, aircraft_parts, newaircraft_parts):
+def choose_correct_part(
+    parts_in, surf, aircraft_parts, new_aircraft_parts
+):
+    """
+    Function to chose the correct part for a surface still in multiple bounding boxes
+
+    Args:
+    ----------
+    parts_in : list of int
+        List of the parts such that the surface is in the bounding box
+    surf : int
+        tag of the surface
+    aircraft_parts : list of ModelPart
+        List of all the parts in the airplane
+    new_aircraft_parts : list of ModelPart
+        List of all the parts in the airplane but the reimported new ones.
+        The numerotation is the same as in aircraft_parts
+    ...
+    Returns:
+    ----------
+    nothing
+    """
     for i in parts_in:
         # This is maybe overcomplicated, but gmsh doesn't keep the tags of surfaces when
         # fused so we have to find a way to rematch them to their original part
@@ -610,7 +631,7 @@ def choose_correct_part(parts_in, surf, aircraft_parts, newaircraft_parts):
         # We only get intersection if the surface is really along/inside the volume,
         # which only happens if it is the volume it comes from.)
         intersection = gmsh.model.occ.intersect(
-            [(2, surf)], [newaircraft_parts[i].volume],
+            [(2, surf)], [new_aircraft_parts[i].volume],
             removeObject=False, removeTool=False)[0]
         # Remove intersection to have a clean result
         gmsh.model.occ.remove(intersection, recursive=True)

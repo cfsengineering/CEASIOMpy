@@ -7,6 +7,8 @@ This script contains different functions to classify and manipulate wing element
 
 | Author: Tony Govoni
 | Creation: 2022-04-07
+| Modified: Cassandre Renaud
+| Date: 2025-May-9
 
 TODO:
     -Add a parameter to let the user tune the powerlaw for the wing surface mesh
@@ -577,7 +579,7 @@ def refine_other_lines(
 
     #     foundbigangle = False
     #     # Get the adjacent surface, and the nodes
-    #     surfs, _ = gmsh.model.getAdjacencies(dim, line)
+    #     surface_tags, _ = gmsh.model.getAdjacencies(dim, line)
     #     tags, coord, param = gmsh.model.mesh.getNodes(1, line)
     #     nbpoints = len(coord) // 3
     #     # Select at most 40 nodes (but 20 evenly spaces if too big)
@@ -592,11 +594,11 @@ def refine_other_lines(
 
     #     # Now test for every 2 surfaces along line (usually always one or two surfaces total)
     #     # And if one, can't be a weird angle
-    #     for k in range(len(surfs)):
-    #         i = surfs[k]
+    #     for k in range(len(surface_tags)):
+    #         i = surface_tags[k]
     #         params_i = gmsh.model.getParametrization(2, i, coord_small)
-    #         for l in range(k + 1, len(surfs)):
-    #             j = surfs[l]
+    #         for l in range(k + 1, len(surface_tags)):
+    #             j = surface_tags[l]
     #             params_j = gmsh.model.getParametrization(2, j, coord_small)
     #             for a in range(len(coord_small) // 3):
     #                 # For each point, get the normal to the surface
@@ -622,14 +624,14 @@ def refine_other_lines(
     for (dim, line) in lines:
         if line % step_lines == 0:
             log.info(f"{math.floor(line/total*100)}% done")
-        surfs, _ = gmsh.model.getAdjacencies(dim, line)
+        surface_tags, _ = gmsh.model.getAdjacencies(dim, line)
         tags_coords_params = {-1: "yay"}
         # For each adjacent surface, get all the nodes
-        for i in surfs:
+        for i in surface_tags:
             tags, coord, param = gmsh.model.mesh.getNodes(2, i, True)
             tags_coords_params[i] = {'tags': tags, 'coord': coord, 'param': param}
         # Now see the surfaces two by two, to see their intersection
-        big_angle = compute_angle_surfaces(surfs, tags_coords_params)
+        big_angle = compute_angle_surfaces(surface_tags, tags_coords_params)
         if big_angle:
             lines_with_angles_tag.append(line)
 
@@ -650,17 +652,49 @@ def refine_other_lines(
             # Get all the lines that are adjacent and need refinement
             [_, adjacent_lines] = gmsh.model.getAdjacencies(2, s)
             lines_to_refine = list(set(adjacent_lines) & set(lines_with_angles_tag))
-            refine_surface(part.uid, lines_to_refine, s, mesh_fields,
-                           m, n_power, refine, mesh_size)
+            mesh_fields = refine_surface(part.uid, lines_to_refine, s, mesh_fields,
+                                         m, n_power, refine, mesh_size)
 
     return mesh_fields
 
 
 def refine_surface(
-    part_uid, lines_to_refine, s, mesh_fields, m, n_power, refine, mesh_size
+    part_uid, lines_to_refine, surface_tag, mesh_fields, m, n_power, refine, mesh_size
 ):
+    """
+    Function to refine the surfaces on a specific part along some given lines by creating Fields
+
+    Args:
+    ----------
+    part_uid : string
+        name of the part the surface is on
+    lines_to_refine : list of int
+        list of the tags of the lines we need to refine
+    surface_tag : int
+        tag of the surface we are refining
+    mesh_fields : dict
+        mesh_fields["nbfields"] : number of existing mesh field in the model,
+        each field must be created with a different index !!!
+        mesh_fields["restrict_fields"] : list of the restrict fields,
+        this is the list to be use for the final "Min" background field
+    m : float
+        length of the refinement (from the line, if more than distance m then
+        has "normal" mesh size)
+    n_power : float
+        power of the power law for the refinement
+    refine : float
+        refinement factor
+    mesh_size : float
+        mesh size depending of the part
+    ...
+    Returns:
+    ----------
+    mesh_fields : dict
+        mesh_fields["nbfields"] : number of existing mesh field in the model
+
+    """
     for line in lines_to_refine:
-        log.info(f"Refining line {line} in surface {s} in part {part_uid}")
+        log.info(f"Refining line {line} in surface {surface_tag} in part {part_uid}")
 
         # 1 : Math eval field
         mesh_fields["nbfields"] += 1
@@ -685,21 +719,42 @@ def refine_surface(
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Restrict", mesh_fields["nbfields"])
         gmsh.model.mesh.field.setNumbers(
-            mesh_fields["nbfields"], "SurfacesList", [s])
+            mesh_fields["nbfields"], "SurfacesList", [surface_tag])
         gmsh.model.mesh.field.setNumber(
             mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1)
         mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
         gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
         gmsh.model.occ.synchronize()
 
+    return mesh_fields
+
 
 def compute_angle_surfaces(
-    surfs, tags_coords_params
+    surface_tags, tags_coords_params
 ):
-    for k, i in enumerate(surfs):
-        # i is surface nb, k in index in surfs
+    """
+    Function to compute the angle between some surfaces
+
+    Args:
+    ----------
+    surface_tags : list of int
+        list of the tags of the surfaces we wnat to compute the angle (usually two or one)
+    tags_coords_params : dictionary of dictionaries
+        for each surface i, tags_coords_params[i] gives 3 elements:
+            params: list of the parameters of the nodes ([p1u,p1v,p2u,p2v,...])
+            coord: list of the xyz coordinates of the nodes ([n1x,n1y,n1z,n2x,n2y,n2z,...])
+            tag: list of tags of the nodes
+    ...
+    Returns:
+    ----------
+    big_angle : bool
+        True if we found a "big_angle", i.e. a sharp edge
+
+    """
+    for k, i in enumerate(surface_tags):
+        # i is surface nb, k in index in surface_tags
         coordi = tags_coords_params[i]['coord']
-        for _ , j in enumerate(surfs, k + 1):
+        for _ , j in enumerate(surface_tags, k + 1):
             coordj = tags_coords_params[j]['coord']
             # Now search for nodes that are in both surfaces
             for a in range(len(coordi) // 3):

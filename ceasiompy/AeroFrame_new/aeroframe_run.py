@@ -355,7 +355,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     coupling AVL and FramAT, using a CPACS file
     as input.
     """
-    cpacs_path = cpacs.cpacs_file
     tixi = cpacs.tixi
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
         cpacs,

@@ -70,37 +70,37 @@ def test_integration_1():
     assert True
 
 
-# @pytest.mark.slow
-# @pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
-# @pytest.mark.skipif(not shutil.which("pentagrow"), reason="Pentagrow not installed")
-# @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
-# def test_integration_2():
-#     run_workflow_test([CPACS2GMSH, SU2RUN, EXPORTCSV], cpacs_path=CPACS_RANS)
-#     assert True
+@pytest.mark.slow
+@pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
+@pytest.mark.skipif(not shutil.which("pentagrow"), reason="Pentagrow not installed")
+@pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
+def test_integration_2():
+    run_workflow_test([CPACS2GMSH, SU2RUN, EXPORTCSV], cpacs_path=CPACS_RANS)
+    assert True
 
 
-# @pytest.mark.slow
-# @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
-# def test_integration_3():
-#     run_workflow_test([PYAVL, SAVEAEROCOEF, DATABASE])
-#     assert True
+@pytest.mark.slow
+@pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
+def test_integration_3():
+    run_workflow_test([PYAVL, SAVEAEROCOEF, DATABASE])
+    assert True
 
 
-# @pytest.mark.slow
-# @pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
-# @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
-# @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
-# def test_integration_4():
-#     run_workflow_test([CPACS2GMSH, SMTRAIN, SMUSE, SAVEAEROCOEF])
-#     assert True
+@pytest.mark.slow
+@pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
+@pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
+@pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
+def test_integration_4():
+    run_workflow_test([CPACS2GMSH, SMTRAIN, SMUSE, SAVEAEROCOEF])
+    assert True
 
 
-# @pytest.mark.slow
-# @pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
-# @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
-# def test_integration_5():
-#     run_workflow_test([CPACSUPDATER, CPACS2GMSH, SU2RUN])
-#     assert True
+@pytest.mark.slow
+@pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
+@pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
+def test_integration_5():
+    run_workflow_test([CPACSUPDATER, CPACS2GMSH, SU2RUN])
+    assert True
 
 
 # =================================================================================================

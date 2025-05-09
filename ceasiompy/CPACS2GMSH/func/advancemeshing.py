@@ -432,7 +432,8 @@ def refine_small_surfaces(
 
     - if the surface area is very small compare to the mesh size of the part mesh
     the surface is remeshed with a smaller mesh size
-        --> With parameters by default, if with mesh size we have less than 150 triangles in the surface, we set the mesh size to have 150 triangles        
+        --> With parameters by default, if with mesh size we have less than 150 triangles
+            in the surface, we set the mesh size to have 150 triangles        
 
     Args:
     ----------
@@ -477,7 +478,8 @@ def refine_small_surfaces(
 
             # Refine the surface
             new_mesh_size = ((area / (nb_min_triangle)) / 0.43301270) ** 0.5
-            # computation : we want areaoftriangle to be totalarea/nbtriangle, and area of triangle = sqrt(3)/4 * (side = mesh size)^2
+            # computation : we want areaoftriangle to be totalarea/nbtriangle,
+            # and area of triangle = sqrt(3)/4 * (side = mesh size)^2
 
             # Set the color to indicate the bad surfaces
             gmsh.model.setColor([(2, surface_tag)], *MESH_COLORS["bad_surface"], recursive=False)
@@ -517,13 +519,17 @@ def refine_lines_with_acute_angles(
     te_le_already_refined, refine, aircraft_parts, mesh_fields, mesh_size_by_part, n_power
 ):
     """
-    Function to refine the mesh along edges with really small angles (as done for the leading and trailing edges, but for others)
-    WARNING : this function does not work for now. I feel like there is a problem when retrieving normals (often get (1,0,0) even when does not make sense)
+    Function to refine the mesh along edges with really small angles 
+        (as done for the leading and trailing edges, but for others)
+    WARNING : this function does not work for now. I feel like there is a problem
+        when retrieving normals (often get (1,0,0) even when does not make sense)
 
     Each line is inspected :
 
-    - if the angle between the adjacent surfaces is smaller than 72 degrees, we refine along this line
-    --> To compute the angle, we get the nodes along the line, then the normal at these nodes for each surface and compute the scalar product which is the cosinus
+    - if the angle between the adjacent surfaces is smaller than 72 degrees,
+        we refine along this line
+    --> To compute the angle, we get the nodes along the line, then the normal 
+        at these nodes for each surface and compute the scalar product which is the cosinus
 
 
     Args:
@@ -599,9 +605,10 @@ def refine_lines_with_acute_angles(
                         i, [params_i[2 * a], params_j[2 * a + 1]])
                     normal_j = gmsh.model.getNormal(
                         j, [params_i[2 * a], params_j[2 * a + 1]])
-                    # Compute cos of the angle between the normals (their norms are 1, so is equal to scalar product)
-                    cosalpha = (
-                        normal_i[0] * normal_j[0] + normal_i[1] * normal_j[1] + normal_i[2] * normal_j[2])
+                    # Compute cos of the angle between the normals
+                    #        (their norms are 1, so is equal to scalar product)
+                    cosalpha = (normal_i[0] * normal_j[0] + 
+                            normal_i[1] * normal_j[1] + normal_i[2] * normal_j[2])
                     if cosalpha < -0.3:  # (more than 72 degrees from being flat)
                         lines_with_angles_tag.append(line)
                         foundbigangle = True
@@ -627,8 +634,8 @@ def refine_lines_with_acute_angles(
         for k in range(len(surfs)):
             i = surfs[k]
             coordi = tags_coords_params[i]['coord']
-            for l in range(k + 1, len(surfs)):
-                j = surfs[l]
+            for jj in range(k + 1, len(surfs)):
+                j = surfs[jj]
                 coordj = tags_coords_params[j]['coord']
 
                 # Now search for nodes that are in both surfaces
@@ -654,7 +661,7 @@ def refine_lines_with_acute_angles(
             if foundbigangle:
                 break
 
-    lines_with_angles_tag = [l for l in lines_with_angles_tag if l not in te_le_already_refined]
+    lines_with_angles_tag = [li for li in lines_with_angles_tag if li not in te_le_already_refined]
     log.info(f"Lines to be refined are {lines_with_angles_tag}")
     log.info("Now start setting refinement")
 

@@ -268,8 +268,8 @@ def generate_2d_mesh_for_pentagrow(
     if refine_factor != 1:
         log.info("Start refinement of leading and trailing edge")
         # We want the lines already refined so we don't refined them afgain in the second function
-        mesh_fields, te_le_already_refined = refine_le_te(aircraft_parts, mesh_size_by_group["wing"], mesh_fields, refine_factor,
-                                                          refine_truncated=refine_truncated, n_power_factor=n_power_factor)
+        mesh_fields, te_le_already_refined = refine_le_te(
+            aircraft_parts, mesh_size_by_group["wing"], mesh_fields, refine_factor, refine_truncated=refine_truncated, n_power_factor=n_power_factor)
         log.info("Finished refinement of leading and trailing edge")
     else:
         te_le_already_refined = []
@@ -277,8 +277,9 @@ def generate_2d_mesh_for_pentagrow(
     log.info("Refinement process of other lines started")
     yes = True
     if auto_refine and refine_factor != 1 or yes:
-        mesh_fields = refine_lines_with_acute_angles(te_le_already_refined, refine=refine_factor_sharp_edges,
-                                                     aircraft_parts=aircraft_parts, mesh_fields=mesh_fields, mesh_size_by_part=mesh_size_by_group, n_power=n_power_factor)
+        mesh_fields = refine_lines_with_acute_angles(
+            te_le_already_refined, refine=refine_factor_sharp_edges,
+            aircraft_parts=aircraft_parts, mesh_fields=mesh_fields, mesh_size_by_part=mesh_size_by_group, n_power=n_power_factor)
         mesh_fields = min_fields(mesh_fields)
     log.info("Refining process finished")
     gmsh.model.occ.synchronize()
@@ -604,7 +605,7 @@ def sort_surfaces_and_create_physical_groups(
         # Compute the lines in each part by taking the boundary of surfaces (need them later for wing refinement)
         model_part.lines = gmsh.model.getBoundary(
             model_part.surfaces, combined=False, oriented=False)
-        model_part.lines_tags = [l[1] for l in model_part.lines]
+        model_part.lines_tags = [li[1] for li in model_part.lines]
 
 
 def refine_le_te(
@@ -625,7 +626,7 @@ def refine_le_te(
     refine_truncated : bool
         If set to true, the refinement can change to match the truncated te thickness
     n_power_factor : float
-        Power of how much refinement on the le and te TODO
+        Power of how much refinement on the le and te
     ...
     Returns:
     ----------

@@ -601,12 +601,13 @@ def aircraft_name(tixi_or_cpacs) -> str:
     return str(name)
 
 
-def get_part_type(tixi, part_uid: str) -> str:
+def get_part_type(tixi, part_uid: str, print_info=True) -> str:
     """The function get the type of the aircraft from the cpacs file.
 
     Args:
         cpacs_path (Path): Path to the CPACS file
         part_uid (str): UID of the part
+        print_info (bool): True if we print the part description
 
     Returns:
         part_type (str): Type of the part.
@@ -617,39 +618,25 @@ def get_part_type(tixi, part_uid: str) -> str:
     part_uid = part_uid.split("_mirrored")[0]
     part_xpath = tixi.uIDGetXPath(part_uid)
 
-    if "wings/wing" in part_xpath:
-        log.info(f"'{part_uid}' is a wing")
-        return "wing"
+    path_part = {
+        "wings/wing" : "wing",
+        "fuselages/fuselage" : "fuselage",
+        "enginePylons/enginePylon" : "pylon",
+        "engine/nacelle/fanCowl" : "fanCowl",
+        "engine/nacelle/centerCowl" : "centerCowl",
+        "engine/nacelle/coreCowl" : "coreCowl",
+        "vehicles/engines/engine" : "engine",
+        "vehicles/rotorcraft/model/rotors/rotor" : "rotor",
+    }
 
-    elif "fuselages/fuselage" in part_xpath:
-        log.info(f"'{part_uid}' is a fuselage")
-        return "fuselage"
+    for (path_name, part_name) in path_part.items():
+        if path_name in part_xpath:
+            if print_info:
+                log.info(f"'{part_uid}' is a {part_name}")
+            return part_name
 
-    elif "enginePylons/enginePylon" in part_xpath:
-        log.info(f"'{part_uid}' is a pylon")
-        return "pylon"
-
-    elif "engine/nacelle/fanCowl" in part_xpath:
-        log.info(f"'{part_uid}' is a fanCowl")
-        return "fanCowl"
-
-    elif "engine/nacelle/centerCowl" in part_xpath:
-        log.info(f"'{part_uid}' is a centerCowl")
-        return "centerCowl"
-
-    elif "engine/nacelle/coreCowl" in part_xpath:
-        log.info(f"'{part_uid}' is a coreCowl")
-        return "coreCowl"
-
-    elif "vehicles/engines/engine" in part_xpath:
-        log.info(f"'{part_uid}' is an engine")
-        return "engine"
-
-    elif "vehicles/rotorcraft/model/rotors/rotor" in part_xpath:
-        log.info(f"'{part_uid}' is an rotor")
-        return "rotor"
-
-    log.warning(f"'{part_uid}' cannot be categorized!")
+    if print_info:
+        log.warning(f"'{part_uid}' cannot be categorized!")
     return None
 
 

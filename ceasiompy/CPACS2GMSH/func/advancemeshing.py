@@ -433,7 +433,7 @@ def refine_small_surfaces(
     - if the surface area is very small compare to the mesh size of the part mesh
     the surface is remeshed with a smaller mesh size
         --> With parameters by default, if with mesh size we have less than 150 triangles
-            in the surface, we set the mesh size to have 150 triangles        
+            in the surface, we set the mesh size to have 150 triangles
 
     Args:
     ----------
@@ -519,7 +519,7 @@ def refine_lines_with_acute_angles(
     te_le_already_refined, refine, aircraft_parts, mesh_fields, mesh_size_by_part, n_power
 ):
     """
-    Function to refine the mesh along edges with really small angles 
+    Function to refine the mesh along edges with really small angles
         (as done for the leading and trailing edges, but for others)
     WARNING : this function does not work for now. I feel like there is a problem
         when retrieving normals (often get (1,0,0) even when does not make sense)
@@ -528,7 +528,7 @@ def refine_lines_with_acute_angles(
 
     - if the angle between the adjacent surfaces is smaller than 72 degrees,
         we refine along this line
-    --> To compute the angle, we get the nodes along the line, then the normal 
+    --> To compute the angle, we get the nodes along the line, then the normal
         at these nodes for each surface and compute the scalar product which is the cosinus
 
 
@@ -607,7 +607,7 @@ def refine_lines_with_acute_angles(
                         j, [params_i[2 * a], params_j[2 * a + 1]])
                     # Compute cos of the angle between the normals
                     #        (their norms are 1, so is equal to scalar product)
-                    cosalpha = (normal_i[0] * normal_j[0] + 
+                    cosalpha = (normal_i[0] * normal_j[0] +
                             normal_i[1] * normal_j[1] + normal_i[2] * normal_j[2])
                     if cosalpha < -0.3:  # (more than 72 degrees from being flat)
                         lines_with_angles_tag.append(line)

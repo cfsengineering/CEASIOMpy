@@ -114,12 +114,12 @@ def generate_2d_mesh_for_pentagrow(
         Power of how much refinement on the le and te (and for now in the
         "refine acute angle" as well)
     n_power_field: float
-        Coefficient ?? (Idk but not used here) 
+        Coefficient ?? (Idk but not used here)
     fuselage_mesh_size_factor : float
-        Factor of the fuselage mesh size : the mesh size will be the mean 
+        Factor of the fuselage mesh size : the mesh size will be the mean
         fuselage width divided by this factor
     wing_mesh_size_factor : float
-        Factor of the wing mesh size : the mesh size will be the mean 
+        Factor of the wing mesh size : the mesh size will be the mean
         fuselage width divided by this factor
     mesh_size_engines : float
         Size of the engines mesh
@@ -241,7 +241,8 @@ def generate_2d_mesh_for_pentagrow(
     mesh_size_by_group["vort"] = mesh_size_by_group["fuselage"] / 8
 
     log.info(
-        f"Mesh size fuselage={  ((fuselage_maxlen + fuselage_minlen) / 2) / fuselage_mesh_size_factor :.3f} m")
+        f"Mesh size fuselage={  ((fuselage_maxlen + fuselage_minlen) / 2) /\
+            fuselage_mesh_size_factor :.3f} m")
     log.info(
         f"Mesh size wing={((wing_maxlen * 0.8 + wing_minlen) /2) / wing_mesh_size_factor:.3f} m")
     log.info(f"Mesh size engine={mesh_size_engines:.3f} m")
@@ -260,7 +261,8 @@ def generate_2d_mesh_for_pentagrow(
 
         model_part.mesh_size = lc
         mesh_fields["nbfields"] += 1
-        # To choose the size, we create a field with constant value containing only our list of surfaces, and give it the size
+        # To choose the size, we create a field with constant value containing only our list
+        # of surfaces, and give it the size
         gmsh.model.mesh.field.add("Constant", mesh_fields["nbfields"])
         gmsh.model.mesh.field.setNumbers(
             mesh_fields["nbfields"], "SurfacesList", model_part.surfaces_tags)
@@ -275,7 +277,8 @@ def generate_2d_mesh_for_pentagrow(
         log.info("Start refinement of leading and trailing edge")
         # We want the lines already refined so we don't refined them again in the second function
         mesh_fields, te_le_already_refined = refine_le_te(
-            aircraft_parts, mesh_size_by_group["wing"], mesh_fields, refine_factor, refine_truncated=refine_truncated, n_power_factor=n_power_factor)
+            aircraft_parts, mesh_size_by_group["wing"], mesh_fields, refine_factor,
+            refine_truncated=refine_truncated, n_power_factor=n_power_factor)
         log.info("Finished refinement of leading and trailing edge")
     else:
         te_le_already_refined = []
@@ -285,7 +288,8 @@ def generate_2d_mesh_for_pentagrow(
     if auto_refine and refine_factor != 1 or yes:
         mesh_fields = refine_lines_with_acute_angles(
             te_le_already_refined, refine=refine_factor_sharp_edges,
-            aircraft_parts=aircraft_parts, mesh_fields=mesh_fields, mesh_size_by_part=mesh_size_by_group, n_power=n_power_factor)
+            aircraft_parts=aircraft_parts, mesh_fields=mesh_fields,
+            mesh_size_by_part=mesh_size_by_group, n_power=n_power_factor)
         mesh_fields = min_fields(mesh_fields)
     log.info("Refining process finished")
     gmsh.model.occ.synchronize()
@@ -452,7 +456,8 @@ def fusing_parts(
                 # or the order was wrong and we took a non connected piece
                 counter += 1
                 log.info(
-                    "Warning : the fusion did not give only one piece (will still try to see if  it's a question of order)")
+                    "Warning : the fusion did not give only one piece (will still try to see\
+                        if  it's a question of order)")
                 names = ["errorwhen" + names[i] + "+" + names[j]] + [
                     names[k]
                     for k in range(len(names))
@@ -468,7 +473,8 @@ def fusing_parts(
                     parts_dimtag[k]
                     for k in range(len(parts_dimtag))
                     if k != j and k != i
-                ] + fused_entities[1:]  # end should be empty but if there is a problem we let it stay
+                ] + fused_entities[1:]  # end should be empty but if there is a
+                #                           problem we let it stay
                 names = [names[i] + "+" + names[j]] + [
                     names[k]
                     for k in range(len(names))
@@ -481,10 +487,10 @@ def fusing_parts(
             r = random.sample(range(0, len(parts_dimtag)), min(4, len(parts_dimtag)))
             while len(r) < 4:
                 r.append(0)
-            parts_dimtag[r[0]], parts_dimtag[r[1]], parts_dimtag[r[2]], parts_dimtag[r[3]
-                                                                                     ] = parts_dimtag[r[1]], parts_dimtag[r[2]], parts_dimtag[r[3]], parts_dimtag[r[0]]
-            names[r[0]], names[r[1]], names[r[2]], names[r[3]
-                                                         ] = names[r[1]], names[r[2]], names[r[3]], names[r[0]]
+            parts_dimtag[r[0]], parts_dimtag[r[1]], parts_dimtag[r[2]], parts_dimtag[r[3]] =\
+                parts_dimtag[r[1]], parts_dimtag[r[2]], parts_dimtag[r[3]], parts_dimtag[r[0]]
+            names[r[0]], names[r[1]], names[r[2]], names[r[3]] =\
+                names[r[1]], names[r[2]], names[r[3]], names[r[0]]
         if counter > 20:
             # If here we have multiples times had problems with fusion and won't give one piece
             log.info(f"Warning : the end result is not in one piece. Parts by group : {names}")
@@ -561,7 +567,8 @@ def sort_surfaces_and_create_physical_groups(
         for j in range(len(newaircraft_parts)):
             new_part = newaircraft_parts[j]
             if old_part.uid == new_part.uid:
-                newaircraft_parts[i], newaircraft_parts[j] = newaircraft_parts[j], newaircraft_parts[i]
+                newaircraft_parts[i], newaircraft_parts[j] = newaircraft_parts[j], \
+                    newaircraft_parts[i]
                 break
 
     # Now for each surface count in how many different part it is
@@ -587,14 +594,16 @@ def sort_surfaces_and_create_physical_groups(
                 # We only get intersection if the surface is really along/inside the volume,
                 # which only happens if it is the volume it comes from.)
                 intersection = gmsh.model.occ.intersect(
-                    [(2, surf)], [newaircraft_parts[i].volume], removeObject=False, removeTool=False)[0]
+                    [(2, surf)], [newaircraft_parts[i].volume],
+                    removeObject=False, removeTool=False)[0]
                 # Remove intersection to have a clean result
                 gmsh.model.occ.remove(intersection, recursive=True)
                 if len(intersection) > 0:
                     # If found, remove the tag from the others parts, and we have finished
                     # for this surface
                     log.info(
-                        f"Surface {surf} was in multiple volumes and is classified into part {aircraft_parts[i].uid}")
+                        f"Surface {surf} was in multiple volumes and is classified into part\
+                            {aircraft_parts[i].uid}")
                     for j in parts_in:
                         if j != i:
                             aircraft_parts[j].surfaces.remove((2, surf))
@@ -604,7 +613,8 @@ def sort_surfaces_and_create_physical_groups(
                     # If we are here, we have found no part st the part is in, so there
                     # is a problem. We choose a part and hope for the best
                     log.info(
-                        f"Surface {surf} still in parts {[aircraft_parts[i].uid for i in parts_in]}, take off randomly")
+                        f"Surface {surf} still in parts {[aircraft_parts[i].uid for i in \
+                            parts_in]}, take off randomly")
                     for k in range(len(parts_in) - 1):
                         aircraft_parts[parts_in[k]].surfaces.remove((2, surf))
                         aircraft_parts[parts_in[k]].surfaces_tags.remove(surf)
@@ -651,12 +661,14 @@ def refine_le_te(
     Returns:
     ----------
     mesh_fields : set
-        Contains the updated number of used fields and the tag of the fields already used (under name "nbfields" and "restrict_fields")
+        Contains the updated number of used fields and the tag of the fields already used
+        (under name "nbfields" and "restrict_fields")
     """
     aircraft = ModelPart("aircraft")
     lines_refined = []
 
-    # For all the wing, we call the function classify that will detect the le and te between all the lines and compute the mean chord length
+    # For all the wing, we call the function classify that will detect the le and te between all
+    # the lines and compute the mean chord length
     for model_part in aircraft_parts:
         if model_part.part_type == "wing":
             classify_wing(model_part, aircraft_parts)

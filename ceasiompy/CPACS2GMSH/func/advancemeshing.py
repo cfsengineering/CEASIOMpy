@@ -556,7 +556,7 @@ def refine_lines_with_acute_angles(
     gmsh.model.mesh.generate(1)
     gmsh.model.occ.synchronize()
     # First we need to find which lines are the ones we want to refine
-    log.info(f"Now finding which lines need refinement")
+    log.info("Now finding which lines need refinement")
     lines = gmsh.model.getEntities(1)
     lines_with_angles_tag = []
     total = len(lines)
@@ -572,7 +572,7 @@ def refine_lines_with_acute_angles(
 
         foundbigangle = False
         # Get the adjacent surface, and the nodes
-        surfs, points = gmsh.model.getAdjacencies(dim, line)
+        surfs, _ = gmsh.model.getAdjacencies(dim, line)
         tags, coord, param = gmsh.model.mesh.getNodes(1, line)
         nbpoints = len(coord) // 3
         # Select at most 40 nodes (but 20 evenly spaces if too big)
@@ -617,13 +617,12 @@ def refine_lines_with_acute_angles(
         if line % step_lines == 0:
             log.info(f"{math.floor(line/total*100)}% done")
         foundbigangle = False
-        surfs, points = gmsh.model.getAdjacencies(dim, line)
+        surfs, _ = gmsh.model.getAdjacencies(dim, line)
         tags_coords_params = {-1: "yay"}
         # For each adjacent surface, get all the nodes
         for i in surfs:
             tags, coord, param = gmsh.model.mesh.getNodes(2, i, True)
-            dict = {'tags': tags, 'coord': coord, 'param': param}
-            tags_coords_params[i] = dict
+            tags_coords_params[i] = {'tags': tags, 'coord': coord, 'param': param}
         # Now see the surfaces two by two, to see their intersection
         for k in range(len(surfs)):
             i = surfs[k]
@@ -669,7 +668,7 @@ def refine_lines_with_acute_angles(
         m = size[1] / 4
         for s in surfaces_tags:
             # Get all the lines that are adjacent and need refinement
-            [adjacent_vols, adjacent_lines] = gmsh.model.getAdjacencies(2, s)
+            [_, adjacent_lines] = gmsh.model.getAdjacencies(2, s)
             lines_to_refine = list(set(adjacent_lines) & set(lines_with_angles_tag))
             for l in lines_to_refine:
                 log.info(f"Refining line {l} in surface {s} in part {part.uid}")

@@ -146,7 +146,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
                 feature_angle=feature_angle,
             )
 
-            pentagrow_3d_mesh(
+            su2mesh_path = pentagrow_3d_mesh(
                 wkdir,
                 cfg_params=rans_cfg_params,
                 surf=surf,

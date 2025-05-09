@@ -601,13 +601,13 @@ def aircraft_name(tixi_or_cpacs) -> str:
     return str(name)
 
 
-def get_part_type(tixi, part_uid: str, print=True) -> str:
+def get_part_type(tixi, part_uid: str, print_info=True) -> str:
     """The function get the type of the aircraft from the cpacs file.
 
     Args:
         cpacs_path (Path): Path to the CPACS file
         part_uid (str): UID of the part
-        print (bool): True if we print the part description
+        print_info (bool): True if we print the part description
 
     Returns:
         part_type (str): Type of the part.
@@ -619,46 +619,46 @@ def get_part_type(tixi, part_uid: str, print=True) -> str:
     part_xpath = tixi.uIDGetXPath(part_uid)
 
     if "wings/wing" in part_xpath:
-        if print:
+        if print_info:
             log.info(f"'{part_uid}' is a wing")
         return "wing"
 
     elif "fuselages/fuselage" in part_xpath:
-        if print:
+        if print_info:
             log.info(f"'{part_uid}' is a fuselage")
         return "fuselage"
 
     elif "enginePylons/enginePylon" in part_xpath:
-        if print:
+        if print_info:
             log.info(f"'{part_uid}' is a pylon")
         return "pylon"
 
     elif "engine/nacelle/fanCowl" in part_xpath:
-        if print:
+        if print_info:
             log.info(f"'{part_uid}' is a fanCowl")
         return "fanCowl"
 
     elif "engine/nacelle/centerCowl" in part_xpath:
-        if print:
+        if print_info:
             log.info(f"'{part_uid}' is a centerCowl")
         return "centerCowl"
 
     elif "engine/nacelle/coreCowl" in part_xpath:
-        if print:
+        if print_info:
             log.info(f"'{part_uid}' is a coreCowl")
         return "coreCowl"
 
     elif "vehicles/engines/engine" in part_xpath:
-        if print:
+        if print_info:
             log.info(f"'{part_uid}' is an engine")
         return "engine"
 
     elif "vehicles/rotorcraft/model/rotors/rotor" in part_xpath:
-        if print:
+        if print_info:
             log.info(f"'{part_uid}' is an rotor")
         return "rotor"
 
-    if print:
+    if print_info:
         log.warning(f"'{part_uid}' cannot be categorized!")
     return None
 

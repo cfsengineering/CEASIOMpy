@@ -14,8 +14,6 @@ GUI Interface of CPACS2GMSH.
 #   IMPORTS
 # ==============================================================================
 
-from pathlib import Path
-
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log

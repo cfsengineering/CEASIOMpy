@@ -48,7 +48,7 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_wing_section,
     min_fields,
     refine_small_surfaces,
-    refine_lines_with_acute_angles,
+    refine_other_lines,
 )
 from ceasiompy.utils.ceasiompyutils import (
     bool_,
@@ -286,7 +286,7 @@ def generate_2d_mesh_for_pentagrow(
     log.info("Refinement process of other lines started")
     yes = True
     if auto_refine and refine_factor != 1 or yes:
-        mesh_fields = refine_lines_with_acute_angles(
+        mesh_fields = refine_other_lines(
             te_le_already_refined, refine=refine_factor_sharp_edges,
             aircraft_parts=aircraft_parts, mesh_fields=mesh_fields,
             mesh_size_by_part=mesh_size_by_group, n_power=n_power_factor)
@@ -613,8 +613,8 @@ def sort_surfaces_and_create_physical_groups(
                     # If we are here, we have found no part st the part is in, so there
                     # is a problem. We choose a part and hope for the best
                     log.info(
-                        f"Surface {surf} still in parts {[aircraft_parts[i].uid for i in \
-                            parts_in]}, take off randomly")
+                        f"Surface {surf} still in parts\
+                            {[aircraft_parts[i].uid for i in parts_in]}, take off randomly")
                     for k in range(len(parts_in) - 1):
                         aircraft_parts[parts_in[k]].surfaces.remove((2, surf))
                         aircraft_parts[parts_in[k]].surfaces_tags.remove(surf)

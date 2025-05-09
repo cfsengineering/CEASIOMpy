@@ -515,7 +515,7 @@ def refine_small_surfaces(
     return refined_surfaces, mesh_fields
 
 
-def refine_lines_with_acute_angles(
+def refine_other_lines(
     te_le_already_refined, refine, aircraft_parts, mesh_fields, mesh_size_by_part, n_power
 ):
     """
@@ -570,7 +570,7 @@ def refine_lines_with_acute_angles(
 
     # A better and faster solution, but somehow doesn't work.
     # The problem seems to be sometimes the normal we get doesn't make sense
-    '''
+    """
     for (dim, line) in lines:
         # Show progress
         if line % step_lines == 0:
@@ -617,7 +617,7 @@ def refine_lines_with_acute_angles(
                     break
             if foundbigangle:
                 break
-    '''
+    """
 
     # We see every line
     for (dim, line) in lines:
@@ -631,13 +631,11 @@ def refine_lines_with_acute_angles(
             tags, coord, param = gmsh.model.mesh.getNodes(2, i, True)
             tags_coords_params[i] = {'tags': tags, 'coord': coord, 'param': param}
         # Now see the surfaces two by two, to see their intersection
-        for k in range(len(surfs)):
-            i = surfs[k]
+        for k, i in enumerate(surfs):
+            # i is surface nb, k in index in surfs
             coordi = tags_coords_params[i]['coord']
-            for jj in range(k + 1, len(surfs)):
-                j = surfs[jj]
+            for _ , j in enumerate(surfs, k + 1):
                 coordj = tags_coords_params[j]['coord']
-
                 # Now search for nodes that are in both surfaces
                 for a in range(len(coordi) // 3):
                     for b in range(len(coordj) // 3):

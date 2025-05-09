@@ -132,17 +132,14 @@ def generate_2d_mesh_for_pentagrow(
     """
 
     # Need a fix and function add_disk_actuator to make this part work
-    """
     # Determine if rotor are present in the aircraft model
-    rotor_model = False
-    if Path(brep_dir, "config_rotors.cfg").exists():
-        rotor_model = True
-
-    if rotor_model:
-        log.info("Adding disk actuator")
-        config_file = ConfigFile(Path(brep_dir, "config_rotors.cfg"))
-        add_disk_actuator(brep_dir, config_file)
-    """
+    # rotor_model = False
+    # if Path(brep_dir, "config_rotors.cfg").exists():
+    #    rotor_model = True
+    # if rotor_model:
+    #    log.info("Adding disk actuator")
+    #    config_file = ConfigFile(Path(brep_dir, "config_rotors.cfg"))
+    #    add_disk_actuator(brep_dir, config_file)
 
     # Retrieve all brep
     brep_files = list(brep_dir.glob("*.brep"))
@@ -572,49 +569,15 @@ def sort_surfaces_and_create_physical_groups(
     for surf in all_surfaces_tag:
         # Count all the parts surf is in
         parts_in = []
-        for i in range(len(aircraft_parts)):
-            model_part = aircraft_parts[i]
+        for i, model_part in enumerate(aircraft_parts):
             for surff in model_part.surfaces_tags:
                 if surff == surf:
                     parts_in.append(i)
 
         # Now deal with it if in more than one part
         if len(parts_in) > 1:
-            for i in parts_in:
-                # This is maybe overcomplicated, but gmsh doesn't keep the tags of surfaces when
-                # fused so we have to find a way to rematch them to their original part
-                # Compute intersection (which is a surface) of surface with the original
-                # shape/part. If there is an intersection, it means that it is the shape
-                # that the surface was on.
-                # (Precision : gmsh doesn't compute curves (or in general entity of smaller dim)
-                # at intersection for some reason, which is why it works.
-                # We only get intersection if the surface is really along/inside the volume,
-                # which only happens if it is the volume it comes from.)
-                intersection = gmsh.model.occ.intersect(
-                    [(2, surf)], [newaircraft_parts[i].volume],
-                    removeObject=False, removeTool=False)[0]
-                # Remove intersection to have a clean result
-                gmsh.model.occ.remove(intersection, recursive=True)
-                if len(intersection) > 0:
-                    # If found, remove the tag from the others parts, and we have finished
-                    # for this surface
-                    log.info(
-                        f"Surface {surf} was in multiple volumes and is classified into part\
-                            {aircraft_parts[i].uid}")
-                    for j in parts_in:
-                        if j != i:
-                            aircraft_parts[j].surfaces.remove((2, surf))
-                            aircraft_parts[j].surfaces_tags.remove(surf)
-                    break
-                elif i == parts_in[-1]:
-                    # If we are here, we have found no part st the part is in, so there
-                    # is a problem. We choose a part and hope for the best
-                    log.info(
-                        f"Surface {surf} still in parts\
-                            {[aircraft_parts[i].uid for i in parts_in]}, take off randomly")
-                    for k in range(len(parts_in) - 1):
-                        aircraft_parts[parts_in[k]].surfaces.remove((2, surf))
-                        aircraft_parts[parts_in[k]].surfaces_tags.remove(surf)
+            choose_correct_part(parts_in, surf, aircraft_parts, newaircraft_parts)
+
     # Remove the parts we re-imported, to get a clean result (we won't need them anymore)
     gmsh.model.occ.remove(
         [model_part.volume for model_part in newaircraft_parts], recursive=True)
@@ -633,6 +596,44 @@ def sort_surfaces_and_create_physical_groups(
         model_part.lines = gmsh.model.getBoundary(
             model_part.surfaces, combined=False, oriented=False)
         model_part.lines_tags = [li[1] for li in model_part.lines]
+
+
+def choose_correct_part(parts_in, surf, aircraft_parts, newaircraft_parts):
+    for i in parts_in:
+        # This is maybe overcomplicated, but gmsh doesn't keep the tags of surfaces when
+        # fused so we have to find a way to rematch them to their original part
+        # Compute intersection (which is a surface) of surface with the original
+        # shape/part. If there is an intersection, it means that it is the shape
+        # that the surface was on.
+        # (Precision : gmsh doesn't compute curves (or in general entity of smaller dim)
+        # at intersection for some reason, which is why it works.
+        # We only get intersection if the surface is really along/inside the volume,
+        # which only happens if it is the volume it comes from.)
+        intersection = gmsh.model.occ.intersect(
+            [(2, surf)], [newaircraft_parts[i].volume],
+            removeObject=False, removeTool=False)[0]
+        # Remove intersection to have a clean result
+        gmsh.model.occ.remove(intersection, recursive=True)
+        if len(intersection) > 0:
+            # If found, remove the tag from the others parts, and we have finished
+            # for this surface
+            log.info(
+                f"Surface {surf} was in multiple volumes and is classified into part\
+                    {aircraft_parts[i].uid}")
+            for j in parts_in:
+                if j != i:
+                    aircraft_parts[j].surfaces.remove((2, surf))
+                    aircraft_parts[j].surfaces_tags.remove(surf)
+            break
+        elif i == parts_in[-1]:
+            # If we are here, we have found no part st the part is in, so there
+            # is a problem. We choose a part and hope for the best
+            log.info(
+                f"Surface {surf} still in parts\
+                    {[aircraft_parts[i].uid for i in parts_in]}, take off randomly")
+            for k in range(len(parts_in) - 1):
+                aircraft_parts[parts_in[k]].surfaces.remove((2, surf))
+                aircraft_parts[parts_in[k]].surfaces_tags.remove(surf)
 
 
 def refine_le_te(

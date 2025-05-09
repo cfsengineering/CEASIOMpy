@@ -570,60 +570,58 @@ def refine_other_lines(
 
     # A better and faster solution, but somehow doesn't work.
     # The problem seems to be sometimes the normal we get doesn't make sense
-    """
-    for (dim, line) in lines:
-        # Show progress
-        if line % step_lines == 0:
-            log.info(f"{math.floor(line/total*100)}% done")
+    # for (dim, line) in lines:
+    #     # Show progress
+    #     if line % step_lines == 0:
+    #         log.info(f"{math.floor(line/total*100)}% done")
 
-        foundbigangle = False
-        # Get the adjacent surface, and the nodes
-        surfs, _ = gmsh.model.getAdjacencies(dim, line)
-        tags, coord, param = gmsh.model.mesh.getNodes(1, line)
-        nbpoints = len(coord) // 3
-        # Select at most 40 nodes (but 20 evenly spaces if too big)
-        step = nbpoints // 20
-        if nbpoints < 40:
-            coord_small = coord
-        else:
-            coord_small = []
-            for i in range(20):
-                coord_small.extend(
-                    [coord[step * 3 * i], coord[step * 3 * i + 1], coord[step * 3 * i + 2]])
+    #     foundbigangle = False
+    #     # Get the adjacent surface, and the nodes
+    #     surfs, _ = gmsh.model.getAdjacencies(dim, line)
+    #     tags, coord, param = gmsh.model.mesh.getNodes(1, line)
+    #     nbpoints = len(coord) // 3
+    #     # Select at most 40 nodes (but 20 evenly spaces if too big)
+    #     step = nbpoints // 20
+    #     if nbpoints < 40:
+    #         coord_small = coord
+    #     else:
+    #         coord_small = []
+    #         for i in range(20):
+    #             coord_small.extend(
+    #                 [coord[step * 3 * i], coord[step * 3 * i + 1], coord[step * 3 * i + 2]])
 
-        # Now test for every 2 surfaces along line (usually always one or two surfaces total)
-        # And if one, can't be a weird angle
-        for k in range(len(surfs)):
-            i = surfs[k]
-            params_i = gmsh.model.getParametrization(2, i, coord_small)
-            for l in range(k + 1, len(surfs)):
-                j = surfs[l]
-                params_j = gmsh.model.getParametrization(2, j, coord_small)
-                for a in range(len(coord_small) // 3):
-                    # For each point, get the normal to the surface
-                    normal_i = gmsh.model.getNormal(
-                        i, [params_i[2 * a], params_j[2 * a + 1]])
-                    normal_j = gmsh.model.getNormal(
-                        j, [params_i[2 * a], params_j[2 * a + 1]])
-                    # Compute cos of the angle between the normals
-                    #        (their norms are 1, so is equal to scalar product)
-                    cosalpha = (normal_i[0] * normal_j[0] +
-                            normal_i[1] * normal_j[1] + normal_i[2] * normal_j[2])
-                    if cosalpha < -0.3:  # (more than 72 degrees from being flat)
-                        lines_with_angles_tag.append(line)
-                        foundbigangle = True
-                        break
-                if foundbigangle:
-                    break
-            if foundbigangle:
-                break
-    """
+    #     # Now test for every 2 surfaces along line (usually always one or two surfaces total)
+    #     # And if one, can't be a weird angle
+    #     for k in range(len(surfs)):
+    #         i = surfs[k]
+    #         params_i = gmsh.model.getParametrization(2, i, coord_small)
+    #         for l in range(k + 1, len(surfs)):
+    #             j = surfs[l]
+    #             params_j = gmsh.model.getParametrization(2, j, coord_small)
+    #             for a in range(len(coord_small) // 3):
+    #                 # For each point, get the normal to the surface
+    #                 normal_i = gmsh.model.getNormal(
+    #                     i, [params_i[2 * a], params_j[2 * a + 1]])
+    #                 normal_j = gmsh.model.getNormal(
+    #                     j, [params_i[2 * a], params_j[2 * a + 1]])
+    #                 # Compute cos of the angle between the normals
+    #                 #        (their norms are 1, so is equal to scalar product)
+    #                 cosalpha = (normal_i[0] * normal_j[0] +
+    #                         normal_i[1] * normal_j[1] + normal_i[2] * normal_j[2])
+    #                 if cosalpha < -0.3:  # (more than 72 degrees from being flat)
+    #                     lines_with_angles_tag.append(line)
+    #                     foundbigangle = True
+    #                     break
+    #             if foundbigangle:
+    #                 break
+    #         if foundbigangle:
+    #             break
 
     # We see every line
+    lines_with_angles_tag = []
     for (dim, line) in lines:
         if line % step_lines == 0:
             log.info(f"{math.floor(line/total*100)}% done")
-        foundbigangle = False
         surfs, _ = gmsh.model.getAdjacencies(dim, line)
         tags_coords_params = {-1: "yay"}
         # For each adjacent surface, get all the nodes
@@ -631,42 +629,9 @@ def refine_other_lines(
             tags, coord, param = gmsh.model.mesh.getNodes(2, i, True)
             tags_coords_params[i] = {'tags': tags, 'coord': coord, 'param': param}
         # Now see the surfaces two by two, to see their intersection
-        for k, i in enumerate(surfs):
-            # i is surface nb, k in index in surfs
-            coordi = tags_coords_params[i]['coord']
-            for _ , j in enumerate(surfs, k + 1):
-                coordj = tags_coords_params[j]['coord']
-                # Now search for nodes that are in both surfaces
-                for a in range(len(coordi) // 3):
-                    for b in range(len(coordj) // 3):
-                        if coordi[3 * a] == coordj[3 * b] and\
-                            coordi[3 * a + 1] == coordj[3 * b + 1] and\
-                                coordi[3 * a + 2] == coordj[3 * b + 2]:
-                            # if here, we have found a node that is in both. Get the normal at
-                            # this node of the two surfaces
-                            normal_i = gmsh.model.getNormal(
-                                i,
-                                [tags_coords_params[i]['param'][2 * a],
-                                 tags_coords_params[i]['param'][2 * a + 1]])
-                            normal_j = gmsh.model.getNormal(
-                                j,
-                                [tags_coords_params[j]['param'][2 * b],
-                                 tags_coords_params[j]['param'][2 * b + 1]]
-                            )
-                            # Compute  cosinus which is the scalar product as the normals
-                            # are of norm 1
-                            cosalpha = (normal_i[0] * normal_j[0] + normal_i[1]
-                                        * normal_j[1] + normal_i[2] * normal_j[2])
-                            if cosalpha < -0.7:  # (more than 45 degrees from being flat)
-                                lines_with_angles_tag.append(line)
-                                foundbigangle = True
-                                break
-                    if foundbigangle:
-                        break
-                if foundbigangle:
-                    break
-            if foundbigangle:
-                break
+        big_angle = compute_angle_surfaces(surfs, tags_coords_params)
+        if big_angle:
+            lines_with_angles_tag.append(line)
 
     lines_with_angles_tag = [li for li in lines_with_angles_tag if li not in te_le_already_refined]
     log.info(f"Lines to be refined are {lines_with_angles_tag}")
@@ -685,40 +650,81 @@ def refine_other_lines(
             # Get all the lines that are adjacent and need refinement
             [_, adjacent_lines] = gmsh.model.getAdjacencies(2, s)
             lines_to_refine = list(set(adjacent_lines) & set(lines_with_angles_tag))
-            for line in lines_to_refine:
-                log.info(f"Refining line {line} in surface {s} in part {part.uid}")
-
-                # 1 : Math eval field
-                mesh_fields["nbfields"] += 1
-                gmsh.model.mesh.field.add("Distance", mesh_fields["nbfields"])
-                gmsh.model.mesh.field.setNumbers(
-                    mesh_fields["nbfields"], "CurvesList", [line])
-                gmsh.model.mesh.field.setNumber(
-                    mesh_fields["nbfields"], "Sampling", 200)
-
-                # 2 : Create a mesh function for the line (Matheval field)
-                mesh_fields["nbfields"] += 1
-                gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
-                gmsh.model.mesh.field.setString(
-                    mesh_fields["nbfields"],
-                    "F",
-                    f"({mesh_size}/{refine}) + "
-                    f"{mesh_size}*(1-(1/{refine}))*"
-                    f"(F{mesh_fields['nbfields']-1}/{m})^{n_power}",
-                )
-
-                # 3 : Create the restrict field
-                mesh_fields["nbfields"] += 1
-                gmsh.model.mesh.field.add("Restrict", mesh_fields["nbfields"])
-                gmsh.model.mesh.field.setNumbers(
-                    mesh_fields["nbfields"], "SurfacesList", [s])
-                gmsh.model.mesh.field.setNumber(
-                    mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1)
-                mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
-                gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
-                gmsh.model.occ.synchronize()
+            refine_surface(part.uid, lines_to_refine, s, mesh_fields,
+                           m, n_power, refine, mesh_size)
 
     return mesh_fields
+
+
+def refine_surface(
+    part_uid, lines_to_refine, s, mesh_fields, m, n_power, refine, mesh_size
+):
+    for line in lines_to_refine:
+        log.info(f"Refining line {line} in surface {s} in part {part_uid}")
+
+        # 1 : Math eval field
+        mesh_fields["nbfields"] += 1
+        gmsh.model.mesh.field.add("Distance", mesh_fields["nbfields"])
+        gmsh.model.mesh.field.setNumbers(
+            mesh_fields["nbfields"], "CurvesList", [line])
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "Sampling", 200)
+
+        # 2 : Create a mesh function for the line (Matheval field)
+        mesh_fields["nbfields"] += 1
+        gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
+        gmsh.model.mesh.field.setString(
+            mesh_fields["nbfields"],
+            "F",
+            f"({mesh_size}/{refine}) + "
+            f"{mesh_size}*(1-(1/{refine}))*"
+            f"(F{mesh_fields['nbfields']-1}/{m})^{n_power}",
+        )
+
+        # 3 : Create the restrict field
+        mesh_fields["nbfields"] += 1
+        gmsh.model.mesh.field.add("Restrict", mesh_fields["nbfields"])
+        gmsh.model.mesh.field.setNumbers(
+            mesh_fields["nbfields"], "SurfacesList", [s])
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1)
+        mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
+        gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
+        gmsh.model.occ.synchronize()
+
+
+def compute_angle_surfaces(
+    surfs, tags_coords_params
+):
+    for k, i in enumerate(surfs):
+        # i is surface nb, k in index in surfs
+        coordi = tags_coords_params[i]['coord']
+        for _ , j in enumerate(surfs, k + 1):
+            coordj = tags_coords_params[j]['coord']
+            # Now search for nodes that are in both surfaces
+            for a in range(len(coordi) // 3):
+                for b in range(len(coordj) // 3):
+                    if coordi[3 * a] == coordj[3 * b] and\
+                        coordi[3 * a + 1] == coordj[3 * b + 1] and\
+                            coordi[3 * a + 2] == coordj[3 * b + 2]:
+                        # if here, we have found a node that is in both. Get the normal at
+                        # this node of the two surfaces
+                        normal_i = gmsh.model.getNormal(
+                            i,
+                            [tags_coords_params[i]['param'][2 * a],
+                                tags_coords_params[i]['param'][2 * a + 1]])
+                        normal_j = gmsh.model.getNormal(
+                            j,
+                            [tags_coords_params[j]['param'][2 * b],
+                                tags_coords_params[j]['param'][2 * b + 1]]
+                        )
+                        # Compute  cosinus which is the scalar product as the normals
+                        # are of norm 1
+                        cosalpha = (normal_i[0] * normal_j[0] + normal_i[1]
+                                    * normal_j[1] + normal_i[2] * normal_j[2])
+                        if cosalpha < -0.7:  # (more than 45 degrees from being flat)
+                            return True
+    return False
 
 # =================================================================================================
 #    MAIN

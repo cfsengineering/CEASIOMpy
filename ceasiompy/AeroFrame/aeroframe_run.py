@@ -34,16 +34,16 @@ from cpacspy.cpacsfunctions import (
     get_value_or_default,
     create_branch,
 )
-from ceasiompy.AeroFrame_new.func.results import (
+from ceasiompy.AeroFrame.func.results import (
     compute_deformations,
     plot_translations_rotations,
     plot_convergence
 )
-from ceasiompy.AeroFrame_new.func.plot import (
+from ceasiompy.AeroFrame.func.plot import (
     plot_fem_mesh,
     plot_deformed_wing
 )
-from ceasiompy.AeroFrame_new.func.config import (
+from ceasiompy.AeroFrame.func.config import (
     read_avl_fe_file,
     create_framat_model,
     get_material_properties,
@@ -55,7 +55,7 @@ from ceasiompy.AeroFrame_new.func.config import (
 )
 
 from ceasiompy import log
-from ceasiompy.AeroFrame_new import (
+from ceasiompy.AeroFrame import (
     MODULE_NAME,
     FRAMAT_RESULTS_XPATH,
     FRAMAT_MESH_XPATH,

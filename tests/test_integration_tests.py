@@ -30,7 +30,7 @@ from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
 from ceasiompy.CPACSUpdater import MODULE_NAME as CPACSUPDATER
 from ceasiompy.SaveAeroCoefficients import MODULE_NAME as SAVEAEROCOEF
-from ceasiompy.AeroFrame_new import MODULE_NAME as AEROFRAMENEW
+from ceasiompy.AeroFrame import MODULE_NAME as AEROFRAMENEW
 
 # =================================================================================================
 #   CONSTANTS

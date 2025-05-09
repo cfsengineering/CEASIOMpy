@@ -21,7 +21,7 @@ from ceasiompy.PyAVL import (
     AVL_NCHORDWISE_XPATH,
     AVL_NSPANWISE_XPATH,
 )
-from ceasiompy.AeroFrame_new import (
+from ceasiompy.AeroFrame import (
     INCLUDE_GUI,
     FRAMAT_MATERIAL_XPATH,
     FRAMAT_SECTION_XPATH,

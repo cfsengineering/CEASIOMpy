@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Script to ...
+Utily functions for aeroframe.
 
 | Author: Romain Gauthier
 | Creation: 2024-06-17
@@ -13,11 +13,10 @@ Script to ...
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
+
 import numpy as np
 
 from shapely.geometry import Polygon
-
-from ceasiompy import log
 
 # =================================================================================================
 #   FUNCTIONS
@@ -51,12 +50,3 @@ def second_moments_of_area(x, y):
     Iy /= 12
 
     return Ix, Iy
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-
-    log.info("Nothing to execute!")

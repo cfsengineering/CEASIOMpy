@@ -142,81 +142,84 @@ def leadingedge_coordinates(
         edge_xpath = "/componentSegments/componentSegment"
         bis_xpath = "/controlSurfaces/trailingEdgeDevices"
         control_xpath_base = wing_xpath + edge_xpath + bis_xpath
-        num_devices = tixi.getNumberOfChilds(control_xpath_base)
+        # Check if the control surfaces path exists
+        if tixi.checkElement(control_xpath_base):
 
-        for i in range(1, num_devices + 1):
-            control_xpath = f"{control_xpath_base}/trailingEdgeDevice[{i}]"
-            control_uid = tixi.getTextAttribute(control_xpath, "uID")
-            innerhingeXsi_xpath = control_xpath + "/path/innerHingePoint/hingeXsi"
-            outerhingeXsi_xpath = control_xpath + "/path/outerHingePoint/hingeXsi"
-            innerhingeXsi = float(get_value(tixi, innerhingeXsi_xpath))
-            outerhingeXsi = float(get_value(tixi, outerhingeXsi_xpath))
+            num_devices = tixi.getNumberOfChilds(control_xpath_base)
 
-            innerEta_xpath = control_xpath + "/outerShape/innerBorder/etaTE/eta"
-            outerEta_xpath = control_xpath + "/outerShape/outerBorder/etaTE/eta"
+            for i in range(1, num_devices + 1):
+                control_xpath = f"{control_xpath_base}/trailingEdgeDevice[{i}]"
+                control_uid = tixi.getTextAttribute(control_xpath, "uID")
+                innerhingeXsi_xpath = control_xpath + "/path/innerHingePoint/hingeXsi"
+                outerhingeXsi_xpath = control_xpath + "/path/outerHingePoint/hingeXsi"
+                innerhingeXsi = float(get_value(tixi, innerhingeXsi_xpath))
+                outerhingeXsi = float(get_value(tixi, outerhingeXsi_xpath))
 
-            innerEta = float(get_value(tixi, innerEta_xpath))
-            outerEta = float(get_value(tixi, outerEta_xpath))
+                innerEta_xpath = control_xpath + "/outerShape/innerBorder/etaTE/eta"
+                outerEta_xpath = control_xpath + "/outerShape/outerBorder/etaTE/eta"
 
-            x_axis = (outerhingeXsi - innerhingeXsi) * c_ref
-            y_axis = (outerEta - innerEta) * s_ref
-            z_axis = 0.0
+                innerEta = float(get_value(tixi, innerEta_xpath))
+                outerEta = float(get_value(tixi, outerEta_xpath))
 
-            CONTROL_DICT = {
-                "InnerFlap": {
-                    "i_sec": [0, 1],
-                    "type": "flap",
-                    "axis": f"{x_axis} {y_axis} {z_axis}",
-                    "bool": [1.0, 1.0],
-                },
-                "OuterFlap": {
-                    "i_sec": [1, 2],
-                    "type": "flap",
-                    "axis": f"{x_axis} {y_axis} {z_axis}",
-                    "bool": [1.0, 1.0],
-                },
-                "Aileron": {
-                    "i_sec": [2, 3],
-                    "type": "aileron",
-                    "axis": f"{x_axis} {y_axis} {z_axis}",
-                    "bool": [-1.0, -1.0],
-                },
-                "Elevator": {
-                    "i_sec": [0, 1],
-                    "type": "elevator",
-                    "axis": f"{x_axis} {y_axis} {z_axis}",
-                    "bool": [1.0, 1.0],
-                },
-                "Rudder": {
-                    "i_sec": [0, 1],
-                    "type": "rudder",
-                    "axis": f"{x_axis} {z_axis} {y_axis}",
-                    "bool": [-1.0, -1.0],
-                },
-            }
-            control_type = CONTROL_DICT[control_uid]["type"]
+                x_axis = (outerhingeXsi - innerhingeXsi) * c_ref
+                y_axis = (outerEta - innerEta) * s_ref
+                z_axis = 0.0
 
-            if i_sec == CONTROL_DICT[control_uid]["i_sec"][0]:
-                write_control(
-                    avl_file,
-                    control_type,
-                    innerhingeXsi,
-                    CONTROL_DICT[control_uid]["axis"],
-                    CONTROL_DICT[control_uid]["bool"][0],
-                )
-            elif i_sec == CONTROL_DICT[control_uid]["i_sec"][1]:
-                write_control(
-                    avl_file,
-                    control_type,
-                    outerhingeXsi,
-                    CONTROL_DICT[control_uid]["axis"],
-                    CONTROL_DICT[control_uid]["bool"][1],
-                )
-            else:
-                log.warning(
-                    f"Issue with {control_uid} control surface "
-                    f"at section {i_sec} of wing number {i_wing}."
-                )
+                CONTROL_DICT = {
+                    "InnerFlap": {
+                        "i_sec": [0, 1],
+                        "type": "flap",
+                        "axis": f"{x_axis} {y_axis} {z_axis}",
+                        "bool": [1.0, 1.0],
+                    },
+                    "OuterFlap": {
+                        "i_sec": [1, 2],
+                        "type": "flap",
+                        "axis": f"{x_axis} {y_axis} {z_axis}",
+                        "bool": [1.0, 1.0],
+                    },
+                    "Aileron": {
+                        "i_sec": [2, 3],
+                        "type": "aileron",
+                        "axis": f"{x_axis} {y_axis} {z_axis}",
+                        "bool": [-1.0, -1.0],
+                    },
+                    "Elevator": {
+                        "i_sec": [0, 1],
+                        "type": "elevator",
+                        "axis": f"{x_axis} {y_axis} {z_axis}",
+                        "bool": [1.0, 1.0],
+                    },
+                    "Rudder": {
+                        "i_sec": [0, 1],
+                        "type": "rudder",
+                        "axis": f"{x_axis} {z_axis} {y_axis}",
+                        "bool": [-1.0, -1.0],
+                    },
+                }
+                control_type = CONTROL_DICT[control_uid]["type"]
+
+                if i_sec == CONTROL_DICT[control_uid]["i_sec"][0]:
+                    write_control(
+                        avl_file,
+                        control_type,
+                        innerhingeXsi,
+                        CONTROL_DICT[control_uid]["axis"],
+                        CONTROL_DICT[control_uid]["bool"][0],
+                    )
+                elif i_sec == CONTROL_DICT[control_uid]["i_sec"][1]:
+                    write_control(
+                        avl_file,
+                        control_type,
+                        outerhingeXsi,
+                        CONTROL_DICT[control_uid]["axis"],
+                        CONTROL_DICT[control_uid]["bool"][1],
+                    )
+                else:
+                    log.warning(
+                        f"Issue with {control_uid} control surface "
+                        f"at section {i_sec} of wing number {i_wing}."
+                    )
 
         avl_file.write("AFILE\n")
         avl_file.write(foil_dat_path + "\n\n")

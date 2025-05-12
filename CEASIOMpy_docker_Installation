@@ -100,7 +100,7 @@ RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && conda activate cea
 # Automatically activate the Conda environment in new shells
 RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
     echo "conda activate ceasiompy" >> ~/.bashrc && \
-    echo "ceasiompy_run --gui" >> ~/.bashrc
+    echo "python src/bin/ceasiompy_run --gui" >> ~/.bashrc
 
 # Move the content of /INSTALLDIR to the mounted /CEASIOMpy/INSTALLDIR folder at runtime
 CMD ["/bin/bash", "-c", "rm -rf /CEASIOMpy/INSTALLDIR && mkdir -p /CEASIOMpy/INSTALLDIR && mv /INSTALLDIR/* /CEASIOMpy/INSTALLDIR/ && exec bash"]

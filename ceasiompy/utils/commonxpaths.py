@@ -159,16 +159,6 @@ ENGINE_BC = CEASIOMPY_XPATH + "/BC"
 ENGINE_BC_TEMPERATUREOUTLET_XPATH = ENGINE_BC + "/TemperatureOutlet"
 ENGINE_BC_PRESSUREOUTLET_XPATH = ENGINE_BC + "/PressureOutlet"
 
-# FramAT
-FRAMAT_XPATH = CEASIOMPY_XPATH + "/structure/FramAT"
-FRAMAT_MATERIAL_XPATH = FRAMAT_XPATH + "/MaterialProperties"
-FRAMAT_SECTION_XPATH = FRAMAT_XPATH + "/SectionProperties"
-FRAMAT_MESH_XPATH = FRAMAT_XPATH + "/BeamMesh"
-FRAMAT_RESULTS_XPATH = FRAMAT_XPATH + "/Results"
-
-# AeroFrame
-AEROFRAME_XPATH = CEASIOMPY_XPATH + "/aeroelasticity/AeroFrame"
-AEROFRAME_SETTINGS = AEROFRAME_XPATH + "/Settings"
 
 # =================================================================================================
 #    MAIN

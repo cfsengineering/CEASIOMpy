@@ -395,9 +395,9 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     # Update CPACS with the new aeromap
     tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap_uid)
     tixi.updateTextElement(AVL_DISTR_XPATH, distribution)
-    tixi.updateTextElement(AVL_NCHORDWISE_XPATH, nchord)
-    tixi.updateTextElement(AVL_NSPANWISE_XPATH, nspan)
-    tixi.updateTextElement(AVL_PLOT_XPATH, plot)
+    tixi.updateIntegerElement(AVL_NCHORDWISE_XPATH, nchord)
+    tixi.updateIntegerElement(AVL_NSPANWISE_XPATH, nspan)
+    tixi.updateBooleanElement(AVL_PLOT_XPATH, plot)
 
     run_avl(cpacs, results_dir)
 

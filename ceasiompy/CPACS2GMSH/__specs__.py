@@ -188,7 +188,7 @@ cpacs_inout.add_input(
     xpath=GMSH_N_POWER_FACTOR_XPATH,
     gui=INCLUDE_GUI,
     gui_name="n power factor",
-    gui_group="Advanced Euler mesh parameters",
+    gui_group="Advanced mesh parameters",
 )
 
 cpacs_inout.add_input(
@@ -200,7 +200,7 @@ cpacs_inout.add_input(
     xpath=GMSH_N_POWER_FIELD_XPATH,
     gui=INCLUDE_GUI,
     gui_name="n power field",
-    gui_group="Advanced Euler mesh parameters",
+    gui_group="Advanced mesh parameters",
 )
 
 cpacs_inout.add_input(
@@ -212,7 +212,7 @@ cpacs_inout.add_input(
     xpath=GMSH_REFINE_FACTOR_XPATH,
     gui=INCLUDE_GUI,
     gui_name="LE/TE refinement factor",
-    gui_group="Advanced Euler mesh parameters",
+    gui_group="Advanced mesh parameters",
 )
 
 cpacs_inout.add_input(
@@ -224,7 +224,7 @@ cpacs_inout.add_input(
     xpath=GMSH_REFINE_TRUNCATED_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Refine truncated TE",
-    gui_group="Advanced Euler mesh parameters",
+    gui_group="Advanced mesh parameters",
 )
 
 cpacs_inout.add_input(
@@ -237,7 +237,7 @@ cpacs_inout.add_input(
     xpath=GMSH_AUTO_REFINE_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Auto refine",
-    gui_group="Advanced Euler mesh parameters",
+    gui_group="Advanced mesh parameters",
 )
 
 cpacs_inout.add_input(
@@ -249,7 +249,7 @@ cpacs_inout.add_input(
     xpath=GMSH_REFINE_FACTOR_SHARP_EDGES_XPATH,
     gui=True,
     gui_name="other sharp edges refinement factor",
-    gui_group="Advanced Euler mesh parameters",
+    gui_group="Advanced mesh parameters",
 )
 
 cpacs_inout.add_input(

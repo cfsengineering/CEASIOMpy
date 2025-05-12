@@ -576,7 +576,8 @@ def sort_surfaces_and_create_physical_groups(
 
         # Now deal with it if in more than one part
         if len(parts_in) > 1:
-            choose_correct_part(parts_in, surf, aircraft_parts, new_aircraft_parts)
+            aircraft_parts = choose_correct_part(
+                parts_in, surf, aircraft_parts, new_aircraft_parts)
 
     # Remove the parts we re-imported, to get a clean result (we won't need them anymore)
     gmsh.model.occ.remove(
@@ -618,7 +619,8 @@ def choose_correct_part(
     ...
     Returns:
     ----------
-    nothing
+    aircraft_parts : list of ModelPart
+        Return the aircraft parts with updated list of surfaces
     """
     for i in parts_in:
         # This is maybe overcomplicated, but gmsh doesn't keep the tags of surfaces when
@@ -655,6 +657,7 @@ def choose_correct_part(
             for k in range(len(parts_in) - 1):
                 aircraft_parts[parts_in[k]].surfaces.remove((2, surf))
                 aircraft_parts[parts_in[k]].surfaces_tags.remove(surf)
+    return aircraft_parts
 
 
 def refine_le_te(

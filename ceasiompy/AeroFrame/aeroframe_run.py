@@ -386,18 +386,18 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     st.session_state = MagicMock()
     aeromap_uid = get_value(tixi, AVL_AEROMAP_UID_XPATH)
     distribution = get_value(tixi, AVL_DISTR_XPATH)
-    nchord = get_value(tixi, AVL_NCHORDWISE_XPATH)
-    nspan = get_value(tixi, AVL_NSPANWISE_XPATH)
-    plot = get_value(tixi, AVL_PLOT_XPATH)
+    nchord = str(get_value(tixi, AVL_NCHORDWISE_XPATH))
+    nspan = str(get_value(tixi, AVL_NSPANWISE_XPATH))
+    plot = str(get_value(tixi, AVL_PLOT_XPATH))
 
     update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
 
     # Update CPACS with the new aeromap
     tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap_uid)
     tixi.updateTextElement(AVL_DISTR_XPATH, distribution)
-    tixi.updateIntegerElement(AVL_NCHORDWISE_XPATH, nchord)
-    tixi.updateIntegerElement(AVL_NSPANWISE_XPATH, nspan)
-    tixi.updateBooleanElement(AVL_PLOT_XPATH, plot)
+    tixi.updateTextElement(AVL_NCHORDWISE_XPATH, nchord)
+    tixi.updateTextElement(AVL_NSPANWISE_XPATH, nspan)
+    tixi.updateTextElement(AVL_PLOT_XPATH, plot)
 
     run_avl(cpacs, results_dir)
 

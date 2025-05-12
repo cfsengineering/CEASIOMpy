@@ -30,7 +30,7 @@ from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
 from ceasiompy.CPACSUpdater import MODULE_NAME as CPACSUPDATER
 from ceasiompy.SaveAeroCoefficients import MODULE_NAME as SAVEAEROCOEF
-from ceasiompy.AeroFrame_new import MODULE_NAME as AEROFRAMENEW
+from ceasiompy.AeroFrame import MODULE_NAME as AEROFRAMENEW
 
 # =================================================================================================
 #   CONSTANTS
@@ -108,6 +108,7 @@ def test_integration_5():
 # =================================================================================================
 
 if __name__ == "__main__":
+    test_integration_1()
     print("Integration tests")
     print("To run test use the following command:")
     print(">> pytest -v . --cov=../ceasiompy --cov-report term")

@@ -32,7 +32,7 @@ from ceasiompy.utils.mathsfunctions import (
     euler2fix,
     rotate_points,
 )
-from ceasiompy.AeroFrame_new.func.utils import (
+from ceasiompy.AeroFrame.func.utils import (
     PolyArea,
     second_moments_of_area,
 )
@@ -48,7 +48,7 @@ from ceasiompy.utils.generalclasses import (
 
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import WINGS_XPATH
-from ceasiompy.AeroFrame_new import (
+from ceasiompy.AeroFrame import (
     FRAMAT_MATERIAL_XPATH,
     FRAMAT_SECTION_XPATH,
 )

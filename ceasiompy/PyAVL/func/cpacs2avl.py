@@ -142,6 +142,11 @@ def leadingedge_coordinates(
         edge_xpath = "/componentSegments/componentSegment"
         bis_xpath = "/controlSurfaces/trailingEdgeDevices"
         control_xpath_base = wing_xpath + edge_xpath + bis_xpath
+        # Check if the control surfaces path exists
+        if not tixi.checkElement(control_xpath_base):
+            log.warning(f"No control surfaces found at {control_xpath_base}. Skipping.")
+            return None
+
         num_devices = tixi.getNumberOfChilds(control_xpath_base)
 
         for i in range(1, num_devices + 1):

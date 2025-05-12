@@ -19,18 +19,24 @@ import shutil
 import subprocess
 import numpy as np
 import pandas as pd
+import streamlit as st
 
 from pathlib import Path
 from scipy import interpolate
 from ambiance import Atmosphere
 from cpacspy.cpacspy import CPACS
+from unittest.mock import MagicMock
 
 from ceasiompy.PyAVL.pyavl import main as run_avl
-from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.PyAVL.func.utils import create_case_dir
 from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
-from ceasiompy.utils.ceasiompyutils import get_aeromap_conditions
+from ceasiompy.utils.ceasiompyutils import (
+    call_main,
+    get_aeromap_conditions,
+    update_cpacs_from_specs,
+)
 from cpacspy.cpacsfunctions import (
+    get_value,
     get_value_or_default,
     create_branch,
 )
@@ -62,7 +68,11 @@ from ceasiompy.AeroFrame import (
     AEROFRAME_SETTINGS,
 )
 from ceasiompy.PyAVL import (
+    MODULE_NAME as PYAVL_NAME,
     AVL_PLOT_XPATH,
+    AVL_DISTR_XPATH,
+    AVL_NCHORDWISE_XPATH,
+    AVL_NSPANWISE_XPATH,
     AVL_AEROMAP_UID_XPATH,
 )
 
@@ -372,6 +382,23 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     # First AVL run
     # You need to first load the default values of AVL
     # Then you add back the ones that you wanted to specify.
+    # Run AVL analysis
+    st.session_state = MagicMock()
+    aeromap_uid = get_value(tixi, AVL_AEROMAP_UID_XPATH)
+    distribution = get_value(tixi, AVL_DISTR_XPATH)
+    nchord = get_value(tixi, AVL_NCHORDWISE_XPATH)
+    nspan = get_value(tixi, AVL_NSPANWISE_XPATH)
+    plot = get_value(tixi, AVL_PLOT_XPATH)
+
+    update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
+
+    # Update CPACS with the new aeromap
+    tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap_uid)
+    tixi.updateTextElement(AVL_DISTR_XPATH, distribution)
+    tixi.updateTextElement(AVL_NCHORDWISE_XPATH, nchord)
+    tixi.updateTextElement(AVL_NSPANWISE_XPATH, nspan)
+    tixi.updateTextElement(AVL_PLOT_XPATH, plot)
+
     run_avl(cpacs, results_dir)
 
     for i_case, _ in enumerate(alt_list):

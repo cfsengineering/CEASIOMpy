@@ -819,16 +819,20 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                     file_deformed.write(line)
                 else:
                     break
-
+            airfoil_file = None
             for i, line in enumerate(lines):
                 if "Nspanwise" in line:
                     values = lines[i + 1].strip().split()
                     Nspanwise = int(float(values[2]))
 
+                log.info(f"{line=}")
                 if line.strip().upper() == "AFILE":
                     if i + 1 < len(lines):
                         airfoil_file = lines[i + 1].strip()
                         break
+
+            if airfoil_file is None:
+                raise FileNotFoundError("AFILE not found.")
 
             file_deformed.writelines(
                 ["SCALE\n",

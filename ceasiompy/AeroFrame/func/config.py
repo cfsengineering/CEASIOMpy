@@ -21,7 +21,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from scipy.spatial.distance import cdist
-from cpacspy.cpacsfunctions import open_tixi
 from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 from ceasiompy.utils.geometryfunctions import (
@@ -40,7 +39,6 @@ from ceasiompy.AeroFrame.func.utils import (
 from framat import Model
 from pathlib import Path
 from scipy import interpolate
-from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.generalclasses import (
     Point,
     Transformation,

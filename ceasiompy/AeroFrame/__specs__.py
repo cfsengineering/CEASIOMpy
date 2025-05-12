@@ -97,6 +97,8 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Save AVL plots",
     gui_group="Plots",
+    test_value=False,
+    expanded=False,
 )
 
 cpacs_inout.add_input(

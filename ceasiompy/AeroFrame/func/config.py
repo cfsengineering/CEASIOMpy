@@ -542,13 +542,13 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
 
             centerline_df = centerline_df.loc[selected_indices].sort_index().reset_index(drop=True)
 
-        centerline_df[["Fx", "Fy", "Fz", "Mx", "My", "Mz"]] = 0
+        centerline_df[["Fx", "Fy", "Fz", "Mx", "My", "Mz"]] = 0.0
         centerline_df["x_new"] = centerline_df["x"]
         centerline_df["y_new"] = centerline_df["y"]
         centerline_df["z_new"] = centerline_df["z"]
-        centerline_df["thx_new"] = 0
-        centerline_df["thy_new"] = 0
-        centerline_df["thz_new"] = 0
+        centerline_df["thx_new"] = 0.0
+        centerline_df["thy_new"] = 0.0
+        centerline_df["thz_new"] = 0.0
         centerline_df["AoA"] = twist_profile(centerline_df["y"])
         centerline_df["AoA_new"] = centerline_df["AoA"]
         internal_load_df = centerline_df.copy(deep=True)
@@ -566,7 +566,7 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
 
     else:
         internal_load_df = centerline_df.copy(deep=True)
-        centerline_df[["Fx", "Fy", "Fz", "Mx", "My", "Mz"]] = 0
+        centerline_df[["Fx", "Fy", "Fz", "Mx", "My", "Mz"]] = 0.0
         centerline_df["x"] = centerline_df["x_new"]
         centerline_df["y"] = centerline_df["y_new"]
         centerline_df["z"] = centerline_df["z_new"]
@@ -825,7 +825,6 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                     values = lines[i + 1].strip().split()
                     Nspanwise = int(float(values[2]))
 
-                log.info(f"{line=}")
                 if line.strip().upper() == "AFILE":
                     if i + 1 < len(lines):
                         airfoil_file = lines[i + 1].strip()

@@ -442,7 +442,7 @@ def generate_gmsh(
     # The rest of children_dimtag are list of tuples (dimtag, tag)
     # that represent volumes in the model.
     # children_dimtag is "sorted" according to the order of importation of the parent parts.
-    # Ror example: if the first part imported was "fuselage1" then the first children_dimtag
+    # For example: if the first part imported was "fuselage1" then the first children_dimtag
     # is a list of all the "child" volumes in the model that are from the "parent" "fuselage1"
     # we can then associate each entities in the model to their parent origin.
 

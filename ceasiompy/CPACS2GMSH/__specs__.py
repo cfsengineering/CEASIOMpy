@@ -128,7 +128,7 @@ cpacs_inout.add_input(
     xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Farfield mesh size factor",
-    gui_group="Euler options",
+    gui_group="Mesh options",
 )
 
 cpacs_inout.add_input(
@@ -140,7 +140,7 @@ cpacs_inout.add_input(
     xpath=GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Fuselage mesh size factor",
-    gui_group="Euler options",
+    gui_group="Mesh options",
 )
 
 cpacs_inout.add_input(
@@ -152,7 +152,7 @@ cpacs_inout.add_input(
     xpath=GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Wings mesh size factor",
-    gui_group="Euler options",
+    gui_group="Mesh options",
 )
 
 cpacs_inout.add_input(
@@ -164,7 +164,7 @@ cpacs_inout.add_input(
     xpath=GMSH_MESH_SIZE_ENGINES_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Engines",
-    gui_group="Euler options",
+    gui_group="Mesh options",
 )
 
 cpacs_inout.add_input(
@@ -176,7 +176,7 @@ cpacs_inout.add_input(
     xpath=GMSH_MESH_SIZE_PROPELLERS_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Propellers",
-    gui_group="Euler options",
+    gui_group="Mesh options",
 )
 
 cpacs_inout.add_input(
@@ -248,7 +248,7 @@ cpacs_inout.add_input(
     descr="Refinement factor of other sharp edges mesh",
     xpath=GMSH_REFINE_FACTOR_SHARP_EDGES_XPATH,
     gui=True,
-    gui_name="other sharp edges refinement factor",
+    gui_name="Other sharp edges refinement factor",
     gui_group="Advanced mesh parameters",
 )
 

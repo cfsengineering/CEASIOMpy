@@ -170,7 +170,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
         log.info(f"SU2 Mesh at {mesh_path} has been correctly generated. \n")
 
     else:
-        log.warning(f"Mesh path {mesh_path} does not exist. \n")
+        log.warning(f"Mesh path {su2mesh_path} does not exist. \n")
 
 
 def deform_surf(cpacs: CPACS, wkdir: Path, surf: str, angle: float, wing_names: List) -> None:

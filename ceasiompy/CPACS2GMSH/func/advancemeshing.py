@@ -631,8 +631,8 @@ def refine_other_lines(
             tags, coord, param = gmsh.model.mesh.getNodes(2, i, True)
             tags_coords_params[i] = {'tags': tags, 'coord': coord, 'param': param}
         # Now see the surfaces two by two, to see their intersection
-        big_angle = compute_angle_surfaces(surface_tags, tags_coords_params)
-        if big_angle:
+        small_angle = compute_angle_surfaces(surface_tags, tags_coords_params, line)
+        if small_angle:
             lines_with_angles_tag.append(line)
 
     lines_with_angles_tag = [li for li in lines_with_angles_tag if li not in te_le_already_refined]
@@ -730,7 +730,7 @@ def refine_surface(
 
 
 def compute_angle_surfaces(
-    surface_tags, tags_coords_params
+    surface_tags, tags_coords_params, line
 ):
     """
     Function to compute the angle between some surfaces
@@ -747,8 +747,8 @@ def compute_angle_surfaces(
     ...
     Returns:
     ----------
-    big_angle : bool
-        True if we found a "big_angle", i.e. a sharp edge
+    small_angle : bool
+        True if we found a "small angle", i.e. a sharp edge
 
     """
     for k, i in enumerate(surface_tags):
@@ -777,7 +777,7 @@ def compute_angle_surfaces(
                         # are of norm 1
                         cosalpha = (normal_i[0] * normal_j[0] + normal_i[1]
                                     * normal_j[1] + normal_i[2] * normal_j[2])
-                        if cosalpha < -0.7:  # (more than 45 degrees from being flat)
+                        if cosalpha < -0.5:  # (angle of less than 30 degrees)
                             return True
     return False
 

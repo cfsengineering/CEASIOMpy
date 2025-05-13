@@ -280,8 +280,7 @@ def generate_2d_mesh_for_pentagrow(
         te_le_already_refined = []
 
     log.info("Refinement process of other lines started")
-    yes = True
-    if auto_refine and refine_factor != 1 or yes:
+    if refine_factor_sharp_edges != 1:
         mesh_fields = refine_other_lines(
             te_le_already_refined, refine=refine_factor_sharp_edges,
             aircraft_parts=aircraft_parts, mesh_fields=mesh_fields,
@@ -699,7 +698,6 @@ def refine_le_te(
                 f" {len(model_part.wing_sections)} section(s) found "
             )
             new_lines = [x['lines_tags'] for x in model_part.wing_sections]
-            print("te and le, for wing", model_part.uid, model_part.wing_sections, new_lines)
             for new_line in new_lines:
                 lines_refined.extend(new_line)
 

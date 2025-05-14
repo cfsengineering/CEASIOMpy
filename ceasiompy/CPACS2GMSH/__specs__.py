@@ -243,9 +243,9 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="refine_factor_sharp_edges",
     var_type=float,
-    default_value=1.0,
+    default_value=1.5,
     unit="1",
-    descr="Refinement factor of other sharp edges mesh",
+    descr="Refinement factor of edges at intersections that are not flat enough, warning : does not always work on all edges",
     xpath=GMSH_REFINE_FACTOR_SHARP_EDGES_XPATH,
     gui=True,
     gui_name="Other sharp edges refinement factor",

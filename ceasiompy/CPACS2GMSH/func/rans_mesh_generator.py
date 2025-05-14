@@ -49,6 +49,7 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     min_fields,
     refine_small_surfaces,
     refine_other_lines,
+    refine_between_parts,
 )
 from ceasiompy.utils.ceasiompyutils import (
     bool_,
@@ -74,7 +75,7 @@ def generate_2d_mesh_for_pentagrow(
     open_gmsh: bool,
     refine_factor: float = 2.0,
     refine_truncated: bool = False,
-    refine_factor_sharp_edges: bool = 1.0,
+    refine_factor_sharp_edges: float = 2.0,
     auto_refine: bool = False,
     n_power_factor: float = 2,
     n_power_field: float = 0.9,
@@ -262,8 +263,10 @@ def generate_2d_mesh_for_pentagrow(
         gmsh.model.mesh.field.add("Constant", mesh_fields["nbfields"])
         gmsh.model.mesh.field.setNumbers(
             mesh_fields["nbfields"], "SurfacesList", model_part.surfaces_tags)
+        print(
+            f"so mesh size in constant for {model_part.uid} is {lc} on {model_part.surfaces_tags}")
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "VIn", lc)
-        # gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
+        gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
         mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
     mesh_fields = min_fields(mesh_fields)
     gmsh.model.occ.synchronize()
@@ -279,14 +282,17 @@ def generate_2d_mesh_for_pentagrow(
     else:
         te_le_already_refined = []
 
-    log.info("Refinement process of other lines started")
+    mesh_fields = refine_between_parts(aircraft_parts, mesh_size_by_group, mesh_fields)
+    mesh_fields = min_fields(mesh_fields)
+
     if refine_factor_sharp_edges != 1:
+        log.info("Refinement process of other lines started")
         mesh_fields = refine_other_lines(
             te_le_already_refined, refine=refine_factor_sharp_edges,
             aircraft_parts=aircraft_parts, mesh_fields=mesh_fields,
             mesh_size_by_part=mesh_size_by_group, n_power=n_power_factor)
         mesh_fields = min_fields(mesh_fields)
-    log.info("Refining process finished")
+        log.info("Refining process finished")
     gmsh.model.occ.synchronize()
 
     # Parameters for the meshing
@@ -301,6 +307,7 @@ def generate_2d_mesh_for_pentagrow(
     gmsh.logger.start()
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)
+    gmsh.fltk.run()
 
     process_gmsh_log(gmsh.logger.get())
     gmsh.model.occ.synchronize()

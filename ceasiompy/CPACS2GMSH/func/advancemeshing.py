@@ -567,63 +567,10 @@ def refine_other_lines(
     log.info("Now finding which lines need refinement")
     lines = gmsh.model.getEntities(1)
     lines_with_angles_tag = []
-    total = len(lines)
-    step_lines = len(lines) // 10
 
-    # A better and faster solution, but somehow doesn't work.
-    # The problem seems to be sometimes the normal we get doesn't make sense
-    # for (dim, line) in lines:
-    #     # Show progress
-    #     if line % step_lines == 0:
-    #         log.info(f"{math.floor(line/total*100)}% done")
-
-    #     foundbigangle = False
-    #     # Get the adjacent surface, and the nodes
-    #     surface_tags, _ = gmsh.model.getAdjacencies(dim, line)
-    #     tags, coord, param = gmsh.model.mesh.getNodes(1, line)
-    #     nbpoints = len(coord) // 3
-    #     # Select at most 40 nodes (but 20 evenly spaces if too big)
-    #     step = nbpoints // 20
-    #     if nbpoints < 40:
-    #         coord_small = coord
-    #     else:
-    #         coord_small = []
-    #         for i in range(20):
-    #             coord_small.extend(
-    #                 [coord[step * 3 * i], coord[step * 3 * i + 1], coord[step * 3 * i + 2]])
-
-    #     # Now test for every 2 surfaces along line (usually always one or two surfaces total)
-    #     # And if one, can't be a weird angle
-    #     for k in range(len(surface_tags)):
-    #         i = surface_tags[k]
-    #         params_i = gmsh.model.getParametrization(2, i, coord_small)
-    #         for l in range(k + 1, len(surface_tags)):
-    #             j = surface_tags[l]
-    #             params_j = gmsh.model.getParametrization(2, j, coord_small)
-    #             for a in range(len(coord_small) // 3):
-    #                 # For each point, get the normal to the surface
-    #                 normal_i = gmsh.model.getNormal(
-    #                     i, [params_i[2 * a], params_j[2 * a + 1]])
-    #                 normal_j = gmsh.model.getNormal(
-    #                     j, [params_i[2 * a], params_j[2 * a + 1]])
-    #                 # Compute cos of the angle between the normals
-    #                 #        (their norms are 1, so is equal to scalar product)
-    #                 cosalpha = (normal_i[0] * normal_j[0] +
-    #                         normal_i[1] * normal_j[1] + normal_i[2] * normal_j[2])
-    #                 if cosalpha < -0.3:  # (more than 72 degrees from being flat)
-    #                     lines_with_angles_tag.append(line)
-    #                     foundbigangle = True
-    #                     break
-    #             if foundbigangle:
-    #                 break
-    #         if foundbigangle:
-    #             break
-
-    # We see every line
+    # We now inspect every line and compute angle from adjacent surfaces
     lines_with_angles_tag = []
     for (dim, line) in lines:
-        if line % step_lines == 0:
-            log.info(f"{math.floor(line/total*100)}% done")
         surface_tags, _ = gmsh.model.getAdjacencies(dim, line)
         tags_coords_params = {-1: "yay"}
         # For each adjacent surface, get all the nodes
@@ -638,6 +585,8 @@ def refine_other_lines(
     lines_with_angles_tag = [li for li in lines_with_angles_tag if li not in te_le_already_refined]
     log.info(f"Lines to be refined are {lines_with_angles_tag}")
     log.info("Now start setting refinement")
+    gmsh.model.setColor([(1, line)
+                        for line in lines_with_angles_tag], 0, 255, 0)  # red
 
     for part in aircraft_parts:
         surfaces_tags = part.surfaces_tags
@@ -652,14 +601,14 @@ def refine_other_lines(
             # Get all the lines that are adjacent and need refinement
             [_, adjacent_lines] = gmsh.model.getAdjacencies(2, s)
             lines_to_refine = list(set(adjacent_lines) & set(lines_with_angles_tag))
-            mesh_fields = refine_surface(part.uid, lines_to_refine, s, mesh_fields,
+            mesh_fields = refine_surface(part.uid, lines_to_refine, [s], mesh_fields,
                                          m, n_power, refine, mesh_size)
 
     return mesh_fields
 
 
 def refine_surface(
-    part_uid, lines_to_refine, surface_tag, mesh_fields, m, n_power, refine, mesh_size
+    part_uid, lines_to_refine, surfaces_tag, mesh_fields, m, n_power, refine, mesh_size
 ):
     """
     Function to refine the surfaces on a specific part along some given lines by creating Fields
@@ -670,8 +619,8 @@ def refine_surface(
         name of the part the surface is on
     lines_to_refine : list of int
         list of the tags of the lines we need to refine
-    surface_tag : int
-        tag of the surface we are refining
+    surface_tag : list int
+        list of tags of the surface(s) we are refining
     mesh_fields : dict
         mesh_fields["nbfields"] : number of existing mesh field in the model,
         each field must be created with a different index !!!
@@ -694,7 +643,7 @@ def refine_surface(
 
     """
     for line in lines_to_refine:
-        log.info(f"Refining line {line} in surface {surface_tag} in part {part_uid}")
+        log.info(f"Refining line {line} in surface {surfaces_tag} in part {part_uid}")
 
         # 1 : Math eval field
         mesh_fields["nbfields"] += 1
@@ -719,7 +668,7 @@ def refine_surface(
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Restrict", mesh_fields["nbfields"])
         gmsh.model.mesh.field.setNumbers(
-            mesh_fields["nbfields"], "SurfacesList", [surface_tag])
+            mesh_fields["nbfields"], "SurfacesList", surfaces_tag)
         gmsh.model.mesh.field.setNumber(
             mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1)
         mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
@@ -738,7 +687,7 @@ def compute_angle_surfaces(
     Args:
     ----------
     surface_tags : list of int
-        list of the tags of the surfaces we wnat to compute the angle (usually two or one)
+        list of the tags of the surfaces we want to compute the angle (usually two or one)
     tags_coords_params : dictionary of dictionaries
         for each surface i, tags_coords_params[i] gives 3 elements:
             params: list of the parameters of the nodes ([p1u,p1v,p2u,p2v,...])
@@ -777,9 +726,59 @@ def compute_angle_surfaces(
                         # are of norm 1
                         cosalpha = (normal_i[0] * normal_j[0] + normal_i[1]
                                     * normal_j[1] + normal_i[2] * normal_j[2])
-                        if cosalpha < -0.5:  # (angle of less than 30 degrees)
+                        if cosalpha < 0.6:  # (angle of more than 50 degrees from being flat)
                             return True
     return False
+
+
+def refine_between_parts(
+    aircraft_parts, mesh_size_by_group, mesh_fields
+):
+    """
+    Function to compute the angle between some surfaces
+
+    Args:
+    ----------
+    surface_tags : list of int
+        list of the tags of the surfaces we wnat to compute the angle (usually two or one)
+    tags_coords_params : dictionary of dictionaries
+        for each surface i, tags_coords_params[i] gives 3 elements:
+            params: list of the parameters of the nodes ([p1u,p1v,p2u,p2v,...])
+            coord: list of the xyz coordinates of the nodes ([n1x,n1y,n1z,n2x,n2y,n2z,...])
+            tag: list of tags of the nodes
+    ...
+    Returns:
+    ----------
+    small_angle : bool
+        True if we found a "small angle", i.e. a sharp edge
+
+    """
+    for i, part in enumerate(aircraft_parts):
+        for _, part2 in enumerate(aircraft_parts, i + 1):
+            if part.mesh_size != part2.mesh_size:
+                if part.mesh_size < part2.mesh_size:
+                    small_part = part
+                    big_part = part2
+                else:
+                    small_part = part2
+                    big_part = part
+
+                lines_at_intersection = list(set(part.lines_tags) & set(part2.lines_tags))
+                gmsh.model.setColor([(1, line)
+                                    for line in lines_at_intersection], 255, 0, 0)  # red
+
+                for line in lines_at_intersection:
+                    surfaces_adjacent, _ = gmsh.model.getAdjacencies(1, line)
+                    surfaces_to_refine = list(set(surfaces_adjacent) & set(big_part.surfaces_tags))
+
+                    bb = big_part.bounding_box
+                    size = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
+                    size.sort()
+                    m = size[1] / 4
+                    mesh_fields = refine_surface(big_part.uid, [line], surfaces_to_refine, mesh_fields, m, 2,
+                                                 big_part.mesh_size / small_part.mesh_size, big_part.mesh_size)
+
+    return mesh_fields
 
 # =================================================================================================
 #    MAIN

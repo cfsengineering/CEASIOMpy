@@ -710,19 +710,19 @@ def generate_gmsh(
     if symmetry:
         gmsh.model.setColor(symmetry_surfaces, *MESH_COLORS["symmetry"], recursive=False)
 
-    # Wing leading edge and trailing edge detection
-    for part in aircraft_parts:
-        if part.part_type in ["wing", "ctrlsurf"]:
-            classify_wing(part, aircraft_parts)
-            log.info(
-                f"Classification of {part.uid} done"
-                f" {len(part.wing_sections)} section(s) found "
-            )
-
     # Generate advance meshing features
     mesh_fields = {"nbfields": 0, "restrict_fields": []}
     if refine_factor != 1:
         log.info(f"Refining wings with factor {refine_factor}")
+
+        # Wing leading edge and trailing edge detection
+        for part in aircraft_parts:
+            if part.part_type in ["wing", "ctrlsurf"]:
+                classify_wing(part, aircraft_parts)
+                log.info(
+                    f"Classification of {part.uid} done"
+                    f" {len(part.wing_sections)} section(s) found "
+                )
 
         # Refine wings
         for part in aircraft_parts:

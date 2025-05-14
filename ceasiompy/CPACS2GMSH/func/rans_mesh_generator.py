@@ -36,7 +36,8 @@ import random
 import gmsh
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
     ModelPart,
-    classify_wing
+    classify_wing,
+    exclude_lines
 )
 from ceasiompy.CPACS2GMSH.func.generategmesh import (
     wings_size,
@@ -50,6 +51,7 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_small_surfaces,
     refine_other_lines,
     refine_between_parts,
+    refine_end_wing,
 )
 from ceasiompy.utils.ceasiompyutils import (
     bool_,
@@ -275,7 +277,7 @@ def generate_2d_mesh_for_pentagrow(
     if refine_factor != 1:
         log.info("Start refinement of leading and trailing edge")
         # We want the lines already refined so we don't refined them again in the second function
-        mesh_fields, te_le_already_refined = refine_le_te(
+        mesh_fields, te_le_already_refined = refine_le_te_end(
             aircraft_parts, mesh_size_by_group["wing"], mesh_fields, refine_factor,
             refine_truncated=refine_truncated, n_power_factor=n_power_factor)
         log.info("Finished refinement of leading and trailing edge")
@@ -603,6 +605,9 @@ def sort_surfaces_and_create_physical_groups(
         model_part.lines = gmsh.model.getBoundary(
             model_part.surfaces, combined=False, oriented=False)
         model_part.lines_tags = [li[1] for li in model_part.lines]
+        model_part.points = gmsh.model.getBoundary(
+            model_part.lines, combined=False, oriented=False)
+        model_part.points_tags = [po[1] for po in model_part.points]
 
 
 def choose_correct_part(
@@ -666,7 +671,7 @@ def choose_correct_part(
     return aircraft_parts
 
 
-def refine_le_te(
+def refine_le_te_end(
     aircraft_parts, mesh_size_wing, mesh_fields, refine_factor, refine_truncated, n_power_factor
 ):
     """
@@ -694,6 +699,12 @@ def refine_le_te(
     """
     aircraft = ModelPart("aircraft")
     lines_refined = []
+    # tag of the main volume constituing the aicraft, and of all the surfaces
+    final_domain_volume_tag = gmsh.model.occ.getEntities(
+        3)[0][1]  # there should be only one volume in the model
+    all_surf_tags = [tag for (dim, tag) in gmsh.model.occ.getEntities(2)]
+    aircraft.surfaces_tags = all_surf_tags
+    aircraft.lines_tags = [tag for (dim, tag) in gmsh.model.occ.getEntities(1)]
 
     # For all the wing, we call the function classify that will detect the le and te between all
     # the lines and compute the mean chord length
@@ -708,12 +719,6 @@ def refine_le_te(
             for new_line in new_lines:
                 lines_refined.extend(new_line)
 
-    # tag of the main volume constituing the aicraft, and of all the surfaces
-    final_domain_volume_tag = gmsh.model.occ.getEntities(
-        3)[0][1]  # there should be only one volume in the model
-    all_surf_tags = [tag for (dim, tag) in gmsh.model.occ.getEntities(2)]
-    aircraft.surfaces_tags = all_surf_tags
-
     for model_part in aircraft_parts:
         if model_part.part_type == "wing":
             # Refine will set fields to have smaller mesh size along te and le
@@ -727,6 +732,43 @@ def refine_le_te(
                 refine_truncated=refine_truncated,
                 n_power=n_power_factor
             )
+
+    # Refine also the end of the wing
+    for model_part in aircraft_parts:
+        if model_part.part_type == "wing":
+            # Want the same w_chord as the tip of the wing, which is the smallest one
+            x_chord = 1000000
+            for wing_section in model_part.wing_sections:
+                chord_mean = wing_section["mean_chord"]
+                x_chord = min(x_chord, chord_mean * 0.25)
+
+            # Now need to find the te_le
+            lines_in_le_te = []
+            for wing_section in model_part.wing_sections:
+                lines_in_le_te.extend(wing_section["lines_tags"])
+            lines_in_other_parts = exclude_lines(model_part, aircraft_parts)
+            lines_left = sorted(list(set(model_part.lines_tags)
+                                - (set(lines_in_le_te).union(set(lines_in_other_parts)))))
+
+            for i, line1 in enumerate(lines_left):
+                for _, line2 in enumerate(lines_left, i + 1):
+                    surfaces1, points1 = gmsh.model.getAdjacencies(1, line1)
+                    surfaces2, points2 = gmsh.model.getAdjacencies(1, line2)
+                    common_points = list(set(points1) & set(points2))
+                    common_surfaces = list(set(surfaces1) & set(surfaces2))
+                    if len(common_points) == 2 and len(common_surfaces) == 1:
+                        log.info(f"Found the end of the wing in {model_part.uid}, refining")
+                        refine_end_wing(line1,
+                                        line2,
+                                        aircraft,
+                                        x_chord,
+                                        model_part.surfaces_tags,
+                                        refine_factor,
+                                        mesh_size_wing,
+                                        n_power_factor,
+                                        [final_domain_volume_tag],
+                                        mesh_fields)
+                        gmsh.model.setColor([(1, line1), (1, line2)], 0, 180, 180)  # idk
 
     # Generate the minimal background mesh field
     mesh_fields = min_fields(mesh_fields)

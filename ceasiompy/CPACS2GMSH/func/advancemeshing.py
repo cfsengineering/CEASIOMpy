@@ -323,6 +323,84 @@ def refine_wing_section(
         )
 
 
+def refine_end_wing(
+    line1,
+    line2,
+    aircraft,
+    x_chord,
+    surfaces_wing,
+    refine,
+    mesh_size_wings,
+    n_power,
+    final_domain_volumes_tagslist,
+    mesh_fields
+):
+    """
+
+    Args:
+    ----------
+    mesh_fields : dict
+        mesh_fields["nbfields"] : number of existing mesh field in the model,
+        each field must be created with a different index !!!
+        mesh_fields["restrict_fields"] : list of the restrict fields,
+        this is the list to be use for the final "Min" background field
+    aircraft : ModelPart
+        the aircraft model part
+    final_domain_volume_tag : list
+        list of the tag(s) of the final domain volume (usually one)
+    wing_part : ModelPart
+        wing part to refine
+    mesh_size_wings : float
+        mesh size of the wing
+    wing_section : wing_section (see wingclassification.py)
+        wing_section to refine
+    refine : float
+        refinement factor for the le/te edge
+    refine_truncated : bool
+        if the wing is truncated, the trailing edge will be refined to match the te thickness
+    chord_percent : float
+        percentage of the chord to refine from le/te edge
+    ...
+    """
+
+    # Get the wing section chord, le and te lines and the surface of the wing
+    lines_to_refine = [line1, line2]
+
+    # 1 : Math eval field
+
+    mesh_fields = distance_field(mesh_fields, 1, lines_to_refine)
+    distance_field_tag = mesh_fields["nbfields"]
+
+    # Create a mesh function for the leading edge
+    mesh_fields["nbfields"] += 1
+    math_eval_field = mesh_fields["nbfields"]
+    gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
+
+    gmsh.model.mesh.field.setString(
+        mesh_fields["nbfields"],
+        "F",
+        f"({mesh_size_wings}/{refine}) + "
+        f"{mesh_size_wings}*(1-(1/{refine}))*"
+        f"(F{distance_field_tag}/{x_chord})^{n_power}",
+    )
+
+    mesh_fields = restrict_fields(mesh_fields, 2, aircraft.surfaces_tags)
+    mesh_fields = restrict_fields(
+        mesh_fields, 3, final_domain_volumes_tagslist, infield=math_eval_field
+    )
+
+    # 2 : Threshold field
+
+    # Create the threshold field
+    mesh_fields["nbfields"] += 1
+    gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_wings)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_wings)
+
+    mesh_fields = restrict_fields(mesh_fields, 2, surfaces_wing)
+
+
 def set_domain_mesh(
     mesh_fields,
     aircraft_parts,
@@ -586,7 +664,7 @@ def refine_other_lines(
     log.info(f"Lines to be refined are {lines_with_angles_tag}")
     log.info("Now start setting refinement")
     gmsh.model.setColor([(1, line)
-                        for line in lines_with_angles_tag], 0, 255, 0)  # red
+                        for line in lines_with_angles_tag], 0, 255, 0)  # green
 
     for part in aircraft_parts:
         surfaces_tags = part.surfaces_tags

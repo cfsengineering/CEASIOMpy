@@ -94,12 +94,10 @@ COPY src /CEASIOMpy/src
 # Create the Conda environment from the environment.yml file
 RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && conda env create -f environment.yml"
 
-# Activate the Conda environment and install CEASIOMpy
-RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && conda activate ceasiompy && pip install -e ."
-
 # Automatically activate the Conda environment in new shells
 RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
     echo "conda activate ceasiompy" >> ~/.bashrc && \
+    echo "pip install -e ." >> ~/.bashrc && \
     echo "ceasiompy_run --gui" >> ~/.bashrc
 
 # Move the content of /INSTALLDIR to the mounted /CEASIOMpy/INSTALLDIR folder at runtime

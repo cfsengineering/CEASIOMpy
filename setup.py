@@ -7,7 +7,7 @@ from pathlib import Path
 
 NAME = "ceasiompy"
 EXCLUDE_DIRS = ["test_cases", "test_files", "installation"]
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 AUTHOR = "CFS Engineering"
 EMAIL = "giacomo.benedetti@cfse.ch"
 DESCRIPTION = "A conceptual aircraft design environment"
@@ -15,17 +15,8 @@ URL = "https://github.com/cfsengineering/CEASIOMpy"
 REQUIRES_PYTHON = ">=3.11.11"
 REQUIRED = ["numpy"]
 README = "README.md"
-PACKAGE_DIR = "."
+PACKAGE_DIR = "src"
 LICENSE = "LICENSE"
-SCRIPTS = [str(Path("src/bin/ceasiompy_exec.py"))]
-
-# Windows
-if platform.system().lower() == "windows":
-    # Use BAT file as wrapper, see file header for reason
-    SCRIPTS.append(str(Path("src/bin/ceasiompy_run.bat")))
-# Linux and MacOs
-else:
-    SCRIPTS.append(str(Path("src/bin/ceasiompy_run")))
 
 here = Path(__file__).parent
 
@@ -45,9 +36,9 @@ setuptools.setup(
     url=URL,
     include_package_data=True,
     package_dir={"": PACKAGE_DIR},
-    scripts=SCRIPTS,
+    entry_points={'console_scripts': ['ceasiompy_run = src.ceasiompy_package.cli:main_exec']},
     license=license,
-    packages=setuptools.find_packages(exclude=EXCLUDE_DIRS),
+    packages=setuptools.find_packages(where=PACKAGE_DIR, exclude=EXCLUDE_DIRS),
     python_requires=REQUIRES_PYTHON,
     install_requires=[],
     # See: https://pypi.org/classifiers/

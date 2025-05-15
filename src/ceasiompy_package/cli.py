@@ -4,6 +4,7 @@ import os
 import subprocess
 from pathlib import Path
 
+
 def main_exec():
     """
     Entry point function for the run_ceasiompy command.
@@ -22,8 +23,8 @@ def main_exec():
     # --- Validation ---
 
     if not PROJECT_ROOT.is_dir():
-         print(f"Error: Project root directory not found at {PROJECT_ROOT}", file=sys.stderr)
-         sys.exit(1)
+        print(f"Error: Project root directory not found at {PROJECT_ROOT}", file=sys.stderr)
+        sys.exit(1)
 
     if not SCRIPT_ABSOLUTE_PATH.is_file():
         print(f"Error: Script not found at {SCRIPT_ABSOLUTE_PATH}", file=sys.stderr)
@@ -43,7 +44,6 @@ def main_exec():
     # print(f"Executing command: {' '.join(map(str, command))}", file=sys.stderr)
     # print(f"Working directory: {PROJECT_ROOT}", file=sys.stderr)
 
-
     # --- Execute Script ---
 
     try:
@@ -53,15 +53,27 @@ def main_exec():
         subprocess.run(command, cwd=PROJECT_ROOT, check=True)
 
     except FileNotFoundError:
-        print(f"Error: Python interpreter or script not found. Command: {' '.join(map(str, command))}", file=sys.stderr)
-        sys.exit(1) # Indicate failure
+        msg = (
+            "Error: Python interpreter or script not found. "
+            f"Command: {' '.join(map(str, command))}"
+        )
+        print(msg, file=sys.stderr)
+        sys.exit(1)  # Indicate failure
 
     except subprocess.CalledProcessError as e:
         # This happens if the ceasiompy_exec.py script exits with an error code
-        print(f"Error executing script: The script returned a non-zero exit code {e.returncode}.", file=sys.stderr)
-        if e.stdout: print("--- Script stdout ---\n", e.stdout.decode(), file=sys.stderr)
-        if e.stderr: print("--- Script stderr ---\n", e.stderr.decode(), file=sys.stderr)
-        sys.exit(e.returncode) # Exit the entry point with the script's error code
+        print(
+            f"Error executing script: The script returned a non-zero exit code {e.returncode}.",
+            file=sys.stderr
+        )
+
+        if e.stdout:
+            print("--- Script stdout ---\n", e.stdout.decode(), file=sys.stderr)
+
+        if e.stderr:
+            print("--- Script stderr ---\n", e.stderr.decode(), file=sys.stderr)
+
+        sys.exit(e.returncode)  # Exit the entry point with the script's error code
 
     except Exception as e:
         # Catch any other unexpected errors

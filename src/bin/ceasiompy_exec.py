@@ -184,7 +184,8 @@ def main():
         "--cfg",
         type=str,
         metavar="PATH",
-        help="testting create a CEASIOMpy workflow from a configuration file [PATH to the config file]",
+        help="""testting create a CEASIOMpy workflow from a configuration file
+            [PATH to the config file]""",
     )
     parser.add_argument(
         "-g",

@@ -283,7 +283,7 @@ def find_chord_length(le_te_pair: List):
         x1, y1, z1 = gmsh.model.occ.getCenterOfMass(1, le_te_pair[0])
         x2, y2, z2 = gmsh.model.occ.getCenterOfMass(1, le_te_pair[1])
         chord_length = np.linalg.norm([x2 - x1, y2 - y1, z2 - z1])
-        log.info(f"Using sharpe profile with computed {chord_length}.")
+        log.info(f"Using sharp-e profile with computed {chord_length}.")
         return chord_length
 
     # truncated profile

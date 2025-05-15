@@ -22,7 +22,6 @@ TODO:
 
 import gmsh
 import numpy as np
-import math
 
 from ceasiompy import log
 from ceasiompy.CPACS2GMSH.func.wingclassification import ModelPart
@@ -43,7 +42,6 @@ def distance_field(mesh_fields, dim, object_tags):
     mesh_fields : dict
         mesh_fields["nbfields"] : number of existing mesh field in the model,
         each field must be created with a different index !!!
-
     dim : int
         dimension of the object to apply the distance field on
     object_tags : list
@@ -72,14 +70,13 @@ def distance_field(mesh_fields, dim, object_tags):
 
 def restrict_fields(mesh_fields, dim, object_tags, infield=None):
     """
-    This function creates a restrict field on the last field in mesh_fields
+    This function creates a restrict field on the last (or entered field) field in mesh_fields
 
     Args:
     ----------
     mesh_fields : dict
         mesh_fields["nbfields"] : number of existing mesh field in the model,
         each field must be created with a different index !!!
-
     dim : int
         dimension of the object to apply the restrict field on
     object_tags : list
@@ -242,6 +239,8 @@ def refine_wing_section(
         if the wing is truncated, the trailing edge will be refined to match the te thickness
     chord_percent : float
         percentage of the chord to refine from le/te edge
+    n_power : float
+        power of refinement function
     ...
     """
 
@@ -298,7 +297,7 @@ def refine_wing_section(
             mesh_fields, 3, final_domain_volume_tag, infield=math_eval_field
         )
 
-        # 2 : Threshold field
+        # 2 : Threshold field (in fact not needed for RANS, as we set the size with constant fields)
 
         # Create the threshold field
         mesh_fields["nbfields"] += 1
@@ -336,31 +335,49 @@ def refine_end_wing(
     mesh_fields
 ):
     """
+    Function similar to refine_le_te but for the "tip" of the wing. 
+    Creates a mathEval field to do the refinement close to the tip of the wing. The function is:
+
+        MeshSize (x_le) = mesh_w/r + mesh_w"(1-1/r)*(x_le/x_chord)^n_power
+
+    with :
+        - mesh_w : the mesh size of the wing = mesh_size_wings
+        - r : the refine factor = refine
+        - x_chord : the distance at which the refinement function stop = chord_percent*chord_length
+        - n_power : the power of the refinement function = n_power
+
+        x_le is computed automatically by a distance field F, and give the distance (x,y,z)
+        from the leading edge curve
 
     Args:
     ----------
+    line1 : int
+        tag of one of the two lines at the tip, lines we need to refine
+    line2 : int
+        the other line
+    aircraft : ModelPart
+        the aircraft model part
+    x_chord : float
+        size of the mean chord on the smallest part of the wing * 0.25 
+        --> will be the width of refinement, to match the rest
+    surfaces_wing : list of int
+        list of the surfaces in the wing
+    refine : float
+        refinement factor for the le/te edge
+    mesh_size_wings : float
+        mesh size of the wing
+    n_power : float
+        power of the refinement function
+    final_domain_volume_tagslist : list
+        list of the tag(s) of the final domain volume (usually one)
     mesh_fields : dict
         mesh_fields["nbfields"] : number of existing mesh field in the model,
         each field must be created with a different index !!!
         mesh_fields["restrict_fields"] : list of the restrict fields,
         this is the list to be use for the final "Min" background field
-    aircraft : ModelPart
-        the aircraft model part
-    final_domain_volume_tag : list
-        list of the tag(s) of the final domain volume (usually one)
-    wing_part : ModelPart
-        wing part to refine
-    mesh_size_wings : float
-        mesh size of the wing
-    wing_section : wing_section (see wingclassification.py)
-        wing_section to refine
-    refine : float
-        refinement factor for the le/te edge
-    refine_truncated : bool
-        if the wing is truncated, the trailing edge will be refined to match the te thickness
-    chord_percent : float
-        percentage of the chord to refine from le/te edge
     ...
+    Return:
+        nothing
     """
 
     # Get the wing section chord, le and te lines and the surface of the wing
@@ -389,7 +406,7 @@ def refine_end_wing(
         mesh_fields, 3, final_domain_volumes_tagslist, infield=math_eval_field
     )
 
-    # 2 : Threshold field
+    # 2 : Threshold field (in fact not needed for RANS, as we set the size with constant fields)
 
     # Create the threshold field
     mesh_fields["nbfields"] += 1
@@ -513,7 +530,7 @@ def refine_small_surfaces(
     - if the surface area is very small compare to the mesh size of the part mesh
     the surface is remeshed with a smaller mesh size
         --> With parameters by default, if with mesh size we have less than 150 triangles
-            in the surface, we set the mesh size to have 150 triangles
+            in the surface, we set the mesh size to have ~150 triangles
 
     Args:
     ----------
@@ -554,12 +571,13 @@ def refine_small_surfaces(
         area = compute_area(surface_tag)
 
         if area < nb_min_triangle * mesh_triangle_surf:
+            # It means, we have probably less than nb_min_triangle
             refined_surfaces.append(surface_tag)
 
             # Refine the surface
             new_mesh_size = ((area / (nb_min_triangle)) / 0.43301270) ** 0.5
             # computation : we want areaoftriangle to be totalarea/nbtriangle,
-            # and area of triangle = sqrt(3)/4 * (side = mesh size)^2
+            # and area of triangle = sqrt(3)/4 * (side = mesh size)^2 and (sqrt(3)/4=0.433..)
 
             # Set the color to indicate the bad surfaces
             gmsh.model.setColor([(2, surface_tag)], *MESH_COLORS["bad_surface"], recursive=False)
@@ -578,7 +596,7 @@ def refine_small_surfaces(
 
             mesh_fields = restrict_fields(mesh_fields, 2, [surface_tag])
 
-            # Math eval field
+            # Math eval field (not needed for RANS, but doesn't change anything)
             mesh_fields["nbfields"] += 1
             gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
             gmsh.model.mesh.field.setString(
@@ -599,14 +617,17 @@ def refine_other_lines(
     te_le_already_refined, refine, aircraft_parts, mesh_fields, mesh_size_by_part, n_power
 ):
     """
-    Function to refine the mesh along edges with really small angles
-        (as done for the leading and trailing edges, but for others)
-    WARNING : this function does not work for now. I feel like there is a problem
-        when retrieving normals (often get (1,0,0) even when does not make sense)
+    Function to refine the mesh along edges that are not "flat", for example intersection wing
+        and fuselage, or other "sharp" edges that are not le and te
+
+    WARNING : this function does not get all the concerned edges it should get, but still work 
+        on most, so good news
+        (I think sometimes I have problem with normals, and/or times where edges is "round" but
+        really small so makes a mesh with sharp edges and is still not detected)
 
     Each line is inspected :
 
-    - if the angle between the adjacent surfaces is smaller than 72 degrees,
+    - if the angle between the adjacent surfaces is smaller than 130 degrees,
         we refine along this line
     --> To compute the angle, we get the nodes along the line, then the normal
         at these nodes for each surface and compute the scalar product which is the cosinus
@@ -639,15 +660,18 @@ def refine_other_lines(
 
     # Need a mesh to create the nodes along the lines
     log.info("Must first generate a 1D mesh")
+    # Don't need the parameters, because with curvature takes too long and is useless
+    gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
+    gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
+    gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
     gmsh.model.mesh.generate(1)
     gmsh.model.occ.synchronize()
     # First we need to find which lines are the ones we want to refine
     log.info("Now finding which lines need refinement")
     lines = gmsh.model.getEntities(1)
-    lines_with_angles_tag = []
 
     # We now inspect every line and compute angle from adjacent surfaces
-    lines_with_angles_tag = []
+    lines_to_refine_tag = []
     for (dim, line) in lines:
         surface_tags, _ = gmsh.model.getAdjacencies(dim, line)
         tags_coords_params = {-1: "yay"}
@@ -655,16 +679,18 @@ def refine_other_lines(
         for i in surface_tags:
             tags, coord, param = gmsh.model.mesh.getNodes(2, i, True)
             tags_coords_params[i] = {'tags': tags, 'coord': coord, 'param': param}
-        # Now see the surfaces two by two, to see their intersection
+        # Now compute if there are two surfaces with a "small" (<130) angle
         small_angle = compute_angle_surfaces(surface_tags, tags_coords_params, line)
+        # If so, we need to refine next to this line
         if small_angle:
-            lines_with_angles_tag.append(line)
+            lines_to_refine_tag.append(line)
 
-    lines_with_angles_tag = [li for li in lines_with_angles_tag if li not in te_le_already_refined]
-    log.info(f"Lines to be refined are {lines_with_angles_tag}")
+    # Take out the already refined lines
+    lines_to_refine_tag = [li for li in lines_to_refine_tag if li not in te_le_already_refined]
+    log.info(f"Lines to be refined are {lines_to_refine_tag}")
     log.info("Now start setting refinement")
     gmsh.model.setColor([(1, line)
-                        for line in lines_with_angles_tag], 0, 255, 0)  # green
+                        for line in lines_to_refine_tag], 0, 255, 0)  # green
 
     for part in aircraft_parts:
         surfaces_tags = part.surfaces_tags
@@ -673,12 +699,12 @@ def refine_other_lines(
         size = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
         size.sort()
         # Choose refinement to go on 1/4 of the length of the second smallest size
-        # (somehow usually the correct length)
+        # usually, a reasonable size that works
         m = size[1] / 4
         for s in surfaces_tags:
             # Get all the lines that are adjacent and need refinement
             [_, adjacent_lines] = gmsh.model.getAdjacencies(2, s)
-            lines_to_refine = list(set(adjacent_lines) & set(lines_with_angles_tag))
+            lines_to_refine = list(set(adjacent_lines) & set(lines_to_refine_tag))
             mesh_fields = refine_surface(part.uid, lines_to_refine, [s], mesh_fields,
                                          m, n_power, refine, mesh_size)
 
@@ -690,6 +716,19 @@ def refine_surface(
 ):
     """
     Function to refine the surfaces on a specific part along some given lines by creating Fields
+
+    refining with a mathEval field, as before:
+
+            MeshSize (x_le) = mesh_w/r + mesh_w"(1-1/r)*(x_le/x_chord)^n_power
+
+    with :
+        - mesh_w : the mesh size of the wing = mesh_size_wings
+        - r : the refine factor = refine
+        - x_chord : the distance at which the refinement function stop = chord_percent*chord_length
+        - n_power : the power of the refinement function = n_power
+
+        x_le is computed automatically by a distance field F, and give the distance (x,y,z)
+        from the leading edge curve
 
     Args:
     ----------
@@ -760,7 +799,7 @@ def compute_angle_surfaces(
     surface_tags, tags_coords_params, line
 ):
     """
-    Function to compute the angle between some surfaces
+    Function to compute if he angle between some surfaces is "small" (<130 degrees)
 
     Args:
     ----------
@@ -775,7 +814,7 @@ def compute_angle_surfaces(
     Returns:
     ----------
     small_angle : bool
-        True if we found a "small angle", i.e. a sharp edge
+        True if we found a "small angle"
 
     """
     for k, i in enumerate(surface_tags):
@@ -804,7 +843,7 @@ def compute_angle_surfaces(
                         # are of norm 1
                         cosalpha = (normal_i[0] * normal_j[0] + normal_i[1]
                                     * normal_j[1] + normal_i[2] * normal_j[2])
-                        if cosalpha < 0.6:  # (angle of more than 50 degrees from being flat)
+                        if cosalpha < 0.63:  # (angle of more than 50 degrees from being flat)
                             return True
     return False
 

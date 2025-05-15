@@ -34,7 +34,7 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_N_POWER_FIELD_XPATH,
     GMSH_REFINE_FACTOR_XPATH,
     GMSH_REFINE_TRUNCATED_XPATH,
-    GMSH_REFINE_FACTOR_SHARP_EDGES_XPATH,
+    GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,
     GMSH_AUTO_REFINE_XPATH,
     GMSH_NUMBER_LAYER_XPATH,
     GMSH_H_FIRST_LAYER_XPATH,
@@ -241,12 +241,12 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="refine_factor_sharp_edges",
+    var_name="refine_factor_angled_lines",
     var_type=float,
     default_value=1.5,
     unit="1",
     descr="Refinement factor of edges at intersections that are not flat enough, warning : does not always work on all edges",
-    xpath=GMSH_REFINE_FACTOR_SHARP_EDGES_XPATH,
+    xpath=GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,
     gui=True,
     gui_name="Other sharp edges refinement factor",
     gui_group="Advanced mesh parameters",

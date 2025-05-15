@@ -1,7 +1,16 @@
-
+import os
 import sys
 import subprocess
 from pathlib import Path
+
+
+def find_project_root():
+    current = os.getcwd()
+    while current != '/':
+        if 'setup.py' in os.listdir(current):
+            return current
+        current = os.path.dirname(current)
+    raise RuntimeError("Project root directory not found at " + os.getcwd())
 
 
 def main_exec():
@@ -13,7 +22,7 @@ def main_exec():
     to the project root and passing along all command-line arguments.
     """
     # Define the absolute path to the project root based on the Docker mount.
-    PROJECT_ROOT = Path("/CEASIOMpy")
+    PROJECT_ROOT = Path(find_project_root())
 
     # Define the path to the ceasiompy_exec.py script relative to the project root.
     SCRIPT_RELATIVE_PATH = Path("src") / "bin" / "ceasiompy_exec.py"
@@ -43,13 +52,18 @@ def main_exec():
     # print(f"Executing command: {' '.join(map(str, command))}", file=sys.stderr)
     # print(f"Working directory: {PROJECT_ROOT}", file=sys.stderr)
 
+    # Set PYTHONPATH to include src/
+    env = os.environ.copy()
+    src_path = str(PROJECT_ROOT / "src")
+    env["PYTHONPATH"] = src_path + os.pathsep + env.get("PYTHONPATH", "")
+
     # --- Execute Script ---
 
     try:
         # Use subprocess.run to execute the command
         # cwd: Set the current working directory for the command to the project root
         # check=True: Raise a CalledProcessError if the script returns a non-zero exit code
-        subprocess.run(command, cwd=PROJECT_ROOT, check=True)
+        subprocess.run(command, cwd=PROJECT_ROOT, check=True, env=env)
 
     except FileNotFoundError:
         msg = (

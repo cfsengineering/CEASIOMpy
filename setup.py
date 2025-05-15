@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import platform
 import setuptools
 from pathlib import Path
 
 NAME = "ceasiompy"
 EXCLUDE_DIRS = ["test_cases", "test_files", "installation"]
-VERSION = "0.2.1"
+VERSION = "0.2.0"
 AUTHOR = "CFS Engineering"
 EMAIL = "giacomo.benedetti@cfse.ch"
 DESCRIPTION = "A conceptual aircraft design environment"
@@ -36,7 +35,7 @@ setuptools.setup(
     url=URL,
     include_package_data=True,
     package_dir={"": PACKAGE_DIR},
-    entry_points={'console_scripts': ['ceasiompy_run = src.ceasiompy_package.cli:main_exec']},
+    entry_points={'console_scripts': ['ceasiompy_run = ceasiompy_package.cli:main_exec']},
     license=license,
     packages=setuptools.find_packages(where=PACKAGE_DIR, exclude=EXCLUDE_DIRS),
     python_requires=REQUIRES_PYTHON,

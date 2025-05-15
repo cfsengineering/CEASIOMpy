@@ -58,7 +58,9 @@ jobs:
 
     - name: Run unit tests
       shell: bash -l {0}
-      run: pytest -v ./ceasiompy --cov=ceasiompy/ --cov-report xml:coverage.xml
+      run: |
+        source ~/.bashrc
+        pytest -v ./ceasiompy --cov=ceasiompy/ --cov-report xml:coverage.xml
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3.1.0

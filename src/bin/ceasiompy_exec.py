@@ -172,7 +172,6 @@ def run_gui():
 
 def main():
 
-    print("test1")
     parser = argparse.ArgumentParser(
         description="CEASIOMpy: Conceptual Aircraft Design Environment",
         usage=argparse.SUPPRESS,
@@ -209,11 +208,7 @@ def main():
         help="run a test case [1, 2, or 3]",
     )
 
-    print("test2")
-
     args = parser.parse_args()
-
-    print("test3")
 
     if args.testcase:
         run_testcase(args.testcase)

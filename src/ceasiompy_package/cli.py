@@ -78,6 +78,6 @@ def main_exec():
     except Exception as e:
         # Catch any other unexpected errors
         print(f"An unexpected error occurred during script execution: {e}", file=sys.stderr)
-        sys.exit(1) # Indicate failure
+        sys.exit(1)  # Indicate failure
 
-    sys.exit(0) # Indicate success
+    sys.exit(0)  # Indicate success

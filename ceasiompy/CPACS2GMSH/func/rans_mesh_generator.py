@@ -424,11 +424,12 @@ def fusing_parts(
 ):
     """
     Function to fuse all of the different aircraft parts to get a single volume.
-    To work, we need to fuse volume by two, and volumes that intersect. That's why we first take two
-    volumes that intersect, fuse them and do that until we're left with only one volume.
+    To work, we need to fuse volume by two, and volumes that intersect. That's why we first take
+    two volumes that intersect, fuse them and do that until we're left with only one volume.
 
-    There are sometimes some problems (ex : with propellers), and sometimes the intersection doesn't
-    work, so we try again after shuffling the list. There is a stop after 20 failed attemps.
+    There are sometimes some problems (ex : with propellers), and sometimes the intersection
+    doesn't work (like if only intersect by a surface),
+    so we try again after shuffling the list. There is a stop after 20 failed attemps.
     Args:
     ----------
     aircraft_parts : list of ModelPart
@@ -475,8 +476,9 @@ def fusing_parts(
                     "Warning : the fusion did not give only one piece (will still try to see\
                         if it's a question of order)")
                 dimtags_names =\
-                    [{"dimtag": fused_entities[0], "name": " errorwhen" + dimtags_names[i]["name"] + "+"
-                        + dimtags_names[j]["name"]}] +\
+                    [{"dimtag": fused_entities[0], "name":
+                        " errorwhen" + dimtags_names[i]["name"]
+                      + "+" + dimtags_names[j]["name"]}] +\
                     [{dimtags_names[k]} for k in range(len(dimtags_names))if k != j and k != i] + \
                     [{"dimtag": fused_entities[k],
                         "name": "errorwhen" + dimtags_names[i]["name"] + dimtags_names[j]["name"]}
@@ -756,8 +758,9 @@ def refine_le_te_end(
             # Now need to find the tip of the wing. We know it is not a line that touch
             # another part, or one found in le and te, so take thouse out
             lines_in_other_parts = exclude_lines(model_part, aircraft_parts)
+            lines_to_take_out = set(lines_already_refined_lete).union(set(lines_in_other_parts))
             lines_left = sorted(list(set(model_part.lines_tags)
-                                     - (set(lines_already_refined_lete).union(set(lines_in_other_parts)))))
+                                     - lines_to_take_out))
 
             for i, line1 in enumerate(lines_left):
                 for _, line2 in enumerate(lines_left, i + 1):

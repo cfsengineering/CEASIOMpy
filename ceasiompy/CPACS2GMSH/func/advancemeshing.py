@@ -297,7 +297,7 @@ def refine_wing_section(
             mesh_fields, 3, final_domain_volume_tag, infield=math_eval_field
         )
 
-        # 2 : Threshold field (in fact not needed for RANS, as we set the size with constant fields)
+        # 2 : Threshold field(in fact not needed for RANS, as we set the size with constant fields)
 
         # Create the threshold field
         mesh_fields["nbfields"] += 1
@@ -335,7 +335,7 @@ def refine_end_wing(
     mesh_fields
 ):
     """
-    Function similar to refine_le_te but for the "tip" of the wing. 
+    Function similar to refine_le_te but for the "tip" of the wing.
     Creates a mathEval field to do the refinement close to the tip of the wing. The function is:
 
         MeshSize (x_le) = mesh_w/r + mesh_w"(1-1/r)*(x_le/x_chord)^n_power
@@ -358,7 +358,7 @@ def refine_end_wing(
     aircraft : ModelPart
         the aircraft model part
     x_chord : float
-        size of the mean chord on the smallest part of the wing * 0.25 
+        size of the mean chord on the smallest part of the wing * 0.25
         --> will be the width of refinement, to match the rest
     surfaces_wing : list of int
         list of the surfaces in the wing
@@ -620,7 +620,7 @@ def refine_other_lines(
     Function to refine the mesh along edges that are not "flat", for example intersection wing
         and fuselage, or other "sharp" edges that are not le and te
 
-    WARNING : this function does not get all the concerned edges it should get, but still work 
+    WARNING : this function does not get all the concerned edges it should get, but still work
         on most, so good news
         (I think sometimes I have problem with normals, and/or times where edges is "round" but
         really small so makes a mesh with sharp edges and is still not detected)
@@ -700,13 +700,16 @@ def refine_other_lines(
         size.sort()
         # Choose refinement to go on 1/4 of the length of the second smallest size
         # usually, a reasonable size that works
-        m = size[1] / 4
+        m = size[1] / 3
+        all_lines_refined_in_part = []
         for s in surfaces_tags:
             # Get all the lines that are adjacent and need refinement
             [_, adjacent_lines] = gmsh.model.getAdjacencies(2, s)
-            lines_to_refine = list(set(adjacent_lines) & set(lines_to_refine_tag))
-            mesh_fields = refine_surface(part.uid, lines_to_refine, [s], mesh_fields,
+            lines_to_refine_surface = list(set(adjacent_lines) & set(lines_to_refine_tag))
+            all_lines_refined_in_part.append(lines_to_refine_surface)
+            mesh_fields = refine_surface(part.uid, lines_to_refine_surface, [s], mesh_fields,
                                          m, n_power, refine, mesh_size)
+        log.info(f"Refining non flat angles in part {part.uid}, lines {all_lines_refined_in_part}")
 
     return mesh_fields
 
@@ -760,7 +763,6 @@ def refine_surface(
 
     """
     for line in lines_to_refine:
-        log.info(f"Refining line {line} in surface {surfaces_tag} in part {part_uid}")
 
         # 1 : Math eval field
         mesh_fields["nbfields"] += 1
@@ -883,7 +885,8 @@ def refine_between_parts(
                 lines_at_intersection = list(set(part.lines_tags) & set(part2.lines_tags))
                 gmsh.model.setColor([(1, line)
                                     for line in lines_at_intersection], 255, 0, 0)  # red
-
+                log.info(f"Refining line(s) {lines_at_intersection} \
+                    in between parts {part.uid} and {part2.uid}")
                 for line in lines_at_intersection:
                     surfaces_adjacent, _ = gmsh.model.getAdjacencies(1, line)
                     surfaces_to_refine = list(set(surfaces_adjacent) & set(big_part.surfaces_tags))
@@ -892,8 +895,10 @@ def refine_between_parts(
                     size = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
                     size.sort()
                     m = size[1] / 4
-                    mesh_fields = refine_surface(big_part.uid, [line], surfaces_to_refine, mesh_fields, m, 2,
-                                                 big_part.mesh_size / small_part.mesh_size, big_part.mesh_size)
+                    mesh_fields = refine_surface(big_part.uid, [line], surfaces_to_refine,
+                                                 mesh_fields, m, 2,
+                                                 big_part.mesh_size / small_part.mesh_size,
+                                                 big_part.mesh_size)
 
     return mesh_fields
 

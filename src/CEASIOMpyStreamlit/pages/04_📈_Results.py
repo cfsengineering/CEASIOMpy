@@ -19,7 +19,7 @@ Streamlit page to show results of CEASIOMpy
 import os
 
 import pandas as pd
-import CEASIOMpyStreamlit as st
+import streamlit as st
 import plotly.graph_objects as go
 
 from streamlit_autorefresh import st_autorefresh

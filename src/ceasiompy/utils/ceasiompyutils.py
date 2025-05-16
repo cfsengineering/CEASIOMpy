@@ -17,7 +17,7 @@ import math
 import shutil
 import importlib
 import subprocess
-import CEASIOMpyStreamlit as st
+import streamlit as st
 
 from pydantic import validate_call
 from contextlib import contextmanager

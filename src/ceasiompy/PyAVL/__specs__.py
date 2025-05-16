@@ -11,7 +11,7 @@ GUI Interface of PyAVL.
 #   IMPORTS
 # ==============================================================================
 
-import CEASIOMpyStreamlit as st
+import streamlit as st
 
 from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
 

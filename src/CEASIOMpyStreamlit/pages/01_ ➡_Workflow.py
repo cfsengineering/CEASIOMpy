@@ -16,7 +16,7 @@ Streamlit page to create a CEASIOMpy workflow
 #   IMPORTS
 # ==============================================================================
 
-import CEASIOMpyStreamlit as st
+import streamlit as st
 
 from streamlitutils import create_sidebar
 from ceasiompy.utils.moduleinterfaces import get_module_list

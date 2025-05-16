@@ -9,7 +9,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 #   IMPORTS
 # ==============================================================================
 
-import CEASIOMpyStreamlit as st
+import streamlit as st
 
 from pandas import concat
 from cpacspy.cpacsfunctions import get_value

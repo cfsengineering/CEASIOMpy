@@ -14,7 +14,7 @@ GUI Interface of CPACSUpdater.
 #   IMPORTS
 # ==============================================================================
 
-import CEASIOMpyStreamlit as st
+import streamlit as st
 
 from ceasiompy.utils.geometryfunctions import get_segments
 

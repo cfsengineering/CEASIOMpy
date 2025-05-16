@@ -17,7 +17,7 @@ called only from here to avoid mistakes.
 #   IMPORTS
 # =================================================================================================
 
-import ceasiompy.__init__
+import ceasiompy
 
 from pathlib import Path
 
@@ -27,16 +27,19 @@ from ceasiompy import log
 #   CSTS
 # =================================================================================================
 
+# /CEASIOMpy/src
+SRC_PATH = Path(ceasiompy.__file__).parents[1]
+
 # /CEASIOMpy/
-CEASIOMPY_PATH = Path(ceasiompy.__file__).parents[1]
+CEASIOMPY_PATH = SRC_PATH.parent
 
-# /CEASIOMpy/ceasiompy/
-MODULES_DIR_PATH = Path(ceasiompy.__file__).parent
+# /CEASIOMpy/src/ceasiompy/
+MODULES_DIR_PATH = Path(SRC_PATH, "ceasiompy")
 
-# /CEASIOMpy/ceasiompy/Database/databases/ceasiompy.db
+# /CEASIOMpy/src/ceasiompy/Database/databases/ceasiompy.db
 CEASIOMPY_DB_PATH = Path(MODULES_DIR_PATH, "Database", "databases", "ceasiompy.db")
 
-# /CEASIOMpy/ceasiompy/Database/tests/databases/testceasiompy.db
+# /CEASIOMpy/src/ceasiompy/Database/tests/databases/testceasiompy.db
 TESTCEASIOMPY_DB_PATH = Path(
     MODULES_DIR_PATH,
     "Database",
@@ -55,7 +58,7 @@ LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
 RUNWORKFLOW_HISTORY_PATH = Path(CEASIOMPY_PATH, ".ceasiompy", ".runworkflow_history")
 
 # /CEASIOMpy/src/CEASIOMpyStreamlit
-STREAMLIT_PATH = Path(CEASIOMPY_PATH, "src", "CEASIOMpyStreamlit")
+STREAMLIT_PATH = Path(SRC_PATH, "CEASIOMpyStreamlit")
 
 # /CEASIOMpy/test_cases/
 TEST_CASES_PATH = Path(CEASIOMPY_PATH, "test_cases")
@@ -66,10 +69,10 @@ CPACS_FILES_PATH = Path(CEASIOMPY_PATH, "test_files", "CPACSfiles")
 # /CEASIOMpy/test_files/ResultsFiles/
 TEST_RESULTS_FILES_PATH = Path(CEASIOMPY_PATH, "test_files", "ResultsFiles")
 
-# /CEASIOMpy/ceasiompy/WKDIR/
+# /CEASIOMpy/WKDIR/
 WKDIR_PATH = Path(CEASIOMPY_PATH, "WKDIR")
 
-# /CEASIOMpy/ceasiompy/SU2Run/files/default_paraview_state.pvsm
+# /CEASIOMpy/src/ceasiompy/SU2Run/files/default_paraview_state.pvsm
 DEFAULT_PARAVIEW_STATE = Path(MODULES_DIR_PATH, "SU2Run", "files", "default_paraview_state.pvsm")
 
 

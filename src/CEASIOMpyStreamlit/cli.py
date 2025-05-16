@@ -1,3 +1,5 @@
+"""Running CEASIOMpy script."""
+
 import os
 import sys
 import subprocess

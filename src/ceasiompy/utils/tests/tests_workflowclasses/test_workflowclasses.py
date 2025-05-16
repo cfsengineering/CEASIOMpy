@@ -17,12 +17,13 @@ Test functions for 'utils/workflowclasses.py'
 import pytest
 import shutil
 from pathlib import Path
-from ceasiompy.utils.workflowclasses import ModuleToRun, OptimSubWorkflow, Workflow
+from ceasiompy.utils.workflowclasses import ModuleToRun, Workflow
 from ceasiompy.utils.ceasiompyutils import run_module
 
-MODULE_DIR = Path(__file__).parent
+MODULE_DIR = Path(__file__).parent.parent
 CPACS_PATH = Path(
-    MODULE_DIR.parents[3], "test_files", "CPACSfiles", "D150_simple.xml")
+    MODULE_DIR.parents[3], "test_files", "CPACSfiles", "D150_simple.xml"
+)
 CPACS_PATH_OUT = Path(MODULE_DIR, "D150_simple_out.xml")
 
 # =================================================================================================

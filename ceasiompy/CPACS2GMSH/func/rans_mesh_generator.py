@@ -337,6 +337,7 @@ def generate_2d_mesh_for_pentagrow(
                 mesh_size_farfield,
                 max(model_dimensions),
                 [final_domain_volume_tag],
+                nb_min_triangle=75,
             )
             bad_surfaces.extend(refined_surfaces)
 
@@ -783,7 +784,7 @@ def refine_le_te_end(
                                     [aircraft.volume_tag],
                                     mesh_fields)
                     gmsh.model.setColor([(1, line1), (1, line2)], 0, 180, 180)  # to see
-                lines_already_refined_lete.extend([line1, line2])
+                    lines_already_refined_lete.extend([line1, line2])
 
             for (line1, line2, line3) in list(combinations(lines_left, 3)):
                 surfaces1, points1 = gmsh.model.getAdjacencies(1, line1)
@@ -810,7 +811,7 @@ def refine_le_te_end(
                                     mesh_fields)
                     gmsh.model.setColor([(1, line1), (1, line2), (1, line3)],
                                         0, 180, 180)  # to see
-                lines_already_refined_lete.extend([line1, line2, line3])
+                    lines_already_refined_lete.extend([line1, line2, line3])
 
     # Generate the minimal background mesh field
     mesh_fields = min_fields(mesh_fields)

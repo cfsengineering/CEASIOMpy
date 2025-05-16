@@ -687,27 +687,6 @@ def refine_other_lines(
     gmsh.model.setColor([(1, line)
                         for line in lines_to_refine_tag], 0, 255, 0)  # green
 
-    '''
-    for part in aircraft_parts:
-        surfaces_tags = part.surfaces_tags
-        mesh_size = mesh_size_by_part[part.part_type]
-        bb = part.bounding_box
-        size = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
-        size.sort()
-        # Choose refinement to go on 1/4 of the length of the second smallest size
-        # usually, a reasonable size that works
-        m = size[1] / 3
-        all_lines_refined_in_part = []
-        for s in surfaces_tags:
-            # Get all the lines that are adjacent and need refinement
-            [_, adjacent_lines] = gmsh.model.getAdjacencies(2, s)
-            lines_to_refine_surface = list(set(adjacent_lines) & set(lines_to_refine_tag))
-            all_lines_refined_in_part.extend(lines_to_refine_surface)
-            mesh_fields = refine_surface(part.uid, lines_to_refine_surface, [s], mesh_fields,
-                                         m, n_power, refine, mesh_size)
-        log.info(f"Refining non flat angles in part {part.uid}, lines:")
-        log.info(f"{[int(l) for l in all_lines_refined_in_part]}")
-    '''
     for line in lines_to_refine_tag:
         surfaces_adjacent, _ = gmsh.model.getAdjacencies(1, line)
         surfaces_to_refine = []
@@ -736,6 +715,7 @@ def refine_other_lines(
                                          n_power=n_power,
                                          refine=refine_factor_adapted,
                                          mesh_size=part_size_surf_m["mesh_size"])
+
     return mesh_fields
 
 
@@ -869,6 +849,8 @@ def compute_angle_surfaces(
                     # are of norm 1
                     cosalpha = (normal_i[0] * normal_j[0] + normal_i[1]
                                 * normal_j[1] + normal_i[2] * normal_j[2])
+                    if line in [16, 17, 22, 27]:
+                        log.info(f"for line {line}, we get cos {cosalpha}")
                     if cosalpha < 0.63:  # (angle of more than 50 degrees from being flat)
                         return True
     return False

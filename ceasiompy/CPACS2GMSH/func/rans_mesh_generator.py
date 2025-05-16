@@ -276,7 +276,7 @@ def generate_2d_mesh_for_pentagrow(
     # Refine the parts when two parts intersects with different mesh size
     # (i.e. a "smooth transition" on the one with the bigger mesh size)
     log.info("Refine to get smooth transition between parts with different mesh sizes")
-    mesh_fields = refine_between_parts(aircraft_parts, mesh_size_by_group, mesh_fields)
+    mesh_fields = refine_between_parts(aircraft_parts, mesh_fields)
     mesh_fields = min_fields(mesh_fields)
     log.info("End of refinement between parts")
 
@@ -380,7 +380,7 @@ def generate_2d_mesh_for_pentagrow(
 
     gmesh_path = Path(results_dir, "surface_mesh.stl")
     gmsh.write(str(gmesh_path))
-
+    gmsh.fltk.run()
     return gmesh_path, fuselage_maxlen
 
 
@@ -441,6 +441,7 @@ def fusing_parts(
     ----------
     nothing
     """
+
     # First we take the bounding boxes of each part
     for model_part in aircraft_parts:
         xmin, ymin, zmin, xmax, ymax, zmax = gmsh.model.occ.getBoundingBox(
@@ -468,7 +469,6 @@ def fusing_parts(
                 [dimtags_names[i]["dimtag"]], [dimtags_names[j]["dimtag"]]
             )
             gmsh.model.occ.synchronize()
-
             # Look for problems
             if len(fused_entities) > 1:
                 # in this case, either the pieces are not connected
@@ -483,17 +483,21 @@ def fusing_parts(
                       + "+" + dimtags_names[j]["name"]}] +\
                     [{dimtags_names[k]} for k in range(len(dimtags_names))if k != j and k != i] + \
                     [{"dimtag": fused_entities[k],
-                        "name": "errorwhen" + dimtags_names[i]["name"] + dimtags_names[j]["name"]}
+                        "name": "errorwhen " + dimtags_names[i]["name"] + dimtags_names[j]["name"]}
                         for k in range(1, len(fused_entities))]
+            elif len(fused_entities) == 0:
+                counter += 1
+                namei, namej = dimtags_names[i]["name"], dimtags_names[j]["name"]
+                log.info(
+                    f"Warning : error, no fused entity (fused {namei} and {namej})")
+                # put them in the end to try again
+                dimtags_names =\
+                    [{dimtags_names[k]} for k in range(len(dimtags_names))if k != j and k != i] + \
+                    [dimtags_names[i], dimtags_names[j]]
             else:
-                if len(fused_entities) == 0:
-                    counter += 1
-                    namei, namej = dimtags_names[i]["name"], dimtags_names[j]["name"]
-                    log.info(f"Warning : error, no fused entity (fused {namei} and {namej})")
-
                 # Update the vectors of remaining entities
                 dimtags_names = [{"dimtag": fused_entities[0],
-                                  "name": dimtags_names[i]["name"] + dimtags_names[j]["name"]}] +\
+                                  "name": dimtags_names[i]["name"] + "+" + dimtags_names[j]["name"]}] +\
                     [dimtags_names[k] for k in range(len(dimtags_names)) if k != j and k != i]
 
         # Handle the cases where it didn't work

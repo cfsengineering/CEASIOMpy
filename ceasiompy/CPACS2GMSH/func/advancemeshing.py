@@ -849,33 +849,32 @@ def compute_angle_surfaces(
                     # are of norm 1
                     cosalpha = (normal_i[0] * normal_j[0] + normal_i[1]
                                 * normal_j[1] + normal_i[2] * normal_j[2])
-                    if line in [16, 17, 22, 27]:
-                        log.info(f"for line {line}, we get cos {cosalpha}")
                     if cosalpha < 0.63:  # (angle of more than 50 degrees from being flat)
                         return True
     return False
 
 
 def refine_between_parts(
-    aircraft_parts, mesh_size_by_group, mesh_fields
+    aircraft_parts, mesh_fields
 ):
     """
-    Function to compute the angle between some surfaces
+    Function to adapt the transition when two parts with different mesh sizes intersect.
+    --> Add a mathEval field similar to other from small mesh size to big mesh size
 
     Args:
     ----------
-    surface_tags : list of int
-        list of the tags of the surfaces we wnat to compute the angle (usually two or one)
-    tags_coords_params : dictionary of dictionaries
-        for each surface i, tags_coords_params[i] gives 3 elements:
-            params: list of the parameters of the nodes ([p1u,p1v,p2u,p2v,...])
-            coord: list of the xyz coordinates of the nodes ([n1x,n1y,n1z,n2x,n2y,n2z,...])
-            tag: list of tags of the nodes
+    aircraft_parts : list of ModelPart
+        list of the modelPart of all the parts in the aircraft
+    mesh_fields : dict
+        mesh_fields["nbfields"] : number of existing mesh field in the model,
+        each field must be created with a different index !!!
+        mesh_fields["restrict_fields"] : list of the restrict fields,
+        this is the list to be use for the final "Min" background field
     ...
     Returns:
     ----------
-    small_angle : bool
-        True if we found a "small angle", i.e. a sharp edge
+    mesh_fields : dict
+        updated dictionary
 
     """
     for part, part2 in list(combinations(aircraft_parts, 2)):

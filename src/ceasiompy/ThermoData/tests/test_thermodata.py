@@ -96,23 +96,21 @@ def test_turbofan_func():
     Fn = 2000
     new_sol_tuple = turbofan_analysis(alt, MN, Fn)
     new_sol = np.concatenate(new_sol_tuple)
-    correct_sol = np.array(
-        [
-            65.04136793,
-            323.23292298,
-            0.95295201,
-            161198.12289882,
-            1.78761453,
-            13.08931717,
-            1270.61685498,
-            724.51083329,
-            1.0,
-            964349.32127573,
-            1.42155524,
-            1139.22870449,
-        ]
-    )
-    np.testing.assert_almost_equal(new_sol.item(), correct_sol.item(), 3)
+    correct_sol = np.array([
+        65.04136793,
+        323.23292298,
+        0.95295201,
+        161198.12289882,
+        1.78761453,
+        13.08931717,
+        1270.61685498,
+        724.51083329,
+        1.0,
+        964349.32127573,
+        1.42155524,
+        1139.22870449,
+    ])
+    np.testing.assert_almost_equal(new_sol, correct_sol, 3)
 
 
 def test_write_hbtf_file(tmp_path):

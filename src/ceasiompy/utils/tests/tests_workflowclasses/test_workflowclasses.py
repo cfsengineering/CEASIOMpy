@@ -29,7 +29,7 @@ CPACS_PATH_OUT = Path(MODULE_DIR, "D150_simple_out.xml")
 #   TESTS
 # =================================================================================================
 
-        
+
 def test_module_name_error():
 
     with pytest.raises(ValueError):

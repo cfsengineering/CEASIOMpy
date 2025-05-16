@@ -12,7 +12,7 @@ Test functions for 'utils/workflowclasses.py'
 
 import pytest
 
-from ceasiompy.utils.ceasiompyutils import run_module
+from ceasiompy.utils.ceasiompyutils import run_module, current_workflow_dir
 
 from pathlib import Path
 from ceasiompy.utils.workflowclasses import ModuleToRun, Workflow
@@ -45,7 +45,8 @@ class TestModuleToRun:
 
     # Remove old WKFLOW_test dir and create an empty one
     wkflow_test = Path(MODULE_DIR, "WKFLOW_test")
-    module_works = ModuleToRun("SU2Run", wkflow_test, CPACS_PATH, CPACS_PATH)
+    wkflow_dir = current_workflow_dir()
+    module_works = ModuleToRun("SU2Run", wkflow_dir, CPACS_PATH, CPACS_PATH)
 
     def test_default_values(self):
 
@@ -74,7 +75,7 @@ class TestModuleToRun:
             CPACS_PATH_OUT.unlink()
 
         module = ModuleToRun(
-            "ModuleTemplate", self.wkflow_test, CPACS_PATH, CPACS_PATH_OUT)
+            "ModuleTemplate", self.wkflow_dir, CPACS_PATH, CPACS_PATH_OUT)
 
         # TODO: how to separate test from workflowclasses.py and ceasiompyutils.py
         run_module(module)

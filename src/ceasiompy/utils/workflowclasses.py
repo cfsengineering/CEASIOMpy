@@ -72,7 +72,8 @@ class ModuleToRun:
 
         if add_res_dir:
             self.results_dir = get_results_directory(
-                name, create=True, wkflow_dir=wkflow_dir)
+                name, create=True, wkflow_dir=wkflow_dir
+            )
         else:
             self.results_dir = None
         self.cpacs_out = cpacs_out
@@ -115,8 +116,10 @@ class OptimSubWorkflow:
         if "Optimisation" not in self.modules_list:
             self.modules_list.insert(0, "Optimisation")
 
-        self.modules = [ModuleToRun(module, subworkflow_dir)
-                        for module in modules_list]
+        self.modules = [
+            ModuleToRun(module, subworkflow_dir)
+            for module in modules_list
+        ]
 
         self.iteration = 0
 

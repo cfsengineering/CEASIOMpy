@@ -32,6 +32,7 @@ TODO:
 
 import os
 import random
+from itertools import combinations
 
 import gmsh
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
@@ -277,7 +278,7 @@ def generate_2d_mesh_for_pentagrow(
     log.info("Refine to get smooth transition between parts with different mesh sizes")
     mesh_fields = refine_between_parts(aircraft_parts, mesh_size_by_group, mesh_fields)
     mesh_fields = min_fields(mesh_fields)
-    log.info("End of reniment between parts")
+    log.info("End of refinement between parts")
 
     # Now do the refinement on the le and te and end of wing
     if refine_factor != 1:
@@ -292,7 +293,7 @@ def generate_2d_mesh_for_pentagrow(
 
     # Now a function to refine all the ones that are in "non flat" places
     if refine_factor_angled_lines != 1:
-        log.info("Refinement process of other lines started")
+        log.info("Refinement process of lines in non flat places has started")
         mesh_fields = refine_other_lines(
             te_le_already_refined, refine=refine_factor_angled_lines,
             aircraft_parts=aircraft_parts, mesh_fields=mesh_fields,
@@ -660,9 +661,9 @@ def choose_correct_part(
         if len(intersection) > 0:
             # If found, remove the tag from the others parts, and we have finished
             # for this surface
+            p = aircraft_parts[i].uid
             log.info(
-                f"Surface {surf} was in multiple volumes and is classified into part\
-                    {aircraft_parts[i].uid}")
+                f"Surface {surf} was in multiple volumes and is classified into part {p}")
             for j in parts_in:
                 if j != i:
                     aircraft_parts[j].surfaces.remove((2, surf))
@@ -761,28 +762,27 @@ def refine_le_te_end(
             lines_to_take_out = set(lines_already_refined_lete).union(set(lines_in_other_parts))
             lines_left = sorted(list(set(model_part.lines_tags)
                                      - lines_to_take_out))
-
-            for i, line1 in enumerate(lines_left):
-                for _, line2 in enumerate(lines_left, i + 1):
-                    # We know the two lines at the end of the wing share 2 points and 1 surface
-                    # And no other lines in wing share this structure
-                    surfaces1, points1 = gmsh.model.getAdjacencies(1, line1)
-                    surfaces2, points2 = gmsh.model.getAdjacencies(1, line2)
-                    common_points = list(set(points1) & set(points2))
-                    common_surfaces = list(set(surfaces1) & set(surfaces2))
-                    if len(common_points) == 2 and len(common_surfaces) == 1:
-                        log.info(f"Found the end of the wing in {model_part.uid}, refining")
-                        refine_end_wing(line1,
-                                        line2,
-                                        aircraft,
-                                        x_chord,
-                                        model_part.surfaces_tags,
-                                        refine_factor,
-                                        mesh_size_wing,
-                                        n_power_factor,
-                                        [aircraft.volume_tag],
-                                        mesh_fields)
-                        gmsh.model.setColor([(1, line1), (1, line2)], 0, 180, 180)  # to see
+            for (line1, line2) in list(combinations(lines_left, 2)):
+                # We know the two lines at the end of the wing share 2 points and 1 surface
+                # And no other lines in wing share this structure
+                surfaces1, points1 = gmsh.model.getAdjacencies(1, line1)
+                surfaces2, points2 = gmsh.model.getAdjacencies(1, line2)
+                common_points = list(set(points1) & set(points2))
+                common_surfaces = list(set(surfaces1) & set(surfaces2))
+                if len(common_points) == 2 and len(common_surfaces) == 1:
+                    log.info(
+                        f"Found the end of wing in {model_part.uid}, refining(lines{line1,line2})")
+                    refine_end_wing(line1,
+                                    line2,
+                                    aircraft,
+                                    x_chord,
+                                    model_part.surfaces_tags,
+                                    refine_factor,
+                                    mesh_size_wing,
+                                    n_power_factor,
+                                    [aircraft.volume_tag],
+                                    mesh_fields)
+                    gmsh.model.setColor([(1, line1), (1, line2)], 0, 180, 180)  # to see
 
     # Generate the minimal background mesh field
     mesh_fields = min_fields(mesh_fields)

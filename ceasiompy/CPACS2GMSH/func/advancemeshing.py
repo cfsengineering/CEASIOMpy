@@ -22,6 +22,7 @@ TODO:
 
 import gmsh
 import numpy as np
+from itertools import combinations
 
 from ceasiompy import log
 from ceasiompy.CPACS2GMSH.func.wingclassification import ModelPart
@@ -621,7 +622,7 @@ def refine_other_lines(
         and fuselage, or other "sharp" edges that are not le and te
 
     WARNING : this function does not get all the concerned edges it should get, but still work
-        on most, so good news
+        on most, so still good news I guess
         (I think sometimes I have problem with normals, and/or times where edges is "round" but
         really small so makes a mesh with sharp edges and is still not detected)
 
@@ -692,6 +693,7 @@ def refine_other_lines(
     gmsh.model.setColor([(1, line)
                         for line in lines_to_refine_tag], 0, 255, 0)  # green
 
+    '''
     for part in aircraft_parts:
         surfaces_tags = part.surfaces_tags
         mesh_size = mesh_size_by_part[part.part_type]
@@ -706,11 +708,40 @@ def refine_other_lines(
             # Get all the lines that are adjacent and need refinement
             [_, adjacent_lines] = gmsh.model.getAdjacencies(2, s)
             lines_to_refine_surface = list(set(adjacent_lines) & set(lines_to_refine_tag))
-            all_lines_refined_in_part.append(lines_to_refine_surface)
+            all_lines_refined_in_part.extend(lines_to_refine_surface)
             mesh_fields = refine_surface(part.uid, lines_to_refine_surface, [s], mesh_fields,
                                          m, n_power, refine, mesh_size)
-        log.info(f"Refining non flat angles in part {part.uid}, lines {all_lines_refined_in_part}")
+        log.info(f"Refining non flat angles in part {part.uid}, lines:")
+        log.info(f"{[int(l) for l in all_lines_refined_in_part]}")
+    '''
+    for line in lines_to_refine_tag:
+        surfaces_adjacent, _ = gmsh.model.getAdjacencies(1, line)
+        surfaces_to_refine = []
+        for part in aircraft_parts:
+            s_adj_part = list(set(surfaces_adjacent) & set(part.surfaces_tags))
+            bb = part.bounding_box
+            size = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
+            size.sort()
+            # Choose refinement to go on 1/4 of the length of the second smallest size
+            # usually, a reasonable size that works
+            m = size[1] / 3
+            surfaces_to_refine.append({"mesh_size": part.mesh_size, "surfs": s_adj_part, "m": m})
+        min_mesh_size = min([s["mesh_size"] for s in surfaces_to_refine])
 
+        for part_size_surf_m in surfaces_to_refine:
+            # We need to adapt the factor to have a smooth transition :
+            # Indeed, if the line is at the intersection of two part with different mesh size
+            # one will be much more refined, and therefore the other need to also be progressive
+            # so we adapt refine factor so that the field start at the same size at the line
+            refine_factor_adapted = refine * part_size_surf_m["mesh_size"] / min_mesh_size
+            mesh_fields = refine_surface(part_uid=part.uid,
+                                         lines_to_refine=[line],
+                                         surfaces_tag=part_size_surf_m["surfs"],
+                                         mesh_fields=mesh_fields,
+                                         m=part_size_surf_m["m"],
+                                         n_power=n_power,
+                                         refine=refine_factor_adapted,
+                                         mesh_size=part_size_surf_m["mesh_size"])
     return mesh_fields
 
 
@@ -819,34 +850,33 @@ def compute_angle_surfaces(
         True if we found a "small angle"
 
     """
-    for k, i in enumerate(surface_tags):
+    for i, j in list(combinations(surface_tags, 2)):
         # i is surface nb, k in index in surface_tags
         coordi = tags_coords_params[i]['coord']
-        for _ , j in enumerate(surface_tags, k + 1):
-            coordj = tags_coords_params[j]['coord']
-            # Now search for nodes that are in both surfaces
-            for a in range(len(coordi) // 3):
-                for b in range(len(coordj) // 3):
-                    if coordi[3 * a] == coordj[3 * b] and\
-                        coordi[3 * a + 1] == coordj[3 * b + 1] and\
-                            coordi[3 * a + 2] == coordj[3 * b + 2]:
-                        # if here, we have found a node that is in both. Get the normal at
-                        # this node of the two surfaces
-                        normal_i = gmsh.model.getNormal(
-                            i,
-                            [tags_coords_params[i]['param'][2 * a],
-                                tags_coords_params[i]['param'][2 * a + 1]])
-                        normal_j = gmsh.model.getNormal(
-                            j,
-                            [tags_coords_params[j]['param'][2 * b],
-                                tags_coords_params[j]['param'][2 * b + 1]]
-                        )
-                        # Compute  cosinus which is the scalar product as the normals
-                        # are of norm 1
-                        cosalpha = (normal_i[0] * normal_j[0] + normal_i[1]
-                                    * normal_j[1] + normal_i[2] * normal_j[2])
-                        if cosalpha < 0.63:  # (angle of more than 50 degrees from being flat)
-                            return True
+        coordj = tags_coords_params[j]['coord']
+        # Now search for nodes that are in both surfaces
+        for a in range(len(coordi) // 3):
+            for b in range(len(coordj) // 3):
+                if coordi[3 * a] == coordj[3 * b] and\
+                    coordi[3 * a + 1] == coordj[3 * b + 1] and\
+                        coordi[3 * a + 2] == coordj[3 * b + 2]:
+                    # if here, we have found a node that is in both. Get the normal at
+                    # this node of the two surfaces
+                    normal_i = gmsh.model.getNormal(
+                        i,
+                        [tags_coords_params[i]['param'][2 * a],
+                            tags_coords_params[i]['param'][2 * a + 1]])
+                    normal_j = gmsh.model.getNormal(
+                        j,
+                        [tags_coords_params[j]['param'][2 * b],
+                            tags_coords_params[j]['param'][2 * b + 1]]
+                    )
+                    # Compute  cosinus which is the scalar product as the normals
+                    # are of norm 1
+                    cosalpha = (normal_i[0] * normal_j[0] + normal_i[1]
+                                * normal_j[1] + normal_i[2] * normal_j[2])
+                    if cosalpha < 0.63:  # (angle of more than 50 degrees from being flat)
+                        return True
     return False
 
 
@@ -872,33 +902,33 @@ def refine_between_parts(
         True if we found a "small angle", i.e. a sharp edge
 
     """
-    for i, part in enumerate(aircraft_parts):
-        for _, part2 in enumerate(aircraft_parts, i + 1):
-            if part.mesh_size != part2.mesh_size:
-                if part.mesh_size < part2.mesh_size:
-                    small_part = part
-                    big_part = part2
-                else:
-                    small_part = part2
-                    big_part = part
+    for part, part2 in list(combinations(aircraft_parts, 2)):
+        if part.mesh_size != part2.mesh_size:
+            if part.mesh_size < part2.mesh_size:
+                small_part = part
+                big_part = part2
+            else:
+                small_part = part2
+                big_part = part
 
-                lines_at_intersection = list(set(part.lines_tags) & set(part2.lines_tags))
-                gmsh.model.setColor([(1, line)
-                                    for line in lines_at_intersection], 255, 0, 0)  # red
-                log.info(f"Refining line(s) {lines_at_intersection} \
-                    in between parts {part.uid} and {part2.uid}")
-                for line in lines_at_intersection:
-                    surfaces_adjacent, _ = gmsh.model.getAdjacencies(1, line)
-                    surfaces_to_refine = list(set(surfaces_adjacent) & set(big_part.surfaces_tags))
+            lines_at_intersection = list(set(part.lines_tags) & set(part2.lines_tags))
+            gmsh.model.setColor([(1, line)
+                                for line in lines_at_intersection], 255, 0, 0)  # red
+            if lines_at_intersection:
+                p, p2, lai = part.uid, part2.uid, lines_at_intersection
+                log.info(f"Refining between parts {p} and {p2}, line(s) {lai} ")
+            for line in lines_at_intersection:
+                surfaces_adjacent, _ = gmsh.model.getAdjacencies(1, line)
+                surfaces_to_refine = list(set(surfaces_adjacent) & set(big_part.surfaces_tags))
 
-                    bb = big_part.bounding_box
-                    size = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
-                    size.sort()
-                    m = size[1] / 4
-                    mesh_fields = refine_surface(big_part.uid, [line], surfaces_to_refine,
-                                                 mesh_fields, m, 2,
-                                                 big_part.mesh_size / small_part.mesh_size,
-                                                 big_part.mesh_size)
+                bb = big_part.bounding_box
+                size = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
+                size.sort()
+                m = size[1] / 4
+                mesh_fields = refine_surface(big_part.uid, [line], surfaces_to_refine,
+                                             mesh_fields, m, 2,
+                                             big_part.mesh_size / small_part.mesh_size,
+                                             big_part.mesh_size)
 
     return mesh_fields
 

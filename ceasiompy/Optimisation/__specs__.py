@@ -1,7 +1,7 @@
 from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpaths import OPTIM_XPATH
-import streamlit as st
+import CEASIOMpyStreamlit as st
 from ceasiompy.Optimisation import INCLUDE_GUI
 
 # ===== Module Status =====

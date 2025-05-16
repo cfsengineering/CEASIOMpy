@@ -16,7 +16,7 @@ from ceasiompy.utils.commonxpaths import (
 )
 from pathlib import Path
 
-import streamlit as st
+import CEASIOMpyStreamlit as st
 # ===== Module Status =====
 # True if the module is active
 # False if the module is disabled (not working or not ready)

@@ -16,9 +16,9 @@ Streamlit page to change settings of a CEASIOMpy workflow
 #   IMPORTS
 # ==============================================================================
 
-import streamlit as st
+import CEASIOMpyStreamlit as st
 
-from src.streamlit.moduletab import add_module_tab
+from src.CEASIOMpyStreamlit.moduletab import add_module_tab
 
 from streamlitutils import (
     create_sidebar,

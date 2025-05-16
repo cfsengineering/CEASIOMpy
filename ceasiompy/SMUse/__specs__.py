@@ -11,7 +11,7 @@ GUI Interface of SMUse.
 #   IMPORTS
 # ==============================================================================
 
-import streamlit as st
+import CEASIOMpyStreamlit as st
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 

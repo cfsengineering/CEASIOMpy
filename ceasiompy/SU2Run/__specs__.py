@@ -14,7 +14,7 @@ GUI Interface of ModuleTemplate.
 #   IMPORTS
 # ==============================================================================
 
-import streamlit as st
+import CEASIOMpyStreamlit as st
 
 from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
 

@@ -17,10 +17,10 @@ Main Streamlit page for CEASIOMpy GUI.
 # =================================================================================================
 
 import numpy as np
-import streamlit as st
+import CEASIOMpyStreamlit as st
 import plotly.graph_objects as go
 
-from src.streamlit.streamlitutils import create_sidebar
+from src.CEASIOMpyStreamlit.streamlitutils import create_sidebar
 
 from stl import mesh
 from pathlib import Path

@@ -54,8 +54,8 @@ LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
 # /CEASIOMpy/.ceasiompy/.runworkflow_history
 RUNWORKFLOW_HISTORY_PATH = Path(CEASIOMPY_PATH, ".ceasiompy", ".runworkflow_history")
 
-# /CEASIOMpy/src/streamlit
-STREAMLIT_PATH = Path(CEASIOMPY_PATH, "src", "streamlit")
+# /CEASIOMpy/src/CEASIOMpyStreamlit
+STREAMLIT_PATH = Path(CEASIOMPY_PATH, "src", "CEASIOMpyStreamlit")
 
 # /CEASIOMpy/test_cases/
 TEST_CASES_PATH = Path(CEASIOMPY_PATH, "test_cases")

@@ -15,7 +15,7 @@ Test functions for 'lib/moduleinterfaces.py'
 # =================================================================================================
 
 import pytest
-import streamlit as st
+import CEASIOMpyStreamlit as st
 from pathlib import Path
 
 from ceasiompy.utils.moduleinterfaces import (

@@ -13,13 +13,13 @@ Streamlit Tabs per module function.
 #   IMPORTS
 # ==============================================================================
 
-import streamlit as st
+import CEASIOMpyStreamlit as st
 
 from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.utils.geometryfunctions import get_aircrafts_list
-from src.streamlit.streamlitutils import section_edit_aeromap
+from src.CEASIOMpyStreamlit.streamlitutils import section_edit_aeromap
 from ceasiompy.utils.moduleinterfaces import get_specs_for_module
-from src.streamlit.guiobjects import (
+from src.CEASIOMpyStreamlit.guiobjects import (
     int_vartype,
     list_vartype,
     bool_vartype,

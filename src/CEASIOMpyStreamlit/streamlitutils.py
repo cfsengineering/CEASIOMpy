@@ -15,7 +15,7 @@ Streamlit utils functions for CEASIOMpy
 # ==============================================================================
 
 import pandas as pd
-import streamlit as st
+import CEASIOMpyStreamlit as st
 
 from cpacspy.cpacsfunctions import (
     add_string_vector,

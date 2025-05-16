@@ -14,7 +14,7 @@ Integration test for some typical CEASIOMpy workflows.
 import shutil
 import pytest
 
-import streamlit as st
+import CEASIOMpyStreamlit as st
 
 from pathlib import Path
 from unittest.mock import MagicMock

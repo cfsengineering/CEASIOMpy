@@ -69,6 +69,9 @@ class ModelPart:
 
         self.wing_sections = []
 
+        # Bounding box (used in RANS)
+        self.bounding_box = []
+
     def associate_child_to_parent(self, child_dimtag):
         """
         Function to associate a child to a parent.
@@ -195,7 +198,7 @@ def detect_normal_profile(le_te_pair: List, line_comp1, line_comp2):
 
     lines = sorted(list(set([line_comp1["line_tag"], line_comp2["line_tag"]])))
 
-    # Check if lines are not already in the founded list
+    # Check if lines are not already in the found list
     if lines in le_te_pair:
         return le_te_pair, False
 
@@ -280,7 +283,7 @@ def find_chord_length(le_te_pair: List):
         x1, y1, z1 = gmsh.model.occ.getCenterOfMass(1, le_te_pair[0])
         x2, y2, z2 = gmsh.model.occ.getCenterOfMass(1, le_te_pair[1])
         chord_length = np.linalg.norm([x2 - x1, y2 - y1, z2 - z1])
-        log.info(f"Using sharpe profile with computed {chord_length}.")
+        log.info(f"Using sharp-e profile with computed {chord_length}.")
         return chord_length
 
     # truncated profile

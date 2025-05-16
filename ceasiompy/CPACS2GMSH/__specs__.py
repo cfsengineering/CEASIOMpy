@@ -34,6 +34,7 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_N_POWER_FIELD_XPATH,
     GMSH_REFINE_FACTOR_XPATH,
     GMSH_REFINE_TRUNCATED_XPATH,
+    GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,
     GMSH_AUTO_REFINE_XPATH,
     GMSH_NUMBER_LAYER_XPATH,
     GMSH_H_FIRST_LAYER_XPATH,
@@ -127,7 +128,7 @@ cpacs_inout.add_input(
     xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Farfield mesh size factor",
-    gui_group="Euler options",
+    gui_group="Mesh options",
 )
 
 cpacs_inout.add_input(
@@ -139,7 +140,7 @@ cpacs_inout.add_input(
     xpath=GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Fuselage mesh size factor",
-    gui_group="Euler options",
+    gui_group="Mesh options",
 )
 
 cpacs_inout.add_input(
@@ -151,7 +152,7 @@ cpacs_inout.add_input(
     xpath=GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Wings mesh size factor",
-    gui_group="Euler options",
+    gui_group="Mesh options",
 )
 
 cpacs_inout.add_input(
@@ -163,7 +164,7 @@ cpacs_inout.add_input(
     xpath=GMSH_MESH_SIZE_ENGINES_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Engines",
-    gui_group="Euler options",
+    gui_group="Mesh options",
 )
 
 cpacs_inout.add_input(
@@ -175,7 +176,7 @@ cpacs_inout.add_input(
     xpath=GMSH_MESH_SIZE_PROPELLERS_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Propellers",
-    gui_group="Euler options",
+    gui_group="Mesh options",
 )
 
 cpacs_inout.add_input(
@@ -187,7 +188,7 @@ cpacs_inout.add_input(
     xpath=GMSH_N_POWER_FACTOR_XPATH,
     gui=INCLUDE_GUI,
     gui_name="n power factor",
-    gui_group="Advanced Euler mesh parameters",
+    gui_group="Advanced mesh parameters",
 )
 
 cpacs_inout.add_input(
@@ -199,7 +200,7 @@ cpacs_inout.add_input(
     xpath=GMSH_N_POWER_FIELD_XPATH,
     gui=INCLUDE_GUI,
     gui_name="n power field",
-    gui_group="Advanced Euler mesh parameters",
+    gui_group="Advanced mesh parameters",
 )
 
 cpacs_inout.add_input(
@@ -211,7 +212,7 @@ cpacs_inout.add_input(
     xpath=GMSH_REFINE_FACTOR_XPATH,
     gui=INCLUDE_GUI,
     gui_name="LE/TE refinement factor",
-    gui_group="Advanced Euler mesh parameters",
+    gui_group="Advanced mesh parameters",
 )
 
 cpacs_inout.add_input(
@@ -223,7 +224,7 @@ cpacs_inout.add_input(
     xpath=GMSH_REFINE_TRUNCATED_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Refine truncated TE",
-    gui_group="Advanced Euler mesh parameters",
+    gui_group="Advanced mesh parameters",
 )
 
 cpacs_inout.add_input(
@@ -236,7 +237,20 @@ cpacs_inout.add_input(
     xpath=GMSH_AUTO_REFINE_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Auto refine",
-    gui_group="Advanced Euler mesh parameters",
+    gui_group="Advanced mesh parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="refine_factor_angled_lines",
+    var_type=float,
+    default_value=1.5,
+    unit="1",
+    descr="Refinement factor of edges at intersections that are not flat enough,\
+        warning : does not always work on all edges",
+    xpath=GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,
+    gui=True,
+    gui_name="Refinement factor of lines in between angled surfaces (only in RANS)",
+    gui_group="Advanced mesh parameters",
 )
 
 cpacs_inout.add_input(

@@ -442,7 +442,7 @@ def generate_gmsh(
     # The rest of children_dimtag are list of tuples (dimtag, tag)
     # that represent volumes in the model.
     # children_dimtag is "sorted" according to the order of importation of the parent parts.
-    # Ror example: if the first part imported was "fuselage1" then the first children_dimtag
+    # For example: if the first part imported was "fuselage1" then the first children_dimtag
     # is a list of all the "child" volumes in the model that are from the "parent" "fuselage1"
     # we can then associate each entities in the model to their parent origin.
 
@@ -710,19 +710,19 @@ def generate_gmsh(
     if symmetry:
         gmsh.model.setColor(symmetry_surfaces, *MESH_COLORS["symmetry"], recursive=False)
 
-    # Wing leading edge and trailing edge detection
-    for part in aircraft_parts:
-        if part.part_type in ["wing", "ctrlsurf"]:
-            classify_wing(part, aircraft_parts)
-            log.info(
-                f"Classification of {part.uid} done"
-                f" {len(part.wing_sections)} section(s) found "
-            )
-
     # Generate advance meshing features
     mesh_fields = {"nbfields": 0, "restrict_fields": []}
     if refine_factor != 1:
         log.info(f"Refining wings with factor {refine_factor}")
+
+        # Wing leading edge and trailing edge detection
+        for part in aircraft_parts:
+            if part.part_type in ["wing", "ctrlsurf"]:
+                classify_wing(part, aircraft_parts)
+                log.info(
+                    f"Classification of {part.uid} done"
+                    f" {len(part.wing_sections)} section(s) found "
+                )
 
         # Refine wings
         for part in aircraft_parts:

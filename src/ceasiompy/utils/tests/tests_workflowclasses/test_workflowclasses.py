@@ -11,7 +11,6 @@ Test functions for 'utils/workflowclasses.py'
 # =================================================================================================
 
 import pytest
-import shutil
 
 from ceasiompy.utils.ceasiompyutils import run_module
 
@@ -46,10 +45,6 @@ class TestModuleToRun:
 
     # Remove old WKFLOW_test dir and create an empty one
     wkflow_test = Path(MODULE_DIR, "WKFLOW_test")
-    # if wkflow_test.exists():
-    #     shutil.rmtree(wkflow_test)
-    # wkflow_test.mkdir()
-
     module_works = ModuleToRun("SU2Run", wkflow_test, CPACS_PATH, CPACS_PATH)
 
     def test_default_values(self):
@@ -121,11 +116,6 @@ class TestWorkflow:
         pass
 
     def test_set_workflow(self):
-
-        for wkflow_dir in Path(MODULE_DIR, "WKFLOW_test").iterdir():
-            if wkflow_dir.is_dir():
-                shutil.rmtree(wkflow_dir, ignore_errors=True)
-
         # Test all raising errors
         self.workflow.optim_method = "notValidMethod"
         with pytest.raises(ValueError):

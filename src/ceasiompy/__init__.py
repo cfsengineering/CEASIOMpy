@@ -31,8 +31,11 @@ from pydantic import (
 #   IMPORTS
 # =================================================================================================
 
+# /CEASIOMpy/src
+SRC_PATH = Path(__file__).parents[1]
+
 # /CEASIOMpy/
-CEASIOMPY_PATH = Path(__file__).parents[1]
+CEASIOMPY_PATH = SRC_PATH.parent
 
 # /CEASIOMpy/ceasiompy.log
 LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")

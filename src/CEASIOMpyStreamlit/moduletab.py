@@ -17,9 +17,9 @@ import streamlit as st
 
 from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.utils.geometryfunctions import get_aircrafts_list
-from src.streamlit.streamlitutils import section_edit_aeromap
+from CEASIOMpyStreamlit.streamlitutils import section_edit_aeromap
 from ceasiompy.utils.moduleinterfaces import get_specs_for_module
-from src.streamlit.guiobjects import (
+from CEASIOMpyStreamlit.guiobjects import (
     int_vartype,
     list_vartype,
     bool_vartype,

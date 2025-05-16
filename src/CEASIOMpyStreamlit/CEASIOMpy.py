@@ -20,7 +20,7 @@ import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
 
-from src.streamlit.streamlitutils import create_sidebar
+from CEASIOMpyStreamlit.streamlitutils import create_sidebar
 
 from stl import mesh
 from pathlib import Path

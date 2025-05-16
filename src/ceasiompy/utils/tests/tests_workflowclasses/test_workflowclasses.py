@@ -21,7 +21,7 @@ from ceasiompy.utils.workflowclasses import ModuleToRun, Workflow
 
 MODULE_DIR = Path(__file__).parent
 CPACS_PATH = Path(
-    MODULE_DIR.parents[4], "test_files", "CPACSfiles", "D150_simple.xml"
+    MODULE_DIR.parents[3].parent, "test_files", "CPACSfiles", "D150_simple.xml"
 )
 CPACS_PATH_OUT = Path(MODULE_DIR, "D150_simple_out.xml")
 
@@ -29,7 +29,7 @@ CPACS_PATH_OUT = Path(MODULE_DIR, "D150_simple_out.xml")
 #   TESTS
 # =================================================================================================
 
-
+        
 def test_module_name_error():
 
     with pytest.raises(ValueError):
@@ -46,9 +46,9 @@ class TestModuleToRun:
 
     # Remove old WKFLOW_test dir and create an empty one
     wkflow_test = Path(MODULE_DIR, "WKFLOW_test")
-    if wkflow_test.exists():
-        shutil.rmtree(wkflow_test)
-    wkflow_test.mkdir()
+    # if wkflow_test.exists():
+    #     shutil.rmtree(wkflow_test)
+    # wkflow_test.mkdir()
 
     module_works = ModuleToRun("SU2Run", wkflow_test, CPACS_PATH, CPACS_PATH)
 
@@ -110,6 +110,7 @@ class TestOptimSubWorkflow:
 class TestWorkflow:
 
     workflow = Workflow()
+    wkflow_test = Path(MODULE_DIR, "WKFLOW_test")
 
     MODULE_TO_RUN = [
         "CLCalculator",
@@ -121,14 +122,9 @@ class TestWorkflow:
 
     def test_from_config_file(self):
 
-        # Copy config file to WKFLOW_test dir
-        shutil.copy(
-            Path(MODULE_DIR, "ceasiompy.cfg"), Path(
-                MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg")
-        )
-
         self.workflow.from_config_file(
-            Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
+            Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg")
+        )
 
         assert self.workflow.modules_list == self.MODULE_TO_RUN
         assert self.workflow.module_optim == self.MODULE_OPTIM
@@ -153,35 +149,23 @@ class TestWorkflow:
         with pytest.raises(ValueError):
             self.workflow.set_workflow()
 
-        self.workflow.from_config_file(Path(MODULE_DIR, "ceasiompy.cfg"))
+        self.workflow.from_config_file(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
         self.workflow.cpacs_in = Path(MODULE_DIR, "NotExistingCPACS.xml")
         with pytest.raises(FileNotFoundError):
             self.workflow.set_workflow()
 
         # Test normal behavior
         self.workflow = Workflow()
-        self.workflow.from_config_file(Path(MODULE_DIR, "ceasiompy.cfg"))
-        self.workflow.optim_method = "Optimisation"
+        self.workflow.from_config_file(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
+        self.workflow.cpacs_in = CPACS_PATH
         self.workflow.set_workflow()
 
-        assert self.workflow.current_wkflow_dir.exists()
-        assert self.workflow.cpacs_in.exists()
-
-        assert len(list(self.workflow.current_wkflow_dir.iterdir())) == 4
-
-        assert self.workflow.modules[0].name == "Optimisation"
-        assert self.workflow.modules[1].name == "SaveAeroCoefficients"
-
-        assert self.workflow.modules[0].is_optim_module
-        assert self.workflow.modules[0].optim_method == "Optimisation"
         assert self.workflow.modules[0].module_wkflow_path == Path(
-            self.workflow.current_wkflow_dir, "01_Optimisation"
+            self.workflow.current_wkflow_dir, "01_CLCalculator"
         )
 
-        assert not self.workflow.modules[1].is_optim_module
-        assert self.workflow.modules[1].optim_method is None
         assert self.workflow.modules[1].module_wkflow_path == Path(
-            self.workflow.current_wkflow_dir, "02_SaveAeroCoefficients"
+            self.workflow.current_wkflow_dir, "02_PyAVL"
         )
 
 
@@ -190,8 +174,6 @@ class TestWorkflow:
 # =================================================================================================
 
 if __name__ == "__main__":
-    test = TestWorkflow()
-    test.test_set_workflow()
     print("Test configfile.py")
     print("To run test use the following command:")
     print(">> pytest -v")

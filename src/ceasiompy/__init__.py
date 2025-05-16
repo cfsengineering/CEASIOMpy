@@ -37,8 +37,11 @@ SRC_PATH = Path(__file__).parents[1]
 # /CEASIOMpy/
 CEASIOMPY_PATH = SRC_PATH.parent
 
-# /CEASIOMpy/ceasiompy.log
-LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
+# /CEASIOMpy/WKDIR/
+WKDIR_PATH = Path(CEASIOMPY_PATH, "WKDIR")
+
+# /CEASIOMpy/WKDIR/ceasiompy.log
+LOGFILE = Path(WKDIR_PATH, "ceasiompy.log")
 
 # =================================================================================================
 #   CLASSES

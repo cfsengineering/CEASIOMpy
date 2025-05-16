@@ -161,6 +161,11 @@ class TestWorkflow:
 # =================================================================================================
 
 if __name__ == "__main__":
+    test = TestModuleToRun()
+    test.test_default_values()
+    test.test_create_module_wkflow_dir()
+    test.test_run()
+    
     print("Test configfile.py")
     print("To run test use the following command:")
     print(">> pytest -v")

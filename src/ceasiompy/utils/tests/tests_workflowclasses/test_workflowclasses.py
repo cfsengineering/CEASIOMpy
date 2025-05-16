@@ -60,30 +60,17 @@ class TestModuleToRun:
         assert self.module_works.cpacs_out.exists()
 
         assert self.module_works.gui_related_modules == []
-        assert not self.module_works.is_optim_module
-        assert self.module_works.optim_related_modules == []
-        assert self.module_works.optim_method is None
 
     def test_create_module_wkflow_dir(self):
 
-        self.module_works.is_optim_module = True
         self.module_works.optim_method = "DOE"
 
-        # Remove dir from previous runs
-        if Path(self.wkflow_test, "01_DOE").exists():
-            Path(self.wkflow_test, "01_DOE").rmdir()
-
-        if Path(self.wkflow_test, "02_SU2Run").exists():
-            Path(self.wkflow_test, "02_SU2Run").rmdir()
+        if Path(self.wkflow_test, "01_SU2Run").exists():
+            Path(self.wkflow_test, "01_SU2Run").rmdir()
 
         self.module_works.create_module_wkflow_dir(1)
         assert self.module_works.module_wkflow_path.exists()
-        assert self.module_works.module_wkflow_path.stem == "01_DOE"
-
-        self.module_works.optim_method = None
-        self.module_works.create_module_wkflow_dir(2)
-        assert self.module_works.module_wkflow_path.exists()
-        assert self.module_works.module_wkflow_path.stem == "02_SU2Run"
+        assert self.module_works.module_wkflow_path.stem == "01_SU2Run"
 
     def test_run(self):
 

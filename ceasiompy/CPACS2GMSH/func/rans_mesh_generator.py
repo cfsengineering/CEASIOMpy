@@ -762,18 +762,18 @@ def refine_le_te_end(
             lines_to_take_out = set(lines_already_refined_lete).union(set(lines_in_other_parts))
             lines_left = sorted(list(set(model_part.lines_tags)
                                      - lines_to_take_out))
+            surfaces_in_wing = model_part.surfaces_tags
             for (line1, line2) in list(combinations(lines_left, 2)):
                 # We know the two lines at the end of the wing share 2 points and 1 surface
                 # And no other lines in wing share this structure
                 surfaces1, points1 = gmsh.model.getAdjacencies(1, line1)
                 surfaces2, points2 = gmsh.model.getAdjacencies(1, line2)
                 common_points = list(set(points1) & set(points2))
-                common_surfaces = list(set(surfaces1) & set(surfaces2))
+                common_surfaces = list(set(surfaces1) & set(surfaces2) & set(surfaces_in_wing))
                 if len(common_points) == 2 and len(common_surfaces) == 1:
                     log.info(
-                        f"Found the end of wing in {model_part.uid}, refining(lines{line1,line2})")
-                    refine_end_wing(line1,
-                                    line2,
+                        f"Found the end of wing in {model_part.uid}, refining lines {line1,line2}")
+                    refine_end_wing([line1, line2],
                                     aircraft,
                                     x_chord,
                                     model_part.surfaces_tags,
@@ -783,6 +783,34 @@ def refine_le_te_end(
                                     [aircraft.volume_tag],
                                     mesh_fields)
                     gmsh.model.setColor([(1, line1), (1, line2)], 0, 180, 180)  # to see
+                lines_already_refined_lete.extend([line1, line2])
+
+            for (line1, line2, line3) in list(combinations(lines_left, 3)):
+                surfaces1, points1 = gmsh.model.getAdjacencies(1, line1)
+                surfaces2, points2 = gmsh.model.getAdjacencies(1, line2)
+                surfaces3, points3 = gmsh.model.getAdjacencies(1, line3)
+                common_points12 = list(set(points1) & set(points2))
+                common_points13 = list(set(points1) & set(points3))
+                common_points23 = list(set(points3) & set(points2))
+                common_surfaces = list(set(surfaces1) & set(surfaces2)
+                                       & set(surfaces3) & set(surfaces_in_wing))
+                if len(common_points12) == 1 and len(common_points13) == 1 and\
+                        len(common_points23) == 1 and len(common_surfaces) == 1:
+                    mod = model_part.uid
+                    log.info(
+                        f"Found the end of wing in {mod}, refining lines {line1, line2, line3}")
+                    refine_end_wing([line1, line2, line3],
+                                    aircraft,
+                                    x_chord,
+                                    model_part.surfaces_tags,
+                                    refine_factor,
+                                    mesh_size_wing,
+                                    n_power_factor,
+                                    [aircraft.volume_tag],
+                                    mesh_fields)
+                    gmsh.model.setColor([(1, line1), (1, line2), (1, line3)],
+                                        0, 180, 180)  # to see
+                lines_already_refined_lete.extend([line1, line2, line3])
 
     # Generate the minimal background mesh field
     mesh_fields = min_fields(mesh_fields)

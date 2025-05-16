@@ -324,8 +324,7 @@ def refine_wing_section(
 
 
 def refine_end_wing(
-    line1,
-    line2,
+    lines_to_refine,
     aircraft,
     x_chord,
     surfaces_wing,
@@ -352,10 +351,8 @@ def refine_end_wing(
 
     Args:
     ----------
-    line1 : int
-        tag of one of the two lines at the tip, lines we need to refine
-    line2 : int
-        the other line
+    line : list of int
+        list of tags of the two or three lines at the tip, lines we need to refine
     aircraft : ModelPart
         the aircraft model part
     x_chord : float
@@ -380,9 +377,6 @@ def refine_end_wing(
     Return:
         nothing
     """
-
-    # Get the wing section chord, le and te lines and the surface of the wing
-    lines_to_refine = [line1, line2]
 
     # 1 : Math eval field
 

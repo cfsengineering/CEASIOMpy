@@ -69,8 +69,8 @@ TEST_RESULTS_FILES_PATH = Path(CEASIOMPY_PATH, "test_files", "ResultsFiles")
 # /CEASIOMpy/WKDIR/
 WKDIR_PATH = Path(CEASIOMPY_PATH, "WKDIR")
 
-# /CEASIOMpy/WKDIR/ceasiompy.log
-LOGFILE = Path(WKDIR_PATH, "ceasiompy.log")
+# /CEASIOMpy/ceasiompy.log
+LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
 
 # /CEASIOMpy/src/ceasiompy/SU2Run/files/default_paraview_state.pvsm
 DEFAULT_PARAVIEW_STATE = Path(MODULES_DIR_PATH, "SU2Run", "files", "default_paraview_state.pvsm")

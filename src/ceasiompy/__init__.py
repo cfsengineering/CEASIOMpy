@@ -40,8 +40,8 @@ CEASIOMPY_PATH = SRC_PATH.parent
 # /CEASIOMpy/WKDIR/
 WKDIR_PATH = Path(CEASIOMPY_PATH, "WKDIR")
 
-# /CEASIOMpy/WKDIR/ceasiompy.log
-LOGFILE = Path(WKDIR_PATH, "ceasiompy.log")
+# /CEASIOMpy/ceasiompy.log
+LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
 
 # =================================================================================================
 #   CLASSES

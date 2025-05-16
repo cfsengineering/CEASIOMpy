@@ -4,10 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'utils/workflowclasses.py'
-
-| Author : Aidan Jungo
-| Creation: 2022-01-21
-
 """
 
 # =================================================================================================
@@ -16,13 +12,16 @@ Test functions for 'utils/workflowclasses.py'
 
 import pytest
 import shutil
-from pathlib import Path
-from ceasiompy.utils.workflowclasses import ModuleToRun, Workflow
+
 from ceasiompy.utils.ceasiompyutils import run_module
 
-MODULE_DIR = Path(__file__).parent.parent
+from pathlib import Path
+from ceasiompy.utils.workflowclasses import ModuleToRun, Workflow
+
+
+MODULE_DIR = Path(__file__).parent
 CPACS_PATH = Path(
-    MODULE_DIR.parents[3], "test_files", "CPACSfiles", "D150_simple.xml"
+    MODULE_DIR.parents[4], "test_files", "CPACSfiles", "D150_simple.xml"
 )
 CPACS_PATH_OUT = Path(MODULE_DIR, "D150_simple_out.xml")
 
@@ -191,6 +190,8 @@ class TestWorkflow:
 # =================================================================================================
 
 if __name__ == "__main__":
+    test = TestWorkflow()
+    test.test_set_workflow()
     print("Test configfile.py")
     print("To run test use the following command:")
     print(">> pytest -v")

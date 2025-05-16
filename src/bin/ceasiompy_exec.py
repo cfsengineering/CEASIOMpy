@@ -27,7 +27,6 @@ from ceasiompy import log
 from unittest.mock import patch
 
 from ceasiompy.utils.commonpaths import (
-    CEASIOMPY_PATH,
     STREAMLIT_PATH,
     TEST_CASES_PATH,
     CPACS_FILES_PATH,

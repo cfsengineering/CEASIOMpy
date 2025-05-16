@@ -48,10 +48,6 @@ def main_exec():
     # Use sys.executable to ensure we use the python interpreter from the current environment
     command = [sys.executable, str(SCRIPT_ABSOLUTE_PATH)] + script_args
 
-    # Optional: Print the command being executed for debugging
-    # print(f"Executing command: {' '.join(map(str, command))}", file=sys.stderr)
-    # print(f"Working directory: {PROJECT_ROOT}", file=sys.stderr)
-
     # Set PYTHONPATH to include src/
     env = os.environ.copy()
     src_path = str(PROJECT_ROOT / "src")
@@ -65,6 +61,7 @@ def main_exec():
         # check=True: Raise a CalledProcessError if the script returns a non-zero exit code
         subprocess.run(command, cwd=PROJECT_ROOT, check=True, env=env)
 
+    # Deal with exceptions
     except FileNotFoundError:
         msg = (
             "Error: Python interpreter or script not found. "

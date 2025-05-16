@@ -99,6 +99,7 @@ class TestWorkflow:
             "CPACS_TOOLINPUT = ./D150_simple.xml\n"
             "MODULE_TO_RUN = ( CLCalculator, PyAVL, SaveAeroCoefficients)\n"
         )
+
     def test_from_config_file(self):
         self.workflow.from_config_file(
             Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg")

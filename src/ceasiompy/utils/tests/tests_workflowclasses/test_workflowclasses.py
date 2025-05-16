@@ -103,6 +103,7 @@ class TestWorkflow:
 
     MODULE_OPTIM = ["YES", "YES", "NO", "NO"]
     print("Looking for config at:", Path(MODULE_DIR, "ceasiompy.cfg").resolve())
+
     def test_from_config_file(self):
 
         self.workflow.from_config_file(

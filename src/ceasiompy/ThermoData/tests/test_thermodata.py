@@ -112,8 +112,7 @@ def test_turbofan_func():
             1139.22870449,
         ]
     )
-    np.testing.assert_almost_equal(new_sol, correct_sol, 3)
-
+    np.testing.assert_almost_equal(new_sol.item(), correct_sol.item(), 3)
 
 def test_write_hbtf_file(tmp_path):
     """Test function 'write_hbtf_file'"""

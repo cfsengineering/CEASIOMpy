@@ -106,7 +106,7 @@ class TestWorkflow:
     def test_from_config_file(self):
 
         self.workflow.from_config_file(
-            Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg")
+            Path(MODULE_DIR, "ceasiompy.cfg")
         )
 
         assert self.workflow.modules_list == self.MODULE_TO_RUN
@@ -127,14 +127,14 @@ class TestWorkflow:
         with pytest.raises(ValueError):
             self.workflow.set_workflow()
 
-        self.workflow.from_config_file(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
+        self.workflow.from_config_file(Path(MODULE_DIR, "ceasiompy.cfg"))
         self.workflow.cpacs_in = Path(MODULE_DIR, "NotExistingCPACS.xml")
         with pytest.raises(FileNotFoundError):
             self.workflow.set_workflow()
 
         # Test normal behavior
         self.workflow = Workflow()
-        self.workflow.from_config_file(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
+        self.workflow.from_config_file(Path(MODULE_DIR, "ceasiompy.cfg"))
         self.workflow.cpacs_in = CPACS_PATH
         self.workflow.set_workflow()
 

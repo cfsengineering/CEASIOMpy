@@ -54,13 +54,11 @@ class TestModuleToRun:
         assert self.module_works.wkflow_dir.exists()
         assert self.module_works.cpacs_in.exists()
         assert self.module_works.cpacs_out.exists()
-
         assert self.module_works.gui_related_modules == []
 
     def test_create_module_wkflow_dir(self):
 
         self.module_works.optim_method = "DOE"
-
         if Path(self.wkflow_test, "01_SU2Run").exists():
             Path(self.wkflow_test, "01_SU2Run").rmdir()
 
@@ -83,13 +81,6 @@ class TestModuleToRun:
         assert CPACS_PATH_OUT.exists()
 
 
-@pytest.mark.skip(reason="Not implemented yet")
-class TestOptimSubWorkflow:
-    pass
-
-    # TODO: When the optim subworkflow is implemented, add tests here
-
-
 class TestWorkflow:
 
     workflow = Workflow()
@@ -101,21 +92,11 @@ class TestWorkflow:
         "SaveAeroCoefficients",
     ]
 
-    MODULE_OPTIM = ["YES", "YES", "NO", "NO"]
-    print("Looking for config at:", Path(MODULE_DIR, "ceasiompy.cfg").resolve())
-
     def test_from_config_file(self):
-
         self.workflow.from_config_file(
-            Path(MODULE_DIR, "ceasiompy.cfg")
+            Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg")
         )
-
         assert self.workflow.modules_list == self.MODULE_TO_RUN
-        assert self.workflow.module_optim == self.MODULE_OPTIM
-        assert self.workflow.optim_method == "Optimisation"
-
-    def test_write_config_file(self):
-        pass
 
     def test_set_workflow(self):
         # Test all raising errors
@@ -123,19 +104,18 @@ class TestWorkflow:
         with pytest.raises(ValueError):
             self.workflow.set_workflow()
 
-        self.workflow.module_optim = self.MODULE_OPTIM
         self.workflow.working_dir = ""
         with pytest.raises(ValueError):
             self.workflow.set_workflow()
 
-        self.workflow.from_config_file(Path(MODULE_DIR, "ceasiompy.cfg"))
+        self.workflow.from_config_file(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
         self.workflow.cpacs_in = Path(MODULE_DIR, "NotExistingCPACS.xml")
         with pytest.raises(FileNotFoundError):
             self.workflow.set_workflow()
 
         # Test normal behavior
         self.workflow = Workflow()
-        self.workflow.from_config_file(Path(MODULE_DIR, "ceasiompy.cfg"))
+        self.workflow.from_config_file(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
         self.workflow.cpacs_in = CPACS_PATH
         self.workflow.set_workflow()
 
@@ -153,6 +133,15 @@ class TestWorkflow:
 # =================================================================================================
 
 if __name__ == "__main__":
+    test_module_name_error()
+    test_no_wkflow_error()
+    test1 = TestModuleToRun()
+    test1.test_default_values()
+    test1.test_create_module_wkflow_dir()
+    test1.test_run()
+    test2 = TestWorkflow()
+    test2.test_from_config_file()
+    test2.test_set_workflow()
     print("Test configfile.py")
     print("To run test use the following command:")
     print(">> pytest -v")

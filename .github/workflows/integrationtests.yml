@@ -75,7 +75,7 @@ jobs:
       shell: bash -l {0}
       run: |
         source ~/.bashrc
-        pytest -v ./tests --cov=ceasiompy/ --cov-report xml:coverage.xml -m "not gui"
+        pytest -v ./tests --cov=ceasiompy --cov-report xml:coverage.xml -m "not gui"
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3.1.0

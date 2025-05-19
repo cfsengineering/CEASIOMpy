@@ -41,9 +41,7 @@ RUN chmod +x install_*.sh
 RUN ./install_pyavl.sh
 RUN ./install_su2.sh
 
-RUN apt remove -y mpich
-
-# Re-install with most recent version of mpirun
+# Install most recent version of mpirun
 RUN apt update && apt upgrade -y
 
 RUN apt install -y mpich

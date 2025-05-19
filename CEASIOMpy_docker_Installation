@@ -7,6 +7,9 @@ FROM ubuntu:22.04
 
 RUN apt-get update
 
+# Need to upgrade for correct mpirun version
+RUN apt update && apt upgrade -y
+
 # Install apt-utils
 RUN apt-get install -y apt-utils
 

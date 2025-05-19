@@ -21,6 +21,7 @@ import os
 import argparse
 
 from pathlib import Path
+from argparse import Namespace
 from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy import log
@@ -206,7 +207,7 @@ def main():
         help="run a test case [1, 2, or 3]",
     )
 
-    args = parser.parse_args()
+    args: Namespace = parser.parse_args()
 
     if args.testcase:
         run_testcase(args.testcase)

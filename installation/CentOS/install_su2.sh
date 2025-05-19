@@ -3,7 +3,6 @@
 # Script to install SU2 on Centos 8
 
 su2_version="8.1.0"
-mpi_version="4.1.1"
 
 current_dir="$(pwd)"
 
@@ -38,7 +37,7 @@ sudo dnf check-update
 sudo dnf upgrade
 
 echo "Installing MPICH..."
-sudo dnf install -y mpich$mpi_version
+sudo dnf install -y mpich
 
 echo "Adding MPICH path to the .bashrc"
 mpich_path="/usr/bin"

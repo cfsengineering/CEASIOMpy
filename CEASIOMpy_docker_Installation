@@ -3,7 +3,7 @@
 # Use the commands below to build the Docker image,
 # and then to run the Docker container.
 
-FROM ubuntu:22.04
+FROM ubuntu:latest
 
 RUN apt-get update
 
@@ -37,11 +37,15 @@ RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/install
 # Make the scripts executable
 RUN chmod +x install_*.sh
 
-RUN apt update && apt upgrade -y
-
 # Run the installation scripts
 RUN ./install_pyavl.sh
 RUN ./install_su2.sh
+
+RUN apt remove -y mpich
+
+RUN apt update && apt upgrade -y
+
+RUN apt install -y mpich
 
 # Go from /CEASIOMpy/INSTALLDIR to /INSTALLDIR
 RUN mkdir -p /INSTALLDIR && \

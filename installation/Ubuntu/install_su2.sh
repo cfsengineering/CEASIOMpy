@@ -3,7 +3,6 @@
 # Script to install SU2
 
 su2_version="8.1.0"
-mpi_version="4.0-3"
 
 current_dir="$(pwd)"
 
@@ -38,7 +37,7 @@ sudo apt update
 sudo apt upgrade
 
 echo "Installing MPICH..."
-sudo apt install -y mpich=$mpi_version
+sudo apt install -y mpich
 # sudo apt install -y mpich
 
 echo "Adding MPICH path to the .bashrc"

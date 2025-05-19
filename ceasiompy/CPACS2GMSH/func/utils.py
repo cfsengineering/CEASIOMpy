@@ -43,6 +43,7 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_OPEN_GUI_XPATH,
     GMSH_REFINE_FACTOR_XPATH,
     GMSH_REFINE_TRUNCATED_XPATH,
+    GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,
     GMSH_SYMMETRY_XPATH,
     GMSH_MESH_TYPE_XPATH,
     GMSH_NUMBER_LAYER_XPATH,
@@ -261,6 +262,7 @@ def retrieve_gui_values(tixi: Tixi3):
     refine_factor = get_value(tixi, GMSH_REFINE_FACTOR_XPATH)
     refine_truncated = get_value(tixi, GMSH_REFINE_TRUNCATED_XPATH)
     auto_refine = get_value(tixi, GMSH_AUTO_REFINE_XPATH)
+    refine_factor_angled_lines = get_value(tixi, GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH)
 
     intake_percent = get_value(tixi, GMSH_INTAKE_PERCENT_XPATH)
     exhaust_percent = get_value(tixi, GMSH_EXHAUST_PERCENT_XPATH)
@@ -282,7 +284,7 @@ def retrieve_gui_values(tixi: Tixi3):
         n_power_factor, n_power_field,
         fuselage_mesh_size_factor, wing_mesh_size_factor,
         mesh_size_engines, mesh_size_propellers,
-        refine_factor, refine_truncated, auto_refine,
+        refine_factor, refine_truncated, auto_refine, refine_factor_angled_lines,
         intake_percent, exhaust_percent,
         n_layer, h_first_layer, max_layer_thickness,
         growth_factor, growth_ratio,

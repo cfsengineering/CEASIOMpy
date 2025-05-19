@@ -1,5 +1,5 @@
 # With this Dockerfile, you are building a Docker image for
-# your LOCAL CEASIOMpy on Ubuntu 22.04, with system dependencies and Miniconda.
+# your LOCAL CEASIOMpy on Ubuntu latest, with system dependencies and Miniconda.
 # Use the commands below to build the Docker image,
 # and then to run the Docker container.
 

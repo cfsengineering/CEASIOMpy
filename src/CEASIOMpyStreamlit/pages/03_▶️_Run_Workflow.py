@@ -19,7 +19,7 @@ Streamlit page to run a CEASIOMpy workflow
 import os
 import psutil
 import signal
-import CEASIOMpyStreamlit as st
+import streamlit as st
 
 from streamlit_autorefresh import st_autorefresh
 from streamlitutils import (

@@ -14,12 +14,12 @@ Integration test for some typical CEASIOMpy workflows.
 import shutil
 import pytest
 
-import CEASIOMpyStreamlit as st
+import streamlit as st
 
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from src.bin.ceasiompy_exec import run_modules_list
+from bin.ceasiompy_exec import run_modules_list
 from ceasiompy.utils.ceasiompyutils import change_working_dir
 
 from ceasiompy.SMUse import MODULE_NAME as SMUSE

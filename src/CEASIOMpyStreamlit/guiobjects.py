@@ -14,9 +14,9 @@ GUI objects in CEASIOMpy.
 # ==============================================================================
 
 import pandas as pd
-import CEASIOMpyStreamlit as st
+import streamlit as st
 
-from src.CEASIOMpyStreamlit.streamlitutils import save_cpacs_file
+from CEASIOMpyStreamlit.streamlitutils import save_cpacs_file
 from cpacspy.cpacsfunctions import (
     get_string_vector,
     get_value_or_default,

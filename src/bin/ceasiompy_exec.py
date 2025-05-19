@@ -19,6 +19,7 @@ Main module of CEASIOMpy to launch workflow by different way.
 
 import os
 import argparse
+import subprocess
 
 from pathlib import Path
 from argparse import Namespace
@@ -163,7 +164,19 @@ def run_gui():
     """Create an run a workflow from a GUI."""
 
     log.info("CEASIOMpy has been started from the GUI.")
-    os.system(f"cd {STREAMLIT_PATH} && streamlit run CEASIOMpy.py")
+    env = os.environ.copy()
+    # Add the src directory to PYTHONPATH
+    env["PYTHONPATH"] = (
+        str(Path(__file__).resolve().parents[2] / "src")
+        + os.pathsep
+        + env.get("PYTHONPATH", "")
+    )
+    subprocess.run(
+        ["streamlit", "run", "CEASIOMpy.py"],
+        cwd=STREAMLIT_PATH,
+        check=True,
+        env=env,
+    )
 
 # =================================================================================================
 #    MAIN

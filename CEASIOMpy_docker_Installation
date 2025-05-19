@@ -42,9 +42,8 @@ RUN ./install_pyavl.sh
 RUN ./install_su2.sh
 
 # Install most recent version of mpirun
-RUN apt update && apt upgrade -y
-
-RUN apt install -y mpich
+# RUN apt update && apt upgrade -y
+# RUN apt install -y mpich
 
 # Go from /CEASIOMpy/INSTALLDIR to /INSTALLDIR
 RUN mkdir -p /INSTALLDIR && \

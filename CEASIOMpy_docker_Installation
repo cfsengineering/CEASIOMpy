@@ -53,13 +53,13 @@ RUN mkdir -p /INSTALLDIR && \
 
 # Install xvfb and other graphical display dependencies for Ubuntu
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    xvfb libgl1-mesa-glx libglu1-mesa libegl1-mesa libosmesa6 libxt6 && \
+    xvfb libgl1 libglu1-mesa libegl1 libosmesa6 libxt6 && \
     rm -rf /var/lib/apt/lists/*
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    g++ libtbb2 libtbb-dev libxrender1 libxcursor1 libxinerama1 libxft2 libxt6 \
-    libgl1-mesa-glx libglu1-mesa libegl1-mesa libosmesa6 xvfb && \
+    g++ libtbbmalloc2 libtbb-dev libxrender1 libxcursor1 libxinerama1 libxft2 libxt6 \
+    libglu1-mesa libosmesa6 xvfb && \
     rm -rf /var/lib/apt/lists/*
 
 # Disable Streamlit watchdog and use polling

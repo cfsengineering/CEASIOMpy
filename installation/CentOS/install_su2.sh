@@ -11,7 +11,7 @@ current_dir="$(pwd)"
 if [ $# -gt 0 ]; then
     install_dir="$1/INSTALLDIR"
 else
-    install_dir="$(pwd)/../../INSTALLDIR"
+    install_dir="$(pwd)/INSTALLDIR"
 fi
 
 echo "Creating install directory..."
@@ -32,6 +32,10 @@ echo export SU2_RUN=\""$su2_run_path"\" >> ~/.bashrc
 echo export SU2_HOME=\""$su2_home_path"\" >> ~/.bashrc
 echo export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN >> ~/.bashrc
 echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
+
+echo "Updating dnf repositories and upgrading packages..."
+sudo dnf check-update
+sudo dnf upgrade
 
 echo "Installing MPICH..."
 sudo dnf install -y mpich$mpi_version

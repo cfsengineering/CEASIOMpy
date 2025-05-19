@@ -497,7 +497,8 @@ def fusing_parts(
             else:
                 # Update the vectors of remaining entities
                 dimtags_names = [{"dimtag": fused_entities[0],
-                                  "name": dimtags_names[i]["name"] + "+" + dimtags_names[j]["name"]}] +\
+                                  "name": dimtags_names[i]["name"] + "+"
+                                  + dimtags_names[j]["name"]}] +\
                     [dimtags_names[k] for k in range(len(dimtags_names)) if k != j and k != i]
 
         # Handle the cases where it didn't work

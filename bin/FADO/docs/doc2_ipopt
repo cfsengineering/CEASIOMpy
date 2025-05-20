@@ -1,0 +1,56 @@
+### Requirements ###
+
+Interface with IPOPT via IPyOpt in Hessian-free mode.
+The setup process should be similar to the ExteriorPenaltyDriver i.e. the way
+to add functions to it and how that allows weighted objectives to be formed.
+Again we want lazy and simultaneous evaluation.
+
+### Analysis ###
+
+IPyOpt needs the following functions to be defined:
+ - eval_f(x): Objective function, scalar return;
+ - eval_grad_f(x, out): out is the gradient, set and return;
+ - eval_g(x, out): out is the constraint vector (all);
+ - eval_jac_g(x, out): out is the vector of non-zeros in the constraint
+   gradient (considered sparse). The sparsity pattern is needed alongside this
+   vector, the matrix is "nCon x nVar" and the triplet format is used.
+
+The type of constraint is derived from the upper/lower bound specification.
+
+  This driver should return a prepared ipyopt.Problem to avoid "doubling" the
+  work of setting up variable and constraint bounds.
+
+Contrary to SciPy L-BFGS-B, evaluating the gradient does not mark the end of
+one iteration, the line searches are derivative free.
+For startup the order of function/derivative evaluation seems to be problem
+dependent, the function may not even be required. Moreover more than one call
+to gradients is made.
+The "apply_new" callback is reliably called before new evaluations (but for
+startup there are "new" evaluations with identical values) but it seems this
+callback can only be provided together with the Hessian...
+The "intermediate" callback can be provided independently but only marks the
+end of an outer iteration, which is not enough to manage runs.
+
+  It seems new evaluations will have to be detected based on a change of design
+  variables... not ideal but should be generic for other optimizers.
+
+### Design ###
+
+Setup object with functions, call to solve is responsability of the user.
+This should make it easier to manage warm starts and set additional options.
+
+For simplicity all functions are evaluated if either f or g are requested
+(same for gradients), during normal operation Ipopt allways requires the
+values of f and g anyway.
+
+To trigger evaluations the driver keeps a copy of the design vector and checks
+if any variable changed.
+
+We make the (adjoint) assumption that gradients require functions to be
+computed first.
+
+### TODO ###
+
+Ipopt backtracks when evaluating a function fails, in the C++ interfacer this
+is signalled by returning false, need to check how to do that in IPyOpt.
+

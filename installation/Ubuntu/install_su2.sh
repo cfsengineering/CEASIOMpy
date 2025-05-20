@@ -34,22 +34,19 @@ echo export SU2_HOME=\""$su2_home_path"\" >> ~/.bashrc
 echo export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN >> ~/.bashrc
 echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
 
-apt update && apt upgrade -y
+echo "Installing OpenMPI..."
+apt update && apt install -y openmpi-bin libopenmpi-dev
 
-echo "Installing MPICH..."
-sudo apt install -y mpich  #=$mpi_version
-
-echo "Adding MPICH path to the .bashrc"
-
-mpich_path="/usr/bin"
-echo export PATH=\"\$PATH:$mpich_path\" >> ~/.bashrc
+echo "Adding OpenMPI path to the .bashrc"
+mpirun_path="/usr/bin"
+echo export PATH=\"\$PATH:$mpirun_path\" >> ~/.bashrc
 
 source ~/.bashrc
 
 echo "Checking SU2 version"
 "$SU2_RUN/SU2_CFD" --help
 
-echo "Checking MPICH version"
+echo "Checking Open MPI version"
 mpirun --version
 
 cd "$current_dir"

@@ -1,0 +1,256 @@
+### Motivation ###
+Need an exterior penalty driver to run SU2 for FSI topology optimization with
+multiple constraints and mechanisms for added reliability (retries or fallback)
+and for data parallel execution (all adjoints at once).
+Moreover, different settings may be needed for different runs.
+
+
+### Assumptions ###
+Functions are evaluated by writing variables and parameters to file, running
+some commands and retrieving values from file.
+These functions are much more expensive than the optimization.
+The setup process is not meant to be generic at this stage, ad-hoc scripting
+will be required, e.g. setting file names, run commands and so on, the
+framework just aims to make this easier.
+
+
+### Requirements ###
+# General
+- Exterior penalty method for any number of constraints and functions.
+- Parallel or sequential evaluation of functions (and their gradients).
+- Completely abstract, no reliance on SU2 parameters.
+- A generic way to handle variables (even vector ones)
+- Allow for manipulation of parameters, e.g. to implement ramping strategies.
+- Keep results of each run.
+- Files should be handled in the most generic of ways.
+
+# Method specific
+- Equality, inequality, and inner range constraints.
+- Lazy evaluation of constraint gradients (only when needed).
+- Ramping of penalty factors based on constraint violation tolerance.
+
+# User experience
+Create objects that represent the various components (functions, etc.).
+Setup the driver with these objectives.
+Pass it to the optimization.
+(See example.py)
+
+
+### Design ###
+# World view
+A DRIVER is composed of:
+  - objectives
+  - constraints
+It exposes methods to:
+  - evaluate the penalized objective function
+  - and its gradient
+  - update penalties
+  - setup all that is required
+
+Objectives and constraints are FUNCTIONS that have been assigned a role when
+they were added to the DRIVER along with the following data:
+  - type (min/max, =, >, <, <.<)
+  - scale
+  - weight (for when objectives are combined)
+  - bounds (of the constraints)
+
+FUNCTIONS are defined by:
+  - output variable (defined by source file and respective parser)
+  - value evaluation method(s)
+  - gradient evaluation method(s)
+  - input variables and their gradient sources (files and parsers)
+It exposes methods to:
+  - obtain the function
+  - and its gradient
+  - setup the object
+Evaluating the function may require multiple steps (evaluation objects), for
+now these will be run in the order specified by the user and if data transfer
+between them is need the user needs to specify it explicitly.
+
+EVALUATION has:
+  - config files (where inputs and parameters are set)
+  - data files (e.g. mesh, initialization, etc.)
+  - run instructions
+  - parameters (akin to input variables)
+  - working (sub)directory, sub directory inside driver working directory
+Evaluation methods can be shared by functions and are lazy, i.e. run as needed.
+
+What happens when running an evaluation?
+  - The directory is created, the input files are moved into it, an option for
+    symbolic links (only of data files) will be given but the default will be
+    hard copy for compatibility with windows. The option will be in the
+    constructor of evaluation.
+  - The Popen object is created
+  - The evaluation parameters and function variables are written as the files
+    are copied.
+  - The process is started (with the option to wait for it)
+(note: at some point it may make sense to reuse directories, update only config
+       and make use of generated data without moving, for now each eval will
+       require its own directory)
+
+INPUT_VARIABLE has:
+  - initial value
+  - current value
+  - scale
+  - bounds
+  - type (scalar or vector)
+  - parsing rule to be written to file
+
+PARAMETER is akin to input variable but:
+  - does not need to be a number
+  - is updated, e.g. incremented, rather than set by the optimizer
+
+# File parsing methods
+- Scalar input variables and parameters are parsed with the template and label
+  strategy, i.e. the user provides a file with labels that will be replaced by
+  values (the label is the parsing rule basically). In the future a label
+  syntax can be developed to specify initial values and bounds in the template
+  file to make the scripts less case-specific.
+- Vector inputs and outputs require different strategies, these files have
+  simpler formating, most of them can be treated as tables, one specifies row,
+  column, separator(?) and header rows (to skip). For very special cases an
+  entire user-defined method can be used.
+Small issue with vector inputs:
+  If an evaluation has multiple config files we try to write all variables to
+  all files, but the table writer currently trows an exception if the target is
+  not a table.
+So either:
+  - mark the config files as tables,
+  - or try catch variables writes and issue a warning the first time,
+  - or if the file is clearly not compatible with the data, just ignore,
+  The 1st option would require logic to determine type of parser... not great.
+  3rd option is the simplest.
+
+# Parallel execution
+This refers to the simultaneous evaluation of functions and their gradients,
+not to the individual parallelization of those tasks.
+An evaluation schedule needs to be created at the level of the evaluation
+methods (not the function as those may share evaluations).
+The optimization methods separate functions and gradient evaluation so that
+dependency need not be established (for now)
+It is the derived driver that needs to create the schedule as some optimization
+methods do not call for evaluation of all functions in one iteration.
+Creating the evaluation graph:
+  - The eval steps within each function are assumed to be sequential;
+  - For each unique evaluation a list of its direct dependencies is built;
+  - The parallel evaluation is an infinite loop over evaluations, once
+    dependencies are met the eval is initialized and started (no wait) the loop
+    stops when all evals are finished;
+For this to work there cannot be hidden dependencies, the user needs to make
+all direct dependencies known, e.g. if two functions differ only in post
+processing the main step still needs to be added to both.
+The graph is built in "setEvaluationMode".
+Slight problem(s):
+P To initialize an evaluation the variables are needed, but these belong to the
+  function. The driver could determine what variables are associated with an
+  evaluation, but this is not very elegant.
+S Alternatively the evaluation can build its own list of variables as it is
+  added to functions. Functions that share evaluations should share variables
+  (the future will prove me wrong but at the moment that is my intuition).
+  These lists of variables should be done by the driver's "preprocessVariables"
+  otherwise we would be imposing that variables need to be added to functions
+  before the evaluation steps.
+P We only want to compute the gradient of active constraints.
+S First we assume no evaluation is needed, then for all objectives and active
+  constraints we mark the associated evaluations as needed. Moreover, some
+  (unlikely) multilevel dependencies may also activate evaluations.
+
+# Ownership of variables and parameters
+Input variables are owned by functions because:
+  - Some functions may not take all variables
+  - One needs to link the derivative of the function to the variable
+Parameters are owned by evaluations because:
+  - This can be used to taylor the same template config file to multiple
+    evaluations, instead of having to prepare multiple templates (which risk
+    losing consistency with each other)
+
+Implications to the user:
+  - Variables that are shared between functions will have to be added multiple
+    times, which is tedious but necessary to link them with their gradient.
+
+Implications to the DRIVER:
+  - The driver needs to liason between the design vector that the optimizer
+    creates and the variables, i.e. it needs to map variables to locations
+    of the design vector
+  - Moreover, it needs to avoid updating variables (and especially parameters)
+    multiple times
+  - A preprocessing step is needed where the driver obtains the variables and
+    parameters from the functions and evaluations, removes duplicates and sorts
+    them in an order that is familiar to the user
+
+Implications to FUNCTION:
+  - When functions return the gradients w.r.t. their variables they need to
+    accept a mask (created by the driver) that allows them to return results
+    in the correct order, location, size.
+
+# Data/control flow
+What happens when the optimizer requests the driver to evaluate the objective
+function.
+
+Quick recap:
+  - The driver holds functions;
+  - The functions have evaluations (val & grad) and variables;
+  - The evaluations have parameters and input files;
+
+First let's make the sequential version work:
+  - Each iteration takes place inside the working directory of the driver;
+  - There each evaluation creates its own directory;
+  - At the beginning of a new iteration the work dir may be saved;
+  - The driver will evaluate the functions one by one, the functions direct the
+    call to the evaluation method which will be lazy;
+Parallel version:
+  - Values are still retrieved sequentially but evaluations are run before in
+    parallel, see process in # Parallel execution
+
+Managing working directories:
+  - Evaluations and functions work relative to current directory, but for
+    convinience files should be specified relative to script.
+  - If the driver chdir's to its working directory prior to evaluation the
+    evaluations cannot find the files.
+  - File paths could be converted to absolute, but some are meant to be
+    relative to the execution directory, e.g. results from other evaluation
+  - Config files are always absolute, as after replacing labels they cannot
+    be re-used, only data files may be relative, and outputs are always
+    relative.
+The simplest solution is to rely on a user flag for data files, and it also
+avoids ambiguities like toplevel directories with the same name.
+Another simple option is to make the relative/absolute decision based on
+whether the file can be found when it is added (meaning absolute), perhaps this
+can be the "auto" and default mode.
+The driver can create and cd to its working directory in "preprocessVariables"
+or in evaluating the function.
+When a new evaluation starts, the old data (working directory) is saved by
+renaming the work dir (no copy), thereafter the work dir is recreated. This
+means the driver needs to cd in and out of it.
+For safety, in "preprocessVariables" the top level will be stored as an
+absolute path, the driver work dir is then always set with respect to this.
+
+# Lazy evaluation
+The evaluations are lazy (because they can be shared across functions), after
+they run a flag is set that keeps them from running again, because evaluations
+do not know about each other they cannot reset their own flags.
+The flags can be reset by the driver at the end of all evaluations in "fun" and
+"grad" but this means those driver functions are not lazy, i.e. they cannot be
+used to simply retrieve the values.
+This should be fine... It seems to be the assumption that most optimizers make.
+
+# Monitoring
+We will have a log and an history object (not file) the driver builds the lines
+it wants to log/display and calls the "write" method on the object, this allows
+custom objects to be attached to the driver which may print and/or write to
+file or possibly even plot.
+The "logger" monitors events like the updates of the exterior penalty method,
+the "historian" registers convergence history.
+
+# Reliability
+Software is not perfect. To make optimizations more resilient to exceptional
+circumstances the evaluations should have a mechanism by which the success of
+the run can be determined, in case of failure the run is retried, this is the
+simplest reliability mechanism, a more complex strategy would be a retry with
+different settings (a fallback).
+A simple way of measuring success is via the existence of some expected output
+file(s) (set by the user).
+For cases where failure is inevitable (e.g. aggressive step in line search)
+functions may be given default values (the effectiveness of this needs to be
+tested).
+

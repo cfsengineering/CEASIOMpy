@@ -27,9 +27,6 @@ jobs:
       with:
         python-version: 3.11.11
 
-    - name: Show Ubuntu version
-      run: cat /etc/os-release
-
     - name: Setup Miniforge3
       uses: conda-incubator/setup-miniconda@v2
       with:

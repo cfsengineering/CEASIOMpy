@@ -3,15 +3,16 @@
 # Use the commands below to build the Docker image,
 # and then to run the Docker container.
 
-FROM ubuntu:latest
+FROM ubuntu:24.04
 
 RUN apt-get update
 
-# Need to upgrade for correct mpirun version
+RUN apt-get install -y libglu1-mesa-dev
+
 RUN apt update && apt upgrade -y
 
 # Install apt-utils
-RUN apt-get install -y apt-utils
+RUN apt-get install -y apt-utils 
 
 # Install system dependencies
 RUN apt-get install -y --no-install-recommends \

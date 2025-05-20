@@ -33,11 +33,8 @@ echo export SU2_HOME=\""$su2_home_path"\" >> ~/.bashrc
 echo export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN >> ~/.bashrc
 echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
 
-echo "Updating apt repositories and upgrading packages..."
-sudo apt update && apt upgrade -y
-
 echo "Installing MPICH..."
-sudo apt install -y mpich=$mpi_version
+apt install -y mpich=$mpi_version
 
 echo "Adding MPICH path to the .bashrc"
 

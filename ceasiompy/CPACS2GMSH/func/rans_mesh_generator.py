@@ -380,7 +380,6 @@ def generate_2d_mesh_for_pentagrow(
 
     gmesh_path = Path(results_dir, "surface_mesh.stl")
     gmsh.write(str(gmesh_path))
-    gmsh.fltk.run()
     return gmesh_path, fuselage_maxlen
 
 

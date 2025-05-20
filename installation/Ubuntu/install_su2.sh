@@ -3,7 +3,6 @@
 # Script to install SU2
 
 su2_version="8.2.0"
-mpi_version="4.0-3"
 
 current_dir="$(pwd)"
 
@@ -20,7 +19,9 @@ cd "$install_dir"
 
 echo "Downloading SU2..."
 wget https://github.com/su2code/SU2/releases/download/v"$su2_version"/SU2-v"$su2_version"-linux64-mpi.zip
-unzip -d SU2-v"$su2_version"-linux64-mpi SU2-v"$su2_version"-linux64-mpi.zip
+unzip SU2-v"$su2_version"-linux64-mpi.zip
+cd SU2-v"$su2_version"-linux64-mpi
+unzip linux64-mpi.zip
 
 echo "Adding path to the .bashrc"
 

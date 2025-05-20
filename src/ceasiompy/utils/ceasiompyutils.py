@@ -433,6 +433,7 @@ def run_software(
     nb_cpu: int = 1,
     stdin: Optional[TextIO] = None,
     log_bool: bool = True,
+    xvfb: bool = False,
 ) -> None:
     """Run a software with the given arguments in a specific wkdir. If the software is compatible
     with MPI, 'with_mpi' can be set to True and the number of processors can be specified. A
@@ -464,17 +465,15 @@ def run_software(
     if with_mpi:
         mpi_install_path = get_install_path("mpirun")  # "mpirun.mpich"
         if mpi_install_path is not None:
-            command_line += [mpi_install_path, "--allow-run-as-root", "-np", str(int(nb_cpu))]
+            command_line += [mpi_install_path, "-np", str(int(nb_cpu))]
 
     command_line += [install_path]
     command_line += arguments
 
-    # Use xvfb to run sumo to avoid problems with X11 (e.g. when running test on Github actions)
-    if software_name in ["sumo", "dwfsumo"] and sys.platform == "linux":
-        if shutil.which("xvfb-run"):
-            command_line = ["xvfb-run", "--auto-servernum"] + command_line
-        else:
-            log.warning("xvfb-run not found. Proceeding without it.")
+    if xvfb: 
+        command_line = ["xvfb-run", "--auto-servernum"] + command_line
+    else:
+        log.warning("xvfb-run not found. Proceeding without it.")
 
     log.info(f">>> Running {software_name} on {int(nb_cpu)} cpu(s)")
     log.info(f"Working directory: {wkdir}")

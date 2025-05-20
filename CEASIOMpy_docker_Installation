@@ -29,21 +29,19 @@ ENV PATH=$CONDA_DIR/bin:$PATH
 # Create the necessary directory structure
 WORKDIR /CEASIOMpy/installation/Ubuntu/
 
-# Download only the required installation scripts
-RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/Ubuntu/install_pyavl.sh && \
-    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/Ubuntu/install_su2.sh && \
-    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/Ubuntu/install_pentagrow.sh
+# Copy the required installation scripts from local context
+COPY installation/Ubuntu/install_pyavl.sh .
+COPY installation/Ubuntu/install_su2.sh .
+COPY installation/Ubuntu/install_pentagrow.sh .
 
 # Make the scripts executable
 RUN chmod +x install_*.sh
 
-# Run the installation scripts
-RUN ./install_pyavl.sh
-RUN ./install_su2.sh
+WORKDIR /CEASIOMpy
 
-# Install most recent version of mpirun
-# RUN apt update && apt upgrade -y
-# RUN apt install -y mpich
+# Run the installation scripts
+RUN ./installation/Ubuntu/install_pyavl.sh
+RUN ./installation/Ubuntu/install_su2.sh
 
 # Go from /CEASIOMpy/INSTALLDIR to /INSTALLDIR
 RUN mkdir -p /INSTALLDIR && \

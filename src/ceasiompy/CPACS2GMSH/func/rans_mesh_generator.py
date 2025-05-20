@@ -244,7 +244,7 @@ def generate_2d_mesh_for_pentagrow(
     log.info(
         f"Mesh size fuselage={mesh_size_fuselage:.3f} m")
     log.info(
-        f"Mesh size wing={((wing_maxlen * 0.8 + wing_minlen) /2) / wing_mesh_size_factor:.3f} m")
+        f"Mesh size wing={((wing_maxlen * 0.8 + wing_minlen) / 2) / wing_mesh_size_factor:.3f} m")
     log.info(f"Mesh size engine={mesh_size_engines:.3f} m")
     log.info(f"Mesh size rotor={mesh_size_propellers:.3f} m")
 
@@ -777,7 +777,9 @@ def refine_le_te_end(
                 common_surfaces = list(set(surfaces1) & set(surfaces2) & set(surfaces_in_wing))
                 if len(common_points) == 2 and len(common_surfaces) == 1:
                     log.info(
-                        f"Found the end of wing in {model_part.uid}, refining lines {line1,line2}")
+                        f"Found the end of wing in {model_part.uid}, "
+                        f"refining lines {line1, line2}"
+                    )
                     refine_end_wing([line1, line2],
                                     aircraft,
                                     x_chord,

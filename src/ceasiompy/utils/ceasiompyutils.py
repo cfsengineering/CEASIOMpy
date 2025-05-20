@@ -470,7 +470,7 @@ def run_software(
     command_line += [install_path]
     command_line += arguments
 
-    if xvfb: 
+    if xvfb:
         command_line = ["xvfb-run", "--auto-servernum"] + command_line
     else:
         log.warning("xvfb-run not found. Proceeding without it.")

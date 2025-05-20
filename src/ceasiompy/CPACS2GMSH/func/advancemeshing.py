@@ -784,8 +784,8 @@ def refine_surface(
             mesh_fields["nbfields"],
             "F",
             f"({mesh_size}/{refine}) + "
-            f"{mesh_size}*(1-(1/{refine}))*"
-            f"(F{mesh_fields['nbfields']-1}/{m})^{n_power}",
+            f"{mesh_size}*(1-(1/{refine})) * "
+            f"(F{mesh_fields['nbfields'] - 1} / {m})^{n_power}",
         )
 
         # 3 : Create the restrict field

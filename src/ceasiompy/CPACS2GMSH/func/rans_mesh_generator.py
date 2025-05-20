@@ -55,7 +55,6 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_end_wing,
 )
 from ceasiompy.utils.ceasiompyutils import (
-    bool_,
     get_reasonable_nb_cpu,
     get_part_type,
     run_software,

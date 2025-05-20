@@ -37,7 +37,7 @@ echo "Updating apt repositories and upgrading packages..."
 sudo apt update && apt upgrade -y
 
 echo "Installing MPICH..."
-sudo apt install -y mpich  #=$mpi_version
+sudo apt install -y mpich=$mpi_version
 
 echo "Adding MPICH path to the .bashrc"
 

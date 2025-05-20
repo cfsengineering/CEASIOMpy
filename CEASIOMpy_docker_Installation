@@ -26,6 +26,8 @@ RUN curl -fsSL https://github.com/conda-forge/miniforge/releases/latest/download
     rm /tmp/miniforge.sh
 ENV PATH=$CONDA_DIR/bin:$PATH
 
+RUN apt-get install -y
+
 # Create the necessary directory structure
 WORKDIR /CEASIOMpy/installation/Ubuntu/
 

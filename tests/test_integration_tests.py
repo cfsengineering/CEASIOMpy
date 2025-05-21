@@ -4,7 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Integration test for some typical CEASIOMpy workflows.
-
 """
 
 # ====================================================================================================================
@@ -13,7 +12,6 @@ Integration test for some typical CEASIOMpy workflows.
 
 import shutil
 import pytest
-
 import streamlit as st
 
 from pathlib import Path
@@ -32,6 +30,7 @@ from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
 from ceasiompy.CPACSUpdater import MODULE_NAME as CPACSUPDATER
 from ceasiompy.SaveAeroCoefficients import MODULE_NAME as SAVEAEROCOEF
+from ceasiompy.AeroFrame import MODULE_NAME as AEROFRAMENEW
 
 # =================================================================================================
 #   CONSTANTS
@@ -65,10 +64,9 @@ def run_workflow_test(modules_to_run, cpacs_path=CPACS_IN_PATH):
 
 
 @pytest.mark.slow
-@pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
-@pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
+@pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
 def test_integration_1():
-    run_workflow_test([CPACSUPDATER, CPACS2GMSH, SU2RUN])
+    run_workflow_test([AEROFRAMENEW])
     assert True
 
 
@@ -97,12 +95,12 @@ def test_integration_4():
     assert True
 
 
-# TODO: framAT version is not on point right now
-# @pytest.mark.slow
-# @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
-# def test_integration_5():
-#     run_workflow_test(["AeroFrame_new"])
-#     assert True
+@pytest.mark.slow
+@pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
+@pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
+def test_integration_5():
+    run_workflow_test([CPACSUPDATER, CPACS2GMSH, SU2RUN])
+    assert True
 
 
 # =================================================================================================
@@ -110,6 +108,7 @@ def test_integration_4():
 # =================================================================================================
 
 if __name__ == "__main__":
+    test_integration_1()
     print("Integration tests")
     print("To run test use the following command:")
     print(">> pytest -v . --cov=../ceasiompy --cov-report term")

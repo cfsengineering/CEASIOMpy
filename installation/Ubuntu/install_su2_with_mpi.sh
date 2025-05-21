@@ -49,16 +49,6 @@ python3 meson.py build --prefix="${INSTALL_DIR}" \
 echo "Building and installing SU2..."
 ninja -C build install
 
-echo "Adding SU2 to PATH in .bashrc"
-su2_run_path="${INSTALL_DIR}/bin"
-su2_home_path="${INSTALL_DIR}"
-
-echo "# SU2 Path" >> ~/.bashrc
-echo export SU2_RUN=\"${su2_run_path}\" >> ~/.bashrc
-echo export SU2_HOME=\"${su2_home_path}\" >> ~/.bashrc
-echo export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN >> ~/.bashrc
-echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
-
 echo "Checking SU2 version"
 "${su2_run_path}/SU2_CFD" --help
 

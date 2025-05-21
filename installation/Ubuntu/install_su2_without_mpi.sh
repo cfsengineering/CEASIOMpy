@@ -21,12 +21,10 @@ echo "Downloading SU2..."
 wget https://github.com/su2code/SU2/releases/download/v"$su2_version"/SU2-v"$su2_version"-linux64.zip
 unzip -d SU2-v"$su2_version"-linux64 SU2-v"$su2_version"-linux64.zip
 
-su2_run_path=/"$install_dir"/SU2-v"$su2_version"-linux64/bin
-su2_home_path=/"$install_dir"/SU2-v"$su2_version"-linux64
+su2_run_path=/"$install_dir"/SU2-v"$su2_version"-linux64/bin/SU2_CFD
 
 # Export for current session
 export SU2_RUN="$su2_run_path"
-export SU2_HOME="$su2_home_path"
 export PYTHONPATH="$PYTHONPATH:$SU2_RUN"
 export PATH="$PATH:$SU2_RUN"
 

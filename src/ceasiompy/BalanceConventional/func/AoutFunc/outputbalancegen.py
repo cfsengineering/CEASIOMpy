@@ -145,8 +145,6 @@ def output_txt(out, mw, bi, NAME):
         OutputTextFile.write("\n---------------------------------------" + "--------")
     # Closing Text File
     OutputTextFile.close()
-    return ()
-
 
 # =============================================================================
 #   PLOTS
@@ -189,8 +187,6 @@ def aircraft_nodes_plot(fx, fy, fz, wx, wy, wz, NAME):
     ax.legend(numpoints=1, loc="upper right")
     FIG_NAME = "ToolOutput/" + NAME + "/" + NAME + "_Aircraft_Nodes.png"
     fig.savefig(FIG_NAME, dpi=300)
-
-    return ()
 
 
 # AIRCRAFT CoG PLOT --------------------------------------------------------
@@ -263,15 +259,3 @@ def aircraft_cog_plot(cg, ag, NAME):
     )
     FIG_NAME = "ToolOutput/" + NAME + "/" + NAME + "_Aircraft_Cog.png"
     fig.savefig(FIG_NAME, dpi=500)
-
-    return ()
-
-
-# =============================================================================
-#    MAIN
-# =============================================================================
-
-if __name__ == "__main__":
-    print("##########################################################")
-    print("### ERROR NOT A STANDALONE PROGRAM, RUN balancemain.py ###")
-    print("##########################################################")

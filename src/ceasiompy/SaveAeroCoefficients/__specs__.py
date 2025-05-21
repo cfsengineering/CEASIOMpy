@@ -216,11 +216,3 @@ cpacs_inout.add_input(
     gui_name="__AEROMAP_CHECKBOX",
     gui_group="Aeromap list for scatter points",
 )
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

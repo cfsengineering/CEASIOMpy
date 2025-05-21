@@ -79,8 +79,6 @@ def toolspecific_update(mw, out, cpacs_out_path):
 
     tixi.save(cpacs_out_path)
 
-    return ()
-
 
 # =============================================================================
 # CPACS MASS BREAKDOWN UPDATE
@@ -192,8 +190,6 @@ def cpacs_weight_update(out, mw, ui, cpacs_out_path):
 
     tixi.save(cpacs_out_path)
 
-    return ()
-
 
 # =============================================================================
 # CPACS ENGINE UPDATE
@@ -244,8 +240,6 @@ def cpacs_engine_update(ui, ed, mw, cpacs_out_path):
         tixi.updateDoubleElement(ENT_XPATH + "/thrust00", ed.max_thrust, "%g")
 
     tixi.save(cpacs_out_path)
-
-    return ()
 
 
 # =============================================================================

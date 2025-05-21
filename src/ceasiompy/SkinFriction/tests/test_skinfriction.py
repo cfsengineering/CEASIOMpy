@@ -92,13 +92,3 @@ def test_add_skin_friction():
     # Remove the output cpacs file if exist
     if CPACS_OUT_PATH.exists():
         CPACS_OUT_PATH.unlink()
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    print("Test SkinFriction")
-    print("To run test use the following command:")
-    print(">> pytest -v")

@@ -135,8 +135,6 @@ def output_txt(LDloi, LDcru, mw, ri, out, NAME):
     # Closing Text File
     OutputTextFile.close()
 
-    return ()
-
 
 # =============================================================================
 #   PLOTS
@@ -235,15 +233,3 @@ def payload_range_plot(ranges, ranges_cru, payloads, mw, NAME):
 
     FIG_NAME = os.path.join("ToolOutput", NAME, NAME + "_Payload_vs_Range.png")
     fig.savefig(FIG_NAME, dpi=300)
-
-    return ()
-
-
-# =============================================================================
-#    MAIN
-# =============================================================================
-
-if __name__ == "__main__":
-    print("##########################################################")
-    print("#### ERROR NOT A STANDALONE PROGRAM, RUN rangemain.py ####")
-    print("##########################################################")

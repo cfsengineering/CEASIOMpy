@@ -149,14 +149,14 @@ def output_txt(bout, mw, bi, ec, NAME):
 
     #  Closing Text File
     OutputTextFile.close()
-    return ()
-
 
 # =============================================================================
 #   PLOTS
 # =============================================================================
 
 #  AIRCRAFT NODES PLOT ------------------------------------------------------
+
+
 def aircraft_nodes_unc_plot(fx, fy, fz, wx, wy, wz, NAME):
     """The function generates the plot of the aircraft nodes.
     INPUT
@@ -194,8 +194,6 @@ def aircraft_nodes_unc_plot(fx, fy, fz, wx, wy, wz, NAME):
     FIG_NAME = "ToolOutput/" + NAME + "/" + NAME + "_Aircraft_Nodes.png"
     fig.savefig(FIG_NAME, dpi=500)
 
-    return ()
-
 
 def aircraft_nodes_bwb_plot(wx, wy, wz, NAME):
     """The function generates the plot of the aircraft nodes.
@@ -225,8 +223,6 @@ def aircraft_nodes_bwb_plot(wx, wy, wz, NAME):
     ax.legend(numpoints=1, loc="upper right")
     FIG_NAME = "ToolOutput/" + NAME + "/" + NAME + "_Aircraft_Nodes.png"
     fig.savefig(FIG_NAME, dpi=500)
-
-    return ()
 
 
 #  AIRCRAFT CoG PLOT --------------------------------------------------------
@@ -314,8 +310,6 @@ def aircraft_cog_unc_plot(cg, bi, ed, afg, awg, NAME):
     FIG_NAME = "ToolOutput/" + NAME + "/" + NAME + "_Aircraft_Cog.png"
     fig.savefig(FIG_NAME, dpi=500)
 
-    return ()
-
 
 def aircraft_cog_bwb_plot(cg, bi, ed, awg, NAME):
     """The function that generate the plot of the blended wing body
@@ -384,14 +378,3 @@ def aircraft_cog_bwb_plot(cg, bi, ed, awg, NAME):
     )
     FIG_NAME = "ToolOutput/" + NAME + "/" + NAME + "_Aircraft_Cog.png"
     fig.savefig(FIG_NAME, dpi=500)
-
-    return ()
-
-
-# =============================================================================
-#    MAIN
-# =============================================================================
-if __name__ == "__main__":
-    print("###########################################################")
-    print("# ERROR NOT A STANDALONE PROGRAM, RUN Balance_unc_main.py #")
-    print("###########################################################")

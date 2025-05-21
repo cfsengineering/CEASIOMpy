@@ -28,9 +28,9 @@ from ceasiompy.Database import MODULE_NAME as DATABASE
 from ceasiompy.ExportCSV import MODULE_NAME as EXPORTCSV
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
+from ceasiompy.AeroFrame import MODULE_NAME as AEROFRAMENEW
 from ceasiompy.CPACSUpdater import MODULE_NAME as CPACSUPDATER
 from ceasiompy.SaveAeroCoefficients import MODULE_NAME as SAVEAEROCOEF
-from ceasiompy.AeroFrame import MODULE_NAME as AEROFRAMENEW
 
 # =================================================================================================
 #   CONSTANTS
@@ -75,7 +75,7 @@ def test_integration_1():
 @pytest.mark.skipif(not shutil.which("pentagrow"), reason="Pentagrow not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_2():
-    run_workflow_test([CPACS2GMSH, SU2RUN, EXPORTCSV], cpacs_path=CPACS_RANS)
+    run_workflow_test([CPACSUPDATER, CPACS2GMSH, SU2RUN, EXPORTCSV], cpacs_path=CPACS_RANS)
     assert True
 
 
@@ -93,22 +93,3 @@ def test_integration_3():
 def test_integration_4():
     run_workflow_test([CPACS2GMSH, SMTRAIN, SMUSE, SAVEAEROCOEF])
     assert True
-
-
-@pytest.mark.slow
-@pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
-@pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
-def test_integration_5():
-    run_workflow_test([CPACSUPDATER, CPACS2GMSH, SU2RUN])
-    assert True
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    test_integration_1()
-    print("Integration tests")
-    print("To run test use the following command:")
-    print(">> pytest -v . --cov=../ceasiompy --cov-report term")

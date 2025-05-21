@@ -65,11 +65,3 @@ for (wing_name, segment_name) in segments_list:
         gui_name=f"Control Surface for segment {segment_name} of wing {wing_name}",
         gui_group='Control Surfaces Settings',
     )
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

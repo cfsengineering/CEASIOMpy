@@ -209,22 +209,3 @@ def test_get_all_module_specs():
     st.session_state.cpacs = CPACS(Path(CPACS_FILES_PATH, "D150_simple.xml"))
     all_specs = get_all_module_specs()
     assert isinstance(all_specs, dict)
-
-
-def test_create_default_toolspecific():
-    """
-    Test that 'create_default_toolspecific' works
-    """
-
-    pass
-    # TODO: how to test that...
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    print("Test moduleinterfaces.py")
-    print("To run test use the following command:")
-    print(">> pytest -v")

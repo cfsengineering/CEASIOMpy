@@ -57,11 +57,3 @@ DYNAMICSTABILITY_VISUALIZATION_XPATH = DYNAMICSTABILITY_XPATH + "/Visualization"
 DYNAMICSTABILITY_CGRID_XPATH = DYNAMICSTABILITY_XPATH + "/CGrid"
 DYNAMICSTABILITY_SOFTWARE_XPATH = DYNAMICSTABILITY_XPATH + "/Software"
 DYNAMICSTABILITY_MACHLIST_XPATH = DYNAMICSTABILITY_XPATH + "/Mach"
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

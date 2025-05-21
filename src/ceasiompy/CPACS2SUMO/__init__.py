@@ -42,11 +42,3 @@ CPACS2SUMO_SUMO_GUI_XPATH = CPACS2SUMO_XPATH + "/GUI"
 CPACS2SUMO_INCLUDE_PYLON_XPATH = CPACS2SUMO_XPATH + "/engine/includePylon"
 CPACS2SUMO_INCLUDE_ENGINE_XPATH = CPACS2SUMO_XPATH + "/engine/includeEngine"
 CPACS2SUMOFILE_XPATH = CPACS2SUMO_XPATH + "/filesPath/sumoFilePath"
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

@@ -44,10 +44,3 @@ CPACSUPDATER_XPATH = CEASIOMPY_XPATH + "/CPACSUpdater"
 CPACSUPDATER_CTRLSURF_XPATH = CPACSUPDATER_XPATH + "/CtrlSurf"
 CPACSUPDATER_ADD_CTRLSURFACES_XPATH = CEASIOMPY_XPATH + "/AddControlSurfaces"
 CPACSUPDATER_CPACSCREATOR_XPATH = CPACSUPDATER_XPATH + "/CPACSCreator"
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

@@ -37,10 +37,3 @@ cpacs_inout.add_input(
     gui_name="Linear Regression",
     gui_group="Static Stability Settings",
 )
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

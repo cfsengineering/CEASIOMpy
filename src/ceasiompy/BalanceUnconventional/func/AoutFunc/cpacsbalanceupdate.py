@@ -199,8 +199,6 @@ def cpacs_mbd_update(out, mw, bi, ms_zpm, out_xml):
     # Saving and closing the new cpacs file inside the ToolOutput folder -----
     tixi.save(out_xml)
 
-    return ()
-
 
 # =============================================================================
 #   MAIN

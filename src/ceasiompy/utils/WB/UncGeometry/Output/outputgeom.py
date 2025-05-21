@@ -128,8 +128,6 @@ def produce_wing_output_txt(awg, NAME):
     # Close Text File
     OutputTextFile.close()
 
-    return ()
-
 
 def produce_geom_output_txt(afg, awg, NAME):
     """Function to generate the output file with all the geometry data
@@ -279,12 +277,11 @@ def produce_geom_output_txt(afg, awg, NAME):
 
     # Close Text File
     OutputTextFile.close()
-    return ()
-
 
 # =============================================================================
 #   MAIN
 # ==============================================================================
+
 
 if __name__ == "__main__":
 

@@ -498,11 +498,3 @@ cpacs_inout.add_output(
     descr="aeroMap with aero coefficients calculated by SU2",
     xpath=AEROPERFORMANCE_XPATH + "/aeroMap/aeroPerformanceMap",
 )
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

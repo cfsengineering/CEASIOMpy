@@ -71,10 +71,3 @@ GMSH_GROWTH_RATIO_XPATH = GMSH_XPATH + "/growth_ratio"
 GMSH_SURFACE_MESH_SIZE_XPATH = GMSH_XPATH + "min_max_mesh_factor"
 GMSH_FEATURE_ANGLE_XPATH = GMSH_XPATH + "/feature_angle"
 GMSH_CTRLSURF_ANGLE_XPATH = GMSH_XPATH + "/DeflectionAngle"
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

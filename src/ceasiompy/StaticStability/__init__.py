@@ -37,11 +37,3 @@ MODULE_NAME = MODULE_DIR.name
 
 # Specific to StaticStability module
 STABILITY_DICT = {True: "Stable", False: "Unstable"}
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

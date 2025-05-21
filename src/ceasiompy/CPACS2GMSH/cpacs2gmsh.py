@@ -261,4 +261,5 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
 
 if __name__ == "__main__":
+    print
     call_main(main, MODULE_NAME)

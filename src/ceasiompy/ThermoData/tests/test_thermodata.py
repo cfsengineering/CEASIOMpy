@@ -152,13 +152,3 @@ def test_write_hbtf_file(tmp_path):
     content.append("")
 
     assert test_thermodata_path.read_text().split("\n") == content
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    print("Test ThermoData")
-    print("To run test use the following command:")
-    print(">> pytest -v")

@@ -31,11 +31,3 @@ INCLUDE_GUI = True
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

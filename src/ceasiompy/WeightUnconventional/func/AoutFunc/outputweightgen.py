@@ -113,8 +113,6 @@ def output_fuse_txt(fus_nb, FLOORS_NB, ed, out, mw, adui, awg, afg, NAME):
 
     out_txt_file.close()
 
-    return ()
-
 
 def output_bwb_txt(FLOORS_NB, ed, out, mw, adui, awg, NAME):
     """The function generates the output text file for the
@@ -200,8 +198,6 @@ def output_bwb_txt(FLOORS_NB, ed, out, mw, adui, awg, NAME):
     out_txt_file.write("\n-----------------------------------------------")
 
     out_txt_file.close()
-
-    return ()
 
 
 # =============================================================================

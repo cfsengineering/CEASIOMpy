@@ -54,13 +54,3 @@ def test_logger():
     assert warning_line_default in last_lines[2]
     assert error_line_default in last_lines[3]
     assert critical_line_default in last_lines[4]
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    print("Running Test CEASIOMLogger")
-    print("To run test use the following command:")
-    print(">> pytest -v")

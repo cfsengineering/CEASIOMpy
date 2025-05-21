@@ -44,13 +44,3 @@ def test_save_aero_coef():
         # Assert a .png file exists in the directory
         png_files = list(results_dir.glob("*.png"))
         assert png_files, f"No .png file found in {results_dir}"
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    print("Test SaveAeroCoefficients")
-    print("To run test use the following command:")
-    print(">> pytest -v")

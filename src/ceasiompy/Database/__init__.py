@@ -39,10 +39,3 @@ MODULE_NAME = MODULE_DIR.name
 # xPaths
 DATABASE_XPATH = CEASIOMPY_XPATH + "/Database"
 DATABASE_STOREDATA_XPATH = DATABASE_XPATH + "/StoreData"
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

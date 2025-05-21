@@ -74,10 +74,3 @@ AVL_DISTR_XPATH = AVL_VORTEX_DISTR_XPATH + "/Distribution"
 
 # Specific for Dynamic Stability computation
 AVL_EXPAND_VALUES_XPATH = AVL_XPATH + "/ExpandValues"
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

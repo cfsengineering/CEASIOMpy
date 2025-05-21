@@ -53,13 +53,3 @@ def test_add_damping_derivatives(tmp_path):
 def test_add_actuator_disk():
     """Test function 'add_actuator_disk'"""
     ...
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    print("Test test_su2configfile.py")
-    print("To run test use the following command:")
-    print(">> pytest -v")

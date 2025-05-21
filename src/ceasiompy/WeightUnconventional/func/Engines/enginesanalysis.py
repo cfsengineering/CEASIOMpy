@@ -90,8 +90,6 @@ def check_ed(ed):
     else:
         log.info("EngineData class defined correctly.")
 
-    return ()
-
 
 # =============================================================================
 #    MAIN

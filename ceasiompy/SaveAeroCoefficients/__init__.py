@@ -16,17 +16,17 @@ Initialization for SaveAeroCoefficients module.
 
 from pathlib import Path
 
-from ceasiompy import log
+from ceasiompy.utils.commonxpaths import PLOT_XPATH
 
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
 
 # ===== Module Status =====
-module_status = True
+MODULE_STATUS = True
 
 # ===== Include GUI =====
-include_gui = True
+INCLUDE_GUI = True
 
 # ===== Add a Results Directory =====
 RES_DIR = True
@@ -35,9 +35,13 @@ RES_DIR = True
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 
-# None options
+# ===== List of (basic) aeromap features =====
+AEROMAP_FEATURES = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
+
+# ===== List of non options =====
 NONE_LIST = ["None", "NONE", "No", "NO", "N", "n", "-", " ", ""]  # ?
 
+# ===== Mapping of longer to shorter notation =====
 FEATURE_DICT = {
     "machNumber": "Mach",
     "angleOfAttack": "AoA",
@@ -45,9 +49,5 @@ FEATURE_DICT = {
     "altitude": "alt",
 }
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")
+# ===== xpaths =====
+CRIT_XPATH = PLOT_XPATH + "/criterion"

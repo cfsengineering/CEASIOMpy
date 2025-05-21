@@ -64,21 +64,23 @@ from cpacspy.cpacspy import (
 
 from ceasiompy import log
 from cpacspy.utils import COEFS
+from ceasiompy.CPACS2GMSH import GMSH_SYMMETRY_XPATH
 from ceasiompy.utils.commonnames import (
     SU2_FORCES_BREAKDOWN_NAME,
     SURFACE_FLOW_FILE_NAME
 )
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     AREA_XPATH,
     LENGTH_XPATH,
-    GMSH_SYMMETRY_XPATH,
     RANGE_LD_RATIO_XPATH,
     WING_SPAN_XPATH,
+    WETTED_AREA_XPATH,
+)
+from ceasiompy.SU2Run import (
     SU2_EXTRACT_LOAD_XPATH,
     SU2_FIXED_CL_XPATH,
     SU2_ROTATION_RATE_XPATH,
     SU2_UPDATE_WETTED_AREA_XPATH,
-    WETTED_AREA_XPATH,
     SU2_DAMPING_DER_XPATH,
     SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH,
     SU2_DYNAMICDERIVATIVES_DATA_XPATH,

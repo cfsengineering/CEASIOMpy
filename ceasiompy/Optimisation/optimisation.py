@@ -17,42 +17,54 @@ Todo:
 """
 
 import ast
-
-from pathlib import Path
-from re import split
-
 import numpy as np
 import openmdao.api as om
+
+from re import split
+from ceasiompy.SMUse.sm_use import load_surrogate
 from ceasiompy.Optimisation.func.dictionnary import (
-    add_am_to_dict,
-    create_aeromap_dict,
-    update_am_dict,
     update_dict,
+    add_am_to_dict,
+    update_am_dict,
+    create_aeromap_dict,
 )
 from ceasiompy.Optimisation.func.optimfunctions import (
-    Routine,
-    create_variable_library,
     gen_doe_csv,
+    create_variable_library,
 )
-from ceasiompy.Optimisation.func.tools import change_var_name, is_digit, plot_results, save_results
-from ceasiompy.SMUse.smuse import load_surrogate, write_inouts
-from ceasiompy import log
-from ceasiompy.utils.ceasiompyutils import run_module
+from cpacspy.cpacsfunctions import (
+    get_value,
+    open_tixi,
+    add_float_vector,
+)
+from ceasiompy.Optimisation.func.tools import (
+    is_digit,
+    plot_results,
+    save_results,
+    change_var_name,
+)
+from ceasiompy.utils.ceasiompyutils import (
+    run_module,
+    write_inouts,
+)
 from ceasiompy.utils.moduleinterfaces import (
     get_specs_for_module,
     get_toolinput_file_path,
     get_tooloutput_file_path,
     check_cpacs_input_requirements,
 )
-from ceasiompy.utils.commonxpath import OPTIM_XPATH
-from cpacspy.cpacsfunctions import add_float_vector, get_value, open_tixi
+
+from pathlib import Path
 from cpacspy.cpacspy import CPACS
-from cpacspy.utils import COEFS, PARAMS
+from ceasiompy.Optimisation.func.optimfunctions import Routine
 
-# Do not remove: Called within eval() function
-# from tigl3.geometry import eval
-
+from ceasiompy import log
 from ceasiompy.Optimisation import MODULE_NAME
+from ceasiompy.utils.commonxpaths import OPTIM_XPATH
+from cpacspy.utils import (
+    COEFS,
+    PARAMS,
+)
 
 Rt = Routine()
 
@@ -72,8 +84,11 @@ class Geom_param(om.ExplicitComponent):
             if name in Rt.optim_var_dict:
                 self.add_input(name, val=infos[1][0])
 
+    # TODO: outputs ???
     def compute(self, inputs, outputs):
-        """Update the geometry of the CPACS"""
+        """
+        Update the geometry of the CPACS
+        """
 
         log.info(f"Start optimisation iteration: {Rt.counter}")
 
@@ -187,7 +202,7 @@ class ModuleComp(om.ExplicitComponent):
         module = [m for m in Rt.modules if m.name == self.module_name][0]
 
         # Updating inputs in CPACS file
-        tixi = open_tixi(module.cpacs_in)
+        tixi = module.cpacs_in.tixi
         for name in inputs:
             if name in Rt.optim_var_dict:
                 xpath = Rt.optim_var_dict[name][4]
@@ -206,7 +221,7 @@ class ModuleComp(om.ExplicitComponent):
         run_module(module, Rt.wkflow_dir, Rt.counter)
 
         # Feeding CPACS file results to outputs
-        tixi = open_tixi(module.cpacs_out)
+        tixi = module.cpacs_out.tixi
         for name in outputs:
             if name in Rt.optim_var_dict:
                 xpath = Rt.optim_var_dict[name][4]
@@ -268,7 +283,7 @@ class SmComp(om.ExplicitComponent):
         module = [m for m in Rt.modules if m.name == self.module_name][0]
 
         # Write the inouts to the CPACS
-        tixi = open_tixi(module.cpacs_in)
+        tixi = module.cpacs_in.tixi
         write_inouts(self.xd, xp, tixi)
         write_inouts(self.yd, yp, tixi)
         tixi.save(str(module.cpacs_out))
@@ -318,7 +333,11 @@ class Objective(om.ExplicitComponent):
 # =================================================================================================
 
 
-def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
+def update_cpacs_file(
+    cpacs_in: CPACS,
+    cpacs_out: CPACS,
+    optim_var_dict
+):
     """Function to update a CPACS file with value from the optimiser
 
     This function sets the new values of the design variables given by
@@ -335,10 +354,9 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
 
     """
 
-    log.info("----- Start of CPACSUpdater -----")
     log.info(f"{cpacs_path} will be updated.")
 
-    tixi = open_tixi(cpacs_path)
+    tixi = cpacs_in.tixi
     tigl = tixi
     # open_tigl(tixi)
 

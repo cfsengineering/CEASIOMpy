@@ -39,8 +39,11 @@ from ceasiompy.SU2Run import MODULE_NAME as SU2RUN_NAME
 from ceasiompy.utils.commonpaths import CEASIOMPY_DB_PATH
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH_NAME
 from ceasiompy.DynamicStability import MODULE_NAME as DYNSTAB_NAME
-
-from ceasiompy.Database.func import TABLE_DICT, ALLOWED_TABLES, ALLOWED_COLUMNS
+from ceasiompy.Database.func import (
+    TABLE_DICT,
+    ALLOWED_TABLES,
+    ALLOWED_COLUMNS,
+)
 
 # ==============================================================================
 #   CLASS
@@ -132,11 +135,8 @@ class CeasiompyDb:
         params = []
         if filters is not None:
             filter_clauses = []
-            for column, value in filters:
-                if column not in ALLOWED_COLUMNS:
-                    raise ValueError(f"Invalid column name in filter: {column}")
-                filter_clauses.append(f"`{column}` = ?")  # Escape column names
-                params.append(value)
+            for filter_condition in filters:
+                filter_clauses.append(filter_condition)
             query += " WHERE " + " AND ".join(filter_clauses)
 
         # Execute the query with parameters

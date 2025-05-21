@@ -55,7 +55,7 @@ from typing import List, Dict, Tuple
 from ceasiompy import log
 from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.CPACS2GMSH import (
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
     GMSH_MESH_SIZE_WINGS_XPATH,
     GMSH_MESH_SIZE_CTRLSURFS_XPATH,
@@ -442,7 +442,7 @@ def generate_gmsh(
     # The rest of children_dimtag are list of tuples (dimtag, tag)
     # that represent volumes in the model.
     # children_dimtag is "sorted" according to the order of importation of the parent parts.
-    # Ror example: if the first part imported was "fuselage1" then the first children_dimtag
+    # For example: if the first part imported was "fuselage1" then the first children_dimtag
     # is a list of all the "child" volumes in the model that are from the "parent" "fuselage1"
     # we can then associate each entities in the model to their parent origin.
 
@@ -710,19 +710,19 @@ def generate_gmsh(
     if symmetry:
         gmsh.model.setColor(symmetry_surfaces, *MESH_COLORS["symmetry"], recursive=False)
 
-    # Wing leading edge and trailing edge detection
-    for part in aircraft_parts:
-        if part.part_type in ["wing", "ctrlsurf"]:
-            classify_wing(part, aircraft_parts)
-            log.info(
-                f"Classification of {part.uid} done"
-                f" {len(part.wing_sections)} section(s) found "
-            )
-
     # Generate advance meshing features
     mesh_fields = {"nbfields": 0, "restrict_fields": []}
     if refine_factor != 1:
         log.info(f"Refining wings with factor {refine_factor}")
+
+        # Wing leading edge and trailing edge detection
+        for part in aircraft_parts:
+            if part.part_type in ["wing", "ctrlsurf"]:
+                classify_wing(part, aircraft_parts)
+                log.info(
+                    f"Classification of {part.uid} done"
+                    f" {len(part.wing_sections)} section(s) found "
+                )
 
         # Refine wings
         for part in aircraft_parts:
@@ -867,13 +867,9 @@ def generate_gmsh(
         log.info(f"New Dimension: {dim}, Tag: {tag}, Name: {name}")
 
     if surf is None:
-        surface_mesh_path = Path(results_dir, "surface_mesh.msh")
-        gmsh.write(str(surface_mesh_path))
-        # cgnsmesh_path = Path(results_dir, "mesh.cgns")
-        # gmsh.write(str(cgnsmesh_path))
+        write_gmsh(results_dir, "surface_mesh.msh")
     else:
-        surface_mesh_path = Path(results_dir, f"surface_mesh_{surf}_{angle}.msh")
-        gmsh.write(str(surface_mesh_path))
+        write_gmsh(results_dir, f"surface_mesh_{surf}_{angle}.msh")
 
     if bool_(open_gmsh):
         log.info("Result of 2D surface mesh")
@@ -898,9 +894,11 @@ def generate_gmsh(
 
     if surf is None:
         su2mesh_path = write_gmsh(results_dir, "mesh.su2")
+        write_gmsh(results_dir, "mesh.msh")
     else:
         mesh_name = f"mesh_{surf}_{angle}"
         su2mesh_path = write_gmsh(results_dir, f"{mesh_name}.su2")
+        write_gmsh(results_dir, f"{mesh_name}.msh")
 
     process_gmsh_log(gmsh.logger.get())
 

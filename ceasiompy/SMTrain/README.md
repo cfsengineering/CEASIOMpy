@@ -5,21 +5,44 @@
 
 **Categories:** Optimisation, Surrogate Modeling
 
-**State**: :x: must be refactored to work with the new version of the code (see [Issue #147](https://github.com/cfsengineering/CEASIOMpy/issues/147))
+`SMTrain` is a module to train a surrogate model,
+with data computed using CEASIOMpy's Modules.
 
-`SMTrain` is a module to train a surrogate model, with data calculated with CEASIOMpy.
+Notion of fidelity in CFD:
+    - 1st-level: potential flow
+    - 2nd-level: euler flow
+    - 3d-level: rans flow
+
+The computed forces and moments are getting more and more accurate through each levels (in practice).
+
+In CEASIOMpy currently you can use:
+    - AVL for the 1st-level
+    - SU2 Euler for the 2nd-level
+    - Nothing for the 3rd-level (but there is going to be an update soon with CPACS2GMSH)
 
 ## Inputs
 
-`SMTrain` takes as input a CPACS file, it must contained a path to a CSV file with the training dataset in it, or an aeromap can be chosen instead. However the aeromap must have the outputs (cl, cd, ...).
+`SMTrain` takes as input a CPACS file.
 
-## Analyses
+## Workflow
 
-`SMTrain` module generates a surrogate model by using a dataset which contains a list of inputs with their corresponding outputs. Therefore any parameters can be given to create a surrogate.
+`SMTrain`'s workflow in a nutshell:
 
-## Outputs
+1. DATA for training:
+    - uniform sampling (n_samples parameter)
+    - ceasiompy.db data [optional]
 
-`SMTrain` outputs a CPACS files with the new values set by the user. It will be ready to be used by the next module in the workflow.
+2. Training:
+    - Trains on 1st-level
+      - generates data using PyAVL module with the uniform-sampled parameters
+      - augments the dataset with data from ceasiompy.db
+      - trains solely on AVL results
+    - Trains on 2nd-level:
+      - using SU2Run module
+      - trains on data with high-variance points from the 1st-level in a loop until the rmse error is small enough
+    - Trains on 3rd-level (Not yet implemented due to CPACS2GMSH status)
+
+3. Saves model and all results in an aeromap
 
 ## Installation or requirements
 
@@ -27,9 +50,7 @@
 
 ## Limitations
 
-For now the specific training options for a model are not implemented in the GUI and must be modified within the code.
+1. Can not choose the range for the Hyper-parameters of the surrogate model
 
 ## More information
-
-* [SMUse module](../SMUse/README.md)
-* [SMT: Surrogate Modeling Toolbox](https://smt.readthedocs.io/en/latest/)
+- [SMT: Surrogate Modeling Toolbox](https://smt.readthedocs.io/en/latest/)

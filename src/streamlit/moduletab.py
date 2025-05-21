@@ -31,7 +31,10 @@ from src.streamlit.guiobjects import (
     multiselect_vartype,
 )
 
-from typing import List
+from typing import (
+    List,
+    Dict,
+)
 from collections import OrderedDict
 
 from ceasiompy import log
@@ -96,11 +99,21 @@ def if_choice_vartype(
 
 
 def order_by_gps(inputs: List) -> OrderedDict:
-    groups = list(OrderedDict.fromkeys([v[6] for _, v in inputs.items()]))
+    groups = list(OrderedDict.fromkeys([v[6] for v in inputs.values()]))
+
+    expanded_list: Dict[str, List[bool]] = {}
+    for v in inputs.values():
+        group = f"{v[6]}"
+        if group not in expanded_list:
+            expanded_list[group] = []
+        expanded_list[group].append(v[8])
 
     groups_container = OrderedDict()
     for group in groups:
-        groups_container[group] = st.expander(f"**{group}**", expanded=True)
+        groups_container[group] = st.expander(
+            f"**{group}**",
+            expanded=all(expanded_list[group]),
+        )
 
     return groups_container
 
@@ -209,7 +222,9 @@ def add_module_tab() -> None:
 
             groups_container = order_by_gps(inputs)
 
-            for name, default_value, var_type, unit, xpath, description, group in inputs.values():
+            for (
+                name, default_value, var_type, unit, xpath, description, group, _, _
+            ) in inputs.values():
                 key = f"{m}_{module}_{name.replace(' ', '')}_{group.replace(' ', '')}"
                 process_unit(name, unit)
 

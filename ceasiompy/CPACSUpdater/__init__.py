@@ -17,16 +17,17 @@ Initialization for CPACSUpdater module.
 from pathlib import Path
 
 from ceasiompy import log
+from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
 
 # ===== Module Status =====
-module_status = True
+MODULE_STATUS = True
 
 # ===== Include GUI =====
-include_gui = True
+INCLUDE_GUI = True
 
 # ===== Add a Results Directory =====
 RES_DIR = False
@@ -38,6 +39,11 @@ MODULE_NAME = MODULE_DIR.name
 # Specific to CPACSUpdater module
 CONTROL_SURFACES_LIST = ["none", "plain_aileron", "plain_rudder", "plain_flap", "fowler_flap"]
 
+# xPaths
+CPACSUPDATER_XPATH = CEASIOMPY_XPATH + "/CPACSUpdater"
+CPACSUPDATER_CTRLSURF_XPATH = CPACSUPDATER_XPATH + "/CtrlSurf"
+CPACSUPDATER_ADD_CTRLSURFACES_XPATH = CEASIOMPY_XPATH + "/AddControlSurfaces"
+CPACSUPDATER_CPACSCREATOR_XPATH = CPACSUPDATER_XPATH + "/CPACSCreator"
 
 # =================================================================================================
 #    MAIN

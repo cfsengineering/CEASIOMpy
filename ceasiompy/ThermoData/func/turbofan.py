@@ -9,6 +9,11 @@ Function to run the PyCycle code for the turbofan engine
 | Creation: 2023-12-12
 
 """
+
+# =================================================================================================
+#   IMPORTS
+# =================================================================================================
+
 import sys
 import openmdao.api as om
 import pycycle.api as pyc

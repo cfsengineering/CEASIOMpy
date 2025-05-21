@@ -20,8 +20,10 @@ from ceasiompy.CPACSUpdater.func.controlsurfaces import add_control_surfaces
 
 from cpacspy.cpacspy import CPACS
 
-from ceasiompy.CPACSUpdater import MODULE_NAME
-from ceasiompy.utils.commonxpath import CPACSUPDATER_ADD_CTRLSURFACES_XPATH
+from ceasiompy.CPACSUpdater import (
+    MODULE_NAME,
+    CPACSUPDATER_ADD_CTRLSURFACES_XPATH,
+)
 
 # =================================================================================================
 #    MAIN

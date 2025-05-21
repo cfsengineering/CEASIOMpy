@@ -17,6 +17,7 @@ Utils for PyAVL module.
 import numpy as np
 
 from pydantic import validate_call
+from cpacspy.cpacsfunctions import get_value
 
 from pathlib import Path
 from numpy import ndarray
@@ -30,7 +31,8 @@ from typing import (
     TextIO,
 )
 
-from ceasiompy.utils.commonxpath import REF_XPATH
+from ceasiompy.utils.commonxpaths import REF_XPATH
+from ceasiompy.PyAVL import AVL_EXPAND_VALUES_XPATH
 from ceasiompy import (
     log,
     ceasiompy_cfg,
@@ -65,7 +67,7 @@ def split_dir(dir_name: str, index: int, param: str) -> float:
     return float(dir_name.split("_")[index].split(param)[1])
 
 
-def split_line(line: str, index: int):
+def split_line(line: str, index: int) -> float:
     return float(line.split("=")[index].strip().split()[0])
 
 
@@ -110,7 +112,7 @@ def to_cpacs_format(point: Point) -> str:
 
 
 @validate_call(config=ceasiompy_cfg)
-def duplicate_elements(*lists: List) -> Tuple[List, ...]:
+def duplicate_elements(tixi: Tixi3, *lists: List) -> Tuple[List, ...]:
     """
     Duplicates lists such that there is a unique combination of them
     and the last three lists are zero-independent.
@@ -127,8 +129,14 @@ def duplicate_elements(*lists: List) -> Tuple[List, ...]:
         (Tuple[List, ...]): Number of *lists + 2, where the 3 last lists are zero-independent.
 
     """
-    if len(lists) < 2:
-        return tuple(lists)
+
+    # If you do not wish to expand values
+    if not get_value(tixi, AVL_EXPAND_VALUES_XPATH):
+        cst_list = len(lists[0]) * [lists[-1][0]]
+        return tuple(lists[:-1]) + (cst_list, cst_list, cst_list)
+
+    # Ensure each elements in the list are unique
+    lists = tuple([list(set(list_)) for list_ in lists])
 
     *initial_lists, last_list = lists
     combinations = list(product(*initial_lists))

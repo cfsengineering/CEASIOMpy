@@ -1,115 +1,207 @@
-from pathlib import Path
-import streamlit as st
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+Initialization for SMTrain module.
+
+"""
+
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpath import SMTRAIN_XPATH
 
-# ===== Module Status =====
-# True if the module is active
-# False if the module is disabled (not working or not ready)
-module_status = False
+from ceasiompy.SU2Run import SU2_MAX_ITER_XPATH
+from ceasiompy.utils.commonxpaths import USED_SU2_MESH_XPATH
+from ceasiompy.SMTrain import (
+    INCLUDE_GUI,
+    LEVEL_ONE,
+    LEVEL_TWO,
+    OBJECTIVES_LIST,
+    SMTRAIN_MAX_ALT,
+    SMTRAIN_MAX_MACH,
+    SMTRAIN_MAX_AOA,
+    SMTRAIN_MAX_AOS,
+    SMTRAIN_THRESHOLD_XPATH,
+    SMTRAIN_NSAMPLES_XPATH,
+    SMTRAIN_PLOT_XPATH,
+    SMTRAIN_OBJECTIVE_XPATH,
+    SMTRAIN_TRAIN_PERC_XPATH,
+    SMTRAIN_FIDELITY_LEVEL_XPATH,
+    SMTRAIN_AVL_DATABASE_XPATH,
+)
 
-# ===== Results directory path =====
-
-RESULTS_DIR = Path("Results", "SurrogateModels")
-
-# ===== CPACS inputs and outputs =====
+# ==============================================================================
+#   VARIABLE
+# ==============================================================================
 
 cpacs_inout = CPACSInOut()
 
-include_gui = True
-
-# ----- Input -----
+# ==============================================================================
+#   GUI INPUTS
+# ==============================================================================
 
 cpacs_inout.add_input(
-    var_name="Objectives",
-    var_type=str,
-    default_value="cl",
-    unit="-",
-    descr="""Objective function list for the surrogate model to predict \n Warning !
-    The parameters name must match the ones in the CSV file !""",
-    xpath=SMTRAIN_XPATH + "/objective",
-    gui=include_gui,
-    gui_name="Objective",
-    gui_group="Global settings",
+    var_name="fidelity_level",
+    var_type=list,
+    default_value=[LEVEL_TWO, LEVEL_ONE],  # TODO: , "Three levels" not implemented yet
+    unit=None,
+    descr="""Select if you want to train a simple kriging (1 level of fidelity) or you want to
+    train a Multi-Fidelity kriging (2 or 3 levels)""",
+    xpath=SMTRAIN_FIDELITY_LEVEL_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Choice of fidelity level",
+    gui_group="Training Surrogate Settings",
 )
 
 cpacs_inout.add_input(
-    var_name="trainig_part",
+    var_name="training_part",
     var_type=float,
-    default_value="0.9",
-    descr="Defining the percentage of the data to use to train the model in [0;1]",
-    xpath=SMTRAIN_XPATH + "/trainingPercentage",
-    gui=include_gui,
-    gui_name="% of training data",
-    gui_group="Global settings",
+    default_value=0.7,
+    descr="Defining the percentage of the data to use to train the model in [0, 1]",
+    xpath=SMTRAIN_TRAIN_PERC_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name=r"% of training data",
+    gui_group="Training Surrogate Settings",
 )
 
 cpacs_inout.add_input(
-    var_name="Show_validation_plots",
+    var_name="objective",
+    var_type=list,
+    default_value=OBJECTIVES_LIST,
+    unit=None,
+    descr="Objective function list for the surrogate model to predict",
+    xpath=SMTRAIN_OBJECTIVE_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Objective",
+    gui_group="Training Surrogate Settings",
+)
+
+cpacs_inout.add_input(
+    var_name="show_validation_plot",
     var_type=bool,
     default_value=True,
     unit=None,
-    descr="Choose if the validation plots must be shown or not",
-    xpath=SMTRAIN_XPATH + "/showPlots",
-    gui=include_gui,
-    gui_name="Show plots",
-    gui_group="Global settings",
+    descr="Choose if the validation plot must be shown or not",
+    xpath=SMTRAIN_PLOT_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Validation plot",
+    gui_group="Plot Settings",
+    test_value=False,
+    expanded=False,
 )
 
 cpacs_inout.add_input(
-    var_name="Aeromap",
+    var_name="avl_dataset_enriching",
     var_type=bool,
-    default_value=False,
+    default_value=True,
     unit=None,
-    descr="""If only the aeromap has to be used""",
-    xpath=SMTRAIN_XPATH + "/useAeromap",
-    gui=include_gui,
-    gui_name="Use an aeromap",
-    gui_group="Aeromap settings",
+    descr="Enrich your dataset from previously computed AVL values stored in ceasiompy.db",
+    xpath=SMTRAIN_AVL_DATABASE_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Data from ceasiompy.db",
+    gui_group="Data Enriching Settings",
+    test_value=False,
+    expanded=True,
 )
 
 cpacs_inout.add_input(
-    var_name="",
-    var_type=list,
-    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
-    unit=None,
-    descr="Name of the aero map to evaluate",
-    xpath=SMTRAIN_XPATH + "/aeroMapUID",
-    gui=True,
-    gui_name="__AEROMAP_SELECTION",
-    gui_group="Aeromap settings",
+    var_name="max_altitute",
+    var_type=int,
+    default_value=1000,
+    unit="m",
+    descr="Choose the maximum altitude (>=0)",
+    xpath=SMTRAIN_MAX_ALT,
+    gui=INCLUDE_GUI,
+    gui_name="Maximum altitude Range",
+    gui_group="Design of Experiments",
 )
 
 cpacs_inout.add_input(
-    var_name="data_file",
-    var_type="pathtype",
-    default_value="-",
-    descr="CSV file to be used to train a model",
-    xpath=SMTRAIN_XPATH + "/trainFile",
-    gui=include_gui,
-    gui_name="Training dataset",
-    gui_group="Training options",
+    var_name="max_mach",
+    var_type=float,
+    default_value=0.4,
+    unit=None,
+    descr="Choose the maximum mach number (>=0.1)",
+    xpath=SMTRAIN_MAX_MACH,
+    gui=INCLUDE_GUI,
+    gui_name="Maximum mach Number Range",
+    gui_group="Design of Experiments",
 )
 
 cpacs_inout.add_input(
-    var_name="type",
-    var_type=list,
-    default_value=["KRG", "KPLSK", "KPLS", "LS"],
-    unit=None,
-    descr="Type of surrogate model to choose from",
-    xpath=SMTRAIN_XPATH + "/modelType",
-    gui=include_gui,
-    gui_name="Type of surrogate",
-    gui_group="Training options",
+    var_name="max_aoa",
+    var_type=int,
+    default_value=15,
+    unit="deg",
+    descr="Choose the maximum angle of attack (>=0)",
+    xpath=SMTRAIN_MAX_AOA,
+    gui=INCLUDE_GUI,
+    gui_name="Maximum angle of attack Range",
+    gui_group="Design of Experiments",
 )
 
+cpacs_inout.add_input(
+    var_name="max_aos",
+    var_type=int,
+    default_value=15,
+    unit="deg",
+    descr="Choose the maximum angle of sideslip (>=0)",
+    xpath=SMTRAIN_MAX_AOS,
+    gui=INCLUDE_GUI,
+    gui_name="Maximum angle of sideslip Range",
+    gui_group="Design of Experiments",
+)
 
-# ----- Output -----
+cpacs_inout.add_input(
+    var_name="number_of_samples",
+    var_type=int,
+    default_value=10,
+    unit=None,
+    descr="Choose the number of samples",
+    xpath=SMTRAIN_NSAMPLES_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Number of samples",
+    gui_group="Design of Experiments",
+    test_value=7,
+)
 
-# cpacs_inout.add_output(
-#     var_name='output',
-#     default_value='-',
-#     unit='1',
-#     descr='Description of the output',
-#     xpath='/cpacs/toolspecific/CEASIOMpy/test/myOutput',
-# )
+cpacs_inout.add_input(
+    var_name="mesh_choice",
+    var_type="DynamicChoice",
+    default_value=["CPACS2GMSH mesh", "Path", "db"],
+    unit=None,
+    descr="Choose from where to upload the mesh",
+    xpath=USED_SU2_MESH_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Choose mesh",
+    gui_group="Second Level of Fidelity Parameters",
+    test_value=["CPACS2GMSH mesh"],
+)
+
+cpacs_inout.add_input(
+    var_name="rmse_objective",
+    var_type=float,
+    default_value=0.05,
+    unit=None,
+    descr="Selects the model's RMSE threshold value for Bayesian optimisation",
+    xpath=SMTRAIN_THRESHOLD_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="RMSE Threshold",
+    gui_group="Second Level of Fidelity Parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="max_iter",
+    var_type=int,
+    default_value=1000,
+    unit=None,
+    descr="Maximum number of iterations performed by SU2",
+    xpath=SU2_MAX_ITER_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Maximum iterations",
+    gui_group="Second Level of Fidelity Parameters",
+    test_value=1,
+)

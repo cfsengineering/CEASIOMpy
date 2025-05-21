@@ -29,7 +29,7 @@ from cpacspy.aeromap import AeroMap
 
 from ceasiompy import log
 from ceasiompy.ExportCSV import MODULE_NAME
-from ceasiompy.utils.commonxpath import AEROMAP_TO_EXPORT_XPATH
+from ceasiompy.utils.commonxpaths import AEROMAP_TO_EXPORT_XPATH
 
 # =================================================================================================
 #    MAIN

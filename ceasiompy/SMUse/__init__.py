@@ -16,16 +16,26 @@ Initialization for SMUse module.
 
 from pathlib import Path
 
+from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
+
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
 
 # ===== Module Status =====
-module_status = False
+MODULE_STATUS = True
 
 # ===== Include GUI =====
-include_gui = False
+INCLUDE_GUI = True
+
+# ===== Add a Results Directory =====
+RES_DIR = True
 
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
+
+# xPaths
+SMUSE_XPATH = CEASIOMPY_XPATH + "/SMUse"
+SMUSE_DATASET_XPATH = SMUSE_XPATH + "/Dataset"
+SMUSE_PREDICTIONDATASET_XPATH = SMUSE_XPATH + "/predictionDataset"

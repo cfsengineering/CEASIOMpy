@@ -23,10 +23,10 @@ from ceasiompy import log
 # ==============================================================================
 
 # ===== Module Status =====
-module_status = False
+MODULE_STATUS = True
 
 # ===== Include GUI =====
-include_gui = False
+INCLUDE_GUI = True
 
 # ===== Add a Results Directory =====
 RES_DIR = True

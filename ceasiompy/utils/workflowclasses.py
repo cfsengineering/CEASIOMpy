@@ -18,15 +18,15 @@ TODO:
 
 import os
 import shutil
-from datetime import datetime
-from pathlib import Path
 import importlib
 
-from ceasiompy.Optimisation.optimisation import routine_launcher
+from ceasiompy.utils.moduleinterfaces import get_module_list
 from ceasiompy.utils.ceasiompylogger import add_to_runworkflow_history
 from ceasiompy.utils.ceasiompyutils import change_working_dir, run_module, get_results_directory
+
+from pathlib import Path
+from datetime import datetime
 from ceasiompy.utils.configfiles import ConfigFile
-from ceasiompy.utils.moduleinterfaces import get_module_list
 
 from ceasiompy import log
 from ceasiompy.utils.moduleinterfaces import MODNAME_INIT
@@ -161,10 +161,8 @@ class OptimSubWorkflow:
         self.iteration += 1
 
         # Other iterations
-        module_optim = [module for module in self.modules]
-
-        routine_launcher(self.optim_method, module_optim,
-                         self.subworkflow_dir.parent)
+        # module_optim = [module for module in self.modules]
+        # routine_launcher(self.optim_method, module_optim, self.subworkflow_dir.parent)
 
 
 class Workflow:

@@ -5,13 +5,13 @@ from ceasiompy import log
 # ===== Module Status =====
 # True if the module is active
 # False if the module is disabled (not working or not ready)
-module_status = False
+MODULE_STATUS = False
 
 # ===== CPACS inputs and outputs =====
 
 cpacs_inout = CPACSInOut()
 
-include_gui = False
+INCLUDE_GUI = False
 
 # ----- Input -----
 
@@ -27,7 +27,7 @@ include_gui = False
 #         unit='1',
 #         descr=f"Fuselage scaling on {direction} axis",
 #         xpath=AIRCRAFT_XPATH + f'/model/fuselages/fuselage/transformation/scaling/{direction}',
-#         gui=include_gui,
+#         gui=INCLUDE_GUI,
 #         gui_name=f'{direction.capitalize()} scaling',
 #         gui_group='Fuselage scaling',
 #     )
@@ -39,7 +39,7 @@ include_gui = False
 #     unit=None,
 #     descr='This is a test of description',
 #     xpath='/cpacs/toolspecific/CEASIOMpy/test/myTest',
-#     gui=include_gui,
+#     gui=INCLUDE_GUI,
 #     gui_name='My test',
 #     gui_group='Group Test',
 # )
@@ -49,7 +49,7 @@ include_gui = False
 #     var_type=list,
 #     default_value=None,
 #     xpath='/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID',
-#     gui=include_gui,
+#     gui=INCLUDE_GUI,
 #     gui_name='__AEROMAP_SELECTION',
 # )
 #
@@ -58,7 +58,7 @@ include_gui = False
 #     var_type=list,
 #     default_value=None,
 #     xpath='/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction/aeroMapToCalculate',
-#     gui=include_gui,
+#     gui=INCLUDE_GUI,
 #     gui_name='__AEROMAP_CHECKBOX',
 # )
 #
@@ -68,7 +68,7 @@ include_gui = False
 #     default_value= [2,33,444],
 #     unit='[unit]',
 #     xpath='/cpacs/toolspecific/CEASIOMpy/test/myList',
-#     gui=include_gui,
+#     gui=INCLUDE_GUI,
 #     gui_name='Choice',
 #     gui_group='My Selection'
 # )

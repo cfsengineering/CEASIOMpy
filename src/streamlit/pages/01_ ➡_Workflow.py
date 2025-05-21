@@ -18,8 +18,17 @@ Streamlit page to create a CEASIOMpy workflow
 
 import streamlit as st
 
-from ceasiompy.utils.moduleinterfaces import get_module_list
 from streamlitutils import create_sidebar
+from ceasiompy.utils.moduleinterfaces import get_module_list
+
+from ceasiompy.SMUse import MODULE_NAME as SMUSE
+from ceasiompy.PyAVL import MODULE_NAME as PYAVL
+from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
+from ceasiompy.SMTrain import MODULE_NAME as SMTRAIN
+from ceasiompy.Database import MODULE_NAME as DATABASE
+from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
+from ceasiompy.CPACSUpdater import MODULE_NAME as CPACSUPDATER
+from ceasiompy.SaveAeroCoefficients import MODULE_NAME as SAVEAEROCOEF
 
 # ==============================================================================
 #   CONSTANTS
@@ -48,12 +57,12 @@ def section_predefined_workflow():
     st.markdown("#### Predefined Workflows")
 
     predefine_workflows = [
-        ["PyAVL", "DynamicStability", "Database"],
-        ["CPACSUpdater", "CPACSCreator", "CPACS2GMSH", "Database"],
-        ["SU2Run", "Database"],
-        ["CPACS2GMSH", "SU2Run", "SkinFriction"],
+        [PYAVL, SAVEAEROCOEF, DATABASE],
+        [CPACSUPDATER, "CPACSCreator", CPACS2GMSH, DATABASE],
+        [CPACSUPDATER, CPACS2GMSH, SU2RUN, "ExportCSV"],
+        [CPACS2GMSH, "ThermoData", SU2RUN, "SkinFriction"],
+        [SMTRAIN, SMUSE, SAVEAEROCOEF],
         # ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"],
-        ["CPACS2GMSH", "ThermoData", "SU2Run"],
     ]
 
     for workflow in predefine_workflows:

@@ -38,10 +38,15 @@ from cpacspy.cpacsfunctions import (
 )
 
 from pathlib import Path
-from cpacspy.cpacspy import CPACS, AeroMap
+from numpy import ndarray
+from pandas import DataFrame
 from unittest.mock import MagicMock
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from cpacspy.cpacspy import (
+    CPACS,
+    AeroMap,
+)
 from typing import (
     List,
     Tuple,
@@ -63,7 +68,7 @@ from ceasiompy.utils.moduleinterfaces import (
     MODNAME_INIT,
     MODNAME_SPECS,
 )
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     AIRCRAFT_NAME_XPATH,
     RANGE_CRUISE_ALT_XPATH,
     RANGE_CRUISE_MACH_XPATH,
@@ -74,13 +79,43 @@ from ceasiompy.utils.commonxpath import (
 # =================================================================================================
 
 
-def update_cpacs_from_specs(cpacs: CPACS, module_name: str) -> None:
+def write_inouts(
+    tixi: Tixi3,
+    df: DataFrame,
+    inout: ndarray,
+) -> None:
+    """
+    Write the specified input or the predicted output of the model
+    to the CPACS file.
+
+    Use case of this function is for surrogate modules.
+    """
+
+    df.fillna("-", inplace=True)
+    for i, name in enumerate(df.index):
+        value = inout[0][i]
+        if df.loc[name, "setcmd"] != "-":
+            # Only allow assignment to tixi elements via XPath
+            xpath = df.loc[name, "setcmd"]
+            create_branch(tixi, xpath)
+            tixi.updateDoubleElement(xpath, value, "%g")
+        elif df.loc[name, "getcmd"] != "-":
+            xpath = df.loc[name, "getcmd"]
+            create_branch(tixi, xpath)
+            tixi.updateDoubleElement(xpath, value, "%g")
+
+
+def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
     tixi = cpacs.tixi
     st.session_state.cpacs = cpacs
     cpacsin_out: CPACSInOut = get_specs_for_module(module_name).cpacs_inout
     inputs = cpacsin_out.get_gui_dict()
 
-    for name, default_value, var_type, _, xpath, _, _ in inputs.values():
+    for name, default_value, var_type, _, xpath, _, _, test_value, _ in inputs.values():
+        if test:
+            value = test_value
+        else:
+            value = default_value
         parts = xpath.strip('/').split('/')
         for i in range(1, len(parts) + 1):
             path = '/' + '/'.join(parts[:i])
@@ -97,23 +132,22 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str) -> None:
                 tixi.updateTextElement(xpath, aeromap_uid_list[0])
 
         elif var_type == str:
-            tixi.updateTextElement(xpath, default_value)
+            tixi.updateTextElement(xpath, value)
         elif var_type == float:
-            tixi.updateDoubleElement(xpath, default_value, format="%g")
+            tixi.updateDoubleElement(xpath, value, format="%g")
         elif var_type == bool:
-            tixi.updateBooleanElement(xpath, default_value)
+            tixi.updateBooleanElement(xpath, value)
         elif var_type == int:
-            tixi.updateIntegerElement(xpath, default_value, format="%d")
+            tixi.updateIntegerElement(xpath, value, format="%d")
         elif var_type == list:
-            tixi.updateTextElement(xpath, str(default_value[0]))
+            tixi.updateTextElement(xpath, str(value[0]))
         elif var_type == "DynamicChoice":
             create_branch(tixi, xpath + "type")
-            tixi.updateTextElement(xpath + "type", str(default_value[0]))
+            tixi.updateTextElement(xpath + "type", str(value[0]))
         elif var_type == "multiselect":
-            str_value = ";".join(str(ele) for ele in default_value)
-            tixi.updateTextElement(xpath, str_value)
+            tixi.updateTextElement(xpath, ";".join(str(ele) for ele in value))
         else:
-            tixi.updateTextElement(xpath, default_value)
+            tixi.updateTextElement(xpath, value)
 
 
 @contextmanager
@@ -257,7 +291,7 @@ def call_main(main: Callable, module_name: str, cpacs_path: Path = None) -> None
     with change_working_dir(wkflow_dir):
         cpacs = CPACS(cpacs_path)
         log.info(f"Upload default values from {MODNAME_SPECS}.")
-        update_cpacs_from_specs(cpacs, module_name)
+        update_cpacs_from_specs(cpacs, module_name, test=True)
 
     new_cpacs_path = wkflow_dir / xml_file
     cpacs.save_cpacs(new_cpacs_path, overwrite=True)
@@ -321,7 +355,7 @@ def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
             cpacs = CPACS(cpacs_in)
             if test:
                 log.info("Updating CPACS from __specs__")
-                update_cpacs_from_specs(cpacs, module_name)
+                update_cpacs_from_specs(cpacs, module_name, test)
             if module.results_dir is None:
                 my_module.main(cpacs)
             else:
@@ -567,12 +601,13 @@ def aircraft_name(tixi_or_cpacs) -> str:
     return str(name)
 
 
-def get_part_type(tixi, part_uid: str) -> str:
+def get_part_type(tixi, part_uid: str, print_info=True) -> str:
     """The function get the type of the aircraft from the cpacs file.
 
     Args:
         cpacs_path (Path): Path to the CPACS file
         part_uid (str): UID of the part
+        print_info (bool): True if we print the part description
 
     Returns:
         part_type (str): Type of the part.
@@ -583,39 +618,25 @@ def get_part_type(tixi, part_uid: str) -> str:
     part_uid = part_uid.split("_mirrored")[0]
     part_xpath = tixi.uIDGetXPath(part_uid)
 
-    if "wings/wing" in part_xpath:
-        log.info(f"'{part_uid}' is a wing")
-        return "wing"
+    path_part = {
+        "wings/wing" : "wing",
+        "fuselages/fuselage" : "fuselage",
+        "enginePylons/enginePylon" : "pylon",
+        "engine/nacelle/fanCowl" : "fanCowl",
+        "engine/nacelle/centerCowl" : "centerCowl",
+        "engine/nacelle/coreCowl" : "coreCowl",
+        "vehicles/engines/engine" : "engine",
+        "vehicles/rotorcraft/model/rotors/rotor" : "rotor",
+    }
 
-    elif "fuselages/fuselage" in part_xpath:
-        log.info(f"'{part_uid}' is a fuselage")
-        return "fuselage"
+    for (path_name, part_name) in path_part.items():
+        if path_name in part_xpath:
+            if print_info:
+                log.info(f"'{part_uid}' is a {part_name}")
+            return part_name
 
-    elif "enginePylons/enginePylon" in part_xpath:
-        log.info(f"'{part_uid}' is a pylon")
-        return "pylon"
-
-    elif "engine/nacelle/fanCowl" in part_xpath:
-        log.info(f"'{part_uid}' is a fanCowl")
-        return "fanCowl"
-
-    elif "engine/nacelle/centerCowl" in part_xpath:
-        log.info(f"'{part_uid}' is a centerCowl")
-        return "centerCowl"
-
-    elif "engine/nacelle/coreCowl" in part_xpath:
-        log.info(f"'{part_uid}' is a coreCowl")
-        return "coreCowl"
-
-    elif "vehicles/engines/engine" in part_xpath:
-        log.info(f"'{part_uid}' is an engine")
-        return "engine"
-
-    elif "vehicles/rotorcraft/model/rotors/rotor" in part_xpath:
-        log.info(f"'{part_uid}' is an rotor")
-        return "rotor"
-
-    log.warning(f"'{part_uid}' cannot be categorized!")
+    if print_info:
+        log.warning(f"'{part_uid}' cannot be categorized!")
     return None
 
 

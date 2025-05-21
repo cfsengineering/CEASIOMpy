@@ -44,6 +44,9 @@ CEASIOMpy is based on the open-standard format [CPACS](https://www.cpacs.de/), a
 
 To install CEASIOMpy, please refer to the [installation page](installation/INSTALLATION.md), it will guide you through the installation process depending on your system.
 
+A video which explains how to install CEASIOMpy on Docker is now available!
+[![CEASIOMpy Docker Installation](installation/docker_installation.png)](https://www.youtube.com/watch?v=KTS1-6AsReU)
+
 ## Usage
 
 ### Demo
@@ -124,8 +127,8 @@ There are many different modules available in CEASIOMpy that can be combined to 
 
 - [ModuleTemplate](ceasiompy/ModuleTemplate/README.md) :heavy_check_mark:
 - [Optimisation](ceasiompy/Optimisation/README.md) :x:
-- [SMTrain](ceasiompy/SMTrain/README.md) :x:
-- [SMUse](ceasiompy/SMUse/README.md) :x:
+- [SMTrain](ceasiompy/SMTrain/README.md) :heavy_check_mark:
+- [SMUse](ceasiompy/SMUse/README.md) :heavy_check_mark:
 - [ThermoData](ceasiompy/ThermoData/README.md) :heavy_check_mark:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_geometry.png">

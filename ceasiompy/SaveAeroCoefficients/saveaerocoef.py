@@ -10,7 +10,6 @@ Plot Aerodynamic coefficients from CPACS v3 aeroMaps
 
 TODO:
     * add plot vs Mach, vs sideslip angle, damping derivatives, CS deflections
-
 """
 
 # =================================================================================================
@@ -19,10 +18,10 @@ TODO:
 
 import pandas as pd
 
-from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.SaveAeroCoefficients.func.plot import plot
 from ceasiompy.SaveAeroCoefficients.func.utils import deal_with_feature
-
+from ceasiompy.SaveAeroCoefficients.func.responsesurface import plot_response_surface
+from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.utils.ceasiompyutils import (
     call_main,
     get_aeromap_list_from_xpath,
@@ -34,9 +33,12 @@ from cpacspy.cpacspy import (
     AeroMap,
 )
 
-from ceasiompy.SaveAeroCoefficients import MODULE_NAME
-from ceasiompy.utils.commonxpath import (
-    PLOT_XPATH,
+from ceasiompy.SaveAeroCoefficients import (
+    CRIT_XPATH,
+    MODULE_NAME,
+)
+from ceasiompy.utils.commonxpaths import (
+    RS_XPATH,
     AIRCRAFT_NAME_XPATH,
     AEROMAP_TO_PLOT_XPATH,
 )
@@ -47,7 +49,7 @@ from ceasiompy.utils.commonxpath import (
 # =================================================================================================
 
 
-def main(cpacs: CPACS, wkdir: Path) -> None:
+def main(cpacs: CPACS, results_dir: Path) -> None:
     """
     Save Aero coefficients from the chosen aeroMap in the CPACS file.
     """
@@ -74,10 +76,9 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     title = tixi.getTextElement(AIRCRAFT_NAME_XPATH)
     criterion = pd.Series([True] * len(aeromap.index))
 
-    crit_xpath = PLOT_XPATH + "/criterion"
-    alt_crit = get_value_or_default(tixi, crit_xpath + "/alt", "None")
-    mach_crit = get_value_or_default(tixi, crit_xpath + "/mach", "None")
-    aos_crit = get_value_or_default(tixi, crit_xpath + "/aos", "None")
+    alt_crit = get_value_or_default(tixi, CRIT_XPATH + "/alt", "None")
+    mach_crit = get_value_or_default(tixi, CRIT_XPATH + "/mach", "None")
+    aos_crit = get_value_or_default(tixi, CRIT_XPATH + "/aos", "None")
 
     deal_with_feature(title, criterion, aeromap, groupby_list, "altitude", alt_crit)
     deal_with_feature(title, criterion, aeromap, groupby_list, "machNumber", mach_crit)
@@ -88,8 +89,10 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         title += " - " + uid_crit
         groupby_list.remove("uid")
 
-    # Generate plots
-    plot(wkdir, groupby_list, title, aeromap, criterion)
+    plot(results_dir, groupby_list, title, aeromap, criterion)
+
+    if get_value_or_default(tixi, RS_XPATH + "/Plot", False):
+        plot_response_surface(cpacs, results_dir)
 
 
 if __name__ == "__main__":

@@ -24,7 +24,7 @@ from pathlib import Path
 from ceasiompy.CPACS2GMSH.func.engineconversion import engine_conversion
 from ceasiompy import log
 from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
-from ceasiompy.utils.commonxpath import GMSH_EXPORT_PROP_XPATH
+from ceasiompy.CPACS2GMSH import GMSH_EXPORT_PROP_XPATH
 from ceasiompy.utils.configfiles import ConfigFile
 from cpacspy.cpacsfunctions import get_value_or_default
 

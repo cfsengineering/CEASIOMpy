@@ -39,7 +39,7 @@ from markdownpy.markdownpy import MarkdownDoc
 
 from ceasiompy import log
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     PLOT_XPATH,
     SF_XPATH,
     WETTED_AREA_XPATH,

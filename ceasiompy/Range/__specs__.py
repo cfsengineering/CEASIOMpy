@@ -1,6 +1,6 @@
 from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     CAB_CREW_XPATH,
     FUEL_CONSUMPTION_XPATH,
     FUEL_XPATH,
@@ -17,7 +17,7 @@ from ceasiompy.utils.commonxpath import (
 # ===== Module Status =====
 # True if the module is active
 # False if the module is disabled (not working or not ready)
-module_status = False
+MODULE_STATUS = False
 
 # ===== Results directory path =====
 

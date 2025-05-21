@@ -17,7 +17,6 @@ Small description of the script
 from typing import List
 from pandas import DataFrame
 
-from ceasiompy import log
 from ceasiompy.SaveAeroCoefficients import (
     NONE_LIST,
     FEATURE_DICT,
@@ -89,19 +88,10 @@ def deal_with_feature(
     feature: str,
     crit: str,
 ) -> None:
-    feature_ = FEATURE_DICT[feature]
+    title += f" - {FEATURE_DICT[feature]} = "
     if len(aeromap[feature].unique()) == 1:
-        title += f" - {feature_} = " + str(aeromap[feature].loc[0])
-        groupby_list.remove(feature)
+        title += str(aeromap[feature].loc[0])
     elif crit not in NONE_LIST:
         criterion = criterion & (aeromap.angleOfSideslip == float(crit))
-        title += f" - {feature_} = " + crit
-        groupby_list.remove(feature)
-
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")
+        title += crit
+    groupby_list.remove(feature)

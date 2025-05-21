@@ -67,7 +67,7 @@ from ceasiompy.PyAVL import (
     AVL_NCHORDWISE_XPATH,
     AVL_FREESTREAM_MACH_XPATH,
 )
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     AREA_XPATH,
     WINGS_XPATH,
     LENGTH_XPATH,

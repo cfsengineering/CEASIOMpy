@@ -1,5 +1,5 @@
 from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.utils.commonxpaths import (
     REF_XPATH,
     SU2_BC_WALL_XPATH,
     SU2_CONTROL_SURF_XPATH,
@@ -12,7 +12,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 # ===== Module Status =====
 # True if the module is active
 # False if the module is disabled (not working or not ready)
-module_status = False
+MODULE_STATUS = False
 
 # ===== CPACS inputs and outputs =====
 

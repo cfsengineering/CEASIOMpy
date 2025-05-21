@@ -17,16 +17,17 @@ Initialization for DynamicStability module.
 from pathlib import Path
 
 from ceasiompy import log
+from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
 
 # ===== Module Status =====
-module_status = True
+MODULE_STATUS = True
 
 # ===== Include GUI =====
-include_gui = True
+INCLUDE_GUI = True
 
 # ===== Include Module"s name =====
 MODULE_DIR = Path(__file__).parent
@@ -40,6 +41,23 @@ SOFTWARE_NAME = "SDSA"
 
 # Fixed Altitude
 ALT = 1000.0
+
+# xPaths
+DYNAMICSTABILITY_XPATH = CEASIOMPY_XPATH + "/DynamicStability"
+DYNAMICSTABILITY_AIRCRAFT_XPATH = DYNAMICSTABILITY_XPATH + "/Aircraft"
+
+# TODO: Add option to use ceasiompy.db
+DYNAMICSTABILITY_CEASIOMPYDATA_XPATH = DYNAMICSTABILITY_XPATH + "/CeasiompyData"
+
+DYNAMICSTABILITY_AEROMAP_UID_XPATH = DYNAMICSTABILITY_XPATH + "/aeroMapUID"
+DYNAMICSTABILITY_NCHORDWISE_XPATH = DYNAMICSTABILITY_XPATH + "/NChordwise"
+DYNAMICSTABILITY_NSPANWISE_XPATH = DYNAMICSTABILITY_XPATH + "/NSpanwise"
+DYNAMICSTABILITY_WINGS_XPATH = DYNAMICSTABILITY_XPATH + "/WingSelection"
+DYNAMICSTABILITY_VISUALIZATION_XPATH = DYNAMICSTABILITY_XPATH + "/Visualization"
+DYNAMICSTABILITY_CGRID_XPATH = DYNAMICSTABILITY_XPATH + "/CGrid"
+DYNAMICSTABILITY_SOFTWARE_XPATH = DYNAMICSTABILITY_XPATH + "/Software"
+DYNAMICSTABILITY_MACHLIST_XPATH = DYNAMICSTABILITY_XPATH + "/Mach"
+
 
 # =================================================================================================
 #    MAIN

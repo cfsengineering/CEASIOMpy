@@ -1,66 +1,65 @@
-from pathlib import Path
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+GUI Interface of SMUse.
+
+"""
+
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+
 import streamlit as st
+
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpath import SMUSE_XPATH
 
-# ===== Module Status =====
-# True if the module is active
-# False if the module is disabled (not working or not ready)
-module_status = False
+from ceasiompy.utils.commonxpaths import SM_XPATH
+from ceasiompy.SMUse import (
+    INCLUDE_GUI,
+    SMUSE_DATASET_XPATH,
+)
 
-# ===== Results directory path =====
-
-RESULTS_DIR = Path("Results", "SurrogateModels")
-
-# ===== CPACS inputs and outputs =====
+# ==============================================================================
+#   VARIABLE
+# ==============================================================================
 
 cpacs_inout = CPACSInOut()
 
-include_gui = True
-
-# ----- Input -----
+# ==============================================================================
+#   GUI INPUTS
+# ==============================================================================
 
 cpacs_inout.add_input(
     var_name="model_file",
     var_type="pathtype",
     default_value="-",
     descr="File that contains a trained model",
-    xpath=SMUSE_XPATH + "/modelFile",
-    gui=include_gui,
+    xpath=SM_XPATH,
+    gui=INCLUDE_GUI,
     gui_name="Model to use",
-    gui_group="Prediction options",
+    gui_group="Model",
+    # Temporary work around
+    test_value=(
+        "/home/runner/work/CEASIOMpy/CEASIOMpy/WKDIR/Workflow_004"
+        "/Results/SMTrain/surrogateModel_cl.pkl"
+    ),
+    expanded=False,
 )
 
 cpacs_inout.add_input(
-    var_name="Aeromap only",
-    var_type=bool,
-    default_value="False",
-    unit=None,
-    descr="""Indicate wether or not the parameters are all contained in an aeromap, in which case
-    the workflow only has to be run once.""",
-    xpath=SMUSE_XPATH + "/AeroMapOnly",
-    gui=include_gui,
-    gui_name="Aeromap only",
-    gui_group="Aeromap settings",
-)
-
-cpacs_inout.add_input(
-    var_name="",
+    var_name="prediction_dataset",
     var_type=list,
     default_value=st.session_state.cpacs.get_aeromap_uid_list(),
-    descr="To which aeroMap the model shall take andn write the entries",
-    xpath=SMUSE_XPATH + "/aeroMapUID",
-    gui=True,
+    unit=None,
+    # TODO: Write now can only do first aeromap
+    descr=(
+        "Datasets on which to make the predictions, "
+        "First aeromap: First level of fidelity."
+    ),
+    xpath=SMUSE_DATASET_XPATH,
+    gui=INCLUDE_GUI,
     gui_name="__AEROMAP_SELECTION",
-    gui_group="Aeromap settings",
+    gui_group="Selected Aeromap",
 )
-
-# ----- Output -----
-
-# cpacs_inout.add_output(
-#     var_name='output',
-#     default_value='-',
-#     unit='1',
-#     descr='Description of the output',
-#     xpath='/cpacs/toolspecific/CEASIOMpy/test/myOutput',
-# )

@@ -15,14 +15,12 @@ Extract results from AVL calculations and save them in a CPACS file.
 # =================================================================================================
 
 import subprocess
-
 import pandas as pd
 import matplotlib.pyplot as plt
 
 from pathlib import Path
 
 from ceasiompy import log
-
 
 # =================================================================================================
 #   FUNCTIONS

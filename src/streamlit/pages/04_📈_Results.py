@@ -68,7 +68,7 @@ def display_results_else(path):
 
 def display_results(results_dir):
     try:
-        """Display results depending which type of file they are."""
+        # """Display results depending which type of file they are."""
 
         container_list = ["logs_container", "figures_container", "paraview_container"]
         clear_containers(container_list)
@@ -129,7 +129,8 @@ def display_results(results_dir):
                 st.markdown(f"**{child.name}**")
                 st.dataframe(pd.read_csv(child))
 
-            elif "Case" in child.name and child.is_dir():
+            # elif "Case" in child.name and child.is_dir():
+            elif child.is_dir():
                 with st.expander(child.stem, expanded=False):
                     display_results(child)
 

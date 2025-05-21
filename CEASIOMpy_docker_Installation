@@ -30,7 +30,7 @@ WORKDIR /CEASIOMpy/installation/Ubuntu/
 
 # Copy the required installation scripts from local context
 COPY installation/Ubuntu/install_pyavl.sh .
-# COPY installation/Ubuntu/install_su2.sh .
+COPY installation/Ubuntu/install_su2.sh .
 # COPY installation/Ubuntu/install_pentagrow.sh .
 
 # Make the scripts executable
@@ -40,32 +40,7 @@ WORKDIR /CEASIOMpy
 
 # Run the installation scripts
 RUN ./installation/Ubuntu/install_pyavl.sh
-# RUN ./installation/Ubuntu/install_su2.sh && export $(./installation/Ubuntu/install_su2.sh | grep '^[A-Z_]*=')
-
-RUN apt-get update && apt-get install -y --no-install-recommends meson ninja-build
-
-WORKDIR /tmp/su2_build
-
-RUN wget https://github.com/su2code/SU2/archive/v8.1.0.tar.gz -O su2_source.tar.gz && \
-    tar -xzf su2_source.tar.gz && \
-    mv SU2-8.1.0/* . && \
-    rm -rf SU2-8.1.0 su2_source.tar.gz
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    mpich libmpich-dev python3 python3-pip meson ninja-build pkg-config \
-    libhwloc-dev libpmix-dev libucx-dev
-
-ENV INSTALL_DIR=/INSTALLDIR
-ENV CC=mpicc
-ENV CXX=mpicxx
-
-RUN which mpicc && mpicc --version
-
-# Configure SU2 with Meson (official way)
-RUN ./meson.py build --prefix=${INSTALL_DIR} -Dcustom-mpi=true -Dextra-deps=mpich -Dwith-mpi=enabled -Dwith-omp=true
-
-# Build and install SU2
-RUN ninja -C build install
+RUN ./installation/Ubuntu/install_su2.sh
 
 # Install Miniconda
 ENV CONDA_DIR=/opt/conda
@@ -131,10 +106,6 @@ RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
     echo "conda activate ceasiompy" >> ~/.bashrc && \
     echo "pip install -e ." >> ~/.bashrc && \
     echo "ceasiompy_run --gui" >> ~/.bashrc
-
-RUN apt-get update && apt-get install -y dumb-init
-
-ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
 # Move the content of /INSTALLDIR to the mounted /CEASIOMpy/INSTALLDIR folder at runtime
 CMD ["/bin/bash", "-c", "rm -rf /CEASIOMpy/INSTALLDIR && mkdir -p /CEASIOMpy/INSTALLDIR && mv /INSTALLDIR/* /CEASIOMpy/INSTALLDIR/ && exec bash"]

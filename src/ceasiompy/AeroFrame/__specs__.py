@@ -1,34 +1,43 @@
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+GUI Interface of Aeroframe.
+"""
+
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+
+import streamlit as st
+
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.PyAVL import (
     AVL_PLOT_XPATH,
-    AVL_VORTEX_DISTR_XPATH,
+    AVL_DISTR_XPATH,
     AVL_AEROMAP_UID_XPATH,
+    AVL_NCHORDWISE_XPATH,
+    AVL_NSPANWISE_XPATH,
 )
-from ceasiompy.utils.commonxpaths import (
-    CEASIOMPY_XPATH,
-    AEROPERFORMANCE_XPATH,
+from ceasiompy.AeroFrame import (
+    INCLUDE_GUI,
     FRAMAT_MATERIAL_XPATH,
     FRAMAT_SECTION_XPATH,
     FRAMAT_MESH_XPATH,
-    AEROFRAME_SETTINGS
+    AEROFRAME_SETTINGS,
 )
-from pathlib import Path
 
-import streamlit as st
-# ===== Module Status =====
-# True if the module is active
-# False if the module is disabled (not working or not ready)
-MODULE_STATUS = True
-
-RESULTS_DIR = Path("Results", "AeroFrame_new")
-
-# ===== CPACS inputs and outputs =====
+# ==============================================================================
+#   VARIABLE
+# ==============================================================================
 
 cpacs_inout = CPACSInOut()
 
-# ----- Input -----
+# ==============================================================================
+#   CALL
+# ==============================================================================
 
 cpacs_inout.add_input(
     var_name="aeromap_uid",
@@ -37,7 +46,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Name of the aero map to calculate",
     xpath=AVL_AEROMAP_UID_XPATH,
-    gui=True,
+    gui=INCLUDE_GUI,
     gui_name="__AEROMAP_SELECTION",
     gui_group="Aeromap settings",
 )
@@ -48,8 +57,8 @@ cpacs_inout.add_input(
     default_value=["equal", "cosine", "sine"],
     unit=None,
     descr=("Select the type of distribution"),
-    xpath=AVL_VORTEX_DISTR_XPATH + "/Distribution",
-    gui=True,
+    xpath=AVL_DISTR_XPATH,
+    gui=INCLUDE_GUI,
     gui_name="Choice of distribution",
     gui_group="AVL: Vortex Lattice Spacing Distributions",
 )
@@ -60,8 +69,8 @@ cpacs_inout.add_input(
     default_value=8,
     unit=None,
     descr="Select the number of chordwise vortices",
-    xpath=AVL_VORTEX_DISTR_XPATH + "/Nchordwise",
-    gui=True,
+    xpath=AVL_NCHORDWISE_XPATH,
+    gui=INCLUDE_GUI,
     gui_name="Number of chordwise vortices",
     gui_group="AVL: Vortex Lattice Spacing Distributions",
 )
@@ -72,8 +81,8 @@ cpacs_inout.add_input(
     default_value=30,
     unit=None,
     descr="Select the number of spanwise vortices",
-    xpath=AVL_VORTEX_DISTR_XPATH + "/Nspanwise",
-    gui=True,
+    xpath=AVL_NSPANWISE_XPATH,
+    gui=INCLUDE_GUI,
     gui_name="Number of spanwise vortices",
     gui_group="AVL: Vortex Lattice Spacing Distributions",
 )
@@ -85,9 +94,11 @@ cpacs_inout.add_input(
     unit=None,
     descr="Select to save geometry and results plots",
     xpath=AVL_PLOT_XPATH,
-    gui=True,
+    gui=INCLUDE_GUI,
     gui_name="Save AVL plots",
     gui_group="Plots",
+    test_value=False,
+    expanded=False,
 )
 
 cpacs_inout.add_input(
@@ -97,7 +108,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Enter number of nodes for the beam mesh.",
     xpath=FRAMAT_MESH_XPATH + "/NumberNodes",
-    gui=True,
+    gui=INCLUDE_GUI,
     gui_name="Number of beam nodes",
     gui_group="FramAT: Mesh properties",
 )
@@ -109,7 +120,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Enter the Young modulus of the wing material in GPa.",
     xpath=FRAMAT_MATERIAL_XPATH + "/YoungModulus",
-    gui=True,
+    gui=INCLUDE_GUI,
     gui_name="Young modulus [GPa]",
     gui_group="FramAT: Material properties",
 )
@@ -121,7 +132,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Enter the shear modulus of the wing material in GPa.",
     xpath=FRAMAT_MATERIAL_XPATH + "/ShearModulus",
-    gui=True,
+    gui=INCLUDE_GUI,
     gui_name="Shear modulus [GPa]",
     gui_group="FramAT: Material properties",
 )
@@ -133,7 +144,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Enter the density of the wing material in kg/m³.",
     xpath=FRAMAT_MATERIAL_XPATH + "/Density",
-    gui=True,
+    gui=INCLUDE_GUI,
     gui_name="Material density [kg/m³]",
     gui_group="FramAT: Material properties",
 )
@@ -145,7 +156,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Enter the area of the cross-section in m².",
     xpath=FRAMAT_SECTION_XPATH + "/Area",
-    gui=True,
+    gui=INCLUDE_GUI,
     gui_name="Cross-section area [m²]",
     gui_group="FramAT: Cross-section properties",
 )
@@ -158,7 +169,7 @@ cpacs_inout.add_input(
     descr="Enter the second moment of area of the cross-section \
             about the horizontal axis, in m⁴.",
     xpath=FRAMAT_SECTION_XPATH + "/Ix",
-    gui=True,
+    gui=INCLUDE_GUI,
     gui_name="Second moment of area Ix [m⁴]",
     gui_group="FramAT: Cross-section properties",
 )
@@ -171,7 +182,7 @@ cpacs_inout.add_input(
     descr="Enter the second moment of area of the cross-section \
             about the vertical axis, in m⁴",
     xpath=FRAMAT_SECTION_XPATH + "/Iy",
-    gui=True,
+    gui=INCLUDE_GUI,
     gui_name="Second moment of area Iy [m⁴]",
     gui_group="FramAT: Cross-section properties",
 )
@@ -183,7 +194,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Enter the maximum number of iterations of the aeroelastic-loop.",
     xpath=AEROFRAME_SETTINGS + "/MaxNumberIterations",
-    gui=True,
+    gui=INCLUDE_GUI,
     gui_name="Maximum number of iterations",
     gui_group="AeroFrame: Convergence settings",
 )
@@ -195,33 +206,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Enter the tolerance for convergence of the wing deformation.",
     xpath=AEROFRAME_SETTINGS + "/Tolerance",
-    gui=True,
+    gui=INCLUDE_GUI,
     gui_name="Tolerance",
     gui_group="AeroFrame: Convergence settings",
 )
-
-# ----- Output -----
-
-cpacs_inout.add_output(
-    var_name="output",
-    default_value=None,
-    unit="1",
-    descr="Description of the output",
-    xpath=CEASIOMPY_XPATH + "/test/myOutput",
-)
-
-cpacs_inout.add_output(
-    var_name="aeromap_avl",  # name to change...
-    # var_type=CPACS_aeroMap, # no type pour output, would it be useful?
-    default_value=None,
-    unit="-",
-    descr="aeroMap with aero coefficients calculated by AVL",
-    xpath=AEROPERFORMANCE_XPATH + "/aeroMap/aeroPerformanceMap",
-)
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

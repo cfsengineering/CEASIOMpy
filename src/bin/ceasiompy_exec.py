@@ -18,6 +18,7 @@ Main module of CEASIOMpy to launch workflow by different way.
 # =================================================================================================
 
 import os
+import subprocess
 import argparse
 import subprocess
 

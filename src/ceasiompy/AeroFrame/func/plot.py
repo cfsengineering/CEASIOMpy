@@ -20,8 +20,6 @@ import matplotlib.pyplot as plt
 
 from pathlib import Path
 
-from ceasiompy import log
-
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
@@ -90,11 +88,3 @@ def plot_deformed_wing(centerline_df, undeformed_df, wkdir):
 
     fig.tight_layout()
     fig.savefig(Path(wkdir, "deformed_wing.png"))
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

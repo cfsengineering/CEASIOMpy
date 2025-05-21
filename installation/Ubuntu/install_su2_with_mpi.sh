@@ -47,8 +47,6 @@ echo "Configuring SU2 with Meson..."
 python3 meson.py build --prefix="${INSTALL_DIR}" \
     -Denable-autodiff=true \
     -Denable-directdiff=true \
-    -Dcustom-mpi=true \
-    -Dextra-deps=mpich \
     -Dwith-mpi=enabled \
     -Dwith-omp=true \
     --buildtype=release

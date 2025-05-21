@@ -33,8 +33,8 @@ RUN apt-get install -y
 WORKDIR /CEASIOMpy/installation/Ubuntu/
 
 # Copy the required installation scripts from local context
-COPY installation/Ubuntu/install_pyavl.sh .
-COPY installation/Ubuntu/install_su2.sh .
+COPY ./installation/Ubuntu/install_pyavl.sh .
+COPY ./installation/Ubuntu/install_su2.sh .
 # COPY installation/Ubuntu/install_pentagrow.sh .
 
 # Make the scripts executable
@@ -43,8 +43,8 @@ RUN chmod +x install_*.sh
 WORKDIR /CEASIOMpy
 
 # Run the installation scripts
-RUN ./installation/Ubuntu/install_pyavl.sh
-RUN ./installation/Ubuntu/install_su2.sh
+RUN installation/Ubuntu/install_pyavl.sh
+RUN installation/Ubuntu/install_su2.sh
 
 # Go from /CEASIOMpy/INSTALLDIR to /INSTALLDIR
 RUN mkdir -p /INSTALLDIR && \
@@ -96,11 +96,12 @@ RUN mkdir -p /CEASIOMpy/src
 COPY src /CEASIOMpy/src
 
 # Create the Conda environment from the environment.yml file
-RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && conda env create -f environment.yml && conda activate ceasiompy && pip install -e . && ~/.bashrc"
+RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && conda env create -f environment.yml"
 
 # Automatically activate the Conda environment in new shells
 RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
     echo "conda activate ceasiompy" >> ~/.bashrc && \
+    echo "pip install -e ." >> ~/.bashrc && \
     echo "ceasiompy_run --gui" >> ~/.bashrc
 
 # Move the content of /INSTALLDIR to the mounted /CEASIOMpy/INSTALLDIR folder at runtime

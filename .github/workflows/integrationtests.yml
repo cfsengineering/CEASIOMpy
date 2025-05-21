@@ -60,6 +60,10 @@ jobs:
       shell: bash -l {0}
       run: installation/Ubuntu/install_pyavl.sh
 
+    - name: Make install_su2.sh executable
+      shell: bash -l {0}
+      run: chmod +x installation/Ubuntu/install_su2.sh
+
     - name: Install SU2
       shell: bash -l {0}
       run: installation/Ubuntu/install_su2.sh

@@ -2,7 +2,7 @@
 
 # Script to build and install SU2 from source with MPI support
 
-su2_version="8.2.0"
+su2_version="8.1.0"
 current_dir="$(pwd)"
 
 # Get install dir from input if it exists
@@ -21,7 +21,7 @@ sudo apt-get update && sudo apt-get install -y --no-install-recommends \
     mpich libmpich-dev python3 python3-pip meson ninja-build pkg-config \
     libhwloc-dev libpmix-dev
 
-git clone --recursive --branch v${su2_version} --depth 1 https://github.com/su2code/SU2.git su2_source
+git clone --recursive --branch v${su2_version} https://github.com/su2code/SU2.git su2_source
 cd su2_source
 
 export INSTALL_DIR="$install_dir"
@@ -35,14 +35,16 @@ echo "Preconfiguring SU2..."
 python3 preconfigure.py
 
 echo "Configuring SU2 with Meson..."
-python3 meson.py build --prefix="${INSTALL_DIR}" \
-    -Denable-autodiff=true \
-    -Denable-directdiff=true \
-    -Dcustom-mpi=true \
-    -Dextra-deps=mpich \
-    -Dwith-mpi=enabled \
-    -Dwith-omp=true \
-    --buildtype=release
+# python3 meson.py build --prefix="${INSTALL_DIR}" \
+#     -Denable-autodiff=true \
+#     -Denable-directdiff=true \
+#     -Dcustom-mpi=true \
+#     -Dextra-deps=mpich \
+#     -Dwith-mpi=enabled \
+#     -Dwith-omp=true \
+#     --buildtype=release
+
+python3 meson.py build --prefix="${INSTALL_DIR}" -Dcustom-mpi=true -Dextra-deps=mpich -Dwith-mpi=enabled -Dwith-omp=true
 
 echo "Building and installing SU2..."
 ninja -C build install

@@ -18,28 +18,26 @@ mkdir -p "$install_dir"
 cd "$install_dir"
 
 echo "Installing Open MPI"
-apt-get update    apt-get install -y --no-install-recommends     build-essential     openmpi-bin     openmpi-doc     libopenmpi-dev &&     rm -rf /var/lib/apt/lists/*
-
-echo "Adding MPICH path to the .bashrc"
-
-mpich_path="/usr/bin"
-echo export PATH=\"\$PATH:$mpich_path\" >> ~/.bashrc
-source ~/.bashrc
+apt-get update && \
+apt-get install -y --no-install-recommends \
+    build-essential \
+    openmpi-bin \
+    openmpi-doc \
+    libopenmpi-dev && \
+rm -rf /var/lib/apt/lists/*
 
 echo "Downloading SU2..."
 wget https://github.com/su2code/SU2/releases/download/v"$su2_version"/SU2-v"$su2_version"-linux64-mpi.zip
 unzip -d SU2-v"$su2_version"-linux64-mpi SU2-v"$su2_version"-linux64-mpi.zip
 
-echo "Adding path to the .bashrc"
-
 su2_run_path=/"$install_dir"/SU2-v"$su2_version"-linux64-mpi/bin
 su2_home_path=/"$install_dir"/SU2-v"$su2_version"-linux64-mpi
 
-echo \# SU2 Path >> ~/.bashrc
-echo export SU2_RUN=\""$su2_run_path"\" >> ~/.bashrc
-echo export SU2_HOME=\""$su2_home_path"\" >> ~/.bashrc
-echo export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN >> ~/.bashrc
-echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
+# Export for current session
+export SU2_RUN="$su2_run_path"
+export SU2_HOME="$su2_home_path"
+export PYTHONPATH="$PYTHONPATH:$SU2_RUN"
+export PATH="$PATH:$SU2_RUN"
 
 echo "Checking SU2 version"
 "$SU2_RUN/SU2_CFD" --help

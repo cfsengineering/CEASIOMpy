@@ -109,7 +109,7 @@ RUN mkdir -p /CEASIOMpy
 WORKDIR /CEASIOMpy
 
 # Add software paths to the PATH environment variable
-ENV PATH="/CEASIOMpy/INSTALLDIR/SU2-v8.1.0-linux64-mpi/bin:/CEASIOMpy/INSTALLDIR/avl:$PATH"
+ENV PATH="/CEASIOMpy/INSTALLDIR/bin:/CEASIOMpy/INSTALLDIR/avl:$PATH"
 
 # Get the required files for installing the conda environment
 RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/setup.py -O /CEASIOMpy/setup.py && \

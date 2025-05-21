@@ -62,7 +62,7 @@ jobs:
 
     - name: Install SU2
       shell: bash -l {0}
-      run: installation/Ubuntu/install_su2.sh
+      run: installation/Ubuntu/install_su2_without_mpi.sh
 
     - name: Install Pentagrow
       shell: bash -l {0}

@@ -34,8 +34,8 @@ from pydantic import (
 # /CEASIOMpy/
 CEASIOMPY_PATH = Path(__file__).parents[1]
 
-# /CEASIOMpy/ceasiompy.log
-LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
+# /CEASIOMpy/WKDIR/ceasiompy.log
+LOGFILE = Path(CEASIOMPY_PATH, "WKDIR", "ceasiompy.log")
 
 # =================================================================================================
 #   CLASSES

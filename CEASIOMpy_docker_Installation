@@ -5,9 +5,6 @@
 
 FROM ubuntu:24.04
 
-ARG SU2_VERSION="8.1.0"
-ARG MPI_IMPL="mpich"
-
 RUN apt-get update
 
 RUN apt-get install -y libglu1-mesa-dev

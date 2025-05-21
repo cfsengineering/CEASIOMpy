@@ -16,9 +16,18 @@ echo "Creating install directory..."
 mkdir -p "$install_dir"
 cd "$install_dir"
 
-echo "Installing build dependencies..."
+echo "Installing build dependencies for Open MPI"
+sudo apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    openmpi-bin \
+    openmpi-doc \
+    libopenmpi-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+echo "Installing build dependencies for SU2"
 sudo apt-get update && sudo apt-get install -y --no-install-recommends \
-    mpich libmpich-dev python3 python3-pip meson ninja-build pkg-config \
+    python3 python3-pip meson ninja-build pkg-config \
     libhwloc-dev libpmix-dev libucx-dev
 
 git clone --recursive --branch v${su2_version} https://github.com/su2code/SU2.git su2_source
@@ -43,8 +52,6 @@ python3 meson.py build --prefix="${INSTALL_DIR}" \
     -Dwith-mpi=enabled \
     -Dwith-omp=true \
     --buildtype=release
-
-# python3 meson.py build --prefix="${INSTALL_DIR}" -Dcustom-mpi=true -Dextra-deps=mpich -Dwith-mpi=enabled -Dwith-omp=true
 
 echo "Building and installing SU2..."
 ninja -C build install

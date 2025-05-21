@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# Script to install SU2
+# Script to build and install SU2 from source with MPI support
 
 su2_version="8.1.0"
-
 current_dir="$(pwd)"
 
 # Get install dir from input if it exists
@@ -17,32 +16,42 @@ echo "Creating install directory..."
 mkdir -p "$install_dir"
 cd "$install_dir"
 
-echo "Downloading SU2..."
-wget https://github.com/su2code/SU2/releases/download/v"$su2_version"/SU2-v"$su2_version"-linux64-mpi.zip
-unzip -d SU2-v"$su2_version"-linux64-mpi SU2-v"$su2_version"-linux64-mpi.zip
+echo "Installing build dependencies..."
+sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+    mpich libmpich-dev python3 python3-pip meson ninja-build pkg-config \
+    libhwloc-dev libpmix-dev libucx-dev
 
-echo "Adding path to the .bashrc"
+echo "Downloading and extracting SU2 source..."
+wget https://github.com/su2code/SU2/archive/v${su2_version}.tar.gz -O su2_source.tar.gz
+tar -xzf su2_source.tar.gz
+mv SU2-${su2_version}/* .
+rm -rf SU2-${su2_version} su2_source.tar.gz
 
-su2_run_path=/"$install_dir"/SU2-v"$su2_version"-linux64-mpi/bin
-su2_home_path=/"$install_dir"/SU2-v"$su2_version"-linux64-mpi
+export INSTALL_DIR="$install_dir"
+export CC=mpicc
+export CXX=mpicxx
 
-echo \# SU2 Path >> ~/.bashrc
-echo export SU2_RUN=\""$su2_run_path"\" >> ~/.bashrc
-echo export SU2_HOME=\""$su2_home_path"\" >> ~/.bashrc
+echo "Checking MPI compiler..."
+which mpicc && mpicc --version
+
+echo "Configuring SU2 with Meson..."
+python3 meson.py build --prefix="${INSTALL_DIR}" -Dcustom-mpi=true -Dextra-deps=mpich -Dwith-mpi=enabled -Dwith-omp=true
+
+echo "Building and installing SU2..."
+ninja -C build install
+
+echo "Adding SU2 to PATH in .bashrc"
+su2_run_path="${INSTALL_DIR}/bin"
+su2_home_path="${INSTALL_DIR}"
+
+echo "# SU2 Path" >> ~/.bashrc
+echo export SU2_RUN=\"${su2_run_path}\" >> ~/.bashrc
+echo export SU2_HOME=\"${su2_home_path}\" >> ~/.bashrc
 echo export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN >> ~/.bashrc
 echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
 
-echo "Installing MPI..."
-apt-get update && apt-get install -y openmpi-bin libopenmpi-dev
-
-echo "Adding MPI path to the .bashrc"
-mpirun_path="/usr/bin"
-echo export PATH=\"\$PATH:$mpirun_path\" >> ~/.bashrc
-
-source ~/.bashrc
-
 echo "Checking SU2 version"
-"$SU2_RUN/SU2_CFD" --help
+"${su2_run_path}/SU2_CFD" --help
 
 echo "Checking MPI version"
 mpirun --version

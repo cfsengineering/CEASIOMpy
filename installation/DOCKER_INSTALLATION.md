@@ -44,13 +44,12 @@ docker build --platform=linux/amd64 -t ceasiompy-image -f CEASIOMpy_docker_Insta
 Run the Docker container (you need to modify /pathtoYOURlocal/CEASIOMpy with the absolute path of your CEASIOMpy's folder location):
 
 ```bash
-docker run -it --rm --network=host \
+docker run -it --rm --net=host \
 -e DISPLAY=$DISPLAY \
 -e LIBGL_ALWAYS_SOFTWARE=1 \
 -v /tmp/.X11-unix:/tmp/.X11-unix \
 --ipc=host \
 -v /pathtoYOURlocal/CEASIOMpy:/CEASIOMpy \
--p 8501:8501 \
 ceasiompy-image
 ```
 

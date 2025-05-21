@@ -33,10 +33,13 @@ which mpicc && mpicc --version
 
 echo "Configuring SU2 with Meson..."
 meson setup build --prefix="${INSTALL_DIR}" \
-    -Denabled-autodiff=true \
+    -Denable-autodiff=true \
     -Denable-directdiff=true \
     -Dcustom-mpi=true \
-    -Dextra-deps=mpich -Dwith-mpi=enabled -Dwith-omp=true -Dbuildtype=release
+    -Dextra-deps=mpich \
+    -Dwith-mpi=enabled \
+    -Dwith-omp=true \
+    --buildtype=release
 
 echo "Building and installing SU2..."
 ninja -C build install

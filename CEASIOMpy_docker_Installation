@@ -23,6 +23,13 @@ RUN apt-get install -y --no-install-recommends \
     libgl1 libglu1-mesa libegl1 libosmesa6 xvfb ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
+# Install Miniconda
+ENV CONDA_DIR=/opt/conda
+RUN curl -fsSL https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -o /tmp/miniforge.sh && \
+    bash /tmp/miniforge.sh -b -p $CONDA_DIR && \
+    rm /tmp/miniforge.sh
+ENV PATH=$CONDA_DIR/bin:$PATH
+
 RUN apt-get install -y
 
 # Create the necessary directory structure
@@ -41,13 +48,6 @@ WORKDIR /CEASIOMpy
 # Run the installation scripts
 RUN ./installation/Ubuntu/install_pyavl.sh
 RUN ./installation/Ubuntu/install_su2.sh
-
-# Install Miniconda
-ENV CONDA_DIR=/opt/conda
-RUN curl -fsSL https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -o /tmp/miniforge.sh && \
-    bash /tmp/miniforge.sh -b -p $CONDA_DIR && \
-    rm /tmp/miniforge.sh
-ENV PATH=$CONDA_DIR/bin:$PATH
 
 # Go from /CEASIOMpy/INSTALLDIR to /INSTALLDIR
 RUN mkdir -p /INSTALLDIR && \

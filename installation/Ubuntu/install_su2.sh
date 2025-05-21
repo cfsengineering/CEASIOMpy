@@ -31,6 +31,9 @@ export CXX=mpicxx
 echo "Checking MPI compiler..."
 which mpicc && mpicc --version
 
+echo "Preconfiguring SU2..."
+python3 preconfigure.py
+
 echo "Configuring SU2 with Meson..."
 python3 meson.py build --prefix="${INSTALL_DIR}" \
     -Denable-autodiff=true \

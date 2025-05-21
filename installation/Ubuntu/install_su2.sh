@@ -21,11 +21,8 @@ sudo apt-get update && sudo apt-get install -y --no-install-recommends \
     mpich libmpich-dev python3 python3-pip meson ninja-build pkg-config \
     libhwloc-dev libpmix-dev libucx-dev
 
-echo "Downloading and extracting SU2 source..."
-wget https://github.com/su2code/SU2/archive/v${su2_version}.tar.gz -O su2_source.tar.gz
-tar -xzf su2_source.tar.gz
-mv SU2-${su2_version}/* .
-rm -rf SU2-${su2_version} su2_source.tar.gz
+git clone --recursive --branch v${su2_version} https://github.com/su2code/SU2.git su2_source
+cd su2_source
 
 export INSTALL_DIR="$install_dir"
 export CC=mpicc

@@ -132,6 +132,10 @@ RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
     echo "pip install -e ." >> ~/.bashrc && \
     echo "ceasiompy_run --gui" >> ~/.bashrc
 
+RUN apt-get update && apt-get install -y dumb-init
+
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+
 # Move the content of /INSTALLDIR to the mounted /CEASIOMpy/INSTALLDIR folder at runtime
 CMD ["/bin/bash", "-c", "rm -rf /CEASIOMpy/INSTALLDIR && mkdir -p /CEASIOMpy/INSTALLDIR && mv /INSTALLDIR/* /CEASIOMpy/INSTALLDIR/ && exec bash"]
 

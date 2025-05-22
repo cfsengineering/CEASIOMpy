@@ -464,6 +464,7 @@ def run_software(
     command_line = []
     if with_mpi:
         mpi_install_path = get_install_path("mpirun")  # "mpirun.mpich"
+        # If runs with open mpi add --allow-run-as-root
         if mpi_install_path is not None:
             command_line += [mpi_install_path, "-np", str(int(nb_cpu))]
 

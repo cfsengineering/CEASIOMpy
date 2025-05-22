@@ -55,7 +55,7 @@ echo "Building and installing SU2..."
 ninja -C build install
 
 echo "Checking SU2 version"
-"${su2_run_path}/SU2_CFD" --help
+"${INSTALL_DIR}/bin/SU2_CFD" --help
 
 echo "Checking MPI version"
 mpirun --version

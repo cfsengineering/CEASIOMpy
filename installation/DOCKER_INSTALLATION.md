@@ -44,13 +44,15 @@ docker build --platform=linux/amd64 -t ceasiompy-image -f CEASIOMpy_docker_Insta
 Run the Docker container (you need to modify /pathtoYOURlocal/CEASIOMpy with the absolute path of your CEASIOMpy's folder location):
 
 ```bash
-docker run --init -it --shm-size="8g" --rm --net=host \
+docker run --init -it --rm --net=host \
 -e DISPLAY=$DISPLAY \
 -e LIBGL_ALWAYS_SOFTWARE=1 \
+-e OMPI_ALLOW_RUN_AS_ROOT=1 \
+-e OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
 -v /tmp/.X11-unix:/tmp/.X11-unix \
 --ipc=host \
--v /home/cfse2/Leon/framatIntoCeasiompy/CEASIOMpy:/CEASIOMpy \
-ceasiompy-image /bin/bash
+-v /pathto/CEASIOMpy:/CEASIOMpy \
+ceasiompy-image
 ```
 
 You can now click on local URL and use CEASIOMpy's GUI (Graphical User Interface) with all of its required software.

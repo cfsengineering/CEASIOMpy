@@ -37,11 +37,12 @@ Build the Docker image for your system's architecture:
 - Windows: Run echo %PROCESSOR_ARCHITECTURE% in Command Prompt/PowerShell. Look for AMD64 (Intel/AMD) or ARM64 (ARM).
 
 # Run the appropriate build command:
+
 ```bash
 docker build --platform=linux/amd64 -t ceasiompy-image -f CEASIOMpy_docker_Installation .
 ```
 
-Run the Docker container (you need to modify /pathtoYOURlocal/CEASIOMpy with the absolute path of your CEASIOMpy's folder location):
+Start a new Docker container from ceasiompy-image :
 
 On Linux/macOS:
 
@@ -53,14 +54,14 @@ docker run --init -it --rm --net=host \
 -e OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
 -v /tmp/.X11-unix:/tmp/.X11-unix \
 -p 8501:8501 \
--v /pathto/CEASIOMpy:/CEASIOMpy \
+-v $(pwd):/CEASIOMpy \
 ceasiompy-image
 ```
 
 On Windows:
 
 ```bash
-docker run -it --rm -e DISPLAY=$DISPLAY -e LIBGL_ALWAYS_SOFTWARE=1 -e OMPI_ALLOW_RUN_AS_ROOT=1 -e OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 -v /tmp/.X11-unix:/tmp/.X11-unix -p 8501:8501 -v C:/username/pathto/CEASIOMpy:/CEASIOMpy ceasiompy-image
+docker run -it --rm -e DISPLAY=$DISPLAY -e LIBGL_ALWAYS_SOFTWARE=1 -e OMPI_ALLOW_RUN_AS_ROOT=1 -e OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 -v /tmp/.X11-unix:/tmp/.X11-unix -p 8501:8501 -v ${PWD}:/CEASIOMpy ceasiompy-image
 ```
 
 You can now click on local URL and use CEASIOMpy's GUI (Graphical User Interface) with all of its required software.

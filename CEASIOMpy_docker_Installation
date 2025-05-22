@@ -35,7 +35,7 @@ WORKDIR /CEASIOMpy/installation/Ubuntu/
 # Copy the required installation scripts from local context
 COPY ./installation/Ubuntu/install_pyavl.sh .
 COPY ./installation/Ubuntu/install_su2_with_mpi.sh .
-# COPY installation/Ubuntu/install_pentagrow.sh .
+COPY ./installation/Ubuntu/install_pentagrow.sh .
 
 # Make the scripts executable
 RUN chmod +x install_*.sh
@@ -43,8 +43,9 @@ RUN chmod +x install_*.sh
 WORKDIR /CEASIOMpy
 
 # Run the installation scripts
-RUN installation/Ubuntu/install_pyavl.sh
-RUN installation/Ubuntu/install_su2_with_mpi.sh
+RUN installation/Ubuntu/install_pyavl.sh \
+    installation/Ubuntu/install_su2_with_mpi.sh && \
+    installation/Ubuntu/install_pentagrow.sh
 
 # Go from /CEASIOMpy/INSTALLDIR to /INSTALLDIR
 RUN mkdir -p /INSTALLDIR && \

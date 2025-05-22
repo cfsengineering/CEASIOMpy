@@ -30,7 +30,7 @@ source ~/.bashrc
 ./install_ceasiompy.sh
 ./install_pyavl.sh
 ./install_sumo.sh
-./install_su2.sh
+./install_su2_with_mpi.sh
 ./install_paraview.sh
 source ~/.bashrc
 ```

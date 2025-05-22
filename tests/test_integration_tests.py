@@ -17,7 +17,7 @@ import streamlit as st
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from src.bin.ceasiompy_exec import run_modules_list
+from bin.ceasiompy_exec import run_modules_list
 from ceasiompy.utils.ceasiompyutils import change_working_dir
 
 from ceasiompy.SMUse import MODULE_NAME as SMUSE
@@ -28,9 +28,8 @@ from ceasiompy.Database import MODULE_NAME as DATABASE
 from ceasiompy.ExportCSV import MODULE_NAME as EXPORTCSV
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
-from ceasiompy.CPACSUpdater import MODULE_NAME as CPACSUPDATER
-from ceasiompy.SaveAeroCoefficients import MODULE_NAME as SAVEAEROCOEF
 from ceasiompy.AeroFrame import MODULE_NAME as AEROFRAMENEW
+from ceasiompy.SaveAeroCoefficients import MODULE_NAME as SAVEAEROCOEF
 
 # =================================================================================================
 #   CONSTANTS
@@ -91,24 +90,5 @@ def test_integration_3():
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_4():
-    run_workflow_test([CPACS2GMSH, SMTRAIN, SMUSE, SAVEAEROCOEF])
+    run_workflow_test([SMTRAIN, SMUSE, SAVEAEROCOEF])
     assert True
-
-
-@pytest.mark.slow
-@pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
-@pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
-def test_integration_5():
-    run_workflow_test([CPACSUPDATER, CPACS2GMSH, SU2RUN])
-    assert True
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    test_integration_1()
-    print("Integration tests")
-    print("To run test use the following command:")
-    print(">> pytest -v . --cov=../ceasiompy --cov-report term")

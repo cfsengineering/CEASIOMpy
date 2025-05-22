@@ -11,7 +11,7 @@ current_dir="$(pwd)"
 if [ $# -gt 0 ]; then
     install_dir="$1/INSTALLDIR"
 else
-    install_dir="$script_dir/../../INSTALLDIR"
+    install_dir="$script_dir/INSTALLDIR"
 fi
 
 echo "Creating install directory..."

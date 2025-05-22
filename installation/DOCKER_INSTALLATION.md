@@ -48,6 +48,8 @@ Warning : Make sure you are in the CEASIOMpy folder.
 
 On Linux/macOS:
 
+On Linux/macOS:
+
 ```bash
 docker run --init -it --rm --net=host \
 -e DISPLAY=$DISPLAY \

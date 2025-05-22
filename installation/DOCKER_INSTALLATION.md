@@ -55,4 +55,18 @@ docker run --init -it --rm --net=host \
 ceasiompy-image
 ```
 
+On windows try:
+
+```bash
+docker run -it --rm \
+-e DISPLAY=host.docker.internal:0 \
+-e LIBGL_ALWAYS_SOFTWARE=1 \
+-e OMPI_ALLOW_RUN_AS_ROOT=1 \
+-e OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
+-v /tmp/.X11-unix:/tmp/.X11-unix \
+-v C:/Users/yourname/CEASIOMpy:/CEASIOMpy \
+ceasiompy-image
+```
+
+
 You can now click on local URL and use CEASIOMpy's GUI (Graphical User Interface) with all of its required software.

@@ -41,6 +41,7 @@ from framat import Model
 from pathlib import Path
 from scipy import interpolate
 from typing import List
+from functools import partial
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.generalclasses import (
     Point,
@@ -61,6 +62,27 @@ from ceasiompy.AeroFrame import (
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def compute_distance_and_moment(centerline_df, row):
+    """Transfer of forces and induced moment to the closest beam node. """
+    point_xyz = np.array([row['x'], row['y'], row['z']])
+    centerline_xyz = np.array([
+        centerline_df.at[row['closest_centerline_index'], 'x'],
+        centerline_df.at[row['closest_centerline_index'], 'y'],
+        centerline_df.at[row['closest_centerline_index'], 'z'],
+    ])
+
+    distance_vector = point_xyz - centerline_xyz
+    force_vector = np.array([row['Fx'], row['Fy'], row['Fz']])
+    moment_vector = np.cross(distance_vector, force_vector)
+
+    return pd.Series({
+        'moment_x': moment_vector[0],
+        'moment_y': moment_vector[1],
+        'moment_z': moment_vector[2],
+        'distance_vector': distance_vector
+    })
 
 
 def parse_AVL_surface(string):
@@ -585,26 +607,10 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
 
     wing_df['closest_centerline_index'] = closest_centerline_indices
 
-    # Transfer of forces and induced moment to the closest beam node
-    def compute_distance_and_moment(row):
-        point_xyz = np.array([row['x'], row['y'], row['z']])
-        centerline_xyz = np.array([centerline_df.at[row['closest_centerline_index'], 'x'],
-                                   centerline_df.at[row['closest_centerline_index'], 'y'],
-                                   centerline_df.at[row['closest_centerline_index'], 'z']])
-
-        distance_vector = point_xyz - centerline_xyz
-        force_vector = np.array([row['Fx'], row['Fy'], row['Fz']])
-        moment_vector = np.cross(distance_vector, force_vector)
-
-        return pd.Series({
-            'moment_x': moment_vector[0],
-            'moment_y': moment_vector[1],
-            'moment_z': moment_vector[2],
-            'distance_vector': distance_vector
-        })
-
     wing_df[['Mx', 'My', 'Mz', 'distance_vector']] = wing_df.apply(
-        compute_distance_and_moment, axis=1)
+        partial(compute_distance_and_moment, centerline_df=centerline_df),
+        axis=1
+    )
 
     for i, centerline_index in enumerate(wing_df['closest_centerline_index']):
         for force in ['Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz']:

@@ -318,7 +318,9 @@ def aeroelastic_loop(
     deflection = delta_tip[-1]
     percentage = deflection / semi_span
 
-    log_final_results(res, tol, deflection, percentage, tip_twist, total_aero_work, total_structural_work)
+    log_final_results(
+        res, tol, deflection, percentage, tip_twist, total_aero_work, total_structural_work
+    )
 
     return delta_tip, res
 
@@ -332,7 +334,9 @@ def log_iteration_results(n_iter, deflection, percentage, residual):
     log.info(f"Residual            : {residual:.3e}")
 
 
-def log_final_results(res, tol, deflection, percentage, tip_twist, total_aero_work, total_structural_work):
+def log_final_results(
+    res, tol, deflection, percentage, tip_twist, total_aero_work, total_structural_work
+):
     log.info("")
     log.info("----- Final results -----")
     if res[-1] <= tol:

@@ -25,6 +25,7 @@ from cpacspy.cpacsfunctions import get_value
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 from ceasiompy.utils.geometryfunctions import (
     sum_points,
+    prod_points,
     get_positionings,
 )
 from ceasiompy.utils.mathsfunctions import (
@@ -40,7 +41,7 @@ from ceasiompy.AeroFrame.func.utils import (
 from framat import Model
 from pathlib import Path
 from scipy import interpolate
-from typing import List
+from typing import List, Tuple
 from pandas import Series, DataFrame
 from functools import partial
 from tixi3.tixi3wrapper import Tixi3
@@ -209,7 +210,7 @@ def parse_AVL_surface(extracted_string: str):
 def read_avl_fe_file(
     fe_path: Path,
     plot: bool = False
-):
+) -> Tuple[List, List, List, List, List, List]:
     """Function to read AVL 'fe.txt' element force file,
     and extract the aerodynamic loads calling the function
     'parse_AVL_surface'.
@@ -290,8 +291,13 @@ def read_avl_fe_file(
     return surface_name_list, nspanwise_list, nchordwise_list, xyz_list, p_xyz_list, slope_list
 
 
-def create_framat_model(young_modulus, shear_modulus, material_density,
-                        centerline_df, internal_load_df):
+def create_framat_model(
+    young_modulus: float,
+    shear_modulus: float,
+    material_density: float,
+    centerline_df: DataFrame,
+    internal_load_df: DataFrame,
+) -> Model:
     """
     Function to create the FramAT beam model.
 
@@ -299,14 +305,14 @@ def create_framat_model(young_modulus, shear_modulus, material_density,
     for structural computations.
 
     Args:
-        young_modulus (float): Young modulus of the wing material [GPa].
-        shear_modulus (float): Shear modulus of the wing material [GPa].
-        material_density (float): Density of the wing material [kg/m^3].
-        centerline_df (pandas dataframe): dataframe with the beam nodes,
-                                          the applied forces/moments,
-                                          the sections properties,
-        internal_load_df (pandas dataframe): previous version of centerline_df
-                                             (iteration n-1).
+        young_modulus: Young modulus of the wing material [GPa].
+        shear_modulus: Shear modulus of the wing material [GPa].
+        material_density: Density of the wing material [kg/m^3].
+        centerline_df:
+            dataframe with the beam nodes,
+            the applied forces/moments,
+            the sections properties.
+        internal_load_df: previous version of centerline_df (iteration n-1).
 
     Returns:
         model: FramAT beam model, ready for FEM computations.
@@ -720,19 +726,10 @@ def compute_cross_section(cpacs):
                 prof_uid = tixi.getTextElement(elem_xpath + "/airfoilUID")
                 prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
 
-                # Apply scaling
-                for i, item in enumerate(prof_vect_x):
-                    prof_vect_x[i] = (
-                        item * elem_transf.scaling.x * sec_transf.scaling.x * wing_transf.scaling.x
-                    )
-                for i, item in enumerate(prof_vect_y):
-                    prof_vect_y[i] = (
-                        item * elem_transf.scaling.y * sec_transf.scaling.y * wing_transf.scaling.y
-                    )
-                for i, item in enumerate(prof_vect_z):
-                    prof_vect_z[i] = (
-                        item * elem_transf.scaling.z * sec_transf.scaling.z * wing_transf.scaling.z
-                    )
+                x, y, z = prod_points(elem_transf.scaling, sec_transf.scaling, wing_transf.scaling)
+                prof_vect_x *= x
+                prof_vect_y *= y
+                prof_vect_z *= z
 
                 prof_size_x = max(prof_vect_x) - min(prof_vect_x)
                 prof_size_y = max(prof_vect_y) - min(prof_vect_y)

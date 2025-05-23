@@ -47,6 +47,7 @@ from ceasiompy.AeroFrame import (
     SOFTWARE_NAME,
     FRAMAT_MESH_XPATH,
     FRAMAT_NB_CPU_XPATH,
+    FRAMAT_NB_NODES_XPATH,
     AEROFRAME_TOLERANCE_XPATH,
     AEROFRAME_MAXNB_ITERATIONS_XPATH,
 )
@@ -127,12 +128,14 @@ def aeroelastic_loop(
 
     # Get the properties of the wing material and the number of beam nodes to use
     young_modulus, shear_modulus, material_density = get_material_properties(tixi)
-    N_beam = get_value_or_default(tixi, FRAMAT_MESH_XPATH + "/NumberNodes", 8)
+    n_beam = get_value(tixi, FRAMAT_NB_NODES_XPATH)
 
     # Define the coordinates of the wing root and tip
-    xyz_root = np.array([wg_center_x_list[0] + wing_origin[0] + wg_chord_list[0] / 2,
-                         wg_center_y_list[0] + wing_origin[1],
-                         wg_center_z_list[0] + wing_origin[2]])
+    xyz_root = np.array([
+        wg_center_x_list[0] + wing_origin[0] + wg_chord_list[0] / 2,
+        wg_center_y_list[0] + wing_origin[1],
+        wg_center_z_list[0] + wing_origin[2]
+    ])
     fxyz_root = np.zeros(3)
 
     # xyz_tip = np.array([wg_center_x_list[-1] + wing_origin[0] + wg_chord_list[-1] / 2,
@@ -218,7 +221,7 @@ def aeroelastic_loop(
         ) = create_wing_centerline(
             wing_df,
             centerline_df,
-            N_beam,
+            n_beam,
             wing_origin,
             xyz_tot,
             fxyz_tot,

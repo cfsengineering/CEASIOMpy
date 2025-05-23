@@ -25,7 +25,7 @@ from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import create_branch
 from ceasiompy.PyAVL.func.utils import create_case_dir
 from ceasiompy.AeroFrame.func.config import read_avl_fe_file
-from ceasiompy.AeroFrame.func.results import plot_convergence
+from ceasiompy.AeroFrame.func.plot import plot_convergence
 from ceasiompy.AeroFrame.func.aeroelastic import aeroelastic_loop
 from ceasiompy.AeroFrame.func.firstavliteration import run_first_avl_iteration
 from ceasiompy.utils.ceasiompyutils import (

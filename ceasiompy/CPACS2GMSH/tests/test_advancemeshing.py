@@ -18,12 +18,15 @@ import shutil
 from pathlib import Path
 
 import gmsh
+import math
 import pytest
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     compute_area,
     distance_field,
     min_fields,
     restrict_fields,
+    compute_angle_surfaces,
+    refine_between_parts,
 )
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
@@ -125,7 +128,8 @@ def test_restrict_fields():
     assert mesh_fields["nbfields"] == 5
 
     # Check the restrict field tags are correct
-    assert all([a == b for a, b in zip(mesh_fields["restrict_fields"], [3, 5])])
+    assert all([a == b for a, b in zip(
+        mesh_fields["restrict_fields"], [3, 5])])
 
     # Check mesh field tags are correct
     assert gmsh.model.mesh.field.getType(1) == "Distance"
@@ -238,7 +242,8 @@ def test_refine_wing_section():
     # Check if a distance field was generated on the wing le and te
     assert gmsh.model.mesh.field.getType(1) == "Distance"
     assert all(
-        [a == b for a, b in zip(gmsh.model.mesh.field.getNumbers(1, "CurvesList"), [19, 21])]
+        [a == b for a, b in zip(
+            gmsh.model.mesh.field.getNumbers(1, "CurvesList"), [19, 21])]
     )
 
     # Check if a Matheval field was generated with the correct formula
@@ -250,9 +255,11 @@ def test_refine_wing_section():
     assert gmsh.model.mesh.field.getType(3) == "Restrict"
 
     # Check the restrict field is applied on the wing surfaces
-    surface_in_field = sorted(gmsh.model.mesh.field.getNumbers(7, "SurfacesList"))
+    surface_in_field = sorted(
+        gmsh.model.mesh.field.getNumbers(7, "SurfacesList"))
     correct_surface_in_field = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    assert all(a == b for a, b in zip(surface_in_field, correct_surface_in_field))
+    assert all(a == b for a, b in zip(
+        surface_in_field, correct_surface_in_field))
 
     gmsh.clear()
     gmsh.finalize()
@@ -302,11 +309,58 @@ def test_auto_refine():
     remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg"])
 
 
+def test_compute_angle_surfaces():
+    """
+    Test if the wing section is correctly remeshed when the area is too small
+    """
+    gmsh.initialize()
+    p1 = gmsh.model.occ.addPoint(0, 0, 0, 0.1)
+    p2 = gmsh.model.occ.addPoint(0, 1, 0, 0.1)
+    p3 = gmsh.model.occ.addPoint(1, 1, 0, 0.1)
+    p4 = gmsh.model.occ.addPoint(1, 0, 0, 0.1)
+    p5 = gmsh.model.occ.addPoint(2, 0, 2, 0.1)
+    p6 = gmsh.model.occ.addPoint(2, 1, 2, 0.1)
+    p7 = gmsh.model.occ.addPoint(3, 0, 3.2, 0.1)
+    p8 = gmsh.model.occ.addPoint(3, 1, 3.2, 0.1)
+    l1, l2 = gmsh.model.occ.addLine(p1, p2), gmsh.model.occ.addLine(p2, p3)
+    l3, l4 = gmsh.model.occ.addLine(p3, p4), gmsh.model.occ.addLine(p4, p1)
+    l5, l6 = gmsh.model.occ.addLine(p4, p5), gmsh.model.occ.addLine(p5, p6)
+    l7, l8 = gmsh.model.occ.addLine(p6, p3), gmsh.model.occ.addLine(p6, p8)
+    l9, l0 = gmsh.model.occ.addLine(p8, p7), gmsh.model.occ.addLine(p7, p5)
+    cl1 = gmsh.model.occ.addCurveLoop([l1, l2, l3, l4])
+    cl2 = gmsh.model.occ.addCurveLoop([-l3, -l7, -l6, -l5])
+    cl3 = gmsh.model.occ.addCurveLoop([l6, l8, l9, l0])
+    s1 = gmsh.model.occ.addPlaneSurface([cl1])
+    s2 = gmsh.model.occ.addPlaneSurface([cl2])
+    s3 = gmsh.model.occ.addPlaneSurface([cl3])
+    gmsh.model.occ.synchronize()
+    gmsh.model.mesh.generate(1)
+
+    tags_coords_params = {-1: "yay"}
+    for i in [s1, s2, s3]:
+        tags, coord, param = gmsh.model.mesh.getNodes(2, i, True)
+        tags_coords_params[i] = {'tags': tags,
+                                 'coord': coord, 'param': param}
+
+    anglefound = compute_angle_surfaces([s1, s2], tags_coords_params, l3)
+    assert anglefound == True
+    anglefound = compute_angle_surfaces([s3, s2], tags_coords_params, l5)
+    assert anglefound == False
+    gmsh.finalize()
+
+
+def test_refine_between_parts():
+    """
+    Function to test if the right number of fields are created
+    when using the function
+    """
+
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================
-
 if __name__ == "__main__":
+    test_compute_angle_surfaces()
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")

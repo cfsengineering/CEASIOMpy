@@ -380,7 +380,6 @@ def generate_2d_mesh_for_pentagrow(
 
     gmesh_path = Path(results_dir, "surface_mesh.stl")
     gmsh.write(str(gmesh_path))
-    gmsh.fltk.run()
     return gmesh_path, fuselage_maxlen
 
 
@@ -499,7 +498,8 @@ def fusing_parts(
                 dimtags_names = [{"dimtag": fused_entities[0],
                                   "name": dimtags_names[i]["name"] + "+"
                                   + dimtags_names[j]["name"]}] +\
-                    [dimtags_names[k] for k in range(len(dimtags_names)) if k != j and k != i]
+                    [dimtags_names[k]
+                        for k in range(len(dimtags_names)) if k != j and k != i]
 
         # Handle the cases where it didn't work
         except Exception as e:
@@ -509,7 +509,8 @@ def fusing_parts(
         if counter > 20:
             # If here we have multiples times had problems with fusion and won't give one piece
             names = [dimtags_names[k]["name"] for k in len(dimtags_names)]
-            log.info(f"Warning : the end result is not in one piece. Parts by group : {names}")
+            log.info(
+                f"Warning : the end result is not in one piece. Parts by group : {names}")
             break
 
 
@@ -573,7 +574,8 @@ def sort_surfaces_and_create_physical_groups(
         gmsh.model.occ.synchronize()
 
         part_obj = ModelPart(uid=brep_file.stem)
-        part_obj.part_type = get_part_type(cpacs.tixi, part_obj.uid, print_info=False)
+        part_obj.part_type = get_part_type(
+            cpacs.tixi, part_obj.uid, print_info=False)
         part_obj.volume = part_entities[0]
         part_obj.volume_tag = part_entities[0][1]
 
@@ -722,7 +724,8 @@ def refine_le_te_end(
     # tag of the main volume constituing the aicraft, and of all the surfaces
     aircraft.volume_tag = gmsh.model.occ.getEntities(3)[0][1]
     # (there should be only one volume in the model)
-    aircraft.surfaces_tags = [tag for (dim, tag) in gmsh.model.occ.getEntities(2)]
+    aircraft.surfaces_tags = [
+        tag for (dim, tag) in gmsh.model.occ.getEntities(2)]
     aircraft.lines_tags = [tag for (dim, tag) in gmsh.model.occ.getEntities(1)]
 
     # For all the wing, we call the function classify that will detect the le and te between all
@@ -765,7 +768,8 @@ def refine_le_te_end(
             # Now need to find the tip of the wing. We know it is not a line that touch
             # another part, or one found in le and te, so take thouse out
             lines_in_other_parts = exclude_lines(model_part, aircraft_parts)
-            lines_to_take_out = set(lines_already_refined_lete).union(set(lines_in_other_parts))
+            lines_to_take_out = set(lines_already_refined_lete).union(
+                set(lines_in_other_parts))
             lines_left = sorted(list(set(model_part.lines_tags)
                                      - lines_to_take_out))
             surfaces_in_wing = model_part.surfaces_tags
@@ -775,7 +779,8 @@ def refine_le_te_end(
                 surfaces1, points1 = gmsh.model.getAdjacencies(1, line1)
                 surfaces2, points2 = gmsh.model.getAdjacencies(1, line2)
                 common_points = list(set(points1) & set(points2))
-                common_surfaces = list(set(surfaces1) & set(surfaces2) & set(surfaces_in_wing))
+                common_surfaces = list(set(surfaces1) & set(
+                    surfaces2) & set(surfaces_in_wing))
                 if len(common_points) == 2 and len(common_surfaces) == 1:
                     log.info(
                         f"Found the end of wing in {model_part.uid}, refining lines {line1,line2}")
@@ -788,7 +793,8 @@ def refine_le_te_end(
                                     n_power_factor,
                                     [aircraft.volume_tag],
                                     mesh_fields)
-                    gmsh.model.setColor([(1, line1), (1, line2)], 0, 180, 180)  # to see
+                    gmsh.model.setColor(
+                        [(1, line1), (1, line2)], 0, 180, 180)  # to see
                     lines_already_refined_lete.extend([line1, line2])
 
             for (line1, line2, line3) in list(combinations(lines_left, 3)):
@@ -846,13 +852,8 @@ def pentagrow_3d_mesh(
         for key, value in cfg_params.items():
             file.write(f"{key} = {value}\n")
 
-    os.chdir("Results/CPACS2GMSH")
-
     check_path("surface_mesh.stl")
     check_path("config.cfg")
-
-    current_dir = os.getcwd()
-    os.chdir(current_dir)
 
     command = ["surface_mesh.stl", "config.cfg"]
 
@@ -866,7 +867,7 @@ def pentagrow_3d_mesh(
     run_software(
         software_name="pentagrow",
         arguments=command,
-        wkdir=current_dir,
+        wkdir=result_dir,
         with_mpi=False,
         nb_cpu=get_reasonable_nb_cpu(),
     )

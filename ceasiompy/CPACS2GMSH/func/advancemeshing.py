@@ -62,7 +62,8 @@ def distance_field(mesh_fields, dim, object_tags):
         dim_list = "SurfacesList"
     else:
         raise ValueError("Dimension must be 1 or 2")
-    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], dim_list, object_tags)
+    gmsh.model.mesh.field.setNumbers(
+        mesh_fields["nbfields"], dim_list, object_tags)
 
     gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Sampling", 100)
 
@@ -97,7 +98,8 @@ def restrict_fields(mesh_fields, dim, object_tags, infield=None):
     if infield is None:
         infield = mesh_fields["nbfields"] - 1
 
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", infield)
+    gmsh.model.mesh.field.setNumber(
+        mesh_fields["nbfields"], "InField", infield)
     if dim == 2:
         dim_list = "SurfacesList"
     elif dim == 3:
@@ -105,7 +107,8 @@ def restrict_fields(mesh_fields, dim, object_tags, infield=None):
     else:
         raise ValueError("Dimension must be 2 or 3")
 
-    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], dim_list, object_tags)
+    gmsh.model.mesh.field.setNumbers(
+        mesh_fields["nbfields"], dim_list, object_tags)
 
     # Add the new field to the list of restrict fields
     mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
@@ -132,7 +135,6 @@ def min_fields(mesh_fields):
     ----------
     mesh_fields : dict
     """
-
     # Add a minimal background mesh field
     mesh_fields["nbfields"] += 1
     gmsh.model.mesh.field.add("Min", mesh_fields["nbfields"])
@@ -303,9 +305,12 @@ def refine_wing_section(
         # Create the threshold field
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_wings)
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_wings)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "InField", distance_field_tag)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "SizeMax", mesh_size_wings)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "SizeMin", mesh_size_wings)
 
         mesh_fields = restrict_fields(mesh_fields, 2, surfaces_wing)
 
@@ -406,9 +411,12 @@ def refine_end_wing(
     # Create the threshold field
     mesh_fields["nbfields"] += 1
     gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_wings)
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_wings)
+    gmsh.model.mesh.field.setNumber(
+        mesh_fields["nbfields"], "InField", distance_field_tag)
+    gmsh.model.mesh.field.setNumber(
+        mesh_fields["nbfields"], "SizeMax", mesh_size_wings)
+    gmsh.model.mesh.field.setNumber(
+        mesh_fields["nbfields"], "SizeMin", mesh_size_wings)
 
     mesh_fields = restrict_fields(mesh_fields, 2, surfaces_wing)
 
@@ -485,8 +493,10 @@ def set_domain_mesh(
         # Create the threshold field
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", part.mesh_size)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "InField", distance_field_tag)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "SizeMax", part.mesh_size)
         gmsh.model.mesh.field.setNumber(
             mesh_fields["nbfields"], "SizeMin", part.mesh_size * n_power_field
         )
@@ -498,9 +508,11 @@ def set_domain_mesh(
         # Create the threshold field
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "InField", distance_field_tag)
 
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_farfield)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "SizeMax", mesh_size_farfield)
         gmsh.model.mesh.field.setNumber(
             mesh_fields["nbfields"], "SizeMin", mesh_size_farfield * 0.9
         )
@@ -575,7 +587,8 @@ def refine_small_surfaces(
             # and area of triangle = sqrt(3)/4 * (side = mesh size)^2 and (sqrt(3)/4=0.433..)
 
             # Set the color to indicate the bad surfaces
-            gmsh.model.setColor([(2, surface_tag)], *MESH_COLORS["bad_surface"], recursive=False)
+            gmsh.model.setColor([(2, surface_tag)], *
+                                MESH_COLORS["bad_surface"], recursive=False)
 
             mesh_fields = distance_field(mesh_fields, 2, [surface_tag])
             distance_field_tag = mesh_fields["nbfields"]
@@ -586,8 +599,10 @@ def refine_small_surfaces(
             gmsh.model.mesh.field.setNumber(
                 mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
             )
-            gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", new_mesh_size)
-            gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", new_mesh_size)
+            gmsh.model.mesh.field.setNumber(
+                mesh_fields["nbfields"], "SizeMin", new_mesh_size)
+            gmsh.model.mesh.field.setNumber(
+                mesh_fields["nbfields"], "SizeMax", new_mesh_size)
 
             mesh_fields = restrict_fields(mesh_fields, 2, [surface_tag])
 
@@ -601,7 +616,8 @@ def refine_small_surfaces(
                 f"(F{distance_field_tag}/{aircraft_charact_length})^{n_power}",
             )
 
-            mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
+            mesh_fields = restrict_fields(
+                mesh_fields, 3, final_domain_volume_tag)
 
     log.info(f"Surface mesh of {part.uid} was insufficient")
 
@@ -673,15 +689,18 @@ def refine_other_lines(
         # For each adjacent surface, get all the nodes
         for i in surface_tags:
             tags, coord, param = gmsh.model.mesh.getNodes(2, i, True)
-            tags_coords_params[i] = {'tags': tags, 'coord': coord, 'param': param}
+            tags_coords_params[i] = {'tags': tags,
+                                     'coord': coord, 'param': param}
         # Now compute if there are two surfaces with a "small" (<130) angle
-        small_angle = compute_angle_surfaces(surface_tags, tags_coords_params, line)
+        small_angle = compute_angle_surfaces(
+            surface_tags, tags_coords_params, line)
         # If so, we need to refine next to this line
         if small_angle:
             lines_to_refine_tag.append(line)
 
     # Take out the already refined lines
-    lines_to_refine_tag = [li for li in lines_to_refine_tag if li not in te_le_already_refined]
+    lines_to_refine_tag = [
+        li for li in lines_to_refine_tag if li not in te_le_already_refined]
     log.info(f"Lines to be refined are {lines_to_refine_tag}")
     log.info("Now start setting refinement")
     gmsh.model.setColor([(1, line)
@@ -698,7 +717,8 @@ def refine_other_lines(
             # Choose refinement to go on 1/4 of the length of the second smallest size
             # usually, a reasonable size that works
             m = size[1] / 3
-            surfaces_to_refine.append({"mesh_size": part.mesh_size, "surfs": s_adj_part, "m": m})
+            surfaces_to_refine.append(
+                {"mesh_size": part.mesh_size, "surfs": s_adj_part, "m": m})
         min_mesh_size = min([s["mesh_size"] for s in surfaces_to_refine])
 
         for part_size_surf_m in surfaces_to_refine:
@@ -706,7 +726,8 @@ def refine_other_lines(
             # Indeed, if the line is at the intersection of two part with different mesh size
             # one will be much more refined, and therefore the other need to also be progressive
             # so we adapt refine factor so that the field start at the same size at the line
-            refine_factor_adapted = refine * part_size_surf_m["mesh_size"] / min_mesh_size
+            refine_factor_adapted = refine * \
+                part_size_surf_m["mesh_size"] / min_mesh_size
             mesh_fields = refine_surface(part_uid=part.uid,
                                          lines_to_refine=[line],
                                          surfaces_tag=part_size_surf_m["surfs"],
@@ -849,7 +870,8 @@ def compute_angle_surfaces(
                     # are of norm 1
                     cosalpha = (normal_i[0] * normal_j[0] + normal_i[1]
                                 * normal_j[1] + normal_i[2] * normal_j[2])
-                    if cosalpha < 0.63:  # (angle of more than 50 degrees from being flat)
+                    # (angle of more than 50 degrees from being flat)
+                    if cosalpha < 0.63:
                         return True
     return False
 
@@ -886,18 +908,22 @@ def refine_between_parts(
                 small_part = part2
                 big_part = part
 
-            lines_at_intersection = list(set(part.lines_tags) & set(part2.lines_tags))
+            lines_at_intersection = list(
+                set(part.lines_tags) & set(part2.lines_tags))
             gmsh.model.setColor([(1, line)
                                 for line in lines_at_intersection], 255, 0, 0)  # red
             if lines_at_intersection:
                 p, p2, lai = part.uid, part2.uid, lines_at_intersection
-                log.info(f"Refining between parts {p} and {p2}, line(s) {lai} ")
+                log.info(
+                    f"Refining between parts {p} and {p2}, line(s) {lai} ")
             for line in lines_at_intersection:
                 surfaces_adjacent, _ = gmsh.model.getAdjacencies(1, line)
-                surfaces_to_refine = list(set(surfaces_adjacent) & set(big_part.surfaces_tags))
+                surfaces_to_refine = list(
+                    set(surfaces_adjacent) & set(big_part.surfaces_tags))
 
                 bb = big_part.bounding_box
-                size = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
+                size = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]),
+                        abs(bb[5] - bb[2])]
                 size.sort()
                 m = size[1] / 4
                 mesh_fields = refine_surface(big_part.uid, [line], surfaces_to_refine,

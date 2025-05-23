@@ -41,6 +41,7 @@ from framat import Model
 from pathlib import Path
 from scipy import interpolate
 from typing import List
+from pandas import Series, DataFrame
 from functools import partial
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.generalclasses import (
@@ -64,7 +65,9 @@ from ceasiompy.AeroFrame import (
 # =================================================================================================
 
 
-def compute_distance_and_moment(centerline_df, row):
+def compute_distance_and_moment(
+    centerline_df: DataFrame, row: Series
+) -> Series:
     """Transfer of forces and induced moment to the closest beam node. """
     point_xyz = np.array([row['x'], row['y'], row['z']])
     centerline_xyz = np.array([
@@ -77,7 +80,7 @@ def compute_distance_and_moment(centerline_df, row):
     force_vector = np.array([row['Fx'], row['Fy'], row['Fz']])
     moment_vector = np.cross(distance_vector, force_vector)
 
-    return pd.Series({
+    return Series({
         'moment_x': moment_vector[0],
         'moment_y': moment_vector[1],
         'moment_z': moment_vector[2],
@@ -85,7 +88,7 @@ def compute_distance_and_moment(centerline_df, row):
     })
 
 
-def parse_AVL_surface(string):
+def parse_AVL_surface(extracted_string: str):
     """Function to extract panel forces of a surface,
     from AVL 'fe.txt' element force file.
 
@@ -103,23 +106,23 @@ def parse_AVL_surface(string):
         slope_list (list): slope of the local camberline.
     """
 
-    i_newline = [i for i, char in enumerate(string) if char == '\n']
-    surface_name = string[12:i_newline[0] - 1].replace(' ', '')
+    i_newline = [i for i, char in enumerate(extracted_string) if char == '\n']
+    surface_name = extracted_string[12:i_newline[0] - 1].replace(' ', '')
 
-    str_tmp = string[i_newline[0] + 1:i_newline[1]]
+    str_tmp = extracted_string[i_newline[0] + 1:i_newline[1]]
     i_span = str_tmp.find("# Spanwise =")
     nspanwise = int(str_tmp[i_span + 12:i_span + 17])
 
     i_chordwise = [m.start() for m in re.finditer(
-        "# Chordwise =", string[i_newline[1]:])]
+        "# Chordwise =", extracted_string[i_newline[1]:])]
     i_incidence = [m.start() for m in re.finditer(
-        "Incidence  =", string[i_newline[1]:])]
+        "Incidence  =", extracted_string[i_newline[1]:])]
     i_strip_width = [m.start() for m in re.finditer(
-        "Strip Width  =", string[i_newline[1]:])]
+        "Strip Width  =", extracted_string[i_newline[1]:])]
     i_strip_dihed = [m.start() for m in re.finditer(
-        "Strip Dihed. =", string[i_newline[1]:])]
+        "Strip Dihed. =", extracted_string[i_newline[1]:])]
     i_IbX = [m.start() for m in re.finditer(
-        "I        X", string[i_newline[1]:])]
+        "I        X", extracted_string[i_newline[1]:])]
 
     nchord_strip: List[float] = [0.0] * nspanwise
     incidence_strip: List[float] = [0.0] * nspanwise
@@ -128,7 +131,7 @@ def parse_AVL_surface(string):
     slope_list: List[float] = []
     jj = -1
 
-    nchordwise = int(string[slice(
+    nchordwise = int(extracted_string[slice(
         i_newline[1] + i_chordwise[0] + 13, i_newline[1] + i_chordwise[0] + 16)])
     p_xyz = np.zeros((nspanwise * nchordwise, 3))
     xyz = np.zeros((nspanwise * nchordwise, 3))
@@ -137,19 +140,19 @@ def parse_AVL_surface(string):
     for k in range(nspanwise):
         i0 = slice(i_newline[1] + i_chordwise[k] + 13,
                    i_newline[1] + i_chordwise[k] + 16)
-        nchord_strip[k] = float(string[i0])
+        nchord_strip[k] = float(extracted_string[i0])
 
         i0 = slice(i_newline[1] + i_incidence[k] - 1 + 13,
                    i_newline[1] + i_incidence[k] - 1 + 24)
-        incidence_strip[k] = float(string[i0])
+        incidence_strip[k] = float(extracted_string[i0])
 
         i0 = slice(i_newline[1] + i_strip_width[k] - 1 + 13 + 2,
                    i_newline[1] + i_strip_width[k] - 1 + 24 + 1)
-        width_strip[k] = float(string[i0])
+        width_strip[k] = float(extracted_string[i0])
 
         i0 = slice(i_newline[1] + i_strip_dihed[k] - 1 + 13 + 2,
                    i_newline[1] + i_strip_dihed[k] - 1 + 24 + 1)
-        dihed_strip[k] = float(string[i0])
+        dihed_strip[k] = float(extracted_string[i0])
 
         idd = [i for i in range(len(i_newline) - 1) if (i_IbX[k] + i_newline[1] - 1 - i_newline[i])
                * (i_IbX[k] + i_newline[1] - 1 - i_newline[i + 1]) < 0]
@@ -173,7 +176,7 @@ def parse_AVL_surface(string):
 
         for j in range(int(nchord_strip[k])):
             jj += 1
-            line_data = string[i_newline[idd[0] + j + 1]:i_newline[idd[0] + j + 2]]
+            line_data = extracted_string[i_newline[idd[0] + j + 1]:i_newline[idd[0] + j + 2]]
             data_list = [float(match.group()) for match in re.finditer(
                 r"-?\b\d+\.\d+\b", line_data[9:])]
             xyz0 = data_list[0:3]
@@ -478,15 +481,17 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
 
     """
 
-    wing_df = pd.DataFrame({'x': [row[0] for row in xyz_tot],
-                            'y': [row[1] for row in xyz_tot],
-                            'z': [row[2] for row in xyz_tot],
-                            'Fx': [row[0] for row in fxyz_tot],
-                            'Fy': [row[1] for row in fxyz_tot],
-                            'Fz': [row[2] for row in fxyz_tot]})
+    wing_df = DataFrame({
+        'x': [row[0] for row in xyz_tot],
+        'y': [row[1] for row in xyz_tot],
+        'z': [row[2] for row in xyz_tot],
+        'Fx': [row[0] for row in fxyz_tot],
+        'Fy': [row[1] for row in fxyz_tot],
+        'Fz': [row[2] for row in fxyz_tot]
+    })
 
     if n_iter == 1:
-        tip_row = pd.DataFrame([{
+        tip_row = DataFrame([{
             "x": xyz_tip[0],
             "y": xyz_tip[1],
             "z": xyz_tip[2],
@@ -495,7 +500,7 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
             "Fz": 0
         }])
     else:
-        tip_row = pd.DataFrame([{
+        tip_row = DataFrame([{
             "x": tip_def[0],
             "y": tip_def[1],
             "z": tip_def[2],
@@ -540,8 +545,8 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
             "Fz": 0.0
         })
 
-    leading_edge_df = pd.DataFrame(leading_edge)
-    trailing_edge_df = pd.DataFrame(trailing_edge)
+    leading_edge_df = DataFrame(leading_edge)
+    trailing_edge_df = DataFrame(trailing_edge)
 
     # Concatenate LE and TE points to the VLM panels points
     wing_df = pd.concat([wing_df, leading_edge_df, trailing_edge_df], ignore_index=True)

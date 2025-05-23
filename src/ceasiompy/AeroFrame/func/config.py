@@ -40,6 +40,7 @@ from ceasiompy.AeroFrame.func.utils import (
 from framat import Model
 from pathlib import Path
 from scipy import interpolate
+from typing import List
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.generalclasses import (
     Point,
@@ -81,13 +82,12 @@ def parse_AVL_surface(string):
     """
 
     i_newline = [i for i, char in enumerate(string) if char == '\n']
-
     surface_name = string[12:i_newline[0] - 1].replace(' ', '')
 
     str_tmp = string[i_newline[0] + 1:i_newline[1]]
     i_span = str_tmp.find("# Spanwise =")
-
     nspanwise = int(str_tmp[i_span + 12:i_span + 17])
+
     i_chordwise = [m.start() for m in re.finditer(
         "# Chordwise =", string[i_newline[1]:])]
     i_incidence = [m.start() for m in re.finditer(
@@ -98,12 +98,13 @@ def parse_AVL_surface(string):
         "Strip Dihed. =", string[i_newline[1]:])]
     i_IbX = [m.start() for m in re.finditer(
         "I        X", string[i_newline[1]:])]
-    nchord_strip = [0] * nspanwise
-    incidence_strip = [0] * nspanwise
-    width_strip = [0] * nspanwise
-    dihed_strip = [0] * nspanwise
+
+    nchord_strip: List[float] = [0.0] * nspanwise
+    incidence_strip: List[float] = [0.0] * nspanwise
+    width_strip: List[float] = [0.0] * nspanwise
+    dihed_strip: List[float] = [0.0] * nspanwise
+    slope_list: List[float] = []
     jj = -1
-    slope_list = []
 
     nchordwise = int(string[slice(
         i_newline[1] + i_chordwise[0] + 13, i_newline[1] + i_chordwise[0] + 16)])
@@ -180,7 +181,10 @@ def parse_AVL_surface(string):
     return surface_name, nspanwise, nchord_strip, xyz, p_xyz, slope_list
 
 
-def read_avl_fe_file(FE_PATH, plot=False):
+def read_avl_fe_file(
+    fe_path: Path,
+    plot: bool = False
+):
     """Function to read AVL 'fe.txt' element force file,
     and extract the aerodynamic loads calling the function
     'parse_AVL_surface'.
@@ -199,10 +203,10 @@ def read_avl_fe_file(FE_PATH, plot=False):
     """
 
     try:
-        with open(FE_PATH, 'r') as file:
+        with open(fe_path, 'r') as file:
             file_content = file.read()
     except FileNotFoundError:
-        raise FileNotFoundError(f"Error reading {FE_PATH}")
+        raise FileNotFoundError(f"Error reading {fe_path}")
 
     i_surface = [m.start() for m in re.finditer("Surface #", file_content)]
     number_surfaces = len(i_surface)
@@ -888,37 +892,41 @@ def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND):
                     deformed.write(line)
 
 
-def interpolate_leading_edge(AVL_UNDEFORMED_PATH,
-                             CASE_PATH, wg_origin,
-                             wg_scaling,
-                             y_queries,
-                             n_iter):
+def interpolate_leading_edge(
+    avl_undeformed_path,
+    case_path,
+    wg_origin,
+    wg_scaling,
+    y_queries,
+    n_iter
+):
     """Function to get the coordinates of the leading-edge points.
 
-    Function 'interpolate_leading_edge' computes the coordinates of the leading-edge points
-    for each spanwise location of the VLM panels.
-
     Args:
-        AVL_UNDEFORMED_PATH (Path): path to the undeformed AVL geometry.
-        CASE_PATH (Path): path to the flight case directory.
-        wg_origin (list): list of the coordinates of the origin of the wing geometry [m].
-        y_queries (list): list of unique spanwise location of the VLM panels [m].
+        avl_undeformed_path (Path): path to the undeformed AVL geometry.
+        case_path (Path): path to the flight case directory.
+        wg_origin (list): coordinates of the origin of the wing geometry [m].
+        wg_scaling (list): scaling factors for the wing geometry.
+        y_queries (list): unique spanwise locations of the VLM panels [m].
         n_iter (int): number of the current iteration.
 
     Returns:
-        interpolated_Xle (numpy array): array of the x-coordinates of the interpolated LE points.
-        interpolated_Yle (numpy array): array of the y-coordinates of the interpolated LE points.
-        interpolated_Zle (numpy array): array of the z-coordinates of the interpolated LE points.
+        xle_array (np.ndarray): x-coordinates of the LE points.
+        yle_array (np.ndarray): y-coordinates of the LE points.
+        zle_array (np.ndarray): z-coordinates of the LE points.
+        interpolated_xle (np.ndarray): interpolated x-coordinates of the LE points.
+        interpolated_yle (np.ndarray): interpolated y-coordinates of the LE points.
+        interpolated_zle (np.ndarray): interpolated z-coordinates of the LE points.
     """
-    Xle_list = []
-    Yle_list = []
-    Zle_list = []
+    xle_list = []
+    yle_list = []
+    zle_list = []
     surface_count = 0
 
     if n_iter == 1:
-        path_to_read = AVL_UNDEFORMED_PATH
+        path_to_read = avl_undeformed_path
     else:
-        path_to_read = Path(CASE_PATH, f"Iteration_{n_iter}", "AVL", "deformed.avl")
+        path_to_read = Path(case_path, f"Iteration_{n_iter}", "AVL", "deformed.avl")
 
     with open(path_to_read, "r") as f:
         lines = f.readlines()
@@ -932,24 +940,24 @@ def interpolate_leading_edge(AVL_UNDEFORMED_PATH,
                 next_line = lines[i + 1].strip()
                 parts = next_line.split()
                 if n_iter == 1:
-                    Xle_list.append(float(parts[0]) * wg_scaling[0] + wg_origin[0])
-                    Yle_list.append(float(parts[1]) * wg_scaling[1] + wg_origin[1])
-                    Zle_list.append(float(parts[2]) * wg_scaling[2] + wg_origin[2])
+                    xle_list.append(float(parts[0]) * wg_scaling[0] + wg_origin[0])
+                    yle_list.append(float(parts[1]) * wg_scaling[1] + wg_origin[1])
+                    zle_list.append(float(parts[2]) * wg_scaling[2] + wg_origin[2])
                 else:
-                    Xle_list.append(float(parts[0]))
-                    Yle_list.append(float(parts[1]))
-                    Zle_list.append(float(parts[2]))
+                    xle_list.append(float(parts[0]))
+                    yle_list.append(float(parts[1]))
+                    zle_list.append(float(parts[2]))
 
-    Xle_array = np.array(Xle_list)
-    Yle_array = np.array(Yle_list)
-    Zle_array = np.array(Zle_list)
+    xle_array = np.array(xle_list)
+    yle_array = np.array(yle_list)
+    zle_array = np.array(zle_list)
 
     interpolated_points = interpolate_leading_edge_points(
-        Xle_array, Yle_array, Zle_array, y_queries
+        xle_array, yle_array, zle_array, y_queries
     )
 
-    interpolated_Xle = interpolated_points[:, 0]
-    interpolated_Yle = interpolated_points[:, 1]
-    interpolated_Zle = interpolated_points[:, 2]
+    interpolated_xle = interpolated_points[:, 0]
+    interpolated_yle = interpolated_points[:, 1]
+    interpolated_zle = interpolated_points[:, 2]
 
-    return Xle_array, Yle_array, Zle_array, interpolated_Xle, interpolated_Yle, interpolated_Zle
+    return xle_array, yle_array, zle_array, interpolated_xle, interpolated_yle, interpolated_zle

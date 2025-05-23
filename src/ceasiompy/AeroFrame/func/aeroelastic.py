@@ -19,19 +19,17 @@ import numpy as np
 import pandas as pd
 
 from pathlib import Path
-from scipy import interpolate
+from scipy.interpolate import interp1d
 from cpacspy.cpacspy import CPACS
 
+from ceasiompy.utils.ceasiompyutils import run_software
 from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
 from cpacspy.cpacsfunctions import get_value, get_value_or_default
-from ceasiompy.utils.ceasiompyutils import run_software
-from ceasiompy.AeroFrame.func.results import (
-    compute_deformations,
-    plot_translations_rotations,
-)
+from ceasiompy.AeroFrame.func.results import compute_deformations
 from ceasiompy.AeroFrame.func.plot import (
     plot_fem_mesh,
-    plot_deformed_wing
+    plot_deformed_wing,
+    plot_translations_rotations,
 )
 from ceasiompy.AeroFrame.func.config import (
     read_avl_fe_file,
@@ -48,8 +46,9 @@ from ceasiompy import log
 from ceasiompy.AeroFrame import (
     SOFTWARE_NAME,
     FRAMAT_MESH_XPATH,
-    AEROFRAME_SETTINGS,
     FRAMAT_NB_CPU_XPATH,
+    AEROFRAME_TOLERANCE_XPATH,
+    AEROFRAME_MAXNB_ITERATIONS_XPATH,
 )
 from ceasiompy.PyAVL import AVL_PLOT_XPATH
 
@@ -107,8 +106,8 @@ def aeroelastic_loop(
 
     # Get the path to the undeformed/initial AVL geometry
     for path in results_dir.glob('*.avl'):
-        AVL_UNDEFORMED_PATH = path
-    AVL_UNDEFORMED_COMMAND = Path(AVL_ITER1_PATH, "avl_commands.txt")
+        avl_undeformed_path = path
+    avl_undeformed_command = Path(AVL_ITER1_PATH, "avl_commands.txt")
 
     nb_cpu = get_value(tixi, FRAMAT_NB_CPU_XPATH)
 
@@ -144,7 +143,7 @@ def aeroelastic_loop(
     Yle_list = []
     Zle_list = []
     surface_count = 0
-    with open(AVL_UNDEFORMED_PATH, "r") as f:
+    with open(avl_undeformed_path, "r") as f:
         lines = f.readlines()
         for i, line in enumerate(lines):
             if "SURFACE" in line:
@@ -178,15 +177,15 @@ def aeroelastic_loop(
         Iy_list = Iy_const * np.ones(len(wg_center_y_list))
 
     # Interpolation of the cross-section properties along the span
-    area_profile = interpolate.interp1d(wg_center_y_list, area_list, fill_value="extrapolate")
-    Ix_profile = interpolate.interp1d(wg_center_y_list, Ix_list, fill_value="extrapolate")
-    Iy_profile = interpolate.interp1d(wg_center_y_list, Iy_list, fill_value="extrapolate")
-    chord_profile = interpolate.interp1d(wg_center_y_list, wg_chord_list, fill_value="extrapolate")
-    twist_profile = interpolate.interp1d(wg_center_y_list, wg_twist_list, fill_value="extrapolate")
+    area_profile = interp1d(wg_center_y_list, area_list, fill_value="extrapolate")
+    Ix_profile = interp1d(wg_center_y_list, Ix_list, fill_value="extrapolate")
+    Iy_profile = interp1d(wg_center_y_list, Iy_list, fill_value="extrapolate")
+    chord_profile = interp1d(wg_center_y_list, wg_chord_list, fill_value="extrapolate")
+    twist_profile = interp1d(wg_center_y_list, wg_twist_list, fill_value="extrapolate")
 
     # Convergence settings
-    n_iter_max = get_value_or_default(tixi, AEROFRAME_SETTINGS + "/MaxNumberIterations", 8)
-    tol = get_value_or_default(tixi, AEROFRAME_SETTINGS + "/Tolerance", 1e-3)
+    n_iter_max = get_value(tixi, AEROFRAME_MAXNB_ITERATIONS_XPATH)
+    tol = get_value(tixi, AEROFRAME_TOLERANCE_XPATH)
 
     # Initialize variables for the loop
     wing_df = pd.DataFrame()
@@ -204,10 +203,10 @@ def aeroelastic_loop(
 
         Path(case_dir_path, f"Iteration_{n_iter + 1}", "AVL").mkdir(parents=True, exist_ok=True)
         Path(case_dir_path, f"Iteration_{n_iter}", "FramAT").mkdir(parents=True, exist_ok=True)
-        AVL_ITER_PATH = Path(case_dir_path, f"Iteration_{n_iter + 1}", "AVL")
+        avl_iter_path = Path(case_dir_path, f"Iteration_{n_iter + 1}", "AVL")
         FRAMAT_ITER_PATH = Path(case_dir_path, f"Iteration_{n_iter}", "FramAT")
-        AVL_DEFORMED_PATH = Path(AVL_ITER_PATH, "deformed.avl")
-        AVL_DEFORMED_COMMAND = Path(AVL_ITER_PATH, "avl_commands.txt")
+        avl_deformed_path = Path(avl_iter_path, "deformed.avl")
+        avl_deformed_command = Path(avl_iter_path, "avl_commands.txt")
 
         xyz_tot = np.vstack((xyz_root, xyz))
         fxyz_tot = np.vstack((fxyz_root, fxyz))
@@ -216,23 +215,25 @@ def aeroelastic_loop(
             wing_df_new,
             centerline_df_new,
             internal_load_df
-        ) = create_wing_centerline(wing_df,
-                                   centerline_df,
-                                   N_beam,
-                                   wing_origin,
-                                   xyz_tot,
-                                   fxyz_tot,
-                                   n_iter,
-                                   xyz_tip,
-                                   tip_def_points,
-                                   area_profile,
-                                   Ix_profile,
-                                   Iy_profile,
-                                   chord_profile,
-                                   twist_profile,
-                                   case_dir_path,
-                                   AVL_UNDEFORMED_PATH,
-                                   wg_scaling)
+        ) = create_wing_centerline(
+            wing_df,
+            centerline_df,
+            N_beam,
+            wing_origin,
+            xyz_tot,
+            fxyz_tot,
+            n_iter,
+            xyz_tip,
+            tip_def_points,
+            area_profile,
+            Ix_profile,
+            Iy_profile,
+            chord_profile,
+            twist_profile,
+            case_dir_path,
+            avl_undeformed_path,
+            wg_scaling
+        )
 
         if n_iter == 1:
             undeformed_df = centerline_df_new.copy(deep=True)
@@ -243,19 +244,23 @@ def aeroelastic_loop(
         undeformed_df.to_csv(Path(FRAMAT_ITER_PATH, "undeformed.csv"), index=False)
         centerline_df_new.to_csv(Path(FRAMAT_ITER_PATH, "deformed.csv"), index=False)
 
-        model = create_framat_model(young_modulus,
-                                    shear_modulus,
-                                    material_density,
-                                    centerline_df_new,
-                                    internal_load_df)
+        model = create_framat_model(
+            young_modulus,
+            shear_modulus,
+            material_density,
+            centerline_df_new,
+            internal_load_df
+        )
 
         # Run the beam analysis
         framat_results = model.run()
 
         # Post-processing tasks
-        centerline_df, deformed_df, tip_def_points = compute_deformations(framat_results,
-                                                                          wing_df_new,
-                                                                          centerline_df_new)
+        centerline_df, deformed_df, tip_def_points = compute_deformations(
+            framat_results,
+            wing_df_new,
+            centerline_df_new
+        )
 
         plot_translations_rotations(centerline_df, wkdir=FRAMAT_ITER_PATH)
 
@@ -270,35 +275,30 @@ def aeroelastic_loop(
         deflection = delta_tip[-1]
         percentage = deflection / semi_span
 
-        log.info(f"Iteration {n_iter} done!")
-        log.info(
-            f"Wing tip deflection : {deflection:.3e} m "
-            f"({percentage:.2%} of the semi-span length)."
-        )
-        log.info(f"Residual            : {res[-1]:.3e}")
+        log_iteration_results(n_iter, deflection, percentage, res[-1])
 
         # Run AVL with the new deformed geometry
-        write_deformed_geometry(AVL_UNDEFORMED_PATH, AVL_DEFORMED_PATH, centerline_df, deformed_df)
-        write_deformed_command(AVL_UNDEFORMED_COMMAND, AVL_DEFORMED_COMMAND)
+        write_deformed_geometry(avl_undeformed_path, avl_deformed_path, centerline_df, deformed_df)
+        write_deformed_command(avl_undeformed_command, avl_deformed_command)
         log.info("")
         log.info(f"----- AVL: Calculation {n_iter + 1} -----")
         run_software(
             software_name=SOFTWARE_NAME,
             arguments=[""],
-            wkdir=AVL_ITER_PATH,
+            wkdir=avl_iter_path,
             with_mpi=False,
             nb_cpu=nb_cpu,
-            stdin=open(str(AVL_DEFORMED_COMMAND), "r"),
+            stdin=open(str(avl_deformed_command), "r"),
         )
         log.info("AVL done!")
 
         save_avl_plot = get_value_or_default(tixi, AVL_PLOT_XPATH, False)
         if save_avl_plot:
-            convert_ps_to_pdf(wkdir=AVL_ITER_PATH)
+            convert_ps_to_pdf(wkdir=avl_iter_path)
 
         # Read the new forces file to extract the loads
-        FE_PATH = Path(AVL_ITER_PATH, "fe.txt")
-        _, _, _, xyz_list, p_xyz_list, _ = read_avl_fe_file(FE_PATH, plot=False)
+        fe_path = Path(avl_iter_path, "fe.txt")
+        _, _, _, xyz_list, p_xyz_list, _ = read_avl_fe_file(fe_path, plot=False)
 
         xyz = xyz_list[0]
         fxyz = np.array(p_xyz_list[0]) * q
@@ -306,18 +306,8 @@ def aeroelastic_loop(
         wing_df = wing_df_new
         centerline_df = centerline_df_new
 
-        wing_df['aero_work'] = wing_df.apply(compute_aero_work, axis=1)
-        total_aero_work = wing_df['aero_work'].sum()
+        total_aero_work, total_structural_work = compute_work_and_log(wing_df, centerline_df)
 
-        centerline_df['structural_work'] = centerline_df.apply(compute_structural_work, axis=1)
-        total_structural_work = centerline_df['structural_work'].sum()
-
-        log.info(f"Total aerodynamic work : {total_aero_work:.3e} J.")
-        log.info(f"Total structural work  : {total_structural_work:.3e} J.")
-        log.info(
-            f"Work variation         : "
-            f"{((total_aero_work - total_structural_work) / total_aero_work):.2%}."
-        )
     log.info("")
     log.info("----- Final results -----")
     if res[-1] <= tol:
@@ -327,6 +317,28 @@ def aeroelastic_loop(
 
     deflection = delta_tip[-1]
     percentage = deflection / semi_span
+
+    log_final_results(res, tol, deflection, percentage, tip_twist, total_aero_work, total_structural_work)
+
+    return delta_tip, res
+
+
+def log_iteration_results(n_iter, deflection, percentage, residual):
+    log.info(f"Iteration {n_iter} done!")
+    log.info(
+        f"Wing tip deflection : {deflection:.3e} m "
+        f"({percentage:.2%} of the semi-span length)."
+    )
+    log.info(f"Residual            : {residual:.3e}")
+
+
+def log_final_results(res, tol, deflection, percentage, tip_twist, total_aero_work, total_structural_work):
+    log.info("")
+    log.info("----- Final results -----")
+    if res[-1] <= tol:
+        log.info("Convergence of wing tip deflection achieved.")
+    else:
+        log.warning("Maximum number of iterations reached, convergence not achieved.")
 
     log.info(f"Final tip deflection residual : {res[-1]:.3e}")
     log.info(
@@ -341,4 +353,18 @@ def aeroelastic_loop(
         f"{((total_aero_work - total_structural_work) / total_aero_work):.2%}."
     )
 
-    return delta_tip, res
+
+def compute_work_and_log(wing_df, centerline_df):
+    wing_df['aero_work'] = wing_df.apply(compute_aero_work, axis=1)
+    total_aero_work = wing_df['aero_work'].sum()
+
+    centerline_df['structural_work'] = centerline_df.apply(compute_structural_work, axis=1)
+    total_structural_work = centerline_df['structural_work'].sum()
+
+    log.info(f"Total aerodynamic work : {total_aero_work:.3e} J.")
+    log.info(f"Total structural work  : {total_structural_work:.3e} J.")
+    log.info(
+        f"Work variation         : "
+        f"{((total_aero_work - total_structural_work) / total_aero_work):.2%}."
+    )
+    return total_aero_work, total_structural_work

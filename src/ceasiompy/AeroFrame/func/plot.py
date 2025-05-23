@@ -16,6 +16,7 @@ accurately captured and if the meshes are fine.
 #   IMPORTS
 # ==============================================================================
 
+import numpy as np
 import matplotlib.pyplot as plt
 
 from pathlib import Path
@@ -101,3 +102,81 @@ def plot_deformed_wing(
 
     fig.tight_layout()
     fig.savefig(Path(wkdir, "deformed_wing.png"))
+
+
+def plot_translations_rotations(centerline_df, wkdir):
+    """
+    Function to plot the displacements and rotations profiles along the span.
+
+    Function 'plot_translations_rotations' saves a plot  of the displacements
+    and rotations profiles along the span.
+
+    Args:
+        centerline_df (pandas dataframe): dataframe containing the displacements
+                                          and rotations of the beam nodes.
+        wkdir (Path): path to the directory to save the plot.
+
+    """
+    fig, axs = plt.subplots(3, 2, sharex=True)
+
+    # Translations
+    axs[0][0].plot(centerline_df["y"], centerline_df["ux"])
+    axs[0][0].set_xlabel("$y$ [m]")
+    axs[0][0].set_ylabel("$u_x$ [m]")
+
+    axs[1][0].plot(centerline_df["y"], centerline_df["uy"])
+    axs[1][0].set_xlabel("$y$ [m]")
+    axs[1][0].set_ylabel("$u_y$ [m]")
+
+    axs[2][0].plot(centerline_df["y"], centerline_df["uz"])
+    axs[2][0].set_xlabel("$y$ [m]")
+    axs[2][0].set_ylabel("$u_z$ [m]")
+
+    # Rotations
+    axs[0][1].plot(centerline_df["y"], np.rad2deg(centerline_df["thx"]))
+    axs[0][1].set_xlabel("$y$ [m]")
+    axs[0][1].set_ylabel("$\\theta_x~[^{\circ}]$")
+
+    axs[1][1].plot(centerline_df["y"], np.rad2deg(centerline_df["thy"]))
+    axs[1][1].set_xlabel("$y$ [m]")
+    axs[1][1].set_ylabel("$\\theta_y~[^{\circ}]$")
+
+    axs[2][1].plot(centerline_df["y"], np.rad2deg(centerline_df["thz"]))
+    axs[2][1].set_xlabel("$y$ [m]")
+    axs[2][1].set_ylabel("$\\theta_z~[^{\circ}]$")
+
+    fig.suptitle("Structural translations/rotations along the span.")
+    fig.tight_layout()
+    fig.savefig(Path(wkdir, "translations_rotations.png"))
+    plt.close(fig)
+
+
+def plot_convergence(tip_deflection, res, wkdir):
+    """
+    Function to plot the convergence of the aeroelastic computations.
+
+    Function 'plot_convergence' saves a plot of the evolution of the
+    wing tip deflection during the iterations, as well as a plot of
+    the residual.
+
+    Args:
+        tip_deflection (list) : deflections of the mid-chord wing tip for each iteration [m].
+        res (list): residual of the mid-chord wing tip for each iteration
+        wkdir (Path): path to the directory to save the plot.
+
+    """
+    iter_vec = np.arange(1, len(tip_deflection) + 1, 1)
+    fig, axs = plt.subplots(1, 2)
+    axs[0].plot(iter_vec, tip_deflection, '-o')
+    axs[0].set_xlabel('Iteration')
+    axs[0].set_ylabel('$\delta_z$ [m]')
+    axs[0].set_title("Wing tip deflection")
+
+    axs[1].plot(iter_vec[1:], res[1:], '-o')
+    axs[1].set_xlabel('Iteration')
+    axs[1].set_ylabel('Residual')
+    axs[1].set_yscale('log')
+    axs[1].set_title("Residual of deflection")
+
+    fig.tight_layout()
+    fig.savefig(Path(wkdir, "deflection_convergence.png"))

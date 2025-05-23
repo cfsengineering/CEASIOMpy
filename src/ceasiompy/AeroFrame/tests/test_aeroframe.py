@@ -12,11 +12,10 @@ Test functions ModuleTemplate module.
 # =================================================================================================
 
 from ceasiompy.utils.decorators import log_test
-from ceasiompy.ModuleTemplate.moduletemplate import get_fuselage_scaling
+from ceasiompy.AeroFrame.func.utils import second_moments_of_area
 
 from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
-from ceasiompy.ModuleTemplate.func.subfunc import MyClass
 
 
 # =================================================================================================
@@ -26,23 +25,26 @@ from ceasiompy.ModuleTemplate.func.subfunc import MyClass
 class TestAeroFrame(CeasiompyTest):
 
     @log_test
-    def test_module_template_functions(self) -> None:
-        self.assert_equal_function(
-            f=get_fuselage_scaling,
-            input_args=(self.test_cpacs, ),
-            expected=(1.0, 1.0, 1.0, ),
-        )
+    def test_second_moments_of_area_square(self) -> None:
+        # Square with vertices (0,0), (1,0), (1,1), (0,1)
+        x = [0.0, 1.0, 1.0, 0.0]
+        y = [0.0, 0.0, 1.0, 1.0]
+        ix, iy = second_moments_of_area(x, y)
+        # For a unit square centered at (0.5, 0.5), Ix = Iy = 1/12
+        self.assertAlmostEqual(ix, 1/12, places=6)
+        self.assertAlmostEqual(iy, 1/12, places=6)
 
     @log_test
-    def test_my_class(self):
-        TestClass = MyClass()
+    def test_second_moments_of_area_triangle(self) -> None:
+        # Triangle with vertices (0,0), (1,0), (0,1)
+        x = [0.0, 1.0, 0.0]
+        y = [0.0, 0.0, 1.0]
+        ix, iy = second_moments_of_area(x, y)
+        # For a right triangle with base and height 1, centered at (1/3, 1/3)
+        # Ix = Iy = 1/36
+        self.assertAlmostEqual(ix, 1/36, places=6)
+        self.assertAlmostEqual(iy, 1/36, places=6)
 
-        self.assertEqual(TestClass.var_a, 1.1)
-        self.assertEqual(TestClass.var_b, 2.2)
-        self.assertEqual(TestClass.var_c, 0.0)
-
-        TestClass.add_my_var()
-        self.assertAlmostEqual(TestClass.var_c, 3.3)
 
 # =================================================================================================
 #    MAIN

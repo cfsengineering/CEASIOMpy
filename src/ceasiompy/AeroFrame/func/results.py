@@ -19,47 +19,51 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from typing import Tuple
 from pathlib import Path
-from scipy import interpolate
+from numpy import ndarray
+from pandas import DataFrame
+from scipy.interpolate import interp1d
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
 
 
-def compute_deformations(results, wing_df, centerline_df):
+def compute_deformations(
+    results: Path,
+    wing_df: DataFrame,
+    centerline_df: DataFrame,
+) -> Tuple[DataFrame, DataFrame, ndarray]:
     """
-    Function to compute the deformation of the wing.
-
-    Function 'compute_deformations' computes the deformation at
-    each beam node and translate the displacement to the VLM mesh.
+    Computes the deformation at each beam node
+    and translate the displacement to the VLM mesh.
 
     Args:
         results: FramAT results for displacement, rotations...
-        wing_df (pandas dataframe): dataframe containing VLM nodes.
-        centerline_df (pandas dataframe): dataframe containing beam nodes,
+        wing_df: dataframe containing VLM nodes.
+        centerline_df: dataframe containing beam nodes,
 
     Returns:
-        centerline_df (pandas dataframe): updated dataframe with displacements
-                                          and rotations.
-        deformed_df (pandas dataframe): dataframe containing the new VLM points.
-        tip_points (numpy array): coordinates of the tip of the deformed wing [m].
+        centerline_df: updated dataframe with displacements and rotations.
+        deformed_df: dataframe containing the new VLM points.
+        tip_points: coordinates of the tip of the deformed wing [m].
     """
 
     # Interpolate displacements and rotations along the wing span
     y_plot = np.linspace(centerline_df['y'].min(), centerline_df['y'].max(), len(
         results.get('tensors').get('comp:U')['uz']))
-    ux_profile = interpolate.interp1d(y_plot, results.get('tensors').get(
+    ux_profile = interp1d(y_plot, results.get('tensors').get(
         'comp:U')['ux'], kind='quadratic', fill_value='extrapolate')
-    uy_profile = interpolate.interp1d(y_plot, results.get('tensors').get(
+    uy_profile = interp1d(y_plot, results.get('tensors').get(
         'comp:U')['uy'], kind='quadratic', fill_value='extrapolate')
-    uz_profile = interpolate.interp1d(y_plot, results.get('tensors').get(
+    uz_profile = interp1d(y_plot, results.get('tensors').get(
         'comp:U')['uz'], kind='quadratic', fill_value='extrapolate')
-    thx_profile = interpolate.interp1d(y_plot, results.get('tensors').get(
+    thx_profile = interp1d(y_plot, results.get('tensors').get(
         'comp:U')['thx'], kind='quadratic', fill_value='extrapolate')
-    thy_profile = interpolate.interp1d(y_plot, results.get('tensors').get(
+    thy_profile = interp1d(y_plot, results.get('tensors').get(
         'comp:U')['thy'], kind='quadratic', fill_value='extrapolate')
-    thz_profile = interpolate.interp1d(y_plot, results.get('tensors').get(
+    thz_profile = interp1d(y_plot, results.get('tensors').get(
         'comp:U')['thz'], kind='quadratic', fill_value='extrapolate')
 
     # Compute displacements and rotations of the beam nodes

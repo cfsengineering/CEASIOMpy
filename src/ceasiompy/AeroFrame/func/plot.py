@@ -19,13 +19,18 @@ accurately captured and if the meshes are fine.
 import matplotlib.pyplot as plt
 
 from pathlib import Path
+from pandas import DataFrame
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
 
 
-def plot_fem_mesh(wing_df, centerline_df, wkdir):
+def plot_fem_mesh(
+    wing_df: DataFrame,
+    centerline_df: DataFrame,
+    wkdir: Path,
+) -> None:
     """
     Saves a plot of the VLM and FEM meshes in the x-y and y-z planes.
 
@@ -37,8 +42,10 @@ def plot_fem_mesh(wing_df, centerline_df, wkdir):
     """
 
     fig, axs = plt.subplots(1, 2)
-    axs[0].plot(centerline_df["y"], centerline_df["x"], "-o", label="FEM nodes", color="r",
-                ms=1)
+    axs[0].plot(
+        centerline_df["y"], centerline_df["x"],
+        "-o", label="FEM nodes", color="r", ms=1
+    )
     axs[0].scatter(wing_df["y"], wing_df["x"], s=1, label="wing panels", color="b")
     axs[0].set_xlabel("$y$")
     axs[0].set_ylabel("$x$")
@@ -57,7 +64,11 @@ def plot_fem_mesh(wing_df, centerline_df, wkdir):
     fig.savefig(Path(wkdir, "structural_mesh.png"))
 
 
-def plot_deformed_wing(centerline_df, undeformed_df, wkdir):
+def plot_deformed_wing(
+    centerline_df: DataFrame,
+    undeformed_df: DataFrame,
+    wkdir: Path,
+) -> None:
     """
     Saves a plot of the deformed and undeformed shapes of the wing.
 
@@ -67,12 +78,14 @@ def plot_deformed_wing(centerline_df, undeformed_df, wkdir):
         wkdir (Path): Path to the directory to save the plot.
     """
     fig, axs = plt.subplots()
-    axs.plot(centerline_df['y_new'],
-             centerline_df['z_new'],
-             '-o',
-             label='Deformed wing',
-             linewidth=2,
-             color='r')
+    axs.plot(
+        centerline_df['y_new'],
+        centerline_df['z_new'],
+        '-o',
+        label='Deformed wing',
+        linewidth=2,
+        color='r'
+    )
 
     axs.plot(undeformed_df["y"], undeformed_df["z"], '-o', label="Undeformed wing", linewidth=2)
     axs.set_xlabel('$y$ [m]')

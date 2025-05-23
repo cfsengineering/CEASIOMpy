@@ -21,7 +21,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from scipy.spatial.distance import cdist
-from cpacspy.cpacsfunctions import get_value_or_default
+from cpacspy.cpacsfunctions import get_value
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 from ceasiompy.utils.geometryfunctions import (
     sum_points,
@@ -32,13 +32,15 @@ from ceasiompy.utils.mathsfunctions import (
     rotate_points,
 )
 from ceasiompy.AeroFrame.func.utils import (
-    PolyArea,
+    poly_area,
     second_moments_of_area,
+    interpolate_leading_edge_points,
 )
 
 from framat import Model
 from pathlib import Path
 from scipy import interpolate
+from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.generalclasses import (
     Point,
     Transformation,
@@ -47,8 +49,12 @@ from ceasiompy.utils.generalclasses import (
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import WINGS_XPATH
 from ceasiompy.AeroFrame import (
-    FRAMAT_MATERIAL_XPATH,
-    FRAMAT_SECTION_XPATH,
+    FRAMAT_IX_XPATH,
+    FRAMAT_IY_XPATH,
+    FRAMAT_AREA_XPATH,
+    FRAMAT_DENSITY_XPATH,
+    FRAMAT_SHEARMODULUS_XPATH,
+    FRAMAT_YOUNGMODULUS_XPATH,
 )
 
 # =================================================================================================
@@ -356,7 +362,7 @@ def create_framat_model(young_modulus, shear_modulus, material_density,
     return model
 
 
-def get_material_properties(cpacs):
+def get_material_properties(tixi: Tixi3):
     """Function to read the material properties for structural
     calculations.
 
@@ -373,19 +379,14 @@ def get_material_properties(cpacs):
         material_density (float): Density of the material [kg/m^3].
 
     """
-    tixi = cpacs.tixi
-    young_modulus = get_value_or_default(tixi,
-                                         FRAMAT_MATERIAL_XPATH + "/YoungModulus", 70)
-
-    shear_modulus = get_value_or_default(tixi,
-                                         FRAMAT_MATERIAL_XPATH + "/ShearModulus", 27)
-
-    material_density = get_value_or_default(tixi, FRAMAT_MATERIAL_XPATH + "/Density", 1960)
+    young_modulus = get_value(tixi, FRAMAT_YOUNGMODULUS_XPATH)
+    shear_modulus = get_value(tixi, FRAMAT_SHEARMODULUS_XPATH)
+    material_density = get_value(tixi, FRAMAT_DENSITY_XPATH)
 
     return young_modulus, shear_modulus, material_density
 
 
-def get_section_properties(cpacs):
+def get_section_properties(tixi: Tixi3):
     """Function reads the cross-section properties for structural
     calculations.
 
@@ -402,11 +403,9 @@ def get_section_properties(cpacs):
         Iy (float): second moment of area about the x-axis [m^4].
 
     """
-    tixi = cpacs.tixi
-
-    area = get_value_or_default(tixi, FRAMAT_SECTION_XPATH + "/Area", -1)
-    Ix = get_value_or_default(tixi, FRAMAT_SECTION_XPATH + "/Ix", -1)
-    Iy = get_value_or_default(tixi, FRAMAT_SECTION_XPATH + "/Iy", -1)
+    area = get_value(tixi, FRAMAT_AREA_XPATH)
+    Ix = get_value(tixi, FRAMAT_IX_XPATH)
+    Iy = get_value(tixi, FRAMAT_IY_XPATH)
 
     return area, Ix, Iy
 
@@ -762,7 +761,7 @@ def compute_cross_section(cpacs):
                 ) * wing_transf.scaling.z
 
                 wg_twist_list.append(wg_sec_rot.y)
-                area_list.append(PolyArea(prof_vect_x, prof_vect_z))
+                area_list.append(poly_area(prof_vect_x, prof_vect_z))
                 Ix, Iy = second_moments_of_area(x=prof_vect_x, y=prof_vect_z)
                 Ix_list.append(Ix)
                 Iy_list.append(Iy)
@@ -945,52 +944,9 @@ def interpolate_leading_edge(AVL_UNDEFORMED_PATH,
     Yle_array = np.array(Yle_list)
     Zle_array = np.array(Zle_list)
 
-    def linear_interpolation(x1, y1, z1, x2, y2, z2, y_query):
-        t = (y_query - y1) / (y2 - y1)
-        interpolated_x = x1 + t * (x2 - x1)
-        interpolated_z = z1 + t * (z2 - z1)
-        return interpolated_x, y_query, interpolated_z
-
-    def interpolate_leading_edge_points(Xle_array, Yle_array, Zle_array, y_queries):
-        interpolated_points = []
-        for y_query in y_queries:
-            # if y_query < Yle_array[0] - 1e-2 or y_query > Yle_array[-1] + 1e-2:
-            #     raise ValueError(
-            #         f"y_query value {y_query} is too far outside the range of
-            #         the leading edge points.")
-
-            if y_query < Yle_array[0]:  # Extrapolate before the first point
-                interpolated_points.append(
-                    linear_interpolation(
-                        Xle_array[0], Yle_array[0], Zle_array[0],
-                        Xle_array[1], Yle_array[1], Zle_array[1],
-                        y_query
-                    )
-                )
-            elif y_query > Yle_array[-1]:  # Extrapolate after the last point
-                interpolated_points.append(
-                    linear_interpolation(
-                        Xle_array[-2], Yle_array[-2], Zle_array[-2],
-                        Xle_array[-1], Yle_array[-1], Zle_array[-1],
-                        y_query
-                    )
-                )
-            else:
-                for i in range(len(Yle_array) - 1):  # Iterate through segments
-                    if Yle_array[i] <= y_query <= Yle_array[i + 1]:
-                        interpolated_points.append(
-                            linear_interpolation(
-                                Xle_array[i], Yle_array[i], Zle_array[i],
-                                Xle_array[i + 1], Yle_array[i + 1], Zle_array[i + 1],
-                                y_query
-                            )
-                        )
-                        break
-
-        return np.array(interpolated_points)
-
-    interpolated_points = interpolate_leading_edge_points(Xle_array, Yle_array,
-                                                          Zle_array, y_queries)
+    interpolated_points = interpolate_leading_edge_points(
+        Xle_array, Yle_array, Zle_array, y_queries
+    )
 
     interpolated_Xle = interpolated_points[:, 0]
     interpolated_Yle = interpolated_points[:, 1]

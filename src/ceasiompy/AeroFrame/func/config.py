@@ -21,10 +21,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from scipy.spatial.distance import cdist
-from cpacspy.cpacsfunctions import get_value_or_default
+from cpacspy.cpacsfunctions import get_value
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 from ceasiompy.utils.geometryfunctions import (
     sum_points,
+    prod_points,
     get_positionings,
 )
 from ceasiompy.utils.mathsfunctions import (
@@ -32,13 +33,20 @@ from ceasiompy.utils.mathsfunctions import (
     rotate_points,
 )
 from ceasiompy.AeroFrame.func.utils import (
-    PolyArea,
+    poly_area,
     second_moments_of_area,
+    interpolate_leading_edge_points,
 )
 
 from framat import Model
 from pathlib import Path
 from scipy import interpolate
+from numpy import ndarray
+from cpacspy.cpacspy import CPACS
+from typing import List, Tuple
+from pandas import Series, DataFrame
+from functools import partial
+from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.generalclasses import (
     Point,
     Transformation,
@@ -47,8 +55,12 @@ from ceasiompy.utils.generalclasses import (
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import WINGS_XPATH
 from ceasiompy.AeroFrame import (
-    FRAMAT_MATERIAL_XPATH,
-    FRAMAT_SECTION_XPATH,
+    FRAMAT_IX_XPATH,
+    FRAMAT_IY_XPATH,
+    FRAMAT_AREA_XPATH,
+    FRAMAT_DENSITY_XPATH,
+    FRAMAT_SHEARMODULUS_XPATH,
+    FRAMAT_YOUNGMODULUS_XPATH,
 )
 
 # =================================================================================================
@@ -56,7 +68,30 @@ from ceasiompy.AeroFrame import (
 # =================================================================================================
 
 
-def parse_AVL_surface(string):
+def compute_distance_and_moment(
+    centerline_df: DataFrame, row: Series
+) -> Series:
+    """Transfer of forces and induced moment to the closest beam node. """
+    point_xyz = np.array([row['x'], row['y'], row['z']])
+    centerline_xyz = np.array([
+        centerline_df.at[row['closest_centerline_index'], 'x'],
+        centerline_df.at[row['closest_centerline_index'], 'y'],
+        centerline_df.at[row['closest_centerline_index'], 'z'],
+    ])
+
+    distance_vector = point_xyz - centerline_xyz
+    force_vector = np.array([row['Fx'], row['Fy'], row['Fz']])
+    moment_vector = np.cross(distance_vector, force_vector)
+
+    return Series({
+        'moment_x': moment_vector[0],
+        'moment_y': moment_vector[1],
+        'moment_z': moment_vector[2],
+        'distance_vector': distance_vector
+    })
+
+
+def parse_AVL_surface(extracted_string: str):
     """Function to extract panel forces of a surface,
     from AVL 'fe.txt' element force file.
 
@@ -74,32 +109,32 @@ def parse_AVL_surface(string):
         slope_list (list): slope of the local camberline.
     """
 
-    i_newline = [i for i, char in enumerate(string) if char == '\n']
+    i_newline = [i for i, char in enumerate(extracted_string) if char == '\n']
+    surface_name = extracted_string[12:i_newline[0] - 1].replace(' ', '')
 
-    surface_name = string[12:i_newline[0] - 1].replace(' ', '')
-
-    str_tmp = string[i_newline[0] + 1:i_newline[1]]
+    str_tmp = extracted_string[i_newline[0] + 1:i_newline[1]]
     i_span = str_tmp.find("# Spanwise =")
-
     nspanwise = int(str_tmp[i_span + 12:i_span + 17])
-    i_chordwise = [m.start() for m in re.finditer(
-        "# Chordwise =", string[i_newline[1]:])]
-    i_incidence = [m.start() for m in re.finditer(
-        "Incidence  =", string[i_newline[1]:])]
-    i_strip_width = [m.start() for m in re.finditer(
-        "Strip Width  =", string[i_newline[1]:])]
-    i_strip_dihed = [m.start() for m in re.finditer(
-        "Strip Dihed. =", string[i_newline[1]:])]
-    i_IbX = [m.start() for m in re.finditer(
-        "I        X", string[i_newline[1]:])]
-    nchord_strip = [0] * nspanwise
-    incidence_strip = [0] * nspanwise
-    width_strip = [0] * nspanwise
-    dihed_strip = [0] * nspanwise
-    jj = -1
-    slope_list = []
 
-    nchordwise = int(string[slice(
+    i_chordwise = [m.start() for m in re.finditer(
+        "# Chordwise =", extracted_string[i_newline[1]:])]
+    i_incidence = [m.start() for m in re.finditer(
+        "Incidence  =", extracted_string[i_newline[1]:])]
+    i_strip_width = [m.start() for m in re.finditer(
+        "Strip Width  =", extracted_string[i_newline[1]:])]
+    i_strip_dihed = [m.start() for m in re.finditer(
+        "Strip Dihed. =", extracted_string[i_newline[1]:])]
+    i_IbX = [m.start() for m in re.finditer(
+        "I        X", extracted_string[i_newline[1]:])]
+
+    nchord_strip: List[float] = [0.0] * nspanwise
+    incidence_strip: List[float] = [0.0] * nspanwise
+    width_strip: List[float] = [0.0] * nspanwise
+    dihed_strip: List[float] = [0.0] * nspanwise
+    slope_list: List[float] = []
+    jj = -1
+
+    nchordwise = int(extracted_string[slice(
         i_newline[1] + i_chordwise[0] + 13, i_newline[1] + i_chordwise[0] + 16)])
     p_xyz = np.zeros((nspanwise * nchordwise, 3))
     xyz = np.zeros((nspanwise * nchordwise, 3))
@@ -108,19 +143,19 @@ def parse_AVL_surface(string):
     for k in range(nspanwise):
         i0 = slice(i_newline[1] + i_chordwise[k] + 13,
                    i_newline[1] + i_chordwise[k] + 16)
-        nchord_strip[k] = float(string[i0])
+        nchord_strip[k] = float(extracted_string[i0])
 
         i0 = slice(i_newline[1] + i_incidence[k] - 1 + 13,
                    i_newline[1] + i_incidence[k] - 1 + 24)
-        incidence_strip[k] = float(string[i0])
+        incidence_strip[k] = float(extracted_string[i0])
 
         i0 = slice(i_newline[1] + i_strip_width[k] - 1 + 13 + 2,
                    i_newline[1] + i_strip_width[k] - 1 + 24 + 1)
-        width_strip[k] = float(string[i0])
+        width_strip[k] = float(extracted_string[i0])
 
         i0 = slice(i_newline[1] + i_strip_dihed[k] - 1 + 13 + 2,
                    i_newline[1] + i_strip_dihed[k] - 1 + 24 + 1)
-        dihed_strip[k] = float(string[i0])
+        dihed_strip[k] = float(extracted_string[i0])
 
         idd = [i for i in range(len(i_newline) - 1) if (i_IbX[k] + i_newline[1] - 1 - i_newline[i])
                * (i_IbX[k] + i_newline[1] - 1 - i_newline[i + 1]) < 0]
@@ -144,7 +179,7 @@ def parse_AVL_surface(string):
 
         for j in range(int(nchord_strip[k])):
             jj += 1
-            line_data = string[i_newline[idd[0] + j + 1]:i_newline[idd[0] + j + 2]]
+            line_data = extracted_string[i_newline[idd[0] + j + 1]:i_newline[idd[0] + j + 2]]
             data_list = [float(match.group()) for match in re.finditer(
                 r"-?\b\d+\.\d+\b", line_data[9:])]
             xyz0 = data_list[0:3]
@@ -174,7 +209,10 @@ def parse_AVL_surface(string):
     return surface_name, nspanwise, nchord_strip, xyz, p_xyz, slope_list
 
 
-def read_avl_fe_file(FE_PATH, plot=False):
+def read_avl_fe_file(
+    fe_path: Path,
+    plot: bool = False
+) -> Tuple[List, List, List, List, List, List]:
     """Function to read AVL 'fe.txt' element force file,
     and extract the aerodynamic loads calling the function
     'parse_AVL_surface'.
@@ -193,10 +231,10 @@ def read_avl_fe_file(FE_PATH, plot=False):
     """
 
     try:
-        with open(FE_PATH, 'r') as file:
+        with open(fe_path, 'r') as file:
             file_content = file.read()
     except FileNotFoundError:
-        raise FileNotFoundError(f"Error reading {FE_PATH}")
+        raise FileNotFoundError(f"Error reading {fe_path}")
 
     i_surface = [m.start() for m in re.finditer("Surface #", file_content)]
     number_surfaces = len(i_surface)
@@ -255,8 +293,13 @@ def read_avl_fe_file(FE_PATH, plot=False):
     return surface_name_list, nspanwise_list, nchordwise_list, xyz_list, p_xyz_list, slope_list
 
 
-def create_framat_model(young_modulus, shear_modulus, material_density,
-                        centerline_df, internal_load_df):
+def create_framat_model(
+    young_modulus: float,
+    shear_modulus: float,
+    material_density: float,
+    centerline_df: DataFrame,
+    internal_load_df: DataFrame,
+) -> Model:
     """
     Function to create the FramAT beam model.
 
@@ -264,14 +307,14 @@ def create_framat_model(young_modulus, shear_modulus, material_density,
     for structural computations.
 
     Args:
-        young_modulus (float): Young modulus of the wing material [GPa].
-        shear_modulus (float): Shear modulus of the wing material [GPa].
-        material_density (float): Density of the wing material [kg/m^3].
-        centerline_df (pandas dataframe): dataframe with the beam nodes,
-                                          the applied forces/moments,
-                                          the sections properties,
-        internal_load_df (pandas dataframe): previous version of centerline_df
-                                             (iteration n-1).
+        young_modulus: Young modulus of the wing material [GPa].
+        shear_modulus: Shear modulus of the wing material [GPa].
+        material_density: Density of the wing material [kg/m^3].
+        centerline_df:
+            dataframe with the beam nodes,
+            the applied forces/moments,
+            the sections properties.
+        internal_load_df: previous version of centerline_df (iteration n-1).
 
     Returns:
         model: FramAT beam model, ready for FEM computations.
@@ -356,7 +399,7 @@ def create_framat_model(young_modulus, shear_modulus, material_density,
     return model
 
 
-def get_material_properties(cpacs):
+def get_material_properties(tixi: Tixi3):
     """Function to read the material properties for structural
     calculations.
 
@@ -364,28 +407,20 @@ def get_material_properties(cpacs):
     of the wing given in the graphical user interface of CEASIOMpy, in
     order to make structural computations.
 
-    Args:
-        cpacs_path (Path) : path to the cpacs input file
-
     Returns:
         young_modulus (float): Young modulus of the material [GPa].
         shear_modulus (float): Shear modulus of the material [GPa].
         material_density (float): Density of the material [kg/m^3].
 
     """
-    tixi = cpacs.tixi
-    young_modulus = get_value_or_default(tixi,
-                                         FRAMAT_MATERIAL_XPATH + "/YoungModulus", 70)
-
-    shear_modulus = get_value_or_default(tixi,
-                                         FRAMAT_MATERIAL_XPATH + "/ShearModulus", 27)
-
-    material_density = get_value_or_default(tixi, FRAMAT_MATERIAL_XPATH + "/Density", 1960)
+    young_modulus = get_value(tixi, FRAMAT_YOUNGMODULUS_XPATH)
+    shear_modulus = get_value(tixi, FRAMAT_SHEARMODULUS_XPATH)
+    material_density = get_value(tixi, FRAMAT_DENSITY_XPATH)
 
     return young_modulus, shear_modulus, material_density
 
 
-def get_section_properties(cpacs):
+def get_section_properties(tixi: Tixi3):
     """Function reads the cross-section properties for structural
     calculations.
 
@@ -393,20 +428,15 @@ def get_section_properties(cpacs):
     of the wing from the graphical user interface of CEASIOMpy, in
     order to make structural computations.
 
-    Args:
-        cpacs_path (Path) : path to the cpacs input file
-
     Returns:
         area (float): area of the cross-section [m^2].
         Ix (float): second moment of area about the x-axis [m^4].
         Iy (float): second moment of area about the x-axis [m^4].
 
     """
-    tixi = cpacs.tixi
-
-    area = get_value_or_default(tixi, FRAMAT_SECTION_XPATH + "/Area", -1)
-    Ix = get_value_or_default(tixi, FRAMAT_SECTION_XPATH + "/Ix", -1)
-    Iy = get_value_or_default(tixi, FRAMAT_SECTION_XPATH + "/Iy", -1)
+    area = get_value(tixi, FRAMAT_AREA_XPATH)
+    Ix = get_value(tixi, FRAMAT_IX_XPATH)
+    Iy = get_value(tixi, FRAMAT_IY_XPATH)
 
     return area, Ix, Iy
 
@@ -453,15 +483,17 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
 
     """
 
-    wing_df = pd.DataFrame({'x': [row[0] for row in xyz_tot],
-                            'y': [row[1] for row in xyz_tot],
-                            'z': [row[2] for row in xyz_tot],
-                            'Fx': [row[0] for row in fxyz_tot],
-                            'Fy': [row[1] for row in fxyz_tot],
-                            'Fz': [row[2] for row in fxyz_tot]})
+    wing_df = DataFrame({
+        'x': [row[0] for row in xyz_tot],
+        'y': [row[1] for row in xyz_tot],
+        'z': [row[2] for row in xyz_tot],
+        'Fx': [row[0] for row in fxyz_tot],
+        'Fy': [row[1] for row in fxyz_tot],
+        'Fz': [row[2] for row in fxyz_tot]
+    })
 
     if n_iter == 1:
-        tip_row = pd.DataFrame([{
+        tip_row = DataFrame([{
             "x": xyz_tip[0],
             "y": xyz_tip[1],
             "z": xyz_tip[2],
@@ -470,7 +502,7 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
             "Fz": 0
         }])
     else:
-        tip_row = pd.DataFrame([{
+        tip_row = DataFrame([{
             "x": tip_def[0],
             "y": tip_def[1],
             "z": tip_def[2],
@@ -515,8 +547,8 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
             "Fz": 0.0
         })
 
-    leading_edge_df = pd.DataFrame(leading_edge)
-    trailing_edge_df = pd.DataFrame(trailing_edge)
+    leading_edge_df = DataFrame(leading_edge)
+    trailing_edge_df = DataFrame(trailing_edge)
 
     # Concatenate LE and TE points to the VLM panels points
     wing_df = pd.concat([wing_df, leading_edge_df, trailing_edge_df], ignore_index=True)
@@ -582,26 +614,10 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
 
     wing_df['closest_centerline_index'] = closest_centerline_indices
 
-    # Transfer of forces and induced moment to the closest beam node
-    def compute_distance_and_moment(row):
-        point_xyz = np.array([row['x'], row['y'], row['z']])
-        centerline_xyz = np.array([centerline_df.at[row['closest_centerline_index'], 'x'],
-                                   centerline_df.at[row['closest_centerline_index'], 'y'],
-                                   centerline_df.at[row['closest_centerline_index'], 'z']])
-
-        distance_vector = point_xyz - centerline_xyz
-        force_vector = np.array([row['Fx'], row['Fy'], row['Fz']])
-        moment_vector = np.cross(distance_vector, force_vector)
-
-        return pd.Series({
-            'moment_x': moment_vector[0],
-            'moment_y': moment_vector[1],
-            'moment_z': moment_vector[2],
-            'distance_vector': distance_vector
-        })
-
     wing_df[['Mx', 'My', 'Mz', 'distance_vector']] = wing_df.apply(
-        compute_distance_and_moment, axis=1)
+        partial(compute_distance_and_moment, centerline_df),
+        axis=1
+    )
 
     for i, centerline_index in enumerate(wing_df['closest_centerline_index']):
         for force in ['Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz']:
@@ -613,29 +629,29 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
 
 
 # TODO: Reduce complexity
-def compute_cross_section(cpacs):
+def compute_cross_section(
+    cpacs: CPACS
+) -> Tuple[List, List, List, List, List, List, List, List, List, List]:
     """
-    Function 'compute_cross_section' computes the area, the second moments of area,
-    and additional geometric properties of each cross-section of the wing.
-
-    Args:
-        cpacs_path (Path): path to the CPACS input file.
+    Computes the area, the second moments of area,
+    and additional geometric properties
+    of each cross-section of the wing.
 
     Returns:
-        wg_origin (list): list of the coordinates of the origin of the wing geometry.
-        wg_twist_list (list): list of the twist angle of each cross-section [deg].
-        area_list (list): list of the area of each cross-section [m^2].
-        Ix_list (list): list of the second moment of area about the x-axis for each
+        wg_origin: list of the coordinates of the origin of the wing geometry.
+        wg_twist_list: list of the twist angle of each cross-section [deg].
+        area_list: list of the area of each cross-section [m^2].
+        Ix_list: list of the second moment of area about the x-axis for each
                         cross-section [m^4].
-        Iy_list (list): list of the second moment of area about the y-axis for each
+        Iy_list: list of the second moment of area about the y-axis for each
                         cross-section [m^4].
-        wg_center_x_list (list): list of the x-coordinates of the center of each
+        wg_center_x_list: list of the x-coordinates of the center of each
                         cross-section [m].
-        wg_center_y_list (list): list of the y-coordinates of the center of each
+        wg_center_y_list: list of the y-coordinates of the center of each
                                  cross-section [m].
-        wg_center_z_list (list): list of the z-coordinates of the center of each
+        wg_center_z_list: list of the z-coordinates of the center of each
                                  cross-section [m].
-        wg_chord_list (list): list of the chord length of each cross-section [m].
+        wg_chord_list: list of the chord length of each cross-section [m].
 
     """
     tixi = cpacs.tixi
@@ -705,20 +721,14 @@ def compute_cross_section(cpacs):
                 # Get wing profile (airfoil)
                 prof_uid = tixi.getTextElement(elem_xpath + "/airfoilUID")
                 prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
+                prof_vect_x = np.array(prof_vect_x, dtype=float)
+                prof_vect_y = np.array(prof_vect_y, dtype=float)
+                prof_vect_z = np.array(prof_vect_z, dtype=float)
 
-                # Apply scaling
-                for i, item in enumerate(prof_vect_x):
-                    prof_vect_x[i] = (
-                        item * elem_transf.scaling.x * sec_transf.scaling.x * wing_transf.scaling.x
-                    )
-                for i, item in enumerate(prof_vect_y):
-                    prof_vect_y[i] = (
-                        item * elem_transf.scaling.y * sec_transf.scaling.y * wing_transf.scaling.y
-                    )
-                for i, item in enumerate(prof_vect_z):
-                    prof_vect_z[i] = (
-                        item * elem_transf.scaling.z * sec_transf.scaling.z * wing_transf.scaling.z
-                    )
+                x, y, z = prod_points(elem_transf.scaling, sec_transf.scaling, wing_transf.scaling)
+                prof_vect_x *= x
+                prof_vect_y *= y
+                prof_vect_z *= z
 
                 prof_size_x = max(prof_vect_x) - min(prof_vect_x)
                 prof_size_y = max(prof_vect_y) - min(prof_vect_y)
@@ -762,7 +772,7 @@ def compute_cross_section(cpacs):
                 ) * wing_transf.scaling.z
 
                 wg_twist_list.append(wg_sec_rot.y)
-                area_list.append(PolyArea(prof_vect_x, prof_vect_z))
+                area_list.append(poly_area(prof_vect_x, prof_vect_z))
                 Ix, Iy = second_moments_of_area(x=prof_vect_x, y=prof_vect_z)
                 Ix_list.append(Ix)
                 Iy_list.append(Iy)
@@ -787,8 +797,10 @@ def compute_cross_section(cpacs):
                 )
 
     return (
-        wg_origin, wg_twist_list, area_list, Ix_list, Iy_list,
-        wg_center_x_list, wg_center_y_list, wg_center_z_list, wg_chord_list, wg_scaling
+        wg_origin, wg_twist_list,
+        area_list, Ix_list, Iy_list,
+        wg_center_x_list, wg_center_y_list, wg_center_z_list,
+        wg_chord_list, wg_scaling,
     )
 
 
@@ -872,7 +884,10 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                      "#---------------\n"])
 
 
-def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND):
+def write_deformed_command(
+    UNDEFORMED_COMMAND,
+    DEFORMED_COMMAND
+) -> None:
     """
     Function 'write_deformed_command' writes the AVL command file to execute
     the computations for the deformed wing.
@@ -889,37 +904,39 @@ def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND):
                     deformed.write(line)
 
 
-def interpolate_leading_edge(AVL_UNDEFORMED_PATH,
-                             CASE_PATH, wg_origin,
-                             wg_scaling,
-                             y_queries,
-                             n_iter):
+def interpolate_leading_edge(
+    avl_undeformed_path: Path,
+    case_path: Path,
+    wg_origin: List,
+    wg_scaling: List,
+    y_queries: List,
+    n_iter: int,
+) -> Tuple[ndarray, ndarray, ndarray, ndarray, ndarray, ndarray]:
     """Function to get the coordinates of the leading-edge points.
 
-    Function 'interpolate_leading_edge' computes the coordinates of the leading-edge points
-    for each spanwise location of the VLM panels.
-
     Args:
-        AVL_UNDEFORMED_PATH (Path): path to the undeformed AVL geometry.
-        CASE_PATH (Path): path to the flight case directory.
-        wg_origin (list): list of the coordinates of the origin of the wing geometry [m].
-        y_queries (list): list of unique spanwise location of the VLM panels [m].
+        avl_undeformed_path (Path): path to the undeformed AVL geometry.
+        case_path (Path): path to the flight case directory.
+        wg_origin (list): coordinates of the origin of the wing geometry [m].
+        wg_scaling (list): scaling factors for the wing geometry.
+        y_queries (list): unique spanwise locations of the VLM panels [m].
         n_iter (int): number of the current iteration.
 
     Returns:
-        interpolated_Xle (numpy array): array of the x-coordinates of the interpolated LE points.
-        interpolated_Yle (numpy array): array of the y-coordinates of the interpolated LE points.
-        interpolated_Zle (numpy array): array of the z-coordinates of the interpolated LE points.
+        xle_array: x-coordinates of the LE points.
+        yle_array: y-coordinates of the LE points.
+        zle_array: z-coordinates of the LE points.
+        interpolated_xle: interpolated x-coordinates of the LE points.
+        interpolated_yle: interpolated y-coordinates of the LE points.
+        interpolated_zle: interpolated z-coordinates of the LE points.
     """
-    Xle_list = []
-    Yle_list = []
-    Zle_list = []
+    xle_list, yle_list, zle_list = [], [], []
     surface_count = 0
 
     if n_iter == 1:
-        path_to_read = AVL_UNDEFORMED_PATH
+        path_to_read = avl_undeformed_path
     else:
-        path_to_read = Path(CASE_PATH, f"Iteration_{n_iter}", "AVL", "deformed.avl")
+        path_to_read = Path(case_path, f"Iteration_{n_iter}", "AVL", "deformed.avl")
 
     with open(path_to_read, "r") as f:
         lines = f.readlines()
@@ -933,67 +950,24 @@ def interpolate_leading_edge(AVL_UNDEFORMED_PATH,
                 next_line = lines[i + 1].strip()
                 parts = next_line.split()
                 if n_iter == 1:
-                    Xle_list.append(float(parts[0]) * wg_scaling[0] + wg_origin[0])
-                    Yle_list.append(float(parts[1]) * wg_scaling[1] + wg_origin[1])
-                    Zle_list.append(float(parts[2]) * wg_scaling[2] + wg_origin[2])
+                    xle_list.append(float(parts[0]) * wg_scaling[0] + wg_origin[0])
+                    yle_list.append(float(parts[1]) * wg_scaling[1] + wg_origin[1])
+                    zle_list.append(float(parts[2]) * wg_scaling[2] + wg_origin[2])
                 else:
-                    Xle_list.append(float(parts[0]))
-                    Yle_list.append(float(parts[1]))
-                    Zle_list.append(float(parts[2]))
+                    xle_list.append(float(parts[0]))
+                    yle_list.append(float(parts[1]))
+                    zle_list.append(float(parts[2]))
 
-    Xle_array = np.array(Xle_list)
-    Yle_array = np.array(Yle_list)
-    Zle_array = np.array(Zle_list)
+    xle_array = np.array(xle_list)
+    yle_array = np.array(yle_list)
+    zle_array = np.array(zle_list)
 
-    def linear_interpolation(x1, y1, z1, x2, y2, z2, y_query):
-        t = (y_query - y1) / (y2 - y1)
-        interpolated_x = x1 + t * (x2 - x1)
-        interpolated_z = z1 + t * (z2 - z1)
-        return interpolated_x, y_query, interpolated_z
+    interpolated_points = interpolate_leading_edge_points(
+        xle_array, yle_array, zle_array, y_queries
+    )
 
-    def interpolate_leading_edge_points(Xle_array, Yle_array, Zle_array, y_queries):
-        interpolated_points = []
-        for y_query in y_queries:
-            # if y_query < Yle_array[0] - 1e-2 or y_query > Yle_array[-1] + 1e-2:
-            #     raise ValueError(
-            #         f"y_query value {y_query} is too far outside the range of
-            #         the leading edge points.")
+    interpolated_xle = interpolated_points[:, 0]
+    interpolated_yle = interpolated_points[:, 1]
+    interpolated_zle = interpolated_points[:, 2]
 
-            if y_query < Yle_array[0]:  # Extrapolate before the first point
-                interpolated_points.append(
-                    linear_interpolation(
-                        Xle_array[0], Yle_array[0], Zle_array[0],
-                        Xle_array[1], Yle_array[1], Zle_array[1],
-                        y_query
-                    )
-                )
-            elif y_query > Yle_array[-1]:  # Extrapolate after the last point
-                interpolated_points.append(
-                    linear_interpolation(
-                        Xle_array[-2], Yle_array[-2], Zle_array[-2],
-                        Xle_array[-1], Yle_array[-1], Zle_array[-1],
-                        y_query
-                    )
-                )
-            else:
-                for i in range(len(Yle_array) - 1):  # Iterate through segments
-                    if Yle_array[i] <= y_query <= Yle_array[i + 1]:
-                        interpolated_points.append(
-                            linear_interpolation(
-                                Xle_array[i], Yle_array[i], Zle_array[i],
-                                Xle_array[i + 1], Yle_array[i + 1], Zle_array[i + 1],
-                                y_query
-                            )
-                        )
-                        break
-
-        return np.array(interpolated_points)
-
-    interpolated_points = interpolate_leading_edge_points(Xle_array, Yle_array,
-                                                          Zle_array, y_queries)
-
-    interpolated_Xle = interpolated_points[:, 0]
-    interpolated_Yle = interpolated_points[:, 1]
-    interpolated_Zle = interpolated_points[:, 2]
-
-    return Xle_array, Yle_array, Zle_array, interpolated_Xle, interpolated_Yle, interpolated_Zle
+    return xle_array, yle_array, zle_array, interpolated_xle, interpolated_yle, interpolated_zle

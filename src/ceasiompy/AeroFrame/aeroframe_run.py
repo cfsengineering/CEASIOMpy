@@ -55,7 +55,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     """
 
     # 1. Get conditions
-    tixi = tixi
+    tixi = cpacs.tixi
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
         cpacs=cpacs,
         uid_xpath=AVL_AEROMAP_UID_XPATH,

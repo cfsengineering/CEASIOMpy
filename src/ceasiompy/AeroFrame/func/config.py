@@ -41,6 +41,8 @@ from ceasiompy.AeroFrame.func.utils import (
 from framat import Model
 from pathlib import Path
 from scipy import interpolate
+from numpy import ndarray
+from cpacspy.cpacspy import CPACS
 from typing import List, Tuple
 from pandas import Series, DataFrame
 from functools import partial
@@ -405,9 +407,6 @@ def get_material_properties(tixi: Tixi3):
     of the wing given in the graphical user interface of CEASIOMpy, in
     order to make structural computations.
 
-    Args:
-        cpacs_path (Path) : path to the cpacs input file
-
     Returns:
         young_modulus (float): Young modulus of the material [GPa].
         shear_modulus (float): Shear modulus of the material [GPa].
@@ -428,9 +427,6 @@ def get_section_properties(tixi: Tixi3):
     Function 'get_section_properties' reads the cross-section properties
     of the wing from the graphical user interface of CEASIOMpy, in
     order to make structural computations.
-
-    Args:
-        cpacs_path (Path) : path to the cpacs input file
 
     Returns:
         area (float): area of the cross-section [m^2].
@@ -619,7 +615,7 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
     wing_df['closest_centerline_index'] = closest_centerline_indices
 
     wing_df[['Mx', 'My', 'Mz', 'distance_vector']] = wing_df.apply(
-        partial(compute_distance_and_moment, centerline_df=centerline_df),
+        partial(compute_distance_and_moment, centerline_df),
         axis=1
     )
 
@@ -633,29 +629,29 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
 
 
 # TODO: Reduce complexity
-def compute_cross_section(cpacs):
+def compute_cross_section(
+    cpacs: CPACS
+) -> Tuple[List, List, List, List, List, List, List, List, List, List]:
     """
-    Function 'compute_cross_section' computes the area, the second moments of area,
-    and additional geometric properties of each cross-section of the wing.
-
-    Args:
-        cpacs_path (Path): path to the CPACS input file.
+    Computes the area, the second moments of area,
+    and additional geometric properties
+    of each cross-section of the wing.
 
     Returns:
-        wg_origin (list): list of the coordinates of the origin of the wing geometry.
-        wg_twist_list (list): list of the twist angle of each cross-section [deg].
-        area_list (list): list of the area of each cross-section [m^2].
-        Ix_list (list): list of the second moment of area about the x-axis for each
+        wg_origin: list of the coordinates of the origin of the wing geometry.
+        wg_twist_list: list of the twist angle of each cross-section [deg].
+        area_list: list of the area of each cross-section [m^2].
+        Ix_list: list of the second moment of area about the x-axis for each
                         cross-section [m^4].
-        Iy_list (list): list of the second moment of area about the y-axis for each
+        Iy_list: list of the second moment of area about the y-axis for each
                         cross-section [m^4].
-        wg_center_x_list (list): list of the x-coordinates of the center of each
+        wg_center_x_list: list of the x-coordinates of the center of each
                         cross-section [m].
-        wg_center_y_list (list): list of the y-coordinates of the center of each
+        wg_center_y_list: list of the y-coordinates of the center of each
                                  cross-section [m].
-        wg_center_z_list (list): list of the z-coordinates of the center of each
+        wg_center_z_list: list of the z-coordinates of the center of each
                                  cross-section [m].
-        wg_chord_list (list): list of the chord length of each cross-section [m].
+        wg_chord_list: list of the chord length of each cross-section [m].
 
     """
     tixi = cpacs.tixi
@@ -725,6 +721,9 @@ def compute_cross_section(cpacs):
                 # Get wing profile (airfoil)
                 prof_uid = tixi.getTextElement(elem_xpath + "/airfoilUID")
                 prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
+                prof_vect_x = np.array(prof_vect_x, dtype=float)
+                prof_vect_y = np.array(prof_vect_y, dtype=float)
+                prof_vect_z = np.array(prof_vect_z, dtype=float)
 
                 x, y, z = prod_points(elem_transf.scaling, sec_transf.scaling, wing_transf.scaling)
                 prof_vect_x *= x
@@ -798,8 +797,10 @@ def compute_cross_section(cpacs):
                 )
 
     return (
-        wg_origin, wg_twist_list, area_list, Ix_list, Iy_list,
-        wg_center_x_list, wg_center_y_list, wg_center_z_list, wg_chord_list, wg_scaling
+        wg_origin, wg_twist_list,
+        area_list, Ix_list, Iy_list,
+        wg_center_x_list, wg_center_y_list, wg_center_z_list,
+        wg_chord_list, wg_scaling,
     )
 
 
@@ -883,7 +884,10 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                      "#---------------\n"])
 
 
-def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND):
+def write_deformed_command(
+    UNDEFORMED_COMMAND,
+    DEFORMED_COMMAND
+) -> None:
     """
     Function 'write_deformed_command' writes the AVL command file to execute
     the computations for the deformed wing.
@@ -901,13 +905,13 @@ def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND):
 
 
 def interpolate_leading_edge(
-    avl_undeformed_path,
-    case_path,
-    wg_origin,
-    wg_scaling,
-    y_queries,
-    n_iter
-):
+    avl_undeformed_path: Path,
+    case_path: Path,
+    wg_origin: List,
+    wg_scaling: List,
+    y_queries: List,
+    n_iter: int,
+) -> Tuple[ndarray, ndarray, ndarray, ndarray, ndarray, ndarray]:
     """Function to get the coordinates of the leading-edge points.
 
     Args:
@@ -919,16 +923,14 @@ def interpolate_leading_edge(
         n_iter (int): number of the current iteration.
 
     Returns:
-        xle_array (np.ndarray): x-coordinates of the LE points.
-        yle_array (np.ndarray): y-coordinates of the LE points.
-        zle_array (np.ndarray): z-coordinates of the LE points.
-        interpolated_xle (np.ndarray): interpolated x-coordinates of the LE points.
-        interpolated_yle (np.ndarray): interpolated y-coordinates of the LE points.
-        interpolated_zle (np.ndarray): interpolated z-coordinates of the LE points.
+        xle_array: x-coordinates of the LE points.
+        yle_array: y-coordinates of the LE points.
+        zle_array: z-coordinates of the LE points.
+        interpolated_xle: interpolated x-coordinates of the LE points.
+        interpolated_yle: interpolated y-coordinates of the LE points.
+        interpolated_zle: interpolated z-coordinates of the LE points.
     """
-    xle_list = []
-    yle_list = []
-    zle_list = []
+    xle_list, yle_list, zle_list = [], [], []
     surface_count = 0
 
     if n_iter == 1:

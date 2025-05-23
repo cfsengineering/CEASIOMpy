@@ -15,7 +15,6 @@ aerodynamic loads and FramAT for structural calculations.
 #   IMPORTS
 # ==============================================================================
 
-import subprocess
 import numpy as np
 import pandas as pd
 
@@ -286,7 +285,7 @@ def aeroelastic_loop(
         run_software(
             software_name=SOFTWARE_NAME,
             arguments=[""],
-            wkdir=case_dir_path,
+            wkdir=AVL_ITER_PATH,
             with_mpi=False,
             nb_cpu=nb_cpu,
             stdin=open(str(AVL_DEFORMED_COMMAND), "r"),

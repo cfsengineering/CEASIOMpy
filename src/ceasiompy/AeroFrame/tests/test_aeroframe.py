@@ -17,9 +17,11 @@ import numpy as np
 from ceasiompy.utils.decorators import log_test
 from ceasiompy.AeroFrame.func.utils import second_moments_of_area
 from ceasiompy.AeroFrame.func.config import interpolate_leading_edge
+from ceasiompy.AeroFrame.func.config import compute_distance_and_moment
 
 from pathlib import Path
 from unittest import main
+from pandas import DataFrame
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
 
@@ -86,6 +88,32 @@ class TestAeroFrame(CeasiompyTest):
             self.assertAlmostEqual(interpolated_xle[idx], 0.5)
             self.assertAlmostEqual(interpolated_yle[idx], 0.5)
             self.assertAlmostEqual(interpolated_zle[idx], 0.5)
+
+    @log_test
+    def test_compute_distance_and_moment(self) -> None:
+        # Create a simple centerline DataFrame
+        centerline_df = DataFrame({
+            "x": [0.0, 1.0],
+            "y": [0.0, 0.0],
+            "z": [0.0, 0.0]
+        })
+        # Row with closest_centerline_index = 1, point at (2,0,0), force (0,1,0)
+        row = {
+            "x": 2.0,
+            "y": 0.0,
+            "z": 0.0,
+            "Fx": 0.0,
+            "Fy": 1.0,
+            "Fz": 0.0,
+            "closest_centerline_index": 1
+        }
+        result = compute_distance_and_moment(centerline_df, row)
+        # distance_vector should be (1,0,0)
+        np.testing.assert_array_almost_equal(result["distance_vector"], [1.0, 0.0, 0.0])
+        # moment = distance x force = (1,0,0) x (0,1,0) = (0,0,1)
+        self.assertAlmostEqual(result["moment_x"], 0.0)
+        self.assertAlmostEqual(result["moment_y"], 0.0)
+        self.assertAlmostEqual(result["moment_z"], 1.0)
 
 # =================================================================================================
 #    MAIN

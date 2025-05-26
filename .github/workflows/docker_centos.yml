@@ -22,6 +22,5 @@ jobs:
      
     - name: Run Dockerfile installation and tests
       run: |
-        cd tests/docker/Centos/
-        docker build -f Dockerfile .
+        docker build -t ceasiompy-centos:latest -f tests/docker/Centos/Dockerfile .
         docker run --rm -v ${{ github.workspace }}:/CEASIOMpyDir/CEASIOMpy ceasiompy-centos

@@ -74,7 +74,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="chordwise_vort",
     var_type=int,
-    default_value=8,
+    default_value=20,
     unit=None,
     descr="Select the number of chordwise vortices",
     xpath=AVL_NCHORDWISE_XPATH,
@@ -86,7 +86,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="spanwise_vort",
     var_type=int,
-    default_value=30,
+    default_value=50,
     unit=None,
     descr="Select the number of spanwise vortices",
     xpath=AVL_NSPANWISE_XPATH,

@@ -7,8 +7,6 @@
 
 **State**: :heavy_check_mark:
 
-This is a template module. Its purpose is to illustrate how other modules of CEASIOMpy should be structured, set up and documented.
-
 <p align="center">
 <img height="160" src="files/ctrlsurf.png">
 </p>

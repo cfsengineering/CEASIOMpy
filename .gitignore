@@ -182,7 +182,7 @@ aircraft_loads.csv
 !/ceasiompy/utils/tests/tests_workflowfunctions/ToolInput/ToolInput.xml
 !/test_files/AeroMaps/*.csv
 
-/ceasiompy/Database/databases/ceasiompy.db
+/ceasiompy/src/Database/databases/ceasiompy.db
 
 ceasiompy.cfg
 ceasiompy.log

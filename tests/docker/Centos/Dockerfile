@@ -6,7 +6,7 @@ RUN dnf -y install -y git curl wget sudo unzip gcc-c++ tbb libXrender libXcursor
 
 SHELL ["/bin/bash", "--login", "-c"]
 
-WORKDIR /CEASIOMpy/
+WORKDIR /CEASIOMpyDir
 RUN git clone https://github.com/cfsengineering/CEASIOMpy.git
 RUN chmod +x CEASIOMpy/installation/CentOS/install_*
 ENV CONDA_DIR /opt/conda
@@ -18,12 +18,16 @@ RUN conda init bash
 RUN source ~/.bashrc
 RUN conda update -n base -c defaults conda
 
-WORKDIR /CEASIOMpy/CEASIOMpy/installation/CentOS/
+WORKDIR /CEASIOMpyDir/CEASIOMpy/installation/CentOS/
+
 RUN chmod +x install_*.sh
-RUN ./install_ceasiompy.sh
-RUN ./install_pyavl.sh
-RUN ./install_su2.sh
+
+WORKDIR /CEASIOMpyDir/CEASIOMpy
+RUN installation/CentOS/install_ceasiompy.sh \
+    installation/CentOS/install_pyavl.sh && \
+    installation/CentOS/install_su2.sh
+
 RUN source ~/.bashrc
 
-WORKDIR /CEASIOMpy/CEASIOMpy/tests
+WORKDIR /CEASIOMpyDir/CEASIOMpy/tests
 RUN conda activate ceasiompy && ./run_ci.sh

@@ -4,6 +4,13 @@
 
 current_dir="$(pwd)"
 
+# Get install dir from input if it exists
+if [ $# -gt 0 ]; then
+    install_dir="$1/INSTALLDIR"
+else
+    install_dir="$(pwd)/INSTALLDIR"
+fi
+
 sudo dnf install gcc-c++
 sudo dnf install tbb
 
@@ -11,8 +18,6 @@ sudo dnf install tbb
 sudo dnf install libXrender
 sudo dnf install libXcursor
 sudo dnf install libXinerama
-cd ../..
-
 conda env create -f environment.yml
 
 source ~/.bashrc

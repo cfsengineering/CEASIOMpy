@@ -83,19 +83,20 @@ def store_dynstab_data(
                 "method": method,
                 "chord": chord,
                 "span": span,
-                "mach": row['mach'],
-                "x_ref": row['x_ref'],
-                "y_ref": row['y_ref'],
-                "z_ref": row['z_ref'],
-                "cm_alphaprim": row['cm_alphaprim'],
-                "cz_alphaprim": row['cz_alphaprim'],
-                "cx_alphaprim": row['cx_alphaprim'],
-                "cy_betaprim": row['cy_betaprim'],
-                "cl_betaprim": row['cl_betaprim'],
-                "cn_betaprim": row['cn_betaprim'],
+                "mach": row["mach"],
+                "x_ref": row["x_ref"],
+                "y_ref": row["y_ref"],
+                "z_ref": row["z_ref"],
+                "cm_alphaprim": row["cm_alphaprim"],
+                "cz_alphaprim": row["cz_alphaprim"],
+                "cx_alphaprim": row["cx_alphaprim"],
+                "cy_betaprim": row["cy_betaprim"],
+                "cl_betaprim": row["cl_betaprim"],
+                "cn_betaprim": row["cn_betaprim"],
             }
 
             data_to_db(cursor, data, table_name)
+
 
 # ==============================================================================
 #    MAIN

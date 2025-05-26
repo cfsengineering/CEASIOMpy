@@ -269,7 +269,7 @@ cpacs_inout.add_input(
     var_name="h_first_layer",
     var_type=float,
     default_value=3,
-    unit="[\u03BCm]",
+    unit="[\u03bcm]",
     descr="is the height of the first prismatic cell, touching the wall, in mesh length units.",
     xpath=GMSH_H_FIRST_LAYER_XPATH,
     gui=INCLUDE_GUI,

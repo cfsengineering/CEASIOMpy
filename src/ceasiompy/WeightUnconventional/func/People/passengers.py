@@ -10,12 +10,14 @@ Evaluation of the number of passengers expected for an unconventional aircraft.
 
 """
 
-
 # =============================================================================
 #   IMPORTS
 # =============================================================================
 
-from ceasiompy.WeightConventional.func.weightutils import PASSENGER_MASS, PASSENGER_PER_TOILET
+from ceasiompy.WeightConventional.func.weightutils import (
+    PASSENGER_MASS,
+    PASSENGER_PER_TOILET,
+)
 from ceasiompy import log
 
 

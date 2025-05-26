@@ -1,4 +1,3 @@
-
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
@@ -41,7 +40,6 @@ cpacs_inout = CPACSInOut()
 cpacs_inout.add_input(
     var_name="mass_type",
     var_type=list,
-
     default_value=["mTOM", "mZFM", "Custom", "%% fuel mass"],
     unit=None,
     descr="Type of mass to use for CL calculation",

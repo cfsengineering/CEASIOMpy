@@ -91,7 +91,7 @@ def load_geometry(self) -> List:
             pos_x_list,
             pos_y_list,
             pos_z_list,
-            list_type='first_n_last'
+            list_type="first_n_last",
         )
         first_le = le_list[0]
         last_le = le_list[1]
@@ -100,14 +100,14 @@ def load_geometry(self) -> List:
         x4, y4, z4, d34 = last_le[0], last_le[1], last_le[2], last_le[3]
 
         wing_dict = {
-            'EID': i_wing,  # str
-            'CP': 0,  # int
-            'n_span': self.nchordwise,  # int
-            'n_chord': self.nspanwise,  # int
-            'X1': np.array([x1, y1, z1]),
-            'length12': d12,  # float
-            'X4': np.array([x4, y4, z4]),
-            'length43': d34,  # float
+            "EID": i_wing,  # str
+            "CP": 0,  # int
+            "n_span": self.nchordwise,  # int
+            "n_chord": self.nspanwise,  # int
+            "X1": np.array([x1, y1, z1]),
+            "length12": d12,  # float
+            "X4": np.array([x4, y4, z4]),
+            "length43": d34,  # float
         }
 
         wing_lists.append(wing_dict)
@@ -145,19 +145,32 @@ def compute_velocity_attributes(
     omegabeta = k_beta_model * velocity
 
     # Dynamic pressure
-    q_dyn = self.density * (velocity ** 2) / 2.0
+    q_dyn = self.density * (velocity**2) / 2.0
 
     return omegaalpha, omegabeta, q_dyn
 
 
 def scale_coefficients(
-    self, q_dyn: float,
-    x_alpha: float, y_alpha: float, z_alpha: float,
-    l_alpha: float, m_alpha: float, n_alpha: float,
-    x_beta: float, y_beta: float, z_beta: float,
-    l_beta: float, m_beta: float, n_beta: float,
-    m_alphadot: float, z_alphadot: float, x_alphadot: float,
-    y_betadot: float, l_betadot: float, n_betadot: float
+    self,
+    q_dyn: float,
+    x_alpha: float,
+    y_alpha: float,
+    z_alpha: float,
+    l_alpha: float,
+    m_alpha: float,
+    n_alpha: float,
+    x_beta: float,
+    y_beta: float,
+    z_beta: float,
+    l_beta: float,
+    m_beta: float,
+    n_beta: float,
+    m_alphadot: float,
+    z_alphadot: float,
+    x_alphadot: float,
+    y_betadot: float,
+    l_betadot: float,
+    n_betadot: float,
 ):
     """
     Scales coefficients accordingly.
@@ -199,12 +212,24 @@ def scale_coefficients(
     cn_betadot = n_betadot / qsb  # Moment
 
     return (
-        cx_alpha, cy_alpha, cz_alpha,
-        cl_alpha, cm_alpha, cn_alpha,
-        cx_beta, cy_beta, cz_beta,
-        cl_beta, cm_beta, cn_beta,
-        cm_alphadot, cz_alphadot, cx_alphadot,
-        cy_betadot, cl_betadot, cn_betadot,
+        cx_alpha,
+        cy_alpha,
+        cz_alpha,
+        cl_alpha,
+        cm_alpha,
+        cn_alpha,
+        cx_beta,
+        cy_beta,
+        cz_beta,
+        cl_beta,
+        cm_beta,
+        cn_beta,
+        cm_alphadot,
+        cz_alphadot,
+        cx_alphadot,
+        cy_betadot,
+        cl_betadot,
+        cn_betadot,
     )
 
 
@@ -214,11 +239,7 @@ def scale_coefficients(
 
 
 def access_angle_derivatives(
-    f_real: ndarray,
-    f_img: ndarray,
-    omega: float,
-    t: float,
-    angle_0: float
+    f_real: ndarray, f_img: ndarray, omega: float, t: float, angle_0: float
 ) -> Tuple[float, float, float]:
     """
     Decomposition of real and imaginary part of f in (cos, sin) basis.
@@ -246,11 +267,7 @@ def access_angle_derivatives(
 
 
 def access_angle_derivatives_np(
-    f_real: ndarray,
-    f_img: ndarray,
-    omega: float,
-    t: float,
-    angle_0: float
+    f_real: ndarray, f_img: ndarray, omega: float, t: float, angle_0: float
 ) -> ndarray:
     """
     Decomposition of real and imaginary part of f_derivative in (cos, sin) basis.
@@ -277,11 +294,7 @@ def access_angle_derivatives_np(
 
 
 def access_angle_dot_derivatives(
-    f_real: ndarray,
-    f_img: ndarray,
-    omega: float,
-    t: float,
-    angle_0: float
+    f_real: ndarray, f_img: ndarray, omega: float, t: float, angle_0: float
 ) -> Tuple[float, float, float]:
     """
     Decomposition of real and imaginary part of f_dot in (cos, sin) basis.
@@ -310,11 +323,7 @@ def access_angle_dot_derivatives(
 
 
 def access_angle_dot_derivatives_np(
-    f_real: ndarray,
-    f_img: ndarray,
-    omega: float,
-    t: float,
-    angle_0: float
+    f_real: ndarray, f_img: ndarray, omega: float, t: float, angle_0: float
 ) -> ndarray:
     """
     Decomposition of real and imaginary part of f in (cos, sin) basis.
@@ -341,11 +350,7 @@ def access_angle_dot_derivatives_np(
     return np.array([x, y, z])
 
 
-def compute_moments(
-    aerogrid: Dict,
-    forces: ndarray,
-    x_hinge: float
-) -> ndarray:
+def compute_moments(aerogrid: Dict, forces: ndarray, x_hinge: float) -> ndarray:
     """
     Compute Moments using formula, M = sum_{j: panel} r_j cross f_j.
 
@@ -360,7 +365,7 @@ def compute_moments(
     """
 
     # Moment computed at each panel (aerogrid['n'], 3)
-    r = -aerogrid['offset_j']
+    r = -aerogrid["offset_j"]
     r[:, 0] = r[:, 0] - x_hinge  # MODIFY x_ref, y_ref, z_ref if you uncomment
 
     if np.iscomplexobj(forces):
@@ -387,11 +392,14 @@ def get_main_wing_le(model: AeroModel) -> Tuple[float, float, float]:
     """
 
     wings_list = model.wings_list
-    x1_values = [model.caerocards[i]['X1'][0] for i, _ in enumerate(wings_list)]
+    x1_values = [model.caerocards[i]["X1"][0] for i, _ in enumerate(wings_list)]
     min_x1_index = x1_values.index(min(x1_values))
 
-    return model.caerocards[min_x1_index]['X1'][0], model.caerocards[
-        min_x1_index]['X1'][1], model.caerocards[min_x1_index]['X1'][2]
+    return (
+        model.caerocards[min_x1_index]["X1"][0],
+        model.caerocards[min_x1_index]["X1"][1],
+        model.caerocards[min_x1_index]["X1"][2],
+    )
 
 
 def check_x_hinge(aerogrid: Dict, x_hinge: float) -> None:
@@ -405,7 +413,7 @@ def check_x_hinge(aerogrid: Dict, x_hinge: float) -> None:
     """
 
     # Make sure x_hinge \notin x
-    if x_hinge in aerogrid['offset_j'][:, 0]:
+    if x_hinge in aerogrid["offset_j"][:, 0]:
         log.warning(
             "Error in PanelAero's Doublet Lattice Method."
             "Hinge point can not be equal to downwash control point."
@@ -447,24 +455,28 @@ def compute_panel_forces(
     s_a = cmath.sin(alpha_angle)
 
     # Rotations
-    rotation_alpha = np.array([  # -alpha(t) rotation
-        [c_a, 0, s_a],
-        [0, 1, 0],
-        [-s_a, 0, c_a],
-    ])
+    rotation_alpha = np.array(
+        [  # -alpha(t) rotation
+            [c_a, 0, s_a],
+            [0, 1, 0],
+            [-s_a, 0, c_a],
+        ]
+    )
 
     c_b = cmath.cos(beta_angle)
     s_b = cmath.sin(beta_angle)
 
-    rotation_beta = np.array([  # -beta(t) rotation
-        [c_b, s_b, 0],
-        [-s_b, c_b, 0],
-        [0, 0, 1],
-    ])
+    rotation_beta = np.array(
+        [  # -beta(t) rotation
+            [c_b, s_b, 0],
+            [-s_b, c_b, 0],
+            [0, 0, 1],
+        ]
+    )
 
     # Apply the rotation to the normals (3, aerogrid['n'])
-    n_alpha = rotation_alpha.dot(aerogrid['N'].T)
-    n_beta = rotation_beta.dot(aerogrid['N'].T)
+    n_alpha = rotation_alpha.dot(aerogrid["N"].T)
+    n_beta = rotation_beta.dot(aerogrid["N"].T)
 
     # Projection on x-axis
     vector = np.array([1, 0, 0])  # Velocity = (V_inf, 0, 0) at alpha = beta = 0
@@ -480,8 +492,8 @@ def compute_panel_forces(
     cp_beta = q_beta_jj.dot(w_beta)
 
     # Force on each panel (3, aerogrid['n'])
-    alphaforces = -q_dyn * n_alpha * aerogrid['A'] * cp_alpha
-    betaforces = -q_dyn * n_beta * aerogrid['A'] * cp_beta
+    alphaforces = -q_dyn * n_alpha * aerogrid["A"] * cp_alpha
+    betaforces = -q_dyn * n_beta * aerogrid["A"] * cp_beta
 
     return alphaforces, betaforces
 
@@ -502,8 +514,8 @@ def get_mach_list(self, x_hinge: float) -> Tuple[List, List]:
             f"span = {self.s}",
             f"x_ref = {x_hinge}",
             "y_ref = 0.0",
-            "z_ref = 0.0"
-        ]
+            "z_ref = 0.0",
+        ],
     )
 
     mach_set = {row[0] for row in data}
@@ -586,7 +598,15 @@ def compute_dot_derivatives(self) -> DataFrame:
 
         # Get forces on each panels at angle (alpha(t), beta(t))
         alphaforces, betaforces = compute_panel_forces(
-            aerogrid, q_alpha_jj, q_beta_jj, omegaalpha, omegabeta, q_dyn, t, alpha_0, beta_0
+            aerogrid,
+            q_alpha_jj,
+            q_beta_jj,
+            omegaalpha,
+            omegabeta,
+            q_dyn,
+            t,
+            alpha_0,
+            beta_0,
         )
 
         # Complex decomposition
@@ -615,13 +635,15 @@ def compute_dot_derivatives(self) -> DataFrame:
         m_alpha = compute_moments(
             aerogrid=aerogrid,
             forces=access_angle_derivatives_np(
-                alphaforces_real, alphaforces_imag, omegaalpha, t, alpha_0),
+                alphaforces_real, alphaforces_imag, omegaalpha, t, alpha_0
+            ),
             x_hinge=x_hinge,
         )
         m_beta = compute_moments(
             aerogrid=aerogrid,
             forces=access_angle_derivatives_np(
-                betaforces_real, betaforces_imag, omegabeta, t, beta_0),
+                betaforces_real, betaforces_imag, omegabeta, t, beta_0
+            ),
             x_hinge=x_hinge,
         )
 
@@ -639,47 +661,85 @@ def compute_dot_derivatives(self) -> DataFrame:
         m_alphadot = compute_moments(
             aerogrid=aerogrid,
             forces=access_angle_dot_derivatives_np(
-                alphaforces_real, alphaforces_imag, omegaalpha, t, alpha_0),
-            x_hinge=x_hinge
+                alphaforces_real, alphaforces_imag, omegaalpha, t, alpha_0
+            ),
+            x_hinge=x_hinge,
         )
         m_betadot = compute_moments(
             aerogrid=aerogrid,
             forces=access_angle_dot_derivatives_np(
-                betaforces_real, betaforces_imag, omegabeta, t, beta_0),
+                betaforces_real, betaforces_imag, omegabeta, t, beta_0
+            ),
             x_hinge=x_hinge,
         )
 
         # Scale appropriately to access forces and moment coefficients
         (
-            cx_alpha, cy_alpha, cz_alpha,
-            cl_alpha, cm_alpha, cn_alpha,
-            cx_beta, cy_beta, cz_beta,
-            cl_beta, cm_beta, cn_beta,
-            cm_alphaprim, cz_alphaprim, cx_alphaprim,
-            cy_betaprim, cl_betaprim, cn_betaprim,
-
+            cx_alpha,
+            cy_alpha,
+            cz_alpha,
+            cl_alpha,
+            cm_alpha,
+            cn_alpha,
+            cx_beta,
+            cy_beta,
+            cz_beta,
+            cl_beta,
+            cm_beta,
+            cn_beta,
+            cm_alphaprim,
+            cz_alphaprim,
+            cx_alphaprim,
+            cy_betaprim,
+            cl_betaprim,
+            cn_betaprim,
         ) = scale_coefficients(
-            self, q_dyn,
-            fx_alpha, fy_alpha, fz_alpha,
-            m_alpha[0], m_alpha[1], m_alpha[2],
-            fx_beta, fy_beta, fz_beta,
-            m_beta[0], m_beta[1], m_beta[2],
-            m_alphadot[1], fz_alphadot, fx_alphadot,
-            fy_betadot, m_betadot[0], m_betadot[2],
+            self,
+            q_dyn,
+            fx_alpha,
+            fy_alpha,
+            fz_alpha,
+            m_alpha[0],
+            m_alpha[1],
+            m_alpha[2],
+            fx_beta,
+            fy_beta,
+            fz_beta,
+            m_beta[0],
+            m_beta[1],
+            m_beta[2],
+            m_alphadot[1],
+            fz_alphadot,
+            fx_alphadot,
+            fy_betadot,
+            m_betadot[0],
+            m_betadot[2],
         )
 
         # Append data
-        data.append({
-            "mach": mach,
-            "cx_alpha": cx_alpha, "cy_alpha": cy_alpha, "cz_alpha": cz_alpha,
-            "cl_alpha": cl_alpha, "cm_alpha": cm_alpha, "cn_alpha": cn_alpha,
-            "cx_beta": cx_beta, "cy_beta": cy_beta, "cz_beta": cz_beta,
-            "cl_beta": cl_beta, "cm_beta": cm_beta, "cn_beta": cn_beta,
-            "cm_alphaprim": cm_alphaprim,
-            "cz_alphaprim": cz_alphaprim,
-            "cx_alphaprim": cx_alphaprim,
-            "cy_betaprim": cy_betaprim, "cl_betaprim": cl_betaprim, "cn_betaprim": cn_betaprim,
-        })
+        data.append(
+            {
+                "mach": mach,
+                "cx_alpha": cx_alpha,
+                "cy_alpha": cy_alpha,
+                "cz_alpha": cz_alpha,
+                "cl_alpha": cl_alpha,
+                "cm_alpha": cm_alpha,
+                "cn_alpha": cn_alpha,
+                "cx_beta": cx_beta,
+                "cy_beta": cy_beta,
+                "cz_beta": cz_beta,
+                "cl_beta": cl_beta,
+                "cm_beta": cm_beta,
+                "cn_beta": cn_beta,
+                "cm_alphaprim": cm_alphaprim,
+                "cz_alphaprim": cz_alphaprim,
+                "cx_alphaprim": cx_alphaprim,
+                "cy_betaprim": cy_betaprim,
+                "cl_betaprim": cl_betaprim,
+                "cn_betaprim": cn_betaprim,
+            }
+        )
 
         log.info(f"Finished computing alpha-dot derivatives for mach: {mach}.")
 
@@ -701,9 +761,16 @@ def compute_dot_derivatives(self) -> DataFrame:
 
 def add_db_values(self, df: DataFrame, non_mach_str: str, x_hinge: float) -> DataFrame:
     der_columns = [
-        "mach", "x_ref", "y_ref", "z_ref",
-        "cm_alphaprim", "cz_alphaprim", "cx_alphaprim",
-        "cy_betaprim", "cl_betaprim", "cn_betaprim"
+        "mach",
+        "x_ref",
+        "y_ref",
+        "z_ref",
+        "cm_alphaprim",
+        "cz_alphaprim",
+        "cx_alphaprim",
+        "cy_betaprim",
+        "cl_betaprim",
+        "cn_betaprim",
     ]
     db = CeasiompyDb()
     data = db.get_data(
@@ -718,11 +785,12 @@ def add_db_values(self, df: DataFrame, non_mach_str: str, x_hinge: float) -> Dat
             f"span = {self.s}",
             f"x_ref = {x_hinge}",
             "y_ref = 0.0",
-            "z_ref = 0.0"
+            "z_ref = 0.0",
         ],
     )
 
     return concat([df[der_columns], DataFrame(data, columns=der_columns)], ignore_index=True)
+
 
 # =================================================================================================
 #    MAIN

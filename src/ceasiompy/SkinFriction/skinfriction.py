@@ -223,9 +223,7 @@ def main(cpacs: CPACS, wkdir: Path):
         )
 
         if not aeromap_uid_list:
-            aeromap_uid_list = get_value_or_default(
-                tixi, aeromap_to_plot_xpath, "DefaultAeromap"
-            )
+            aeromap_uid_list = get_value_or_default(tixi, aeromap_to_plot_xpath, "DefaultAeromap")
 
         new_aeromap_to_plot = aeromap_uid_list + new_aeromap_uid_list
         new_aeromap_to_plot = list(set(new_aeromap_to_plot))
@@ -236,6 +234,7 @@ def main(cpacs: CPACS, wkdir: Path):
 
     log.info('AeroMap "' + aeromap_uid + '" has been added to the CPACS file')
     md.save()
+
 
 # =================================================================================================
 #    MAIN

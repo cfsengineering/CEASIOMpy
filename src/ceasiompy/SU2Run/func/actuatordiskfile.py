@@ -42,11 +42,7 @@ from ceasiompy import log
 # =================================================================================================
 
 
-def get_radial_stations(
-    radius: float,
-    hub_radius: float,
-    number_of_stations: int = 40
-) -> ndarray:
+def get_radial_stations(radius: float, hub_radius: float, number_of_stations: int = 40) -> ndarray:
     """
     Non-dimensionalize the radius and remove values smaller than hub radius.
 
@@ -153,8 +149,9 @@ def get_prandtl_correction_values(
     )
 
 
-def get_error(radial_stations_spacing: float, dCt: ndarray,
-              total_thrust_coefficient: float) -> float:
+def get_error(
+    radial_stations_spacing: float, dCt: ndarray, total_thrust_coefficient: float
+) -> float:
     """
     Computes error between calculated and input thrust coefficient.
 
@@ -268,8 +265,7 @@ def check_input_output_values(
 
     # Computation of the thrust over density using the static pressure jump distribution
     thrust_density_ratio = np.sum(
-        2 * math.pi * radial_stations * radius**2
-        * radial_stations_spacing * delta_pressure
+        2 * math.pi * radial_stations * radius**2 * radial_stations_spacing * delta_pressure
     )
 
     # Computation of the thrust coefficient using thrust_density_ratio
@@ -278,9 +274,7 @@ def check_input_output_values(
     )
 
     # Computation of the efficiency.
-    eta = advanced_ratio * (
-        optimal_total_thrust_coefficient / total_power_coefficient
-    )
+    eta = advanced_ratio * (optimal_total_thrust_coefficient / total_power_coefficient)
 
     return (
         total_power_coefficient,
@@ -338,7 +332,7 @@ def thrust_calculator(
         blades_number,
         omega,
         radius,
-        free_stream_velocity
+        free_stream_velocity,
     )
 
     log.info(f"Prandtl correction= {prandtl_correction}")
@@ -416,8 +410,7 @@ def thrust_calculator(
         iteration += 1
         # Computation of the new Lagrange multiplicator value based on the false position method
         new_lagrange_multiplier = (
-            last_lagrange_multiplier * initial_error
-            - first_lagrange_multiplier * old_error
+            last_lagrange_multiplier * initial_error - first_lagrange_multiplier * old_error
         ) / (initial_error - old_error)
 
         # Computation of the new axial interference factor distribution
@@ -468,10 +461,7 @@ def thrust_calculator(
         )
     )
     # ???
-    radial_power_coefs = (
-        radius * 4 * np.pi
-        / (rotational_velocity**3 * (2 * radius) ** 5)
-    ) * (
+    radial_power_coefs = (radius * 4 * np.pi / (rotational_velocity**3 * (2 * radius) ** 5)) * (
         free_stream_velocity**3
         * (1 + optimal_axial_interference_factor) ** 2
         * optimal_axial_interference_factor
@@ -492,7 +482,6 @@ def thrust_calculator(
         thrust_density_ratio,
         computed_total_thrust_coefficient,
         eta,
-
     ) = check_input_output_values(
         radial_stations_spacing,
         radial_power_coefs,
@@ -589,9 +578,7 @@ def write_actuator_disk_data(
 
     """
 
-    total_thrust_coefficient = sum(
-        radial_thrust_coefs * (radial_stations[1] - radial_stations[0])
-    )
+    total_thrust_coefficient = sum(radial_thrust_coefs * (radial_stations[1] - radial_stations[0]))
 
     file.write(f"# Total thurst coefficient= {total_thrust_coefficient:.5f}\n")
 
@@ -609,6 +596,7 @@ def write_actuator_disk_data(
     file.write("\n")
 
     log.info("ActuatorDisk.dat file generated.")
+
 
 # =================================================================================================
 #    MAIN

@@ -67,7 +67,7 @@ from cpacspy.utils import COEFS
 from ceasiompy.CPACS2GMSH import GMSH_SYMMETRY_XPATH
 from ceasiompy.utils.commonnames import (
     SU2_FORCES_BREAKDOWN_NAME,
-    SURFACE_FLOW_FILE_NAME
+    SURFACE_FLOW_FILE_NAME,
 )
 from ceasiompy.utils.commonxpaths import (
     AREA_XPATH,
@@ -220,15 +220,26 @@ def get_static_results(
             tixi,
             config_dir,
             aeromap,
-            alt, mach, aoa, aos,
-            coefs, velocity,
+            alt,
+            mach,
+            aoa,
+            aos,
+            coefs,
+            velocity,
         )
     # Baseline coefficients (no damping derivatives)
     else:
         aeromap.add_coefficients(
-            alt=alt, mach=mach, aos=aos, aoa=aoa,
-            cd=cd, cl=cl, cs=cs,
-            cml=cml, cmd=cmd, cms=cms,
+            alt=alt,
+            mach=mach,
+            aos=aos,
+            aoa=aoa,
+            cd=cd,
+            cl=cl,
+            cs=cs,
+            cml=cml,
+            cmd=cmd,
+            cms=cms,
         )
 
     if "_TED_" in config_dir.name:
@@ -246,9 +257,7 @@ def get_static_results(
 
 def get_dynamic_force_files(file_path: Path) -> Path:
     # Get results from dynstab
-    force_file_paths = list(
-        Path(file_path).glob("forces_breakdown_*.dat")
-    )
+    force_file_paths = list(Path(file_path).glob("forces_breakdown_*.dat"))
 
     if not force_file_paths:
         raise OSError("No result force file have been found!")
@@ -281,7 +290,7 @@ def compute_dynamic_coefs(
     velocity = Atm.speed_of_sound[0] * mach
 
     # Dynamic pressure
-    q_dyn = Atm.density[0] * (velocity ** 2) / 2.0
+    q_dyn = Atm.density[0] * (velocity**2) / 2.0
 
     qs = q_dyn * s
     qsb = qs * b
@@ -294,10 +303,10 @@ def compute_dynamic_coefs(
     # Scale moments accordingly
     cmx = np.copy(mx)
     cmy = np.copy(my)
-    cmx[[0, 2], ] /= qsb
-    cmx[1, ] /= qsc
-    cmy[[0, 2], ] /= qsb
-    cmy[1, ] /= qsc
+    cmx[[0, 2],] /= qsb
+    cmx[1,] /= qsc
+    cmy[[0, 2],] /= qsb
+    cmy[1,] /= qsc
     log.info(f"q {q_dyn} fx {fx} mx {mx}, cfx {cfx} cmx {cmx}")
 
     return cfx, cfy, cmx, cmy
@@ -323,23 +332,35 @@ def add_dynamic_coefs(
     ensure_and_append_text_element(tixi, xpath, "alt", str(alt))
 
     ensure_and_append_text_element(
-        tixi, xpath, f"cf_{angle}", cfx,
+        tixi,
+        xpath,
+        f"cf_{angle}",
+        cfx,
     )
     ensure_and_append_text_element(
-        tixi, xpath, f"cf_{angle}_prim", cfy,
+        tixi,
+        xpath,
+        f"cf_{angle}_prim",
+        cfy,
     )
     ensure_and_append_text_element(
-        tixi, xpath, f"cm_{angle}", cmx,
+        tixi,
+        xpath,
+        f"cm_{angle}",
+        cmx,
     )
     ensure_and_append_text_element(
-        tixi, xpath, f"cm_{angle}_prim", cmy,
+        tixi,
+        xpath,
+        f"cm_{angle}_prim",
+        cmy,
     )
 
 
 def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
     # Extract unique mach and alt values
-    mach_values = list(set(d['mach'] for d in dict_dir))
-    alt_values = list(set(d['alt'] for d in dict_dir))
+    mach_values = list(set(d["mach"] for d in dict_dir))
+    alt_values = list(set(d["alt"] for d in dict_dir))
     n = int(get_value(tixi, SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH))
     b: float = tixi.getDoubleElement(AREA_XPATH)
     c: float = tixi.getDoubleElement(LENGTH_XPATH)
@@ -350,19 +371,18 @@ def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
         alpha_file = check_one_entry(dict_dir, mach, alt, "alpha")
         # beta_file = check_one_entry(dict_dir, "beta")
 
-        angle_file = {
-            "alpha": alpha_file / "no_deformation"
-        }  # "beta": beta_file
+        angle_file = {"alpha": alpha_file / "no_deformation"}  # "beta": beta_file
 
         # Retrieve forces and moments for (alpha, alpha_dot) = (0, 0)
-        none_force_file_path = Path(
-            none_file, "no_deformation", SU2_FORCES_BREAKDOWN_NAME
-        )
+        none_force_file_path = Path(none_file, "no_deformation", SU2_FORCES_BREAKDOWN_NAME)
 
         (
-            cfx_0, cfy_0, cfz_0,
-            cmx_0, cmy_0, cmz_0,
-
+            cfx_0,
+            cfy_0,
+            cfz_0,
+            cmx_0,
+            cmy_0,
+            cmz_0,
         ) = get_su2_forces_moments(none_force_file_path)
 
         log.info(
@@ -371,25 +391,26 @@ def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
         )
 
         # Force
-        f_static = np.tile([
-            cfx_0, cfy_0, cfz_0,
-        ], (n, 1))
+        f_static = np.tile(
+            [
+                cfx_0,
+                cfy_0,
+                cfz_0,
+            ],
+            (n, 1),
+        )
 
         # Moments
-        m_static = np.tile([
-            cmx_0, cmy_0, cmz_0
-        ], (n, 1))
+        m_static = np.tile([cmx_0, cmy_0, cmz_0], (n, 1))
 
         # Retrive forces and moments for (alpha, alpha_dot) = (alpha(t), alpha_dot(t))
-        for angle in ['alpha']:  # , 'beta'
+        for angle in ["alpha"]:  # , 'beta'
             force_file_paths = get_dynamic_force_files(angle_file[angle])
             forces_coef_list, moments_coef_list = [], []
 
             for force_file_path in force_file_paths:
                 # Access coefficients
-                cfx, cfy, cfz, cmx, cmy, cmz = get_su2_forces_moments(
-                    force_file_path
-                )
+                cfx, cfy, cfz, cmx, cmy, cmz = get_su2_forces_moments(force_file_path)
                 forces_coef_list.append([cfx, cfy, cfz])
                 moments_coef_list.append([cmx, cmy, cmz])
 
@@ -408,8 +429,14 @@ def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
 
             # Add them in the CPACS
             add_dynamic_coefs(
-                tixi, mach, alt, angle,
-                str(cfx), str(cfy), str(cmx), str(cmy),
+                tixi,
+                mach,
+                alt,
+                angle,
+                str(cfx),
+                str(cfy),
+                str(cmx),
+                str(cmy),
             )
 
 
@@ -441,13 +468,7 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
 
         # Retrieve non dynamic stability data
         if "dynstab" not in str(config_dir):
-            get_static_results(
-                tixi,
-                aeromap,
-                config_dir,
-                fixed_cl,
-                found_wetted_area
-            )
+            get_static_results(tixi, aeromap, config_dir, fixed_cl, found_wetted_area)
 
     aeromap.save()
 

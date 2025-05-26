@@ -56,7 +56,7 @@ class CeasiompyDb:
     # Load constants
     table_dict = TABLE_DICT
 
-    def __init__(self: 'CeasiompyDb', db_path: Path = CEASIOMPY_DB_PATH) -> None:
+    def __init__(self: "CeasiompyDb", db_path: Path = CEASIOMPY_DB_PATH) -> None:
         # Initialize constants
         self.db_path = db_path
         self.db_name = self.db_path.name
@@ -68,8 +68,7 @@ class CeasiompyDb:
         self.connection: Connection = connect(self.db_path)
         self.cursor: Cursor = self.connection.cursor()
 
-        log.info(
-            f"Connecting to database {self.db_name} at path {self.db_path}")
+        log.info(f"Connecting to database {self.db_name} at path {self.db_path}")
 
     def connect_to_table(self, module_name: str) -> str:
         table_name, table_schema = self.get_table_parameters(module_name)
@@ -148,6 +147,7 @@ class CeasiompyDb:
             self.close()
 
         return data
+
 
 # ==============================================================================
 #   FUNCTIONS

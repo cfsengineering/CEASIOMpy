@@ -59,7 +59,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     # Define constants
     nb_proc = int(get_value(tixi, SU2_NB_CPU_XPATH))
     config_file_type = str(get_value(tixi, SU2_CONFIG_RANS_XPATH))
-    rans: bool = (config_file_type == "RANS")
+    rans: bool = config_file_type == "RANS"
 
     # 1. Load .su2 mesh files
     su2_mesh_paths, dynstab_su2_mesh_paths = load_su2_mesh_paths(tixi, results_dir)

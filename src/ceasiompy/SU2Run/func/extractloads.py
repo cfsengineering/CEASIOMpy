@@ -56,7 +56,11 @@ def compute_point_normals(coord: np.ndarray, cells: np.ndarray) -> np.ndarray:
     cell_nvecs = np.cross(-cell_vecs[:, 0, :], cell_vecs[:, 1, :]) / 2.0
 
     cell_sp = csr_matrix(
-        (np.ones(cells.shape[0] * 3), cells.flat, np.arange(0, 3 * cells.shape[0] + 1, 3)),
+        (
+            np.ones(cells.shape[0] * 3),
+            cells.flat,
+            np.arange(0, 3 * cells.shape[0] + 1, 3),
+        ),
         shape=(cells.shape[0], coord.shape[0]),
     )
 
@@ -108,7 +112,9 @@ def compute_forces(
 
     for name, values in iteritems({"n": unit_norm, "f": force}):
         vectors = numpy_to_vtk(
-            np.ascontiguousarray(values).astype(np.double), deep=True, array_type=vtk.VTK_FLOAT
+            np.ascontiguousarray(values).astype(np.double),
+            deep=True,
+            array_type=vtk.VTK_FLOAT,
         )
         vectors.SetName(name)
         mesh.GetPointData().AddArray(vectors)
@@ -202,6 +208,7 @@ def write_updated_mesh(mesh: vtk.vtkXMLUnstructuredGridWriter, new_vtu_file_path
     writer.SetFileName(new_vtu_file_path)
     writer.Update()
 
+
 # TODO: maybe create some exteral function to cope with SU2Mesh, get coord, get marker ...
 
 
@@ -274,6 +281,7 @@ def extract_loads(results_files_dir: Path) -> None:
     config_dict = ConfigFile(config_file_path).data
     updated_mesh = compute_forces(surface_flow_file_path, force_file_path, config_dict)
     write_updated_mesh(updated_mesh, surface_flow_force_file_path)
+
 
 # =================================================================================================
 #    MAIN

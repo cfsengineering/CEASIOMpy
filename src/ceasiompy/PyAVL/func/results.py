@@ -43,9 +43,15 @@ from ceasiompy.PyAVL import (
 
 
 def get_avl_aerocoefs(force_file: Path) -> Tuple[
-    float, float, float,
-    float, float, float,
-    float, float, float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
 ]:
     """
     Get aerodynamic coefficients and velocity from AVL total forces file (sb.txt).
@@ -74,16 +80,22 @@ def get_avl_aerocoefs(force_file: Path) -> Tuple[
                 if key in line:
                     # Exception as they appear twice in .txt file
                     if key in ["Clb", "Cnb"]:
-                        parts = line.split('=')
+                        parts = line.split("=")
                         if len(parts) > 2:
                             results[var_name] = split_line(line, index)
                     else:
                         results[var_name] = split_line(line, index)
 
     return (
-        results["cd"], results["cs"], results["cl"],
-        results["cmd"], results["cms"], results["cml"],
-        results["cmd_b"], results["cms_a"], results["cml_b"],
+        results["cd"],
+        results["cs"],
+        results["cl"],
+        results["cmd"],
+        results["cms"],
+        results["cml"],
+        results["cmd_b"],
+        results["cms_a"],
+        results["cml_b"],
     )
 
 
@@ -145,7 +157,7 @@ def add_coefficients_in_aeromap(
         cs=cs,
         cmd=cmd,
         cml=cml,
-        cms=cms
+        cms=cms,
     )
 
     increment_maps_xpath = f"{aeromap.xpath}/incrementMaps"
@@ -213,10 +225,17 @@ def add_coefficients_in_table(
 
     coefficients = {
         "mach": mach,
-        "aoa": aoa, "aos": aos,
-        "p": p, "q": q, "r": r,
-        "cd": cd, "cs": cs, "cl": cl,
-        "cmd": cmd, "cms": cms, "cml": cml,
+        "aoa": aoa,
+        "aos": aos,
+        "p": p,
+        "q": q,
+        "r": r,
+        "cd": cd,
+        "cs": cs,
+        "cl": cl,
+        "cmd": cmd,
+        "cms": cms,
+        "cml": cml,
     }
 
     add_coefficients(tixi, AVL_TABLE_XPATH, "Table", coefficients)
@@ -252,9 +271,15 @@ def add_coefficients_in_ctrltable(
     coefficients = {
         "mach": mach,
         "aoa": aoa,
-        "aileron": aileron, "elevator": elevator, "rudder": rudder,
-        "cd": cd, "cs": cs, "cl": cl,
-        "cmd": cmd, "cms": cms, "cml": cml,
+        "aileron": aileron,
+        "elevator": elevator,
+        "rudder": rudder,
+        "cd": cd,
+        "cs": cs,
+        "cl": cl,
+        "cmd": cmd,
+        "cms": cms,
+        "cml": cml,
     }
 
     add_coefficients(tixi, AVL_CTRLTABLE_XPATH, "CtrlTable", coefficients)
@@ -342,6 +367,7 @@ def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
                 rudder,
                 st_file_path,
             )
+
 
 # =================================================================================================
 #    MAIN

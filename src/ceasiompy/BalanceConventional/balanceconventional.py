@@ -33,8 +33,13 @@ import shutil
 import matplotlib.pyplot as plt
 import numpy as np
 from ceasiompy.BalanceConventional.func.AinFunc import getdatafromcpacs
-from ceasiompy.BalanceConventional.func.AoutFunc import cpacsbalanceupdate, outputbalancegen
-from ceasiompy.BalanceConventional.func.Cog.centerofgravity import center_of_gravity_evaluation
+from ceasiompy.BalanceConventional.func.AoutFunc import (
+    cpacsbalanceupdate,
+    outputbalancegen,
+)
+from ceasiompy.BalanceConventional.func.Cog.centerofgravity import (
+    center_of_gravity_evaluation,
+)
 from ceasiompy.BalanceConventional.func.Inertia import lumpedmassesinertia
 from ceasiompy.utils.ceasiompyutils import aircraft_name, call_main
 from ceasiompy.utils.InputClasses.Conventional import balanceconvclass
@@ -79,6 +84,7 @@ def check_rounding(I1, I2):
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
 
 def main(cpacs: CPACS) -> None:
     """Function to estimate inertia value and CoF of an conventional aircraft.

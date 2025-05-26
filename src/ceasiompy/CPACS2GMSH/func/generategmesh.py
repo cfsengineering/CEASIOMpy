@@ -832,12 +832,10 @@ def generate_gmsh(
         for fusing in fusings:
             fused_len = len(fusings[fusing])
             if fused_len > 1:
-                fused_entities = list(set(
-                    [entity for group in fusings[fusing] for entity in group]
-                ))
-                fused_tags = list(set(
-                    [tag for tag in tags_dict[fusing]]
-                ))
+                fused_entities = list(
+                    set([entity for group in fusings[fusing] for entity in group])
+                )
+                fused_tags = list(set([tag for tag in tags_dict[fusing]]))
                 log.info(f"Fusing {fused_len} wings named {fusing}")
                 new_tag = max(tags) + 1
                 tags.append(new_tag)
@@ -912,6 +910,7 @@ def generate_gmsh(
         gmsh.finalize()
 
     return su2mesh_path
+
 
 # =================================================================================================
 #    MAIN

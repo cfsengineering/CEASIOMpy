@@ -45,7 +45,7 @@ def store_results(
     index: int,
     var_name: str,
 ) -> None:
-    parts = line.split('=')
+    parts = line.split("=")
 
     # Handle special case for keys like "Clb" and "Cnb"
     if key in ["Clb", "Cnb"]:
@@ -117,7 +117,8 @@ def store_pyavl_data(
 
         if not file_path.exists():
             raise FileNotFoundError(
-                f"No result total forces '{txt_file_name}' file have been found!")
+                f"No result total forces '{txt_file_name}' file have been found!"
+            )
 
         # Append data to it
         data = get_avl_data(file_path)
@@ -125,6 +126,7 @@ def store_pyavl_data(
         data["alt"] = alt
 
         data_to_db(cursor, data, table_name)
+
 
 # ==============================================================================
 #    MAIN

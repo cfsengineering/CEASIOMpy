@@ -39,13 +39,12 @@ from ceasiompy.AeroFrame.func.config import (
     create_wing_centerline,
     compute_cross_section,
     write_deformed_geometry,
-    write_deformed_command
+    write_deformed_command,
 )
 
 from ceasiompy import log
 from ceasiompy.AeroFrame import (
     SOFTWARE_NAME,
-    FRAMAT_MESH_XPATH,
     FRAMAT_NB_CPU_XPATH,
     FRAMAT_NB_NODES_XPATH,
     AEROFRAME_TOLERANCE_XPATH,
@@ -62,28 +61,23 @@ def compute_aero_work(row):
     """
     Work conservation validation.
     """
-    force = np.array([row['Fx'], row['Fy'], row['Fz']])
-    displacement = np.array(row['delta_A'])
+    force = np.array([row["Fx"], row["Fy"], row["Fz"]])
+    displacement = np.array(row["delta_A"])
     work = np.dot(force, displacement)
     return work
 
 
 def compute_structural_work(row):
-    force = np.array([row['Fx'], row['Fy'], row['Fz']])
-    moment = np.array([row['Mx'], row['My'], row['Mz']])
-    displacement = np.array(row['delta_S'])
-    rotation = np.array(row['omega_S'])
+    force = np.array([row["Fx"], row["Fy"], row["Fz"]])
+    moment = np.array([row["Mx"], row["My"], row["Mz"]])
+    displacement = np.array(row["delta_S"])
+    rotation = np.array(row["omega_S"])
     work = np.dot(force, displacement) + np.dot(moment, rotation)
     return work
 
 
 # TODO: Reduce complexity
-def aeroelastic_loop(
-    cpacs: CPACS,
-    results_dir,
-    case_dir_path,
-    q, xyz, fxyz
-):
+def aeroelastic_loop(cpacs: CPACS, results_dir, case_dir_path, q, xyz, fxyz):
     """Function to execute the aeroelastic-loop.
 
     Function 'aeroelastic_loop' executes the aeroelastic-loop,
@@ -106,7 +100,7 @@ def aeroelastic_loop(
     tixi = cpacs.tixi
 
     # Get the path to the undeformed/initial AVL geometry
-    for path in results_dir.glob('*.avl'):
+    for path in results_dir.glob("*.avl"):
         avl_undeformed_path = path
     avl_undeformed_command = Path(AVL_ITER1_PATH, "avl_commands.txt")
 
@@ -123,7 +117,7 @@ def aeroelastic_loop(
         wg_center_y_list,
         wg_center_z_list,
         wg_chord_list,
-        wg_scaling
+        wg_scaling,
     ) = compute_cross_section(cpacs)
 
     # Get the properties of the wing material and the number of beam nodes to use
@@ -131,11 +125,13 @@ def aeroelastic_loop(
     n_beam = get_value(tixi, FRAMAT_NB_NODES_XPATH)
 
     # Define the coordinates of the wing root and tip
-    xyz_root = np.array([
-        wg_center_x_list[0] + wing_origin[0] + wg_chord_list[0] / 2,
-        wg_center_y_list[0] + wing_origin[1],
-        wg_center_z_list[0] + wing_origin[2]
-    ])
+    xyz_root = np.array(
+        [
+            wg_center_x_list[0] + wing_origin[0] + wg_chord_list[0] / 2,
+            wg_center_y_list[0] + wing_origin[1],
+            wg_center_z_list[0] + wing_origin[2],
+        ]
+    )
     fxyz_root = np.zeros(3)
 
     # xyz_tip = np.array([wg_center_x_list[-1] + wing_origin[0] + wg_chord_list[-1] / 2,
@@ -165,9 +161,7 @@ def aeroelastic_loop(
     Yle_array = np.array(Yle_list)
     Zle_array = np.array(Zle_list)
 
-    xyz_tip = np.array([Xle_array[-1] + wg_chord_list[-1] / 2,
-                        Yle_array[-1],
-                        Zle_array[-1]])
+    xyz_tip = np.array([Xle_array[-1] + wg_chord_list[-1] / 2, Yle_array[-1], Zle_array[-1]])
 
     # Get cross-section properties from CPACS file (if constants)
     area_const, Ix_const, Iy_const = get_section_properties(tixi)
@@ -214,11 +208,7 @@ def aeroelastic_loop(
         xyz_tot = np.vstack((xyz_root, xyz))
         fxyz_tot = np.vstack((fxyz_root, fxyz))
 
-        (
-            wing_df_new,
-            centerline_df_new,
-            internal_load_df
-        ) = create_wing_centerline(
+        (wing_df_new, centerline_df_new, internal_load_df) = create_wing_centerline(
             wing_df,
             centerline_df,
             n_beam,
@@ -235,7 +225,7 @@ def aeroelastic_loop(
             twist_profile,
             case_dir_path,
             avl_undeformed_path,
-            wg_scaling
+            wg_scaling,
         )
 
         if n_iter == 1:
@@ -252,7 +242,7 @@ def aeroelastic_loop(
             shear_modulus,
             material_density,
             centerline_df_new,
-            internal_load_df
+            internal_load_df,
         )
 
         # Run the beam analysis
@@ -260,9 +250,7 @@ def aeroelastic_loop(
 
         # Post-processing tasks
         centerline_df, deformed_df, tip_def_points = compute_deformations(
-            framat_results,
-            wing_df_new,
-            centerline_df_new
+            framat_results, wing_df_new, centerline_df_new
         )
 
         plot_translations_rotations(centerline_df, wkdir=FRAMAT_ITER_PATH)
@@ -322,7 +310,13 @@ def aeroelastic_loop(
     percentage = deflection / semi_span
 
     log_final_results(
-        res, tol, deflection, percentage, tip_twist, total_aero_work, total_structural_work
+        res,
+        tol,
+        deflection,
+        percentage,
+        tip_twist,
+        total_aero_work,
+        total_structural_work,
     )
 
     return delta_tip, res
@@ -331,8 +325,7 @@ def aeroelastic_loop(
 def log_iteration_results(n_iter, deflection, percentage, residual):
     log.info(f"Iteration {n_iter} done!")
     log.info(
-        f"Wing tip deflection : {deflection:.3e} m "
-        f"({percentage:.2%} of the semi-span length)."
+        f"Wing tip deflection : {deflection:.3e} m " f"({percentage:.2%} of the semi-span length)."
     )
     log.info(f"Residual            : {residual:.3e}")
 
@@ -362,11 +355,11 @@ def log_final_results(
 
 
 def compute_work_and_log(wing_df, centerline_df):
-    wing_df['aero_work'] = wing_df.apply(compute_aero_work, axis=1)
-    total_aero_work = wing_df['aero_work'].sum()
+    wing_df["aero_work"] = wing_df.apply(compute_aero_work, axis=1)
+    total_aero_work = wing_df["aero_work"].sum()
 
-    centerline_df['structural_work'] = centerline_df.apply(compute_structural_work, axis=1)
-    total_structural_work = centerline_df['structural_work'].sum()
+    centerline_df["structural_work"] = centerline_df.apply(compute_structural_work, axis=1)
+    total_structural_work = centerline_df["structural_work"].sum()
 
     log.info(f"Total aerodynamic work : {total_aero_work:.3e} J.")
     log.info(f"Total structural work  : {total_structural_work:.3e} J.")

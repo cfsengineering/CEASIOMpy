@@ -29,6 +29,7 @@ from ceasiompy.utils.ceasiompytest import CeasiompyTest
 #   CLASSES
 # =================================================================================================
 
+
 class TestAeroFrame(CeasiompyTest):
 
     @log_test
@@ -55,15 +56,13 @@ class TestAeroFrame(CeasiompyTest):
     @log_test
     def test_interpolate_leading_edge(self) -> None:
         # Create a minimal AVL file with two Xle entries
-        avl_content = (
-            """
+        avl_content = """
             SURFACE
             Xle
             0.0 0.0 0.0
             Xle
             1.0 1.0 1.0
             """
-        )
         with tempfile.TemporaryDirectory() as tmpdir:
             avl_path = Path(tmpdir) / "test.avl"
             with open(avl_path, "w") as f:
@@ -74,8 +73,12 @@ class TestAeroFrame(CeasiompyTest):
             n_iter = 1
             # Call the function
             (
-                xle_array, yle_array, zle_array,
-                interpolated_xle, interpolated_yle, interpolated_zle,
+                xle_array,
+                yle_array,
+                zle_array,
+                interpolated_xle,
+                interpolated_yle,
+                interpolated_zle,
             ) = interpolate_leading_edge(
                 avl_path, tmpdir, wg_origin, wg_scaling, y_queries, n_iter
             )
@@ -92,11 +95,7 @@ class TestAeroFrame(CeasiompyTest):
     @log_test
     def test_compute_distance_and_moment(self) -> None:
         # Create a simple centerline DataFrame
-        centerline_df = DataFrame({
-            "x": [0.0, 1.0],
-            "y": [0.0, 0.0],
-            "z": [0.0, 0.0]
-        })
+        centerline_df = DataFrame({"x": [0.0, 1.0], "y": [0.0, 0.0], "z": [0.0, 0.0]})
         # Row with closest_centerline_index = 1, point at (2,0,0), force (0,1,0)
         row = {
             "x": 2.0,
@@ -105,7 +104,7 @@ class TestAeroFrame(CeasiompyTest):
             "Fx": 0.0,
             "Fy": 1.0,
             "Fz": 0.0,
-            "closest_centerline_index": 1
+            "closest_centerline_index": 1,
         }
         result = compute_distance_and_moment(centerline_df, row)
         # distance_vector should be (1,0,0)
@@ -114,6 +113,7 @@ class TestAeroFrame(CeasiompyTest):
         self.assertAlmostEqual(result["moment_x"], 0.0)
         self.assertAlmostEqual(result["moment_y"], 0.0)
         self.assertAlmostEqual(result["moment_z"], 1.0)
+
 
 # =================================================================================================
 #    MAIN

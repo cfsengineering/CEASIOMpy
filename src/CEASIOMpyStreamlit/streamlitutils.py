@@ -175,7 +175,7 @@ def section_edit_aeromap():
     selected_aeromap = st.selectbox(
         "in",
         st.session_state.cpacs.get_aeromap_uid_list(),
-        help="Choose in which aeromap you want to add the point"
+        help="Choose in which aeromap you want to add the point",
     )
 
     col1, col2, col3, col4, col5 = st.columns([2, 2, 2, 2, 1])
@@ -192,8 +192,9 @@ def section_edit_aeromap():
         st.markdown("")
         st.markdown("")
         if st.button("➕"):
-            st.session_state.cpacs.get_aeromap_by_uid(
-                selected_aeromap).add_row(mach=mach, alt=alt, aos=aos, aoa=aoa)
+            st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap).add_row(
+                mach=mach, alt=alt, aos=aos, aoa=aoa
+            )
             st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap).save()
             save_cpacs_file()
 

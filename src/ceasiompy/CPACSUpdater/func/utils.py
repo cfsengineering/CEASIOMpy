@@ -40,13 +40,13 @@ from ceasiompy import log
 
 try:
     # Try to use TkAgg if DISPLAY is set and Tkinter is available
-    if os.environ.get('DISPLAY', '') != "":
-        matplotlib.use('TkAgg')
+    if os.environ.get("DISPLAY", "") != "":
+        matplotlib.use("TkAgg")
     else:
-        matplotlib.use('Agg')
+        matplotlib.use("Agg")
 except Exception:
     # Fallback to Agg if TkAgg is not available or fails
-    matplotlib.use('Agg')
+    matplotlib.use("Agg")
 
 # ==============================================================================
 #   FUNCTIONS
@@ -70,9 +70,9 @@ def copy_children(tixi: Tixi3, source_xpath: str, target_xpath: str, copy_id: st
     num_children = tixi.getNumberOfChilds(source_xpath)
 
     for i in range(1, num_children + 1):
-        (
-            child_name, child_xpath, num_same_name_children
-        ) = get_same_child(tixi, source_xpath, i, num_children)
+        (child_name, child_xpath, num_same_name_children) = get_same_child(
+            tixi, source_xpath, i, num_children
+        )
 
         if num_same_name_children > 1:
             child_xpath += f"[{i}]"
@@ -100,7 +100,7 @@ def copy_children(tixi: Tixi3, source_xpath: str, target_xpath: str, copy_id: st
 
                 # Recursively copy the children of the child element
                 copy_children(tixi, child_xpath, new_child_xpath, copy_id)
-        elif (child_name == "#text"):
+        elif child_name == "#text":
             # Copy the text value if the child is a text node
             text_value = tixi.getTextElement(source_xpath)
             tixi.updateTextElement(target_xpath, text_value)
@@ -111,9 +111,9 @@ def array_to_str(x: ndarray, z: ndarray) -> Tuple[str, str, str]:
     y = np.zeros(length)
 
     # Convert back to strings
-    x_str = ';'.join(map(str, x))
-    y_str = ';'.join(map(str, y))
-    z_str = ';'.join(map(str, z))
+    x_str = ";".join(map(str, x))
+    y_str = ";".join(map(str, y))
+    z_str = ";".join(map(str, z))
 
     return x_str, y_str, z_str
 
@@ -133,14 +133,14 @@ def copy(tixi: Tixi3, xpath: str, copy_name: str, ids: str, sym: bool = True) ->
 
     """
     # Create the new element at the same level as the source element
-    parent_xpath = xpath.rsplit('/', 1)[0]
+    parent_xpath = xpath.rsplit("/", 1)[0]
     new_xpath = f"{parent_xpath}/{ids}"
     tixi.createElement(parent_xpath, ids)
 
     # Copy the children of the source element to the new element
-    copy_children(tixi, xpath, new_xpath, '_' + ids)
+    copy_children(tixi, xpath, new_xpath, "_" + ids)
 
-    update_uids(tixi, new_xpath, '_' + ids)
+    update_uids(tixi, new_xpath, "_" + ids)
 
     # Modify name and description
     modify_element(tixi, new_xpath + "/name", ids)
@@ -153,7 +153,7 @@ def copy(tixi: Tixi3, xpath: str, copy_name: str, ids: str, sym: bool = True) ->
     if copy_name == "wing":
         modify_attribute(tixi, new_xpath, "xsi:type", "wingType")
 
-    parent_xpath = new_xpath.rsplit('/', 1)[0]
+    parent_xpath = new_xpath.rsplit("/", 1)[0]
 
     tixi.renameElement(parent_xpath, ids, copy_name)
 
@@ -186,9 +186,9 @@ def symmetry(tixi: Tixi3, xpath: str) -> None:
     num_children = tixi.getNumberOfChilds(xpath)
 
     for i in range(1, num_children + 1):
-        (
-            child_name, child_xpath, num_same_name_children
-        ) = get_same_child(tixi, xpath, i, num_children)
+        (child_name, child_xpath, num_same_name_children) = get_same_child(
+            tixi, xpath, i, num_children
+        )
 
         if num_same_name_children > 1:
             child_xpath += f"[{i}]"
@@ -236,9 +236,9 @@ def update_uids(tixi: Tixi3, xpath: str, uids_identifier: str) -> None:
 
     num_children = tixi.getNumberOfChilds(xpath)
     for i in range(1, num_children + 1):
-        (
-            child_name, child_xpath, num_same_name_children
-        ) = get_same_child(tixi, xpath, i, num_children)
+        (child_name, child_xpath, num_same_name_children) = get_same_child(
+            tixi, xpath, i, num_children
+        )
 
         if num_same_name_children > 1:
             child_xpath += f"[{i}]"
@@ -246,8 +246,12 @@ def update_uids(tixi: Tixi3, xpath: str, uids_identifier: str) -> None:
         if child_name not in ["#text", "#comment"]:
             if tixi.checkElement(child_xpath):
                 uid_elements = [
-                    "fromSectionUID", "toSectionUID", "fromElementUID",
-                    "toElementUID", "parentUID", "referenceUID"
+                    "fromSectionUID",
+                    "toSectionUID",
+                    "fromElementUID",
+                    "toElementUID",
+                    "parentUID",
+                    "referenceUID",
                 ]
                 for element in uid_elements:
                     update_uid_element(tixi, child_xpath, element, uids_identifier)
@@ -258,8 +262,9 @@ def update_uids(tixi: Tixi3, xpath: str, uids_identifier: str) -> None:
 def get_same_child(tixi: Tixi3, xpath: str, i: int, num_children: int) -> Tuple[str, str, int]:
     child_name = tixi.getChildNodeName(xpath, i)
     child_xpath = f"{xpath}/{child_name}"
-    num_same_name_children = sum(1 for j in range(
-        1, num_children + 1) if tixi.getChildNodeName(xpath, j) == child_name)
+    num_same_name_children = sum(
+        1 for j in range(1, num_children + 1) if tixi.getChildNodeName(xpath, j) == child_name
+    )
     return child_name, child_xpath, num_same_name_children
 
 
@@ -302,19 +307,18 @@ def modify_attribute(tixi: Tixi3, xpath: str, attribute: str, new_value: str) ->
 
 
 def interpolate(
-    x1: float,
-    z1: float,
-    x2: float,
-    z2: float,
-    max_dist: float
+    x1: float, z1: float, x2: float, z2: float, max_dist: float
 ) -> List[Tuple[float, float]]:
 
     distance = math.sqrt((x2 - x1) ** 2 + (z2 - z1) ** 2)
     if distance > max_dist:
         mid_x = (x1 + x2) / 2
         mid_z = (z1 + z2) / 2
-        return interpolate(x1, z1, mid_x, mid_z, max_dist) + \
-            [(mid_x, mid_z)] + interpolate(mid_x, mid_z, x2, z2, max_dist)
+        return (
+            interpolate(x1, z1, mid_x, mid_z, max_dist)
+            + [(mid_x, mid_z)]
+            + interpolate(mid_x, mid_z, x2, z2, max_dist)
+        )
     else:
         return [(x2, z2)]
 
@@ -390,19 +394,14 @@ def plot_values(
     x_flap: ndarray = None,
     z_flap: ndarray = None,
 ) -> None:
-    plt.plot(x, z, marker='o', label='X vs Z values')
+    plt.plot(x, z, marker="o", label="X vs Z values")
 
     if x_flap is not None and z_flap is not None:
-        plt.plot(
-            x_flap,
-            z_flap,
-            marker='x',
-            label='X Flap vs Z Flap values'
-        )
+        plt.plot(x_flap, z_flap, marker="x", label="X Flap vs Z Flap values")
 
-    plt.xlabel('X values')
-    plt.ylabel('Z values')
-    plt.title('Plot of X vs Z values')
+    plt.xlabel("X values")
+    plt.ylabel("Z values")
+    plt.title("Plot of X vs Z values")
     plt.legend()
     plt.grid(True)
     plt.show()

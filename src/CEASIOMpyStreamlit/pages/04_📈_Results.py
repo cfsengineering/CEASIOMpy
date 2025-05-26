@@ -114,7 +114,8 @@ def display_results(results_dir):
                     st.session_state["logs_container"] = st.container()
                     st.session_state.logs_container.markdown("**Logs**")
                 st.session_state.logs_container.text_area(
-                    child.stem, child.read_text(), height=200)
+                    child.stem, child.read_text(), height=200
+                )
 
             elif child.name == "history.csv":
                 st.markdown("**Convergence**")
@@ -230,7 +231,9 @@ def show_aeromap():
     fig.update_traces(mode="markers+lines", hovertemplate="x: %{x:.2f} \ny: %{y:.2f} ")
 
     fig.update_layout(
-        xaxis=dict(title=x_axis), yaxis=dict(title=y_axis), plot_bgcolor="rgb(255,255,255)"
+        xaxis=dict(title=x_axis),
+        yaxis=dict(title=y_axis),
+        plot_bgcolor="rgb(255,255,255)",
     )
 
     axis_options = {

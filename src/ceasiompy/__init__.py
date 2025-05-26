@@ -85,8 +85,7 @@ def get_logger() -> Logger:
     logger.propagate = False
 
     # Add file handler
-    file_formatter = logging.Formatter(
-        "%(asctime)s - %(levelname)8s - %(module)18s - %(message)s")
+    file_formatter = logging.Formatter("%(asctime)s - %(levelname)8s - %(module)18s - %(message)s")
     file_handler = logging.FileHandler(filename=LOGFILE, mode="w")
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(file_formatter)
@@ -95,8 +94,7 @@ def get_logger() -> Logger:
 
     # Add console handler regardless of environment
     # (we need output to be visible in both terminal and Streamlit)
-    console_formatter = logging.Formatter(
-        "%(levelname)8s - %(module)18s - %(message)s")
+    console_formatter = logging.Formatter("%(levelname)8s - %(module)18s - %(message)s")
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(console_formatter)
@@ -109,6 +107,7 @@ def get_logger() -> Logger:
 
     return logger
 
+
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
@@ -120,7 +119,7 @@ log = get_logger()
 
 # Override the built-in print function to use the logger
 def custom_print(*args, **kwargs):
-    log.info(' '.join(map(str, args)))
+    log.info(" ".join(map(str, args)))
 
 
 builtins.print = custom_print

@@ -45,7 +45,7 @@ def norm(vector: ndarray) -> float:
         float: Norm of this vector.
 
     """
-    return np.linalg.norm(vector)**2
+    return np.linalg.norm(vector) ** 2
 
 
 def load_parameters(tixi: Tixi3) -> Tuple[float, float, float, ndarray]:
@@ -116,22 +116,16 @@ def compute_derivatives(
     n_swt = norm(swt)
 
     # Define the matrix M (corresponds to M^-1 in latex).
-    M = np.array([
-        [n_cwt, -cwt_swt],
-        [-cwt_swt, n_swt]
-    ])
+    M = np.array([[n_cwt, -cwt_swt], [-cwt_swt, n_swt]])
 
-    det_M = n_cwt * n_swt - (cwt_swt ** 2)
+    det_M = n_cwt * n_swt - (cwt_swt**2)
 
     # Differences
     f = f_time - f_static
     log.info("f shape: %s", f.shape)
 
     # Define the vector
-    vector = np.array([
-        np.dot(swt, f),
-        np.dot(cwt, f)
-    ])
+    vector = np.array([np.dot(swt, f), np.dot(cwt, f)])
 
     log.info("vector shape: %s", vector.shape)
 
@@ -140,6 +134,7 @@ def compute_derivatives(
     log.info("x_min shape: %s, y_min shape: %s", x_min.shape, y_min.shape)
 
     return x_min, y_min
+
 
 # =================================================================================================
 #    MAIN

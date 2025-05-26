@@ -14,7 +14,6 @@ TODO:
 
 """
 
-
 # =============================================================================
 #   IMPORTS
 # =============================================================================
@@ -178,7 +177,11 @@ def payload_range_plot(ranges, ranges_cru, payloads, mw, NAME):
         )
         ax.plot(ranges_cru[2], payloads[2], "sr", markersize=10)
     ax.plot(
-        ranges[3], payloads[3], "^g", label="Range with max fuel and no payload", markersize=10
+        ranges[3],
+        payloads[3],
+        "^g",
+        label="Range with max fuel and no payload",
+        markersize=10,
     )
     ax.plot(ranges[3], payloads[3], "^g", markersize=20)
     ax.plot(ranges_cru[3], payloads[3], "^g", markersize=20)

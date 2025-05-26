@@ -63,8 +63,7 @@ def check_one_entry(dict_dir: List[Dict], mach: float, alt: float, angle: str) -
     """
 
     one_entry = [
-        d for d in dict_dir
-        if d['mach'] == mach and d['alt'] == alt and d['angle'] == angle
+        d for d in dict_dir if d["mach"] == mach and d["alt"] == alt and d["angle"] == angle
     ]
     if len(one_entry) != 1:
         raise ValueError(
@@ -123,7 +122,7 @@ def save_cfg_dir(
     case_dir_name: str,
     rate_type: str,
     cfg_dict: Dict,
-    cfg_param: str
+    cfg_param: str,
 ) -> None:
     """Specific use for add_damping_derivatives."""
     cfg[cfg_param] = cfg_dict[rate_type][0]
@@ -134,10 +133,7 @@ def save_cfg_dir(
 
 
 def add_damping_derivatives(
-    cfg: ConfigFile,
-    wkdir: Path,
-    case_dir_name: str,
-    rotation_rate: float
+    cfg: ConfigFile, wkdir: Path, case_dir_name: str, rotation_rate: float
 ) -> None:
     """
     Add damping derivatives parameter to the config file cfg and
@@ -297,9 +293,7 @@ def retrieve_su2_mesh(
             f"Loading .su2 file for aircraft {aircraft_name}, "
             f"deformation {deformation} of angle {angle} [deg]."
         )
-        su2_mesh_list.append(
-            (su2_mesh[0], aircraft_name, deformation, angle)
-        )
+        su2_mesh_list.append((su2_mesh[0], aircraft_name, deformation, angle))
 
     db.close()
 
@@ -328,9 +322,7 @@ def get_surface_pitching_omega(oscillation_type: str, omega: float) -> str:
         raise ValueError("Invalid oscillation_type in get_surface_pitching_omega.")
 
 
-def su2_mesh_list_from_db(
-    tixi: Tixi3
-) -> List[Tuple[bytes, str, str, float]]:
+def su2_mesh_list_from_db(tixi: Tixi3) -> List[Tuple[bytes, str, str, float]]:
 
     aircraft_name = get_value(tixi, USED_SU2_MESH_XPATH + "list")
     su2_mesh_list = []
@@ -341,7 +333,7 @@ def su2_mesh_list_from_db(
 
     else:
         angles = str(get_value(tixi, SU2_CONTROL_SURF_ANGLE_XPATH))
-        angles_list = list(set([float(angle) for angle in angles.split(';')]))
+        angles_list = list(set([float(angle) for angle in angles.split(";")]))
 
         for angle in angles_list:
             if angle != 0.0:
@@ -367,8 +359,7 @@ def get_su2_cfg_tpl(tpl_type: str) -> Path:
 
     if tpl_type not in TEMPLATE_TYPE:
         log.warning(
-            "template_type (str) should be either "
-            "'EULER' or 'RANS' in get_su2_config_template."
+            "template_type (str) should be either " "'EULER' or 'RANS' in get_su2_config_template."
         )
 
     tpl_type = tpl_type.lower()
@@ -377,7 +368,7 @@ def get_su2_cfg_tpl(tpl_type: str) -> Path:
 
 
 def get_su2_aerocoefs(
-    force_file: Path
+    force_file: Path,
 ) -> Tuple[float, float, float, float, float, float, float]:
     """
     Get aerodynamic coefficients and velocity from the force_file.
@@ -404,7 +395,7 @@ def get_su2_aerocoefs(
             if key in line:
                 if (key == "Free-stream velocity") and ("m/s" in line):
                     results[var_name] = float(line.split(" ")[7])
-                elif (not key == "Free-stream velocity"):
+                elif not key == "Free-stream velocity":
                     results[var_name] = access_coef(line)
 
     # Parse each line in the file
@@ -413,14 +404,18 @@ def get_su2_aerocoefs(
             parse_line(line)
 
     return (
-        results["cl"], results["cd"], results["cs"],
-        results["cmd"], results["cms"], results["cml"],
+        results["cl"],
+        results["cd"],
+        results["cs"],
+        results["cmd"],
+        results["cms"],
+        results["cml"],
         results["velocity"],
     )
 
 
 def get_su2_forces_moments(
-    force_file: Path
+    force_file: Path,
 ) -> Tuple[float, float, float, float, float, float, float]:
     """
     Get aerodynamic forces and moments from the force_file.
@@ -453,8 +448,12 @@ def get_su2_forces_moments(
             parse_line(line)
 
     return (
-        results["cfx"], results["cfy"], results["cfz"],
-        results["cmx"], results["cmy"], results["cmz"],
+        results["cfx"],
+        results["cfy"],
+        results["cfz"],
+        results["cmx"],
+        results["cmy"],
+        results["cmz"],
     )
 
 
@@ -507,6 +506,7 @@ def get_wetted_area(su2_logfile: Path) -> float:
     log.warning("No value has been found for the wetted area, returning 0 [m^2].")
 
     return 0
+
 
 # =================================================================================================
 #    MAIN

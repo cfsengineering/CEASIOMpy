@@ -84,17 +84,21 @@ def plot_response_surface(cpacs: CPACS, results_dir: Path) -> None:
     X, Y = np.meshgrid(x_grid, y_grid)
 
     # Build the input matrix for model prediction
-    input_data = np.column_stack([(
-        X.ravel()
-        if col == x
-        else (
-            Y.ravel()
-            if col == y
-            else np.full(X.size, c1_value) if col == c1 else np.full(X.size, c2_value)
-        ))
-        for col in AEROMAP_FEATURES
-        if col not in removed_columns
-    ])
+    input_data = np.column_stack(
+        [
+            (
+                X.ravel()
+                if col == x
+                else (
+                    Y.ravel()
+                    if col == y
+                    else (np.full(X.size, c1_value) if col == c1 else np.full(X.size, c2_value))
+                )
+            )
+            for col in AEROMAP_FEATURES
+            if col not in removed_columns
+        ]
+    )
 
     # Retrieve aeromaps for scatter plot
     aeromap_for_scatter_xpath = PLOT_XPATH + "/aeroScatter"
@@ -143,7 +147,12 @@ def plot_response_surface(cpacs: CPACS, results_dir: Path) -> None:
             marker = scatter_markers[idx % len(scatter_markers)]
             color = scatter_colors[idx % len(scatter_colors)]
             ax.scatter(
-                x_scatter, y_scatter, coeff_scatter, c=color, marker=marker, label=aeromap_uid
+                x_scatter,
+                y_scatter,
+                coeff_scatter,
+                c=color,
+                marker=marker,
+                label=aeromap_uid,
             )
 
     ax.set_xlabel(x)

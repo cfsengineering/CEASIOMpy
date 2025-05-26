@@ -167,9 +167,7 @@ def run_gui():
     env = os.environ.copy()
     # Add the src directory to PYTHONPATH
     env["PYTHONPATH"] = (
-        str(Path(__file__).resolve().parents[2] / "src")
-        + os.pathsep
-        + env.get("PYTHONPATH", "")
+        str(Path(__file__).resolve().parents[2] / "src") + os.pathsep + env.get("PYTHONPATH", "")
     )
     subprocess.run(
         ["streamlit", "run", "CEASIOMpy.py"],
@@ -177,6 +175,7 @@ def run_gui():
         check=True,
         env=env,
     )
+
 
 # =================================================================================================
 #    MAIN

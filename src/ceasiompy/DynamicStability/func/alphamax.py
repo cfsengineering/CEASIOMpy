@@ -64,7 +64,7 @@ def get_alpha_max(self) -> DataFrame:
             "pb_2V = 0.0",
             "qc_2V = 0.0",
             "rb_2V = 0.0",
-        ]
+        ],
     )
     ceasiompy_db.close()
 
@@ -100,6 +100,7 @@ def get_alpha_max(self) -> DataFrame:
     log.info("--- Finished computing AlphaMax ---")
 
     return alpha_max_df
+
 
 # =================================================================================================
 #    MAIN

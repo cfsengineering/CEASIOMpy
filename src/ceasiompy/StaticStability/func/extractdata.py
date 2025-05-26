@@ -69,12 +69,15 @@ def generate_stab_df(cpacs: CPACS, aeromap_uid: str, lr_bool: bool) -> DataFrame
     df = grouped.first().reset_index()
 
     # Rename columns
-    df.rename(columns={
-        "machNumber": "mach",
-        "altitude": "alt",
-        "angleOfAttack": "aoa",
-        "angleOfSideslip": "aos"
-    }, inplace=True)
+    df.rename(
+        columns={
+            "machNumber": "mach",
+            "altitude": "alt",
+            "angleOfAttack": "aoa",
+            "angleOfSideslip": "aos",
+        },
+        inplace=True,
+    )
 
     # Extract values from CPACS
     if not lr_bool:
@@ -101,34 +104,57 @@ def generate_stab_df(cpacs: CPACS, aeromap_uid: str, lr_bool: bool) -> DataFrame
             df["dir_stab"],
             df["lat_stab"],
             df["comment"],
-
-        ) = zip(*df.apply(
+        ) = zip(
+            *df.apply(
                 lambda row: check_stability_tangent(row["cma"], row["cnb"], row["clb"]),
                 axis=1,
-                )
-                )
+            )
+        )
 
-        return df[[
-            "mach", "alt", "aoa", "aos",
-            "cms", "cml", "cmd",
-            "cma", "clb", "cnb",
-            "long_stab", "dir_stab", "lat_stab",
-            "comment",
-        ]]
+        return df[
+            [
+                "mach",
+                "alt",
+                "aoa",
+                "aos",
+                "cms",
+                "cml",
+                "cmd",
+                "cma",
+                "clb",
+                "cnb",
+                "long_stab",
+                "dir_stab",
+                "lat_stab",
+                "comment",
+            ]
+        ]
 
     else:
         log.info("Using Linear Regression to compute the stability derivatives.")
         df = check_stability_lr(df)
 
-        return df[[
-            "mach", "alt", "aoa", "aos",
-            "cms", "cml", "cmd",
-            "lr_cma", "lr_cma_intercept",
-            "lr_clb", "lr_clb_intercept",
-            "lr_cnb", "lr_cnb_intercept",
-            "long_stab", "dir_stab", "lat_stab",
-            "comment",
-        ]]
+        return df[
+            [
+                "mach",
+                "alt",
+                "aoa",
+                "aos",
+                "cms",
+                "cml",
+                "cmd",
+                "lr_cma",
+                "lr_cma_intercept",
+                "lr_clb",
+                "lr_clb_intercept",
+                "lr_cnb",
+                "lr_cnb_intercept",
+                "long_stab",
+                "dir_stab",
+                "lat_stab",
+                "comment",
+            ]
+        ]
 
 
 def generate_stab_table(
@@ -150,13 +176,9 @@ def generate_stab_table(
     """
 
     # Define what the stability table will contain
-    stability_table = [[
-        "mach", "alt", "aoa", "aos",
-        "long_stab",
-        "dir_stab",
-        "lat_stab",
-        "comment"
-    ]]
+    stability_table = [
+        ["mach", "alt", "aoa", "aos", "long_stab", "dir_stab", "lat_stab", "comment"]
+    ]
 
     # Generate dataframe with necessary info
     df = generate_stab_df(cpacs, aeromap_uid, lr_bool)
@@ -165,15 +187,23 @@ def generate_stab_table(
     plot_stability(results_dir, df, lr_bool)
 
     # Append the results to the stability_table
-    stability_table.extend(df[[
-        "mach", "alt", "aoa", "aos",
-        "long_stab",
-        "dir_stab",
-        "lat_stab",
-        "comment"
-    ]].values.tolist())
+    stability_table.extend(
+        df[
+            [
+                "mach",
+                "alt",
+                "aoa",
+                "aos",
+                "long_stab",
+                "dir_stab",
+                "lat_stab",
+                "comment",
+            ]
+        ].values.tolist()
+    )
 
     return stability_table
+
 
 # =================================================================================================
 #    MAIN

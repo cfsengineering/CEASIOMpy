@@ -42,6 +42,7 @@ from ceasiompy.PyAVL import MODULE_NAME
 #   CLASSES
 # =================================================================================================
 
+
 class TestStaticStability(CeasiompyTest):
 
     @classmethod
@@ -79,71 +80,135 @@ class TestStaticStability(CeasiompyTest):
         # Test Linear Regression
         self.assert_equal_function(
             f=generate_stab_table,
-            input_args=(self.cpacs, "test_apm", self.wkdir, True, ),
-            expected=([
+            input_args=(
+                self.cpacs,
+                "test_apm",
+                self.wkdir,
+                True,
+            ),
+            expected=(
                 [
-                    "mach", "alt", "aoa", "aos",
-                    "long_stab", "dir_stab", "lat_stab",
-                    "comment"
-                ],
-                [
-                    0.3, 0.0, 0.0, 0.0,
-                    "Stable", "Stable", "Unstable",
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-                [
-                    0.3, 0.0, 0.0, 10.0,
-                    "Stable", "Stable", "Unstable",
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-                [
-                    0.3, 0.0, 10.0, 0.0,
-                    "Stable", "Unstable", "Unstable",
-                    "Aircraft is unstable for Directional axis "
-                    "i.e. Cnb <=0. Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-                [
-                    0.3, 0.0, 10.0, 10.0,
-                    "Stable", "Unstable", "Unstable",
-                    "Aircraft is unstable for Directional axis "
-                    "i.e. Cnb <=0. Aircraft is unstable for Lateral axis i.e. Clb >=0. "
+                    [
+                        "mach",
+                        "alt",
+                        "aoa",
+                        "aos",
+                        "long_stab",
+                        "dir_stab",
+                        "lat_stab",
+                        "comment",
+                    ],
+                    [
+                        0.3,
+                        0.0,
+                        0.0,
+                        0.0,
+                        "Stable",
+                        "Stable",
+                        "Unstable",
+                        "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
+                    ],
+                    [
+                        0.3,
+                        0.0,
+                        0.0,
+                        10.0,
+                        "Stable",
+                        "Stable",
+                        "Unstable",
+                        "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
+                    ],
+                    [
+                        0.3,
+                        0.0,
+                        10.0,
+                        0.0,
+                        "Stable",
+                        "Unstable",
+                        "Unstable",
+                        "Aircraft is unstable for Directional axis "
+                        "i.e. Cnb <=0. Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
+                    ],
+                    [
+                        0.3,
+                        0.0,
+                        10.0,
+                        10.0,
+                        "Stable",
+                        "Unstable",
+                        "Unstable",
+                        "Aircraft is unstable for Directional axis "
+                        "i.e. Cnb <=0. Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
+                    ],
                 ]
-            ])
+            ),
         )
 
         # Test data
         self.assert_equal_function(
             f=generate_stab_table,
-            input_args=(self.cpacs, "test_apm", self.wkdir, False,),
-            expected=([
+            input_args=(
+                self.cpacs,
+                "test_apm",
+                self.wkdir,
+                False,
+            ),
+            expected=(
                 [
-                    "mach", "alt", "aoa", "aos",
-                    "long_stab", "dir_stab", "lat_stab",
-                    "comment"
-                ],
-                [
-                    0.3, 0.0, 0.0, 0.0,
-                    "Stable", "Stable", "Stable",
-                    "Aircraft is stable along all axes."
-                ],
-                [
-                    0.3, 0.0, 0.0, 10.0,
-                    "Stable", "Stable", "Unstable",
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-                [
-                    0.3, 0.0, 10.0, 0.0,
-                    "Stable", "Unstable", "Stable",
-                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
-                ],
-                [
-                    0.3, 0.0, 10.0, 10.0,
-                    "Unstable", "Stable", "Stable",
-                    "Aircraft is unstable for Longitudinal axis i.e. Cma >=0. "
+                    [
+                        "mach",
+                        "alt",
+                        "aoa",
+                        "aos",
+                        "long_stab",
+                        "dir_stab",
+                        "lat_stab",
+                        "comment",
+                    ],
+                    [
+                        0.3,
+                        0.0,
+                        0.0,
+                        0.0,
+                        "Stable",
+                        "Stable",
+                        "Stable",
+                        "Aircraft is stable along all axes.",
+                    ],
+                    [
+                        0.3,
+                        0.0,
+                        0.0,
+                        10.0,
+                        "Stable",
+                        "Stable",
+                        "Unstable",
+                        "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
+                    ],
+                    [
+                        0.3,
+                        0.0,
+                        10.0,
+                        0.0,
+                        "Stable",
+                        "Unstable",
+                        "Stable",
+                        "Aircraft is unstable for Directional axis i.e. Cnb <=0. ",
+                    ],
+                    [
+                        0.3,
+                        0.0,
+                        10.0,
+                        10.0,
+                        "Unstable",
+                        "Stable",
+                        "Stable",
+                        "Aircraft is unstable for Longitudinal axis i.e. Cma >=0. ",
+                    ],
                 ]
-            ])
-
+            ),
         )
+
 
 # =================================================================================================
 #    MAIN

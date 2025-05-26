@@ -57,6 +57,7 @@ def run_workflow_test(modules_to_run, cpacs_path=CPACS_IN_PATH):
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list([str(cpacs_path), *modules_to_run])
 
+
 # =================================================================================================
 #   TESTS
 # =================================================================================================

@@ -149,7 +149,7 @@ class SDSAFile:
         log.info(f"self.plot {self.plot}")
 
         # Extract and unique list of mach identifiers
-        self.mach_list = list(set([float(x) for x in str(mach_str).split(';')]))
+        self.mach_list = list(set([float(x) for x in str(mach_str).split(";")]))
         self.mach_str = ",".join(str(mach) for mach in self.mach_list)
         self.len_mach_list = len(self.mach_list)
 

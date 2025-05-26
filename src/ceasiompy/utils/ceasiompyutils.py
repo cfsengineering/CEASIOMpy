@@ -116,11 +116,11 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
             value = test_value
         else:
             value = default_value
-        parts = xpath.strip('/').split('/')
+        parts = xpath.strip("/").split("/")
         for i in range(1, len(parts) + 1):
-            path = '/' + '/'.join(parts[:i])
+            path = "/" + "/".join(parts[:i])
             if not tixi.checkElement(path):
-                tixi.createElement('/' + '/'.join(parts[:i - 1]), parts[i - 1])
+                tixi.createElement("/" + "/".join(parts[: i - 1]), parts[i - 1])
 
         # Check if the name or var_type is in the dictionary and call the corresponding function
         if name in AEROMAP_LIST:
@@ -165,10 +165,7 @@ def change_working_dir(working_dir):
 
 
 def ensure_and_append_text_element(
-    tixi: Tixi3,
-    parent_xpath: str,
-    element_name: str,
-    text: str
+    tixi: Tixi3, parent_xpath: str, element_name: str, text: str
 ) -> None:
     """
     Ensures element (element_name) exists at xpath (parent_xpath),
@@ -397,8 +394,8 @@ def check_version(software_name: str, required_version: str) -> Tuple[bool, str]
     if version is None:
         return False, ""
 
-    version_tuple = tuple(map(int, version.split('.')))
-    required_version_tuple = tuple(map(int, required_version.split('.')))
+    version_tuple = tuple(map(int, version.split(".")))
+    required_version_tuple = tuple(map(int, required_version.split(".")))
 
     return version_tuple >= required_version_tuple, version
 
@@ -415,7 +412,7 @@ def get_version(software_name: str) -> str:
         log.warning(f"The version file for {software_name} does not exist!")
         return ""
 
-    version_pattern = re.compile(r'\d+\.\d+\.\d+')
+    version_pattern = re.compile(r"\d+\.\d+\.\d+")
     match = version_pattern.search(str(version_file))
 
     if match:
@@ -522,7 +519,7 @@ def check_nb_cpu(nb_proc: int) -> None:
     """
     Check if input nb_cpu from GUI is reasonable.
     """
-    if (not os.cpu_count() > nb_proc):
+    if not os.cpu_count() > nb_proc:
         log.warning(f"{nb_proc} CPUs is too much for your engine.")
         nb_proc = get_reasonable_nb_cpu()
         log.info(f"Using by default {nb_proc} CPUs.")
@@ -619,17 +616,17 @@ def get_part_type(tixi, part_uid: str, print_info=True) -> str:
     part_xpath = tixi.uIDGetXPath(part_uid)
 
     path_part = {
-        "wings/wing" : "wing",
-        "fuselages/fuselage" : "fuselage",
-        "enginePylons/enginePylon" : "pylon",
-        "engine/nacelle/fanCowl" : "fanCowl",
-        "engine/nacelle/centerCowl" : "centerCowl",
-        "engine/nacelle/coreCowl" : "coreCowl",
-        "vehicles/engines/engine" : "engine",
-        "vehicles/rotorcraft/model/rotors/rotor" : "rotor",
+        "wings/wing": "wing",
+        "fuselages/fuselage": "fuselage",
+        "enginePylons/enginePylon": "pylon",
+        "engine/nacelle/fanCowl": "fanCowl",
+        "engine/nacelle/centerCowl": "centerCowl",
+        "engine/nacelle/coreCowl": "coreCowl",
+        "vehicles/engines/engine": "engine",
+        "vehicles/rotorcraft/model/rotors/rotor": "rotor",
     }
 
-    for (path_name, part_name) in path_part.items():
+    for path_name, part_name in path_part.items():
         if path_name in part_xpath:
             if print_info:
                 log.info(f"'{part_uid}' is a {part_name}")
@@ -664,6 +661,7 @@ def bool_(value) -> bool:
         return False
     else:
         return True
+
 
 # =================================================================================================
 #    MAIN

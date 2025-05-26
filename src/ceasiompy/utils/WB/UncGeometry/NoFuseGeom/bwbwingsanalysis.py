@@ -11,7 +11,6 @@ aircraft without fuselage.
 
 """
 
-
 # =============================================================================
 #   IMPORTS
 # =============================================================================
@@ -26,6 +25,7 @@ from ceasiompy import log
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================
+
 
 # TODO: change function name
 def check_segment_connection(wing_plt_area_xz, wing_plt_area_yz, awg, tigl):
@@ -361,22 +361,8 @@ def geom_eval(w_nb, awg, cpacs_in):
     log.info("Number of wing sections (not counting symmetry) [-]: " + str(awg.wing_sec_nb))
     log.info("Number of wing segments (not counting symmetry) [-]: " + str(awg.wing_seg_nb))
     log.info("Wing Span (counting symmetry)[m]: \n" + str(awg.wing_span))
-    log.info(
-        "Wing MAC length [m]: "
-        + str(
-            awg.wing_mac[
-                0,
-            ]
-        )
-    )
-    log.info(
-        "Wing MAC x,y,z coordinate [m]: \n"
-        + str(
-            awg.wing_mac[
-                1:4,
-            ]
-        )
-    )
+    log.info("Wing MAC length [m]: " + str(awg.wing_mac[0,]))
+    log.info("Wing MAC x,y,z coordinate [m]: \n" + str(awg.wing_mac[1:4,]))
     log.info("Wings sections thicknes [m]: \n" + str(awg.wing_sec_thickness))
     log.info("Wings sections mean thicknes [m]: \n" + str(awg.wing_sec_mean_thick))
     log.info("Wing segments length [m]: \n" + str(awg.wing_seg_length))

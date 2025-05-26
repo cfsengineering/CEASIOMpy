@@ -82,8 +82,7 @@ def get_aircrafts_list() -> List:
                 columns = db.cursor.fetchall()
                 if any(column[1] == "aircraft" for column in columns):
                     # Query for distinct aircraft names from the table
-                    db.cursor.execute(
-                        f"SELECT DISTINCT aircraft FROM {table_name}")  # nosec
+                    db.cursor.execute(f"SELECT DISTINCT aircraft FROM {table_name}")  # nosec
                     rows = db.cursor.fetchall()
                     for row in rows:
                         aircrafts.add(row[0])
@@ -100,9 +99,12 @@ def get_aircrafts_list() -> List:
 
 
 def convert_fuselage_profiles(
-    tixi: Tixi3, sec_xpath: str,
-    i_sec: int, i_elem: int,
-    pos_y_list: List, pos_z_list: List,
+    tixi: Tixi3,
+    sec_xpath: str,
+    i_sec: int,
+    i_elem: int,
+    pos_y_list: List,
+    pos_z_list: List,
 ) -> Tuple[Transformation, float, float, ndarray, ndarray]:
     elem_xpath = sec_xpath + "/elements/element[" + str(i_elem + 1) + "]"
     elem_uid = get_uid(tixi, elem_xpath)
@@ -111,16 +113,13 @@ def convert_fuselage_profiles(
     check_if_rotated(elem_transf.rotation, elem_uid)
 
     prof_uid, prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(
-        tixi,
-        elem_xpath + "/profileUID"
+        tixi, elem_xpath + "/profileUID"
     )
 
     # Calculate profile sizes
     prof_vect_x = np.max(prof_vect_x) - np.min(prof_vect_x)
     if not prof_vect_x == 0.0:
-        log.warning(
-            f"Issue with profile {prof_uid} as prof_vect_x not equal to 0.0"
-        )
+        log.warning(f"Issue with profile {prof_uid} as prof_vect_x not equal to 0.0")
 
     prof_size_y = (np.max(prof_vect_y) - np.min(prof_vect_y)) / 2
     prof_size_z = (np.max(prof_vect_z) - np.min(prof_vect_z)) / 2
@@ -133,8 +132,8 @@ def convert_fuselage_profiles(
     prof_min_y = np.min(prof_vect_y)
     prof_min_z = np.min(prof_vect_z)
 
-    prof_vect_y -= (1 + prof_min_y)
-    prof_vect_z -= (1 + prof_min_z)
+    prof_vect_y -= 1 + prof_min_y
+    prof_vect_z -= 1 + prof_min_z
 
     # Could be a problem if they are less positionings than sections
     # TODO: solve that!
@@ -278,9 +277,7 @@ def get_segments(tixi: Tixi3) -> List[Tuple[str, str]]:
 
 
 def corrects_airfoil_profile(
-    prof_vect_x: ndarray,
-    prof_vect_y: ndarray,
-    prof_vect_z: ndarray
+    prof_vect_x: ndarray, prof_vect_y: ndarray, prof_vect_z: ndarray
 ) -> float:
     """
     Process airfoil profiles correctly.
@@ -338,12 +335,7 @@ def get_chord_span(tixi: Tixi3, wing_xpath: str) -> Tuple[float, float]:
 
     # Wing Sections
     le_list = wing_sections(
-        tixi,
-        wing_xpath,
-        pos_x_list,
-        pos_y_list,
-        pos_z_list,
-        list_type='first_n_last'
+        tixi, wing_xpath, pos_x_list, pos_y_list, pos_z_list, list_type="first_n_last"
     )
 
     first_le = le_list[0]
@@ -536,9 +528,7 @@ def get_section_rotation(
     # Get the number of elements
     elem_cnt = elements_number(tixi, sec_xpath, "element", logg=False)
     if elem_cnt > 1:
-        log.warning(
-            f"Sections {sec_uid} contains {elem_cnt} elements !"
-        )
+        log.warning(f"Sections {sec_uid} contains {elem_cnt} elements !")
 
     # Access element xpath
     elem_xpath = sec_xpath + "/elements/element[1]"
@@ -547,16 +537,11 @@ def get_section_rotation(
 
     # Get wing profile (airfoil)
     prof_uid, prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(
-        tixi,
-        elem_xpath + "/airfoilUID"
+        tixi, elem_xpath + "/airfoilUID"
     )
 
     # Apply scaling using numpy operations
-    x, y, z = prod_points(
-        elem_transf.scaling,
-        sec_transf.scaling,
-        wing_transf.scaling
-    )
+    x, y, z = prod_points(elem_transf.scaling, sec_transf.scaling, wing_transf.scaling)
 
     prof_vect_x *= x
     prof_vect_y *= y
@@ -590,8 +575,12 @@ def get_leading_edge(
 
     # Apply 3d rotation of section rotation
     x_le_rot, y_le_rot, z_le_rot = rotate_points(
-        pos_x_list[i_sec], pos_y_list[i_sec], pos_z_list[i_sec],
-        wg_sec_dihed, wg_sec_twist, wg_sec_yaw
+        pos_x_list[i_sec],
+        pos_y_list[i_sec],
+        pos_z_list[i_sec],
+        wg_sec_dihed,
+        wg_sec_twist,
+        wg_sec_yaw,
     )
 
     x_le_abs, y_le_abs, z_le_abs = sum_points(
@@ -636,17 +625,17 @@ def access_leading_edges(
 
     for i_sec in list_cnt:
         wg_sec_rot, wg_sec_chord, _, _, _, _ = get_section_rotation(
-            tixi,
-            i_sec,
-            wing_sections_xpath,
-            wing_transf, wg_sk_transf
+            tixi, i_sec, wing_sections_xpath, wing_transf, wg_sk_transf
         )
 
         x_le_abs, y_le_abs, z_le_abs, wg_sec_chord = get_leading_edge(
             i_sec,
             wg_sk_transf,
-            wg_sec_rot, wg_sec_chord,
-            pos_x_list, pos_y_list, pos_z_list,
+            wg_sec_rot,
+            wg_sec_chord,
+            pos_x_list,
+            pos_y_list,
+            pos_z_list,
         )
 
         le_list.append([x_le_abs, y_le_abs, z_le_abs, wg_sec_chord])
@@ -714,8 +703,11 @@ def wing_sections(
             tixi=tixi,
             list_cnt=list_cnt,
             wing_sections_xpath=wing_sections_xpath,
-            wing_transf=wing_transf, wg_sk_transf=wg_sk_transf,
-            pos_x_list=pos_x_list, pos_y_list=pos_y_list, pos_z_list=pos_z_list,
+            wing_transf=wing_transf,
+            wg_sk_transf=wg_sk_transf,
+            pos_x_list=pos_x_list,
+            pos_y_list=pos_y_list,
+            pos_z_list=pos_z_list,
         )
 
 
@@ -748,6 +740,7 @@ def get_main_wing_le(tixi: Tixi3) -> Tuple[float, float, float, float]:
     first_list = le_list[0]
 
     return first_list[0], first_list[1], first_list[2], first_list[3]
+
 
 # =================================================================================================
 #    MAIN

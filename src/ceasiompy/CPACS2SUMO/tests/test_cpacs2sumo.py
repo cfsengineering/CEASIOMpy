@@ -45,7 +45,18 @@ def test_cst2coord():
     airfoil_CST = CST_shape(wl, wu, dz, N)
     airfoil_CST.airfoil_coor()
 
-    x_true_values = [1.0, 0.9045, 0.6545, 0.3454, 0.0954, 0.0, 0.0954, 0.3454, 0.6545, 0.9045]
+    x_true_values = [
+        1.0,
+        0.9045,
+        0.6545,
+        0.3454,
+        0.0954,
+        0.0,
+        0.0954,
+        0.3454,
+        0.6545,
+        0.9045,
+    ]
     y_true_values = [
         0.0,
         -0.0004864,

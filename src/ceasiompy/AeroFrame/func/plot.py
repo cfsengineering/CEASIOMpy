@@ -43,10 +43,7 @@ def plot_fem_mesh(
     """
 
     fig, axs = plt.subplots(1, 2)
-    axs[0].plot(
-        centerline_df["y"], centerline_df["x"],
-        "-o", label="FEM nodes", color="r", ms=1
-    )
+    axs[0].plot(centerline_df["y"], centerline_df["x"], "-o", label="FEM nodes", color="r", ms=1)
     axs[0].scatter(wing_df["y"], wing_df["x"], s=1, label="wing panels", color="b")
     axs[0].set_xlabel("$y$")
     axs[0].set_ylabel("$x$")
@@ -80,18 +77,24 @@ def plot_deformed_wing(
     """
     fig, axs = plt.subplots()
     axs.plot(
-        centerline_df['y_new'],
-        centerline_df['z_new'],
-        '-o',
-        label='Deformed wing',
+        centerline_df["y_new"],
+        centerline_df["z_new"],
+        "-o",
+        label="Deformed wing",
         linewidth=2,
-        color='r'
+        color="r",
     )
 
-    axs.plot(undeformed_df["y"], undeformed_df["z"], '-o', label="Undeformed wing", linewidth=2)
-    axs.set_xlabel('$y$ [m]')
-    axs.set_ylabel('$z$ [m]', rotation=0)
-    axs.set_title('Wing shape in y-z plane')
+    axs.plot(
+        undeformed_df["y"],
+        undeformed_df["z"],
+        "-o",
+        label="Undeformed wing",
+        linewidth=2,
+    )
+    axs.set_xlabel("$y$ [m]")
+    axs.set_ylabel("$z$ [m]", rotation=0)
+    axs.set_title("Wing shape in y-z plane")
     axs.legend()
     # plt.axis('equal')
 
@@ -167,15 +170,15 @@ def plot_convergence(tip_deflection, res, wkdir):
     """
     iter_vec = np.arange(1, len(tip_deflection) + 1, 1)
     fig, axs = plt.subplots(1, 2)
-    axs[0].plot(iter_vec, tip_deflection, '-o')
-    axs[0].set_xlabel('Iteration')
-    axs[0].set_ylabel('$\delta_z$ [m]')
+    axs[0].plot(iter_vec, tip_deflection, "-o")
+    axs[0].set_xlabel("Iteration")
+    axs[0].set_ylabel("$\delta_z$ [m]")
     axs[0].set_title("Wing tip deflection")
 
-    axs[1].plot(iter_vec[1:], res[1:], '-o')
-    axs[1].set_xlabel('Iteration')
-    axs[1].set_ylabel('Residual')
-    axs[1].set_yscale('log')
+    axs[1].plot(iter_vec[1:], res[1:], "-o")
+    axs[1].set_xlabel("Iteration")
+    axs[1].set_ylabel("Residual")
+    axs[1].set_yscale("log")
     axs[1].set_title("Residual of deflection")
 
     fig.tight_layout()

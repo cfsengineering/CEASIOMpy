@@ -54,11 +54,11 @@ def if_choice_vartype(
     description,
 ) -> None:
 
-    default_index = int(default_value.index(get_value_or_default(
-        session_state.cpacs.tixi,
-        xpath + "type",
-        "CPACS2GMSH mesh"
-    )))
+    default_index = int(
+        default_value.index(
+            get_value_or_default(session_state.cpacs.tixi, xpath + "type", "CPACS2GMSH mesh")
+        )
+    )
 
     selected_type = st.radio(
         "Select variable type:",
@@ -153,12 +153,7 @@ def add_gui_object(
             path_vartype(key)
         elif var_type in vartype_map:
             vartype_map[var_type](
-                session_state.cpacs.tixi,
-                xpath,
-                default_value,
-                name,
-                key,
-                description
+                session_state.cpacs.tixi, xpath, default_value, name, key, description
             )
         elif var_type == "multiselect":
             multiselect_vartype(default_value, name, key)
@@ -223,7 +218,15 @@ def add_module_tab() -> None:
             groups_container = order_by_gps(inputs)
 
             for (
-                name, default_value, var_type, unit, xpath, description, group, _, _
+                name,
+                default_value,
+                var_type,
+                unit,
+                xpath,
+                description,
+                group,
+                _,
+                _,
             ) in inputs.values():
                 key = f"{m}_{module}_{name.replace(' ', '')}_{group.replace(' ', '')}"
                 process_unit(name, unit)
@@ -260,6 +263,7 @@ def process_unit(name: str, unit: str) -> None:
     # TODO: Add constants in __init__ ?
     if unit not in ["[]", "[1]", None]:
         name = f"{name} {unit}"
+
 
 # =================================================================================================
 #    MAIN

@@ -40,11 +40,13 @@ from ceasiompy import (
 
 
 def get_points_ref(tixi: Tixi3) -> ndarray:
-    return np.array([
-        tixi.getDoubleElement(REF_XPATH + "/point/x"),
-        tixi.getDoubleElement(REF_XPATH + "/point/y"),
-        tixi.getDoubleElement(REF_XPATH + "/point/z"),
-    ])
+    return np.array(
+        [
+            tixi.getDoubleElement(REF_XPATH + "/point/x"),
+            tixi.getDoubleElement(REF_XPATH + "/point/y"),
+            tixi.getDoubleElement(REF_XPATH + "/point/z"),
+        ]
+    )
 
 
 def write_control(
@@ -52,7 +54,7 @@ def write_control(
     control_type: str,
     hinge_xsi: float,
     axis: str,
-    control_bool: float
+    control_bool: float,
 ) -> None:
     """Helper function to write CONTROL section."""
     avl_file.write("CONTROL\n")
@@ -160,6 +162,7 @@ def duplicate_elements(tixi: Tixi3, *lists: List) -> Tuple[List, ...]:
                 append_combination(combination, [0.0, 0.0, value])
 
     return tuple(new_lists)
+
 
 # =================================================================================================
 #    MAIN

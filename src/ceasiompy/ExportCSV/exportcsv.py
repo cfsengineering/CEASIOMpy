@@ -42,9 +42,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, AEROMAP_TO_EXPORT_XPATH)
 
     if not aeromap_uid_list:
-        aeromap_uid_list = get_value_or_default(
-            tixi, AEROMAP_TO_EXPORT_XPATH, "DefaultAeromap"
-        )
+        aeromap_uid_list = get_value_or_default(tixi, AEROMAP_TO_EXPORT_XPATH, "DefaultAeromap")
 
     for aeromap_uid in aeromap_uid_list:
         aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)

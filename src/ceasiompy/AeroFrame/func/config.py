@@ -68,27 +68,29 @@ from ceasiompy.AeroFrame import (
 # =================================================================================================
 
 
-def compute_distance_and_moment(
-    centerline_df: DataFrame, row: Series
-) -> Series:
-    """Transfer of forces and induced moment to the closest beam node. """
-    point_xyz = np.array([row['x'], row['y'], row['z']])
-    centerline_xyz = np.array([
-        centerline_df.at[row['closest_centerline_index'], 'x'],
-        centerline_df.at[row['closest_centerline_index'], 'y'],
-        centerline_df.at[row['closest_centerline_index'], 'z'],
-    ])
+def compute_distance_and_moment(centerline_df: DataFrame, row: Series) -> Series:
+    """Transfer of forces and induced moment to the closest beam node."""
+    point_xyz = np.array([row["x"], row["y"], row["z"]])
+    centerline_xyz = np.array(
+        [
+            centerline_df.at[row["closest_centerline_index"], "x"],
+            centerline_df.at[row["closest_centerline_index"], "y"],
+            centerline_df.at[row["closest_centerline_index"], "z"],
+        ]
+    )
 
     distance_vector = point_xyz - centerline_xyz
-    force_vector = np.array([row['Fx'], row['Fy'], row['Fz']])
+    force_vector = np.array([row["Fx"], row["Fy"], row["Fz"]])
     moment_vector = np.cross(distance_vector, force_vector)
 
-    return Series({
-        'moment_x': moment_vector[0],
-        'moment_y': moment_vector[1],
-        'moment_z': moment_vector[2],
-        'distance_vector': distance_vector
-    })
+    return Series(
+        {
+            "moment_x": moment_vector[0],
+            "moment_y": moment_vector[1],
+            "moment_z": moment_vector[2],
+            "distance_vector": distance_vector,
+        }
+    )
 
 
 def parse_AVL_surface(extracted_string: str):
@@ -109,23 +111,26 @@ def parse_AVL_surface(extracted_string: str):
         slope_list (list): slope of the local camberline.
     """
 
-    i_newline = [i for i, char in enumerate(extracted_string) if char == '\n']
-    surface_name = extracted_string[12:i_newline[0] - 1].replace(' ', '')
+    i_newline = [i for i, char in enumerate(extracted_string) if char == "\n"]
+    surface_name = extracted_string[12 : i_newline[0] - 1].replace(" ", "")
 
-    str_tmp = extracted_string[i_newline[0] + 1:i_newline[1]]
+    str_tmp = extracted_string[i_newline[0] + 1 : i_newline[1]]
     i_span = str_tmp.find("# Spanwise =")
-    nspanwise = int(str_tmp[i_span + 12:i_span + 17])
+    nspanwise = int(str_tmp[i_span + 12 : i_span + 17])
 
-    i_chordwise = [m.start() for m in re.finditer(
-        "# Chordwise =", extracted_string[i_newline[1]:])]
-    i_incidence = [m.start() for m in re.finditer(
-        "Incidence  =", extracted_string[i_newline[1]:])]
-    i_strip_width = [m.start() for m in re.finditer(
-        "Strip Width  =", extracted_string[i_newline[1]:])]
-    i_strip_dihed = [m.start() for m in re.finditer(
-        "Strip Dihed. =", extracted_string[i_newline[1]:])]
-    i_IbX = [m.start() for m in re.finditer(
-        "I        X", extracted_string[i_newline[1]:])]
+    i_chordwise = [
+        m.start() for m in re.finditer("# Chordwise =", extracted_string[i_newline[1] :])
+    ]
+    i_incidence = [
+        m.start() for m in re.finditer("Incidence  =", extracted_string[i_newline[1] :])
+    ]
+    i_strip_width = [
+        m.start() for m in re.finditer("Strip Width  =", extracted_string[i_newline[1] :])
+    ]
+    i_strip_dihed = [
+        m.start() for m in re.finditer("Strip Dihed. =", extracted_string[i_newline[1] :])
+    ]
+    i_IbX = [m.start() for m in re.finditer("I        X", extracted_string[i_newline[1] :])]
 
     nchord_strip: List[float] = [0.0] * nspanwise
     incidence_strip: List[float] = [0.0] * nspanwise
@@ -134,31 +139,44 @@ def parse_AVL_surface(extracted_string: str):
     slope_list: List[float] = []
     jj = -1
 
-    nchordwise = int(extracted_string[slice(
-        i_newline[1] + i_chordwise[0] + 13, i_newline[1] + i_chordwise[0] + 16)])
+    nchordwise = int(
+        extracted_string[
+            slice(i_newline[1] + i_chordwise[0] + 13, i_newline[1] + i_chordwise[0] + 16)
+        ]
+    )
     p_xyz = np.zeros((nspanwise * nchordwise, 3))
     xyz = np.zeros((nspanwise * nchordwise, 3))
 
     nn_vec = []
     for k in range(nspanwise):
-        i0 = slice(i_newline[1] + i_chordwise[k] + 13,
-                   i_newline[1] + i_chordwise[k] + 16)
+        i0 = slice(i_newline[1] + i_chordwise[k] + 13, i_newline[1] + i_chordwise[k] + 16)
         nchord_strip[k] = float(extracted_string[i0])
 
-        i0 = slice(i_newline[1] + i_incidence[k] - 1 + 13,
-                   i_newline[1] + i_incidence[k] - 1 + 24)
+        i0 = slice(
+            i_newline[1] + i_incidence[k] - 1 + 13,
+            i_newline[1] + i_incidence[k] - 1 + 24,
+        )
         incidence_strip[k] = float(extracted_string[i0])
 
-        i0 = slice(i_newline[1] + i_strip_width[k] - 1 + 13 + 2,
-                   i_newline[1] + i_strip_width[k] - 1 + 24 + 1)
+        i0 = slice(
+            i_newline[1] + i_strip_width[k] - 1 + 13 + 2,
+            i_newline[1] + i_strip_width[k] - 1 + 24 + 1,
+        )
         width_strip[k] = float(extracted_string[i0])
 
-        i0 = slice(i_newline[1] + i_strip_dihed[k] - 1 + 13 + 2,
-                   i_newline[1] + i_strip_dihed[k] - 1 + 24 + 1)
+        i0 = slice(
+            i_newline[1] + i_strip_dihed[k] - 1 + 13 + 2,
+            i_newline[1] + i_strip_dihed[k] - 1 + 24 + 1,
+        )
         dihed_strip[k] = float(extracted_string[i0])
 
-        idd = [i for i in range(len(i_newline) - 1) if (i_IbX[k] + i_newline[1] - 1 - i_newline[i])
-               * (i_IbX[k] + i_newline[1] - 1 - i_newline[i + 1]) < 0]
+        idd = [
+            i
+            for i in range(len(i_newline) - 1)
+            if (i_IbX[k] + i_newline[1] - 1 - i_newline[i])
+            * (i_IbX[k] + i_newline[1] - 1 - i_newline[i + 1])
+            < 0
+        ]
 
         sa = np.sin(np.deg2rad(incidence_strip[k]))
         ca = np.cos(np.deg2rad(incidence_strip[k]))
@@ -169,9 +187,7 @@ def parse_AVL_surface(extracted_string: str):
         nn = nn / np.linalg.norm(nn)
 
         ah = np.array([0, cd, sd])
-        T = np.array([[0, -ah[2], ah[1]],
-                      [ah[2], 0, -ah[0]],
-                      [-ah[1], ah[0], 0]])
+        T = np.array([[0, -ah[2], ah[1]], [ah[2], 0, -ah[0]], [-ah[1], ah[0], 0]])
 
         sdx = 0
         x0 = np.zeros(int(nchord_strip[k]))
@@ -179,9 +195,10 @@ def parse_AVL_surface(extracted_string: str):
 
         for j in range(int(nchord_strip[k])):
             jj += 1
-            line_data = extracted_string[i_newline[idd[0] + j + 1]:i_newline[idd[0] + j + 2]]
-            data_list = [float(match.group()) for match in re.finditer(
-                r"-?\b\d+\.\d+\b", line_data[9:])]
+            line_data = extracted_string[i_newline[idd[0] + j + 1] : i_newline[idd[0] + j + 2]]
+            data_list = [
+                float(match.group()) for match in re.finditer(r"-?\b\d+\.\d+\b", line_data[9:])
+            ]
             xyz0 = data_list[0:3]
             dx = data_list[3]
             x0[j] = sdx
@@ -195,9 +212,11 @@ def parse_AVL_surface(extracted_string: str):
 
             phi = -np.arctan(slope)
             strip_area = dx * width_strip[k] / np.cos(phi)
-            nn1 = np.cos(phi) * nn + (1 - np.cos(phi)) * ah * \
-                (ah.dot(np.transpose(nn))) + \
-                np.sin(phi) * nn.dot(np.transpose(T))
+            nn1 = (
+                np.cos(phi) * nn
+                + (1 - np.cos(phi)) * ah * (ah.dot(np.transpose(nn)))
+                + np.sin(phi) * nn.dot(np.transpose(T))
+            )
             p_xyz0 = strip_area * dCp * nn1
             # cp_xyz0 = dCp * nn1
             p_xyz[jj, :] = p_xyz0
@@ -210,8 +229,7 @@ def parse_AVL_surface(extracted_string: str):
 
 
 def read_avl_fe_file(
-    fe_path: Path,
-    plot: bool = False
+    fe_path: Path, plot: bool = False
 ) -> Tuple[List, List, List, List, List, List]:
     """Function to read AVL 'fe.txt' element force file,
     and extract the aerodynamic loads calling the function
@@ -231,7 +249,7 @@ def read_avl_fe_file(
     """
 
     try:
-        with open(fe_path, 'r') as file:
+        with open(fe_path, "r") as file:
             file_content = file.read()
     except FileNotFoundError:
         raise FileNotFoundError(f"Error reading {fe_path}")
@@ -246,7 +264,7 @@ def read_avl_fe_file(
         else:
             ie = i_surface[k + 1]
 
-        string_surface.append(file_content[i_surface[k]:ie])
+        string_surface.append(file_content[i_surface[k] : ie])
 
     fsclf = 10
     xyz_list = []
@@ -258,8 +276,7 @@ def read_avl_fe_file(
 
     for k in range(number_surfaces):
         string_tmp = string_surface[k]
-        surface_name, nspanwise, nchord_strip, xyz, cp_xyz, slope = parse_AVL_surface(
-            string_tmp)
+        surface_name, nspanwise, nchord_strip, xyz, cp_xyz, slope = parse_AVL_surface(string_tmp)
         surface_name_list.append(surface_name)
         nspanwise_list.append(nspanwise)
         nchordwise_list.append(nchord_strip)
@@ -270,27 +287,33 @@ def read_avl_fe_file(
         if plot:
             plt.figure(figsize=(10, 8))
             fig = plt.figure(k + 1)
-            ax = fig.add_subplot(111, projection='3d')
-            ax.set_xlabel('Chord')
-            ax.set_ylabel('Span')
+            ax = fig.add_subplot(111, projection="3d")
+            ax.set_xlabel("Chord")
+            ax.set_ylabel("Span")
             ax.set_title("Figure " + str(k + 1))
             xyzpf = xyz + fsclf * cp_xyz
             xpl = []
             ypl = []
             zpl = []
             for kk in range(xyzpf.shape[0]):
-                xpl.extend([xyz[kk, 0], xyzpf[kk, 0], float('nan')])
-                ypl.extend([xyz[kk, 1], xyzpf[kk, 1], float('nan')])
-                zpl.extend([xyz[kk, 2], xyzpf[kk, 2], float('nan')])
+                xpl.extend([xyz[kk, 0], xyzpf[kk, 0], float("nan")])
+                ypl.extend([xyz[kk, 1], xyzpf[kk, 1], float("nan")])
+                zpl.extend([xyz[kk, 2], xyzpf[kk, 2], float("nan")])
 
-            ax.plot(xyz[:, 0], xyz[:, 1], xyz[:, 2],
-                    marker='o', linestyle='', color='black')
-            ax.plot(xpl, ypl, zpl, color='red')
-            ax.axis('equal')
+            ax.plot(xyz[:, 0], xyz[:, 1], xyz[:, 2], marker="o", linestyle="", color="black")
+            ax.plot(xpl, ypl, zpl, color="red")
+            ax.axis("equal")
 
     plt.show()
 
-    return surface_name_list, nspanwise_list, nchordwise_list, xyz_list, p_xyz_list, slope_list
+    return (
+        surface_name_list,
+        nspanwise_list,
+        nchordwise_list,
+        xyz_list,
+        p_xyz_list,
+        slope_list,
+    )
 
 
 def create_framat_model(
@@ -323,26 +346,31 @@ def create_framat_model(
     model = Model()
 
     # Material
-    mat = model.add_feature('material', uid='material')
-    mat.set('E', young_modulus * 1e9)
-    mat.set('G', shear_modulus * 1e9)
-    mat.set('rho', material_density)
+    mat = model.add_feature("material", uid="material")
+    mat.set("E", young_modulus * 1e9)
+    mat.set("G", shear_modulus * 1e9)
+    mat.set("rho", material_density)
 
     # Initialize boundary condition
-    bc = model.set_feature('bc')
+    bc = model.set_feature("bc")
 
     # Add a single beam
-    beam = model.add_feature('beam')
+    beam = model.add_feature("beam")
 
     # Loop through each node and add them to the beam
     for i_node in range(len(centerline_df)):
-        beam.add('node', [centerline_df.iloc[i_node]["x"],
-                          centerline_df.iloc[i_node]["y"],
-                          centerline_df.iloc[i_node]["z"]],
-                 uid=centerline_df.iloc[i_node]['node_uid'])
+        beam.add(
+            "node",
+            [
+                centerline_df.iloc[i_node]["x"],
+                centerline_df.iloc[i_node]["y"],
+                centerline_df.iloc[i_node]["z"],
+            ],
+            uid=centerline_df.iloc[i_node]["node_uid"],
+        )
 
     # Set the number of elements for the beam
-    beam.set('nelem', len(centerline_df) - 1)
+    beam.set("nelem", len(centerline_df) - 1)
 
     # Add orientation property to the beam
     for i_node in range(len(centerline_df) - 1):
@@ -355,46 +383,63 @@ def create_framat_model(
             RaZ=centerline_df.iloc[i_node]["thz_new"],
         )
 
-        beam.add('orientation', {'from': centerline_df.iloc[i_node]['node_uid'],
-                                 'to': centerline_df.iloc[i_node + 1]['node_uid'],
-                                 'up': [up_x, up_y, up_z]})
+        beam.add(
+            "orientation",
+            {
+                "from": centerline_df.iloc[i_node]["node_uid"],
+                "to": centerline_df.iloc[i_node + 1]["node_uid"],
+                "up": [up_x, up_y, up_z],
+            },
+        )
 
     # Define material
-    beam.add('material', {'from': centerline_df.iloc[0]['node_uid'],
-                          'to': centerline_df.iloc[-1]['node_uid'],
-                          'uid': 'material'})
+    beam.add(
+        "material",
+        {
+            "from": centerline_df.iloc[0]["node_uid"],
+            "to": centerline_df.iloc[-1]["node_uid"],
+            "uid": "material",
+        },
+    )
 
     # Add cross-section properties
     for i_node in range(len(centerline_df) - 1):
-        cs = model.add_feature('cross_section',
-                               uid=centerline_df.iloc[i_node]['cross_section_uid'])
-        cs.set('A', centerline_df.iloc[i_node]["cross_section_area"])
-        cs.set('Iy', centerline_df.iloc[i_node]["cross_section_Ix"])
-        cs.set('Iz', centerline_df.iloc[i_node]["cross_section_Iy"])
-        cs.set('J', centerline_df.iloc[i_node]["cross_section_J"])
-        beam.add('cross_section',
-                 {'from': centerline_df.iloc[i_node]['node_uid'],
-                  'to': centerline_df.iloc[i_node + 1]['node_uid'],
-                  'uid': centerline_df.iloc[i_node]['cross_section_uid']})
+        cs = model.add_feature(
+            "cross_section", uid=centerline_df.iloc[i_node]["cross_section_uid"]
+        )
+        cs.set("A", centerline_df.iloc[i_node]["cross_section_area"])
+        cs.set("Iy", centerline_df.iloc[i_node]["cross_section_Ix"])
+        cs.set("Iz", centerline_df.iloc[i_node]["cross_section_Iy"])
+        cs.set("J", centerline_df.iloc[i_node]["cross_section_J"])
+        beam.add(
+            "cross_section",
+            {
+                "from": centerline_df.iloc[i_node]["node_uid"],
+                "to": centerline_df.iloc[i_node + 1]["node_uid"],
+                "uid": centerline_df.iloc[i_node]["cross_section_uid"],
+            },
+        )
 
     # Add increment of point loads [N] on each beam node
     for i_node in range(len(centerline_df)):
-        node_uid = centerline_df.iloc[i_node]['node_uid']
-        load = [centerline_df.iloc[i_node][force] - internal_load_df.iloc[i_node][force]
-                for force in ["Fx", "Fy", "Fz", "Mx", "My", "Mz"]]
-        beam.add('point_load', {'at': node_uid, 'load': load})
+        node_uid = centerline_df.iloc[i_node]["node_uid"]
+        load = [
+            centerline_df.iloc[i_node][force] - internal_load_df.iloc[i_node][force]
+            for force in ["Fx", "Fy", "Fz", "Mx", "My", "Mz"]
+        ]
+        beam.add("point_load", {"at": node_uid, "load": load})
 
     # ===== BOUNDARY CONDITIONS =====
     idx_to_fix = centerline_df["y"].idxmin()
-    bc.add('fix', {'node': "wing1_node" + str(idx_to_fix + 1), 'fix': ['all']})
+    bc.add("fix", {"node": "wing1_node" + str(idx_to_fix + 1), "fix": ["all"]})
 
     # ===== POST-PROCESSING =====
-    pp = model.set_feature('post_proc')
-    pp.set('plot_settings', {'show': False,
-                             'scale_forces': 5,
-                             'scale_moments': 1,
-                             'scale_deformation': 10})
-    pp.add('plot', ['undeformed', 'deformed', 'bc', 'global_axes'])
+    pp = model.set_feature("post_proc")
+    pp.set(
+        "plot_settings",
+        {"show": False, "scale_forces": 5, "scale_moments": 1, "scale_deformation": 10},
+    )
+    pp.add("plot", ["undeformed", "deformed", "bc", "global_axes"])
 
     return model
 
@@ -441,9 +486,25 @@ def get_section_properties(tixi: Tixi3):
     return area, Ix, Iy
 
 
-def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, fxyz_tot, n_iter,
-                           xyz_tip, tip_def, aera_profile, Ix_profile, Iy_profile, chord_profile,
-                           twist_profile, CASE_PATH, AVL_UNDEFORMED_PATH, wg_scaling):
+def create_wing_centerline(
+    wing_df,
+    centerline_df,
+    N_beam,
+    wg_origin,
+    xyz_tot,
+    fxyz_tot,
+    n_iter,
+    xyz_tip,
+    tip_def,
+    aera_profile,
+    Ix_profile,
+    Iy_profile,
+    chord_profile,
+    twist_profile,
+    CASE_PATH,
+    AVL_UNDEFORMED_PATH,
+    wg_scaling,
+):
     """Function to create the beam nodes along the wing centerline.
 
     Function 'create_wing_centerline' creates the beam nodes along
@@ -483,43 +544,54 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
 
     """
 
-    wing_df = DataFrame({
-        'x': [row[0] for row in xyz_tot],
-        'y': [row[1] for row in xyz_tot],
-        'z': [row[2] for row in xyz_tot],
-        'Fx': [row[0] for row in fxyz_tot],
-        'Fy': [row[1] for row in fxyz_tot],
-        'Fz': [row[2] for row in fxyz_tot]
-    })
+    wing_df = DataFrame(
+        {
+            "x": [row[0] for row in xyz_tot],
+            "y": [row[1] for row in xyz_tot],
+            "z": [row[2] for row in xyz_tot],
+            "Fx": [row[0] for row in fxyz_tot],
+            "Fy": [row[1] for row in fxyz_tot],
+            "Fz": [row[2] for row in fxyz_tot],
+        }
+    )
 
     if n_iter == 1:
-        tip_row = DataFrame([{
-            "x": xyz_tip[0],
-            "y": xyz_tip[1],
-            "z": xyz_tip[2],
-            "Fx": 0,
-            "Fy": 0,
-            "Fz": 0
-        }])
+        tip_row = DataFrame(
+            [
+                {
+                    "x": xyz_tip[0],
+                    "y": xyz_tip[1],
+                    "z": xyz_tip[2],
+                    "Fx": 0,
+                    "Fy": 0,
+                    "Fz": 0,
+                }
+            ]
+        )
     else:
-        tip_row = DataFrame([{
-            "x": tip_def[0],
-            "y": tip_def[1],
-            "z": tip_def[2],
-            "Fx": 0,
-            "Fy": 0,
-            "Fz": 0
-        }])
+        tip_row = DataFrame(
+            [
+                {
+                    "x": tip_def[0],
+                    "y": tip_def[1],
+                    "z": tip_def[2],
+                    "Fx": 0,
+                    "Fy": 0,
+                    "Fz": 0,
+                }
+            ]
+        )
 
     wing_df = pd.concat([wing_df, tip_row], ignore_index=True)
 
-    _, _, _, Xle, Yle, Zle = interpolate_leading_edge(AVL_UNDEFORMED_PATH,
-                                                      CASE_PATH,
-                                                      wg_origin,
-                                                      wg_scaling,
-                                                      y_queries=wing_df["y"].unique(),
-                                                      n_iter=n_iter,
-                                                      )
+    _, _, _, Xle, Yle, Zle = interpolate_leading_edge(
+        AVL_UNDEFORMED_PATH,
+        CASE_PATH,
+        wg_origin,
+        wg_scaling,
+        y_queries=wing_df["y"].unique(),
+        n_iter=n_iter,
+    )
     leading_edge = []
     trailing_edge = []
 
@@ -528,24 +600,10 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
     Zte = Zle
 
     for i, xle in enumerate(Xle):
-        leading_edge.append({
-            "x": xle,
-            "y": Yle[i],
-            "z": Zle[i],
-            "Fx": 0.0,
-            "Fy": 0.0,
-            "Fz": 0.0
-        })
+        leading_edge.append({"x": xle, "y": Yle[i], "z": Zle[i], "Fx": 0.0, "Fy": 0.0, "Fz": 0.0})
 
     for i, xte in enumerate(Xte):
-        trailing_edge.append({
-            "x": xte,
-            "y": Yte[i],
-            "z": Zte[i],
-            "Fx": 0.0,
-            "Fy": 0.0,
-            "Fz": 0.0
-        })
+        trailing_edge.append({"x": xte, "y": Yte[i], "z": Zte[i], "Fx": 0.0, "Fy": 0.0, "Fz": 0.0})
 
     leading_edge_df = DataFrame(leading_edge)
     trailing_edge_df = DataFrame(trailing_edge)
@@ -559,17 +617,19 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
     wing_df["AoA"] = twist_profile(wing_df["y"])
 
     if n_iter == 1:
-        centerline_df = (wing_df.groupby("y")[["x", "z"]].max(
-        ) + wing_df.groupby("y")[["x", "z"]].min()) / 2
+        centerline_df = (
+            wing_df.groupby("y")[["x", "z"]].max() + wing_df.groupby("y")[["x", "z"]].min()
+        ) / 2
         centerline_df = centerline_df.reset_index().reindex(columns=["x", "y", "z"])
 
         # Select the good number of beam nodes
         if N_beam < len(centerline_df):
             target_y_values = np.linspace(
-                centerline_df['y'].min(), centerline_df['y'].max(), int(N_beam))
+                centerline_df["y"].min(), centerline_df["y"].max(), int(N_beam)
+            )
             selected_indices = []
             for target_y in target_y_values:
-                closest_index = (centerline_df['y'] - target_y).abs().idxmin()
+                closest_index = (centerline_df["y"] - target_y).abs().idxmin()
                 selected_indices.append(closest_index)
 
             centerline_df = centerline_df.loc[selected_indices].sort_index().reset_index(drop=True)
@@ -585,16 +645,19 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
         centerline_df["AoA_new"] = centerline_df["AoA"]
         internal_load_df = centerline_df.copy(deep=True)
 
-        centerline_df['node_uid'] = centerline_df.apply(
-            lambda row: "wing1_node" + str(row.name + 1), axis=1)
-        centerline_df['cross_section_uid'] = centerline_df.apply(
-            lambda row: "wing1_cross-sec" + str(row.name + 1), axis=1)
+        centerline_df["node_uid"] = centerline_df.apply(
+            lambda row: "wing1_node" + str(row.name + 1), axis=1
+        )
+        centerline_df["cross_section_uid"] = centerline_df.apply(
+            lambda row: "wing1_cross-sec" + str(row.name + 1), axis=1
+        )
 
         centerline_df["cross_section_area"] = aera_profile(centerline_df["y"])
         centerline_df["cross_section_Ix"] = Ix_profile(centerline_df["y"])
         centerline_df["cross_section_Iy"] = Iy_profile(centerline_df["y"])
-        centerline_df["cross_section_J"] = centerline_df["cross_section_Ix"] + \
-            centerline_df["cross_section_Iy"]
+        centerline_df["cross_section_J"] = (
+            centerline_df["cross_section_Ix"] + centerline_df["cross_section_Iy"]
+        )
 
     else:
         internal_load_df = centerline_df.copy(deep=True)
@@ -605,22 +668,22 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
         centerline_df["AoA"] = centerline_df["AoA_new"]
 
     # Nearest neighbor interpolation between VLM and structrual meshes
-    distances = cdist(wing_df[['x', 'y', 'z']], centerline_df[['x', 'y', 'z']])
+    distances = cdist(wing_df[["x", "y", "z"]], centerline_df[["x", "y", "z"]])
     closest_centerline_indices = distances.argmin(axis=1)
 
-    for coord in ['x', 'y', 'z']:
-        wing_df['closest_centerline_'
-                + coord] = centerline_df.loc[closest_centerline_indices, coord].values
+    for coord in ["x", "y", "z"]:
+        wing_df["closest_centerline_" + coord] = centerline_df.loc[
+            closest_centerline_indices, coord
+        ].values
 
-    wing_df['closest_centerline_index'] = closest_centerline_indices
+    wing_df["closest_centerline_index"] = closest_centerline_indices
 
-    wing_df[['Mx', 'My', 'Mz', 'distance_vector']] = wing_df.apply(
-        partial(compute_distance_and_moment, centerline_df),
-        axis=1
+    wing_df[["Mx", "My", "Mz", "distance_vector"]] = wing_df.apply(
+        partial(compute_distance_and_moment, centerline_df), axis=1
     )
 
-    for i, centerline_index in enumerate(wing_df['closest_centerline_index']):
-        for force in ['Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz']:
+    for i, centerline_index in enumerate(wing_df["closest_centerline_index"]):
+        for force in ["Fx", "Fy", "Fz", "Mx", "My", "Mz"]:
             centerline_df.at[centerline_index, force] += wing_df.at[i, force]
 
     log.info(f"Total aerodynamic force: {centerline_df['Fz'].sum():.2f} N.")
@@ -630,7 +693,7 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
 
 # TODO: Reduce complexity
 def compute_cross_section(
-    cpacs: CPACS
+    cpacs: CPACS,
 ) -> Tuple[List, List, List, List, List, List, List, List, List, List]:
     """
     Computes the area, the second moments of area,
@@ -688,13 +751,17 @@ def compute_cross_section(
         # Add WingSkeleton origin
         wg_sk_transf.translation = wing_transf.translation
 
-        wg_origin = [round(wg_sk_transf.translation.x, 3),
-                     round(wg_sk_transf.translation.y, 3),
-                     round(wg_sk_transf.translation.z, 3)]
+        wg_origin = [
+            round(wg_sk_transf.translation.x, 3),
+            round(wg_sk_transf.translation.y, 3),
+            round(wg_sk_transf.translation.z, 3),
+        ]
 
-        wg_scaling = [round(wing_transf.scaling.x, 3),
-                      round(wing_transf.scaling.y, 3),
-                      round(wing_transf.scaling.z, 3)]
+        wg_scaling = [
+            round(wing_transf.scaling.x, 3),
+            round(wing_transf.scaling.y, 3),
+            round(wing_transf.scaling.z, 3),
+        ]
 
         # Positionings
         sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(tixi, wing_xpath, "wing")
@@ -744,9 +811,7 @@ def compute_cross_section(
                 # Add rotation from element and sections
                 # Adding the two angles: Maybe not work in every case!!!
                 x, y, z = sum_points(
-                    elem_transf.rotation,
-                    sec_transf.rotation,
-                    sec_transf.rotation
+                    elem_transf.rotation, sec_transf.rotation, sec_transf.rotation
                 )
                 add_rotation = Point(x, y, z)
 
@@ -755,8 +820,7 @@ def compute_cross_section(
                 # wg_sec_twist = math.radians(wg_sec_rot.y)
 
                 wg_sec_center_x = (
-                    elem_transf.translation.x
-                    + sec_transf.translation.x + pos_x_list[i_sec]
+                    elem_transf.translation.x + sec_transf.translation.x + pos_x_list[i_sec]
                 ) * wing_transf.scaling.x
 
                 wg_sec_center_y = (
@@ -797,10 +861,16 @@ def compute_cross_section(
                 )
 
     return (
-        wg_origin, wg_twist_list,
-        area_list, Ix_list, Iy_list,
-        wg_center_x_list, wg_center_y_list, wg_center_z_list,
-        wg_chord_list, wg_scaling,
+        wg_origin,
+        wg_twist_list,
+        area_list,
+        Ix_list,
+        Iy_list,
+        wg_center_x_list,
+        wg_center_y_list,
+        wg_center_z_list,
+        wg_chord_list,
+        wg_scaling,
     )
 
 
@@ -818,9 +888,9 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
 
     deformed_df.sort_values(by="y_leading", inplace=True)
     deformed_df.reset_index(drop=True, inplace=True)
-    twist_profile = interpolate.interp1d(centerline_df["y_new"],
-                                         centerline_df["AoA_new"],
-                                         fill_value="extrapolate")
+    twist_profile = interpolate.interp1d(
+        centerline_df["y_new"], centerline_df["AoA_new"], fill_value="extrapolate"
+    )
 
     with open(UNDEFORMED_PATH, "r") as file_undeformed:
         with open(DEFORMED_PATH, "w") as file_deformed:
@@ -846,11 +916,14 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                 raise FileNotFoundError("AFILE not found.")
 
             file_deformed.writelines(
-                ["SCALE\n",
-                 "1.0\t1.0\t1.0\n\n",
-                 "TRANSLATE\n",
-                 "0.0\t0.0\t0.0\n\n",
-                 "#---------------\n"])
+                [
+                    "SCALE\n",
+                    "1.0\t1.0\t1.0\n\n",
+                    "TRANSLATE\n",
+                    "0.0\t0.0\t0.0\n\n",
+                    "#---------------\n",
+                ]
+            )
 
             y_coords = deformed_df["y_leading"].values
             y_root = y_coords[0]
@@ -876,18 +949,18 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                 AoA = twist_profile(y_new)
 
                 file_deformed.writelines(
-                    ["SECTION\n",
-                     "#Xle    Yle    Zle     Chord   Ainc\n",
-                     f"{x_new:.3f} {y_new:.3f} {z_new:.3e} {chord:.3f} {AoA:.3e}\n\n",
-                     "AFILE\n",
-                     f"{airfoil_file}\n\n",
-                     "#---------------\n"])
+                    [
+                        "SECTION\n",
+                        "#Xle    Yle    Zle     Chord   Ainc\n",
+                        f"{x_new:.3f} {y_new:.3f} {z_new:.3e} {chord:.3f} {AoA:.3e}\n\n",
+                        "AFILE\n",
+                        f"{airfoil_file}\n\n",
+                        "#---------------\n",
+                    ]
+                )
 
 
-def write_deformed_command(
-    UNDEFORMED_COMMAND,
-    DEFORMED_COMMAND
-) -> None:
+def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND) -> None:
     """
     Function 'write_deformed_command' writes the AVL command file to execute
     the computations for the deformed wing.
@@ -970,4 +1043,11 @@ def interpolate_leading_edge(
     interpolated_yle = interpolated_points[:, 1]
     interpolated_zle = interpolated_points[:, 2]
 
-    return xle_array, yle_array, zle_array, interpolated_xle, interpolated_yle, interpolated_zle
+    return (
+        xle_array,
+        yle_array,
+        zle_array,
+        interpolated_xle,
+        interpolated_yle,
+        interpolated_zle,
+    )

@@ -58,8 +58,8 @@ def second_moments_of_area(x: Sequence[float], y: Sequence[float]) -> Tuple[floa
     for i in range(n):
         j = (i + 1) % n
         common = x_shifted[i] * y_shifted[j] - x_shifted[j] * y_shifted[i]
-        ix += (y_shifted[i]**2 + y_shifted[i] * y_shifted[j] + y_shifted[j]**2) * common
-        iy += (x_shifted[i]**2 + x_shifted[i] * x_shifted[j] + x_shifted[j]**2) * common
+        ix += (y_shifted[i] ** 2 + y_shifted[i] * y_shifted[j] + y_shifted[j] ** 2) * common
+        iy += (x_shifted[i] ** 2 + x_shifted[i] * x_shifted[j] + x_shifted[j] ** 2) * common
 
     ix /= 12
     iy /= 12
@@ -68,9 +68,7 @@ def second_moments_of_area(x: Sequence[float], y: Sequence[float]) -> Tuple[floa
 
 
 def linear_interpolation(
-    x1: float, y1: float, z1: float,
-    x2: float, y2: float, z2: float,
-    y_query: float
+    x1: float, y1: float, z1: float, x2: float, y2: float, z2: float, y_query: float
 ) -> Tuple[float, float, float]:
     """Linearly interpolate (x, z) at a given y_query between two points."""
     if y2 == y1:
@@ -85,7 +83,7 @@ def interpolate_leading_edge_points(
     xle_array: Sequence[float],
     yle_array: Sequence[float],
     zle_array: Sequence[float],
-    y_queries: Sequence[float]
+    y_queries: Sequence[float],
 ) -> np.ndarray:
     """Interpolate or extrapolate leading edge points at given y locations."""
     interpolated_points: List[Tuple[float, float, float]] = []
@@ -93,17 +91,25 @@ def interpolate_leading_edge_points(
         if y_query < yle_array[0]:  # Extrapolate before the first point
             interpolated_points.append(
                 linear_interpolation(
-                    xle_array[0], yle_array[0], zle_array[0],
-                    xle_array[1], yle_array[1], zle_array[1],
-                    y_query
+                    xle_array[0],
+                    yle_array[0],
+                    zle_array[0],
+                    xle_array[1],
+                    yle_array[1],
+                    zle_array[1],
+                    y_query,
                 )
             )
         elif y_query > yle_array[-1]:  # Extrapolate after the last point
             interpolated_points.append(
                 linear_interpolation(
-                    xle_array[-2], yle_array[-2], zle_array[-2],
-                    xle_array[-1], yle_array[-1], zle_array[-1],
-                    y_query
+                    xle_array[-2],
+                    yle_array[-2],
+                    zle_array[-2],
+                    xle_array[-1],
+                    yle_array[-1],
+                    zle_array[-1],
+                    y_query,
                 )
             )
         else:
@@ -111,9 +117,13 @@ def interpolate_leading_edge_points(
                 if yle_array[i] <= y_query <= yle_array[i + 1]:
                     interpolated_points.append(
                         linear_interpolation(
-                            xle_array[i], yle_array[i], zle_array[i],
-                            xle_array[i + 1], yle_array[i + 1], zle_array[i + 1],
-                            y_query
+                            xle_array[i],
+                            yle_array[i],
+                            zle_array[i],
+                            xle_array[i + 1],
+                            yle_array[i + 1],
+                            zle_array[i + 1],
+                            y_query,
                         )
                     )
                     break

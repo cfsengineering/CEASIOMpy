@@ -283,7 +283,7 @@ def main(cpacs: CPACS, wkdir: Path):
             arguments=arguments,
             wkdir=wkdir,
             with_mpi=False,
-            nb_cpu=nb_cpu
+            nb_cpu=nb_cpu,
         )
 
     elif current_os == "Windows":
@@ -314,6 +314,7 @@ def main(cpacs: CPACS, wkdir: Path):
         create_branch(tixi, SU2MESH_XPATH)
         tixi.updateTextElement(SU2MESH_XPATH, str(su2_mesh_out_path))
         su2_mesh_path.unlink()
+
 
 # =================================================================================================
 #    MAIN

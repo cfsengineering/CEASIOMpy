@@ -231,11 +231,17 @@ def detect_truncated_profile(
     le/te lines are linked by shared surfaces
     """
     # Get unique sorted line tages
-    lines = sorted(list(set([
-        line_comp1["line_tag"],
-        line_comp2["line_tag"],
-        line_comp3["line_tag"],
-    ])))
+    lines = sorted(
+        list(
+            set(
+                [
+                    line_comp1["line_tag"],
+                    line_comp2["line_tag"],
+                    line_comp3["line_tag"],
+                ]
+            )
+        )
+    )
 
     # Check if the 3 lines are distinct
     if len(lines) != 3:
@@ -419,6 +425,7 @@ def classify_wing(wing_part: ModelPart, aircraft_parts: List) -> None:
         wing_part.wing_sections.append(
             {"lines_tags": le_te, "mean_chord": find_chord_length(le_te)}
         )
+
 
 # =================================================================================================
 #    MAIN

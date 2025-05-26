@@ -55,9 +55,14 @@ from ceasiompy.PyAVL import (
 
 @validate_call(config=ceasiompy_cfg)
 def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
-    List, List, List, List,
-    List, List,
-    Path, bool,
+    List,
+    List,
+    List,
+    List,
+    List,
+    List,
+    Path,
+    bool,
     int,
 ]:
     tixi = cpacs.tixi
@@ -68,8 +73,8 @@ def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
     control_surface_float = get_value(tixi, AVL_CTRLSURF_ANGLES_XPATH)
 
     # Convert to lists
-    rotation_rate_list = [float(x) for x in str(rotation_rates_float).split(';')]
-    control_surface_list = [float(x) for x in str(control_surface_float).split(';')]
+    rotation_rate_list = [float(x) for x in str(rotation_rates_float).split(";")]
+    control_surface_list = [float(x) for x in str(control_surface_float).split(";")]
 
     avl_file = Avl(tixi, results_dir)
     avl_path = avl_file.convert_cpacs_to_avl()
@@ -77,8 +82,12 @@ def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
     nb_cpu = int(get_value(tixi, AVL_NB_CPU_XPATH))
 
     return (
-        alt_list, mach_list, aoa_list, aos_list,
-        rotation_rate_list, control_surface_list,
+        alt_list,
+        mach_list,
+        aoa_list,
+        aos_list,
+        rotation_rate_list,
+        control_surface_list,
         avl_path,
         save_fig,
         nb_cpu,

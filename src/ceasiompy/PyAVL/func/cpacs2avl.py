@@ -78,16 +78,18 @@ def compute_fuselage_coords(
     elem_transf: Transformation,
     sec_transf: Transformation,
     fus_transf: Transformation,
-    pos_x_list: List, pos_z_list: List,
-    prof_size_y, prof_size_z,
+    pos_x_list: List,
+    pos_z_list: List,
+    prof_size_y,
+    prof_size_z,
     fus_radius_vec,
     x_fuselage,
-    y_fuselage_top, y_fuselage_bottom,
+    y_fuselage_top,
+    y_fuselage_bottom,
 ):
     # Compute coordinates of the center of section
     body_frm_center_x = (
-        elem_transf.translation.x
-        + sec_transf.translation.x + pos_x_list[i_sec]
+        elem_transf.translation.x + sec_transf.translation.x + pos_x_list[i_sec]
     ) * fus_transf.scaling.x
 
     body_frm_center_z = (
@@ -104,7 +106,7 @@ def compute_fuselage_coords(
     # Compute diameter of the section as the mean between height and width
     # AVL assumes only circular cross section for fuselage
     fus_radius = np.mean([body_frm_height, body_frm_width]) / 2
-    fus_radius_vec[i_sec] = (fus_radius)
+    fus_radius_vec[i_sec] = fus_radius
 
     # Save the coordinates of the fuselage
     x_fuselage[i_sec] = body_frm_center_x
@@ -131,7 +133,7 @@ def leadingedge_coordinates(
 ) -> None:
 
     # Write the leading edge coordinates and the airfoil file
-    with open(avl_path, 'a') as avl_file:
+    with open(avl_path, "a") as avl_file:
         avl_file.write("#---------------\nSECTION\n")
         avl_file.write("#Xle    Yle    Zle     Chord   Ainc\n")
         avl_file.write(
@@ -234,7 +236,7 @@ def write_airfoil_coords(
     """
     No need to add in Avl class.
     """
-    with open(foil_dat_path, 'w') as dat_file:
+    with open(foil_dat_path, "w") as dat_file:
         dat_file.write(prof_uid + "\n")
 
         prof_x_len = len(prof_vect_x)
@@ -248,6 +250,7 @@ def write_airfoil_coords(
 
         for coord_x, coord_z in zip(prof_vect_x, prof_vect_z):
             dat_file.write(f"{coord_x}\t{coord_z}\n")
+
 
 # =================================================================================================
 #   CLASS
@@ -281,7 +284,7 @@ class Avl:
         self.avl_path = str(self.results_dir) + "/" + self.name_aircraft + ".avl"
 
     def initialize_avl_command_file(self) -> Path:
-        with open(self.avl_path, 'w') as avl_file:
+        with open(self.avl_path, "w") as avl_file:
             avl_file.write(self.name_aircraft + "\n\n")
 
     def convert_cpacs_to_avl(self) -> Path:
@@ -305,9 +308,9 @@ class Avl:
         self.initialize_avl_command_file()
 
         mach = get_value(self.tixi, AVL_FREESTREAM_MACH_XPATH)
-        with open(self.avl_path, 'a') as avl_file:
+        with open(self.avl_path, "a") as avl_file:
             # Default freestream mach number
-            avl_file.write('#Mach\n')
+            avl_file.write("#Mach\n")
             avl_file.write(f"{mach}\n\n")
 
             # No Symmetry assumed
@@ -362,13 +365,17 @@ class Avl:
             self.write_fuselage_settings(fus_transf.scaling, body_transf.translation)
 
             sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(
-                self.tixi, fus_xpath, "fuselage")
+                self.tixi, fus_xpath, "fuselage"
+            )
 
             # Initialize to null array of size [sec_cnt]
             (
-                x_fuselage, y_fuselage_top, y_fuselage_bottom,
-                fus_radius_vec, body_width_vec, body_height_vec
-
+                x_fuselage,
+                y_fuselage_top,
+                y_fuselage_bottom,
+                fus_radius_vec,
+                body_width_vec,
+                body_height_vec,
             ) = (np.zeros(sec_cnt) for _ in range(6))
 
             for i_sec in range(sec_cnt):
@@ -390,11 +397,14 @@ class Avl:
                         elem_transf,
                         sec_transf,
                         fus_transf,
-                        pos_x_list, pos_z_list,
-                        prof_size_y, prof_size_z,
+                        pos_x_list,
+                        pos_z_list,
+                        prof_size_y,
+                        prof_size_z,
                         fus_radius_vec,
                         x_fuselage,
-                        y_fuselage_top, y_fuselage_bottom,
+                        y_fuselage_top,
+                        y_fuselage_bottom,
                     )
 
                     body_width_vec[i_sec] = body_frm_width
@@ -405,8 +415,11 @@ class Avl:
                     fus_radius_profile = interp1d(body_transf_x, fus_radius_vec)
 
                     self.write_fuselage_coords(
-                        fus_dat_path, i_fus,
-                        x_fuselage, y_fuselage_bottom, y_fuselage_top,
+                        fus_dat_path,
+                        i_fus,
+                        x_fuselage,
+                        y_fuselage_bottom,
+                        y_fuselage_top,
                     )
 
         return fus_z_profile, fus_radius_profile, body_transf
@@ -441,7 +454,8 @@ class Avl:
             )
 
             sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(
-                self.tixi, wing_xpath, "wing")
+                self.tixi, wing_xpath, "wing"
+            )
 
             for i_sec in range(sec_cnt):
                 sec_xpath = wing_xpath + "/sections/section[" + str(i_sec + 1) + "]"
@@ -454,7 +468,8 @@ class Avl:
 
                 # Get wing profile (airfoil)
                 prof_uid, prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(
-                    self.tixi, elem_xpath + "/airfoilUID")
+                    self.tixi, elem_xpath + "/airfoilUID"
+                )
 
                 airfoil_dir = Path(self.results_dir) / "Airfoil_files"
                 airfoil_dir.mkdir(exist_ok=True)
@@ -489,11 +504,17 @@ class Avl:
                     # Define the leading edge position from translations
                     x_LE, y_LE, z_LE = sum_points(sec_transf.translation, elem_transf.translation)
                     x_LE_rot, y_LE_rot, z_LE_rot = rotate_points(
-                        x_LE, y_LE, z_LE, wg_sec_dihed, wg_sec_twist, wg_sec_yaw)
+                        x_LE, y_LE, z_LE, wg_sec_dihed, wg_sec_twist, wg_sec_yaw
+                    )
                 else:
                     x_LE_rot, y_LE_rot, z_LE_rot = rotate_points(
-                        pos_x_list[i_sec], pos_y_list[i_sec], pos_z_list[i_sec],
-                        wg_sec_dihed, wg_sec_twist, wg_sec_yaw)
+                        pos_x_list[i_sec],
+                        pos_y_list[i_sec],
+                        pos_z_list[i_sec],
+                        wg_sec_dihed,
+                        wg_sec_twist,
+                        wg_sec_yaw,
+                    )
 
                 # Compute the absolute location of the leading edge
                 x_LE_abs = x_LE_rot + wg_sk_transf.translation.x
@@ -505,14 +526,16 @@ class Avl:
                     # between fuselage center and leading edge
                     radius_fus = fus_radius_profile(x_LE_abs + wg_sec_chord / 2)
                     fus_z_center = fus_z_profile(x_LE_abs + wg_sec_chord / 2)
-                    delta_z = np.abs(
-                        fus_z_center + body_transf.translation.z - z_LE_abs)
+                    delta_z = np.abs(fus_z_center + body_transf.translation.z - z_LE_abs)
 
                     # If the root wing section is inside the fuselage, translate it to...
                     # the fuselage border
                     # To make sure there is no wing part inside the fuselage
-                    if np.sqrt((y_LE_abs)**2 + (delta_z)**2) < radius_fus and \
-                            wg_sec_dihed < math.pi / 2 and root_defined is False:
+                    if (
+                        np.sqrt((y_LE_abs) ** 2 + (delta_z) ** 2) < radius_fus
+                        and wg_sec_dihed < math.pi / 2
+                        and root_defined is False
+                    ):
 
                         y_LE_abs += np.sqrt(radius_fus**2 - delta_z**2) - y_LE_abs
                         y_LE_rot = y_LE_abs - wg_sk_transf.translation.y
@@ -541,7 +564,7 @@ class Avl:
         translation,
     ) -> None:
         # Write wing settings
-        with open(self.avl_path, 'a') as avl_file:
+        with open(self.avl_path, "a") as avl_file:
             avl_file.write("#--------------------------------------------------\n")
             avl_file.write("SURFACE\nWing\n\n")
             avl_file.write("!Nchordwise  Cspace  Nspanwise  Sspace\n")
@@ -563,7 +586,7 @@ class Avl:
             avl_file.write(f"TRANSLATE\n{to_cpacs_format(translation)}\n\n")
 
     def write_ref_values(self) -> None:
-        with open(self.avl_path, 'a') as avl_file:
+        with open(self.avl_path, "a") as avl_file:
             # Reference dimensions
             avl_file.write("#Sref    Cref    Bref\n")
             avl_file.write(f"{self.area_ref:.3f}\t{self.chord_ref:.3f}\t{self.span_ref:.3f}\n\n")
@@ -578,14 +601,15 @@ class Avl:
         self: "Avl",
         fus_dat_path: Path,
         i_fus: int,
-        x_fuselage, y_fuselage_bottom, y_fuselage_top
+        x_fuselage,
+        y_fuselage_bottom,
+        y_fuselage_top,
     ) -> None:
-        with open(fus_dat_path, 'w') as fus_file:
+        with open(fus_dat_path, "w") as fus_file:
             fus_file.write("fuselage" + str(i_fus + 1) + "\n")
 
             # Write coordinates of the top surface
-            for x_fus, y_fus in reversed(
-                    list(zip(x_fuselage[1:], y_fuselage_top[1:]))):
+            for x_fus, y_fus in reversed(list(zip(x_fuselage[1:], y_fuselage_top[1:]))):
                 fus_file.write(f"{x_fus:.3f}\t{y_fus:.3f}\n")
 
             # Write coordinates of the nose of the fuselage
@@ -596,17 +620,18 @@ class Avl:
             for x_fus, y_fus in zip(x_fuselage[1:], y_fuselage_bottom[1:]):
                 fus_file.write(f"{x_fus:.3f}\t{y_fus:.3f}\n")
 
-        with open(self.avl_path, 'a') as avl_file:
+        with open(self.avl_path, "a") as avl_file:
             avl_file.write("BFILE\n")
             avl_file.write(fus_dat_path + "\n\n")
 
     def write_fuselage_settings(self, scaling: Point, translation: Point) -> None:
-        with open(self.avl_path, 'a') as avl_file:
+        with open(self.avl_path, "a") as avl_file:
             avl_file.write("#--------------------------------------------------\n")
             avl_file.write("BODY\nFuselage\n\n")
             avl_file.write("!Nbody  Bspace\n100\t1.0\n\n")
             avl_file.write(f"SCALE\n{to_cpacs_format(scaling)}\n\n")
             avl_file.write(f"TRANSLATE\n{to_cpacs_format(translation)}\n\n")
+
 
 # =================================================================================================
 #    MAIN

@@ -277,8 +277,7 @@ def turbofan_analysis(alt, MN, Fn):
             flush=True,
         )
         print(
-            " %7.5f  %7.1f %7.3f %7.1f %7.1f %7.1f %7.3f  %7.5f  %7.3f"
-            % summary_data,
+            " %7.5f  %7.1f %7.3f %7.1f %7.1f %7.1f %7.3f  %7.5f  %7.3f" % summary_data,
             file=file,
             flush=True,
         )
@@ -423,10 +422,11 @@ def write_hbtf_file(
 
     return file
 
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
 
 if __name__ == "__main__":
-    log.info('Nothing to execute.')
+    log.info("Nothing to execute.")

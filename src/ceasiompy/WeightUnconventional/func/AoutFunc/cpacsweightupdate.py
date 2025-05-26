@@ -70,7 +70,8 @@ def toolspecific_update(mw, out, cpacs_out_path):
     if not tixi.checkElement(FMP_PATH + "/description"):
         tixi.createElement(FMP_PATH, "description")
     tixi.updateTextElement(
-        FMP_PATH + "/description", "Maximum amount of " + "fuel with maximum payload [kg]"
+        FMP_PATH + "/description",
+        "Maximum amount of " + "fuel with maximum payload [kg]",
     )
 
     if not tixi.checkElement(FMP_PATH + "/mass"):
@@ -165,7 +166,8 @@ def cpacs_weight_update(out, mw, ui, cpacs_out_path):
     tixi.updateTextElement(OEM_PATH + "/name", "Operating empty mass")
     tixi.createElement(OEM_PATH, "description")
     tixi.updateTextElement(
-        OEM_PATH + "/description", "Operating empty" + " mass [kg] and related inertia [kgm^2]."
+        OEM_PATH + "/description",
+        "Operating empty" + " mass [kg] and related inertia [kgm^2].",
     )
     tixi.updateDoubleElement(OEM_PATH + "/mass", mw.operating_empty_mass, "%g")
 

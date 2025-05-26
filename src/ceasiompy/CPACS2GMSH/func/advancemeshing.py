@@ -15,7 +15,6 @@ TODO:
 
 """
 
-
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
@@ -332,7 +331,7 @@ def refine_end_wing(
     mesh_size_wings,
     n_power,
     final_domain_volumes_tagslist,
-    mesh_fields
+    mesh_fields,
 ):
     """
     Function similar to refine_le_te but for the "tip" of the wing.
@@ -609,7 +608,12 @@ def refine_small_surfaces(
 
 
 def refine_other_lines(
-    te_le_already_refined, refine, aircraft_parts, mesh_fields, mesh_size_by_part, n_power
+    te_le_already_refined,
+    refine,
+    aircraft_parts,
+    mesh_fields,
+    mesh_size_by_part,
+    n_power,
 ):
     """
     Function to refine the mesh along edges that are not "flat", for example intersection wing
@@ -667,13 +671,13 @@ def refine_other_lines(
 
     # We now inspect every line and compute angle from adjacent surfaces
     lines_to_refine_tag = []
-    for (dim, line) in lines:
+    for dim, line in lines:
         surface_tags, _ = gmsh.model.getAdjacencies(dim, line)
         tags_coords_params = {-1: "yay"}
         # For each adjacent surface, get all the nodes
         for i in surface_tags:
             tags, coord, param = gmsh.model.mesh.getNodes(2, i, True)
-            tags_coords_params[i] = {'tags': tags, 'coord': coord, 'param': param}
+            tags_coords_params[i] = {"tags": tags, "coord": coord, "param": param}
         # Now compute if there are two surfaces with a "small" (<130) angle
         small_angle = compute_angle_surfaces(surface_tags, tags_coords_params, line)
         # If so, we need to refine next to this line
@@ -684,8 +688,7 @@ def refine_other_lines(
     lines_to_refine_tag = [li for li in lines_to_refine_tag if li not in te_le_already_refined]
     log.info(f"Lines to be refined are {lines_to_refine_tag}")
     log.info("Now start setting refinement")
-    gmsh.model.setColor([(1, line)
-                        for line in lines_to_refine_tag], 0, 255, 0)  # green
+    gmsh.model.setColor([(1, line) for line in lines_to_refine_tag], 0, 255, 0)  # green
 
     for line in lines_to_refine_tag:
         surfaces_adjacent, _ = gmsh.model.getAdjacencies(1, line)
@@ -707,14 +710,16 @@ def refine_other_lines(
             # one will be much more refined, and therefore the other need to also be progressive
             # so we adapt refine factor so that the field start at the same size at the line
             refine_factor_adapted = refine * part_size_surf_m["mesh_size"] / min_mesh_size
-            mesh_fields = refine_surface(part_uid=part.uid,
-                                         lines_to_refine=[line],
-                                         surfaces_tag=part_size_surf_m["surfs"],
-                                         mesh_fields=mesh_fields,
-                                         m=part_size_surf_m["m"],
-                                         n_power=n_power,
-                                         refine=refine_factor_adapted,
-                                         mesh_size=part_size_surf_m["mesh_size"])
+            mesh_fields = refine_surface(
+                part_uid=part.uid,
+                lines_to_refine=[line],
+                surfaces_tag=part_size_surf_m["surfs"],
+                mesh_fields=mesh_fields,
+                m=part_size_surf_m["m"],
+                n_power=n_power,
+                refine=refine_factor_adapted,
+                mesh_size=part_size_surf_m["mesh_size"],
+            )
 
     return mesh_fields
 
@@ -772,10 +777,8 @@ def refine_surface(
         # 1 : Math eval field
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Distance", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setNumbers(
-            mesh_fields["nbfields"], "CurvesList", [line])
-        gmsh.model.mesh.field.setNumber(
-            mesh_fields["nbfields"], "Sampling", 200)
+        gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "CurvesList", [line])
+        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Sampling", 200)
 
         # 2 : Create a mesh function for the line (Matheval field)
         mesh_fields["nbfields"] += 1
@@ -791,10 +794,10 @@ def refine_surface(
         # 3 : Create the restrict field
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Restrict", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setNumbers(
-            mesh_fields["nbfields"], "SurfacesList", surfaces_tag)
+        gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "SurfacesList", surfaces_tag)
         gmsh.model.mesh.field.setNumber(
-            mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1)
+            mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
+        )
         mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
         gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
         gmsh.model.occ.synchronize()
@@ -802,9 +805,7 @@ def refine_surface(
     return mesh_fields
 
 
-def compute_angle_surfaces(
-    surface_tags, tags_coords_params, line
-):
+def compute_angle_surfaces(surface_tags, tags_coords_params, line):
     """
     Function to compute if he angle between some surfaces is "small" (<130 degrees)
 
@@ -826,37 +827,45 @@ def compute_angle_surfaces(
     """
     for i, j in list(combinations(surface_tags, 2)):
         # i is surface nb, k in index in surface_tags
-        coordi = tags_coords_params[i]['coord']
-        coordj = tags_coords_params[j]['coord']
+        coordi = tags_coords_params[i]["coord"]
+        coordj = tags_coords_params[j]["coord"]
         # Now search for nodes that are in both surfaces
         for a in range(len(coordi) // 3):
             for b in range(len(coordj) // 3):
-                if coordi[3 * a] == coordj[3 * b] and\
-                    coordi[3 * a + 1] == coordj[3 * b + 1] and\
-                        coordi[3 * a + 2] == coordj[3 * b + 2]:
+                if (
+                    coordi[3 * a] == coordj[3 * b]
+                    and coordi[3 * a + 1] == coordj[3 * b + 1]
+                    and coordi[3 * a + 2] == coordj[3 * b + 2]
+                ):
                     # if here, we have found a node that is in both. Get the normal at
                     # this node of the two surfaces
                     normal_i = gmsh.model.getNormal(
                         i,
-                        [tags_coords_params[i]['param'][2 * a],
-                            tags_coords_params[i]['param'][2 * a + 1]])
+                        [
+                            tags_coords_params[i]["param"][2 * a],
+                            tags_coords_params[i]["param"][2 * a + 1],
+                        ],
+                    )
                     normal_j = gmsh.model.getNormal(
                         j,
-                        [tags_coords_params[j]['param'][2 * b],
-                            tags_coords_params[j]['param'][2 * b + 1]]
+                        [
+                            tags_coords_params[j]["param"][2 * b],
+                            tags_coords_params[j]["param"][2 * b + 1],
+                        ],
                     )
                     # Compute  cosinus which is the scalar product as the normals
                     # are of norm 1
-                    cosalpha = (normal_i[0] * normal_j[0] + normal_i[1]
-                                * normal_j[1] + normal_i[2] * normal_j[2])
+                    cosalpha = (
+                        normal_i[0] * normal_j[0]
+                        + normal_i[1] * normal_j[1]
+                        + normal_i[2] * normal_j[2]
+                    )
                     if cosalpha < 0.63:  # (angle of more than 50 degrees from being flat)
                         return True
     return False
 
 
-def refine_between_parts(
-    aircraft_parts, mesh_fields
-):
+def refine_between_parts(aircraft_parts, mesh_fields):
     """
     Function to adapt the transition when two parts with different mesh sizes intersect.
     --> Add a mathEval field similar to other from small mesh size to big mesh size
@@ -887,8 +896,7 @@ def refine_between_parts(
                 big_part = part
 
             lines_at_intersection = list(set(part.lines_tags) & set(part2.lines_tags))
-            gmsh.model.setColor([(1, line)
-                                for line in lines_at_intersection], 255, 0, 0)  # red
+            gmsh.model.setColor([(1, line) for line in lines_at_intersection], 255, 0, 0)  # red
             if lines_at_intersection:
                 p, p2, lai = part.uid, part2.uid, lines_at_intersection
                 log.info(f"Refining between parts {p} and {p2}, line(s) {lai} ")
@@ -900,12 +908,19 @@ def refine_between_parts(
                 size = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
                 size.sort()
                 m = size[1] / 4
-                mesh_fields = refine_surface(big_part.uid, [line], surfaces_to_refine,
-                                             mesh_fields, m, 2,
-                                             big_part.mesh_size / small_part.mesh_size,
-                                             big_part.mesh_size)
+                mesh_fields = refine_surface(
+                    big_part.uid,
+                    [line],
+                    surfaces_to_refine,
+                    mesh_fields,
+                    m,
+                    2,
+                    big_part.mesh_size / small_part.mesh_size,
+                    big_part.mesh_size,
+                )
 
     return mesh_fields
+
 
 # =================================================================================================
 #    MAIN

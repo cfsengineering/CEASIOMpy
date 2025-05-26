@@ -30,6 +30,7 @@ from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 #   CLASSES
 # =================================================================================================
 
+
 class CeasiompyTest(unittest.TestCase):
 
     @classmethod

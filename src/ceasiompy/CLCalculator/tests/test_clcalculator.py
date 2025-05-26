@@ -41,9 +41,16 @@ class TestModuleTemplate(CeasiompyTest):
     def test_calculate_cl(self):
         self.assert_equal_function(
             f=calculate_cl,
-            input_args=(122, 12_000, 0.78, 50_000, 1.0, ),
-            expected=(approx(0.48429196151547343), ),
+            input_args=(
+                122,
+                12_000,
+                0.78,
+                50_000,
+                1.0,
+            ),
+            expected=(approx(0.48429196151547343),),
         )
+
 
 # =================================================================================================
 #   FUNCTIONS
@@ -62,6 +69,7 @@ def test_calculate_cl():
     cl = calculate_cl(ref_area, alt, mach, mass, load_fact)
 
     assert cl == approx(0.48429196151547343)
+
 
 # =================================================================================================
 #    MAIN

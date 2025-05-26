@@ -24,3 +24,4 @@ jobs:
       run: |
         cd tests/docker/Centos/
         docker build -f Dockerfile .
+        docker run --rm -v ${{ github.workspace }}:/CEASIOMpyDir/CEASIOMpy ceasiompy-centos

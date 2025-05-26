@@ -6,9 +6,10 @@ RUN dnf -y install -y git curl wget sudo unzip gcc-c++ tbb libXrender libXcursor
 
 SHELL ["/bin/bash", "--login", "-c"]
 
-WORKDIR /CEASIOMpyDir
-RUN git clone https://github.com/cfsengineering/CEASIOMpy.git
-RUN chmod +x CEASIOMpy/installation/CentOS/install_*
+WORKDIR /CEASIOMpyDir/CEASIOMpy
+
+RUN chmod +x installation/CentOS/install_*.sh
+
 ENV CONDA_DIR /opt/conda
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /opt/conda
@@ -17,10 +18,6 @@ ENV PATH=$CONDA_DIR/bin:$PATH
 RUN conda init bash
 RUN source ~/.bashrc
 RUN conda update -n base -c defaults conda
-
-WORKDIR /CEASIOMpyDir/CEASIOMpy/installation/CentOS/
-
-RUN chmod +x install_*.sh
 
 WORKDIR /CEASIOMpyDir/CEASIOMpy
 RUN installation/CentOS/install_ceasiompy.sh \

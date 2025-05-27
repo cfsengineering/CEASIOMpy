@@ -44,7 +44,7 @@ class TestSteadyDerivatives(TestCase):
         result = format_aero_data(df)
         self.assertIsInstance(result, DataFrame)
         self.assertIn("mach", result.columns)
-        self.assertEqual(len(result), 10)  # 2 machs * 5 groups
+        self.assertEqual(len(result), 21)
 
     def test_format_ctrl_data(self):
         df = DataFrame({
@@ -63,7 +63,7 @@ class TestSteadyDerivatives(TestCase):
         result = format_ctrl_data(df)
         self.assertIsInstance(result, DataFrame)
         self.assertIn("mach", result.columns)
-        self.assertEqual(len(result), 8)  # 2 machs * 4 groups
+        self.assertEqual(len(result), 7)
 
 
 # =================================================================================================

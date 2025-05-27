@@ -16,7 +16,6 @@ GUI Interface of ThermoData.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.ThermoData import INCLUDE_GUI
 from ceasiompy.SU2Run import (
     SU2_FIXED_CL_XPATH,

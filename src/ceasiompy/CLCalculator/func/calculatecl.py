@@ -4,10 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Calculate CL script.
-
-| Author: Leon Deligny
-| Creation: 25 March 2025
-
 """
 
 # ==============================================================================
@@ -17,6 +13,7 @@ Calculate CL script.
 from ambiance import Atmosphere
 
 from ceasiompy import log
+from ceasiompy.CLCalculator import GAMMA
 
 # =================================================================================================
 #   FUNCTIONS
@@ -53,25 +50,12 @@ def calculate_cl(
 
     """
 
-    # Get atmosphere values at this altitude
     Atm = Atmosphere(alt)
-
-    GAMMA = 1.401  # Air heat capacity ratio [-]
 
     # Calculate lift coefficient
     weight = mass * Atm.grav_accel[0]
     dyn_pres = 0.5 * GAMMA * Atm.pressure[0] * mach**2
     target_cl = weight * load_fact / (dyn_pres * ref_area)
-
     log.info(f"A lift coefficient (CL) of {target_cl} has been calculated.")
 
-    return float(target_cl)
-
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")
+    return target_cl

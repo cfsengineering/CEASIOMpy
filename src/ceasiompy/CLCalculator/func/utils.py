@@ -19,20 +19,30 @@ from cpacspy.cpacsfunctions import (
     create_branch,
 )
 
+from typing import Tuple
 from tixi3.tixi3wrapper import Tixi3
 from markdownpy.markdownpy import MarkdownDoc
+
+from ceasiompy import log
+from ceasiompy.utils.commonxpaths import (
+    AREA_XPATH,
+    MASSBREAKDOWN_XPATH,
+)
 from ceasiompy.SU2Run import (
     SU2_XPATH,
     SU2_FIXED_CL_XPATH,
     SU2_TARGET_CL_XPATH,
 )
-from ceasiompy.utils.commonxpaths import (
-    REF_XPATH,
-    CLCALC_XPATH,
-    MASSBREAKDOWN_XPATH,
+from ceasiompy.CLCalculator import (
+    MTOM_XPATH,
+    MZFM_XPATH,
+    CLCALC_MASS_TYPE_XPATH,
+    CLCALC_LOAD_FACT_XPATH,
+    CLCALC_CRUISE_ALT_XPATH,
+    CLCALC_CRUISE_MACH_XPATH,
+    CLCALC_PERC_FUEL_MASS_XPATH,
+    CLCALC_XPATH_CUSTOM_MASS_XPATH,
 )
-
-from ceasiompy import log
 
 # =================================================================================================
 #   FUNCTIONS
@@ -48,24 +58,16 @@ def save_for_su2(tixi: Tixi3, target_cl: float) -> None:
     log.info("Target CL has been saved in the CPACS file")
 
 
-def retrieve_gui(tixi: Tixi3):
+def retrieve_gui(tixi: Tixi3) -> Tuple[float, str, float, float, float]:
     """
     Retrieve values from CPACS file.
     """
-    # XPath definition
-    # TODO: Put these xpaths in commonxpaths
-    ref_area_xpath = REF_XPATH + "/area"
-    mass_type_xpath = CLCALC_XPATH + "/massType"
-    cruise_alt_xpath = CLCALC_XPATH + "/cruiseAltitude"
-    cruise_mach_xpath = CLCALC_XPATH + "/cruiseMach"
-    load_fact_xpath = CLCALC_XPATH + "/loadFactor"
 
-    ref_area = get_value(tixi, ref_area_xpath)
-    mass_type = get_value(tixi, mass_type_xpath)
-
-    cruise_alt = get_value(tixi, cruise_alt_xpath)
-    cruise_mach = get_value(tixi, cruise_mach_xpath)
-    load_fact = get_value(tixi, load_fact_xpath)
+    ref_area = get_value(tixi, AREA_XPATH)
+    mass_type = get_value(tixi, CLCALC_MASS_TYPE_XPATH)
+    cruise_alt = get_value(tixi, CLCALC_CRUISE_ALT_XPATH)
+    cruise_mach = get_value(tixi, CLCALC_CRUISE_MACH_XPATH)
+    load_fact = get_value(tixi, CLCALC_LOAD_FACT_XPATH)
 
     return ref_area, mass_type, cruise_alt, cruise_mach, load_fact
 
@@ -74,24 +76,19 @@ def deal_with_mass(md: MarkdownDoc, tixi: Tixi3, mass_type: str) -> float:
     mass = None
     md.p(f"The mass used for the calculation is {mass_type}")
 
-    percent_fuel_mass_xpath = CLCALC_XPATH + "/percentFuelMass"
-    custom_mass_xpath = CLCALC_XPATH + "/customMass"
-
     if mass_type == "Custom":
-        mass = get_value(tixi, custom_mass_xpath)
-
+        mass = get_value(tixi, CLCALC_XPATH_CUSTOM_MASS_XPATH)
     elif mass_type == "% fuel mass":
-        percent_fuel_mass = get_value(tixi, percent_fuel_mass_xpath)
+        percent_fuel_mass = get_value(tixi, CLCALC_PERC_FUEL_MASS_XPATH)
         md.p(f"Percentage of fuel mass: {percent_fuel_mass}%")
-        mtom = get_value(tixi, MASSBREAKDOWN_XPATH + "/designMasses/mTOM/mass")
-        mzfm = get_value(tixi, MASSBREAKDOWN_XPATH + "/designMasses/mZFM/mass")
+        mtom = get_value(tixi, MTOM_XPATH)
+        mzfm = get_value(tixi, MZFM_XPATH)
         if mzfm > mtom:
             raise ValueError("mZFM is bigger than mTOM!")
         mass = (mtom - mzfm) * percent_fuel_mass / 100 + mzfm
 
     else:
-        mass_xpath = MASSBREAKDOWN_XPATH + f"/designMasses/{mass_type}/mass"
-        mass = get_value(tixi, mass_xpath)
+        mass = get_value(tixi, MASSBREAKDOWN_XPATH + f"/designMasses/{mass_type}/mass")
 
     if mass:
         log.info(f"Aircraft mass use for this analysis is {mass} [kg]")
@@ -99,11 +96,3 @@ def deal_with_mass(md: MarkdownDoc, tixi: Tixi3, mass_type: str) -> float:
         raise ValueError("The chosen aircraft mass has not been found!")
 
     return mass
-
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

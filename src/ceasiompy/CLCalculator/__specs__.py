@@ -16,7 +16,6 @@ GUI Interface of CLCalculator.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.CLCalculator import INCLUDE_GUI
 from ceasiompy.SU2Run import (
     SU2_FIXED_CL_XPATH,

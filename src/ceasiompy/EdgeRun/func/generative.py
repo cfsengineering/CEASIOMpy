@@ -5,7 +5,6 @@ Developed for Airinnova AB, Stockholm, Sweden
 
 Functions to generate queuing script for Edge:
 queue_preprocessor.script and queue_edgesolver.script
-
 """
 
 # =================================================================================================

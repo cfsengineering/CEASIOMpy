@@ -16,19 +16,22 @@ Test functions for 'lib/CLCalculator/clcalculator.py'
 #   IMPORTS
 # =================================================================================================
 
-from ceasiompy.CLCalculator.clcalculator import calculate_cl
-from pathlib import Path
-from pytest import approx
+import streamlit as st
 
+from pytest import approx
 from ceasiompy.utils.decorators import log_test
+from ceasiompy.CLCalculator.func.calculatecl import calculate_cl
+from ceasiompy.CLCalculator.clcalculator import main as cl_calculator
+from ceasiompy.utils.ceasiompyutils import (
+    current_workflow_dir,
+    update_cpacs_from_specs,
+)
 
 from unittest import main
+from unittest.mock import MagicMock
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
-from ceasiompy.CLCalculator import MODULE_DIR
-
-CPACS_IN_PATH = Path(MODULE_DIR, "D150_simple.xml")
-CPACS_OUT_PATH = Path(MODULE_DIR, "D150_simple_clcalulator_test.xml")
+from ceasiompy.CLCalculator import MODULE_NAME
 
 # =================================================================================================
 #   CLASSES
@@ -41,34 +44,15 @@ class TestModuleTemplate(CeasiompyTest):
     def test_calculate_cl(self):
         self.assert_equal_function(
             f=calculate_cl,
-            input_args=(
-                122,
-                12_000,
-                0.78,
-                50_000,
-                1.0,
-            ),
+            input_args=(122, 12_000, 0.78, 50_000, 1.0,),
             expected=(approx(0.48429196151547343),),
         )
 
-
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
-
-def test_calculate_cl():
-    """Test function 'calculate_cl'"""
-
-    ref_area = 122
-    alt = 12000
-    mach = 0.78
-    mass = 50000
-    load_fact = 1.0
-
-    cl = calculate_cl(ref_area, alt, mach, mass, load_fact)
-
-    assert cl == approx(0.48429196151547343)
+    @log_test
+    def test_main(self):
+        st.session_state = MagicMock()
+        update_cpacs_from_specs(self.test_cpacs, module_name=MODULE_NAME, test=True)
+        cl_calculator(self.test_cpacs, wkdir=current_workflow_dir())
 
 
 # =================================================================================================

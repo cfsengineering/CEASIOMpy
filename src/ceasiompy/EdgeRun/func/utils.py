@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed for Airinnova AB, Stockholm, Sweden
 
-Functions to manipulate Edge input file and results (TO-DO)
+Functions to manipulate Edge input file and results.
 """
 
 # =================================================================================================

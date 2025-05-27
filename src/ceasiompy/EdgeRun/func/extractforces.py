@@ -4,11 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed for Airinnova AB, Stockholm, Sweden
 
 Functions to manipulate Edge input file and results (TO-DO)
-
-Python version: >=3.8
-
-| Author : Mengmeng Zhang
-| Creation: 2024-01-05
 """
 
 # =================================================================================================

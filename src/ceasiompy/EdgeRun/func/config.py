@@ -4,16 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by Airinnova AB, Stockholm, Sweden
 
 Function generate or modify M-Edge ainp files
-
-Python version: >=3.8
-
-| Author: Mengmeng Zhang
-| Creation: 2024-01-05
-
-TODO:
-
-    *
-
 """
 
 # =================================================================================================

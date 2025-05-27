@@ -27,6 +27,8 @@ echo "export SU2_RUN=\"$su2_run_path\"" >> ~/.bashrc
 echo "export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN" >> ~/.bashrc
 echo "export PATH=\$PATH:\$SU2_RUN" >> ~/.bashrc
 
+source ~/.bashrc
+
 echo "Checking SU2 version"
 "$SU2_RUN/SU2_CFD" --help
 

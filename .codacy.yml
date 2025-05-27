@@ -1,3 +1,5 @@
 ignore_paths:
   - "installation/Pentagrow/**"
   - "**/Pentagrow/**"
+  - "**/eigen/**"
+  - "**/nlopt/**"

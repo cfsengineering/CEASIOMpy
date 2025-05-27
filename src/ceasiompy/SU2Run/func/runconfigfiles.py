@@ -20,7 +20,6 @@ from ceasiompy.utils.ceasiompyutils import run_software
 from typing import List
 from pathlib import Path
 
-from ceasiompy import log
 from ceasiompy.SU2Run import SOFTWARE_NAME
 from ceasiompy.utils.commonnames import (
     CONFIG_CFD_NAME,
@@ -104,12 +103,3 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
             )
 
             check_force_files_exists(config_dir)
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

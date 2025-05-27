@@ -121,12 +121,3 @@ def get_profile_coord(tixi: Tixi3, prof_uid: str) -> Tuple[List, List, List]:
         prof_vect_z.reverse()
 
     return prof_vect_x, prof_vect_y, prof_vect_z
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

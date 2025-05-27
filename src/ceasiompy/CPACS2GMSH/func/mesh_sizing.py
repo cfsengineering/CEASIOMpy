@@ -165,12 +165,3 @@ def wings_size(tixi: Tixi3) -> Tuple[float, float]:
     else:
         ValueError(f"No wings found at {WINGS_XPATH}.")
         return 0.0, 0.0
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

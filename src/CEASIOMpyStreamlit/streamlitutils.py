@@ -242,12 +242,3 @@ def section_edit_aeromap():
             new_aeromap.df = pd.read_csv(uploaded_csv, keep_default_na=False)
             new_aeromap.save()
             st.rerun()
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

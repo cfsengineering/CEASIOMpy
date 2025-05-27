@@ -248,12 +248,3 @@ def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
         for k in range(1, nb_engine + 1):
             engine = engines_config.get_engine(k)
             engine_export(cpacs, engine, brep_dir, engines_cfg_file, engine_surface_percent)
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

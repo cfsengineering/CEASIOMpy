@@ -159,12 +159,3 @@ class PointList(object):
 
         self.xlist = get_float_vector(tixi, self.xpath + "/x")
         self.ylist = get_float_vector(tixi, self.xpath + "/y")
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

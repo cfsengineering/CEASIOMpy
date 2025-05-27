@@ -425,12 +425,3 @@ def classify_wing(wing_part: ModelPart, aircraft_parts: List) -> None:
         wing_part.wing_sections.append(
             {"lines_tags": le_te, "mean_chord": find_chord_length(le_te)}
         )
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

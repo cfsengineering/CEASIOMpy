@@ -134,12 +134,3 @@ def compute_derivatives(
     log.info("x_min shape: %s, y_min shape: %s", x_min.shape, y_min.shape)
 
     return x_min, y_min
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

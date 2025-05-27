@@ -174,12 +174,3 @@ def else_vartype(tixi, xpath, default_value, name, key, description) -> None:
                 help=description,
                 on_change=save_cpacs_file,
             )
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

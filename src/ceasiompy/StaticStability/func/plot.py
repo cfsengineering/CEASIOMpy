@@ -234,12 +234,3 @@ def plot_stability(results_dir: Path, df: DataFrame, tangent_bool: bool) -> None
         add_stability_plot_lr(results_dir, df, "longitudinal")
         add_stability_plot_lr(results_dir, df, "directional")
         add_stability_plot_lr(results_dir, df, "lateral")
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

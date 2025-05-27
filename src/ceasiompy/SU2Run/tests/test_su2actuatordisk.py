@@ -14,7 +14,6 @@ Test functions of 'ceasiompy/SU2Run/func/su2actuatordisk.py'
 #   IMPORTS
 # =================================================================================================
 
-
 from pathlib import Path
 
 import numpy as np
@@ -35,10 +34,6 @@ from ceasiompy.SU2Run.func.plot import save_plots
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 
 MODULE_DIR = Path(__file__).parent
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
 
 
 # =================================================================================================
@@ -317,8 +312,6 @@ def test_write_actuator_disk_data(tmp_path):
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Test configfile.py")
     print("To run test use the following command:")
     print(">> pytest -v")
-    test_get_radial_stations()

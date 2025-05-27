@@ -17,15 +17,22 @@ import vtk
 import numpy as np
 import pandas as pd
 
-from ceasiompy import log
 from six import iteritems
-from vtk.util.numpy_support import numpy_to_vtk, vtk_to_numpy
+from vtkmodules.util.numpy_support import (
+    numpy_to_vtk,
+    vtk_to_numpy,
+)
 
 from pathlib import Path
-from ceasiompy.utils.configfiles import ConfigFile
+from numpy import ndarray
 from scipy.sparse import csr_matrix
-from typing import Dict, List
+from ceasiompy.utils.configfiles import ConfigFile
+from typing import (
+    Dict,
+    List,
+)
 
+from ceasiompy import log
 from ceasiompy.utils.commonnames import (
     CONFIG_CFD_NAME,
     FORCE_FILE_NAME,
@@ -39,16 +46,16 @@ from ceasiompy.utils.commonnames import (
 # =================================================================================================
 
 
-def compute_point_normals(coord: np.ndarray, cells: np.ndarray) -> np.ndarray:
+def compute_point_normals(coord: ndarray, cells: ndarray) -> ndarray:
     """
     Computes normals at points weighted by the area of the surrounding cells on a triangular mesh.
 
     Args:
-        coords (np.ndarray): (n, k)-dimensional coordinate points.
-        cells (np.ndarray): (m, 3) triangular cell connectivity.
+        coords (ndarray): (n, k)-dimensional coordinate points.
+        cells (ndarray): (m, 3) triangular cell connectivity.
 
     Returns:
-        point_nvecs (np.ndarray): (n, k)-dimensional normal vector at the n points.
+        point_nvecs (ndarray): (n, k)-dimensional normal vector at the n points.
 
     """
 
@@ -281,12 +288,3 @@ def extract_loads(results_files_dir: Path) -> None:
     config_dict = ConfigFile(config_file_path).data
     updated_mesh = compute_forces(surface_flow_file_path, force_file_path, config_dict)
     write_updated_mesh(updated_mesh, surface_flow_force_file_path)
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

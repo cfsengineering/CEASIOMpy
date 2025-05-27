@@ -200,14 +200,6 @@ def sumo_mirror_copy(sumo: Tixi3, xpath: str, uid: str, is_wing: bool = True) ->
         add_wing_cap(sumo, xpath_sym)
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")
-
 if __name__ == "__main__":
 
     print("Nothing to execute!")

@@ -19,8 +19,8 @@ TODO:
 
 import os
 import itertools
-import pyvista as pv
 import numpy as np
+import pyvista as pv
 
 from ceasiompy.SU2Run.func.extractloads import extract_loads
 from ceasiompy.SU2Run.func.dotderivatives import (
@@ -41,7 +41,6 @@ from ceasiompy.SU2Run.func.utils import (
     check_one_entry,
     get_wetted_area,
     get_su2_aerocoefs,
-    # process_config_dir,
     get_aeromap_uid,
     check_force_file_exists,
     get_efficiency_and_aoa,
@@ -51,12 +50,12 @@ from ceasiompy.SU2Run.func.utils import (
 from pathlib import Path
 from numpy import ndarray
 from ambiance import Atmosphere
+from tixi3.tixi3wrapper import Tixi3
 from typing import (
     List,
     Dict,
     Tuple,
 )
-from tixi3.tixi3wrapper import Tixi3
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
@@ -471,12 +470,3 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
             get_static_results(tixi, aeromap, config_dir, fixed_cl, found_wetted_area)
 
     aeromap.save()
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

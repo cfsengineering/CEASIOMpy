@@ -506,12 +506,3 @@ def get_wetted_area(su2_logfile: Path) -> float:
     log.warning("No value has been found for the wetted area, returning 0 [m^2].")
 
     return 0
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

@@ -468,12 +468,3 @@ def reposition_engine(cpacs, engine_path, engine_uids, engines_cfg_file):
 
     # Save this info in the engines config file
     config_file.write_file(engines_cfg_file, overwrite=True)
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

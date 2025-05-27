@@ -216,12 +216,3 @@ def check_stability_tangent(cma: float, cnb: float, clb: float) -> Tuple[str, st
     msg = generate_message(Series(stability_dict))
 
     return cma_stable_str, cnb_stable_str, clb_stable_str, msg
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

@@ -153,12 +153,3 @@ def rel_dist(fus_nb, sec_nb, seg_nb, tigl, seg_sec, start_index):
         rel_section_dist[j, 1] = k
 
     return (rel_section_dist[:, 0], rel_section_dist[:, 1])
-
-
-# =================================================================================================
-#   MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-
-    log.info("Nothing to execute!")

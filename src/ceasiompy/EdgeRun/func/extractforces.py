@@ -76,11 +76,3 @@ def extract_edge_forces(results_dir: Path):
                         f"{alt:.8f} {mach:.8f} {aoa:.8f} {aos:.8f} {CL} {CD} {CDP} {CDV} {CM}\n"
                     )
                     log.info(f"Saving forces to file: {forcemoments}")
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

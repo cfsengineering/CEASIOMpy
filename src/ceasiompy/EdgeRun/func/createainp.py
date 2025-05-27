@@ -94,11 +94,3 @@ class CreateAinp:
             edge_content = re.sub(re.escape(keyword), value, edge_content)
 
         self._write_file(edge_content, output_folder)
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

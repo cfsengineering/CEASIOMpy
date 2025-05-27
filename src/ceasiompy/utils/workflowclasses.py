@@ -341,11 +341,3 @@ class Workflow:
 
         # Copy logfile in the Workflow directory
         shutil.copy(LOGFILE, self.current_wkflow_dir)
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

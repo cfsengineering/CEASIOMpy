@@ -681,11 +681,3 @@ def add_control_surfaces(tixi: Tixi3) -> None:
         log.info("Finished adding control surfaces.")
     else:
         log.warning("No control surfaces to add.")
-
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

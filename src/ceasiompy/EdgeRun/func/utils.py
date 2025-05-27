@@ -80,11 +80,3 @@ def get_su2_aerocoefs(force_file):
                 velocity = float(line.split(" ")[7])
 
     return cl, cd, cs, cmd, cms, cml, velocity
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

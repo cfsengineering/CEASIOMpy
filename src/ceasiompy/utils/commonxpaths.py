@@ -158,11 +158,3 @@ ENGINE_TYPE_XPATH = CEASIOMPY_XPATH + "/ThermoData"
 ENGINE_BC = CEASIOMPY_XPATH + "/BC"
 ENGINE_BC_TEMPERATUREOUTLET_XPATH = ENGINE_BC + "/TemperatureOutlet"
 ENGINE_BC_PRESSUREOUTLET_XPATH = ENGINE_BC + "/PressureOutlet"
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

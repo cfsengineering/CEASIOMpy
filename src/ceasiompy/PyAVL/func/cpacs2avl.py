@@ -631,12 +631,3 @@ class Avl:
             avl_file.write("!Nbody  Bspace\n100\t1.0\n\n")
             avl_file.write(f"SCALE\n{to_cpacs_format(scaling)}\n\n")
             avl_file.write(f"TRANSLATE\n{to_cpacs_format(translation)}\n\n")
-
-
-# =================================================================================================
-#    MAIN
-# ================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

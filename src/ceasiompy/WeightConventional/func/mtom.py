@@ -109,12 +109,3 @@ def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span, results
         )
 
     return mtom
-
-
-# =================================================================================================
-#   MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-
-    log.info("Nothing to execute!")

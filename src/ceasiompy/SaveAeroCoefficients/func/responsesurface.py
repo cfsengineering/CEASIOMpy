@@ -167,11 +167,3 @@ def plot_response_surface(cpacs: CPACS, results_dir: Path) -> None:
     # Save the plot as an image in the results directory
     plt.savefig(Path(results_dir, "response_surface_" + x + "_vs_" + y + ".png"))
     plt.close(fig)
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

@@ -147,12 +147,3 @@ class Transformation:
             self.translation.x += transf.translation.x
             self.translation.y += transf.translation.y
             self.translation.z += transf.translation.z
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-
-    log.info("Nothing to execute!")

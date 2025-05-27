@@ -30,7 +30,3 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
     log.info("Starting edge postprocessing")
     extract_edge_forces(results_dir)
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute.")

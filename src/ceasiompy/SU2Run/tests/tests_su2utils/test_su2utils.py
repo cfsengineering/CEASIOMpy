@@ -109,11 +109,3 @@ def test_get_wetted_area():
     assert get_wetted_area(SU2_LOGFILE) == approx(702.04, rel=1e-4)
 
     assert get_wetted_area(SU2_LOGFILE_NO_WETTED_AREA) == 0
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

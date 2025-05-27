@@ -112,12 +112,12 @@ def get_logger() -> Logger:
 #   INITIALIZATION
 # ==============================================================================
 
-
 # Log
 log = get_logger()
 
-
 # Override the built-in print function to use the logger
+
+
 def custom_print(*args, **kwargs):
     log.info(" ".join(map(str, args)))
 
@@ -129,10 +129,3 @@ NO_YES_LIST = ["NO", "YES"]
 
 # Ignore arbitrary types
 ceasiompy_cfg = CustomConfig.model_config
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

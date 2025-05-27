@@ -38,7 +38,7 @@ from ceasiompy.CLCalculator import MODULE_NAME
 # =================================================================================================
 
 
-class TestModuleTemplate(CeasiompyTest):
+class TestClCalculator(CeasiompyTest):
 
     @log_test
     def test_calculate_cl(self):

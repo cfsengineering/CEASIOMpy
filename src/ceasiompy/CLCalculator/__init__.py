@@ -39,8 +39,10 @@ MODULE_NAME = MODULE_DIR.name
 RES_DIR = True
 
 # ===== Air heat capacity ratio [-] =====
-
 GAMMA = 1.401
+
+# ===== Mass types =====
+MASS_TYPES = ["mTOM", "mZFM", "Custom", r"%% fuel mass"]
 
 # ===== xPaths =====
 
@@ -53,4 +55,4 @@ MTOM_XPATH = MASSBREAKDOWN_XPATH + "/designMasses/mTOM/mass"
 MZFM_XPATH = MASSBREAKDOWN_XPATH + "/designMasses/mZFM/mass"
 
 CLCALC_PERC_FUEL_MASS_XPATH = CLCALC_XPATH + "/percentFuelMass"
-CLCALC_XPATH_CUSTOM_MASS_XPATH = CLCALC_XPATH + "/customMass"
+CLCALC_CUSTOM_MASS_XPATH = CLCALC_XPATH + "/customMass"

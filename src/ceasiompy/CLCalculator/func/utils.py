@@ -40,8 +40,8 @@ from ceasiompy.CLCalculator import (
     CLCALC_LOAD_FACT_XPATH,
     CLCALC_CRUISE_ALT_XPATH,
     CLCALC_CRUISE_MACH_XPATH,
+    CLCALC_CUSTOM_MASS_XPATH,
     CLCALC_PERC_FUEL_MASS_XPATH,
-    CLCALC_XPATH_CUSTOM_MASS_XPATH,
 )
 
 # =================================================================================================
@@ -77,7 +77,7 @@ def deal_with_mass(md: MarkdownDoc, tixi: Tixi3, mass_type: str) -> float:
     md.p(f"The mass used for the calculation is {mass_type}")
 
     if mass_type == "Custom":
-        mass = get_value(tixi, CLCALC_XPATH_CUSTOM_MASS_XPATH)
+        mass = get_value(tixi, CLCALC_CUSTOM_MASS_XPATH)
     elif mass_type == "% fuel mass":
         percent_fuel_mass = get_value(tixi, CLCALC_PERC_FUEL_MASS_XPATH)
         md.p(f"Percentage of fuel mass: {percent_fuel_mass}%")
@@ -86,7 +86,6 @@ def deal_with_mass(md: MarkdownDoc, tixi: Tixi3, mass_type: str) -> float:
         if mzfm > mtom:
             raise ValueError("mZFM is bigger than mTOM!")
         mass = (mtom - mzfm) * percent_fuel_mass / 100 + mzfm
-
     else:
         mass = get_value(tixi, MASSBREAKDOWN_XPATH + f"/designMasses/{mass_type}/mass")
 

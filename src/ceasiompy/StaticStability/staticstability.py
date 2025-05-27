@@ -17,7 +17,6 @@ Static stability module
 from pathlib import Path
 
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.StaticStability.func.utils import markdownpy_to_markdown
 from ceasiompy.StaticStability.func.extractdata import generate_stab_table
 
@@ -25,8 +24,10 @@ from cpacspy.cpacspy import CPACS
 from markdownpy.markdownpy import MarkdownDoc
 
 from ceasiompy import log
-from ceasiompy.StaticStability import MODULE_NAME
-from ceasiompy.utils.commonxpaths import STATICSTABILITY_LR_XPATH
+from ceasiompy.StaticStability import (
+    MODULE_NAME,
+    STATICSTABILITY_LR_XPATH,
+)
 
 # =================================================================================================
 #    MAIN
@@ -59,7 +60,3 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
             markdownpy_to_markdown(md, table)
 
     md.save()
-
-
-if __name__ == "__main__":
-    call_main(main, MODULE_NAME)

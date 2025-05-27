@@ -16,12 +16,6 @@ Note:
 """
 
 # =================================================================================================
-#   IMPORTS
-# =================================================================================================
-
-from ceasiompy import log
-
-# =================================================================================================
 #   CSTS
 # =================================================================================================
 
@@ -87,9 +81,6 @@ WING_SPAN_XPATH = CEASIOMPY_XPATH + "/geometry/analysis/wingSpan"
 
 # SMTRAIN_XPATH = CEASIOMPY_XPATH + "/surrogateModel"
 # SMUSE_XPATH = CEASIOMPY_XPATH + "/surrogateModelUse"
-
-STATICSTABILITY_XPATH = CEASIOMPY_XPATH + "/StaticStability"
-STATICSTABILITY_LR_XPATH = STATICSTABILITY_XPATH + "/LinearRegression"
 
 OPTWKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/optimPath"
 SMFILE_XPATH = CEASIOMPY_XPATH + "/filesPath/SMpath"

@@ -22,7 +22,6 @@ from pandas import (
     DataFrame,
 )
 
-from ceasiompy import log
 from ceasiompy.StaticStability import STABILITY_DICT
 
 # =================================================================================================

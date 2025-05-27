@@ -78,7 +78,7 @@ def _swig_getattr(self, class_type, name):
 def _swig_repr(self):
     try:
         strthis = "proxy of " + self.this.__repr__()
-    except:
+    except Exception:
         strthis = ""
     return "<%s.%s; %s >" % (
         self.__class__.__module__,

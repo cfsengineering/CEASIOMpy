@@ -28,8 +28,8 @@
 
 import gdb
 import re
-import itertools
 
+from functools import partial
 
 class EigenMatrixPrinter:
     "Print Eigen Matrix or Array of some kind"
@@ -203,6 +203,12 @@ def build_eigen_dictionary():
     pretty_printers_dict[re.compile("^Eigen::Array<.*>$")] = lambda val: EigenMatrixPrinter(
         "Array", val
     )
+
+
+def build_eigen_dictionary():
+    pretty_printers_dict[re.compile('^Eigen::Quaternion<.*>$')] = EigenQuaternionPrinter
+    pretty_printers_dict[re.compile('^Eigen::Matrix<.*>$')] = partial(EigenMatrixPrinter, "Matrix")
+    pretty_printers_dict[re.compile('^Eigen::Array<.*>$')]  = partial(EigenMatrixPrinter, "Array")
 
 
 def register_eigen_printers(obj):

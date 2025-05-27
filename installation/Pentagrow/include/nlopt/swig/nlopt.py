@@ -250,7 +250,7 @@ class nlopt_doublevector(_object):
         this = _nlopt.new_nlopt_doublevector(*args)
         try:
             self.this.append(this)
-        except:
+        except Exception:
             self.this = this
 
     def push_back(self, *args):
@@ -368,7 +368,7 @@ class roundoff_limited(Exception):
         this = _nlopt.new_roundoff_limited()
         try:
             self.this.append(this)
-        except:
+        except Exception:
             self.this = this
 
     __swig_destroy__ = _nlopt.delete_roundoff_limited
@@ -390,7 +390,7 @@ class forced_stop(Exception):
         this = _nlopt.new_forced_stop()
         try:
             self.this.append(this)
-        except:
+        except Exception:
             self.this = this
 
     __swig_destroy__ = _nlopt.delete_forced_stop
@@ -414,7 +414,7 @@ class opt(_object):
         this = _nlopt.new_opt(*args)
         try:
             self.this.append(this)
-        except:
+        except Exception:
             self.this = this
 
     def optimize(self, *args):

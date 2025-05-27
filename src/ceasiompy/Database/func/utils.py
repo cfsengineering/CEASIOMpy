@@ -119,12 +119,3 @@ def data_to_db(cursor: Cursor, data: Dict, table_name: str) -> None:
 
         # Execute the statement with values
         cursor.execute(query, tuple(data.values()))
-
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

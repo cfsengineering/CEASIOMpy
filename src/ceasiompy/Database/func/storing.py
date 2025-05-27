@@ -204,12 +204,3 @@ def store_data(tixi: Tixi3) -> None:
     if su2_dir.is_dir():
         call_store_data(tixi, store_su2run_data, su2_dir, SU2RUN_NAME)
         log.warning("Not implemented yet.")
-
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

@@ -790,12 +790,3 @@ def add_db_values(self, df: DataFrame, non_mach_str: str, x_hinge: float) -> Dat
     )
 
     return concat([df[der_columns], DataFrame(data, columns=der_columns)], ignore_index=True)
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute !")

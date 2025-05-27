@@ -24,8 +24,6 @@ from pathlib import Path
 from sqlite3 import Cursor
 from tixi3.tixi3wrapper import Tixi3
 
-from ceasiompy import log
-
 from ceasiompy.DynamicStability import (
     DYNAMICSTABILITY_NSPANWISE_XPATH,
     DYNAMICSTABILITY_NCHORDWISE_XPATH,
@@ -96,12 +94,3 @@ def store_dynstab_data(
             }
 
             data_to_db(cursor, data, table_name)
-
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

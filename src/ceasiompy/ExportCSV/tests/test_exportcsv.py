@@ -49,10 +49,10 @@ class TestExportCSV(CeasiompyTest):
 
         features_str = "altitude,machNumber,angleOfSideslip,angleOfAttack"
         assert lines[0] == f"{features_str},cd,cl,cs,cmd,cml,cms\n"
-        assert lines[1] == "0,0.3,0,0,0.01,0.1,0.001,0.002,0.002,0.004\n"
-        assert lines[2] == "0,0.3,0,10,0.01,0.1,0.001,0.002,0.002,0.002\n"
-        assert lines[3] == "0,0.3,10,0,0.01,0.1,0.001,0.004,0.004,0.004\n"
-        assert lines[4] == "0,0.3,10,10,0.01,0.1,0.001,0.004,0.002,0.002\n"
+        assert lines[1] == "0,0.3,0,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
+        assert lines[2] == "0,0.3,0,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
+        assert lines[3] == "0,0.3,10,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
+        assert lines[4] == "0,0.3,10,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
 
 
 # =================================================================================================

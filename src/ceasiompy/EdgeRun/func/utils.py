@@ -14,8 +14,6 @@ from pathlib import Path
 
 from ceasiompy.utils.moduleinterfaces import get_module_path
 
-from ceasiompy import log
-
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================

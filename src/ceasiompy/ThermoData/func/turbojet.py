@@ -201,6 +201,7 @@ class Turbojet(pyc.Cycle):
 
         super().setup()
 
+
 class MPTurbojet(pyc.MPCycle):
     def setup(self):
         self.pyc_add_pnt("DESIGN", Turbojet())

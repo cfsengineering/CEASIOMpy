@@ -18,6 +18,7 @@ the vortex-lattice method (VLM)
 #   IMPORTS
 # ==============================================================================
 
+from ceasiompy.utils.ceasiompyutils import run_software
 from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
 from ceasiompy.PyAVL.func.results import get_avl_results
 from ceasiompy.PyAVL.func.utils import (
@@ -28,18 +29,11 @@ from ceasiompy.PyAVL.func.config import (
     write_command_file,
     retrieve_gui_values,
 )
-from ceasiompy.utils.ceasiompyutils import (
-    call_main,
-    run_software,
-)
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
-from ceasiompy.PyAVL import (
-    MODULE_NAME,
-    SOFTWARE_NAME,
-)
+from ceasiompy.PyAVL import SOFTWARE_NAME
 
 # =================================================================================================
 #    MAIN
@@ -201,7 +195,3 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 convert_ps_to_pdf(case_dir_path)
 
     get_avl_results(cpacs, results_dir)
-
-
-if __name__ == "__main__":
-    call_main(main, MODULE_NAME)

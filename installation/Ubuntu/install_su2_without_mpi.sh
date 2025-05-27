@@ -23,6 +23,12 @@ unzip -d SU2-v"$su2_version"-linux64 SU2-v"$su2_version"-linux64.zip
 
 su2_run_path="$install_dir"/SU2-v"$su2_version"-linux64/bin
 
+# Export for current session
+export SU2_RUN="$su2_run_path"
+export PYTHONPATH="$PYTHONPATH:$SU2_RUN"
+export PATH="$PATH:$SU2_RUN"
+
+# Optionally, also add to ~/.bashrc for future sessions
 echo "export SU2_RUN=\"$su2_run_path\"" >> ~/.bashrc
 echo "export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN" >> ~/.bashrc
 echo "export PATH=\$PATH:\$SU2_RUN" >> ~/.bashrc

@@ -299,7 +299,7 @@ def edge_cfd(cpacs: CPACS, wkdir: Path):
         log.info("Running Edge postprocessor...for " + case_dir_name)
         edge_scripts_instance.postprocess_script(case_dir_path, edge_mesh)
         log.info("Edge postprocessor is done.")
-        # wait until the results are generated
+
 
 # =================================================================================================
 #    MAIN

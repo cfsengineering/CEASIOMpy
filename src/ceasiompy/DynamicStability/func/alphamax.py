@@ -50,6 +50,7 @@ def get_alpha_max(self) -> DataFrame:
         table_name = "avl_data"
     else:
         log.warning(f"software {self.software_data} not implemented yet.")
+        return DataFrame()
 
     # Retrieve data from db
     ceasiompy_db = CeasiompyDb()

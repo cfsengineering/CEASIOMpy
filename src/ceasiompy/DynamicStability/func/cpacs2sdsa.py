@@ -120,7 +120,7 @@ class SDSAFile:
         self.tixi = self.cpacs.tixi
 
         # Import SDSAEmpty.xml file
-        self.empty_sdsa_path = self.dynstab_dir / "func/SDSAEmpty.xml"
+        self.empty_sdsa_path = self.dynstab_dir / "files/SDSAEmpty.xml"
         self.empty_sdsa_file = open_tixi(self.empty_sdsa_path)
 
         # Create a copy of the empty SDSA file in Results > DynamicStability

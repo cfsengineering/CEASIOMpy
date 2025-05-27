@@ -58,7 +58,9 @@ class EdgeScripts:
         #         if '-J jobname' in line:
         #             line = line.replace('-J jobname', f'-J {self.jobname}prepro')
         #         que_script.write(line)
-        #     que_script.write(f'{preprocessor} {self.EdgeInputFile} > edge_preprocessor.log 2>&1\n')
+        #     que_script.write(
+        # f'{preprocessor} {self.EdgeInputFile} > edge_preprocessor.log 2>&1\n'
+        # )
         #     print(f'{preprocessor} {self.EdgeInputFile} > edge_preprocessor.log 2>&1\n')
         os.system(f"preprocessor {self.EdgeInputFile} > edge_preprocessor.log 2>&1\n")
 
@@ -108,7 +110,6 @@ class EdgeScripts:
         # with subprocess.Popen([ffaucut, grid, 'tmp1'], stdin=subprocess.PIPE, text=True)
         #  as process:
         #     process.communicate(input=input_data)
-
 
         # # Inteerpolate the soulutions
         # subprocess.run([ffauinterpol, solution1, 'tmp1', 'tmp11'])

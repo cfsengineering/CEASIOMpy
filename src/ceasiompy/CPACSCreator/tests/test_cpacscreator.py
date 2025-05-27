@@ -47,7 +47,9 @@ class TestCPACSCreator(unittest.TestCase):
     @patch("ceasiompy.CPACSCreator.cpacscreator.run_software")
     @patch("ceasiompy.CPACSCreator.cpacscreator.get_install_path")
     @patch("ceasiompy.CPACSCreator.cpacscreator.log")
-    def test_main_cpacscreator_not_installed(self, mock_log, mock_get_install_path, mock_run_software):
+    def test_main_cpacscreator_not_installed(
+        self, mock_log, mock_get_install_path, mock_run_software
+    ):
         mock_cpacs = MagicMock()
         mock_cpacs.cpacs_file = "dummy_cpacs.xml"
         with tempfile.TemporaryDirectory() as tmpdir:

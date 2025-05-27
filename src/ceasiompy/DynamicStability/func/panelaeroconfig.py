@@ -21,6 +21,8 @@ import matplotlib.pyplot as plt
 
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
+from ceasiompy import log
+
 # =================================================================================================
 #   BACKEND SETTING
 # =================================================================================================
@@ -194,13 +196,13 @@ class AeroModel:
             Tip = caerocard["X3"] - caerocard["X4"]
 
             if caerocard["n_chord"] == 0:
-                print("AEFACT cards are not supported by this reader.")
+                log.info("AEFACT cards are not supported by this reader.")
             else:
                 # assume equidistant spacing
                 d_chord = np.linspace(0.0, 1.0, caerocard["n_chord"] + 1)
 
             if caerocard["n_span"] == 0:
-                print("AEFACT cards are not supported by this reader.")
+                log.info("AEFACT cards are not supported by this reader.")
             else:
                 # assume equidistant spacing
                 d_span = np.linspace(0.0, 1.0, caerocard["n_span"] + 1)
@@ -257,7 +259,6 @@ class AeroModel:
 
 
 class DetailedPlots:
-
     def __init__(self, model):
         self.model = model
 

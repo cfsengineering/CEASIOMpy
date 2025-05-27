@@ -16,7 +16,6 @@ GUI Interface of CPACS2GMSH.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.utils.commonxpaths import SU2MESH_XPATH
 from ceasiompy.CPACS2GMSH import (
     INCLUDE_GUI,
@@ -42,7 +41,6 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_GROWTH_RATIO_XPATH,
     GMSH_GROWTH_FACTOR_XPATH,
     GMSH_FEATURE_ANGLE_XPATH,
-    GMSH_SURFACE_MESH_SIZE_XPATH,
     GMSH_EXPORT_PROP_XPATH,
     GMSH_INTAKE_PERCENT_XPATH,
     GMSH_EXHAUST_PERCENT_XPATH,
@@ -322,18 +320,6 @@ cpacs_inout.add_input(
     xpath=GMSH_FEATURE_ANGLE_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Feature Angle",
-    gui_group="RANS options",
-)
-
-cpacs_inout.add_input(
-    var_name="surface_mesh_factor",
-    var_type=float,
-    default_value=5,
-    unit="[10^-3]",
-    descr="Surface mesh size factor compared to aircraft largest dimension (omogeneus everywhere)",
-    xpath=GMSH_SURFACE_MESH_SIZE_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Surface mesh size",
     gui_group="RANS options",
 )
 

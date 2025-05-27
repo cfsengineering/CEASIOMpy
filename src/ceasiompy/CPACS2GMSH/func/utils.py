@@ -51,7 +51,6 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_MAX_THICKNESS_LAYER_XPATH,
     GMSH_GROWTH_FACTOR_XPATH,
     GMSH_GROWTH_RATIO_XPATH,
-    GMSH_SURFACE_MESH_SIZE_XPATH,
     GMSH_FEATURE_ANGLE_XPATH,
 )
 
@@ -273,8 +272,6 @@ def retrieve_gui_values(tixi: Tixi3):
 
     growth_factor = get_value(tixi, GMSH_GROWTH_FACTOR_XPATH)
     growth_ratio = get_value(tixi, GMSH_GROWTH_RATIO_XPATH)
-
-    min_max_mesh_factor = get_value(tixi, GMSH_SURFACE_MESH_SIZE_XPATH)
 
     feature_angle = get_value(tixi, GMSH_FEATURE_ANGLE_XPATH)
 

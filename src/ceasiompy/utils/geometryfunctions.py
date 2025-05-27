@@ -740,12 +740,3 @@ def get_main_wing_le(tixi: Tixi3) -> Tuple[float, float, float, float]:
     first_list = le_list[0]
 
     return first_list[0], first_list[1], first_list[2], first_list[3]
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute.")

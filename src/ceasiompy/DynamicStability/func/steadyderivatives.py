@@ -208,12 +208,3 @@ def get_tables_values(self) -> Tuple[DataFrame, DataFrame]:
     log.info("--- Finished retrieving the Tables values ---")
 
     return format_aero_data(aero_df), format_ctrl_data(ctrl_df)
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute.")

@@ -168,10 +168,8 @@ def edge_cfd(cpacs: CPACS, wkdir: Path):
         raise Exception("Error, edge solver not assigned")
 
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
-    for case_nb in range(len(alt_list)):
+    for case_nb, alt in enumerate(alt_list):
         # cfg["MESH_FILENAME"] = str(su2_mesh)
-
-        alt = alt_list[case_nb]
         mach = mach_list[case_nb]
         aoa = aoa_list[case_nb]
         aos = aos_list[case_nb]

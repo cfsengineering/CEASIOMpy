@@ -114,12 +114,3 @@ def plot_lift_distribution(
     plt.legend(fontsize=12)
     plt.grid()
     plt.savefig(Path(wkdir, "lift_distribution.png"))
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute.")

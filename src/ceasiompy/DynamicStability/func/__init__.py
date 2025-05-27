@@ -16,8 +16,6 @@ Initialization for DynamicStability.func.
 
 from typing import List
 
-from ceasiompy import log
-
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================

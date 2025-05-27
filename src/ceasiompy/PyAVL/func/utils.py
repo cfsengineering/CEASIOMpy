@@ -162,12 +162,3 @@ def duplicate_elements(tixi: Tixi3, *lists: List) -> Tuple[List, ...]:
                 append_combination(combination, [0.0, 0.0, value])
 
     return tuple(new_lists)
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute.")

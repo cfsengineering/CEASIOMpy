@@ -14,8 +14,6 @@ queue_preprocessor.script and queue_edgesolver.script
 import os
 import subprocess
 
-from ceasiompy import log
-
 # =================================================================================================
 #   CLASSES
 # =================================================================================================
@@ -54,17 +52,14 @@ class EdgeScripts:
         # QueScript = f'queue_preprocessor.script'
         # Submitcommand = 'sbatch'
         os.chdir(dir_path)
-
-        """
-        with open(self.input_que_script_path, 'r') as template_file,
-        open(QueScript, 'w') as que_script:
-            for line in template_file:
-                if '-J jobname' in line:
-                    line = line.replace('-J jobname', f'-J {self.jobname}prepro')
-                que_script.write(line)
-            que_script.write(f'{preprocessor} {self.EdgeInputFile} > edge_preprocessor.log 2>&1\n')
-            print(f'{preprocessor} {self.EdgeInputFile} > edge_preprocessor.log 2>&1\n')
-        """
+        # with open(self.input_que_script_path, 'r') as template_file,
+        # open(QueScript, 'w') as que_script:
+        #     for line in template_file:
+        #         if '-J jobname' in line:
+        #             line = line.replace('-J jobname', f'-J {self.jobname}prepro')
+        #         que_script.write(line)
+        #     que_script.write(f'{preprocessor} {self.EdgeInputFile} > edge_preprocessor.log 2>&1\n')
+        #     print(f'{preprocessor} {self.EdgeInputFile} > edge_preprocessor.log 2>&1\n')
         os.system(f"preprocessor {self.EdgeInputFile} > edge_preprocessor.log 2>&1\n")
 
     def submit_solver_script(self, dir_path, nb_proc):
@@ -106,37 +101,28 @@ class EdgeScripts:
         # Enter the folder
         os.chdir(dir_path)
 
-        """
         # Extract the boundary
-        input_data =
-        1
-        0
-        with subprocess.Popen([ffaucut, grid, 'tmp1'], stdin=subprocess.PIPE, text=True)
-         as process:
-            process.communicate(input=input_data)
+        # input_data =
+        # 1
+        # 0
+        # with subprocess.Popen([ffaucut, grid, 'tmp1'], stdin=subprocess.PIPE, text=True)
+        #  as process:
+        #     process.communicate(input=input_data)
 
 
-        # Inteerpolate the soulutions
-        subprocess.run([ffauinterpol, solution1, 'tmp1', 'tmp11'])
-        subprocess.run([ffauinterpol, solution2, 'tmp1', 'tmp12'])
+        # # Inteerpolate the soulutions
+        # subprocess.run([ffauinterpol, solution1, 'tmp1', 'tmp11'])
+        # subprocess.run([ffauinterpol, solution2, 'tmp1', 'tmp12'])
 
-        # Extract tabulated data
-        subprocess.run([ffa2tab, 'tmp11', walldata1])
-        subprocess.run([ffa2tab, 'tmp12', walldata2])
+        # # Extract tabulated data
+        # subprocess.run([ffa2tab, 'tmp11', walldata1])
+        # subprocess.run([ffa2tab, 'tmp12', walldata2])
 
-        # Cleanup
-        for temp_file in ['tmp1', 'tmp11', 'tmp12']:
-            os.remove(temp_file)
-        """
+        # # Cleanup
+        # for temp_file in ['tmp1', 'tmp11', 'tmp12']:
+        #     os.remove(temp_file)
+
         # Create ensight gold files
         subprocess.run([ffa2engold, grid, solution1, ensgoldprefix])
 
         # os.system(f'{Submitcommand} {que_script}')
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

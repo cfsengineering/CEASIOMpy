@@ -271,12 +271,3 @@ class SDSAFile:
 
     def update_attribute(self: "SDSAFile", xpath: str, ele: str) -> None:
         self.sdsa_file.addTextAttribute(xpath, "size", ele)
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute.")

@@ -14,21 +14,14 @@ Dynamic Stability Module
 #   IMPORTS
 # =================================================================================================
 
-from ceasiompy.utils.ceasiompyutils import (
-    call_main,
-    run_software,
-)
+from ceasiompy.utils.ceasiompyutils import run_software
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from ceasiompy.DynamicStability.func.cpacs2sdsa import SDSAFile
 
 from ceasiompy import log
-
-from ceasiompy.DynamicStability import (
-    MODULE_NAME,
-    SOFTWARE_NAME,
-)
+from ceasiompy.DynamicStability import SOFTWARE_NAME
 
 # =================================================================================================
 #    MAIN
@@ -54,7 +47,3 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         wkdir=wkdir,
         with_mpi=False,
     )
-
-
-if __name__ == "__main__":
-    call_main(main, MODULE_NAME)

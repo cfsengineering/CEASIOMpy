@@ -28,6 +28,7 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     compute_angle_surfaces,
     refine_between_parts,
 )
+from ceasiompy.CPACS2GMSH.func.wingclassification import ModelPart
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
 from ceasiompy.utils.ceasiompyutils import remove_file_type_in_dir
@@ -354,13 +355,46 @@ def test_refine_between_parts():
     Function to test if the right number of fields are created
     when using the function
     """
+    gmsh.initialize()
+    b1 = gmsh.model.occ.addBox(0, 0, 0, 1, 1, 1)
+    b2 = gmsh.model.occ.addBox(0.5, 0.5, 0.5, 1, 1, 1)
+    b3 = gmsh.model.occ.addBox(1.2, 1.2, 1.2, 1, 1, 1)
+    m1, m2, m3 = ModelPart("b1"), ModelPart("b2"), ModelPart("b3")
+    aircraft_parts = [m1, m2, m3]
+    fused = gmsh.model.occ.fuse([(3, b2)], [(3, b1), (3, b3)])[0]
+    gmsh.model.occ.synchronize()
+    m1.mesh_size, m2.mesh_size, m3.mesh_size = 0.1, 0.2, 0.3
+    m1.bounding_box = (-0.1, -0.1, -0.1, 1.1, 1.1, 1.1)
+    m2.bounding_box = (0.4, 0.4, 0.4, 1.6, 1.6, 1.6)
+    m3.bounding_box = (0.9, 0.9, 0.9, 2.1, 2.1, 2.1)
+    m1.surfaces = gmsh.model.getEntitiesInBoundingBox(-0.1, -0.1, -0.1, 1.1, 1.1, 1.1, 2)
+    m2.surfaces = gmsh.model.getEntitiesInBoundingBox(0.4, 0.4, 0.4, 1.6, 1.6, 1.6, 2)
+    m3.surfaces = gmsh.model.getEntitiesInBoundingBox(0.9, 0.9, 0.9, 2.1, 2.1, 2.1, 2)
+    m1.surfaces_tags = [t for (d, t) in m1.surfaces]
+    m2.surfaces_tags = [t for (d, t) in m2.surfaces]
+    m3.surfaces_tags = [t for (d, t) in m3.surfaces]
+    m1.lines = gmsh.model.getEntitiesInBoundingBox(-0.1, -0.1, -0.1, 1.1, 1.1, 1.1, 1)
+    m2.lines = gmsh.model.getEntitiesInBoundingBox(0.4, 0.4, 0.4, 1.6, 1.6, 1.6, 1)
+    m3.lines = gmsh.model.getEntitiesInBoundingBox(0.9, 0.9, 0.9, 2.1, 2.1, 2.1, 1)
+    m1.lines_tags = [t for (d, t) in m1.lines]
+    m2.lines_tags = [t for (d, t) in m2.lines]
+    m3.lines_tags = [t for (d, t) in m3.lines]
+
+    mesh_fields = {"nbfields": 0, "restrict_fields" : []}
+
+    refine_between_parts(aircraft_parts, mesh_fields)
+
+    assert mesh_fields["nbfields"] == 36
+    assert len(mesh_fields["restrict_fields"]) == 12
+    # AAAH ADD CHECK TODO
+    gmsh.finalize()
 
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 if __name__ == "__main__":
-    test_compute_angle_surfaces()
+    test_refine_between_parts()
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")

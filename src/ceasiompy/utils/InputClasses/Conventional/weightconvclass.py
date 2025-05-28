@@ -5,12 +5,10 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 The script contains the user inputs required for the weight analysis.
 
-| Works with Python 3.6
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
 
 TODO:
-
     * Maybe gather all parameter in one class (or one class with subclasses)
 
 """
@@ -36,9 +34,6 @@ from ceasiompy.utils.commonxpaths import (
     WB_SEAT_WIDTH_XPATH,
     WB_TOILET_LENGTH_XPATH,
 )
-
-from ceasiompy import log
-
 
 # =================================================================================================
 #   CLASSES

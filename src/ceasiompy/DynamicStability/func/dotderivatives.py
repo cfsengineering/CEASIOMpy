@@ -40,6 +40,7 @@ from ceasiompy.DynamicStability.func.utils import (
 from panelaero import DLM
 from numpy import ndarray
 from pandas import DataFrame
+from ambiance import Atmosphere
 from ceasiompy.Database.func.storing import CeasiompyDb
 
 from ceasiompy.DynamicStability.func.panelaeroconfig import (
@@ -116,7 +117,7 @@ def load_geometry(self) -> List:
 
 
 def compute_velocity_attributes(
-    self,
+    atm: Atmosphere,
     mach: float,
     k_alpha_model: float,
     k_beta_model: float,
@@ -138,14 +139,14 @@ def compute_velocity_attributes(
     """
 
     # Velocity in m/s in atmospheric environment
-    velocity = self.Atm.speed_of_sound[0] * mach
+    velocity = atm.speed_of_sound[0] * mach
 
     # Frequency
     omegaalpha = k_alpha_model * velocity  # 2 pi / T
     omegabeta = k_beta_model * velocity
 
     # Dynamic pressure
-    q_dyn = self.density * (velocity**2) / 2.0
+    q_dyn = atm.density[0] * (velocity**2) / 2.0
 
     return omegaalpha, omegabeta, q_dyn
 
@@ -523,7 +524,7 @@ def get_mach_list(self, x_hinge: float) -> Tuple[List, List]:
     return list(set(self.mach_list) - mach_set), ", ".join(str(mach) for mach in list(mach_set))
 
 
-def compute_dot_derivatives(self) -> DataFrame:
+def compute_dot_derivatives(self, atm: Atmosphere) -> DataFrame:
     """
     Computes alpha and beta dot derivatives for SDSA.
 
@@ -593,7 +594,7 @@ def compute_dot_derivatives(self) -> DataFrame:
 
         # Get angular frequencies
         omegaalpha, omegabeta, q_dyn = compute_velocity_attributes(
-            self, mach, k_alpha_model, k_beta_model
+            atm, mach, k_alpha_model, k_beta_model
         )
 
         # Get forces on each panels at angle (alpha(t), beta(t))

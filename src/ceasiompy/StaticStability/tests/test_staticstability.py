@@ -35,7 +35,6 @@ from cpacspy.cpacspy import (
 )
 
 from ceasiompy import log
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.StaticStability import (
     MODULE_NAME,
     STATICSTABILITY_LR_XPATH,
@@ -50,13 +49,11 @@ class TestStaticStability(CeasiompyTest):
 
     @classmethod
     def setUpClass(cls):
-        cls.cpacs_path = Path(CPACS_FILES_PATH, "D150_simple.xml")
-        cls.cpacs = CPACS(cls.cpacs_path)
+        super().setUpClass()
         cls.wkdir = current_workflow_dir()
-
-        cls.aeromap_empty: AeroMap = cls.cpacs.get_aeromap_by_uid("aeromap_empty")
-        cls.aeromap: AeroMap = cls.cpacs.get_aeromap_by_uid("test_apm")
-        tixi = cls.cpacs.tixi
+        cls.aeromap_empty: AeroMap = cls.test_cpacs.get_aeromap_by_uid("aeromap_empty")
+        cls.aeromap: AeroMap = cls.test_cpacs.get_aeromap_by_uid("test_apm")
+        tixi = cls.test_cpacs.tixi
 
         log.info(f"cls.aeromap {cls.aeromap}")
 
@@ -88,7 +85,7 @@ class TestStaticStability(CeasiompyTest):
         # Test Linear Regression
         self.assert_equal_function(
             f=generate_stab_table,
-            input_args=(self.cpacs, "test_apm", self.wkdir, True, ),
+            input_args=(self.test_cpacs, "test_apm", self.wkdir, True, ),
             expected=([
                 [
                     "mach", "alt", "aoa", "aos",
@@ -145,7 +142,7 @@ class TestStaticStability(CeasiompyTest):
         # Test data
         self.assert_equal_function(
             f=generate_stab_table,
-            input_args=(self.cpacs, "test_apm", self.wkdir, False,),
+            input_args=(self.test_cpacs, "test_apm", self.wkdir, False,),
             expected=([
                 [
                     "mach", "alt", "aoa", "aos",
@@ -199,11 +196,11 @@ class TestStaticStability(CeasiompyTest):
     @log_test
     def test_main_creates_markdown(self):
 
-        create_branch(self.cpacs.tixi, STATICSTABILITY_LR_XPATH)
-        self.cpacs.tixi.updateBooleanElement(STATICSTABILITY_LR_XPATH, False)
+        create_branch(self.test_cpacs.tixi, STATICSTABILITY_LR_XPATH)
+        self.test_cpacs.tixi.updateBooleanElement(STATICSTABILITY_LR_XPATH, False)
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            main(self.cpacs, Path(tmpdir))
+            main(self.test_cpacs, Path(tmpdir))
             md_path = Path(tmpdir, f"{MODULE_NAME}.md")
             with open(md_path, "r") as f:
                 content = f.read()

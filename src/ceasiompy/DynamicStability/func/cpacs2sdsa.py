@@ -180,7 +180,7 @@ class SDSAFile:
         """
 
         if self.software_data == AVL_SOFTWARE:
-            df_dot = compute_dot_derivatives(self)
+            df_dot = compute_dot_derivatives(self, atm=self.Atm)
             for aero_prim_xpath, column_name in self.xpaths_prim:
                 x_xpath = aero_prim_xpath + "/X"
                 values_xpath = aero_prim_xpath + "/Values"

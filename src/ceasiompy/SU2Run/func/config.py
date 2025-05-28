@@ -246,7 +246,7 @@ def add_actuator_disk(
 
         thrust = get_value(tixi, PROPELLER_THRUST_XPATH)
         total_thrust_coefficient = float(
-            thrust / (Atm.density * rotational_velocity**2 * (radius * 2) ** 4)
+            thrust / (Atm.density[0] * rotational_velocity**2 * (radius * 2) ** 4)
         )
 
         (

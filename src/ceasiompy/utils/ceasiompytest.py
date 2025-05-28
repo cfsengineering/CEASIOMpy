@@ -22,7 +22,6 @@ from typing import Tuple
 from typing import Callable
 from cpacspy.cpacspy import CPACS
 
-from ceasiompy import log
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 
 

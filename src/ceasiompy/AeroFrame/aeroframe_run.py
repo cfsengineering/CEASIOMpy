@@ -77,7 +77,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         aos = aos_list[i_case]
 
         Atm = Atmosphere(alt)
-        rho = Atm.density
+        rho = Atm.density[0]
 
         case_dir_path = create_case_dir(
             results_dir,

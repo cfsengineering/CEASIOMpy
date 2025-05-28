@@ -5553,6 +5553,7 @@
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
+                <fromSectionUID>FinWingSection1</fromSectionUID>
                 <toSectionUID>FinWingSection2</toSectionUID>
                 <length>0</length>
               </positioning>

@@ -1,34 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cpacs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:noNamespaceSchemaLocation="http://www.airbusds.com/cpacs/2.3">
+<cpacs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi_noNamespaceSchemaLocation="CPACS_21_Schema.xsd">
   <header>
     <name>OptimaleBL3</name>
-    <creator>vofl150 (MMAIN)</creator>
-    <description>This CPACS document has been generated using CATIA2CPACS.</description>
-    <timestamp>2013-12-04T10:14:18</timestamp>
     <version>1.0</version>
     <cpacsVersion>3.0</cpacsVersion>
-    <!-- <updates>
-      <update>
-        <modification>Converted to cpacs 3.0 using cpacs2to3</modification>
+    <versionInfos>
+      <versionInfo version="update1">
+        <description>This CPACS document has been generated using CATIA2CPACS</description>
         <creator>cpacs2to3</creator>
-        <timestamp>2018-10-15T14:19:56</timestamp>
-        <version>1</version>
+        <timestamp>2018-01-15T09:22:57</timestamp>
+        <version>0.3</version>
         <cpacsVersion>3.0</cpacsVersion>
-      </update>
-      <update>
-        <modification>Replaced aeroPerformanceMap by aeroMap. Removed toolspecifics.</modification>
-        <creator>CFSE</creator>
-        <timestamp>2020-03-06 15:35:29.614247</timestamp>
-        <cpacsversion>3.0</cpacsversion>
-      </update>
-      <update>
-        <modification>Added missing names</modification>
-        <creator>CFSE</creator>
-        <timestamp>2020-05-20T18:00:08</timestamp>
-        <cpacsVersion>3.1</cpacsVersion>
-      </update>
-    </updates> -->
+      </versionInfo>
+    </versionInfos>
   </header>
   <vehicles>
     <aircraft>

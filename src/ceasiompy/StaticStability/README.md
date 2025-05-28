@@ -29,7 +29,6 @@ A unique (Mach, Altitude, AoA, AoS) in the aeromap suffices to do the Static Sta
 
 In the results directory you can find:
     1. a Markdown file which contains a table with the stability results (Stable/Unstable wrt to the 3 different axes) for the specific aeromap.
-
     2. A longitudinal, directional and lateral html plot of the Pitch, Yaw and Roll moments wrt AoA, AoS and AoS respectively.
 
 ## Installation or requirements

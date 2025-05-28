@@ -175,7 +175,7 @@ def add_gui_object(
         session_state.xpath_to_update[xpath] = key
 
 
-def add_module_tab() -> None:
+def add_module_tab(new_file: bool) -> None:
     if "cpacs" not in st.session_state:
         st.warning("No CPACS file has been selected!")
         return
@@ -202,15 +202,13 @@ def add_module_tab() -> None:
         "db": list_vartype,
         "CPACS2GMSH mesh": else_vartype,
     }
-
     # Load each module iteratively
     for m, (tab, module) in enumerate(
         zip(st.session_state.tabs, st.session_state.workflow_modules)
     ):
-
-        with tab:
+        with tab :
             st.text("")
-            specs = get_specs_for_module(module)
+            specs = get_specs_for_module(module, reloading=new_file)
             # Check if specs.cpacs_inout is None
             if specs.cpacs_inout is None:
                 log.error("specs.cpacs_inout is None. Ensure it is initialized before use.")

@@ -326,7 +326,7 @@ def get_tooloutput_file_path(module_name):
     return Path(MODULES_DIR_PATH, module_name, "ToolOutput", "ToolOutput.xml")
 
 
-def get_specs_for_module(module_name: str, raise_error=False):
+def get_specs_for_module(module_name: str, reloading=False, raise_error=False):
     """Return the __specs__ module for a CEASIOMpy module
 
     Args:
@@ -337,15 +337,16 @@ def get_specs_for_module(module_name: str, raise_error=False):
 
     if not module_name.startswith("ceasiompy."):
         module_name = ".".join((MODNAME_TOP, module_name))
-
+    specs = None
     try:
         specs = importlib.import_module(".".join((module_name, MODNAME_SPECS)))
-        return specs
+        if reloading:
+            importlib.reload(specs)
     except ImportError as e:
         log.error(f"Error loading __specs__ for module {module_name}: {e}")
         if raise_error:
             raise ImportError(f"{MODNAME_SPECS} module not found for {module_name}")
-        return None
+    return specs
 
 
 def get_init_for_module(module_name, raise_error=False):

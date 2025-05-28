@@ -1,11 +1,18 @@
 <?xml version="1.0"?>
-<cpacs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../schema/cpacs_schema.xsd">
+<cpacs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi_noNamespaceSchemaLocation="CPACS_21_Schema.xsd">
   <header>
     <name>Simple aircraft template</name>
-    <creator>DLR-SL</creator>
-    <timestamp>2021-10-29T11:56:46</timestamp>
     <version>1.0</version>
     <cpacsVersion>3.4</cpacsVersion>
+    <versionInfos>
+      <versionInfo version="update1">
+        <description></description>
+        <creator>cpacs2to3</creator>
+        <timestamp>2018-01-15T09:22:57</timestamp>
+        <version>0.3</version>
+        <cpacsVersion>3.0</cpacsVersion>
+      </versionInfo>
+    </versionInfos>
   </header>
   <vehicles>
     <rotorcraft>

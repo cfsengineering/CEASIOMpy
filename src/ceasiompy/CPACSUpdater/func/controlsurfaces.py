@@ -141,7 +141,7 @@ def compute_abs_location(tixi: Tixi3, wing_xpath: str) -> Dict[str, Tuple[str, s
     result[element_uid] = (str(x), str(y), str(z))
 
     if secs_cnt > 2:
-        for i_sec in range(2, secs_cnt):
+        for i_sec in range(2, secs_cnt + 1):
             sec_xpath = secs_xpath + f"/{sec}[{i_sec}]"
             sec_uid = get_uid(tixi, sec_xpath)
 
@@ -174,7 +174,7 @@ def compute_abs_location(tixi: Tixi3, wing_xpath: str) -> Dict[str, Tuple[str, s
             element_uid = get_uid(tixi, ele_xpath)
 
             result[element_uid] = (str(x), str(y), str(z))
-
+    print(result)
     return result
 
 

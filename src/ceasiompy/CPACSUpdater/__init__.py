@@ -16,7 +16,6 @@ Initialization for CPACSUpdater module.
 
 from pathlib import Path
 
-from ceasiompy import log
 from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 
 # ==============================================================================

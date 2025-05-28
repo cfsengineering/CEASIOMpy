@@ -127,7 +127,7 @@ def add_coefficients_in_aeromap(
 
     tixi = cpacs.tixi
 
-    cl, cd, cs, cmd, cml, cms, cmd_b, cms_a, cml_b = get_avl_aerocoefs(st_file_path)
+    cd, cs, cl, cmd, cms, cml, cmd_b, cms_a, cml_b = get_avl_aerocoefs(st_file_path)
 
     plot = bool_(get_value(tixi, AVL_PLOTLIFT_XPATH))
 

@@ -99,7 +99,6 @@ def get_avl_aerocoefs(force_file: Path) -> Tuple[
         math.radians(results["cml_b"]),
     )
 
-print(get_avl_aerocoefs(Path("/home/cfse2/Leon/main/CEASIOMpy/WKDIR/Workflow_043/Results/PyAVL/Case01_alt1000.0_mach0.3_aoa2.0_aos0.0_q0.0_p0.0_r0.0/st.txt")))
 
 def add_coefficients_in_aeromap(
     cpacs: CPACS,

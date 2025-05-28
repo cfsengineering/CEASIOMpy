@@ -37,20 +37,23 @@ from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
 
 def color_cell(cell):
     if cell.strip() == "Stable":
-        return f'<td style="background-color:#d4edda;color:#155724;">Stable</td>'
+        return '<td style="background-color:#d4edda;color:#155724;">Stable</td>'
     elif cell.strip() == "Unstable":
-        return f'<td style="background-color:#f8d7da;color:#721c24;">Unstable</td>'
+        return '<td style="background-color:#f8d7da;color:#721c24;">Unstable</td>'
     else:
         return f"<td>{cell}</td>"
 
 
 def md_table_to_html(table_md):
-    lines = [l for l in table_md.strip().split("\n") if l.strip()]
+    lines = [line for line in table_md.strip().split("\n") if line.strip()]
     if len(lines) < 2:  # Not a valid table
         return table_md
     header = lines[0].split("|")[1:-1]
-    rows = [l.split("|")[1:-1] for l in lines[2:]]
-    html = "<table><thead><tr>" + "".join(f"<th>{h.strip()}</th>" for h in header) + "</tr></thead><tbody>"
+    rows = [line.split("|")[1:-1] for line in lines[2:]]
+    html = (
+        "<table><thead><tr>"
+        + "".join(f"<th>{h.strip()}</th>" for h in header) + "</tr></thead><tbody>"
+    )
     for row in rows:
         html += "<tr>" + "".join(color_cell(cell) for cell in row) + "</tr>"
     html += "</tbody></table>"

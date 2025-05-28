@@ -88,7 +88,6 @@ def display_results(results_dir):
                     os.system(f"dwfscope {str(child)}")
 
             elif child.suffix == ".vtu":
-
                 if "paraview_container" not in st.session_state:
                     st.session_state["paraview_container"] = st.container()
                     st.session_state.paraview_container.markdown("**Paraview**")
@@ -99,7 +98,6 @@ def display_results(results_dir):
                     open_paraview(child)
 
             elif child.suffix == ".png":
-
                 if "figures_container" not in st.session_state:
                     st.session_state["figures_container"] = st.container()
                     st.session_state.figures_container.markdown("**Figures**")

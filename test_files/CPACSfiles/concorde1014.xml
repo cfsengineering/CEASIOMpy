@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<cpacs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi_noNamespaceSchemaLocation="CPACS_21_Schema.xsd">
+<?xml version='1.0' encoding='utf-8'?>
+<cpacs xsi_noNamespaceSchemaLocation="CPACS_21_Schema.xsd">
   <header>
     <name>concorde1014</name>
     <version>0.2</version>
@@ -71,7 +71,7 @@
                 </transformation>
                 <elements>
                   <element uID="FuselageFuseFrame1elem1">
-                    <name>threedots</name>
+                    <name>FuselageFuseFrame1elem1</name>
                     <profileUID>fuseprof_1_1</profileUID>
                     <transformation uID="FuselageFuseFrame1elem1transf">
                       <scaling uID="FuselageFuseFrame1elem1transfsc">
@@ -115,7 +115,7 @@
                 </transformation>
                 <elements>
                   <element uID="FuselageFuseFrame2elem1">
-                    <name>threedots</name>
+                    <name>FuselageFuseFrame2elem1</name>
                     <profileUID>fuseprof_1_2</profileUID>
                     <transformation uID="FuselageFuseFrame2elem1transf">
                       <scaling uID="FuselageFuseFrame2elem1transfsc">
@@ -159,7 +159,7 @@
                 </transformation>
                 <elements>
                   <element uID="FuselageFuseFrame3elem1">
-                    <name>threedots</name>
+                    <name>FuselageFuseFrame3elem1</name>
                     <profileUID>fuseprof_1_3</profileUID>
                     <transformation uID="FuselageFuseFrame3elem1transf">
                       <scaling uID="FuselageFuseFrame3elem1transfsc">
@@ -203,7 +203,7 @@
                 </transformation>
                 <elements>
                   <element uID="FuselageFuseFrame4elem1">
-                    <name>threedots</name>
+                    <name>FuselageFuseFrame4elem1</name>
                     <profileUID>fuseprof_1_4</profileUID>
                     <transformation uID="FuselageFuseFrame4elem1transf">
                       <scaling uID="FuselageFuseFrame4elem1transfsc">
@@ -247,7 +247,7 @@
                 </transformation>
                 <elements>
                   <element uID="FuselageFuseFrame5elem1">
-                    <name>threedots</name>
+                    <name>FuselageFuseFrame5elem1</name>
                     <profileUID>fuseprof_1_5</profileUID>
                     <transformation uID="FuselageFuseFrame5elem1transf">
                       <scaling uID="FuselageFuseFrame5elem1transfsc">
@@ -291,7 +291,7 @@
                 </transformation>
                 <elements>
                   <element uID="FuselageFuseFrame7elem1">
-                    <name>threedots</name>
+                    <name>FuselageFuseFrame7elem1</name>
                     <profileUID>fuseprof_1_6</profileUID>
                     <transformation uID="FuselageFuseFrame7elem1transf">
                       <scaling uID="FuselageFuseFrame7elem1transfsc">
@@ -335,7 +335,7 @@
                 </transformation>
                 <elements>
                   <element uID="FuselageFuseFrame9elem1">
-                    <name>threedots</name>
+                    <name>FuselageFuseFrame9elem1</name>
                     <profileUID>fuseprof_1_7</profileUID>
                     <transformation uID="FuselageFuseFrame9elem1transf">
                       <scaling uID="FuselageFuseFrame9elem1transfsc">
@@ -379,7 +379,7 @@
                 </transformation>
                 <elements>
                   <element uID="FuselageFuseFrame10elem1">
-                    <name>threedots</name>
+                    <name>FuselageFuseFrame10elem1</name>
                     <profileUID>fuseprof_1_8</profileUID>
                     <transformation uID="FuselageFuseFrame10elem1transf">
                       <scaling uID="FuselageFuseFrame10elem1transfsc">
@@ -423,7 +423,7 @@
                 </transformation>
                 <elements>
                   <element uID="FuselageFuseFrame11elem1">
-                    <name>threedots</name>
+                    <name>FuselageFuseFrame11elem1</name>
                     <profileUID>fuseprof_1_9</profileUID>
                     <transformation uID="FuselageFuseFrame11elem1transf">
                       <scaling uID="FuselageFuseFrame11elem1transfsc">
@@ -467,7 +467,7 @@
                 </transformation>
                 <elements>
                   <element uID="FuselageFuseFrame12elem1">
-                    <name>threedots</name>
+                    <name>FuselageFuseFrame12elem1</name>
                     <profileUID>fuseprof_1_10</profileUID>
                     <transformation uID="FuselageFuseFrame12elem1transf">
                       <scaling uID="FuselageFuseFrame12elem1transfsc">
@@ -511,7 +511,7 @@
                 </transformation>
                 <elements>
                   <element uID="FuselageFuseFrame13elem1">
-                    <name>threedots</name>
+                    <name>FuselageFuseFrame13elem1</name>
                     <profileUID>fuseprof_1_11</profileUID>
                     <transformation uID="FuselageFuseFrame13elem1transf">
                       <scaling uID="FuselageFuseFrame13elem1transfsc">
@@ -555,7 +555,7 @@
                 </transformation>
                 <elements>
                   <element uID="FuselageFuseFrame14elem1">
-                    <name>threedots</name>
+                    <name>FuselageFuseFrame14elem1</name>
                     <profileUID>fuseprof_1_12</profileUID>
                     <transformation uID="FuselageFuseFrame14elem1transf">
                       <scaling uID="FuselageFuseFrame14elem1transfsc">
@@ -599,7 +599,7 @@
                 </transformation>
                 <elements>
                   <element uID="FuselageFuseFrame15elem1">
-                    <name>threedots</name>
+                    <name>FuselageFuseFrame15elem1</name>
                     <profileUID>fuseprof_1_13</profileUID>
                     <transformation uID="FuselageFuseFrame15elem1transf">
                       <scaling uID="FuselageFuseFrame15elem1transfsc">
@@ -624,7 +624,7 @@
             </sections>
             <positionings>
               <positioning uID="FuselageFuseFrame1Pos">
-                <name>threedots</name>
+                <name>FuselageFuseFrame1Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -632,7 +632,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FuselageFuseFrame2Pos">
-                <name>threedots</name>
+                <name>FuselageFuseFrame2Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -640,7 +640,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FuselageFuseFrame3Pos">
-                <name>threedots</name>
+                <name>FuselageFuseFrame3Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -648,7 +648,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FuselageFuseFrame4Pos">
-                <name>threedots</name>
+                <name>FuselageFuseFrame4Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -656,7 +656,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FuselageFuseFrame5Pos">
-                <name>threedots</name>
+                <name>FuselageFuseFrame5Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -664,7 +664,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FuselageFuseFrame7Pos">
-                <name>threedots</name>
+                <name>FuselageFuseFrame7Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -672,7 +672,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FuselageFuseFrame9Pos">
-                <name>threedots</name>
+                <name>FuselageFuseFrame9Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -680,7 +680,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FuselageFuseFrame10Pos">
-                <name>threedots</name>
+                <name>FuselageFuseFrame10Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -688,7 +688,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FuselageFuseFrame11Pos">
-                <name>threedots</name>
+                <name>FuselageFuseFrame11Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -696,7 +696,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FuselageFuseFrame12Pos">
-                <name>threedots</name>
+                <name>FuselageFuseFrame12Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -704,7 +704,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FuselageFuseFrame13Pos">
-                <name>threedots</name>
+                <name>FuselageFuseFrame13Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -712,7 +712,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FuselageFuseFrame14Pos">
-                <name>threedots</name>
+                <name>FuselageFuseFrame14Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -720,7 +720,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FuselageFuseFrame15Pos">
-                <name>threedots</name>
+                <name>FuselageFuseFrame15Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -730,62 +730,62 @@
             </positionings>
             <segments>
               <segment uID="FuselageSeg1">
-                <name>threedots</name>
+                <name>FuselageSeg1</name>
                 <fromElementUID>FuselageFuseFrame1elem1</fromElementUID>
                 <toElementUID>FuselageFuseFrame2elem1</toElementUID>
               </segment>
               <segment uID="FuselageSeg2">
-                <name>threedots</name>
+                <name>FuselageSeg2</name>
                 <fromElementUID>FuselageFuseFrame2elem1</fromElementUID>
                 <toElementUID>FuselageFuseFrame3elem1</toElementUID>
               </segment>
               <segment uID="FuselageSeg3">
-                <name>threedots</name>
+                <name>FuselageSeg3</name>
                 <fromElementUID>FuselageFuseFrame3elem1</fromElementUID>
                 <toElementUID>FuselageFuseFrame4elem1</toElementUID>
               </segment>
               <segment uID="FuselageSeg4">
-                <name>threedots</name>
+                <name>FuselageSeg4</name>
                 <fromElementUID>FuselageFuseFrame4elem1</fromElementUID>
                 <toElementUID>FuselageFuseFrame5elem1</toElementUID>
               </segment>
               <segment uID="FuselageSeg5">
-                <name>threedots</name>
+                <name>FuselageSeg5</name>
                 <fromElementUID>FuselageFuseFrame5elem1</fromElementUID>
                 <toElementUID>FuselageFuseFrame7elem1</toElementUID>
               </segment>
               <segment uID="FuselageSeg6">
-                <name>threedots</name>
+                <name>FuselageSeg6</name>
                 <fromElementUID>FuselageFuseFrame7elem1</fromElementUID>
                 <toElementUID>FuselageFuseFrame9elem1</toElementUID>
               </segment>
               <segment uID="FuselageSeg7">
-                <name>threedots</name>
+                <name>FuselageSeg7</name>
                 <fromElementUID>FuselageFuseFrame9elem1</fromElementUID>
                 <toElementUID>FuselageFuseFrame10elem1</toElementUID>
               </segment>
               <segment uID="FuselageSeg8">
-                <name>threedots</name>
+                <name>FuselageSeg8</name>
                 <fromElementUID>FuselageFuseFrame10elem1</fromElementUID>
                 <toElementUID>FuselageFuseFrame11elem1</toElementUID>
               </segment>
               <segment uID="FuselageSeg9">
-                <name>threedots</name>
+                <name>FuselageSeg9</name>
                 <fromElementUID>FuselageFuseFrame11elem1</fromElementUID>
                 <toElementUID>FuselageFuseFrame12elem1</toElementUID>
               </segment>
               <segment uID="FuselageSeg10">
-                <name>threedots</name>
+                <name>FuselageSeg10</name>
                 <fromElementUID>FuselageFuseFrame12elem1</fromElementUID>
                 <toElementUID>FuselageFuseFrame13elem1</toElementUID>
               </segment>
               <segment uID="FuselageSeg11">
-                <name>threedots</name>
+                <name>FuselageSeg11</name>
                 <fromElementUID>FuselageFuseFrame13elem1</fromElementUID>
                 <toElementUID>FuselageFuseFrame14elem1</toElementUID>
               </segment>
               <segment uID="FuselageSeg12">
-                <name>threedots</name>
+                <name>FuselageSeg12</name>
                 <fromElementUID>FuselageFuseFrame14elem1</fromElementUID>
                 <toElementUID>FuselageFuseFrame15elem1</toElementUID>
               </segment>
@@ -837,7 +837,7 @@
                 </transformation>
                 <elements>
                   <element uID="WingWingSection1elem1">
-                    <name>threedots</name>
+                    <name>WingWingSection1elem1</name>
                     <airfoilUID>foil_1_11</airfoilUID>
                     <transformation uID="WingWingSection1elem1transf">
                       <scaling uID="WingWingSection1elem1transfsc">
@@ -881,7 +881,7 @@
                 </transformation>
                 <elements>
                   <element uID="WingWingSection2elem1">
-                    <name>threedots</name>
+                    <name>WingWingSection2elem1</name>
                     <airfoilUID>foil_1_10</airfoilUID>
                     <transformation uID="WingWingSection2elem1transf">
                       <scaling uID="WingWingSection2elem1transfsc">
@@ -925,7 +925,7 @@
                 </transformation>
                 <elements>
                   <element uID="WingWingSection3elem1">
-                    <name>threedots</name>
+                    <name>WingWingSection3elem1</name>
                     <airfoilUID>foil_1_9</airfoilUID>
                     <transformation uID="WingWingSection3elem1transf">
                       <scaling uID="WingWingSection3elem1transfsc">
@@ -969,7 +969,7 @@
                 </transformation>
                 <elements>
                   <element uID="WingWingSection4elem1">
-                    <name>threedots</name>
+                    <name>WingWingSection4elem1</name>
                     <airfoilUID>foil_1_8</airfoilUID>
                     <transformation uID="WingWingSection4elem1transf">
                       <scaling uID="WingWingSection4elem1transfsc">
@@ -1013,7 +1013,7 @@
                 </transformation>
                 <elements>
                   <element uID="WingWingSection5elem1">
-                    <name>threedots</name>
+                    <name>WingWingSection5elem1</name>
                     <airfoilUID>foil_1_7</airfoilUID>
                     <transformation uID="WingWingSection5elem1transf">
                       <scaling uID="WingWingSection5elem1transfsc">
@@ -1057,7 +1057,7 @@
                 </transformation>
                 <elements>
                   <element uID="WingWingSection6elem1">
-                    <name>threedots</name>
+                    <name>WingWingSection6elem1</name>
                     <airfoilUID>foil_1_6</airfoilUID>
                     <transformation uID="WingWingSection6elem1transf">
                       <scaling uID="WingWingSection6elem1transfsc">
@@ -1101,7 +1101,7 @@
                 </transformation>
                 <elements>
                   <element uID="WingWingSection7elem1">
-                    <name>threedots</name>
+                    <name>WingWingSection7elem1</name>
                     <airfoilUID>foil_1_5</airfoilUID>
                     <transformation uID="WingWingSection7elem1transf">
                       <scaling uID="WingWingSection7elem1transfsc">
@@ -1145,7 +1145,7 @@
                 </transformation>
                 <elements>
                   <element uID="WingWingSection8elem1">
-                    <name>threedots</name>
+                    <name>WingWingSection8elem1</name>
                     <airfoilUID>foil_1_4</airfoilUID>
                     <transformation uID="WingWingSection8elem1transf">
                       <scaling uID="WingWingSection8elem1transfsc">
@@ -1189,7 +1189,7 @@
                 </transformation>
                 <elements>
                   <element uID="WingWingSection9elem1">
-                    <name>threedots</name>
+                    <name>WingWingSection9elem1</name>
                     <airfoilUID>foil_1_3</airfoilUID>
                     <transformation uID="WingWingSection9elem1transf">
                       <scaling uID="WingWingSection9elem1transfsc">
@@ -1233,7 +1233,7 @@
                 </transformation>
                 <elements>
                   <element uID="WingWingSection10elem1">
-                    <name>threedots</name>
+                    <name>WingWingSection10elem1</name>
                     <airfoilUID>foil_1_2</airfoilUID>
                     <transformation uID="WingWingSection10elem1transf">
                       <scaling uID="WingWingSection10elem1transfsc">
@@ -1277,7 +1277,7 @@
                 </transformation>
                 <elements>
                   <element uID="WingWingSection11elem1">
-                    <name>threedots</name>
+                    <name>WingWingSection11elem1</name>
                     <airfoilUID>foil_1_1</airfoilUID>
                     <transformation uID="WingWingSection11elem1transf">
                       <scaling uID="WingWingSection11elem1transfsc">
@@ -1302,7 +1302,7 @@
             </sections>
             <positionings>
               <positioning uID="WingWingSection11Pos">
-                <name>threedots</name>
+                <name>WingWingSection11Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1310,7 +1310,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="WingWingSection10Pos">
-                <name>threedots</name>
+                <name>WingWingSection10Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1319,7 +1319,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="WingWingSection9Pos">
-                <name>threedots</name>
+                <name>WingWingSection9Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1328,7 +1328,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="WingWingSection8Pos">
-                <name>threedots</name>
+                <name>WingWingSection8Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1337,7 +1337,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="WingWingSection7Pos">
-                <name>threedots</name>
+                <name>WingWingSection7Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1346,7 +1346,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="WingWingSection6Pos">
-                <name>threedots</name>
+                <name>WingWingSection6Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1355,7 +1355,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="WingWingSection5Pos">
-                <name>threedots</name>
+                <name>WingWingSection5Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1364,7 +1364,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="WingWingSection4Pos">
-                <name>threedots</name>
+                <name>WingWingSection4Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1373,7 +1373,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="WingWingSection3Pos">
-                <name>threedots</name>
+                <name>WingWingSection3Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1382,7 +1382,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="WingWingSection2Pos">
-                <name>threedots</name>
+                <name>WingWingSection2Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1391,7 +1391,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="WingWingSection1Pos">
-                <name>threedots</name>
+                <name>WingWingSection1Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1497,7 +1497,7 @@
                 </transformation>
                 <elements>
                   <element uID="FinWingSection1elem1">
-                    <name>threedots</name>
+                    <name>FinWingSection1elem1</name>
                     <airfoilUID>foil_2_7</airfoilUID>
                     <transformation uID="FinWingSection1elem1transf">
                       <scaling uID="FinWingSection1elem1transfsc">
@@ -1541,7 +1541,7 @@
                 </transformation>
                 <elements>
                   <element uID="FinWingSection2elem1">
-                    <name>threedots</name>
+                    <name>FinWingSection2elem1</name>
                     <airfoilUID>foil_2_6</airfoilUID>
                     <transformation uID="FinWingSection2elem1transf">
                       <scaling uID="FinWingSection2elem1transfsc">
@@ -1585,7 +1585,7 @@
                 </transformation>
                 <elements>
                   <element uID="FinWingSection3elem1">
-                    <name>threedots</name>
+                    <name>FinWingSection3elem1</name>
                     <airfoilUID>foil_2_5</airfoilUID>
                     <transformation uID="FinWingSection3elem1transf">
                       <scaling uID="FinWingSection3elem1transfsc">
@@ -1629,7 +1629,7 @@
                 </transformation>
                 <elements>
                   <element uID="FinWingSection4elem1">
-                    <name>threedots</name>
+                    <name>FinWingSection4elem1</name>
                     <airfoilUID>foil_2_4</airfoilUID>
                     <transformation uID="FinWingSection4elem1transf">
                       <scaling uID="FinWingSection4elem1transfsc">
@@ -1673,7 +1673,7 @@
                 </transformation>
                 <elements>
                   <element uID="FinWingSection5elem1">
-                    <name>threedots</name>
+                    <name>FinWingSection5elem1</name>
                     <airfoilUID>foil_2_3</airfoilUID>
                     <transformation uID="FinWingSection5elem1transf">
                       <scaling uID="FinWingSection5elem1transfsc">
@@ -1717,7 +1717,7 @@
                 </transformation>
                 <elements>
                   <element uID="FinWingSection6elem1">
-                    <name>threedots</name>
+                    <name>FinWingSection6elem1</name>
                     <airfoilUID>foil_2_2</airfoilUID>
                     <transformation uID="FinWingSection6elem1transf">
                       <scaling uID="FinWingSection6elem1transfsc">
@@ -1761,7 +1761,7 @@
                 </transformation>
                 <elements>
                   <element uID="FinWingSection7elem1">
-                    <name>threedots</name>
+                    <name>FinWingSection7elem1</name>
                     <airfoilUID>foil_2_1</airfoilUID>
                     <transformation uID="FinWingSection7elem1transf">
                       <scaling uID="FinWingSection7elem1transfsc">
@@ -1786,7 +1786,7 @@
             </sections>
             <positionings>
               <positioning uID="FinWingSection7Pos">
-                <name>threedots</name>
+                <name>FinWingSection7Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1794,7 +1794,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FinWingSection6Pos">
-                <name>threedots</name>
+                <name>FinWingSection6Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1803,7 +1803,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FinWingSection5Pos">
-                <name>threedots</name>
+                <name>FinWingSection5Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1812,7 +1812,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FinWingSection4Pos">
-                <name>threedots</name>
+                <name>FinWingSection4Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1821,7 +1821,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FinWingSection3Pos">
-                <name>threedots</name>
+                <name>FinWingSection3Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1830,7 +1830,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FinWingSection2Pos">
-                <name>threedots</name>
+                <name>FinWingSection2Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1839,7 +1839,7 @@
                 <length>0</length>
               </positioning>
               <positioning uID="FinWingSection1Pos">
-                <name>threedots</name>
+                <name>FinWingSection1Pos</name>
                 <description>description</description>
                 <dihedralAngle>0</dihedralAngle>
                 <sweepAngle>0</sweepAngle>
@@ -1904,7 +1904,7 @@
     <profiles>
       <fuselageProfiles>
         <fuselageProfile uID="fuseprof_1_1">
-          <name>threedots</name>
+          <name>fuseprof_1_1</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
@@ -1913,7 +1913,7 @@
           </pointList>
         </fuselageProfile>
         <fuselageProfile uID="fuseprof_1_2">
-          <name>threedots</name>
+          <name>fuseprof_1_2</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
@@ -1922,7 +1922,7 @@
           </pointList>
         </fuselageProfile>
         <fuselageProfile uID="fuseprof_1_3">
-          <name>threedots</name>
+          <name>fuseprof_1_3</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
@@ -1931,7 +1931,7 @@
           </pointList>
         </fuselageProfile>
         <fuselageProfile uID="fuseprof_1_4">
-          <name>threedots</name>
+          <name>fuseprof_1_4</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
@@ -1940,7 +1940,7 @@
           </pointList>
         </fuselageProfile>
         <fuselageProfile uID="fuseprof_1_5">
-          <name>threedots</name>
+          <name>fuseprof_1_5</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
@@ -1949,7 +1949,7 @@
           </pointList>
         </fuselageProfile>
         <fuselageProfile uID="fuseprof_1_6">
-          <name>threedots</name>
+          <name>fuseprof_1_6</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
@@ -1958,7 +1958,7 @@
           </pointList>
         </fuselageProfile>
         <fuselageProfile uID="fuseprof_1_7">
-          <name>threedots</name>
+          <name>fuseprof_1_7</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
@@ -1967,7 +1967,7 @@
           </pointList>
         </fuselageProfile>
         <fuselageProfile uID="fuseprof_1_8">
-          <name>threedots</name>
+          <name>fuseprof_1_8</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
@@ -1976,7 +1976,7 @@
           </pointList>
         </fuselageProfile>
         <fuselageProfile uID="fuseprof_1_9">
-          <name>threedots</name>
+          <name>fuseprof_1_9</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
@@ -1985,7 +1985,7 @@
           </pointList>
         </fuselageProfile>
         <fuselageProfile uID="fuseprof_1_10">
-          <name>threedots</name>
+          <name>fuseprof_1_10</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
@@ -1994,7 +1994,7 @@
           </pointList>
         </fuselageProfile>
         <fuselageProfile uID="fuseprof_1_11">
-          <name>threedots</name>
+          <name>fuseprof_1_11</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
@@ -2003,7 +2003,7 @@
           </pointList>
         </fuselageProfile>
         <fuselageProfile uID="fuseprof_1_12">
-          <name>threedots</name>
+          <name>fuseprof_1_12</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
@@ -2012,7 +2012,7 @@
           </pointList>
         </fuselageProfile>
         <fuselageProfile uID="fuseprof_1_13">
-          <name>threedots</name>
+          <name>fuseprof_1_13</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
@@ -2023,7 +2023,7 @@
       </fuselageProfiles>
       <wingAirfoils>
         <wingAirfoil uID="foil_1_1">
-          <name>threedots</name>
+          <name>foil_1_1</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.981800 ;0.963610 ;0.945410 ;0.927210 ;0.909010 ;0.890810 ;0.872610 ;0.854420 ;0.836220 ;0.818020 ;0.799820 ;0.781620 ;0.763430 ;0.745230 ;0.727030 ;0.708830 ;0.690630 ;0.672430 ;0.654230 ;0.636030 ;0.617830 ;0.599630 ;0.581430 ;0.563220 ;0.545020 ;0.526820 ;0.508610 ;0.490410 ;0.472200 ;0.453990 ;0.435790 ;0.417580 ;0.399370 ;0.381170 ;0.362960 ;0.344750 ;0.326550 ;0.308340 ;0.290130 ;0.271930 ;0.253720 ;0.235520 ;0.217320 ;0.199110 ;0.180910 ;0.162710 ;0.144510 ;0.126320 ;0.108120 ;0.089934 ;0.071749 ;0.053572 ;0.035408 ;0.017278 ;0.000000 ;0.017278 ;0.035408 ;0.053572 ;0.071749 ;0.089934 ;0.108120 ;0.126320 ;0.144510 ;0.162710 ;0.180910 ;0.199110 ;0.217320 ;0.235520 ;0.253720 ;0.271930 ;0.290130 ;0.308340 ;0.326550 ;0.344750 ;0.362960 ;0.381170 ;0.399370 ;0.417580 ;0.435790 ;0.453990 ;0.472200 ;0.490410 ;0.508610 ;0.526820 ;0.545020 ;0.563220 ;0.581430 ;0.599630 ;0.617830 ;0.636030 ;0.654230 ;0.672430 ;0.690630 ;0.708830 ;0.727030 ;0.745230 ;0.763430 ;0.781620 ;0.799820 ;0.818020 ;0.836220 ;0.854420 ;0.872610 ;0.890810 ;0.909010 ;0.927210 ;0.945410 ;0.963610 ;0.981800 ;1.000000 </x>
@@ -2032,7 +2032,7 @@
           </pointList>
         </wingAirfoil>
         <wingAirfoil uID="foil_1_2">
-          <name>threedots</name>
+          <name>foil_1_2</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.981800 ;0.963610 ;0.945410 ;0.927210 ;0.909010 ;0.890810 ;0.872610 ;0.854420 ;0.836220 ;0.818020 ;0.799820 ;0.781620 ;0.763430 ;0.745230 ;0.727030 ;0.708830 ;0.690630 ;0.672430 ;0.654230 ;0.636030 ;0.617830 ;0.599630 ;0.581430 ;0.563220 ;0.545020 ;0.526820 ;0.508610 ;0.490410 ;0.472200 ;0.453990 ;0.435790 ;0.417580 ;0.399370 ;0.381170 ;0.362960 ;0.344750 ;0.326550 ;0.308340 ;0.290130 ;0.271930 ;0.253720 ;0.235520 ;0.217320 ;0.199110 ;0.180910 ;0.162710 ;0.144510 ;0.126320 ;0.108120 ;0.089934 ;0.071749 ;0.053572 ;0.035408 ;0.017278 ;0.000000 ;0.017278 ;0.035408 ;0.053572 ;0.071749 ;0.089934 ;0.108120 ;0.126320 ;0.144510 ;0.162710 ;0.180910 ;0.199110 ;0.217320 ;0.235520 ;0.253720 ;0.271930 ;0.290130 ;0.308340 ;0.326550 ;0.344750 ;0.362960 ;0.381170 ;0.399370 ;0.417580 ;0.435790 ;0.453990 ;0.472200 ;0.490410 ;0.508610 ;0.526820 ;0.545020 ;0.563220 ;0.581430 ;0.599630 ;0.617830 ;0.636030 ;0.654230 ;0.672430 ;0.690630 ;0.708830 ;0.727030 ;0.745230 ;0.763430 ;0.781620 ;0.799820 ;0.818020 ;0.836220 ;0.854420 ;0.872610 ;0.890810 ;0.909010 ;0.927210 ;0.945410 ;0.963610 ;0.981800 ;1.000000 </x>
@@ -2041,7 +2041,7 @@
           </pointList>
         </wingAirfoil>
         <wingAirfoil uID="foil_1_3">
-          <name>threedots</name>
+          <name>foil_1_3</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.981800 ;0.963610 ;0.945410 ;0.927210 ;0.909010 ;0.890810 ;0.872610 ;0.854420 ;0.836220 ;0.818020 ;0.799820 ;0.781620 ;0.763430 ;0.745230 ;0.727030 ;0.708830 ;0.690630 ;0.672430 ;0.654230 ;0.636030 ;0.617830 ;0.599630 ;0.581430 ;0.563220 ;0.545020 ;0.526820 ;0.508610 ;0.490410 ;0.472200 ;0.453990 ;0.435790 ;0.417580 ;0.399370 ;0.381170 ;0.362960 ;0.344750 ;0.326550 ;0.308340 ;0.290130 ;0.271930 ;0.253720 ;0.235520 ;0.217320 ;0.199110 ;0.180910 ;0.162710 ;0.144510 ;0.126320 ;0.108120 ;0.089934 ;0.071749 ;0.053572 ;0.035408 ;0.017278 ;0.000000 ;0.017278 ;0.035408 ;0.053572 ;0.071749 ;0.089934 ;0.108120 ;0.126320 ;0.144510 ;0.162710 ;0.180910 ;0.199110 ;0.217320 ;0.235520 ;0.253720 ;0.271930 ;0.290130 ;0.308340 ;0.326550 ;0.344750 ;0.362960 ;0.381170 ;0.399370 ;0.417580 ;0.435790 ;0.453990 ;0.472200 ;0.490410 ;0.508610 ;0.526820 ;0.545020 ;0.563220 ;0.581430 ;0.599630 ;0.617830 ;0.636030 ;0.654230 ;0.672430 ;0.690630 ;0.708830 ;0.727030 ;0.745230 ;0.763430 ;0.781620 ;0.799820 ;0.818020 ;0.836220 ;0.854420 ;0.872610 ;0.890810 ;0.909010 ;0.927210 ;0.945410 ;0.963610 ;0.981800 ;1.000000 </x>
@@ -2050,7 +2050,7 @@
           </pointList>
         </wingAirfoil>
         <wingAirfoil uID="foil_1_4">
-          <name>threedots</name>
+          <name>foil_1_4</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.981800 ;0.963610 ;0.945410 ;0.927210 ;0.909010 ;0.890810 ;0.872610 ;0.854420 ;0.836220 ;0.818020 ;0.799820 ;0.781620 ;0.763430 ;0.745230 ;0.727030 ;0.708830 ;0.690630 ;0.672430 ;0.654230 ;0.636030 ;0.617830 ;0.599630 ;0.581430 ;0.563220 ;0.545020 ;0.526820 ;0.508610 ;0.490410 ;0.472200 ;0.453990 ;0.435790 ;0.417580 ;0.399370 ;0.381170 ;0.362960 ;0.344750 ;0.326550 ;0.308340 ;0.290130 ;0.271930 ;0.253720 ;0.235520 ;0.217320 ;0.199110 ;0.180910 ;0.162710 ;0.144510 ;0.126320 ;0.108120 ;0.089934 ;0.071749 ;0.053572 ;0.035408 ;0.017278 ;0.000000 ;0.017278 ;0.035408 ;0.053572 ;0.071749 ;0.089934 ;0.108120 ;0.126320 ;0.144510 ;0.162710 ;0.180910 ;0.199110 ;0.217320 ;0.235520 ;0.253720 ;0.271930 ;0.290130 ;0.308340 ;0.326550 ;0.344750 ;0.362960 ;0.381170 ;0.399370 ;0.417580 ;0.435790 ;0.453990 ;0.472200 ;0.490410 ;0.508610 ;0.526820 ;0.545020 ;0.563220 ;0.581430 ;0.599630 ;0.617830 ;0.636030 ;0.654230 ;0.672430 ;0.690630 ;0.708830 ;0.727030 ;0.745230 ;0.763430 ;0.781620 ;0.799820 ;0.818020 ;0.836220 ;0.854420 ;0.872610 ;0.890810 ;0.909010 ;0.927210 ;0.945410 ;0.963610 ;0.981800 ;1.000000 </x>
@@ -2059,7 +2059,7 @@
           </pointList>
         </wingAirfoil>
         <wingAirfoil uID="foil_1_5">
-          <name>threedots</name>
+          <name>foil_1_5</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.981800 ;0.963610 ;0.945410 ;0.927210 ;0.909010 ;0.890810 ;0.872610 ;0.854420 ;0.836220 ;0.818020 ;0.799820 ;0.781620 ;0.763430 ;0.745230 ;0.727030 ;0.708830 ;0.690630 ;0.672430 ;0.654230 ;0.636030 ;0.617830 ;0.599630 ;0.581430 ;0.563220 ;0.545020 ;0.526820 ;0.508610 ;0.490410 ;0.472200 ;0.453990 ;0.435790 ;0.417580 ;0.399370 ;0.381170 ;0.362960 ;0.344750 ;0.326550 ;0.308340 ;0.290130 ;0.271930 ;0.253720 ;0.235520 ;0.217320 ;0.199110 ;0.180910 ;0.162710 ;0.144510 ;0.126320 ;0.108120 ;0.089934 ;0.071749 ;0.053572 ;0.035408 ;0.017278 ;0.000000 ;0.017278 ;0.035408 ;0.053572 ;0.071749 ;0.089934 ;0.108120 ;0.126320 ;0.144510 ;0.162710 ;0.180910 ;0.199110 ;0.217320 ;0.235520 ;0.253720 ;0.271930 ;0.290130 ;0.308340 ;0.326550 ;0.344750 ;0.362960 ;0.381170 ;0.399370 ;0.417580 ;0.435790 ;0.453990 ;0.472200 ;0.490410 ;0.508610 ;0.526820 ;0.545020 ;0.563220 ;0.581430 ;0.599630 ;0.617830 ;0.636030 ;0.654230 ;0.672430 ;0.690630 ;0.708830 ;0.727030 ;0.745230 ;0.763430 ;0.781620 ;0.799820 ;0.818020 ;0.836220 ;0.854420 ;0.872610 ;0.890810 ;0.909010 ;0.927210 ;0.945410 ;0.963610 ;0.981800 ;1.000000 </x>
@@ -2068,7 +2068,7 @@
           </pointList>
         </wingAirfoil>
         <wingAirfoil uID="foil_1_6">
-          <name>threedots</name>
+          <name>foil_1_6</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.981800 ;0.963610 ;0.945410 ;0.927210 ;0.909010 ;0.890810 ;0.872610 ;0.854420 ;0.836220 ;0.818020 ;0.799820 ;0.781620 ;0.763430 ;0.745230 ;0.727030 ;0.708830 ;0.690630 ;0.672430 ;0.654230 ;0.636030 ;0.617830 ;0.599630 ;0.581430 ;0.563220 ;0.545020 ;0.526820 ;0.508610 ;0.490410 ;0.472200 ;0.453990 ;0.435790 ;0.417580 ;0.399370 ;0.381170 ;0.362960 ;0.344750 ;0.326550 ;0.308340 ;0.290130 ;0.271930 ;0.253720 ;0.235520 ;0.217320 ;0.199110 ;0.180910 ;0.162710 ;0.144510 ;0.126320 ;0.108120 ;0.089934 ;0.071749 ;0.053572 ;0.035408 ;0.017278 ;0.000000 ;0.017278 ;0.035408 ;0.053572 ;0.071749 ;0.089934 ;0.108120 ;0.126320 ;0.144510 ;0.162710 ;0.180910 ;0.199110 ;0.217320 ;0.235520 ;0.253720 ;0.271930 ;0.290130 ;0.308340 ;0.326550 ;0.344750 ;0.362960 ;0.381170 ;0.399370 ;0.417580 ;0.435790 ;0.453990 ;0.472200 ;0.490410 ;0.508610 ;0.526820 ;0.545020 ;0.563220 ;0.581430 ;0.599630 ;0.617830 ;0.636030 ;0.654230 ;0.672430 ;0.690630 ;0.708830 ;0.727030 ;0.745230 ;0.763430 ;0.781620 ;0.799820 ;0.818020 ;0.836220 ;0.854420 ;0.872610 ;0.890810 ;0.909010 ;0.927210 ;0.945410 ;0.963610 ;0.981800 ;1.000000 </x>
@@ -2077,7 +2077,7 @@
           </pointList>
         </wingAirfoil>
         <wingAirfoil uID="foil_1_7">
-          <name>threedots</name>
+          <name>foil_1_7</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.981800 ;0.963610 ;0.945410 ;0.927210 ;0.909010 ;0.890810 ;0.872610 ;0.854420 ;0.836220 ;0.818020 ;0.799820 ;0.781620 ;0.763430 ;0.745230 ;0.727030 ;0.708830 ;0.690630 ;0.672430 ;0.654230 ;0.636030 ;0.617830 ;0.599630 ;0.581430 ;0.563220 ;0.545020 ;0.526820 ;0.508610 ;0.490410 ;0.472200 ;0.453990 ;0.435790 ;0.417580 ;0.399370 ;0.381170 ;0.362960 ;0.344750 ;0.326550 ;0.308340 ;0.290130 ;0.271930 ;0.253720 ;0.235520 ;0.217320 ;0.199110 ;0.180910 ;0.162710 ;0.144510 ;0.126320 ;0.108120 ;0.089934 ;0.071749 ;0.053572 ;0.035408 ;0.017278 ;0.000000 ;0.017278 ;0.035408 ;0.053572 ;0.071749 ;0.089934 ;0.108120 ;0.126320 ;0.144510 ;0.162710 ;0.180910 ;0.199110 ;0.217320 ;0.235520 ;0.253720 ;0.271930 ;0.290130 ;0.308340 ;0.326550 ;0.344750 ;0.362960 ;0.381170 ;0.399370 ;0.417580 ;0.435790 ;0.453990 ;0.472200 ;0.490410 ;0.508610 ;0.526820 ;0.545020 ;0.563220 ;0.581430 ;0.599630 ;0.617830 ;0.636030 ;0.654230 ;0.672430 ;0.690630 ;0.708830 ;0.727030 ;0.745230 ;0.763430 ;0.781620 ;0.799820 ;0.818020 ;0.836220 ;0.854420 ;0.872610 ;0.890810 ;0.909010 ;0.927210 ;0.945410 ;0.963610 ;0.981800 ;1.000000 </x>
@@ -2086,7 +2086,7 @@
           </pointList>
         </wingAirfoil>
         <wingAirfoil uID="foil_1_8">
-          <name>threedots</name>
+          <name>foil_1_8</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.981800 ;0.963610 ;0.945410 ;0.927210 ;0.909010 ;0.890810 ;0.872610 ;0.854420 ;0.836220 ;0.818020 ;0.799820 ;0.781620 ;0.763430 ;0.745230 ;0.727030 ;0.708830 ;0.690630 ;0.672430 ;0.654230 ;0.636030 ;0.617830 ;0.599630 ;0.581430 ;0.563220 ;0.545020 ;0.526820 ;0.508610 ;0.490410 ;0.472200 ;0.453990 ;0.435790 ;0.417580 ;0.399370 ;0.381170 ;0.362960 ;0.344750 ;0.326550 ;0.308340 ;0.290130 ;0.271930 ;0.253720 ;0.235520 ;0.217320 ;0.199110 ;0.180910 ;0.162710 ;0.144510 ;0.126320 ;0.108120 ;0.089934 ;0.071749 ;0.053572 ;0.035408 ;0.017278 ;0.000000 ;0.017278 ;0.035408 ;0.053572 ;0.071749 ;0.089934 ;0.108120 ;0.126320 ;0.144510 ;0.162710 ;0.180910 ;0.199110 ;0.217320 ;0.235520 ;0.253720 ;0.271930 ;0.290130 ;0.308340 ;0.326550 ;0.344750 ;0.362960 ;0.381170 ;0.399370 ;0.417580 ;0.435790 ;0.453990 ;0.472200 ;0.490410 ;0.508610 ;0.526820 ;0.545020 ;0.563220 ;0.581430 ;0.599630 ;0.617830 ;0.636030 ;0.654230 ;0.672430 ;0.690630 ;0.708830 ;0.727030 ;0.745230 ;0.763430 ;0.781620 ;0.799820 ;0.818020 ;0.836220 ;0.854420 ;0.872610 ;0.890810 ;0.909010 ;0.927210 ;0.945410 ;0.963610 ;0.981800 ;1.000000 </x>
@@ -2095,7 +2095,7 @@
           </pointList>
         </wingAirfoil>
         <wingAirfoil uID="foil_1_9">
-          <name>threedots</name>
+          <name>foil_1_9</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.981800 ;0.963610 ;0.945410 ;0.927210 ;0.909010 ;0.890810 ;0.872610 ;0.854420 ;0.836220 ;0.818020 ;0.799820 ;0.781620 ;0.763430 ;0.745230 ;0.727030 ;0.708830 ;0.690630 ;0.672430 ;0.654230 ;0.636030 ;0.617830 ;0.599630 ;0.581430 ;0.563220 ;0.545020 ;0.526820 ;0.508610 ;0.490410 ;0.472200 ;0.453990 ;0.435790 ;0.417580 ;0.399370 ;0.381170 ;0.362960 ;0.344750 ;0.326550 ;0.308340 ;0.290130 ;0.271930 ;0.253720 ;0.235520 ;0.217320 ;0.199110 ;0.180910 ;0.162710 ;0.144510 ;0.126320 ;0.108120 ;0.089934 ;0.071749 ;0.053572 ;0.035408 ;0.017278 ;0.000000 ;0.017278 ;0.035408 ;0.053572 ;0.071749 ;0.089934 ;0.108120 ;0.126320 ;0.144510 ;0.162710 ;0.180910 ;0.199110 ;0.217320 ;0.235520 ;0.253720 ;0.271930 ;0.290130 ;0.308340 ;0.326550 ;0.344750 ;0.362960 ;0.381170 ;0.399370 ;0.417580 ;0.435790 ;0.453990 ;0.472200 ;0.490410 ;0.508610 ;0.526820 ;0.545020 ;0.563220 ;0.581430 ;0.599630 ;0.617830 ;0.636030 ;0.654230 ;0.672430 ;0.690630 ;0.708830 ;0.727030 ;0.745230 ;0.763430 ;0.781620 ;0.799820 ;0.818020 ;0.836220 ;0.854420 ;0.872610 ;0.890810 ;0.909010 ;0.927210 ;0.945410 ;0.963610 ;0.981800 ;1.000000 </x>
@@ -2104,7 +2104,7 @@
           </pointList>
         </wingAirfoil>
         <wingAirfoil uID="foil_1_10">
-          <name>threedots</name>
+          <name>foil_1_10</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.981800 ;0.963610 ;0.945410 ;0.927210 ;0.909010 ;0.890810 ;0.872610 ;0.854420 ;0.836220 ;0.818020 ;0.799820 ;0.781620 ;0.763430 ;0.745230 ;0.727030 ;0.708830 ;0.690630 ;0.672430 ;0.654230 ;0.636030 ;0.617830 ;0.599630 ;0.581430 ;0.563220 ;0.545020 ;0.526820 ;0.508610 ;0.490410 ;0.472200 ;0.453990 ;0.435790 ;0.417580 ;0.399370 ;0.381170 ;0.362960 ;0.344750 ;0.326550 ;0.308340 ;0.290130 ;0.271930 ;0.253720 ;0.235520 ;0.217320 ;0.199110 ;0.180910 ;0.162710 ;0.144510 ;0.126320 ;0.108120 ;0.089934 ;0.071749 ;0.053572 ;0.035408 ;0.017278 ;0.000000 ;0.017278 ;0.035408 ;0.053572 ;0.071749 ;0.089934 ;0.108120 ;0.126320 ;0.144510 ;0.162710 ;0.180910 ;0.199110 ;0.217320 ;0.235520 ;0.253720 ;0.271930 ;0.290130 ;0.308340 ;0.326550 ;0.344750 ;0.362960 ;0.381170 ;0.399370 ;0.417580 ;0.435790 ;0.453990 ;0.472200 ;0.490410 ;0.508610 ;0.526820 ;0.545020 ;0.563220 ;0.581430 ;0.599630 ;0.617830 ;0.636030 ;0.654230 ;0.672430 ;0.690630 ;0.708830 ;0.727030 ;0.745230 ;0.763430 ;0.781620 ;0.799820 ;0.818020 ;0.836220 ;0.854420 ;0.872610 ;0.890810 ;0.909010 ;0.927210 ;0.945410 ;0.963610 ;0.981800 ;1.000000 </x>
@@ -2113,7 +2113,7 @@
           </pointList>
         </wingAirfoil>
         <wingAirfoil uID="foil_1_11">
-          <name>threedots</name>
+          <name>foil_1_11</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.981800 ;0.963610 ;0.945410 ;0.927210 ;0.909010 ;0.890810 ;0.872610 ;0.854420 ;0.836220 ;0.818020 ;0.799820 ;0.781620 ;0.763430 ;0.745230 ;0.727030 ;0.708830 ;0.690630 ;0.672430 ;0.654230 ;0.636030 ;0.617830 ;0.599630 ;0.581430 ;0.563220 ;0.545020 ;0.526820 ;0.508610 ;0.490410 ;0.472200 ;0.453990 ;0.435790 ;0.417580 ;0.399370 ;0.381170 ;0.362960 ;0.344750 ;0.326550 ;0.308340 ;0.290130 ;0.271930 ;0.253720 ;0.235520 ;0.217320 ;0.199110 ;0.180910 ;0.162710 ;0.144510 ;0.126320 ;0.108120 ;0.089934 ;0.071749 ;0.053572 ;0.035408 ;0.017278 ;0.000000 ;0.017278 ;0.035408 ;0.053572 ;0.071749 ;0.089934 ;0.108120 ;0.126320 ;0.144510 ;0.162710 ;0.180910 ;0.199110 ;0.217320 ;0.235520 ;0.253720 ;0.271930 ;0.290130 ;0.308340 ;0.326550 ;0.344750 ;0.362960 ;0.381170 ;0.399370 ;0.417580 ;0.435790 ;0.453990 ;0.472200 ;0.490410 ;0.508610 ;0.526820 ;0.545020 ;0.563220 ;0.581430 ;0.599630 ;0.617830 ;0.636030 ;0.654230 ;0.672430 ;0.690630 ;0.708830 ;0.727030 ;0.745230 ;0.763430 ;0.781620 ;0.799820 ;0.818020 ;0.836220 ;0.854420 ;0.872610 ;0.890810 ;0.909010 ;0.927210 ;0.945410 ;0.963610 ;0.981800 ;1.000000 </x>
@@ -2122,7 +2122,7 @@
           </pointList>
         </wingAirfoil>
         <wingAirfoil uID="foil_2_1">
-          <name>threedots</name>
+          <name>foil_2_1</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.990000 ;0.980000 ;0.970000 ;0.960000 ;0.950000 ;0.940000 ;0.930000 ;0.920000 ;0.910000 ;0.900000 ;0.890000 ;0.880000 ;0.870000 ;0.860000 ;0.850000 ;0.840000 ;0.830000 ;0.820000 ;0.810000 ;0.800000 ;0.790000 ;0.780000 ;0.770000 ;0.760000 ;0.750000 ;0.740000 ;0.730000 ;0.720000 ;0.710000 ;0.700000 ;0.690000 ;0.680000 ;0.670000 ;0.660000 ;0.650000 ;0.640000 ;0.630000 ;0.620000 ;0.610000 ;0.600000 ;0.590000 ;0.580000 ;0.570000 ;0.560000 ;0.550000 ;0.540000 ;0.530000 ;0.520000 ;0.510000 ;0.500000 ;0.490000 ;0.480000 ;0.470000 ;0.460000 ;0.450000 ;0.440000 ;0.430000 ;0.420000 ;0.410000 ;0.400000 ;0.390000 ;0.380000 ;0.370000 ;0.360000 ;0.350000 ;0.340000 ;0.330000 ;0.320000 ;0.310000 ;0.300000 ;0.290000 ;0.280000 ;0.270000 ;0.260000 ;0.250000 ;0.240000 ;0.230000 ;0.220000 ;0.210000 ;0.200000 ;0.190000 ;0.180000 ;0.170000 ;0.160000 ;0.150000 ;0.140000 ;0.130000 ;0.120000 ;0.110000 ;0.100000 ;0.090000 ;0.080000 ;0.070000 ;0.060000 ;0.050000 ;0.040000 ;0.030000 ;0.020000 ;0.010000 ;0.000000 ;0.010000 ;0.020000 ;0.030000 ;0.040000 ;0.050000 ;0.060000 ;0.070000 ;0.080000 ;0.090000 ;0.100000 ;0.110000 ;0.120000 ;0.130000 ;0.140000 ;0.150000 ;0.160000 ;0.170000 ;0.180000 ;0.190000 ;0.200000 ;0.210000 ;0.220000 ;0.230000 ;0.240000 ;0.250000 ;0.260000 ;0.270000 ;0.280000 ;0.290000 ;0.300000 ;0.310000 ;0.320000 ;0.330000 ;0.340000 ;0.350000 ;0.360000 ;0.370000 ;0.380000 ;0.390000 ;0.400000 ;0.410000 ;0.420000 ;0.430000 ;0.440000 ;0.450000 ;0.460000 ;0.470000 ;0.480000 ;0.490000 ;0.500000 ;0.510000 ;0.520000 ;0.530000 ;0.540000 ;0.550000 ;0.560000 ;0.570000 ;0.580000 ;0.590000 ;0.600000 ;0.610000 ;0.620000 ;0.630000 ;0.640000 ;0.650000 ;0.660000 ;0.670000 ;0.680000 ;0.690000 ;0.700000 ;0.710000 ;0.720000 ;0.730000 ;0.740000 ;0.750000 ;0.760000 ;0.770000 ;0.780000 ;0.790000 ;0.800000 ;0.810000 ;0.820000 ;0.830000 ;0.840000 ;0.850000 ;0.860000 ;0.870000 ;0.880000 ;0.890000 ;0.900000 ;0.910000 ;0.920000 ;0.930000 ;0.940000 ;0.950000 ;0.960000 ;0.970000 ;0.980000 ;0.990000 ;1.000000 </x>
@@ -2131,7 +2131,7 @@
           </pointList>
         </wingAirfoil>
         <wingAirfoil uID="foil_2_2">
-          <name>threedots</name>
+          <name>foil_2_2</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.990000 ;0.980000 ;0.970000 ;0.960000 ;0.950000 ;0.940000 ;0.930000 ;0.920000 ;0.910000 ;0.900000 ;0.890000 ;0.880000 ;0.870000 ;0.860000 ;0.850000 ;0.840000 ;0.830000 ;0.820000 ;0.810000 ;0.800000 ;0.790000 ;0.780000 ;0.770000 ;0.760000 ;0.750000 ;0.740000 ;0.730000 ;0.720000 ;0.710000 ;0.700000 ;0.690000 ;0.680000 ;0.670000 ;0.660000 ;0.650000 ;0.640000 ;0.630000 ;0.620000 ;0.610000 ;0.600000 ;0.590000 ;0.580000 ;0.570000 ;0.560000 ;0.550000 ;0.540000 ;0.530000 ;0.520000 ;0.510000 ;0.500000 ;0.490000 ;0.480000 ;0.470000 ;0.460000 ;0.450000 ;0.440000 ;0.430000 ;0.420000 ;0.410000 ;0.400000 ;0.390000 ;0.380000 ;0.370000 ;0.360000 ;0.350000 ;0.340000 ;0.330000 ;0.320000 ;0.310000 ;0.300000 ;0.290000 ;0.280000 ;0.270000 ;0.260000 ;0.250000 ;0.240000 ;0.230000 ;0.220000 ;0.210000 ;0.200000 ;0.190000 ;0.180000 ;0.170000 ;0.160000 ;0.150000 ;0.140000 ;0.130000 ;0.120000 ;0.110000 ;0.100000 ;0.090000 ;0.080000 ;0.070000 ;0.060000 ;0.050000 ;0.040000 ;0.030000 ;0.020000 ;0.010000 ;0.000000 ;0.010000 ;0.020000 ;0.030000 ;0.040000 ;0.050000 ;0.060000 ;0.070000 ;0.080000 ;0.090000 ;0.100000 ;0.110000 ;0.120000 ;0.130000 ;0.140000 ;0.150000 ;0.160000 ;0.170000 ;0.180000 ;0.190000 ;0.200000 ;0.210000 ;0.220000 ;0.230000 ;0.240000 ;0.250000 ;0.260000 ;0.270000 ;0.280000 ;0.290000 ;0.300000 ;0.310000 ;0.320000 ;0.330000 ;0.340000 ;0.350000 ;0.360000 ;0.370000 ;0.380000 ;0.390000 ;0.400000 ;0.410000 ;0.420000 ;0.430000 ;0.440000 ;0.450000 ;0.460000 ;0.470000 ;0.480000 ;0.490000 ;0.500000 ;0.510000 ;0.520000 ;0.530000 ;0.540000 ;0.550000 ;0.560000 ;0.570000 ;0.580000 ;0.590000 ;0.600000 ;0.610000 ;0.620000 ;0.630000 ;0.640000 ;0.650000 ;0.660000 ;0.670000 ;0.680000 ;0.690000 ;0.700000 ;0.710000 ;0.720000 ;0.730000 ;0.740000 ;0.750000 ;0.760000 ;0.770000 ;0.780000 ;0.790000 ;0.800000 ;0.810000 ;0.820000 ;0.830000 ;0.840000 ;0.850000 ;0.860000 ;0.870000 ;0.880000 ;0.890000 ;0.900000 ;0.910000 ;0.920000 ;0.930000 ;0.940000 ;0.950000 ;0.960000 ;0.970000 ;0.980000 ;0.990000 ;1.000000 </x>
@@ -2140,7 +2140,7 @@
           </pointList>
         </wingAirfoil>
         <wingAirfoil uID="foil_2_3">
-          <name>threedots</name>
+          <name>foil_2_3</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.990000 ;0.980000 ;0.970000 ;0.960000 ;0.950000 ;0.940000 ;0.930000 ;0.920000 ;0.910000 ;0.900000 ;0.890000 ;0.880000 ;0.870000 ;0.860000 ;0.850000 ;0.840000 ;0.830000 ;0.820000 ;0.810000 ;0.800000 ;0.790000 ;0.780000 ;0.770000 ;0.760000 ;0.750000 ;0.740000 ;0.730000 ;0.720000 ;0.710000 ;0.700000 ;0.690000 ;0.680000 ;0.670000 ;0.660000 ;0.650000 ;0.640000 ;0.630000 ;0.620000 ;0.610000 ;0.600000 ;0.590000 ;0.580000 ;0.570000 ;0.560000 ;0.550000 ;0.540000 ;0.530000 ;0.520000 ;0.510000 ;0.500000 ;0.490000 ;0.480000 ;0.470000 ;0.460000 ;0.450000 ;0.440000 ;0.430000 ;0.420000 ;0.410000 ;0.400000 ;0.390000 ;0.380000 ;0.370000 ;0.360000 ;0.350000 ;0.340000 ;0.330000 ;0.320000 ;0.310000 ;0.300000 ;0.290000 ;0.280000 ;0.270000 ;0.260000 ;0.250000 ;0.240000 ;0.230000 ;0.220000 ;0.210000 ;0.200000 ;0.190000 ;0.180000 ;0.170000 ;0.160000 ;0.150000 ;0.140000 ;0.130000 ;0.120000 ;0.110000 ;0.100000 ;0.090000 ;0.080000 ;0.070000 ;0.060000 ;0.050000 ;0.040000 ;0.030000 ;0.020000 ;0.010000 ;0.000000 ;0.010000 ;0.020000 ;0.030000 ;0.040000 ;0.050000 ;0.060000 ;0.070000 ;0.080000 ;0.090000 ;0.100000 ;0.110000 ;0.120000 ;0.130000 ;0.140000 ;0.150000 ;0.160000 ;0.170000 ;0.180000 ;0.190000 ;0.200000 ;0.210000 ;0.220000 ;0.230000 ;0.240000 ;0.250000 ;0.260000 ;0.270000 ;0.280000 ;0.290000 ;0.300000 ;0.310000 ;0.320000 ;0.330000 ;0.340000 ;0.350000 ;0.360000 ;0.370000 ;0.380000 ;0.390000 ;0.400000 ;0.410000 ;0.420000 ;0.430000 ;0.440000 ;0.450000 ;0.460000 ;0.470000 ;0.480000 ;0.490000 ;0.500000 ;0.510000 ;0.520000 ;0.530000 ;0.540000 ;0.550000 ;0.560000 ;0.570000 ;0.580000 ;0.590000 ;0.600000 ;0.610000 ;0.620000 ;0.630000 ;0.640000 ;0.650000 ;0.660000 ;0.670000 ;0.680000 ;0.690000 ;0.700000 ;0.710000 ;0.720000 ;0.730000 ;0.740000 ;0.750000 ;0.760000 ;0.770000 ;0.780000 ;0.790000 ;0.800000 ;0.810000 ;0.820000 ;0.830000 ;0.840000 ;0.850000 ;0.860000 ;0.870000 ;0.880000 ;0.890000 ;0.900000 ;0.910000 ;0.920000 ;0.930000 ;0.940000 ;0.950000 ;0.960000 ;0.970000 ;0.980000 ;0.990000 ;1.000000 </x>
@@ -2149,7 +2149,7 @@
           </pointList>
         </wingAirfoil>
         <wingAirfoil uID="foil_2_4">
-          <name>threedots</name>
+          <name>foil_2_4</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.990000 ;0.980000 ;0.970000 ;0.960000 ;0.950000 ;0.940000 ;0.930000 ;0.920000 ;0.910000 ;0.900000 ;0.890000 ;0.880000 ;0.870000 ;0.860000 ;0.850000 ;0.840000 ;0.830000 ;0.820000 ;0.810000 ;0.800000 ;0.790000 ;0.780000 ;0.770000 ;0.760000 ;0.750000 ;0.740000 ;0.730000 ;0.720000 ;0.710000 ;0.700000 ;0.690000 ;0.680000 ;0.670000 ;0.660000 ;0.650000 ;0.640000 ;0.630000 ;0.620000 ;0.610000 ;0.600000 ;0.590000 ;0.580000 ;0.570000 ;0.560000 ;0.550000 ;0.540000 ;0.530000 ;0.520000 ;0.510000 ;0.500000 ;0.490000 ;0.480000 ;0.470000 ;0.460000 ;0.450000 ;0.440000 ;0.430000 ;0.420000 ;0.410000 ;0.400000 ;0.390000 ;0.380000 ;0.370000 ;0.360000 ;0.350000 ;0.340000 ;0.330000 ;0.320000 ;0.310000 ;0.300000 ;0.290000 ;0.280000 ;0.270000 ;0.260000 ;0.250000 ;0.240000 ;0.230000 ;0.220000 ;0.210000 ;0.200000 ;0.190000 ;0.180000 ;0.170000 ;0.160000 ;0.150000 ;0.140000 ;0.130000 ;0.120000 ;0.110000 ;0.100000 ;0.090000 ;0.080000 ;0.070000 ;0.060000 ;0.050000 ;0.040000 ;0.030000 ;0.020000 ;0.010000 ;0.000000 ;0.010000 ;0.020000 ;0.030000 ;0.040000 ;0.050000 ;0.060000 ;0.070000 ;0.080000 ;0.090000 ;0.100000 ;0.110000 ;0.120000 ;0.130000 ;0.140000 ;0.150000 ;0.160000 ;0.170000 ;0.180000 ;0.190000 ;0.200000 ;0.210000 ;0.220000 ;0.230000 ;0.240000 ;0.250000 ;0.260000 ;0.270000 ;0.280000 ;0.290000 ;0.300000 ;0.310000 ;0.320000 ;0.330000 ;0.340000 ;0.350000 ;0.360000 ;0.370000 ;0.380000 ;0.390000 ;0.400000 ;0.410000 ;0.420000 ;0.430000 ;0.440000 ;0.450000 ;0.460000 ;0.470000 ;0.480000 ;0.490000 ;0.500000 ;0.510000 ;0.520000 ;0.530000 ;0.540000 ;0.550000 ;0.560000 ;0.570000 ;0.580000 ;0.590000 ;0.600000 ;0.610000 ;0.620000 ;0.630000 ;0.640000 ;0.650000 ;0.660000 ;0.670000 ;0.680000 ;0.690000 ;0.700000 ;0.710000 ;0.720000 ;0.730000 ;0.740000 ;0.750000 ;0.760000 ;0.770000 ;0.780000 ;0.790000 ;0.800000 ;0.810000 ;0.820000 ;0.830000 ;0.840000 ;0.850000 ;0.860000 ;0.870000 ;0.880000 ;0.890000 ;0.900000 ;0.910000 ;0.920000 ;0.930000 ;0.940000 ;0.950000 ;0.960000 ;0.970000 ;0.980000 ;0.990000 ;1.000000 </x>
@@ -2158,7 +2158,7 @@
           </pointList>
         </wingAirfoil>
         <wingAirfoil uID="foil_2_5">
-          <name>threedots</name>
+          <name>foil_2_5</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.990000 ;0.980000 ;0.970000 ;0.960000 ;0.950000 ;0.940000 ;0.930000 ;0.920000 ;0.910000 ;0.900000 ;0.890000 ;0.880000 ;0.870000 ;0.860000 ;0.850000 ;0.840000 ;0.830000 ;0.820000 ;0.810000 ;0.800000 ;0.790000 ;0.780000 ;0.770000 ;0.760000 ;0.750000 ;0.740000 ;0.730000 ;0.720000 ;0.710000 ;0.700000 ;0.690000 ;0.680000 ;0.670000 ;0.660000 ;0.650000 ;0.640000 ;0.630000 ;0.620000 ;0.610000 ;0.600000 ;0.590000 ;0.580000 ;0.570000 ;0.560000 ;0.550000 ;0.540000 ;0.530000 ;0.520000 ;0.510000 ;0.500000 ;0.490000 ;0.480000 ;0.470000 ;0.460000 ;0.450000 ;0.440000 ;0.430000 ;0.420000 ;0.410000 ;0.400000 ;0.390000 ;0.380000 ;0.370000 ;0.360000 ;0.350000 ;0.340000 ;0.330000 ;0.320000 ;0.310000 ;0.300000 ;0.290000 ;0.280000 ;0.270000 ;0.260000 ;0.250000 ;0.240000 ;0.230000 ;0.220000 ;0.210000 ;0.200000 ;0.190000 ;0.180000 ;0.170000 ;0.160000 ;0.150000 ;0.140000 ;0.130000 ;0.120000 ;0.110000 ;0.100000 ;0.090000 ;0.080000 ;0.070000 ;0.060000 ;0.050000 ;0.040000 ;0.030000 ;0.020000 ;0.010000 ;0.000000 ;0.010000 ;0.020000 ;0.030000 ;0.040000 ;0.050000 ;0.060000 ;0.070000 ;0.080000 ;0.090000 ;0.100000 ;0.110000 ;0.120000 ;0.130000 ;0.140000 ;0.150000 ;0.160000 ;0.170000 ;0.180000 ;0.190000 ;0.200000 ;0.210000 ;0.220000 ;0.230000 ;0.240000 ;0.250000 ;0.260000 ;0.270000 ;0.280000 ;0.290000 ;0.300000 ;0.310000 ;0.320000 ;0.330000 ;0.340000 ;0.350000 ;0.360000 ;0.370000 ;0.380000 ;0.390000 ;0.400000 ;0.410000 ;0.420000 ;0.430000 ;0.440000 ;0.450000 ;0.460000 ;0.470000 ;0.480000 ;0.490000 ;0.500000 ;0.510000 ;0.520000 ;0.530000 ;0.540000 ;0.550000 ;0.560000 ;0.570000 ;0.580000 ;0.590000 ;0.600000 ;0.610000 ;0.620000 ;0.630000 ;0.640000 ;0.650000 ;0.660000 ;0.670000 ;0.680000 ;0.690000 ;0.700000 ;0.710000 ;0.720000 ;0.730000 ;0.740000 ;0.750000 ;0.760000 ;0.770000 ;0.780000 ;0.790000 ;0.800000 ;0.810000 ;0.820000 ;0.830000 ;0.840000 ;0.850000 ;0.860000 ;0.870000 ;0.880000 ;0.890000 ;0.900000 ;0.910000 ;0.920000 ;0.930000 ;0.940000 ;0.950000 ;0.960000 ;0.970000 ;0.980000 ;0.990000 ;1.000000 </x>
@@ -2167,7 +2167,7 @@
           </pointList>
         </wingAirfoil>
         <wingAirfoil uID="foil_2_6">
-          <name>threedots</name>
+          <name>foil_2_6</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.990000 ;0.980000 ;0.970000 ;0.960000 ;0.950000 ;0.940000 ;0.930000 ;0.920000 ;0.910000 ;0.900000 ;0.890000 ;0.880000 ;0.870000 ;0.860000 ;0.850000 ;0.840000 ;0.830000 ;0.820000 ;0.810000 ;0.800000 ;0.790000 ;0.780000 ;0.770000 ;0.760000 ;0.750000 ;0.740000 ;0.730000 ;0.720000 ;0.710000 ;0.700000 ;0.690000 ;0.680000 ;0.670000 ;0.660000 ;0.650000 ;0.640000 ;0.630000 ;0.620000 ;0.610000 ;0.600000 ;0.590000 ;0.580000 ;0.570000 ;0.560000 ;0.550000 ;0.540000 ;0.530000 ;0.520000 ;0.510000 ;0.500000 ;0.490000 ;0.480000 ;0.470000 ;0.460000 ;0.450000 ;0.440000 ;0.430000 ;0.420000 ;0.410000 ;0.400000 ;0.390000 ;0.380000 ;0.370000 ;0.360000 ;0.350000 ;0.340000 ;0.330000 ;0.320000 ;0.310000 ;0.300000 ;0.290000 ;0.280000 ;0.270000 ;0.260000 ;0.250000 ;0.240000 ;0.230000 ;0.220000 ;0.210000 ;0.200000 ;0.190000 ;0.180000 ;0.170000 ;0.160000 ;0.150000 ;0.140000 ;0.130000 ;0.120000 ;0.110000 ;0.100000 ;0.090000 ;0.080000 ;0.070000 ;0.060000 ;0.050000 ;0.040000 ;0.030000 ;0.020000 ;0.010000 ;0.000000 ;0.010000 ;0.020000 ;0.030000 ;0.040000 ;0.050000 ;0.060000 ;0.070000 ;0.080000 ;0.090000 ;0.100000 ;0.110000 ;0.120000 ;0.130000 ;0.140000 ;0.150000 ;0.160000 ;0.170000 ;0.180000 ;0.190000 ;0.200000 ;0.210000 ;0.220000 ;0.230000 ;0.240000 ;0.250000 ;0.260000 ;0.270000 ;0.280000 ;0.290000 ;0.300000 ;0.310000 ;0.320000 ;0.330000 ;0.340000 ;0.350000 ;0.360000 ;0.370000 ;0.380000 ;0.390000 ;0.400000 ;0.410000 ;0.420000 ;0.430000 ;0.440000 ;0.450000 ;0.460000 ;0.470000 ;0.480000 ;0.490000 ;0.500000 ;0.510000 ;0.520000 ;0.530000 ;0.540000 ;0.550000 ;0.560000 ;0.570000 ;0.580000 ;0.590000 ;0.600000 ;0.610000 ;0.620000 ;0.630000 ;0.640000 ;0.650000 ;0.660000 ;0.670000 ;0.680000 ;0.690000 ;0.700000 ;0.710000 ;0.720000 ;0.730000 ;0.740000 ;0.750000 ;0.760000 ;0.770000 ;0.780000 ;0.790000 ;0.800000 ;0.810000 ;0.820000 ;0.830000 ;0.840000 ;0.850000 ;0.860000 ;0.870000 ;0.880000 ;0.890000 ;0.900000 ;0.910000 ;0.920000 ;0.930000 ;0.940000 ;0.950000 ;0.960000 ;0.970000 ;0.980000 ;0.990000 ;1.000000 </x>
@@ -2176,7 +2176,7 @@
           </pointList>
         </wingAirfoil>
         <wingAirfoil uID="foil_2_7">
-          <name>threedots</name>
+          <name>foil_2_7</name>
           <description>threedots</description>
           <pointList>
             <x mapType="vector">1.000000 ;0.990000 ;0.980000 ;0.970000 ;0.960000 ;0.950000 ;0.940000 ;0.930000 ;0.920000 ;0.910000 ;0.900000 ;0.890000 ;0.880000 ;0.870000 ;0.860000 ;0.850000 ;0.840000 ;0.830000 ;0.820000 ;0.810000 ;0.800000 ;0.790000 ;0.780000 ;0.770000 ;0.760000 ;0.750000 ;0.740000 ;0.730000 ;0.720000 ;0.710000 ;0.700000 ;0.690000 ;0.680000 ;0.670000 ;0.660000 ;0.650000 ;0.640000 ;0.630000 ;0.620000 ;0.610000 ;0.600000 ;0.590000 ;0.580000 ;0.570000 ;0.560000 ;0.550000 ;0.540000 ;0.530000 ;0.520000 ;0.510000 ;0.500000 ;0.490000 ;0.480000 ;0.470000 ;0.460000 ;0.450000 ;0.440000 ;0.430000 ;0.420000 ;0.410000 ;0.400000 ;0.390000 ;0.380000 ;0.370000 ;0.360000 ;0.350000 ;0.340000 ;0.330000 ;0.320000 ;0.310000 ;0.300000 ;0.290000 ;0.280000 ;0.270000 ;0.260000 ;0.250000 ;0.240000 ;0.230000 ;0.220000 ;0.210000 ;0.200000 ;0.190000 ;0.180000 ;0.170000 ;0.160000 ;0.150000 ;0.140000 ;0.130000 ;0.120000 ;0.110000 ;0.100000 ;0.090000 ;0.080000 ;0.070000 ;0.060000 ;0.050000 ;0.040000 ;0.030000 ;0.020000 ;0.010000 ;0.000000 ;0.010000 ;0.020000 ;0.030000 ;0.040000 ;0.050000 ;0.060000 ;0.070000 ;0.080000 ;0.090000 ;0.100000 ;0.110000 ;0.120000 ;0.130000 ;0.140000 ;0.150000 ;0.160000 ;0.170000 ;0.180000 ;0.190000 ;0.200000 ;0.210000 ;0.220000 ;0.230000 ;0.240000 ;0.250000 ;0.260000 ;0.270000 ;0.280000 ;0.290000 ;0.300000 ;0.310000 ;0.320000 ;0.330000 ;0.340000 ;0.350000 ;0.360000 ;0.370000 ;0.380000 ;0.390000 ;0.400000 ;0.410000 ;0.420000 ;0.430000 ;0.440000 ;0.450000 ;0.460000 ;0.470000 ;0.480000 ;0.490000 ;0.500000 ;0.510000 ;0.520000 ;0.530000 ;0.540000 ;0.550000 ;0.560000 ;0.570000 ;0.580000 ;0.590000 ;0.600000 ;0.610000 ;0.620000 ;0.630000 ;0.640000 ;0.650000 ;0.660000 ;0.670000 ;0.680000 ;0.690000 ;0.700000 ;0.710000 ;0.720000 ;0.730000 ;0.740000 ;0.750000 ;0.760000 ;0.770000 ;0.780000 ;0.790000 ;0.800000 ;0.810000 ;0.820000 ;0.830000 ;0.840000 ;0.850000 ;0.860000 ;0.870000 ;0.880000 ;0.890000 ;0.900000 ;0.910000 ;0.920000 ;0.930000 ;0.940000 ;0.950000 ;0.960000 ;0.970000 ;0.980000 ;0.990000 ;1.000000 </x>

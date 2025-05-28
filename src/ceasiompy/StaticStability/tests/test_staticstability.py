@@ -27,12 +27,9 @@ from ceasiompy.StaticStability.staticstability import (
 )
 
 from pathlib import Path
+from cpacspy.cpacspy import AeroMap
 from markdownpy.markdownpy import MarkdownDoc
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
-from cpacspy.cpacspy import (
-    CPACS,
-    AeroMap,
-)
 
 from ceasiompy import log
 from ceasiompy.StaticStability import (

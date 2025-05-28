@@ -15,10 +15,6 @@ and saving those conditions in a text file
 
 import shutil
 
-from pathlib import Path
-
-from ceasiompy.utils.ceasiompyutils import call_main
-
 from ceasiompy.ThermoData.func.turbofan import (
     write_hbtf_file,
     turbofan_analysis,
@@ -33,11 +29,12 @@ from cpacspy.cpacsfunctions import (
     get_value_or_default,
 )
 
+from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-from ceasiompy.utils.commonnames import ENGINE_BOUNDARY_CONDITIONS
 from ceasiompy.SU2Run import SU2_AEROMAP_UID_XPATH
+from ceasiompy.utils.commonnames import ENGINE_BOUNDARY_CONDITIONS
 from ceasiompy.utils.commonxpaths import (
     ENGINE_BC,
     RANGE_XPATH,
@@ -45,8 +42,6 @@ from ceasiompy.utils.commonxpaths import (
     RANGE_CRUISE_ALT_XPATH,
     RANGE_CRUISE_MACH_XPATH,
 )
-
-from ceasiompy.ThermoData import MODULE_NAME
 
 # =================================================================================================
 #   FUNCTIONS
@@ -169,11 +164,3 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
     folder_name = "reports"
     shutil.rmtree(folder_name)
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    call_main(main, MODULE_NAME)

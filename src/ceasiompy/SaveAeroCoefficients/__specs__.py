@@ -1,4 +1,3 @@
-
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 

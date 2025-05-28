@@ -5103,6 +5103,9 @@
                 <cd mapType="vector">0.01;0.01;0.01;0.01;0.01;0.01;0.01;0.01</cd>
                 <cl mapType="vector">0.1;0.1;0.1;0.1;0.1;0.1;0.1;0.1</cl>
                 <cs mapType="vector">0.001;0.001;0.001;0.001;0.001;0.001;0.001;0.001</cs>
+                <cml mapType="vector">0.002;0.002;0.004;0.002;0.002;0.002;0.004;0.002</cml>
+                <cmd mapType="vector">0.002;0.002;0.004;0.004;0.002;0.002;0.004;0.004</cmd>
+                <cms mapType="vector">0.004;0.002;0.004;0.002;0.004;0.002;0.004;0.002</cms>
               </aeroPerformanceMap>
             </aeroMap>
           </aeroPerformance>

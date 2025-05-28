@@ -47,10 +47,12 @@ def rot(angle: float) -> ndarray:
     c = cos(angle)
     s = sin(angle)
 
-    return np.array([
-        [c, -s],
-        [s, c],
-    ])
+    return np.array(
+        [
+            [c, -s],
+            [s, c],
+        ]
+    )
 
 
 def rotate_2d_point(
@@ -100,29 +102,35 @@ def get_rotation_matrix(RaX: float, RaY: float, RaZ: float) -> Tuple[ndarray, nd
     cx = cos(RaX)
     sx = sin(RaX)
 
-    Rx = np.array([
-        [1.0, 0.0, 0.0],
-        [0.0, cx, -sx],
-        [0.0, sx, cx],
-    ])
+    Rx = np.array(
+        [
+            [1.0, 0.0, 0.0],
+            [0.0, cx, -sx],
+            [0.0, sx, cx],
+        ]
+    )
 
     cy = cos(RaY)
     sy = sin(RaY)
 
-    Ry = np.array([
-        [cy, 0.0, -sy],
-        [0.0, 1.0, 0.0],
-        [sy, 0.0, cy],
-    ])
+    Ry = np.array(
+        [
+            [cy, 0.0, -sy],
+            [0.0, 1.0, 0.0],
+            [sy, 0.0, cy],
+        ]
+    )
 
     cz = cos(RaZ)
     sz = sin(RaZ)
 
-    Rz = np.array([
-        [cz, -sz, 0.0],
-        [sz, cz, 0.0],
-        [0.0, 0.0, 1.0],
-    ])
+    Rz = np.array(
+        [
+            [cz, -sz, 0.0],
+            [sz, cz, 0.0],
+            [0.0, 0.0, 1.0],
+        ]
+    )
 
     return Rx, Ry, Rz
 
@@ -147,9 +155,9 @@ def euler2fix(rotation_euler):
         object_ = True
         rotation_euler = np.array([rotation_euler.x, rotation_euler.y, rotation_euler.z])
 
-    rotation = R.from_euler('zyx', rotation_euler, degrees=True)
+    rotation = R.from_euler("zyx", rotation_euler, degrees=True)
 
-    fix_angles = rotation.as_euler('xyz', degrees=True)
+    fix_angles = rotation.as_euler("xyz", degrees=True)
 
     if object_:
         return Point(
@@ -182,9 +190,9 @@ def fix2euler(rotation_fix):
         object_ = True
         rotation_fix = np.array([rotation_fix.x, rotation_fix.y, rotation_fix.z])
 
-    rotation = R.from_euler('xyz', rotation_fix, degrees=True)
+    rotation = R.from_euler("xyz", rotation_fix, degrees=True)
 
-    euler_angles = rotation.as_euler('zyx', degrees=True)
+    euler_angles = rotation.as_euler("zyx", degrees=True)
 
     if object_:
         return Point(
@@ -197,12 +205,7 @@ def fix2euler(rotation_fix):
 
 
 def rotate_points(
-    x: float,
-    y: float,
-    z: float,
-    RaX: float,
-    RaY: float,
-    RaZ: float
+    x: float, y: float, z: float, RaX: float, RaY: float, RaZ: float
 ) -> Tuple[float, float, float]:
     """
     Applies a 3D rotation to the coordinates of a point.
@@ -291,12 +294,3 @@ def dimensionalize_rate(
     r = rStar * (2 * v) / b
 
     return p, q, r
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-
-    log.info("Nothing to execute!")

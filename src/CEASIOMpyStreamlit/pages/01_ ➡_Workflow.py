@@ -49,6 +49,7 @@ HOW_TO_TEXT = (
 #   FUNCTIONS
 # ==============================================================================
 
+
 def section_predefined_workflow():
     """
     Where to define the Pre-defined workflows.
@@ -86,10 +87,7 @@ def section_add_module():
             col1, col2, col3, _ = st.columns([6, 1, 1, 5])
 
             with col1:
-                st.button(
-                    module,
-                    key=f"module_number_{i}"
-                )
+                st.button(module, key=f"module_number_{i}")
 
             with col2:
                 if st.button("⬆️", key=f"move{i}", help="Move up") and i > 0:
@@ -119,6 +117,7 @@ def section_add_module():
         if st.button("✔", help="Add this module to the workflow"):
             st.session_state.workflow_modules.append(module)
             st.rerun()
+
 
 # =================================================================================================
 #    MAIN

@@ -18,6 +18,7 @@ the vortex-lattice method (VLM)
 #   IMPORTS
 # ==============================================================================
 
+from ceasiompy.utils.ceasiompyutils import run_software
 from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
 from ceasiompy.PyAVL.func.results import get_avl_results
 from ceasiompy.PyAVL.func.utils import (
@@ -28,18 +29,11 @@ from ceasiompy.PyAVL.func.config import (
     write_command_file,
     retrieve_gui_values,
 )
-from ceasiompy.utils.ceasiompyutils import (
-    call_main,
-    run_software,
-)
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
-from ceasiompy.PyAVL import (
-    MODULE_NAME,
-    SOFTWARE_NAME,
-)
+from ceasiompy.PyAVL import SOFTWARE_NAME
 
 # =================================================================================================
 #    MAIN
@@ -58,21 +52,34 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     tixi = cpacs.tixi
 
     (
-        alt_list, mach_list, aoa_list, aos_list,
-        rotation_rate_list, control_surface_list,
+        alt_list,
+        mach_list,
+        aoa_list,
+        aos_list,
+        rotation_rate_list,
+        control_surface_list,
         avl_path,
         save_fig,
         nb_cpu,
-
     ) = retrieve_gui_values(cpacs, results_dir)
 
     #
     # 2. p, q, r
     (
-        new_alt_list, new_mach_list, new_aoa_list, new_aos_list,
-        new_pitch_rate_list, new_roll_rate_list, new_yaw_rate_list,
+        new_alt_list,
+        new_mach_list,
+        new_aoa_list,
+        new_aos_list,
+        new_pitch_rate_list,
+        new_roll_rate_list,
+        new_yaw_rate_list,
     ) = duplicate_elements(
-        tixi, alt_list, mach_list, aoa_list, aos_list, rotation_rate_list,
+        tixi,
+        alt_list,
+        mach_list,
+        aoa_list,
+        aos_list,
+        rotation_rate_list,
     )
     first_cases = len(new_alt_list)
 
@@ -128,10 +135,18 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         #
         # 3. aileron, elevator, rudder
         (
-            new_alt_list, new_mach_list, new_aoa_list,
-            new_aileron_list, new_elevator_list, new_rudder_list,
+            new_alt_list,
+            new_mach_list,
+            new_aoa_list,
+            new_aileron_list,
+            new_elevator_list,
+            new_rudder_list,
         ) = duplicate_elements(
-            tixi, alt_list, mach_list, aoa_list, control_surface_list,
+            tixi,
+            alt_list,
+            mach_list,
+            aoa_list,
+            control_surface_list,
         )
 
         # Iterate through each case
@@ -180,7 +195,3 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 convert_ps_to_pdf(case_dir_path)
 
     get_avl_results(cpacs, results_dir)
-
-
-if __name__ == "__main__":
-    call_main(main, MODULE_NAME)

@@ -38,11 +38,11 @@ from ceasiompy.utils.commonpaths import TESTCEASIOMPY_DB_PATH
 class TestDatabase(CeasiompyTest):
 
     @classmethod
-    def setUpClass(cls: 'TestDatabase') -> None:
+    def setUpClass(cls: "TestDatabase") -> None:
         cls.testceasiompy_db_path: Path = TESTCEASIOMPY_DB_PATH
 
     @log_test
-    def test_create_db(self: 'TestDatabase') -> None:
+    def test_create_db(self: "TestDatabase") -> None:
         create_db(path=self.testceasiompy_db_path)
         self.assertTrue(self.testceasiompy_db_path.exists(), "Database file was not created")
 
@@ -51,19 +51,36 @@ class TestDatabase(CeasiompyTest):
             self.testceasiompy_db_path.unlink()
 
     @log_test
-    def test_data_to_db(self: 'TestDatabase') -> None:
+    def test_data_to_db(self: "TestDatabase") -> None:
         # Define constants
         module_name = PYAVL_NAME  # test on AVL module
         data = {
             "aircraft": "test_aircraft",
-            "mach": 0.0, "alpha": 0.0, "beta": 0.0,
-            "pb_2V": 0.0, "qc_2V": 0.0, "rb_2V": 0.0,
-            "flap": 0.0, "aileron": 0.0, "elevator": 0.0, "rudder": 0.0,
-            "xref": 0.0, "yref": 0.0, "zref": 0.0,
-            "cd": 0.0, "cs": 0.0, "cl": 0.0,
-            "cmd": 0.0, "cms": 0.0, "cml": 0.0,
-            "cmd_a": 0.0, "cms_a": 0.0, "cml_a": 0.0,
-            "cmd_b": 0.0, "cms_b": 0.0, "cml_b": 0.0,
+            "mach": 0.0,
+            "alpha": 0.0,
+            "beta": 0.0,
+            "pb_2V": 0.0,
+            "qc_2V": 0.0,
+            "rb_2V": 0.0,
+            "flap": 0.0,
+            "aileron": 0.0,
+            "elevator": 0.0,
+            "rudder": 0.0,
+            "xref": 0.0,
+            "yref": 0.0,
+            "zref": 0.0,
+            "cd": 0.0,
+            "cs": 0.0,
+            "cl": 0.0,
+            "cmd": 0.0,
+            "cms": 0.0,
+            "cml": 0.0,
+            "cmd_a": 0.0,
+            "cms_a": 0.0,
+            "cml_a": 0.0,
+            "cmd_b": 0.0,
+            "cms_b": 0.0,
+            "cml_b": 0.0,
         }
 
         testceasiompy_db = CeasiompyDb(db_path=self.testceasiompy_db_path)
@@ -74,6 +91,7 @@ class TestDatabase(CeasiompyTest):
 
         testceasiompy_db.commit()
         testceasiompy_db.close()
+
 
 # =================================================================================================
 #    MAIN

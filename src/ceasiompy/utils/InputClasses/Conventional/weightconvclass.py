@@ -5,16 +5,13 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 The script contains the user inputs required for the weight analysis.
 
-| Works with Python 3.6
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
 
 TODO:
-
     * Maybe gather all parameter in one class (or one class with subclasses)
 
 """
-
 
 # =================================================================================================
 #   IMPORTS
@@ -37,9 +34,6 @@ from ceasiompy.utils.commonxpaths import (
     WB_SEAT_WIDTH_XPATH,
     WB_TOILET_LENGTH_XPATH,
 )
-
-from ceasiompy import log
-
 
 # =================================================================================================
 #   CLASSES
@@ -182,12 +176,3 @@ class InsideDimensions:
         self.aisle_width = get_value_or_default(tixi, WB_AISLE_WIDTH_XPATH, 0.42)
         self.fuse_thick = get_value_or_default(tixi, WB_FUSELAGE_THICK_XPATH, 6.63)
         self.toilet_length = get_value_or_default(tixi, WB_TOILET_LENGTH_XPATH, self.toilet_length)
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-
-    log.info("Nothing to execute!")

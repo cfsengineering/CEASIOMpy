@@ -82,10 +82,3 @@ INCLUDE_GUI = False
 #     descr='Description of the output',
 #     xpath='/cpacs/toolspecific/CEASIOMpy/test/myOutput',
 # )
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

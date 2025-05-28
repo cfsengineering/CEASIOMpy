@@ -1,4 +1,3 @@
-
 from ceasiompy.utils.commonxpaths import (
     SU2MESH_XPATH,
     SUMO_REFINE_LEVEL_XPATH,

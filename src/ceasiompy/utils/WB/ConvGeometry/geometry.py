@@ -770,9 +770,7 @@ class AircraftGeometry:
             "\nWing MAC length [m]: \n"
             + str(
                 np.around(
-                    self.wing_mac[
-                        0,
-                    ],
+                    self.wing_mac[0,],
                     5,
                 )
             )
@@ -781,9 +779,7 @@ class AircraftGeometry:
             "\nWing MAC x,y,z coordinate [m]: \n"
             + str(
                 np.around(
-                    self.wing_mac[
-                        1:4,
-                    ],
+                    self.wing_mac[1:4,],
                     5,
                 )
             )
@@ -815,17 +811,3 @@ class AircraftGeometry:
 
         # Close Text File
         OutputTextFile.close()
-
-
-# =============================================================================
-#   FUNCTIONS
-# =============================================================================
-
-
-# =============================================================================
-#   MAIN
-# ==============================================================================
-
-if __name__ == "__main__":
-
-    log.info("Nothing to execute!")

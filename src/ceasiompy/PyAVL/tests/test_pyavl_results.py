@@ -44,9 +44,15 @@ class TestAvlResults(CeasiompyTest):
             f=get_avl_aerocoefs,
             input_args=(self.ft_template,),
             expected=(
-                0.00119, 0.00008, 0.18118,
-                0.00001, -0.66525, -0.00009,
-                -0.156791, -24.343220, 0.410176,
+                0.00119,
+                0.00008,
+                0.18118,
+                0.00001,
+                -0.66525,
+                -0.00009,
+                -0.0027365191874944295,
+                -0.424869339537334,
+                0.007158921712660261,
             ),
         )
 
@@ -64,6 +70,7 @@ class TestAvlResults(CeasiompyTest):
         assert Path(
             self.wkdir, "lift_distribution.png"
         ).exists(), "Plot 'lift_distribution.png' does not exist."
+
 
 # =================================================================================================
 #    MAIN

@@ -123,7 +123,7 @@ def retrieve_ceasiompy_db_data(
             "pb_2V = 0.0",
             "qc_2V = 0.0",
             "rb_2V = 0.0",
-        ]
+        ],
     )
     log.info(f"Importing from ceasiompy.db {data=}")
     data_df = DataFrame(

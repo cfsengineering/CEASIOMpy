@@ -16,8 +16,6 @@ Initialization for CLCalculator module.
 
 from pathlib import Path
 
-from ceasiompy import log
-
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================

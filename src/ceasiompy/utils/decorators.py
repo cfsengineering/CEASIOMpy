@@ -42,6 +42,7 @@ def log_execution(f: Callable) -> Callable:
     Debugging decorator.
     Logs function f and adds time for the function to finish.
     """
+
     @wraps(f)
     def wrapper(*args: Tuple, **kwargs: Dict):
         start_time = time.time()
@@ -50,6 +51,7 @@ def log_execution(f: Callable) -> Callable:
         end_time = time.time()
         log.info(f"Finished {f.__name__} in {end_time - start_time:.4f} seconds.")
         return result
+
     return wrapper
 
 
@@ -57,6 +59,7 @@ def log_test(f: Callable) -> Callable:
     """
     Log Test function decorator
     """
+
     @wraps(f)
     def wrapper(*args: Tuple, **kwargs: Dict):
         start_time = time.time()
@@ -65,12 +68,5 @@ def log_test(f: Callable) -> Callable:
         end_time = time.time()
         log.info(f"Finished testing {f.__name__} in {end_time - start_time:.4f} seconds. \n")
         return result
+
     return wrapper
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute.")

@@ -64,9 +64,7 @@ def get_smu_results(
 
     # Get all CSV files in results_dir, sorted to match aeromaps in order
     csv_files = sorted([f for f in os.listdir(results_dir) if f.endswith(".csv")])
-    aeromap_uid_list = get_aeromap_list_from_xpath(
-        cpacs, SMUSE_PREDICTIONDATASET_XPATH
-    )
+    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, SMUSE_PREDICTIONDATASET_XPATH)
 
     log.info(f"Aeromap UIDs: {aeromap_uid_list}")
     for aeromap_uid, file_name in zip(aeromap_uid_list, csv_files):

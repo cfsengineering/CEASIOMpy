@@ -36,10 +36,3 @@ def main(cpacs: CPACS) -> None:
         store_data(tixi)
     else:
         log.info("Did not call database.")
-
-
-if __name__ == "__main__":
-    # If you want to test your new functions
-    # or classes go in the tests folder of this module.
-    # You will add data to ceasiompy.db if you run this module.
-    log.info("Nothing to execute.")

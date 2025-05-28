@@ -120,7 +120,7 @@ class SDSAFile:
         self.tixi = self.cpacs.tixi
 
         # Import SDSAEmpty.xml file
-        self.empty_sdsa_path = self.dynstab_dir / "func/SDSAEmpty.xml"
+        self.empty_sdsa_path = self.dynstab_dir / "files/SDSAEmpty.xml"
         self.empty_sdsa_file = open_tixi(self.empty_sdsa_path)
 
         # Create a copy of the empty SDSA file in Results > DynamicStability
@@ -149,7 +149,7 @@ class SDSAFile:
         log.info(f"self.plot {self.plot}")
 
         # Extract and unique list of mach identifiers
-        self.mach_list = list(set([float(x) for x in str(mach_str).split(';')]))
+        self.mach_list = list(set([float(x) for x in str(mach_str).split(";")]))
         self.mach_str = ",".join(str(mach) for mach in self.mach_list)
         self.len_mach_list = len(self.mach_list)
 
@@ -180,7 +180,7 @@ class SDSAFile:
         """
 
         if self.software_data == AVL_SOFTWARE:
-            df_dot = compute_dot_derivatives(self)
+            df_dot = compute_dot_derivatives(self, atm=self.Atm)
             for aero_prim_xpath, column_name in self.xpaths_prim:
                 x_xpath = aero_prim_xpath + "/X"
                 values_xpath = aero_prim_xpath + "/Values"
@@ -271,12 +271,3 @@ class SDSAFile:
 
     def update_attribute(self: "SDSAFile", xpath: str, ele: str) -> None:
         self.sdsa_file.addTextAttribute(xpath, "size", ele)
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute.")

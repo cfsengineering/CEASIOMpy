@@ -39,12 +39,7 @@ def convert_ps_to_pdf(wkdir: Path) -> None:
 
 
 def plot_lift_distribution(
-    force_file_fs: Path,
-    aoa: float,
-    aos: float,
-    mach: float,
-    alt: float,
-    wkdir: Path
+    force_file_fs: Path, aoa: float, aos: float, mach: float, alt: float, wkdir: Path
 ) -> None:
     """
     Plot the lift distribution from AVL strip forces file (fs.txt)
@@ -85,12 +80,9 @@ def plot_lift_distribution(
                     if number_data == number_strips:
                         break
 
-    data_df = pd.DataFrame({
-        "y": y_list,
-        "chord": chord_list,
-        "cl": cl_list,
-        "cl_norm": clnorm_list
-    })
+    data_df = pd.DataFrame(
+        {"y": y_list, "chord": chord_list, "cl": cl_list, "cl_norm": clnorm_list}
+    )
 
     data_df.sort_values(by="y", inplace=True)
     data_df.reset_index(drop=True, inplace=True)
@@ -100,7 +92,12 @@ def plot_lift_distribution(
     data_df.plot("y", "cl_norm", ax=ax, label=r"$c_{l\perp}$", linestyle="dashed", color="r")
     data_df.plot("y", "cl", label=r"$c_l$", ax=ax, linestyle="dashed", color="#FFA500")
     data_df.plot(
-        "y", "cl_cref", ax=ax, label=r"$c_l \cdot C/C_{ref}$", linestyle="solid", color="#41EE33"
+        "y",
+        "cl_cref",
+        ax=ax,
+        label=r"$c_l \cdot C/C_{ref}$",
+        linestyle="solid",
+        color="#41EE33",
     )
 
     plt.title(
@@ -117,11 +114,3 @@ def plot_lift_distribution(
     plt.legend(fontsize=12)
     plt.grid()
     plt.savefig(Path(wkdir, "lift_distribution.png"))
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute.")

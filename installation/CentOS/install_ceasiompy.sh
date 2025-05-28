@@ -11,8 +11,6 @@ sudo dnf install tbb
 sudo dnf install libXrender
 sudo dnf install libXcursor
 sudo dnf install libXinerama
-cd ../..
-
 conda env create -f environment.yml
 
 source ~/.bashrc

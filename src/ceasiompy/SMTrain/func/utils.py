@@ -46,9 +46,7 @@ from ceasiompy.SMTrain import (
 # =================================================================================================
 
 
-def concatenate_if_not_none(
-    list_arrays: List[Union[ndarray, None]]
-) -> ndarray:
+def concatenate_if_not_none(list_arrays: List[Union[ndarray, None]]) -> ndarray:
     """
     Concatenates arrays in the list that are not None.
     """
@@ -127,7 +125,7 @@ def log_params(result: OptimizeResult) -> None:
 
 
 def unpack_data(
-    sets: Dict[str, ndarray]
+    sets: Dict[str, ndarray],
 ) -> Tuple[ndarray, ndarray, ndarray, ndarray, ndarray, ndarray]:
     # Extract training, validation, and test sets
     x_train, x_val, x_test = sets["x_train"], sets["x_val"], sets["x_test"]
@@ -170,16 +168,8 @@ def filter_constant_columns(
         - removed_columns (Dict): Removed columns with their constant values.
     """
 
-    columns_to_keep = [
-        col
-        for col in input_columns
-        if df[col].nunique() > 1
-    ]
-    removed_columns = {
-        col: df[col].iloc[0]
-        for col in input_columns
-        if col not in columns_to_keep
-    }
+    columns_to_keep = [col for col in input_columns if df[col].nunique() > 1]
+    removed_columns = {col: df[col].iloc[0] for col in input_columns if col not in columns_to_keep}
 
     if removed_columns:
         log.info(f"Removing constant columns: {list(removed_columns.keys())}")
@@ -205,8 +195,7 @@ def check_nan_inf(*arrays: Tuple[ndarray, ...]) -> Tuple[ndarray, ...]:
 def get_val_fraction(train_fraction: float) -> float:
     if not (0 < train_fraction < 1):
         log.warning(
-            f"Invalid data_repartition value: {train_fraction}."
-            "It should be between 0 and 1."
+            f"Invalid data_repartition value: {train_fraction}." "It should be between 0 and 1."
         )
         train_fraction = max(0.1, min(train_fraction, 0.9))
 

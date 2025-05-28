@@ -16,7 +16,6 @@ GUI Interface of DynamicStability.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.PyAVL import SOFTWARE_NAME as AVL_SOFTWARE
 from ceasiompy.SU2Run import SOFTWARE_NAME as SU2_SOFTWARE
 from ceasiompy.DynamicStability import (

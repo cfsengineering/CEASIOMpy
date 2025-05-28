@@ -7,8 +7,6 @@ current_dir="$(pwd)"
 sudo apt install g++
 sudo apt install libtbb2
 
-cd ../..
-
 conda env create -f environment.yml
 
 source ~/.bashrc

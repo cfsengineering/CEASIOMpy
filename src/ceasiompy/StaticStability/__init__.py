@@ -38,6 +38,9 @@ MODULE_NAME = MODULE_DIR.name
 # Specific to StaticStability module
 STABILITY_DICT = {True: "Stable", False: "Unstable"}
 
+# ===== Stability Axes =====
+AXES = ["longitudinal", "directional", "lateral"]
+
 # ===== xPaths =====
 
 STATICSTABILITY_XPATH = CEASIOMPY_XPATH + "/StaticStability"

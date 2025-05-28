@@ -11,6 +11,10 @@
 <img height="160" src="files/ctrlsurf.png">
 </p>
 
+## Important
+
+CPACSUpdater expects that your CPACS file is "correct" and that all informations regarding positionings and sections are detailed (e.g. from_section_uid and to_section_uid).
+
 ## Inputs
 
 'CPACSUpdater' needs a CPACS file to modify.

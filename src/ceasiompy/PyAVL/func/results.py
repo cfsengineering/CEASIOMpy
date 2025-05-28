@@ -10,6 +10,8 @@ Extract results from AVL calculations and save them in a CPACS file.
 #   IMPORTS
 # =================================================================================================
 
+import math
+
 from cpacspy.aeromap import get_filter
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.PyAVL.func.plot import plot_lift_distribution
@@ -66,9 +68,9 @@ def get_avl_aerocoefs(force_file: Path) -> Tuple[
         cmd (float): Rolling moment.
         cml (float): Yawing moment.
         cms (float): Pitching moment.
-        cms_a (float): Derivative of Pitching moment with respect to the angle of attack.
-        cml_b (float): Derivative of Yawing moment with respect to the sidesplip angle.
-        cmd_b (float): Derivative of Rolling moment with respect to the sidesplip angle.
+        cms_a (float): Derivative of Pitching moment with respect to the angle of attack [deg].
+        cml_b (float): Derivative of Yawing moment with respect to the sidesplip angle [deg].
+        cmd_b (float): Derivative of Rolling moment with respect to the sidesplip angle [deg].
 
     """
 
@@ -85,7 +87,6 @@ def get_avl_aerocoefs(force_file: Path) -> Tuple[
                             results[var_name] = split_line(line, index)
                     else:
                         results[var_name] = split_line(line, index)
-
     return (
         results["cd"],
         results["cs"],
@@ -93,11 +94,12 @@ def get_avl_aerocoefs(force_file: Path) -> Tuple[
         results["cmd"],
         results["cms"],
         results["cml"],
-        results["cmd_b"],
-        results["cms_a"],
-        results["cml_b"],
+        math.radians(results["cmd_b"]),
+        math.radians(results["cms_a"]),
+        math.radians(results["cml_b"]),
     )
 
+print(get_avl_aerocoefs(Path("/home/cfse2/Leon/main/CEASIOMpy/WKDIR/Workflow_043/Results/PyAVL/Case01_alt1000.0_mach0.3_aoa2.0_aos0.0_q0.0_p0.0_r0.0/st.txt")))
 
 def add_coefficients_in_aeromap(
     cpacs: CPACS,
@@ -126,7 +128,7 @@ def add_coefficients_in_aeromap(
 
     tixi = cpacs.tixi
 
-    cl, cd, cs, cmd, cml, cms, cms_a, cml_b, cmd_b = get_avl_aerocoefs(st_file_path)
+    cl, cd, cs, cmd, cml, cms, cmd_b, cms_a, cml_b = get_avl_aerocoefs(st_file_path)
 
     plot = bool_(get_value(tixi, AVL_PLOTLIFT_XPATH))
 
@@ -170,6 +172,7 @@ def add_coefficients_in_aeromap(
         tixi.createElement(increment_maps_xpath, "incrementMap")
 
     # Add text elements for the coefficients
+    print(cms_a, str(cms_a))
     ensure_and_append_text_element(tixi, increment_map_xpath, "dcmd", str(cmd_b))
     ensure_and_append_text_element(tixi, increment_map_xpath, "dcms", str(cms_a))
     ensure_and_append_text_element(tixi, increment_map_xpath, "dcml", str(cml_b))

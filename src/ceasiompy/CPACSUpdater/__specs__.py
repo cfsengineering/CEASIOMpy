@@ -20,7 +20,6 @@ from ceasiompy.utils.geometryfunctions import get_segments
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.CPACSUpdater import (
     CPACSUPDATER_CTRLSURF_XPATH,
     CPACSUPDATER_ADD_CTRLSURFACES_XPATH,

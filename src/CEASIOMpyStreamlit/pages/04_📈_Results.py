@@ -23,7 +23,11 @@ import streamlit as st
 import plotly.graph_objects as go
 
 from streamlit_autorefresh import st_autorefresh
-from streamlitutils import create_sidebar, get_last_workflow
+from streamlitutils import (
+    create_sidebar,
+    get_last_workflow,
+    highlight_stability,
+)
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
@@ -104,7 +108,11 @@ def display_results(results_dir):
                 st.session_state.figures_container.image(str(child))
 
             elif child.suffix == ".md":
-                st.markdown(child.read_text())
+                md_text = child.read_text()
+                # Simple table highlighting for "Stable"/"Unstable"
+
+                html = highlight_stability(md_text)
+                st.markdown(html, unsafe_allow_html=True)
 
             elif child.suffix == ".json":
                 st.text_area(child.stem, child.read_text(), height=200)

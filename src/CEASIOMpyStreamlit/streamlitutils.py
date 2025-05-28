@@ -14,6 +14,7 @@ Streamlit utils functions for CEASIOMpy
 #   IMPORTS
 # ==============================================================================
 
+import re
 import pandas as pd
 import streamlit as st
 
@@ -32,6 +33,35 @@ from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
+
+
+def color_cell(cell):
+    if cell.strip() == "Stable":
+        return f'<td style="background-color:#d4edda;color:#155724;">Stable</td>'
+    elif cell.strip() == "Unstable":
+        return f'<td style="background-color:#f8d7da;color:#721c24;">Unstable</td>'
+    else:
+        return f"<td>{cell}</td>"
+
+
+def md_table_to_html(table_md):
+    lines = [l for l in table_md.strip().split("\n") if l.strip()]
+    if len(lines) < 2:  # Not a valid table
+        return table_md
+    header = lines[0].split("|")[1:-1]
+    rows = [l.split("|")[1:-1] for l in lines[2:]]
+    html = "<table><thead><tr>" + "".join(f"<th>{h.strip()}</th>" for h in header) + "</tr></thead><tbody>"
+    for row in rows:
+        html += "<tr>" + "".join(color_cell(cell) for cell in row) + "</tr>"
+    html += "</tbody></table>"
+    return html
+
+
+def highlight_stability(md):
+    # Regex to find markdown tables
+    table_pattern = re.compile(r"((?:\|.*\n)+)")
+    # Replace all markdown tables with colored HTML tables
+    return table_pattern.sub(lambda m: md_table_to_html(m.group(1)), md)
 
 
 def update_value(xpath, key):

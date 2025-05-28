@@ -9,6 +9,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 # =================================================================================================
 
 import unittest
+import tempfile
 import numpy as np
 
 from pathlib import Path
@@ -74,7 +75,9 @@ class TestSDSAFile(unittest.TestCase):
         self.addCleanup(patcher5.stop)
         self.mock_atmosphere = patcher5.start()
 
-        self.wkdir = Path("/tmp")
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp_dir.cleanup)
+        self.wkdir = Path(self.temp_dir.name)
         self.sdsa = SDSAFile(self.mock_cpacs, self.wkdir)
 
     @patch.object(SDSAFile, "update")

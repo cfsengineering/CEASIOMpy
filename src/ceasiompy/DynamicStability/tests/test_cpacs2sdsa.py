@@ -12,6 +12,7 @@ import unittest
 import numpy as np
 
 from pathlib import Path
+from unittest import main
 from unittest.mock import MagicMock
 from ceasiompy.DynamicStability.func.cpacs2sdsa import SDSAFile
 
@@ -157,4 +158,4 @@ class TestSDSAFile(unittest.TestCase):
 # =================================================================================================
 
 if __name__ == "__main__":
-    unittest.main(verbosity=0)
+    main(verbosity=0)

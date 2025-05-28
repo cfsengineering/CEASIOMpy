@@ -5561,8 +5561,8 @@
             <segments>
               <segment uID="FinSeg1">
                 <name>FinSeg1</name>
-                <fromElementUID>FinWingSection1elem1</fromElementUID>
-                <toElementUID>FinWingSection2elem1</toElementUID>
+                <fromElementUID>FinWingSection2elem1</fromElementUID>
+                <toElementUID>FinWingSection1elem1</toElementUID>
               </segment>
             </segments>
           </wing>

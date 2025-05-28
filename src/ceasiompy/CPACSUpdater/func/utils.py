@@ -344,8 +344,9 @@ def find_max_x(x: ndarray, z: ndarray) -> Tuple[float, float, float, float]:
     """
     Finds the biggest x_value such that z is positive/negative.
     """
-    pos_mask = z > 0
-    neg_mask = z < 0
+    avg_z = (np.max(z) - np.min(z)) / 2.0
+    pos_mask = z > avg_z
+    neg_mask = z < avg_z
 
     if np.any(pos_mask):
         max_x_pos = np.max(x[pos_mask])
@@ -366,8 +367,9 @@ def find_min_x(x: ndarray, z: ndarray) -> Tuple[float, float, float, float]:
     """
     Finds the smallest x_value such that z is positive/negative.
     """
-    pos_mask = z > 0
-    neg_mask = z < 0
+    avg_z = (np.max(z) - np.min(z)) / 2.0
+    pos_mask = z > avg_z
+    neg_mask = z < avg_z
 
     if np.any(pos_mask):
         min_x_pos = np.min(x[pos_mask])

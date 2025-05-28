@@ -50,7 +50,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     md.h2(MODULE_NAME)
 
     for aeromap_uid in cpacs.get_aeromap_uid_list():
-        if not str(aeromap_uid) == "aeromap_empty":
+        try:
             log_msg = f"Static stability of '{aeromap_uid}' aeromap."
             log.info(log_msg)
             md.h4(log_msg)
@@ -58,5 +58,10 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
             lr_bool = get_value(tixi, STATICSTABILITY_LR_XPATH)
             table = generate_stab_table(cpacs, aeromap_uid, wkdir, lr_bool)
             markdownpy_to_markdown(md, table)
+        except Exception as e:
+            log.warning(
+                f"Could not compute static stability of aeromap {aeromap_uid} "
+                f"due to error {e}"
+            )
 
     md.save()

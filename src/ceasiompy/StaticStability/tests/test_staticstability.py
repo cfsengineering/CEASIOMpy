@@ -19,16 +19,15 @@ import tempfile
 
 from ceasiompy.utils.decorators import log_test
 from cpacspy.cpacsfunctions import create_branch
+from ceasiompy.utils.ceasiompyutils import current_workflow_dir
+from ceasiompy.StaticStability.func.utils import markdownpy_to_markdown
 from ceasiompy.StaticStability.staticstability import (
     main,
     generate_stab_table,
 )
-from ceasiompy.utils.ceasiompyutils import (
-    current_workflow_dir,
-    get_results_directory,
-)
 
 from pathlib import Path
+from markdownpy.markdownpy import MarkdownDoc
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 from cpacspy.cpacspy import (
     CPACS,
@@ -36,9 +35,11 @@ from cpacspy.cpacspy import (
 )
 
 from ceasiompy import log
-from ceasiompy.PyAVL import MODULE_NAME
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
-from ceasiompy.StaticStability import STATICSTABILITY_LR_XPATH
+from ceasiompy.StaticStability import (
+    MODULE_NAME,
+    STATICSTABILITY_LR_XPATH,
+)
 
 # =================================================================================================
 #   CLASSES
@@ -56,7 +57,6 @@ class TestStaticStability(CeasiompyTest):
         cls.aeromap_empty: AeroMap = cls.cpacs.get_aeromap_by_uid("aeromap_empty")
         cls.aeromap: AeroMap = cls.cpacs.get_aeromap_by_uid("test_apm")
         tixi = cls.cpacs.tixi
-        cls.results_dir = get_results_directory(MODULE_NAME, True, cls.wkdir)
 
         log.info(f"cls.aeromap {cls.aeromap}")
 
@@ -82,21 +82,6 @@ class TestStaticStability(CeasiompyTest):
             f"{increment_map_xpath}/dcml",
             "0.002;0.002;-0.002;0.002;0.002;0.002;-0.002;0.002"
         )
-
-    @log_test
-    def test_main_creates_markdown(self):
-
-        create_branch(self.cpacs.tixi, STATICSTABILITY_LR_XPATH)
-        self.cpacs.tixi.updateBooleanElement(STATICSTABILITY_LR_XPATH, False)
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            main(self.cpacs, Path(tmpdir))
-            md_path = Path(tmpdir, f"{MODULE_NAME}.md")
-            self.assertTrue(md_path.exists(), "Markdown file was not created by main()")
-            with open(md_path, "r") as f:
-                content = f.read()
-                self.assertIn("StaticStability", content)
-                self.assertIn("aeromap", content)
 
     @log_test
     def test_generate_stab_table(self) -> None:
@@ -210,6 +195,44 @@ class TestStaticStability(CeasiompyTest):
             ])
 
         )
+
+    @log_test
+    def test_main_creates_markdown(self):
+
+        create_branch(self.cpacs.tixi, STATICSTABILITY_LR_XPATH)
+        self.cpacs.tixi.updateBooleanElement(STATICSTABILITY_LR_XPATH, False)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            main(self.cpacs, Path(tmpdir))
+            md_path = Path(tmpdir, f"{MODULE_NAME}.md")
+            with open(md_path, "r") as f:
+                content = f.read()
+                self.assertIn("StaticStability", content)
+                self.assertIn("Static stability of 'test_apm' aeromap.", content)
+
+    @log_test
+    def test_markdownpy_to_markdown(self):
+        # Create a dummy MarkdownDoc in a temp file
+        with tempfile.TemporaryDirectory() as tmpdir:
+            md_path = Path(tmpdir, "test.md")
+            md = MarkdownDoc(md_path)
+
+            # Simple table to test
+            table = [
+                ["col1", "col2"],
+                ["val1", "val2"],
+                ["val3", "val4"]
+            ]
+
+            markdownpy_to_markdown(md, table)
+            md.save()
+
+            # Check file content
+            with open(md_path, "r") as f:
+                content = f.read()
+                self.assertIn("|col1|col2|", content)
+                self.assertIn("|val1|val2|", content)
+                self.assertIn("|val3|val4|", content)
 
 
 # =================================================================================================

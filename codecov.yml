@@ -1,14 +1,15 @@
 coverage:
   ignore:
-    - "src/ceasiompy/SUMOAutoMesh/*"
-    - "src/ceasiompy/SU2MeshDef/*"
-    - "CEASIOMpy/src/ceasiompy/utils/*"
-    - "src/ceasiompy/Range/*"
-    - "src/ceasiompy/ModuleTemplate/*"
-    - "src/ceasiompy/BalanceConventional/*"
-    - "src/ceasiompy/BalanceUnconventional/*"
-    - "src/ceasiompy/WeightConventional/*"
-    - "src/ceasiompy/WeightUnconventional/*"
+    - "*/SUMOAutoMesh/*"
+    - "*/SU2MeshDef/*"
+    - "*/utils/*"
+    - "*/Range/*"
+    - "*/ModuleTemplate/*"
+    - "*/BalanceConventional/*"
+    - "*/BalanceUnconventional/*"
+    - "*/WeightConventional/*"
+    - "*/WeightUnconventional/*"
+    - "*/EdgeRun/*"
   status:
     project:
       default:

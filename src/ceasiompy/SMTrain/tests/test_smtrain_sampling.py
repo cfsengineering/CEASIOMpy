@@ -11,14 +11,20 @@ Test functions for create_data functions in SMTrain module.
 #   IMPORTS
 # =================================================================================================
 
+import shutil
+import tempfile
+import numpy as np
+import pandas as pd
+
 from pandas import read_csv
 from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 from ceasiompy.utils.decorators import log_test
 from ceasiompy.SMTrain.func.sampling import (
+    new_points,
     lh_sampling,
-    # split_data
 )
 
+from pathlib import Path
 from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
@@ -27,7 +33,87 @@ from ceasiompy.utils.ceasiompytest import CeasiompyTest
 # =================================================================================================
 
 
+class DummyModel:
+    def __init__(self, variances):
+        self._variances = variances
+
+    def predict_variances(self, x_array):
+        # Return the provided variances, one per row in x_array
+        return np.array(self._variances[:len(x_array)])
+
+
 class TestCreateData(CeasiompyTest):
+
+    def test_new_points_first_iteration(self):
+        x_array = np.array([
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+            [13, 14, 15, 16],
+            [17, 18, 19, 20],
+            [21, 22, 23, 24],
+            [25, 26, 27, 28],
+            [29, 30, 31, 32],
+        ])
+        variances = [0.1, 0.5, 0.2, 0.8, 0.3, 0.7, 0.4, 0.6]
+        model = DummyModel(variances)
+        high_var_pts = []
+        tmpdir = tempfile.mkdtemp()
+        try:
+            results_dir = Path(tmpdir)
+            df = new_points(x_array, model, results_dir, high_var_pts)
+            self.assertIsInstance(df, pd.DataFrame)
+            self.assertEqual(len(df), 7)
+            # Check that the highest variance points are selected
+            sorted_indices = np.argsort(variances)[::-1][:7]
+            expected_points = [tuple(x_array[idx]) for idx in sorted_indices]
+            actual_points = [tuple(row) for row in df.values]
+            self.assertEqual(set(expected_points), set(actual_points))
+            # Check file written
+            out_file = results_dir / "new_points.csv"
+            self.assertTrue(out_file.is_file())
+        finally:
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+    def test_new_points_next_iteration(self):
+        x_array = np.array([
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+        ])
+        variances = [0.1, 0.5, 0.2]
+        model = DummyModel(variances)
+        # First two points already selected
+        high_var_pts = [tuple(x_array[1]), tuple(x_array[2])]
+        tmpdir = tempfile.mkdtemp()
+        try:
+            results_dir = Path(tmpdir)
+            df = new_points(x_array, model, results_dir, high_var_pts)
+            self.assertIsInstance(df, pd.DataFrame)
+            self.assertEqual(len(df), 1)
+            old_high_var_pts = [tuple(x_array[1]), tuple(x_array[2])]
+            self.assertTrue(tuple(df.values[0]) not in old_high_var_pts)
+            # Check file written
+            out_file = results_dir / "new_points.csv"
+            self.assertTrue(out_file.is_file())
+        finally:
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+    def test_new_points_all_selected(self):
+        x_array = np.array([
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+        ])
+        variances = [0.1, 0.5]
+        model = DummyModel(variances)
+        high_var_pts = [tuple(x_array[0]), tuple(x_array[1])]
+        tmpdir = tempfile.mkdtemp()
+        try:
+            results_dir = Path(tmpdir)
+            df = new_points(x_array, model, results_dir, high_var_pts)
+            self.assertIsNone(df)
+        finally:
+            shutil.rmtree(tmpdir, ignore_errors=True)
 
     @log_test
     def test_lh_sampling(self) -> None:
@@ -77,18 +163,6 @@ class TestCreateData(CeasiompyTest):
 
         self.assertEqual(df["angleOfSideslip"][0], 14.0)
         self.assertEqual(df["angleOfSideslip"][1], 4.49)
-
-    # @log_test
-    # def test_split_data(self) -> None:
-    #     splitted_data = split_data(
-    #         fidelity_level=LEVEL_ONE,
-    #         fidelity_datasets=,
-    #     )
-
-    #     splitted_data = split_data(
-    #         fidelity_level=LEVEL_TWO,
-    #         fidelity_datasets=,
-    #     )
 
 
 # =================================================================================================

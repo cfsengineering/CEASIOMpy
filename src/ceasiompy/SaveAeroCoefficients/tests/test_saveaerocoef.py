@@ -36,7 +36,7 @@ from ceasiompy.utils.ceasiompytest import CeasiompyTest
 from ceasiompy.utils.commonpaths import MODULES_DIR_PATH
 from ceasiompy.utils.commonxpaths import (
     SM_XPATH,
-) 
+)
 from ceasiompy.SaveAeroCoefficients import (
     NONE_LIST,
     MODULE_DIR,
@@ -82,7 +82,7 @@ class TestSaveAeroCoef(CeasiompyTest):
         )
         create_branch(self.test_cpacs.tixi, SM_XPATH)
         self.test_cpacs.tixi.updateTextElement(SM_XPATH, model_path)
-        
+
         update_cpacs_from_specs(
             self.test_cpacs,
             module_name=MODULE_NAME,

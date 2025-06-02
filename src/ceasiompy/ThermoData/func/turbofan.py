@@ -15,6 +15,7 @@ Function to run the PyCycle code for the turbofan engine
 # =================================================================================================
 
 import sys
+import numpy as np
 import openmdao.api as om
 import pycycle.api as pyc
 
@@ -76,17 +77,16 @@ def turbofan_analysis(alt, MN, Fn):
         else:
             MN = prob[pt + ".fc.Fl_O:stat:MN"]
         summary_data = (
-            MN,
-            prob[pt + ".fc.alt"],
-            prob[pt + ".inlet.Fl_O:stat:W"],
-            prob[pt + ".perf.Fn"],
-            prob[pt + ".perf.Fg"],
-            prob[pt + ".inlet.F_ram"],
-            prob[pt + ".perf.OPR"],
-            prob[pt + ".perf.TSFC"],
-            prob[pt + ".splitter.BPR"],
+            float(np.asarray(MN).squeeze()),
+            float(np.asarray(prob[pt + ".fc.alt"]).squeeze()),
+            float(np.asarray(prob[pt + ".inlet.Fl_O:stat:W"]).squeeze()),
+            float(np.asarray(prob[pt + ".perf.Fn"]).squeeze()),
+            float(np.asarray(prob[pt + ".perf.Fg"]).squeeze()),
+            float(np.asarray(prob[pt + ".inlet.F_ram"]).squeeze()),
+            float(np.asarray(prob[pt + ".perf.OPR"]).squeeze()),
+            float(np.asarray(prob[pt + ".perf.TSFC"]).squeeze()),
+            float(np.asarray(prob[pt + ".splitter.BPR"]).squeeze()),
         )
-
         print(file=file, flush=True)
         print(
             "----------------------------------------------------------------------------",

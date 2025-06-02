@@ -16,7 +16,6 @@ Functions used to help the cration of SUMO file
 
 import json
 
-from ceasiompy import log
 from cpacspy.cpacsfunctions import copy_branch
 
 from tixi3.tixi3wrapper import Tixi3
@@ -198,8 +197,3 @@ def sumo_mirror_copy(sumo: Tixi3, xpath: str, uid: str, is_wing: bool = True) ->
             sumo.addTextAttribute(xpath_sec, "reversed", str(not rev_attr).lower())
 
         add_wing_cap(sumo, xpath_sym)
-
-
-if __name__ == "__main__":
-
-    print("Nothing to execute!")

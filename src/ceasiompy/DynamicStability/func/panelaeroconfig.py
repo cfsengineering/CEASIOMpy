@@ -267,7 +267,7 @@ class DetailedPlots:
         ax = fig.add_subplot(111, projection="3d")
 
         for shell in self.model.aerogrid["cornerpoint_panels"]:
-            vertices = [self.model.aerogrid["cornerpoint_grids"][id, 1:] for id in shell]
+            vertices = [self.model.aerogrid["cornerpoint_grids"][int(id), 1:] for id in shell]
             poly = Poly3DCollection([vertices], alpha=0.5)
             if scalars is not None:
                 poly.set_array(np.array(scalars))

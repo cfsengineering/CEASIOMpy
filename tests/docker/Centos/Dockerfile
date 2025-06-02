@@ -23,7 +23,7 @@ RUN chmod +x install_*.sh
 # Install
 WORKDIR /CEASIOMpy
 COPY ./environment.yml .
-RUN installation/CentOS/install_ceasiompy.sh \
+RUN installation/CentOS/install_ceasiompy.sh && \
     installation/CentOS/install_pyavl.sh && \
     installation/CentOS/install_su2.sh
 RUN source ~/.bashrc

@@ -85,8 +85,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
         refine_factor, refine_truncated, auto_refine, refine_factor_angled_lines,
         intake_percent, exhaust_percent,
         n_layer, h_first_layer, max_layer_thickness,
-        growth_factor, growth_ratio,
-        min_max_mesh_factor, feature_angle,
+        growth_factor, growth_ratio, feature_angle,
     ) = retrieve_gui_values(tixi)
 
     # Export airplane's part in .brep format
@@ -128,7 +127,8 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
             mesh_size_engines=mesh_size_engines,
             mesh_size_propellers=mesh_size_propellers,
             auto_refine=auto_refine,
-            farfield_size_factor=farfield_factor
+            farfield_size_factor=farfield_factor,
+            n_power_factor=n_power_factor
         )
 
         if gmesh_path.exists():

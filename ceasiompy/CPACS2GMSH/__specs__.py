@@ -42,7 +42,6 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_GROWTH_RATIO_XPATH,
     GMSH_GROWTH_FACTOR_XPATH,
     GMSH_FEATURE_ANGLE_XPATH,
-    GMSH_SURFACE_MESH_SIZE_XPATH,
     GMSH_EXPORT_PROP_XPATH,
     GMSH_INTAKE_PERCENT_XPATH,
     GMSH_EXHAUST_PERCENT_XPATH,
@@ -184,7 +183,7 @@ cpacs_inout.add_input(
     var_type=float,
     default_value=2,
     unit=None,
-    descr="Value that changes the number of cells near the aircraft parts",
+    descr="Power of the power law of the refinement on LE and TE. ",
     xpath=GMSH_N_POWER_FACTOR_XPATH,
     gui=INCLUDE_GUI,
     gui_name="n power factor",
@@ -245,8 +244,7 @@ cpacs_inout.add_input(
     var_type=float,
     default_value=1.5,
     unit="1",
-    descr="Refinement factor of edges at intersections that are not flat enough,\
-        warning : does not always work on all edges",
+    descr="Refinement factor of edges at intersections that are not flat enough",
     xpath=GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,
     gui=True,
     gui_name="Refinement factor of lines in between angled surfaces (only in RANS)",
@@ -325,17 +323,6 @@ cpacs_inout.add_input(
     gui_group="RANS options",
 )
 
-cpacs_inout.add_input(
-    var_name="surface_mesh_factor",
-    var_type=float,
-    default_value=5,
-    unit="[10^-3]",
-    descr="Surface mesh size factor compared to aircraft largest dimension (omogeneus everywhere)",
-    xpath=GMSH_SURFACE_MESH_SIZE_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Surface mesh size",
-    gui_group="RANS options",
-)
 
 cpacs_inout.add_input(
     var_name="export_propellers",

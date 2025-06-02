@@ -14,7 +14,7 @@
 
 It's currently possible to choose between two options for 3D meshing of the external domain.
 Selecting the 'Euler' an unstructured mesh is automatically generated in a spherical domain surrounding the aircraft.
-Instead, selecting the 'RANS' option Gmsh will generate only the 2D mesh of the entire aircraft, which will then be processed by the programme [Pentagrow] to generate the structured part that wraps the geometry, then [Tetgen](https://wias-berlin.de/software/tetgen/1.5/doc/manual/manual.pdf) package provides for meshing of the unstructured part. The hybrid mesh obtained will constitute the 3D domain.
+Instead, selecting the 'RANS' option Gmsh will generate only the 2D mesh of the entire aircraft, which will then be processed by the programme Pentagrow to generate the structured part that wraps the geometry, then [Tetgen](https://wias-berlin.de/software/tetgen/1.5/doc/manual/manual.pdf) package provides for meshing of the unstructured part. The hybrid mesh obtained will constitute the 3D domain.
 
 
 The resulting mesh can be used for a CFD calculation by connecting the `SU2Run` module after `CPACS2GMSH` module.
@@ -41,15 +41,16 @@ Surface mesh of an aircraft with propeller engines
 
 ## Inputs
 
-`CPACS2GMSH` takes as input a CPACS file. This is done automatically when it is run in workflow
+`CPACS2GMSH` takes as input a CPACS file. This is done automatically when it is run in workflow.
 
 Multiple options are available with `CPACS2GMSH`, you can see these options if you run this module from the GUI interface.
 
 General options:
 
-* `Display mesh with GMSH : False`
-Open the gmsh GUI after the generation of the surface mesh (2D) and the domain mesh (3D). This option is usefully to control the quality of the automated generated mesh or make extra operation with gmsh GUI.
-
+* `Open GMSH GUI : False`
+Open the gmsh GUI after the generation of the surface mesh (2D) and the domain mesh (3D) to see the mesh. This option is usefully to control the quality of the automated generated mesh or make extra operation with gmsh GUI.
+* `Export propellers : False`
+Export a 2D disk surfaces in order to simulate the propeller engines with SU2 disk actuator model.
 
 Mesh type:
 * `Choice the mesh type: Euler or RANS`
@@ -58,47 +59,51 @@ Choose between an unstructured domain (Euler) and an hybrid domain (RANS)
 Domain:
 
 * `Use Symmetry : False`
-Apply a symmetry operation to the model with a xz symmetry plane in the center of the aircraft. The resulting mesh will only be generated in the y positive domain.
+Apply a symmetry operation to the model with a xz symmetry plane in the center of the aircraft. The resulting mesh will only be generated in the y positive domain (only for Euler for now).
 
-* `Farfield size factor : 6.0`
+* `Farfield size factor : 10.0`
 Enable to control the spherical domain size. The fluid domain surrounding the aircraft is defined with a radius equivalent to the largest xyz aircraft dimension times the `Farfield size factor
 
-if Euler:
-Euler options:
+Mesh options:
 
-* `Farfield : 25.0` Mesh size of the farfield surfaces
-* `Fuselage : 0.4` Mesh size of the fuselage surfaces
-* `Wings : 0.23` Mesh size of the wings surfaces
+* `Farfield : depends on the aircraft` Factor for the mesh size of the farfield surfaces compared to the biggest cell on the surface mesh.
+* `Fuselage : depends on the aircraft` Factor for the mesh size of the farfield surfaces (bigger factor = finer mesh)
+* `Wings : depends on the aircraft` Factor for the mesh size of the farfield surfaces (bigger factor = finer mesh)
 * `Engines : 0.23` Mesh size of the engines surfaces
 * `Propellers : 0.23` Mesh size of the propellers surfaces
 
-:warning: The mesh size values are unitless. They are consistent with the aircraft dimensions units
+:warning: The mesh size values are unitless. They are consistent with the aircraft dimensions units.
 
-else:
 RANS options:
 
-*`Number of layer: 20`
+* `Number of layer: 20`
 Number of prismatic element layers
-*`height of first layer: 3 e-5 mm`
+* `Height of first layer: 3 e-5 mm`
 Height of the first prismatic cell, touching the wall, in mesh length units.
-*`Max layer thickness: 10 cm`
+* `Max layer thickness: 100 mm`
 The maximum allowed absolute thickness of the prismatic layer.
-*`Growth factor: 1.2`
+* `Growth ratio: 1.2`
+Max growth ratio accepted between wall-normal edge lengths of consecutive cells in the boundary layer
+* `Growth factor: 1.4`
 Growth factor between edge lengths of coincident tetrahedra
-*`Feature angle: 80 grad`
+* `Feature angle: 40 grad`
 Whenever the dihedral angle of two triangle is smaller than this limit, the resulting edge is understood to represent an actual geometrical feature. Larger angles are treated as resulting from approximation of curved surfaces by linear triangles
-*`Surface mesh size: 5 `
- Surface mesh size factor compared to the aircraft largest dimension, omogeneus everywhere
 
 
 Advanced mesh parameters :
 
 * `LE/TE refinement factor : 7.0`
 Apply a refinement on the leading and trailing edge of the aircraft wings. the element size at the le/te will be set to the wing mesh size divided by the refinement factor. This refinement decay according to a power law from the edge to 30% of the wing section cord length, where the mesh size is the wing's one.
+* `n power factor : 2`
+Power of the power law of the refinement on LE and TE. 
+* `n power field : 0.9`
+Value that changes the measure of fist cells near aircraft parts. Only used for Euler mesh
 * `Refine truncated TE : False`
 For truncated wing profile, automatically adjust the LE/TE refinement factor such that the mesh size at the TE match the truncated TE thickness .
-* `Auto refine : True`
+* `Auto refine : False`
 Apply an automatic refinement of surfaces which are small compare to a mesh element. :warning: With this option activated, the surface mesh generation maybe done two times, which increasing the total meshing time.
+* ` Refinement factor of lines in between angled surfaces : 1.5`
+Refining lines that are between two surfaces that are "far from flat", as for example the right angle between a wing and the fuselage. Only for RANS, and sometime misses some lines.
 
 Engines :
 

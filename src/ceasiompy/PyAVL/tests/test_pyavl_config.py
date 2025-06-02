@@ -38,9 +38,9 @@ from ceasiompy.PyAVL import (
     AVL_NSPANWISE_XPATH,
     AVL_NCHORDWISE_XPATH,
     AVL_AEROMAP_UID_XPATH,
+    AVL_EXPAND_VALUES_XPATH,
     AVL_FREESTREAM_MACH_XPATH,
     AVL_CTRLSURF_ANGLES_XPATH,
-    AVL_EXPAND_VALUES_XPATH,
 )
 
 # =================================================================================================
@@ -127,7 +127,8 @@ class TestPyAVLConfig(CeasiompyTest):
             roll_rate=0.0,
             pitch_rate=0.0,
             yaw_rate=0.0,
-        ) 
+        )
+
         write_command_file(
             avl_path=self.avl_path,
             case_dir_path=self.wkdir,

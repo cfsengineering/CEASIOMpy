@@ -99,7 +99,7 @@ def check_segment_connection(fus_nb, fuse_seg_nb, fuse_sec_nb, tigl):
         nb = np.shape(fuse_sec_index)
         if nb[0] > nbmax:
             nbmax = nb[0]
-        sec_index.resize(nbmax, fus_nb)
+            sec_index = np.resize(sec_index, (nbmax, fus_nb))
         sec_index[0 : nb[0], i - 1] = fuse_sec_index[0 : nb[0]]
         sec_nb.append(nb[0])
 

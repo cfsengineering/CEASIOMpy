@@ -112,7 +112,7 @@ def check_segment_connection(wing_plt_area_xz, wing_plt_area_yz, awg, tigl):
         nb = np.shape(wing_sec_index)
         if nb[0] > nbmax:
             nbmax = nb[0]
-        sec_index.resize(nbmax, awg.w_nb)
+            sec_index = np.resize(sec_index, (nbmax, awg.w_nb))
         sec_index[0 : nb[0], i - 1] = wing_sec_index[0 : nb[0]]
         sec_nb.append(nb[0])
 

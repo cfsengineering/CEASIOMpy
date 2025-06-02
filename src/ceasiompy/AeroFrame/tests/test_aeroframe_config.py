@@ -15,9 +15,11 @@ import tempfile
 import numpy as np
 
 from ceasiompy.utils.decorators import log_test
-from ceasiompy.AeroFrame.func.utils import second_moments_of_area
-from ceasiompy.AeroFrame.func.config import interpolate_leading_edge
-from ceasiompy.AeroFrame.func.config import compute_distance_and_moment
+from ceasiompy.AeroFrame.func.config import (
+    poly_area,
+    interpolate_leading_edge,
+    compute_distance_and_moment,
+)
 
 from pathlib import Path
 from unittest import main
@@ -33,25 +35,19 @@ from ceasiompy.utils.ceasiompytest import CeasiompyTest
 class TestAeroFrame(CeasiompyTest):
 
     @log_test
-    def test_second_moments_of_area_square(self) -> None:
-        # Square with vertices (0,0), (1,0), (1,1), (0,1)
-        x = [0.0, 1.0, 1.0, 0.0]
-        y = [0.0, 0.0, 1.0, 1.0]
-        ix, iy = second_moments_of_area(x, y)
-        # For a unit square centered at (0.5, 0.5), Ix = Iy = 1/12
-        self.assertAlmostEqual(ix, 1 / 12, places=6)
-        self.assertAlmostEqual(iy, 1 / 12, places=6)
-
-    @log_test
-    def test_second_moments_of_area_triangle(self) -> None:
-        # Triangle with vertices (0,0), (1,0), (0,1)
-        x = [0.0, 1.0, 0.0]
-        y = [0.0, 0.0, 1.0]
-        ix, iy = second_moments_of_area(x, y)
-        # For a right triangle with base and height 1, centered at (1/3, 1/3)
-        # Ix = Iy = 1/36
-        self.assertAlmostEqual(ix, 1 / 36, places=6)
-        self.assertAlmostEqual(iy, 1 / 36, places=6)
+    def test_poly_area(self):
+        # Unit square
+        x = [0, 1, 1, 0]
+        y = [0, 0, 1, 1]
+        self.assertAlmostEqual(poly_area(x, y), 1.0)
+        # Right triangle
+        x = [0, 1, 0]
+        y = [0, 0, 1]
+        self.assertAlmostEqual(poly_area(x, y), 0.5)
+        # Line (degenerate case)
+        x = [0, 1]
+        y = [0, 0]
+        self.assertAlmostEqual(poly_area(x, y), 0.0)
 
     @log_test
     def test_interpolate_leading_edge(self) -> None:

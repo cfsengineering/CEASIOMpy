@@ -2,7 +2,7 @@ coverage:
   ignore:
     - "src/ceasiompy/SUMOAutoMesh/*"
     - "src/ceasiompy/SU2MeshDef/*"
-    - "src/ceasiompy/utils/*"
+    - "CEASIOMpy/src/ceasiompy/utils/*"
     - "src/ceasiompy/Range/*"
     - "src/ceasiompy/ModuleTemplate/*"
     - "src/ceasiompy/BalanceConventional/*"

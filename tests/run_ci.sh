@@ -43,7 +43,7 @@ run_unit_tests()
     fi
     
     echo -e "\nRunning..."
-    pytest -v src/ceasiompy/ -k "not integration" --disable-warnings --ignore=installation/Pentagrow/include/nlopt/test/
+    pytest -v src/ceasiompy/ -k "not integration" --cov=src/ceasiompy --cov-report xml:coverage.xml --disable-warnings --ignore=installation/Pentagrow/include/nlopt/test/
 
 }
 
@@ -60,9 +60,9 @@ run_integration_tests()
 
     echo -e "Running..."
     if [ "$fast" = true ]; then
-        pytest -v src/ceasiompy/ -k "integration" -m "not slow" --disable-warnings --ignore=installation/Pentagrow/include/nlopt/test/
+        pytest -v tests/ -k "integration" -m "not slow" --cov=src/ceasiompy --cov-report xml:coverage.xml --disable-warnings --ignore=installation/Pentagrow/include/nlopt/test/
     else
-        pytest -v src/ceasiompy/ -k "integration" --disable-warnings --ignore=installation/Pentagrow/include/nlopt/test/
+        pytest -v tests/ -k "integration" --cov=src/ceasiompy --cov-report xml:coverage.xml --disable-warnings --ignore=installation/Pentagrow/include/nlopt/test/
     fi
 
 }

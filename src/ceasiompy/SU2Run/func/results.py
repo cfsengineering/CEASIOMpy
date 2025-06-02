@@ -33,7 +33,6 @@ from cpacspy.cpacsfunctions import (
     get_value_or_default,
 )
 from ceasiompy.utils.ceasiompyutils import (
-    bool_,
     get_conditions_from_aeromap,
     ensure_and_append_text_element,
 )
@@ -213,7 +212,7 @@ def get_static_results(
     cl, cd, cs, cmd, cms, cml, velocity = get_su2_aerocoefs(force_file_path)
 
     # Damping derivatives
-    if bool_(get_value(tixi, SU2_DAMPING_DER_XPATH)):
+    if get_value(tixi, SU2_DAMPING_DER_XPATH):
         coefs = {"cl": cl, "cd": cd, "cs": cs, "cmd": cmd, "cms": cms, "cml": cml}
         update_damping_derivatives(
             tixi,
@@ -245,12 +244,12 @@ def get_static_results(
         # TODO: convert when it is possible to save TED in cpacspy
         raise NotImplementedError("TED not implemented yet")
 
-    update_wetted_area = bool_(get_value(tixi, SU2_UPDATE_WETTED_AREA_XPATH))
+    update_wetted_area = get_value(tixi, SU2_UPDATE_WETTED_AREA_XPATH)
     if not found_wetted_area and update_wetted_area:
         update_wetted_area_func(tixi, config_dir)
         found_wetted_area = True
 
-    if bool_(get_value(tixi, SU2_EXTRACT_LOAD_XPATH)):
+    if get_value(tixi, SU2_EXTRACT_LOAD_XPATH):
         extract_loads(config_dir)
 
 

@@ -15,13 +15,10 @@ import math
 from cpacspy.aeromap import get_filter
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.PyAVL.func.plot import plot_lift_distribution
+from ceasiompy.utils.ceasiompyutils import ensure_and_append_text_element
 from ceasiompy.PyAVL.func.utils import (
     split_dir,
     split_line,
-)
-from ceasiompy.utils.ceasiompyutils import (
-    bool_,
-    ensure_and_append_text_element,
 )
 
 from typing import Tuple
@@ -129,7 +126,7 @@ def add_coefficients_in_aeromap(
 
     cd, cs, cl, cmd, cms, cml, cmd_b, cms_a, cml_b = get_avl_aerocoefs(st_file_path)
 
-    plot = bool_(get_value(tixi, AVL_PLOTLIFT_XPATH))
+    plot = get_value(tixi, AVL_PLOTLIFT_XPATH)
 
     if plot:
         plot_lift_distribution(fs_file_path, aoa, aos, mach, alt, wkdir=config_dir)

@@ -23,11 +23,7 @@ from ceasiompy.SU2Run.func.plot import save_plots
 from ceasiompy.CPACS2GMSH.func.mesh_sizing import wings_size
 from ceasiompy.utils.geometryfunctions import get_main_wing_le
 from ceasiompy.SU2Run.func.dotderivatives import load_parameters
-
-from ceasiompy.utils.ceasiompyutils import (
-    bool_,
-    get_aeromap_conditions,
-)
+from ceasiompy.utils.ceasiompyutils import get_aeromap_conditions
 from cpacspy.cpacsfunctions import (
     get_value,
     open_tigl,
@@ -242,7 +238,7 @@ def add_actuator_disk(
         radial_stations = get_radial_stations(radius, hub_radius)
         advanced_ratio = get_advanced_ratio(free_stream_velocity, rotational_velocity, radius)
 
-        prandtl_correction = bool_(get_value(tixi, PROPELLER_BLADE_LOSS_XPATH))
+        prandtl_correction = get_value(tixi, PROPELLER_BLADE_LOSS_XPATH)
 
         thrust = get_value(tixi, PROPELLER_THRUST_XPATH)
         total_thrust_coefficient = float(
@@ -396,7 +392,7 @@ def add_case_data(
     if not case_dir_path.exists():
         case_dir_path.mkdir()
 
-    if bool_(get_value(tixi, SU2_ACTUATOR_DISK_XPATH)):
+    if get_value(tixi, SU2_ACTUATOR_DISK_XPATH):
         actuator_disk_file = Path(wkdir, ACTUATOR_DISK_FILE_NAME)
         add_actuator_disk(
             cfg=cfg,
@@ -423,7 +419,7 @@ def add_case_data(
             cfg["MARKER_PLOTTING"] = bc_wall_str
             cfg["MARKER_MONITORING"] = bc_wall_str
 
-    if bool_(get_value(tixi, SU2_DAMPING_DER_XPATH)):
+    if get_value(tixi, SU2_DAMPING_DER_XPATH):
         rotation_rate = get_value(tixi, SU2_ROTATION_RATE_XPATH)
         add_damping_derivatives(cfg, wkdir, case_dir_name, rotation_rate)
 

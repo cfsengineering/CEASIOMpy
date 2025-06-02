@@ -67,13 +67,13 @@ class TestPyAVLConfig(CeasiompyTest):
         tixi.updateBooleanElement(AVL_FUSELAGE_XPATH, False)
 
         create_branch(tixi, xpath=AVL_NB_CPU_XPATH)
-        tixi.updateIntegerElement(AVL_NB_CPU_XPATH, 1 , "%d")
+        tixi.updateIntegerElement(AVL_NB_CPU_XPATH, 1, "%d")
 
         create_branch(tixi, xpath=AVL_NCHORDWISE_XPATH)
-        tixi.updateIntegerElement(AVL_NCHORDWISE_XPATH, 1 , "%d")
+        tixi.updateIntegerElement(AVL_NCHORDWISE_XPATH, 1, "%d")
 
         create_branch(tixi, xpath=AVL_NSPANWISE_XPATH)
-        tixi.updateIntegerElement(AVL_NSPANWISE_XPATH, 1 , "%d")
+        tixi.updateIntegerElement(AVL_NSPANWISE_XPATH, 1, "%d")
 
         tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, "aeromap_empty")
 
@@ -84,7 +84,7 @@ class TestPyAVLConfig(CeasiompyTest):
         tixi.updateDoubleElement(AVL_ROTRATES_XPATH, 0.0, "%g")
 
         create_branch(tixi, xpath=AVL_FREESTREAM_MACH_XPATH)
-        tixi.updateDoubleElement(AVL_FREESTREAM_MACH_XPATH, 0.6 , "%g")
+        tixi.updateDoubleElement(AVL_FREESTREAM_MACH_XPATH, 0.6, "%g")
 
         create_branch(tixi, xpath=AVL_CTRLSURF_ANGLES_XPATH)
         tixi.updateDoubleElement(AVL_CTRLSURF_ANGLES_XPATH, 0.0, "%g")
@@ -97,9 +97,7 @@ class TestPyAVLConfig(CeasiompyTest):
         assert result[3] == [0.0]
         assert result[4] == [0.0]
         assert result[5] == [0.0]
-        assert result[6] == Path(
-            str(self.wkdir) + "/" + self.cpacs.ac_name + ".avl"
-        )
+        assert result[6] == Path(str(self.wkdir) + "/" + self.cpacs.ac_name + ".avl")
         assert result[7] is False
         assert result[8] == 1
 

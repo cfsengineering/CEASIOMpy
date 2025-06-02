@@ -53,6 +53,7 @@ class MockAWG:
 #   TESTS
 # =============================================================================
 
+
 class TestNoFuseGeom(unittest.TestCase):
 
     def test_check_segment_connection(self):
@@ -75,10 +76,7 @@ class TestNoFuseGeom(unittest.TestCase):
         awg = MockAWG()
         awg.wing_seg_nb = [1]
         awg.wing_nb = 1
-        wing_center_section_point = np.array([
-            [[0.0, 0.0, 0.0]],
-            [[1.0, 0.0, 0.0]]
-        ])
+        wing_center_section_point = np.array([[[0.0, 0.0, 0.0]], [[1.0, 0.0, 0.0]]])
         awg.wing_sym = [0]
         awg = getwingsegmentlength(awg, wing_center_section_point)
         self.assertTrue(np.allclose(awg.wing_seg_length, np.array([[1.0]])))

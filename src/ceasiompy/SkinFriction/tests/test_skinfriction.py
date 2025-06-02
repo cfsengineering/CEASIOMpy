@@ -38,11 +38,7 @@ class TestSkinFriction(CeasiompyTest):
     def setUpClass(cls):
         super().setUpClass()
         cls.wkdir = current_workflow_dir()
-        cls.results_dir = get_results_directory(
-            MODULE_NAME,
-            create=True,
-            wkflow_dir=cls.wkdir
-        )
+        cls.results_dir = get_results_directory(MODULE_NAME, create=True, wkflow_dir=cls.wkdir)
 
     def test_estimate_skin_friction_coef(self):
         """Test function 'estimate_skin_friction_coef'"""

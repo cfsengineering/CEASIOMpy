@@ -1,4 +1,3 @@
-
 from ceasiompy.utils.commonxpaths import (
     RANGE_XPATH,
     REF_XPATH,

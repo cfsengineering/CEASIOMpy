@@ -226,7 +226,6 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
 
     awg.cabin_span = abs(awg.y_max_cabin - y11)
 
-    
     if c1 != 0.0:
         qty = math.sqrt(1 + (c2 / c1))
     else:

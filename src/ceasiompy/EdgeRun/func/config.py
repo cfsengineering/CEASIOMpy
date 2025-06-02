@@ -62,9 +62,7 @@ def edge_cfd(cpacs: CPACS, wkdir: Path):
 
     edge_mesh = Path(get_value(tixi, EDGE_MESH_XPATH))
     # edge_aboc = edge_mesh.with_suffix(".aboc")
-    edge_aboc = Path(
-        get_value_or_default(tixi, EDGE_ABOC_XPATH, edge_mesh.with_suffix(".aboc"))
-    )
+    edge_aboc = Path(get_value_or_default(tixi, EDGE_ABOC_XPATH, edge_mesh.with_suffix(".aboc")))
 
     if not edge_mesh.is_file():
         raise FileNotFoundError(f"M-Edge mesh file {edge_mesh} not found")

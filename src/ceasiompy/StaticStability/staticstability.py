@@ -60,8 +60,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
             markdownpy_to_markdown(md, table)
         except Exception as e:
             log.warning(
-                f"Could not compute static stability of aeromap {aeromap_uid} "
-                f"due to error {e}"
+                f"Could not compute static stability of aeromap {aeromap_uid} " f"due to error {e}"
             )
 
     md.save()

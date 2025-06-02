@@ -65,16 +65,13 @@ class TestStaticStability(CeasiompyTest):
 
         # Add some rows in test_apm aeromap
         tixi.updateTextElement(
-            f"{increment_map_xpath}/dcmd",
-            "-0.002;0.002;-0.002;-0.002;-0.002;0.002;-0.002;-0.002"
+            f"{increment_map_xpath}/dcmd", "-0.002;0.002;-0.002;-0.002;-0.002;0.002;-0.002;-0.002"
         )
         tixi.updateTextElement(
-            f"{increment_map_xpath}/dcms",
-            "-0.002;-0.002;-0.002;0.002;-0.002;-0.002;-0.002;0.002"
+            f"{increment_map_xpath}/dcms", "-0.002;-0.002;-0.002;0.002;-0.002;-0.002;-0.002;0.002"
         )
         tixi.updateTextElement(
-            f"{increment_map_xpath}/dcml",
-            "0.002;0.002;-0.002;0.002;0.002;0.002;-0.002;0.002"
+            f"{increment_map_xpath}/dcml", "0.002;0.002;-0.002;0.002;0.002;0.002;-0.002;0.002"
         )
 
     @log_test
@@ -82,112 +79,197 @@ class TestStaticStability(CeasiompyTest):
         # Test Linear Regression
         self.assert_equal_function(
             f=generate_stab_table,
-            input_args=(self.test_cpacs, "test_apm", self.wkdir, True, ),
-            expected=([
+            input_args=(
+                self.test_cpacs,
+                "test_apm",
+                self.wkdir,
+                True,
+            ),
+            expected=(
                 [
-                    "mach", "alt", "aoa", "aos",
-                    "long_stab", "dir_stab", "lat_stab",
-                    "comment"
-                ],
-                [
-                    0.3, 0.0, 0.0, 0.0,
-                    "Stable", "Stable", "Unstable",
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-                [
-                    0.3, 0.0, 0.0, 10.0,
-                    "Stable", "Stable", "Unstable",
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
-                ],
-                [
-                    0.3, 0.0, 10.0, 0.0,
-                    "Stable", "Unstable", "Unstable",
-                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-                [
-                    0.3, 0.0, 10.0, 10.0,
-                    "Stable", "Unstable", "Unstable",
-                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-                [
-                    0.5, 1000.0, 0.0, 0.0,
-                    "Stable", "Stable", "Unstable",
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-                [
-                    0.5, 1000.0, 0.0, 10.0,
-                    "Stable", "Stable", "Unstable",
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
-                ],
-                [
-                    0.5, 1000.0, 10.0, 0.0,
-                    "Stable", "Unstable", "Unstable",
-                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-                [
-                    0.5, 1000.0, 10.0, 10.0,
-                    "Stable", "Unstable", "Unstable",
-                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-            ])
+                    ["mach", "alt", "aoa", "aos", "long_stab", "dir_stab", "lat_stab", "comment"],
+                    [
+                        0.3,
+                        0.0,
+                        0.0,
+                        0.0,
+                        "Stable",
+                        "Stable",
+                        "Unstable",
+                        "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
+                    ],
+                    [
+                        0.3,
+                        0.0,
+                        0.0,
+                        10.0,
+                        "Stable",
+                        "Stable",
+                        "Unstable",
+                        "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
+                    ],
+                    [
+                        0.3,
+                        0.0,
+                        10.0,
+                        0.0,
+                        "Stable",
+                        "Unstable",
+                        "Unstable",
+                        "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
+                        "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
+                    ],
+                    [
+                        0.3,
+                        0.0,
+                        10.0,
+                        10.0,
+                        "Stable",
+                        "Unstable",
+                        "Unstable",
+                        "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
+                        "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
+                    ],
+                    [
+                        0.5,
+                        1000.0,
+                        0.0,
+                        0.0,
+                        "Stable",
+                        "Stable",
+                        "Unstable",
+                        "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
+                    ],
+                    [
+                        0.5,
+                        1000.0,
+                        0.0,
+                        10.0,
+                        "Stable",
+                        "Stable",
+                        "Unstable",
+                        "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
+                    ],
+                    [
+                        0.5,
+                        1000.0,
+                        10.0,
+                        0.0,
+                        "Stable",
+                        "Unstable",
+                        "Unstable",
+                        "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
+                        "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
+                    ],
+                    [
+                        0.5,
+                        1000.0,
+                        10.0,
+                        10.0,
+                        "Stable",
+                        "Unstable",
+                        "Unstable",
+                        "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
+                        "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
+                    ],
+                ]
+            ),
         )
 
         # Test data
         self.assert_equal_function(
             f=generate_stab_table,
-            input_args=(self.test_cpacs, "test_apm", self.wkdir, False,),
-            expected=([
+            input_args=(
+                self.test_cpacs,
+                "test_apm",
+                self.wkdir,
+                False,
+            ),
+            expected=(
                 [
-                    "mach", "alt", "aoa", "aos",
-                    "long_stab", "dir_stab", "lat_stab",
-                    "comment"
-                ],
-                [
-                    0.3, 0.0, 0.0, 0.0,
-                    "Stable", "Stable", "Stable",
-                    "Aircraft is stable along all axes."
-                ],
-                [
-                    0.3, 0.0, 0.0, 10.0,
-                    "Stable", "Stable", "Unstable",
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-                [
-                    0.3, 0.0, 10.0, 0.0,
-                    "Stable", "Unstable", "Stable",
-                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
-                ],
-                [
-                    0.3, 0.0, 10.0, 10.0,
-                    "Unstable", "Stable", "Stable",
-                    "Aircraft is unstable for Longitudinal axis i.e. Cma >=0. "
-                ],
-                [
-                    0.5, 1000.0, 0.0, 0.0,
-                    "Stable", "Stable", "Stable",
-                    "Aircraft is stable along all axes."
-                ],
-                [
-                    0.5, 1000.0, 0.0, 10.0,
-                    "Stable", "Stable", "Unstable",
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-                [
-                    0.5, 1000.0, 10.0, 0.0,
-                    "Stable", "Unstable", "Stable",
-                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
-                ],
-                [
-                    0.5, 1000.0, 10.0, 10.0,
-                    "Unstable", "Stable", "Stable",
-                    "Aircraft is unstable for Longitudinal axis i.e. Cma >=0. "
+                    ["mach", "alt", "aoa", "aos", "long_stab", "dir_stab", "lat_stab", "comment"],
+                    [
+                        0.3,
+                        0.0,
+                        0.0,
+                        0.0,
+                        "Stable",
+                        "Stable",
+                        "Stable",
+                        "Aircraft is stable along all axes.",
+                    ],
+                    [
+                        0.3,
+                        0.0,
+                        0.0,
+                        10.0,
+                        "Stable",
+                        "Stable",
+                        "Unstable",
+                        "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
+                    ],
+                    [
+                        0.3,
+                        0.0,
+                        10.0,
+                        0.0,
+                        "Stable",
+                        "Unstable",
+                        "Stable",
+                        "Aircraft is unstable for Directional axis i.e. Cnb <=0. ",
+                    ],
+                    [
+                        0.3,
+                        0.0,
+                        10.0,
+                        10.0,
+                        "Unstable",
+                        "Stable",
+                        "Stable",
+                        "Aircraft is unstable for Longitudinal axis i.e. Cma >=0. ",
+                    ],
+                    [
+                        0.5,
+                        1000.0,
+                        0.0,
+                        0.0,
+                        "Stable",
+                        "Stable",
+                        "Stable",
+                        "Aircraft is stable along all axes.",
+                    ],
+                    [
+                        0.5,
+                        1000.0,
+                        0.0,
+                        10.0,
+                        "Stable",
+                        "Stable",
+                        "Unstable",
+                        "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
+                    ],
+                    [
+                        0.5,
+                        1000.0,
+                        10.0,
+                        0.0,
+                        "Stable",
+                        "Unstable",
+                        "Stable",
+                        "Aircraft is unstable for Directional axis i.e. Cnb <=0. ",
+                    ],
+                    [
+                        0.5,
+                        1000.0,
+                        10.0,
+                        10.0,
+                        "Unstable",
+                        "Stable",
+                        "Stable",
+                        "Aircraft is unstable for Longitudinal axis i.e. Cma >=0. ",
+                    ],
                 ]
-            ])
-
+            ),
         )
 
     @log_test
@@ -212,11 +294,7 @@ class TestStaticStability(CeasiompyTest):
             md = MarkdownDoc(md_path)
 
             # Simple table to test
-            table = [
-                ["col1", "col2"],
-                ["val1", "val2"],
-                ["val3", "val4"]
-            ]
+            table = [["col1", "col2"], ["val1", "val2"], ["val3", "val4"]]
 
             markdownpy_to_markdown(md, table)
             md.save()

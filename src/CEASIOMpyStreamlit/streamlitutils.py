@@ -52,7 +52,8 @@ def md_table_to_html(table_md):
     rows = [line.split("|")[1:-1] for line in lines[2:]]
     html = (
         "<table><thead><tr>"
-        + "".join(f"<th>{h.strip()}</th>" for h in header) + "</tr></thead><tbody>"
+        + "".join(f"<th>{h.strip()}</th>" for h in header)
+        + "</tr></thead><tbody>"
     )
     for row in rows:
         html += "<tr>" + "".join(color_cell(cell) for cell in row) + "</tr>"

@@ -38,9 +38,7 @@ class TestCPACSCreator(unittest.TestCase):
             mock_get_install_path.side_effect = [None, None, "/usr/bin/CPACSCreator"]
             main(mock_cpacs, wkdir)
             mock_run_software.assert_called_once_with(
-                software_name="CPACSCreator",
-                arguments=["dummy_cpacs.xml"],
-                wkdir=wkdir
+                software_name="CPACSCreator", arguments=["dummy_cpacs.xml"], wkdir=wkdir
             )
             mock_log.warning.assert_not_called()
 

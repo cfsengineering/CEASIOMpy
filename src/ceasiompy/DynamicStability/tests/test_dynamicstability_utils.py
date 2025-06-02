@@ -19,7 +19,7 @@ from ceasiompy.DynamicStability.func.utils import (
     dbeta_dt,
     complex_decomposition,
     complex_cross,
-    sdsa_format
+    sdsa_format,
 )
 
 from unittest import main

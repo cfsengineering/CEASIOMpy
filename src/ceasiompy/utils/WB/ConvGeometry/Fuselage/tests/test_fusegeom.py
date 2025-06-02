@@ -55,17 +55,21 @@ class TestFuselageGeom(unittest.TestCase):
         sec_nb = 3  # Should match the number of unique sections
         seg_nb = 2
         start_index = 1
-        seg_sec = np.array([
-            [1, 2, 1],
-            [2, 3, 2],
-        ])
+        seg_sec = np.array(
+            [
+                [1, 2, 1],
+                [2, 3, 2],
+            ]
+        )
         self.tigl.fuselageGetPoint.side_effect = lambda fus_nb, k, u, v: (float(k), 0.0, 0.0)
         rel_distances, rel_indices = rel_dist(
-            fus_nb, sec_nb, seg_nb, self.tigl, seg_sec, start_index)
+            fus_nb, sec_nb, seg_nb, self.tigl, seg_sec, start_index
+        )
         self.assertEqual(len(rel_distances), sec_nb)
         self.assertEqual(len(rel_indices), sec_nb)
         self.assertEqual(rel_distances[0], 0.0)
         self.assertEqual(rel_indices[0], 0)
+
 
 # =================================================================================================
 #   MAIN

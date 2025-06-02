@@ -20,10 +20,12 @@ COPY ./installation/CentOS/install_pyavl.sh .
 COPY ./installation/CentOS/install_su2.sh .
 RUN chmod +x install_*.sh
 
+WORKDIR /CEASIOMpy/src/ceasiompy/utils
+COPY ./src/ceasiompy/utils/moduleinterfaces.py .
+
 # Install
 WORKDIR /CEASIOMpy
 COPY ./environment.yml .
-COPY src/ceasiompy/utils/moduleinterfaces.py .
 RUN installation/CentOS/install_ceasiompy.sh && \
     installation/CentOS/install_pyavl.sh && \
     installation/CentOS/install_su2.sh
@@ -34,6 +36,5 @@ WORKDIR /CEASIOMpy/tests
 COPY ./tests/run_ci.sh .
 RUN chmod +x run_ci.sh
 
-# Run
-WORKDIR /CEASIOMpy
-RUN bash -c "source ~/.bashrc && conda activate ceasiompy && tests/run_ci.sh"
+# Automatically activate the Conda environment in new shells
+CMD ["bash", "-c", "source ~/.bashrc && conda activate ceasiompy && cd /CEASIOMpyDir/CEASIOMpy && pip install -e . && tests/run_ci.sh"]

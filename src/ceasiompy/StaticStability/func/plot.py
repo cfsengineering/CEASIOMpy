@@ -101,9 +101,7 @@ def set_html_plot(results_dir: Path, df: DataFrame, axis: str) -> Tuple[Path, Di
 
     # Assign colors based on altitude, mach, and AoS
     df["color"] = df.apply(
-        lambda row: color_map[
-            (row["alt"], row["mach"], row[f"{X_Y_DICT[f'{axis}_x_prime']}"])
-        ],
+        lambda row: color_map[(row["alt"], row["mach"], row[f"{X_Y_DICT[f'{axis}_x_prime']}"])],
         axis=1,
     )
 
@@ -154,7 +152,7 @@ def add_stability_plot_tangent(results_dir: Path, df: DataFrame) -> None:
                     f"Alt: {combination[0]}, "
                     f"Mach: {combination[1]}, "
                     f"{axis_label}: {combination[2]}"
-                )
+                ),
             )
             fig.add_trace(scatter)
 

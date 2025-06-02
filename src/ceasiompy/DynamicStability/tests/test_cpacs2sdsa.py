@@ -39,12 +39,10 @@ class TestSDSAFile(unittest.TestCase):
 
         # Patch open_tixi and shutil.copy
         patcher1 = patch(
-            "ceasiompy.DynamicStability.func.cpacs2sdsa.open_tixi",
-            return_value=MagicMock()
+            "ceasiompy.DynamicStability.func.cpacs2sdsa.open_tixi", return_value=MagicMock()
         )
         patcher2 = patch(
-            "ceasiompy.DynamicStability.func.cpacs2sdsa.shutil.copy",
-            return_value=None
+            "ceasiompy.DynamicStability.func.cpacs2sdsa.shutil.copy", return_value=None
         )
         self.addCleanup(patcher1.stop)
         self.addCleanup(patcher2.stop)
@@ -53,16 +51,14 @@ class TestSDSAFile(unittest.TestCase):
 
         # Patch get_value to return reasonable values
         patcher3 = patch(
-            "ceasiompy.DynamicStability.func.cpacs2sdsa.get_value",
-            side_effect=lambda *a, **k: "1"
+            "ceasiompy.DynamicStability.func.cpacs2sdsa.get_value", side_effect=lambda *a, **k: "1"
         )
         self.addCleanup(patcher3.stop)
         self.mock_get_value = patcher3.start()
 
         # Patch aircraft_name
         patcher4 = patch(
-            "ceasiompy.DynamicStability.func.cpacs2sdsa.aircraft_name",
-            return_value="TestAircraft"
+            "ceasiompy.DynamicStability.func.cpacs2sdsa.aircraft_name", return_value="TestAircraft"
         )
         self.addCleanup(patcher4.stop)
         self.mock_aircraft_name = patcher4.start()
@@ -70,7 +66,7 @@ class TestSDSAFile(unittest.TestCase):
         # Patch Atmosphere
         patcher5 = patch(
             "ceasiompy.DynamicStability.func.cpacs2sdsa.Atmosphere",
-            return_value=MagicMock(density=[1.225], grav_accel=[9.81])
+            return_value=MagicMock(density=[1.225], grav_accel=[9.81]),
         )
         self.addCleanup(patcher5.stop)
         self.mock_atmosphere = patcher5.start()
@@ -84,7 +80,7 @@ class TestSDSAFile(unittest.TestCase):
     @patch.object(SDSAFile, "update_attribute")
     @patch(
         "ceasiompy.DynamicStability.func.cpacs2sdsa.get_alpha_max",
-        return_value={"alpha_max": [10, 15]}
+        return_value={"alpha_max": [10, 15]},
     )
     @patch("ceasiompy.DynamicStability.func.cpacs2sdsa.sdsa_format", return_value="formatted")
     def test_update_alpha_max(
@@ -102,7 +98,8 @@ class TestSDSAFile(unittest.TestCase):
         "ceasiompy.DynamicStability.func.cpacs2sdsa.get_tables_values",
         return_value=(
             MagicMock(columns=["A", "B"], __len__=lambda _: 2),
-            MagicMock(columns=["C", "D"], __len__=lambda _: 2))
+            MagicMock(columns=["C", "D"], __len__=lambda _: 2),
+        ),
     )
     @patch("ceasiompy.DynamicStability.func.cpacs2sdsa.sdsa_format", return_value="formatted")
     def test_update_tables(
@@ -116,7 +113,7 @@ class TestSDSAFile(unittest.TestCase):
     @patch.object(SDSAFile, "update_attribute")
     @patch(
         "ceasiompy.DynamicStability.func.cpacs2sdsa.compute_dot_derivatives",
-        return_value={"col": np.array([1, 2])}
+        return_value={"col": np.array([1, 2])},
     )
     @patch("ceasiompy.DynamicStability.func.cpacs2sdsa.sdsa_format", return_value="formatted")
     def test_update_dot_derivatives(
@@ -145,9 +142,14 @@ class TestSDSAFile(unittest.TestCase):
     @patch.object(SDSAFile, "update_piloteye")
     def test_generate_xml(
         self,
-        mock_update_piloteye, mock_update_ref, mock_update_delcoeff,
-        mock_update_dot, mock_update_tables, mock_update_alpha,
-        mock_update_attr, mock_update
+        mock_update_piloteye,
+        mock_update_ref,
+        mock_update_delcoeff,
+        mock_update_dot,
+        mock_update_tables,
+        mock_update_alpha,
+        mock_update_attr,
+        mock_update,
     ):
         self.sdsa.sdsa_file.save = MagicMock()
         self.sdsa.cgrid = "test"

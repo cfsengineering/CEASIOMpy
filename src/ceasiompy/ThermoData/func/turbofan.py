@@ -178,8 +178,7 @@ def write_hbtf_file(
         f"{massflow_stat_out_core=} [kg/s]",
         f"{t_stat_out_core=} [K]",
         f"{t_tot_out_byp=} [K]",
-        f"{t_tot_out_core=} [],"
-        f"{v_stat_out_byp=} [m/s]",
+        f"{t_tot_out_core=} []," f"{v_stat_out_byp=} [m/s]",
         f"{mn_out_byp=} [adim]",
         f"{p_tot_out_byp=} [Pa]",
         f"{massflow_stat_out_byp=} [kg/s]",
@@ -213,37 +212,35 @@ class HBTF(pyc.Cycle):
         self.add_subsystem(
             "fan",
             pyc.Compressor(map_data=pyc.FanMap, bleed_names=[], map_extrap=True),
-            promotes_inputs=[("Nmech", "LP_Nmech")]
+            promotes_inputs=[("Nmech", "LP_Nmech")],
         )
         self.add_subsystem("splitter", pyc.Splitter())
         self.add_subsystem("duct4", pyc.Duct())
         self.add_subsystem(
             "lpc",
             pyc.Compressor(map_data=pyc.LPCMap, map_extrap=True),
-            promotes_inputs=[("Nmech", "LP_Nmech")]
+            promotes_inputs=[("Nmech", "LP_Nmech")],
         )
         self.add_subsystem("duct6", pyc.Duct())
         self.add_subsystem(
             "hpc",
             pyc.Compressor(
-                map_data=pyc.HPCMap,
-                bleed_names=["cool1", "cool2", "cust"],
-                map_extrap=True
+                map_data=pyc.HPCMap, bleed_names=["cool1", "cool2", "cust"], map_extrap=True
             ),
-            promotes_inputs=[("Nmech", "HP_Nmech")]
+            promotes_inputs=[("Nmech", "HP_Nmech")],
         )
         self.add_subsystem("bld3", pyc.BleedOut(bleed_names=["cool3", "cool4"]))
         self.add_subsystem("burner", pyc.Combustor(fuel_type=FUEL_TYPE))
         self.add_subsystem(
             "hpt",
             pyc.Turbine(map_data=pyc.HPTMap, bleed_names=["cool3", "cool4"], map_extrap=True),
-            promotes_inputs=[("Nmech", "HP_Nmech")]
+            promotes_inputs=[("Nmech", "HP_Nmech")],
         )
         self.add_subsystem("duct11", pyc.Duct())
         self.add_subsystem(
             "lpt",
             pyc.Turbine(map_data=pyc.LPTMap, bleed_names=["cool1", "cool2"], map_extrap=True),
-            promotes_inputs=[("Nmech", "LP_Nmech")]
+            promotes_inputs=[("Nmech", "LP_Nmech")],
         )
         self.add_subsystem("duct13", pyc.Duct())
         self.add_subsystem("core_nozz", pyc.Nozzle(nozzType="CV", lossCoef="Cv"))
@@ -251,12 +248,10 @@ class HBTF(pyc.Cycle):
         self.add_subsystem("duct15", pyc.Duct())
         self.add_subsystem("byp_nozz", pyc.Nozzle(nozzType="CV", lossCoef="Cv"))
         self.add_subsystem(
-            "lp_shaft",
-            pyc.Shaft(num_ports=3), promotes_inputs=[("Nmech", "LP_Nmech")]
+            "lp_shaft", pyc.Shaft(num_ports=3), promotes_inputs=[("Nmech", "LP_Nmech")]
         )
         self.add_subsystem(
-            "hp_shaft",
-            pyc.Shaft(num_ports=2), promotes_inputs=[("Nmech", "HP_Nmech")]
+            "hp_shaft", pyc.Shaft(num_ports=2), promotes_inputs=[("Nmech", "HP_Nmech")]
         )
         self.add_subsystem("perf", pyc.Performance(num_nozzles=2, num_burners=1))
 

@@ -63,15 +63,16 @@ def test_fuse_geom_eval_basic(mock_cpacs):
     # Patch fuselage_check_segment_connection and rel_dist
     with patch(
         "ceasiompy.utils.WB.ConvGeometry.Fuselage.fusegeom.fuselage_check_segment_connection"
-    ) as mock_conn, \
-        patch(
-            "ceasiompy.utils.WB.ConvGeometry.Fuselage.fusegeom.rel_dist"
+    ) as mock_conn, patch(
+        "ceasiompy.utils.WB.ConvGeometry.Fuselage.fusegeom.rel_dist"
     ) as mock_rel_dist:
         mock_conn.return_value = ([2], [1], np.zeros((1, 1, 3)))
         mock_rel_dist.return_value = (np.array([0.0, 10.0]), np.array([1, 2]))
         mock_cpacs.tigl.fuselageGetCircumference.return_value = 5.0
-        mock_cpacs.tigl.fuselageGetPoint.side_effect = (
-            lambda i, k, eta, zeta: (float(k), float(k), float(zeta))
+        mock_cpacs.tigl.fuselageGetPoint.side_effect = lambda i, k, eta, zeta: (
+            float(k),
+            float(k),
+            float(zeta),
         )
         mock_cpacs.tigl.fuselageGetSegmentVolume.return_value = 2.0
         # Patch tigl.fuselageGetCircumference
@@ -101,11 +102,20 @@ def test_wing_geom_eval_basic(mock_cpacs):
     mock_cpacs.tigl.wingGetSpan.return_value = 15.0
     mock_cpacs.tigl.wingGetMAC.return_value = [5.0, 1.0, 2.0, 3.0]
     mock_cpacs.tigl.wingGetChordPoint.side_effect = lambda i, j, eta, xsi: (
-        float(j), float(j), float(xsi))
+        float(j),
+        float(j),
+        float(xsi),
+    )
     mock_cpacs.tigl.wingGetLowerPoint.side_effect = lambda i, j, eta, xsi: (
-        float(j), float(j), float(xsi))
+        float(j),
+        float(j),
+        float(xsi),
+    )
     mock_cpacs.tigl.wingGetUpperPoint.side_effect = lambda i, j, eta, xsi: (
-        float(j) + 1, float(j) + 1, float(xsi) + 1)
+        float(j) + 1,
+        float(j) + 1,
+        float(xsi) + 1,
+    )
     mock_cpacs.tigl.wingGetSegmentVolume.return_value = 1.0
     # Patch wing_check_segment_connection
     with patch.object(AircraftGeometry, "wing_check_segment_connection") as mock_conn:
@@ -127,11 +137,13 @@ def test_get_wing_segment_length():
     ag.wing_nb = 1
     ag.wing_sym = [0]
     # Create a simple wing_center_section_point array
-    wing_center_section_point = np.array([
-        [[0.0, 0.0, 0.0]],
-        [[1.0, 0.0, 0.0]],
-        [[2.0, 0.0, 0.0]],
-    ])
+    wing_center_section_point = np.array(
+        [
+            [[0.0, 0.0, 0.0]],
+            [[1.0, 0.0, 0.0]],
+            [[2.0, 0.0, 0.0]],
+        ]
+    )
     ag.get_wing_segment_length(wing_center_section_point)
     assert ag.wing_seg_length.shape == (2, 1)
     np.testing.assert_allclose(ag.wing_seg_length[:, 0], [1.0, 1.0])
@@ -173,8 +185,7 @@ def test_produce_output_txt(tmp_path):
     ag.wing_fuel_vol = 8.0
     # Patch get_results_directory to use tmp_path
     with patch(
-        "ceasiompy.utils.WB.ConvGeometry.geometry.get_results_directory",
-        return_value=tmp_path
+        "ceasiompy.utils.WB.ConvGeometry.geometry.get_results_directory", return_value=tmp_path
     ):
         ag.produce_output_txt()
         output_file = tmp_path / "Aircraft_Geometry.out"

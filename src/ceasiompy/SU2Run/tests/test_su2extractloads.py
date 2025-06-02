@@ -54,8 +54,8 @@ class TestSU2ExtractLoads(unittest.TestCase):
         mock_reader.return_value.GetOutput.return_value = mock_mesh
         mock_vtk_to_numpy.side_effect = [
             np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]]),  # coords
-            np.array([3, 0, 1, 2]),                       # cells (VTK triangle cell)
-            np.array([1.0, 2.0, 3.0]),                    # pressure
+            np.array([3, 0, 1, 2]),  # cells (VTK triangle cell)
+            np.array([1.0, 2.0, 3.0]),  # pressure
         ]
         mock_compute_normals.return_value = np.ones((3, 3))
         mock_get_markers.return_value = {"marker": [0, 1, 2]}
@@ -67,10 +67,7 @@ class TestSU2ExtractLoads(unittest.TestCase):
 
     def test_dimensionalize_pressure_dimensional(self):
         p = np.array([101325.0, 101400.0])
-        config_dict = {
-            "REF_DIMENSIONALIZATION": "DIMENSIONAL",
-            "FREESTREAM_PRESSURE": 101325.0
-        }
+        config_dict = {"REF_DIMENSIONALIZATION": "DIMENSIONAL", "FREESTREAM_PRESSURE": 101325.0}
         result = dimensionalize_pressure(p, config_dict)
         np.testing.assert_array_almost_equal(result, np.array([0.0, 75.0]))
 
@@ -78,7 +75,7 @@ class TestSU2ExtractLoads(unittest.TestCase):
         p = np.array([1.0, 2.0])
         config_dict = {
             "REF_DIMENSIONALIZATION": "FREESTREAM_PRESS_EQ_ONE",
-            "FREESTREAM_PRESSURE": 100000.0
+            "FREESTREAM_PRESSURE": 100000.0,
         }
         result = dimensionalize_pressure(p, config_dict)
         np.testing.assert_array_almost_equal(result, np.array([0.0, 100000.0]))
@@ -88,7 +85,7 @@ class TestSU2ExtractLoads(unittest.TestCase):
         config_dict = {
             "REF_DIMENSIONALIZATION": "FREESTREAM_VEL_EQ_MACH",
             "FREESTREAM_PRESSURE": 100000.0,
-            "GAMMA_VALUE": 1.4
+            "GAMMA_VALUE": 1.4,
         }
         result = dimensionalize_pressure(p, config_dict)
         np.testing.assert_array_almost_equal(result, np.array([40000.0, 180000.0]))
@@ -99,7 +96,7 @@ class TestSU2ExtractLoads(unittest.TestCase):
             "REF_DIMENSIONALIZATION": "FREESTREAM_VEL_EQ_ONE",
             "FREESTREAM_PRESSURE": 100000.0,
             "GAMMA_VALUE": 1.4,
-            "MACH_NUMBER": 2.0
+            "MACH_NUMBER": 2.0,
         }
         result = dimensionalize_pressure(p, config_dict)
         np.testing.assert_array_almost_equal(result, np.array([460000.0, 1020000.0]))

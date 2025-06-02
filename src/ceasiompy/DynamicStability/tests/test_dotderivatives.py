@@ -75,16 +75,18 @@ class TestDotDerivatives(TestCase):
 
     def test_get_main_wing_le(self):
         # Two wings, main wing has smallest X1[0]
-        wings_list = [{
-            "EID": 1,  # str
-            "CP": 0,  # int
-            "n_span": 2,  # int
-            "n_chord": 2,  # int
-            "X1": np.array([0, 0, 0]),
-            "length12": 1,  # float
-            "X4": np.array([1, 1, 1]),
-            "length43": 1,  # float
-        }]
+        wings_list = [
+            {
+                "EID": 1,  # str
+                "CP": 0,  # int
+                "n_span": 2,  # int
+                "n_chord": 2,  # int
+                "X1": np.array([0, 0, 0]),
+                "length12": 1,  # float
+                "X4": np.array([1, 1, 1]),
+                "length43": 1,  # float
+            }
+        ]
         model = AeroModel(wings_list)
         model.build_aerogrid()
         x, y, z = get_main_wing_le(model)
@@ -112,12 +114,12 @@ class TestDotDerivatives(TestCase):
         qsc = qs * dummy.c
 
         # Check a few values
-        self.assertAlmostEqual(result[0], 1.0 / qs)    # cx_alpha
-        self.assertAlmostEqual(result[3], 1.0 / qsb)   # cl_alpha
-        self.assertAlmostEqual(result[4], 1.0 / qsc)   # cm_alpha
+        self.assertAlmostEqual(result[0], 1.0 / qs)  # cx_alpha
+        self.assertAlmostEqual(result[3], 1.0 / qsb)  # cl_alpha
+        self.assertAlmostEqual(result[4], 1.0 / qsc)  # cm_alpha
         self.assertAlmostEqual(result[12], 1.0 / qsc)  # cm_alphadot
-        self.assertAlmostEqual(result[14], 1.0 / qs)   # cz_alphadot
-        self.assertAlmostEqual(result[15], 1.0 / qs)   # cy_betadot
+        self.assertAlmostEqual(result[14], 1.0 / qs)  # cz_alphadot
+        self.assertAlmostEqual(result[15], 1.0 / qs)  # cy_betadot
         self.assertAlmostEqual(result[16], 1.0 / qsb)  # cl_betadot
         self.assertAlmostEqual(result[17], 1.0 / qsb)  # cn_betadot
 
@@ -188,7 +190,7 @@ class TestDotDerivatives(TestCase):
 
     def test_compute_moments_complex(self):
         aerogrid = {"offset_j": np.zeros((2, 3))}
-        forces = (np.ones((3, 2)) + 1j * np.ones((3, 2)))
+        forces = np.ones((3, 2)) + 1j * np.ones((3, 2))
         x_hinge = 0.0
         moments = compute_moments(aerogrid, forces, x_hinge)
         self.assertEqual(moments.shape, (3,))

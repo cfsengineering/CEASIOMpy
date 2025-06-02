@@ -139,9 +139,7 @@ class Turbojet(pyc.Cycle):
             promotes_inputs=["Nmech"],
         )
         self.add_subsystem("burner", pyc.Combustor(fuel_type=FUEL_TYPE))
-        self.add_subsystem(
-            "turb", pyc.Turbine(map_data=pyc.LPT2269), promotes_inputs=["Nmech"]
-        )
+        self.add_subsystem("turb", pyc.Turbine(map_data=pyc.LPT2269), promotes_inputs=["Nmech"])
         self.add_subsystem("nozz", pyc.Nozzle(nozzType="CD", lossCoef="Cv"))
         self.add_subsystem("shaft", pyc.Shaft(num_ports=2), promotes_inputs=["Nmech"])
         self.add_subsystem("perf", pyc.Performance(num_nozzles=1, num_burners=1))

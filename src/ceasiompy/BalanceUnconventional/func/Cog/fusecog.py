@@ -165,9 +165,8 @@ def center_of_gravity_evaluation(F_PERC, P_PERC, afg, awg, mw, ed, ui, bi):
             else:
                 mass_seg_i[0][afg.fuse_nb + a] = mass_seg_i[0][afg.fuse_nb + a] + mass
 
-    awg.wing_center_seg_point.resize(max_seg_n, awg.wing_nb, 3)
-    afg.fuse_center_seg_point.resize(max_seg_n, afg.fuse_nb, 3)
-
+    awg.wing_center_seg_point = np.resize(awg.wing_center_seg_point, (max_seg_n, awg.wing_nb, 3))
+    afg.fuse_center_seg_point = np.resize(afg.fuse_center_seg_point, (max_seg_n, afg.fuse_nb, 3))
     airplane_centers_segs = np.concatenate(
         (afg.fuse_center_seg_point, awg.wing_center_seg_point), 1
     )

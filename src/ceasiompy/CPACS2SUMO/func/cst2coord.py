@@ -26,16 +26,14 @@ Adapted from:   Airfoil generation using CST parameterization method
 #   IMPORTS
 # =================================================================================================
 
-from ceasiompy import log
 import numpy as np
 
-from math import cos, factorial
-
-from pathlib import Path
+from math import (
+    cos,
+    factorial,
+)
 
 from math import pi
-
-MODULE_DIR = Path(__file__).parent
 
 # =================================================================================================
 #   CLASSES

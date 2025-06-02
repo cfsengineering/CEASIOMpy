@@ -13,7 +13,6 @@ Utils for PyAVL module.
 import numpy as np
 
 from pydantic import validate_call
-from cpacspy.cpacsfunctions import get_value
 
 from pathlib import Path
 from numpy import ndarray
@@ -28,7 +27,6 @@ from typing import (
 )
 
 from ceasiompy.utils.commonxpaths import REF_XPATH
-from ceasiompy.PyAVL import AVL_EXPAND_VALUES_XPATH
 from ceasiompy import (
     log,
     ceasiompy_cfg,

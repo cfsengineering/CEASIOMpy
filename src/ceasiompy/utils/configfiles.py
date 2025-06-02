@@ -18,8 +18,6 @@ Functions to simplify some file and data handling in CEASIOMpy
 
 from collections import OrderedDict
 
-from ceasiompy import log
-
 # =================================================================================================
 #   CLASSES
 # =================================================================================================

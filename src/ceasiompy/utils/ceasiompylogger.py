@@ -20,7 +20,6 @@ Logging method use by other CEASIOMpy modules
 from pathlib import Path
 from datetime import datetime
 
-from ceasiompy import log
 from ceasiompy.utils.commonpaths import RUNWORKFLOW_HISTORY_PATH
 
 # =================================================================================================

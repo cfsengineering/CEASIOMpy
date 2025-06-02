@@ -146,18 +146,18 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
                     f = write_hbtf_file(
                         file=f,
-                        T_tot_out_byp=T_tot_out_byp,
-                        V_stat_out_byp=V_stat_out_byp,
-                        MN_out_byp=MN_out_byp,
-                        P_tot_out_byp=P_tot_out_byp,
+                        t_tot_out_byp=T_tot_out_byp,
+                        v_stat_out_byp=V_stat_out_byp,
+                        mn_out_byp=MN_out_byp,
+                        p_tot_out_byp=P_tot_out_byp,
                         massflow_stat_out_byp=massflow_stat_out_byp,
-                        T_stat_out_byp=T_stat_out_byp,
-                        T_tot_out_core=T_tot_out_core,
-                        V_stat_out_core=V_stat_out_core,
-                        MN_out_core=MN_out_core,
-                        P_tot_out_core=P_tot_out_core,
+                        t_stat_out_byp=T_stat_out_byp,
+                        t_tot_out_core=T_tot_out_core,
+                        v_stat_out_core=V_stat_out_core,
+                        mn_out_core=MN_out_core,
+                        p_tot_out_core=P_tot_out_core,
                         massflow_stat_out_core=massflow_stat_out_core,
-                        T_stat_out_core=T_stat_out_core,
+                        t_stat_out_core=T_stat_out_core,
                     )
         add_float_vector(tixi, ENGINE_BC + "/temperatureOutlet", T_tot_out_array)
         add_float_vector(tixi, ENGINE_BC + "/pressureOutlet", P_tot_out_array)

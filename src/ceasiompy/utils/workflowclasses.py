@@ -4,12 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Classes to run ceasiompy workflows
-
-| Author : Aidan Jungo
-| Creation: 2019-10-04
-
-TODO:
-
 """
 
 # =================================================================================================
@@ -32,7 +26,6 @@ from pathlib import Path
 from datetime import datetime
 from ceasiompy.utils.configfiles import ConfigFile
 
-from ceasiompy import log
 from ceasiompy.utils.moduleinterfaces import MODNAME_INIT
 from ceasiompy.utils.commonpaths import (
     LOGFILE,

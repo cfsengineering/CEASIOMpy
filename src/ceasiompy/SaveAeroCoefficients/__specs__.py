@@ -13,7 +13,6 @@ GUI Interface of SaveAeroCoefficients.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.SaveAeroCoefficients import (
     INCLUDE_GUI,
     AEROMAP_FEATURES,

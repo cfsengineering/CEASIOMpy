@@ -14,28 +14,35 @@ Test functions for 'ceasiompy/CPACS2GMSH/generategmesh.py'
 #   IMPORTS
 # =================================================================================================
 
-import shutil
-from pathlib import Path
-
-import gmsh
-from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-from ceasiompy.CPACS2GMSH.func.generategmesh import (
-    ModelPart,
-    generate_gmsh,
+from ceasiompy.CPACS2GMSH.func.utils import load_rans_cgf_params
+from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy.utils.ceasiompyutils import (
+    remove_file_type_in_dir,
+    get_part_type,
 )
+from ceasiompy.SU2Run.func.utils import get_mesh_markers
+from ceasiompy.CPACS2GMSH.func.wingclassification import get_entities_from_volume
 from ceasiompy.CPACS2GMSH.func.rans_mesh_generator import (
     generate_2d_mesh_for_pentagrow,
     sort_surfaces_and_create_physical_groups,
     choose_correct_part,
     pentagrow_3d_mesh,
-
 )
-from ceasiompy.CPACS2GMSH.func.wingclassification import get_entities_from_volume
-from ceasiompy.SU2Run.func.utils import get_mesh_markers
-from ceasiompy.utils.ceasiompyutils import remove_file_type_in_dir
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
-from cpacspy.cpacspy import CPACS
-from ceasiompy.CPACS2GMSH.func.utils import load_rans_cgf_params
+from ceasiompy.CPACS2GMSH.func.generategmesh import (
+    ModelPart,
+    generate_gmsh,
+)
+from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
+import gmsh
+import shutil
+from pathlib import Path
+
+MODULE_DIR = Path(__file__).parent
+BREP_IN_PATH = Path(MODULE_DIR, "ToolInput/brep_files_test_rans")
+TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
+CPACS_D150_IN_PATH = Path(CPACS_FILES_PATH, "D150_simple.xml")
+
 
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
@@ -147,11 +154,73 @@ def test_choose_correct_part():
     gmsh.finalize()
 
 
-def sort_surfaces_and_create_physical_groups():
+def test_sort_surfaces_and_create_physical_groups():
     """
     This function tests if blabl
     """
-    print("hello")
+    if TEST_OUT_PATH.exists():
+        shutil.rmtree(TEST_OUT_PATH)
+    TEST_OUT_PATH.mkdir()
+
+    brep_files = list(BREP_IN_PATH.glob("*.brep"))
+    brep_files.sort()
+    cpacs = CPACS(CPACS_D150_IN_PATH)
+
+    gmsh.initialize()
+
+    aircraft_parts = []
+    vols = []
+    for brep_file in brep_files:
+        # Import the part and create the aircraft part object
+        part_entities = gmsh.model.occ.importShapes(
+            str(brep_file), highestDimOnly=False)
+        gmsh.model.occ.synchronize()
+
+        # Create the aircraft part object
+        part_obj = ModelPart(uid=brep_file.stem)
+        part_obj.part_type = get_part_type(cpacs.tixi, part_obj.uid)
+        part_obj.volume = part_entities[0]
+        part_obj.volume_tag = part_entities[0][1]
+        vols.append(part_entities[0][1])
+
+        aircraft_parts.append(part_obj)
+
+    model_bb = gmsh.model.get_bounding_box(*aircraft_parts[0].volume)
+    model_dimensions = [
+        abs(model_bb[0] - model_bb[3]),
+        abs(model_bb[1] - model_bb[4]),
+        abs(model_bb[2] - model_bb[5]),
+    ]
+    all_volumes = gmsh.model.getEntities(-1)
+    gmsh.model.occ.translate(
+        all_volumes,
+        -((model_bb[0]) + (model_dimensions[0] / 2)),
+        -((model_bb[1]) + (model_dimensions[1] / 2)),
+        -((model_bb[2]) + (model_dimensions[2] / 2)),
+    )
+    gmsh.model.occ.synchronize()
+
+    for model_part in aircraft_parts:
+        bb = gmsh.model.get_bounding_box(*model_part.volume)
+        model_part.bounding_box = [bb[0] - 0.1, bb[1] - 0.1,
+                                   bb[2] - 0.1, bb[3] + 0.1, bb[4] + 0.1, bb[5] + 0.1]
+
+    fused = gmsh.model.occ.fuse([(3, vols[0])], [(3, vols[1]), (3, vols[2])])
+    for model_part in aircraft_parts:
+        surfaces_dimtags = gmsh.model.getEntitiesInBoundingBox(
+            *model_part.bounding_box, 2
+        )
+    gmsh.model.occ.synchronize()
+    sort_surfaces_and_create_physical_groups(
+        aircraft_parts, brep_files, cpacs, model_bb, model_dimensions)
+
+    assert len(aircraft_parts[0].surfaces_tags) == 60  # fuselage
+    assert len(aircraft_parts[1].surfaces_tags) == 8  # wing1
+    assert len(aircraft_parts[2].surfaces_tags) == 8  # wing1_mirrored
+
+    gmsh.finalize()
+
+    remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg"])
 
 
 # =================================================================================================
@@ -159,7 +228,7 @@ def sort_surfaces_and_create_physical_groups():
 # =================================================================================================
 if __name__ == "__main__":
     # test_generate_rans_mesh()
-    test_choose_correct_part()
+    test_sort_surfaces_and_create_physical_groups()
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")

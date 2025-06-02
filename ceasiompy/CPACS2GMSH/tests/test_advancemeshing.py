@@ -312,7 +312,7 @@ def test_auto_refine():
 
 def test_compute_angle_surfaces():
     """
-    Test if the wing section is correctly remeshed when the area is too small
+    Test if the function detects correctly angle too narrow
     """
     gmsh.initialize()
     p1 = gmsh.model.occ.addPoint(0, 0, 0, 0.1)

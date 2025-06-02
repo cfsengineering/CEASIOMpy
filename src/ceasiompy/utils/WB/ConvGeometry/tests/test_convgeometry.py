@@ -61,17 +61,24 @@ def test_fuse_geom_eval_basic(mock_cpacs):
     mock_cpacs.tigl.fuselageGetVolume.return_value = 10.0
     mock_cpacs.tigl.configurationGetLength.return_value = 30.0
     # Patch fuselage_check_segment_connection and rel_dist
-    with patch("ceasiompy.utils.WB.ConvGeometry.Fuselage.fusegeom.fuselage_check_segment_connection") as mock_conn, \
-            patch("ceasiompy.utils.WB.ConvGeometry.Fuselage.fusegeom.rel_dist") as mock_rel_dist:
+    with patch(
+        "ceasiompy.utils.WB.ConvGeometry.Fuselage.fusegeom.fuselage_check_segment_connection"
+    ) as mock_conn, \
+        patch(
+            "ceasiompy.utils.WB.ConvGeometry.Fuselage.fusegeom.rel_dist"
+    ) as mock_rel_dist:
         mock_conn.return_value = ([2], [1], np.zeros((1, 1, 3)))
-        mock_rel_dist.return_value = (np.array([0.0, 10.0]), np.array([1, 2]))        
+        mock_rel_dist.return_value = (np.array([0.0, 10.0]), np.array([1, 2]))
         mock_cpacs.tigl.fuselageGetCircumference.return_value = 5.0
-        mock_cpacs.tigl.fuselageGetPoint.side_effect = lambda i, k, eta, zeta: (float(k), float(k), float(zeta))
+        mock_cpacs.tigl.fuselageGetPoint.side_effect = (
+            lambda i, k, eta, zeta: (float(k), float(k), float(zeta))
+        )
         mock_cpacs.tigl.fuselageGetSegmentVolume.return_value = 2.0
-        # Patch tigl.fuselageGetCircumference and .fuselageGetPoint and .fuselageGetSegmentVolume
+        # Patch tigl.fuselageGetCircumference
+        # and .fuselageGetPoint and .fuselageGetSegmentVolume
         mock_cpacs.tigl.fuselageGetStartSectionAndElementIndex.return_value = (1, 1)
         mock_cpacs.tigl.fuselageGetEndSectionAndElementIndex.return_value = (2, 1)
-        ag.fuse_geom_eval(mock_cpacs)    
+        ag.fuse_geom_eval(mock_cpacs)
         assert ag.fus_nb == 1
         assert ag.fuse_nb == 1
         assert ag.fuse_sec_nb == [2]
@@ -165,7 +172,10 @@ def test_produce_output_txt(tmp_path):
     ag.wing_tot_vol = 10.0
     ag.wing_fuel_vol = 8.0
     # Patch get_results_directory to use tmp_path
-    with patch("ceasiompy.utils.WB.ConvGeometry.geometry.get_results_directory", return_value=tmp_path):
+    with patch(
+        "ceasiompy.utils.WB.ConvGeometry.geometry.get_results_directory",
+        return_value=tmp_path
+    ):
         ag.produce_output_txt()
         output_file = tmp_path / "Aircraft_Geometry.out"
         assert output_file.exists()
@@ -173,6 +183,7 @@ def test_produce_output_txt(tmp_path):
         assert "AIRCRAFT GEOMETRY EVALUATION MODULE" in content
         assert "Number of fuselage sections" in content
         assert "Number of Wings" in content
+
 
 # =============================================================================
 #   MAIN

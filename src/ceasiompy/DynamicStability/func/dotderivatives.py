@@ -54,6 +54,7 @@ from typing import (
 )
 
 from ceasiompy import log
+from ceasiompy.DynamicStability import MODULE_NAME
 from ceasiompy.utils.commonxpaths import WINGS_XPATH
 
 # =================================================================================================
@@ -504,6 +505,7 @@ def get_mach_list(self, x_hinge: float) -> Tuple[List, List]:
     Get list of machs where to compute the derivatives.
     """
     db = CeasiompyDb()
+    db.connect_to_table(MODULE_NAME)
     data = db.get_data(
         table_name="derivatives_data",
         columns=["mach"],

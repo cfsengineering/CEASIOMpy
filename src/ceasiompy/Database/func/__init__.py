@@ -2,7 +2,6 @@
 #   IMPORTS
 # ==============================================================================
 
-from ceasiompy import log
 from ceasiompy.PyAVL import MODULE_NAME as PYAVL_NAME
 
 # from ceasiompy.SU2Run import MODULE_NAME as SU2RUN_NAME

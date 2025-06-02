@@ -654,10 +654,3 @@ def remove_file_type_in_dir(directory: Path, file_type_list: List[str]) -> None:
             continue
         if file.suffix in file_type_list:
             file.unlink()
-
-
-def bool_(value) -> bool:
-    if str(value) in ["false", "False"]:
-        return False
-    else:
-        return True

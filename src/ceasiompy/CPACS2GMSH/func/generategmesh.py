@@ -34,7 +34,7 @@ import gmsh
 import numpy as np
 
 from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
-from ceasiompy.utils.ceasiompyutils import bool_, get_part_type
+from ceasiompy.utils.ceasiompyutils import get_part_type
 from cpacspy.cpacsfunctions import create_branch
 
 from ceasiompy.CPACS2GMSH.func.mesh_sizing import fuselage_size, wings_size
@@ -785,7 +785,7 @@ def generate_gmsh(
             # Reset the background mesh
             mesh_fields = min_fields(mesh_fields)
 
-            if bool_(open_gmsh):
+            if open_gmsh:
                 log.info("Insufficient mesh size surfaces are displayed in red")
                 log.info("GMSH GUI is open, close it to continue...")
                 gmsh.fltk.run()
@@ -800,7 +800,7 @@ def generate_gmsh(
             gmsh.model.occ.synchronize()
 
             log.info("Remeshing process finished")
-            if bool_(open_gmsh):
+            if open_gmsh:
                 log.info("Corrected mesh surfaces are displayed in green")
 
     gmsh.model.occ.removeAllDuplicates()
@@ -869,7 +869,7 @@ def generate_gmsh(
     else:
         write_gmsh(results_dir, f"surface_mesh_{surf}_{angle}.msh")
 
-    if bool_(open_gmsh):
+    if open_gmsh:
         log.info("Result of 2D surface mesh")
         log.info("GMSH GUI is open, close it to continue...")
         gmsh.fltk.run()

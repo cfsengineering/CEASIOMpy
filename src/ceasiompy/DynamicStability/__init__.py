@@ -39,7 +39,7 @@ RES_DIR = True
 SOFTWARE_NAME = "SDSA"
 
 # Fixed Altitude
-ALT = 1000.0
+ALT = 0.0
 
 # xPaths
 DYNAMICSTABILITY_XPATH = CEASIOMPY_XPATH + "/DynamicStability"

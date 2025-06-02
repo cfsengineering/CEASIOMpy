@@ -15,7 +15,6 @@ Main scripts for Database module.
 # =================================================================================================
 
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy.utils.ceasiompyutils import bool_
 from ceasiompy.Database.func.storing import store_data
 
 from cpacspy.cpacspy import CPACS
@@ -32,7 +31,7 @@ def main(cpacs: CPACS) -> None:
     tixi = cpacs.tixi
 
     # Check if we store data
-    if bool_(get_value(tixi, DATABASE_STOREDATA_XPATH)):
+    if get_value(tixi, DATABASE_STOREDATA_XPATH):
         store_data(tixi)
     else:
         log.info("Did not call database.")

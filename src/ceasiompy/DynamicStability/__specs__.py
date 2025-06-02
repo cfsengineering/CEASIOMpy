@@ -66,25 +66,25 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="chordwise_vort",
     var_type=int,
-    default_value=12,
+    default_value=20,
     unit=None,
     descr="Select the number of chordwise vortices",
     xpath=DYNAMICSTABILITY_NCHORDWISE_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Number of chordwise vortices",
-    gui_group="Chordwise Settings",
+    gui_group="Aerogrid Settings",
 )
 
 cpacs_inout.add_input(
     var_name="spanwise_vort",
     var_type=int,
-    default_value=20,
+    default_value=50,
     unit=None,
     descr="Select the number of spanwise vortices",
     xpath=DYNAMICSTABILITY_NSPANWISE_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Number of spanwise vortices",
-    gui_group="Spanwise Settings",
+    gui_group="Aerogrid Settings",
 )
 
 cpacs_inout.add_input(

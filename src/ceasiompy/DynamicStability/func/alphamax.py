@@ -37,7 +37,7 @@ def get_alpha_max(self) -> DataFrame:
 
     Assumptions:
         beta = p = q = r = 0
-        alt = 1000.0
+        alt = 0.0
 
     Returns:
         DataFrame: AlphaMax per mach.

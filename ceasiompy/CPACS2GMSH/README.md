@@ -102,7 +102,7 @@ Value that changes the measure of fist cells near aircraft parts. Only used for 
 For truncated wing profile, automatically adjust the LE/TE refinement factor such that the mesh size at the TE match the truncated TE thickness .
 * `Auto refine : False`
 Apply an automatic refinement of surfaces which are small compare to a mesh element. :warning: With this option activated, the surface mesh generation maybe done two times, which increasing the total meshing time.
-* ` Refinement factor of lines in between angled surfaces : 1.5`
+* `Refinement factor of lines in between angled surfaces : 1.5`
 Refining lines that are between two surfaces that are "far from flat", as for example the right angle between a wing and the fuselage. Only for RANS, and sometime misses some lines.
 
 Engines :
@@ -133,7 +133,7 @@ With RANS also a configuration file is created in the same directory containing 
 
 At the time of writing, this module is not able to handle aircraft with control surfaces (they will not be modelled and thus appear in the final mesh).
 
-For the RANS part, it is only possible to process aircraft consisting of .brep files of category 'fuselage' and 'wing'
+For the RANS part, it is only possible to process aircraft consisting of .brep files of category 'fuselage', 'wing', 'engine', 'rotor' and 'propellers'.
 
 ## More information
 

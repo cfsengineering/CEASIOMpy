@@ -43,7 +43,7 @@ RUN chmod +x install_*.sh
 WORKDIR /CEASIOMpy
 
 # Run the installation scripts
-RUN installation/Ubuntu/install_pyavl.sh \
+RUN installation/Ubuntu/install_pyavl.sh && \
     installation/Ubuntu/install_su2_with_mpi.sh && \
     installation/Ubuntu/install_pentagrow.sh
 

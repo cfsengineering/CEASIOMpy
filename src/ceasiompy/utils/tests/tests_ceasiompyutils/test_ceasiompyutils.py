@@ -267,6 +267,9 @@ class TestCeasiompyUtils(CeasiompyTest):
         test_file_2 = Path(self.TMP_DIR, "test_file.brep")
         test_file_2.touch()
 
+        # Create the logfile before calling the function
+        self.LOGFILE.touch()
+
         remove_file_type_in_dir(self.TMP_DIR, [".txt", ".brep"])
 
         assert not test_file_1.exists()

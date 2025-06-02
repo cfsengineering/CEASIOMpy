@@ -36,5 +36,7 @@ WORKDIR /CEASIOMpy/tests
 COPY ./tests/run_ci.sh .
 RUN chmod +x run_ci.sh
 
+RUN dnf -y install mesa-libGLU mesa-libGL
+
 # Automatically activate the Conda environment in new shells
 CMD ["bash", "-c", "source ~/.bashrc && conda activate ceasiompy && cd /CEASIOMpyDir/CEASIOMpy && pip install -e . && tests/run_ci.sh"]

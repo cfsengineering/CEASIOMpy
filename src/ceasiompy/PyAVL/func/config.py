@@ -102,7 +102,7 @@ def get_physics_conditions(
     tixi: Tixi3,
     alt: float,
     mach: float,
-    roll_rate: float, 
+    roll_rate: float,
     pitch_rate: float,
     yaw_rate: float,
 ) -> Tuple[float, float, float, float, float, float]:
@@ -123,7 +123,7 @@ def get_physics_conditions(
         b=b,
         c=c,
     )
-    
+
     return (
         roll_rate_star, pitch_rate_star, yaw_rate_star,
         ref_density, g_acceleration, ref_velocity,

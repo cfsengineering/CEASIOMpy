@@ -57,15 +57,17 @@ class TestCeasiompyLogger(unittest.TestCase):
         # Create a fake history file
         with tempfile.TemporaryDirectory() as tmpdirname:
             history_path = Path(tmpdirname) / "runworkflow_history.txt"
+            first_run = str(Path(tmpdirname) / "first_run")
+            second_run = str(Path(tmpdirname) / "second_run")
             lines = [
-                "2024-06-01 12:00:00 - /tmp/first_run\n",
-                "2024-06-02 13:00:00 - /tmp/second_run\n",
+                f"2024-06-01 12:00:00 - {first_run}\n",
+                f"2024-06-02 13:00:00 - {second_run}\n",
             ]
             history_path.write_text("".join(lines))
 
             with patch("ceasiompy.utils.ceasiompylogger.RUNWORKFLOW_HISTORY_PATH", history_path):
                 result = get_last_runworkflow()
-                self.assertEqual(result, Path("/tmp/second_run"))
+                self.assertEqual(result, Path(second_run))
 
     def test_get_last_runworkflow_file_missing(self):
         with patch(
@@ -75,7 +77,6 @@ class TestCeasiompyLogger(unittest.TestCase):
             self.assertIsNone(get_last_runworkflow())
 
     def test_get_last_runworkflow_empty_file(self):
-        import tempfile
         with tempfile.TemporaryDirectory() as tmpdirname:
             history_path = Path(tmpdirname) / "runworkflow_history.txt"
             history_path.write_text("")

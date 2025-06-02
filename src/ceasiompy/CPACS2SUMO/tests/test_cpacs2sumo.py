@@ -98,7 +98,7 @@ class TestCPACS2SUMO(CeasiompyTest):
 
     def test_cst2d_profile(self):
         # Only check length and type, as CST_shape is tested elsewhere
-        x, y, z = get_profile_coord(self.tixi, "D150_VAMP_W_SupCritProf1")
+        x, _, z = get_profile_coord(self.tixi, "D150_VAMP_W_SupCritProf1")
         self.assertTrue(len(x) > 10)
         self.assertEqual(len(x), len(z))
         self.assertTrue(all(isinstance(val, float) for val in x))

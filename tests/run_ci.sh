@@ -43,7 +43,7 @@ run_unit_tests()
     fi
     
     echo -e "\nRunning..."
-    pytest -v ./ --cov-report html:unittest_cov_html --cov-report term --cov=./src/ceasiompy --cov-config=./pyproject.toml -k "not integration" --disable-warnings --ignore=installation/Pentagrow/include/nlopt/test/
+    pytest -v ./ --cov-report html:unittest_cov_html --cov-report term --cov=/src/ceasiompy --cov-config=pyproject.toml -k "not integration" --disable-warnings --ignore=installation/Pentagrow/include/nlopt/test/
 
 }
 
@@ -60,9 +60,9 @@ run_integration_tests()
 
     echo -e "Running..."
     if [ "$fast" = true ]; then
-        pytest -v ./ --cov-report html:integration_cov_html --cov-report term --cov=./src/ceasiompy --cov-config=./pyproject.toml -k "integration" -m "not slow" --disable-warnings --ignore=installation/Pentagrow/include/nlopt/test/
+        pytest -v ./ --cov-report html:integration_cov_html -k "integration" -m "not slow" --disable-warnings --ignore=installation/Pentagrow/include/nlopt/test/
     else
-        pytest -v ./ --cov-report html:integration_cov_html --cov-report term --cov=./src/ceasiompy --cov-config=./pyproject.toml -k "integration" --disable-warnings --ignore=installation/Pentagrow/include/nlopt/test/
+        pytest -v ./ --cov-report html:integration_cov_html -k "integration" --disable-warnings --ignore=installation/Pentagrow/include/nlopt/test/
     fi
 
 }
@@ -98,4 +98,4 @@ run_unit_tests
 run_integration_tests 
 
 # Generate the list of module to remove from the code coverage
-python ./src/ceasiompy/utils/moduleinterfaces.py 
+python /src/ceasiompy/utils/moduleinterfaces.py 

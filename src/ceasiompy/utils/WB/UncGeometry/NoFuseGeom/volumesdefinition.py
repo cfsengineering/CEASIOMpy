@@ -108,7 +108,18 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
     h_max = []
     h_mean = []
     y_sec = []
-
+    x11 = 0.0
+    y21 = 0.0
+    x21 = 0.0
+    y22 = 0.0
+    x22 = 0.0
+    y12 = 0.0
+    x12 = 0.0
+    y11 = 0.0
+    z11 = 0.0
+    z12 = 0.0
+    z21 = 0.0
+    z22 = 0.0
     for r in range(0, rows - 1, 2):
         h_max_temp = 0
         z_min = 9999
@@ -215,12 +226,19 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
 
     awg.cabin_span = abs(awg.y_max_cabin - y11)
 
-    awg.fuse_vol = (
-        (0.95 * fuse_frontal_area)
-        * (fuse_plt_area / (awg.cabin_span))
-        / (math.sqrt(1 + (c2 / c1)))
-    )
-
+    
+    if c1 != 0.0:
+        qty = math.sqrt(1 + (c2 / c1))
+    else:
+        qty = 0.0
+    if qty != 0.0:
+        awg.fuse_vol = (
+            (0.95 * fuse_frontal_area)
+            * (fuse_plt_area / (awg.cabin_span))
+            / (math.sqrt(1 + (c2 / c1)))
+        )
+    else:
+        awg.fuse_vol = 0.0
     if awg.wing_sym[w - 1] != 0:
         awg.fuse_vol *= 2
         awg.cabin_area *= 2

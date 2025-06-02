@@ -28,11 +28,14 @@ from ceasiompy.PyAVL.func.utils import (
 from ceasiompy.PyAVL.func.config import (
     write_command_file,
     retrieve_gui_values,
+    get_physics_conditions,
 )
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
+from ceasiompy.Database.func.storing import CeasiompyDb
 
+from ceasiompy import log
 from ceasiompy.PyAVL import SOFTWARE_NAME
 
 # =================================================================================================
@@ -61,6 +64,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         avl_path,
         save_fig,
         nb_cpu,
+        expand,
     ) = retrieve_gui_values(cpacs, results_dir)
 
     #
@@ -74,7 +78,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         new_roll_rate_list,
         new_yaw_rate_list,
     ) = duplicate_elements(
-        tixi,
+        expand,
         alt_list,
         mach_list,
         aoa_list,
@@ -92,6 +96,34 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         p = new_roll_rate_list[i_case]
         r = new_yaw_rate_list[i_case]
 
+        (
+            roll_rate_star, pitch_rate_star, yaw_rate_star,
+            ref_density, g_acceleration, ref_velocity,
+        ) = get_physics_conditions(tixi, alt, mach, p, q, r)
+
+        if expand:
+            db = CeasiompyDb()
+            data = db.get_data(
+                table_name="avl_data",
+                columns=["mach"],
+                db_close=True,
+                filters=[
+                    f"mach = {mach}",
+                    f"aircraft = '{cpacs.ac_name}'",
+                    f"alt = {alt}",
+                    f"alpha = {aoa}",
+                    f"beta = {aos}",
+                    f"pb_2V = {roll_rate_star}",
+                    f"qc_2V = {pitch_rate_star}",
+                    f"rb_2V = {yaw_rate_star}",
+                ]
+            )
+            if data:
+                # If data is already in ceasiompy.db
+                # Go to next iteration in for loop
+                log.info(f"Case {alt, mach, aoa, aos} already done.")
+                continue
+
         case_dir_path = create_case_dir(
             results_dir,
             i_case,
@@ -105,17 +137,18 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         )
 
         command_path = write_command_file(
-            tixi=tixi,
             avl_path=avl_path,
             case_dir_path=case_dir_path,
             save_plots=save_fig,
+            ref_density=ref_density,
+            g_acceleration=g_acceleration,
+            ref_velocity=ref_velocity,
             alpha=aoa,
             beta=aos,
-            pitch_rate=q,
-            roll_rate=p,
-            yaw_rate=r,
+            pitch_rate_star=pitch_rate_star,
+            roll_rate_star=roll_rate_star,
+            yaw_rate_star=yaw_rate_star,
             mach_number=mach,
-            alt=alt,
         )
 
         run_software(
@@ -142,7 +175,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             new_elevator_list,
             new_rudder_list,
         ) = duplicate_elements(
-            tixi,
+            expand,
             alt_list,
             mach_list,
             aoa_list,
@@ -170,13 +203,14 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             )
 
             command_path = write_command_file(
-                tixi=tixi,
                 avl_path=avl_path,
                 case_dir_path=case_dir_path,
                 save_plots=save_fig,
+                ref_density=ref_density,
+                g_acceleration=g_acceleration,
+                ref_velocity=ref_velocity,
                 alpha=aoa,
                 mach_number=mach,
-                alt=alt,
                 aileron=aileron,
                 rudder=rudder,
                 elevator=elevator,

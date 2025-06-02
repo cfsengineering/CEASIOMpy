@@ -45,6 +45,7 @@ from ceasiompy.PyAVL import (
     AVL_NB_CPU_XPATH,
     AVL_ROTRATES_XPATH,
     AVL_AEROMAP_UID_XPATH,
+    AVL_EXPAND_VALUES_XPATH,
     AVL_CTRLSURF_ANGLES_XPATH,
 )
 
@@ -64,6 +65,7 @@ def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
     Path,
     bool,
     int,
+    bool,
 ]:
     tixi = cpacs.tixi
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, AVL_AEROMAP_UID_XPATH)
@@ -80,6 +82,7 @@ def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
     avl_path = avl_file.convert_cpacs_to_avl()
 
     nb_cpu = int(get_value(tixi, AVL_NB_CPU_XPATH))
+    expand = get_value(tixi, AVL_EXPAND_VALUES_XPATH)
 
     return (
         alt_list,
@@ -91,21 +94,55 @@ def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
         avl_path,
         save_fig,
         nb_cpu,
+        expand,
+    )
+
+
+def get_physics_conditions(
+    tixi: Tixi3,
+    alt: float,
+    mach: float,
+    roll_rate: float, 
+    pitch_rate: float,
+    yaw_rate: float,
+) -> Tuple[float, float, float, float, float, float]:
+    # Get the reference dimensions
+    s = tixi.getDoubleElement(AREA_XPATH)
+    c = tixi.getDoubleElement(LENGTH_XPATH)
+    b = s / c
+
+    ref_density, g_acceleration, ref_velocity = get_atmospheric_cond(alt, mach)
+
+    # See https://web.mit.edu/drela/Public/web/avl/AVL_User_Primer.pdf
+    # for how he non-dimensionalize the rates
+    roll_rate_star, pitch_rate_star, yaw_rate_star = non_dimensionalize_rate(
+        p=roll_rate,
+        q=pitch_rate,
+        r=yaw_rate,
+        v=ref_velocity,
+        b=b,
+        c=c,
+    )
+    
+    return (
+        roll_rate_star, pitch_rate_star, yaw_rate_star,
+        ref_density, g_acceleration, ref_velocity,
     )
 
 
 def write_command_file(
-    tixi: Tixi3,
     avl_path: Path,
     case_dir_path: Path,
     save_plots: bool,
-    alt: float,
+    ref_density: float,
+    g_acceleration: float,
+    ref_velocity: float,
     mach_number: float,
     alpha: float,
     beta: float = 0.0,
-    pitch_rate: float = 0.0,
-    roll_rate: float = 0.0,
-    yaw_rate: float = 0.0,
+    pitch_rate_star: float = 0.0,
+    roll_rate_star: float = 0.0,
+    yaw_rate_star: float = 0.0,
     aileron: float = 0.0,
     elevator: float = 0.0,
     rudder: float = 0.0,
@@ -134,28 +171,10 @@ def write_command_file(
 
     """
 
-    ref_density, g_acceleration, ref_velocity = get_atmospheric_cond(alt, mach_number)
-
     command_path = str(case_dir_path) + "/avl_commands.txt"
 
     # Retrieve template file for mass
     mass_path = Path(MODULE_DIR, "files", "template.mass")
-
-    # Get the reference dimensions
-    s = tixi.getDoubleElement(AREA_XPATH)
-    c = tixi.getDoubleElement(LENGTH_XPATH)
-    b = s / c
-
-    # See https://web.mit.edu/drela/Public/web/avl/AVL_User_Primer.pdf
-    # for how he non-dimensionalize the rates
-    roll_rate_star, pitch_rate_star, yaw_rate_star = non_dimensionalize_rate(
-        p=roll_rate,
-        q=pitch_rate,
-        r=yaw_rate,
-        v=ref_velocity,
-        b=b,
-        c=c,
-    )
 
     command = [
         "load " + str(avl_path) + "\n",

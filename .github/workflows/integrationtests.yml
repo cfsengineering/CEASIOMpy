@@ -68,9 +68,6 @@ jobs:
       shell: bash -l {0}
       run: installation/Ubuntu/install_pentagrow.sh
 
-    - name: Add src to PYTHONPATH
-      run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)/src" >> $GITHUB_ENV
-
     - name: Run integration tests
       shell: bash -l {0}
       run: |

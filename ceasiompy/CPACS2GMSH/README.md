@@ -92,7 +92,7 @@ Whenever the dihedral angle of two triangle is smaller than this limit, the resu
 
 Advanced mesh parameters :
 
-* `LE/TE refinement factor : 7.0`
+* `LE/TE refinement factor : 2.0`
 Apply a refinement on the leading and trailing edge of the aircraft wings. the element size at the le/te will be set to the wing mesh size divided by the refinement factor. This refinement decay according to a power law from the edge to 30% of the wing section cord length, where the mesh size is the wing's one.
 * `n power factor : 2`
 Power of the power law of the refinement on LE and TE. 

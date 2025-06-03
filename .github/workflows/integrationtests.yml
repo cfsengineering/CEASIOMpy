@@ -71,8 +71,7 @@ jobs:
     - name: Run integration tests
       shell: bash -l {0}
       run: |
-        [ -f ~/.zshrc ] && source ~/.zshrc
-        [ -f ~/.bashrc ] && source ~/.bashrc
+        source ~/.bashrc
         pytest -v ./tests --cov=ceasiompy --cov-report xml:coverage.xml -m "not gui"
 
     - name: Upload coverage to Codecov

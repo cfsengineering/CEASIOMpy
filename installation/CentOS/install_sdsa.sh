@@ -52,4 +52,4 @@ fi
 
 cd "$current_dir"
 echo "SDSA installed successfully in $bin_dir and added to PATH."
-echo "Please run 'source ~/.bashrc' or open a new terminal to update your PATH."
+echo "Please run 'source ~/.bashrc' or 'source ~/.zshrc' or open a new terminal to update your PATH."

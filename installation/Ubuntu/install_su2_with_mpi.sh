@@ -95,4 +95,4 @@ for shellrc in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile"; do
 done
 
 echo "SU2 with MPI installed successfully in $install_dir and added to PATH."
-echo "Please run 'source ~/.bashrc' or open a new terminal to update your PATH."
+echo "Please run 'source ~/.bashrc' or 'source ~/.zshrc' or open a new terminal to update your PATH."

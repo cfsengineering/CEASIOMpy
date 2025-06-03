@@ -36,3 +36,8 @@ cd "$current_dir"
 
 echo "AVL installed successfully in $install_dir and added to PATH."
 echo "Please run 'source ~/.bashrc' or open a new terminal to update your PATH."
+
+# This is for integration tests
+# Do not remove this line
+[ -f "$HOME/.bashrc" ] && source "$HOME/.bashrc"
+[ -f "$HOME/.zshrc" ] && source "$HOME/.zshrc"

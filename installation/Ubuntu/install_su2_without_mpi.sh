@@ -59,3 +59,8 @@ cd "$current_dir"
 
 echo "SU2 installed successfully in $install_dir and added to PATH."
 echo "Please run 'source ~/.bashrc' or 'source ~/.zshrc' or open a new terminal to update your PATH."
+
+# This is for integration tests
+# Do not remove this line
+[ -f "$HOME/.bashrc" ] && source "$HOME/.bashrc"
+[ -f "$HOME/.zshrc" ] && source "$HOME/.zshrc"

@@ -51,7 +51,6 @@ add_su2_exports() {
 
 add_su2_exports "$HOME/.bashrc"
 add_su2_exports "$HOME/.zshrc"
-add_su2_exports "$HOME/.profile"
 
 echo "Checking SU2 version"
 "$SU2_RUN/SU2_CFD" --help

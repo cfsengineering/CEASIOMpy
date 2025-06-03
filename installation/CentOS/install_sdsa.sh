@@ -46,10 +46,6 @@ if ! grep -Fxq "export PATH=\"\$PATH:$bin_dir\"" "$HOME/.zshrc" 2>/dev/null; the
     echo "export PATH=\"\$PATH:$bin_dir\"" >> "$HOME/.zshrc"
 fi
 
-if ! grep -Fxq "export PATH=\"\$PATH:$bin_dir\"" "$HOME/.profile" 2>/dev/null; then
-    echo "export PATH=\"\$PATH:$bin_dir\"" >> "$HOME/.profile"
-fi
-
 cd "$current_dir"
 echo "SDSA installed successfully in $bin_dir and added to PATH."
 echo "Please run 'source ~/.bashrc' or 'source ~/.zshrc' or open a new terminal to update your PATH."

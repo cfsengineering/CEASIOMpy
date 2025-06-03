@@ -66,7 +66,7 @@ cd "$current_dir"
 su2_bin_path="$install_dir/bin"
 su2_home_path="$install_dir"
 
-for shellrc in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile"; do
+for shellrc in "$HOME/.bashrc" "$HOME/.zshrc"; do
     # SU2
     if ! grep -Fxq "# SU2 Path" "$shellrc" 2>/dev/null; then
         echo "" >> "$shellrc"

@@ -124,7 +124,6 @@ add_to_shell_rc() {
 # Update .bashrc, .zshrc, and .profile
 add_to_shell_rc "$HOME/.bashrc"
 add_to_shell_rc "$HOME/.zshrc"
-add_to_shell_rc "$HOME/.profile"
 
 echo "Testing Pentagrow command:"
 if command -v pentagrow &> /dev/null; then
@@ -136,8 +135,3 @@ fi
 cd "$current_dir" || exit 1
 echo "Installation and setup complete."
 echo "Please run 'source ~/.bashrc' or 'source ~/.zshrc' or open a new terminal to update your PATH."
-
-# This is for integration tests
-# Do not remove this line
-[ -f "$HOME/.bashrc" ] && source "$HOME/.bashrc"
-[ -f "$HOME/.zshrc" ] && source "$HOME/.zshrc"

@@ -32,12 +32,14 @@ if [ -f "$HOME/.zshrc" ]; then
     fi
 fi
 
+# For integration tests in github workflows
+if [ -f "$HOME/.profile" ]; then
+    if ! grep -Fxq "export PATH=\"\$PATH:$install_dir\"" "$HOME/.profile"; then
+        echo "export PATH=\"\$PATH:$install_dir\"" >> "$HOME/.profile"
+    fi
+fi
+
 cd "$current_dir"
 
 echo "AVL installed successfully in $install_dir and added to PATH."
 echo "Please run 'source ~/.bashrc' or open a new terminal to update your PATH."
-
-# This is for integration tests
-# Do not remove this line
-[ -f "$HOME/.bashrc" ] && source "$HOME/.bashrc"
-[ -f "$HOME/.zshrc" ] && source "$HOME/.zshrc"

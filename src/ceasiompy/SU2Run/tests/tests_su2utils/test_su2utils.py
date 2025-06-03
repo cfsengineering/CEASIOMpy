@@ -224,23 +224,25 @@ class TestSU2UtilsExtra(CeasiompyTest):
     def test_get_su2_forces_moments(self):
         # Create a temporary SU2 force file with known content
         content = """
-        CFX = 0.123
-        CFY = 0.456
-        CFZ = 0.789
-        CMX = 0.111
-        CMY = 0.222
-        CMZ = 0.333
+        Total CL:       0.777 | 
+        Total CD:       0.888 | 
+        Total CSF:      0.999 | 
+        Total CL/CD:    0.666351 | 
+        Total CMy:      0.111 | 
+        Total CMz:      0.333 | 
+        Total CFx:      0.123 | 
+        Total CFy:      0.456 | 
+        Total CFz:      0.789 | 
         """
         with tempfile.NamedTemporaryFile("w+", delete=False) as tmp:
             tmp.write(content)
             tmp_path = Path(tmp.name)
         try:
-            cl, cd, cs, cmd, cms, cml = get_su2_forces_moments(tmp_path)
+            cl, cs, cd, _, cms, cml = get_su2_forces_moments(tmp_path)
             self.assertAlmostEqual(cl, 0.123)
-            self.assertAlmostEqual(cd, 0.456)
-            self.assertAlmostEqual(cs, 0.789)
-            self.assertAlmostEqual(cmd, 0.111)
-            self.assertAlmostEqual(cms, 0.222)
+            self.assertAlmostEqual(cs, 0.456)
+            self.assertAlmostEqual(cd, 0.789)
+            self.assertAlmostEqual(cms, 0.111)
             self.assertAlmostEqual(cml, 0.333)
         finally:
             tmp_path.unlink()
@@ -248,14 +250,14 @@ class TestSU2UtilsExtra(CeasiompyTest):
     def test_get_su2_forces_moments_missing(self):
         # File missing some coefficients
         content = """
-        CFX = 1.0
-        CFY = 2.0
+        Total CFx:      1.0 | 
+        Total CFz:      2.0 | 
         """
         with tempfile.NamedTemporaryFile("w+", delete=False) as tmp:
             tmp.write(content)
             tmp_path = Path(tmp.name)
         try:
-            cl, cd, cs, cmd, cms, cml = get_su2_forces_moments(tmp_path)
+            cl, cs, cd, cmd, cms, cml = get_su2_forces_moments(tmp_path)
             self.assertAlmostEqual(cl, 1.0)
             self.assertAlmostEqual(cd, 2.0)
             self.assertIsNone(cs)

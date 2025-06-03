@@ -17,6 +17,7 @@ from ceasiompy.PyAVL.func.cpacs2avl import compute_fuselage_coords
 from ceasiompy.utils.ceasiompyutils import (
     current_workflow_dir,
     get_results_directory,
+    update_cpacs_from_specs,
 )
 
 from pathlib import Path
@@ -84,6 +85,11 @@ class TestWriteFuselage(CeasiompyTest):
         np.testing.assert_almost_equal(body_frm_height, expected_height)
 
     def test_write_fuselage_coords(self):
+        update_cpacs_from_specs(
+            self.test_cpacs,
+            MODULE_NAME,
+            True,
+        )
         with tempfile.TemporaryDirectory() as tmpdir:
             fus_dat_path = str(Path(tmpdir) / "fuselage.dat")
             avl = Avl(self.test_cpacs.tixi, results_dir=self.results_dir)
@@ -112,6 +118,11 @@ class TestWriteFuselage(CeasiompyTest):
             assert avl_lines[1] == str(fus_dat_path)
 
     def test_write_fuselage_settings(self):
+        update_cpacs_from_specs(
+            self.test_cpacs,
+            MODULE_NAME,
+            True,
+        )
         avl = Avl(self.test_cpacs.tixi, results_dir=self.results_dir)
         scaling = Point(1.0, 2.0, 3.0)
         translation = Point(4.0, 5.0, 6.0)

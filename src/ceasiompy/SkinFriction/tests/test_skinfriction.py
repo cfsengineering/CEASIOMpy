@@ -14,7 +14,11 @@ Test functions for 'lib/SkinFriction/skinfriction.py'
 #   IMPORTS
 # =================================================================================================
 
-from ceasiompy.utils.ceasiompyutils import get_results_directory, current_workflow_dir
+from ceasiompy.utils.ceasiompyutils import (
+    get_results_directory,
+    current_workflow_dir,
+    update_cpacs_from_specs,
+)
 from ceasiompy.SkinFriction.skinfriction import (
     main as add_skin_friction,
     estimate_skin_friction_coef,
@@ -78,16 +82,16 @@ class TestSkinFriction(CeasiompyTest):
         # User the function to add skin frictions
         add_skin_friction(
             self.test_cpacs,
-            wkdir=get_results_directory("SkinFriction", create=True, wkflow_dir=workflow_dir),
+            wkdir=get_results_directory(MODULE_NAME, create=True, wkflow_dir=workflow_dir),
         )
 
         # Read the aeromap with the skin friction added in the output cpacs file
-        apm_sf = self.test_cpacs.get_aeromap_by_uid("test_apm")
+        apm_sf = self.test_cpacs.get_aeromap_by_uid("test_apm_SkinFriction")
 
         # Expected values
-        cl_list_expected = [0.1, 0.102944, 0.1, 0.102944]
-        cd_list_expected = [0.0269518, 0.0266942, 0.0266942, 0.0264406]
-        cs_list_expected = [0.001, 0.001, 0.00394364, 0.00394364]
+        cl_list_expected = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+        cd_list_expected = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+        cs_list_expected = [0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001]
 
         assert all([a == approx(b, rel=1e-4) for a, b in zip(apm_sf.get("cl"), cl_list_expected)])
         assert all([a == approx(b, rel=1e-4) for a, b in zip(apm_sf.get("cd"), cd_list_expected)])

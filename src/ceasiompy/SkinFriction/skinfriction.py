@@ -139,7 +139,7 @@ def main(cpacs: CPACS, wkdir: Path):
     md.h2("SkinFriction")
 
     md.h3("Geometry")
-    wetted_area = get_value(tixi, WETTED_AREA_XPATH)
+    wetted_area = get_value_or_default(tixi, WETTED_AREA_XPATH, 0.0)
     md.p(f"Wetted area: {wetted_area:.1f} [m^2]")
     wing_area = get_value_or_default(tixi, WING_AREA_XPATH, cpacs.aircraft.wing_area)
     md.p(f"Wing area: {wing_area:.1f} [m^2]")

@@ -24,24 +24,14 @@ unzip -d SU2-v"$su2_version"-linux64-mpi SU2-v"$su2_version"-linux64.zip
 echo "Adding path to the .bashrc"
 
 su2_run_path=/"$install_dir"/SU2-v"$su2_version"-linux64/bin
-su2_home_path=/"$install_dir"/SU2-v"$su2_version"-linux64
 
-add_su2_exports() {
-    shellrc="$1"
-    if ! grep -Fxq "# SU2 Path" "$shellrc" 2>/dev/null; then
-        echo "" >> "$shellrc"
-        echo "# SU2 Path" >> "$shellrc"
-    fi
-    if ! grep -Fxq "export SU2_RUN=\"$su2_run_path\"" "$shellrc" 2>/dev/null; then
-        echo "export SU2_RUN=\"$su2_run_path\"" >> "$shellrc"
-    fi
-    if ! grep -Fxq "export SU2_HOME=\"$su2_home_path\"" "$shellrc" 2>/dev/null; then
-        echo "export SU2_HOME=\"$su2_home_path\"" >> "$shellrc"
-    fi
-}
+if ! grep -Fxq "export PATH=\"\$PATH:$su2_run_path\"" "$HOME/.bashrc" 2>/dev/null; then
+    echo "export PATH=\"\$PATH:$su2_run_path\"" >> "$HOME/.bashrc"
+fi
 
-add_su2_exports "$HOME/.bashrc"
-add_su2_exports "$HOME/.zshrc"
+if ! grep -Fxq "export PATH=\"\$PATH:$su2_run_path\"" "$HOME/.zshrc" 2>/dev/null; then
+    echo "export PATH=\"\$PATH:$su2_run_path\"" >> "$HOME/.zshrc"
+fi
 
 echo "Checking SU2 version"
 "$SU2_RUN/SU2_CFD" --help

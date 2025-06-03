@@ -60,19 +60,22 @@ jobs:
       shell: bash -l {0}
       run: |
         installation/Ubuntu/install_pyavl.sh
-        source ~/.bashrc
+        [ -f "$HOME/.bashrc" ] && source "$HOME/.bashrc"
+        [ -f "$HOME/.zshrc" ] && source "$HOME/.zshrc"
 
     - name: Install SU2
       shell: bash -l {0}
       run: |
         installation/Ubuntu/install_su2_without_mpi.sh
-        source ~/.bashrc
+        [ -f "$HOME/.bashrc" ] && source "$HOME/.bashrc"
+        [ -f "$HOME/.zshrc" ] && source "$HOME/.zshrc"
 
     - name: Install Pentagrow
       shell: bash -l {0}
       run: |
         installation/Ubuntu/install_pentagrow.sh
-        source ~/.bashrc
+        [ -f "$HOME/.bashrc" ] && source "$HOME/.bashrc"
+        [ -f "$HOME/.zshrc" ] && source "$HOME/.zshrc"
 
     - name: Run integration tests
       run: pytest -v ./tests --cov=ceasiompy --cov-report xml:coverage.xml -m "not gui"

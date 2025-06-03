@@ -224,15 +224,15 @@ class TestSU2UtilsExtra(CeasiompyTest):
     def test_get_su2_forces_moments(self):
         # Create a temporary SU2 force file with known content
         content = """
-        Total CL:       0.777 | 
-        Total CD:       0.888 | 
-        Total CSF:      0.999 | 
-        Total CL/CD:    0.666351 | 
-        Total CMy:      0.111 | 
-        Total CMz:      0.333 | 
-        Total CFx:      0.123 | 
-        Total CFy:      0.456 | 
-        Total CFz:      0.789 | 
+        Total CL:       0.777 |
+        Total CD:       0.888 |
+        Total CSF:      0.999 |
+        Total CL/CD:    0.666351 |
+        Total CMy:      0.111 |
+        Total CMz:      0.333 |
+        Total CFx:      0.123 |
+        Total CFy:      0.456 |
+        Total CFz:      0.789 |
         """
         with tempfile.NamedTemporaryFile("w+", delete=False) as tmp:
             tmp.write(content)
@@ -250,8 +250,8 @@ class TestSU2UtilsExtra(CeasiompyTest):
     def test_get_su2_forces_moments_missing(self):
         # File missing some coefficients
         content = """
-        Total CFx:      1.0 | 
-        Total CFz:      2.0 | 
+        Total CFx:      1.0 |
+        Total CFz:      2.0 |
         """
         with tempfile.NamedTemporaryFile("w+", delete=False) as tmp:
             tmp.write(content)

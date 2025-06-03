@@ -11,7 +11,7 @@ current_dir="$(pwd)"
 if [ $# -gt 0 ]; then
     install_dir="$1/INSTALLDIR"
 else
-    install_dir="$script_dir/INSTALLDIR"
+    install_dir="$(pwd)/INSTALLDIR"
 fi
 
 echo "Creating install directory..."
@@ -99,27 +99,33 @@ fi
 
 echo "Trying to copy from: $(realpath "$pentagrow_bin_src" || echo "Path not found")"
 
-# Update .bashrc with Pentagrow
-if ! grep -q "PENTAGROW_RUN" ~/.bashrc; then
-    echo "# Pentagrow Path" >> ~/.bashrc
-    echo "export PENTAGROW_RUN=\"$pentagrow_run_path\"" >> ~/.bashrc
-    echo "export PATH=\"\$PATH:\$PENTAGROW_RUN\"" >> ~/.bashrc
-    echo "Pentagrow path added to PATH (apply changes with: source ~/.bashrc)"
-else
-    echo "PENTAGROW_RUN is already set in .bashrc"
-fi
+# Function to add environment variables to a shell rc file if not already present
+add_to_shell_rc() {
+    local rcfile="$1"
+    if [ -f "$rcfile" ]; then
+        if ! grep -q "PENTAGROW_RUN" "$rcfile"; then
+            echo "# Pentagrow Path" >> "$rcfile"
+            echo "export PENTAGROW_RUN=\"$pentagrow_run_path\"" >> "$rcfile"
+            echo "export PATH=\"\$PATH:\$PENTAGROW_RUN\"" >> "$rcfile"
+            echo "Pentagrow path added to PATH in $rcfile (apply changes with: source $rcfile)"
+        else
+            echo "PENTAGROW_RUN is already set in $rcfile"
+        fi
 
-# Update .bashrc with TetGen
-if ! grep -q "TETGEN_PATH" ~/.bashrc; then
-    echo "# Tetgen Path" >> ~/.bashrc
-    echo "export TETGEN_PATH=\$(which tetgen)" >> ~/.bashrc
-    echo "export PATH=\"\$PATH:\$TETGEN_PATH\"" >> ~/.bashrc
-    echo "Tetgen path added to PATH (apply changes with: source ~/.bashrc)"
-else
-    echo "TETGEN_PATH is already set in .bashrc"
-fi
+        if ! grep -q "TETGEN_PATH" "$rcfile"; then
+            echo "# Tetgen Path" >> "$rcfile"
+            echo "export TETGEN_PATH=\$(which tetgen)" >> "$rcfile"
+            echo "export PATH=\"\$PATH:\$TETGEN_PATH\"" >> "$rcfile"
+            echo "Tetgen path added to PATH in $rcfile (apply changes with: source $rcfile)"
+        else
+            echo "TETGEN_PATH is already set in $rcfile"
+        fi
+    fi
+}
 
-source ~/.bashrc
+# Update .bashrc and .zshrc if they exist
+add_to_shell_rc "$HOME/.bashrc"
+add_to_shell_rc "$HOME/.zshrc"
 
 echo "Testing Pentagrow command:"
 if command -v pentagrow &> /dev/null; then
@@ -130,3 +136,4 @@ fi
 
 cd "$current_dir" || exit 1
 echo "Installation and setup complete."
+echo "Please run 'source ~/.bashrc' or 'source ~/.zshrc' or open a new terminal to update your PATH."

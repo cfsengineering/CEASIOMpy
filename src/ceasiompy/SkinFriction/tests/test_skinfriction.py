@@ -2,12 +2,6 @@
 CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
-
-Test functions for 'lib/SkinFriction/skinfriction.py'
-
-| Author : Aidan Jungo
-| Creation: 2019-07-17
-
 """
 
 # =================================================================================================
@@ -17,7 +11,6 @@ Test functions for 'lib/SkinFriction/skinfriction.py'
 from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
     current_workflow_dir,
-    update_cpacs_from_specs,
 )
 from ceasiompy.SkinFriction.skinfriction import (
     main as add_skin_friction,

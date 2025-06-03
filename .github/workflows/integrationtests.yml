@@ -57,19 +57,19 @@ jobs:
       run: sudo apt-get install -y libglu1-mesa-dev
 
     - name: Install AVL
-      shell: zsh -l -c "{0}"
+      shell: bash -l {0}
       run: installation/Ubuntu/install_pyavl.sh
 
     - name: Install SU2
-      shell: zsh -l -c "{0}"
+      shell: bash -l {0}
       run: installation/Ubuntu/install_su2_without_mpi.sh
 
     - name: Install Pentagrow
-      shell: zsh -l -c "{0}"
+      shell: bash -l {0}
       run: installation/Ubuntu/install_pentagrow.sh
 
     - name: Run integration tests
-      shell: zsh -l -c "{0}"
+      shell: bash -l {0}
       run: |
         pytest -v ./tests --cov=ceasiompy --cov-report xml:coverage.xml -m "not gui"
 

@@ -102,30 +102,29 @@ echo "Trying to copy from: $(realpath "$pentagrow_bin_src" || echo "Path not fou
 # Function to add environment variables to a shell rc file if not already present
 add_to_shell_rc() {
     local rcfile="$1"
-    if [ -f "$rcfile" ]; then
-        if ! grep -q "PENTAGROW_RUN" "$rcfile"; then
-            echo "# Pentagrow Path" >> "$rcfile"
-            echo "export PENTAGROW_RUN=\"$pentagrow_run_path\"" >> "$rcfile"
-            echo "export PATH=\"\$PATH:\$PENTAGROW_RUN\"" >> "$rcfile"
-            echo "Pentagrow path added to PATH in $rcfile (apply changes with: source $rcfile)"
-        else
-            echo "PENTAGROW_RUN is already set in $rcfile"
-        fi
+    if ! grep -q "PENTAGROW_RUN" "$rcfile" 2>/dev/null; then
+        echo "# Pentagrow Path" >> "$rcfile"
+        echo "export PENTAGROW_RUN=\"$pentagrow_run_path\"" >> "$rcfile"
+        echo "export PATH=\"\$PATH:\$PENTAGROW_RUN\"" >> "$rcfile"
+        echo "Pentagrow path added to PATH in $rcfile (apply changes with: source $rcfile)"
+    else
+        echo "PENTAGROW_RUN is already set in $rcfile"
+    fi
 
-        if ! grep -q "TETGEN_PATH" "$rcfile"; then
-            echo "# Tetgen Path" >> "$rcfile"
-            echo "export TETGEN_PATH=\$(which tetgen)" >> "$rcfile"
-            echo "export PATH=\"\$PATH:\$TETGEN_PATH\"" >> "$rcfile"
-            echo "Tetgen path added to PATH in $rcfile (apply changes with: source $rcfile)"
-        else
-            echo "TETGEN_PATH is already set in $rcfile"
-        fi
+    if ! grep -q "TETGEN_PATH" "$rcfile" 2>/dev/null; then
+        echo "# Tetgen Path" >> "$rcfile"
+        echo "export TETGEN_PATH=\$(which tetgen)" >> "$rcfile"
+        echo "export PATH=\"\$PATH:\$TETGEN_PATH\"" >> "$rcfile"
+        echo "Tetgen path added to PATH in $rcfile (apply changes with: source $rcfile)"
+    else
+        echo "TETGEN_PATH is already set in $rcfile"
     fi
 }
 
-# Update .bashrc and .zshrc if they exist
+# Update .bashrc, .zshrc, and .profile
 add_to_shell_rc "$HOME/.bashrc"
 add_to_shell_rc "$HOME/.zshrc"
+add_to_shell_rc "$HOME/.profile"
 
 echo "Testing Pentagrow command:"
 if command -v pentagrow &> /dev/null; then

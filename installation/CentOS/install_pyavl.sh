@@ -22,17 +22,14 @@ chmod +x avl || { echo "Error: Failed to set execute permission on AVL binary." 
 
 sudo dnf install -y ghostscript
 
-if [ -f "$HOME/.bashrc" ]; then
-    if ! grep -Fxq "export PATH=\"\$PATH:$install_dir\"" "$HOME/.bashrc"; then
-        echo "export PATH=\"\$PATH:$install_dir\"" >> "$HOME/.bashrc"
-    fi
+if ! grep -Fxq "export PATH=\"\$PATH:$install_dir\"" "$HOME/.bashrc" 2>/dev/null; then
+    echo "export PATH=\"\$PATH:$install_dir\"" >> "$HOME/.bashrc"
 fi
 
-if [ -f "$HOME/.zshrc" ]; then
-    if ! grep -Fxq "export PATH=\"\$PATH:$install_dir\"" "$HOME/.zshrc"; then
-        echo "export PATH=\"\$PATH:$install_dir\"" >> "$HOME/.zshrc"
-    fi
+if ! grep -Fxq "export PATH=\"\$PATH:$install_dir\"" "$HOME/.zshrc" 2>/dev/null; then
+    echo "export PATH=\"\$PATH:$install_dir\"" >> "$HOME/.zshrc"
 fi
+
 cd "$current_dir"
 
 echo "AVL installed successfully in $install_dir and added to PATH."

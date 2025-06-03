@@ -66,34 +66,31 @@ cd "$current_dir"
 su2_bin_path="$install_dir/bin"
 su2_home_path="$install_dir"
 
-for shellrc in "$HOME/.bashrc" "$HOME/.zshrc"; do
-    if [ -f "$shellrc" ]; then
-        # SU2
-        if ! grep -Fxq "# SU2 Path" "$shellrc"; then
-            echo "" >> "$shellrc"
-            echo "# SU2 Path" >> "$shellrc"
-        fi
-        if ! grep -Fxq "export SU2_RUN=\"$su2_bin_path\"" "$shellrc"; then
-            echo "export SU2_RUN=\"$su2_bin_path\"" >> "$shellrc"
-        fi
-        if ! grep -Fxq "export SU2_HOME=\"$su2_home_path\"" "$shellrc"; then
-            echo "export SU2_HOME=\"$su2_home_path\"" >> "$shellrc"
-        fi
-        if ! grep -Fxq "export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN" "$shellrc"; then
-            echo "export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN" >> "$shellrc"
-        fi
-        if ! grep -Fxq "export PATH=\"\$PATH:\$SU2_RUN\"" "$shellrc"; then
-            echo "export PATH=\"\$PATH:\$SU2_RUN\"" >> "$shellrc"
-        fi
-        # MPI
-        if ! grep -Fxq "# MPI Path" "$shellrc"; then
-            echo "" >> "$shellrc"
-            echo "# MPI Path" >> "$shellrc"
-        fi
-        if ! grep -Fxq "export PATH=\"\$PATH:$mpi_bin_path\"" "$shellrc"; then
-            echo "export PATH=\"\$PATH:$mpi_bin_path\"" >> "$shellrc"
-        fi
-
+for shellrc in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile"; do
+    # SU2
+    if ! grep -Fxq "# SU2 Path" "$shellrc" 2>/dev/null; then
+        echo "" >> "$shellrc"
+        echo "# SU2 Path" >> "$shellrc"
+    fi
+    if ! grep -Fxq "export SU2_RUN=\"$su2_bin_path\"" "$shellrc" 2>/dev/null; then
+        echo "export SU2_RUN=\"$su2_bin_path\"" >> "$shellrc"
+    fi
+    if ! grep -Fxq "export SU2_HOME=\"$su2_home_path\"" "$shellrc" 2>/dev/null; then
+        echo "export SU2_HOME=\"$su2_home_path\"" >> "$shellrc"
+    fi
+    if ! grep -Fxq "export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN" "$shellrc" 2>/dev/null; then
+        echo "export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN" >> "$shellrc"
+    fi
+    if ! grep -Fxq "export PATH=\"\$PATH:\$SU2_RUN\"" "$shellrc" 2>/dev/null; then
+        echo "export PATH=\"\$PATH:\$SU2_RUN\"" >> "$shellrc"
+    fi
+    # MPI
+    if ! grep -Fxq "# MPI Path" "$shellrc" 2>/dev/null; then
+        echo "" >> "$shellrc"
+        echo "# MPI Path" >> "$shellrc"
+    fi
+    if ! grep -Fxq "export PATH=\"\$PATH:$mpi_bin_path\"" "$shellrc" 2>/dev/null; then
+        echo "export PATH=\"\$PATH:$mpi_bin_path\"" >> "$shellrc"
     fi
 done
 

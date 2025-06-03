@@ -20,23 +20,12 @@ wget -q https://web.mit.edu/drela/Public/web/avl/avl3.40_execs/LINUX64/avl \
 
 chmod +x avl || { echo "Error: Failed to set execute permission on AVL binary." >&2; exit 1; }
 
-if [ -f "$HOME/.bashrc" ]; then
-    if ! grep -Fxq "export PATH=\"\$PATH:$install_dir\"" "$HOME/.bashrc"; then
-        echo "export PATH=\"\$PATH:$install_dir\"" >> "$HOME/.bashrc"
-    fi
+if ! grep -Fxq "export PATH=\"\$PATH:$install_dir\"" "$HOME/.bashrc" 2>/dev/null; then
+    echo "export PATH=\"\$PATH:$install_dir\"" >> "$HOME/.bashrc"
 fi
 
-if [ -f "$HOME/.zshrc" ]; then
-    if ! grep -Fxq "export PATH=\"\$PATH:$install_dir\"" "$HOME/.zshrc"; then
-        echo "export PATH=\"\$PATH:$install_dir\"" >> "$HOME/.zshrc"
-    fi
-fi
-
-# For integration tests in github workflows
-if [ -f "$HOME/.profile" ]; then
-    if ! grep -Fxq "export PATH=\"\$PATH:$install_dir\"" "$HOME/.profile"; then
-        echo "export PATH=\"\$PATH:$install_dir\"" >> "$HOME/.profile"
-    fi
+if ! grep -Fxq "export PATH=\"\$PATH:$install_dir\"" "$HOME/.zshrc" 2>/dev/null; then
+    echo "export PATH=\"\$PATH:$install_dir\"" >> "$HOME/.zshrc"
 fi
 
 cd "$current_dir"

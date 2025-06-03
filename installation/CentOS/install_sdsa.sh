@@ -38,16 +38,16 @@ else
     exit 1
 fi
 
-if [ -f "$HOME/.bashrc" ]; then
-    if ! grep -Fxq "export PATH=\"\$PATH:$bin_dir\"" "$HOME/.bashrc"; then
-        echo "export PATH=\"\$PATH:$bin_dir\"" >> "$HOME/.bashrc"
-    fi
+if ! grep -Fxq "export PATH=\"\$PATH:$bin_dir\"" "$HOME/.bashrc" 2>/dev/null; then
+    echo "export PATH=\"\$PATH:$bin_dir\"" >> "$HOME/.bashrc"
 fi
 
-if [ -f "$HOME/.zshrc" ]; then
-    if ! grep -Fxq "export PATH=\"\$PATH:$bin_dir\"" "$HOME/.zshrc"; then
-        echo "export PATH=\"\$PATH:$bin_dir\"" >> "$HOME/.zshrc"
-    fi
+if ! grep -Fxq "export PATH=\"\$PATH:$bin_dir\"" "$HOME/.zshrc" 2>/dev/null; then
+    echo "export PATH=\"\$PATH:$bin_dir\"" >> "$HOME/.zshrc"
+fi
+
+if ! grep -Fxq "export PATH=\"\$PATH:$bin_dir\"" "$HOME/.profile" 2>/dev/null; then
+    echo "export PATH=\"\$PATH:$bin_dir\"" >> "$HOME/.profile"
 fi
 
 cd "$current_dir"

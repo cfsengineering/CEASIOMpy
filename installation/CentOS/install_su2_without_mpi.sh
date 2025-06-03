@@ -28,31 +28,30 @@ su2_home_path=/"$install_dir"/SU2-v"$su2_version"-linux64-mpi
 
 add_su2_exports() {
     shellrc="$1"
-    if [ -f "$shellrc" ]; then
-        if ! grep -Fxq "# SU2 Path" "$shellrc"; then
-            echo "" >> "$shellrc"
-            echo "# SU2 Path" >> "$shellrc"
-        fi
-        if ! grep -Fxq "export SU2_RUN=\"$su2_run_path\"" "$shellrc"; then
-            echo "export SU2_RUN=\"$su2_run_path\"" >> "$shellrc"
-        fi
-        if ! grep -Fxq "export SU2_HOME=\"$su2_home_path\"" "$shellrc"; then
-            echo "export SU2_HOME=\"$su2_home_path\"" >> "$shellrc"
-        fi
-        if ! grep -Fxq "export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN" "$shellrc"; then
-            echo "export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN" >> "$shellrc"
-        fi
-        if ! grep -Fxq "export PATH=\"\$PATH:\$SU2_RUN\"" "$shellrc"; then
-            echo "export PATH=\"\$PATH:\$SU2_RUN\"" >> "$shellrc"
-        fi
-        if ! grep -Fxq "export PATH=\"\$PATH:/usr/bin\"" "$shellrc"; then
-            echo "export PATH=\"\$PATH:/usr/bin\"" >> "$shellrc"
-        fi
+    if ! grep -Fxq "# SU2 Path" "$shellrc" 2>/dev/null; then
+        echo "" >> "$shellrc"
+        echo "# SU2 Path" >> "$shellrc"
+    fi
+    if ! grep -Fxq "export SU2_RUN=\"$su2_run_path\"" "$shellrc" 2>/dev/null; then
+        echo "export SU2_RUN=\"$su2_run_path\"" >> "$shellrc"
+    fi
+    if ! grep -Fxq "export SU2_HOME=\"$su2_home_path\"" "$shellrc" 2>/dev/null; then
+        echo "export SU2_HOME=\"$su2_home_path\"" >> "$shellrc"
+    fi
+    if ! grep -Fxq "export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN" "$shellrc" 2>/dev/null; then
+        echo "export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN" >> "$shellrc"
+    fi
+    if ! grep -Fxq "export PATH=\"\$PATH:\$SU2_RUN\"" "$shellrc" 2>/dev/null; then
+        echo "export PATH=\"\$PATH:\$SU2_RUN\"" >> "$shellrc"
+    fi
+    if ! grep -Fxq "export PATH=\"\$PATH:/usr/bin\"" "$shellrc" 2>/dev/null; then
+        echo "export PATH=\"\$PATH:/usr/bin\"" >> "$shellrc"
     fi
 }
 
 add_su2_exports "$HOME/.bashrc"
 add_su2_exports "$HOME/.zshrc"
+add_su2_exports "$HOME/.profile"
 
 echo "Checking SU2 version"
 "$SU2_RUN/SU2_CFD" --help

@@ -74,8 +74,6 @@ jobs:
     - name: Run integration tests
       shell: bash -l {0}
       run: |
-        [ -f "$HOME/.bashrc" ] && source "$HOME/.bashrc"
-        [ -f "$HOME/.zshrc" ] && source "$HOME/.zshrc"
         [ -f "$HOME/.profile" ] && source "$HOME/.profile"
         pytest -v ./tests --cov=ceasiompy --cov-report xml:coverage.xml -m "not gui"
 

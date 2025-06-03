@@ -6,15 +6,9 @@
 FROM ubuntu:24.04
 
 RUN apt-get update
-
 RUN apt-get install -y libglu1-mesa-dev
-
 RUN apt update && apt upgrade -y
-
-# Install apt-utils
 RUN apt-get install -y apt-utils 
-
-# Install system dependencies
 RUN apt-get install -y --no-install-recommends \
     git curl wget sudo unzip build-essential libtbbmalloc2 libtbb-dev libxrender1 libxcursor1 libxinerama1 libxft2 libxt6 \
     libgl1 libglu1-mesa libegl1 libosmesa6 xvfb ca-certificates && \
@@ -29,24 +23,20 @@ ENV PATH=$CONDA_DIR/bin:$PATH
 
 RUN apt-get install -y
 
-# Create the necessary directory structure
-WORKDIR /CEASIOMpy/installation/Ubuntu/
-
-# Copy the required installation scripts from local context
-COPY ./installation/Ubuntu/install_pyavl.sh .
-COPY ./installation/Ubuntu/install_su2_with_mpi.sh .
-COPY ./installation/Ubuntu/install_pentagrow.sh .
-
-# Make the scripts executable
+# Create the installation directory structure
+WORKDIR /CEASIOMpy/installation/
+COPY ./installation .
+WORKDIR /CEASIOMpy/installation/Ubuntu
 RUN chmod +x install_*.sh
+WORKDIR /CEASIOMpy/installation/Pentagrow/bin
+RUN chmod +x pentagrow
 
 WORKDIR /CEASIOMpy
-
-# Run the installation scripts
-RUN installation/Ubuntu/install_pyavl.sh && \
+RUN installation/Ubuntu/install_pentagrow.sh && \
     installation/Ubuntu/install_su2_with_mpi.sh && \
-    installation/Ubuntu/install_pentagrow.sh
+    installation/Ubuntu/install_pyavl.sh
 
+# Set the working directory to the CEASIOMpy root
 # Go from /CEASIOMpy/INSTALLDIR to /INSTALLDIR
 RUN mkdir -p /INSTALLDIR && \
     mv /CEASIOMpy/INSTALLDIR/* /INSTALLDIR/ && \
@@ -80,9 +70,6 @@ RUN mkdir -p /CEASIOMpy
 
 # Set the working directory to the mounted CEASIOMpy folder
 WORKDIR /CEASIOMpy
-
-# Add software paths to the PATH environment variable
-ENV PATH="/CEASIOMpy/INSTALLDIR/bin:/CEASIOMpy/INSTALLDIR/avl:$PATH"
 
 # Get the required files for installing the conda environment
 RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/setup.py -O /CEASIOMpy/setup.py && \

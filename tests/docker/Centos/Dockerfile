@@ -17,7 +17,7 @@ RUN conda update -n base -c defaults conda
 WORKDIR /CEASIOMpy/installation/CentOS/
 COPY ./installation/CentOS/install_ceasiompy.sh .
 COPY ./installation/CentOS/install_pyavl.sh .
-COPY ./installation/CentOS/install_su2.sh .
+COPY ./installation/CentOS/install_su2_without_mpi.sh .
 RUN chmod +x install_*.sh
 
 WORKDIR /CEASIOMpy/src/ceasiompy/utils
@@ -28,7 +28,7 @@ WORKDIR /CEASIOMpy
 COPY ./environment.yml .
 RUN installation/CentOS/install_ceasiompy.sh && \
     installation/CentOS/install_pyavl.sh && \
-    installation/CentOS/install_su2.sh
+    installation/CentOS/install_su2_without_mpi.sh
 RUN source ~/.bashrc
 
 # Copy test script

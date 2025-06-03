@@ -49,12 +49,8 @@ from ceasiompy.utils.commonxpaths import (
 
 
 def main(cpacs: CPACS, wkdir: Path) -> None:
-    """Running the PyCycle code by choosing between turbojet or turbofan engine
-
-    Args
-        cpacs_path (Path): Path to CPACS file
-        cpacs_out_path (Path):Path to CPACS output file
-        wkdir (str): Path to the working directory
+    """
+    Running the PyCycle code by choosing between turbojet or turbofan engine
     """
 
     tixi = cpacs.tixi
@@ -162,5 +158,4 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         add_float_vector(tixi, ENGINE_BC + "/temperatureOutlet", T_tot_out_array)
         add_float_vector(tixi, ENGINE_BC + "/pressureOutlet", P_tot_out_array)
 
-    folder_name = "reports"
-    shutil.rmtree(folder_name)
+    shutil.rmtree("reports", ignore_errors=True)

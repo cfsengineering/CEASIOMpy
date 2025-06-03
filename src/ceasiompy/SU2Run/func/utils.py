@@ -84,15 +84,14 @@ def process_config_dir(config_dir: Path, dict_dir: List[Dict]) -> None:
         angle = config_name.split("_")[3].split("angle")[1]
     else:
         log.warning(f"Skipping results of directory {config_dir}.")
+        return None
 
-    dict_dir.append(
-        {
-            "mach": float(config_name.split("_")[2].split("mach")[1]),
-            "alt": float(config_name.split("_")[1].split("alt")[1]),
-            "dir": config_dir,
-            "angle": angle,
-        },
-    )
+    dict_dir.append({
+        "mach": float(config_name.split("_")[2].split("mach")[1]),
+        "alt": float(config_name.split("_")[1].split("alt")[1]),
+        "dir": config_dir,
+        "angle": angle,
+    })
 
 
 def check_force_file_exists(config_dir: Path) -> Path:

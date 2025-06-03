@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to install SU2
+# Script to install SU2 on Centos 8
 
 su2_version="8.1.0"
 
@@ -18,8 +18,10 @@ mkdir -p "$install_dir"
 cd "$install_dir"
 
 echo "Downloading SU2..."
-wget https://github.com/su2code/SU2/releases/download/v"$su2_version"/SU2-v"$su2_version"-linux64.zip
-unzip -d SU2-v"$su2_version"-linux64 SU2-v"$su2_version"-linux64.zip
+wget https://github.com/su2code/SU2/releases/download/v"$su2_version"/SU2-v"$su2_version"-linux64-mpi.zip
+unzip -d SU2-v"$su2_version"-linux64-mpi SU2-v"$su2_version"-linux64-mpi.zip
+
+echo "Adding path to the .bashrc"
 
 su2_run_path=/"$install_dir"/SU2-v"$su2_version"-linux64-mpi/bin
 su2_home_path=/"$install_dir"/SU2-v"$su2_version"-linux64-mpi

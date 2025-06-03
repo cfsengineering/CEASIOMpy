@@ -50,6 +50,5 @@ class TestSU2Results(CeasiompyTest):
 #    MAIN
 # =================================================================================================
 
-
 if __name__ == "__main__":
     unittest.main(verbosity=0)

@@ -22,7 +22,6 @@ from ceasiompy.utils.ceasiompyutils import (
     get_part_type,
 )
 from ceasiompy.SU2Run.func.utils import get_mesh_markers
-from ceasiompy.CPACS2GMSH.func.wingclassification import get_entities_from_volume
 from ceasiompy.CPACS2GMSH.func.rans_mesh_generator import (
     generate_2d_mesh_for_pentagrow,
     sort_surfaces_and_create_physical_groups,
@@ -31,7 +30,6 @@ from ceasiompy.CPACS2GMSH.func.rans_mesh_generator import (
 )
 from ceasiompy.CPACS2GMSH.func.generategmesh import (
     ModelPart,
-    generate_gmsh,
 )
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 import gmsh
@@ -121,7 +119,7 @@ def test_choose_correct_part():
 
     b1 = gmsh.model.occ.addBox(0, 0, 0, 1, 1, 1)
     b2 = gmsh.model.occ.addBox(0.5, 0.5, 0.5, 1, 1, 1)
-    fused = gmsh.model.occ.fuse([(3, b1)], [(3, b2)])
+    gmsh.model.occ.fuse([(3, b1)], [(3, b2)])
     gmsh.model.occ.synchronize()
     parts_in_b1 = [t for (d, t) in gmsh.model.getEntitiesInBoundingBox(
         -0.1, -0.1, -0.1, 1.1, 1.1, 1.1, 2)]
@@ -205,11 +203,8 @@ def test_sort_surfaces_and_create_physical_groups():
         model_part.bounding_box = [bb[0] - 0.1, bb[1] - 0.1,
                                    bb[2] - 0.1, bb[3] + 0.1, bb[4] + 0.1, bb[5] + 0.1]
 
-    fused = gmsh.model.occ.fuse([(3, vols[0])], [(3, vols[1]), (3, vols[2])])
-    for model_part in aircraft_parts:
-        surfaces_dimtags = gmsh.model.getEntitiesInBoundingBox(
-            *model_part.bounding_box, 2
-        )
+    gmsh.model.occ.fuse([(3, vols[0])], [(3, vols[1]), (3, vols[2])])
+
     gmsh.model.occ.synchronize()
     sort_surfaces_and_create_physical_groups(
         aircraft_parts, brep_files, cpacs, model_bb, model_dimensions)

@@ -1,2 +1,6 @@
 D150_simple_out.xml
+<<<<<<< HEAD
 WKFLOW_test/*
+=======
+/WKFLOW_test/Workflow_*
+>>>>>>> general_updates

@@ -116,11 +116,11 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
             value = test_value
         else:
             value = default_value
-        parts = xpath.strip('/').split('/')
+        parts = xpath.strip("/").split("/")
         for i in range(1, len(parts) + 1):
-            path = '/' + '/'.join(parts[:i])
+            path = "/" + "/".join(parts[:i])
             if not tixi.checkElement(path):
-                tixi.createElement('/' + '/'.join(parts[:i - 1]), parts[i - 1])
+                tixi.createElement("/" + "/".join(parts[: i - 1]), parts[i - 1])
 
         # Check if the name or var_type is in the dictionary and call the corresponding function
         if name in AEROMAP_LIST:
@@ -165,10 +165,7 @@ def change_working_dir(working_dir):
 
 
 def ensure_and_append_text_element(
-    tixi: Tixi3,
-    parent_xpath: str,
-    element_name: str,
-    text: str
+    tixi: Tixi3, parent_xpath: str, element_name: str, text: str
 ) -> None:
     """
     Ensures element (element_name) exists at xpath (parent_xpath),
@@ -397,8 +394,8 @@ def check_version(software_name: str, required_version: str) -> Tuple[bool, str]
     if version is None:
         return False, ""
 
-    version_tuple = tuple(map(int, version.split('.')))
-    required_version_tuple = tuple(map(int, required_version.split('.')))
+    version_tuple = tuple(map(int, version.split(".")))
+    required_version_tuple = tuple(map(int, required_version.split(".")))
 
     return version_tuple >= required_version_tuple, version
 
@@ -415,7 +412,7 @@ def get_version(software_name: str) -> str:
         log.warning(f"The version file for {software_name} does not exist!")
         return ""
 
-    version_pattern = re.compile(r'\d+\.\d+\.\d+')
+    version_pattern = re.compile(r"\d+\.\d+\.\d+")
     match = version_pattern.search(str(version_file))
 
     if match:
@@ -433,6 +430,7 @@ def run_software(
     nb_cpu: int = 1,
     stdin: Optional[TextIO] = None,
     log_bool: bool = True,
+    xvfb: bool = False,
 ) -> None:
     """Run a software with the given arguments in a specific wkdir. If the software is compatible
     with MPI, 'with_mpi' can be set to True and the number of processors can be specified. A
@@ -463,18 +461,17 @@ def run_software(
     command_line = []
     if with_mpi:
         mpi_install_path = get_install_path("mpirun")  # "mpirun.mpich"
+        # If runs with open mpi add --allow-run-as-root
         if mpi_install_path is not None:
             command_line += [mpi_install_path, "-np", str(int(nb_cpu))]
 
     command_line += [install_path]
     command_line += arguments
 
-    # Use xvfb to run sumo to avoid problems with X11 (e.g. when running test on Github actions)
-    if software_name in ["sumo", "dwfsumo"] and sys.platform == "linux":
-        if shutil.which("xvfb-run"):
-            command_line = ["xvfb-run", "--auto-servernum"] + command_line
-        else:
-            log.warning("xvfb-run not found. Proceeding without it.")
+    if xvfb:
+        command_line = ["xvfb-run", "--auto-servernum"] + command_line
+    else:
+        log.warning("xvfb-run not found. Proceeding without it.")
 
     log.info(f">>> Running {software_name} on {int(nb_cpu)} cpu(s)")
     log.info(f"Working directory: {wkdir}")
@@ -522,7 +519,7 @@ def check_nb_cpu(nb_proc: int) -> None:
     """
     Check if input nb_cpu from GUI is reasonable.
     """
-    if (not os.cpu_count() > nb_proc):
+    if not os.cpu_count() > nb_proc:
         log.warning(f"{nb_proc} CPUs is too much for your engine.")
         nb_proc = get_reasonable_nb_cpu()
         log.info(f"Using by default {nb_proc} CPUs.")
@@ -619,6 +616,7 @@ def get_part_type(tixi, part_uid: str, print_info=True) -> str:
     part_xpath = tixi.uIDGetXPath(part_uid)
 
     path_part = {
+<<<<<<< HEAD
         "wings/wing" : "wing",
         "fuselages/fuselage" : "fuselage",
         "enginePylons/enginePylon" : "pylon",
@@ -630,6 +628,19 @@ def get_part_type(tixi, part_uid: str, print_info=True) -> str:
     }
 
     for (path_name, part_name) in path_part.items():
+=======
+        "wings/wing": "wing",
+        "fuselages/fuselage": "fuselage",
+        "enginePylons/enginePylon": "pylon",
+        "engine/nacelle/fanCowl": "fanCowl",
+        "engine/nacelle/centerCowl": "centerCowl",
+        "engine/nacelle/coreCowl": "coreCowl",
+        "vehicles/engines/engine": "engine",
+        "vehicles/rotorcraft/model/rotors/rotor": "rotor",
+    }
+
+    for path_name, part_name in path_part.items():
+>>>>>>> general_updates
         if path_name in part_xpath:
             if print_info:
                 log.info(f"'{part_uid}' is a {part_name}")
@@ -657,18 +668,3 @@ def remove_file_type_in_dir(directory: Path, file_type_list: List[str]) -> None:
             continue
         if file.suffix in file_type_list:
             file.unlink()
-
-
-def bool_(value) -> bool:
-    if str(value) in ["false", "False"]:
-        return False
-    else:
-        return True
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

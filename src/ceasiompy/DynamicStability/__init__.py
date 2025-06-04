@@ -16,7 +16,6 @@ Initialization for DynamicStability module.
 
 from pathlib import Path
 
-from ceasiompy import log
 from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 
 # ==============================================================================
@@ -40,7 +39,7 @@ RES_DIR = True
 SOFTWARE_NAME = "SDSA"
 
 # Fixed Altitude
-ALT = 1000.0
+ALT = 0.0
 
 # xPaths
 DYNAMICSTABILITY_XPATH = CEASIOMPY_XPATH + "/DynamicStability"
@@ -57,11 +56,3 @@ DYNAMICSTABILITY_VISUALIZATION_XPATH = DYNAMICSTABILITY_XPATH + "/Visualization"
 DYNAMICSTABILITY_CGRID_XPATH = DYNAMICSTABILITY_XPATH + "/CGrid"
 DYNAMICSTABILITY_SOFTWARE_XPATH = DYNAMICSTABILITY_XPATH + "/Software"
 DYNAMICSTABILITY_MACHLIST_XPATH = DYNAMICSTABILITY_XPATH + "/Mach"
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

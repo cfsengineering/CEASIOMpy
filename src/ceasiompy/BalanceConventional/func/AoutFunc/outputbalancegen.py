@@ -145,7 +145,6 @@ def output_txt(out, mw, bi, NAME):
         OutputTextFile.write("\n---------------------------------------" + "--------")
     # Closing Text File
     OutputTextFile.close()
-    return ()
 
 
 # =============================================================================
@@ -176,7 +175,15 @@ def aircraft_nodes_plot(fx, fy, fz, wx, wy, wz, NAME):
     fig = plt.figure()
     mpl.rcParams.update({"font.size": 20})
     ax = fig.add_subplot(111, projection="3d")
-    ax.plot([fx[0]], [fy[0]], [fz[0]], c="g", marker="o", label="Fuselage nodes", markersize=10)
+    ax.plot(
+        [fx[0]],
+        [fy[0]],
+        [fz[0]],
+        c="g",
+        marker="o",
+        label="Fuselage nodes",
+        markersize=10,
+    )
     ax.plot([wx[0]], [wy[0]], [wz[0]], c="b", marker="o", label="Wing nodes", markersize=10)
     # s1 = ax.scatter(fx, fy, fz, c="g", marker="o", s=100 * np.ones((np.max(np.shape(fx)))))
     # s2 = ax.scatter(wx, wy, wz, c="b", marker="o", s=100 * np.ones((np.max(np.shape(wx)))))
@@ -189,8 +196,6 @@ def aircraft_nodes_plot(fx, fy, fz, wx, wy, wz, NAME):
     ax.legend(numpoints=1, loc="upper right")
     FIG_NAME = "ToolOutput/" + NAME + "/" + NAME + "_Aircraft_Nodes.png"
     fig.savefig(FIG_NAME, dpi=300)
-
-    return ()
 
 
 # AIRCRAFT CoG PLOT --------------------------------------------------------
@@ -263,15 +268,3 @@ def aircraft_cog_plot(cg, ag, NAME):
     )
     FIG_NAME = "ToolOutput/" + NAME + "/" + NAME + "_Aircraft_Cog.png"
     fig.savefig(FIG_NAME, dpi=500)
-
-    return ()
-
-
-# =============================================================================
-#    MAIN
-# =============================================================================
-
-if __name__ == "__main__":
-    print("##########################################################")
-    print("### ERROR NOT A STANDALONE PROGRAM, RUN balancemain.py ###")
-    print("##########################################################")

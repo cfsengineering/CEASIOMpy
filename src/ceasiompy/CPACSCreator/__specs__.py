@@ -1,4 +1,3 @@
-
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
@@ -17,17 +16,8 @@ GUI Interface of CPACSCreator.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
-
 # ==============================================================================
 #   VARIABLE
 # ==============================================================================
 
 cpacs_inout = CPACSInOut()
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

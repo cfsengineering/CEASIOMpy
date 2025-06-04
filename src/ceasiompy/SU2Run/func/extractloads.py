@@ -17,15 +17,22 @@ import vtk
 import numpy as np
 import pandas as pd
 
-from ceasiompy import log
 from six import iteritems
-from vtk.util.numpy_support import numpy_to_vtk, vtk_to_numpy
+from vtkmodules.util.numpy_support import (
+    numpy_to_vtk,
+    vtk_to_numpy,
+)
 
 from pathlib import Path
-from ceasiompy.utils.configfiles import ConfigFile
+from numpy import ndarray
 from scipy.sparse import csr_matrix
-from typing import Dict, List
+from ceasiompy.utils.configfiles import ConfigFile
+from typing import (
+    Dict,
+    List,
+)
 
+from ceasiompy import log
 from ceasiompy.utils.commonnames import (
     CONFIG_CFD_NAME,
     FORCE_FILE_NAME,
@@ -39,16 +46,16 @@ from ceasiompy.utils.commonnames import (
 # =================================================================================================
 
 
-def compute_point_normals(coord: np.ndarray, cells: np.ndarray) -> np.ndarray:
+def compute_point_normals(coord: ndarray, cells: ndarray) -> ndarray:
     """
     Computes normals at points weighted by the area of the surrounding cells on a triangular mesh.
 
     Args:
-        coords (np.ndarray): (n, k)-dimensional coordinate points.
-        cells (np.ndarray): (m, 3) triangular cell connectivity.
+        coords (ndarray): (n, k)-dimensional coordinate points.
+        cells (ndarray): (m, 3) triangular cell connectivity.
 
     Returns:
-        point_nvecs (np.ndarray): (n, k)-dimensional normal vector at the n points.
+        point_nvecs (ndarray): (n, k)-dimensional normal vector at the n points.
 
     """
 
@@ -56,7 +63,11 @@ def compute_point_normals(coord: np.ndarray, cells: np.ndarray) -> np.ndarray:
     cell_nvecs = np.cross(-cell_vecs[:, 0, :], cell_vecs[:, 1, :]) / 2.0
 
     cell_sp = csr_matrix(
-        (np.ones(cells.shape[0] * 3), cells.flat, np.arange(0, 3 * cells.shape[0] + 1, 3)),
+        (
+            np.ones(cells.shape[0] * 3),
+            cells.flat,
+            np.arange(0, 3 * cells.shape[0] + 1, 3),
+        ),
         shape=(cells.shape[0], coord.shape[0]),
     )
 
@@ -108,7 +119,9 @@ def compute_forces(
 
     for name, values in iteritems({"n": unit_norm, "f": force}):
         vectors = numpy_to_vtk(
-            np.ascontiguousarray(values).astype(np.double), deep=True, array_type=vtk.VTK_FLOAT
+            np.ascontiguousarray(values).astype(np.double),
+            deep=True,
+            array_type=vtk.VTK_FLOAT,
         )
         vectors.SetName(name)
         mesh.GetPointData().AddArray(vectors)
@@ -202,6 +215,7 @@ def write_updated_mesh(mesh: vtk.vtkXMLUnstructuredGridWriter, new_vtu_file_path
     writer.SetFileName(new_vtu_file_path)
     writer.Update()
 
+
 # TODO: maybe create some exteral function to cope with SU2Mesh, get coord, get marker ...
 
 
@@ -274,11 +288,3 @@ def extract_loads(results_files_dir: Path) -> None:
     config_dict = ConfigFile(config_file_path).data
     updated_mesh = compute_forces(surface_flow_file_path, force_file_path, config_dict)
     write_updated_mesh(updated_mesh, surface_flow_force_file_path)
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

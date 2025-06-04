@@ -26,12 +26,10 @@ from pathlib import Path
 from sqlite3 import Cursor
 from tixi3.tixi3wrapper import Tixi3
 
-from ceasiompy import log
 from ceasiompy.Database.func import (
     PYAVL_ST,
     PYAVL_CTRLSURF,
 )
-
 
 # ==============================================================================
 #   FUNCTIONS
@@ -45,7 +43,7 @@ def store_results(
     index: int,
     var_name: str,
 ) -> None:
-    parts = line.split('=')
+    parts = line.split("=")
 
     # Handle special case for keys like "Clb" and "Cnb"
     if key in ["Clb", "Cnb"]:
@@ -117,7 +115,8 @@ def store_pyavl_data(
 
         if not file_path.exists():
             raise FileNotFoundError(
-                f"No result total forces '{txt_file_name}' file have been found!")
+                f"No result total forces '{txt_file_name}' file have been found!"
+            )
 
         # Append data to it
         data = get_avl_data(file_path)
@@ -125,11 +124,3 @@ def store_pyavl_data(
         data["alt"] = alt
 
         data_to_db(cursor, data, table_name)
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

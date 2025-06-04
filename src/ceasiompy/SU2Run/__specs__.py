@@ -20,7 +20,7 @@ from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log, NO_YES_LIST
+from ceasiompy import NO_YES_LIST
 from ceasiompy.SU2Run import (
     INCLUDE_GUI,
     TEMPLATE_TYPE,
@@ -498,11 +498,3 @@ cpacs_inout.add_output(
     descr="aeroMap with aero coefficients calculated by SU2",
     xpath=AEROPERFORMANCE_XPATH + "/aeroMap/aeroPerformanceMap",
 )
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

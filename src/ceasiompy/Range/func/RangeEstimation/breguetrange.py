@@ -11,7 +11,6 @@ This script evaluates the range of the aircraft with the Breguet equation.
 
 """
 
-
 # =============================================================================
 #   IMPORTS
 # =============================================================================
@@ -124,7 +123,8 @@ def breguet_cruise_range(LDcru, ri, mw):
 
     ranges.append(
         round(
-            ((ri.CRUISE_SPEED * 3.6) / (ri.TSFC_CRUISE)) * LDcru * math.log(w_g3 / w_al_maxfuel), 3
+            ((ri.CRUISE_SPEED * 3.6) / (ri.TSFC_CRUISE)) * LDcru * math.log(w_g3 / w_al_maxfuel),
+            3,
         )
     )
     ranges_cru.append(

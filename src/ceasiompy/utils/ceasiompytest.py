@@ -22,13 +22,13 @@ from typing import Tuple
 from typing import Callable
 from cpacspy.cpacspy import CPACS
 
-from ceasiompy import log
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 
 
 # =================================================================================================
 #   CLASSES
 # =================================================================================================
+
 
 class CeasiompyTest(unittest.TestCase):
 
@@ -48,11 +48,3 @@ class CeasiompyTest(unittest.TestCase):
         self.assertEqual(len(actual), len(expected), "Number of outputs does not match.")
         for act, exp in zip(actual, expected):
             self.assertEqual(act, approx(exp))
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

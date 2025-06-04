@@ -14,14 +14,11 @@ Test functions for 'lib/moduleinterfaces.py'
 #   IMPORTS
 # =================================================================================================
 
+import pytest
 import streamlit as st
 from pathlib import Path
-from cpacspy.cpacspy import CPACS
 
-import pytest
 from ceasiompy.utils.moduleinterfaces import (
-    CPACSInOut,
-    CPACSRequirementError,
     check_cpacs_input_requirements,
     get_all_module_specs,
     get_module_path,
@@ -30,8 +27,19 @@ from ceasiompy.utils.moduleinterfaces import (
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
-from ceasiompy.utils.commonpaths import MODULES_DIR_PATH, CPACS_FILES_PATH
+
+from cpacspy.cpacspy import CPACS
+from unittest.mock import MagicMock
+from ceasiompy.utils.moduleinterfaces import (
+    CPACSInOut,
+    CPACSRequirementError,
+)
+
 from ceasiompy.utils.commonxpaths import RANGE_CRUISE_ALT_XPATH
+from ceasiompy.utils.commonpaths import (
+    MODULES_DIR_PATH,
+    CPACS_FILES_PATH,
+)
 
 MODULE_DIR = Path(__file__).parent
 CPACS_TEST_FILE = Path(MODULE_DIR, "ToolInput", "cpacs_test_file.xml")
@@ -197,25 +205,7 @@ def test_get_all_module_specs():
     """
     Test that 'get_all_module_specs()' runs
     """
+    st.session_state = MagicMock()
     st.session_state.cpacs = CPACS(Path(CPACS_FILES_PATH, "D150_simple.xml"))
     all_specs = get_all_module_specs()
     assert isinstance(all_specs, dict)
-
-
-def test_create_default_toolspecific():
-    """
-    Test that 'create_default_toolspecific' works
-    """
-
-    pass
-    # TODO: how to test that...
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    print("Test moduleinterfaces.py")
-    print("To run test use the following command:")
-    print(">> pytest -v")

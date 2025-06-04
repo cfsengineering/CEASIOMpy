@@ -48,12 +48,11 @@ from ceasiompy import log
 from ceasiompy.utils.commonxpaths import (
     SU2MESH_XPATH,
     SUMO_REFINE_LEVEL_XPATH,
-    SUMOFILE_XPATH,
     SPECIFIED_SUMOFILE_XPATH,
 )
 
 from ceasiompy.SUMOAutoMesh import MODULE_NAME
-from ceasiompy.CPACS2SUMO import MODULE_NAME as CPACS2SUMO
+from ceasiompy.CPACS2SUMO import MODULE_NAME as CPACS2SUMO, CPACS2SUMOFILE_XPATH
 
 # =================================================================================================
 #   FUNCTIONS
@@ -242,8 +241,8 @@ def main(cpacs: CPACS, wkdir: Path):
     cpacs_to_sumo_wkdir = get_results_directory(CPACS2SUMO)
     su2_mesh_path = Path(cpacs_to_sumo_wkdir, "ToolOutput.smx")
 
-    if tixi.checkElement(SUMOFILE_XPATH):
-        sumo_file_path = Path(get_value(tixi, SUMOFILE_XPATH))
+    if tixi.checkElement(CPACS2SUMOFILE_XPATH):
+        sumo_file_path = Path(get_value(tixi, CPACS2SUMOFILE_XPATH))
     else:
         sumo_file_path = Path(get_value(tixi, SPECIFIED_SUMOFILE_XPATH))
 
@@ -284,7 +283,7 @@ def main(cpacs: CPACS, wkdir: Path):
             arguments=arguments,
             wkdir=wkdir,
             with_mpi=False,
-            nb_cpu=nb_cpu
+            nb_cpu=nb_cpu,
         )
 
     elif current_os == "Windows":
@@ -315,6 +314,7 @@ def main(cpacs: CPACS, wkdir: Path):
         create_branch(tixi, SU2MESH_XPATH)
         tixi.updateTextElement(SU2MESH_XPATH, str(su2_mesh_out_path))
         su2_mesh_path.unlink()
+
 
 # =================================================================================================
 #    MAIN

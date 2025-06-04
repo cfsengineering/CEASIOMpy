@@ -1,4 +1,3 @@
-
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
@@ -17,15 +16,20 @@ GUI Interface of CLCalculator.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
-from ceasiompy.CLCalculator import INCLUDE_GUI
+from ceasiompy.utils.commonxpaths import AREA_XPATH
 from ceasiompy.SU2Run import (
     SU2_FIXED_CL_XPATH,
     SU2_TARGET_CL_XPATH,
 )
-from ceasiompy.utils.commonxpaths import (
-    REF_XPATH,
-    CLCALC_XPATH,
+from ceasiompy.CLCalculator import (
+    MASS_TYPES,
+    INCLUDE_GUI,
+    CLCALC_MASS_TYPE_XPATH,
+    CLCALC_LOAD_FACT_XPATH,
+    CLCALC_CRUISE_ALT_XPATH,
+    CLCALC_CRUISE_MACH_XPATH,
+    CLCALC_PERC_FUEL_MASS_XPATH,
+    CLCALC_CUSTOM_MASS_XPATH,
 )
 
 # ==============================================================================
@@ -41,11 +45,10 @@ cpacs_inout = CPACSInOut()
 cpacs_inout.add_input(
     var_name="mass_type",
     var_type=list,
-
-    default_value=["mTOM", "mZFM", "Custom", "%% fuel mass"],
+    default_value=MASS_TYPES,
     unit=None,
     descr="Type of mass to use for CL calculation",
-    xpath=CLCALC_XPATH + "/massType",
+    xpath=CLCALC_MASS_TYPE_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Type",
     gui_group="Mass",
@@ -57,7 +60,7 @@ cpacs_inout.add_input(
     default_value=0.0,
     unit="kg",
     descr="Mass value if Custom is selected",
-    xpath=CLCALC_XPATH + "/customMass",
+    xpath=CLCALC_CUSTOM_MASS_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Custom mass",
     gui_group="Mass",
@@ -69,7 +72,7 @@ cpacs_inout.add_input(
     default_value=100,
     unit=None,
     descr="Percentage of fuel mass between mTOM and mZFM, if % fuel mass is selected",
-    xpath=CLCALC_XPATH + "/percentFuelMass",
+    xpath=CLCALC_PERC_FUEL_MASS_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Percent fuel mass",
     gui_group="Mass",
@@ -81,7 +84,7 @@ cpacs_inout.add_input(
     default_value=0.78,
     unit=None,
     descr="Aircraft cruise Mach number",
-    xpath=CLCALC_XPATH + "/cruiseMach",
+    xpath=CLCALC_CRUISE_MACH_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Mach",
     gui_group="Cruise",
@@ -93,7 +96,7 @@ cpacs_inout.add_input(
     default_value=12000.0,
     unit="[m]",
     descr="Aircraft cruise altitude",
-    xpath=CLCALC_XPATH + "/cruiseAltitude",
+    xpath=CLCALC_CRUISE_ALT_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Altitude",
     gui_group="Cruise",
@@ -105,7 +108,7 @@ cpacs_inout.add_input(
     default_value=1.05,
     unit=None,
     descr="Aircraft cruise altitude",
-    xpath=CLCALC_XPATH + "/loadFactor",
+    xpath=CLCALC_LOAD_FACT_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Load Factor",
     gui_group="Cruise",
@@ -117,7 +120,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit="[m^2]",
     descr="Aircraft reference area",
-    xpath=REF_XPATH + "/area",
+    xpath=AREA_XPATH,
     gui=False,
     gui_name=None,
     gui_group="Reference Area",
@@ -142,10 +145,3 @@ cpacs_inout.add_output(
     descr="FIXED_CL_MODE parameter for SU2",
     xpath=SU2_FIXED_CL_XPATH,
 )
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

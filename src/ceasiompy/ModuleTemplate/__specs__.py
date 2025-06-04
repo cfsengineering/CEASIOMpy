@@ -84,10 +84,3 @@ cpacs_inout.add_output(
     descr="Description of the output",
     xpath=CEASIOMPY_XPATH + "/test/myOutput",
 )
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

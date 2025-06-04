@@ -17,7 +17,6 @@ from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.PyAVL import INCLUDE_GUI
 
 from ceasiompy.PyAVL import (
@@ -197,10 +196,3 @@ cpacs_inout.add_input(
     gui_group="Values Expansion",
     expanded=False,
 )
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

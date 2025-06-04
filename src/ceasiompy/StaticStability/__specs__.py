@@ -16,9 +16,10 @@ GUI Interface of StaticStability.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
-from ceasiompy.StaticStability import INCLUDE_GUI
-from ceasiompy.utils.commonxpaths import STATICSTABILITY_LR_XPATH
+from ceasiompy.StaticStability import (
+    INCLUDE_GUI,
+    STATICSTABILITY_LR_XPATH,
+)
 
 # ==============================================================================
 #   VARIABLE
@@ -37,10 +38,3 @@ cpacs_inout.add_input(
     gui_name="Linear Regression",
     gui_group="Static Stability Settings",
 )
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

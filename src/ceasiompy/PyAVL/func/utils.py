@@ -13,7 +13,6 @@ Utils for PyAVL module.
 import numpy as np
 
 from pydantic import validate_call
-from cpacspy.cpacsfunctions import get_value
 
 from pathlib import Path
 from numpy import ndarray
@@ -28,7 +27,6 @@ from typing import (
 )
 
 from ceasiompy.utils.commonxpaths import REF_XPATH
-from ceasiompy.PyAVL import AVL_EXPAND_VALUES_XPATH
 from ceasiompy import (
     log,
     ceasiompy_cfg,
@@ -40,11 +38,13 @@ from ceasiompy import (
 
 
 def get_points_ref(tixi: Tixi3) -> ndarray:
-    return np.array([
-        tixi.getDoubleElement(REF_XPATH + "/point/x"),
-        tixi.getDoubleElement(REF_XPATH + "/point/y"),
-        tixi.getDoubleElement(REF_XPATH + "/point/z"),
-    ])
+    return np.array(
+        [
+            tixi.getDoubleElement(REF_XPATH + "/point/x"),
+            tixi.getDoubleElement(REF_XPATH + "/point/y"),
+            tixi.getDoubleElement(REF_XPATH + "/point/z"),
+        ]
+    )
 
 
 def write_control(
@@ -52,7 +52,7 @@ def write_control(
     control_type: str,
     hinge_xsi: float,
     axis: str,
-    control_bool: float
+    control_bool: float,
 ) -> None:
     """Helper function to write CONTROL section."""
     avl_file.write("CONTROL\n")
@@ -108,7 +108,7 @@ def to_cpacs_format(point: Point) -> str:
 
 
 @validate_call(config=ceasiompy_cfg)
-def duplicate_elements(tixi: Tixi3, *lists: List) -> Tuple[List, ...]:
+def duplicate_elements(expand: bool, *lists: List) -> Tuple[List, ...]:
     """
     Duplicates lists such that there is a unique combination of them
     and the last three lists are zero-independent.
@@ -127,7 +127,7 @@ def duplicate_elements(tixi: Tixi3, *lists: List) -> Tuple[List, ...]:
     """
 
     # If you do not wish to expand values
-    if not get_value(tixi, AVL_EXPAND_VALUES_XPATH):
+    if not expand:
         cst_list = len(lists[0]) * [lists[-1][0]]
         return tuple(lists[:-1]) + (cst_list, cst_list, cst_list)
 
@@ -160,11 +160,3 @@ def duplicate_elements(tixi: Tixi3, *lists: List) -> Tuple[List, ...]:
                 append_combination(combination, [0.0, 0.0, value])
 
     return tuple(new_lists)
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute.")

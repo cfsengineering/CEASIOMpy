@@ -34,7 +34,10 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 from ceasiompy.BalanceUnconventional.func.AinFunc import getdatafromcpacs
-from ceasiompy.BalanceUnconventional.func.AoutFunc import cpacsbalanceupdate, outputbalancegen
+from ceasiompy.BalanceUnconventional.func.AoutFunc import (
+    cpacsbalanceupdate,
+    outputbalancegen,
+)
 from ceasiompy.BalanceUnconventional.func.Cog.unccog import (
     bwb_center_of_gravity,
     unc_center_of_gravity,
@@ -112,7 +115,13 @@ def get_balance_unc_estimations(cpacs_path, cpacs_out_path):
         raise Exception("Aircraft does not have wings")
     elif not fus_nb:
         (awg, _) = uncgeomanalysis.no_fuse_geom_analysis(
-            cpacs_path, ui.FLOORS_NB, w_nb, ui.H_LIM_CABIN, ui.FUEL_ON_CABIN, name, ed.turboprop
+            cpacs_path,
+            ui.FLOORS_NB,
+            w_nb,
+            ui.H_LIM_CABIN,
+            ui.FUEL_ON_CABIN,
+            name,
+            ed.turboprop,
         )
     else:
         log.info("Fuselage detected")

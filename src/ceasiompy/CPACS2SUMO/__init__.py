@@ -16,7 +16,6 @@ Initialization for CPACS2SUMO module.
 
 from pathlib import Path
 
-from ceasiompy import log
 from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 
 # ==============================================================================
@@ -24,10 +23,10 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 # ==============================================================================
 
 # ===== Module Status =====
-MODULE_STATUS = True
+MODULE_STATUS = False
 
 # ===== Include GUI =====
-INCLUDE_GUI = True
+INCLUDE_GUI = False
 
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
@@ -42,11 +41,3 @@ CPACS2SUMO_SUMO_GUI_XPATH = CPACS2SUMO_XPATH + "/GUI"
 CPACS2SUMO_INCLUDE_PYLON_XPATH = CPACS2SUMO_XPATH + "/engine/includePylon"
 CPACS2SUMO_INCLUDE_ENGINE_XPATH = CPACS2SUMO_XPATH + "/engine/includeEngine"
 CPACS2SUMOFILE_XPATH = CPACS2SUMO_XPATH + "/filesPath/sumoFilePath"
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

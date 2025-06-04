@@ -12,7 +12,6 @@ using the lumped masses method.
 
 """
 
-
 # =============================================================================
 #   IMPORTS
 # =============================================================================
@@ -74,14 +73,11 @@ def fuselage_inertia(SPACING, center_of_gravity, mass_seg_i, afg, cpacs_in):
             fy = []
             fz = []
             # Number of subdivisions along the longitudinal axis
-            subd_l = math.ceil(
-                (afg.fuse_seg_length[int(i) - 1][f - 1] / SPACING))
+            subd_l = math.ceil((afg.fuse_seg_length[int(i) - 1][f - 1] / SPACING))
             # Number of subdivisions along the perimeter
-            SUBD_C0 = math.ceil(
-                (afg.fuse_sec_per[int(i) - 1][f - 1] / SPACING))
+            SUBD_C0 = math.ceil((afg.fuse_sec_per[int(i) - 1][f - 1] / SPACING))
             # Number of subdivisions along the radial axis
-            subd_r = math.ceil(
-                ((afg.fuse_sec_width[int(i) - 1][f - 1] / 2) / SPACING))
+            subd_r = math.ceil(((afg.fuse_sec_width[int(i) - 1][f - 1] / 2) / SPACING))
             if subd_l == 0:
                 subd_l = 1.0
             if SUBD_C0 == 0:
@@ -189,8 +185,7 @@ def wing_inertia(subd_c, SPACING, fuse, center_of_gravity, mass_seg_i, awg, cpac
             wy = []
             wz = []
             # Number of subdivisions along the longitudinal axis
-            subd_l = math.ceil(
-                (awg.wing_seg_length[int(i) - 1][w + a - 1] / SPACING))
+            subd_l = math.ceil((awg.wing_seg_length[int(i) - 1][w + a - 1] / SPACING))
             if subd_l == 0:
                 subd_l = 1
             eta = 1.0 / subd_l
@@ -254,8 +249,7 @@ def wing_inertia(subd_c, SPACING, fuse, center_of_gravity, mass_seg_i, awg, cpac
                 [swx.append(x) for x in wx_t]
                 [swy.append(y) for y in wy_t]
                 [swz.append(z) for z in wz_t]
-                M = mass_seg_i[int(i) - 1, fuse + w + a - 1] / \
-                    np.max(np.shape(wx_t))
+                M = mass_seg_i[int(i) - 1, fuse + w + a - 1] / np.max(np.shape(wx_t))
                 wcx_t = wx_t - (np.zeros((np.shape(wx_t))) + center_of_gravity[0])
                 wcy_t = wy_t - (np.zeros((np.shape(wy_t))) + center_of_gravity[1])
                 wcz_t = wz_t - (np.zeros((np.shape(wz_t))) + center_of_gravity[2])

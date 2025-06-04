@@ -10,7 +10,6 @@ Evaluation of the mass of the aircraft engines.
 
 """
 
-
 # =============================================================================
 #   IMPORTS
 # =============================================================================
@@ -89,8 +88,6 @@ def check_ed(ed):
         raise Exception("Incorrect engine placement")
     else:
         log.info("EngineData class defined correctly.")
-
-    return ()
 
 
 # =============================================================================

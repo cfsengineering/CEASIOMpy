@@ -31,8 +31,14 @@ from pydantic import (
 #   IMPORTS
 # =================================================================================================
 
+# /CEASIOMpy/src
+SRC_PATH = Path(__file__).parents[1]
+
 # /CEASIOMpy/
-CEASIOMPY_PATH = Path(__file__).parents[1]
+CEASIOMPY_PATH = SRC_PATH.parent
+
+# /CEASIOMpy/WKDIR/
+WKDIR_PATH = Path(CEASIOMPY_PATH, "WKDIR")
 
 # /CEASIOMpy/ceasiompy.log
 LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
@@ -79,8 +85,7 @@ def get_logger() -> Logger:
     logger.propagate = False
 
     # Add file handler
-    file_formatter = logging.Formatter(
-        "%(asctime)s - %(levelname)8s - %(module)18s - %(message)s")
+    file_formatter = logging.Formatter("%(asctime)s - %(levelname)8s - %(module)18s - %(message)s")
     file_handler = logging.FileHandler(filename=LOGFILE, mode="w")
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(file_formatter)
@@ -89,8 +94,7 @@ def get_logger() -> Logger:
 
     # Add console handler regardless of environment
     # (we need output to be visible in both terminal and Streamlit)
-    console_formatter = logging.Formatter(
-        "%(levelname)8s - %(module)18s - %(message)s")
+    console_formatter = logging.Formatter("%(levelname)8s - %(module)18s - %(message)s")
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(console_formatter)
@@ -103,18 +107,19 @@ def get_logger() -> Logger:
 
     return logger
 
+
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
 
-
 # Log
 log = get_logger()
 
-
 # Override the built-in print function to use the logger
+
+
 def custom_print(*args, **kwargs):
-    log.info(' '.join(map(str, args)))
+    log.info(" ".join(map(str, args)))
 
 
 builtins.print = custom_print
@@ -124,10 +129,3 @@ NO_YES_LIST = ["NO", "YES"]
 
 # Ignore arbitrary types
 ceasiompy_cfg = CustomConfig.model_config
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

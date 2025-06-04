@@ -15,7 +15,6 @@ CPACS Creator python launcher
 # =================================================================================================
 
 from ceasiompy.utils.ceasiompyutils import (
-    call_main,
     run_software,
     get_install_path,
 )
@@ -24,7 +23,7 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-from ceasiompy.CPACSCreator import MODULE_NAME
+from ceasiompy.CPACSCreator import CPACSCREATOR_NAMES_LIST
 
 # =================================================================================================
 #    MAIN
@@ -40,24 +39,20 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     Source :
         * For CPACSCreator https://github.com/cfsengineering/CPACSCreator
     """
+    software_name = None
 
-    cpacs_in = cpacs.cpacs_file
-
-    # Get the name of CPACSCreator (several names exists, depending on the OS and the version)
-    cpacscreator_names = ["cpacscreator", "CPACS-Creator", "CPACSCreator"]
-
-    for name in cpacscreator_names:
+    for name in CPACSCREATOR_NAMES_LIST:
         install_path = get_install_path(name)
         if install_path is not None:
             software_name = name
             break
 
-    if install_path is None:
+    if software_name is None:
         log.warning("CPACSCreator is not installed on your computer.")
+        return
 
-    # Run CPACSCreator
-    run_software(software_name=software_name, arguments=[str(cpacs_in)], wkdir=wkdir)
-
-
-if __name__ == "__main__":
-    call_main(main, MODULE_NAME)
+    run_software(
+        software_name=software_name,
+        arguments=[str(cpacs.cpacs_file)],
+        wkdir=wkdir,
+    )

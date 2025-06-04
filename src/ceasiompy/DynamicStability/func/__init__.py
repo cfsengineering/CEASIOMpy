@@ -16,8 +16,6 @@ Initialization for DynamicStability.func.
 
 from typing import List
 
-from ceasiompy import log
-
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
@@ -54,10 +52,3 @@ XPATHS_PRIM: List = [
     (AERO_XPATH + "/CLBetaPrim", "cl_betaprim"),
     (AERO_XPATH + "/CNBetaPrim", "cn_betaprim"),
 ]
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

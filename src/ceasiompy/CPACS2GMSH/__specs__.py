@@ -16,7 +16,6 @@ GUI Interface of CPACS2GMSH.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.utils.commonxpaths import SU2MESH_XPATH
 from ceasiompy.CPACS2GMSH import (
     INCLUDE_GUI,
@@ -244,7 +243,12 @@ cpacs_inout.add_input(
     var_type=float,
     default_value=1.5,
     unit="1",
+<<<<<<< HEAD
     descr="Refinement factor of edges at intersections that are not flat enough",
+=======
+    descr="Refinement factor of edges at intersections that are not flat enough,\
+        warning : does not always work on all edges",
+>>>>>>> general_updates
     xpath=GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,
     gui=True,
     gui_name="Refinement factor of lines in between angled surfaces (only in RANS)",
@@ -267,7 +271,7 @@ cpacs_inout.add_input(
     var_name="h_first_layer",
     var_type=float,
     default_value=3,
-    unit="[\u03BCm]",
+    unit="[\u03bcm]",
     descr="is the height of the first prismatic cell, touching the wall, in mesh length units.",
     xpath=GMSH_H_FIRST_LAYER_XPATH,
     gui=INCLUDE_GUI,
@@ -323,7 +327,10 @@ cpacs_inout.add_input(
     gui_group="RANS options",
 )
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> general_updates
 cpacs_inout.add_input(
     var_name="export_propellers",
     var_type=bool,
@@ -373,10 +380,3 @@ cpacs_inout.add_output(
     descr="Absolute path of the SU2 mesh",
     xpath=SU2MESH_XPATH,
 )
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

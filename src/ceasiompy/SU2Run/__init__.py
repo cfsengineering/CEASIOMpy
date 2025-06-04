@@ -16,7 +16,6 @@ Initialization for SU2Run module.
 
 from pathlib import Path
 
-from ceasiompy import log
 from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 
 # ==============================================================================
@@ -89,11 +88,3 @@ SU2_DYNAMICDERIVATIVES_FREQUENCY_XPATH = SU2_DYNAMICDERIVATIVES_XPATH + "/Angula
 SU2_DYNAMICDERIVATIVES_INNERITER_XPATH = SU2_DYNAMICDERIVATIVES_XPATH + "/InnerIter"
 SU2_DYNAMICDERIVATIVES_DATA_XPATH = SU2_DYNAMICDERIVATIVES_XPATH + "/Data"
 SU2_CEASIOMPYDATA_XPATH = SU2_XPATH + "/CeasiompyData"
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

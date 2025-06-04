@@ -54,6 +54,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Choice of fidelity level",
     gui_group="Training Surrogate Settings",
+    test_value=[LEVEL_ONE],
 )
 
 cpacs_inout.add_input(

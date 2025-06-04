@@ -77,6 +77,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
 
     # Retrieve GUI values
     (
+<<<<<<< HEAD
         open_gmsh, type_mesh, symmetry,
         farfield_factor, farfield_size_factor,
         n_power_factor, n_power_field,
@@ -86,6 +87,31 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
         intake_percent, exhaust_percent,
         n_layer, h_first_layer, max_layer_thickness,
         growth_factor, growth_ratio, feature_angle,
+=======
+        open_gmsh,
+        type_mesh,
+        symmetry,
+        farfield_factor,
+        farfield_size_factor,
+        n_power_factor,
+        n_power_field,
+        fuselage_mesh_size_factor,
+        wing_mesh_size_factor,
+        mesh_size_engines,
+        mesh_size_propellers,
+        refine_factor,
+        refine_truncated,
+        auto_refine,
+        refine_factor_angled_lines,
+        intake_percent,
+        exhaust_percent,
+        n_layer,
+        h_first_layer,
+        max_layer_thickness,
+        growth_factor,
+        growth_ratio,
+        feature_angle,
+>>>>>>> general_updates
     ) = retrieve_gui_values(tixi)
 
     # Export airplane's part in .brep format
@@ -128,7 +154,10 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
             mesh_size_propellers=mesh_size_propellers,
             auto_refine=auto_refine,
             farfield_size_factor=farfield_factor,
+<<<<<<< HEAD
             n_power_factor=n_power_factor
+=======
+>>>>>>> general_updates
         )
 
         if gmesh_path.exists():
@@ -195,10 +224,7 @@ def deform_surf(cpacs: CPACS, wkdir: Path, surf: str, angle: float, wing_names: 
     for wing in filtered_wing_names:
         updated_angle = angle if "right_" in wing else -angle
         deflection_angle(tixi, wing_uid=wing, angle=updated_angle)
-        log.info(
-            f"Deforming control surface {wing} "
-            f"of type {surf} by angle {updated_angle}."
-        )
+        log.info(f"Deforming control surface {wing} " f"of type {surf} by angle {updated_angle}.")
 
     # Upload the change in angles to the temporary CPACS
     new_file_name = cpacs_in.stem + f"_surf{surf}_angle{angle}.xml"
@@ -225,7 +251,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     angles = get_value(tixi, GMSH_CTRLSURF_ANGLE_XPATH)
 
     # Unique angles list
-    angles_list = list(set([float(x) for x in str(angles).split(';')]))
+    angles_list = list(set([float(x) for x in str(angles).split(";")]))
 
     log.info(f"List of deflection angles {angles_list}.")
 
@@ -254,10 +280,12 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         # No specified angles: run as usual
         run_cpacs2gmsh(cpacs, wkdir)
 
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
 
 if __name__ == "__main__":
+    print
     call_main(main, MODULE_NAME)

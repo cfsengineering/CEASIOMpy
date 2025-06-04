@@ -16,17 +16,15 @@ Initialization for WeightConventional module.
 
 from pathlib import Path
 
-from ceasiompy import log
-
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
 
 # ===== Module Status =====
-MODULE_STATUS = True
+MODULE_STATUS = False
 
 # ===== Include GUI =====
-INCLUDE_GUI = True
+INCLUDE_GUI = False
 
 # ===== Add a Results Directory =====
 RES_DIR = False
@@ -34,11 +32,3 @@ RES_DIR = False
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

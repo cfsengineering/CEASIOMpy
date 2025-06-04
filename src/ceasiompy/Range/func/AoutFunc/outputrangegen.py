@@ -14,7 +14,6 @@ TODO:
 
 """
 
-
 # =============================================================================
 #   IMPORTS
 # =============================================================================
@@ -135,8 +134,6 @@ def output_txt(LDloi, LDcru, mw, ri, out, NAME):
     # Closing Text File
     OutputTextFile.close()
 
-    return ()
-
 
 # =============================================================================
 #   PLOTS
@@ -180,7 +177,11 @@ def payload_range_plot(ranges, ranges_cru, payloads, mw, NAME):
         )
         ax.plot(ranges_cru[2], payloads[2], "sr", markersize=10)
     ax.plot(
-        ranges[3], payloads[3], "^g", label="Range with max fuel and no payload", markersize=10
+        ranges[3],
+        payloads[3],
+        "^g",
+        label="Range with max fuel and no payload",
+        markersize=10,
     )
     ax.plot(ranges[3], payloads[3], "^g", markersize=20)
     ax.plot(ranges_cru[3], payloads[3], "^g", markersize=20)
@@ -235,15 +236,3 @@ def payload_range_plot(ranges, ranges_cru, payloads, mw, NAME):
 
     FIG_NAME = os.path.join("ToolOutput", NAME, NAME + "_Payload_vs_Range.png")
     fig.savefig(FIG_NAME, dpi=300)
-
-    return ()
-
-
-# =============================================================================
-#    MAIN
-# =============================================================================
-
-if __name__ == "__main__":
-    print("##########################################################")
-    print("#### ERROR NOT A STANDALONE PROGRAM, RUN rangemain.py ####")
-    print("##########################################################")

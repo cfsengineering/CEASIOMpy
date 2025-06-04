@@ -16,7 +16,6 @@ GUI Interface of SkinFriction.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.SkinFriction import INCLUDE_GUI
 
 from ceasiompy.utils.commonxpaths import (
@@ -129,10 +128,3 @@ cpacs_inout.add_output(
     descr="List of aeroMap to plot",
     xpath=PLOT_XPATH + "/aeroMapToPlot",
 )
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

@@ -10,16 +10,15 @@ Extract results from AVL calculations and save them in a CPACS file.
 #   IMPORTS
 # =================================================================================================
 
+import math
+
 from cpacspy.aeromap import get_filter
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.PyAVL.func.plot import plot_lift_distribution
+from ceasiompy.utils.ceasiompyutils import ensure_and_append_text_element
 from ceasiompy.PyAVL.func.utils import (
     split_dir,
     split_line,
-)
-from ceasiompy.utils.ceasiompyutils import (
-    bool_,
-    ensure_and_append_text_element,
 )
 
 from typing import Tuple
@@ -43,9 +42,15 @@ from ceasiompy.PyAVL import (
 
 
 def get_avl_aerocoefs(force_file: Path) -> Tuple[
-    float, float, float,
-    float, float, float,
-    float, float, float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
 ]:
     """
     Get aerodynamic coefficients and velocity from AVL total forces file (sb.txt).
@@ -60,9 +65,9 @@ def get_avl_aerocoefs(force_file: Path) -> Tuple[
         cmd (float): Rolling moment.
         cml (float): Yawing moment.
         cms (float): Pitching moment.
-        cms_a (float): Derivative of Pitching moment with respect to the angle of attack.
-        cml_b (float): Derivative of Yawing moment with respect to the sidesplip angle.
-        cmd_b (float): Derivative of Rolling moment with respect to the sidesplip angle.
+        cms_a (float): Derivative of Pitching moment with respect to the angle of attack [deg].
+        cml_b (float): Derivative of Yawing moment with respect to the sidesplip angle [deg].
+        cmd_b (float): Derivative of Rolling moment with respect to the sidesplip angle [deg].
 
     """
 
@@ -74,16 +79,21 @@ def get_avl_aerocoefs(force_file: Path) -> Tuple[
                 if key in line:
                     # Exception as they appear twice in .txt file
                     if key in ["Clb", "Cnb"]:
-                        parts = line.split('=')
+                        parts = line.split("=")
                         if len(parts) > 2:
                             results[var_name] = split_line(line, index)
                     else:
                         results[var_name] = split_line(line, index)
-
     return (
-        results["cd"], results["cs"], results["cl"],
-        results["cmd"], results["cms"], results["cml"],
-        results["cmd_b"], results["cms_a"], results["cml_b"],
+        results["cd"],
+        results["cs"],
+        results["cl"],
+        results["cmd"],
+        results["cms"],
+        results["cml"],
+        math.radians(results["cmd_b"]),
+        math.radians(results["cms_a"]),
+        math.radians(results["cml_b"]),
     )
 
 
@@ -114,9 +124,9 @@ def add_coefficients_in_aeromap(
 
     tixi = cpacs.tixi
 
-    cl, cd, cs, cmd, cml, cms, cms_a, cml_b, cmd_b = get_avl_aerocoefs(st_file_path)
+    cd, cs, cl, cmd, cms, cml, cmd_b, cms_a, cml_b = get_avl_aerocoefs(st_file_path)
 
-    plot = bool_(get_value(tixi, AVL_PLOTLIFT_XPATH))
+    plot = get_value(tixi, AVL_PLOTLIFT_XPATH)
 
     if plot:
         plot_lift_distribution(fs_file_path, aoa, aos, mach, alt, wkdir=config_dir)
@@ -145,7 +155,7 @@ def add_coefficients_in_aeromap(
         cs=cs,
         cmd=cmd,
         cml=cml,
-        cms=cms
+        cms=cms,
     )
 
     increment_maps_xpath = f"{aeromap.xpath}/incrementMaps"
@@ -158,6 +168,7 @@ def add_coefficients_in_aeromap(
         tixi.createElement(increment_maps_xpath, "incrementMap")
 
     # Add text elements for the coefficients
+    print(cms_a, str(cms_a))
     ensure_and_append_text_element(tixi, increment_map_xpath, "dcmd", str(cmd_b))
     ensure_and_append_text_element(tixi, increment_map_xpath, "dcms", str(cms_a))
     ensure_and_append_text_element(tixi, increment_map_xpath, "dcml", str(cml_b))
@@ -213,10 +224,17 @@ def add_coefficients_in_table(
 
     coefficients = {
         "mach": mach,
-        "aoa": aoa, "aos": aos,
-        "p": p, "q": q, "r": r,
-        "cd": cd, "cs": cs, "cl": cl,
-        "cmd": cmd, "cms": cms, "cml": cml,
+        "aoa": aoa,
+        "aos": aos,
+        "p": p,
+        "q": q,
+        "r": r,
+        "cd": cd,
+        "cs": cs,
+        "cl": cl,
+        "cmd": cmd,
+        "cms": cms,
+        "cml": cml,
     }
 
     add_coefficients(tixi, AVL_TABLE_XPATH, "Table", coefficients)
@@ -252,9 +270,15 @@ def add_coefficients_in_ctrltable(
     coefficients = {
         "mach": mach,
         "aoa": aoa,
-        "aileron": aileron, "elevator": elevator, "rudder": rudder,
-        "cd": cd, "cs": cs, "cl": cl,
-        "cmd": cmd, "cms": cms, "cml": cml,
+        "aileron": aileron,
+        "elevator": elevator,
+        "rudder": rudder,
+        "cd": cd,
+        "cs": cs,
+        "cl": cl,
+        "cmd": cmd,
+        "cms": cms,
+        "cml": cml,
     }
 
     add_coefficients(tixi, AVL_CTRLTABLE_XPATH, "CtrlTable", coefficients)
@@ -264,7 +288,7 @@ def get_force_files(config_dir: Path) -> Tuple[Path, Path]:
     st_file_path = Path(config_dir, "st.txt")
     if not st_file_path.exists():
         raise FileNotFoundError(
-            f"No result total forces 'st.txt' file have been found at {st_file_path}. "
+            f"No result total forces 'st.txt' file have been found at {st_file_path}"
         )
 
     fs_file_path = Path(config_dir, "fs.txt")
@@ -342,11 +366,3 @@ def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
                 rudder,
                 st_file_path,
             )
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

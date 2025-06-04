@@ -11,7 +11,6 @@ unconventional aircraft.
 
 """
 
-
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
@@ -100,7 +99,7 @@ def check_segment_connection(fus_nb, fuse_seg_nb, fuse_sec_nb, tigl):
         nb = np.shape(fuse_sec_index)
         if nb[0] > nbmax:
             nbmax = nb[0]
-        sec_index.resize(nbmax, fus_nb)
+            sec_index = np.resize(sec_index, (nbmax, fus_nb))
         sec_index[0 : nb[0], i - 1] = fuse_sec_index[0 : nb[0]]
         sec_nb.append(nb[0])
 
@@ -399,9 +398,17 @@ def fuse_geom_eval(fus_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
             for j in range(0, afg.fuse_seg_nb[i - 1]):
                 if afg.cabin_seg[j, i - 1] == 1:
                     (x11, y11, _) = (x1[j, i - 1], y1[j, i - 1], z1[j, i - 1])
-                    (x12, y12, _) = (x1[j + 1, i - 1], y1[j + 1, i - 1], z1[j + 1, i - 1])
+                    (x12, y12, _) = (
+                        x1[j + 1, i - 1],
+                        y1[j + 1, i - 1],
+                        z1[j + 1, i - 1],
+                    )
                     (x21, y21, _) = (x2[j, i - 1], y2[j, i - 1], z2[j, i - 1])
-                    (x22, y22, _) = (x2[j + 1, i - 1], y2[j + 1, i - 1], z2[j + 1, i - 1])
+                    (x22, y22, _) = (
+                        x2[j + 1, i - 1],
+                        y2[j + 1, i - 1],
+                        z2[j + 1, i - 1],
+                    )
                     cabin_area += 0.5 * abs(
                         x11 * y12
                         + x12 * y22
@@ -459,12 +466,3 @@ def fuse_geom_eval(fus_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
     log.info("-----------------------------------------------------------")
 
     return afg
-
-
-# ==============================================================================
-#   MAIN
-# ==============================================================================
-
-if __name__ == "__main__":
-
-    log.info("Nothing to execute!")

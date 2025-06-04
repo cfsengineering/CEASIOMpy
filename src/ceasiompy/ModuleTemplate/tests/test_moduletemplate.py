@@ -28,14 +28,19 @@ from ceasiompy.ModuleTemplate.func.subfunc import MyClass
 #   CLASSES
 # =================================================================================================
 
+
 class TestModuleTemplate(CeasiompyTest):
 
     @log_test
     def test_module_template_functions(self) -> None:
         self.assert_equal_function(
             f=get_fuselage_scaling,
-            input_args=(self.test_cpacs, ),
-            expected=(1.0, 1.0, 1.0, ),
+            input_args=(self.test_cpacs,),
+            expected=(
+                1.0,
+                1.0,
+                1.0,
+            ),
         )
 
     @log_test
@@ -48,6 +53,7 @@ class TestModuleTemplate(CeasiompyTest):
 
         TestClass.add_my_var()
         self.assertAlmostEqual(TestClass.var_c, 3.3)
+
 
 # =================================================================================================
 #    MAIN

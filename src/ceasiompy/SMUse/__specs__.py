@@ -55,8 +55,7 @@ cpacs_inout.add_input(
     unit=None,
     # TODO: Write now can only do first aeromap
     descr=(
-        "Datasets on which to make the predictions, "
-        "First aeromap: First level of fidelity."
+        "Datasets on which to make the predictions, " "First aeromap: First level of fidelity."
     ),
     xpath=SMUSE_DATASET_XPATH,
     gui=INCLUDE_GUI,

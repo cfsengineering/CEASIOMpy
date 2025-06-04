@@ -16,7 +16,6 @@ GUI Interface of DynamicStability.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.PyAVL import SOFTWARE_NAME as AVL_SOFTWARE
 from ceasiompy.SU2Run import SOFTWARE_NAME as SU2_SOFTWARE
 from ceasiompy.DynamicStability import (
@@ -67,25 +66,25 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="chordwise_vort",
     var_type=int,
-    default_value=12,
+    default_value=20,
     unit=None,
     descr="Select the number of chordwise vortices",
     xpath=DYNAMICSTABILITY_NCHORDWISE_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Number of chordwise vortices",
-    gui_group="Chordwise Settings",
+    gui_group="Aerogrid Settings",
 )
 
 cpacs_inout.add_input(
     var_name="spanwise_vort",
     var_type=int,
-    default_value=20,
+    default_value=50,
     unit=None,
     descr="Select the number of spanwise vortices",
     xpath=DYNAMICSTABILITY_NSPANWISE_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Number of spanwise vortices",
-    gui_group="Spanwise Settings",
+    gui_group="Aerogrid Settings",
 )
 
 cpacs_inout.add_input(
@@ -111,10 +110,3 @@ cpacs_inout.add_input(
     gui_name="cGrid path",
     gui_group="cGrid Setting",
 )
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

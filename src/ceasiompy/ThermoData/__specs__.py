@@ -16,7 +16,6 @@ GUI Interface of ThermoData.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.ThermoData import INCLUDE_GUI
 from ceasiompy.SU2Run import (
     SU2_FIXED_CL_XPATH,
@@ -81,10 +80,3 @@ cpacs_inout.add_output(
     descr="FIXED_CL_MODE parameter for SU2",
     xpath=SU2_FIXED_CL_XPATH,
 )
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")

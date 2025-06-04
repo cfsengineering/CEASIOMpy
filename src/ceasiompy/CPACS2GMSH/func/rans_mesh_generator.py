@@ -25,10 +25,6 @@ TODO:
 
 """
 
-<<<<<<< HEAD
-
-=======
->>>>>>> general_updates
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
@@ -41,11 +37,7 @@ import gmsh
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
     ModelPart,
     classify_wing,
-<<<<<<< HEAD
-    exclude_lines
-=======
     exclude_lines,
->>>>>>> general_updates
 )
 from ceasiompy.CPACS2GMSH.func.generategmesh import (
     wings_size,
@@ -62,10 +54,6 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_end_wing,
 )
 from ceasiompy.utils.ceasiompyutils import (
-<<<<<<< HEAD
-    bool_,
-=======
->>>>>>> general_updates
     get_reasonable_nb_cpu,
     get_part_type,
     run_software,
@@ -91,10 +79,6 @@ def generate_2d_mesh_for_pentagrow(
     refine_factor_angled_lines: float = 2.0,
     auto_refine: bool = False,
     n_power_factor: float = 2,
-<<<<<<< HEAD
-=======
-    n_power_field: float = 0.9,
->>>>>>> general_updates
     fuselage_mesh_size_factor: float = 1,
     wing_mesh_size_factor: float = 0.5,
     mesh_size_engines: float = 0.23,
@@ -129,11 +113,6 @@ def generate_2d_mesh_for_pentagrow(
     n_power_factor : float
         Power of how much refinement on the le and te (and for now in the
         "refine acute angle" as well)
-<<<<<<< HEAD
-=======
-    n_power_field: float
-        Coefficient ?? (Idk but not used here)
->>>>>>> general_updates
     fuselage_mesh_size_factor : float
         Factor of the fuselage mesh size : the mesh size will be the mean
         fuselage width divided by this factor
@@ -179,12 +158,7 @@ def generate_2d_mesh_for_pentagrow(
     aircraft_parts = []
     for brep_file in brep_files:
         # Import the part and create the aircraft part object
-<<<<<<< HEAD
-        part_entities = gmsh.model.occ.importShapes(
-            str(brep_file), highestDimOnly=False)
-=======
         part_entities = gmsh.model.occ.importShapes(str(brep_file), highestDimOnly=False)
->>>>>>> general_updates
         gmsh.model.occ.synchronize()
 
         # Create the aircraft part object
@@ -198,19 +172,11 @@ def generate_2d_mesh_for_pentagrow(
             fuselage_volume_dimtags.append(part_entities[0])
         aircraft_parts.append(part_obj)
 
-<<<<<<< HEAD
-    if (len(fuselage_volume_dimtags) < 1):
-        # Don't know in which case it should happen but is here if needed
-        model_bb = gmsh.model.get_bounding_box(-1, -1)
-        log.info("Warning : no fuselage in this aircraft")
-    elif (len(fuselage_volume_dimtags) == 1):
-=======
     if len(fuselage_volume_dimtags) < 1:
         # Don't know in which case it should happen but is here if needed
         model_bb = gmsh.model.get_bounding_box(-1, -1)
         log.info("Warning : no fuselage in this aircraft")
     elif len(fuselage_volume_dimtags) == 1:
->>>>>>> general_updates
         # Normal case of 1 fuselage
         model_bb = gmsh.model.get_bounding_box(
             fuselage_volume_dimtags[0][0], fuselage_volume_dimtags[0][1]
@@ -248,12 +214,8 @@ def generate_2d_mesh_for_pentagrow(
     # We then call the function to fuse the parts and create the named physical groups
     fusing_parts(aircraft_parts)
     sort_surfaces_and_create_physical_groups(
-<<<<<<< HEAD
-        aircraft_parts, brep_files, cpacs, model_bb, model_dimensions)
-=======
         aircraft_parts, brep_files, cpacs, model_bb, model_dimensions
     )
->>>>>>> general_updates
     gmsh.model.occ.synchronize()
     log.info("Manipulation finished")
 
@@ -267,31 +229,18 @@ def generate_2d_mesh_for_pentagrow(
     # Store the computed value of mesh size to use later
     mesh_size_by_group = {}
     mesh_size_by_group["fuselage"] = (
-<<<<<<< HEAD
-        (fuselage_maxlen + fuselage_minlen) / 2) / fuselage_mesh_size_factor
-    mesh_size_by_group["wing"] = ((wing_maxlen * 0.8 + wing_minlen)
-                                  / 2) / wing_mesh_size_factor
-=======
         (fuselage_maxlen + fuselage_minlen) / 2
     ) / fuselage_mesh_size_factor
     mesh_size_by_group["wing"] = ((wing_maxlen * 0.8 + wing_minlen) / 2) / wing_mesh_size_factor
->>>>>>> general_updates
     mesh_size_by_group["engine"] = mesh_size_engines
     mesh_size_by_group["rotor"] = mesh_size_propellers
     mesh_size_by_group["pylon"] = mesh_size_propellers
 
     mesh_size_fuselage = mesh_size_by_group["fuselage"]
-<<<<<<< HEAD
-    log.info(
-        f"Mesh size fuselage={mesh_size_fuselage:.3f} m")
-    log.info(
-        f"Mesh size wing={((wing_maxlen * 0.8 + wing_minlen) /2) / wing_mesh_size_factor:.3f} m")
-=======
     log.info(f"Mesh size fuselage={mesh_size_fuselage:.3f} m")
     log.info(
         f"Mesh size wing={((wing_maxlen * 0.8 + wing_minlen) / 2) / wing_mesh_size_factor:.3f} m"
     )
->>>>>>> general_updates
     log.info(f"Mesh size engine={mesh_size_engines:.3f} m")
     log.info(f"Mesh size rotor={mesh_size_propellers:.3f} m")
 
@@ -311,12 +260,8 @@ def generate_2d_mesh_for_pentagrow(
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Constant", mesh_fields["nbfields"])
         gmsh.model.mesh.field.setNumbers(
-<<<<<<< HEAD
-            mesh_fields["nbfields"], "SurfacesList", model_part.surfaces_tags)
-=======
             mesh_fields["nbfields"], "SurfacesList", model_part.surfaces_tags
         )
->>>>>>> general_updates
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "VIn", lc)
         gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
         # Need to be stocked for when we take the min field:
@@ -336,10 +281,6 @@ def generate_2d_mesh_for_pentagrow(
         log.info("Start refinement of leading and trailing edge and side of wing")
         # We want the lines already refined so we don't refined them again in the second function
         mesh_fields, te_le_already_refined = refine_le_te_end(
-<<<<<<< HEAD
-            aircraft_parts, mesh_size_by_group["wing"], mesh_fields, refine_factor,
-            refine_truncated=refine_truncated, n_power_factor=n_power_factor)
-=======
             aircraft_parts,
             mesh_size_by_group["wing"],
             mesh_fields,
@@ -347,7 +288,6 @@ def generate_2d_mesh_for_pentagrow(
             refine_truncated=refine_truncated,
             n_power_factor=n_power_factor,
         )
->>>>>>> general_updates
         log.info("Finished refinement of leading and trailing edge and side of wing")
     else:
         te_le_already_refined = []
@@ -356,11 +296,6 @@ def generate_2d_mesh_for_pentagrow(
     if refine_factor_angled_lines != 1:
         log.info("Refinement process of lines in non flat places has started")
         mesh_fields = refine_other_lines(
-<<<<<<< HEAD
-            te_le_already_refined, refine=refine_factor_angled_lines,
-            aircraft_parts=aircraft_parts, mesh_fields=mesh_fields,
-            mesh_size_by_part=mesh_size_by_group, n_power=n_power_factor)
-=======
             te_le_already_refined,
             refine=refine_factor_angled_lines,
             aircraft_parts=aircraft_parts,
@@ -368,7 +303,6 @@ def generate_2d_mesh_for_pentagrow(
             mesh_size_by_part=mesh_size_by_group,
             n_power=n_power_factor,
         )
->>>>>>> general_updates
         mesh_fields = min_fields(mesh_fields)
         log.info("Refining process finished")
     gmsh.model.occ.synchronize()
@@ -429,12 +363,7 @@ def generate_2d_mesh_for_pentagrow(
             gmsh.model.mesh.generate(2)
 
             for surface in bad_surfaces:
-<<<<<<< HEAD
-                gmsh.model.setColor(
-                    [(2, surface)], *MESH_COLORS["good_surface"], recursive=False)
-=======
                 gmsh.model.setColor([(2, surface)], *MESH_COLORS["good_surface"], recursive=False)
->>>>>>> general_updates
 
             log.info("Remeshing process finished")
             if open_gmsh:
@@ -458,13 +387,7 @@ def generate_2d_mesh_for_pentagrow(
     return gmesh_path, fuselage_maxlen
 
 
-<<<<<<< HEAD
-def intersecting_entities_for_fusing(
-    dimtags_names
-):
-=======
 def intersecting_entities_for_fusing(dimtags_names):
->>>>>>> general_updates
     """
     Function to find two entities (volumes) in the list that have a non-zero intersection.
     If volumes are not next to each other, they do not fuse and so, create problems
@@ -477,23 +400,15 @@ def intersecting_entities_for_fusing(dimtags_names):
     ----------
     (i,j) : tuple (int,int)
         indices in the list of the two volumes we want to fuse (by default return 0,1)
-<<<<<<< HEAD
-"""
-=======
     """
->>>>>>> general_updates
     # For every surfaces i and j, check if they intersect. If yes, return i,j
     for i in range(len(dimtags_names) - 1):
         entities1 = [dimtags_names[i]["dimtag"]]
         for j in range(i + 1, len(dimtags_names)):
             entities2 = [dimtags_names[j]["dimtag"]]
             intersect = gmsh.model.occ.intersect(
-<<<<<<< HEAD
-                entities1, entities2, removeObject=False, removeTool=False)[0]
-=======
                 entities1, entities2, removeObject=False, removeTool=False
             )[0]
->>>>>>> general_updates
             gmsh.model.occ.synchronize()
             # What's missing is that he sadly doesn't recognize the intersection by a face (only
             # volume) (but rarely a problem)
@@ -508,13 +423,7 @@ def intersecting_entities_for_fusing(dimtags_names):
     return (0, 1)
 
 
-<<<<<<< HEAD
-def fusing_parts(
-    aircraft_parts
-):
-=======
 def fusing_parts(aircraft_parts):
->>>>>>> general_updates
     """
     Function to fuse all of the different aircraft parts to get a single volume.
     To work, we need to fuse volume by two, and volumes that intersect. That's why we first take
@@ -535,18 +444,6 @@ def fusing_parts(aircraft_parts):
 
     # First we take the bounding boxes of each part
     for model_part in aircraft_parts:
-<<<<<<< HEAD
-        xmin, ymin, zmin, xmax, ymax, zmax = gmsh.model.occ.getBoundingBox(
-            *model_part.volume)
-        # Added a small margin, bc sometimes causes problem when retrieving surfaces
-        # "at the limit"
-        model_part.bounding_box = [xmin - 0.01, ymin - 0.01,
-                                   zmin - 0.01, xmax + 0.01, ymax + 0.01, zmax + 0.01]
-
-    # Take all the dimtag of the parts volume (vector that we will empty)
-    dimtags_names = [{"dimtag": model_part.volume, "name": model_part.uid}
-                     for model_part in aircraft_parts]
-=======
         xmin, ymin, zmin, xmax, ymax, zmax = gmsh.model.occ.getBoundingBox(*model_part.volume)
         # Added a small margin, bc sometimes causes problem when retrieving surfaces
         # "at the limit"
@@ -558,12 +455,10 @@ def fusing_parts(aircraft_parts):
             ymax + 0.01,
             zmax + 0.01,
         ]
-
     # Take all the dimtag of the parts volume (vector that we will empty)
     dimtags_names = [
         {"dimtag": model_part.volume, "name": model_part.uid} for model_part in aircraft_parts
     ]
->>>>>>> general_updates
 
     # Secondly we take care of the fusion to create the airfoil
 
@@ -586,33 +481,6 @@ def fusing_parts(aircraft_parts):
                 counter += 1
                 log.info(
                     "Warning : the fusion did not give only one piece (will still try to see\
-<<<<<<< HEAD
-                        if it's a question of order)")
-                dimtags_names =\
-                    [{"dimtag": fused_entities[0], "name":
-                        " errorwhen" + dimtags_names[i]["name"]
-                      + "+" + dimtags_names[j]["name"]}] +\
-                    [{dimtags_names[k]} for k in range(len(dimtags_names))if k != j and k != i] + \
-                    [{"dimtag": fused_entities[k],
-                        "name": "errorwhen " + dimtags_names[i]["name"] + dimtags_names[j]["name"]}
-                        for k in range(1, len(fused_entities))]
-            elif len(fused_entities) == 0:
-                counter += 1
-                namei, namej = dimtags_names[i]["name"], dimtags_names[j]["name"]
-                log.info(
-                    f"Warning : error, no fused entity (fused {namei} and {namej})")
-                # put them in the end to try again
-                dimtags_names =\
-                    [{dimtags_names[k]} for k in range(len(dimtags_names))if k != j and k != i] + \
-                    [dimtags_names[i], dimtags_names[j]]
-            else:
-                # Update the vectors of remaining entities
-                dimtags_names = [{"dimtag": fused_entities[0],
-                                  "name": dimtags_names[i]["name"] + "+"
-                                  + dimtags_names[j]["name"]}] +\
-                    [dimtags_names[k]
-                        for k in range(len(dimtags_names)) if k != j and k != i]
-=======
                         if it's a question of order)"
                 )
                 dimtags_names = (
@@ -641,9 +509,9 @@ def fusing_parts(aircraft_parts):
                 namei, namej = dimtags_names[i]["name"], dimtags_names[j]["name"]
                 log.info(f"Warning : error, no fused entity (fused {namei} and {namej})")
                 # put them in the end to try again
-                dimtags_names = [
-                    {dimtags_names[k]} for k in range(len(dimtags_names)) if k != j and k != i
-                ] + [dimtags_names[i], dimtags_names[j]]
+                dimtags_names =\
+                    [{dimtags_names[k]} for k in range(len(dimtags_names))if k != j and k != i] + \
+                    [dimtags_names[i], dimtags_names[j]]
             else:
                 # Update the vectors of remaining entities
                 dimtags_names = [
@@ -652,7 +520,6 @@ def fusing_parts(aircraft_parts):
                         "name": dimtags_names[i]["name"] + "+" + dimtags_names[j]["name"],
                     }
                 ] + [dimtags_names[k] for k in range(len(dimtags_names)) if k != j and k != i]
->>>>>>> general_updates
 
         # Handle the cases where it didn't work
         except Exception as e:
@@ -662,12 +529,8 @@ def fusing_parts(aircraft_parts):
         if counter > 20:
             # If here we have multiples times had problems with fusion and won't give one piece
             names = [dimtags_names[k]["name"] for k in len(dimtags_names)]
-<<<<<<< HEAD
             log.info(
                 f"Warning : the end result is not in one piece. Parts by group : {names}")
-=======
-            log.info(f"Warning : the end result is not in one piece. Parts by group : {names}")
->>>>>>> general_updates
             break
 
 
@@ -703,13 +566,9 @@ def sort_surfaces_and_create_physical_groups(
 
     log.info("Start the classification of surfaces by parts")
     for model_part in aircraft_parts:
-<<<<<<< HEAD
         surfaces_dimtags = gmsh.model.getEntitiesInBoundingBox(
             *model_part.bounding_box, 2
         )
-=======
-        surfaces_dimtags = gmsh.model.getEntitiesInBoundingBox(*model_part.bounding_box, 2)
->>>>>>> general_updates
         surface_tags = [tag for dim, tag in surfaces_dimtags]
         model_part.surfaces = surfaces_dimtags
         model_part.surfaces_tags = surface_tags
@@ -724,12 +583,7 @@ def sort_surfaces_and_create_physical_groups(
     for brep_file in brep_files:
         # Import the part and create the aircraft part object (and translate them as the
         # original were translated)
-<<<<<<< HEAD
-        part_entities = gmsh.model.occ.importShapes(
-            str(brep_file), highestDimOnly=False)
-=======
         part_entities = gmsh.model.occ.importShapes(str(brep_file), highestDimOnly=False)
->>>>>>> general_updates
         gmsh.model.occ.translate(
             [part_entities[0]],
             -((model_bb[0]) + (model_dimensions[0] / 2)),
@@ -739,12 +593,8 @@ def sort_surfaces_and_create_physical_groups(
         gmsh.model.occ.synchronize()
 
         part_obj = ModelPart(uid=brep_file.stem)
-<<<<<<< HEAD
         part_obj.part_type = get_part_type(
             cpacs.tixi, part_obj.uid, print_info=False)
-=======
-        part_obj.part_type = get_part_type(cpacs.tixi, part_obj.uid, print_info=False)
->>>>>>> general_updates
         part_obj.volume = part_entities[0]
         part_obj.volume_tag = part_entities[0][1]
 
@@ -755,15 +605,8 @@ def sort_surfaces_and_create_physical_groups(
     for i, old_part in enumerate(aircraft_parts):
         for j, new_part in enumerate(new_aircraft_parts):
             if old_part.uid == new_part.uid:
-<<<<<<< HEAD
                 new_aircraft_parts[i], new_aircraft_parts[j] = \
                     new_aircraft_parts[j], new_aircraft_parts[i]
-=======
-                new_aircraft_parts[i], new_aircraft_parts[j] = (
-                    new_aircraft_parts[j],
-                    new_aircraft_parts[i],
-                )
->>>>>>> general_updates
                 break
 
     # Now for each surface count in how many different part it is
@@ -778,19 +621,11 @@ def sort_surfaces_and_create_physical_groups(
         # Now deal with it if in more than one part
         if len(parts_in) > 1:
             aircraft_parts = choose_correct_part(
-<<<<<<< HEAD
-                parts_in, surf, aircraft_parts, new_aircraft_parts)
-
-    # Remove the parts we re-imported, to get a clean result (we won't need them anymore)
-    gmsh.model.occ.remove(
-        [model_part.volume for model_part in new_aircraft_parts], recursive=True)
-=======
                 parts_in, surf, aircraft_parts, new_aircraft_parts
             )
 
     # Remove the parts we re-imported, to get a clean result (we won't need them anymore)
     gmsh.model.occ.remove([model_part.volume for model_part in new_aircraft_parts], recursive=True)
->>>>>>> general_updates
     gmsh.model.occ.synchronize()
 
     # Now add the physical group to each part and the surfaces that are now sorted
@@ -804,18 +639,6 @@ def sort_surfaces_and_create_physical_groups(
         # Compute the linesand points in each part by taking the boundary of surfaces
         # (need them later for wing refinement)
         model_part.lines = gmsh.model.getBoundary(
-<<<<<<< HEAD
-            model_part.surfaces, combined=False, oriented=False)
-        model_part.lines_tags = [li[1] for li in model_part.lines]
-        model_part.points = gmsh.model.getBoundary(
-            model_part.lines, combined=False, oriented=False)
-        model_part.points_tags = [po[1] for po in model_part.points]
-
-
-def choose_correct_part(
-    parts_in, surf, aircraft_parts, new_aircraft_parts
-):
-=======
             model_part.surfaces, combined=False, oriented=False
         )
         model_part.lines_tags = [li[1] for li in model_part.lines]
@@ -826,7 +649,6 @@ def choose_correct_part(
 
 
 def choose_correct_part(parts_in, surf, aircraft_parts, new_aircraft_parts):
->>>>>>> general_updates
     """
     Function to chose the correct part for a surface still in multiple bounding boxes
 
@@ -858,16 +680,11 @@ def choose_correct_part(parts_in, surf, aircraft_parts, new_aircraft_parts):
         # We only get intersection if the surface is really along/inside the volume,
         # which only happens if it is the volume it comes from.)
         intersection = gmsh.model.occ.intersect(
-<<<<<<< HEAD
-            [(2, surf)], [new_aircraft_parts[i].volume],
-            removeObject=False, removeTool=False)[0]
-=======
             [(2, surf)],
             [new_aircraft_parts[i].volume],
             removeObject=False,
             removeTool=False,
         )[0]
->>>>>>> general_updates
         # Remove intersection to have a clean result
         gmsh.model.occ.remove(intersection, recursive=True)
 
@@ -875,12 +692,7 @@ def choose_correct_part(parts_in, surf, aircraft_parts, new_aircraft_parts):
             # If found, remove the tag from the others parts, and we have finished
             # for this surface
             p = aircraft_parts[i].uid
-<<<<<<< HEAD
-            log.info(
-                f"Surface {surf} was in multiple volumes and is classified into part {p}")
-=======
             log.info(f"Surface {surf} was in multiple volumes and is classified into part {p}")
->>>>>>> general_updates
             for j in parts_in:
                 if j != i:
                     aircraft_parts[j].surfaces.remove((2, surf))
@@ -891,12 +703,7 @@ def choose_correct_part(parts_in, surf, aircraft_parts, new_aircraft_parts):
             # is a problem. We choose a part and hope for the best
             log.info(
                 f"Surface {surf} still in parts\
-<<<<<<< HEAD
                     {[aircraft_parts[i].uid for i in parts_in]}, take off randomly")
-=======
-                    {[aircraft_parts[i].uid for i in parts_in]}, take off randomly"
-            )
->>>>>>> general_updates
             for k in range(len(parts_in) - 1):
                 aircraft_parts[parts_in[k]].surfaces.remove((2, surf))
                 aircraft_parts[parts_in[k]].surfaces_tags.remove(surf)
@@ -905,16 +712,12 @@ def choose_correct_part(parts_in, surf, aircraft_parts, new_aircraft_parts):
 
 
 def refine_le_te_end(
-<<<<<<< HEAD
-    aircraft_parts, mesh_size_wing, mesh_fields, refine_factor, refine_truncated, n_power_factor
-=======
     aircraft_parts,
     mesh_size_wing,
     mesh_fields,
     refine_factor,
     refine_truncated,
     n_power_factor,
->>>>>>> general_updates
 ):
     """
     Function to refine the border of the wings (le, te, and tip of the wing).
@@ -947,12 +750,8 @@ def refine_le_te_end(
     # tag of the main volume constituing the aicraft, and of all the surfaces
     aircraft.volume_tag = gmsh.model.occ.getEntities(3)[0][1]
     # (there should be only one volume in the model)
-<<<<<<< HEAD
     aircraft.surfaces_tags = [
         tag for (dim, tag) in gmsh.model.occ.getEntities(2)]
-=======
-    aircraft.surfaces_tags = [tag for (dim, tag) in gmsh.model.occ.getEntities(2)]
->>>>>>> general_updates
     aircraft.lines_tags = [tag for (dim, tag) in gmsh.model.occ.getEntities(1)]
 
     # For all the wing, we call the function classify that will detect the le and te between all
@@ -964,11 +763,7 @@ def refine_le_te_end(
                 f"Classification of {model_part.uid} done"
                 f" {len(model_part.wing_sections)} section(s) found "
             )
-<<<<<<< HEAD
-            new_lines = [x['lines_tags'] for x in model_part.wing_sections]
-=======
             new_lines = [x["lines_tags"] for x in model_part.wing_sections]
->>>>>>> general_updates
             for new_line in new_lines:
                 # Stock all of the already refined lines to not do it twice with the other fct
                 lines_already_refined_lete.extend(new_line)
@@ -984,11 +779,7 @@ def refine_le_te_end(
                 mesh_size_wing,
                 refine=refine_factor,
                 refine_truncated=refine_truncated,
-<<<<<<< HEAD
-                n_power=n_power_factor
-=======
                 n_power=n_power_factor,
->>>>>>> general_updates
             )
 
     # Refine also the end of the wing
@@ -1003,51 +794,21 @@ def refine_le_te_end(
             # Now need to find the tip of the wing. We know it is not a line that touch
             # another part, or one found in le and te, so take thouse out
             lines_in_other_parts = exclude_lines(model_part, aircraft_parts)
-<<<<<<< HEAD
             lines_to_take_out = set(lines_already_refined_lete).union(
                 set(lines_in_other_parts))
-            lines_left = sorted(list(set(model_part.lines_tags)
-                                     - lines_to_take_out))
-            surfaces_in_wing = model_part.surfaces_tags
-            for (line1, line2) in list(combinations(lines_left, 2)):
-=======
-            lines_to_take_out = set(lines_already_refined_lete).union(set(lines_in_other_parts))
             lines_left = sorted(list(set(model_part.lines_tags) - lines_to_take_out))
             surfaces_in_wing = model_part.surfaces_tags
-            for line1, line2 in list(combinations(lines_left, 2)):
->>>>>>> general_updates
+            for (line1, line2) in list(combinations(lines_left, 2)):
                 # We know the two lines at the end of the wing share 2 points and 1 surface
                 # And no other lines in wing share this structure
                 surfaces1, points1 = gmsh.model.getAdjacencies(1, line1)
                 surfaces2, points2 = gmsh.model.getAdjacencies(1, line2)
                 common_points = list(set(points1) & set(points2))
-<<<<<<< HEAD
                 common_surfaces = list(set(surfaces1) & set(
                     surfaces2) & set(surfaces_in_wing))
                 if len(common_points) == 2 and len(common_surfaces) == 1:
                     log.info(
                         f"Found the end of wing in {model_part.uid}, refining lines {line1,line2}")
-                    refine_end_wing([line1, line2],
-                                    aircraft,
-                                    x_chord,
-                                    model_part.surfaces_tags,
-                                    refine_factor,
-                                    mesh_size_wing,
-                                    n_power_factor,
-                                    [aircraft.volume_tag],
-                                    mesh_fields)
-                    gmsh.model.setColor(
-                        [(1, line1), (1, line2)], 0, 180, 180)  # to see
-                    lines_already_refined_lete.extend([line1, line2])
-
-            for (line1, line2, line3) in list(combinations(lines_left, 3)):
-=======
-                common_surfaces = list(set(surfaces1) & set(surfaces2) & set(surfaces_in_wing))
-                if len(common_points) == 2 and len(common_surfaces) == 1:
-                    log.info(
-                        f"Found the end of wing in {model_part.uid}, "
-                        f"refining lines {line1, line2}"
-                    )
                     refine_end_wing(
                         [line1, line2],
                         aircraft,
@@ -1059,37 +820,17 @@ def refine_le_te_end(
                         [aircraft.volume_tag],
                         mesh_fields,
                     )
-                    gmsh.model.setColor([(1, line1), (1, line2)], 0, 180, 180)  # to see
+                    gmsh.model.setColor(
+                        [(1, line1), (1, line2)], 0, 180, 180)  # to see
                     lines_already_refined_lete.extend([line1, line2])
 
             for line1, line2, line3 in list(combinations(lines_left, 3)):
->>>>>>> general_updates
                 surfaces1, points1 = gmsh.model.getAdjacencies(1, line1)
                 surfaces2, points2 = gmsh.model.getAdjacencies(1, line2)
                 surfaces3, points3 = gmsh.model.getAdjacencies(1, line3)
                 common_points12 = list(set(points1) & set(points2))
                 common_points13 = list(set(points1) & set(points3))
                 common_points23 = list(set(points3) & set(points2))
-<<<<<<< HEAD
-                common_surfaces = list(set(surfaces1) & set(surfaces2)
-                                       & set(surfaces3) & set(surfaces_in_wing))
-                if len(common_points12) == 1 and len(common_points13) == 1 and\
-                        len(common_points23) == 1 and len(common_surfaces) == 1:
-                    mod = model_part.uid
-                    log.info(
-                        f"Found the end of wing in {mod}, refining lines {line1, line2, line3}")
-                    refine_end_wing([line1, line2, line3],
-                                    aircraft,
-                                    x_chord,
-                                    model_part.surfaces_tags,
-                                    refine_factor,
-                                    mesh_size_wing,
-                                    n_power_factor,
-                                    [aircraft.volume_tag],
-                                    mesh_fields)
-                    gmsh.model.setColor([(1, line1), (1, line2), (1, line3)],
-                                        0, 180, 180)  # to see
-=======
                 common_surfaces = list(
                     set(surfaces1) & set(surfaces2) & set(surfaces3) & set(surfaces_in_wing)
                 )
@@ -1117,7 +858,6 @@ def refine_le_te_end(
                     gmsh.model.setColor(
                         [(1, line1), (1, line2), (1, line3)], 0, 180, 180
                     )  # to see
->>>>>>> general_updates
                     lines_already_refined_lete.extend([line1, line2, line3])
 
     # Generate the minimal background mesh field
@@ -1148,20 +888,9 @@ def pentagrow_3d_mesh(
         for key, value in cfg_params.items():
             file.write(f"{key} = {value}\n")
 
-<<<<<<< HEAD
     check_path("surface_mesh.stl")
     check_path("config.cfg")
 
-=======
-    os.chdir("Results/CPACS2GMSH")
-
-    check_path("surface_mesh.stl")
-    check_path("config.cfg")
-
-    current_dir = os.getcwd()
-    os.chdir(current_dir)
-
->>>>>>> general_updates
     command = ["surface_mesh.stl", "config.cfg"]
 
     # Specify the file path
@@ -1174,24 +903,9 @@ def pentagrow_3d_mesh(
     run_software(
         software_name="pentagrow",
         arguments=command,
-<<<<<<< HEAD
         wkdir=result_dir,
-=======
-        wkdir=current_dir,
->>>>>>> general_updates
         with_mpi=False,
         nb_cpu=get_reasonable_nb_cpu(),
     )
 
     return Path(result_dir, "hybrid.su2")
-<<<<<<< HEAD
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")
-=======
->>>>>>> general_updates

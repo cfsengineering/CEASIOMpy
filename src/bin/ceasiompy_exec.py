@@ -19,15 +19,16 @@ Main module of CEASIOMpy to launch workflow by different way.
 
 import os
 import argparse
+import subprocess
 
 from pathlib import Path
+from argparse import Namespace
 from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy import log
 from unittest.mock import patch
 
 from ceasiompy.utils.commonpaths import (
-    CEASIOMPY_PATH,
     STREAMLIT_PATH,
     TEST_CASES_PATH,
     CPACS_FILES_PATH,
@@ -163,7 +164,18 @@ def run_gui():
     """Create an run a workflow from a GUI."""
 
     log.info("CEASIOMpy has been started from the GUI.")
-    os.system(f"cd {STREAMLIT_PATH} && streamlit run CEASIOMpy.py")
+    env = os.environ.copy()
+    # Add the src directory to PYTHONPATH
+    env["PYTHONPATH"] = (
+        str(Path(__file__).resolve().parents[2] / "src") + os.pathsep + env.get("PYTHONPATH", "")
+    )
+    subprocess.run(
+        ["streamlit", "run", "CEASIOMpy.py"],
+        cwd=STREAMLIT_PATH,
+        check=True,
+        env=env,
+    )
+
 
 # =================================================================================================
 #    MAIN
@@ -171,6 +183,7 @@ def run_gui():
 
 
 def main():
+
     parser = argparse.ArgumentParser(
         description="CEASIOMpy: Conceptual Aircraft Design Environment",
         usage=argparse.SUPPRESS,
@@ -206,7 +219,7 @@ def main():
         help="run a test case [1, 2, or 3]",
     )
 
-    args = parser.parse_args()
+    args: Namespace = parser.parse_args()
 
     if args.testcase:
         run_testcase(args.testcase)

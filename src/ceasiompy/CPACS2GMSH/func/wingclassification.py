@@ -230,7 +230,6 @@ def detect_truncated_profile(
     Function to detect leading and trailing edge lines for truncated profile
     le/te lines are linked by shared surfaces
     """
-    # Get unique sorted line tages
     lines = sorted(
         list(
             set(

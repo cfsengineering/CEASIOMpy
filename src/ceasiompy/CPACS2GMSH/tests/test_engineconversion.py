@@ -89,3 +89,13 @@ def test_close_engine():
     # Delete the closed engine file
     if TEST_DIR_PATH.exists():
         shutil.rmtree(TEST_DIR_PATH)
+
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+    print("Test CPACS2GMSH")
+    print("To run test use the following command:")
+    print(">> pytest -v")

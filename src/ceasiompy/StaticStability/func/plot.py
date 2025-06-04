@@ -25,11 +25,7 @@ from typing import (
     Tuple,
 )
 
-<<<<<<< HEAD
-from ceasiompy import log
-=======
 from ceasiompy.StaticStability import AXES
->>>>>>> general_updates
 
 # =================================================================================================
 #   CONSTANTS
@@ -41,19 +37,11 @@ X_Y_DICT = {
     "longitudinal_x_prime_short": "AoS",
     "longitudinal_y": "cms",
     "longitudinal_tangent": "cma",
-<<<<<<< HEAD
-
-=======
->>>>>>> general_updates
     "directional_x": "aos",
     "directional_x_prime": "aoa",
     "directional_x_prime_short": "AoA",
     "directional_y": "cml",
     "directional_tangent": "cnb",
-<<<<<<< HEAD
-
-=======
->>>>>>> general_updates
     "lateral_x": "aos",
     "lateral_x_prime": "aoa",
     "lateral_x_prime_short": "AoA",
@@ -65,17 +53,9 @@ TITLES_DICT = {
     "longitudinal_title": "Longitudinal Stability Plot with tangent",
     "longitudinal_x_title": "Angle of Attack (deg)",
     "longitudinal_y_title": "Pitch Moment",
-<<<<<<< HEAD
-
     "directional_title": "Directional Stability Plot with tangent",
     "directional_x_title": "Angle of Sideslip (deg)",
     "directional_y_title": "Yaw Moment",
-
-=======
-    "directional_title": "Directional Stability Plot with tangent",
-    "directional_x_title": "Angle of Sideslip (deg)",
-    "directional_y_title": "Yaw Moment",
->>>>>>> general_updates
     "lateral_title": "Lateral Stability Plot with tangent",
     "lateral_x_title": "Angle of Sideslip (deg)",
     "lateral_y_title": "Roll Moment (deg)",
@@ -85,17 +65,9 @@ LR_TITLES_DICT = {
     "longitudinal_title": "Longitudinal Stability Plot with Linear Regression",
     "longitudinal_x_title": "Angle of Attack (deg)",
     "longitudinal_y_title": "Pitch Moment",
-<<<<<<< HEAD
-
     "directional_title": "Directional Stability Plot with Linear Regression",
     "directional_x_title": "Angle of Sideslip (deg)",
     "directional_y_title": "Yaw Moment",
-
-=======
-    "directional_title": "Directional Stability Plot with Linear Regression",
-    "directional_x_title": "Angle of Sideslip (deg)",
-    "directional_y_title": "Yaw Moment",
->>>>>>> general_updates
     "lateral_title": "Lateral Stability Plot with Linear Regression",
     "lateral_x_title": "Angle of Sideslip (deg)",
     "lateral_y_title": "Roll Moment (deg)",
@@ -115,11 +87,7 @@ def generate_random_color() -> str:
 
     """
 
-<<<<<<< HEAD
-    return f'#{secrets.randbelow(0xFFFFFF + 1):06x}'
-=======
     return f"#{secrets.randbelow(0xFFFFFF + 1):06x}"
->>>>>>> general_updates
 
 
 def set_html_plot(results_dir: Path, df: DataFrame, axis: str) -> Tuple[Path, Dict]:
@@ -127,23 +95,6 @@ def set_html_plot(results_dir: Path, df: DataFrame, axis: str) -> Tuple[Path, Di
     plot_path = Path(results_dir, f"Stability_{axis}_plot.html")
 
     # Create a color map for different categories
-<<<<<<< HEAD
-    unique_combinations = df[[
-        "alt",
-        "mach",
-        f"{X_Y_DICT[f'{axis}_x_prime']}"
-    ]].drop_duplicates()
-
-    color_map = {
-        tuple(row):
-        generate_random_color()
-        for row in unique_combinations.values
-    }
-
-    # Assign colors based on altitude, mach, and AoS
-    df['color'] = df.apply(lambda row: color_map[(
-        row["alt"], row["mach"], row[f"{X_Y_DICT[f'{axis}_x_prime']}"])], axis=1)
-=======
     unique_combinations = df[["alt", "mach", f"{X_Y_DICT[f'{axis}_x_prime']}"]].drop_duplicates()
 
     color_map = {tuple(row): generate_random_color() for row in unique_combinations.values}
@@ -153,111 +104,10 @@ def set_html_plot(results_dir: Path, df: DataFrame, axis: str) -> Tuple[Path, Di
         lambda row: color_map[(row["alt"], row["mach"], row[f"{X_Y_DICT[f'{axis}_x_prime']}"])],
         axis=1,
     )
->>>>>>> general_updates
 
     return plot_path, color_map
 
 
-<<<<<<< HEAD
-def add_stability_plot_tangent(results_dir: Path, df: DataFrame, axis: str) -> None:
-    """
-    Adds a stability plot for the Tangent case.
-    """
-
-    plot_path, color_map = set_html_plot(results_dir, df, axis)
-
-    # Initial plot
-    fig = go.Figure()
-
-    # Add traces for each unique combination
-    for combination, group in df.groupby(["alt", "mach", f"{X_Y_DICT[f'{axis}_x_prime']}"]):
-        color = color_map[combination]
-        scatter_x = []
-        scatter_y = []
-
-        for _, row in group.iterrows():
-            scatter_x.append(row[f"{X_Y_DICT[f'{axis}_x']}"])
-            scatter_y.append(row[f"{X_Y_DICT[f'{axis}_y']}"])
-            alpha = row[f"{X_Y_DICT[f'{axis}_x']}"]
-            cms = row[f"{X_Y_DICT[f'{axis}_y']}"]
-            cma = row[f"{X_Y_DICT[f'{axis}_tangent']}"]
-            tangent_x = [alpha - 0.1, alpha + 0.1]
-            tangent_y = [cms - 0.1 * cma, cms + 0.1 * cma]
-            fig.add_trace(
-                go.Scatter(x=tangent_x, y=tangent_y, mode='lines',
-                           line=dict(color=color), showlegend=True)
-            )
-        axis_label = X_Y_DICT[f'{axis}_x_prime_short']
-
-        scatter = go.Scatter(
-            x=scatter_x,
-            y=scatter_y,
-            mode='markers',
-            marker=dict(color=color),
-            name=f"Alt: {combination[0]}, Mach: {combination[1]}, {axis_label}: {combination[2]}"
-        )
-        fig.add_trace(scatter)
-
-    fig.update_layout(
-        title=f'{TITLES_DICT[axis + "_title"]}',
-        xaxis_title=f'{TITLES_DICT[axis + "_x_title"]}',
-        yaxis_title=f'{TITLES_DICT[axis + "_y_title"]}',
-    )
-
-    # Save the plot as an HTML file
-    fig.write_html(plot_path)
-
-
-def add_stability_plot_lr(results_dir: Path, df: DataFrame, axis: str) -> None:
-    """
-    Adds a stability plot for Linear Regression case.
-    """
-
-    plot_path, color_map = set_html_plot(results_dir, df, axis)
-
-    # Initial plot
-    fig = go.Figure()
-
-    # Add traces for each unique combination
-    for combination, group in df.groupby(["alt", "mach", f"{X_Y_DICT[f'{axis}_x_prime']}"]):
-        color = color_map[combination]
-        scatter_x = group[f"{X_Y_DICT[f'{axis}_x']}"].tolist()
-        scatter_y = group[f"{X_Y_DICT[f'{axis}_y']}"].tolist()
-
-        # Plot the scatter points
-        scatter = go.Scatter(
-            x=scatter_x,
-            y=scatter_y,
-            mode='markers',
-            marker=dict(color=color),
-            name=f"Alt: {combination[0]}, Mach: {combination[1]}, "
-            f"{X_Y_DICT[f'{axis}_x_prime_short']}: {combination[2]}"
-        )
-        fig.add_trace(scatter)
-
-        # Plot the linear regression line
-        lr_cma = group[f"lr_{X_Y_DICT[f'{axis}_tangent']}"].iloc[0]
-        lr_cma_intercept = group[f"lr_{X_Y_DICT[f'{axis}_tangent']}_intercept"].iloc[0]
-        line_x = [min(scatter_x), max(scatter_x)]
-        line_y = [lr_cma * x + lr_cma_intercept for x in line_x]
-        line = go.Scatter(
-            x=line_x,
-            y=line_y,
-            mode='lines',
-            line=dict(color=color),
-            showlegend=False
-        )
-        fig.add_trace(line)
-
-    fig.update_layout(
-        title=f'{LR_TITLES_DICT[axis + "_title"]}',
-        xaxis_title=f'{LR_TITLES_DICT[axis + "_x_title"]}',
-        yaxis_title=f'{LR_TITLES_DICT[axis + "_y_title"]}',
-    )
-
-    # Save the plot as an HTML file
-    fig.write_html(plot_path)
-=======
 def add_stability_plot_tangent(results_dir: Path, df: DataFrame) -> None:
     """
     Adds a stability plot for the Tangent case.
@@ -361,7 +211,6 @@ def add_stability_plot_lr(results_dir: Path, df: DataFrame) -> None:
 
         # Save the plot as an HTML file
         fig.write_html(plot_path)
->>>>>>> general_updates
 
 
 def plot_stability(results_dir: Path, df: DataFrame, tangent_bool: bool) -> None:
@@ -380,27 +229,7 @@ def plot_stability(results_dir: Path, df: DataFrame, tangent_bool: bool) -> None
 
     """
 
-<<<<<<< HEAD
-    # Adding each plots independently
-    if not tangent_bool:
-        add_stability_plot_tangent(results_dir, df, "longitudinal")
-        add_stability_plot_tangent(results_dir, df, "directional")
-        add_stability_plot_tangent(results_dir, df, "lateral")
-    else:
-        add_stability_plot_lr(results_dir, df, "longitudinal")
-        add_stability_plot_lr(results_dir, df, "directional")
-        add_stability_plot_lr(results_dir, df, "lateral")
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")
-=======
     if not tangent_bool:
         add_stability_plot_tangent(results_dir, df)
     else:
         add_stability_plot_lr(results_dir, df)
->>>>>>> general_updates

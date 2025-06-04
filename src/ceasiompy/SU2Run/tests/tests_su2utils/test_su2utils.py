@@ -5,10 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'ceasiompy/SU2Run/func/meshutils.py'
 
-<<<<<<< HEAD
-
-=======
->>>>>>> general_updates
 | Author : Aidan Jungo
 | Creation: 2021-12-23
 
@@ -18,27 +14,16 @@ Test functions for 'ceasiompy/SU2Run/func/meshutils.py'
 #   IMPORTS
 # =================================================================================================
 
-<<<<<<< HEAD
-from pathlib import Path
-from ceasiompy import log
-
-import pytest
-=======
 import pytest
 import unittest
 import tempfile
 
 from pytest import approx
->>>>>>> general_updates
 from ceasiompy.SU2Run.func.utils import (
     get_efficiency_and_aoa,
     get_mesh_markers,
     get_su2_aerocoefs,
     get_wetted_area,
-<<<<<<< HEAD
-)
-from pytest import approx
-=======
     check_one_entry,
     process_config_dir,
     get_aeromap_uid,
@@ -57,7 +42,6 @@ from unittest.mock import patch
 #   CONSTANTS
 # =================================================================================================
 
->>>>>>> general_updates
 
 MODULE_DIR = Path(__file__).parent
 FORCES_BREAKDOWN = Path(MODULE_DIR, "forces_breakdown.dat")
@@ -65,10 +49,6 @@ FORCES_BREAKDOWN_NO_VALUE = Path(MODULE_DIR, "forces_breakdown_no_value.dat")
 SU2_LOGFILE = Path(MODULE_DIR, "logfile_SU2_CFD.log")
 SU2_LOGFILE_NO_WETTED_AREA = Path(MODULE_DIR, "logfile_SU2_CFD_no_wetted_area.log")
 
-<<<<<<< HEAD
-
-=======
->>>>>>> general_updates
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
@@ -142,18 +122,6 @@ def test_get_wetted_area():
         get_wetted_area(Path(MODULE_DIR, "This_file_do_not_exist.log"))
 
     assert get_wetted_area(SU2_LOGFILE) == approx(702.04, rel=1e-4)
-<<<<<<< HEAD
-
-    assert get_wetted_area(SU2_LOGFILE_NO_WETTED_AREA) == 0
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")
-=======
     assert get_wetted_area(SU2_LOGFILE_NO_WETTED_AREA) == 0
 
 # =================================================================================================
@@ -310,4 +278,3 @@ class TestSU2UtilsExtra(CeasiompyTest):
 
 if __name__ == "__main__":
     unittest.main(verbosity=0)
->>>>>>> general_updates

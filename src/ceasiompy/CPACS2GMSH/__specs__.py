@@ -243,12 +243,7 @@ cpacs_inout.add_input(
     var_type=float,
     default_value=1.5,
     unit="1",
-<<<<<<< HEAD
     descr="Refinement factor of edges at intersections that are not flat enough",
-=======
-    descr="Refinement factor of edges at intersections that are not flat enough,\
-        warning : does not always work on all edges",
->>>>>>> general_updates
     xpath=GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,
     gui=True,
     gui_name="Refinement factor of lines in between angled surfaces (only in RANS)",
@@ -327,10 +322,6 @@ cpacs_inout.add_input(
     gui_group="RANS options",
 )
 
-<<<<<<< HEAD
-
-=======
->>>>>>> general_updates
 cpacs_inout.add_input(
     var_name="export_propellers",
     var_type=bool,
@@ -380,3 +371,10 @@ cpacs_inout.add_output(
     descr="Absolute path of the SU2 mesh",
     xpath=SU2MESH_XPATH,
 )
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+    log.info("Nothing to be executed.")

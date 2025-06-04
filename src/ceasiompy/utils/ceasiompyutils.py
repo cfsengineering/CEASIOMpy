@@ -616,19 +616,6 @@ def get_part_type(tixi, part_uid: str, print_info=True) -> str:
     part_xpath = tixi.uIDGetXPath(part_uid)
 
     path_part = {
-<<<<<<< HEAD
-        "wings/wing" : "wing",
-        "fuselages/fuselage" : "fuselage",
-        "enginePylons/enginePylon" : "pylon",
-        "engine/nacelle/fanCowl" : "fanCowl",
-        "engine/nacelle/centerCowl" : "centerCowl",
-        "engine/nacelle/coreCowl" : "coreCowl",
-        "vehicles/engines/engine" : "engine",
-        "vehicles/rotorcraft/model/rotors/rotor" : "rotor",
-    }
-
-    for (path_name, part_name) in path_part.items():
-=======
         "wings/wing": "wing",
         "fuselages/fuselage": "fuselage",
         "enginePylons/enginePylon": "pylon",
@@ -640,7 +627,6 @@ def get_part_type(tixi, part_uid: str, print_info=True) -> str:
     }
 
     for path_name, part_name in path_part.items():
->>>>>>> general_updates
         if path_name in part_xpath:
             if print_info:
                 log.info(f"'{part_uid}' is a {part_name}")

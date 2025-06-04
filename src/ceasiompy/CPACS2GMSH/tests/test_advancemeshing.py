@@ -307,7 +307,6 @@ def test_auto_refine():
     gmsh.finalize()
 
     remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg"])
-<<<<<<< HEAD
 
 
 def test_compute_angle_surfaces():
@@ -397,5 +396,3 @@ if __name__ == "__main__":
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")
-=======
->>>>>>> general_updates

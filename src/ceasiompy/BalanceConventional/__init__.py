@@ -16,11 +16,6 @@ Initialization for BalanceConventional module.
 
 from pathlib import Path
 
-<<<<<<< HEAD
-from ceasiompy import log
-
-=======
->>>>>>> general_updates
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
@@ -38,14 +33,3 @@ INCLUDE_GUI = False
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
-<<<<<<< HEAD
-
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")
-=======
->>>>>>> general_updates

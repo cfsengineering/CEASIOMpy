@@ -360,7 +360,7 @@ def test_refine_between_parts():
     b3 = gmsh.model.occ.addBox(1.2, 1.2, 1.2, 1, 1, 1)
     m1, m2, m3 = ModelPart("b1"), ModelPart("b2"), ModelPart("b3")
     aircraft_parts = [m1, m2, m3]
-    gmsh.model.occ.fuse([(3, b2)], [(3, b1), (3, b3)])[0]
+    gmsh.model.occ.fuse([(3, b2)], [(3, b1), (3, b3)])
     gmsh.model.occ.synchronize()
     m1.mesh_size, m2.mesh_size, m3.mesh_size = 0.1, 0.2, 0.3
     m1.bounding_box = (-0.1, -0.1, -0.1, 1.1, 1.1, 1.1)

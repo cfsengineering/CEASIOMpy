@@ -18,7 +18,7 @@ run_black()
     echo -e "\n-----------"
     echo -e "|  Black  |"
     echo -e "-----------\n"
-    black ./
+    black ../
 }
 
 run_flake8()
@@ -26,7 +26,7 @@ run_flake8()
     echo -e "\n------------"
     echo -e "|  Flake8  |"
     echo -e "------------\n"
-    flake8 ./
+    flake8 ../
     if [ $? == 0 ]; then
         echo -e "Flake8 passed without error\n"
     fi
@@ -43,7 +43,7 @@ run_unit_tests()
     fi
     
     echo -e "\nRunning..."
-    pytest -v src/ceasiompy/ -k "not integration" --cov=src/ceasiompy --cov-report xml:coverage.xml --disable-warnings --ignore=installation/Pentagrow/include/nlopt/test/
+    pytest -v ../ --cov-report html:unittest_cov_html --cov-report term --cov=../ceasiompy --cov-config=../pyproject.toml -k "not integration" --disable-warnings
 
 }
 
@@ -60,9 +60,9 @@ run_integration_tests()
 
     echo -e "Running..."
     if [ "$fast" = true ]; then
-        pytest -v tests/ -k "integration" -m "not slow" --cov=src/ceasiompy --cov-report xml:coverage.xml --disable-warnings --ignore=installation/Pentagrow/include/nlopt/test/
+        pytest -v ../ --cov-report html:integration_cov_html --cov-report term --cov=../ceasiompy --cov-config=../pyproject.toml -k "integration" -m "not slow" --disable-warnings 
     else
-        pytest -v tests/ -k "integration" --cov=src/ceasiompy --cov-report xml:coverage.xml --disable-warnings --ignore=installation/Pentagrow/include/nlopt/test/
+        pytest -v ../ --cov-report html:integration_cov_html --cov-report term --cov=../ceasiompy --cov-config=../pyproject.toml -k "integration" --disable-warnings
     fi
 
 }
@@ -97,4 +97,5 @@ run_flake8
 run_unit_tests
 run_integration_tests 
 
-python src/ceasiompy/utils/moduleinterfaces.py
+# Generate the list of module to remove from the code coverage
+python ../ceasiompy/utils/moduleinterfaces.py 

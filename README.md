@@ -125,32 +125,32 @@ There are many different modules available in CEASIOMpy that can be combined to 
 
 #### General modules
 
-- [ModuleTemplate](src/ceasiompy/ModuleTemplate/README.md) :heavy_check_mark:
-- [Optimisation](src/ceasiompy/Optimisation/README.md) :x:
-- [SMTrain](src/ceasiompy/SMTrain/README.md) :heavy_check_mark:
-- [SMUse](src/ceasiompy/SMUse/README.md) :heavy_check_mark:
-- [ThermoData](src/ceasiompy/ThermoData/README.md) :heavy_check_mark:
+- [ModuleTemplate](ceasiompy/ModuleTemplate/README.md) :heavy_check_mark:
+- [Optimisation](ceasiompy/Optimisation/README.md) :x:
+- [SMTrain](ceasiompy/SMTrain/README.md) :heavy_check_mark:
+- [SMUse](ceasiompy/SMUse/README.md) :heavy_check_mark:
+- [ThermoData](ceasiompy/ThermoData/README.md) :heavy_check_mark:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_geometry.png">
 
 #### Geometry and Mesh
 
-- [CPACSCreator](src/ceasiompy/CPACSCreator/README.md) :heavy_check_mark:
-- [CPACSUpdater](src/ceasiompy/CPACSUpdater/README.md) :heavy_check_mark:
-- [CPACS2GMSH](src/ceasiompy/CPACS2GMSH/README.md) :heavy_check_mark:
-- [CPACS2SUMO](src/ceasiompy/CPACS2SUMO/README.md) :heavy_check_mark:
-- [SUMOAutoMesh](src/ceasiompy/SUMOAutoMesh/README.md) :warning:
+- [CPACSCreator](ceasiompy/CPACSCreator/README.md) :heavy_check_mark:
+- [CPACSUpdater](ceasiompy/CPACSUpdater/README.md) :heavy_check_mark:
+- [CPACS2GMSH](ceasiompy/CPACS2GMSH/README.md) :heavy_check_mark:
+- [CPACS2SUMO](ceasiompy/CPACS2SUMO/README.md) :heavy_check_mark:
+- [SUMOAutoMesh](ceasiompy/SUMOAutoMesh/README.md) :warning:
 - SU2MeshDef :warning:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_aero.png">
 
 #### Aerodynamics
 
-- [CLCalculator](src/ceasiompy/CLCalculator/README.md) :heavy_check_mark:
-- [PyAVL](src/ceasiompy/PyAVL/README.md) :heavy_check_mark:
-- [SU2Run](src/ceasiompy/SU2Run/README.md) :heavy_check_mark:
-- [SkinFriction](src/ceasiompy/SkinFriction/README.md) :heavy_check_mark:
-- [SaveAeroCoefficients](src/ceasiompy/SaveAeroCoefficients/README.md) :heavy_check_mark:
+- [CLCalculator](ceasiompy/CLCalculator/README.md) :heavy_check_mark:
+- [PyAVL](ceasiompy/PyAVL/README.md) :heavy_check_mark:
+- [SU2Run](ceasiompy/SU2Run/README.md) :heavy_check_mark:
+- [SkinFriction](ceasiompy/SkinFriction/README.md) :heavy_check_mark:
+- [SaveAeroCoefficients](ceasiompy/SaveAeroCoefficients/README.md) :heavy_check_mark:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_weights.png">
 
@@ -158,7 +158,7 @@ There are many different modules available in CEASIOMpy that can be combined to 
 
 - BalanceConventional :warning:
 - BalanceUnconventional :warning:
-- [WeightConventional](./src/ceasiompy/WeightConventional/README.md) :heavy_check_mark:
+- [WeightConventional](./ceasiompy/WeightConventional/README.md) :heavy_check_mark:
 - WeightUnconventional :warning:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_mission.png">
@@ -166,18 +166,18 @@ There are many different modules available in CEASIOMpy that can be combined to 
 #### Mission Analysis
 
 - Range :warning:
-- [StaticStability](./src/ceasiompy/StaticStability/README.md) :heavy_check_mark:
-- [DynamicStability](./src/ceasiompy/DynamicStability/README.md) :heavy_check_mark:
+- [StaticStability](./ceasiompy/StaticStability/README.md) :heavy_check_mark:
+- [DynamicStability](./ceasiompy/DynamicStability/README.md) :heavy_check_mark:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_structure.png">
 
 #### Structure
 
-- [AeroFrame](./src/ceasiompy/AeroFrame/README.md) :heavy_check_mark:
+- [AeroFrame](./ceasiompy/AeroFrame_new/README.md) :heavy_check_mark:
 
 #### Data Analysis and Storage
 
-- [Database](./src/ceasiompy/Database/README.md) :heavy_check_mark:
+- [Database](./ceasiompy/Database/README.md) :heavy_check_mark:
 
 ## Contributing
 

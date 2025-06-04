@@ -339,9 +339,9 @@ def test_compute_angle_surfaces():
                                  'coord': coord, 'param': param}
 
     anglefound = compute_angle_surfaces([s1, s2], tags_coords_params, l3)
-    assert anglefound == True
+    assert anglefound
     anglefound = compute_angle_surfaces([s3, s2], tags_coords_params, l5)
-    assert anglefound == False
+    assert not anglefound
     gmsh.finalize()
 
 

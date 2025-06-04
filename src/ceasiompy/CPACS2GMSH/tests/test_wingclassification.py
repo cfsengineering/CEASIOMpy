@@ -208,13 +208,3 @@ def test_detect_truncated_profile():
 
     gmsh.clear()
     gmsh.finalize()
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    print("Test CPACS2GMSH")
-    print("To run test use the following command:")
-    print(">> pytest -v")

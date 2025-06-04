@@ -128,8 +128,7 @@ def test_restrict_fields():
     assert mesh_fields["nbfields"] == 5
 
     # Check the restrict field tags are correct
-    assert all([a == b for a, b in zip(
-        mesh_fields["restrict_fields"], [3, 5])])
+    assert all([a == b for a, b in zip(mesh_fields["restrict_fields"], [3, 5])])
 
     # Check mesh field tags are correct
     assert gmsh.model.mesh.field.getType(1) == "Distance"
@@ -242,8 +241,7 @@ def test_refine_wing_section():
     # Check if a distance field was generated on the wing le and te
     assert gmsh.model.mesh.field.getType(1) == "Distance"
     assert all(
-        [a == b for a, b in zip(
-            gmsh.model.mesh.field.getNumbers(1, "CurvesList"), [19, 21])]
+        [a == b for a, b in zip(gmsh.model.mesh.field.getNumbers(1, "CurvesList"), [19, 21])]
     )
 
     # Check if a Matheval field was generated with the correct formula
@@ -255,11 +253,9 @@ def test_refine_wing_section():
     assert gmsh.model.mesh.field.getType(3) == "Restrict"
 
     # Check the restrict field is applied on the wing surfaces
-    surface_in_field = sorted(
-        gmsh.model.mesh.field.getNumbers(7, "SurfacesList"))
+    surface_in_field = sorted(gmsh.model.mesh.field.getNumbers(7, "SurfacesList"))
     correct_surface_in_field = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    assert all(a == b for a, b in zip(
-        surface_in_field, correct_surface_in_field))
+    assert all(a == b for a, b in zip(surface_in_field, correct_surface_in_field))
 
     gmsh.clear()
     gmsh.finalize()

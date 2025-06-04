@@ -509,9 +509,9 @@ def fusing_parts(aircraft_parts):
                 namei, namej = dimtags_names[i]["name"], dimtags_names[j]["name"]
                 log.info(f"Warning : error, no fused entity (fused {namei} and {namej})")
                 # put them in the end to try again
-                dimtags_names =\
-                    [{dimtags_names[k]} for k in range(len(dimtags_names))if k != j and k != i] + \
-                    [dimtags_names[i], dimtags_names[j]]
+                dimtags_names = [
+                    {dimtags_names[k]} for k in range(len(dimtags_names)) if k != j and k != i
+                ] + [dimtags_names[i], dimtags_names[j]]
             else:
                 # Update the vectors of remaining entities
                 dimtags_names = [
@@ -529,8 +529,7 @@ def fusing_parts(aircraft_parts):
         if counter > 20:
             # If here we have multiples times had problems with fusion and won't give one piece
             names = [dimtags_names[k]["name"] for k in len(dimtags_names)]
-            log.info(
-                f"Warning : the end result is not in one piece. Parts by group : {names}")
+            log.info(f"Warning : the end result is not in one piece. Parts by group : {names}")
             break
 
 
@@ -566,9 +565,7 @@ def sort_surfaces_and_create_physical_groups(
 
     log.info("Start the classification of surfaces by parts")
     for model_part in aircraft_parts:
-        surfaces_dimtags = gmsh.model.getEntitiesInBoundingBox(
-            *model_part.bounding_box, 2
-        )
+        surfaces_dimtags = gmsh.model.getEntitiesInBoundingBox(*model_part.bounding_box, 2)
         surface_tags = [tag for dim, tag in surfaces_dimtags]
         model_part.surfaces = surfaces_dimtags
         model_part.surfaces_tags = surface_tags
@@ -593,8 +590,7 @@ def sort_surfaces_and_create_physical_groups(
         gmsh.model.occ.synchronize()
 
         part_obj = ModelPart(uid=brep_file.stem)
-        part_obj.part_type = get_part_type(
-            cpacs.tixi, part_obj.uid, print_info=False)
+        part_obj.part_type = get_part_type(cpacs.tixi, part_obj.uid, print_info=False)
         part_obj.volume = part_entities[0]
         part_obj.volume_tag = part_entities[0][1]
 
@@ -703,7 +699,8 @@ def choose_correct_part(parts_in, surf, aircraft_parts, new_aircraft_parts):
             # is a problem. We choose a part and hope for the best
             log.info(
                 f"Surface {surf} still in parts\
-                    {[aircraft_parts[i].uid for i in parts_in]}, take off randomly")
+                    {[aircraft_parts[i].uid for i in parts_in]}, take off randomly"
+            )
             for k in range(len(parts_in) - 1):
                 aircraft_parts[parts_in[k]].surfaces.remove((2, surf))
                 aircraft_parts[parts_in[k]].surfaces_tags.remove(surf)
@@ -750,8 +747,7 @@ def refine_le_te_end(
     # tag of the main volume constituing the aicraft, and of all the surfaces
     aircraft.volume_tag = gmsh.model.occ.getEntities(3)[0][1]
     # (there should be only one volume in the model)
-    aircraft.surfaces_tags = [
-        tag for (dim, tag) in gmsh.model.occ.getEntities(2)]
+    aircraft.surfaces_tags = [tag for (dim, tag) in gmsh.model.occ.getEntities(2)]
     aircraft.lines_tags = [tag for (dim, tag) in gmsh.model.occ.getEntities(1)]
 
     # For all the wing, we call the function classify that will detect the le and te between all
@@ -794,8 +790,7 @@ def refine_le_te_end(
             # Now need to find the tip of the wing. We know it is not a line that touch
             # another part, or one found in le and te, so take thouse out
             lines_in_other_parts = exclude_lines(model_part, aircraft_parts)
-            lines_to_take_out = set(lines_already_refined_lete).union(
-                set(lines_in_other_parts))
+            lines_to_take_out = set(lines_already_refined_lete).union(set(lines_in_other_parts))
             lines_left = sorted(list(set(model_part.lines_tags) - lines_to_take_out))
             surfaces_in_wing = model_part.surfaces_tags
             for (line1, line2) in list(combinations(lines_left, 2)):
@@ -820,8 +815,7 @@ def refine_le_te_end(
                         [aircraft.volume_tag],
                         mesh_fields,
                     )
-                    gmsh.model.setColor(
-                        [(1, line1), (1, line2)], 0, 180, 180)  # to see
+                    gmsh.model.setColor([(1, line1), (1, line2)], 0, 180, 180)  # to see
                     lines_already_refined_lete.extend([line1, line2])
 
             for line1, line2, line3 in list(combinations(lines_left, 3)):

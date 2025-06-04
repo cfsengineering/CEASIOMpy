@@ -182,7 +182,7 @@ cpacs_inout.add_input(
     var_type=float,
     default_value=2,
     unit=None,
-    descr="Value that changes the number of cells near the aircraft parts",
+    descr="Power of the power law of the refinement on LE and TE. ",
     xpath=GMSH_N_POWER_FACTOR_XPATH,
     gui=INCLUDE_GUI,
     gui_name="n power factor",
@@ -243,8 +243,7 @@ cpacs_inout.add_input(
     var_type=float,
     default_value=1.5,
     unit="1",
-    descr="Refinement factor of edges at intersections that are not flat enough,\
-        warning : does not always work on all edges",
+    descr="Refinement factor of edges at intersections that are not flat enough",
     xpath=GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,
     gui=True,
     gui_name="Refinement factor of lines in between angled surfaces (only in RANS)",

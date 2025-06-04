@@ -79,7 +79,6 @@ def generate_2d_mesh_for_pentagrow(
     refine_factor_angled_lines: float = 2.0,
     auto_refine: bool = False,
     n_power_factor: float = 2,
-    n_power_field: float = 0.9,
     fuselage_mesh_size_factor: float = 1,
     wing_mesh_size_factor: float = 0.5,
     mesh_size_engines: float = 0.23,
@@ -114,8 +113,6 @@ def generate_2d_mesh_for_pentagrow(
     n_power_factor : float
         Power of how much refinement on the le and te (and for now in the
         "refine acute angle" as well)
-    n_power_field: float
-        Coefficient ?? (Idk but not used here)
     fuselage_mesh_size_factor : float
         Factor of the fuselage mesh size : the mesh size will be the mean
         fuselage width divided by this factor
@@ -458,7 +455,6 @@ def fusing_parts(aircraft_parts):
             ymax + 0.01,
             zmax + 0.01,
         ]
-
     # Take all the dimtag of the parts volume (vector that we will empty)
     dimtags_names = [
         {"dimtag": model_part.volume, "name": model_part.uid} for model_part in aircraft_parts
@@ -605,10 +601,8 @@ def sort_surfaces_and_create_physical_groups(
     for i, old_part in enumerate(aircraft_parts):
         for j, new_part in enumerate(new_aircraft_parts):
             if old_part.uid == new_part.uid:
-                new_aircraft_parts[i], new_aircraft_parts[j] = (
-                    new_aircraft_parts[j],
-                    new_aircraft_parts[i],
-                )
+                new_aircraft_parts[i], new_aircraft_parts[j] = \
+                    new_aircraft_parts[j], new_aircraft_parts[i]
                 break
 
     # Now for each surface count in how many different part it is
@@ -799,18 +793,17 @@ def refine_le_te_end(
             lines_to_take_out = set(lines_already_refined_lete).union(set(lines_in_other_parts))
             lines_left = sorted(list(set(model_part.lines_tags) - lines_to_take_out))
             surfaces_in_wing = model_part.surfaces_tags
-            for line1, line2 in list(combinations(lines_left, 2)):
+            for (line1, line2) in list(combinations(lines_left, 2)):
                 # We know the two lines at the end of the wing share 2 points and 1 surface
                 # And no other lines in wing share this structure
                 surfaces1, points1 = gmsh.model.getAdjacencies(1, line1)
                 surfaces2, points2 = gmsh.model.getAdjacencies(1, line2)
                 common_points = list(set(points1) & set(points2))
-                common_surfaces = list(set(surfaces1) & set(surfaces2) & set(surfaces_in_wing))
+                common_surfaces = list(set(surfaces1) & set(
+                    surfaces2) & set(surfaces_in_wing))
                 if len(common_points) == 2 and len(common_surfaces) == 1:
                     log.info(
-                        f"Found the end of wing in {model_part.uid}, "
-                        f"refining lines {line1, line2}"
-                    )
+                        f"Found the end of wing in {model_part.uid}, refining lines {line1,line2}")
                     refine_end_wing(
                         [line1, line2],
                         aircraft,
@@ -889,13 +882,8 @@ def pentagrow_3d_mesh(
         for key, value in cfg_params.items():
             file.write(f"{key} = {value}\n")
 
-    os.chdir("Results/CPACS2GMSH")
-
     check_path("surface_mesh.stl")
     check_path("config.cfg")
-
-    current_dir = os.getcwd()
-    os.chdir(current_dir)
 
     command = ["surface_mesh.stl", "config.cfg"]
 
@@ -909,7 +897,7 @@ def pentagrow_3d_mesh(
     run_software(
         software_name="pentagrow",
         arguments=command,
-        wkdir=current_dir,
+        wkdir=result_dir,
         with_mpi=False,
         nb_cpu=get_reasonable_nb_cpu(),
     )

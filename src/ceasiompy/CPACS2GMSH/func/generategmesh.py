@@ -414,6 +414,8 @@ def generate_gmsh(
         sym_vector = [0, 1, 0]
         plane_vector = [0, 0, 1]
         if sym_vector != plane_vector:
+            # i.e. the disk we added is not in the right direction
+            # (bc can only add disks with z constant)
             rotation_axis = np.cross(sym_vector, plane_vector)
             gmsh.model.occ.rotate(
                 [(2, sym_plane)],
@@ -477,7 +479,7 @@ def generate_gmsh(
         unwanted_children = children_dimtag[-1]
         # Careful: this only take into account volumes elements in the symmetry
         # Disk actuator that are 2D element are not taken into account
-        # and will be removed latter
+        # and will be removed later
 
         # remove them from the model
         gmsh.model.occ.remove(unwanted_children, recursive=True)

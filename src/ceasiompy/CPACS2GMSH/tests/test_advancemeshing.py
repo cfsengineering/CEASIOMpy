@@ -24,7 +24,10 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     distance_field,
     min_fields,
     restrict_fields,
+    compute_angle_surfaces,
+    refine_between_parts,
 )
+from ceasiompy.CPACS2GMSH.func.wingclassification import ModelPart
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
 from ceasiompy.utils.ceasiompyutils import remove_file_type_in_dir
@@ -300,3 +303,92 @@ def test_auto_refine():
     gmsh.finalize()
 
     remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg"])
+
+
+def test_compute_angle_surfaces():
+    """
+    Test if the function detects correctly angle too narrow
+    """
+    gmsh.initialize()
+    p1 = gmsh.model.occ.addPoint(0, 0, 0, 0.1)
+    p2 = gmsh.model.occ.addPoint(0, 1, 0, 0.1)
+    p3 = gmsh.model.occ.addPoint(1, 1, 0, 0.1)
+    p4 = gmsh.model.occ.addPoint(1, 0, 0, 0.1)
+    p5 = gmsh.model.occ.addPoint(2, 0, 2, 0.1)
+    p6 = gmsh.model.occ.addPoint(2, 1, 2, 0.1)
+    p7 = gmsh.model.occ.addPoint(3, 0, 3.2, 0.1)
+    p8 = gmsh.model.occ.addPoint(3, 1, 3.2, 0.1)
+    l1, l2 = gmsh.model.occ.addLine(p1, p2), gmsh.model.occ.addLine(p2, p3)
+    l3, l4 = gmsh.model.occ.addLine(p3, p4), gmsh.model.occ.addLine(p4, p1)
+    l5, l6 = gmsh.model.occ.addLine(p4, p5), gmsh.model.occ.addLine(p5, p6)
+    l7, l8 = gmsh.model.occ.addLine(p6, p3), gmsh.model.occ.addLine(p6, p8)
+    l9, l0 = gmsh.model.occ.addLine(p8, p7), gmsh.model.occ.addLine(p7, p5)
+    cl1 = gmsh.model.occ.addCurveLoop([l1, l2, l3, l4])
+    cl2 = gmsh.model.occ.addCurveLoop([-l3, -l7, -l6, -l5])
+    cl3 = gmsh.model.occ.addCurveLoop([l6, l8, l9, l0])
+    s1 = gmsh.model.occ.addPlaneSurface([cl1])
+    s2 = gmsh.model.occ.addPlaneSurface([cl2])
+    s3 = gmsh.model.occ.addPlaneSurface([cl3])
+    gmsh.model.occ.synchronize()
+    gmsh.model.mesh.generate(1)
+
+    tags_coords_params = {-1: "yay"}
+    for i in [s1, s2, s3]:
+        tags, coord, param = gmsh.model.mesh.getNodes(2, i, True)
+        tags_coords_params[i] = {'tags': tags,
+                                 'coord': coord, 'param': param}
+
+    anglefound = compute_angle_surfaces([s1, s2], tags_coords_params, l3)
+    assert anglefound == True
+    anglefound = compute_angle_surfaces([s3, s2], tags_coords_params, l5)
+    assert anglefound == False
+    gmsh.finalize()
+
+
+def test_refine_between_parts():
+    """
+    Function to test if the right number of fields are created
+    when using the function
+    """
+    gmsh.initialize()
+    b1 = gmsh.model.occ.addBox(0, 0, 0, 1, 1, 1)
+    b2 = gmsh.model.occ.addBox(0.5, 0.5, 0.5, 1, 1, 1)
+    b3 = gmsh.model.occ.addBox(1.2, 1.2, 1.2, 1, 1, 1)
+    m1, m2, m3 = ModelPart("b1"), ModelPart("b2"), ModelPart("b3")
+    aircraft_parts = [m1, m2, m3]
+    gmsh.model.occ.fuse([(3, b2)], [(3, b1), (3, b3)])
+    gmsh.model.occ.synchronize()
+    m1.mesh_size, m2.mesh_size, m3.mesh_size = 0.1, 0.2, 0.3
+    m1.bounding_box = (-0.1, -0.1, -0.1, 1.1, 1.1, 1.1)
+    m2.bounding_box = (0.4, 0.4, 0.4, 1.6, 1.6, 1.6)
+    m3.bounding_box = (0.9, 0.9, 0.9, 2.1, 2.1, 2.1)
+    m1.surfaces = gmsh.model.getEntitiesInBoundingBox(-0.1, -0.1, -0.1, 1.1, 1.1, 1.1, 2)
+    m2.surfaces = gmsh.model.getEntitiesInBoundingBox(0.4, 0.4, 0.4, 1.6, 1.6, 1.6, 2)
+    m3.surfaces = gmsh.model.getEntitiesInBoundingBox(0.9, 0.9, 0.9, 2.1, 2.1, 2.1, 2)
+    m1.surfaces_tags = [t for (d, t) in m1.surfaces]
+    m2.surfaces_tags = [t for (d, t) in m2.surfaces]
+    m3.surfaces_tags = [t for (d, t) in m3.surfaces]
+    m1.lines = gmsh.model.getEntitiesInBoundingBox(-0.1, -0.1, -0.1, 1.1, 1.1, 1.1, 1)
+    m2.lines = gmsh.model.getEntitiesInBoundingBox(0.4, 0.4, 0.4, 1.6, 1.6, 1.6, 1)
+    m3.lines = gmsh.model.getEntitiesInBoundingBox(0.9, 0.9, 0.9, 2.1, 2.1, 2.1, 1)
+    m1.lines_tags = [t for (d, t) in m1.lines]
+    m2.lines_tags = [t for (d, t) in m2.lines]
+    m3.lines_tags = [t for (d, t) in m3.lines]
+
+    mesh_fields = {"nbfields": 0, "restrict_fields" : []}
+
+    refine_between_parts(aircraft_parts, mesh_fields)
+
+    assert mesh_fields["nbfields"] == 36
+    assert len(mesh_fields["restrict_fields"]) == 12
+    # AAAH ADD CHECK TODO
+    gmsh.finalize()
+
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+if __name__ == "__main__":
+    print("Test CPACS2GMSH")
+    print("To run test use the following command:")
+    print(">> pytest -v")

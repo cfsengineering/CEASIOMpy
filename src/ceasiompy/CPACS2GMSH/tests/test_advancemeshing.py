@@ -393,7 +393,6 @@ def test_refine_between_parts():
 #    MAIN
 # =================================================================================================
 if __name__ == "__main__":
-    test_refine_between_parts()
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")

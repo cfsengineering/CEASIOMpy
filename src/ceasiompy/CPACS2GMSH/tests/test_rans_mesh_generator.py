@@ -222,8 +222,6 @@ def test_sort_surfaces_and_create_physical_groups():
 #    MAIN
 # =================================================================================================
 if __name__ == "__main__":
-    # test_generate_rans_mesh()
-    test_sort_surfaces_and_create_physical_groups()
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")

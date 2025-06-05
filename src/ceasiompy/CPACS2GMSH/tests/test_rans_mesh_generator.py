@@ -118,22 +118,18 @@ def test_choose_correct_part():
     gmsh.initialize()
     gmsh.clear()
 
-    all_surfaces = gmsh.model.getEntities(2)
-    print("before", all_surfaces)
     b1 = gmsh.model.occ.addBox(0, 0, 0, 1, 1, 1)
     b2 = gmsh.model.occ.addBox(0.5, 0.5, 0.5, 1, 1, 1)
     gmsh.model.occ.fuse([(3, b1)], [(3, b2)])
     gmsh.model.occ.synchronize()
+    all_surfaces = gmsh.model.getEntities(2)
     parts_in_b1 = [t for (d, t) in gmsh.model.getEntitiesInBoundingBox(
         -0.1, -0.1, -0.1, 1.1, 1.1, 1.1, 2)]
     parts_in_b2 = [t for (d, t) in gmsh.model.getEntitiesInBoundingBox(
         0.4, 0.4, 0.4, 1.6, 1.6, 1.6, 2)]
-    all_surfaces = gmsh.model.getEntities(2)
-    print("after fuse", all_surfaces)
+
     b1new = gmsh.model.occ.addBox(0, 0, 0, 1, 1, 1)
     b2new = gmsh.model.occ.addBox(0.5, 0.5, 0.5, 1, 1, 1)
-    all_surfaces = gmsh.model.getEntities(2)
-    print("after adding new", all_surfaces)
 
     modelpart_b1 = ModelPart("b1")
     modelpart_b1.surfaces_tags = [tag for (dim, tag) in all_surfaces]
@@ -214,6 +210,9 @@ def test_sort_surfaces_and_create_physical_groups():
     gmsh.model.occ.fuse([(3, vols[0])], [(3, vols[1]), (3, vols[2])])
 
     gmsh.model.occ.synchronize()
+    all_surfaces = gmsh.model.getEntities(2)
+    print("total", len(all_surfaces))
+    gmsh.model.occ.synchronize()
     sort_surfaces_and_create_physical_groups(
         aircraft_parts, brep_files, cpacs, model_bb, model_dimensions)
 
@@ -230,6 +229,6 @@ def test_sort_surfaces_and_create_physical_groups():
 #    MAIN
 # =================================================================================================
 if __name__ == "__main__":
-    test_generate_rans_mesh()
+    # test_generate_rans_mesh()
     test_choose_correct_part()
     test_sort_surfaces_and_create_physical_groups()

@@ -117,6 +117,8 @@ def test_choose_correct_part():
     """
     gmsh.initialize()
 
+    all_surfaces = gmsh.model.getEntities(2)
+    print("before", all_surfaces)
     b1 = gmsh.model.occ.addBox(0, 0, 0, 1, 1, 1)
     b2 = gmsh.model.occ.addBox(0.5, 0.5, 0.5, 1, 1, 1)
     gmsh.model.occ.fuse([(3, b1)], [(3, b2)])
@@ -126,8 +128,11 @@ def test_choose_correct_part():
     parts_in_b2 = [t for (d, t) in gmsh.model.getEntitiesInBoundingBox(
         0.4, 0.4, 0.4, 1.6, 1.6, 1.6, 2)]
     all_surfaces = gmsh.model.getEntities(2)
+    print("after fuse", all_surfaces)
     b1new = gmsh.model.occ.addBox(0, 0, 0, 1, 1, 1)
     b2new = gmsh.model.occ.addBox(0.5, 0.5, 0.5, 1, 1, 1)
+    all_surfaces = gmsh.model.getEntities(2)
+    print("after adding new", all_surfaces)
 
     modelpart_b1 = ModelPart("b1")
     modelpart_b1.surfaces_tags = [tag for (dim, tag) in all_surfaces]
@@ -154,7 +159,8 @@ def test_choose_correct_part():
 
 def test_sort_surfaces_and_create_physical_groups():
     """
-    This function tests if blabl
+    This function tests if the function sort_surfaces_and_create_physical_groups
+    sorts the surfaces that are between fuselage and wing in D150 (known "pb").
     """
     if TEST_OUT_PATH.exists():
         shutil.rmtree(TEST_OUT_PATH)
@@ -216,3 +222,10 @@ def test_sort_surfaces_and_create_physical_groups():
     gmsh.finalize()
 
     remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg"])
+
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+if __name__ == "__main__":
+    test_choose_correct_part()

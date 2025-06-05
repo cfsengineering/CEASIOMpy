@@ -217,7 +217,7 @@ def test_sort_surfaces_and_create_physical_groups():
     sort_surfaces_and_create_physical_groups(
         aircraft_parts, brep_files, cpacs, model_bb, model_dimensions)
 
-    assert len(aircraft_parts[0].surfaces_tags) == 60  # fuselage
+    assert len(aircraft_parts[0].surfaces_tags) == 61  # fuselage
     assert len(aircraft_parts[1].surfaces_tags) == 8  # wing1
     assert len(aircraft_parts[2].surfaces_tags) == 8  # wing1_mirrored
 

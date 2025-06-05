@@ -213,12 +213,15 @@ def test_sort_surfaces_and_create_physical_groups():
     all_lines = gmsh.model.getEntities(1)
     print("total lines", len(all_lines))
     all_surfaces = gmsh.model.getEntities(2)
+    formatted_all = []
     for dim, tag in all_surfaces:
         bbb = gmsh.model.getBoundingBox(dim, tag)
         formatted_bbb = [f"{x:.2f}" for x in bbb]
         print(tag, " : ", formatted_bbb)
-    print(all_surfaces)
+        formatted_all.append(formatted_bbb)
+    print(formatted_all)
     gmsh.model.occ.synchronize()
+    gmsh.fltk.run()
     sort_surfaces_and_create_physical_groups(
         aircraft_parts, brep_files, cpacs, model_bb, model_dimensions)
 

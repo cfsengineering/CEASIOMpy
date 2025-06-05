@@ -116,6 +116,7 @@ def test_choose_correct_part():
     the function choose_correct_part.
     """
     gmsh.initialize()
+    gmsh.clear()
 
     all_surfaces = gmsh.model.getEntities(2)
     print("before", all_surfaces)
@@ -171,6 +172,7 @@ def test_sort_surfaces_and_create_physical_groups():
     cpacs = CPACS(CPACS_D150_IN_PATH)
 
     gmsh.initialize()
+    gmsh.clear()
 
     aircraft_parts = []
     vols = []
@@ -228,4 +230,6 @@ def test_sort_surfaces_and_create_physical_groups():
 #    MAIN
 # =================================================================================================
 if __name__ == "__main__":
+    test_generate_rans_mesh()
     test_choose_correct_part()
+    test_sort_surfaces_and_create_physical_groups()

@@ -214,8 +214,9 @@ def test_sort_surfaces_and_create_physical_groups():
     print("total lines", len(all_lines))
     all_surfaces = gmsh.model.getEntities(2)
     for dim, tag in all_surfaces:
-        vol, lines = gmsh.model.getAdjacencies(dim, tag)
-        print(tag, " : ", lines)
+        bbb = gmsh.model.getBoundingBox(dim, tag)
+        formatted_bbb = [f"{x:.2f}" for x in bbb]
+        print(tag, " : ", formatted_bbb)
     print(all_surfaces)
     gmsh.model.occ.synchronize()
     sort_surfaces_and_create_physical_groups(

@@ -210,8 +210,12 @@ def test_sort_surfaces_and_create_physical_groups():
     gmsh.model.occ.fuse([(3, vols[0])], [(3, vols[1]), (3, vols[2])])
 
     gmsh.model.occ.synchronize()
+    all_lines = gmsh.model.getEntities(1)
+    print("total lines", len(all_lines))
     all_surfaces = gmsh.model.getEntities(2)
-    print("total", len(all_surfaces))
+    for dim, tag in all_surfaces:
+        vol, lines = gmsh.model.getAdjacencies(dim, tag)
+        print(tag, " : ", lines)
     print(all_surfaces)
     gmsh.model.occ.synchronize()
     sort_surfaces_and_create_physical_groups(

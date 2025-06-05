@@ -63,8 +63,7 @@ jobs:
 
     - name: Run unit tests
       shell: bash -l {0}
-      run:
-      script: |
+      run: |
         source ~/.bashrc
         pytest -v src/ceasiompy --cov=ceasiompy --cov-report xml:coverage.xml
 

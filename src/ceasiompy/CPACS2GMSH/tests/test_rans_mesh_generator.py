@@ -212,6 +212,7 @@ def test_sort_surfaces_and_create_physical_groups():
     gmsh.model.occ.synchronize()
     all_surfaces = gmsh.model.getEntities(2)
     print("total", len(all_surfaces))
+    print(all_surfaces)
     gmsh.model.occ.synchronize()
     sort_surfaces_and_create_physical_groups(
         aircraft_parts, brep_files, cpacs, model_bb, model_dimensions)

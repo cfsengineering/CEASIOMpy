@@ -91,7 +91,9 @@ def format_aero_data(df: DataFrame, chosen_beta, chosen_q, chosen_p, chosen_r) -
                 & (mach_group["qc_2V"] == 0)
                 & (mach_group["rb_2V"] == 0)
             ].sort_values(by="alpha")
-            log.info(f"Mach {mach_val}: appended beta={beta_val} series with {series.shape[0]} rows")
+            log.info(
+                f"Mach {mach_val}: appended beta={beta_val} series with {series.shape[0]} rows"
+            )
             formatted_data.append(series)
 
         # q series (for each q != 0, beta=p=r=0)

@@ -34,7 +34,7 @@ def pick_with_zero(values, n):
     values_set = set(values)
     if 0.0 in values_set:
         values_set.remove(0.0)
-        chosen = [0.0] + sorted(values_set)[:n-1]
+        chosen = [0.0] + sorted(values_set)[:n - 1]
     else:
         chosen = sorted(values_set)[:n]
     return chosen
@@ -127,7 +127,10 @@ def format_ctrl_data(df: DataFrame, chosen_elevator, chosen_rudder, chosen_ailer
                 & (df["aileron"] == 0)
                 & (df["mach"] == mach_val)
             ].sort_values(by="alpha")
-            log.info(f"Elevator {elev}, Mach {mach_val}: appended series with {series.shape[0]} rows")
+            log.info(
+                f"Elevator {elev}, Mach {mach_val}: "
+                f"appended series with {series.shape[0]} rows"
+            )
             formatted_data.append(series)
 
     # Rudder series (elevator=aileron=0)
@@ -139,7 +142,10 @@ def format_ctrl_data(df: DataFrame, chosen_elevator, chosen_rudder, chosen_ailer
                 & (df["aileron"] == 0)
                 & (df["mach"] == mach_val)
             ].sort_values(by="alpha")
-            log.info(f"Rudder {rud}, Mach {mach_val}: appended series with {series.shape[0]} rows")
+            log.info(
+                f"Rudder {rud}, Mach {mach_val}: "
+                f"appended series with {series.shape[0]} rows"
+            )
             formatted_data.append(series)
 
     # Aileron series (elevator=rudder=0)
@@ -151,7 +157,10 @@ def format_ctrl_data(df: DataFrame, chosen_elevator, chosen_rudder, chosen_ailer
                 & (df["aileron"] == ail)
                 & (df["mach"] == mach_val)
             ].sort_values(by="alpha")
-            log.info(f"Aileron {ail}, Mach {mach_val}: appended series with {series.shape[0]} rows")
+            log.info(
+                f"Aileron {ail}, Mach {mach_val}: "
+                f"appended series with {series.shape[0]} rows"
+            )
             formatted_data.append(series)
 
     return concat(formatted_data, ignore_index=True)
@@ -168,7 +177,7 @@ def get_tables_values(self) -> Tuple[DataFrame, DataFrame, int, int]:
 
     """
     log.info("--- Get Tables values ---")
-    
+
     # Define constants
     nalpha: int = 20
     nmach: int = 6
@@ -234,11 +243,17 @@ def get_tables_values(self) -> Tuple[DataFrame, DataFrame, int, int]:
             f"Not enough distinct beta values (needed {nbeta}, got {len(chosen_beta)})"
         )
     if len(chosen_q) < nq:
-        raise ValueError(f"Not enough distinct qc_2V (q) values (needed {nq}, got {len(chosen_q)})")
+        raise ValueError(
+            f"Not enough distinct qc_2V (q) values (needed {nq}, got {len(chosen_q)})"
+        )
     if len(chosen_p) < np:
-        raise ValueError(f"Not enough distinct pb_2V (p) values (needed {np}, got {len(chosen_p)})")
+        raise ValueError(
+            f"Not enough distinct pb_2V (p) values (needed {np}, got {len(chosen_p)})"
+        )
     if len(chosen_r) < nr:
-        raise ValueError(f"Not enough distinct rb_2V (r) values (needed {nr}, got {len(chosen_r)})")
+        raise ValueError(
+            f"Not enough distinct rb_2V (r) values (needed {nr}, got {len(chosen_r)})"
+        )
 
     log.info(f"Chosen alpha: {[float(x) for x in chosen_alpha]}")
     log.info(f"Chosen mach: {[float(x) for x in chosen_mach]}")
@@ -249,17 +264,20 @@ def get_tables_values(self) -> Tuple[DataFrame, DataFrame, int, int]:
 
     # Filter aero_df
     aero_df = aero_df[
-        aero_df["alpha"].isin(chosen_alpha) &
-        aero_df["mach"].isin(chosen_mach) &
-        aero_df["beta"].isin(chosen_beta) &
-        aero_df["qc_2V"].isin(chosen_q) &
-        aero_df["pb_2V"].isin(chosen_p) &
-        aero_df["rb_2V"].isin(chosen_r)
+        aero_df["alpha"].isin(chosen_alpha)
+        & aero_df["mach"].isin(chosen_mach)
+        & aero_df["beta"].isin(chosen_beta)
+        & aero_df["qc_2V"].isin(chosen_q)
+        & aero_df["pb_2V"].isin(chosen_p)
+        & aero_df["rb_2V"].isin(chosen_r)
     ].drop_duplicates()
 
     # After filtering aero_df
     if aero_df.empty:
-        raise ValueError("Filtered aero_df is empty. No data matches the chosen alpha, mach, beta, q, p, r values.")
+        raise ValueError(
+            "Filtered aero_df is empty. "
+            "No data matches the chosen alpha, mach, beta, q, p, r values."
+        )
 
     ctrl_columns = [
         "alpha", "mach", "elevator", "rudder", "aileron",  # Inputs
@@ -309,16 +327,19 @@ def get_tables_values(self) -> Tuple[DataFrame, DataFrame, int, int]:
 
     # Filter ctrl_df
     ctrl_df = ctrl_df[
-        ctrl_df["alpha"].isin(chosen_alpha) &
-        ctrl_df["mach"].isin(chosen_mach) &
-        ctrl_df["elevator"].isin(chosen_elevator) &
-        ctrl_df["rudder"].isin(chosen_rudder) &
-        ctrl_df["aileron"].isin(chosen_aileron)
+        ctrl_df["alpha"].isin(chosen_alpha)
+        & ctrl_df["mach"].isin(chosen_mach)
+        & ctrl_df["elevator"].isin(chosen_elevator)
+        & ctrl_df["rudder"].isin(chosen_rudder)
+        & ctrl_df["aileron"].isin(chosen_aileron)
     ].drop_duplicates()
 
     # After filtering ctrl_df
     if ctrl_df.empty:
-        raise ValueError("Filtered ctrl_df is empty. No data matches the chosen alpha, mach, elevator, rudder, aileron values.")
+        raise ValueError(
+            "Filtered ctrl_df is empty."
+            "No data matches the chosen alpha, mach, elevator, rudder, aileron values."
+        )
 
     log.info("--- Finished retrieving the Tables values ---")
 
@@ -333,7 +354,7 @@ def get_tables_values(self) -> Tuple[DataFrame, DataFrame, int, int]:
             "Uncorrect number of rows for aero table: "
             f"SDSA requires {aero_nb=} which is distinct from {aero_rows=}."
         )
-    
+
     ctrl_df_rows = ctrl_df.shape[0]
     if ctrl_df_rows != ctrl_nb:
         raise ValueError(

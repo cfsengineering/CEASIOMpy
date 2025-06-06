@@ -803,7 +803,9 @@ def refine_le_te_end(
                     surfaces2) & set(surfaces_in_wing))
                 if len(common_points) == 2 and len(common_surfaces) == 1:
                     log.info(
-                        f"Found the end of wing in {model_part.uid}, refining lines {line1,line2}")
+                        f"Found the end of wing in {model_part.uid}, "
+                        f"refining lines {line1, line2}"
+                    )
                     refine_end_wing(
                         [line1, line2],
                         aircraft,

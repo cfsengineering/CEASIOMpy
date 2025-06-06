@@ -793,7 +793,7 @@ def add_db_values(self, df: DataFrame, non_mach_str: str, x_hinge: float) -> Dat
             "z_ref = 0.0",
         ],
     )
-    
+
     if df.empty:
         df = DataFrame(columns=der_columns)
 

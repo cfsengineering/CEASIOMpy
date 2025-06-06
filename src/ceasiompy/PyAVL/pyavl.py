@@ -191,7 +191,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             aileron = new_aileron_list[i_case]
             elevator = new_elevator_list[i_case]
             rudder = new_rudder_list[i_case]
-            
+
             (
                 _, _, _,
                 ref_density, g_acceleration, ref_velocity,
@@ -209,7 +209,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                         f"aircraft = '{cpacs.ac_name}'",
                         f"alt = {alt}",
                         f"alpha BETWEEN {aoa - tol} AND {aoa + tol}",
-                        f"beta = 0.0",
+                        "beta = 0.0",
                         f"aileron BETWEEN {aileron - tol} AND {aileron + tol}",
                         f"elevator BETWEEN {elevator - tol} AND {elevator + tol}",
                         f"rudder BETWEEN {rudder - tol} AND {rudder + tol}",
@@ -220,7 +220,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                     # Go to next iteration in for loop
                     log.info(f"Case {alt, mach, aoa, aos} already done.")
                     continue
-            
+
             case_dir_path = create_case_dir(
                 results_dir,
                 i_case + first_cases,

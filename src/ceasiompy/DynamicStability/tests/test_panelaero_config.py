@@ -27,18 +27,16 @@ from unittest.mock import patch
 class TestAeroModel(unittest.TestCase):
     def setUp(self):
         # Minimal wing definition for testing
-        self.wings_list = [
-            {
-                "EID": 1,
-                "CP": 1,
-                "n_span": 1,
-                "n_chord": 1,
-                "X1": np.array([0.0, 0.0, 0.0]),
-                "length12": 1.0,
-                "X4": np.array([0.0, 1.0, 0.0]),
-                "length43": 1.0,
-            }
-        ]
+        self.wings_list = [{
+            "EID": 1,
+            "CP": 1,
+            "n_span": 1,
+            "n_chord": 1,
+            "X1": np.array([0.0, 0.0, 0.0]),
+            "length12": 1.0,
+            "X4": np.array([0.0, 1.0, 0.0]),
+            "length43": 1.0,
+        }]
         self.model = AeroModel(self.wings_list)
         self.model.build_aerogrid()
         self.plots = DetailedPlots(self.model)

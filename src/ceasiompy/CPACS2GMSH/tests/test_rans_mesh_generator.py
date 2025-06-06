@@ -35,7 +35,6 @@ from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 import gmsh
 import shutil
 from pathlib import Path
-import pyvista as pv
 
 MODULE_DIR = Path(__file__).parent
 BREP_IN_PATH = Path(MODULE_DIR, "ToolInput/brep_files_test_rans")

@@ -240,9 +240,7 @@ def filter_positionings(
 
         # If it is not the first one
         if from_sec_uid != "":
-            if not (
-                (from_sec_uid in kept_sec) and (to_sec_uid in kept_sec)
-            ):
+            if not ((from_sec_uid in kept_sec) and (to_sec_uid in kept_sec)):
                 remove(tixi, pos_xpath)
 
     poss_cnt = elements_number(tixi, poss_xpath, pos, logg=False)
@@ -310,7 +308,7 @@ def decompose_wing(tixi: Tixi3, wing_name: str) -> None:
     remove(tixi, wing_xpath + "/componentSegments")
 
     # Copy wing times the number of sections with
-    for (seg_name, seg_from_uid, seg_to_uid) in segments:
+    for seg_name, seg_from_uid, seg_to_uid in segments:
         uid_list = [seg_from_uid, seg_to_uid]
         new_xpath = copy(tixi, wing_xpath, "wing", seg_name)
         removed_sec = []
@@ -329,7 +327,11 @@ def decompose_wing(tixi: Tixi3, wing_name: str) -> None:
         # Modify translate vector accordingly
         trsl_xpath = new_xpath + "/transformation/translation"
         update_xpath_at_xyz(
-            tixi, trsl_xpath, loc[seg_from_uid][0], loc[seg_from_uid][1], loc[seg_from_uid][2]
+            tixi,
+            trsl_xpath,
+            loc[seg_from_uid][0],
+            loc[seg_from_uid][1],
+            loc[seg_from_uid][2],
         )
 
     # Remove original wing
@@ -337,9 +339,7 @@ def decompose_wing(tixi: Tixi3, wing_name: str) -> None:
 
 
 def fowler_transform(
-    x_values: ndarray,
-    z_values: ndarray,
-    x_ref: float
+    x_values: ndarray, z_values: ndarray, x_ref: float
 ) -> Tuple[ndarray, ndarray, ndarray]:
     """
     Transforms z values to 0.0 for x values greater than x_ref.
@@ -443,10 +443,16 @@ def fowler_flap_scale(
 
     # Scale the rotated airfoil points
     scale = 0.7
-    x_airfoil_scaled = scale * (x_airfoil_rotated - np.min(x_airfoil_rotated)) / \
-        (np.max(x_airfoil_rotated) - np.min(x_airfoil_rotated))
-    z_airfoil_scaled = scale * (z_airfoil_rotated - np.min(z_airfoil_rotated)) / \
-        (np.max(z_airfoil_rotated) - np.min(z_airfoil_rotated))
+    x_airfoil_scaled = (
+        scale
+        * (x_airfoil_rotated - np.min(x_airfoil_rotated))
+        / (np.max(x_airfoil_rotated) - np.min(x_airfoil_rotated))
+    )
+    z_airfoil_scaled = (
+        scale
+        * (z_airfoil_rotated - np.min(z_airfoil_rotated))
+        / (np.max(z_airfoil_rotated) - np.min(z_airfoil_rotated))
+    )
 
     # Translate the scaled airfoil points to fit within the domain
     scale_p = 0.15
@@ -492,18 +498,14 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
                 x_airfoil, z_airfoil = newx, newz / 3.0
 
                 newz, xflap, zflap = fowler_transform(newx, newz, x_ref=0.6)
-                x_airfoil, z_airfoil = fowler_flap_scale(
-                    x_airfoil, z_airfoil, xflap, zflap
-                )
+                x_airfoil, z_airfoil = fowler_flap_scale(x_airfoil, z_airfoil, xflap, zflap)
             elif "plain" in ctrltype:
-                newx, newz, x_airfoil, z_airfoil = plain_transform(
-                    newx, newz, x_ref=0.7
-                )
+                newx, newz, x_airfoil, z_airfoil = plain_transform(newx, newz, x_ref=0.7)
             else:
                 log.warning(f"Control surface {ctrltype} does not exist, or is not implemented.")
 
             newx_str, newy_str, newz_str = array_to_str(newx, newz)
-            ids = "main_" + ctrltype + "_" + sgt + f'_{i_sec}'
+            ids = "main_" + ctrltype + "_" + sgt + f"_{i_sec}"
             new_airfoil_xpath = copy(tixi, wingairfoil_xpath, "wingAirfoil", ids, sym=False)
             update_xpath_at_xyz(
                 tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str
@@ -514,7 +516,7 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
 
             # Add x_airfoil, z_airfoil in wingAirfoils (small flap definition)
             newx_str, newy_str, newz_str = array_to_str(x_airfoil, z_airfoil)
-            ids = ctrltype + "_" + sgt + f'_{i_sec}'
+            ids = ctrltype + "_" + sgt + f"_{i_sec}"
             new_airfoil_xpath = copy(tixi, wingairfoil_xpath, "wingAirfoil", ids, sym=False)
             update_xpath_at_xyz(
                 tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str
@@ -534,11 +536,7 @@ def update_xpath_at_xyz(tixi: Tixi3, xpath: str, x: str, y: str, z: str) -> None
 
 
 def createfrom_wing_airfoil(
-    tixi: Tixi3,
-    wingairfoil_xpath: str,
-    xlist: List,
-    zlist: List,
-    ids: str
+    tixi: Tixi3, wingairfoil_xpath: str, xlist: List, zlist: List, ids: str
 ) -> None:
     """
     Creates a wingAirfoil.
@@ -546,9 +544,7 @@ def createfrom_wing_airfoil(
 
     newx_str, newy_str, newz_str = array_to_str(xlist, zlist)
     new_airfoil_xpath = copy(tixi, wingairfoil_xpath, "wingAirfoil", ids, sym=False)
-    update_xpath_at_xyz(
-        tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str
-    )
+    update_xpath_at_xyz(tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str)
 
 
 def add_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
@@ -582,12 +578,7 @@ def add_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
         adding_airfoil(tixi, ctrltype, sgt, sym=True)
 
 
-def adding_airfoil(
-    tixi: Tixi3,
-    ctrltype: str,
-    sgt: str,
-    sym: bool
-) -> None:
+def adding_airfoil(tixi: Tixi3, ctrltype: str, sgt: str, sym: bool) -> None:
     # Define constants
     wing_xpath = WINGS_XPATH + f"/wing[@uID='{sgt}']"
     flap_xpath = copy(tixi, wing_xpath, "wing", ctrltype + "_" + sgt, sym=sym)
@@ -602,7 +593,7 @@ def adding_airfoil(
         ctrltype = ctrltype.replace("left_", "").replace("right_", "")
 
         ele_xpath = secs_xpath + f"/{sec}[{i_sec}]/elements/element[1]"
-        ids = ctrltype + "_" + sgt + f'_{i_sec}'
+        ids = ctrltype + "_" + sgt + f"_{i_sec}"
         tixi.updateTextElement(ele_xpath + "/airfoilUID", ids)
 
         # Scale flap accordingly
@@ -640,8 +631,7 @@ def deflection_angle(tixi: Tixi3, wing_uid: str, angle: float) -> None:
 
                 # Apply rotation to all points
                 rotated_points = [
-                    rotate_2d_point((x, z), center_point, angle)
-                    for x, z in zip(x_list, z_list)
+                    rotate_2d_point((x, z), center_point, angle) for x, z in zip(x_list, z_list)
                 ]
 
                 # Separate rotated points back into x and z lists
@@ -649,7 +639,7 @@ def deflection_angle(tixi: Tixi3, wing_uid: str, angle: float) -> None:
 
                 newx_str, newy_str, newz_str = array_to_str(x_list_rotated, z_list_rotated)
 
-                ids = wing_uid + f"angle_{angle}" + f'_{i_sec}'
+                ids = wing_uid + f"angle_{angle}" + f"_{i_sec}"
                 new_airfoil_xpath = copy(tixi, wingairfoil_xpath, "wingAirfoil", ids, sym=False)
                 update_xpath_at_xyz(
                     tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str
@@ -660,7 +650,7 @@ def deflection_angle(tixi: Tixi3, wing_uid: str, angle: float) -> None:
 
         # Re-use previously defined airfoil
         else:
-            ids = wing_uid + f'_{i_sec}'
+            ids = wing_uid + f"_{i_sec}"
             tixi.updateTextElement(airfoil_xpath, ids)
 
 
@@ -675,7 +665,7 @@ def add_control_surfaces(tixi: Tixi3) -> None:
     if ctrlsurf:
         for wing_name, wing_data in ctrlsurf.items():
             decompose_wing(tixi, wing_name)
-            for (sgt, ctrltype) in wing_data:
+            for sgt, ctrltype in wing_data:
 
                 # Transform and scale original airfoil
                 transform_airfoil(tixi, sgt, ctrltype)
@@ -691,11 +681,3 @@ def add_control_surfaces(tixi: Tixi3) -> None:
         log.info("Finished adding control surfaces.")
     else:
         log.warning("No control surfaces to add.")
-
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

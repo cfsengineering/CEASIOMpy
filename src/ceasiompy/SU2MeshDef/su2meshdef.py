@@ -52,7 +52,7 @@ from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import (
     get_toolinput_file_path,
     get_tooloutput_file_path,
-    check_cpacs_input_requirements
+    check_cpacs_input_requirements,
 )
 from cpacspy.cpacsfunctions import (
     add_string_vector,
@@ -94,7 +94,13 @@ def get_ted_list(tixi):
     """
 
     ted_df = pd.DataFrame(
-        {"ted_uid": [], "comp_seg_uid": [], "wing_uid": [], "sym_dir": [], "defl_list": []}
+        {
+            "ted_uid": [],
+            "comp_seg_uid": [],
+            "wing_uid": [],
+            "sym_dir": [],
+            "defl_list": [],
+        }
     )
 
     if tixi.checkElement(WINGS_XPATH):
@@ -139,7 +145,13 @@ def get_ted_list(tixi):
                 sym_dir = get_ted_symmetry(tixi, ted_uid)
                 defl_list, _ = get_ted_deflections(tixi, ted_uid)
 
-                ted_df.loc[len(ted_df)] = [ted_uid, comp_seg_uid, wing_uid, sym_dir, defl_list]
+                ted_df.loc[len(ted_df)] = [
+                    ted_uid,
+                    comp_seg_uid,
+                    wing_uid,
+                    sym_dir,
+                    defl_list,
+                ]
 
     return ted_df
 
@@ -598,8 +610,9 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
     cfg["FFD_DEFINITION"] = su2_format(ted_uid + ", " + ",".join(ted_corner_list))
     cfg["FFD_DEGREE"] = "( 6, 10, 3 )"  # TODO: how to chose/calculate these value?
     if sym_dir:
-        cfg["FFD_DEFINITION"] += "; " + \
-            su2_format(ted_uid + "_sym, " + ",".join(ted_corner_sym_list))
+        cfg["FFD_DEFINITION"] += "; " + su2_format(
+            ted_uid + "_sym, " + ",".join(ted_corner_sym_list)
+        )
         cfg["FFD_DEGREE"] += "; ( 6, 10, 3 )"  # TODO: how to chose/calculate these value?
     cfg["MESH_OUT_FILENAME"] = "_mesh_ffd_box.su2"
 

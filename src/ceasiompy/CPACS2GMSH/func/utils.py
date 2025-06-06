@@ -19,7 +19,6 @@ import gmsh
 import numpy as np
 
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy.utils.ceasiompyutils import bool_
 
 from typing import Dict
 from pathlib import Path
@@ -51,7 +50,6 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_MAX_THICKNESS_LAYER_XPATH,
     GMSH_GROWTH_FACTOR_XPATH,
     GMSH_GROWTH_RATIO_XPATH,
-    GMSH_SURFACE_MESH_SIZE_XPATH,
     GMSH_FEATURE_ANGLE_XPATH,
 )
 
@@ -243,7 +241,7 @@ def retrieve_gui_values(tixi: Tixi3):
     """
 
     # Retrieve value from the GUI Setting
-    open_gmsh = bool_(get_value(tixi, GMSH_OPEN_GUI_XPATH))
+    open_gmsh = get_value(tixi, GMSH_OPEN_GUI_XPATH)
     type_mesh = get_value(tixi, GMSH_MESH_TYPE_XPATH)
     symmetry = get_value(tixi, GMSH_SYMMETRY_XPATH)
 
@@ -274,28 +272,30 @@ def retrieve_gui_values(tixi: Tixi3):
     growth_factor = get_value(tixi, GMSH_GROWTH_FACTOR_XPATH)
     growth_ratio = get_value(tixi, GMSH_GROWTH_RATIO_XPATH)
 
-    min_max_mesh_factor = get_value(tixi, GMSH_SURFACE_MESH_SIZE_XPATH)
-
     feature_angle = get_value(tixi, GMSH_FEATURE_ANGLE_XPATH)
 
     return (
-        open_gmsh, type_mesh, symmetry,
-        farfield_factor, farfield_size_factor,
-        n_power_factor, n_power_field,
-        fuselage_mesh_size_factor, wing_mesh_size_factor,
-        mesh_size_engines, mesh_size_propellers,
-        refine_factor, refine_truncated, auto_refine, refine_factor_angled_lines,
-        intake_percent, exhaust_percent,
-        n_layer, h_first_layer, max_layer_thickness,
-        growth_factor, growth_ratio,
-        min_max_mesh_factor, feature_angle,
-
+        open_gmsh,
+        type_mesh,
+        symmetry,
+        farfield_factor,
+        farfield_size_factor,
+        n_power_factor,
+        n_power_field,
+        fuselage_mesh_size_factor,
+        wing_mesh_size_factor,
+        mesh_size_engines,
+        mesh_size_propellers,
+        refine_factor,
+        refine_truncated,
+        auto_refine,
+        refine_factor_angled_lines,
+        intake_percent,
+        exhaust_percent,
+        n_layer,
+        h_first_layer,
+        max_layer_thickness,
+        growth_factor,
+        growth_ratio,
+        feature_angle,
     )
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

@@ -16,8 +16,6 @@ Initialization for UTILS.
 
 from pathlib import Path
 
-from ceasiompy import log
-
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================

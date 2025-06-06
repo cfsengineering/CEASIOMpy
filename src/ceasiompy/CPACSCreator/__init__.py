@@ -16,8 +16,6 @@ Initialization for CPACSCreator module.
 
 from pathlib import Path
 
-from ceasiompy import log
-
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
@@ -34,3 +32,6 @@ RES_DIR = True
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
+
+# ===== CPACSCreator names =====
+CPACSCREATOR_NAMES_LIST = ["cpacscreator", "CPACS-Creator", "CPACSCreator"]

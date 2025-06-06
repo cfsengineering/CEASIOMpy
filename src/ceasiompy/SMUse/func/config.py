@@ -38,9 +38,7 @@ from ceasiompy.utils.commonxpaths import SM_XPATH
 # =================================================================================================
 
 
-def get_predictions_dataset(
-    cpacs: CPACS
-) -> Dict[str, DataFrame]:
+def get_predictions_dataset(cpacs: CPACS) -> Dict[str, DataFrame]:
     """
     Extracts the dataset for predictions from the CPACS file
     by reading the specified aeromaps.
@@ -52,12 +50,14 @@ def get_predictions_dataset(
     for idx, aeromap_uid in enumerate(aeromap_uid_list, start=1):
         activate_aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
         log.info(f"Prediction dataset: {aeromap_uid}")
-        dataset_dict[level_to_str(idx)] = DataFrame({
-            "altitude": activate_aeromap.get("altitude").tolist(),
-            "machNumber": activate_aeromap.get("machNumber").tolist(),
-            "angleOfAttack": activate_aeromap.get("angleOfAttack").tolist(),
-            "angleOfSideslip": activate_aeromap.get("angleOfSideslip").tolist(),
-        })
+        dataset_dict[level_to_str(idx)] = DataFrame(
+            {
+                "altitude": activate_aeromap.get("altitude").tolist(),
+                "machNumber": activate_aeromap.get("machNumber").tolist(),
+                "angleOfAttack": activate_aeromap.get("angleOfAttack").tolist(),
+                "angleOfSideslip": activate_aeromap.get("angleOfSideslip").tolist(),
+            }
+        )
 
     log.info("Completed dataset extraction.")
     return dataset_dict

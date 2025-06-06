@@ -102,8 +102,7 @@ def check_segment_connection(wing_plt_area_xz, wing_plt_area_yz, awg, tigl):
         for j in range(2, awg.wing_seg_nb[i - 1] + 1):
             end_sec = seg_sec_reordered[j - 2, i - 1, 1]
             start_next = np.where(seg_sec[:, i - 1, 0] == end_sec)
-            seg_sec_reordered[j - 1, i - 1,
-                              :] = seg_sec[start_next[0], i - 1, :]
+            seg_sec_reordered[j - 1, i - 1, :] = seg_sec[start_next[0], i - 1, :]
         wing_sec_index.append(seg_sec_reordered[0, 0, 0])
         for j in range(2, awg.wing_seg_nb[i - 1] + 1):
             if seg_sec_reordered[j - 1, i - 1, 0] not in wing_sec_index:
@@ -113,8 +112,8 @@ def check_segment_connection(wing_plt_area_xz, wing_plt_area_yz, awg, tigl):
         nb = np.shape(wing_sec_index)
         if nb[0] > nbmax:
             nbmax = nb[0]
-        sec_index.resize(nbmax, awg.w_nb)
-        sec_index[0: nb[0], i - 1] = wing_sec_index[0: nb[0]]
+            sec_index = np.resize(sec_index, (nbmax, awg.w_nb))
+        sec_index[0 : nb[0], i - 1] = wing_sec_index[0 : nb[0]]
         sec_nb.append(nb[0])
 
     return (sec_nb, start_index, seg_sec_reordered, sec_index)
@@ -244,8 +243,7 @@ def wing_geom_eval(w_nb, TP, awg, cpacs_in):
     # WING ANALYSIS --------------------------------------------------------------
 
     # Main wing plantform area
-    awg.wing_plt_area_main = round(
-        awg.wing_plt_area[awg.main_wing_index - 1], 3)
+    awg.wing_plt_area_main = round(awg.wing_plt_area[awg.main_wing_index - 1], 3)
 
     # Wing: MAC,chords,thicknes,span,plantform area ------------------------------
     for i in range(1, awg.w_nb + 1):
@@ -255,10 +253,8 @@ def wing_geom_eval(w_nb, TP, awg, cpacs_in):
         awg.wing_max_chord.append(
             np.sqrt((wpx2 - wpx) ** 2 + (wpy2 - wpy) ** 2 + (wpz2 - wpz) ** 2)
         )
-        (wpx, wpy, wpz) = tigl.wingGetChordPoint(
-            i, awg.wing_seg_nb[i - 1], 1.0, 0.0)
-        (wpx2, wpy2, wpz2) = tigl.wingGetChordPoint(
-            i, awg.wing_seg_nb[i - 1], 1.0, 1.0)
+        (wpx, wpy, wpz) = tigl.wingGetChordPoint(i, awg.wing_seg_nb[i - 1], 1.0, 0.0)
+        (wpx2, wpy2, wpz2) = tigl.wingGetChordPoint(i, awg.wing_seg_nb[i - 1], 1.0, 1.0)
         awg.wing_min_chord.append(
             np.sqrt((wpx2 - wpx) ** 2 + (wpy2 - wpy) ** 2 + (wpz2 - wpz) ** 2)
         )
@@ -287,22 +283,16 @@ def wing_geom_eval(w_nb, TP, awg, cpacs_in):
                 (wpux - wplx) ** 2 + (wpuy - wply) ** 2 + (wpuz - wplz) ** 2
             )
         j = int(seg_sec[awg.wing_seg_nb[i - 1] - 1, i - 1, 2])
-        (wplx, wply, wplz) = tigl.wingGetLowerPoint(
-            i, awg.wing_seg_nb[i - 1], 1.0, L)
-        (wpux, wpuy, wpuz) = tigl.wingGetUpperPoint(
-            i, awg.wing_seg_nb[i - 1], 1.0, U)
+        (wplx, wply, wplz) = tigl.wingGetLowerPoint(i, awg.wing_seg_nb[i - 1], 1.0, L)
+        (wpux, wpuy, wpuz) = tigl.wingGetUpperPoint(i, awg.wing_seg_nb[i - 1], 1.0, U)
         awg.wing_sec_thickness[j][i - 1] = np.sqrt(
             (wpux - wplx) ** 2 + (wpuy - wply) ** 2 + (wpuz - wplz) ** 2
         )
-        wing_center_section_point[awg.wing_seg_nb[i - 1]
-                                  ][i - 1][0] = (wplx + wpux) / 2
-        wing_center_section_point[awg.wing_seg_nb[i - 1]
-                                  ][i - 1][1] = (wply + wpuy) / 2
-        wing_center_section_point[awg.wing_seg_nb[i - 1]
-                                  ][i - 1][2] = (wplz + wpuz) / 2
+        wing_center_section_point[awg.wing_seg_nb[i - 1]][i - 1][0] = (wplx + wpux) / 2
+        wing_center_section_point[awg.wing_seg_nb[i - 1]][i - 1][1] = (wply + wpuy) / 2
+        wing_center_section_point[awg.wing_seg_nb[i - 1]][i - 1][2] = (wplz + wpuz) / 2
         awg.wing_sec_mean_thick.append(
-            np.mean(
-                awg.wing_sec_thickness[0: awg.wing_seg_nb[i - 1] + 1, i - 1])
+            np.mean(awg.wing_sec_thickness[0 : awg.wing_seg_nb[i - 1] + 1, i - 1])
         )
 
         # Evaluating wing fuel tank volume and if the wing is horizontal or vertical
@@ -318,14 +308,11 @@ def wing_geom_eval(w_nb, TP, awg, cpacs_in):
             if PLT == 1:
                 corr += 0.05
             if tp_ratio * awg.wing_plt_area[i - 1] > 80:
-                awg.wing_fuel_vol += round(awg.wing_vol[i - 1]
-                                           * (0.7 + corr), 2)
+                awg.wing_fuel_vol += round(awg.wing_vol[i - 1] * (0.7 + corr), 2)
             elif tp_ratio * awg.wing_plt_area[i - 1] > 40:
-                awg.wing_fuel_vol += round(awg.wing_vol[i - 1]
-                                           * (0.65 + corr), 2)
+                awg.wing_fuel_vol += round(awg.wing_vol[i - 1] * (0.65 + corr), 2)
             elif tp_ratio * awg.wing_plt_area[i - 1] > 10:
-                awg.wing_fuel_vol += round(awg.wing_vol[i - 1]
-                                           * (0.55 + corr), 2)
+                awg.wing_fuel_vol += round(awg.wing_vol[i - 1] * (0.55 + corr), 2)
             else:
                 awg.wing_fuel_vol += 0
             for j in seg_sec[:, i - 1, 2]:
@@ -397,12 +384,9 @@ def wing_geom_eval(w_nb, TP, awg, cpacs_in):
                 symy = 1
                 symx = -1
                 symz = 1
-            awg.wing_center_seg_point[:, i,
-                                      0] = awg.wing_center_seg_point[:, i - 1, 0] * symx
-            awg.wing_center_seg_point[:, i,
-                                      1] = awg.wing_center_seg_point[:, i - 1, 1] * symy
-            awg.wing_center_seg_point[:, i,
-                                      2] = awg.wing_center_seg_point[:, i - 1, 2] * symz
+            awg.wing_center_seg_point[:, i, 0] = awg.wing_center_seg_point[:, i - 1, 0] * symx
+            awg.wing_center_seg_point[:, i, 1] = awg.wing_center_seg_point[:, i - 1, 1] * symy
+            awg.wing_center_seg_point[:, i, 2] = awg.wing_center_seg_point[:, i - 1, 2] * symz
             c = True
             a += 1
 
@@ -418,37 +402,19 @@ def wing_geom_eval(w_nb, TP, awg, cpacs_in):
     )
     log.info("Number of Wings [-]: " + str(awg.wing_nb))
     log.info("Wing symmetry plane [-]: " + str(awg.wing_sym))
-    log.info(
-        "Number of wing sections (not counting symmetry) [-]: " + str(awg.wing_sec_nb))
-    log.info(
-        "Number of wing segments (not counting symmetry) [-]: " + str(awg.wing_seg_nb))
+    log.info("Number of wing sections (not counting symmetry) [-]: " + str(awg.wing_sec_nb))
+    log.info("Number of wing segments (not counting symmetry) [-]: " + str(awg.wing_seg_nb))
     log.info("Wing Span (counting symmetry)[m]: \n" + str(awg.wing_span))
-    log.info(
-        "Wing MAC length [m]: "
-        + str(
-            awg.wing_mac[
-                0,
-            ]
-        )
-    )
-    log.info(
-        "Wing MAC x,y,z coordinate [m]: \n"
-        + str(
-            awg.wing_mac[
-                1:4,
-            ]
-        )
-    )
+    log.info("Wing MAC length [m]: " + str(awg.wing_mac[0,]))
+    log.info("Wing MAC x,y,z coordinate [m]: \n" + str(awg.wing_mac[1:4,]))
     log.info("Wings sections thicknes [m]: \n" + str(awg.wing_sec_thickness))
-    log.info(
-        "Wings sections mean thicknes [m]: \n" + str(awg.wing_sec_mean_thick))
+    log.info("Wings sections mean thicknes [m]: \n" + str(awg.wing_sec_mean_thick))
     log.info("Wing segments length [m]: \n" + str(awg.wing_seg_length))
     log.info("Wing max chord length [m]: \n" + str(awg.wing_max_chord))
     log.info("Wing min chord length [m]: \n" + str(awg.wing_min_chord))
     log.info("Main wing plantform area [m^2]: " + str(awg.wing_plt_area_main))
     log.info("Main wing wetted surface [m^2]: " + str(awg.main_wing_surface))
-    log.info(
-        "Tail wings wetted surface [m^2]: \n" + str(awg.tail_wings_surface))
+    log.info("Tail wings wetted surface [m^2]: \n" + str(awg.tail_wings_surface))
     log.info("Wings plantform area [m^2]: \n" + str(awg.wing_plt_area))
     log.info("Volume of each wing [m^3]: " + str(awg.wing_vol))
     log.info("Total wing volume [m^3]: " + str(awg.wing_tot_vol))

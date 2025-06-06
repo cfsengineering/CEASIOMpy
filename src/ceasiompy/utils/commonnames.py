@@ -55,10 +55,3 @@ MTOM_FIGURE_NAME = "MTOM_Prediction.png"
 
 # PYCYCLE
 ENGINE_BOUNDARY_CONDITIONS = "EngineBC.dat"
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

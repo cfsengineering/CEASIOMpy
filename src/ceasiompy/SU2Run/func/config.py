@@ -23,11 +23,7 @@ from ceasiompy.SU2Run.func.plot import save_plots
 from ceasiompy.CPACS2GMSH.func.mesh_sizing import wings_size
 from ceasiompy.utils.geometryfunctions import get_main_wing_le
 from ceasiompy.SU2Run.func.dotderivatives import load_parameters
-
-from ceasiompy.utils.ceasiompyutils import (
-    bool_,
-    get_aeromap_conditions,
-)
+from ceasiompy.utils.ceasiompyutils import get_aeromap_conditions
 from cpacspy.cpacsfunctions import (
     get_value,
     open_tigl,
@@ -73,7 +69,6 @@ from ceasiompy.utils.commonnames import (
     SU2_FORCES_BREAKDOWN_NAME,
     ACTUATOR_DISK_INLET_SUFFIX,
     ACTUATOR_DISK_OUTLET_SUFFIX,
-
 )
 from ceasiompy.utils.commonxpaths import (
     SU2MESH_XPATH,
@@ -116,7 +111,7 @@ def add_actuator_disk(
     actuator_disk_file: Path,
     mesh_markers: Dict,
     alt: float,
-    mach: float
+    mach: float,
 ) -> None:
     """
     Add actuator disk parameter to the config file.
@@ -177,9 +172,7 @@ def add_actuator_disk(
         # TODO: this is the nominal speed, how to get a speed which correspond to
         # each flight condition
         rotational_velocity_xpath = rotor_xpath + "/nominalRotationsPerMinute"
-        rotational_velocity = (
-            get_value_or_default(tixi, rotational_velocity_xpath, 3000) / 60.0
-        )
+        rotational_velocity = get_value_or_default(tixi, rotational_velocity_xpath, 3000) / 60.0
 
         rotor_uid_pos[rotor_uid] = (
             pos_x,
@@ -226,11 +219,18 @@ def add_actuator_disk(
         number_of_blades = round(rotor_uid_pos[uid][5], 5)
         rotational_velocity = round(rotor_uid_pos[uid][6], 5)
 
-        actdisk_markers.extend([
-            maker_inlet, marker_outlet,
-            str(center[0]), str(center[1]), str(center[2]),
-            str(center[0]), str(center[1]), str(center[2]),
-        ])
+        actdisk_markers.extend(
+            [
+                maker_inlet,
+                marker_outlet,
+                str(center[0]),
+                str(center[1]),
+                str(center[2]),
+                str(center[0]),
+                str(center[1]),
+                str(center[2]),
+            ]
+        )
 
         Atm = Atmosphere(alt)
         free_stream_velocity = mach * Atm.speed_of_sound[0]
@@ -238,11 +238,11 @@ def add_actuator_disk(
         radial_stations = get_radial_stations(radius, hub_radius)
         advanced_ratio = get_advanced_ratio(free_stream_velocity, rotational_velocity, radius)
 
-        prandtl_correction = bool_(get_value(tixi, PROPELLER_BLADE_LOSS_XPATH))
+        prandtl_correction = get_value(tixi, PROPELLER_BLADE_LOSS_XPATH)
 
         thrust = get_value(tixi, PROPELLER_THRUST_XPATH)
         total_thrust_coefficient = float(
-            thrust / (Atm.density * rotational_velocity**2 * (radius * 2) ** 4)
+            thrust / (Atm.density[0] * rotational_velocity**2 * (radius * 2) ** 4)
         )
 
         (
@@ -252,7 +252,6 @@ def add_actuator_disk(
             optimal_axial_interference_factor,
             optimal_rotational_interference_factor,
             prandtl_correction_values,
-
         ) = thrust_calculator(
             radial_stations,
             total_thrust_coefficient,
@@ -393,7 +392,7 @@ def add_case_data(
     if not case_dir_path.exists():
         case_dir_path.mkdir()
 
-    if bool_(get_value(tixi, SU2_ACTUATOR_DISK_XPATH)):
+    if get_value(tixi, SU2_ACTUATOR_DISK_XPATH):
         actuator_disk_file = Path(wkdir, ACTUATOR_DISK_FILE_NAME)
         add_actuator_disk(
             cfg=cfg,
@@ -410,14 +409,17 @@ def add_case_data(
             copyfile(actuator_disk_file, case_actuator_disk_file)
 
             bc_wall_str = su2_format(
-                ",".join(mesh_markers["wall"] + mesh_markers["actuator_disk_inlet"]
-                         + mesh_markers["actuator_disk_outlet"])
+                ",".join(
+                    mesh_markers["wall"]
+                    + mesh_markers["actuator_disk_inlet"]
+                    + mesh_markers["actuator_disk_outlet"]
+                )
             )
 
             cfg["MARKER_PLOTTING"] = bc_wall_str
             cfg["MARKER_MONITORING"] = bc_wall_str
 
-    if bool_(get_value(tixi, SU2_DAMPING_DER_XPATH)):
+    if get_value(tixi, SU2_DAMPING_DER_XPATH):
         rotation_rate = get_value(tixi, SU2_ROTATION_RATE_XPATH)
         add_damping_derivatives(cfg, wkdir, case_dir_name, rotation_rate)
 
@@ -600,17 +602,13 @@ def define_markers(tixi: Tixi3, su2_mesh_path: Path) -> Dict:
 
     # Generate Farfield
     create_branch(tixi, SU2_BC_FARFIELD_XPATH)
-    bc_farfiled_str = ";".join(
-        mesh_markers["engine_intake"]
-        + mesh_markers["engine_exhaust"]
-    )
+    bc_farfiled_str = ";".join(mesh_markers["engine_intake"] + mesh_markers["engine_exhaust"])
     tixi.updateTextElement(SU2_BC_FARFIELD_XPATH, bc_farfiled_str)
 
     # Generate Actuator disk
     create_branch(tixi, SU2_ACTUATOR_DISK_XPATH)
     bc_actuator_disk_str = ";".join(
-        mesh_markers["actuator_disk_inlet"]
-        + mesh_markers["actuator_disk_outlet"]
+        mesh_markers["actuator_disk_inlet"] + mesh_markers["actuator_disk_outlet"]
     )
     tixi.updateTextElement(SU2_ACTUATOR_DISK_XPATH, bc_actuator_disk_str)
 
@@ -626,13 +624,13 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
     if tixi.getTextElement(USED_SU2_MESH_XPATH + "type") == "CPACS2GMSH mesh":
         log.info("Using mesh files from CPACS2Gmsh")
         tixi_su2_mesh_paths = tixi.getTextElement(SU2MESH_XPATH)
-        su2_mesh_paths = [Path(x) for x in str(tixi_su2_mesh_paths).split(';')]
+        su2_mesh_paths = [Path(x) for x in str(tixi_su2_mesh_paths).split(";")]
 
     # Using Specified mesh files from GUI
     elif tixi.getTextElement(USED_SU2_MESH_XPATH + "type") == "Path":
         log.info("Using specified mesh paths")
         tixi_su2_mesh_paths = tixi.getTextElement(USED_SU2_MESH_XPATH)
-        su2_mesh_paths = [Path(x) for x in str(tixi_su2_mesh_paths).split(';')]
+        su2_mesh_paths = [Path(x) for x in str(tixi_su2_mesh_paths).split(";")]
 
     # Using ceasiompy.db
     elif tixi.getTextElement(USED_SU2_MESH_XPATH + "type") == "db":
@@ -641,11 +639,11 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
 
         # Upload files to the working directory and update paths
         su2_mesh_paths = []
-        for (su2_mesh, aircraft_name, deformation, angle) in su2_mesh_list:
+        for su2_mesh, aircraft_name, deformation, angle in su2_mesh_list:
             su2_path = results_dir / f"{aircraft_name}_{deformation}_{angle}.su2"
 
-            with open(su2_path, 'w') as su2_file:
-                su2_file.write(su2_mesh.decode('utf-8'))
+            with open(su2_path, "w") as su2_file:
+                su2_file.write(su2_mesh.decode("utf-8"))
 
             su2_mesh_paths.append(Path(su2_path))
 
@@ -654,7 +652,7 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
 
     log.info(f"su2_mesh_paths {su2_mesh_paths}")
     # Update tixi element at SU2MESH_XPATH with new paths
-    tixi_su2_mesh_paths = ';'.join(str(su2_mesh_paths))
+    tixi_su2_mesh_paths = ";".join(str(su2_mesh_paths))
     tixi.updateTextElement(SU2MESH_XPATH, tixi_su2_mesh_paths)
 
     dynstab_su2_mesh_paths = [
@@ -677,10 +675,7 @@ def configure_mesh_format(cfg: ConfigFile, mesh_path: Path) -> None:
         cfg["MESH_FORMAT"] = "CGNS"
         return None
     if not mesh_name.endswith(".su2"):
-        log.warning(
-            "Did not recognize the mesh format. "
-            "Using SU2 as default."
-        )
+        log.warning("Did not recognize the mesh format. " "Using SU2 as default.")
     cfg["MESH_FORMAT"] = "SU2"
 
 
@@ -690,7 +685,7 @@ def generate_su2_cfd_config(
     su2_mesh_paths: List[Path],
     mesh_markers: Dict,
     dyn_stab: bool,
-    rans: bool
+    rans: bool,
 ) -> None:
     """
     Reads data in the CPACS file and generate configuration files
@@ -717,8 +712,8 @@ def generate_su2_cfd_config(
         cfg = ConfigFile(get_su2_cfg_tpl(tpl_type))
         configure_mesh_format(cfg, su2_mesh_path)
 
-        if dyn_stab and 'ITER' in cfg.data:
-            cfg.data.pop('ITER', None)
+        if dyn_stab and "ITER" in cfg.data:
+            cfg.data.pop("ITER", None)
 
         # General parameters
         aircraft = cpacs.aircraft
@@ -786,12 +781,3 @@ def generate_su2_cfd_config(
             mesh_markers=mesh_markers,
             ctrlsurf=ctrlsurf,
         )
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

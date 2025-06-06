@@ -1,4 +1,3 @@
-
 # utils.py
 AERO_COEFFICIENTS = {
     "Total CL:": "cl",
@@ -7,7 +6,7 @@ AERO_COEFFICIENTS = {
     "Total CMx:": "cmd",
     "Total CMy:": "cms",
     "Total CMz:": "cml",
-    "Free-stream velocity": "velocity"
+    "Free-stream velocity": "velocity",
 }
 SU2_FORCES_MOM = {
     "Total CFx:": "cfx",

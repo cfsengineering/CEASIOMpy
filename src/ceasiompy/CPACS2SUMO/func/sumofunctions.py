@@ -16,7 +16,6 @@ Functions used to help the cration of SUMO file
 
 import json
 
-from ceasiompy import log
 from cpacspy.cpacsfunctions import copy_branch
 
 from tixi3.tixi3wrapper import Tixi3
@@ -49,7 +48,7 @@ def sumo_add_nacelle_lip(
     xpath: str,
     ax_offset: float = 1.2,
     rad_offset: float = 0.15,
-    shape_coef: float = 0.3
+    shape_coef: float = 0.3,
 ) -> None:
     """
     Add nacelle lips option in SUMO.
@@ -198,15 +197,3 @@ def sumo_mirror_copy(sumo: Tixi3, xpath: str, uid: str, is_wing: bool = True) ->
             sumo.addTextAttribute(xpath_sec, "reversed", str(not rev_attr).lower())
 
         add_wing_cap(sumo, xpath_sym)
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")
-
-if __name__ == "__main__":
-
-    print("Nothing to execute!")

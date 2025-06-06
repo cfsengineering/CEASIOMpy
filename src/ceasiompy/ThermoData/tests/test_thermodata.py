@@ -5,11 +5,11 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions of 'ceasiompy/ThermoData/func/turbojet_func.py'
 
-
 | Author : Francesco Marcucci
 | Creation: 2024-02-09
 
 """
+
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
@@ -18,16 +18,19 @@ import numpy as np
 
 from pathlib import Path
 
+from ceasiompy.ThermoData.thermodata import main as thermo_data
+from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 from ceasiompy.ThermoData.func.turbojet import (
     turbojet_analysis,
     write_turbojet_file,
 )
-
 from ceasiompy.ThermoData.func.turbofan import (
     turbofan_analysis,
     write_hbtf_file,
 )
 
+from unittest import main
+from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
 # =================================================================================================
 #   FUNCTIONS
@@ -40,17 +43,15 @@ def test_turbojet_func():
     MN = 0.3
     Fn = 2000
     new_sol = turbojet_analysis(alt, MN, Fn)
-    correct_sol = np.array(
-        [
-            1006.6296749,
-            798.79704119,
-            1.50478324,
-            326886.19429314,
-            2.89168807,
-            727.76800186,
-            89874.50518856,
-        ]
-    ).reshape((7, 1))
+    correct_sol = np.array([
+        1006.6296749,
+        798.79704119,
+        1.50478324,
+        326886.19429314,
+        2.89168807,
+        727.76800186,
+        89874.50518856,
+    ]).reshape((7, 1))
     np.testing.assert_almost_equal(new_sol, correct_sol, 3)
 
 
@@ -81,10 +82,6 @@ def test_write_turbojet_file(tmp_path):
     with open(test_thermodata_path, "r") as file:
         content = [line.strip() for line in file.readlines()]
     content.append("")
-
-    # print("content=", content)
-    # expected_content = test_thermodata_path.read_text().split("\n")
-    # print("expected_content=", expected_content)
 
     assert test_thermodata_path.read_text().split("\n") == content
 
@@ -152,3 +149,26 @@ def test_write_hbtf_file(tmp_path):
     content.append("")
 
     assert test_thermodata_path.read_text().split("\n") == content
+
+
+# =================================================================================================
+#   CLASSES
+# =================================================================================================
+
+
+class TestThermoData(CeasiompyTest):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.wkdir = current_workflow_dir()
+
+    def test_main(self):
+        thermo_data(self.test_cpacs, self.wkdir)
+
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+    main(verbosity=0)

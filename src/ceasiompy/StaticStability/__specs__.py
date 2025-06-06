@@ -16,9 +16,10 @@ GUI Interface of StaticStability.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
-from ceasiompy.StaticStability import INCLUDE_GUI
-from ceasiompy.utils.commonxpaths import STATICSTABILITY_LR_XPATH
+from ceasiompy.StaticStability import (
+    INCLUDE_GUI,
+    STATICSTABILITY_LR_XPATH,
+)
 
 # ==============================================================================
 #   VARIABLE

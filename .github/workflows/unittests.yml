@@ -56,12 +56,15 @@ jobs:
     - name: Install libGLU
       run: sudo apt-get install -y libglu1-mesa-dev
 
-    - name: Add src to PYTHONPATH
-      run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)/src" >> $GITHUB_ENV
+    - name: Install Pentagrow
+      shell: bash -l {0}
+      run: |
+        installation/Ubuntu/install_pentagrow.sh
 
     - name: Run unit tests
       shell: bash -l {0}
-      run:
+      run: |
+        source ~/.bashrc
         pytest -v src/ceasiompy --cov=ceasiompy --cov-report xml:coverage.xml
 
     - name: Upload coverage to Codecov

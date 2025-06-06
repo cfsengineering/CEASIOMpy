@@ -20,14 +20,10 @@ from typing import (
     List,
     Tuple,
 )
-
 from numpy import (
     ndarray,
     complex128,
 )
-
-from ceasiompy import log
-
 
 # =================================================================================================
 #   FUNCTIONS
@@ -99,11 +95,3 @@ def complex_cross(a: ndarray, b: ndarray) -> ndarray:
 
 def sdsa_format(list_: List) -> str:
     return " ".join(map(str, list_))
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute.")

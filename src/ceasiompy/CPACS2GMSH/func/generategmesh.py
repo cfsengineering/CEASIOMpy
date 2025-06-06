@@ -34,7 +34,7 @@ import gmsh
 import numpy as np
 
 from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
-from ceasiompy.utils.ceasiompyutils import bool_, get_part_type
+from ceasiompy.utils.ceasiompyutils import get_part_type
 from cpacspy.cpacsfunctions import create_branch
 
 from ceasiompy.CPACS2GMSH.func.mesh_sizing import fuselage_size, wings_size
@@ -414,6 +414,8 @@ def generate_gmsh(
         sym_vector = [0, 1, 0]
         plane_vector = [0, 0, 1]
         if sym_vector != plane_vector:
+            # i.e. the disk we added is not in the right direction
+            # (bc can only add disks with z constant)
             rotation_axis = np.cross(sym_vector, plane_vector)
             gmsh.model.occ.rotate(
                 [(2, sym_plane)],
@@ -477,7 +479,7 @@ def generate_gmsh(
         unwanted_children = children_dimtag[-1]
         # Careful: this only take into account volumes elements in the symmetry
         # Disk actuator that are 2D element are not taken into account
-        # and will be removed latter
+        # and will be removed later
 
         # remove them from the model
         gmsh.model.occ.remove(unwanted_children, recursive=True)
@@ -785,7 +787,7 @@ def generate_gmsh(
             # Reset the background mesh
             mesh_fields = min_fields(mesh_fields)
 
-            if bool_(open_gmsh):
+            if open_gmsh:
                 log.info("Insufficient mesh size surfaces are displayed in red")
                 log.info("GMSH GUI is open, close it to continue...")
                 gmsh.fltk.run()
@@ -800,7 +802,7 @@ def generate_gmsh(
             gmsh.model.occ.synchronize()
 
             log.info("Remeshing process finished")
-            if bool_(open_gmsh):
+            if open_gmsh:
                 log.info("Corrected mesh surfaces are displayed in green")
 
     gmsh.model.occ.removeAllDuplicates()
@@ -832,12 +834,10 @@ def generate_gmsh(
         for fusing in fusings:
             fused_len = len(fusings[fusing])
             if fused_len > 1:
-                fused_entities = list(set(
-                    [entity for group in fusings[fusing] for entity in group]
-                ))
-                fused_tags = list(set(
-                    [tag for tag in tags_dict[fusing]]
-                ))
+                fused_entities = list(
+                    set([entity for group in fusings[fusing] for entity in group])
+                )
+                fused_tags = list(set([tag for tag in tags_dict[fusing]]))
                 log.info(f"Fusing {fused_len} wings named {fusing}")
                 new_tag = max(tags) + 1
                 tags.append(new_tag)
@@ -871,7 +871,7 @@ def generate_gmsh(
     else:
         write_gmsh(results_dir, f"surface_mesh_{surf}_{angle}.msh")
 
-    if bool_(open_gmsh):
+    if open_gmsh:
         log.info("Result of 2D surface mesh")
         log.info("GMSH GUI is open, close it to continue...")
         gmsh.fltk.run()
@@ -912,11 +912,3 @@ def generate_gmsh(
         gmsh.finalize()
 
     return su2mesh_path
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

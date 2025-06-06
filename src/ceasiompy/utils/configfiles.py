@@ -18,8 +18,6 @@ Functions to simplify some file and data handling in CEASIOMpy
 
 from collections import OrderedDict
 
-from ceasiompy import log
-
 # =================================================================================================
 #   CLASSES
 # =================================================================================================
@@ -149,11 +147,3 @@ class ConfigFile:
             else:
                 text_line.append(f"{key} = {value}")
         return ("\n").join(text_line)
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute")

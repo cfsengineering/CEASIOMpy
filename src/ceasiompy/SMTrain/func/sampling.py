@@ -73,10 +73,7 @@ def lh_sampling(
     for idx in fixed_cols:
         samples[:, idx] = xlimits[idx, 0]
 
-    sampled_dict = {
-        key: samples[:, idx]
-        for idx, key in enumerate(ranges.keys())
-    }
+    sampled_dict = {key: samples[:, idx] for idx, key in enumerate(ranges.keys())}
 
     # Post-process sampled data to apply precision constraints
     for key in sampled_dict:
@@ -126,10 +123,7 @@ def new_points(
     output_file_path = results_dir / "new_points.csv"
     if not high_var_pts:
         log.info("First iteration: selecting the first 7 highest variance points.")
-        selected_points = [
-            tuple(x_array[idx])
-            for idx in sorted_indices[:7]
-        ]
+        selected_points = [tuple(x_array[idx]) for idx in sorted_indices[:7]]
         high_var_pts.extend(selected_points)
         sampled_df = DataFrame(selected_points, columns=AEROMAP_FEATURES)
         sampled_df.to_csv(output_file_path, index=False)
@@ -170,7 +164,8 @@ def split_data(
     x_train: ndarray
     x_test: ndarray
     x_train, x_test, y_train, y_test = train_test_split(
-        x, y,
+        x,
+        y,
         test_size=get_val_fraction(train_fraction),
         random_state=random_state,
     )
@@ -187,7 +182,8 @@ def split_data(
     # Split into validation and test
     x_val: ndarray
     x_val, x_test, y_val, y_test = train_test_split(
-        x_test, y_test,
+        x_test,
+        y_test,
         test_size=test_fraction_within_split,
         random_state=random_state,
     )
@@ -202,6 +198,10 @@ def split_data(
     log.info(f"Validation size: {x_val.shape[0]}, Test size: {x_test.shape[0]}")
 
     return {
-        "x_train": x_train, "x_val": x_val, "x_test": x_test,
-        "y_train": y_train, "y_val": y_val, "y_test": y_test,
+        "x_train": x_train,
+        "x_val": x_val,
+        "x_test": x_test,
+        "y_train": y_train,
+        "y_val": y_val,
+        "y_test": y_test,
     }

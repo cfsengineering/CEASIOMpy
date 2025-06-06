@@ -340,5 +340,7 @@ def get_tables_values(self) -> Tuple[DataFrame, DataFrame, int, int]:
             "Uncorrect number of rows for control table: "
             f"SDSA requires {ctrl_nb=} which is distinct from {ctrl_df_rows=}."
         )
+    else:
+        log.info(f"Found the correct number of rows ({ctrl_df_rows=}) for control table.")
 
     return aero_df, ctrl_df, aero_nb, ctrl_nb

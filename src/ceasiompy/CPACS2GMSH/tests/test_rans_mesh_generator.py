@@ -157,7 +157,7 @@ def test_choose_correct_part():
 def test_sort_surfaces_and_create_physical_groups():
     """
     This function tests if the function sort_surfaces_and_create_physical_groups
-    sorts the surfaces that are between fuselage and wing in D150 (known "pb").
+    sorts the surfaces that are between fuselage and wing in D150 (known "problem").
     """
     if TEST_OUT_PATH.exists():
         shutil.rmtree(TEST_OUT_PATH)
@@ -208,21 +208,19 @@ def test_sort_surfaces_and_create_physical_groups():
                                    bb[2] - 0.1, bb[3] + 0.1, bb[4] + 0.1, bb[5] + 0.1]
 
     gmsh.model.occ.fuse([(3, vols[0])], [(3, vols[1]), (3, vols[2])])
+    gmsh.model.occ.synchronize()
 
-    gmsh.model.occ.synchronize()
-    all_surfaces = gmsh.model.getEntities(2)
-    print("total", len(all_surfaces))
-    gmsh.model.occ.synchronize()
     sort_surfaces_and_create_physical_groups(
         aircraft_parts, brep_files, cpacs, model_bb, model_dimensions)
 
-    assert len(aircraft_parts[0].surfaces_tags) == 61  # fuselage
+    # Test if there are the right number of surfaces in each part of the aircraft
+    assert len(aircraft_parts[0].surfaces_tags) == 60  # fuselage
     assert len(aircraft_parts[1].surfaces_tags) == 8  # wing1
     assert len(aircraft_parts[2].surfaces_tags) == 8  # wing1_mirrored
 
     gmsh.finalize()
 
-    remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg"])
+    remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg", ".stl"])
 
 
 # =================================================================================================

@@ -61,19 +61,17 @@ def compute_nb_rows_ctrl(
     return nalpha * nmach * (nelevator + nrudder + naileron)
 
 
-def format_aero_data(df: DataFrame) -> DataFrame:
+def format_aero_data(df: DataFrame, chosen_beta, chosen_q, chosen_p, chosen_r) -> DataFrame:
     """
-    Format the data into the specified sequence.
+    Format the data into the SDSA-required sequence.
     """
     formatted_data = []
 
-    # Group by Mach number
     mach_groups = df.groupby("mach")
     for mach_val, mach_group in mach_groups:
-        # Sort by alpha
         mach_group = mach_group.sort_values(by="alpha")
 
-        # Extract the 9 series
+        # Alpha series (beta=0, p=q=r=0)
         series = mach_group[
             (mach_group["beta"] == 0)
             & (mach_group["pb_2V"] == 0)
@@ -83,31 +81,57 @@ def format_aero_data(df: DataFrame) -> DataFrame:
         log.info(f"Mach {mach_val}: appended alpha series with {series.shape[0]} rows")
         formatted_data.append(series)
 
-        series = mach_group[
-            (mach_group["pb_2V"] == 0)
-            & (mach_group["qc_2V"] == 0)
-            & (mach_group["rb_2V"] == 0)
-        ].sort_values(by="beta")
-        log.info(f"Mach {mach_val}: appended beta series with {series.shape[0]} rows")
-        formatted_data.append(series)
+        # Beta series (for each beta != 0, p=q=r=0)
+        for beta_val in chosen_beta:
+            if beta_val == 0.0:
+                continue
+            series = mach_group[
+                (mach_group["beta"] == beta_val)
+                & (mach_group["pb_2V"] == 0)
+                & (mach_group["qc_2V"] == 0)
+                & (mach_group["rb_2V"] == 0)
+            ].sort_values(by="alpha")
+            log.info(f"Mach {mach_val}: appended beta={beta_val} series with {series.shape[0]} rows")
+            formatted_data.append(series)
 
-        series = mach_group[
-            (mach_group["beta"] == 0) & (mach_group["pb_2V"] == 0) & (mach_group["rb_2V"] == 0)
-        ].sort_values(by="qc_2V")
-        log.info(f"Mach {mach_val}: appended q series with {series.shape[0]} rows")
-        formatted_data.append(series)
+        # q series (for each q != 0, beta=p=r=0)
+        for q_val in chosen_q:
+            if q_val == 0.0:
+                continue
+            series = mach_group[
+                (mach_group["qc_2V"] == q_val)
+                & (mach_group["beta"] == 0)
+                & (mach_group["pb_2V"] == 0)
+                & (mach_group["rb_2V"] == 0)
+            ].sort_values(by="alpha")
+            log.info(f"Mach {mach_val}: appended q={q_val} series with {series.shape[0]} rows")
+            formatted_data.append(series)
 
-        series = mach_group[
-            (mach_group["beta"] == 0) & (mach_group["qc_2V"] == 0) & (mach_group["rb_2V"] == 0)
-        ].sort_values(by="pb_2V")
-        log.info(f"Mach {mach_val}: appended p series with {series.shape[0]} rows")
-        formatted_data.append(series)
+        # p series (for each p != 0, beta=q=r=0)
+        for p_val in chosen_p:
+            if p_val == 0.0:
+                continue
+            series = mach_group[
+                (mach_group["pb_2V"] == p_val)
+                & (mach_group["beta"] == 0)
+                & (mach_group["qc_2V"] == 0)
+                & (mach_group["rb_2V"] == 0)
+            ].sort_values(by="alpha")
+            log.info(f"Mach {mach_val}: appended p={p_val} series with {series.shape[0]} rows")
+            formatted_data.append(series)
 
-        series = mach_group[
-            (mach_group["beta"] == 0) & (mach_group["pb_2V"] == 0) & (mach_group["qc_2V"] == 0)
-        ].sort_values(by="rb_2V")
-        log.info(f"Mach {mach_val}: appended r series with {series.shape[0]} rows")
-        formatted_data.append(series)
+        # r series (for each r != 0, beta=q=p=0)
+        for r_val in chosen_r:
+            if r_val == 0.0:
+                continue
+            series = mach_group[
+                (mach_group["rb_2V"] == r_val)
+                & (mach_group["beta"] == 0)
+                & (mach_group["pb_2V"] == 0)
+                & (mach_group["qc_2V"] == 0)
+            ].sort_values(by="alpha")
+            log.info(f"Mach {mach_val}: appended r={r_val} series with {series.shape[0]} rows")
+            formatted_data.append(series)
 
     return concat(formatted_data, ignore_index=True)
 
@@ -183,9 +207,9 @@ def get_tables_values(self) -> Tuple[DataFrame, DataFrame, int, int]:
     nmach: int = 6
     nbeta: int = 8
 
-    nq: int = 8
-    np: int = 8
-    nr: int = 8
+    nq: int = 3
+    np: int = 3
+    nr: int = 3
 
     nelevator: int = 3
     naileron: int = 3
@@ -343,7 +367,7 @@ def get_tables_values(self) -> Tuple[DataFrame, DataFrame, int, int]:
 
     log.info("--- Finished retrieving the Tables values ---")
 
-    aero_df = format_aero_data(aero_df)
+    aero_df = format_aero_data(aero_df, chosen_beta, chosen_q, chosen_p, chosen_r)
     ctrl_df = format_ctrl_data(ctrl_df, chosen_elevator, chosen_rudder, chosen_aileron)
     aero_nb = compute_nb_rows_aero(nalpha, nmach, nbeta, nq, np, nr)
     ctrl_nb = compute_nb_rows_ctrl(nalpha, nmach, nelevator, nrudder, naileron)

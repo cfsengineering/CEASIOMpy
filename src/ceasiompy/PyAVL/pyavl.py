@@ -103,6 +103,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
         if expand:
             db = CeasiompyDb()
+            tol = 1e-4
             data = db.get_data(
                 table_name="avl_data",
                 columns=["mach"],
@@ -111,11 +112,11 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                     f"mach = {mach}",
                     f"aircraft = '{cpacs.ac_name}'",
                     f"alt = {alt}",
-                    f"alpha = {aoa}",
-                    f"beta = {aos}",
-                    f"pb_2V = {roll_rate_star}",
-                    f"qc_2V = {pitch_rate_star}",
-                    f"rb_2V = {yaw_rate_star}",
+                    f"alpha BETWEEN {aoa - tol} AND {aoa + tol}",
+                    f"beta BETWEEN {aos - tol} AND {aos + tol}",
+                    f"pb_2V BETWEEN {roll_rate_star - tol} AND {roll_rate_star + tol}",
+                    f"qc_2V BETWEEN {pitch_rate_star - tol} AND {pitch_rate_star + tol}",
+                    f"rb_2V BETWEEN {yaw_rate_star - tol} AND {yaw_rate_star + tol}",
                 ]
             )
             if data:
@@ -190,7 +191,36 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             aileron = new_aileron_list[i_case]
             elevator = new_elevator_list[i_case]
             rudder = new_rudder_list[i_case]
+            
+            (
+                _, _, _,
+                ref_density, g_acceleration, ref_velocity,
+            ) = get_physics_conditions(tixi, alt, mach, 0.0, 0.0, 0.0)
 
+            if expand:
+                db = CeasiompyDb()
+                tol = 1e-4
+                data = db.get_data(
+                    table_name="avl_data",
+                    columns=["mach"],
+                    db_close=True,
+                    filters=[
+                        f"mach = {mach}",
+                        f"aircraft = '{cpacs.ac_name}'",
+                        f"alt = {alt}",
+                        f"alpha BETWEEN {aoa - tol} AND {aoa + tol}",
+                        f"beta = 0.0",
+                        f"aileron BETWEEN {aileron - tol} AND {aileron + tol}",
+                        f"elevator BETWEEN {elevator - tol} AND {elevator + tol}",
+                        f"rudder BETWEEN {rudder - tol} AND {rudder + tol}",
+                    ]
+                )
+                if data:
+                    # If data is already in ceasiompy.db
+                    # Go to next iteration in for loop
+                    log.info(f"Case {alt, mach, aoa, aos} already done.")
+                    continue
+            
             case_dir_path = create_case_dir(
                 results_dir,
                 i_case + first_cases,

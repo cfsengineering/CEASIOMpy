@@ -320,7 +320,7 @@ def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
         # Extract common parameters
         alt = split_dir(dir_name, 1, "alt")
         mach = split_dir(dir_name, 2, "mach")
-        aoa = split_dir(dir_name, 3, "aoa" if "p" in dir_name else "alt")
+        aoa = split_dir(dir_name, 3, "aoa")
 
         if "p" in dir_name:  # Standard aeromap or dynamic stability
             aos = split_dir(dir_name, 4, "aos")

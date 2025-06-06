@@ -203,7 +203,7 @@ class SDSAFile:
 
         """
 
-        table_df, ctrl_table_df = get_tables_values(self)
+        table_df, ctrl_table_df, aero_nb, ctrl_nb = get_tables_values(self)
 
         table_data = []
         ctrl_table_data = []
@@ -213,14 +213,14 @@ class SDSAFile:
             table_data.extend(table_df[column].tolist())
 
         self.update(self.aerotable_xpath, sdsa_format(table_data))
-        self.update_attribute(self.aerotable_xpath, f"{len(table_df)} 12")
+        self.update_attribute(self.aerotable_xpath, f"{aero_nb} 12")
 
         # Update CtrlTable
         for column in ctrl_table_df.columns:
             ctrl_table_data.extend(ctrl_table_df[column].tolist())
 
         self.update(self.ctrltable_xpath, sdsa_format(ctrl_table_data))
-        self.update_attribute(self.ctrltable_xpath, f"{len(ctrl_table_df)} 11")
+        self.update_attribute(self.ctrltable_xpath, f"{ctrl_nb} 11")
 
     def update_piloteye(self: "SDSAFile") -> None:
         if self.model is None:

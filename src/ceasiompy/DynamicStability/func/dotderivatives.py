@@ -504,6 +504,7 @@ def get_mach_list(self, x_hinge: float) -> Tuple[List, List]:
     """
     Get list of machs where to compute the derivatives.
     """
+    tol = 1e-5
     db = CeasiompyDb()
     db.connect_to_table(MODULE_NAME)
     data = db.get_data(
@@ -513,15 +514,16 @@ def get_mach_list(self, x_hinge: float) -> Tuple[List, List]:
         filters=[
             f"aircraft = '{self.aircraft_name}'",
             "method = 'DLM'",
-            f"chord = {self.c}",
-            f"span = {self.s}",
-            f"x_ref = {x_hinge}",
+            f"chord = {self.nchordwise}",
+            f"span = {self.nspanwise}",
+            f"x_ref BETWEEN {x_hinge - tol} AND {x_hinge + tol}",
             "y_ref = 0.0",
             "z_ref = 0.0",
         ],
     )
 
     mach_set = {row[0] for row in data}
+    log.info(f"Already have {mach_set} in ceasiompy.db")
 
     return list(set(self.mach_list) - mach_set), ", ".join(str(mach) for mach in list(mach_set))
 
@@ -784,12 +786,15 @@ def add_db_values(self, df: DataFrame, non_mach_str: str, x_hinge: float) -> Dat
             f"mach IN ({non_mach_str})",
             f"aircraft = '{self.aircraft_name}'",
             "method = 'DLM'",
-            f"chord = {self.c}",
-            f"span = {self.s}",
+            f"chord = {self.nchordwise}",
+            f"span = {self.nspanwise}",
             f"x_ref = {x_hinge}",
             "y_ref = 0.0",
             "z_ref = 0.0",
         ],
     )
+    
+    if df.empty:
+        df = DataFrame(columns=der_columns)
 
     return concat([df[der_columns], DataFrame(data, columns=der_columns)], ignore_index=True)

@@ -60,7 +60,10 @@ def write_control(
 
 
 def split_dir(dir_name: str, index: int, param: str) -> float:
-    return float(dir_name.split("_")[index].split(param)[1])
+    part = dir_name.split("_")[index]
+    if param not in part:
+        raise ValueError(f"Parameter '{param}' not found in '{part}' (from '{dir_name}')")
+    return float(part.split(param)[1])
 
 
 def split_line(line: str, index: int) -> float:

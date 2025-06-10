@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+export PYTHONPATH="$(pwd)/../src"
+
 Help()
 {
    echo "CEASIOMpy run Continuous Integration tests (Unit and Integration)"
@@ -98,4 +100,4 @@ run_unit_tests
 run_integration_tests 
 
 # Generate the list of module to remove from the code coverage
-python ../ceasiompy/utils/moduleinterfaces.py 
+python ../src/ceasiompy/utils/moduleinterfaces.py

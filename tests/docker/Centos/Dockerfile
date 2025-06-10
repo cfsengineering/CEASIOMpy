@@ -14,7 +14,6 @@ ENV CONDA_DIR /opt/conda
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /opt/conda
 ENV PATH=$CONDA_DIR/bin:$PATH
-ENV PYTHONPATH="/CEASIOMpy/CEASIOMpy/src"
 
 RUN conda init bash
 RUN source ~/.bashrc
@@ -29,4 +28,5 @@ RUN source ~/.bashrc
 
 WORKDIR /CEASIOMpy/CEASIOMpy/tests
 # RUN conda activate ceasiompy && ./run_ci.sh
-RUN conda run -n ceasiompy ./run_ci.sh
+RUN bash -c "source /opt/conda/etc/profile.d/conda.sh && conda activate ceasiompy && ./run_ci.sh"
+

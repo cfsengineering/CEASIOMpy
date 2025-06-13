@@ -64,3 +64,4 @@ dependencies:
     - scikit-optimize==0.10.2
     - framat==0.5
     - panelaero
+    - defusedxml

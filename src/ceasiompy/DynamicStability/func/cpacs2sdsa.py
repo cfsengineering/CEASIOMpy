@@ -17,7 +17,7 @@ Transfer CPACS unsteady data into SDSA with the correct file format (for referen
 import shutil
 import numpy as np
 
-from xml.dom.minidom import parse
+from defusedxml.minidom import parse
 from ceasiompy.utils.ceasiompyutils import aircraft_name
 from ceasiompy.DynamicStability.func.utils import sdsa_format
 from ceasiompy.DynamicStability.func.alphamax import get_alpha_max

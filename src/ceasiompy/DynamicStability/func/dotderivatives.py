@@ -20,11 +20,9 @@ Notation used:
 
 import math
 import cmath
-
 import numpy as np
 
 from pandas import concat
-
 from ceasiompy.utils.geometryfunctions import (
     wing_sections,
     elements_number,
@@ -722,29 +720,27 @@ def compute_dot_derivatives(self, atm: Atmosphere) -> DataFrame:
         )
 
         # Append data
-        data.append(
-            {
-                "mach": mach,
-                "cx_alpha": cx_alpha,
-                "cy_alpha": cy_alpha,
-                "cz_alpha": cz_alpha,
-                "cl_alpha": cl_alpha,
-                "cm_alpha": cm_alpha,
-                "cn_alpha": cn_alpha,
-                "cx_beta": cx_beta,
-                "cy_beta": cy_beta,
-                "cz_beta": cz_beta,
-                "cl_beta": cl_beta,
-                "cm_beta": cm_beta,
-                "cn_beta": cn_beta,
-                "cm_alphaprim": cm_alphaprim,
-                "cz_alphaprim": cz_alphaprim,
-                "cx_alphaprim": cx_alphaprim,
-                "cy_betaprim": cy_betaprim,
-                "cl_betaprim": cl_betaprim,
-                "cn_betaprim": cn_betaprim,
-            }
-        )
+        data.append({
+            "mach": mach,
+            "cx_alpha": cx_alpha,
+            "cy_alpha": cy_alpha,
+            "cz_alpha": cz_alpha,
+            "cl_alpha": cl_alpha,
+            "cm_alpha": cm_alpha,
+            "cn_alpha": cn_alpha,
+            "cx_beta": cx_beta,
+            "cy_beta": cy_beta,
+            "cz_beta": cz_beta,
+            "cl_beta": cl_beta,
+            "cm_beta": cm_beta,
+            "cn_beta": cn_beta,
+            "cm_alphaprim": cm_alphaprim,
+            "cz_alphaprim": cz_alphaprim,
+            "cx_alphaprim": cx_alphaprim,
+            "cy_betaprim": cy_betaprim,
+            "cl_betaprim": cl_betaprim,
+            "cn_betaprim": cn_betaprim,
+        })
 
         log.info(f"Finished computing alpha-dot derivatives for mach: {mach}.")
 
@@ -777,6 +773,7 @@ def add_db_values(self, df: DataFrame, non_mach_str: str, x_hinge: float) -> Dat
         "cl_betaprim",
         "cn_betaprim",
     ]
+    tol = 1e-4
     db = CeasiompyDb()
     data = db.get_data(
         table_name="derivatives_data",
@@ -788,7 +785,7 @@ def add_db_values(self, df: DataFrame, non_mach_str: str, x_hinge: float) -> Dat
             "method = 'DLM'",
             f"chord = {self.nchordwise}",
             f"span = {self.nspanwise}",
-            f"x_ref = {x_hinge}",
+            f"x_ref BETWEEN {x_hinge - tol} AND {x_hinge + tol}",
             "y_ref = 0.0",
             "z_ref = 0.0",
         ],

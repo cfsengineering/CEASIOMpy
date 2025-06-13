@@ -17,10 +17,15 @@ Transfer CPACS unsteady data into SDSA with the correct file format (for referen
 import shutil
 import numpy as np
 
+from xml.dom.minidom import parse
 from ceasiompy.utils.ceasiompyutils import aircraft_name
 from ceasiompy.DynamicStability.func.utils import sdsa_format
 from ceasiompy.DynamicStability.func.alphamax import get_alpha_max
-from ceasiompy.DynamicStability.func.steadyderivatives import get_tables_values
+from ceasiompy.DynamicStability.func.steadyderivatives import (
+    get_tables_values,
+    compute_nb_rows_aero,
+    compute_nb_rows_ctrl,
+)
 from cpacspy.cpacsfunctions import (
     get_value,
     open_tixi,
@@ -34,11 +39,15 @@ from typing import List
 from pathlib import Path
 from ambiance import Atmosphere
 from cpacspy.cpacspy import CPACS
+from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
 from ceasiompy.PyAVL import SOFTWARE_NAME as AVL_SOFTWARE
 from ceasiompy.DynamicStability import MODULE_DIR as DYNAMICSTABILITY_DIR
-from ceasiompy.utils.commonxpaths import REF_XPATH as CPACS_REF_XPATH
+from ceasiompy.utils.commonxpaths import (
+    AREA_XPATH,
+    LENGTH_XPATH,
+)
 from ceasiompy.DynamicStability import (
     ALT,
     DYNAMICSTABILITY_CGRID_XPATH,
@@ -55,6 +64,8 @@ from ceasiompy.DynamicStability.func import (
     PILOTEYE_XPATH,
     AEROTABLE_XPATH,
     CTRLTABLE_XPATH,
+    TABLE_AEROTABLE_XPATH,
+    TABLE_CTRLTABLE_XPATH,
     XPATHS_PRIM,
     ALPHAMAX_XPATH,
     FLAPS1_XPATH,
@@ -97,10 +108,8 @@ class SDSAFile:
     piloteye_xpath: str = PILOTEYE_XPATH
     aerotable_xpath: str = AEROTABLE_XPATH
     ctrltable_xpath: str = CTRLTABLE_XPATH
-
-    # CPACS xPath
-    area_xpath = CPACS_REF_XPATH + "/area"
-    length_xpath = CPACS_REF_XPATH + "/length"
+    table_aerotable_xpath: str = TABLE_AEROTABLE_XPATH
+    table_ctrltable_xpath: str = TABLE_CTRLTABLE_XPATH
 
     # Dot derivatives xPaths
     xpaths_prim: List = XPATHS_PRIM
@@ -125,13 +134,13 @@ class SDSAFile:
 
         # Create a copy of the empty SDSA file in Results > DynamicStability
         self.dynamic_stability_dir = wkdir
-        self.sdsa_path = str(self.dynamic_stability_dir) + "/SDSA_Input.xml"
+        self.sdsa_path = str(self.dynamic_stability_dir) + "/sdsaInputFile.xml"
         shutil.copy(self.empty_sdsa_path, self.sdsa_path)
-        self.sdsa_file = open_tixi(str(self.sdsa_path))
+        self.sdsa_file: Tixi3 = open_tixi(str(self.sdsa_path))
 
         # Get the reference dimensions
-        self.s = self.tixi.getDoubleElement(self.area_xpath)
-        self.c = self.tixi.getDoubleElement(self.length_xpath)
+        self.s = self.tixi.getDoubleElement(AREA_XPATH)
+        self.c = self.tixi.getDoubleElement(LENGTH_XPATH)
         self.b = self.s / self.c
 
         # Software for data used
@@ -145,8 +154,7 @@ class SDSAFile:
         mach_str: str = get_value(self.tixi, DYNAMICSTABILITY_MACHLIST_XPATH)
 
         self.plot = get_value(self.tixi, DYNAMICSTABILITY_VISUALIZATION_XPATH)
-
-        log.info(f"self.plot {self.plot}")
+        log.info(f"{self.plot=}")
 
         # Extract and unique list of mach identifiers
         self.mach_list = list(set([float(x) for x in str(mach_str).split(";")]))
@@ -155,6 +163,26 @@ class SDSAFile:
 
         # Initialize Doublet Lattice Model
         self.model = None
+
+        # Define constants for table and ctrltable
+        self.nalpha: int = 20
+        self.nmach: int = 6
+        self.nbeta: int = 8
+
+        self.nq: int = 2
+        self.np: int = 2
+        self.nr: int = 2
+
+        self.nelevator: int = 2
+        self.naileron: int = 2
+        self.nrudder: int = 2
+
+        self.aero_nb: int = compute_nb_rows_aero(
+            self.nalpha, self.nmach, self.nbeta, self.nq, self.np, self.nr
+        )
+        self.ctrl_nb: int = compute_nb_rows_ctrl(
+            self.nalpha, self.nmach, self.nelevator, self.nrudder, self.naileron
+        )
 
     def update_alpha_max(self: "SDSAFile") -> None:
         """
@@ -176,7 +204,6 @@ class SDSAFile:
     def update_dot_derivatives(self: "SDSAFile") -> None:
         """
         Updates SDSA input file with dot derivatives.
-
         """
 
         if self.software_data == AVL_SOFTWARE:
@@ -200,10 +227,9 @@ class SDSAFile:
     def update_tables(self: "SDSAFile") -> None:
         """
         Updates SDSA input file with table values.
-
         """
 
-        table_df, ctrl_table_df, aero_nb, ctrl_nb = get_tables_values(self)
+        table_df, ctrl_table_df = get_tables_values(self)
 
         table_data = []
         ctrl_table_data = []
@@ -212,15 +238,30 @@ class SDSAFile:
         for column in table_df.columns:
             table_data.extend(table_df[column].tolist())
 
-        self.update(self.aerotable_xpath, sdsa_format(table_data))
-        self.update_attribute(self.aerotable_xpath, f"{aero_nb} 12")
+        self.update(self.table_aerotable_xpath, sdsa_format(table_data))
+        self.update_attribute(self.table_aerotable_xpath, f"{self.aero_nb} 12")
+
+        # Update NAlpha, NMach, Nbeta, Nq, Np, Nr
+        self.update(self.aerotable_xpath + "/NAlpha", f"{self.nalpha}")
+        self.update(self.aerotable_xpath + "/NMach", f"{self.nmach}")
+        self.update(self.aerotable_xpath + "/Nbeta", f"{self.nbeta}")
+        self.update(self.aerotable_xpath + "/Nq", f"{self.nq}")
+        self.update(self.aerotable_xpath + "/Np", f"{self.np}")
+        self.update(self.aerotable_xpath + "/Nr", f"{self.nr}")
 
         # Update CtrlTable
         for column in ctrl_table_df.columns:
             ctrl_table_data.extend(ctrl_table_df[column].tolist())
 
-        self.update(self.ctrltable_xpath, sdsa_format(ctrl_table_data))
-        self.update_attribute(self.ctrltable_xpath, f"{ctrl_nb} 11")
+        self.update(self.table_ctrltable_xpath, sdsa_format(ctrl_table_data))
+        self.update_attribute(self.table_ctrltable_xpath, f"{self.ctrl_nb} 11")
+
+        # Update NAlpha, NMach, NElevator, NAileron, NRudder
+        self.update(self.ctrltable_xpath + "/NAlpha", f"{self.nalpha}")
+        self.update(self.ctrltable_xpath + "/NMach", f"{self.nmach}")
+        self.update(self.ctrltable_xpath + "/NElevator", f"{self.nelevator}")
+        self.update(self.ctrltable_xpath + "/NAileron", f"{self.naileron}")
+        self.update(self.ctrltable_xpath + "/NRudder", f"{self.nrudder}")
 
     def update_piloteye(self: "SDSAFile") -> None:
         if self.model is None:
@@ -262,7 +303,7 @@ class SDSAFile:
         self.update(CGRID_XPATH, f"{self.cgrid}")  # Update CGrid
         self.update_piloteye()
 
-        self.sdsa_file.save(self.sdsa_path)
+        self.save_xml()
 
         return self.sdsa_path
 
@@ -271,3 +312,9 @@ class SDSAFile:
 
     def update_attribute(self: "SDSAFile", xpath: str, ele: str) -> None:
         self.sdsa_file.addTextAttribute(xpath, "size", ele)
+
+    def save_xml(self: "SDSAFile") -> None:
+        self.sdsa_file.save(self.sdsa_path)
+        dom = parse(self.sdsa_path)
+        with open(self.sdsa_path, "w") as f:
+            f.write(dom.toprettyxml())

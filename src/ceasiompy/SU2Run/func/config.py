@@ -325,7 +325,7 @@ def add_thermodata(
         log.warning(f"No engines found at xPath {ENGINE_TYPE_XPATH}.")
 
 
-def add_reynolds_number(alt: float, mach: float, cfg: ConfigFile, cpacs_path: Path) -> None:
+def add_reynolds_number(alt: float, mach: float, cfg: ConfigFile, tixi: Tixi3) -> None:
     """
     In case of RANS simulation, compute and add Reynolds number to configuration file cfg.
 
@@ -342,7 +342,7 @@ def add_reynolds_number(alt: float, mach: float, cfg: ConfigFile, cpacs_path: Pa
     # Get speed from Mach Number
     speed = mach * Atm.speed_of_sound[0]
 
-    ref_chord = wings_size(cpacs_path)[0] / 0.15
+    ref_chord = wings_size(tixi)[0] / 0.15
     log.info(f"Reference chord is {ref_chord}.")
 
     # Reynolds number based on the mean chord
@@ -355,7 +355,6 @@ def add_case_data(
     tixi: Tixi3,
     wkdir: Path,
     cfg: ConfigFile,
-    cpacs_path: Path,
     rans: bool,
     mesh_markers: Dict,
     case_dir_name: str,
@@ -386,7 +385,7 @@ def add_case_data(
     add_thermodata(cfg, tixi, alt, case_nb, alt_list)
 
     if rans:
-        add_reynolds_number(alt, mach, cfg, cpacs_path)
+        add_reynolds_number(alt, mach, cfg, tixi)
 
     case_dir_path = Path(wkdir, case_dir_name)
     if not case_dir_path.exists():
@@ -510,8 +509,6 @@ def configure_cfd_environment(
 
     """
     tixi = cpacs.tixi
-    cpacs_path = cpacs.cpacs_file
-
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, SU2_AEROMAP_UID_XPATH)
 
     cfg["MARKER_MOVING"] = su2_format("NONE")
@@ -546,7 +543,6 @@ def configure_cfd_environment(
                     tixi=tixi,
                     wkdir=wkdir,
                     cfg=cfg,
-                    cpacs_path=cpacs_path,
                     rans=rans,
                     mesh_markers=mesh_markers,
                     case_dir_name=case_dir_name,
@@ -568,7 +564,6 @@ def configure_cfd_environment(
                 tixi=tixi,
                 wkdir=wkdir,
                 cfg=cfg,
-                cpacs_path=cpacs_path,
                 rans=rans,
                 mesh_markers=mesh_markers,
                 case_dir_name=case_dir_name,

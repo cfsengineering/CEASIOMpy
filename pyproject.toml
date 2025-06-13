@@ -26,7 +26,11 @@ omit = [
   "*/Optimisation/*",
   "*/SMTrain.old/*",
   "*/SMUse.old/*",
+  "*/SUMOAutoMesh/*",
   "*/Range/*",
   "*/SU2MeshDef/*",
+  "*/WeightConventional/*",
   "*/WeightUnconventional/*",
+  "*/WB/*",
+  "*/EdgeRun/*",
 ]

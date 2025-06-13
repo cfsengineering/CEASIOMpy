@@ -23,7 +23,11 @@ import streamlit as st
 import plotly.graph_objects as go
 
 from streamlit_autorefresh import st_autorefresh
-from streamlitutils import create_sidebar, get_last_workflow
+from streamlitutils import (
+    create_sidebar,
+    get_last_workflow,
+    highlight_stability,
+)
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
@@ -84,7 +88,6 @@ def display_results(results_dir):
                     os.system(f"dwfscope {str(child)}")
 
             elif child.suffix == ".vtu":
-
                 if "paraview_container" not in st.session_state:
                     st.session_state["paraview_container"] = st.container()
                     st.session_state.paraview_container.markdown("**Paraview**")
@@ -95,7 +98,6 @@ def display_results(results_dir):
                     open_paraview(child)
 
             elif child.suffix == ".png":
-
                 if "figures_container" not in st.session_state:
                     st.session_state["figures_container"] = st.container()
                     st.session_state.figures_container.markdown("**Figures**")
@@ -104,7 +106,11 @@ def display_results(results_dir):
                 st.session_state.figures_container.image(str(child))
 
             elif child.suffix == ".md":
-                st.markdown(child.read_text())
+                md_text = child.read_text()
+                # Simple table highlighting for "Stable"/"Unstable"
+
+                html = highlight_stability(md_text)
+                st.markdown(html, unsafe_allow_html=True)
 
             elif child.suffix == ".json":
                 st.text_area(child.stem, child.read_text(), height=200)
@@ -114,7 +120,8 @@ def display_results(results_dir):
                     st.session_state["logs_container"] = st.container()
                     st.session_state.logs_container.markdown("**Logs**")
                 st.session_state.logs_container.text_area(
-                    child.stem, child.read_text(), height=200)
+                    child.stem, child.read_text(), height=200
+                )
 
             elif child.name == "history.csv":
                 st.markdown("**Convergence**")
@@ -230,7 +237,9 @@ def show_aeromap():
     fig.update_traces(mode="markers+lines", hovertemplate="x: %{x:.2f} \ny: %{y:.2f} ")
 
     fig.update_layout(
-        xaxis=dict(title=x_axis), yaxis=dict(title=y_axis), plot_bgcolor="rgb(255,255,255)"
+        xaxis=dict(title=x_axis),
+        yaxis=dict(title=y_axis),
+        plot_bgcolor="rgb(255,255,255)",
     )
 
     axis_options = {

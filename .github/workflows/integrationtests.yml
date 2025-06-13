@@ -58,18 +58,18 @@ jobs:
 
     - name: Install AVL
       shell: bash -l {0}
-      run: installation/Ubuntu/install_pyavl.sh
+      run: |
+        installation/Ubuntu/install_pyavl.sh
 
     - name: Install SU2
       shell: bash -l {0}
-      run: installation/Ubuntu/install_su2_without_mpi.sh
+      run: |
+        installation/Ubuntu/install_su2_without_mpi.sh
 
     - name: Install Pentagrow
       shell: bash -l {0}
-      run: installation/Ubuntu/install_pentagrow.sh
-
-    - name: Add src to PYTHONPATH
-      run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)/src" >> $GITHUB_ENV
+      run: |
+        installation/Ubuntu/install_pentagrow.sh
 
     - name: Run integration tests
       shell: bash -l {0}

@@ -87,7 +87,9 @@ def main(cpacs: CPACS) -> None:
         results_dir=result_dir,
     )
     ac_masses.get_oem(
-        fuselage_length=ag.fuse_length[0], wing_span=ag.wing_span[0], turboprop=turboprop
+        fuselage_length=ag.fuse_length[0],
+        wing_span=ag.wing_span[0],
+        turboprop=turboprop,
     )
     ac_masses.get_wing_loading(wings_area=np.sum(ag.wing_plt_area))
     ac_masses.get_mass_fuel_max(ag.wing_area, ag.fuse_length[0], turboprop)

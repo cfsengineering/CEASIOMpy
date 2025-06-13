@@ -37,7 +37,13 @@ MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 
 # Specific to CPACSUpdater module
-CONTROL_SURFACES_LIST = ["none", "plain_aileron", "plain_rudder", "plain_flap", "fowler_flap"]
+CONTROL_SURFACES_LIST = [
+    "none",
+    "plain_aileron",
+    "plain_rudder",
+    "plain_flap",
+    "fowler_flap",
+]
 
 # xPaths
 CPACSUPDATER_XPATH = CEASIOMPY_XPATH + "/CPACSUpdater"

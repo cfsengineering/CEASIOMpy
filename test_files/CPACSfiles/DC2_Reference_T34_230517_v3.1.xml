@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cpacs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cpacs_schema.xsd">
+<cpacs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi_noNamespaceSchemaLocation="CPACS_21_Schema.xsd">
   <header>
     <name>AGILE_DC-2_Reference_T33</name>
     <version>1.1</version>

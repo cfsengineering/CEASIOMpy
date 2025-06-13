@@ -7,11 +7,13 @@
 
 **State**: :heavy_check_mark:
 
-This is a template module. Its purpose is to illustrate how other modules of CEASIOMpy should be structured, set up and documented.
-
 <p align="center">
 <img height="160" src="files/ctrlsurf.png">
 </p>
+
+## Important
+
+CPACSUpdater expects that your CPACS file is "correct" and that all informations regarding positionings and sections are detailed (e.g. from_section_uid and to_section_uid).
 
 ## Inputs
 

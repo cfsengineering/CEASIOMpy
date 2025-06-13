@@ -139,7 +139,7 @@ def main(cpacs: CPACS, wkdir: Path):
     md.h2("SkinFriction")
 
     md.h3("Geometry")
-    wetted_area = get_value(tixi, WETTED_AREA_XPATH)
+    wetted_area = get_value_or_default(tixi, WETTED_AREA_XPATH, 0.0)
     md.p(f"Wetted area: {wetted_area:.1f} [m^2]")
     wing_area = get_value_or_default(tixi, WING_AREA_XPATH, cpacs.aircraft.wing_area)
     md.p(f"Wing area: {wing_area:.1f} [m^2]")
@@ -223,9 +223,7 @@ def main(cpacs: CPACS, wkdir: Path):
         )
 
         if not aeromap_uid_list:
-            aeromap_uid_list = get_value_or_default(
-                tixi, aeromap_to_plot_xpath, "DefaultAeromap"
-            )
+            aeromap_uid_list = get_value_or_default(tixi, aeromap_to_plot_xpath, "DefaultAeromap")
 
         new_aeromap_to_plot = aeromap_uid_list + new_aeromap_uid_list
         new_aeromap_to_plot = list(set(new_aeromap_to_plot))
@@ -236,6 +234,7 @@ def main(cpacs: CPACS, wkdir: Path):
 
     log.info('AeroMap "' + aeromap_uid + '" has been added to the CPACS file')
     md.save()
+
 
 # =================================================================================================
 #    MAIN

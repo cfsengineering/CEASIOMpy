@@ -45,8 +45,14 @@ from ceasiompy.utils.moduleinterfaces import (
 )
 from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
 from ceasiompy.WeightUnconventional.func.AinFunc import getinput
-from ceasiompy.WeightUnconventional.func.AoutFunc import cpacsweightupdate, outputweightgen
-from ceasiompy.WeightUnconventional.func.Engines.enginesanalysis import check_ed, engine_definition
+from ceasiompy.WeightUnconventional.func.AoutFunc import (
+    cpacsweightupdate,
+    outputweightgen,
+)
+from ceasiompy.WeightUnconventional.func.Engines.enginesanalysis import (
+    check_ed,
+    engine_definition,
+)
 from ceasiompy.WeightUnconventional.func.Fuel.fuelmass import (
     estimate_fuse_fuel_mass,
     estimate_wing_fuel_mass,
@@ -117,7 +123,13 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
         raise Exception("Aircraft does not have wings")
     elif not fus_nb:
         (awg, _) = uncgeomanalysis.no_fuse_geom_analysis(
-            cpacs_out_path, ui.FLOORS_NB, wing_nb, h_min, ui.FUEL_ON_CABIN, name, ed.turboprop
+            cpacs_out_path,
+            ui.FLOORS_NB,
+            wing_nb,
+            h_min,
+            ui.FUEL_ON_CABIN,
+            name,
+            ed.turboprop,
         )
     else:
         log.info("Fuselage detected")

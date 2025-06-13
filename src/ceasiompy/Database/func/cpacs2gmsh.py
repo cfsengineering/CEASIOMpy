@@ -65,7 +65,7 @@ def store_cpacs2gmsh_data(
             f"angle={angle}."
         )
 
-        with open(file, 'rb') as file:
+        with open(file, "rb") as file:
             file_data = file.read()
             data = {
                 "su2_file_data": file_data,
@@ -75,11 +75,3 @@ def store_cpacs2gmsh_data(
             }
 
             data_to_db(cursor, data, table_name)
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

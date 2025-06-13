@@ -81,7 +81,14 @@ def test_detect_normal_profile():
     gmsh.model.occ.addSurfaceFilling(profile2_curveloop)
     gmsh.model.occ.synchronize()
 
-    profile_lines = [up_bspline_1, lo_bspline_1, up_bspline_2, lo_bspline_2, le_line, te_line]
+    profile_lines = [
+        up_bspline_1,
+        lo_bspline_1,
+        up_bspline_2,
+        lo_bspline_2,
+        le_line,
+        te_line,
+    ]
     lines_composition = []
     for line in profile_lines:
         adj_surfs, _ = gmsh.model.getAdjacencies(1, line)

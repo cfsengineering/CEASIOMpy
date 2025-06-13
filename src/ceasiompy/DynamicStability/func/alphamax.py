@@ -37,7 +37,7 @@ def get_alpha_max(self) -> DataFrame:
 
     Assumptions:
         beta = p = q = r = 0
-        alt = 1000.0
+        alt = 0.0
 
     Returns:
         DataFrame: AlphaMax per mach.
@@ -50,6 +50,7 @@ def get_alpha_max(self) -> DataFrame:
         table_name = "avl_data"
     else:
         log.warning(f"software {self.software_data} not implemented yet.")
+        return DataFrame()
 
     # Retrieve data from db
     ceasiompy_db = CeasiompyDb()
@@ -64,7 +65,7 @@ def get_alpha_max(self) -> DataFrame:
             "pb_2V = 0.0",
             "qc_2V = 0.0",
             "rb_2V = 0.0",
-        ]
+        ],
     )
     ceasiompy_db.close()
 
@@ -100,11 +101,3 @@ def get_alpha_max(self) -> DataFrame:
     log.info("--- Finished computing AlphaMax ---")
 
     return alpha_max_df
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute.")

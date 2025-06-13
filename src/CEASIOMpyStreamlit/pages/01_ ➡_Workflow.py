@@ -28,6 +28,8 @@ from ceasiompy.SMTrain import MODULE_NAME as SMTRAIN
 from ceasiompy.Database import MODULE_NAME as DATABASE
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
 from ceasiompy.CPACSUpdater import MODULE_NAME as CPACSUPDATER
+from ceasiompy.StaticStability import MODULE_NAME as STATICSTABILITY
+from ceasiompy.DynamicStability import MODULE_NAME as DYNAMICSTABILITY
 from ceasiompy.SaveAeroCoefficients import MODULE_NAME as SAVEAEROCOEF
 
 # ==============================================================================
@@ -49,6 +51,7 @@ HOW_TO_TEXT = (
 #   FUNCTIONS
 # ==============================================================================
 
+
 def section_predefined_workflow():
     """
     Where to define the Pre-defined workflows.
@@ -57,11 +60,11 @@ def section_predefined_workflow():
     st.markdown("#### Predefined Workflows")
 
     predefine_workflows = [
-        [PYAVL, SAVEAEROCOEF, DATABASE],
-        [CPACSUPDATER, "CPACSCreator", CPACS2GMSH, DATABASE],
-        [CPACSUPDATER, CPACS2GMSH, SU2RUN, "ExportCSV"],
-        [CPACS2GMSH, "ThermoData", SU2RUN, "SkinFriction"],
+        [PYAVL, STATICSTABILITY, DATABASE],
+        [CPACSUPDATER, "CPACSCreator", CPACS2GMSH, SU2RUN, "ExportCSV"],
+        [CPACS2GMSH, "ThermoData", SU2RUN, "SkinFriction", DATABASE],
         [SMTRAIN, SMUSE, SAVEAEROCOEF],
+        [DYNAMICSTABILITY, DATABASE],
         # ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"],
     ]
 
@@ -86,10 +89,7 @@ def section_add_module():
             col1, col2, col3, _ = st.columns([6, 1, 1, 5])
 
             with col1:
-                st.button(
-                    module,
-                    key=f"module_number_{i}"
-                )
+                st.button(module, key=f"module_number_{i}")
 
             with col2:
                 if st.button("⬆️", key=f"move{i}", help="Move up") and i > 0:
@@ -119,6 +119,7 @@ def section_add_module():
         if st.button("✔", help="Add this module to the workflow"):
             st.session_state.workflow_modules.append(module)
             st.rerun()
+
 
 # =================================================================================================
 #    MAIN

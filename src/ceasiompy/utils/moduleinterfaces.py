@@ -98,10 +98,10 @@ class _Entry:
     def filter_unit(self, unit_entry: Union[None, str]) -> Union[None, str]:
         if unit_entry is None:
             return None
-        if not unit_entry.startswith('['):
-            unit_entry = '[' + unit_entry
-        if not unit_entry.endswith(']'):
-            unit_entry = unit_entry + ']'
+        if not unit_entry.startswith("["):
+            unit_entry = "[" + unit_entry
+        if not unit_entry.endswith("]"):
+            unit_entry = unit_entry + "]"
         return unit_entry
 
 
@@ -190,6 +190,7 @@ class CPACSInOut:
                 return (entry.default_value, entry.xpath)
         raise ValueError(f"Input '{var_name}' not found")
 
+
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
@@ -204,9 +205,7 @@ def get_module_path(module_name: str) -> Path:
     return Path(MODULES_DIR_PATH, module_name)
 
 
-def check_cpacs_input_requirements(
-    tixi, *, module_name=None, submodule_level=1, cpacs_inout=None
-):
+def check_cpacs_input_requirements(tixi, *, module_name=None, submodule_level=1, cpacs_inout=None):
     """Check if the input CPACS file contains the required nodes
 
     Note:

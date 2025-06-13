@@ -5,12 +5,10 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 This file will analyse the fuselage geometry from cpacs file.
 
-| Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
 
 """
-
 
 # =================================================================================================
 #   IMPORTS
@@ -19,12 +17,6 @@ This file will analyse the fuselage geometry from cpacs file.
 import numpy as np
 
 from ceasiompy import log
-
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
 
 # =================================================================================================
 #   FUNCTIONS
@@ -103,10 +95,9 @@ def fuselage_check_segment_connection(fus_nb, fuse_seg_nb, tigl):
     nb = np.shape(fuse_sec_index)
     if nb[0] > nbmax:
         nbmax = nb[0]
-    print(nbmax, fus_nb)
-    print("--------------========================-------")
-    sec_index.resize((nbmax, fus_nb), refcheck=False)
+        sec_index = np.resize(sec_index, (nbmax, fus_nb))
 
+    log.info("--------------========================-------")
     sec_index[0 : nb[0], fus_nb - 1] = fuse_sec_index[0 : nb[0]]
     sec_nb.append(nb[0])
 
@@ -154,12 +145,3 @@ def rel_dist(fus_nb, sec_nb, seg_nb, tigl, seg_sec, start_index):
         rel_section_dist[j, 1] = k
 
     return (rel_section_dist[:, 0], rel_section_dist[:, 1])
-
-
-# =================================================================================================
-#   MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-
-    log.info("Nothing to execute!")

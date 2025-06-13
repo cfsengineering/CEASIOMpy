@@ -16,7 +16,6 @@ GUI Interface of SkinFriction.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.SkinFriction import INCLUDE_GUI
 
 from ceasiompy.utils.commonxpaths import (

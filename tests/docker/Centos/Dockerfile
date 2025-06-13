@@ -3,6 +3,7 @@ FROM centos:8
 RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
 RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
 RUN dnf -y install -y git curl wget sudo unzip gcc-c++ tbb libXrender libXcursor libXinerama libXft
+RUN dnf -y install mesa-libGLU mesa-libGL libSM
 
 ENV CONDA_DIR=/opt/conda
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
@@ -31,12 +32,6 @@ RUN installation/CentOS/install_ceasiompy.sh && \
     installation/CentOS/install_su2_without_mpi.sh
 RUN source ~/.bashrc
 
-# Copy test script
-WORKDIR /CEASIOMpy/tests
-COPY ./tests/run_ci.sh .
-RUN chmod +x run_ci.sh
-
-RUN dnf -y install mesa-libGLU mesa-libGL
-
-# Automatically activate the Conda environment in new shells
-CMD ["bash", "-c", "source ~/.bashrc && conda activate ceasiompy && cd /CEASIOMpyDir/CEASIOMpy && pip install -e . && tests/run_ci.sh"]
+WORKDIR /CEASIOMpy/CEASIOMpy/tests
+# RUN conda activate ceasiompy && ./run_ci.sh
+RUN bash -c "source /opt/conda/etc/profile.d/conda.sh && conda activate ceasiompy && ./run_ci.sh"

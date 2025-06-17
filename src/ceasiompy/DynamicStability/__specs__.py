@@ -54,7 +54,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="mach_list",
     var_type="multiselect",
-    default_value=[0.1],  # [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
+    default_value=[0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
     unit="mach",
     descr=f"List of mach numbers used in {SDSA_SOFTWARE}",
     xpath=DYNAMICSTABILITY_MACHLIST_XPATH,

@@ -165,7 +165,7 @@ class SDSAFile:
         self.model = None
 
         # Define constants for table and ctrltable
-        self.nalpha: int = 20
+        self.nalpha: int = 19
         self.nmach: int = 6
         self.nbeta: int = 8
 

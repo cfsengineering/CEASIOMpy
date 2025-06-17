@@ -277,7 +277,7 @@ def get_tables_values(self) -> Tuple[DataFrame, DataFrame]:
     )
 
     # Choose distinct values
-    chosen_alpha = pick_with_zero(aero_df["alpha"], self.nalpha)
+    chosen_alpha = sorted(aero_df[aero_df["alpha"] < 15.0]["alpha"].unique())[:self.nalpha]
     chosen_mach = sorted(aero_df["mach"].unique())[:self.nmach]
     chosen_beta = pick_with_zero(aero_df["beta"], self.nbeta)
     chosen_q = pick_with_zero(aero_df["q"], self.nq)

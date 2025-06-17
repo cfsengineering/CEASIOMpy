@@ -50,7 +50,7 @@ class TestSteadyDerivatives(TestCase):
         )
         self.assertIsInstance(result, DataFrame)
         self.assertIn("mach", result.columns)
-        self.assertEqual(len(result), 5)
+        self.assertEqual(len(result), 21)
 
     def test_format_ctrl_data(self):
         df = DataFrame({

@@ -65,9 +65,9 @@ def pick_with_zero(values: Any, n: int) -> List[float]:
     if 0.0 in counter:
         chosen.append(0.0)
         del counter[0.0]
-        n_needed = n
+        n_needed = n - 1
     else:
-        n_needed = n + 1
+        n_needed = n
     # Sort by frequency (descending), then by value (ascending)
     most_common = sorted(counter.items(), key=lambda x: (-x[1], x[0]))
     chosen += [val for val, _ in most_common[:n_needed]]
@@ -118,8 +118,6 @@ def format_aero_data(df: DataFrame, chosen_beta, chosen_q, chosen_p, chosen_r) -
 
         # Beta series (for each beta != 0, p=q=r=0)
         for beta_val in chosen_beta:
-            if beta_val == 0.0:
-                continue
             series = mach_group[
                 isclose(mach_group["beta"], beta_val, atol=tol)
                 & (mach_group["p"] == 0.0)
@@ -133,8 +131,6 @@ def format_aero_data(df: DataFrame, chosen_beta, chosen_q, chosen_p, chosen_r) -
 
         # q series (for each q != 0, beta=p=r=0)
         for q_val in chosen_q:
-            if q_val == 0.0:
-                continue
             series = mach_group[
                 isclose(mach_group["q"], q_val, atol=tol)
                 & (mach_group["beta"] == 0.0)
@@ -146,8 +142,6 @@ def format_aero_data(df: DataFrame, chosen_beta, chosen_q, chosen_p, chosen_r) -
 
         # p series (for each p != 0, beta=q=r=0)
         for p_val in chosen_p:
-            if p_val == 0.0:
-                continue
             series = mach_group[
                 isclose(mach_group["p"], p_val, atol=tol)
                 & (mach_group["beta"] == 0.0)
@@ -159,8 +153,6 @@ def format_aero_data(df: DataFrame, chosen_beta, chosen_q, chosen_p, chosen_r) -
 
         # r series (for each r != 0, beta=q=p=0)
         for r_val in chosen_r:
-            if r_val == 0.0:
-                continue
             series = mach_group[
                 isclose(mach_group["r"], r_val, atol=tol)
                 & (mach_group["beta"] == 0.0)

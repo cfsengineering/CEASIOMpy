@@ -169,13 +169,14 @@ class SDSAFile:
         self.nmach: int = 6
         self.nbeta: int = 8
 
-        self.nq: int = 2
-        self.np: int = 2
-        self.nr: int = 2
+        # 0.0 is contained
+        self.nq: int = 3
+        self.np: int = 3
+        self.nr: int = 3
 
-        self.nelevator: int = 2
-        self.naileron: int = 2
-        self.nrudder: int = 2
+        self.nelevator: int = 3
+        self.naileron: int = 3
+        self.nrudder: int = 3
 
         self.aero_nb: int = compute_nb_rows_aero(
             self.nalpha, self.nmach, self.nbeta, self.nq, self.np, self.nr

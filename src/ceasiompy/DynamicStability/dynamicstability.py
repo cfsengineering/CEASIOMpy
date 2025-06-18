@@ -14,14 +14,20 @@ Dynamic Stability Module
 #   IMPORTS
 # =================================================================================================
 
-from ceasiompy.utils.ceasiompyutils import run_software
+from ceasiompy.utils.ceasiompyutils import (
+    get_value,
+    run_software,
+)
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from ceasiompy.DynamicStability.func.cpacs2sdsa import SDSAFile
 
 from ceasiompy import log
-from ceasiompy.DynamicStability import SOFTWARE_NAME
+from ceasiompy.DynamicStability import (
+    SOFTWARE_NAME,
+    DYNAMICSTABILITY_OPEN_SDSA_XPATH,
+)
 
 # =================================================================================================
 #    MAIN
@@ -33,17 +39,20 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     Opens SDSA with CPACS file and ceasiompy.db's data.
     """
 
+    open_sdsa = get_value(cpacs.tixi, DYNAMICSTABILITY_OPEN_SDSA_XPATH)
+
     # Create SDSAFile object from the CPACS file
-    sdsa_file = SDSAFile(cpacs, wkdir)
+    sdsa_file = SDSAFile(cpacs, wkdir, open_sdsa)
 
     # Save the file in /Results/DynamicStability
     input_xml: str = sdsa_file.generate_xml()
 
-    log.info("--- Calling SDSA ---")
+    if open_sdsa:
+        log.info("--- Calling SDSA ---")
 
-    run_software(
-        software_name=SOFTWARE_NAME,
-        arguments=["", f"{input_xml}", "1"],
-        wkdir=wkdir,
-        with_mpi=False,
-    )
+        run_software(
+            software_name=SOFTWARE_NAME,
+            arguments=["", f"{input_xml}", "1"],
+            wkdir=wkdir,
+            with_mpi=False,
+        )

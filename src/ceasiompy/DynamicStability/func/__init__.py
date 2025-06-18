@@ -57,3 +57,7 @@ XPATHS_PRIM: List = [
     (AERO_XPATH + "/CLBetaPrim", "cl_betaprim"),
     (AERO_XPATH + "/CNBetaPrim", "cn_betaprim"),
 ]
+
+# CSV file names to save
+ALPHA_CSV_NAME: str = 'alpha_dot_derivatives.csv'
+BETA_CSV_NAME: str = 'beta_dot_derivatives.csv'

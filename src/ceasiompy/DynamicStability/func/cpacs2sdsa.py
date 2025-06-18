@@ -37,7 +37,6 @@ from ceasiompy.DynamicStability.func.dotderivatives import (
 
 from typing import List
 from pathlib import Path
-from ambiance import Atmosphere
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 
@@ -49,13 +48,13 @@ from ceasiompy.utils.commonxpaths import (
     LENGTH_XPATH,
 )
 from ceasiompy.DynamicStability import (
-    ALT,
     DYNAMICSTABILITY_CGRID_XPATH,
     DYNAMICSTABILITY_SOFTWARE_XPATH,
-    DYNAMICSTABILITY_MACHLIST_XPATH,
     DYNAMICSTABILITY_NSPANWISE_XPATH,
     DYNAMICSTABILITY_NCHORDWISE_XPATH,
     DYNAMICSTABILITY_VISUALIZATION_XPATH,
+    DYNAMICSTABILITY_ALPHA_DERIVATIVES_XPATH,
+    DYNAMICSTABILITY_BETA_DERIVATIVES_XPATH,
 )
 from ceasiompy.DynamicStability.func import (
     ROOT_XPATH,
@@ -114,19 +113,19 @@ class SDSAFile:
     # Dot derivatives xPaths
     xpaths_prim: List = XPATHS_PRIM
 
-    # Set Atmospheric Conditions for Dynamic Stability
-    # TODO : Dynamic Stability at which altitude ???
-    Atm = Atmosphere(ALT)
-    density = Atm.density[0]
-    g = Atm.grav_accel[0]
-
     dynstab_dir = DYNAMICSTABILITY_DIR
 
-    def __init__(self: "SDSAFile", cpacs: CPACS, wkdir: Path) -> None:
+    def __init__(
+        self: "SDSAFile",
+        cpacs: CPACS,
+        wkdir: Path,
+        open_sdsa: bool = False,
+    ) -> None:
 
         # Import input CPACS file
         self.cpacs = cpacs
         self.tixi = self.cpacs.tixi
+        self.open_sdsa = open_sdsa
 
         # Import SDSAEmpty.xml file
         self.empty_sdsa_path = self.dynstab_dir / "files/SDSAEmpty.xml"
@@ -151,15 +150,9 @@ class SDSAFile:
         self.nspanwise = int(get_value(self.tixi, DYNAMICSTABILITY_NSPANWISE_XPATH))
         self.cgrid = get_value(self.tixi, DYNAMICSTABILITY_CGRID_XPATH)
         self.aircraft_name: str = aircraft_name(self.tixi)
-        mach_str: str = get_value(self.tixi, DYNAMICSTABILITY_MACHLIST_XPATH)
 
         self.plot = get_value(self.tixi, DYNAMICSTABILITY_VISUALIZATION_XPATH)
         log.info(f"{self.plot=}")
-
-        # Extract and unique list of mach identifiers
-        self.mach_list = list(set([float(x) for x in str(mach_str).split(";")]))
-        self.mach_str = ",".join(str(mach) for mach in self.mach_list)
-        self.len_mach_list = len(self.mach_list)
 
         # Initialize Doublet Lattice Model
         self.model = None
@@ -185,6 +178,16 @@ class SDSAFile:
             self.nalpha, self.nmach, self.nelevator, self.nrudder, self.naileron
         )
 
+        # Dot-derivatives to compute
+        self.alpha_derivatives: bool = get_value(self.tixi, DYNAMICSTABILITY_ALPHA_DERIVATIVES_XPATH)
+        self.beta_derivatives: bool = get_value(self.tixi, DYNAMICSTABILITY_BETA_DERIVATIVES_XPATH)
+        if self.alpha_derivatives:
+            log.info("Computing alpha, alpha-dot derivatives")
+        if self.beta_derivatives:
+            log.info("Computing beta, beta-dot derivatives")
+        if not self.alpha_derivatives and not self.beta_derivatives:
+            log.info("You decided to not computing dot derivatives")
+
     def update_alpha_max(self: "SDSAFile") -> None:
         """
         Updates SDSA input file with AlphaMax values.
@@ -208,7 +211,7 @@ class SDSAFile:
         """
 
         if self.software_data == AVL_SOFTWARE:
-            df_dot = compute_dot_derivatives(self, atm=self.Atm)
+            df_dot = compute_dot_derivatives(self)
             for aero_prim_xpath, column_name in self.xpaths_prim:
                 x_xpath = aero_prim_xpath + "/X"
                 values_xpath = aero_prim_xpath + "/Values"
@@ -295,15 +298,17 @@ class SDSAFile:
 
         """
 
-        self.update_alpha_max()
-        self.update_tables()
-        self.update_dot_derivatives()
-        self.update_delcoeff()
-        self.update(STATUS_XPATH, "0")  # Update GEffect
-        self.update_ref()
-        self.update(CGRID_XPATH, f"{self.cgrid}")  # Update CGrid
-        self.update_piloteye()
+        # If you want to open SDSA you need to update a lot more entries
+        if self.open_sdsa:
+            self.update_alpha_max()
+            self.update_tables()
+            self.update_delcoeff()
+            self.update(STATUS_XPATH, "0")  # Update GEffect
+            self.update_ref()
+            self.update(CGRID_XPATH, f"{self.cgrid}")  # Update CGrid
+            self.update_piloteye()
 
+        self.update_dot_derivatives()
         self.save_xml()
 
         return self.sdsa_path

@@ -23,6 +23,10 @@ import cmath
 import numpy as np
 
 from pandas import concat
+from ceasiompy.utils.ceasiompyutils import (
+    get_value,
+    get_aeromap_conditions,
+)
 from ceasiompy.utils.geometryfunctions import (
     wing_sections,
     elements_number,
@@ -45,27 +49,33 @@ from ceasiompy.DynamicStability.func.panelaeroconfig import (
     AeroModel,
     DetailedPlots,
 )
-from typing import (
-    List,
-    Dict,
-    Tuple,
-)
 
 from ceasiompy import log
-from ceasiompy.DynamicStability import MODULE_NAME
 from ceasiompy.utils.commonxpaths import WINGS_XPATH
+from ceasiompy.DynamicStability.func import (
+    BETA_CSV_NAME,
+    ALPHA_CSV_NAME,
+)
+from ceasiompy.DynamicStability import (
+    MODULE_NAME,
+    DYNAMICSTABILITY_XREF_XPATH,
+    DYNAMICSTABILITY_YREF_XPATH,
+    DYNAMICSTABILITY_ZREF_XPATH,
+    DYNAMICSTABILITY_DEFAULTREF_XPATH,
+    DYNAMICSTABILITY_AEROMAP_UID_XPATH,
+)
 
 # =================================================================================================
 #   METHODS
 # =================================================================================================
 
 
-def load_geometry(self) -> List:
+def load_geometry(self) -> list:
     """
     Load geometry in PanelAero's format.
 
     Returns:
-        (List): Wings in PanelAsero's format.
+        (list): Wings in PanelAsero's format.
 
     """
     wing_cnt = elements_number(self.tixi, WINGS_XPATH, "wing")
@@ -115,71 +125,25 @@ def load_geometry(self) -> List:
     return wing_lists
 
 
-def compute_velocity_attributes(
-    atm: Atmosphere,
-    mach: float,
-    k_alpha_model: float,
-    k_beta_model: float,
-) -> Tuple[float, float, float]:
-    """
-    Compute arguments for PanelAero's model.
-
-    Args:
-        mach (float): Mach number.
-        k_alpha_model (float): Reduced frequency for alpha oscillations.
-        k_beta_model (float): Reduced frequency for beta oscillations.
-
-    Returns:
-        (Tuple[float, float, float]):
-            - Angular frequency for alpha oscillations.
-            - Angular frequency for beta oscillations.
-            - Dynamic pressure.
-
-    """
-
-    # Velocity in m/s in atmospheric environment
-    velocity = atm.speed_of_sound[0] * mach
-
-    # Frequency
-    omegaalpha = k_alpha_model * velocity  # 2 pi / T
-    omegabeta = k_beta_model * velocity
-
-    # Dynamic pressure
-    q_dyn = atm.density[0] * (velocity**2) / 2.0
-
-    return omegaalpha, omegabeta, q_dyn
+def get_dynamic_pressure(atm: Atmosphere, velocity: float) -> float:
+    return atm.density[0] * (velocity**2) / 2.0
 
 
-def scale_coefficients(
+def scale_alpha_coefficients(
     self,
     q_dyn: float,
-    x_alpha: float,
-    y_alpha: float,
-    z_alpha: float,
-    l_alpha: float,
-    m_alpha: float,
-    n_alpha: float,
-    x_beta: float,
-    y_beta: float,
-    z_beta: float,
-    l_beta: float,
-    m_beta: float,
-    n_beta: float,
-    m_alphadot: float,
-    z_alphadot: float,
-    x_alphadot: float,
-    y_betadot: float,
-    l_betadot: float,
-    n_betadot: float,
-):
+    x_alpha: float, y_alpha: float, z_alpha: float,
+    l_alpha: float, m_alpha: float, n_alpha: float,
+    m_alphadot: float, z_alphadot: float, x_alphadot: float,
+) -> tuple[
+    float, float, float,
+    float, float, float,
+    float, float, float,
+]:
     """
-    Scales coefficients accordingly.
+    Scale alpha(t)-dependent aero coefficients accordingly.
     """
-
-    log.info(
-        f"Scaling using dyn pres.: {q_dyn}, surface: {self.s}, chord: {self.c}, span: {self.b}."
-    )
-
+    
     # Define variables
     qs = q_dyn * self.s
     qsb = qs * self.b
@@ -194,6 +158,44 @@ def scale_coefficients(
     cm_alpha = m_alpha / qsc  # Moment
     cn_alpha = n_alpha / qsb  # Moment
 
+    # Compute dot coefficients
+    cm_alphadot = m_alphadot / qsc  # Moment
+    cz_alphadot = z_alphadot / qs  # Force
+    cx_alphadot = x_alphadot / qs  # Force
+
+    return (
+        cx_alpha, cy_alpha, cz_alpha,
+        cl_alpha, cm_alpha, cn_alpha,
+        cm_alphadot, cz_alphadot, cx_alphadot,
+    )
+
+
+def scale_beta_coefficients(
+    self,
+    q_dyn: float,
+    x_beta: float,
+    y_beta: float,
+    z_beta: float,
+    l_beta: float,
+    m_beta: float,
+    n_beta: float,
+    y_betadot: float,
+    l_betadot: float,
+    n_betadot: float,
+) -> tuple[
+    float, float, float,
+    float, float, float,
+    float, float, float,
+]:
+    """
+    Scale beta(t)-coefficients accordingly.
+    """
+
+    # Define variables
+    qs = q_dyn * self.s
+    qsb = qs * self.b
+    qsc = qs * self.c
+
     cx_beta = x_beta / qs  # Force
     cy_beta = y_beta / qs  # Force
     cz_beta = z_beta / qs  # Force
@@ -202,34 +204,14 @@ def scale_coefficients(
     cm_beta = m_beta / qsc  # Moment
     cn_beta = n_beta / qsb  # Moment
 
-    # Compute dot coefficients
-    cm_alphadot = m_alphadot / qsc  # Moment
-    cz_alphadot = z_alphadot / qs  # Force
-    cx_alphadot = x_alphadot / qs  # Force
-
     cy_betadot = y_betadot / qs  # Force
     cl_betadot = l_betadot / qsb  # Moment
     cn_betadot = n_betadot / qsb  # Moment
 
     return (
-        cx_alpha,
-        cy_alpha,
-        cz_alpha,
-        cl_alpha,
-        cm_alpha,
-        cn_alpha,
-        cx_beta,
-        cy_beta,
-        cz_beta,
-        cl_beta,
-        cm_beta,
-        cn_beta,
-        cm_alphadot,
-        cz_alphadot,
-        cx_alphadot,
-        cy_betadot,
-        cl_betadot,
-        cn_betadot,
+        cx_beta, cy_beta, cz_beta,
+        cl_beta, cm_beta, cn_beta,
+        cy_betadot, cl_betadot, cn_betadot,
     )
 
 
@@ -240,7 +222,7 @@ def scale_coefficients(
 
 def access_angle_derivatives(
     f_real: ndarray, f_img: ndarray, omega: float, t: float, angle_0: float
-) -> Tuple[float, float, float]:
+) -> tuple[float, float, float]:
     """
     Decomposition of real and imaginary part of f in (cos, sin) basis.
 
@@ -252,12 +234,11 @@ def access_angle_derivatives(
         angle_0 (float): Initial angle.
 
     Returns:
-        (Tuple[float, float, float]): x, y, z components of this decomposition.
+        (tuple[float, float, float]): x, y, z components of this decomposition.
 
     """
-
-    cos_omega_t = np.cos(omega * t)
-    sin_omega_t = np.sin(omega * t)
+    omega_t = omega * t
+    cos_omega_t, sin_omega_t = np.cos(omega_t), np.sin(omega_t)
 
     x = ((f_real[0] * cos_omega_t) + (f_img[0] * sin_omega_t)) / angle_0
     y = ((f_real[1] * cos_omega_t) + (f_img[1] * sin_omega_t)) / angle_0
@@ -280,11 +261,11 @@ def access_angle_derivatives_np(
         angle_0 (float): Initial angle.
 
     Returns:
-        (Tuple[ndarray, ndarray, ndarray]): x, y, z components of this decomposition.
+        (tuple[ndarray, ndarray, ndarray]): x, y, z components of this decomposition.
 
     """
-    cos_omega_t = np.cos(omega * t)
-    sin_omega_t = np.sin(omega * t)
+    omega_t = omega * t
+    cos_omega_t, sin_omega_t = np.cos(omega_t), np.sin(omega_t)
 
     x = (f_real[0, :] * cos_omega_t + f_img[0, :] * sin_omega_t) / angle_0
     y = (f_real[1, :] * cos_omega_t + f_img[1, :] * sin_omega_t) / angle_0
@@ -295,7 +276,7 @@ def access_angle_derivatives_np(
 
 def access_angle_dot_derivatives(
     f_real: ndarray, f_img: ndarray, omega: float, t: float, angle_0: float
-) -> Tuple[float, float, float]:
+) -> tuple[float, float, float]:
     """
     Decomposition of real and imaginary part of f_dot in (cos, sin) basis.
 
@@ -307,13 +288,12 @@ def access_angle_dot_derivatives(
         angle_0 (float): Initial angle.
 
     Returns:
-        (Tuple[float, float, float]): x, y, z components of this decomposition.
+        (tuple[float, float, float]): x, y, z components of this decomposition.
 
     """
-
-    cos_omega_t = np.cos(omega * t)
-    sin_omega_t = np.sin(omega * t)
+    omega_t = omega * t
     scale = angle_0 * omega
+    cos_omega_t, sin_omega_t = np.cos(omega_t), np.sin(omega_t)
 
     x = (f_img[0] * cos_omega_t - f_real[0] * sin_omega_t) / scale
     y = (f_img[1] * cos_omega_t - f_real[1] * sin_omega_t) / scale
@@ -333,15 +313,14 @@ def access_angle_dot_derivatives_np(
         f_img (ndarray): Imaginary part of f.
         omega (float): Angular frequency.
         t (float): Time.
-        angle_0 (float): Initial angle.
+        angle_0 (float): Amplitude.
 
     Returns:
-        (Tuple[ndarray, ndarray, ndarray]): x, y, z components of this decomposition.
+        (tuple[ndarray, ndarray, ndarray]): x, y, z components of this decomposition.
 
     """
-    cos_omega_t = np.cos(omega * t)
-    sin_omega_t = np.sin(omega * t)
     scale = angle_0 * omega
+    cos_omega_t, sin_omega_t = np.cos(omega * t), np.sin(omega * t)
 
     x = (f_img[0, :] * cos_omega_t - f_real[0, :] * sin_omega_t) / scale
     y = (f_img[1, :] * cos_omega_t - f_real[1, :] * sin_omega_t) / scale
@@ -350,12 +329,18 @@ def access_angle_dot_derivatives_np(
     return np.array([x, y, z])
 
 
-def compute_moments(aerogrid: Dict, forces: ndarray, x_hinge: float) -> ndarray:
+def compute_moments(
+    aerogrid: dict,
+    forces: ndarray,
+    x_hinge: float,
+    y_hinge: float,
+    z_hinge: float,
+) -> ndarray:
     """
     Compute Moments using formula, M = sum_{j: panel} r_j cross f_j.
 
     Args:
-        aerogrid (Dict): PanelAero model.
+        aerogrid (dict): PanelAero model.
         forces (ndarray): Forces on each panel (aerogrid['n'], 3).
         x_hinge (float): x-th coordinate of center of gravity.
 
@@ -366,7 +351,9 @@ def compute_moments(aerogrid: Dict, forces: ndarray, x_hinge: float) -> ndarray:
 
     # Moment computed at each panel (aerogrid['n'], 3)
     r = -aerogrid["offset_j"]
-    r[:, 0] = r[:, 0] - x_hinge  # MODIFY x_ref, y_ref, z_ref if you uncomment
+    r[:, 0] -= x_hinge
+    r[:, 1] -= y_hinge
+    r[:, 2] -= z_hinge
 
     if np.iscomplexobj(forces):
         m = complex_cross(r, forces.T)
@@ -379,7 +366,7 @@ def compute_moments(aerogrid: Dict, forces: ndarray, x_hinge: float) -> ndarray:
     return moments
 
 
-def get_main_wing_le(model: AeroModel) -> Tuple[float, float, float]:
+def get_main_wing_le(model: AeroModel) -> tuple[float, float, float]:
     """
     Get leading edge of main wing.
 
@@ -387,7 +374,7 @@ def get_main_wing_le(model: AeroModel) -> Tuple[float, float, float]:
         model (AeroModel): PanelAero model.
 
     Returns:
-        (Tuple[float, float, float]): x, y, z-th coordinate of leading edge.
+        (tuple[float, float, float]): x, y, z-th coordinate of leading edge.
 
     """
 
@@ -402,12 +389,12 @@ def get_main_wing_le(model: AeroModel) -> Tuple[float, float, float]:
     )
 
 
-def check_x_hinge(aerogrid: Dict, x_hinge: float) -> None:
+def check_x_hinge(aerogrid: dict, x_hinge: float) -> None:
     """
     Checks if x-th coordinate of hinge point in not in the aerogrid.
 
     Args:
-        aerogrid (Dict): Aerogrid with coordinates of panels.
+        aerogrid (dict): Aerogrid with coordinates of panels.
         x_hinge (float): x-th coordinate of hinge point.
 
     """
@@ -420,85 +407,101 @@ def check_x_hinge(aerogrid: Dict, x_hinge: float) -> None:
         )
 
 
-def compute_panel_forces(
-    aerogrid: Dict,
+def compute_alpha_panel_forces(
+    aerogrid: dict,
     q_alpha_jj: ndarray,
-    q_beta_jj: ndarray,
     omegaalpha: float,
-    omegabeta: float,
     q_dyn: float,
     t: float,
     alpha_0: float,
-    beta_0: float,
-) -> Tuple[ndarray, ndarray]:
-    """
-    Compute alpha and beta forces on panels.
-
-    Args:
-        aerogrid (Dict): Aerogrid of geometry.
-        q_alpha_jj (ndarray): PanelAero's DLM output for alpha oscillations.
-        q_beta_jj (ndarray): PanelAero's DLM output.
-        omegaalpha (float): Angular frequency of alpha.
-        omegabeta (float): Angular frequency of beta.
-        q_dyn (float): Dynamic pressure.
-        t (float): Time [s].
-        alpha_0 (float): Alpha amplitude.
-        beta_0 (float): Beta amplitude.
-
-    """
-
+    aoa: float = 0.0,
+    aos: float = 0.0,
+) -> ndarray:
     # Define the angles in time
-    alpha_angle = alpha(omegaalpha, t, alpha_0)
-    beta_angle = beta(omegabeta, t, beta_0)
-
-    c_a = cmath.cos(alpha_angle)
-    s_a = cmath.sin(alpha_angle)
+    alpha_angle = alpha(omegaalpha, t, alpha_0, aoa)
 
     # Rotations
-    rotation_alpha = np.array(
-        [  # -alpha(t) rotation
-            [c_a, 0, s_a],
-            [0, 1, 0],
-            [-s_a, 0, c_a],
-        ]
-    )
-
-    c_b = cmath.cos(beta_angle)
-    s_b = cmath.sin(beta_angle)
-
-    rotation_beta = np.array(
-        [  # -beta(t) rotation
-            [c_b, s_b, 0],
-            [-s_b, c_b, 0],
-            [0, 0, 1],
-        ]
-    )
+    # -alpha(t) rotation
+    c_a, s_a = cmath.cos(alpha_angle), cmath.sin(alpha_angle)
+    rotation_alpha = np.array([
+        [c_a, 0, s_a],
+        [0, 1, 0],
+        [-s_a, 0, c_a],
+    ])
 
     # Apply the rotation to the normals (3, aerogrid['n'])
     n_alpha = rotation_alpha.dot(aerogrid["N"].T)
-    n_beta = rotation_beta.dot(aerogrid["N"].T)
 
-    # Projection on x-axis
-    vector = np.array([1, 0, 0])  # Velocity = (V_inf, 0, 0) at alpha = beta = 0
+    # Compute induced downwash
+
+    # Velocity = (cos(aoa), -sin(beta), 0) at alpha = aoa and beta = aos
+    vector = np.array([math.cos(aoa), -math.sin(aos), 0])
     n_alpha_x = vector.dot(n_alpha)
-    n_beta_x = vector.dot(n_beta)
 
     # Induced downwash (aerogrid['n'], )
     w_alpha = n_alpha_x
-    w_beta = n_beta_x
 
     # Complex pressure coefficients (aerogrid['n'], )
     cp_alpha = q_alpha_jj.dot(w_alpha)
-    cp_beta = q_beta_jj.dot(w_beta)
 
     # Force on each panel (3, aerogrid['n'])
     alphaforces = -q_dyn * n_alpha * aerogrid["A"] * cp_alpha
+
+    return alphaforces
+
+
+def compute_beta_panel_forces(
+    aerogrid: dict,
+    q_beta_jj: ndarray,
+    omegabeta: float,
+    q_dyn: float,
+    t: float,
+    beta_0: float,
+    aoa: float = 0.0,
+    aos: float = 0.0,
+) -> ndarray:
+    # Define the angles in time
+    beta_angle = beta(omegabeta, t, beta_0, aos)
+
+    # -beta(t) rotation
+    c_b, s_b = cmath.cos(beta_angle), cmath.sin(beta_angle)
+    rotation_beta = np.array([
+        [c_b, s_b, 0],
+        [-s_b, c_b, 0],
+        [0, 0, 1],
+    ])
+
+    # Apply the rotation to the normals (3, aerogrid['n'])
+    n_beta = rotation_beta.dot(aerogrid["N"].T)
+
+    # Compute induced downwash
+
+    # Velocity = (cos(aoa), -sin(beta), 0) at alpha = aoa and beta = aos
+    vector = np.array([math.cos(aoa), -math.sin(aos), 0])
+    n_beta_x = vector.dot(n_beta)
+
+    # Induced downwash (aerogrid['n'], )
+    w_beta = n_beta_x
+
+    # Complex pressure coefficients (aerogrid['n'], )
+    cp_beta = q_beta_jj.dot(w_beta)
+
+    # Force on each panel (3, aerogrid['n'])
     betaforces = -q_dyn * n_beta * aerogrid["A"] * cp_beta
 
-    return alphaforces, betaforces
+    return betaforces
 
 
-def get_mach_list(self, x_hinge: float) -> Tuple[List, List]:
+def get_aero_lists(
+    self,
+    x_hinge: float,
+    y_hinge: float,
+    z_hinge: float,
+    alt_list: list[float],
+    mach_list: list[float],
+    aoa_list: list[float],
+    aos_list: list[float],
+) -> tuple[list, list, list, list]:
     """
     Get list of machs where to compute the derivatives.
     """
@@ -507,7 +510,7 @@ def get_mach_list(self, x_hinge: float) -> Tuple[List, List]:
     db.connect_to_table(MODULE_NAME)
     data = db.get_data(
         table_name="derivatives_data",
-        columns=["mach"],
+        columns=["alt", "mach", "aoa", "aos"],
         db_close=True,
         filters=[
             f"aircraft = '{self.aircraft_name}'",
@@ -515,18 +518,30 @@ def get_mach_list(self, x_hinge: float) -> Tuple[List, List]:
             f"chord = {self.nchordwise}",
             f"span = {self.nspanwise}",
             f"x_ref BETWEEN {x_hinge - tol} AND {x_hinge + tol}",
-            "y_ref = 0.0",
-            "z_ref = 0.0",
+            f"y_ref BETWEEN {y_hinge - tol} AND {y_hinge + tol}",
+            f"z_ref BETWEEN {z_hinge - tol} AND {z_hinge + tol}",
         ],
     )
 
-    mach_set = {row[0] for row in data}
-    log.info(f"Already have {mach_set} in ceasiompy.db")
+    # Build a set of tuples for fast lookup
+    db_tuples = set((row[0], row[1], row[2], row[3]) for row in data)
 
-    return list(set(self.mach_list) - mach_set), ", ".join(str(mach) for mach in list(mach_set))
+    # Filter the input lists
+    filtered = [
+        (alt, mach, aoa, aos)
+        for alt, mach, aoa, aos in zip(alt_list, mach_list, aoa_list, aos_list)
+        if (alt, mach, aoa, aos) not in db_tuples
+    ]
+
+    # Unzip the filtered tuples back into separate lists
+    if filtered:
+        alt_out, mach_out, aoa_out, aos_out = zip(*filtered)
+        return list(alt_out), list(mach_out), list(aoa_out), list(aos_out)
+    else:
+        return [], [], [], []
 
 
-def compute_dot_derivatives(self, atm: Atmosphere) -> DataFrame:
+def compute_dot_derivatives(self) -> DataFrame:
     """
     Computes alpha and beta dot derivatives for SDSA.
 
@@ -539,7 +554,8 @@ def compute_dot_derivatives(self, atm: Atmosphere) -> DataFrame:
     """
 
     log.info("--- Loading Geometry into PanelAero ---")
-    data = []
+    alpha_data = []
+    beta_data = []
 
     # Load Geometry
     wings_list = load_geometry(self)
@@ -578,191 +594,115 @@ def compute_dot_derivatives(self, atm: Atmosphere) -> DataFrame:
     k_alpha_model = 2 * k_nastran / self.c  # = omega / velocity
     k_beta_model = 2 * k_nastran / self.b  # = omega / velocity
 
-    # Leading edge of airplane
-    x_le, _, _ = get_main_wing_le(model)
-    x_hinge = x_le + (self.c / 4)  # Hinge point on x-axis
+    if get_value(self.tixi, DYNAMICSTABILITY_DEFAULTREF_XPATH):
+        # Leading edge of airplane
+        x_le, _, _ = get_main_wing_le(model)
+
+        x_hinge = x_le + (self.c / 4)  # Hinge point on x-axis
+        y_hinge = 0.0
+        z_hinge = 0.0
+    else:
+        x_hinge = get_value(self.tixi, DYNAMICSTABILITY_XREF_XPATH)
+        y_hinge = get_value(self.tixi, DYNAMICSTABILITY_YREF_XPATH)
+        z_hinge = get_value(self.tixi, DYNAMICSTABILITY_ZREF_XPATH)
+
     check_x_hinge(aerogrid, x_hinge)
 
-    mach_list, non_mach_str = get_mach_list(self, x_hinge)
+    log.info(f"--- Computing AIC Matrices ---")
+    (
+        alt_list, mach_list, aoa_list, aos_list,
+    ) = get_aeromap_conditions(self.cpacs, DYNAMICSTABILITY_AEROMAP_UID_XPATH)
 
-    log.info(f"--- Computing AIC Matrices for machs in {mach_list} ---")
+    alt_out, mach_out, aoa_out, aos_out = get_aero_lists(
+        self,
+        x_hinge, y_hinge, z_hinge,
+        alt_list, mach_list, aoa_list, aos_list,
+    )
 
-    for mach in mach_list:
-        log.info(f"--- Computing AIC Matrix for mach: {mach} ---")
+    for i_case, alt in enumerate(alt_out):
+        mach = mach_out[i_case]
+        aoa = aoa_out[i_case]
+        aos = aos_out[i_case]
+        
+        if self.alpha_derivatives:
+            (
+                cx_alpha, cy_alpha, cz_alpha,
+                cl_alpha, cm_alpha, cn_alpha,
+                cm_alphadot, cz_alphadot, cx_alphadot,
+            ) = compute_alpha_dot_derivatives(
+                self,
+                alt, mach, aoa, aos,
+                aerogrid, k_alpha_model,
+                t, alpha_0,
+                x_hinge, y_hinge, z_hinge,
+            )
+            alpha_data.append({
+                "alt": alt, "mach": mach, "aoa": aoa, "aos": aos,
+                "cx_alpha": cx_alpha, "cy_alpha": cy_alpha, "cz_alpha": cz_alpha,
+                "cl_alpha": cl_alpha, "cm_alpha": cm_alpha, "cn_alpha": cn_alpha,
+                "cm_alphaprim": cm_alphadot, "cz_alphaprim": cz_alphadot, "cx_alphaprim": cx_alphadot,
+            })
 
-        # AIC Matrix np.identity(model.aerogrid['n'])
-        q_alpha_jj = DLM.calc_Qjj(aerogrid, Ma=mach, k=k_alpha_model)
-        q_beta_jj = DLM.calc_Qjj(aerogrid, Ma=mach, k=k_beta_model)
+        if self.beta_derivatives:
+            (
+                cx_beta, cy_beta, cz_beta,
+                cl_beta, cm_beta, cn_beta,
+                cy_betadot, cl_betadot, cn_betadot,
+            ) = compute_beta_dot_derivatives(
+                self,
+                alt, mach, aoa, aos,
+                aerogrid, k_beta_model,
+                t, beta_0,
+                x_hinge, y_hinge, z_hinge,
+            )
+            beta_data.append({
+                "alt": alt, "mach": mach, "aoa": aoa, "aos": aos,
+                "cx_beta": cx_beta, "cy_beta": cy_beta, "cz_beta": cz_beta,
+                "cl_beta": cl_beta, "cm_beta": cm_beta, "cn_beta": cn_beta,
+                "cy_betaprim": cy_betadot, "cl_betaprim": cl_betadot, "cn_betaprim": cn_betadot,
+            })
 
-        # Get angular frequencies
-        omegaalpha, omegabeta, q_dyn = compute_velocity_attributes(
-            atm, mach, k_alpha_model, k_beta_model
-        )
-
-        # Get forces on each panels at angle (alpha(t), beta(t))
-        alphaforces, betaforces = compute_panel_forces(
-            aerogrid,
-            q_alpha_jj,
-            q_beta_jj,
-            omegaalpha,
-            omegabeta,
-            q_dyn,
-            t,
-            alpha_0,
-            beta_0,
-        )
-
-        # Complex decomposition
-        alphaforces_real, alphaforces_imag = complex_decomposition(alphaforces)
-        betaforces_real, betaforces_imag = complex_decomposition(betaforces)
-
-        # Total force, sum on each panels (3, )
-        falpha = alphaforces.sum(axis=1)
-        fbeta = betaforces.sum(axis=1)
-
-        # Complex decomposition
-        falpha_real, falpha_imag = complex_decomposition(falpha)
-        fbeta_real, fbeta_imag = complex_decomposition(fbeta)
-
-        ############################################################
-        # Get derivatives at (angle, angle_dot) = (0, 0)
-        ############################################################
-
-        fx_alpha, fy_alpha, fz_alpha = access_angle_derivatives(
-            falpha_real, falpha_imag, omegaalpha, t, alpha_0
-        )
-        fx_beta, fy_beta, fz_beta = access_angle_derivatives(
-            fbeta_real, fbeta_imag, omegabeta, t, beta_0
-        )
-
-        m_alpha = compute_moments(
-            aerogrid=aerogrid,
-            forces=access_angle_derivatives_np(
-                alphaforces_real, alphaforces_imag, omegaalpha, t, alpha_0
-            ),
-            x_hinge=x_hinge,
-        )
-        m_beta = compute_moments(
-            aerogrid=aerogrid,
-            forces=access_angle_derivatives_np(
-                betaforces_real, betaforces_imag, omegabeta, t, beta_0
-            ),
-            x_hinge=x_hinge,
-        )
-
-        ############################################################
-        # Get dot derivatives at (angle, angle_dot) = (0, 0)
-        ############################################################
-
-        fx_alphadot, _, fz_alphadot = access_angle_dot_derivatives(
-            falpha_real, falpha_imag, omegaalpha, t, alpha_0
-        )
-        _, fy_betadot, _ = access_angle_dot_derivatives(
-            fbeta_real, fbeta_imag, omegabeta, t, beta_0
-        )
-
-        m_alphadot = compute_moments(
-            aerogrid=aerogrid,
-            forces=access_angle_dot_derivatives_np(
-                alphaforces_real, alphaforces_imag, omegaalpha, t, alpha_0
-            ),
-            x_hinge=x_hinge,
-        )
-        m_betadot = compute_moments(
-            aerogrid=aerogrid,
-            forces=access_angle_dot_derivatives_np(
-                betaforces_real, betaforces_imag, omegabeta, t, beta_0
-            ),
-            x_hinge=x_hinge,
-        )
-
-        # Scale appropriately to access forces and moment coefficients
-        (
-            cx_alpha,
-            cy_alpha,
-            cz_alpha,
-            cl_alpha,
-            cm_alpha,
-            cn_alpha,
-            cx_beta,
-            cy_beta,
-            cz_beta,
-            cl_beta,
-            cm_beta,
-            cn_beta,
-            cm_alphaprim,
-            cz_alphaprim,
-            cx_alphaprim,
-            cy_betaprim,
-            cl_betaprim,
-            cn_betaprim,
-        ) = scale_coefficients(
-            self,
-            q_dyn,
-            fx_alpha,
-            fy_alpha,
-            fz_alpha,
-            m_alpha[0],
-            m_alpha[1],
-            m_alpha[2],
-            fx_beta,
-            fy_beta,
-            fz_beta,
-            m_beta[0],
-            m_beta[1],
-            m_beta[2],
-            m_alphadot[1],
-            fz_alphadot,
-            fx_alphadot,
-            fy_betadot,
-            m_betadot[0],
-            m_betadot[2],
-        )
-
-        # Append data
-        data.append({
-            "mach": mach,
-            "cx_alpha": cx_alpha,
-            "cy_alpha": cy_alpha,
-            "cz_alpha": cz_alpha,
-            "cl_alpha": cl_alpha,
-            "cm_alpha": cm_alpha,
-            "cn_alpha": cn_alpha,
-            "cx_beta": cx_beta,
-            "cy_beta": cy_beta,
-            "cz_beta": cz_beta,
-            "cl_beta": cl_beta,
-            "cm_beta": cm_beta,
-            "cn_beta": cn_beta,
-            "cm_alphaprim": cm_alphaprim,
-            "cz_alphaprim": cz_alphaprim,
-            "cx_alphaprim": cx_alphaprim,
-            "cy_betaprim": cy_betaprim,
-            "cl_betaprim": cl_betaprim,
-            "cn_betaprim": cn_betaprim,
-        })
-
-        log.info(f"Finished computing alpha-dot derivatives for mach: {mach}.")
-
-    log.info("--- Finished computing alpha/beta-dot derivatives ---")
-
-    # Convert the data list to a DataFrame
-    df = DataFrame(data)
+    log.info("--- Finished computing dot-derivatives ---")
 
     self.model = model
 
-    # Point where we compute moments
-    df["x_ref"], df["y_ref"], df["z_ref"] = x_hinge, 0.0, 0.0
+    # Convert the data list to a DataFrame
+    if self.alpha_derivatives:
+        df_alpha = DataFrame(alpha_data)
 
-    # Save the DataFrame to a CSV file
-    df.to_csv(self.dynamic_stability_dir / "alpha_beta_dot_derivatives.csv", index=False)
+        # Point where we compute moments
+        df_alpha["x_ref"], df_alpha["y_ref"], df_alpha["z_ref"] = x_hinge, y_hinge, z_hinge
 
-    return add_db_values(self, df, non_mach_str, x_hinge)
+        # Save the DataFrame to a CSV file
+        df_alpha.to_csv(self.dynamic_stability_dir / ALPHA_CSV_NAME, index=False)
+
+    if self.alpha_derivatives:
+        df_beta = DataFrame(beta_data)
+
+        # Point where we compute moments
+        df_beta["x_ref"], df_beta["y_ref"], df_beta["z_ref"] = x_hinge, y_hinge, z_hinge
+
+        # Save the DataFrame to a CSV file
+        df_beta.to_csv(self.dynamic_stability_dir / BETA_CSV_NAME, index=False)
 
 
-def add_db_values(self, df: DataFrame, non_mach_str: str, x_hinge: float) -> DataFrame:
+    return add_db_values(self, df, x_hinge, y_hinge, z_hinge)
+
+
+
+
+def add_db_values(
+    self,
+    df: DataFrame,
+    x_hinge: float,
+    y_hinge: float,
+    z_hinge: float,
+) -> DataFrame:
     der_columns = [
+        "alt",
         "mach",
+        "aoa",
+        "aos",
         "x_ref",
         "y_ref",
         "z_ref",
@@ -786,8 +726,8 @@ def add_db_values(self, df: DataFrame, non_mach_str: str, x_hinge: float) -> Dat
             f"chord = {self.nchordwise}",
             f"span = {self.nspanwise}",
             f"x_ref BETWEEN {x_hinge - tol} AND {x_hinge + tol}",
-            "y_ref = 0.0",
-            "z_ref = 0.0",
+            f"y_ref BETWEEN {y_hinge - tol} AND {y_hinge + tol}",
+            f"z_ref BETWEEN {z_hinge - tol} AND {z_hinge + tol}",
         ],
     )
 
@@ -795,3 +735,211 @@ def add_db_values(self, df: DataFrame, non_mach_str: str, x_hinge: float) -> Dat
         df = DataFrame(columns=der_columns)
 
     return concat([df[der_columns], DataFrame(data, columns=der_columns)], ignore_index=True)
+
+
+def compute_alpha_dot_derivatives(
+    self,
+    alt: float,
+    mach: float,
+    aoa: float,
+    aos: float,
+    aerogrid,
+    k_alpha_model,
+    t,
+    alpha_0,
+    x_hinge,
+    y_hinge,
+    z_hinge,
+) -> tuple[
+    float, float, float,
+    float, float, float,
+    float, float, float,
+]:
+    atm = Atmosphere(h=alt)
+
+    # Velocity [m/s] in atmospheric environment (V_inf)
+    velocity = atm.speed_of_sound[0] * mach
+    q_dyn = get_dynamic_pressure(atm, velocity)
+
+    log.info(f"--- Computing AIC Matrix for {alt=} {mach=} {aoa=} {aos=} ---")
+
+    # AIC Matrix np.identity(model.aerogrid['n'])
+    q_alpha_jj = DLM.calc_Qjj(aerogrid, Ma=mach, k=k_alpha_model)
+
+    log.info(f"Finished computing alpha-dot derivatives for mach: {mach}.")
+
+    # Get angular frequency
+    omegaalpha = k_alpha_model * velocity
+
+    aoa_rad, aos_rad = math.radians(aoa), math.radians(aos)
+
+    # Get forces on each panels at angle (alpha(t), beta(t))
+    alphaforces = compute_alpha_panel_forces(
+        aerogrid,
+        q_alpha_jj,
+        omegaalpha,
+        q_dyn,
+        t,
+        alpha_0,
+        aoa_rad,
+        aos_rad,
+    )
+
+    # Complex decomposition
+    alphaforces_real, alphaforces_imag = complex_decomposition(alphaforces)
+
+    # Total force, sum on each panels (3, )
+    falpha = alphaforces.sum(axis=1)
+
+    # Complex decomposition
+    falpha_real, falpha_imag = complex_decomposition(falpha)
+
+    ############################################################
+    # Get derivatives at (angle, angle_dot) = (0, 0)
+    ############################################################
+
+    fx_alpha, fy_alpha, fz_alpha = access_angle_derivatives(
+        falpha_real, falpha_imag, omegaalpha, t, alpha_0
+    )
+
+    m_alpha = compute_moments(
+        aerogrid=aerogrid,
+        forces=access_angle_derivatives_np(
+            alphaforces_real, alphaforces_imag, omegaalpha, t, alpha_0
+        ),
+        x_hinge=x_hinge, y_hinge=y_hinge, z_hinge=z_hinge,
+    )
+
+    ############################################################
+    # Get dot derivatives at (angle, angle_dot) = (0, 0)
+    ############################################################
+
+    fx_alphadot, _, fz_alphadot = access_angle_dot_derivatives(
+        falpha_real, falpha_imag, omegaalpha, t, alpha_0
+    )
+
+    m_alphadot = compute_moments(
+        aerogrid=aerogrid,
+        forces=access_angle_dot_derivatives_np(
+            alphaforces_real, alphaforces_imag, omegaalpha, t, alpha_0
+        ),
+        x_hinge=x_hinge, y_hinge=y_hinge, z_hinge=z_hinge,
+    )
+
+    log.info(
+        f"Scaling using dyn pres.: {q_dyn}, surface: {self.s}, chord: {self.c}, span: {self.b}."
+    )
+
+    return scale_alpha_coefficients(
+        self,
+        q_dyn,
+        fx_alpha, fy_alpha, fz_alpha,
+        m_alpha[0], m_alpha[1], m_alpha[2],
+        m_alphadot[1], fz_alphadot, fx_alphadot,
+    )
+
+
+def compute_beta_dot_derivatives(
+    self,
+    alt: float,
+    mach: float,
+    aoa: float,
+    aos: float,
+    aerogrid,
+    k_beta_model,
+    t,
+    beta_0,
+    x_hinge,
+    y_hinge,
+    z_hinge,
+) -> tuple[
+    float, float, float,
+    float, float, float,
+    float, float, float,
+]:
+    atm = Atmosphere(h=alt)
+
+    # Velocity [m/s] in atmospheric environment (V_inf)
+    velocity = atm.speed_of_sound[0] * mach
+    q_dyn = get_dynamic_pressure(atm, velocity)
+
+    log.info(f"--- Computing AIC Matrix for {alt=} {mach=} {aoa=} {aos=} ---")
+
+    # Convert to radiams
+    aoa_rad = math.radians(aoa)
+    aos_rad = math.radians(aos)
+
+    # AIC Matrix np.identity(model.aerogrid['n'])
+    q_beta_jj = DLM.calc_Qjj(aerogrid, Ma=mach, k=k_beta_model)
+
+    # Get angular frequencies
+    omegabeta = k_beta_model * velocity
+
+    # Get forces on each panels at angle beta(t)
+    betaforces = compute_beta_panel_forces(
+        aerogrid,
+        q_beta_jj,
+        omegabeta,
+        q_dyn,
+        t,
+        beta_0,
+        aoa_rad,
+        aos_rad,
+    )
+
+    # Complex decomposition
+    betaforces_real, betaforces_imag = complex_decomposition(betaforces)
+
+    # Total force, sum on each panels (3, )
+    fbeta = betaforces.sum(axis=1)
+
+    # Complex decomposition
+    fbeta_real, fbeta_imag = complex_decomposition(fbeta)
+
+    ############################################################
+    # Get derivatives at (angle, angle_dot) = (0, 0)
+    ############################################################
+
+    fx_beta, fy_beta, fz_beta = access_angle_derivatives(
+        fbeta_real, fbeta_imag, omegabeta, t, beta_0
+    )
+
+    m_beta = compute_moments(
+        aerogrid=aerogrid,
+        forces=access_angle_derivatives_np(
+            betaforces_real, betaforces_imag, omegabeta, t, beta_0
+        ),
+        x_hinge=x_hinge,
+        y_hinge=y_hinge,
+        z_hinge=z_hinge,
+    )
+
+    ############################################################
+    # Get dot derivatives at (angle, angle_dot) = (0, 0)
+    ############################################################
+
+    _, fy_betadot, _ = access_angle_dot_derivatives(
+        fbeta_real, fbeta_imag, omegabeta, t, beta_0
+    )
+
+    m_betadot = compute_moments(
+        aerogrid=aerogrid,
+        forces=access_angle_dot_derivatives_np(
+            betaforces_real, betaforces_imag, omegabeta, t, beta_0
+        ),
+        x_hinge=x_hinge,
+        y_hinge=y_hinge,
+        z_hinge=z_hinge,
+    )
+
+    log.info(
+        f"Scaling using dyn pres.: {q_dyn}, surface: {self.s}, chord: {self.c}, span: {self.b}."
+    )
+
+    return scale_beta_coefficients(
+        self,
+        q_dyn,
+        fx_beta, fy_beta, fz_beta,
+        m_beta[0], m_beta[1], m_beta[2],
+        fy_betadot, m_betadot[0], m_betadot[2],
+    )

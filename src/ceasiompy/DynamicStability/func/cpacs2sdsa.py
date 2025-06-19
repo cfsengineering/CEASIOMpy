@@ -53,8 +53,8 @@ from ceasiompy.DynamicStability import (
     DYNAMICSTABILITY_NSPANWISE_XPATH,
     DYNAMICSTABILITY_NCHORDWISE_XPATH,
     DYNAMICSTABILITY_VISUALIZATION_XPATH,
-    DYNAMICSTABILITY_ALPHA_DERIVATIVES_XPATH,
-    DYNAMICSTABILITY_BETA_DERIVATIVES_XPATH,
+    DYNAMICSTABILITY_ALPHA_DERIVATIVES_XPATH as ALPHA_DERIVATIVES_XPATH,
+    DYNAMICSTABILITY_BETA_DERIVATIVES_XPATH as BETA_DERIVATIVES_XPATH,
 )
 from ceasiompy.DynamicStability.func import (
     ROOT_XPATH,
@@ -179,8 +179,8 @@ class SDSAFile:
         )
 
         # Dot-derivatives to compute
-        self.alpha_derivatives: bool = get_value(self.tixi, DYNAMICSTABILITY_ALPHA_DERIVATIVES_XPATH)
-        self.beta_derivatives: bool = get_value(self.tixi, DYNAMICSTABILITY_BETA_DERIVATIVES_XPATH)
+        self.alpha_derivatives = bool(get_value(self.tixi, ALPHA_DERIVATIVES_XPATH))
+        self.beta_derivatives = bool(get_value(self.tixi, BETA_DERIVATIVES_XPATH))
         if self.alpha_derivatives:
             log.info("Computing alpha, alpha-dot derivatives")
         if self.beta_derivatives:

@@ -63,8 +63,8 @@ TABLE_DICT = {
             su2_file_data BLOB,
         """,
     ],
-    f"{DYNSTAB_NAME}": [
-        "derivatives_data",
+    f"{DYNSTAB_NAME}_alpha": [
+        "alpha_derivatives",
         """
             aircraft TEXT,
 
@@ -73,7 +73,10 @@ TABLE_DICT = {
             chord INT,
             span INT,
 
+            alt REAL,
             mach REAL,
+            aoa REAL,
+            aos REAL,
 
             x_ref REAL,
             y_ref REAL,
@@ -82,6 +85,26 @@ TABLE_DICT = {
             cm_alphaprim REAL,
             cz_alphaprim REAL,
             cx_alphaprim REAL,
+        """,
+    ],
+    f"{DYNSTAB_NAME}_beta": [
+        "beta_derivatives",
+        """
+            aircraft TEXT,
+
+            method TEXT,
+
+            chord INT,
+            span INT,
+
+            alt REAL,
+            mach REAL,
+            aoa REAL,
+            aos REAL,
+
+            x_ref REAL,
+            y_ref REAL,
+            z_ref REAL,
 
             cy_betaprim REAL,
             cl_betaprim REAL,

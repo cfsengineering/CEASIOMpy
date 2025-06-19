@@ -32,7 +32,9 @@ from ceasiompy.PyAVL.func.config import (
 )
 
 from pathlib import Path
+from itertools import repeat
 from cpacspy.cpacspy import CPACS
+from concurrent.futures import ProcessPoolExecutor
 from ceasiompy.Database.func.storing import CeasiompyDb
 
 from ceasiompy import log
@@ -41,6 +43,24 @@ from ceasiompy.PyAVL import SOFTWARE_NAME
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
+
+def run_case(args: tuple[Path, Path], save_fig: bool) -> None:
+    '''
+    Runs the created avl cases separately on 1 CPU.
+    '''
+    # Unpack the yuple
+    case_dir_path, command_path = args
+
+    run_software(
+        software_name=SOFTWARE_NAME,
+        arguments=[""],
+        wkdir=case_dir_path,
+        with_mpi=False,
+        stdin=open(str(command_path), "r"),
+    )
+    if save_fig:
+        convert_ps_to_pdf(case_dir_path)
 
 
 def main(cpacs: CPACS, results_dir: Path) -> None:
@@ -53,6 +73,9 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
     # 1. Load the necessary data
     tixi = cpacs.tixi
+
+    # Store list of arguments for each case
+    case_args = []
 
     (
         alt_list,
@@ -128,7 +151,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         case_dir_path = create_case_dir(
             results_dir,
             i_case,
-            alt,
+            alt=alt,
             mach=mach,
             aoa=aoa,
             aos=aos,
@@ -152,17 +175,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             mach_number=mach,
         )
 
-        run_software(
-            software_name=SOFTWARE_NAME,
-            arguments=[""],
-            wkdir=case_dir_path,
-            with_mpi=False,
-            nb_cpu=nb_cpu,
-            stdin=open(str(command_path), "r"),
-        )
-
-        if save_fig:
-            convert_ps_to_pdf(case_dir_path)
+        case_args.append((case_dir_path, command_path))
 
     if control_surface_list != [0.0]:
 
@@ -246,47 +259,10 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 elevator=elevator,
             )
 
-            run_software(
-                software_name=SOFTWARE_NAME,
-                arguments=[""],
-                wkdir=case_dir_path,
-                with_mpi=False,
-                nb_cpu=nb_cpu,
-                stdin=open(str(command_path), "r"),
-            )
+            case_args.append((case_dir_path, command_path))
 
-            if save_fig:
-                convert_ps_to_pdf(case_dir_path)
+    # Run in parallel
+    with ProcessPoolExecutor(max_workers=nb_cpu) as executor:
+        executor.map(run_case, case_args, repeat(save_fig))
 
     get_avl_results(cpacs, results_dir)
-
-'''
-
-import concurrent.futures
-
-def run_case(args):
-    # Unpack arguments
-    (case_dir_path, command_path, save_fig, SOFTWARE_NAME, nb_cpu) = args
-
-    run_software(
-        software_name=SOFTWARE_NAME,
-        arguments=[""],
-        wkdir=case_dir_path,
-        with_mpi=False,
-        nb_cpu=nb_cpu,
-        stdin=open(str(command_path), "r"),
-    )
-    if save_fig:
-        convert_ps_to_pdf(case_dir_path)
-
-# Prepare a list of arguments for each case
-case_args = []
-for ...:  # your loop to generate cases
-    # ...existing code to set up case_dir_path, command_path, etc...
-    case_args.append((case_dir_path, command_path, save_fig, SOFTWARE_NAME, nb_cpu))
-
-# Run in parallel
-with concurrent.futures.ProcessPoolExecutor(max_workers=nb_cpu) as executor:
-    executor.map(run_case, case_args)
-    
-'''

@@ -20,7 +20,10 @@ from ceasiompy.Database.func.pyavl import store_pyavl_data
 from ceasiompy.Database.func.su2run import store_su2run_data
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.Database.func.cpacs2gmsh import store_cpacs2gmsh_data
-from ceasiompy.Database.func.dynamicstability import store_dynstab_data
+from ceasiompy.Database.func.dynamicstability import (
+    store_beta_dynstab_data,
+    store_alpha_dynstab_data,
+)
 
 from pathlib import Path
 from sqlite3 import Cursor
@@ -200,7 +203,8 @@ def store_data(tixi: Tixi3) -> None:
     if gmsh_dir.is_dir():
         call_store_data(tixi, store_cpacs2gmsh_data, gmsh_dir, CPACS2GMSH_NAME)
     if dynstab_dir.is_dir():
-        call_store_data(tixi, store_dynstab_data, dynstab_dir, DYNSTAB_NAME)
+        call_store_data(tixi, store_beta_dynstab_data, dynstab_dir, DYNSTAB_NAME + "_beta")
+        call_store_data(tixi, store_alpha_dynstab_data, dynstab_dir, DYNSTAB_NAME + "_alpha")
     if su2_dir.is_dir():
         call_store_data(tixi, store_su2run_data, su2_dir, SU2RUN_NAME)
         log.warning("Not implemented yet.")

@@ -135,7 +135,7 @@ def float_vartype(tixi, xpath, default_value, name, key, description) -> None:
             help=description,
             on_change=save_cpacs_file,
         )
-    
+
 
 def list_vartype(tixi, xpath, default_value, name, key, description) -> None:
     if default_value is None:

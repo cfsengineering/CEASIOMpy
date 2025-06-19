@@ -66,7 +66,7 @@ from ceasiompy.DynamicStability import (
 )
 
 # =================================================================================================
-#   METHODS
+#   FUNCTIONS
 # =================================================================================================
 
 
@@ -125,10 +125,6 @@ def load_geometry(self) -> list:
     return wing_lists
 
 
-def get_dynamic_pressure(atm: Atmosphere, velocity: float) -> float:
-    return atm.density[0] * (velocity**2) / 2.0
-
-
 def scale_alpha_coefficients(
     self,
     q_dyn: float,
@@ -143,7 +139,7 @@ def scale_alpha_coefficients(
     """
     Scale alpha(t)-dependent aero coefficients accordingly.
     """
-    
+
     # Define variables
     qs = q_dyn * self.s
     qsb = qs * self.b
@@ -215,11 +211,6 @@ def scale_beta_coefficients(
     )
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
-
 def access_angle_derivatives(
     f_real: ndarray, f_img: ndarray, omega: float, t: float, angle_0: float
 ) -> tuple[float, float, float]:
@@ -231,7 +222,7 @@ def access_angle_derivatives(
         f_img (ndarray): Imaginary part of f.
         omega (float): Angular frequency.
         t (float): Time.
-        angle_0 (float): Initial angle.
+        angle_0 (float): Amplitude.
 
     Returns:
         (tuple[float, float, float]): x, y, z components of this decomposition.
@@ -317,7 +308,6 @@ def access_angle_dot_derivatives_np(
 
     Returns:
         (tuple[ndarray, ndarray, ndarray]): x, y, z components of this decomposition.
-
     """
     scale = angle_0 * omega
     cos_omega_t, sin_omega_t = np.cos(omega * t), np.sin(omega * t)
@@ -346,7 +336,6 @@ def compute_moments(
 
     Returns:
         moments (ndarray): Total moments (3, ).
-
     """
 
     # Moment computed at each panel (aerogrid['n'], 3)
@@ -414,13 +403,11 @@ def compute_alpha_panel_forces(
     q_dyn: float,
     t: float,
     alpha_0: float,
-    aoa: float = 0.0,
-    aos: float = 0.0,
+    aoa: float,
 ) -> ndarray:
     # Define the angles in time
-    alpha_angle = alpha(omegaalpha, t, alpha_0, aoa)
+    alpha_angle = alpha(omegaalpha, t, alpha_0, aoa)  # alpha(t)
 
-    # Rotations
     # -alpha(t) rotation
     c_a, s_a = cmath.cos(alpha_angle), cmath.sin(alpha_angle)
     rotation_alpha = np.array([
@@ -433,13 +420,7 @@ def compute_alpha_panel_forces(
     n_alpha = rotation_alpha.dot(aerogrid["N"].T)
 
     # Compute induced downwash
-
-    # Velocity = (cos(aoa), -sin(beta), 0) at alpha = aoa and beta = aos
-    vector = np.array([math.cos(aoa), -math.sin(aos), 0])
-    n_alpha_x = vector.dot(n_alpha)
-
-    # Induced downwash (aerogrid['n'], )
-    w_alpha = n_alpha_x
+    w_alpha = np.ones(aerogrid["n"]) * np.sin(aoa)  # (aerogrid['n'], )
 
     # Complex pressure coefficients (aerogrid['n'], )
     cp_alpha = q_alpha_jj.dot(w_alpha)
@@ -457,8 +438,7 @@ def compute_beta_panel_forces(
     q_dyn: float,
     t: float,
     beta_0: float,
-    aoa: float = 0.0,
-    aos: float = 0.0,
+    aos: float,
 ) -> ndarray:
     # Define the angles in time
     beta_angle = beta(omegabeta, t, beta_0, aos)
@@ -475,13 +455,7 @@ def compute_beta_panel_forces(
     n_beta = rotation_beta.dot(aerogrid["N"].T)
 
     # Compute induced downwash
-
-    # Velocity = (cos(aoa), -sin(beta), 0) at alpha = aoa and beta = aos
-    vector = np.array([math.cos(aoa), -math.sin(aos), 0])
-    n_beta_x = vector.dot(n_beta)
-
-    # Induced downwash (aerogrid['n'], )
-    w_beta = n_beta_x
+    w_beta = np.ones(aerogrid["n"]) * np.sin(aos)  # (aerogrid['n'], )
 
     # Complex pressure coefficients (aerogrid['n'], )
     cp_beta = q_beta_jj.dot(w_beta)
@@ -501,7 +475,7 @@ def get_aero_lists(
     mach_list: list[float],
     aoa_list: list[float],
     aos_list: list[float],
-) -> tuple[list, list, list, list]:
+) -> tuple[list, list, list, list, list[tuple[float, float, float, float]]]:
     """
     Get list of machs where to compute the derivatives.
     """
@@ -536,9 +510,9 @@ def get_aero_lists(
     # Unzip the filtered tuples back into separate lists
     if filtered:
         alt_out, mach_out, aoa_out, aos_out = zip(*filtered)
-        return list(alt_out), list(mach_out), list(aoa_out), list(aos_out)
+        return list(alt_out), list(mach_out), list(aoa_out), list(aos_out), list(db_tuples)
     else:
-        return [], [], [], []
+        return [], [], [], [], list(db_tuples)
 
 
 def compute_dot_derivatives(self) -> DataFrame:
@@ -554,14 +528,14 @@ def compute_dot_derivatives(self) -> DataFrame:
     """
 
     log.info("--- Loading Geometry into PanelAero ---")
-    alpha_data = []
-    beta_data = []
+    alpha_data, beta_data = [], []
 
     # Load Geometry
     wings_list = load_geometry(self)
     model = AeroModel(wings_list)
     model.build_aerogrid()
     aerogrid = model.aerogrid
+    self.model = model
 
     # Plot grid before doing calculations
     if self.plot:
@@ -575,8 +549,7 @@ def compute_dot_derivatives(self) -> DataFrame:
     # 0 < k < 0.05 for Quasi-steady
     # 0.05 < k < 0.2 for Unsteady
     # 0.2 < k for Highly Unsteady
-    # for reference: https://en.wikipedia.org/wiki/Reduced_frequency.
-
+    # for reference: https://en.wikipedia.org/wiki/Reduced_frequency
     k_nastran = 0.1  # = omega * length / (2 * velocity)
 
     # Amplitudes
@@ -587,10 +560,10 @@ def compute_dot_derivatives(self) -> DataFrame:
     t = 0.0
 
     # Convert to radians
-    alpha_0 = math.radians(alpha_0)
-    beta_0 = math.radians(beta_0)
+    alpha_0, beta_0 = math.radians(alpha_0), math.radians(beta_0)
 
-    # Use k from equation (2.1) in https://elib.dlr.de/136536/1/DLR-IB-AE-GO-2020-137_V1.05.pdf.
+    # Use k from equation (2.1) in https://elib.dlr.de/136536/1/DLR-IB-AE-GO-2020-137_V1.05.pdf
+    # NOT nastran reduced frequency
     k_alpha_model = 2 * k_nastran / self.c  # = omega / velocity
     k_beta_model = 2 * k_nastran / self.b  # = omega / velocity
 
@@ -598,32 +571,34 @@ def compute_dot_derivatives(self) -> DataFrame:
         # Leading edge of airplane
         x_le, _, _ = get_main_wing_le(model)
 
-        x_hinge = x_le + (self.c / 4)  # Hinge point on x-axis
-        y_hinge = 0.0
-        z_hinge = 0.0
+        x_hinge: float = x_le + (self.c / 4)  # Hinge point on x-axis
+        y_hinge: float = 0.0
+        z_hinge: float = 0.0
     else:
-        x_hinge = get_value(self.tixi, DYNAMICSTABILITY_XREF_XPATH)
-        y_hinge = get_value(self.tixi, DYNAMICSTABILITY_YREF_XPATH)
-        z_hinge = get_value(self.tixi, DYNAMICSTABILITY_ZREF_XPATH)
+        x_hinge = float(get_value(self.tixi, DYNAMICSTABILITY_XREF_XPATH))
+        y_hinge = float(get_value(self.tixi, DYNAMICSTABILITY_YREF_XPATH))
+        z_hinge = float(get_value(self.tixi, DYNAMICSTABILITY_ZREF_XPATH))
 
     check_x_hinge(aerogrid, x_hinge)
 
-    log.info(f"--- Computing AIC Matrices ---")
+    log.info("--- Computing AIC Matrices ---")
     (
         alt_list, mach_list, aoa_list, aos_list,
     ) = get_aeromap_conditions(self.cpacs, DYNAMICSTABILITY_AEROMAP_UID_XPATH)
 
-    alt_out, mach_out, aoa_out, aos_out = get_aero_lists(
+    alt_out, mach_out, aoa_out, aos_out, in_db_list = get_aero_lists(
         self,
         x_hinge, y_hinge, z_hinge,
         alt_list, mach_list, aoa_list, aos_list,
     )
 
-    for i_case, alt in enumerate(alt_out):
+    # Iterate through each unique tuple (alt, mach)
+    for i_case, alt in alt_out:
         mach = mach_out[i_case]
         aoa = aoa_out[i_case]
         aos = aos_out[i_case]
-        
+
+        # If you compute alpha derivatives
         if self.alpha_derivatives:
             (
                 cx_alpha, cy_alpha, cz_alpha,
@@ -631,18 +606,21 @@ def compute_dot_derivatives(self) -> DataFrame:
                 cm_alphadot, cz_alphadot, cx_alphadot,
             ) = compute_alpha_dot_derivatives(
                 self,
-                alt, mach, aoa, aos,
+                alt, mach, aoa,
                 aerogrid, k_alpha_model,
                 t, alpha_0,
                 x_hinge, y_hinge, z_hinge,
             )
             alpha_data.append({
-                "alt": alt, "mach": mach, "aoa": aoa, "aos": aos,
+                "alt": alt, "mach": mach, "aoa": aoa, "aos": 0.0,
                 "cx_alpha": cx_alpha, "cy_alpha": cy_alpha, "cz_alpha": cz_alpha,
                 "cl_alpha": cl_alpha, "cm_alpha": cm_alpha, "cn_alpha": cn_alpha,
-                "cm_alphaprim": cm_alphadot, "cz_alphaprim": cz_alphadot, "cx_alphaprim": cx_alphadot,
+                "cm_alphaprim": cm_alphadot,
+                "cz_alphaprim": cz_alphadot,
+                "cx_alphaprim": cx_alphadot,
             })
 
+        # If you compute beta derivatives
         if self.beta_derivatives:
             (
                 cx_beta, cy_beta, cz_beta,
@@ -650,21 +628,21 @@ def compute_dot_derivatives(self) -> DataFrame:
                 cy_betadot, cl_betadot, cn_betadot,
             ) = compute_beta_dot_derivatives(
                 self,
-                alt, mach, aoa, aos,
+                alt, mach, aos,
                 aerogrid, k_beta_model,
                 t, beta_0,
                 x_hinge, y_hinge, z_hinge,
             )
             beta_data.append({
-                "alt": alt, "mach": mach, "aoa": aoa, "aos": aos,
+                "alt": alt, "mach": mach, "aoa": 0.0, "aos": aos,
                 "cx_beta": cx_beta, "cy_beta": cy_beta, "cz_beta": cz_beta,
                 "cl_beta": cl_beta, "cm_beta": cm_beta, "cn_beta": cn_beta,
-                "cy_betaprim": cy_betadot, "cl_betaprim": cl_betadot, "cn_betaprim": cn_betadot,
+                "cy_betaprim": cy_betadot,
+                "cl_betaprim": cl_betadot,
+                "cn_betaprim": cn_betadot,
             })
 
     log.info("--- Finished computing dot-derivatives ---")
-
-    self.model = model
 
     # Convert the data list to a DataFrame
     if self.alpha_derivatives:
@@ -676,7 +654,7 @@ def compute_dot_derivatives(self) -> DataFrame:
         # Save the DataFrame to a CSV file
         df_alpha.to_csv(self.dynamic_stability_dir / ALPHA_CSV_NAME, index=False)
 
-    if self.alpha_derivatives:
+    if self.beta_derivatives:
         df_beta = DataFrame(beta_data)
 
         # Point where we compute moments
@@ -685,56 +663,108 @@ def compute_dot_derivatives(self) -> DataFrame:
         # Save the DataFrame to a CSV file
         df_beta.to_csv(self.dynamic_stability_dir / BETA_CSV_NAME, index=False)
 
+    new_df_alpha = add_alpha_db_values(
+        self, df_alpha, in_db_list, x_hinge, y_hinge, z_hinge
+    )
+    new_df_beta = add_beta_db_values(
+        self, df_beta, in_db_list, x_hinge, y_hinge, z_hinge
+    )
 
-    return add_db_values(self, df, x_hinge, y_hinge, z_hinge)
+    return concat(
+        [new_df_alpha, new_df_beta], ignore_index=True,
+    )[list(set(df_alpha.columns + df_beta.columns))]
 
 
-
-
-def add_db_values(
+def add_alpha_db_values(
     self,
     df: DataFrame,
+    in_db_list: list[tuple[float, float, float, float]],
     x_hinge: float,
     y_hinge: float,
     z_hinge: float,
 ) -> DataFrame:
-    der_columns = [
-        "alt",
-        "mach",
-        "aoa",
-        "aos",
-        "x_ref",
-        "y_ref",
-        "z_ref",
-        "cm_alphaprim",
-        "cz_alphaprim",
-        "cx_alphaprim",
-        "cy_betaprim",
-        "cl_betaprim",
-        "cn_betaprim",
+    alpha_datas = []
+    alpha_columns = [
+        "alt", "mach", "aoa", "aos",
+        "x_ref", "y_ref", "z_ref",
+        "cm_alphaprim", "cz_alphaprim", "cx_alphaprim",
     ]
     tol = 1e-4
     db = CeasiompyDb()
-    data = db.get_data(
-        table_name="derivatives_data",
-        columns=der_columns,
-        db_close=True,
-        filters=[
-            f"mach IN ({non_mach_str})",
-            f"aircraft = '{self.aircraft_name}'",
-            "method = 'DLM'",
-            f"chord = {self.nchordwise}",
-            f"span = {self.nspanwise}",
-            f"x_ref BETWEEN {x_hinge - tol} AND {x_hinge + tol}",
-            f"y_ref BETWEEN {y_hinge - tol} AND {y_hinge + tol}",
-            f"z_ref BETWEEN {z_hinge - tol} AND {z_hinge + tol}",
-        ],
-    )
+    for alt, mach, aoa, aos in in_db_list:
+        alpha_data = db.get_data(
+            table_name="alpha_derivatives",
+            columns=alpha_columns,
+            db_close=False,
+            filters=[
+                f"alt = {alt}",
+                f"mach = {mach}",
+                f"aoa = {aoa}",
+                f"aos = {aos}",
+                f"aircraft = '{self.aircraft_name}'",
+                "method = 'DLM'",
+                f"chord = {self.nchordwise}",
+                f"span = {self.nspanwise}",
+                f"x_ref BETWEEN {x_hinge - tol} AND {x_hinge + tol}",
+                f"y_ref BETWEEN {y_hinge - tol} AND {y_hinge + tol}",
+                f"z_ref BETWEEN {z_hinge - tol} AND {z_hinge + tol}",
+            ],
+        )
+        alpha_datas.append(alpha_data)
 
     if df.empty:
-        df = DataFrame(columns=der_columns)
+        df = DataFrame(alpha_datas, columns=alpha_columns)
 
-    return concat([df[der_columns], DataFrame(data, columns=der_columns)], ignore_index=True)
+    return concat([
+        df[alpha_columns],
+        DataFrame(alpha_datas, columns=alpha_columns)
+    ], ignore_index=True)
+
+
+def add_beta_db_values(
+    self,
+    df: DataFrame,
+    in_db_list: list[tuple[float, float, float, float]],
+    x_hinge: float,
+    y_hinge: float,
+    z_hinge: float,
+) -> DataFrame:
+    beta_datas = []
+    beta_columns = [
+        "alt", "mach", "aoa", "aos",
+        "x_ref", "y_ref", "z_ref",
+        "cy_betaprim", "cl_betaprim", "cn_betaprim",
+    ]
+    tol = 1e-4
+    db = CeasiompyDb()
+    for alt, mach, aoa, aos in in_db_list:
+        beta_data = db.get_data(
+            table_name="beta_derivatives",
+            columns=beta_columns,
+            db_close=True,
+            filters=[
+                f"alt = {alt}",
+                f"mach = {mach}",
+                f"aoa = {aoa}",
+                f"aos = {aos}",
+                f"aircraft = '{self.aircraft_name}'",
+                "method = 'DLM'",
+                f"chord = {self.nchordwise}",
+                f"span = {self.nspanwise}",
+                f"x_ref BETWEEN {x_hinge - tol} AND {x_hinge + tol}",
+                f"y_ref BETWEEN {y_hinge - tol} AND {y_hinge + tol}",
+                f"z_ref BETWEEN {z_hinge - tol} AND {z_hinge + tol}",
+            ],
+        )
+        beta_datas.append(beta_data)
+
+    if df.empty:
+        df = DataFrame(beta_datas, columns=beta_columns)
+
+    return concat([
+        df[beta_columns],
+        DataFrame(beta_datas, columns=beta_columns)
+    ], ignore_index=True)
 
 
 def compute_alpha_dot_derivatives(
@@ -742,14 +772,13 @@ def compute_alpha_dot_derivatives(
     alt: float,
     mach: float,
     aoa: float,
-    aos: float,
-    aerogrid,
-    k_alpha_model,
-    t,
-    alpha_0,
-    x_hinge,
-    y_hinge,
-    z_hinge,
+    aerogrid: dict,
+    k_alpha_model: float,
+    t: float,
+    alpha_0: float,
+    x_hinge: float,
+    y_hinge: float,
+    z_hinge: float,
 ) -> tuple[
     float, float, float,
     float, float, float,
@@ -761,19 +790,19 @@ def compute_alpha_dot_derivatives(
     velocity = atm.speed_of_sound[0] * mach
     q_dyn = get_dynamic_pressure(atm, velocity)
 
-    log.info(f"--- Computing AIC Matrix for {alt=} {mach=} {aoa=} {aos=} ---")
+    log.info(f"--- Computing AIC Matrix for {alt=} {mach=} ---")
 
     # AIC Matrix np.identity(model.aerogrid['n'])
     q_alpha_jj = DLM.calc_Qjj(aerogrid, Ma=mach, k=k_alpha_model)
 
-    log.info(f"Finished computing alpha-dot derivatives for mach: {mach}.")
+    log.info(f"Finished computing alpha-dot derivatives for {alt=} {mach=}.")
 
-    # Get angular frequency
+    # Get angular frequency w
     omegaalpha = k_alpha_model * velocity
 
-    aoa_rad, aos_rad = math.radians(aoa), math.radians(aos)
+    aoa_rad = math.radians(aoa)
 
-    # Get forces on each panels at angle (alpha(t), beta(t))
+    # Get forces on each panels at angle alpha(t)
     alphaforces = compute_alpha_panel_forces(
         aerogrid,
         q_alpha_jj,
@@ -781,8 +810,7 @@ def compute_alpha_dot_derivatives(
         q_dyn,
         t,
         alpha_0,
-        aoa_rad,
-        aos_rad,
+        aoa=aoa_rad,
     )
 
     # Complex decomposition
@@ -795,7 +823,7 @@ def compute_alpha_dot_derivatives(
     falpha_real, falpha_imag = complex_decomposition(falpha)
 
     ############################################################
-    # Get derivatives at (angle, angle_dot) = (0, 0)
+    # Get derivatives at (angle, angle_dot) = (alpha, 0)
     ############################################################
 
     fx_alpha, fy_alpha, fz_alpha = access_angle_derivatives(
@@ -811,7 +839,7 @@ def compute_alpha_dot_derivatives(
     )
 
     ############################################################
-    # Get dot derivatives at (angle, angle_dot) = (0, 0)
+    # Get dot derivatives at (angle, angle_dot) = (alpha, 0)
     ############################################################
 
     fx_alphadot, _, fz_alphadot = access_angle_dot_derivatives(
@@ -827,7 +855,7 @@ def compute_alpha_dot_derivatives(
     )
 
     log.info(
-        f"Scaling using dyn pres.: {q_dyn}, surface: {self.s}, chord: {self.c}, span: {self.b}."
+        f"Scaling using dyn pres={q_dyn}, surface={self.s}, chord={self.c}, span={self.b}."
     )
 
     return scale_alpha_coefficients(
@@ -866,8 +894,7 @@ def compute_beta_dot_derivatives(
     log.info(f"--- Computing AIC Matrix for {alt=} {mach=} {aoa=} {aos=} ---")
 
     # Convert to radiams
-    aoa_rad = math.radians(aoa)
-    aos_rad = math.radians(aos)
+    aoa_rad, aos_rad = math.radians(aoa), math.radians(aos)
 
     # AIC Matrix np.identity(model.aerogrid['n'])
     q_beta_jj = DLM.calc_Qjj(aerogrid, Ma=mach, k=k_beta_model)
@@ -897,7 +924,7 @@ def compute_beta_dot_derivatives(
     fbeta_real, fbeta_imag = complex_decomposition(fbeta)
 
     ############################################################
-    # Get derivatives at (angle, angle_dot) = (0, 0)
+    # Get derivatives at (angle, angle_dot) = (beta, 0)
     ############################################################
 
     fx_beta, fy_beta, fz_beta = access_angle_derivatives(
@@ -909,13 +936,11 @@ def compute_beta_dot_derivatives(
         forces=access_angle_derivatives_np(
             betaforces_real, betaforces_imag, omegabeta, t, beta_0
         ),
-        x_hinge=x_hinge,
-        y_hinge=y_hinge,
-        z_hinge=z_hinge,
+        x_hinge=x_hinge, y_hinge=y_hinge, z_hinge=z_hinge,
     )
 
     ############################################################
-    # Get dot derivatives at (angle, angle_dot) = (0, 0)
+    # Get dot derivatives at (angle, angle_dot) = (beta, 0)
     ############################################################
 
     _, fy_betadot, _ = access_angle_dot_derivatives(
@@ -927,13 +952,11 @@ def compute_beta_dot_derivatives(
         forces=access_angle_dot_derivatives_np(
             betaforces_real, betaforces_imag, omegabeta, t, beta_0
         ),
-        x_hinge=x_hinge,
-        y_hinge=y_hinge,
-        z_hinge=z_hinge,
+        x_hinge=x_hinge, y_hinge=y_hinge, z_hinge=z_hinge,
     )
 
     log.info(
-        f"Scaling using dyn pres.: {q_dyn}, surface: {self.s}, chord: {self.c}, span: {self.b}."
+        f"Scaling using dyn pres={q_dyn}, surface={self.s}, chord={self.c}, span={self.b}."
     )
 
     return scale_beta_coefficients(
@@ -943,3 +966,7 @@ def compute_beta_dot_derivatives(
         m_beta[0], m_beta[1], m_beta[2],
         fy_betadot, m_betadot[0], m_betadot[2],
     )
+
+
+def get_dynamic_pressure(atm: Atmosphere, velocity: float) -> float:
+    return atm.density[0] * (velocity**2) / 2.0

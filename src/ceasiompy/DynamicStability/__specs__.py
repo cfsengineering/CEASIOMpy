@@ -77,7 +77,7 @@ cpacs_inout.add_input(
     default_value=True,
     unit=None,
     descr="Compute Beta, Beta-dot derivatives",
-    xpath=DYNAMICSTABILITY_ALPHA_DERIVATIVES_XPATH,
+    xpath=DYNAMICSTABILITY_BETA_DERIVATIVES_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Beta, Beta-dot derivatives",
     gui_group="Dot Derivatives Type",

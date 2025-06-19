@@ -5216,21 +5216,4 @@
       </wingAirfoils>
     </profiles>
   </vehicles>
-  <toolspecific>
-    <CEASIOMpy>
-      <geometry>
-        <analysis>
-          <wettedArea>701.813</wettedArea>
-        </analysis>
-      </geometry>
-      <aerodynamics>
-        <skinFriction>
-          <aeroMapToCalculate>test_apm</aeroMapToCalculate>
-        </skinFriction>
-      </aerodynamics>
-      <export>
-        <aeroMapToExport>test_apm</aeroMapToExport>
-      </export>
-    </CEASIOMpy>
-  </toolspecific>
 </cpacs>

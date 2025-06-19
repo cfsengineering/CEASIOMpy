@@ -14,8 +14,6 @@ Test functions for StaticStability module.
 #   IMPORTS
 # =================================================================================================
 
-import unittest
-
 from ceasiompy.utils.decorators import log_test
 from cpacspy.cpacsfunctions import create_branch
 from ceasiompy.StaticStability.staticstability import generate_stab_table
@@ -26,6 +24,7 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 
 from pathlib import Path
+from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 from cpacspy.cpacspy import (
     CPACS,
@@ -46,7 +45,7 @@ class TestStaticStability(CeasiompyTest):
 
     @classmethod
     def setUpClass(cls):
-        cls.cpacs_path = Path(CPACS_FILES_PATH, "D150_simple_test_static.xml")
+        cls.cpacs_path = Path(CPACS_FILES_PATH, "D150_simple.xml")
         cls.cpacs = CPACS(cls.cpacs_path)
         cls.wkdir = current_workflow_dir()
 
@@ -67,15 +66,22 @@ class TestStaticStability(CeasiompyTest):
         create_branch(tixi, f"{increment_map_xpath}/dcml")
 
         # Add some rows in test_apm aeromap
-        tixi.updateTextElement(f"{increment_map_xpath}/dcmd", "-0.002;0.002;-0.002;-0.002")
-        tixi.updateTextElement(f"{increment_map_xpath}/dcms", "-0.002;-0.002;-0.002;0.002")
-        tixi.updateTextElement(f"{increment_map_xpath}/dcml", "0.002;0.002;-0.002;0.002")
+        tixi.updateTextElement(
+            f"{increment_map_xpath}/dcmd",
+            "-0.002;0.002;-0.002;-0.002;-0.002;0.002;-0.002;-0.002"
+        )
+        tixi.updateTextElement(
+            f"{increment_map_xpath}/dcms",
+            "-0.002;-0.002;-0.002;0.002;-0.002;-0.002;-0.002;0.002"
+        )
+        tixi.updateTextElement(
+            f"{increment_map_xpath}/dcml",
+            "0.002;0.002;-0.002;0.002;0.002;0.002;-0.002;0.002"
+        )
 
     @log_test
     def test_generate_stab_table(self) -> None:
-        act = generate_stab_table(self.cpacs, "test_apm", self.wkdir, True)
-        print("Actual Output:", act)  # Debugging: Print the actual output
-
+        print(generate_stab_table(self.cpacs, "test_apm", self.wkdir, True))
         # Test Linear Regression
         self.assert_equal_function(
             f=generate_stab_table,
@@ -94,20 +100,42 @@ class TestStaticStability(CeasiompyTest):
                 [
                     0.3, 0.0, 0.0, 10.0,
                     "Stable", "Stable", "Unstable",
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
+                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
                 ],
                 [
                     0.3, 0.0, 10.0, 0.0,
                     "Stable", "Unstable", "Unstable",
-                    "Aircraft is unstable for Directional axis "
-                    "i.e. Cnb <=0. Aircraft is unstable for Lateral axis i.e. Clb >=0. "
+                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
+                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
                 ],
                 [
                     0.3, 0.0, 10.0, 10.0,
                     "Stable", "Unstable", "Unstable",
-                    "Aircraft is unstable for Directional axis "
-                    "i.e. Cnb <=0. Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ]
+                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
+                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
+                ],
+                [
+                    0.5, 1000.0, 0.0, 0.0,
+                    "Stable", "Stable", "Unstable",
+                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
+                ],
+                [
+                    0.5, 1000.0, 0.0, 10.0,
+                    "Stable", "Stable", "Unstable",
+                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
+                ],
+                [
+                    0.5, 1000.0, 10.0, 0.0,
+                    "Stable", "Unstable", "Unstable",
+                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
+                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
+                ],
+                [
+                    0.5, 1000.0, 10.0, 10.0,
+                    "Stable", "Unstable", "Unstable",
+                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
+                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
+                ],
             ])
         )
 
@@ -140,6 +168,26 @@ class TestStaticStability(CeasiompyTest):
                     0.3, 0.0, 10.0, 10.0,
                     "Unstable", "Stable", "Stable",
                     "Aircraft is unstable for Longitudinal axis i.e. Cma >=0. "
+                ],
+                [
+                    0.5, 1000.0, 0.0, 0.0,
+                    "Stable", "Stable", "Stable",
+                    "Aircraft is stable along all axes."
+                ],
+                [
+                    0.5, 1000.0, 0.0, 10.0,
+                    "Stable", "Stable", "Unstable",
+                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
+                ],
+                [
+                    0.5, 1000.0, 10.0, 0.0,
+                    "Stable", "Unstable", "Stable",
+                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
+                ],
+                [
+                    0.5, 1000.0, 10.0, 10.0,
+                    "Unstable", "Stable", "Stable",
+                    "Aircraft is unstable for Longitudinal axis i.e. Cma >=0. "
                 ]
             ])
 
@@ -151,4 +199,4 @@ class TestStaticStability(CeasiompyTest):
 
 
 if __name__ == "__main__":
-    unittest.main(verbosity=0)
+    main(verbosity=0)

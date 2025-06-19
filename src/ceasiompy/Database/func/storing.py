@@ -73,7 +73,7 @@ class CeasiompyDb:
 
         log.info(f"Connecting to database {self.db_name} at path {self.db_path}")
 
-    def connect_to_table(self, module_name: str) -> str:
+    def connect_to_table(self: "CeasiompyDb", module_name: str) -> str:
         table_name, table_schema = self.get_table_parameters(module_name)
         # Codacy: Table and column names are strictly validated against whitelisted values.
         # Table names are validated against ALLOWED_TABLES.
@@ -95,24 +95,24 @@ class CeasiompyDb:
 
         return table_name
 
-    def get_table_name(self, module_name: str) -> str:
+    def get_table_name(self: "CeasiompyDb", module_name: str) -> str:
         return self.table_dict[module_name][0]
 
-    def get_table_schema(self, module_name: str) -> str:
+    def get_table_schema(self: "CeasiompyDb", module_name: str) -> str:
         return self.table_dict[module_name][1]
 
-    def get_table_parameters(self, module_name: str) -> Tuple[str, str]:
+    def get_table_parameters(self: "CeasiompyDb", module_name: str) -> Tuple[str, str]:
         return self.get_table_name(module_name), self.get_table_schema(module_name)
 
-    def commit(self) -> None:
+    def commit(self: "CeasiompyDb") -> None:
         self.connection.commit()
 
-    def close(self) -> None:
+    def close(self: "CeasiompyDb") -> None:
         log.info(f"Closing connection to database {self.db_name}.")
         self.connection.close()
 
     def get_data(
-        self,
+        self: "CeasiompyDb",
         table_name: str,
         columns: List[str],
         db_close=False,

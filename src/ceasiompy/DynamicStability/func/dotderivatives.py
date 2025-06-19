@@ -19,14 +19,12 @@ Notation used:
 # =================================================================================================
 
 import math
+import copy
 import cmath
 import numpy as np
 
 from pandas import concat
-from ceasiompy.utils.ceasiompyutils import (
-    get_value,
-    get_aeromap_conditions,
-)
+from ceasiompy.utils.ceasiompyutils import get_value
 from ceasiompy.utils.geometryfunctions import (
     wing_sections,
     elements_number,
@@ -39,7 +37,7 @@ from ceasiompy.DynamicStability.func.utils import (
     complex_decomposition,
 )
 
-from panelaero import DLM
+from panelaero import VLM, DLM
 from numpy import ndarray
 from pandas import DataFrame
 from ambiance import Atmosphere
@@ -418,17 +416,19 @@ def compute_alpha_panel_forces(
 
     # Apply the rotation to the normals (3, aerogrid['n'])
     n_alpha = rotation_alpha.dot(aerogrid["N"].T)
+    # n_alpha = aerogrid["N"].T
 
     # Compute induced downwash
-    w_alpha = np.ones(aerogrid["n"]) * np.sin(aoa)  # (aerogrid['n'], )
+    # w_alpha = np.ones(aerogrid["n"]) * cmath.sin(alpha_angle)  # (aerogrid['n'], )
+    normalized_v_inf = np.array([1, 0, 0])  # V_inf comes from x direction
+
+    w_alpha = normalized_v_inf.dot(n_alpha)
 
     # Complex pressure coefficients (aerogrid['n'], )
     cp_alpha = q_alpha_jj.dot(w_alpha)
 
     # Force on each panel (3, aerogrid['n'])
-    alphaforces = -q_dyn * n_alpha * aerogrid["A"] * cp_alpha
-
-    return alphaforces
+    return -q_dyn * n_alpha * aerogrid["A"] * cp_alpha
 
 
 def compute_beta_panel_forces(
@@ -455,15 +455,16 @@ def compute_beta_panel_forces(
     n_beta = rotation_beta.dot(aerogrid["N"].T)
 
     # Compute induced downwash
-    w_beta = np.ones(aerogrid["n"]) * np.sin(aos)  # (aerogrid['n'], )
+    #w_beta = np.ones(aerogrid["n"]) * np.sin(aos)  # (aerogrid['n'], )
+    normalized_v_inf = np.array([1, 0, 0])  # V_inf comes from x direction
+
+    w_beta = normalized_v_inf.dot(n_beta)
 
     # Complex pressure coefficients (aerogrid['n'], )
     cp_beta = q_beta_jj.dot(w_beta)
 
     # Force on each panel (3, aerogrid['n'])
-    betaforces = -q_dyn * n_beta * aerogrid["A"] * cp_beta
-
-    return betaforces
+    return -q_dyn * n_beta * aerogrid["A"] * cp_beta
 
 
 def get_alpha_aero_lists(
@@ -471,10 +472,6 @@ def get_alpha_aero_lists(
     x_hinge: float,
     y_hinge: float,
     z_hinge: float,
-    alt_list: list[float],
-    mach_list: list[float],
-    aoa_list: list[float],
-    aos_list: list[float],
 ) -> tuple[list, list, list, list, list[tuple[float, float, float, float]]]:
     """
     Get list of machs where to compute the derivatives.
@@ -503,7 +500,9 @@ def get_alpha_aero_lists(
     # Filter the input lists
     filtered = [
         (alt, mach, aoa, aos)
-        for alt, mach, aoa, aos in zip(alt_list, mach_list, aoa_list, aos_list)
+        for alt, mach, aoa, aos in zip(
+            self.alt_list, self.mach_list, self.aoa_list, self.aos_list
+        )
         if (alt, mach, aoa, aos) not in db_tuples
     ]
 
@@ -520,10 +519,6 @@ def get_beta_aero_lists(
     x_hinge: float,
     y_hinge: float,
     z_hinge: float,
-    alt_list: list[float],
-    mach_list: list[float],
-    aoa_list: list[float],
-    aos_list: list[float],
 ) -> tuple[list, list, list, list, list[tuple[float, float, float, float]]]:
     """
     Get list of machs where to compute the derivatives.
@@ -552,7 +547,9 @@ def get_beta_aero_lists(
     # Filter the input lists
     filtered = [
         (alt, mach, aoa, aos)
-        for alt, mach, aoa, aos in zip(alt_list, mach_list, aoa_list, aos_list)
+        for alt, mach, aoa, aos in zip(
+            self.alt_list, self.mach_list, self.aoa_list, self.aos_list
+        )
         if (alt, mach, aoa, aos) not in db_tuples
     ]
 
@@ -630,15 +627,10 @@ def get_alpha_dot_derivatives(self) -> DataFrame:
     check_x_hinge(aerogrid, x_hinge)
 
     log.info("--- Computing AIC Matrices ---")
-    (
-        alt_list, mach_list, aoa_list, aos_list,
-    ) = get_aeromap_conditions(self.cpacs, DYNAMICSTABILITY_AEROMAP_UID_XPATH)
 
     # If you compute alpha derivatives
     alt_out, mach_out, aoa_out, _, in_db_list = get_alpha_aero_lists(
-        self,
-        x_hinge, y_hinge, z_hinge,
-        alt_list, mach_list, aoa_list, aos_list,
+        self, x_hinge, y_hinge, z_hinge,
     )
 
     # Iterate through cases
@@ -656,6 +648,11 @@ def get_alpha_dot_derivatives(self) -> DataFrame:
             aerogrid, k_alpha_model,
             t, alpha_0,
             x_hinge, y_hinge, z_hinge,
+        )
+        log.info(
+            f"{cx_alpha=} {cy_alpha=} {cz_alpha=}"
+            f"{cl_alpha=} {cm_alpha=} {cn_alpha=}"
+            f"{cm_alphadot=} {cz_alphadot=} {cx_alphadot=}"
         )
         alpha_data.append({
             "alt": alt, "mach": mach, "aoa": aoa, "aos": 0.0,
@@ -743,14 +740,9 @@ def get_beta_dot_derivatives(self) -> DataFrame:
     check_x_hinge(aerogrid, x_hinge)
 
     log.info("--- Computing AIC Matrices ---")
-    (
-        alt_list, mach_list, aoa_list, aos_list,
-    ) = get_aeromap_conditions(self.cpacs, DYNAMICSTABILITY_AEROMAP_UID_XPATH)
 
     alt_out, mach_out, _, aos_out, in_db_list = get_beta_aero_lists(
-        self,
-        x_hinge, y_hinge, z_hinge,
-        alt_list, mach_list, aoa_list, aos_list,
+        self, x_hinge, y_hinge, z_hinge,
     )
 
     # Iterate through cases
@@ -826,13 +818,17 @@ def add_alpha_db_values(
         )
         alpha_datas.append(alpha_data)
 
-    if df.empty:
-        df = DataFrame(alpha_datas, columns=alpha_columns)
+    db_df = DataFrame(alpha_datas, columns=alpha_columns)
+    df_alpha = df[alpha_columns] if not df.empty else DataFrame(columns=alpha_columns)
 
-    return concat([
-        df[alpha_columns],
-        DataFrame(alpha_datas, columns=alpha_columns)
-    ], ignore_index=True)
+    if df_alpha.empty and db_df.empty:
+        return DataFrame(columns=alpha_columns)
+    if df_alpha.empty:
+        return db_df
+    if db_df.empty:
+        return df_alpha
+
+    return concat([df_alpha, db_df], ignore_index=True)
 
 
 def add_beta_db_values(
@@ -872,13 +868,17 @@ def add_beta_db_values(
         )
         beta_datas.append(beta_data)
 
-    if df.empty:
-        df = DataFrame(beta_datas, columns=beta_columns)
+    db_df = DataFrame(beta_datas, columns=beta_columns)
+    df_beta = df[beta_columns] if not df.empty else DataFrame(columns=beta_columns)
 
-    return concat([
-        df[beta_columns],
-        DataFrame(beta_datas, columns=beta_columns)
-    ], ignore_index=True)
+    if df_beta.empty and db_df.empty:
+        return DataFrame(columns=beta_columns)
+    if df_beta.empty:
+        return db_df
+    if db_df.empty:
+        return df_beta
+
+    return concat([df_beta, db_df], ignore_index=True)
 
 
 def compute_alpha_dot_derivatives(
@@ -904,11 +904,24 @@ def compute_alpha_dot_derivatives(
     velocity = atm.speed_of_sound[0] * mach
     q_dyn = get_dynamic_pressure(atm, velocity)
 
+    you_want_to_compute_steady_distributions = False
+    if you_want_to_compute_steady_distributions:
+        log.info("--- Computing steady contributions ---")
+        Qjj, _ = VLM.calc_Qjj(aerogrid=copy.deepcopy(aerogrid), Ma=mach)
+        aoa_rad = math.radians(aoa)
+        w_j = np.ones(aerogrid['n']) * np.sin(aoa_rad)
+        c_p = Qjj.dot(w_j)
+        f_xyz = - q_dyn * aerogrid['N'].T * aerogrid['A'] * c_p
+        qs = q_dyn * self.s
+        forces = f_xyz.sum(axis=1) / qs
+        log.info(f'{forces=}')
+
     log.info(f"--- Computing AIC Matrix for {alt=} {mach=} ---")
 
     # AIC Matrix np.identity(model.aerogrid['n'])
-    q_alpha_jj = DLM.calc_Qjj(aerogrid, Ma=mach, k=k_alpha_model)
-
+    q_alpha_jj = DLM.calc_Qjj(copy.deepcopy(aerogrid), Ma=mach, k=k_alpha_model)
+    # Ajj_DLM = DLM.calc_Ajj(aerogrid=copy.deepcopy(aerogrid), Ma=mach, k=k_alpha_model)
+    # q_alpha_jj = -np.linalg.inv(Ajj_DLM)
     log.info(f"Finished computing alpha-dot derivatives for {alt=} {mach=}.")
 
     # Get angular frequency w

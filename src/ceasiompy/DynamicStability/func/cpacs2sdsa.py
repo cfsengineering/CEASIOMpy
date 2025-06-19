@@ -26,9 +26,10 @@ from ceasiompy.DynamicStability.func.steadyderivatives import (
     compute_nb_rows_aero,
     compute_nb_rows_ctrl,
 )
-from cpacspy.cpacsfunctions import (
+from ceasiompy.utils.ceasiompyutils import (
     get_value,
     open_tixi,
+    get_aeromap_conditions,
 )
 from ceasiompy.DynamicStability.func.dotderivatives import (
     get_main_wing_le,
@@ -52,6 +53,7 @@ from ceasiompy.DynamicStability import (
     DYNAMICSTABILITY_SOFTWARE_XPATH,
     DYNAMICSTABILITY_NSPANWISE_XPATH,
     DYNAMICSTABILITY_NCHORDWISE_XPATH,
+    DYNAMICSTABILITY_AEROMAP_UID_XPATH,
     DYNAMICSTABILITY_VISUALIZATION_XPATH,
     DYNAMICSTABILITY_BETA_DERIVATIVES_XPATH as BETA_DERIVATIVES_XPATH,
     DYNAMICSTABILITY_ALPHA_DERIVATIVES_XPATH as ALPHA_DERIVATIVES_XPATH,
@@ -190,6 +192,29 @@ class SDSAFile:
         if not self.alpha_derivatives and not self.beta_derivatives:
             log.info("You decided to not computing dot derivatives")
 
+        # Aeromap for dot-derivatives and mach values
+        (
+            alt_list, mach_list, aoa_list, aos_list,
+        ) = get_aeromap_conditions(self.cpacs, DYNAMICSTABILITY_AEROMAP_UID_XPATH)
+
+        self.alt_list = alt_list
+
+        self.mach_list: list = mach_list
+        self.unique_mach_list = list(set(mach_list))
+        self.len_unique_mach_list = len(self.unique_mach_list)
+        self.mach_str: str = ",".join(str(mach) for mach in self.unique_mach_list)
+
+        self.aoa_list = aoa_list
+        self.aos_list = aos_list
+
+        if self.open_sdsa:
+            if not all(a == 0.0 for a in self.alt_list):
+                raise ValueError("Only zero altitude is supported for sdsa.")
+        if not all(a == 0.0 for a in self.aoa_list):
+            raise ValueError("Only zero aoa is supported.")
+        if not all(a == 0.0 for a in self.aos_list):
+            raise ValueError("Only zero aos is supported.")
+
     def update_alpha_max(self: "SDSAFile") -> None:
         """
         Updates SDSA input file with AlphaMax values.
@@ -201,11 +226,11 @@ class SDSAFile:
         x_xpath = aero_alpha_max_xpath + "/X"
         values_xpath = aero_alpha_max_xpath + "/Values"
 
-        self.update(x_xpath, sdsa_format(self.mach_list))
-        self.update_attribute(x_xpath, f"1 {self.len_mach_list}")
-        self.update(aero_alpha_max_xpath + "/NX", f"{self.len_mach_list}")
+        self.update(x_xpath, sdsa_format(self.unique_mach_list))
+        self.update_attribute(x_xpath, f"1 {self.len_unique_mach_list}")
+        self.update(aero_alpha_max_xpath + "/NX", f"{self.len_unique_mach_list}")
         self.update(values_xpath, sdsa_format(np.radians(df_alpha_max["alpha_max"]).tolist()))
-        self.update_attribute(values_xpath, f"1 {self.len_mach_list}")
+        self.update_attribute(values_xpath, f"1 {self.len_unique_mach_list}")
 
     def update_dot_derivatives(self: "SDSAFile") -> None:
         """
@@ -215,27 +240,31 @@ class SDSAFile:
         if self.software_data == AVL_SOFTWARE:
             if self.open_sdsa or (not self.open_sdsa and self.alpha_derivatives):
                 df_alpha_dot = get_alpha_dot_derivatives(self)
-                for aero_prim_xpath, column_name in self.alpha_prim_xpaths:
-                    x_xpath = aero_prim_xpath + "/X"
-                    values_xpath = aero_prim_xpath + "/Values"
-
-                    self.update(x_xpath, sdsa_format(self.mach_list))
-                    self.update_attribute(x_xpath, f"1 {self.len_mach_list}")
-                    self.update(aero_prim_xpath + "/NX", f"{self.len_mach_list}")
-                    self.update(values_xpath, sdsa_format(df_alpha_dot[column_name].tolist()))
-                    self.update_attribute(values_xpath, f"1 {self.len_mach_list}")
+                if self.open_sdsa:
+                    mach_list = df_alpha_dot["mach"].tolist()
+                    len_mach_list = len(mach_list)
+                    for aero_prim_xpath, column_name in self.alpha_prim_xpaths:
+                        x_xpath = aero_prim_xpath + "/X"
+                        values_xpath = aero_prim_xpath + "/Values"
+                        self.update(x_xpath, sdsa_format(mach_list))
+                        self.update_attribute(x_xpath, f"1 {len_mach_list}")
+                        self.update(aero_prim_xpath + "/NX", f"{len_mach_list}")
+                        self.update(values_xpath, sdsa_format(df_alpha_dot[column_name].tolist()))
+                        self.update_attribute(values_xpath, f"1 {len_mach_list}")
 
             if self.open_sdsa or (not self.open_sdsa and self.beta_derivatives):
                 df_beta_dot = get_beta_dot_derivatives(self)
-                for aero_prim_xpath, column_name in self.beta_prim_xpaths:
-                    x_xpath = aero_prim_xpath + "/X"
-                    values_xpath = aero_prim_xpath + "/Values"
-
-                    self.update(x_xpath, sdsa_format(self.mach_list))
-                    self.update_attribute(x_xpath, f"1 {self.len_mach_list}")
-                    self.update(aero_prim_xpath + "/NX", f"{self.len_mach_list}")
-                    self.update(values_xpath, sdsa_format(df_beta_dot[column_name].tolist()))
-                    self.update_attribute(values_xpath, f"1 {self.len_mach_list}")
+                if self.open_sdsa:
+                    mach_list = df_alpha_dot["mach"].tolist()
+                    len_mach_list = len(mach_list)
+                    for aero_prim_xpath, column_name in self.beta_prim_xpaths:
+                        x_xpath = aero_prim_xpath + "/X"
+                        values_xpath = aero_prim_xpath + "/Values"
+                        self.update(x_xpath, sdsa_format(mach_list))
+                        self.update_attribute(x_xpath, f"1 {len_mach_list}")
+                        self.update(aero_prim_xpath + "/NX", f"{len_mach_list}")
+                        self.update(values_xpath, sdsa_format(df_beta_dot[column_name].tolist()))
+                        self.update_attribute(values_xpath, f"1 {len_mach_list}")
 
         else:
             log.warning(
@@ -247,11 +276,8 @@ class SDSAFile:
         """
         Updates SDSA input file with table values.
         """
-
+        table_data, ctrl_table_data = [], []
         table_df, ctrl_table_df = get_tables_values(self)
-
-        table_data = []
-        ctrl_table_data = []
 
         # Update Table
         for column in table_df.columns:

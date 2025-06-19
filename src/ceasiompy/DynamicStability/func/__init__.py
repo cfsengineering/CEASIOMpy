@@ -11,12 +11,6 @@ Initialization for DynamicStability.func.
 """
 
 # ==============================================================================
-#   IMPORTS
-# ==============================================================================
-
-from typing import List
-
-# ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
 
@@ -49,10 +43,13 @@ LANDGEAR_XPATH = DELCOEF_XPATH + "/LandGear"
 
 
 # List of xpaths for derivatives
-XPATHS_PRIM: List = [
+ALPHA_PRIM_XPATHS: list[tuple[str, str]] = [
     (AERO_XPATH + "/CMAlphaPrim", "cm_alphaprim"),
     (AERO_XPATH + "/CZAlphaPrim", "cz_alphaprim"),
     (AERO_XPATH + "/CXAlphaPrim", "cx_alphaprim"),
+]
+
+BETA_PRIM_XPATHS: list[tuple[str, str]] = [
     (AERO_XPATH + "/CYBetaPrim", "cy_betaprim"),
     (AERO_XPATH + "/CLBetaPrim", "cl_betaprim"),
     (AERO_XPATH + "/CNBetaPrim", "cn_betaprim"),

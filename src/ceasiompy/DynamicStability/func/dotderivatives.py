@@ -466,7 +466,7 @@ def compute_beta_panel_forces(
     return betaforces
 
 
-def get_aero_lists(
+def get_alpha_aero_lists(
     self,
     x_hinge: float,
     y_hinge: float,
@@ -481,9 +481,9 @@ def get_aero_lists(
     """
     tol = 1e-5
     db = CeasiompyDb()
-    db.connect_to_table(MODULE_NAME)
+    db.connect_to_table(MODULE_NAME + "_alpha")
     data = db.get_data(
-        table_name="derivatives_data",
+        table_name="alpha_derivatives",
         columns=["alt", "mach", "aoa", "aos"],
         db_close=True,
         filters=[
@@ -515,9 +515,58 @@ def get_aero_lists(
         return [], [], [], [], list(db_tuples)
 
 
-def compute_dot_derivatives(self) -> DataFrame:
+def get_beta_aero_lists(
+    self,
+    x_hinge: float,
+    y_hinge: float,
+    z_hinge: float,
+    alt_list: list[float],
+    mach_list: list[float],
+    aoa_list: list[float],
+    aos_list: list[float],
+) -> tuple[list, list, list, list, list[tuple[float, float, float, float]]]:
     """
-    Computes alpha and beta dot derivatives for SDSA.
+    Get list of machs where to compute the derivatives.
+    """
+    tol = 1e-5
+    db = CeasiompyDb()
+    db.connect_to_table(MODULE_NAME + "_beta")
+    data = db.get_data(
+        table_name="beta_derivatives",
+        columns=["alt", "mach", "aoa", "aos"],
+        db_close=True,
+        filters=[
+            f"aircraft = '{self.aircraft_name}'",
+            "method = 'DLM'",
+            f"chord = {self.nchordwise}",
+            f"span = {self.nspanwise}",
+            f"x_ref BETWEEN {x_hinge - tol} AND {x_hinge + tol}",
+            f"y_ref BETWEEN {y_hinge - tol} AND {y_hinge + tol}",
+            f"z_ref BETWEEN {z_hinge - tol} AND {z_hinge + tol}",
+        ],
+    )
+
+    # Build a set of tuples for fast lookup
+    db_tuples = set((row[0], row[1], row[2], row[3]) for row in data)
+
+    # Filter the input lists
+    filtered = [
+        (alt, mach, aoa, aos)
+        for alt, mach, aoa, aos in zip(alt_list, mach_list, aoa_list, aos_list)
+        if (alt, mach, aoa, aos) not in db_tuples
+    ]
+
+    # Unzip the filtered tuples back into separate lists
+    if filtered:
+        alt_out, mach_out, aoa_out, aos_out = zip(*filtered)
+        return list(alt_out), list(mach_out), list(aoa_out), list(aos_out), list(db_tuples)
+    else:
+        return [], [], [], [], list(db_tuples)
+
+
+def get_alpha_dot_derivatives(self) -> DataFrame:
+    """
+    Computes alpha dot derivatives for SDSA.
 
     Source:
         https://www.overleaf.com/read/qjffvmtrzzhb#8fc920
@@ -528,7 +577,7 @@ def compute_dot_derivatives(self) -> DataFrame:
     """
 
     log.info("--- Loading Geometry into PanelAero ---")
-    alpha_data, beta_data = [], []
+    alpha_data = []
 
     # Load Geometry
     wings_list = load_geometry(self)
@@ -553,18 +602,130 @@ def compute_dot_derivatives(self) -> DataFrame:
     k_nastran = 0.1  # = omega * length / (2 * velocity)
 
     # Amplitudes
-    alpha_0 = beta_0 = 1e-6
+    alpha_0 = 1e-6
 
     # Time (Value does not matter).
     # All computations are made in frequency domain.
     t = 0.0
 
     # Convert to radians
-    alpha_0, beta_0 = math.radians(alpha_0), math.radians(beta_0)
+    alpha_0 = math.radians(alpha_0)
 
     # Use k from equation (2.1) in https://elib.dlr.de/136536/1/DLR-IB-AE-GO-2020-137_V1.05.pdf
     # NOT nastran reduced frequency
     k_alpha_model = 2 * k_nastran / self.c  # = omega / velocity
+
+    if get_value(self.tixi, DYNAMICSTABILITY_DEFAULTREF_XPATH):
+        # Leading edge of airplane
+        x_le, _, _ = get_main_wing_le(model)
+
+        x_hinge: float = x_le + (self.c / 4)  # Hinge point on x-axis
+        y_hinge: float = 0.0
+        z_hinge: float = 0.0
+    else:
+        x_hinge = float(get_value(self.tixi, DYNAMICSTABILITY_XREF_XPATH))
+        y_hinge = float(get_value(self.tixi, DYNAMICSTABILITY_YREF_XPATH))
+        z_hinge = float(get_value(self.tixi, DYNAMICSTABILITY_ZREF_XPATH))
+
+    check_x_hinge(aerogrid, x_hinge)
+
+    log.info("--- Computing AIC Matrices ---")
+    (
+        alt_list, mach_list, aoa_list, aos_list,
+    ) = get_aeromap_conditions(self.cpacs, DYNAMICSTABILITY_AEROMAP_UID_XPATH)
+
+    # If you compute alpha derivatives
+    alt_out, mach_out, aoa_out, _, in_db_list = get_alpha_aero_lists(
+        self,
+        x_hinge, y_hinge, z_hinge,
+        alt_list, mach_list, aoa_list, aos_list,
+    )
+
+    # Iterate through cases
+    for i_case, alt in enumerate(alt_out):
+        mach = mach_out[i_case]
+        aoa = aoa_out[i_case]
+
+        (
+            cx_alpha, cy_alpha, cz_alpha,
+            cl_alpha, cm_alpha, cn_alpha,
+            cm_alphadot, cz_alphadot, cx_alphadot,
+        ) = compute_alpha_dot_derivatives(
+            self,
+            alt, mach, aoa,
+            aerogrid, k_alpha_model,
+            t, alpha_0,
+            x_hinge, y_hinge, z_hinge,
+        )
+        alpha_data.append({
+            "alt": alt, "mach": mach, "aoa": aoa, "aos": 0.0,
+            "cx_alpha": cx_alpha, "cy_alpha": cy_alpha, "cz_alpha": cz_alpha,
+            "cl_alpha": cl_alpha, "cm_alpha": cm_alpha, "cn_alpha": cn_alpha,
+            "cm_alphaprim": cm_alphadot,
+            "cz_alphaprim": cz_alphadot,
+            "cx_alphaprim": cx_alphadot,
+        })
+
+    log.info("--- Finished computing alpha-dot-derivatives ---")
+
+    df_alpha = DataFrame(alpha_data)
+    df_alpha["x_ref"], df_alpha["y_ref"], df_alpha["z_ref"] = x_hinge, y_hinge, z_hinge
+    df_alpha.to_csv(self.dynamic_stability_dir / ALPHA_CSV_NAME, index=False)
+
+    return add_alpha_db_values(
+        self, df_alpha, in_db_list, x_hinge, y_hinge, z_hinge
+    )
+
+
+def get_beta_dot_derivatives(self) -> DataFrame:
+    """
+    Computes beta dot derivatives for SDSA.
+
+    Source:
+        https://www.overleaf.com/read/qjffvmtrzzhb#8fc920
+
+    Returns:
+        (DataFrame): Dot-derivatives per mach.
+
+    """
+
+    log.info("--- Loading Geometry into PanelAero ---")
+    beta_data = []
+
+    # Load Geometry
+    wings_list = load_geometry(self)
+    model = AeroModel(wings_list)
+    model.build_aerogrid()
+    aerogrid = model.aerogrid
+    self.model = model
+
+    # Plot grid before doing calculations
+    if self.plot:
+        log.info(f"Plotting PanelAero's aerogrid of aircraft {self.aircraft_name}.")
+        plots = DetailedPlots(model)
+        plots.plot_aerogrid()
+
+    # Oscillation Parameters
+
+    # k = 0 for Steady
+    # 0 < k < 0.05 for Quasi-steady
+    # 0.05 < k < 0.2 for Unsteady
+    # 0.2 < k for Highly Unsteady
+    # for reference: https://en.wikipedia.org/wiki/Reduced_frequency
+    k_nastran = 0.1  # = omega * length / (2 * velocity)
+
+    # Amplitudes
+    beta_0 = 1e-6
+
+    # Time (Value does not matter).
+    # All computations are made in frequency domain.
+    t = 0.0
+
+    # Convert to radians
+    beta_0 = math.radians(beta_0)
+
+    # Use k from equation (2.1) in https://elib.dlr.de/136536/1/DLR-IB-AE-GO-2020-137_V1.05.pdf
+    # NOT nastran reduced frequency
     k_beta_model = 2 * k_nastran / self.b  # = omega / velocity
 
     if get_value(self.tixi, DYNAMICSTABILITY_DEFAULTREF_XPATH):
@@ -586,93 +747,46 @@ def compute_dot_derivatives(self) -> DataFrame:
         alt_list, mach_list, aoa_list, aos_list,
     ) = get_aeromap_conditions(self.cpacs, DYNAMICSTABILITY_AEROMAP_UID_XPATH)
 
-    alt_out, mach_out, aoa_out, aos_out, in_db_list = get_aero_lists(
+    alt_out, mach_out, _, aos_out, in_db_list = get_beta_aero_lists(
         self,
         x_hinge, y_hinge, z_hinge,
         alt_list, mach_list, aoa_list, aos_list,
     )
 
-    # Iterate through each unique tuple (alt, mach)
-    for i_case, alt in alt_out:
+    # Iterate through cases
+    for i_case, alt in enumerate(alt_out):
         mach = mach_out[i_case]
-        aoa = aoa_out[i_case]
         aos = aos_out[i_case]
 
-        # If you compute alpha derivatives
-        if self.alpha_derivatives:
-            (
-                cx_alpha, cy_alpha, cz_alpha,
-                cl_alpha, cm_alpha, cn_alpha,
-                cm_alphadot, cz_alphadot, cx_alphadot,
-            ) = compute_alpha_dot_derivatives(
-                self,
-                alt, mach, aoa,
-                aerogrid, k_alpha_model,
-                t, alpha_0,
-                x_hinge, y_hinge, z_hinge,
-            )
-            alpha_data.append({
-                "alt": alt, "mach": mach, "aoa": aoa, "aos": 0.0,
-                "cx_alpha": cx_alpha, "cy_alpha": cy_alpha, "cz_alpha": cz_alpha,
-                "cl_alpha": cl_alpha, "cm_alpha": cm_alpha, "cn_alpha": cn_alpha,
-                "cm_alphaprim": cm_alphadot,
-                "cz_alphaprim": cz_alphadot,
-                "cx_alphaprim": cx_alphadot,
-            })
+        (
+            cx_beta, cy_beta, cz_beta,
+            cl_beta, cm_beta, cn_beta,
+            cy_betadot, cl_betadot, cn_betadot,
+        ) = compute_beta_dot_derivatives(
+            self,
+            alt, mach, aos,
+            aerogrid, k_beta_model,
+            t, beta_0,
+            x_hinge, y_hinge, z_hinge,
+        )
+        beta_data.append({
+            "alt": alt, "mach": mach, "aoa": 0.0, "aos": aos,
+            "cx_beta": cx_beta, "cy_beta": cy_beta, "cz_beta": cz_beta,
+            "cl_beta": cl_beta, "cm_beta": cm_beta, "cn_beta": cn_beta,
+            "cy_betaprim": cy_betadot,
+            "cl_betaprim": cl_betadot,
+            "cn_betaprim": cn_betadot,
+        })
 
-        # If you compute beta derivatives
-        if self.beta_derivatives:
-            (
-                cx_beta, cy_beta, cz_beta,
-                cl_beta, cm_beta, cn_beta,
-                cy_betadot, cl_betadot, cn_betadot,
-            ) = compute_beta_dot_derivatives(
-                self,
-                alt, mach, aos,
-                aerogrid, k_beta_model,
-                t, beta_0,
-                x_hinge, y_hinge, z_hinge,
-            )
-            beta_data.append({
-                "alt": alt, "mach": mach, "aoa": 0.0, "aos": aos,
-                "cx_beta": cx_beta, "cy_beta": cy_beta, "cz_beta": cz_beta,
-                "cl_beta": cl_beta, "cm_beta": cm_beta, "cn_beta": cn_beta,
-                "cy_betaprim": cy_betadot,
-                "cl_betaprim": cl_betadot,
-                "cn_betaprim": cn_betadot,
-            })
+    log.info("--- Finished computing beta-dot-derivatives ---")
 
-    log.info("--- Finished computing dot-derivatives ---")
+    df_beta = DataFrame(beta_data)
+    df_beta["x_ref"], df_beta["y_ref"], df_beta["z_ref"] = x_hinge, y_hinge, z_hinge
+    df_beta.to_csv(self.dynamic_stability_dir / BETA_CSV_NAME, index=False)
 
-    # Convert the data list to a DataFrame
-    if self.alpha_derivatives:
-        df_alpha = DataFrame(alpha_data)
-
-        # Point where we compute moments
-        df_alpha["x_ref"], df_alpha["y_ref"], df_alpha["z_ref"] = x_hinge, y_hinge, z_hinge
-
-        # Save the DataFrame to a CSV file
-        df_alpha.to_csv(self.dynamic_stability_dir / ALPHA_CSV_NAME, index=False)
-
-    if self.beta_derivatives:
-        df_beta = DataFrame(beta_data)
-
-        # Point where we compute moments
-        df_beta["x_ref"], df_beta["y_ref"], df_beta["z_ref"] = x_hinge, y_hinge, z_hinge
-
-        # Save the DataFrame to a CSV file
-        df_beta.to_csv(self.dynamic_stability_dir / BETA_CSV_NAME, index=False)
-
-    new_df_alpha = add_alpha_db_values(
-        self, df_alpha, in_db_list, x_hinge, y_hinge, z_hinge
-    )
-    new_df_beta = add_beta_db_values(
+    return add_beta_db_values(
         self, df_beta, in_db_list, x_hinge, y_hinge, z_hinge
     )
-
-    return concat(
-        [new_df_alpha, new_df_beta], ignore_index=True,
-    )[list(set(df_alpha.columns + df_beta.columns))]
 
 
 def add_alpha_db_values(

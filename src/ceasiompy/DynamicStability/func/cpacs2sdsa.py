@@ -32,10 +32,10 @@ from cpacspy.cpacsfunctions import (
 )
 from ceasiompy.DynamicStability.func.dotderivatives import (
     get_main_wing_le,
-    compute_dot_derivatives,
+    get_beta_dot_derivatives,
+    get_alpha_dot_derivatives,
 )
 
-from typing import List
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
@@ -65,7 +65,8 @@ from ceasiompy.DynamicStability.func import (
     CTRLTABLE_XPATH,
     TABLE_AEROTABLE_XPATH,
     TABLE_CTRLTABLE_XPATH,
-    XPATHS_PRIM,
+    BETA_PRIM_XPATHS,
+    ALPHA_PRIM_XPATHS,
     ALPHAMAX_XPATH,
     FLAPS1_XPATH,
     FLAPS2_XPATH,
@@ -111,7 +112,8 @@ class SDSAFile:
     table_ctrltable_xpath: str = TABLE_CTRLTABLE_XPATH
 
     # Dot derivatives xPaths
-    xpaths_prim: List = XPATHS_PRIM
+    beta_prim_xpaths = BETA_PRIM_XPATHS
+    alpha_prim_xpaths = ALPHA_PRIM_XPATHS
 
     dynstab_dir = DYNAMICSTABILITY_DIR
 
@@ -211,16 +213,29 @@ class SDSAFile:
         """
 
         if self.software_data == AVL_SOFTWARE:
-            df_dot = compute_dot_derivatives(self)
-            for aero_prim_xpath, column_name in self.xpaths_prim:
-                x_xpath = aero_prim_xpath + "/X"
-                values_xpath = aero_prim_xpath + "/Values"
+            if self.open_sdsa or (not self.open_sdsa and self.alpha_derivatives):
+                df_alpha_dot = get_alpha_dot_derivatives(self)
+                for aero_prim_xpath, column_name in self.alpha_prim_xpaths:
+                    x_xpath = aero_prim_xpath + "/X"
+                    values_xpath = aero_prim_xpath + "/Values"
 
-                self.update(x_xpath, sdsa_format(self.mach_list))
-                self.update_attribute(x_xpath, f"1 {self.len_mach_list}")
-                self.update(aero_prim_xpath + "/NX", f"{self.len_mach_list}")
-                self.update(values_xpath, sdsa_format(df_dot[column_name].tolist()))
-                self.update_attribute(values_xpath, f"1 {self.len_mach_list}")
+                    self.update(x_xpath, sdsa_format(self.mach_list))
+                    self.update_attribute(x_xpath, f"1 {self.len_mach_list}")
+                    self.update(aero_prim_xpath + "/NX", f"{self.len_mach_list}")
+                    self.update(values_xpath, sdsa_format(df_alpha_dot[column_name].tolist()))
+                    self.update_attribute(values_xpath, f"1 {self.len_mach_list}")
+
+            if self.open_sdsa or (not self.open_sdsa and self.beta_derivatives):
+                df_beta_dot = get_beta_dot_derivatives(self)
+                for aero_prim_xpath, column_name in self.beta_prim_xpaths:
+                    x_xpath = aero_prim_xpath + "/X"
+                    values_xpath = aero_prim_xpath + "/Values"
+
+                    self.update(x_xpath, sdsa_format(self.mach_list))
+                    self.update_attribute(x_xpath, f"1 {self.len_mach_list}")
+                    self.update(aero_prim_xpath + "/NX", f"{self.len_mach_list}")
+                    self.update(values_xpath, sdsa_format(df_beta_dot[column_name].tolist()))
+                    self.update_attribute(values_xpath, f"1 {self.len_mach_list}")
 
         else:
             log.warning(

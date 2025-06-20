@@ -2,8 +2,8 @@
 #   IMPORTS
 # ==============================================================================
 
-from ceasiompy import log
 from ceasiompy.PyAVL import MODULE_NAME as PYAVL_NAME
+
 # from ceasiompy.SU2Run import MODULE_NAME as SU2RUN_NAME
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH_NAME
 from ceasiompy.DynamicStability import MODULE_NAME as DYNSTAB_NAME
@@ -52,7 +52,7 @@ TABLE_DICT = {
             cmd_b REAL,
             cms_b REAL,
             cml_b REAL,
-        """
+        """,
     ],
     f"{CPACS2GMSH_NAME}": [
         "gmsh_data",
@@ -61,10 +61,10 @@ TABLE_DICT = {
             deformation TEXT,
             angle REAL,
             su2_file_data BLOB,
-        """
+        """,
     ],
-    f"{DYNSTAB_NAME}": [
-        "derivatives_data",
+    f"{DYNSTAB_NAME}_alpha": [
+        "alpha_derivatives",
         """
             aircraft TEXT,
 
@@ -73,7 +73,10 @@ TABLE_DICT = {
             chord INT,
             span INT,
 
+            alt REAL,
             mach REAL,
+            aoa REAL,
+            aos REAL,
 
             x_ref REAL,
             y_ref REAL,
@@ -82,11 +85,31 @@ TABLE_DICT = {
             cm_alphaprim REAL,
             cz_alphaprim REAL,
             cx_alphaprim REAL,
+        """,
+    ],
+    f"{DYNSTAB_NAME}_beta": [
+        "beta_derivatives",
+        """
+            aircraft TEXT,
+
+            method TEXT,
+
+            chord INT,
+            span INT,
+
+            alt REAL,
+            mach REAL,
+            aoa REAL,
+            aos REAL,
+
+            x_ref REAL,
+            y_ref REAL,
+            z_ref REAL,
 
             cy_betaprim REAL,
             cl_betaprim REAL,
             cn_betaprim REAL,
-        """
+        """,
     ],
 }
 
@@ -108,32 +131,25 @@ PYAVL_ST = {
     "Alpha": (1, "alpha"),
     "Beta": (1, "beta"),
     "Mach": (1, "mach"),
-
     "pb/2V": (2, "pb_2V"),
     "qc/2V": (2, "qc_2V"),
     "rb/2V": (2, "rb_2V"),
-
     "flap": (1, "flap"),
     "aileron": (1, "aileron"),
     "elevator": (1, "elevator"),
     "rudder": (1, "rudder"),
-
     "Xref": (1, "xref"),
     "Yref": (2, "yref"),
     "Zref": (3, "zref"),
-
     "CDtot": (1, "cd"),
     "CYtot": (1, "cs"),
     "CLtot": (1, "cl"),
-
     "Cltot": (2, "cmd"),
     "Cmtot": (2, "cms"),
     "Cntot": (2, "cml"),
-
     "Cla": (1, "cmd_a"),
     "Cma": (1, "cms_a"),
     "Cna": (1, "cml_a"),
-
     "Clb": (2, "cmd_b"),
     "Cmb": (2, "cms_b"),
     "Cnb": (2, "cml_b"),
@@ -141,12 +157,3 @@ PYAVL_ST = {
 
 # pyavl.py
 PYAVL_CTRLSURF = ["flap", "aileron", "elevator", "rudder"]
-
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

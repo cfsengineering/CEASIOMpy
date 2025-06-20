@@ -22,7 +22,6 @@ from pandas import (
     DataFrame,
 )
 
-from ceasiompy import log
 from ceasiompy.StaticStability import STABILITY_DICT
 
 # =================================================================================================
@@ -57,11 +56,11 @@ def generate_message(row: Series) -> str:
         return "Aircraft is UN-stable along ALL axes."
     else:
         msg = ""
-        if (row["long_stab"] == "Unstable"):
+        if row["long_stab"] == "Unstable":
             msg += "Aircraft is unstable for Longitudinal axis i.e. Cma >=0. "
-        if (row["dir_stab"] == "Unstable"):
+        if row["dir_stab"] == "Unstable":
             msg += "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
-        if (row["lat_stab"] == "Unstable"):
+        if row["lat_stab"] == "Unstable":
             msg += "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
 
     return msg
@@ -86,13 +85,15 @@ def compute_stability_cma(group: DataFrame) -> DataFrame:
     lr_cma = reg_cma.coef_[0]
     lr_cma_intercept = reg_cma.intercept_
 
-    cma_stable = (lr_cma < 0)
+    cma_stable = lr_cma < 0
 
-    return Series({
-        "lr_cma": lr_cma,
-        "lr_cma_intercept": lr_cma_intercept,
-        "long_stab": STABILITY_DICT[cma_stable],
-    })
+    return Series(
+        {
+            "lr_cma": lr_cma,
+            "lr_cma_intercept": lr_cma_intercept,
+            "long_stab": STABILITY_DICT[cma_stable],
+        }
+    )
 
 
 def compute_stability_cnb_clb(group: DataFrame) -> DataFrame:
@@ -120,17 +121,19 @@ def compute_stability_cnb_clb(group: DataFrame) -> DataFrame:
     lr_clb = reg_clb.coef_[0]
     lr_clb_intercept = reg_cnb.intercept_
 
-    cnb_stable = (-lr_cnb < 0)
-    clb_stable = (lr_clb < 0)
+    cnb_stable = -lr_cnb < 0
+    clb_stable = lr_clb < 0
 
-    return Series({
-        "lr_cnb": lr_cnb,
-        "lr_cnb_intercept": lr_cnb_intercept,
-        "lr_clb": lr_clb,
-        "lr_clb_intercept": lr_clb_intercept,
-        "dir_stab": STABILITY_DICT[cnb_stable],
-        "lat_stab": STABILITY_DICT[clb_stable],
-    })
+    return Series(
+        {
+            "lr_cnb": lr_cnb,
+            "lr_cnb_intercept": lr_cnb_intercept,
+            "lr_clb": lr_clb,
+            "lr_clb_intercept": lr_clb_intercept,
+            "dir_stab": STABILITY_DICT[cnb_stable],
+            "lat_stab": STABILITY_DICT[clb_stable],
+        }
+    )
 
 
 def check_stability_lr(df: DataFrame) -> DataFrame:
@@ -145,17 +148,29 @@ def check_stability_lr(df: DataFrame) -> DataFrame:
 
     """
 
-    grouped_cma = df.groupby([
-        "mach",
-        "alt",
-        "aos",
-    ]).apply(compute_stability_cma, include_groups=False).reset_index()
+    grouped_cma = (
+        df.groupby(
+            [
+                "mach",
+                "alt",
+                "aos",
+            ]
+        )
+        .apply(compute_stability_cma, include_groups=False)
+        .reset_index()
+    )
 
-    grouped_cnb_clb = df.groupby([
-        "mach",
-        "alt",
-        "aoa",
-    ]).apply(compute_stability_cnb_clb, include_groups=False).reset_index()
+    grouped_cnb_clb = (
+        df.groupby(
+            [
+                "mach",
+                "alt",
+                "aoa",
+            ]
+        )
+        .apply(compute_stability_cnb_clb, include_groups=False)
+        .reset_index()
+    )
 
     # Merge grouped_cma and grouped_cnb_clb with the original df
     df = df.merge(grouped_cma, on=["mach", "alt", "aos"], how="left")
@@ -183,9 +198,9 @@ def check_stability_tangent(cma: float, cnb: float, clb: float) -> Tuple[str, st
     if cma is None or cnb is None or clb is None:
         return (None, None, None), "Stability parameters are not well defined"
 
-    cma_stable = (cma < 0)
-    cnb_stable = (-cnb < 0)
-    clb_stable = (clb < 0)
+    cma_stable = cma < 0
+    cnb_stable = -cnb < 0
+    clb_stable = clb < 0
 
     cma_stable_str = STABILITY_DICT[cma_stable]
     cnb_stable_str = STABILITY_DICT[cnb_stable]
@@ -194,17 +209,9 @@ def check_stability_tangent(cma: float, cnb: float, clb: float) -> Tuple[str, st
     stability_dict = {
         "long_stab": cma_stable_str,
         "dir_stab": cnb_stable_str,
-        "lat_stab": clb_stable_str
+        "lat_stab": clb_stable_str,
     }
 
     msg = generate_message(Series(stability_dict))
 
     return cma_stable_str, cnb_stable_str, clb_stable_str, msg
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

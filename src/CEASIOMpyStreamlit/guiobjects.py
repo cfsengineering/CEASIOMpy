@@ -35,9 +35,7 @@ def aeromap_selection(cpacs, xpath, key, description):
     if not len(aeromap_uid_list):
         st.error("You must create an aeromap in order to use this module!")
     else:
-        value = get_value_or_default(
-            cpacs.tixi, xpath, aeromap_uid_list[0]
-        )
+        value = get_value_or_default(cpacs.tixi, xpath, aeromap_uid_list[0])
         if value in aeromap_uid_list:
             idx = aeromap_uid_list.index(value)
         else:
@@ -81,10 +79,7 @@ def path_vartype(key) -> None:
         type=["su2"],
     )
     if uploaded_file:
-        su2_file_path = (
-            st.session_state.workflow.working_dir
-            / uploaded_file.name
-        )
+        su2_file_path = st.session_state.workflow.working_dir / uploaded_file.name
 
         # Save the uploaded file to the specified path
         with open(su2_file_path, "wb") as f:
@@ -126,19 +121,11 @@ def multiselect_vartype(default_value, name, key) -> None:
 def int_vartype(tixi, xpath, default_value, name, key, description) -> None:
     with st.columns([1, 2])[0]:
         value = int(get_value_or_default(tixi, xpath, default_value))
-        st.number_input(
-            name,
-            value=value,
-            key=key,
-            help=description,
-            on_change=save_cpacs_file
-        )
+        st.number_input(name, value=value, key=key, help=description, on_change=save_cpacs_file)
 
 
 def float_vartype(tixi, xpath, default_value, name, key, description) -> None:
-    value = get_value_or_default(
-        tixi, xpath, default_value
-    )
+    value = get_value_or_default(tixi, xpath, default_value)
     with st.columns([1, 2])[0]:
         st.number_input(
             name,
@@ -146,7 +133,7 @@ def float_vartype(tixi, xpath, default_value, name, key, description) -> None:
             format="%0.3f",
             key=key,
             help=description,
-            on_change=save_cpacs_file
+            on_change=save_cpacs_file,
         )
 
 
@@ -154,9 +141,7 @@ def list_vartype(tixi, xpath, default_value, name, key, description) -> None:
     if default_value is None:
         log.warning(f"Could not create GUI for {xpath} in list_vartype.")
     else:
-        value = get_value_or_default(
-            tixi, xpath, default_value[0]
-        )
+        value = get_value_or_default(tixi, xpath, default_value[0])
         idx = default_value.index(value)
         st.radio(
             name,
@@ -189,11 +174,3 @@ def else_vartype(tixi, xpath, default_value, name, key, description) -> None:
                 help=description,
                 on_change=save_cpacs_file,
             )
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

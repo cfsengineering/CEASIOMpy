@@ -58,12 +58,10 @@ def fuselage_size(tixi: Tixi3) -> None:
         sec_transf.get_cpacs_transf(tixi, sec_xpath)
 
         # Elements
-        elem_cnt = tixi.getNamedChildrenCount(
-            sec_xpath + "/elements", "element")
+        elem_cnt = tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
 
         for i_elem in range(elem_cnt):
-            elem_xpath = sec_xpath + \
-                "/elements/element[" + str(i_elem + 1) + "]"
+            elem_xpath = sec_xpath + "/elements/element[" + str(i_elem + 1) + "]"
             elem_transf = Transformation()
             elem_transf.get_cpacs_transf(tixi, elem_xpath)
 
@@ -84,13 +82,9 @@ def fuselage_size(tixi: Tixi3) -> None:
             prof_vect_z[:] = [z - 1 - prof_min_z for z in prof_vect_z]
 
             if i_sec < len(pos_y_list):
-                pos_y_list[i_sec] += (
-                    (1 + prof_min_y) * prof_size_y
-                ) * elem_transf.scaling.y
+                pos_y_list[i_sec] += ((1 + prof_min_y) * prof_size_y) * elem_transf.scaling.y
             if i_sec < len(pos_z_list):
-                pos_z_list[i_sec] += (
-                    (1 + prof_min_z) * prof_size_z
-                ) * elem_transf.scaling.z
+                pos_z_list[i_sec] += ((1 + prof_min_z) * prof_size_z) * elem_transf.scaling.z
 
             body_frm_height = (
                 prof_size_z
@@ -147,12 +141,10 @@ def wings_size(tixi: Tixi3) -> Tuple[float, float]:
             wing_xpath = WINGS_XPATH + "/wing[" + str(i_wing + 1) + "]"
 
             # Sections
-            sec_cnt = tixi.getNamedChildrenCount(
-                wing_xpath + "/sections", "section")
+            sec_cnt = tixi.getNamedChildrenCount(wing_xpath + "/sections", "section")
 
             for i_sec in range(sec_cnt):
-                sec_xpath = wing_xpath + \
-                    "/sections/section[" + str(i_sec + 1) + "]"
+                sec_xpath = wing_xpath + "/sections/section[" + str(i_sec + 1) + "]"
 
                 sec_transf = Transformation()
                 sec_transf.get_cpacs_transf(tixi, sec_xpath)
@@ -173,11 +165,3 @@ def wings_size(tixi: Tixi3) -> Tuple[float, float]:
     else:
         ValueError(f"No wings found at {WINGS_XPATH}.")
         return 0.0, 0.0
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

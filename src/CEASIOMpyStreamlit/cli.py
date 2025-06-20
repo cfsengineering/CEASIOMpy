@@ -9,8 +9,8 @@ from pathlib import Path
 
 def find_project_root():
     current = os.getcwd()
-    while current != '/':
-        if 'setup.py' in os.listdir(current):
+    while current != "/":
+        if "setup.py" in os.listdir(current):
             return current
         current = os.path.dirname(current)
     raise RuntimeError("Project root directory not found at " + os.getcwd())
@@ -34,7 +34,10 @@ def main_exec():
     # --- Validation ---
 
     if not PROJECT_ROOT.is_dir():
-        print(f"Error: Project root directory not found at {PROJECT_ROOT}", file=sys.stderr)
+        print(
+            f"Error: Project root directory not found at {PROJECT_ROOT}",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     if not SCRIPT_ABSOLUTE_PATH.is_file():
@@ -77,7 +80,7 @@ def main_exec():
         # This happens if the ceasiompy_exec.py script exits with an error code
         print(
             f"Error executing script: The script returned a non-zero exit code {e.returncode}.",
-            file=sys.stderr
+            file=sys.stderr,
         )
 
         if e.stdout:
@@ -90,7 +93,10 @@ def main_exec():
 
     except Exception as e:
         # Catch any other unexpected errors
-        print(f"An unexpected error occurred during script execution: {e}", file=sys.stderr)
+        print(
+            f"An unexpected error occurred during script execution: {e}",
+            file=sys.stderr,
+        )
         sys.exit(1)  # Indicate failure
 
     sys.exit(0)  # Indicate success

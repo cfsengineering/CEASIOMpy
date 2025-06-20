@@ -1,7 +1,5 @@
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
-
 # ===== Module Status =====
 # True if the module is active
 # False if the module is disabled (not working or not ready)
@@ -82,10 +80,3 @@ INCLUDE_GUI = False
 #     descr='Description of the output',
 #     xpath='/cpacs/toolspecific/CEASIOMpy/test/myOutput',
 # )
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

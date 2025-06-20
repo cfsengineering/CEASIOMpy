@@ -12,11 +12,8 @@ To run this test case, you will need to open a terminal and run the following co
 # To be in the CEASIOMpy Conda environment with all the dependencies
 conda activate ceasiompy
 
-# Go to the Working Directory
-cd WKDIR
-
 # To run the test case 4
-ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml PyAVL SkinFriction SaveAeroCoefficients
+ceasiompy_run -m test_files/CPACSfiles/D150_simple.xml PyAVL SkinFriction SaveAeroCoefficients
 ```
 
 The following workflow will be executed:

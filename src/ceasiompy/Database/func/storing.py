@@ -20,7 +20,10 @@ from ceasiompy.Database.func.pyavl import store_pyavl_data
 from ceasiompy.Database.func.su2run import store_su2run_data
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.Database.func.cpacs2gmsh import store_cpacs2gmsh_data
-from ceasiompy.Database.func.dynamicstability import store_dynstab_data
+from ceasiompy.Database.func.dynamicstability import (
+    store_beta_dynstab_data,
+    store_alpha_dynstab_data,
+)
 
 from pathlib import Path
 from sqlite3 import Cursor
@@ -56,7 +59,7 @@ class CeasiompyDb:
     # Load constants
     table_dict = TABLE_DICT
 
-    def __init__(self: 'CeasiompyDb', db_path: Path = CEASIOMPY_DB_PATH) -> None:
+    def __init__(self: "CeasiompyDb", db_path: Path = CEASIOMPY_DB_PATH) -> None:
         # Initialize constants
         self.db_path = db_path
         self.db_name = self.db_path.name
@@ -68,10 +71,27 @@ class CeasiompyDb:
         self.connection: Connection = connect(self.db_path)
         self.cursor: Cursor = self.connection.cursor()
 
-        log.info(
-            f"Connecting to database {self.db_name} at path {self.db_path}")
+        log.info(f"Connecting to database {self.db_name} at path {self.db_path}")
 
-    def connect_to_table(self, module_name: str) -> str:
+    def connect_to_table_via_name(self: "CeasiompyDb", table_name: str) -> None:
+        # Validate table name
+        if table_name not in ALLOWED_TABLES:
+            raise ValueError(f"Invalid table name: {table_name}")
+
+        table_schema = self.get_table_schema_via_name(table_name)
+
+        create_table_query = f"""
+            CREATE TABLE IF NOT EXISTS {table_name} (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                {table_schema}
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """
+
+        self.cursor.execute(create_table_query)
+        self.commit()
+
+    def connect_to_table(self: "CeasiompyDb", module_name: str) -> str:
         table_name, table_schema = self.get_table_parameters(module_name)
         # Codacy: Table and column names are strictly validated against whitelisted values.
         # Table names are validated against ALLOWED_TABLES.
@@ -93,24 +113,33 @@ class CeasiompyDb:
 
         return table_name
 
-    def get_table_name(self, module_name: str) -> str:
+    def get_table_name(self: "CeasiompyDb", module_name: str) -> str:
         return self.table_dict[module_name][0]
 
-    def get_table_schema(self, module_name: str) -> str:
+    def get_table_schema_via_name(self: "CeasiompyDb", table_name: str) -> str:
+        if table_name not in ALLOWED_TABLES:
+            raise ValueError(f"Invalid table name: {table_name}")
+
+        # Iterate through each module_names and tables
+        for _, list_table_name_schema in self.table_dict:
+            if list_table_name_schema[0] == table_name:
+                return list_table_name_schema[1]
+
+    def get_table_schema(self: "CeasiompyDb", module_name: str) -> str:
         return self.table_dict[module_name][1]
 
-    def get_table_parameters(self, module_name: str) -> Tuple[str, str]:
+    def get_table_parameters(self: "CeasiompyDb", module_name: str) -> Tuple[str, str]:
         return self.get_table_name(module_name), self.get_table_schema(module_name)
 
-    def commit(self) -> None:
+    def commit(self: "CeasiompyDb") -> None:
         self.connection.commit()
 
-    def close(self) -> None:
+    def close(self: "CeasiompyDb") -> None:
         log.info(f"Closing connection to database {self.db_name}.")
         self.connection.close()
 
     def get_data(
-        self,
+        self: "CeasiompyDb",
         table_name: str,
         columns: List[str],
         db_close=False,
@@ -148,6 +177,7 @@ class CeasiompyDb:
             self.close()
 
         return data
+
 
 # ==============================================================================
 #   FUNCTIONS
@@ -200,16 +230,8 @@ def store_data(tixi: Tixi3) -> None:
     if gmsh_dir.is_dir():
         call_store_data(tixi, store_cpacs2gmsh_data, gmsh_dir, CPACS2GMSH_NAME)
     if dynstab_dir.is_dir():
-        call_store_data(tixi, store_dynstab_data, dynstab_dir, DYNSTAB_NAME)
+        call_store_data(tixi, store_beta_dynstab_data, dynstab_dir, DYNSTAB_NAME + "_beta")
+        call_store_data(tixi, store_alpha_dynstab_data, dynstab_dir, DYNSTAB_NAME + "_alpha")
     if su2_dir.is_dir():
         call_store_data(tixi, store_su2run_data, su2_dir, SU2RUN_NAME)
         log.warning("Not implemented yet.")
-
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

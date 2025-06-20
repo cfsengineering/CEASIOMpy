@@ -77,7 +77,11 @@ def test_configfiles():
     assert config1["VALUE1"] == 4
     assert config1["VALUE2"] is None
     assert config1["LIST"] == ["a", "b", "c"]
-    assert config1["DIFFENT_LIST"] == ["( 1, 1.0 | a )", "( 2, 2.0 | b )", "( 3, 3.0 | c )"]
+    assert config1["DIFFENT_LIST"] == [
+        "( 1, 1.0 | a )",
+        "( 2, 2.0 | b )",
+        "( 3, 3.0 | c )",
+    ]
     assert config1["NEWLINE"] == "text"
     assert config1["comment_6"] == "Test comment"
 

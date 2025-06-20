@@ -14,37 +14,45 @@ Test functions for StaticStability module.
 #   IMPORTS
 # =================================================================================================
 
+import unittest
+import tempfile
+
 from ceasiompy.utils.decorators import log_test
 from cpacspy.cpacsfunctions import create_branch
-from ceasiompy.StaticStability.staticstability import generate_stab_table
-
 from ceasiompy.utils.ceasiompyutils import (
     current_workflow_dir,
     get_results_directory,
 )
+from ceasiompy.StaticStability.func.utils import markdownpy_to_markdown
+from ceasiompy.StaticStability.staticstability import (
+    main,
+    generate_stab_table,
+)
 
 from pathlib import Path
-from unittest import main
+from markdownpy.markdownpy import MarkdownDoc
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
 )
-
 from ceasiompy import log
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
-
-from ceasiompy.PyAVL import MODULE_NAME
-
+from ceasiompy.StaticStability import (
+    MODULE_NAME,
+    STATICSTABILITY_LR_XPATH,
+)
 
 # =================================================================================================
 #   CLASSES
 # =================================================================================================
 
+
 class TestStaticStability(CeasiompyTest):
 
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.cpacs_path = Path(CPACS_FILES_PATH, "D150_simple.xml")
         cls.cpacs = CPACS(cls.cpacs_path)
         cls.wkdir = current_workflow_dir()
@@ -193,10 +201,44 @@ class TestStaticStability(CeasiompyTest):
 
         )
 
+    @log_test
+    def test_main_creates_markdown(self):
+
+        create_branch(self.test_cpacs.tixi, STATICSTABILITY_LR_XPATH)
+        self.test_cpacs.tixi.updateBooleanElement(STATICSTABILITY_LR_XPATH, False)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            main(self.test_cpacs, Path(tmpdir))
+            md_path = Path(tmpdir, f"{MODULE_NAME}.md")
+            with open(md_path, "r") as f:
+                content = f.read()
+                self.assertIn("StaticStability", content)
+                self.assertIn("Static stability of 'test_apm' aeromap.", content)
+
+    @log_test
+    def test_markdownpy_to_markdown(self):
+        # Create a dummy MarkdownDoc in a temp file
+        with tempfile.TemporaryDirectory() as tmpdir:
+            md_path = Path(tmpdir, "test.md")
+            md = MarkdownDoc(md_path)
+
+            # Simple table to test
+            table = [["col1", "col2"], ["val1", "val2"], ["val3", "val4"]]
+
+            markdownpy_to_markdown(md, table)
+            md.save()
+
+            # Check file content
+            with open(md_path, "r") as f:
+                content = f.read()
+                self.assertIn("|col1|col2|", content)
+                self.assertIn("|val1|val2|", content)
+                self.assertIn("|val3|val4|", content)
+
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
-
 if __name__ == "__main__":
-    main(verbosity=0)
+    unittest.main(verbosity=0)

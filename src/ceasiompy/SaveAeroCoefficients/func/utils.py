@@ -50,13 +50,12 @@ def write_legend(groupby_list: List, value) -> None:
         if param == "uid":
             legend += str(value_i)
         else:
-            if name in FEATURE_DICT:
-                name = FEATURE_DICT[name]
+            if param in FEATURE_DICT:
+                param_name = FEATURE_DICT[param]
             else:
-                name = param
+                param_name = param
 
-            legend += name + "=" + str(value_i)
-
+            legend += param_name + "=" + str(value_i)
         if i + 1 != len(groupby_list):
             legend += "\n"
 

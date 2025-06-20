@@ -27,7 +27,7 @@
 #      end
 
 import re
-import gdb
+import gdb  # type: ignore
 
 from functools import partial
 

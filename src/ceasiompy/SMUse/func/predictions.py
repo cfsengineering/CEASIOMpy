@@ -39,9 +39,6 @@ def make_predictions(
         rmse = compute_rmse(model, x_pred, y_pred)
         log.info(f"RMSE for {dataset_name}: {rmse}")
 
-        predictions_dict[dataset_name] = {
-            "predictions": y_pred,
-            "rmse": rmse
-        }
+        predictions_dict[dataset_name] = {"predictions": y_pred, "rmse": rmse}
 
     return predictions_dict

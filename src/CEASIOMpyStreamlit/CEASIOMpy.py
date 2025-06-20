@@ -120,13 +120,9 @@ def section_3D_view() -> None:
     Shows a 3D view of the aircraft by exporting a STL file.
     """
 
-    stl_file = Path(
-        st.session_state.workflow.working_dir,
-        "aircraft.stl"
-    )
-    if (
-        hasattr(st.session_state.cpacs, "aircraft")
-        and hasattr(st.session_state.cpacs.aircraft, "tigl")
+    stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
+    if hasattr(st.session_state.cpacs, "aircraft") and hasattr(
+        st.session_state.cpacs.aircraft, "tigl"
     ):
         st.session_state.cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
     your_mesh = mesh.Mesh.from_file(stl_file)
@@ -149,13 +145,7 @@ def section_3D_view() -> None:
     y_range = [center_y - max_range, center_y + max_range]
     z_range = [center_z - max_range, center_z + max_range]
 
-    fig = go.Figure(data=[
-        go.Mesh3d(
-            x=x, y=y, z=z,
-            i=i, j=j, k=k,
-            color='orange', opacity=0.5
-        )
-    ])
+    fig = go.Figure(data=[go.Mesh3d(x=x, y=y, z=z, i=i, j=j, k=k, color="orange", opacity=0.5)])
     fig.update_layout(
         width=900,
         height=700,
@@ -164,8 +154,8 @@ def section_3D_view() -> None:
             xaxis=dict(range=x_range),
             yaxis=dict(range=y_range),
             zaxis=dict(range=z_range),
-            aspectmode="cube"
-        )
+            aspectmode="cube",
+        ),
     )
     st.plotly_chart(fig, use_container_width=False)
 
@@ -178,7 +168,8 @@ def section_3D_view() -> None:
 if __name__ == "__main__":
 
     create_sidebar(HOW_TO_TEXT)
-    st.markdown("""
+    st.markdown(
+        """
         <style>
         /* Align navigation buttons with selectbox */
         .nav-button-container {
@@ -189,7 +180,9 @@ if __name__ == "__main__":
             margin-top: 23px;  /* Matches the label height + spacing */
         }
         </style>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
     st.title(PAGE_NAME)
 

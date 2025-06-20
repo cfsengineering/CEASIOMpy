@@ -145,9 +145,7 @@ def train_surrogate_model(
         rmse (float): Root Mean Square Error of the trained model.
     """
 
-    hyperparam_space = get_hyperparam_space(
-        level1_sets, level2_sets, level3_sets
-    )
+    hyperparam_space = get_hyperparam_space(level1_sets, level2_sets, level3_sets)
 
     if level2_sets is not None or level3_sets is not None:
         # It will always be multi-fidelity level if not 1
@@ -210,10 +208,7 @@ def optimize_hyper_parameters(
     # Perform Bayesian optimization
     start_time = time.time()
     result: OptimizeResult = gp_minimize(
-        objective,
-        param_space,
-        n_calls=n_calls,
-        random_state=random_state
+        objective, param_space, n_calls=n_calls, random_state=random_state
     )
     total_time = time.time() - start_time
     log.info(f"Total optimization time: {total_time:.2f} seconds ({total_time / 60:.2f} minutes)")
@@ -360,13 +355,15 @@ def run_adaptative_refinement(
     """
     high_var_pts = []
     rmse = float("inf")
-    df = DataFrame({
-        "altitude": [],
-        "machNumber": [],
-        "angleOfAttack": [],
-        "angleOfSideslip": [],
-        objective: [],
-    })
+    df = DataFrame(
+        {
+            "altitude": [],
+            "machNumber": [],
+            "angleOfAttack": [],
+            "angleOfSideslip": [],
+            objective: [],
+        }
+    )
     x_array = level1_sets["x_train"]
     nb_iters = len(x_array)
     log.info(f"Starting adaptive refinement with maximum {nb_iters=}.")

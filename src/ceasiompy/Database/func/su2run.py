@@ -18,8 +18,6 @@ from pathlib import Path
 from sqlite3 import Cursor
 from tixi3.tixi3wrapper import Tixi3
 
-from ceasiompy import log
-
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
@@ -41,12 +39,3 @@ def store_su2run_data(
 
     """
     raise NotImplementedError("store_su2run_data not implemented")
-
-
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

@@ -16,7 +16,7 @@ Initialization for StaticStability module.
 
 from pathlib import Path
 
-from ceasiompy import log
+from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 
 # ==============================================================================
 #   INITIALIZATION
@@ -37,3 +37,11 @@ MODULE_NAME = MODULE_DIR.name
 
 # Specific to StaticStability module
 STABILITY_DICT = {True: "Stable", False: "Unstable"}
+
+# ===== Stability Axes =====
+AXES = ["longitudinal", "directional", "lateral"]
+
+# ===== xPaths =====
+
+STATICSTABILITY_XPATH = CEASIOMPY_XPATH + "/StaticStability"
+STATICSTABILITY_LR_XPATH = STATICSTABILITY_XPATH + "/LinearRegression"

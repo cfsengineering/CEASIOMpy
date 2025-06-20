@@ -108,8 +108,7 @@ def unc_center_of_gravity(awg, afg, bout, ui, bi, mw, ed):
                 + "chosen payload mass,"
                 + "fuel mass automatically reduced"
             )
-            bi.F_PERC = 1 + \
-                ((mw.mass_payload / mw.mass_fuel_maxpass) * (1 - (bi.P_PERC / 100)))
+            bi.F_PERC = 1 + ((mw.mass_payload / mw.mass_fuel_maxpass) * (1 - (bi.P_PERC / 100)))
             log.warning("FUEL percentage: " + str(bi.F_PERC * 100))
         log.info("---------- User configuration ---------")
         (bout.cg_user, mw.ms_user, airplane_centers_segs) = center_of_gravity_evaluation(
@@ -185,8 +184,7 @@ def bwb_center_of_gravity(awg, bout, ui, bi, mw, ed):
                 + "chosen payload mass,"
                 + "fuel mass automatically reduced"
             )
-            bi.F_PERC = 1 + \
-                ((mw.mass_payload / mw.mass_fuel_maxpass) * (1 - bi.P_PERC / 100))
+            bi.F_PERC = 1 + ((mw.mass_payload / mw.mass_fuel_maxpass) * (1 - bi.P_PERC / 100))
             log.warning("FUEL percentage: " + str(bi.F_PERC))
         log.info("---------- User configuration ---------")
         (bout.cg_user, mw.ms_user, airplane_centers_segs) = center_of_gravity_evaluation_bwb(

@@ -10,12 +10,15 @@ Evaluation of the number of crew members expected for an unconventional aircraft
 
 """
 
-
 # =============================================================================
 #   IMPORTS
 # =============================================================================
 
-from ceasiompy.WeightConventional.func.weightutils import CABIN_CREW_MASS, PILOT_MASS, PILOT_NB
+from ceasiompy.WeightConventional.func.weightutils import (
+    CABIN_CREW_MASS,
+    PILOT_MASS,
+    PILOT_NB,
+)
 from ceasiompy import log
 
 

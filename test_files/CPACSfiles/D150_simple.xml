@@ -5287,8 +5287,4 @@
       </wingAirfoils>
     </profiles>
   </vehicles>
-  <toolspecific>
-    <CEASIOMpy>
-    </CEASIOMpy>
-  </toolspecific>
 </cpacs>

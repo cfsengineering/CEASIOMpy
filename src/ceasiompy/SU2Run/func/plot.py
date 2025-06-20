@@ -16,11 +16,10 @@ Save plot in result folder of SU2 module.
 
 import os
 import matplotlib
-
-import numpy as np
 import matplotlib.pyplot as plt
 
 from pathlib import Path
+from numpy import ndarray
 
 from ceasiompy import log
 
@@ -30,13 +29,13 @@ from ceasiompy import log
 
 try:
     # Try to use TkAgg if DISPLAY is set and Tkinter is available
-    if os.environ.get('DISPLAY', '') != "":
-        matplotlib.use('TkAgg')
+    if os.environ.get("DISPLAY", "") != "":
+        matplotlib.use("TkAgg")
     else:
-        matplotlib.use('Agg')
+        matplotlib.use("Agg")
 except Exception:
     # Fallback to Agg if TkAgg is not available or fails
-    matplotlib.use('Agg')
+    matplotlib.use("Agg")
 
 # =================================================================================================
 #   FUNCTIONS
@@ -44,13 +43,13 @@ except Exception:
 
 
 def save_plots(
-    radial_stations: np.ndarray,
-    radial_thrust_coefs: np.ndarray,
-    radial_power_coefs: np.ndarray,
+    radial_stations: ndarray,
+    radial_thrust_coefs: ndarray,
+    radial_power_coefs: ndarray,
     non_dimensional_radius: float,
-    optimal_axial_interference_factor: np.ndarray,
-    optimal_rotational_interference_factor: np.ndarray,
-    prandtl_correction_values: np.ndarray,
+    optimal_axial_interference_factor: ndarray,
+    optimal_rotational_interference_factor: ndarray,
+    prandtl_correction_values: ndarray,
     case_dir_path: Path,
     propeller_uid: str,
 ) -> None:
@@ -125,11 +124,3 @@ def save_plots(
     log.info(f"{plot_msg} {ct_cp_distr_plot_path}.")
     log.info(f"{plot_msg} {interference_plot_path}.")
     log.info(f"{plot_msg} {prandtl_correction_plot_path}.")
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

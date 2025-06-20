@@ -14,6 +14,7 @@ Streamlit utils functions for CEASIOMpy
 #   IMPORTS
 # ==============================================================================
 
+import re
 import pandas as pd
 import streamlit as st
 
@@ -32,6 +33,39 @@ from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
+
+
+def color_cell(cell):
+    if cell.strip() == "Stable":
+        return '<td style="background-color:#d4edda;color:#155724;">Stable</td>'
+    elif cell.strip() == "Unstable":
+        return '<td style="background-color:#f8d7da;color:#721c24;">Unstable</td>'
+    else:
+        return f"<td>{cell}</td>"
+
+
+def md_table_to_html(table_md):
+    lines = [line for line in table_md.strip().split("\n") if line.strip()]
+    if len(lines) < 2:  # Not a valid table
+        return table_md
+    header = lines[0].split("|")[1:-1]
+    rows = [line.split("|")[1:-1] for line in lines[2:]]
+    html = (
+        "<table><thead><tr>"
+        + "".join(f"<th>{h.strip()}</th>" for h in header)
+        + "</tr></thead><tbody>"
+    )
+    for row in rows:
+        html += "<tr>" + "".join(color_cell(cell) for cell in row) + "</tr>"
+    html += "</tbody></table>"
+    return html
+
+
+def highlight_stability(md):
+    # Regex to find markdown tables
+    table_pattern = re.compile(r"((?:\|.*\n)+)")
+    # Replace all markdown tables with colored HTML tables
+    return table_pattern.sub(lambda m: md_table_to_html(m.group(1)), md)
 
 
 def update_value(xpath, key):
@@ -175,7 +209,7 @@ def section_edit_aeromap():
     selected_aeromap = st.selectbox(
         "in",
         st.session_state.cpacs.get_aeromap_uid_list(),
-        help="Choose in which aeromap you want to add the point"
+        help="Choose in which aeromap you want to add the point",
     )
 
     col1, col2, col3, col4, col5 = st.columns([2, 2, 2, 2, 1])
@@ -192,8 +226,9 @@ def section_edit_aeromap():
         st.markdown("")
         st.markdown("")
         if st.button("➕"):
-            st.session_state.cpacs.get_aeromap_by_uid(
-                selected_aeromap).add_row(mach=mach, alt=alt, aos=aos, aoa=aoa)
+            st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap).add_row(
+                mach=mach, alt=alt, aos=aos, aoa=aoa
+            )
             st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap).save()
             save_cpacs_file()
 
@@ -241,12 +276,3 @@ def section_edit_aeromap():
             new_aeromap.df = pd.read_csv(uploaded_csv, keep_default_na=False)
             new_aeromap.save()
             st.rerun()
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

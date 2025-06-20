@@ -13,7 +13,7 @@ Utils for PyAVL module.
 import numpy as np
 
 from pydantic import validate_call
-from cpacspy.cpacsfunctions import get_value
+from ceasiompy.utils.mathsfunctions import non_dimensionalize_rate
 
 from pathlib import Path
 from numpy import ndarray
@@ -27,8 +27,11 @@ from typing import (
     TextIO,
 )
 
-from ceasiompy.utils.commonxpaths import REF_XPATH
-from ceasiompy.PyAVL import AVL_EXPAND_VALUES_XPATH
+from ceasiompy.utils.commonxpaths import (
+    REF_XPATH,
+    AREA_XPATH,
+    LENGTH_XPATH,
+)
 from ceasiompy import (
     log,
     ceasiompy_cfg,
@@ -37,6 +40,49 @@ from ceasiompy import (
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def practical_limit_rate_check(
+    tixi: Tixi3,
+    alt_list: list,
+    mach_list: list,
+    rotation_rates_list: list,
+) -> None:
+    '''
+    See: https://web.mit.edu/drela/Public/web/avl/AVL_User_Primer.pdf
+    '''
+    rotation_rates = list(set(rotation_rates_list))
+
+    # Get the reference dimensions
+    s = tixi.getDoubleElement(AREA_XPATH)
+    c = tixi.getDoubleElement(LENGTH_XPATH)
+    b = s / c
+
+    # Speed of sound is lower at higher altitude
+    Atm = Atmosphere(max(alt_list))
+
+    # With a lower mach we have a lower reference velocity
+    velocity = Atm.speed_of_sound[0] * min(mach_list)
+
+    # See https://web.mit.edu/drela/Public/web/avl/AVL_User_Primer.pdf
+    # for how he non-dimensionalize the rates
+    for _, rotation_rate in enumerate(rotation_rates):
+        roll_rate_star, pitch_rate_star, yaw_rate_star = non_dimensionalize_rate(
+            p=rotation_rate,
+            q=rotation_rate,
+            r=rotation_rate,
+            v=velocity,
+            b=b,
+            c=c,
+        )
+
+        # AVL practical checks
+        if not (-0.10 < roll_rate_star < 0.10):
+            raise ValueError(f"pb/2V={roll_rate_star:.3f} out of range (-0.10, 0.10)")
+        if not (-0.03 < pitch_rate_star < 0.03):
+            raise ValueError(f"qc/2V={pitch_rate_star:.3f} out of range (-0.03, 0.03)")
+        if not (-0.25 < yaw_rate_star < 0.25):
+            raise ValueError(f"rb/2V={yaw_rate_star:.3f} out of range (-0.25, 0.25)")
 
 
 def get_points_ref(tixi: Tixi3) -> ndarray:
@@ -52,15 +98,18 @@ def write_control(
     control_type: str,
     hinge_xsi: float,
     axis: str,
-    control_bool: float
+    control_bool: float,
 ) -> None:
     """Helper function to write CONTROL section."""
     avl_file.write("CONTROL\n")
-    avl_file.write(f"{control_type} {0.0} {hinge_xsi} {axis} {control_bool}\n\n")
+    avl_file.write(f"{control_type} 1.0 {hinge_xsi} {axis} {control_bool}\n\n")
 
 
 def split_dir(dir_name: str, index: int, param: str) -> float:
-    return float(dir_name.split("_")[index].split(param)[1])
+    part = dir_name.split("_")[index]
+    if param not in part:
+        raise ValueError(f"Parameter '{param}' not found in '{part}' (from '{dir_name}')")
+    return float(part.split(param)[1])
 
 
 def split_line(line: str, index: int) -> float:
@@ -108,7 +157,7 @@ def to_cpacs_format(point: Point) -> str:
 
 
 @validate_call(config=ceasiompy_cfg)
-def duplicate_elements(tixi: Tixi3, *lists: List) -> Tuple[List, ...]:
+def duplicate_elements(expand: bool, *lists: List) -> Tuple[List, ...]:
     """
     Duplicates lists such that there is a unique combination of them
     and the last three lists are zero-independent.
@@ -127,7 +176,7 @@ def duplicate_elements(tixi: Tixi3, *lists: List) -> Tuple[List, ...]:
     """
 
     # If you do not wish to expand values
-    if not get_value(tixi, AVL_EXPAND_VALUES_XPATH):
+    if not expand:
         cst_list = len(lists[0]) * [lists[-1][0]]
         return tuple(lists[:-1]) + (cst_list, cst_list, cst_list)
 
@@ -160,11 +209,3 @@ def duplicate_elements(tixi: Tixi3, *lists: List) -> Tuple[List, ...]:
                 append_combination(combination, [0.0, 0.0, value])
 
     return tuple(new_lists)
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-if __name__ == "__main__":
-    log.info("Nothing to execute.")

@@ -5,9 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Calculate lift coefficient required to fly at specific alt, mach, mass and LF
 
-| Author: Aidan Jungo
-| Creation: 2018-11-28
-
 TODO:
     * Save CruiseCL somewhere
 
@@ -17,9 +14,7 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.CLCalculator.func.calculatecl import calculate_cl
-
 from ceasiompy.CLCalculator.func.utils import (
     retrieve_gui,
     save_for_su2,
@@ -31,8 +26,6 @@ from cpacspy.cpacspy import CPACS
 from markdownpy.markdownpy import MarkdownDoc
 
 from ceasiompy import log
-
-from ceasiompy.CLCalculator import MODULE_NAME
 
 # =================================================================================================
 #    MAIN
@@ -77,7 +70,3 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     save_for_su2(tixi, target_cl)
 
     md.save()
-
-
-if __name__ == "__main__":
-    call_main(main, MODULE_NAME)

@@ -20,7 +20,6 @@ Logging method use by other CEASIOMpy modules
 from pathlib import Path
 from datetime import datetime
 
-from ceasiompy import log
 from ceasiompy.utils.commonpaths import RUNWORKFLOW_HISTORY_PATH
 
 # =================================================================================================
@@ -54,11 +53,3 @@ def get_last_runworkflow() -> Path:
         return None
 
     return Path(lines[-1].split(" - ")[1].strip())
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-if __name__ == "__main__":
-    log.info("Nothing to execute!")

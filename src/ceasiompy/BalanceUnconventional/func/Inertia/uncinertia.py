@@ -17,7 +17,6 @@ The script evaluates the Moments of Inertia (Ixx, Iyy, Izz) in case of:
 
 """
 
-
 # =============================================================================
 #   IMPORTS
 # =============================================================================
@@ -119,7 +118,13 @@ def unc_inertia_eval(awg, afg, bout, bi, mw, ed, out_xml):
         bi.SPACING_FUSE, bout.center_of_gravity, mw.mass_seg_i, afg, out_xml
     )
     (wx, wy, wz, Ixxw, Iyyw, Izzw, Ixyw, Iyzw, Ixzw) = lumpedmassesinertia.wing_inertia(
-        bi.WPP, bi.SPACING_WING, afg.fuse_nb, bout.center_of_gravity, mw.mass_seg_i, awg, out_xml
+        bi.WPP,
+        bi.SPACING_WING,
+        afg.fuse_nb,
+        bout.center_of_gravity,
+        mw.mass_seg_i,
+        awg,
+        out_xml,
     )
 
     rd = check_rounding(Izzf + Izzw + bout.Izzen, Ixyf + Ixyw + bout.Ixyen)
@@ -193,7 +198,13 @@ def unc_inertia_eval(awg, afg, bout, bi, mw, ed, out_xml):
             bi.SPACING_FUSE, bout.cg_user, mw.ms_user, afg, out_xml
         )
         (wx, wy, wz, Ixxwu, Iyywu, Izzwu, Ixywu, Iyzwu, Ixzwu) = lumpedmassesinertia.wing_inertia(
-            bi.WPP, bi.SPACING_WING, afg.fuse_nb, bout.cg_user, mw.ms_user, awg, out_xml
+            bi.WPP,
+            bi.SPACING_WING,
+            afg.fuse_nb,
+            bout.cg_user,
+            mw.ms_user,
+            awg,
+            out_xml,
         )
 
         bout.Ixx_lump_user = round(Ixxfu + Ixxwu + bout.Ixxen, rd)

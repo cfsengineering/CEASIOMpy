@@ -19,9 +19,7 @@ from ceasiompy.utils.workflowclasses import ModuleToRun, Workflow
 
 
 MODULE_DIR = Path(__file__).parent
-CPACS_PATH = Path(
-    MODULE_DIR.parents[3].parent, "test_files", "CPACSfiles", "D150_simple.xml"
-)
+CPACS_PATH = Path(MODULE_DIR.parents[3].parent, "test_files", "CPACSfiles", "D150_simple.xml")
 CPACS_PATH_OUT = Path(MODULE_DIR, "D150_simple_out.xml")
 
 # =================================================================================================
@@ -72,8 +70,7 @@ class TestModuleToRun:
         if CPACS_PATH_OUT.exists():
             CPACS_PATH_OUT.unlink()
 
-        module = ModuleToRun(
-            "ModuleTemplate", self.wkflow_dir, CPACS_PATH, CPACS_PATH_OUT)
+        module = ModuleToRun("ModuleTemplate", self.wkflow_dir, CPACS_PATH, CPACS_PATH_OUT)
 
         # TODO: how to separate test from workflowclasses.py and ceasiompyutils.py
         run_module(module)
@@ -101,9 +98,7 @@ class TestWorkflow:
         )
 
     def test_from_config_file(self):
-        self.workflow.from_config_file(
-            Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg")
-        )
+        self.workflow.from_config_file(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
         assert self.workflow.modules_list == self.MODULE_TO_RUN
 
     def test_set_workflow(self):

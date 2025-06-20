@@ -226,7 +226,6 @@
         </fuselages>
         <wings>
           <wing uID="wing1_untruc" symmetry="x-z-plane">
-            <!-- symmetry="x-z-plane"-->
             <name>wing1_untruc</name>
             <description>Wing generated from the function CCPACSWings::CreateWing</description>
             <transformation uID="wing1_untrucTransformation">

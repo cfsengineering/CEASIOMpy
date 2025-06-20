@@ -174,7 +174,6 @@ def compute_abs_location(tixi: Tixi3, wing_xpath: str) -> Dict[str, Tuple[str, s
             element_uid = get_uid(tixi, ele_xpath)
 
             result[element_uid] = (str(x), str(y), str(z))
-    print(result)
     return result
 
 

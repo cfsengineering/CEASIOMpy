@@ -455,7 +455,7 @@ def compute_beta_panel_forces(
     n_beta = rotation_beta.dot(aerogrid["N"].T)
 
     # Compute induced downwash
-    #w_beta = np.ones(aerogrid["n"]) * np.sin(aos)  # (aerogrid['n'], )
+    # w_beta = np.ones(aerogrid["n"]) * np.sin(aos)  # (aerogrid['n'], )
     normalized_v_inf = np.array([1, 0, 0])  # V_inf comes from x direction
 
     w_beta = normalized_v_inf.dot(n_beta)

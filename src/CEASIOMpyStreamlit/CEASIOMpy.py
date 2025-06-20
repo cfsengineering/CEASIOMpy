@@ -16,6 +16,7 @@ Main Streamlit page for CEASIOMpy GUI.
 #    IMPORTS
 # =================================================================================================
 
+import os
 import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
@@ -47,9 +48,33 @@ PAGE_NAME = "CEASIOMpy"
 # =================================================================================================
 
 
+def clean_toolspecific(cpacs: CPACS) -> CPACS:
+    air_name = cpacs.ac_name
+
+    if "ac_name" not in st.session_state or st.session_state.ac_name != air_name:
+        # Remove CPACS_selected_from_GUI.xml if it exists
+        gui_xml = WKDIR_PATH / "CPACS_selected_from_GUI.xml"
+        if gui_xml.exists():
+            os.remove(gui_xml)
+
+        st.session_state.new_file = True
+
+        # Clean input CPACS file
+        tixi = cpacs.tixi
+        if tixi.checkElement("/cpacs/toolspecific/CEASIOMpy"):
+            tixi.removeElement("/cpacs/toolspecific/CEASIOMpy")
+        cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
+        cleaned_cpacs = CPACS(cpacs.cpacs_file)
+        st.session_state["ac_name"] = cleaned_cpacs.ac_name
+        return cleaned_cpacs
+    else:
+        st.session_state["new_file"] = False
+        return cpacs
+
+
 def section_select_cpacs():
     if "workflow" not in st.session_state:
-        st.session_state.workflow = Workflow()
+        st.session_state["workflow"] = Workflow()
 
     WKDIR_PATH.mkdir(parents=True, exist_ok=True)
     st.session_state.workflow.working_dir = WKDIR_PATH
@@ -59,8 +84,8 @@ def section_select_cpacs():
     if "cpacs_file_path" in st.session_state:
         cpacs_file_path = st.session_state.cpacs_file_path
         if Path(cpacs_file_path).exists():
-            st.session_state.cpacs = CPACS(cpacs_file_path)
-            # st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
+            cpacs = CPACS(cpacs_file_path)
+            st.session_state.cpacs = clean_toolspecific(cpacs)
         else:
             st.session_state.cpacs_file_path = None
 
@@ -77,13 +102,15 @@ def section_select_cpacs():
             f.write(uploaded_file.getbuffer())
 
         st.session_state.workflow.cpacs_in = cpacs_new_path
-        st.session_state.cpacs = CPACS(cpacs_new_path)
+        cpacs = CPACS(cpacs_new_path)
+        st.session_state.cpacs = clean_toolspecific(cpacs)
         st.session_state.cpacs_file_path = str(cpacs_new_path)
 
         # st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
 
     # Display the file uploader widget with the previously uploaded file
     if "cpacs_file_path" in st.session_state and st.session_state.cpacs_file_path:
+        st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
         st.success(f"Uploaded file: {st.session_state.cpacs_file_path}")
         section_3D_view()
 

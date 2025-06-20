@@ -4,60 +4,15 @@
     <name>AGILE_DC-2_Reference_T33</name>
     <version>1.1</version>
     <cpacsVersion>3.0</cpacsVersion>
-    <creator>AGILE WP3 T33</creator>
-    <description>AGILE D3.1 Reference aircraft for hi fi</description>
-    <timestamp>2017-03-07T20:51:00</timestamp>
-    <updates>
-      <update>
-        <modification>Initial Synthesis</modification>
-        <creator>TUD</creator>
-      </update>
-      <update>
-        <modification>CIAM Reference Engine included</modification>
-        <creator>DLR</creator>
-      </update>
-      <update>
-        <modification>POLITO Systems Mass analysis included</modification>
-        <creator>DLR</creator>
-      </update>
-      <update>
-        <modification>UNINA High Lift design included</modification>
-        <creator>DLR</creator>
-      </update>
-      <update>
-        <modification>Structural components included</modification>
-        <creator>DLR</creator>
-      </update>
-      <update>
-        <modification>DLR updated synthesis L0</modification>
-        <creator>DLR</creator>
-      </update>
-      <update>
-        <modification>DLR major update for AGILE T3.3 hi-fi needs</modification>
-        <creator>DLR</creator>
-      </update>
-      <update>
-        <modification>Changed rudder values for 3.4, added 3.4 tool specific, added rudder actuator data</modification>
-        <creator>Fokker</creator>
-      </update>
-      <update>
-        <modification>Changed the rudder start to 0% of the vertical</modification>
-        <creator>Fokker</creator>
-      </update>
-      <update>
-        <modification>Converted to cpacs 3.0 using cpacs2to3</modification>
-        <creator>cpacs2to3</creator>
-        <timestamp>2018-10-26T16:16:55</timestamp>
-        <version>ver1</version>
+    <versionInfos>
+      <versionInfo version="update1">
+        <description>Converted to cpacs 3.0 using cpacs2to3</description>
+        <creator>AGILE WP3 T33</creator>
+        <timestamp>2017-03-07T20:51:00</timestamp>
+        <version>0.3</version>
         <cpacsVersion>3.0</cpacsVersion>
-      </update>
-      <update>
-        <modification>Replaced aeroPerformanceMap by aeroMap. Removed toolspecifics.</modification>
-        <creator>CFSE</creator>
-        <timestamp>2020-03-06 15:35:29.645940</timestamp>
-        <cpacsversion>3.0</cpacsversion>
-      </update>
-    </updates>
+      </versionInfo>
+    </versionInfos>
   </header>
   <vehicles>
     <aircraft>

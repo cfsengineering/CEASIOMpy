@@ -59,6 +59,7 @@ CPACSUpdater is a native CEASIOMpy module, hence it is available and installed b
 
 1. Only adds control surfaces. No other operations implemented yet.
 2. Each wings are decomposed into several little wings. For example, if you had 1 wing with 3 segments, then CPACSUpdater will decompose this wing into 3 wings with 1 segment each. This is due to the limitation of the CPACS format.
+3. Can not be applied on certain geometries. Take the concorde1014.xml file, as you can see the wing's segments are defined along the aircraft span, therefore adding control surfaces in this case is not correct.
 
 ## More information
 

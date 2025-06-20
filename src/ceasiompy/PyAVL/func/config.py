@@ -59,16 +59,10 @@ from ceasiompy.PyAVL import (
 
 @validate_call(config=ceasiompy_cfg)
 def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
-    List,
-    List,
-    List,
-    List,
-    List,
-    List,
+    List, List, List, List,
+    List, List,
     Path,
-    bool,
-    int,
-    bool,
+    bool, int, bool,
 ]:
     tixi = cpacs.tixi
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, AVL_AEROMAP_UID_XPATH)
@@ -95,16 +89,10 @@ def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
     )
 
     return (
-        alt_list,
-        mach_list,
-        aoa_list,
-        aos_list,
-        rotation_rates_list,
-        control_surface_list,
+        alt_list, mach_list, aoa_list, aos_list,
+        rotation_rates_list, control_surface_list,
         avl_path,
-        save_fig,
-        nb_cpu,
-        expand,
+        save_fig, nb_cpu, expand,
     )
 
 

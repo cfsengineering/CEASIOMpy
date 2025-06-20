@@ -38,7 +38,10 @@ from concurrent.futures import ProcessPoolExecutor
 from ceasiompy.Database.func.storing import CeasiompyDb
 
 from ceasiompy import log
-from ceasiompy.PyAVL import SOFTWARE_NAME
+from ceasiompy.PyAVL import (
+    MODULE_NAME,
+    SOFTWARE_NAME,
+)
 
 # =================================================================================================
 #    MAIN
@@ -127,8 +130,9 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         if expand:
             db = CeasiompyDb()
             tol = 1e-4
+            table_name = db.connect_to_table(MODULE_NAME)
             data = db.get_data(
-                table_name="avl_data",
+                table_name=table_name,
                 columns=["mach"],
                 db_close=True,
                 filters=[
@@ -161,7 +165,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         )
 
         command_path = write_command_file(
-            avl_path=avl_path,
+            avl_path=avl_path,  # No control surface deflection
             case_dir_path=case_dir_path,
             save_plots=save_fig,
             ref_density=ref_density,
@@ -213,8 +217,9 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             if expand:
                 db = CeasiompyDb()
                 tol = 1e-4
+                table_name = db.connect_to_table(MODULE_NAME)
                 data = db.get_data(
-                    table_name="avl_data",
+                    table_name=table_name,
                     columns=["mach"],
                     db_close=True,
                     filters=[

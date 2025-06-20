@@ -200,7 +200,6 @@ def leadingedge_coordinates(
                     },
                 }
                 control_type = CONTROL_DICT[control_uid]["type"]
-
                 if i_sec == CONTROL_DICT[control_uid]["i_sec"][0]:
                     write_control(
                         avl_file,
@@ -222,6 +221,11 @@ def leadingedge_coordinates(
                         f"Issue with {control_uid} control surface "
                         f"at section {i_sec} of wing number {i_wing}."
                     )
+        else:
+            log.warning(
+                f"Did not find control surfaces xpath {control_xpath_base=}."
+                "Thus AVL can not deflect nor specify where are the control surfaces."
+            )
 
         avl_file.write("AFILE\n")
         avl_file.write(foil_dat_path + "\n\n")
@@ -262,11 +266,15 @@ class Avl:
         self: "Avl",
         tixi: Tixi3,
         results_dir: Path,
+        gain: float = 0.0,
+        control_type: str = "none",
     ) -> None:
-
         # Store input variables
         self.tixi = tixi
         self.results_dir = results_dir
+
+        self.gain = gain
+        self.control_type = control_type
 
         # Retrieve GUI values
         self.vortex_dist: int = convert_dist_to_avl_format(get_value(tixi, AVL_DISTR_XPATH))
@@ -281,7 +289,17 @@ class Avl:
 
         # .avl file type
         self.name_aircraft = self.tixi.getTextElement(AIRCRAFT_NAME_XPATH)
-        self.avl_path = str(self.results_dir) + "/" + self.name_aircraft + ".avl"
+        if gain == 0.0:
+            self.avl_path = (
+                str(self.results_dir) + "/" + self.name_aircraft + ".avl"
+            )
+        else:
+            self.avl_path = (
+                str(self.results_dir) + "/" + self.name_aircraft
+                + "gain" + str(gain)
+                + "ctrl" + control_type
+                + ".avl"
+            )
 
     def initialize_avl_command_file(self) -> Path:
         with open(self.avl_path, "w") as avl_file:

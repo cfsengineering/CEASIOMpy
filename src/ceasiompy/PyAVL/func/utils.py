@@ -102,7 +102,7 @@ def write_control(
 ) -> None:
     """Helper function to write CONTROL section."""
     avl_file.write("CONTROL\n")
-    avl_file.write(f"{control_type} {0.0} {hinge_xsi} {axis} {control_bool}\n\n")
+    avl_file.write(f"{control_type} 1.0 {hinge_xsi} {axis} {control_bool}\n\n")
 
 
 def split_dir(dir_name: str, index: int, param: str) -> float:

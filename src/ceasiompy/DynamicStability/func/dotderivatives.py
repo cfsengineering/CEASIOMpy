@@ -649,11 +649,6 @@ def get_alpha_dot_derivatives(self) -> DataFrame:
             t, alpha_0,
             x_hinge, y_hinge, z_hinge,
         )
-        log.info(
-            f"{cx_alpha=} {cy_alpha=} {cz_alpha=}"
-            f"{cl_alpha=} {cm_alpha=} {cn_alpha=}"
-            f"{cm_alphadot=} {cz_alphadot=} {cx_alphadot=}"
-        )
         alpha_data.append({
             "alt": alt, "mach": mach, "aoa": aoa, "aos": 0.0,
             "cx_alpha": cx_alpha, "cy_alpha": cy_alpha, "cz_alpha": cz_alpha,
@@ -925,8 +920,9 @@ def compute_alpha_dot_derivatives(
     log.info(f"Finished computing alpha-dot derivatives for {alt=} {mach=}.")
 
     # Get angular frequency w
-    omegaalpha = k_alpha_model * velocity
+    omegaalpha = k_alpha_model * velocity  # = 2 pi frequency
 
+    # Should stay at 0
     aoa_rad = math.radians(aoa)
 
     # Get forces on each panels at angle alpha(t)

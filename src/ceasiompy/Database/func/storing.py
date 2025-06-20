@@ -73,6 +73,24 @@ class CeasiompyDb:
 
         log.info(f"Connecting to database {self.db_name} at path {self.db_path}")
 
+    def connect_to_table_via_name(self: "CeasiompyDb", table_name: str) -> None:
+        # Validate table name
+        if table_name not in ALLOWED_TABLES:
+            raise ValueError(f"Invalid table name: {table_name}")
+
+        table_schema = self.get_table_schema_via_name(table_name)
+
+        create_table_query = f"""
+            CREATE TABLE IF NOT EXISTS {table_name} (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                {table_schema}
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """
+
+        self.cursor.execute(create_table_query)
+        self.commit()
+
     def connect_to_table(self: "CeasiompyDb", module_name: str) -> str:
         table_name, table_schema = self.get_table_parameters(module_name)
         # Codacy: Table and column names are strictly validated against whitelisted values.
@@ -97,6 +115,15 @@ class CeasiompyDb:
 
     def get_table_name(self: "CeasiompyDb", module_name: str) -> str:
         return self.table_dict[module_name][0]
+
+    def get_table_schema_via_name(self: "CeasiompyDb", table_name: str) -> str:
+        if table_name not in ALLOWED_TABLES:
+            raise ValueError(f"Invalid table name: {table_name}")
+
+        # Iterate through each module_names and tables
+        for _, list_table_name_schema in self.table_dict:
+            if list_table_name_schema[0] == table_name:
+                return list_table_name_schema[1]
 
     def get_table_schema(self: "CeasiompyDb", module_name: str) -> str:
         return self.table_dict[module_name][1]

@@ -32,8 +32,8 @@ RUN installation/CentOS/install_ceasiompy.sh && \
     installation/CentOS/install_su2_without_mpi.sh
 RUN source ~/.bashrc
 
-WORKDIR /CEASIOMpy/CEASIOMpy/tests
+WORKDIR /CEASIOMpy/tests
 # RUN conda activate ceasiompy && ./run_ci.sh
-#RUN echo $PATH && ls /opt/conda/etc/profile.d/ && which conda
-RUN conda run -n ceasiompy ./run_ci.sh
-#RUN bash -c "source /opt/conda/etc/profile.d/conda.sh && conda activate ceasiompy && ./run_ci.sh"
+# RUN echo $PATH && ls /opt/conda/etc/profile.d/ && which conda
+# RUN conda run -n ceasiompy ./run_ci.sh
+RUN bash -c "source /opt/conda/etc/profile.d/conda.sh && conda activate ceasiompy && ./run_ci.sh"

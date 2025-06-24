@@ -32,6 +32,8 @@ RUN installation/CentOS/install_ceasiompy.sh && \
     installation/CentOS/install_su2_without_mpi.sh
 RUN source ~/.bashrc
 
+RUN echo "RUNNING IN /CEASIOMpy/tests" && pwd && ls -la
+
 COPY CEASIOMpy/tests/run_ci.sh /CEASIOMpy/tests/run_ci.sh
 WORKDIR /CEASIOMpy/tests
 # RUN conda activate ceasiompy && ./run_ci.sh

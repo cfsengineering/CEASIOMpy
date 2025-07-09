@@ -304,8 +304,8 @@ def find_chord_length(le_te_pair: List):
     # The two trailing edge lines are the closest together
     chord_length = max([d12, d23, d13])
     log.info(
-        f"Using truncated profile with computed {chord_length} "
-        f"with length le_te_pair of {le_te_pair}."
+        f"Using truncated profile with computed chord length {chord_length} "
+        f"and le_te_pair of {le_te_pair}."
     )
 
     return chord_length

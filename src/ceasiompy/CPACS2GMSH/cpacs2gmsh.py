@@ -143,6 +143,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
             auto_refine=auto_refine,
             farfield_size_factor=farfield_factor,
             n_power_factor=n_power_factor,
+            symmetry=symmetry,
         )
 
         if gmesh_path.exists():

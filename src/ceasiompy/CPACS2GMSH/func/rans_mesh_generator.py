@@ -32,7 +32,6 @@ TODO:
 import os
 import random
 from itertools import combinations
-import math
 
 import gmsh
 from ceasiompy.CPACS2GMSH.func.wingclassification import (

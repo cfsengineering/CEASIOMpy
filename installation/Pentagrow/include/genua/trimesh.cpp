@@ -30,12 +30,6 @@
 #include "ioglue.h"
 #include <sstream>
 
-#include <algorithm>
-#include <fstream>
-#include <iomanip>
-#include <cmath>
-#include <vector>
-
 using std::string;
 
 TriMesh::TriMesh(const TriMesh &msh) : vtx(msh.vtx), nrm(msh.nrm),
@@ -2214,8 +2208,6 @@ void TriMesh::addyplane(PointList<3> v_shell, Real y0)
   if (vtx[list_tags_sphere[quarter_forward]][2] > vtx[list_tags_sphere[quarter_backward]][2])
     std::reverse(list_tags_sphere.begin(), list_tags_sphere.end());
 
-  uint nb_v_sphere = list_tags_sphere.size();
-
   // Step 1: Write the code to a file
   std::ofstream out("gmsh_generating_yplane.py");
 
@@ -2333,7 +2325,6 @@ void TriMesh::addyplane(PointList<3> v_shell, Real y0)
       all_already_there_vertices.push_back({i, v_shell[i]});
     }*/
   std::map<uint, uint> vector_nb;
-  uint off = nvertices();
   uint counter = 0;
   for (uint i = 0; i < vertices_yplane.size(); i++)
   {

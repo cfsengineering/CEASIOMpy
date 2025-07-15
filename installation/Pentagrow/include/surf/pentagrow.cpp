@@ -1784,7 +1784,7 @@ void PentaGrow::extrudeVertex(int i, int nl, Real hi,
   // Set initial prism height and compute distribution
   Real h1;
   Real xpf = 1.1;
-  if (1. / hi < nl + 1 or xpf <= 1.000001)
+  if (1. / hi < nl + 1)
   {
     expand_pattern(nl + 1, 1., xpp);
   }
@@ -3023,7 +3023,6 @@ PointList<3> PentaGrow::getouterlayeryplane_ordered(Real y0)
   }
   list_tags.push_back(start_tag);
 
-  std::vector<int> neighbours;
   bool closed_loop = false;
   uint i;
   while (!closed_loop)
@@ -3032,7 +3031,7 @@ PointList<3> PentaGrow::getouterlayeryplane_ordered(Real y0)
     TriMesh::nb_edge_iterator ite, first, last;
     first = mwall.v2eBegin(i);
     last = mwall.v2eEnd(i);
-    neighbours = {};
+    std::vector<int> neighbours = {};
     for (ite = first; ite != last; ++ite)
     {
       if (mwall.vertex(ite->opposed(i))[1] < y0eps)

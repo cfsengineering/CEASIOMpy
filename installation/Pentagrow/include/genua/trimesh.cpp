@@ -509,7 +509,6 @@ void TriMesh::fixnormalonborder(Real y0)
 {
   const uint nv(vtx.size());
   Real y0eps = y0 + 0.00001;
-  std::cout << std::fixed << std::setprecision(3);
   for (uint i = 0; i < nv; ++i)
   {
     if (vtx[i][1] < y0eps)
@@ -1960,7 +1959,6 @@ void TriMesh::quadSplit_forsemi(const Vct3 &ctr, int npass)
   for (int ip = 0; ip < npass; ++ip)
   {
     // generate new vertices
-    const int off(nvertices());
     const int ne(nedges());
     // Compute a "normal edge length", as they should all be the same (up to precision), except the ones on the border that are smaller
     Real length_edges = 0;
@@ -2138,7 +2136,6 @@ void TriMesh::addyplane(PointList<3> v_shell, Real y0)
   }
   list_tags_sphere.push_back(start_tag);
 
-  std::vector<int> neighbours;
   bool closed_loop = false;
   uint i;
   while (!closed_loop)
@@ -2147,7 +2144,7 @@ void TriMesh::addyplane(PointList<3> v_shell, Real y0)
     nb_edge_iterator ite, first, last;
     first = v2eBegin(i);
     last = v2eEnd(i);
-    neighbours = {};
+    std::vector<int> neighbours = {};
     for (ite = first; ite != last; ++ite)
     {
       if (vtx[ite->opposed(i)][1] < y0eps)

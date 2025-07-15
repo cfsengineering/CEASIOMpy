@@ -37,10 +37,10 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = pentagrow1.0.0
-DISTDIR = /users/disk11/cfse4/Cassandre/part3_3dmeshing_withpentagrow/Pentagrow/.tmp/pentagrow1.0.0
+DISTDIR = /users/disk11/cfse4/Cassandre/CEASIOMpy/installation/Pentagrow/.tmp/pentagrow1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
-LIBS          = $(SUBLIBS) -L/users/disk11/cfse4/Cassandre/part3_3dmeshing_withpentagrow/Pentagrow/lib64 -lsurf -lpredicates -lgenua -lboost_components -lz -lhdf5_hl -lhdf5 -llapack -lblas -fopenmp `gfortran -m64 -print-file-name=libgfortran.a` -lpthread   
+LIBS          = $(SUBLIBS) -L/users/disk11/cfse4/Cassandre/CEASIOMpy/installation/Pentagrow/lib64 -lsurf -lpredicates -lgenua -lboost_components -lz -lhdf5_hl -lhdf5 -llapack -lblas -fopenmp `gfortran -m64 -print-file-name=libgfortran.a` -lpthread   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed

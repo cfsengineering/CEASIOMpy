@@ -16,7 +16,6 @@ Functions and constants for CPACS2GMSH module.
 import os
 import gmsh
 from typing import Union
-from pathlib import Path
 
 import numpy as np
 
@@ -219,6 +218,9 @@ def load_rans_cgf_params(
     NormalIterations = 8
     MaxCritIterations = 128
     LaplaceIterations = 8
+    symmetry_lowercase = "false"
+    if symmetry:
+        symmetry_lowercase = "true"
 
     return {
         "InputFormat": "stl",
@@ -237,7 +239,7 @@ def load_rans_cgf_params(
         "NormalIterations": NormalIterations,
         "MaxCritIterations": MaxCritIterations,
         "LaplaceIterations": LaplaceIterations,
-        "Symmetry": symmetry,
+        "Symmetry": symmetry_lowercase,
     }
 
 

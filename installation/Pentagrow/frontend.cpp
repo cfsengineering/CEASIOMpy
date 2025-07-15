@@ -161,6 +161,7 @@ FrontEnd::FrontEnd(int argc, char *argv[])
 
 void FrontEnd::run(const std::string &fname)
 {
+  cout << "test" << endl;
   bool symmetry = m_cfg.getBool("Symmetry", false);
   Real y0 = m_cfg.getFloat("YPlaneCut", 0);
 

@@ -184,7 +184,7 @@ void PentaGrow::classify(bool symmetry, Real y0)
       ss << "Wall triangle at " << mwall.face(i).center() << " bounded by ";
       ss << "three edges classified as ridges." << endl;
       ss << "Increase FeatureAngle configuration parameter." << endl;
-      // aaaaaaaaaaaaaaaaaah change back throw Error(ss.str());
+      throw Error(ss.str());
     }
   }
 

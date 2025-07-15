@@ -107,12 +107,10 @@ int ConfigParser::getInt(const std::string &key, int dval) const
 
 bool ConfigParser::getBool(const std::string &key, bool dval) const
 {
-  cout << "for bool " << key << " that has val : ";
   KeyMap::const_iterator itr = kv.find(key);
   if (itr == kv.end())
   {
     return dval;
-    cout << " No value found" << endl;
   }
   else
   {

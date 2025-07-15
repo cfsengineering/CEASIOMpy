@@ -415,6 +415,7 @@ def generate_2d_mesh_for_pentagrow(
 
     gmesh_path = Path(results_dir, "surface_mesh.stl")
     log.info(f"Wrote surface_mesh.stl in {results_dir}.")
+    log.info(f"The gmsh path is {gmesh_path}.")
     gmsh.write(str(gmesh_path))
     return gmesh_path, fuselage_maxlen
 
@@ -945,8 +946,9 @@ def pentagrow_3d_mesh(
         for key, value in cfg_params.items():
             file.write(f"{key} = {value}\n")
 
-    # check_path("surface_mesh.stl")
-    # check_path("config.cfg")
+    check_path(Path(result_dir, "surface_mesh.stl"))
+    check_path(Path(result_dir, "config.cfg"))
+    log.info(f"(Checked in folder {result_dir}) (and configa penta path is {config_penta_path})")
 
     command = ["surface_mesh.stl", "config.cfg"]
 

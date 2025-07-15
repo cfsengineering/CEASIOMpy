@@ -15,6 +15,8 @@ Functions and constants for CPACS2GMSH module.
 
 import os
 import gmsh
+from typing import Union
+from pathlib import Path
 
 import numpy as np
 
@@ -189,7 +191,7 @@ def initialize_gmsh():
     gmsh.option.setNumber("General.Verbosity", 5)
 
 
-def check_path(file: str):
+def check_path(file: Union[str, Path]):
     if os.path.exists(file):
         log.info(f"{file} exists")
     else:

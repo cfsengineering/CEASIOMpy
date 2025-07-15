@@ -1,0 +1,805 @@
+frontend.cpp:    firstTetgenPass();
+frontend.cpp:      secondTetgenPass();
+frontend.cpp:void FrontEnd::firstTetgenPass()
+frontend.cpp:  string tgOptions = m_cfg.value("TetgenOptions", m_tgoDefault);
+frontend.cpp:  // create farfield for tetgen call
+frontend.cpp:  c.start("Writing .smesh file for tetgen... ");
+frontend.cpp:    m_pg.writeTetgen("boundaries.smesh", farf, holeList,
+frontend.cpp:    m_pg.writeTetgen("boundaries.smesh", farf, holeList);
+frontend.cpp:    cout << "Warning: Tetgen will not refine nearfield, add 'a' to call." << endl;
+frontend.cpp:  string cmd = "tetgen";
+frontend.cpp:  if (m_cfg.hasKey("TetgenPath"))
+frontend.cpp:    cmd = m_cfg["TetgenPath"];
+frontend.cpp:    throw Error("Call to tetgen failed.");
+frontend.cpp:  // optional tetgen refinement pass
+frontend.cpp:    c.start("[t] Reading 1st pass tetgen files... ");
+frontend.cpp:    tmsh.readTetgen(tgInfile, &ftags);
+frontend.cpp:void FrontEnd::secondTetgenPass(int iter)
+frontend.cpp:  string tgOptions = m_cfg.value("TetgenOptions", m_tgoDefault);
+frontend.cpp:  string cmd = "tetgen";
+frontend.cpp:  if (m_cfg.hasKey("TetgenPath"))
+frontend.cpp:    cmd = m_cfg["TetgenPath"];
+frontend.cpp:    throw Error("Call to tetgen failed.");
+frontend.cpp:  // reread tet mesh from tetgen results file
+frontend.h:  /// first tetgen call to generate first-pass (background) mesh
+frontend.h:  void firstTetgenPass();
+frontend.h:  /// create edge length field and write files for second tetgen pass
+frontend.h:  /// second tetgen pass to refine mesh accordining to edge-length crit
+frontend.h:  void secondTetgenPass(int iter = 1);
+frontend.h:  /// read final tetgen output and generate pentahedra
+frontend.h:  /// default options for first tetgen pass
+include/genua/forward.h:   - TetGen surface (.smesh) and volume mesh files
+include/genua/forward.h: * - TetGen surface (.smesh) and volume mesh files
+include/genua/mxmeshboco.h:    /// tag used to track bc across call to tetgen
+include/genua/mxmesh.h:  /// write 3-node triangles as smesh file for tetgen
+include/genua/mxmesh.h:  /// import from tetgen volume mesh files
+include/genua/mxmesh.h:  void readTetgen(const std::string & basename, DVector<uint> *ftags=0);
+include/genua/mxmesh.h:  /// read vertex coordinates from tetgen .node file
+include/genua/mxmesh.h:  virtual int readTetgenNodes(std::istream & is);
+include/genua/mxmesh.h:  /// read boundary triangles from tetgen .face file
+include/genua/mxmesh.h:  virtual void readTetgenFaces(std::istream & is,
+include/genua/mxmesh.h:  /// read tet elements from tetgen .ele file
+include/genua/mxmesh.h:  virtual void readTetgenElements(std::istream & is, int offset);
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// TetGen                                                                    //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// TetGen is freely available through the website: http://www.tetgen.org.    //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:#ifndef tetgenH
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:#define tetgenH
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// To compile TetGen as a library instead of an executable program, define
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h://   speed of TetGen.
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// TetGen default uses the double precision (64 bit) for a real number. 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// TetGen only uses the C standard library.
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h://   the _WIN64 symbol if you are running TetGen on Win64 systems.
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// tetgenio                                                                  //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// A structure for transferring data into and out of TetGen's mesh structure,//
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// 'tetgenmesh' (declared below).                                            //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// The input of TetGen is either a 3D point set, or a 3D piecewise linear    //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// the specified options, the output of TetGen is either a Delaunay (or wei- //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// TetGen uses a set of files to describe the inputs and outputs. Each file  //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// The 'tetgenio' structure is a collection of arrays of data, i.e., points, //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// (input and output) files of TetGen as well as other supported mesh files. //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// Once an object of tetgenio is declared,  no array is created. One has to  //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:class tetgenio {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  // Free the memory allocated in 'tetgenio'.  Note that it assumes that the 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  tetgenio() {initialize();}
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  ~tetgenio() {deinitialize();}
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:}; // class tetgenio
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// tetgenbehavior                                                            //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// A structure for maintaining the switches and parameters used by TetGen's  //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// be set by the command line arguments (a list of strings) of TetGen.       //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:class tetgenbehavior {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  // Switches of TetGen. 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  // Parameters of TetGen. 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  // The input object of TetGen. They are recognized by either the input 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  tetgenbehavior()
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:}; // class tetgenbehavior
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// computes the error at run time step by step. TetGen first adds a "static  //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// tetgenmesh                                                                //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:class tetgenmesh {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// TetGen stores the tetrahedra and vertices of T. The basic structure of a  //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// the latter case, the face is an exterior boundary face of T.  TetGen adds //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// The current version of TetGen stores explicitly the subfaces and segments //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// Labels (enumeration declarations) used by TetGen.                         //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// Variables of TetGen                                                       //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  tetgenio *in, *addin;
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  tetgenbehavior *b;
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  tetgenmesh *bgm;
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// TetGen uses a simplified symbolic perturbation scheme from Edelsbrunner,  //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// is to perturb the weights of vertices in the fourth dimension.  TetGen    //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// TetGen originally uses the "jump-and-walk" algorithm of Muecke, E.P.,     //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// TetGen sorts the points using the method in the paper of Boissonnat,J.-D.,//
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// points. The CDT algorithms of TetGen in general create Steiner CDTs.      //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  void insertconstrainedpoints(tetgenio *addio);
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// TetGen uses the basic Delaunay refinement scheme to insert Steiner points.//
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  void outnodes(tetgenio*);
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  void outmetrics(tetgenio*);
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  void outelements(tetgenio*);
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  void outfaces(tetgenio*);
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  void outhullfaces(tetgenio*);
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  void outsubfaces(tetgenio*);
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  void outedges(tetgenio*);
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  void outsubsegments(tetgenio*);
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  void outneighbors(tetgenio*);
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  void outvoronoi(tetgenio*);
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  tetgenmesh()
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  } // tetgenmesh()
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  ~tetgenmesh()
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:  } // ~tetgenmesh()
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:};                                               // End of class tetgenmesh.
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// tetrahedralize()    Interface for using TetGen's library to generate      //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// 'in' is an object of 'tetgenio' which contains a PLC you want to tetrahed-//
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// must not be a NULL. 'out' is another object of 'tetgenio' for storing the //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:void tetrahedralize(tetgenbehavior *b, tetgenio *in, tetgenio *out, 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:                    tetgenio *addin = NULL, tetgenio *bgmin = NULL);
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:void tetrahedralize(char *switches, tetgenio *in, tetgenio *out,
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:                    tetgenio *addin = NULL, tetgenio *bgmin = NULL);
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:// terminatetetgen()    Terminate TetGen with a given exit code.             //
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void terminatetetgen(tetgenmesh *m, int x)
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline tetgenmesh::tetrahedron tetgenmesh::encode(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline tetgenmesh::tetrahedron tetgenmesh::encode2(tetrahedron* ptr, int ver) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::decode(tetrahedron ptr, triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::bond(triface& t1, triface& t2) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::dissolve(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::enext(triface& t1, triface& t2) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::enextself(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::eprev(triface& t1, triface& t2) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::eprevself(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::esym(triface& t1, triface& t2) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::esymself(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::enextesym(triface& t1, triface& t2) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::enextesymself(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::eprevesym(triface& t1, triface& t2) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::eprevesymself(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::eorgoppo(triface& t1, triface& t2) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::eorgoppoself(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::edestoppo(triface& t1, triface& t2) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::edestoppoself(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::fsym(triface& t1, triface& t2) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::fnext(triface& t1, triface& t2) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh::org(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh:: dest(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh:: apex(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh:: oppo(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh:: setorg(triface& t, point p) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh:: setdest(triface& t, point p) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh:: setapex(triface& t, point p) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh:: setoppo(triface& t, point p) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline REAL tetgenmesh::elemattribute(tetrahedron* ptr, int attnum) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setelemattribute(tetrahedron* ptr, int attnum, 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline REAL tetgenmesh::volumebound(tetrahedron* ptr) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setvolumebound(tetrahedron* ptr, REAL value) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline int tetgenmesh::elemindex(tetrahedron* ptr) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setelemindex(tetrahedron* ptr, int value) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline int tetgenmesh::elemmarker(tetrahedron* ptr) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setelemmarker(tetrahedron* ptr, int value) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::infect(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::uninfect(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline bool tetgenmesh::infected(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::marktest(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::unmarktest(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline bool tetgenmesh::marktested(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::markface(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::unmarkface(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline bool tetgenmesh::facemarked(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::markedge(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::unmarkedge(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline bool tetgenmesh::edgemarked(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::marktest2(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::unmarktest2(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline bool tetgenmesh::marktest2ed(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline int tetgenmesh::elemcounter(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setelemcounter(triface& t, int value) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::increaseelemcounter(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::decreaseelemcounter(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline bool tetgenmesh::ishulltet(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline bool tetgenmesh::isdeadtet(triface& t) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::sdecode(shellface sptr, face& s) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline tetgenmesh::shellface tetgenmesh::sencode(face& s) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline tetgenmesh::shellface tetgenmesh::sencode2(shellface *sh, int shver) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::sbond(face& s1, face& s2) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::sbond1(face& s1, face& s2) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::sdissolve(face& s)
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::spivot(face& s1, face& s2) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::spivotself(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh::sorg(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh::sdest(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh::sapex(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setsorg(face& s, point pointptr) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setsdest(face& s, point pointptr) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setsapex(face& s, point pointptr) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::sesym(face& s1, face& s2) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::sesymself(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::senext(face& s1, face& s2) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::senextself(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::senext2(face& s1, face& s2) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::senext2self(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline REAL tetgenmesh::areabound(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setareabound(face& s, REAL value) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline int tetgenmesh::shellmark(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setshellmark(face& s, int value) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::sinfect(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::suninfect(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline bool tetgenmesh::sinfected(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::smarktest(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::sunmarktest(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline bool tetgenmesh::smarktested(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::smarktest2(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::sunmarktest2(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline bool tetgenmesh::smarktest2ed(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::smarktest3(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::sunmarktest3(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline bool tetgenmesh::smarktest3ed(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setfacetindex(face& s, int value)
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline int tetgenmesh::getfacetindex(face& s)
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::tsbond(triface& t, face& s)
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::tspivot(triface& t, face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::stpivot(face& s, triface& t) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::tsdissolve(triface& t) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::stdissolve(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::ssbond(face& s, face& edge) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::ssbond1(face& s, face& edge) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::ssdissolve(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::sspivot(face& s, face& edge) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::tssbond1(triface& t, face& s)
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::sstbond1(face& s, triface& t) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::tssdissolve1(triface& t)
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::sstdissolve1(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::tsspivot1(triface& t, face& s)
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::sstpivot1(face& s, triface& t) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline int tetgenmesh::pointmark(point pt) { 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setpointmark(point pt, int value) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline enum tetgenmesh::verttype tetgenmesh::pointtype(point pt) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setpointtype(point pt, enum verttype value) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline int tetgenmesh::pointgeomtag(point pt) { 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setpointgeomtag(point pt, int value) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline REAL tetgenmesh::pointgeomuv(point pt, int i) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setpointgeomuv(point pt, int i, REAL value) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::pinfect(point pt) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::puninfect(point pt) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline bool tetgenmesh::pinfected(point pt) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::pmarktest(point pt) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::punmarktest(point pt) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline bool tetgenmesh::pmarktested(point pt) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::pmarktest2(point pt) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::punmarktest2(point pt) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline bool tetgenmesh::pmarktest2ed(point pt) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::pmarktest3(point pt) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::punmarktest3(point pt) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline bool tetgenmesh::pmarktest3ed(point pt) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline tetgenmesh::tetrahedron tetgenmesh::point2tet(point pt) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setpoint2tet(point pt, tetrahedron value) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh::point2ppt(point pt) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setpoint2ppt(point pt, point value) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline tetgenmesh::shellface tetgenmesh::point2sh(point pt) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setpoint2sh(point pt, shellface value) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline tetgenmesh::tetrahedron tetgenmesh::point2bgmtet(point pt) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setpoint2bgmtet(point pt, tetrahedron value) {
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::setpointinsradius(point pt, REAL value)
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline REAL tetgenmesh::getpointinsradius(point pt)
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::point2tetorg(point pa, triface& searchtet)
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::point2shorg(point pa, face& searchsh)
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh::farsorg(face& s)
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh::farsdest(face& s) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline REAL tetgenmesh::dot(REAL* v1, REAL* v2) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline void tetgenmesh::cross(REAL* v1, REAL* v2, REAL* n) 
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline REAL tetgenmesh::distance(REAL* p1, REAL* p2)
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:inline REAL tetgenmesh::norm2(REAL x, REAL y, REAL z)
+include/patch/svn.larosterna.com/oss/thirdparty/tetgen/tetgen.h:#endif // #ifndef tetgenH
+include/sumo/assembly.h:    /// tetgen : farfield radius
+include/sumo/assembly.h:    /// tetgen : tetrahedron quality
+include/sumo/batchrun.h:  /// call tetgen executable
+include/sumo/batchrun.h:  static bool callTetgen(const std::string &bname);
+include/sumo/batchrun.h:  /// tetgen option string
+include/sumo/batchrun.h:  static QString tetgen_opt;
+include/sumo/dlgtetgen.h: * file:       dlgtetgen.h
+include/sumo/dlgtetgen.h: * Interface to tetgen volume mesh generator
+include/sumo/dlgtetgen.h:#ifndef SUMO_DLGTETGEN_H
+include/sumo/dlgtetgen.h:#define SUMO_DLGTETGEN_H
+include/sumo/dlgtetgen.h:#include "ui_dlgtetgen.h"
+include/sumo/dlgtetgen.h: *  boundary, adjust settings to pass to tetgen, and various options
+include/sumo/dlgtetgen.h:class DlgTetgen : public QDialog, private Ui::DlgTetgen
+include/sumo/dlgtetgen.h:  DlgTetgen(QWidget *parent);
+include/sumo/dlgtetgen.h:  /// update tetgen output window
+include/sumo/dlgtetgen.h:  void updateTetgenOutput();
+include/sumo/dlgtetgen.h:  /// try to find tetgen executable
+include/sumo/dlgtetgen.h:  bool locateTetgen();
+include/sumo/dlgtetgen.h:  void startTetGeneration();
+include/sumo/dlgtetgen.h:  /// finish tetgen process normally
+include/sumo/dlgtetgen.h:  void finishTetGeneration(int exitCode, QProcess::ExitStatus exitStatus);
+include/sumo/dlgtetgen.h:  /// start envelope generation, pass envelope and farfield to tetgen
+include/sumo/dlgtetgen.h:  /// generate temporary file name for tetgen call
+include/sumo/dlgtetgen.h:  /// start tetgen process on previously stored smesh file
+include/sumo/dlgtetgen.h:  void runFirstTetgenPass();
+include/sumo/dlgtetgen.h:  /// run second tetgen pass to improve tet growth rate
+include/sumo/dlgtetgen.h:  void runSecondTetgenPass();
+include/sumo/dlgtetgen.h:  /// generate edge metric file for second tetgen pass
+include/sumo/dlgtetgen.h:  enum RunStat {Inactive, TetGen, Hybrid};
+include/sumo/dlgtetgen.h:  /// path to tetgen and temp dir
+include/sumo/dlgtetgen.h:  QString m_tetgenpath, m_tmpdirpath;
+include/sumo/dlgtetgen.h:  /// tetgen child process
+include/sumo/dlgtetgen.h:  /// tetgen pass indicator
+include/sumo/dlgtetgen.h:  uint m_tetgenPass;
+include/sumo/forward.h:class DlgTetgen;
+include/sumo/sumo.h:    /// generate volume mesh using tetgen 
+include/sumo/sumo.h:    /// dialog controlling tetgen execution
+include/sumo/sumo.h:    DlgTetgen *dlgTetgen = nullptr;
+include/surf/forward.h:  to TetGen. Furthermore, class PentaGrow can be used to generate hybrid
+include/surf/forward.h:  tetrahedral-pentahedral volume meshes for RANS solvers, but requires TetGen
+include/surf/forward.h: * to TetGen. Furthermore, class PentaGrow can be used to generate hybrid
+include/surf/forward.h: * tetrahedral-pentahedral volume meshes for RANS solvers, but requires TetGen
+include/surf/pentagrow.h:  /// adapt wall from refined outer shell (from tetgen)
+include/surf/pentagrow.h:  /// read tetgen result and collect face tags
+include/surf/pentagrow.h:  /// export boundaries to tetgen smesh file
+include/surf/pentagrow.h:  void writeTetgen(const std::string &fname, const TriMesh & farf,
+include/surf/pentagrow.h:  /// extract section tag from tetgen tag
+include/surf/pentagrow.h:  /// extract element tag from tetgen tag
+include/surf/pentagrow.h:  /// maps triangle id passed to tetgen to original triangle index
+include/surf/pentagrow.h:  /// maps triangle id passed to tetgen to section index
+include/surf/tetmesh.h:  support i/o to a few different formats. If the tetgen library libtet.a
+include/surf/tetmesh.h:  is available, the member function callTetgen() can be used to generate a
+include/surf/tetmesh.h:  Note that tetgen may not terminate if excessive quality is called for.
+include/surf/tetmesh.h:#ifdef HAVE_TETGEN
+include/surf/tetmesh.h:    /// call tetgen to create tetrahedra from boundary mesh
+include/surf/tetmesh.h:    void callTetgen(const std::string & options);
+include/surf/tetmesh.h:    /// read tetgen format files with basename bname 
+include/surf/tetmesh.h:    void readTetgen(const std::string & bname); 
+include/surf/tetmesh.h:    /// write tetgen format files
+include/surf/tetmesh.h:    void writeTetgen(const std::string & bname, int offs=1) const; 
+include/surf/tetmesh.h:    /// write boundary only in smesh format (for tetgen) 
+include/surf/tetmesh.h:    int readTetgenNodes(std::istream & is);
+include/surf/tetmesh.h:    void readTetgenElements(std::istream & is, int offs=0);
+include/surf/tetmesh.h:    void readTetgenFaces(std::istream & is, int offs=0);
+include/surf/tgrefiner.h:/** Auxilliary data for tet mesh refinement using tetgen.
+include/surf/tgrefiner.h: * TgRefiner is used to write the metric files used by TetGen in order to
+include/surf/tgrefiner.h: * cannot be expressed inside TetGen. In the present form, this class writes
+include/surf/tools/pentagrow/frontend.h:  /// first tetgen call to generate first-pass (background) mesh
+include/surf/tools/pentagrow/frontend.h:  void firstTetgenPass();
+include/surf/tools/pentagrow/frontend.h:  /// create edge length field and write files for second tetgen pass
+include/surf/tools/pentagrow/frontend.h:  /// second tetgen pass to refine mesh accordining to edge-length crit
+include/surf/tools/pentagrow/frontend.h:  void secondTetgenPass(int iter = 1);
+include/surf/tools/pentagrow/frontend.h:  /// read final tetgen output and generate pentahedra
+include/surf/tools/pentagrow/frontend.h:  /// default options for first tetgen pass
+include/surf/tritetwriter.h:    /// experimental : write in tetgen format (.smesh)
+include/surf/tritetwriter.h:    void writeTetgen(std::ostream & os) const;
+include/tetgen/tetgen.h:// TetGen                                                                    //
+include/tetgen/tetgen.h:// TetGen is freely available through the website: http://www.tetgen.org.    //
+include/tetgen/tetgen.h:#ifndef tetgenH
+include/tetgen/tetgen.h:#define tetgenH
+include/tetgen/tetgen.h:// To compile TetGen as a library instead of an executable program, define
+include/tetgen/tetgen.h://   speed of TetGen.
+include/tetgen/tetgen.h:// TetGen default uses the double precision (64 bit) for a real number. 
+include/tetgen/tetgen.h:// TetGen only uses the C standard library.
+include/tetgen/tetgen.h://   the _WIN64 symbol if you are running TetGen on Win64 systems.
+include/tetgen/tetgen.h:// tetgenio                                                                  //
+include/tetgen/tetgen.h:// A structure for transferring data into and out of TetGen's mesh structure,//
+include/tetgen/tetgen.h:// 'tetgenmesh' (declared below).                                            //
+include/tetgen/tetgen.h:// The input of TetGen is either a 3D point set, or a 3D piecewise linear    //
+include/tetgen/tetgen.h:// the specified options, the output of TetGen is either a Delaunay (or wei- //
+include/tetgen/tetgen.h:// TetGen uses a set of files to describe the inputs and outputs. Each file  //
+include/tetgen/tetgen.h:// The 'tetgenio' structure is a collection of arrays of data, i.e., points, //
+include/tetgen/tetgen.h:// (input and output) files of TetGen as well as other supported mesh files. //
+include/tetgen/tetgen.h:// Once an object of tetgenio is declared,  no array is created. One has to  //
+include/tetgen/tetgen.h:class tetgenio {
+include/tetgen/tetgen.h:  // Free the memory allocated in 'tetgenio'.  Note that it assumes that the 
+include/tetgen/tetgen.h:  tetgenio() {initialize();}
+include/tetgen/tetgen.h:  ~tetgenio() {deinitialize();}
+include/tetgen/tetgen.h:}; // class tetgenio
+include/tetgen/tetgen.h:// tetgenbehavior                                                            //
+include/tetgen/tetgen.h:// A structure for maintaining the switches and parameters used by TetGen's  //
+include/tetgen/tetgen.h:// be set by the command line arguments (a list of strings) of TetGen.       //
+include/tetgen/tetgen.h:class tetgenbehavior {
+include/tetgen/tetgen.h:  // Switches of TetGen. 
+include/tetgen/tetgen.h:  // Parameters of TetGen. 
+include/tetgen/tetgen.h:  // The input object of TetGen. They are recognized by either the input 
+include/tetgen/tetgen.h:  tetgenbehavior()
+include/tetgen/tetgen.h:}; // class tetgenbehavior
+include/tetgen/tetgen.h:// computes the error at run time step by step. TetGen first adds a "static  //
+include/tetgen/tetgen.h:// tetgenmesh                                                                //
+include/tetgen/tetgen.h:class tetgenmesh {
+include/tetgen/tetgen.h:// TetGen stores the tetrahedra and vertices of T. The basic structure of a  //
+include/tetgen/tetgen.h:// the latter case, the face is an exterior boundary face of T.  TetGen adds //
+include/tetgen/tetgen.h:// The current version of TetGen stores explicitly the subfaces and segments //
+include/tetgen/tetgen.h:// Labels (enumeration declarations) used by TetGen.                         //
+include/tetgen/tetgen.h:// Variables of TetGen                                                       //
+include/tetgen/tetgen.h:  tetgenio *in, *addin;
+include/tetgen/tetgen.h:  tetgenbehavior *b;
+include/tetgen/tetgen.h:  tetgenmesh *bgm;
+include/tetgen/tetgen.h:// TetGen uses a simplified symbolic perturbation scheme from Edelsbrunner,  //
+include/tetgen/tetgen.h:// is to perturb the weights of vertices in the fourth dimension.  TetGen    //
+include/tetgen/tetgen.h:// TetGen originally uses the "jump-and-walk" algorithm of Muecke, E.P.,     //
+include/tetgen/tetgen.h:// TetGen sorts the points using the method in the paper of Boissonnat,J.-D.,//
+include/tetgen/tetgen.h:// points. The CDT algorithms of TetGen in general create Steiner CDTs.      //
+include/tetgen/tetgen.h:  void insertconstrainedpoints(tetgenio *addio);
+include/tetgen/tetgen.h:// TetGen uses the basic Delaunay refinement scheme to insert Steiner points.//
+include/tetgen/tetgen.h:  void outnodes(tetgenio*);
+include/tetgen/tetgen.h:  void outmetrics(tetgenio*);
+include/tetgen/tetgen.h:  void outelements(tetgenio*);
+include/tetgen/tetgen.h:  void outfaces(tetgenio*);
+include/tetgen/tetgen.h:  void outhullfaces(tetgenio*);
+include/tetgen/tetgen.h:  void outsubfaces(tetgenio*);
+include/tetgen/tetgen.h:  void outedges(tetgenio*);
+include/tetgen/tetgen.h:  void outsubsegments(tetgenio*);
+include/tetgen/tetgen.h:  void outneighbors(tetgenio*);
+include/tetgen/tetgen.h:  void outvoronoi(tetgenio*);
+include/tetgen/tetgen.h:  tetgenmesh()
+include/tetgen/tetgen.h:  } // tetgenmesh()
+include/tetgen/tetgen.h:  ~tetgenmesh()
+include/tetgen/tetgen.h:  } // ~tetgenmesh()
+include/tetgen/tetgen.h:};                                               // End of class tetgenmesh.
+include/tetgen/tetgen.h:// tetrahedralize()    Interface for using TetGen's library to generate      //
+include/tetgen/tetgen.h:// 'in' is an object of 'tetgenio' which contains a PLC you want to tetrahed-//
+include/tetgen/tetgen.h:// must not be a NULL. 'out' is another object of 'tetgenio' for storing the //
+include/tetgen/tetgen.h:void tetrahedralize(tetgenbehavior *b, tetgenio *in, tetgenio *out, 
+include/tetgen/tetgen.h:                    tetgenio *addin = NULL, tetgenio *bgmin = NULL);
+include/tetgen/tetgen.h:void tetrahedralize(char *switches, tetgenio *in, tetgenio *out,
+include/tetgen/tetgen.h:                    tetgenio *addin = NULL, tetgenio *bgmin = NULL);
+include/tetgen/tetgen.h:// terminatetetgen()    Terminate TetGen with a given exit code.             //
+include/tetgen/tetgen.h:inline void terminatetetgen(tetgenmesh *m, int x)
+include/tetgen/tetgen.h:inline tetgenmesh::tetrahedron tetgenmesh::encode(triface& t) {
+include/tetgen/tetgen.h:inline tetgenmesh::tetrahedron tetgenmesh::encode2(tetrahedron* ptr, int ver) {
+include/tetgen/tetgen.h:inline void tetgenmesh::decode(tetrahedron ptr, triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::bond(triface& t1, triface& t2) {
+include/tetgen/tetgen.h:inline void tetgenmesh::dissolve(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::enext(triface& t1, triface& t2) {
+include/tetgen/tetgen.h:inline void tetgenmesh::enextself(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::eprev(triface& t1, triface& t2) {
+include/tetgen/tetgen.h:inline void tetgenmesh::eprevself(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::esym(triface& t1, triface& t2) {
+include/tetgen/tetgen.h:inline void tetgenmesh::esymself(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::enextesym(triface& t1, triface& t2) {
+include/tetgen/tetgen.h:inline void tetgenmesh::enextesymself(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::eprevesym(triface& t1, triface& t2) {
+include/tetgen/tetgen.h:inline void tetgenmesh::eprevesymself(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::eorgoppo(triface& t1, triface& t2) {
+include/tetgen/tetgen.h:inline void tetgenmesh::eorgoppoself(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::edestoppo(triface& t1, triface& t2) {
+include/tetgen/tetgen.h:inline void tetgenmesh::edestoppoself(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::fsym(triface& t1, triface& t2) {
+include/tetgen/tetgen.h:inline void tetgenmesh::fnext(triface& t1, triface& t2) {
+include/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh::org(triface& t) {
+include/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh:: dest(triface& t) {
+include/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh:: apex(triface& t) {
+include/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh:: oppo(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh:: setorg(triface& t, point p) {
+include/tetgen/tetgen.h:inline void tetgenmesh:: setdest(triface& t, point p) {
+include/tetgen/tetgen.h:inline void tetgenmesh:: setapex(triface& t, point p) {
+include/tetgen/tetgen.h:inline void tetgenmesh:: setoppo(triface& t, point p) {
+include/tetgen/tetgen.h:inline REAL tetgenmesh::elemattribute(tetrahedron* ptr, int attnum) {
+include/tetgen/tetgen.h:inline void tetgenmesh::setelemattribute(tetrahedron* ptr, int attnum, 
+include/tetgen/tetgen.h:inline REAL tetgenmesh::volumebound(tetrahedron* ptr) {
+include/tetgen/tetgen.h:inline void tetgenmesh::setvolumebound(tetrahedron* ptr, REAL value) {
+include/tetgen/tetgen.h:inline int tetgenmesh::elemindex(tetrahedron* ptr) {
+include/tetgen/tetgen.h:inline void tetgenmesh::setelemindex(tetrahedron* ptr, int value) {
+include/tetgen/tetgen.h:inline int tetgenmesh::elemmarker(tetrahedron* ptr) {
+include/tetgen/tetgen.h:inline void tetgenmesh::setelemmarker(tetrahedron* ptr, int value) {
+include/tetgen/tetgen.h:inline void tetgenmesh::infect(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::uninfect(triface& t) {
+include/tetgen/tetgen.h:inline bool tetgenmesh::infected(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::marktest(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::unmarktest(triface& t) {
+include/tetgen/tetgen.h:inline bool tetgenmesh::marktested(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::markface(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::unmarkface(triface& t) {
+include/tetgen/tetgen.h:inline bool tetgenmesh::facemarked(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::markedge(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::unmarkedge(triface& t) {
+include/tetgen/tetgen.h:inline bool tetgenmesh::edgemarked(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::marktest2(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::unmarktest2(triface& t) {
+include/tetgen/tetgen.h:inline bool tetgenmesh::marktest2ed(triface& t) {
+include/tetgen/tetgen.h:inline int tetgenmesh::elemcounter(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::setelemcounter(triface& t, int value) {
+include/tetgen/tetgen.h:inline void tetgenmesh::increaseelemcounter(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::decreaseelemcounter(triface& t) {
+include/tetgen/tetgen.h:inline bool tetgenmesh::ishulltet(triface& t) {
+include/tetgen/tetgen.h:inline bool tetgenmesh::isdeadtet(triface& t) {
+include/tetgen/tetgen.h:inline void tetgenmesh::sdecode(shellface sptr, face& s) {
+include/tetgen/tetgen.h:inline tetgenmesh::shellface tetgenmesh::sencode(face& s) {
+include/tetgen/tetgen.h:inline tetgenmesh::shellface tetgenmesh::sencode2(shellface *sh, int shver) {
+include/tetgen/tetgen.h:inline void tetgenmesh::sbond(face& s1, face& s2) 
+include/tetgen/tetgen.h:inline void tetgenmesh::sbond1(face& s1, face& s2) 
+include/tetgen/tetgen.h:inline void tetgenmesh::sdissolve(face& s)
+include/tetgen/tetgen.h:inline void tetgenmesh::spivot(face& s1, face& s2) 
+include/tetgen/tetgen.h:inline void tetgenmesh::spivotself(face& s) 
+include/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh::sorg(face& s) 
+include/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh::sdest(face& s) 
+include/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh::sapex(face& s) 
+include/tetgen/tetgen.h:inline void tetgenmesh::setsorg(face& s, point pointptr) 
+include/tetgen/tetgen.h:inline void tetgenmesh::setsdest(face& s, point pointptr) 
+include/tetgen/tetgen.h:inline void tetgenmesh::setsapex(face& s, point pointptr) 
+include/tetgen/tetgen.h:inline void tetgenmesh::sesym(face& s1, face& s2) 
+include/tetgen/tetgen.h:inline void tetgenmesh::sesymself(face& s) 
+include/tetgen/tetgen.h:inline void tetgenmesh::senext(face& s1, face& s2) 
+include/tetgen/tetgen.h:inline void tetgenmesh::senextself(face& s) 
+include/tetgen/tetgen.h:inline void tetgenmesh::senext2(face& s1, face& s2) 
+include/tetgen/tetgen.h:inline void tetgenmesh::senext2self(face& s) 
+include/tetgen/tetgen.h:inline REAL tetgenmesh::areabound(face& s) 
+include/tetgen/tetgen.h:inline void tetgenmesh::setareabound(face& s, REAL value) 
+include/tetgen/tetgen.h:inline int tetgenmesh::shellmark(face& s) 
+include/tetgen/tetgen.h:inline void tetgenmesh::setshellmark(face& s, int value) 
+include/tetgen/tetgen.h:inline void tetgenmesh::sinfect(face& s) 
+include/tetgen/tetgen.h:inline void tetgenmesh::suninfect(face& s) 
+include/tetgen/tetgen.h:inline bool tetgenmesh::sinfected(face& s) 
+include/tetgen/tetgen.h:inline void tetgenmesh::smarktest(face& s) 
+include/tetgen/tetgen.h:inline void tetgenmesh::sunmarktest(face& s) 
+include/tetgen/tetgen.h:inline bool tetgenmesh::smarktested(face& s) 
+include/tetgen/tetgen.h:inline void tetgenmesh::smarktest2(face& s) 
+include/tetgen/tetgen.h:inline void tetgenmesh::sunmarktest2(face& s) 
+include/tetgen/tetgen.h:inline bool tetgenmesh::smarktest2ed(face& s) 
+include/tetgen/tetgen.h:inline void tetgenmesh::smarktest3(face& s) 
+include/tetgen/tetgen.h:inline void tetgenmesh::sunmarktest3(face& s) 
+include/tetgen/tetgen.h:inline bool tetgenmesh::smarktest3ed(face& s) 
+include/tetgen/tetgen.h:inline void tetgenmesh::setfacetindex(face& s, int value)
+include/tetgen/tetgen.h:inline int tetgenmesh::getfacetindex(face& s)
+include/tetgen/tetgen.h:inline void tetgenmesh::tsbond(triface& t, face& s)
+include/tetgen/tetgen.h:inline void tetgenmesh::tspivot(triface& t, face& s) 
+include/tetgen/tetgen.h:inline void tetgenmesh::stpivot(face& s, triface& t) 
+include/tetgen/tetgen.h:inline void tetgenmesh::tsdissolve(triface& t) 
+include/tetgen/tetgen.h:inline void tetgenmesh::stdissolve(face& s) 
+include/tetgen/tetgen.h:inline void tetgenmesh::ssbond(face& s, face& edge) 
+include/tetgen/tetgen.h:inline void tetgenmesh::ssbond1(face& s, face& edge) 
+include/tetgen/tetgen.h:inline void tetgenmesh::ssdissolve(face& s) 
+include/tetgen/tetgen.h:inline void tetgenmesh::sspivot(face& s, face& edge) 
+include/tetgen/tetgen.h:inline void tetgenmesh::tssbond1(triface& t, face& s)
+include/tetgen/tetgen.h:inline void tetgenmesh::sstbond1(face& s, triface& t) 
+include/tetgen/tetgen.h:inline void tetgenmesh::tssdissolve1(triface& t)
+include/tetgen/tetgen.h:inline void tetgenmesh::sstdissolve1(face& s) 
+include/tetgen/tetgen.h:inline void tetgenmesh::tsspivot1(triface& t, face& s)
+include/tetgen/tetgen.h:inline void tetgenmesh::sstpivot1(face& s, triface& t) 
+include/tetgen/tetgen.h:inline int tetgenmesh::pointmark(point pt) { 
+include/tetgen/tetgen.h:inline void tetgenmesh::setpointmark(point pt, int value) {
+include/tetgen/tetgen.h:inline enum tetgenmesh::verttype tetgenmesh::pointtype(point pt) {
+include/tetgen/tetgen.h:inline void tetgenmesh::setpointtype(point pt, enum verttype value) {
+include/tetgen/tetgen.h:inline int tetgenmesh::pointgeomtag(point pt) { 
+include/tetgen/tetgen.h:inline void tetgenmesh::setpointgeomtag(point pt, int value) {
+include/tetgen/tetgen.h:inline REAL tetgenmesh::pointgeomuv(point pt, int i) {
+include/tetgen/tetgen.h:inline void tetgenmesh::setpointgeomuv(point pt, int i, REAL value) {
+include/tetgen/tetgen.h:inline void tetgenmesh::pinfect(point pt) {
+include/tetgen/tetgen.h:inline void tetgenmesh::puninfect(point pt) {
+include/tetgen/tetgen.h:inline bool tetgenmesh::pinfected(point pt) {
+include/tetgen/tetgen.h:inline void tetgenmesh::pmarktest(point pt) {
+include/tetgen/tetgen.h:inline void tetgenmesh::punmarktest(point pt) {
+include/tetgen/tetgen.h:inline bool tetgenmesh::pmarktested(point pt) {
+include/tetgen/tetgen.h:inline void tetgenmesh::pmarktest2(point pt) {
+include/tetgen/tetgen.h:inline void tetgenmesh::punmarktest2(point pt) {
+include/tetgen/tetgen.h:inline bool tetgenmesh::pmarktest2ed(point pt) {
+include/tetgen/tetgen.h:inline void tetgenmesh::pmarktest3(point pt) {
+include/tetgen/tetgen.h:inline void tetgenmesh::punmarktest3(point pt) {
+include/tetgen/tetgen.h:inline bool tetgenmesh::pmarktest3ed(point pt) {
+include/tetgen/tetgen.h:inline tetgenmesh::tetrahedron tetgenmesh::point2tet(point pt) {
+include/tetgen/tetgen.h:inline void tetgenmesh::setpoint2tet(point pt, tetrahedron value) {
+include/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh::point2ppt(point pt) {
+include/tetgen/tetgen.h:inline void tetgenmesh::setpoint2ppt(point pt, point value) {
+include/tetgen/tetgen.h:inline tetgenmesh::shellface tetgenmesh::point2sh(point pt) {
+include/tetgen/tetgen.h:inline void tetgenmesh::setpoint2sh(point pt, shellface value) {
+include/tetgen/tetgen.h:inline tetgenmesh::tetrahedron tetgenmesh::point2bgmtet(point pt) {
+include/tetgen/tetgen.h:inline void tetgenmesh::setpoint2bgmtet(point pt, tetrahedron value) {
+include/tetgen/tetgen.h:inline void tetgenmesh::setpointinsradius(point pt, REAL value)
+include/tetgen/tetgen.h:inline REAL tetgenmesh::getpointinsradius(point pt)
+include/tetgen/tetgen.h:inline void tetgenmesh::point2tetorg(point pa, triface& searchtet)
+include/tetgen/tetgen.h:inline void tetgenmesh::point2shorg(point pa, face& searchsh)
+include/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh::farsorg(face& s)
+include/tetgen/tetgen.h:inline tetgenmesh::point tetgenmesh::farsdest(face& s) 
+include/tetgen/tetgen.h:inline REAL tetgenmesh::dot(REAL* v1, REAL* v2) 
+include/tetgen/tetgen.h:inline void tetgenmesh::cross(REAL* v1, REAL* v2, REAL* n) 
+include/tetgen/tetgen.h:inline REAL tetgenmesh::distance(REAL* p1, REAL* p2)
+include/tetgen/tetgen.h:inline REAL tetgenmesh::norm2(REAL x, REAL y, REAL z)
+include/tetgen/tetgen.h:#endif // #ifndef tetgenH
+include/genua/mxmesh-cgns.cpp:    readTetgen(fname, &ftags);
+include/genua/mxmesh-formats.cpp:static string findTetgenHeader(istream & is)
+include/genua/mxmesh-formats.cpp:    title->copy("Mesh generated by sumo+tetgen");
+include/genua/mxmesh-formats.cpp:void MxMesh::readTetgen(const std::string & basename, DVector<uint> *ftags)
+include/genua/mxmesh-formats.cpp:    throw Error("Cannot open tetgen node file: "+nodefile);
+include/genua/mxmesh-formats.cpp:  offs = readTetgenNodes(nis);
+include/genua/mxmesh-formats.cpp:    throw Error("Cannot open tetgen node file: "+nodefile);
+include/genua/mxmesh-formats.cpp:  readTetgenFaces(fis, offs, ftags);
+include/genua/mxmesh-formats.cpp:    readTetgenElements(eis, offs);
+include/genua/mxmesh-formats.cpp:int MxMesh::readTetgenNodes(std::istream & is)
+include/genua/mxmesh-formats.cpp:  string line = findTetgenHeader(is);
+include/genua/mxmesh-formats.cpp:    throw Error("MxMesh::readTetgenNodes() cannot find valid node file header.");
+include/genua/mxmesh-formats.cpp:    throw Error("MxMesh::readTetgenNodes() - invalid first node line.");
+include/genua/mxmesh-formats.cpp:void MxMesh::readTetgenFaces(std::istream & is, int offs, DVector<uint> *ptags)
+include/genua/mxmesh-formats.cpp:  string line = findTetgenHeader(is);
+include/genua/mxmesh-formats.cpp:    throw Error("MxMesh::readTetgenFaces() cannot find "
+include/genua/mxmesh-formats.cpp:    throw Error("MxMesh::readTetgenFaces() cannot find "
+include/genua/mxmesh-formats.cpp:void MxMesh::readTetgenElements(std::istream & is, int offs)
+include/genua/mxmesh-formats.cpp:  string line = findTetgenHeader(is);
+include/genua/mxmesh-formats.cpp:    throw Error("MxMesh::readTetgenElements() cannot find "
+include/genua/test/genmtr/test_genmtr.cpp:    msh.readTetgen(basename, &ftags);
+include/genua/test/genmtr/test_genmtr.cpp:    cout << "Reading tetgen mesh: " << clk.elapsed() << endl;
+include/scope/scope.cpp:              "Tetgen input (*.smesh);;"
+include/scope/scope.cpp:      } else if (selfilter == "Tetgen input (*.smesh)") {
+include/sumo/batchrun.cpp:QString BatchRun::tetgen_opt;
+include/sumo/batchrun.cpp:    os << "Initializing mesh boundaries for tetgen ... ";
+include/sumo/batchrun.cpp:    // build tetgen options for the case that they are not defined
+include/sumo/batchrun.cpp:    if (tetgen_opt.isEmpty()) {
+include/sumo/batchrun.cpp:      tetgen_opt = "pq" + cloc.toString(r2e, 'f', 3);
+include/sumo/batchrun.cpp:      tetgen_opt += "V";
+include/sumo/batchrun.cpp:    os << "Writing tetgen input file: " << fsmesh << " ... ";
+include/sumo/batchrun.cpp:    os << "Running tetgen with options: -" << tetgen_opt.toStdString() << endl;
+include/sumo/batchrun.cpp:    os << "tetgen output is written to " << (bname + "_tetgenlog.txt") << endl;
+include/sumo/batchrun.cpp:    if ( callTetgen(bname) ) {
+include/sumo/batchrun.cpp:      os << "tetgen runtime: " << wc.elapsed() << "s." << endl;
+include/sumo/batchrun.cpp:      os << "Reading tetgen output files... ";
+include/sumo/batchrun.cpp:      tvm.readTetgen(bname+".1");
+include/sumo/batchrun.cpp:      os << "tetgen aborted with error." << endl;
+include/sumo/batchrun.cpp:    } else if (opt.contains("tetgen-options")) {
+include/sumo/batchrun.cpp:      tetgen_opt = val;
+include/sumo/batchrun.cpp:bool BatchRun::callTetgen(const string &bname)
+include/sumo/batchrun.cpp:  args << "-" + tetgen_opt << QString::fromStdString(bname + ".smesh");
+include/sumo/batchrun.cpp:  // path to tetgen must be stored in settings
+include/sumo/batchrun.cpp:  QString defpath = QCoreApplication::applicationDirPath() + "/tetgen";
+include/sumo/batchrun.cpp:  xpath = SumoMain::setting("tetgenpath", defpath).value<QString>();
+include/sumo/batchrun.cpp:  // write tetgen output to separate file
+include/sumo/batchrun.cpp:  ofstream os( asPath(bname + "_tetgenlog.txt").c_str() );
+include/sumo/batchrun.cpp:      "-tetgen-options=flags \n"
+include/sumo/batchrun.cpp:      "        Call tetgen as in 'tetgen -flags model.smesh' when generating \n"
+include/sumo/batchrun.cpp:      "        a volume mesh.The default is -tetgen-options=pq1.4V\n"
+include/sumo/batchrun.cpp:      "dwfsumo -batch -output=cgns,edge -tetgen-options=pq1.16VY aircraft.smx\n"
+include/sumo/batchrun.cpp:      "        tetgen -pq1.16VY aircraft.smesh\n"
+include/sumo/batchrun.cpp:      "        on it, then convert the tetgen output to CGNS and EDGE files.\n";
+include/sumo/dlgtetgen.cpp: * file:       dlgtetgen.h
+include/sumo/dlgtetgen.cpp: * Interface to tetgen volume mesh generator
+include/sumo/dlgtetgen.cpp:#include "dlgtetgen.h"
+include/sumo/dlgtetgen.cpp:DlgTetgen::DlgTetgen(QWidget *parent)
+include/sumo/dlgtetgen.cpp:  : QDialog(parent, Qt::Tool), m_tgproc(this), m_rstat(Inactive), m_tetgenPass(0)
+include/sumo/dlgtetgen.cpp:  connect( pbCallTetgen, SIGNAL(clicked()),
+include/sumo/dlgtetgen.cpp:           this, SLOT(updateTetgenOutput()) );
+include/sumo/dlgtetgen.cpp:  connect( pbLocateTetgen, SIGNAL(clicked()),
+include/sumo/dlgtetgen.cpp:           this, SLOT(locateTetgen()) );
+include/sumo/dlgtetgen.cpp:  m_tetgenpath = SumoMain::setting("tetgenpath", QString()).value<QString>();
+include/sumo/dlgtetgen.cpp:void DlgTetgen::assign(AssemblyPtr pasy)
+include/sumo/dlgtetgen.cpp:void DlgTetgen::startGeneration()
+include/sumo/dlgtetgen.cpp:    startTetGeneration();
+include/sumo/dlgtetgen.cpp:void DlgTetgen::finishGeneration(int exitCode, QProcess::ExitStatus exitStatus)
+include/sumo/dlgtetgen.cpp:    pbCallTetgen->setEnabled(true);
+include/sumo/dlgtetgen.cpp:  // this stub is called when tetgen finishes
+include/sumo/dlgtetgen.cpp:  if (cbSecondPass->isChecked() and m_tetgenPass < 2) {
+include/sumo/dlgtetgen.cpp:    runSecondTetgenPass();
+include/sumo/dlgtetgen.cpp:  else if (m_rstat == TetGen)
+include/sumo/dlgtetgen.cpp:    finishTetGeneration(exitCode, exitStatus);
+include/sumo/dlgtetgen.cpp:  pbCallTetgen->setEnabled(true);
+include/sumo/dlgtetgen.cpp:void DlgTetgen::updateFarTriCount(int nref)
+include/sumo/dlgtetgen.cpp:void DlgTetgen::updateMeshStats()
+include/sumo/dlgtetgen.cpp:void DlgTetgen::updateTetgenOutput()
+include/sumo/dlgtetgen.cpp:void DlgTetgen::updateTetVolume()
+include/sumo/dlgtetgen.cpp:void DlgTetgen::startTetGeneration()
+include/sumo/dlgtetgen.cpp:  m_rstat = TetGen;
+include/sumo/dlgtetgen.cpp:  if (not QFileInfo(m_tetgenpath).isExecutable()) {
+include/sumo/dlgtetgen.cpp:    if (not locateTetgen())
+include/sumo/dlgtetgen.cpp:  runFirstTetgenPass();
+include/sumo/dlgtetgen.cpp:void DlgTetgen::runFirstTetgenPass()
+include/sumo/dlgtetgen.cpp:  m_tetgenPass = 1;
+include/sumo/dlgtetgen.cpp:  m_tgproc.start(m_tetgenpath, args, mode);
+include/sumo/dlgtetgen.cpp:  QString msg = tr("First pass: <b>tetgen %1</b> started...").arg(tgopt);
+include/sumo/dlgtetgen.cpp:  tbOutput->append(tr("Path: %1").arg(m_tetgenpath));
+include/sumo/dlgtetgen.cpp:  pbCallTetgen->setEnabled(false);
+include/sumo/dlgtetgen.cpp:void DlgTetgen::runSecondTetgenPass()
+include/sumo/dlgtetgen.cpp:  m_tetgenPass = 2;
+include/sumo/dlgtetgen.cpp:  m_tgproc.start(m_tetgenpath, args, mode);
+include/sumo/dlgtetgen.cpp:  QString msg = tr("Second pass: <b>tetgen %1 </b>started...").arg(tgopt);
+include/sumo/dlgtetgen.cpp:void DlgTetgen::writeMetricFile()
+include/sumo/dlgtetgen.cpp:  tmsh.readTetgen( str(m_tmpfilebase + ".1."), &ftags);
+include/sumo/dlgtetgen.cpp:void DlgTetgen::finishTetGeneration(int exitCode,
+include/sumo/dlgtetgen.cpp:  printLog(tr("Attempting to read tetgen results..."));
+include/sumo/dlgtetgen.cpp:      if (m_tetgenPass == 1)
+include/sumo/dlgtetgen.cpp:      tvm.readTetgen(fname);
+include/sumo/dlgtetgen.cpp:      if (m_tetgenPass == 2) {
+include/sumo/dlgtetgen.cpp:      QString msg = tr("<b>tetgen terminated normally.</b>");
+include/sumo/dlgtetgen.cpp:    QString msg = tr("<b>tetgen terminated with error %1.</b>").arg(exitCode);
+include/sumo/dlgtetgen.cpp:void DlgTetgen::abortGeneration()
+include/sumo/dlgtetgen.cpp:  QString msg = tr("<b>tetgen process killed.</b>");
+include/sumo/dlgtetgen.cpp:  pbCallTetgen->setEnabled(true);
+include/sumo/dlgtetgen.cpp:bool DlgTetgen::locateTetgen()
+include/sumo/dlgtetgen.cpp:  // by default, search for tetgen in sumo's bin directory
+include/sumo/dlgtetgen.cpp:  QString def_tgpath = QCoreApplication::applicationDirPath() + "/tetgen";
+include/sumo/dlgtetgen.cpp:  m_tetgenpath = SumoMain::setting("tetgenpath",
+include/sumo/dlgtetgen.cpp:  QString caption = tr("Locate tetgen executable");
+include/sumo/dlgtetgen.cpp:  // test if tetgen really is here
+include/sumo/dlgtetgen.cpp:  bool exists = QFileInfo(m_tetgenpath).exists();
+include/sumo/dlgtetgen.cpp:  bool isexec = QFileInfo(m_tetgenpath).isExecutable();
+include/sumo/dlgtetgen.cpp:    if ( QFileInfo(m_tetgenpath).absoluteDir().exists() )
+include/sumo/dlgtetgen.cpp:      fd.setDirectory( QFileInfo(m_tetgenpath).absoluteDir() );
+include/sumo/dlgtetgen.cpp:        m_tetgenpath = selected[0];
+include/sumo/dlgtetgen.cpp:    exists = QFileInfo(m_tetgenpath).exists();
+include/sumo/dlgtetgen.cpp:    isexec = QFileInfo(m_tetgenpath).isExecutable();
+include/sumo/dlgtetgen.cpp:    SumoMain::changeSetting("tetgenpath", m_tetgenpath);
+include/sumo/dlgtetgen.cpp:void DlgTetgen::printLog(const QString &s)
+include/sumo/dlgtetgen.cpp:void DlgTetgen::fetchConfig()
+include/sumo/dlgtetgen.cpp:const QString & DlgTetgen::tempFileName()
+include/sumo/dlgtetgen.cpp:void DlgTetgen::startHybridGeneration()
+include/sumo/dlgtetgen.cpp:  if (not QFileInfo(m_tetgenpath).isExecutable()) {
+include/sumo/dlgtetgen.cpp:    if (not locateTetgen())
+include/sumo/dlgtetgen.cpp:    // generate farfield, write boundary file for tetgen
+include/sumo/dlgtetgen.cpp:      printLog(tr("Writing .smesh file for tetgen: %1").arg(fname.c_str()));
+include/sumo/dlgtetgen.cpp:      m_pgrow->writeTetgen(fname, farf, holeList);
+include/sumo/dlgtetgen.cpp:  // call tetgen to generate external tet mesh
+include/sumo/dlgtetgen.cpp:  runFirstTetgenPass();
+include/sumo/dlgtetgen.cpp:void DlgTetgen::finishHybridGeneration(int exitCode,
+include/sumo/dlgtetgen.cpp:  printLog(tr("Attempting to read tetgen results..."));
+include/sumo/dlgtetgen.cpp:    QString msg = tr("<b>tetgen terminated with error %1.</b>").arg(exitCode);
+include/sumo/dlgtetgen.cpp:    // reread tet mesh from tetgen results file
+include/sumo/dlgtetgen.cpp:    if (m_tetgenPass == 1)
+include/sumo/exporttritet.cpp:  cbFormat->addItem("TetGen (.smesh)");
+include/sumo/exporttritet.cpp:      filter = tr("Tetgen boundary mesh (*.smesh);; "
+include/sumo/exporttritet.cpp:                  "Tetgen boundary mesh (*.smesh);; All files (*)");
+include/sumo/exporttritet.cpp:        // twt.writeTetgen(os);
+include/sumo/sumo.cpp:#include "dlgtetgen.h"
+include/sumo/sumo.cpp:  dlgTetgen = 0;
+include/sumo/sumo.cpp:  delete dlgTetgen;
+include/sumo/sumo.cpp:  xpTritetAct->setStatusTip(tr("Export boundary mesh for tritet or tetgen"));
+include/sumo/sumo.cpp:  // check whether we can support tetgen output
+include/sumo/sumo.cpp:                "Tetgen (*.smesh);;"
+include/sumo/sumo.cpp:    } else if (selfilter.contains("Tetgen")) {
+include/sumo/sumo.cpp:                                 //                   "Tetgen (*.ele *.node);;"
+include/sumo/sumo.cpp:        //      } else if (selfilter.contains("Tetgen")) {
+include/sumo/sumo.cpp:        //        model->volumeMesh().writeTetgen(str(fn));
+include/sumo/sumo.cpp:  if (dlgTetgen == 0) {
+include/sumo/sumo.cpp:    dlgTetgen = new DlgTetgen(this);
+include/sumo/sumo.cpp:    // connect(dlgTetgen, SIGNAL(volumeMeshAvailable(bool)),
+include/sumo/sumo.cpp:    connect(dlgTetgen, SIGNAL(volumeMeshAvailable(bool)),
+include/sumo/sumo.cpp:  dlgTetgen->assign(model);
+include/sumo/sumo.cpp:  dlgTetgen->show();
+include/surf/pentagrow.cpp:  // look up the vertex i of tetwall in the original (pre-tetgen) outer
+include/surf/pentagrow.cpp:  // refined outer shell mesh post-tetgen. if the vertex was not found
+include/surf/pentagrow.cpp:  // in the pre-tetgen outer mesh, project it onto the nearest triangle of
+include/surf/pentagrow.cpp:  // the pre-tetgen outer mesh and retrieve foot point and index of the
+include/surf/pentagrow.cpp:  // because we call MxMesh::readTetgen() with a non-null argument for the
+include/surf/pentagrow.cpp:  // *this after readTetgen; hence, we need to
+include/surf/pentagrow.cpp:    throw Error("No boundary with 3-node triangles found in tetgen output.");
+include/surf/pentagrow.cpp:  // needed to interpolate vertices which tetgen has introduced at the
+include/surf/pentagrow.cpp:  // use topology of the actual outer shell mesh as imported from tetgen
+include/surf/pentagrow.cpp:  // map vertices of that mesh which are found in tetgen input to the
+include/surf/pentagrow.cpp:  // face tag contains the index of the original triangle passed to tetgen
+include/surf/pentagrow.cpp:void PentaGrow::writeTetgen(const std::string &fname,
+include/surf/pentagrow.cpp:  MxMesh::readTetgen(basename, &faceTags);
+include/surf/test/airfoilmesh/test_airfoilmesh.cpp:      ss << "/Users/david/bin/tetgen-1.5 -pq1.5Y boundaries.smesh";
+include/surf/test/airfoilmesh/test_airfoilmesh.cpp:    tetmx.readTetgen("boundaries.1.");
+include/surf/test/airfoilmesh/test_airfoilmesh.cpp:      ss << "/Users/david/bin/tetgen-1.5 -rqmYS1000000 boundaries.1";
+include/surf/test/airfoilmesh/test_airfoilmesh.cpp:    tetmx.readTetgen("boundaries.2.");
+include/surf/test/wakesurf/test_wakesurf.cpp:    // create mx mesh (which can write tetgen output)
+include/surf/test/wingpart/test_wingpart.cpp:    //    //    cout << "Debug: returning before calling tetgen." << endl;
+include/surf/test/wingpart/test_wingpart.cpp:      ss << "/Users/david/bin/tetgen-1.5 -pq1.5Y boundaries.smesh";
+include/surf/test/wingpart/test_wingpart.cpp:    tetmx.readTetgen("boundaries.1.");
+include/surf/test/wingpart/test_wingpart.cpp:      ss << "/Users/david/bin/tetgen-1.5 -rqmYS1000000 boundaries.1";
+include/surf/test/wingpart/test_wingpart.cpp:    tetmx.readTetgen("boundaries.2.");
+include/surf/tetmesh.cpp:static string findTetgenHeader(istream & is)
+include/surf/tetmesh.cpp:int TetMesh::readTetgenNodes(std::istream & is)
+include/surf/tetmesh.cpp:  string line = findTetgenHeader(is);
+include/surf/tetmesh.cpp:    throw Error("TetMesh::readTetgenNodes() cannot find valid node file header.");
+include/surf/tetmesh.cpp:    throw Error("TetMesh::readTetgenNodes() invalid first node line.");
+include/surf/tetmesh.cpp:void TetMesh::readTetgenElements(std::istream & is, int offs)
+include/surf/tetmesh.cpp:  string line = findTetgenHeader(is);
+include/surf/tetmesh.cpp:    throw Error("TetMesh::readTetgenElements() cannot find "
+include/surf/tetmesh.cpp:void TetMesh::readTetgenFaces(std::istream & is, int offs)
+include/surf/tetmesh.cpp:  string line = findTetgenHeader(is);
+include/surf/tetmesh.cpp:    throw Error("TetMesh::readTetgenFaces() cannot find "
+include/surf/tetmesh.cpp:    throw Error("TetMesh::readTetgenFaces() cannot find "
+include/surf/tetmesh.cpp:void TetMesh::readTetgen(const std::string & bname)
+include/surf/tetmesh.cpp:  int offs = readTetgenNodes(nis);
+include/surf/tetmesh.cpp:  readTetgenFaces(fis, offs);
+include/surf/tetmesh.cpp:    readTetgenElements(eis, offs);
+include/surf/tetmesh.cpp:void TetMesh::writeTetgen(const std::string & bname, int offs) const
+include/surf/tetmesh.cpp:  title->copy("Unstructured mesh generated by sumo+tetgen");
+include/surf/tetmesh.cpp:#ifdef HAVE_TETGEN
+include/surf/tetmesh.cpp:#include <tetgen.h>
+include/surf/tetmesh.cpp:void TetMesh::callTetgen(const std::string & options)
+include/surf/tetmesh.cpp:    throw Error("Boundary must be defined before tetgen is called.");
+include/surf/tetmesh.cpp:  tetgenio in, out;
+include/surf/tetmesh.cpp:  in.facetlist = new tetgenio::facet[nf];
+include/surf/tetmesh.cpp:    tetgenio::init(&in.facetlist[i]);
+include/surf/tetmesh.cpp:    tetgenio::facet & f( in.facetlist[i] );
+include/surf/tetmesh.cpp:    f.polygonlist = new tetgenio::polygon[1];
+include/surf/tetmesh.cpp:    tetgenio::init(&f.polygonlist[0]);
+include/surf/tetmesh.cpp:    tetgenio::polygon & p( f.polygonlist[0] );
+include/surf/tetmesh.cpp:  // we can catch the output of tetgen (and possible error messages)
+include/surf/tetmesh.cpp:    throw Error("Tetgen terminated with error code "+str(erx));
+include/surf/tetmesh.cpp:  // copy vertices from tetgen output
+include/surf/tools/dcmeshgen/dcmeshgen.cpp:      ss << "/Users/david/bin/tetgen-1.5 -pq1.5Y boundaries.smesh";
+include/surf/tools/dcmeshgen/dcmeshgen.cpp:    tetmx.readTetgen("boundaries.1.");
+include/surf/tools/dcmeshgen/dcmeshgen.cpp:      ss << "/Users/david/bin/tetgen-1.5 -rqmYS1000000 boundaries.1";
+include/surf/tools/dcmeshgen/dcmeshgen.cpp:    tetmx.readTetgen("boundaries.2.");
+include/surf/tools/pentagrow/frontend.cpp:    firstTetgenPass();
+include/surf/tools/pentagrow/frontend.cpp:      secondTetgenPass();
+include/surf/tools/pentagrow/frontend.cpp:void FrontEnd::firstTetgenPass()
+include/surf/tools/pentagrow/frontend.cpp:  string tgOptions = m_cfg.value("TetgenOptions", m_tgoDefault);
+include/surf/tools/pentagrow/frontend.cpp:  // create farfield for tetgen call
+include/surf/tools/pentagrow/frontend.cpp:  c.start("Writing .smesh file for tetgen... ");
+include/surf/tools/pentagrow/frontend.cpp:    m_pg.writeTetgen("boundaries.smesh", farf, holeList,
+include/surf/tools/pentagrow/frontend.cpp:    m_pg.writeTetgen("boundaries.smesh", farf, holeList);
+include/surf/tools/pentagrow/frontend.cpp:    cout << "Warning: Tetgen will not refine nearfield, add 'a' to call." << endl;
+include/surf/tools/pentagrow/frontend.cpp:  string cmd = "tetgen";
+include/surf/tools/pentagrow/frontend.cpp:  if (m_cfg.hasKey("TetgenPath"))
+include/surf/tools/pentagrow/frontend.cpp:    cmd = m_cfg["TetgenPath"];
+include/surf/tools/pentagrow/frontend.cpp:    throw Error("Call to tetgen failed.");
+include/surf/tools/pentagrow/frontend.cpp:  // optional tetgen refinement pass
+include/surf/tools/pentagrow/frontend.cpp:    c.start("[t] Reading 1st pass tetgen files... ");
+include/surf/tools/pentagrow/frontend.cpp:    tmsh.readTetgen(tgInfile, &ftags);
+include/surf/tools/pentagrow/frontend.cpp:void FrontEnd::secondTetgenPass(int iter)
+include/surf/tools/pentagrow/frontend.cpp:  string tgOptions = m_cfg.value("TetgenOptions", m_tgoDefault);
+include/surf/tools/pentagrow/frontend.cpp:  string cmd = "tetgen";
+include/surf/tools/pentagrow/frontend.cpp:  if (m_cfg.hasKey("TetgenPath"))
+include/surf/tools/pentagrow/frontend.cpp:    cmd = m_cfg["TetgenPath"];
+include/surf/tools/pentagrow/frontend.cpp:    throw Error("Call to tetgen failed.");
+include/surf/tools/pentagrow/frontend.cpp:  // reread tet mesh from tetgen results file
+include/surf/tritetwriter.cpp:void TritetWriter::writeTetgen(std::ostream & os) const
+include/surf/tritetwriter.cpp:  os << "# boundary mesh for tetgen" << endl; 

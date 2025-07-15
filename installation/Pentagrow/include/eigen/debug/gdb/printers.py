@@ -26,10 +26,9 @@
 #      register_eigen_printers (None)
 #      end
 
+import gdb
 import re
-import gdb  # type: ignore
-
-from functools import partial
+import itertools
 
 
 class EigenMatrixPrinter:
@@ -91,7 +90,7 @@ class EigenMatrixPrinter:
 			return self
 
 		def next(self):
-			return self.__next__()  # Python 2.x compatibility
+                        return self.__next__()  # Python 2.x compatibility
 
 		def __next__(self):
 			
@@ -157,7 +156,7 @@ class EigenQuaternionPrinter:
 			return self
 	
 		def next(self):
-			return self.__next__()  # Python 2.x compatibility
+                        return self.__next__()  # Python 2.x compatibility
 
 		def __next__(self):
 			element = self.currentElement
@@ -178,10 +177,10 @@ class EigenQuaternionPrinter:
 	def to_string(self):
 		return "Eigen::Quaternion<%s> (data ptr: %s)" % (self.innerType, self.data)
 
-def build_eigen_dictionary():
-    pretty_printers_dict[re.compile('^Eigen::Quaternion<.*>$')] = EigenQuaternionPrinter
-    pretty_printers_dict[re.compile('^Eigen::Matrix<.*>$')] = partial(EigenMatrixPrinter, "Matrix")
-    pretty_printers_dict[re.compile('^Eigen::Array<.*>$')]  = partial(EigenMatrixPrinter, "Array")
+def build_eigen_dictionary ():
+	pretty_printers_dict[re.compile('^Eigen::Quaternion<.*>$')] = lambda val: EigenQuaternionPrinter(val)
+	pretty_printers_dict[re.compile('^Eigen::Matrix<.*>$')] = lambda val: EigenMatrixPrinter("Matrix", val)
+	pretty_printers_dict[re.compile('^Eigen::Array<.*>$')]  = lambda val: EigenMatrixPrinter("Array",  val)
 
 def register_eigen_printers(obj):
 	"Register eigen pretty-printers with objfile Obj"

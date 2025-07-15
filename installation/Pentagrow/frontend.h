@@ -10,10 +10,23 @@
 class FrontEnd
 {
 public:
-
-  enum FileFormat { UnknownFormat=0, MSH=1, STL=2, CGNS=4,
-                    EDGE=8, ZML=16, SU2=32, TAU=64 };
-  enum ProgPhase { FirstPass = 1, SecondPass = 2, TwoPass = 3 };
+  enum FileFormat
+  {
+    UnknownFormat = 0,
+    MSH = 1,
+    STL = 2,
+    CGNS = 4,
+    EDGE = 8,
+    ZML = 16,
+    SU2 = 32,
+    TAU = 64
+  };
+  enum ProgPhase
+  {
+    FirstPass = 1,
+    SecondPass = 2,
+    TwoPass = 3
+  };
 
   /// read configuration
   FrontEnd(int argc, char *argv[]);
@@ -22,10 +35,10 @@ public:
   void run(const std::string &fname);
 
   /// generate boundaries only
-  void generateBoundaries(const std::string &fname);
+  void generateBoundaries(const std::string &fname, bool symmetry = false, Real y0 = 0);
 
   /// first tetgen call to generate first-pass (background) mesh
-  void firstTetgenPass();
+  void firstTetgenPass(bool symmetry = false, Real y0 = 0);
 
   /// create edge length field and write files for second tetgen pass
   int generateMetric(int iter = 1);
@@ -34,16 +47,15 @@ public:
   void secondTetgenPass(int iter = 1);
 
   /// read final tetgen output and generate pentahedra
-  void generateLayer(int iter = 2);
+  void generateLayer(int iter = 2, bool symmetry = false, Real y0 = 0);
 
   /// write output to requested formats
   void writeFinal();
 
   /// access core object
-  PentaGrow & meshGenerator() {return m_pg;}
+  PentaGrow &meshGenerator() { return m_pg; }
 
 private:
-
   /// configuration
   ConfigParser m_cfg;
 

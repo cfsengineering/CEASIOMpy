@@ -40,15 +40,7 @@ MODULE_DIR = Path(__file__).parent
 BREP_IN_PATH = Path(MODULE_DIR, "ToolInput/brep_files_test_rans")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 CPACS_D150_IN_PATH = Path(CPACS_FILES_PATH, "D150_simple.xml")
-
-
-MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
-CPACS_IN_SIMPLE_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_engine.xml")
-CPACS_IN_SIMPLE_DOUBLEFLUX_ENGINE_PATH = Path(
-    CPACS_FILES_PATH, "simple_doubleflux_engine.xml")
-CPACS_IN_PROPELLER_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_propeller.xml")
-TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 # =================================================================================================
 #   FUNCTIONS
@@ -77,8 +69,8 @@ def test_generate_rans_mesh():
         refine_factor=2,
         refine_truncated=True,
         refine_factor_angled_lines=1.5,
-        fuselage_mesh_size_factor=1,
-        wing_mesh_size_factor=1,
+        fuselage_mesh_size_factor=0.7,
+        wing_mesh_size_factor=0.8,
         mesh_size_engines=0.2,
         mesh_size_propellers=0.2,
         auto_refine=False,
@@ -229,4 +221,4 @@ def test_sort_surfaces_and_create_physical_groups():
 #    MAIN
 # =================================================================================================
 if __name__ == "__main__":
-    test_sort_surfaces_and_create_physical_groups()
+    test_generate_rans_mesh()

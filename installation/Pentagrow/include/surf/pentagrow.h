@@ -1,6 +1,6 @@
 
 /* Copyright (C) 2015 David Eller <david@larosterna.com>
- * 
+ *
  * Commercial License Usage
  * Licensees holding valid commercial licenses may use this file in accordance
  * with the terms contained in their respective non-exclusive license agreement.
@@ -11,7 +11,7 @@
  * Public License version 3.0 as published by the Free Software Foundation and
  * appearing in the file gpl.txt included in the packaging of this file.
  */
- 
+
 #ifndef SURF_PENTAGROW_H
 #define SURF_PENTAGROW_H
 
@@ -44,35 +44,36 @@
 class PentaGrow : public MxMesh, public Logger
 {
 public:
-
   /// empty object
   PentaGrow() {}
 
   /// initialize from wall mesh
-  PentaGrow(const TriMesh & m);
+  PentaGrow(const TriMesh &m);
 
   /// set configuration options
   void configure(const ConfigParser &cfg);
 
   /// maximum permitted section tag value
-  static int maximumTagValue() {
+  static int maximumTagValue()
+  {
     return std::numeric_limits<int>::max();
   }
 
   /// maximum permitted number of boundary triangles
-  static uint maximumTriangleCount() {
+  static uint maximumTriangleCount()
+  {
     return std::numeric_limits<int>::max();
   }
 
   /// generate the outermost layer
   void generateShell(int hiter, int niter, int ncrititer,
-                     int laplaceiter);
+                     int laplaceiter, bool symmetry = false, Real y0 = 0);
 
   /// number of wall nodes
-  size_t nWallNodes() const {return mwall.nvertices();}
+  size_t nWallNodes() const { return mwall.nvertices(); }
 
   /// extrude between wall and envelope, return prism layer mesh section index
-  uint extrude(bool curvedGrowth);
+  uint extrude(bool curvedGrowth, bool symmetry = false, Real y0 = 0);
 
   /// adapt wall from refined outer shell (from tetgen)
   void adaptWall(const DVector<uint> &faceTags);
@@ -81,9 +82,9 @@ public:
   void readTets(const std::string &basename);
 
   /// export boundaries to tetgen smesh file
-  void writeTetgen(const std::string &fname, const TriMesh & farf,
-                   const PointList<3> & holes, const TriMesh &refr = TriMesh(),
-                   Real nearBoxEdge = 0.0);
+  void writeTetgen(const std::string &fname, const TriMesh &farf,
+                   const PointList<3> &holes, const TriMesh &refr = TriMesh(),
+                   Real nearBoxEdge = 0.0, bool symmetry = false, Real y0 = 0);
 
   /// reduce memory footprint by erasing all working data (only raw mesh left)
   void shrink();
@@ -102,7 +103,14 @@ public:
 
   /// compute prism quality histogram and write to file
   Vector prismQualitySumCos(const std::string &fname,
-                            uint isection, uint nbin=NotFound) const;
+                            uint isection, uint nbin = NotFound) const;
+
+  PointList<3> getouterlayer()
+  {
+    return vout;
+  }
+
+  PointList<3> getouterlayeryplane_ordered(Real y0 = 0);
 
 #ifdef HAVE_NLOPT
 
@@ -124,69 +132,74 @@ public:
 #endif // HAVE_NLOPT
 
   // write outermost layer to file (debugging)
-  void writeShell(const std::string & fname);
+  void writeShell(const std::string &fname);
 
   // test connectivity
   void debugConnect();
 
 private:
-
-  enum VertexCategory { Undefined = 0,
-                        Concave = 1,
-                        Convex = 2,
-                        Conical = 4,
-                        Corner = 8,
-                        Ridge = 16,
-                        StrongCurvature = 32,
-                        Sharp = 64,
-                        Saddle = (Concave | Convex),             // == 3
-                        ConcaveCorner = (Corner | Concave),      // == 9
-                        ConvexCorner = (Corner | Convex),        // == 10
-                        SaddleCorner = (Corner | Saddle),        // == 11
-                        ConeDipp = (Concave | Corner | Conical), // == 13
-                        ConeTip = (Convex | Corner | Conical),   // == 14
-                        BluntCorner = (Corner|Saddle|Conical),   // == 15
-                        Trench = (Ridge | Concave),              // == 17
-                        ConvexEdge = (Ridge | Convex),           // == 18
-                        Wedge = (Ridge | Convex | Concave),      // == 19
-                        RidgeConeTip = (Convex | Conical | Ridge), // == 22
-                        LeadingEdgeIntersection = (Trench | StrongCurvature), // == 49
-                        TrailingEdgeIntersection = (SaddleCorner | Sharp),    // == 83
-                        CriticalCorner = 512,
-                        Flat = 1024,
-                        Anything = -1};
+  enum VertexCategory
+  {
+    Undefined = 0,
+    Concave = 1,
+    Convex = 2,
+    Conical = 4,
+    Corner = 8,
+    Ridge = 16,
+    StrongCurvature = 32,
+    Sharp = 64,
+    Saddle = (Concave | Convex),                          // == 3
+    ConcaveCorner = (Corner | Concave),                   // == 9
+    ConvexCorner = (Corner | Convex),                     // == 10
+    SaddleCorner = (Corner | Saddle),                     // == 11
+    ConeDipp = (Concave | Corner | Conical),              // == 13
+    ConeTip = (Convex | Corner | Conical),                // == 14
+    BluntCorner = (Corner | Saddle | Conical),            // == 15
+    Trench = (Ridge | Concave),                           // == 17
+    ConvexEdge = (Ridge | Convex),                        // == 18
+    Wedge = (Ridge | Convex | Concave),                   // == 19
+    RidgeConeTip = (Convex | Conical | Ridge),            // == 22
+    LeadingEdgeIntersection = (Trench | StrongCurvature), // == 49
+    TrailingEdgeIntersection = (SaddleCorner | Sharp),    // == 83
+    CriticalCorner = 512,
+    Flat = 1024,
+    Anything = -1
+  };
 
   /// extract wall from global mesh
-  void extractWall(const MxMesh & gm);
+  void extractWall(const MxMesh &gm);
 
   /// classify and rank vertices
-  void classify();
+  void classify(bool symmetry = false, Real y0 = 0);
+  // void classify();
 
   /// determine initial wall normals
-  void adjustRidgeNormals();
+  void adjustRidgeNormals(bool symmetry = false, Real y0 = 0);
 
   /// test whether a vertex is exactly of a certain category
-  bool isClass(size_t i, int cat) const {
-    return ( i < vtype.size() ) and ( vtype[i] == cat );
+  bool isClass(size_t i, int cat) const
+  {
+    return (i < vtype.size()) and (vtype[i] == cat);
   }
 
   /// test whether a vertex has at least a certain category
-  bool hasClass(size_t i, int cat) const {
-    return ( i < vtype.size() ) and ( (vtype[i] & cat) == cat );
+  bool hasClass(size_t i, int cat) const
+  {
+    return (i < vtype.size()) and ((vtype[i] & cat) == cat);
   }
 
   /// test for convexity, returns positive values for convex features
   Real convexity(const Vct3 &p1, const Vct3 &n1,
                  const Vct3 &p2, const Vct3 &n2)
   {
-    return arg( p2-p1, n1 ) + arg( p1-p2, n2 ) - PI;
+    return arg(p2 - p1, n1) + arg(p1 - p2, n2) - PI;
   }
 
   /// test for convexity, returns positive values for convex features
   Real convexity(uint i1, uint i2)
   {
-    return convexity( mwall.vertex(i1), wfn[i1],
-                      mwall.vertex(i2), wfn[i2] );
+    return convexity(mwall.vertex(i1), wfn[i1],
+                     mwall.vertex(i2), wfn[i2]);
   }
 
   /// smooth thickness of prismatic layers
@@ -199,8 +212,8 @@ private:
   void prismPattern(Real rhfirst, Real rhlast, Vector &xpp) const;
 
   /// determine wall point for outer mesh point pout
-  Vct3 projectToWall(const TriMesh & mout,
-                     const Vct3 & pout, uint inear) const;
+  Vct3 projectToWall(const TriMesh &mout,
+                     const Vct3 &pout, uint inear) const;
 
   /// determine corresponding wall mesh vertex
   Vct3 findWallVertex(const TriMesh &oldShell,
@@ -210,27 +223,30 @@ private:
   void rebuildTree();
 
   /// find all outer-layer nodes closer than r to p
-  void findNeighbors(const Vct3 &p, Real r, Indices &neighbors) const {
+  void findNeighbors(const Vct3 &p, Real r, Indices &neighbors) const
+  {
     assert(nodeTree.npoints() == vout.size());
     neighbors.clear();
-    nodeTree.find( Vct3f(p), r, neighbors );
+    nodeTree.find(Vct3f(p), r, neighbors);
   }
 
   /// find collision candidates using normal criterion
   bool collisions(Indices &colliding, uint iwall, Real safety,
-                  Real nrmdev=cos(rad(60.)), Real fnrmdev=cos(rad(120.))) const;
+                  Real nrmdev = cos(rad(60.)), Real fnrmdev = cos(rad(120.))) const;
 
   /// just test for collisions using normal criterion, do not collect neighbors
   int collisions(uint iwall, Real safety = 1.2, Real nrmdev = cos(rad(60.)),
-                  Real fnrmdev = cos(rad(120.))) const;
+                 Real fnrmdev = cos(rad(120.))) const;
 
   /// extract section tag from tetgen tag
-  uint32_t extractSectionTag(uint32_t tag) const {
+  uint32_t extractSectionTag(uint32_t tag) const
+  {
     return id2section[tag];
   }
 
   /// extract element tag from tetgen tag
-  uint32_t extractElementTag(uint32_t tag) const {
+  uint32_t extractElementTag(uint32_t tag) const
+  {
     return id2index[tag];
   }
 
@@ -246,18 +262,20 @@ private:
     const size_t n = map.size();
     ConnectMap::const_iterator itr, last;
 
-//#pragma omp parallel for
-    for (size_t i=0; i<n; ++i) {
+    // #pragma omp parallel for
+    for (size_t i = 0; i < n; ++i)
+    {
       ItemType sum;
       sum = 0.0;
       int nsum = 0;
       last = map.end(i);
-      for (itr = map.begin(i); itr != last; ++itr) {
+      for (itr = map.begin(i); itr != last; ++itr)
+      {
         sum += c[*itr];
         ++nsum;
       }
       if (nsum > 0)
-        b[i] = 0.5*c[i] + (0.5/nsum) * sum;
+        b[i] = 0.5 * c[i] + (0.5 / nsum) * sum;
     }
 
     c.swap(b);
@@ -274,29 +292,32 @@ private:
     const size_t n = map.size();
     ConnectMap::const_iterator itr, last;
 
-//#pragma omp parallel for
-    for (size_t i=0; i<n; ++i) {
+    // #pragma omp parallel for
+    for (size_t i = 0; i < n; ++i)
+    {
       if (not writeNode(i))
         continue;
       ItemType sum;
       sum = 0.0;
       int nsum = 0;
       last = map.end(i);
-      for (itr = map.begin(i); itr != last; ++itr) {
-        if (readNode(*itr)) {
+      for (itr = map.begin(i); itr != last; ++itr)
+      {
+        if (readNode(*itr))
+        {
           sum += c[*itr];
           ++nsum;
         }
       }
       if (nsum > 0)
-        b[i] = 0.5*c[i] + (0.5/nsum) * sum;
+        b[i] = 0.5 * c[i] + (0.5 / nsum) * sum;
     }
 
     c.swap(b);
   }
 
   /// Laplace smoothing of outer shell node coordinates
-  void smoothShellNodes(const Vector &lyt, int niter, Real omega=0.5);
+  void smoothShellNodes(const Vector &lyt, int niter, Real omega = 0.5);
 
   /// compute barycenter of local neighborhood of node k
   Vct3 nbBarycenter(const PointList<3> &pts, size_t k) const;
@@ -305,18 +326,18 @@ private:
   int untangle(Vector &lyt, int niter, Real permitted_etwist);
 
   /// reduce penta warp
-  void unwarp(int niter, Real permitted_angle);
+  void unwarp(int niter, Real permitted_angle, bool symmetry = false, Real y0 = 0);
 
   /// resolve indirect collisions
-  void uncollide(int niter, Real safety,
-                 Real retraction, Real limitphi, Real limitphif);
+  void uncollide(int niter, Real safety, Real retraction, Real limitphi,
+                 Real limitphif, bool symmetry = false, Real y0 = 0);
 
   /// uncollide a single vertex (nucleus function for parallelization)
   uint uncollideVertex(uint i, Vector &lyt, Real safety,
                        Real retraction, Real cphi, Real cphif);
 
   /// ring-2 smoothing of affected vertices in untangle/unwarp/uncollide
-  void retractNeighbors(const Indices &afv, Vector &lyt, int ring=3);
+  void retractNeighbors(const Indices &afv, Vector &lyt, int ring = 3);
 
   /// extrude a single vertex (nucleaus for parallelization)
   void extrudeVertex(int ivx, int nl, Real hi,
@@ -335,7 +356,7 @@ private:
   uint appendPrismLayer(const PointGrid<3> &grid);
 
   /// determine vertex normals for envelope
-  void updateShellNormals();
+  void updateShellNormals(bool symmetry = false, Real y0 = 0);
 
   /// move grid vertices to the barycenter of their neighborhood
   void centerGridNodes(uint niter, PointGrid<3> &grid) const;
@@ -348,27 +369,30 @@ private:
                              Indices &nearTetNodes) const;
 
 private:
-
   /// Task for parallel resolution of indirect collisions
-  class UncollideTask {
+  class UncollideTask
+  {
   public:
     UncollideTask(PentaGrow &pg, Vector &lyt,
                   Real safety, Real retract, Real cphi, Real cphif)
-      : m_pg(pg), m_lyt(lyt), m_safety(safety), m_retract(retract),
-        m_cphi(cphi), m_cphif(cphif) { m_ncol.store(0); }
-    void operator() (uint a, uint b) {
+        : m_pg(pg), m_lyt(lyt), m_safety(safety), m_retract(retract),
+          m_cphi(cphi), m_cphif(cphif) { m_ncol.store(0); }
+    void operator()(uint a, uint b)
+    {
       int sum = 0;
-      for (uint i=a; i<b; ++i) {
+      for (uint i = a; i < b; ++i)
+      {
         uint n = m_pg.uncollideVertex(i, m_lyt, m_safety, m_retract, m_cphi,
-                                    m_cphif);
+                                      m_cphif);
         sum += n;
-        if ( n > 0 )
+        if (n > 0)
           m_afv.push_back(i);
       }
       m_ncol += sum; // atomic
     }
-    const Indices &affected() const{return m_afv;}
-    uint ncollisions() const {return m_ncol.load();}
+    const Indices &affected() const { return m_afv; }
+    uint ncollisions() const { return m_ncol.load(); }
+
   private:
     PentaGrow &m_pg;
     Vector &m_lyt;
@@ -378,15 +402,18 @@ private:
   };
 
   /// Task for parallel extrusion of prismatic mesh grid
-  class ExtrusionTask {
+  class ExtrusionTask
+  {
   public:
     ExtrusionTask(const PentaGrow &pg, PointGrid<3> &grid,
                   uint nl, Real hi, bool curved)
-      : m_pg(pg), m_grid(grid), m_hi(hi), m_nl(nl), m_curved(curved) {}
-    void operator() (uint a, uint b) {
-      for (uint i=a; i<b; ++i)
+        : m_pg(pg), m_grid(grid), m_hi(hi), m_nl(nl), m_curved(curved) {}
+    void operator()(uint a, uint b)
+    {
+      for (uint i = a; i < b; ++i)
         m_pg.extrudeVertex(i, m_nl, m_hi, m_curved, m_grid);
     }
+
   private:
     const PentaGrow &m_pg;
     PointGrid<3> &m_grid;
@@ -396,7 +423,6 @@ private:
   };
 
 private:
-
   /// wall mesh (must be watertight)
   TriMesh mwall;
 
@@ -434,7 +460,7 @@ private:
   Indices wallTags, farTags;
 
   /// search tree for nodes in the outer layer
-  NDPointTree<3,float> nodeTree;
+  NDPointTree<3, float> nodeTree;
 
   /// tags surface nodes which resulted in tangled grid nodes
   std::vector<bool> gridBaseTangled;

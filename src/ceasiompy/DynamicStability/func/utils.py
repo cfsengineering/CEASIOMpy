@@ -37,22 +37,22 @@ def exp_i(omega: float, t: float) -> complex128:
     return np.exp(1j * t * omega)
 
 
-def alpha(omega: float, t: float, alpha_0: float) -> complex:
+def alpha(omega: float, t: float, alpha_0: float, aoa: float = 0.0) -> complex:
     """
     Defines alpha oscillations for Doublet Lattice method.
     alpha(t) = alpha_0 e^{iwt}
     """
 
-    return alpha_0 * exp_i(omega, t)
+    return alpha_0 * exp_i(omega, t) + aoa
 
 
-def beta(omega: float, t: float, beta_0: float) -> complex:
+def beta(omega: float, t: float, beta_0: float, aos: float = 0.0) -> complex:
     """
     Defines beta oscillations for Doublet Lattice method.
     beta(t) = beta_0 e^{iwt}
     """
 
-    return beta_0 * exp_i(omega, t)
+    return beta_0 * exp_i(omega, t) + aos
 
 
 def dalpha_dt(omega: float, t: float, alpha_0: float) -> complex:

@@ -42,12 +42,8 @@ from ceasiompy.PyAVL import (
 
 
 def get_avl_aerocoefs(force_file: Path) -> Tuple[
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
+    float, float, float,
+    float, float, float,
     float,
     float,
     float,
@@ -85,12 +81,8 @@ def get_avl_aerocoefs(force_file: Path) -> Tuple[
                     else:
                         results[var_name] = split_line(line, index)
     return (
-        results["cd"],
-        results["cs"],
-        results["cl"],
-        results["cmd"],
-        results["cms"],
-        results["cml"],
+        results["cd"], results["cs"], results["cl"],
+        results["cmd"], results["cms"], results["cml"],
         math.radians(results["cmd_b"]),
         math.radians(results["cms_a"]),
         math.radians(results["cml_b"]),
@@ -123,12 +115,9 @@ def add_coefficients_in_aeromap(
     """
 
     tixi = cpacs.tixi
-
     cd, cs, cl, cmd, cms, cml, cmd_b, cms_a, cml_b = get_avl_aerocoefs(st_file_path)
 
-    plot = get_value(tixi, AVL_PLOTLIFT_XPATH)
-
-    if plot:
+    if get_value(tixi, AVL_PLOTLIFT_XPATH):
         plot_lift_distribution(fs_file_path, aoa, aos, mach, alt, wkdir=config_dir)
 
     aeromap_uid = get_value(tixi, AVL_AEROMAP_UID_XPATH)
@@ -168,7 +157,6 @@ def add_coefficients_in_aeromap(
         tixi.createElement(increment_maps_xpath, "incrementMap")
 
     # Add text elements for the coefficients
-    print(cms_a, str(cms_a))
     ensure_and_append_text_element(tixi, increment_map_xpath, "dcmd", str(cmd_b))
     ensure_and_append_text_element(tixi, increment_map_xpath, "dcms", str(cms_a))
     ensure_and_append_text_element(tixi, increment_map_xpath, "dcml", str(cml_b))
@@ -320,7 +308,7 @@ def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
         # Extract common parameters
         alt = split_dir(dir_name, 1, "alt")
         mach = split_dir(dir_name, 2, "mach")
-        aoa = split_dir(dir_name, 3, "aoa" if "p" in dir_name else "alt")
+        aoa = split_dir(dir_name, 3, "aoa")
 
         if "p" in dir_name:  # Standard aeromap or dynamic stability
             aos = split_dir(dir_name, 4, "aos")

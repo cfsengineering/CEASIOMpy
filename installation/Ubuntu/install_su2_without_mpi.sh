@@ -31,6 +31,8 @@ if ! grep -Fxq "export PATH=\"\$PATH:$su2_run_path\"" "$HOME/.zshrc" 2>/dev/null
     echo "export PATH=\"\$PATH:$su2_run_path\"" >> "$HOME/.zshrc"
 fi
 
+source ~/.bashrc
+
 echo "Checking SU2 version"
 "$SU2_RUN/SU2_CFD" --help
 

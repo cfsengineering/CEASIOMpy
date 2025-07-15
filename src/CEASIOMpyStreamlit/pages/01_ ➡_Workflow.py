@@ -28,6 +28,8 @@ from ceasiompy.SMTrain import MODULE_NAME as SMTRAIN
 from ceasiompy.Database import MODULE_NAME as DATABASE
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
 from ceasiompy.CPACSUpdater import MODULE_NAME as CPACSUPDATER
+from ceasiompy.StaticStability import MODULE_NAME as STATICSTABILITY
+from ceasiompy.DynamicStability import MODULE_NAME as DYNAMICSTABILITY
 from ceasiompy.SaveAeroCoefficients import MODULE_NAME as SAVEAEROCOEF
 
 # ==============================================================================
@@ -58,11 +60,11 @@ def section_predefined_workflow():
     st.markdown("#### Predefined Workflows")
 
     predefine_workflows = [
-        [PYAVL, SAVEAEROCOEF, DATABASE],
-        [CPACSUPDATER, "CPACSCreator", CPACS2GMSH, DATABASE],
-        [CPACSUPDATER, CPACS2GMSH, SU2RUN, "ExportCSV"],
-        [CPACS2GMSH, "ThermoData", SU2RUN, "SkinFriction"],
+        [PYAVL, STATICSTABILITY, DATABASE],
+        [CPACSUPDATER, "CPACSCreator", CPACS2GMSH, SU2RUN, "ExportCSV"],
+        [CPACS2GMSH, "ThermoData", SU2RUN, "SkinFriction", DATABASE],
         [SMTRAIN, SMUSE, SAVEAEROCOEF],
+        [DYNAMICSTABILITY, DATABASE],
         # ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"],
     ]
 

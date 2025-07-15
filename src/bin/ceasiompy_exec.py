@@ -21,6 +21,8 @@ import os
 import argparse
 import subprocess
 
+from ceasiompy.utils.ceasiompyutils import current_workflow_dir
+
 from pathlib import Path
 from argparse import Namespace
 from ceasiompy.utils.workflowclasses import Workflow
@@ -44,16 +46,16 @@ def testcase_message(testcase_nb):
 
     log.info(f"CEASIOMpy as been started from test case {testcase_nb}")
 
-    print("\n")
-    print("#" * 30)
-    print(f"### CEASIOMpy: Test case {testcase_nb} ###")
-    print("#" * 30)
-    print("More information about this test case at:")
-    print(
+    log.info("")
+    log.info("#" * 30)
+    log.info(f"### CEASIOMpy: Test case {testcase_nb} ###")
+    log.info("#" * 30)
+    log.info("More information about this test case at:")
+    log.info(
         "https://github.com/cfsengineering/CEASIOMpy/blob/main/"
         f"test_cases/test_case_{testcase_nb}/README.md"
     )
-    print("\n")
+    log.info("")
 
 
 def run_testcase(testcase_nb):
@@ -68,36 +70,35 @@ def run_testcase(testcase_nb):
 
         workflow = Workflow()
         workflow.from_config_file(test_case_1_cfg)
-        workflow.working_dir = Path().cwd()
+        workflow.working_dir = current_workflow_dir()
         workflow.cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml")
 
         workflow.set_workflow()
         workflow.run_workflow(test=True)
 
-        print("\nCongratulation, this Test case is now finished!")
-        print(f"\nYou can check your results in: {workflow.current_wkflow_dir}/Results")
+        log.info("Congratulations, this Test case is now finished!")
+        log.info(f"You can now check your results in: {workflow.current_wkflow_dir}/Results")
 
     elif testcase_nb == 2:
         testcase_message(2)
-        print("\nUse the GUI to create your workflow.")
+        log.info("Use the GUI to create your workflow.")
         run_gui()
-        print("\nCongratulation, this Test case is now finished!")
+        log.info("Congratulations, this Test case is now finished!")
 
     elif testcase_nb == 3:
         testcase_message(3)
-        print("\nUse the GUI to create your workflow.")
+        log.info("Use the GUI to create your workflow.")
         run_gui()
-        print("\nCongratulation, this Test case is now finished!")
+        log.info("Congratulations, this Test case is now finished!")
 
     elif testcase_nb == 4:
         testcase_message(4)
-        print(
+        log.info(
             "To run this test case, you will need to open a terminal "
             "and run the following command:"
         )
-        print(">> conda activate ceasiompy")
-        print(">> cd WKDIR")
-        print(
+        log.info(">> conda activate ceasiompy")
+        log.info(
             ">> ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml "
             "PyAVL SkinFriction SaveAeroCoefficients"
         )
@@ -106,7 +107,7 @@ def run_testcase(testcase_nb):
         testcase_message(5)
 
     else:
-        print("\nTest case number must be 1,2,3,4 or 5.")
+        log.info("Test case number must be 1,2,3,4 or 5.")
 
 
 def run_modules_list(args_list) -> None:
@@ -114,7 +115,7 @@ def run_modules_list(args_list) -> None:
 
     if len(args_list) < 2:
         log.warning(
-            "\nAt least 2 arguments are required to run a CEASIOMpy, the first onw must be the"
+            "At least 2 arguments are required to run a CEASIOMpy, the first onw must be the "
             "CPACS file and the modules to run. You can add as many modules as you want."
         )
         return None
@@ -126,8 +127,11 @@ def run_modules_list(args_list) -> None:
         )
         return None
 
-    if not cpacs_path.exists():
-        log.warning(f"The CPACS file {cpacs_path} does not exist.")
+    cwd = os.getcwd()
+    new_cpacs_path = Path(Path(cwd), cpacs_path)
+
+    if not new_cpacs_path.exists():
+        log.warning(f"The CPACS file {new_cpacs_path} does not exist.")
         return None
 
     modules_list = args_list[1:]
@@ -136,7 +140,7 @@ def run_modules_list(args_list) -> None:
     with patch("streamlit.runtime.scriptrunner_utils.script_run_context"):
         with patch("streamlit.runtime.state.session_state_proxy"):
             workflow = Workflow()
-            workflow.cpacs_in = cpacs_path
+            workflow.cpacs_in = new_cpacs_path
             workflow.modules_list = modules_list
             workflow.module_optim = ["NO"] * len(modules_list)
             workflow.write_config_file()
@@ -144,20 +148,24 @@ def run_modules_list(args_list) -> None:
             workflow.run_workflow(test=True)
 
 
-def run_config_file(config_file):
+def run_config_file(config_file) -> None:
     """Run a workflow from a config file"""
 
     log.info("CEASIOMpy has been started from a config file.")
     config_file_path = Path(config_file)
 
-    if not config_file_path.exists():
-        log.warning(f"The config file {config_file_path} does not exist.")
+    cwd = os.getcwd()
+    new_cfg_path = Path(Path(cwd), config_file_path)
+
+    if not new_cfg_path.exists():
+        log.warning(f"The config file {new_cfg_path} does not exist.")
         return
 
     workflow = Workflow()
-    workflow.from_config_file(config_file_path)
+    workflow.from_config_file(new_cfg_path)
+    workflow.working_dir = current_workflow_dir()
     workflow.set_workflow()
-    workflow.run_workflow()
+    workflow.run_workflow(test=True)
 
 
 def run_gui():

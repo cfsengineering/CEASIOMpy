@@ -11,13 +11,13 @@ For the test case you must first create and save a file named `my_ceasiompy_conf
 ```text
 % This is an example of config file for ceasiompy
 CPACS_TOOLINPUT = ../test_files/CPACSfiles/D150_simple.xml
-MODULE_TO_RUN = ( PyAVL, SkinFriction, SaveAeroCoefficients )
+MODULE_TO_RUN = ( PyAVL, ExportCSV )
 ```
 
 You can now run it with the following command:
 
 ```bash
-ceasiompy_run --cfg my_ceasiompy_config_file.cfg
+ceasiompy_run --cfg test_cases/test_case_1/testcase1.cfg
 ```
 
 It will create a new `Workflow_0**` (the number will increase at each run) directory in which you can found the results.

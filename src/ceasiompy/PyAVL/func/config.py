@@ -20,9 +20,12 @@ More details at: https://web.mit.edu/drela/Public/web/avl/AVL_User_Primer.pdf.
 
 from pydantic import validate_call
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy.PyAVL.func.utils import get_atmospheric_cond
 from ceasiompy.utils.ceasiompyutils import get_aeromap_conditions
 from ceasiompy.utils.mathsfunctions import non_dimensionalize_rate
+from ceasiompy.PyAVL.func.utils import (
+    get_atmospheric_cond,
+    practical_limit_rate_check,
+)
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
@@ -56,16 +59,10 @@ from ceasiompy.PyAVL import (
 
 @validate_call(config=ceasiompy_cfg)
 def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
-    List,
-    List,
-    List,
-    List,
-    List,
-    List,
+    List, List, List, List,
+    List, List,
     Path,
-    bool,
-    int,
-    bool,
+    bool, int, bool,
 ]:
     tixi = cpacs.tixi
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, AVL_AEROMAP_UID_XPATH)
@@ -75,7 +72,7 @@ def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
     control_surface_float = get_value(tixi, AVL_CTRLSURF_ANGLES_XPATH)
 
     # Convert to lists
-    rotation_rate_list = [float(x) for x in str(rotation_rates_float).split(";")]
+    rotation_rates_list = [float(x) for x in str(rotation_rates_float).split(";")]
     control_surface_list = [float(x) for x in str(control_surface_float).split(";")]
 
     avl_file = Avl(tixi, results_dir)
@@ -84,17 +81,18 @@ def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
     nb_cpu = int(get_value(tixi, AVL_NB_CPU_XPATH))
     expand = get_value(tixi, AVL_EXPAND_VALUES_XPATH)
 
+    practical_limit_rate_check(
+        tixi=tixi,
+        alt_list=alt_list,
+        mach_list=mach_list,
+        rotation_rates_list=rotation_rates_list,
+    )
+
     return (
-        alt_list,
-        mach_list,
-        aoa_list,
-        aos_list,
-        rotation_rate_list,
-        control_surface_list,
+        alt_list, mach_list, aoa_list, aos_list,
+        rotation_rates_list, control_surface_list,
         avl_path,
-        save_fig,
-        nb_cpu,
-        expand,
+        save_fig, nb_cpu, expand,
     )
 
 

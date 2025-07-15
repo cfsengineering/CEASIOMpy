@@ -15,15 +15,11 @@ Update geometry of a CPACS file.
 # ==============================================================================
 
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.CPACSUpdater.func.controlsurfaces import add_control_surfaces
 
 from cpacspy.cpacspy import CPACS
 
-from ceasiompy.CPACSUpdater import (
-    MODULE_NAME,
-    CPACSUPDATER_ADD_CTRLSURFACES_XPATH,
-)
+from ceasiompy.CPACSUpdater import CPACSUPDATER_ADD_CTRLSURFACES_XPATH
 
 # =================================================================================================
 #    MAIN
@@ -40,7 +36,3 @@ def main(cpacs: CPACS) -> None:
     # Update CPACS
     if get_value(tixi, CPACSUPDATER_ADD_CTRLSURFACES_XPATH):
         add_control_surfaces(tixi)
-
-
-if __name__ == "__main__":
-    call_main(main, MODULE_NAME)

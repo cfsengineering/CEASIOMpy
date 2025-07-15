@@ -25,26 +25,22 @@ void create_nearfield(const ConfigParser &cfg, const PentaGrow &pg,
 
   // if user gives a negative edge length, determine a reasonable
   // edge length from the envelope mesh edge lengths
-  if (refinedRegionEdge < 0.0)
-  {
+  if (refinedRegionEdge < 0.0) {
     Real envlmax, envlmean;
     pg.envelopeEdgeStats(envlmean, envlmax);
-    refinedRegionEdge = std::max(2 * envlmax, 8 * envlmean);
+    refinedRegionEdge = std::max( 2*envlmax, 8*envlmean );
     cout << "[i] Suggested nearfield edge length: " << refinedRegionEdge << endl;
   }
 
   Vct3 ctr, hax;
-  if (cfg.hasKey("NearfieldCenter"))
-  {
+  if (cfg.hasKey("NearfieldCenter")) {
     ctr = cfg.getVct3("NearfieldCenter");
     hax = cfg.getVct3("NearfieldSemiAxes");
-  }
-  else
-  {
+  } else {
     Vct3 plo, phi;
     pg.envelopeBounds(plo, phi);
-    hax = 0.5 * (phi - plo) * refinedRegionSize;
-    ctr = 0.5 * (plo + phi);
+    hax = 0.5*(phi - plo)*refinedRegionSize;
+    ctr = 0.5*(plo + phi);
   }
   cout << "[i] Nearfield region semi-axes: " << hax << endl;
 
@@ -59,12 +55,11 @@ void create_nearfield(const ConfigParser &cfg, const PentaGrow &pg,
     Real a = std::pow(hax[0], p);
     Real b = std::pow(hax[1], p);
     Real c = std::pow(hax[2], p);
-    Real sfa = pow((a * b + a * c + b * c) / 3.0, 1.0 / p);
-    Real tla = 0.25 * std::sqrt(3.0) * sq(refinedRegionEdge);
+    Real sfa = pow( (a*b + a*c + b*c) / 3.0, 1.0/p );
+    Real tla = 0.25*std::sqrt(3.0)*sq(refinedRegionEdge);
     int ntriopt = sfa / tla;
     int ntrir = 1280;
-    while (ntrir < ntriopt)
-    {
+    while (ntrir < ntriopt) {
       ++refLevel;
       ntrir *= 4;
     }
@@ -74,21 +69,20 @@ void create_nearfield(const ConfigParser &cfg, const PentaGrow &pg,
   }
 
   // create ellipsoid from center and half-axis dimensions
-  nearf.sphere(Vct3(0.0, 0.0, 0.0), 1.0, refLevel);
-  nearf.faceTag(PentaGrow::maximumTagValue() - 1);
+  nearf.sphere( Vct3(0.0,0.0,0.0), 1.0, refLevel );
+  nearf.faceTag( PentaGrow::maximumTagValue()-1 );
   Mtx44 tfm;
-  for (int k = 0; k < 3; ++k)
-  {
-    tfm(k, k) = hax[k];
-    tfm(k, 3) = ctr[k];
+  for (int k=0; k<3; ++k) {
+    tfm(k,k) = hax[k];
+    tfm(k,3) = ctr[k];
   }
-  tfm(3, 3) = 1.0;
+  tfm(3,3) = 1.0;
 
   Trafo3d::transformList(tfm, nearf.vertices());
 }
 
 void smoothed_edgelength(Real xpf, int niter,
-                         MxMesh &msh, Vector &ledg)
+                         MxMesh &msh, Vector & ledg)
 {
   Wallclock clk;
 
@@ -105,12 +99,10 @@ void smoothed_edgelength(Real xpf, int niter,
     ledg.resize(nv);
 
 #pragma omp parallel for schedule(static, 1024)
-  for (size_t i = 0; i < nv; ++i)
-  {
+  for (size_t i=0; i<nv; ++i) {
     ConnectMap::const_iterator itr, last = map.end(i);
     int nnb = map.size(i);
-    if (nnb > 1)
-    {
+    if (nnb > 1) {
       for (itr = map.begin(i); itr != last; ++itr)
         ledg[i] += norm(msh.node(*itr) - msh.node(i));
       ledg[i] /= (nnb - 1);
@@ -118,19 +110,17 @@ void smoothed_edgelength(Real xpf, int niter,
   }
 
   Vector a(ledg), b(nv);
-  for (int j = 0; j < niter; ++j)
-  {
+  for (int j=0; j<niter; ++j) {
 
 #pragma omp parallel for schedule(static, 1024)
-    for (size_t i = 0; i < nv; ++i)
-    {
+    for (size_t i=0; i<nv; ++i) {
       Real ai = a[i];
-      b[i] = 0.5 * ai;
+      b[i] = 0.5*ai;
       ConnectMap::const_iterator itr, last = map.end(i);
       Real sum = 0;
       for (itr = map.begin(i); itr != last; ++itr)
-        sum += std::min(ai, xpf * a[*itr]);
-      b[i] += 0.5 * sum / map.size(i);
+        sum += std::min( ai, xpf*a[*itr] );
+      b[i] += 0.5*sum / map.size(i);
     }
     a.swap(b);
   }
@@ -145,8 +135,7 @@ void smoothed_edgelength(Real xpf, int niter,
 FrontEnd::FrontEnd(int argc, char *argv[])
 {
   // extract configuration
-  if (argc > 2)
-  {
+  if (argc > 2) {
     ifstream in(argv[2]);
     m_cfg.read(in);
   }
@@ -162,26 +151,22 @@ void FrontEnd::run(const std::string &fname)
 {
   // which phase to run (default is both)
   ProgPhase phase = TwoPass;
-  string spass = toLower(m_cfg.value("Pass", "both"));
+  string spass = toLower( m_cfg.value("Pass", "both") );
   if (spass == "first")
     phase = FirstPass;
   else if (spass == "second")
     phase = SecondPass;
 
   int iter = 1;
-  if (phase & FirstPass)
-  {
+  if (phase & FirstPass) {
     generateBoundaries(fname);
     firstTetgenPass();
     iter = generateMetric(iter);
-  }
-  else if (m_refinementPass)
-  {
+  } else if (m_refinementPass) {
     iter = 2;
   }
 
-  if (phase & SecondPass)
-  {
+  if (phase & SecondPass) {
     if (m_refinementPass)
       secondTetgenPass();
     generateLayer(iter);
@@ -195,9 +180,8 @@ void FrontEnd::generateBoundaries(const std::string &fname)
 
   // check if format was specified in config file
   FileFormat frm = UnknownFormat;
-  if (m_cfg.hasKey("InputFormat"))
-  {
-    string fmkey = toLower(m_cfg["InputFormat"]);
+  if (m_cfg.hasKey("InputFormat")) {
+    string fmkey = toLower( m_cfg["InputFormat"] );
     if (fmkey == "msh")
       frm = MSH;
     else if (fmkey == "stl")
@@ -206,9 +190,7 @@ void FrontEnd::generateBoundaries(const std::string &fname)
       frm = CGNS;
     else if (fmkey == "zml")
       frm = ZML;
-  }
-  else
-  {
+  } else {
     string sfx = filename_suffix(fname);
     if (sfx == "msh")
       frm = MSH;
@@ -222,36 +204,26 @@ void FrontEnd::generateBoundaries(const std::string &fname)
 
   // read wall mesh
   TriMeshPtr pwall = boost::make_shared<TriMesh>();
-  if (frm == STL)
-  {
-    pwall->readSTL(fname);
+  if (frm == STL) {
+    pwall->readSTL( fname );
     pwall->cleanup();
-  }
-  else if (frm == CGNS or
-           (frm == UnknownFormat and CgnsFile::isCgns(fname)))
-  {
-    pwall->readCgns(fname);
-  }
-  else if (frm == MSH)
-  {
+  } else if (frm == CGNS or
+             (frm == UnknownFormat and CgnsFile::isCgns(fname))) {
+    pwall->readCgns( fname );
+  } else if (frm == MSH) {
     XmlElement xe;
     xe.read(fname);
-    if (xe.name() == "Triangulation")
-    {
+    if (xe.name() == "Triangulation") {
       pwall->fromXml(xe);
-    }
-    else
-    {
+    } else {
       XmlElement::const_iterator ite;
       ite = xe.findChild("Triangulation");
       if (ite != xe.end())
         pwall->fromXml(*ite);
       else
-        throw Error("No triangular wall mesh found in " + fname);
+        throw Error("No triangular wall mesh found in "+fname);
     }
-  }
-  else
-  {
+  } else {
     MxMesh mx;
     mx.loadAny(fname);
     cout << "[i] Read MxMesh with " << mx.nelements() << " elements." << endl;
@@ -259,12 +231,12 @@ void FrontEnd::generateBoundaries(const std::string &fname)
     pwall->cleanup(gmepsilon);
   }
 
-  TriMesh &wall(*pwall);
+  TriMesh & wall( *pwall );
   cout << "[i] Imported wall mesh with "
        << wall.nfaces() << " triangles." << endl;
 
   // check if geometry is watertight
-  if (not wall.isClosedManifold())
+  if ( not wall.isClosedManifold() )
     throw Error("Wall mesh is not watertight.");
   uint hiter = m_cfg.getFloat("HeightIterations", 5);
   uint niter = m_cfg.getFloat("NormalIterations", 50);
@@ -278,14 +250,14 @@ void FrontEnd::generateBoundaries(const std::string &fname)
   wall = TriMesh();
 
   c.start("Generating shell... ");
-  m_pg.generateShell(hiter, niter, ncrititer, laplaceiter);
+  m_pg.generateShell(hiter,niter,ncrititer,laplaceiter);
   c.stop(" done. ");
 
 #ifdef HAVE_NLOPT
   m_pg.optimizeEnvelope();
 #endif
 
-  m_pg.writeShell("outermost.zml");
+  m_pg.writeShell( "outermost.zml" );
 }
 
 void FrontEnd::firstTetgenPass()
@@ -298,9 +270,8 @@ void FrontEnd::firstTetgenPass()
   Real maxGlobalLength = m_cfg.getFloat("MaxGlobalEdgeLength", 0.0);
   string tgOptions = m_cfg.value("TetgenOptions", m_tgoDefault);
 
-  if (maxGlobalLength > 0.0 and tgOptions.find('a') == string::npos)
-  {
-    Real mvol = 0.1 * cb(maxGlobalLength);
+  if (maxGlobalLength > 0.0 and tgOptions.find('a') == string::npos) {
+    Real mvol = 0.1*cb(maxGlobalLength);
     stringstream ss;
     ss << "a" << fixed << mvol;
     tgOptions += ss.str();
@@ -312,8 +283,7 @@ void FrontEnd::firstTetgenPass()
 
   Vct3 holePos, farfCenter;
   PointList<3> holeList;
-  if (m_cfg.hasKey("HolePosition"))
-  {
+  if (m_cfg.hasKey("HolePosition")) {
     stringstream ss;
     ss << m_cfg["HolePosition"];
     Vct3 p;
@@ -327,13 +297,13 @@ void FrontEnd::firstTetgenPass()
   if (holeList.size() < 2)
     cout << "Using internal volume marker point: " << holePos << endl;
   else
-    for (size_t i = 0; i < holeList.size(); ++i)
+    for (size_t i=0; i<holeList.size(); ++i)
       cout << "Using internal volume marker point: " << holeList[i] << endl;
 
   // create farfield for tetgen call
   TriMesh farf;
   farf.sphere(farfCenter, farfieldRadius, farfieldRefinement);
-  farf.faceTag(PentaGrow::maximumTagValue());
+  farf.faceTag( PentaGrow::maximumTagValue() );
   farf.reverse();
 
   // create refinement region boundary
@@ -356,7 +326,7 @@ void FrontEnd::firstTetgenPass()
     cmd = m_cfg["TetgenPath"];
 
   string tgCall = cmd + ' ' + tgOptions + " boundaries.smesh";
-  c.start("Calling: " + tgCall + "\n");
+  c.start("Calling: "+tgCall+"\n");
   int stat = system(tgCall.c_str());
   if (stat != 0)
     throw Error("Call to tetgen failed.");
@@ -377,8 +347,7 @@ int FrontEnd::generateMetric(int iter)
   // make sure to delete metric file in any case
   remove(mtrfile.c_str());
 
-  if (edgeGrowthFactor > 1.0)
-  {
+  if (edgeGrowthFactor > 1.0) {
 
     if (edgeGrowthFactor < 1.1)
       cout << "[w] Tet growth factor very small." << endl;
@@ -394,7 +363,7 @@ int FrontEnd::generateMetric(int iter)
     c.start("[t] Computing desired edge lengths...");
     TgRefiner tgr;
     tgr.configure(m_cfg);
-    const Vector &tel = tgr.edgeLengths(tmsh);
+    const Vector & tel = tgr.edgeLengths(tmsh);
 
     // debug
     tmsh.appendField("TargetEdgeLengths", tel);
@@ -403,10 +372,9 @@ int FrontEnd::generateMetric(int iter)
     tgr.writeMetricFile(mtrfile);
     c.stop("[t] done: ");
 
-    return iter + 1;
-  }
-  else
-  {
+    return iter+1;
+
+  } else {
     return iter;
   }
 }
@@ -427,8 +395,8 @@ void FrontEnd::secondTetgenPass(int iter)
   string cmd = "tetgen";
   if (m_cfg.hasKey("TetgenPath"))
     cmd = m_cfg["TetgenPath"];
-  string tgCall = cmd + rpOptions + ' ' + tgOutBasename + '.' + str(iter);
-  c.start("Calling: " + tgCall + "\n");
+  string tgCall = cmd + rpOptions  + ' ' + tgOutBasename + '.' + str(iter);
+  c.start("Calling: "+tgCall+"\n");
   int stat = system(tgCall.c_str());
   if (stat != 0)
     throw Error("Call to tetgen failed.");
@@ -470,18 +438,16 @@ void FrontEnd::generateLayer(int iter)
   string diagFile("diagnose.txt");
   ofstream diag(diagFile.c_str());
   size_t nneg = m_pg.countNegativeVolumes(diag);
-  if (nneg > 0)
-  {
+  if (nneg > 0) {
     if (nneg >= 4096)
       cout << "[!] Extremely many tangled volume elements detected. List in "
            << diagFile << endl;
     else
-      cout << "[!] " << nneg << " tangled volume elements detected. List in "
+      cout << "[!] "<< nneg << " tangled volume elements detected. List in "
            << diagFile << endl;
     if (spline)
       cout << "[!] Consider disable bent normals (SplineNormals = false) "
-              "to avoid tangled elements."
-           << endl;
+              "to avoid tangled elements." << endl;
   }
   c.stop(" diagnosis finished.");
 }
@@ -490,62 +456,54 @@ void FrontEnd::writeFinal()
 {
   // check requested output formats
   int outFormat = 0;
-  if (m_cfg.hasKey("OutputFormat"))
-  {
-    string of = toLower(m_cfg["OutputFormat"]);
-    if (of.find("edge") != string::npos)
+  if (m_cfg.hasKey("OutputFormat")) {
+    string of = toLower( m_cfg["OutputFormat"] );
+    if ( of.find("edge") != string::npos )
       outFormat |= EDGE;
-    if (of.find("bmsh") != string::npos)
+    if ( of.find("bmsh") != string::npos )
       outFormat |= EDGE;
-    if (of.find("zml") != string::npos)
+    if ( of.find("zml") != string::npos )
       outFormat |= ZML;
-    if (of.find("native") != string::npos)
+    if ( of.find("native") != string::npos )
       outFormat |= ZML;
-    if (of.find("cgns") != string::npos)
+    if ( of.find("cgns") != string::npos )
       outFormat |= CGNS;
-    if (of.find("tau") != string::npos)
+    if ( of.find("tau") != string::npos )
       outFormat |= TAU;
-    if (of.find("su2") != string::npos)
+    if ( of.find("su2") != string::npos )
       outFormat |= SU2;
-  }
-  else
-  {
+  } else {
     outFormat = EDGE | ZML;
   }
 
   Wallclock c;
   string outbase("hybrid");
 
-  if (outFormat & ZML)
-  {
+  if (outFormat & ZML) {
     c.start("Writing final mesh... ");
     m_pg.writeAs(outbase, Mx::NativeFormat, 1);
     c.stop(" done. ");
   }
 
-  if (outFormat & EDGE)
-  {
+  if (outFormat & EDGE) {
     c.start("Writing final ffa mesh... ");
     m_pg.writeAs(outbase, Mx::FfaFormat, 0);
     c.stop(" done. ");
   }
 
-  if (outFormat & CGNS)
-  {
+  if (outFormat & CGNS) {
     c.start("Writing final cgns mesh... ");
     m_pg.writeAs(outbase, Mx::StdCgnsFormat, 0);
     c.stop(" done. ");
   }
 
-  if (outFormat & TAU)
-  {
+  if (outFormat & TAU) {
     c.start("Writing final TAU mesh... ");
     m_pg.writeAs(outbase, Mx::TauFormat, 0);
     c.stop(" done. ");
   }
 
-  if (outFormat & SU2)
-  {
+  if (outFormat & SU2) {
     c.start("Writing final SU2 mesh... ");
     m_pg.writeAs(outbase, Mx::Su2Format, 0);
     c.stop(" done. ");

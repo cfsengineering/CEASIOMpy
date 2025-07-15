@@ -205,6 +205,7 @@ def load_rans_cgf_params(
     growth_factor: float,
     growth_ratio: float,
     feature_angle: float,
+    symmetry: bool,
 ) -> Dict:
 
     InitialHeight = h_first_layer * (10**-5)
@@ -232,6 +233,7 @@ def load_rans_cgf_params(
         "NormalIterations": NormalIterations,
         "MaxCritIterations": MaxCritIterations,
         "LaplaceIterations": LaplaceIterations,
+        "Symmetry": symmetry,
     }
 
 

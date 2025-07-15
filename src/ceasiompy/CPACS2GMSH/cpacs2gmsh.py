@@ -158,6 +158,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
                 growth_factor=growth_factor,
                 growth_ratio=growth_ratio,
                 feature_angle=feature_angle,
+                symmetry=symmetry,
             )
 
             su2mesh_path = pentagrow_3d_mesh(

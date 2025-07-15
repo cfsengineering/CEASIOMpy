@@ -946,8 +946,8 @@ def pentagrow_3d_mesh(
         for key, value in cfg_params.items():
             file.write(f"{key} = {value}\n")
 
-    check_path("surface_mesh.stl")
-    check_path("config.cfg")
+    # check_path("surface_mesh.stl")
+    # check_path("config.cfg")
 
     command = ["surface_mesh.stl", "config.cfg"]
 

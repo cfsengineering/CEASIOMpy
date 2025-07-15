@@ -477,6 +477,7 @@ def run_software(
     log.info(f"Working directory: {wkdir}")
     log.info("Command line that will be run is:")
     log.info(" ".join(map(str, command_line)))
+    log.info(f"in folder {wkdir}")
 
     with change_working_dir(wkdir):
         if log_bool:

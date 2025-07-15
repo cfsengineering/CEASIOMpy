@@ -23,7 +23,7 @@ def descend(rootdir):
                 printclean(fname, 'tmp.html')
                 os.remove(fname)
                 os.rename('tmp.html', fname)
-     
+
 if __name__ == '__main__':
     for fn in sys.argv[1:]:
         if os.path.isdir(fn):

@@ -271,7 +271,7 @@ void MxMesh::importMvz(const MeshFields &mvz)
     const string &s(mvz.shapename(i));
     if (findReal)
     {
-      if (s.find("Re ") == 0)
+      if (s.size() >= 3 && s.compare(0, 3, "Re ") == 0)
       {
         findReal = false;
         for (int j = 0; j < nem; ++j)
@@ -280,7 +280,7 @@ void MxMesh::importMvz(const MeshFields &mvz)
     }
     else
     {
-      if (s.find("Im ") == 0)
+      if (s.size() >= 3 && s.compare(0, 3, "Im ") == 0)
       {
         findReal = true;
         for (int j = 0; j < nem; ++j)

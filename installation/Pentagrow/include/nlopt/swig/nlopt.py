@@ -73,7 +73,7 @@ def _swig_getattr(self, class_type, name):
 def _swig_repr(self):
     try:
         strthis = "proxy of " + self.this.__repr__()
-    except Exception as _ :
+    except Exception :
         strthis = ""
     return "<%s.%s; %s >" % (self.__class__.__module__, self.__class__.__name__, strthis,)
 
@@ -155,7 +155,7 @@ class nlopt_doublevector(_object):
         this = _nlopt.new_nlopt_doublevector(*args)
         try:
             self.this.append(this)
-        except Exception as _ :
+        except Exception :
             self.this = this
 
     def push_back(self, *args): return _nlopt.nlopt_doublevector_push_back(self, *args)
@@ -252,7 +252,7 @@ class roundoff_limited(Exception):
         this = _nlopt.new_roundoff_limited()
         try:
             self.this.append(this)
-        except:
+        except Exception:
             self.this = this
     __swig_destroy__ = _nlopt.delete_roundoff_limited
     def __del__(self): return None

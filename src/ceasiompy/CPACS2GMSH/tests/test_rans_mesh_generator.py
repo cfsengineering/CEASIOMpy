@@ -82,7 +82,8 @@ def test_generate_rans_mesh():
         mesh_size_engines=0.2,
         mesh_size_propellers=0.2,
         auto_refine=False,
-        farfield_size_factor=10
+        farfield_size_factor=10,
+        symmetry=False,
     )
 
     rans_cfg_params = load_rans_cgf_params(
@@ -94,6 +95,7 @@ def test_generate_rans_mesh():
         growth_factor=1.2,
         growth_ratio=1.2,
         feature_angle=40,
+        symmetry=False,
     )
 
     pentagrow_3d_mesh(
@@ -211,7 +213,7 @@ def test_sort_surfaces_and_create_physical_groups():
     gmsh.model.occ.synchronize()
 
     sort_surfaces_and_create_physical_groups(
-        aircraft_parts, brep_files, cpacs, model_bb, model_dimensions)
+        aircraft_parts, brep_files, cpacs, model_bb, model_dimensions, symmetry=False)
 
     # Test if there are the right number of surfaces in each part of the aircraft
     assert len(aircraft_parts[0].surfaces_tags) == 60  # fuselage

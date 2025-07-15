@@ -478,7 +478,6 @@ def fusing_parts(aircraft_parts, symmetry, sym_box):
     j = 0
     for i in range(len(aircraft_parts)):
         model_part = aircraft_parts[j]
-        
         xmin, ymin, zmin, xmax, ymax, zmax = gmsh.model.occ.getBoundingBox(*model_part.volume)
         # Added a small margin, bc sometimes causes problem when retrieving surfaces
         # "at the limit"
@@ -495,7 +494,7 @@ def fusing_parts(aircraft_parts, symmetry, sym_box):
             aircraft_parts.remove(model_part)
         else:
             j += 1
-            
+
     # Take all the dimtag of the parts volume (vector that we will empty)
     dimtags_names = [
         {"dimtag": model_part.volume, "name": model_part.uid} for model_part in aircraft_parts
@@ -674,8 +673,8 @@ def sort_surfaces_and_create_physical_groups(
     gmsh.model.occ.synchronize()
 
     if symmetry:
-        l = max(model_dimensions) + 1
-        bb_y_plane = (-l / 2, -0.0001, -l / 2, l / 2, 0.0001, l / 2)
+        length = max(model_dimensions) + 1
+        bb_y_plane = (-length / 2, -0.0001, -length / 2, length / 2, 0.0001, length / 2)
         surfaces_y_plane = gmsh.model.occ.getEntitiesInBoundingBox(*bb_y_plane, 2)
 
         part_group = gmsh.model.addPhysicalGroup(2, [t for (d, t) in surfaces_y_plane])
@@ -878,7 +877,7 @@ def refine_le_te_end(
                         [aircraft.volume_tag],
                         mesh_fields,
                     )
-                    
+
                     gmsh.model.setColor([(1, line1), (1, line2)], 0, 180, 180)  # to see
                     lines_already_refined_lete.extend([line1, line2])
 

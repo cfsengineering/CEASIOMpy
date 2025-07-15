@@ -227,6 +227,4 @@ def test_sort_surfaces_and_create_physical_groups():
 #    MAIN
 # =================================================================================================
 if __name__ == "__main__":
-    # test_generate_rans_mesh()
-    test_choose_correct_part()
     test_sort_surfaces_and_create_physical_groups()

@@ -158,7 +158,7 @@ failure.xml
 *.su2
 forces_breakdown.dat
 
-# Ignore temp folder and  and temp files
+# Ignore temp folder and temp files
 /INSTALLDIR
 /Results
 /WKDIR/*

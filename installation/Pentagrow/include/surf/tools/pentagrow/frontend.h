@@ -10,23 +10,10 @@
 class FrontEnd
 {
 public:
-  enum FileFormat
-  {
-    UnknownFormat = 0,
-    MSH = 1,
-    STL = 2,
-    CGNS = 4,
-    EDGE = 8,
-    ZML = 16,
-    SU2 = 32,
-    TAU = 64
-  };
-  enum ProgPhase
-  {
-    FirstPass = 1,
-    SecondPass = 2,
-    TwoPass = 3
-  };
+
+  enum FileFormat { UnknownFormat=0, MSH=1, STL=2, CGNS=4,
+                    EDGE=8, ZML=16, SU2=32, TAU=64 };
+  enum ProgPhase { FirstPass = 1, SecondPass = 2, TwoPass = 3 };
 
   /// read configuration
   FrontEnd(int argc, char *argv[]);
@@ -53,9 +40,10 @@ public:
   void writeFinal();
 
   /// access core object
-  PentaGrow &meshGenerator() { return m_pg; }
+  PentaGrow & meshGenerator() {return m_pg;}
 
 private:
+
   /// configuration
   ConfigParser m_cfg;
 

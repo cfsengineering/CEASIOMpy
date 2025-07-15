@@ -273,7 +273,7 @@ class forced_stop(Exception):
         this = _nlopt.new_forced_stop()
         try:
             self.this.append(this)
-        except:
+        except Exception:
             self.this = this
     __swig_destroy__ = _nlopt.delete_forced_stop
     def __del__(self): return None

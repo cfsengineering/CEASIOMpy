@@ -456,7 +456,12 @@ def run_software(
         f"over {os.cpu_count()} will be used for this calculation."
     )
 
-    install_path = get_install_path(software_name)
+    if software_name == "pentagrow":
+        # install_path = "/users/disk10/benedetti/CEASIOM/CEASIOMpy_py311/CEASIOMpy/installation/Pentagrow/bin/pentagrow"
+        ceasiompy_root = Path(__file__).resolve().parents[3]  # <--- Adatta se cambia profondità
+        install_path = ceasiompy_root / "installation" / "Pentagrow" / "bin" / "pentagrow"
+    else:
+        install_path = get_install_path(software_name)
 
     command_line = []
     if with_mpi:

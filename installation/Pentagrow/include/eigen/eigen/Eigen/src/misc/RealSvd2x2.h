@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009-2010 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_REALSVD2X2_H
 #define EIGEN_REALSVD2X2_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -50,6 +50,6 @@ void real_2x2_jacobi_svd(const MatrixType& matrix, Index p, Index q,
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_REALSVD2X2_H

@@ -1,8 +1,8 @@
 
 #include <iostream>
-#include <Eigen/Geometry>
+#include <eeigen/Geometry>
 #include <bench/BenchTimer.h>
-using namespace Eigen;
+using namespace eeigen;
 using namespace std;
 
 

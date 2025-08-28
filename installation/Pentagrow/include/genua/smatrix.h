@@ -25,7 +25,7 @@
 #include "algo.h"
 #include "svector.h"
 
-#include <Eigen/Core>
+#include <eeigen/Core>
 
 /** Fixed size matrix.
 
@@ -56,10 +56,10 @@ public:
   typedef Type & reference;
   typedef const Type & const_reference;
 
-  /// for interfacing with the Eigen library
-  typedef Eigen::Matrix<Type, int(N), int(M)> EigenMatrix;
-  typedef Eigen::Map<EigenMatrix> EigenMap;
-  typedef Eigen::Map<const EigenMatrix> ConstEigenMap;
+  /// for interfacing with the eeigen library
+  typedef eeigen::Matrix<Type, int(N), int(M)> EigenMatrix;
+  typedef eeigen::Map<EigenMatrix> EigenMap;
+  typedef eeigen::Map<const EigenMatrix> ConstEigenMap;
 
   /// create zero matrix
   SMatrix()
@@ -262,12 +262,12 @@ public:
     return r;
   }
 
-  /// create a mutable map object for interfacing with Eigen
+  /// create a mutable map object for interfacing with eeigen
   EigenMap mmap() {
     return EigenMap(pointer(), nrows(), ncols());
   }
 
-  /// create a mutable map object for interfacing with Eigen
+  /// create a mutable map object for interfacing with eeigen
   ConstEigenMap cmap() const {
     return ConstEigenMap(pointer(), nrows(), ncols());
   }

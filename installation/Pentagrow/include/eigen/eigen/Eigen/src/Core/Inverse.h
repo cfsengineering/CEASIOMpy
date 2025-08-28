@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_INVERSE_H
 #define EIGEN_INVERSE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 template<typename XprType,typename StorageKind> class InverseImpl;
 
@@ -113,6 +113,6 @@ protected:
   
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_INVERSE_H

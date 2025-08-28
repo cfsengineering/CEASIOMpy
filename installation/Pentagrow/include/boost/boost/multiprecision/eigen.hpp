@@ -7,12 +7,12 @@
 #define BOOST_MP_EIGEN_HPP
 
 #include <boost/multiprecision/number.hpp>
-#include <Eigen/Core>
+#include <eeigen/Core>
 
 //
-// Generic Eigen support code:
+// Generic eeigen support code:
 //
-namespace Eigen
+namespace eeigen
 {
    template <class Backend, boost::multiprecision::expression_template_option ExpressionTemplates>
    struct NumTraits<boost::multiprecision::number<Backend, ExpressionTemplates> >

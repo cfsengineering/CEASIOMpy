@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Désiré Nuentsa-Wakam <desire.nuentsa_wakam@inria.fr>
@@ -68,7 +68,7 @@
 
 #ifndef EIGEN_LU_STRUCTS
 #define EIGEN_LU_STRUCTS
-namespace Eigen {
+namespace eeigen {
 namespace internal {
   
 typedef enum {LUSUP, UCOL, LSUB, USUB, LLVL, ULVL} MemType; 
@@ -106,5 +106,5 @@ struct perfvalues {
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 #endif // EIGEN_LU_STRUCTS

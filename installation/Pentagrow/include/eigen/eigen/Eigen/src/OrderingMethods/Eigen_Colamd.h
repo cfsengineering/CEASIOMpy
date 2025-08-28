@@ -1,4 +1,4 @@
-// // This file is part of Eigen, a lightweight C++ template library
+// // This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Desire Nuentsa Wakam <desire.nuentsa_wakam@inria.fr>
@@ -429,7 +429,7 @@ static bool colamd(IndexType n_row, IndexType n_col, IndexType Alen, IndexType *
 
   /* === Construct the row and column data structures ===================== */
   
-  if (!Eigen::internal::init_rows_cols (n_row, n_col, Row, Col, A, p, stats))
+  if (!eeigen::internal::init_rows_cols (n_row, n_col, Row, Col, A, p, stats))
   {
     /* input matrix is invalid */
     COLAMD_DEBUG0 (("colamd: Matrix invalid\n")) ;
@@ -438,17 +438,17 @@ static bool colamd(IndexType n_row, IndexType n_col, IndexType Alen, IndexType *
   
   /* === Initialize scores, kill dense rows/columns ======================= */
 
-  Eigen::internal::init_scoring (n_row, n_col, Row, Col, A, p, knobs,
+  eeigen::internal::init_scoring (n_row, n_col, Row, Col, A, p, knobs,
 		&n_row2, &n_col2, &max_deg) ;
   
   /* === Order the supercolumns =========================================== */
   
-  ngarbage = Eigen::internal::find_ordering (n_row, n_col, Alen, Row, Col, A, p,
+  ngarbage = eeigen::internal::find_ordering (n_row, n_col, Alen, Row, Col, A, p,
 			    n_col2, max_deg, 2*nnz) ;
   
   /* === Order the non-principal columns ================================== */
   
-  Eigen::internal::order_children (n_col, Col, p) ;
+  eeigen::internal::order_children (n_col, Col, p) ;
   
   /* === Return statistics in stats ======================================= */
   
@@ -986,7 +986,7 @@ static IndexType find_ordering /* return the number of garbage collections */
   /* === Initialization and clear mark ==================================== */
 
   max_mark = INT_MAX - n_col ;  /* INT_MAX defined in <limits.h> */
-  tag_mark = Eigen::internal::clear_mark (n_row, Row) ;
+  tag_mark = eeigen::internal::clear_mark (n_row, Row) ;
   min_score = 0 ;
   ngarbage = 0 ;
   COLAMD_DEBUG1 (("colamd: Ordering, n_col2=%d\n", n_col2)) ;
@@ -1036,12 +1036,12 @@ static IndexType find_ordering /* return the number of garbage collections */
     needed_memory = numext::mini(pivot_col_score, n_col - k) ;
     if (pfree + needed_memory >= Alen)
     {
-      pfree = Eigen::internal::garbage_collection (n_row, n_col, Row, Col, A, &A [pfree]) ;
+      pfree = eeigen::internal::garbage_collection (n_row, n_col, Row, Col, A, &A [pfree]) ;
       ngarbage++ ;
       /* after garbage collection we will have enough */
       COLAMD_ASSERT (pfree + needed_memory < Alen) ;
       /* garbage collection has wiped out the Row[].shared2.mark array */
-      tag_mark = Eigen::internal::clear_mark (n_row, Row) ;
+      tag_mark = eeigen::internal::clear_mark (n_row, Row) ;
 
     }
 
@@ -1329,7 +1329,7 @@ static IndexType find_ordering /* return the number of garbage collections */
 
     COLAMD_DEBUG3 (("** Supercolumn detection phase. **\n")) ;
 
-    Eigen::internal::detect_super_cols (Col, A, head, pivot_row_start, pivot_row_length) ;
+    eeigen::internal::detect_super_cols (Col, A, head, pivot_row_start, pivot_row_length) ;
 
     /* === Kill the pivotal column ====================================== */
 
@@ -1341,7 +1341,7 @@ static IndexType find_ordering /* return the number of garbage collections */
     if (tag_mark >= max_mark)
     {
       COLAMD_DEBUG2 (("clearing tag_mark\n")) ;
-      tag_mark = Eigen::internal::clear_mark (n_row, Row) ;
+      tag_mark = eeigen::internal::clear_mark (n_row, Row) ;
     }
 
     /* === Finalize the new pivot row, and column scores ================ */

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -55,7 +55,7 @@
 #include "bdcsvd.cpp"
 #endif
 
-#include <Eigen/Dense>
+#include <eeigen/Dense>
 
 #undef min
 #undef max
@@ -71,7 +71,7 @@
 namespace mp = boost::multiprecision;
 typedef mp::number<mp::cpp_dec_float<100>, mp::et_on> Real;
 
-namespace Eigen {
+namespace eeigen {
   template<> struct NumTraits<Real> : GenericNumTraits<Real> {
     static inline Real dummy_precision() { return 1e-50; }
   };
@@ -131,13 +131,13 @@ namespace multiprecision {
   }
 
   Real test_relative_error(const Real &a, const Real &b) {
-    using Eigen::numext::abs2;
-    return sqrt(abs2<Real>(a-b)/Eigen::numext::mini<Real>(abs2(a),abs2(b)));
+    using eeigen::numext::abs2;
+    return sqrt(abs2<Real>(a-b)/eeigen::numext::mini<Real>(abs2(a),abs2(b)));
   }
 }
 }
 
-namespace Eigen {
+namespace eeigen {
 
 }
 

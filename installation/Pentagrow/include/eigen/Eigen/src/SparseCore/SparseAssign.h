@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPARSEASSIGN_H
 #define EIGEN_SPARSEASSIGN_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 template<typename Derived>    
 template<typename OtherDerived>
@@ -211,6 +211,6 @@ struct Assignment<DstXprType, SrcXprType, Functor, Diagonal2Sparse>
 };
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSEASSIGN_H

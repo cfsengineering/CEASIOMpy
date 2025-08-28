@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_GENERAL_MATRIX_VECTOR_H
 #define EIGEN_GENERAL_MATRIX_VECTOR_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -42,7 +42,7 @@ namespace internal {
  *   - otherwise, if the register size is 4 scalars (e.g., SSE with float) then
  *     - one over 4 consecutive columns is guaranteed to be aligned with the result vector,
  *       perform simple aligned loads for this column and aligned loads plus re-alignment for the other. (-> FirstAligned case)
- *       // this re-alignment is done by the palign function implemented for SSE in Eigen/src/Core/arch/SSE/PacketMath.h
+ *       // this re-alignment is done by the palign function implemented for SSE in eeigen/src/Core/arch/SSE/PacketMath.h
  *   - otherwise,
  *     // if we get here, this means the register size is greater than 4 (e.g., AVX with floats),
  *     // we currently fall back to the NoneAligned case
@@ -614,6 +614,6 @@ EIGEN_DONT_INLINE void general_matrix_vector_product<Index,LhsScalar,LhsMapper,R
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_GENERAL_MATRIX_VECTOR_H

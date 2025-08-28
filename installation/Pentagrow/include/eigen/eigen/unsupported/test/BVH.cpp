@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Ilya Baran <ibaran@mit.edu>
@@ -8,11 +8,11 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "main.h"
-#include <Eigen/StdVector>
-#include <Eigen/Geometry>
-#include <unsupported/Eigen/BVH>
+#include <eeigen/StdVector>
+#include <eeigen/Geometry>
+#include <unsupported/eeigen/BVH>
 
-namespace Eigen {
+namespace eeigen {
 
 template<typename Scalar, int Dim> AlignedBox<Scalar, Dim> bounding_box(const Matrix<Scalar, Dim, 1> &v) { return AlignedBox<Scalar, Dim>(v); }
 

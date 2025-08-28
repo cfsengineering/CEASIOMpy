@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SOLVE_H
 #define EIGEN_SOLVE_H
 
-namespace Eigen {
+namespace eeigen {
 
 template<typename Decomposition, typename RhsType, typename StorageKind> class SolveImpl;
   
@@ -183,6 +183,6 @@ struct Assignment<DstXprType, Solve<CwiseUnaryOp<internal::scalar_conjugate_op<t
 
 } // end namepsace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SOLVE_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012-2016 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -14,7 +14,7 @@
 
 #include "./RealQZ.h"
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \eigenvalues_module \ingroup Eigenvalues_Module
   *
@@ -73,7 +73,7 @@ template<typename _MatrixType> class GeneralizedEigenSolver
     /** \brief Scalar type for matrices of type #MatrixType. */
     typedef typename MatrixType::Scalar Scalar;
     typedef typename NumTraits<Scalar>::Real RealScalar;
-    typedef Eigen::Index Index; ///< \deprecated since Eigen 3.3
+    typedef eeigen::Index Index; ///< \deprecated since eeigen 3.3
 
     /** \brief Complex scalar type for #MatrixType. 
       *
@@ -413,6 +413,6 @@ GeneralizedEigenSolver<MatrixType>::compute(const MatrixType& A, const MatrixTyp
   return *this;
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_GENERALIZEDEIGENSOLVER_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_BANDMATRIX_H
 #define EIGEN_BANDMATRIX_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -179,7 +179,7 @@ struct traits<BandMatrix<_Scalar,_Rows,_Cols,_Supers,_Subs,_Options> >
 {
   typedef _Scalar Scalar;
   typedef Dense StorageKind;
-  typedef Eigen::Index StorageIndex;
+  typedef eeigen::Index StorageIndex;
   enum {
     CoeffReadCost = NumTraits<Scalar>::ReadCost,
     RowsAtCompileTime = _Rows,
@@ -348,6 +348,6 @@ template<> struct AssignmentKind<DenseShape,BandShape> { typedef EigenBase2Eigen
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_BANDMATRIX_H

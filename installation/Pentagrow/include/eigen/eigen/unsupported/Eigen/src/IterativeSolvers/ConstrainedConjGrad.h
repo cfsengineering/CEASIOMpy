@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -26,14 +26,14 @@
 //
 //========================================================================
 
-#include "../../../../Eigen/src/Core/util/NonMPL2.h"
+#include "../../../../eeigen/src/Core/util/NonMPL2.h"
 
 #ifndef EIGEN_CONSTRAINEDCG_H
 #define EIGEN_CONSTRAINEDCG_H
 
-#include <Eigen/Core>
+#include <eeigen/Core>
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -184,6 +184,6 @@ void constrained_cg(const TMatrix& A, const CMatrix& C, VectorX& x,
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CONSTRAINEDCG_H

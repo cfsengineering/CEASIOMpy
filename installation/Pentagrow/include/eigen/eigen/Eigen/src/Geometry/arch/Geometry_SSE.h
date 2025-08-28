@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Rohit Garg <rpg.314@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_GEOMETRY_SSE_H
 #define EIGEN_GEOMETRY_SSE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -156,6 +156,6 @@ struct quat_conj<Architecture::SSE, Derived, double>
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_GEOMETRY_SSE_H

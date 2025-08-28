@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_TRIANGULAR_SOLVER_MATRIX_H
 #define EIGEN_TRIANGULAR_SOLVER_MATRIX_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -330,6 +330,6 @@ EIGEN_DONT_INLINE void triangular_solve_matrix<Scalar,Index,OnTheRight,Mode,Conj
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_TRIANGULAR_SOLVER_MATRIX_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Hauke Heibel <hauke.heibel@gmail.com>
@@ -11,12 +11,12 @@
 #define EIGEN_UMEYAMA_H
 
 // This file requires the user to include 
-// * Eigen/Core
-// * Eigen/LU 
-// * Eigen/SVD
-// * Eigen/Array
+// * eeigen/Core
+// * eeigen/LU 
+// * eeigen/SVD
+// * eeigen/Array
 
-namespace Eigen { 
+namespace eeigen { 
 
 #ifndef EIGEN_PARSED_BY_DOXYGEN
 
@@ -88,7 +88,7 @@ struct umeyama_transform_matrix_type
 *   T = \begin{bmatrix} c\mathbf{R} & \mathbf{t} \\ \mathbf{0} & 1 \end{bmatrix}
 * \f}
 * minimizing the resudiual above. This transformation is always returned as an 
-* Eigen::Matrix.
+* eeigen::Matrix.
 */
 template <typename Derived, typename OtherDerived>
 typename internal::umeyama_transform_matrix_type<Derived, OtherDerived>::type
@@ -161,6 +161,6 @@ umeyama(const MatrixBase<Derived>& src, const MatrixBase<OtherDerived>& dst, boo
   return Rt;
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_UMEYAMA_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010-2011 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_TRANSPOSITIONS_H
 #define EIGEN_TRANSPOSITIONS_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 template<typename Derived>
 class TranspositionsBase
@@ -21,7 +21,7 @@ class TranspositionsBase
 
     typedef typename Traits::IndicesType IndicesType;
     typedef typename IndicesType::Scalar StorageIndex;
-    typedef Eigen::Index Index; ///< \deprecated since Eigen 3.3
+    typedef eeigen::Index Index; ///< \deprecated since eeigen 3.3
 
     Derived& derived() { return *static_cast<Derived*>(this); }
     const Derived& derived() const { return *static_cast<const Derived*>(this); }
@@ -402,6 +402,6 @@ class Transpose<TranspositionsBase<TranspositionsDerived> >
     const TranspositionType& m_transpositions;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_TRANSPOSITIONS_H

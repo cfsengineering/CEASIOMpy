@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2007-2010 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_MAP_H
 #define EIGEN_MAP_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 template<typename PlainObjectType, int MapOptions, typename StrideType>
@@ -54,7 +54,7 @@ private:
   *                   The type passed here must be a specialization of the Stride template, see examples below.
   *
   * This class represents a matrix or vector expression mapping an existing array of data.
-  * It can be used to let Eigen interface without any overhead with non-Eigen data structures,
+  * It can be used to let eeigen interface without any overhead with non-eeigen data structures,
   * such as plain C arrays or structures from other libraries. By default, it assumes that the
   * data is laid out contiguously in memory. You can however override this by explicitly specifying
   * inner and outer strides.
@@ -166,6 +166,6 @@ template<typename PlainObjectType, int MapOptions, typename StrideType> class Ma
 };
 
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_MAP_H

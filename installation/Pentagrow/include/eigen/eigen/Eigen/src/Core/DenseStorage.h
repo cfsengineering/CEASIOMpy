@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -18,7 +18,7 @@
   #define EIGEN_INTERNAL_DENSE_STORAGE_CTOR_PLUGIN(X)
 #endif
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -565,6 +565,6 @@ template<typename T, int _Cols, int _Options> class DenseStorage<T, Dynamic, Dyn
     EIGEN_DEVICE_FUNC T *data() { return m_data; }
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_MATRIX_H

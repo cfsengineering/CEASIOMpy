@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_VISITOR_H
 #define EIGEN_VISITOR_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -268,6 +268,6 @@ DenseBase<Derived>::maxCoeff(IndexType* index) const
   return maxVisitor.res;
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_VISITOR_H

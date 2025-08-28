@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ********************************************************************************
- *   Content : Eigen bindings to LAPACKe
+ *   Content : eeigen bindings to LAPACKe
  *    Householder QR decomposition of a matrix w/o pivoting based on
  *    LAPACKE_?geqrf function.
  ********************************************************************************
@@ -34,7 +34,7 @@
 #ifndef EIGEN_QR_LAPACKE_H
 #define EIGEN_QR_LAPACKE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -63,6 +63,6 @@ EIGEN_LAPACKE_QR_NOPIV(scomplex, lapack_complex_float, c)
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_QR_LAPACKE_H

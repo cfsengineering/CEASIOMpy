@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_CWISE_UNARY_OP_H
 #define EIGEN_CWISE_UNARY_OP_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 template<typename UnaryOp, typename XprType>
@@ -98,6 +98,6 @@ public:
   typedef typename internal::generic_xpr_base<CwiseUnaryOp<UnaryOp, XprType> >::type Base;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CWISE_UNARY_OP_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2012 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -45,7 +45,7 @@ LDL License:
 #ifndef EIGEN_SIMPLICIAL_CHOLESKY_IMPL_H
 #define EIGEN_SIMPLICIAL_CHOLESKY_IMPL_H
 
-namespace Eigen {
+namespace eeigen {
 
 template<typename Derived>
 void SimplicialCholeskyBase<Derived>::analyzePattern_preordered(const CholMatrixType& ap, bool doLDLT)
@@ -194,6 +194,6 @@ void SimplicialCholeskyBase<Derived>::factorize_preordered(const CholMatrixType&
   m_factorizationIsOk = true;
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SIMPLICIAL_CHOLESKY_IMPL_H

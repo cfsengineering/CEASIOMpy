@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -91,8 +91,8 @@ int ScalarWithExceptions::countdown = 0;
 
 void memoryleak()
 {
-  typedef Eigen::Matrix<ScalarWithExceptions,Dynamic,1> VectorType;
-  typedef Eigen::Matrix<ScalarWithExceptions,Dynamic,Dynamic> MatrixType;
+  typedef eeigen::Matrix<ScalarWithExceptions,Dynamic,1> VectorType;
+  typedef eeigen::Matrix<ScalarWithExceptions,Dynamic,Dynamic> MatrixType;
   
   {
     int n = 50;

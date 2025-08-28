@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,51 +10,51 @@
 #ifndef EIGEN_TYPE_CASTING_CUDA_H
 #define EIGEN_TYPE_CASTING_CUDA_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
 template<>
-struct scalar_cast_op<float, Eigen::half> {
+struct scalar_cast_op<float, eeigen::half> {
   EIGEN_EMPTY_STRUCT_CTOR(scalar_cast_op)
-  typedef Eigen::half result_type;
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Eigen::half operator() (const float& a) const {
+  typedef eeigen::half result_type;
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE eeigen::half operator() (const float& a) const {
     #if defined(EIGEN_HAS_CUDA_FP16) && defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 300
       return __float2half(a);
     #else
-      return Eigen::half(a);
+      return eeigen::half(a);
     #endif
   }
 };
 
 template<>
-struct functor_traits<scalar_cast_op<float, Eigen::half> >
+struct functor_traits<scalar_cast_op<float, eeigen::half> >
 { enum { Cost = NumTraits<float>::AddCost, PacketAccess = false }; };
 
 
 template<>
-struct scalar_cast_op<int, Eigen::half> {
+struct scalar_cast_op<int, eeigen::half> {
   EIGEN_EMPTY_STRUCT_CTOR(scalar_cast_op)
-  typedef Eigen::half result_type;
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Eigen::half operator() (const int& a) const {
+  typedef eeigen::half result_type;
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE eeigen::half operator() (const int& a) const {
     #if defined(EIGEN_HAS_CUDA_FP16) && defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 300
       return __float2half(static_cast<float>(a));
     #else
-      return Eigen::half(static_cast<float>(a));
+      return eeigen::half(static_cast<float>(a));
     #endif
   }
 };
 
 template<>
-struct functor_traits<scalar_cast_op<int, Eigen::half> >
+struct functor_traits<scalar_cast_op<int, eeigen::half> >
 { enum { Cost = NumTraits<float>::AddCost, PacketAccess = false }; };
 
 
 template<>
-struct scalar_cast_op<Eigen::half, float> {
+struct scalar_cast_op<eeigen::half, float> {
   EIGEN_EMPTY_STRUCT_CTOR(scalar_cast_op)
   typedef float result_type;
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE float operator() (const Eigen::half& a) const {
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE float operator() (const eeigen::half& a) const {
     #if defined(EIGEN_HAS_CUDA_FP16) && defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 300
       return __half2float(a);
     #else
@@ -64,7 +64,7 @@ struct scalar_cast_op<Eigen::half, float> {
 };
 
 template<>
-struct functor_traits<scalar_cast_op<Eigen::half, float> >
+struct functor_traits<scalar_cast_op<eeigen::half, float> >
 { enum { Cost = NumTraits<float>::AddCost, PacketAccess = false }; };
 
 
@@ -72,7 +72,7 @@ struct functor_traits<scalar_cast_op<Eigen::half, float> >
 #if defined(EIGEN_HAS_CUDA_FP16) && defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 300
 
 template <>
-struct type_casting_traits<Eigen::half, float> {
+struct type_casting_traits<eeigen::half, float> {
   enum {
     VectorizedCast = 1,
     SrcCoeffRatio = 2,
@@ -87,7 +87,7 @@ template<> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE float4 pcast<half2, float4>(con
 }
 
 template <>
-struct type_casting_traits<float, Eigen::half> {
+struct type_casting_traits<float, eeigen::half> {
   enum {
     VectorizedCast = 1,
     SrcCoeffRatio = 1,
@@ -130,7 +130,7 @@ template<> EIGEN_STRONG_INLINE Packet16h pcast<Packet16f, Packet16h>(const Packe
 #elif defined EIGEN_VECTORIZE_AVX
 
 template <>
-struct type_casting_traits<Eigen::half, float> {
+struct type_casting_traits<eeigen::half, float> {
   enum {
     VectorizedCast = 1,
     SrcCoeffRatio = 1,
@@ -143,7 +143,7 @@ template<> EIGEN_STRONG_INLINE Packet8f pcast<Packet8h, Packet8f>(const Packet8h
 }
 
 template <>
-struct type_casting_traits<float, Eigen::half> {
+struct type_casting_traits<float, eeigen::half> {
   enum {
     VectorizedCast = 1,
     SrcCoeffRatio = 1,
@@ -160,7 +160,7 @@ template<> EIGEN_STRONG_INLINE Packet8h pcast<Packet8f, Packet8h>(const Packet8f
 #elif 0
 
 template <>
-struct type_casting_traits<Eigen::half, float> {
+struct type_casting_traits<eeigen::half, float> {
   enum {
     VectorizedCast = 1,
     SrcCoeffRatio = 1,
@@ -170,7 +170,7 @@ struct type_casting_traits<Eigen::half, float> {
 
 template<> EIGEN_STRONG_INLINE Packet4f pcast<Packet4h, Packet4f>(const Packet4h& a) {
   __int64_t a64 = _mm_cvtm64_si64(a.x);
-  Eigen::half h = raw_uint16_to_half(static_cast<unsigned short>(a64));
+  eeigen::half h = raw_uint16_to_half(static_cast<unsigned short>(a64));
   float f1 = static_cast<float>(h);
   h = raw_uint16_to_half(static_cast<unsigned short>(a64 >> 16));
   float f2 = static_cast<float>(h);
@@ -182,7 +182,7 @@ template<> EIGEN_STRONG_INLINE Packet4f pcast<Packet4h, Packet4f>(const Packet4h
 }
 
 template <>
-struct type_casting_traits<float, Eigen::half> {
+struct type_casting_traits<float, eeigen::half> {
   enum {
     VectorizedCast = 1,
     SrcCoeffRatio = 1,
@@ -193,10 +193,10 @@ struct type_casting_traits<float, Eigen::half> {
 template<> EIGEN_STRONG_INLINE Packet4h pcast<Packet4f, Packet4h>(const Packet4f& a) {
   EIGEN_ALIGN16 float aux[4];
   pstore(aux, a);
-  Eigen::half h0(aux[0]);
-  Eigen::half h1(aux[1]);
-  Eigen::half h2(aux[2]);
-  Eigen::half h3(aux[3]);
+  eeigen::half h0(aux[0]);
+  eeigen::half h1(aux[1]);
+  eeigen::half h2(aux[2]);
+  eeigen::half h3(aux[3]);
 
   Packet4h result;
   result.x = _mm_set_pi16(h3.x, h2.x, h1.x, h0.x);
@@ -207,6 +207,6 @@ template<> EIGEN_STRONG_INLINE Packet4h pcast<Packet4f, Packet4h>(const Packet4f
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_TYPE_CASTING_CUDA_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Guillaume Saupin <guillaume.saupin@cea.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SKYLINEPRODUCT_H
 #define EIGEN_SKYLINEPRODUCT_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 template<typename Lhs, typename Rhs, int ProductMode>
 struct SkylineProductReturnType {
@@ -290,6 +290,6 @@ SkylineMatrixBase<Derived>::operator*(const MatrixBase<OtherDerived> &other) con
     return typename SkylineProductReturnType<Derived, OtherDerived>::Type(derived(), other.derived());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SKYLINEPRODUCT_H

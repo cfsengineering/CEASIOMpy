@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_REDUCTION_CUDA_H
 #define EIGEN_CXX11_TENSOR_TENSOR_REDUCTION_CUDA_H
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 
 
@@ -304,14 +304,14 @@ struct FullReductionLauncher<
 
 #ifdef EIGEN_HAS_CUDA_FP16
 template <typename Self, typename Op>
-struct FullReductionLauncher<Self, Op, Eigen::half, false> {
+struct FullReductionLauncher<Self, Op, eeigen::half, false> {
   static void run(const Self&, Op&, const GpuDevice&, half*, typename Self::Index) {
     assert(false && "Should not be called since there is no packet accessor");
   }
 };
 
 template <typename Self, typename Op>
-struct FullReductionLauncher<Self, Op, Eigen::half, true> {
+struct FullReductionLauncher<Self, Op, eeigen::half, true> {
   static void run(const Self& self, Op& reducer, const GpuDevice& device, half* output, typename Self::Index num_coeffs) {
     typedef typename Self::Index Index;
 
@@ -348,7 +348,7 @@ struct FullReducer<Self, Op, GpuDevice, Vectorizable> {
   static const bool HasOptimizedImplementation = !Op::IsStateful &&
       (internal::is_same<typename Self::CoeffReturnType, float>::value ||
        internal::is_same<typename Self::CoeffReturnType, double>::value ||
-       (internal::is_same<typename Self::CoeffReturnType, Eigen::half>::value && reducer_traits<Op, GpuDevice>::PacketAccess));
+       (internal::is_same<typename Self::CoeffReturnType, eeigen::half>::value && reducer_traits<Op, GpuDevice>::PacketAccess));
 #else
   static const bool HasOptimizedImplementation = !Op::IsStateful &&
                                                 (internal::is_same<typename Self::CoeffReturnType, float>::value ||
@@ -584,7 +584,7 @@ struct InnerReductionLauncher<
 
 #ifdef EIGEN_HAS_CUDA_FP16
 template <typename Self, typename Op>
-struct InnerReductionLauncher<Self, Op, Eigen::half, false> {
+struct InnerReductionLauncher<Self, Op, eeigen::half, false> {
   static bool run(const Self&, Op&, const GpuDevice&, half*, typename Self::Index, typename Self::Index) {
     assert(false && "Should not be called since there is no packet accessor");
     return true;
@@ -592,7 +592,7 @@ struct InnerReductionLauncher<Self, Op, Eigen::half, false> {
 };
 
 template <typename Self, typename Op>
-struct InnerReductionLauncher<Self, Op, Eigen::half, true> {
+struct InnerReductionLauncher<Self, Op, eeigen::half, true> {
   static bool run(const Self& self, Op& reducer, const GpuDevice& device, half* output, typename Self::Index num_coeffs_to_reduce, typename Self::Index num_preserved_vals) {
     typedef typename Self::Index Index;
 
@@ -638,7 +638,7 @@ struct InnerReducer<Self, Op, GpuDevice> {
   static const bool HasOptimizedImplementation = !Op::IsStateful &&
       (internal::is_same<typename Self::CoeffReturnType, float>::value ||
        internal::is_same<typename Self::CoeffReturnType, double>::value ||
-       (internal::is_same<typename Self::CoeffReturnType, Eigen::half>::value && reducer_traits<Op, GpuDevice>::PacketAccess));
+       (internal::is_same<typename Self::CoeffReturnType, eeigen::half>::value && reducer_traits<Op, GpuDevice>::PacketAccess));
 #else
   static const bool HasOptimizedImplementation = !Op::IsStateful &&
                                                  (internal::is_same<typename Self::CoeffReturnType, float>::value ||
@@ -745,6 +745,6 @@ struct OuterReducer<Self, Op, GpuDevice> {
 
 
 } // end namespace internal
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_REDUCTION_CUDA_H

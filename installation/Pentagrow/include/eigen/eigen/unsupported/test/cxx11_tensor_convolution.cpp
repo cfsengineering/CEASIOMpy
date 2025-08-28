@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -9,10 +9,10 @@
 
 #include "main.h"
 
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
-using Eigen::DefaultDevice;
+using eeigen::Tensor;
+using eeigen::DefaultDevice;
 
 template <int DataLayout>
 static void test_evals()
@@ -25,7 +25,7 @@ static void test_evals()
 
   Tensor<float, 2, DataLayout> result(2,3);
   result.setZero();
-  Eigen::array<Tensor<float, 2>::Index, 1> dims3{{0}};
+  eeigen::array<Tensor<float, 2>::Index, 1> dims3{{0}};
 
   typedef TensorEvaluator<decltype(input.convolve(kernel, dims3)), DefaultDevice> Evaluator;
   Evaluator eval(input.convolve(kernel, dims3), DefaultDevice());
@@ -51,7 +51,7 @@ static void test_expr()
   kernel.setRandom();
 
   Tensor<float, 2, DataLayout> result(2,2);
-  Eigen::array<ptrdiff_t, 2> dims;
+  eeigen::array<ptrdiff_t, 2> dims;
   dims[0] = 0;
   dims[1] = 1;
   result = input.convolve(kernel, dims);
@@ -77,9 +77,9 @@ static void test_modes() {
   kernel(1) = 1.0f;
   kernel(2) = 0.0f;
 
-  Eigen::array<ptrdiff_t, 1> dims;
+  eeigen::array<ptrdiff_t, 1> dims;
   dims[0] = 0;
-  Eigen::array<std::pair<ptrdiff_t, ptrdiff_t>, 1> padding;
+  eeigen::array<std::pair<ptrdiff_t, ptrdiff_t>, 1> padding;
 
   // Emulate VALID mode (as defined in
   // http://docs.scipy.org/doc/numpy/reference/generated/numpy.convolve.html).
@@ -119,11 +119,11 @@ static void test_strides() {
   input.setRandom();
   kernel.setRandom();
 
-  Eigen::array<ptrdiff_t, 1> dims;
+  eeigen::array<ptrdiff_t, 1> dims;
   dims[0] = 0;
-  Eigen::array<ptrdiff_t, 1> stride_of_3;
+  eeigen::array<ptrdiff_t, 1> stride_of_3;
   stride_of_3[0] = 3;
-  Eigen::array<ptrdiff_t, 1> stride_of_2;
+  eeigen::array<ptrdiff_t, 1> stride_of_2;
   stride_of_2[0] = 2;
 
   Tensor<float, 1, DataLayout> result;

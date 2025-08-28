@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2010 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -15,7 +15,7 @@
 #define EIGEN_PI 3.141592653589793238462643383279502884197169399375105820974944592307816406L
 
 
-namespace Eigen {
+namespace eeigen {
 
 // On WINCE, std::abs is defined for int only, so let's defined our own overloads:
 // This issue has been confirmed with MSVC 2008 only, but the issue might exist for more recent versions too.
@@ -65,8 +65,8 @@ struct global_math_functions_filtering_base
   typedef typename T::Eigen_BaseClassForSpecializationOfGlobalMathFuncImpl type;
 };
 
-#define EIGEN_MATHFUNC_IMPL(func, scalar) Eigen::internal::func##_impl<typename Eigen::internal::global_math_functions_filtering_base<scalar>::type>
-#define EIGEN_MATHFUNC_RETVAL(func, scalar) typename Eigen::internal::func##_retval<typename Eigen::internal::global_math_functions_filtering_base<scalar>::type>::type
+#define EIGEN_MATHFUNC_IMPL(func, scalar) eeigen::internal::func##_impl<typename eeigen::internal::global_math_functions_filtering_base<scalar>::type>
+#define EIGEN_MATHFUNC_RETVAL(func, scalar) typename eeigen::internal::func##_retval<typename eeigen::internal::global_math_functions_filtering_base<scalar>::type>::type
 
 /****************************************************************************
 * Implementation of real                                                 *
@@ -1410,6 +1410,6 @@ template<> struct scalar_fuzzy_impl<bool>
   
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_MATHFUNCTIONS_H

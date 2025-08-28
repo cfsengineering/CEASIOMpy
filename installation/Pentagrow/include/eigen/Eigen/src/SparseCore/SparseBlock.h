@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPARSE_BLOCK_H
 #define EIGEN_SPARSE_BLOCK_H
 
-namespace Eigen {
+namespace eeigen {
 
 // Subset of columns or rows
 template<typename XprType, int BlockRows, int BlockCols>
@@ -598,6 +598,6 @@ struct unary_evaluator<Block<const SparseMatrix<_Scalar, _Options, _StorageIndex
 } // end namespace internal
 
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSE_BLOCK_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPARSE_CWISE_UNARY_OP_H
 #define EIGEN_SPARSE_CWISE_UNARY_OP_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
   
@@ -143,6 +143,6 @@ SparseMatrixBase<Derived>::operator/=(const Scalar& other)
   return derived();
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSE_CWISE_UNARY_OP_H

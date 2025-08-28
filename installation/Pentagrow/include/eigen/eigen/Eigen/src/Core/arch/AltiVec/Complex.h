@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_COMPLEX32_ALTIVEC_H
 #define EIGEN_COMPLEX32_ALTIVEC_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -425,6 +425,6 @@ EIGEN_STRONG_INLINE void ptranspose(PacketBlock<Packet1cd,2>& kernel)
 #endif // __VSX__
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_COMPLEX32_ALTIVEC_H

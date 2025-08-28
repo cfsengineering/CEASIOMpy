@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009-2010 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_JACOBISVD_H
 #define EIGEN_JACOBISVD_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 // forward declaration (needed by ICC)
@@ -799,6 +799,6 @@ MatrixBase<Derived>::jacobiSvd(unsigned int computationOptions) const
   return JacobiSVD<PlainObject>(*this, computationOptions);
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_JACOBISVD_H

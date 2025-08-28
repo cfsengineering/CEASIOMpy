@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPARSE_SELFADJOINTVIEW_H
 #define EIGEN_SPARSE_SELFADJOINTVIEW_H
 
-namespace Eigen { 
+namespace eeigen { 
   
 /** \ingroup SparseCore_Module
   * \class SparseSelfAdjointView
@@ -651,6 +651,6 @@ struct Assignment<DstXprType, SparseSymmetricPermutationProduct<MatrixType,Mode>
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSE_SELFADJOINTVIEW_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_LLT_H
 #define EIGEN_LLT_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal{
 template<typename MatrixType, int UpLo> struct LLT_Traits;
@@ -64,7 +64,7 @@ template<typename _MatrixType, int _UpLo> class LLT
     };
     typedef typename MatrixType::Scalar Scalar;
     typedef typename NumTraits<typename MatrixType::Scalar>::Real RealScalar;
-    typedef Eigen::Index Index; ///< \deprecated since Eigen 3.3
+    typedef eeigen::Index Index; ///< \deprecated since eeigen 3.3
     typedef typename MatrixType::StorageIndex StorageIndex;
 
     enum {
@@ -103,7 +103,7 @@ template<typename _MatrixType, int _UpLo> class LLT
     /** \brief Constructs a LDLT factorization from a given matrix
       *
       * This overloaded constructor is provided for \link InplaceDecomposition inplace decomposition \endlink when
-      * \c MatrixType is a Eigen::Ref.
+      * \c MatrixType is a eeigen::Ref.
       *
       * \sa LLT(const EigenBase&)
       */
@@ -363,7 +363,7 @@ template<typename Scalar> struct llt_inplace<Scalar, Lower>
   template<typename MatrixType, typename VectorType>
   static Index rankUpdate(MatrixType& mat, const VectorType& vec, const RealScalar& sigma)
   {
-    return Eigen::internal::llt_rank_update_lower(mat, vec, sigma);
+    return eeigen::internal::llt_rank_update_lower(mat, vec, sigma);
   }
 };
 
@@ -537,6 +537,6 @@ SelfAdjointView<MatrixType, UpLo>::llt() const
   return LLT<PlainObject,UpLo>(m_matrix);
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_LLT_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_GENERAL_MATRIX_MATRIX_TRIANGULAR_H
 #define EIGEN_GENERAL_MATRIX_MATRIX_TRIANGULAR_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 template<typename Scalar, typename Index, int StorageOrder, int UpLo, bool ConjLhs, bool ConjRhs>
 struct selfadjoint_rank1_update;
@@ -306,6 +306,6 @@ TriangularView<MatrixType,UpLo>& TriangularViewImpl<MatrixType,UpLo,Dense>::_ass
   return derived();
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_GENERAL_MATRIX_MATRIX_TRIANGULAR_H

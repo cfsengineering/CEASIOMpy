@@ -1,18 +1,18 @@
-// Small bench routine for Eigen available in Eigen
+// Small bench routine for eeigen available in eeigen
 // (C) Desire NUENTSA WAKAM, INRIA
 
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <unsupported/Eigen/SparseExtra>
-#include <Eigen/SparseLU>
+#include <unsupported/eeigen/SparseExtra>
+#include <eeigen/SparseLU>
 #include <bench/BenchTimer.h>
 #ifdef EIGEN_METIS_SUPPORT
-#include <Eigen/MetisSupport>
+#include <eeigen/MetisSupport>
 #endif
 
 using namespace std;
-using namespace Eigen;
+using namespace eeigen;
 
 int main(int argc, char **args)
 {

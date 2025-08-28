@@ -18,14 +18,14 @@
 #ifndef EIGEN2_INTERFACE_HH
 #define EIGEN2_INTERFACE_HH
 // #include <cblas.h>
-#include <Eigen/Core>
-#include <Eigen/Cholesky>
-#include <Eigen/LU>
-#include <Eigen/QR>
+#include <eeigen/Core>
+#include <eeigen/Cholesky>
+#include <eeigen/LU>
+#include <eeigen/QR>
 #include <vector>
 #include "btl.hh"
 
-using namespace Eigen;
+using namespace eeigen;
 
 template<class real, int SIZE=Dynamic>
 class eigen2_interface
@@ -40,8 +40,8 @@ public :
   typedef std::vector<real> stl_vector;
   typedef std::vector<stl_vector> stl_matrix;
 
-  typedef Eigen::Matrix<real,SIZE,SIZE> gene_matrix;
-  typedef Eigen::Matrix<real,SIZE,1> gene_vector;
+  typedef eeigen::Matrix<real,SIZE,SIZE> gene_matrix;
+  typedef eeigen::Matrix<real,SIZE,1> gene_vector;
 
   static inline std::string name( void )
   {

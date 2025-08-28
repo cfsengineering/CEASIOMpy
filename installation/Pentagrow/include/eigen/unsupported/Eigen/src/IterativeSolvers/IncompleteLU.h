@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_INCOMPLETE_LU_H
 #define EIGEN_INCOMPLETE_LU_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 template <typename _Scalar>
 class IncompleteLU : public SparseSolverBase<IncompleteLU<_Scalar> >
@@ -85,6 +85,6 @@ class IncompleteLU : public SparseSolverBase<IncompleteLU<_Scalar> >
     FactorType m_lu;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_INCOMPLETE_LU_H

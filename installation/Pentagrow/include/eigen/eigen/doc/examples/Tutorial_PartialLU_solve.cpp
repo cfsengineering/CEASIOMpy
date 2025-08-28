@@ -1,9 +1,9 @@
-#include <Eigen/Core>
-#include <Eigen/LU>
+#include <eeigen/Core>
+#include <eeigen/LU>
 #include <iostream>
 
 using namespace std;
-using namespace Eigen;
+using namespace eeigen;
 
 int main()
 {

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_CONSTANTS_H
 #define EIGEN_CONSTANTS_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** This value means that a positive quantity (e.g., a size) is not known at compile-time, and that instead the value is
   * stored in some runtime variable.
@@ -193,7 +193,7 @@ const unsigned int HereditaryBits = RowMajorBit
 /** \defgroup enums Enumerations
   * \ingroup Core_Module
   *
-  * Various enumerations used in %Eigen. Many of these are used as template parameters.
+  * Various enumerations used in %eeigen. Many of these are used as template parameters.
   */
 
 /** \ingroup enums
@@ -542,6 +542,6 @@ enum ComparisonName {
 };
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CONSTANTS_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 20010-2011 Hauke Heibel <hauke.heibel@gmail.com>
@@ -17,10 +17,10 @@
 
 #include "SplineFwd.h"
 
-#include <Eigen/LU>
-#include <Eigen/QR>
+#include <eeigen/LU>
+#include <eeigen/QR>
 
-namespace Eigen
+namespace eeigen
 {
   /**
    * \brief Computes knot averages.
@@ -311,7 +311,7 @@ namespace Eigen
 
     HouseholderQR<MatrixType> qr(A);
 
-    // Here, we are creating a temporary due to an Eigen issue.
+    // Here, we are creating a temporary due to an eeigen issue.
     ControlPointVectorType ctrls = qr.solve(MatrixType(pts.transpose())).transpose();
 
     return SplineType(knots, ctrls);

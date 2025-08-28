@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // This Source Code Form is subject to the terms of the Mozilla
@@ -12,7 +12,7 @@
 #ifndef EIGEN_MATH_FUNCTIONS_NEON_H
 #define EIGEN_MATH_FUNCTIONS_NEON_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -86,6 +86,6 @@ Packet4f pexp<Packet4f>(const Packet4f& _x)
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_MATH_FUNCTIONS_NEON_H

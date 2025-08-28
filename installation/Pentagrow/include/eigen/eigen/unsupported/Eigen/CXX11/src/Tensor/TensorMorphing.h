@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_MORPHING_H
 #define EIGEN_CXX11_TENSOR_TENSOR_MORPHING_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorReshaping
   * \ingroup CXX11_Tensor_Module
@@ -34,7 +34,7 @@ struct traits<TensorReshapingOp<NewDimensions, XprType> > : public traits<XprTyp
 };
 
 template<typename NewDimensions, typename XprType>
-struct eval<TensorReshapingOp<NewDimensions, XprType>, Eigen::Dense>
+struct eval<TensorReshapingOp<NewDimensions, XprType>, eeigen::Dense>
 {
   typedef const TensorReshapingOp<NewDimensions, XprType>& type;
 };
@@ -53,11 +53,11 @@ template<typename NewDimensions, typename XprType>
 class TensorReshapingOp : public TensorBase<TensorReshapingOp<NewDimensions, XprType>, WriteAccessors>
 {
   public:
-  typedef typename Eigen::internal::traits<TensorReshapingOp>::Scalar Scalar;
+  typedef typename eeigen::internal::traits<TensorReshapingOp>::Scalar Scalar;
   typedef typename internal::remove_const<typename XprType::CoeffReturnType>::type CoeffReturnType;
-  typedef typename Eigen::internal::nested<TensorReshapingOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorReshapingOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorReshapingOp>::Index Index;
+  typedef typename eeigen::internal::nested<TensorReshapingOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorReshapingOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorReshapingOp>::Index Index;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorReshapingOp(const XprType& expr, const NewDimensions& dims)
       : m_xpr(expr), m_dims(dims) {}
@@ -217,7 +217,7 @@ struct traits<TensorSlicingOp<StartIndices, Sizes, XprType> > : public traits<Xp
 };
 
 template<typename StartIndices, typename Sizes, typename XprType>
-struct eval<TensorSlicingOp<StartIndices, Sizes, XprType>, Eigen::Dense>
+struct eval<TensorSlicingOp<StartIndices, Sizes, XprType>, eeigen::Dense>
 {
   typedef const TensorSlicingOp<StartIndices, Sizes, XprType>& type;
 };
@@ -236,11 +236,11 @@ template<typename StartIndices, typename Sizes, typename XprType>
 class TensorSlicingOp : public TensorBase<TensorSlicingOp<StartIndices, Sizes, XprType> >
 {
   public:
-  typedef typename Eigen::internal::traits<TensorSlicingOp>::Scalar Scalar;
+  typedef typename eeigen::internal::traits<TensorSlicingOp>::Scalar Scalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
-  typedef typename Eigen::internal::nested<TensorSlicingOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorSlicingOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorSlicingOp>::Index Index;
+  typedef typename eeigen::internal::nested<TensorSlicingOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorSlicingOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorSlicingOp>::Index Index;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorSlicingOp(const XprType& expr, const StartIndices& indices, const Sizes& sizes)
       : m_xpr(expr), m_indices(indices), m_sizes(sizes) {}
@@ -619,7 +619,7 @@ struct traits<TensorStridingSlicingOp<StartIndices, StopIndices, Strides, XprTyp
 };
 
 template<typename StartIndices, typename StopIndices, typename Strides, typename XprType>
-struct eval<TensorStridingSlicingOp<StartIndices, StopIndices, Strides, XprType>, Eigen::Dense>
+struct eval<TensorStridingSlicingOp<StartIndices, StopIndices, Strides, XprType>, eeigen::Dense>
 {
   typedef const TensorStridingSlicingOp<StartIndices, StopIndices, Strides, XprType>& type;
 };
@@ -883,6 +883,6 @@ struct TensorEvaluator<TensorStridingSlicingOp<StartIndices, StopIndices, Stride
 };
 
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_MORPHING_H

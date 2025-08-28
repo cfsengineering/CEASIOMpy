@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2010 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_MATRIX_H
 #define EIGEN_MATRIX_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 template<typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
@@ -33,7 +33,7 @@ private:
 public:
   typedef _Scalar Scalar;
   typedef Dense StorageKind;
-  typedef Eigen::Index StorageIndex;
+  typedef eeigen::Index StorageIndex;
   typedef MatrixXpr XprKind;
   enum {
     RowsAtCompileTime = _Rows,
@@ -57,7 +57,7 @@ public:
   *
   * \brief The matrix class, also used for vectors and row-vectors
   *
-  * The %Matrix class is the work-horse for all \em dense (\ref dense "note") matrices and vectors within Eigen.
+  * The %Matrix class is the work-horse for all \em dense (\ref dense "note") matrices and vectors within eeigen.
   * Vectors are matrices with one column, and row-vectors are matrices with one row.
   *
   * The %Matrix class encompasses \em both fixed-size and dynamic-size objects (\ref fixedsize "note").
@@ -76,7 +76,7 @@ public:
   * \tparam _MaxRows Maximum number of rows. Defaults to \a _Rows (\ref maxrows "note").
   * \tparam _MaxCols Maximum number of columns. Defaults to \a _Cols (\ref maxrows "note").
   *
-  * Eigen provides a number of typedefs covering the usual cases. Here are some examples:
+  * eeigen provides a number of typedefs covering the usual cases. Here are some examples:
   *
   * \li \c Matrix2d is a 2x2 square matrix of doubles (\c Matrix<double, 2, 2>)
   * \li \c Vector4f is a vector of 4 floats (\c Matrix<float, 4, 1>)
@@ -93,13 +93,13 @@ public:
   * You can access elements of vectors and matrices using normal subscripting:
   *
   * \code
-  * Eigen::VectorXd v(10);
+  * eeigen::VectorXd v(10);
   * v[0] = 0.1;
   * v[1] = 0.2;
   * v(0) = 0.3;
   * v(1) = 0.4;
   *
-  * Eigen::MatrixXi m(10, 10);
+  * eeigen::MatrixXi m(10, 10);
   * m(0, 1) = 1;
   * m(0, 2) = 2;
   * m(0, 3) = 3;
@@ -118,7 +118,7 @@ public:
   * This is unlike Sparse matrices and vectors where the coefficients are stored as a list of nonzero coefficients.</dd>
   *
   * <dt><b>\anchor fixedsize Fixed-size versus dynamic-size:</b></dt>
-  * <dd>Fixed-size means that the numbers of rows and columns are known are compile-time. In this case, Eigen allocates the array
+  * <dd>Fixed-size means that the numbers of rows and columns are known are compile-time. In this case, eeigen allocates the array
   * of coefficients as a fixed-size array, as a class member. This makes sense for very small matrices, typically up to 4x4, sometimes up
   * to 16x16. Larger matrices should be declared as dynamic-size even if one happens to know their size at compile-time.
   *
@@ -138,13 +138,13 @@ public:
   *
   * <i><b>ABI and storage layout</b></i>
   *
-  * The table below summarizes the ABI of some possible Matrix instances which is fixed thorough the lifetime of Eigen 3.
+  * The table below summarizes the ABI of some possible Matrix instances which is fixed thorough the lifetime of eeigen 3.
   * <table  class="manual">
   * <tr><th>Matrix type</th><th>Equivalent C structure</th></tr>
   * <tr><td>\code Matrix<T,Dynamic,Dynamic> \endcode</td><td>\code
   * struct {
   *   T *data;                  // with (size_t(data)%EIGEN_MAX_ALIGN_BYTES)==0
-  *   Eigen::Index rows, cols;
+  *   eeigen::Index rows, cols;
   *  };
   * \endcode</td></tr>
   * <tr class="alt"><td>\code
@@ -152,7 +152,7 @@ public:
   * Matrix<T,1,Dynamic> \endcode</td><td>\code
   * struct {
   *   T *data;                  // with (size_t(data)%EIGEN_MAX_ALIGN_BYTES)==0
-  *   Eigen::Index size;
+  *   eeigen::Index size;
   *  };
   * \endcode</td></tr>
   * <tr><td>\code Matrix<T,Rows,Cols> \endcode</td><td>\code
@@ -163,7 +163,7 @@ public:
   * <tr class="alt"><td>\code Matrix<T,Dynamic,Dynamic,0,MaxRows,MaxCols> \endcode</td><td>\code
   * struct {
   *   T data[MaxRows*MaxCols];  // with (size_t(data)%A(MaxRows*MaxCols*sizeof(T)))==0
-  *   Eigen::Index rows, cols;
+  *   eeigen::Index rows, cols;
   *  };
   * \endcode</td></tr>
   * </table>
@@ -389,7 +389,7 @@ class Matrix
     EIGEN_DEVICE_FUNC
     Matrix& operator=(const RotationBase<OtherDerived,ColsAtCompileTime>& r);
 
-    // allow to extend Matrix outside Eigen
+    // allow to extend Matrix outside eeigen
     #ifdef EIGEN_MATRIX_PLUGIN
     #include EIGEN_MATRIX_PLUGIN
     #endif
@@ -405,7 +405,7 @@ class Matrix
   *
   * \ingroup Core_Module
   *
-  * Eigen defines several typedef shortcuts for most common matrix and vector types.
+  * eeigen defines several typedef shortcuts for most common matrix and vector types.
   *
   * The general patterns are the following:
   *
@@ -454,6 +454,6 @@ EIGEN_MAKE_TYPEDEFS_ALL_SIZES(std::complex<double>, cd)
 #undef EIGEN_MAKE_TYPEDEFS
 #undef EIGEN_MAKE_FIXED_TYPEDEFS
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_MATRIX_H

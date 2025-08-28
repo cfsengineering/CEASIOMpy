@@ -5,8 +5,8 @@
 #include "tensor_benchmarks.h"
 
 #define CREATE_THREAD_POOL(threads)             \
-Eigen::ThreadPool pool(threads);                \
-Eigen::ThreadPoolDevice device(&pool, threads);
+eeigen::ThreadPool pool(threads);                \
+eeigen::ThreadPoolDevice device(&pool, threads);
 
 
 // Contractions for number of threads ranging from 1 to 32
@@ -15,7 +15,7 @@ Eigen::ThreadPoolDevice device(&pool, threads);
   static void BM_##Contraction##_##D1##x##D2##x##D3(int iters, int Threads) { \
     StopBenchmarkTiming();                                                    \
     CREATE_THREAD_POOL(Threads);                                              \
-    BenchmarkSuite<Eigen::ThreadPoolDevice, float> suite(device, D1, D2, D3); \
+    BenchmarkSuite<eeigen::ThreadPoolDevice, float> suite(device, D1, D2, D3); \
     suite.contraction(iters);                                                 \
   }                                                                           \
   BENCHMARK_RANGE(BM_##Contraction##_##D1##x##D2##x##D3, 1, 32);

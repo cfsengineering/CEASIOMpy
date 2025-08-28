@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_MAPPED_SPARSEMATRIX_H
 #define EIGEN_MAPPED_SPARSEMATRIX_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \deprecated Use Map<SparseMatrix<> >
   * \class MappedSparseMatrix
@@ -62,6 +62,6 @@ struct evaluator<MappedSparseMatrix<_Scalar,_Options,_StorageIndex> >
 
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_MAPPED_SPARSEMATRIX_H

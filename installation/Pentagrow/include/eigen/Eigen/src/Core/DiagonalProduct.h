@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_DIAGONALPRODUCT_H
 #define EIGEN_DIAGONALPRODUCT_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \returns the diagonal matrix product of \c *this by the diagonal matrix \a diagonal.
   */
@@ -23,6 +23,6 @@ MatrixBase<Derived>::operator*(const DiagonalBase<DiagonalDerived> &a_diagonal) 
   return Product<Derived, DiagonalDerived, LazyProduct>(derived(),a_diagonal.derived());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_DIAGONALPRODUCT_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_TRIANGULAR_MATRIX_MATRIX_H
 #define EIGEN_TRIANGULAR_MATRIX_MATRIX_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -138,7 +138,7 @@ EIGEN_DONT_INLINE void product_triangular_matrix_matrix<Scalar,Index,Mode,true,
     ei_declare_aligned_stack_constructed_variable(Scalar, blockB, sizeB, blocking.blockB());
 
     // To work around an "error: member reference base type 'Matrix<...>
-    // (Eigen::internal::constructor_without_unaligned_array_assert (*)())' is
+    // (eeigen::internal::constructor_without_unaligned_array_assert (*)())' is
     // not a structure or union" compilation error in nvcc (tested V8.0.61),
     // create a dummy internal::constructor_without_unaligned_array_assert
     // object to pass to the Matrix constructor.
@@ -461,6 +461,6 @@ struct triangular_product_impl<Mode,LhsIsTriangular,Lhs,false,Rhs,false>
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_TRIANGULAR_MATRIX_MATRIX_H

@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ********************************************************************************
- *   Content : Eigen bindings to LAPACKe
+ *   Content : eeigen bindings to LAPACKe
  *     LU decomposition with partial pivoting based on LAPACKE_?getrf function.
  ********************************************************************************
 */
@@ -33,7 +33,7 @@
 #ifndef EIGEN_PARTIALLU_LAPACK_H
 #define EIGEN_PARTIALLU_LAPACK_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -78,6 +78,6 @@ EIGEN_LAPACKE_LU_PARTPIV(scomplex, lapack_complex_float,  c)
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_PARTIALLU_LAPACK_H

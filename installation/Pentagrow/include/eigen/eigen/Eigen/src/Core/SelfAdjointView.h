@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SELFADJOINTMATRIX_H
 #define EIGEN_SELFADJOINTMATRIX_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \class SelfAdjointView
   * \ingroup Core_Module
@@ -347,6 +347,6 @@ MatrixBase<Derived>::selfadjointView()
   return typename SelfAdjointViewReturnType<UpLo>::Type(derived());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SELFADJOINTMATRIX_H

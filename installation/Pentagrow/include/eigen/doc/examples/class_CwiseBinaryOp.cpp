@@ -1,6 +1,6 @@
-#include <Eigen/Core>
+#include <eeigen/Core>
 #include <iostream>
-using namespace Eigen;
+using namespace eeigen;
 using namespace std;
 
 // define a custom template binary functor

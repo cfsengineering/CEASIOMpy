@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -16,7 +16,7 @@
 * It corresponds to the level 3 SYRK and level 2 SYR Blas routines.
 **********************************************************************/
 
-namespace Eigen { 
+namespace eeigen { 
 
 
 template<typename Scalar, typename Index, int UpLo, bool ConjLhs, bool ConjRhs>
@@ -128,6 +128,6 @@ SelfAdjointView<MatrixType,UpLo>& SelfAdjointView<MatrixType,UpLo>
   return *this;
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SELFADJOINT_PRODUCT_H

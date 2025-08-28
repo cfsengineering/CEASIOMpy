@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
     #ifdef DENSEMATRIX
     {
       BENCH(setrand_eigen_dense(coords,values);)
-      std::cout << "Eigen Dense\t" << timer.value() << "\n";
+      std::cout << "eeigen Dense\t" << timer.value() << "\n";
     }
     #endif
 
@@ -119,23 +119,23 @@ int main(int argc, char *argv[])
 //     if (!fullyrand)
 //     {
 //       BENCH(setinnerrand_eigen(coords,values);)
-//       std::cout << "Eigen fillrand\t" << timer.value() << "\n";
+//       std::cout << "eeigen fillrand\t" << timer.value() << "\n";
 //     }
     {
       BENCH(setrand_eigen_dynamic(coords,values);)
-      std::cout << "Eigen dynamic\t" << timer.value() << "\n";
+      std::cout << "eeigen dynamic\t" << timer.value() << "\n";
     }
 //     {
 //       BENCH(setrand_eigen_compact(coords,values);)
-//       std::cout << "Eigen compact\t" << timer.value() << "\n";
+//       std::cout << "eeigen compact\t" << timer.value() << "\n";
 //     }
     {
       BENCH(setrand_eigen_sumeq(coords,values);)
-      std::cout << "Eigen sumeq\t" << timer.value() << "\n";
+      std::cout << "eeigen sumeq\t" << timer.value() << "\n";
     }
     {
 //       BENCH(setrand_eigen_gnu_hash(coords,values);)
-//       std::cout << "Eigen std::map\t" << timer.value() << "\n";
+//       std::cout << "eeigen std::map\t" << timer.value() << "\n";
     }
     {
       BENCH(setrand_scipy(coords,values);)
@@ -144,11 +144,11 @@ int main(int argc, char *argv[])
     #ifndef NOGOOGLE
     {
       BENCH(setrand_eigen_google_dense(coords,values);)
-      std::cout << "Eigen google dense\t" << timer.value() << "\n";
+      std::cout << "eeigen google dense\t" << timer.value() << "\n";
     }
     {
       BENCH(setrand_eigen_google_sparse(coords,values);)
-      std::cout << "Eigen google sparse\t" << timer.value() << "\n";
+      std::cout << "eeigen google sparse\t" << timer.value() << "\n";
     }
     #endif
 
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
 
 EIGEN_DONT_INLINE Scalar* setinnerrand_eigen(const Coordinates& coords, const Values& vals)
 {
-  using namespace Eigen;
+  using namespace eeigen;
   SparseMatrix<Scalar> mat(SIZE,SIZE);
   //mat.startFill(2000000/*coords.size()*/);
   for (int i=0; i<coords.size(); ++i)
@@ -207,7 +207,7 @@ EIGEN_DONT_INLINE Scalar* setinnerrand_eigen(const Coordinates& coords, const Va
 
 EIGEN_DONT_INLINE Scalar* setrand_eigen_dynamic(const Coordinates& coords, const Values& vals)
 {
-  using namespace Eigen;
+  using namespace eeigen;
   DynamicSparseMatrix<Scalar> mat(SIZE,SIZE);
   mat.reserve(coords.size()/10);
   for (int i=0; i<coords.size(); ++i)
@@ -221,7 +221,7 @@ EIGEN_DONT_INLINE Scalar* setrand_eigen_dynamic(const Coordinates& coords, const
 
 EIGEN_DONT_INLINE Scalar* setrand_eigen_sumeq(const Coordinates& coords, const Values& vals)
 {
-  using namespace Eigen;
+  using namespace eeigen;
   int n = coords.size()/KK;
   DynamicSparseMatrix<Scalar> mat(SIZE,SIZE);
   for (int j=0; j<KK; ++j)
@@ -240,7 +240,7 @@ EIGEN_DONT_INLINE Scalar* setrand_eigen_sumeq(const Coordinates& coords, const V
 
 EIGEN_DONT_INLINE Scalar* setrand_eigen_compact(const Coordinates& coords, const Values& vals)
 {
-  using namespace Eigen;
+  using namespace eeigen;
   DynamicSparseMatrix<Scalar> setter(SIZE,SIZE);
   setter.reserve(coords.size()/10);
   for (int i=0; i<coords.size(); ++i)
@@ -254,7 +254,7 @@ EIGEN_DONT_INLINE Scalar* setrand_eigen_compact(const Coordinates& coords, const
 
 EIGEN_DONT_INLINE Scalar* setrand_eigen_gnu_hash(const Coordinates& coords, const Values& vals)
 {
-  using namespace Eigen;
+  using namespace eeigen;
   SparseMatrix<Scalar> mat(SIZE,SIZE);
   {
     RandomSetter<SparseMatrix<Scalar>, StdMapTraits > setter(mat);
@@ -270,7 +270,7 @@ EIGEN_DONT_INLINE Scalar* setrand_eigen_gnu_hash(const Coordinates& coords, cons
 #ifndef NOGOOGLE
 EIGEN_DONT_INLINE Scalar* setrand_eigen_google_dense(const Coordinates& coords, const Values& vals)
 {
-  using namespace Eigen;
+  using namespace eeigen;
   SparseMatrix<Scalar> mat(SIZE,SIZE);
   {
     RandomSetter<SparseMatrix<Scalar>, GoogleDenseHashMapTraits> setter(mat);
@@ -283,7 +283,7 @@ EIGEN_DONT_INLINE Scalar* setrand_eigen_google_dense(const Coordinates& coords, 
 
 EIGEN_DONT_INLINE Scalar* setrand_eigen_google_sparse(const Coordinates& coords, const Values& vals)
 {
-  using namespace Eigen;
+  using namespace eeigen;
   SparseMatrix<Scalar> mat(SIZE,SIZE);
   {
     RandomSetter<SparseMatrix<Scalar>, GoogleSparseHashMapTraits> setter(mat);
@@ -404,7 +404,7 @@ void csr_sum_duplicates(const I n_row,
 
 EIGEN_DONT_INLINE Scalar* setrand_scipy(const Coordinates& coords, const Values& vals)
 {
-  using namespace Eigen;
+  using namespace eeigen;
   SparseMatrix<Scalar> mat(SIZE,SIZE);
   mat.resizeNonZeros(coords.size());
 //   std::cerr << "setrand_scipy...\n";

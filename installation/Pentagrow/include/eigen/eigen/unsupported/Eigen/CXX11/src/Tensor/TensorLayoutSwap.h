@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_LAYOUT_SWAP_H
 #define EIGEN_CXX11_TENSOR_TENSOR_LAYOUT_SWAP_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorLayoutSwap
   * \ingroup CXX11_Tensor_Module
@@ -49,7 +49,7 @@ struct traits<TensorLayoutSwapOp<XprType> > : public traits<XprType>
 };
 
 template<typename XprType>
-struct eval<TensorLayoutSwapOp<XprType>, Eigen::Dense>
+struct eval<TensorLayoutSwapOp<XprType>, eeigen::Dense>
 {
   typedef const TensorLayoutSwapOp<XprType>& type;
 };
@@ -68,12 +68,12 @@ template<typename XprType>
 class TensorLayoutSwapOp : public TensorBase<TensorLayoutSwapOp<XprType>, WriteAccessors>
 {
   public:
-  typedef typename Eigen::internal::traits<TensorLayoutSwapOp>::Scalar Scalar;
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
+  typedef typename eeigen::internal::traits<TensorLayoutSwapOp>::Scalar Scalar;
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar;
   typedef typename internal::remove_const<typename XprType::CoeffReturnType>::type CoeffReturnType;
-  typedef typename Eigen::internal::nested<TensorLayoutSwapOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorLayoutSwapOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorLayoutSwapOp>::Index Index;
+  typedef typename eeigen::internal::nested<TensorLayoutSwapOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorLayoutSwapOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorLayoutSwapOp>::Index Index;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorLayoutSwapOp(const XprType& expr)
       : m_xpr(expr) {}
@@ -204,6 +204,6 @@ template<typename ArgType, typename Device>
   }
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_LAYOUT_SWAP_H

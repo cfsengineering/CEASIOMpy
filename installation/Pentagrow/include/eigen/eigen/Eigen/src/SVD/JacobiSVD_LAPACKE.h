@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ********************************************************************************
- *   Content : Eigen bindings to LAPACKe
+ *   Content : eeigen bindings to LAPACKe
  *    Singular Value Decomposition - SVD.
  ********************************************************************************
 */
@@ -33,7 +33,7 @@
 #ifndef EIGEN_JACOBISVD_LAPACKE_H
 #define EIGEN_JACOBISVD_LAPACKE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \internal Specialization for the data types supported by LAPACKe */
 
@@ -86,6 +86,6 @@ EIGEN_LAPACKE_SVD(float,    float,                 float , s, RowMajor, LAPACK_R
 EIGEN_LAPACKE_SVD(dcomplex, lapack_complex_double, double, z, RowMajor, LAPACK_ROW_MAJOR)
 EIGEN_LAPACKE_SVD(scomplex, lapack_complex_float,  float , c, RowMajor, LAPACK_ROW_MAJOR)
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_JACOBISVD_LAPACKE_H

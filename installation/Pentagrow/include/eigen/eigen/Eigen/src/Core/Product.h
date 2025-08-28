@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2011 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_PRODUCT_H
 #define EIGEN_PRODUCT_H
 
-namespace Eigen {
+namespace eeigen {
 
 template<typename Lhs, typename Rhs, int Option, typename StorageKind> class ProductImpl;
 
@@ -181,6 +181,6 @@ class ProductImpl<Lhs,Rhs,Option,Dense>
   
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_PRODUCT_H

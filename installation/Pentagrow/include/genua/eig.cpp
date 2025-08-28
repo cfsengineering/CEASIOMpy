@@ -56,10 +56,10 @@ static inline int sym_eig_tpl(const MatrixType & a, VectorType & eval)
 #else
 
   typedef typename MatrixType::EigenMatrix EigenMatrix;
-  const int option = Eigen::EigenvaluesOnly;
-  Eigen::SelfAdjointEigenSolver<EigenMatrix> solver(a.cmap(), option);
+  const int option = eeigen::EigenvaluesOnly;
+  eeigen::SelfAdjointEigenSolver<EigenMatrix> solver(a.cmap(), option);
   eval.mmap() = solver.eigenvalues();
-  return (solver.info() == Eigen::Success) ? 0 : -1;
+  return (solver.info() == eeigen::Success) ? 0 : -1;
 
 #endif
 }
@@ -111,11 +111,11 @@ static inline void sym_eig_tpl(const MatrixType & a, VectorType & eval,
   z.allocate(a.nrows(), a.ncols());
 
   typedef typename MatrixType::EigenMatrix EigenMatrix;
-  const int option = Eigen::ComputeEigenvectors;
-  Eigen::SelfAdjointEigenSolver<EigenMatrix> solver(a.cmap(), option);
-  if (solver.info() != Eigen::Success) {
+  const int option = eeigen::ComputeEigenvectors;
+  eeigen::SelfAdjointEigenSolver<EigenMatrix> solver(a.cmap(), option);
+  if (solver.info() != eeigen::Success) {
     std::stringstream ss;
-    ss << "Eigenvalue decompositon failed in Eigen::SelfAdjointEigenSolver.\n";
+    ss << "Eigenvalue decompositon failed in eeigen::SelfAdjointEigenSolver.\n";
     ss << "info = " << int(solver.info());
     throw Error(ss.str());
   }
@@ -197,8 +197,8 @@ int real_eig_tpl(const MatrixType & a, CpxVectorType & lambda)
   lambda.allocate(a.nrows());
 
   typedef typename MatrixType::EigenMatrix EigenMatrix;
-  Eigen::EigenSolver<EigenMatrix> solver(a.cmap(), false);
-  if (solver.info() != Eigen::Success)
+  eeigen::EigenSolver<EigenMatrix> solver(a.cmap(), false);
+  if (solver.info() != eeigen::Success)
     return 1;
 
   lambda.mmap() = solver.eigenvalues();
@@ -251,8 +251,8 @@ int cplx_eig_tpl(const CpxMatrixType & a, CpxVectorType & lambda)
   lambda.allocate(a.nrows());
 
   typedef typename CpxMatrixType::EigenMatrix EigenMatrix;
-  Eigen::ComplexEigenSolver<EigenMatrix> solver(a.cmap(), false);
-  if (solver.info() != Eigen::Success)
+  eeigen::ComplexEigenSolver<EigenMatrix> solver(a.cmap(), false);
+  if (solver.info() != eeigen::Success)
     return 1;
 
   lambda.mmap() = solver.eigenvalues();

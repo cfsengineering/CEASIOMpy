@@ -37,7 +37,7 @@ if (ACML_FOUND)
 endif (ACML_FOUND)
 
 if(Eigen_SOURCE_DIR AND CMAKE_Fortran_COMPILER_WORKS)
-  # we are inside Eigen and blas/lapack interface is compilable
+  # we are inside eeigen and blas/lapack interface is compilable
   include_directories(${Eigen_SOURCE_DIR})
   btl_add_bench(btl_eigenblas main.cpp)
   if(BUILD_btl_eigenblas)

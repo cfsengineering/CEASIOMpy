@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Jitse Niesen <jitse@maths.leeds.ac.uk>
@@ -14,9 +14,9 @@
 #include <cfloat>
 #include <list>
 
-#include <Eigen/Core>
-#include <Eigen/LU>
-#include <Eigen/Eigenvalues>
+#include <eeigen/Core>
+#include <eeigen/LU>
+#include <eeigen/Eigenvalues>
 
 /**
   * \defgroup MatrixFunctions_Module Matrix functions module
@@ -25,7 +25,7 @@
   *
   * To use this module, add 
   * \code
-  * #include <unsupported/Eigen/MatrixFunctions>
+  * #include <unsupported/eeigen/MatrixFunctions>
   * \endcode
   * at the start of your source file.
   *
@@ -273,12 +273,12 @@ where \f$ T_1 \f$ is invertible. Then \f$ T^p \f$ is given by
 \warning Fractional power of a matrix with a non-semisimple zero
 eigenvalue is not well-defined. We introduce an assertion failure
 against inaccurate result, e.g. \code
-#include <unsupported/Eigen/MatrixFunctions>
+#include <unsupported/eeigen/MatrixFunctions>
 #include <iostream>
 
 int main()
 {
-  Eigen::Matrix4d A;
+  eeigen::Matrix4d A;
   A << 0, 0, 2, 3,
        0, 0, 4, 5,
        0, 0, 6, 7,

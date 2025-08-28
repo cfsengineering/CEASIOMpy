@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015
@@ -18,11 +18,11 @@
 #define EIGEN_USE_SYCL
 
 #include "main.h"
-#include <unsupported/Eigen/CXX11/Tensor>
+#include <unsupported/eeigen/CXX11/Tensor>
 
 
 
-static void test_full_reductions_sycl(const Eigen::SyclDevice&  sycl_device) {
+static void test_full_reductions_sycl(const eeigen::SyclDevice&  sycl_device) {
 
   const int num_rows = 452;
   const int num_cols = 765;
@@ -52,14 +52,14 @@ static void test_full_reductions_sycl(const Eigen::SyclDevice&  sycl_device) {
   sycl_device.deallocate(gpu_out_data);
 }
 
-static void test_first_dim_reductions_sycl(const Eigen::SyclDevice& sycl_device) {
+static void test_first_dim_reductions_sycl(const eeigen::SyclDevice& sycl_device) {
 
   int dim_x = 145;
   int dim_y = 1;
   int dim_z = 67;
 
   array<int, 3> tensorRange = {{dim_x, dim_y, dim_z}};
-  Eigen::array<int, 1> red_axis;
+  eeigen::array<int, 1> red_axis;
   red_axis[0] = 0;
   array<int, 2> reduced_tensorRange = {{dim_y, dim_z}};
 
@@ -90,14 +90,14 @@ static void test_first_dim_reductions_sycl(const Eigen::SyclDevice& sycl_device)
   sycl_device.deallocate(gpu_out_data);
 }
 
-static void test_last_dim_reductions_sycl(const Eigen::SyclDevice &sycl_device) {
+static void test_last_dim_reductions_sycl(const eeigen::SyclDevice &sycl_device) {
 
   int dim_x = 567;
   int dim_y = 1;
   int dim_z = 47;
 
   array<int, 3> tensorRange = {{dim_x, dim_y, dim_z}};
-  Eigen::array<int, 1> red_axis;
+  eeigen::array<int, 1> red_axis;
   red_axis[0] = 2;
   array<int, 2> reduced_tensorRange = {{dim_x, dim_y}};
 
@@ -130,7 +130,7 @@ static void test_last_dim_reductions_sycl(const Eigen::SyclDevice &sycl_device) 
 
 void test_cxx11_tensor_reduction_sycl() {
   cl::sycl::gpu_selector s;
-  Eigen::SyclDevice sycl_device(s);
+  eeigen::SyclDevice sycl_device(s);
   CALL_SUBTEST((test_full_reductions_sycl(sycl_device)));
   CALL_SUBTEST((test_first_dim_reductions_sycl(sycl_device)));
   CALL_SUBTEST((test_last_dim_reductions_sycl(sycl_device)));

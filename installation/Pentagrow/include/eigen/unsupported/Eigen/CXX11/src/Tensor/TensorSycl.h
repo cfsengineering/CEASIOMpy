@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Mehdi Goli    Codeplay Software Ltd.
@@ -29,7 +29,7 @@ struct MakeLocalPointer {
 };
 
 
-namespace Eigen {
+namespace eeigen {
 namespace TensorSycl {
 namespace internal {
 

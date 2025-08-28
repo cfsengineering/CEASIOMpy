@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Rasmus Munk Larsen (rmlarsen@google.com)
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CONDITIONESTIMATOR_H
 #define EIGEN_CONDITIONESTIMATOR_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -170,6 +170,6 @@ rcond_estimate_helper(typename Decomposition::RealScalar matrix_norm, const Deco
 
 }  // namespace internal
 
-}  // namespace Eigen
+}  // namespace eeigen
 
 #endif

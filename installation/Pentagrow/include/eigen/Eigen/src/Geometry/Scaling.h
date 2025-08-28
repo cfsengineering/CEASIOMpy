@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SCALING_H
 #define EIGEN_SCALING_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \geometry_module \ingroup Geometry_Module
   *
@@ -165,6 +165,6 @@ UniformScaling<Scalar>::operator* (const Translation<Scalar,Dim>& t) const
   return res;
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SCALING_H

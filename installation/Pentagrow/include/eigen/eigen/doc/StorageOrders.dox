@@ -1,4 +1,4 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \eigenManualPage TopicStorageOrders Storage orders
 
@@ -34,7 +34,7 @@ column-major order, it is laid out as follows:
 
 \code 8 9 3 2 1 5 2 4 4 9 4 5 \endcode
 
-This example is illustrated by the following Eigen code. It uses the PlainObjectBase::data() function, which
+This example is illustrated by the following eeigen code. It uses the PlainObjectBase::data() function, which
 returns a pointer to the memory location of the first entry of the matrix.
 
 <table class="example">
@@ -47,21 +47,21 @@ returns a pointer to the memory location of the first entry of the matrix.
 </td></tr></table>
 
 
-\section TopicStorageOrdersInEigen Storage orders in Eigen
+\section TopicStorageOrdersInEigen Storage orders in eeigen
 
 The storage order of a matrix or a two-dimensional array can be set by specifying the \c Options template
 parameter for Matrix or Array. As \ref TutorialMatrixClass explains, the %Matrix class template has six
 template parameters, of which three are compulsory (\c Scalar, \c RowsAtCompileTime and \c ColsAtCompileTime)
 and three are optional (\c Options, \c MaxRowsAtCompileTime and \c MaxColsAtCompileTime). If the \c Options
 parameter is set to \c RowMajor, then the matrix or array is stored in row-major order; if it is set to 
-\c ColMajor, then it is stored in column-major order. This mechanism is used in the above Eigen program to
+\c ColMajor, then it is stored in column-major order. This mechanism is used in the above eeigen program to
 specify the storage order.
 
-If the storage order is not specified, then Eigen defaults to storing the entry in column-major. This is also
+If the storage order is not specified, then eeigen defaults to storing the entry in column-major. This is also
 the case if one of the convenience typedefs (\c Matrix3f, \c ArrayXXd, etc.) is used.
 
 Matrices and arrays using one storage order can be assigned to matrices and arrays using the other storage
-order, as happens in the above program when \c Arowmajor is initialized using \c Acolmajor. Eigen will reorder
+order, as happens in the above program when \c Arowmajor is initialized using \c Acolmajor. eeigen will reorder
 the entries automatically. More generally, row-major and column-major matrices can be mixed in an expression
 as we want.
 
@@ -72,15 +72,15 @@ So, which storage order should you use in your program? There is no simple answe
 on your application. Here are some points to keep in mind:
 
   - Your users may expect you to use a specific storage order. Alternatively, you may use other libraries than
-    Eigen, and these other libraries may expect a certain storage order. In these cases it may be easiest and
+    eeigen, and these other libraries may expect a certain storage order. In these cases it may be easiest and
     fastest to use this storage order in your whole program.
   - Algorithms that traverse a matrix row by row will go faster when the matrix is stored in row-major order
     because of better data locality. Similarly, column-by-column traversal is faster for column-major
     matrices. It may be worthwhile to experiment a bit to find out what is faster for your particular
     application.
-  - The default in Eigen is column-major. Naturally, most of the development and testing of the Eigen library
+  - The default in eeigen is column-major. Naturally, most of the development and testing of the eeigen library
     is thus done with column-major matrices. This means that, even though we aim to support column-major and
-    row-major storage orders transparently, the Eigen library may well work best with column-major matrices.
+    row-major storage orders transparently, the eeigen library may well work best with column-major matrices.
 
 */
 }

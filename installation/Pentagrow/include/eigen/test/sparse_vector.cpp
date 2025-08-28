@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2011 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -148,8 +148,8 @@ template<typename Scalar,typename StorageIndex> void sparse_vector(int rows, int
 void test_sparse_vector()
 {
   for(int i = 0; i < g_repeat; i++) {
-    int r = Eigen::internal::random<int>(1,500), c = Eigen::internal::random<int>(1,500);
-    if(Eigen::internal::random<int>(0,4) == 0) {
+    int r = eeigen::internal::random<int>(1,500), c = eeigen::internal::random<int>(1,500);
+    if(eeigen::internal::random<int>(0,4) == 0) {
       r = c; // check square matrices in 25% of tries
     }
     EIGEN_UNUSED_VARIABLE(r+c);

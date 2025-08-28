@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2013 Christian Seiler <christian@iwakd.de>
@@ -10,42 +10,42 @@
 #include "main.h"
 
 #include <array>
-#include <Eigen/CXX11/src/util/CXX11Meta.h>
+#include <eeigen/CXX11/src/util/CXX11Meta.h>
 
-using Eigen::internal::is_same;
-using Eigen::internal::type_list;
-using Eigen::internal::numeric_list;
-using Eigen::internal::gen_numeric_list;
-using Eigen::internal::gen_numeric_list_reversed;
-using Eigen::internal::gen_numeric_list_swapped_pair;
-using Eigen::internal::gen_numeric_list_repeated;
-using Eigen::internal::concat;
-using Eigen::internal::mconcat;
-using Eigen::internal::take;
-using Eigen::internal::skip;
-using Eigen::internal::slice;
-using Eigen::internal::get;
-using Eigen::internal::id_numeric;
-using Eigen::internal::id_type;
-using Eigen::internal::is_same_gf;
-using Eigen::internal::apply_op_from_left;
-using Eigen::internal::apply_op_from_right;
-using Eigen::internal::contained_in_list;
-using Eigen::internal::contained_in_list_gf;
-using Eigen::internal::arg_prod;
-using Eigen::internal::arg_sum;
-using Eigen::internal::sum_op;
-using Eigen::internal::product_op;
-using Eigen::internal::array_reverse;
-using Eigen::internal::array_sum;
-using Eigen::internal::array_prod;
-using Eigen::internal::array_reduce;
-using Eigen::internal::array_zip;
-using Eigen::internal::array_zip_and_reduce;
-using Eigen::internal::array_apply;
-using Eigen::internal::array_apply_and_reduce;
-using Eigen::internal::repeat;
-using Eigen::internal::instantiate_by_c_array;
+using eeigen::internal::is_same;
+using eeigen::internal::type_list;
+using eeigen::internal::numeric_list;
+using eeigen::internal::gen_numeric_list;
+using eeigen::internal::gen_numeric_list_reversed;
+using eeigen::internal::gen_numeric_list_swapped_pair;
+using eeigen::internal::gen_numeric_list_repeated;
+using eeigen::internal::concat;
+using eeigen::internal::mconcat;
+using eeigen::internal::take;
+using eeigen::internal::skip;
+using eeigen::internal::slice;
+using eeigen::internal::get;
+using eeigen::internal::id_numeric;
+using eeigen::internal::id_type;
+using eeigen::internal::is_same_gf;
+using eeigen::internal::apply_op_from_left;
+using eeigen::internal::apply_op_from_right;
+using eeigen::internal::contained_in_list;
+using eeigen::internal::contained_in_list_gf;
+using eeigen::internal::arg_prod;
+using eeigen::internal::arg_sum;
+using eeigen::internal::sum_op;
+using eeigen::internal::product_op;
+using eeigen::internal::array_reverse;
+using eeigen::internal::array_sum;
+using eeigen::internal::array_prod;
+using eeigen::internal::array_reduce;
+using eeigen::internal::array_zip;
+using eeigen::internal::array_zip_and_reduce;
+using eeigen::internal::array_apply;
+using eeigen::internal::array_apply_and_reduce;
+using eeigen::internal::repeat;
+using eeigen::internal::instantiate_by_c_array;
 
 struct dummy_a {};
 struct dummy_b {};

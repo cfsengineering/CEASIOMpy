@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_THREADPOOL_SIMPLE_THREAD_POOL_H
 #define EIGEN_CXX11_THREADPOOL_SIMPLE_THREAD_POOL_H
 
-namespace Eigen {
+namespace eeigen {
 
 // The implementation of the ThreadPool type ensures that the Schedule method
 // runs the functions it is provided in FIFO order when the scheduling is done
@@ -149,6 +149,6 @@ class SimpleThreadPoolTempl : public ThreadPoolInterface {
 
 typedef SimpleThreadPoolTempl<StlThreadEnvironment> SimpleThreadPool;
 
-}  // namespace Eigen
+}  // namespace eeigen
 
 #endif  // EIGEN_CXX11_THREADPOOL_SIMPLE_THREAD_POOL_H

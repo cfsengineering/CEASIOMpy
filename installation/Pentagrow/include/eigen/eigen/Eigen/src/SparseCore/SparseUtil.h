@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPARSEUTIL_H
 #define EIGEN_SPARSEUTIL_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 #ifdef NDEBUG
 #define EIGEN_DBG_SPARSE(X)
@@ -20,7 +20,7 @@ namespace Eigen {
 
 #define EIGEN_SPARSE_INHERIT_ASSIGNMENT_OPERATOR(Derived, Op) \
 template<typename OtherDerived> \
-EIGEN_STRONG_INLINE Derived& operator Op(const Eigen::SparseMatrixBase<OtherDerived>& other) \
+EIGEN_STRONG_INLINE Derived& operator Op(const eeigen::SparseMatrixBase<OtherDerived>& other) \
 { \
   return Base::operator Op(other.derived()); \
 } \
@@ -173,6 +173,6 @@ protected:
   Scalar m_value;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSEUTIL_H

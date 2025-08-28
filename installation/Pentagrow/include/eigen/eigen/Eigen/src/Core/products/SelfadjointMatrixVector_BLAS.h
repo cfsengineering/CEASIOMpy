@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ********************************************************************************
- *   Content : Eigen bindings to BLAS F77
+ *   Content : eeigen bindings to BLAS F77
  *   Selfadjoint matrix-vector product functionality based on ?SYMV/HEMV.
  ********************************************************************************
 */
@@ -33,7 +33,7 @@
 #ifndef EIGEN_SELFADJOINT_MATRIX_VECTOR_BLAS_H
 #define EIGEN_SELFADJOINT_MATRIX_VECTOR_BLAS_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -113,6 +113,6 @@ EIGEN_BLAS_SYMV_SPECIALIZATION(scomplex, float,  chemv_)
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SELFADJOINT_MATRIX_VECTOR_BLAS_H

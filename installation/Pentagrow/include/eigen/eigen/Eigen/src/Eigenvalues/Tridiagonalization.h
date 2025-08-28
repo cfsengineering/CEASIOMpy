@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_TRIDIAGONALIZATION_H
 #define EIGEN_TRIDIAGONALIZATION_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
   
@@ -69,7 +69,7 @@ template<typename _MatrixType> class Tridiagonalization
 
     typedef typename MatrixType::Scalar Scalar;
     typedef typename NumTraits<Scalar>::Real RealScalar;
-    typedef Eigen::Index Index; ///< \deprecated since Eigen 3.3
+    typedef eeigen::Index Index; ///< \deprecated since eeigen 3.3
 
     enum {
       Size = MatrixType::RowsAtCompileTime,
@@ -551,6 +551,6 @@ template<typename MatrixType> struct TridiagonalizationMatrixTReturnType
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_TRIDIAGONALIZATION_H

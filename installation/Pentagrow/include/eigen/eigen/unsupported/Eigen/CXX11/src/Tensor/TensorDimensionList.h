@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_DIMENSION_LIST_H
 #define EIGEN_CXX11_TENSOR_TENSOR_DIMENSION_LIST_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \internal
   *
@@ -230,7 +230,7 @@ struct index_statically_lt_impl<const DimensionList<Index, Rank> > {
 #endif
 
 }  // end namespace internal
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_DIMENSION_LIST_H

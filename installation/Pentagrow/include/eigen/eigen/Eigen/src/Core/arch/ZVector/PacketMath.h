@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Konstantinos Margaritis <markos@freevec.org>
@@ -12,7 +12,7 @@
 
 #include <stdint.h>
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -940,6 +940,6 @@ template<> EIGEN_STRONG_INLINE Packet2d pblend(const Selector<2>& ifPacket, cons
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_PACKET_MATH_ZVECTOR_H

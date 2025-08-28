@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Désiré Nuentsa-Wakam <desire.nuentsa_wakam@inria.fr>
@@ -10,9 +10,9 @@
 #ifndef EIGEN_DGMRES_H
 #define EIGEN_DGMRES_H
 
-#include <Eigen/Eigenvalues>
+#include <eeigen/Eigenvalues>
 
-namespace Eigen { 
+namespace eeigen { 
   
 template< typename _MatrixType,
           typename _Preconditioner = DiagonalPreconditioner<typename _MatrixType::Scalar> >
@@ -506,5 +506,5 @@ Index DGMRES<_MatrixType, _Preconditioner>::dgmresApplyDeflation(const RhsType &
   return 0; 
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 #endif 

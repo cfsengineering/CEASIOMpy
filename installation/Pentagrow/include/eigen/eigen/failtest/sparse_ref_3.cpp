@@ -1,6 +1,6 @@
-#include "../Eigen/Sparse"
+#include "../eeigen/Sparse"
 
-using namespace Eigen;
+using namespace eeigen;
 
 #ifdef EIGEN_SHOULD_FAIL_TO_BUILD
 void call_ref(Ref<SparseMatrix<float> > a) { }

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_TRANSPOSE_H
 #define EIGEN_TRANSPOSE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 template<typename MatrixType>
@@ -161,7 +161,7 @@ template<typename MatrixType> class TransposeImpl<MatrixType,Dense>
   * \code
   * m.transposeInPlace();
   * \endcode
-  * which gives Eigen good opportunities for optimization, or alternatively you can also do:
+  * which gives eeigen good opportunities for optimization, or alternatively you can also do:
   * \code
   * m = m.transpose().eval();
   * \endcode
@@ -199,7 +199,7 @@ DenseBase<Derived>::transpose() const
   * \code
   * m.adjointInPlace();
   * \endcode
-  * which gives Eigen good opportunities for optimization, or alternatively you can also do:
+  * which gives eeigen good opportunities for optimization, or alternatively you can also do:
   * \code
   * m = m.adjoint().eval();
   * \endcode
@@ -398,6 +398,6 @@ void check_for_aliasing(const Dst &dst, const Src &src)
 
 #endif // EIGEN_NO_DEBUG
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_TRANSPOSE_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_DEVICE_H
 #define EIGEN_CXX11_TENSOR_TENSOR_DEVICE_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorDevice
   * \ingroup CXX11_Tensor_Module
@@ -63,6 +63,6 @@ template <typename ExpressionType, typename DeviceType> class TensorDevice {
     ExpressionType& m_expression;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_DEVICE_H

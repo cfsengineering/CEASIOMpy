@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_ARRAY_H
 #define EIGEN_ARRAY_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 template<typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
@@ -258,7 +258,7 @@ class Array
 /** \defgroup arraytypedefs Global array typedefs
   * \ingroup Core_Module
   *
-  * Eigen defines several typedef shortcuts for most common 1D and 2D array types.
+  * eeigen defines several typedef shortcuts for most common 1D and 2D array types.
   *
   * The general patterns are the following:
   *
@@ -307,9 +307,9 @@ EIGEN_MAKE_ARRAY_TYPEDEFS_ALL_SIZES(std::complex<double>, cd)
 #undef EIGEN_MAKE_ARRAY_TYPEDEFS_LARGE
 
 #define EIGEN_USING_ARRAY_TYPEDEFS_FOR_TYPE_AND_SIZE(TypeSuffix, SizeSuffix) \
-using Eigen::Matrix##SizeSuffix##TypeSuffix; \
-using Eigen::Vector##SizeSuffix##TypeSuffix; \
-using Eigen::RowVector##SizeSuffix##TypeSuffix;
+using eeigen::Matrix##SizeSuffix##TypeSuffix; \
+using eeigen::Vector##SizeSuffix##TypeSuffix; \
+using eeigen::RowVector##SizeSuffix##TypeSuffix;
 
 #define EIGEN_USING_ARRAY_TYPEDEFS_FOR_TYPE(TypeSuffix) \
 EIGEN_USING_ARRAY_TYPEDEFS_FOR_TYPE_AND_SIZE(TypeSuffix, 2) \
@@ -324,6 +324,6 @@ EIGEN_USING_ARRAY_TYPEDEFS_FOR_TYPE(d) \
 EIGEN_USING_ARRAY_TYPEDEFS_FOR_TYPE(cf) \
 EIGEN_USING_ARRAY_TYPEDEFS_FOR_TYPE(cd)
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_ARRAY_H

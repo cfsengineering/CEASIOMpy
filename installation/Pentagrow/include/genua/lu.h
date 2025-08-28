@@ -17,12 +17,12 @@
 
 #include "defines.h"
 #include "xcept.h"
-#include <Eigen/LU>
+#include <eeigen/LU>
 
 #ifndef HAVE_NO_LAPACK
 #include "lapack_interface.h"
 #else
-#include <Eigen/SparseLU>
+#include <eeigen/SparseLU>
 #endif
 
 #include <vector>
@@ -35,7 +35,7 @@
   to solve() are overwritten by the respective solution.
 
   LAPACK is used if available; if not, the partial-pivoting implementation
-  from the Eigen library is called instead.
+  from the eeigen library is called instead.
 
   \ingroup numerics
 
@@ -46,8 +46,8 @@ class LuDecomp
 public:
 
   typedef typename MatrixType::value_type value_type;
-  typedef Eigen::Matrix<value_type, Eigen::Dynamic, Eigen::Dynamic> EMatrix;
-  typedef Eigen::Map<EMatrix> EMView;
+  typedef eeigen::Matrix<value_type, eeigen::Dynamic, eeigen::Dynamic> EMatrix;
+  typedef eeigen::Map<EMatrix> EMView;
 
   /// initialize and factor
   LuDecomp(MatrixType & a) {factor(a);}
@@ -129,7 +129,7 @@ public:
     assert(a.nrows() == a.ncols());
     EMatrix tmp(a.nrows(), a.ncols());
     memcpy(tmp.data(), a.pointer(), a.size()*sizeof(value_type));
-    m_factor = Eigen::PartialPivLU<EMatrix>(tmp);
+    m_factor = eeigen::PartialPivLU<EMatrix>(tmp);
     return 0;
   }
 
@@ -173,7 +173,7 @@ private:
 #else
 
   /// factorization object in libEigen
-  Eigen::PartialPivLU<EMatrix> m_factor;
+  eeigen::PartialPivLU<EMatrix> m_factor;
 
 #endif
 };
@@ -273,16 +273,16 @@ int banded_lu_solve(int kl, int ku, MatrixType & a, MatrixType & b)
 
 #else
 
-  // Eigen doesn't have a banded solver, so we use the sparse direct LU
+  // eeigen doesn't have a banded solver, so we use the sparse direct LU
   // solver instead. Probably better to just call the dense solver for
   // small dimensions.
 
   typedef typename MatrixType::value_type FloatType;
-  typedef Eigen::SparseMatrix<FloatType, Eigen::ColMajor> SpMatrixType;
-  typedef Eigen::Matrix<FloatType, Eigen::Dynamic, Eigen::Dynamic> DenseType;
-  typedef Eigen::Map<DenseType> DenseMap;
+  typedef eeigen::SparseMatrix<FloatType, eeigen::ColMajor> SpMatrixType;
+  typedef eeigen::Matrix<FloatType, eeigen::Dynamic, eeigen::Dynamic> DenseType;
+  typedef eeigen::Map<DenseType> DenseMap;
 
-  typedef Eigen::Triplet<FloatType,int> Trip;
+  typedef eeigen::Triplet<FloatType,int> Trip;
   std::vector<Trip> trips;
   trips.reserve(a.size());
 
@@ -300,13 +300,13 @@ int banded_lu_solve(int kl, int ku, MatrixType & a, MatrixType & b)
   SpMatrixType spm;
   spm.setFromTriplets(trips.begin(), trips.end());
 
-  Eigen::SparseLU<SpMatrixType> solver;
+  eeigen::SparseLU<SpMatrixType> solver;
   solver.analyzePattern(spm);
   solver.factorize(spm);
 
   DenseMap bmap(b.pointer(), b.nrows(), b.ncols());
   DenseType xe = solver.solve(bmap);
-  if (solver.info() != Eigen::Success)
+  if (solver.info() != eeigen::Success)
     return 1;
 
   memcpy(b.pointer(), xe.data(), b.size()*sizeof(FloatType));
@@ -349,16 +349,16 @@ int banded_lu_solve(int kl, int ku, MatrixType & a, VectorType & b)
 
 #else
 
-  // Eigen doesn't have a banded solver, so we use the sparse direct LU
+  // eeigen doesn't have a banded solver, so we use the sparse direct LU
   // solver instead. Probably better to just call the dense solver for
   // small dimensions.
 
   typedef typename MatrixType::value_type FloatType;
-  typedef Eigen::SparseMatrix<FloatType, Eigen::ColMajor> SpMatrixType;
-  typedef Eigen::Matrix<FloatType, Eigen::Dynamic, Eigen::Dynamic> DenseType;
-  typedef Eigen::Map<DenseType> DenseMap;
+  typedef eeigen::SparseMatrix<FloatType, eeigen::ColMajor> SpMatrixType;
+  typedef eeigen::Matrix<FloatType, eeigen::Dynamic, eeigen::Dynamic> DenseType;
+  typedef eeigen::Map<DenseType> DenseMap;
 
-  typedef Eigen::Triplet<FloatType,int> Trip;
+  typedef eeigen::Triplet<FloatType,int> Trip;
   std::vector<Trip> trips;
   trips.reserve(a.size());
 
@@ -376,13 +376,13 @@ int banded_lu_solve(int kl, int ku, MatrixType & a, VectorType & b)
   SpMatrixType spm;
   spm.setFromTriplets(trips.begin(), trips.end());
 
-  Eigen::SparseLU<SpMatrixType> solver;
+  eeigen::SparseLU<SpMatrixType> solver;
   solver.analyzePattern(spm);
   solver.factorize(spm);
 
   DenseMap bmap(b.pointer(), b.size(), 1);
   DenseType xe = solver.solve(bmap);
-  if (solver.info() != Eigen::Success)
+  if (solver.info() != eeigen::Success)
     return 1;
 
   memcpy(b.pointer(), xe.data(), b.size()*sizeof(FloatType));
@@ -393,7 +393,7 @@ int banded_lu_solve(int kl, int ku, MatrixType & a, VectorType & b)
 
 /** Compute inverse of a small matrix using fully-pivoting LU.
  *
- * This is a small wrapper around the full-pivot LU implementation in Eigen
+ * This is a small wrapper around the full-pivot LU implementation in eeigen
  * for the stable computation of the inverse. The return value indicates whether
  * a is invertible; if it is not, ainv is not written to.
  *
@@ -403,10 +403,10 @@ int banded_lu_solve(int kl, int ku, MatrixType & a, VectorType & b)
 template <typename Scalar, uint N>
 inline bool pivlu_inv(const Scalar a[], Scalar ainv[])
 {
-  typedef Eigen::Matrix<Scalar,N,N> EMatrix;
+  typedef eeigen::Matrix<Scalar,N,N> EMatrix;
   EMatrix tmp;
   memcpy(tmp.data(), a, N*N*sizeof(Scalar));
-  Eigen::FullPivLU<EMatrix> lu;
+  eeigen::FullPivLU<EMatrix> lu;
   lu.compute(tmp);
   bool invertible = lu.isInvertible();
   if (invertible) {
@@ -418,7 +418,7 @@ inline bool pivlu_inv(const Scalar a[], Scalar ainv[])
 
 /** Compute inverse of a small matrix using partially-pivoting LU.
  *
- * This is a small wrapper around the LU implementation in Eigen.
+ * This is a small wrapper around the LU implementation in eeigen.
  * The return value indicates whether
  * a is invertible; if it is not, ainv is not written to.
  *
@@ -428,10 +428,10 @@ inline bool pivlu_inv(const Scalar a[], Scalar ainv[])
 template <typename Scalar, uint N>
 inline bool pplu_inv(const Scalar a[], Scalar ainv[])
 {
-  typedef Eigen::Matrix<Scalar,N,N> EMatrix;
+  typedef eeigen::Matrix<Scalar,N,N> EMatrix;
   EMatrix tmp;
   memcpy(tmp.data(), a, N*N*sizeof(Scalar));
-  Eigen::PartialPivLU<EMatrix> lu;
+  eeigen::PartialPivLU<EMatrix> lu;
   lu.compute(tmp);
   bool invertible = lu.isInvertible();
   if (invertible) {

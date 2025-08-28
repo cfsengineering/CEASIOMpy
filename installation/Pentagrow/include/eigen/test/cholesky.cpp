@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -14,8 +14,8 @@
 #define TEST_ENABLE_TEMPORARY_TRACKING
 
 #include "main.h"
-#include <Eigen/Cholesky>
-#include <Eigen/QR>
+#include <eeigen/Cholesky>
+#include <eeigen/QR>
 
 template<typename MatrixType, int UpLo>
 typename MatrixType::RealScalar matrix_l1_norm(const MatrixType& m) {

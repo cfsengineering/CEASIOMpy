@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -9,9 +9,9 @@
 
 #include "main.h"
 
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
+using eeigen::Tensor;
 
 
 struct InsertZeros {
@@ -30,8 +30,8 @@ struct InsertZeros {
     strides[1] = 2;
     output.stride(strides).device(device) = input;
 
-    Eigen::DSizes<DenseIndex, 2> offsets(1,1);
-    Eigen::DSizes<DenseIndex, 2> extents(output.dimension(0)-1, output.dimension(1)-1);
+    eeigen::DSizes<DenseIndex, 2> offsets(1,1);
+    eeigen::DSizes<DenseIndex, 2> extents(output.dimension(0)-1, output.dimension(1)-1);
     output.slice(offsets, extents).stride(strides).device(device) = input.constant(0.0f);
   }
 };

@@ -54,7 +54,7 @@ if(${BOOST_COMPUTE_THREAD_SAFE})
 endif()
 
 # optional third-party libraries
-option(BOOST_COMPUTE_HAVE_EIGEN "Have Eigen" OFF)
+option(BOOST_COMPUTE_HAVE_EIGEN "Have eeigen" OFF)
 option(BOOST_COMPUTE_HAVE_OPENCV "Have OpenCV" OFF)
 option(BOOST_COMPUTE_HAVE_QT "Have Qt" OFF)
 option(BOOST_COMPUTE_HAVE_VTK "Have VTK" OFF)

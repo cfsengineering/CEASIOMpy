@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     if (!densedone)
     {
       densedone = true;
-      std::cout << "Eigen Dense\t" << density*100 << "%\n";
+      std::cout << "eeigen Dense\t" << density*100 << "%\n";
       DenseMatrix m1(rows,cols);
       Matrix<Scalar,Dynamic,Dynamic,Dynamic,Dynamic,RowMajorBit> m2(rows,cols);
       eiToDense(sm1, m1);
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 
     // eigen sparse matrices
     {
-      std::cout << "Eigen sparse\t" << density*100 << "%\n";
+      std::cout << "eeigen sparse\t" << density*100 << "%\n";
       EigenSparseTriMatrixRow sm2 = sm1;
 
       BENCH(x = sm1.solveTriangular(b);)

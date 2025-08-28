@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -71,10 +71,10 @@ namespace std {
   template<typename T>
   class vector<T,EIGEN_ALIGNED_ALLOCATOR<T> >
     : public vector<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T),
-                    Eigen::aligned_allocator_indirection<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T)> >
+                    eeigen::aligned_allocator_indirection<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T)> >
 {
   typedef vector<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T),
-                 Eigen::aligned_allocator_indirection<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T)> > vector_base;
+                 eeigen::aligned_allocator_indirection<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T)> > vector_base;
   EIGEN_STD_VECTOR_SPECIALIZATION_BODY
 
   void resize(size_type new_size)

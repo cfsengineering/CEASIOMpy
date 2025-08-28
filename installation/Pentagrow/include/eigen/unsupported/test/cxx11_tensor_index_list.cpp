@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -9,7 +9,7 @@
 
 #include "main.h"
 
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
 #ifdef EIGEN_HAS_INDEX_LIST
 
@@ -51,11 +51,11 @@ static void test_type2index_list()
   tensor.setRandom();
   tensor += tensor.constant(10.0f);
 
-  typedef Eigen::IndexList<Eigen::type2index<0>> Dims0;
-  typedef Eigen::IndexList<Eigen::type2index<0>, Eigen::type2index<1>> Dims1;
-  typedef Eigen::IndexList<Eigen::type2index<0>, Eigen::type2index<1>, Eigen::type2index<2>> Dims2;
-  typedef Eigen::IndexList<Eigen::type2index<0>, Eigen::type2index<1>, Eigen::type2index<2>, Eigen::type2index<3>> Dims3;
-  typedef Eigen::IndexList<Eigen::type2index<0>, Eigen::type2index<1>, Eigen::type2index<2>, Eigen::type2index<3>, Eigen::type2index<4>> Dims4;
+  typedef eeigen::IndexList<eeigen::type2index<0>> Dims0;
+  typedef eeigen::IndexList<eeigen::type2index<0>, eeigen::type2index<1>> Dims1;
+  typedef eeigen::IndexList<eeigen::type2index<0>, eeigen::type2index<1>, eeigen::type2index<2>> Dims2;
+  typedef eeigen::IndexList<eeigen::type2index<0>, eeigen::type2index<1>, eeigen::type2index<2>, eeigen::type2index<3>> Dims3;
+  typedef eeigen::IndexList<eeigen::type2index<0>, eeigen::type2index<1>, eeigen::type2index<2>, eeigen::type2index<3>, eeigen::type2index<4>> Dims4;
 
 #if 0
   EIGEN_STATIC_ASSERT((internal::indices_statically_known_to_increase<Dims0>() == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
@@ -165,21 +165,21 @@ static void test_type2indexpair_list()
   tensor.setRandom();
   tensor += tensor.constant(10.0f);
 
-  typedef Eigen::IndexPairList<Eigen::type2indexpair<0,10>> Dims0;
-  typedef Eigen::IndexPairList<Eigen::type2indexpair<0,10>, Eigen::type2indexpair<1,11>, Eigen::type2indexpair<2,12>> Dims2_a;
-  typedef Eigen::IndexPairList<Eigen::type2indexpair<0,10>, Eigen::IndexPair<DenseIndex>, Eigen::type2indexpair<2,12>> Dims2_b;
-  typedef Eigen::IndexPairList<Eigen::IndexPair<DenseIndex>, Eigen::type2indexpair<1,11>, Eigen::IndexPair<DenseIndex>> Dims2_c;
+  typedef eeigen::IndexPairList<eeigen::type2indexpair<0,10>> Dims0;
+  typedef eeigen::IndexPairList<eeigen::type2indexpair<0,10>, eeigen::type2indexpair<1,11>, eeigen::type2indexpair<2,12>> Dims2_a;
+  typedef eeigen::IndexPairList<eeigen::type2indexpair<0,10>, eeigen::IndexPair<DenseIndex>, eeigen::type2indexpair<2,12>> Dims2_b;
+  typedef eeigen::IndexPairList<eeigen::IndexPair<DenseIndex>, eeigen::type2indexpair<1,11>, eeigen::IndexPair<DenseIndex>> Dims2_c;
 
   Dims0 d0;
   Dims2_a d2_a;
 
   Dims2_b d2_b;
-  d2_b.set(1, Eigen::IndexPair<DenseIndex>(1,11));
+  d2_b.set(1, eeigen::IndexPair<DenseIndex>(1,11));
 
   Dims2_c d2_c;
-  d2_c.set(0, Eigen::IndexPair<DenseIndex>(Eigen::IndexPair<DenseIndex>(0,10)));
-  d2_c.set(1, Eigen::IndexPair<DenseIndex>(1,11));  // setting type2indexpair to correct value.
-  d2_c.set(2, Eigen::IndexPair<DenseIndex>(2,12));
+  d2_c.set(0, eeigen::IndexPair<DenseIndex>(eeigen::IndexPair<DenseIndex>(0,10)));
+  d2_c.set(1, eeigen::IndexPair<DenseIndex>(1,11));  // setting type2indexpair to correct value.
+  d2_c.set(2, eeigen::IndexPair<DenseIndex>(2,12));
 
   VERIFY_IS_EQUAL(d2_a[0].first, 0);
   VERIFY_IS_EQUAL(d2_a[0].second, 10);
@@ -214,53 +214,53 @@ static void test_type2indexpair_list()
   EIGEN_STATIC_ASSERT((d2_c.value_known_statically(1) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
   EIGEN_STATIC_ASSERT((d2_c.value_known_statically(2) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
 
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims0>(0, 0) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims0>(0, 1) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims0>(0, 0) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims0>(0, 1) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
 
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_a>(0, 0) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_a>(0, 1) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_a>(1, 1) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_a>(1, 2) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_a>(2, 2) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_a>(2, 3) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_a>(0, 0) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_a>(0, 1) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_a>(1, 1) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_a>(1, 2) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_a>(2, 2) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_a>(2, 3) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
 
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_b>(0, 0) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_b>(0, 1) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_b>(1, 1) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_b>(1, 2) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_b>(2, 2) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_b>(2, 3) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_b>(0, 0) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_b>(0, 1) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_b>(1, 1) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_b>(1, 2) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_b>(2, 2) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_b>(2, 3) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
 
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_c>(0, 0) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_c>(0, 1) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_c>(1, 1) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_c>(1, 2) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_c>(2, 2) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_first_statically_eq<Dims2_c>(2, 3) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_c>(0, 0) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_c>(0, 1) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_c>(1, 1) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_c>(1, 2) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_c>(2, 2) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_first_statically_eq<Dims2_c>(2, 3) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
 
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims0>(0, 10) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims0>(0, 11) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims0>(0, 10) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims0>(0, 11) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
 
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_a>(0, 10) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_a>(0, 11) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_a>(1, 11) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_a>(1, 12) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_a>(2, 12) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_a>(2, 13) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_a>(0, 10) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_a>(0, 11) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_a>(1, 11) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_a>(1, 12) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_a>(2, 12) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_a>(2, 13) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
 
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_b>(0, 10) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_b>(0, 11) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_b>(1, 11) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_b>(1, 12) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_b>(2, 12) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_b>(2, 13) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_b>(0, 10) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_b>(0, 11) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_b>(1, 11) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_b>(1, 12) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_b>(2, 12) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_b>(2, 13) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
 
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_c>(0, 10) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_c>(0, 11) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_c>(1, 11) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_c>(1, 12) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_c>(2, 12) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
-  EIGEN_STATIC_ASSERT((Eigen::internal::index_pair_second_statically_eq<Dims2_c>(2, 13) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_c>(0, 10) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_c>(0, 11) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_c>(1, 11) == true), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_c>(1, 12) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_c>(2, 12) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
+  EIGEN_STATIC_ASSERT((eeigen::internal::index_pair_second_statically_eq<Dims2_c>(2, 13) == false), YOU_MADE_A_PROGRAMMING_MISTAKE);
 }
 
 
@@ -363,9 +363,9 @@ static void test_mixed_index_list()
 
 static void test_dim_check()
 {
-  Eigen::IndexList<Eigen::type2index<1>, int> dim1;
+  eeigen::IndexList<eeigen::type2index<1>, int> dim1;
   dim1.set(1, 2);
-  Eigen::IndexList<Eigen::type2index<1>, int> dim2;
+  eeigen::IndexList<eeigen::type2index<1>, int> dim2;
   dim2.set(1, 2);
   VERIFY(dimensions_match(dim1, dim2));
 }

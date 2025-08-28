@@ -1,4 +1,4 @@
-This is an example of how one can wrap some of Eigen into a C library.
+This is an example of how one can wrap some of eeigen into a C library.
 
 To try this with GCC, do:
 

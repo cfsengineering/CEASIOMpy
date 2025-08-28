@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Désiré Nuentsa-Wakam <desire.nuentsa_wakam@inria.fr>
@@ -12,7 +12,7 @@
 #ifndef EIGEN_SPARSE_LU_H
 #define EIGEN_SPARSE_LU_H
 
-namespace Eigen {
+namespace eeigen {
 
 template <typename _MatrixType, typename _OrderingType = COLAMDOrdering<typename _MatrixType::StorageIndex> > class SparseLU;
 template <typename MappedSparseMatrixType> struct SparseLUMatrixLReturnType;
@@ -29,7 +29,7 @@ template <typename MatrixLType, typename MatrixUType> struct SparseLUMatrixURetu
   * and complex arithmetics with single and double precision, depending on the 
   * scalar type of your input matrix. 
   * The code has been optimized to provide BLAS-3 operations during supernode-panel updates. 
-  * It benefits directly from the built-in high-performant Eigen BLAS routines. 
+  * It benefits directly from the built-in high-performant eeigen BLAS routines. 
   * Moreover, when the size of a supernode is very small, the BLAS calls are avoided to 
   * enable a better optimization from the compiler. For best performance, 
   * you should compile it with NDEBUG flag to avoid the numerous bounds checking on vectors. 
@@ -60,7 +60,7 @@ template <typename MatrixLType, typename MatrixUType> struct SparseLUMatrixURetu
   * \note Unlike the initial SuperLU implementation, there is no step to equilibrate the matrix. 
   * For badly scaled matrices, this step can be useful to reduce the pivoting during factorization. 
   * If this is the case for your matrices, you can try the basic scaling method at
-  *  "unsupported/Eigen/src/IterativeSolvers/Scaling.h"
+  *  "unsupported/eeigen/src/IterativeSolvers/Scaling.h"
   * 
   * \tparam _MatrixType The type of the sparse matrix. It must be a column-major SparseMatrix<>
   * \tparam _OrderingType The ordering method to use, either AMD, COLAMD or METIS. Default is COLMAD
@@ -768,6 +768,6 @@ struct SparseLUMatrixUReturnType : internal::no_assignment_operator
   const MatrixUType& m_mapU;
 };
 
-} // End namespace Eigen 
+} // End namespace eeigen 
 
 #endif

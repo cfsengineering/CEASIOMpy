@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ********************************************************************************
- *   Content : Eigen bindings to LAPACKe
+ *   Content : eeigen bindings to LAPACKe
  *    Householder QR decomposition of a matrix with column pivoting based on
  *    LAPACKE_?geqp3 function.
  ********************************************************************************
@@ -34,7 +34,7 @@
 #ifndef EIGEN_COLPIVOTINGHOUSEHOLDERQR_LAPACKE_H
 #define EIGEN_COLPIVOTINGHOUSEHOLDERQR_LAPACKE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \internal Specialization for the data types supported by LAPACKe */
 
@@ -77,7 +77,7 @@ ColPivHouseholderQR<Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW, Dynamic, Dynami
   } \
   for(Index i=0;i<cols;i++) perm[i]--;\
 \
-  /*m_det_pq = (number_of_transpositions%2) ? -1 : 1;  // TODO: It's not needed now; fix upon availability in Eigen */ \
+  /*m_det_pq = (number_of_transpositions%2) ? -1 : 1;  // TODO: It's not needed now; fix upon availability in eeigen */ \
 \
   return *this; \
 }
@@ -92,6 +92,6 @@ EIGEN_LAPACKE_QR_COLPIV(float,    float,         s, RowMajor, LAPACK_ROW_MAJOR)
 EIGEN_LAPACKE_QR_COLPIV(dcomplex, lapack_complex_double, z, RowMajor, LAPACK_ROW_MAJOR)
 EIGEN_LAPACKE_QR_COLPIV(scomplex, lapack_complex_float,  c, RowMajor, LAPACK_ROW_MAJOR)
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_COLPIVOTINGHOUSEHOLDERQR_LAPACKE_H

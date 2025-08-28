@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010 Manuel Yguel <manuel.yguel@gmail.com>
@@ -8,12 +8,12 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "main.h"
-#include <unsupported/Eigen/Polynomials>
+#include <unsupported/eeigen/Polynomials>
 #include <iostream>
 
 using namespace std;
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 template<int Size>
 struct increment_if_fixed_size

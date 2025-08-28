@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2013 Christian Seiler <christian@iwakd.de>
@@ -9,10 +9,10 @@
 
 #include "main.h"
 
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
-using Eigen::RowMajor;
+using eeigen::Tensor;
+using eeigen::RowMajor;
 
 static void test_0d()
 {
@@ -195,7 +195,7 @@ static void test_3d()
   VERIFY_IS_EQUAL((epsilon(0,2,1)), -1);
   VERIFY_IS_EQUAL((epsilon(1,0,2)), -1);
 
-  array<Eigen::DenseIndex, 3> dims;
+  array<eeigen::DenseIndex, 3> dims;
   dims[0] = 2;
   dims[1] = 3;
   dims[2] = 4;

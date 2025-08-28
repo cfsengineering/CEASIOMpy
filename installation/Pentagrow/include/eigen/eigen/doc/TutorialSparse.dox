@@ -1,4 +1,4 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \eigenManualPage TutorialSparse Sparse matrix manipulations
 
@@ -8,13 +8,13 @@ Manipulating and solving sparse problems involves various modules which are summ
 
 <table class="manual">
 <tr><th>Module</th><th>Header file</th><th>Contents</th></tr>
-<tr><td>\link SparseCore_Module SparseCore \endlink</td><td>\code#include <Eigen/SparseCore>\endcode</td><td>SparseMatrix and SparseVector classes, matrix assembly, basic sparse linear algebra (including sparse triangular solvers)</td></tr>
-<tr><td>\link SparseCholesky_Module SparseCholesky \endlink</td><td>\code#include <Eigen/SparseCholesky>\endcode</td><td>Direct sparse LLT and LDLT Cholesky factorization to solve sparse self-adjoint positive definite problems</td></tr>
-<tr><td>\link SparseLU_Module SparseLU \endlink</td><td>\code #include<Eigen/SparseLU> \endcode</td>
+<tr><td>\link SparseCore_Module SparseCore \endlink</td><td>\code#include <eeigen/SparseCore>\endcode</td><td>SparseMatrix and SparseVector classes, matrix assembly, basic sparse linear algebra (including sparse triangular solvers)</td></tr>
+<tr><td>\link SparseCholesky_Module SparseCholesky \endlink</td><td>\code#include <eeigen/SparseCholesky>\endcode</td><td>Direct sparse LLT and LDLT Cholesky factorization to solve sparse self-adjoint positive definite problems</td></tr>
+<tr><td>\link SparseLU_Module SparseLU \endlink</td><td>\code #include<eeigen/SparseLU> \endcode</td>
 <td>%Sparse LU factorization to solve general square sparse systems</td></tr>
-<tr><td>\link SparseQR_Module SparseQR \endlink</td><td>\code #include<Eigen/SparseQR>\endcode </td><td>%Sparse QR factorization for solving sparse linear least-squares problems</td></tr>
-<tr><td>\link IterativeLinearSolvers_Module IterativeLinearSolvers \endlink</td><td>\code#include <Eigen/IterativeLinearSolvers>\endcode</td><td>Iterative solvers to solve large general linear square problems (including self-adjoint positive definite problems)</td></tr>
-<tr><td>\link Sparse_Module Sparse \endlink</td><td>\code#include <Eigen/Sparse>\endcode</td><td>Includes all the above modules</td></tr>
+<tr><td>\link SparseQR_Module SparseQR \endlink</td><td>\code #include<eeigen/SparseQR>\endcode </td><td>%Sparse QR factorization for solving sparse linear least-squares problems</td></tr>
+<tr><td>\link IterativeLinearSolvers_Module IterativeLinearSolvers \endlink</td><td>\code#include <eeigen/IterativeLinearSolvers>\endcode</td><td>Iterative solvers to solve large general linear square problems (including self-adjoint positive definite problems)</td></tr>
+<tr><td>\link Sparse_Module Sparse \endlink</td><td>\code#include <eeigen/Sparse>\endcode</td><td>Includes all the above modules</td></tr>
 </table>
 
 \section TutorialSparseIntro Sparse matrix format
@@ -23,7 +23,7 @@ In many applications (e.g., finite element methods) it is common to deal with ve
 
 \b The \b %SparseMatrix \b class
 
-The class SparseMatrix is the main sparse matrix representation of Eigen's sparse module; it offers high performance and low memory usage.
+The class SparseMatrix is the main sparse matrix representation of eeigen's sparse module; it offers high performance and low memory usage.
 It implements a more versatile variant of the widely-used Compressed Column (or Row) Storage scheme.
 It consists of four compact arrays:
  - \c Values: stores the coefficient values of the non-zeros.
@@ -65,7 +65,7 @@ Therefore, in practice a call to SparseMatrix::makeCompressed() frees this buffe
 
 It is worth noting that most of our wrappers to external libraries requires compressed matrices as inputs.
 
-The results of %Eigen's operations always produces \b compressed sparse matrices.
+The results of %eeigen's operations always produces \b compressed sparse matrices.
 On the other hand, the insertion of a new element into a SparseMatrix converts this later to the \b uncompressed mode.
 
 Here is the previous matrix represented in compressed mode:
@@ -195,7 +195,7 @@ The simplest way to create a sparse matrix while guaranteeing good performance i
 
 Here is a typical usage example:
 \code
-typedef Eigen::Triplet<double> T;
+typedef eeigen::Triplet<double> T;
 std::vector<T> tripletList;
 tripletList.reserve(estimation_of_entries);
 for(...)
@@ -231,7 +231,7 @@ A typical scenario of this approach is illustrated bellow:
 \section TutorialSparseFeatureSet Supported operators and functions
 
 Because of their special storage format, sparse matrices cannot offer the same level of flexibility than dense matrices.
-In Eigen's sparse module we chose to expose only the subset of the dense matrix API which can be efficiently implemented.
+In eeigen's sparse module we chose to expose only the subset of the dense matrix API which can be efficiently implemented.
 In the following \em sm denotes a sparse matrix, \em sv a sparse vector, \em dm a dense matrix, and \em dv a dense vector.
 
 \subsection TutorialSparse_BasicOps Basic operations
@@ -277,7 +277,7 @@ However, there is no transposeInPlace() method.
 
 \subsection TutorialSparse_Products Matrix products
 
-%Eigen supports various kind of sparse matrix products which are summarize below:
+%eeigen supports various kind of sparse matrix products which are summarize below:
   - \b sparse-dense:
     \code
 dv2 = sm1 * dv1;

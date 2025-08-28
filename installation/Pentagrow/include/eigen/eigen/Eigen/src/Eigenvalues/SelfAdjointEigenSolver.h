@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -13,7 +13,7 @@
 
 #include "./Tridiagonalization.h"
 
-namespace Eigen { 
+namespace eeigen { 
 
 template<typename _MatrixType>
 class GeneralizedSelfAdjointEigenSolver;
@@ -81,7 +81,7 @@ template<typename _MatrixType> class SelfAdjointEigenSolver
     
     /** \brief Scalar type for matrices of type \p _MatrixType. */
     typedef typename MatrixType::Scalar Scalar;
-    typedef Eigen::Index Index; ///< \deprecated since Eigen 3.3
+    typedef eeigen::Index Index; ///< \deprecated since eeigen 3.3
     
     typedef Matrix<Scalar,Size,Size,ColMajor,MaxColsAtCompileTime,MaxColsAtCompileTime> EigenvectorsType;
 
@@ -648,7 +648,7 @@ template<typename SolverType> struct direct_selfadjoint_eigenvalues<SolverType,3
     // compute the eigenvectors
     if(computeEigenvectors)
     {
-      if((eivals(2)-eivals(0))<=Eigen::NumTraits<Scalar>::epsilon())
+      if((eivals(2)-eivals(0))<=eeigen::NumTraits<Scalar>::epsilon())
       {
         // All three eigenvalues are numerically the same
         eivecs.setIdentity();
@@ -676,7 +676,7 @@ template<typename SolverType> struct direct_selfadjoint_eigenvalues<SolverType,3
         }
 
         // Compute eigenvector of index l
-        if(d0<=2*Eigen::NumTraits<Scalar>::epsilon()*d1)
+        if(d0<=2*eeigen::NumTraits<Scalar>::epsilon()*d1)
         {
           // If d0 is too small, then the two other eigenvalues are numerically the same,
           // and thus we only have to ortho-normalize the near orthogonal vector we saved above.
@@ -756,7 +756,7 @@ struct direct_selfadjoint_eigenvalues<SolverType,2,false>
     // compute the eigen vectors
     if(computeEigenvectors)
     {
-      if((eivals(1)-eivals(0))<=abs(eivals(1))*Eigen::NumTraits<Scalar>::epsilon())
+      if((eivals(1)-eivals(0))<=abs(eivals(1))*eeigen::NumTraits<Scalar>::epsilon())
       {
         eivecs.setIdentity();
       }
@@ -865,6 +865,6 @@ static void tridiagonal_qr_step(RealScalar* diag, RealScalar* subdiag, Index sta
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SELFADJOINTEIGENSOLVER_H

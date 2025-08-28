@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SELECT_H
 #define EIGEN_SELECT_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \class Select
   * \ingroup Core_Module
@@ -157,6 +157,6 @@ DenseBase<Derived>::select(const typename ElseDerived::Scalar& thenScalar,
     derived(), ElseDerived::Constant(rows(),cols(),thenScalar), elseMatrix.derived());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SELECT_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Hauke Heibel <hauke.heibel@gmail.com>
@@ -9,14 +9,14 @@
 
 #include "main.h"
 
-#include <Eigen/Core>
+#include <eeigen/Core>
 
-using namespace Eigen;
+using namespace eeigen;
 
 template <typename Scalar, int Storage>
 void run_matrix_tests()
 {
-  typedef Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Storage> MatrixType;
+  typedef Matrix<Scalar, eeigen::Dynamic, eeigen::Dynamic, Storage> MatrixType;
 
   MatrixType m, n;
 
@@ -59,7 +59,7 @@ void run_matrix_tests()
 template <typename Scalar>
 void run_vector_tests()
 {
-  typedef Matrix<Scalar, 1, Eigen::Dynamic> VectorType;
+  typedef Matrix<Scalar, 1, eeigen::Dynamic> VectorType;
 
   VectorType m, n;
 
@@ -113,16 +113,16 @@ void test_conservative_resize()
 {
   for(int i=0; i<g_repeat; ++i)
   {
-    CALL_SUBTEST_1((run_matrix_tests<int, Eigen::RowMajor>()));
-    CALL_SUBTEST_1((run_matrix_tests<int, Eigen::ColMajor>()));
-    CALL_SUBTEST_2((run_matrix_tests<float, Eigen::RowMajor>()));
-    CALL_SUBTEST_2((run_matrix_tests<float, Eigen::ColMajor>()));
-    CALL_SUBTEST_3((run_matrix_tests<double, Eigen::RowMajor>()));
-    CALL_SUBTEST_3((run_matrix_tests<double, Eigen::ColMajor>()));
-    CALL_SUBTEST_4((run_matrix_tests<std::complex<float>, Eigen::RowMajor>()));
-    CALL_SUBTEST_4((run_matrix_tests<std::complex<float>, Eigen::ColMajor>()));
-    CALL_SUBTEST_5((run_matrix_tests<std::complex<double>, Eigen::RowMajor>()));
-    CALL_SUBTEST_6((run_matrix_tests<std::complex<double>, Eigen::ColMajor>()));
+    CALL_SUBTEST_1((run_matrix_tests<int, eeigen::RowMajor>()));
+    CALL_SUBTEST_1((run_matrix_tests<int, eeigen::ColMajor>()));
+    CALL_SUBTEST_2((run_matrix_tests<float, eeigen::RowMajor>()));
+    CALL_SUBTEST_2((run_matrix_tests<float, eeigen::ColMajor>()));
+    CALL_SUBTEST_3((run_matrix_tests<double, eeigen::RowMajor>()));
+    CALL_SUBTEST_3((run_matrix_tests<double, eeigen::ColMajor>()));
+    CALL_SUBTEST_4((run_matrix_tests<std::complex<float>, eeigen::RowMajor>()));
+    CALL_SUBTEST_4((run_matrix_tests<std::complex<float>, eeigen::ColMajor>()));
+    CALL_SUBTEST_5((run_matrix_tests<std::complex<double>, eeigen::RowMajor>()));
+    CALL_SUBTEST_6((run_matrix_tests<std::complex<double>, eeigen::ColMajor>()));
 
     CALL_SUBTEST_1((run_vector_tests<int>()));
     CALL_SUBTEST_2((run_vector_tests<float>()));

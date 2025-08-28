@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Désiré Nuentsa-Wakam <desire.nuentsa_wakam@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef SPARSELU_KERNEL_BMOD_H
 #define SPARSELU_KERNEL_BMOD_H
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
   
 template <int SegSizeAtCompileTime> struct LU_kernel_bmod
@@ -54,7 +54,7 @@ EIGEN_DONT_INLINE void LU_kernel_bmod<SegSizeAtCompileTime>::run(const Index seg
   }
   // Dense triangular solve -- start effective triangle
   luptr += lda * no_zeros + no_zeros; 
-  // Form Eigen matrix and vector 
+  // Form eeigen matrix and vector 
   Map<Matrix<Scalar,SegSizeAtCompileTime,SegSizeAtCompileTime, ColMajor>, 0, OuterStride<> > A( &(lusup.data()[luptr]), segsize, segsize, OuterStride<>(lda) );
   Map<Matrix<Scalar,SegSizeAtCompileTime,1> > u(tempv.data(), segsize);
   
@@ -126,5 +126,5 @@ EIGEN_DONT_INLINE void LU_kernel_bmod<1>::run(const Index /*segsize*/, BlockScal
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 #endif // SPARSELU_KERNEL_BMOD_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -28,12 +28,12 @@
 // Still, Windows defines min() and max() in windef.h as part of the regular
 // Windows system interfaces and many other Windows APIs depend on these
 // macros being available.  To prevent the macro expansion of min/max and to
-// make Eigen compatible with the Windows environment all function calls of
+// make eeigen compatible with the Windows environment all function calls of
 // std::min() and std::max() have to be written with parenthesis around the
 // function name.
 //
-// All STL headers used by Eigen should be included here.  Because main.h is
-// included before any Eigen header and because the STL headers are guarded
+// All STL headers used by eeigen should be included here.  Because main.h is
+// included before any eeigen header and because the STL headers are guarded
 // against multiple inclusions, no STL header will see our own min/max macro
 // definitions.
 #include <limits>
@@ -63,7 +63,7 @@
 #include <cuda_fp16.h>
 #endif
 
-// To test that all calls from Eigen code to std::min() and std::max() are
+// To test that all calls from eeigen code to std::min() and std::max() are
 // protected by parenthesis against macro expansion, the min()/max() macros
 // are defined here and any not-parenthesized min/max call will cause a
 // compiler error.
@@ -81,7 +81,7 @@
 // B0 is defined in POSIX header termios.h
 #define B0 FORBIDDEN_IDENTIFIER
 
-// Unit tests calling Eigen's blas library must preserve the default blocking size
+// Unit tests calling eeigen's blas library must preserve the default blocking size
 // to avoid troubles.
 #ifndef EIGEN_NO_DEBUG_SMALL_PRODUCT_BLOCKS
 #define EIGEN_DEBUG_SMALL_PRODUCT_BLOCKS
@@ -135,7 +135,7 @@ inline void on_temporary_creation(long int size) {
 
 #define DEFAULT_REPEAT 10
 
-namespace Eigen
+namespace eeigen
 {
   static std::vector<std::string> g_test_stack;
   // level == 0 <=> abort if test fail
@@ -160,7 +160,7 @@ namespace Eigen
 
 #ifndef EIGEN_NO_ASSERTION_CHECKING
 
-  namespace Eigen
+  namespace eeigen
   {
     static const bool should_raise_an_assert = false;
 
@@ -173,13 +173,13 @@ namespace Eigen
     struct eigen_assert_exception
     {
       eigen_assert_exception(void) {}
-      ~eigen_assert_exception() { Eigen::no_more_assert = false; }
+      ~eigen_assert_exception() { eeigen::no_more_assert = false; }
     };
 
     struct eigen_static_assert_exception
     {
       eigen_static_assert_exception(void) {}
-      ~eigen_static_assert_exception() { Eigen::no_more_assert = false; }
+      ~eigen_static_assert_exception() { eeigen::no_more_assert = false; }
     };
   }
   // If EIGEN_DEBUG_ASSERTS is defined and if no assertion is triggered while
@@ -191,7 +191,7 @@ namespace Eigen
   // some memory errors.
   #ifdef EIGEN_DEBUG_ASSERTS
 
-    namespace Eigen
+    namespace eeigen
     {
       namespace internal
       {
@@ -204,10 +204,10 @@ namespace Eigen
       { \
         if(report_on_cerr_on_assert_failure) \
           std::cerr <<  #a << " " __FILE__ << "(" << __LINE__ << ")\n"; \
-        Eigen::no_more_assert = true;       \
-        EIGEN_THROW_X(Eigen::eigen_assert_exception()); \
+        eeigen::no_more_assert = true;       \
+        EIGEN_THROW_X(eeigen::eigen_assert_exception()); \
       }                                     \
-      else if (Eigen::internal::push_assert)       \
+      else if (eeigen::internal::push_assert)       \
       {                                     \
         eigen_assert_list.push_back(std::string(EI_PP_MAKE_STRING(__FILE__) " (" EI_PP_MAKE_STRING(__LINE__) ") : " #a) ); \
       }
@@ -215,69 +215,69 @@ namespace Eigen
     #ifdef EIGEN_EXCEPTIONS
     #define VERIFY_RAISES_ASSERT(a)                                                   \
       {                                                                               \
-        Eigen::no_more_assert = false;                                                \
-        Eigen::eigen_assert_list.clear();                                             \
-        Eigen::internal::push_assert = true;                                          \
-        Eigen::report_on_cerr_on_assert_failure = false;                              \
+        eeigen::no_more_assert = false;                                                \
+        eeigen::eigen_assert_list.clear();                                             \
+        eeigen::internal::push_assert = true;                                          \
+        eeigen::report_on_cerr_on_assert_failure = false;                              \
         try {                                                                         \
           a;                                                                          \
           std::cerr << "One of the following asserts should have been triggered:\n";  \
           for (uint ai=0 ; ai<eigen_assert_list.size() ; ++ai)                        \
             std::cerr << "  " << eigen_assert_list[ai] << "\n";                       \
-          VERIFY(Eigen::should_raise_an_assert && # a);                               \
-        } catch (Eigen::eigen_assert_exception) {                                     \
-          Eigen::internal::push_assert = false; VERIFY(true);                         \
+          VERIFY(eeigen::should_raise_an_assert && # a);                               \
+        } catch (eeigen::eigen_assert_exception) {                                     \
+          eeigen::internal::push_assert = false; VERIFY(true);                         \
         }                                                                             \
-        Eigen::report_on_cerr_on_assert_failure = true;                               \
-        Eigen::internal::push_assert = false;                                         \
+        eeigen::report_on_cerr_on_assert_failure = true;                               \
+        eeigen::internal::push_assert = false;                                         \
       }
     #endif //EIGEN_EXCEPTIONS
 
   #elif !defined(__CUDACC__) // EIGEN_DEBUG_ASSERTS
     // see bug 89. The copy_bool here is working around a bug in gcc <= 4.3
     #define eigen_assert(a) \
-      if( (!Eigen::internal::copy_bool(a)) && (!no_more_assert) )\
+      if( (!eeigen::internal::copy_bool(a)) && (!no_more_assert) )\
       {                                       \
-        Eigen::no_more_assert = true;         \
+        eeigen::no_more_assert = true;         \
         if(report_on_cerr_on_assert_failure)  \
           eigen_plain_assert(a);              \
         else                                  \
-          EIGEN_THROW_X(Eigen::eigen_assert_exception()); \
+          EIGEN_THROW_X(eeigen::eigen_assert_exception()); \
       }
 
     #ifdef EIGEN_EXCEPTIONS
       #define VERIFY_RAISES_ASSERT(a) {                           \
-        Eigen::no_more_assert = false;                            \
-        Eigen::report_on_cerr_on_assert_failure = false;          \
+        eeigen::no_more_assert = false;                            \
+        eeigen::report_on_cerr_on_assert_failure = false;          \
         try {                                                     \
           a;                                                      \
-          VERIFY(Eigen::should_raise_an_assert && # a);           \
+          VERIFY(eeigen::should_raise_an_assert && # a);           \
         }                                                         \
-        catch (Eigen::eigen_assert_exception&) { VERIFY(true); }  \
-        Eigen::report_on_cerr_on_assert_failure = true;           \
+        catch (eeigen::eigen_assert_exception&) { VERIFY(true); }  \
+        eeigen::report_on_cerr_on_assert_failure = true;           \
       }
     #endif // EIGEN_EXCEPTIONS
   #endif // EIGEN_DEBUG_ASSERTS
 
   #if defined(TEST_CHECK_STATIC_ASSERTIONS) && defined(EIGEN_EXCEPTIONS)
     #define EIGEN_STATIC_ASSERT(a,MSG) \
-      if( (!Eigen::internal::copy_bool(a)) && (!no_more_assert) )\
+      if( (!eeigen::internal::copy_bool(a)) && (!no_more_assert) )\
       {                                       \
-        Eigen::no_more_assert = true;         \
+        eeigen::no_more_assert = true;         \
         if(report_on_cerr_on_assert_failure)  \
           eigen_plain_assert((a) && #MSG);      \
         else                                  \
-          EIGEN_THROW_X(Eigen::eigen_static_assert_exception()); \
+          EIGEN_THROW_X(eeigen::eigen_static_assert_exception()); \
       }
     #define VERIFY_RAISES_STATIC_ASSERT(a) {                    \
-      Eigen::no_more_assert = false;                            \
-      Eigen::report_on_cerr_on_assert_failure = false;          \
+      eeigen::no_more_assert = false;                            \
+      eeigen::report_on_cerr_on_assert_failure = false;          \
       try {                                                     \
         a;                                                      \
-        VERIFY(Eigen::should_raise_an_assert && # a);           \
+        VERIFY(eeigen::should_raise_an_assert && # a);           \
       }                                                         \
-      catch (Eigen::eigen_static_assert_exception&) { VERIFY(true); }  \
-      Eigen::report_on_cerr_on_assert_failure = true;           \
+      catch (eeigen::eigen_static_assert_exception&) { VERIFY(true); }  \
+      eeigen::report_on_cerr_on_assert_failure = true;           \
     }
   #endif // TEST_CHECK_STATIC_ASSERTIONS
 
@@ -302,22 +302,22 @@ namespace Eigen
 #endif // EIGEN_NO_ASSERTION_CHECKING
 
 #define EIGEN_INTERNAL_DEBUGGING
-#include <Eigen/QR> // required for createRandomPIMatrixOfRank
+#include <eeigen/QR> // required for createRandomPIMatrixOfRank
 
 inline void verify_impl(bool condition, const char *testname, const char *file, int line, const char *condition_as_string)
 {
   if (!condition)
   {
-    if(Eigen::g_test_level>0)
+    if(eeigen::g_test_level>0)
       std::cerr << "WARNING: ";
     std::cerr << "Test " << testname << " failed in " << file << " (" << line << ")"
       << std::endl << "    " << condition_as_string << std::endl;
     std::cerr << "Stack:\n";
-    const int test_stack_size = static_cast<int>(Eigen::g_test_stack.size());
+    const int test_stack_size = static_cast<int>(eeigen::g_test_stack.size());
     for(int i=test_stack_size-1; i>=0; --i)
-      std::cerr << "  - " << Eigen::g_test_stack[i] << "\n";
+      std::cerr << "  - " << eeigen::g_test_stack[i] << "\n";
     std::cerr << "\n";
-    if(Eigen::g_test_level==0)
+    if(eeigen::g_test_level==0)
       abort();
   }
 }
@@ -346,7 +346,7 @@ inline void verify_impl(bool condition, const char *testname, const char *file, 
   } while (0)
 
 
-namespace Eigen {
+namespace eeigen {
 
 template<typename T> inline typename NumTraits<T>::Real test_precision() { return NumTraits<T>::dummy_precision(); }
 template<> inline float test_precision<float>() { return 1e-3f; }
@@ -512,7 +512,7 @@ T test_relative_error(const AngleAxis<T> &a, const AngleAxis<T> &b)
 }
 
 template<typename Type1, typename Type2>
-inline bool test_isApprox(const Type1& a, const Type2& b, typename Type1::Scalar* = 0) // Enabled for Eigen's type only
+inline bool test_isApprox(const Type1& a, const Type2& b, typename Type1::Scalar* = 0) // Enabled for eeigen's type only
 {
   return a.isApprox(b, test_precision<typename Type1::Scalar>());
 }
@@ -670,7 +670,7 @@ template<typename T> bool isMinusInf(const T& x)
   return x < NumTraits<T>::lowest();
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 template<typename T> struct GetDifferentType;
 
@@ -694,7 +694,7 @@ template<> std::string type_name<std::complex<int> >()          { return "comple
 // forward declaration of the main test function
 void EIGEN_CAT(test_,EIGEN_TEST_FUNC)();
 
-using namespace Eigen;
+using namespace eeigen;
 
 inline void set_repeat_from_string(const char *str)
 {
@@ -780,13 +780,13 @@ int main(int argc, char *argv[])
     srand(g_seed);
     std::cout << "Repeating each test " << g_repeat << " times" << std::endl;
 
-    Eigen::g_test_stack.push_back(std::string(EI_PP_MAKE_STRING(EIGEN_TEST_FUNC)));
+    eeigen::g_test_stack.push_back(std::string(EI_PP_MAKE_STRING(EIGEN_TEST_FUNC)));
 
     EIGEN_CAT(test_,EIGEN_TEST_FUNC)();
     return 0;
 }
 
-// These warning are disabled here such that they are still ON when parsing Eigen's header files.
+// These warning are disabled here such that they are still ON when parsing eeigen's header files.
 #if defined __INTEL_COMPILER
   // remark #383: value copied to temporary, reference to temporary used
   //  -> this warning is raised even for legal usage as: g_test_stack.push_back("foo"); where g_test_stack is a std::vector<std::string>

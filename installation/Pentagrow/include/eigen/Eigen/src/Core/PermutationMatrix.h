@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_PERMUTATIONMATRIX_H
 #define EIGEN_PERMUTATIONMATRIX_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -628,6 +628,6 @@ template<> struct AssignmentKind<DenseShape,PermutationShape> { typedef EigenBas
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_PERMUTATIONMATRIX_H

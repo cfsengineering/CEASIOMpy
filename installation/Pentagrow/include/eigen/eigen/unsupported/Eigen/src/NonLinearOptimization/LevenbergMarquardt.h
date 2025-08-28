@@ -1,7 +1,7 @@
 // -*- coding: utf-8
 // vim: set fileencoding=utf-8
 
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Thomas Capricelli <orzel@freehackers.org>
@@ -13,7 +13,7 @@
 #ifndef EIGEN_LEVENBERGMARQUARDT__H
 #define EIGEN_LEVENBERGMARQUARDT__H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace LevenbergMarquardtSpace {
     enum Status {
@@ -650,7 +650,7 @@ LevenbergMarquardt<FunctorType,Scalar>::lmdif1(
     return info;
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_LEVENBERGMARQUARDT__H
 

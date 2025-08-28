@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // This Source Code Form is subject to the terms of the Mozilla
@@ -28,7 +28,7 @@
   * 
   * Usage : 
   * \code
-  * #include <Eigen/OrderingMethods>
+  * #include <eeigen/OrderingMethods>
   * \endcode
   * 
   * A simple usage is as a template parameter in the sparse decomposition classes : 
@@ -53,7 +53,7 @@
   * 
   * \note Some of these methods (like AMD or METIS), need the sparsity pattern 
   * of the input matrix to be symmetric. When the matrix is structurally unsymmetric, 
-  * Eigen computes internally the pattern of \f$A^T*A\f$ before calling the method.
+  * eeigen computes internally the pattern of \f$A^T*A\f$ before calling the method.
   * If your matrix is already symmetric (at leat in structure), you can avoid that
   * by calling the method with a SelfAdjointView type.
   * 

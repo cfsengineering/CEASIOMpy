@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -12,7 +12,7 @@
 #ifndef EIGEN_CWISE_TERNARY_OP_H
 #define EIGEN_CWISE_TERNARY_OP_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 template <typename TernaryOp, typename Arg1, typename Arg2, typename Arg3>
@@ -67,7 +67,7 @@ class CwiseTernaryOpImpl;
  * operator is applied to three expressions.
   * It is the return type of ternary operators, by which we mean only those
  * ternary operators where
-  * all three arguments are Eigen expressions.
+  * all three arguments are eeigen expressions.
   * For example, the return type of betainc(matrix1, matrix2, matrix3) is a
  * CwiseTernaryOp.
   *
@@ -192,6 +192,6 @@ class CwiseTernaryOpImpl
       CwiseTernaryOp<TernaryOp, Arg1, Arg2, Arg3> >::type Base;
 };
 
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 #endif  // EIGEN_CWISE_TERNARY_OP_H

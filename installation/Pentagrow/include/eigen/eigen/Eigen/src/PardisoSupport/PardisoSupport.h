@@ -25,14 +25,14 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ********************************************************************************
- *   Content : Eigen bindings to Intel(R) MKL PARDISO
+ *   Content : eeigen bindings to Intel(R) MKL PARDISO
  ********************************************************************************
 */
 
 #ifndef EIGEN_PARDISOSUPPORT_H
 #define EIGEN_PARDISOSUPPORT_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 template<typename _MatrixType> class PardisoLU;
 template<typename _MatrixType, int Options=Upper> class PardisoLLT;
@@ -339,7 +339,7 @@ void PardisoImpl<Derived>::_solve_impl(const MatrixBase<BDerived> &b, MatrixBase
 //    case SvTranspose  : m_iparm[11] = 2 ; break;
 //    case SvAdjoint    : m_iparm[11] = 1 ; break;
 //    default:
-//      //std::cerr << "Eigen: transposition  option \"" << transposed << "\" not supported by the PARDISO backend\n";
+//      //std::cerr << "eeigen: transposition  option \"" << transposed << "\" not supported by the PARDISO backend\n";
 //      m_iparm[11] = 0;
 //  }
 
@@ -538,6 +538,6 @@ class PardisoLDLT : public PardisoImpl< PardisoLDLT<MatrixType,Options> >
     }
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_PARDISOSUPPORT_H

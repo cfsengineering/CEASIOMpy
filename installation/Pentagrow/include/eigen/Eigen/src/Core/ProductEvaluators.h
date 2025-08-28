@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -13,7 +13,7 @@
 #ifndef EIGEN_PRODUCTEVALUATORS_H
 #define EIGEN_PRODUCTEVALUATORS_H
 
-namespace Eigen {
+namespace eeigen {
   
 namespace internal {
 
@@ -1107,6 +1107,6 @@ struct generic_product_impl<Lhs, Transpose<Rhs>, MatrixShape, TranspositionsShap
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_PRODUCT_EVALUATORS_H

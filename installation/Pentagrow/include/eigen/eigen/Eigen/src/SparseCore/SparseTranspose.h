@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPARSETRANSPOSE_H
 #define EIGEN_SPARSETRANSPOSE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
   template<typename MatrixType,int CompressedAccess=int(MatrixType::Flags&CompressedAccessBit)>
@@ -87,6 +87,6 @@ struct unary_evaluator<Transpose<ArgType>, IteratorBased>
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSETRANSPOSE_H

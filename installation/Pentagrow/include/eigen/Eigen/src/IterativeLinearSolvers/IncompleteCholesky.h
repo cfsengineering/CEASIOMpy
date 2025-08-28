@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Désiré Nuentsa-Wakam <desire.nuentsa_wakam@inria.fr>
@@ -14,7 +14,7 @@
 #include <vector>
 #include <list>
 
-namespace Eigen {  
+namespace eeigen {  
 /** 
   * \brief Modified Incomplete Cholesky with dual threshold
   *
@@ -395,6 +395,6 @@ inline void IncompleteCholesky<Scalar,_UpLo, OrderingType>::updateList(Ref<const
   }
 }
 
-} // end namespace Eigen 
+} // end namespace eeigen 
 
 #endif

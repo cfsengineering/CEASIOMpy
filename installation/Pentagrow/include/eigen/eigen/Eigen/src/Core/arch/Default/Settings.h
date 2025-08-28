@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -17,7 +17,7 @@
 #define EIGEN_DEFAULT_SETTINGS_H
 
 /** Defines the maximal loop size to enable meta unrolling of loops.
-  * Note that the value here is expressed in Eigen's own notion of "number of FLOPS",
+  * Note that the value here is expressed in eeigen's own notion of "number of FLOPS",
   * it does not correspond to the number of iterations or the number of instructions
   */
 #ifndef EIGEN_UNROLLING_LIMIT

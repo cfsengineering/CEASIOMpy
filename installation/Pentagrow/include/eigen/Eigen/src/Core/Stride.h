@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_STRIDE_H
 #define EIGEN_STRIDE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \class Stride
   * \ingroup Core_Module
@@ -44,7 +44,7 @@ template<int _OuterStrideAtCompileTime, int _InnerStrideAtCompileTime>
 class Stride
 {
   public:
-    typedef Eigen::Index Index; ///< \deprecated since Eigen 3.3
+    typedef eeigen::Index Index; ///< \deprecated since eeigen 3.3
     enum {
       InnerStrideAtCompileTime = _InnerStrideAtCompileTime,
       OuterStrideAtCompileTime = _OuterStrideAtCompileTime
@@ -106,6 +106,6 @@ class OuterStride : public Stride<Value, 0>
     EIGEN_DEVICE_FUNC OuterStride(Index v) : Base(v,0) {} // FIXME making this explicit could break valid code
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_STRIDE_H

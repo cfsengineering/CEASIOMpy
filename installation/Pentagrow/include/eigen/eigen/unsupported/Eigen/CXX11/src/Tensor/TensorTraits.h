@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_TRAITS_H
 #define EIGEN_CXX11_TENSOR_TENSOR_TRAITS_H
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 
 
@@ -119,54 +119,54 @@ struct traits<TensorRef<PlainObjectType> >
 
 
 template<typename _Scalar, int NumIndices_, int Options, typename IndexType_>
-struct eval<Tensor<_Scalar, NumIndices_, Options, IndexType_>, Eigen::Dense>
+struct eval<Tensor<_Scalar, NumIndices_, Options, IndexType_>, eeigen::Dense>
 {
   typedef const Tensor<_Scalar, NumIndices_, Options, IndexType_>& type;
 };
 
 template<typename _Scalar, int NumIndices_, int Options, typename IndexType_>
-struct eval<const Tensor<_Scalar, NumIndices_, Options, IndexType_>, Eigen::Dense>
+struct eval<const Tensor<_Scalar, NumIndices_, Options, IndexType_>, eeigen::Dense>
 {
   typedef const Tensor<_Scalar, NumIndices_, Options, IndexType_>& type;
 };
 
 template<typename Scalar_, typename Dimensions, int Options, typename IndexType_>
-struct eval<TensorFixedSize<Scalar_, Dimensions, Options, IndexType_>, Eigen::Dense>
+struct eval<TensorFixedSize<Scalar_, Dimensions, Options, IndexType_>, eeigen::Dense>
 {
   typedef const TensorFixedSize<Scalar_, Dimensions, Options, IndexType_>& type;
 };
 
 template<typename Scalar_, typename Dimensions, int Options, typename IndexType_>
-struct eval<const TensorFixedSize<Scalar_, Dimensions, Options, IndexType_>, Eigen::Dense>
+struct eval<const TensorFixedSize<Scalar_, Dimensions, Options, IndexType_>, eeigen::Dense>
 {
   typedef const TensorFixedSize<Scalar_, Dimensions, Options, IndexType_>& type;
 };
 
 template<typename PlainObjectType, int Options, template <class> class MakePointer>
-struct eval<TensorMap<PlainObjectType, Options, MakePointer>, Eigen::Dense>
+struct eval<TensorMap<PlainObjectType, Options, MakePointer>, eeigen::Dense>
 {
   typedef const TensorMap<PlainObjectType, Options, MakePointer>& type;
 };
 
 template<typename PlainObjectType, int Options, template <class> class MakePointer>
-struct eval<const TensorMap<PlainObjectType, Options, MakePointer>, Eigen::Dense>
+struct eval<const TensorMap<PlainObjectType, Options, MakePointer>, eeigen::Dense>
 {
   typedef const TensorMap<PlainObjectType, Options, MakePointer>& type;
 };
 
 template<typename PlainObjectType>
-struct eval<TensorRef<PlainObjectType>, Eigen::Dense>
+struct eval<TensorRef<PlainObjectType>, eeigen::Dense>
 {
   typedef const TensorRef<PlainObjectType>& type;
 };
 
 template<typename PlainObjectType>
-struct eval<const TensorRef<PlainObjectType>, Eigen::Dense>
+struct eval<const TensorRef<PlainObjectType>, eeigen::Dense>
 {
   typedef const TensorRef<PlainObjectType>& type;
 };
 
-// TODO nested<> does not exist anymore in Eigen/Core, and it thus has to be removed in favor of ref_selector.
+// TODO nested<> does not exist anymore in eeigen/Core, and it thus has to be removed in favor of ref_selector.
 template<typename T, int n=1, typename PlainObject = void> struct nested
 {
   typedef typename ref_selector<T>::type type;
@@ -267,6 +267,6 @@ typedef enum {
   PADDING_SAME = 2
 } PaddingType;
 
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_TRAITS_H

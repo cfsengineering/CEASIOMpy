@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Pedro Gonnet (pedro.gonnet@gmail.com)
@@ -11,7 +11,7 @@
 #ifndef EIGEN_MATHFUNCTIONSIMPL_H
 #define EIGEN_MATHFUNCTIONSIMPL_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -96,6 +96,6 @@ struct hypot_impl
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_MATHFUNCTIONSIMPL_H

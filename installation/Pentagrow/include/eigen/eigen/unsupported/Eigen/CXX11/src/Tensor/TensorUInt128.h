@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_UINT128_H
 #define EIGEN_CXX11_TENSOR_TENSOR_UINT128_H
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 
 
@@ -242,7 +242,7 @@ TensorUInt128<uint64_t, uint64_t> operator / (const TensorUInt128<HL, LL>& lhs, 
 
 
 }  // namespace internal
-}  // namespace Eigen
+}  // namespace eeigen
 
 
 #endif  // EIGEN_CXX11_TENSOR_TENSOR_UINT128_H

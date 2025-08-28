@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
       DenseMatrix m1(rows,cols), m3(rows,cols);
       eiToDense(sm1, m1);
       BENCH(for (int k=0; k<REPEAT; ++k) m3 = m1.transpose();)
-      std::cout << "  Eigen dense:\t" << timer.value() << endl;
+      std::cout << "  eeigen dense:\t" << timer.value() << endl;
     }
     #endif
 
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     // eigen sparse matrices
     {
       BENCH(for (int k=0; k<REPEAT; ++k) sm3 = sm1.transpose();)
-      std::cout << "  Eigen:\t" << timer.value() << endl;
+      std::cout << "  eeigen:\t" << timer.value() << endl;
     }
 
     // CSparse

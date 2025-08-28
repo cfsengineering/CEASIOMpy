@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011 Gael Guennebaud <g.gael@free.fr>
@@ -9,7 +9,7 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "../../test/sparse_solver.h"
-#include <Eigen/src/IterativeSolvers/DGMRES.h>
+#include <eeigen/src/IterativeSolvers/DGMRES.h>
 
 template<typename T> void test_dgmres_T()
 {

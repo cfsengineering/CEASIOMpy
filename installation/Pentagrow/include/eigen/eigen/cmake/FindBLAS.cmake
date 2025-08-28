@@ -45,7 +45,7 @@
 ##########
 ### List of vendors (BLA_VENDOR) valid in this module
 ########## List of vendors (BLA_VENDOR) valid in this module
-##  Open (for OpenBlas), Eigen (for EigenBlas), Goto, ATLAS PhiPACK,
+##  Open (for OpenBlas), eeigen (for EigenBlas), Goto, ATLAS PhiPACK,
 ##  CXML, DXML, SunPerf, SCSL, SGIMATH, IBMESSL, IBMESSLMT
 ##  Intel10_32 (intel mkl v10 32 bit), Intel10_64lp (intel mkl v10 64 bit,lp thread model, lp64 model),
 ##  Intel10_64lp_seq (intel mkl v10 64 bit,sequential code, lp64 model),
@@ -759,7 +759,7 @@ endif (BLA_VENDOR STREQUAL "Open" OR BLA_VENDOR STREQUAL "All")
 
 
 # EigenBlas
-if (BLA_VENDOR STREQUAL "Eigen" OR BLA_VENDOR STREQUAL "All")
+if (BLA_VENDOR STREQUAL "eeigen" OR BLA_VENDOR STREQUAL "All")
 
   if(NOT BLAS_LIBRARIES)
     # eigenblas (http://eigen.tuxfamily.org/index.php?title=Main_Page)
@@ -773,9 +773,9 @@ if (BLA_VENDOR STREQUAL "Eigen" OR BLA_VENDOR STREQUAL "All")
       )
     if(NOT BLAS_FIND_QUIETLY)
       if(BLAS_LIBRARIES AND NOT BLAS_VENDOR_FOUND)
-	message(STATUS "Looking for Eigen BLAS: found")
+	message(STATUS "Looking for eeigen BLAS: found")
       else()
-	message(STATUS "Looking for Eigen BLAS: not found")
+	message(STATUS "Looking for eeigen BLAS: not found")
       endif()
     endif()
   endif()
@@ -792,17 +792,17 @@ if (BLA_VENDOR STREQUAL "Eigen" OR BLA_VENDOR STREQUAL "All")
       )
     if(NOT BLAS_FIND_QUIETLY)
       if(BLAS_LIBRARIES)
-	message(STATUS "Looking for Eigen BLAS: found")
+	message(STATUS "Looking for eeigen BLAS: found")
       else()
-	message(STATUS "Looking for Eigen BLAS: not found")
+	message(STATUS "Looking for eeigen BLAS: not found")
       endif()
     endif()
   endif()
   if (BLAS_LIBRARIES AND NOT BLAS_VENDOR_FOUND)
-      set (BLAS_VENDOR_FOUND "Eigen")
+      set (BLAS_VENDOR_FOUND "eeigen")
   endif()
 
-endif (BLA_VENDOR STREQUAL "Eigen" OR BLA_VENDOR STREQUAL "All")
+endif (BLA_VENDOR STREQUAL "eeigen" OR BLA_VENDOR STREQUAL "All")
 
 
 if (BLA_VENDOR STREQUAL "ATLAS" OR BLA_VENDOR STREQUAL "All")

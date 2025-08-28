@@ -1,7 +1,7 @@
 #include <iostream>
-#include <Eigen/Core>
+#include <eeigen/Core>
 
-using namespace Eigen;
+using namespace eeigen;
 
 #ifndef SCALAR
 #define SCALAR float
@@ -15,7 +15,7 @@ using namespace Eigen;
 #define REPEAT 10000
 #endif
 
-typedef Matrix<SCALAR, Eigen::Dynamic, 1> Vec;
+typedef Matrix<SCALAR, eeigen::Dynamic, 1> Vec;
 
 using namespace std;
 

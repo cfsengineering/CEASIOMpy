@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CUDA_SPECIALFUNCTIONS_H
 #define EIGEN_CUDA_SPECIALFUNCTIONS_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -160,6 +160,6 @@ double2 pbetainc<double2>(const double2& a, const double2& b, const double2& x)
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CUDA_SPECIALFUNCTIONS_H

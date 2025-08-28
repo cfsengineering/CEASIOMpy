@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_FORCEALIGNEDACCESS_H
 #define EIGEN_FORCEALIGNEDACCESS_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class ForceAlignedAccess
   * \ingroup Core_Module
@@ -141,6 +141,6 @@ MatrixBase<Derived>::forceAlignedAccessIf()
   return derived();  // FIXME This should not work but apparently is never used
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_FORCEALIGNEDACCESS_H

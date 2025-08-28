@@ -1,7 +1,7 @@
-#include <Eigen/Core>
-#include <unsupported/Eigen/SpecialFunctions>
+#include <eeigen/Core>
+#include <unsupported/eeigen/SpecialFunctions>
 #include <iostream>
-using namespace Eigen;
+using namespace eeigen;
 int main()
 {
   Array4d v(-0.5,2,0,-7);

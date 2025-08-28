@@ -1,6 +1,6 @@
 #include <iostream>
-#include <Eigen/Core>
-using namespace Eigen;
+#include <eeigen/Core>
+using namespace eeigen;
 
 template <typename Derived>
 void print_size(const EigenBase<Derived>& b)

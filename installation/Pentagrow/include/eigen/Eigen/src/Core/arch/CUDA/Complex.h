@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -12,7 +12,7 @@
 
 // clang-format off
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -20,7 +20,7 @@ namespace internal {
 
 // Many std::complex methods such as operator+, operator-, operator* and
 // operator/ are not constexpr. Due to this, clang does not treat them as device
-// functions and thus Eigen functors making use of these operators fail to
+// functions and thus eeigen functors making use of these operators fail to
 // compile. Here, we manually specialize these functors for complex types when
 // building for CUDA to avoid non-constexpr methods.
 
@@ -98,6 +98,6 @@ template<typename T> struct scalar_quotient_op<std::complex<T>, std::complex<T> 
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_COMPLEX_CUDA_H

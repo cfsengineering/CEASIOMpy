@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Thomas Capricelli <orzel@freehackers.org>
@@ -15,11 +15,11 @@
 #include <stdio.h>
 
 #include "main.h"
-#include <unsupported/Eigen/LevenbergMarquardt>
+#include <unsupported/eeigen/LevenbergMarquardt>
 
 // This disables some useless Warnings on MSVC.
 // It is intended to be done for this test only.
-#include <Eigen/src/Core/util/DisableStupidWarnings.h>
+#include <eeigen/src/Core/util/DisableStupidWarnings.h>
 
 using std::sqrt;
 

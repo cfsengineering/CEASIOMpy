@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -14,7 +14,7 @@
 #endif
 
 #include "main.h"
-#include <Eigen/Dense>
+#include <eeigen/Dense>
 
 template<typename MatrixType>
 void dontalign(const MatrixType& m)

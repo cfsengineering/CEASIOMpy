@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef MANDELBROT_H
 #define MANDELBROT_H
 
-#include <Eigen/Core>
+#include <eeigen/Core>
 #include <QtGui/QApplication>
 #include <QtGui/QWidget>
 #include <QtCore/QThread>
@@ -36,7 +36,7 @@ class MandelbrotWidget : public QWidget
     Q_OBJECT
 
     friend class MandelbrotThread;
-    Eigen::Vector2d center;
+    eeigen::Vector2d center;
     double xradius;
     int size;
     unsigned char *buffer;

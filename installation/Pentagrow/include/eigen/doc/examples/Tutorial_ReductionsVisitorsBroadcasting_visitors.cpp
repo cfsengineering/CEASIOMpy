@@ -1,12 +1,12 @@
 #include <iostream>
-#include <Eigen/Dense>
+#include <eeigen/Dense>
 
 using namespace std;
-using namespace Eigen;
+using namespace eeigen;
 
 int main()
 {
-  Eigen::MatrixXf m(2,2);
+  eeigen::MatrixXf m(2,2);
   
   m << 1, 2,
        3, 4;

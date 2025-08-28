@@ -1,9 +1,9 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 David Harmon <dharmon@gmail.com>
 //
-// Eigen is free software; you can redistribute it and/or
+// eeigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
 // version 3 of the License, or (at your option) any later version.
@@ -13,21 +13,21 @@
 // published by the Free Software Foundation; either version 2 of
 // the License, or (at your option) any later version.
 //
-// Eigen is distributed in the hope that it will be useful, but WITHOUT ANY
+// eeigen is distributed in the hope that it will be useful, but WITHOUT ANY
 // WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 // FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License or the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public
 // License and a copy of the GNU General Public License along with
-// Eigen. If not, see <http://www.gnu.org/licenses/>.
+// eeigen. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef EIGEN_ARPACKGENERALIZEDSELFADJOINTEIGENSOLVER_H
 #define EIGEN_ARPACKGENERALIZEDSELFADJOINTEIGENSOLVER_H
 
-#include <Eigen/Dense>
+#include <eeigen/Dense>
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
   template<typename Scalar, typename RealScalar> struct arpack_wrapper;
@@ -799,7 +799,7 @@ struct OP<MatrixSolver, MatrixType, Scalar, false>
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_ARPACKSELFADJOINTEIGENSOLVER_H
 

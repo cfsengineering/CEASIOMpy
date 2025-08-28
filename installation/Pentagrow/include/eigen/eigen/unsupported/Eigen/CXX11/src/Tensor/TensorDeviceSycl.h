@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Mehdi Goli    Codeplay Software Ltd.
@@ -15,7 +15,7 @@
 #if defined(EIGEN_USE_SYCL) && !defined(EIGEN_CXX11_TENSOR_TENSOR_DEVICE_SYCL_H)
 #define EIGEN_CXX11_TENSOR_TENSOR_DEVICE_SYCL_H
 
-namespace Eigen {
+namespace eeigen {
 struct SyclDevice {
   /// class members
   /// sycl queue
@@ -117,6 +117,6 @@ struct SyclDevice {
   }
 };
 
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 #endif  // EIGEN_CXX11_TENSOR_TENSOR_DEVICE_SYCL_H

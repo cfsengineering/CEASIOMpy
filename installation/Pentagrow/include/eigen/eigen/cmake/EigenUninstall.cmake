@@ -8,7 +8,7 @@
 set(MANIFEST "${CMAKE_CURRENT_BINARY_DIR}/install_manifest.txt")
 
 if(EXISTS ${MANIFEST})
-  message(STATUS "============== Uninstalling Eigen  ===================")
+  message(STATUS "============== Uninstalling eeigen  ===================")
 
   file(STRINGS ${MANIFEST} files)
   foreach(file ${files})
@@ -29,7 +29,7 @@ if(EXISTS ${MANIFEST})
     endif()
   endforeach(file)
 
-  message(STATUS "========== Finished Uninstalling Eigen  ==============")
+  message(STATUS "========== Finished Uninstalling eeigen  ==============")
 else()
   message(STATUS "Cannot find install manifest: '${MANIFEST}'")
   message(STATUS "Probably make install has not been performed")

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2007 Julien Pommier
@@ -16,7 +16,7 @@
 #ifndef EIGEN_MATH_FUNCTIONS_ALTIVEC_H
 #define EIGEN_MATH_FUNCTIONS_ALTIVEC_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -317,6 +317,6 @@ Packet2d pexp<Packet2d>(const Packet2d& _x)
 
 }  // end namespace internal
 
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 #endif  // EIGEN_MATH_FUNCTIONS_ALTIVEC_H

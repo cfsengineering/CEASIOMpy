@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -12,7 +12,7 @@
 
 // This file implements sparse * permutation products
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -173,6 +173,6 @@ operator*(const InverseImpl<PermutationType,PermutationStorage>& tperm, const Sp
   return Product<Inverse<PermutationType>, SparseDerived, AliasFreeProduct>(tperm.derived(), matrix.derived());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSE_SELFADJOINTVIEW_H

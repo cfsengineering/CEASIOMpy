@@ -28,7 +28,7 @@
 #include "algo.h"
 #include "allocator.h"
 
-#include <Eigen/Core>
+#include <eeigen/Core>
 
 /** Heap-allocated array.
 
@@ -59,10 +59,10 @@ public:
   typedef Type & reference;
   typedef const Type & const_reference;
 
-  /// for interfacing with the Eigen library
-  typedef Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic> EigenMatrix;
-  typedef Eigen::Map<EigenMatrix, Eigen::Aligned> EigenMap;
-  typedef Eigen::Map<const EigenMatrix, Eigen::Aligned> ConstEigenMap;
+  /// for interfacing with the eeigen library
+  typedef eeigen::Matrix<Type, eeigen::Dynamic, eeigen::Dynamic> EigenMatrix;
+  typedef eeigen::Map<EigenMatrix, eeigen::Aligned> EigenMap;
+  typedef eeigen::Map<const EigenMatrix, eeigen::Aligned> ConstEigenMap;
 
   /// empty vector
   DVector() {}
@@ -112,9 +112,9 @@ public:
       push_back(x);
   }
 
-  /// conversion from Eigen matrix
+  /// conversion from eeigen matrix
   template <class AnotherType>
-  explicit DVector(const Eigen::Matrix<AnotherType, Eigen::Dynamic, Eigen::Dynamic> &a)
+  explicit DVector(const eeigen::Matrix<AnotherType, eeigen::Dynamic, eeigen::Dynamic> &a)
   {
     assert(a.cols() == 1);
     const size_t n = a.rows()*a.cols();
@@ -122,10 +122,10 @@ public:
     std::copy(a.data(), a.data()+n, pointer());
   }
 
-  /// conversion from Eigen map
+  /// conversion from eeigen map
   template <class AnotherType>
-  explicit DVector(const Eigen::Map<const Eigen::Matrix<AnotherType,
-                   Eigen::Dynamic, Eigen::Dynamic> > &a)
+  explicit DVector(const eeigen::Map<const eeigen::Matrix<AnotherType,
+                   eeigen::Dynamic, eeigen::Dynamic> > &a)
   {
     assert(a.cols() == 1);
     const size_t n = a.rows()*a.cols();
@@ -325,22 +325,22 @@ public:
   /// swap contents with other array
   void swap(DVector<Type> & v) {data.swap(v.data);}
 
-  /// create a mutable map object for interfacing with Eigen (column vector)
+  /// create a mutable map object for interfacing with eeigen (column vector)
   EigenMap mmap() {
     return EigenMap(pointer(), size(), 1);
   }
 
-  /// create a mutable map object for interfacing with Eigen (row vector)
+  /// create a mutable map object for interfacing with eeigen (row vector)
   EigenMap rmmap() {
     return EigenMap(pointer(), 1, size());
   }
 
-  /// create a constant map object for interfacing with Eigen (column vector)
+  /// create a constant map object for interfacing with eeigen (column vector)
   ConstEigenMap cmap() const {
     return ConstEigenMap(pointer(), size(), 1);
   }
 
-  /// create a constant map object for interfacing with Eigen (row vector)
+  /// create a constant map object for interfacing with eeigen (row vector)
   ConstEigenMap rcmap() const {
     return ConstEigenMap(pointer(), 1, size());
   }

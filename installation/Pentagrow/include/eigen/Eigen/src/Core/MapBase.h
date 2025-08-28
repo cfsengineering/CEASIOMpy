@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2007-2010 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -15,7 +15,7 @@
       EIGEN_STATIC_ASSERT((int(internal::evaluator<Derived>::Flags) & LinearAccessBit) || Derived::IsVectorAtCompileTime, \
                           YOU_ARE_TRYING_TO_USE_AN_INDEX_BASED_ACCESSOR_ON_AN_EXPRESSION_THAT_DOES_NOT_SUPPORT_THAT)
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \ingroup Core_Module
   *
@@ -26,7 +26,7 @@ namespace Eigen {
   * Typical users do not have to directly deal with this class.
   *
   * This class can be extended by through the macro plugin \c EIGEN_MAPBASE_PLUGIN.
-  * See \link TopicCustomizing_Plugins customizing Eigen \endlink for details.
+  * See \link TopicCustomizing_Plugins customizing eeigen \endlink for details.
   *
   * The \c Derived class has to provide the following two methods describing the memory layout:
   *  \code Index innerStride() const; \endcode
@@ -298,6 +298,6 @@ template<typename Derived> class MapBase<Derived, WriteAccessors>
 
 #undef EIGEN_STATIC_ASSERT_INDEX_BASED_ACCESS
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_MAPBASE_H

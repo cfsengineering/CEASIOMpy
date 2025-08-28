@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010 Manuel Yguel <manuel.yguel@gmail.com>
@@ -11,10 +11,10 @@
 #define EIGEN_COMPANION_H
 
 // This file requires the user to include
-// * Eigen/Core
-// * Eigen/src/PolynomialSolver.h
+// * eeigen/Core
+// * eeigen/src/PolynomialSolver.h
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -271,6 +271,6 @@ void companion<_Scalar,_Deg>::balance()
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_COMPANION_H

@@ -16,7 +16,7 @@ endif()
 set_property(GLOBAL PROPERTY EIGEN_CURRENT_SUBPROJECT "Unsupported")
 add_custom_target(BuildUnsupported)
 
-include_directories(../../test ../../unsupported ../../Eigen
+include_directories(../../test ../../unsupported ../../eeigen
                     ${CMAKE_CURRENT_BINARY_DIR}/../../test)
 
 find_package (Threads)

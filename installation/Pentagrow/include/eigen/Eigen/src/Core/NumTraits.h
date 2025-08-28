@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2010 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_NUMTRAITS_H
 #define EIGEN_NUMTRAITS_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -46,7 +46,7 @@ struct default_digits10_impl<T,false,true> // Integer
 /** \class NumTraits
   * \ingroup Core_Module
   *
-  * \brief Holds information about the various numeric (i.e. scalar) types allowed by Eigen.
+  * \brief Holds information about the various numeric (i.e. scalar) types allowed by eeigen.
   *
   * \tparam T the numeric type at hand
   *
@@ -58,8 +58,8 @@ struct default_digits10_impl<T,false,true> // Integer
   *     is a typedef to \a U.
   * \li A typedef \c NonInteger, giving the type that should be used for operations producing non-integral values,
   *     such as quotients, square roots, etc. If \a T is a floating-point type, then this typedef just gives
-  *     \a T again. Note however that many Eigen functions such as internal::sqrt simply refuse to
-  *     take integers. Outside of a few cases, Eigen doesn't do automatic type promotion. Thus, this typedef is
+  *     \a T again. Note however that many eeigen functions such as internal::sqrt simply refuse to
+  *     take integers. Outside of a few cases, eeigen doesn't do automatic type promotion. Thus, this typedef is
   *     only intended as a helper for code that needs to explicitly promote types.
   * \li A typedef \c Literal giving the type to use for numeric literals such as "2" or "0.5". For instance, for \c std::complex<U>, Literal is defined as \c U.
   *     Of course, this type must be fully compatible with \a T. In doubt, just use \a T here.
@@ -243,6 +243,6 @@ private:
 // Empty specialization for void to allow template specialization based on NumTraits<T>::Real with T==void and SFINAE.
 template<> struct NumTraits<void> {};
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_NUMTRAITS_H

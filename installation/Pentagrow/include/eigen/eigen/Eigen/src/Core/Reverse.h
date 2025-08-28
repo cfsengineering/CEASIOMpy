@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -12,7 +12,7 @@
 #ifndef EIGEN_REVERSE_H
 #define EIGEN_REVERSE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -206,6 +206,6 @@ void VectorwiseOp<ExpressionType,Direction>::reverseInPlace()
   internal::vectorwise_reverse_inplace_impl<Direction>::run(_expression().const_cast_derived());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_REVERSE_H

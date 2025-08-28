@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -22,7 +22,7 @@
   #define EIGEN_EMPTY_STRUCT_CTOR(X)
 #endif
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -424,7 +424,7 @@ struct transfer_constness
 // has to be evaluated into a temporary.
 // That's the purpose of this new nested_eval helper:
 /** \internal Determines how a given expression should be nested when evaluated multiple times.
-  * For example, when you do a * (b+c), Eigen will determine how the expression b+c should be
+  * For example, when you do a * (b+c), eeigen will determine how the expression b+c should be
   * evaluated into the bigger product expression. The choice is between nesting the expression b+c as-is, or
   * evaluating that expression b+c into a temporary variable d, and nest d so that the resulting expression is
   * a*d. Evaluating can be beneficial for example if every coefficient access in the resulting expression causes
@@ -734,7 +734,7 @@ std::string demangle_flags(int f)
   * This class permits to control the scalar return type of any binary operation performed on two different scalar types through (partial) template specializations.
   *
   * For instance, let \c U1, \c U2 and \c U3 be three user defined scalar types for which most operations between instances of \c U1 and \c U2 returns an \c U3.
-  * You can let %Eigen knows that by defining:
+  * You can let %eeigen knows that by defining:
     \code
     template<typename BinaryOp>
     struct ScalarBinaryOpTraits<U1,U2,BinaryOp> { typedef U3 ReturnType;  };
@@ -813,9 +813,9 @@ struct ScalarBinaryOpTraits<void,void,BinaryOp>
 // So allowing mixing different types gives very unexpected errors when enabling vectorization, when the user tries to
 // add together a float matrix and a double matrix.
 #define EIGEN_CHECK_BINARY_COMPATIBILIY(BINOP,LHS,RHS) \
-  EIGEN_STATIC_ASSERT((Eigen::internal::has_ReturnType<ScalarBinaryOpTraits<LHS, RHS,BINOP> >::value), \
+  EIGEN_STATIC_ASSERT((eeigen::internal::has_ReturnType<ScalarBinaryOpTraits<LHS, RHS,BINOP> >::value), \
     YOU_MIXED_DIFFERENT_NUMERIC_TYPES__YOU_NEED_TO_USE_THE_CAST_METHOD_OF_MATRIXBASE_TO_CAST_NUMERIC_TYPES_EXPLICITLY)
     
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_XPRHELPER_H

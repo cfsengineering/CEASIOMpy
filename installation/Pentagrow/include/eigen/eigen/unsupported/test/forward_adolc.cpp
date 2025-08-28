@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <g.gael@free.fr>
@@ -8,10 +8,10 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "main.h"
-#include <Eigen/Dense>
+#include <eeigen/Dense>
 
 #define NUMBER_DIRECTIONS 16
-#include <unsupported/Eigen/AdolcForward>
+#include <unsupported/eeigen/AdolcForward>
 
 template<typename Vector>
 EIGEN_DONT_INLINE typename Vector::Scalar foo(const Vector& p)

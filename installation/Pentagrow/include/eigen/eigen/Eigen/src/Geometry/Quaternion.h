@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 
 #ifndef EIGEN_QUATERNION_H
 #define EIGEN_QUATERNION_H
-namespace Eigen { 
+namespace eeigen { 
 
 
 /***************************************************************************
@@ -49,7 +49,7 @@ class QuaternionBase : public RotationBase<Derived, 3>
 
 
   enum {
-    Flags = Eigen::internal::traits<Derived>::Flags
+    Flags = eeigen::internal::traits<Derived>::Flags
   };
 
  // typedef typename Matrix<Scalar,4,1> Coefficients;
@@ -340,7 +340,7 @@ namespace internal {
   * \tparam _Options see class Map
   *
   * This is a specialization of class Map for Quaternion. This class allows to view
-  * a 4 scalar memory buffer as an Eigen's Quaternion object.
+  * a 4 scalar memory buffer as an eeigen's Quaternion object.
   *
   * \sa class Map, class Quaternion, class QuaternionBase
   */
@@ -377,7 +377,7 @@ class Map<const Quaternion<_Scalar>, _Options >
   * \tparam _Options see class Map
   *
   * This is a specialization of class Map for Quaternion. This class allows to view
-  * a 4 scalar memory buffer as an Eigen's  Quaternion object.
+  * a 4 scalar memory buffer as an eeigen's  Quaternion object.
   *
   * \sa class Map, class Quaternion, class QuaternionBase
   */
@@ -809,6 +809,6 @@ struct quaternionbase_assign_impl<Other,4,1>
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_QUATERNION_H

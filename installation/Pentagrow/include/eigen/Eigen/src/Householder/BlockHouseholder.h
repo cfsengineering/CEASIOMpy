@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010 Vincent Lejeune
@@ -13,7 +13,7 @@
 
 // This file contains some helper function to deal with block householder reflectors
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
   
@@ -98,6 +98,6 @@ void apply_block_householder_on_the_left(MatrixType& mat, const VectorsType& vec
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_BLOCK_HOUSEHOLDER_H

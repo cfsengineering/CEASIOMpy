@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -9,10 +9,10 @@
 
 #include "main.h"
 
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
-using Eigen::RowMajor;
+using eeigen::Tensor;
+using eeigen::RowMajor;
 
 static void test_tanh()
 {

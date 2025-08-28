@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_TYPE_CASTING_AVX_H
 #define EIGEN_TYPE_CASTING_AVX_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -46,6 +46,6 @@ template<> EIGEN_STRONG_INLINE Packet8f pcast<Packet8i, Packet8f>(const Packet8i
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_TYPE_CASTING_AVX_H

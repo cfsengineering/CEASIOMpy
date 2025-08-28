@@ -27,7 +27,7 @@
 #include "algo.h"
 #include "dvector.h"
 #include "lapack.h"
-#include <Eigen/Core>
+#include <eeigen/Core>
 
 /** Matrix template.
 
@@ -42,7 +42,7 @@
   DMatrix and DVector define arithmetic operators to simplify writing algorithm
   prototypes. Where applicable, operators call LAPACK when available. Many
   functions in the linear algebra domain use eiter LAPACK or interface to the
-  Eigen library when LAPACK is not found.
+  eeigen library when LAPACK is not found.
 
   \ingroup numerics
   \sa DVector, SVector, SMatrix, lu.h, lls.h, eig.h
@@ -60,10 +60,10 @@ public:
   typedef Type & reference;
   typedef const Type & const_reference;
 
-  /// for interfacing with the Eigen library
-  typedef Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic> EigenMatrix;
-  typedef Eigen::Map<EigenMatrix, Eigen::Aligned> EigenMap;
-  typedef Eigen::Map<const EigenMatrix, Eigen::Aligned> ConstEigenMap;
+  /// for interfacing with the eeigen library
+  typedef eeigen::Matrix<Type, eeigen::Dynamic, eeigen::Dynamic> EigenMatrix;
+  typedef eeigen::Map<EigenMatrix, eeigen::Aligned> EigenMap;
+  typedef eeigen::Map<const EigenMatrix, eeigen::Aligned> ConstEigenMap;
 
   /// default empty constructor
   DMatrix() : rows(0), cols(0) {}
@@ -83,10 +83,10 @@ public:
     : rows(src.size()), cols(1),
       data(src.begin(), src.end()) {}
 
-  /// conversion from Eigen matrix
+  /// conversion from eeigen matrix
   template <class AnotherType>
-  explicit DMatrix(const Eigen::Matrix<AnotherType,
-                                       Eigen::Dynamic, Eigen::Dynamic> &a)
+  explicit DMatrix(const eeigen::Matrix<AnotherType,
+                                       eeigen::Dynamic, eeigen::Dynamic> &a)
     : rows(a.rows()), cols(a.cols())
   {
     const size_t n = rows*cols;
@@ -95,10 +95,10 @@ public:
       std::copy(a.data(), a.data()+n, data.pointer());
   }
 
-  /// conversion from Eigen map
+  /// conversion from eeigen map
   template <class AnotherType>
-  explicit DMatrix(const Eigen::Map<const Eigen::Matrix<AnotherType,
-                   Eigen::Dynamic, Eigen::Dynamic> > &a)
+  explicit DMatrix(const eeigen::Map<const eeigen::Matrix<AnotherType,
+                   eeigen::Dynamic, eeigen::Dynamic> > &a)
     : rows(a.rows()), cols(a.cols())
   {
     const size_t n = rows*cols;
@@ -353,12 +353,12 @@ public:
   /// release storage
   void clear() {data.clear(); rows = cols = 0;}
 
-  /// create a mutable map object for interfacing with Eigen
+  /// create a mutable map object for interfacing with eeigen
   EigenMap mmap() {
     return EigenMap(pointer(), nrows(), ncols());
   }
 
-  /// create a mutable map object for interfacing with Eigen
+  /// create a mutable map object for interfacing with eeigen
   ConstEigenMap cmap() const {
     return ConstEigenMap(pointer(), nrows(), ncols());
   }

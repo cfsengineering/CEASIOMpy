@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SUPERLUSUPPORT_H
 #define EIGEN_SUPERLUSUPPORT_H
 
-namespace Eigen {
+namespace eeigen {
 
 #if defined(SUPERLU_MAJOR_VERSION) && (SUPERLU_MAJOR_VERSION >= 5)
 #define DECL_GSSVX(PREFIX,FLOATTYPE,KEYTYPE)		\
@@ -293,7 +293,7 @@ SluMatrix asSluMatrix(MatrixType& mat)
   return SluMatrix::Map(mat);
 }
 
-/** View a Super LU matrix as an Eigen expression */
+/** View a Super LU matrix as an eeigen expression */
 template<typename Scalar, int Flags, typename Index>
 MappedSparseMatrix<Scalar,Flags,Index> map_superlu(SluMatrix& sluMat)
 {
@@ -1022,6 +1022,6 @@ void SuperILU<MatrixType>::_solve_impl(const MatrixBase<Rhs> &b, MatrixBase<Dest
 
 #endif
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SUPERLUSUPPORT_H

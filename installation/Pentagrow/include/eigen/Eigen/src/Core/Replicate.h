@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_REPLICATE_H
 #define EIGEN_REPLICATE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 template<typename MatrixType,int RowFactor,int ColFactor>
@@ -137,6 +137,6 @@ VectorwiseOp<ExpressionType,Direction>::replicate(Index factor) const
           (_expression(),Direction==Vertical?factor:1,Direction==Horizontal?factor:1);
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_REPLICATE_H

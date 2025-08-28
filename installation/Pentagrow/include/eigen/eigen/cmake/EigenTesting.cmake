@@ -356,7 +356,7 @@ endmacro(ei_add_failtest)
 # print a summary of the different options
 macro(ei_testing_print_summary)
   message(STATUS "************************************************************")
-  message(STATUS "***    Eigen's unit tests configuration summary          ***")
+  message(STATUS "***    eeigen's unit tests configuration summary          ***")
   message(STATUS "************************************************************")
   message(STATUS "")
   message(STATUS "Build type:        ${CMAKE_BUILD_TYPE}")

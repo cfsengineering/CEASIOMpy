@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_ANGLEAXIS_H
 #define EIGEN_ANGLEAXIS_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \geometry_module \ingroup Geometry_Module
   *
@@ -242,6 +242,6 @@ EIGEN_DEVICE_FUNC AngleAxis<Scalar>::toRotationMatrix(void) const
   return res;
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_ANGLEAXIS_H

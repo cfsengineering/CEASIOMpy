@@ -39,7 +39,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CTestCustom.cmake.in ${CMAKE_BINARY_D
 # some documentation of this function would be nice
 ei_init_testing()
 
-# configure Eigen related testing options
+# configure eeigen related testing options
 option(EIGEN_NO_ASSERTION_CHECKING "Disable checking of assertions using exceptions" OFF)
 option(EIGEN_DEBUG_ASSERTS "Enable advanced debuging of assertions" OFF)
 

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_MAP_H
 #define EIGEN_CXX11_TENSOR_TENSOR_MAP_H
 
-namespace Eigen {
+namespace eeigen {
 
 // FIXME use proper doxygen documentation (e.g. \tparam MakePointer_)
 
@@ -31,7 +31,7 @@ template<typename PlainObjectType, int Options_, template <class> class MakePoin
   public:
     typedef TensorMap<PlainObjectType, Options_, MakePointer_> Self;
     typedef typename PlainObjectType::Base Base;
-    typedef typename Eigen::internal::nested<Self>::type Nested;
+    typedef typename eeigen::internal::nested<Self>::type Nested;
     typedef typename internal::traits<PlainObjectType>::StorageKind StorageKind;
     typedef typename internal::traits<PlainObjectType>::Index Index;
     typedef typename internal::traits<PlainObjectType>::Scalar Scalar;
@@ -318,6 +318,6 @@ template<typename PlainObjectType, int Options_, template <class> class MakePoin
     Dimensions m_dimensions;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_MAP_H

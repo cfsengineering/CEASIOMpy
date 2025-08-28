@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_IO_H
 #define EIGEN_CXX11_TENSOR_TENSOR_IO_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -22,7 +22,7 @@ struct TensorPrinter {
     typedef typename Tensor::Index Index;
     const Index total_size = internal::array_prod(tensor.dimensions());
     if (total_size > 0) {
-      const Index first_dim = Eigen::internal::array_get<0>(tensor.dimensions());
+      const Index first_dim = eeigen::internal::array_get<0>(tensor.dimensions());
       static const int layout = Tensor::Layout;
       Map<const Array<Scalar, Dynamic, Dynamic, layout> > matrix(const_cast<Scalar*>(tensor.data()), first_dim, total_size/first_dim);
       os << matrix;
@@ -74,6 +74,6 @@ std::ostream& operator << (std::ostream& os, const TensorBase<T, ReadOnlyAccesso
   return os;
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_IO_H

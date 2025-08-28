@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_RANDOMSETTER_H
 #define EIGEN_RANDOMSETTER_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** Represents a std::map
   *
@@ -135,7 +135,7 @@ template<typename Scalar> struct GoogleSparseHashMapTraits
   *
   * For performance and memory consumption reasons it is highly recommended to use one of
   * the Google's hash_map implementation. To enable the support for them, you have two options:
-  *  - \#include <google/dense_hash_map> yourself \b before Eigen/Sparse header
+  *  - \#include <google/dense_hash_map> yourself \b before eeigen/Sparse header
   *  - define EIGEN_GOOGLEHASH_SUPPORT
   * In the later case the inclusion of <google/dense_hash_map> is made for you.
   *
@@ -322,6 +322,6 @@ class RandomSetter
     unsigned char m_keyBitsOffset;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_RANDOMSETTER_H

@@ -1,6 +1,6 @@
-#include <Eigen/Core>
+#include <eeigen/Core>
 #include <iostream>
-using namespace Eigen;
+using namespace eeigen;
 using namespace std;
 
 // define function to be applied coefficient-wise

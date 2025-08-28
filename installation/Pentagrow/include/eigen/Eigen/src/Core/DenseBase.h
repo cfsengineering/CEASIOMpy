@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2007-2010 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_DENSEBASE_H
 #define EIGEN_DENSEBASE_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
   
@@ -29,7 +29,7 @@ static inline void check_DenseIndex_is_signed() {
   * \brief Base class for all dense matrices, vectors, and arrays
   *
   * This class is the base that is inherited by all dense objects (matrix, vector, arrays,
-  * and related expression types). The common Eigen API for dense objects is contained in this class.
+  * and related expression types). The common eeigen API for dense objects is contained in this class.
   *
   * \tparam Derived is the derived type, e.g., a matrix type or an expression.
   *
@@ -50,15 +50,15 @@ template<typename Derived> class DenseBase
     /** Inner iterator type to iterate over the coefficients of a row or column.
       * \sa class InnerIterator
       */
-    typedef Eigen::InnerIterator<Derived> InnerIterator;
+    typedef eeigen::InnerIterator<Derived> InnerIterator;
 
     typedef typename internal::traits<Derived>::StorageKind StorageKind;
 
     /**
       * \brief The type used to store indices
       * \details This typedef is relevant for types that store multiple indices such as
-      *          PermutationMatrix or Transpositions, otherwise it defaults to Eigen::Index
-      * \sa \blank \ref TopicPreprocessorDirectives, Eigen::Index, SparseMatrixBase.
+      *          PermutationMatrix or Transpositions, otherwise it defaults to eeigen::Index
+      * \sa \blank \ref TopicPreprocessorDirectives, eeigen::Index, SparseMatrixBase.
      */
     typedef typename internal::traits<Derived>::StorageIndex StorageIndex;
 
@@ -567,7 +567,7 @@ template<typename Derived> class DenseBase
     }
     EIGEN_DEVICE_FUNC void reverseInPlace();
 
-#define EIGEN_CURRENT_STORAGE_BASE_CLASS Eigen::DenseBase
+#define EIGEN_CURRENT_STORAGE_BASE_CLASS eeigen::DenseBase
 #define EIGEN_DOC_BLOCK_ADDONS_NOT_INNER_PANEL
 #define EIGEN_DOC_BLOCK_ADDONS_INNER_PANEL_IF(COND)
 #   include "../plugins/BlockMethods.h"
@@ -591,7 +591,7 @@ template<typename Derived> class DenseBase
     EIGEN_DEVICE_FUNC DenseBase()
     {
       /* Just checks for self-consistency of the flags.
-       * Only do it when debugging Eigen, as this borders on paranoiac and could slow compilation down
+       * Only do it when debugging eeigen, as this borders on paranoiac and could slow compilation down
        */
 #ifdef EIGEN_INTERNAL_DEBUGGING
       EIGEN_STATIC_ASSERT((EIGEN_IMPLIES(MaxRowsAtCompileTime==1 && MaxColsAtCompileTime!=1, int(IsRowMajor))
@@ -606,6 +606,6 @@ template<typename Derived> class DenseBase
     template<typename OtherDerived> EIGEN_DEVICE_FUNC explicit DenseBase(const DenseBase<OtherDerived>&);
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_DENSEBASE_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -13,7 +13,7 @@
 
 #include "./Tridiagonalization.h"
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \eigenvalues_module \ingroup Eigenvalues_Module
   *
@@ -221,6 +221,6 @@ compute(const MatrixType& matA, const MatrixType& matB, int options)
   return *this;
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_GENERALIZEDSELFADJOINTEIGENSOLVER_H

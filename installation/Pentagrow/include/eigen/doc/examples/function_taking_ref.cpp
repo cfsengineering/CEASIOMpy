@@ -1,6 +1,6 @@
 #include <iostream>
-#include <Eigen/SVD>
-using namespace Eigen;
+#include <eeigen/SVD>
+using namespace eeigen;
 using namespace std;
 
 float inv_cond(const Ref<const MatrixXf>& a)

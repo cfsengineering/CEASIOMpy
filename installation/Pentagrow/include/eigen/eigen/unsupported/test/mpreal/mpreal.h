@@ -85,7 +85,7 @@
     #define __has_feature(x) 0
 #endif
 
-// Detect support for r-value references (move semantic). Borrowed from Eigen.
+// Detect support for r-value references (move semantic). Borrowed from eeigen.
 #if (__has_feature(cxx_rvalue_references) || \
        defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L || \
       (defined(_MSC_VER) && _MSC_VER >= 1600))
@@ -740,7 +740,7 @@ inline mpreal::~mpreal()
 namespace internal{
 
     // Use SFINAE to restrict arithmetic operations instantiation only for numeric types
-    // This is needed for smooth integration with libraries based on expression templates, like Eigen.
+    // This is needed for smooth integration with libraries based on expression templates, like eeigen.
     // TODO: Do the same for boolean operators.
     template <typename ArgumentType> struct result_type {};
 

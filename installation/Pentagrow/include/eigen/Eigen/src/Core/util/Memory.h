@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -59,7 +59,7 @@
 
 #endif
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -540,7 +540,7 @@ template<typename T> struct smart_memmove_helper<T,false> {
 *** Implementation of runtime stack allocation (falling back to malloc)    ***
 *****************************************************************************/
 
-// you can overwrite Eigen's default behavior regarding alloca by defining EIGEN_ALLOCA
+// you can overwrite eeigen's default behavior regarding alloca by defining EIGEN_ALLOCA
 // to the appropriate stack allocation function
 #ifndef EIGEN_ALLOCA
   #if EIGEN_OS_LINUX || EIGEN_OS_MAC || (defined alloca)
@@ -565,14 +565,14 @@ template<typename T> class aligned_stack_memory_handler : noncopyable
       : m_ptr(ptr), m_size(size), m_deallocate(dealloc)
     {
       if(NumTraits<T>::RequireInitialization && m_ptr)
-        Eigen::internal::construct_elements_of_array(m_ptr, size);
+        eeigen::internal::construct_elements_of_array(m_ptr, size);
     }
     ~aligned_stack_memory_handler()
     {
       if(NumTraits<T>::RequireInitialization && m_ptr)
-        Eigen::internal::destruct_elements_of_array<T>(m_ptr, m_size);
+        eeigen::internal::destruct_elements_of_array<T>(m_ptr, m_size);
       if(m_deallocate)
-        Eigen::internal::aligned_free(m_ptr);
+        eeigen::internal::aligned_free(m_ptr);
     }
   protected:
     T* m_ptr;
@@ -632,19 +632,19 @@ template<typename T> void swap(scoped_array<T> &a,scoped_array<T> &b)
   #endif
 
   #define ei_declare_aligned_stack_constructed_variable(TYPE,NAME,SIZE,BUFFER) \
-    Eigen::internal::check_size_for_overflow<TYPE>(SIZE); \
+    eeigen::internal::check_size_for_overflow<TYPE>(SIZE); \
     TYPE* NAME = (BUFFER)!=0 ? (BUFFER) \
                : reinterpret_cast<TYPE*>( \
                       (sizeof(TYPE)*SIZE<=EIGEN_STACK_ALLOCATION_LIMIT) ? EIGEN_ALIGNED_ALLOCA(sizeof(TYPE)*SIZE) \
-                    : Eigen::internal::aligned_malloc(sizeof(TYPE)*SIZE) );  \
-    Eigen::internal::aligned_stack_memory_handler<TYPE> EIGEN_CAT(NAME,_stack_memory_destructor)((BUFFER)==0 ? NAME : 0,SIZE,sizeof(TYPE)*SIZE>EIGEN_STACK_ALLOCATION_LIMIT)
+                    : eeigen::internal::aligned_malloc(sizeof(TYPE)*SIZE) );  \
+    eeigen::internal::aligned_stack_memory_handler<TYPE> EIGEN_CAT(NAME,_stack_memory_destructor)((BUFFER)==0 ? NAME : 0,SIZE,sizeof(TYPE)*SIZE>EIGEN_STACK_ALLOCATION_LIMIT)
 
 #else
 
   #define ei_declare_aligned_stack_constructed_variable(TYPE,NAME,SIZE,BUFFER) \
-    Eigen::internal::check_size_for_overflow<TYPE>(SIZE); \
-    TYPE* NAME = (BUFFER)!=0 ? BUFFER : reinterpret_cast<TYPE*>(Eigen::internal::aligned_malloc(sizeof(TYPE)*SIZE));    \
-    Eigen::internal::aligned_stack_memory_handler<TYPE> EIGEN_CAT(NAME,_stack_memory_destructor)((BUFFER)==0 ? NAME : 0,SIZE,true)
+    eeigen::internal::check_size_for_overflow<TYPE>(SIZE); \
+    TYPE* NAME = (BUFFER)!=0 ? BUFFER : reinterpret_cast<TYPE*>(eeigen::internal::aligned_malloc(sizeof(TYPE)*SIZE));    \
+    eeigen::internal::aligned_stack_memory_handler<TYPE> EIGEN_CAT(NAME,_stack_memory_destructor)((BUFFER)==0 ? NAME : 0,SIZE,true)
     
 #endif
 
@@ -656,20 +656,20 @@ template<typename T> void swap(scoped_array<T> &a,scoped_array<T> &b)
 #if EIGEN_MAX_ALIGN_BYTES!=0
   #define EIGEN_MAKE_ALIGNED_OPERATOR_NEW_NOTHROW(NeedsToAlign) \
       void* operator new(std::size_t size, const std::nothrow_t&) EIGEN_NO_THROW { \
-        EIGEN_TRY { return Eigen::internal::conditional_aligned_malloc<NeedsToAlign>(size); } \
+        EIGEN_TRY { return eeigen::internal::conditional_aligned_malloc<NeedsToAlign>(size); } \
         EIGEN_CATCH (...) { return 0; } \
       }
   #define EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(NeedsToAlign) \
       void *operator new(std::size_t size) { \
-        return Eigen::internal::conditional_aligned_malloc<NeedsToAlign>(size); \
+        return eeigen::internal::conditional_aligned_malloc<NeedsToAlign>(size); \
       } \
       void *operator new[](std::size_t size) { \
-        return Eigen::internal::conditional_aligned_malloc<NeedsToAlign>(size); \
+        return eeigen::internal::conditional_aligned_malloc<NeedsToAlign>(size); \
       } \
-      void operator delete(void * ptr) EIGEN_NO_THROW { Eigen::internal::conditional_aligned_free<NeedsToAlign>(ptr); } \
-      void operator delete[](void * ptr) EIGEN_NO_THROW { Eigen::internal::conditional_aligned_free<NeedsToAlign>(ptr); } \
-      void operator delete(void * ptr, std::size_t /* sz */) EIGEN_NO_THROW { Eigen::internal::conditional_aligned_free<NeedsToAlign>(ptr); } \
-      void operator delete[](void * ptr, std::size_t /* sz */) EIGEN_NO_THROW { Eigen::internal::conditional_aligned_free<NeedsToAlign>(ptr); } \
+      void operator delete(void * ptr) EIGEN_NO_THROW { eeigen::internal::conditional_aligned_free<NeedsToAlign>(ptr); } \
+      void operator delete[](void * ptr) EIGEN_NO_THROW { eeigen::internal::conditional_aligned_free<NeedsToAlign>(ptr); } \
+      void operator delete(void * ptr, std::size_t /* sz */) EIGEN_NO_THROW { eeigen::internal::conditional_aligned_free<NeedsToAlign>(ptr); } \
+      void operator delete[](void * ptr, std::size_t /* sz */) EIGEN_NO_THROW { eeigen::internal::conditional_aligned_free<NeedsToAlign>(ptr); } \
       /* in-place new and delete. since (at least afaik) there is no actual   */ \
       /* memory allocated we can safely let the default implementation handle */ \
       /* this particular case. */ \
@@ -680,7 +680,7 @@ template<typename T> void swap(scoped_array<T> &a,scoped_array<T> &b)
       /* nothrow-new (returns zero instead of std::bad_alloc) */ \
       EIGEN_MAKE_ALIGNED_OPERATOR_NEW_NOTHROW(NeedsToAlign) \
       void operator delete(void *ptr, const std::nothrow_t&) EIGEN_NO_THROW { \
-        Eigen::internal::conditional_aligned_free<NeedsToAlign>(ptr); \
+        eeigen::internal::conditional_aligned_free<NeedsToAlign>(ptr); \
       } \
       typedef void eigen_aligned_operator_new_marker_type;
 #else
@@ -689,7 +689,7 @@ template<typename T> void swap(scoped_array<T> &a,scoped_array<T> &b)
 
 #define EIGEN_MAKE_ALIGNED_OPERATOR_NEW EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(true)
 #define EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF_VECTORIZABLE_FIXED_SIZE(Scalar,Size) \
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(bool(((Size)!=Eigen::Dynamic) && ((sizeof(Scalar)*(Size))%EIGEN_MAX_ALIGN_BYTES==0)))
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(bool(((Size)!=eeigen::Dynamic) && ((sizeof(Scalar)*(Size))%EIGEN_MAX_ALIGN_BYTES==0)))
 
 /****************************************************************************/
 
@@ -711,7 +711,7 @@ template<typename T> void swap(scoped_array<T> &a,scoped_array<T> &b)
 * // Matrix4f requires 16 bytes alignment:
 * std::map< int, Matrix4f, std::less<int>, 
 *           aligned_allocator<std::pair<const int, Matrix4f> > > my_map_mat4;
-* // Vector3f does not require 16 bytes alignment, no need to use Eigen's allocator:
+* // Vector3f does not require 16 bytes alignment, no need to use eeigen's allocator:
 * std::map< int, Vector3f > my_map_vec3;
 * \endcode
 *
@@ -750,7 +750,7 @@ public:
     size_type size = num * sizeof(T);
 #if EIGEN_COMP_GNUC_STRICT && EIGEN_GNUC_AT_LEAST(7,0)
     // workaround gcc bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=87544
-    // It triggered eigen/Eigen/src/Core/util/Memory.h:189:12: warning: argument 1 value '18446744073709551612' exceeds maximum object size 9223372036854775807
+    // It triggered eigen/eeigen/src/Core/util/Memory.h:189:12: warning: argument 1 value '18446744073709551612' exceeds maximum object size 9223372036854775807
     if(size>=std::size_t((std::numeric_limits<std::ptrdiff_t>::max)()))
       return 0;
     else
@@ -988,6 +988,6 @@ inline int queryTopLevelCacheSize()
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_MEMORY_H

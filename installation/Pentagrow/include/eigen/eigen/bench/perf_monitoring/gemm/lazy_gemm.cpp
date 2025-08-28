@@ -1,9 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <Eigen/Core>
+#include <eeigen/Core>
 #include "../../BenchTimer.h"
-using namespace Eigen;
+using namespace eeigen;
 
 #ifndef SCALAR
 #error SCALAR must be defined

@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ********************************************************************************
- *   Content : Eigen bindings to BLAS F77
+ *   Content : eeigen bindings to BLAS F77
  *   Triangular matrix * matrix product functionality based on ?TRMM.
  ********************************************************************************
 */
@@ -33,7 +33,7 @@
 #ifndef EIGEN_TRIANGULAR_SOLVER_MATRIX_BLAS_H
 #define EIGEN_TRIANGULAR_SOLVER_MATRIX_BLAS_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -158,6 +158,6 @@ EIGEN_BLAS_TRSM_R(scomplex, float,  ctrsm_)
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_TRIANGULAR_SOLVER_MATRIX_BLAS_H

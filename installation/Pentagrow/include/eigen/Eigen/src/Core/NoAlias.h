@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_NOALIAS_H
 #define EIGEN_NOALIAS_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class NoAlias
   * \ingroup Core_Module
@@ -100,9 +100,9 @@ class NoAlias
 template<typename Derived>
 NoAlias<Derived,MatrixBase> MatrixBase<Derived>::noalias()
 {
-  return NoAlias<Derived, Eigen::MatrixBase >(derived());
+  return NoAlias<Derived, eeigen::MatrixBase >(derived());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_NOALIAS_H

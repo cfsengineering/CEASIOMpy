@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #include "trackball.h"
 #include "camera.h"
 
-using namespace Eigen;
+using namespace eeigen;
 
 void Trackball::track(const Vector2i& point2D)
 {

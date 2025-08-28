@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Benoit Jacob <benoitjacob@google.com>
@@ -19,7 +19,7 @@
 #include <cstring>
 #include <memory>
 
-#include <Eigen/Core>
+#include <eeigen/Core>
 
 using namespace std;
 

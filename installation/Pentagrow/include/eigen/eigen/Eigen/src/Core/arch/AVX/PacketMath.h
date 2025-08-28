@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner (benoit.steiner.goog@gmail.com)
@@ -10,7 +10,7 @@
 #ifndef EIGEN_PACKET_MATH_AVX_H
 #define EIGEN_PACKET_MATH_AVX_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -632,6 +632,6 @@ template<> EIGEN_STRONG_INLINE Packet4d pinsertlast(const Packet4d& a, double b)
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_PACKET_MATH_AVX_H

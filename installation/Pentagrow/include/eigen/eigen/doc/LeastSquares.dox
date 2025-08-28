@@ -1,8 +1,8 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \eigenManualPage LeastSquares Solving linear least squares systems
 
-This page describes how to solve linear least squares systems using %Eigen. An overdetermined system
+This page describes how to solve linear least squares systems using %eeigen. An overdetermined system
 of equations, say \a Ax = \a b, has no solutions. In this case, it makes sense to search for the
 vector \a x which is closest to being a solution, in the sense that the difference \a Ax - \a b is
 as small as possible. This \a x is called the least square solution (if the Euclidean norm is used).

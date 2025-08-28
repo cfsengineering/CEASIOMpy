@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPARSEDENSEPRODUCT_H
 #define EIGEN_SPARSEDENSEPRODUCT_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -37,8 +37,8 @@ struct sparse_time_dense_product_impl<SparseLhsType,DenseRhsType,DenseResType, t
     
     Index n = lhs.outerSize();
 #ifdef EIGEN_HAS_OPENMP
-    Eigen::initParallel();
-    Index threads = Eigen::nbThreads();
+    eeigen::initParallel();
+    Index threads = eeigen::nbThreads();
 #endif
     
     for(Index c=0; c<rhs.cols(); ++c)
@@ -315,6 +315,6 @@ struct product_evaluator<Product<Lhs, Rhs, DefaultProduct>, OuterProduct, DenseS
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSEDENSEPRODUCT_H

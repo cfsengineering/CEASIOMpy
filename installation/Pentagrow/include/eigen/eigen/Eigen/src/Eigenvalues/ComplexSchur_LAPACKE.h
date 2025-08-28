@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ********************************************************************************
- *   Content : Eigen bindings to LAPACKe
+ *   Content : eeigen bindings to LAPACKe
  *    Complex Schur needed to complex unsymmetrical eigenvalues/eigenvectors.
  ********************************************************************************
 */
@@ -33,7 +33,7 @@
 #ifndef EIGEN_COMPLEX_SCHUR_LAPACKE_H
 #define EIGEN_COMPLEX_SCHUR_LAPACKE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \internal Specialization for the data types supported by LAPACKe */
 
@@ -86,6 +86,6 @@ EIGEN_LAPACKE_SCHUR_COMPLEX(scomplex, lapack_complex_float,  c, C, ColMajor, LAP
 EIGEN_LAPACKE_SCHUR_COMPLEX(dcomplex, lapack_complex_double, z, Z, RowMajor, LAPACK_ROW_MAJOR)
 EIGEN_LAPACKE_SCHUR_COMPLEX(scomplex, lapack_complex_float,  c, C, RowMajor, LAPACK_ROW_MAJOR)
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_COMPLEX_SCHUR_LAPACKE_H

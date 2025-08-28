@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,13 +10,13 @@
 #ifndef EIGEN_BASIC_PRECONDITIONERS_H
 #define EIGEN_BASIC_PRECONDITIONERS_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \ingroup IterativeLinearSolvers_Module
   * \brief A preconditioner based on the digonal entries
   *
   * This class allows to approximately solve for A.x = b problems assuming A is a diagonal matrix.
-  * In other words, this preconditioner neglects all off diagonal entries and, in Eigen's language, solves for:
+  * In other words, this preconditioner neglects all off diagonal entries and, in eeigen's language, solves for:
     \code
     A.diagonal().asDiagonal() . x = b
     \endcode
@@ -111,7 +111,7 @@ class DiagonalPreconditioner
   * \brief Jacobi preconditioner for LeastSquaresConjugateGradient
   *
   * This class allows to approximately solve for A' A x  = A' b problems assuming A' A is a diagonal matrix.
-  * In other words, this preconditioner neglects all off diagonal entries and, in Eigen's language, solves for:
+  * In other words, this preconditioner neglects all off diagonal entries and, in eeigen's language, solves for:
     \code
     (A.adjoint() * A).diagonal().asDiagonal() * x = b
     \endcode
@@ -221,6 +221,6 @@ class IdentityPreconditioner
     ComputationInfo info() { return Success; }
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_BASIC_PRECONDITIONERS_H

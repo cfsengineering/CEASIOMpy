@@ -1,7 +1,7 @@
-#include <Eigen/Core>
+#include <eeigen/Core>
 #include <iostream>
 
-using namespace Eigen;
+using namespace eeigen;
 
 int main()
 {

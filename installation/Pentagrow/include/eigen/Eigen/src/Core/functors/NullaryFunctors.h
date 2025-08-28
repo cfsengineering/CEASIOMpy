@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2016 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_NULLARY_FUNCTORS_H
 #define EIGEN_NULLARY_FUNCTORS_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -183,6 +183,6 @@ struct has_binary_operator<scalar_random_op<Scalar>,IndexType> { enum { value = 
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_NULLARY_FUNCTORS_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_SPARSE_TRIANGULARVIEW_H
 #define EIGEN_SPARSE_TRIANGULARVIEW_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \ingroup SparseCore_Module
   *
@@ -184,6 +184,6 @@ SparseMatrixBase<Derived>::triangularView() const
   return TriangularView<const Derived, Mode>(derived());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSE_TRIANGULARVIEW_H

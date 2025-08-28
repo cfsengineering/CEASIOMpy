@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_RANDOM_H
 #define EIGEN_RANDOM_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -177,6 +177,6 @@ PlainObjectBase<Derived>::setRandom(Index rows, Index cols)
   return setRandom();
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_RANDOM_H

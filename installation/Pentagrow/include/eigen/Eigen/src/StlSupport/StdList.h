@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Hauke Heibel <hauke.heibel@googlemail.com>
@@ -71,10 +71,10 @@ namespace std
   template<typename T>
   class list<T,EIGEN_ALIGNED_ALLOCATOR<T> >
     : public list<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T),
-                  Eigen::aligned_allocator_indirection<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T)> >
+                  eeigen::aligned_allocator_indirection<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T)> >
   {
     typedef list<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T),
-                 Eigen::aligned_allocator_indirection<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T)> > list_base;
+                 eeigen::aligned_allocator_indirection<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T)> > list_base;
     EIGEN_STD_LIST_SPECIALIZATION_BODY
 
     void resize(size_type new_size)

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -12,7 +12,7 @@
 #ifndef EIGEN_ASSIGN_EVALUATOR_H
 #define EIGEN_ASSIGN_EVALUATOR_H
 
-namespace Eigen {
+namespace eeigen {
 
 // This implementation is based on Assign.h
 
@@ -930,6 +930,6 @@ struct Assignment<DstXprType, SrcXprType, Functor, EigenBase2EigenBase, Weak>
 
 } // namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_ASSIGN_EVALUATOR_H

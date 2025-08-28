@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2016 Konstantinos Margaritis <markos@freevec.org>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_PACKET_MATH_ALTIVEC_H
 #define EIGEN_PACKET_MATH_ALTIVEC_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -26,7 +26,7 @@ namespace internal {
 #define EIGEN_HAS_SINGLE_INSTRUCTION_CJMADD
 #endif
 
-// NOTE Altivec has 32 registers, but Eigen only accepts a value of 8 or 16
+// NOTE Altivec has 32 registers, but eeigen only accepts a value of 8 or 16
 #ifndef EIGEN_ARCH_DEFAULT_NUMBER_OF_REGISTERS
 #define EIGEN_ARCH_DEFAULT_NUMBER_OF_REGISTERS  32
 #endif
@@ -1056,6 +1056,6 @@ template<> EIGEN_STRONG_INLINE Packet2d pblend(const Selector<2>& ifPacket, cons
 #endif // __VSX__
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_PACKET_MATH_ALTIVEC_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016
@@ -18,19 +18,19 @@
 #define EIGEN_USE_SYCL
 
 #include "main.h"
-#include <unsupported/Eigen/CXX11/Tensor>
+#include <unsupported/eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
+using eeigen::Tensor;
 
-void test_forced_eval_sycl(const Eigen::SyclDevice &sycl_device) {
+void test_forced_eval_sycl(const eeigen::SyclDevice &sycl_device) {
 
   int sizeDim1 = 100;
   int sizeDim2 = 200;
   int sizeDim3 = 200;
-  Eigen::array<int, 3> tensorRange = {{sizeDim1, sizeDim2, sizeDim3}};
-  Eigen::Tensor<float, 3> in1(tensorRange);
-  Eigen::Tensor<float, 3> in2(tensorRange);
-  Eigen::Tensor<float, 3> out(tensorRange);
+  eeigen::array<int, 3> tensorRange = {{sizeDim1, sizeDim2, sizeDim3}};
+  eeigen::Tensor<float, 3> in1(tensorRange);
+  eeigen::Tensor<float, 3> in2(tensorRange);
+  eeigen::Tensor<float, 3> out(tensorRange);
 
   float * gpu_in1_data  = static_cast<float*>(sycl_device.allocate(in1.dimensions().TotalSize()*sizeof(float)));
   float * gpu_in2_data  = static_cast<float*>(sycl_device.allocate(in2.dimensions().TotalSize()*sizeof(float)));
@@ -40,9 +40,9 @@ void test_forced_eval_sycl(const Eigen::SyclDevice &sycl_device) {
   in2 = in2.random() + in2.constant(10.0f);
 
   // creating TensorMap from tensor
-  Eigen::TensorMap<Eigen::Tensor<float, 3>> gpu_in1(gpu_in1_data, tensorRange);
-  Eigen::TensorMap<Eigen::Tensor<float, 3>> gpu_in2(gpu_in2_data, tensorRange);
-  Eigen::TensorMap<Eigen::Tensor<float, 3>> gpu_out(gpu_out_data, tensorRange);
+  eeigen::TensorMap<eeigen::Tensor<float, 3>> gpu_in1(gpu_in1_data, tensorRange);
+  eeigen::TensorMap<eeigen::Tensor<float, 3>> gpu_in2(gpu_in2_data, tensorRange);
+  eeigen::TensorMap<eeigen::Tensor<float, 3>> gpu_out(gpu_out_data, tensorRange);
   sycl_device.memcpyHostToDevice(gpu_in1_data, in1.data(),(in1.dimensions().TotalSize())*sizeof(float));
   sycl_device.memcpyHostToDevice(gpu_in2_data, in2.data(),(in1.dimensions().TotalSize())*sizeof(float));
   /// c=(a+b)*b
@@ -65,6 +65,6 @@ void test_forced_eval_sycl(const Eigen::SyclDevice &sycl_device) {
 
 void test_cxx11_tensor_forced_eval_sycl() {
   cl::sycl::gpu_selector s;
-  Eigen::SyclDevice sycl_device(s);
+  eeigen::SyclDevice sycl_device(s);
   CALL_SUBTEST(test_forced_eval_sycl(sycl_device));
 }

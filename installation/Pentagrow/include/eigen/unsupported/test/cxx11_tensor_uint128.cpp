@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -9,7 +9,7 @@
 
 #include "main.h"
 
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
 
 #if EIGEN_COMP_MSVC
@@ -21,8 +21,8 @@ typedef __uint128_t uint128_t;
 // Only run the test on compilers that support 128bit integers natively
 #ifndef EIGEN_NO_INT128
 
-using Eigen::internal::TensorUInt128;
-using Eigen::internal::static_val;
+using eeigen::internal::TensorUInt128;
+using eeigen::internal::static_val;
 
 void VERIFY_EQUAL(TensorUInt128<uint64_t, uint64_t> actual, uint128_t expected) {
   bool matchl = actual.lower() == static_cast<uint64_t>(expected);

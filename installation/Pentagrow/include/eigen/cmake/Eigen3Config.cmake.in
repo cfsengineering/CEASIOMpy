@@ -1,4 +1,4 @@
-# This file exports the Eigen3::Eigen CMake target which should be passed to the
+# This file exports the Eigen3::eeigen CMake target which should be passed to the
 # target_link_libraries command.
 
 @PACKAGE_INIT@

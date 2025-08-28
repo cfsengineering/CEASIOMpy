@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -12,7 +12,7 @@
 #ifndef EIGEN_QR_H
 #define EIGEN_QR_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \ingroup QR_Module
   *
@@ -107,7 +107,7 @@ template<typename _MatrixType> class HouseholderQR
     /** \brief Constructs a QR factorization from a given matrix
       *
       * This overloaded constructor is provided for \link InplaceDecomposition inplace decomposition \endlink when
-      * \c MatrixType is a Eigen::Ref.
+      * \c MatrixType is a eeigen::Ref.
       *
       * \sa HouseholderQR(const EigenBase&)
       */
@@ -404,6 +404,6 @@ MatrixBase<Derived>::householderQr() const
   return HouseholderQR<PlainObject>(eval());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_QR_H

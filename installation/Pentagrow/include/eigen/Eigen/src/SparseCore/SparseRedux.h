@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPARSEREDUX_H
 #define EIGEN_SPARSEREDUX_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 template<typename Derived>
 typename internal::traits<Derived>::Scalar
@@ -44,6 +44,6 @@ SparseVector<_Scalar,_Options,_Index>::sum() const
   return Matrix<Scalar,1,Dynamic>::Map(m_data.valuePtr(), m_data.size()).sum();
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSEREDUX_H

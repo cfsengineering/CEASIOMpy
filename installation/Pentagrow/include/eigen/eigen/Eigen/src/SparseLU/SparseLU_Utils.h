@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Désiré Nuentsa-Wakam <desire.nuentsa_wakam@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_SPARSELU_UTILS_H
 #define EIGEN_SPARSELU_UTILS_H
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 
 /**
@@ -76,5 +76,5 @@ void SparseLUImpl<Scalar,StorageIndex>::fixupL(const Index n, const IndexVector&
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 #endif // EIGEN_SPARSELU_UTILS_H

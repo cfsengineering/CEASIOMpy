@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Mark Borgerding mark a borgerding net
@@ -12,11 +12,11 @@
 #include <bench/BenchUtil.h>
 #include <complex>
 #include <vector>
-#include <Eigen/Core>
+#include <eeigen/Core>
 
-#include <unsupported/Eigen/FFT>
+#include <unsupported/eeigen/FFT>
 
-using namespace Eigen;
+using namespace eeigen;
 using namespace std;
 
 
@@ -38,7 +38,7 @@ template <> string nameof<long double>() {return "long double";}
 #define NDATA 1000000
 #endif
 
-using namespace Eigen;
+using namespace eeigen;
 
 template <typename T>
 void bench(int nfft,bool fwd,bool unscaled=false, bool halfspec=false)

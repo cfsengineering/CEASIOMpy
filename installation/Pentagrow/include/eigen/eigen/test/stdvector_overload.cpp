@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -10,8 +10,8 @@
 
 #include "main.h"
 
-#include <Eigen/StdVector>
-#include <Eigen/Geometry>
+#include <eeigen/StdVector>
+#include <eeigen/Geometry>
 
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Vector4f)
 

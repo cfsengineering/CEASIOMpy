@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2009 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_LU_H
 #define EIGEN_LU_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 template<typename _MatrixType> struct traits<FullPivLU<_MatrixType> >
@@ -101,7 +101,7 @@ template<typename _MatrixType> class FullPivLU
 
     /** \brief Constructs a LU factorization from a given matrix
       *
-      * This overloaded constructor is provided for \link InplaceDecomposition inplace decomposition \endlink when \c MatrixType is a Eigen::Ref.
+      * This overloaded constructor is provided for \link InplaceDecomposition inplace decomposition \endlink when \c MatrixType is a eeigen::Ref.
       *
       * \sa FullPivLU(const EigenBase&)
       */
@@ -276,7 +276,7 @@ template<typename _MatrixType> class FullPivLU
       * who need to determine when pivots are to be considered nonzero. This is not used for the
       * LU decomposition itself.
       *
-      * When it needs to get the threshold value, Eigen calls threshold(). By default, this
+      * When it needs to get the threshold value, eeigen calls threshold(). By default, this
       * uses a formula to automatically determine a reasonable threshold.
       * Once you have called the present method setThreshold(const RealScalar&),
       * your value is used instead.
@@ -296,11 +296,11 @@ template<typename _MatrixType> class FullPivLU
       return *this;
     }
 
-    /** Allows to come back to the default behavior, letting Eigen use its default formula for
+    /** Allows to come back to the default behavior, letting eeigen use its default formula for
       * determining the threshold.
       *
-      * You should pass the special object Eigen::Default as parameter here.
-      * \code lu.setThreshold(Eigen::Default); \endcode
+      * You should pass the special object eeigen::Default as parameter here.
+      * \code lu.setThreshold(eeigen::Default); \endcode
       *
       * See the documentation of setThreshold(const RealScalar&).
       */
@@ -886,6 +886,6 @@ MatrixBase<Derived>::fullPivLu() const
   return FullPivLU<PlainObject>(eval());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_LU_H

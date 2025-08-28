@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_IO_H
 #define EIGEN_IO_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 enum { DontAlignCols = 1 };
 enum { StreamPrecision = -1,
@@ -207,8 +207,8 @@ std::ostream & print_matrix(std::ostream & s, const Derived& _m, const IOFormat&
   *
   * If you wish to print the matrix with a format different than the default, use DenseBase::format().
   *
-  * It is also possible to change the default format by defining EIGEN_DEFAULT_IO_FORMAT before including Eigen headers.
-  * If not defined, this will automatically be defined to Eigen::IOFormat(), that is the Eigen::IOFormat with default parameters.
+  * It is also possible to change the default format by defining EIGEN_DEFAULT_IO_FORMAT before including eeigen headers.
+  * If not defined, this will automatically be defined to eeigen::IOFormat(), that is the eeigen::IOFormat with default parameters.
   *
   * \sa DenseBase::format()
   */
@@ -220,6 +220,6 @@ std::ostream & operator <<
   return internal::print_matrix(s, m.eval(), EIGEN_DEFAULT_IO_FORMAT);
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_IO_H

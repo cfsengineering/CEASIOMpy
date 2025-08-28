@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_GENERIC_PACKET_MATH_H
 #define EIGEN_GENERIC_PACKET_MATH_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -520,7 +520,7 @@ inline void palign(PacketType& first, const PacketType& second)
 * Fast complex products (GCC generates a function call which is very slow)
 ***************************************************************************/
 
-// Eigen+CUDA does not support complexes.
+// eeigen+CUDA does not support complexes.
 #ifndef __CUDACC__
 
 template<> inline std::complex<float> pmul(const std::complex<float>& a, const std::complex<float>& b)
@@ -588,6 +588,6 @@ pinsertlast(const Packet& a, typename unpacket_traits<Packet>::type b)
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_GENERIC_PACKET_MATH_H

@@ -1,6 +1,6 @@
-namespace Eigen {
+namespace eeigen {
 
-/** \page TopicEigenExpressionTemplates Expression templates in Eigen
+/** \page TopicEigenExpressionTemplates Expression templates in eeigen
 
 
 TODO: write this dox page!

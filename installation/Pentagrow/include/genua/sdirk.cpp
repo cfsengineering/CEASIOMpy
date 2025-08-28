@@ -109,9 +109,9 @@ void StdSecondOrderSystem::aSolve(Real hg, Real t, const Vector &u,
       m_T.mmap() = m_M.cmap() + hg*m_C.cmap() + sq(hg)*m_K.cmap();
     else
       m_T.mmap() = m_M.cmap() + sq(hg)*m_K.cmap();
-    m_llt.compute(m_T.cmap().selfadjointView<Eigen::Lower>());
+    m_llt.compute(m_T.cmap().selfadjointView<eeigen::Lower>());
     //m_llt.compute(m_T.cmap());
-    assert(m_llt.info() == Eigen::Success);
+    assert(m_llt.info() == eeigen::Success);
     m_hglast = hg;
 
     // debug
@@ -126,5 +126,5 @@ void StdSecondOrderSystem::aSolve(Real hg, Real t, const Vector &u,
 
   a.allocate(u.size());
   a.mmap() = m_llt.solve(m_rhs.cmap());
-  assert(m_llt.info() == Eigen::Success);
+  assert(m_llt.info() == eeigen::Success);
 }

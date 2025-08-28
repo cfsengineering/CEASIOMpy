@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // This Source Code Form is subject to the terms of the Mozilla
@@ -30,7 +30,7 @@
   * Such problems can also be solved using the direct sparse decomposition modules: SparseCholesky, CholmodSupport, UmfPackSupport, SuperLUSupport.
   *
     \code
-    #include <Eigen/IterativeLinearSolvers>
+    #include <eeigen/IterativeLinearSolvers>
     \endcode
   */
 

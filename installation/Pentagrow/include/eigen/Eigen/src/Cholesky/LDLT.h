@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2011 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -13,7 +13,7 @@
 #ifndef EIGEN_LDLT_H
 #define EIGEN_LDLT_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
   template<typename MatrixType, int UpLo> struct LDLT_Traits;
@@ -60,7 +60,7 @@ template<typename _MatrixType, int _UpLo> class LDLT
     };
     typedef typename MatrixType::Scalar Scalar;
     typedef typename NumTraits<typename MatrixType::Scalar>::Real RealScalar;
-    typedef Eigen::Index Index; ///< \deprecated since Eigen 3.3
+    typedef eeigen::Index Index; ///< \deprecated since eeigen 3.3
     typedef typename MatrixType::StorageIndex StorageIndex;
     typedef Matrix<Scalar, RowsAtCompileTime, 1, 0, MaxRowsAtCompileTime, 1> TmpMatrixType;
 
@@ -114,7 +114,7 @@ template<typename _MatrixType, int _UpLo> class LDLT
 
     /** \brief Constructs a LDLT factorization from a given matrix
       *
-      * This overloaded constructor is provided for \link InplaceDecomposition inplace decomposition \endlink when \c MatrixType is a Eigen::Ref.
+      * This overloaded constructor is provided for \link InplaceDecomposition inplace decomposition \endlink when \c MatrixType is a eeigen::Ref.
       *
       * \sa LDLT(const EigenBase&)
       */
@@ -355,7 +355,7 @@ template<> struct ldlt_inplace<Lower>
           A21.noalias() -= A20 * temp.head(k);
       }
 
-      // In some previous versions of Eigen (e.g., 3.2.1), the scaling was omitted if the pivot
+      // In some previous versions of eeigen (e.g., 3.2.1), the scaling was omitted if the pivot
       // was smaller than the cutoff value. However, since LDLT is not rank-revealing
       // we should only make sure that we do not introduce INF or NaN values.
       // Remark that LAPACK also uses 0 as the cutoff value.
@@ -668,6 +668,6 @@ MatrixBase<Derived>::ldlt() const
   return LDLT<PlainObject>(derived());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_LDLT_H

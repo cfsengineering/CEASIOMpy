@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Désiré Nuentsa-Wakam <desire.nuentsa_wakam@inria.fr>
@@ -9,7 +9,7 @@
 #ifndef METIS_SUPPORT_H
 #define METIS_SUPPORT_H
 
-namespace Eigen {
+namespace eeigen {
 /**
  * Get the fill-reducing ordering from the METIS package
  * 

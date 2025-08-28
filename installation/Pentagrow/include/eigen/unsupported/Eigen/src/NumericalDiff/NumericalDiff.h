@@ -1,7 +1,7 @@
 // -*- coding: utf-8
 // vim: set fileencoding=utf-8
 
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Thomas Capricelli <orzel@freehackers.org>
@@ -13,7 +13,7 @@
 #ifndef EIGEN_NUMERICAL_DIFF_H
 #define EIGEN_NUMERICAL_DIFF_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 enum NumericalDiffMode {
     Forward,
@@ -123,7 +123,7 @@ private:
     NumericalDiff& operator=(const NumericalDiff&);
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 //vim: ai ts=4 sts=4 et sw=4
 #endif // EIGEN_NUMERICAL_DIFF_H

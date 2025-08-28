@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -15,7 +15,7 @@
 
 #define EIGEN_HAS_INDEX_LIST
 
-namespace Eigen {
+namespace eeigen {
 
 /** \internal
   *
@@ -433,14 +433,14 @@ struct indices_statically_known_to_increase_impl {
 template <typename FirstType, typename... OtherTypes>
   struct indices_statically_known_to_increase_impl<IndexList<FirstType, OtherTypes...> > {
   EIGEN_DEVICE_FUNC static constexpr bool run() {
-    return Eigen::IndexList<FirstType, OtherTypes...>().values_statically_known_to_increase();
+    return eeigen::IndexList<FirstType, OtherTypes...>().values_statically_known_to_increase();
   }
 };
 
 template <typename FirstType, typename... OtherTypes>
   struct indices_statically_known_to_increase_impl<const IndexList<FirstType, OtherTypes...> > {
   EIGEN_DEVICE_FUNC static constexpr bool run() {
-    return Eigen::IndexList<FirstType, OtherTypes...>().values_statically_known_to_increase();
+    return eeigen::IndexList<FirstType, OtherTypes...>().values_statically_known_to_increase();
   }
 };
 
@@ -593,11 +593,11 @@ struct index_pair_second_statically_eq_impl<const IndexPairList<FirstType, Other
 
 
 }  // end namespace internal
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 #else
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 
 template <typename T>
@@ -666,12 +666,12 @@ struct index_pair_second_statically_eq_impl {
 
 
 }  // end namespace internal
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 #endif
 
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 template <typename T>
 static EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR bool index_known_statically(DenseIndex i) {
@@ -719,7 +719,7 @@ static EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR bool index_pair_second_statically_eq(De
 }
 
 }  // end namespace internal
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_INDEX_LIST_H

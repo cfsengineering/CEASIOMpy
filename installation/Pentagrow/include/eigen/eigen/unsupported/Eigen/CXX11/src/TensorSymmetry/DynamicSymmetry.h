@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2013 Christian Seiler <christian@iwakd.de>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSORSYMMETRY_DYNAMICSYMMETRY_H
 #define EIGEN_CXX11_TENSORSYMMETRY_DYNAMICSYMMETRY_H
 
-namespace Eigen {
+namespace eeigen {
 
 class DynamicSGroup
 {
@@ -284,7 +284,7 @@ inline void DynamicSGroup::updateGlobalFlags(int flagDiffOfSameGenerator)
     }
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSORSYMMETRY_DYNAMICSYMMETRY_H
 

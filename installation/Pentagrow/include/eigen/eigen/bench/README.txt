@@ -1,5 +1,5 @@
 
-This folder contains a couple of benchmark utities and Eigen benchmarks.
+This folder contains a couple of benchmark utities and eeigen benchmarks.
 
 ****************************
 * bench_multi_compilers.sh *

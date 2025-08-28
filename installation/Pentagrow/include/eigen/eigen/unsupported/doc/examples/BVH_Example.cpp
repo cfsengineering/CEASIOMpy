@@ -1,11 +1,11 @@
-#include <Eigen/StdVector>
-#include <unsupported/Eigen/BVH>
+#include <eeigen/StdVector>
+#include <unsupported/eeigen/BVH>
 #include <iostream>
 
-using namespace Eigen;
+using namespace eeigen;
 typedef AlignedBox<double, 2> Box2d;
 
-namespace Eigen {
+namespace eeigen {
   Box2d bounding_box(const Vector2d &v) { return Box2d(v, v); } //compute the bounding box of a single point
 }
 

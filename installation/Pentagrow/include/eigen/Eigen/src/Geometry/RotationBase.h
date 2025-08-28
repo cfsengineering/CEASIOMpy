@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_ROTATIONBASE_H
 #define EIGEN_ROTATIONBASE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 // forward declaration
 namespace internal {
@@ -201,6 +201,6 @@ EIGEN_DEVICE_FUNC static inline const MatrixBase<OtherDerived>& toRotationMatrix
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_ROTATIONBASE_H

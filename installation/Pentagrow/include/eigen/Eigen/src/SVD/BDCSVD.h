@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 // 
 // We used the "A Divide-And-Conquer Algorithm for the Bidiagonal SVD"
@@ -22,7 +22,7 @@
 // #define EIGEN_BDCSVD_DEBUG_VERBOSE
 // #define EIGEN_BDCSVD_SANITY_CHECKS
 
-namespace Eigen {
+namespace eeigen {
 
 #ifdef EIGEN_BDCSVD_DEBUG_VERBOSE
 IOFormat bdcsvdfmt(8, 0, ", ", "\n", "  [", "]");
@@ -1241,6 +1241,6 @@ MatrixBase<Derived>::bdcSvd(unsigned int computationOptions) const
 }
 #endif
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif

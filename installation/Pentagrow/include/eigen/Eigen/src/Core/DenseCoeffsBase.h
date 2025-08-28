@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2010 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_DENSECOEFFSBASE_H
 #define EIGEN_DENSECOEFFSBASE_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 template<typename T> struct add_const_on_value_type_if_arithmetic
@@ -676,6 +676,6 @@ struct outer_stride_at_compile_time<Derived, false>
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_DENSECOEFFSBASE_H

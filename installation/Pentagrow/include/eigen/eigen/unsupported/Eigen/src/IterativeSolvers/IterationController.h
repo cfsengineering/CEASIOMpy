@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -53,12 +53,12 @@
 //
 //========================================================================
 
-#include "../../../../Eigen/src/Core/util/NonMPL2.h"
+#include "../../../../eeigen/src/Core/util/NonMPL2.h"
 
 #ifndef EIGEN_ITERATION_CONTROLLER_H
 #define EIGEN_ITERATION_CONTROLLER_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \ingroup IterativeSolvers_Module
   * \class IterationController
@@ -149,6 +149,6 @@ class IterationController
 
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_ITERATION_CONTROLLER_H

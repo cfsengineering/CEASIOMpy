@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -12,7 +12,7 @@
 
 // clang-format off
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorBase
   * \ingroup CXX11_Tensor_Module
@@ -478,7 +478,7 @@ class TensorBase<Derived, ReadOnlyAccessors>
     }
 
     // Contractions.
-    typedef Eigen::IndexPair<Index> DimensionPair;
+    typedef eeigen::IndexPair<Index> DimensionPair;
 
     template<typename OtherDerived, typename Dimensions> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
     const TensorContractionOp<const Dimensions, const Derived, const OtherDerived>
@@ -1007,6 +1007,6 @@ class TensorBase : public TensorBase<Derived, ReadOnlyAccessors> {
     EIGEN_STRONG_INLINE const Derived& derived() const { return *static_cast<const Derived*>(this); }
 };
 #endif // EIGEN_PARSED_BY_DOXYGEN
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_BASE_H

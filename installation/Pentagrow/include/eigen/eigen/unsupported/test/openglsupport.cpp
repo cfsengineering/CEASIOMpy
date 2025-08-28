@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,9 +10,9 @@
 #include <main.h>
 #include <iostream>
 #include <GL/glew.h>
-#include <Eigen/OpenGLSupport>
+#include <eeigen/OpenGLSupport>
 #include <GL/glut.h>
-using namespace Eigen;
+using namespace eeigen;
 
 
 
@@ -114,7 +114,7 @@ void test_openglsupport()
   glutInitWindowPosition (0,0);
   glutInitWindowSize(10, 10);
 
-  if(glutCreateWindow("Eigen") <= 0)
+  if(glutCreateWindow("eeigen") <= 0)
   {
     std::cerr << "Error: Unable to create GLUT Window.\n";
     exit(1);

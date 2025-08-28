@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_CWISE_BINARY_OP_H
 #define EIGEN_CWISE_BINARY_OP_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 template<typename BinaryOp, typename Lhs, typename Rhs>
@@ -65,7 +65,7 @@ class CwiseBinaryOpImpl;
   *
   * This class represents an expression  where a coefficient-wise binary operator is applied to two expressions.
   * It is the return type of binary operators, by which we mean only those binary operators where
-  * both the left-hand side and the right-hand side are Eigen expressions.
+  * both the left-hand side and the right-hand side are eeigen expressions.
   * For example, the return type of matrix1+matrix2 is a CwiseBinaryOp.
   *
   * Most of the time, this is the only way that it is used, so you typically don't have to name
@@ -178,7 +178,7 @@ MatrixBase<Derived>::operator+=(const MatrixBase<OtherDerived>& other)
   return derived();
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CWISE_BINARY_OP_H
 

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Eugene Brevdo <ebrevdo@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPECIAL_FUNCTIONS_H
 #define EIGEN_SPECIAL_FUNCTIONS_H
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 
 //  Parts of this code are based on the Cephes Math Library.
@@ -19,11 +19,11 @@ namespace internal {
 //  Copyright 1984, 1987, 1992, 2000 by Stephen L. Moshier
 //
 //  Permission has been kindly provided by the original author
-//  to incorporate the Cephes software into the Eigen codebase:
+//  to incorporate the Cephes software into the eeigen codebase:
 //
 //    From: Stephen Moshier
 //    To: Eugene Brevdo
-//    Subject: Re: Permission to wrap several cephes functions in Eigen
+//    Subject: Re: Permission to wrap several cephes functions in eeigen
 //
 //    Hello Eugene,
 //
@@ -38,7 +38,7 @@ namespace internal {
 
 namespace cephes {
 
-/* polevl (modified for Eigen)
+/* polevl (modified for eeigen)
  *
  *      Evaluate polynomial
  *
@@ -71,7 +71,7 @@ namespace cephes {
  * otherwise the same as polevl().
  *
  *
- * The Eigen implementation is templatized.  For best speed, store
+ * The eeigen implementation is templatized.  For best speed, store
  * coef as a const array (constexpr), e.g.
  *
  * const double coef[] = {1.0, 2.0, 3.0, ...};
@@ -225,7 +225,7 @@ struct digamma_impl {
   static Scalar run(Scalar x) {
     /*
      *
-     *     Psi (digamma) function (modified for Eigen)
+     *     Psi (digamma) function (modified for eeigen)
      *
      *
      * SYNOPSIS:
@@ -474,7 +474,7 @@ struct igammac_impl {
   static Scalar run(Scalar a, Scalar x) {
     /*  igamc()
      *
-     *	Incomplete gamma integral (modified for Eigen)
+     *	Incomplete gamma integral (modified for eeigen)
      *
      *
      *
@@ -1387,7 +1387,7 @@ struct betainc_helper<double> {
     s += ai;
 
     u = a * numext::log(x);
-    // TODO: gamma() is not directly implemented in Eigen.
+    // TODO: gamma() is not directly implemented in eeigen.
     /*
     if ((a + b) < maxgam && numext::abs(u) < maxlog) {
       t = gamma(a + b) / (gamma(a) * gamma(b));
@@ -1466,7 +1466,7 @@ struct betainc_impl<double> {
 
     y = a * numext::log(x);
     t = b * numext::log(xc);
-    // TODO: gamma is not directly implemented in Eigen.
+    // TODO: gamma is not directly implemented in eeigen.
     /*
     if ((a + b) < maxgam && numext::abs(y) < maxlog && numext::abs(t) < maxlog)
     {
@@ -1560,6 +1560,6 @@ EIGEN_DEVICE_FUNC inline EIGEN_MATHFUNC_RETVAL(betainc, Scalar)
 }  // end namespace numext
 
 
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 #endif  // EIGEN_SPECIAL_FUNCTIONS_H

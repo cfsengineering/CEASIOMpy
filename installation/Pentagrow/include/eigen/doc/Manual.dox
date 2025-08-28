@@ -1,10 +1,10 @@
 
 // This file strutures pages and modules into a convenient hierarchical structure.
 
-namespace Eigen {
+namespace eeigen {
 
-/** \page UserManual_CustomizingEigen Extending/Customizing Eigen
-  %Eigen can be extended in several ways, for instance, by defining global methods, by inserting custom methods within main %Eigen's classes through the \ref TopicCustomizing_Plugins "plugin" mechanism, by adding support to \ref TopicCustomizing_CustomScalar "custom scalar types" etc. See below for the respective sub-topics.
+/** \page UserManual_CustomizingEigen Extending/Customizing eeigen
+  %eeigen can be extended in several ways, for instance, by defining global methods, by inserting custom methods within main %eeigen's classes through the \ref TopicCustomizing_Plugins "plugin" mechanism, by adding support to \ref TopicCustomizing_CustomScalar "custom scalar types" etc. See below for the respective sub-topics.
   - \subpage TopicCustomizing_Plugins
   - \subpage TopicCustomizing_InheritingMatrix
   - \subpage TopicCustomizing_CustomScalar
@@ -29,7 +29,7 @@ namespace Eigen {
   - \subpage TopicCMakeGuide
 */
 
-/** \page UserManual_UnderstandingEigen Understanding Eigen
+/** \page UserManual_UnderstandingEigen Understanding eeigen
   - \subpage TopicInsideEigenExample
   - \subpage TopicClassHierarchy
   - \subpage TopicLazyEvaluation
@@ -184,6 +184,6 @@ namespace Eigen {
 /** \addtogroup Splines_Module
     \ingroup Geometry_Reference */
 
-/** \internal \brief Namespace containing low-level routines from the %Eigen library. */
+/** \internal \brief Namespace containing low-level routines from the %eeigen library. */
 namespace internal {}
 }

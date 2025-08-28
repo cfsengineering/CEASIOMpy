@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -223,7 +223,7 @@ template<typename Scalar> void sparse_permutations_all(int size)
 void test_sparse_permutations()
 {
   for(int i = 0; i < g_repeat; i++) {
-    int s = Eigen::internal::random<int>(1,50);
+    int s = eeigen::internal::random<int>(1,50);
     CALL_SUBTEST_1((  sparse_permutations_all<double>(s) ));
     CALL_SUBTEST_2((  sparse_permutations_all<std::complex<double> >(s) ));
   }

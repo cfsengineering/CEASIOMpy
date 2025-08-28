@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CHOLMODSUPPORT_H
 #define EIGEN_CHOLMODSUPPORT_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -51,7 +51,7 @@ template<> struct cholmod_configure_matrix<std::complex<double> > {
 
 } // namespace internal
 
-/** Wraps the Eigen sparse matrix \a mat into a Cholmod sparse matrix object.
+/** Wraps the eeigen sparse matrix \a mat into a Cholmod sparse matrix object.
   * Note that the data are shared.
   */
 template<typename _Scalar, int _Options, typename _StorageIndex>
@@ -115,7 +115,7 @@ const cholmod_sparse viewAsCholmod(const SparseVector<_Scalar,_Options,_Index>& 
   return res;
 }
 
-/** Returns a view of the Eigen sparse matrix \a mat as Cholmod sparse matrix.
+/** Returns a view of the eeigen sparse matrix \a mat as Cholmod sparse matrix.
   * The data are not copied but shared. */
 template<typename _Scalar, int _Options, typename _Index, unsigned int UpLo>
 cholmod_sparse viewAsCholmod(const SparseSelfAdjointView<const SparseMatrix<_Scalar,_Options,_Index>, UpLo>& mat)
@@ -128,7 +128,7 @@ cholmod_sparse viewAsCholmod(const SparseSelfAdjointView<const SparseMatrix<_Sca
   return res;
 }
 
-/** Returns a view of the Eigen \b dense matrix \a mat as Cholmod dense matrix.
+/** Returns a view of the eeigen \b dense matrix \a mat as Cholmod dense matrix.
   * The data are not copied but shared. */
 template<typename Derived>
 cholmod_dense viewAsCholmod(MatrixBase<Derived>& mat)
@@ -149,7 +149,7 @@ cholmod_dense viewAsCholmod(MatrixBase<Derived>& mat)
   return res;
 }
 
-/** Returns a view of the Cholmod sparse matrix \a cm as an Eigen sparse matrix.
+/** Returns a view of the Cholmod sparse matrix \a cm as an eeigen sparse matrix.
   * The data are not copied but shared. */
 template<typename Scalar, int Flags, typename StorageIndex>
 MappedSparseMatrix<Scalar,Flags,StorageIndex> viewAsEigen(cholmod_sparse& cm)
@@ -414,7 +414,7 @@ class CholmodBase : public SparseSolverBase<Derived>
   *
   * This class allows to solve for A.X = B sparse linear problems via a simplicial LL^T Cholesky factorization
   * using the Cholmod library.
-  * This simplicial variant is equivalent to Eigen's built-in SimplicialLLT class. Therefore, it has little practical interest.
+  * This simplicial variant is equivalent to eeigen's built-in SimplicialLLT class. Therefore, it has little practical interest.
   * The sparse matrix A must be selfadjoint and positive definite. The vectors or matrices
   * X and B can be either dense or sparse.
   *
@@ -465,7 +465,7 @@ class CholmodSimplicialLLT : public CholmodBase<_MatrixType, _UpLo, CholmodSimpl
   *
   * This class allows to solve for A.X = B sparse linear problems via a simplicial LDL^T Cholesky factorization
   * using the Cholmod library.
-  * This simplicial variant is equivalent to Eigen's built-in SimplicialLDLT class. Therefore, it has little practical interest.
+  * This simplicial variant is equivalent to eeigen's built-in SimplicialLDLT class. Therefore, it has little practical interest.
   * The sparse matrix A must be selfadjoint and positive definite. The vectors or matrices
   * X and B can be either dense or sparse.
   *
@@ -634,6 +634,6 @@ class CholmodDecomposition : public CholmodBase<_MatrixType, _UpLo, CholmodDecom
     }
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CHOLMODSUPPORT_H

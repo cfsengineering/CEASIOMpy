@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Rasmus Munk Larsen <rmlarsen@google.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_COST_MODEL_H
 #define EIGEN_CXX11_TENSOR_TENSOR_COST_MODEL_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorEvaluator
   * \ingroup CXX11_Tensor_Module
@@ -24,7 +24,7 @@ namespace Eigen {
 // estimated number of operand bytes loads, bytes stored, and compute cycles.
 class TensorOpCost {
  public:
-  // TODO(rmlarsen): Fix the scalar op costs in Eigen proper. Even a simple
+  // TODO(rmlarsen): Fix the scalar op costs in eeigen proper. Even a simple
   // model based on minimal reciprocal throughput numbers from Intel or
   // Agner Fog's tables would be better than what is there now.
   template <typename ArgType>
@@ -160,7 +160,7 @@ class TensorOpCost {
 template <typename Device>
 class TensorCostModel {
  public:
-  // Scaling from Eigen compute cost to device cycles.
+  // Scaling from eeigen compute cost to device cycles.
   static const int kDeviceCyclesPerComputeCycle = 1;
 
  // Costs in device cycles.
@@ -200,13 +200,13 @@ class TensorCostModel {
     // only into L3 presumably will take more than 10ms to load and process.
     const double kLoadCycles = 1.0 / 64 * 11;
     const double kStoreCycles = 1.0 / 64 * 11;
-    // Scaling from Eigen compute cost to device cycles.
+    // Scaling from eeigen compute cost to device cycles.
     return output_size *
         cost_per_coeff.total_cost(kLoadCycles, kStoreCycles,
                                   kDeviceCyclesPerComputeCycle);
   }
 };
 
-}  // namespace Eigen
+}  // namespace eeigen
 
 #endif  // EIGEN_CXX11_TENSOR_TENSOR_COST_MODEL_H

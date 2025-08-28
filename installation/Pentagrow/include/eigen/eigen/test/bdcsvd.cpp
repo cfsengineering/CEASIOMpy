@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2013 Gauthier Brun <brun.gauthier@gmail.com>
@@ -15,9 +15,9 @@
 #define EIGEN_RUNTIME_NO_MALLOC
 
 #include "main.h"
-#include <Eigen/SVD>
+#include <eeigen/SVD>
 #include <iostream>
-#include <Eigen/LU>
+#include <eeigen/LU>
 
 
 #define SVD_DEFAULT(M) BDCSVD<M>

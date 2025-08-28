@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009, 2010, 2013 Jitse Niesen <jitse@maths.leeds.ac.uk>
@@ -13,7 +13,7 @@
 
 #include "StemFunction.h"
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 
 /** \brief Scaling operator.
@@ -381,7 +381,7 @@ void matrix_exp_compute(const ArgType& arg, ResultType &result, false_type) // d
   result = arg.matrixFunction(internal::stem_function_exp<ComplexScalar>);
 }
 
-} // end namespace Eigen::internal
+} // end namespace eeigen::internal
 
 /** \ingroup MatrixFunctions_Module
   *
@@ -437,6 +437,6 @@ const MatrixExponentialReturnValue<Derived> MatrixBase<Derived>::exp() const
   return MatrixExponentialReturnValue<Derived>(derived());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_MATRIX_EXPONENTIAL

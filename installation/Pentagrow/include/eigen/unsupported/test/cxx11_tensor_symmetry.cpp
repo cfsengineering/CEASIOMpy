@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2013 Christian Seiler <christian@iwakd.de>
@@ -9,26 +9,26 @@
 
 #include "main.h"
 
-#include <Eigen/CXX11/Tensor>
-#include <Eigen/CXX11/TensorSymmetry>
+#include <eeigen/CXX11/Tensor>
+#include <eeigen/CXX11/TensorSymmetry>
 
 #include <map>
 #include <set>
 
-using Eigen::Tensor;
-using Eigen::SGroup;
-using Eigen::DynamicSGroup;
-using Eigen::StaticSGroup;
-using Eigen::Symmetry;
-using Eigen::AntiSymmetry;
-using Eigen::Hermiticity;
-using Eigen::AntiHermiticity;
+using eeigen::Tensor;
+using eeigen::SGroup;
+using eeigen::DynamicSGroup;
+using eeigen::StaticSGroup;
+using eeigen::Symmetry;
+using eeigen::AntiSymmetry;
+using eeigen::Hermiticity;
+using eeigen::AntiHermiticity;
 
-using Eigen::NegationFlag;
-using Eigen::ConjugationFlag;
-using Eigen::GlobalZeroFlag;
-using Eigen::GlobalRealFlag;
-using Eigen::GlobalImagFlag;
+using eeigen::NegationFlag;
+using eeigen::ConjugationFlag;
+using eeigen::GlobalZeroFlag;
+using eeigen::GlobalRealFlag;
+using eeigen::GlobalImagFlag;
 
 // helper function to determine if the compiler intantiated a static
 // or dynamic symmetry group

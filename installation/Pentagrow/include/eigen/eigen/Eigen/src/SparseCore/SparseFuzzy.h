@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPARSE_FUZZY_H
 #define EIGEN_SPARSE_FUZZY_H
 
-namespace Eigen {
+namespace eeigen {
   
 template<typename Derived>
 template<typename OtherDerived>
@@ -24,6 +24,6 @@ bool SparseMatrixBase<Derived>::isApprox(const SparseMatrixBase<OtherDerived>& o
   return (actualA - actualB).squaredNorm() <= prec * prec * numext::mini(actualA.squaredNorm(), actualB.squaredNorm());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSE_FUZZY_H

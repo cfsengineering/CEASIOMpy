@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_FORCED_EVAL_H
 #define EIGEN_CXX11_TENSOR_TENSOR_FORCED_EVAL_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 template<typename XprType, template <class> class MakePointer_>
@@ -37,7 +37,7 @@ struct traits<TensorForcedEvalOp<XprType, MakePointer_> >
 };
 
 template<typename XprType, template <class> class MakePointer_>
-struct eval<TensorForcedEvalOp<XprType, MakePointer_>, Eigen::Dense>
+struct eval<TensorForcedEvalOp<XprType, MakePointer_>, eeigen::Dense>
 {
   typedef const TensorForcedEvalOp<XprType, MakePointer_>& type;
 };
@@ -71,12 +71,12 @@ template<typename XprType, template <class> class MakePointer_>
 class TensorForcedEvalOp : public TensorBase<TensorForcedEvalOp<XprType, MakePointer_>, ReadOnlyAccessors>
 {
   public:
-  typedef typename Eigen::internal::traits<TensorForcedEvalOp>::Scalar Scalar;
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
+  typedef typename eeigen::internal::traits<TensorForcedEvalOp>::Scalar Scalar;
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar;
   typedef typename internal::remove_const<typename XprType::CoeffReturnType>::type CoeffReturnType;
-  typedef typename Eigen::internal::nested<TensorForcedEvalOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorForcedEvalOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorForcedEvalOp>::Index Index;
+  typedef typename eeigen::internal::nested<TensorForcedEvalOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorForcedEvalOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorForcedEvalOp>::Index Index;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorForcedEvalOp(const XprType& expr)
       : m_xpr(expr) {}
@@ -164,6 +164,6 @@ struct TensorEvaluator<const TensorForcedEvalOp<ArgType, MakePointer_>, Device>
 };
 
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_FORCED_EVAL_H

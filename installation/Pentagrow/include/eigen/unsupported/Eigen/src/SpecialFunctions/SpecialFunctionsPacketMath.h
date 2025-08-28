@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPECIALFUNCTIONS_PACKETMATH_H
 #define EIGEN_SPECIALFUNCTIONS_PACKETMATH_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -52,7 +52,7 @@ Packet pbetainc(const Packet& a, const Packet& b,const Packet& x) { using numext
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPECIALFUNCTIONS_PACKETMATH_H
 

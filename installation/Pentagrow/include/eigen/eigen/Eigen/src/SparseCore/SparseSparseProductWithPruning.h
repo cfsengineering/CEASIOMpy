@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPARSESPARSEPRODUCTWITHPRUNING_H
 #define EIGEN_SPARSESPARSEPRODUCTWITHPRUNING_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -193,6 +193,6 @@ struct sparse_sparse_product_with_pruning_selector<Lhs,Rhs,ResultType,RowMajor,C
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSESPARSEPRODUCTWITHPRUNING_H

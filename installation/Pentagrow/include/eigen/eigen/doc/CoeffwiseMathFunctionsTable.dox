@@ -1,11 +1,11 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \eigenManualPage CoeffwiseMathFunctions Catalog of coefficient-wise math functions
 
 
 <!-- <span style="font-size:300%; color:red; font-weight: 900;">!WORK IN PROGRESS!</span> -->
 
-This table presents a catalog of the coefficient-wise math functions supported by %Eigen.
+This table presents a catalog of the coefficient-wise math functions supported by %eeigen.
 In this table, \c a, \c b, refer to Array objects or expressions, and \c m refers to a linear algebra Matrix/Vector object. Standard scalar types are abbreviated as follows:
   - \c int: \c i32
   - \c float: \c f
@@ -15,7 +15,7 @@ In this table, \c a, \c b, refer to Array objects or expressions, and \c m refer
 
 For each row, the first column list the equivalent calls for arrays, and matrices when supported. Of course, all functions are available for matrices by first casting it as an array: \c m.array().
 
-The third column gives some hints in the underlying scalar implementation. In most cases, %Eigen does not implement itself the math function but relies on the STL for standard scalar types, or user-provided functions for custom scalar types.
+The third column gives some hints in the underlying scalar implementation. In most cases, %eeigen does not implement itself the math function but relies on the STL for standard scalar types, or user-provided functions for custom scalar types.
 For instance, some simply calls the respective function of the STL while preserving <a href="http://en.cppreference.com/w/cpp/language/adl">argument-dependent lookup</a> for custom types.
 The following:
 \code
@@ -23,7 +23,7 @@ using std::foo;
 foo(a[i]);
 \endcode
 means that the STL's function \c std::foo will be potentially called if it is compatible with the underlying scalar type. If not, then the user must ensure that an overload of the function foo is available for the given scalar type (usually defined in the same namespace as the given scalar type).
-This also means that, unless specified, if the function \c std::foo is available only in some recent c++ versions (e.g., c++11), then the respective %Eigen's function/method will be usable on standard types only if the compiler support the required c++ version.
+This also means that, unless specified, if the function \c std::foo is available only in some recent c++ versions (e.g., c++11), then the respective %eeigen's function/method will be usable on standard types only if the compiler support the required c++ version.
 
 <table class="manual-hl">
 <tr>
@@ -35,7 +35,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_abs
   a.\link ArrayBase::abs abs\endlink(); \n
-  \link Eigen::abs abs\endlink(a); \n
+  \link eeigen::abs abs\endlink(a); \n
   m.\link MatrixBase::cwiseAbs cwiseAbs\endlink();
   </td>
   <td>absolute value (\f$ |a_i| \f$) </td>
@@ -49,7 +49,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_inverse
   a.\link ArrayBase::inverse inverse\endlink(); \n
-  \link Eigen::inverse inverse\endlink(a); \n
+  \link eeigen::inverse inverse\endlink(a); \n
   m.\link MatrixBase::cwiseInverse cwiseInverse\endlink();
   </td>
   <td>inverse value (\f$ 1/a_i \f$) </td>
@@ -62,7 +62,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_conj
   a.\link ArrayBase::conjugate conjugate\endlink(); \n
-  \link Eigen::conj conj\endlink(a); \n
+  \link eeigen::conj conj\endlink(a); \n
   m.\link MatrixBase::conjugate conjugate\endlink();
   </td>
   <td><a href="https://en.wikipedia.org/wiki/Complex_conjugate">complex conjugate</a> (\f$ \bar{a_i} \f$),\n
@@ -80,7 +80,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_exp
   a.\link ArrayBase::exp exp\endlink(); \n
-  \link Eigen::exp exp\endlink(a);
+  \link eeigen::exp exp\endlink(a);
   </td>
   <td>\f$ e \f$ raised to the given power (\f$ e^{a_i} \f$) </td>
   <td class="code">
@@ -93,7 +93,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_log
   a.\link ArrayBase::log log\endlink(); \n
-  \link Eigen::log log\endlink(a);
+  \link eeigen::log log\endlink(a);
   </td>
   <td>natural (base \f$ e \f$) logarithm (\f$ \ln({a_i}) \f$)</td>
   <td class="code">
@@ -106,7 +106,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_log1p
   a.\link ArrayBase::log1p log1p\endlink(); \n
-  \link Eigen::log1p log1p\endlink(a);
+  \link eeigen::log1p log1p\endlink(a);
   </td>
   <td>natural (base \f$ e \f$) logarithm of 1 plus \n the given number (\f$ \ln({1+a_i}) \f$)</td>
   <td>built-in generic implementation based on \c log,\n
@@ -117,7 +117,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_log10
   a.\link ArrayBase::log10 log10\endlink(); \n
-  \link Eigen::log10 log10\endlink(a);
+  \link eeigen::log10 log10\endlink(a);
   </td>
   <td>base 10 logarithm (\f$ \log_{10}({a_i}) \f$)</td>
   <td class="code">
@@ -133,7 +133,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_pow
   a.\link ArrayBase::pow pow\endlink(b); \n
-  \link ArrayBase::pow(const Eigen::ArrayBase< Derived > &x, const Eigen::ArrayBase< ExponentDerived > &exponents) pow\endlink(a,b);
+  \link ArrayBase::pow(const eeigen::ArrayBase< Derived > &x, const eeigen::ArrayBase< ExponentDerived > &exponents) pow\endlink(a,b);
   </td>
   <!-- For some reason Doxygen thinks that pow is in ArrayBase namespace -->
   <td>raises a number to the given power (\f$ a_i ^ {b_i} \f$) \n \c a and \c b can be either an array or scalar.</td>
@@ -147,7 +147,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_sqrt
   a.\link ArrayBase::sqrt sqrt\endlink(); \n
-  \link Eigen::sqrt sqrt\endlink(a);\n
+  \link eeigen::sqrt sqrt\endlink(a);\n
   m.\link MatrixBase::cwiseSqrt cwiseSqrt\endlink();
   </td>
   <td>computes square root (\f$ \sqrt a_i \f$)</td>
@@ -160,7 +160,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_rsqrt
   a.\link ArrayBase::rsqrt rsqrt\endlink(); \n
-  \link Eigen::rsqrt rsqrt\endlink(a);
+  \link eeigen::rsqrt rsqrt\endlink(a);
   </td>
   <td><a href="https://en.wikipedia.org/wiki/Fast_inverse_square_root">reciprocal square root</a> (\f$ 1/{\sqrt a_i} \f$)</td>
   <td class="code">
@@ -174,7 +174,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_square
   a.\link ArrayBase::square square\endlink(); \n
-  \link Eigen::square square\endlink(a);
+  \link eeigen::square square\endlink(a);
   </td>
   <td>computes square power (\f$ a_i^2 \f$)</td>
   <td class="code">
@@ -185,7 +185,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_cube
   a.\link ArrayBase::cube cube\endlink(); \n
-  \link Eigen::cube cube\endlink(a);
+  \link eeigen::cube cube\endlink(a);
   </td>
   <td>computes cubic power (\f$ a_i^3 \f$)</td>
   <td class="code">
@@ -196,7 +196,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_abs2
   a.\link ArrayBase::abs2 abs2\endlink(); \n
-  \link Eigen::abs2 abs2\endlink(a);\n
+  \link eeigen::abs2 abs2\endlink(a);\n
   m.\link MatrixBase::cwiseAbs2 cwiseAbs2\endlink();
   </td>
   <td>computes the squared absolute value (\f$ |a_i|^2 \f$)</td>
@@ -213,7 +213,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_sin
   a.\link ArrayBase::sin sin\endlink(); \n
-  \link Eigen::sin sin\endlink(a);
+  \link eeigen::sin sin\endlink(a);
   </td>
   <td>computes sine</td>
   <td class="code">
@@ -225,7 +225,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_cos
   a.\link ArrayBase::cos cos\endlink(); \n
-  \link Eigen::cos cos\endlink(a);
+  \link eeigen::cos cos\endlink(a);
   </td>
   <td>computes cosine</td>
   <td class="code">
@@ -237,7 +237,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_tan
   a.\link ArrayBase::tan tan\endlink(); \n
-  \link Eigen::tan tan\endlink(a);
+  \link eeigen::tan tan\endlink(a);
   </td>
   <td>computes tangent</td>
   <td class="code">
@@ -249,7 +249,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_asin
   a.\link ArrayBase::asin asin\endlink(); \n
-  \link Eigen::asin asin\endlink(a);
+  \link eeigen::asin asin\endlink(a);
   </td>
   <td>computes arc sine (\f$ \sin^{-1} a_i \f$)</td>
   <td class="code">
@@ -261,7 +261,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_acos
   a.\link ArrayBase::acos acos\endlink(); \n
-  \link Eigen::acos acos\endlink(a);
+  \link eeigen::acos acos\endlink(a);
   </td>
   <td>computes arc cosine  (\f$ \cos^{-1} a_i \f$)</td>
   <td class="code">
@@ -273,7 +273,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_atan
   a.\link ArrayBase::atan atan\endlink(); \n
-  \link Eigen::atan atan\endlink(a);
+  \link eeigen::atan atan\endlink(a);
   </td>
   <td>computes arc tangent (\f$ \tan^{-1} a_i \f$)</td>
   <td class="code">
@@ -288,7 +288,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_sinh
   a.\link ArrayBase::sinh sinh\endlink(); \n
-  \link Eigen::sinh sinh\endlink(a);
+  \link eeigen::sinh sinh\endlink(a);
   </td>
   <td>computes hyperbolic sine</td>
   <td class="code">
@@ -300,7 +300,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_cosh
   a.\link ArrayBase::cosh cohs\endlink(); \n
-  \link Eigen::cosh cosh\endlink(a);
+  \link eeigen::cosh cosh\endlink(a);
   </td>
   <td>computes hyperbolic cosine</td>
   <td class="code">
@@ -312,7 +312,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_tanh
   a.\link ArrayBase::tanh tanh\endlink(); \n
-  \link Eigen::tanh tanh\endlink(a);
+  \link eeigen::tanh tanh\endlink(a);
   </td>
   <td>computes hyperbolic tangent</td>
   <td class="code">
@@ -327,7 +327,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_ceil
   a.\link ArrayBase::ceil ceil\endlink(); \n
-  \link Eigen::ceil ceil\endlink(a);
+  \link eeigen::ceil ceil\endlink(a);
   </td>
   <td>nearest integer not less than the given value</td>
   <td class="code">
@@ -339,7 +339,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_floor
   a.\link ArrayBase::floor floor\endlink(); \n
-  \link Eigen::floor floor\endlink(a);
+  \link eeigen::floor floor\endlink(a);
   </td>
   <td>nearest integer not greater than the given value</td>
   <td class="code">
@@ -351,7 +351,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_round
   a.\link ArrayBase::round round\endlink(); \n
-  \link Eigen::round round\endlink(a);
+  \link eeigen::round round\endlink(a);
   </td>
   <td>nearest integer, \n rounding away from zero in halfway cases</td>
   <td>built-in generic implementation \n based on \c floor and \c ceil,\n
@@ -368,7 +368,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_isfinite
   a.\link ArrayBase::isFinite isFinite\endlink(); \n
-  \link Eigen::isfinite isfinite\endlink(a);
+  \link eeigen::isfinite isfinite\endlink(a);
   </td>
   <td>checks if the given number has finite value</td>
   <td>built-in generic implementation,\n
@@ -379,7 +379,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_isinf
   a.\link ArrayBase::isInf isInf\endlink(); \n
-  \link Eigen::isinf isinf\endlink(a);
+  \link eeigen::isinf isinf\endlink(a);
   </td>
   <td>checks if the given number is infinite</td>
   <td>built-in generic implementation,\n
@@ -390,7 +390,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_isnan
   a.\link ArrayBase::isNaN isNaN\endlink(); \n
-  \link Eigen::isnan isnan\endlink(a);
+  \link eeigen::isnan isnan\endlink(a);
   </td>
   <td>checks if the given number is not a number</td>
   <td>built-in generic implementation,\n
@@ -400,12 +400,12 @@ This also means that, unless specified, if the function \c std::foo is available
 <tr>
 <th colspan="4">Error and gamma functions</th>
 </tr>
-<tr> <td colspan="4">  Require \c \#include \c <unsupported/Eigen/SpecialFunctions> </td></tr>
+<tr> <td colspan="4">  Require \c \#include \c <unsupported/eeigen/SpecialFunctions> </td></tr>
 <tr>
   <td class="code">
   \anchor cwisetable_erf
   a.\link ArrayBase::erf erf\endlink(); \n
-  \link Eigen::erf erf\endlink(a);
+  \link eeigen::erf erf\endlink(a);
   </td>
   <td>error function</td>
   <td class="code">
@@ -418,7 +418,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_erfc
   a.\link ArrayBase::erfc erfc\endlink(); \n
-  \link Eigen::erfc erfc\endlink(a);
+  \link eeigen::erfc erfc\endlink(a);
   </td>
   <td>complementary error function</td>
   <td class="code">
@@ -431,7 +431,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_lgamma
   a.\link ArrayBase::lgamma lgamma\endlink(); \n
-  \link Eigen::lgamma lgamma\endlink(a);
+  \link eeigen::lgamma lgamma\endlink(a);
   </td>
   <td>natural logarithm of the gamma function</td>
   <td class="code">
@@ -444,7 +444,7 @@ This also means that, unless specified, if the function \c std::foo is available
   <td class="code">
   \anchor cwisetable_digamma
   a.\link ArrayBase::digamma digamma\endlink(); \n
-  \link Eigen::digamma digamma\endlink(a);
+  \link eeigen::digamma digamma\endlink(a);
   </td>
   <td><a href="https://en.wikipedia.org/wiki/Digamma_function">logarithmic derivative of the gamma function</a></td>
   <td>
@@ -455,7 +455,7 @@ This also means that, unless specified, if the function \c std::foo is available
 <tr>
   <td class="code">
   \anchor cwisetable_igamma
-  \link Eigen::igamma igamma\endlink(a,x);
+  \link eeigen::igamma igamma\endlink(a,x);
   </td>
   <td><a href="https://en.wikipedia.org/wiki/Incomplete_gamma_function">lower incomplete gamma integral</a>
   \n \f$ \gamma(a_i,x_i)= \frac{1}{|a_i|} \int_{0}^{x_i}e^{\text{-}t} t^{a_i-1} \mathrm{d} t \f$</td>
@@ -467,7 +467,7 @@ This also means that, unless specified, if the function \c std::foo is available
 <tr>
   <td class="code">
   \anchor cwisetable_igammac
-  \link Eigen::igammac igammac\endlink(a,x);
+  \link eeigen::igammac igammac\endlink(a,x);
   </td>
   <td><a href="https://en.wikipedia.org/wiki/Incomplete_gamma_function">upper incomplete gamma integral</a>
   \n \f$ \Gamma(a_i,x_i) = \frac{1}{|a_i|} \int_{x_i}^{\infty}e^{\text{-}t} t^{a_i-1} \mathrm{d} t \f$</td>
@@ -479,11 +479,11 @@ This also means that, unless specified, if the function \c std::foo is available
 <tr>
 <th colspan="4">Special functions</th>
 </tr>
-<tr> <td colspan="4">  Require \c \#include \c <unsupported/Eigen/SpecialFunctions> </td></tr>
+<tr> <td colspan="4">  Require \c \#include \c <unsupported/eeigen/SpecialFunctions> </td></tr>
 <tr>
   <td class="code">
   \anchor cwisetable_polygamma
-  \link Eigen::polygamma polygamma\endlink(n,x);
+  \link eeigen::polygamma polygamma\endlink(n,x);
   </td>
   <td><a href="https://en.wikipedia.org/wiki/Polygamma_function">n-th derivative of digamma at x</a></td>
   <td>
@@ -496,7 +496,7 @@ This also means that, unless specified, if the function \c std::foo is available
 <tr>
   <td class="code">
   \anchor cwisetable_betainc
-  \link Eigen::betainc betainc\endlink(a,b,x);
+  \link eeigen::betainc betainc\endlink(a,b,x);
   </td>
   <td><a href="https://en.wikipedia.org/wiki/Beta_function#Incomplete_beta_function">Incomplete beta function</a></td>
   <td>
@@ -507,7 +507,7 @@ This also means that, unless specified, if the function \c std::foo is available
 <tr>
   <td class="code">
   \anchor cwisetable_zeta
-  \link Eigen::zeta zeta\endlink(a,b);
+  \link eeigen::zeta zeta\endlink(a,b);
   </td>
   <td><a href="https://en.wikipedia.org/wiki/Hurwitz_zeta_function">Hurwitz zeta function</a>
   \n \f$ \zeta(a_i,b_i)=\sum_{k=0}^{\infty}(b_i+k)^{\text{-}a_i} \f$</td>

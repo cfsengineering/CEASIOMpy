@@ -26,22 +26,22 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ********************************************************************************
- *   Content : Documentation on the use of BLAS/LAPACK libraries through Eigen
+ *   Content : Documentation on the use of BLAS/LAPACK libraries through eeigen
  ********************************************************************************
 */
 
-namespace Eigen {
+namespace eeigen {
 
-/** \page TopicUsingBlasLapack Using BLAS/LAPACK from %Eigen
+/** \page TopicUsingBlasLapack Using BLAS/LAPACK from %eeigen
 
 
-Since %Eigen version 3.3 and later, any F77 compatible BLAS or LAPACK libraries can be used as backends for dense matrix products and dense matrix decompositions.
+Since %eeigen version 3.3 and later, any F77 compatible BLAS or LAPACK libraries can be used as backends for dense matrix products and dense matrix decompositions.
 For instance, one can use <a href="http://eigen.tuxfamily.org/Counter/redirect_to_mkl.php">Intel® MKL</a>, Apple's Accelerate framework on OSX, <a href="http://www.openblas.net/">OpenBLAS</a>, <a href="http://www.netlib.org/lapack">Netlib LAPACK</a>, etc.
 
 Do not miss this \link TopicUsingIntelMKL page \endlink for further discussions on the specific use of Intel® MKL (also includes VML, PARDISO, etc.)
 
 In order to use an external BLAS and/or LAPACK library, you must link you own application to the respective libraries and their dependencies.
-For LAPACK, you must also link to the standard <a href="http://www.netlib.org/lapack/lapacke.html">Lapacke</a> library, which is used as a convenient think layer between %Eigen's C++ code and LAPACK F77 interface. Then you must activate their usage by defining one or multiple of the following macros (\b before including any %Eigen's header):
+For LAPACK, you must also link to the standard <a href="http://www.netlib.org/lapack/lapacke.html">Lapacke</a> library, which is used as a convenient think layer between %eeigen's C++ code and LAPACK F77 interface. Then you must activate their usage by defining one or multiple of the following macros (\b before including any %eeigen's header):
 
 \note For Mac users, in order to use the lapack version shipped with the Accelerate framework, you also need the lapacke library.
 Using <a href="https://www.macports.org/">MacPorts</a>, this is as easy as:
@@ -56,11 +56,11 @@ and then use the following link flags: \c -framework \c Accelerate \c /opt/local
 <tr><td>\c EIGEN_USE_LAPACKE_STRICT </td><td>Same as \c EIGEN_USE_LAPACKE but algorithms of lower numerical robustness are disabled. \n This currently concerns only JacobiSVD which otherwise would be replaced by \c gesvd that is less robust than Jacobi rotations.</td></tr>
 </table>
 
-When doing so, a number of %Eigen's algorithms are silently substituted with calls to BLAS or LAPACK routines.
+When doing so, a number of %eeigen's algorithms are silently substituted with calls to BLAS or LAPACK routines.
 These substitutions apply only for \b Dynamic \b or \b large enough objects with one of the following four standard scalar types: \c float, \c double, \c complex<float>, and \c complex<double>.
 Operations on other scalar types or mixing reals and complexes will continue to use the built-in algorithms.
 
-The breadth of %Eigen functionality that can be substituted is listed in the table below.
+The breadth of %eeigen functionality that can be substituted is listed in the table below.
 <table class="manual">
 <tr><th>Functional domain</th><th>Code example</th><th>BLAS/LAPACK routines</th></tr>
 <tr><td>Matrix-matrix operations \n \c EIGEN_USE_BLAS </td><td>\code
@@ -106,7 +106,7 @@ svd.compute(m1, ComputeThinV);
 \endcode</td><td>\code
 ?gesvd
 \endcode</td></tr>
-<tr><td>Eigen-value decompositions \n \c EIGEN_USE_LAPACKE \n \c EIGEN_USE_LAPACKE_STRICT </td><td>\code
+<tr><td>eeigen-value decompositions \n \c EIGEN_USE_LAPACKE \n \c EIGEN_USE_LAPACKE_STRICT </td><td>\code
 EigenSolver<MatrixXd> es(m1);
 ComplexEigenSolver<MatrixXcd> ces(m1);
 SelfAdjointEigenSolver<MatrixXd> saes(m1+m1.transpose());

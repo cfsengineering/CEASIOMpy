@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -8,13 +8,13 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #define EIGEN_MPL2_ONLY
-#include <Eigen/Dense>
-#include <Eigen/SparseCore>
-#include <Eigen/SparseLU>
-#include <Eigen/SparseQR>
-#include <Eigen/Sparse>
-#include <Eigen/IterativeLinearSolvers>
-#include <Eigen/Eigen>
+#include <eeigen/Dense>
+#include <eeigen/SparseCore>
+#include <eeigen/SparseLU>
+#include <eeigen/SparseQR>
+#include <eeigen/Sparse>
+#include <eeigen/IterativeLinearSolvers>
+#include <eeigen/eeigen>
 
 int main()
 {

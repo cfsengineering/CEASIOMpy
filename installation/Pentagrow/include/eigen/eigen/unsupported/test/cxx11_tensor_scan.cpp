@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Igor Babuschkin <igor@babuschk.in>
@@ -10,9 +10,9 @@
 #include "main.h"
 #include <limits>
 #include <numeric>
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
+using eeigen::Tensor;
 
 template <int DataLayout, typename Type=float, bool Exclusive = false>
 static void test_1d_scan()

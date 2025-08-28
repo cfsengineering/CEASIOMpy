@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2011 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_UMFPACKSUPPORT_H
 #define EIGEN_UMFPACKSUPPORT_H
 
-namespace Eigen {
+namespace eeigen {
 
 /* TODO extract L, extract U, compute det, etc... */
 
@@ -501,6 +501,6 @@ bool UmfPackLU<MatrixType>::_solve_impl(const MatrixBase<BDerived> &b, MatrixBas
   return true;
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_UMFPACKSUPPORT_H

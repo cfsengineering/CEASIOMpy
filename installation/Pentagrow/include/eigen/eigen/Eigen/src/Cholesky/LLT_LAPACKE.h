@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ********************************************************************************
- *   Content : Eigen bindings to LAPACKe
+ *   Content : eeigen bindings to LAPACKe
  *     LLt decomposition based on LAPACKE_?potrf function.
  ********************************************************************************
 */
@@ -33,7 +33,7 @@
 #ifndef EIGEN_LLT_LAPACKE_H
 #define EIGEN_LLT_LAPACKE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -70,7 +70,7 @@ template<> struct llt_inplace<EIGTYPE, Lower> \
   } \
   template<typename MatrixType, typename VectorType> \
   static Index rankUpdate(MatrixType& mat, const VectorType& vec, const typename MatrixType::RealScalar& sigma) \
-  { return Eigen::internal::llt_rank_update_lower(mat, vec, sigma); } \
+  { return eeigen::internal::llt_rank_update_lower(mat, vec, sigma); } \
 }; \
 template<> struct llt_inplace<EIGTYPE, Upper> \
 { \
@@ -94,6 +94,6 @@ EIGEN_LAPACKE_LLT(scomplex, lapack_complex_float, c)
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_LLT_LAPACKE_H

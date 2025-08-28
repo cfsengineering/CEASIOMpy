@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2010 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_INVERSE_IMPL_H
 #define EIGEN_INVERSE_IMPL_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -410,6 +410,6 @@ inline void MatrixBase<Derived>::computeInverseWithCheck(
   computeInverseAndDetWithCheck(inverse,determinant,invertible,absDeterminantThreshold);
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_INVERSE_IMPL_H

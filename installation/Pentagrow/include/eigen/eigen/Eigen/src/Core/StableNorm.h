@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_STABLENORM_H
 #define EIGEN_STABLENORM_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -216,6 +216,6 @@ MatrixBase<Derived>::hypotNorm() const
   return this->cwiseAbs().redux(internal::scalar_hypot_op<RealScalar>());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_STABLENORM_H

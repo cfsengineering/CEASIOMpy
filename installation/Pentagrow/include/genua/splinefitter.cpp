@@ -18,14 +18,14 @@
 #include "ndarray.h"
 #include "parallel_loop.h"
 #include "xcept.h"
-#include <Eigen/Core>
-#include <Eigen/Sparse>
-#include <Eigen/SparseLU>
+#include <eeigen/Core>
+#include <eeigen/Sparse>
+#include <eeigen/SparseLU>
 
-typedef Eigen::SparseMatrix<Real, Eigen::ColMajor> SpMatrixType;
-typedef Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic> DenseType;
-typedef Eigen::Map<const DenseType, Eigen::Aligned> DenseMap;
-typedef Eigen::Triplet<Real,int> Triplet;
+typedef eeigen::SparseMatrix<Real, eeigen::ColMajor> SpMatrixType;
+typedef eeigen::Matrix<Real, eeigen::Dynamic, eeigen::Dynamic> DenseType;
+typedef eeigen::Map<const DenseType, eeigen::Aligned> DenseMap;
+typedef eeigen::Triplet<Real,int> Triplet;
 typedef std::vector<Triplet> TripletArray;
 
 void SplineFitter::fitCubicCurve(const SplineBasis &basis, const Vector &up,
@@ -60,7 +60,7 @@ void SplineFitter::fitCubicCurve(const SplineBasis &basis, const Vector &up,
 
   // solve for control points
   assert(b.nrows() == uint(np));
-  Eigen::SparseLU<SpMatrixType> solver;
+  eeigen::SparseLU<SpMatrixType> solver;
   solver.compute( a );
   DenseMap mb( b.pointer(), b.nrows(), b.ncols() );
   DenseType mx = solver.solve(mb);
@@ -113,7 +113,7 @@ void SplineFitter::fitBicubicSurface(const SplineBasis &ubasis,
   // b(i,j,k) is already the same as a the required mb(i+j*nu,k)
   DenseMap mb( b.pointer(), nu*nv, nrhs);
 
-  Eigen::SparseLU<SpMatrixType> solver;
+  eeigen::SparseLU<SpMatrixType> solver;
   solver.compute( a );
   DenseType mx = solver.solve(mb);
 

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_ALLANDANY_H
 #define EIGEN_ALLANDANY_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -126,7 +126,7 @@ inline bool DenseBase<Derived>::any() const
   * \sa all(), any()
   */
 template<typename Derived>
-inline Eigen::Index DenseBase<Derived>::count() const
+inline eeigen::Index DenseBase<Derived>::count() const
 {
   return derived().template cast<bool>().template cast<Index>().sum();
 }
@@ -159,6 +159,6 @@ inline bool DenseBase<Derived>::allFinite() const
 #endif
 }
     
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_ALLANDANY_H

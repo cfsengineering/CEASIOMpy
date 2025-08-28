@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_DETERMINANT_H
 #define EIGEN_DETERMINANT_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -96,6 +96,6 @@ inline typename internal::traits<Derived>::Scalar MatrixBase<Derived>::determina
   return internal::determinant_impl<typename internal::remove_all<Nested>::type>::run(derived());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_DETERMINANT_H

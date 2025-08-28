@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2007 Michael Olbrich <michael.olbrich@gmx.net>
@@ -12,7 +12,7 @@
 #ifndef EIGEN_ASSIGN_H
 #define EIGEN_ASSIGN_H
 
-namespace Eigen {
+namespace eeigen {
 
 template<typename Derived>
 template<typename OtherDerived>
@@ -85,6 +85,6 @@ EIGEN_STRONG_INLINE Derived& MatrixBase<Derived>::operator=(const ReturnByValue<
   return derived();
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_ASSIGN_H

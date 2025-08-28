@@ -1,7 +1,7 @@
-#include <Eigen/Dense>
+#include <eeigen/Dense>
 #include <iostream>
 
-using namespace Eigen;
+using namespace eeigen;
 
 template <typename Derived1, typename Derived2>
 void copyUpperTriangularPart(MatrixBase<Derived1>& dst, const MatrixBase<Derived2>& src)

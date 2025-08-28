@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_STRIDING_H
 #define EIGEN_CXX11_TENSOR_TENSOR_STRIDING_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorStriding
   * \ingroup CXX11_Tensor_Module
@@ -34,7 +34,7 @@ struct traits<TensorStridingOp<Strides, XprType> > : public traits<XprType>
 };
 
 template<typename Strides, typename XprType>
-struct eval<TensorStridingOp<Strides, XprType>, Eigen::Dense>
+struct eval<TensorStridingOp<Strides, XprType>, eeigen::Dense>
 {
   typedef const TensorStridingOp<Strides, XprType>& type;
 };
@@ -53,12 +53,12 @@ template<typename Strides, typename XprType>
 class TensorStridingOp : public TensorBase<TensorStridingOp<Strides, XprType> >
 {
   public:
-  typedef typename Eigen::internal::traits<TensorStridingOp>::Scalar Scalar;
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
+  typedef typename eeigen::internal::traits<TensorStridingOp>::Scalar Scalar;
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
-  typedef typename Eigen::internal::nested<TensorStridingOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorStridingOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorStridingOp>::Index Index;
+  typedef typename eeigen::internal::nested<TensorStridingOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorStridingOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorStridingOp>::Index Index;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorStridingOp(const XprType& expr, const Strides& dims)
       : m_xpr(expr), m_dims(dims) {}
@@ -333,6 +333,6 @@ struct TensorEvaluator<TensorStridingOp<Strides, ArgType>, Device>
 };
 
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_STRIDING_H

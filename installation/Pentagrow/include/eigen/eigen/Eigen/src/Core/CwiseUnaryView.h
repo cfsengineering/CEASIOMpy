@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CWISE_UNARY_VIEW_H
 #define EIGEN_CWISE_UNARY_VIEW_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 template<typename ViewOp, typename MatrixType>
@@ -123,6 +123,6 @@ class CwiseUnaryViewImpl<ViewOp,MatrixType,Dense>
     }
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CWISE_UNARY_VIEW_H

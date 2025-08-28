@@ -1,8 +1,8 @@
-#include <Eigen/Dense>
+#include <eeigen/Dense>
 #include <iostream>
 
 using namespace std;
-using namespace Eigen;
+using namespace eeigen;
 
 int main()
 {

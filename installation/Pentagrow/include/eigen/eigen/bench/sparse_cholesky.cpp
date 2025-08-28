@@ -1,7 +1,7 @@
 // #define EIGEN_TAUCS_SUPPORT
 // #define EIGEN_CHOLMOD_SUPPORT
 #include <iostream>
-#include <Eigen/Sparse>
+#include <eeigen/Sparse>
 
 // g++ -DSIZE=10000 -DDENSITY=0.001  sparse_cholesky.cpp -I.. -DDENSEMATRI -O3 -g0 -DNDEBUG   -DNBTRIES=1 -I /home/gael/Coding/LinearAlgebra/taucs_full/src/ -I/home/gael/Coding/LinearAlgebra/taucs_full/build/linux/  -L/home/gael/Coding/LinearAlgebra/taucs_full/lib/linux/ -ltaucs /home/gael/Coding/LinearAlgebra/GotoBLAS/libgoto.a -lpthread -I /home/gael/Coding/LinearAlgebra/SuiteSparse/CHOLMOD/Include/ $CHOLLIB -I /home/gael/Coding/LinearAlgebra/SuiteSparse/UFconfig/ /home/gael/Coding/LinearAlgebra/SuiteSparse/CCOLAMD/Lib/libccolamd.a   /home/gael/Coding/LinearAlgebra/SuiteSparse/CHOLMOD/Lib/libcholmod.a -lmetis /home/gael/Coding/LinearAlgebra/SuiteSparse/AMD/Lib/libamd.a  /home/gael/Coding/LinearAlgebra/SuiteSparse/CAMD/Lib/libcamd.a   /home/gael/Coding/LinearAlgebra/SuiteSparse/CCOLAMD/Lib/libccolamd.a  /home/gael/Coding/LinearAlgebra/SuiteSparse/COLAMD/Lib/libcolamd.a -llapack && ./a.out
 
@@ -58,7 +58,7 @@ void fillSpdMatrix(float density, int rows, int cols,  EigenSparseSelfAdjointMat
   dst.endFill();
 }
 
-#include <Eigen/Cholesky>
+#include <eeigen/Cholesky>
 
 template<int Backend>
 void doEigen(const char* name, const EigenSparseSelfAdjointMatrix& sm1, int flags = 0)
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     if (!densedone)
     {
       densedone = true;
-      std::cout << "Eigen Dense\t" << density*100 << "%\n";
+      std::cout << "eeigen Dense\t" << density*100 << "%\n";
       DenseMatrix m1(rows,cols);
       eiToDense(sm1, m1);
       m1 = (m1 + m1.transpose()).eval();
@@ -124,14 +124,14 @@ int main(int argc, char *argv[])
     #endif
 
     // eigen sparse matrices
-    doEigen<Eigen::DefaultBackend>("Eigen/Sparse", sm1, Eigen::IncompleteFactorization);
+    doEigen<eeigen::DefaultBackend>("eeigen/Sparse", sm1, eeigen::IncompleteFactorization);
 
     #ifdef EIGEN_CHOLMOD_SUPPORT
-    doEigen<Eigen::Cholmod>("Eigen/Cholmod", sm1, Eigen::IncompleteFactorization);
+    doEigen<eeigen::Cholmod>("eeigen/Cholmod", sm1, eeigen::IncompleteFactorization);
     #endif
 
     #ifdef EIGEN_TAUCS_SUPPORT
-    doEigen<Eigen::Taucs>("Eigen/Taucs", sm1, Eigen::IncompleteFactorization);
+    doEigen<eeigen::Taucs>("eeigen/Taucs", sm1, eeigen::IncompleteFactorization);
     #endif
 
     #if 0

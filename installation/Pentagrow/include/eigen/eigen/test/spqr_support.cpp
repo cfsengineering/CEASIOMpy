@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Desire Nuentsa Wakam <desire.nuentsa_wakam@inria.fr>
@@ -8,7 +8,7 @@
 
 #define EIGEN_NO_DEBUG_SMALL_PRODUCT_BLOCKS
 #include "sparse.h"
-#include <Eigen/SPQRSupport>
+#include <eeigen/SPQRSupport>
 
 
 template<typename MatrixType,typename DenseMat>

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Désiré Nuentsa-Wakam <desire.nuentsa_wakam@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_SPARSELU_SUPERNODAL_MATRIX_H
 #define EIGEN_SPARSELU_SUPERNODAL_MATRIX_H
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 
 /** \ingroup SparseLU_Module
@@ -296,6 +296,6 @@ void MappedSuperNodalMatrix<Scalar,Index_>::solveInPlace( MatrixBase<Dest>&X) co
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSELU_MATRIX_H

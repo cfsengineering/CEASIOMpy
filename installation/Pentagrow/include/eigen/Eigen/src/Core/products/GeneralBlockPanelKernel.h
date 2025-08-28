@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,7 +11,7 @@
 #define EIGEN_GENERAL_BLOCK_PANEL_H
 
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -2151,6 +2151,6 @@ inline void setCpuCacheSizes(std::ptrdiff_t l1, std::ptrdiff_t l2, std::ptrdiff_
   internal::manage_caching_sizes(SetAction, &l1, &l2, &l3);
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_GENERAL_BLOCK_PANEL_H

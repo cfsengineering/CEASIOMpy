@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Tal Hadad <tal_hd@hotmail.com>
@@ -9,9 +9,9 @@
 
 #include "main.h"
 
-#include <unsupported/Eigen/EulerAngles>
+#include <unsupported/eeigen/EulerAngles>
 
-using namespace Eigen;
+using namespace eeigen;
 
 template<typename EulerSystem, typename Scalar>
 void verify_euler_ranged(const Matrix<Scalar,3,1>& ea,

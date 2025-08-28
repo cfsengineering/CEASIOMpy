@@ -1,4 +1,4 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \eigenManualPage TutorialGeometry Space transformations
 
@@ -6,11 +6,11 @@ In this page, we will introduce the many possibilities offered by the \ref Geome
 
 \eigenAutoToc
 
-Eigen's Geometry module provides two different kinds of geometric transformations:
+eeigen's Geometry module provides two different kinds of geometric transformations:
   - Abstract transformations, such as rotations (represented by \ref AngleAxis "angle and axis" or by a \ref Quaternion "quaternion"), \ref Translation "translations", \ref Scaling "scalings". These transformations are NOT represented as matrices, but you can nevertheless mix them with matrices and vectors in expressions, and convert them to matrices if you wish.
   - Projective or affine transformation matrices: see the Transform class. These are really matrices.
 
-\note If you are working with OpenGL 4x4 matrices then Affine3f and Affine3d are what you want. Since Eigen defaults to column-major storage, you can directly use the Transform::data() method to pass your transformation matrix to OpenGL.
+\note If you are working with OpenGL 4x4 matrices then Affine3f and Affine3d are what you want. Since eeigen defaults to column-major storage, you can directly use the Transform::data() method to pass your transformation matrix to OpenGL.
 
 You can construct a Transform from an abstract transformation, like this:
 \code
@@ -94,7 +94,7 @@ Affine3f m;     m  = Translation3f(..);     Affine3f m;   m = Matrix3f(..);
 
 <a href="#" class="top">top</a>\section TutorialGeoCommontransformationAPI Common API across transformation types
 
-To some extent, Eigen's \ref Geometry_Module "geometry module" allows you to write
+To some extent, eeigen's \ref Geometry_Module "geometry module" allows you to write
 generic algorithms working on any kind of transformation representations:
 <table class="manual">
 <tr><td>
@@ -112,7 +112,7 @@ rot3 = rot1.slerp(alpha,rot2);\endcode</td></tr>
 
 <a href="#" class="top">top</a>\section TutorialGeoTransform Affine transformations
 Generic affine transformations are represented by the Transform class which internaly
-is a (Dim+1)^2 matrix. In Eigen we have chosen to not distinghish between points and
+is a (Dim+1)^2 matrix. In eeigen we have chosen to not distinghish between points and
 vectors such that all points are actually represented by displacement vectors from the
 origin ( \f$ \mathbf{p} \equiv \mathbf{p}-0 \f$ ). With that in mind, real points and
 vector distinguish when the transformation is applied.

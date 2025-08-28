@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -20,7 +20,7 @@
 #include <cstdint>
 #endif
 
-namespace Eigen {
+namespace eeigen {
 
 typedef EIGEN_DEFAULT_DENSE_INDEX_TYPE DenseIndex;
 
@@ -36,7 +36,7 @@ namespace internal {
 
 /** \internal
   * \file Meta.h
-  * This file contains generic metaprogramming classes which are not specifically related to Eigen.
+  * This file contains generic metaprogramming classes which are not specifically related to eeigen.
   * \note In case you wonder, yes we're aware that Boost already provides all these features,
   * we however don't want to add a dependency to Boost.
   */
@@ -529,6 +529,6 @@ bool not_equal_strict(const double& x,const double& y) { return std::not_equal_t
 
 } // end namespace numext
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_META_H

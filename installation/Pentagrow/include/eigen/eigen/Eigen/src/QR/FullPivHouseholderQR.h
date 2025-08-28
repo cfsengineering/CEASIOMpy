@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_FULLPIVOTINGHOUSEHOLDERQR_H
 #define EIGEN_FULLPIVOTINGHOUSEHOLDERQR_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -138,7 +138,7 @@ template<typename _MatrixType> class FullPivHouseholderQR
 
     /** \brief Constructs a QR factorization from a given matrix
       *
-      * This overloaded constructor is provided for \link InplaceDecomposition inplace decomposition \endlink when \c MatrixType is a Eigen::Ref.
+      * This overloaded constructor is provided for \link InplaceDecomposition inplace decomposition \endlink when \c MatrixType is a eeigen::Ref.
       *
       * \sa FullPivHouseholderQR(const EigenBase&)
       */
@@ -328,7 +328,7 @@ template<typename _MatrixType> class FullPivHouseholderQR
       * who need to determine when pivots are to be considered nonzero. This is not used for the
       * QR decomposition itself.
       *
-      * When it needs to get the threshold value, Eigen calls threshold(). By default, this
+      * When it needs to get the threshold value, eeigen calls threshold(). By default, this
       * uses a formula to automatically determine a reasonable threshold.
       * Once you have called the present method setThreshold(const RealScalar&),
       * your value is used instead.
@@ -348,11 +348,11 @@ template<typename _MatrixType> class FullPivHouseholderQR
       return *this;
     }
 
-    /** Allows to come back to the default behavior, letting Eigen use its default formula for
+    /** Allows to come back to the default behavior, letting eeigen use its default formula for
       * determining the threshold.
       *
-      * You should pass the special object Eigen::Default as parameter here.
-      * \code qr.setThreshold(Eigen::Default); \endcode
+      * You should pass the special object eeigen::Default as parameter here.
+      * \code qr.setThreshold(eeigen::Default); \endcode
       *
       * See the documentation of setThreshold(const RealScalar&).
       */
@@ -671,6 +671,6 @@ MatrixBase<Derived>::fullPivHouseholderQr() const
   return FullPivHouseholderQR<PlainObject>(eval());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_FULLPIVOTINGHOUSEHOLDERQR_H

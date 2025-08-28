@@ -1,13 +1,13 @@
 
-namespace Eigen {
+namespace eeigen {
 
-/** \page TopicCUDA Using Eigen in CUDA kernels
+/** \page TopicCUDA Using eeigen in CUDA kernels
 
-\b Disclaimer: this page is about an \b experimental feature in %Eigen.
+\b Disclaimer: this page is about an \b experimental feature in %eeigen.
 
-Staring from CUDA 5.0, the CUDA compiler, \c nvcc, is able to properly parse %Eigen's code (almost).
-A few adaptations of the %Eigen's code already allows to use some parts of %Eigen in your own CUDA kernels.
-To this end you need the devel branch of %Eigen, CUDA 5.0 or greater with GCC.
+Staring from CUDA 5.0, the CUDA compiler, \c nvcc, is able to properly parse %eeigen's code (almost).
+A few adaptations of the %eeigen's code already allows to use some parts of %eeigen in your own CUDA kernels.
+To this end you need the devel branch of %eeigen, CUDA 5.0 or greater with GCC.
 
 Known issues:
 
@@ -24,8 +24,8 @@ Known issues:
     #endif
    \endcode
    
- - On 64bits system Eigen uses \c long \c int as the default type for indexes and sizes. On CUDA device, it would make sense to default to 32 bits \c int.
-   However, to keep host and CUDA code compatible, this cannot be done automatically by %Eigen, and the user is thus required to define \c EIGEN_DEFAULT_DENSE_INDEX_TYPE to \c int throughout his code (or only for CUDA code if there is no interaction between host and CUDA code through %Eigen's object).
+ - On 64bits system eeigen uses \c long \c int as the default type for indexes and sizes. On CUDA device, it would make sense to default to 32 bits \c int.
+   However, to keep host and CUDA code compatible, this cannot be done automatically by %eeigen, and the user is thus required to define \c EIGEN_DEFAULT_DENSE_INDEX_TYPE to \c int throughout his code (or only for CUDA code if there is no interaction between host and CUDA code through %eeigen's object).
 
 */
 

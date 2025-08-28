@@ -19,7 +19,7 @@
 #include "smatrix.h"
 #include "dmatrix.h"
 #include "propmacro.h"
-#include <Eigen/Cholesky>
+#include <eeigen/Cholesky>
 
 /** Interface for SDIRK integrators.
 
@@ -93,7 +93,7 @@ protected:
   Real m_hglast = 0;
 
   /// Cholesky factorization of T
-  Eigen::LLT<EMatrix> m_llt;
+  eeigen::LLT<EMatrix> m_llt;
 };
 
 /** Base class for SDIRK integrators.

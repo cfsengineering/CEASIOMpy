@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -9,9 +9,9 @@
 
 #include "main.h"
 
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
+using eeigen::Tensor;
 
 template <int DataLayout>
 static void test_simple_broadcasting()
@@ -116,9 +116,9 @@ static void test_static_broadcasting()
   tensor.setRandom();
 
 #if EIGEN_HAS_CONSTEXPR
-  Eigen::IndexList<Eigen::type2index<2>, Eigen::type2index<3>, Eigen::type2index<4>> broadcasts;
+  eeigen::IndexList<eeigen::type2index<2>, eeigen::type2index<3>, eeigen::type2index<4>> broadcasts;
 #else
-  Eigen::array<int, 3> broadcasts;
+  eeigen::array<int, 3> broadcasts;
   broadcasts[0] = 2;
   broadcasts[1] = 3;
   broadcasts[2] = 4;
@@ -167,13 +167,13 @@ static void test_fixed_size_broadcasting()
   TensorFixedSize<float, Sizes<1>, DataLayout> t2;
   t2 = t2.constant(20.0f);
 
-  Tensor<float, 1, DataLayout> t3 = t1 + t2.broadcast(Eigen::array<int, 1>{{10}});
+  Tensor<float, 1, DataLayout> t3 = t1 + t2.broadcast(eeigen::array<int, 1>{{10}});
   for (int i = 0; i < 10; ++i) {
     VERIFY_IS_APPROX(t3(i), t1(i) + t2(0));
   }
 
   TensorMap<TensorFixedSize<float, Sizes<1>, DataLayout> > t4(t2.data(), {{1}});
-  Tensor<float, 1, DataLayout> t5 = t1 + t4.broadcast(Eigen::array<int, 1>{{10}});
+  Tensor<float, 1, DataLayout> t5 = t1 + t4.broadcast(eeigen::array<int, 1>{{10}});
   for (int i = 0; i < 10; ++i) {
     VERIFY_IS_APPROX(t5(i), t1(i) + t2(0));
   }

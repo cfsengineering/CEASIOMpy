@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     // dense matrices
     #ifdef DENSEMATRIX
     {
-      std::cout << "Eigen Dense\t" << density*100 << "%\n";
+      std::cout << "eeigen Dense\t" << density*100 << "%\n";
       DenseMatrix m1(rows,cols);
       eiToDense(sm1, m1);
 
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 
     // eigen sparse matrices
     {
-      std::cout << "Eigen sparse\t" << sm1.nonZeros()/float(sm1.rows()*sm1.cols())*100 << "%\n";
+      std::cout << "eeigen sparse\t" << sm1.nonZeros()/float(sm1.rows()*sm1.cols())*100 << "%\n";
 
       BENCH(asm("#myc"); v2 = sm1 * v1; asm("#myd");)
       std::cout << "   a * v:\t" << timer.best()/REPEAT << "  " << double(REPEAT)/timer.best(REAL_TIMER) << " * / sec " << endl;
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 
 //     {
 //       DynamicSparseMatrix<Scalar> m1(sm1);
-//       std::cout << "Eigen dyn-sparse\t" << m1.nonZeros()/float(m1.rows()*m1.cols())*100 << "%\n";
+//       std::cout << "eeigen dyn-sparse\t" << m1.nonZeros()/float(m1.rows()*m1.cols())*100 << "%\n";
 //
 //       BENCH(for (int k=0; k<REPEAT; ++k) v2 = m1 * v1;)
 //       std::cout << "   a * v:\t" << timer.value() << endl;

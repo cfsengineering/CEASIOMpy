@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_EVALUATOR_H
 #define EIGEN_CXX11_TENSOR_TENSOR_EVALUATOR_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorEvaluator
   * \ingroup CXX11_Tensor_Module
@@ -136,8 +136,8 @@ double loadConstant(const double* address) {
   return __ldg(address);
 }
 template <> EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
-Eigen::half loadConstant(const Eigen::half* address) {
-  return Eigen::half(half_impl::raw_uint16_to_half(__ldg(&address->x)));
+eeigen::half loadConstant(const eeigen::half* address) {
+  return eeigen::half(half_impl::raw_uint16_to_half(__ldg(&address->x)));
 }
 #endif
 }
@@ -628,6 +628,6 @@ struct TensorEvaluator<const TensorSelectOp<IfArgType, ThenArgType, ElseArgType>
 };
 
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_EVALUATOR_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2013 Christian Seiler <christian@iwakd.de>
@@ -17,7 +17,7 @@
   #define EIGEN_INTERNAL_TENSOR_STORAGE_CTOR_PLUGIN
 #endif
 
-namespace Eigen {
+namespace eeigen {
 
 /** \internal
   *
@@ -141,6 +141,6 @@ class TensorStorage<T, DSizes<IndexType, NumIndices_>, Options_>
   Dimensions m_dimensions;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSORSTORAGE_H

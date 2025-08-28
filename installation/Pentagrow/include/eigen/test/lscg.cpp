@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011 Gael Guennebaud <g.gael@free.fr>
@@ -8,7 +8,7 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "sparse_solver.h"
-#include <Eigen/IterativeLinearSolvers>
+#include <eeigen/IterativeLinearSolvers>
 
 template<typename T> void test_lscg_T()
 {

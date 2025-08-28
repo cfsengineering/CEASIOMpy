@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPARSE_REF_H
 #define EIGEN_SPARSE_REF_H
 
-namespace Eigen {
+namespace eeigen {
 
 enum {
   StandardCompressedFormat = 2 /**< used by Ref<SparseMatrix> to specify whether the input storage must be in standard compressed form */
@@ -392,6 +392,6 @@ struct evaluator<Ref<const SparseVector<MatScalar,MatOptions,MatIndex>, Options,
 
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSE_REF_H

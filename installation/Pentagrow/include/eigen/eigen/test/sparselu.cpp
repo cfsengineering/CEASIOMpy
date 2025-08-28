@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Désiré Nuentsa-Wakam <desire.nuentsa_wakam@inria.fr>
@@ -16,8 +16,8 @@
 #endif
 
 #include "sparse_solver.h"
-#include <Eigen/SparseLU>
-#include <unsupported/Eigen/SparseExtra>
+#include <eeigen/SparseLU>
+#include <unsupported/eeigen/SparseExtra>
 
 template<typename T> void test_sparselu_T()
 {

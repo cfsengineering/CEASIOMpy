@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -9,12 +9,12 @@
 
 #include "main.h"
 
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
 struct Generator1D {
   Generator1D() { }
 
-  float operator()(const array<Eigen::DenseIndex, 1>& coordinates) const {
+  float operator()(const array<eeigen::DenseIndex, 1>& coordinates) const {
     return coordinates[0];
   }
 };
@@ -34,7 +34,7 @@ static void test_1D()
 struct Generator2D {
   Generator2D() { }
 
-  float operator()(const array<Eigen::DenseIndex, 2>& coordinates) const {
+  float operator()(const array<eeigen::DenseIndex, 2>& coordinates) const {
     return 3 * coordinates[0] + 11 * coordinates[1];
   }
 };
@@ -64,7 +64,7 @@ static void test_gaussian()
   array<float, 2> std_devs;
   std_devs[0] = 3.14f;
   std_devs[1] = 2.7f;
-  internal::GaussianGenerator<float, Eigen::DenseIndex, 2> gaussian_gen(means, std_devs);
+  internal::GaussianGenerator<float, eeigen::DenseIndex, 2> gaussian_gen(means, std_devs);
 
   Tensor<float, 2> matrix(rows, cols);
   Tensor<float, 2> result = matrix.generate(gaussian_gen);

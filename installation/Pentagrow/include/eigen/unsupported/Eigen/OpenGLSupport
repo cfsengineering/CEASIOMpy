@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_OPENGL_MODULE
 #define EIGEN_OPENGL_MODULE
 
-#include <Eigen/Geometry>
+#include <eeigen/Geometry>
 
 #if defined(__APPLE_CC__)
   #include <OpenGL/gl.h>
@@ -18,18 +18,18 @@
   #include <GL/gl.h>
 #endif
 
-namespace Eigen {
+namespace eeigen {
 
 /**
   * \defgroup OpenGLSUpport_Module OpenGL Support module
   *
   * This module provides wrapper functions for a couple of OpenGL functions
-  * which simplify the way to pass Eigen's object to openGL.
+  * which simplify the way to pass eeigen's object to openGL.
   * Here is an exmaple:
   * 
   * \code
   * // You need to add path_to_eigen/unsupported to your include path.
-  * #include <Eigen/OpenGLSupport>
+  * #include <eeigen/OpenGLSupport>
   * // ...
   * Vector3f x, y;
   * Matrix3f rot;
@@ -63,7 +63,7 @@ namespace internal {                                                            
   };                                                                                                                \
 }                                                                                                                   \
                                                                                                                     \
-template<typename Derived> inline void FUNC(const Eigen::DenseBase<Derived>& p) {                                   \
+template<typename Derived> inline void FUNC(const eeigen::DenseBase<Derived>& p) {                                   \
   EIGEN_CAT(EIGEN_CAT(internal::gl_,FUNC),_impl)<Derived>::run(p.derived());                                        \
 }
 
@@ -215,7 +215,7 @@ namespace internal {                                                            
   };                                                                                                                            \
 }                                                                                                                               \
                                                                                                                                 \
-template<typename Derived> inline void FUNC(ARG1 a,EIGEN_GL_EVAL(EIGEN_GL_MAKE_CONST_##CONST) Eigen::DenseBase<Derived>& p) {   \
+template<typename Derived> inline void FUNC(ARG1 a,EIGEN_GL_EVAL(EIGEN_GL_MAKE_CONST_##CONST) eeigen::DenseBase<Derived>& p) {   \
   EIGEN_CAT(EIGEN_CAT(internal::gl_,FUNC),_impl)<Derived>::run(a,p.derived());                                                  \
 }
 

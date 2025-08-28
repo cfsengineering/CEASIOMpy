@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_ARRAYWRAPPER_H
 #define EIGEN_ARRAYWRAPPER_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \class ArrayWrapper
   * \ingroup Core_Module
@@ -204,6 +204,6 @@ class MatrixWrapper : public MatrixBase<MatrixWrapper<ExpressionType> >
     NestedExpressionType m_expression;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_ARRAYWRAPPER_H

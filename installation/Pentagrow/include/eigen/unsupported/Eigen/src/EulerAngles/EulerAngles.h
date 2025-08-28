@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Tal Hadad <tal_hd@hotmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_EULERANGLESCLASS_H// TODO: Fix previous "EIGEN_EULERANGLES_H" definition?
 #define EIGEN_EULERANGLESCLASS_H
 
-namespace Eigen
+namespace eeigen
 {
   /*template<typename Other,
          int OtherRows=Other::RowsAtCompileTime,
@@ -37,8 +37,8 @@ namespace Eigen
     *
     * It has been proved(see Wikipedia link below) that every rotation can be represented
     *  by Euler angles, but there is no singular representation (e.g. unlike rotation matrices).
-    * Therefore, you can convert from Eigen rotation and to them
-    *  (including rotation matrices, which is not called "rotations" by Eigen design).
+    * Therefore, you can convert from eeigen rotation and to them
+    *  (including rotation matrices, which is not called "rotations" by eeigen design).
     *
     * Euler angles usually used for:
     *  - convenient human representation of rotation, especially in interactive GUI.
@@ -99,7 +99,7 @@ namespace Eigen
     *
     * ### Additional reading ###
     *
-    * If you're want to get more idea about how Euler system work in Eigen see EulerSystem.
+    * If you're want to get more idea about how Euler system work in eeigen see EulerSystem.
     *
     * More information about Euler angles: https://en.wikipedia.org/wiki/Euler_angles
     *

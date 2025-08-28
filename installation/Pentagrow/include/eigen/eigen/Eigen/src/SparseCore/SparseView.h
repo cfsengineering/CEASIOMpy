@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_SPARSEVIEW_H
 #define EIGEN_SPARSEVIEW_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -248,6 +248,6 @@ SparseMatrixBase<Derived>::pruned(const Scalar& reference,
   return SparseView<Derived>(derived(), reference, epsilon);
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_CORE_H
 #define EIGEN_CORE_H
 
-// first thing Eigen does: stop the compiler from committing suicide
+// first thing eeigen does: stop the compiler from committing suicide
 #include "src/Core/util/DisableStupidWarnings.h"
 
 #if defined(__CUDACC__) && !defined(EIGEN_NO_CUDA)
@@ -183,7 +183,7 @@
     // In essence, intrin.h is included by windows.h and also declares intrinsics (just as emmintrin.h etc. below do).
     // However, intrin.h uses an extern "C" declaration, and g++ thus complains of duplicate declarations
     // with conflicting linkage.  The linkage for intrinsics doesn't matter, but at that stage the compiler doesn't know;
-    // so, to avoid compile errors when windows.h is included after Eigen/Core, ensure intrinsics are extern "C" here too.
+    // so, to avoid compile errors when windows.h is included after eeigen/Core, ensure intrinsics are extern "C" here too.
     // notice that since these are C headers, the extern "C" is theoretically needed anyways.
     extern "C" {
       // In theory we should only include immintrin.h and not the other *mmintrin.h header files directly.
@@ -302,8 +302,8 @@
   #include <intrin.h>
 #endif
 
-/** \brief Namespace containing all symbols from the %Eigen library. */
-namespace Eigen {
+/** \brief Namespace containing all symbols from the %eeigen library. */
+namespace eeigen {
 
 inline static const char *SimdInstructionSetsInUse(void) {
 #if defined(EIGEN_VECTORIZE_AVX512)
@@ -333,14 +333,14 @@ inline static const char *SimdInstructionSetsInUse(void) {
 #endif
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #if defined EIGEN2_SUPPORT_STAGE40_FULL_EIGEN3_STRICTNESS || defined EIGEN2_SUPPORT_STAGE30_FULL_EIGEN3_API || defined EIGEN2_SUPPORT_STAGE20_RESOLVE_API_CONFLICTS || defined EIGEN2_SUPPORT_STAGE10_FULL_EIGEN2_API || defined EIGEN2_SUPPORT
 // This will generate an error message:
 #error Eigen2-support is only available up to version 3.2. Please go to "http://eigen.tuxfamily.org/index.php?title=Eigen2" for further information
 #endif
 
-namespace Eigen {
+namespace eeigen {
 
 // we use size_t frequently and we'll never remember to prepend it with std:: everytime just to
 // ensure QNX/QCC support
@@ -351,12 +351,12 @@ using std::ptrdiff_t;
 }
 
 /** \defgroup Core_Module Core module
-  * This is the main module of Eigen providing dense matrix and vector support
+  * This is the main module of eeigen providing dense matrix and vector support
   * (both fixed and dynamic size) with all the features corresponding to a BLAS library
   * and much more...
   *
   * \code
-  * #include <Eigen/Core>
+  * #include <eeigen/Core>
   * \endcode
   */
 

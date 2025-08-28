@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // This Source Code Form is subject to the terms of the Mozilla
@@ -33,7 +33,7 @@ typedef int int_t;
 
 #define SUPERLU_EMPTY (-1)
 
-namespace Eigen { struct SluMatrix; }
+namespace eeigen { struct SluMatrix; }
 
 /** \ingroup Support_modules
   * \defgroup SuperLUSupport_Module SuperLUSupport module
@@ -48,7 +48,7 @@ namespace Eigen { struct SluMatrix; }
   * \warning When including this module, you have to use SUPERLU_EMPTY instead of EMPTY which is no longer defined because it is too polluting.
   *
   * \code
-  * #include <Eigen/SuperLUSupport>
+  * #include <eeigen/SuperLUSupport>
   * \endcode
   *
   * In order to use this module, the superlu headers must be accessible from the include paths, and your binary must be linked to the superlu library and its dependencies.

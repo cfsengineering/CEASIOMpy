@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_TRANSLATION_H
 #define EIGEN_TRANSLATION_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \geometry_module \ingroup Geometry_Module
   *
@@ -203,6 +203,6 @@ Translation<Scalar,Dim>::operator* (const EigenBase<OtherDerived>& linear) const
   return res;
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_TRANSLATION_H

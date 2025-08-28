@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Pedro Gonnet (pedro.gonnet@gmail.com)
@@ -14,7 +14,7 @@
  * Julien Pommier's sse math library: http://gruntthepeon.free.fr/ssemath/
  */
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -434,6 +434,6 @@ Packet4d prsqrt<Packet4d>(const Packet4d& x) {
 
 }  // end namespace internal
 
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 #endif  // EIGEN_MATH_FUNCTIONS_AVX_H

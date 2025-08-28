@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_REF_H
 #define EIGEN_REF_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -133,7 +133,7 @@ protected:
   *                   This can be overridden by specifying strides.
   *                   The type passed here must be a specialization of the Stride template, see examples below.
   *
-  * This class provides a way to write non-template functions taking Eigen objects as parameters while limiting the number of copies.
+  * This class provides a way to write non-template functions taking eeigen objects as parameters while limiting the number of copies.
   * A Ref<> object can represent either a const expression or a l-value:
   * \code
   * // in-out argument:
@@ -278,6 +278,6 @@ template<typename TPlainObjectType, int Options, typename StrideType> class Ref<
     TPlainObjectType m_object;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_REF_H

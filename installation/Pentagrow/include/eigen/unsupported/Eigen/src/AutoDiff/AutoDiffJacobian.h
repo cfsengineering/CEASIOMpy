@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_AUTODIFF_JACOBIAN_H
 #define EIGEN_AUTODIFF_JACOBIAN_H
 
-namespace Eigen
+namespace eeigen
 {
 
 template<typename Functor> class AutoDiffJacobian : public Functor

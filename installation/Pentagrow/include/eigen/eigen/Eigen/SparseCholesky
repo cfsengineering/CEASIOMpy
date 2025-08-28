@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2013 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -26,7 +26,7 @@
   * Such problems can also be solved using the ConjugateGradient solver from the IterativeLinearSolvers module.
   *
   * \code
-  * #include <Eigen/SparseCholesky>
+  * #include <eeigen/SparseCholesky>
   * \endcode
   */
 

@@ -14,6 +14,8 @@ RUN apt-get install -y --no-install-recommends \
     libgl1 libglu1-mesa libegl1 libosmesa6 xvfb ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
+
+
 # Install Miniconda
 ENV CONDA_DIR=/opt/conda
 RUN curl -fsSL https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -o /tmp/miniforge.sh && \
@@ -23,9 +25,17 @@ ENV PATH=$CONDA_DIR/bin:$PATH
 
 RUN apt-get install -y
 
+# Install dos2unix
+RUN apt-get update && apt-get install -y dos2unix && rm -rf /var/lib/apt/lists/*
+
 # Create the installation directory structure
 WORKDIR /CEASIOMpy/installation/
 COPY ./installation .
+
+# Fix line endings and permissions in one go
+RUN find /CEASIOMpy/installation -name "*.sh" -type f -exec dos2unix {} \; && \
+    find /CEASIOMpy/installation -name "*.sh" -type f -exec chmod +x {} \;
+
 WORKDIR /CEASIOMpy/installation/Ubuntu
 RUN chmod +x install_*.sh
 WORKDIR /CEASIOMpy/installation/Pentagrow/bin

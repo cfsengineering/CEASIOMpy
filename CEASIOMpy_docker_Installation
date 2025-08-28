@@ -14,8 +14,6 @@ RUN apt-get install -y --no-install-recommends \
     libgl1 libglu1-mesa libegl1 libosmesa6 xvfb ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-
-
 # Install Miniconda
 ENV CONDA_DIR=/opt/conda
 RUN curl -fsSL https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -o /tmp/miniforge.sh && \
@@ -33,8 +31,7 @@ WORKDIR /CEASIOMpy/installation/
 COPY ./installation .
 
 # Fix line endings and permissions in one go
-RUN find /CEASIOMpy/installation -name "*.sh" -type f -exec dos2unix {} \; && \
-    find /CEASIOMpy/installation -name "*.sh" -type f -exec chmod +x {} \;
+RUN find /CEASIOMpy/installation -name "*.sh" -type f -exec dos2unix {} \;
 
 WORKDIR /CEASIOMpy/installation/Ubuntu
 RUN chmod +x install_*.sh
@@ -42,9 +39,9 @@ WORKDIR /CEASIOMpy/installation/Pentagrow/bin
 RUN chmod +x pentagrow
 
 WORKDIR /
-RUN CEASIOMpy/installation/Ubuntu/install_pentagrow.sh && \
-    CEASIOMpy/installation/Ubuntu/install_su2_with_mpi.sh && \
-    CEASIOMpy/installation/Ubuntu/install_pyavl.sh
+RUN /CEASIOMpy/installation/Ubuntu/install_pentagrow.sh && \
+    /CEASIOMpy/installation/Ubuntu/install_su2_with_mpi.sh && \
+    /CEASIOMpy/installation/Ubuntu/install_pyavl.sh
 
 # Install xvfb and other graphical display dependencies for Ubuntu
 RUN apt-get update && apt-get install -y --no-install-recommends \

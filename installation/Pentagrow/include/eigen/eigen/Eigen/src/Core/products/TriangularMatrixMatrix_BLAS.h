@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ********************************************************************************
- *   Content : Eigen bindings to BLAS F77
+ *   Content : eeigen bindings to BLAS F77
  *   Triangular matrix * matrix product functionality based on ?TRMM.
  ********************************************************************************
 */
@@ -33,7 +33,7 @@
 #ifndef EIGEN_TRIANGULAR_MATRIX_MATRIX_BLAS_H
 #define EIGEN_TRIANGULAR_MATRIX_MATRIX_BLAS_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -117,7 +117,7 @@ struct product_triangular_matrix_matrix_trmm<EIGTYPE,Index,Mode,true, \
        product_triangular_matrix_matrix<EIGTYPE,Index,Mode,true, \
        LhsStorageOrder,ConjugateLhs, RhsStorageOrder, ConjugateRhs, ColMajor, BuiltIn>::run( \
            _rows, _cols, _depth, _lhs, lhsStride, _rhs, rhsStride, res, resStride, alpha, blocking); \
-     /*std::cout << "TRMM_L: A is not square! Go to Eigen TRMM implementation!\n";*/ \
+     /*std::cout << "TRMM_L: A is not square! Go to eeigen TRMM implementation!\n";*/ \
      } else { \
      /* Make sense to call GEMM */ \
        Map<const MatrixLhs, 0, OuterStride<> > lhsMap(_lhs,rows,depth,OuterStride<>(lhsStride)); \
@@ -234,7 +234,7 @@ struct product_triangular_matrix_matrix_trmm<EIGTYPE,Index,Mode,false, \
        product_triangular_matrix_matrix<EIGTYPE,Index,Mode,false, \
        LhsStorageOrder,ConjugateLhs, RhsStorageOrder, ConjugateRhs, ColMajor, BuiltIn>::run( \
            _rows, _cols, _depth, _lhs, lhsStride, _rhs, rhsStride, res, resStride, alpha, blocking); \
-       /*std::cout << "TRMM_R: A is not square! Go to Eigen TRMM implementation!\n";*/ \
+       /*std::cout << "TRMM_R: A is not square! Go to eeigen TRMM implementation!\n";*/ \
      } else { \
      /* Make sense to call GEMM */ \
        Map<const MatrixRhs, 0, OuterStride<> > rhsMap(_rhs,depth,cols, OuterStride<>(rhsStride)); \
@@ -310,6 +310,6 @@ EIGEN_BLAS_TRMM_R(scomplex, float, cf, ctrmm_)
 #endif
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_TRIANGULAR_MATRIX_MATRIX_BLAS_H

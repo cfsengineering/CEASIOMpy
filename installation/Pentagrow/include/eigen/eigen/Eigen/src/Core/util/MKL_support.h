@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ********************************************************************************
- *   Content : Eigen bindings to Intel(R) MKL
+ *   Content : eeigen bindings to Intel(R) MKL
  *   Include file with common MKL declarations
  ********************************************************************************
 */
@@ -56,7 +56,7 @@
 
 #if defined EIGEN_USE_MKL
 #   include <mkl.h> 
-/*Check IMKL version for compatibility: < 10.3 is not usable with Eigen*/
+/*Check IMKL version for compatibility: < 10.3 is not usable with eeigen*/
 #   ifndef INTEL_MKL_VERSION
 #       undef EIGEN_USE_MKL /* INTEL_MKL_VERSION is not even defined on older versions */
 #   elif INTEL_MKL_VERSION < 100305    /* the intel-mkl-103-release-notes say this was when the lapacke.h interface was added*/
@@ -113,7 +113,7 @@
 #include "../../misc/blas.h"
 #endif
 
-namespace Eigen {
+namespace eeigen {
 
 typedef std::complex<double> dcomplex;
 typedef std::complex<float>  scomplex;
@@ -124,7 +124,7 @@ typedef MKL_INT BlasIndex;
 typedef int BlasIndex;
 #endif
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 
 #endif // EIGEN_MKL_SUPPORT_H

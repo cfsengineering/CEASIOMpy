@@ -1,4 +1,4 @@
-// This file is triangularView of Eigen, a lightweight C++ template library
+// This file is triangularView of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -57,7 +57,7 @@ template<typename MatrixType> void bandmatrix(const MatrixType& _m)
 
 }
 
-using Eigen::internal::BandMatrix;
+using eeigen::internal::BandMatrix;
 
 void test_bandmatrix()
 {

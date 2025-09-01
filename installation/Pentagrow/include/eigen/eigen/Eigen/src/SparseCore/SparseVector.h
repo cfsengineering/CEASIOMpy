@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPARSEVECTOR_H
 #define EIGEN_SPARSEVECTOR_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \ingroup SparseCore_Module
   * \class SparseVector
@@ -473,6 +473,6 @@ struct sparse_vector_assign_selector<Dest,Src,SVA_RuntimeSwitch> {
 
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSEVECTOR_H

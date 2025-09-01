@@ -298,7 +298,7 @@ operator^(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived> &other) const
   *
   * \warning Be careful with the order of the parameters: x.polygamma(n) is equivalent to polygamma(n,x)
   *
-  * \sa Eigen::polygamma()
+  * \sa eeigen::polygamma()
   */
 template<typename DerivedN>
 inline const CwiseBinaryOp<internal::scalar_polygamma_op<Scalar>, const DerivedN, const Derived>
@@ -322,7 +322,7 @@ polygamma(const EIGEN_CURRENT_STORAGE_BASE_CLASS<DerivedN> &n) const
   *
   * This method is an alias for zeta(*this,q);
   *
-  * \sa Eigen::zeta()
+  * \sa eeigen::zeta()
   */
 template<typename DerivedQ>
 inline const CwiseBinaryOp<internal::scalar_zeta_op<Scalar>, const Derived, const DerivedQ>

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_RANDOM_H
 #define EIGEN_CXX11_TENSOR_TENSOR_RANDOM_H
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 
 namespace {
@@ -80,15 +80,15 @@ T RandomToTypeUniform(uint64_t* state) {
 
 
 template <> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
-Eigen::half RandomToTypeUniform<Eigen::half>(uint64_t* state) {
-  Eigen::half result;
+eeigen::half RandomToTypeUniform<eeigen::half>(uint64_t* state) {
+  eeigen::half result;
   // Generate 10 random bits for the mantissa
   unsigned rnd = PCG_XSH_RS_generator(state);
   result.x = static_cast<uint16_t>(rnd & 0x3ffu);
   // Set the exponent
   result.x |= (static_cast<uint16_t>(15) << 10);
   // Return the final result
-  return result - Eigen::half(1.0f);
+  return result - eeigen::half(1.0f);
 }
 
 
@@ -271,6 +271,6 @@ struct functor_traits<NormalRandomGenerator<Scalar> > {
 
 
 } // end namespace internal
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_RANDOM_H

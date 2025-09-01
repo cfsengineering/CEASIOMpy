@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_ASSIGNMENT_FUNCTORS_H
 #define EIGEN_ASSIGNMENT_FUNCTORS_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
   
@@ -163,6 +163,6 @@ struct functor_traits<swap_assign_op<Scalar> > {
 
 } // namespace internal
 
-} // namespace Eigen
+} // namespace eeigen
 
 #endif // EIGEN_ASSIGNMENT_FUNCTORS_H

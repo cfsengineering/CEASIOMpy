@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPARSEMATRIX_H
 #define EIGEN_SPARSEMATRIX_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \ingroup SparseCore_Module
   *
@@ -34,8 +34,8 @@ namespace Eigen {
   *                 is ColMajor or RowMajor. The default is 0 which means column-major.
   * \tparam _StorageIndex the type of the indices. It has to be a \b signed type (e.g., short, int, std::ptrdiff_t). Default is \c int.
   *
-  * \warning In %Eigen 3.2, the undocumented type \c SparseMatrix::Index was improperly defined as the storage index type (e.g., int),
-  *          whereas it is now (starting from %Eigen 3.3) deprecated and always defined as Eigen::Index.
+  * \warning In %eeigen 3.2, the undocumented type \c SparseMatrix::Index was improperly defined as the storage index type (e.g., int),
+  *          whereas it is now (starting from %eeigen 3.3) deprecated and always defined as eeigen::Index.
   *          Codes making use of \c SparseMatrix::Index, might thus likely have to be changed to use \c SparseMatrix::StorageIndex instead.
   *
   * This class can be extended with the help of the plugin mechanism described on the page
@@ -276,7 +276,7 @@ class SparseMatrix
         const value_type& operator[](i) const;
         \endcode
       * for \c i in the [0,this->outerSize()[ range.
-      * Typical choices include std::vector<int>, Eigen::VectorXi, Eigen::VectorXi::Constant, etc.
+      * Typical choices include std::vector<int>, eeigen::VectorXi, eeigen::VectorXi::Constant, etc.
       */
     template<class SizesType>
     inline void reserve(const SizesType& reserveSizes);
@@ -745,9 +745,9 @@ class SparseMatrix
     {
       eigen_assert(rows() == cols() && "ONLY FOR SQUARED MATRICES");
       this->m_data.resize(rows());
-      Eigen::Map<IndexVector>(this->m_data.indexPtr(), rows()).setLinSpaced(0, StorageIndex(rows()-1));
-      Eigen::Map<ScalarVector>(this->m_data.valuePtr(), rows()).setOnes();
-      Eigen::Map<IndexVector>(this->m_outerIndex, rows()+1).setLinSpaced(0, StorageIndex(rows()));
+      eeigen::Map<IndexVector>(this->m_data.indexPtr(), rows()).setLinSpaced(0, StorageIndex(rows()-1));
+      eeigen::Map<ScalarVector>(this->m_data.valuePtr(), rows()).setOnes();
+      eeigen::Map<IndexVector>(this->m_outerIndex, rows()+1).setLinSpaced(0, StorageIndex(rows()));
       std::free(m_innerNonZeros);
       m_innerNonZeros = 0;
     }
@@ -967,7 +967,7 @@ void set_from_triplets(const InputIterator& begin, const InputIterator& end, Spa
   * Scalar row() const;   // the row index i
   * Scalar col() const;   // the column index j
   * \endcode
-  * See for instance the Eigen::Triplet template class.
+  * See for instance the eeigen::Triplet template class.
   *
   * Here is a typical usage example:
   * \code
@@ -1080,7 +1080,7 @@ EIGEN_DONT_INLINE SparseMatrix<Scalar,_Options,_StorageIndex>& SparseMatrix<Scal
     OtherCopyEval otherCopyEval(otherCopy);
 
     SparseMatrix dest(other.rows(),other.cols());
-    Eigen::Map<IndexVector> (dest.m_outerIndex,dest.outerSize()).setZero();
+    eeigen::Map<IndexVector> (dest.m_outerIndex,dest.outerSize()).setZero();
 
     // pass 1
     // FIXME the above copy could be merged with that pass
@@ -1398,6 +1398,6 @@ struct evaluator<SparseMatrix<_Scalar,_Options,_StorageIndex> >
 
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSEMATRIX_H

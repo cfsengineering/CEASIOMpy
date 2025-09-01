@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_HOUSEHOLDER_SEQUENCE_H
 #define EIGEN_HOUSEHOLDER_SEQUENCE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \ingroup Householder_Module
   * \householder_module
@@ -465,6 +465,6 @@ HouseholderSequence<VectorsType,CoeffsType,OnTheRight> rightHouseholderSequence(
   return HouseholderSequence<VectorsType,CoeffsType,OnTheRight>(v, h);
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_HOUSEHOLDER_SEQUENCE_H

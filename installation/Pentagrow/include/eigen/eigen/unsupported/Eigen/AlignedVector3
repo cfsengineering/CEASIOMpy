@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Gael Guennebaud <g.gael@free.fr>
@@ -10,15 +10,15 @@
 #ifndef EIGEN_ALIGNED_VECTOR3
 #define EIGEN_ALIGNED_VECTOR3
 
-#include <Eigen/Geometry>
+#include <eeigen/Geometry>
 
-namespace Eigen {
+namespace eeigen {
 
 /**
   * \defgroup AlignedVector3_Module Aligned vector3 module
   *
   * \code
-  * #include <unsupported/Eigen/AlignedVector3>
+  * #include <unsupported/eeigen/AlignedVector3>
   * \endcode
   */
   //@{

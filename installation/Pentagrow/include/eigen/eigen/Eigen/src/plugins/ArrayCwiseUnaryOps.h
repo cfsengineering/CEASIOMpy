@@ -500,7 +500,7 @@ lgamma() const
   * the user has to provide implementations of digamma(T) for any scalar
   * type T to be supported.
   *
-  * \sa <a href="group__CoeffwiseMathFunctions.html#cwisetable_digamma">Math functions</a>, Eigen::digamma(), Eigen::polygamma(), lgamma()
+  * \sa <a href="group__CoeffwiseMathFunctions.html#cwisetable_digamma">Math functions</a>, eeigen::digamma(), eeigen::polygamma(), lgamma()
   */
 EIGEN_DEVICE_FUNC
 inline const DigammaReturnType

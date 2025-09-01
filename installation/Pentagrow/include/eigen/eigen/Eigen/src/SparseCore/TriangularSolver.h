@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPARSETRIANGULARSOLVER_H
 #define EIGEN_SPARSETRIANGULARSOLVER_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -310,6 +310,6 @@ void TriangularViewImpl<ExpressionType,Mode,Sparse>::solveInPlace(SparseMatrixBa
 }
 #endif
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSETRIANGULARSOLVER_H

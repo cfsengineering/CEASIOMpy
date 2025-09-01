@@ -1,4 +1,4 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \page Eigen2ToEigen3 Porting from Eigen2 to Eigen3
 
@@ -9,26 +9,26 @@ and gives tips to help porting your application from Eigen2 to Eigen3.
 
 \section CompatibilitySupport Eigen2 compatibility support
 
-Up to version 3.2 %Eigen provides <a href="http://eigen.tuxfamily.org/dox-3.2/Eigen2SupportModes.html">Eigen2 support modes</a>. These are removed now, because they were barely used anymore and became hard to maintain after internal re-designs.
-You can still use them by first <a href="http://eigen.tuxfamily.org/dox-3.2/Eigen2ToEigen3.html">porting your code to Eigen 3.2</a>.
+Up to version 3.2 %eeigen provides <a href="http://eigen.tuxfamily.org/dox-3.2/Eigen2SupportModes.html">Eigen2 support modes</a>. These are removed now, because they were barely used anymore and became hard to maintain after internal re-designs.
+You can still use them by first <a href="http://eigen.tuxfamily.org/dox-3.2/Eigen2ToEigen3.html">porting your code to eeigen 3.2</a>.
 
 \section Using The USING_PART_OF_NAMESPACE_EIGEN macro
 
-The USING_PART_OF_NAMESPACE_EIGEN macro has been removed. In Eigen 3, just do:
+The USING_PART_OF_NAMESPACE_EIGEN macro has been removed. In eeigen 3, just do:
 \code
-using namespace Eigen;
+using namespace eeigen;
 \endcode
 
 \section ComplexDot Dot products over complex numbers
 
-This is the single trickiest change between Eigen 2 and Eigen 3. It only affects code using \c std::complex numbers as scalar type.
+This is the single trickiest change between eeigen 2 and eeigen 3. It only affects code using \c std::complex numbers as scalar type.
 
-Eigen 2's dot product was linear in the first variable. Eigen 3's dot product is linear in the second variable. In other words, the Eigen 2 code \code x.dot(y) \endcode is equivalent to the Eigen 3 code \code y.dot(x) \endcode In yet other words, dot products are complex-conjugated in Eigen 3 compared to Eigen 2. The switch to the new convention was commanded by common usage, especially with the notation \f$ x^Ty \f$ for dot products of column-vectors.
+eeigen 2's dot product was linear in the first variable. eeigen 3's dot product is linear in the second variable. In other words, the eeigen 2 code \code x.dot(y) \endcode is equivalent to the eeigen 3 code \code y.dot(x) \endcode In yet other words, dot products are complex-conjugated in eeigen 3 compared to eeigen 2. The switch to the new convention was commanded by common usage, especially with the notation \f$ x^Ty \f$ for dot products of column-vectors.
 
 \section VectorBlocks Vector blocks
 
 <table class="manual">
-<tr><th>Eigen 2</th><th>Eigen 3</th></th>
+<tr><th>eeigen 2</th><th>eeigen 3</th></th>
 <tr><td>\code
 vector.start(length)
 vector.start<length>()
@@ -46,7 +46,7 @@ vector.tail<length>()
 \section Corners Matrix Corners
 
 <table class="manual">
-<tr><th>Eigen 2</th><th>Eigen 3</th></th>
+<tr><th>eeigen 2</th><th>eeigen 3</th></th>
 <tr><td>\code
 matrix.corner(TopLeft,r,c)
 matrix.corner(TopRight,r,c)
@@ -99,10 +99,10 @@ c = (a.cwise().abs().cwise().pow(3)).cwise() * (b.cwise().abs().cwise().sin());
 
 \section PartAndExtract Triangular and self-adjoint matrices
 
-In Eigen 2 you had to play with the part, extract, and marked functions to deal with triangular and selfadjoint matrices. In Eigen 3, all these functions have been removed in favor of the concept of \em views:
+In eeigen 2 you had to play with the part, extract, and marked functions to deal with triangular and selfadjoint matrices. In eeigen 3, all these functions have been removed in favor of the concept of \em views:
 
 <table class="manual">
-<tr><th>Eigen 2</th><th>Eigen 3</th></tr>
+<tr><th>eeigen 2</th><th>eeigen 3</th></tr>
 <tr><td>\code
 A.part<UpperTriangular>();
 A.part<StrictlyLowerTriangular>(); \endcode</td>
@@ -152,19 +152,19 @@ StrictlyLower
 \section TriangularSolveInPlace Triangular in-place solving
 
 <table class="manual">
-<tr><th>Eigen 2</th><th>Eigen 3</th></tr>
+<tr><th>eeigen 2</th><th>eeigen 3</th></tr>
 <tr><td>\code A.triangularSolveInPlace<XxxTriangular>(Y);\endcode</td><td>\code A.triangularView<Xxx>().solveInPlace(Y);\endcode</td></tr>
 </table>
 
 
 \section Decompositions Matrix decompositions
 
-Some of Eigen 2's matrix decompositions have been renamed in Eigen 3, while some others have been removed and are replaced by other decompositions in Eigen 3.
+Some of eeigen 2's matrix decompositions have been renamed in eeigen 3, while some others have been removed and are replaced by other decompositions in eeigen 3.
 
 <table class="manual">
   <tr>
-    <th>Eigen 2</th>
-    <th>Eigen 3</th>
+    <th>eeigen 2</th>
+    <th>eeigen 3</th>
     <th>Notes</th>
   </tr>
   <tr>
@@ -184,7 +184,7 @@ Some of Eigen 2's matrix decompositions have been renamed in Eigen 3, while some
   </tr>
   <tr>
     <td>EigenSolver and friends</td>
-    <td>\code #include<Eigen/Eigenvalues> \endcode </td>
+    <td>\code #include<eeigen/Eigenvalues> \endcode </td>
     <td class="alt">Moved to separate module</td>
   </tr>
 </table>
@@ -192,7 +192,7 @@ Some of Eigen 2's matrix decompositions have been renamed in Eigen 3, while some
 \section LinearSolvers Linear solvers
 
 <table class="manual">
-<tr><th>Eigen 2</th><th>Eigen 3</th><th>Notes</th></tr>
+<tr><th>eeigen 2</th><th>eeigen 3</th><th>Notes</th></tr>
 <tr><td>\code A.lu();\endcode</td>
 <td>\code A.fullPivLu();\endcode</td>
 <td class="alt">Now A.lu() returns a PartialPivLU</td></tr>
@@ -223,16 +223,16 @@ triangular part to work on</td></tr>
 
 \section GeometryModule Changes in the Geometry module
 
-The Geometry module is the one that changed the most. If you rely heavily on it, it's probably a good idea to use the <a href="http://eigen.tuxfamily.org/dox-3.2/Eigen2SupportModes.html">"Eigen 2 support modes"</a> to perform your migration.
+The Geometry module is the one that changed the most. If you rely heavily on it, it's probably a good idea to use the <a href="http://eigen.tuxfamily.org/dox-3.2/Eigen2SupportModes.html">"eeigen 2 support modes"</a> to perform your migration.
 
 \section Transform The Transform class
 
-In Eigen 2, the Transform class didn't really know whether it was a projective or affine transformation. In Eigen 3, it takes a new \a Mode template parameter, which indicates whether it's \a Projective or \a Affine transform. There is no default value.
+In eeigen 2, the Transform class didn't really know whether it was a projective or affine transformation. In eeigen 3, it takes a new \a Mode template parameter, which indicates whether it's \a Projective or \a Affine transform. There is no default value.
 
-The Transform3f (etc) typedefs are no more. In Eigen 3, the Transform typedefs explicitly refer to the \a Projective and \a Affine modes:
+The Transform3f (etc) typedefs are no more. In eeigen 3, the Transform typedefs explicitly refer to the \a Projective and \a Affine modes:
 
 <table class="manual">
-<tr><th>Eigen 2</th><th>Eigen 3</th><th>Notes</th></tr>
+<tr><th>eeigen 2</th><th>eeigen 3</th><th>Notes</th></tr>
 <tr>
   <td> Transform3f </td>
   <td> Affine3f or Projective3f </td>
@@ -243,7 +243,7 @@ The Transform3f (etc) typedefs are no more. In Eigen 3, the Transform typedefs e
 
 \section LazyVsNoalias Lazy evaluation and noalias
 
-In Eigen all operations are performed in a lazy fashion except the matrix products which are always evaluated into a temporary by default.
+In eeigen all operations are performed in a lazy fashion except the matrix products which are always evaluated into a temporary by default.
 In Eigen2, lazy evaluation could be enforced by tagging a product using the .lazy() function. However, in complex expressions it was not
 easy to determine where to put the lazy() function. In Eigen3, the lazy() feature has been superseded by the MatrixBase::noalias() function
 which can be used on the left hand side of an assignment when no aliasing can occur. Here is an example:
@@ -261,11 +261,11 @@ use it unless you are sure of what you are doing, i.e., you have rigourosly meas
 
 The EIGEN_ALIGN_128 macro has been renamed to EIGEN_ALIGN16. Don't be surprised, it's just that we switched to counting in bytes ;-)
 
-The \link TopicPreprocessorDirectivesPerformance EIGEN_DONT_ALIGN \endlink option still exists in Eigen 3, but it has a new cousin: \link TopicPreprocessorDirectivesPerformance  EIGEN_DONT_ALIGN_STATICALLY.\endlink It allows to get rid of all static alignment issues while keeping alignment of dynamic-size heap-allocated arrays. Vectorization of statically allocated arrays is still preserved (unless you define \link TopicPreprocessorDirectivesPerformance EIGEN_UNALIGNED_VECTORIZE \endlink =0), at the cost of unaligned memory stores.
+The \link TopicPreprocessorDirectivesPerformance EIGEN_DONT_ALIGN \endlink option still exists in eeigen 3, but it has a new cousin: \link TopicPreprocessorDirectivesPerformance  EIGEN_DONT_ALIGN_STATICALLY.\endlink It allows to get rid of all static alignment issues while keeping alignment of dynamic-size heap-allocated arrays. Vectorization of statically allocated arrays is still preserved (unless you define \link TopicPreprocessorDirectivesPerformance EIGEN_UNALIGNED_VECTORIZE \endlink =0), at the cost of unaligned memory stores.
 
 \section AlignedMap Aligned Map objects
 
-A common issue with Eigen 2 was that when mapping an array with Map, there was no way to tell Eigen that your array was aligned. There was a ForceAligned option but it didn't mean that; it was just confusing and has been removed.
+A common issue with eeigen 2 was that when mapping an array with Map, there was no way to tell eeigen that your array was aligned. There was a ForceAligned option but it didn't mean that; it was just confusing and has been removed.
 
 New in Eigen3 is the #Aligned option. See the documentation of class Map. Use it like this:
 \code
@@ -278,10 +278,10 @@ result = Vector4f::MapAligned(some_aligned_array);
 
 \section StdContainers STL Containers
 
-In Eigen2, <tt>\#include\<Eigen/StdVector\></tt> tweaked std::vector to automatically align elements. The problem was that that was quite invasive. In Eigen3, we only override standard behavior if you use Eigen::aligned_allocator<T> as your allocator type. So for example, if you use std::vector<Matrix4f>, you need to do the following change (note that aligned_allocator is under namespace Eigen):
+In Eigen2, <tt>\#include\<eeigen/StdVector\></tt> tweaked std::vector to automatically align elements. The problem was that that was quite invasive. In Eigen3, we only override standard behavior if you use eeigen::aligned_allocator<T> as your allocator type. So for example, if you use std::vector<Matrix4f>, you need to do the following change (note that aligned_allocator is under namespace eeigen):
 
 <table class="manual">
-<tr><th>Eigen 2</th><th>Eigen 3</th></tr>
+<tr><th>eeigen 2</th><th>eeigen 3</th></tr>
 <tr>
   <td> \code std::vector<Matrix4f> \endcode </td>
   <td> \code std::vector<Matrix4f, aligned_allocator<Matrix4f> > \endcode </td>
@@ -290,7 +290,7 @@ In Eigen2, <tt>\#include\<Eigen/StdVector\></tt> tweaked std::vector to automati
 
 \section eiPrefix Internal ei_ prefix
 
-In Eigen2, global internal functions and structures were prefixed by \c ei_. In Eigen3, they all have been moved into the more explicit \c internal namespace. So, e.g., \c ei_sqrt(x) now becomes \c internal::sqrt(x). Of course it is not recommended to rely on Eigen's internal features.
+In Eigen2, global internal functions and structures were prefixed by \c ei_. In Eigen3, they all have been moved into the more explicit \c internal namespace. So, e.g., \c ei_sqrt(x) now becomes \c internal::sqrt(x). Of course it is not recommended to rely on eeigen's internal features.
 
 
 

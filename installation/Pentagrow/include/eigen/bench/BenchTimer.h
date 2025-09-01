@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -35,9 +35,9 @@ static void clobber() {
   asm volatile("" : : : "memory");
 }
 
-#include <Eigen/Core>
+#include <eeigen/Core>
 
-namespace Eigen
+namespace eeigen
 {
 
 enum {

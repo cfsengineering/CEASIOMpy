@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SWAP_H
 #define EIGEN_SWAP_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -62,6 +62,6 @@ public:
 
 } // namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SWAP_H

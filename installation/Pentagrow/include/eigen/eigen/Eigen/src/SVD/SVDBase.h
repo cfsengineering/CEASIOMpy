@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009-2010 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -16,7 +16,7 @@
 #ifndef EIGEN_SVDBASE_H
 #define EIGEN_SVDBASE_H
 
-namespace Eigen {
+namespace eeigen {
 /** \ingroup SVD_Module
  *
  *
@@ -53,7 +53,7 @@ public:
   typedef typename MatrixType::Scalar Scalar;
   typedef typename NumTraits<typename MatrixType::Scalar>::Real RealScalar;
   typedef typename MatrixType::StorageIndex StorageIndex;
-  typedef Eigen::Index Index; ///< \deprecated since Eigen 3.3
+  typedef eeigen::Index Index; ///< \deprecated since eeigen 3.3
   enum {
     RowsAtCompileTime = MatrixType::RowsAtCompileTime,
     ColsAtCompileTime = MatrixType::ColsAtCompileTime,
@@ -74,7 +74,7 @@ public:
   /** \returns the \a U matrix.
    *
    * For the SVD decomposition of a n-by-p matrix, letting \a m be the minimum of \a n and \a p,
-   * the U matrix is n-by-n if you asked for \link Eigen::ComputeFullU ComputeFullU \endlink, and is n-by-m if you asked for \link Eigen::ComputeThinU ComputeThinU \endlink.
+   * the U matrix is n-by-n if you asked for \link eeigen::ComputeFullU ComputeFullU \endlink, and is n-by-m if you asked for \link eeigen::ComputeThinU ComputeThinU \endlink.
    *
    * The \a m first columns of \a U are the left singular vectors of the matrix being decomposed.
    *
@@ -90,7 +90,7 @@ public:
   /** \returns the \a V matrix.
    *
    * For the SVD decomposition of a n-by-p matrix, letting \a m be the minimum of \a n and \a p,
-   * the V matrix is p-by-p if you asked for \link Eigen::ComputeFullV ComputeFullV \endlink, and is p-by-m if you asked for \link Eigen::ComputeThinV ComputeThinV \endlink.
+   * the V matrix is p-by-p if you asked for \link eeigen::ComputeFullV ComputeFullV \endlink, and is p-by-m if you asked for \link eeigen::ComputeThinV ComputeThinV \endlink.
    *
    * The \a m first columns of \a V are the right singular vectors of the matrix being decomposed.
    *
@@ -142,7 +142,7 @@ public:
     * which need to determine when singular values are to be considered nonzero.
     * This is not used for the SVD decomposition itself.
     *
-    * When it needs to get the threshold value, Eigen calls threshold().
+    * When it needs to get the threshold value, eeigen calls threshold().
     * The default is \c NumTraits<Scalar>::epsilon()
     *
     * \param threshold The new value to use as the threshold.
@@ -159,11 +159,11 @@ public:
     return derived();
   }
 
-  /** Allows to come back to the default behavior, letting Eigen use its default formula for
+  /** Allows to come back to the default behavior, letting eeigen use its default formula for
     * determining the threshold.
     *
-    * You should pass the special object Eigen::Default as parameter here.
-    * \code svd.setThreshold(Eigen::Default); \endcode
+    * You should pass the special object eeigen::Default as parameter here.
+    * \code svd.setThreshold(eeigen::Default); \endcode
     *
     * See the documentation of setThreshold(const RealScalar&).
     */

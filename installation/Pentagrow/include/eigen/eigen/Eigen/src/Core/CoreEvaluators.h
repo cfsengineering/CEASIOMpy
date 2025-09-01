@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -13,7 +13,7 @@
 #ifndef EIGEN_COREEVALUATORS_H
 #define EIGEN_COREEVALUATORS_H
 
-namespace Eigen {
+namespace eeigen {
   
 namespace internal {
 
@@ -400,7 +400,7 @@ struct nullary_wrapper<Scalar,NullaryOp,false,false,false> {};
 
 // MSVC exhibits a weird compilation error when
 // compiling:
-//    Eigen::MatrixXf A = MatrixXf::Random(3,3);
+//    eeigen::MatrixXf A = MatrixXf::Random(3,3);
 //    Ref<const MatrixXf> R = 2.f*A;
 // and that has_*ary_operator<scalar_constant_op<float>> have not been instantiated yet.
 // The "problem" is that evaluator<2.f*A> is instantiated by traits<Ref>::match<2.f*A>
@@ -1683,6 +1683,6 @@ protected:
 
 } // namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_COREEVALUATORS_H

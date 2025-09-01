@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_CONVERSION_H
 #define EIGEN_CXX11_TENSOR_TENSOR_CONVERSION_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorConversionOp
   * \ingroup CXX11_Tensor_Module
@@ -35,7 +35,7 @@ struct traits<TensorConversionOp<TargetType, XprType> >
 };
 
 template<typename TargetType, typename XprType>
-struct eval<TensorConversionOp<TargetType, XprType>, Eigen::Dense>
+struct eval<TensorConversionOp<TargetType, XprType>, eeigen::Dense>
 {
   typedef const TensorConversionOp<TargetType, XprType>& type;
 };
@@ -274,6 +274,6 @@ struct TensorEvaluator<const TensorConversionOp<TargetType, ArgType>, Device>
   TensorEvaluator<ArgType, Device> m_impl;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_CONVERSION_H

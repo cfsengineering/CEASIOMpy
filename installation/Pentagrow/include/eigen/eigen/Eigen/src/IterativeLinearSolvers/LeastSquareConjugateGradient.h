@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_LEAST_SQUARE_CONJUGATE_GRADIENT_H
 #define EIGEN_LEAST_SQUARE_CONJUGATE_GRADIENT_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -211,6 +211,6 @@ public:
 
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_LEAST_SQUARE_CONJUGATE_GRADIENT_H

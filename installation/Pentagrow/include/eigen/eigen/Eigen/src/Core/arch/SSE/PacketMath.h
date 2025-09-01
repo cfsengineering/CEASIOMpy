@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_PACKET_MATH_SSE_H
 #define EIGEN_PACKET_MATH_SSE_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -880,7 +880,7 @@ template<> EIGEN_STRONG_INLINE double pmadd(const double& a, const double& b, co
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #if EIGEN_COMP_PGI
 // PGI++ does not define the following intrinsics in C++ mode.

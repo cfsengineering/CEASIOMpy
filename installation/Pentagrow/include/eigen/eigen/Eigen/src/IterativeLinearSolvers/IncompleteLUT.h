@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Désiré Nuentsa-Wakam <desire.nuentsa_wakam@inria.fr>
@@ -12,7 +12,7 @@
 #define EIGEN_INCOMPLETE_LUT_H
 
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
     
@@ -90,7 +90,7 @@ Index QuickSplit(VectorV &row, VectorI &ind, Index ncut)
   *  released under the terms of the GNU LGPL: 
   *    http://www-users.cs.umn.edu/~saad/software/SPARSKIT/README
   * However, Yousef Saad gave us permission to relicense his ILUT code to MPL2.
-  * See the Eigen mailing list archive, thread: ILUT, date: July 8, 2012:
+  * See the eeigen mailing list archive, thread: ILUT, date: July 8, 2012:
   *   http://listengine.tuxfamily.org/lists.tuxfamily.org/eigen/2012/07/msg00064.html
   * alternatively, on GMANE:
   *   http://comments.gmane.org/gmane.comp.lib.eigen/3302
@@ -457,6 +457,6 @@ void IncompleteLUT<Scalar,StorageIndex>::factorize(const _MatrixType& amat)
   m_info = Success;
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_INCOMPLETE_LUT_H

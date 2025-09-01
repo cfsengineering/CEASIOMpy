@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012-2013 Desire Nuentsa <desire.nuentsa_wakam@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_SPARSE_QR_H
 #define EIGEN_SPARSE_QR_H
 
-namespace Eigen {
+namespace eeigen {
 
 template<typename MatrixType, typename OrderingType> class SparseQR;
 template<typename SparseQRType> struct SparseQRMatrixQReturnType;
@@ -740,6 +740,6 @@ struct Assignment<DstXprType, SparseQRMatrixQReturnType<SparseQRType>, internal:
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif

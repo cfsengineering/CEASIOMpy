@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2009 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_MATRIXBASE_H
 #define EIGEN_MATRIXBASE_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class MatrixBase
   * \ingroup Core_Module
@@ -19,22 +19,22 @@ namespace Eigen {
   * \brief Base class for all dense matrices, vectors, and expressions
   *
   * This class is the base that is inherited by all matrix, vector, and related expression
-  * types. Most of the Eigen API is contained in this class, and its base classes. Other important
-  * classes for the Eigen API are Matrix, and VectorwiseOp.
+  * types. Most of the eeigen API is contained in this class, and its base classes. Other important
+  * classes for the eeigen API are Matrix, and VectorwiseOp.
   *
   * Note that some methods are defined in other modules such as the \ref LU_Module LU module
   * for all functions related to matrix inversions.
   *
   * \tparam Derived is the derived type, e.g. a matrix type, or an expression, etc.
   *
-  * When writing a function taking Eigen objects as argument, if you want your function
+  * When writing a function taking eeigen objects as argument, if you want your function
   * to take as argument any matrix, vector, or expression, just let it take a
   * MatrixBase argument. As an example, here is a function printFirstRow which, given
   * a matrix, vector, or expression \a x, prints the first row of \a x.
   *
   * \code
     template<typename Derived>
-    void printFirstRow(const Eigen::MatrixBase<Derived>& x)
+    void printFirstRow(const eeigen::MatrixBase<Derived>& x)
     {
       cout << x.row(0) << endl;
     }
@@ -120,7 +120,7 @@ template<typename Derived> class MatrixBase
                   internal::traits<Derived>::ColsAtCompileTime> BasisReturnType;
 #endif // not EIGEN_PARSED_BY_DOXYGEN
 
-#define EIGEN_CURRENT_STORAGE_BASE_CLASS Eigen::MatrixBase
+#define EIGEN_CURRENT_STORAGE_BASE_CLASS eeigen::MatrixBase
 #define EIGEN_DOC_UNARY_ADDONS(X,Y)
 #   include "../plugins/CommonCwiseUnaryOps.h"
 #   include "../plugins/CommonCwiseBinaryOps.h"
@@ -296,7 +296,7 @@ template<typename Derived> class MatrixBase
     EIGEN_DEVICE_FUNC inline bool operator!=(const MatrixBase<OtherDerived>& other) const
     { return cwiseNotEqual(other).any(); }
 
-    NoAlias<Derived,Eigen::MatrixBase > noalias();
+    NoAlias<Derived,eeigen::MatrixBase > noalias();
 
     // TODO forceAlignedAccess is temporarily disabled
     // Need to find a nicer workaround.
@@ -312,10 +312,10 @@ template<typename Derived> class MatrixBase
     EIGEN_DEVICE_FUNC MatrixBase<Derived>& matrix() { return *this; }
     EIGEN_DEVICE_FUNC const MatrixBase<Derived>& matrix() const { return *this; }
 
-    /** \returns an \link Eigen::ArrayBase Array \endlink expression of this matrix
+    /** \returns an \link eeigen::ArrayBase Array \endlink expression of this matrix
       * \sa ArrayBase::matrix() */
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE ArrayWrapper<Derived> array() { return ArrayWrapper<Derived>(derived()); }
-    /** \returns a const \link Eigen::ArrayBase Array \endlink expression of this matrix
+    /** \returns a const \link eeigen::ArrayBase Array \endlink expression of this matrix
       * \sa ArrayBase::matrix() */
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const ArrayWrapper<const Derived> array() const { return ArrayWrapper<const Derived>(derived()); }
 
@@ -524,6 +524,6 @@ inline void MatrixBase<Derived>::applyOnTheLeft(const EigenBase<OtherDerived> &o
   other.derived().applyThisOnTheLeft(derived());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_MATRIXBASE_H

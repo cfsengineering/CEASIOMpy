@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ********************************************************************************
- *   Content : Eigen bindings to BLAS F77
+ *   Content : eeigen bindings to BLAS F77
  *   General matrix-matrix product functionality based on ?GEMM.
  ********************************************************************************
 */
@@ -33,7 +33,7 @@
 #ifndef EIGEN_GENERAL_MATRIX_MATRIX_BLAS_H
 #define EIGEN_GENERAL_MATRIX_MATRIX_BLAS_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -117,6 +117,6 @@ GEMM_SPECIALIZATION(scomplex, cf, float,  cgemm_)
 
 } // end namespase internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_GENERAL_MATRIX_MATRIX_BLAS_H

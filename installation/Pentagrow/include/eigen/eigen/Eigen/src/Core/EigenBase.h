@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_EIGENBASE_H
 #define EIGEN_EIGENBASE_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class EigenBase
   * \ingroup Core_Module
@@ -32,10 +32,10 @@ template<typename Derived> struct EigenBase
   
   /** \brief The interface type of indices
     * \details To change this, \c \#define the preprocessor symbol \c EIGEN_DEFAULT_DENSE_INDEX_TYPE.
-    * \deprecated Since Eigen 3.3, its usage is deprecated. Use Eigen::Index instead.
+    * \deprecated Since eeigen 3.3, its usage is deprecated. Use eeigen::Index instead.
     * \sa StorageIndex, \ref TopicPreprocessorDirectives.
     */
-  typedef Eigen::Index Index;
+  typedef eeigen::Index Index;
 
   // FIXME is it needed?
   typedef typename internal::traits<Derived>::StorageKind StorageKind;
@@ -154,6 +154,6 @@ Derived& DenseBase<Derived>::operator-=(const EigenBase<OtherDerived> &other)
   return derived();
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_EIGENBASE_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -8,8 +8,8 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "main.h"
-#include <Eigen/StdVector>
-#include <Eigen/Geometry>
+#include <eeigen/StdVector>
+#include <eeigen/Geometry>
 
 template<typename MatrixType>
 void check_stdvector_matrix(const MatrixType& m)
@@ -17,7 +17,7 @@ void check_stdvector_matrix(const MatrixType& m)
   typename MatrixType::Index rows = m.rows();
   typename MatrixType::Index cols = m.cols();
   MatrixType x = MatrixType::Random(rows,cols), y = MatrixType::Random(rows,cols);
-  std::vector<MatrixType,Eigen::aligned_allocator<MatrixType> > v(10, MatrixType(rows,cols)), w(20, y);
+  std::vector<MatrixType,eeigen::aligned_allocator<MatrixType> > v(10, MatrixType(rows,cols)), w(20, y);
   v[5] = x;
   w[6] = v[5];
   VERIFY_IS_APPROX(w[6], v[5]);
@@ -52,7 +52,7 @@ void check_stdvector_transform(const TransformType&)
 {
   typedef typename TransformType::MatrixType MatrixType;
   TransformType x(MatrixType::Random()), y(MatrixType::Random());
-  std::vector<TransformType,Eigen::aligned_allocator<TransformType> > v(10), w(20, y);
+  std::vector<TransformType,eeigen::aligned_allocator<TransformType> > v(10), w(20, y);
   v[5] = x;
   w[6] = v[5];
   VERIFY_IS_APPROX(w[6], v[5]);
@@ -87,7 +87,7 @@ void check_stdvector_quaternion(const QuaternionType&)
 {
   typedef typename QuaternionType::Coefficients Coefficients;
   QuaternionType x(Coefficients::Random()), y(Coefficients::Random());
-  std::vector<QuaternionType,Eigen::aligned_allocator<QuaternionType> > v(10), w(20, y);
+  std::vector<QuaternionType,eeigen::aligned_allocator<QuaternionType> > v(10), w(20, y);
   v[5] = x;
   w[6] = v[5];
   VERIFY_IS_APPROX(w[6], v[5]);
@@ -118,12 +118,12 @@ void check_stdvector_quaternion(const QuaternionType&)
 }
 
 // the code below triggered an invalid warning with gcc >= 7
-// eigen/Eigen/src/Core/util/Memory.h:189:12: warning: argument 1 value '18446744073709551612' exceeds maximum object size 9223372036854775807
+// eigen/eeigen/src/Core/util/Memory.h:189:12: warning: argument 1 value '18446744073709551612' exceeds maximum object size 9223372036854775807
 // This has been reported to gcc there: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=87544
 void std_vector_gcc_warning()
 {
-  typedef Eigen::Vector3f T;
-  std::vector<T, Eigen::aligned_allocator<T> > v;
+  typedef eeigen::Vector3f T;
+  std::vector<T, eeigen::aligned_allocator<T> > v;
   v.push_back(T());
 }
 

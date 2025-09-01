@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPARSE_COMPRESSED_BASE_H
 #define EIGEN_SPARSE_COMPRESSED_BASE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 template<typename Derived> class SparseCompressedBase;
   
@@ -47,8 +47,8 @@ class SparseCompressedBase
     
   protected:
     typedef typename Base::IndexVector IndexVector;
-    Eigen::Map<IndexVector> innerNonZeros() { return Eigen::Map<IndexVector>(innerNonZeroPtr(), isCompressed()?0:derived().outerSize()); }
-    const  Eigen::Map<const IndexVector> innerNonZeros() const { return Eigen::Map<const IndexVector>(innerNonZeroPtr(), isCompressed()?0:derived().outerSize()); }
+    eeigen::Map<IndexVector> innerNonZeros() { return eeigen::Map<IndexVector>(innerNonZeroPtr(), isCompressed()?0:derived().outerSize()); }
+    const  eeigen::Map<const IndexVector> innerNonZeros() const { return eeigen::Map<const IndexVector>(innerNonZeroPtr(), isCompressed()?0:derived().outerSize()); }
         
   public:
     
@@ -336,6 +336,6 @@ protected:
 
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSE_COMPRESSED_BASE_H

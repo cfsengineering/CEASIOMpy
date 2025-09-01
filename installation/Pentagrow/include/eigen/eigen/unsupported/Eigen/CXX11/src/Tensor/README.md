@@ -1,4 +1,4 @@
-# Eigen Tensors {#eigen_tensors}
+# eeigen Tensors {#eigen_tensors}
 
 Tensors are multidimensional arrays of elements. Elements are typically scalars,
 but more complex types such as strings are also supported.
@@ -8,7 +8,7 @@ but more complex types such as strings are also supported.
 ## Tensor Classes
 
 You can manipulate a tensor with one of the following classes.  They all are in
-the namespace `::Eigen.`
+the namespace `::eeigen.`
 
 
 ### Class Tensor<data_type, rank>
@@ -38,7 +38,7 @@ dimensions.
 
 Constructor where the sizes for the constructor are specified as an array of
 values instead of an explicitly list of parameters.  The array type to use is
-`Eigen::array<Eigen::Index>`.  The array can be constructed automatically
+`eeigen::array<eeigen::Index>`.  The array can be constructed automatically
 from an initializer list.
 
     // Create a tensor of strings of rank 2 with sizes 5, 7.
@@ -159,7 +159,7 @@ dimensions.
 
 ## Tensor Operations
 
-The Eigen Tensor library provides a vast library of operations on Tensors:
+The eeigen Tensor library provides a vast library of operations on Tensors:
 numerical operations such as addition and multiplication, geometry operations
 such as slicing and shuffling, etc.  These operations are available as methods
 of the Tensor classes, and in some cases as operator overloads.  For example
@@ -280,7 +280,7 @@ have the rank and sizes of the expression that are assigned to them.
 
 #### Calling `eval()`.
 
-When you compute large composite expressions, you sometimes want to tell Eigen
+When you compute large composite expressions, you sometimes want to tell eeigen
 that an intermediate value in the expression tree is worth evaluating ahead of
 time.  This is done by inserting a call to the `eval()` method of the
 expression Operation.
@@ -360,7 +360,7 @@ call for the right hand side:
 If you need to access only a few elements from the value of an expression you
 can avoid materializing the value in a full tensor by using a TensorRef.
 
-A TensorRef is a small wrapper class for any Eigen Operation.  It provides
+A TensorRef is a small wrapper class for any eeigen Operation.  It provides
 overloads for the `()` operator that let you access individual values in
 the expression.  TensorRef is convenient, because the Operation themselves do
 not provide a way to access individual elements.
@@ -411,12 +411,12 @@ before the assignment of the result.  For technical C++ reasons this requires
 that the Tensor for the result be declared on its own.  This means that you
 have to know the size of the result.
 
-    Eigen::Tensor<float, 2> c(30, 40);
+    eeigen::Tensor<float, 2> c(30, 40);
     c.device(...) = a + b;
 
 The call to `device()` must be the last call on the left of the operator=.
 
-You must pass to the `device()` call an Eigen device object.  There are
+You must pass to the `device()` call an eeigen device object.  There are
 presently three devices you can use: DefaultDevice, ThreadPoolDevice and
 GpuDevice.
 
@@ -430,11 +430,11 @@ This is exactly the same as not inserting a `device()` call.
 
 #### Evaluating with a Thread Pool
 
-    // Create the Eigen ThreadPoolDevice.
-    Eigen::ThreadPoolDevice my_device(4 /* number of threads to use */);
+    // Create the eeigen ThreadPoolDevice.
+    eeigen::ThreadPoolDevice my_device(4 /* number of threads to use */);
 
     // Now just use the device when evaluating expressions.
-    Eigen::Tensor<float, 2> c(30, 50);
+    eeigen::Tensor<float, 2> c(30, 50);
     c.device(my_device) = a.contract(b, dot_product_dims);
 
 
@@ -494,7 +494,7 @@ Tensor, TensorFixedSize, and TensorMap.
 Constant value indicating the number of dimensions of a Tensor.  This is also
 known as the tensor "rank".
 
-      Eigen::Tensor<float, 2> a(3, 4);
+      eeigen::Tensor<float, 2> a(3, 4);
       cout << "Dims " << a.NumDimensions;
       => Dims 2
 
@@ -503,8 +503,8 @@ known as the tensor "rank".
 Returns an array-like object representing the dimensions of the tensor.
 The actual type of the `dimensions()` result is `<Tensor-Type>::``Dimensions`.
 
-    Eigen::Tensor<float, 2> a(3, 4);
-    const Eigen::Tensor<float, 2>::Dimensions& d = a.dimensions();
+    eeigen::Tensor<float, 2> a(3, 4);
+    const eeigen::Tensor<float, 2>::Dimensions& d = a.dimensions();
     cout << "Dim size: " << d.size << ", dim 0: " << d[0]
          << ", dim 1: " << d[1];
     => Dim size: 2, dim 0: 3, dim 1: 4
@@ -522,7 +522,7 @@ Returns the n-th dimension of the tensor.  The actual type of the
 `dimension()` result is `<Tensor-Type>::``Index`, but you can
 always use it like an int.
 
-      Eigen::Tensor<float, 2> a(3, 4);
+      eeigen::Tensor<float, 2> a(3, 4);
       int dim1 = a.dimension(1);
       cout << "Dim 1: " << dim1;
       => Dim 1: 4
@@ -533,7 +533,7 @@ Returns the total number of elements in the tensor.  This is the product of all
 the tensor dimensions.  The actual type of the `size()` result is
 `<Tensor-Type>::``Index`, but you can always use it like an int.
 
-    Eigen::Tensor<float, 2> a(3, 4);
+    eeigen::Tensor<float, 2> a(3, 4);
     cout << "Size: " << a.size();
     => Size: 12
 
@@ -561,7 +561,7 @@ dimensionality while remaining agnostic to the underlying type.
 Creates a tensor of the specified size. The number of arguments must be equal
 to the rank of the tensor. The content of the tensor is not initialized.
 
-    Eigen::Tensor<float, 2> a(3, 4);
+    eeigen::Tensor<float, 2> a(3, 4);
     cout << "NumRows: " << a.dimension(0) << " NumCols: " << a.dimension(1) << endl;
     => NumRows: 3 NumCols: 4
 
@@ -571,7 +571,7 @@ Creates a tensor of the specified size. The number of arguments in the Sizes<>
 template parameter determines the rank of the tensor. The content of the tensor
 is not initialized.
 
-    Eigen::TensorFixedSize<float, Sizes<3, 4>> a;
+    eeigen::TensorFixedSize<float, Sizes<3, 4>> a;
     cout << "Rank: " << a.rank() << endl;
     => Rank: 2
     cout << "NumRows: " << a.dimension(0) << " NumCols: " << a.dimension(1) << endl;
@@ -584,7 +584,7 @@ until the TensorMap is discarded, and the size of the data must be large enough
 to accommodate the coefficients of the tensor.
 
     float data[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-    Eigen::TensorMap<Tensor<float, 2>> a(data, 3, 4);
+    eeigen::TensorMap<Tensor<float, 2>> a(data, 3, 4);
     cout << "NumRows: " << a.dimension(0) << " NumCols: " << a.dimension(1) << endl;
     => NumRows: 3 NumCols: 4
     cout << "a(1, 2): " << a(1, 2) << endl;
@@ -621,7 +621,7 @@ Returns the tensor itself in case you want to chain another call.
 Note that `setConstant()` can be used on any tensor where the element type
 has a copy constructor and an `operator=()`:
 
-    Eigen::Tensor<string, 2> a(2, 3);
+    eeigen::Tensor<string, 2> a(2, 3);
     a.setConstant("yolo");
     cout << "String tensor: " << endl << a << endl << endl;
     =>
@@ -659,7 +659,7 @@ contains 2 lists of 3 floats each.
 `setValues()` returns the tensor itself in case you want to chain another
 call.
 
-    Eigen::Tensor<float, 2> a(2, 3);
+    eeigen::Tensor<float, 2> a(2, 3);
     a.setValues({{0.0f, 1.0f, 2.0f}, {3.0f, 4.0f, 5.0f}});
     cout << "a" << endl << a << endl << endl;
     =>
@@ -671,7 +671,7 @@ If a list is too short, the corresponding elements of the tensor will not be
 changed.  This is valid at each level of nesting.  For example the following
 code only sets the values of the first row of the tensor.
 
-    Eigen::Tensor<int, 2> a(2, 3);
+    eeigen::Tensor<int, 2> a(2, 3);
     a.setConstant(1000);
     a.setValues({{10, 20, 30}});
     cout << "a" << endl << a << endl << endl;
@@ -713,14 +713,14 @@ See `struct UniformRandomGenerator` in TensorFunctors.h for an example.
       // Return a random value to be used.  "element_location" is the
       // location of the entry to set in the tensor, it can typically
       // be ignored.
-      Scalar operator()(Eigen::DenseIndex element_location,
-                        Eigen::DenseIndex /*unused*/ = 0) const {
+      Scalar operator()(eeigen::DenseIndex element_location,
+                        eeigen::DenseIndex /*unused*/ = 0) const {
         return <randomly generated value of type T>;
       }
 
       // Same as above but generates several numbers at a time.
       typename internal::packet_traits<Scalar>::type packetOp(
-          Eigen::DenseIndex packet_location, Eigen::DenseIndex /*unused*/ = 0) const {
+          eeigen::DenseIndex packet_location, eeigen::DenseIndex /*unused*/ = 0) const {
         return <a packet of randomly generated values>;
       }
     };
@@ -754,11 +754,11 @@ tensor was const.  This allows direct access to the data.  The layout of the
 data depends on the tensor layout: RowMajor or ColMajor.
 
 This access is usually only needed for special cases, for example when mixing
-Eigen Tensor code with other libraries.
+eeigen Tensor code with other libraries.
 
 Scalar is the type of data stored in the tensor.
 
-    Eigen::Tensor<float, 2> a(3, 4);
+    eeigen::Tensor<float, 2> a(3, 4);
     float* a_data = a.data();
     a_data[0] = 123.45f;
     cout << "a(0, 0): " << a(0, 0);
@@ -783,10 +783,10 @@ where all elements have the value `val`.
 This is useful, for example, when you want to add or subtract a constant from a
 tensor, or multiply every element of a tensor by a scalar.
 
-    Eigen::Tensor<float, 2> a(2, 3);
+    eeigen::Tensor<float, 2> a(2, 3);
     a.setConstant(1.0f);
-    Eigen::Tensor<float, 2> b = a + a.constant(2.0f);
-    Eigen::Tensor<float, 2> c = b * b.constant(0.2f);
+    eeigen::Tensor<float, 2> b = a + a.constant(2.0f);
+    eeigen::Tensor<float, 2> c = b * b.constant(0.2f);
     cout << "a" << endl << a << endl << endl;
     cout << "b" << endl << b << endl << endl;
     cout << "c" << endl << c << endl << endl;
@@ -812,9 +812,9 @@ This is for example useful to add random values to an existing tensor.
 The generation of random values can be customized in the same manner
 as for `setRandom()`.
 
-    Eigen::Tensor<float, 2> a(2, 3);
+    eeigen::Tensor<float, 2> a(2, 3);
     a.setConstant(1.0f);
-    Eigen::Tensor<float, 2> b = a + a.random();
+    eeigen::Tensor<float, 2> b = a + a.random();
     cout << "a" << endl << a << endl << endl;
     cout << "b" << endl << b << endl << endl;
     =>
@@ -838,9 +838,9 @@ requested operations are applied to each element independently.
 Returns a tensor of the same type and dimensions as the original tensor
 containing the opposite values of the original tensor.
 
-    Eigen::Tensor<float, 2> a(2, 3);
+    eeigen::Tensor<float, 2> a(2, 3);
     a.setConstant(1.0f);
-    Eigen::Tensor<float, 2> b = -a;
+    eeigen::Tensor<float, 2> b = -a;
     cout << "a" << endl << a << endl << endl;
     cout << "b" << endl << b << endl << endl;
     =>
@@ -900,9 +900,9 @@ conjuntion with tensors of integer values.
 You can use cast() to lift this restriction.  For example this computes
 cubic roots of an int Tensor:
 
-    Eigen::Tensor<int, 2> a(2, 3);
+    eeigen::Tensor<int, 2> a(2, 3);
     a.setValues({{0, 1, 8}, {27, 64, 125}});
-    Eigen::Tensor<double, 2> b = a.cast<double>().pow(1.0 / 3.0);
+    eeigen::Tensor<double, 2> b = a.cast<double>().pow(1.0 / 3.0);
     cout << "a" << endl << a << endl << endl;
     cout << "b" << endl << b << endl << endl;
     =>
@@ -1010,23 +1010,23 @@ Tensor *contractions* are a generalization of the matrix product to the
 multidimensional case.
 
     // Create 2 matrices using tensors of rank 2
-    Eigen::Tensor<int, 2> a(2, 3);
+    eeigen::Tensor<int, 2> a(2, 3);
     a.setValues({{1, 2, 3}, {6, 5, 4}});
-    Eigen::Tensor<int, 2> b(3, 2);
+    eeigen::Tensor<int, 2> b(3, 2);
     b.setValues({{1, 2}, {4, 5}, {5, 6}});
 
     // Compute the traditional matrix product
-    Eigen::array<Eigen::IndexPair<int>, 1> product_dims = { Eigen::IndexPair<int>(1, 0) };
-    Eigen::Tensor<int, 2> AB = a.contract(b, product_dims);
+    eeigen::array<eeigen::IndexPair<int>, 1> product_dims = { eeigen::IndexPair<int>(1, 0) };
+    eeigen::Tensor<int, 2> AB = a.contract(b, product_dims);
 
     // Compute the product of the transpose of the matrices
-    Eigen::array<Eigen::IndexPair<int>, 1> transposed_product_dims = { Eigen::IndexPair<int>(0, 1) };
-    Eigen::Tensor<int, 2> AtBt = a.contract(b, transposed_product_dims);
+    eeigen::array<eeigen::IndexPair<int>, 1> transposed_product_dims = { eeigen::IndexPair<int>(0, 1) };
+    eeigen::Tensor<int, 2> AtBt = a.contract(b, transposed_product_dims);
 
     // Contraction to scalar value using a double contraction.
     // First coordinate of both tensors are contracted as well as both second coordinates, i.e., this computes the sum of the squares of the elements.
-    Eigen::array<Eigen::IndexPair<int>, 2> double_contraction_product_dims = { Eigen::IndexPair<int>(0, 0), Eigen::IndexPair<int>(1, 1) };
-    Eigen::Tensor<int, 0> AdoubleContractedA = a.contract(a, double_contraction_product_dims);
+    eeigen::array<eeigen::IndexPair<int>, 2> double_contraction_product_dims = { eeigen::IndexPair<int>(0, 0), eeigen::IndexPair<int>(1, 1) };
+    eeigen::Tensor<int, 0> AdoubleContractedA = a.contract(a, double_contraction_product_dims);
 
     // Extracting the scalar value of the tensor contraction for further usage
     int value = AdoubleContractedA(0);
@@ -1038,7 +1038,7 @@ original tensor.  The values in the returned tensor are computed by applying a
 *reduction operator* to slices of values from the original tensor.  You specify
 the dimensions along which the slices are made.
 
-The Eigen Tensor library provides a set of predefined reduction operators such
+The eeigen Tensor library provides a set of predefined reduction operators such
 as `maximum()` and `sum()` and lets you define additional operators by
 implementing a few methods from a reductor template.
 
@@ -1062,14 +1062,14 @@ increasing order.
 Example: Reduction along one dimension.
 
     // Create a tensor of 2 dimensions
-    Eigen::Tensor<int, 2> a(2, 3);
+    eeigen::Tensor<int, 2> a(2, 3);
     a.setValues({{1, 2, 3}, {6, 5, 4}});
     // Reduce it along the second dimension (1)...
-    Eigen::array<int, 1> dims({1 /* dimension to reduce */});
+    eeigen::array<int, 1> dims({1 /* dimension to reduce */});
     // ...using the "maximum" operator.
     // The result is a tensor with one dimension.  The size of
     // that dimension is the same as the first (non-reduced) dimension of a.
-    Eigen::Tensor<int, 1> b = a.maximum(dims);
+    eeigen::Tensor<int, 1> b = a.maximum(dims);
     cout << "a" << endl << a << endl << endl;
     cout << "b" << endl << b << endl << endl;
     =>
@@ -1083,7 +1083,7 @@ Example: Reduction along one dimension.
 
 Example: Reduction along two dimensions.
 
-    Eigen::Tensor<float, 3, Eigen::ColMajor> a(2, 3, 4);
+    eeigen::Tensor<float, 3, eeigen::ColMajor> a(2, 3, 4);
     a.setValues({{{0.0f, 1.0f, 2.0f, 3.0f},
                   {7.0f, 6.0f, 5.0f, 4.0f},
                   {8.0f, 9.0f, 10.0f, 11.0f}},
@@ -1095,8 +1095,8 @@ Example: Reduction along two dimensions.
     // of size 4 (the last dimension of a.)
     // Note that we pass the array of reduction dimensions
     // directly to the maximum() call.
-    Eigen::Tensor<float, 1, Eigen::ColMajor> b =
-        a.maximum(Eigen::array<int, 2>({0, 1}));
+    eeigen::Tensor<float, 1, eeigen::ColMajor> b =
+        a.maximum(eeigen::array<int, 2>({0, 1}));
     cout << "b" << endl << b << endl << endl;
     =>
     b
@@ -1111,7 +1111,7 @@ As a special case, if you pass no parameter to a reduction operation the
 original tensor is reduced along *all* its dimensions.  The result is a
 scalar, represented as a zero-dimension tensor.
 
-    Eigen::Tensor<float, 3> a(2, 3, 4);
+    eeigen::Tensor<float, 3> a(2, 3, 4);
     a.setValues({{{0.0f, 1.0f, 2.0f, 3.0f},
                   {7.0f, 6.0f, 5.0f, 4.0f},
                   {8.0f, 9.0f, 10.0f, 11.0f}},
@@ -1119,7 +1119,7 @@ scalar, represented as a zero-dimension tensor.
                   {19.0f, 18.0f, 17.0f, 16.0f},
                   {20.0f, 21.0f, 22.0f, 23.0f}}});
     // Reduce along all dimensions using the sum() operator.
-    Eigen::Tensor<float, 0> b = a.sum();
+    eeigen::Tensor<float, 0> b = a.sum();
     cout << "b" << endl << b << endl << endl;
     =>
     b
@@ -1188,10 +1188,10 @@ Example:
 dd a comment to this line
 
     // Create a tensor of 2 dimensions
-    Eigen::Tensor<int, 2> a(2, 3);
+    eeigen::Tensor<int, 2> a(2, 3);
     a.setValues({{1, 2, 3}, {4, 5, 6}});
     // Scan it along the second dimension (1) using summation
-    Eigen::Tensor<int, 2> b = a.cumsum(1);
+    eeigen::Tensor<int, 2> b = a.cumsum(1);
     // The result is a tensor with the same size as the input
     cout << "a" << endl << a << endl << endl;
     cout << "b" << endl << b << endl << endl;
@@ -1233,7 +1233,7 @@ for the last dimension).
     input.setRandom();
     kernel.setRandom();
 
-    Eigen::array<ptrdiff_t, 2> dims({1, 2});  // Specify second and third dimension for convolution.
+    eeigen::array<ptrdiff_t, 2> dims({1, 2});  // Specify second and third dimension for convolution.
     output = input.convolve(kernel, dims);
 
     for (int i = 0; i < 3; ++i) {
@@ -1283,10 +1283,10 @@ contents of a reshaped Tensor depend on the data layout of the original Tensor.
 For example this is what happens when you `reshape()` a 2D ColMajor tensor
 to one dimension:
 
-    Eigen::Tensor<float, 2, Eigen::ColMajor> a(2, 3);
+    eeigen::Tensor<float, 2, eeigen::ColMajor> a(2, 3);
     a.setValues({{0.0f, 100.0f, 200.0f}, {300.0f, 400.0f, 500.0f}});
-    Eigen::array<Eigen::DenseIndex, 1> one_dim({3 * 2});
-    Eigen::Tensor<float, 1, Eigen::ColMajor> b = a.reshape(one_dim);
+    eeigen::array<eeigen::DenseIndex, 1> one_dim({3 * 2});
+    eeigen::Tensor<float, 1, eeigen::ColMajor> b = a.reshape(one_dim);
     cout << "b" << endl << b << endl;
     =>
     b
@@ -1299,10 +1299,10 @@ to one dimension:
 
 This is what happens when the 2D Tensor is RowMajor:
 
-    Eigen::Tensor<float, 2, Eigen::RowMajor> a(2, 3);
+    eeigen::Tensor<float, 2, eeigen::RowMajor> a(2, 3);
     a.setValues({{0.0f, 100.0f, 200.0f}, {300.0f, 400.0f, 500.0f}});
-    Eigen::array<Eigen::DenseIndex, 1> one_dim({3 * 2});
-    Eigen::Tensor<float, 1, Eigen::RowMajor> b = a.reshape(one_dim);
+    eeigen::array<eeigen::DenseIndex, 1> one_dim({3 * 2});
+    eeigen::Tensor<float, 1, eeigen::RowMajor> b = a.reshape(one_dim);
     cout << "b" << endl << b << endl;
     =>
     b
@@ -1318,10 +1318,10 @@ side of the assignment operator.
 
 The previous example can be rewritten as follow:
 
-    Eigen::Tensor<float, 2, Eigen::ColMajor> a(2, 3);
+    eeigen::Tensor<float, 2, eeigen::ColMajor> a(2, 3);
     a.setValues({{0.0f, 100.0f, 200.0f}, {300.0f, 400.0f, 500.0f}});
-    Eigen::array<Eigen::DenseIndex, 2> two_dim({2, 3});
-    Eigen::Tensor<float, 1, Eigen::ColMajor> b(6);
+    eeigen::array<eeigen::DenseIndex, 2> two_dim({2, 3});
+    eeigen::Tensor<float, 1, eeigen::ColMajor> b(6);
     b.reshape(two_dim) = a;
     cout << "b" << endl << b << endl;
     =>
@@ -1387,10 +1387,10 @@ ceil(input_dimensions[i] / strides[i]).
 
 For example this is what happens when you `stride()` a 2D tensor:
 
-    Eigen::Tensor<int, 2> a(4, 3);
+    eeigen::Tensor<int, 2> a(4, 3);
     a.setValues({{0, 100, 200}, {300, 400, 500}, {600, 700, 800}, {900, 1000, 1100}});
-    Eigen::array<Eigen::DenseIndex, 2> strides({3, 2});
-    Eigen::Tensor<int, 2> b = a.stride(strides);
+    eeigen::array<eeigen::DenseIndex, 2> strides({3, 2});
+    eeigen::Tensor<int, 2> b = a.stride(strides);
     cout << "b" << endl << b << endl;
     =>
     b
@@ -1410,12 +1410,12 @@ Returns a sub-tensor of the given tensor. For each dimension i, the slice is
 made of the coefficients stored between offset[i] and offset[i] + extents[i] in
 the input tensor.
 
-    Eigen::Tensor<int, 2> a(4, 3);
+    eeigen::Tensor<int, 2> a(4, 3);
     a.setValues({{0, 100, 200}, {300, 400, 500},
                  {600, 700, 800}, {900, 1000, 1100}});
-    Eigen::array<int, 2> offsets = {1, 0};
-    Eigen::array<int, 2> extents = {2, 2};
-    Eigen::Tensor<int, 1> slice = a.slice(offsets, extents);
+    eeigen::array<int, 2> offsets = {1, 0};
+    eeigen::array<int, 2> extents = {2, 2};
+    eeigen::Tensor<int, 1> slice = a.slice(offsets, extents);
     cout << "a" << endl << a << endl;
     =>
     a
@@ -1439,11 +1439,11 @@ tensor: the dimension dim is removed.
 For example, a matrix chip would be either a row or a column of the input
 matrix.
 
-    Eigen::Tensor<int, 2> a(4, 3);
+    eeigen::Tensor<int, 2> a(4, 3);
     a.setValues({{0, 100, 200}, {300, 400, 500},
                  {600, 700, 800}, {900, 1000, 1100}});
-    Eigen::Tensor<int, 1> row_3 = a.chip(2, 0);
-    Eigen::Tensor<int, 1> col_2 = a.chip(1, 1);
+    eeigen::Tensor<int, 1> row_3 = a.chip(2, 0);
+    eeigen::Tensor<int, 1> col_2 = a.chip(1, 1);
     cout << "a" << endl << a << endl;
     =>
     a
@@ -1463,9 +1463,9 @@ matrix.
 It is possible to assign values to a tensor chip since the chip operation is a
 lvalue. For example:
 
-    Eigen::Tensor<int, 1> a(3);
+    eeigen::Tensor<int, 1> a(3);
     a.setValues({{100, 200, 300}});
-    Eigen::Tensor<int, 2> b(2, 3);
+    eeigen::Tensor<int, 2> b(2, 3);
     b.setZero();
     b.chip(0, 0) = a;
     cout << "a" << endl << a << endl;
@@ -1492,11 +1492,11 @@ of the input tensor.
 For example this is what happens when you `reverse()` the first dimension
 of a 2D tensor:
 
-    Eigen::Tensor<int, 2> a(4, 3);
+    eeigen::Tensor<int, 2> a(4, 3);
     a.setValues({{0, 100, 200}, {300, 400, 500},
                 {600, 700, 800}, {900, 1000, 1100}});
-    Eigen::array<bool, 2> reverse({true, false});
-    Eigen::Tensor<int, 2> b = a.reverse(reverse);
+    eeigen::array<bool, 2> reverse({true, false});
+    eeigen::Tensor<int, 2> b = a.reverse(reverse);
     cout << "a" << endl << a << endl << "b" << endl << b << endl;
     =>
     a
@@ -1518,10 +1518,10 @@ times.
 The broadcast argument specifies how many copies of the input tensor need to be
 made in each of the dimensions.
 
-    Eigen::Tensor<int, 2> a(2, 3);
+    eeigen::Tensor<int, 2> a(2, 3);
     a.setValues({{0, 100, 200}, {300, 400, 500}});
-    Eigen::array<int, 2> bcast({3, 2});
-    Eigen::Tensor<int, 2> b = a.broadcast(bcast);
+    eeigen::array<int, 2> bcast({3, 2});
+    eeigen::Tensor<int, 2> b = a.broadcast(bcast);
     cout << "a" << endl << a << endl << "b" << endl << b << endl;
     =>
     a
@@ -1543,12 +1543,12 @@ TODO
 
 Returns a view of the input tensor in which the input is padded with zeros.
 
-    Eigen::Tensor<int, 2> a(2, 3);
+    eeigen::Tensor<int, 2> a(2, 3);
     a.setValues({{0, 100, 200}, {300, 400, 500}});
-    Eigen::array<pair<int, int>, 2> paddings;
+    eeigen::array<pair<int, int>, 2> paddings;
     paddings[0] = make_pair(0, 1);
     paddings[1] = make_pair(2, 3);
-    Eigen::Tensor<int, 2> b = a.pad(paddings);
+    eeigen::Tensor<int, 2> b = a.pad(paddings);
     cout << "a" << endl << a << endl << "b" << endl << b << endl;
     =>
     a
@@ -1575,7 +1575,7 @@ dimension in RowMajor layout.
 
 For example, given the following input tensor:
 
-  Eigen::Tensor<float, 2, DataLayout> tensor(3,4);
+  eeigen::Tensor<float, 2, DataLayout> tensor(3,4);
   tensor.setValues({{0.0f, 1.0f, 2.0f, 3.0f},
                     {4.0f, 5.0f, 6.0f, 7.0f},
                     {8.0f, 9.0f, 10.0f, 11.0f}});
@@ -1589,8 +1589,8 @@ tensor:
 
 Six 2x2 patches can be extracted and indexed using the following code:
 
-  Eigen::Tensor<float, 3, DataLayout> patch;
-  Eigen::array<ptrdiff_t, 2> patch_dims;
+  eeigen::Tensor<float, 3, DataLayout> patch;
+  eeigen::array<ptrdiff_t, 2> patch_dims;
   patch_dims[0] = 2;
   patch_dims[1] = 2;
   patch = tensor.extract_patches(patch_dims);
@@ -1712,16 +1712,16 @@ Returns a tensor of type T with the same dimensions as the original tensor.
 The returned tensor contains the values of the original tensor converted to
 type T.
 
-    Eigen::Tensor<float, 2> a(2, 3);
-    Eigen::Tensor<int, 2> b = a.cast<int>();
+    eeigen::Tensor<float, 2> a(2, 3);
+    eeigen::Tensor<int, 2> b = a.cast<int>();
 
 This can be useful for example if you need to do element-wise division of
 Tensors of integers.  This is not currently supported by the Tensor library
 but you can easily cast the tensors to floats to do the division:
 
-    Eigen::Tensor<int, 2> a(2, 3);
+    eeigen::Tensor<int, 2> a(2, 3);
     a.setValues({{0, 1, 2}, {3, 4, 5}});
-    Eigen::Tensor<int, 2> b =
+    eeigen::Tensor<int, 2> b =
         (a.cast<float>() / a.constant(2).cast<float>()).cast<int>();
     cout << "a" << endl << a << endl << endl;
     cout << "b" << endl << b << endl << endl;

@@ -1,21 +1,21 @@
-// Small bench routine for Eigen available in Eigen
+// Small bench routine for eeigen available in eeigen
 // (C) Desire NUENTSA WAKAM, INRIA
 
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <Eigen/Jacobi>
-#include <Eigen/Householder>
-#include <Eigen/IterativeLinearSolvers>
-#include <Eigen/LU>
-#include <unsupported/Eigen/SparseExtra>
-//#include <Eigen/SparseLU>
-#include <Eigen/SuperLUSupport>
-// #include <unsupported/Eigen/src/IterativeSolvers/Scaling.h>
+#include <eeigen/Jacobi>
+#include <eeigen/Householder>
+#include <eeigen/IterativeLinearSolvers>
+#include <eeigen/LU>
+#include <unsupported/eeigen/SparseExtra>
+//#include <eeigen/SparseLU>
+#include <eeigen/SuperLUSupport>
+// #include <unsupported/eeigen/src/IterativeSolvers/Scaling.h>
 #include <bench/BenchTimer.h>
-#include <unsupported/Eigen/IterativeSolvers>
+#include <unsupported/eeigen/IterativeSolvers>
 using namespace std;
-using namespace Eigen;
+using namespace eeigen;
 
 int main(int argc, char **args)
 {

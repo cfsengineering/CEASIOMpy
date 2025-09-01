@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Hauke Heibel <hauke.heibel@gmail.com>
@@ -9,20 +9,20 @@
 
 #include "main.h"
 
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include <eeigen/Core>
+#include <eeigen/Geometry>
 
-#include <Eigen/LU> // required for MatrixBase::determinant
-#include <Eigen/SVD> // required for SVD
+#include <eeigen/LU> // required for MatrixBase::determinant
+#include <eeigen/SVD> // required for SVD
 
-using namespace Eigen;
+using namespace eeigen;
 
 //  Constructs a random matrix from the unitary group U(size).
 template <typename T>
-Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> randMatrixUnitary(int size)
+eeigen::Matrix<T, eeigen::Dynamic, eeigen::Dynamic> randMatrixUnitary(int size)
 {
   typedef T Scalar;
-  typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixType;
+  typedef eeigen::Matrix<Scalar, eeigen::Dynamic, eeigen::Dynamic> MatrixType;
 
   MatrixType Q;
 
@@ -72,11 +72,11 @@ Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> randMatrixUnitary(int size)
 
 //  Constructs a random matrix from the special unitary group SU(size).
 template <typename T>
-Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> randMatrixSpecialUnitary(int size)
+eeigen::Matrix<T, eeigen::Dynamic, eeigen::Dynamic> randMatrixSpecialUnitary(int size)
 {
   typedef T Scalar;
 
-  typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixType;
+  typedef eeigen::Matrix<Scalar, eeigen::Dynamic, eeigen::Dynamic> MatrixType;
 
   // initialize unitary matrix
   MatrixType Q = randMatrixUnitary<Scalar>(size);
@@ -92,8 +92,8 @@ void run_test(int dim, int num_elements)
 {
   using std::abs;
   typedef typename internal::traits<MatrixType>::Scalar Scalar;
-  typedef Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
-  typedef Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
+  typedef Matrix<Scalar, eeigen::Dynamic, eeigen::Dynamic> MatrixX;
+  typedef Matrix<Scalar, eeigen::Dynamic, 1> VectorX;
 
   // MUST be positive because in any other case det(cR_t) may become negative for
   // odd dimensions!

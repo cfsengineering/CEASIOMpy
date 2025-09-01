@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Desire Nuentsa <desire.nuentsa_wakam@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_SUITESPARSEQRSUPPORT_H
 #define EIGEN_SUITESPARSEQRSUPPORT_H
 
-namespace Eigen {
+namespace eeigen {
   
   template<typename MatrixType> class SPQR; 
   template<typename SPQRType> struct SPQRMatrixQReturnType; 
@@ -237,7 +237,7 @@ class SPQR : public SparseSolverBase<SPQR<_MatrixType> >
     int m_allow_tol; // Allow to use some tolerance during numerical factorization.
     RealScalar m_tolerance; // treat columns with 2-norm below this tolerance as zero
     mutable cholmod_sparse *m_cR; // The sparse R factor in cholmod format
-    mutable MatrixType m_R; // The sparse matrix R in Eigen format
+    mutable MatrixType m_R; // The sparse matrix R in eeigen format
     mutable StorageIndex *m_E; // The permutation applied to columns
     mutable cholmod_sparse *m_H;  //The householder vectors
     mutable StorageIndex *m_HPinv; // The row permutation of H
@@ -309,5 +309,5 @@ struct SPQRMatrixQTransposeReturnType{
   const SPQRType& m_spqr;
 };
 
-}// End namespace Eigen
+}// End namespace eeigen
 #endif

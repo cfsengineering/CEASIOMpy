@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2007 Julien Pommier
@@ -15,7 +15,7 @@
 #ifndef EIGEN_MATH_FUNCTIONS_SSE_H
 #define EIGEN_MATH_FUNCTIONS_SSE_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -557,6 +557,6 @@ double sqrt(const double &x)
 
 } // end namespace numex
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_MATH_FUNCTIONS_SSE_H

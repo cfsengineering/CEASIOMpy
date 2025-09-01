@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_FORWARD_DECLARATIONS_H
 #define EIGEN_CXX11_TENSOR_TENSOR_FORWARD_DECLARATIONS_H
 
-namespace Eigen {
+namespace eeigen {
 
 // MakePointer class is used as a container of the adress space of the pointer
 // on the host and on the device. From the host side it generates the T* pointer
@@ -104,6 +104,6 @@ class TensorExecutor;
 
 }  // end namespace internal
 
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_FORWARD_DECLARATIONS_H

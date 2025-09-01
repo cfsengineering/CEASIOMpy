@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Désiré Nuentsa-Wakam <desire.nuentsa_wakam@inria.fr>
@@ -28,7 +28,7 @@
 #ifndef SPARSELU_HEAP_RELAX_SNODE_H
 #define SPARSELU_HEAP_RELAX_SNODE_H
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 
 /** 
@@ -122,5 +122,5 @@ void SparseLUImpl<Scalar,StorageIndex>::heap_relax_snode (const Index n, IndexVe
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 #endif // SPARSELU_HEAP_RELAX_SNODE_H

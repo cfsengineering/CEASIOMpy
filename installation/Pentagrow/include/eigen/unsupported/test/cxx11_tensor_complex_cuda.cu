@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -12,9 +12,9 @@
 #define EIGEN_USE_GPU
 
 #include "main.h"
-#include <unsupported/Eigen/CXX11/Tensor>
+#include <unsupported/eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
+using eeigen::Tensor;
 
 void test_cuda_nullary() {
   Tensor<std::complex<float>, 1, 0, int> in1(2);
@@ -34,14 +34,14 @@ void test_cuda_nullary() {
   cudaMemcpy(d_in1, in1.data(), complex_bytes, cudaMemcpyHostToDevice);
   cudaMemcpy(d_in2, in2.data(), complex_bytes, cudaMemcpyHostToDevice);
 
-  Eigen::CudaStreamDevice stream;
-  Eigen::GpuDevice gpu_device(&stream);
+  eeigen::CudaStreamDevice stream;
+  eeigen::GpuDevice gpu_device(&stream);
 
-  Eigen::TensorMap<Eigen::Tensor<std::complex<float>, 1, 0, int>, Eigen::Aligned> gpu_in1(
+  eeigen::TensorMap<eeigen::Tensor<std::complex<float>, 1, 0, int>, eeigen::Aligned> gpu_in1(
       d_in1, 2);
-  Eigen::TensorMap<Eigen::Tensor<std::complex<float>, 1, 0, int>, Eigen::Aligned> gpu_in2(
+  eeigen::TensorMap<eeigen::Tensor<std::complex<float>, 1, 0, int>, eeigen::Aligned> gpu_in2(
       d_in2, 2);
-  Eigen::TensorMap<Eigen::Tensor<float, 1, 0, int>, Eigen::Aligned> gpu_out2(
+  eeigen::TensorMap<eeigen::Tensor<float, 1, 0, int>, eeigen::Aligned> gpu_out2(
       d_out2, 2);
 
   gpu_in1.device(gpu_device) = gpu_in1.constant(std::complex<float>(3.14f, 2.7f));
@@ -70,8 +70,8 @@ void test_cuda_nullary() {
 
 static void test_cuda_sum_reductions() {
 
-  Eigen::CudaStreamDevice stream;
-  Eigen::GpuDevice gpu_device(&stream);
+  eeigen::CudaStreamDevice stream;
+  eeigen::GpuDevice gpu_device(&stream);
 
   const int num_rows = internal::random<int>(1024, 5*1024);
   const int num_cols = internal::random<int>(1024, 5*1024);
@@ -107,8 +107,8 @@ static void test_cuda_sum_reductions() {
 
 static void test_cuda_product_reductions() {
 
-  Eigen::CudaStreamDevice stream;
-  Eigen::GpuDevice gpu_device(&stream);
+  eeigen::CudaStreamDevice stream;
+  eeigen::GpuDevice gpu_device(&stream);
 
   const int num_rows = internal::random<int>(1024, 5*1024);
   const int num_cols = internal::random<int>(1024, 5*1024);

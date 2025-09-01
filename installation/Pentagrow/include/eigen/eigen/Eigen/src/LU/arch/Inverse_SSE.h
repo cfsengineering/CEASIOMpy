@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2001 Intel Corporation
@@ -27,7 +27,7 @@
 #ifndef EIGEN_INVERSE_SSE_H
 #define EIGEN_INVERSE_SSE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -333,6 +333,6 @@ struct compute_inverse_size4<Architecture::SSE, double, MatrixType, ResultType>
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_INVERSE_SSE_H

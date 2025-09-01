@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,9 +10,9 @@
 #ifndef EIGEN_COREITERATORS_H
 #define EIGEN_COREITERATORS_H
 
-namespace Eigen { 
+namespace eeigen { 
 
-/* This file contains the respective InnerIterator definition of the expressions defined in Eigen/Core
+/* This file contains the respective InnerIterator definition of the expressions defined in eeigen/Core
  */
 
 namespace internal {
@@ -122,6 +122,6 @@ public:
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_COREITERATORS_H

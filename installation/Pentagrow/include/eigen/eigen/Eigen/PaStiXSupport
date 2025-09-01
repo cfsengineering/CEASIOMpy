@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // This Source Code Form is subject to the terms of the Mozilla
@@ -32,7 +32,7 @@ extern "C" {
   * - class PastixLU : a supernodal, parallel LU factorization (optimized for a symmetric pattern).
   * 
   * \code
-  * #include <Eigen/PaStiXSupport>
+  * #include <eeigen/PaStiXSupport>
   * \endcode
   *
   * In order to use this module, the PaSTiX headers must be accessible from the include paths, and your binary must be linked to the PaSTiX library and its dependencies.

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_TRIANGULARMATRIX_H
 #define EIGEN_TRIANGULARMATRIX_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
   
@@ -978,6 +978,6 @@ struct Assignment<DstXprType, Product<Lhs,Rhs,DefaultProduct>, internal::sub_ass
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_TRIANGULARMATRIX_H

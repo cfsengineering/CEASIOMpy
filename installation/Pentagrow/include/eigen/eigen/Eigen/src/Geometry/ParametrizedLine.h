@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_PARAMETRIZEDLINE_H
 #define EIGEN_PARAMETRIZEDLINE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \geometry_module \ingroup Geometry_Module
   *
@@ -37,7 +37,7 @@ public:
   };
   typedef _Scalar Scalar;
   typedef typename NumTraits<Scalar>::Real RealScalar;
-  typedef Eigen::Index Index; ///< \deprecated since Eigen 3.3
+  typedef eeigen::Index Index; ///< \deprecated since eeigen 3.3
   typedef Matrix<Scalar,AmbientDimAtCompileTime,1,Options> VectorType;
 
   /** Default constructor without initialization */
@@ -190,6 +190,6 @@ ParametrizedLine<_Scalar, _AmbientDim,_Options>::intersectionPoint(const Hyperpl
   return pointAt(intersectionParameter(hyperplane));
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_PARAMETRIZEDLINE_H

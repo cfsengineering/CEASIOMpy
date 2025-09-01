@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Désiré Nuentsa-Wakam <desire.nuentsa_wakam@inria.fr>
@@ -30,7 +30,7 @@
 #ifndef SPARSELU_PIVOTL_H
 #define SPARSELU_PIVOTL_H
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
   
 /**
@@ -132,6 +132,6 @@ Index SparseLUImpl<Scalar,StorageIndex>::pivotL(const Index jcol, const RealScal
 }
 
 } // end namespace internal
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // SPARSELU_PIVOTL_H

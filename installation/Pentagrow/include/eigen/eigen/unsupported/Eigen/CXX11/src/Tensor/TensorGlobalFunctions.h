@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Eugene Brevdo <ebrevdo@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_GLOBAL_FUNCTIONS_H
 #define EIGEN_CXX11_TENSOR_TENSOR_GLOBAL_FUNCTIONS_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \cpp11 \returns an expression of the coefficient-wise betainc(\a x, \a a, \a b) to the given tensors.
  *
@@ -28,6 +28,6 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const
       a, b, x, internal::scalar_betainc_op<typename XDerived::Scalar>());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_GLOBAL_FUNCTIONS_H

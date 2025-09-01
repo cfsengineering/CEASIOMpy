@@ -59,7 +59,7 @@ endmacro()
 
 # add a cache variable to let the user specify the BLAS vendor
 set(BLA_VENDOR "" CACHE STRING "list of possible BLAS vendor:
-    Open, Eigen, Goto, ATLAS PhiPACK, CXML, DXML, SunPerf, SCSL, SGIMATH, IBMESSL, IBMESSLMT,
+    Open, eeigen, Goto, ATLAS PhiPACK, CXML, DXML, SunPerf, SCSL, SGIMATH, IBMESSL, IBMESSLMT,
     Intel10_32 (intel mkl v10 32 bit),
     Intel10_64lp (intel mkl v10 64 bit, lp thread model, lp64 model),
     Intel10_64lp_seq (intel mkl v10 64 bit, sequential code, lp64 model),

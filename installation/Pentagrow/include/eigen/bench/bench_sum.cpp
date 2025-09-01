@@ -1,11 +1,11 @@
 #include <iostream>
-#include <Eigen/Core>
-using namespace Eigen;
+#include <eeigen/Core>
+using namespace eeigen;
 using namespace std;
 
 int main() 
 {
-  typedef Matrix<SCALAR,Eigen::Dynamic,1> Vec;
+  typedef Matrix<SCALAR,eeigen::Dynamic,1> Vec;
   Vec v(SIZE);
   v.setZero();
   v[0] = 1;

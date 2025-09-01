@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -14,7 +14,7 @@
 #define EIGEN_USE_GPU
 
 #include "main.h"
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
 
 void test_cuda_random_uniform()
@@ -27,10 +27,10 @@ void test_cuda_random_uniform()
   float* d_out;
   cudaMalloc((void**)(&d_out), out_bytes);
 
-  Eigen::CudaStreamDevice stream;
-  Eigen::GpuDevice gpu_device(&stream);
+  eeigen::CudaStreamDevice stream;
+  eeigen::GpuDevice gpu_device(&stream);
 
-  Eigen::TensorMap<Eigen::Tensor<float, 2> > gpu_out(d_out, 72,97);
+  eeigen::TensorMap<eeigen::Tensor<float, 2> > gpu_out(d_out, 72,97);
 
   gpu_out.device(gpu_device) = gpu_out.random();
 
@@ -52,12 +52,12 @@ void test_cuda_random_normal()
   float* d_out;
   cudaMalloc((void**)(&d_out), out_bytes);
 
-  Eigen::CudaStreamDevice stream;
-  Eigen::GpuDevice gpu_device(&stream);
+  eeigen::CudaStreamDevice stream;
+  eeigen::GpuDevice gpu_device(&stream);
 
-  Eigen::TensorMap<Eigen::Tensor<float, 2> > gpu_out(d_out, 72,97);
+  eeigen::TensorMap<eeigen::Tensor<float, 2> > gpu_out(d_out, 72,97);
 
-  Eigen::internal::NormalRandomGenerator<float> gen(true);
+  eeigen::internal::NormalRandomGenerator<float> gen(true);
   gpu_out.device(gpu_device) = gpu_out.random(gen);
 
   assert(cudaMemcpyAsync(out.data(), d_out, out_bytes, cudaMemcpyDeviceToHost, gpu_device.stream()) == cudaSuccess);

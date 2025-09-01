@@ -1,17 +1,17 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \eigenManualPage TutorialBlockOperations Block operations
 
 This page explains the essentials of block operations.
 A block is a rectangular part of a matrix or array. Blocks expressions can be used both
-as rvalues and as lvalues. As usual with Eigen expressions, this abstraction has zero runtime cost
+as rvalues and as lvalues. As usual with eeigen expressions, this abstraction has zero runtime cost
 provided that you let your compiler optimize.
 
 \eigenAutoToc
 
 \section TutorialBlockOperationsUsing Using block operations
 
-The most general block operation in Eigen is called \link DenseBase::block() .block() \endlink.
+The most general block operation in eeigen is called \link DenseBase::block() .block() \endlink.
 There are two versions, whose syntax is as follows:
 
 <table class="manual">
@@ -26,7 +26,7 @@ matrix.block<p,q>(i,j);\endcode </td>
 </tr>
 </table>
 
-As always in Eigen, indices start at 0.
+As always in eeigen, indices start at 0.
 
 Both versions can be used on fixed-size and dynamic-size matrices and arrays.
 These two expressions are semantically equivalent.
@@ -61,14 +61,14 @@ This is illustrated in the following example. This example also demonstrates blo
 
 While the \link DenseBase::block() .block() \endlink method can be used for any block operation, there are
 other methods for special cases, providing more specialized API and/or better performance. On the topic of performance, all what
-matters is that you give Eigen as much information as possible at compile time. For example, if your block is a single whole column in a matrix,
-using the specialized \link DenseBase::col() .col() \endlink function described below lets Eigen know that, which can give it optimization opportunities.
+matters is that you give eeigen as much information as possible at compile time. For example, if your block is a single whole column in a matrix,
+using the specialized \link DenseBase::col() .col() \endlink function described below lets eeigen know that, which can give it optimization opportunities.
 
 The rest of this page describes these specialized methods.
 
 \section TutorialBlockOperationsSyntaxColumnRows Columns and rows
 
-Individual columns and rows are special cases of blocks. Eigen provides methods to easily address them:
+Individual columns and rows are special cases of blocks. eeigen provides methods to easily address them:
 \link DenseBase::col() .col() \endlink and \link DenseBase::row() .row()\endlink.
 
 <table class="manual">
@@ -86,7 +86,7 @@ matrix.col(j);\endcode </td>
 </tr>
 </table>
 
-The argument for \p col() and \p row() is the index of the column or row to be accessed. As always in Eigen, indices start at 0.
+The argument for \p col() and \p row() is the index of the column or row to be accessed. As always in eeigen, indices start at 0.
 
 <table class="example">
 <tr><th>Example:</th><th>Output:</th></tr>
@@ -102,7 +102,7 @@ That example also demonstrates that block expressions (here columns) can be used
 
 \section TutorialBlockOperationsSyntaxCorners Corner-related operations
 
-Eigen also provides special methods for blocks that are flushed against one of the corners or sides of a
+eeigen also provides special methods for blocks that are flushed against one of the corners or sides of a
 matrix or array. For instance, \link DenseBase::topLeftCorner() .topLeftCorner() \endlink can be used to refer
 to a block in the top-left corner of a matrix.
 
@@ -183,7 +183,7 @@ Here is a simple example illustrating the use of the operations presented above:
 
 \section TutorialBlockOperationsSyntaxVectors Block operations for vectors
 
-Eigen also provides a set of block operations designed specifically for the special case of vectors and one-dimensional arrays:
+eeigen also provides a set of block operations designed specifically for the special case of vectors and one-dimensional arrays:
 
 <table class="manual">
 <tr><th> %Block operation</th>

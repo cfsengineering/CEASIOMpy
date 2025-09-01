@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // This Source Code Form is subject to the terms of the Mozilla
@@ -20,7 +20,7 @@
   * This module provides an interface to the SPQR library, which is part of the <a href="http://www.suitesparse.com">suitesparse</a> package.
   *
   * \code
-  * #include <Eigen/SPQRSupport>
+  * #include <eeigen/SPQRSupport>
   * \endcode
   *
   * In order to use this module, the SPQR headers must be accessible from the include paths, and your binary must be linked to the SPQR library and its dependencies (Cholmod, AMD, COLAMD,...).

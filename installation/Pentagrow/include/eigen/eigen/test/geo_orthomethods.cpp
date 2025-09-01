@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -8,9 +8,9 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "main.h"
-#include <Eigen/Geometry>
-#include <Eigen/LU>
-#include <Eigen/SVD>
+#include <eeigen/Geometry>
+#include <eeigen/LU>
+#include <eeigen/SVD>
 
 /* this test covers the following files:
    Geometry/OrthoMethods.h

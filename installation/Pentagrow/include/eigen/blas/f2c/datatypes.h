@@ -1,5 +1,5 @@
 /* This contains a limited subset of the typedefs exposed by f2c
-   for use by the Eigen BLAS C-only implementation.
+   for use by the eeigen BLAS C-only implementation.
 */
 
 #ifndef __EIGEN_DATATYPES_H__

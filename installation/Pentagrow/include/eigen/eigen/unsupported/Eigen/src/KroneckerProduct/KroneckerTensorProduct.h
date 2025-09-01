@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011 Kolja Brix <brix@igpm.rwth-aachen.de>
@@ -12,7 +12,7 @@
 #ifndef KRONECKER_TENSOR_PRODUCT_H
 #define KRONECKER_TENSOR_PRODUCT_H
 
-namespace Eigen {
+namespace eeigen {
 
 /*!
  * \ingroup KroneckerProduct_Module
@@ -159,8 +159,8 @@ void KroneckerProductSparse<Lhs,Rhs>::evalTo(Dest& dst) const
   const Rhs1 rhs1(m_B);
     
   // 2 - construct respective iterators
-  typedef Eigen::InnerIterator<Lhs1Cleaned> LhsInnerIterator;
-  typedef Eigen::InnerIterator<Rhs1Cleaned> RhsInnerIterator;
+  typedef eeigen::InnerIterator<Lhs1Cleaned> LhsInnerIterator;
+  typedef eeigen::InnerIterator<Rhs1Cleaned> RhsInnerIterator;
   
   // compute number of non-zeros per innervectors of dst
   {
@@ -300,6 +300,6 @@ KroneckerProductSparse<A,B> kroneckerProduct(const EigenBase<A>& a, const EigenB
   return KroneckerProductSparse<A,B>(a.derived(), b.derived());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // KRONECKER_TENSOR_PRODUCT_H

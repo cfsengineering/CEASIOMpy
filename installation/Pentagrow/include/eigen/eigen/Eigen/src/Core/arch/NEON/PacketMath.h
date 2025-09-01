@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -12,7 +12,7 @@
 #ifndef EIGEN_PACKET_MATH_NEON_H
 #define EIGEN_PACKET_MATH_NEON_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -755,6 +755,6 @@ ptranspose(PacketBlock<Packet2d,2>& kernel) {
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_PACKET_MATH_NEON_H

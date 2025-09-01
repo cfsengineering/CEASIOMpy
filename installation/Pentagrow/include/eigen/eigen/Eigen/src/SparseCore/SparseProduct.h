@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPARSEPRODUCT_H
 #define EIGEN_SPARSEPRODUCT_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \returns an expression of the product of two sparse matrices.
   * By default a conservative product preserving the symbolic non zeros is performed.
@@ -164,6 +164,6 @@ protected:
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSEPRODUCT_H

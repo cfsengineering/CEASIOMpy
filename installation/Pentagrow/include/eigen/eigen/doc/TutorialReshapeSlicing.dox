@@ -1,8 +1,8 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \eigenManualPage TutorialReshapeSlicing Reshape and Slicing
 
-%Eigen does not expose convenient methods to take slices or to reshape a matrix yet.
+%eeigen does not expose convenient methods to take slices or to reshape a matrix yet.
 Nonetheless, such features can easily be emulated using the Map class.
 
 \eigenAutoToc

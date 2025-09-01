@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_ITERATIVE_SOLVER_BASE_H
 #define EIGEN_ITERATIVE_SOLVER_BASE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -339,8 +339,8 @@ public:
     Index size = b.rows();
     DestDerived& dest(aDest.derived());
     typedef typename DestDerived::Scalar DestScalar;
-    Eigen::Matrix<DestScalar,Dynamic,1> tb(size);
-    Eigen::Matrix<DestScalar,Dynamic,1> tx(cols());
+    eeigen::Matrix<DestScalar,Dynamic,1> tb(size);
+    eeigen::Matrix<DestScalar,Dynamic,1> tx(cols());
     // We do not directly fill dest because sparse expressions have to be free of aliasing issue.
     // For non square least-square problems, b and dest might not have the same size whereas they might alias each-other.
     typename DestDerived::PlainObject tmp(cols(),rhsCols);
@@ -389,6 +389,6 @@ protected:
   mutable bool m_analysisIsOk, m_factorizationIsOk;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_ITERATIVE_SOLVER_BASE_H

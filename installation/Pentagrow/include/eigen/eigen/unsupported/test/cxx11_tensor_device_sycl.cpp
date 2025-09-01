@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016
@@ -18,14 +18,14 @@
 #define EIGEN_USE_SYCL
 
 #include "main.h"
-#include <unsupported/Eigen/CXX11/Tensor>
+#include <unsupported/eeigen/CXX11/Tensor>
 
-void test_device_sycl(const Eigen::SyclDevice &sycl_device) {
+void test_device_sycl(const eeigen::SyclDevice &sycl_device) {
   std::cout <<"Helo from ComputeCpp: the requested device exists and the device name is : "
     << sycl_device.m_queue.get_device(). template get_info<cl::sycl::info::device::name>() <<std::endl;;
 }
 void test_cxx11_tensor_device_sycl() {
   cl::sycl::gpu_selector s;
-  Eigen::SyclDevice sycl_device(s);
+  eeigen::SyclDevice sycl_device(s);
   CALL_SUBTEST(test_device_sycl(sycl_device));
 }

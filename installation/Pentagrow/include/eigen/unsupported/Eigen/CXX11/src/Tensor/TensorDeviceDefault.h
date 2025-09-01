@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -11,7 +11,7 @@
 #define EIGEN_CXX11_TENSOR_TENSOR_DEVICE_DEFAULT_H
 
 
-namespace Eigen {
+namespace eeigen {
 
 // Default device for the machine (typically a single cpu core)
 struct DefaultDevice {
@@ -76,6 +76,6 @@ struct DefaultDevice {
   }
 };
 
-}  // namespace Eigen
+}  // namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_DEVICE_DEFAULT_H

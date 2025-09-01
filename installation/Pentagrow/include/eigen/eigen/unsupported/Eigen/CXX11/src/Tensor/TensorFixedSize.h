@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_FIXED_SIZE_H
 #define EIGEN_CXX11_TENSOR_TENSOR_FIXED_SIZE_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorFixedSize
   * \ingroup CXX11_Tensor_Module
@@ -18,9 +18,9 @@ namespace Eigen {
   * \brief The fixed sized version of the tensor class.
   *
   * The fixed sized equivalent of
-  * Eigen::Tensor<float, 3> t(3, 5, 7);
+  * eeigen::Tensor<float, 3> t(3, 5, 7);
   * is
-  * Eigen::TensorFixedSize<float, Size<3,5,7>> t;
+  * eeigen::TensorFixedSize<float, Size<3,5,7>> t;
   */
 
 template<typename Scalar_, typename Dimensions_, int Options_, typename IndexType>
@@ -29,7 +29,7 @@ class TensorFixedSize : public TensorBase<TensorFixedSize<Scalar_, Dimensions_, 
   public:
     typedef TensorFixedSize<Scalar_, Dimensions_, Options_, IndexType> Self;
     typedef TensorBase<TensorFixedSize<Scalar_, Dimensions_, Options_, IndexType> > Base;
-    typedef typename Eigen::internal::nested<Self>::type Nested;
+    typedef typename eeigen::internal::nested<Self>::type Nested;
     typedef typename internal::traits<Self>::StorageKind StorageKind;
     typedef typename internal::traits<Self>::Index Index;
     typedef Scalar_ Scalar;
@@ -384,6 +384,6 @@ class TensorFixedSize : public TensorBase<TensorFixedSize<Scalar_, Dimensions_, 
 };
 
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_FIXED_SIZE_H

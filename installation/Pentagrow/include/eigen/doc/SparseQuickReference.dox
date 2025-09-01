@@ -1,4 +1,4 @@
-namespace Eigen {
+namespace eeigen {
 /** \eigenManualPage SparseQuickRefPage Quick reference guide for sparse matrices
 \eigenAutoToc
 
@@ -59,7 +59,7 @@ i.e either row major or column major. The default is column major. Most arithmet
 <td> Batch insertion</td>
 <td>
 \code
-  std::vector< Eigen::Triplet<double> > tripletList;
+  std::vector< eeigen::Triplet<double> > tripletList;
   tripletList.reserve(estimation_of_entries);
   // -- Fill tripletList with nonzero elements...
   sm1.setFromTriplets(TripletList.begin(), TripletList.end());
@@ -265,7 +265,7 @@ Map<SparseMatrix<double> > sm1(rows,cols,nnz,outerIndexPtr, // read-write
 Map<const SparseMatrix<double> > sm2(...);                  // read-only
 \endcode
 </td>
-<td>As for dense matrices, class Map<SparseMatrixType> can be used to see external buffers as an %Eigen's SparseMatrix object. </td>
+<td>As for dense matrices, class Map<SparseMatrixType> can be used to see external buffers as an %eeigen's SparseMatrix object. </td>
 </tr>
 </table>
 */

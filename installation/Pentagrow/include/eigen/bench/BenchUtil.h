@@ -2,11 +2,11 @@
 #ifndef EIGEN_BENCH_UTIL_H
 #define EIGEN_BENCH_UTIL_H
 
-#include <Eigen/Core>
+#include <eeigen/Core>
 #include "BenchTimer.h"
 
 using namespace std;
-using namespace Eigen;
+using namespace eeigen;
 
 #include <boost/preprocessor/repetition/enum_params.hpp>
 #include <boost/preprocessor/repetition.hpp>

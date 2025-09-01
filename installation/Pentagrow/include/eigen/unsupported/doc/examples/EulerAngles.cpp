@@ -1,7 +1,7 @@
-#include <unsupported/Eigen/EulerAngles>
+#include <unsupported/eeigen/EulerAngles>
 #include <iostream>
 
-using namespace Eigen;
+using namespace eeigen;
 
 int main()
 {

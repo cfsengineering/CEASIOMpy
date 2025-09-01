@@ -1,5 +1,5 @@
 
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2017 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -16,14 +16,14 @@
     EIGEN_STRONG_INLINE PACKET_CPLX pmadd(const PACKET_REAL& x, const PACKET_CPLX& y, const PACKET_CPLX& c) const \
     { return padd(c, pmul(x,y)); }                                                                                \
     EIGEN_STRONG_INLINE PACKET_CPLX pmul(const PACKET_REAL& x, const PACKET_CPLX& y) const                        \
-    { return PACKET_CPLX(Eigen::internal::pmul<PACKET_REAL>(x, y.v)); }                                           \
+    { return PACKET_CPLX(eeigen::internal::pmul<PACKET_REAL>(x, y.v)); }                                           \
   };                                                                                                              \
                                                                                                                   \
   template<> struct conj_helper<PACKET_CPLX, PACKET_REAL, false,false> {                                          \
     EIGEN_STRONG_INLINE PACKET_CPLX pmadd(const PACKET_CPLX& x, const PACKET_REAL& y, const PACKET_CPLX& c) const \
     { return padd(c, pmul(x,y)); }                                                                                \
     EIGEN_STRONG_INLINE PACKET_CPLX pmul(const PACKET_CPLX& x, const PACKET_REAL& y) const                        \
-    { return PACKET_CPLX(Eigen::internal::pmul<PACKET_REAL>(x.v, y)); }                                           \
+    { return PACKET_CPLX(eeigen::internal::pmul<PACKET_REAL>(x.v, y)); }                                           \
   };
 
 #endif // EIGEN_ARCH_CONJ_HELPER_H

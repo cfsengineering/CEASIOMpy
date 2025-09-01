@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2016 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_UNARY_FUNCTORS_H
 #define EIGEN_UNARY_FUNCTORS_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -67,7 +67,7 @@ template<typename Scalar> struct scalar_score_coeff_op : scalar_abs_op<Scalar>
 template<typename Scalar>
 struct functor_traits<scalar_score_coeff_op<Scalar> > : functor_traits<scalar_abs_op<Scalar> > {};
 
-/* Avoid recomputing abs when we know the score and they are the same. Not a true Eigen functor.  */
+/* Avoid recomputing abs when we know the score and they are the same. Not a true eeigen functor.  */
 template<typename Scalar, typename=void> struct abs_knowing_score
 {
   EIGEN_EMPTY_STRUCT_CTOR(abs_knowing_score)
@@ -787,6 +787,6 @@ struct functor_traits<scalar_sign_op<Scalar> >
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_FUNCTORS_H

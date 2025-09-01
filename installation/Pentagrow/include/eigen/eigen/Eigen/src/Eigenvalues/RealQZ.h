@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Alexey Korepanov <kaikaikai@yandex.ru>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_REAL_QZ_H
 #define EIGEN_REAL_QZ_H
 
-namespace Eigen {
+namespace eeigen {
 
   /** \eigenvalues_module \ingroup Eigenvalues_Module
    *
@@ -67,7 +67,7 @@ namespace Eigen {
       };
       typedef typename MatrixType::Scalar Scalar;
       typedef std::complex<typename NumTraits<Scalar>::Real> ComplexScalar;
-      typedef Eigen::Index Index; ///< \deprecated since Eigen 3.3
+      typedef eeigen::Index Index; ///< \deprecated since eeigen 3.3
 
       typedef Matrix<ComplexScalar, ColsAtCompileTime, 1, Options & ~RowMajor, MaxColsAtCompileTime, 1> EigenvalueType;
       typedef Matrix<Scalar, ColsAtCompileTime, 1, Options & ~RowMajor, MaxColsAtCompileTime, 1> ColumnVectorType;
@@ -649,6 +649,6 @@ namespace Eigen {
       return *this;
     } // end compute
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif //EIGEN_REAL_QZ

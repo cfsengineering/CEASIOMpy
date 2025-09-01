@@ -1,6 +1,6 @@
-namespace Eigen {
+namespace eeigen {
 
-/** \page TopicInsideEigenExample What happens inside Eigen, on a simple example
+/** \page TopicInsideEigenExample What happens inside eeigen, on a simple example
 
 \eigenAutoToc
 
@@ -10,22 +10,22 @@ namespace Eigen {
 Consider the following example program:
 
 \code
-#include<Eigen/Core>
+#include<eeigen/Core>
 
 int main()
 {
   int size = 50;
   // VectorXf is a vector of floats, with dynamic size.
-  Eigen::VectorXf u(size), v(size), w(size);
+  eeigen::VectorXf u(size), v(size), w(size);
   u = v + w;
 }
 \endcode
 
-The goal of this page is to understand how Eigen compiles it, assuming that SSE2 vectorization is enabled (GCC option -msse2).
+The goal of this page is to understand how eeigen compiles it, assuming that SSE2 vectorization is enabled (GCC option -msse2).
 
 \section WhyInteresting Why it's interesting
 
-Maybe you think, that the above example program is so simple, that compiling it shouldn't involve anything interesting. So before starting, let us explain what is nontrivial in compiling it correctly -- that is, producing optimized code -- so that the complexity of Eigen, that we'll explain here, is really useful.
+Maybe you think, that the above example program is so simple, that compiling it shouldn't involve anything interesting. So before starting, let us explain what is nontrivial in compiling it correctly -- that is, producing optimized code -- so that the complexity of eeigen, that we'll explain here, is really useful.
 
 Look at the line of code
 \code
@@ -48,7 +48,7 @@ Obviously, the introduction of the temporary \a tmp here is useless. It has a ve
 \endcode
 Traversing the arrays twice instead of once is terrible for performance, as it means that we do many redundant memory accesses.
 
-The second important thing about compiling the above program, is to make correct use of SSE2 instructions. Notice that Eigen also supports AltiVec and that all the discussion that we make here applies also to AltiVec.
+The second important thing about compiling the above program, is to make correct use of SSE2 instructions. Notice that eeigen also supports AltiVec and that all the discussion that we make here applies also to AltiVec.
 
 SSE2, like AltiVec, is a set of instructions allowing to perform computations on packets of 128 bits at once. Since a float is 32 bits, this means that SSE2 instructions can handle 4 floats at once. This means that, if correctly used, they can make our computation go up to 4x faster.
 
@@ -59,14 +59,14 @@ However, in the above program, we have chosen size=50, so our vectors consist of
   for(int i = 4*(size/4); i < size; i++) u[i] = v[i] + w[i];
 \endcode
 
-So let us look line by line at our example program, and let's follow Eigen as it compiles it.
+So let us look line by line at our example program, and let's follow eeigen as it compiles it.
 
 \section ConstructingVectors Constructing vectors
 
 Let's analyze the first line:
 
 \code
-  Eigen::VectorXf u(size), v(size), w(size);
+  eeigen::VectorXf u(size), v(size), w(size);
 \endcode
 
 First of all, VectorXf is the following typedef:
@@ -80,7 +80,7 @@ The Matrix class inherits a base class, MatrixBase. Don't worry about it, for no
 
 When we do
 \code
-  Eigen::VectorXf u(size);
+  eeigen::VectorXf u(size);
 \endcode
 the constructor that is called is Matrix::Matrix(int), in src/Core/Matrix.h. Besides some assertions, all it does is to construct the \a m_storage member, which is of type DenseStorage\<float, Dynamic, Dynamic, 1\>.
 
@@ -117,7 +117,7 @@ u = v + w;
 
 The executive summary is that operator+ returns a "sum of vectors" expression, but doesn't actually perform the computation. It is the operator=, whose call occurs thereafter, that does the computation.
 
-Let us now see what Eigen does when it sees this:
+Let us now see what eeigen does when it sees this:
 
 \code
 v + w
@@ -147,7 +147,7 @@ The solution is that CwiseBinaryOp itself, as well as Matrix and all the other e
 
 Since MatrixBase is the common base class of different subclasses, the aspects that depend on the subclass must be abstracted from MatrixBase. This is called polymorphism.
 
-The classical approach to polymorphism in C++ is by means of virtual functions. This is dynamic polymorphism. Here we don't want dynamic polymorphism because the whole design of Eigen is based around the assumption that all the complexity, all the abstraction, gets resolved at compile-time. This is crucial: if the abstraction can't get resolved at compile-time, Eigen's compile-time optimization mechanisms become useless, not to mention that if that abstraction has to be resolved at runtime it'll incur an overhead by itself.
+The classical approach to polymorphism in C++ is by means of virtual functions. This is dynamic polymorphism. Here we don't want dynamic polymorphism because the whole design of eeigen is based around the assumption that all the complexity, all the abstraction, gets resolved at compile-time. This is crucial: if the abstraction can't get resolved at compile-time, eeigen's compile-time optimization mechanisms become useless, not to mention that if that abstraction has to be resolved at runtime it'll incur an overhead by itself.
 
 Here, what we want is to have a single class MatrixBase as the base of many subclasses, in such a way that each MatrixBase object (be it a matrix, or vector, or any kind of expression) knows at compile-time (as opposed to run-time) of which particular subclass it is an object (i.e. whether it is a matrix, or an expression, and what kind of expression).
 
@@ -155,7 +155,7 @@ The solution is the <a href="http://en.wikipedia.org/wiki/Curiously_Recurring_Te
 
 In short, MatrixBase takes a template parameter \a Derived. Whenever we define a subclass Subclass, we actually make Subclass inherit MatrixBase\<Subclass\>. The point is that different subclasses inherit different MatrixBase types. Thanks to this, whenever we have an object of a subclass, and we call on it some MatrixBase method, we still remember even from inside the MatrixBase method which particular subclass we're talking about.
 
-This means that we can put almost all the methods and operators in the base class MatrixBase, and have only the bare minimum in the subclasses. If you look at the subclasses in Eigen, like for instance the CwiseBinaryOp class, they have very few methods. There are coeff() and sometimes coeffRef() methods for access to the coefficients, there are rows() and cols() methods returning the number of rows and columns, but there isn't much more than that. All the meat is in MatrixBase, so it only needs to be coded once for all kinds of expressions, matrices, and vectors.
+This means that we can put almost all the methods and operators in the base class MatrixBase, and have only the bare minimum in the subclasses. If you look at the subclasses in eeigen, like for instance the CwiseBinaryOp class, they have very few methods. There are coeff() and sometimes coeffRef() methods for access to the coefficients, there are rows() and cols() methods returning the number of rows and columns, but there isn't much more than that. All the meat is in MatrixBase, so it only needs to be coded once for all kinds of expressions, matrices, and vectors.
 
 So let's end this digression and come back to the piece of code from our example program that we were currently analyzing,
 
@@ -183,7 +183,7 @@ Here of course, \a Derived and \a OtherDerived are VectorXf.
 
 As we said, CwiseBinaryOp is also used for other operations such as substration, so it takes another template parameter determining the operation that will be applied to coefficients. This template parameter is a functor, that is, a class in which we have an operator() so it behaves like a function. Here, the functor used is internal::scalar_sum_op. It is defined in src/Core/Functors.h.
 
-Let us now explain the internal::traits here. The internal::scalar_sum_op class takes one template parameter: the type of the numbers to handle. Here of course we want to pass the scalar type (a.k.a. numeric type) of VectorXf, which is \c float. How do we determine which is the scalar type of \a Derived ? Throughout Eigen, all matrix and expression types define a typedef \a Scalar which gives its scalar type. For example, VectorXf::Scalar is a typedef for \c float. So here, if life was easy, we could find the numeric type of \a Derived as just
+Let us now explain the internal::traits here. The internal::scalar_sum_op class takes one template parameter: the type of the numbers to handle. Here of course we want to pass the scalar type (a.k.a. numeric type) of VectorXf, which is \c float. How do we determine which is the scalar type of \a Derived ? Throughout eeigen, all matrix and expression types define a typedef \a Scalar which gives its scalar type. For example, VectorXf::Scalar is a typedef for \c float. So here, if life was easy, we could find the numeric type of \a Derived as just
 \code
 typename Derived::Scalar
 \endcode
@@ -360,7 +360,7 @@ Here's how it works. \a LinearVectorization means that the left-hand and right-h
 As we said at the beginning, vectorization works with blocks of 4 floats. Here, \a PacketSize is 4.
 
 There are two potential problems that we need to deal with:
-\li first, vectorization works much better if the packets are 128-bit-aligned. This is especially important for write access. So when writing to the coefficients of \a dst, we want to group these coefficients by packets of 4 such that each of these packets is 128-bit-aligned. In general, this requires to skip a few coefficients at the beginning of \a dst. This is the purpose of \a alignedStart. We then copy these first few coefficients one by one, not by packets. However, in our case, the \a dst expression is a VectorXf and remember that in the construction of the vectors we allocated aligned arrays. Thanks to \a DstIsAligned, Eigen remembers that without having to do any runtime check, so \a alignedStart is zero and this part is avoided altogether.
+\li first, vectorization works much better if the packets are 128-bit-aligned. This is especially important for write access. So when writing to the coefficients of \a dst, we want to group these coefficients by packets of 4 such that each of these packets is 128-bit-aligned. In general, this requires to skip a few coefficients at the beginning of \a dst. This is the purpose of \a alignedStart. We then copy these first few coefficients one by one, not by packets. However, in our case, the \a dst expression is a VectorXf and remember that in the construction of the vectors we allocated aligned arrays. Thanks to \a DstIsAligned, eeigen remembers that without having to do any runtime check, so \a alignedStart is zero and this part is avoided altogether.
 \li second, the number of coefficients to copy is not in general a multiple of \a packetSize. Here, there are 50 coefficients to copy and \a packetSize is 4. So we'll have to copy the last 2 coefficients one by one, not by packets. Here, \a alignedEnd is 48.
 
 Now come the actual loops.
@@ -488,7 +488,7 @@ There remains the second loop handling the last few (here, the last 2) coefficie
 \endcode
 However, it works just like the one we just explained, it is just simpler because there is no SSE vectorization involved here. copyPacket() becomes copyCoeff(), packet() becomes coeff(), writePacket() becomes coeffRef(). If you followed us this far, you can probably understand this part by yourself.
 
-We see that all the C++ abstraction of Eigen goes away during compilation and that we indeed are precisely controlling which assembly instructions we emit. Such is the beauty of C++! Since we have such precise control over the emitted assembly instructions, but such complex logic to choose the right instructions, we can say that Eigen really behaves like an optimizing compiler. If you prefer, you could say that Eigen behaves like a script for the compiler. In a sense, C++ template metaprogramming is scripting the compiler -- and it's been shown that this scripting language is Turing-complete. See <a href="http://en.wikipedia.org/wiki/Template_metaprogramming"> Wikipedia</a>.
+We see that all the C++ abstraction of eeigen goes away during compilation and that we indeed are precisely controlling which assembly instructions we emit. Such is the beauty of C++! Since we have such precise control over the emitted assembly instructions, but such complex logic to choose the right instructions, we can say that eeigen really behaves like an optimizing compiler. If you prefer, you could say that eeigen behaves like a script for the compiler. In a sense, C++ template metaprogramming is scripting the compiler -- and it's been shown that this scripting language is Turing-complete. See <a href="http://en.wikipedia.org/wiki/Template_metaprogramming"> Wikipedia</a>.
 
 */
 

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -9,9 +9,9 @@
 
 #include "main.h"
 
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
+using eeigen::Tensor;
 
 template<int DataLayout>
 static void test_simple_padding()
@@ -60,7 +60,7 @@ static void test_padded_expr()
   paddings[2] = std::make_pair(3, 4);
   paddings[3] = std::make_pair(0, 0);
 
-  Eigen::DSizes<ptrdiff_t, 2> reshape_dims;
+  eeigen::DSizes<ptrdiff_t, 2> reshape_dims;
   reshape_dims[0] = 12;
   reshape_dims[1] = 84;
 

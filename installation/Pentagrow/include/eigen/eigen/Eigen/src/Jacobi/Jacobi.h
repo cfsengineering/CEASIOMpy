@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_JACOBI_H
 #define EIGEN_JACOBI_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \ingroup Jacobi_Module
   * \jacobi_module
@@ -24,7 +24,7 @@ namespace Eigen {
   * \f$ J = \left ( \begin{array}{cc} c & \overline s \\ -s  & \overline c \end{array} \right ) \f$
   *
   * You can apply the respective counter-clockwise rotation to a column vector \c v by
-  * applying its adjoint on the left: \f$ v = J^* v \f$ that translates to the following Eigen code:
+  * applying its adjoint on the left: \f$ v = J^* v \f$ that translates to the following eeigen code:
   * \code
   * v.applyOnTheLeft(J.adjoint());
   * \endcode
@@ -457,6 +457,6 @@ void /*EIGEN_DONT_INLINE*/ apply_rotation_in_the_plane(DenseBase<VectorX>& xpr_x
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_JACOBI_H

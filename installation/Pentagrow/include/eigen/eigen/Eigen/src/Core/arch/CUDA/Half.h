@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // This Source Code Form is subject to the terms of the Mozilla
@@ -26,7 +26,7 @@
 
 
 // Standard 16-bit float type, mostly useful for GPUs. Defines a new
-// type Eigen::half (inheriting from CUDA's __half struct) with
+// type eeigen::half (inheriting from CUDA's __half struct) with
 // operator overloads such that it behaves basically as an arithmetic
 // type. It will be quite slow on CPUs (so it is recommended to stay
 // in float32_bits for CPUs, except for simple parameter conversions, I/O
@@ -43,7 +43,7 @@
 #endif
 
 
-namespace Eigen {
+namespace eeigen {
 
 struct half;
 
@@ -145,11 +145,11 @@ struct half : public half_impl::half_base {
   }
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 namespace std {
 template<>
-struct numeric_limits<Eigen::half> {
+struct numeric_limits<eeigen::half> {
   static const bool is_specialized = true;
   static const bool is_signed = true;
   static const bool is_integer = false;
@@ -174,15 +174,15 @@ struct numeric_limits<Eigen::half> {
   static const bool traps = true;
   static const bool tinyness_before = false;
 
-  static Eigen::half (min)() { return Eigen::half_impl::raw_uint16_to_half(0x400); }
-  static Eigen::half lowest() { return Eigen::half_impl::raw_uint16_to_half(0xfbff); }
-  static Eigen::half (max)() { return Eigen::half_impl::raw_uint16_to_half(0x7bff); }
-  static Eigen::half epsilon() { return Eigen::half_impl::raw_uint16_to_half(0x0800); }
-  static Eigen::half round_error() { return Eigen::half(0.5); }
-  static Eigen::half infinity() { return Eigen::half_impl::raw_uint16_to_half(0x7c00); }
-  static Eigen::half quiet_NaN() { return Eigen::half_impl::raw_uint16_to_half(0x7e00); }
-  static Eigen::half signaling_NaN() { return Eigen::half_impl::raw_uint16_to_half(0x7e00); }
-  static Eigen::half denorm_min() { return Eigen::half_impl::raw_uint16_to_half(0x1); }
+  static eeigen::half (min)() { return eeigen::half_impl::raw_uint16_to_half(0x400); }
+  static eeigen::half lowest() { return eeigen::half_impl::raw_uint16_to_half(0xfbff); }
+  static eeigen::half (max)() { return eeigen::half_impl::raw_uint16_to_half(0x7bff); }
+  static eeigen::half epsilon() { return eeigen::half_impl::raw_uint16_to_half(0x0800); }
+  static eeigen::half round_error() { return eeigen::half(0.5); }
+  static eeigen::half infinity() { return eeigen::half_impl::raw_uint16_to_half(0x7c00); }
+  static eeigen::half quiet_NaN() { return eeigen::half_impl::raw_uint16_to_half(0x7e00); }
+  static eeigen::half signaling_NaN() { return eeigen::half_impl::raw_uint16_to_half(0x7e00); }
+  static eeigen::half denorm_min() { return eeigen::half_impl::raw_uint16_to_half(0x1); }
 };
 
 // If std::numeric_limits<T> is specialized, should also specialize
@@ -190,14 +190,14 @@ struct numeric_limits<Eigen::half> {
 // std::numeric_limits<const volatile T>
 // https://stackoverflow.com/a/16519653/
 template<>
-struct numeric_limits<const Eigen::half> : numeric_limits<Eigen::half> {};
+struct numeric_limits<const eeigen::half> : numeric_limits<eeigen::half> {};
 template<>
-struct numeric_limits<volatile Eigen::half> : numeric_limits<Eigen::half> {};
+struct numeric_limits<volatile eeigen::half> : numeric_limits<eeigen::half> {};
 template<>
-struct numeric_limits<const volatile Eigen::half> : numeric_limits<Eigen::half> {};
+struct numeric_limits<const volatile eeigen::half> : numeric_limits<eeigen::half> {};
 } // end namespace std
 
-namespace Eigen {
+namespace eeigen {
 
 namespace half_impl {
 
@@ -530,7 +530,7 @@ EIGEN_ALWAYS_INLINE std::ostream& operator << (std::ostream& os, const half& v) 
 
 } // end namespace half_impl
 
-// import Eigen::half_impl::half into Eigen namespace
+// import eeigen::half_impl::half into eeigen namespace
 // using half_impl::half;
 
 namespace internal {
@@ -552,8 +552,8 @@ template<> struct is_arithmetic<half> { enum { value = true }; };
 
 } // end namespace internal
 
-template<> struct NumTraits<Eigen::half>
-    : GenericNumTraits<Eigen::half>
+template<> struct NumTraits<eeigen::half>
+    : GenericNumTraits<eeigen::half>
 {
   enum {
     IsSigned = true,
@@ -562,61 +562,61 @@ template<> struct NumTraits<Eigen::half>
     RequireInitialization = false
   };
 
-  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE Eigen::half epsilon() {
+  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE eeigen::half epsilon() {
     return half_impl::raw_uint16_to_half(0x0800);
   }
-  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE Eigen::half dummy_precision() { return Eigen::half(1e-2f); }
-  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE Eigen::half highest() {
+  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE eeigen::half dummy_precision() { return eeigen::half(1e-2f); }
+  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE eeigen::half highest() {
     return half_impl::raw_uint16_to_half(0x7bff);
   }
-  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE Eigen::half lowest() {
+  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE eeigen::half lowest() {
     return half_impl::raw_uint16_to_half(0xfbff);
   }
-  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE Eigen::half infinity() {
+  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE eeigen::half infinity() {
     return half_impl::raw_uint16_to_half(0x7c00);
   }
-  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE Eigen::half quiet_NaN() {
+  EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE eeigen::half quiet_NaN() {
     return half_impl::raw_uint16_to_half(0x7c01);
   }
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 // C-like standard mathematical functions and trancendentals.
-EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC Eigen::half fabsh(const Eigen::half& a) {
-  Eigen::half result;
+EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC eeigen::half fabsh(const eeigen::half& a) {
+  eeigen::half result;
   result.x = a.x & 0x7FFF;
   return result;
 }
-EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC Eigen::half exph(const Eigen::half& a) {
-  return Eigen::half(::expf(float(a)));
+EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC eeigen::half exph(const eeigen::half& a) {
+  return eeigen::half(::expf(float(a)));
 }
-EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC Eigen::half logh(const Eigen::half& a) {
+EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC eeigen::half logh(const eeigen::half& a) {
 #if EIGEN_CUDACC_VER >= 80000 && defined(EIGEN_CUDA_ARCH) && EIGEN_CUDA_ARCH >= 530
-  return Eigen::half(::hlog(a));
+  return eeigen::half(::hlog(a));
 #else
-  return Eigen::half(::logf(float(a)));
+  return eeigen::half(::logf(float(a)));
 #endif
 }
-EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC Eigen::half sqrth(const Eigen::half& a) {
-  return Eigen::half(::sqrtf(float(a)));
+EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC eeigen::half sqrth(const eeigen::half& a) {
+  return eeigen::half(::sqrtf(float(a)));
 }
-EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC Eigen::half powh(const Eigen::half& a, const Eigen::half& b) {
-  return Eigen::half(::powf(float(a), float(b)));
+EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC eeigen::half powh(const eeigen::half& a, const eeigen::half& b) {
+  return eeigen::half(::powf(float(a), float(b)));
 }
-EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC Eigen::half floorh(const Eigen::half& a) {
-  return Eigen::half(::floorf(float(a)));
+EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC eeigen::half floorh(const eeigen::half& a) {
+  return eeigen::half(::floorf(float(a)));
 }
-EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC Eigen::half ceilh(const Eigen::half& a) {
-  return Eigen::half(::ceilf(float(a)));
+EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC eeigen::half ceilh(const eeigen::half& a) {
+  return eeigen::half(::ceilf(float(a)));
 }
 
 namespace std {
 
 #if __cplusplus > 199711L
 template <>
-struct hash<Eigen::half> {
-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE std::size_t operator()(const Eigen::half& a) const {
+struct hash<eeigen::half> {
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE std::size_t operator()(const eeigen::half& a) const {
     return static_cast<std::size_t>(a.x);
   }
 };
@@ -627,47 +627,47 @@ struct hash<Eigen::half> {
 
 // Add the missing shfl_xor intrinsic
 #if defined(EIGEN_CUDA_ARCH) && EIGEN_CUDA_ARCH >= 300
-__device__ EIGEN_STRONG_INLINE Eigen::half __shfl_xor(Eigen::half var, int laneMask, int width=warpSize) {
+__device__ EIGEN_STRONG_INLINE eeigen::half __shfl_xor(eeigen::half var, int laneMask, int width=warpSize) {
   #if EIGEN_CUDACC_VER < 90000
-  return static_cast<Eigen::half>(__shfl_xor(static_cast<float>(var), laneMask, width));
+  return static_cast<eeigen::half>(__shfl_xor(static_cast<float>(var), laneMask, width));
   #else
-  return static_cast<Eigen::half>(__shfl_xor_sync(0xFFFFFFFF, static_cast<float>(var), laneMask, width));
+  return static_cast<eeigen::half>(__shfl_xor_sync(0xFFFFFFFF, static_cast<float>(var), laneMask, width));
   #endif
 }
 #endif
 
-// ldg() has an overload for __half_raw, but we also need one for Eigen::half.
+// ldg() has an overload for __half_raw, but we also need one for eeigen::half.
 #if defined(EIGEN_CUDA_ARCH) && EIGEN_CUDA_ARCH >= 350
-EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC Eigen::half __ldg(const Eigen::half* ptr) {
-  return Eigen::half_impl::raw_uint16_to_half(
+EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC eeigen::half __ldg(const eeigen::half* ptr) {
+  return eeigen::half_impl::raw_uint16_to_half(
       __ldg(reinterpret_cast<const unsigned short*>(ptr)));
 }
 #endif
 
 
 #if defined(EIGEN_CUDA_ARCH)
-namespace Eigen {
+namespace eeigen {
 namespace numext {
 
 template<>
 EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
-bool (isnan)(const Eigen::half& h) {
+bool (isnan)(const eeigen::half& h) {
   return (half_impl::isnan)(h);
 }
 
 template<>
 EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
-bool (isinf)(const Eigen::half& h) {
+bool (isinf)(const eeigen::half& h) {
   return (half_impl::isinf)(h);
 }
 
 template<>
 EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
-bool (isfinite)(const Eigen::half& h) {
+bool (isfinite)(const eeigen::half& h) {
   return (half_impl::isfinite)(h);
 }
 
-} // namespace Eigen
+} // namespace eeigen
 }  // namespace numext
 #endif
 

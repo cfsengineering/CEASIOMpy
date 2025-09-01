@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -12,7 +12,7 @@
 
 
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -304,7 +304,7 @@ inline bool array_zip_and_reduce(const array<A, N>& a, const array<B, N>& b) {
 
 }  // end namespace internal
 
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 
 

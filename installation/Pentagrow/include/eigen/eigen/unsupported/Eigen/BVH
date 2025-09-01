@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Ilya Baran <ibaran@mit.edu>
@@ -10,13 +10,13 @@
 #ifndef EIGEN_BVH_MODULE_H
 #define EIGEN_BVH_MODULE_H
 
-#include <Eigen/Core>
-#include <Eigen/Geometry>
-#include <Eigen/StdVector>
+#include <eeigen/Core>
+#include <eeigen/Geometry>
+#include <eeigen/StdVector>
 #include <algorithm>
 #include <queue>
 
-namespace Eigen {
+namespace eeigen {
 
 /**
   * \defgroup BVH_Module BVH module
@@ -25,7 +25,7 @@ namespace Eigen {
   *
   *
   * \code
-  * #include <unsupported/Eigen/BVH>
+  * #include <unsupported/eeigen/BVH>
   * \endcode
   *
   * A bounding volume hierarchy (BVH) can accelerate many geometric queries.  This module provides a generic implementation

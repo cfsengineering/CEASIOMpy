@@ -1,8 +1,8 @@
 #include "main.h"
 
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
+using eeigen::Tensor;
 
 static void test_single_voxel_patch()
 {

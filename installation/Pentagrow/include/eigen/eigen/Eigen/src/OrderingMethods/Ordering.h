@@ -1,5 +1,5 @@
  
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012  Désiré Nuentsa-Wakam <desire.nuentsa_wakam@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_ORDERING_H
 #define EIGEN_ORDERING_H
 
-namespace Eigen {
+namespace eeigen {
   
 #include "Eigen_Colamd.h"
 
@@ -152,6 +152,6 @@ class COLAMDOrdering
     }
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif

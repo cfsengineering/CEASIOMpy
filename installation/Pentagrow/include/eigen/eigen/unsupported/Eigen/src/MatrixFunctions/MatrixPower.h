@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012, 2013 Chen-Pang He <jdh8@ms63.hinet.net>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_MATRIX_POWER
 #define EIGEN_MATRIX_POWER
 
-namespace Eigen {
+namespace eeigen {
 
 template<typename MatrixType> class MatrixPower;
 
@@ -704,6 +704,6 @@ template<typename Derived>
 const MatrixComplexPowerReturnValue<Derived> MatrixBase<Derived>::pow(const std::complex<RealScalar>& p) const
 { return MatrixComplexPowerReturnValue<Derived>(derived(), p); }
 
-} // namespace Eigen
+} // namespace eeigen
 
 #endif // EIGEN_MATRIX_POWER

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_ROTATION2D_H
 #define EIGEN_ROTATION2D_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \geometry_module \ingroup Geometry_Module
   *
@@ -194,6 +194,6 @@ EIGEN_DEVICE_FUNC Rotation2D<Scalar>::toRotationMatrix(void) const
   return (Matrix2() << cosA, -sinA, sinA, cosA).finished();
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_ROTATION2D_H

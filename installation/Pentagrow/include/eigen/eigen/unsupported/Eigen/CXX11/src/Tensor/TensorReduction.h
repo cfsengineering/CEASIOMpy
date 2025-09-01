@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_REDUCTION_H
 #define EIGEN_CXX11_TENSOR_TENSOR_REDUCTION_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorReduction
   * \ingroup CXX11_Tensor_Module
@@ -41,7 +41,7 @@ namespace internal {
 };
 
 template<typename Op, typename Dims, typename XprType, template <class> class MakePointer_>
-struct eval<TensorReductionOp<Op, Dims, XprType, MakePointer_>, Eigen::Dense>
+struct eval<TensorReductionOp<Op, Dims, XprType, MakePointer_>, eeigen::Dense>
 {
   typedef const TensorReductionOp<Op, Dims, XprType, MakePointer_>& type;
 };
@@ -349,12 +349,12 @@ __global__ void OuterReductionKernel(R, const S, I, I, typename S::CoeffReturnTy
 template <typename Op, typename Dims, typename XprType,  template <class> class MakePointer_>
 class TensorReductionOp : public TensorBase<TensorReductionOp<Op, Dims, XprType, MakePointer_>, ReadOnlyAccessors> {
   public:
-    typedef typename Eigen::internal::traits<TensorReductionOp>::Scalar Scalar;
-    typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
+    typedef typename eeigen::internal::traits<TensorReductionOp>::Scalar Scalar;
+    typedef typename eeigen::NumTraits<Scalar>::Real RealScalar;
     typedef typename internal::remove_const<typename XprType::CoeffReturnType>::type CoeffReturnType;
-    typedef typename Eigen::internal::nested<TensorReductionOp>::type Nested;
-    typedef typename Eigen::internal::traits<TensorReductionOp>::StorageKind StorageKind;
-    typedef typename Eigen::internal::traits<TensorReductionOp>::Index Index;
+    typedef typename eeigen::internal::nested<TensorReductionOp>::type Nested;
+    typedef typename eeigen::internal::traits<TensorReductionOp>::StorageKind StorageKind;
+    typedef typename eeigen::internal::traits<TensorReductionOp>::Index Index;
 
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
     TensorReductionOp(const XprType& expr, const Dims& dims) : m_expr(expr), m_dims(dims)
@@ -761,10 +761,10 @@ struct TensorEvaluator<const TensorReductionOp<Op, Dims, ArgType, MakePointer_>,
 
   // For full reductions
 #if defined(EIGEN_USE_GPU) && defined(__CUDACC__)
-  static const bool RunningOnGPU = internal::is_same<Device, Eigen::GpuDevice>::value;
+  static const bool RunningOnGPU = internal::is_same<Device, eeigen::GpuDevice>::value;
   static const bool RunningOnSycl = false;
 #elif defined(EIGEN_USE_SYCL)
-static const bool RunningOnSycl = internal::is_same<typename internal::remove_all<Device>::type, Eigen::SyclDevice>::value;
+static const bool RunningOnSycl = internal::is_same<typename internal::remove_all<Device>::type, eeigen::SyclDevice>::value;
 static const bool RunningOnGPU = false;
 #else
   static const bool RunningOnGPU = false;
@@ -776,6 +776,6 @@ static const bool RunningOnGPU = false;
   const Dims& m_xpr_dims;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_REDUCTION_H

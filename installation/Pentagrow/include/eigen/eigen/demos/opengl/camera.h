@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CAMERA_H
 #define EIGEN_CAMERA_H
 
-#include <Eigen/Geometry>
+#include <eeigen/Geometry>
 #include <QObject>
 // #include <frame.h>
 
@@ -19,8 +19,8 @@ class Frame
   public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    inline Frame(const Eigen::Vector3f& pos = Eigen::Vector3f::Zero(),
-                 const Eigen::Quaternionf& o = Eigen::Quaternionf())
+    inline Frame(const eeigen::Vector3f& pos = eeigen::Vector3f::Zero(),
+                 const eeigen::Quaternionf& o = eeigen::Quaternionf())
       : orientation(o), position(pos)
     {}
     Frame lerp(float alpha, const Frame& other) const
@@ -29,8 +29,8 @@ class Frame
                    orientation.slerp(alpha,other.orientation));
     }
 
-    Eigen::Quaternionf orientation;
-    Eigen::Vector3f position;
+    eeigen::Quaternionf orientation;
+    eeigen::Vector3f position;
 };
 
 class Camera
@@ -57,38 +57,38 @@ class Camera
     inline float fovY(void) const { return mFovY; }
     void setFovY(float value);
     
-    void setPosition(const Eigen::Vector3f& pos);
-    inline const Eigen::Vector3f& position(void) const { return mFrame.position; }
+    void setPosition(const eeigen::Vector3f& pos);
+    inline const eeigen::Vector3f& position(void) const { return mFrame.position; }
 
-    void setOrientation(const Eigen::Quaternionf& q);
-    inline const Eigen::Quaternionf& orientation(void) const { return mFrame.orientation; }
+    void setOrientation(const eeigen::Quaternionf& q);
+    inline const eeigen::Quaternionf& orientation(void) const { return mFrame.orientation; }
 
     void setFrame(const Frame& f);
     const Frame& frame(void) const { return mFrame; }
     
-    void setDirection(const Eigen::Vector3f& newDirection);
-    Eigen::Vector3f direction(void) const;
-    void setUp(const Eigen::Vector3f& vectorUp);
-    Eigen::Vector3f up(void) const;
-    Eigen::Vector3f right(void) const;
+    void setDirection(const eeigen::Vector3f& newDirection);
+    eeigen::Vector3f direction(void) const;
+    void setUp(const eeigen::Vector3f& vectorUp);
+    eeigen::Vector3f up(void) const;
+    eeigen::Vector3f right(void) const;
     
-    void setTarget(const Eigen::Vector3f& target);
-    inline const Eigen::Vector3f& target(void) { return mTarget; }
+    void setTarget(const eeigen::Vector3f& target);
+    inline const eeigen::Vector3f& target(void) { return mTarget; }
     
-    const Eigen::Affine3f& viewMatrix(void) const;
-    const Eigen::Matrix4f& projectionMatrix(void) const;
+    const eeigen::Affine3f& viewMatrix(void) const;
+    const eeigen::Matrix4f& projectionMatrix(void) const;
     
-    void rotateAroundTarget(const Eigen::Quaternionf& q);
-    void localRotate(const Eigen::Quaternionf& q);
+    void rotateAroundTarget(const eeigen::Quaternionf& q);
+    void localRotate(const eeigen::Quaternionf& q);
     void zoom(float d);
     
-    void localTranslate(const Eigen::Vector3f& t);
+    void localTranslate(const eeigen::Vector3f& t);
     
     /** Setup OpenGL matrices and viewport */
     void activateGL(void);
     
-    Eigen::Vector3f unProject(const Eigen::Vector2f& uv, float depth, const Eigen::Matrix4f& invModelview) const;
-    Eigen::Vector3f unProject(const Eigen::Vector2f& uv, float depth) const;
+    eeigen::Vector3f unProject(const eeigen::Vector2f& uv, float depth, const eeigen::Matrix4f& invModelview) const;
+    eeigen::Vector3f unProject(const eeigen::Vector2f& uv, float depth) const;
     
   protected:
     void updateViewMatrix(void) const;
@@ -101,14 +101,14 @@ class Camera
 
     Frame mFrame;
     
-    mutable Eigen::Affine3f mViewMatrix;
-    mutable Eigen::Matrix4f mProjectionMatrix;
+    mutable eeigen::Affine3f mViewMatrix;
+    mutable eeigen::Matrix4f mProjectionMatrix;
 
     mutable bool mViewIsUptodate;
     mutable bool mProjIsUptodate;
 
     // used by rotateAroundTarget
-    Eigen::Vector3f mTarget;
+    eeigen::Vector3f mTarget;
     
     float mFovY;
     float mNearDist;

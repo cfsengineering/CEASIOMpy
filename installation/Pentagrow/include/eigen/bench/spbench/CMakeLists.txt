@@ -46,7 +46,7 @@ find_path(PASTIX_pastix_nompi.h_INCLUDE_DIRS
 )
 if (NOT PASTIX_pastix_nompi.h_INCLUDE_DIRS)
   message(STATUS "A version of Pastix has been found but pastix_nompi.h does not exist in the include directory."
-                 " Because Eigen tests require a version without MPI, we disable the Pastix backend.")
+                 " Because eeigen tests require a version without MPI, we disable the Pastix backend.")
 endif()
 if(PASTIX_FOUND AND PASTIX_pastix_nompi.h_INCLUDE_DIRS AND BLAS_FOUND)
   add_definitions("-DEIGEN_PASTIX_SUPPORT")

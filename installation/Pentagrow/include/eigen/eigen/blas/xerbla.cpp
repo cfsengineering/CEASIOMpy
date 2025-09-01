@@ -14,7 +14,7 @@ extern "C"
 
 EIGEN_WEAK_LINKING int xerbla_(const char * msg, int *info, int)
 {
-  printf("Eigen BLAS ERROR #%i: %s\n", *info, msg );
+  printf("eeigen BLAS ERROR #%i: %s\n", *info, msg );
   return 0;
 }
 

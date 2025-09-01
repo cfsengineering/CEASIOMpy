@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_THREADPOOL_THREAD_ENVIRONMENT_H
 #define EIGEN_CXX11_THREADPOOL_THREAD_ENVIRONMENT_H
 
-namespace Eigen {
+namespace eeigen {
 
 struct StlThreadEnvironment {
   struct Task {
@@ -33,6 +33,6 @@ struct StlThreadEnvironment {
   void ExecuteTask(const Task& t) { t.f(); }
 };
 
-}  // namespace Eigen
+}  // namespace eeigen
 
 #endif  // EIGEN_CXX11_THREADPOOL_THREAD_ENVIRONMENT_H

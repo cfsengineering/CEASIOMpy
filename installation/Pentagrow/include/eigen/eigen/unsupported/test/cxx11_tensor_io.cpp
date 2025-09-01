@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #include "main.h"
 #include <sstream>
 #include <string>
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
 
 template<int DataLayout>
@@ -41,7 +41,7 @@ static void test_output_1d()
   std::string expected("0\n1\n2\n3\n4");
   VERIFY_IS_EQUAL(std::string(os.str()), expected);
 
-  Eigen::Tensor<double,1,DataLayout> empty_tensor(0);
+  eeigen::Tensor<double,1,DataLayout> empty_tensor(0);
   std::stringstream empty_os;
   empty_os << empty_tensor;
   std::string empty_string;

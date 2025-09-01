@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2009 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_PARTIALLU_H
 #define EIGEN_PARTIALLU_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 template<typename _MatrixType> struct traits<PartialPivLU<_MatrixType> >
@@ -606,6 +606,6 @@ MatrixBase<Derived>::lu() const
   return PartialPivLU<PlainObject>(eval());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_PARTIALLU_H

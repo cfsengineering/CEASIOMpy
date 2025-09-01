@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2013 Christian Seiler <christian@iwakd.de>
@@ -20,13 +20,13 @@
 
 #include "CXX11Workarounds.h"
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
 /** \internal
   * \file CXX11/util/CXX11Meta.h
-  * This file contains generic metaprogramming classes which are not specifically related to Eigen.
+  * This file contains generic metaprogramming classes which are not specifically related to eeigen.
   * This file expands upon Core/util/Meta.h and adds support for C++11 specific features.
   */
 
@@ -531,7 +531,7 @@ InstType instantiate_by_c_array(ArrType* arr)
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #else // Non C++11, fallback to emulation mode
 

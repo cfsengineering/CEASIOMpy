@@ -2,14 +2,14 @@
 
 #include <iostream>
 
-#include <Eigen/Core>
+#include <eeigen/Core>
 
 #ifndef MATSIZE
 #define MATSIZE 3
 #endif
 
 using namespace std;
-using namespace Eigen;
+using namespace eeigen;
 
 #ifndef REPEAT
 #define REPEAT 40000000

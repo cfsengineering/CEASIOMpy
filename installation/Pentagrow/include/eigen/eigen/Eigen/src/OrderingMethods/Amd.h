@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef EIGEN_SPARSE_AMD_H
 #define EIGEN_SPARSE_AMD_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
   
@@ -440,6 +440,6 @@ void minimum_degree_ordering(SparseMatrix<Scalar,ColMajor,StorageIndex>& C, Perm
 
 } // namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSE_AMD_H

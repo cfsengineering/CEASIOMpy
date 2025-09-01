@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,8 +10,8 @@
 #ifndef EIGEN_BLAS_COMMON_H
 #define EIGEN_BLAS_COMMON_H
 
-#include "../Eigen/Core"
-#include "../Eigen/Jacobi"
+#include "../eeigen/Core"
+#include "../eeigen/Jacobi"
 
 #include <complex>
 
@@ -19,7 +19,7 @@
 #error the token SCALAR must be defined to compile this file
 #endif
 
-#include "../Eigen/src/misc/blas.h"
+#include "../eeigen/src/misc/blas.h"
 
 #define NOTR    0
 #define TR      1
@@ -70,7 +70,7 @@ inline bool check_uplo(const char* uplo)
 }
 
 
-namespace Eigen {
+namespace eeigen {
 #include "BandTriangularSolver.h"
 #include "GeneralRank1Update.h"
 #include "PackedSelfadjointProduct.h"
@@ -79,7 +79,7 @@ namespace Eigen {
 #include "Rank2Update.h"
 }
 
-using namespace Eigen;
+using namespace eeigen;
 
 typedef SCALAR Scalar;
 typedef NumTraits<Scalar>::Real RealScalar;
@@ -87,7 +87,7 @@ typedef std::complex<RealScalar> Complex;
 
 enum
 {
-  IsComplex = Eigen::NumTraits<SCALAR>::IsComplex,
+  IsComplex = eeigen::NumTraits<SCALAR>::IsComplex,
   Conj = IsComplex
 };
 
@@ -141,7 +141,7 @@ T* get_compact_vector(T* x, int n, int incx)
   if(incx==1)
     return x;
 
-  typename Eigen::internal::remove_const<T>::type* ret = new Scalar[n];
+  typename eeigen::internal::remove_const<T>::type* ret = new Scalar[n];
   if(incx<0) make_vector(ret,n) = make_vector(x,n,-incx).reverse();
   else       make_vector(ret,n) = make_vector(x,n, incx);
   return ret;

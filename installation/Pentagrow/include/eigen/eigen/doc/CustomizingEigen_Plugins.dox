@@ -1,8 +1,8 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \page TopicCustomizing_Plugins Extending MatrixBase (and other classes)
 
-In this section we will see how to add custom methods to MatrixBase. Since all expressions and matrix types inherit MatrixBase, adding a method to MatrixBase make it immediately available to all expressions ! A typical use case is, for instance, to make Eigen compatible with another API.
+In this section we will see how to add custom methods to MatrixBase. Since all expressions and matrix types inherit MatrixBase, adding a method to MatrixBase make it immediately available to all expressions ! A typical use case is, for instance, to make eeigen compatible with another API.
 
 You certainly know that in C++ it is not possible to add methods to an existing class. So how that's possible ? Here the trick is to include in the declaration of MatrixBase a file defined by the preprocessor token \c EIGEN_MATRIXBASE_PLUGIN:
 \code
@@ -13,9 +13,9 @@ class MatrixBase {
   #endif
 };
 \endcode
-Therefore to extend MatrixBase with your own methods you just have to create a file with your method declaration and define EIGEN_MATRIXBASE_PLUGIN before you include any Eigen's header file.
+Therefore to extend MatrixBase with your own methods you just have to create a file with your method declaration and define EIGEN_MATRIXBASE_PLUGIN before you include any eeigen's header file.
 
-You can extend many of the other classes used in Eigen by defining similarly named preprocessor symbols. For instance, define \c EIGEN_ARRAYBASE_PLUGIN if you want to extend the ArrayBase class. A full list of classes that can be extended in this way and the corresponding preprocessor symbols can be found on our page \ref TopicPreprocessorDirectives.
+You can extend many of the other classes used in eeigen by defining similarly named preprocessor symbols. For instance, define \c EIGEN_ARRAYBASE_PLUGIN if you want to extend the ArrayBase class. A full list of classes that can be extended in this way and the corresponding preprocessor symbols can be found on our page \ref TopicPreprocessorDirectives.
 
 Here is an example of an extension file for adding methods to MatrixBase: \n
 \b MatrixBaseAddons.h

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_DIAGONALMATRIX_H
 #define EIGEN_DIAGONALMATRIX_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 #ifndef EIGEN_PARSED_BY_DOXYGEN
 template<typename Derived>
@@ -338,6 +338,6 @@ struct Assignment<DstXprType, SrcXprType, Functor, Diagonal2Dense>
 
 } // namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_DIAGONALMATRIX_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_EVAL_TO_H
 #define EIGEN_CXX11_TENSOR_TENSOR_EVAL_TO_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorForcedEval
   * \ingroup CXX11_Tensor_Module
@@ -45,7 +45,7 @@ struct traits<TensorEvalToOp<XprType, MakePointer_> >
 };
 
 template<typename XprType, template <class> class MakePointer_>
-struct eval<TensorEvalToOp<XprType, MakePointer_>, Eigen::Dense>
+struct eval<TensorEvalToOp<XprType, MakePointer_>, eeigen::Dense>
 {
   typedef const TensorEvalToOp<XprType, MakePointer_>& type;
 };
@@ -65,13 +65,13 @@ template<typename XprType, template <class> class MakePointer_>
 class TensorEvalToOp : public TensorBase<TensorEvalToOp<XprType, MakePointer_>, ReadOnlyAccessors>
 {
   public:
-  typedef typename Eigen::internal::traits<TensorEvalToOp>::Scalar Scalar;
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
+  typedef typename eeigen::internal::traits<TensorEvalToOp>::Scalar Scalar;
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar;
   typedef typename internal::remove_const<typename XprType::CoeffReturnType>::type CoeffReturnType;
   typedef typename MakePointer_<CoeffReturnType>::Type PointerType;
-  typedef typename Eigen::internal::nested<TensorEvalToOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorEvalToOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorEvalToOp>::Index Index;
+  typedef typename eeigen::internal::nested<TensorEvalToOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorEvalToOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorEvalToOp>::Index Index;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorEvalToOp(PointerType buffer, const XprType& expr)
       : m_xpr(expr), m_buffer(buffer) {}
@@ -176,6 +176,6 @@ struct TensorEvaluator<const TensorEvalToOp<ArgType, MakePointer_>, Device>
 };
 
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_EVAL_TO_H

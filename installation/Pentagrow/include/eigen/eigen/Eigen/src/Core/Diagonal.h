@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2007-2009 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_DIAGONAL_H
 #define EIGEN_DIAGONAL_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \class Diagonal
   * \ingroup Core_Module
@@ -255,6 +255,6 @@ MatrixBase<Derived>::diagonal() const
   return typename ConstDiagonalIndexReturnType<Index_>::Type(derived());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_DIAGONAL_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Gael Guennebaud <g.gael@free.fr>
@@ -8,7 +8,7 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "main.h"
-#include <unsupported/Eigen/AutoDiff>
+#include <unsupported/eeigen/AutoDiff>
 
 template<typename Scalar>
 EIGEN_DONT_INLINE Scalar foo(const Scalar& x, const Scalar& y)
@@ -257,9 +257,9 @@ template <int>
 void test_autodiff_hessian()
 {
   typedef AutoDiffScalar<VectorXd> AD;
-  typedef Matrix<AD,Eigen::Dynamic,1> VectorAD;
+  typedef Matrix<AD,eeigen::Dynamic,1> VectorAD;
   typedef AutoDiffScalar<VectorAD> ADD;
-  typedef Matrix<ADD,Eigen::Dynamic,1> VectorADD;
+  typedef Matrix<ADD,eeigen::Dynamic,1> VectorADD;
   VectorADD x(2);
   double s1 = internal::random<double>(), s2 = internal::random<double>(), s3 = internal::random<double>(), s4 = internal::random<double>();
   x(0).value()=s1;
@@ -298,7 +298,7 @@ void test_autodiff_hessian()
 }
 
 double bug_1222() {
-  typedef Eigen::AutoDiffScalar<Eigen::Vector3d> AD;
+  typedef eeigen::AutoDiffScalar<eeigen::Vector3d> AD;
   const double _cv1_3 = 1.0;
   const AD chi_3 = 1.0;
   // this line did not work, because operator+ returns ADS<DerType&>, which then cannot be converted to ADS<DerType>
@@ -310,7 +310,7 @@ double bug_1222() {
 
 double bug_1223() {
   using std::min;
-  typedef Eigen::AutoDiffScalar<Eigen::Vector3d> AD;
+  typedef eeigen::AutoDiffScalar<eeigen::Vector3d> AD;
 
   const double _cv1_3 = 1.0;
   const AD chi_3 = 1.0;

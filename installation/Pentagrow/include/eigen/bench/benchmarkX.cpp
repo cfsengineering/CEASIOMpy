@@ -2,10 +2,10 @@
 
 #include <iostream>
 
-#include <Eigen/Core>
+#include <eeigen/Core>
 
 using namespace std;
-using namespace Eigen;
+using namespace eeigen;
 
 #ifndef MATTYPE
 #define MATTYPE MatrixXLd

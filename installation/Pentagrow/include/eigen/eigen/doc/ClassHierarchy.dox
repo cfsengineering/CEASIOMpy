@@ -1,21 +1,21 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \page TopicClassHierarchy The class hierarchy
 
-This page explains the design of the core classes in Eigen's class hierarchy and how they fit together. Casual
+This page explains the design of the core classes in eeigen's class hierarchy and how they fit together. Casual
 users probably need not concern themselves with these details, but it may be useful for both advanced users
-and Eigen developers.
+and eeigen developers.
 
 \eigenAutoToc
 
 
 \section TopicClassHierarchyPrinciples Principles
 
-Eigen's class hierarchy is designed so that virtual functions are avoided where their overhead would
-significantly impair performance. Instead, Eigen achieves polymorphism with the Curiously Recurring Template
+eeigen's class hierarchy is designed so that virtual functions are avoided where their overhead would
+significantly impair performance. Instead, eeigen achieves polymorphism with the Curiously Recurring Template
 Pattern (CRTP). In this pattern, the base class (for instance, \c MatrixBase) is in fact a template class, and
 the derived class (for instance, \c Matrix) inherits the base class with the derived class itself as a
-template argument (in this case, \c Matrix inherits from \c MatrixBase&lt;Matrix&gt;). This allows Eigen to
+template argument (in this case, \c Matrix inherits from \c MatrixBase&lt;Matrix&gt;). This allows eeigen to
 resolve the polymorphic function calls at compile time.
 
 In addition, the design avoids multiple inheritance. One reason for this is that in our experience, some
@@ -25,7 +25,7 @@ types.
 
 \section TopicClassHierarchyCoreClasses The core classes
 
-These are the classes that you need to know about if you want to write functions that accept or return Eigen
+These are the classes that you need to know about if you want to write functions that accept or return eeigen
 objects.
 
   - Matrix means plain dense matrix. If \c m is a \c %Matrix, then, for instance, \c m+m is no longer a 
@@ -46,7 +46,7 @@ objects.
 \section TopicClassHierarchyBaseClasses Base classes
 
 These classes serve as base classes for the five core classes mentioned above. They are more internal and so
-less interesting for users of the Eigen library.
+less interesting for users of the eeigen library.
 
   - PlainObjectBase means dense (matrix or array) plain object, i.e. something that stores its own dense
     array of coefficients. This is where, for instance, the \link PlainObjectBase::resize() resize() \endlink

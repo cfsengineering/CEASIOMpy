@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010, 2013 Jitse Niesen <jitse@maths.leeds.ac.uk>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_STEM_FUNCTION
 #define EIGEN_STEM_FUNCTION
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -112,6 +112,6 @@ Scalar stem_function_sinh(Scalar x, int n)
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_STEM_FUNCTION

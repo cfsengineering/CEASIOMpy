@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -9,7 +9,7 @@
 
 #include "main.h"
 
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
 static void test_default()
 {
@@ -26,7 +26,7 @@ static void test_default()
 static void test_normal()
 {
   Tensor<float, 1> vec(6);
-  vec.setRandom<Eigen::internal::NormalRandomGenerator<float>>();
+  vec.setRandom<eeigen::internal::NormalRandomGenerator<float>>();
 
   // Fixme: we should check that the generated numbers follow a gaussian
   // distribution instead.
@@ -43,13 +43,13 @@ struct MyGenerator {
   // Return a random value to be used.  "element_location" is the
   // location of the entry to set in the tensor, it can typically
   // be ignored.
-  int operator()(Eigen::DenseIndex element_location, Eigen::DenseIndex /*unused*/ = 0) const {
+  int operator()(eeigen::DenseIndex element_location, eeigen::DenseIndex /*unused*/ = 0) const {
     return static_cast<int>(3 * element_location);
   }
 
   // Same as above but generates several numbers at a time.
   internal::packet_traits<int>::type packetOp(
-      Eigen::DenseIndex packet_location, Eigen::DenseIndex /*unused*/ = 0) const {
+      eeigen::DenseIndex packet_location, eeigen::DenseIndex /*unused*/ = 0) const {
     const int packetSize = internal::packet_traits<int>::size;
     EIGEN_ALIGN_MAX int values[packetSize];
     for (int i = 0; i < packetSize; ++i) {

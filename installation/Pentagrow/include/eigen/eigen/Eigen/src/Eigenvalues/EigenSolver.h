@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -13,7 +13,7 @@
 
 #include "./RealSchur.h"
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \eigenvalues_module \ingroup Eigenvalues_Module
   *
@@ -79,7 +79,7 @@ template<typename _MatrixType> class EigenSolver
     /** \brief Scalar type for matrices of type #MatrixType. */
     typedef typename MatrixType::Scalar Scalar;
     typedef typename NumTraits<Scalar>::Real RealScalar;
-    typedef Eigen::Index Index; ///< \deprecated since Eigen 3.3
+    typedef eeigen::Index Index; ///< \deprecated since eeigen 3.3
 
     /** \brief Complex scalar type for #MatrixType. 
       *
@@ -617,6 +617,6 @@ void EigenSolver<MatrixType>::doComputeEigenvectors()
   }
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_EIGENSOLVER_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -37,12 +37,12 @@
 // DEALINGS IN THE SOFTWARE.
 
 #include <iostream>
-#include <Eigen/Core>
-#include <Eigen/Eigenvalues>
-#include <Eigen/Geometry>
+#include <eeigen/Core>
+#include <eeigen/Eigenvalues>
+#include <eeigen/Geometry>
 #include <bench/BenchTimer.h>
 
-using namespace Eigen;
+using namespace eeigen;
 using namespace std;
 
 template<typename Matrix, typename Roots>
@@ -132,7 +132,7 @@ void eigen33(const Matrix& mat, Matrix& evecs, Vector& evals)
 //   evecs.col(2) = tmp.row(0).cross(tmp.row(1)).normalized();
   
   // a more stable version:
-  if((evals(2)-evals(0))<=Eigen::NumTraits<Scalar>::epsilon())
+  if((evals(2)-evals(0))<=eeigen::NumTraits<Scalar>::epsilon())
   {
     evecs.setIdentity();
   }
@@ -147,7 +147,7 @@ void eigen33(const Matrix& mat, Matrix& evecs, Vector& evals)
     tmp.diagonal ().array () -= evals (1);
     evecs.col(1) = tmp.row (0).cross(tmp.row (1));
     Scalar n1 = evecs.col(1).norm();
-    if(n1<=Eigen::NumTraits<Scalar>::epsilon())
+    if(n1<=eeigen::NumTraits<Scalar>::epsilon())
       evecs.col(1) = evecs.col(2).unitOrthogonal();
     else
       evecs.col(1) /= n1;
@@ -176,10 +176,10 @@ int main()
 
   SelfAdjointEigenSolver<Mat> eig(A);
   BENCH(t, tries, rep, eig.compute(A));
-  std::cout << "Eigen iterative:  " << t.best() << "s\n";
+  std::cout << "eeigen iterative:  " << t.best() << "s\n";
   
   BENCH(t, tries, rep, eig.computeDirect(A));
-  std::cout << "Eigen direct   :  " << t.best() << "s\n";
+  std::cout << "eeigen direct   :  " << t.best() << "s\n";
 
   Mat evecs;
   Vec evals;

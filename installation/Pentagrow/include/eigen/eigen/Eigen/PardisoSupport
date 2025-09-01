@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // This Source Code Form is subject to the terms of the Mozilla
@@ -20,11 +20,11 @@
   * This module brings support for the Intel(R) MKL PARDISO direct sparse solvers.
   *
   * \code
-  * #include <Eigen/PardisoSupport>
+  * #include <eeigen/PardisoSupport>
   * \endcode
   *
   * In order to use this module, the MKL headers must be accessible from the include paths, and your binary must be linked to the MKL library and its dependencies.
-  * See this \ref TopicUsingIntelMKL "page" for more information on MKL-Eigen integration.
+  * See this \ref TopicUsingIntelMKL "page" for more information on MKL-eeigen integration.
   * 
   */
 

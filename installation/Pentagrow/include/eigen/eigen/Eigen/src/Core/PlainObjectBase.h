@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -22,7 +22,7 @@
 # define EIGEN_INITIALIZE_COEFFS_IF_THAT_OPTION_IS_ENABLED
 #endif
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -118,22 +118,22 @@ class PlainObjectBase : public internal::dense_xpr_base<Derived>::type
     using Base::IsVectorAtCompileTime;
     using Base::Flags;
 
-    template<typename PlainObjectType, int MapOptions, typename StrideType> friend class Eigen::Map;
-    friend  class Eigen::Map<Derived, Unaligned>;
-    typedef Eigen::Map<Derived, Unaligned>  MapType;
-    friend  class Eigen::Map<const Derived, Unaligned>;
-    typedef const Eigen::Map<const Derived, Unaligned> ConstMapType;
+    template<typename PlainObjectType, int MapOptions, typename StrideType> friend class eeigen::Map;
+    friend  class eeigen::Map<Derived, Unaligned>;
+    typedef eeigen::Map<Derived, Unaligned>  MapType;
+    friend  class eeigen::Map<const Derived, Unaligned>;
+    typedef const eeigen::Map<const Derived, Unaligned> ConstMapType;
 #if EIGEN_MAX_ALIGN_BYTES>0
     // for EIGEN_MAX_ALIGN_BYTES==0, AlignedMax==Unaligned, and many compilers generate warnings for friend-ing a class twice.
-    friend  class Eigen::Map<Derived, AlignedMax>;
-    friend  class Eigen::Map<const Derived, AlignedMax>;
+    friend  class eeigen::Map<Derived, AlignedMax>;
+    friend  class eeigen::Map<const Derived, AlignedMax>;
 #endif
-    typedef Eigen::Map<Derived, AlignedMax> AlignedMapType;
-    typedef const Eigen::Map<const Derived, AlignedMax> ConstAlignedMapType;
-    template<typename StrideType> struct StridedMapType { typedef Eigen::Map<Derived, Unaligned, StrideType> type; };
-    template<typename StrideType> struct StridedConstMapType { typedef Eigen::Map<const Derived, Unaligned, StrideType> type; };
-    template<typename StrideType> struct StridedAlignedMapType { typedef Eigen::Map<Derived, AlignedMax, StrideType> type; };
-    template<typename StrideType> struct StridedConstAlignedMapType { typedef Eigen::Map<const Derived, AlignedMax, StrideType> type; };
+    typedef eeigen::Map<Derived, AlignedMax> AlignedMapType;
+    typedef const eeigen::Map<const Derived, AlignedMax> ConstAlignedMapType;
+    template<typename StrideType> struct StridedMapType { typedef eeigen::Map<Derived, Unaligned, StrideType> type; };
+    template<typename StrideType> struct StridedConstMapType { typedef eeigen::Map<const Derived, Unaligned, StrideType> type; };
+    template<typename StrideType> struct StridedAlignedMapType { typedef eeigen::Map<Derived, AlignedMax, StrideType> type; };
+    template<typename StrideType> struct StridedConstAlignedMapType { typedef eeigen::Map<const Derived, AlignedMax, StrideType> type; };
 
   protected:
     DenseStorage<Scalar, Base::MaxSizeAtCompileTime, Base::RowsAtCompileTime, Base::ColsAtCompileTime, Options> m_storage;
@@ -823,7 +823,7 @@ class PlainObjectBase : public internal::dense_xpr_base<Derived>::type
       this->_set_noalias(other);
     }
 
-    // Initialize an arbitrary matrix from a generic Eigen expression
+    // Initialize an arbitrary matrix from a generic eeigen expression
     template<typename T, typename OtherDerived>
     EIGEN_DEVICE_FUNC
     EIGEN_STRONG_INLINE void _init1(const EigenBase<OtherDerived>& other){
@@ -1030,6 +1030,6 @@ struct matrix_swap_impl<MatrixTypeA, MatrixTypeB, true>
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_DENSESTORAGEBASE_H

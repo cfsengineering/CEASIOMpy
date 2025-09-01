@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_PARALLELIZER_H
 #define EIGEN_PARALLELIZER_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -44,7 +44,7 @@ inline void manage_multi_threading(Action action, int* v)
 
 }
 
-/** Must be call first when calling Eigen from multiple threads */
+/** Must be call first when calling eeigen from multiple threads */
 inline void initParallel()
 {
   int nbt;
@@ -53,7 +53,7 @@ inline void initParallel()
   internal::manage_caching_sizes(GetAction, &l1, &l2, &l3);
 }
 
-/** \returns the max number of threads reserved for Eigen
+/** \returns the max number of threads reserved for eeigen
   * \sa setNbThreads */
 inline int nbThreads()
 {
@@ -62,7 +62,7 @@ inline int nbThreads()
   return ret;
 }
 
-/** Sets the max number of threads reserved for Eigen
+/** Sets the max number of threads reserved for eeigen
   * \sa nbThreads */
 inline void setNbThreads(int v)
 {
@@ -123,7 +123,7 @@ void parallelize_gemm(const Functor& func, Index rows, Index cols, Index depth, 
   if((!Condition) || (threads==1) || (omp_get_num_threads()>1))
     return func(0,rows, 0,cols);
 
-  Eigen::initParallel();
+  eeigen::initParallel();
   func.initParallelSession(threads);
 
   if(transpose)
@@ -158,6 +158,6 @@ void parallelize_gemm(const Functor& func, Index rows, Index cols, Index depth, 
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_PARALLELIZER_H

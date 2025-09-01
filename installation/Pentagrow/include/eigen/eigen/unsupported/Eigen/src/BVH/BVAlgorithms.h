@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Ilya Baran <ibaran@mit.edu>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_BVALGORITHMS_H
 #define EIGEN_BVALGORITHMS_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -288,6 +288,6 @@ typename Minimizer::Scalar BVMinimize(const BVH1 &tree1, const BVH2 &tree2, Mini
   return minimum;
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_BVALGORITHMS_H

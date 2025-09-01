@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_VECTORBLOCK_H
 #define EIGEN_VECTORBLOCK_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 template<typename VectorType, int Size>
@@ -91,6 +91,6 @@ template<typename VectorType, int Size> class VectorBlock
 };
 
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_VECTORBLOCK_H

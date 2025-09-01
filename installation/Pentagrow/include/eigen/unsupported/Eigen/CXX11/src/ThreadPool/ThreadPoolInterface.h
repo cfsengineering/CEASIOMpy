@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_THREADPOOL_THREAD_POOL_INTERFACE_H
 #define EIGEN_CXX11_THREADPOOL_THREAD_POOL_INTERFACE_H
 
-namespace Eigen {
+namespace eeigen {
 
 // This defines an interface that ThreadPoolDevice can take to use
 // custom thread pools underneath.
@@ -28,6 +28,6 @@ class ThreadPoolInterface {
   virtual ~ThreadPoolInterface() {}
 };
 
-}  // namespace Eigen
+}  // namespace eeigen
 
 #endif  // EIGEN_CXX11_THREADPOOL_THREAD_POOL_INTERFACE_H

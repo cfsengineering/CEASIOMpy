@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,9 +10,9 @@
 #include "main.h"
 #include <limits>
 #include <numeric>
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
+using eeigen::Tensor;
 
 template <int DataLayout>
 static void test_trivial_reductions() {
@@ -373,7 +373,7 @@ static void test_static_dims() {
   reduction_axis[0] = 1;
   reduction_axis[1] = 3;
 #else
-  Eigen::IndexList<Eigen::type2index<1>, Eigen::type2index<3> > reduction_axis;
+  eeigen::IndexList<eeigen::type2index<1>, eeigen::type2index<3> > reduction_axis;
 #endif
 
   out = in.maximum(reduction_axis);
@@ -404,7 +404,7 @@ static void test_innermost_last_dims() {
   reduction_axis[1] = 1;
 #else
   // This triggers the use of packets for ColMajor.
-  Eigen::IndexList<Eigen::type2index<0>, Eigen::type2index<1> > reduction_axis;
+  eeigen::IndexList<eeigen::type2index<0>, eeigen::type2index<1> > reduction_axis;
 #endif
 
   out = in.maximum(reduction_axis);
@@ -435,7 +435,7 @@ static void test_innermost_first_dims() {
   reduction_axis[1] = 3;
 #else
   // This triggers the use of packets for RowMajor.
-  Eigen::IndexList<Eigen::type2index<2>, Eigen::type2index<3>> reduction_axis;
+  eeigen::IndexList<eeigen::type2index<2>, eeigen::type2index<3>> reduction_axis;
 #endif
 
   out = in.maximum(reduction_axis);
@@ -466,7 +466,7 @@ static void test_reduce_middle_dims() {
   reduction_axis[1] = 2;
 #else
   // This triggers the use of packets for RowMajor.
-  Eigen::IndexList<Eigen::type2index<1>, Eigen::type2index<2>> reduction_axis;
+  eeigen::IndexList<eeigen::type2index<1>, eeigen::type2index<2>> reduction_axis;
 #endif
 
   out = in.maximum(reduction_axis);

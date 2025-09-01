@@ -1,4 +1,4 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \page TopicPitfalls Common pitfalls
 
@@ -14,7 +14,7 @@ especially if you got wrong results in statements where the destination appears 
 
 \section TopicPitfalls_auto_keyword C++11 and the auto keyword
 
-In short: do not use the auto keywords with Eigen's expressions, unless you are 100% sure about what you are doing. In particular, do not use the auto keyword as a replacement for a Matrix<> type. Here is an example:
+In short: do not use the auto keywords with eeigen's expressions, unless you are 100% sure about what you are doing. In particular, do not use the auto keyword as a replacement for a Matrix<> type. Here is an example:
 
 \code
 MatrixXd A, B;
@@ -29,7 +29,7 @@ Here is another example leading to a segfault:
 auto C = ((A+B).eval()).transpose();
 // do something with C
 \endcode
-The problem is that eval() returns a temporary object (in this case a MatrixXd) which is then referenced by the Transpose<> expression. However, this temporary is deleted right after the first line, and there the C expression reference a dead object. The same issue might occur when sub expressions are automatically evaluated by Eigen as in the following example:
+The problem is that eval() returns a temporary object (in this case a MatrixXd) which is then referenced by the Transpose<> expression. However, this temporary is deleted right after the first line, and there the C expression reference a dead object. The same issue might occur when sub expressions are automatically evaluated by eeigen as in the following example:
 \code
 VectorXd u, v;
 auto C = u + (A*v).normalized();

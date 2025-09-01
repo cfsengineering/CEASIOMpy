@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Désiré Nuentsa-Wakam <desire.nuentsa_wakam@inria.fr>
@@ -29,7 +29,7 @@
 #ifndef SPARSELU_COPY_TO_UCOL_H
 #define SPARSELU_COPY_TO_UCOL_H
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 
 /**
@@ -102,6 +102,6 @@ Index SparseLUImpl<Scalar,StorageIndex>::copy_to_ucol(const Index jcol, const In
 }
 
 } // namespace internal
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // SPARSELU_COPY_TO_UCOL_H

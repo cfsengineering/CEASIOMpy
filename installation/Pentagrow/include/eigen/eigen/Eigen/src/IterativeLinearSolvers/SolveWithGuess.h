@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SOLVEWITHGUESS_H
 #define EIGEN_SOLVEWITHGUESS_H
 
-namespace Eigen {
+namespace eeigen {
 
 template<typename Decomposition, typename RhsType, typename GuessType> class SolveWithGuess;
   
@@ -110,6 +110,6 @@ struct Assignment<DstXprType, SolveWithGuess<DecType,RhsType,GuessType>, interna
 
 } // end namepsace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SOLVEWITHGUESS_H

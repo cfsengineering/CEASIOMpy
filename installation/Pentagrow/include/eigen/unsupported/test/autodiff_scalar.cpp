@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2013 Christoph Hertzberg <chtz@informatik.uni-bremen.de>
@@ -8,7 +8,7 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "main.h"
-#include <unsupported/Eigen/AutoDiff>
+#include <unsupported/eeigen/AutoDiff>
 
 /*
  * In this file scalar derivations are tested for correctness.
@@ -75,8 +75,8 @@ template<typename Scalar> void check_hyperbolic_functions()
 template <typename Scalar>
 void check_limits_specialization()
 {
-  typedef Eigen::Matrix<Scalar, 1, 1> Deriv;
-  typedef Eigen::AutoDiffScalar<Deriv> AD;
+  typedef eeigen::Matrix<Scalar, 1, 1> Deriv;
+  typedef eeigen::AutoDiffScalar<Deriv> AD;
 
   typedef std::numeric_limits<AD> A;
   typedef std::numeric_limits<Scalar> B;

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009-2011, 2013 Jitse Niesen <jitse@maths.leeds.ac.uk>
@@ -13,7 +13,7 @@
 #include "StemFunction.h"
 
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -575,6 +575,6 @@ const MatrixFunctionReturnValue<Derived> MatrixBase<Derived>::cosh() const
   return MatrixFunctionReturnValue<Derived>(derived(), internal::stem_function_cosh<ComplexScalar>);
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_MATRIX_FUNCTION_H

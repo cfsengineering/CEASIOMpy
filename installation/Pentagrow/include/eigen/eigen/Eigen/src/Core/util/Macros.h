@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -327,9 +327,9 @@
 #define EIGEN_NOT_A_MACRO
 
 #ifdef EIGEN_DEFAULT_TO_ROW_MAJOR
-#define EIGEN_DEFAULT_MATRIX_STORAGE_ORDER_OPTION Eigen::RowMajor
+#define EIGEN_DEFAULT_MATRIX_STORAGE_ORDER_OPTION eeigen::RowMajor
 #else
-#define EIGEN_DEFAULT_MATRIX_STORAGE_ORDER_OPTION Eigen::ColMajor
+#define EIGEN_DEFAULT_MATRIX_STORAGE_ORDER_OPTION eeigen::ColMajor
 #endif
 
 #ifndef EIGEN_DEFAULT_DENSE_INDEX_TYPE
@@ -401,7 +401,7 @@
 #if EIGEN_MAX_CPP_VER>=11 && (__cplusplus > 199711L || EIGEN_COMP_MSVC >= 1900) \
   && (!defined(__NVCC__) || !EIGEN_ARCH_ARM_OR_ARM64 || (EIGEN_CUDACC_VER >= 80000) )
     // ^^ Disable the use of variadic templates when compiling with versions of nvcc older than 8.0 on ARM devices:
-    //    this prevents nvcc from crashing when compiling Eigen on Tegra X1
+    //    this prevents nvcc from crashing when compiling eeigen on Tegra X1
 #define EIGEN_HAS_VARIADIC_TEMPLATES 1
 #else
 #define EIGEN_HAS_VARIADIC_TEMPLATES 0
@@ -500,7 +500,7 @@
 // it uses __attribute__((always_inline)) on GCC, which most of the time is useless and can severely harm compile times.
 // FIXME with the always_inline attribute,
 // gcc 3.4.x and 4.1 reports the following compilation error:
-//   Eval.h:91: sorry, unimplemented: inlining failed in call to 'const Eigen::Eval<Derived> Eigen::MatrixBase<Scalar, Derived>::eval() const'
+//   Eval.h:91: sorry, unimplemented: inlining failed in call to 'const eeigen::Eval<Derived> eeigen::MatrixBase<Scalar, Derived>::eval() const'
 //    : function body not available
 //   See also bug 1367
 #if EIGEN_GNUC_AT_LEAST(4,2)
@@ -541,7 +541,7 @@
   #define eigen_plain_assert(x)
 #else
   #if EIGEN_SAFE_TO_USE_STANDARD_ASSERT_MACRO
-    namespace Eigen {
+    namespace eeigen {
     namespace internal {
     inline bool copy_bool(bool b) { return b; }
     }
@@ -552,9 +552,9 @@
     #include <cstdlib>   // for abort
     #include <iostream>  // for std::cerr
 
-    namespace Eigen {
+    namespace eeigen {
     namespace internal {
-    // trivial function copying a bool. Must be EIGEN_DONT_INLINE, so we implement it after including Eigen headers.
+    // trivial function copying a bool. Must be EIGEN_DONT_INLINE, so we implement it after including eeigen headers.
     // see bug 89.
     namespace {
     EIGEN_DONT_INLINE bool copy_bool(bool b) { return b; }
@@ -568,8 +568,8 @@
     }
     #define eigen_plain_assert(x) \
       do { \
-        if(!Eigen::internal::copy_bool(x)) \
-          Eigen::internal::assert_fail(EIGEN_MAKESTRING(x), __PRETTY_FUNCTION__, __FILE__, __LINE__); \
+        if(!eeigen::internal::copy_bool(x)) \
+          eeigen::internal::assert_fail(EIGEN_MAKESTRING(x), __PRETTY_FUNCTION__, __FILE__, __LINE__); \
       } while(false)
   #endif
 #endif
@@ -610,12 +610,12 @@
 #endif
 
 // Suppresses 'unused variable' warnings.
-namespace Eigen {
+namespace eeigen {
   namespace internal {
     template<typename T> EIGEN_DEVICE_FUNC void ignore_unused_variable(const T&) {}
   }
 }
-#define EIGEN_UNUSED_VARIABLE(var) Eigen::internal::ignore_unused_variable(var);
+#define EIGEN_UNUSED_VARIABLE(var) eeigen::internal::ignore_unused_variable(var);
 
 #if !defined(EIGEN_ASM_COMMENT)
   #if EIGEN_COMP_GNUC && (EIGEN_ARCH_i386_OR_x86_64 || EIGEN_ARCH_ARM_OR_ARM64)
@@ -803,11 +803,11 @@ namespace Eigen {
 
 #ifndef EIGEN_DEFAULT_IO_FORMAT
 #ifdef EIGEN_MAKING_DOCS
-// format used in Eigen's documentation
+// format used in eeigen's documentation
 // needed to define it here as escaping characters in CMake add_definition's argument seems very problematic.
-#define EIGEN_DEFAULT_IO_FORMAT Eigen::IOFormat(3, 0, " ", "\n", "", "")
+#define EIGEN_DEFAULT_IO_FORMAT eeigen::IOFormat(3, 0, " ", "\n", "", "")
 #else
-#define EIGEN_DEFAULT_IO_FORMAT Eigen::IOFormat()
+#define EIGEN_DEFAULT_IO_FORMAT eeigen::IOFormat()
 #endif
 #endif
 
@@ -850,15 +850,15 @@ namespace Eigen {
 **/
 
 #define EIGEN_GENERIC_PUBLIC_INTERFACE(Derived) \
-  typedef typename Eigen::internal::traits<Derived>::Scalar Scalar; /*!< \brief Numeric type, e.g. float, double, int or std::complex<float>. */ \
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar; /*!< \brief The underlying numeric type for composed scalar types. \details In cases where Scalar is e.g. std::complex<T>, T were corresponding to RealScalar. */ \
+  typedef typename eeigen::internal::traits<Derived>::Scalar Scalar; /*!< \brief Numeric type, e.g. float, double, int or std::complex<float>. */ \
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar; /*!< \brief The underlying numeric type for composed scalar types. \details In cases where Scalar is e.g. std::complex<T>, T were corresponding to RealScalar. */ \
   typedef typename Base::CoeffReturnType CoeffReturnType; /*!< \brief The return type for coefficient access. \details Depending on whether the object allows direct coefficient access (e.g. for a MatrixXd), this type is either 'const Scalar&' or simply 'Scalar' for objects that do not allow direct coefficient access. */ \
-  typedef typename Eigen::internal::ref_selector<Derived>::type Nested; \
-  typedef typename Eigen::internal::traits<Derived>::StorageKind StorageKind; \
-  typedef typename Eigen::internal::traits<Derived>::StorageIndex StorageIndex; \
-  enum { RowsAtCompileTime = Eigen::internal::traits<Derived>::RowsAtCompileTime, \
-        ColsAtCompileTime = Eigen::internal::traits<Derived>::ColsAtCompileTime, \
-        Flags = Eigen::internal::traits<Derived>::Flags, \
+  typedef typename eeigen::internal::ref_selector<Derived>::type Nested; \
+  typedef typename eeigen::internal::traits<Derived>::StorageKind StorageKind; \
+  typedef typename eeigen::internal::traits<Derived>::StorageIndex StorageIndex; \
+  enum { RowsAtCompileTime = eeigen::internal::traits<Derived>::RowsAtCompileTime, \
+        ColsAtCompileTime = eeigen::internal::traits<Derived>::ColsAtCompileTime, \
+        Flags = eeigen::internal::traits<Derived>::Flags, \
         SizeAtCompileTime = Base::SizeAtCompileTime, \
         MaxSizeAtCompileTime = Base::MaxSizeAtCompileTime, \
         IsVectorAtCompileTime = Base::IsVectorAtCompileTime }; \
@@ -921,7 +921,7 @@ namespace Eigen {
   }
 
 #define EIGEN_SCALAR_BINARY_SUPPORTED(OPNAME,TYPEA,TYPEB) \
-  (Eigen::internal::has_ReturnType<Eigen::ScalarBinaryOpTraits<TYPEA,TYPEB,EIGEN_CAT(EIGEN_CAT(Eigen::internal::scalar_,OPNAME),_op)<TYPEA,TYPEB>  > >::value)
+  (eeigen::internal::has_ReturnType<eeigen::ScalarBinaryOpTraits<TYPEA,TYPEB,EIGEN_CAT(EIGEN_CAT(eeigen::internal::scalar_,OPNAME),_op)<TYPEA,TYPEB>  > >::value)
 
 #define EIGEN_EXPR_BINARYOP_SCALAR_RETURN_TYPE(EXPR,SCALAR,OPNAME) \
   CwiseBinaryOp<EIGEN_CAT(EIGEN_CAT(internal::scalar_,OPNAME),_op)<typename internal::traits<EXPR>::Scalar,SCALAR>, const EXPR, \

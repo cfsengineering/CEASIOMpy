@@ -26,15 +26,15 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ********************************************************************************
- *   Content : Eigen bindings to Intel(R) MKL
- *   MKL VML support for coefficient-wise unary Eigen expressions like a=b.sin()
+ *   Content : eeigen bindings to Intel(R) MKL
+ *   MKL VML support for coefficient-wise unary eeigen expressions like a=b.sin()
  ********************************************************************************
 */
 
 #ifndef EIGEN_ASSIGN_VML_H
 #define EIGEN_ASSIGN_VML_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -173,6 +173,6 @@ EIGEN_MKL_VML_DECLARE_POW_CALL(pow, vmzPowx, dcomplex, MKL_Complex16, LA)
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_ASSIGN_VML_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Rasmus Munk Larsen <rmlarsen@google.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_COMPLETEORTHOGONALDECOMPOSITION_H
 #define EIGEN_COMPLETEORTHOGONALDECOMPOSITION_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 template <typename _MatrixType>
@@ -120,7 +120,7 @@ class CompleteOrthogonalDecomposition {
 
   /** \brief Constructs a complete orthogonal decomposition from a given matrix
     *
-    * This overloaded constructor is provided for \link InplaceDecomposition inplace decomposition \endlink when \c MatrixType is a Eigen::Ref.
+    * This overloaded constructor is provided for \link InplaceDecomposition inplace decomposition \endlink when \c MatrixType is a eeigen::Ref.
     *
     * \sa CompleteOrthogonalDecomposition(const EigenBase&)
     */
@@ -299,7 +299,7 @@ class CompleteOrthogonalDecomposition {
    * rank(), who need to determine when pivots are to be considered nonzero.
    * Most be called before calling compute().
    *
-   * When it needs to get the threshold value, Eigen calls threshold(). By
+   * When it needs to get the threshold value, eeigen calls threshold(). By
    * default, this uses a formula to automatically determine a reasonable
    * threshold. Once you have called the present method
    * setThreshold(const RealScalar&), your value is used instead.
@@ -319,11 +319,11 @@ class CompleteOrthogonalDecomposition {
     return *this;
   }
 
-  /** Allows to come back to the default behavior, letting Eigen use its default
+  /** Allows to come back to the default behavior, letting eeigen use its default
    * formula for determining the threshold.
    *
-   * You should pass the special object Eigen::Default as parameter here.
-   * \code qr.setThreshold(Eigen::Default); \endcode
+   * You should pass the special object eeigen::Default as parameter here.
+   * \code qr.setThreshold(eeigen::Default); \endcode
    *
    * See the documentation of setThreshold(const RealScalar&).
    */
@@ -557,6 +557,6 @@ MatrixBase<Derived>::completeOrthogonalDecomposition() const {
   return CompleteOrthogonalDecomposition<PlainObject>(eval());
 }
 
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 #endif  // EIGEN_COMPLETEORTHOGONALDECOMPOSITION_H

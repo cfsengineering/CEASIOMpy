@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_GENERAL_PRODUCT_H
 #define EIGEN_GENERAL_PRODUCT_H
 
-namespace Eigen {
+namespace eeigen {
 
 enum {
   Large = 2,
@@ -450,6 +450,6 @@ MatrixBase<Derived>::lazyProduct(const MatrixBase<OtherDerived> &other) const
   return Product<Derived,OtherDerived,LazyProduct>(derived(), other.derived());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_PRODUCT_H

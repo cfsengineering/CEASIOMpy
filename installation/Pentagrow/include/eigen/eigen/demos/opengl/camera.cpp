@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -12,8 +12,8 @@
 #include "gpuhelper.h"
 #include <GL/glu.h>
 
-#include "Eigen/LU"
-using namespace Eigen;
+#include "eeigen/LU"
+using namespace eeigen;
 
 Camera::Camera()
     : mViewIsUptodate(false), mProjIsUptodate(false)

@@ -1,10 +1,10 @@
 #include <iostream>
 #include <iomanip>
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include <eeigen/Core>
+#include <eeigen/Geometry>
 #include <bench/BenchTimer.h>
 
-using namespace Eigen;
+using namespace eeigen;
 using namespace std;
 
 #ifndef REPEAT

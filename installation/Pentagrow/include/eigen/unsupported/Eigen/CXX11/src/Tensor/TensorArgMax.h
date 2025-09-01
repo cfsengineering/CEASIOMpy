@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Eugene Brevdo <ebrevdo@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_ARG_MAX_H
 #define EIGEN_CXX11_TENSOR_TENSOR_ARG_MAX_H
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 
 /** \class TensorIndexTuple
@@ -35,7 +35,7 @@ struct traits<TensorIndexTupleOp<XprType> > : public traits<XprType>
 };
 
 template<typename XprType>
-struct eval<TensorIndexTupleOp<XprType>, Eigen::Dense>
+struct eval<TensorIndexTupleOp<XprType>, eeigen::Dense>
 {
   typedef const TensorIndexTupleOp<XprType>& type;
 };
@@ -53,11 +53,11 @@ template<typename XprType>
 class TensorIndexTupleOp : public TensorBase<TensorIndexTupleOp<XprType>, ReadOnlyAccessors>
 {
   public:
-  typedef typename Eigen::internal::traits<TensorIndexTupleOp>::Scalar Scalar;
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
-  typedef typename Eigen::internal::nested<TensorIndexTupleOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorIndexTupleOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorIndexTupleOp>::Index Index;
+  typedef typename eeigen::internal::traits<TensorIndexTupleOp>::Scalar Scalar;
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar;
+  typedef typename eeigen::internal::nested<TensorIndexTupleOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorIndexTupleOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorIndexTupleOp>::Index Index;
   typedef Tuple<Index, typename XprType::CoeffReturnType> CoeffReturnType;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorIndexTupleOp(const XprType& expr)
@@ -145,7 +145,7 @@ struct traits<TensorTupleReducerOp<ReduceOp, Dims, XprType> > : public traits<Xp
 };
 
 template<typename ReduceOp, typename Dims, typename XprType>
-struct eval<TensorTupleReducerOp<ReduceOp, Dims, XprType>, Eigen::Dense>
+struct eval<TensorTupleReducerOp<ReduceOp, Dims, XprType>, eeigen::Dense>
 {
   typedef const TensorTupleReducerOp<ReduceOp, Dims, XprType>& type;
 };
@@ -163,11 +163,11 @@ template<typename ReduceOp, typename Dims, typename XprType>
 class TensorTupleReducerOp : public TensorBase<TensorTupleReducerOp<ReduceOp, Dims, XprType>, ReadOnlyAccessors>
 {
   public:
-  typedef typename Eigen::internal::traits<TensorTupleReducerOp>::Scalar Scalar;
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
-  typedef typename Eigen::internal::nested<TensorTupleReducerOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorTupleReducerOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorTupleReducerOp>::Index Index;
+  typedef typename eeigen::internal::traits<TensorTupleReducerOp>::Scalar Scalar;
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar;
+  typedef typename eeigen::internal::nested<TensorTupleReducerOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorTupleReducerOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorTupleReducerOp>::Index Index;
   typedef Index CoeffReturnType;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorTupleReducerOp(const XprType& expr,
@@ -294,6 +294,6 @@ struct TensorEvaluator<const TensorTupleReducerOp<ReduceOp, Dims, ArgType>, Devi
   Index m_stride_div;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_ARG_MAX_H

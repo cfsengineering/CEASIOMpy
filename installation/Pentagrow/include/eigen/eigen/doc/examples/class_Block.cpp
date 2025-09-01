@@ -1,20 +1,20 @@
-#include <Eigen/Core>
+#include <eeigen/Core>
 #include <iostream>
-using namespace Eigen;
+using namespace eeigen;
 using namespace std;
 
 template<typename Derived>
-Eigen::Block<Derived>
+eeigen::Block<Derived>
 topLeftCorner(MatrixBase<Derived>& m, int rows, int cols)
 {
-  return Eigen::Block<Derived>(m.derived(), 0, 0, rows, cols);
+  return eeigen::Block<Derived>(m.derived(), 0, 0, rows, cols);
 }
 
 template<typename Derived>
-const Eigen::Block<const Derived>
+const eeigen::Block<const Derived>
 topLeftCorner(const MatrixBase<Derived>& m, int rows, int cols)
 {
-  return Eigen::Block<const Derived>(m.derived(), 0, 0, rows, cols);
+  return eeigen::Block<const Derived>(m.derived(), 0, 0, rows, cols);
 }
 
 int main(int, char**)

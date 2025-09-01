@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010,2012 Jitse Niesen <jitse@maths.leeds.ac.uk>
@@ -9,7 +9,7 @@
 
 #include "main.h"
 #include <limits>
-#include <Eigen/Eigenvalues>
+#include <eeigen/Eigenvalues>
 
 template<typename MatrixType> void schur(int size = MatrixType::ColsAtCompileTime)
 {
@@ -84,7 +84,7 @@ void test_schur_complex()
   CALL_SUBTEST_1(( schur<Matrix4cd>() ));
   CALL_SUBTEST_2(( schur<MatrixXcf>(internal::random<int>(1,EIGEN_TEST_MAX_SIZE/4)) ));
   CALL_SUBTEST_3(( schur<Matrix<std::complex<float>, 1, 1> >() ));
-  CALL_SUBTEST_4(( schur<Matrix<float, 3, 3, Eigen::RowMajor> >() ));
+  CALL_SUBTEST_4(( schur<Matrix<float, 3, 3, eeigen::RowMajor> >() ));
 
   // Test problem size constructors
   CALL_SUBTEST_5(ComplexSchur<MatrixXf>(10));

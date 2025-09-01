@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -8,9 +8,9 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "main.h"
-#include <Eigen/Geometry>
-#include <Eigen/LU>
-#include <Eigen/SVD>
+#include <eeigen/Geometry>
+#include <eeigen/LU>
+#include <eeigen/SVD>
 
 template<typename T>
 Matrix<T,2,1> angleToVec(T a)
@@ -283,9 +283,9 @@ template<typename Scalar, int Mode, int Options> void transformations()
   // mat * aligned scaling and mat * translation
   t1 = (Matrix3(q1) * AlignedScaling3(v0)) * Translation3(v0);
   VERIFY_IS_APPROX(t0.matrix(), t1.matrix());
-  t1 = (Matrix3(q1) * Eigen::Scaling(v0)) * Translation3(v0);
+  t1 = (Matrix3(q1) * eeigen::Scaling(v0)) * Translation3(v0);
   VERIFY_IS_APPROX(t0.matrix(), t1.matrix());
-  t1 = (q1 * Eigen::Scaling(v0)) * Translation3(v0);
+  t1 = (q1 * eeigen::Scaling(v0)) * Translation3(v0);
   VERIFY_IS_APPROX(t0.matrix(), t1.matrix());
   // mat * transformation and aligned scaling * translation
   t1 = Matrix3(q1) * (AlignedScaling3(v0) * Translation3(v0));
@@ -294,26 +294,26 @@ template<typename Scalar, int Mode, int Options> void transformations()
 
   t0.setIdentity();
   t0.scale(s0).translate(v0);
-  t1 = Eigen::Scaling(s0) * Translation3(v0);
+  t1 = eeigen::Scaling(s0) * Translation3(v0);
   VERIFY_IS_APPROX(t0.matrix(), t1.matrix());
   t0.prescale(s0);
-  t1 = Eigen::Scaling(s0) * t1;
+  t1 = eeigen::Scaling(s0) * t1;
   VERIFY_IS_APPROX(t0.matrix(), t1.matrix());
   
   t0 = t3;
   t0.scale(s0);
-  t1 = t3 * Eigen::Scaling(s0,s0,s0);
+  t1 = t3 * eeigen::Scaling(s0,s0,s0);
   VERIFY_IS_APPROX(t0.matrix(), t1.matrix());
   t0.prescale(s0);
-  t1 = Eigen::Scaling(s0,s0,s0) * t1;
+  t1 = eeigen::Scaling(s0,s0,s0) * t1;
   VERIFY_IS_APPROX(t0.matrix(), t1.matrix());
 
   t0 = t3;
   t0.scale(s0);
-  t1 = t3 * Eigen::Scaling(s0);
+  t1 = t3 * eeigen::Scaling(s0);
   VERIFY_IS_APPROX(t0.matrix(), t1.matrix());
   t0.prescale(s0);
-  t1 = Eigen::Scaling(s0) * t1;
+  t1 = eeigen::Scaling(s0) * t1;
   VERIFY_IS_APPROX(t0.matrix(), t1.matrix());
 
   t0.setIdentity();
@@ -449,12 +449,12 @@ template<typename Scalar, int Mode, int Options> void transformations()
   s1 = internal::random<Scalar>(-100,100);
   Rotation2D<Scalar> R0(s0), R1(s1);
   
-  t20 = Translation2(v20) * (R0 * Eigen::Scaling(s0));
-  t21 = Translation2(v20) * R0 * Eigen::Scaling(s0);
+  t20 = Translation2(v20) * (R0 * eeigen::Scaling(s0));
+  t21 = Translation2(v20) * R0 * eeigen::Scaling(s0);
   VERIFY_IS_APPROX(t20,t21);
   
-  t20 = Translation2(v20) * (R0 * R0.inverse() * Eigen::Scaling(s0));
-  t21 = Translation2(v20) * Eigen::Scaling(s0);
+  t20 = Translation2(v20) * (R0 * R0.inverse() * eeigen::Scaling(s0));
+  t21 = Translation2(v20) * eeigen::Scaling(s0);
   VERIFY_IS_APPROX(t20,t21);
   
   VERIFY_IS_APPROX(s0, (R0.slerp(0, R1)).angle());

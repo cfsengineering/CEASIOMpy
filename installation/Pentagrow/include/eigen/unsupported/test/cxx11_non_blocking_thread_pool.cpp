@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Dmitry Vyukov <dvyukov@google.com>
@@ -10,7 +10,7 @@
 
 #define EIGEN_USE_THREADS
 #include "main.h"
-#include "Eigen/CXX11/ThreadPool"
+#include "eeigen/CXX11/ThreadPool"
 
 static void test_create_destroy_empty_pool()
 {

@@ -1,7 +1,7 @@
 
 
 if((NOT TENSOR_INCLUDE_DIR) AND Eigen_SOURCE_DIR)
-  # unless TENSOR_INCLUDE_DIR is defined, let's use current Eigen version
+  # unless TENSOR_INCLUDE_DIR is defined, let's use current eeigen version
   set(TENSOR_INCLUDE_DIR ${Eigen_SOURCE_DIR})
   set(TENSOR_FOUND TRUE)
 else()
@@ -19,7 +19,7 @@ if (TENSOR_FOUND)
   btl_add_target_property(btl_tensor_vecmat COMPILE_FLAGS "-fno-exceptions -DBTL_PREFIX=tensor")
   btl_add_target_property(btl_tensor_matmat COMPILE_FLAGS "-fno-exceptions -DBTL_PREFIX=tensor")
 
-  option(BTL_BENCH_NOGCCVEC "also bench Eigen explicit vec without GCC's auto vec" OFF)
+  option(BTL_BENCH_NOGCCVEC "also bench eeigen explicit vec without GCC's auto vec" OFF)
   if(CMAKE_COMPILER_IS_GNUCXX AND BTL_BENCH_NOGCCVEC)
     btl_add_bench(btl_tensor_nogccvec_linear main_linear.cpp)
     btl_add_bench(btl_tensor_nogccvec_vecmat main_vecmat.cpp)

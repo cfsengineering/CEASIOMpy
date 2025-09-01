@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_ARRAYBASE_H
 #define EIGEN_ARRAYBASE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 template<typename ExpressionType> class MatrixWrapper;
 
@@ -86,7 +86,7 @@ template<typename Derived> class ArrayBase
     typedef CwiseNullaryOp<internal::scalar_constant_op<Scalar>,PlainObject> ConstantReturnType;
 #endif // not EIGEN_PARSED_BY_DOXYGEN
 
-#define EIGEN_CURRENT_STORAGE_BASE_CLASS Eigen::ArrayBase
+#define EIGEN_CURRENT_STORAGE_BASE_CLASS eeigen::ArrayBase
 #define EIGEN_DOC_UNARY_ADDONS(X,Y)
 #   include "../plugins/CommonCwiseUnaryOps.h"
 #   include "../plugins/MatrixCwiseUnaryOps.h"
@@ -142,7 +142,7 @@ template<typename Derived> class ArrayBase
     EIGEN_DEVICE_FUNC
     const ArrayBase<Derived>& array() const { return *this; }
 
-    /** \returns an \link Eigen::MatrixBase Matrix \endlink expression of this array
+    /** \returns an \link eeigen::MatrixBase Matrix \endlink expression of this array
       * \sa MatrixBase::array() */
     EIGEN_DEVICE_FUNC
     MatrixWrapper<Derived> matrix() { return MatrixWrapper<Derived>(derived()); }
@@ -221,6 +221,6 @@ ArrayBase<Derived>::operator/=(const ArrayBase<OtherDerived>& other)
   return derived();
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_ARRAYBASE_H

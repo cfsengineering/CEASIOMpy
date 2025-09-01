@@ -1,11 +1,11 @@
 
-#include <Eigen/Sparse>
+#include <eeigen/Sparse>
 #include <bench/BenchTimer.h>
 #include <set>
 
 using namespace std;
-using namespace Eigen;
-using namespace Eigen;
+using namespace eeigen;
+using namespace eeigen;
 
 #ifndef SIZE
 #define SIZE 1024

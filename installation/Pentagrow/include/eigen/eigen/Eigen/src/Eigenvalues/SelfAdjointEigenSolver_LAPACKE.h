@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ********************************************************************************
- *   Content : Eigen bindings to LAPACKe
+ *   Content : eeigen bindings to LAPACKe
  *    Self-adjoint eigenvalues/eigenvectors.
  ********************************************************************************
 */
@@ -33,7 +33,7 @@
 #ifndef EIGEN_SAEIGENSOLVER_LAPACKE_H
 #define EIGEN_SAEIGENSOLVER_LAPACKE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \internal Specialization for the data types supported by LAPACKe */
 
@@ -82,6 +82,6 @@ EIGEN_LAPACKE_EIG_SELFADJ(float,    float,                 float,  ssyev)
 EIGEN_LAPACKE_EIG_SELFADJ(dcomplex, lapack_complex_double, double, zheev)
 EIGEN_LAPACKE_EIG_SELFADJ(scomplex, lapack_complex_float,  float,  cheev)
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SAEIGENSOLVER_H

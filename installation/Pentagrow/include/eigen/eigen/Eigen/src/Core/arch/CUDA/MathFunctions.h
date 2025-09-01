@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_MATH_FUNCTIONS_CUDA_H
 #define EIGEN_MATH_FUNCTIONS_CUDA_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -86,6 +86,6 @@ double2 prsqrt<double2>(const double2& a)
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_MATH_FUNCTIONS_CUDA_H

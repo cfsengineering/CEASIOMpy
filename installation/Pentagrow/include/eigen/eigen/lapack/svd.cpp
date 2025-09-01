@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -8,7 +8,7 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "lapack_common.h"
-#include <Eigen/SVD>
+#include <eeigen/SVD>
 
 // computes the singular values/vectors a general M-by-N matrix A using divide-and-conquer
 EIGEN_LAPACK_FUNC(gesdd,(char *jobz, int *m, int* n, Scalar* a, int *lda, RealScalar *s, Scalar *u, int *ldu, Scalar *vt, int *ldvt, Scalar* /*work*/, int* lwork,

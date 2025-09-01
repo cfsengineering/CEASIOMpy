@@ -1,8 +1,8 @@
-#include <Eigen/Core>
+#include <eeigen/Core>
 #include <iostream>
 #include <random>
 
-using namespace Eigen;
+using namespace eeigen;
 
 int main() {
   std::default_random_engine generator;

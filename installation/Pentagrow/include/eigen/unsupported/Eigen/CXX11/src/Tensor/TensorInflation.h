@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Ke Yang <yangke@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_INFLATION_H
 #define EIGEN_CXX11_TENSOR_TENSOR_INFLATION_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorInflation
   * \ingroup CXX11_Tensor_Module
@@ -34,7 +34,7 @@ struct traits<TensorInflationOp<Strides, XprType> > : public traits<XprType>
 };
 
 template<typename Strides, typename XprType>
-struct eval<TensorInflationOp<Strides, XprType>, Eigen::Dense>
+struct eval<TensorInflationOp<Strides, XprType>, eeigen::Dense>
 {
   typedef const TensorInflationOp<Strides, XprType>& type;
 };
@@ -51,12 +51,12 @@ template<typename Strides, typename XprType>
 class TensorInflationOp : public TensorBase<TensorInflationOp<Strides, XprType>, ReadOnlyAccessors>
 {
   public:
-  typedef typename Eigen::internal::traits<TensorInflationOp>::Scalar Scalar;
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
+  typedef typename eeigen::internal::traits<TensorInflationOp>::Scalar Scalar;
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
-  typedef typename Eigen::internal::nested<TensorInflationOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorInflationOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorInflationOp>::Index Index;
+  typedef typename eeigen::internal::nested<TensorInflationOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorInflationOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorInflationOp>::Index Index;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorInflationOp(const XprType& expr, const Strides& strides)
       : m_xpr(expr), m_strides(strides) {}
@@ -224,6 +224,6 @@ struct TensorEvaluator<const TensorInflationOp<Strides, ArgType>, Device>
   array<internal::TensorIntDivisor<Index>, NumDims> m_fastStrides;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_INFLATION_H

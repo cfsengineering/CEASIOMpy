@@ -3,7 +3,7 @@
 
 #define EIGEN_SUPERLU_SUPPORT
 #define EIGEN_UMFPACK_SUPPORT
-#include <Eigen/Sparse>
+#include <eeigen/Sparse>
 
 #define NOGMM
 #define NOMTL
@@ -40,7 +40,7 @@
 
 typedef Matrix<Scalar,Dynamic,1> VectorX;
 
-#include <Eigen/LU>
+#include <eeigen/LU>
 
 template<int Backend>
 void doEigen(const char* name, const EigenSparseMatrix& sm1, const VectorX& b, VectorX& x, int flags = 0)
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
     if (!densedone)
     {
       densedone = true;
-      std::cout << "Eigen Dense\t" << density*100 << "%\n";
+      std::cout << "eeigen Dense\t" << density*100 << "%\n";
       DenseMatrix m1(rows,cols);
       eiToDense(sm1, m1);
 
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
       timer.start();
       FullPivLU<DenseMatrix> lu(m1);
       timer.stop();
-      std::cout << "Eigen/dense:\t" << timer.value() << endl;
+      std::cout << "eeigen/dense:\t" << timer.value() << endl;
 
       timer.reset();
       timer.start();
@@ -114,15 +114,15 @@ int main(int argc, char *argv[])
 
     #ifdef EIGEN_UMFPACK_SUPPORT
     x.setZero();
-    doEigen<Eigen::UmfPack>("Eigen/UmfPack (auto)", sm1, b, x, 0);
+    doEigen<eeigen::UmfPack>("eeigen/UmfPack (auto)", sm1, b, x, 0);
     #endif
 
     #ifdef EIGEN_SUPERLU_SUPPORT
     x.setZero();
-    doEigen<Eigen::SuperLU>("Eigen/SuperLU (nat)", sm1, b, x, Eigen::NaturalOrdering);
-//     doEigen<Eigen::SuperLU>("Eigen/SuperLU (MD AT+A)", sm1, b, x, Eigen::MinimumDegree_AT_PLUS_A);
-//     doEigen<Eigen::SuperLU>("Eigen/SuperLU (MD ATA)", sm1, b, x, Eigen::MinimumDegree_ATA);
-    doEigen<Eigen::SuperLU>("Eigen/SuperLU (COLAMD)", sm1, b, x, Eigen::ColApproxMinimumDegree);
+    doEigen<eeigen::SuperLU>("eeigen/SuperLU (nat)", sm1, b, x, eeigen::NaturalOrdering);
+//     doEigen<eeigen::SuperLU>("eeigen/SuperLU (MD AT+A)", sm1, b, x, eeigen::MinimumDegree_AT_PLUS_A);
+//     doEigen<eeigen::SuperLU>("eeigen/SuperLU (MD ATA)", sm1, b, x, eeigen::MinimumDegree_ATA);
+    doEigen<eeigen::SuperLU>("eeigen/SuperLU (COLAMD)", sm1, b, x, eeigen::ColApproxMinimumDegree);
     #endif
 
   }

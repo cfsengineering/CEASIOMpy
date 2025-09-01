@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SELFADJOINT_MATRIX_VECTOR_H
 #define EIGEN_SELFADJOINT_MATRIX_VECTOR_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -255,6 +255,6 @@ struct selfadjoint_product_impl<Lhs,0,true,Rhs,RhsMode,false>
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SELFADJOINT_MATRIX_VECTOR_H

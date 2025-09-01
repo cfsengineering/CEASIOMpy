@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -71,10 +71,10 @@ namespace std {
   template<typename T>
   class deque<T,EIGEN_ALIGNED_ALLOCATOR<T> >
     : public deque<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T),
-                   Eigen::aligned_allocator_indirection<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T)> >
+                   eeigen::aligned_allocator_indirection<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T)> >
 {
   typedef deque<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T),
-                Eigen::aligned_allocator_indirection<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T)> > deque_base;
+                eeigen::aligned_allocator_indirection<EIGEN_WORKAROUND_MSVC_STL_SUPPORT(T)> > deque_base;
   EIGEN_STD_DEQUE_SPECIALIZATION_BODY
 
   void resize(size_type new_size)

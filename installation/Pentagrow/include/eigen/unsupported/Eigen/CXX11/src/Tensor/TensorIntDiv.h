@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -11,7 +11,7 @@
 #define EIGEN_CXX11_TENSOR_TENSOR_INTDIV_H
 
 
-namespace Eigen {
+namespace eeigen {
 
 /** \internal
   *
@@ -248,6 +248,6 @@ static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE T operator / (const T& numerator, c
 
 
 } // end namespace internal
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_INTDIV_H

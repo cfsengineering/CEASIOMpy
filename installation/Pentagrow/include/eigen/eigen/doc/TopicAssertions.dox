@@ -1,4 +1,4 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \page TopicAssertions Assertions
 
@@ -10,7 +10,7 @@ The macro eigen_assert is defined to be \c eigen_plain_assert by default. We use
 
 \subsection RedefineAssert Redefining assertions
 
-Both eigen_assert and eigen_plain_assert are defined in Macros.h. Defining eigen_assert indirectly gives you a chance to change its behavior. You can redefine this macro if you want to do something else such as throwing an exception, and fall back to its default behavior with eigen_plain_assert. The code below tells Eigen to throw an std::runtime_error:
+Both eigen_assert and eigen_plain_assert are defined in Macros.h. Defining eigen_assert indirectly gives you a chance to change its behavior. You can redefine this macro if you want to do something else such as throwing an exception, and fall back to its default behavior with eigen_plain_assert. The code below tells eeigen to throw an std::runtime_error:
 
 \code
 #include <stdexcept>
@@ -21,11 +21,11 @@ Both eigen_assert and eigen_plain_assert are defined in Macros.h. Defining eigen
 
 \subsection DisableAssert Disabling assertions
 
-Assertions cost run time and can be turned off. You can suppress eigen_assert by defining \c EIGEN_NO_DEBUG \b before including Eigen headers. \c EIGEN_NO_DEBUG is undefined by default unless \c NDEBUG is defined.
+Assertions cost run time and can be turned off. You can suppress eigen_assert by defining \c EIGEN_NO_DEBUG \b before including eeigen headers. \c EIGEN_NO_DEBUG is undefined by default unless \c NDEBUG is defined.
 
 \section StaticAssert Static assertions
 
-Static assertions are not standardized until C++11. However, in the Eigen library, there are many conditions can and should be detectedat compile time. For instance, we use static assertions to prevent the code below from compiling.
+Static assertions are not standardized until C++11. However, in the eeigen library, there are many conditions can and should be detectedat compile time. For instance, we use static assertions to prevent the code below from compiling.
 
 \code
 Matrix3d()  + Matrix4d();   // adding matrices of different sizes
@@ -41,7 +41,7 @@ One can easily come up with static assertions without messages, such as:
   switch(0) { case 0: case x:; }
 \endcode
 
-However, the example above obviously cannot tell why the assertion failed. Therefore, we define a \c struct in namespace Eigen::internal to handle available messages.
+However, the example above obviously cannot tell why the assertion failed. Therefore, we define a \c struct in namespace eeigen::internal to handle available messages.
 
 \code
 template<bool condition>
@@ -58,7 +58,7 @@ struct static_assertion<true>
 };
 \endcode
 
-And then, we define EIGEN_STATIC_ASSERT(CONDITION,MSG) to access Eigen::internal::static_assertion<bool(CONDITION)>::MSG. If the condition evaluates into \c false, your compiler displays a lot of messages explaining there is no MSG in static_assert<false>. Nevertheless, this is \a not in what we are interested. As you can see, all members of static_assert<true> are ALL_CAPS_AND_THEY_ARE_SHOUTING.
+And then, we define EIGEN_STATIC_ASSERT(CONDITION,MSG) to access eeigen::internal::static_assertion<bool(CONDITION)>::MSG. If the condition evaluates into \c false, your compiler displays a lot of messages explaining there is no MSG in static_assert<false>. Nevertheless, this is \a not in what we are interested. As you can see, all members of static_assert<true> are ALL_CAPS_AND_THEY_ARE_SHOUTING.
 
 \warning
 When using this macro, MSG should be a member of static_assertion<true>, or the static assertion \b always fails.
@@ -74,7 +74,7 @@ There are other macros derived from EIGEN_STATIC_ASSERT to enhance readability. 
 - \b EIGEN_STATIC_ASSERT_ARRAYXPR(Derived) - passes if \a Derived is an array expression.
 - <b>EIGEN_STATIC_ASSERT_SAME_XPR_KIND(Derived1, Derived2)</b> - failes if the two expressions are an array one and a matrix one.
 
-Because Eigen handles both fixed-size and dynamic-size expressions, some conditions cannot be clearly determined at compile time. We classify them into strict assertions and permissive assertions.
+Because eeigen handles both fixed-size and dynamic-size expressions, some conditions cannot be clearly determined at compile time. We classify them into strict assertions and permissive assertions.
 
 \subsubsection StrictAssertions Strict assertions
 

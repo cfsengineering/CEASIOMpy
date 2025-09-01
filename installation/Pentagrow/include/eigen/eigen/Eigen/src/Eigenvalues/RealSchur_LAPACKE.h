@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ********************************************************************************
- *   Content : Eigen bindings to LAPACKe
+ *   Content : eeigen bindings to LAPACKe
  *    Real Schur needed to real unsymmetrical eigenvalues/eigenvectors.
  ********************************************************************************
 */
@@ -33,7 +33,7 @@
 #ifndef EIGEN_REAL_SCHUR_LAPACKE_H
 #define EIGEN_REAL_SCHUR_LAPACKE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \internal Specialization for the data types supported by LAPACKe */
 
@@ -72,6 +72,6 @@ EIGEN_LAPACKE_SCHUR_REAL(float,    float,  s, S, ColMajor, LAPACK_COL_MAJOR)
 EIGEN_LAPACKE_SCHUR_REAL(double,   double, d, D, RowMajor, LAPACK_ROW_MAJOR)
 EIGEN_LAPACKE_SCHUR_REAL(float,    float,  s, S, RowMajor, LAPACK_ROW_MAJOR)
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_REAL_SCHUR_LAPACKE_H

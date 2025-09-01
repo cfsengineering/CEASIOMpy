@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SELFCWISEBINARYOP_H
 #define EIGEN_SELFCWISEBINARYOP_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 // TODO generalize the scalar type of 'other'
 
@@ -42,6 +42,6 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Derived& DenseBase<Derived>::operator/=(co
   return derived();
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SELFCWISEBINARYOP_H

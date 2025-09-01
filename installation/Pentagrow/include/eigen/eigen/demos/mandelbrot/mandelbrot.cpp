@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -30,8 +30,8 @@ template<> struct iters_before_test<double> { enum { ret = 16 }; };
 
 template<typename Real> void MandelbrotThread::render(int img_width, int img_height)
 {
-  enum { packetSize = Eigen::internal::packet_traits<Real>::size }; // number of reals in a Packet
-  typedef Eigen::Array<Real, packetSize, 1> Packet; // wrap a Packet as a vector
+  enum { packetSize = eeigen::internal::packet_traits<Real>::size }; // number of reals in a Packet
+  typedef eeigen::Array<Real, packetSize, 1> Packet; // wrap a Packet as a vector
 
   enum { iters_before_test = iters_before_test<Real>::ret };
   max_iter = (max_iter / iters_before_test) * iters_before_test;
@@ -40,7 +40,7 @@ template<typename Real> void MandelbrotThread::render(int img_width, int img_hei
   const double xradius = widget->xradius;
   const double yradius = xradius * img_height / img_width;
   const int threadcount = widget->threadcount;
-  typedef Eigen::Array<Real, 2, 1> Vector2;
+  typedef eeigen::Array<Real, 2, 1> Vector2;
   Vector2 start(widget->center.x() - widget->xradius, widget->center.y() - yradius);
   Vector2 step(2*widget->xradius/img_width, 2*yradius/img_height);
   total_iter = 0;
@@ -64,7 +64,7 @@ template<typename Real> void MandelbrotThread::render(int img_width, int img_hei
       // do the iterations. Every iters_before_test iterations we check for divergence,
       // in which case we can stop iterating.
       int j = 0;
-      typedef Eigen::Matrix<int, packetSize, 1> Packeti;
+      typedef eeigen::Matrix<int, packetSize, 1> Packeti;
       Packeti pix_iter = Packeti::Zero(), // number of iteration per pixel in the packet
               pix_dont_diverge; // whether or not each pixel has already diverged
       do
@@ -81,7 +81,7 @@ template<typename Real> void MandelbrotThread::render(int img_width, int img_hei
           ITERATE ITERATE ITERATE ITERATE
         }
         pix_dont_diverge = ((pzr.square() + pzi.square())
-                           .eval() // temporary fix as what follows is not yet vectorized by Eigen
+                           .eval() // temporary fix as what follows is not yet vectorized by eeigen
                            <= Packet::Constant(4))
                                 // the 4 here is not a magic value, it's a math fact that if
                                 // the square modulus is >4 then divergence is inevitable.
@@ -90,7 +90,7 @@ template<typename Real> void MandelbrotThread::render(int img_width, int img_hei
         j++;
         total_iter += iters_before_test * packetSize;
       }
-      while(j < max_iter/iters_before_test && pix_dont_diverge.any()); // any() is not yet vectorized by Eigen
+      while(j < max_iter/iters_before_test && pix_dont_diverge.any()); // any() is not yet vectorized by eeigen
 
       // compute pixel colors
       for(int i = 0; i < packetSize; i++)
@@ -148,8 +148,8 @@ void MandelbrotWidget::paintEvent(QPaintEvent *)
               << elapsed << " ms, "
               << speed << " iters/s (max " << max_speed << ")" << std::endl;
     int packetSize = threads[0]->single_precision
-                   ? int(Eigen::internal::packet_traits<float>::size)
-                   : int(Eigen::internal::packet_traits<double>::size);
+                   ? int(eeigen::internal::packet_traits<float>::size)
+                   : int(eeigen::internal::packet_traits<double>::size);
     setWindowTitle(QString("resolution ")+QString::number(xradius*2/width(), 'e', 2)
                   +QString(", %1 iterations per pixel, ").arg(threads[0]->max_iter)
                   +(threads[0]->single_precision ? QString("single ") : QString("double "))
@@ -176,7 +176,7 @@ void MandelbrotWidget::mousePressEvent(QMouseEvent *event)
   {
     lastpos = event->pos();
     double yradius = xradius * height() / width();
-    center = Eigen::Vector2d(center.x() + (event->pos().x() - width()/2) * xradius * 2 / width(),
+    center = eeigen::Vector2d(center.x() + (event->pos().x() - width()/2) * xradius * 2 / width(),
                              center.y() + (event->pos().y() - height()/2) * yradius * 2 / height());
     draft = 16;
     for(int th = 0; th < threadcount; th++)

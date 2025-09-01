@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2007-2010 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_FORWARDDECLARATIONS_H
 #define EIGEN_FORWARDDECLARATIONS_H
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 
 template<typename T> struct traits;
@@ -61,12 +61,12 @@ template<typename _Scalar, int _Rows, int _Cols,
     // differently and this makes gcc 3.4.6 happy, but it's ugly.
     // The error would only show up with EIGEN_DEFAULT_TO_ROW_MAJOR is defined
     // (when EIGEN_DEFAULT_MATRIX_STORAGE_ORDER_OPTION is RowMajor)
-                          ( (_Rows==1 && _Cols!=1) ? Eigen::RowMajor
+                          ( (_Rows==1 && _Cols!=1) ? eeigen::RowMajor
                           : !(_Cols==1 && _Rows!=1) ?  EIGEN_DEFAULT_MATRIX_STORAGE_ORDER_OPTION
-                          : Eigen::ColMajor ),
+                          : eeigen::ColMajor ),
 #else
-                          ( (_Rows==1 && _Cols!=1) ? Eigen::RowMajor
-                          : (_Cols==1 && _Rows!=1) ? Eigen::ColMajor
+                          ( (_Rows==1 && _Cols!=1) ? eeigen::RowMajor
+                          : (_Cols==1 && _Rows!=1) ? eeigen::ColMajor
                           : EIGEN_DEFAULT_MATRIX_STORAGE_ORDER_OPTION ),
 #endif
          int _MaxRows = _Rows,
@@ -231,12 +231,12 @@ template<typename _Scalar, int _Rows, int _Cols,
     // differently and this makes gcc 3.4.6 happy, but it's ugly.
     // The error would only show up with EIGEN_DEFAULT_TO_ROW_MAJOR is defined
     // (when EIGEN_DEFAULT_MATRIX_STORAGE_ORDER_OPTION is RowMajor)
-                          ( (_Rows==1 && _Cols!=1) ? Eigen::RowMajor
+                          ( (_Rows==1 && _Cols!=1) ? eeigen::RowMajor
                           : !(_Cols==1 && _Rows!=1) ?  EIGEN_DEFAULT_MATRIX_STORAGE_ORDER_OPTION
-                          : Eigen::ColMajor ),
+                          : eeigen::ColMajor ),
 #else
-                          ( (_Rows==1 && _Cols!=1) ? Eigen::RowMajor
-                          : (_Cols==1 && _Rows!=1) ? Eigen::ColMajor
+                          ( (_Rows==1 && _Cols!=1) ? eeigen::RowMajor
+                          : (_Cols==1 && _Rows!=1) ? eeigen::ColMajor
                           : EIGEN_DEFAULT_MATRIX_STORAGE_ORDER_OPTION ),
 #endif
          int _MaxRows = _Rows, int _MaxCols = _Cols> class Array;
@@ -297,6 +297,6 @@ struct stem_function
 };
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_FORWARDDECLARATIONS_H

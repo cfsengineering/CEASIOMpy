@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_STL_FUNCTORS_H
 #define EIGEN_STL_FUNCTORS_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -123,7 +123,7 @@ struct functor_traits<std::binary_compose<T0,T1,T2> >
 
 #endif // EIGEN_STDEXT_SUPPORT
 
-// allow to add new functors and specializations of functor_traits from outside Eigen.
+// allow to add new functors and specializations of functor_traits from outside eeigen.
 // this macro is really needed because functor_traits must be specialized after it is declared but before it is used...
 #ifdef EIGEN_FUNCTORS_PLUGIN
 #include EIGEN_FUNCTORS_PLUGIN
@@ -131,6 +131,6 @@ struct functor_traits<std::binary_compose<T0,T1,T2> >
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_STL_FUNCTORS_H

@@ -1,8 +1,8 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \eigenManualPage DenseDecompositionBenchmark Benchmark of dense decompositions
 
-This page presents a speed comparison of the dense matrix decompositions offered by %Eigen for a wide range of square matrices and overconstrained problems.
+This page presents a speed comparison of the dense matrix decompositions offered by %eeigen for a wide range of square matrices and overconstrained problems.
 
 For a more general overview on the features and numerical robustness of linear solvers and decompositions, check this \link TopicLinearAlgebraDecompositions table \endlink.
 

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Mark Borgerding mark a borgerding net
@@ -8,13 +8,13 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "main.h"
-#include <unsupported/Eigen/FFT>
+#include <unsupported/eeigen/FFT>
 
 template <typename T> 
 std::complex<T> RandomCpx() { return std::complex<T>( (T)(rand()/(T)RAND_MAX - .5), (T)(rand()/(T)RAND_MAX - .5) ); }
 
 using namespace std;
-using namespace Eigen;
+using namespace eeigen;
 
 
 template < typename T>
@@ -181,21 +181,21 @@ void test_complex(int nfft)
 template <typename T,int nrows,int ncols>
 void test_complex2d()
 {
-    typedef typename Eigen::FFT<T>::Complex Complex;
+    typedef typename eeigen::FFT<T>::Complex Complex;
     FFT<T> fft;
-    Eigen::Matrix<Complex,nrows,ncols> src,src2,dst,dst2;
+    eeigen::Matrix<Complex,nrows,ncols> src,src2,dst,dst2;
 
-    src = Eigen::Matrix<Complex,nrows,ncols>::Random();
-    //src =  Eigen::Matrix<Complex,nrows,ncols>::Identity();
+    src = eeigen::Matrix<Complex,nrows,ncols>::Random();
+    //src =  eeigen::Matrix<Complex,nrows,ncols>::Identity();
 
     for (int k=0;k<ncols;k++) {
-        Eigen::Matrix<Complex,nrows,1> tmpOut;
+        eeigen::Matrix<Complex,nrows,1> tmpOut;
         fft.fwd( tmpOut,src.col(k) );
         dst2.col(k) = tmpOut;
     }
 
     for (int k=0;k<nrows;k++) {
-        Eigen::Matrix<Complex,1,ncols> tmpOut;
+        eeigen::Matrix<Complex,1,ncols> tmpOut;
         fft.fwd( tmpOut,  dst2.row(k) );
         dst2.row(k) = tmpOut;
     }

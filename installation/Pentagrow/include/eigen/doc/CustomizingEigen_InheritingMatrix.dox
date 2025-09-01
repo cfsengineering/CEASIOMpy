@@ -1,4 +1,4 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \page TopicCustomizing_InheritingMatrix Inheriting from Matrix
 
@@ -11,7 +11,7 @@ have several layers of heritage such as
 MyVerySpecificVector1, MyVerySpecificVector2 -> MyVector1 -> Matrix and
 MyVerySpecificVector3, MyVerySpecificVector4 -> MyVector2 -> Matrix.
 
-In order for your object to work within the %Eigen framework, you need to
+In order for your object to work within the %eeigen framework, you need to
 define a few members in your inherited class.
 
 Here is a minimalistic example:
@@ -22,11 +22,11 @@ Output: \verbinclude CustomizingEigen_Inheritance.out
 
 This is the kind of error you can get if you don't provide those methods
 \verbatim
-error: no match for ‘operator=’ in ‘v = Eigen::operator*(
-const Eigen::MatrixBase<Eigen::Matrix<double, -0x000000001, 1, 0, -0x000000001, 1> >::Scalar&, 
-const Eigen::MatrixBase<Eigen::Matrix<double, -0x000000001, 1> >::StorageBaseType&)
-(((const Eigen::MatrixBase<Eigen::Matrix<double, -0x000000001, 1> >::StorageBaseType&)
-((const Eigen::MatrixBase<Eigen::Matrix<double, -0x000000001, 1> >::StorageBaseType*)(& v))))’
+error: no match for ‘operator=’ in ‘v = eeigen::operator*(
+const eeigen::MatrixBase<eeigen::Matrix<double, -0x000000001, 1, 0, -0x000000001, 1> >::Scalar&, 
+const eeigen::MatrixBase<eeigen::Matrix<double, -0x000000001, 1> >::StorageBaseType&)
+(((const eeigen::MatrixBase<eeigen::Matrix<double, -0x000000001, 1> >::StorageBaseType&)
+((const eeigen::MatrixBase<eeigen::Matrix<double, -0x000000001, 1> >::StorageBaseType*)(& v))))’
 \endverbatim
 
 */

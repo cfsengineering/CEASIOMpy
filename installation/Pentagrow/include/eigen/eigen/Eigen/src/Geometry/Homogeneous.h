@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_HOMOGENEOUS_H
 #define EIGEN_HOMOGENEOUS_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \geometry_module \ingroup Geometry_Module
   *
@@ -492,6 +492,6 @@ struct permutation_matrix_product<ExpressionType, Side, Transposed, HomogeneousS
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_HOMOGENEOUS_H

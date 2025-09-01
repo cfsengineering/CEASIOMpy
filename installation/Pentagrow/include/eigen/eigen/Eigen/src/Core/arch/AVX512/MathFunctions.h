@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Pedro Gonnet (pedro.gonnet@gmail.com)
@@ -10,7 +10,7 @@
 #ifndef THIRD_PARTY_EIGEN3_EIGEN_SRC_CORE_ARCH_AVX512_MATHFUNCTIONS_H_
 #define THIRD_PARTY_EIGEN3_EIGEN_SRC_CORE_ARCH_AVX512_MATHFUNCTIONS_H_
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -386,6 +386,6 @@ EIGEN_STRONG_INLINE Packet16f prsqrt<Packet16f>(const Packet16f& x) {
 
 }  // end namespace internal
 
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 #endif  // THIRD_PARTY_EIGEN3_EIGEN_SRC_CORE_ARCH_AVX512_MATHFUNCTIONS_H_

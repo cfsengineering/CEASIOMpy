@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
     // eigen sparse matrices
     {
       SPMV_BENCH(res.noalias() += sm * dv; )
-      std::cout << "Eigen       " << t.value()/repeats << "\t";
+      std::cout << "eeigen       " << t.value()/repeats << "\t";
 
       SPMV_BENCH(res.noalias() += sm.transpose() * dv; )
       std::cout << t.value()/repeats << endl;

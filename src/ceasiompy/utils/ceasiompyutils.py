@@ -457,8 +457,7 @@ def run_software(
     )
 
     if software_name == "pentagrow":
-        # install_path = "/users/disk10/benedetti/CEASIOM/CEASIOMpy_py311/CEASIOMpy/installation/Pentagrow/bin/pentagrow"
-        ceasiompy_root = Path(__file__).resolve().parents[3]  # <--- Adatta se cambia profondità
+        ceasiompy_root = Path(__file__).resolve().parents[3]
         install_path = ceasiompy_root / "installation" / "Pentagrow" / "bin" / "pentagrow"
     else:
         install_path = get_install_path(software_name)

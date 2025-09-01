@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,9 +10,9 @@
 #include "quaternion_demo.h"
 #include "icosphere.h"
 
-#include <Eigen/Geometry>
-#include <Eigen/QR>
-#include <Eigen/LU>
+#include <eeigen/Geometry>
+#include <eeigen/QR>
+#include <eeigen/LU>
 
 #include <iostream>
 #include <QEvent>
@@ -25,7 +25,7 @@
 #include <QPushButton>
 #include <QGroupBox>
 
-using namespace Eigen;
+using namespace eeigen;
 
 class FancySpheres
 {
@@ -214,7 +214,7 @@ void RenderingWidget::grabFrame(void)
     double t = 0;
     if (!m_timeline.empty())
       t = (--m_timeline.end())->first + 1.;
-    t = QInputDialog::getDouble(this, "Eigen's RenderingWidget", "time value: ",
+    t = QInputDialog::getDouble(this, "eeigen's RenderingWidget", "time value: ",
       t, 0, 1e3, 1, &ok);
     if (ok)
     {
@@ -293,7 +293,7 @@ void RenderingWidget::animate()
     if (mLerpMode==LerpEulerAngles)
       currentFrame = ::lerpFrame<EulerAngles<float> >(s, lo->second, hi->second);
     else if (mLerpMode==LerpQuaternion)
-      currentFrame = ::lerpFrame<Eigen::Quaternionf>(s, lo->second, hi->second);
+      currentFrame = ::lerpFrame<eeigen::Quaternionf>(s, lo->second, hi->second);
     else
     {
       std::cerr << "Invalid rotation interpolation mode (abort)\n";

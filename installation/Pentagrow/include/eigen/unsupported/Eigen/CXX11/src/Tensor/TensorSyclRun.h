@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Mehdi Goli    Codeplay Software Ltd.
@@ -23,7 +23,7 @@
 #ifndef UNSUPPORTED_EIGEN_CXX11_SRC_TENSOR_TENSORSYCL_SYCLRUN_HPP
 #define UNSUPPORTED_EIGEN_CXX11_SRC_TENSOR_TENSORSYCL_SYCLRUN_HPP
 
-namespace Eigen {
+namespace eeigen {
 namespace TensorSycl {
 /// The run function in tensor sycl convert the expression tree to a buffer
 /// based expression tree;
@@ -31,7 +31,7 @@ namespace TensorSycl {
 /// construct the kernel and submit it to the sycl queue.
 template <typename Expr, typename Dev>
 void run(Expr &expr, Dev &dev) {
-  Eigen::TensorEvaluator<Expr, Dev> evaluator(expr, dev);
+  eeigen::TensorEvaluator<Expr, Dev> evaluator(expr, dev);
   const bool needs_assign = evaluator.evalSubExprsIfNeeded(NULL);
   if (needs_assign) {
     typedef  typename internal::createPlaceHolderExpression<Expr>::Type PlaceHolderExpr;
@@ -53,7 +53,7 @@ void run(Expr &expr, Dev &dev) {
       cgh.parallel_for<PlaceHolderExpr>( cl::sycl::nd_range<1>(cl::sycl::range<1>(GRange), cl::sycl::range<1>(tileSize)), [=](cl::sycl::nd_item<1> itemID) {
         typedef  typename internal::ConvertToDeviceExpression<Expr>::Type DevExpr;
         auto device_expr =internal::createDeviceExpression<DevExpr, PlaceHolderExpr>(functors, tuple_of_accessors);
-        auto device_evaluator = Eigen::TensorEvaluator<decltype(device_expr.expr), Eigen::DefaultDevice>(device_expr.expr, Eigen::DefaultDevice());
+        auto device_evaluator = eeigen::TensorEvaluator<decltype(device_expr.expr), eeigen::DefaultDevice>(device_expr.expr, eeigen::DefaultDevice());
         if (itemID.get_global_linear_id() < range) {
           device_evaluator.evalScalar(static_cast<int>(itemID.get_global_linear_id()));
         }
@@ -65,6 +65,6 @@ void run(Expr &expr, Dev &dev) {
   evaluator.cleanup();
 }
 }  // namespace TensorSycl
-}  // namespace Eigen
+}  // namespace eeigen
 
 #endif  // UNSUPPORTED_EIGEN_CXX11_SRC_TENSOR_TENSORSYCL_SYCLRUN_HPP

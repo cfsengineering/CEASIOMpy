@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Désiré Nuentsa-Wakam <desire.nuentsa_wakam@inria.fr>
@@ -8,9 +8,9 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "sparse_solver.h"
-#include <Eigen/SparseLU>
-#include <Eigen/MetisSupport>
-#include <unsupported/Eigen/SparseExtra>
+#include <eeigen/SparseLU>
+#include <eeigen/MetisSupport>
+#include <unsupported/eeigen/SparseExtra>
 
 template<typename T> void test_metis_T()
 {

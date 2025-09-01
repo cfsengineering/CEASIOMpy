@@ -1,14 +1,14 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \eigenManualPage TutorialReductionsVisitorsBroadcasting Reductions, visitors and broadcasting
 
-This page explains Eigen's reductions, visitors and broadcasting and how they are used with
+This page explains eeigen's reductions, visitors and broadcasting and how they are used with
 \link MatrixBase matrices \endlink and \link ArrayBase arrays \endlink.
 
 \eigenAutoToc
 
 \section TutorialReductionsVisitorsBroadcastingReductions Reductions
-In Eigen, a reduction is a function taking a matrix or array, and returning a single
+In eeigen, a reduction is a function taking a matrix or array, and returning a single
 scalar value. One of the most used reductions is \link DenseBase::sum() .sum() \endlink,
 returning the sum of all the coefficients inside a given matrix or array.
 
@@ -28,7 +28,7 @@ The \em trace of a matrix, as returned by the function \c trace(), is the sum of
 
 The (Euclidean a.k.a. \f$\ell^2\f$) squared norm of a vector can be obtained \link MatrixBase::squaredNorm() squaredNorm() \endlink. It is equal to the dot product of the vector by itself, and equivalently to the sum of squared absolute values of its coefficients.
 
-Eigen also provides the \link MatrixBase::norm() norm() \endlink method, which returns the square root of \link MatrixBase::squaredNorm() squaredNorm() \endlink.
+eeigen also provides the \link MatrixBase::norm() norm() \endlink method, which returns the square root of \link MatrixBase::squaredNorm() squaredNorm() \endlink.
 
 These operations can also operate on matrices; in that case, a n-by-p matrix is seen as a vector of size (n*p), so for example the \link MatrixBase::norm() norm() \endlink method returns the "Frobenius" or "Hilbert-Schmidt" norm. We refrain from speaking of the \f$\ell^2\f$ norm of a matrix because that can mean different things.
 
@@ -90,7 +90,7 @@ Array.
 
 The arguments passed to a visitor are pointers to the variables where the
 row and column position are to be stored. These variables should be of type
-\link Eigen::Index Index \endlink, as shown below:
+\link eeigen::Index Index \endlink, as shown below:
 
 <table class="example">
 <tr><th>Example:</th><th>Output:</th></tr>

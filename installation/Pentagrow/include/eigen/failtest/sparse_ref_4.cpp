@@ -1,6 +1,6 @@
-#include "../Eigen/Sparse"
+#include "../eeigen/Sparse"
 
-using namespace Eigen;
+using namespace eeigen;
 
 void call_ref(Ref<SparseMatrix<float> > a) {}
 

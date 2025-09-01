@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -12,8 +12,8 @@
 
 #include "main.h"
 #include <QtCore/QVector>
-#include <Eigen/Geometry>
-#include <Eigen/QtAlignedMalloc>
+#include <eeigen/Geometry>
+#include <eeigen/QtAlignedMalloc>
 
 template<typename MatrixType>
 void check_qtvector_matrix(const MatrixType& m)

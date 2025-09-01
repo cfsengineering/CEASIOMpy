@@ -22,7 +22,7 @@
 #ifndef HAVE_NO_LAPACK
 #include "lapack_interface.h"
 #else
-#include <Eigen/QR>
+#include <eeigen/QR>
 #endif
 
 #include <sstream>
@@ -79,14 +79,14 @@ int lls_solve(MatrixType & a, MatrixType & x)
 #else
 
   typedef typename MatrixType::value_type value_type;
-  typedef Eigen::Matrix<value_type, Eigen::Dynamic, Eigen::Dynamic> EMatrix;
-  typedef Eigen::Map<EMatrix> EMView;
+  typedef eeigen::Matrix<value_type, eeigen::Dynamic, eeigen::Dynamic> EMatrix;
+  typedef eeigen::Map<EMatrix> EMView;
 
   EMView amap(a.pointer(), a.nrows(), a.ncols());
   EMView xmap(x.pointer(), x.nrows(), x.ncols());
 
-  //Eigen::HouseholderQR<EMatrix> qr(amap);
-  Eigen::ColPivHouseholderQR<EMatrix> qr(amap);
+  //eeigen::HouseholderQR<EMatrix> qr(amap);
+  eeigen::ColPivHouseholderQR<EMatrix> qr(amap);
   EMatrix y = qr.solve(xmap);
   x.resize(y.rows(), y.cols());
   memcpy(x.pointer(), y.data(), y.rows()*y.cols()*sizeof(value_type));
@@ -133,14 +133,14 @@ int lls_solve(MatrixType & a, VectorType & x)
 #else
 
   typedef typename MatrixType::value_type value_type;
-  typedef Eigen::Matrix<value_type, Eigen::Dynamic, Eigen::Dynamic> EMatrix;
-  typedef Eigen::Map<EMatrix> EMView;
+  typedef eeigen::Matrix<value_type, eeigen::Dynamic, eeigen::Dynamic> EMatrix;
+  typedef eeigen::Map<EMatrix> EMView;
 
   EMView amap(a.pointer(), a.nrows(), a.ncols());
   EMView xmap(x.pointer(), x.size(), 1);
 
-  Eigen::ColPivHouseholderQR<EMatrix> qr(amap);
-  //Eigen::HouseholderQR<EMatrix> qr(amap);
+  eeigen::ColPivHouseholderQR<EMatrix> qr(amap);
+  //eeigen::HouseholderQR<EMatrix> qr(amap);
   EMatrix y = qr.solve(xmap);
   x.allocate(y.rows());
   memcpy(x.pointer(), y.data(), y.rows()*y.cols()*sizeof(value_type));

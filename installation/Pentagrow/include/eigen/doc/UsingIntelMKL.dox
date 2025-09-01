@@ -26,17 +26,17 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ********************************************************************************
- *   Content : Documentation on the use of Intel MKL through Eigen
+ *   Content : Documentation on the use of Intel MKL through eeigen
  ********************************************************************************
 */
 
-namespace Eigen {
+namespace eeigen {
 
-/** \page TopicUsingIntelMKL Using Intel® MKL from %Eigen
+/** \page TopicUsingIntelMKL Using Intel® MKL from %eeigen
 
-<!-- \section TopicUsingIntelMKL_Intro Eigen and Intel® Math Kernel Library (Intel® MKL) -->
+<!-- \section TopicUsingIntelMKL_Intro eeigen and Intel® Math Kernel Library (Intel® MKL) -->
 
-Since %Eigen version 3.1 and later, users can benefit from built-in Intel® Math Kernel Library (MKL) optimizations with an installed copy of Intel MKL 10.3 (or later).
+Since %eeigen version 3.1 and later, users can benefit from built-in Intel® Math Kernel Library (MKL) optimizations with an installed copy of Intel MKL 10.3 (or later).
 
 <a href="http://eigen.tuxfamily.org/Counter/redirect_to_mkl.php"> Intel MKL </a> provides highly optimized multi-threaded mathematical routines for x86-compatible architectures.
 Intel MKL is available on Linux, Mac and Windows for both Intel64 and IA32 architectures.
@@ -44,12 +44,12 @@ Intel MKL is available on Linux, Mac and Windows for both Intel64 and IA32 archi
 \note
 Intel® MKL is a proprietary software and it is the responsibility of users to buy or register for community (free) Intel MKL licenses for their products. Moreover, the license of the user product has to allow linking to proprietary software that excludes any unmodified versions of the GPL.
 
-Using Intel MKL through %Eigen is easy:
--# define the \c EIGEN_USE_MKL_ALL macro before including any %Eigen's header
+Using Intel MKL through %eeigen is easy:
+-# define the \c EIGEN_USE_MKL_ALL macro before including any %eeigen's header
 -# link your program to MKL libraries (see the <a href="http://software.intel.com/en-us/articles/intel-mkl-link-line-advisor/">MKL linking advisor</a>)
 -# on a 64bits system, you must use the LP64 interface (not the ILP64 one)
 
-When doing so, a number of %Eigen's algorithms are silently substituted with calls to Intel MKL routines.
+When doing so, a number of %eeigen's algorithms are silently substituted with calls to Intel MKL routines.
 These substitutions apply only for \b Dynamic \b or \b large enough objects with one of the following four standard scalar types: \c float, \c double, \c complex<float>, and \c complex<double>.
 Operations on other scalar types or mixing reals and complexes will continue to use the built-in algorithms.
 

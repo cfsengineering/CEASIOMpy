@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010-2011 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -8,7 +8,7 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "common.h"
-#include <Eigen/LU>
+#include <eeigen/LU>
 
 // computes an LU factorization of a general M-by-N matrix A using partial pivoting with row interchanges
 EIGEN_LAPACK_FUNC(getrf,(int *m, int *n, RealScalar *pa, int *lda, int *ipiv, int *info))
@@ -28,7 +28,7 @@ EIGEN_LAPACK_FUNC(getrf,(int *m, int *n, RealScalar *pa, int *lda, int *ipiv, in
 
   Scalar* a = reinterpret_cast<Scalar*>(pa);
   int nb_transpositions;
-  int ret = int(Eigen::internal::partial_lu_impl<Scalar,ColMajor,int>
+  int ret = int(eeigen::internal::partial_lu_impl<Scalar,ColMajor,int>
                      ::blocked_lu(*m, *n, a, *lda, ipiv, nb_transpositions));
 
   for(int i=0; i<std::min(*m,*n); ++i)

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011 Kolja Brix <brix@igpm.rwth-aachen.de>
@@ -12,8 +12,8 @@
 #ifdef EIGEN_TEST_PART_1
 
 #include "sparse.h"
-#include <Eigen/SparseExtra>
-#include <Eigen/KroneckerProduct>
+#include <eeigen/SparseExtra>
+#include <eeigen/KroneckerProduct>
 
 template<typename MatrixType>
 void check_dimension(const MatrixType& ab, const int rows,  const int cols)
@@ -186,11 +186,11 @@ void test_kronecker_product()
   
   for(int i = 0; i < g_repeat; i++)
   {
-    double density = Eigen::internal::random<double>(0.01,0.5);
-    int ra = Eigen::internal::random<int>(1,50);
-    int ca = Eigen::internal::random<int>(1,50);
-    int rb = Eigen::internal::random<int>(1,50);
-    int cb = Eigen::internal::random<int>(1,50);
+    double density = eeigen::internal::random<double>(0.01,0.5);
+    int ra = eeigen::internal::random<int>(1,50);
+    int ca = eeigen::internal::random<int>(1,50);
+    int rb = eeigen::internal::random<int>(1,50);
+    int cb = eeigen::internal::random<int>(1,50);
     SparseMatrix<float,ColMajor> sA(ra,ca), sB(rb,cb), sC;
     SparseMatrix<float,RowMajor> sC2;
     MatrixXf dA(ra,ca), dB(rb,cb), dC;
@@ -238,7 +238,7 @@ void test_kronecker_product()
 // simply check that for a dense kronecker product, sparse module is not needed
 
 #include "main.h"
-#include <Eigen/KroneckerProduct>
+#include <eeigen/KroneckerProduct>
 
 void test_kronecker_product()
 {

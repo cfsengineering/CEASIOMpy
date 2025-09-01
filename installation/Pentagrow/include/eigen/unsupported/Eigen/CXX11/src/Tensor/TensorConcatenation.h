@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_CONCATENATION_H
 #define EIGEN_CXX11_TENSOR_TENSOR_CONCATENATION_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorConcatenationOp
   * \ingroup CXX11_Tensor_Module
@@ -40,7 +40,7 @@ struct traits<TensorConcatenationOp<Axis, LhsXprType, RhsXprType> >
 };
 
 template<typename Axis, typename LhsXprType, typename RhsXprType>
-struct eval<TensorConcatenationOp<Axis, LhsXprType, RhsXprType>, Eigen::Dense>
+struct eval<TensorConcatenationOp<Axis, LhsXprType, RhsXprType>, eeigen::Dense>
 {
   typedef const TensorConcatenationOp<Axis, LhsXprType, RhsXprType>& type;
 };
@@ -356,6 +356,6 @@ template<typename Axis, typename LeftArgType, typename RightArgType, typename De
   }
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_CONCATENATION_H

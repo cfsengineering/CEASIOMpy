@@ -1,7 +1,7 @@
 #include "grulayer.h"
 #include "cbvops.h"
 #include "simdsupport.h"
-#include <Eigen/Dense>
+#include <eeigen/Dense>
 
 // naive implementation to allow compiler to vectorize
 

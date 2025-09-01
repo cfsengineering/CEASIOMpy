@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 20010-2011 Hauke Heibel <hauke.heibel@gmail.com>
@@ -10,9 +10,9 @@
 #ifndef EIGEN_SPLINES_FWD_H
 #define EIGEN_SPLINES_FWD_H
 
-#include <Eigen/Core>
+#include <eeigen/Core>
 
-namespace Eigen
+namespace eeigen
 {
     template <typename Scalar, int Dim, int Degree = Dynamic> class Spline;
 

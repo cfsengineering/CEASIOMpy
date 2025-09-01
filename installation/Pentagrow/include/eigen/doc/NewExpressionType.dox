@@ -1,15 +1,15 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \page TopicNewExpressionType Adding a new expression type
 
 <!--<span style="font-size:130%; color:red; font-weight: 900;"></span>-->
 \warning
-Disclaimer: this page is tailored to very advanced users who are not afraid of dealing with some %Eigen's internal aspects.
+Disclaimer: this page is tailored to very advanced users who are not afraid of dealing with some %eeigen's internal aspects.
 In most cases, a custom expression can be avoided by either using custom \ref MatrixBase::unaryExpr "unary" or \ref MatrixBase::binaryExpr "binary" functors,
 while extremely complex matrix manipulations can be achieved by a nullary functors as described in the \ref TopicCustomizing_NullaryExpr "previous page".
 
 This page describes with the help of an example how to implement a new
-light-weight expression type in %Eigen. This consists of three parts:
+light-weight expression type in %eeigen. This consists of three parts:
 the expression type itself, a traits class containing compile-time
 information about the expression, and the evaluator class which is
 used to evaluate the expression to a matrix.
@@ -57,7 +57,7 @@ to the \c makeCirculant function.
 \section TopicTraits The traits class
 
 For every expression class \c X, there should be a traits class 
-\c Traits<X> in the \c Eigen::internal namespace containing
+\c Traits<X> in the \c eeigen::internal namespace containing
 information about \c X known as compile time.
 
 As explained in \ref TopicSetting, we designed the \c Circulant

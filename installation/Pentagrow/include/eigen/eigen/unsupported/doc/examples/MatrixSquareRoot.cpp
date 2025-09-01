@@ -1,7 +1,7 @@
-#include <unsupported/Eigen/MatrixFunctions>
+#include <unsupported/eeigen/MatrixFunctions>
 #include <iostream>
 
-using namespace Eigen;
+using namespace eeigen;
 
 int main()
 {

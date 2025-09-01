@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,13 +11,13 @@
 #define EIGEN_LAPACK_COMMON_H
 
 #include "../blas/common.h"
-#include "../Eigen/src/misc/lapack.h"
+#include "../eeigen/src/misc/lapack.h"
 
 #define EIGEN_LAPACK_FUNC(FUNC,ARGLIST)               \
   extern "C" { int EIGEN_BLAS_FUNC(FUNC) ARGLIST; }   \
   int EIGEN_BLAS_FUNC(FUNC) ARGLIST
 
-typedef Eigen::Map<Eigen::Transpositions<Eigen::Dynamic,Eigen::Dynamic,int> > PivotsType;
+typedef eeigen::Map<eeigen::Transpositions<eeigen::Dynamic,eeigen::Dynamic,int> > PivotsType;
 
 #if ISCOMPLEX
 #define EIGEN_LAPACK_ARG_IF_COMPLEX(X) X,

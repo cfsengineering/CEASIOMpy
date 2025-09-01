@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 20015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -22,7 +22,7 @@ inline void on_temporary_creation() {
 #define EIGEN_SPARSE_CREATE_TEMPORARY_PLUGIN { on_temporary_creation(); }
 
 #include "main.h"
-#include <Eigen/SparseCore>
+#include <eeigen/SparseCore>
 
 #define VERIFY_EVALUATION_COUNT(XPR,N) {\
     nb_temporaries = 0; \

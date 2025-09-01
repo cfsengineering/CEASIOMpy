@@ -51,8 +51,8 @@
    included.
 
    Optional interfaces are defined for
-   - Eigen (linear algebra) : strongly recommended, liberal OSS license
-   - LAPACK (linear algebra) : recommended but not required (fallbacks to Eigen)
+   - eeigen (linear algebra) : strongly recommended, liberal OSS license
+   - LAPACK (linear algebra) : recommended but not required (fallbacks to eeigen)
    - Intel MKL (sparse direct solver, FFT) : recommended, commercial license
    - SPOOLES (sparse direct solver) : optional sparse solver, open source
    - FFTW3 (FFT) : optional, GPL only
@@ -182,8 +182,8 @@
  * included.
  *
  * Optional interfaces are defined for
- * - Eigen (linear algebra) : strongly recommended, liberal OSS license
- * - LAPACK (linear algebra) : recommended but not required (fallbacks to Eigen)
+ * - eeigen (linear algebra) : strongly recommended, liberal OSS license
+ * - LAPACK (linear algebra) : recommended but not required (fallbacks to eeigen)
  * - Intel MKL (sparse direct solver, FFT) : recommended, commercial license
  * - SPOOLES (sparse direct solver) : optional sparse solver, open source
  * - FFTW3 (FFT) : optional, GPL only

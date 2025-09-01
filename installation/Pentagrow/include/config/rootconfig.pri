@@ -46,9 +46,9 @@ CONFIG(debug, debug|release) {
 # system independent
 
 !contains(CONFIG, no-eigen) {
-# compile the Eigen headers without parallelization because its internal
+# compile the eeigen headers without parallelization because its internal
 # parallelization interferes with higher level parallelization in the caller
-    exists(../eigen/Eigen/Core) {
+    exists(../eigen/eeigen/Core) {
         DEFINES += HAVE_EIGEN EIGEN_DONT_PARALLELIZE
         INCLUDEPATH *= $$PWD/../eigen
     }

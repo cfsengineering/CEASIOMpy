@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_IMAGE_PATCH_H
 #define EIGEN_CXX11_TENSOR_TENSOR_IMAGE_PATCH_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorImagePatch
   * \ingroup CXX11_Tensor_Module
@@ -41,7 +41,7 @@ struct traits<TensorImagePatchOp<Rows, Cols, XprType> > : public traits<XprType>
 };
 
 template<DenseIndex Rows, DenseIndex Cols, typename XprType>
-struct eval<TensorImagePatchOp<Rows, Cols, XprType>, Eigen::Dense>
+struct eval<TensorImagePatchOp<Rows, Cols, XprType>, eeigen::Dense>
 {
   typedef const TensorImagePatchOp<Rows, Cols, XprType>& type;
 };
@@ -58,12 +58,12 @@ template<DenseIndex Rows, DenseIndex Cols, typename XprType>
 class TensorImagePatchOp : public TensorBase<TensorImagePatchOp<Rows, Cols, XprType>, ReadOnlyAccessors>
 {
   public:
-  typedef typename Eigen::internal::traits<TensorImagePatchOp>::Scalar Scalar;
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
+  typedef typename eeigen::internal::traits<TensorImagePatchOp>::Scalar Scalar;
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
-  typedef typename Eigen::internal::nested<TensorImagePatchOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorImagePatchOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorImagePatchOp>::Index Index;
+  typedef typename eeigen::internal::nested<TensorImagePatchOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorImagePatchOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorImagePatchOp>::Index Index;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorImagePatchOp(const XprType& expr, DenseIndex patch_rows, DenseIndex patch_cols,
                                                            DenseIndex row_strides, DenseIndex col_strides,
@@ -504,6 +504,6 @@ struct TensorEvaluator<const TensorImagePatchOp<Rows, Cols, ArgType>, Device>
 };
 
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_IMAGE_PATCH_H

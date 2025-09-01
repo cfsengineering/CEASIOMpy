@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Alexey Korepanov <kaikaikai@yandex.ru>
@@ -10,7 +10,7 @@
 #define EIGEN_RUNTIME_NO_MALLOC
 #include "main.h"
 #include <limits>
-#include <Eigen/Eigenvalues>
+#include <eeigen/Eigenvalues>
 
 template<typename MatrixType> void real_qz(const MatrixType& m)
 {
@@ -43,9 +43,9 @@ template<typename MatrixType> void real_qz(const MatrixType& m)
 
   RealQZ<MatrixType> qz(dim);
   // TODO enable full-prealocation of required memory, this probably requires an in-place mode for HessenbergDecomposition
-  //Eigen::internal::set_is_malloc_allowed(false);
+  //eeigen::internal::set_is_malloc_allowed(false);
   qz.compute(A,B);
-  //Eigen::internal::set_is_malloc_allowed(true);
+  //eeigen::internal::set_is_malloc_allowed(true);
   
   VERIFY_IS_EQUAL(qz.info(), Success);
   // check for zeros

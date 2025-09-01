@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011, 2013 Jitse Niesen <jitse@maths.leeds.ac.uk>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_MATRIX_LOGARITHM
 #define EIGEN_MATRIX_LOGARITHM
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal { 
 
@@ -368,6 +368,6 @@ const MatrixLogarithmReturnValue<Derived> MatrixBase<Derived>::log() const
   return MatrixLogarithmReturnValue<Derived>(derived());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_MATRIX_LOGARITHM

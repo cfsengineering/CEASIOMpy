@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -14,7 +14,7 @@ struct scalar_norm1_op {
   EIGEN_EMPTY_STRUCT_CTOR(scalar_norm1_op)
   inline RealScalar operator() (const Scalar& a) const { return numext::norm1(a); }
 };
-namespace Eigen {
+namespace eeigen {
   namespace internal {
     template<> struct functor_traits<scalar_norm1_op >
     {

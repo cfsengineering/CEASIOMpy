@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011 Gael Guennebaud <g.gael@free.fr>
@@ -8,7 +8,7 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "sparse.h"
-#include <Eigen/SparseCore>
+#include <eeigen/SparseCore>
 #include <sstream>
 
 template<typename Solver, typename Rhs, typename Guess,typename Result>
@@ -329,7 +329,7 @@ template<typename Solver> void check_sparse_spd_solving(Solver& solver, int maxS
           if(Solver::UpLo == (Lower|Upper))
             halfA = A;
           else
-            halfA.template selfadjointView<Solver::UpLo>() = A.template triangularView<Eigen::Lower>().twistedBy(pnull);
+            halfA.template selfadjointView<Solver::UpLo>() = A.template triangularView<eeigen::Lower>().twistedBy(pnull);
           
           std::cout << "INFO | Testing " << sym_to_string(it.sym()) << "sparse problem " << it.matname()
                   << " (" << A.rows() << "x" << A.cols() << ") using " << typeid(Solver).name() << "..." << std::endl;

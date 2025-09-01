@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Mehdi Goli    Codeplay Software Ltd.
@@ -22,7 +22,7 @@
 #ifndef UNSUPPORTED_EIGEN_CXX11_SRC_TENSOR_TENSORSYCL_CONVERT_TO_DEVICE_EXPRESSION_HPP
 #define UNSUPPORTED_EIGEN_CXX11_SRC_TENSOR_TENSORSYCL_CONVERT_TO_DEVICE_EXPRESSION_HPP
 
-namespace Eigen {
+namespace eeigen {
 namespace TensorSycl {
 namespace internal {
 
@@ -116,6 +116,6 @@ KERNELBROKERCONVERTREDUCTION()
 
 }  // namespace internal
 }  // namespace TensorSycl
-}  // namespace Eigen
+}  // namespace eeigen
 
 #endif  // UNSUPPORTED_EIGEN_CXX1

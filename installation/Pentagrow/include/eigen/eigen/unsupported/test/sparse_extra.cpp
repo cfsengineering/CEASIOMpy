@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2010 Gael Guennebaud <g.gael@free.fr>
@@ -12,7 +12,7 @@
 #define EIGEN_NO_DEPRECATED_WARNING
 #include "sparse_product.cpp"
 #include "sparse_basic.cpp"
-#include <Eigen/SparseExtra>
+#include <eeigen/SparseExtra>
 
 template<typename SetterType,typename DenseType, typename Scalar, int Options>
 bool test_random_setter(SparseMatrix<Scalar,Options>& sm, const DenseType& ref, const std::vector<Vector2i>& nonzeroCoords)
@@ -118,7 +118,7 @@ template<typename SparseMatrixType> void sparse_extra(const SparseMatrixType& re
     DenseMatrix refM1 = DenseMatrix::Zero(rows, rows);
     initSparse<Scalar>(density, refM1, m1);
     {
-      Eigen::RandomSetter<SparseMatrixType > setter(m2);
+      eeigen::RandomSetter<SparseMatrixType > setter(m2);
       for (int j=0; j<m1.outerSize(); ++j)
         for (typename SparseMatrixType::InnerIterator i(m1,j); i; ++i)
           setter(i.index(), j) = i.value();
@@ -132,7 +132,7 @@ template<typename SparseMatrixType> void sparse_extra(const SparseMatrixType& re
 void test_sparse_extra()
 {
   for(int i = 0; i < g_repeat; i++) {
-    int s = Eigen::internal::random<int>(1,50);
+    int s = eeigen::internal::random<int>(1,50);
     CALL_SUBTEST_1( sparse_extra(SparseMatrix<double>(8, 8)) );
     CALL_SUBTEST_2( sparse_extra(SparseMatrix<std::complex<double> >(s, s)) );
     CALL_SUBTEST_1( sparse_extra(SparseMatrix<double>(s, s)) );

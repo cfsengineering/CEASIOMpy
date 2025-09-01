@@ -1,8 +1,8 @@
 #include <typeinfo>
 #include <iostream>
-#include <Eigen/Core>
+#include <eeigen/Core>
 #include "BenchTimer.h"
-using namespace Eigen;
+using namespace eeigen;
 using namespace std;
 
 template<typename T>
@@ -82,7 +82,7 @@ EIGEN_DONT_INLINE typename T::Scalar divacNorm(T& v)
   return std::sqrt(v(0));
 }
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 #ifdef EIGEN_VECTORIZE
 Packet4f plt(const Packet4f& a, Packet4f& b) { return _mm_cmplt_ps(a,b); }
@@ -224,7 +224,7 @@ EIGEN_DONT_INLINE typename T::Scalar pblueNorm(const T& v)
 
 #define BENCH_PERF(NRM) { \
   float af = 0; double ad = 0; std::complex<float> ac = 0; \
-  Eigen::BenchTimer tf, td, tcf; tf.reset(); td.reset(); tcf.reset();\
+  eeigen::BenchTimer tf, td, tcf; tf.reset(); td.reset(); tcf.reset();\
   for (int k=0; k<tries; ++k) { \
     tf.start(); \
     for (int i=0; i<iters; ++i) { af += NRM(vf); } \

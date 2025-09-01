@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2013 Desire Nuentsa <desire.nuentsa_wakam@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_SPARSEBLOCKMATRIX_H
 #define EIGEN_SPARSEBLOCKMATRIX_H
 
-namespace Eigen { 
+namespace eeigen { 
 /** \ingroup SparseCore_Module
   *
   * \class BlockSparseMatrix
@@ -620,7 +620,7 @@ class BlockSparseMatrix : public SparseMatrixBase<BlockSparseMatrix<_Scalar,_Blo
     /**
       * \brief Fill values in a matrix  from a triplet list.
       *
-      * Each triplet item has a block stored in an Eigen dense matrix.
+      * Each triplet item has a block stored in an eeigen dense matrix.
       * The InputIterator class should provide the functions row(), col() and value()
       *
       * \note For fixed-size blocks, call setBlockSize() before this function.
@@ -801,7 +801,7 @@ class BlockSparseMatrix : public SparseMatrixBase<BlockSparseMatrix<_Scalar,_Blo
     }
 
     /**
-      *\returns a reference to the (i,j) block as an Eigen Dense Matrix
+      *\returns a reference to the (i,j) block as an eeigen Dense Matrix
       */
     Ref<BlockScalar> coeffRef(Index brow, Index bcol)
     {
@@ -827,7 +827,7 @@ class BlockSparseMatrix : public SparseMatrixBase<BlockSparseMatrix<_Scalar,_Blo
     }
 
     /**
-      * \returns the value of the (i,j) block as an Eigen Dense Matrix
+      * \returns the value of the (i,j) block as an eeigen Dense Matrix
       */
     Map<const BlockScalar> coeff(Index brow, Index bcol) const
     {
@@ -1074,6 +1074,6 @@ class BlockSparseMatrix<_Scalar, _BlockAtCompileTime, _Options, _StorageIndex>::
     Index m_end; // starting inner index of the next block
 
 };
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSEBLOCKMATRIX_H

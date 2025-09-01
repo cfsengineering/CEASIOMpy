@@ -1,4 +1,4 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \eigenManualPage TutorialLinearAlgebra Linear algebra and decompositions
 
@@ -142,14 +142,14 @@ matrix (not a vector) as right hand side is possible.
 </tr>
 </table>
 
-For a \ref TopicLinearAlgebraDecompositions "much more complete table" comparing all decompositions supported by Eigen (notice that Eigen
+For a \ref TopicLinearAlgebraDecompositions "much more complete table" comparing all decompositions supported by eeigen (notice that eeigen
 supports many other decompositions), see our special page on
 \ref TopicLinearAlgebraDecompositions "this topic".
 
 \section TutorialLinAlgSolutionExists Checking if a solution really exists
 
 Only you know what error margin you want to allow for a solution to be considered valid.
-So Eigen lets you do this computation for yourself, if you want to, as in this example:
+So eeigen lets you do this computation for yourself, if you want to, as in this example:
 
 <table class="example">
 <tr><th>Example:</th><th>Output:</th></tr>
@@ -187,7 +187,7 @@ However, for \em very \em small matrices, the above is not true, and inverse and
 
 While certain decompositions, such as PartialPivLU and FullPivLU, offer inverse() and determinant() methods, you can also
 call inverse() and determinant() directly on a matrix. If your matrix is of a very small fixed size (at most 4x4) this
-allows Eigen to avoid performing a LU decomposition, and instead use formulas that are more efficient on such small matrices.
+allows eeigen to avoid performing a LU decomposition, and instead use formulas that are more efficient on such small matrices.
 
 Here is an example:
 <table class="example">
@@ -201,7 +201,7 @@ Here is an example:
 \section TutorialLinAlgLeastsquares Least squares solving
 
 The most accurate method to do least squares solving is with a SVD decomposition.
-Eigen provides two implementations.
+eeigen provides two implementations.
 The recommended one is the BDCSVD class, which scale well for large problems
 and automatically fall-back to the JacobiSVD class for smaller problems.
 For both classes, their solve() method is doing least-squares solving.
@@ -272,7 +272,7 @@ case with FullPivLU:
 </table>
 
 Of course, any rank computation depends on the choice of an arbitrary threshold, since practically no
-floating-point matrix is \em exactly rank-deficient. Eigen picks a sensible default threshold, which depends
+floating-point matrix is \em exactly rank-deficient. eeigen picks a sensible default threshold, which depends
 on the decomposition but is typically the diagonal size times machine epsilon. While this is the best default we
 could pick, only you know what is the right threshold for your application. You can set this by calling setThreshold()
 on your decomposition object before calling rank() or any other method that needs to use such a threshold.

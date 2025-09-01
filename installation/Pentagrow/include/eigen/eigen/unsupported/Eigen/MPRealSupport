@@ -1,4 +1,4 @@
-// This file is part of a joint effort between Eigen, a lightweight C++ template library
+// This file is part of a joint effort between eeigen, a lightweight C++ template library
 // for linear algebra, and MPFR C++, a C++ interface to MPFR library (http://www.holoborodko.com/pavel/)
 //
 // Copyright (C) 2010-2012 Pavel Holoborodko <pavel@holoborodko.com>
@@ -12,15 +12,15 @@
 #ifndef EIGEN_MPREALSUPPORT_MODULE_H
 #define EIGEN_MPREALSUPPORT_MODULE_H
 
-#include <Eigen/Core>
+#include <eeigen/Core>
 #include <mpreal.h>
 
-namespace Eigen {
+namespace eeigen {
   
 /**
   * \defgroup MPRealSupport_Module MPFRC++ Support module
   * \code
-  * #include <Eigen/MPRealSupport>
+  * #include <eeigen/MPRealSupport>
   * \endcode
   *
   * This module provides support for multi precision floating point numbers
@@ -35,10 +35,10 @@ namespace Eigen {
   *
 \code
 #include <iostream>
-#include <Eigen/MPRealSupport>
-#include <Eigen/LU>
+#include <eeigen/MPRealSupport>
+#include <eeigen/LU>
 using namespace mpfr;
-using namespace Eigen;
+using namespace eeigen;
 int main()
 {
   // set precision to 256 bits (double has only 53 bits)

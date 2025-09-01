@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #if defined(EIGEN_USE_GPU) && !defined(EIGEN_CXX11_TENSOR_TENSOR_DEVICE_CUDA_H)
 #define EIGEN_CXX11_TENSOR_TENSOR_DEVICE_CUDA_H
 
-namespace Eigen {
+namespace eeigen {
 
 static const int kCudaScratchSize = 1024;
 
@@ -332,6 +332,6 @@ static EIGEN_DEVICE_FUNC inline void setCudaSharedMemConfig(cudaSharedMemConfig 
 }
 #endif
 
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 #endif  // EIGEN_CXX11_TENSOR_TENSOR_DEVICE_CUDA_H

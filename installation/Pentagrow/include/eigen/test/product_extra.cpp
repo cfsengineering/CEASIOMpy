@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -112,7 +112,7 @@ template<typename MatrixType> void product_extra(const MatrixType& m)
 // Regression test for bug reported at http://forum.kde.org/viewtopic.php?f=74&t=96947
 void mat_mat_scalar_scalar_product()
 {
-  Eigen::Matrix2Xd dNdxy(2, 3);
+  eeigen::Matrix2Xd dNdxy(2, 3);
   dNdxy << -0.5, 0.5, 0,
            -0.3, 0, 0.3;
   double det = 6.0, wt = 0.5;

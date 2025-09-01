@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Dmitry Vyukov <dvyukov@google.com>
@@ -11,10 +11,10 @@
 #define EIGEN_CXX11_THREADPOOL_NONBLOCKING_THREAD_POOL_H
 
 
-namespace Eigen {
+namespace eeigen {
 
 template <typename Environment>
-class NonBlockingThreadPoolTempl : public Eigen::ThreadPoolInterface {
+class NonBlockingThreadPoolTempl : public eeigen::ThreadPoolInterface {
  public:
   typedef typename Environment::Task Task;
   typedef RunQueue<Task, 1024> Queue;
@@ -269,6 +269,6 @@ class NonBlockingThreadPoolTempl : public Eigen::ThreadPoolInterface {
 
 typedef NonBlockingThreadPoolTempl<StlThreadEnvironment> NonBlockingThreadPool;
 
-}  // namespace Eigen
+}  // namespace eeigen
 
 #endif  // EIGEN_CXX11_THREADPOOL_NONBLOCKING_THREAD_POOL_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Tal Hadad <tal_hd@hotmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_EULERSYSTEM_H
 #define EIGEN_EULERSYSTEM_H
 
-namespace Eigen
+namespace eeigen
 {
   // Forward declerations
   template <typename _Scalar, class _System>
@@ -300,7 +300,7 @@ namespace Eigen
     }
     
     template <typename _Scalar, class _System>
-    friend class Eigen::EulerAngles;
+    friend class eeigen::EulerAngles;
   };
 
 #define EIGEN_EULER_SYSTEM_TYPEDEF(A, B, C) \

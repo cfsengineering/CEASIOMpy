@@ -1,4 +1,4 @@
-# This file is part of Eigen, a lightweight C++ template library
+# This file is part of eeigen, a lightweight C++ template library
 # for linear algebra.
 #
 # Copyright (C) 2012 Keir Mierle <mierle@gmail.com>
@@ -11,8 +11,10 @@
 #
 # Make the long-awaited conversion to MPL.
 
+import sys
+import os
 lgpl3_header = '''
-// Eigen is free software; you can redistribute it and/or
+// eeigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
 // version 3 of the License, or (at your option) any later version.
@@ -22,14 +24,14 @@ lgpl3_header = '''
 // published by the Free Software Foundation; either version 2 of
 // the License, or (at your option) any later version.
 //
-// Eigen is distributed in the hope that it will be useful, but WITHOUT ANY
+// eeigen is distributed in the hope that it will be useful, but WITHOUT ANY
 // WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 // FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License or the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public
 // License and a copy of the GNU General Public License along with
-// Eigen. If not, see <http://www.gnu.org/licenses/>.
+// eeigen. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 mpl2_header = """
@@ -38,22 +40,22 @@ mpl2_header = """
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 """
 
-import os
-import sys
 
 exclusions = set(['relicense.py'])
 
+
 def update(text):
-  if text.find(lgpl3_header) == -1:
-    return text, False
-  return text.replace(lgpl3_header, mpl2_header), True
+    if text.find(lgpl3_header) == -1:
+        return text, False
+    return text.replace(lgpl3_header, mpl2_header), True
+
 
 rootdir = sys.argv[1]
 for root, sub_folders, files in os.walk(rootdir):
     for basename in files:
         if basename in exclusions:
-          print 'SKIPPED', filename
-          continue
+            print 'SKIPPED', filename
+            continue
         filename = os.path.join(root, basename)
         fo = file(filename)
         text = fo.read()
@@ -61,9 +63,9 @@ for root, sub_folders, files in os.walk(rootdir):
 
         text, updated = update(text)
         if updated:
-          fo = file(filename, "w")
-          fo.write(text)
-          fo.close()
-          print 'UPDATED', filename
+            fo = file(filename, "w")
+            fo.write(text)
+            fo.close()
+            print 'UPDATED', filename
         else:
-          print '       ', filename
+            print '       ', filename

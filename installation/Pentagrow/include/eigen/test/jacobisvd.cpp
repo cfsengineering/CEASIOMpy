@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -12,7 +12,7 @@
 #define EIGEN_STACK_ALLOCATION_LIMIT 0
 #define EIGEN_RUNTIME_NO_MALLOC
 #include "main.h"
-#include <Eigen/SVD>
+#include <eeigen/SVD>
 
 #define SVD_DEFAULT(M) JacobiSVD<M>
 #define SVD_FOR_MIN_NORM(M) JacobiSVD<M,ColPivHouseholderQRPreconditioner>

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Dmitry Vyukov <dvyukov@google.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_THREADPOOL_EVENTCOUNT_H_
 #define EIGEN_CXX11_THREADPOOL_EVENTCOUNT_H_
 
-namespace Eigen {
+namespace eeigen {
 
 // EventCount allows to wait for arbitrary predicates in non-blocking
 // algorithms. Think of condition variable, but wait predicate does not need to
@@ -228,6 +228,6 @@ class EventCount {
   void operator=(const EventCount&) = delete;
 };
 
-}  // namespace Eigen
+}  // namespace eeigen
 
 #endif  // EIGEN_CXX11_THREADPOOL_EVENTCOUNT_H_

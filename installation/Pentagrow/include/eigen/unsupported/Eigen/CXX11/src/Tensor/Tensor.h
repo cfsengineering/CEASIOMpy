@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -11,14 +11,14 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_H
 #define EIGEN_CXX11_TENSOR_TENSOR_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class Tensor
   * \ingroup CXX11_Tensor_Module
   *
   * \brief The tensor class.
   *
-  * The %Tensor class is the work-horse for all \em dense tensors within Eigen.
+  * The %Tensor class is the work-horse for all \em dense tensors within eeigen.
   *
   * The %Tensor class encompasses only dynamic-size objects so far.
   *
@@ -37,7 +37,7 @@ namespace Eigen {
   * You can access elements of tensors using normal subscripting:
   *
   * \code
-  * Eigen::Tensor<double, 4> t(10, 10, 10, 10);
+  * eeigen::Tensor<double, 4> t(10, 10, 10, 10);
   * t(0, 1, 2, 3) = 42.0;
   * \endcode
   *
@@ -47,8 +47,8 @@ namespace Eigen {
   * <i><b>Some notes:</b></i>
   *
   * <dl>
-  * <dt><b>Relation to other parts of Eigen:</b></dt>
-  * <dd>The midterm development goal for this class is to have a similar hierarchy as Eigen uses for matrices, so that
+  * <dt><b>Relation to other parts of eeigen:</b></dt>
+  * <dd>The midterm development goal for this class is to have a similar hierarchy as eeigen uses for matrices, so that
   * taking blocks or using tensors in expressions is easily possible, including an interface with the vector/matrix code
   * by providing .asMatrix() and .asVector() (or similar) methods for rank 2 and 1 tensors. However, currently, the %Tensor
   * class does not provide any of these features and is only available as a stand-alone class that just allows for
@@ -65,7 +65,7 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
   public:
     typedef Tensor<Scalar_, NumIndices_, Options_, IndexType_> Self;
     typedef TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexType_> > Base;
-    typedef typename Eigen::internal::nested<Self>::type Nested;
+    typedef typename eeigen::internal::nested<Self>::type Nested;
     typedef typename internal::traits<Self>::StorageKind StorageKind;
     typedef typename internal::traits<Self>::Index Index;
     typedef Scalar_ Scalar;
@@ -522,6 +522,6 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
     }
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_H

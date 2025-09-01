@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_SHUFFLING_H
 #define EIGEN_CXX11_TENSOR_TENSOR_SHUFFLING_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorShuffling
   * \ingroup CXX11_Tensor_Module
@@ -34,7 +34,7 @@ struct traits<TensorShufflingOp<Shuffle, XprType> > : public traits<XprType>
 };
 
 template<typename Shuffle, typename XprType>
-struct eval<TensorShufflingOp<Shuffle, XprType>, Eigen::Dense>
+struct eval<TensorShufflingOp<Shuffle, XprType>, eeigen::Dense>
 {
   typedef const TensorShufflingOp<Shuffle, XprType>& type;
 };
@@ -53,12 +53,12 @@ template<typename Shuffle, typename XprType>
 class TensorShufflingOp : public TensorBase<TensorShufflingOp<Shuffle, XprType> >
 {
   public:
-  typedef typename Eigen::internal::traits<TensorShufflingOp>::Scalar Scalar;
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
+  typedef typename eeigen::internal::traits<TensorShufflingOp>::Scalar Scalar;
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
-  typedef typename Eigen::internal::nested<TensorShufflingOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorShufflingOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorShufflingOp>::Index Index;
+  typedef typename eeigen::internal::nested<TensorShufflingOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorShufflingOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorShufflingOp>::Index Index;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorShufflingOp(const XprType& expr, const Shuffle& shuffle)
       : m_xpr(expr), m_shuffle(shuffle) {}
@@ -259,6 +259,6 @@ struct TensorEvaluator<TensorShufflingOp<Shuffle, ArgType>, Device>
 };
 
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_SHUFFLING_H

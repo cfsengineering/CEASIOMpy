@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -9,9 +9,9 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "main.h"
-#include <Eigen/Geometry>
-#include <Eigen/LU>
-#include <Eigen/QR>
+#include <eeigen/Geometry>
+#include <eeigen/LU>
+#include <eeigen/QR>
 
 template<typename HyperplaneType> void hyperplane(const HyperplaneType& _plane)
 {

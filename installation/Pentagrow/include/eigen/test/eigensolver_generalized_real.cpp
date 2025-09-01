@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012-2016 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,8 +10,8 @@
 #define EIGEN_RUNTIME_NO_MALLOC
 #include "main.h"
 #include <limits>
-#include <Eigen/Eigenvalues>
-#include <Eigen/LU>
+#include <eeigen/Eigenvalues>
+#include <eeigen/LU>
 
 template<typename MatrixType> void generalized_eigensolver_real(const MatrixType& m)
 {
@@ -53,9 +53,9 @@ template<typename MatrixType> void generalized_eigensolver_real(const MatrixType
   {
     GeneralizedEigenSolver<MatrixType> eig(rows);
     // TODO enable full-prealocation of required memory, this probably requires an in-place mode for HessenbergDecomposition
-    //Eigen::internal::set_is_malloc_allowed(false);
+    //eeigen::internal::set_is_malloc_allowed(false);
     eig.compute(a,b);
-    //Eigen::internal::set_is_malloc_allowed(true);
+    //eeigen::internal::set_is_malloc_allowed(true);
     for(Index k=0; k<cols; ++k)
     {
       Matrix<ComplexScalar,Dynamic,Dynamic> tmp = (eig.betas()(k)*a).template cast<ComplexScalar>() - eig.alphas()(k)*b;

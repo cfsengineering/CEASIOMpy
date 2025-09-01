@@ -1,18 +1,18 @@
-namespace Eigen {
+namespace eeigen {
 
-/** \page TopicFunctionTakingEigenTypes Writing Functions Taking %Eigen Types as Parameters
+/** \page TopicFunctionTakingEigenTypes Writing Functions Taking %eeigen Types as Parameters
 
-%Eigen's use of expression templates results in potentially every expression being of a different type. If you pass such an expression to a function taking a parameter of type Matrix, your expression will implicitly be evaluated into a temporary Matrix, which will then be passed to the function. This means that you lose the benefit of expression templates. Concretely, this has two drawbacks:
+%eeigen's use of expression templates results in potentially every expression being of a different type. If you pass such an expression to a function taking a parameter of type Matrix, your expression will implicitly be evaluated into a temporary Matrix, which will then be passed to the function. This means that you lose the benefit of expression templates. Concretely, this has two drawbacks:
  \li The evaluation into a temporary may be useless and inefficient;
  \li This only allows the function to read from the expression, not to write to it.
 
-Fortunately, all this myriad of expression types have in common that they all inherit a few common, templated base classes. By letting your function take templated parameters of these base types, you can let them play nicely with %Eigen's expression templates.
+Fortunately, all this myriad of expression types have in common that they all inherit a few common, templated base classes. By letting your function take templated parameters of these base types, you can let them play nicely with %eeigen's expression templates.
 
 \eigenAutoToc
 
 \section TopicFirstExamples Some First Examples
 
-This section will provide simple examples for different types of objects %Eigen is offering. Before starting with the actual examples, we need to recapitulate which base objects we can work with (see also \ref TopicClassHierarchy).
+This section will provide simple examples for different types of objects %eeigen is offering. Before starting with the actual examples, we need to recapitulate which base objects we can work with (see also \ref TopicClassHierarchy).
 
  \li MatrixBase: The common base class for all dense matrix expressions (as opposed to array expressions, as opposed to sparse and special matrix classes). Use it in functions that are meant to work only on dense matrices.
  \li ArrayBase: The common base class for all dense array expressions (as opposed to matrix expressions, etc). Use it in functions that are meant to work only on arrays.
@@ -20,7 +20,7 @@ This section will provide simple examples for different types of objects %Eigen 
  \li EigenBase: The base class unifying all types of objects that can be evaluated into dense matrices or arrays, for example special matrix classes such as diagonal matrices, permutation matrices, etc. It can be used in functions that are meant to work on any such general type.
 
 <b> %EigenBase Example </b><br/><br/>
-Prints the dimensions of the most generic object present in %Eigen. It could be any matrix expressions, any dense or sparse matrix and any array.
+Prints the dimensions of the most generic object present in %eeigen. It could be any matrix expressions, any dense or sparse matrix and any array.
 <table class="example">
 <tr><th>Example:</th><th>Output:</th></tr>
 <tr><td>
@@ -183,7 +183,7 @@ MatrixXf y = MatrixXf::Random(100,3);
 MatrixXf C;
 cov(x, y, C);
 \endcode
-This is not the case anymore, when we are using an implementation taking MatrixBase as a parameter. In general, %Eigen supports automatic resizing but it is not possible to do so on expressions. Why should resizing of a matrix Block be allowed? It is a reference to a sub-matrix and we definitely don't want to resize that. So how can we incorporate resizing if we cannot resize on MatrixBase? The solution is to resize the derived object as in this implementation.
+This is not the case anymore, when we are using an implementation taking MatrixBase as a parameter. In general, %eeigen supports automatic resizing but it is not possible to do so on expressions. Why should resizing of a matrix Block be allowed? It is a reference to a sub-matrix and we definitely don't want to resize that. So how can we incorporate resizing if we cannot resize on MatrixBase? The solution is to resize the derived object as in this implementation.
 \code
 template <typename Derived, typename OtherDerived>
 void cov(const MatrixBase<Derived>& x, const MatrixBase<Derived>& y, MatrixBase<OtherDerived> const & C_)

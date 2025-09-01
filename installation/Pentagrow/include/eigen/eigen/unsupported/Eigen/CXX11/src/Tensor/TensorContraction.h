@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_CONTRACTION_H
 #define EIGEN_CXX11_TENSOR_TENSOR_CONTRACTION_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorContraction
   * \ingroup CXX11_Tensor_Module
@@ -47,7 +47,7 @@ struct traits<TensorContractionOp<Dimensions, LhsXprType, RhsXprType> >
 };
 
 template<typename Dimensions, typename LhsXprType, typename RhsXprType>
-struct eval<TensorContractionOp<Dimensions, LhsXprType, RhsXprType>, Eigen::Dense>
+struct eval<TensorContractionOp<Dimensions, LhsXprType, RhsXprType>, eeigen::Dense>
 {
   typedef const TensorContractionOp<Dimensions, LhsXprType, RhsXprType>& type;
 };
@@ -75,12 +75,12 @@ template<typename Indices, typename LhsXprType, typename RhsXprType>
 class TensorContractionOp : public TensorBase<TensorContractionOp<Indices, LhsXprType, RhsXprType>, ReadOnlyAccessors>
 {
   public:
-  typedef typename Eigen::internal::traits<TensorContractionOp>::Scalar Scalar;
+  typedef typename eeigen::internal::traits<TensorContractionOp>::Scalar Scalar;
   typedef typename internal::gebp_traits<typename LhsXprType::CoeffReturnType,
                                                    typename RhsXprType::CoeffReturnType>::ResScalar CoeffReturnType;
-  typedef typename Eigen::internal::nested<TensorContractionOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorContractionOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorContractionOp>::Index Index;
+  typedef typename eeigen::internal::nested<TensorContractionOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorContractionOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorContractionOp>::Index Index;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorContractionOp(
       const LhsXprType& lhs, const RhsXprType& rhs, const Indices& dims)
@@ -503,7 +503,7 @@ struct TensorContractionEvaluatorBase
           pack_rhs(blockB, rhs.getSubMapper(k2, j2), actual_kc, actual_nc, 0, 0);
 
           // call gebp (matrix kernel)
-          // The parameters here are copied from Eigen's GEMM implementation
+          // The parameters here are copied from eeigen's GEMM implementation
           gebp(output.getSubMapper(i2, j2), blockA, blockB, actual_mc, actual_kc, actual_nc, Scalar(1), -1, -1, 0, 0);
         }
       }
@@ -623,6 +623,6 @@ struct TensorEvaluator<const TensorContractionOp<Indices, LeftArgType, RightArgT
   }
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_CONTRACTION_H

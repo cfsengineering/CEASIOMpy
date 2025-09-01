@@ -29,7 +29,7 @@ if(NOT Eigen2_FIND_VERSION)
 endif(NOT Eigen2_FIND_VERSION)
 
 macro(_eigen2_check_version)
-  file(READ "${EIGEN2_INCLUDE_DIR}/Eigen/src/Core/util/Macros.h" _eigen2_version_header)
+  file(READ "${EIGEN2_INCLUDE_DIR}/eeigen/src/Core/util/Macros.h" _eigen2_version_header)
 
   string(REGEX MATCH "define[ \t]+EIGEN_WORLD_VERSION[ \t]+([0-9]+)" _eigen2_world_version_match "${_eigen2_version_header}")
   set(EIGEN2_WORLD_VERSION "${CMAKE_MATCH_1}")
@@ -60,7 +60,7 @@ if (EIGEN2_INCLUDE_DIR)
 
 else (EIGEN2_INCLUDE_DIR)
 
-find_path(EIGEN2_INCLUDE_DIR NAMES Eigen/Core
+find_path(EIGEN2_INCLUDE_DIR NAMES eeigen/Core
      PATHS
      ${INCLUDE_INSTALL_DIR}
      ${KDE4_INCLUDE_DIR}

@@ -1,9 +1,9 @@
 #include <iostream>
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include <eeigen/Core>
+#include <eeigen/Geometry>
 #include <bench/BenchTimer.h>
 
-using namespace Eigen; 
+using namespace eeigen; 
 
 template<typename Quat>
 EIGEN_DONT_INLINE void quatmul_default(const Quat& a, const Quat& b, Quat& c)

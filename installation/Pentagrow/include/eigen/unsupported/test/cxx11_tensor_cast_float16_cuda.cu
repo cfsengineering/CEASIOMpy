@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -14,32 +14,32 @@
 #define EIGEN_USE_GPU
 
 #include "main.h"
-#include <unsupported/Eigen/CXX11/Tensor>
+#include <unsupported/eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
+using eeigen::Tensor;
 
 void test_cuda_conversion() {
-  Eigen::CudaStreamDevice stream;
-  Eigen::GpuDevice gpu_device(&stream);
+  eeigen::CudaStreamDevice stream;
+  eeigen::GpuDevice gpu_device(&stream);
   int num_elem = 101;
 
   Tensor<float, 1> floats(num_elem);
   floats.setRandom();
 
   float* d_float = (float*)gpu_device.allocate(num_elem * sizeof(float));
-  Eigen::half* d_half = (Eigen::half*)gpu_device.allocate(num_elem * sizeof(Eigen::half));
+  eeigen::half* d_half = (eeigen::half*)gpu_device.allocate(num_elem * sizeof(eeigen::half));
   float* d_conv = (float*)gpu_device.allocate(num_elem * sizeof(float));
 
-  Eigen::TensorMap<Eigen::Tensor<float, 1>, Eigen::Aligned> gpu_float(
+  eeigen::TensorMap<eeigen::Tensor<float, 1>, eeigen::Aligned> gpu_float(
       d_float, num_elem);
-  Eigen::TensorMap<Eigen::Tensor<Eigen::half, 1>, Eigen::Aligned> gpu_half(
+  eeigen::TensorMap<eeigen::Tensor<eeigen::half, 1>, eeigen::Aligned> gpu_half(
       d_half, num_elem);
-  Eigen::TensorMap<Eigen::Tensor<float, 1>, Eigen::Aligned> gpu_conv(
+  eeigen::TensorMap<eeigen::Tensor<float, 1>, eeigen::Aligned> gpu_conv(
       d_conv, num_elem);
 
   gpu_device.memcpyHostToDevice(d_float, floats.data(), num_elem*sizeof(float));
 
-  gpu_half.device(gpu_device) = gpu_float.cast<Eigen::half>();
+  gpu_half.device(gpu_device) = gpu_float.cast<eeigen::half>();
   gpu_conv.device(gpu_device) = gpu_half.cast<float>();
 
   Tensor<float, 1> initial(num_elem);
@@ -63,8 +63,8 @@ void test_fallback_conversion() {
   Tensor<float, 1> floats(num_elem);
   floats.setRandom();
 
-  Eigen::Tensor<Eigen::half, 1> halfs = floats.cast<Eigen::half>();
-  Eigen::Tensor<float, 1> conv = halfs.cast<float>();
+  eeigen::Tensor<eeigen::half, 1> halfs = floats.cast<eeigen::half>();
+  eeigen::Tensor<float, 1> conv = halfs.cast<float>();
 
   for (int i = 0; i < num_elem; ++i) {
     VERIFY_IS_APPROX(floats(i), conv(i));

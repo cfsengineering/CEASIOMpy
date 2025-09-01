@@ -1,10 +1,10 @@
 // g++ -O3 -DNDEBUG benchmarkX.cpp -o benchmarkX && time ./benchmarkX
 
 #include <iostream>
-#include <Eigen/Core>
+#include <eeigen/Core>
 
 using namespace std;
-using namespace Eigen;
+using namespace eeigen;
 
 #ifndef VECTYPE
 #define VECTYPE VectorXLd

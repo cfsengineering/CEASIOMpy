@@ -25,7 +25,7 @@
  * functionality provided by SplineBasis.
  *
  * Uses LAPACK routine DGBSV where available, otherwise the sparse LU solver
- * from the Eigen library.
+ * from the eeigen library.
  *
  * \ingroup utility
  * \sa SplineBasis

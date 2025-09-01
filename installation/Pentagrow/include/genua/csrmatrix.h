@@ -27,7 +27,7 @@
 #include "atomicop.h"
 #include "typecode.h"
 #ifdef HAVE_EIGEN
-#include <Eigen/SparseCore>
+#include <eeigen/SparseCore>
 #endif
 #include <boost/static_assert.hpp>
 #include <fstream>
@@ -1297,7 +1297,7 @@ public:
 
 #ifdef HAVE_EIGEN
 
-  /// convert to a sparse matrix from the Eigen library
+  /// convert to a sparse matrix from the eeigen library
   template <class EigenSpMatrix> void copy(EigenSpMatrix &m) const
   {
     BOOST_STATIC_ASSERT(N == 1);
@@ -1306,7 +1306,7 @@ public:
     m = EigenSpMatrix(nrows(), ncols());
 
     // generate triplets
-    typedef Eigen::Triplet<Type, int> Trip;
+    typedef eeigen::Triplet<Type, int> Trip;
     std::vector<Trip> trips(nonzero());
     const int nr = nrows();
     size_t lix = 0;

@@ -7,20 +7,20 @@
 #include <genua/pattern.h>
 #include <genua/splinebasis.h>
 #include <genua/eigensparsesolver.h>
-#include <Eigen/Core>
-#include <Eigen/LU>
-#include <Eigen/QR>
-#include <Eigen/SparseLU>
-#include <Eigen/Geometry>
+#include <eeigen/Core>
+#include <eeigen/LU>
+#include <eeigen/QR>
+#include <eeigen/SparseLU>
+#include <eeigen/Geometry>
 #include <cstdlib>
 #include <iostream>
 
 using namespace std;
 
-typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> EigenMatrix;
-typedef Eigen::Map<EigenMatrix, Eigen::Aligned> EigenMatrixMap;
-typedef Eigen::PartialPivLU<EigenMatrix> EigenLU;
-typedef Eigen::HouseholderQR<EigenMatrix> EigenQR;
+typedef eeigen::Matrix<double, eeigen::Dynamic, eeigen::Dynamic> EigenMatrix;
+typedef eeigen::Map<EigenMatrix, eeigen::Aligned> EigenMatrixMap;
+typedef eeigen::PartialPivLU<EigenMatrix> EigenLU;
+typedef eeigen::HouseholderQR<EigenMatrix> EigenQR;
 
 EigenMatrixMap toEigen(Matrix & m) {return EigenMatrixMap(m.pointer(), m.nrows(), m.ncols());}
 EigenMatrixMap toEigen(Vector & m) {return EigenMatrixMap(m.pointer(), m.size(), 1);}
@@ -115,7 +115,7 @@ void dense_fit(const SplineBasis &ub,
     clk.start();
     eigen_qr_solve(A, b);
     clk.stop();
-    cout << "Eigen QR time: " << clk.elapsed() << endl;
+    cout << "eeigen QR time: " << clk.elapsed() << endl;
   }
 
   cp.resize(ncpu, ncpv);
@@ -141,10 +141,10 @@ void sparse_fit(const SplineBasis &ub,
   // Matrix A(nup*nvp, ncpu*ncpv);
   Vector b(nup*nvp);
 
-  Eigen::SparseMatrix<double> A( nup*nvp, ncpu*ncpv );
+  eeigen::SparseMatrix<double> A( nup*nvp, ncpu*ncpv );
   {
     size_t ntrip = nvp*nup*(PU+1)*(PV+1);
-    typedef Eigen::Triplet<double,int> Trip;
+    typedef eeigen::Triplet<double,int> Trip;
     std::vector<Trip> trips(ntrip);
 
     size_t itrip(0);
@@ -170,14 +170,14 @@ void sparse_fit(const SplineBasis &ub,
   Wallclock clk;
   clk.start();
 
-  // Eigen::SparseQR<Eigen::SparseMatrix<double>, Eigen::AMDOrdering<int> > slu;
-  Eigen::SparseLU<Eigen::SparseMatrix<double> > slu;
+  // eeigen::SparseQR<eeigen::SparseMatrix<double>, eeigen::AMDOrdering<int> > slu;
+  eeigen::SparseLU<eeigen::SparseMatrix<double> > slu;
   slu.compute(A);
   EigenMatrix xe = slu.solve( toEigen(b) );
   b = Vector(xe.data(), xe.rows());
 
   clk.stop();
-  cout << "Eigen::SparseLU: " << clk.elapsed() << endl;
+  cout << "eeigen::SparseLU: " << clk.elapsed() << endl;
 
   cp.resize(ncpu, ncpv);
   for (int j=0; j<ncpv; ++j)
@@ -209,12 +209,12 @@ int main(int argc, char *argv[])
   clk.start();
   dense_fit(ubas, vbas, ecp, false);
   clk.stop();
-  cout << "Dense Eigen solution: " << clk.elapsed() << endl;
+  cout << "Dense eeigen solution: " << clk.elapsed() << endl;
 
   clk.start();
   sparse_fit(ubas, vbas, scp);
   clk.stop();
-  cout << "Sparse Eigen solution: " << clk.elapsed() << endl;
+  cout << "Sparse eeigen solution: " << clk.elapsed() << endl;
 
   // compare a few values
   for (int i=0; i<5; ++i) {
@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
     xe = lu.solve(be);
 
     clk.stop("Time: ");
-    cout << "Eigen residual: " << (Ae*xe - be).norm() / be.norm() << endl;
+    cout << "eeigen residual: " << (Ae*xe - be).norm() / be.norm() << endl;
   }
 
 

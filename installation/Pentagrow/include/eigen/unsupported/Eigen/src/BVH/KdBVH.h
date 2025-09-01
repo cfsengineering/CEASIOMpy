@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Ilya Baran <ibaran@mit.edu>
@@ -10,7 +10,7 @@
 #ifndef KDBVH_H_INCLUDED
 #define KDBVH_H_INCLUDED
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -218,6 +218,6 @@ private:
   ObjectList objects;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif //KDBVH_H_INCLUDED

@@ -1,5 +1,5 @@
 #include "linearlayer.h"
-#include <Eigen/Dense>
+#include <eeigen/Dense>
 
 void LinearLayer::allocate(size_t nx, size_t ny)
 {

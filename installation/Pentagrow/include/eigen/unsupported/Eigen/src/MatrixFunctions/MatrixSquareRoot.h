@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011, 2013 Jitse Niesen <jitse@maths.leeds.ac.uk>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_MATRIX_SQUARE_ROOT
 #define EIGEN_MATRIX_SQUARE_ROOT
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -361,6 +361,6 @@ const MatrixSquareRootReturnValue<Derived> MatrixBase<Derived>::sqrt() const
   return MatrixSquareRootReturnValue<Derived>(derived());
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_MATRIX_FUNCTION

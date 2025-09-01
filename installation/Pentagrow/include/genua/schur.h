@@ -16,13 +16,13 @@
 #define GENUA_SCHUR_H
 
 #include "smatrix.h"
-#include <Eigen/Eigenvalues>
+#include <eeigen/Eigenvalues>
 
 /** Compute the full Schur decomposition.
  *
  * A = U * T * U^T
  *
- * Uses Eigen.
+ * Uses eeigen.
  *
  */
 template <uint N, class NumType>
@@ -31,7 +31,7 @@ void schur_decomposition(const SMatrix<N,N,NumType> &A,
                          SMatrix<N,N,NumType> &U)
 {
   typedef typename SMatrix<N,N,NumType>::EigenMatrix EigenMatrix;
-  Eigen::RealSchur<EigenMatrix> schur(A.cmap(), true);
+  eeigen::RealSchur<EigenMatrix> schur(A.cmap(), true);
   T.mmap() = schur.matrixT();
   U.mmap() = schur.matrixU();
 }
@@ -40,7 +40,7 @@ void schur_decomposition(const SMatrix<N,N,NumType> &A,
  *
  * A = U * T * U^T
  *
- * Uses Eigen.
+ * Uses eeigen.
  *
  */
 template <uint N, class NumType>
@@ -48,7 +48,7 @@ void schur_matrix(const SMatrix<N,N,NumType> &A,
                   SMatrix<N,N,NumType> &T)
 {
   typedef typename SMatrix<N,N,NumType>::EigenMatrix EigenMatrix;
-  Eigen::RealSchur<EigenMatrix> schur(A.cmap(), false);
+  eeigen::RealSchur<EigenMatrix> schur(A.cmap(), false);
   T.mmap() = schur.matrixT();
 }
 
@@ -61,7 +61,7 @@ void schur_matrix(const SMatrix<N,N,NumType> &A,
 //           SMatrix<N,N,NumType> &T,
 //           SVector<N,std::complex<NumType> > &lambda)
 //{
-//  // probably faster using Eigen (for small matrices)
+//  // probably faster using eeigen (for small matrices)
 
 //  // skip the balancing permutation step for now
 //  // first step : balancing

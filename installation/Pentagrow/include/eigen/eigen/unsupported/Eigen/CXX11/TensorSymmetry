@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2013 Christian Seiler <christian@iwakd.de>
@@ -10,9 +10,9 @@
 #ifndef EIGEN_CXX11_TENSORSYMMETRY_MODULE
 #define EIGEN_CXX11_TENSORSYMMETRY_MODULE
 
-#include <unsupported/Eigen/CXX11/Tensor>
+#include <unsupported/eeigen/CXX11/Tensor>
 
-#include <Eigen/src/Core/util/DisableStupidWarnings.h>
+#include <eeigen/src/Core/util/DisableStupidWarnings.h>
 
 #include "src/util/CXX11Meta.h"
 
@@ -24,7 +24,7 @@
   * Including this module will implicitly include the Tensor module.
   *
   * \code
-  * #include <Eigen/TensorSymmetry>
+  * #include <eeigen/TensorSymmetry>
   * \endcode
   */
 
@@ -33,7 +33,7 @@
 #include "src/TensorSymmetry/StaticSymmetry.h"
 #include "src/TensorSymmetry/DynamicSymmetry.h"
 
-#include <Eigen/src/Core/util/ReenableStupidWarnings.h>
+#include <eeigen/src/Core/util/ReenableStupidWarnings.h>
 
 #endif // EIGEN_CXX11_TENSORSYMMETRY_MODULE
 

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_SPECIALFUNCTIONS_ARRAYAPI_H
 #define EIGEN_SPECIALFUNCTIONS_ARRAYAPI_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \cpp11 \returns an expression of the coefficient-wise igamma(\a a, \a x) to the given arrays.
   *
@@ -21,13 +21,13 @@ namespace Eigen {
   * or float/double in non c++11 mode, the user has to provide implementations of igammac(T,T) for any scalar
   * type T to be supported.
   *
-  * \sa Eigen::igammac(), Eigen::lgamma()
+  * \sa eeigen::igammac(), eeigen::lgamma()
   */
 template<typename Derived,typename ExponentDerived>
-inline const Eigen::CwiseBinaryOp<Eigen::internal::scalar_igamma_op<typename Derived::Scalar>, const Derived, const ExponentDerived>
-igamma(const Eigen::ArrayBase<Derived>& a, const Eigen::ArrayBase<ExponentDerived>& x)
+inline const eeigen::CwiseBinaryOp<eeigen::internal::scalar_igamma_op<typename Derived::Scalar>, const Derived, const ExponentDerived>
+igamma(const eeigen::ArrayBase<Derived>& a, const eeigen::ArrayBase<ExponentDerived>& x)
 {
-  return Eigen::CwiseBinaryOp<Eigen::internal::scalar_igamma_op<typename Derived::Scalar>, const Derived, const ExponentDerived>(
+  return eeigen::CwiseBinaryOp<eeigen::internal::scalar_igamma_op<typename Derived::Scalar>, const Derived, const ExponentDerived>(
     a.derived(),
     x.derived()
   );
@@ -41,13 +41,13 @@ igamma(const Eigen::ArrayBase<Derived>& a, const Eigen::ArrayBase<ExponentDerive
   * or float/double in non c++11 mode, the user has to provide implementations of igammac(T,T) for any scalar
   * type T to be supported.
   *
-  * \sa Eigen::igamma(), Eigen::lgamma()
+  * \sa eeigen::igamma(), eeigen::lgamma()
   */
 template<typename Derived,typename ExponentDerived>
-inline const Eigen::CwiseBinaryOp<Eigen::internal::scalar_igammac_op<typename Derived::Scalar>, const Derived, const ExponentDerived>
-igammac(const Eigen::ArrayBase<Derived>& a, const Eigen::ArrayBase<ExponentDerived>& x)
+inline const eeigen::CwiseBinaryOp<eeigen::internal::scalar_igammac_op<typename Derived::Scalar>, const Derived, const ExponentDerived>
+igammac(const eeigen::ArrayBase<Derived>& a, const eeigen::ArrayBase<ExponentDerived>& x)
 {
-  return Eigen::CwiseBinaryOp<Eigen::internal::scalar_igammac_op<typename Derived::Scalar>, const Derived, const ExponentDerived>(
+  return eeigen::CwiseBinaryOp<eeigen::internal::scalar_igammac_op<typename Derived::Scalar>, const Derived, const ExponentDerived>(
     a.derived(),
     x.derived()
   );
@@ -61,15 +61,15 @@ igammac(const Eigen::ArrayBase<Derived>& a, const Eigen::ArrayBase<ExponentDeriv
   * or float/double in non c++11 mode, the user has to provide implementations of polygamma(T,T) for any scalar
   * type T to be supported.
   *
-  * \sa Eigen::digamma()
+  * \sa eeigen::digamma()
   */
 // * \warning Be careful with the order of the parameters: x.polygamma(n) is equivalent to polygamma(n,x)
 // * \sa ArrayBase::polygamma()
 template<typename DerivedN,typename DerivedX>
-inline const Eigen::CwiseBinaryOp<Eigen::internal::scalar_polygamma_op<typename DerivedX::Scalar>, const DerivedN, const DerivedX>
-polygamma(const Eigen::ArrayBase<DerivedN>& n, const Eigen::ArrayBase<DerivedX>& x)
+inline const eeigen::CwiseBinaryOp<eeigen::internal::scalar_polygamma_op<typename DerivedX::Scalar>, const DerivedN, const DerivedX>
+polygamma(const eeigen::ArrayBase<DerivedN>& n, const eeigen::ArrayBase<DerivedX>& x)
 {
-  return Eigen::CwiseBinaryOp<Eigen::internal::scalar_polygamma_op<typename DerivedX::Scalar>, const DerivedN, const DerivedX>(
+  return eeigen::CwiseBinaryOp<eeigen::internal::scalar_polygamma_op<typename DerivedX::Scalar>, const DerivedN, const DerivedX>(
     n.derived(),
     x.derived()
   );
@@ -83,13 +83,13 @@ polygamma(const Eigen::ArrayBase<DerivedN>& n, const Eigen::ArrayBase<DerivedX>&
   * or float/double in non c++11 mode, the user has to provide implementations of betainc(T,T,T) for any scalar
   * type T to be supported.
   *
-  * \sa Eigen::betainc(), Eigen::lgamma()
+  * \sa eeigen::betainc(), eeigen::lgamma()
   */
 template<typename ArgADerived, typename ArgBDerived, typename ArgXDerived>
-inline const Eigen::CwiseTernaryOp<Eigen::internal::scalar_betainc_op<typename ArgXDerived::Scalar>, const ArgADerived, const ArgBDerived, const ArgXDerived>
-betainc(const Eigen::ArrayBase<ArgADerived>& a, const Eigen::ArrayBase<ArgBDerived>& b, const Eigen::ArrayBase<ArgXDerived>& x)
+inline const eeigen::CwiseTernaryOp<eeigen::internal::scalar_betainc_op<typename ArgXDerived::Scalar>, const ArgADerived, const ArgBDerived, const ArgXDerived>
+betainc(const eeigen::ArrayBase<ArgADerived>& a, const eeigen::ArrayBase<ArgBDerived>& b, const eeigen::ArrayBase<ArgXDerived>& x)
 {
-  return Eigen::CwiseTernaryOp<Eigen::internal::scalar_betainc_op<typename ArgXDerived::Scalar>, const ArgADerived, const ArgBDerived, const ArgXDerived>(
+  return eeigen::CwiseTernaryOp<eeigen::internal::scalar_betainc_op<typename ArgXDerived::Scalar>, const ArgADerived, const ArgBDerived, const ArgXDerived>(
     a.derived(),
     b.derived(),
     x.derived()
@@ -110,15 +110,15 @@ betainc(const Eigen::ArrayBase<ArgADerived>& a, const Eigen::ArrayBase<ArgBDeriv
   * \sa ArrayBase::zeta()
   */
 template<typename DerivedX,typename DerivedQ>
-inline const Eigen::CwiseBinaryOp<Eigen::internal::scalar_zeta_op<typename DerivedX::Scalar>, const DerivedX, const DerivedQ>
-zeta(const Eigen::ArrayBase<DerivedX>& x, const Eigen::ArrayBase<DerivedQ>& q)
+inline const eeigen::CwiseBinaryOp<eeigen::internal::scalar_zeta_op<typename DerivedX::Scalar>, const DerivedX, const DerivedQ>
+zeta(const eeigen::ArrayBase<DerivedX>& x, const eeigen::ArrayBase<DerivedQ>& q)
 {
-  return Eigen::CwiseBinaryOp<Eigen::internal::scalar_zeta_op<typename DerivedX::Scalar>, const DerivedX, const DerivedQ>(
+  return eeigen::CwiseBinaryOp<eeigen::internal::scalar_zeta_op<typename DerivedX::Scalar>, const DerivedX, const DerivedQ>(
     x.derived(),
     q.derived()
   );
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPECIALFUNCTIONS_ARRAYAPI_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Rohit Garg <rpg.314@gmail.com>
@@ -11,7 +11,7 @@
 #ifndef EIGEN_MOREVECTORIZATION_MATHFUNCTIONS_H
 #define EIGEN_MOREVECTORIZATION_MATHFUNCTIONS_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -90,6 +90,6 @@ template<> EIGEN_DONT_INLINE Packet4f pasin(Packet4f x)
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_MOREVECTORIZATION_MATHFUNCTIONS_H

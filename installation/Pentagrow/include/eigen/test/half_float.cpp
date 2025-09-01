@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // This Source Code Form is subject to the terms of the Mozilla
@@ -9,22 +9,22 @@
 
 #include "main.h"
 
-#include <Eigen/src/Core/arch/CUDA/Half.h>
+#include <eeigen/src/Core/arch/CUDA/Half.h>
 
 #ifdef EIGEN_HAS_CUDA_FP16
 #error "EIGEN_HAS_CUDA_FP16 should not be defined in this CPU unit test"
 #endif
 
-// Make sure it's possible to forward declare Eigen::half
-namespace Eigen {
+// Make sure it's possible to forward declare eeigen::half
+namespace eeigen {
 struct half;
 }
 
-using Eigen::half;
+using eeigen::half;
 
 void test_conversion()
 {
-  using Eigen::half_impl::__half_raw;
+  using eeigen::half_impl::__half_raw;
 
   // Conversion from float.
   VERIFY_IS_EQUAL(half(1.0f).x, 0x3c00);

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -9,8 +9,8 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "main.h"
-#include <Eigen/StdList>
-#include <Eigen/Geometry>
+#include <eeigen/StdList>
+#include <eeigen/Geometry>
 
 template<typename MatrixType>
 void check_stdlist_matrix(const MatrixType& m)
@@ -18,14 +18,14 @@ void check_stdlist_matrix(const MatrixType& m)
   Index rows = m.rows();
   Index cols = m.cols();
   MatrixType x = MatrixType::Random(rows,cols), y = MatrixType::Random(rows,cols);
-  std::list<MatrixType,Eigen::aligned_allocator<MatrixType> > v(10, MatrixType(rows,cols)), w(20, y);
+  std::list<MatrixType,eeigen::aligned_allocator<MatrixType> > v(10, MatrixType(rows,cols)), w(20, y);
   v.front() = x;
   w.front() = w.back();
   VERIFY_IS_APPROX(w.front(), w.back());
   v = w;
 
-  typename std::list<MatrixType,Eigen::aligned_allocator<MatrixType> >::iterator vi = v.begin();
-  typename std::list<MatrixType,Eigen::aligned_allocator<MatrixType> >::iterator wi = w.begin();
+  typename std::list<MatrixType,eeigen::aligned_allocator<MatrixType> >::iterator vi = v.begin();
+  typename std::list<MatrixType,eeigen::aligned_allocator<MatrixType> >::iterator wi = w.begin();
   for(int i = 0; i < 20; i++)
   {
     VERIFY_IS_APPROX(*vi, *wi);
@@ -47,14 +47,14 @@ void check_stdlist_transform(const TransformType&)
 {
   typedef typename TransformType::MatrixType MatrixType;
   TransformType x(MatrixType::Random()), y(MatrixType::Random());
-  std::list<TransformType,Eigen::aligned_allocator<TransformType> > v(10), w(20, y);
+  std::list<TransformType,eeigen::aligned_allocator<TransformType> > v(10), w(20, y);
   v.front() = x;
   w.front() = w.back();
   VERIFY_IS_APPROX(w.front(), w.back());
   v = w;
 
-  typename std::list<TransformType,Eigen::aligned_allocator<TransformType> >::iterator vi = v.begin();
-  typename std::list<TransformType,Eigen::aligned_allocator<TransformType> >::iterator wi = w.begin();
+  typename std::list<TransformType,eeigen::aligned_allocator<TransformType> >::iterator vi = v.begin();
+  typename std::list<TransformType,eeigen::aligned_allocator<TransformType> >::iterator wi = w.begin();
   for(int i = 0; i < 20; i++)
   {
     VERIFY_IS_APPROX(*vi, *wi);
@@ -76,14 +76,14 @@ void check_stdlist_quaternion(const QuaternionType&)
 {
   typedef typename QuaternionType::Coefficients Coefficients;
   QuaternionType x(Coefficients::Random()), y(Coefficients::Random());
-  std::list<QuaternionType,Eigen::aligned_allocator<QuaternionType> > v(10), w(20, y);
+  std::list<QuaternionType,eeigen::aligned_allocator<QuaternionType> > v(10), w(20, y);
   v.front() = x;
   w.front() = w.back();
   VERIFY_IS_APPROX(w.front(), w.back());
   v = w;
 
-  typename std::list<QuaternionType,Eigen::aligned_allocator<QuaternionType> >::iterator vi = v.begin();
-  typename std::list<QuaternionType,Eigen::aligned_allocator<QuaternionType> >::iterator wi = w.begin();
+  typename std::list<QuaternionType,eeigen::aligned_allocator<QuaternionType> >::iterator vi = v.begin();
+  typename std::list<QuaternionType,eeigen::aligned_allocator<QuaternionType> >::iterator wi = w.begin();
   for(int i = 0; i < 20; i++)
   {
     VERIFY_IS_APPROX(*vi, *wi);

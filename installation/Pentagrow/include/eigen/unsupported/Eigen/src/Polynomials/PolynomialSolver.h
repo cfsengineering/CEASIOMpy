@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010 Manuel Yguel <manuel.yguel@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_POLYNOMIAL_SOLVER_H
 #define EIGEN_POLYNOMIAL_SOLVER_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \ingroup Polynomials_Module
  *  \class PolynomialSolverBase.
@@ -316,7 +316,7 @@ class PolynomialSolverBase
   * - real roots with greatest, smallest absolute real value.
   * - greatest, smallest real roots.
   *
-  * WARNING: this polynomial solver is experimental, part of the unsupported Eigen modules.
+  * WARNING: this polynomial solver is experimental, part of the unsupported eeigen modules.
   *
   *
   * Currently a QR algorithm is used to compute the eigenvalues of the companion matrix of
@@ -401,6 +401,6 @@ class PolynomialSolver<_Scalar,1> : public PolynomialSolverBase<_Scalar,1>
     using                   PS_Base::m_roots;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_POLYNOMIAL_SOLVER_H

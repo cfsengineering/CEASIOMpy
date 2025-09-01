@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Gael Guennebaud <g.gael@free.fr>
@@ -40,9 +40,9 @@
 # undef realloc
 #endif
 
-#include <Eigen/Core>
+#include <eeigen/Core>
 
-namespace Eigen {
+namespace eeigen {
 
 /**
   * \defgroup AdolcForward_Module Adolc forward module
@@ -50,21 +50,21 @@ namespace Eigen {
   * ADOL-C is a C++ automatic differentiation library,
   * see https://projects.coin-or.org/ADOL-C for more information.
   * It mainly consists in:
-  *  - a struct Eigen::NumTraits<adtl::adouble> specialization
+  *  - a struct eeigen::NumTraits<adtl::adouble> specialization
   *  - overloads of internal::* math function for adtl::adouble type.
   *
   * Note that the maximal number of directions is controlled by
   * the preprocessor token NUMBER_DIRECTIONS. The default is 2.
   *
   * \code
-  * #include <unsupported/Eigen/AdolcSupport>
+  * #include <unsupported/eeigen/AdolcSupport>
   * \endcode
   */
   //@{
 
-} // namespace Eigen
+} // namespace eeigen
 
-// Eigen's require a few additional functions which must be defined in the same namespace
+// eeigen's require a few additional functions which must be defined in the same namespace
 // than the custom scalar type own namespace
 namespace adtl {
 
@@ -76,7 +76,7 @@ inline adouble abs2(const adouble& x)  { return x*x; }
 
 }
 
-namespace Eigen {
+namespace eeigen {
 
 template<> struct NumTraits<adtl::adouble>
     : NumTraits<double>

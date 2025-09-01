@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Gael Guennebaud <g.gael@free.fr>
@@ -8,9 +8,9 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "main.h"
-#include <unsupported/Eigen/AlignedVector3>
+#include <unsupported/eeigen/AlignedVector3>
 
-namespace Eigen {
+namespace eeigen {
 
 template<typename T,typename Derived>
 T test_relative_error(const AlignedVector3<T> &a, const MatrixBase<Derived> &b)

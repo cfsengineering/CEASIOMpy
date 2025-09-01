@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -13,14 +13,14 @@
 #define EIGEN_USE_GPU
 
 #include "main.h"
-#include <unsupported/Eigen/CXX11/Tensor>
+#include <unsupported/eeigen/CXX11/Tensor>
 
 
 template<typename Type, int DataLayout>
 static void test_full_reductions() {
 
-  Eigen::CudaStreamDevice stream;
-  Eigen::GpuDevice gpu_device(&stream);
+  eeigen::CudaStreamDevice stream;
+  eeigen::GpuDevice gpu_device(&stream);
 
   const int num_rows = internal::random<int>(1024, 5*1024);
   const int num_cols = internal::random<int>(1024, 5*1024);
@@ -62,19 +62,19 @@ static void test_first_dim_reductions() {
   Tensor<Type, 3, DataLayout> in(dim_x, dim_y, dim_z);
   in.setRandom();
 
-  Eigen::array<int, 1> red_axis;
+  eeigen::array<int, 1> red_axis;
   red_axis[0] = 0;
   Tensor<Type, 2, DataLayout> redux = in.sum(red_axis);
 
   // Create device
-  Eigen::CudaStreamDevice stream;
-  Eigen::GpuDevice dev(&stream);
+  eeigen::CudaStreamDevice stream;
+  eeigen::GpuDevice dev(&stream);
   
   // Create data(T)
   Type* in_data = (Type*)dev.allocate(dim_x*dim_y*dim_z*sizeof(Type));
   Type* out_data = (Type*)dev.allocate(dim_z*dim_y*sizeof(Type));
-  Eigen::TensorMap<Eigen::Tensor<Type, 3, DataLayout> > gpu_in(in_data, dim_x, dim_y, dim_z);
-  Eigen::TensorMap<Eigen::Tensor<Type, 2, DataLayout> > gpu_out(out_data, dim_y, dim_z);
+  eeigen::TensorMap<eeigen::Tensor<Type, 3, DataLayout> > gpu_in(in_data, dim_x, dim_y, dim_z);
+  eeigen::TensorMap<eeigen::Tensor<Type, 2, DataLayout> > gpu_out(out_data, dim_y, dim_z);
   
   // Perform operation
   dev.memcpyHostToDevice(in_data, in.data(), in.size()*sizeof(Type));
@@ -102,19 +102,19 @@ static void test_last_dim_reductions() {
   Tensor<Type, 3, DataLayout> in(dim_x, dim_y, dim_z);
   in.setRandom();
 
-  Eigen::array<int, 1> red_axis;
+  eeigen::array<int, 1> red_axis;
   red_axis[0] = 2;
   Tensor<Type, 2, DataLayout> redux = in.sum(red_axis);
 
   // Create device
-  Eigen::CudaStreamDevice stream;
-  Eigen::GpuDevice dev(&stream);
+  eeigen::CudaStreamDevice stream;
+  eeigen::GpuDevice dev(&stream);
   
   // Create data
   Type* in_data = (Type*)dev.allocate(dim_x*dim_y*dim_z*sizeof(Type));
   Type* out_data = (Type*)dev.allocate(dim_x*dim_y*sizeof(Type));
-  Eigen::TensorMap<Eigen::Tensor<Type, 3, DataLayout> > gpu_in(in_data, dim_x, dim_y, dim_z);
-  Eigen::TensorMap<Eigen::Tensor<Type, 2, DataLayout> > gpu_out(out_data, dim_x, dim_y);
+  eeigen::TensorMap<eeigen::Tensor<Type, 3, DataLayout> > gpu_in(in_data, dim_x, dim_y, dim_z);
+  eeigen::TensorMap<eeigen::Tensor<Type, 2, DataLayout> > gpu_out(out_data, dim_x, dim_y);
   
   // Perform operation
   dev.memcpyHostToDevice(in_data, in.data(), in.size()*sizeof(Type));

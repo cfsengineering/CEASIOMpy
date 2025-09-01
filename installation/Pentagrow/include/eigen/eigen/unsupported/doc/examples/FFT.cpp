@@ -13,11 +13,11 @@
 #include <algorithm>
 #include <iterator>
 #include <iostream>
-#include <Eigen/Core>
-#include <unsupported/Eigen/FFT>
+#include <eeigen/Core>
+#include <unsupported/eeigen/FFT>
 
 using namespace std;
-using namespace Eigen;
+using namespace eeigen;
 
 template <typename T>
 T mag2(T a)

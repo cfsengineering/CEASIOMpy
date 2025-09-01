@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Mehdi Goli    Codeplay Software Ltd.
@@ -22,12 +22,12 @@
 #ifndef UNSUPPORTED_EIGEN_CXX11_SRC_TENSOR_TENSOR_REDUCTION_SYCL_HPP
 #define UNSUPPORTED_EIGEN_CXX11_SRC_TENSOR_TENSOR_REDUCTION_SYCL_HPP
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 
 template<typename CoeffReturnType, typename KernelName> struct syclGenericBufferReducer{
 template<typename BufferTOut, typename BufferTIn>
-static void run(BufferTOut* bufOut, BufferTIn& bufI, const Eigen::SyclDevice& dev, size_t length, size_t local){
+static void run(BufferTOut* bufOut, BufferTIn& bufI, const eeigen::SyclDevice& dev, size_t length, size_t local){
   do {
           auto f = [length, local, bufOut, &bufI](cl::sycl::handler& h) mutable {
             cl::sycl::nd_range<1> r{cl::sycl::range<1>{std::max(length, local)},
@@ -100,12 +100,12 @@ static void run(BufferTOut* bufOut, BufferTIn& bufI, const Eigen::SyclDevice& de
 /// reduction operation on the child of the reduction. once it is done the reduction is an empty shell and can be thrown away and treated as
 // a leafNode.
 template <typename Self, typename Op, bool Vectorizable>
-struct FullReducer<Self, Op, const Eigen::SyclDevice, Vectorizable> {
+struct FullReducer<Self, Op, const eeigen::SyclDevice, Vectorizable> {
 
   typedef typename Self::CoeffReturnType CoeffReturnType;
   static const bool HasOptimizedImplementation = false;
 
-  static void run(const Self& self, Op& reducer, const Eigen::SyclDevice& dev, CoeffReturnType* output) {
+  static void run(const Self& self, Op& reducer, const eeigen::SyclDevice& dev, CoeffReturnType* output) {
     typedef const typename Self::ChildType HostExpr; /// this is the child of reduction
     typedef  typename TensorSycl::internal::createPlaceHolderExpression<HostExpr>::Type PlaceHolderExpr;
     auto functors = TensorSycl::internal::extractFunctors(self.impl());
@@ -134,12 +134,12 @@ struct FullReducer<Self, Op, const Eigen::SyclDevice, Vectorizable> {
     /// if the shared memory is less than the GRange, we set shared_mem size to the TotalSize and in this case one kernel would be created for recursion to reduce all to one.
     if (GRange < outTileSize) outTileSize=GRange;
     // getting final out buffer at the moment the created buffer is true because there is no need for assign
-    auto out_buffer =dev.template get_sycl_buffer<typename Eigen::internal::remove_all<CoeffReturnType>::type>(self.dimensions().TotalSize(), output);
+    auto out_buffer =dev.template get_sycl_buffer<typename eeigen::internal::remove_all<CoeffReturnType>::type>(self.dimensions().TotalSize(), output);
     /// creating the shared memory for calculating reduction.
     /// This one is used to collect all the reduced value of shared memory as we dont have global barrier on GPU. Once it is saved we can
     /// recursively apply reduction on it in order to reduce the whole.
     auto temp_global_buffer =cl::sycl::buffer<CoeffReturnType, 1>(cl::sycl::range<1>(GRange));
-    typedef typename Eigen::internal::remove_all<decltype(self.xprDims())>::type Dims;
+    typedef typename eeigen::internal::remove_all<decltype(self.xprDims())>::type Dims;
     Dims dims= self.xprDims();
     Op functor = reducer;
     dev.m_queue.submit([&](cl::sycl::handler &cgh) {
@@ -156,7 +156,7 @@ struct FullReducer<Self, Op, const Eigen::SyclDevice, Vectorizable> {
         const auto device_self_expr= TensorReductionOp<Op, Dims, decltype(device_expr.expr) ,MakeGlobalPointer>(device_expr.expr, dims, functor);
         /// This is the evaluator for device_self_expr. This is exactly similar to the self which has been passed to run function. The difference is
         /// the device_evaluator is detectable and recognisable on the device.
-        auto device_self_evaluator = Eigen::TensorEvaluator<decltype(device_self_expr), Eigen::DefaultDevice>(device_self_expr, Eigen::DefaultDevice());
+        auto device_self_evaluator = eeigen::TensorEvaluator<decltype(device_self_expr), eeigen::DefaultDevice>(device_self_expr, eeigen::DefaultDevice());
         /// const cast added as a naive solution to solve the qualifier drop error
         auto globalid=itemID.get_global_linear_id();
 
@@ -179,12 +179,12 @@ struct FullReducer<Self, Op, const Eigen::SyclDevice, Vectorizable> {
 };
 
 template <typename Self, typename Op>
-struct InnerReducer<Self, Op, const Eigen::SyclDevice> {
+struct InnerReducer<Self, Op, const eeigen::SyclDevice> {
 
   typedef typename Self::CoeffReturnType CoeffReturnType;
   static const bool HasOptimizedImplementation = false;
 
-  static bool run(const Self& self, Op& reducer, const Eigen::SyclDevice& dev, CoeffReturnType* output, typename Self::Index , typename Self::Index num_coeffs_to_preserve) {
+  static bool run(const Self& self, Op& reducer, const eeigen::SyclDevice& dev, CoeffReturnType* output, typename Self::Index , typename Self::Index num_coeffs_to_preserve) {
     typedef const typename Self::ChildType HostExpr; /// this is the child of reduction
     typedef  typename TensorSycl::internal::createPlaceHolderExpression<HostExpr>::Type PlaceHolderExpr;
     auto functors = TensorSycl::internal::extractFunctors(self.impl());
@@ -201,7 +201,7 @@ struct InnerReducer<Self, Op, const Eigen::SyclDevice> {
     /// creating the shared memory for calculating reduction.
     /// This one is used to collect all the reduced value of shared memory as we dont have global barrier on GPU. Once it is saved we can
     /// recursively apply reduction on it in order to reduce the whole.
-    typedef typename Eigen::internal::remove_all<decltype(self.xprDims())>::type Dims;
+    typedef typename eeigen::internal::remove_all<decltype(self.xprDims())>::type Dims;
     Dims dims= self.xprDims();
     Op functor = reducer;
 
@@ -219,8 +219,8 @@ struct InnerReducer<Self, Op, const Eigen::SyclDevice> {
         const auto device_self_expr= TensorReductionOp<Op, Dims, decltype(device_expr.expr) ,MakeGlobalPointer>(device_expr.expr, dims, functor);
         /// This is the evaluator for device_self_expr. This is exactly similar to the self which has been passed to run function. The difference is
         /// the device_evaluator is detectable and recognisable on the device.
-        typedef Eigen::TensorEvaluator<decltype(device_self_expr), Eigen::DefaultDevice> DeiceSelf;
-        auto device_self_evaluator = Eigen::TensorEvaluator<decltype(device_self_expr), Eigen::DefaultDevice>(device_self_expr, Eigen::DefaultDevice());
+        typedef eeigen::TensorEvaluator<decltype(device_self_expr), eeigen::DefaultDevice> DeiceSelf;
+        auto device_self_evaluator = eeigen::TensorEvaluator<decltype(device_self_expr), eeigen::DefaultDevice>(device_self_expr, eeigen::DefaultDevice());
         /// const cast added as a naive solution to solve the qualifier drop error
         auto globalid=itemID.get_global_linear_id();
         if (globalid< static_cast<size_t>(num_coeffs_to_preserve)) {
@@ -237,6 +237,6 @@ struct InnerReducer<Self, Op, const Eigen::SyclDevice> {
 };
 
 }  // end namespace internal
-}  // namespace Eigen
+}  // namespace eeigen
 
 #endif  // UNSUPPORTED_EIGEN_CXX11_SRC_TENSOR_TENSOR_REDUCTION_SYCL_HPP

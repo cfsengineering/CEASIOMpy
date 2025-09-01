@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra. 
 //
 // Copyright (C) 2009 Mark Borgerding mark a borgerding net
@@ -13,14 +13,14 @@
 #include <complex>
 #include <vector>
 #include <map>
-#include <Eigen/Core>
+#include <eeigen/Core>
 
 
 /**
   * \defgroup FFT_Module Fast Fourier Transform module
   *
   * \code
-  * #include <unsupported/Eigen/FFT>
+  * #include <unsupported/eeigen/FFT>
   * \endcode
   *
   * This module provides Fast Fourier transformation, with a configurable backend
@@ -31,8 +31,8 @@
   *
   * There are currently two implementation backend:
   *
-  * - fftw (http://www.fftw.org) : faster, GPL -- incompatible with Eigen in LGPL form, bigger code size.
-  * - MKL (http://en.wikipedia.org/wiki/Math_Kernel_Library) : fastest, commercial -- may be incompatible with Eigen in GPL form.
+  * - fftw (http://www.fftw.org) : faster, GPL -- incompatible with eeigen in LGPL form, bigger code size.
+  * - MKL (http://en.wikipedia.org/wiki/Math_Kernel_Library) : fastest, commercial -- may be incompatible with eeigen in GPL form.
   *
   * \section FFTDesign Design
   *
@@ -41,7 +41,7 @@
   *
   * The intent is to facilitate generic programming and ease migrating code
   * from  Matlab/octave.
-  * We think the default behavior of Eigen/FFT should favor correctness and
+  * We think the default behavior of eeigen/FFT should favor correctness and
   * generality over speed. Of course, the caller should be able to "opt-out" from this
   * behavior and get the speed increase if they want it.
   *
@@ -52,7 +52,7 @@
   * The downside is that algorithms that worked correctly in Matlab/octave 
   * don't behave the same way once implemented in C++.
   *
-  * How Eigen/FFT differs: invertible scaling is performed so IFFT( FFT(x) ) = x. 
+  * How eeigen/FFT differs: invertible scaling is performed so IFFT( FFT(x) ) = x. 
   *
   * 2) Real FFT half-spectrum
   * Other libraries use only half the frequency spectrum (plus one extra 
@@ -61,7 +61,7 @@
   * memory.  The downside is the caller needs to have special logic for the 
   * number of bins in complex vs real.
   *
-  * How Eigen/FFT differs: The full spectrum is returned from the forward 
+  * How eeigen/FFT differs: The full spectrum is returned from the forward 
   * transform.  This facilitates generic template programming by obviating 
   * separate specializations for real vs complex.  On the inverse
   * transform, only half the spectrum is actually used if the output type is real.
@@ -69,31 +69,31 @@
  
 
 #ifdef EIGEN_FFTW_DEFAULT
-// FFTW: faster, GPL -- incompatible with Eigen in LGPL form, bigger code size
+// FFTW: faster, GPL -- incompatible with eeigen in LGPL form, bigger code size
 #  include <fftw3.h>
 #  include "src/FFT/ei_fftw_impl.h"
-   namespace Eigen {
+   namespace eeigen {
      //template <typename T> typedef struct internal::fftw_impl  default_fft_impl; this does not work
      template <typename T> struct default_fft_impl : public internal::fftw_impl<T> {};
    }
 #elif defined EIGEN_MKL_DEFAULT
 // TODO 
-// intel Math Kernel Library: fastest, commercial -- may be incompatible with Eigen in GPL form
+// intel Math Kernel Library: fastest, commercial -- may be incompatible with eeigen in GPL form
 #  include "src/FFT/ei_imklfft_impl.h"
-   namespace Eigen {
+   namespace eeigen {
      template <typename T> struct default_fft_impl : public internal::imklfft_impl {};
    }
 #else
 // internal::kissfft_impl:  small, free, reasonably efficient default, derived from kissfft
 //
 # include "src/FFT/ei_kissfft_impl.h"
-  namespace Eigen {
+  namespace eeigen {
      template <typename T> 
        struct default_fft_impl : public internal::kissfft_impl<T> {};
   }
 #endif
 
-namespace Eigen {
+namespace eeigen {
 
  
 // 

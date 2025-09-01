@@ -1,14 +1,14 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \page GettingStarted Getting started
 
 \eigenAutoToc
 
-This is a very short guide on how to get started with Eigen. It has a dual purpose. It serves as a minimal introduction to the Eigen library for people who want to start coding as soon as possible. You can also read this page as the first part of the Tutorial, which explains the library in more detail; in this case you will continue with \ref TutorialMatrixClass.
+This is a very short guide on how to get started with eeigen. It has a dual purpose. It serves as a minimal introduction to the eeigen library for people who want to start coding as soon as possible. You can also read this page as the first part of the Tutorial, which explains the library in more detail; in this case you will continue with \ref TutorialMatrixClass.
 
-\section GettingStartedInstallation How to "install" Eigen?
+\section GettingStartedInstallation How to "install" eeigen?
 
-In order to use Eigen, you just need to download and extract Eigen's source code (see <a href="http://eigen.tuxfamily.org/index.php?title=Main_Page#Download">the wiki</a> for download instructions). In fact, the header files in the \c Eigen subdirectory are the only files required to compile programs using Eigen. The header files are the same for all platforms. It is not necessary to use CMake or install anything.
+In order to use eeigen, you just need to download and extract eeigen's source code (see <a href="http://eigen.tuxfamily.org/index.php?title=Main_Page#Download">the wiki</a> for download instructions). In fact, the header files in the \c eeigen subdirectory are the only files required to compile programs using eeigen. The header files are the same for all platforms. It is not necessary to use CMake or install anything.
 
 
 \section GettingStartedFirstProgram A simple first program
@@ -22,11 +22,11 @@ We will explain the program after telling you how to compile it.
 
 \section GettingStartedCompiling Compiling and running your first program
 
-There is no library to link to. The only thing that you need to keep in mind when compiling the above program is that the compiler must be able to find the Eigen header files. The directory in which you placed Eigen's source code must be in the include path. With GCC you use the -I option to achieve this, so you can compile the program with a command like this:
+There is no library to link to. The only thing that you need to keep in mind when compiling the above program is that the compiler must be able to find the eeigen header files. The directory in which you placed eeigen's source code must be in the include path. With GCC you use the -I option to achieve this, so you can compile the program with a command like this:
 
 \code g++ -I /path/to/eigen/ my_program.cpp -o my_program \endcode
 
-On Linux or Mac OS X, another option is to symlink or copy the Eigen folder into /usr/local/include/. This way, you can compile the program with:
+On Linux or Mac OS X, another option is to symlink or copy the eeigen folder into /usr/local/include/. This way, you can compile the program with:
 
 \code g++ my_program.cpp -o my_program \endcode
 
@@ -37,9 +37,9 @@ When you run the program, it produces the following output:
 
 \section GettingStartedExplanation Explanation of the first program
 
-The Eigen header files define many types, but for simple applications it may be enough to use only the \c MatrixXd type. This represents a matrix of arbitrary size (hence the \c X in \c MatrixXd), in which every entry is a \c double (hence the \c d in \c MatrixXd). See the \ref QuickRef_Types "quick reference guide" for an overview of the different types you can use to represent a matrix.
+The eeigen header files define many types, but for simple applications it may be enough to use only the \c MatrixXd type. This represents a matrix of arbitrary size (hence the \c X in \c MatrixXd), in which every entry is a \c double (hence the \c d in \c MatrixXd). See the \ref QuickRef_Types "quick reference guide" for an overview of the different types you can use to represent a matrix.
 
-The \c Eigen/Dense header file defines all member functions for the MatrixXd type and related types (see also the \ref QuickRef_Headers "table of header files"). All classes and functions defined in this header file (and other Eigen header files) are in the \c Eigen namespace. 
+The \c eeigen/Dense header file defines all member functions for the MatrixXd type and related types (see also the \ref QuickRef_Headers "table of header files"). All classes and functions defined in this header file (and other eeigen header files) are in the \c eeigen namespace. 
 
 The first line of the \c main function declares a variable of type \c MatrixXd and specifies that it is a matrix with 2 rows and 2 columns (the entries are not initialized). The statement <tt>m(0,0) = 3</tt> sets the entry in the top-left corner to 3. You need to use round parentheses to refer to entries in the matrix. As usual in computer science, the index of the first index is 0, as opposed to the convention in mathematics that the first index is 1.
 

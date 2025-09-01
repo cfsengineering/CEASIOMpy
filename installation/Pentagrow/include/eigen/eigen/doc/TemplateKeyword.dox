@@ -1,10 +1,10 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \page TopicTemplateKeyword The template and typename keywords in C++
 
 There are two uses for the \c template and \c typename keywords in C++. One of them is fairly well known
 amongst programmers: to define templates. The other use is more obscure: to specify that an expression refers
-to a template function or a type. This regularly trips up programmers that use the %Eigen library, often
+to a template function or a type. This regularly trips up programmers that use the %eeigen library, often
 leading to error messages from the compiler that are difficult to understand, such as "expected expression" or
 "no match for operator<".
 

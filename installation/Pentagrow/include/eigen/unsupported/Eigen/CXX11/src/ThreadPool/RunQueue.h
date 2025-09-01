@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Dmitry Vyukov <dvyukov@google.com>
@@ -11,7 +11,7 @@
 #define EIGEN_CXX11_THREADPOOL_RUNQUEUE_H_
 
 
-namespace Eigen {
+namespace eeigen {
 
 // RunQueue is a fixed-size, partially non-blocking deque or Work items.
 // Operations on front of the queue must be done by a single thread (owner),
@@ -205,6 +205,6 @@ class RunQueue {
   void operator=(const RunQueue&) = delete;
 };
 
-}  // namespace Eigen
+}  // namespace eeigen
 
 #endif  // EIGEN_CXX11_THREADPOOL_RUNQUEUE_H_

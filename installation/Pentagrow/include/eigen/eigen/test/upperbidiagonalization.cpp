@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -8,7 +8,7 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "main.h"
-#include <Eigen/SVD>
+#include <eeigen/SVD>
 
 template<typename MatrixType> void upperbidiag(const MatrixType& m)
 {

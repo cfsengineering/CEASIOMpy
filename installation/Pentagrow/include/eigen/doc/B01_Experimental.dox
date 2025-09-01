@@ -1,16 +1,16 @@
-namespace Eigen {
+namespace eeigen {
 
-/** \page Experimental Experimental parts of Eigen
+/** \page Experimental Experimental parts of eeigen
 
 \eigenAutoToc
 
 \section Experimental_summary Summary
 
-With the 2.0 release, Eigen's API is, to a large extent, stable. However, we wish to retain the freedom to make API incompatible changes. To that effect, we call many parts of Eigen "experimental" which means that they are not subject to API stability guarantee.
+With the 2.0 release, eeigen's API is, to a large extent, stable. However, we wish to retain the freedom to make API incompatible changes. To that effect, we call many parts of eeigen "experimental" which means that they are not subject to API stability guarantee.
 
 Our goal is that for the 2.1 release (expected in July 2009) most of these parts become API-stable too.
 
-We are aware that API stability is a major concern for our users. That's why it's a priority for us to reach it, but at the same time we're being serious about not calling Eigen API-stable too early.
+We are aware that API stability is a major concern for our users. That's why it's a priority for us to reach it, but at the same time we're being serious about not calling eeigen API-stable too early.
 
 Experimental features may at any time:
 \li be removed;

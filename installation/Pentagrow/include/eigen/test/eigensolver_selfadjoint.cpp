@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -11,8 +11,8 @@
 #include "main.h"
 #include "svd_fill.h"
 #include <limits>
-#include <Eigen/Eigenvalues>
-#include <Eigen/SparseCore>
+#include <eeigen/Eigenvalues>
+#include <eeigen/SparseCore>
 
 
 template<typename MatrixType> void selfadjointeigensolver_essential_check(const MatrixType& m)
@@ -227,7 +227,7 @@ void bug_1204()
 {
   SparseMatrix<double> A(2,2);
   A.setIdentity();
-  SelfAdjointEigenSolver<Eigen::SparseMatrix<double> > eig(A);
+  SelfAdjointEigenSolver<eeigen::SparseMatrix<double> > eig(A);
 }
 
 void test_eigensolver_selfadjoint()

@@ -21,7 +21,7 @@
 #include "smatrix.h"
 #include "smallqr.h"
 #include "algo.h"
-#include <Eigen/Eigenvalues>
+#include <eeigen/Eigenvalues>
 
 #include <iostream>
 
@@ -42,10 +42,10 @@ inline bool sym_eig(const SMatrix<N,N,Type> &a, SVector<N,Type> &lambda)
 {
 
   typedef typename SMatrix<N,N,Type>::EigenMatrix EigenMatrix;
-  const int option = Eigen::EigenvaluesOnly;
-  Eigen::SelfAdjointEigenSolver<EigenMatrix> solver(a.cmap(), option);
+  const int option = eeigen::EigenvaluesOnly;
+  eeigen::SelfAdjointEigenSolver<EigenMatrix> solver(a.cmap(), option);
   lambda.mmap() = solver.eigenvalues();
-  return (solver.info() == Eigen::Success);
+  return (solver.info() == eeigen::Success);
 }
 
 template <uint N, typename Type>
@@ -53,11 +53,11 @@ inline bool sym_eig(const SMatrix<N,N,Type> &a, SVector<N,Type> &lambda,
                     SMatrix<N,N,Type> &z)
 {
   typedef typename SMatrix<N,N,Type>::EigenMatrix EigenMatrix;
-  const int option = Eigen::ComputeEigenvectors;
-  Eigen::SelfAdjointEigenSolver<EigenMatrix> solver(a.cmap(), option);
+  const int option = eeigen::ComputeEigenvectors;
+  eeigen::SelfAdjointEigenSolver<EigenMatrix> solver(a.cmap(), option);
   lambda.mmap() = solver.eigenvalues();
   z.mmap() = solver.eigenvectors();
-  return (solver.info() == Eigen::Success);
+  return (solver.info() == eeigen::Success);
 }
 
 
@@ -214,9 +214,9 @@ inline bool eig(const SMatrix<N,N,Type> &a,
                 SVector<N, typename detail::complex_version<Type>::complex_type > &lambda)
 {
   typedef typename SMatrix<N,N,Type>::EigenMatrix EigenMatrix;
-  Eigen::EigenSolver<EigenMatrix> solver(a.cmap(), false);
+  eeigen::EigenSolver<EigenMatrix> solver(a.cmap(), false);
   lambda.mmap() = solver.eigenvalues();
-  return (solver.info() == Eigen::Success);
+  return (solver.info() == eeigen::Success);
 }
 
 template <uint N, typename Type>
@@ -225,10 +225,10 @@ inline bool eig(const SMatrix<N,N,Type> &a,
                 SMatrix<N, N, typename detail::complex_version<Type>::complex_type > &z)
 {
   typedef typename SMatrix<N,N,Type>::EigenMatrix EigenMatrix;
-  Eigen::EigenSolver<EigenMatrix> solver(a.cmap(), true);
+  eeigen::EigenSolver<EigenMatrix> solver(a.cmap(), true);
   lambda.mmap() = solver.eigenvalues();
   z.mmap() = solver.eigenvectors();
-  return (solver.info() == Eigen::Success);
+  return (solver.info() == eeigen::Success);
 }
 
 // generalized eigenvalue problems
@@ -249,7 +249,7 @@ void gen_eig(const CpxMatrix & a, const CpxMatrix & b, CpxVector & lambda,
 void gen_eig(const CpxMatrix & a, const CpxMatrix & b, 
              CpxVector & lambda, CpxMatrix & v);
 
-/** Compute eigenvalues and eigenvectors of 'a' using the Eigen library.
+/** Compute eigenvalues and eigenvectors of 'a' using the eeigen library.
  *
  * for the case where the size of a is known at compile time, such that
  * a*v = lambda*v, and a = v*diag(lambda)*inv(v)
@@ -265,11 +265,11 @@ void eig(const SMatrix<N,N,NumType> &a,
          SVector<N,std::complex<NumType> > &lambda,
          SMatrix<N,N,std::complex<NumType> > &v)
 {
-  typedef Eigen::Matrix<NumType, int(N), int(N)> MatrixType;
+  typedef eeigen::Matrix<NumType, int(N), int(N)> MatrixType;
   MatrixType ae;
   memcpy(ae.data(), a.pointer(), N*N*sizeof(NumType));
 
-  Eigen::EigenSolver<MatrixType> egsolver(ae, true);
+  eeigen::EigenSolver<MatrixType> egsolver(ae, true);
   memcpy(lambda.pointer(), egsolver.eigenvalues().data(),
          N*sizeof(std::complex<NumType>));
   memcpy(v.pointer(), egsolver.eigenvectors().data(),

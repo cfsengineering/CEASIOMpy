@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 //
@@ -9,13 +9,13 @@
 #ifndef EIGEN_KRONECKER_PRODUCT_MODULE_H
 #define EIGEN_KRONECKER_PRODUCT_MODULE_H
 
-#include "../../Eigen/Core"
+#include "../../eeigen/Core"
 
-#include "../../Eigen/src/Core/util/DisableStupidWarnings.h"
+#include "../../eeigen/src/Core/util/DisableStupidWarnings.h"
 
-#include "../../Eigen/src/SparseCore/SparseUtil.h"
+#include "../../eeigen/src/SparseCore/SparseUtil.h"
 
-namespace Eigen {
+namespace eeigen {
 
 /**
   * \defgroup KroneckerProduct_Module KroneckerProduct module
@@ -23,14 +23,14 @@ namespace Eigen {
   * This module contains an experimental Kronecker product implementation.
   *
   * \code
-  * #include <Eigen/KroneckerProduct>
+  * #include <eeigen/KroneckerProduct>
   * \endcode
   */
 
-} // namespace Eigen
+} // namespace eeigen
 
 #include "src/KroneckerProduct/KroneckerTensorProduct.h"
 
-#include "../../Eigen/src/Core/util/ReenableStupidWarnings.h"
+#include "../../eeigen/src/Core/util/ReenableStupidWarnings.h"
 
 #endif // EIGEN_KRONECKER_PRODUCT_MODULE_H

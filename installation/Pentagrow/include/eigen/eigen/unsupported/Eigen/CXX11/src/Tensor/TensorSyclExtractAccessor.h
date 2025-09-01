@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Mehdi Goli    Codeplay Software Ltd.
@@ -32,7 +32,7 @@
 #ifndef UNSUPPORTED_EIGEN_CXX11_SRC_TENSOR_TENSORSYCL_EXTRACT_ACCESSOR_HPP
 #define UNSUPPORTED_EIGEN_CXX11_SRC_TENSOR_TENSORSYCL_EXTRACT_ACCESSOR_HPP
 
-namespace Eigen {
+namespace eeigen {
 namespace TensorSycl {
 namespace internal {
 /// struct ExtractAccessor: Extract Accessor Class is used to extract the
@@ -58,8 +58,8 @@ struct AccessorConstructor{
   }
   template< cl::sycl::access::mode AcM, typename Arg> static inline auto getAccessor(cl::sycl::handler& cgh, Arg eval)
   -> decltype(utility::tuple::make_tuple( eval.device().template get_sycl_accessor<AcM,
-  typename Eigen::internal::remove_all<typename Arg::CoeffReturnType>::type>(eval.dimensions().TotalSize(), cgh,eval.data()))){
-    return utility::tuple::make_tuple(eval.device().template get_sycl_accessor<AcM, typename Eigen::internal::remove_all<typename Arg::CoeffReturnType>::type>(eval.dimensions().TotalSize(), cgh,eval.data()));
+  typename eeigen::internal::remove_all<typename Arg::CoeffReturnType>::type>(eval.dimensions().TotalSize(), cgh,eval.data()))){
+    return utility::tuple::make_tuple(eval.device().template get_sycl_accessor<AcM, typename eeigen::internal::remove_all<typename Arg::CoeffReturnType>::type>(eval.dimensions().TotalSize(), cgh,eval.data()));
   }
 };
 
@@ -200,5 +200,5 @@ auto createTupleOfAccessors(cl::sycl::handler& cgh, const Evaluator& expr)
 
 } /// namespace TensorSycl
 } /// namespace internal
-} /// namespace Eigen
+} /// namespace eeigen
 #endif  // UNSUPPORTED_EIGEN_CXX11_SRC_TENSOR_TENSORSYCL_EXTRACT_ACCESSOR_HPP

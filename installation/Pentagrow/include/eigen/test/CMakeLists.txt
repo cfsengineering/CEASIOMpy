@@ -26,11 +26,11 @@ if(EIGEN_Fortran_COMPILER_WORKS)
 endif()
 
 if(NOT EIGEN_Fortran_COMPILER_WORKS)
-  # search for a default Lapack library to complete Eigen's one
+  # search for a default Lapack library to complete eeigen's one
   find_package(LAPACK QUIET)
 endif()
 
-# configure blas/lapack (use Eigen's ones)
+# configure blas/lapack (use eeigen's ones)
 set(EIGEN_BLAS_LIBRARIES eigen_blas)
 set(EIGEN_LAPACK_LIBRARIES eigen_lapack)
 
@@ -88,7 +88,7 @@ find_path(PASTIX_pastix_nompi.h_INCLUDE_DIRS
 )
 if (NOT PASTIX_pastix_nompi.h_INCLUDE_DIRS)
   message(STATUS "A version of Pastix has been found but pastix_nompi.h does not exist in the include directory."
-                 " Because Eigen tests require a version without MPI, we disable the Pastix backend.")
+                 " Because eeigen tests require a version without MPI, we disable the Pastix backend.")
 endif()
 if(PASTIX_FOUND AND PASTIX_pastix_nompi.h_INCLUDE_DIRS)
   add_definitions("-DEIGEN_PASTIX_SUPPORT")

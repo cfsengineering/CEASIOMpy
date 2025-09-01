@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Dmitry Vyukov <dvyukov@google.com>
@@ -11,7 +11,7 @@
 #define EIGEN_USE_THREADS
 #include <cstdlib>
 #include "main.h"
-#include <Eigen/CXX11/ThreadPool>
+#include <eeigen/CXX11/ThreadPool>
 
 
 // Visual studio doesn't implement a rand_r() function since its

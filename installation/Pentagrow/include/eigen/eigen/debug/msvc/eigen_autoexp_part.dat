@@ -1,18 +1,18 @@
 ; ***************************************************************
-; * Eigen Visualizer
+; * eeigen Visualizer
 ; *
 ; * Author: Hauke Heibel <hauke.heibel@gmail.com>
 ; *
-; * Support the enhanced debugging of the following Eigen
+; * Support the enhanced debugging of the following eeigen
 ; * types (*: any, +:fixed dimension) :
 ; *
-; * - Eigen::Matrix<*,4,1,*,*,*> and Eigen::Matrix<*,1,4,*,*,*>
-; * - Eigen::Matrix<*,3,1,*,*,*> and Eigen::Matrix<*,1,3,*,*,*>
-; * - Eigen::Matrix<*,2,1,*,*,*> and Eigen::Matrix<*,1,2,*,*,*>
-; * - Eigen::Matrix<*,-1,-1,*,*,*>
-; * - Eigen::Matrix<*,+,-1,*,*,*>
-; * - Eigen::Matrix<*,-1,+,*,*,*>
-; * - Eigen::Matrix<*,+,+,*,*,*>
+; * - eeigen::Matrix<*,4,1,*,*,*> and eeigen::Matrix<*,1,4,*,*,*>
+; * - eeigen::Matrix<*,3,1,*,*,*> and eeigen::Matrix<*,1,3,*,*,*>
+; * - eeigen::Matrix<*,2,1,*,*,*> and eeigen::Matrix<*,1,2,*,*,*>
+; * - eeigen::Matrix<*,-1,-1,*,*,*>
+; * - eeigen::Matrix<*,+,-1,*,*,*>
+; * - eeigen::Matrix<*,-1,+,*,*,*>
+; * - eeigen::Matrix<*,+,+,*,*,*>
 ; *
 ; * Matrices are displayed properly independantly of the memory
 ; * alignment (RowMajor vs. ColMajor).
@@ -25,7 +25,7 @@
 [Visualizer]
 
 ; Fixed size 4-vectors
-Eigen::Matrix<*,4,1,*,*,*>|Eigen::Matrix<*,1,4,*,*,*>{
+eeigen::Matrix<*,4,1,*,*,*>|eeigen::Matrix<*,1,4,*,*,*>{
    children
    (
       #(
@@ -50,7 +50,7 @@ Eigen::Matrix<*,4,1,*,*,*>|Eigen::Matrix<*,1,4,*,*,*>{
 }
 
 ; Fixed size 3-vectors
-Eigen::Matrix<*,3,1,*,*,*>|Eigen::Matrix<*,1,3,*,*,*>{
+eeigen::Matrix<*,3,1,*,*,*>|eeigen::Matrix<*,1,3,*,*,*>{
    children
    (
       #(
@@ -74,7 +74,7 @@ Eigen::Matrix<*,3,1,*,*,*>|Eigen::Matrix<*,1,3,*,*,*>{
 }
 
 ; Fixed size 2-vectors
-Eigen::Matrix<*,2,1,*,*,*>|Eigen::Matrix<*,1,2,*,*,*>{
+eeigen::Matrix<*,2,1,*,*,*>|eeigen::Matrix<*,1,2,*,*,*>{
    children
    (
       #(
@@ -97,7 +97,7 @@ Eigen::Matrix<*,2,1,*,*,*>|Eigen::Matrix<*,1,2,*,*,*>{
 }
 
 ; Fixed size 1-vectors
-Eigen::Matrix<*,1,1,*,*,*>|Eigen::Matrix<*,1,1,*,*,*>{
+eeigen::Matrix<*,1,1,*,*,*>|eeigen::Matrix<*,1,1,*,*,*>{
    children
    (
       #(
@@ -119,7 +119,7 @@ Eigen::Matrix<*,1,1,*,*,*>|Eigen::Matrix<*,1,1,*,*,*>{
 }
 
 ; Dynamic matrices (ColMajor and RowMajor support)
-Eigen::Matrix<*,-1,-1,*,*,*>{
+eeigen::Matrix<*,-1,-1,*,*,*>{
   children
    (
       #(
@@ -163,7 +163,7 @@ Eigen::Matrix<*,-1,-1,*,*,*>{
 }
 
 ; Fixed rows, dynamic columns matrix (ColMajor and RowMajor support)
-Eigen::Matrix<*,*,-1,*,*,*>{
+eeigen::Matrix<*,*,-1,*,*,*>{
   children
    (
       #(
@@ -207,7 +207,7 @@ Eigen::Matrix<*,*,-1,*,*,*>{
 }
 
 ; Dynamic rows, fixed columns matrix (ColMajor and RowMajor support)
-Eigen::Matrix<*,-1,*,*,*,*>{
+eeigen::Matrix<*,-1,*,*,*,*>{
   children
    (
       #(
@@ -251,7 +251,7 @@ Eigen::Matrix<*,-1,*,*,*,*>{
 }
 
 ; Fixed size matrix (ColMajor and RowMajor support)
-Eigen::Matrix<*,*,*,*,*,*>{
+eeigen::Matrix<*,*,*,*,*,*>{
   children
    (
       #(

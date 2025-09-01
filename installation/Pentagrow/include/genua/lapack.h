@@ -23,7 +23,7 @@
 #ifndef HAVE_NO_LAPACK
 #include "lapack_interface.h"
 #else
-#include <Eigen/Core>
+#include <eeigen/Core>
 #endif
 
 #include "dmatrix.h"

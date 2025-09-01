@@ -1,7 +1,7 @@
-#include <Eigen/Core>
+#include <eeigen/Core>
 #include <iostream>
 
-using namespace Eigen;
+using namespace eeigen;
 
 // [circulant_func]
 template<class ArgType>
@@ -33,7 +33,7 @@ struct circulant_helper {
 // [makeCirculant]
 template <class ArgType>
 CwiseNullaryOp<circulant_functor<ArgType>, typename circulant_helper<ArgType>::MatrixType>
-makeCirculant(const Eigen::MatrixBase<ArgType>& arg)
+makeCirculant(const eeigen::MatrixBase<ArgType>& arg)
 {
   typedef typename circulant_helper<ArgType>::MatrixType MatrixType;
   return MatrixType::NullaryExpr(arg.size(), arg.size(), circulant_functor<ArgType>(arg.derived()));
@@ -43,9 +43,9 @@ makeCirculant(const Eigen::MatrixBase<ArgType>& arg)
 // [main]
 int main()
 {
-  Eigen::VectorXd vec(4);
+  eeigen::VectorXd vec(4);
   vec << 1, 2, 4, 8;
-  Eigen::MatrixXd mat;
+  eeigen::MatrixXd mat;
   mat = makeCirculant(vec);
   std::cout << mat << std::endl;
 }

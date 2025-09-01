@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -15,9 +15,9 @@
 #define EIGEN_USE_GPU
 
 #include "main.h"
-#include <unsupported/Eigen/CXX11/Tensor>
+#include <unsupported/eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
+using eeigen::Tensor;
 typedef Tensor<float, 1>::DimensionPair DimPair;
 
 template<int DataLayout>
@@ -31,7 +31,7 @@ void test_cuda_contraction(int m_size, int k_size, int n_size)
   Tensor<float, 2, DataLayout> t_right(k_size, n_size);
   Tensor<float, 2, DataLayout> t_result(m_size, n_size);
   Tensor<float, 2, DataLayout> t_result_gpu(m_size, n_size);
-  Eigen::array<DimPair, 1> dims(DimPair(1, 0));
+  eeigen::array<DimPair, 1> dims(DimPair(1, 0));
 
   t_left.setRandom();
   t_right.setRandom();
@@ -51,15 +51,15 @@ void test_cuda_contraction(int m_size, int k_size, int n_size)
   cudaMemcpy(d_t_left, t_left.data(), t_left_bytes, cudaMemcpyHostToDevice);
   cudaMemcpy(d_t_right, t_right.data(), t_right_bytes, cudaMemcpyHostToDevice);
 
-  Eigen::CudaStreamDevice stream;
-  Eigen::GpuDevice gpu_device(&stream);
+  eeigen::CudaStreamDevice stream;
+  eeigen::GpuDevice gpu_device(&stream);
 
-  Eigen::TensorMap<Eigen::Tensor<float, 2, DataLayout> >
-      gpu_t_left(d_t_left, Eigen::array<int, 2>(m_size, k_size));
-  Eigen::TensorMap<Eigen::Tensor<float, 2, DataLayout> >
-      gpu_t_right(d_t_right, Eigen::array<int, 2>(k_size, n_size));
-  Eigen::TensorMap<Eigen::Tensor<float, 2, DataLayout> >
-      gpu_t_result(d_t_result, Eigen::array<int, 2>(m_size, n_size));
+  eeigen::TensorMap<eeigen::Tensor<float, 2, DataLayout> >
+      gpu_t_left(d_t_left, eeigen::array<int, 2>(m_size, k_size));
+  eeigen::TensorMap<eeigen::Tensor<float, 2, DataLayout> >
+      gpu_t_right(d_t_right, eeigen::array<int, 2>(k_size, n_size));
+  eeigen::TensorMap<eeigen::Tensor<float, 2, DataLayout> >
+      gpu_t_result(d_t_result, eeigen::array<int, 2>(m_size, n_size));
 
 
   gpu_t_result.device(gpu_device) = gpu_t_left.contract(gpu_t_right, dims);
@@ -70,7 +70,7 @@ void test_cuda_contraction(int m_size, int k_size, int n_size)
     if (fabs(t_result(i) - t_result_gpu(i)) < 1e-4f) {
       continue;
     }
-    if (Eigen::internal::isApprox(t_result(i), t_result_gpu(i), 1e-4f)) {
+    if (eeigen::internal::isApprox(t_result(i), t_result_gpu(i), 1e-4f)) {
       continue;
     }
     std::cout << "mismatch detected at index " << i << ": " << t_result(i)
@@ -95,7 +95,7 @@ void test_scalar(int m_size, int k_size, int n_size)
   Tensor<float, 2, DataLayout> t_right(k_size, n_size);
   Tensor<float, 0, DataLayout> t_result;
   Tensor<float, 0, DataLayout> t_result_gpu;
-  Eigen::array<DimPair, 2> dims(DimPair(0, 0), DimPair(1, 1));
+  eeigen::array<DimPair, 2> dims(DimPair(0, 0), DimPair(1, 1));
 
   t_left.setRandom();
   t_right.setRandom();
@@ -115,14 +115,14 @@ void test_scalar(int m_size, int k_size, int n_size)
   cudaMemcpy(d_t_left, t_left.data(), t_left_bytes, cudaMemcpyHostToDevice);
   cudaMemcpy(d_t_right, t_right.data(), t_right_bytes, cudaMemcpyHostToDevice);
 
-  Eigen::CudaStreamDevice stream;
-  Eigen::GpuDevice gpu_device(&stream);
+  eeigen::CudaStreamDevice stream;
+  eeigen::GpuDevice gpu_device(&stream);
 
-  Eigen::TensorMap<Eigen::Tensor<float, 2, DataLayout> >
+  eeigen::TensorMap<eeigen::Tensor<float, 2, DataLayout> >
       gpu_t_left(d_t_left, m_size, k_size);
-  Eigen::TensorMap<Eigen::Tensor<float, 2, DataLayout> >
+  eeigen::TensorMap<eeigen::Tensor<float, 2, DataLayout> >
       gpu_t_right(d_t_right, k_size, n_size);
-  Eigen::TensorMap<Eigen::Tensor<float, 0, DataLayout> >
+  eeigen::TensorMap<eeigen::Tensor<float, 0, DataLayout> >
       gpu_t_result(d_t_result);
 
   gpu_t_result.device(gpu_device) = gpu_t_left.contract(gpu_t_right, dims);
@@ -130,7 +130,7 @@ void test_scalar(int m_size, int k_size, int n_size)
 
   cudaMemcpy(t_result_gpu.data(), d_t_result, t_result_bytes, cudaMemcpyDeviceToHost);
   if (fabs(t_result() - t_result_gpu()) > 1e-4f &&
-      !Eigen::internal::isApprox(t_result(), t_result_gpu(), 1e-4f)) {
+      !eeigen::internal::isApprox(t_result(), t_result_gpu(), 1e-4f)) {
     std::cout << "mismatch detected: " << t_result()
               << " vs " <<  t_result_gpu() << std::endl;
     assert(false);

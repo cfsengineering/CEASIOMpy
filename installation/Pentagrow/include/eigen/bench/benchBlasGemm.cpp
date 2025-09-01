@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-#include <Eigen/Core>
+#include <eeigen/Core>
 #include "BenchTimer.h"
 
 // include the BLAS headers
@@ -26,7 +26,7 @@ typedef double Scalar;
 #endif
 
 
-typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> MyMatrix;
+typedef eeigen::Matrix<Scalar,eeigen::Dynamic,eeigen::Dynamic> MyMatrix;
 void bench_eigengemm(MyMatrix& mc, const MyMatrix& ma, const MyMatrix& mb, int nbloops);
 void check_product(int M, int N, int K);
 void check_product(void);
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
   mb = MyMatrix::Random(K,N);
   mc = MyMatrix::Random(M,N);
 
-  Eigen::BenchTimer timer;
+  eeigen::BenchTimer timer;
 
   // we simply compute c += a*b, so:
   alpha = 1;
@@ -153,14 +153,14 @@ int main(int argc, char *argv[])
         std::cout << M << " : " << timer.value() << " ; " << 1e-3*floor(1e-6*nbmad/timer.value()) << "\n";
   }
 
-  std::cout << "l1: " << Eigen::l1CacheSize() << std::endl;
-  std::cout << "l2: " << Eigen::l2CacheSize() << std::endl;
+  std::cout << "l1: " << eeigen::l1CacheSize() << std::endl;
+  std::cout << "l2: " << eeigen::l2CacheSize() << std::endl;
   
 
   return 0;
 }
 
-using namespace Eigen;
+using namespace eeigen;
 
 void bench_eigengemm(MyMatrix& mc, const MyMatrix& ma, const MyMatrix& mb, int nbloops)
 {

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2013 Gauthier Brun <brun.gauthier@gmail.com>
@@ -14,10 +14,10 @@
 
 #include <iostream>
 #include <bench/BenchTimer.h>
-#include <unsupported/Eigen/SVD>
+#include <unsupported/eeigen/SVD>
 
 
-using namespace Eigen;
+using namespace eeigen;
 using namespace std;
 
 // number of computations of each algorithm before the print of the time

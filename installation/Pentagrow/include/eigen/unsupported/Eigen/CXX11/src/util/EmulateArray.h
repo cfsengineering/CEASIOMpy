@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -17,7 +17,7 @@
 // Moreover, CUDA doesn't support the STL containers, so we use our own instead.
 #if (__cplusplus <= 199711L && EIGEN_COMP_MSVC < 1900) || defined(__CUDACC__) || defined(EIGEN_AVOID_STL_ARRAY)
 
-namespace Eigen {
+namespace eeigen {
 template <typename T, size_t n> class array {
  public:
   EIGEN_DEVICE_FUNC
@@ -218,13 +218,13 @@ template<class T, std::size_t N> struct array_size<const array<T,N>& > {
 };
 
 }  // end namespace internal
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 #else
 
-// The compiler supports c++11, and we're not targetting cuda: use std::array as Eigen::array
+// The compiler supports c++11, and we're not targetting cuda: use std::array as eeigen::array
 #include <array>
-namespace Eigen {
+namespace eeigen {
 
 template <typename T, std::size_t N> using array = std::array<T, N>;
 
@@ -260,7 +260,7 @@ template<class T, std::size_t N> struct array_size<std::array<T,N> > {
   static const size_t value = N;
 };
 }  // end namespace internal
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 #endif
 

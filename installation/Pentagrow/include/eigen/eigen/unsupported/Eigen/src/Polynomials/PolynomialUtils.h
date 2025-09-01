@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010 Manuel Yguel <manuel.yguel@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_POLYNOMIAL_UTILS_H
 #define EIGEN_POLYNOMIAL_UTILS_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \ingroup Polynomials_Module
  * \returns the evaluation of the polynomial at x using Horner algorithm.
@@ -138,6 +138,6 @@ void roots_to_monicPolynomial( const RootVector& rv, Polynomial& poly )
   }
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_POLYNOMIAL_UTILS_H

@@ -1,18 +1,18 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \eigenManualPage TopicLinearAlgebraDecompositions Catalogue of dense decompositions
 
-This page presents a catalogue of the dense matrix decompositions offered by Eigen.
+This page presents a catalogue of the dense matrix decompositions offered by eeigen.
 For an introduction on linear solvers and decompositions, check this \link TutorialLinearAlgebra page \endlink.
 To get an overview of the true relative speed of the different decompositions, check this \link DenseDecompositionBenchmark benchmark \endlink.
 
-\section TopicLinAlgBigTable Catalogue of decompositions offered by Eigen
+\section TopicLinAlgBigTable Catalogue of decompositions offered by eeigen
 
 <table class="manual-vl">
     <tr>
         <th class="meta"></th>
-        <th class="meta" colspan="5">Generic information, not Eigen-specific</th>
-        <th class="meta" colspan="3">Eigen-specific</th>
+        <th class="meta" colspan="5">Generic information, not eeigen-specific</th>
+        <th class="meta" colspan="3">eeigen-specific</th>
     </tr>
 
     <tr>
@@ -22,8 +22,8 @@ To get an overview of the true relative speed of the different decompositions, c
         <th>Algorithm reliability and accuracy</th>
         <th>Rank-revealing</th>
         <th>Allows to compute (besides linear solving)</th>
-        <th>Linear solver provided by Eigen</th>
-        <th>Maturity of Eigen's implementation</th>
+        <th>Linear solver provided by eeigen</th>
+        <th>Maturity of eeigen's implementation</th>
         <th>Optimizations</th>
     </tr>
 
@@ -239,7 +239,7 @@ To get an overview of the true relative speed of the different decompositions, c
 
 \b Notes:
 <ul>
-<li><a name="note1">\b 1: </a>There exist two variants of the LDLT algorithm. Eigen's one produces a pure diagonal D matrix, and therefore it cannot handle indefinite matrices, unlike Lapack's one which produces a block diagonal D matrix.</li>
+<li><a name="note1">\b 1: </a>There exist two variants of the LDLT algorithm. eeigen's one produces a pure diagonal D matrix, and therefore it cannot handle indefinite matrices, unlike Lapack's one which produces a block diagonal D matrix.</li>
 <li><a name="note2">\b 2: </a>Eigenvalues, SVD and Schur decompositions rely on iterative algorithms. Their convergence speed depends on how well the eigenvalues are separated.</li>
 <li><a name="note3">\b 3: </a>Our JacobiSVD is two-sided, making for proven and optimal precision for square matrices. For non-square matrices, we have to use a QR preconditioner first. The default choice, ColPivHouseholderQR, is already very reliable, but if you want it to be proven, use FullPivHouseholderQR instead.
 </ul>

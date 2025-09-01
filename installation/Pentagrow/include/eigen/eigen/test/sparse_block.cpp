@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,14 +10,14 @@
 #include "sparse.h"
 
 template<typename T>
-typename Eigen::internal::enable_if<(T::Flags&RowMajorBit)==RowMajorBit, typename T::RowXpr>::type
+typename eeigen::internal::enable_if<(T::Flags&RowMajorBit)==RowMajorBit, typename T::RowXpr>::type
 innervec(T& A, Index i)
 {
   return A.row(i);
 }
 
 template<typename T>
-typename Eigen::internal::enable_if<(T::Flags&RowMajorBit)==0, typename T::ColXpr>::type
+typename eeigen::internal::enable_if<(T::Flags&RowMajorBit)==0, typename T::ColXpr>::type
 innervec(T& A, Index i)
 {
   return A.col(i);
@@ -291,8 +291,8 @@ template<typename SparseMatrixType> void sparse_block(const SparseMatrixType& re
 void test_sparse_block()
 {
   for(int i = 0; i < g_repeat; i++) {
-    int r = Eigen::internal::random<int>(1,200), c = Eigen::internal::random<int>(1,200);
-    if(Eigen::internal::random<int>(0,4) == 0) {
+    int r = eeigen::internal::random<int>(1,200), c = eeigen::internal::random<int>(1,200);
+    if(eeigen::internal::random<int>(0,4) == 0) {
       r = c; // check square matrices in 25% of tries
     }
     EIGEN_UNUSED_VARIABLE(r+c);
@@ -305,9 +305,9 @@ void test_sparse_block()
     CALL_SUBTEST_3(( sparse_block(SparseMatrix<double,ColMajor,long int>(r, c)) ));
     CALL_SUBTEST_3(( sparse_block(SparseMatrix<double,RowMajor,long int>(r, c)) ));
     
-    r = Eigen::internal::random<int>(1,100);
-    c = Eigen::internal::random<int>(1,100);
-    if(Eigen::internal::random<int>(0,4) == 0) {
+    r = eeigen::internal::random<int>(1,100);
+    c = eeigen::internal::random<int>(1,100);
+    if(eeigen::internal::random<int>(0,4) == 0) {
       r = c; // check square matrices in 25% of tries
     }
     

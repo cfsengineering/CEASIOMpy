@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -12,9 +12,9 @@
 
 #include "main.h"
 #include <iostream>
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
+using eeigen::Tensor;
 
 
 void test_multithread_elementwise()
@@ -26,8 +26,8 @@ void test_multithread_elementwise()
   in1.setRandom();
   in2.setRandom();
 
-  Eigen::ThreadPool tp(internal::random<int>(3, 11));
-  Eigen::ThreadPoolDevice thread_pool_device(&tp, internal::random<int>(3, 11));
+  eeigen::ThreadPool tp(internal::random<int>(3, 11));
+  eeigen::ThreadPoolDevice thread_pool_device(&tp, internal::random<int>(3, 11));
   out.device(thread_pool_device) = in1 + in2 * 3.14f;
 
   for (int i = 0; i < 2; ++i) {
@@ -49,8 +49,8 @@ void test_multithread_compound_assignment()
   in1.setRandom();
   in2.setRandom();
 
-  Eigen::ThreadPool tp(internal::random<int>(3, 11));
-  Eigen::ThreadPoolDevice thread_pool_device(&tp, internal::random<int>(3, 11));
+  eeigen::ThreadPool tp(internal::random<int>(3, 11));
+  eeigen::ThreadPoolDevice thread_pool_device(&tp, internal::random<int>(3, 11));
   out.device(thread_pool_device) = in1;
   out.device(thread_pool_device) += in2 * 3.14f;
 
@@ -75,15 +75,15 @@ void test_multithread_contraction()
 
   // this contraction should be equivalent to a single matrix multiplication
   typedef Tensor<float, 1>::DimensionPair DimPair;
-  Eigen::array<DimPair, 2> dims({{DimPair(2, 0), DimPair(3, 1)}});
+  eeigen::array<DimPair, 2> dims({{DimPair(2, 0), DimPair(3, 1)}});
 
   typedef Map<Matrix<float, Dynamic, Dynamic, DataLayout>> MapXf;
   MapXf m_left(t_left.data(), 1500, 1147);
   MapXf m_right(t_right.data(), 1147, 1400);
   Matrix<float, Dynamic, Dynamic, DataLayout> m_result(1500, 1400);
 
-  Eigen::ThreadPool tp(4);
-  Eigen::ThreadPoolDevice thread_pool_device(&tp, 4);
+  eeigen::ThreadPool tp(4);
+  eeigen::ThreadPoolDevice thread_pool_device(&tp, 4);
 
   // compute results by separate methods
   t_result.device(thread_pool_device) = t_left.contract(t_right, dims);
@@ -94,7 +94,7 @@ void test_multithread_contraction()
     if (fabsf(t_result(i) - m_result(i)) < 1e-4f) {
       continue;
     }
-    if (Eigen::internal::isApprox(t_result(i), m_result(i), 1e-4f)) {
+    if (eeigen::internal::isApprox(t_result(i), m_result(i), 1e-4f)) {
       continue;
     }
     std::cout << "mismatch detected at index " << i << ": " << t_result(i)
@@ -116,15 +116,15 @@ void test_contraction_corner_cases()
 
   // this contraction should be equivalent to a single matrix multiplication
   typedef Tensor<float, 1>::DimensionPair DimPair;
-  Eigen::array<DimPair, 1> dims{{DimPair(0, 0)}};
+  eeigen::array<DimPair, 1> dims{{DimPair(0, 0)}};
 
   typedef Map<Matrix<float, Dynamic, Dynamic, DataLayout>> MapXf;
   MapXf m_left(t_left.data(), 32, 500);
   MapXf m_right(t_right.data(), 32, 28*28);
   Matrix<float, Dynamic, Dynamic, DataLayout> m_result(500, 28*28);
 
-  Eigen::ThreadPool tp(12);
-  Eigen::ThreadPoolDevice thread_pool_device(&tp, 12);
+  eeigen::ThreadPool tp(12);
+  eeigen::ThreadPoolDevice thread_pool_device(&tp, 12);
 
   // compute results by separate methods
   t_result.device(thread_pool_device) = t_left.contract(t_right, dims);
@@ -211,10 +211,10 @@ void test_multithread_contraction_agrees_with_singlethread() {
   right += right.constant(1.5f);
 
   typedef Tensor<float, 1>::DimensionPair DimPair;
-  Eigen::array<DimPair, 1> dims({{DimPair(1, 2)}});
+  eeigen::array<DimPair, 1> dims({{DimPair(1, 2)}});
 
-  Eigen::ThreadPool tp(internal::random<int>(2, 11));
-  Eigen::ThreadPoolDevice thread_pool_device(&tp, internal::random<int>(2, 11));
+  eeigen::ThreadPool tp(internal::random<int>(2, 11));
+  eeigen::ThreadPoolDevice thread_pool_device(&tp, internal::random<int>(2, 11));
 
   Tensor<float, 5, DataLayout> st_result;
   st_result = left.contract(right, dims);
@@ -250,10 +250,10 @@ void test_full_contraction() {
   right += right.constant(1.5f);
 
   typedef Tensor<float, 2>::DimensionPair DimPair;
-  Eigen::array<DimPair, 2> dims({{DimPair(0, 0), DimPair(1, 1)}});
+  eeigen::array<DimPair, 2> dims({{DimPair(0, 0), DimPair(1, 1)}});
 
-  Eigen::ThreadPool tp(internal::random<int>(2, 11));
-  Eigen::ThreadPoolDevice thread_pool_device(&tp, internal::random<int>(2, 11));
+  eeigen::ThreadPool tp(internal::random<int>(2, 11));
+  eeigen::ThreadPoolDevice thread_pool_device(&tp, internal::random<int>(2, 11));
 
   Tensor<float, 0, DataLayout> st_result;
   st_result = left.contract(right, dims);
@@ -273,7 +273,7 @@ template<int DataLayout>
 void test_multithreaded_reductions() {
   const int num_threads = internal::random<int>(3, 11);
   ThreadPool thread_pool(num_threads);
-  Eigen::ThreadPoolDevice thread_pool_device(&thread_pool, num_threads);
+  eeigen::ThreadPoolDevice thread_pool_device(&thread_pool, num_threads);
 
   const int num_rows = internal::random<int>(13, 732);
   const int num_cols = internal::random<int>(13, 732);
@@ -296,8 +296,8 @@ void test_memcpy() {
 
   for (int i = 0; i < 5; ++i) {
     const int num_threads = internal::random<int>(3, 11);
-    Eigen::ThreadPool tp(num_threads);
-    Eigen::ThreadPoolDevice thread_pool_device(&tp, num_threads);
+    eeigen::ThreadPool tp(num_threads);
+    eeigen::ThreadPoolDevice thread_pool_device(&tp, num_threads);
 
     const int size = internal::random<int>(13, 7632);
     Tensor<float, 1> t1(size);
@@ -313,10 +313,10 @@ void test_memcpy() {
 
 void test_multithread_random()
 {
-  Eigen::ThreadPool tp(2);
-  Eigen::ThreadPoolDevice device(&tp, 2);
+  eeigen::ThreadPool tp(2);
+  eeigen::ThreadPoolDevice device(&tp, 2);
   Tensor<float, 1> t(1 << 20);
-  t.device(device) = t.random<Eigen::internal::NormalRandomGenerator<float>>();
+  t.device(device) = t.random<eeigen::internal::NormalRandomGenerator<float>>();
 }
 
 template<int DataLayout>
@@ -327,7 +327,7 @@ void test_multithread_shuffle()
 
   const int num_threads = internal::random<int>(2, 11);
   ThreadPool threads(num_threads);
-  Eigen::ThreadPoolDevice device(&threads, num_threads);
+  eeigen::ThreadPoolDevice device(&threads, num_threads);
 
   Tensor<float, 4, DataLayout> shuffle(7,5,11,17);
   array<ptrdiff_t, 4> shuffles = {{2,1,3,0}};

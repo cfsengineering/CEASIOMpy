@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2011 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -35,9 +35,9 @@ namespace std {
   #include <google/sparse_hash_map>
 #endif
 
-#include <Eigen/Cholesky>
-#include <Eigen/LU>
-#include <Eigen/Sparse>
+#include <eeigen/Cholesky>
+#include <eeigen/LU>
+#include <eeigen/Sparse>
 
 enum {
   ForceNonZeroDiag = 1,
@@ -206,5 +206,5 @@ initSparse(double density,
 }
 
 
-#include <unsupported/Eigen/SparseExtra>
+#include <unsupported/eeigen/SparseExtra>
 #endif // EIGEN_TESTSPARSE_H

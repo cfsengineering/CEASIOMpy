@@ -1,5 +1,5 @@
 
-/******** Eigen specific CSS code ************/
+/******** eeigen specific CSS code ************/
 
 /**** Styles removing elements ****/
 
@@ -43,7 +43,7 @@ pre.fragment {
 
 
 
-/* Common style for all Eigen's tables */
+/* Common style for all eeigen's tables */
 
 table.example, table.manual, table.manual-vl, table.manual-hl {
     max-width:100%;
@@ -183,7 +183,7 @@ span.cpp11,span.cpp14,span.cpp17 {
   font-weight: bold;
 }
 
-/**** old Eigen's styles ****/
+/**** old eeigen's styles ****/
 
 
 table.tutorial_code td {

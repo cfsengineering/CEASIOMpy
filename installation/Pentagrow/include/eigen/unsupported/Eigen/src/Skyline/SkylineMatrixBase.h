@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Guillaume Saupin <guillaume.saupin@cea.fr>
@@ -12,7 +12,7 @@
 
 #include "SkylineUtil.h"
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** \ingroup Skyline_Module
  *
@@ -207,6 +207,6 @@ protected:
     bool m_isRValue;
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SkylineMatrixBase_H

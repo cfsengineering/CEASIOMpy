@@ -16,15 +16,15 @@
 #define GENUA_EIGENSPARSESOLVER_H
 
 #include "abstractlinearsolver.h"
-#include <Eigen/SparseLU>
-#include <Eigen/SparseCholesky>
-// #include <Eigen/SparseQR>
-#include <Eigen/Core>
+#include <eeigen/SparseLU>
+#include <eeigen/SparseCholesky>
+// #include <eeigen/SparseQR>
+#include <eeigen/Core>
 
 /** Interface to sparse LU-decomposition.
  *
- * This is an interface to the SparseLU solver from the Eigen library.
- * It is available whenever the Eigen
+ * This is an interface to the SparseLU solver from the eeigen library.
+ * It is available whenever the eeigen
  * header library has been found by the qmake run.
  *
  * On failure, a detailed error message can be retrieved by calling the
@@ -39,15 +39,15 @@ class EigenSparseLU : public AbstractLinearSolverTpl<FloatType>
 private:
 
   typedef AbstractLinearSolverTpl<FloatType> Base;
-  typedef Eigen::SparseMatrix<FloatType, Eigen::ColMajor> SpMatrixType;
-  typedef Eigen::Matrix<FloatType, Eigen::Dynamic, Eigen::Dynamic> DenseType;
-  typedef Eigen::Map<const DenseType, Eigen::Aligned> DenseMap;
+  typedef eeigen::SparseMatrix<FloatType, eeigen::ColMajor> SpMatrixType;
+  typedef eeigen::Matrix<FloatType, eeigen::Dynamic, eeigen::Dynamic> DenseType;
+  typedef eeigen::Map<const DenseType, eeigen::Aligned> DenseMap;
 
 public:
 
   /// construct, do nothing more
   EigenSparseLU(uint ignored=0) : AbstractLinearSolverTpl<FloatType>(ignored)
-    {this->m_implName = "Eigen/SparseLU";}
+    {this->m_implName = "eeigen/SparseLU";}
 
   /// symbolic and numerical factorization
   bool factor(const CsrMatrix<FloatType> *pa) {
@@ -57,7 +57,7 @@ public:
     m_solver.analyzePattern(m_alu);
     m_solver.factorize(m_alu);
     ++Base::m_factorCount;
-    return (m_solver.info() == Eigen::Success);
+    return (m_solver.info() == eeigen::Success);
   }
 
   /// factorize again, reusing the symbolic factorization
@@ -66,13 +66,13 @@ public:
     pa->copy(m_alu);
     m_solver.factorize(m_alu);
     ++Base::m_factorCount;
-    return (m_solver.info() == Eigen::Success);
+    return (m_solver.info() == eeigen::Success);
   }
 
   /// solve system
   bool solve(const DMatrix<FloatType> &b, DMatrix<FloatType> &x) {
     ScopeTimer timer( AbstractLinearSolverTpl<FloatType>::m_solveTime );
-    if (m_solver.info() != Eigen::Success)
+    if (m_solver.info() != eeigen::Success)
       throw Error("Factorization failed, cannot solve: "
                   +m_solver.lastErrorMessage());
     DenseMap bmap(b.pointer(), b.nrows(), b.ncols());
@@ -85,12 +85,12 @@ public:
     assert(x.size() >= b.size());
     std::copy( px, px+b.size(), x.begin() );
     ++Base::m_solveCount;
-    return (m_solver.info() == Eigen::Success);
+    return (m_solver.info() == eeigen::Success);
   }
 
   /// solve system
   bool solve(const DVector<FloatType> &b, DVector<FloatType> &x) {
-    if (m_solver.info() != Eigen::Success)
+    if (m_solver.info() != eeigen::Success)
       throw Error("Factorization failed, cannot solve: "
                   +m_solver.lastErrorMessage());
     ScopeTimer timer( AbstractLinearSolverTpl<FloatType>::m_solveTime );
@@ -104,7 +104,7 @@ public:
     assert(x.size() >= b.size());
     std::copy( px, px+b.size(), x.begin() );
     ++Base::m_solveCount;
-    return (m_solver.info() == Eigen::Success);
+    return (m_solver.info() == eeigen::Success);
   }
 
   /// access error message on failure
@@ -133,13 +133,13 @@ private:
   SpMatrixType m_alu;
 
   /// actual solver
-  Eigen::SparseLU<SpMatrixType> m_solver;
+  eeigen::SparseLU<SpMatrixType> m_solver;
 };
 
 /** Interface to sparse Cholesky solver.
  *
- * This is an interface to the SimplicialLDLT solver from the Eigen library.
- * It can only solve symmetrix problems and is available whenever the Eigen
+ * This is an interface to the SimplicialLDLT solver from the eeigen library.
+ * It can only solve symmetrix problems and is available whenever the eeigen
  * header library has been found by the qmake run.
  *
  * \ingroup numerics
@@ -151,15 +151,15 @@ class EigenSparseChol : public AbstractLinearSolverTpl<FloatType>
 private:
 
   typedef AbstractLinearSolverTpl<FloatType> Base;
-  typedef Eigen::SparseMatrix<FloatType, Eigen::ColMajor> SpMatrixType;
-  typedef Eigen::Matrix<FloatType, Eigen::Dynamic, Eigen::Dynamic> DenseType;
-  typedef Eigen::Map<const DenseType, Eigen::Aligned> DenseMap;
+  typedef eeigen::SparseMatrix<FloatType, eeigen::ColMajor> SpMatrixType;
+  typedef eeigen::Matrix<FloatType, eeigen::Dynamic, eeigen::Dynamic> DenseType;
+  typedef eeigen::Map<const DenseType, eeigen::Aligned> DenseMap;
 
 public:
 
   /// construct, do nothing more
   EigenSparseChol(uint ignored=0) : AbstractLinearSolverTpl<FloatType>(ignored)
-     {this->m_implName = "Eigen/SimplicialLDLT";}
+     {this->m_implName = "eeigen/SimplicialLDLT";}
 
   /// symbolic and numerical factorization
   bool factor(const CsrMatrix<FloatType> *pa) {
@@ -169,7 +169,7 @@ public:
     m_solver.analyzePattern(m_alu);
     m_solver.factorize(m_alu);
     ++Base::m_factorCount;
-    return (m_solver.info() == Eigen::Success);
+    return (m_solver.info() == eeigen::Success);
   }
 
   /// factorize again, reusing the symbolic factorization
@@ -178,7 +178,7 @@ public:
     pa->copy(m_alu);
     m_solver.factorize(m_alu);
     ++Base::m_factorCount;
-    return (m_solver.info() == Eigen::Success);
+    return (m_solver.info() == eeigen::Success);
   }
 
   /// solve system
@@ -190,7 +190,7 @@ public:
     // x.allocate(m_pa->ncols(), b.ncols());
     std::copy( px, px+b.size(), x.begin() );
     ++Base::m_solveCount;
-    return (m_solver.info() == Eigen::Success);
+    return (m_solver.info() == eeigen::Success);
   }
 
   /// solve system
@@ -202,7 +202,7 @@ public:
     // x.allocate(m_pa->ncols(), b.ncols());
     std::copy( px, px+b.size(), x.begin() );
     ++Base::m_solveCount;
-    return (m_solver.info() == Eigen::Success);
+    return (m_solver.info() == eeigen::Success);
   }
 
 private:
@@ -211,7 +211,7 @@ private:
   SpMatrixType m_alu;
 
   /// actual solver
-  Eigen::SimplicialLDLT<SpMatrixType> m_solver;
+  eeigen::SimplicialLDLT<SpMatrixType> m_solver;
 };
 
 

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2012 Desire NUENTSA WAKAM <desire.nuentsa_wakam@inria.fr
@@ -10,7 +10,7 @@
 #ifndef EIGEN_ITERSCALING_H
 #define EIGEN_ITERSCALING_H
 
-namespace Eigen {
+namespace eeigen {
 
 /**
   * \ingroup IterativeSolvers_Module

@@ -1,8 +1,8 @@
 
 #include <iostream>
-#include <Eigen/Core>
+#include <eeigen/Core>
 #include <bench/BenchUtil.h>
-using namespace Eigen;
+using namespace eeigen;
 
 #ifndef REPEAT
 #define REPEAT 100000

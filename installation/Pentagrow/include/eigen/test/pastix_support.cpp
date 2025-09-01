@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2012 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,16 +10,16 @@
 
 #define EIGEN_NO_DEBUG_SMALL_PRODUCT_BLOCKS
 #include "sparse_solver.h"
-#include <Eigen/PaStiXSupport>
-#include <unsupported/Eigen/SparseExtra>
+#include <eeigen/PaStiXSupport>
+#include <unsupported/eeigen/SparseExtra>
 
 
 template<typename T> void test_pastix_T()
 {
-  PastixLLT< SparseMatrix<T, ColMajor>, Eigen::Lower > pastix_llt_lower;
-  PastixLDLT< SparseMatrix<T, ColMajor>, Eigen::Lower > pastix_ldlt_lower;
-  PastixLLT< SparseMatrix<T, ColMajor>, Eigen::Upper > pastix_llt_upper;
-  PastixLDLT< SparseMatrix<T, ColMajor>, Eigen::Upper > pastix_ldlt_upper;
+  PastixLLT< SparseMatrix<T, ColMajor>, eeigen::Lower > pastix_llt_lower;
+  PastixLDLT< SparseMatrix<T, ColMajor>, eeigen::Lower > pastix_ldlt_lower;
+  PastixLLT< SparseMatrix<T, ColMajor>, eeigen::Upper > pastix_llt_upper;
+  PastixLDLT< SparseMatrix<T, ColMajor>, eeigen::Upper > pastix_ldlt_upper;
   PastixLU< SparseMatrix<T, ColMajor> > pastix_lu;
 
   check_sparse_spd_solving(pastix_llt_lower);

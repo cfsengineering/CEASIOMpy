@@ -1,9 +1,9 @@
 
 #include <iostream>
-#include <Eigen/Core>
+#include <eeigen/Core>
 #include <bench/BenchTimer.h>
 
-using namespace Eigen;
+using namespace eeigen;
 using namespace std;
 
 #define END 9

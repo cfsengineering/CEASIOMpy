@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -9,12 +9,12 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "main.h"
-#include "unsupported/Eigen/SpecialFunctions"
+#include "unsupported/eeigen/SpecialFunctions"
 
 #if defined __GNUC__ && __GNUC__>=6
   #pragma GCC diagnostic ignored "-Wignored-attributes"
 #endif
-// using namespace Eigen;
+// using namespace eeigen;
 
 #ifdef EIGEN_VECTORIZE_SSE
 const bool g_vectorize_sse = true;
@@ -22,7 +22,7 @@ const bool g_vectorize_sse = true;
 const bool g_vectorize_sse = false;
 #endif
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
 template<typename T> T negate(const T& x) { return -x; }
 }

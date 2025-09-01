@@ -1,6 +1,6 @@
-#include "../Eigen/Core"
+#include "../eeigen/Core"
 
-using namespace Eigen;
+using namespace eeigen;
 
 #ifdef EIGEN_SHOULD_FAIL_TO_BUILD
 void call_ref(Ref<VectorXf> a) { }

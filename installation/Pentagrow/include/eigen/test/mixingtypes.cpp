@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -139,12 +139,12 @@ template<int SizeAtCompileType> void mixingtypes(int size = SizeAtCompileType)
   VERIFY_MIX_SCALAR(scd - vd.array() , scd - vd.template cast<complex<double> >().array());
 
   // check scalar powers
-  VERIFY_MIX_SCALAR( pow(vcf.array(), sf),        Eigen::pow(vcf.array(), complex<float>(sf)) );
-  VERIFY_MIX_SCALAR( vcf.array().pow(sf) ,        Eigen::pow(vcf.array(), complex<float>(sf)) );
-  VERIFY_MIX_SCALAR( pow(sd, vcd.array()),        Eigen::pow(complex<double>(sd), vcd.array()) );
-  VERIFY_MIX_SCALAR( Eigen::pow(vf.array(), scf), Eigen::pow(vf.template cast<complex<float> >().array(), scf) );
-  VERIFY_MIX_SCALAR( vf.array().pow(scf) ,        Eigen::pow(vf.template cast<complex<float> >().array(), scf) );
-  VERIFY_MIX_SCALAR( Eigen::pow(scd, vd.array()), Eigen::pow(scd, vd.template cast<complex<double> >().array()) );
+  VERIFY_MIX_SCALAR( pow(vcf.array(), sf),        eeigen::pow(vcf.array(), complex<float>(sf)) );
+  VERIFY_MIX_SCALAR( vcf.array().pow(sf) ,        eeigen::pow(vcf.array(), complex<float>(sf)) );
+  VERIFY_MIX_SCALAR( pow(sd, vcd.array()),        eeigen::pow(complex<double>(sd), vcd.array()) );
+  VERIFY_MIX_SCALAR( eeigen::pow(vf.array(), scf), eeigen::pow(vf.template cast<complex<float> >().array(), scf) );
+  VERIFY_MIX_SCALAR( vf.array().pow(scf) ,        eeigen::pow(vf.template cast<complex<float> >().array(), scf) );
+  VERIFY_MIX_SCALAR( eeigen::pow(scd, vd.array()), eeigen::pow(scd, vd.template cast<complex<double> >().array()) );
 
   // check dot product
   vf.dot(vf);

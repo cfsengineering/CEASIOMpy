@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_PADDING_H
 #define EIGEN_CXX11_TENSOR_TENSOR_PADDING_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorPadding
   * \ingroup CXX11_Tensor_Module
@@ -34,7 +34,7 @@ struct traits<TensorPaddingOp<PaddingDimensions, XprType> > : public traits<XprT
 };
 
 template<typename PaddingDimensions, typename XprType>
-struct eval<TensorPaddingOp<PaddingDimensions, XprType>, Eigen::Dense>
+struct eval<TensorPaddingOp<PaddingDimensions, XprType>, eeigen::Dense>
 {
   typedef const TensorPaddingOp<PaddingDimensions, XprType>& type;
 };
@@ -53,12 +53,12 @@ template<typename PaddingDimensions, typename XprType>
 class TensorPaddingOp : public TensorBase<TensorPaddingOp<PaddingDimensions, XprType>, ReadOnlyAccessors>
 {
   public:
-  typedef typename Eigen::internal::traits<TensorPaddingOp>::Scalar Scalar;
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
+  typedef typename eeigen::internal::traits<TensorPaddingOp>::Scalar Scalar;
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
-  typedef typename Eigen::internal::nested<TensorPaddingOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorPaddingOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorPaddingOp>::Index Index;
+  typedef typename eeigen::internal::nested<TensorPaddingOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorPaddingOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorPaddingOp>::Index Index;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorPaddingOp(const XprType& expr, const PaddingDimensions& padding_dims, const Scalar padding_value)
       : m_xpr(expr), m_padding_dims(padding_dims), m_padding_value(padding_value) {}
@@ -392,6 +392,6 @@ struct TensorEvaluator<const TensorPaddingOp<PaddingDimensions, ArgType>, Device
 
 
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_PADDING_H

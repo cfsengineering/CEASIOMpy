@@ -11,10 +11,10 @@
 
 #include <iostream>
 
-#include <Eigen/Core>
-#include <Eigen/QR>
+#include <eeigen/Core>
+#include <eeigen/QR>
 #include <bench/BenchUtil.h>
-using namespace Eigen;
+using namespace eeigen;
 
 #ifndef REPEAT
 #define REPEAT 1000

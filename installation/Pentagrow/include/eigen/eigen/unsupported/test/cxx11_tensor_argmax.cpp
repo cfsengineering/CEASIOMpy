@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Eugene Brevdo <ebrevdo@google.com>
@@ -10,11 +10,11 @@
 
 #include "main.h"
 
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
-using Eigen::array;
-using Eigen::Tuple;
+using eeigen::Tensor;
+using eeigen::array;
+using eeigen::Tuple;
 
 template <int DataLayout>
 static void test_simple_index_tuples()
@@ -44,7 +44,7 @@ static void test_index_tuples_dim()
 
   index_tuples = tensor.index_tuples();
 
-  for (Eigen::DenseIndex n = 0; n < tensor.size(); ++n) {
+  for (eeigen::DenseIndex n = 0; n < tensor.size(); ++n) {
     const Tuple<DenseIndex, float>& v = index_tuples(n); //(i, j, k, l);
     VERIFY_IS_EQUAL(v.first, n);
     VERIFY_IS_EQUAL(v.second, tensor(n));

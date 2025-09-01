@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015-2016 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -9,8 +9,8 @@
 // #define EIGEN_DONT_VECTORIZE
 // #define EIGEN_MAX_ALIGN_BYTES 0
 #include "sparse_solver.h"
-#include <Eigen/IterativeLinearSolvers>
-#include <unsupported/Eigen/IterativeSolvers>
+#include <eeigen/IterativeLinearSolvers>
+#include <unsupported/eeigen/IterativeSolvers>
 
 template<typename T, typename I> void test_incomplete_cholesky_T()
 {
@@ -39,11 +39,11 @@ void test_incomplete_cholesky()
     // regression for bug 1150
   for(int N = 1; N<20; ++N)
   {
-    Eigen::MatrixXd b( N, N );
+    eeigen::MatrixXd b( N, N );
     b.setOnes();
 
-    Eigen::SparseMatrix<double> m( N, N );
-    m.reserve(Eigen::VectorXi::Constant(N,4));
+    eeigen::SparseMatrix<double> m( N, N );
+    m.reserve(eeigen::VectorXi::Constant(N,4));
     for( int i = 0; i < N; ++i )
     {
         m.insert( i, i ) = 1;
@@ -52,14 +52,14 @@ void test_incomplete_cholesky()
         m.coeffRef( i, i / 4 ) = 2;
     }
 
-    Eigen::SparseMatrix<double> A;
+    eeigen::SparseMatrix<double> A;
     A = m * m.transpose();
 
-    Eigen::ConjugateGradient<Eigen::SparseMatrix<double>,
-        Eigen::Lower | Eigen::Upper,
-        Eigen::IncompleteCholesky<double> > solver( A );
-    VERIFY(solver.preconditioner().info() == Eigen::Success);
-    VERIFY(solver.info() == Eigen::Success);
+    eeigen::ConjugateGradient<eeigen::SparseMatrix<double>,
+        eeigen::Lower | eeigen::Upper,
+        eeigen::IncompleteCholesky<double> > solver( A );
+    VERIFY(solver.preconditioner().info() == eeigen::Success);
+    VERIFY(solver.info() == eeigen::Success);
   }
 #endif
 }

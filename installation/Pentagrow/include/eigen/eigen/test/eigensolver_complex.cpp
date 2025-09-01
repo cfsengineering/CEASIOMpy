@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,8 +10,8 @@
 
 #include "main.h"
 #include <limits>
-#include <Eigen/Eigenvalues>
-#include <Eigen/LU>
+#include <eeigen/Eigenvalues>
+#include <eeigen/LU>
 
 template<typename MatrixType> bool find_pivot(typename MatrixType::Scalar tol, MatrixType &diffs, Index col=0)
 {

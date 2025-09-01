@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -9,10 +9,10 @@
 
 #include "main.h"
 
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
-using Eigen::TensorMap;
+using eeigen::Tensor;
+using eeigen::TensorMap;
 
 
 
@@ -83,7 +83,7 @@ static void test_contractions()
 
   // This contraction should be equivalent to a regular matrix multiplication
   typedef Tensor<float, 1>::DimensionPair DimPair;
-  Eigen::array<DimPair, 2> dims;
+  eeigen::array<DimPair, 2> dims;
   dims[0] = DimPair(2, 0);
   dims[1] = DimPair(3, 1);
   t_result = t_left.contract(t_right, dims);

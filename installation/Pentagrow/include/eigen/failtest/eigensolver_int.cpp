@@ -1,4 +1,4 @@
-#include "../Eigen/Eigenvalues"
+#include "../eeigen/Eigenvalues"
 
 #ifdef EIGEN_SHOULD_FAIL_TO_BUILD
 #define SCALAR int
@@ -6,7 +6,7 @@
 #define SCALAR float
 #endif
 
-using namespace Eigen;
+using namespace eeigen;
 
 int main()
 {

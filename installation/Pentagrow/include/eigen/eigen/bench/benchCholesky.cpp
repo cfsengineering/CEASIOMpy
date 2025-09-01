@@ -10,10 +10,10 @@
 
 #include <iostream>
 
-#include <Eigen/Core>
-#include <Eigen/Cholesky>
+#include <eeigen/Core>
+#include <eeigen/Cholesky>
 #include <bench/BenchUtil.h>
-using namespace Eigen;
+using namespace eeigen;
 
 #ifndef REPEAT
 #define REPEAT 10000

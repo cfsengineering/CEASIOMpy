@@ -1,32 +1,32 @@
 #include <iostream>
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#include <Eigen/IterativeLinearSolvers>
-#include <unsupported/Eigen/IterativeSolvers>
+#include <eeigen/Core>
+#include <eeigen/Dense>
+#include <eeigen/IterativeLinearSolvers>
+#include <unsupported/eeigen/IterativeSolvers>
 
 class MatrixReplacement;
-using Eigen::SparseMatrix;
+using eeigen::SparseMatrix;
 
-namespace Eigen {
+namespace eeigen {
 namespace internal {
   // MatrixReplacement looks-like a SparseMatrix, so let's inherits its traits:
   template<>
-  struct traits<MatrixReplacement> :  public Eigen::internal::traits<Eigen::SparseMatrix<double> >
+  struct traits<MatrixReplacement> :  public eeigen::internal::traits<eeigen::SparseMatrix<double> >
   {};
 }
 }
 
-// Example of a matrix-free wrapper from a user type to Eigen's compatible type
-// For the sake of simplicity, this example simply wrap a Eigen::SparseMatrix.
-class MatrixReplacement : public Eigen::EigenBase<MatrixReplacement> {
+// Example of a matrix-free wrapper from a user type to eeigen's compatible type
+// For the sake of simplicity, this example simply wrap a eeigen::SparseMatrix.
+class MatrixReplacement : public eeigen::EigenBase<MatrixReplacement> {
 public:
   // Required typedefs, constants, and method:
   typedef double Scalar;
   typedef double RealScalar;
   typedef int StorageIndex;
   enum {
-    ColsAtCompileTime = Eigen::Dynamic,
-    MaxColsAtCompileTime = Eigen::Dynamic,
+    ColsAtCompileTime = eeigen::Dynamic,
+    MaxColsAtCompileTime = eeigen::Dynamic,
     IsRowMajor = false
   };
 
@@ -34,8 +34,8 @@ public:
   Index cols() const { return mp_mat->cols(); }
 
   template<typename Rhs>
-  Eigen::Product<MatrixReplacement,Rhs,Eigen::AliasFreeProduct> operator*(const Eigen::MatrixBase<Rhs>& x) const {
-    return Eigen::Product<MatrixReplacement,Rhs,Eigen::AliasFreeProduct>(*this, x.derived());
+  eeigen::Product<MatrixReplacement,Rhs,eeigen::AliasFreeProduct> operator*(const eeigen::MatrixBase<Rhs>& x) const {
+    return eeigen::Product<MatrixReplacement,Rhs,eeigen::AliasFreeProduct>(*this, x.derived());
   }
 
   // Custom API:
@@ -51,8 +51,8 @@ private:
 };
 
 
-// Implementation of MatrixReplacement * Eigen::DenseVector though a specialization of internal::generic_product_impl:
-namespace Eigen {
+// Implementation of MatrixReplacement * eeigen::DenseVector though a specialization of internal::generic_product_impl:
+namespace eeigen {
 namespace internal {
 
   template<typename Rhs>
@@ -82,46 +82,46 @@ namespace internal {
 int main()
 {
   int n = 10;
-  Eigen::SparseMatrix<double> S = Eigen::MatrixXd::Random(n,n).sparseView(0.5,1);
+  eeigen::SparseMatrix<double> S = eeigen::MatrixXd::Random(n,n).sparseView(0.5,1);
   S = S.transpose()*S;
 
   MatrixReplacement A;
   A.attachMyMatrix(S);
 
-  Eigen::VectorXd b(n), x;
+  eeigen::VectorXd b(n), x;
   b.setRandom();
 
   // Solve Ax = b using various iterative solver with matrix-free version:
   {
-    Eigen::ConjugateGradient<MatrixReplacement, Eigen::Lower|Eigen::Upper, Eigen::IdentityPreconditioner> cg;
+    eeigen::ConjugateGradient<MatrixReplacement, eeigen::Lower|eeigen::Upper, eeigen::IdentityPreconditioner> cg;
     cg.compute(A);
     x = cg.solve(b);
     std::cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
   }
 
   {
-    Eigen::BiCGSTAB<MatrixReplacement, Eigen::IdentityPreconditioner> bicg;
+    eeigen::BiCGSTAB<MatrixReplacement, eeigen::IdentityPreconditioner> bicg;
     bicg.compute(A);
     x = bicg.solve(b);
     std::cout << "BiCGSTAB: #iterations: " << bicg.iterations() << ", estimated error: " << bicg.error() << std::endl;
   }
 
   {
-    Eigen::GMRES<MatrixReplacement, Eigen::IdentityPreconditioner> gmres;
+    eeigen::GMRES<MatrixReplacement, eeigen::IdentityPreconditioner> gmres;
     gmres.compute(A);
     x = gmres.solve(b);
     std::cout << "GMRES:    #iterations: " << gmres.iterations() << ", estimated error: " << gmres.error() << std::endl;
   }
 
   {
-    Eigen::DGMRES<MatrixReplacement, Eigen::IdentityPreconditioner> gmres;
+    eeigen::DGMRES<MatrixReplacement, eeigen::IdentityPreconditioner> gmres;
     gmres.compute(A);
     x = gmres.solve(b);
     std::cout << "DGMRES:   #iterations: " << gmres.iterations() << ", estimated error: " << gmres.error() << std::endl;
   }
 
   {
-    Eigen::MINRES<MatrixReplacement, Eigen::Lower|Eigen::Upper, Eigen::IdentityPreconditioner> minres;
+    eeigen::MINRES<MatrixReplacement, eeigen::Lower|eeigen::Upper, eeigen::IdentityPreconditioner> minres;
     minres.compute(A);
     x = minres.solve(b);
     std::cout << "MINRES:   #iterations: " << minres.iterations() << ", estimated error: " << minres.error() << std::endl;

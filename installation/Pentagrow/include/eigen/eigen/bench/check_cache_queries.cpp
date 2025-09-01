@@ -1,9 +1,9 @@
 
 #define EIGEN_INTERNAL_DEBUG_CACHE_QUERY
 #include <iostream>
-#include "../Eigen/Core"
+#include "../eeigen/Core"
 
-using namespace Eigen;
+using namespace eeigen;
 using namespace std;
 
 #define DUMP_CPUID(CODE) {\
@@ -17,11 +17,11 @@ using namespace std;
   
 int main()
 {
-  cout << "Eigen's L1    = " << internal::queryL1CacheSize() << endl;
-  cout << "Eigen's L2/L3 = " << internal::queryTopLevelCacheSize() << endl;
+  cout << "eeigen's L1    = " << internal::queryL1CacheSize() << endl;
+  cout << "eeigen's L2/L3 = " << internal::queryTopLevelCacheSize() << endl;
   int l1, l2, l3;
   internal::queryCacheSizes(l1, l2, l3);
-  cout << "Eigen's L1, L2, L3       = " << l1 << " " << l2 << " " << l3 << endl;
+  cout << "eeigen's L1, L2, L3       = " << l1 << " " << l2 << " " << l3 << endl;
   
   #ifdef EIGEN_CPUID
 
@@ -41,14 +41,14 @@ int main()
   int max_funcs = abcd[0];
 
   internal::queryCacheSizes_intel_codes(l1, l2, l3);
-  cout << "Eigen's intel codes L1, L2, L3 = " << l1 << " " << l2 << " " << l3 << endl;
+  cout << "eeigen's intel codes L1, L2, L3 = " << l1 << " " << l2 << " " << l3 << endl;
   if(max_funcs>=4)
   {
     internal::queryCacheSizes_intel_direct(l1, l2, l3);
-    cout << "Eigen's intel direct L1, L2, L3 = " << l1 << " " << l2 << " " << l3 << endl;
+    cout << "eeigen's intel direct L1, L2, L3 = " << l1 << " " << l2 << " " << l3 << endl;
   }
   internal::queryCacheSizes_amd(l1, l2, l3);
-  cout << "Eigen's amd L1, L2, L3         = " << l1 << " " << l2 << " " << l3 << endl;
+  cout << "eeigen's amd L1, L2, L3         = " << l1 << " " << l2 << " " << l3 << endl;
   cout << endl;
   
   // dump Intel direct method

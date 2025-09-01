@@ -1,4 +1,4 @@
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -48,7 +48,7 @@ void dogleg(
     if (qnorm <= delta)
         return;
 
-    // TODO : this path is not tested by Eigen unit tests
+    // TODO : this path is not tested by eeigen unit tests
 
     /* the gauss-newton direction is not acceptable. */
     /* next, calculate the scaled gradient direction. */
@@ -104,4 +104,4 @@ algo_end:
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen

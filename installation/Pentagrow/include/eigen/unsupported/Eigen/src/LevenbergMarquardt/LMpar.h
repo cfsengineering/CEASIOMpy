@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // This code initially comes from MINPACK whose original authors are:
@@ -12,7 +12,7 @@
 #ifndef EIGEN_LMPAR_H
 #define EIGEN_LMPAR_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
   
@@ -155,6 +155,6 @@ namespace internal {
   }
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_LMPAR_H

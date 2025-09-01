@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Guillaume Saupin <guillaume.saupin@cea.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SKYLINE_STORAGE_H
 #define EIGEN_SKYLINE_STORAGE_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 /** Stores a skyline set of values in three structures :
  * The diagonal elements
@@ -254,6 +254,6 @@ public:
 
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_COMPRESSED_STORAGE_H

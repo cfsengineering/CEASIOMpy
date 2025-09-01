@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Thomas Capricelli <orzel@freehackers.org>
@@ -14,7 +14,7 @@
 #ifndef EIGEN_LMONESTEP_H
 #define EIGEN_LMONESTEP_H
 
-namespace Eigen {
+namespace eeigen {
 
 template<typename FunctorType>
 LevenbergMarquardtSpace::Status
@@ -197,6 +197,6 @@ LevenbergMarquardt<FunctorType>::minimizeOneStep(FVectorType  &x)
 }
 
   
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_LMONESTEP_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Gael Guennebaud <g.gael@free.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_ITERATIVE_SOLVERS_MODULE_H
 #define EIGEN_ITERATIVE_SOLVERS_MODULE_H
 
-#include <Eigen/Sparse>
+#include <eeigen/Sparse>
 
 /**
   * \defgroup IterativeSolvers_Module Iterative solvers module
@@ -19,7 +19,7 @@
   *  - a constrained conjugate gradient
   *  - a Householder GMRES implementation
   * \code
-  * #include <unsupported/Eigen/IterativeSolvers>
+  * #include <unsupported/eeigen/IterativeSolvers>
   * \endcode
   */
 //@{
@@ -30,8 +30,8 @@
 #endif
 
 #include "src/IterativeSolvers/IncompleteLU.h"
-#include "../../Eigen/Jacobi"
-#include "../../Eigen/Householder"
+#include "../../eeigen/Jacobi"
+#include "../../eeigen/Householder"
 #include "src/IterativeSolvers/GMRES.h"
 #include "src/IterativeSolvers/DGMRES.h"
 //#include "src/IterativeSolvers/SSORPreconditioner.h"

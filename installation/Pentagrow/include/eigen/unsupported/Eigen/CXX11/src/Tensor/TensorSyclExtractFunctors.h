@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Mehdi Goli    Codeplay Software Ltd.
@@ -22,14 +22,14 @@
 #ifndef UNSUPPORTED_EIGEN_CXX11_SRC_TENSOR_TENSORSYCL_EXTRACT_FUNCTORS_HPP
 #define UNSUPPORTED_EIGEN_CXX11_SRC_TENSOR_TENSORSYCL_EXTRACT_FUNCTORS_HPP
 
-namespace Eigen {
+namespace eeigen {
 namespace TensorSycl {
 namespace internal {
 /// struct FunctorExtractor:  This struct is used to extract the functors
 /// constructed on
 /// the host-side, to pack them and reuse them in reconstruction of the
 /// expression on the device.
-/// We have to do that as in Eigen the functors are not stateless so we cannot
+/// We have to do that as in eeigen the functors are not stateless so we cannot
 /// re-instantiate them on the device.
 /// We have to pass instantiated functors to the device.
 // This struct is used for leafNode (TensorMap) and nodes behaving like leafNode (TensorForcedEval).
@@ -154,7 +154,7 @@ template<typename Dim> struct DimConstr<Dim, 0> {
 template<typename Op, typename Dims, typename ArgType, template <class> class MakePointer_, typename Device>
 struct FunctorExtractor<TensorEvaluator<const TensorReductionOp<Op, Dims, ArgType, MakePointer_>, Device>>{
   typedef TensorEvaluator<const TensorReductionOp<Op, Dims, ArgType, MakePointer_>, Device> Evaluator;
-  typedef typename Eigen::internal::conditional<Evaluator::NumOutputDims==0, DSizes<typename Evaluator::Index, 1>, typename Evaluator::Dimensions >::type Dimensions;
+  typedef typename eeigen::internal::conditional<Evaluator::NumOutputDims==0, DSizes<typename Evaluator::Index, 1>, typename Evaluator::Dimensions >::type Dimensions;
   const Dimensions m_dimensions;
   const Dimensions& dimensions() const { return m_dimensions; }
   FunctorExtractor(const TensorEvaluator<const TensorReductionOp<Op, Dims, ArgType, MakePointer_>, Device>& expr)
@@ -172,6 +172,6 @@ auto inline extractFunctors(const Evaluator& evaluator)-> FunctorExtractor<Evalu
 }
 }  // namespace internal
 }  // namespace TensorSycl
-}  // namespace Eigen
+}  // namespace eeigen
 
 #endif  // UNSUPPORTED_EIGEN_CXX11_SRC_TENSOR_TENSORSYCL_EXTRACT_FUNCTORS_HPP

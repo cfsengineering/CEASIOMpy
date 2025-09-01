@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2013 Christian Seiler <christian@iwakd.de>
@@ -39,7 +39,7 @@
 #error This library needs at least a C++11 compliant compiler. If you use g++/clang, please enable the -std=c++11 compiler flag. (-std=c++0x on older versions.)
 #endif
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -79,7 +79,7 @@ template<std::size_t I, class T> constexpr inline T const& array_get(std::vector
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11WORKAROUNDS_H
 

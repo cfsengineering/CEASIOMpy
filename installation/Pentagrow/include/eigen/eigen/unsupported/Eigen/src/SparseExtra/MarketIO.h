@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal 
 {
@@ -270,6 +270,6 @@ bool saveMarketVector (const VectorType& vec, const std::string& filename)
   return true; 
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSE_MARKET_IO_H

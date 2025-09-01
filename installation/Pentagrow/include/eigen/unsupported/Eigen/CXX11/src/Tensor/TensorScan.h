@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Igor Babuschkin <igor@babuschk.in>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_SCAN_H
 #define EIGEN_CXX11_TENSOR_TENSOR_SCAN_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -27,7 +27,7 @@ struct traits<TensorScanOp<Op, XprType> >
 };
 
 template<typename Op, typename XprType>
-struct eval<TensorScanOp<Op, XprType>, Eigen::Dense>
+struct eval<TensorScanOp<Op, XprType>, eeigen::Dense>
 {
   typedef const TensorScanOp<Op, XprType>& type;
 };
@@ -49,12 +49,12 @@ template <typename Op, typename XprType>
 class TensorScanOp
     : public TensorBase<TensorScanOp<Op, XprType>, ReadOnlyAccessors> {
 public:
-  typedef typename Eigen::internal::traits<TensorScanOp>::Scalar Scalar;
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
+  typedef typename eeigen::internal::traits<TensorScanOp>::Scalar Scalar;
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
-  typedef typename Eigen::internal::nested<TensorScanOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorScanOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorScanOp>::Index Index;
+  typedef typename eeigen::internal::nested<TensorScanOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorScanOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorScanOp>::Index Index;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorScanOp(
       const XprType& expr, const Index& axis, bool exclusive = false, const Op& op = Op())
@@ -282,6 +282,6 @@ struct ScanLauncher<Self, Reducer, GpuDevice> {
 };
 #endif  // EIGEN_USE_GPU && __CUDACC__
 
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 #endif  // EIGEN_CXX11_TENSOR_TENSOR_SCAN_H

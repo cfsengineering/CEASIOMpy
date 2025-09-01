@@ -1,10 +1,10 @@
 
 #include <iostream>
-#include <Eigen/Geometry>
+#include <eeigen/Geometry>
 #include <bench/BenchTimer.h>
 
 using namespace std;
-using namespace Eigen;
+using namespace eeigen;
 
 #ifndef SCALAR
 #define SCALAR float

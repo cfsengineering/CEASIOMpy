@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 20010-2011 Hauke Heibel <hauke.heibel@gmail.com>
@@ -12,7 +12,7 @@
 
 #include "SplineFwd.h"
 
-namespace Eigen
+namespace eeigen
 {
     /**
      * \ingroup Splines_Module

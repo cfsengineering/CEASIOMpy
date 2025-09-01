@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_CONTRACTION_MAPPER_H
 #define EIGEN_CXX11_TENSOR_TENSOR_CONTRACTION_MAPPER_H
 
-namespace Eigen {
+namespace eeigen {
 
 namespace internal {
 
@@ -20,7 +20,7 @@ enum {
 };
 
 /*
- * Implementation of the Eigen blas_data_mapper class for tensors.
+ * Implementation of the eeigen blas_data_mapper class for tensors.
  */
 
 template <typename Tensor, bool HasRawAccess> struct CoeffLoader {
@@ -462,6 +462,6 @@ class TensorContractionInputMapper
 
 
 }  // end namespace internal
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_CONTRACTION_MAPPER_H

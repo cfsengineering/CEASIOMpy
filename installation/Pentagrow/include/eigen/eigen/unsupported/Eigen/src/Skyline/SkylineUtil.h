@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Guillaume Saupin <guillaume.saupin@cea.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SKYLINEUTIL_H
 #define EIGEN_SKYLINEUTIL_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 #ifdef NDEBUG
 #define EIGEN_DBG_SKYLINE(X)
@@ -26,7 +26,7 @@ enum {IsSkyline = SkylineBit};
 
 #define EIGEN_SKYLINE_INHERIT_ASSIGNMENT_OPERATOR(Derived, Op) \
 template<typename OtherDerived> \
-EIGEN_STRONG_INLINE Derived& operator Op(const Eigen::SkylineMatrixBase<OtherDerived>& other) \
+EIGEN_STRONG_INLINE Derived& operator Op(const eeigen::SkylineMatrixBase<OtherDerived>& other) \
 { \
   return Base::operator Op(other.derived()); \
 } \
@@ -51,14 +51,14 @@ EIGEN_STRONG_INLINE Derived& operator Op(const Other& scalar) \
 
 #define _EIGEN_SKYLINE_GENERIC_PUBLIC_INTERFACE(Derived, BaseClass) \
   typedef BaseClass Base; \
-  typedef typename Eigen::internal::traits<Derived>::Scalar Scalar; \
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar; \
-  typedef typename Eigen::internal::traits<Derived>::StorageKind StorageKind; \
-  typedef typename Eigen::internal::index<StorageKind>::type Index; \
-  enum {  Flags = Eigen::internal::traits<Derived>::Flags, };
+  typedef typename eeigen::internal::traits<Derived>::Scalar Scalar; \
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar; \
+  typedef typename eeigen::internal::traits<Derived>::StorageKind StorageKind; \
+  typedef typename eeigen::internal::index<StorageKind>::type Index; \
+  enum {  Flags = eeigen::internal::traits<Derived>::Flags, };
 
 #define EIGEN_SKYLINE_GENERIC_PUBLIC_INTERFACE(Derived) \
-  _EIGEN_SKYLINE_GENERIC_PUBLIC_INTERFACE(Derived, Eigen::SkylineMatrixBase<Derived>)
+  _EIGEN_SKYLINE_GENERIC_PUBLIC_INTERFACE(Derived, eeigen::SkylineMatrixBase<Derived>)
 
 template<typename Derived> class SkylineMatrixBase;
 template<typename _Scalar, int _Flags = 0> class SkylineMatrix;
@@ -84,6 +84,6 @@ template<typename T> class eval<T,IsSkyline>
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SKYLINEUTIL_H

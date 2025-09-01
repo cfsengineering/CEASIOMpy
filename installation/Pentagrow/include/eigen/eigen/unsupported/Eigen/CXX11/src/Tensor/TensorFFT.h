@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Jianwei Cui <thucjw@gmail.com>
@@ -14,7 +14,7 @@
 // values directly inside a class.
 #if __cplusplus >= 201103L || EIGEN_COMP_MSVC >= 1900
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorFFT
   * \ingroup CXX11_Tensor_Module
@@ -74,7 +74,7 @@ struct traits<TensorFFTOp<FFT, XprType, FFTResultType, FFTDir> > : public traits
 };
 
 template <typename FFT, typename XprType, int FFTResultType, int FFTDirection>
-struct eval<TensorFFTOp<FFT, XprType, FFTResultType, FFTDirection>, Eigen::Dense> {
+struct eval<TensorFFTOp<FFT, XprType, FFTResultType, FFTDirection>, eeigen::Dense> {
   typedef const TensorFFTOp<FFT, XprType, FFTResultType, FFTDirection>& type;
 };
 
@@ -88,14 +88,14 @@ struct nested<TensorFFTOp<FFT, XprType, FFTResultType, FFTDirection>, 1, typenam
 template <typename FFT, typename XprType, int FFTResultType, int FFTDir>
 class TensorFFTOp : public TensorBase<TensorFFTOp<FFT, XprType, FFTResultType, FFTDir>, ReadOnlyAccessors> {
  public:
-  typedef typename Eigen::internal::traits<TensorFFTOp>::Scalar Scalar;
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
+  typedef typename eeigen::internal::traits<TensorFFTOp>::Scalar Scalar;
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar;
   typedef typename std::complex<RealScalar> ComplexScalar;
   typedef typename internal::conditional<FFTResultType == RealPart || FFTResultType == ImagPart, RealScalar, ComplexScalar>::type OutputScalar;
   typedef OutputScalar CoeffReturnType;
-  typedef typename Eigen::internal::nested<TensorFFTOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorFFTOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorFFTOp>::Index Index;
+  typedef typename eeigen::internal::nested<TensorFFTOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorFFTOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorFFTOp>::Index Index;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorFFTOp(const XprType& expr, const FFT& fft)
       : m_xpr(expr), m_fft(fft) {}
@@ -121,7 +121,7 @@ struct TensorEvaluator<const TensorFFTOp<FFT, ArgType, FFTResultType, FFTDir>, D
   static const int NumDims = internal::array_size<typename TensorEvaluator<ArgType, Device>::Dimensions>::value;
   typedef DSizes<Index, NumDims> Dimensions;
   typedef typename XprType::Scalar Scalar;
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar;
   typedef typename std::complex<RealScalar> ComplexScalar;
   typedef typename TensorEvaluator<ArgType, Device>::Dimensions InputDimensions;
   typedef internal::traits<XprType> XprTraits;
@@ -643,7 +643,7 @@ struct TensorEvaluator<const TensorFFTOp<FFT, ArgType, FFTResultType, FFTDir>, D
   };
 };
 
-}  // end namespace Eigen
+}  // end namespace eeigen
 
 #endif  // EIGEN_HAS_CONSTEXPR
 

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Jianwei Cui <thucjw@gmail.com>
@@ -10,9 +10,9 @@
 #include "main.h"
 #include <complex>
 #include <cmath>
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
+using eeigen::Tensor;
 
 template <int DataLayout>
 static void test_1D_fft_ifft_invariant(int sequence_length) {
@@ -25,8 +25,8 @@ static void test_1D_fft_ifft_invariant(int sequence_length) {
   Tensor<std::complex<double>, 1, DataLayout> tensor_after_fft;
   Tensor<std::complex<double>, 1, DataLayout> tensor_after_fft_ifft;
 
-  tensor_after_fft = tensor.template fft<Eigen::BothParts, Eigen::FFT_FORWARD>(fft);
-  tensor_after_fft_ifft = tensor_after_fft.template fft<Eigen::BothParts, Eigen::FFT_REVERSE>(fft);
+  tensor_after_fft = tensor.template fft<eeigen::BothParts, eeigen::FFT_FORWARD>(fft);
+  tensor_after_fft_ifft = tensor_after_fft.template fft<eeigen::BothParts, eeigen::FFT_REVERSE>(fft);
 
   VERIFY_IS_EQUAL(tensor_after_fft.dimension(0), sequence_length);
   VERIFY_IS_EQUAL(tensor_after_fft_ifft.dimension(0), sequence_length);
@@ -48,8 +48,8 @@ static void test_2D_fft_ifft_invariant(int dim0, int dim1) {
   Tensor<std::complex<double>, 2, DataLayout> tensor_after_fft;
   Tensor<std::complex<double>, 2, DataLayout> tensor_after_fft_ifft;
 
-  tensor_after_fft = tensor.template fft<Eigen::BothParts, Eigen::FFT_FORWARD>(fft);
-  tensor_after_fft_ifft = tensor_after_fft.template fft<Eigen::BothParts, Eigen::FFT_REVERSE>(fft);
+  tensor_after_fft = tensor.template fft<eeigen::BothParts, eeigen::FFT_FORWARD>(fft);
+  tensor_after_fft_ifft = tensor_after_fft.template fft<eeigen::BothParts, eeigen::FFT_REVERSE>(fft);
 
   VERIFY_IS_EQUAL(tensor_after_fft.dimension(0), dim0);
   VERIFY_IS_EQUAL(tensor_after_fft.dimension(1), dim1);
@@ -77,8 +77,8 @@ static void test_3D_fft_ifft_invariant(int dim0, int dim1, int dim2) {
   Tensor<std::complex<double>, 3, DataLayout> tensor_after_fft;
   Tensor<std::complex<double>, 3, DataLayout> tensor_after_fft_ifft;
 
-  tensor_after_fft = tensor.template fft<Eigen::BothParts, Eigen::FFT_FORWARD>(fft);
-  tensor_after_fft_ifft = tensor_after_fft.template fft<Eigen::BothParts, Eigen::FFT_REVERSE>(fft);
+  tensor_after_fft = tensor.template fft<eeigen::BothParts, eeigen::FFT_FORWARD>(fft);
+  tensor_after_fft_ifft = tensor_after_fft.template fft<eeigen::BothParts, eeigen::FFT_REVERSE>(fft);
 
   VERIFY_IS_EQUAL(tensor_after_fft.dimension(0), dim0);
   VERIFY_IS_EQUAL(tensor_after_fft.dimension(1), dim1);
@@ -108,8 +108,8 @@ static void test_sub_fft_ifft_invariant(int dim0, int dim1, int dim2, int dim3) 
   Tensor<std::complex<double>, 4, DataLayout> tensor_after_fft;
   Tensor<double, 4, DataLayout> tensor_after_fft_ifft;
 
-  tensor_after_fft = tensor.template fft<Eigen::BothParts, Eigen::FFT_FORWARD>(fft);
-  tensor_after_fft_ifft = tensor_after_fft.template fft<Eigen::RealPart, Eigen::FFT_REVERSE>(fft);
+  tensor_after_fft = tensor.template fft<eeigen::BothParts, eeigen::FFT_FORWARD>(fft);
+  tensor_after_fft_ifft = tensor_after_fft.template fft<eeigen::RealPart, eeigen::FFT_REVERSE>(fft);
 
   VERIFY_IS_EQUAL(tensor_after_fft.dimension(0), dim0);
   VERIFY_IS_EQUAL(tensor_after_fft.dimension(1), dim1);

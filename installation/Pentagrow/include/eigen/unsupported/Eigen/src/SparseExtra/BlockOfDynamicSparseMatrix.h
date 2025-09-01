@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008-2009 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_SPARSE_BLOCKFORDYNAMICMATRIX_H
 #define EIGEN_SPARSE_BLOCKFORDYNAMICMATRIX_H
 
-namespace Eigen { 
+namespace eeigen { 
 
 #if 0
 
@@ -117,6 +117,6 @@ class SparseInnerVectorSet<DynamicSparseMatrix<_Scalar, _Options, _Index>, Size>
 
 #endif
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_SPARSE_BLOCKFORDYNAMICMATRIX_H

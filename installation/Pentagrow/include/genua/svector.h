@@ -24,7 +24,7 @@
 #include "forward.h"
 #include "algo.h"
 #include <boost/static_assert.hpp>
-#include <Eigen/Core>
+#include <eeigen/Core>
 #include <cmath>
 
 /** Fixed size vector.
@@ -52,10 +52,10 @@ public:
   typedef Type & reference;
   typedef const Type & const_reference;
 
-  /// for interfacing with the Eigen library
-  typedef Eigen::Matrix<Type, int(N), 1> EigenMatrix;
-  typedef Eigen::Map<EigenMatrix> EigenMap;
-  typedef Eigen::Map<const EigenMatrix> ConstEigenMap;
+  /// for interfacing with the eeigen library
+  typedef eeigen::Matrix<Type, int(N), 1> EigenMatrix;
+  typedef eeigen::Map<EigenMatrix> EigenMap;
+  typedef eeigen::Map<const EigenMatrix> ConstEigenMap;
 
   /// default: zero vector
   SVector() {
@@ -255,12 +255,12 @@ public:
       data[i] = 0.0;
   }
 
-  /// create a mutable map object for interfacing with Eigen
+  /// create a mutable map object for interfacing with eeigen
   EigenMap mmap() {
     return EigenMap(pointer(), size(), 1);
   }
 
-  /// create a mutable map object for interfacing with Eigen
+  /// create a mutable map object for interfacing with eeigen
   ConstEigenMap cmap() const {
     return ConstEigenMap(pointer(), size(), 1);
   }

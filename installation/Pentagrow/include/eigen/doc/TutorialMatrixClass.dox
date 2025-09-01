@@ -1,10 +1,10 @@
-namespace Eigen {
+namespace eeigen {
 
 /** \eigenManualPage TutorialMatrixClass The Matrix class
 
 \eigenAutoToc
 
-In Eigen, all matrices and vectors are objects of the Matrix template class.
+In eeigen, all matrices and vectors are objects of the Matrix template class.
 Vectors are just a special case of matrices, with either 1 row or 1 column.
 
 \section TutorialMatrixFirst3Params The first three template parameters of Matrix
@@ -28,7 +28,7 @@ Matrix<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime>
     known at compile time).
 
 We offer a lot of convenience typedefs to cover the usual cases. For example, \c Matrix4f is
-a 4x4 matrix of floats. Here is how it is defined by Eigen:
+a 4x4 matrix of floats. Here is how it is defined by eeigen:
 \code
 typedef Matrix<float, 4, 4> Matrix4f;
 \endcode
@@ -36,12 +36,12 @@ We discuss \ref TutorialMatrixTypedefs "below" these convenience typedefs.
 
 \section TutorialMatrixVectors Vectors
 
-As mentioned above, in Eigen, vectors are just a special case of
+As mentioned above, in eeigen, vectors are just a special case of
 matrices, with either 1 row or 1 column. The case where they have 1 column is the most common;
 such vectors are called column-vectors, often abbreviated as just vectors. In the other case
 where they have 1 row, they are called row-vectors.
 
-For example, the convenience typedef \c Vector3f is a (column) vector of 3 floats. It is defined as follows by Eigen:
+For example, the convenience typedef \c Vector3f is a (column) vector of 3 floats. It is defined as follows by eeigen:
 \code
 typedef Matrix<float, 3, 1> Vector3f;
 \endcode
@@ -52,10 +52,10 @@ typedef Matrix<int, 1, 2> RowVector2i;
 
 \section TutorialMatrixDynamic The special value Dynamic
 
-Of course, Eigen is not limited to matrices whose dimensions are known at compile time.
+Of course, eeigen is not limited to matrices whose dimensions are known at compile time.
 The \c RowsAtCompileTime and \c ColsAtCompileTime template parameters can take the special
 value \c Dynamic which indicates that the size is unknown at compile time, so must
-be handled as a run-time variable. In Eigen terminology, such a size is referred to as a
+be handled as a run-time variable. In eeigen terminology, such a size is referred to as a
 \em dynamic \em size; while a size that is known at compile time is called a
 \em fixed \em size. For example, the convenience typedef \c MatrixXd, meaning
 a matrix of doubles with dynamic size, is defined as follows:
@@ -110,7 +110,7 @@ Vector4d c(5.0, 6.0, 7.0, 8.0);
 
 \section TutorialMatrixCoeffAccessors Coefficient accessors
 
-The primary coefficient accessors and mutators in Eigen are the overloaded parenthesis operators.
+The primary coefficient accessors and mutators in eeigen are the overloaded parenthesis operators.
 For matrices, the row index is always passed first. For vectors, just pass one index.
 The numbering starts at 0. This example is self-explanatory:
 
@@ -125,7 +125,7 @@ The numbering starts at 0. This example is self-explanatory:
 
 Note that the syntax <tt> m(index) </tt>
 is not restricted to vectors, it is also available for general matrices, meaning index-based access
-in the array of coefficients. This however depends on the matrix's storage order. All Eigen matrices default to
+in the array of coefficients. This however depends on the matrix's storage order. All eeigen matrices default to
 column-major storage order, but this can be changed to row-major, see \ref TopicStorageOrders "Storage orders".
 
 The operator[] is also overloaded for index-based access in vectors, but keep in mind that C++ doesn't allow operator[] to
@@ -175,7 +175,7 @@ but the following code is legal:
 
 \section TutorialMatrixAssignment Assignment and resizing
 
-Assignment is the action of copying a matrix into another, using \c operator=. Eigen resizes the matrix on the left-hand side automatically so that it matches the size of the matrix on the right-hand size. For example:
+Assignment is the action of copying a matrix into another, using \c operator=. eeigen resizes the matrix on the left-hand side automatically so that it matches the size of the matrix on the right-hand size. For example:
 
 <table class="example">
 <tr><th>Example:</th><th>Output:</th></tr>
@@ -196,8 +196,8 @@ When should one use fixed sizes (e.g. \c Matrix4f), and when should one prefer d
 The simple answer is: use fixed
 sizes for very small sizes where you can, and use dynamic sizes for larger sizes or where you have to. For small sizes,
 especially for sizes smaller than (roughly) 16, using fixed sizes is hugely beneficial
-to performance, as it allows Eigen to avoid dynamic memory allocation and to unroll
-loops. Internally, a fixed-size Eigen matrix is just a plain array, i.e. doing
+to performance, as it allows eeigen to avoid dynamic memory allocation and to unroll
+loops. Internally, a fixed-size eeigen matrix is just a plain array, i.e. doing
 \code Matrix4f mymatrix; \endcode
 really amounts to just doing
 \code float mymatrix[16]; \endcode
@@ -213,9 +213,9 @@ The limitation of using fixed sizes, of course, is that this is only possible
 when you know the sizes at compile time. Also, for large enough sizes, say for sizes
 greater than (roughly) 32, the performance benefit of using fixed sizes becomes negligible.
 Worse, trying to create a very large matrix using fixed sizes inside a function could result in a
-stack overflow, since Eigen will try to allocate the array automatically as a local variable, and
+stack overflow, since eeigen will try to allocate the array automatically as a local variable, and
 this is normally done on the stack.
-Finally, depending on circumstances, Eigen can also be more aggressive trying to vectorize
+Finally, depending on circumstances, eeigen can also be more aggressive trying to vectorize
 (use SIMD instructions) when dynamic sizes are used, see \ref TopicVectorization "Vectorization".
 
 \section TutorialMatrixOptTemplParams Optional template parameters
@@ -247,7 +247,7 @@ Matrix<typename Scalar,
 
 \section TutorialMatrixTypedefs Convenience typedefs
 
-Eigen defines the following Matrix typedefs:
+eeigen defines the following Matrix typedefs:
 \li MatrixNt for Matrix<type, N, N>. For example, MatrixXi for Matrix<int, Dynamic, Dynamic>.
 \li VectorNt for Matrix<type, N, 1>. For example, Vector2f for Matrix<float, 2, 1>.
 \li RowVectorNt for Matrix<type, 1, N>. For example, RowVector3d for Matrix<double, 1, 3>.

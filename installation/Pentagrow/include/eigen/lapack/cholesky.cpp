@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2010-2011 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -8,7 +8,7 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "lapack_common.h"
-#include <Eigen/Cholesky>
+#include <eeigen/Cholesky>
 
 // POTRF computes the Cholesky factorization of a real symmetric positive definite matrix A.
 EIGEN_LAPACK_FUNC(potrf,(char* uplo, int *n, RealScalar *pa, int *lda, int *info))

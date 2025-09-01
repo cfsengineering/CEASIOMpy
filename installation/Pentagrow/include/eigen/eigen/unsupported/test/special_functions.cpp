@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -8,7 +8,7 @@
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "main.h"
-#include "../Eigen/SpecialFunctions"
+#include "../eeigen/SpecialFunctions"
 
 template<typename X, typename Y>
 void verify_component_wise(const X& x, const Y& y)
@@ -69,13 +69,13 @@ template<typename ArrayType> void array_special_functions()
       ArrayType zero = ArrayType::Zero(rows, cols);
       ArrayType one = ArrayType::Constant(rows, cols, Scalar(1.0));
       ArrayType a_m1 = a - one;
-      ArrayType Gamma_a_x = Eigen::igammac(a, x) * a.lgamma().exp();
-      ArrayType Gamma_a_m1_x = Eigen::igammac(a_m1, x) * a_m1.lgamma().exp();
-      ArrayType gamma_a_x = Eigen::igamma(a, x) * a.lgamma().exp();
-      ArrayType gamma_a_m1_x = Eigen::igamma(a_m1, x) * a_m1.lgamma().exp();
+      ArrayType Gamma_a_x = eeigen::igammac(a, x) * a.lgamma().exp();
+      ArrayType Gamma_a_m1_x = eeigen::igammac(a_m1, x) * a_m1.lgamma().exp();
+      ArrayType gamma_a_x = eeigen::igamma(a, x) * a.lgamma().exp();
+      ArrayType gamma_a_m1_x = eeigen::igamma(a_m1, x) * a_m1.lgamma().exp();
 
       // Gamma(a, 0) == Gamma(a)
-      VERIFY_IS_APPROX(Eigen::igammac(a, zero), one);
+      VERIFY_IS_APPROX(eeigen::igammac(a, zero), one);
 
       // Gamma(a, x) + gamma(a, x) == Gamma(a)
       VERIFY_IS_APPROX(Gamma_a_x + gamma_a_x, a.lgamma().exp());
@@ -186,7 +186,7 @@ template<typename ArrayType> void array_special_functions()
     //   full_a = full_a.flatten().tolist()  # same for full_b, full_x
     //   v = scipy.special.betainc(full_a, full_b, full_x).flatten().tolist()
     //
-    // Note in Eigen, we call betainc with arguments in the order (x, a, b).
+    // Note in eeigen, we call betainc with arguments in the order (x, a, b).
     ArrayType a(125);
     ArrayType b(125);
     ArrayType x(125);

@@ -1,6 +1,6 @@
-#include "../Eigen/Core"
+#include "../eeigen/Core"
 
-using namespace Eigen;
+using namespace eeigen;
 
 void call_ref(Ref<MatrixXf,0,OuterStride<> > a) {}
 

@@ -14,9 +14,9 @@ option(EIGEN_INTERNAL_DOCUMENTATION "Build internal documentation" OFF)
 
 
 # Set some Doxygen flags
-set(EIGEN_DOXY_PROJECT_NAME             "Eigen")
+set(EIGEN_DOXY_PROJECT_NAME             "eeigen")
 set(EIGEN_DOXY_OUTPUT_DIRECTORY_SUFFIX  "")
-set(EIGEN_DOXY_INPUT                    "\"${Eigen_SOURCE_DIR}/Eigen\" \"${Eigen_SOURCE_DIR}/doc\"")
+set(EIGEN_DOXY_INPUT                    "\"${Eigen_SOURCE_DIR}/eeigen\" \"${Eigen_SOURCE_DIR}/doc\"")
 set(EIGEN_DOXY_HTML_COLORSTYLE_HUE      "220")
 set(EIGEN_DOXY_TAGFILES                 "")
 if(EIGEN_INTERNAL_DOCUMENTATION)
@@ -30,11 +30,11 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
 )
 
-set(EIGEN_DOXY_PROJECT_NAME             "Eigen-unsupported")
+set(EIGEN_DOXY_PROJECT_NAME             "eeigen-unsupported")
 set(EIGEN_DOXY_OUTPUT_DIRECTORY_SUFFIX  "/unsupported")
-set(EIGEN_DOXY_INPUT                    "\"${Eigen_SOURCE_DIR}/unsupported/Eigen\" \"${Eigen_SOURCE_DIR}/unsupported/doc\"")
+set(EIGEN_DOXY_INPUT                    "\"${Eigen_SOURCE_DIR}/unsupported/eeigen\" \"${Eigen_SOURCE_DIR}/unsupported/doc\"")
 set(EIGEN_DOXY_HTML_COLORSTYLE_HUE      "0")
-set(EIGEN_DOXY_TAGFILES                 "\"${Eigen_BINARY_DIR}/doc/Eigen.doxytags=..\"")
+set(EIGEN_DOXY_TAGFILES                 "\"${Eigen_BINARY_DIR}/doc/eeigen.doxytags=..\"")
 #set(EIGEN_DOXY_TAGFILES                 "")
 
 configure_file(

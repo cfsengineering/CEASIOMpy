@@ -1,12 +1,12 @@
-#include <Eigen/Array>
+#include <eeigen/Array>
 
 int main(int argc, char *argv[])
 {
   std::cout.precision(2);
 
   // demo static functions
-  Eigen::Matrix3f m3 = Eigen::Matrix3f::Random();
-  Eigen::Matrix4f m4 = Eigen::Matrix4f::Identity();
+  eeigen::Matrix3f m3 = eeigen::Matrix3f::Random();
+  eeigen::Matrix4f m4 = eeigen::Matrix4f::Identity();
 
   std::cout << "*** Step 1 ***\nm3:\n" << m3 << "\nm4:\n" << m4 << std::endl;
 
@@ -47,12 +47,12 @@ int main(int argc, char *argv[])
 
   // demo intelligent auto-evaluation
   m4 = m4 * m4; // auto-evaluates so no aliasing problem (performance penalty is low)
-  Eigen::Matrix4f other = (m4 * m4).lazy(); // forces lazy evaluation
-  m4 = m4 + m4; // here Eigen goes for lazy evaluation, as with most expressions
-  m4 = -m4 + m4 + 5 * m4; // same here, Eigen chooses lazy evaluation for all that.
-  m4 = m4 * (m4 + m4); // here Eigen chooses to first evaluate m4 + m4 into a temporary.
+  eeigen::Matrix4f other = (m4 * m4).lazy(); // forces lazy evaluation
+  m4 = m4 + m4; // here eeigen goes for lazy evaluation, as with most expressions
+  m4 = -m4 + m4 + 5 * m4; // same here, eeigen chooses lazy evaluation for all that.
+  m4 = m4 * (m4 + m4); // here eeigen chooses to first evaluate m4 + m4 into a temporary.
                        // indeed, here it is an optimization to cache this intermediate result.
-  m3 = m3 * m4.block<3,3>(1,1); // here Eigen chooses NOT to evaluate block() into a temporary
+  m3 = m3 * m4.block<3,3>(1,1); // here eeigen chooses NOT to evaluate block() into a temporary
     // because accessing coefficients of that block expression is not more costly than accessing
     // coefficients of a plain matrix.
   m4 = m4 * m4.transpose(); // same here, lazy evaluation of the transpose.

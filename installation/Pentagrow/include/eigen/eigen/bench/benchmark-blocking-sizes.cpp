@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Benoit Jacob <benoitjacob@google.com>
@@ -21,11 +21,11 @@ int eigen_block_size_k, eigen_block_size_m, eigen_block_size_n;
 #define EIGEN_TEST_SPECIFIC_BLOCKING_SIZE_K eigen_block_size_k
 #define EIGEN_TEST_SPECIFIC_BLOCKING_SIZE_M eigen_block_size_m
 #define EIGEN_TEST_SPECIFIC_BLOCKING_SIZE_N eigen_block_size_n
-#include <Eigen/Core>
+#include <eeigen/Core>
 
 #include <bench/BenchTimer.h>
 
-using namespace Eigen;
+using namespace eeigen;
 using namespace std;
 
 static BenchTimer timer;

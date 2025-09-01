@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_TRACKBALL_H
 #define EIGEN_TRACKBALL_H
 
-#include <Eigen/Geometry>
+#include <eeigen/Geometry>
 
 class Camera;
 
@@ -26,14 +26,14 @@ class Trackball
 
     void setCamera(Camera* pCam) { mpCamera = pCam; }
 
-    void track(const Eigen::Vector2i& newPoint2D);
+    void track(const eeigen::Vector2i& newPoint2D);
 
   protected:
 
-    bool mapToSphere( const Eigen::Vector2i& p2, Eigen::Vector3f& v3);
+    bool mapToSphere( const eeigen::Vector2i& p2, eeigen::Vector3f& v3);
 
     Camera* mpCamera;
-    Eigen::Vector3f mLastPoint3D;
+    eeigen::Vector3f mLastPoint3D;
     Mode mMode;
     bool mLastPointOk;
 

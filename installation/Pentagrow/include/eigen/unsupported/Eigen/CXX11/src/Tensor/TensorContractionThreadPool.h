@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -13,7 +13,7 @@
 // evaluator for thread pool device
 #ifdef EIGEN_USE_THREADS
 
-namespace Eigen {
+namespace eeigen {
 
 #ifdef EIGEN_USE_SIMPLE_THREAD_POOL
 namespace internal {
@@ -1037,7 +1037,7 @@ struct TensorEvaluator<const TensorContractionOp<Indices, LeftArgType, RightArgT
   }
 };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif  // EIGEN_USE_THREADS
 #endif // EIGEN_CXX11_TENSOR_TENSOR_CONTRACTION_THREAD_POOL_H

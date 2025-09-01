@@ -1,4 +1,4 @@
-namespace Eigen { 
+namespace eeigen { 
 
 namespace internal {
 
@@ -67,4 +67,4 @@ void covar(
 
 } // end namespace internal
 
-} // end namespace Eigen
+} // end namespace eeigen

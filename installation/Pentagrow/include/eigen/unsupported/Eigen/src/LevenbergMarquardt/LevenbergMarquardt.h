@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Thomas Capricelli <orzel@freehackers.org>
@@ -20,7 +20,7 @@
 #define EIGEN_LEVENBERGMARQUARDT_H
 
 
-namespace Eigen {
+namespace eeigen {
 namespace LevenbergMarquardtSpace {
     enum Status {
         NotStarted = -2,
@@ -391,6 +391,6 @@ LevenbergMarquardt<FunctorType>::lmdif1(
     return info;
 }
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_LEVENBERGMARQUARDT_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_CHIPPING_H
 #define EIGEN_CXX11_TENSOR_TENSOR_CHIPPING_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorKChippingReshaping
   * \ingroup CXX11_Tensor_Module
@@ -35,7 +35,7 @@ struct traits<TensorChippingOp<DimId, XprType> > : public traits<XprType>
 };
 
 template<DenseIndex DimId, typename XprType>
-struct eval<TensorChippingOp<DimId, XprType>, Eigen::Dense>
+struct eval<TensorChippingOp<DimId, XprType>, eeigen::Dense>
 {
   typedef const TensorChippingOp<DimId, XprType>& type;
 };
@@ -78,12 +78,12 @@ template<DenseIndex DimId, typename XprType>
 class TensorChippingOp : public TensorBase<TensorChippingOp<DimId, XprType> >
 {
   public:
-  typedef typename Eigen::internal::traits<TensorChippingOp>::Scalar Scalar;
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
+  typedef typename eeigen::internal::traits<TensorChippingOp>::Scalar Scalar;
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
-  typedef typename Eigen::internal::nested<TensorChippingOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorChippingOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorChippingOp>::Index Index;
+  typedef typename eeigen::internal::nested<TensorChippingOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorChippingOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorChippingOp>::Index Index;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorChippingOp(const XprType& expr, const Index offset, const Index dim)
       : m_xpr(expr), m_offset(offset), m_dim(dim) {
@@ -379,6 +379,6 @@ struct TensorEvaluator<TensorChippingOp<DimId, ArgType>, Device>
 };
 
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_CHIPPING_H

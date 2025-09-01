@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Thomas Capricelli <orzel@freehackers.org>
@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "main.h"
-#include <unsupported/Eigen/NumericalDiff>
+#include <unsupported/eeigen/NumericalDiff>
     
 // Generic functor
 template<typename _Scalar, int NX=Dynamic, int NY=Dynamic>

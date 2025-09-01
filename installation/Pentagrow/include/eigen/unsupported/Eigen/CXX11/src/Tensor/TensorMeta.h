@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_META_H
 #define EIGEN_CXX11_TENSOR_TENSOR_META_H
 
-namespace Eigen {
+namespace eeigen {
 
 template<bool cond> struct Cond {};
 
@@ -213,6 +213,6 @@ namespace internal {
 
 
 
-}  // namespace Eigen
+}  // namespace eeigen
 
 #endif  // EIGEN_CXX11_TENSOR_TENSOR_META_H

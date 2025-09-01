@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_ASSIGN_H
 #define EIGEN_CXX11_TENSOR_TENSOR_ASSIGN_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorAssign
   * \ingroup CXX11_Tensor_Module
@@ -41,7 +41,7 @@ struct traits<TensorAssignOp<LhsXprType, RhsXprType> >
 };
 
 template<typename LhsXprType, typename RhsXprType>
-struct eval<TensorAssignOp<LhsXprType, RhsXprType>, Eigen::Dense>
+struct eval<TensorAssignOp<LhsXprType, RhsXprType>, eeigen::Dense>
 {
   typedef const TensorAssignOp<LhsXprType, RhsXprType>& type;
 };
@@ -60,12 +60,12 @@ template<typename LhsXprType, typename RhsXprType>
 class TensorAssignOp : public TensorBase<TensorAssignOp<LhsXprType, RhsXprType> >
 {
   public:
-  typedef typename Eigen::internal::traits<TensorAssignOp>::Scalar Scalar;
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
+  typedef typename eeigen::internal::traits<TensorAssignOp>::Scalar Scalar;
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar;
   typedef typename LhsXprType::CoeffReturnType CoeffReturnType;
-  typedef typename Eigen::internal::nested<TensorAssignOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorAssignOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorAssignOp>::Index Index;
+  typedef typename eeigen::internal::nested<TensorAssignOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorAssignOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorAssignOp>::Index Index;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorAssignOp(LhsXprType& lhs, const RhsXprType& rhs)
       : m_lhs_xpr(lhs), m_rhs_xpr(rhs) {}

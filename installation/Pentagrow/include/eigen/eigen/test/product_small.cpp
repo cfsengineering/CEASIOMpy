@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -9,7 +9,7 @@
 
 #define EIGEN_NO_STATIC_ASSERT
 #include "product.h"
-#include <Eigen/LU>
+#include <eeigen/LU>
 
 // regression test for bug 447
 template<int>
@@ -272,15 +272,15 @@ void test_product_small()
   
   {
     // regression test for pull-request #93
-    Eigen::Matrix<double, 1, 1> A;  A.setRandom();
-    Eigen::Matrix<double, 18, 1> B; B.setRandom();
-    Eigen::Matrix<double, 1, 18> C; C.setRandom();
+    eeigen::Matrix<double, 1, 1> A;  A.setRandom();
+    eeigen::Matrix<double, 18, 1> B; B.setRandom();
+    eeigen::Matrix<double, 1, 18> C; C.setRandom();
     VERIFY_IS_APPROX(B * A.inverse(), B * A.inverse()[0]);
     VERIFY_IS_APPROX(A.inverse() * C, A.inverse()[0] * C);
   }
 
   {
-    Eigen::Matrix<double, 10, 10> A, B, C;
+    eeigen::Matrix<double, 10, 10> A, B, C;
     A.setRandom();
     C = A;
     for(int k=0; k<79; ++k)

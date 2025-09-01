@@ -2,7 +2,7 @@
 
 void bench_printhelp()
 {
-    cout<< " \nbenchsolver : performs a benchmark of all the solvers available in Eigen \n\n";
+    cout<< " \nbenchsolver : performs a benchmark of all the solvers available in eeigen \n\n";
     cout<< " MATRIX FOLDER : \n";
     cout<< " The matrices for the benchmark should be collected in a folder specified with an environment variable EIGEN_MATRIXDIR \n";
     cout<< " The matrices are stored using the matrix market coordinate format \n";

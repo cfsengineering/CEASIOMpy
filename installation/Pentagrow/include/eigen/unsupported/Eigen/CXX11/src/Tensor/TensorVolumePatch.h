@@ -1,10 +1,10 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_VOLUME_PATCH_H
 #define EIGEN_CXX11_TENSOR_TENSOR_VOLUME_PATCH_H
 
-namespace Eigen {
+namespace eeigen {
 
 /** \class TensorVolumePatch
   * \ingroup CXX11_Tensor_Module
@@ -36,7 +36,7 @@ struct traits<TensorVolumePatchOp<Planes, Rows, Cols, XprType> > : public traits
 };
 
 template<DenseIndex Planes, DenseIndex Rows, DenseIndex Cols, typename XprType>
-struct eval<TensorVolumePatchOp<Planes, Rows, Cols, XprType>, Eigen::Dense>
+struct eval<TensorVolumePatchOp<Planes, Rows, Cols, XprType>, eeigen::Dense>
 {
   typedef const TensorVolumePatchOp<Planes, Rows, Cols, XprType>& type;
 };
@@ -53,12 +53,12 @@ template<DenseIndex Planes, DenseIndex Rows, DenseIndex Cols, typename XprType>
 class TensorVolumePatchOp : public TensorBase<TensorVolumePatchOp<Planes, Rows, Cols, XprType>, ReadOnlyAccessors>
 {
   public:
-  typedef typename Eigen::internal::traits<TensorVolumePatchOp>::Scalar Scalar;
-  typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
+  typedef typename eeigen::internal::traits<TensorVolumePatchOp>::Scalar Scalar;
+  typedef typename eeigen::NumTraits<Scalar>::Real RealScalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;
-  typedef typename Eigen::internal::nested<TensorVolumePatchOp>::type Nested;
-  typedef typename Eigen::internal::traits<TensorVolumePatchOp>::StorageKind StorageKind;
-  typedef typename Eigen::internal::traits<TensorVolumePatchOp>::Index Index;
+  typedef typename eeigen::internal::nested<TensorVolumePatchOp>::type Nested;
+  typedef typename eeigen::internal::traits<TensorVolumePatchOp>::StorageKind StorageKind;
+  typedef typename eeigen::internal::traits<TensorVolumePatchOp>::Index Index;
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorVolumePatchOp(const XprType& expr, DenseIndex patch_planes, DenseIndex patch_rows, DenseIndex patch_cols,
                                                             DenseIndex plane_strides, DenseIndex row_strides, DenseIndex col_strides,
@@ -603,6 +603,6 @@ struct TensorEvaluator<const TensorVolumePatchOp<Planes, Rows, Cols, ArgType>, D
 };
 
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_CXX11_TENSOR_TENSOR_VOLUME_PATCH_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Benoit Steiner <benoit.steiner.goog@gmail.com>
@@ -12,9 +12,9 @@
 #define EIGEN_USE_GPU
 
 #include "main.h"
-#include <unsupported/Eigen/CXX11/Tensor>
+#include <unsupported/eeigen/CXX11/Tensor>
 
-using Eigen::Tensor;
+using eeigen::Tensor;
 
 template<typename T>
 void test_cuda_complex_cwise_ops() {
@@ -28,14 +28,14 @@ void test_cuda_complex_cwise_ops() {
   cudaMalloc((void**)(&d_in2), complex_bytes);
   cudaMalloc((void**)(&d_out), complex_bytes);
 
-  Eigen::CudaStreamDevice stream;
-  Eigen::GpuDevice gpu_device(&stream);
+  eeigen::CudaStreamDevice stream;
+  eeigen::GpuDevice gpu_device(&stream);
 
-  Eigen::TensorMap<Eigen::Tensor<std::complex<T>, 1, 0, int>, Eigen::Aligned> gpu_in1(
+  eeigen::TensorMap<eeigen::Tensor<std::complex<T>, 1, 0, int>, eeigen::Aligned> gpu_in1(
       d_in1, kNumItems);
-  Eigen::TensorMap<Eigen::Tensor<std::complex<T>, 1, 0, int>, Eigen::Aligned> gpu_in2(
+  eeigen::TensorMap<eeigen::Tensor<std::complex<T>, 1, 0, int>, eeigen::Aligned> gpu_in2(
       d_in2, kNumItems);
-  Eigen::TensorMap<Eigen::Tensor<std::complex<T>, 1, 0, int>, Eigen::Aligned> gpu_out(
+  eeigen::TensorMap<eeigen::Tensor<std::complex<T>, 1, 0, int>, eeigen::Aligned> gpu_out(
       d_out, kNumItems);
 
   const std::complex<T> a(3.14f, 2.7f);

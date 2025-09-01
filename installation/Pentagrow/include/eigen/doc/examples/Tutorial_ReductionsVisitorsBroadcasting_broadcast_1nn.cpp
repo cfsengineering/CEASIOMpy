@@ -1,13 +1,13 @@
 #include <iostream>
-#include <Eigen/Dense>
+#include <eeigen/Dense>
 
 using namespace std;
-using namespace Eigen;
+using namespace eeigen;
 
 int main()
 {
-  Eigen::MatrixXf m(2,4);
-  Eigen::VectorXf v(2);
+  eeigen::MatrixXf m(2,4);
+  eeigen::VectorXf v(2);
   
   m << 1, 23, 6, 9,
        3, 11, 7, 2;

@@ -5,10 +5,10 @@
 
 #include "tensor_benchmarks.h"
 
-using Eigen::array;
-using Eigen::SyclDevice;
-using Eigen::Tensor;
-using Eigen::TensorMap;
+using eeigen::array;
+using eeigen::SyclDevice;
+using eeigen::Tensor;
+using eeigen::TensorMap;
 // Simple functions
 template <typename device_selector>
 cl::sycl::queue sycl_queue() {
@@ -27,8 +27,8 @@ cl::sycl::queue sycl_queue() {
   static void BM_##FUNC(int iters, int N) {                    \
     StopBenchmarkTiming();                                     \
     cl::sycl::queue q = sycl_queue<cl::sycl::gpu_selector>();  \
-    Eigen::SyclDevice device(q);                               \
-    BenchmarkSuite<Eigen::SyclDevice, float> suite(device, N); \
+    eeigen::SyclDevice device(q);                               \
+    BenchmarkSuite<eeigen::SyclDevice, float> suite(device, N); \
     suite.FUNC(iters);                                         \
   }                                                            \
   BENCHMARK_RANGE(BM_##FUNC, 10, 5000);

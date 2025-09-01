@@ -21,7 +21,7 @@
 #ifndef HAVE_NO_LAPACK
 #include "lapack_interface.h"
 #else
-#include <Eigen/SVD>
+#include <eeigen/SVD>
 #endif
 
 #include <vector>
@@ -66,12 +66,12 @@ int svd_inplace(MatrixType & a, MatrixType & u, VectorType & s, MatrixType & vt)
 #else
 
   typedef typename MatrixType::value_type value_type;
-  typedef Eigen::Matrix<value_type, Eigen::Dynamic, Eigen::Dynamic> EMatrix;
-  typedef Eigen::Map<EMatrix> EMView;
+  typedef eeigen::Matrix<value_type, eeigen::Dynamic, eeigen::Dynamic> EMatrix;
+  typedef eeigen::Map<EMatrix> EMView;
 
   EMView amap( a.pointer(), a.nrows(), a.ncols() );
-  Eigen::JacobiSVD<EMatrix> solver(amap,
-                                   Eigen::ComputeThinU | Eigen::ComputeThinV);
+  eeigen::JacobiSVD<EMatrix> solver(amap,
+                                   eeigen::ComputeThinU | eeigen::ComputeThinV);
 
   u = MatrixType( solver.matrixU() );
   vt = MatrixType( solver.matrixV().transpose() );
@@ -148,12 +148,12 @@ int svd_solve(MatrixType & a, MatrixType & x, double rcond=-1.0)
 #else
 
   typedef typename MatrixType::value_type value_type;
-  typedef Eigen::Matrix<value_type, Eigen::Dynamic, Eigen::Dynamic> EMatrix;
-  typedef Eigen::Map<EMatrix> EMView;
+  typedef eeigen::Matrix<value_type, eeigen::Dynamic, eeigen::Dynamic> EMatrix;
+  typedef eeigen::Map<EMatrix> EMView;
 
   EMView amap(a.pointer(), a.nrows(), a.ncols());
-  Eigen::JacobiSVD<EMatrix> solver(amap,
-                                   Eigen::ComputeThinU | Eigen::ComputeThinV);
+  eeigen::JacobiSVD<EMatrix> solver(amap,
+                                   eeigen::ComputeThinU | eeigen::ComputeThinV);
   if (rcond >= 0.0)
     solver.setThreshold(rcond);
 
@@ -211,12 +211,12 @@ int svd_solve(MatrixType & a, VectorType & x, double rcond=-1.0)
 #else
 
   typedef typename MatrixType::value_type value_type;
-  typedef Eigen::Matrix<value_type, Eigen::Dynamic, Eigen::Dynamic> EMatrix;
-  typedef Eigen::Map<EMatrix> EMView;
+  typedef eeigen::Matrix<value_type, eeigen::Dynamic, eeigen::Dynamic> EMatrix;
+  typedef eeigen::Map<EMatrix> EMView;
 
   EMView amap(a.pointer(), a.nrows(), a.ncols());
-  Eigen::JacobiSVD<EMatrix> solver(amap,
-                                   Eigen::ComputeThinU | Eigen::ComputeThinV);
+  eeigen::JacobiSVD<EMatrix> solver(amap,
+                                   eeigen::ComputeThinU | eeigen::ComputeThinV);
   if (rcond >= 0.0)
     solver.setThreshold(rcond);
 

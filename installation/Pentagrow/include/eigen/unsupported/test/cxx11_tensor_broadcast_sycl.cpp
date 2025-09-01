@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016
@@ -18,14 +18,14 @@
 #define EIGEN_USE_SYCL
 
 #include "main.h"
-#include <unsupported/Eigen/CXX11/Tensor>
+#include <unsupported/eeigen/CXX11/Tensor>
 
-using Eigen::array;
-using Eigen::SyclDevice;
-using Eigen::Tensor;
-using Eigen::TensorMap;
+using eeigen::array;
+using eeigen::SyclDevice;
+using eeigen::Tensor;
+using eeigen::TensorMap;
 
-static void test_broadcast_sycl(const Eigen::SyclDevice &sycl_device){
+static void test_broadcast_sycl(const eeigen::SyclDevice &sycl_device){
 
   // BROADCAST test:
   array<int, 4> in_range   = {{2, 3, 5, 7}};
@@ -69,6 +69,6 @@ static void test_broadcast_sycl(const Eigen::SyclDevice &sycl_device){
 
 void test_cxx11_tensor_broadcast_sycl() {
   cl::sycl::gpu_selector s;
-  Eigen::SyclDevice sycl_device(s);
+  eeigen::SyclDevice sycl_device(s);
   CALL_SUBTEST(test_broadcast_sycl(sycl_device));
 }

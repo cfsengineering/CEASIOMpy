@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -86,7 +86,7 @@ void test_product_large()
   }
 
   {
-    Eigen::MatrixXd A(10,10), B, C;
+    eeigen::MatrixXd A(10,10), B, C;
     A.setRandom();
     C = A;
     for(int k=0; k<79; ++k)

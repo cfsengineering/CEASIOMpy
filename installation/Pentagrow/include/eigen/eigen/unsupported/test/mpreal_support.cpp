@@ -1,18 +1,18 @@
 #include "main.h"
-#include <Eigen/MPRealSupport>
-#include <Eigen/LU>
-#include <Eigen/Eigenvalues>
+#include <eeigen/MPRealSupport>
+#include <eeigen/LU>
+#include <eeigen/Eigenvalues>
 #include <sstream>
 
 using namespace mpfr;
-using namespace Eigen;
+using namespace eeigen;
 
 void test_mpreal_support()
 {
   // set precision to 256 bits (double has only 53 bits)
   mpreal::set_default_prec(256);
-  typedef Matrix<mpreal,Eigen::Dynamic,Eigen::Dynamic> MatrixXmp;
-  typedef Matrix<std::complex<mpreal>,Eigen::Dynamic,Eigen::Dynamic> MatrixXcmp;
+  typedef Matrix<mpreal,eeigen::Dynamic,eeigen::Dynamic> MatrixXmp;
+  typedef Matrix<std::complex<mpreal>,eeigen::Dynamic,eeigen::Dynamic> MatrixXcmp;
 
   std::cerr << "epsilon =         " << NumTraits<mpreal>::epsilon() << "\n";
   std::cerr << "dummy_precision = " << NumTraits<mpreal>::dummy_precision() << "\n";
@@ -21,7 +21,7 @@ void test_mpreal_support()
   std::cerr << "digits10 =        " << NumTraits<mpreal>::digits10() << "\n";
 
   for(int i = 0; i < g_repeat; i++) {
-    int s = Eigen::internal::random<int>(1,100);
+    int s = eeigen::internal::random<int>(1,100);
     MatrixXmp A = MatrixXmp::Random(s,s);
     MatrixXmp B = MatrixXmp::Random(s,s);
     MatrixXmp S = A.adjoint() * A;
@@ -33,7 +33,7 @@ void test_mpreal_support()
     
     // Basic stuffs
     VERIFY_IS_APPROX(A.real(), A);
-    VERIFY(Eigen::internal::isApprox(A.array().abs2().sum(), A.squaredNorm()));
+    VERIFY(eeigen::internal::isApprox(A.array().abs2().sum(), A.squaredNorm()));
     VERIFY_IS_APPROX(A.array().exp(),         exp(A.array()));
     VERIFY_IS_APPROX(A.array().abs2().sqrt(), A.array().abs());
     VERIFY_IS_APPROX(A.array().sin(),         sin(A.array()));

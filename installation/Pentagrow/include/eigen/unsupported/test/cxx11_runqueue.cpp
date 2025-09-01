@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2016 Dmitry Vyukov <dvyukov@google.com>
@@ -11,12 +11,12 @@
 #define EIGEN_USE_THREADS
 #include <cstdlib>
 #include "main.h"
-#include <Eigen/CXX11/ThreadPool>
-
+#include <eeigen/CXX11/ThreadPool>
 
 // Visual studio doesn't implement a rand_r() function since its
 // implementation of rand() is already thread safe
-int rand_reentrant(unsigned int* s) {
+int rand_reentrant(unsigned int *s)
+{
 #ifdef EIGEN_COMP_MSVC_STRICT
   EIGEN_UNUSED_VARIABLE(s);
   return rand();
@@ -122,7 +122,8 @@ void test_empty_runqueue()
   RunQueue<int, 4> q;
   q.PushFront(1);
   std::atomic<bool> done(false);
-  std::thread mutator([&q, &done]() {
+  std::thread mutator([&q, &done]()
+                      {
     unsigned rnd = 0;
     std::vector<int> stolen;
     for (int i = 0; i < 1 << 18; i++) {
@@ -142,9 +143,9 @@ void test_empty_runqueue()
         }
       }
     }
-    done = true;
-  });
-  while (!done) {
+    done = true; });
+  while (!done)
+  {
     VERIFY(!q.Empty());
     int size = q.Size();
     VERIFY_GE(size, 1);
@@ -163,7 +164,8 @@ void test_stress_runqueue()
   RunQueue<int, 8> q;
   std::atomic<int> total(0);
   std::vector<std::unique_ptr<std::thread>> threads;
-  threads.emplace_back(new std::thread([&q, &total]() {
+  threads.emplace_back(new std::thread([&q, &total]()
+                                       {
     int sum = 0;
     int pushed = 1;
     int popped = 1;
@@ -182,10 +184,11 @@ void test_stress_runqueue()
         }
       }
     }
-    total += sum;
-  }));
-  for (int i = 0; i < 2; i++) {
-    threads.emplace_back(new std::thread([&q, &total]() {
+    total += sum; }));
+  for (int i = 0; i < 2; i++)
+  {
+    threads.emplace_back(new std::thread([&q, &total]()
+                                         {
       int sum = 0;
       for (int j = 1; j < kEvents; j++) {
         if (q.PushBack(j) == 0) {
@@ -195,9 +198,9 @@ void test_stress_runqueue()
         EIGEN_THREAD_YIELD();
         j--;
       }
-      total += sum;
-    }));
-    threads.emplace_back(new std::thread([&q, &total]() {
+      total += sum; }));
+    threads.emplace_back(new std::thread([&q, &total]()
+                                         {
       int sum = 0;
       std::vector<int> stolen;
       for (int j = 1; j < kEvents;) {
@@ -219,10 +222,10 @@ void test_stress_runqueue()
         VERIFY_IS_NOT_EQUAL(v, 0);
         while ((v = q.PushBack(v)) != 0) EIGEN_THREAD_YIELD();
       }
-      total -= sum;
-    }));
+      total -= sum; }));
   }
-  for (size_t i = 0; i < threads.size(); i++) threads[i]->join();
+  for (size_t i = 0; i < threads.size(); i++)
+    threads[i]->join();
   VERIFY(q.Empty());
   VERIFY(total.load() == 0);
 }

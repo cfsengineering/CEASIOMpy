@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,27 +10,28 @@
 #ifndef EIGEN_INCOMPLETE_LU_H
 #define EIGEN_INCOMPLETE_LU_H
 
-namespace Eigen { 
-
-template <typename _Scalar>
-class IncompleteLU : public SparseSolverBase<IncompleteLU<_Scalar> >
+namespace eeigen
 {
+
+  template <typename _Scalar>
+  class IncompleteLU : public SparseSolverBase<IncompleteLU<_Scalar>>
+  {
   protected:
-    typedef SparseSolverBase<IncompleteLU<_Scalar> > Base;
+    typedef SparseSolverBase<IncompleteLU<_Scalar>> Base;
     using Base::m_isInitialized;
-    
+
     typedef _Scalar Scalar;
-    typedef Matrix<Scalar,Dynamic,1> Vector;
+    typedef Matrix<Scalar, Dynamic, 1> Vector;
     typedef typename Vector::Index Index;
-    typedef SparseMatrix<Scalar,RowMajor> FactorType;
+    typedef SparseMatrix<Scalar, RowMajor> FactorType;
 
   public:
-    typedef Matrix<Scalar,Dynamic,Dynamic> MatrixType;
+    typedef Matrix<Scalar, Dynamic, Dynamic> MatrixType;
 
     IncompleteLU() {}
 
-    template<typename MatrixType>
-    IncompleteLU(const MatrixType& mat)
+    template <typename MatrixType>
+    IncompleteLU(const MatrixType &mat)
     {
       compute(mat);
     }
@@ -38,44 +39,49 @@ class IncompleteLU : public SparseSolverBase<IncompleteLU<_Scalar> >
     Index rows() const { return m_lu.rows(); }
     Index cols() const { return m_lu.cols(); }
 
-    template<typename MatrixType>
-    IncompleteLU& compute(const MatrixType& mat)
+    template <typename MatrixType>
+    IncompleteLU &compute(const MatrixType &mat)
     {
       m_lu = mat;
       int size = mat.cols();
       Vector diag(size);
-      for(int i=0; i<size; ++i)
+      for (int i = 0; i < size; ++i)
       {
-        typename FactorType::InnerIterator k_it(m_lu,i);
-        for(; k_it && k_it.index()<i; ++k_it)
+        typename FactorType::InnerIterator k_it(m_lu, i);
+        for (; k_it && k_it.index() < i; ++k_it)
         {
           int k = k_it.index();
           k_it.valueRef() /= diag(k);
 
           typename FactorType::InnerIterator j_it(k_it);
           typename FactorType::InnerIterator kj_it(m_lu, k);
-          while(kj_it && kj_it.index()<=k) ++kj_it;
-          for(++j_it; j_it; )
+          while (kj_it && kj_it.index() <= k)
+            ++kj_it;
+          for (++j_it; j_it;)
           {
-            if(kj_it.index()==j_it.index())
+            if (kj_it.index() == j_it.index())
             {
               j_it.valueRef() -= k_it.value() * kj_it.value();
               ++j_it;
               ++kj_it;
             }
-            else if(kj_it.index()<j_it.index()) ++kj_it;
-            else                                ++j_it;
+            else if (kj_it.index() < j_it.index())
+              ++kj_it;
+            else
+              ++j_it;
           }
         }
-        if(k_it && k_it.index()==i) diag(i) = k_it.value();
-        else                        diag(i) = 1;
+        if (k_it && k_it.index() == i)
+          diag(i) = k_it.value();
+        else
+          diag(i) = 1;
       }
       m_isInitialized = true;
       return *this;
     }
 
-    template<typename Rhs, typename Dest>
-    void _solve_impl(const Rhs& b, Dest& x) const
+    template <typename Rhs, typename Dest>
+    void _solve_impl(const Rhs &b, Dest &x) const
     {
       x = m_lu.template triangularView<UnitLower>().solve(b);
       x = m_lu.template triangularView<Upper>().solve(x);
@@ -83,8 +89,8 @@ class IncompleteLU : public SparseSolverBase<IncompleteLU<_Scalar> >
 
   protected:
     FactorType m_lu;
-};
+  };
 
-} // end namespace Eigen
+} // end namespace eeigen
 
 #endif // EIGEN_INCOMPLETE_LU_H

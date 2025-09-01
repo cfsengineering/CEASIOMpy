@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2015 Vijay Vasudevan <vrv@google.com>
@@ -11,33 +11,35 @@
 
 #include <stdlib.h>
 #include "main.h"
-#include <Eigen/CXX11/Tensor>
+#include <eeigen/CXX11/Tensor>
 
 #if EIGEN_OS_WIN || EIGEN_OS_WIN64
 #include <windows.h>
-void sleep(int seconds) {
-  Sleep(seconds*1000);
+void sleep(int seconds)
+{
+  Sleep(seconds * 1000);
 }
 #else
 #include <unistd.h>
 #endif
 
+namespace
+{
 
-namespace {
+  void WaitAndAdd(eeigen::Notification *n, int *counter)
+  {
+    n->Wait();
+    *counter = *counter + 1;
+  }
 
-void WaitAndAdd(Eigen::Notification* n, int* counter) {
-  n->Wait();
-  *counter = *counter + 1;
-}
-
-}  // namespace
+} // namespace
 
 static void test_notification_single()
 {
   ThreadPool thread_pool(1);
 
   int counter = 0;
-  Eigen::Notification n;
+  eeigen::Notification n;
   std::function<void()> func = std::bind(&WaitAndAdd, &n, &counter);
   thread_pool.Schedule(func);
   sleep(1);
@@ -61,7 +63,7 @@ static void test_notification_multiple()
   ThreadPool thread_pool(1);
 
   int counter = 0;
-  Eigen::Notification n;
+  eeigen::Notification n;
   std::function<void()> func = std::bind(&WaitAndAdd, &n, &counter);
   thread_pool.Schedule(func);
   thread_pool.Schedule(func);

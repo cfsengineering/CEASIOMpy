@@ -1,8 +1,8 @@
-#include "../Eigen/Core"
+#include "../eeigen/Core"
 
-using namespace Eigen;
+using namespace eeigen;
 
-void call_ref(Ref<VectorXf> a) { }
+void call_ref(Ref<VectorXf> a) {}
 
 int main()
 {

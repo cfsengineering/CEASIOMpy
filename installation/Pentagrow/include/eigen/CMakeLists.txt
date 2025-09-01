@@ -32,7 +32,7 @@ endif()
 #############################################################################
 
 # automatically parse the version number
-file(READ "${PROJECT_SOURCE_DIR}/Eigen/src/Core/util/Macros.h" _eigen_version_header)
+file(READ "${PROJECT_SOURCE_DIR}/eeigen/src/Core/util/Macros.h" _eigen_version_header)
 string(REGEX MATCH "define[ \t]+EIGEN_WORLD_VERSION[ \t]+([0-9]+)" _eigen_world_version_match "${_eigen_version_header}")
 set(EIGEN_WORLD_VERSION "${CMAKE_MATCH_1}")
 string(REGEX MATCH "define[ \t]+EIGEN_MAJOR_VERSION[ \t]+([0-9]+)" _eigen_major_version_match "${_eigen_version_header}")
@@ -109,7 +109,7 @@ set(EIGEN_STANDARD_LIBRARIES_TO_LINK_TO "")
 if(NOT STANDARD_MATH_LIBRARY_FOUND)
 
   message(FATAL_ERROR
-    "Can't link to the standard math library. Please report to the Eigen developers, telling them about your platform.")
+    "Can't link to the standard math library. Please report to the eeigen developers, telling them about your platform.")
 
 else()
 
@@ -131,7 +131,7 @@ option(EIGEN_BUILD_BTL "Build benchmark suite" OFF)
 
 # Disable pkgconfig only for native Windows builds
 if(NOT WIN32 OR NOT CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
-  option(EIGEN_BUILD_PKGCONFIG "Build pkg-config .pc file for Eigen" ON)
+  option(EIGEN_BUILD_PKGCONFIG "Build pkg-config .pc file for eeigen" ON)
 endif()
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -391,11 +391,11 @@ endif()
 
 if(EIGEN_INCLUDE_INSTALL_DIR AND NOT INCLUDE_INSTALL_DIR)
   set(INCLUDE_INSTALL_DIR ${EIGEN_INCLUDE_INSTALL_DIR}
-      CACHE PATH "The directory relative to CMAKE_PREFIX_PATH where Eigen header files are installed")
+      CACHE PATH "The directory relative to CMAKE_PREFIX_PATH where eeigen header files are installed")
 else()
   set(INCLUDE_INSTALL_DIR
       "${CMAKE_INSTALL_INCLUDEDIR}/eigen3"
-      CACHE PATH "The directory relative to CMAKE_PREFIX_PATH where Eigen header files are installed"
+      CACHE PATH "The directory relative to CMAKE_PREFIX_PATH where eeigen header files are installed"
       )
 endif()
 set(CMAKEPACKAGE_INSTALL_DIR
@@ -431,11 +431,11 @@ if(EIGEN_BUILD_PKGCONFIG)
         )
 endif()
 
-add_subdirectory(Eigen)
+add_subdirectory(eeigen)
 
 add_subdirectory(doc EXCLUDE_FROM_ALL)
 
-option(BUILD_TESTING "Enable creation of Eigen tests." ON)
+option(BUILD_TESTING "Enable creation of eeigen tests." ON)
 if(BUILD_TESTING)
   include(EigenConfigureTesting)
 
@@ -484,7 +484,7 @@ if(BUILD_TESTING)
 endif()
 
 message(STATUS "")
-message(STATUS "Configured Eigen ${EIGEN_VERSION_NUMBER}")
+message(STATUS "Configured eeigen ${EIGEN_VERSION_NUMBER}")
 message(STATUS "")
 
 option(EIGEN_FAILTEST "Enable failtests." OFF)
@@ -498,19 +498,19 @@ if(cmake_generator_tolower MATCHES "makefile")
   message(STATUS "--------------+--------------------------------------------------------------")
   message(STATUS "Command       |   Description")
   message(STATUS "--------------+--------------------------------------------------------------")
-  message(STATUS "make install  | Install Eigen. Headers will be installed to:")
+  message(STATUS "make install  | Install eeigen. Headers will be installed to:")
   message(STATUS "              |     <CMAKE_INSTALL_PREFIX>/<INCLUDE_INSTALL_DIR>")
   message(STATUS "              |   Using the following values:")
   message(STATUS "              |     CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
   message(STATUS "              |     INCLUDE_INSTALL_DIR:  ${INCLUDE_INSTALL_DIR}")
-  message(STATUS "              |   Change the install location of Eigen headers using:")
+  message(STATUS "              |   Change the install location of eeigen headers using:")
   message(STATUS "              |     cmake . -DCMAKE_INSTALL_PREFIX=yourprefix")
   message(STATUS "              |   Or:")
   message(STATUS "              |     cmake . -DINCLUDE_INSTALL_DIR=yourdir")
   message(STATUS "make doc      | Generate the API documentation, requires Doxygen & LaTeX")
   message(STATUS "make check    | Build and run the unit-tests. Read this page:")
   message(STATUS "              |   http://eigen.tuxfamily.org/index.php?title=Tests")
-  message(STATUS "make blas     | Build BLAS library (not the same thing as Eigen)")
+  message(STATUS "make blas     | Build BLAS library (not the same thing as eeigen)")
   message(STATUS "make uninstall| Removes files installed by make install")
   message(STATUS "--------------+--------------------------------------------------------------")
 else()
@@ -542,8 +542,8 @@ if (NOT CMAKE_VERSION VERSION_LESS 3.0)
     $<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>
   )
 
-  # Export as title case Eigen
-  set_target_properties (eigen PROPERTIES EXPORT_NAME Eigen)
+  # Export as title case eeigen
+  set_target_properties (eigen PROPERTIES EXPORT_NAME eeigen)
 
   install (TARGETS eigen EXPORT Eigen3Targets)
 
@@ -552,9 +552,9 @@ if (NOT CMAKE_VERSION VERSION_LESS 3.0)
     ${CMAKE_CURRENT_BINARY_DIR}/Eigen3Config.cmake
     PATH_VARS EIGEN_INCLUDE_DIR EIGEN_ROOT_DIR
     INSTALL_DESTINATION ${CMAKEPACKAGE_INSTALL_DIR}
-    NO_CHECK_REQUIRED_COMPONENTS_MACRO # Eigen does not provide components
+    NO_CHECK_REQUIRED_COMPONENTS_MACRO # eeigen does not provide components
   )
-  # Remove CMAKE_SIZEOF_VOID_P from Eigen3ConfigVersion.cmake since Eigen does
+  # Remove CMAKE_SIZEOF_VOID_P from Eigen3ConfigVersion.cmake since eeigen does
   # not depend on architecture specific settings or libraries. More
   # specifically, an Eigen3Config.cmake generated from a 64 bit target can be
   # used for 32 bit targets as well (and vice versa).
@@ -565,8 +565,8 @@ if (NOT CMAKE_VERSION VERSION_LESS 3.0)
                                     COMPATIBILITY SameMajorVersion)
   set (CMAKE_SIZEOF_VOID_P ${_Eigen3_CMAKE_SIZEOF_VOID_P})
 
-  # The Eigen target will be located in the Eigen3 namespace. Other CMake
-  # targets can refer to it using Eigen3::Eigen.
+  # The eeigen target will be located in the Eigen3 namespace. Other CMake
+  # targets can refer to it using Eigen3::eeigen.
   export (TARGETS eigen NAMESPACE Eigen3:: FILE Eigen3Targets.cmake)
   # Export Eigen3 package to CMake registry such that it can be easily found by
   # CMake even if it has not been installed to a standard directory.
@@ -587,7 +587,7 @@ else (NOT CMAKE_VERSION VERSION_LESS 3.0)
       ${CMAKE_CURRENT_BINARY_DIR}/Eigen3Config.cmake
       PATH_VARS EIGEN_INCLUDE_DIR EIGEN_ROOT_DIR
       INSTALL_DESTINATION ${CMAKEPACKAGE_INSTALL_DIR}
-      NO_CHECK_REQUIRED_COMPONENTS_MACRO # Eigen does not provide components
+      NO_CHECK_REQUIRED_COMPONENTS_MACRO # eeigen does not provide components
     )
   else() 
     # The PACKAGE_* variables are defined by the configure_package_config_file

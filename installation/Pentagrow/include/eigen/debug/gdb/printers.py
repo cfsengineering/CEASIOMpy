@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# This file is part of Eigen, a lightweight C++ template library
+# This file is part of eeigen, a lightweight C++ template library
 # for linear algebra.
 #
 # Copyright (C) 2009 Benjamin Schindler <bschindler@inf.ethz.ch>
@@ -8,7 +8,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# Pretty printers for Eigen::Matrix
+# Pretty printers for eeigen::Matrix
 # This is still pretty basic as the python extension to gdb is still pretty basic.
 # It cannot handle complex eigen types and it doesn't support any of the other eigen types
 # Such as quaternion or some other type.
@@ -31,7 +31,7 @@ import re
 
 
 class EigenMatrixPrinter:
-    "Print Eigen Matrix or Array of some kind"
+    "Print eeigen Matrix or Array of some kind"
 
     def __init__(self, variety, val):
         "Extract all the necessary information"
@@ -125,11 +125,11 @@ class EigenMatrixPrinter:
         return self._iterator(self.rows, self.cols, self.data, self.rowMajor)
 
     def to_string(self):
-        return "Eigen::%s<%s,%d,%d,%s> (data ptr: %s)" % (self.variety, self.innerType, self.rows, self.cols, "RowMajor" if self.rowMajor else "ColMajor", self.data)
+        return "eeigen::%s<%s,%d,%d,%s> (data ptr: %s)" % (self.variety, self.innerType, self.rows, self.cols, "RowMajor" if self.rowMajor else "ColMajor", self.data)
 
 
 class EigenQuaternionPrinter:
-    "Print an Eigen Quaternion"
+    "Print an eeigen Quaternion"
 
     def __init__(self, val):
         "Extract all the necessary information"
@@ -174,15 +174,15 @@ class EigenQuaternionPrinter:
         return self._iterator(self.data)
 
     def to_string(self):
-        return "Eigen::Quaternion<%s> (data ptr: %s)" % (self.innerType, self.data)
+        return "eeigen::Quaternion<%s> (data ptr: %s)" % (self.innerType, self.data)
 
 
 def build_eigen_dictionary():
-    pretty_printers_dict[re.compile('^Eigen::Quaternion<.*>$')] = EigenQuaternionPrinter
+    pretty_printers_dict[re.compile('^eeigen::Quaternion<.*>$')] = EigenQuaternionPrinter
 
-    pretty_printers_dict[re.compile('^Eigen::Matrix<.*>$')
+    pretty_printers_dict[re.compile('^eeigen::Matrix<.*>$')
                          ] = lambda val: EigenMatrixPrinter("Matrix", val)
-    pretty_printers_dict[re.compile('^Eigen::Array<.*>$')
+    pretty_printers_dict[re.compile('^eeigen::Array<.*>$')
                          ] = lambda val: EigenMatrixPrinter("Array", val)
 
 

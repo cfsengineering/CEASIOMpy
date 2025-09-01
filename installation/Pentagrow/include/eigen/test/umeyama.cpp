@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Hauke Heibel <hauke.heibel@gmail.com>
@@ -9,20 +9,20 @@
 
 #include "main.h"
 
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include <eeigen/Core>
+#include <eeigen/Geometry>
 
-#include <Eigen/LU> // required for MatrixBase::determinant
-#include <Eigen/SVD> // required for SVD
+#include <eeigen/LU>  // required for MatrixBase::determinant
+#include <eeigen/SVD> // required for SVD
 
-using namespace Eigen;
+using namespace eeigen;
 
 //  Constructs a random matrix from the unitary group U(size).
 template <typename T>
-Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> randMatrixUnitary(int size)
+eeigen::Matrix<T, eeigen::Dynamic, eeigen::Dynamic> randMatrixUnitary(int size)
 {
   typedef T Scalar;
-  typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixType;
+  typedef eeigen::Matrix<Scalar, eeigen::Dynamic, eeigen::Dynamic> MatrixType;
 
   MatrixType Q;
 
@@ -41,7 +41,7 @@ Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> randMatrixUnitary(int size)
       for (int prevCol = 0; prevCol < col; ++prevCol)
       {
         typename MatrixType::ColXpr prevColVec = Q.col(prevCol);
-        colVec -= colVec.dot(prevColVec)*prevColVec;
+        colVec -= colVec.dot(prevColVec) * prevColVec;
       }
       Q.col(col) = colVec.normalized();
     }
@@ -54,7 +54,7 @@ Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> randMatrixUnitary(int size)
       for (int prevRow = 0; prevRow < row; ++prevRow)
       {
         typename MatrixType::RowXpr prevRowVec = Q.row(prevRow);
-        rowVec -= rowVec.dot(prevRowVec)*prevRowVec;
+        rowVec -= rowVec.dot(prevRowVec) * prevRowVec;
       }
       Q.row(row) = rowVec.normalized();
     }
@@ -72,11 +72,11 @@ Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> randMatrixUnitary(int size)
 
 //  Constructs a random matrix from the special unitary group SU(size).
 template <typename T>
-Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> randMatrixSpecialUnitary(int size)
+eeigen::Matrix<T, eeigen::Dynamic, eeigen::Dynamic> randMatrixSpecialUnitary(int size)
 {
   typedef T Scalar;
 
-  typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixType;
+  typedef eeigen::Matrix<Scalar, eeigen::Dynamic, eeigen::Dynamic> MatrixType;
 
   // initialize unitary matrix
   MatrixType Q = randMatrixUnitary<Scalar>(size);
@@ -92,37 +92,37 @@ void run_test(int dim, int num_elements)
 {
   using std::abs;
   typedef typename internal::traits<MatrixType>::Scalar Scalar;
-  typedef Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
-  typedef Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
+  typedef Matrix<Scalar, eeigen::Dynamic, eeigen::Dynamic> MatrixX;
+  typedef Matrix<Scalar, eeigen::Dynamic, 1> VectorX;
 
   // MUST be positive because in any other case det(cR_t) may become negative for
   // odd dimensions!
   const Scalar c = abs(internal::random<Scalar>());
 
   MatrixX R = randMatrixSpecialUnitary<Scalar>(dim);
-  VectorX t = Scalar(50)*VectorX::Random(dim,1);
+  VectorX t = Scalar(50) * VectorX::Random(dim, 1);
 
-  MatrixX cR_t = MatrixX::Identity(dim+1,dim+1);
-  cR_t.block(0,0,dim,dim) = c*R;
-  cR_t.block(0,dim,dim,1) = t;
+  MatrixX cR_t = MatrixX::Identity(dim + 1, dim + 1);
+  cR_t.block(0, 0, dim, dim) = c * R;
+  cR_t.block(0, dim, dim, 1) = t;
 
-  MatrixX src = MatrixX::Random(dim+1, num_elements);
+  MatrixX src = MatrixX::Random(dim + 1, num_elements);
   src.row(dim) = Matrix<Scalar, 1, Dynamic>::Constant(num_elements, Scalar(1));
 
-  MatrixX dst = cR_t*src;
+  MatrixX dst = cR_t * src;
 
-  MatrixX cR_t_umeyama = umeyama(src.block(0,0,dim,num_elements), dst.block(0,0,dim,num_elements));
+  MatrixX cR_t_umeyama = umeyama(src.block(0, 0, dim, num_elements), dst.block(0, 0, dim, num_elements));
 
-  const Scalar error = ( cR_t_umeyama*src - dst ).norm() / dst.norm();
-  VERIFY(error < Scalar(40)*std::numeric_limits<Scalar>::epsilon());
+  const Scalar error = (cR_t_umeyama * src - dst).norm() / dst.norm();
+  VERIFY(error < Scalar(40) * std::numeric_limits<Scalar>::epsilon());
 }
 
-template<typename Scalar, int Dimension>
+template <typename Scalar, int Dimension>
 void run_fixed_size_test(int num_elements)
 {
   using std::abs;
-  typedef Matrix<Scalar, Dimension+1, Dynamic> MatrixX;
-  typedef Matrix<Scalar, Dimension+1, Dimension+1> HomMatrix;
+  typedef Matrix<Scalar, Dimension + 1, Dynamic> MatrixX;
+  typedef Matrix<Scalar, Dimension + 1, Dimension + 1> HomMatrix;
   typedef Matrix<Scalar, Dimension, Dimension> FixedMatrix;
   typedef Matrix<Scalar, Dimension, 1> FixedVector;
 
@@ -134,35 +134,35 @@ void run_fixed_size_test(int num_elements)
   const Scalar c = internal::random<Scalar>(0.5, 2.0);
 
   FixedMatrix R = randMatrixSpecialUnitary<Scalar>(dim);
-  FixedVector t = Scalar(32)*FixedVector::Random(dim,1);
+  FixedVector t = Scalar(32) * FixedVector::Random(dim, 1);
 
-  HomMatrix cR_t = HomMatrix::Identity(dim+1,dim+1);
-  cR_t.block(0,0,dim,dim) = c*R;
-  cR_t.block(0,dim,dim,1) = t;
+  HomMatrix cR_t = HomMatrix::Identity(dim + 1, dim + 1);
+  cR_t.block(0, 0, dim, dim) = c * R;
+  cR_t.block(0, dim, dim, 1) = t;
 
-  MatrixX src = MatrixX::Random(dim+1, num_elements);
+  MatrixX src = MatrixX::Random(dim + 1, num_elements);
   src.row(dim) = Matrix<Scalar, 1, Dynamic>::Constant(num_elements, Scalar(1));
 
-  MatrixX dst = cR_t*src;
+  MatrixX dst = cR_t * src;
 
-  Block<MatrixX, Dimension, Dynamic> src_block(src,0,0,dim,num_elements);
-  Block<MatrixX, Dimension, Dynamic> dst_block(dst,0,0,dim,num_elements);
+  Block<MatrixX, Dimension, Dynamic> src_block(src, 0, 0, dim, num_elements);
+  Block<MatrixX, Dimension, Dynamic> dst_block(dst, 0, 0, dim, num_elements);
 
   HomMatrix cR_t_umeyama = umeyama(src_block, dst_block);
 
-  const Scalar error = ( cR_t_umeyama*src - dst ).squaredNorm();
+  const Scalar error = (cR_t_umeyama * src - dst).squaredNorm();
 
-  VERIFY(error < Scalar(16)*std::numeric_limits<Scalar>::epsilon());
+  VERIFY(error < Scalar(16) * std::numeric_limits<Scalar>::epsilon());
 }
 
 void test_umeyama()
 {
-  for (int i=0; i<g_repeat; ++i)
+  for (int i = 0; i < g_repeat; ++i)
   {
-    const int num_elements = internal::random<int>(40,500);
+    const int num_elements = internal::random<int>(40, 500);
 
     // works also for dimensions bigger than 3...
-    for (int dim=2; dim<8; ++dim)
+    for (int dim = 2; dim < 8; ++dim)
     {
       CALL_SUBTEST_1(run_test<MatrixXd>(dim, num_elements));
       CALL_SUBTEST_2(run_test<MatrixXf>(dim, num_elements));

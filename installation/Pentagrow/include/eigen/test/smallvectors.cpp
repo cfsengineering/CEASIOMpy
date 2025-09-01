@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
@@ -10,7 +10,8 @@
 #define EIGEN_NO_STATIC_ASSERT
 #include "main.h"
 
-template<typename Scalar> void smallVectors()
+template <typename Scalar>
+void smallVectors()
 {
   typedef Matrix<Scalar, 1, 2> V2;
   typedef Matrix<Scalar, 3, 1> V3;
@@ -59,9 +60,10 @@ template<typename Scalar> void smallVectors()
 
 void test_smallvectors()
 {
-  for(int i = 0; i < g_repeat; i++) {
-    CALL_SUBTEST(smallVectors<int>() );
-    CALL_SUBTEST(smallVectors<float>() );
-    CALL_SUBTEST(smallVectors<double>() );
+  for (int i = 0; i < g_repeat; i++)
+  {
+    CALL_SUBTEST(smallVectors<int>());
+    CALL_SUBTEST(smallVectors<float>());
+    CALL_SUBTEST(smallVectors<double>());
   }
 }

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Mehdi Goli    Codeplay Software Ltd.
@@ -18,33 +18,41 @@
 
 // global pointer to set different attribute state for a class
 template <class T>
-struct MakeGlobalPointer {
+struct MakeGlobalPointer
+{
   typedef typename cl::sycl::global_ptr<T>::pointer_t Type;
 };
 
 // global pointer to set different attribute state for a class
 template <class T>
-struct MakeLocalPointer {
+struct MakeLocalPointer
+{
   typedef typename cl::sycl::local_ptr<T>::pointer_t Type;
 };
 
+namespace eeigen
+{
+  namespace TensorSycl
+  {
+    namespace internal
+    {
 
-namespace Eigen {
-namespace TensorSycl {
-namespace internal {
+      /// This struct is used for special expression nodes with no operations (for example assign and selectOP).
+      struct NoOP;
 
-/// This struct is used for special expression nodes with no operations (for example assign and selectOP).
-  struct NoOP;
+      template <bool IsConst, typename T>
+      struct GetType
+      {
+        typedef const T Type;
+      };
+      template <typename T>
+      struct GetType<false, T>
+      {
+        typedef T Type;
+      };
 
-template<bool IsConst, typename T> struct GetType{
-  typedef const T Type;
-};
-template<typename T> struct GetType<false, T>{
-  typedef T Type;
-};
-
-}
-}
+    }
+  }
 }
 
 // tuple construction
@@ -78,5 +86,5 @@ template<typename T> struct GetType<false, T>{
 // kernel execution using fusion
 #include "TensorSyclRun.h"
 
-#endif  // end of EIGEN_USE_SYCL
-#endif  // UNSUPPORTED_EIGEN_CXX11_SRC_TENSOR_TENSORSYCL_H
+#endif // end of EIGEN_USE_SYCL
+#endif // UNSUPPORTED_EIGEN_CXX11_SRC_TENSOR_TENSORSYCL_H

@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
@@ -10,9 +10,10 @@
 
 #include "main.h"
 #include <limits>
-#include <Eigen/Eigenvalues>
+#include <eeigen/Eigenvalues>
 
-template<typename MatrixType> void eigensolver(const MatrixType& m)
+template <typename MatrixType>
+void eigensolver(const MatrixType &m)
 {
   /* this test covers the following files:
      EigenSolver.h
@@ -25,15 +26,15 @@ template<typename MatrixType> void eigensolver(const MatrixType& m)
   typedef Matrix<RealScalar, MatrixType::RowsAtCompileTime, 1> RealVectorType;
   typedef typename std::complex<typename NumTraits<typename MatrixType::Scalar>::Real> Complex;
 
-  MatrixType a = MatrixType::Random(rows,cols);
-  MatrixType a1 = MatrixType::Random(rows,cols);
-  MatrixType symmA =  a.adjoint() * a + a1.adjoint() * a1;
+  MatrixType a = MatrixType::Random(rows, cols);
+  MatrixType a1 = MatrixType::Random(rows, cols);
+  MatrixType symmA = a.adjoint() * a + a1.adjoint() * a1;
 
   EigenSolver<MatrixType> ei0(symmA);
   VERIFY_IS_EQUAL(ei0.info(), Success);
   VERIFY_IS_APPROX(symmA * ei0.pseudoEigenvectors(), ei0.pseudoEigenvectors() * ei0.pseudoEigenvalueMatrix());
   VERIFY_IS_APPROX((symmA.template cast<Complex>()) * (ei0.pseudoEigenvectors().template cast<Complex>()),
-    (ei0.pseudoEigenvectors().template cast<Complex>()) * (ei0.eigenvalues().asDiagonal()));
+                   (ei0.pseudoEigenvectors().template cast<Complex>()) * (ei0.eigenvalues().asDiagonal()));
 
   EigenSolver<MatrixType> ei1(a);
   VERIFY_IS_EQUAL(ei1.info(), Success);
@@ -48,7 +49,8 @@ template<typename MatrixType> void eigensolver(const MatrixType& m)
   VERIFY_IS_EQUAL(ei2.info(), Success);
   VERIFY_IS_EQUAL(ei2.eigenvectors(), ei1.eigenvectors());
   VERIFY_IS_EQUAL(ei2.eigenvalues(), ei1.eigenvalues());
-  if (rows > 2) {
+  if (rows > 2)
+  {
     ei2.setMaxIterations(1).compute(a);
     VERIFY_IS_EQUAL(ei2.info(), NoConvergence);
     VERIFY_IS_EQUAL(ei2.getMaxIterations(), 1);
@@ -65,7 +67,7 @@ template<typename MatrixType> void eigensolver(const MatrixType& m)
   if (rows > 2 && rows < 20)
   {
     // Test matrix with NaN
-    a(0,0) = std::numeric_limits<typename MatrixType::RealScalar>::quiet_NaN();
+    a(0, 0) = std::numeric_limits<typename MatrixType::RealScalar>::quiet_NaN();
     EigenSolver<MatrixType> eiNaN(a);
     VERIFY_IS_EQUAL(eiNaN.info(), NoConvergence);
   }
@@ -81,12 +83,13 @@ template<typename MatrixType> void eigensolver(const MatrixType& m)
     a.setZero();
     EigenSolver<MatrixType> ei3(a);
     VERIFY_IS_EQUAL(ei3.info(), Success);
-    VERIFY_IS_MUCH_SMALLER_THAN(ei3.eigenvalues().norm(),RealScalar(1));
-    VERIFY((ei3.eigenvectors().transpose()*ei3.eigenvectors().transpose()).eval().isIdentity());
+    VERIFY_IS_MUCH_SMALLER_THAN(ei3.eigenvalues().norm(), RealScalar(1));
+    VERIFY((ei3.eigenvectors().transpose() * ei3.eigenvectors().transpose()).eval().isIdentity());
   }
 }
 
-template<typename MatrixType> void eigensolver_verify_assert(const MatrixType& m)
+template <typename MatrixType>
+void eigensolver_verify_assert(const MatrixType &m)
 {
   EigenSolver<MatrixType> eig;
   VERIFY_RAISES_ASSERT(eig.eigenvectors());
@@ -94,7 +97,7 @@ template<typename MatrixType> void eigensolver_verify_assert(const MatrixType& m
   VERIFY_RAISES_ASSERT(eig.pseudoEigenvalueMatrix());
   VERIFY_RAISES_ASSERT(eig.eigenvalues());
 
-  MatrixType a = MatrixType::Random(m.rows(),m.cols());
+  MatrixType a = MatrixType::Random(m.rows(), m.cols());
   eig.compute(a, false);
   VERIFY_RAISES_ASSERT(eig.eigenvectors());
   VERIFY_RAISES_ASSERT(eig.pseudoEigenvectors());
@@ -103,63 +106,63 @@ template<typename MatrixType> void eigensolver_verify_assert(const MatrixType& m
 void test_eigensolver_generic()
 {
   int s = 0;
-  for(int i = 0; i < g_repeat; i++) {
-    CALL_SUBTEST_1( eigensolver(Matrix4f()) );
-    s = internal::random<int>(1,EIGEN_TEST_MAX_SIZE/4);
-    CALL_SUBTEST_2( eigensolver(MatrixXd(s,s)) );
+  for (int i = 0; i < g_repeat; i++)
+  {
+    CALL_SUBTEST_1(eigensolver(Matrix4f()));
+    s = internal::random<int>(1, EIGEN_TEST_MAX_SIZE / 4);
+    CALL_SUBTEST_2(eigensolver(MatrixXd(s, s)));
     TEST_SET_BUT_UNUSED_VARIABLE(s)
 
     // some trivial but implementation-wise tricky cases
-    CALL_SUBTEST_2( eigensolver(MatrixXd(1,1)) );
-    CALL_SUBTEST_2( eigensolver(MatrixXd(2,2)) );
-    CALL_SUBTEST_3( eigensolver(Matrix<double,1,1>()) );
-    CALL_SUBTEST_4( eigensolver(Matrix2d()) );
+    CALL_SUBTEST_2(eigensolver(MatrixXd(1, 1)));
+    CALL_SUBTEST_2(eigensolver(MatrixXd(2, 2)));
+    CALL_SUBTEST_3(eigensolver(Matrix<double, 1, 1>()));
+    CALL_SUBTEST_4(eigensolver(Matrix2d()));
   }
 
-  CALL_SUBTEST_1( eigensolver_verify_assert(Matrix4f()) );
-  s = internal::random<int>(1,EIGEN_TEST_MAX_SIZE/4);
-  CALL_SUBTEST_2( eigensolver_verify_assert(MatrixXd(s,s)) );
-  CALL_SUBTEST_3( eigensolver_verify_assert(Matrix<double,1,1>()) );
-  CALL_SUBTEST_4( eigensolver_verify_assert(Matrix2d()) );
+  CALL_SUBTEST_1(eigensolver_verify_assert(Matrix4f()));
+  s = internal::random<int>(1, EIGEN_TEST_MAX_SIZE / 4);
+  CALL_SUBTEST_2(eigensolver_verify_assert(MatrixXd(s, s)));
+  CALL_SUBTEST_3(eigensolver_verify_assert(Matrix<double, 1, 1>()));
+  CALL_SUBTEST_4(eigensolver_verify_assert(Matrix2d()));
 
   // Test problem size constructors
   CALL_SUBTEST_5(EigenSolver<MatrixXf> tmp(s));
 
   // regression test for bug 410
   CALL_SUBTEST_2(
-  {
-     MatrixXd A(1,1);
-     A(0,0) = std::sqrt(-1.); // is Not-a-Number
-     Eigen::EigenSolver<MatrixXd> solver(A);
-     VERIFY_IS_EQUAL(solver.info(), NumericalIssue);
-  }
-  );
-  
+      {
+        MatrixXd A(1, 1);
+        A(0, 0) = std::sqrt(-1.); // is Not-a-Number
+        eeigen::EigenSolver<MatrixXd> solver(A);
+        VERIFY_IS_EQUAL(solver.info(), NumericalIssue);
+      });
+
 #ifdef EIGEN_TEST_PART_2
   {
     // regression test for bug 793
-    MatrixXd a(3,3);
-    a << 0,  0,  1,
-        1,  1, 1,
-        1, 1e+200,  1;
-    Eigen::EigenSolver<MatrixXd> eig(a);
+    MatrixXd a(3, 3);
+    a << 0, 0, 1,
+        1, 1, 1,
+        1, 1e+200, 1;
+    eeigen::EigenSolver<MatrixXd> eig(a);
     double scale = 1e-200; // scale to avoid overflow during the comparisons
-    VERIFY_IS_APPROX(a * eig.pseudoEigenvectors()*scale, eig.pseudoEigenvectors() * eig.pseudoEigenvalueMatrix()*scale);
-    VERIFY_IS_APPROX(a * eig.eigenvectors()*scale, eig.eigenvectors() * eig.eigenvalues().asDiagonal()*scale);
+    VERIFY_IS_APPROX(a * eig.pseudoEigenvectors() * scale, eig.pseudoEigenvectors() * eig.pseudoEigenvalueMatrix() * scale);
+    VERIFY_IS_APPROX(a * eig.eigenvectors() * scale, eig.eigenvectors() * eig.eigenvalues().asDiagonal() * scale);
   }
   {
     // check a case where all eigenvalues are null.
-    MatrixXd a(2,2);
-    a << 1,  1,
+    MatrixXd a(2, 2);
+    a << 1, 1,
         -1, -1;
-    Eigen::EigenSolver<MatrixXd> eig(a);
+    eeigen::EigenSolver<MatrixXd> eig(a);
     VERIFY_IS_APPROX(eig.pseudoEigenvectors().squaredNorm(), 2.);
-    VERIFY_IS_APPROX((a * eig.pseudoEigenvectors()).norm()+1., 1.);
-    VERIFY_IS_APPROX((eig.pseudoEigenvectors() * eig.pseudoEigenvalueMatrix()).norm()+1., 1.);
-    VERIFY_IS_APPROX((a * eig.eigenvectors()).norm()+1., 1.);
-    VERIFY_IS_APPROX((eig.eigenvectors() * eig.eigenvalues().asDiagonal()).norm()+1., 1.);
+    VERIFY_IS_APPROX((a * eig.pseudoEigenvectors()).norm() + 1., 1.);
+    VERIFY_IS_APPROX((eig.pseudoEigenvectors() * eig.pseudoEigenvalueMatrix()).norm() + 1., 1.);
+    VERIFY_IS_APPROX((a * eig.eigenvectors()).norm() + 1., 1.);
+    VERIFY_IS_APPROX((eig.eigenvectors() * eig.eigenvalues().asDiagonal()).norm() + 1., 1.);
   }
 #endif
-  
+
   TEST_SET_BUT_UNUSED_VARIABLE(s)
 }

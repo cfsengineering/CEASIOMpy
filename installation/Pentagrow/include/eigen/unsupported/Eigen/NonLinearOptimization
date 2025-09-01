@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Thomas Capricelli <orzel@freehackers.org>
@@ -12,16 +12,16 @@
 
 #include <vector>
 
-#include <Eigen/Core>
-#include <Eigen/Jacobi>
-#include <Eigen/QR>
-#include <unsupported/Eigen/NumericalDiff>
+#include <eeigen/Core>
+#include <eeigen/Jacobi>
+#include <eeigen/QR>
+#include <unsupported/eeigen/NumericalDiff>
 
 /**
   * \defgroup NonLinearOptimization_Module Non linear optimization module
   *
   * \code
-  * #include <unsupported/Eigen/NonLinearOptimization>
+  * #include <unsupported/eeigen/NonLinearOptimization>
   * \endcode
   *
   * This module provides implementation of two important algorithms in non linear
@@ -44,8 +44,8 @@
   * The last one of those cleanings being our starting point : 
   * http://devernay.free.fr/hacks/cminpack.html
   * 
-  * Finally, we ported this code to Eigen, creating classes and API
-  * coherent with Eigen. When possible, we switched to Eigen
+  * Finally, we ported this code to eeigen, creating classes and API
+  * coherent with eeigen. When possible, we switched to eeigen
   * implementation, such as most linear algebra (vectors, matrices, stable norms).
   *
   * Doing so, we were very careful to check the tests we setup at the very
@@ -76,7 +76,7 @@
   * \section API API : overview of methods
   * 
   * Both algorithms can use either the jacobian (provided by the user) or compute 
-  * an approximation by themselves (actually using Eigen \ref NumericalDiff_Module).
+  * an approximation by themselves (actually using eeigen \ref NumericalDiff_Module).
   * The part of API referring to the latter use 'NumericalDiff' in the method names
   * (exemple: LevenbergMarquardt.minimizeNumericalDiff() ) 
   * 

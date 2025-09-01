@@ -1,6 +1,6 @@
 
 /* Copyright (C) 2015 David Eller <david@larosterna.com>
- * 
+ *
  * Commercial License Usage
  * Licensees holding valid commercial licenses may use this file in accordance
  * with the terms contained in their respective non-exclusive license agreement.
@@ -11,7 +11,7 @@
  * Public License version 3.0 as published by the Free Software Foundation and
  * appearing in the file gpl.txt included in the packaging of this file.
  */
- 
+
 #include "eig.h"
 #include "lapack_interface.h"
 #include "xcept.h"
@@ -21,7 +21,7 @@ using namespace std;
 // ------------------- Symmetric Standard ------------------------------------
 
 template <class MatrixType, class VectorType>
-static inline int sym_eig_tpl(const MatrixType & a, VectorType & eval)
+static inline int sym_eig_tpl(const MatrixType &a, VectorType &eval)
 {
   assert(a.nrows() == a.ncols());
   assert(eval.size() == a.nrows());
@@ -43,30 +43,30 @@ static inline int sym_eig_tpl(const MatrixType & a, VectorType & eval)
   if (status != 0)
     return status;
 
-  work.resize( (size_t) std::real(work[0]) );
-  iwork.resize( (size_t) iwork[0] );
+  work.resize((size_t)std::real(work[0]));
+  iwork.resize((size_t)iwork[0]);
 
   // decomposition
   lapack::syevd('V', 'U', n, acopy.pointer(), n, eval.pointer(),
                 &(work[0]), work.size(),
-      &(iwork[0]), iwork.size(), status);
+                &(iwork[0]), iwork.size(), status);
 
   return status;
 
 #else
 
   typedef typename MatrixType::EigenMatrix EigenMatrix;
-  const int option = Eigen::EigenvaluesOnly;
-  Eigen::SelfAdjointEigenSolver<EigenMatrix> solver(a.cmap(), option);
+  const int option = eeigen::EigenvaluesOnly;
+  eeigen::SelfAdjointEigenSolver<EigenMatrix> solver(a.cmap(), option);
   eval.mmap() = solver.eigenvalues();
-  return (solver.info() == Eigen::Success) ? 0 : -1;
+  return (solver.info() == eeigen::Success) ? 0 : -1;
 
 #endif
 }
 
 template <class MatrixType, class VectorType>
-static inline void sym_eig_tpl(const MatrixType & a, VectorType & eval,
-                               MatrixType & z)
+static inline void sym_eig_tpl(const MatrixType &a, VectorType &eval,
+                               MatrixType &z)
 {
   assert(a.nrows() == a.ncols());
 
@@ -74,8 +74,8 @@ static inline void sym_eig_tpl(const MatrixType & a, VectorType & eval,
 
   typedef std::vector<typename MatrixType::value_type> WorkArray;
   lapack::lpint status, n(a.nrows());
-  WorkArray work(1+6*n+2*n*n);
-  std::vector<int> iwork(3+5*n);
+  WorkArray work(1 + 6 * n + 2 * n * n);
+  std::vector<int> iwork(3 + 5 * n);
 
   // workspace query
   eval.resize(n);
@@ -83,22 +83,24 @@ static inline void sym_eig_tpl(const MatrixType & a, VectorType & eval,
   lapack::syevd('V', 'U', n, z.pointer(), n, eval.pointer(),
                 &(work[0]), -1, &(iwork[0]), -1, status);
 
-  if (status != 0) {
+  if (status != 0)
+  {
     std::stringstream ss;
     ss << "Eigenvalue decompositon failed in Lapack (*syevd).\n";
     ss << "info = " << status;
     throw Error(ss.str());
   }
 
-  work.resize( (size_t) std::real(work[0]) );
-  iwork.resize( (size_t) iwork[0] );
+  work.resize((size_t)std::real(work[0]));
+  iwork.resize((size_t)iwork[0]);
 
   // decomposition
   lapack::syevd('V', 'U', n, z.pointer(), n, eval.pointer(),
                 &(work[0]), work.size(),
-      &(iwork[0]), iwork.size(), status);
+                &(iwork[0]), iwork.size(), status);
 
-  if (status != 0) {
+  if (status != 0)
+  {
     std::stringstream ss;
     ss << "Eigenvalue decompositon failed in Lapack (*syevd).\n";
     ss << "info = " << status;
@@ -111,11 +113,12 @@ static inline void sym_eig_tpl(const MatrixType & a, VectorType & eval,
   z.allocate(a.nrows(), a.ncols());
 
   typedef typename MatrixType::EigenMatrix EigenMatrix;
-  const int option = Eigen::ComputeEigenvectors;
-  Eigen::SelfAdjointEigenSolver<EigenMatrix> solver(a.cmap(), option);
-  if (solver.info() != Eigen::Success) {
+  const int option = eeigen::ComputeEigenvectors;
+  eeigen::SelfAdjointEigenSolver<EigenMatrix> solver(a.cmap(), option);
+  if (solver.info() != eeigen::Success)
+  {
     std::stringstream ss;
-    ss << "Eigenvalue decompositon failed in Eigen::SelfAdjointEigenSolver.\n";
+    ss << "Eigenvalue decompositon failed in eeigen::SelfAdjointEigenSolver.\n";
     ss << "info = " << int(solver.info());
     throw Error(ss.str());
   }
@@ -153,7 +156,7 @@ void sym_eig(const DMatrix<double> &a, DVector<double> &lambda,
 // ---------------- Non-symmetric Standard -----------------------------------
 
 template <class MatrixType, class CpxVectorType>
-int real_eig_tpl(const MatrixType & a, CpxVectorType & lambda)
+int real_eig_tpl(const MatrixType &a, CpxVectorType &lambda)
 {
   assert(a.nrows() == a.ncols());
 
@@ -165,29 +168,29 @@ int real_eig_tpl(const MatrixType & a, CpxVectorType & lambda)
   WorkArray wi(n), wr(n), work(n);
   MatrixType b(a), u, v;
 
-  u.resize(n,n);
-  v.resize(n,n);
+  u.resize(n, n);
+  v.resize(n, n);
 
   // workspace query
   lapack::geev('N', 'N', n, b.pointer(), n, &(wr[0]), &(wi[0]),
-      u.pointer(), n, v.pointer(), n,
-      &(work[0]), -1, status);
+               u.pointer(), n, v.pointer(), n,
+               &(work[0]), -1, status);
 
   if (status != 0)
     return status;
 
-  work.resize( (size_t) work[0] );
+  work.resize((size_t)work[0]);
 
   // decomposition
   lapack::geev('N', 'N', n, b.pointer(), n, &(wr[0]), &(wi[0]),
-      u.pointer(), n, v.pointer(), n,
-      &(work[0]), work.size(), status);
+               u.pointer(), n, v.pointer(), n,
+               &(work[0]), work.size(), status);
 
   if (status != 0)
     return status;
 
   lambda.resize(n);
-  for (int i=0; i<n; ++i)
+  for (int i = 0; i < n; ++i)
     lambda[i] = complex_type(wr[i], wi[i]);
 
   return 0;
@@ -197,8 +200,8 @@ int real_eig_tpl(const MatrixType & a, CpxVectorType & lambda)
   lambda.allocate(a.nrows());
 
   typedef typename MatrixType::EigenMatrix EigenMatrix;
-  Eigen::EigenSolver<EigenMatrix> solver(a.cmap(), false);
-  if (solver.info() != Eigen::Success)
+  eeigen::EigenSolver<EigenMatrix> solver(a.cmap(), false);
+  if (solver.info() != eeigen::Success)
     return 1;
 
   lambda.mmap() = solver.eigenvalues();
@@ -208,7 +211,7 @@ int real_eig_tpl(const MatrixType & a, CpxVectorType & lambda)
 }
 
 template <class CpxMatrixType, class CpxVectorType>
-int cplx_eig_tpl(const CpxMatrixType & a, CpxVectorType & lambda)
+int cplx_eig_tpl(const CpxMatrixType &a, CpxVectorType &lambda)
 {
   assert(a.nrows() == a.ncols());
 
@@ -220,9 +223,9 @@ int cplx_eig_tpl(const CpxMatrixType & a, CpxVectorType & lambda)
   typedef DVector<real_type> RWorkArray;
   lapack::lpint status, n(a.nrows());
   CWorkArray cwork;
-  RWorkArray rwork(2*n);
+  RWorkArray rwork(2 * n);
 
-  CpxMatrixType b(a), u(n,n), v(n,n);
+  CpxMatrixType b(a), u(n, n), v(n, n);
 
   // workspace query
   lambda.resize(n);
@@ -233,8 +236,8 @@ int cplx_eig_tpl(const CpxMatrixType & a, CpxVectorType & lambda)
   if (status != 0)
     return status;
 
-  size_t lwork = std::max(size_t(2*n), size_t(std::real(cwork[0])));
-  cwork.resize( lwork );
+  size_t lwork = std::max(size_t(2 * n), size_t(std::real(cwork[0])));
+  cwork.resize(lwork);
 
   // decomposition
   lapack::geev('N', 'N', n, b.pointer(), n, lambda.pointer(),
@@ -251,8 +254,8 @@ int cplx_eig_tpl(const CpxMatrixType & a, CpxVectorType & lambda)
   lambda.allocate(a.nrows());
 
   typedef typename CpxMatrixType::EigenMatrix EigenMatrix;
-  Eigen::ComplexEigenSolver<EigenMatrix> solver(a.cmap(), false);
-  if (solver.info() != Eigen::Success)
+  eeigen::ComplexEigenSolver<EigenMatrix> solver(a.cmap(), false);
+  if (solver.info() != eeigen::Success)
     return 1;
 
   lambda.mmap() = solver.eigenvalues();
@@ -263,24 +266,24 @@ int cplx_eig_tpl(const CpxMatrixType & a, CpxVectorType & lambda)
 
 // instanciated overloads
 
-int eig(const DMatrix<float> &a, DVector<std::complex<float> > &lambda)
+int eig(const DMatrix<float> &a, DVector<std::complex<float>> &lambda)
 {
   return real_eig_tpl(a, lambda);
 }
 
-int eig(const DMatrix<double> &a, DVector<std::complex<double> > &lambda)
+int eig(const DMatrix<double> &a, DVector<std::complex<double>> &lambda)
 {
   return real_eig_tpl(a, lambda);
 }
 
 int eig(const DMatrix<std::complex<float>> &a,
-        DVector<std::complex<float> > &lambda)
+        DVector<std::complex<float>> &lambda)
 {
   return cplx_eig_tpl(a, lambda);
 }
 
 int eig(const DMatrix<std::complex<double>> &a,
-        DVector<std::complex<double> > &lambda)
+        DVector<std::complex<double>> &lambda)
 {
   return cplx_eig_tpl(a, lambda);
 }
@@ -288,8 +291,8 @@ int eig(const DMatrix<std::complex<double>> &a,
 #ifndef HAVE_NO_LAPACK
 
 template <class MatrixType, class CpxVectorType>
-void real_eig_tpl(const MatrixType & a, CpxVectorType & lambda,
-                  MatrixType & u, MatrixType & v)
+void real_eig_tpl(const MatrixType &a, CpxVectorType &lambda,
+                  MatrixType &u, MatrixType &v)
 {
   assert(a.nrows() == a.ncols());
 
@@ -299,26 +302,28 @@ void real_eig_tpl(const MatrixType & a, CpxVectorType & lambda,
   WorkArray wi(n), wr(n), work(n);
   MatrixType b(a);
 
-  u.resize(n,n);
-  v.resize(n,n);
+  u.resize(n, n);
+  v.resize(n, n);
 
   // workspace query
   lapack::geev('V', 'V', n, b.pointer(), n, &(wr[0]), &(wi[0]),
-      u.pointer(), n, v.pointer(), n, &(work[0]), -1, status);
+               u.pointer(), n, v.pointer(), n, &(work[0]), -1, status);
 
-  if (status != 0) {
+  if (status != 0)
+  {
     std::stringstream ss;
     ss << "Eigenvalue decompositon failed in Lapack (*geev).\n";
     ss << "info = " << status;
     throw Error(ss.str());
   }
-  work.resize( (size_t) work[0] );
+  work.resize((size_t)work[0]);
 
   // decomposition
   lapack::geev('V', 'V', n, b.pointer(), n, &(wr[0]), &(wi[0]),
-      u.pointer(), n, v.pointer(), n, &(work[0]), work.size(), status);
+               u.pointer(), n, v.pointer(), n, &(work[0]), work.size(), status);
 
-  if (status != 0) {
+  if (status != 0)
+  {
     std::stringstream ss;
     ss << "Eigenvalue decompositon failed in Lapack (*geev).\n";
     ss << "info = " << status;
@@ -326,13 +331,13 @@ void real_eig_tpl(const MatrixType & a, CpxVectorType & lambda,
   }
 
   lambda.resize(n);
-  for (int i=0; i<n; ++i)
+  for (int i = 0; i < n; ++i)
     lambda[i] = complex_type(wr[i], wi[i]);
 }
 
 template <class CpxMatrixType, class CpxVectorType>
-void cplx_eig_tpl(const CpxMatrixType & a, CpxVectorType & lambda,
-                  CpxMatrixType & u, CpxMatrixType & v)
+void cplx_eig_tpl(const CpxMatrixType &a, CpxVectorType &lambda,
+                  CpxMatrixType &u, CpxMatrixType &v)
 {
   assert(a.nrows() == a.ncols());
 
@@ -342,34 +347,36 @@ void cplx_eig_tpl(const CpxMatrixType & a, CpxVectorType & lambda,
   typedef DVector<real_type> RWorkArray;
   lapack::lpint status, n(a.nrows());
   CWorkArray cwork;
-  RWorkArray rwork(2*n);
+  RWorkArray rwork(2 * n);
 
   CpxMatrixType b(a);
 
   // workspace query
   lambda.resize(n);
-  u.resize(n,n);
-  v.resize(n,n);
+  u.resize(n, n);
+  v.resize(n, n);
   lapack::geev('V', 'V', n, b.pointer(), n, lambda.pointer(),
                u.pointer(), n, v.pointer(), n,
                cwork.pointer(), -1, rwork.pointer(), status);
 
-  if (status != 0) {
+  if (status != 0)
+  {
     std::stringstream ss;
     ss << "Eigenvalue decompositon failed in Lapack (*geev).\n";
     ss << "info = " << status;
     throw Error(ss.str());
   }
 
-  size_t lwork = std::max(size_t(2*n), size_t(std::real(cwork[0])));
-  cwork.resize( lwork );
+  size_t lwork = std::max(size_t(2 * n), size_t(std::real(cwork[0])));
+  cwork.resize(lwork);
 
   // decomposition
   lapack::geev('V', 'V', n, b.pointer(), n, lambda.pointer(),
                u.pointer(), n, v.pointer(), n,
                cwork.pointer(), cwork.size(), rwork.pointer(), status);
 
-  if (status != 0) {
+  if (status != 0)
+  {
     std::stringstream ss;
     ss << "Eigenvalue decompositon failed in Lapack (*geev).\n";
     ss << "info = " << status;
@@ -377,20 +384,20 @@ void cplx_eig_tpl(const CpxMatrixType & a, CpxVectorType & lambda,
   }
 }
 
-void eig(const DMatrix<float> &a, DVector<std::complex<float> > &lambda,
+void eig(const DMatrix<float> &a, DVector<std::complex<float>> &lambda,
          DMatrix<float> &u, DMatrix<float> &v)
 {
   real_eig_tpl(a, lambda, u, v);
 }
 
-void eig(const DMatrix<double> &a, DVector<std::complex<double> > &lambda,
+void eig(const DMatrix<double> &a, DVector<std::complex<double>> &lambda,
          DMatrix<double> &u, DMatrix<double> &v)
 {
   real_eig_tpl(a, lambda, u, v);
 }
 
 void eig(const DMatrix<std::complex<float>> &a,
-         DVector<std::complex<float> > &lambda,
+         DVector<std::complex<float>> &lambda,
          DMatrix<std::complex<float>> &u,
          DMatrix<std::complex<float>> &v)
 {
@@ -398,7 +405,7 @@ void eig(const DMatrix<std::complex<float>> &a,
 }
 
 void eig(const DMatrix<std::complex<double>> &a,
-         DVector<std::complex<double> > &lambda,
+         DVector<std::complex<double>> &lambda,
          DMatrix<std::complex<double>> &u,
          DMatrix<std::complex<double>> &v)
 {
@@ -407,16 +414,16 @@ void eig(const DMatrix<std::complex<double>> &a,
 
 // ---------------- Generalized ---------------------------------------------
 
-void gen_eig(const CpxMatrix & a, const CpxMatrix & b, CpxVector & lambda)
+void gen_eig(const CpxMatrix &a, const CpxMatrix &b, CpxVector &lambda)
 {
   assert(a.nrows() == a.ncols());
   assert(b.nrows() == b.ncols());
   assert(a.nrows() == b.nrows());
-  
-  lapack::lpint status, n(a.nrows()), lwork(2*a.nrows());
+
+  lapack::lpint status, n(a.nrows()), lwork(2 * a.nrows());
   CpxMatrix ac(a), bc(b);
-  CpxVector work(2*n), alpha(n), beta(n);
-  Vector rwork(8*n);
+  CpxVector work(2 * n), alpha(n), beta(n);
+  Vector rwork(8 * n);
 
   // workspace query
   lapack::zggev_('N', 'N', n, ac.pointer(), n, bc.pointer(), n,
@@ -424,14 +431,15 @@ void gen_eig(const CpxMatrix & a, const CpxMatrix & b, CpxVector & lambda)
                  0, n, 0, n,
                  work.pointer(), -1, rwork.pointer(), status);
 
-  if (status != 0) {
+  if (status != 0)
+  {
     std::stringstream ss;
     ss << "Eigenvalue decompositon failed in Lapack (zggev).\n";
     ss << "info = " << status;
     throw Error(ss.str());
   }
   lwork = static_cast<int>(real(work[0]));
-  lwork = max(lwork, 2*n);
+  lwork = max(lwork, 2 * n);
   work.resize(lwork);
 
   // compute eigenvalues
@@ -440,7 +448,8 @@ void gen_eig(const CpxMatrix & a, const CpxMatrix & b, CpxVector & lambda)
                  0, n, 0, n,
                  work.pointer(), lwork, rwork.pointer(), status);
 
-  if (status != 0) {
+  if (status != 0)
+  {
     std::stringstream ss;
     ss << "Eigenvalue decompositon failed in Lapack (zggev).\n";
     ss << "info = " << status;
@@ -448,39 +457,40 @@ void gen_eig(const CpxMatrix & a, const CpxMatrix & b, CpxVector & lambda)
   }
 
   lambda.resize(n);
-  for (int i=0; i<n; ++i)
+  for (int i = 0; i < n; ++i)
     lambda[i] = alpha[i] / beta[i];
 }
 
-void gen_eig(const CpxMatrix & a, const CpxMatrix & b, CpxVector & lambda,
-             CpxMatrix & u, CpxMatrix & v)
+void gen_eig(const CpxMatrix &a, const CpxMatrix &b, CpxVector &lambda,
+             CpxMatrix &u, CpxMatrix &v)
 {
   assert(a.nrows() == a.ncols());
   assert(b.nrows() == b.ncols());
   assert(a.nrows() == b.nrows());
-  
-  int status, n(a.nrows()), lwork(2*a.nrows());
-  CpxMatrix ac(a), bc(b);
-  CpxVector work(2*n), alpha(n), beta(n);
-  Vector rwork(8*n);
 
-  u.resize(n,n);
-  v.resize(n,n);
-  
+  int status, n(a.nrows()), lwork(2 * a.nrows());
+  CpxMatrix ac(a), bc(b);
+  CpxVector work(2 * n), alpha(n), beta(n);
+  Vector rwork(8 * n);
+
+  u.resize(n, n);
+  v.resize(n, n);
+
   // workspace query
   lapack::zggev_('V', 'V', n, ac.pointer(), n, bc.pointer(), n,
                  alpha.pointer(), beta.pointer(),
                  u.pointer(), n, v.pointer(), n,
                  work.pointer(), -1, rwork.pointer(), status);
 
-  if (status != 0) {
+  if (status != 0)
+  {
     std::stringstream ss;
     ss << "Eigenvalue decompositon failed in Lapack (zggev).\n";
     ss << "info = " << status;
     throw Error(ss.str());
   }
   lwork = static_cast<int>(real(work[0]));
-  lwork = max(lwork, 2*n);
+  lwork = max(lwork, 2 * n);
   work.resize(lwork);
 
   // compute eigenvalues
@@ -489,7 +499,8 @@ void gen_eig(const CpxMatrix & a, const CpxMatrix & b, CpxVector & lambda,
                  u.pointer(), n, v.pointer(), n,
                  work.pointer(), lwork, rwork.pointer(), status);
 
-  if (status != 0) {
+  if (status != 0)
+  {
     std::stringstream ss;
     ss << "Eigenvalue decompositon failed in Lapack (zggev).\n";
     ss << "info = " << status;
@@ -497,38 +508,39 @@ void gen_eig(const CpxMatrix & a, const CpxMatrix & b, CpxVector & lambda,
   }
 
   lambda.resize(n);
-  for (int i=0; i<n; ++i)
+  for (int i = 0; i < n; ++i)
     lambda[i] = alpha[i] / beta[i];
 }
 
-void gen_eig(const CpxMatrix & a, const CpxMatrix & b, 
-             CpxVector & lambda, CpxMatrix & v)
+void gen_eig(const CpxMatrix &a, const CpxMatrix &b,
+             CpxVector &lambda, CpxMatrix &v)
 {
   assert(a.nrows() == a.ncols());
   assert(b.nrows() == b.ncols());
   assert(a.nrows() == b.nrows());
-  
-  int status, n(a.nrows()), lwork(2*a.nrows());
-  CpxMatrix ac(a), bc(b);
-  CpxVector work(2*n), alpha(n), beta(n);
-  Vector rwork(8*n);
 
-  v.resize(n,n);
-  
+  int status, n(a.nrows()), lwork(2 * a.nrows());
+  CpxMatrix ac(a), bc(b);
+  CpxVector work(2 * n), alpha(n), beta(n);
+  Vector rwork(8 * n);
+
+  v.resize(n, n);
+
   // workspace query
   lapack::zggev_('N', 'V', n, ac.pointer(), n, bc.pointer(), n,
                  alpha.pointer(), beta.pointer(),
                  v.pointer(), n, v.pointer(), n,
                  work.pointer(), -1, rwork.pointer(), status);
 
-  if (status != 0) {
+  if (status != 0)
+  {
     std::stringstream ss;
     ss << "Eigenvalue decompositon failed in Lapack (zggev).\n";
     ss << "info = " << status;
     throw Error(ss.str());
   }
   lwork = static_cast<int>(real(work[0]));
-  lwork = max(lwork, 2*n);
+  lwork = max(lwork, 2 * n);
   work.resize(lwork);
 
   // compute eigenvalues
@@ -537,7 +549,8 @@ void gen_eig(const CpxMatrix & a, const CpxMatrix & b,
                  v.pointer(), n, v.pointer(), n,
                  work.pointer(), lwork, rwork.pointer(), status);
 
-  if (status != 0) {
+  if (status != 0)
+  {
     std::stringstream ss;
     ss << "Eigenvalue decompositon failed in Lapack (zggev).\n";
     ss << "info = " << status;
@@ -545,7 +558,7 @@ void gen_eig(const CpxMatrix & a, const CpxMatrix & b,
   }
 
   lambda.resize(n);
-  for (int i=0; i<n; ++i)
+  for (int i = 0; i < n; ++i)
     lambda[i] = alpha[i] / beta[i];
 }
 

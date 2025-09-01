@@ -1,13 +1,13 @@
-#include "../Eigen/Sparse"
+#include "../eeigen/Sparse"
 
-using namespace Eigen;
+using namespace eeigen;
 
-void call_ref(Ref<SparseMatrix<float> > a) { }
+void call_ref(Ref<SparseMatrix<float>> a) {}
 
 int main()
 {
-  SparseMatrix<float> a(10,10);
-  SparseMatrixBase<SparseMatrix<float> > &ac(a);
+  SparseMatrix<float> a(10, 10);
+  SparseMatrixBase<SparseMatrix<float>> &ac(a);
 #ifdef EIGEN_SHOULD_FAIL_TO_BUILD
   call_ref(ac);
 #else

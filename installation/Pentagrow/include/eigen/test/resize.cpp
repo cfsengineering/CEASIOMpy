@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2009 Keir Mierle <mierle@gmail.com>
@@ -9,14 +9,14 @@
 
 #include "main.h"
 
-template<DenseIndex rows, DenseIndex cols>
+template <DenseIndex rows, DenseIndex cols>
 void resizeLikeTest()
 {
   MatrixXf A(rows, cols);
   MatrixXf B;
   Matrix<double, rows, cols> C;
   B.resizeLike(A);
-  C.resizeLike(B);  // Shouldn't crash.
+  C.resizeLike(B); // Shouldn't crash.
   VERIFY(B.rows() == rows && B.cols() == cols);
 
   VectorXf x(rows);
@@ -29,13 +29,13 @@ void resizeLikeTest()
   VERIFY(x.rows() == cols && x.cols() == 1);
 }
 
-void resizeLikeTest12() { resizeLikeTest<1,2>(); }
-void resizeLikeTest1020() { resizeLikeTest<10,20>(); }
-void resizeLikeTest31() { resizeLikeTest<3,1>(); }
+void resizeLikeTest12() { resizeLikeTest<1, 2>(); }
+void resizeLikeTest1020() { resizeLikeTest<10, 20>(); }
+void resizeLikeTest31() { resizeLikeTest<3, 1>(); }
 
 void test_resize()
 {
-  CALL_SUBTEST(resizeLikeTest12() );
-  CALL_SUBTEST(resizeLikeTest1020() );
-  CALL_SUBTEST(resizeLikeTest31() );
+  CALL_SUBTEST(resizeLikeTest12());
+  CALL_SUBTEST(resizeLikeTest1020());
+  CALL_SUBTEST(resizeLikeTest31());
 }

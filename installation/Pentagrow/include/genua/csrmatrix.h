@@ -1,6 +1,6 @@
 
 /* Copyright (C) 2015 David Eller <david@larosterna.com>
- * 
+ *
  * Commercial License Usage
  * Licensees holding valid commercial licenses may use this file in accordance
  * with the terms contained in their respective non-exclusive license agreement.
@@ -11,7 +11,7 @@
  * Public License version 3.0 as published by the Free Software Foundation and
  * appearing in the file gpl.txt included in the packaging of this file.
  */
- 
+
 #ifndef GENUA_CSRMATRIX_H
 #define GENUA_CSRMATRIX_H
 
@@ -27,7 +27,7 @@
 #include "atomicop.h"
 #include "typecode.h"
 #ifdef HAVE_EIGEN
-#include <Eigen/SparseCore>
+#include <eeigen/SparseCore>
 #endif
 #include <boost/static_assert.hpp>
 #include <fstream>
@@ -35,20 +35,23 @@
 namespace detail
 {
 
-template <typename FloatType> inline int32_t float_type_marker()
-{
-  return sizeof(FloatType);
-}
+  template <typename FloatType>
+  inline int32_t float_type_marker()
+  {
+    return sizeof(FloatType);
+  }
 
-template <> inline int32_t float_type_marker<std::complex<float>>()
-{
-  return -8;
-}
+  template <>
+  inline int32_t float_type_marker<std::complex<float>>()
+  {
+    return -8;
+  }
 
-template <> inline int32_t float_type_marker<std::complex<double>>()
-{
-  return -16;
-}
+  template <>
+  inline int32_t float_type_marker<std::complex<double>>()
+  {
+    return -16;
+  }
 }
 
 /** Compressed-row sparse matrix.
@@ -65,10 +68,10 @@ template <> inline int32_t float_type_marker<std::complex<double>>()
   \ingroup numerics
   \sa ConnectMap
   */
-template <class Type, int N = 1> class CsrMatrix
+template <class Type, int N = 1>
+class CsrMatrix
 {
 public:
-
   /// empty matrix
   CsrMatrix(uint nr = 0, uint nc = 0) : nrow(nr), ncol(nc) {}
 
@@ -90,7 +93,7 @@ public:
 
   /// construct from sparsity and value vector
   CsrMatrix(const ConnectMap &s, const DVector<Type> &v, uint nc = 0)
-    : spty(s), val(v)
+      : spty(s), val(v)
   {
     nrow = s.size();
     ncol = std::max(nc, s.maxcolindex() + 1);
@@ -193,7 +196,7 @@ public:
   const Type &operator()(uint ki, uint kj) const
   {
     BOOST_STATIC_ASSERT(N == 1);
-    uint lix = lindex(ki,kj);
+    uint lix = lindex(ki, kj);
     assert(lix < val.size());
     return val[lix];
   }
@@ -202,7 +205,7 @@ public:
   Type &operator()(uint ki, uint kj)
   {
     BOOST_STATIC_ASSERT(N == 1);
-    uint lix = lindex(ki,kj);
+    uint lix = lindex(ki, kj);
     assert(lix < val.size());
     return val[lix];
   }
@@ -222,29 +225,37 @@ public:
   }
 
   /// fill dg with the diagonal elements of *this
-  void diagonal(DVector<Type> &dg) const {
+  void diagonal(DVector<Type> &dg) const
+  {
     BOOST_STATIC_ASSERT(N == 1);
     const size_t n = nrows();
     dg.allocate(nrows());
-    for (size_t i=0; i<n; ++i) {
-      const uint lix = lindex(i,i);
+    for (size_t i = 0; i < n; ++i)
+    {
+      const uint lix = lindex(i, i);
       dg[i] = (lix != NotFound) ? val[lix] : Type(0);
     }
   }
 
   /// return the trace, optionally of the absolute values
-  Type trace(bool absValue=false) const {
+  Type trace(bool absValue = false) const
+  {
     BOOST_STATIC_ASSERT(N == 1);
     const size_t n = nrows();
     Type t(0);
-    if (not absValue) {
-      for (size_t i=0; i<n; ++i) {
-        const uint lix = lindex(i,i);
+    if (not absValue)
+    {
+      for (size_t i = 0; i < n; ++i)
+      {
+        const uint lix = lindex(i, i);
         t += (lix != NotFound) ? val[lix] : Type(0);
       }
-    } else {
-      for (size_t i=0; i<n; ++i) {
-        const uint lix = lindex(i,i);
+    }
+    else
+    {
+      for (size_t i = 0; i < n; ++i)
+      {
+        const uint lix = lindex(i, i);
         t += (lix != NotFound) ? std::abs(val[lix]) : Type(0);
       }
     }
@@ -252,11 +263,12 @@ public:
   }
 
   /// compute row sum
-  Type rowSum(uint k) const {
+  Type rowSum(uint k) const
+  {
     const uint nnz = sparsity().size(k);
-    const Type *prow = &val[ sparsity().offset(k) ];
+    const Type *prow = &val[sparsity().offset(k)];
     Type rsum(0);
-    for (uint j=0; j<nnz; ++j)
+    for (uint j = 0; j < nnz; ++j)
       rsum += prow[j];
     return rsum;
   }
@@ -281,13 +293,17 @@ public:
                 const SMatrix<M, M, Type> &Me)
   {
     uint row[M], col[M];
-    for (int i = 0; i < M; ++i) {
+    for (int i = 0; i < M; ++i)
+    {
       row[i] = rmap[vi[i]];
       col[i] = cmap[vi[i]];
     }
-    for (int i = 0; i < M; ++i) {
-      if (row[i] != NotFound) {
-        for (int j = 0; j < M; ++j) {
+    for (int i = 0; i < M; ++i)
+    {
+      if (row[i] != NotFound)
+      {
+        for (int j = 0; j < M; ++j)
+        {
           const uint lix = lindex(row[i], col[j]);
           if (lix != NotFound)
             atomicAdd(lix, Me(i, j));
@@ -302,16 +318,18 @@ public:
   {
     const int nr = spty.size();
 #pragma omp parallel for
-    for (int i = 0; i < nr; ++i) {
+    for (int i = 0; i < nr; ++i)
+    {
       CPHINT_SIMD_LOOP
       for (int k = 0; k < N; ++k)
-        b[i*N+k] *= beta;
+        b[i * N + k] *= beta;
       const int ncol = spty.size(i);
       if (ncol == 0)
         continue;
       const uint *col = spty.first(i);
       const Type *row = &val[N * spty.offset(i)];
-      for (int j = 0; j < ncol; ++j) {
+      for (int j = 0; j < ncol; ++j)
+      {
         AType aj = a[col[j]];
         CPHINT_SIMD_LOOP
         for (int k = 0; k < N; ++k)
@@ -327,14 +345,17 @@ public:
   {
     const int nr = spty.size();
 #pragma omp parallel for schedule(static, 128)
-    for (int i = 0; i < nr; ++i) {
+    for (int i = 0; i < nr; ++i)
+    {
       const int nzcol = spty.size(i);
       if (nzcol == 0)
         continue;
       const uint *col = spty.first(i);
       const Type *row = &val[N * spty.offset(i)];
-      for (int j = 0; j < nzcol; ++j) {
-        for (size_t jc = 0; jc < acols; ++jc) {
+      for (int j = 0; j < nzcol; ++j)
+      {
+        for (size_t jc = 0; jc < acols; ++jc)
+        {
           AType aj = a[jc * lda + col[j]];
           CPHINT_SIMD_LOOP
           for (int k = 0; k < N; ++k)
@@ -351,7 +372,8 @@ public:
     const int ncol = spty.size(i);
     const uint *col = spty.first(i);
     const Type *row = &val[N * spty.offset(i)];
-    for (int j = 0; j < ncol; ++j) {
+    for (int j = 0; j < ncol; ++j)
+    {
       AType aj = a[col[j]];
       CPHINT_SIMD_LOOP
       for (int k = 0; k < N; ++k)
@@ -367,20 +389,23 @@ public:
   }
 
   /// multiply with x, set b, low level form
-  template <class AType> void multiply(const AType a[], AType b[]) const
+  template <class AType>
+  void multiply(const AType a[], AType b[]) const
   {
     const int nr = spty.size();
 #pragma omp parallel for schedule(static, 128)
-    for (int i = 0; i < nr; ++i) {
+    for (int i = 0; i < nr; ++i)
+    {
       CPHINT_SIMD_LOOP
-      for (int k = 0; k < N; ++k)  // zero out before accumulation
+      for (int k = 0; k < N; ++k) // zero out before accumulation
         b[i * N + k] = AType(0);
       const int ncol = spty.size(i);
       if (ncol == 0)
         continue;
       const uint *col = spty.first(i);
       const Type *row = &val[N * spty.offset(i)];
-      for (int j = 0; j < ncol; ++j) {
+      for (int j = 0; j < ncol; ++j)
+      {
         AType aj = a[col[j]];
         CPHINT_SIMD_LOOP
         for (int k = 0; k < N; ++k)
@@ -396,9 +421,11 @@ public:
   {
     const int nr = spty.size();
 #pragma omp parallel for schedule(static, 128)
-    for (int i = 0; i < nr; ++i) {
+    for (int i = 0; i < nr; ++i)
+    {
       // zero out b before accumulation
-      for (size_t jc = 0; jc < acols; ++jc) {
+      for (size_t jc = 0; jc < acols; ++jc)
+      {
         CPHINT_SIMD_LOOP
         for (int k = 0; k < N; ++k)
           b[(jc * ldb + i) * N + k] = AType(0);
@@ -408,8 +435,10 @@ public:
         continue;
       const uint *col = spty.first(i);
       const Type *row = &val[N * spty.offset(i)];
-      for (int j = 0; j < nzcol; ++j) {
-        for (size_t jc = 0; jc < acols; ++jc) {
+      for (int j = 0; j < nzcol; ++j)
+      {
+        for (size_t jc = 0; jc < acols; ++jc)
+        {
           AType aj = a[jc * lda + col[j]];
           CPHINT_SIMD_LOOP
           for (int k = 0; k < N; ++k)
@@ -458,7 +487,7 @@ public:
   template <class AType>
   void muladdTransposed(const AType a[], AType b[]) const
   {
-    this->muladdTransposed( AType(1), a, b );
+    this->muladdTransposed(AType(1), a, b);
   }
 
   template <class AType>
@@ -466,15 +495,17 @@ public:
   {
     const int nr = nrows();
 #pragma omp parallel for schedule(static, 256)
-    for (int i = 0; i < nr; ++i) {
+    for (int i = 0; i < nr; ++i)
+    {
       const int ncol = spty.size(i);
       const uint *col = spty.first(i);
       const Type *row = &val[N * spty.offset(i)];
-      const AType ai = alpha*a[i];
-      for (int j = 0; j < ncol; ++j) {
+      const AType ai = alpha * a[i];
+      for (int j = 0; j < ncol; ++j)
+      {
         AType *bj = &b[N * col[j]];
         for (int k = 0; k < N; ++k)
-          omp_atomic_add(bj[k], ai*row[j*N+k]);
+          omp_atomic_add(bj[k], ai * row[j * N + k]);
       }
     }
   }
@@ -523,10 +554,12 @@ public:
     assert(a.size() >= nrows());
     const int nr = nrows();
 #pragma omp parallel for
-    for (int i = 0; i < nr; ++i) {
+    for (int i = 0; i < nr; ++i)
+    {
       const int ncol = spty.size(i);
       const int offs = spty.offset(i);
-      for (int j = 0; j < ncol; ++j) {
+      for (int j = 0; j < ncol; ++j)
+      {
         CPHINT_SIMD_LOOP
         for (int k = 0; k < N; ++k)
           val[(offs + j) * N + k] *= a[i];
@@ -541,8 +574,8 @@ public:
     const int offs = spty.offset(kr);
     for (int i = 0; i < nj; ++i)
       CPHINT_SIMD_LOOP
-      for (int k = 0; k < N; ++k)
-        val[(offs + i) * N + k] = t;
+    for (int k = 0; k < N; ++k)
+      val[(offs + i) * N + k] = t;
   }
 
   /// scale a row with factor f
@@ -552,20 +585,22 @@ public:
     const int offs = spty.offset(kr);
     for (int i = 0; i < nj; ++i)
       CPHINT_SIMD_LOOP
-      for (int k = 0; k < N; ++k)
-        val[(offs + i) * N + k] *= f;
+    for (int k = 0; k < N; ++k)
+      val[(offs + i) * N + k] *= f;
   }
 
   /// scale a column with factor f
   void scaleColumn(uint kc, Type f)
   {
     uint nr = nrows();
-    for (uint ii = 0; ii < nr; ++ii) {
+    for (uint ii = 0; ii < nr; ++ii)
+    {
       uint lix = lindex(ii, kc);
-      if (lix != NotFound) {
+      if (lix != NotFound)
+      {
         CPHINT_SIMD_LOOP
         for (int k = 0; k < N; ++k)
-          val[lix*N+k] *= f;
+          val[lix * N + k] *= f;
       }
     }
   }
@@ -577,7 +612,8 @@ public:
     const int ncol = spty.size(b);
     const int boff = spty.offset(b);
     const uint *jc = spty.first(b);
-    for (int i = 0; i < ncol; ++i) {
+    for (int i = 0; i < ncol; ++i)
+    {
       uint blix = boff + i;
       uint alix = lindex(a, jc[i]);
       assert(alix != NotFound);
@@ -592,7 +628,8 @@ public:
   {
     BOOST_STATIC_ASSERT(N == 1);
     const int n = spty.size();
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n; ++i)
+    {
       uint lix = lindex(i, i);
       if (lix != NotFound)
         val[lix] += lambda;
@@ -605,17 +642,21 @@ public:
     BOOST_STATIC_ASSERT(N == 1);
     const int n = spty.size();
     Type dmax(0.0);
-    for(int j=offs; j<n; ++j){
-        uint lix=lindex(j,j);
-        if(lix!=NotFound){
-            if(fabs(val[lix])>dmax)
-                dmax=fabs(val[lix]);
-        }
+    for (int j = offs; j < n; ++j)
+    {
+      uint lix = lindex(j, j);
+      if (lix != NotFound)
+      {
+        if (fabs(val[lix]) > dmax)
+          dmax = fabs(val[lix]);
+      }
     }
 
-    for (int i = offs; i < n; ++i) {
+    for (int i = offs; i < n; ++i)
+    {
       uint lix = lindex(i, i);
-      if (lix != NotFound) {
+      if (lix != NotFound)
+      {
         Type curval = val[lix];
         val[lix] += sign(curval) * lambda * dmax;
       }
@@ -627,9 +668,11 @@ public:
   {
     BOOST_STATIC_ASSERT(N == 1);
     const int n = spty.size();
-    for (int i = offs; i < n; ++i) {
+    for (int i = offs; i < n; ++i)
+    {
       uint lix = lindex(i, i);
-      if (lix != NotFound) {
+      if (lix != NotFound)
+      {
         Type curval = val[lix];
         val[lix] += sign(curval) * lambda;
       }
@@ -641,14 +684,15 @@ public:
   {
     BOOST_STATIC_ASSERT(N == 1);
     const int n = spty.size();
-    for (int i = offs; i < n; ++i) {
+    for (int i = offs; i < n; ++i)
+    {
       uint lix = lindex(i, i);
-      if (lix != NotFound) {
+      if (lix != NotFound)
+      {
         val[lix] *= lambda;
       }
     }
   }
-
 
   /// modify Jacobian by making diagonal terms more dominant
   void domDiagonal(Type k, uint noff)
@@ -656,19 +700,23 @@ public:
     BOOST_STATIC_ASSERT(N == 1);
     const int n = spty.size();
     uint nf(0), nnf(0);
-    for (int i = noff; i < n; ++i) {
+    for (int i = noff; i < n; ++i)
+    {
       Type jii(0.0);
       uint lix = lindex(i, i);
-      if (lix != NotFound) {
+      if (lix != NotFound)
+      {
         jii = val[lix];
         ++nf;
       }
       scaleRow(i, k);
       scaleColumn(i, k);
-      if (lix == NotFound) {
+      if (lix == NotFound)
+      {
         ++nnf;
       }
-      if (lix != NotFound) {
+      if (lix != NotFound)
+      {
         val[lix] = jii;
       }
     }
@@ -680,30 +728,37 @@ public:
   {
     BOOST_STATIC_ASSERT(N == 1);
     const int n = spty.size();
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n; ++i)
+    {
       Type jii0(0.0), jii1(0.0), jii2(0.0);
       uint lix0 = lindex(i, i - 1);
       uint lix1 = lindex(i, i);
       uint lix2 = lindex(i, i + 1);
-      if (lix0 != NotFound) {
+      if (lix0 != NotFound)
+      {
         jii0 = val[lix0];
       }
-      if (lix1 != NotFound) {
+      if (lix1 != NotFound)
+      {
         jii1 = val[lix1];
       }
-      if (lix2 != NotFound) {
+      if (lix2 != NotFound)
+      {
         jii2 = val[lix2];
       }
 
       scaleRow(i, k);
 
-      if (lix0 != NotFound) {
+      if (lix0 != NotFound)
+      {
         val[lix0] = jii0;
       }
-      if (lix1 != NotFound) {
+      if (lix1 != NotFound)
+      {
         val[lix1] = jii1;
       }
-      if (lix2 != NotFound) {
+      if (lix2 != NotFound)
+      {
         val[lix2] = jii2;
       }
     }
@@ -714,23 +769,28 @@ public:
   {
     BOOST_STATIC_ASSERT(N == 1);
     const int n = spty.size();
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n; ++i)
+    {
       uint lix = lindex(i, i);
-      if (lix != NotFound) {
+      if (lix != NotFound)
+      {
         Type curval = val[lix];
         val[lix] += sign(curval) * lambda;
       }
     }
 
-    for (int i = offs; i < n - 1; ++i) {
+    for (int i = offs; i < n - 1; ++i)
+    {
       uint lixu = lindex(i, i + 1);
       uint lixl = lindex(i + 1, i);
-      if (lixu != NotFound) {
+      if (lixu != NotFound)
+      {
         Type curval = val[lixu];
         val[lixu] += sign(curval) * lambda;
       }
 
-      if (lixl != NotFound) {
+      if (lixl != NotFound)
+      {
         Type curval = val[lixl];
         val[lixl] += sign(curval) * lambda;
       }
@@ -742,9 +802,11 @@ public:
   {
     BOOST_STATIC_ASSERT(N == 1);
     const int n = spty.size();
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n; ++i)
+    {
       uint lix = lindex(i, i);
-      if (lix != NotFound) {
+      if (lix != NotFound)
+      {
         Type curval = val[lix];
         Type addval = sign(curval) * lambda - curval;
         val[lix] += addval;
@@ -758,10 +820,11 @@ public:
     BOOST_STATIC_ASSERT(N == 1);
     Type dmax = 0.0;
     const int n = spty.size();
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n; ++i)
+    {
       uint lix = lindex(i, i);
       if (lix != NotFound)
-        dmax = std::max( dmax, std::fabs(val[lix]) );
+        dmax = std::max(dmax, std::fabs(val[lix]));
     }
     return dmax;
   }
@@ -771,13 +834,15 @@ public:
   {
     Type t(0.0);
     const int n = spty.size();
-    for (int i = offs; i < n; ++i) {
+    for (int i = offs; i < n; ++i)
+    {
       uint lix = lindex(i, i);
-      if (lix != NotFound) {
-        t+= val[lix];
+      if (lix != NotFound)
+      {
+        t += val[lix];
       }
     }
-    lambda=t;
+    lambda = t;
   }
 
   /// compute "trace" of absolute values of diagonal elements of matrix
@@ -785,13 +850,15 @@ public:
   {
     Type t(0.0);
     const int n = spty.size();
-    for (int i = offs; i < n; ++i) {
+    for (int i = offs; i < n; ++i)
+    {
       uint lix = lindex(i, i);
-      if (lix != NotFound) {
-        t+= fabs(val[lix]);
+      if (lix != NotFound)
+      {
+        t += fabs(val[lix]);
       }
     }
-    lambda=t;
+    lambda = t;
   }
 
   /// compute "trace" of absolute values of diagonal elements of matrix
@@ -799,28 +866,31 @@ public:
   {
     Type tmin(10.0), rmin(0.0); // any number larger than 1
     const int n = spty.size();
-    for (int i = offs; i < n; ++i) {
+    for (int i = offs; i < n; ++i)
+    {
       Type d(0.0);
       uint lix = lindex(i, i);
-      if (lix != NotFound) {
-        uint roff=spty.offset(i);
-        uint nc=spty.size(i);
-        d= fabs(val[lix]);
+      if (lix != NotFound)
+      {
+        uint roff = spty.offset(i);
+        uint nc = spty.size(i);
+        d = fabs(val[lix]);
         Type rs(0.0);
-        for(uint j=0; j<nc; ++j){
-          rs+=fabs(val[roff+j]);
+        for (uint j = 0; j < nc; ++j)
+        {
+          rs += fabs(val[roff + j]);
         }
-        Type dq=d/rs;
+        Type dq = d / rs;
 
-        if(dq<tmin){
-          tmin=dq;
-          rmin=rs;
+        if (dq < tmin)
+        {
+          tmin = dq;
+          rmin = rs;
         }
-
       }
     }
-    dqmin=tmin;
-    rvmin=rmin;
+    dqmin = tmin;
+    rvmin = rmin;
   }
 
   /// compute "trace" of absolute values of diagonal elements of matrix
@@ -828,61 +898,65 @@ public:
   {
     Type rmin(1e9); // set to large number
     const int n = spty.size();
-    for (int i = offs; i < n; ++i) {
-      uint roff=spty.offset(i);
-      uint nc=spty.size(i);
+    for (int i = offs; i < n; ++i)
+    {
+      uint roff = spty.offset(i);
+      uint nc = spty.size(i);
       Type rs(0.0);
-      for(uint j=0; j<nc; ++j){
-        rs+=fabs(val[roff+j]);
+      for (uint j = 0; j < nc; ++j)
+      {
+        rs += fabs(val[roff + j]);
       }
 
-      if(rs<rmin)
-        rmin=rs;
-
+      if (rs < rmin)
+        rmin = rs;
     }
-    rvmin=rmin;
+    rvmin = rmin;
   }
-
 
   /// compute "trace" of absolute values of diagonal elements of matrix
   void rowmax(Type &rvmax, uint offs)
   {
     Type rmax(0.0); // set to large number
     const int n = spty.size();
-    for (int i = offs; i < n; ++i) {
-      uint roff=spty.offset(i);
-      uint nc=spty.size(i);
+    for (int i = offs; i < n; ++i)
+    {
+      uint roff = spty.offset(i);
+      uint nc = spty.size(i);
       Type rs(0.0);
-      for(uint j=0; j<nc; ++j){
-        rs+=val[roff+j];
+      for (uint j = 0; j < nc; ++j)
+      {
+        rs += val[roff + j];
       }
 
-      if(fabs(rs)>rmax)
-        rmax=rs;
-
+      if (fabs(rs) > rmax)
+        rmax = rs;
     }
-    rvmax=rmax;
+    rvmax = rmax;
   }
   void diagminmax(Type &dvmin, Type &dvmax, uint offs)
   {
     Type dmin(1e9), dmax(-1e9); // set to large and small number
     const int n = spty.size();
-    for (int i = offs; i < n; ++i) {
+    for (int i = offs; i < n; ++i)
+    {
       uint lix = lindex(i, i);
 
-      if (lix != NotFound) {
-        Type d=val[lix];
-        if(d>dmax)
-          dmax=d;
-        if(d<dmin)
-          dmin=d;
-      } else {
-        dmin=0.0;
+      if (lix != NotFound)
+      {
+        Type d = val[lix];
+        if (d > dmax)
+          dmax = d;
+        if (d < dmin)
+          dmin = d;
       }
-
+      else
+      {
+        dmin = 0.0;
+      }
     }
-    dvmin=dmin;
-    dvmax=dmax;
+    dvmin = dmin;
+    dvmax = dmax;
   }
 
   /// perform an incomplete rank-1 update with u*v^T
@@ -892,11 +966,13 @@ public:
     BOOST_STATIC_ASSERT(N == 1);
     const int nr = spty.size();
 #pragma omp parallel for
-    for (int i = 0; i < nr; ++i) {
+    for (int i = 0; i < nr; ++i)
+    {
       const uint roff = spty.offset(i);
       const int nc = spty.size(i);
       const uint *col = spty.first(i);
-      for (int j = 0; j < nc; ++j) {
+      for (int j = 0; j < nc; ++j)
+      {
         const uint jc = col[j];
         val[roff + j] += u[i] * v[jc];
       }
@@ -923,7 +999,8 @@ public:
     Indices::const_iterator dpos;
     typename DVector<Type>::const_iterator itv;
     const int nr = spty.size();
-    for (int i = 0; i < nr; ++i) {
+    for (int i = 0; i < nr; ++i)
+    {
       dpos = std::lower_bound(spty.begin(i), spty.end(i), i);
       assert(dpos != spty.end(i) and *dpos == i);
       colIndex.insert(colIndex.end(), dpos, spty.end(i));
@@ -955,11 +1032,14 @@ public:
       pmap.incCount(i, spty.size(i));
     pmap.endCount();
     uint pos = 0;
-    for (size_t i = 0; i < nr; ++i) {
+    for (size_t i = 0; i < nr; ++i)
+    {
       const uint nc = sparsity().size(i);
       const uint *col = sparsity().first(i);
-      for (uint j = 0; j < nc; ++j) {
-        if (std::fabs(val[pos]) > threshold) {
+      for (uint j = 0; j < nc; ++j)
+      {
+        if (std::fabs(val[pos]) > threshold)
+        {
           pmap.append(i, col[j]);
           pval.push_back(val[pos]);
         }
@@ -982,28 +1062,34 @@ public:
     const size_t n = nrows();
     perm.resize(n);
     std::vector<bool> consumed(n, false);
-    for (size_t i = 0; i < n; ++i) {
+    for (size_t i = 0; i < n; ++i)
+    {
 
       // pick row j which has the largest absolute value in (j,i)
       Type maxabs(0);
       size_t jbest = n;
-      for (size_t j = 0; j < n; ++j) {
+      for (size_t j = 0; j < n; ++j)
+      {
         if (consumed[j])
           continue;
         uint lix = lindex(j, i);
         if (lix == NotFound)
           continue;
         Type vj = std::fabs(value(lix, 0));
-        if (vj > maxabs) {
+        if (vj > maxabs)
+        {
           jbest = j;
           maxabs = vj;
         }
       }
 
       // if there is no row left with (j,i) != 0, pick the first one unassigned
-      if (jbest == n) {
-        for (size_t j = 0; j < n; ++j) {
-          if (not consumed[j]) {
+      if (jbest == n)
+      {
+        for (size_t j = 0; j < n; ++j)
+        {
+          if (not consumed[j])
+          {
             jbest = j;
             break;
           }
@@ -1015,7 +1101,8 @@ public:
   }
 
   /// permute by calling METIS, if available, pass row/column permutation vector
-  bool permuteByMetis(Indices &perm, Indices &iperm) {
+  bool permuteByMetis(Indices &perm, Indices &iperm)
+  {
     bool stat = spty.metisPermutation(perm, iperm);
     if (not stat)
       return false;
@@ -1024,35 +1111,39 @@ public:
   }
 
   /// apply an arbitrary row/column permutation
-  void permute(const Indices &irowperm, const Indices &icolperm) {
+  void permute(const Indices &irowperm, const Indices &icolperm)
+  {
     ConnectMap pmap;
     const size_t nr = spty.size();
     pmap.beginCount(nr);
-    for (size_t i=0; i<nr; ++i)
+    for (size_t i = 0; i < nr; ++i)
       pmap.incCount(irowperm[i], spty.size(i));
     pmap.endCount();
-    for (size_t i=0; i<nr; ++i) {
+    for (size_t i = 0; i < nr; ++i)
+    {
       const uint pi = irowperm[i];
       const uint nc = spty.size(i);
       const uint *pcol = spty.first(i);
-      for (uint j=0; j<nc; ++j)
+      for (uint j = 0; j < nc; ++j)
         pmap.append(pi, icolperm[pcol[j]]);
     }
     pmap.sort();
     pmap.close();
 
     DVector<Type> pval(val.size());
-    for (size_t i=0; i<nrow; ++i) {
+    for (size_t i = 0; i < nrow; ++i)
+    {
       const uint pi = irowperm[i];
       const uint nc = spty.size(i);
       const uint *pcol = spty.first(i);
       const uint voff = spty.offset(i);
-      for (uint j=0; j<nc; ++j) {
+      for (uint j = 0; j < nc; ++j)
+      {
         assert(icolperm.size() > pcol[j]);
         uint pj = icolperm[pcol[j]];
         uint lix = pmap.lindex(pi, pj);
         assert(lix != NotFound);
-        memcpy(&pval[N*lix], &val[N*(voff + j)], N*sizeof(Type));
+        memcpy(&pval[N * lix], &val[N * (voff + j)], N * sizeof(Type));
       }
     }
 
@@ -1130,11 +1221,13 @@ public:
   void writePlain(std::ostream &os) const
   {
     const int n = spty.size();
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n; ++i)
+    {
       const uint offs = spty.offset(i);
       const int ncol = spty.size(i);
       const uint *jc = spty.first(i);
-      for (int j = 0; j < ncol; ++j) {
+      for (int j = 0; j < ncol; ++j)
+      {
         os << i << ' ' << jc[j];
         for (int k = 0; k < N; ++k)
           os << ' ' << val[(offs + j) * N + k];
@@ -1150,7 +1243,8 @@ public:
     SparseBuilder<Type> builder;
     uint row, col, maxrow(0), maxcol(0);
     Type val;
-    while (is >> row >> col >> val) {
+    while (is >> row >> col >> val)
+    {
       maxrow = std::max(row, maxrow);
       maxcol = std::max(col, maxcol);
       builder.append(row, col, val);
@@ -1161,26 +1255,32 @@ public:
 
   /// write matrix market coordinate format (1-based, only scalar-valued
   /// matrices)
-  void writeMarket(std::ostream &os, bool writeZeros=true) const
+  void writeMarket(std::ostream &os, bool writeZeros = true) const
   {
     BOOST_STATIC_ASSERT(N == 1);
     size_t n;
     if (writeZeros)
       n = spty.nonzero();
     else
-      n = std::count_if(val.begin(), val.end(), [=](Type x){return x != 0;});
+      n = std::count_if(val.begin(), val.end(), [=](Type x)
+                        { return x != 0; });
     os << "%%MatrixMarket matrix coordinate real general" << std::endl;
     os << nrows() << ' ' << ncols() << ' ' << n << std::endl;
-    if (writeZeros) {
-      for (size_t i = 0; i < nrows(); ++i) {
+    if (writeZeros)
+    {
+      for (size_t i = 0; i < nrows(); ++i)
+      {
         const uint offs = spty.offset(i);
         const int ncol = spty.size(i);
         const uint *jc = spty.first(i);
         for (int j = 0; j < ncol; ++j)
           os << i + 1 << ' ' << jc[j] + 1 << ' ' << val[offs + j] << std::endl;
       }
-    } else {
-      for (size_t i = 0; i < nrows(); ++i) {
+    }
+    else
+    {
+      for (size_t i = 0; i < nrows(); ++i)
+      {
         const uint offs = spty.offset(i);
         const int ncol = spty.size(i);
         const uint *jc = spty.first(i);
@@ -1199,9 +1299,11 @@ public:
     std::vector<uint32_t> irow(nnz), icol(nnz);
     uint k(0);
     const int nrow = spty.size();
-    for (int i = 0; i < nrow; ++i) {
+    for (int i = 0; i < nrow; ++i)
+    {
       const int nc = spty.size(i);
-      for (int j = 0; j < nc; ++j) {
+      for (int j = 0; j < nc; ++j)
+      {
         irow[k] = i;
         icol[k] = spty.index(i, j);
         ++k;
@@ -1210,11 +1312,11 @@ public:
     assert(k == nnz);
 
     int32_t tcode = detail::float_type_marker<Type>();
-    os.write((const char *) &tcode, 4);
-    os.write((const char *) &nnz, 4);
-    os.write((const char *) &irow[0], nnz * 4);
-    os.write((const char *) &icol[0], nnz * 4);
-    os.write((const char *) &val[0], nnz * sizeof(Type));
+    os.write((const char *)&tcode, 4);
+    os.write((const char *)&nnz, 4);
+    os.write((const char *)&irow[0], nnz * 4);
+    os.write((const char *)&icol[0], nnz * 4);
+    os.write((const char *)&val[0], nnz * sizeof(Type));
   }
 
   /// simple binary input
@@ -1222,8 +1324,8 @@ public:
   {
     int32_t tcode;
     uint32_t nnz;
-    is.read((char *) &tcode, 4);
-    is.read((char *) &nnz, 4);
+    is.read((char *)&tcode, 4);
+    is.read((char *)&nnz, 4);
     if (tcode != detail::float_type_marker<Type>())
       throw Error("Attempting to read CsrMatrix of incompatible element type.");
 
@@ -1231,15 +1333,17 @@ public:
       return;
     val.allocate(nnz);
     std::vector<uint32_t> irow(nnz), icol(nnz), rowptr(1);
-    is.read((char *) &irow[0], nnz * 4);
-    is.read((char *) &icol[0], nnz * 4);
-    is.read((char *) &val[0], nnz * sizeof(Type));
+    is.read((char *)&irow[0], nnz * 4);
+    is.read((char *)&icol[0], nnz * 4);
+    is.read((char *)&val[0], nnz * sizeof(Type));
 
     rowptr.reserve(irow.back() + 1);
     rowptr[0] = 0;
     uint32_t lastrow(0);
-    for (uint i = 0; i < nnz; ++i) {
-      if (irow[i] > lastrow) {
+    for (uint i = 0; i < nnz; ++i)
+    {
+      if (irow[i] > lastrow)
+      {
         lastrow = irow[i];
         rowptr.push_back(i);
       }
@@ -1255,8 +1359,8 @@ public:
   FFANodePtr toFFA() const
   {
     FFANodePtr proot = boost::make_shared<FFANode>("csr_matrix");
-    proot->append("external_rows", (int) nrow);
-    proot->append("external_cols", (int) ncol);
+    proot->append("external_rows", (int)nrow);
+    proot->append("external_cols", (int)ncol);
     proot->append(spty.toFFA());
     FFANodePtr pval = boost::make_shared<FFANode>("values");
     int nnz = (val.size() / N);
@@ -1266,7 +1370,8 @@ public:
   }
 
   /// import from FFA format
-  bool fromFFA(const FFANodePtr &root) {
+  bool fromFFA(const FFANodePtr &root)
+  {
     assert(root->name() == "csr_matrix");
 
     bool ok = true;
@@ -1286,19 +1391,20 @@ public:
       return false;
     if (pval->contentType() != ffa_type_trait<Type>::value)
       return false;
-    val.allocate( pval->numel() );
-    pval->retrieve( val.pointer() );
+    val.allocate(pval->numel());
+    pval->retrieve(val.pointer());
 
     ip = root->findChild("sparsity");
     if (ip == NotFound)
       return false;
-    return spty.fromFFA( root->child(ip) );
+    return spty.fromFFA(root->child(ip));
   }
 
 #ifdef HAVE_EIGEN
 
-  /// convert to a sparse matrix from the Eigen library
-  template <class EigenSpMatrix> void copy(EigenSpMatrix &m) const
+  /// convert to a sparse matrix from the eeigen library
+  template <class EigenSpMatrix>
+  void copy(EigenSpMatrix &m) const
   {
     BOOST_STATIC_ASSERT(N == 1);
 
@@ -1306,14 +1412,16 @@ public:
     m = EigenSpMatrix(nrows(), ncols());
 
     // generate triplets
-    typedef Eigen::Triplet<Type, int> Trip;
+    typedef eeigen::Triplet<Type, int> Trip;
     std::vector<Trip> trips(nonzero());
     const int nr = nrows();
     size_t lix = 0;
-    for (int i = 0; i < nr; ++i) {
+    for (int i = 0; i < nr; ++i)
+    {
       const int n = spty.size(i);
       const uint *jc = spty.first(i);
-      for (int k = 0; k < n; ++k) {
+      for (int k = 0; k < n; ++k)
+      {
         trips[lix] = Trip(i, jc[k], val[lix]);
         ++lix;
       }
@@ -1343,7 +1451,8 @@ public:
     Type *dst = ab.pointer();
     const Type *asrc = a.pointer();
     const Type *bsrc = b.pointer();
-    for (uint i = 0; i < anr; ++i) {
+    for (uint i = 0; i < anr; ++i)
+    {
       const size_t na = a.size(i);
       memcpy(dst, asrc, na * sizeof(Type));
       dst += na;
@@ -1387,7 +1496,6 @@ public:
   }
 
 private:
-
   /// connectivity data
   ConnectMap spty;
 

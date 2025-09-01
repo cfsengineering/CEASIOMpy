@@ -1,4 +1,4 @@
-// This file is part of Eigen, a lightweight C++ template library
+// This file is part of eeigen, a lightweight C++ template library
 // for linear algebra.
 //
 // Copyright (C) 2011 Gael Guennebaud <g.gael@free.fr>
@@ -10,14 +10,14 @@
 #define EIGEN_NO_DEBUG_SMALL_PRODUCT_BLOCKS
 #include "sparse_solver.h"
 
-#include <Eigen/SuperLUSupport>
+#include <eeigen/SuperLUSupport>
 
 void test_superlu_support()
 {
-  SuperLU<SparseMatrix<double> > superlu_double_colmajor;
-  SuperLU<SparseMatrix<std::complex<double> > > superlu_cplxdouble_colmajor;
-  CALL_SUBTEST_1( check_sparse_square_solving(superlu_double_colmajor)      );
-  CALL_SUBTEST_2( check_sparse_square_solving(superlu_cplxdouble_colmajor)  );
-  CALL_SUBTEST_1( check_sparse_square_determinant(superlu_double_colmajor)      );
-  CALL_SUBTEST_2( check_sparse_square_determinant(superlu_cplxdouble_colmajor)  );
+  SuperLU<SparseMatrix<double>> superlu_double_colmajor;
+  SuperLU<SparseMatrix<std::complex<double>>> superlu_cplxdouble_colmajor;
+  CALL_SUBTEST_1(check_sparse_square_solving(superlu_double_colmajor));
+  CALL_SUBTEST_2(check_sparse_square_solving(superlu_cplxdouble_colmajor));
+  CALL_SUBTEST_1(check_sparse_square_determinant(superlu_double_colmajor));
+  CALL_SUBTEST_2(check_sparse_square_determinant(superlu_cplxdouble_colmajor));
 }

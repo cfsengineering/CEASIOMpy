@@ -216,7 +216,7 @@ def load_rans_cgf_params(
     if fuselage_maxlen * farfield_factor > 10:
         FarfieldRadius = 1000
         log.warning(
-            'Farfield radius can not be too big, otherwise call to tetgen fails. ' \
+            'Farfield radius can not be too big, otherwise call to tetgen fails. '
             'Using by default the value 1000.'
         )
     else:

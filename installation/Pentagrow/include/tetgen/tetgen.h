@@ -20,7 +20,7 @@
 // To compile TetGen as a library instead of an executable program, define
 //   the TETLIBRARY symbol.
 
-// #define TETLIBRARY
+#define TETLIBRARY
 
 // Uncomment the following line to disable assert macros. These macros were
 //   inserted in the code where I hoped to catch bugs. They may slow down the

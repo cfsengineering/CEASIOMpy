@@ -2002,7 +2002,7 @@ void TriMesh::quadSplit_forsemi(const Vct3 &ctr, int npass)
       if (area_triangle < 0.75 * std_area)
       {
         // We now deal with a "half-triangle"
-        int a, b, c;
+        int a = -1, b = -1, c = -1;
         // We find the three original vertices and try to recognize which is which on the triangle
         // vo[a] will be the one not on y=0, vo[b] the one with the same y-coordinate as vo[a], and vo[c] the last one
         for (int j = 0; j < 3; j++)
@@ -2033,7 +2033,7 @@ void TriMesh::quadSplit_forsemi(const Vct3 &ctr, int npass)
         vn[1] = edge_to_newvertex[ef[1]];
         vn[2] = edge_to_newvertex[ef[2]];
         // Same as before, we need to recognize which new vertex is where
-        int d, e;
+        int d = -1, e = -1;
         // vn[d] will be edge on y=0 between vo[b] and vo[c] and vn[e] between vo[a] and vo[c]
         for (int j = 0; j < 3; j++)
         {
@@ -2125,7 +2125,7 @@ void TriMesh::addyplane(PointList<3> v_shell, Real y0)
   Real y0eps = y0 + 0.0001;
   std::vector<int> list_tags_sphere;
 
-  uint start_tag, tag;
+  uint start_tag = NotFound, tag;
   for (uint i = 0; i < nv_sphere; i++)
   {
     if (vtx[i][1] < y0eps and vtx[i][1] > y0 - 0.0001)
@@ -2375,7 +2375,7 @@ void TriMesh::writeSTL(const std::string &filename) const
 
   ofs << "solid mesh\n";
 
-  for (int i = 0; i < faces.size(); i++)
+  for (size_t i = 0; i < faces.size(); ++i)
   {
     uint v[3];
     TriFace f = faces[i];

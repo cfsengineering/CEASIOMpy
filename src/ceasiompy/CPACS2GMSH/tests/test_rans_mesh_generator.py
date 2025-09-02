@@ -14,7 +14,6 @@ Test functions for 'ceasiompy/CPACS2GMSH/generategmesh.py'
 #   IMPORTS
 # =================================================================================================
 
-from ceasiompy.CPACS2GMSH.func.utils import load_rans_cgf_params
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.utils.ceasiompyutils import (
@@ -78,7 +77,8 @@ def test_generate_rans_mesh():
         symmetry=False,
     )
 
-    rans_cfg_params = load_rans_cgf_params(
+    pentagrow_3d_mesh(
+        result_dir=TEST_OUT_PATH,
         fuselage_maxlen=20,
         farfield_factor=10,
         n_layer=30,
@@ -88,11 +88,7 @@ def test_generate_rans_mesh():
         growth_ratio=1.2,
         feature_angle=40,
         symmetry=False,
-    )
-
-    pentagrow_3d_mesh(
-        result_dir=TEST_OUT_PATH,
-        cfg_params=rans_cfg_params,
+        output_format="su2",
         surf=None,
         angle=None,
     )

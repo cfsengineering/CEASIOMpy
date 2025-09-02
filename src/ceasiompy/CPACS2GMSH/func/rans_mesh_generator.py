@@ -29,11 +29,13 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import os
 import random
 from itertools import combinations
-
 import gmsh
+
+from ceasiompy.CPACS2GMSH.func.utils import (
+    load_rans_cgf_params,
+)
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
     ModelPart,
     classify_wing,
@@ -925,7 +927,16 @@ def refine_le_te_end(
 
 def pentagrow_3d_mesh(
     result_dir: str,
-    cfg_params: Dict,
+    fuselage_maxlen,
+    farfield_factor,
+    n_layer,
+    h_first_layer,
+    max_layer_thickness,
+    growth_factor,
+    growth_ratio,
+    feature_angle,
+    symmetry,
+    output_format: str,
     surf: str = None,
     angle: str = None,
 ) -> Path:
@@ -938,6 +949,19 @@ def pentagrow_3d_mesh(
 
     """
 
+    cfg_params = load_rans_cgf_params(
+        fuselage_maxlen=fuselage_maxlen,
+        farfield_factor=farfield_factor,
+        n_layer=n_layer,
+        h_first_layer=h_first_layer,
+        max_layer_thickness=max_layer_thickness,
+        growth_factor=growth_factor,
+        growth_ratio=growth_ratio,
+        feature_angle=feature_angle,
+        symmetry=symmetry,
+        output_format=output_format,
+    )
+
     # Create the config file for pentagrow
     config_penta_path = Path(result_dir, "config.cfg")
 
@@ -948,7 +972,7 @@ def pentagrow_3d_mesh(
 
     check_path(Path(result_dir, "surface_mesh.stl"))
     check_path(Path(result_dir, "config.cfg"))
-    log.info(f"(Checked in folder {result_dir}) (and configa penta path is {config_penta_path})")
+    log.info(f"(Checked in folder {result_dir}) (and config penta path is {config_penta_path})")
 
     command = ["surface_mesh.stl", "config.cfg"]
 
@@ -967,4 +991,4 @@ def pentagrow_3d_mesh(
         nb_cpu=get_reasonable_nb_cpu(),
     )
 
-    return Path(result_dir, "hybrid.su2")
+    return Path(result_dir, f"hybrid.{output_format}")

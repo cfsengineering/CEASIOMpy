@@ -16,7 +16,6 @@ Initialization for CPACS2Gmsh module.
 
 from pathlib import Path
 
-from ceasiompy import log
 from ceasiompy.utils.commonxpaths import MESH_XPATH
 
 # ==============================================================================
@@ -70,3 +69,4 @@ GMSH_GROWTH_FACTOR_XPATH = GMSH_XPATH + "/growth_factor"
 GMSH_GROWTH_RATIO_XPATH = GMSH_XPATH + "/growth_ratio"
 GMSH_FEATURE_ANGLE_XPATH = GMSH_XPATH + "/feature_angle"
 GMSH_CTRLSURF_ANGLE_XPATH = GMSH_XPATH + "/DeflectionAngle"
+GMSH_SAVE_CGNS_XPATH = GMSH_XPATH + "/SaveCGNS"

@@ -32,7 +32,6 @@ from cpacspy.cpacsfunctions import (
 )
 from ceasiompy.CPACS2GMSH.func.utils import (
     retrieve_gui_values,
-    load_rans_cgf_params,
 )
 from ceasiompy.CPACS2GMSH.func.rans_mesh_generator import (
     pentagrow_3d_mesh,
@@ -100,6 +99,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
         growth_factor,
         growth_ratio,
         feature_angle,
+        also_save_cgns,
     ) = retrieve_gui_values(tixi)
 
     # Export airplane's part in .brep format
@@ -149,7 +149,8 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
         if gmesh_path.exists():
             log.info("Mesh file exists. Proceeding to 3D mesh generation.")
 
-            rans_cfg_params = load_rans_cgf_params(
+            su2mesh_path = pentagrow_3d_mesh(
+                wkdir,
                 fuselage_maxlen=fuselage_maxlen,
                 farfield_factor=farfield_factor,
                 n_layer=n_layer,
@@ -159,14 +160,27 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
                 growth_ratio=growth_ratio,
                 feature_angle=feature_angle,
                 symmetry=symmetry,
-            )
-
-            su2mesh_path = pentagrow_3d_mesh(
-                wkdir,
-                cfg_params=rans_cfg_params,
+                output_format="su2",
                 surf=surf,
                 angle=angle,
             )
+            if also_save_cgns:
+                pentagrow_3d_mesh(
+                    wkdir,
+                    fuselage_maxlen=fuselage_maxlen,
+                    farfield_factor=farfield_factor,
+                    n_layer=n_layer,
+                    h_first_layer=h_first_layer,
+                    max_layer_thickness=max_layer_thickness,
+                    growth_factor=growth_factor,
+                    growth_ratio=growth_ratio,
+                    feature_angle=feature_angle,
+                    symmetry=symmetry,
+                    output_format="cgns",
+                    surf=surf,
+                    angle=angle,
+                )
+
         else:
             log.error("Error in generating SU2 mesh.")
 

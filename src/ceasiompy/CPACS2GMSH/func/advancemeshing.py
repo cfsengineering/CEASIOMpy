@@ -696,13 +696,15 @@ def refine_other_lines(
         surfaces_to_refine = []
         for part in aircraft_parts:
             s_adj_part = list(set(surfaces_adjacent) & set(part.surfaces_tags))
-            bb = part.bounding_box
-            size = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
-            size.sort()
-            # Choose refinement to go on 1/4 of the length of the second smallest size
-            # usually, a reasonable size that works
-            m = size[1] / 3
-            surfaces_to_refine.append({"mesh_size": part.mesh_size, "surfs": s_adj_part, "m": m})
+            if s_adj_part:
+                bb = part.bounding_box
+                size = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
+                size.sort()
+                # Choose refinement to go on 1/3 of the length of the second smallest size
+                # usually, a reasonable size that works
+                m = size[1] / 3
+                surfaces_to_refine.append(
+                    {"mesh_size": part.mesh_size, "surfs": s_adj_part, "m": m})
         min_mesh_size = min([s["mesh_size"] for s in surfaces_to_refine])
 
         for part_size_surf_m in surfaces_to_refine:

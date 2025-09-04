@@ -8,8 +8,9 @@
 
 using namespace eeigen;
 
-void foo(CV_QUALIFIER Matrix3d &m){
-    Block<Matrix3d,3,3> b(m.block<3,3>(0,0));
+void foo(CV_QUALIFIER Matrix3d &m)
+{
+    Block<Matrix3d, 3, 3> b(m.block<3, 3>(0, 0));
 }
 
 int main() {}

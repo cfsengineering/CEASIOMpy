@@ -10,5 +10,5 @@ using namespace eeigen;
 
 int main()
 {
-  PartialPivLU<Matrix<SCALAR,Dynamic,Dynamic> > lu(Matrix<SCALAR,Dynamic,Dynamic>::Random(10,10));
+  PartialPivLU<Matrix<SCALAR, Dynamic, Dynamic>> lu(Matrix<SCALAR, Dynamic, Dynamic>::Random(10, 10));
 }

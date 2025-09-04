@@ -1,6 +1,6 @@
 
 /* Copyright (C) 2015 David Eller <david@larosterna.com>
- * 
+ *
  * Commercial License Usage
  * Licensees holding valid commercial licenses may use this file in accordance
  * with the terms contained in their respective non-exclusive license agreement.
@@ -11,7 +11,7 @@
  * Public License version 3.0 as published by the Free Software Foundation and
  * appearing in the file gpl.txt included in the packaging of this file.
  */
- 
+
 #ifndef GENUA_SVD_H
 #define GENUA_SVD_H
 
@@ -29,7 +29,7 @@
 #include <algorithm>
 
 template <class MatrixType, class VectorType>
-int svd_inplace(MatrixType & a, MatrixType & u, VectorType & s, MatrixType & vt)
+int svd_inplace(MatrixType &a, MatrixType &u, VectorType &s, MatrixType &vt)
 {
 #ifndef HAVE_NO_LAPACK
 
@@ -37,7 +37,7 @@ int svd_inplace(MatrixType & a, MatrixType & u, VectorType & s, MatrixType & vt)
   lapack::lpint m, n, k, info;
   m = a.nrows();
   n = a.ncols();
-  k = std::min(m,n);
+  k = std::min(m, n);
 
   assert(u.nrows() == m);
   assert(u.ncols() == k);
@@ -46,7 +46,7 @@ int svd_inplace(MatrixType & a, MatrixType & u, VectorType & s, MatrixType & vt)
   assert(s.size() == k);
 
   // workspace query
-  std::vector<int> iwork(8*k);
+  std::vector<int> iwork(8 * k);
   std::vector<typename MatrixType::value_type> work(1);
   lapack::gesdd('S', m, n, a.pointer(), m, s.pointer(),
                 u.pointer(), u.nrows(), vt.pointer(), vt.nrows(),
@@ -69,13 +69,13 @@ int svd_inplace(MatrixType & a, MatrixType & u, VectorType & s, MatrixType & vt)
   typedef eeigen::Matrix<value_type, eeigen::Dynamic, eeigen::Dynamic> EMatrix;
   typedef eeigen::Map<EMatrix> EMView;
 
-  EMView amap( a.pointer(), a.nrows(), a.ncols() );
+  EMView amap(a.pointer(), a.nrows(), a.ncols());
   eeigen::JacobiSVD<EMatrix> solver(amap,
-                                   eeigen::ComputeThinU | eeigen::ComputeThinV);
+                                    eeigen::ComputeThinU | eeigen::ComputeThinV);
 
-  u = MatrixType( solver.matrixU() );
-  vt = MatrixType( solver.matrixV().transpose() );
-  s = VectorType( solver.singularValues() );
+  u = MatrixType(solver.matrixU());
+  vt = MatrixType(solver.matrixV().transpose());
+  s = VectorType(solver.singularValues());
 
   return 0;
 
@@ -83,18 +83,19 @@ int svd_inplace(MatrixType & a, MatrixType & u, VectorType & s, MatrixType & vt)
 }
 
 template <class MatrixType, class VectorType>
-void svd(const MatrixType & a, MatrixType & u, VectorType & s, MatrixType & vt)
+void svd(const MatrixType &a, MatrixType &u, VectorType &s, MatrixType &vt)
 {
   MatrixType at(a);
   size_t m, n, k;
   m = a.nrows();
   n = a.ncols();
-  k = std::min(m,n);
-  u.resize(m,k);
-  vt.resize(k,n);
+  k = std::min(m, n);
+  u.resize(m, k);
+  vt.resize(k, n);
   s.resize(k);
   int status = svd_inplace(at, u, s, vt);
-  if (status != 0) {
+  if (status != 0)
+  {
     std::stringstream ss;
     ss << "SVD decomposition failed in Lapack.\n";
     ss << "Error code: " << status << "\n";
@@ -104,7 +105,7 @@ void svd(const MatrixType & a, MatrixType & u, VectorType & s, MatrixType & vt)
 
 // Solve least-squares problem using SVD
 template <class MatrixType>
-int svd_solve(MatrixType & a, MatrixType & x, double rcond=-1.0)
+int svd_solve(MatrixType &a, MatrixType &x, double rcond = -1.0)
 {
 #ifndef HAVE_NO_LAPACK
 
@@ -116,14 +117,14 @@ int svd_solve(MatrixType & a, MatrixType & x, double rcond=-1.0)
   lapack::lpint m = a.nrows();
   lapack::lpint n = a.ncols();
   lapack::lpint nrhs = x.ncols();
-  lapack::lpint p = std::min(m,n);
+  lapack::lpint p = std::min(m, n);
   lapack::lpint lda(a.ldim()), ldb(x.ldim());
-  lapack::lpint nlvl = std::max(1, int(1+std::log2(double(p)/16.0)));
-  lapack::lpint liwork = p*(3*nlvl + 11);
+  lapack::lpint nlvl = std::max(1, int(1 + std::log2(double(p) / 16.0)));
+  lapack::lpint liwork = p * (3 * nlvl + 11);
   WorkArray work(1), rhs(x.size()), s(p);
   std::vector<int> iwork(liwork);
   std::copy(x.begin(), x.end(), rhs.begin());
-  
+
   // first: workspace query
   lapack::gelsd(m, n, nrhs, a.pointer(), lda, &(rhs[0]), ldb,
                 &(s[0]), rcond, rank, &(work[0]), lwork, &(iwork[0]), info);
@@ -131,18 +132,18 @@ int svd_solve(MatrixType & a, MatrixType & x, double rcond=-1.0)
   if (info != 0)
     return info;
 
-  lwork = static_cast<lapack::lpint>( fabs(work[0]) );
+  lwork = static_cast<lapack::lpint>(fabs(work[0]));
   work.resize(lwork);
-  
+
   // solve
   lapack::gelsd(m, n, nrhs, a.pointer(), lda, &(rhs[0]), ldb,
                 &(s[0]), rcond, rank, &(work[0]), lwork, &(iwork[0]), info);
 
   // copy result into x
-  x.resize(n,nrhs);
-  for (int j=0; j<nrhs; ++j)
-    for (int i=0; i<n; ++i)
-      x(i,j) = rhs[i+j*m];
+  x.resize(n, nrhs);
+  for (int j = 0; j < nrhs; ++j)
+    for (int i = 0; i < n; ++i)
+      x(i, j) = rhs[i + j * m];
   return info;
 
 #else
@@ -153,14 +154,14 @@ int svd_solve(MatrixType & a, MatrixType & x, double rcond=-1.0)
 
   EMView amap(a.pointer(), a.nrows(), a.ncols());
   eeigen::JacobiSVD<EMatrix> solver(amap,
-                                   eeigen::ComputeThinU | eeigen::ComputeThinV);
+                                    eeigen::ComputeThinU | eeigen::ComputeThinV);
   if (rcond >= 0.0)
     solver.setThreshold(rcond);
 
   EMView xmap(x.pointer(), x.nrows(), x.ncols());
   EMatrix y = solver.solve(xmap);
   x.resize(y.rows(), y.cols());
-  memcpy(x.pointer(), y.data(), x.size()*sizeof(value_type));
+  memcpy(x.pointer(), y.data(), x.size() * sizeof(value_type));
 
   return 0;
 
@@ -169,7 +170,7 @@ int svd_solve(MatrixType & a, MatrixType & x, double rcond=-1.0)
 
 // Solve least-squares problem using SVD
 template <class MatrixType, class VectorType>
-int svd_solve(MatrixType & a, VectorType & x, double rcond=-1.0)
+int svd_solve(MatrixType &a, VectorType &x, double rcond = -1.0)
 {
 #ifndef HAVE_NO_LAPACK
   typedef typename MatrixType::value_type ElmType;
@@ -180,10 +181,10 @@ int svd_solve(MatrixType & a, VectorType & x, double rcond=-1.0)
   lapack::lpint m = a.nrows();
   lapack::lpint n = a.ncols();
   lapack::lpint nrhs = 1;
-  lapack::lpint p = std::min(m,n);
+  lapack::lpint p = std::min(m, n);
   lapack::lpint lda(a.ldim()), ldb(x.size());
-  lapack::lpint nlvl = std::max(1, int(1+std::log2(double(p)/16.0)));
-  lapack::lpint liwork = p*(3*nlvl + 11);
+  lapack::lpint nlvl = std::max(1, int(1 + std::log2(double(p) / 16.0)));
+  lapack::lpint liwork = p * (3 * nlvl + 11);
   WorkArray work(1), rhs(x.size()), s(p);
   std::vector<int> iwork(liwork);
   std::copy(x.begin(), x.end(), rhs.begin());
@@ -195,7 +196,7 @@ int svd_solve(MatrixType & a, VectorType & x, double rcond=-1.0)
   if (info != 0)
     return info;
 
-  lwork = static_cast<lapack::lpint>( fabs(work[0]) );
+  lwork = static_cast<lapack::lpint>(fabs(work[0]));
   work.resize(lwork);
 
   // solve
@@ -204,7 +205,7 @@ int svd_solve(MatrixType & a, VectorType & x, double rcond=-1.0)
 
   // copy result into x
   x.resize(n);
-  for (int i=0; i<n; ++i)
+  for (int i = 0; i < n; ++i)
     x[i] = rhs[i];
   return info;
 
@@ -216,14 +217,14 @@ int svd_solve(MatrixType & a, VectorType & x, double rcond=-1.0)
 
   EMView amap(a.pointer(), a.nrows(), a.ncols());
   eeigen::JacobiSVD<EMatrix> solver(amap,
-                                   eeigen::ComputeThinU | eeigen::ComputeThinV);
+                                    eeigen::ComputeThinU | eeigen::ComputeThinV);
   if (rcond >= 0.0)
     solver.setThreshold(rcond);
 
   EMView xmap(x.pointer(), x.size(), 1);
   EMatrix y = solver.solve(xmap);
   x.resize(y.rows());
-  memcpy(x.pointer(), y.data(), x.size()*sizeof(value_type));
+  memcpy(x.pointer(), y.data(), x.size() * sizeof(value_type));
 
   return 0;
 
@@ -231,4 +232,3 @@ int svd_solve(MatrixType & a, VectorType & x, double rcond=-1.0)
 }
 
 #endif
-

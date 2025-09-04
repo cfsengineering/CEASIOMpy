@@ -29,8 +29,6 @@
 import gdb
 import re
 
-from functools import partial
-
 
 class EigenMatrixPrinter:
     "Print eeigen Matrix or Array of some kind"
@@ -47,26 +45,18 @@ class EigenMatrixPrinter:
             type = type.target()
         self.type = type.unqualified().strip_typedefs()
         tag = self.type.tag
-        regex = re.compile("\<.*\>")
+        regex = re.compile('\<.*\>')
         m = regex.findall(tag)[0][1:-1]
-        template_params = m.split(",")
+        template_params = m.split(',')
         template_params = [x.replace(" ", "") for x in template_params]
 
-        if (
-            template_params[1] == "-0x00000000000000001"
-            or template_params[1] == "-0x000000001"
-            or template_params[1] == "-1"
-        ):
-            self.rows = val["m_storage"]["m_rows"]
+        if template_params[1] == '-0x00000000000000001' or template_params[1] == '-0x000000001' or template_params[1] == '-1':
+            self.rows = val['m_storage']['m_rows']
         else:
             self.rows = int(template_params[1])
 
-        if (
-            template_params[2] == "-0x00000000000000001"
-            or template_params[2] == "-0x000000001"
-            or template_params[2] == "-1"
-        ):
-            self.cols = val["m_storage"]["m_cols"]
+        if template_params[2] == '-0x00000000000000001' or template_params[2] == '-0x000000001' or template_params[2] == '-1':
+            self.cols = val['m_storage']['m_cols']
         else:
             self.cols = int(template_params[2])
 
@@ -74,16 +64,16 @@ class EigenMatrixPrinter:
         if len(template_params) > 3:
             self.options = template_params[3]
 
-        self.rowMajor = int(self.options) & 0x1
+        self.rowMajor = (int(self.options) & 0x1)
 
         self.innerType = self.type.template_argument(0)
 
         self.val = val
 
         # Fixed size matrices have a struct as their storage, so we need to walk through this
-        self.data = self.val["m_storage"]["m_data"]
+        self.data = self.val['m_storage']['m_data']
         if self.data.type.code == gdb.TYPE_CODE_STRUCT:
-            self.data = self.data["array"]
+            self.data = self.data['array']
             self.data = self.data.cast(self.innerType.pointer())
 
     class _iterator:
@@ -124,25 +114,18 @@ class EigenMatrixPrinter:
 
             item = self.dataPtr.dereference()
             self.dataPtr = self.dataPtr + 1
-            if self.cols == 1:  # if it's a column vector
-                return ("[%d]" % (row,), item)
-            elif self.rows == 1:  # if it's a row vector
-                return ("[%d]" % (col,), item)
-            return ("[%d,%d]" % (row, col), item)
+            if (self.cols == 1):  # if it's a column vector
+                return ('[%d]' % (row,), item)
+            elif (self.rows == 1):  # if it's a row vector
+                return ('[%d]' % (col,), item)
+            return ('[%d,%d]' % (row, col), item)
 
     def children(self):
 
         return self._iterator(self.rows, self.cols, self.data, self.rowMajor)
 
     def to_string(self):
-        return "eeigen::%s<%s,%d,%d,%s> (data ptr: %s)" % (
-            self.variety,
-            self.innerType,
-            self.rows,
-            self.cols,
-            "RowMajor" if self.rowMajor else "ColMajor",
-            self.data,
-        )
+        return "Eigen::%s<%s,%d,%d,%s> (data ptr: %s)" % (self.variety, self.innerType, self.rows, self.cols, "RowMajor" if self.rowMajor else "ColMajor", self.data)
 
 
 class EigenQuaternionPrinter:
@@ -159,14 +142,14 @@ class EigenQuaternionPrinter:
         self.val = val
 
         # Quaternions have a struct as their storage, so we need to walk through this
-        self.data = self.val["m_coeffs"]["m_storage"]["m_data"]["array"]
+        self.data = self.val['m_coeffs']['m_storage']['m_data']['array']
         self.data = self.data.cast(self.innerType.pointer())
 
     class _iterator:
         def __init__(self, dataPtr):
             self.dataPtr = dataPtr
             self.currentElement = 0
-            self.elementNames = ["x", "y", "z", "w"]
+            self.elementNames = ['x', 'y', 'z', 'w']
 
         def __iter__(self):
             return self
@@ -184,7 +167,7 @@ class EigenQuaternionPrinter:
 
             item = self.dataPtr.dereference()
             self.dataPtr = self.dataPtr + 1
-            return ("[%s]" % (self.elementNames[element],), item)
+            return ('[%s]' % (self.elementNames[element],), item)
 
     def children(self):
 
@@ -195,10 +178,11 @@ class EigenQuaternionPrinter:
 
 
 def build_eigen_dictionary():
-    pretty_printers_dict[re.compile("^eeigen::Quaternion<.*>$")] = EigenQuaternionPrinter
-    pretty_printers_dict[re.compile("^eeigen::Matrix<.*>$")
-                         ] = partial(EigenMatrixPrinter, "Matrix")
-    pretty_printers_dict[re.compile("^eeigen::Array<.*>$")] = partial(EigenMatrixPrinter, "Array")
+    pretty_printers_dict[re.compile('^Eigen::Quaternion<.*>$')] = EigenQuaternionPrinter
+    pretty_printers_dict[re.compile('^Eigen::Matrix<.*>$')
+                         ] = lambda val: EigenMatrixPrinter("Matrix", val)
+    pretty_printers_dict[re.compile('^Eigen::Array<.*>$')
+                         ] = lambda val: EigenMatrixPrinter("Array", val)
 
 
 def register_eigen_printers(obj):

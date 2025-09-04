@@ -14,7 +14,6 @@ Test functions for 'ceasiompy/CPACS2GMSH/generategmesh.py'
 #   IMPORTS
 # =================================================================================================
 
-from ceasiompy.CPACS2GMSH.func.utils import load_rans_cgf_params
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.utils.ceasiompyutils import (
@@ -40,15 +39,7 @@ MODULE_DIR = Path(__file__).parent
 BREP_IN_PATH = Path(MODULE_DIR, "ToolInput/brep_files_test_rans")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 CPACS_D150_IN_PATH = Path(CPACS_FILES_PATH, "D150_simple.xml")
-
-
-MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
-CPACS_IN_SIMPLE_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_engine.xml")
-CPACS_IN_SIMPLE_DOUBLEFLUX_ENGINE_PATH = Path(
-    CPACS_FILES_PATH, "simple_doubleflux_engine.xml")
-CPACS_IN_PROPELLER_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_propeller.xml")
-TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 # =================================================================================================
 #   FUNCTIONS
@@ -77,15 +68,17 @@ def test_generate_rans_mesh():
         refine_factor=2,
         refine_truncated=True,
         refine_factor_angled_lines=1.5,
-        fuselage_mesh_size_factor=1,
-        wing_mesh_size_factor=1,
+        fuselage_mesh_size_factor=0.7,
+        wing_mesh_size_factor=0.8,
         mesh_size_engines=0.2,
         mesh_size_propellers=0.2,
         auto_refine=False,
-        farfield_size_factor=10
+        farfield_size_factor=10,
+        symmetry=False,
     )
 
-    rans_cfg_params = load_rans_cgf_params(
+    pentagrow_3d_mesh(
+        result_dir=TEST_OUT_PATH,
         fuselage_maxlen=20,
         farfield_factor=10,
         n_layer=30,
@@ -94,11 +87,8 @@ def test_generate_rans_mesh():
         growth_factor=1.2,
         growth_ratio=1.2,
         feature_angle=40,
-    )
-
-    pentagrow_3d_mesh(
-        result_dir=TEST_OUT_PATH,
-        cfg_params=rans_cfg_params,
+        symmetry=False,
+        output_format="su2",
         surf=None,
         angle=None,
     )
@@ -211,7 +201,7 @@ def test_sort_surfaces_and_create_physical_groups():
     gmsh.model.occ.synchronize()
 
     sort_surfaces_and_create_physical_groups(
-        aircraft_parts, brep_files, cpacs, model_bb, model_dimensions)
+        aircraft_parts, brep_files, cpacs, model_bb, model_dimensions, symmetry=False)
 
     # Test if there are the right number of surfaces in each part of the aircraft
     assert len(aircraft_parts[0].surfaces_tags) == 60  # fuselage
@@ -226,6 +216,5 @@ def test_sort_surfaces_and_create_physical_groups():
 # =================================================================================================
 #    MAIN
 # =================================================================================================
-
 if __name__ == "__main__":
-    test_sort_surfaces_and_create_physical_groups()
+    test_generate_rans_mesh()

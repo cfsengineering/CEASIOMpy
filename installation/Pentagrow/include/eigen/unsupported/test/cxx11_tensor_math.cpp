@@ -11,8 +11,8 @@
 
 #include <eeigen/CXX11/Tensor>
 
-using eeigen::Tensor;
 using eeigen::RowMajor;
+using eeigen::Tensor;
 
 static void test_tanh()
 {
@@ -21,7 +21,8 @@ static void test_tanh()
 
   Tensor<float, 1> vec2 = vec1.tanh();
 
-  for (int i = 0; i < 6; ++i) {
+  for (int i = 0; i < 6; ++i)
+  {
     VERIFY_IS_APPROX(vec2(i), tanhf(vec1(i)));
   }
 }
@@ -33,11 +34,11 @@ static void test_sigmoid()
 
   Tensor<float, 1> vec2 = vec1.sigmoid();
 
-  for (int i = 0; i < 6; ++i) {
+  for (int i = 0; i < 6; ++i)
+  {
     VERIFY_IS_APPROX(vec2(i), 1.0f / (1.0f + std::exp(-vec1(i))));
   }
 }
-
 
 void test_cxx11_tensor_math()
 {

@@ -20,7 +20,7 @@
 using eeigen::Tensor;
 typedef Tensor<float, 1>::DimensionPair DimPair;
 
-template<int DataLayout>
+template <int DataLayout>
 void test_cuda_contraction(int m_size, int k_size, int n_size)
 {
   std::cout << "Testing for (" << m_size << "," << k_size << "," << n_size << ")" << std::endl;
@@ -36,17 +36,17 @@ void test_cuda_contraction(int m_size, int k_size, int n_size)
   t_left.setRandom();
   t_right.setRandom();
 
-  std::size_t t_left_bytes = t_left.size()  * sizeof(float);
+  std::size_t t_left_bytes = t_left.size() * sizeof(float);
   std::size_t t_right_bytes = t_right.size() * sizeof(float);
   std::size_t t_result_bytes = t_result.size() * sizeof(float);
 
-  float* d_t_left;
-  float* d_t_right;
-  float* d_t_result;
+  float *d_t_left;
+  float *d_t_right;
+  float *d_t_result;
 
-  cudaMalloc((void**)(&d_t_left), t_left_bytes);
-  cudaMalloc((void**)(&d_t_right), t_right_bytes);
-  cudaMalloc((void**)(&d_t_result), t_result_bytes);
+  cudaMalloc((void **)(&d_t_left), t_left_bytes);
+  cudaMalloc((void **)(&d_t_right), t_right_bytes);
+  cudaMalloc((void **)(&d_t_result), t_result_bytes);
 
   cudaMemcpy(d_t_left, t_left.data(), t_left_bytes, cudaMemcpyHostToDevice);
   cudaMemcpy(d_t_right, t_right.data(), t_right_bytes, cudaMemcpyHostToDevice);
@@ -54,37 +54,38 @@ void test_cuda_contraction(int m_size, int k_size, int n_size)
   eeigen::CudaStreamDevice stream;
   eeigen::GpuDevice gpu_device(&stream);
 
-  eeigen::TensorMap<eeigen::Tensor<float, 2, DataLayout> >
+  eeigen::TensorMap<eeigen::Tensor<float, 2, DataLayout>>
       gpu_t_left(d_t_left, eeigen::array<int, 2>(m_size, k_size));
-  eeigen::TensorMap<eeigen::Tensor<float, 2, DataLayout> >
+  eeigen::TensorMap<eeigen::Tensor<float, 2, DataLayout>>
       gpu_t_right(d_t_right, eeigen::array<int, 2>(k_size, n_size));
-  eeigen::TensorMap<eeigen::Tensor<float, 2, DataLayout> >
+  eeigen::TensorMap<eeigen::Tensor<float, 2, DataLayout>>
       gpu_t_result(d_t_result, eeigen::array<int, 2>(m_size, n_size));
-
 
   gpu_t_result.device(gpu_device) = gpu_t_left.contract(gpu_t_right, dims);
   t_result = t_left.contract(t_right, dims);
 
   cudaMemcpy(t_result_gpu.data(), d_t_result, t_result_bytes, cudaMemcpyDeviceToHost);
-  for (DenseIndex i = 0; i < t_result.size(); i++) {
-    if (fabs(t_result(i) - t_result_gpu(i)) < 1e-4f) {
+  for (DenseIndex i = 0; i < t_result.size(); i++)
+  {
+    if (fabs(t_result(i) - t_result_gpu(i)) < 1e-4f)
+    {
       continue;
     }
-    if (eeigen::internal::isApprox(t_result(i), t_result_gpu(i), 1e-4f)) {
+    if (eeigen::internal::isApprox(t_result(i), t_result_gpu(i), 1e-4f))
+    {
       continue;
     }
     std::cout << "mismatch detected at index " << i << ": " << t_result(i)
-              << " vs " <<  t_result_gpu(i) << std::endl;
+              << " vs " << t_result_gpu(i) << std::endl;
     assert(false);
   }
 
-  cudaFree((void*)d_t_left);
-  cudaFree((void*)d_t_right);
-  cudaFree((void*)d_t_result);
+  cudaFree((void *)d_t_left);
+  cudaFree((void *)d_t_right);
+  cudaFree((void *)d_t_result);
 }
 
-
-template<int DataLayout>
+template <int DataLayout>
 void test_scalar(int m_size, int k_size, int n_size)
 {
   std::cout << "Testing for (" << m_size << "," << k_size << "," << n_size << ")" << std::endl;
@@ -100,17 +101,17 @@ void test_scalar(int m_size, int k_size, int n_size)
   t_left.setRandom();
   t_right.setRandom();
 
-  std::size_t t_left_bytes = t_left.size()  * sizeof(float);
+  std::size_t t_left_bytes = t_left.size() * sizeof(float);
   std::size_t t_right_bytes = t_right.size() * sizeof(float);
   std::size_t t_result_bytes = sizeof(float);
 
-  float* d_t_left;
-  float* d_t_right;
-  float* d_t_result;
+  float *d_t_left;
+  float *d_t_right;
+  float *d_t_result;
 
-  cudaMalloc((void**)(&d_t_left), t_left_bytes);
-  cudaMalloc((void**)(&d_t_right), t_right_bytes);
-  cudaMalloc((void**)(&d_t_result), t_result_bytes);
+  cudaMalloc((void **)(&d_t_left), t_left_bytes);
+  cudaMalloc((void **)(&d_t_right), t_right_bytes);
+  cudaMalloc((void **)(&d_t_result), t_result_bytes);
 
   cudaMemcpy(d_t_left, t_left.data(), t_left_bytes, cudaMemcpyHostToDevice);
   cudaMemcpy(d_t_right, t_right.data(), t_right_bytes, cudaMemcpyHostToDevice);
@@ -118,11 +119,11 @@ void test_scalar(int m_size, int k_size, int n_size)
   eeigen::CudaStreamDevice stream;
   eeigen::GpuDevice gpu_device(&stream);
 
-  eeigen::TensorMap<eeigen::Tensor<float, 2, DataLayout> >
+  eeigen::TensorMap<eeigen::Tensor<float, 2, DataLayout>>
       gpu_t_left(d_t_left, m_size, k_size);
-  eeigen::TensorMap<eeigen::Tensor<float, 2, DataLayout> >
+  eeigen::TensorMap<eeigen::Tensor<float, 2, DataLayout>>
       gpu_t_right(d_t_right, k_size, n_size);
-  eeigen::TensorMap<eeigen::Tensor<float, 0, DataLayout> >
+  eeigen::TensorMap<eeigen::Tensor<float, 0, DataLayout>>
       gpu_t_result(d_t_result);
 
   gpu_t_result.device(gpu_device) = gpu_t_left.contract(gpu_t_right, dims);
@@ -130,61 +131,70 @@ void test_scalar(int m_size, int k_size, int n_size)
 
   cudaMemcpy(t_result_gpu.data(), d_t_result, t_result_bytes, cudaMemcpyDeviceToHost);
   if (fabs(t_result() - t_result_gpu()) > 1e-4f &&
-      !eeigen::internal::isApprox(t_result(), t_result_gpu(), 1e-4f)) {
+      !eeigen::internal::isApprox(t_result(), t_result_gpu(), 1e-4f))
+  {
     std::cout << "mismatch detected: " << t_result()
-              << " vs " <<  t_result_gpu() << std::endl;
+              << " vs " << t_result_gpu() << std::endl;
     assert(false);
   }
 
-  cudaFree((void*)d_t_left);
-  cudaFree((void*)d_t_right);
-  cudaFree((void*)d_t_result);
+  cudaFree((void *)d_t_left);
+  cudaFree((void *)d_t_right);
+  cudaFree((void *)d_t_result);
 }
 
-
-template<int DataLayout>
-void test_cuda_contraction_m() {
-  for (int k = 32; k < 256; k++) {
+template <int DataLayout>
+void test_cuda_contraction_m()
+{
+  for (int k = 32; k < 256; k++)
+  {
     test_cuda_contraction<ColMajor>(k, 128, 128);
     test_cuda_contraction<RowMajor>(k, 128, 128);
   }
 }
 
-template<int DataLayout>
-void test_cuda_contraction_k() {
-  for (int k = 32; k < 256; k++) {
+template <int DataLayout>
+void test_cuda_contraction_k()
+{
+  for (int k = 32; k < 256; k++)
+  {
     test_cuda_contraction<ColMajor>(128, k, 128);
     test_cuda_contraction<RowMajor>(128, k, 128);
   }
 }
 
-template<int DataLayout>
-void test_cuda_contraction_n() {
-  for (int k = 32; k < 256; k++) {
+template <int DataLayout>
+void test_cuda_contraction_n()
+{
+  for (int k = 32; k < 256; k++)
+  {
     test_cuda_contraction<ColMajor>(128, 128, k);
     test_cuda_contraction<RowMajor>(128, 128, k);
   }
 }
 
-
-template<int DataLayout>
-void test_cuda_contraction_sizes() {
-  int m_sizes[] = { 31,  39,   63,   64,   65,
-                   127, 129,  255,  257 , 511,
+template <int DataLayout>
+void test_cuda_contraction_sizes()
+{
+  int m_sizes[] = {31, 39, 63, 64, 65,
+                   127, 129, 255, 257, 511,
                    512, 513, 1023, 1024, 1025};
 
-  int n_sizes[] = { 31,  39,   63,   64,   65,
-                   127, 129,  255,  257,  511,
+  int n_sizes[] = {31, 39, 63, 64, 65,
+                   127, 129, 255, 257, 511,
                    512, 513, 1023, 1024, 1025};
 
-  int k_sizes[] = {  31,   39,  63,  64,   65,
-                     95,   96, 127, 129,  255,
-                    257,  511, 512, 513, 1023,
+  int k_sizes[] = {31, 39, 63, 64, 65,
+                   95, 96, 127, 129, 255,
+                   257, 511, 512, 513, 1023,
                    1024, 1025};
 
-  for (int i = 0; i < 15; i++) {
-    for (int j = 0; j < 15; j++) {
-      for (int k = 0; k < 17; k++) {
+  for (int i = 0; i < 15; i++)
+  {
+    for (int j = 0; j < 15; j++)
+    {
+      for (int k = 0; k < 17; k++)
+      {
         test_cuda_contraction<DataLayout>(m_sizes[i], n_sizes[j], k_sizes[k]);
       }
     }

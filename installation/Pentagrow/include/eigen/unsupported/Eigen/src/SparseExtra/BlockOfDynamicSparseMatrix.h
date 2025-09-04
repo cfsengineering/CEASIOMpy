@@ -10,7 +10,8 @@
 #ifndef EIGEN_SPARSE_BLOCKFORDYNAMICMATRIX_H
 #define EIGEN_SPARSE_BLOCKFORDYNAMICMATRIX_H
 
-namespace eeigen { 
+namespace eeigen
+{
 
 #if 0
 

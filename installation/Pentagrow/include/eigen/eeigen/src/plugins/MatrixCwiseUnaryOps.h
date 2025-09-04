@@ -11,7 +11,6 @@
 // This file is included into the body of the base classes supporting matrix specific coefficient-wise functions.
 // This include MatrixBase and SparseMatrixBase.
 
-
 typedef CwiseUnaryOp<internal::scalar_abs_op<Scalar>, const Derived> CwiseAbsReturnType;
 typedef CwiseUnaryOp<internal::scalar_abs2_op<Scalar>, const Derived> CwiseAbs2ReturnType;
 typedef CwiseUnaryOp<internal::scalar_sqrt_op<Scalar>, const Derived> CwiseSqrtReturnType;
@@ -23,7 +22,7 @@ typedef CwiseUnaryOp<internal::scalar_inverse_op<Scalar>, const Derived> CwiseIn
 /// Example: \include MatrixBase_cwiseAbs.cpp
 /// Output: \verbinclude MatrixBase_cwiseAbs.out
 ///
-EIGEN_DOC_UNARY_ADDONS(cwiseAbs,absolute value)
+EIGEN_DOC_UNARY_ADDONS(cwiseAbs, absolute value)
 ///
 /// \sa cwiseAbs2()
 ///
@@ -36,7 +35,7 @@ cwiseAbs() const { return CwiseAbsReturnType(derived()); }
 /// Example: \include MatrixBase_cwiseAbs2.cpp
 /// Output: \verbinclude MatrixBase_cwiseAbs2.out
 ///
-EIGEN_DOC_UNARY_ADDONS(cwiseAbs2,squared absolute value)
+EIGEN_DOC_UNARY_ADDONS(cwiseAbs2, squared absolute value)
 ///
 /// \sa cwiseAbs()
 ///
@@ -49,7 +48,7 @@ cwiseAbs2() const { return CwiseAbs2ReturnType(derived()); }
 /// Example: \include MatrixBase_cwiseSqrt.cpp
 /// Output: \verbinclude MatrixBase_cwiseSqrt.out
 ///
-EIGEN_DOC_UNARY_ADDONS(cwiseSqrt,square-root)
+EIGEN_DOC_UNARY_ADDONS(cwiseSqrt, square - root)
 ///
 /// \sa cwisePow(), cwiseSquare()
 ///
@@ -62,24 +61,21 @@ cwiseSqrt() const { return CwiseSqrtReturnType(derived()); }
 /// Example: \include MatrixBase_cwiseSign.cpp
 /// Output: \verbinclude MatrixBase_cwiseSign.out
 ///
-EIGEN_DOC_UNARY_ADDONS(cwiseSign,sign function)
+EIGEN_DOC_UNARY_ADDONS(cwiseSign, sign function)
 ///
 EIGEN_DEVICE_FUNC
 inline const CwiseSignReturnType
 cwiseSign() const { return CwiseSignReturnType(derived()); }
-
 
 /// \returns an expression of the coefficient-wise inverse of *this.
 ///
 /// Example: \include MatrixBase_cwiseInverse.cpp
 /// Output: \verbinclude MatrixBase_cwiseInverse.out
 ///
-EIGEN_DOC_UNARY_ADDONS(cwiseInverse,inverse)
+EIGEN_DOC_UNARY_ADDONS(cwiseInverse, inverse)
 ///
 /// \sa cwiseProduct()
 ///
 EIGEN_DEVICE_FUNC
 inline const CwiseInverseReturnType
 cwiseInverse() const { return CwiseInverseReturnType(derived()); }
-
-

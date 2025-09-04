@@ -1,0 +1,34 @@
+#Disclaimer, it maybe necessary to compile some libraries, like eigen or install them using dnf install
+#might be useful tu specify gcc version compiler, in case do <source /opt/rh/gcc-toolset-10/enable> before make
+qmake pentagrow.pro
+
+make
+
+sudo dnf install hdf5_static
+--> apparement plutot sudo dnf install hdf5-devel
+
+cd ~/surf
+
+make
+
+in pentagrow.pro check if -lz is written in the row where -lsurf is
+
+ 
+
+
+
+
+(should add "make clean before, maybe)
+
+to run good version :
+/home/cfse4/Pentagrow/bin/pentagrow config.cfg cube_simple_mesh.stl
+
+
+
+In fact, when already compiled:
+only need to delete the .o of the modified folder, and do the command "make" in the folder it was deleted in.
+
+If work in a subfolder, need to do that to the file in subfolder, then come make in the principal file (need to take out frontend.o? not sure)
+
+
+

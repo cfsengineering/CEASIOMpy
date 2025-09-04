@@ -1,6 +1,6 @@
 
 /* Copyright (C) 2015 David Eller <david@larosterna.com>
- * 
+ *
  * Commercial License Usage
  * Licensees holding valid commercial licenses may use this file in accordance
  * with the terms contained in their respective non-exclusive license agreement.
@@ -11,10 +11,9 @@
  * Public License version 3.0 as published by the Free Software Foundation and
  * appearing in the file gpl.txt included in the packaging of this file.
  */
- 
+
 #ifndef GENUA_LLS_H
 #define GENUA_LLS_H
-
 
 #include "defines.h"
 #include "xcept.h"
@@ -28,7 +27,6 @@
 #include <sstream>
 #include <vector>
 
-
 /** Solve least-squares problem using QR.
  *
  * Calls LAPACK routine ?GELS to solve the least-squares problem
@@ -41,12 +39,12 @@
  * \sa svd_solve
  */
 template <class MatrixType>
-int lls_solve(MatrixType & a, MatrixType & x)
+int lls_solve(MatrixType &a, MatrixType &x)
 {
 #ifndef HAVE_NO_LAPACK
   typedef std::vector<typename MatrixType::value_type> WorkArray;
   assert(a.nrows() == x.nrows());
-  
+
   int lda(a.ldim()), ldb(x.ldim());
   int m, n, nrhs, info(0), lwork(-1);
   m = a.nrows();
@@ -54,27 +52,27 @@ int lls_solve(MatrixType & a, MatrixType & x)
   nrhs = x.ncols();
   WorkArray work(1), rhs(x.size());
   std::copy(x.begin(), x.end(), rhs.begin());
-  
+
   // first: workspace query
   lapack::gels('N', m, n, nrhs, a.pointer(), lda, &(rhs[0]), ldb,
-                &(work[0]), lwork, info);
+               &(work[0]), lwork, info);
 
   if (info != 0)
     return info;
 
-  lwork = static_cast<unsigned int>( fabs(work[0]) );
+  lwork = static_cast<unsigned int>(fabs(work[0]));
   work.resize(lwork);
-  
+
   // solve
   lapack::gels('N', m, n, nrhs, a.pointer(), lda, &(rhs[0]), ldb,
-                &(work[0]), lwork, info);
+               &(work[0]), lwork, info);
 
   // copy result into x
-  x.resize(n,nrhs);
-  for (int j=0; j<nrhs; ++j)
-    for (int i=0; i<n; ++i)
-      x(i,j) = rhs[i+j*m];
-  
+  x.resize(n, nrhs);
+  for (int j = 0; j < nrhs; ++j)
+    for (int i = 0; i < n; ++i)
+      x(i, j) = rhs[i + j * m];
+
   return info;
 #else
 
@@ -85,11 +83,11 @@ int lls_solve(MatrixType & a, MatrixType & x)
   EMView amap(a.pointer(), a.nrows(), a.ncols());
   EMView xmap(x.pointer(), x.nrows(), x.ncols());
 
-  //eeigen::HouseholderQR<EMatrix> qr(amap);
+  // eeigen::HouseholderQR<EMatrix> qr(amap);
   eeigen::ColPivHouseholderQR<EMatrix> qr(amap);
   EMatrix y = qr.solve(xmap);
   x.resize(y.rows(), y.cols());
-  memcpy(x.pointer(), y.data(), y.rows()*y.cols()*sizeof(value_type));
+  memcpy(x.pointer(), y.data(), y.rows() * y.cols() * sizeof(value_type));
 
   return 0;
 
@@ -97,7 +95,7 @@ int lls_solve(MatrixType & a, MatrixType & x)
 }
 
 template <class MatrixType, class VectorType>
-int lls_solve(MatrixType & a, VectorType & x)
+int lls_solve(MatrixType &a, VectorType &x)
 {
 #ifndef HAVE_NO_LAPACK
   typedef std::vector<typename MatrixType::value_type> WorkArray;
@@ -106,23 +104,23 @@ int lls_solve(MatrixType & a, VectorType & x)
   int m, n, info(0), lwork(-1);
   m = a.nrows();
   n = a.ncols();
-  int lda(a.ldim()), ldb(std::max(n,m));
+  int lda(a.ldim()), ldb(std::max(n, m));
   WorkArray work(1), rhs(ldb);
   std::copy(x.begin(), x.end(), rhs.begin());
-  
+
   // first: workspace query
   lapack::gels('N', m, n, 1, a.pointer(), lda, &(rhs[0]), ldb,
-                &(work[0]), lwork, info);
+               &(work[0]), lwork, info);
 
   if (info != 0)
     return info;
 
-  lwork = static_cast<unsigned int>( work[0] );
+  lwork = static_cast<unsigned int>(work[0]);
   work.resize(lwork);
 
   // solve
   lapack::gels('N', m, n, 1, a.pointer(), lda, &(rhs[0]), ldb,
-                &(work[0]), lwork, info);
+               &(work[0]), lwork, info);
 
   // copy result into x
   x.resize(n);
@@ -140,10 +138,10 @@ int lls_solve(MatrixType & a, VectorType & x)
   EMView xmap(x.pointer(), x.size(), 1);
 
   eeigen::ColPivHouseholderQR<EMatrix> qr(amap);
-  //eeigen::HouseholderQR<EMatrix> qr(amap);
+  // eeigen::HouseholderQR<EMatrix> qr(amap);
   EMatrix y = qr.solve(xmap);
   x.allocate(y.rows());
-  memcpy(x.pointer(), y.data(), y.rows()*y.cols()*sizeof(value_type));
+  memcpy(x.pointer(), y.data(), y.rows() * y.cols() * sizeof(value_type));
 
   return 0;
 
@@ -151,11 +149,12 @@ int lls_solve(MatrixType & a, VectorType & x)
 }
 
 template <class MatrixType>
-MatrixType lls_solve_copy(const MatrixType & a, const MatrixType & b)
+MatrixType lls_solve_copy(const MatrixType &a, const MatrixType &b)
 {
   MatrixType at(a), x(b);
   int status = lls_solve(at, x);
-  if (status != 0) {
+  if (status != 0)
+  {
     std::stringstream ss;
     ss << "Linear least squares solution failed in Lapack (*gels).\n";
     ss << "info = " << status << "\n";
@@ -165,12 +164,13 @@ MatrixType lls_solve_copy(const MatrixType & a, const MatrixType & b)
 }
 
 template <class MatrixType, class VectorType>
-VectorType lls_solve_copy(const MatrixType & a, const VectorType & b)
+VectorType lls_solve_copy(const MatrixType &a, const VectorType &b)
 {
   MatrixType at(a);
   VectorType x(b);
   int status = lls_solve(at, x);
-  if (status != 0) {
+  if (status != 0)
+  {
     std::stringstream ss;
     ss << "Linear least squares solution failed in Lapack (*gels).\n";
     ss << "info = " << status << "\n";

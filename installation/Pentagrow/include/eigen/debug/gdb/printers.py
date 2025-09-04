@@ -26,10 +26,8 @@
 #      register_eigen_printers (None)
 #      end
 
+import gdb
 import re
-import gdb  # type: ignore
-
-from functools import partial
 
 
 class EigenMatrixPrinter:
@@ -181,9 +179,11 @@ class EigenQuaternionPrinter:
 
 def build_eigen_dictionary():
     pretty_printers_dict[re.compile('^eeigen::Quaternion<.*>$')] = EigenQuaternionPrinter
+
     pretty_printers_dict[re.compile('^eeigen::Matrix<.*>$')
-                         ] = partial(EigenMatrixPrinter, "Matrix")
-    pretty_printers_dict[re.compile('^eeigen::Array<.*>$')] = partial(EigenMatrixPrinter, "Array")
+                         ] = lambda val: EigenMatrixPrinter("Matrix", val)
+    pretty_printers_dict[re.compile('^eeigen::Array<.*>$')
+                         ] = lambda val: EigenMatrixPrinter("Array", val)
 
 
 def register_eigen_printers(obj):

@@ -15,6 +15,7 @@ Functions and constants for CPACS2GMSH module.
 
 import os
 import gmsh
+from typing import Union
 
 import numpy as np
 
@@ -51,6 +52,7 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_GROWTH_FACTOR_XPATH,
     GMSH_GROWTH_RATIO_XPATH,
     GMSH_FEATURE_ANGLE_XPATH,
+    GMSH_SAVE_CGNS_XPATH,
 )
 
 
@@ -189,7 +191,7 @@ def initialize_gmsh():
     gmsh.option.setNumber("General.Verbosity", 5)
 
 
-def check_path(file: str):
+def check_path(file: Union[str, Path]):
     if os.path.exists(file):
         log.info(f"{file} exists")
     else:
@@ -205,15 +207,27 @@ def load_rans_cgf_params(
     growth_factor: float,
     growth_ratio: float,
     feature_angle: float,
+    symmetry: bool,
+    output_format: str,
 ) -> Dict:
 
     InitialHeight = h_first_layer * (10**-5)
     MaxLayerThickness = max_layer_thickness / 10
-    FarfieldRadius = fuselage_maxlen * farfield_factor * 100
+    if fuselage_maxlen * farfield_factor > 10:
+        FarfieldRadius = 1000
+        log.warning(
+            'Farfield radius can not be too big, otherwise call to tetgen fails. '
+            'Using by default the value 1000.'
+        )
+    else:
+        FarfieldRadius = fuselage_maxlen * farfield_factor * 100
     HeightIterations = 8
     NormalIterations = 8
     MaxCritIterations = 128
     LaplaceIterations = 8
+    symmetry_lowercase = "false"
+    if symmetry:
+        symmetry_lowercase = "true"
 
     return {
         "InputFormat": "stl",
@@ -223,7 +237,7 @@ def load_rans_cgf_params(
         "MaxGrowthRatio": growth_ratio,
         "MaxLayerThickness": MaxLayerThickness,
         "FarfieldRadius": FarfieldRadius,
-        "OutputFormat": "su2",  # fixed
+        "OutputFormat": output_format,
         "HolePosition": "0.0 0.0 0.0",
         "FarfieldCenter": "0.0 0.0 0.0",
         "TetgenOptions": "-pq1.3VY",
@@ -232,6 +246,7 @@ def load_rans_cgf_params(
         "NormalIterations": NormalIterations,
         "MaxCritIterations": MaxCritIterations,
         "LaplaceIterations": LaplaceIterations,
+        "Symmetry": symmetry_lowercase,
     }
 
 
@@ -274,6 +289,8 @@ def retrieve_gui_values(tixi: Tixi3):
 
     feature_angle = get_value(tixi, GMSH_FEATURE_ANGLE_XPATH)
 
+    also_save_cgns = get_value(tixi, GMSH_SAVE_CGNS_XPATH)
+
     return (
         open_gmsh,
         type_mesh,
@@ -298,4 +315,5 @@ def retrieve_gui_values(tixi: Tixi3):
         growth_factor,
         growth_ratio,
         feature_angle,
+        also_save_cgns,
     )

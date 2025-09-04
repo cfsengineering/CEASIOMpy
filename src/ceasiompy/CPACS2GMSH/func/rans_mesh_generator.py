@@ -29,11 +29,13 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import os
 import random
 from itertools import combinations
-
 import gmsh
+
+from ceasiompy.CPACS2GMSH.func.utils import (
+    load_rans_cgf_params,
+)
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
     ModelPart,
     classify_wing,
@@ -84,6 +86,7 @@ def generate_2d_mesh_for_pentagrow(
     mesh_size_engines: float = 0.23,
     mesh_size_propellers: float = 0.23,
     farfield_size_factor: float = 10,
+    symmetry=False,
 ):
     """
     Function to generate a surface mesh from brep files forming an airplane
@@ -198,9 +201,9 @@ def generate_2d_mesh_for_pentagrow(
     gmsh.model.occ.synchronize()
 
     # Center everything around the center of the fuselage
-    all_volumes = gmsh.model.getEntities(-1)
+    all_entities = gmsh.model.getEntities(-1)
     gmsh.model.occ.translate(
-        all_volumes,
+        all_entities,
         -((model_bb[0]) + (model_dimensions[0] / 2)),
         -((model_bb[1]) + (model_dimensions[1] / 2)),
         -((model_bb[2]) + (model_dimensions[2] / 2)),
@@ -210,11 +213,27 @@ def generate_2d_mesh_for_pentagrow(
     log.info("Start manipulation to obtain a watertight volume")
     # we have to obtain a watertight volume, needed for tetgen (otherwise just can't start)
 
+    if symmetry:
+        log.info("Preparing: symmetry operation.")
+        whole_model_bb = gmsh.model.getBoundingBox(-1, -1)
+        whole_model_dimensions = [
+            abs(whole_model_bb[0] - whole_model_bb[3]),
+            abs(whole_model_bb[1] - whole_model_bb[4]),
+            abs(whole_model_bb[2] - whole_model_bb[5]),
+        ]
+        domain_length = max(whole_model_dimensions)
+        dx, dy, dz = 2 * domain_length, domain_length, 2 * domain_length
+        x, y, z = -domain_length / 2, -domain_length, -domain_length / 2
+        sym_box = gmsh.model.occ.addBox(x, y, z, dx, dy, dz)
+    else:
+        sym_box = -1
+
     log.info("Start fusion of the different parts")
     # We then call the function to fuse the parts and create the named physical groups
-    fusing_parts(aircraft_parts)
+    fusing_parts(aircraft_parts, symmetry=symmetry, sym_box=sym_box)
+
     sort_surfaces_and_create_physical_groups(
-        aircraft_parts, brep_files, cpacs, model_bb, model_dimensions
+        aircraft_parts, brep_files, cpacs, model_bb, model_dimensions, symmetry=symmetry
     )
     gmsh.model.occ.synchronize()
     log.info("Manipulation finished")
@@ -295,6 +314,15 @@ def generate_2d_mesh_for_pentagrow(
     # Now a function to refine all the ones that are in "non flat" places
     if refine_factor_angled_lines != 1:
         log.info("Refinement process of lines in non flat places has started")
+        if symmetry:
+            # Don't want to refine lines that have angles because they are created by
+            # the y-plane cutting the airplane shape. So we take them out
+            # We already computed the surfaces on the y-plane and created phys group
+            dimtags_surfs_y0 = gmsh.model.getEntitiesForPhysicalName("y symmetry plane")
+            lines_y0_sym = gmsh.model.getBoundary(dimtags_surfs_y0,
+                                                  combined=False, oriented=False)
+            te_le_already_refined.extend([t for (d, t) in lines_y0_sym])
+
         mesh_fields = refine_other_lines(
             te_le_already_refined,
             refine=refine_factor_angled_lines,
@@ -305,7 +333,12 @@ def generate_2d_mesh_for_pentagrow(
         )
         mesh_fields = min_fields(mesh_fields)
         log.info("Refining process finished")
-    gmsh.model.occ.synchronize()
+
+    if symmetry:
+        all_volumes = gmsh.model.getEntities(3)
+        gmsh.model.occ.remove(all_volumes)
+        gmsh.model.occ.remove(dimtags_surfs_y0)
+        gmsh.model.occ.synchronize()
 
     # Parameters for the meshing
     gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
@@ -383,6 +416,8 @@ def generate_2d_mesh_for_pentagrow(
         gmsh.fltk.run()
 
     gmesh_path = Path(results_dir, "surface_mesh.stl")
+    log.info(f"Wrote surface_mesh.stl in {results_dir}.")
+    log.info(f"The gmsh path is {gmesh_path}.")
     gmsh.write(str(gmesh_path))
     return gmesh_path, fuselage_maxlen
 
@@ -423,7 +458,7 @@ def intersecting_entities_for_fusing(dimtags_names):
     return (0, 1)
 
 
-def fusing_parts(aircraft_parts):
+def fusing_parts(aircraft_parts, symmetry, sym_box):
     """
     Function to fuse all of the different aircraft parts to get a single volume.
     To work, we need to fuse volume by two, and volumes that intersect. That's why we first take
@@ -443,7 +478,9 @@ def fusing_parts(aircraft_parts):
     """
 
     # First we take the bounding boxes of each part
-    for model_part in aircraft_parts:
+    j = 0
+    for i in range(len(aircraft_parts)):
+        model_part = aircraft_parts[j]
         xmin, ymin, zmin, xmax, ymax, zmax = gmsh.model.occ.getBoundingBox(*model_part.volume)
         # Added a small margin, bc sometimes causes problem when retrieving surfaces
         # "at the limit"
@@ -455,6 +492,12 @@ def fusing_parts(aircraft_parts):
             ymax + 0.01,
             zmax + 0.01,
         ]
+        if symmetry and ymax <= 0:
+            print(f"Removed a piece, {model_part.uid}")
+            aircraft_parts.remove(model_part)
+        else:
+            j += 1
+
     # Take all the dimtag of the parts volume (vector that we will empty)
     dimtags_names = [
         {"dimtag": model_part.volume, "name": model_part.uid} for model_part in aircraft_parts
@@ -532,9 +575,15 @@ def fusing_parts(aircraft_parts):
             log.info(f"Warning : the end result is not in one piece. Parts by group : {names}")
             break
 
+    if symmetry:
+        log.info("Start halving the model for symmetry")
+        dimtag_vols = gmsh.model.occ.getEntities(3)
+        gmsh.model.occ.cut(dimtag_vols, [(3, sym_box)])
+        gmsh.model.occ.synchronize()
+
 
 def sort_surfaces_and_create_physical_groups(
-    aircraft_parts, brep_files, cpacs, model_bb, model_dimensions
+    aircraft_parts, brep_files, cpacs, model_bb, model_dimensions, symmetry
 ):
     """
     Function to  compute which surfaces are in which volumes and assign the physical groups
@@ -553,6 +602,8 @@ def sort_surfaces_and_create_physical_groups(
         Contains [xmin,ymin,zmin,xmax,ymax,zmax] of bounding box of fuselage
     model_dimensions : list
         Contains [width (x-axis), length (y-axis), height (z-axis)] of fuselage
+    symmetry : bool
+        True if the mesh is "half mesh" on a symmetic airplane
     ...
     Returns:
     ----------
@@ -624,10 +675,24 @@ def sort_surfaces_and_create_physical_groups(
     gmsh.model.occ.remove([model_part.volume for model_part in new_aircraft_parts], recursive=True)
     gmsh.model.occ.synchronize()
 
+    if symmetry:
+        length = max(model_dimensions) + 1
+        bb_y_plane = (-length / 2, -0.0001, -length / 2, length / 2, 0.0001, length / 2)
+        surfaces_y_plane = gmsh.model.occ.getEntitiesInBoundingBox(*bb_y_plane, 2)
+
+        part_group = gmsh.model.addPhysicalGroup(2, [t for (d, t) in surfaces_y_plane])
+        gmsh.model.setPhysicalName(2, part_group, "y symmetry plane")
+        gmsh.model.occ.synchronize()
+    else:
+        surfaces_y_plane = []
+
     # Now add the physical group to each part and the surfaces that are now sorted
     for model_part in aircraft_parts:
         # Just add group and name (which is the brep file without ".brep") to the surfaces
         # of the part computed before
+        model_part.surfaces = list(set(model_part.surfaces) - set(surfaces_y_plane))
+        model_part.surfaces_tags = [t for (d, t) in model_part.surfaces]
+
         part_group = gmsh.model.addPhysicalGroup(2, model_part.surfaces_tags)
         name_group = model_part.uid
         gmsh.model.setPhysicalName(2, part_group, name_group)
@@ -803,9 +868,7 @@ def refine_le_te_end(
                     surfaces2) & set(surfaces_in_wing))
                 if len(common_points) == 2 and len(common_surfaces) == 1:
                     log.info(
-                        f"Found the end of wing in {model_part.uid}, "
-                        f"refining lines {line1, line2}"
-                    )
+                        f"Found the end of wing in {model_part.uid}, refining lines {line1,line2}")
                     refine_end_wing(
                         [line1, line2],
                         aircraft,
@@ -817,6 +880,7 @@ def refine_le_te_end(
                         [aircraft.volume_tag],
                         mesh_fields,
                     )
+
                     gmsh.model.setColor([(1, line1), (1, line2)], 0, 180, 180)  # to see
                     lines_already_refined_lete.extend([line1, line2])
 
@@ -863,7 +927,16 @@ def refine_le_te_end(
 
 def pentagrow_3d_mesh(
     result_dir: str,
-    cfg_params: Dict,
+    fuselage_maxlen,
+    farfield_factor,
+    n_layer,
+    h_first_layer,
+    max_layer_thickness,
+    growth_factor,
+    growth_ratio,
+    feature_angle,
+    symmetry,
+    output_format: str,
     surf: str = None,
     angle: str = None,
 ) -> Path:
@@ -876,6 +949,19 @@ def pentagrow_3d_mesh(
 
     """
 
+    cfg_params = load_rans_cgf_params(
+        fuselage_maxlen=fuselage_maxlen,
+        farfield_factor=farfield_factor,
+        n_layer=n_layer,
+        h_first_layer=h_first_layer,
+        max_layer_thickness=max_layer_thickness,
+        growth_factor=growth_factor,
+        growth_ratio=growth_ratio,
+        feature_angle=feature_angle,
+        symmetry=symmetry,
+        output_format=output_format,
+    )
+
     # Create the config file for pentagrow
     config_penta_path = Path(result_dir, "config.cfg")
 
@@ -884,8 +970,9 @@ def pentagrow_3d_mesh(
         for key, value in cfg_params.items():
             file.write(f"{key} = {value}\n")
 
-    check_path("surface_mesh.stl")
-    check_path("config.cfg")
+    check_path(Path(result_dir, "surface_mesh.stl"))
+    check_path(Path(result_dir, "config.cfg"))
+    log.info(f"(Checked in folder {result_dir}) (and config penta path is {config_penta_path})")
 
     command = ["surface_mesh.stl", "config.cfg"]
 
@@ -904,4 +991,4 @@ def pentagrow_3d_mesh(
         nb_cpu=get_reasonable_nb_cpu(),
     )
 
-    return Path(result_dir, "hybrid.su2")
+    return Path(result_dir, f"hybrid.{output_format}")

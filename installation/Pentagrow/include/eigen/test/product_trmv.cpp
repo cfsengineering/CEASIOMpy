@@ -9,13 +9,14 @@
 
 #include "main.h"
 
-template<typename MatrixType> void trmv(const MatrixType& m)
+template <typename MatrixType>
+void trmv(const MatrixType &m)
 {
   typedef typename MatrixType::Scalar Scalar;
   typedef typename NumTraits<Scalar>::Real RealScalar;
   typedef Matrix<Scalar, MatrixType::RowsAtCompileTime, 1> VectorType;
 
-  RealScalar largerEps = 10*test_precision<RealScalar>();
+  RealScalar largerEps = 10 * test_precision<RealScalar>();
 
   Index rows = m.rows();
   Index cols = m.cols();
@@ -40,7 +41,7 @@ template<typename MatrixType> void trmv(const MatrixType& m)
 
   // check conjugated and scalar multiple expressions (col-major)
   m3 = m1.template triangularView<eeigen::Lower>();
-  VERIFY(((s1*m3).conjugate() * v1).isApprox((s1*m1).conjugate().template triangularView<eeigen::Lower>() * v1, largerEps));
+  VERIFY(((s1 * m3).conjugate() * v1).isApprox((s1 * m1).conjugate().template triangularView<eeigen::Lower>() * v1, largerEps));
   m3 = m1.template triangularView<eeigen::Upper>();
   VERIFY((m3.conjugate() * v1.conjugate()).isApprox(m1.conjugate().template triangularView<eeigen::Upper>() * v1.conjugate(), largerEps));
 
@@ -58,7 +59,7 @@ template<typename MatrixType> void trmv(const MatrixType& m)
   m3 = m1.template triangularView<eeigen::Upper>();
   VERIFY((m3.adjoint() * v1).isApprox(m1.adjoint().template triangularView<eeigen::Lower>() * v1, largerEps));
   m3 = m1.template triangularView<eeigen::Lower>();
-  VERIFY((m3.adjoint() * (s1*v1.conjugate())).isApprox(m1.adjoint().template triangularView<eeigen::Upper>() * (s1*v1.conjugate()), largerEps));
+  VERIFY((m3.adjoint() * (s1 * v1.conjugate())).isApprox(m1.adjoint().template triangularView<eeigen::Upper>() * (s1 * v1.conjugate()), largerEps));
   m3 = m1.template triangularView<eeigen::UnitUpper>();
 
   // check transposed cases:
@@ -73,18 +74,19 @@ template<typename MatrixType> void trmv(const MatrixType& m)
 void test_product_trmv()
 {
   int s = 0;
-  for(int i = 0; i < g_repeat ; i++) {
-    CALL_SUBTEST_1( trmv(Matrix<float, 1, 1>()) );
-    CALL_SUBTEST_2( trmv(Matrix<float, 2, 2>()) );
-    CALL_SUBTEST_3( trmv(Matrix3d()) );
-    
-    s = internal::random<int>(1,EIGEN_TEST_MAX_SIZE/2);
-    CALL_SUBTEST_4( trmv(MatrixXcf(s,s)) );
-    CALL_SUBTEST_5( trmv(MatrixXcd(s,s)) );
+  for (int i = 0; i < g_repeat; i++)
+  {
+    CALL_SUBTEST_1(trmv(Matrix<float, 1, 1>()));
+    CALL_SUBTEST_2(trmv(Matrix<float, 2, 2>()));
+    CALL_SUBTEST_3(trmv(Matrix3d()));
+
+    s = internal::random<int>(1, EIGEN_TEST_MAX_SIZE / 2);
+    CALL_SUBTEST_4(trmv(MatrixXcf(s, s)));
+    CALL_SUBTEST_5(trmv(MatrixXcd(s, s)));
     TEST_SET_BUT_UNUSED_VARIABLE(s)
-    
-    s = internal::random<int>(1,EIGEN_TEST_MAX_SIZE);
-    CALL_SUBTEST_6( trmv(Matrix<float,Dynamic,Dynamic,RowMajor>(s, s)) );
+
+    s = internal::random<int>(1, EIGEN_TEST_MAX_SIZE);
+    CALL_SUBTEST_6(trmv(Matrix<float, Dynamic, Dynamic, RowMajor>(s, s)));
     TEST_SET_BUT_UNUSED_VARIABLE(s)
   }
 }

@@ -10,155 +10,161 @@
 #ifndef EIGEN_ALLANDANY_H
 #define EIGEN_ALLANDANY_H
 
-namespace eeigen { 
-
-namespace internal {
-
-template<typename Derived, int UnrollCount>
-struct all_unroller
+namespace eeigen
 {
-  typedef typename Derived::ExpressionTraits Traits;
-  enum {
-    col = (UnrollCount-1) / Traits::RowsAtCompileTime,
-    row = (UnrollCount-1) % Traits::RowsAtCompileTime
-  };
 
-  static inline bool run(const Derived &mat)
+  namespace internal
   {
-    return all_unroller<Derived, UnrollCount-1>::run(mat) && mat.coeff(row, col);
-  }
-};
 
-template<typename Derived>
-struct all_unroller<Derived, 0>
-{
-  static inline bool run(const Derived &/*mat*/) { return true; }
-};
+    template <typename Derived, int UnrollCount>
+    struct all_unroller
+    {
+      typedef typename Derived::ExpressionTraits Traits;
+      enum
+      {
+        col = (UnrollCount - 1) / Traits::RowsAtCompileTime,
+        row = (UnrollCount - 1) % Traits::RowsAtCompileTime
+      };
 
-template<typename Derived>
-struct all_unroller<Derived, Dynamic>
-{
-  static inline bool run(const Derived &) { return false; }
-};
+      static inline bool run(const Derived &mat)
+      {
+        return all_unroller<Derived, UnrollCount - 1>::run(mat) && mat.coeff(row, col);
+      }
+    };
 
-template<typename Derived, int UnrollCount>
-struct any_unroller
-{
-  typedef typename Derived::ExpressionTraits Traits;
-  enum {
-    col = (UnrollCount-1) / Traits::RowsAtCompileTime,
-    row = (UnrollCount-1) % Traits::RowsAtCompileTime
-  };
-  
-  static inline bool run(const Derived &mat)
+    template <typename Derived>
+    struct all_unroller<Derived, 0>
+    {
+      static inline bool run(const Derived & /*mat*/) { return true; }
+    };
+
+    template <typename Derived>
+    struct all_unroller<Derived, Dynamic>
+    {
+      static inline bool run(const Derived &) { return false; }
+    };
+
+    template <typename Derived, int UnrollCount>
+    struct any_unroller
+    {
+      typedef typename Derived::ExpressionTraits Traits;
+      enum
+      {
+        col = (UnrollCount - 1) / Traits::RowsAtCompileTime,
+        row = (UnrollCount - 1) % Traits::RowsAtCompileTime
+      };
+
+      static inline bool run(const Derived &mat)
+      {
+        return any_unroller<Derived, UnrollCount - 1>::run(mat) || mat.coeff(row, col);
+      }
+    };
+
+    template <typename Derived>
+    struct any_unroller<Derived, 0>
+    {
+      static inline bool run(const Derived & /*mat*/) { return false; }
+    };
+
+    template <typename Derived>
+    struct any_unroller<Derived, Dynamic>
+    {
+      static inline bool run(const Derived &) { return false; }
+    };
+
+  } // end namespace internal
+
+  /** \returns true if all coefficients are true
+   *
+   * Example: \include MatrixBase_all.cpp
+   * Output: \verbinclude MatrixBase_all.out
+   *
+   * \sa any(), Cwise::operator<()
+   */
+  template <typename Derived>
+  inline bool DenseBase<Derived>::all() const
   {
-    return any_unroller<Derived, UnrollCount-1>::run(mat) || mat.coeff(row, col);
+    typedef internal::evaluator<Derived> Evaluator;
+    enum
+    {
+      unroll = SizeAtCompileTime != Dynamic && SizeAtCompileTime * (Evaluator::CoeffReadCost + NumTraits<Scalar>::AddCost) <= EIGEN_UNROLLING_LIMIT
+    };
+    Evaluator evaluator(derived());
+    if (unroll)
+      return internal::all_unroller < Evaluator, unroll ? int(SizeAtCompileTime) : Dynamic > ::run(evaluator);
+    else
+    {
+      for (Index j = 0; j < cols(); ++j)
+        for (Index i = 0; i < rows(); ++i)
+          if (!evaluator.coeff(i, j))
+            return false;
+      return true;
+    }
   }
-};
 
-template<typename Derived>
-struct any_unroller<Derived, 0>
-{
-  static inline bool run(const Derived & /*mat*/) { return false; }
-};
-
-template<typename Derived>
-struct any_unroller<Derived, Dynamic>
-{
-  static inline bool run(const Derived &) { return false; }
-};
-
-} // end namespace internal
-
-/** \returns true if all coefficients are true
-  *
-  * Example: \include MatrixBase_all.cpp
-  * Output: \verbinclude MatrixBase_all.out
-  *
-  * \sa any(), Cwise::operator<()
-  */
-template<typename Derived>
-inline bool DenseBase<Derived>::all() const
-{
-  typedef internal::evaluator<Derived> Evaluator;
-  enum {
-    unroll = SizeAtCompileTime != Dynamic
-          && SizeAtCompileTime * (Evaluator::CoeffReadCost + NumTraits<Scalar>::AddCost) <= EIGEN_UNROLLING_LIMIT
-  };
-  Evaluator evaluator(derived());
-  if(unroll)
-    return internal::all_unroller<Evaluator, unroll ? int(SizeAtCompileTime) : Dynamic>::run(evaluator);
-  else
+  /** \returns true if at least one coefficient is true
+   *
+   * \sa all()
+   */
+  template <typename Derived>
+  inline bool DenseBase<Derived>::any() const
   {
-    for(Index j = 0; j < cols(); ++j)
-      for(Index i = 0; i < rows(); ++i)
-        if (!evaluator.coeff(i, j)) return false;
-    return true;
+    typedef internal::evaluator<Derived> Evaluator;
+    enum
+    {
+      unroll = SizeAtCompileTime != Dynamic && SizeAtCompileTime * (Evaluator::CoeffReadCost + NumTraits<Scalar>::AddCost) <= EIGEN_UNROLLING_LIMIT
+    };
+    Evaluator evaluator(derived());
+    if (unroll)
+      return internal::any_unroller < Evaluator, unroll ? int(SizeAtCompileTime) : Dynamic > ::run(evaluator);
+    else
+    {
+      for (Index j = 0; j < cols(); ++j)
+        for (Index i = 0; i < rows(); ++i)
+          if (evaluator.coeff(i, j))
+            return true;
+      return false;
+    }
   }
-}
 
-/** \returns true if at least one coefficient is true
-  *
-  * \sa all()
-  */
-template<typename Derived>
-inline bool DenseBase<Derived>::any() const
-{
-  typedef internal::evaluator<Derived> Evaluator;
-  enum {
-    unroll = SizeAtCompileTime != Dynamic
-          && SizeAtCompileTime * (Evaluator::CoeffReadCost + NumTraits<Scalar>::AddCost) <= EIGEN_UNROLLING_LIMIT
-  };
-  Evaluator evaluator(derived());
-  if(unroll)
-    return internal::any_unroller<Evaluator, unroll ? int(SizeAtCompileTime) : Dynamic>::run(evaluator);
-  else
+  /** \returns the number of coefficients which evaluate to true
+   *
+   * \sa all(), any()
+   */
+  template <typename Derived>
+  inline eeigen::Index DenseBase<Derived>::count() const
   {
-    for(Index j = 0; j < cols(); ++j)
-      for(Index i = 0; i < rows(); ++i)
-        if (evaluator.coeff(i, j)) return true;
-    return false;
+    return derived().template cast<bool>().template cast<Index>().sum();
   }
-}
 
-/** \returns the number of coefficients which evaluate to true
-  *
-  * \sa all(), any()
-  */
-template<typename Derived>
-inline eeigen::Index DenseBase<Derived>::count() const
-{
-  return derived().template cast<bool>().template cast<Index>().sum();
-}
-
-/** \returns true is \c *this contains at least one Not A Number (NaN).
-  *
-  * \sa allFinite()
-  */
-template<typename Derived>
-inline bool DenseBase<Derived>::hasNaN() const
-{
+  /** \returns true is \c *this contains at least one Not A Number (NaN).
+   *
+   * \sa allFinite()
+   */
+  template <typename Derived>
+  inline bool DenseBase<Derived>::hasNaN() const
+  {
 #if EIGEN_COMP_MSVC || (defined __FAST_MATH__)
-  return derived().array().isNaN().any();
+    return derived().array().isNaN().any();
 #else
-  return !((derived().array()==derived().array()).all());
+    return !((derived().array() == derived().array()).all());
 #endif
-}
+  }
 
-/** \returns true if \c *this contains only finite numbers, i.e., no NaN and no +/-INF values.
-  *
-  * \sa hasNaN()
-  */
-template<typename Derived>
-inline bool DenseBase<Derived>::allFinite() const
-{
+  /** \returns true if \c *this contains only finite numbers, i.e., no NaN and no +/-INF values.
+   *
+   * \sa hasNaN()
+   */
+  template <typename Derived>
+  inline bool DenseBase<Derived>::allFinite() const
+  {
 #if EIGEN_COMP_MSVC || (defined __FAST_MATH__)
-  return derived().array().isFinite().all();
+    return derived().array().isFinite().all();
 #else
-  return !((derived()-derived()).hasNaN());
+    return !((derived() - derived()).hasNaN());
 #endif
-}
-    
+  }
+
 } // end namespace eeigen
 
 #endif // EIGEN_ALLANDANY_H

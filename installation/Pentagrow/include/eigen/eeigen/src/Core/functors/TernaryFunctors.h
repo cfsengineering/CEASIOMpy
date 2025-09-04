@@ -10,15 +10,15 @@
 #ifndef EIGEN_TERNARY_FUNCTORS_H
 #define EIGEN_TERNARY_FUNCTORS_H
 
-namespace eeigen {
+namespace eeigen
+{
 
-namespace internal {
+    namespace internal
+    {
 
-//---------- associative ternary functors ----------
+        //---------- associative ternary functors ----------
 
-
-
-} // end namespace internal
+    } // end namespace internal
 
 } // end namespace eeigen
 

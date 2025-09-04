@@ -10,5 +10,5 @@ using namespace eeigen;
 
 int main()
 {
-  EigenSolver<Matrix<SCALAR,Dynamic,Dynamic> > eig(Matrix<SCALAR,Dynamic,Dynamic>::Random(10,10));
+  EigenSolver<Matrix<SCALAR, Dynamic, Dynamic>> eig(Matrix<SCALAR, Dynamic, Dynamic>::Random(10, 10));
 }

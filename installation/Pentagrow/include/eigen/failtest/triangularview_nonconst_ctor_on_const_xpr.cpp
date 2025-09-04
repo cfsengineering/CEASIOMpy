@@ -8,8 +8,9 @@
 
 using namespace eeigen;
 
-void foo(CV_QUALIFIER Matrix3d &m){
-  TriangularView<Matrix3d,Upper> t(m);
+void foo(CV_QUALIFIER Matrix3d &m)
+{
+  TriangularView<Matrix3d, Upper> t(m);
 }
 
 int main() {}

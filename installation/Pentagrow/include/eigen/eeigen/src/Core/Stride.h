@@ -10,42 +10,44 @@
 #ifndef EIGEN_STRIDE_H
 #define EIGEN_STRIDE_H
 
-namespace eeigen { 
-
-/** \class Stride
-  * \ingroup Core_Module
-  *
-  * \brief Holds strides information for Map
-  *
-  * This class holds the strides information for mapping arrays with strides with class Map.
-  *
-  * It holds two values: the inner stride and the outer stride.
-  *
-  * The inner stride is the pointer increment between two consecutive entries within a given row of a
-  * row-major matrix or within a given column of a column-major matrix.
-  *
-  * The outer stride is the pointer increment between two consecutive rows of a row-major matrix or
-  * between two consecutive columns of a column-major matrix.
-  *
-  * These two values can be passed either at compile-time as template parameters, or at runtime as
-  * arguments to the constructor.
-  *
-  * Indeed, this class takes two template parameters:
-  *  \tparam _OuterStrideAtCompileTime the outer stride, or Dynamic if you want to specify it at runtime.
-  *  \tparam _InnerStrideAtCompileTime the inner stride, or Dynamic if you want to specify it at runtime.
-  *
-  * Here is an example:
-  * \include Map_general_stride.cpp
-  * Output: \verbinclude Map_general_stride.out
-  *
-  * \sa class InnerStride, class OuterStride, \ref TopicStorageOrders
-  */
-template<int _OuterStrideAtCompileTime, int _InnerStrideAtCompileTime>
-class Stride
+namespace eeigen
 {
+
+  /** \class Stride
+   * \ingroup Core_Module
+   *
+   * \brief Holds strides information for Map
+   *
+   * This class holds the strides information for mapping arrays with strides with class Map.
+   *
+   * It holds two values: the inner stride and the outer stride.
+   *
+   * The inner stride is the pointer increment between two consecutive entries within a given row of a
+   * row-major matrix or within a given column of a column-major matrix.
+   *
+   * The outer stride is the pointer increment between two consecutive rows of a row-major matrix or
+   * between two consecutive columns of a column-major matrix.
+   *
+   * These two values can be passed either at compile-time as template parameters, or at runtime as
+   * arguments to the constructor.
+   *
+   * Indeed, this class takes two template parameters:
+   *  \tparam _OuterStrideAtCompileTime the outer stride, or Dynamic if you want to specify it at runtime.
+   *  \tparam _InnerStrideAtCompileTime the inner stride, or Dynamic if you want to specify it at runtime.
+   *
+   * Here is an example:
+   * \include Map_general_stride.cpp
+   * Output: \verbinclude Map_general_stride.out
+   *
+   * \sa class InnerStride, class OuterStride, \ref TopicStorageOrders
+   */
+  template <int _OuterStrideAtCompileTime, int _InnerStrideAtCompileTime>
+  class Stride
+  {
   public:
     typedef eeigen::Index Index; ///< \deprecated since eeigen 3.3
-    enum {
+    enum
+    {
       InnerStrideAtCompileTime = _InnerStrideAtCompileTime,
       OuterStrideAtCompileTime = _OuterStrideAtCompileTime
     };
@@ -53,7 +55,7 @@ class Stride
     /** Default constructor, for use when strides are fixed at compile time */
     EIGEN_DEVICE_FUNC
     Stride()
-      : m_outer(OuterStrideAtCompileTime), m_inner(InnerStrideAtCompileTime)
+        : m_outer(OuterStrideAtCompileTime), m_inner(InnerStrideAtCompileTime)
     {
       eigen_assert(InnerStrideAtCompileTime != Dynamic && OuterStrideAtCompileTime != Dynamic);
     }
@@ -61,16 +63,17 @@ class Stride
     /** Constructor allowing to pass the strides at runtime */
     EIGEN_DEVICE_FUNC
     Stride(Index outerStride, Index innerStride)
-      : m_outer(outerStride), m_inner(innerStride)
+        : m_outer(outerStride), m_inner(innerStride)
     {
-      eigen_assert(innerStride>=0 && outerStride>=0);
+      eigen_assert(innerStride >= 0 && outerStride >= 0);
     }
 
     /** Copy constructor */
     EIGEN_DEVICE_FUNC
-    Stride(const Stride& other)
-      : m_outer(other.outer()), m_inner(other.inner())
-    {}
+    Stride(const Stride &other)
+        : m_outer(other.outer()), m_inner(other.inner())
+    {
+    }
 
     /** \returns the outer stride */
     EIGEN_DEVICE_FUNC
@@ -82,29 +85,31 @@ class Stride
   protected:
     internal::variable_if_dynamic<Index, OuterStrideAtCompileTime> m_outer;
     internal::variable_if_dynamic<Index, InnerStrideAtCompileTime> m_inner;
-};
+  };
 
-/** \brief Convenience specialization of Stride to specify only an inner stride
-  * See class Map for some examples */
-template<int Value>
-class InnerStride : public Stride<0, Value>
-{
+  /** \brief Convenience specialization of Stride to specify only an inner stride
+   * See class Map for some examples */
+  template <int Value>
+  class InnerStride : public Stride<0, Value>
+  {
     typedef Stride<0, Value> Base;
+
   public:
     EIGEN_DEVICE_FUNC InnerStride() : Base() {}
     EIGEN_DEVICE_FUNC InnerStride(Index v) : Base(0, v) {} // FIXME making this explicit could break valid code
-};
+  };
 
-/** \brief Convenience specialization of Stride to specify only an outer stride
-  * See class Map for some examples */
-template<int Value>
-class OuterStride : public Stride<Value, 0>
-{
+  /** \brief Convenience specialization of Stride to specify only an outer stride
+   * See class Map for some examples */
+  template <int Value>
+  class OuterStride : public Stride<Value, 0>
+  {
     typedef Stride<Value, 0> Base;
+
   public:
     EIGEN_DEVICE_FUNC OuterStride() : Base() {}
-    EIGEN_DEVICE_FUNC OuterStride(Index v) : Base(v,0) {} // FIXME making this explicit could break valid code
-};
+    EIGEN_DEVICE_FUNC OuterStride(Index v) : Base(v, 0) {} // FIXME making this explicit could break valid code
+  };
 
 } // end namespace eeigen
 

@@ -35,54 +35,62 @@ class ScalarSplineTpl
 {
 
 public:
-
   /// undefined spline
   ScalarSplineTpl() : toff(0.0), itrange(1.0) {}
 
   /// evaluate spline
-  Scalar eval(Real t) const {
-    t = (t - toff)*itrange;
+  Scalar eval(Real t) const
+  {
+    t = (t - toff) * itrange;
     Vct4 b;
     Scalar v(0.0);
     int span = bas.eval(t, b);
-    for (int i=0; i<4; ++i)
-      v += b[i] * cp[span-3+i];
+    for (int i = 0; i < 4; ++i)
+      v += b[i] * cp[span - 3 + i];
     return v;
   }
 
   /// derive spline
-  Scalar derive(Real t, uint k) const {
+  Scalar derive(Real t, uint k) const
+  {
     assert(k < 4);
     Scalar v(0.0);
-    if (k == 0) {
+    if (k == 0)
+    {
       v = eval(t);
-    } else if (k == 1) {
-      t = (t - toff)*itrange;
-      SMatrix<2,4> b;
+    }
+    else if (k == 1)
+    {
+      t = (t - toff) * itrange;
+      SMatrix<2, 4> b;
       uint span = bas.derive(t, b);
-      for (uint i=0; i<4; ++i)
-        v += b(1,i) * cp[span-3+i];
+      for (uint i = 0; i < 4; ++i)
+        v += b(1, i) * cp[span - 3 + i];
       v *= itrange;
-    } else if (k == 2) {
-      t = (t - toff)*itrange;
-      SMatrix<3,4> b;
+    }
+    else if (k == 2)
+    {
+      t = (t - toff) * itrange;
+      SMatrix<3, 4> b;
       uint span = bas.derive(t, b);
-      for (uint i=0; i<4; ++i)
-        v += b(2,i) * cp[span-3+i];
+      for (uint i = 0; i < 4; ++i)
+        v += b(2, i) * cp[span - 3 + i];
       v *= sq(itrange);
-    } else if (k == 3) {
-      t = (t - toff)*itrange;
-      SMatrix<4,4> b;
+    }
+    else if (k == 3)
+    {
+      t = (t - toff) * itrange;
+      SMatrix<4, 4> b;
       uint span = bas.derive(t, b);
-      for (uint i=0; i<4; ++i)
-        v += b(3,i) * cp[span-3+i];
+      for (uint i = 0; i < 4; ++i)
+        v += b(3, i) * cp[span - 3 + i];
       v *= cb(itrange);
     }
     return v;
   }
 
   /// interpolate points p
-  void interpolate(const Vector & u, const DVector<Scalar> & p)
+  void interpolate(const Vector &u, const DVector<Scalar> &p)
   {
     assert(u.size() == p.size());
 
@@ -93,9 +101,10 @@ public:
     toff = u.front();
     itrange = 1.0 / (u.back() - u.front());
     Vector t(u);
-    if (toff != 0.0 or itrange != 1.0) {
-      for (int i=0; i<n; ++i)
-        t[i] = (u[i] - toff)*itrange;
+    if (toff != 0.0 or itrange != 1.0)
+    {
+      for (int i = 0; i < n; ++i)
+        t[i] = (u[i] - toff) * itrange;
     }
 
     // setup basis
@@ -104,17 +113,19 @@ public:
     // setup system of equations
     Vct4 b;
     cp.resize(n);
-    DMatrix<Scalar> bcf(2*kl+ku+1,n);
-    for (int i=0; i<n; ++i) {
+    DMatrix<Scalar> bcf(2 * kl + ku + 1, n);
+    for (int i = 0; i < n; ++i)
+    {
       cp[i] = p[i];
       int span = bas.eval(t[i], b);
-      for (int j=0; j<4; ++j) {
-        int col = span-3+j;
-        int row = kl+ku+i-col;
+      for (int j = 0; j < 4; ++j)
+      {
+        int col = span - 3 + j;
+        int row = kl + ku + i - col;
         bcf(row, col) = b[j];
       }
     }
-    
+
     // solve for control points
     int stat = banded_lu_solve(kl, ku, bcf, cp);
     if (stat != 0)
@@ -122,7 +133,6 @@ public:
   }
 
 private:
-
   /// cubic spline basis
   SplineBasis bas;
 

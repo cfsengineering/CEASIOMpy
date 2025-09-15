@@ -8,7 +8,8 @@
 
 using namespace eeigen;
 
-void foo(CV_QUALIFIER Matrix3d &m){
+void foo(CV_QUALIFIER Matrix3d &m)
+{
     Diagonal<Matrix3d> b(m.diagonal());
 }
 

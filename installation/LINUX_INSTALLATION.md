@@ -24,14 +24,13 @@ If you agree with the remark above, you can start the installation by opening a 
 ```bash
 sudo apt-get install git
 git clone https://github.com/cfsengineering/CEASIOMpy.git
-cd CEASIOMpy/installation/Ubuntu
-./install_miniconda.sh
+cd CEASIOMpy
+./installation/Ubuntu/install_miniconda.sh
 source ~/.bashrc
-./install_ceasiompy.sh
-./install_pyavl.sh
-./install_sumo.sh
-./install_su2_with_mpi.sh
-./install_paraview.sh
+./installation/Ubuntu/install_ceasiompy.sh
+./installation/Ubuntu/install_pyavl.sh
+./installation/Ubuntu/install_su2_with_mpi.sh
+./installation/Ubuntu/install_paraview.sh
 source ~/.bashrc
 ```
 
@@ -40,27 +39,46 @@ source ~/.bashrc
 ```bash
 sudo dnf install git
 git clone https://github.com/cfsengineering/CEASIOMpy.git
-cd CEASIOMpy/installation/CentOS
-./install_miniconda.sh
+cd CEASIOMpy
+./installation/CentOS/install_miniconda.sh
 source ~/.bashrc
-./install_ceasiompy.sh
-./install_pyavl.sh
-./install_sumo.sh
-./install_su2.sh
-./install_paraview.sh
+./installation/CentOS/install_ceasiompy.sh
+./installation/CentOS/install_pyavl.sh
+./installation/CentOS/install_su2.sh
+./installation/CentOS/install_paraview.sh
 source ~/.bashrc
 ```
 
 When it is done, you can test the installation, by opening a new terminal and try to run the following commands one by one:
 
+Check if ceasiompy conda environment exists.
+
 ```bash
 conda activate ceasiompy
-python -c "import ceasiompy"
-cpacscreator # A "CPACSCreator" window will open, you can close it.
-avl # The avl interface should appear in the terminal
-sumo # A "SUMO" window will open, you can close it.
-SU2_CFD # You should see something like "Error in "void CConfig::SetConfig_Parsing(char*)" in the terminal
-paraview # A "Paraview" window will open, you can close it.
+```
+
+A "CPACSCreator" window will open, you can close it.
+
+```bash
+cpacscreator
+```
+
+The avl interface should appear in the terminal.
+
+```bash
+avl
+```
+
+The SU2 interface should appear in the terminal.
+
+```bash
+SU2_CFD
+```
+
+A "Paraview" window will open, you can close it.
+
+```bash
+paraview
 ```
 
 If one of the software is not working correctly, you can try to run its installation script again or open the script and run the command manually.

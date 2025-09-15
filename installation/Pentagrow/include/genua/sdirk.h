@@ -36,7 +36,6 @@
 class SecondOrderSystem
 {
 public:
-
   /// undefined system
   SecondOrderSystem() = default;
 
@@ -48,7 +47,7 @@ public:
                       const Vector &v, Vector &a) = 0;
 
   /// handle/store/write out a solution u, v at t (default does nothing)
-  //virtual void store(Real t, const Vector &u, const Vector &v) {}
+  // virtual void store(Real t, const Vector &u, const Vector &v) {}
 };
 
 /** Dense-matrix interface for SDIRK integrators.
@@ -64,7 +63,6 @@ public:
 class StdSecondOrderSystem : public SecondOrderSystem
 {
 public:
-
   /// virtual base class
   virtual ~StdSecondOrderSystem() = default;
 
@@ -77,7 +75,6 @@ public:
                      const Vector &v, Vector &f) = 0;
 
 protected:
-
   typedef typename Matrix::EigenMatrix EMatrix;
 
   /// constant system matrices
@@ -118,33 +115,35 @@ template <int N>
 class SdirkBase
 {
 public:
-
   /// perform a single step from tn to tn + h, return error estimate if possible
   Real step(SecondOrderSystem &sys, Real tn, Real h, const Vector &un,
             const Vector &vn, Vector &us, Vector &vs)
   {
     allocate(un.size());
 
-    Real hg = h*m_gamma;
-    for (int r=0; r<N; ++r) {
+    Real hg = h * m_gamma;
+    for (int r = 0; r < N; ++r)
+    {
 
       // approximations to u, v at intermediate step
       // uses us, vs as workspace
-      us.mmap() = un.cmap() + m_c[r]*h*vn.cmap();
+      us.mmap() = un.cmap() + m_c[r] * h * vn.cmap();
       vs.mmap() = vn.cmap();
-      for (int j=0; j<r; ++j) {
-        us.mmap() += sq(h)*m_abar(r,j)*m_k[j].cmap();
-        vs.mmap() += h*m_abar(r,j)*m_k[j].cmap();
+      for (int j = 0; j < r; ++j)
+      {
+        us.mmap() += sq(h) * m_abar(r, j) * m_k[j].cmap();
+        vs.mmap() += h * m_abar(r, j) * m_k[j].cmap();
       }
-      sys.aSolve(hg, tn+m_c[r]*h, us, vs, m_k[r]);
+      sys.aSolve(hg, tn + m_c[r] * h, us, vs, m_k[r]);
     }
 
     // final step result
-    us.mmap() = un.cmap() + h*vn.cmap();
+    us.mmap() = un.cmap() + h * vn.cmap();
     vs.mmap() = vn.cmap();
-    for (int r=0; r<N; ++r) {
-      us.mmap() += sq(h)*m_bbar[r]*m_k[r].cmap();
-      vs.mmap() += h*m_bbar[r]*m_k[r].cmap();
+    for (int r = 0; r < N; ++r)
+    {
+      us.mmap() += sq(h) * m_bbar[r] * m_k[r].cmap();
+      vs.mmap() += h * m_bbar[r] * m_k[r].cmap();
     }
 
     // this doesn't work yet
@@ -167,8 +166,8 @@ public:
                   const Vector &vn, Vector &us, Vector &vs)
   {
     // fine steps, final result in (us, vs)
-    step(sys, tn, 0.5*h, un, vn, m_uhat, m_vhat);
-    step(sys, tn+0.5*h, 0.5*h, m_uhat, m_vhat, us, vs);
+    step(sys, tn, 0.5 * h, un, vn, m_uhat, m_vhat);
+    step(sys, tn + 0.5 * h, 0.5 * h, m_uhat, m_vhat, us, vs);
 
     // coarse step into uhat, vhat
     step(sys, tn, h, un, vn, m_uhat, m_vhat);
@@ -179,74 +178,77 @@ public:
     Real acoarse = -1.0 / (k2 - 1);
 
     // error estimate of the displacement term
-    Real ee = norm( us - m_uhat ) / (k2 - 1);
+    Real ee = norm(us - m_uhat) / (k2 - 1);
 
     // Richardson extrapolation
-    us = afine*us + acoarse*m_uhat;
-    vs = afine*vs + acoarse*m_vhat;
+    us = afine * us + acoarse * m_uhat;
+    vs = afine * vs + acoarse * m_vhat;
 
     return ee;
   }
 
 protected:
-
   /// compute the derived coefficients
-  void initCoefficients() {
+  void initCoefficients()
+  {
     m_abar = 0.0;
-    for (int r=0; r<N; ++r)
-      for (int j=0; j<N; ++j)
-        for (int k=0; k<=r; ++k)
-          m_abar(r,j) += m_a(r,k)*m_a(k,j);
+    for (int r = 0; r < N; ++r)
+      for (int j = 0; j < N; ++j)
+        for (int k = 0; k <= r; ++k)
+          m_abar(r, j) += m_a(r, k) * m_a(k, j);
 
     m_bbar = 0.0;
-    for (int r=0; r<N; ++r)
-      for (int k=r; k<N; ++k)
-        m_bbar[r] += m_a(k,r)*m_b[k];
+    for (int r = 0; r < N; ++r)
+      for (int k = r; k < N; ++k)
+        m_bbar[r] += m_a(k, r) * m_b[k];
 
     SVector<N> bhb;
-    for (int r=0; r<m_estage; ++r)
-      for (int k=r; k<m_estage; ++k)
-        bhb[r] += m_a(k,r)*m_bhat[k];
+    for (int r = 0; r < m_estage; ++r)
+      for (int k = r; k < m_estage; ++k)
+        bhb[r] += m_a(k, r) * m_bhat[k];
     m_bhat = bhb;
   }
 
   /// compute the b, c for stiffly accurate rules
-  void initOwrenSimonsen() {
-    for (int r=0; r<N; ++r) {
+  void initOwrenSimonsen()
+  {
+    for (int r = 0; r < N; ++r)
+    {
       m_c[r] = 0;
-      for (int j=0; j<=r; ++j)
-        m_c[r] += m_a(r,j);
-      m_b[r] = m_a(N-1, r);
+      for (int j = 0; j <= r; ++j)
+        m_c[r] += m_a(r, j);
+      m_b[r] = m_a(N - 1, r);
     }
     initCoefficients();
   }
 
   /// allocate workspace
-  void allocate(size_t n) {
+  void allocate(size_t n)
+  {
     BOOST_STATIC_ASSERT(N > 0);
     if (m_k[0].size() == n)
       return;
-    for (int r=0; r<N; ++r)
+    for (int r = 0; r < N; ++r)
       m_k[r].allocate(n);
     m_uhat.allocate(n);
     m_vhat.allocate(n);
   }
 
   /// determine new stepsize from error estimate and tolerance
-  Real nextStep(Real h, Real errorEst) const {
-    Real hf = 0.9*std::pow( m_tolerance/errorEst, m_order );
+  Real nextStep(Real h, Real errorEst) const
+  {
+    Real hf = 0.9 * std::pow(m_tolerance / errorEst, m_order);
 
     // avoid unecessary refactorization: ignore small stepsize adjustments
     if (hf > 0.8 and hf < 1.5)
       return h;
 
-    return h*std::max(m_hReduction, std::min( m_hExpansion, hf) );
+    return h * std::max(m_hReduction, std::min(m_hExpansion, hf));
   }
 
 protected:
-
   /// coefficients multiplying y'
-  SMatrix<N,N> m_a, m_abar;
+  SMatrix<N, N> m_a, m_abar;
 
   /// result coefficients
   SVector<N> m_b, m_bbar;
@@ -294,7 +296,6 @@ protected:
 class OwrenSimonsen22 : public SdirkBase<2>
 {
 public:
-
   /// coefficients are fixed and cannot be adjusted
   OwrenSimonsen22();
 };
@@ -317,7 +318,6 @@ public:
 class OwrenSimonsen23 : public SdirkBase<3>
 {
 public:
-
   /// for L-stability, 0.1804 < gamma < 2.1856
   OwrenSimonsen23(Real gamma = 0.43586652150845899941601945);
 };
@@ -339,10 +339,8 @@ public:
 class OwrenSimonsen34 : public SdirkBase<4>
 {
 public:
-
   /// for L-stability, 0.2236 < gamma < 0.5728
   OwrenSimonsen34(Real gamma = 0.52572146143500483743340698);
 };
-
 
 #endif // SDIRK_H

@@ -33,10 +33,11 @@ typedef std::vector<Indices> ElmCollector; // element buckets
 typedef std::pair<uint, uint> ElmID;       // bucket, index
 typedef std::vector<ElmID> MarkerID;       // one ElmID for each element
 
-static string findTetgenHeader(istream & is)
+static string findTetgenHeader(istream &is)
 {
   string line;
-  while (std::getline(is, line)) {
+  while (std::getline(is, line))
+  {
 
     // skip comment lines
     if (strchr(line.c_str(), '#') != 0)
@@ -59,7 +60,7 @@ static inline uint su2_strkey(const std::string &line, const char key[])
   pos = strstr(line.c_str(), key);
   if (pos == 0)
     return NotFound;
-  return genua_strtol(pos+strlen(key), &tail, 10);
+  return genua_strtol(pos + strlen(key), &tail, 10);
 }
 
 static inline void su2_read_marker(uint nme, istream &in,
@@ -70,7 +71,8 @@ static inline void su2_read_marker(uint nme, istream &in,
   string line;
   const char *s(0);
   char *tail;
-  for (uint i=0; i<nme; ++i) {
+  for (uint i = 0; i < nme; ++i)
+  {
     if (not in)
       throw Error("Error in SU2 file: File ends before all marker"
                   " elements have been found.");
@@ -84,14 +86,15 @@ static inline void su2_read_marker(uint nme, istream &in,
     Mx::ElementType etype = Mx::vtk2ElementType(ecode);
 
     // append element vertex indices to bucket
-    Indices & vix( ecollect[ (int) etype ] );
+    Indices &vix(ecollect[(int)etype]);
     const int nve = MxMeshSection::nElementNodes(etype);
 
     // store bucket index and position in bucket for marker element
-    mid[i] = std::make_pair( uint(etype), uint(vix.size() / nve));
+    mid[i] = std::make_pair(uint(etype), uint(vix.size() / nve));
 
     // extract element vertex indices
-    for (int k=0; k<nve; ++k) {
+    for (int k = 0; k < nve; ++k)
+    {
       uint vik = genua_strtol(s, &tail, 10);
       assert(s != tail);
       vix.push_back(vik);
@@ -105,12 +108,13 @@ static inline void su2_read_marker(uint nme, istream &in,
 void MxMesh::writeAs(const string &fname, int fmt, int compression) const
 {
   BinFileNodePtr bfp;
-  switch (fmt) {
+  switch (fmt)
+  {
   case Mx::NativeFormat:
     bfp = toXml(true).toGbf(true);
-    bfp->write( append_suffix(fname, ".zml"),
-                compression ? BinFileNode::CompressedLZ4
-                            : BinFileNode::PlainBinary);
+    bfp->write(append_suffix(fname, ".zml"),
+               compression ? BinFileNode::CompressedLZ4
+                           : BinFileNode::PlainBinary);
     break;
   case Mx::GbfFormat:
     bfp = gbfNode(true);
@@ -123,10 +127,10 @@ void MxMesh::writeAs(const string &fname, int fmt, int compression) const
     toXml(true).zwrite(append_suffix(fname, ".zml"), compression);
     break;
   case Mx::StdCgnsFormat:
-    writeCgns( append_suffix(fname, ".cgns"), false );
+    writeCgns(append_suffix(fname, ".cgns"), false);
     break;
   case Mx::SecCgnsFormat:
-    writeCgns( append_suffix(fname, ".cgns"), true );
+    writeCgns(append_suffix(fname, ".cgns"), true);
     break;
   case Mx::FfaFormat:
     writeFFA(fname);
@@ -167,42 +171,47 @@ void MxMesh::writeAs(const string &fname, int fmt, int compression) const
   }
 }
 
-void MxMesh::importMvz(const MeshFields & mvz)
+void MxMesh::importMvz(const MeshFields &mvz)
 {
   clear();
 
   // copy nodes
   const int nv = mvz.nvertices();
   vtx.resize(nv);
-  for (int i=0; i<nv; ++i) {
+  for (int i = 0; i < nv; ++i)
+  {
     vtx[i] = mvz.node(i);
-    if (not std::isfinite(dot(vtx[i],vtx[i])))
+    if (not std::isfinite(dot(vtx[i], vtx[i])))
       throw Error("Infinite node coordinates not allowed in MxMesh.");
   }
 
   // copy elements
-  if (mvz.nline2() > 0) {
+  if (mvz.nline2() > 0)
+  {
     MxMeshSection sec(this, Mx::Line2);
     sec.appendElements(mvz.nline2(), mvz.line2Vertices(0));
     sec.rename("Line Elements");
     appendSection(sec);
   }
 
-  if (mvz.ntri3() > 0) {
+  if (mvz.ntri3() > 0)
+  {
     MxMeshSection sec(this, Mx::Tri3);
     sec.appendElements(mvz.ntri3(), mvz.tri3Vertices(0));
     sec.rename("Triangles");
     appendSection(sec);
   }
 
-  if (mvz.nquad4() > 0) {
+  if (mvz.nquad4() > 0)
+  {
     MxMeshSection sec(this, Mx::Quad4);
     sec.appendElements(mvz.nquad4(), mvz.quad4Vertices(0));
     sec.rename("Quadrilaterals");
     appendSection(sec);
   }
 
-  if (mvz.markerIndices().size() > 0) {
+  if (mvz.markerIndices().size() > 0)
+  {
     MxMeshSection sec(this, Mx::Point);
     sec.appendElements(mvz.markerIndices());
     sec.rename("Point Marker");
@@ -213,35 +222,39 @@ void MxMesh::importMvz(const MeshFields & mvz)
   // get swapped around when saving to CGNS which splits nodal/cell fields)
   const int nm = mvz.nmodes();
   Indices iegm;
-  for (int i=0; i<nm; ++i) {
-    uint k = appendField( mvz.modename(i), mvz.eigenmode(i) );
+  for (int i = 0; i < nm; ++i)
+  {
+    uint k = appendField(mvz.modename(i), mvz.eigenmode(i));
     iegm.push_back(k);
   }
 
   // copy real-valued scalar fields
   const int nf = mvz.nfields();
-  for (int i=0; i<nf; ++i) {
+  for (int i = 0; i < nf; ++i)
+  {
     if (mvz.isNodalField(i))
-      appendField( mvz.fieldname(i), mvz.field(i) );
+      appendField(mvz.fieldname(i), mvz.field(i));
   }
 
   // copy vector fields
   const int nvf = mvz.nvfields();
-  for (int i=0; i<nvf; ++i) {
-    const string & fname = mvz.vfieldname(i);
-    appendField(fname, mvz.vectorField(i) );
+  for (int i = 0; i < nvf; ++i)
+  {
+    const string &fname = mvz.vfieldname(i);
+    appendField(fname, mvz.vectorField(i));
   }
 
   // copy component sets as integer-valued cell-data
   const int ncs = mvz.ncompsets();
-  for (int i=0; i<ncs; ++i) {
-    const Indices & idx( mvz.componentSet(i) );
+  for (int i = 0; i < ncs; ++i)
+  {
+    const Indices &idx(mvz.componentSet(i));
     DVector<int> fi(idx.begin(), idx.end());
     if (fi.size() == nelements())
       appendField(mvz.csetname(i), fi);
   }
 
-  for (uint i=0; i<iegm.size(); ++i)
+  for (uint i = 0; i < iegm.size(); ++i)
     field(iegm[i]).annotate(XmlElement("Eigenmode"));
 
   // try to assemble flutter modes from named shapes
@@ -249,26 +262,32 @@ void MxMesh::importMvz(const MeshFields & mvz)
   const int nem = iegm.size();
   CpxVector flm(nem);
   bool findReal = true;
-  for (int i=1; i<nns; ++i) {
-    const Vector & shape( mvz.namedshape(i) );
+  for (int i = 1; i < nns; ++i)
+  {
+    const Vector &shape(mvz.namedshape(i));
     if (shape.size() != uint(nem))
       continue;
 
-    const string & s( mvz.shapename(i) );
-    if (findReal) {
-      if (s.find("Re ") == 0) {
+    const string &s(mvz.shapename(i));
+    if (findReal)
+    {
+      if (s.size() >= 3 && s.compare(0, 3, "Re ") == 0)
+      {
         findReal = false;
-        for (int j=0; j<nem; ++j)
+        for (int j = 0; j < nem; ++j)
           flm[j] = Complex(shape[j], 0.0);
       }
-    } else {
-      if (s.find("Im ") == 0) {
+    }
+    else
+    {
+      if (s.size() >= 3 && s.compare(0, 3, "Im ") == 0)
+      {
         findReal = true;
-        for (int j=0; j<nem; ++j)
+        for (int j = 0; j < nem; ++j)
           flm[j] += Complex(0.0, shape[j]);
 
-        uint km = appendFlutterMode(Complex(0.0,1.0), flm);
-        deforms[km].rename( strip(s.substr(2, s.size()-2)) );
+        uint km = appendFlutterMode(Complex(0.0, 1.0), flm);
+        deforms[km].rename(strip(s.substr(2, s.size() - 2)));
       }
     }
   }
@@ -279,18 +298,23 @@ TriMeshPtr MxMesh::toTriMesh() const
   // extract nodes used by triangle sections
   Indices triNodes;
   size_t nf(0);
-  for (uint i=0; i<nsections(); ++i) {
-    if ( section(i).elementType() == Mx::Tri3 ) {
+  for (uint i = 0; i < nsections(); ++i)
+  {
+    if (section(i).elementType() == Mx::Tri3)
+    {
       nf += section(i).nelements();
       Indices nds;
       section(i).usedNodes(nds);
-      if (triNodes.empty()) {
+      if (triNodes.empty())
+      {
         triNodes = nds;
-      } else {
+      }
+      else
+      {
         size_t n = triNodes.size();
         triNodes.insert(triNodes.end(), nds.begin(), nds.end());
-        std::inplace_merge( triNodes.begin(),
-                            triNodes.begin()+n, triNodes.end() );
+        std::inplace_merge(triNodes.begin(),
+                           triNodes.begin() + n, triNodes.end());
       }
     }
   }
@@ -298,21 +322,24 @@ TriMeshPtr MxMesh::toTriMesh() const
   // copy only required nodes
   const size_t np = triNodes.size();
   TriMeshPtr ptm = boost::make_shared<TriMesh>();
-  for (size_t i=0; i<np; ++i)
-    ptm->addVertex( vtx[triNodes[i]] );
+  for (size_t i = 0; i < np; ++i)
+    ptm->addVertex(vtx[triNodes[i]]);
 
   // create trianglular elements, tagged with section index
-  for (size_t i=0; i<nsections(); ++i) {
-    if (section(i).elementType() == Mx::Tri3) {
+  for (size_t i = 0; i < nsections(); ++i)
+  {
+    if (section(i).elementType() == Mx::Tri3)
+    {
       uint vk[3];
       const size_t ne = section(i).nelements();
-      for (size_t j=0; j<ne; ++j) {
+      for (size_t j = 0; j < ne; ++j)
+      {
         const uint *v = section(i).element(j);
-        for (int k=0; k<3; ++k)
+        for (int k = 0; k < 3; ++k)
           vk[k] = sorted_index(triNodes, v[k]);
         ptm->addFace(vk, int(i));
       }
-      ptm->tagName( int(i), section(i).name() );
+      ptm->tagName(int(i), section(i).name());
     }
   }
   ptm->fixate();
@@ -324,35 +351,39 @@ CgMeshPtr MxMesh::toCgMesh() const
 {
   // triangle and line vertex indices
   Indices trix, lnx;
-  for (uint i=0; i<nsections(); ++i) {
-    const Indices &nds( section(i).nodes() );
-    if ( section(i).elementType() == Mx::Tri3 ) {
-      trix.insert( trix.end(), nds.begin(), nds.end() );
-    } else if ( section(i).elementType() == Mx::Line2 ) {
-      lnx.insert( lnx.end(), nds.begin(), nds.end() );
+  for (uint i = 0; i < nsections(); ++i)
+  {
+    const Indices &nds(section(i).nodes());
+    if (section(i).elementType() == Mx::Tri3)
+    {
+      trix.insert(trix.end(), nds.begin(), nds.end());
+    }
+    else if (section(i).elementType() == Mx::Line2)
+    {
+      lnx.insert(lnx.end(), nds.begin(), nds.end());
     }
   }
 
   Indices idx(trix);
   idx.insert(idx.end(), lnx.begin(), lnx.end());
   std::sort(idx.begin(), idx.end());
-  idx.erase( std::unique(idx.begin(), idx.end()), idx.end() );
+  idx.erase(std::unique(idx.begin(), idx.end()), idx.end());
 
   CgMeshPtr cgm = boost::make_shared<CgMesh>();
   const size_t nv = idx.size();
   const size_t ntv = trix.size();
   const size_t nlv = lnx.size();
 
-  cgm->reserve(nv, ntv/3, nlv/2);
-  for (size_t i=0; i<nv; ++i)
-    cgm->appendVertex( node(idx[i]) );
+  cgm->reserve(nv, ntv / 3, nlv / 2);
+  for (size_t i = 0; i < nv; ++i)
+    cgm->appendVertex(node(idx[i]));
 
-  for (size_t i=0; i<ntv; ++i)
+  for (size_t i = 0; i < ntv; ++i)
     trix[i] = sorted_index(idx, trix[i]);
-  for (size_t i=0; i<nlv; ++i)
+  for (size_t i = 0; i < nlv; ++i)
     lnx[i] = sorted_index(idx, lnx[i]);
 
-  cgm->appendLines( lnx );
+  cgm->appendLines(lnx);
   return cgm;
 }
 
@@ -371,7 +402,8 @@ void MxMesh::readAbaqus(const string &fname)
 
   getline(in, ln);
   lnlo = toLower(strip(ln));
-  while (in) {
+  while (in)
+  {
     if (lnlo.find("*node") != string::npos)
       ln = readAbaqusNodes(in, gid);
     else if (lnlo.find("*element") != string::npos)
@@ -380,10 +412,10 @@ void MxMesh::readAbaqus(const string &fname)
       ln = readAbaqusSet(lnlo, eid, in);
     else if (lnlo.find("*end part") != string::npos)
       break;
-    else if ( (not lnlo.empty()) and lnlo[0] == '*' )
+    else if ((not lnlo.empty()) and lnlo[0] == '*')
       ln = readAbaqusKeyword(lnlo, in, xabq);
     else
-      getline(in,ln);
+      getline(in, ln);
     lnlo = toLower(strip(ln));
   }
 
@@ -392,40 +424,43 @@ void MxMesh::readAbaqus(const string &fname)
   appendField("EID", eid);
 
   // map node indices in elements to GIDs
-  typedef std::map<uint,uint> IndexMap;
+  typedef std::map<uint, uint> IndexMap;
   const int nn = gid.size();
   IndexMap gidmap;
-  for (int i=0; i<nn; ++i)
+  for (int i = 0; i < nn; ++i)
     gidmap[gid[i]] = i;
 
   const int nsec = nsections();
-  for (int i=0; i<nsec; ++i) {
+  for (int i = 0; i < nsec; ++i)
+  {
     Indices idx = sections[i].nodes();
     const int nv = idx.size();
-    for (int j=0; j<nv; ++j) {
+    for (int j = 0; j < nv; ++j)
+    {
       IndexMap::const_iterator pos = gidmap.find(idx[j]);
       assert(pos != gidmap.end());
       idx[j] = pos->second;
     }
-    sections[i].swapElements( sections[i].elementType(), idx );
+    sections[i].swapElements(sections[i].elementType(), idx);
   }
 
   annotate(xabq);
 }
 
-std::string MxMesh::readAbaqusNodes(std::istream & in, DVector<int> &gid)
+std::string MxMesh::readAbaqusNodes(std::istream &in, DVector<int> &gid)
 {
   string ln;
   int id;
   Real x, y, z;
   char *tail;
 
-  while (getline(in, ln)) {
+  while (getline(in, ln))
+  {
     const char *s = ln.c_str();
     id = genua_strtol(s, &tail, 10);
     if (tail == s)
       break;
-    s = tail + 1;  // skip comma
+    s = tail + 1; // skip comma
     x = genua_strtod(s, &tail);
     if (tail == s)
       break;
@@ -439,7 +474,7 @@ std::string MxMesh::readAbaqusNodes(std::istream & in, DVector<int> &gid)
       break;
 
     gid.push_back(id);
-    appendNode( Vct3(x,y,z) );
+    appendNode(Vct3(x, y, z));
   }
 
   return ln;
@@ -465,7 +500,7 @@ std::string MxMesh::readAbaqusElements(const std::string &header,
     p2 = header.find_first_of(' ', p1);
 
   const int MAX_ELN(27);
-  string ets = strip( header.substr(p1, p2-p1) );
+  string ets = strip(header.substr(p1, p2 - p1));
 
   cout << "Abaqus element type: '" << ets << "'" << endl;
 
@@ -492,20 +527,22 @@ std::string MxMesh::readAbaqusElements(const std::string &header,
   if (et == Mx::Undefined)
     return ln;
 
-  const int nv = MxMeshSection::nElementNodes( et );
+  const int nv = MxMeshSection::nElementNodes(et);
   int id;
   Indices vix;
   vix.reserve(8192);
   char *tail;
-  while (getline(in,ln)) {
+  while (getline(in, ln))
+  {
     const char *s = ln.c_str();
     id = genua_strtol(s, &tail, 10);
     if (tail == s)
       break;
-    s = tail + 1;  // skip comma
+    s = tail + 1; // skip comma
 
     int vtmp[MAX_ELN], k;
-    for (k=0; k<nv; ++k) {
+    for (k = 0; k < nv; ++k)
+    {
       vtmp[k] = genua_strtol(s, &tail, 10);
       if (tail == s)
         break;
@@ -515,7 +552,7 @@ std::string MxMesh::readAbaqusElements(const std::string &header,
       break;
 
     eid.push_back(id);
-    vix.insert(vix.end(), vtmp, vtmp+nv);
+    vix.insert(vix.end(), vtmp, vtmp + nv);
   }
 
   uint isec = appendSection(et, vix);
@@ -533,9 +570,9 @@ std::string MxMesh::readAbaqusElements(const std::string &header,
 string MxMesh::readAbaqusSet(const string &header,
                              const DVector<int> &eid, istream &in)
 {
-  std::map<uint,uint> eidmap;
+  std::map<uint, uint> eidmap;
   const int ne = eid.size();
-  for (int i=0; i<ne; ++i)
+  for (int i = 0; i < ne; ++i)
     eidmap[eid[i]] = i;
 
   string ln, setname;
@@ -560,12 +597,14 @@ string MxMesh::readAbaqusSet(const string &header,
   uint id;
   char *tail;
 
-  while (getline(in,ln)) {
+  while (getline(in, ln))
+  {
     s = ln.c_str();
-    if (strchr(s,'*') != 0)
+    if (strchr(s, '*') != 0)
       break;
 
-    if (generateSet) {
+    if (generateSet)
+    {
       uint first = genua_strtol(s, &tail, 10);
       if (tail == s)
         break;
@@ -579,9 +618,12 @@ string MxMesh::readAbaqusSet(const string &header,
         break;
       for (id = first; id <= last; id += incr)
         idx.push_back(id);
-    } else {
+    }
+    else
+    {
       id = genua_strtol(s, &tail, 10);
-      while (tail != s and *tail != 0) {
+      while (tail != s and *tail != 0)
+      {
         idx.push_back(id);
         s = tail + 1;
         id = genua_strtol(s, &tail, 10);
@@ -594,18 +636,19 @@ string MxMesh::readAbaqusSet(const string &header,
   const int nx = idx.size();
   Indices mix;
   mix.reserve(nx);
-  std::map<uint,uint>::const_iterator pos;
-  for (int i=0; i<nx; ++i) {
-    pos = eidmap.find( idx[i] );
+  std::map<uint, uint>::const_iterator pos;
+  for (int i = 0; i < nx; ++i)
+  {
+    pos = eidmap.find(idx[i]);
     if (pos != eidmap.end())
-      mix.push_back( pos->second );
+      mix.push_back(pos->second);
   }
   sort_unique(mix);
 
-  MxMeshBoco bc( Mx::BcElementSet );
+  MxMeshBoco bc(Mx::BcElementSet);
   bc.appendElements(mix.begin(), mix.end());
-  bc.rename( setname );
-  appendBoco( bc );
+  bc.rename(setname);
+  appendBoco(bc);
 
   return ln;
 }
@@ -636,21 +679,27 @@ string MxMesh::readAbaqusKeyword(const string &header, istream &in,
 
   // extract attributes
   string ak, av;
-  while (p != 0) {
-    s = p+1;
+  while (p != 0)
+  {
+    s = p + 1;
     p = strchr(s, ',');
     const char *t = strchr(s, '=');
     av.clear();
     ak.clear();
-    if (t != 0 and t < p) {
+    if (t != 0 and t < p)
+    {
       ak.assign(s, t);
       if (p != 0)
-        av.assign(t+1, p);
+        av.assign(t + 1, p);
       else
-        av.assign(t+1);
-    } else if (p != 0) {
+        av.assign(t + 1);
+    }
+    else if (p != 0)
+    {
       ak.assign(s, p);
-    } else {
+    }
+    else
+    {
       ak.assign(s);
     }
     ak = strip(ak);
@@ -659,7 +708,8 @@ string MxMesh::readAbaqusKeyword(const string &header, istream &in,
   }
 
   stringstream ss;
-  while (getline(in, ln)) {
+  while (getline(in, ln))
+  {
     string::size_type p1 = ln.find_first_not_of(" \t\n\r");
     if (p1 == string::npos)
       continue;
@@ -667,7 +717,7 @@ string MxMesh::readAbaqusKeyword(const string &header, istream &in,
       break;
     ss << ln << endl;
   }
-  xkey.text( ss.str() );
+  xkey.text(ss.str());
 
   xabq.append(xkey);
   return ln;
@@ -684,57 +734,73 @@ void MxMesh::writeAbaqus(const string &fname) const
   uint fgid = findField("GID");
   uint feid = findField("EID");
 
-  if (fgid != NotFound) {
-    const MxMeshField &fg( field(fgid) );
-    if ( (not fg.nodal()) or (fg.realField()) ) {
+  if (fgid != NotFound)
+  {
+    const MxMeshField &fg(field(fgid));
+    if ((not fg.nodal()) or (fg.realField()))
+    {
       fgid = NotFound;
-      for (int i=0; i<nn; ++i)
-        gid[i] = i+1;
-    } else {
-      for (int i=0; i<nn; ++i)
+      for (int i = 0; i < nn; ++i)
+        gid[i] = i + 1;
+    }
+    else
+    {
+      for (int i = 0; i < nn; ++i)
         fg.scalar(i, gid[i]);
     }
-  } else {
-    for (int i=0; i<nn; ++i)
-      gid[i] = i+1;
+  }
+  else
+  {
+    for (int i = 0; i < nn; ++i)
+      gid[i] = i + 1;
   }
 
-  if (feid != NotFound) {
-    const MxMeshField &fg( field(feid) );
-    if ( (fg.size() != uint(ne)) or (fg.realField()) ) {
+  if (feid != NotFound)
+  {
+    const MxMeshField &fg(field(feid));
+    if ((fg.size() != uint(ne)) or (fg.realField()))
+    {
       feid = NotFound;
-      for (int i=0; i<ne; ++i)
-        eid[i] = i+1;
-    } else {
-      for (int i=0; i<ne; ++i)
+      for (int i = 0; i < ne; ++i)
+        eid[i] = i + 1;
+    }
+    else
+    {
+      for (int i = 0; i < ne; ++i)
         fg.scalar(i, eid[i]);
     }
-  } else {
-    for (int i=0; i<ne; ++i)
-      eid[i] = i+1;
+  }
+  else
+  {
+    for (int i = 0; i < ne; ++i)
+      eid[i] = i + 1;
   }
 
   // node section
   os << "*Node" << endl;
   os.precision(12);
-  for (int i=0; i<nn; ++i) {
+  for (int i = 0; i < nn; ++i)
+  {
     os << gid[i] << ", " << vtx[i][0] << ", " << vtx[i][1] << ", "
        << vtx[i][2] << endl;
   }
 
-  for (uint i=0; i<nsections(); ++i)
+  for (uint i = 0; i < nsections(); ++i)
     section(i).writeAbaqus(gid, eid, os);
-  for (uint i=0; i<nbocos(); ++i)
+  for (uint i = 0; i < nbocos(); ++i)
     boco(i).writeAbaqus(gid, eid, os);
 
   // check for any additional keywords to be written
   const XmlElement *xabq = xnote.findNode("Abaqus");
-  if (xabq != 0) {
+  if (xabq != 0)
+  {
     XmlElement::const_iterator itr, last = xabq->end();
-    for (itr = xabq->begin(); itr != last; ++itr) {
+    for (itr = xabq->begin(); itr != last; ++itr)
+    {
       os << '*' << itr->attribute("AbaqusKeyword");
       XmlElement::attr_iterator ita, alast = itr->attrEnd();
-      for (ita = itr->attrBegin(); ita != alast; ++ita) {
+      for (ita = itr->attrBegin(); ita != alast; ++ita)
+      {
         if (ita->first == "AbaqusKeyword")
           continue;
         os << ", " << ita->first;
@@ -750,7 +816,7 @@ void MxMesh::writeAbaqus(const string &fname) const
 void MxMesh::writeNastran(const std::string &fname,
                           size_t nodeOffset, size_t eidOffset) const
 {
-  ofstream os( asPath(fname) );
+  ofstream os(asPath(fname));
   this->writeNastran(os, nodeOffset, eidOffset);
 }
 
@@ -759,123 +825,147 @@ void MxMesh::writeNastran(std::ostream &os,
 {
   const size_t nv = nnodes();
   os << "$ All grid points " << endl;
-  for (size_t i=0; i<nv; ++i) {
-    const Vct3 & p( node(i) );
-    os << "GRID, " << i+1+nodeOffset << ", 0, " << nstr(p[0])
-        << ", " << nstr(p[1]) << ", " << nstr(p[2]) << ", " << endl;
+  for (size_t i = 0; i < nv; ++i)
+  {
+    const Vct3 &p(node(i));
+    os << "GRID, " << i + 1 + nodeOffset << ", 0, " << nstr(p[0])
+       << ", " << nstr(p[1]) << ", " << nstr(p[2]) << ", " << endl;
   }
 
   // check if there is a field named 'PID'; if so, use it to
   // assign element properties from field
   std::vector<int> pid;
   uint ifpid = findField("PID");
-  if (ifpid != NotFound) {
+  if (ifpid != NotFound)
+  {
     pid.resize(field(ifpid).size());
     field(ifpid).fetch(pid);
   }
 
   std::vector<int> mcid;
   uint ifmcid = findField("MCID");
-  if (ifmcid != NotFound) {
+  if (ifmcid != NotFound)
+  {
     mcid.resize(field(ifmcid).size());
     field(ifmcid).fetch(mcid);
   }
 
   uint eix(1), epid, emcid;
-  for (uint isec=0; isec<nsections(); ++isec) {
-    const MxMeshSection & sec( section(isec) );
+  for (uint isec = 0; isec < nsections(); ++isec)
+  {
+    const MxMeshSection &sec(section(isec));
     const int ne = sec.nelements();
-    epid = isec+1;
+    epid = isec + 1;
     emcid = 0;
-    if (sec.elementType() == Mx::Tri3) {
-      for (int i=0; i<ne; ++i) {
+    if (sec.elementType() == Mx::Tri3)
+    {
+      for (int i = 0; i < ne; ++i)
+      {
         const uint *vi = sec.element(i);
         if (not pid.empty())
-          epid = pid[ sec.indexOffset() + i ];
+          epid = pid[sec.indexOffset() + i];
         if (not mcid.empty())
-          emcid = mcid[ sec.indexOffset() + i ];
-        if (epid != 0) {
-          os << "CTRIA3, " << eix+eidOffset << ',' << epid;
-          for (int k=0; k<3; ++k)
-            os << ',' << vi[k]+1+nodeOffset;
+          emcid = mcid[sec.indexOffset() + i];
+        if (epid != 0)
+        {
+          os << "CTRIA3, " << eix + eidOffset << ',' << epid;
+          for (int k = 0; k < 3; ++k)
+            os << ',' << vi[k] + 1 + nodeOffset;
           os << ", " << emcid << endl;
         }
         ++eix;
       }
-    } else if (sec.elementType() == Mx::Tri6) {
-      for (int i=0; i<ne; ++i) {
+    }
+    else if (sec.elementType() == Mx::Tri6)
+    {
+      for (int i = 0; i < ne; ++i)
+      {
         const uint *vi = sec.element(i);
         if (not pid.empty())
-          epid = pid[ sec.indexOffset() + i ];
+          epid = pid[sec.indexOffset() + i];
         if (not mcid.empty())
-          emcid = mcid[ sec.indexOffset() + i ];
-        if (epid != 0) {
-          os << "CTRIA6, " << eix+eidOffset << ',' << epid;
-          for (int k=0; k<6; ++k)
-            os << ',' << vi[k]+1+nodeOffset;
+          emcid = mcid[sec.indexOffset() + i];
+        if (epid != 0)
+        {
+          os << "CTRIA6, " << eix + eidOffset << ',' << epid;
+          for (int k = 0; k < 6; ++k)
+            os << ',' << vi[k] + 1 + nodeOffset;
           os << endl;
           if (emcid != 0)
             os << ", " << emcid << endl;
         }
         ++eix;
       }
-    } else if (sec.elementType() == Mx::Quad4) {
-      for (int i=0; i<ne; ++i) {
+    }
+    else if (sec.elementType() == Mx::Quad4)
+    {
+      for (int i = 0; i < ne; ++i)
+      {
         if (not pid.empty())
-          epid = pid[ sec.indexOffset() + i ];
+          epid = pid[sec.indexOffset() + i];
         if (not mcid.empty())
-          emcid = mcid[ sec.indexOffset() + i ];
+          emcid = mcid[sec.indexOffset() + i];
         const uint *vi = sec.element(i);
-        if (epid != 0) {
-          os << "CQUAD4, " << eix+eidOffset << ',' << epid;
-          for (int k=0; k<4; ++k)
-            os << ',' << vi[k]+1+nodeOffset;
+        if (epid != 0)
+        {
+          os << "CQUAD4, " << eix + eidOffset << ',' << epid;
+          for (int k = 0; k < 4; ++k)
+            os << ',' << vi[k] + 1 + nodeOffset;
           os << ", " << emcid << endl;
         }
         ++eix;
       }
-    } else if (sec.elementType() == Mx::Quad8) {
-      for (int i=0; i<ne; ++i) {
+    }
+    else if (sec.elementType() == Mx::Quad8)
+    {
+      for (int i = 0; i < ne; ++i)
+      {
         if (not pid.empty())
-          epid = pid[ sec.indexOffset() + i ];
+          epid = pid[sec.indexOffset() + i];
         if (not mcid.empty())
-          emcid = mcid[ sec.indexOffset() + i ];
+          emcid = mcid[sec.indexOffset() + i];
         const uint *vi = sec.element(i);
-        if (epid != 0) {
-          os << "CQUAD8, " << eix+eidOffset << ',' << epid;
-          for (int k=0; k<6; ++k)
-            os << ',' << vi[k]+1+nodeOffset;
-          for (int k=0; k<2; ++k)
-            os << ',' << vi[6+k]+1+nodeOffset;
+        if (epid != 0)
+        {
+          os << "CQUAD8, " << eix + eidOffset << ',' << epid;
+          for (int k = 0; k < 6; ++k)
+            os << ',' << vi[k] + 1 + nodeOffset;
+          for (int k = 0; k < 2; ++k)
+            os << ',' << vi[6 + k] + 1 + nodeOffset;
           os << ",,,," << emcid << endl;
         }
         ++eix;
       }
-    } else if (sec.elementType() == Mx::Line2) {
+    }
+    else if (sec.elementType() == Mx::Line2)
+    {
 
       // beam elements require orientation vectors
-      const XmlElement & xn = sec.note();
+      const XmlElement &xn = sec.note();
       XmlElement::const_iterator itr = xn.findChild("BeamOrientation");
-      if (itr == xn.end()) {
+      if (itr == xn.end())
+      {
         dbprint("Beam orientation not present in mesh section, skipping.");
         continue;
       }
 
       PointList<3> ori(ne);
-      assert( Int(itr->attribute("count")) >= ne );
-      itr->fetch(3*ne*sizeof(Real), ori.pointer());
+      assert(Int(itr->attribute("count")) >= ne);
+      itr->fetch(3 * ne * sizeof(Real), ori.pointer());
 
-      for (int i=0; i<ne; ++i) {
+      for (int i = 0; i < ne; ++i)
+      {
         if (not pid.empty())
-          epid = pid[ sec.indexOffset() + i ];
+          epid = pid[sec.indexOffset() + i];
         if (not mcid.empty())
-          emcid = mcid[ sec.indexOffset() + i ];
+          emcid = mcid[sec.indexOffset() + i];
         const uint *vi = sec.element(i);
-        if (epid != 0) {
-          os << "CBEAM, " << eix+eidOffset << ',' << epid;
-          for (int k=0; k<2; ++k)
-            os << ',' << vi[k]+1+nodeOffset;
-          for (int k=0; k<3; ++k)
+        if (epid != 0)
+        {
+          os << "CBEAM, " << eix + eidOffset << ',' << epid;
+          for (int k = 0; k < 2; ++k)
+            os << ',' << vi[k] + 1 + nodeOffset;
+          for (int k = 0; k < 3; ++k)
             os << ',' << nstr(ori[i][k]);
           os << endl;
         }
@@ -891,8 +981,8 @@ XmlElement MxMesh::toVTK() const
   xv["type"] = "UnstructuredGrid";
 
   XmlElement xu("UnstructuredGrid");
-  for (uint i=0; i<sections.size(); ++i)
-    xu.append( sections[i].toVTK() );
+  for (uint i = 0; i < sections.size(); ++i)
+    xu.append(sections[i].toVTK());
   xv.append(xu);
 
   return xv;
@@ -903,34 +993,34 @@ BinFileNodePtr MxMesh::gbfNode(bool share) const
   BinFileNodePtr np = boost::make_shared<BinFileNode>("MxMesh");
 
   BinFileNodePtr vn = boost::make_shared<BinFileNode>("MxMeshVertices");
-  vn->assign( 3*vtx.size(), vtx.pointer(), share );
+  vn->assign(3 * vtx.size(), vtx.pointer(), share);
   np->append(vn);
 
   {
     const int ns = nsections();
-    for (int i=0; i<ns; ++i)
-      np->append( sections[i].gbfNode(share) );
+    for (int i = 0; i < ns; ++i)
+      np->append(sections[i].gbfNode(share));
   }
 
   {
     const int ns = nbocos();
-    for (int i=0; i<ns; ++i)
-      np->append( bocos[i].gbfNode(share) );
+    for (int i = 0; i < ns; ++i)
+      np->append(bocos[i].gbfNode(share));
   }
 
   {
     const int ns = nfields();
-    for (int i=0; i<ns; ++i)
-      np->append( fields[i].gbfNode(share) );
+    for (int i = 0; i < ns; ++i)
+      np->append(fields[i].gbfNode(share));
   }
 
   if (soltree)
-    np->append( soltree->toXml(true).toGbf(share) );
+    np->append(soltree->toXml(true).toGbf(share));
 
   return np;
 }
 
-void MxMesh::fromGbf(const BinFileNodePtr & np, bool digestNode)
+void MxMesh::fromGbf(const BinFileNodePtr &np, bool digestNode)
 {
   if (np->name() != "MxMesh")
     throw Error("Incompatible binary file representation for MxMesh.");
@@ -939,22 +1029,30 @@ void MxMesh::fromGbf(const BinFileNodePtr & np, bool digestNode)
 
   clear();
   const int nchild = np->nchildren();
-  for (int i=0; i<nchild; ++i) {
+  for (int i = 0; i < nchild; ++i)
+  {
     BinFileNodePtr cn = np->childNode(i);
-    if (cn->name() == "MxMeshVertices") {
+    if (cn->name() == "MxMeshVertices")
+    {
       const int nv = cn->blockElements() / 3;
       vtx.resize(nv);
-      memcpy(vtx.pointer(), cn->blockPointer(), 3*nv*sizeof(Real));
+      memcpy(vtx.pointer(), cn->blockPointer(), 3 * nv * sizeof(Real));
       cn->digest(digestNode);
-    } else if (cn->name() == "MxMeshSection") {
+    }
+    else if (cn->name() == "MxMeshSection")
+    {
       MxMeshSection sec(this, Mx::Undefined);
       sections.push_back(sec);
       sections.back().fromGbf(cn, digestNode);
-    } else if (cn->name() == "MxMeshBoco") {
+    }
+    else if (cn->name() == "MxMeshBoco")
+    {
       MxMeshBoco bc;
       bocos.push_back(bc);
       bocos.back().fromGbf(cn, digestNode);
-    } else if (cn->name() == "MxMeshField") {
+    }
+    else if (cn->name() == "MxMeshField")
+    {
       MxMeshField fd(this);
       fields.push_back(fd);
       fields.back().fromGbf(cn, digestNode);
@@ -972,27 +1070,27 @@ XmlElement MxMesh::toXml(bool share) const
     xe.append(xnote);
 
   if (soltree)
-    xe.append( soltree->toXml(share) );
+    xe.append(soltree->toXml(share));
 
   XmlElement xv("MxMeshVertices");
   xv["count"] = str(vtx.size());
   if (not vtx.empty())
-    xv.asBinary(3*vtx.size(), vtx.pointer(), share);
+    xv.asBinary(3 * vtx.size(), vtx.pointer(), share);
   xe.append(std::move(xv));
 
-  for (uint i=0; i<sections.size(); ++i)
-    xe.append( sections[i].toXml(share) );
-  for (uint i=0; i<bocos.size(); ++i)
-    xe.append( bocos[i].toXml(share) );
-  for (uint i=0; i<fields.size(); ++i)
-    xe.append( fields[i].toXml(share) );
-  for (uint i=0; i<deforms.size(); ++i)
-    xe.append( deforms[i].toXml(share) );
+  for (uint i = 0; i < sections.size(); ++i)
+    xe.append(sections[i].toXml(share));
+  for (uint i = 0; i < bocos.size(); ++i)
+    xe.append(bocos[i].toXml(share));
+  for (uint i = 0; i < fields.size(); ++i)
+    xe.append(fields[i].toXml(share));
+  for (uint i = 0; i < deforms.size(); ++i)
+    xe.append(deforms[i].toXml(share));
 
   return xe;
 }
 
-void MxMesh::fromXml(const XmlElement & xe)
+void MxMesh::fromXml(const XmlElement &xe)
 {
   if (xe.name() != "MxMesh")
     throw Error("Incompatible XML representation for MxMesh.");
@@ -1001,29 +1099,43 @@ void MxMesh::fromXml(const XmlElement & xe)
 
   XmlElement::const_iterator itr, last;
   last = xe.end();
-  for (itr = xe.begin(); itr != last; ++itr) {
+  for (itr = xe.begin(); itr != last; ++itr)
+  {
     string s = itr->name();
-    if (s == "MxMeshVertices") {
-      size_t n = Int( itr->attribute("count") );
+    if (s == "MxMeshVertices")
+    {
+      size_t n = Int(itr->attribute("count"));
       vtx.resize(n);
       if (n > 0)
-        itr->fetch(3*n, vtx.pointer());
-    } else if (s == "MxMeshSection") {
-      sections.push_back( MxMeshSection(this) );
+        itr->fetch(3 * n, vtx.pointer());
+    }
+    else if (s == "MxMeshSection")
+    {
+      sections.push_back(MxMeshSection(this));
       sections.back().fromXml(*itr);
-    } else if (s == "MxMeshBoco") {
-      bocos.push_back( MxMeshBoco() );
+    }
+    else if (s == "MxMeshBoco")
+    {
+      bocos.push_back(MxMeshBoco());
       bocos.back().fromXml(*itr);
-    } else if (s == "MxMeshField") {
-      fields.push_back( MxMeshField(this) );
+    }
+    else if (s == "MxMeshField")
+    {
+      fields.push_back(MxMeshField(this));
       fields.back().fromXml(*itr);
-    } else if (s == "MxMeshDeform") {
-      deforms.push_back( MxMeshDeform(this) );
+    }
+    else if (s == "MxMeshDeform")
+    {
+      deforms.push_back(MxMeshDeform(this));
       deforms.back().fromXml(*itr);
-    } else if (s == "MxMeshNote" or s == "MxNote") {
+    }
+    else if (s == "MxMeshNote" or s == "MxNote")
+    {
       note(*itr);
       MxAnnotated::xnote.detach();
-    } else if (s == "MxSolutionTree") {
+    }
+    else if (s == "MxSolutionTree")
+    {
       soltree.reset(new MxSolutionTree);
       soltree->fromXml(*itr);
     }
@@ -1031,12 +1143,12 @@ void MxMesh::fromXml(const XmlElement & xe)
   countElements();
 }
 
-void MxMesh::writeZml(const std::string & fname, int compression) const
+void MxMesh::writeZml(const std::string &fname, int compression) const
 {
   toXml(true).zwrite(fname, compression);
 }
 
-void MxMesh::readZml(const std::string & fname)
+void MxMesh::readZml(const std::string &fname)
 {
   XmlElement xe;
   xe.read(fname);
@@ -1055,14 +1167,15 @@ void MxMesh::writeLegacyVtk(const string &fname) const
   os << "POINTS " << nn << " float" << endl;
   os.precision(15);
   os << std::scientific;
-  for (size_t i=0; i<nn; ++i)
+  for (size_t i = 0; i < nn; ++i)
     os << vtx[i][0] << ' ' << vtx[i][1] << ' ' << vtx[i][2] << endl;
 
   // count number of element vertex indices used
   int nev = 0;
   int nel = 0;
-  for (uint i=0; i<nsections(); ++i) {
-    int ecode = Mx::elementType2Vtk( section(i).elementType() );
+  for (uint i = 0; i < nsections(); ++i)
+  {
+    int ecode = Mx::elementType2Vtk(section(i).elementType());
     if (ecode == 0)
       continue;
     uint ne = section(i).nelements();
@@ -1070,20 +1183,22 @@ void MxMesh::writeLegacyVtk(const string &fname) const
     nev += ne * section(i).nElementNodes();
   }
 
-  os << "CELLS " << nel << ' ' << nev+nel << endl;
+  os << "CELLS " << nel << ' ' << nev + nel << endl;
   Indices elmTyp(nel);
   int offset = 0;
-  for (uint i=0; i<nsections(); ++i) {
-    int ecode = Mx::elementType2Vtk( section(i).elementType() );
+  for (uint i = 0; i < nsections(); ++i)
+  {
+    int ecode = Mx::elementType2Vtk(section(i).elementType());
     if (ecode == 0)
       continue;
     int ne = section(i).nelements();
     int nv = section(i).nElementNodes();
-    for (int j=0; j<ne; ++j) {
-      elmTyp[offset+j] = ecode;
+    for (int j = 0; j < ne; ++j)
+    {
+      elmTyp[offset + j] = ecode;
       const uint *vi = section(i).element(j);
       os << nv;
-      for (int k=0; k<nv; ++k)
+      for (int k = 0; k < nv; ++k)
         os << ' ' << vi[k];
       os << endl;
     }
@@ -1091,27 +1206,33 @@ void MxMesh::writeLegacyVtk(const string &fname) const
   }
 
   os << "CELL_TYPES " << nel << endl;
-  for (int i=0; i<nel; ++i)
+  for (int i = 0; i < nel; ++i)
     os << elmTyp[i] << endl;
 
   os << "POINT_DATA " << nn << endl;
-  for (uint i=0; i<nfields(); ++i) {
-    const MxMeshField & f( field(i) );
+  for (uint i = 0; i < nfields(); ++i)
+  {
+    const MxMeshField &f(field(i));
     if (not f.nodal())
       continue;
     if (not f.realField())
       continue;
     const int ndim = f.ndimension();
-    if (ndim == 1) {
+    if (ndim == 1)
+    {
       os << "SCALARS " << f.name() << " float 1" << endl;
-      for (size_t j=0; j<nn; ++j) {
+      for (size_t j = 0; j < nn; ++j)
+      {
         double x;
         f.scalar(j, x);
         os << x << endl;
       }
-    } else if (ndim == 3) {
+    }
+    else if (ndim == 3)
+    {
       os << "VECTORS " << f.name() << " float" << endl;
-      for (size_t j=0; j<nn; ++j) {
+      for (size_t j = 0; j < nn; ++j)
+      {
         Vct3 x;
         f.value(j, x);
         os << x[0] << ' ' << x[1] << ' ' << x[2] << endl;
@@ -1133,22 +1254,28 @@ void MxMesh::readLegacyVtk(const string &fname)
   uint npoints(NotFound), ncell(NotFound), nclsize(NotFound), nct(NotFound);
   uint rpoints(0);
 
-  while (std::getline(in, line)) {
+  while (std::getline(in, line))
+  {
 
     s = line.c_str();
-    if (npoints == NotFound) {
+    if (npoints == NotFound)
+    {
       pos = strstr(s, "POINTS");
-      if (pos != 0) {
+      if (pos != 0)
+      {
         npoints = genua_strtol(pos + strlen("POINTS"), &tail, 10);
-        dbprint("VTK import: Expecting",npoints,"nodes.");
+        dbprint("VTK import: Expecting", npoints, "nodes.");
         continue;
       }
-    } else if (rpoints < npoints) {
+    }
+    else if (rpoints < npoints)
+    {
 
       Vct3 p;
 
       // all points can be on one line, so just loop until line exhausted
-      do {
+      do
+      {
 
         p[0] = genua_strtod(s, &tail);
         if (tail == s)
@@ -1172,13 +1299,15 @@ void MxMesh::readLegacyVtk(const string &fname)
 
       } while (rpoints < npoints);
       if (rpoints == npoints)
-        dbprint("Found all nodes: ",rpoints);
+        dbprint("Found all nodes: ", rpoints);
       continue;
     }
 
-    if (ncell == NotFound) {
+    if (ncell == NotFound)
+    {
       pos = strstr(s, "CELLS ");
-      if (pos != 0) {
+      if (pos != 0)
+      {
         pos += strlen("CELLS ");
         ncell = genua_strtol(pos, &tail, 10);
         assert(tail != pos);
@@ -1187,31 +1316,39 @@ void MxMesh::readLegacyVtk(const string &fname)
         assert(tail != pos);
         ctlist.reserve(ncell);
         evlist.reserve(nclsize);
-        dbprint("VTK import: Expecting",ncell,"cells, indices = ",nclsize);
+        dbprint("VTK import: Expecting", ncell, "cells, indices = ", nclsize);
         continue;
       }
-    } else if (evlist.size() < nclsize) {
+    }
+    else if (evlist.size() < nclsize)
+    {
       uint v = genua_strtol(s, &tail, 10);
-      while (tail != s) {
+      while (tail != s)
+      {
         evlist.push_back(v);
         s = tail;
         v = genua_strtol(s, &tail, 10);
       }
       if (evlist.size() == nclsize)
-        dbprint("Found cells list:",evlist.size());
+        dbprint("Found cells list:", evlist.size());
       continue;
     }
 
-    if (nct == NotFound) {
+    if (nct == NotFound)
+    {
       pos = strstr(s, "CELL_TYPES");
-      if (pos != 0) {
+      if (pos != 0)
+      {
         nct = genua_strtol(pos + strlen("CELL_TYPES"), &tail, 10);
-        dbprint("VTK import: Expecting",nct,"cell type flags.");
+        dbprint("VTK import: Expecting", nct, "cell type flags.");
         continue;
       }
-    } else if (ctlist.size() < nct) {
+    }
+    else if (ctlist.size() < nct)
+    {
       uint v = genua_strtol(s, &tail, 10);
-      while (tail != s) {
+      while (tail != s)
+      {
         ctlist.push_back(v);
         s = tail;
         v = genua_strtol(s, &tail, 10);
@@ -1231,26 +1368,28 @@ void MxMesh::readLegacyVtk(const string &fname)
                 "of cell type tags.");
 
   // build mesh from vertex indices
-  ElmCollector ecollect( (int) Mx::NElmTypes );
+  ElmCollector ecollect((int)Mx::NElmTypes);
   uint offset = 0;
-  for (uint i=0; i<ncell; ++i) {
+  for (uint i = 0; i < ncell; ++i)
+  {
     const uint *pvi = &evlist[offset];
     uint nve = pvi[0];
-    offset += nve+1;
+    offset += nve + 1;
     Mx::ElementType etype = Mx::vtk2ElementType(ctlist[i]);
     if (etype == Mx::Undefined)
       continue;
-    Indices & vix( ecollect[ (int) etype ] );
-    vix.insert(vix.end(), pvi+1, pvi+1+nve);
+    Indices &vix(ecollect[(int)etype]);
+    vix.insert(vix.end(), pvi + 1, pvi + 1 + nve);
   }
 
-  for (uint it=0; it<ecollect.size(); ++it) {
-    const Indices & vix( ecollect[it] );
+  for (uint it = 0; it < ecollect.size(); ++it)
+  {
+    const Indices &vix(ecollect[it]);
     if (vix.empty())
       continue;
-    appendSection( Mx::ElementType(it), vix );
+    appendSection(Mx::ElementType(it), vix);
   }
-  dbprint("Created",nsections(),"mesh sections.");
+  dbprint("Created", nsections(), "mesh sections.");
 
   // look for nodal fields
   string fieldName;
@@ -1259,22 +1398,25 @@ void MxMesh::readLegacyVtk(const string &fname)
   PointList<3> vfld(nnodes());
   size_t spos = 0;
 
-  while (std::getline(in,line)) {
+  while (std::getline(in, line))
+  {
 
     // extract scalar fields
     s = line.c_str();
-    if (nfdim == NotFound) {
+    if (nfdim == NotFound)
+    {
       pos = strstr(s, "SCALARS ");
-      if (pos != 0) {
+      if (pos != 0)
+      {
         s = pos + strlen("SCALARS ");
         pos = strstr(pos, "float");
         if (pos == 0)
           continue;
-        fieldName.assign(s, pos-s);
+        fieldName.assign(s, pos - s);
         string::size_type p1 = fieldName.find_first_not_of('\"');
         string::size_type p2 = fieldName.find_last_not_of('\"');
-        if (p1 != 0 and p2-p1 > 2)
-          fieldName = fieldName.substr(p1, p2-p1-1);
+        if (p1 != 0 and p2 - p1 > 2)
+          fieldName = fieldName.substr(p1, p2 - p1 - 1);
         s = pos + strlen("float");
         nfdim = genua_strtol(pos, &tail, 10);
         if (pos == tail)
@@ -1283,19 +1425,23 @@ void MxMesh::readLegacyVtk(const string &fname)
         nfv = 0;
         spos = 0;
         sfld.resize(nnodes() * nfdim);
-        dbprint("Scanning field",fieldName,"dim",nfdim);
+        dbprint("Scanning field", fieldName, "dim", nfdim);
         continue;
       }
-    } else if (nfv < nnodes()) {
+    }
+    else if (nfv < nnodes())
+    {
 
       Real v = genua_strtod(s, &tail);
-      while ((s != tail) and (spos < sfld.size())) {
+      while ((s != tail) and (spos < sfld.size()))
+      {
         sfld[spos] = v;
         ++spos;
         s = tail;
         v = genua_strtod(s, &tail);
       }
-      if (spos == sfld.size()) {
+      if (spos == sfld.size())
+      {
         MxMeshField kfield(this, true);
         kfield.copyReal(fieldName, nfdim, sfld.pointer());
         appendField(kfield);
@@ -1305,27 +1451,33 @@ void MxMesh::readLegacyVtk(const string &fname)
     }
 
     // extract vector fields
-    if (nfdim == NotFound) {
+    if (nfdim == NotFound)
+    {
       pos = strstr(s, "VECTORS ");
-      if (pos != 0) {
+      if (pos != 0)
+      {
         s = pos + strlen("VECTORS ");
         pos = strstr(pos, "float");
         if (pos == 0)
           continue;
-        fieldName.assign(s, pos-s);
+        fieldName.assign(s, pos - s);
         nfdim = 3;
         nfv = 0;
-        dbprint("Scanning vector field",fieldName);
+        dbprint("Scanning vector field", fieldName);
         continue;
       }
-    } else if (nfv < nnodes()) {
-      for (uint k=0; k<3; ++k) {
+    }
+    else if (nfv < nnodes())
+    {
+      for (uint k = 0; k < 3; ++k)
+      {
         vfld[nfv][k] = genua_strtod(s, &tail);
         assert(s != tail);
         s = tail;
       }
       ++nfv;
-      if (nfv == nnodes()) {
+      if (nfv == nnodes())
+      {
         MxMeshField kfield(this, true);
         kfield.copyReal(fieldName, 3, sfld.pointer());
         appendField(kfield);
@@ -1341,10 +1493,11 @@ void MxMesh::readLegacyVtk(const string &fname)
 static inline void fetch_five(const string &line, Vector &val)
 {
   stringstream mode_p1(line);
-  for (int k=0; k<5; ++k) {
+  for (int k = 0; k < 5; ++k)
+  {
     double u;
     mode_p1 >> u;
-    for(int uu=0; uu<4; ++uu)
+    for (int uu = 0; uu < 4; ++uu)
       val.push_back(u);
   }
 }
@@ -1353,8 +1506,10 @@ static inline bool is_this_empty(const string &s)
 {
   if (s.empty())
     return true;
-  for (size_t i=0; i<s.size(); ++i){
-    if ( !isspace( s[i] ) ) {
+  for (size_t i = 0; i < s.size(); ++i)
+  {
+    if (!isspace(s[i]))
+    {
       return false;
     }
   }
@@ -1365,7 +1520,7 @@ static inline bool is_this_mode(const string &s)
 {
   if (s.empty())
     return false;
-  if (s.find("Mode") != string::npos )
+  if (s.find("Mode") != string::npos)
     return true;
   return false;
 }
@@ -1396,8 +1551,8 @@ void MxMesh::readAerel(const std::string &fname)
   // all quad indices
   Indices quads;
   Vector rcp_values, icp_values;
-  std::vector< PointList<3> > k_modes;
-  std::vector< Vector > k_rcp, k_icp;
+  std::vector<PointList<3>> k_modes;
+  std::vector<Vector> k_rcp, k_icp;
 
   double mnm(0); // mode number for mode (displacement)
   double Sref(1.0), Lref(1.0), Mach(0.1);
@@ -1409,12 +1564,14 @@ void MxMesh::readAerel(const std::string &fname)
   std::string line;
   ifstream in(fname.c_str());
   if (!in)
-    throw("AEREL plot file could not be opened: "+fname);
+    throw("AEREL plot file could not be opened: " + fname);
 
-  while (getline(in, line)) {
+  while (getline(in, line))
+  {
 
     // skip to number of panels
-    if ( line.find("Number of panels, and number of modes") != string::npos ) {
+    if (line.find("Number of panels, and number of modes") != string::npos)
+    {
       getline(in, line);
       stringstream ss(line);
       ss >> npanels >> nmodes;
@@ -1422,18 +1579,21 @@ void MxMesh::readAerel(const std::string &fname)
     }
 
     // read points for one element
-    if (line.find("Element") != string::npos) {
-      for (int k=0; k<3; ++k) {
+    if (line.find("Element") != string::npos)
+    {
+      for (int k = 0; k < 3; ++k)
+      {
         getline(in, line);
         stringstream coord(line);
         coord >> pts[0][k] >> pts[1][k] >> pts[2][k] >> pts[3][k];
       }
-      for (int k=0; k<4; ++k)
-        quads.push_back( appendNode(pts[k]) );
+      for (int k = 0; k < 4; ++k)
+        quads.push_back(appendNode(pts[k]));
     }
 
     // extract reference values
-    if ( line.find("Sref, Lref") != string::npos ) {
+    if (line.find("Sref, Lref") != string::npos)
+    {
       getline(in, line);
       stringstream ref(line);
       ref >> nfreq >> Sref >> Lref >> Mach;
@@ -1442,23 +1602,27 @@ void MxMesh::readAerel(const std::string &fname)
 
     // read modeshapes ...
     Vector u_points;
-    for (int ii=0; ii<npanels; ++ii) {
-      string keyword = keyword_line("on panel", ii+1);
-      if (line.find(keyword) != string::npos) {
+    for (int ii = 0; ii < npanels; ++ii)
+    {
+      string keyword = keyword_line("on panel", ii + 1);
+      if (line.find(keyword) != string::npos)
+      {
         ++mnm;
         getline(in, line);
-        while (!is_this_mode(line) and !is_this_empty(line)) {
+        while (!is_this_mode(line) and !is_this_empty(line))
+        {
           fetch_five(line, u_points);
           getline(in, line);
         } // (!is_this_empty(line))
       }
     }
 
-    if (!u_points.empty()) {
+    if (!u_points.empty())
+    {
       ++modenum;
       int ndz = u_points.size();
       mode.resize(ndz);
-      for (int nn=0; nn<ndz; ++nn)
+      for (int nn = 0; nn < ndz; ++nn)
         mode[nn][2] = u_points[nn];
       k_modes.push_back(mode);
     } // !u_points.empty()
@@ -1469,60 +1633,67 @@ void MxMesh::readAerel(const std::string &fname)
     pssubcase = boost::make_shared<MxSolutionTree>("Subcase");
 
     // Panels
-    if (line.find("Real DCP") != string::npos) {
+    if (line.find("Real DCP") != string::npos)
+    {
       getline(in, line);
       stringstream rcp_info(line);
       rcp_info >> panelnr >> modenr >> machnr >> freq;
 
       // aerel prints k/Lref
       freq *= Lref;
-      if (panelnr < 2) {
+      if (panelnr < 2)
+      {
         rcp_values.clear();
         icp_values.clear();
       }
       getline(in, line);
 
       // until an empty line is reached:
-      while (!is_this_empty(line)) {
+      while (!is_this_empty(line))
+      {
         fetch_five(line, rcp_values);
         getline(in, line);
       } // (!is_this_empty(line))
 
-      if (panelnr > npanels-1)
+      if (panelnr > npanels - 1)
         k_rcp.push_back(rcp_values);
     } // (line.find("Real DCP") != string::npos)
 
-    if (line.find("Imag DCP") != string::npos) {
+    if (line.find("Imag DCP") != string::npos)
+    {
       getline(in, line);
       getline(in, line);
-      while (!is_this_empty(line)) {
+      while (!is_this_empty(line))
+      {
         fetch_five(line, icp_values);
         getline(in, line);
       } // (!is_this_empty(line))
 
-      if (panelnr > npanels-1)
+      if (panelnr > npanels - 1)
         k_icp.push_back(icp_values);
-      if ((panelnr > npanels-1) and (modenr > nmodes-1)){
+      if ((panelnr > npanels - 1) and (modenr > nmodes - 1))
+      {
         assert(pssubcase != nullptr);
 
-        pssubcase->rename( "Reduced freq. "+str(0.01*std::round(freq*100.0)) );
+        pssubcase->rename("Reduced freq. " + str(0.01 * std::round(freq * 100.0)));
         pssubcase->attribute("ReducedFrequency", str(freq));
         pssubcase->attribute("MachNumber", str(machnr));
         pssubcase->attribute("ModeNr", str(modenr));
         // cout << "Case named: " << pssubcase->name() << endl;
 
         psroot->append(pssubcase);
-        for (int ii=0; ii<nmodes; ++ii) {
+        for (int ii = 0; ii < nmodes; ++ii)
+        {
           std::stringstream ss;
-          ss << "Mode " << ii+1 << " k " << 0.01*std::round(freq*100.0);
+          ss << "Mode " << ii + 1 << " k " << 0.01 * std::round(freq * 100.0);
           string s = ss.str();
 
           // AEREL stores DCP fields scaled by Lref
-          uint ire = appendField("ReDCp "+s, k_rcp[ii] / Lref);
-          field(ire).valueClass( MxMeshField::ValueClass::ReDCp );
+          uint ire = appendField("ReDCp " + s, k_rcp[ii] / Lref);
+          field(ire).valueClass(MxMeshField::ValueClass::ReDCp);
           pssubcase->appendField(ire);
-          uint iim = appendField("ImDCp "+s, k_icp[ii] / Lref);
-          field(iim).valueClass( MxMeshField::ValueClass::ImDCp );
+          uint iim = appendField("ImDCp " + s, k_icp[ii] / Lref);
+          field(iim).valueClass(MxMeshField::ValueClass::ImDCp);
           pssubcase->appendField(iim);
         }
         k_icp.clear();
@@ -1538,13 +1709,14 @@ void MxMesh::readAerel(const std::string &fname)
 
   // deformation modes
   if (k_modes.size() != size_t(nmodes))
-    throw Error("Corrupt file: Expected "+str(nmodes) +
-                " modes, found "+str(k_modes.size()));
+    throw Error("Corrupt file: Expected " + str(nmodes) +
+                " modes, found " + str(k_modes.size()));
 
-  for(int ii=0; ii<nmodes; ++ii) {
-    uint imodes = appendField("Mode "+str(ii+1), k_modes[ii]);
-    field(imodes).valueClass( MxMeshField::ValueClass::Eigenmode );
-    field(imodes).attribute("ModeNr", str(ii+1));
+  for (int ii = 0; ii < nmodes; ++ii)
+  {
+    uint imodes = appendField("Mode " + str(ii + 1), k_modes[ii]);
+    field(imodes).valueClass(MxMeshField::ValueClass::Eigenmode);
+    field(imodes).attribute("ModeNr", str(ii + 1));
     pseigenmodes->appendField(imodes);
   }
 
@@ -1566,15 +1738,17 @@ void MxMesh::writeSU2(const string &fname) const
 
   // count volume elements
   uint nve = 0;
-  for (uint i=0; i<nsections(); ++i) {
-    const MxMeshSection & sec( section(i) );
+  for (uint i = 0; i < nsections(); ++i)
+  {
+    const MxMeshSection &sec(section(i));
     nve += sec.volumeElements() ? sec.nelements() : 0;
   }
   os << "NELEM=" << nve << endl;
 
   // write volume elements
-  for (uint i=0; i<nsections(); ++i) {
-    const MxMeshSection & sec( section(i) );
+  for (uint i = 0; i < nsections(); ++i)
+  {
+    const MxMeshSection &sec(section(i));
     if (sec.volumeElements())
       sec.writeSU2(os);
   }
@@ -1584,24 +1758,26 @@ void MxMesh::writeSU2(const string &fname) const
   os << "NPOIN=" << nn << endl;
   os.precision(15);
   os << std::scientific;
-  for (int i=0; i<nn; ++i)
+  for (int i = 0; i < nn; ++i)
     os << vtx[i][0] << ' ' << vtx[i][1] << ' ' << vtx[i][2] << ' ' << i << endl;
 
   // write boundaries
   Indices elix;
   const int nbc = nbocos();
   os << "NMARK=" << nbc << endl;
-  for (int ibc=0; ibc != nbc; ++ibc) {
-    const MxMeshBoco & bc( boco(ibc) );
+  for (int ibc = 0; ibc != nbc; ++ibc)
+  {
+    const MxMeshBoco &bc(boco(ibc));
     os << "MARKER_TAG=" << bc.name() << endl;
     bc.elements(elix);
     const int ne = elix.size();
     os << "MARKER_ELEMS=" << ne << endl;
-    for (int i=0; i<ne; ++i) {
+    for (int i = 0; i < ne; ++i)
+    {
       uint nv, isec;
       const uint *vi = globalElement(elix[i], nv, isec);
-      os << Mx::elementType2Vtk( section(isec).elementType() );
-      for (uint k=0; k<nv; ++k)
+      os << Mx::elementType2Vtk(section(isec).elementType());
+      for (uint k = 0; k < nv; ++k)
         os << ' ' << vi[k];
       os << endl;
     }
@@ -1630,27 +1806,34 @@ void MxMesh::readSU2(const std::string &fname)
 
   // collect volume elements first
   ElmCollector ecollect;
-  ecollect.resize( Mx::NElmTypes );
+  ecollect.resize(Mx::NElmTypes);
 
   string line, bcName;
   char *tail(0);
-  while ( getline(in, line) ) {
+  while (getline(in, line))
+  {
 
-    if (ndime == NotFound) {
+    if (ndime == NotFound)
+    {
       ndime = su2_strkey(line, "NDIME=");
-      if (ndime != NotFound) {
+      if (ndime != NotFound)
+      {
         continue;
-        dbprint("NDIME = ",ndime);
+        dbprint("NDIME = ", ndime);
       }
     }
 
-    if (nelem == NotFound) {
+    if (nelem == NotFound)
+    {
       nelem = su2_strkey(line, "NELEM=");
-      if (nelem != NotFound) {
+      if (nelem != NotFound)
+      {
         continue;
-        dbprint("NELEM = ",nelem);
+        dbprint("NELEM = ", nelem);
       }
-    } else if (relem < nelem) {
+    }
+    else if (relem < nelem)
+    {
       const char *s = line.c_str();
       uint code = genua_strtol(s, &tail, 10);
       if (tail == s)
@@ -1658,10 +1841,11 @@ void MxMesh::readSU2(const std::string &fname)
       Mx::ElementType etype = Mx::vtk2ElementType(code);
       if (etype == Mx::Undefined)
         continue;
-      Indices & vix( ecollect[ (int) etype ] );
+      Indices &vix(ecollect[(int)etype]);
       int nev = MxMeshSection::nElementNodes(etype);
       s = tail;
-      for (int k=0; k<nev; ++k) {
+      for (int k = 0; k < nev; ++k)
+      {
         uint vik = genua_strtod(s, &tail);
         assert(tail != s);
         vix.push_back(vik);
@@ -1672,15 +1856,19 @@ void MxMesh::readSU2(const std::string &fname)
       continue;
     }
 
-    if (npoin == NotFound) {
+    if (npoin == NotFound)
+    {
       npoin = su2_strkey(line, "NPOIN=");
       if (npoin != NotFound)
         dbprint("SU2: Looking for ", npoin, " points.");
       continue;
-    } else if (rpoin < npoin) {
+    }
+    else if (rpoin < npoin)
+    {
       Vct3 p;
       const char *s = line.c_str();
-      if (ndime == 2) {
+      if (ndime == 2)
+      {
         p[0] = genua_strtod(s, &tail);
         if (tail == s)
           continue;
@@ -1690,7 +1878,9 @@ void MxMesh::readSU2(const std::string &fname)
           continue;
         appendNode(p);
         ++rpoin;
-      } else {
+      }
+      else
+      {
         p[0] = genua_strtod(s, &tail);
         if (tail == s)
           continue;
@@ -1709,28 +1899,35 @@ void MxMesh::readSU2(const std::string &fname)
         dbprint(npoin, " points identified.");
     }
 
-    if (nmark == NotFound) {
+    if (nmark == NotFound)
+    {
       nmark = su2_strkey(line, "NMARK=");
-      if (nmark != NotFound) {
+      if (nmark != NotFound)
+      {
         markerID.resize(nmark);
         markTags.resize(nmark);
-        dbprint("Looking for ",nmark,"markers.");
+        dbprint("Looking for ", nmark, "markers.");
       }
       continue;
-    } else if (rmark < nmark) {
+    }
+    else if (rmark < nmark)
+    {
 
       // end up here when looking for next marker
-      if (bcName.empty()) {
+      if (bcName.empty())
+      {
         const char *pos = strstr(line.c_str(), "MARKER_TAG=");
-        if (pos != 0) {
-          bcName.assign( pos + strlen("MARKER_TAG=") );
+        if (pos != 0)
+        {
+          bcName.assign(pos + strlen("MARKER_TAG="));
           if (nme == NotFound)
             continue;
         }
       }
 
       // locate number of elements in this marker
-      if (nme == NotFound) {
+      if (nme == NotFound)
+      {
         nme = su2_strkey(line, "MARKER_ELEMS=");
         if (bcName.empty())
           continue;
@@ -1739,7 +1936,7 @@ void MxMesh::readSU2(const std::string &fname)
       // arrive here when both bcName and nme are defined
       markTags[rmark] = bcName;
       su2_read_marker(nme, in, ecollect, markerID[rmark]);
-      dbprint("Processed marker ",bcName);
+      dbprint("Processed marker ", bcName);
       ++rmark;
       dbprint(rmark, "markers found.");
       nme = NotFound;
@@ -1749,8 +1946,9 @@ void MxMesh::readSU2(const std::string &fname)
 
   // construct sections
   const int net = ecollect.size();
-  Indices sectionIndex( net, NotFound );
-  for (int iet=0; iet<net; ++iet) {
+  Indices sectionIndex(net, NotFound);
+  for (int iet = 0; iet < net; ++iet)
+  {
     if (ecollect[iet].empty())
       continue;
     uint isec = appendSection(Mx::ElementType(iet), ecollect[iet]);
@@ -1758,21 +1956,26 @@ void MxMesh::readSU2(const std::string &fname)
   }
 
   // generate boundary sections
-  if (nmark != NotFound) {
-    for (uint i=0; i<nmark; ++i) {
-      MxMeshBoco bc;   // type unknown; not in this file
-      bc.rename( markTags[i] );
-      const MarkerID & mid( markerID[i] );
+  if (nmark != NotFound)
+  {
+    for (uint i = 0; i < nmark; ++i)
+    {
+      MxMeshBoco bc; // type unknown; not in this file
+      bc.rename(markTags[i]);
+      const MarkerID &mid(markerID[i]);
       const int ne = mid.size();
-      for (int j=0; j<ne; ++j) {
-        uint isec = sectionIndex[ mid[j].first ];
+      for (int j = 0; j < ne; ++j)
+      {
+        uint isec = sectionIndex[mid[j].first];
         assert(isec != NotFound);
         uint elix = section(isec).indexOffset() + mid[j].second;
         bc.appendElement(elix);
       }
       appendBoco(bc);
     }
-  } else {
+  }
+  else
+  {
     dbprint("No marker tags in SU2 file.");
   }
 }
@@ -1788,7 +1991,7 @@ static string strip_path(const std::string &s)
   if (posn == string::npos)
     return s;
   else
-    return s.substr(posn+1, string::npos);
+    return s.substr(posn + 1, string::npos);
 }
 
 void MxMesh::writeEnsight(const std::string &basename) const
@@ -1800,32 +2003,38 @@ void MxMesh::writeEnsight(const std::string &basename) const
 
   // case file
   {
-    ofstream os( string(bname + ".case").c_str() );
-    os << "FORMAT" << endl << "type:  ensight gold" << endl << endl;
+    ofstream os(string(bname + ".case").c_str());
+    os << "FORMAT" << endl
+       << "type:  ensight gold" << endl
+       << endl;
     os << "GEOMETRY" << endl;
-    os << "model:   " << strip_path(geofile) << endl << endl;
+    os << "model:   " << strip_path(geofile) << endl
+       << endl;
 
     // determine which fields to output
-    for (uint i=0; i<nfields(); ++i) {
+    for (uint i = 0; i < nfields(); ++i)
+    {
       int nd = field(i).ndimension();
       if (not field(i).realField())
         continue;
       if (not field(i).nodal())
         continue;
-      if ( nd != 1 and nd != 3 )
+      if (nd != 1 and nd != 3)
         continue;
       outFields.push_back(i);
 
       string fcmp = field(i).name();
       std::replace(fcmp.begin(), fcmp.end(), ' ', '_');
       std::replace(fcmp.begin(), fcmp.end(), ',', '_');
-      varfiles.push_back( bname + '.' + fcmp );
+      varfiles.push_back(bname + '.' + fcmp);
     }
 
-    if (not outFields.empty()) {
+    if (not outFields.empty())
+    {
       os << "VARIABLE" << endl;
-      for (uint i=0; i<outFields.size(); ++i) {
-        const MxMeshField & f( field(outFields[i]) );
+      for (uint i = 0; i < outFields.size(); ++i)
+      {
+        const MxMeshField &f(field(outFields[i]));
         if (f.ndimension() == 1)
           os << "scalar per ";
         else if (f.ndimension() == 3)
@@ -1849,47 +2058,48 @@ void MxMesh::writeEnsight(const std::string &basename) const
 
   // geometry file
   {
-    ofstream os( geofile.c_str(), std::ios::out | std::ios::binary );
+    ofstream os(geofile.c_str(), std::ios::out | std::ios::binary);
 
-    char hdr[5*80];
+    char hdr[5 * 80];
     memset(hdr, ' ', sizeof(hdr));
     strcpy(&hdr[0], "C Binary");
 
     size_t nchar = std::min(size_t(80), meshName.size());
     if (nchar > 0)
-      std::copy(meshName.begin(), meshName.begin()+nchar, &hdr[1*80]);
+      std::copy(meshName.begin(), meshName.begin() + nchar, &hdr[1 * 80]);
     else
-      strcpy(&hdr[1*80], "MxMesh written by libgenua");
+      strcpy(&hdr[1 * 80], "MxMesh written by libgenua");
 
     string info;
     info = str(nnodes()) + " nodes, " + str(nelements()) + " elements";
     nchar = std::min(size_t(80), info.size());
-    std::copy(info.begin(), info.begin()+nchar, &hdr[2*80]);
+    std::copy(info.begin(), info.begin() + nchar, &hdr[2 * 80]);
 
-    strcpy(&hdr[3*80], "node id given");
-    strcpy(&hdr[4*80], "element id given");
+    strcpy(&hdr[3 * 80], "node id given");
+    strcpy(&hdr[4 * 80], "element id given");
 
     // write header
     os.write(hdr, sizeof(hdr));
 
     // write each section as one part
-    for (uint i=0; i<nsections(); ++i)
-      section(i).writeEnsight(i+1, os);
+    for (uint i = 0; i < nsections(); ++i)
+      section(i).writeEnsight(i + 1, os);
     os.close();
   }
 
   // variable files - one file per field
   {
     char hdr[80];
-    for (uint i=0; i<outFields.size(); ++i) {
-      const MxMeshField &f( field(outFields[i]) );
+    for (uint i = 0; i < outFields.size(); ++i)
+    {
+      const MxMeshField &f(field(outFields[i]));
       memset(hdr, ' ', sizeof(hdr));
-      ofstream os( varfiles[i].c_str(), std::ios::binary | std::ios::out );
+      ofstream os(varfiles[i].c_str(), std::ios::binary | std::ios::out);
       size_t nchar = std::min(size_t(80), f.name().size());
-      std::copy(f.name().begin(), f.name().begin()+nchar, hdr);
+      std::copy(f.name().begin(), f.name().begin() + nchar, hdr);
       os.write(hdr, sizeof(hdr));
-      for (uint j=0; j<nsections(); ++j)
-        section(j).writeEnsight(j+1, f, os);
+      for (uint j = 0; j < nsections(); ++j)
+        section(j).writeEnsight(j + 1, f, os);
       os.close();
     }
   }
@@ -1924,7 +2134,7 @@ void MxMesh::readEnsight(const std::string &casename)
   string bpath;
   string::size_type posn = casename.find_last_of(sep);
   if (posn != string::npos)
-    bpath = casename.substr(0, posn+1);
+    bpath = casename.substr(0, posn + 1);
 
   // read casefile
   string geofile;
@@ -1934,27 +2144,31 @@ void MxMesh::readEnsight(const std::string &casename)
     const char *keys[] = {"model:", "scalar per node:", "vector per node:"};
     ifstream in(casename.c_str());
     string line;
-    while (getline(in, line)) {
+    while (getline(in, line))
+    {
       line = strip(line);
       posn = line.find(keys[0]);
-      if (posn == 0) {
+      if (posn == 0)
+      {
         posn = line.find_last_of(" \t");
-        geofile = bpath + line.substr(posn+1, string::npos);
+        geofile = bpath + line.substr(posn + 1, string::npos);
         cout << "Geometry file name: " << geofile << endl;
         continue;
       }
       posn = line.find(keys[1]);
-      if (posn == 0) {
+      if (posn == 0)
+      {
         posn = line.find_last_of(" \t");
-        varfiles.push_back( bpath + line.substr(posn+1, string::npos) );
+        varfiles.push_back(bpath + line.substr(posn + 1, string::npos));
         vardim.push_back(1);
         cout << "Scalar variable file name: " << varfiles.back() << endl;
         continue;
       }
       posn = line.find(keys[2]);
-      if (posn == 0) {
+      if (posn == 0)
+      {
         posn = line.find_last_of(" \t");
-        varfiles.push_back( bpath + line.substr(posn+1, string::npos) );
+        varfiles.push_back(bpath + line.substr(posn + 1, string::npos));
         vardim.push_back(3);
         cout << "Vector variable file name: " << varfiles.back() << endl;
         continue;
@@ -1969,23 +2183,21 @@ void MxMesh::readEnsight(const std::string &casename)
   {
     uint flags = 0;
     ifstream in(geofile.c_str(), std::ios::binary | std::ios::in);
-    char hdr[5*80];
-    in.read((char *) &hdr, sizeof(hdr));
-    for (int i=0; i<5; ++i)
-      hdr[i*80 + 79] = '\0';
+    char hdr[5 * 80];
+    in.read((char *)&hdr, sizeof(hdr));
+    for (int i = 0; i < 5; ++i)
+      hdr[i * 80 + 79] = '\0';
     if (strstr(hdr, "C Binary") == 0)
       throw Error("readEnsight(): Only 'C Binary' file format supported.");
 
     // extract node/element id flags
-    flags = id_flags(&hdr[3*80]) | id_flags(&hdr[4*80]);
+    flags = id_flags(&hdr[3 * 80]) | id_flags(&hdr[4 * 80]);
     while (in)
       MxMeshSection::createFromEnsight(this, flags, in);
   }
-
-
 }
 
-void MxMesh::writeFFA(const std::string & basename) const
+void MxMesh::writeFFA(const std::string &basename) const
 {
   // build filenames
   string bmsh = append_suffix(basename, ".bmsh");
@@ -2008,11 +2220,12 @@ void MxMesh::writeFFA(const std::string & basename) const
     dbprint("Converting coordinates...");
     {
       const size_t nv = vtx.size();
-      Vector xyz(3*nv);
-      for (size_t i=0; i<nv; ++i) {
+      Vector xyz(3 * nv);
+      for (size_t i = 0; i < nv; ++i)
+      {
         xyz[i] = vtx[i][0];
-        xyz[nv+i] = vtx[i][1];
-        xyz[2*nv+i] = vtx[i][2];
+        xyz[nv + i] = vtx[i][1];
+        xyz[2 * nv + i] = vtx[i][2];
       }
       dbprint("Coordinate conversion OK, creating FFA node...");
 
@@ -2024,12 +2237,13 @@ void MxMesh::writeFFA(const std::string & basename) const
 
     // append volume mesh regions
     const int nsec = nsections();
-    for (int i=0; i<nsec; ++i) {
+    for (int i = 0; i < nsec; ++i)
+    {
       if (section(i).nelements() > 0)
         section(i).toFFA(*region);
     }
 
-    ofstream mos(asPath(bmsh).c_str(), ofstream::binary );
+    ofstream mos(asPath(bmsh).c_str(), ofstream::binary);
     root->bwrite(mos);
   }
 
@@ -2044,7 +2258,7 @@ void MxMesh::writeFFA(const std::string & basename) const
 
     // append volume mesh regions
     const int nbc = nbocos();
-    for (int i=0; i<nbc; ++i)
+    for (int i = 0; i < nbc; ++i)
       boco(i).toFFA(*region);
 
     ofstream bos(asPath(aboc).c_str());
@@ -2061,12 +2275,15 @@ void MxMesh::readFFA(const std::string &bmeshFile)
 
   FFANodePtr region, child;
   uint ipos = root.findChild("region");
-  if (ipos == NotFound) {
+  if (ipos == NotFound)
+  {
     ipos = root.findChild("coordinates");
     if (ipos == NotFound)
       throw Error(".bmesh root node does not contain child node 'coordinates'.");
     child = root.child(ipos);
-  } else {
+  }
+  else
+  {
     region = root.child(ipos);
     ipos = region->findChild("coordinates");
     if (ipos == NotFound)
@@ -2082,34 +2299,40 @@ void MxMesh::readFFA(const std::string &bmeshFile)
   if (child->contentType() != FFAFloat8)
     throw Error("MxMesh::readFFA - Coordinates not stored in 8-byte reals.");
 
-  Vector xyz(nv*nd);
-  child->retrieve((void *) xyz.pointer());
+  Vector xyz(nv * nd);
+  child->retrieve((void *)xyz.pointer());
 
   // convert from the peculiar bmsh coordinate format
   vtx.resize(nv);
-  for (int j=0; j<nv; ++j) {
-    for (int k=0; k<nd; ++k)
-      vtx[j][k] = xyz[k*nv+j];
+  for (int j = 0; j < nv; ++j)
+  {
+    for (int k = 0; k < nd; ++k)
+      vtx[j][k] = xyz[k * nv + j];
   }
 
-  if (not region) {
+  if (not region)
+  {
     const int n = root.nchildren();
-    for (int i=0; i<n; ++i)
-      readFFARegion( *root.child(i) );
-  } else {
+    for (int i = 0; i < n; ++i)
+      readFFARegion(*root.child(i));
+  }
+  else
+  {
     const int n = region->nchildren();
-    for (int i=0; i<n; ++i)
-      readFFARegion( *region->child(i) );
+    for (int i = 0; i < n; ++i)
+      readFFARegion(*region->child(i));
   }
   countElements();
 
   // create one boco group for each section
   // TODO : pass abocFile, parse and map BC codes
   const int nsec = nsections();
-  for (int i=0; i<nsec; ++i) {
-    if (section(i).surfaceElements()) {
+  for (int i = 0; i < nsec; ++i)
+  {
+    if (section(i).surfaceElements())
+    {
       MxMeshBoco bc;
-      bc.rename( section(i).name() );
+      bc.rename(section(i).name());
       uint ibegin = section(i).indexOffset();
       uint iend = ibegin + section(i).nelements();
       bc.setRange(ibegin, iend);
@@ -2121,24 +2344,29 @@ void MxMesh::readFFA(const std::string &bmeshFile)
 bool MxMesh::appendFFAFields(const std::string &boutFile)
 {
   FFANode root;
-  root.read( boutFile );
+  root.read(boutFile);
   uint ipos = root.findChild("region");
-  if (ipos != NotFound) {
+  if (ipos != NotFound)
+  {
 
     // extract freestream data if possible
     MxSolutionTreePtr pcase = MxSolutionTree::create("Solution");
     uint fpos = root.findChild("free_stream_data");
-    if (fpos != NotFound) {
+    if (fpos != NotFound)
+    {
       XmlElement xe("FreestreamData");
       double val, T(288.0), Rs(287.), gamma(1.4), aoo(0.0);
-      SVector<3,double> ufar;
+      SVector<3, double> ufar;
       FFANodePtr child = root.child(fpos);
       int n = child->nchildren();
-      for (int i=0; i<n; ++i) {
+      for (int i = 0; i < n; ++i)
+      {
         FFANodePtr elm = child->child(i);
         size_t nval = elm->nrows() * elm->ncols();
-        if (elm->contentType() == FFAFloat8) {
-          if (nval == 1) {
+        if (elm->contentType() == FFAFloat8)
+        {
+          if (nval == 1)
+          {
             elm->retrieve(&val);
             xe.attribute(elm->name()) = str(val);
             if (elm->name() == "temperature")
@@ -2147,20 +2375,23 @@ bool MxMesh::appendFFAFields(const std::string &boutFile)
               gamma = val;
             else if (elm->name() == "rgas")
               Rs = val;
-          } else if (nval == 3) {
+          }
+          else if (nval == 3)
+          {
             elm->retrieve(ufar.pointer());
             xe.attribute(elm->name()) = str(ufar);
           }
         }
       }
-      aoo = std::sqrt(gamma*Rs*T);
+      aoo = std::sqrt(gamma * Rs * T);
       pcase->annotate(xe);
 
       // name subcase if all data found
-      if (aoo != 0 and sq(ufar) != 0) {
+      if (aoo != 0 and sq(ufar) != 0)
+      {
         Real Mach = norm(ufar) / aoo;
-        Real alpha = deg( atan(ufar[2] / ufar[0]) );
-        Real beta = deg( asin(ufar[1] / norm(ufar)) );
+        Real alpha = deg(atan(ufar[2] / ufar[0]));
+        Real beta = deg(asin(ufar[1] / norm(ufar)));
         stringstream ss;
         ss.precision(3);
         ss << "Mach " << Mach << " alfa " << alpha;
@@ -2171,15 +2402,20 @@ bool MxMesh::appendFFAFields(const std::string &boutFile)
 
       // region may contains fields or time steps
       FFANodePtr pregion = root.child(ipos);
-      if (pregion->findChild("time") == NotFound) {
+      if (pregion->findChild("time") == NotFound)
+      {
         MxSolutionTreePtr psub = appendSubcase(pregion);
         if (psub != nullptr)
-          pcase->appendFields( psub->fields() );
-      } else {
+          pcase->appendFields(psub->fields());
+      }
+      else
+      {
         const int nt = pregion->nchildren();
-        for (int j=0; j<nt; ++j) {
+        for (int j = 0; j < nt; ++j)
+        {
           FFANodePtr ptime = pregion->child(j);
-          if (ptime->name() == "time") {
+          if (ptime->name() == "time")
+          {
             MxSolutionTreePtr psub = appendSubcase(ptime);
             if (psub->fields().size() != 0)
               pcase->append(psub);
@@ -2192,7 +2428,9 @@ bool MxMesh::appendFFAFields(const std::string &boutFile)
         soltree = boost::make_shared<MxSolutionTree>("Subcases");
       soltree->append(pcase);
     }
-  } else {
+  }
+  else
+  {
     clog << "[w] Expected to find 'region' node below root, not found." << endl;
     return false;
   }
@@ -2204,32 +2442,37 @@ size_t MxMesh::writeFieldsBdis(const std::string &basename) const
 {
   const size_t nf = nfields();
   size_t ifield = 1;
-  for (size_t i=0; i<nf; ++i) {
-    const MxMeshField &f( field(i) );
-    if (f.nodal() and f.ndimension() >= 3) {
+  for (size_t i = 0; i < nf; ++i)
+  {
+    const MxMeshField &f(field(i));
+    if (f.nodal() and f.ndimension() >= 3)
+    {
       bool ok = f.writeBdis(basename + str(ifield) + ".bdis");
       if (ok)
         ++ifield;
     }
   }
 
-  return ifield-1;
+  return ifield - 1;
 }
 
 MxSolutionTreePtr MxMesh::appendSubcase(FFANodePtr pregion)
 {
   MxSolutionTreePtr pcase = MxSolutionTree::create("Region");
   const int n = pregion->nchildren();
-  for (int i=0; i<n; ++i) {
-    MxMeshField f(this, true);  // nodal fields only
+  for (int i = 0; i < n; ++i)
+  {
+    MxMeshField f(this, true); // nodal fields only
     FFANodePtr pchild = pregion->child(i);
-    if (pchild->name() == "n_timestep") {
+    if (pchild->name() == "n_timestep")
+    {
       int nstep;
       pchild->retrieve(nstep);
-      pcase->rename("TimeStep "+str(nstep));
+      pcase->rename("TimeStep " + str(nstep));
     }
     uint ifield = NotFound;
-    if (f.fromFFA(*pchild)) {
+    if (f.fromFFA(*pchild))
+    {
       ifield = appendField(std::move(f));
       pcase->appendField(ifield);
     }
@@ -2237,36 +2480,42 @@ MxSolutionTreePtr MxMesh::appendSubcase(FFANodePtr pregion)
   return pcase;
 }
 
-void MxMesh::readFFARegion(const FFANode & root)
+void MxMesh::readFFARegion(const FFANode &root)
 {
-  if (root.name() == "element_group") {
+  if (root.name() == "element_group")
+  {
     MxMeshSection sec(this);
-    sec.rename("Section "+str(sections.size()+1));
-    sections.push_back( sec );
+    sec.rename("Section " + str(sections.size() + 1));
+    sections.push_back(sec);
     if (not sections.back().fromFFA(root))
       sections.pop_back();
-  } else if (root.name() == "boundary") {
+  }
+  else if (root.name() == "boundary")
+  {
     uint npos = root.findChild("boundary_name");
     uint ipos = root.findChild("belem_group");
-    if (ipos != NotFound) {
+    if (ipos != NotFound)
+    {
       MxMeshSection sec(this);
-      if (npos != NotFound) {
+      if (npos != NotFound)
+      {
         string bname;
         root.child(npos)->retrieve(bname);
         sec.rename(bname);
-      } else
-        sec.rename("Section "+str(sections.size()+1));
-      sections.push_back( sec );
+      }
+      else
+        sec.rename("Section " + str(sections.size() + 1));
+      sections.push_back(sec);
       if (not sections.back().fromFFA(*root.child(ipos)))
         sections.pop_back();
       else
-        dbprint("Boundary element section",sections.size()-1,
+        dbprint("Boundary element section", sections.size() - 1,
                 " ne ", sections.back().nelements());
     }
   }
 }
 
-void MxMesh::readFFABoundary(const FFANode & root)
+void MxMesh::readFFABoundary(const FFANode &root)
 {
   assert(root.name() == "boundary");
 
@@ -2274,23 +2523,28 @@ void MxMesh::readFFABoundary(const FFANode & root)
   string bname;
   bool ok = false;
   const int nch = root.nchildren();
-  for (int i=0; i<nch; ++i) {
+  for (int i = 0; i < nch; ++i)
+  {
     FFANodePtr child = root.child(i);
     string cn = child->name();
-    if (cn == "boundary_name") {
+    if (cn == "boundary_name")
+    {
       child->retrieve(bname);
       sec.rename(bname);
-    } else if (cn == "belem_group") {
+    }
+    else if (cn == "belem_group")
+    {
       ok = sec.fromFFA(*child);
     }
   }
 
-  if (ok) {
+  if (ok)
+  {
     appendSection(sec);
   }
 }
 
-void MxMesh::fakeNastran(const std::string & fname) const
+void MxMesh::fakeNastran(const std::string &fname) const
 {
   // write mesh topology to file
   ofstream os(asPath(fname).c_str());
@@ -2312,13 +2566,16 @@ void MxMesh::fakeNastran(const std::string & fname) const
   // this data is stored in a mesh annotation
   XmlElement::const_iterator itr, last;
   const int nf = nfields();
-  for (int i=0; i<nf; ++i) {
+  for (int i = 0; i < nf; ++i)
+  {
     last = field(i).noteEnd();
-    for (itr = field(i).noteBegin(); itr != last; ++itr) {
-      if (itr->name() == "Eigenmode") {
+    for (itr = field(i).noteBegin(); itr != last; ++itr)
+    {
+      if (itr->name() == "Eigenmode")
+      {
         iegm.push_back(i);
-        gk.push_back( itr->attr2float("modal_stiffness", 0.0) );
-        gm.push_back( itr->attr2float("modal_mass", 1.0) );
+        gk.push_back(itr->attr2float("modal_stiffness", 0.0));
+        gm.push_back(itr->attr2float("modal_mass", 1.0));
       }
     }
   }
@@ -2326,38 +2583,45 @@ void MxMesh::fakeNastran(const std::string & fname) const
   if (iegm.empty())
     return;
 
-  os << endl << endl;
-  os << "R E A L   E I G E N V A L U E S" << endl << endl;
+  os << endl
+     << endl;
+  os << "R E A L   E I G E N V A L U E S" << endl
+     << endl;
   const int nm = iegm.size();
-  for (int jm=0; jm<nm; ++jm) {
+  for (int jm = 0; jm < nm; ++jm)
+  {
     Real omega = sqrt(gk[jm] / gm[jm]);
-    Real f = omega / (2*PI);
-    os << "     " << jm+1 << "    " << jm+1;
+    Real f = omega / (2 * PI);
+    os << "     " << jm + 1 << "    " << jm + 1;
     os << "     " << nstr(gk[jm]) << "     " << nstr(omega);
     os << "     " << nstr(f);
     os << "     " << nstr(gm[jm]) << "     " << nstr(gk[jm]) << endl;
   }
 
+  for (int jm = 0; jm < nm; ++jm)
+  {
 
-  for (int jm=0; jm<nm; ++jm) {
+    const MxMeshField &mxf(field(iegm[jm]));
 
-    const MxMeshField & mxf( field(iegm[jm]) );
-
-    Real f = sqrt(gk[jm] / gm[jm]) / (2*PI);
+    Real f = sqrt(gk[jm] / gm[jm]) / (2 * PI);
     os << endl;
     os << "      EIGENVALUE =  " << nstr(gk[jm]) << endl;
     os << "          CYCLES =  " << nstr(f);
     os << "         R E A L   E I G E N V E C T O R   N O .          ";
-    os << jm+1 << endl << endl << endl;
+    os << jm + 1 << endl
+       << endl
+       << endl;
 
-    for (size_t i=0; i<nv; ++i) {
+    for (size_t i = 0; i < nv; ++i)
+    {
       Vct3 dx;
       mxf.value(i, dx);
-      os << "         " << i+1 << "   G   " << nstr(dx[0]) << "  "
-                                                           << nstr(dx[1]) << "  " << nstr(dx[2]) << "  0.0 0.0 0.0" << endl;
+      os << "         " << i + 1 << "   G   " << nstr(dx[0]) << "  "
+         << nstr(dx[1]) << "  " << nstr(dx[2]) << "  0.0 0.0 0.0" << endl;
     }
 
-    os << endl << endl;
+    os << endl
+       << endl;
   }
 }
 
@@ -2386,8 +2650,8 @@ void MxMesh::writePLY(const std::string &fname, bool binary) const
   tms.toPLY(fname, binary);
 }
 
-void MxMesh::writeSmesh(const std::string & fname,
-                        const PointList<3> & holes,
+void MxMesh::writeSmesh(const std::string &fname,
+                        const PointList<3> &holes,
                         const PointList<3> &regionMarkers,
                         const Vector &regionAttr) const
 {
@@ -2399,7 +2663,7 @@ void MxMesh::writeSmesh(const std::string & fname,
   os << "# node list" << endl;
   const int nv = nnodes();
   os << nv << " 3 0 0" << endl;
-  for (int i=0; i<nv; ++i)
+  for (int i = 0; i < nv; ++i)
     os << i << ' ' << vtx[i][0] << ' '
        << vtx[i][1] << ' ' << vtx[i][2] << endl;
   os << endl;
@@ -2407,7 +2671,8 @@ void MxMesh::writeSmesh(const std::string & fname,
   // count triangles
   int nf = 0;
   const int nsec = sections.size();
-  for (int i=0; i<nsec; ++i) {
+  for (int i = 0; i < nsec; ++i)
+  {
     if (section(i).elementType() == Mx::Tri3)
       nf += section(i).nelements();
   }
@@ -2417,34 +2682,37 @@ void MxMesh::writeSmesh(const std::string & fname,
             " incompatible element types.");
 
   // assemble boundary tags
-  Indices btags( nelements(), 0 );
-  for (uint ibc=0; ibc<nbocos(); ++ibc) {
+  Indices btags(nelements(), 0);
+  for (uint ibc = 0; ibc < nbocos(); ++ibc)
+  {
     Indices elix;
     boco(ibc).elements(elix);
     const int ne = elix.size();
-    for (int i=0; i<ne; ++i)
-      btags[elix[i]] = ibc+1;
+    for (int i = 0; i < ne; ++i)
+      btags[elix[i]] = ibc + 1;
   }
 
   os << "# face list" << endl;
   os << nf << " 1" << endl;
-  for (int isec=0; isec<nsec; ++isec) {
-    const MxMeshSection & sec( section(isec) );
+  for (int isec = 0; isec < nsec; ++isec)
+  {
+    const MxMeshSection &sec(section(isec));
     if (sec.elementType() != Mx::Tri3)
       continue;
     const int eloff = sec.indexOffset();
     const int ne = sec.nelements();
-    for (int i=0; i<ne; ++i) {
+    for (int i = 0; i < ne; ++i)
+    {
       const uint *vi = sec.element(i);
       os << "3  " << vi[0] << ' ' << vi[1]
-         << ' ' << vi[2] << ' ' << btags[eloff+i] << endl;
+         << ' ' << vi[2] << ' ' << btags[eloff + i] << endl;
     }
   }
   os << endl;
 
   os << "# hole list" << endl;
   os << holes.size() << endl;
-  for (uint i=0; i<holes.size(); ++i)
+  for (uint i = 0; i < holes.size(); ++i)
     os << i << ' ' << holes[i][0] << ' '
        << holes[i][1] << ' ' << holes[i][2] << endl;
   os << endl;
@@ -2453,12 +2721,12 @@ void MxMesh::writeSmesh(const std::string & fname,
   assert(regionAttr.size() == nreg);
   os << "# region attribute list" << endl;
   os << nreg << endl;
-  for (size_t i=0; i<nreg; ++i)
+  for (size_t i = 0; i < nreg; ++i)
     os << i << ' ' << regionMarkers[i] << ' ' << regionAttr[i] << endl;
   os << endl;
 }
 
-void MxMesh::readTetgen(const std::string & basename, DVector<uint> *ftags)
+void MxMesh::readTetgen(const std::string &basename, DVector<uint> *ftags)
 {
   clear();
   string nodefile = append_suffix(basename, ".node");
@@ -2468,24 +2736,25 @@ void MxMesh::readTetgen(const std::string & basename, DVector<uint> *ftags)
   uint offs(0);
   ifstream nis(asPath(nodefile).c_str());
   if (not nis)
-    throw Error("Cannot open tetgen node file: "+nodefile);
+    throw Error("Cannot open tetgen node file: " + nodefile);
   offs = readTetgenNodes(nis);
   nis.close();
 
   ifstream fis(asPath(facefile).c_str());
   if (not fis)
-    throw Error("Cannot open tetgen node file: "+nodefile);
+    throw Error("Cannot open tetgen face file: " + facefile);
   readTetgenFaces(fis, offs, ftags);
   fis.close();
 
   ifstream eis(asPath(elefile).c_str());
-  if (eis) {
+  if (eis)
+  {
     readTetgenElements(eis, offs);
     eis.close();
   }
 }
 
-int MxMesh::readTetgenNodes(std::istream & is)
+int MxMesh::readTetgenNodes(std::istream &is)
 {
   int nn(0), offs(0);
 
@@ -2510,19 +2779,22 @@ int MxMesh::readTetgenNodes(std::istream & is)
   if (tail == pos)
     throw Error("MxMesh::readTetgenNodes() - invalid first node line.");
 
-  for (int k=0; k<3; ++k) {
+  for (int k = 0; k < 3; ++k)
+  {
     pos = tail;
     vtx[0][k] = genua_strtod(pos, &tail);
     assert(pos != tail);
   }
 
   int j(1);
-  while (getline(is,line)) {
+  while (getline(is, line))
+  {
 
     pos = line.c_str();
     genua_strtol(pos, &tail, 10);
     assert(pos != tail);
-    for (int k=0; k<3; ++k) {
+    for (int k = 0; k < 3; ++k)
+    {
       pos = tail;
       vtx[j][k] = genua_strtod(pos, &tail);
       assert(pos != tail);
@@ -2536,7 +2808,7 @@ int MxMesh::readTetgenNodes(std::istream & is)
   return offs;
 }
 
-void MxMesh::readTetgenFaces(std::istream & is, int offs, DVector<uint> *ptags)
+void MxMesh::readTetgenFaces(std::istream &is, int offs, DVector<uint> *ptags)
 {
   int nface(0), nbm(0);
 
@@ -2560,21 +2832,24 @@ void MxMesh::readTetgenFaces(std::istream & is, int offs, DVector<uint> *ptags)
   if (nface == 0)
     return;
 
-  Indices idx(3*nface);
+  Indices idx(3 * nface);
   DVector<uint> tags(nface);
   int jf(0);
-  while (getline(is,line)) {
+  while (getline(is, line))
+  {
 
     pos = line.c_str();
     genua_strtol(pos, &tail, 10);
     assert(pos != tail);
-    for (int k=0; k<3; ++k) {
+    for (int k = 0; k < 3; ++k)
+    {
       pos = tail;
-      idx[3*jf+k] = genua_strtol(pos, &tail, 10) - offs;
+      idx[3 * jf + k] = genua_strtol(pos, &tail, 10) - offs;
       assert(pos != tail);
     }
 
-    if (nbm > 0) {
+    if (nbm > 0)
+    {
       pos = tail;
       tags[jf] = genua_strtoul(pos, &tail, 10);
     }
@@ -2585,38 +2860,44 @@ void MxMesh::readTetgenFaces(std::istream & is, int offs, DVector<uint> *ptags)
   }
 
   // create mesh sections and boundary groups
-  if (nbm == 0 or ptags != 0) {
+  if (nbm == 0 or ptags != 0)
+  {
     appendSection(Mx::Tri3, idx);
-  } else {
+  }
+  else
+  {
 
     DVector<uint> alltags(tags);
     sort_unique(alltags);
 
     uint eloff = nelements();
     const int ntags = alltags.size();
-    for (int j=0; j<ntags; ++j) {
+    for (int j = 0; j < ntags; ++j)
+    {
 
       uint jtag = alltags[j];
       string tagname = "Marker " + str(jtag);
       uint nel = std::count(tags.begin(), tags.end(), jtag);
-      Indices eli(3*nel);
+      Indices eli(3 * nel);
       uint k(0);
-      for (int i=0; i<nface; ++i) {
-        if (tags[i] == jtag) {
-          const uint *vi = &idx[3*i];
-          std::copy(vi, vi+3, &eli[3*k]);
+      for (int i = 0; i < nface; ++i)
+      {
+        if (tags[i] == jtag)
+        {
+          const uint *vi = &idx[3 * i];
+          std::copy(vi, vi + 3, &eli[3 * k]);
           ++k;
         }
       }
       assert(k == nel);
       appendSection(Mx::Tri3, eli);
       section(j).rename(tagname);
-      section(j).tag( jtag );
+      section(j).tag(jtag);
 
       MxMeshBoco bg(Mx::BcWall);
       bg.rename(tagname);
-      bg.setRange(eloff, eloff+nel);
-      bg.tag( jtag );
+      bg.setRange(eloff, eloff + nel);
+      bg.tag(jtag);
       bocos.push_back(bg);
       eloff += nel;
     }
@@ -2628,7 +2909,7 @@ void MxMesh::readTetgenFaces(std::istream & is, int offs, DVector<uint> *ptags)
   countElements();
 }
 
-void MxMesh::readTetgenElements(std::istream & is, int offs)
+void MxMesh::readTetgenElements(std::istream &is, int offs)
 {
   int nele(0);
 
@@ -2646,16 +2927,18 @@ void MxMesh::readTetgenElements(std::istream & is, int offs)
   if (nele == 0)
     return;
 
-  Indices idx(4*nele);
+  Indices idx(4 * nele);
   int j(0);
-  while (getline(is,line)) {
+  while (getline(is, line))
+  {
 
     pos = line.c_str();
     genua_strtol(pos, &tail, 10);
     assert(pos != tail);
-    for (int k=0; k<4; ++k) {
+    for (int k = 0; k < 4; ++k)
+    {
       pos = tail;
-      idx[4*j+k] = genua_strtol(pos, &tail, 10) - offs;
+      idx[4 * j + k] = genua_strtol(pos, &tail, 10) - offs;
       assert(pos != tail);
     }
 
@@ -2668,4 +2951,3 @@ void MxMesh::readTetgenElements(std::istream & is, int offs)
   sections.back().rename("TetRegion");
   countElements();
 }
-

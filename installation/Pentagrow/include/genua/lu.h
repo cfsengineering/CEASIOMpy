@@ -1,6 +1,6 @@
 
 /* Copyright (C) 2015 David Eller <david@larosterna.com>
- * 
+ *
  * Commercial License Usage
  * Licensees holding valid commercial licenses may use this file in accordance
  * with the terms contained in their respective non-exclusive license agreement.
@@ -11,7 +11,7 @@
  * Public License version 3.0 as published by the Free Software Foundation and
  * appearing in the file gpl.txt included in the packaging of this file.
  */
- 
+
 #ifndef GENUA_LU_H
 #define GENUA_LU_H
 
@@ -44,13 +44,12 @@ template <class MatrixType>
 class LuDecomp
 {
 public:
-
   typedef typename MatrixType::value_type value_type;
   typedef eeigen::Matrix<value_type, eeigen::Dynamic, eeigen::Dynamic> EMatrix;
   typedef eeigen::Map<EMatrix> EMView;
 
   /// initialize and factor
-  LuDecomp(MatrixType & a) {factor(a);}
+  LuDecomp(MatrixType &a) { factor(a); }
 
 #ifndef HAVE_NO_LAPACK
 
@@ -58,7 +57,8 @@ public:
   LuDecomp() : plu(0) {}
 
   /// factorize a, overwrites a, returns status
-  int factor(MatrixType & a) {
+  int factor(MatrixType &a)
+  {
     assert(a.nrows() == a.ncols());
     plu = a.pointer();
     ip.resize(a.nrows());
@@ -68,7 +68,8 @@ public:
   }
 
   /// solve Ax=b, overwrite b
-  int msolve(MatrixType & b) const {
+  int msolve(MatrixType &b) const
+  {
     assert(plu != 0);
     assert(ip.size() == b.nrows());
     int n, status;
@@ -79,7 +80,8 @@ public:
 
   /// solve Ax=b, overwrite b
   template <class VectorType>
-  int vsolve(VectorType & b) const {
+  int vsolve(VectorType &b) const
+  {
     assert(plu != 0);
     assert(ip.size() == b.size());
     int n, status;
@@ -89,31 +91,34 @@ public:
   }
 
   /// compute the one-norm of matrix a
-  value_type onorm(const MatrixType & a) const {
+  value_type onorm(const MatrixType &a) const
+  {
     return lapack::lange('O', a.nrows(), a.ncols(), a.pointer(), a.nrows());
   }
 
   /// compute reciprocal condition number from factorization
-  value_type rcond(value_type anorm) const {
+  value_type rcond(value_type anorm) const
+  {
     assert(plu != 0);
     value_type rcd;
     int n, info(0);
     n = ip.size();
-    std::vector<value_type> work(4*n);
+    std::vector<value_type> work(4 * n);
     std::vector<int> iwork(n);
     lapack::gecon('O', n, plu, n, anorm, rcd, &(work[0]), &(iwork[0]), info);
     return rcd;
   }
 
   /// compute inverse matrix (after factoring), copy into mi
-  int inverse(MatrixType & mi) const {
+  int inverse(MatrixType &mi) const
+  {
     assert(plu);
     int info(0), lwork, n = ip.size();
     assert(mi.nrows() == n);
     assert(mi.ncols() == n);
     if (mi.pointer() != plu)
-      memcpy(mi.pointer(), plu, n*n*sizeof(value_type));
-    lwork = 128*n;
+      memcpy(mi.pointer(), plu, n * n * sizeof(value_type));
+    lwork = 128 * n;
     std::vector<value_type> work(lwork);
     lapack::getri(n, mi.pointer(), n, &ip[0], &work[0], lwork, info);
     return info;
@@ -125,43 +130,46 @@ public:
   LuDecomp() {}
 
   /// factorize a, overwrites a, returns status
-  int factor(MatrixType & a) {
+  int factor(MatrixType &a)
+  {
     assert(a.nrows() == a.ncols());
     EMatrix tmp(a.nrows(), a.ncols());
-    memcpy(tmp.data(), a.pointer(), a.size()*sizeof(value_type));
+    memcpy(tmp.data(), a.pointer(), a.size() * sizeof(value_type));
     m_factor = eeigen::PartialPivLU<EMatrix>(tmp);
     return 0;
   }
 
   /// solve Ax=b, overwrite b
-  int msolve(MatrixType & b) const {
+  int msolve(MatrixType &b) const
+  {
     EMView bview(b.pointer(), b.nrows(), b.ncols());
     EMatrix xtmp = m_factor.solve(bview);
-    memcpy(b.pointer(), xtmp.data(), b.size()*sizeof(value_type));
+    memcpy(b.pointer(), xtmp.data(), b.size() * sizeof(value_type));
     return 0;
   }
 
   /// solve Ax=b, overwrite b
   template <class VectorType>
-  int vsolve(VectorType & b) const {
+  int vsolve(VectorType &b) const
+  {
     EMView bview(b.pointer(), b.size(), 1);
     EMatrix xtmp = m_factor.solve(bview);
-    memcpy(b.pointer(), xtmp.data(), b.size()*sizeof(value_type));
+    memcpy(b.pointer(), xtmp.data(), b.size() * sizeof(value_type));
     return 0;
   }
 
   /// compute inverse matrix (after factoring), copy into mi
-  int inverse(MatrixType & mi) const {
+  int inverse(MatrixType &mi) const
+  {
     EMatrix tmp = m_factor.inverse();
     mi.resize(tmp.rows(), tmp.cols());
-    memcpy(mi.pointer(), mi.data(), mi.size()*sizeof(value_type));
+    memcpy(mi.pointer(), mi.data(), mi.size() * sizeof(value_type));
     return 0;
   }
 
 #endif
 
 private:
-
 #ifndef HAVE_NO_LAPACK
 
   /// lu-factorization
@@ -179,13 +187,13 @@ private:
 };
 
 template <class MatrixType>
-MatrixType lu_solve_copy(const MatrixType & a, const MatrixType & b)
+MatrixType lu_solve_copy(const MatrixType &a, const MatrixType &b)
 {
   int status;
   MatrixType at(a), bt(b);
   LuDecomp<MatrixType> lu;
   status = lu.factor(at);
-  
+
   // in debug mode, abort on assertion to generate backtrace
   assert(status == 0);
   if (status != 0)
@@ -198,7 +206,7 @@ MatrixType lu_solve_copy(const MatrixType & a, const MatrixType & b)
 }
 
 template <class MatrixType, class VectorType>
-VectorType lu_solve_copy(const MatrixType & a, const VectorType & b)
+VectorType lu_solve_copy(const MatrixType &a, const VectorType &b)
 {
   int status;
   MatrixType at(a);
@@ -216,7 +224,7 @@ VectorType lu_solve_copy(const MatrixType & a, const VectorType & b)
 }
 
 template <class MatrixType>
-int lu_solve(MatrixType & a, MatrixType & b)
+int lu_solve(MatrixType &a, MatrixType &b)
 {
   int stat;
   LuDecomp<MatrixType> lu;
@@ -228,7 +236,7 @@ int lu_solve(MatrixType & a, MatrixType & b)
 }
 
 template <class MatrixType, class VectorType>
-int lu_solve(MatrixType & a, VectorType & b)
+int lu_solve(MatrixType &a, VectorType &b)
 {
   int stat;
   LuDecomp<MatrixType> lu;
@@ -251,7 +259,7 @@ int lu_solve(MatrixType & a, VectorType & b)
  * \sa lu_solve
  */
 template <class MatrixType>
-int banded_lu_solve(int kl, int ku, MatrixType & a, MatrixType & b)
+int banded_lu_solve(int kl, int ku, MatrixType &a, MatrixType &b)
 {
 #ifndef HAVE_NO_LAPACK
 
@@ -260,15 +268,15 @@ int banded_lu_solve(int kl, int ku, MatrixType & a, MatrixType & b)
   int nrhs = b.ncols();
   int lda = a.ldim();
   int ldb = b.ldim();
-  
-  assert(a.nrows() >= uint(2*kl+ku+1));
+
+  assert(a.nrows() >= uint(2 * kl + ku + 1));
   assert(b.nrows() == uint(n));
-  
+
   std::vector<int> ipiv(n);
-  
+
   lapack::gbsv(n, kl, ku, nrhs, a.pointer(), lda, &ipiv[0],
-      b.pointer(), ldb, stat);
-  
+               b.pointer(), ldb, stat);
+
   return stat;
 
 #else
@@ -282,18 +290,20 @@ int banded_lu_solve(int kl, int ku, MatrixType & a, MatrixType & b)
   typedef eeigen::Matrix<FloatType, eeigen::Dynamic, eeigen::Dynamic> DenseType;
   typedef eeigen::Map<DenseType> DenseMap;
 
-  typedef eeigen::Triplet<FloatType,int> Trip;
+  typedef eeigen::Triplet<FloatType, int> Trip;
   std::vector<Trip> trips;
   trips.reserve(a.size());
 
   const size_t nc = a.ncols();
   const size_t nr = a.nrows();
-  for (size_t j=0; j<nc; ++j) {
-    for (size_t i=0; i<nr; ++i) {
+  for (size_t j = 0; j < nc; ++j)
+  {
+    for (size_t i = 0; i < nr; ++i)
+    {
       // int brow = kl+ku+i-col;
       size_t r = i + j - kl - ku;
-      if (a(i,j) != 0)
-        trips.emplace_back(r, j, a(i,j));
+      if (a(i, j) != 0)
+        trips.emplace_back(r, j, a(i, j));
     }
   }
 
@@ -309,7 +319,7 @@ int banded_lu_solve(int kl, int ku, MatrixType & a, MatrixType & b)
   if (solver.info() != eeigen::Success)
     return 1;
 
-  memcpy(b.pointer(), xe.data(), b.size()*sizeof(FloatType));
+  memcpy(b.pointer(), xe.data(), b.size() * sizeof(FloatType));
   return 0;
 
 #endif
@@ -327,7 +337,7 @@ int banded_lu_solve(int kl, int ku, MatrixType & a, MatrixType & b)
  * \sa lu_solve
  */
 template <class MatrixType, class VectorType>
-int banded_lu_solve(int kl, int ku, MatrixType & a, VectorType & b)
+int banded_lu_solve(int kl, int ku, MatrixType &a, VectorType &b)
 {
 #ifndef HAVE_NO_LAPACK
 
@@ -336,15 +346,15 @@ int banded_lu_solve(int kl, int ku, MatrixType & a, VectorType & b)
   int nrhs = 1;
   int lda = a.ldim();
   int ldb = b.size();
-  
-  assert(a.nrows() >= uint(2*kl+ku+1));
+
+  assert(a.nrows() >= uint(2 * kl + ku + 1));
   assert(b.size() == uint(n));
-  
+
   std::vector<int> ipiv(n);
-  
+
   lapack::gbsv(n, kl, ku, nrhs, a.pointer(), lda, &ipiv[0],
-      b.pointer(), ldb, stat);
-  
+               b.pointer(), ldb, stat);
+
   return stat;
 
 #else
@@ -358,18 +368,20 @@ int banded_lu_solve(int kl, int ku, MatrixType & a, VectorType & b)
   typedef eeigen::Matrix<FloatType, eeigen::Dynamic, eeigen::Dynamic> DenseType;
   typedef eeigen::Map<DenseType> DenseMap;
 
-  typedef eeigen::Triplet<FloatType,int> Trip;
+  typedef eeigen::Triplet<FloatType, int> Trip;
   std::vector<Trip> trips;
   trips.reserve(a.size());
 
   const size_t nc = a.ncols();
   const size_t nr = a.nrows();
-  for (size_t j=0; j<nc; ++j) {
-    for (size_t i=0; i<nr; ++i) {
+  for (size_t j = 0; j < nc; ++j)
+  {
+    for (size_t i = 0; i < nr; ++i)
+    {
       // int brow = kl+ku+i-col;
       size_t r = i + j - kl - ku;
-      if (a(i,j) != 0)
-        trips.emplace_back(r, j, a(i,j));
+      if (a(i, j) != 0)
+        trips.emplace_back(r, j, a(i, j));
     }
   }
 
@@ -385,7 +397,7 @@ int banded_lu_solve(int kl, int ku, MatrixType & a, VectorType & b)
   if (solver.info() != eeigen::Success)
     return 1;
 
-  memcpy(b.pointer(), xe.data(), b.size()*sizeof(FloatType));
+  memcpy(b.pointer(), xe.data(), b.size() * sizeof(FloatType));
   return 0;
 
 #endif
@@ -403,15 +415,16 @@ int banded_lu_solve(int kl, int ku, MatrixType & a, VectorType & b)
 template <typename Scalar, uint N>
 inline bool pivlu_inv(const Scalar a[], Scalar ainv[])
 {
-  typedef eeigen::Matrix<Scalar,N,N> EMatrix;
+  typedef eeigen::Matrix<Scalar, N, N> EMatrix;
   EMatrix tmp;
-  memcpy(tmp.data(), a, N*N*sizeof(Scalar));
+  memcpy(tmp.data(), a, N * N * sizeof(Scalar));
   eeigen::FullPivLU<EMatrix> lu;
   lu.compute(tmp);
   bool invertible = lu.isInvertible();
-  if (invertible) {
+  if (invertible)
+  {
     tmp = lu.inverse();
-    memcpy(ainv, tmp.data(), N*N*sizeof(Scalar));
+    memcpy(ainv, tmp.data(), N * N * sizeof(Scalar));
   }
   return invertible;
 }
@@ -428,18 +441,18 @@ inline bool pivlu_inv(const Scalar a[], Scalar ainv[])
 template <typename Scalar, uint N>
 inline bool pplu_inv(const Scalar a[], Scalar ainv[])
 {
-  typedef eeigen::Matrix<Scalar,N,N> EMatrix;
+  typedef eeigen::Matrix<Scalar, N, N> EMatrix;
   EMatrix tmp;
-  memcpy(tmp.data(), a, N*N*sizeof(Scalar));
+  memcpy(tmp.data(), a, N * N * sizeof(Scalar));
   eeigen::PartialPivLU<EMatrix> lu;
   lu.compute(tmp);
   bool invertible = lu.isInvertible();
-  if (invertible) {
+  if (invertible)
+  {
     tmp = lu.inverse();
-    memcpy(ainv, tmp.data(), N*N*sizeof(Scalar));
+    memcpy(ainv, tmp.data(), N * N * sizeof(Scalar));
   }
   return invertible;
 }
 
 #endif
-

@@ -1,6 +1,6 @@
 
 /* Copyright (C) 2015 David Eller <david@larosterna.com>
- * 
+ *
  * Commercial License Usage
  * Licensees holding valid commercial licenses may use this file in accordance
  * with the terms contained in their respective non-exclusive license agreement.
@@ -11,7 +11,7 @@
  * Public License version 3.0 as published by the Free Software Foundation and
  * appearing in the file gpl.txt included in the packaging of this file.
  */
- 
+
 #ifndef GENUA_SCHUR_H
 #define GENUA_SCHUR_H
 
@@ -26,11 +26,11 @@
  *
  */
 template <uint N, class NumType>
-void schur_decomposition(const SMatrix<N,N,NumType> &A,
-                         SMatrix<N,N,NumType> &T,
-                         SMatrix<N,N,NumType> &U)
+void schur_decomposition(const SMatrix<N, N, NumType> &A,
+                         SMatrix<N, N, NumType> &T,
+                         SMatrix<N, N, NumType> &U)
 {
-  typedef typename SMatrix<N,N,NumType>::EigenMatrix EigenMatrix;
+  typedef typename SMatrix<N, N, NumType>::EigenMatrix EigenMatrix;
   eeigen::RealSchur<EigenMatrix> schur(A.cmap(), true);
   T.mmap() = schur.matrixT();
   U.mmap() = schur.matrixU();
@@ -44,24 +44,24 @@ void schur_decomposition(const SMatrix<N,N,NumType> &A,
  *
  */
 template <uint N, class NumType>
-void schur_matrix(const SMatrix<N,N,NumType> &A,
-                  SMatrix<N,N,NumType> &T)
+void schur_matrix(const SMatrix<N, N, NumType> &A,
+                  SMatrix<N, N, NumType> &T)
 {
-  typedef typename SMatrix<N,N,NumType>::EigenMatrix EigenMatrix;
+  typedef typename SMatrix<N, N, NumType>::EigenMatrix EigenMatrix;
   eeigen::RealSchur<EigenMatrix> schur(A.cmap(), false);
   T.mmap() = schur.matrixT();
 }
 
-//#ifndef HAVE_NO_LAPACK
+// #ifndef HAVE_NO_LAPACK
 
-//#include "lapack_interface.h"
+// #include "lapack_interface.h"
 
-//template <uint N, class NumType>
-//bool schur(const SMatrix<N,N,NumType> &A, SMatrix<N,N,NumType> &U,
-//           SMatrix<N,N,NumType> &T,
-//           SVector<N,std::complex<NumType> > &lambda)
+// template <uint N, class NumType>
+// bool schur(const SMatrix<N,N,NumType> &A, SMatrix<N,N,NumType> &U,
+//            SMatrix<N,N,NumType> &T,
+//            SVector<N,std::complex<NumType> > &lambda)
 //{
-//  // probably faster using eeigen (for small matrices)
+//   // probably faster using eeigen (for small matrices)
 
 //  // skip the balancing permutation step for now
 //  // first step : balancing
@@ -108,7 +108,6 @@ void schur_matrix(const SMatrix<N,N,NumType> &A,
 //  return true;
 //}
 
-//#endif
+// #endif
 
 #endif // SCHUR_H
-

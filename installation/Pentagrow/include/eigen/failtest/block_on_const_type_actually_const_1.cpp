@@ -8,7 +8,8 @@
 
 using namespace eeigen;
 
-void foo(){
+void foo()
+{
     MatrixXf m;
     Block<CV_QUALIFIER MatrixXf, 3, 3>(m, 0, 0).coeffRef(0, 0) = 1.0f;
 }

@@ -1,6 +1,6 @@
 
 /* Copyright (C) 2015 David Eller <david@larosterna.com>
- * 
+ *
  * Commercial License Usage
  * Licensees holding valid commercial licenses may use this file in accordance
  * with the terms contained in their respective non-exclusive license agreement.
@@ -11,7 +11,7 @@
  * Public License version 3.0 as published by the Free Software Foundation and
  * appearing in the file gpl.txt included in the packaging of this file.
  */
- 
+
 /** \mainpage libgenua
 
    # Introduction
@@ -300,7 +300,8 @@ class Plane;
 class SplineBasis;
 class ConnectMap;
 
-template <typename FloatType> class TrafoTpl;
+template <typename FloatType>
+class TrafoTpl;
 typedef TrafoTpl<double> Trafo3d;
 typedef TrafoTpl<float> Trafo3f;
 
@@ -343,7 +344,8 @@ typedef boost::shared_ptr<TriMesh> TriMeshPtr;
 class TriSet;
 
 class ImplicitTree;
-template <int ND, class FloatType> class NDPointTree;
+template <int ND, class FloatType>
+class NDPointTree;
 class BSearchTree;
 class RctSearchTree;
 
@@ -375,14 +377,19 @@ typedef std::vector<BinFileNodePtr> BinFileNodeArray;
 
 class SpinBarrier;
 class ThreadGroup;
-template <class Item> class LockedQueue;
-template <class TaskType> class ForkJoinStack;
-template <class TaskType> class ForkJoinQueue;
-template <class TaskType, class Context> class CtxForkJoinQueue;
+template <class Item>
+class LockedQueue;
+template <class TaskType>
+class ForkJoinStack;
+template <class TaskType>
+class ForkJoinQueue;
+template <class TaskType, class Context>
+class CtxForkJoinQueue;
 
 // template definitions and typedefs for stack-based vector and matrix
 
-template <uint N, class Type = Real> class SVector;
+template <uint N, class Type = Real>
+class SVector;
 
 typedef SVector<2, Real> Vct2;
 typedef SVector<3, Real> Vct3;
@@ -409,28 +416,31 @@ typedef SVector<3, uint> Vct3u;
 typedef SVector<4, uint> Vct4u;
 typedef SVector<6, uint> Vct6u;
 
-template <uint N, uint M, class Type = Real> class SMatrix;
+template <uint N, uint M, class Type = Real>
+class SMatrix;
 
-typedef SMatrix<2,2,Real> Mtx22;
-typedef SMatrix<3,3,Real> Mtx33;
-typedef SMatrix<4,4,Real> Mtx44;
-typedef SMatrix<3,4,Real> Mtx34;
+typedef SMatrix<2, 2, Real> Mtx22;
+typedef SMatrix<3, 3, Real> Mtx33;
+typedef SMatrix<4, 4, Real> Mtx44;
+typedef SMatrix<3, 4, Real> Mtx34;
 
-typedef SMatrix<2,2,float> Mtx22f;
-typedef SMatrix<3,3,float> Mtx33f;
-typedef SMatrix<4,4,float> Mtx44f;
-typedef SMatrix<3,4,float> Mtx34f;
+typedef SMatrix<2, 2, float> Mtx22f;
+typedef SMatrix<3, 3, float> Mtx33f;
+typedef SMatrix<4, 4, float> Mtx44f;
+typedef SMatrix<3, 4, float> Mtx34f;
 
 // templates and typedefs for dynamically allocated vectors and matrices
 
-template <class Type = Real> class DVector;
+template <class Type = Real>
+class DVector;
 
 typedef DVector<Real> Vector;
 typedef DVector<Complex> CpxVector;
 typedef std::vector<Vector> VectorArray;
 typedef std::vector<CpxVector> CpxVectorArray;
 
-template <class Type = Real> class DMatrix;
+template <class Type = Real>
+class DMatrix;
 
 typedef DMatrix<Real> Matrix;
 typedef DMatrix<Complex> CpxMatrix;
@@ -439,19 +449,24 @@ typedef std::vector<CpxMatrix> CpxMatrixArray;
 
 // n-dimensional arrays, where the number of dimensions is known at compile time
 
-template <int ND, typename Type> class NDArrayBase;
-template <int ND, typename Type> class NDArrayView;
-template <int ND, typename Type> class NDArray;
+template <int ND, typename Type>
+class NDArrayBase;
+template <int ND, typename Type>
+class NDArrayView;
+template <int ND, typename Type>
+class NDArray;
 
 // sparse matrices
 
-template <class Type, int N> class CsrMatrix;
-typedef CsrMatrix<double,1> CsrMatrixD;
-typedef CsrMatrix<float,1> CsrMatrixF;
-typedef CsrMatrix<std::complex<double>,1> CsrMatrixZ;
-typedef CsrMatrix<std::complex<float>,1> CsrMatrixC;
+template <class Type, int N>
+class CsrMatrix;
+typedef CsrMatrix<double, 1> CsrMatrixD;
+typedef CsrMatrix<float, 1> CsrMatrixF;
+typedef CsrMatrix<std::complex<double>, 1> CsrMatrixZ;
+typedef CsrMatrix<std::complex<float>, 1> CsrMatrixC;
 
-template <typename Type> class SpMatrixT;
+template <typename Type>
+class SpMatrixT;
 typedef SpMatrixT<Real> SpMatrix;
 typedef SpMatrixT<Complex> CpxSpMatrix;
 
@@ -460,34 +475,44 @@ typedef SpMatrixT<Complex> CpxSpMatrix;
 class BndRect;
 class BndBox;
 // template <int N, typename FloatType> class AABBox;
-template <class Type, int N> class DopBase;
-template <class Type> class Dop2d2;
-template <class Type> class Dop3d3;
-template <class Type> class Dop3d4;
-template <class Type> class Dop4d4;
-template <class Type> class Dop3d9;
-template <class Type> class Dop4d16;
+template <class Type, int N>
+class DopBase;
+template <class Type>
+class Dop2d2;
+template <class Type>
+class Dop3d3;
+template <class Type>
+class Dop3d4;
+template <class Type>
+class Dop4d4;
+template <class Type>
+class Dop3d9;
+template <class Type>
+class Dop4d16;
 
 // point grids and lists
 
-template <uint N, class Type = Real> class PointGrid;
-template <uint N, class Type = Real> class PointList;
-typedef PointList<2,double> PointList2d;
-typedef PointList<3,double> PointList3d;
-typedef PointList<4,double> PointList4d;
-typedef PointList<6,double> PointList6d;
-typedef PointList<2,float> PointList2f;
-typedef PointList<3,float> PointList3f;
-typedef PointList<4,float> PointList4f;
-typedef PointList<6,float> PointList6f;
+template <uint N, class Type = Real>
+class PointGrid;
+template <uint N, class Type = Real>
+class PointList;
+typedef PointList<2, double> PointList2d;
+typedef PointList<3, double> PointList3d;
+typedef PointList<4, double> PointList4d;
+typedef PointList<6, double> PointList6d;
+typedef PointList<2, float> PointList2f;
+typedef PointList<3, float> PointList3f;
+typedef PointList<4, float> PointList4f;
+typedef PointList<6, float> PointList6f;
 
 // sparse solver interfaces
 
-template <class FloatType> class AbstractLinearSolverTpl;
+template <class FloatType>
+class AbstractLinearSolverTpl;
 typedef AbstractLinearSolverTpl<float> SSparseSolver;
 typedef AbstractLinearSolverTpl<double> DSparseSolver;
-typedef AbstractLinearSolverTpl<std::complex<float> > CSparseSolver;
-typedef AbstractLinearSolverTpl<std::complex<double> > ZSparseSolver;
+typedef AbstractLinearSolverTpl<std::complex<float>> CSparseSolver;
+typedef AbstractLinearSolverTpl<std::complex<double>> ZSparseSolver;
 typedef boost::shared_ptr<SSparseSolver> SSparseSolverPtr;
 typedef boost::shared_ptr<DSparseSolver> DSparseSolverPtr;
 typedef boost::shared_ptr<CSparseSolver> CSparseSolverPtr;
@@ -510,7 +535,9 @@ class YamlDoc;
 class YamlMap;
 class YamlSeq;
 
-namespace YAML { class Node; }
-
+namespace YAML
+{
+  class Node;
+}
 
 #endif // GENUA_FORWARD_H

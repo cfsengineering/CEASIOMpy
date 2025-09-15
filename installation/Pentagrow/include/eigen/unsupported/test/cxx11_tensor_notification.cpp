@@ -15,22 +15,24 @@
 
 #if EIGEN_OS_WIN || EIGEN_OS_WIN64
 #include <windows.h>
-void sleep(int seconds) {
-  Sleep(seconds*1000);
+void sleep(int seconds)
+{
+  Sleep(seconds * 1000);
 }
 #else
 #include <unistd.h>
 #endif
 
+namespace
+{
 
-namespace {
+  void WaitAndAdd(eeigen::Notification *n, int *counter)
+  {
+    n->Wait();
+    *counter = *counter + 1;
+  }
 
-void WaitAndAdd(eeigen::Notification* n, int* counter) {
-  n->Wait();
-  *counter = *counter + 1;
-}
-
-}  // namespace
+} // namespace
 
 static void test_notification_single()
 {

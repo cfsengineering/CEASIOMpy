@@ -14,23 +14,22 @@
 using eeigen::Tensor;
 using eeigen::TensorMap;
 
-
-
 static void test_additions()
 {
   Tensor<std::complex<float>, 1> data1(3);
   Tensor<std::complex<float>, 1> data2(3);
-  for (int i = 0; i < 3; ++i) {
+  for (int i = 0; i < 3; ++i)
+  {
     data1(i) = std::complex<float>(i, -i);
     data2(i) = std::complex<float>(i, 7 * i);
   }
 
   Tensor<std::complex<float>, 1> sum = data1 + data2;
-  for (int i = 0; i < 3; ++i) {
-    VERIFY_IS_EQUAL(sum(i),  std::complex<float>(2*i, 6*i));
+  for (int i = 0; i < 3; ++i)
+  {
+    VERIFY_IS_EQUAL(sum(i), std::complex<float>(2 * i, 6 * i));
   }
 }
-
 
 static void test_abs()
 {
@@ -41,12 +40,12 @@ static void test_abs()
 
   Tensor<float, 1> abs1 = data1.abs();
   Tensor<double, 1> abs2 = data2.abs();
-  for (int i = 0; i < 3; ++i) {
+  for (int i = 0; i < 3; ++i)
+  {
     VERIFY_IS_APPROX(abs1(i), std::abs(data1(i)));
     VERIFY_IS_APPROX(abs2(i), std::abs(data2(i)));
   }
 }
-
 
 static void test_conjugate()
 {
@@ -60,7 +59,8 @@ static void test_conjugate()
   Tensor<std::complex<float>, 1> conj1 = data1.conjugate();
   Tensor<std::complex<double>, 1> conj2 = data2.conjugate();
   Tensor<int, 1> conj3 = data3.conjugate();
-  for (int i = 0; i < 3; ++i) {
+  for (int i = 0; i < 3; ++i)
+  {
     VERIFY_IS_APPROX(conj1(i), std::conj(data1(i)));
     VERIFY_IS_APPROX(conj2(i), std::conj(data2(i)));
     VERIFY_IS_APPROX(conj3(i), data3(i));
@@ -88,11 +88,11 @@ static void test_contractions()
   dims[1] = DimPair(3, 1);
   t_result = t_left.contract(t_right, dims);
   m_result = m_left * m_right;
-  for (int i = 0; i < t_result.dimensions().TotalSize(); i++) {
+  for (int i = 0; i < t_result.dimensions().TotalSize(); i++)
+  {
     VERIFY_IS_APPROX(t_result.data()[i], m_result.data()[i]);
   }
 }
-
 
 void test_cxx11_tensor_of_complex()
 {

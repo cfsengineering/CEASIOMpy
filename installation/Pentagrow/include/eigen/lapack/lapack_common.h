@@ -13,17 +13,20 @@
 #include "../blas/common.h"
 #include "../eeigen/src/misc/lapack.h"
 
-#define EIGEN_LAPACK_FUNC(FUNC,ARGLIST)               \
-  extern "C" { int EIGEN_BLAS_FUNC(FUNC) ARGLIST; }   \
-  int EIGEN_BLAS_FUNC(FUNC) ARGLIST
+#define EIGEN_LAPACK_FUNC(FUNC, ARGLIST) \
+  extern "C"                             \
+  {                                      \
+    int EIGEN_BLAS_FUNC(FUNC) ARGLIST;   \
+  }                                      \
+  int EIGEN_BLAS_FUNC(FUNC)              \
+  ARGLIST
 
-typedef eeigen::Map<eeigen::Transpositions<eeigen::Dynamic,eeigen::Dynamic,int> > PivotsType;
+typedef eeigen::Map<eeigen::Transpositions<eeigen::Dynamic, eeigen::Dynamic, int>> PivotsType;
 
 #if ISCOMPLEX
 #define EIGEN_LAPACK_ARG_IF_COMPLEX(X) X,
 #else
 #define EIGEN_LAPACK_ARG_IF_COMPLEX(X)
 #endif
-
 
 #endif // EIGEN_LAPACK_COMMON_H

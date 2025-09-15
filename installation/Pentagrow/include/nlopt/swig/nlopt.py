@@ -14,27 +14,22 @@ can be found at the NLopt web page: http://ab-initio.mit.edu/nlopt
 
 
 from sys import version_info
-
 if version_info >= (2, 6, 0):
-
     def swig_import_helper():
         from os.path import dirname
         import imp
-
         fp = None
         try:
-            fp, pathname, description = imp.find_module("_nlopt", [dirname(__file__)])
+            fp, pathname, description = imp.find_module('_nlopt', [dirname(__file__)])
         except ImportError:
             import _nlopt
-
             return _nlopt
         if fp is not None:
             try:
-                _mod = imp.load_module("_nlopt", fp, pathname, description)
+                _mod = imp.load_module('_nlopt', fp, pathname, description)
             finally:
                 fp.close()
             return _mod
-
     _nlopt = swig_import_helper()
     del swig_import_helper
 else:
@@ -47,16 +42,16 @@ except NameError:
 
 
 def _swig_setattr_nondynamic(self, class_type, name, value, static=1):
-    if name == "thisown":
+    if (name == "thisown"):
         return self.this.own(value)
-    if name == "this":
-        if type(value).__name__ == "SwigPyObject":
+    if (name == "this"):
+        if type(value).__name__ == 'SwigPyObject':
             self.__dict__[name] = value
             return
     method = class_type.__swig_setmethods__.get(name, None)
     if method:
         return method(self, value)
-    if not static:
+    if (not static):
         self.__dict__[name] = value
     else:
         raise AttributeError("You cannot add attributes to %s" % self)
@@ -67,7 +62,7 @@ def _swig_setattr(self, class_type, name, value):
 
 
 def _swig_getattr(self, class_type, name):
-    if name == "thisown":
+    if (name == "thisown"):
         return self.this.own()
     method = class_type.__swig_getmethods__.get(name, None)
     if method:
@@ -78,89 +73,47 @@ def _swig_getattr(self, class_type, name):
 def _swig_repr(self):
     try:
         strthis = "proxy of " + self.this.__repr__()
-    except Exception:
+    except Exception :
         strthis = ""
-    return "<%s.%s; %s >" % (
-        self.__class__.__module__,
-        self.__class__.__name__,
-        strthis,
-    )
+    return "<%s.%s; %s >" % (self.__class__.__module__, self.__class__.__name__, strthis,)
 
 
 try:
     _object = object
     _newclass = 1
 except AttributeError:
-
-    class _object:
+    class _object :
         pass
-
     _newclass = 0
 
 
 class SwigPyIterator(_object):
     __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, SwigPyIterator, name, value)
+    def __setattr__(self, name, value): return _swig_setattr(self, SwigPyIterator, name, value)
     __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, SwigPyIterator, name)
-
-    def __init__(self, *args, **kwargs):
-        raise AttributeError("No constructor defined - class is abstract")
-
+    def __getattr__(self, name): return _swig_getattr(self, SwigPyIterator, name)
+    def __init__(self, *args,
+                 ** kwargs): raise AttributeError("No constructor defined - class is abstract")
     __repr__ = _swig_repr
     __swig_destroy__ = _nlopt.delete_SwigPyIterator
-    __del__ = lambda self: None
-
-    def value(self):
-        return _nlopt.SwigPyIterator_value(self)
-
-    def incr(self, n=1):
-        return _nlopt.SwigPyIterator_incr(self, n)
-
-    def decr(self, n=1):
-        return _nlopt.SwigPyIterator_decr(self, n)
-
-    def distance(self, *args):
-        return _nlopt.SwigPyIterator_distance(self, *args)
-
-    def equal(self, *args):
-        return _nlopt.SwigPyIterator_equal(self, *args)
-
-    def copy(self):
-        return _nlopt.SwigPyIterator_copy(self)
-
-    def next(self):
-        return _nlopt.SwigPyIterator_next(self)
-
-    def __next__(self):
-        return _nlopt.SwigPyIterator___next__(self)
-
-    def previous(self):
-        return _nlopt.SwigPyIterator_previous(self)
-
-    def advance(self, *args):
-        return _nlopt.SwigPyIterator_advance(self, *args)
-
-    def __eq__(self, *args):
-        return _nlopt.SwigPyIterator___eq__(self, *args)
-
-    def __ne__(self, *args):
-        return _nlopt.SwigPyIterator___ne__(self, *args)
-
-    def __iadd__(self, *args):
-        return _nlopt.SwigPyIterator___iadd__(self, *args)
-
-    def __isub__(self, *args):
-        return _nlopt.SwigPyIterator___isub__(self, *args)
-
-    def __add__(self, *args):
-        return _nlopt.SwigPyIterator___add__(self, *args)
-
-    def __sub__(self, *args):
-        return _nlopt.SwigPyIterator___sub__(self, *args)
-
-    def __iter__(self):
-        return self
+    def __del__(self): return None
+    def value(self): return _nlopt.SwigPyIterator_value(self)
+    def incr(self, n=1): return _nlopt.SwigPyIterator_incr(self, n)
+    def decr(self, n=1): return _nlopt.SwigPyIterator_decr(self, n)
+    def distance(self, *args): return _nlopt.SwigPyIterator_distance(self, *args)
+    def equal(self, *args): return _nlopt.SwigPyIterator_equal(self, *args)
+    def copy(self): return _nlopt.SwigPyIterator_copy(self)
+    def next(self): return _nlopt.SwigPyIterator_next(self)
+    def __next__(self): return _nlopt.SwigPyIterator___next__(self)
+    def previous(self): return _nlopt.SwigPyIterator_previous(self)
+    def advance(self, *args): return _nlopt.SwigPyIterator_advance(self, *args)
+    def __eq__(self, *args): return _nlopt.SwigPyIterator___eq__(self, *args)
+    def __ne__(self, *args): return _nlopt.SwigPyIterator___ne__(self, *args)
+    def __iadd__(self, *args): return _nlopt.SwigPyIterator___iadd__(self, *args)
+    def __isub__(self, *args): return _nlopt.SwigPyIterator___isub__(self, *args)
+    def __add__(self, *args): return _nlopt.SwigPyIterator___add__(self, *args)
+    def __sub__(self, *args): return _nlopt.SwigPyIterator___sub__(self, *args)
+    def __iter__(self): return self
 
 
 SwigPyIterator_swigregister = _nlopt.SwigPyIterator_swigregister
@@ -169,116 +122,52 @@ SwigPyIterator_swigregister(SwigPyIterator)
 
 class nlopt_doublevector(_object):
     __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, nlopt_doublevector, name, value)
+    def __setattr__(self, name, value): return _swig_setattr(self, nlopt_doublevector, name, value)
     __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, nlopt_doublevector, name)
+    def __getattr__(self, name): return _swig_getattr(self, nlopt_doublevector, name)
     __repr__ = _swig_repr
-
-    def iterator(self):
-        return _nlopt.nlopt_doublevector_iterator(self)
-
-    def __iter__(self):
-        return self.iterator()
-
-    def __nonzero__(self):
-        return _nlopt.nlopt_doublevector___nonzero__(self)
-
-    def __bool__(self):
-        return _nlopt.nlopt_doublevector___bool__(self)
-
-    def __len__(self):
-        return _nlopt.nlopt_doublevector___len__(self)
-
-    def pop(self):
-        return _nlopt.nlopt_doublevector_pop(self)
-
-    def __getslice__(self, *args):
-        return _nlopt.nlopt_doublevector___getslice__(self, *args)
-
-    def __setslice__(self, *args):
-        return _nlopt.nlopt_doublevector___setslice__(self, *args)
-
-    def __delslice__(self, *args):
-        return _nlopt.nlopt_doublevector___delslice__(self, *args)
-
-    def __delitem__(self, *args):
-        return _nlopt.nlopt_doublevector___delitem__(self, *args)
-
-    def __getitem__(self, *args):
-        return _nlopt.nlopt_doublevector___getitem__(self, *args)
-
-    def __setitem__(self, *args):
-        return _nlopt.nlopt_doublevector___setitem__(self, *args)
-
-    def append(self, *args):
-        return _nlopt.nlopt_doublevector_append(self, *args)
-
-    def empty(self):
-        return _nlopt.nlopt_doublevector_empty(self)
-
-    def size(self):
-        return _nlopt.nlopt_doublevector_size(self)
-
-    def clear(self):
-        return _nlopt.nlopt_doublevector_clear(self)
-
-    def swap(self, *args):
-        return _nlopt.nlopt_doublevector_swap(self, *args)
-
-    def get_allocator(self):
-        return _nlopt.nlopt_doublevector_get_allocator(self)
-
-    def begin(self):
-        return _nlopt.nlopt_doublevector_begin(self)
-
-    def end(self):
-        return _nlopt.nlopt_doublevector_end(self)
-
-    def rbegin(self):
-        return _nlopt.nlopt_doublevector_rbegin(self)
-
-    def rend(self):
-        return _nlopt.nlopt_doublevector_rend(self)
-
-    def pop_back(self):
-        return _nlopt.nlopt_doublevector_pop_back(self)
-
-    def erase(self, *args):
-        return _nlopt.nlopt_doublevector_erase(self, *args)
+    def iterator(self): return _nlopt.nlopt_doublevector_iterator(self)
+    def __iter__(self): return self.iterator()
+    def __nonzero__(self): return _nlopt.nlopt_doublevector___nonzero__(self)
+    def __bool__(self): return _nlopt.nlopt_doublevector___bool__(self)
+    def __len__(self): return _nlopt.nlopt_doublevector___len__(self)
+    def pop(self): return _nlopt.nlopt_doublevector_pop(self)
+    def __getslice__(self, *args): return _nlopt.nlopt_doublevector___getslice__(self, *args)
+    def __setslice__(self, *args): return _nlopt.nlopt_doublevector___setslice__(self, *args)
+    def __delslice__(self, *args): return _nlopt.nlopt_doublevector___delslice__(self, *args)
+    def __delitem__(self, *args): return _nlopt.nlopt_doublevector___delitem__(self, *args)
+    def __getitem__(self, *args): return _nlopt.nlopt_doublevector___getitem__(self, *args)
+    def __setitem__(self, *args): return _nlopt.nlopt_doublevector___setitem__(self, *args)
+    def append(self, *args): return _nlopt.nlopt_doublevector_append(self, *args)
+    def empty(self): return _nlopt.nlopt_doublevector_empty(self)
+    def size(self): return _nlopt.nlopt_doublevector_size(self)
+    def clear(self): return _nlopt.nlopt_doublevector_clear(self)
+    def swap(self, *args): return _nlopt.nlopt_doublevector_swap(self, *args)
+    def get_allocator(self): return _nlopt.nlopt_doublevector_get_allocator(self)
+    def begin(self): return _nlopt.nlopt_doublevector_begin(self)
+    def end(self): return _nlopt.nlopt_doublevector_end(self)
+    def rbegin(self): return _nlopt.nlopt_doublevector_rbegin(self)
+    def rend(self): return _nlopt.nlopt_doublevector_rend(self)
+    def pop_back(self): return _nlopt.nlopt_doublevector_pop_back(self)
+    def erase(self, *args): return _nlopt.nlopt_doublevector_erase(self, *args)
 
     def __init__(self, *args):
         this = _nlopt.new_nlopt_doublevector(*args)
         try:
             self.this.append(this)
-        except Exception:
+        except Exception :
             self.this = this
 
-    def push_back(self, *args):
-        return _nlopt.nlopt_doublevector_push_back(self, *args)
-
-    def front(self):
-        return _nlopt.nlopt_doublevector_front(self)
-
-    def back(self):
-        return _nlopt.nlopt_doublevector_back(self)
-
-    def assign(self, *args):
-        return _nlopt.nlopt_doublevector_assign(self, *args)
-
-    def resize(self, *args):
-        return _nlopt.nlopt_doublevector_resize(self, *args)
-
-    def insert(self, *args):
-        return _nlopt.nlopt_doublevector_insert(self, *args)
-
-    def reserve(self, *args):
-        return _nlopt.nlopt_doublevector_reserve(self, *args)
-
-    def capacity(self):
-        return _nlopt.nlopt_doublevector_capacity(self)
-
+    def push_back(self, *args): return _nlopt.nlopt_doublevector_push_back(self, *args)
+    def front(self): return _nlopt.nlopt_doublevector_front(self)
+    def back(self): return _nlopt.nlopt_doublevector_back(self)
+    def assign(self, *args): return _nlopt.nlopt_doublevector_assign(self, *args)
+    def resize(self, *args): return _nlopt.nlopt_doublevector_resize(self, *args)
+    def insert(self, *args): return _nlopt.nlopt_doublevector_insert(self, *args)
+    def reserve(self, *args): return _nlopt.nlopt_doublevector_reserve(self, *args)
+    def capacity(self): return _nlopt.nlopt_doublevector_capacity(self)
     __swig_destroy__ = _nlopt.delete_nlopt_doublevector
-    __del__ = lambda self: None
+    def __del__(self): return None
 
 
 nlopt_doublevector_swigregister = _nlopt.nlopt_doublevector_swigregister
@@ -286,13 +175,8 @@ nlopt_doublevector_swigregister(nlopt_doublevector)
 
 ForcedStop = _nlopt.ForcedStop
 RoundoffLimited = _nlopt.RoundoffLimited
-__version__ = (
-    str(_nlopt.version_major())
-    + "."
-    + str(_nlopt.version_minor())
-    + "."
-    + str(_nlopt.version_bugfix())
-)
+__version__ = str(_nlopt.version_major()) + '.' + str(_nlopt.version_minor()) + \
+    '.' + str(_nlopt.version_bugfix())
 
 
 def nlopt_get_initial_step(*args):
@@ -359,9 +243,9 @@ MAXTIME_REACHED = _nlopt.MAXTIME_REACHED
 
 class roundoff_limited(Exception):
     __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, roundoff_limited, name, value)
+    def __setattr__(self, name, value): return _swig_setattr(self, roundoff_limited, name, value)
     __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, roundoff_limited, name)
+    def __getattr__(self, name): return _swig_getattr(self, roundoff_limited, name)
     __repr__ = _swig_repr
 
     def __init__(self):
@@ -370,9 +254,8 @@ class roundoff_limited(Exception):
             self.this.append(this)
         except Exception:
             self.this = this
-
     __swig_destroy__ = _nlopt.delete_roundoff_limited
-    __del__ = lambda self: None
+    def __del__(self): return None
 
 
 roundoff_limited_swigregister = _nlopt.roundoff_limited_swigregister
@@ -381,9 +264,9 @@ roundoff_limited_swigregister(roundoff_limited)
 
 class forced_stop(Exception):
     __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, forced_stop, name, value)
+    def __setattr__(self, name, value): return _swig_setattr(self, forced_stop, name, value)
     __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, forced_stop, name)
+    def __getattr__(self, name): return _swig_getattr(self, forced_stop, name)
     __repr__ = _swig_repr
 
     def __init__(self):
@@ -392,9 +275,8 @@ class forced_stop(Exception):
             self.this.append(this)
         except Exception:
             self.this = this
-
     __swig_destroy__ = _nlopt.delete_forced_stop
-    __del__ = lambda self: None
+    def __del__(self): return None
 
 
 forced_stop_swigregister = _nlopt.forced_stop_swigregister
@@ -403,151 +285,74 @@ forced_stop_swigregister(forced_stop)
 
 class opt(_object):
     __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, opt, name, value)
+    def __setattr__(self, name, value): return _swig_setattr(self, opt, name, value)
     __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, opt, name)
+    def __getattr__(self, name): return _swig_getattr(self, opt, name)
     __repr__ = _swig_repr
     __swig_destroy__ = _nlopt.delete_opt
-    __del__ = lambda self: None
+    def __del__(self): return None
 
     def __init__(self, *args):
         this = _nlopt.new_opt(*args)
         try:
             self.this.append(this)
-        except Exception:
+        except:
             self.this = this
 
-    def optimize(self, *args):
-        return _nlopt.opt_optimize(self, *args)
+    def optimize(self, *args): return _nlopt.opt_optimize(self, *args)
+    def last_optimize_result(self): return _nlopt.opt_last_optimize_result(self)
+    def last_optimum_value(self): return _nlopt.opt_last_optimum_value(self)
+    def get_algorithm(self): return _nlopt.opt_get_algorithm(self)
+    def get_algorithm_name(self): return _nlopt.opt_get_algorithm_name(self)
+    def get_dimension(self): return _nlopt.opt_get_dimension(self)
+    def set_min_objective(self, *args): return _nlopt.opt_set_min_objective(self, *args)
+    def set_max_objective(self, *args): return _nlopt.opt_set_max_objective(self, *args)
+    def remove_inequality_constraints(self): return _nlopt.opt_remove_inequality_constraints(self)
+    def remove_equality_constraints(self): return _nlopt.opt_remove_equality_constraints(self)
 
-    def last_optimize_result(self):
-        return _nlopt.opt_last_optimize_result(self)
+    def add_inequality_constraint(
+        self, *args): return _nlopt.opt_add_inequality_constraint(self, *args)
 
-    def last_optimum_value(self):
-        return _nlopt.opt_last_optimum_value(self)
+    def add_equality_constraint(
+        self, *args): return _nlopt.opt_add_equality_constraint(self, *args)
 
-    def get_algorithm(self):
-        return _nlopt.opt_get_algorithm(self)
+    def add_inequality_mconstraint(
+        self, *args): return _nlopt.opt_add_inequality_mconstraint(self, *args)
+    def add_equality_mconstraint(
+        self, *args): return _nlopt.opt_add_equality_mconstraint(self, *args)
 
-    def get_algorithm_name(self):
-        return _nlopt.opt_get_algorithm_name(self)
+    def get_lower_bounds(self, *args): return _nlopt.opt_get_lower_bounds(self, *args)
+    def set_lower_bounds(self, *args): return _nlopt.opt_set_lower_bounds(self, *args)
+    def get_upper_bounds(self, *args): return _nlopt.opt_get_upper_bounds(self, *args)
+    def set_upper_bounds(self, *args): return _nlopt.opt_set_upper_bounds(self, *args)
+    def get_stopval(self): return _nlopt.opt_get_stopval(self)
+    def set_stopval(self, *args): return _nlopt.opt_set_stopval(self, *args)
+    def get_ftol_rel(self): return _nlopt.opt_get_ftol_rel(self)
+    def set_ftol_rel(self, *args): return _nlopt.opt_set_ftol_rel(self, *args)
+    def get_ftol_abs(self): return _nlopt.opt_get_ftol_abs(self)
+    def set_ftol_abs(self, *args): return _nlopt.opt_set_ftol_abs(self, *args)
+    def get_xtol_rel(self): return _nlopt.opt_get_xtol_rel(self)
+    def set_xtol_rel(self, *args): return _nlopt.opt_set_xtol_rel(self, *args)
+    def get_xtol_abs(self, *args): return _nlopt.opt_get_xtol_abs(self, *args)
+    def set_xtol_abs(self, *args): return _nlopt.opt_set_xtol_abs(self, *args)
+    def get_maxeval(self): return _nlopt.opt_get_maxeval(self)
+    def set_maxeval(self, *args): return _nlopt.opt_set_maxeval(self, *args)
+    def get_maxtime(self): return _nlopt.opt_get_maxtime(self)
+    def set_maxtime(self, *args): return _nlopt.opt_set_maxtime(self, *args)
+    def get_force_stop(self): return _nlopt.opt_get_force_stop(self)
+    def set_force_stop(self, *args): return _nlopt.opt_set_force_stop(self, *args)
+    def force_stop(self): return _nlopt.opt_force_stop(self)
+    def set_local_optimizer(self, *args): return _nlopt.opt_set_local_optimizer(self, *args)
+    def get_population(self): return _nlopt.opt_get_population(self)
+    def set_population(self, *args): return _nlopt.opt_set_population(self, *args)
+    def get_vector_storage(self): return _nlopt.opt_get_vector_storage(self)
+    def set_vector_storage(self, *args): return _nlopt.opt_set_vector_storage(self, *args)
+    def set_initial_step(self, *args): return _nlopt.opt_set_initial_step(self, *args)
+    def set_default_initial_step(
+        self, *args): return _nlopt.opt_set_default_initial_step(self, *args)
 
-    def get_dimension(self):
-        return _nlopt.opt_get_dimension(self)
-
-    def set_min_objective(self, *args):
-        return _nlopt.opt_set_min_objective(self, *args)
-
-    def set_max_objective(self, *args):
-        return _nlopt.opt_set_max_objective(self, *args)
-
-    def remove_inequality_constraints(self):
-        return _nlopt.opt_remove_inequality_constraints(self)
-
-    def remove_equality_constraints(self):
-        return _nlopt.opt_remove_equality_constraints(self)
-
-    def add_inequality_constraint(self, *args):
-        return _nlopt.opt_add_inequality_constraint(self, *args)
-
-    def add_equality_constraint(self, *args):
-        return _nlopt.opt_add_equality_constraint(self, *args)
-
-    def add_inequality_mconstraint(self, *args):
-        return _nlopt.opt_add_inequality_mconstraint(self, *args)
-
-    def add_equality_mconstraint(self, *args):
-        return _nlopt.opt_add_equality_mconstraint(self, *args)
-
-    def get_lower_bounds(self, *args):
-        return _nlopt.opt_get_lower_bounds(self, *args)
-
-    def set_lower_bounds(self, *args):
-        return _nlopt.opt_set_lower_bounds(self, *args)
-
-    def get_upper_bounds(self, *args):
-        return _nlopt.opt_get_upper_bounds(self, *args)
-
-    def set_upper_bounds(self, *args):
-        return _nlopt.opt_set_upper_bounds(self, *args)
-
-    def get_stopval(self):
-        return _nlopt.opt_get_stopval(self)
-
-    def set_stopval(self, *args):
-        return _nlopt.opt_set_stopval(self, *args)
-
-    def get_ftol_rel(self):
-        return _nlopt.opt_get_ftol_rel(self)
-
-    def set_ftol_rel(self, *args):
-        return _nlopt.opt_set_ftol_rel(self, *args)
-
-    def get_ftol_abs(self):
-        return _nlopt.opt_get_ftol_abs(self)
-
-    def set_ftol_abs(self, *args):
-        return _nlopt.opt_set_ftol_abs(self, *args)
-
-    def get_xtol_rel(self):
-        return _nlopt.opt_get_xtol_rel(self)
-
-    def set_xtol_rel(self, *args):
-        return _nlopt.opt_set_xtol_rel(self, *args)
-
-    def get_xtol_abs(self, *args):
-        return _nlopt.opt_get_xtol_abs(self, *args)
-
-    def set_xtol_abs(self, *args):
-        return _nlopt.opt_set_xtol_abs(self, *args)
-
-    def get_maxeval(self):
-        return _nlopt.opt_get_maxeval(self)
-
-    def set_maxeval(self, *args):
-        return _nlopt.opt_set_maxeval(self, *args)
-
-    def get_maxtime(self):
-        return _nlopt.opt_get_maxtime(self)
-
-    def set_maxtime(self, *args):
-        return _nlopt.opt_set_maxtime(self, *args)
-
-    def get_force_stop(self):
-        return _nlopt.opt_get_force_stop(self)
-
-    def set_force_stop(self, *args):
-        return _nlopt.opt_set_force_stop(self, *args)
-
-    def force_stop(self):
-        return _nlopt.opt_force_stop(self)
-
-    def set_local_optimizer(self, *args):
-        return _nlopt.opt_set_local_optimizer(self, *args)
-
-    def get_population(self):
-        return _nlopt.opt_get_population(self)
-
-    def set_population(self, *args):
-        return _nlopt.opt_set_population(self, *args)
-
-    def get_vector_storage(self):
-        return _nlopt.opt_get_vector_storage(self)
-
-    def set_vector_storage(self, *args):
-        return _nlopt.opt_set_vector_storage(self, *args)
-
-    def set_initial_step(self, *args):
-        return _nlopt.opt_set_initial_step(self, *args)
-
-    def set_default_initial_step(self, *args):
-        return _nlopt.opt_set_default_initial_step(self, *args)
-
-    def get_initial_step(self, *args):
-        return _nlopt.opt_get_initial_step(self, *args)
-
-    def get_initial_step_(self, *args):
-        return _nlopt.opt_get_initial_step_(self, *args)
+    def get_initial_step(self, *args): return _nlopt.opt_get_initial_step(self, *args)
+    def get_initial_step_(self, *args): return _nlopt.opt_get_initial_step_(self, *args)
 
 
 opt_swigregister = _nlopt.opt_swigregister

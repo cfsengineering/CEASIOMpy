@@ -8,7 +8,8 @@
 
 using namespace eeigen;
 
-void foo(){
+void foo()
+{
     MatrixXf m;
     Diagonal<CV_QUALIFIER MatrixXf>(m).coeffRef(0) = 1.0f;
 }

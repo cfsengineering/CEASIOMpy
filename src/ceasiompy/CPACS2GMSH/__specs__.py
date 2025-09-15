@@ -44,6 +44,7 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_EXPORT_PROP_XPATH,
     GMSH_INTAKE_PERCENT_XPATH,
     GMSH_EXHAUST_PERCENT_XPATH,
+    GMSH_SAVE_CGNS_XPATH,
 )
 
 # ==============================================================================
@@ -357,6 +358,18 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Engine exhaust position",
     gui_group="Engines",
+)
+
+cpacs_inout.add_input(
+    var_name="geom_output_format",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="Save also the geometry in the .cgns format",
+    xpath=GMSH_SAVE_CGNS_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Save CGNS",
+    gui_group="Saving options",
 )
 
 # ==============================================================================

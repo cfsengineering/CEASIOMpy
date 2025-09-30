@@ -902,7 +902,7 @@ def generate_gmsh(
         write_gmsh(results_dir, f"{mesh_name}.msh")
 
     if also_save_cgns:
-        cgnsmesh_path = write_gmsh(results_dir, "mesh.cgns")
+        write_gmsh(results_dir, "mesh.cgns")
 
     process_gmsh_log(gmsh.logger.get())
 

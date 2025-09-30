@@ -306,7 +306,7 @@ def generate_gmsh(
     testing_gmsh: bool = False,
     surf: str = None,
     angle: str = None,
-    also_save_cgns: bool = False, 
+    also_save_cgns: bool = False,
 ) -> Path:
     """
     Generates a mesh from brep files forming an airplane.

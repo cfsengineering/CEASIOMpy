@@ -127,7 +127,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
             surf=surf,
             angle=angle,
             also_save_cgns= also_save_cgns,
-,        )
+        )
     else:
         gmesh_path, fuselage_maxlen = generate_2d_mesh_for_pentagrow(
             cpacs,

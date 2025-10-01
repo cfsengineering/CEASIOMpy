@@ -43,7 +43,6 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-
 from ceasiompy.utils.commonxpaths import SU2MESH_XPATH
 from ceasiompy.CPACS2GMSH import (
     MODULE_NAME,

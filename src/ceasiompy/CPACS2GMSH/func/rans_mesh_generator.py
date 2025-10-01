@@ -977,7 +977,7 @@ def pentagrow_3d_mesh(
     command = ["surface_mesh.stl", "config.cfg"]
 
     # Specify the file path
-    file_path = "command.txt"
+    file_path = "files/command.txt"
 
     with open(file_path, "w") as file:
         file.write(" ".join(command))

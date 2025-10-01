@@ -975,12 +975,6 @@ def pentagrow_3d_mesh(
 
     command = ["surface_mesh.stl", "config.cfg"]
 
-    # # Specify the file path
-    # file_path = Path(MODULE_DIR, "files/command.txt")
-
-    # with open(file_path, "w") as file:
-    #     file.write(" ".join(command))
-
     # Running command = "pentagrow surface_mesh.stl config.cfg"
     run_software(
         software_name="pentagrow",

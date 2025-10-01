@@ -15,25 +15,21 @@ resulting domain is meshed using gmsh
 | Date: 2025-May-8
 
 TODO:
-
     - It may be good to move all the function and some of the code in generategmsh()
     that are related to disk actuator to another python script and import it here
-
     - Add mesh sizing for each aircraft part and as consequence add marker
-
     - Integrate other parts during fragmentation
-
 """
 
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
 
-import random
-from itertools import combinations
 import gmsh
+import random
 
 from ceasiompy.CPACS2GMSH.func.utils import (
+    check_path,
     load_rans_cgf_params,
 )
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
@@ -46,7 +42,6 @@ from ceasiompy.CPACS2GMSH.func.generategmesh import (
     fuselage_size,
     process_gmsh_log,
 )
-from ceasiompy import log
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_wing_section,
     min_fields,
@@ -60,10 +55,14 @@ from ceasiompy.utils.ceasiompyutils import (
     get_part_type,
     run_software,
 )
-from ceasiompy.CPACS2GMSH.func.utils import check_path, MESH_COLORS
+
 from pathlib import Path
-from typing import Dict
 from cpacspy.cpacspy import CPACS
+from itertools import combinations
+
+from ceasiompy import log
+from ceasiompy.CPACS2GMSH import MODULE_DIR
+from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
 
 
 # =================================================================================================
@@ -976,11 +975,11 @@ def pentagrow_3d_mesh(
 
     command = ["surface_mesh.stl", "config.cfg"]
 
-    # Specify the file path
-    file_path = "files/command.txt"
+    # # Specify the file path
+    # file_path = Path(MODULE_DIR, "files/command.txt")
 
-    with open(file_path, "w") as file:
-        file.write(" ".join(command))
+    # with open(file_path, "w") as file:
+    #     file.write(" ".join(command))
 
     # Running command = "pentagrow surface_mesh.stl config.cfg"
     run_software(

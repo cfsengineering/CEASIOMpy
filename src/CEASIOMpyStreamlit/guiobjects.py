@@ -183,10 +183,11 @@ def add_ctrl_surf_vartype(tixi, xpath, default_value, name, key, description) ->
             tixi,
             angle_xpath,
             deformation_angle,  # Default value for deformation angle
-            f"Deformation angle [deg]",
+            "Deformation angle [deg]",
             f"{key}_deformation_angle",
             "Set the deformation angle for the selected control surface.",
         )
+
 
 def bool_vartype(tixi, xpath, default_value, name, key, description) -> None:
     st.checkbox(

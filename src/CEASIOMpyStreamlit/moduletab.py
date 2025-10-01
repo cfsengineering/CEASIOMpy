@@ -172,7 +172,9 @@ def add_gui_object(
 
         if var_type == "AddControlSurfaces":
             session_state.xpath_to_update[xpath + "/ctrlsurf"] = key
-            session_state.xpath_to_update[xpath + "/deformation_angle"] = f"{key}_deformation_angle"
+            session_state.xpath_to_update[
+                xpath + "/deformation_angle"
+            ] = f"{key}_deformation_angle"
 
 
 def add_module_tab(new_file: bool) -> None:

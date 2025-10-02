@@ -746,14 +746,24 @@ def generate_su2_cfd_config(
             cfg["ITER_DCL_DALPHA"] = "80"
 
         # Mesh Marker
-        bc_wall_str = su2_format(f"{','.join(mesh_markers['wall'])}")
+        walls = mesh_markers.get("wall", [])
 
-        cfg["MARKER_EULER"] = bc_wall_str
-        farfield_bc = (
-            mesh_markers["farfield"]
-            + mesh_markers["engine_intake"]
-            + mesh_markers["engine_exhaust"]
-        )
+        if not rans:
+            bc_wall_str = su2_format(",".join(walls))
+            cfg["MARKER_EULER"] = bc_wall_str
+
+            farfield_bc = (
+                mesh_markers.get("farfield", [])
+                + mesh_markers.get("engine_intake", [])
+                + mesh_markers.get("engine_exhaust", [])
+            )
+        else:
+            bc_wall_str = su2_format(
+                "(" + ",".join(f"{w}, 0.0" for w in walls) + ")"
+            )
+            cfg["MARKER_HEATFLUX"] = bc_wall_str
+
+
         cfg["MARKER_FAR"] = su2_format(f"{','.join(farfield_bc)}")
         cfg["MARKER_SYM"] = su2_format(f"{','.join(mesh_markers['symmetry'])}")
         cfg["MARKER_PLOTTING"] = bc_wall_str

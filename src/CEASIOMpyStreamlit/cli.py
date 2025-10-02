@@ -80,7 +80,8 @@ def main_exec():
             ] + script_args
         else:
             print(
-                f"Warning: conda/mamba not found; running with current interpreter (env={active_conda}).",
+                f"Warning: conda/mamba not found; \
+                running with current interpreter (env={active_conda}).",
                 file=sys.stderr,
             )
 

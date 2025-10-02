@@ -763,7 +763,6 @@ def generate_su2_cfd_config(
             )
             cfg["MARKER_HEATFLUX"] = bc_wall_str
 
-
         cfg["MARKER_FAR"] = su2_format(f"{','.join(farfield_bc)}")
         cfg["MARKER_SYM"] = su2_format(f"{','.join(mesh_markers['symmetry'])}")
         cfg["MARKER_PLOTTING"] = bc_wall_str

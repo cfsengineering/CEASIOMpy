@@ -772,8 +772,6 @@ def generate_su2_cfd_config(
         cfg["MARKER_MONITORING"] = bc_wall_str
         cfg["DV_MARKER"] = su2_format(",".join(walls))
 
-
-        # Output
         cfg["WRT_FORCES_BREAKDOWN"] = "YES"
         cfg["BREAKDOWN_FILENAME"] = SU2_FORCES_BREAKDOWN_NAME
         cfg["OUTPUT_FILES"] = su2_format("RESTART, PARAVIEW, SURFACE_PARAVIEW")

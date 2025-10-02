@@ -130,7 +130,7 @@ def float_vartype(tixi, xpath, default_value, name, key, description) -> None:
         st.number_input(
             name,
             value=value,
-            format="%0.3f",
+            format="%g",
             key=key,
             help=description,
             on_change=save_cpacs_file,

@@ -681,6 +681,7 @@ def generate_su2_cfd_config(
     mesh_markers: Dict,
     dyn_stab: bool,
     rans: bool,
+    symmetry: bool,
 ) -> None:
     """
     Reads data in the CPACS file and generate configuration files
@@ -747,28 +748,33 @@ def generate_su2_cfd_config(
 
         # Mesh Marker
         walls = mesh_markers.get("wall", [])
-
+        
         if not rans:
+            # Pareti inviscide (Euler)
             bc_wall_str = su2_format(",".join(walls))
             cfg["MARKER_EULER"] = bc_wall_str
-
-            farfield_bc = (
-                mesh_markers.get("farfield", [])
-                + mesh_markers.get("engine_intake", [])
-                + mesh_markers.get("engine_exhaust", [])
-            )
         else:
+            # Pareti viscose con heat flux (RANS)
             bc_wall_str = su2_format(
                 "(" + ",".join(f"{w}, 0.0" for w in walls) + ")"
             )
             cfg["MARKER_HEATFLUX"] = bc_wall_str
-
-
-        cfg["MARKER_FAR"] = su2_format(f"{','.join(farfield_bc)}")
-        cfg["MARKER_SYM"] = su2_format(f"{','.join(mesh_markers['symmetry'])}")
+        
+        # Farfield sempre definito
+        farfield_bc = (
+            mesh_markers.get("farfield", [])
+            + mesh_markers.get("engine_intake", [])
+            + mesh_markers.get("engine_exhaust", [])
+        )
+        cfg["MARKER_FAR"] = su2_format(",".join(farfield_bc))
+        
+        if symmetry:
+            cfg["MARKER_SYM"] = su2_format(",".join(mesh_markers.get("symmetry", [])))
+        
         cfg["MARKER_PLOTTING"] = bc_wall_str
         cfg["MARKER_MONITORING"] = bc_wall_str
-        cfg["DV_MARKER"] = bc_wall_str
+        cfg["DV_MARKER"] = su2_format(",".join(walls))
+
 
         # Output
         cfg["WRT_FORCES_BREAKDOWN"] = "YES"

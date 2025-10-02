@@ -348,6 +348,7 @@ def generate_gmsh(
             - List of the aircraft parts in the model.
 
     """
+
     # Determine if rotors are present in the aircraft model
     rotor_model = cfg_rotors(brep_dir)
 

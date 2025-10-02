@@ -521,9 +521,9 @@ def fusing_parts(aircraft_parts, symmetry, sym_box):
                 # in this case, either the pieces are not connected
                 # or the order was wrong and we took a non connected piece
                 counter += 1
-                log.info(
-                    "Warning : the fusion did not give only one piece (will still try to see\
-                        if it's a question of order)"
+                log.warning(
+                    "The fusion did not give only one piece \
+                    (will still try to see if it's a question of order)"
                 )
                 dimtags_names = (
                     [
@@ -535,7 +535,7 @@ def fusing_parts(aircraft_parts, symmetry, sym_box):
                             + dimtags_names[j]["name"],
                         }
                     ]
-                    + [{dimtags_names[k]} for k in range(len(dimtags_names)) if k != j and k != i]
+                    + [dimtags_names[k] for k in range(len(dimtags_names)) if k != j and k != i]
                     + [
                         {
                             "dimtag": fused_entities[k],
@@ -549,10 +549,12 @@ def fusing_parts(aircraft_parts, symmetry, sym_box):
             elif len(fused_entities) == 0:
                 counter += 1
                 namei, namej = dimtags_names[i]["name"], dimtags_names[j]["name"]
-                log.info(f"Warning : error, no fused entity (fused {namei} and {namej})")
+                log.warning(f"No fused entity (fused {namei} and {namej})")
                 # put them in the end to try again
                 dimtags_names = [
-                    {dimtags_names[k]} for k in range(len(dimtags_names)) if k != j and k != i
+                    dimtags_names[k]
+                    for k in range(len(dimtags_names))
+                    if k != j and k != i
                 ] + [dimtags_names[i], dimtags_names[j]]
             else:
                 # Update the vectors of remaining entities
@@ -565,13 +567,13 @@ def fusing_parts(aircraft_parts, symmetry, sym_box):
 
         # Handle the cases where it didn't work
         except Exception as e:
-            log.info(f"Fusion failed for entities {0} and {j}: {e}")
+            log.warning(f"Fusion failed for entities {0} and {j}: {e=}")
             counter += 1
             random.shuffle(dimtags_names)
         if counter > 20:
             # If here we have multiples times had problems with fusion and won't give one piece
-            names = [dimtags_names[k]["name"] for k in len(dimtags_names)]
-            log.info(f"Warning : the end result is not in one piece. Parts by group : {names}")
+            names = [dimtags_names[k]["name"] for k in range(len(dimtags_names))]
+            log.warning(f"The end result is not in one piece. Parts by group : {names}")
             break
 
     if symmetry:

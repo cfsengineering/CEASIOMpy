@@ -61,7 +61,6 @@ from cpacspy.cpacspy import CPACS
 from itertools import combinations
 
 from ceasiompy import log
-from ceasiompy.CPACS2GMSH import MODULE_DIR
 from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
 
 

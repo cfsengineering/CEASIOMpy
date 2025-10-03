@@ -753,9 +753,8 @@ def generate_su2_cfd_config(
             bc_wall_str = su2_format(",".join(walls))
             cfg["MARKER_EULER"] = bc_wall_str
         else:
-            bc_wall_str = su2_format(
-                "(" + ",".join(f"{w}, 0.0" for w in walls) + ")"
-            )
+            bc_wall_str = su2_format(",".join(f"{w}, 0.0" for w in walls))
+
             cfg["MARKER_HEATFLUX"] = bc_wall_str
 
         farfield_bc = (

@@ -2,6 +2,7 @@
 
 import os
 import sys
+import shutil
 import subprocess
 
 from pathlib import Path
@@ -58,6 +59,31 @@ def main_exec():
     env = os.environ.copy()
     src_path = str(PROJECT_ROOT / "src")
     env["PYTHONPATH"] = src_path + os.pathsep + env.get("PYTHONPATH", "")
+
+    # If the ceasiompy conda env is not already active, try to run the script inside it.
+    target_conda_env = "ceasiompy"
+    active_conda = env.get("CONDA_DEFAULT_ENV")
+    if active_conda != target_conda_env:
+        # prefer conda, fall back to mamba
+        conda_bin = shutil.which("conda") or shutil.which("mamba")
+        if conda_bin:
+            # Use 'conda run' to execute inside the named env and let the env Python run the script
+            # (do NOT pass sys.executable here, otherwise conda run will execute the host python)
+            command = [
+                conda_bin,
+                "run",
+                "-n",
+                target_conda_env,
+                "--no-capture-output",
+                "python",
+                str(SCRIPT_ABSOLUTE_PATH),
+            ] + script_args
+        else:
+            print(
+                f"Warning: conda/mamba not found; \
+                running with current interpreter (env={active_conda}).",
+                file=sys.stderr,
+            )
 
     # --- Execute Script ---
 

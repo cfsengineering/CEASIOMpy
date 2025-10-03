@@ -15,25 +15,21 @@ resulting domain is meshed using gmsh
 | Date: 2025-May-8
 
 TODO:
-
     - It may be good to move all the function and some of the code in generategmsh()
     that are related to disk actuator to another python script and import it here
-
     - Add mesh sizing for each aircraft part and as consequence add marker
-
     - Integrate other parts during fragmentation
-
 """
 
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
 
-import random
-from itertools import combinations
 import gmsh
+import random
 
 from ceasiompy.CPACS2GMSH.func.utils import (
+    check_path,
     load_rans_cgf_params,
 )
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
@@ -46,7 +42,6 @@ from ceasiompy.CPACS2GMSH.func.generategmesh import (
     fuselage_size,
     process_gmsh_log,
 )
-from ceasiompy import log
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_wing_section,
     min_fields,
@@ -60,10 +55,13 @@ from ceasiompy.utils.ceasiompyutils import (
     get_part_type,
     run_software,
 )
-from ceasiompy.CPACS2GMSH.func.utils import check_path, MESH_COLORS
+
 from pathlib import Path
-from typing import Dict
 from cpacspy.cpacspy import CPACS
+from itertools import combinations
+
+from ceasiompy import log
+from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
 
 
 # =================================================================================================
@@ -522,9 +520,9 @@ def fusing_parts(aircraft_parts, symmetry, sym_box):
                 # in this case, either the pieces are not connected
                 # or the order was wrong and we took a non connected piece
                 counter += 1
-                log.info(
-                    "Warning : the fusion did not give only one piece (will still try to see\
-                        if it's a question of order)"
+                log.warning(
+                    "The fusion did not give only one piece \
+                    (will still try to see if it's a question of order)"
                 )
                 dimtags_names = (
                     [
@@ -536,7 +534,7 @@ def fusing_parts(aircraft_parts, symmetry, sym_box):
                             + dimtags_names[j]["name"],
                         }
                     ]
-                    + [{dimtags_names[k]} for k in range(len(dimtags_names)) if k != j and k != i]
+                    + [dimtags_names[k] for k in range(len(dimtags_names)) if k != j and k != i]
                     + [
                         {
                             "dimtag": fused_entities[k],
@@ -550,10 +548,12 @@ def fusing_parts(aircraft_parts, symmetry, sym_box):
             elif len(fused_entities) == 0:
                 counter += 1
                 namei, namej = dimtags_names[i]["name"], dimtags_names[j]["name"]
-                log.info(f"Warning : error, no fused entity (fused {namei} and {namej})")
+                log.warning(f"No fused entity (fused {namei} and {namej})")
                 # put them in the end to try again
                 dimtags_names = [
-                    {dimtags_names[k]} for k in range(len(dimtags_names)) if k != j and k != i
+                    dimtags_names[k]
+                    for k in range(len(dimtags_names))
+                    if k != j and k != i
                 ] + [dimtags_names[i], dimtags_names[j]]
             else:
                 # Update the vectors of remaining entities
@@ -566,13 +566,13 @@ def fusing_parts(aircraft_parts, symmetry, sym_box):
 
         # Handle the cases where it didn't work
         except Exception as e:
-            log.info(f"Fusion failed for entities {0} and {j}: {e}")
+            log.warning(f"Fusion failed for entities {0} and {j}: {e=}")
             counter += 1
             random.shuffle(dimtags_names)
         if counter > 20:
             # If here we have multiples times had problems with fusion and won't give one piece
-            names = [dimtags_names[k]["name"] for k in len(dimtags_names)]
-            log.info(f"Warning : the end result is not in one piece. Parts by group : {names}")
+            names = [dimtags_names[k]["name"] for k in range(len(dimtags_names))]
+            log.warning(f"The end result is not in one piece. Parts by group : {names}")
             break
 
     if symmetry:
@@ -975,12 +975,6 @@ def pentagrow_3d_mesh(
     log.info(f"(Checked in folder {result_dir}) (and config penta path is {config_penta_path})")
 
     command = ["surface_mesh.stl", "config.cfg"]
-
-    # Specify the file path
-    file_path = "command.txt"
-
-    with open(file_path, "w") as file:
-        file.write(" ".join(command))
 
     # Running command = "pentagrow surface_mesh.stl config.cfg"
     run_software(

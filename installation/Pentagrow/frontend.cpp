@@ -276,7 +276,7 @@ void FrontEnd::generateBoundaries(const std::string &fname, bool symmetry, Real 
   }
   else
   {
-    cout << "There are " << wall.nvertices() << " vertices." << endl;
+    //cout << "There are " << wall.nvertices() << " vertices." << endl;
     uint tag, vertices[3];
     std::map<int, int> tag_sym_vertex;
     Vct3 symmetric_vertex;
@@ -446,7 +446,7 @@ int FrontEnd::generateMetric(int iter)
 
   if (edgeGrowthFactor > 1.0)
   {
-    if (edgeGrowthFactor < 1.1)
+    if (edgeGrowthFactor < 1.21)
       cout << "[w] Tet growth factor very small." << endl;
     else if (edgeGrowthFactor > 1.6)
       cout << "[w] Tet growth factor very large." << endl;

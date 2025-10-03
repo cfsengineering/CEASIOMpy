@@ -1,6 +1,6 @@
 [flake8]
 max-line-length = 99
 
-ignore = W503, F401, W605, E203
+ignore = W503, F401, W605, E203, E231
 
 exclude = test/*, doc/*, build/*, dist/* setup.py, installation/Pentagrow/*, INSTALLDIR/*

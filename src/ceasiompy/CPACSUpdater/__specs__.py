@@ -56,7 +56,7 @@ segments_list = get_segments(st.session_state.cpacs.tixi)
 for wing_name, segment_name in segments_list:
     cpacs_inout.add_input(
         var_name=f"control_surface_{wing_name}_{segment_name}",
-        var_type=list,
+        var_type="AddControlSurfaces",
         default_value=CONTROL_SURFACES_LIST,
         unit=None,
         descr="Type of control surface to add at specific wing and segment of wing.",

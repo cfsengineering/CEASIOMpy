@@ -52,7 +52,7 @@ python3 meson.py build --prefix="${INSTALL_DIR}" \
     --buildtype=release
 
 echo "Building and installing SU2..."
-ninja -C build install
+ninja -C build -j2 install
 
 echo "Checking SU2 version"
 "${INSTALL_DIR}/bin/SU2_CFD" --help
@@ -96,3 +96,5 @@ done
 
 echo "SU2 with MPI installed successfully in $install_dir and added to PATH."
 echo "Please run 'source ~/.bashrc' or 'source ~/.zshrc' or open a new terminal to update your PATH."
+
+apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

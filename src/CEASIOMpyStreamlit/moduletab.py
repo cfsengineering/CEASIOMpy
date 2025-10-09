@@ -29,6 +29,7 @@ from CEASIOMpyStreamlit.guiobjects import (
     aeromap_checkbox,
     aeromap_selection,
     multiselect_vartype,
+    add_ctrl_surf_vartype,
 )
 
 from typing import (
@@ -169,6 +170,12 @@ def add_gui_object(
 
         session_state.xpath_to_update[xpath] = key
 
+        if var_type == "AddControlSurfaces":
+            session_state.xpath_to_update[xpath + "/ctrlsurf"] = key
+            session_state.xpath_to_update[
+                xpath + "/deformation_angle"
+            ] = f"{key}_deformation_angle"
+
 
 def add_module_tab(new_file: bool) -> None:
     if "cpacs" not in st.session_state:
@@ -190,6 +197,7 @@ def add_module_tab(new_file: bool) -> None:
         float: float_vartype,
         list: list_vartype,
         bool: bool_vartype,
+        "AddControlSurfaces": add_ctrl_surf_vartype,
     }
 
     dynamic_vartype_map = {

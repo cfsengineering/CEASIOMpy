@@ -1,1 +1,0 @@
-surface_mesh.stl config.cfg

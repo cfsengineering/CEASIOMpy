@@ -2209,7 +2209,7 @@ void TriMesh::addyplane(PointList<3> v_shell, Real y0)
   std::ofstream out("gmsh_generating_yplane.py");
 
   out << "import gmsh\n";
-  out << "print(\"start?\")\n\n";
+  //out << "print(\"start?\")\n\n";
   out << "gmsh.initialize()\n";
   out << "gmsh.option.setNumber(\"General.Terminal\", 0)\n\n";
 
@@ -2257,7 +2257,7 @@ void TriMesh::addyplane(PointList<3> v_shell, Real y0)
   out << "    tag_val = gmsh.model.occ.addPoint(v_shell[i][0], v_shell[i][1], v_shell[i][2])\n";
   out << "    tag_shell.append(tag_val)\n\n";
 
-  out << "print(\"added points\")\n\n";
+  //out << "print(\"added points\")\n\n";
 
   out << "tag_lines_shell = []\n";
   out << "mean_size_shell = 0\n";

@@ -57,14 +57,15 @@ jobs:
       run: sudo apt-get install -y libglu1-mesa-dev
 
     - name: Install Pentagrow
-      shell: bash -l {0}
+      shell: sudo bash -l {0}
       run: |
-        sudo bash installation/Ubuntu/install_pentagrow.sh
+        installation/Ubuntu/install_pentagrow.sh
 
     - name: Run unit tests
       shell: sudo bash -l {0}
       run: |
         source ~/.bashrc
+        conda activate ceasiompy
         pytest -v src/ceasiompy --cov=ceasiompy --cov-report xml:coverage.xml
 
     - name: Upload coverage to Codecov

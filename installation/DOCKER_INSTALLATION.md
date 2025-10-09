@@ -22,7 +22,7 @@ Simply run the following bash script in your favorite terminal.
 ceasiompy_docker
 ```
 
-and that's it !
+and that's it, once its finished running open at http://localhost:XXXX !
 
 If you get any error related to permissions, try:
 

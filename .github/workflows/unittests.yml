@@ -65,6 +65,7 @@ jobs:
       shell: sudo bash -l {0}
       run: |
         source ~/.bashrc
+        source /usr/share/miniconda3/etc/profile.d/conda.sh
         conda activate ceasiompy
         pytest -v src/ceasiompy --cov=ceasiompy --cov-report xml:coverage.xml
 

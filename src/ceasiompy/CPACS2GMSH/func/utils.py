@@ -211,7 +211,7 @@ def load_rans_cgf_params(
     output_format: str,
 ) -> Dict:
 
-    InitialHeight = h_first_layer * (10**-5)
+    InitialHeight = h_first_layer * 1e-5
     MaxLayerThickness = max_layer_thickness / 10
     if fuselage_maxlen * farfield_factor > 10:
         FarfieldRadius = 1000

@@ -36,7 +36,7 @@ jobs:
         use-mamba: false
         conda-version: 25.3.1
 
-    - name: Set cache date # With that, cache will be updated every day
+    - name: Set cache date # With that, cache will be updated
       run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
     - uses: actions/cache@v4

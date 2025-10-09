@@ -57,33 +57,36 @@ jobs:
       run: sudo apt-get install -y libglu1-mesa-dev
 
     - name: Install AVL
-      shell: bash -l {0}
+      shell: sudo bash -l {0}
       run: |
         installation/Ubuntu/install_pyavl.sh
 
     - name: Install SU2
-      shell: bash -l {0}
+      shell: sudo bash -l {0}
       run: |
         installation/Ubuntu/install_su2_without_mpi.sh
 
     - name: Install Pentagrow
-      shell: bash -l {0}
+      shell: sudo bash -l {0}
       run: |
         installation/Ubuntu/install_pentagrow.sh
 
     - name: Run integration tests
-      shell: bash -l {0}
+      shell: sudo bash -l {0}
       run: |
         source ~/.bashrc
+        source /usr/share/miniconda3/etc/profile.d/conda.sh
+        conda activate ceasiompy
         pytest -v ./tests --cov=ceasiompy --cov-report xml:coverage.xml -m "not gui"
 
     - name: Upload coverage to Codecov
+      if: github.repository == 'cfsengineering/CEASIOMpy' && secrets.CODECOV_TOKEN != ''
       uses: codecov/codecov-action@v3.1.0
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./coverage.xml
         flags: integrationtests
-        fail_ci_if_error: true
+        fail_ci_if_error: false
         verbose: true
 
     - name: Upload logs

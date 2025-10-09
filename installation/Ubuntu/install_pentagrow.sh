@@ -1,13 +1,12 @@
 #!/bin/bash
+set -e
 
-# Improved script for installing Pentagrow on Ubuntu/Mint
+# Improved script for installing Pentagrow on Ubuntu/Mint (Docker-safe)
 
-# Get absolute path of the script directory
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 current_dir="$(pwd)"
 
 ## 1. Initial setup
-# Get install directory from input if provided, otherwise use default
 if [ $# -gt 0 ]; then
     install_dir="$1/INSTALLDIR"
 else
@@ -15,19 +14,18 @@ else
 fi
 
 echo "Creating install directory..."
-mkdir -p "$install_dir" || { echo "Failed to create installation directory"; exit 1; }
-cd "$install_dir" || exit 1
+mkdir -p "$install_dir"
+cd "$install_dir"
 
 ## 2. Install dependencies
 echo "Adding required libraries..."
 
-sudo apt-get update -y || { echo "Failed to update repositories"; exit 1; }
-sudo apt-get install -y software-properties-common || { echo "Failed to install software-properties-common"; exit 1; }
+apt-get update -y
+apt-get install -y software-properties-common curl gnupg
 
-# Add key for Ubuntu repository (necessary on some systems)
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32 || { echo "Failed to add repository key"; exit 1; }
+# ---------------------------------------------------------------
 
-sudo apt-get install -y \
+apt-get install -y \
     libgfortran5 \
     libglu1-mesa \
     xvfb \
@@ -35,16 +33,17 @@ sudo apt-get install -y \
     hdf5-helpers \
     gfortran \
     liblapack-dev \
-    libblas-dev
+    libblas-dev \
+    wget
 
 echo "--> Checking if HDF5 libraries are linked correctly"
 if ! ldconfig -p | grep -q "libhdf5.so.103"; then
     echo "Creating symlink for libhdf5.so.103..."
     if ldconfig -p | grep -q "libhdf5_serial.so.103"; then
-        sudo rm -f /usr/lib/x86_64-linux-gnu/libhdf5.so.103
-        sudo ln -s /lib/x86_64-linux-gnu/libhdf5_serial.so.103 /usr/lib/x86_64-linux-gnu/libhdf5.so.103
+        rm -f /usr/lib/x86_64-linux-gnu/libhdf5.so.103
+        ln -s /lib/x86_64-linux-gnu/libhdf5_serial.so.103 /usr/lib/x86_64-linux-gnu/libhdf5.so.103
     else
-        sudo apt-get install -y libhdf5-dev || { echo "Failed to install libhdf5-dev"; exit 1; }
+        apt-get install -y libhdf5-dev
     fi
 else
     echo "libhdf5.so.103 is already correctly linked."
@@ -54,10 +53,10 @@ echo "--> Checking if HDF5 high-level libraries are linked correctly"
 if ! ldconfig -p | grep -q "libhdf5_hl.so.100"; then
     echo "Creating symlink for libhdf5_hl.so.100..."
     if ldconfig -p | grep -q "libhdf5_serial_hl.so.100"; then
-        sudo rm -f /usr/lib/x86_64-linux-gnu/libhdf5_hl.so.100
-        sudo ln -s /lib/x86_64-linux-gnu/libhdf5_serial_hl.so.100 /usr/lib/x86_64-linux-gnu/libhdf5_hl.so.100
+        rm -f /usr/lib/x86_64-linux-gnu/libhdf5_hl.so.100
+        ln -s /lib/x86_64-linux-gnu/libhdf5_serial_hl.so.100 /usr/lib/x86_64-linux-gnu/libhdf5_hl.so.100
     else
-        sudo apt-get install -y libhdf5-dev || { echo "Failed to install libhdf5-dev"; exit 1; }
+        apt-get install -y libhdf5-dev
     fi
 else
     echo "libhdf5_hl.so.100 is already correctly linked."
@@ -65,14 +64,12 @@ fi
 
 ## 3. Install TetGen
 echo "--> Verifying if TetGen is already installed"
-
 if command -v tetgen &> /dev/null; then
     echo "TetGen is already installed."
 else
     echo "Downloading and installing TetGen..."
-    wget http://archive.ubuntu.com/ubuntu/pool/universe/t/tetgen/tetgen_1.5.0-5build1_amd64.deb || { echo "Failed to download TetGen package"; exit 1; }
-    sudo dpkg -i tetgen_1.5.0-5build1_amd64.deb || sudo apt-get install -f -y || { echo "Failed to install TetGen and fix dependencies"; exit 1; }
-
+    wget http://archive.ubuntu.com/ubuntu/pool/universe/t/tetgen/tetgen_1.5.0-5build1_amd64.deb
+    dpkg -i tetgen_1.5.0-5build1_amd64.deb || apt-get install -f -y
     if command -v tetgen &> /dev/null; then
         echo "TetGen installed successfully."
     else
@@ -90,48 +87,21 @@ mkdir -p "$pentagrow_run_path"
 pentagrow_bin_src="$(realpath "$script_dir/../Pentagrow/bin")"
 
 if [ -d "$pentagrow_bin_src" ] && [ -n "$(ls -A "$pentagrow_bin_src" 2>/dev/null)" ]; then
-    cp "$pentagrow_bin_src"/* "$pentagrow_run_path/" || { echo "Failed to copy Pentagrow executables."; exit 1; }
+    cp "$pentagrow_bin_src"/* "$pentagrow_run_path/"
     echo "Pentagrow executables copied successfully."
 else
     echo "No binaries found in $pentagrow_bin_src"
     exit 1
 fi
 
-echo "Trying to copy from: $(realpath "$pentagrow_bin_src" || echo "Path not found")"
-
-# Function to add environment variables to a shell rc file if not already present
-add_to_shell_rc() {
-    local rcfile="$1"
-    if ! grep -q "PENTAGROW_RUN" "$rcfile" 2>/dev/null; then
-        echo "# Pentagrow Path" >> "$rcfile"
-        echo "export PENTAGROW_RUN=\"$pentagrow_run_path\"" >> "$rcfile"
-        echo "export PATH=\"\$PATH:\$PENTAGROW_RUN\"" >> "$rcfile"
-        echo "Pentagrow path added to PATH in $rcfile (apply changes with: source $rcfile)"
-    else
-        echo "PENTAGROW_RUN is already set in $rcfile"
+# Add environment variables (no sudo, works in Docker)
+for rcfile in "$HOME/.bashrc" "$HOME/.zshrc"; do
+    if [ -f "$rcfile" ]; then
+        grep -q "PENTAGROW_RUN" "$rcfile" || echo "export PENTAGROW_RUN=\"$pentagrow_run_path\"" >> "$rcfile"
+        grep -q "TETGEN_PATH" "$rcfile" || echo "export TETGEN_PATH=\$(which tetgen)" >> "$rcfile"
+        echo "export PATH=\"\$PATH:\$PENTAGROW_RUN:\$(dirname \$TETGEN_PATH)\"" >> "$rcfile"
     fi
+done
 
-    if ! grep -q "TETGEN_PATH" "$rcfile" 2>/dev/null; then
-        echo "# Tetgen Path" >> "$rcfile"
-        echo "export TETGEN_PATH=\$(which tetgen)" >> "$rcfile"
-        echo "export PATH=\"\$PATH:\$TETGEN_PATH\"" >> "$rcfile"
-        echo "Tetgen path added to PATH in $rcfile (apply changes with: source $rcfile)"
-    else
-        echo "TETGEN_PATH is already set in $rcfile"
-    fi
-}
-
-# Update .bashrc, .zshrc, and .profile
-add_to_shell_rc "$HOME/.bashrc"
-add_to_shell_rc "$HOME/.zshrc"
-
-echo "Testing Pentagrow command:"
-if command -v pentagrow &> /dev/null; then
-    pentagrow
-else
-    echo "Pentagrow not found in PATH (try 'source ~/.bashrc')"
-fi
-
-cd "$current_dir" || exit 1
+cd "$current_dir"
 echo "Installation and setup complete."
-echo "Please run 'source ~/.bashrc' or 'source ~/.zshrc' or open a new terminal to update your PATH."

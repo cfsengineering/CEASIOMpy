@@ -36,7 +36,7 @@ jobs:
         use-mamba: false
         conda-version: 25.3.1
 
-    - name: Set cache date # With that, cache will be updated every day
+    - name: Set cache date # With that, cache will be updated
       run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
     - uses: actions/cache@v4
@@ -57,21 +57,24 @@ jobs:
       run: sudo apt-get install -y libglu1-mesa-dev
 
     - name: Install Pentagrow
-      shell: bash -l {0}
+      shell: sudo bash -l {0}
       run: |
         installation/Ubuntu/install_pentagrow.sh
 
     - name: Run unit tests
-      shell: bash -l {0}
+      shell: sudo bash -l {0}
       run: |
         source ~/.bashrc
+        source /usr/share/miniconda3/etc/profile.d/conda.sh
+        conda activate ceasiompy
         pytest -v src/ceasiompy --cov=ceasiompy --cov-report xml:coverage.xml
 
     - name: Upload coverage to Codecov
+      if: github.repository == 'cfsengineering/CEASIOMpy' && secrets.CODECOV_TOKEN != ''
       uses: codecov/codecov-action@v3.1.0
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./coverage.xml
         flags: unittests
-        fail_ci_if_error: true
+        fail_ci_if_error: false
         verbose: true

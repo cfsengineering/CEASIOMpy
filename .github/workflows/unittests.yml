@@ -62,7 +62,7 @@ jobs:
         sudo bash installation/Ubuntu/install_pentagrow.sh
 
     - name: Run unit tests
-      shell: bash -l {0}
+      shell: sudo bash -l {0}
       run: |
         source ~/.bashrc
         pytest -v src/ceasiompy --cov=ceasiompy --cov-report xml:coverage.xml

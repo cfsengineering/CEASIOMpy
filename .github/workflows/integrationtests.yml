@@ -59,7 +59,7 @@ jobs:
     - name: Install AVL
       shell: bash -l {0}
       run: |
-        sudo bashinstallation/Ubuntu/install_pyavl.sh
+        sudo bash installation/Ubuntu/install_pyavl.sh
 
     - name: Install SU2
       shell: bash -l {0}
@@ -72,7 +72,7 @@ jobs:
         sudo bash installation/Ubuntu/install_pentagrow.sh
 
     - name: Run integration tests
-      shell: bash -l {0}
+      shell: sudo bash -l {0}
       run: |
         source ~/.bashrc
         pytest -v ./tests --cov=ceasiompy --cov-report xml:coverage.xml -m "not gui"

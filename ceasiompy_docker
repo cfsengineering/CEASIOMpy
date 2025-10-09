@@ -51,12 +51,17 @@ fi
 
 # Determine if we need sudo for docker
 DOCKER="docker"
-if ! docker info >/dev/null 2>&1; then
-  echo "Docker requires elevated permissions. Attempting with sudo..."
-  DOCKER="sudo docker"
-  if ! sudo -v; then
-    echo "Could not acquire sudo. Add your user to docker group and re-login:"
-    echo "  sudo usermod -aG docker \$USER && newgrp docker"
+# Try docker first, then sudo docker if necessary
+if ! ${DOCKER} info >/dev/null 2>&1; then
+  if command -v sudo >/dev/null 2>&1 && sudo docker info >/dev/null 2>&1; then
+    echo "Using sudo for Docker commands."
+    DOCKER="sudo docker"
+  else
+    echo "Docker requires elevated permissions or your user is not in the docker group."
+    echo "Options:"
+    echo "  - Add your user to the docker group and re-login:"
+    echo "      sudo usermod -aG docker \$USER && newgrp docker"
+    echo "  - Or ensure sudo is available and that 'sudo docker info' succeeds."
     exit 1
   fi
 fi
@@ -132,6 +137,15 @@ RUN_ARGS=(
 )
 
 # Build
+# If user asked --run-only ensure image exists
+if [[ "${RUN_ONLY}" == "true" ]]; then
+  if ! ${DOCKER} image inspect "${IMAGE_NAME}" >/dev/null 2>&1; then
+    echo "Requested --run-only but Docker image '${IMAGE_NAME}' not found locally."
+    echo "Either build the image first or run without --run-only."
+    exit 1
+  fi
+fi
+
 if [[ "${RUN_ONLY}" != "true" ]]; then
   echo "Building image '${IMAGE_NAME}' for platform ${PLATFORM}..."
   set -x

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Defaults
+# Default arguments
 IMAGE_NAME="ceasiompy-image"
 DOCKERFILE="CEASIOMpy_docker_Installation"
 PORT="8501"

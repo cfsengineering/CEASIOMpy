@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Defaults
+IMAGE_NAME="ceasiompy-image"
+DOCKERFILE="CEASIOMpy_docker_Installation"
+PORT="8501"
+NO_CACHE="false"
+BUILD_ONLY="false"
+RUN_ONLY="false"
+
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") [options]
+
+Options:
+  -i, --image NAME        Docker image name (default: ${IMAGE_NAME})
+  -f, --file FILE         Dockerfile path (default: ${DOCKERFILE})
+  -p, --port PORT         Host port to map Streamlit (default: ${PORT})
+  --no-cache              Build without cache
+  --build-only            Only build the image
+  --run-only              Only run the container (skip build)
+  -h, --help              Show this help
+
+Examples:
+  $(basename "$0")
+  $(basename "$0") --no-cache
+  $(basename "$0") -i ceasiompy-img -p 8502
+EOF
+}
+
+# Arg parsing
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -i|--image) IMAGE_NAME="$2"; shift 2 ;;
+    -f|--file) DOCKERFILE="$2"; shift 2 ;;
+    -p|--port) PORT="$2"; shift 2 ;;
+    --no-cache) NO_CACHE="true"; shift ;;
+    --build-only) BUILD_ONLY="true"; shift ;;
+    --run-only) RUN_ONLY="true"; shift ;;
+    -h|--help) usage; exit 0 ;;
+    *) echo "Unknown option: $1"; usage; exit 1 ;;
+  esac
+done
+
+# Check Docker installed
+if ! command -v docker >/dev/null 2>&1; then
+  echo "Docker is not installed. Install it: https://docs.docker.com/get-started/get-docker/"
+  exit 1
+fi
+
+# Determine if we need sudo for docker
+DOCKER="docker"
+if ! docker info >/dev/null 2>&1; then
+  echo "Docker requires elevated permissions. Attempting with sudo..."
+  DOCKER="sudo docker"
+  if ! sudo -v; then
+    echo "Could not acquire sudo. Add your user to docker group and re-login:"
+    echo "  sudo usermod -aG docker \$USER && newgrp docker"
+    exit 1
+  fi
+fi
+
+# Map machine architecture to Docker platform
+ARCH="$(uname -m)"
+case "$ARCH" in
+  x86_64|amd64) PLATFORM="linux/amd64" ;;
+  arm64|aarch64) PLATFORM="linux/arm64" ;;
+  *) echo "Unknown architecture '$ARCH'. Defaulting to linux/amd64"; PLATFORM="linux/amd64" ;;
+esac
+
+# Validate Dockerfile
+if [[ ! -f "$DOCKERFILE" ]]; then
+  echo "Dockerfile '$DOCKERFILE' not found. Run this script from the project root."
+  exit 1
+fi
+
+BUILD_ARGS=(build --platform="${PLATFORM}" -t "${IMAGE_NAME}" -f "${DOCKERFILE}" .)
+if [[ "${NO_CACHE}" == "true" ]]; then
+  BUILD_ARGS+=(--no-cache)
+fi
+
+# Choose networking / X11 handling depending on host OS
+OS="$(uname -s)"
+case "$OS" in
+  Linux)
+    # Native Linux: prefer host networking and X11 socket
+    DOCKER_NET_ARGS=(--net=host -e DISPLAY="${DISPLAY:-}" -v /tmp/.X11-unix:/tmp/.X11-unix)
+    ;;
+  Darwin|FreeBSD)
+    # macOS: host networking is not equivalent; publish port and keep DISPLAY if set
+    DOCKER_NET_ARGS=(-p "${PORT}:${PORT}" -e DISPLAY="${DISPLAY:-}")
+    ;;
+  MINGW*|MSYS*|CYGWIN*|Windows_NT)
+    # Windows / MSYS: publish port and don't mount X11 socket
+    DOCKER_NET_ARGS=(-p "${PORT}:${PORT}")
+    ;;
+  *)
+    DOCKER_NET_ARGS=(-p "${PORT}:${PORT}")
+    ;;
+esac
+
+# Compute host path for bind mount (handle MSYS/Windows and SELinux)
+HOST_PWD="$(pwd)"
+# Convert MSYS/Cygwin path to Windows form if possible (helps Docker Desktop)
+if [[ "$OS" =~ MINGW|MSYS|CYGWIN|Windows_NT ]] && command -v cygpath >/dev/null 2>&1; then
+  HOST_PWD="$(cygpath -w "$HOST_PWD")"
+fi
+
+# SELinux support: add :Z if enforcing
+SELINUX_ARG=""
+if command -v getenforce >/dev/null 2>&1 && [ "$(getenforce 2>/dev/null)" = "Enforcing" ]; then
+  SELINUX_ARG=":Z"
+fi
+
+# Preserve host UID/GID inside container (avoid root-owned files)
+DOCKER_USER_ARG=()
+if command -v id >/dev/null 2>&1; then
+  DOCKER_USER_ARG+=(-u "$(id -u):$(id -g)")
+fi
+
+# Build RUN_ARGS using the chosen networking args
+RUN_ARGS=(
+  run --init -it --rm
+  "${DOCKER_NET_ARGS[@]}"
+  "${DOCKER_USER_ARG[@]}"
+  -e LIBGL_ALWAYS_SOFTWARE=1
+  -e OMPI_ALLOW_RUN_AS_ROOT=1
+  -e OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+  -v "${HOST_PWD}":/CEASIOMpy${SELINUX_ARG}
+  "${IMAGE_NAME}"
+)
+
+# Build
+if [[ "${RUN_ONLY}" != "true" ]]; then
+  echo "Building image '${IMAGE_NAME}' for platform ${PLATFORM}..."
+  set -x
+  ${DOCKER} "${BUILD_ARGS[@]}"
+  set +x
+fi
+
+# Run
+if [[ "${BUILD_ONLY}" != "true" ]]; then
+  echo "Starting container from '${IMAGE_NAME}'..."
+  echo "Mounting $(pwd) -> /CEASIOMpy"
+  echo "Streamlit will be available at: http://localhost:${PORT}"
+  # Try to open browser shortly after starting
+  (sleep 6; command -v xdg-open >/dev/null 2>&1 && xdg-open "http://localhost:${PORT}" || true) &
+
+  set -x
+  ${DOCKER} "${RUN_ARGS[@]}"
+  set +x
+fi

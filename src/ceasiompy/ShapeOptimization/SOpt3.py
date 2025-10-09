@@ -50,7 +50,6 @@ from ceasiompy.PyAVL import (
 from ceasiompy.utils.ceasiompyutils import (
     current_workflow_dir,
     update_cpacs_from_specs,
-    get_aeromap_conditions
 )
 
 
@@ -58,7 +57,7 @@ from ceasiompy.utils.ceasiompyutils import (
 # =================================================================================================
 
 
-BASE_CPACS  = Path("oneraM6.xml")
+BASE_CPACS  = Path("D150_simple.xml")
 MODEL_UID = "wing"     # or "fuselage", "engine", ecc.
 PART_UID = "Wing1"
 SECTION_UIDS = [f"{PART_UID}_Sec{i}" for i in range(1, 5)]
@@ -72,13 +71,12 @@ OBJECTIVES_LIST = ["cl", "cd", "cs", "cmd", "cml", "cms"]
 parameters = {
     "sweepAngle" : 10,
     "dihedralAngle" : 5,
-    "rotation_y" : 3,
 }
 
+xpath_base = f"/cpacs/vehicles/aircraft/model/{MODEL_UID}s/{MODEL_UID}[@uID='{PART_UID}']/sections"
+aeroMap = f"/cpacs/vehicles/aircraft/model/analyses/aeroPerformance"
+xpath_coeffs = f"/cpacs/vehicles/aircraft/model/{MODEL_UID}s/{MODEL_UID}[@uID='{PART_UID}']/positionings"
 
-xpath_base = f"/cpacs/vehicles/aircraft/model"
-aeroMap = f"{xpath_base}/analyses/aeroPerformance"
-xpath_coeffs = f"{xpath_base}/{MODEL_UID}s/{MODEL_UID}[@uID='{PART_UID}']/positionings"
 
 def update_cpacs(cpacs_path_in: Path, cpacs_path_out: Path, params: dict) -> None:
 
@@ -126,23 +124,15 @@ def define_ranges(cpacs: CPACS):
     """
     ranges = {}
     tixi = cpacs.tixi
-    count_pos = tixi.getNamedChildrenCount(xpath_coeffs, "positioning")
+    count = tixi.getNamedChildrenCount(xpath_coeffs, "positioning")
     
     for params,toll in parameters.items():
-        if params == "rotation_y":
-            count_sec = tixi.getNamedChildrenCount(f"{xpath_base}/{MODEL_UID}s/{MODEL_UID}[@uID='{PART_UID}']/sections", "section")
-            for i in range(1, count_sec + 1):
-                node_path = f"{xpath_base}/{MODEL_UID}s/{MODEL_UID}[@uID='{PART_UID}']/sections/section[{i}]/transformation/rotation/y"
-                val = tixi.getDoubleElement(node_path)
-                key_name = f"{params}_{i}"
-                ranges[key_name] = (val - toll, val + toll)
-        else:
-            # Per altri parametri come sweepAngle, dihedralAngle
-            for i in range(1, count_pos + 1):
-                node_path = f"{xpath_coeffs}/positioning[{i}]/{params}"
-                val = tixi.getDoubleElement(node_path)
-                key_name = f"{params}_{i}"
-                ranges[key_name] = (val - toll, val + toll)
+        for i in range(1, count + 1):
+            node_path = f"{xpath_coeffs}/positioning[{i}]/{params}"
+            val = tixi.getDoubleElement(node_path)
+            key_name = f"{params}_{i}"
+            ranges[key_name] = (val - toll, val + toll)
+            # print(f"Parameter: {key_name}, Range: {ranges[key_name]}")
 
     return ranges, list(ranges.keys())
 
@@ -177,14 +167,8 @@ def run_simulations(cpacs_template: Path, samples_df: pd.DataFrame, result_dir: 
         avl_dir = PyAVL_dir / f"avl_results_case_{idx+1}"
         avl_dir.mkdir(exist_ok=True)
 
-        alt_list,mach_list,aoa_list,aos_list = get_aeromap_conditions(CPACS(cpacs_template), aeroMap)
 
-        alt = alt_list[0]
-        mach = mach_list[0]
-        aoa = aoa_list[0]
-        aos = aos_list[0]
-
-        results_avl_file = avl_dir / f"Case00_alt{alt}_mach{mach}_aoa{aoa}_aos{aos}_q0.0_p0.0_r0.0" / "st.txt"
+        results_avl_file = avl_dir / "Case00_alt0.0_mach0.3_aoa0.0_aos0.0_q0.0_p0.0_r0.0" / "st.txt"
 
         # create the parameters dictionary to update CPACS
         params_to_update = {}
@@ -221,15 +205,14 @@ def run_simulations(cpacs_template: Path, samples_df: pd.DataFrame, result_dir: 
             writer.writerow(data_row)
 
         
-def train_sm(cpacs: CPACS, dataset_path: Path, result_dir: Path, objective: str, prmtr_keys) :
+def train_sm(cpacs: CPACS, dataset_path: Path, result_dir: Path, objective: str):
     
 
+    
     # convert to ndarray the csv file, in order to get the hyperparameter space
-    df1 = pd.read_csv(dataset_path, usecols= prmtr_keys + [objective])
+    df1 = pd.read_csv(dataset_path, usecols=list(range(8)) + [10])
     ndarray1 = df1.to_numpy()
     # print(ndarray1)
-
-
 
     level1_set = {
         "x_train" : ndarray1
@@ -284,20 +267,19 @@ def find_minima(model, x0, bounds, n_runs, target_index):
     def fun(x):
         return cost_function(x, model, target_index)
     
-    # minimizer_kwargs = {
-    # "method": "L-BFGS-B",
-    # "bounds": bounds
-    # }
+    minimizer_kwargs = {
+    "method": "L-BFGS-B",
+    "bounds": bounds
+    }
     
     
     minima = []
 
     for i in range(n_runs):
-        result = minimize(
+        result = basinhopping(
         fun, 
         x0, 
-        bounds= bounds,
-        method= 'L-BFGS-B'
+        minimizer_kwargs= minimizer_kwargs,
         )
 
         minima.append((result.fun, result.x))
@@ -308,6 +290,8 @@ def find_minima(model, x0, bounds, n_runs, target_index):
     #         print(f" {name} = {value}")   
     
     return minima
+
+
 
 
 
@@ -322,39 +306,32 @@ def main() -> None:
     workflow_dir = current_workflow_dir()
     simulations_dir = workflow_dir / "simulations"
     simulations_dir.mkdir(exist_ok=True)
-
-    ranges, params_keys = define_ranges(cpacs_obj)
-
-    # print(f"{params_keys} , {ranges}")
-    
-    # ---- LHS generation----
-    lh_sampling_path = lh_sampling(N_SAMPLES, ranges, simulations_dir)
-    samples_df = pd.read_csv(lh_sampling_path)
-    print(f"LHS samples:\n{samples_df}")
-
-    dataSet_path = simulations_dir / "simulation_results.csv"
-    
-    # print(f"Run simulation for each configuration")
-    run_simulations(cpacs_file, samples_df, simulations_dir, dataSet_path)
-
-    # Add the column Cl/Cd in order to train the surrogate model over this parameter 
-    # and also to use this one as objective
-
-    dfnew = pd.read_csv(dataSet_path)
-    dfnew['cl_cd'] = dfnew['cl'] / dfnew['cd']
-    dfnew.to_csv(dataSet_path, index=False)
-
-    objective = 'cl_cd'
-
     surrogate_model_dir = workflow_dir / "SurrogateModel"
     surrogate_model_dir.mkdir(exist_ok=True)
     smt_dir = surrogate_model_dir / "Training"
     smt_dir.mkdir(exist_ok=True)
-    csv_path_minima = simulations_dir / "minimum.csv"
+
     cpacsNewConf_dir = surrogate_model_dir / "NewConfiguration_cpacs"
     cpacsNewConf_dir.mkdir(exist_ok=True)
 
-    train_sm(cpacs_obj, dataSet_path, smt_dir, objective, params_keys)
+    csv_path_minima = simulations_dir / "minimum.csv"
+
+    ranges, params_keys = define_ranges(cpacs_obj)
+
+    
+    # ---- LHS generation----
+    lh_sampling_path = lh_sampling(N_SAMPLES, ranges, simulations_dir)
+    samples_df = pd.read_csv(lh_sampling_path)
+    # print(f"LHS samples:\n{samples_df}")
+
+    dataSet_path = simulations_dir / "simulation_results.csv"
+    
+    objective = "cl"
+
+    # print(f"Run simulation for each configuration")
+    run_simulations(cpacs_file, samples_df, simulations_dir, dataSet_path)
+
+    train_sm(cpacs_obj, dataSet_path, smt_dir, objective)
 
     model_path = smt_dir / "surrogateModel_{}.pkl".format(objective)
     # Load the model and its metadata
@@ -369,6 +346,7 @@ def main() -> None:
 
     model = model_metadata["model"]
     coefficient = model_metadata["coefficient"]
+
     # print(model)
     # print(coefficient)
 
@@ -378,12 +356,11 @@ def main() -> None:
     # print(bounds)
 
     target_index = 0 # at the moment the model return just the value of the "objective", so the index is = 0
-    n_runs = 1 # number of run for each
+    n_runs = 3 # number of run, so number of starting points
     dist = 5 # distance between two different starting points, it depend on the range of the sampling
-    attempt = 3 # number of attempts allowed to find new starting points, so if n_runs = 1 also the max number of starting points
     starts_point = []
 
-    while len(starts_point) < attempt:
+    while len(starts_point) < n_runs:
         x0_new = np.array([np.random.uniform(low, high) for (low, high) in bounds])
         if all(np.linalg.norm(x0_new - s) > dist for s in starts_point):
             starts_point.append(x0_new)

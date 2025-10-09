@@ -102,3 +102,4 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
 if __name__ == "__main__":
     call_main(main, MODULE_NAME)
+

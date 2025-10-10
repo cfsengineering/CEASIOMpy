@@ -99,7 +99,7 @@ for rcfile in "$HOME/.bashrc" "$HOME/.zshrc"; do
     if [ -f "$rcfile" ]; then
         grep -q "PENTAGROW_RUN" "$rcfile" || echo "export PENTAGROW_RUN=\"$pentagrow_run_path\"" >> "$rcfile"
         grep -q "TETGEN_PATH" "$rcfile" || echo "export TETGEN_PATH=\$(which tetgen)" >> "$rcfile"
-        echo "export PATH=\"\$PATH:\$PENTAGROW_RUN:\$(dirname \$TETGEN_PATH)\"" >> "$rcfile"
+        grep -q 'export PATH="$PATH:$PENTAGROW_RUN:$(dirname $TETGEN_PATH)"' "$rcfile" || echo "export PATH=\"\$PATH:\$PENTAGROW_RUN:\$(dirname \$TETGEN_PATH)\"" >> "$rcfile"
     fi
 done
 

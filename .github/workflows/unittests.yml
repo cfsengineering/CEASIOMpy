@@ -3,11 +3,12 @@ name: Unittest
 on:
   push:
     branches:
-      - main
+      - '**'
   pull_request:
     branches:
-      - main
+      - '**'
 
+  workflow_dispatch: {}  # allow manual run from Actions UI
   schedule:
     - cron: '0 2 * * 1'  # every Monday at 2:00am
 

@@ -81,13 +81,12 @@ jobs:
         pytest -v ./tests --cov=ceasiompy --cov-report xml:coverage.xml -m "not gui"
 
     - name: Upload coverage to Codecov
-      if: github.repository == 'cfsengineering/CEASIOMpy' && secrets.CODECOV_TOKEN != ''
       uses: codecov/codecov-action@v3.1.0
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./coverage.xml
         flags: integrationtests
-        fail_ci_if_error: false
+        fail_ci_if_error: true
         verbose: true
 
     - name: Upload logs

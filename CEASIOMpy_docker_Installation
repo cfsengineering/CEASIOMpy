@@ -5,6 +5,10 @@
 
 FROM ubuntu:24.04
 
+# Define user as root to have all the permissions
+# for installing SU2 with MPI
+# USER root
+
 RUN apt-get update
 RUN apt-get install -y libglu1-mesa-dev
 RUN apt update && apt upgrade -y
@@ -13,6 +17,9 @@ RUN apt-get install -y --no-install-recommends \
     git curl wget sudo unzip build-essential libtbbmalloc2 libtbb-dev libxrender1 libxcursor1 libxinerama1 libxft2 libxt6 \
     libgl1 libglu1-mesa libegl1 libosmesa6 xvfb ca-certificates && \
     rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y gnupg curl && \
+    echo '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d
 
 # Install Miniconda
 ENV CONDA_DIR=/opt/conda

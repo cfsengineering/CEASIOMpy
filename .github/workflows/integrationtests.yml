@@ -8,6 +8,7 @@ on:
     branches:
       - main
 
+  workflow_dispatch: {}  # allow manual run from Actions UI
   schedule:
     - cron: '0 2 * * 1'  # every Monday at 2:00am
 
@@ -57,24 +58,26 @@ jobs:
       run: sudo apt-get install -y libglu1-mesa-dev
 
     - name: Install AVL
-      shell: bash -l {0}
+      shell: sudo bash -l {0}
       run: |
         installation/Ubuntu/install_pyavl.sh
 
     - name: Install SU2
-      shell: bash -l {0}
+      shell: sudo bash -l {0}
       run: |
         installation/Ubuntu/install_su2_without_mpi.sh
 
     - name: Install Pentagrow
-      shell: bash -l {0}
+      shell: sudo bash -l {0}
       run: |
         installation/Ubuntu/install_pentagrow.sh
 
     - name: Run integration tests
-      shell: bash -l {0}
+      shell: sudo bash -l {0}
       run: |
         source ~/.bashrc
+        source /usr/share/miniconda3/etc/profile.d/conda.sh
+        conda activate ceasiompy
         pytest -v ./tests --cov=ceasiompy --cov-report xml:coverage.xml -m "not gui"
 
     - name: Upload coverage to Codecov

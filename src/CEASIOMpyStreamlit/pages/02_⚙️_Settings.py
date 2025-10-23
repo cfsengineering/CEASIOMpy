@@ -24,18 +24,20 @@ from streamlitutils import (
     save_cpacs_file,
 )
 
+from typing import Final
+
 # ==============================================================================
 #   CONSTANTS
 # ==============================================================================
 
-HOW_TO_TEXT = (
+HOW_TO_TEXT: Final[str] = (
     "### How to use Settings?\n"
     "1. With *Edit aeromap* you can create or modify an aeromap\n"
     "1. Through each tab you can modify the settings of each module\n"
     "1. Once finished, go to the *Run Workflow* page\n"
 )
 
-PAGE_NAME = "Settings"
+PAGE_NAME: Final[str] = "Settings"
 
 # ==============================================================================
 #   FUNCTIONS

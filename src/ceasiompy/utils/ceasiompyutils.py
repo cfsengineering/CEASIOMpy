@@ -59,7 +59,7 @@ from ceasiompy import (
     log,
     ceasiompy_cfg,
 )
-from ceasiompy.utils.commonpaths import (
+from ceasiompy import (
     WKDIR_PATH,
     CPACS_FILES_PATH,
 )
@@ -115,6 +115,7 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
             value = test_value
         else:
             value = default_value
+
         parts = xpath.strip("/").split("/")
         for i in range(1, len(parts) + 1):
             path = "/" + "/".join(parts[:i])
@@ -272,7 +273,10 @@ def current_workflow_dir() -> Path:
         last_wkflow_dir = WKDIR_PATH / get_workflow_idx(max_idx)
 
         # If the last workflow contains the toolinput file, we increment index
-        if (last_wkflow_dir / "00_ToolInput.xml").exists() and (last_wkflow_dir / "Results").exists():
+        if (
+            (last_wkflow_dir / "00_ToolInput.xml").exists()
+            and (last_wkflow_dir / "Results").exists()
+        ):
             new_idx = max_idx + 1
         else:
             new_idx = max_idx

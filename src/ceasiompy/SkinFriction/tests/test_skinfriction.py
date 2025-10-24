@@ -21,7 +21,7 @@ from pytest import approx
 from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
-from ceasiompy.utils.commonpaths import LOGFILE
+from ceasiompy import LOGFILE
 from ceasiompy.SkinFriction import MODULE_NAME
 
 # =================================================================================================

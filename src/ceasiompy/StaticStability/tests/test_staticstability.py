@@ -37,7 +37,7 @@ from cpacspy.cpacspy import (
     AeroMap,
 )
 from ceasiompy import log
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy import CPACS_FILES_PATH
 from ceasiompy.StaticStability import (
     MODULE_NAME,
     STATICSTABILITY_LR_XPATH,

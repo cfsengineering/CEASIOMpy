@@ -16,6 +16,7 @@ Main Streamlit page for CEASIOMpy GUI.
 #    IMPORTS
 # =================================================================================================
 
+import sys
 import trimesh
 import numpy as np
 import streamlit as st
@@ -34,9 +35,12 @@ from typing import (
     Optional,
 )
 
-from ceasiompy import log
 from CEASIOMpyStreamlit import GUI_SETTINGS
-from ceasiompy.utils.commonpaths import WKDIR_PATH
+from ceasiompy import (
+    log,
+    WKDIR_PATH,
+    GEOMETRIES_PATH,
+)
 
 # =================================================================================================
 #    CONSTANTS
@@ -77,6 +81,9 @@ class GUISettings:
         self.create_document()
 
     def create_document(self: 'GUISettings') -> None:
+        '''
+        Creates New GUI Settings (OVER-RIDE)
+        '''
         # Safeguards
         if self.cpacs_path is not None and self.stp_path is not None:
             log.error(
@@ -92,6 +99,8 @@ class GUISettings:
 
         # Create New Document
         tixi = Tixi3()
+
+        self.tixi = tixi  # Keeps reference (i.e. mutable)
 
         # Tixi3.create requires the root element name
         tixi.create("Settings")
@@ -128,7 +137,7 @@ def write_gui_xml(
     file_name: str,
     stp_path: Optional[Path] = None,
     cpacs_path: Optional[Path] = None,
-) -> GUISettings:
+) -> Tixi3:
     """
     Build and persist a GUISettings object. Returns the GUISettings instance
     (so you can keep it in session_state or manipulate it further).
@@ -150,7 +159,8 @@ def write_gui_xml(
     return settings
 
 
-def section_select_cpacs():
+def section_select_cpacs() -> None:
+
     if "workflow" not in st.session_state:
         st.session_state["workflow"] = Workflow()
 
@@ -163,14 +173,14 @@ def section_select_cpacs():
         type=["xml", "stp"],
     )
 
-    current_workflow = current_workflow_dir()
+    GEOMETRIES_PATH.mkdir(parents=True, exist_ok=True)
 
     if uploaded_file is not None:
         log.info(f'Your file type is {uploaded_file.type=}')
 
     if uploaded_file and "xml" in uploaded_file.type:
         log.info('Loading a CPACS xml file.')
-        cpacs_path = Path(current_workflow, uploaded_file.name)
+        cpacs_path = Path(GEOMETRIES_PATH, uploaded_file.name)
 
         with open(cpacs_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
@@ -186,7 +196,8 @@ def section_select_cpacs():
 
     if uploaded_file and uploaded_file.type == "application/octet-stream":
         log.info("Loading a STP file.")
-        stp_path = Path(current_workflow, uploaded_file.name)
+        stp_path = Path(GEOMETRIES_PATH, uploaded_file.name)
+
         with open(stp_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
 
@@ -228,7 +239,7 @@ def section_3D_view() -> None:
 
     # Export from CPACS/tigl
     else:
-        stp_file = f'{Path(current_workflow_dir(), "aircraft.stl")}'
+        stp_file = f'{Path(GEOMETRIES_PATH, "aircraft.stl")}'
         if hasattr(st.session_state.cpacs, "aircraft") and hasattr(
             st.session_state.cpacs.aircraft, "tigl"
         ):
@@ -300,6 +311,44 @@ def section_3D_view() -> None:
     st.plotly_chart(fig, use_container_width=False)
 
 
+def loading_arg_cpacs() -> Optional[str]:
+    # If a cpacs path was passed on the command line (streamlit passes args after the script),
+    # auto-load it into session_state so the GUI behaves as if the file was uploaded.
+    try:
+        cpacs_arg = None
+        argv = sys.argv
+        if "--cpacs" in argv:
+            idx = argv.index("--cpacs")
+            if idx + 1 < len(argv):
+                cpacs_arg = argv[idx + 1]
+
+        log.info(f'{cpacs_arg=}')
+        if cpacs_arg is not None:
+            cpacs_p = Path(cpacs_arg)
+            if cpacs_p.exists():
+                GEOMETRIES_PATH.mkdir(parents=True, exist_ok=True)
+                if "workflow" not in st.session_state:
+                    st.session_state["workflow"] = Workflow()
+                st.session_state.cpacs = CPACS(cpacs_p)
+                st.session_state.gui_settings = write_gui_xml(
+                    file_name=cpacs_p.name,
+                    cpacs_path=cpacs_p,
+                )
+                log.info(f"Auto-loaded CPACS from CLI: {cpacs_p}")
+
+                st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
+                st.success(f"Uploaded file: {st.session_state.cpacs.cpacs_file}")
+                log.info("Loading 3D section view.")
+                section_3D_view()
+            else:
+                log.warning("Your path given in argument is not valid.")
+                return None
+        return cpacs_arg
+    except Exception as e:
+        log.warning(f"Could not auto-load CPACS from CLI: {e}")
+        return None
+
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================
@@ -311,4 +360,7 @@ if __name__ == "__main__":
     st.markdown(CSS, unsafe_allow_html=True)
     st.title(PAGE_NAME)
 
-    section_select_cpacs()
+    cpacs_arg = loading_arg_cpacs()
+
+    if cpacs_arg is None:
+        section_select_cpacs()

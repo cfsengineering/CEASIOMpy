@@ -22,6 +22,7 @@ import signal
 import streamlit as st
 
 from streamlit_autorefresh import st_autorefresh
+from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 from streamlitutils import (
     create_sidebar,
     save_gui_settings,
@@ -29,8 +30,7 @@ from streamlitutils import (
 
 from pathlib import Path
 
-from ceasiompy import WKDIR_PATH
-from ceasiompy.utils.commonpaths import LOGFILE
+from ceasiompy import LOGFILE
 
 # ==============================================================================
 #   CONSTANTS
@@ -85,7 +85,7 @@ def workflow_buttons() -> None:
             st.session_state.workflow.write_config_file()
 
             # Run workflow from an external script
-            config_path = Path(WKDIR_PATH, "ceasiompy.cfg")
+            config_path = Path(current_workflow_dir(), "ceasiompy.cfg")
             os.system(f"python runworkflow.py {config_path} &")
 
     with col2:

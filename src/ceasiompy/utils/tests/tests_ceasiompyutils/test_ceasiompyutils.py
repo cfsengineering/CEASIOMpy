@@ -44,7 +44,7 @@ from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
 from unittest.mock import patch
 from ceasiompy.utils import MODULE_DIR
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy import CPACS_FILES_PATH
 
 # =================================================================================================
 #   CLASSES

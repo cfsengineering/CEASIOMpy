@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from ceasiompy import log
 from ceasiompy.utils.commonnames import MTOM_FIGURE_NAME
-from ceasiompy.utils.commonpaths import MODULES_DIR_PATH
+from ceasiompy import MODULES_DIR_PATH
 from sklearn.neighbors import KNeighborsRegressor
 
 

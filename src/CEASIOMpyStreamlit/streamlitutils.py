@@ -28,7 +28,7 @@ from ceasiompy import (
     WKDIR_PATH,
 )
 from CEASIOMpyStreamlit import GUI_SETTINGS
-from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
+from ceasiompy import CEASIOMPY_LOGO_PATH
 
 # ==============================================================================
 #   FUNCTIONS
@@ -77,27 +77,17 @@ def update_value(xpath, key):
             if isinstance(value, list):
                 # Check if list is empty
                 if value:
-                    add_string_vector(st.session_state.cpacs.tixi, xpath, value)
+                    add_string_vector(st.session_state.gui_settings.tixi, xpath, value)
                     return
                 else:
-                    add_string_vector(st.session_state.cpacs.tixi, xpath, [""])
+                    add_string_vector(st.session_state.gui_settings.tixi, xpath, [""])
                     return
             else:
                 # Otherwise just add value
-                add_value(st.session_state.cpacs.tixi, xpath, value)
+                add_value(st.session_state.gui_settings.tixi, xpath, value)
     except Exception:
         donothing = "DoNothing"
         donothing += ""
-
-
-def update_all_modified_value():
-    if "xpath_to_update" not in st.session_state:
-        print("No xpath_to_update in st.session_state. Initializing it to an empty dictionary.")
-    elif st.session_state.xpath_to_update == {}:
-        print("\n Empty st.session_state.xpath_to_update \n")
-    else:
-        for xpath, key in st.session_state.xpath_to_update.items():
-            update_value(xpath, key)
 
 
 def get_last_workflow():
@@ -120,10 +110,20 @@ def get_last_workflow():
 
 
 def save_gui_settings():
-    update_all_modified_value()
-    saved_gui_settings = Path(current_workflow_dir(), GUI_SETTINGS)
+    """
+    # saved_gui_settings = Path(current_workflow_dir(), GUI_SETTINGS)
+    # st.session_state.gui_settings
     # st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
     # st.session_state.cpacs = CPACS(saved_cpacs_file)
+    """
+    log.info(f'{st.session_state.xpath_to_update=}')
+    if "xpath_to_update" not in st.session_state:
+        print("No xpath_to_update in st.session_state. Initializing it to an empty dictionary.")
+    elif st.session_state.xpath_to_update == {}:
+        print("\n Empty st.session_state.xpath_to_update \n")
+    else:
+        for xpath, key in st.session_state.xpath_to_update.items():
+            update_value(xpath, key)
 
 
 def create_sidebar(how_to_text):

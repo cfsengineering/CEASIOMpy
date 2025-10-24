@@ -36,7 +36,7 @@ from ceasiompy.utils.moduleinterfaces import (
 )
 
 from ceasiompy.utils.commonxpaths import RANGE_CRUISE_ALT_XPATH
-from ceasiompy.utils.commonpaths import (
+from ceasiompy import (
     MODULES_DIR_PATH,
     CPACS_FILES_PATH,
 )

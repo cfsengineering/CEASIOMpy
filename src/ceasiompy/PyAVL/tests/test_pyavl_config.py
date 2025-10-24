@@ -27,7 +27,7 @@ from unittest import main
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy import CPACS_FILES_PATH
 from ceasiompy.PyAVL import (
     MODULE_DIR,
     AVL_PLOT_XPATH,

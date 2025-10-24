@@ -17,8 +17,9 @@ import importlib
 from ceasiompy.utils.moduleinterfaces import get_module_list
 from ceasiompy.utils.ceasiompylogger import add_to_runworkflow_history
 from ceasiompy.utils.ceasiompyutils import (
-    change_working_dir,
     run_module,
+    change_working_dir,
+    current_workflow_dir,
     get_results_directory,
 )
 
@@ -27,9 +28,8 @@ from datetime import datetime
 from ceasiompy.utils.configfiles import ConfigFile
 
 from ceasiompy.utils.moduleinterfaces import MODNAME_INIT
-from ceasiompy.utils.commonpaths import (
+from ceasiompy import (
     LOGFILE,
-    WKDIR_PATH,
     CPACS_FILES_PATH,
     MODULES_DIR_PATH,
 )
@@ -164,9 +164,11 @@ class OptimSubWorkflow:
 class Workflow:
     """Class to define and run CEASIOMpy workflow."""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+    ) -> None:
 
-        self.working_dir = WKDIR_PATH
+        self.workflow_dir = current_workflow_dir()
         self.cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml").resolve()
         self.current_wkflow_dir = None
 
@@ -185,7 +187,7 @@ class Workflow:
 
         cfg = ConfigFile(cfg_file)
 
-        self.working_dir = cfg_file.parent.absolute()
+        self.workflow_dir = cfg_file.parent.absolute()
         self.cpacs_in = Path(cfg["CPACS_TOOLINPUT"])
 
         self.modules_list = cfg["MODULE_TO_RUN"]
@@ -219,7 +221,7 @@ class Workflow:
             cfg["comment_module_optim"] = "MODULE_OPTIM = (  )"
             cfg["comment_optim_method"] = "OPTIM_METHOD = NONE"
 
-        cfg_file = Path(self.working_dir, "ceasiompy.cfg")
+        cfg_file = Path(self.workflow_dir, "ceasiompy.cfg")
         cfg.write_file(cfg_file, overwrite=True)
 
     def set_workflow(self) -> None:
@@ -243,10 +245,10 @@ class Workflow:
                     raise ValueError("All optimisation module must be contiguous!")
 
         # Check working directory
-        if not self.working_dir:
+        if not self.workflow_dir:
             raise ValueError("Working directory is not defined!")
 
-        wkdir = self.working_dir
+        wkdir = self.workflow_dir
         os.chdir(wkdir)
 
         # Check index of the last workflow directory to set the next one

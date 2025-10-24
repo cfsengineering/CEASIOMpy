@@ -23,7 +23,7 @@ from pathlib import Path
 
 from ceasiompy import log
 from unittest.mock import patch
-from ceasiompy.utils.commonpaths import LOGFILE
+from ceasiompy import LOGFILE
 
 # =================================================================================================
 #   CLASSES

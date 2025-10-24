@@ -14,24 +14,31 @@ Module interfaces functions to deal with CPACS input and output
 #   IMPORTS
 # =================================================================================================
 
-
-import importlib
-import inspect
 import uuid
+import inspect
+import importlib
+
+from cpacspy.cpacsfunctions import (
+    open_tixi,
+    create_branch,
+)
+
 from pathlib import Path
-
-from typing import Union
-
-from ceasiompy import log
-from ceasiompy.utils.commonpaths import MODULES_DIR_PATH
-from cpacspy.cpacsfunctions import create_branch, open_tixi
-
+from typing import (
+    Final,
+    Optional,
+)
 
 from ceasiompy.utils import MODULE_DIR
+from ceasiompy import (
+    log,
+    MODULES_DIR_PATH,
+)
 
-MODNAME_TOP = "ceasiompy"
-MODNAME_SPECS = "__specs__"
-MODNAME_INIT = "__init__"
+MODNAME_TOP: Final[str] = "ceasiompy"
+MODNAME_SPECS: Final[str] = "__specs__"
+MODNAME_INIT: Final[str] = "__init__"
+
 
 # =================================================================================================
 #   CLASSES
@@ -95,7 +102,7 @@ class _Entry:
         self.gui_group = gui_group
         self.expanded = expanded
 
-    def filter_unit(self, unit_entry: Union[None, str]) -> Union[None, str]:
+    def filter_unit(self, unit_entry: Optional[str]) -> Optional[str]:
         if unit_entry is None:
             return None
         if not unit_entry.startswith("["):

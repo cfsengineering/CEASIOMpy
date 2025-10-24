@@ -70,8 +70,8 @@ class Cabin:
     @property
     def abreast_nb(self):
 
-        seat_width = get_value_or_default(self.cpacs.tixi, WB_SEAT_WIDTH_XPATH, 0.525)
-        aisle_width = get_value_or_default(self.cpacs.tixi, WB_AISLE_WIDTH_XPATH, 0.42)
+        seat_width = get_value_or_default(self.gui_settings.tixi, WB_SEAT_WIDTH_XPATH, 0.525)
+        aisle_width = get_value_or_default(self.gui_settings.tixi, WB_AISLE_WIDTH_XPATH, 0.42)
 
         for i in range(10, 0, -1):
             if (seat_width * i + aisle_width * check_aisle_nb(i)) <= self.cabin_width:
@@ -83,7 +83,7 @@ class Cabin:
     @property
     def row_nb(self):
 
-        seat_length = get_value_or_default(self.cpacs.tixi, WB_SEAT_LENGTH_XPATH, 0.74)
+        seat_length = get_value_or_default(self.gui_settings.tixi, WB_SEAT_LENGTH_XPATH, 0.74)
 
         for i in range(100, 0, -1):
             passenger_nb_tmp = self.abreast_nb * i
@@ -153,7 +153,7 @@ class Cabin:
         }
 
         for attr, xpath in attr_to_xpath.items():
-            add_value(self.cpacs.tixi, xpath, getattr(self, attr))
+            add_value(self.gui_settings.tixi, xpath, getattr(self, attr))
 
     def write_seat_config(self, cabin_output_file):
         """Write the seat configuration in a file in the result directory."""

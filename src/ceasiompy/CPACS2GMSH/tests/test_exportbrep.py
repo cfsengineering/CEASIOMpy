@@ -20,7 +20,7 @@ from unittest.mock import patch
 
 import pytest
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy import CPACS_FILES_PATH
 from cpacspy.cpacspy import CPACS
 
 MODULE_DIR = Path(__file__).parent

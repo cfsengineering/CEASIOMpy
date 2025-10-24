@@ -17,7 +17,7 @@ Test functions for 'ceasiompy/WeightConventional/func/cabin.py'
 import shutil
 from pathlib import Path
 
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy import CPACS_FILES_PATH
 from ceasiompy.utils.commonxpaths import WB_ABREAST_NB_XPATH, WB_PEOPLE_MASS_XPATH
 from ceasiompy.WeightConventional.func.cabin import (
     Cabin,
@@ -76,10 +76,10 @@ class TestCabin:
 
         self.cabins[0].save_to_cpacs()
 
-        assert self.cpacs.tixi.getTextElement(WB_ABREAST_NB_XPATH) == str(
+        assert self.gui_settings.tixi.getTextElement(WB_ABREAST_NB_XPATH) == str(
             self.results_attributes["abreast_nb"][0]
         )
-        assert self.cpacs.tixi.getTextElement(WB_PEOPLE_MASS_XPATH) == str(
+        assert self.gui_settings.tixi.getTextElement(WB_PEOPLE_MASS_XPATH) == str(
             self.results_attributes["people_mass"][0]
         )
 

@@ -49,8 +49,10 @@ F_XPATH = "/cpacs/vehicles/fuels/fuel"  # TODO remove
 FUEL_DENSITY_XPATH = "/cpacs/vehicles/fuels/fuel/density"
 MASS_CARGO_XPATH = MASSBREAKDOWN_XPATH + "/payload/mCargo/massDescription/mass"
 
+# ---- GUI SPECIFIC SETTINGS ----
+
 # CEASIOMpy
-CEASIOMPY_XPATH = "/cpacs/toolspecific/CEASIOMpy"
+CEASIOMPY_XPATH = "/CEASIOMpy"
 EXPORT_XPATH = CEASIOMPY_XPATH + "/export"
 FUEL_XPATH = CEASIOMPY_XPATH + "/fuels"
 FUEL_CONSUMPTION_XPATH = CEASIOMPY_XPATH + "/fuelConsumption"

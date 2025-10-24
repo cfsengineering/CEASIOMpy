@@ -18,7 +18,7 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from pytest import approx
 from ceasiompy.CPACS2GMSH.func.mesh_sizing import fuselage_size, wings_size
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy import CPACS_FILES_PATH
 
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
 

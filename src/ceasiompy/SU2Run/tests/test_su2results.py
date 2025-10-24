@@ -25,7 +25,7 @@ from ceasiompy.SU2Run.func.results import save_screenshot
 from pathlib import Path
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
-from ceasiompy.utils.commonpaths import TEST_RESULTS_FILES_PATH
+from ceasiompy import TEST_RESULTS_FILES_PATH
 
 # =================================================================================================
 #   FUNCTIONS

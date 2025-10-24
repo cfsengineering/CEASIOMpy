@@ -15,7 +15,7 @@ Test functions for 'ceasiompy/CPACS2GMSH/generategmesh.py'
 # =================================================================================================
 
 from cpacspy.cpacspy import CPACS
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy import CPACS_FILES_PATH
 from ceasiompy.utils.ceasiompyutils import (
     remove_file_type_in_dir,
     get_part_type,

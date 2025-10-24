@@ -142,7 +142,7 @@ class AircfaftMasses:
         }
 
         for attr, xpath in attr_to_xpath.items():
-            add_value(self.cpacs.tixi, xpath, getattr(self, attr))
+            add_value(self.gui_settings.tixi, xpath, getattr(self, attr))
 
     def write_masses_output(self, masses_output_file):
         """Write the seat configuration in a file in the result directory."""

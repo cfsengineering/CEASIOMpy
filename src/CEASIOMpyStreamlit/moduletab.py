@@ -4,6 +4,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Streamlit Tabs per module function.
+
 | Author : Leon Deligny
 | Creation: 21 March 2025
 
@@ -32,11 +33,12 @@ from CEASIOMpyStreamlit.guiobjects import (
     add_ctrl_surf_vartype,
 )
 
+from collections import OrderedDict
+from tixi3.tixi3wrapper import Tixi3
 from typing import (
     List,
     Dict,
 )
-from collections import OrderedDict
 
 from ceasiompy import log
 
@@ -55,9 +57,12 @@ def if_choice_vartype(
     description,
 ) -> None:
 
+    #
+    tixi: Tixi3 = st.session_state.gui_settings.tixi
+
     default_index = int(
         default_value.index(
-            get_value_or_default(session_state.cpacs.tixi, xpath + "type", "CPACS2GMSH mesh")
+            get_value_or_default(tixi, xpath + "type", "CPACS2GMSH mesh")
         )
     )
 
@@ -78,7 +83,7 @@ def if_choice_vartype(
         session_state.xpath_to_update[xpath] = key
     elif selected_type == "CPACS2GMSH mesh":
         selected_func(
-            tixi=session_state.cpacs.tixi,
+            tixi=tixi,
             xpath=xpath,
             default_value="",
             name=name,
@@ -88,7 +93,7 @@ def if_choice_vartype(
         session_state.xpath_to_update[xpath] = key
     elif selected_type == "db":
         selected_func(
-            tixi=session_state.cpacs.tixi,
+            tixi=tixi,
             xpath=xpath + "list",
             default_value=get_aircrafts_list(),
             name=name,
@@ -96,6 +101,7 @@ def if_choice_vartype(
             description=description,
         )
         session_state.xpath_to_update[xpath + "list"] = key + "list"
+
     session_state.xpath_to_update[xpath + "type"] = f"{key}_types"
 
 
@@ -147,6 +153,11 @@ def add_gui_object(
     # Iterate per group
     with groups_container[group]:
 
+        if isinstance(session_state.gui_settings.tixi, Tixi3):
+            log.info("IS TIXI3")
+        else:
+            log.error("NOT TIXI3")
+
         # Check if the name or var_type is in the dictionary and call the corresponding function
         if name in aeromap_map:
             aeromap_map[name](session_state.cpacs, xpath, key, description)
@@ -154,13 +165,13 @@ def add_gui_object(
             path_vartype(key)
         elif var_type in vartype_map:
             vartype_map[var_type](
-                session_state.cpacs.tixi, xpath, default_value, name, key, description
+                session_state.gui_settings.tixi, xpath, default_value, name, key, description
             )
         elif var_type == "multiselect":
             multiselect_vartype(default_value, name, key)
         else:
             else_vartype(
-                tixi=session_state.cpacs.tixi,
+                tixi=session_state.gui_settings.tixi,
                 xpath=xpath,
                 default_value=default_value,
                 name=name,

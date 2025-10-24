@@ -33,7 +33,7 @@ from ceasiompy.utils.ceasiompyutils import (
 from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
-from ceasiompy.utils.commonpaths import MODULES_DIR_PATH
+from ceasiompy import MODULES_DIR_PATH
 from ceasiompy.utils.commonxpaths import (
     SM_XPATH,
 )

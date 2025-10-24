@@ -16,7 +16,7 @@ GUI Interface of CLCalculator.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy.utils.commonxpaths import AREA_XPATH
+from ceasiompy.utils.cpacsxpaths import AREA_XPATH
 from ceasiompy.SU2Run import (
     SU2_FIXED_CL_XPATH,
     SU2_TARGET_CL_XPATH,

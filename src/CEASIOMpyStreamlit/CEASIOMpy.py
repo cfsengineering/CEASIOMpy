@@ -23,11 +23,11 @@ import streamlit as st
 import plotly.graph_objects as go
 
 from CEASIOMpyStreamlit.streamlitutils import create_sidebar
-from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
+from ceasiompy.utils.guisettings import GUISettings
 from ceasiompy.utils.workflowclasses import Workflow
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 from typing import (
@@ -35,7 +35,6 @@ from typing import (
     Optional,
 )
 
-from CEASIOMpyStreamlit import GUI_SETTINGS
 from ceasiompy import (
     log,
     WKDIR_PATH,
@@ -59,74 +58,6 @@ CSS: Final[str] = """
 <style>
 </style>
 """
-
-# =================================================================================================
-#    CLASSES
-# =================================================================================================
-
-
-class GUISettings:
-    def __init__(
-        self: 'GUISettings',
-        file_name: str,
-        cpacs_path: Optional[str] = None,
-        stp_path: Optional[str] = None,
-    ) -> None:
-        #
-        self.file_name = file_name
-        self.cpacs_path = cpacs_path
-        self.stp_path = stp_path
-
-        # Create Basic GUI Settings
-        self.create_document()
-
-    def create_document(self: 'GUISettings') -> None:
-        '''
-        Creates New GUI Settings (OVER-RIDE)
-        '''
-        # Safeguards
-        if self.cpacs_path is not None and self.stp_path is not None:
-            log.error(
-                "Either self.cpacs_path or self.stp_path should be None. "
-                "One geometry path can only exist."
-            )
-
-        if self.cpacs_path is None and self.stp_path is None:
-            log.error(
-                "Either self.cpacs_path or self.stp_path should NOT be None. "
-                "One geometry path can only exist."
-            )
-
-        # Create New Document
-        tixi = Tixi3()
-
-        self.tixi = tixi  # Keeps reference (i.e. mutable)
-
-        # Tixi3.create requires the root element name
-        tixi.create("Settings")
-
-        # create CEASIOMpy node under /Settings
-        tixi.createElement("/Settings", "CEASIOMpy")
-
-        # Filename is always specified
-        tixi.addTextElement("/Settings", "file_name", str(self.file_name))
-
-        if self.cpacs_path is not None:
-            tixi.addTextElement("/Settings", "cpacs_path", str(self.cpacs_path))
-
-        if self.stp_path is not None:
-            tixi.addTextElement("/Settings", "stp_path", str(self.stp_path))
-
-        # persist settings to the GUI_SETTINGS path if available
-        try:
-            tixi.save(f'{Path(current_workflow_dir(), GUI_SETTINGS)}')
-        except Exception as e:
-            log.warning(f'Could not SAVE TixiHandle of GUI Settings {e=}')
-        try:
-            tixi.close()
-        except Exception as e:
-            log.warning(f'Could not CLOSE TixiHandle of GUI Settings {e=}')
-
 
 # =================================================================================================
 #    FUNCTIONS
@@ -160,10 +91,6 @@ def write_gui_xml(
 
 
 def section_select_cpacs() -> None:
-
-    if "workflow" not in st.session_state:
-        st.session_state["workflow"] = Workflow()
-
     WKDIR_PATH.mkdir(parents=True, exist_ok=True)
     st.markdown("#### CPACS/STP file")
 
@@ -325,24 +252,20 @@ def loading_arg_cpacs() -> Optional[str]:
         log.info(f'{cpacs_arg=}')
         if cpacs_arg is not None:
             cpacs_p = Path(cpacs_arg)
-            if cpacs_p.exists():
-                GEOMETRIES_PATH.mkdir(parents=True, exist_ok=True)
-                if "workflow" not in st.session_state:
-                    st.session_state["workflow"] = Workflow()
-                st.session_state.cpacs = CPACS(cpacs_p)
-                st.session_state.gui_settings = write_gui_xml(
-                    file_name=cpacs_p.name,
-                    cpacs_path=cpacs_p,
-                )
-                log.info(f"Auto-loaded CPACS from CLI: {cpacs_p}")
+            GEOMETRIES_PATH.mkdir(parents=True, exist_ok=True)
 
-                st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
-                st.success(f"Uploaded file: {st.session_state.cpacs.cpacs_file}")
-                log.info("Loading 3D section view.")
-                section_3D_view()
-            else:
-                log.warning("Your path given in argument is not valid.")
-                return None
+            st.session_state.cpacs = CPACS(cpacs_p)
+            st.session_state.gui_settings = write_gui_xml(
+                file_name=cpacs_p.name,
+                cpacs_path=cpacs_p,
+            )
+            log.info(f"Auto-loaded CPACS from CLI: {cpacs_p}")
+
+            st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
+            st.success(f"Uploaded file: {st.session_state.cpacs.cpacs_file}")
+            log.info("Loading 3D section view.")
+            section_3D_view()
+
         return cpacs_arg
     except Exception as e:
         log.warning(f"Could not auto-load CPACS from CLI: {e}")
@@ -355,6 +278,9 @@ def loading_arg_cpacs() -> Optional[str]:
 
 
 if __name__ == "__main__":
+    if "workflow" not in st.session_state:
+        st.session_state["workflow"] = Workflow()
+
     create_sidebar(HOW_TO_TEXT)
 
     st.markdown(CSS, unsafe_allow_html=True)

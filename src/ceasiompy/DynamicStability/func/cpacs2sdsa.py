@@ -44,7 +44,7 @@ from tixi3.tixi3wrapper import Tixi3
 from ceasiompy import log
 from ceasiompy.PyAVL import SOFTWARE_NAME as AVL_SOFTWARE
 from ceasiompy.DynamicStability import MODULE_DIR as DYNAMICSTABILITY_DIR
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.cpacsxpaths import (
     AREA_XPATH,
     LENGTH_XPATH,
 )

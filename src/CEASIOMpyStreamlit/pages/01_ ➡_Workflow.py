@@ -21,6 +21,8 @@ import streamlit as st
 from streamlitutils import create_sidebar
 from ceasiompy.utils.moduleinterfaces import get_module_list
 
+from typing import Final
+
 from ceasiompy.SMUse import MODULE_NAME as SMUSE
 from ceasiompy.PyAVL import MODULE_NAME as PYAVL
 from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
@@ -36,9 +38,9 @@ from ceasiompy.SaveAeroCoefficients import MODULE_NAME as SAVEAEROCOEF
 #   CONSTANTS
 # ==============================================================================
 
-PAGE_NAME = "Workflow"
+PAGE_NAME: Final[str] = "Workflow"
 
-HOW_TO_TEXT = (
+HOW_TO_TEXT: Final[str] = (
     "### How to use Create a workflow?\n"
     "You can either:\n"
     "- Select a predefined workflow and modify it\n"
@@ -46,6 +48,31 @@ HOW_TO_TEXT = (
     "When it is done, go to the *Settings* page\n"
 )
 
+CSS: Final[str] = """
+<style>
+.css-1awtkze {
+    border-radius:3px;
+    background-color:#ff7f2a;
+    padding: 6px;
+}
+.css-1awtkze:after {
+content:'';
+position: absolute;
+top: 100%;
+left: 50%;
+margin-left: -20px;
+margin-top: 2px;
+width: 0;
+height: 0;
+border-top: solid 10px #9e9e93;
+border-left: solid 10px transparent;
+border-right: solid 10px transparent;
+}
+.stButton > button {
+    border-radius:10px;
+}
+</style>
+"""
 
 # ==============================================================================
 #   FUNCTIONS
@@ -131,35 +158,7 @@ if __name__ == "__main__":
     create_sidebar(HOW_TO_TEXT)
 
     # Custom CSS
-    st.markdown(
-        """
-        <style>
-        .css-1awtkze {
-            border-radius:3px;
-            background-color:#ff7f2a;
-            padding: 6px;
-        }
-        .css-1awtkze:after {
-        content:'';
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        margin-left: -20px;
-        margin-top: 2px;
-        width: 0;
-        height: 0;
-        border-top: solid 10px #9e9e93;
-        border-left: solid 10px transparent;
-        border-right: solid 10px transparent;
-        }
-        .stButton > button {
-            border-radius:10px;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
+    st.markdown(CSS, unsafe_allow_html=True)
     st.title(PAGE_NAME)
 
     section_predefined_workflow()

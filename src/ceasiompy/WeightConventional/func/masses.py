@@ -18,14 +18,14 @@ from ceasiompy.WeightConventional.func.mtom import estimate_mtom
 from ceasiompy.WeightConventional.func.oem import estimate_oem
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.guixpaths import WB_MAX_PAYLOAD_XPATH
+from ceasiompy.utils.cpacsxpaths import (
     FUEL_MASS_XPATH,
     MASS_CARGO_XPATH,
     MOEM_XPATH,
     MTOM_XPATH,
     MZFM_XPATH,
     PAYLOAD_MASS_XPATH,
-    WB_MAX_PAYLOAD_XPATH,
 )
 from ceasiompy.WeightConventional.func.weightutils import UNUSABLE_FUEL_RATIO
 

@@ -8,26 +8,25 @@ Small description of the script
 | Author: Tony Govoni
 | Creation: 2022-03-22
 
-TODO:
-
-    - When TIGL new version is incorporated, function like get_uid may change for
-    get_object_uid
 """
 
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
 
-from pathlib import Path
-
-from ceasiompy.CPACS2GMSH.func.engineconversion import engine_conversion
-from ceasiompy import log
-from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
-from ceasiompy.CPACS2GMSH import GMSH_EXPORT_PROP_XPATH
-from ceasiompy.utils.configfiles import ConfigFile
-from cpacspy.cpacsfunctions import get_value_or_default
 
 from tigl3.import_export_helper import export_shapes
+from cpacspy.cpacsfunctions import get_value_or_default
+from ceasiompy.CPACS2GMSH.func.engineconversion import engine_conversion
+
+from pathlib import Path
+from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.configfiles import ConfigFile
+from ceasiompy.utils.guisettings import GUISettings
+
+from ceasiompy import log
+from ceasiompy.CPACS2GMSH import GMSH_EXPORT_PROP_XPATH
+from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
 
 
 # =================================================================================================
@@ -159,7 +158,12 @@ def rotor_config(rotorcraft_config, brep_dir):
     config_file.write_file(rotors_cfg_file_path, overwrite=True)
 
 
-def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
+def export_brep(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+    brep_dir: Path,
+    engine_surface_percent: tuple[float, float] = (20, 20),
+) -> None:
     """Function to generate and export the geometries of a .xml file
 
     Function 'export_brep' is a subfunction of CPACS2GMSH that generate with TiGL
@@ -177,10 +181,8 @@ def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
         for the engine
     """
 
-    tixi = cpacs.tixi
-
     # Get rotor config
-    if get_value_or_default(tixi, GMSH_EXPORT_PROP_XPATH, False):
+    if get_value_or_default(gui_settings.tixi, GMSH_EXPORT_PROP_XPATH, False):
         try:
             rotorcraft_config = cpacs.rotorcraft.configuration
             rotor_config(rotorcraft_config, brep_dir)

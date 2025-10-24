@@ -27,7 +27,7 @@ from typing import (
     TextIO,
 )
 
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.cpacsxpaths import (
     REF_XPATH,
     AREA_XPATH,
     LENGTH_XPATH,

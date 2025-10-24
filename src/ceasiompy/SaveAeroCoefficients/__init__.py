@@ -13,7 +13,7 @@ Initialization for SaveAeroCoefficients module.
 
 from pathlib import Path
 
-from ceasiompy.utils.commonxpaths import PLOT_XPATH
+from ceasiompy.utils.guixpaths import PLOT_XPATH
 
 # ==============================================================================
 #   INITIALIZATION

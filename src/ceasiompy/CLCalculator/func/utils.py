@@ -24,7 +24,7 @@ from tixi3.tixi3wrapper import Tixi3
 from markdownpy.markdownpy import MarkdownDoc
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.cpacsxpaths import (
     AREA_XPATH,
     MASSBREAKDOWN_XPATH,
 )

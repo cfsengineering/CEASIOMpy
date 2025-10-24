@@ -1,13 +1,20 @@
 from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
-from ceasiompy.utils.commonxpaths import (
-    REF_XPATH,
+
+
+from ceasiompy.utils.cpacsxpaths import REF_XPATH
+from ceasiompy.utils.guixpaths import (
+    SU2MESH_XPATH,
+)
+
+from ceasiompy.SU2Run import (
     SU2_BC_WALL_XPATH,
     SU2_CONTROL_SURF_XPATH,
     SU2_DEF_MESH_XPATH,
     SU2_NB_CPU_XPATH,
-    SU2MESH_XPATH,
 )
+
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
+
 
 # ===== Module Status =====
 # True if the module is active

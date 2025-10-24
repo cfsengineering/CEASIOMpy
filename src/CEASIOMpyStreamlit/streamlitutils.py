@@ -14,7 +14,6 @@ import re
 import pandas as pd
 import streamlit as st
 
-from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     add_value,
@@ -27,7 +26,8 @@ from ceasiompy import (
     log,
     WKDIR_PATH,
 )
-from CEASIOMpyStreamlit import GUI_SETTINGS
+
+from ceasiompy.utils import GUI_SETTINGS
 from ceasiompy import CEASIOMPY_LOGO_PATH
 
 # ==============================================================================
@@ -116,7 +116,6 @@ def save_gui_settings():
     # st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
     # st.session_state.cpacs = CPACS(saved_cpacs_file)
     """
-    log.info(f'{st.session_state.xpath_to_update=}')
     if "xpath_to_update" not in st.session_state:
         print("No xpath_to_update in st.session_state. Initializing it to an empty dictionary.")
     elif st.session_state.xpath_to_update == {}:
@@ -124,6 +123,9 @@ def save_gui_settings():
     else:
         for xpath, key in st.session_state.xpath_to_update.items():
             update_value(xpath, key)
+
+    st.session_state.gui_settings.save()
+    log.info("Updated GUI Settings XML file.")
 
 
 def create_sidebar(how_to_text):

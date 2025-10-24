@@ -22,7 +22,7 @@ from ceasiompy.SMTrain.func.config import (
 )
 from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
-    update_cpacs_from_specs,
+    update_gui_settings_from_specs,
 )
 
 from typing import Union
@@ -46,7 +46,7 @@ from ceasiompy.SU2Run import (
     SU2_AEROMAP_UID_XPATH,
     MODULE_NAME as SU2RUN_NAME,
 )
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.guixpaths import (
     SU2MESH_XPATH,
     USED_SU2_MESH_XPATH,
 )
@@ -85,7 +85,7 @@ def launch_avl(
 
         # Run AVL analysis
         st.session_state = MagicMock()
-        update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
+        update_gui_settings_from_specs(cpacs, PYAVL_NAME, test=True)
 
         # Update CPACS with the new aeromap
         tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap.uid)
@@ -137,7 +137,7 @@ def launch_su2(
 
     su2_mesh_path_type = get_value(tixi, USED_SU2_MESH_XPATH + "type")
     max_iters = str(get_value(tixi, SU2_MAX_ITER_XPATH))
-    update_cpacs_from_specs(cpacs, SU2RUN_NAME, test=True)
+    update_gui_settings_from_specs(cpacs, SU2RUN_NAME, test=True)
 
     # Update CPACS with the new aeromap and su2 mesh paths
     tixi.updateTextElement(USED_SU2_MESH_XPATH + "type", su2_mesh_path_type)

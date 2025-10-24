@@ -32,13 +32,19 @@ from ceasiompy import (
 # ==============================================================================
 
 
-def aeromap_selection(cpacs, xpath, key, description):
+def aeromap_selection(
+    cpacs,
+    settings_gui,
+    xpath,
+    key,
+    description,
+):
     aeromap_uid_list = cpacs.get_aeromap_uid_list()
 
     if not len(aeromap_uid_list):
         st.error("You must create an aeromap in order to use this module!")
     else:
-        value = get_value_or_default(cpacs.tixi, xpath, aeromap_uid_list[0])
+        value = get_value_or_default(settings_gui.tixi, xpath, aeromap_uid_list[0])
         if value in aeromap_uid_list:
             idx = aeromap_uid_list.index(value)
         else:
@@ -53,7 +59,7 @@ def aeromap_selection(cpacs, xpath, key, description):
         )
 
 
-def aeromap_checkbox(cpacs, xpath, key, description) -> None:
+def aeromap_checkbox(cpacs, settings_gui, xpath, key, description) -> None:
     aeromap_uid_list = cpacs.get_aeromap_uid_list()
 
     if not len(aeromap_uid_list):
@@ -62,7 +68,7 @@ def aeromap_checkbox(cpacs, xpath, key, description) -> None:
     else:
         with st.columns([1, 2])[0]:
             try:
-                default_otp = get_string_vector(cpacs.tixi, xpath)
+                default_otp = get_string_vector(settings_gui.tixi, xpath)
             except ValueError:
                 default_otp = None
 

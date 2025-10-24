@@ -16,7 +16,7 @@ Initialization for CPACS2Gmsh module.
 
 from pathlib import Path
 
-from ceasiompy.utils.commonxpaths import MESH_XPATH
+from ceasiompy.utils.guixpaths import MESH_XPATH
 
 # ==============================================================================
 #   INITIALIZATION

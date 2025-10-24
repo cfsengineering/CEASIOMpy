@@ -20,12 +20,11 @@ Small description of the script
 #   IMPORTS
 # =================================================================================================
 
-from ceasiompy.utils.ceasiompyutils import call_main
+from ceasiompy.utils.terminal import call_main
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.utils.geometryfunctions import return_uidwings
 from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
 from ceasiompy.CPACSUpdater.func.controlsurfaces import deflection_angle
-
 from cpacspy.cpacsfunctions import (
     get_value,
     create_branch,
@@ -38,12 +37,16 @@ from ceasiompy.CPACS2GMSH.func.rans_mesh_generator import (
     generate_2d_mesh_for_pentagrow,
 )
 
-from typing import List
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.guisettings import GUISettings
+from typing import (
+    List,
+    Optional,
+)
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import SU2MESH_XPATH
+from ceasiompy.utils.guixpaths import SU2MESH_XPATH
 from ceasiompy.CPACS2GMSH import (
     MODULE_NAME,
     CONTROL_SURFACES_LIST,
@@ -55,7 +58,13 @@ from ceasiompy.CPACS2GMSH import (
 # =================================================================================================
 
 
-def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = None) -> None:
+def run_cpacs2gmsh(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+    wkdir: Path,
+    surf: Optional[str] = None,
+    angle: Optional[str] = None,
+) -> None:
     """
     Starts meshing with gmsh.
 
@@ -65,7 +74,6 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
         angle (str = None): Angle of deflection.
 
     """
-    tixi = cpacs.tixi
 
     # Create corresponding brep directory.
     if surf is None:
@@ -99,16 +107,22 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
         growth_ratio,
         feature_angle,
         also_save_cgns,
-    ) = retrieve_gui_values(tixi)
+    ) = retrieve_gui_values(gui_settings.tixi)
 
     # Export airplane's part in .brep format
-    export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
+    export_brep(
+        cpacs=cpacs,
+        brep_dir=brep_dir,
+        gui_settings=gui_settings,
+        engine_surface_percent=(intake_percent, exhaust_percent),
+    )
 
     if type_mesh == "Euler":
         su2mesh_path = generate_gmsh(
-            tixi,
-            brep_dir,
-            wkdir,
+            cpacs=cpacs,
+            brep_dir=brep_dir,
+            results_dir=wkdir,
+            gui_settings=gui_settings,
             open_gmsh=open_gmsh,
             farfield_factor=farfield_factor,
             symmetry=symmetry,
@@ -187,22 +201,28 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
     # Update SU2 mesh xPath
     if su2mesh_path.exists():
         mesh_path = str(su2mesh_path)
-        if tixi.checkElement(SU2MESH_XPATH):
-            meshes = tixi.getTextElement(SU2MESH_XPATH)
+        if gui_settings.tixi.checkElement(SU2MESH_XPATH):
+            meshes = gui_settings.tixi.getTextElement(SU2MESH_XPATH)
             if meshes != "":
                 mesh_path = meshes + ";" + mesh_path
         else:
             # Create the branch if it does not exist.
-            create_branch(tixi, SU2MESH_XPATH)
+            create_branch(gui_settings.tixi, SU2MESH_XPATH)
 
-        tixi.updateTextElement(SU2MESH_XPATH, mesh_path)
+        gui_settings.tixi.updateTextElement(SU2MESH_XPATH, mesh_path)
         log.info(f"SU2 Mesh at {mesh_path} has been correctly generated. \n")
 
     else:
         log.warning(f"Mesh path {su2mesh_path} does not exist. \n")
 
 
-def deform_surf(cpacs: CPACS, wkdir: Path, surf: str, angle: float, wing_names: List) -> None:
+def deform_surf(
+    cpacs: CPACS,
+    wkdir: Path,
+    surf: str,
+    angle: float,
+    wing_names: List,
+) -> None:
     """
     Deform the surface surf by angle angle,
     and run run_cpacs2gmsh with this modified CPACS.
@@ -236,7 +256,7 @@ def deform_surf(cpacs: CPACS, wkdir: Path, surf: str, angle: float, wing_names: 
     run_cpacs2gmsh(CPACS(new_file_path), wkdir, surf, str(angle))
 
 
-def main(cpacs: CPACS, wkdir: Path) -> None:
+def main(cpacs: CPACS, gui_settings: GUISettings, wkdir: Path) -> None:
     """
     Main function.
     Defines setup for gmsh.
@@ -247,7 +267,8 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
     """
 
-    tixi = cpacs.tixi
+    geom_tixi = cpacs.tixi
+    tixi = gui_settings.tixi
 
     angles = get_value(tixi, GMSH_CTRLSURF_ANGLE_XPATH)
 
@@ -256,30 +277,39 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
     log.info(f"List of deflection angles {angles_list}.")
 
-    # Check if angles_list is empty
-    if angles_list:
-        for angle in reversed(angles_list):
-            if angle != 0.0:
-                wing_names = return_uidwings(tixi)
-
-                # Flap deformation has no utily in stability derivatives
-                for surf in CONTROL_SURFACES_LIST:
-                    # Check if control surface exists through name of wings
-                    if not any(surf in wing for wing in wing_names):
-                        log.warning(
-                            f"No control surface {surf}. "
-                            f"It can not be deflected by angle {angle}."
-                        )
-                    else:
-                        # If control Surface exists, deform the correct wings
-                        deform_surf(cpacs, wkdir, surf, angle, wing_names)
-            else:
-                # No deformation for angle 0
-                run_cpacs2gmsh(cpacs, wkdir)
-
-    else:
+    if not angles_list:
         # No specified angles: run as usual
-        run_cpacs2gmsh(cpacs, wkdir)
+        run_cpacs2gmsh(
+            cpacs=cpacs,
+            wkdir=wkdir,
+            gui_settings=gui_settings,
+        )
+        return None
+
+    for angle in reversed(angles_list):
+        if angle == 0.0:
+            # No deformation for angle 0
+            run_cpacs2gmsh(
+                cpacs=cpacs,
+                wkdir=wkdir,
+                gui_settings=gui_settings,
+            )
+            continue
+
+        # Otherwise Apply Deformation
+        wing_names = return_uidwings(tixi=geom_tixi)
+
+        # Flap deformation has no utily in stability derivatives
+        for surf in CONTROL_SURFACES_LIST:
+            # Check if control surface exists through name of wings
+            if not any(surf in wing for wing in wing_names):
+                log.warning(
+                    f"No control surface {surf}. "
+                    f"It can not be deflected by angle {angle}."
+                )
+            else:
+                # If control Surface exists, deform the correct wings
+                deform_surf(cpacs, wkdir, surf, angle, wing_names)
 
 
 # =================================================================================================

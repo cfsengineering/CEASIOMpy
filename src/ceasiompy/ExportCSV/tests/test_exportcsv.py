@@ -19,7 +19,7 @@ from pathlib import Path
 from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
-from ceasiompy.utils.commonxpaths import AEROMAP_TO_EXPORT_XPATH
+from ceasiompy.utils.guixpaths import AEROMAP_TO_EXPORT_XPATH
 
 # =================================================================================================
 #   CLASS

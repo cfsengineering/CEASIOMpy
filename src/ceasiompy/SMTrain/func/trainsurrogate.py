@@ -60,7 +60,7 @@ from typing import (
 )
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import SM_XPATH
+from ceasiompy.utils.guixpaths import SM_XPATH
 
 # =================================================================================================
 #   FUNCTIONS

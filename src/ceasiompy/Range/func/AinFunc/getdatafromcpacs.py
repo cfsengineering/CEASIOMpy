@@ -43,7 +43,7 @@ from cpacspy.cpacsfunctions import add_uid, create_branch, open_tixi
 
 from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import RANGE_LD_RATIO_XPATH, TURBOPROP_XPATH
+from ceasiompy.utils.guixpaths import RANGE_LD_RATIO_XPATH, TURBOPROP_XPATH
 
 
 # =============================================================================

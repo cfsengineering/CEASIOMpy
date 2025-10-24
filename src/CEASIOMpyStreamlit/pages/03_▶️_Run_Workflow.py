@@ -22,13 +22,12 @@ import signal
 import streamlit as st
 
 from streamlit_autorefresh import st_autorefresh
-from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 from streamlitutils import (
     create_sidebar,
     save_gui_settings,
 )
 
-from pathlib import Path
+from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy import LOGFILE
 
@@ -77,16 +76,13 @@ def workflow_buttons() -> None:
         if st.button("Run ▶️", help="Run the workflow"):
             terminate_previous_workflows()
 
-            st.session_state.workflow.modules_list = st.session_state.workflow_modules
-            st.session_state.workflow.optim_method = "None"
-            st.session_state.workflow.module_optim = ["NO"] * len(
-                st.session_state.workflow.modules_list
+            workflow = Workflow()
+            workflow.run_workflow(
+                test=False,
+                geometry=st.session_state.cpacs,
+                gui_settings=st.session_state.gui_settings,
+                modules_list=st.session_state.workflow_modules,
             )
-            st.session_state.workflow.write_config_file()
-
-            # Run workflow from an external script
-            config_path = Path(current_workflow_dir(), "ceasiompy.cfg")
-            os.system(f"python runworkflow.py {config_path} &")
 
     with col2:
         if st.button("Terminate ✖️", help="Terminate the workflow"):

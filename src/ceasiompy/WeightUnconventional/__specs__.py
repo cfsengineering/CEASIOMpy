@@ -1,10 +1,13 @@
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpaths import (
+
+from ceasiompy.utils.cpacsxpaths import (
+    MASS_CARGO_XPATH,
+    MASSBREAKDOWN_XPATH,
+)
+from ceasiompy.utils.guixpaths import (
     CAB_CREW_XPATH,
     FUEL_XPATH,
     GEOM_XPATH,
-    MASS_CARGO_XPATH,
-    MASSBREAKDOWN_XPATH,
     PASS_XPATH,
     PROP_XPATH,
     WB_DOUBLE_FLOOR_XPATH,

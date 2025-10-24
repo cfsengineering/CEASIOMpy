@@ -70,7 +70,7 @@ from ceasiompy.utils.commonnames import (
     ACTUATOR_DISK_INLET_SUFFIX,
     ACTUATOR_DISK_OUTLET_SUFFIX,
 )
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.guixpaths import (
     SU2MESH_XPATH,
     USED_SU2_MESH_XPATH,
     ENGINE_TYPE_XPATH,

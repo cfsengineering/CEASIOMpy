@@ -22,7 +22,6 @@ from pydantic import validate_call
 from contextlib import contextmanager
 from ceasiompy.utils.moduleinterfaces import get_module_list
 from ceasiompy.utils.moduleinterfaces import (
-    get_specs_for_module,
     get_toolinput_file_path,
     get_tooloutput_file_path,
     check_cpacs_input_requirements,
@@ -41,7 +40,6 @@ from numpy import ndarray
 from pandas import DataFrame
 from unittest.mock import MagicMock
 from tixi3.tixi3wrapper import Tixi3
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
@@ -54,7 +52,6 @@ from typing import (
     Callable,
 )
 
-from ceasiompy.utils import AEROMAP_LIST
 from ceasiompy import (
     log,
     ceasiompy_cfg,
@@ -67,8 +64,9 @@ from ceasiompy.utils.moduleinterfaces import (
     MODNAME_INIT,
     MODNAME_SPECS,
 )
-from ceasiompy.utils.commonxpaths import (
-    AIRCRAFT_NAME_XPATH,
+
+from ceasiompy.utils.cpacsxpaths import AIRCRAFT_NAME_XPATH
+from ceasiompy.utils.guixpaths import (
     RANGE_CRUISE_ALT_XPATH,
     RANGE_CRUISE_MACH_XPATH,
 )
@@ -102,52 +100,6 @@ def write_inouts(
             xpath = df.loc[name, "getcmd"]
             create_branch(tixi, xpath)
             tixi.updateDoubleElement(xpath, value, "%g")
-
-
-def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
-    tixi = cpacs.tixi
-    st.session_state.cpacs = cpacs
-    cpacsin_out: CPACSInOut = get_specs_for_module(module_name).cpacs_inout
-    inputs = cpacsin_out.get_gui_dict()
-
-    for name, default_value, var_type, _, xpath, _, _, test_value, _ in inputs.values():
-        if test:
-            value = test_value
-        else:
-            value = default_value
-
-        parts = xpath.strip("/").split("/")
-        for i in range(1, len(parts) + 1):
-            path = "/" + "/".join(parts[:i])
-            if not tixi.checkElement(path):
-                tixi.createElement("/" + "/".join(parts[: i - 1]), parts[i - 1])
-
-        # Check if the name or var_type is in the dictionary and call the corresponding function
-        if name in AEROMAP_LIST:
-            aeromap_uid_list = cpacs.get_aeromap_uid_list()
-            if not len(aeromap_uid_list):
-                log.error("You must create an aeromap in order to use this module !")
-            else:
-                # Use first aeromap
-                tixi.updateTextElement(xpath, aeromap_uid_list[0])
-
-        elif var_type == str:
-            tixi.updateTextElement(xpath, value)
-        elif var_type == float:
-            tixi.updateDoubleElement(xpath, value, format="%g")
-        elif var_type == bool:
-            tixi.updateBooleanElement(xpath, value)
-        elif var_type == int:
-            tixi.updateIntegerElement(xpath, value, format="%d")
-        elif var_type == list:
-            tixi.updateTextElement(xpath, str(value[0]))
-        elif var_type == "DynamicChoice":
-            create_branch(tixi, xpath + "type")
-            tixi.updateTextElement(xpath + "type", str(value[0]))
-        elif var_type == "multiselect":
-            tixi.updateTextElement(xpath, ";".join(str(ele) for ele in value))
-        else:
-            tixi.updateTextElement(xpath, value)
 
 
 @contextmanager
@@ -274,8 +226,7 @@ def current_workflow_dir() -> Path:
 
         # If the last workflow contains the toolinput file, we increment index
         if (
-            (last_wkflow_dir / "00_ToolInput.xml").exists()
-            and (last_wkflow_dir / "Results").exists()
+            (last_wkflow_dir / "ceasiompy.cfg").exists()
         ):
             new_idx = max_idx + 1
         else:
@@ -289,99 +240,12 @@ def current_workflow_dir() -> Path:
     return current_wkflow_dir
 
 
-@validate_call(config=ceasiompy_cfg)
-def call_main(main: Callable, module_name: str, cpacs_path: Path = None) -> None:
-    """
-    Calls main with input/output CPACS of module named module_name.
-    #TODO: Add Args and Returns.
-    """
-    st.session_state = MagicMock()
-    wkflow_dir = current_workflow_dir()
-
-    log.info(f"Workflow's working directory: {wkflow_dir} \n")
-    log.info("----- Start of " + module_name + " -----")
-
-    if cpacs_path is None:
-        xml_file = "D150_simple.xml"
-        cpacs_path = Path(CPACS_FILES_PATH, xml_file)
-    else:
-        xml_file = cpacs_path.name
-
-    with change_working_dir(wkflow_dir):
-        cpacs = CPACS(cpacs_path)
-        log.info(f"Upload default values from {MODNAME_SPECS}.")
-        update_cpacs_from_specs(cpacs, module_name, test=True)
-
-    new_cpacs_path = wkflow_dir / xml_file
-    cpacs.save_cpacs(new_cpacs_path, overwrite=True)
-    cpacs = CPACS(new_cpacs_path)
-
-    log.info(f"Finished uploading default values from {MODNAME_SPECS}.")
-
-    if get_wkdir_status(module_name):
-        results_dir = get_results_directory(module_name, create=True, wkflow_dir=wkflow_dir)
-        main(cpacs, results_dir)
-    else:
-        main(cpacs)
-
-    cpacs.save_cpacs(new_cpacs_path, overwrite=True)
-
-    log.info("----- End of " + module_name + " -----")
-
-
 def initialize_cpacs(module_name: str) -> Tuple[CPACS, Path]:
     cpacs_in = get_toolinput_file_path(module_name)
     cpacs_out = get_tooloutput_file_path(module_name)
     check_cpacs_input_requirements(cpacs_in)
     cpacs = CPACS(cpacs_in)
     return cpacs, cpacs_out
-
-
-def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
-    """Run a 'ModuleToRun' object in a specific wkdir.
-
-    Args:
-        module (ModuleToRun): 'ModuleToRun' object (define in workflowclasses.py)
-        wkdir (Path, optional): Path of the working directory. Defaults to Path.cwd().
-    """
-
-    module_name = module.name
-    cpacs_in = module.cpacs_in
-    cpacs_out = module.cpacs_out
-
-    if iteration == 0:
-        log.info(f"Workflow's working directory: {wkdir} \n")
-
-    log.info("---------- Start of " + module_name + " ----------")
-
-    if module.name == "Optimisation" and iteration > 0:
-        log.warning("Optimisation module is only run at first iteration.")
-
-    else:
-        # Find main python file for module
-        for file in module.module_dir.iterdir():
-            if file.name.endswith(".py") and not file.name.startswith("__"):
-                python_file = file.stem
-                break
-        else:
-            log.warning(f"No python files found for module {module_name}.")
-
-        # Import the main function from the module's python file
-        my_module = importlib.import_module(f"ceasiompy.{module_name}.{python_file}")
-
-        # Run the module
-        with change_working_dir(wkdir):
-            cpacs = CPACS(cpacs_in)
-            if test:
-                log.info("Updating CPACS from __specs__")
-                update_cpacs_from_specs(cpacs, module_name, test)
-            if module.results_dir is None:
-                my_module.main(cpacs)
-            else:
-                my_module.main(cpacs, module.results_dir)
-            cpacs.save_cpacs(cpacs_out, overwrite=True)
-
-            log.info("---------- End of " + module_name + " ---------- \n")
 
 
 def get_install_path(software_name: str, raise_error: bool = False) -> Path:
@@ -624,7 +488,11 @@ def aircraft_name(tixi_or_cpacs) -> str:
     return str(name)
 
 
-def get_part_type(tixi, part_uid: str, print_info=True) -> str:
+def get_part_type(
+    cpacs: CPACS,
+    part_uid: str,
+    print_info: bool = True,
+) -> str:
     """The function get the type of the aircraft from the cpacs file.
 
     Args:
@@ -639,7 +507,7 @@ def get_part_type(tixi, part_uid: str, print_info=True) -> str:
 
     # split uid if mirrored part
     part_uid = part_uid.split("_mirrored")[0]
-    part_xpath = tixi.uIDGetXPath(part_uid)
+    part_xpath = cpacs.tixi.uIDGetXPath(part_uid)
 
     path_part = {
         "wings/wing": "wing",

@@ -12,7 +12,8 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
-from ceasiompy.utils.ceasiompyutils import call_main
+from ceasiompy.utils.terminal import call_main
+
 from ceasiompy.SMUse.func.config import load_surrogate
 from ceasiompy.SMUse.func.predictions import make_predictions
 from ceasiompy.SMUse.func.results import (

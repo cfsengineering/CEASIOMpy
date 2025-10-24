@@ -18,6 +18,7 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from pytest import approx
 from ceasiompy.CPACS2GMSH.func.mesh_sizing import fuselage_size, wings_size
+
 from ceasiompy import CPACS_FILES_PATH
 
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
@@ -34,7 +35,7 @@ def test_fuselage_size():
     on which the mesh size is calculated
     """
 
-    fuselage_maxlen, fuselage_minlen = fuselage_size(CPACS(CPACS_IN_PATH).tixi)
+    fuselage_maxlen, fuselage_minlen = fuselage_size(CPACS(CPACS_IN_PATH))
 
     assert fuselage_maxlen == approx(0.5, abs=1e-2)
     assert fuselage_minlen == approx(0.05, abs=1e-3)

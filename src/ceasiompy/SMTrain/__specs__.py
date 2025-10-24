@@ -14,7 +14,7 @@ Initialization for SMTrain module.
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy.SU2Run import SU2_MAX_ITER_XPATH
-from ceasiompy.utils.commonxpaths import USED_SU2_MESH_XPATH
+from ceasiompy.utils.guixpaths import USED_SU2_MESH_XPATH
 from ceasiompy.SMTrain import (
     INCLUDE_GUI,
     LEVEL_ONE,

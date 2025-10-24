@@ -27,14 +27,17 @@ from cpacspy.cpacsfunctions import (
     get_value_or_default,
     open_tixi,
 )
-from ceasiompy.utils.commonxpaths import (
-    CAB_CREW_XPATH,
+
+from ceasiompy.utils.cpacsxpaths import (
     F_XPATH,
+    MASSBREAKDOWN_XPATH,
+)
+from ceasiompy.utils.guixpaths import (
+    CAB_CREW_XPATH,
+    WB_MASS_LIMIT_XPATH,
     FUEL_XPATH,
     GEOM_XPATH,
-    MASSBREAKDOWN_XPATH,
     TURBOPROP_XPATH,
-    WB_MASS_LIMIT_XPATH,
     PASS_XPATH,
     PILOTS_XPATH,
     PROP_XPATH,

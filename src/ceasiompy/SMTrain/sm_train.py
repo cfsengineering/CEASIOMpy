@@ -20,7 +20,8 @@ TODO:
 #   IMPORTS
 # ==============================================================================
 
-from ceasiompy.utils.ceasiompyutils import call_main
+from ceasiompy.utils.terminal import call_main
+
 from ceasiompy.SMTrain.func.plot import plot_validation
 from ceasiompy.SMTrain.func.sampling import lh_sampling
 from ceasiompy.SMTrain.func.config import (

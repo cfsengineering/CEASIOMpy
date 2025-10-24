@@ -12,7 +12,7 @@ Initialization for AeroFrame new module.
 
 from pathlib import Path
 
-from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
+from ceasiompy.utils.guixpaths import CEASIOMPY_XPATH
 
 # ==============================================================================
 #   INITIALIZATION

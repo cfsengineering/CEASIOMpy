@@ -144,7 +144,6 @@ def run_modules_list(args_list) -> None:
             workflow.cpacs_in = new_cpacs_path
             workflow.modules_list = modules_list
             workflow.module_optim = ["NO"] * len(modules_list)
-            workflow.write_config_file()
             workflow.set_workflow()
             workflow.run_workflow(test=True)
 

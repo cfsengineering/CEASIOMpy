@@ -18,7 +18,7 @@ from ceasiompy.SaveAeroCoefficients import (
     AEROMAP_FEATURES,
 )
 
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.guixpaths import (
     RS_XPATH,
     PLOT_XPATH,
     AEROMAP_TO_PLOT_XPATH,

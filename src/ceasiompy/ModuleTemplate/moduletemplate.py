@@ -19,7 +19,8 @@ TODO:
 # =================================================================================================
 
 from pydantic import validate_call
-from ceasiompy.utils.ceasiompyutils import call_main
+from ceasiompy.utils.terminal import call_main
+
 from ceasiompy.ModuleTemplate.func.subfunc import get_fuselage_scaling
 
 from cpacspy.cpacspy import CPACS

@@ -164,7 +164,7 @@ def generate_2d_mesh_for_pentagrow(
 
         # Create the aircraft part object
         part_obj = ModelPart(uid=brep_file.stem)
-        part_obj.part_type = get_part_type(cpacs.tixi, part_obj.uid)
+        part_obj.part_type = get_part_type(cpacs, part_obj.uid)
         part_obj.volume = part_entities[0]
         part_obj.volume_tag = part_entities[0][1]
 
@@ -240,7 +240,7 @@ def generate_2d_mesh_for_pentagrow(
     log.info("Start of gmsh 2D surface meshing process")
 
     # Compute fuselage and wing size for meshing
-    fuselage_maxlen, fuselage_minlen = fuselage_size(cpacs.tixi)
+    fuselage_maxlen, fuselage_minlen = fuselage_size(cpacs)
     wing_maxlen, wing_minlen = wings_size(cpacs.tixi)
 
     # Store the computed value of mesh size to use later
@@ -641,7 +641,7 @@ def sort_surfaces_and_create_physical_groups(
         gmsh.model.occ.synchronize()
 
         part_obj = ModelPart(uid=brep_file.stem)
-        part_obj.part_type = get_part_type(cpacs.tixi, part_obj.uid, print_info=False)
+        part_obj.part_type = get_part_type(cpacs, part_obj.uid, print_info=False)
         part_obj.volume = part_entities[0]
         part_obj.volume_tag = part_entities[0][1]
 

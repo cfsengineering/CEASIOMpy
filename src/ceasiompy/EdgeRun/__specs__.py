@@ -1,6 +1,6 @@
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.cpacsxpaths import REF_XPATH
+from ceasiompy.utils.guixpaths import (
     RANGE_XPATH,
-    REF_XPATH,
     EDGE_AEROMAP_UID_XPATH,
     EDGE_CFL_NB_XPATH,
     EDGE_FIXED_CL_XPATH,

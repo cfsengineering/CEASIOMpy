@@ -153,25 +153,28 @@ def add_gui_object(
     # Iterate per group
     with groups_container[group]:
 
-        if isinstance(session_state.gui_settings.tixi, Tixi3):
-            log.info("IS TIXI3")
-        else:
-            log.error("NOT TIXI3")
+        tixi: Tixi3 = session_state.gui_settings.tixi
 
         # Check if the name or var_type is in the dictionary and call the corresponding function
         if name in aeromap_map:
-            aeromap_map[name](session_state.cpacs, xpath, key, description)
+            aeromap_map[name](
+                session_state.cpacs,
+                session_state.gui_settings,
+                xpath,
+                key,
+                description,
+            )
         elif var_type == "path_type":
             path_vartype(key)
         elif var_type in vartype_map:
             vartype_map[var_type](
-                session_state.gui_settings.tixi, xpath, default_value, name, key, description
+                tixi, xpath, default_value, name, key, description
             )
         elif var_type == "multiselect":
             multiselect_vartype(default_value, name, key)
         else:
             else_vartype(
-                tixi=session_state.gui_settings.tixi,
+                tixi=tixi,
                 xpath=xpath,
                 default_value=default_value,
                 name=name,

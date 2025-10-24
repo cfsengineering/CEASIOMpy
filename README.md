@@ -193,6 +193,7 @@ If you want to contribute to the development of CEASIOMpy, please read the docum
 ## Cite us
 
 This respository may be cited via BibTex as:
+```
 @software{CEASIOMpy,
   author = {
     Benedetti G. and
@@ -200,7 +201,8 @@ This respository may be cited via BibTex as:
     Jungo A.
 },
   title = {CEASIOMpy: a python Aircraft Design environment},
-  url = {[https://github.com/suavecode/SUAVE](https://github.com/cfsengineering/CEASIOMpy)},
+  url = {https://github.com/cfsengineering/CEASIOMpy},
   year = {2025},
 }
+```
 

@@ -67,9 +67,11 @@ from ceasiompy.utils.commonnames import (
     SU2_FORCES_BREAKDOWN_NAME,
     SURFACE_FLOW_FILE_NAME,
 )
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.cpacsxpaths import (
     AREA_XPATH,
     LENGTH_XPATH,
+)
+from ceasiompy.utils.guixpaths import (
     RANGE_LD_RATIO_XPATH,
     WING_SPAN_XPATH,
     WETTED_AREA_XPATH,

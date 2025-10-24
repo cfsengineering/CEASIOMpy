@@ -28,7 +28,7 @@ from ceasiompy.EdgeRun.func.generative import EdgeScripts
 
 from ceasiompy.EdgeRun import AINP_CFD_NAME
 from ceasiompy.CPACS2GMSH import GMSH_SYMMETRY_XPATH
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.guixpaths import (
     RANGE_XPATH,
     EDGE_MESH_XPATH,
     EDGE_AEROMAP_UID_XPATH,

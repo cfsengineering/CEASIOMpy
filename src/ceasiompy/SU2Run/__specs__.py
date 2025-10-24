@@ -53,14 +53,14 @@ from ceasiompy.SU2Run import (
     SU2_BC_FARFIELD_XPATH,
 )
 
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.cpacsxpaths import AEROPERFORMANCE_XPATH
+from ceasiompy.utils.guixpaths import (
     PROPELLER_THRUST_XPATH,
     PROPELLER_BLADE_LOSS_XPATH,
     RANGE_CRUISE_MACH_XPATH,
     RANGE_CRUISE_ALT_XPATH,
     GEOM_XPATH,
     USED_SU2_MESH_XPATH,
-    AEROPERFORMANCE_XPATH,
 )
 
 # ==============================================================================

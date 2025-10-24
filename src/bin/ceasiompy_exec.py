@@ -24,13 +24,14 @@ import subprocess
 from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 
 from pathlib import Path
+from typing import Optional
 from argparse import Namespace
 from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy import log
 from unittest.mock import patch
 
-from ceasiompy.utils.commonpaths import (
+from ceasiompy import (
     STREAMLIT_PATH,
     TEST_CASES_PATH,
     CPACS_FILES_PATH,
@@ -143,7 +144,6 @@ def run_modules_list(args_list) -> None:
             workflow.cpacs_in = new_cpacs_path
             workflow.modules_list = modules_list
             workflow.module_optim = ["NO"] * len(modules_list)
-            workflow.write_config_file()
             workflow.set_workflow()
             workflow.run_workflow(test=True)
 
@@ -168,22 +168,38 @@ def run_config_file(config_file) -> None:
     workflow.run_workflow(test=True)
 
 
-def run_gui():
+def run_gui(cpacs_file: Optional[str] = None):
     """Create an run a workflow from a GUI."""
 
     log.info("CEASIOMpy has been started from the GUI.")
     env = os.environ.copy()
+
     # Add the src directory to PYTHONPATH
     env["PYTHONPATH"] = (
-        str(Path(__file__).resolve().parents[2] / "src") + os.pathsep + env.get("PYTHONPATH", "")
+        str(Path(__file__).resolve().parents[2] / "src")
+        + os.pathsep
+        + env.get("PYTHONPATH", "")
     )
+
+    # Use an absolute path to the Streamlit script to avoid Streamlit resolving
+    # a stale or relative path (which can point to an old WKDIR location).
+    cmd = [
+        "streamlit",
+        "run",
+        str(Path(STREAMLIT_PATH, "CEASIOMpy.py").resolve()),
+        "--server.headless",
+        "false",
+    ]
+    # If a cpacs file was provided to ceasiompy_run -g <path>, pass it to the script
+    if cpacs_file:
+        cmd += ["--", "--cpacs", str(cpacs_file)]
+
     subprocess.run(
-        ["streamlit", "run", "CEASIOMpy.py", "--server.headless", "false"],
+        cmd,
         cwd=STREAMLIT_PATH,
         check=True,
         env=env,
     )
-
 
 # =================================================================================================
 #    MAIN
@@ -208,8 +224,15 @@ def main():
     parser.add_argument(
         "-g",
         "--gui",
-        action="store_true",
-        help="create a CEASIOMpy workflow with the Graphical user interface",
+        nargs="?",
+        const=True,
+        metavar="PATH",
+        help="""
+                create a CEASIOMpy workflow with the
+                Graphical user interface.
+                Optionally pass a CPACS PATH
+                to load.
+            """,
     )
     parser.add_argument(
         "-m",
@@ -242,8 +265,11 @@ def main():
         return
 
     if args.gui:
-        run_gui()
-        return
+        # args.gui is True if -g used without path, or a string path if provided
+        if isinstance(args.gui, str) and args.gui is not True:
+            run_gui(args.gui)
+        else:
+            run_gui()
 
     # If no argument is given, print the help
     parser.print_help()

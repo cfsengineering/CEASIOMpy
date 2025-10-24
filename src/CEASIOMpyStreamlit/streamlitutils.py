@@ -4,10 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Streamlit utils functions for CEASIOMpy
-
-| Author : Aidan Jungo
-| Creation: 2022-12-01
-
 """
 
 # ==============================================================================
@@ -25,10 +21,14 @@ from cpacspy.cpacsfunctions import (
 
 from PIL import Image
 from pathlib import Path
-from cpacspy.cpacspy import CPACS
 
-from ceasiompy import log
-from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
+from ceasiompy import (
+    log,
+    WKDIR_PATH,
+)
+
+from ceasiompy.utils import GUI_SETTINGS
+from ceasiompy import CEASIOMPY_LOGO_PATH
 
 # ==============================================================================
 #   FUNCTIONS
@@ -77,27 +77,17 @@ def update_value(xpath, key):
             if isinstance(value, list):
                 # Check if list is empty
                 if value:
-                    add_string_vector(st.session_state.cpacs.tixi, xpath, value)
+                    add_string_vector(st.session_state.gui_settings.tixi, xpath, value)
                     return
                 else:
-                    add_string_vector(st.session_state.cpacs.tixi, xpath, [""])
+                    add_string_vector(st.session_state.gui_settings.tixi, xpath, [""])
                     return
             else:
                 # Otherwise just add value
-                add_value(st.session_state.cpacs.tixi, xpath, value)
+                add_value(st.session_state.gui_settings.tixi, xpath, value)
     except Exception:
         donothing = "DoNothing"
         donothing += ""
-
-
-def update_all_modified_value():
-    if "xpath_to_update" not in st.session_state:
-        print("No xpath_to_update in st.session_state. Initializing it to an empty dictionary.")
-    elif st.session_state.xpath_to_update == {}:
-        print("\n Empty st.session_state.xpath_to_update \n")
-    else:
-        for xpath, key in st.session_state.xpath_to_update.items():
-            update_value(xpath, key)
 
 
 def get_last_workflow():
@@ -109,22 +99,33 @@ def get_last_workflow():
 
     last_workflow_nb = 0
 
-    for dir_ in Path(st.session_state.workflow.working_dir).iterdir():
+    for dir_ in Path(WKDIR_PATH).iterdir():
         if "Workflow_" in str(dir_):
             last_workflow_nb = max(last_workflow_nb, int(str(dir_).split("_")[-1]))
 
     if last_workflow_nb == 0:
         return None
 
-    return Path(st.session_state.workflow.working_dir, f"Workflow_{last_workflow_nb:03}")
+    return Path(WKDIR_PATH, f"Workflow_{last_workflow_nb:03}")
 
 
-def save_cpacs_file():
-    update_all_modified_value()
-    saved_cpacs_file = Path(st.session_state.workflow.working_dir, "CPACS_selected_from_GUI.xml")
-    st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
-    st.session_state.workflow.cpacs_in = saved_cpacs_file
-    st.session_state.cpacs = CPACS(saved_cpacs_file)
+def save_gui_settings():
+    """
+    # saved_gui_settings = Path(current_workflow_dir(), GUI_SETTINGS)
+    # st.session_state.gui_settings
+    # st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
+    # st.session_state.cpacs = CPACS(saved_cpacs_file)
+    """
+    if "xpath_to_update" not in st.session_state:
+        print("No xpath_to_update in st.session_state. Initializing it to an empty dictionary.")
+    elif st.session_state.xpath_to_update == {}:
+        print("\n Empty st.session_state.xpath_to_update \n")
+    else:
+        for xpath, key in st.session_state.xpath_to_update.items():
+            update_value(xpath, key)
+
+    st.session_state.gui_settings.save()
+    log.info("Updated GUI Settings XML file.")
 
 
 def create_sidebar(how_to_text):
@@ -230,7 +231,7 @@ def section_edit_aeromap():
                 mach=mach, alt=alt, aos=aos, aoa=aoa
             )
             st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap).save()
-            save_cpacs_file()
+            save_gui_settings()
 
     if selected_aeromap:
         st.dataframe(st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap).df)

@@ -21,7 +21,7 @@ from ceasiompy.SU2Run import (
     SU2_FIXED_CL_XPATH,
     SU2_TARGET_CL_XPATH,
 )
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.guixpaths import (
     RANGE_XPATH,
     ENGINE_TYPE_XPATH,
 )

@@ -1,11 +1,11 @@
 from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.cpacsxpaths import MASSBREAKDOWN_XPATH
+from ceasiompy.utils.guixpaths import (
     CAB_CREW_XPATH,
     FUEL_CONSUMPTION_XPATH,
     FUEL_XPATH,
     GEOM_XPATH,
-    MASSBREAKDOWN_XPATH,
     PILOTS_XPATH,
     PROP_XPATH,
     RANGE_LD_RATIO_XPATH,

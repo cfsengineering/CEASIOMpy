@@ -16,11 +16,10 @@ GUI Interface of ModuleTemplate.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.ModuleTemplate import INCLUDE_GUI
 
-from ceasiompy.utils.commonxpaths import (
-    CEASIOMPY_XPATH,
+from ceasiompy.utils.guixpaths import CEASIOMPY_XPATH
+from ceasiompy.utils.cpacsxpaths import (
     FUSELAGES_XPATH,
 )
 

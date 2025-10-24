@@ -24,12 +24,12 @@ import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 from streamlitutils import (
     create_sidebar,
-    save_cpacs_file,
+    save_gui_settings,
 )
 
-from pathlib import Path
+from ceasiompy.utils.workflowclasses import Workflow
 
-from ceasiompy.utils.commonpaths import LOGFILE
+from ceasiompy import LOGFILE
 
 # ==============================================================================
 #   CONSTANTS
@@ -76,16 +76,13 @@ def workflow_buttons() -> None:
         if st.button("Run ▶️", help="Run the workflow"):
             terminate_previous_workflows()
 
-            st.session_state.workflow.modules_list = st.session_state.workflow_modules
-            st.session_state.workflow.optim_method = "None"
-            st.session_state.workflow.module_optim = ["NO"] * len(
-                st.session_state.workflow.modules_list
+            workflow = Workflow()
+            workflow.run_workflow(
+                test=False,
+                geometry=st.session_state.cpacs,
+                gui_settings=st.session_state.gui_settings,
+                modules_list=st.session_state.workflow_modules,
             )
-            st.session_state.workflow.write_config_file()
-
-            # Run workflow from an external script
-            config_path = Path(st.session_state.workflow.working_dir, "ceasiompy.cfg")
-            os.system(f"python runworkflow.py {config_path} &")
 
     with col2:
         if st.button("Terminate ✖️", help="Terminate the workflow"):
@@ -134,7 +131,7 @@ if __name__ == "__main__":
     st.title(PAGE_NAME)
 
     if "last_page" in st.session_state and st.session_state.last_page != PAGE_NAME:
-        save_cpacs_file()
+        save_gui_settings()
 
     workflow_buttons()
     show_logs()

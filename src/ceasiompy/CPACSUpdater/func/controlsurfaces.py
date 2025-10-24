@@ -53,7 +53,7 @@ from typing import (
 
 from ceasiompy import log
 from ceasiompy.CPACSUpdater import CPACSUPDATER_CTRLSURF_XPATH
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.cpacsxpaths import (
     WINGS_XPATH,
     AIRFOILS_XPATH,
 )

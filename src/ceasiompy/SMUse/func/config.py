@@ -31,7 +31,7 @@ from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
 
 from ceasiompy import log
 from ceasiompy.SMUse import SMUSE_DATASET_XPATH
-from ceasiompy.utils.commonxpaths import SM_XPATH
+from ceasiompy.utils.guixpaths import SM_XPATH
 
 # =================================================================================================
 #   FUNCTIONS

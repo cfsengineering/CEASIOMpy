@@ -16,25 +16,17 @@ GUI Interface of WeightConventional.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.WeightConventional import INCLUDE_GUI
 
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.guixpaths import (
     FUEL_XPATH,
     GEOM_XPATH,
-    MOEM_XPATH,
-    MTOM_XPATH,
-    MZFM_XPATH,
     PROP_XPATH,
     WB_ROW_NB_XPATH,
-    FUEL_MASS_XPATH,
     WB_CREW_NB_XPATH,
-    MASS_CARGO_XPATH,
     WB_TOILET_NB_XPATH,
-    PAYLOAD_MASS_XPATH,
     WB_CREW_MASS_XPATH,
     WB_ABREAST_NB_XPATH,
-    MASSBREAKDOWN_XPATH,
     WB_CAB_CREW_NB_XPATH,
     WB_MAX_PAYLOAD_XPATH,
     WB_PEOPLE_MASS_XPATH,
@@ -42,6 +34,15 @@ from ceasiompy.utils.commonxpaths import (
     WB_MAX_FUEL_VOL_XPATH,
     WB_PASSENGER_NB_XPATH,
     WB_PASSENGER_MASS_XPATH,
+)
+from ceasiompy.utils.cpacsxpaths import (
+    MOEM_XPATH,
+    MTOM_XPATH,
+    MZFM_XPATH,
+    FUEL_MASS_XPATH,
+    MASS_CARGO_XPATH,
+    PAYLOAD_MASS_XPATH,
+    MASSBREAKDOWN_XPATH,
 )
 
 # ==============================================================================

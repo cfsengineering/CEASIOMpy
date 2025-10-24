@@ -53,7 +53,7 @@ from ceasiompy.utils.generalclasses import (
 )
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import WINGS_XPATH
+from ceasiompy.utils.cpacsxpaths import WINGS_XPATH
 from ceasiompy.AeroFrame import (
     FRAMAT_IX_XPATH,
     FRAMAT_IY_XPATH,

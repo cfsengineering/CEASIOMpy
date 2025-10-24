@@ -19,7 +19,7 @@ TODO:
 # ==============================================================================
 
 from pathlib import Path
-from ceasiompy.utils.commonxpaths import ENGINES_XPATH
+from ceasiompy.utils.cpacsxpaths import ENGINES_XPATH
 import gmsh
 import numpy as np
 from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
@@ -65,7 +65,7 @@ def engine_conversion(cpacs, engine_uids, brep_dir, engines_cfg_file, engine_sur
     nacelle_parts = {}
     for engine_file_path in engine_files_path:
         part_uid = engine_file_path.stem
-        part_type = get_part_type(cpacs.tixi, part_uid)
+        part_type = get_part_type(cpacs, part_uid)
         nacelle_parts[part_type] = engine_file_path
 
     # Create a new engine that is closed with an inlet and an outlet

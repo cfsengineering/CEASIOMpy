@@ -29,7 +29,7 @@ from ceasiompy.WeightConventional.func.masses import AircfaftMasses
 from ceasiompy.utils.InputClasses.Conventional.weightconvclass import InsideDimensions
 from ceasiompy import log
 from ceasiompy.utils.ceasiompyutils import get_results_directory
-from ceasiompy.utils.commonxpaths import TURBOPROP_XPATH, WB_DOUBLE_FLOOR_XPATH
+from ceasiompy.utils.guixpaths import TURBOPROP_XPATH, WB_DOUBLE_FLOOR_XPATH
 
 from ceasiompy.utils.WB.ConvGeometry import geometry
 
@@ -37,7 +37,8 @@ from ceasiompy.WeightConventional.func.weightutils import PILOT_NB
 
 from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacspy import CPACS
-from ceasiompy.utils.ceasiompyutils import call_main
+from ceasiompy.utils.terminal import call_main
+
 
 from ceasiompy.WeightConventional import MODULE_NAME
 

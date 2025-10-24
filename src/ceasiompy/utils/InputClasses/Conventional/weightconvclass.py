@@ -19,10 +19,14 @@ TODO:
 
 
 from cpacspy.cpacsfunctions import add_uid, get_value_or_default
-from ceasiompy.utils.commonxpaths import (
+
+from ceasiompy.utils.cpacsxpaths import (
     F_XPATH,
-    GEOM_XPATH,
     MASS_CARGO_XPATH,
+)
+
+from ceasiompy.utils.guixpaths import (
+    GEOM_XPATH,
     TURBOPROP_XPATH,
     WB_MASS_LIMIT_XPATH,
     WB_AISLE_WIDTH_XPATH,

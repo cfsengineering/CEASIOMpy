@@ -39,7 +39,7 @@ from typing import (
 from ceasiompy import ceasiompy_cfg
 from ceasiompy.PyAVL import MODULE_DIR
 from ceasiompy.PyAVL.func import FORCE_FILES
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.cpacsxpaths import (
     AREA_XPATH,
     LENGTH_XPATH,
 )

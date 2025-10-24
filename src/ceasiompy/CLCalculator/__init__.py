@@ -16,8 +16,8 @@ Initialization for CLCalculator module.
 
 from pathlib import Path
 
-from ceasiompy.utils.commonxpaths import (
-    CLCALC_XPATH,
+from ceasiompy.utils.guixpaths import CLCALC_XPATH
+from ceasiompy.utils.cpacsxpaths import (
     MASSBREAKDOWN_XPATH,
 )
 

@@ -16,9 +16,8 @@ GUI Interface of ExportCSV.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy import log
 from ceasiompy.ExportCSV import INCLUDE_GUI
-from ceasiompy.utils.commonxpaths import EXPORT_XPATH
+from ceasiompy.utils.guixpaths import EXPORT_XPATH
 
 # ==============================================================================
 #   VARIABLE

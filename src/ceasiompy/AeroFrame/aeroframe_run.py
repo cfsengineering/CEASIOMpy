@@ -29,9 +29,9 @@ from ceasiompy.AeroFrame.func.plot import plot_convergence
 from ceasiompy.AeroFrame.func.aeroelastic import aeroelastic_loop
 from ceasiompy.AeroFrame.func.firstavliteration import run_first_avl_iteration
 from ceasiompy.utils.ceasiompyutils import (
-    call_main,
     get_aeromap_conditions,
 )
+from ceasiompy.utils.terminal import call_main
 
 from ceasiompy import log
 from ceasiompy.PyAVL import AVL_AEROMAP_UID_XPATH

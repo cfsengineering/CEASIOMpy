@@ -21,11 +21,12 @@ from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 from ceasiompy.utils.geometryfunctions import get_positionings
 
 from typing import Tuple
+from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.generalclasses import Transformation
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import FUSELAGES_XPATH, WINGS_XPATH
+from ceasiompy.utils.cpacsxpaths import FUSELAGES_XPATH, WINGS_XPATH
 
 
 # =================================================================================================
@@ -33,7 +34,8 @@ from ceasiompy.utils.commonxpaths import FUSELAGES_XPATH, WINGS_XPATH
 # =================================================================================================
 
 
-def fuselage_size(tixi: Tixi3) -> None:
+def fuselage_size(cpacs: CPACS) -> None:
+    tixi: Tixi3 = cpacs.tixi
     if tixi.checkElement(FUSELAGES_XPATH):
         fus_cnt = tixi.getNamedChildrenCount(FUSELAGES_XPATH, "fuselage")
     for i_fus in range(fus_cnt):

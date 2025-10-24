@@ -24,7 +24,7 @@ from ceasiompy.CLCalculator.func.calculatecl import calculate_cl
 from ceasiompy.CLCalculator.clcalculator import main as cl_calculator
 from ceasiompy.utils.ceasiompyutils import (
     current_workflow_dir,
-    update_cpacs_from_specs,
+    update_gui_settings_from_specs,
 )
 
 from unittest import main
@@ -57,7 +57,7 @@ class TestClCalculator(CeasiompyTest):
     @log_test
     def test_main(self):
         st.session_state = MagicMock()
-        update_cpacs_from_specs(self.test_cpacs, module_name=MODULE_NAME, test=True)
+        update_gui_settings_from_specs(self.test_cpacs, module_name=MODULE_NAME, test=True)
         cl_calculator(self.test_cpacs, wkdir=current_workflow_dir())
 
 

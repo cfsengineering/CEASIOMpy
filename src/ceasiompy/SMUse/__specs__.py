@@ -15,7 +15,7 @@ import streamlit as st
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy.utils.commonxpaths import SM_XPATH
+from ceasiompy.utils.guixpaths import SM_XPATH
 from ceasiompy.SMUse import (
     INCLUDE_GUI,
     SMUSE_DATASET_XPATH,

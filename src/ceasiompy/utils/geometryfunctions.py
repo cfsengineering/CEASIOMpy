@@ -41,8 +41,8 @@ from ceasiompy.utils.generalclasses import (
 
 from ceasiompy import log
 from ceasiompy.Database.func import ALLOWED_TABLES
-from ceasiompy.utils.commonpaths import CEASIOMPY_DB_PATH
-from ceasiompy.utils.commonxpaths import WINGS_XPATH
+from ceasiompy import CEASIOMPY_DB_PATH
+from ceasiompy.utils.cpacsxpaths import WINGS_XPATH
 
 
 # =================================================================================================

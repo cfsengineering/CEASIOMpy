@@ -18,14 +18,14 @@ from ceasiompy.WeightConventional.func.mtom import estimate_mtom
 from ceasiompy.WeightConventional.func.oem import estimate_oem
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.guixpaths import WB_MAX_PAYLOAD_XPATH
+from ceasiompy.utils.cpacsxpaths import (
     FUEL_MASS_XPATH,
     MASS_CARGO_XPATH,
     MOEM_XPATH,
     MTOM_XPATH,
     MZFM_XPATH,
     PAYLOAD_MASS_XPATH,
-    WB_MAX_PAYLOAD_XPATH,
 )
 from ceasiompy.WeightConventional.func.weightutils import UNUSABLE_FUEL_RATIO
 
@@ -142,7 +142,7 @@ class AircfaftMasses:
         }
 
         for attr, xpath in attr_to_xpath.items():
-            add_value(self.cpacs.tixi, xpath, getattr(self, attr))
+            add_value(self.gui_settings.tixi, xpath, getattr(self, attr))
 
     def write_masses_output(self, masses_output_file):
         """Write the seat configuration in a file in the result directory."""

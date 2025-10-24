@@ -33,19 +33,19 @@ from cpacspy.cpacsfunctions import (
 )
 
 from ceasiompy.utils.ceasiompyutils import (
-    call_main,
     run_software,
     aircraft_name,
     get_results_directory,
     get_reasonable_nb_cpu,
 )
+from ceasiompy.utils.terminal import call_main
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
 
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.guixpaths import (
     SU2MESH_XPATH,
     SUMO_REFINE_LEVEL_XPATH,
     SPECIFIED_SUMOFILE_XPATH,

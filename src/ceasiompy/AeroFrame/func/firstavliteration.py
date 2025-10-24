@@ -21,7 +21,7 @@ from cpacspy.cpacspy import CPACS
 from unittest.mock import MagicMock
 
 from ceasiompy.PyAVL.pyavl import main as run_avl
-from ceasiompy.utils.ceasiompyutils import update_cpacs_from_specs
+from ceasiompy.utils.ceasiompyutils import update_gui_settings_from_specs
 from cpacspy.cpacsfunctions import get_value
 
 from ceasiompy import log
@@ -53,7 +53,7 @@ def run_first_avl_iteration(cpacs: CPACS, results_dir: Path) -> None:
     nspan = str(get_value(tixi, AVL_NSPANWISE_XPATH))
     plot = str(get_value(tixi, AVL_PLOT_XPATH))
 
-    update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
+    update_gui_settings_from_specs(cpacs, PYAVL_NAME, test=True)
 
     # Update CPACS with the new aeromap
     tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap_uid)

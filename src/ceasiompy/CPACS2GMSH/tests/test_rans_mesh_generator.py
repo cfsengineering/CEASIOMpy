@@ -15,7 +15,7 @@ Test functions for 'ceasiompy/CPACS2GMSH/generategmesh.py'
 # =================================================================================================
 
 from cpacspy.cpacspy import CPACS
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy import CPACS_FILES_PATH
 from ceasiompy.utils.ceasiompyutils import (
     remove_file_type_in_dir,
     get_part_type,
@@ -170,7 +170,7 @@ def test_sort_surfaces_and_create_physical_groups():
 
         # Create the aircraft part object
         part_obj = ModelPart(uid=brep_file.stem)
-        part_obj.part_type = get_part_type(cpacs.tixi, part_obj.uid)
+        part_obj.part_type = get_part_type(cpacs, part_obj.uid)
         part_obj.volume = part_entities[0]
         part_obj.volume_tag = part_entities[0][1]
         vols.append(part_entities[0][1])

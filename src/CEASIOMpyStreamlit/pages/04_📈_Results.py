@@ -33,7 +33,7 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from cpacspy.utils import PARAMS_COEFS
-from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
+from ceasiompy import DEFAULT_PARAVIEW_STATE
 
 # =================================================================================================
 #    CONSTANTS

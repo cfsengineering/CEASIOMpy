@@ -22,11 +22,10 @@ TODO:
 import math
 
 from ceasiompy.utils.ceasiompyutils import (
-    call_main,
     get_aeromap_list_from_xpath,
 )
+from ceasiompy.utils.terminal import call_main
 from cpacspy.cpacsfunctions import (
-    get_value,
     create_branch,
     add_string_vector,
     get_value_or_default,
@@ -39,7 +38,7 @@ from markdownpy.markdownpy import MarkdownDoc
 
 from ceasiompy import log
 
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.guixpaths import (
     PLOT_XPATH,
     SF_XPATH,
     WETTED_AREA_XPATH,

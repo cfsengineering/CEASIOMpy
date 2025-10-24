@@ -49,8 +49,13 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
 from pathlib import Path
 from ceasiompy.CPACS2GMSH.func.wingclassification import ModelPart
 from ceasiompy.utils.configfiles import ConfigFile
-from tixi3.tixi3wrapper import Tixi3
-from typing import List, Dict, Tuple
+from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.guisettings import GUISettings
+from typing import (
+    List,
+    Dict,
+    Tuple,
+)
 
 from ceasiompy import log
 from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
@@ -287,7 +292,8 @@ def control_disk_actuator_normal():
 
 
 def generate_gmsh(
-    tixi: Tixi3,
+    cpacs: CPACS,
+    gui_settings: GUISettings,
     brep_dir: Path,
     results_dir: Path,
     open_gmsh: bool = False,
@@ -373,7 +379,7 @@ def generate_gmsh(
 
         # Create the aircraft part object
         part_obj = ModelPart(uid=brep_file.stem)
-        part_obj.part_type = get_part_type(tixi, part_obj.uid)
+        part_obj.part_type = get_part_type(cpacs, part_obj.uid)
 
         # Add to the list of aircraft parts
         aircraft_parts.append(part_obj)
@@ -669,22 +675,26 @@ def generate_gmsh(
     # Thus be sure to define mesh size in a certain order to control
     # the size of the points on boundaries.
 
-    fuselage_maxlen, fuselage_minlen = fuselage_size(tixi)
+    fuselage_maxlen, fuselage_minlen = fuselage_size(cpacs)
     mesh_size_fuselage = ((fuselage_maxlen + fuselage_minlen) / 2) / fuselage_mesh_size_factor
     log.info(f"Mesh size fuselage={mesh_size_fuselage:.3f} m")
 
-    create_branch(tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH)
-    tixi.updateDoubleElement(GMSH_MESH_SIZE_FUSELAGE_XPATH, mesh_size_fuselage, "%.3f")
+    create_branch(gui_settings.tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH)
+    gui_settings.tixi.updateDoubleElement(
+        GMSH_MESH_SIZE_FUSELAGE_XPATH,
+        mesh_size_fuselage,
+        "%.3f",
+    )
 
-    wing_maxlen, wing_minlen = wings_size(tixi)
+    wing_maxlen, wing_minlen = wings_size(gui_settings.tixi)
     mesh_size_wing = ((wing_maxlen * 0.8 + wing_minlen) / 2) / wing_mesh_size_factor
 
     log.info(f"Mesh size wing={mesh_size_wing:.3f} m")
 
-    create_branch(tixi, GMSH_MESH_SIZE_WINGS_XPATH)
-    create_branch(tixi, GMSH_MESH_SIZE_CTRLSURFS_XPATH)
+    create_branch(gui_settings.tixi, GMSH_MESH_SIZE_WINGS_XPATH)
+    create_branch(gui_settings.tixi, GMSH_MESH_SIZE_CTRLSURFS_XPATH)
 
-    tixi.updateDoubleElement(GMSH_MESH_SIZE_WINGS_XPATH, mesh_size_wing, "%.3f")
+    gui_settings.tixi.updateDoubleElement(GMSH_MESH_SIZE_WINGS_XPATH, mesh_size_wing, "%.3f")
 
     AIRCRAFT_DICT = {
         "fuselage": mesh_size_fuselage,

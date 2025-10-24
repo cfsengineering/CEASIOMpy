@@ -18,7 +18,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy.SkinFriction import INCLUDE_GUI
 
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.guixpaths import (
     SF_XPATH,
     GEOM_XPATH,
     PLOT_XPATH,

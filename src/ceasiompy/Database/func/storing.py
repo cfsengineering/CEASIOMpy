@@ -39,7 +39,7 @@ from typing import (
 from ceasiompy import log
 from ceasiompy.PyAVL import MODULE_NAME as PYAVL_NAME
 from ceasiompy.SU2Run import MODULE_NAME as SU2RUN_NAME
-from ceasiompy.utils.commonpaths import CEASIOMPY_DB_PATH
+from ceasiompy import CEASIOMPY_DB_PATH
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH_NAME
 from ceasiompy.DynamicStability import MODULE_NAME as DYNSTAB_NAME
 from ceasiompy.Database.func import (

@@ -49,7 +49,7 @@ from ceasiompy.DynamicStability.func.panelaeroconfig import (
 )
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import WINGS_XPATH
+from ceasiompy.utils.cpacsxpaths import WINGS_XPATH
 from ceasiompy.DynamicStability.func import (
     BETA_CSV_NAME,
     ALPHA_CSV_NAME,
@@ -60,7 +60,6 @@ from ceasiompy.DynamicStability import (
     DYNAMICSTABILITY_YREF_XPATH,
     DYNAMICSTABILITY_ZREF_XPATH,
     DYNAMICSTABILITY_DEFAULTREF_XPATH,
-    DYNAMICSTABILITY_AEROMAP_UID_XPATH,
 )
 
 # =================================================================================================

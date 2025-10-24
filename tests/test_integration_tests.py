@@ -26,7 +26,7 @@ from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
 from ceasiompy.SMTrain import MODULE_NAME as SMTRAIN
 from ceasiompy.Database import MODULE_NAME as DATABASE
 from ceasiompy.ExportCSV import MODULE_NAME as EXPORTCSV
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy import CPACS_FILES_PATH
 from ceasiompy.StaticStability import MODULE_NAME as STATICSTABILITY
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
 from ceasiompy.AeroFrame import MODULE_NAME as AEROFRAMENEW

@@ -41,12 +41,14 @@ from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
     run_software,
 )
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.cpacsxpaths import (
     REF_XPATH,
+    WINGS_XPATH,
+)
+from ceasiompy.SU2Run import (
     SU2_CONTROL_SURF_XPATH,
     SU2_DEF_MESH_XPATH,
     SU2_NB_CPU_XPATH,
-    WINGS_XPATH,
 )
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import (

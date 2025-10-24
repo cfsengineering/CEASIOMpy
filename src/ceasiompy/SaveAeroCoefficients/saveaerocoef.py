@@ -20,9 +20,10 @@ from ceasiompy.SaveAeroCoefficients.func.utils import deal_with_feature
 from ceasiompy.SaveAeroCoefficients.func.responsesurface import plot_response_surface
 from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.utils.ceasiompyutils import (
-    call_main,
     get_aeromap_list_from_xpath,
 )
+
+from ceasiompy.utils.terminal import call_main
 
 from pathlib import Path
 from cpacspy.cpacspy import (
@@ -34,9 +35,9 @@ from ceasiompy.SaveAeroCoefficients import (
     CRIT_XPATH,
     MODULE_NAME,
 )
-from ceasiompy.utils.commonxpaths import (
+from ceasiompy.utils.cpacsxpaths import AIRCRAFT_NAME_XPATH
+from ceasiompy.utils.guixpaths import (
     RS_XPATH,
-    AIRCRAFT_NAME_XPATH,
     AEROMAP_TO_PLOT_XPATH,
 )
 

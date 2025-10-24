@@ -35,8 +35,8 @@ from ceasiompy.utils.moduleinterfaces import (
     CPACSRequirementError,
 )
 
-from ceasiompy.utils.commonxpaths import RANGE_CRUISE_ALT_XPATH
-from ceasiompy.utils.commonpaths import (
+from ceasiompy.utils.guixpaths import RANGE_CRUISE_ALT_XPATH
+from ceasiompy import (
     MODULES_DIR_PATH,
     CPACS_FILES_PATH,
 )

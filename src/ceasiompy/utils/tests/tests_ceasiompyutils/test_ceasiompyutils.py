@@ -44,7 +44,7 @@ from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
 from unittest.mock import patch
 from ceasiompy.utils import MODULE_DIR
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy import CPACS_FILES_PATH
 
 # =================================================================================================
 #   CLASSES
@@ -245,15 +245,14 @@ class TestCeasiompyUtils(CeasiompyTest):
 
         cpacs_in = Path(CPACS_FILES_PATH, "simple_engine.xml")
         cpacs = CPACS(cpacs_in)
-        tixi = cpacs.tixi
 
-        assert get_part_type(tixi, "Wing") == "wing"
-        assert get_part_type(tixi, "Wing_mirrored") == "wing"
-        assert get_part_type(tixi, "SimpleFuselage") == "fuselage"
-        assert get_part_type(tixi, "SimpleEngine") == "engine"
-        assert get_part_type(tixi, "SimpleEngine_mirrored") == "engine"
-        assert get_part_type(tixi, "Pylon") == "pylon"
-        assert get_part_type(tixi, "Pylon_mirrored") == "pylon"
+        assert get_part_type(cpacs, "Wing") == "wing"
+        assert get_part_type(cpacs, "Wing_mirrored") == "wing"
+        assert get_part_type(cpacs, "SimpleFuselage") == "fuselage"
+        assert get_part_type(cpacs, "SimpleEngine") == "engine"
+        assert get_part_type(cpacs, "SimpleEngine_mirrored") == "engine"
+        assert get_part_type(cpacs, "Pylon") == "pylon"
+        assert get_part_type(cpacs, "Pylon_mirrored") == "pylon"
 
     def test_remove_file_type_in_dir(self):
         """Test the function 'remove_file_type_in_dir'"""

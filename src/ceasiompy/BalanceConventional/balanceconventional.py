@@ -41,7 +41,9 @@ from ceasiompy.BalanceConventional.func.Cog.centerofgravity import (
     center_of_gravity_evaluation,
 )
 from ceasiompy.BalanceConventional.func.Inertia import lumpedmassesinertia
-from ceasiompy.utils.ceasiompyutils import aircraft_name, call_main
+from ceasiompy.utils.ceasiompyutils import aircraft_name
+from ceasiompy.utils.terminal import call_main
+
 from ceasiompy.utils.InputClasses.Conventional import balanceconvclass
 from ceasiompy.utils.WB.ConvGeometry import geometry
 from cpacspy.cpacspy import CPACS

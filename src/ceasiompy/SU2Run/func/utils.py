@@ -30,7 +30,7 @@ from typing import (
 )
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import USED_SU2_MESH_XPATH
+from ceasiompy.utils.guixpaths import USED_SU2_MESH_XPATH
 from ceasiompy.SU2Run.func import (
     SU2_FORCES_MOM,
     AERO_COEFFICIENTS,

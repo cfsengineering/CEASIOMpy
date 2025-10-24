@@ -189,3 +189,18 @@ If you want to contribute to the development of CEASIOMpy, please read the docum
 - [CEASIOMpy YouTube channel](https://www.youtube.com/channel/UCcGsFJV29os1Zzv66YKFRZQ)
 - [CFS Engineering](https://cfse.ch/)
 - [Airinnova](https://airinnova.se/)
+
+## Cite us
+
+This respository may be cited via BibTex as:
+@software{CEASIOMpy,
+  author = {
+    Benedetti G. and
+    Deligny L. and
+    Jungo A.
+},
+  title = {CEASIOMpy: a python Aircraft Design environment},
+  url = {[https://github.com/suavecode/SUAVE](https://github.com/cfsengineering/CEASIOMpy)},
+  year = {2025},
+}
+

@@ -120,9 +120,9 @@ def run_cpacs2gmsh(
     if type_mesh == "Euler":
         su2mesh_path = generate_gmsh(
             cpacs=cpacs,
+            gui_settings=gui_settings,
             brep_dir=brep_dir,
             results_dir=wkdir,
-            gui_settings=gui_settings,
             open_gmsh=open_gmsh,
             farfield_factor=farfield_factor,
             symmetry=symmetry,
@@ -267,10 +267,7 @@ def main(cpacs: CPACS, gui_settings: GUISettings, wkdir: Path) -> None:
 
     """
 
-    geom_tixi = cpacs.tixi
-    tixi = gui_settings.tixi
-
-    angles = get_value(tixi, GMSH_CTRLSURF_ANGLE_XPATH)
+    angles = get_value(gui_settings.tixi, GMSH_CTRLSURF_ANGLE_XPATH)
 
     # Unique angles list
     angles_list = list(set([float(x) for x in str(angles).split(";")]))
@@ -297,7 +294,7 @@ def main(cpacs: CPACS, gui_settings: GUISettings, wkdir: Path) -> None:
             continue
 
         # Otherwise Apply Deformation
-        wing_names = return_uidwings(tixi=geom_tixi)
+        wing_names = return_uidwings(tixi=cpacs.tixi)
 
         # Flap deformation has no utily in stability derivatives
         for surf in CONTROL_SURFACES_LIST:
@@ -307,9 +304,16 @@ def main(cpacs: CPACS, gui_settings: GUISettings, wkdir: Path) -> None:
                     f"No control surface {surf}. "
                     f"It can not be deflected by angle {angle}."
                 )
-            else:
-                # If control Surface exists, deform the correct wings
-                deform_surf(cpacs, wkdir, surf, angle, wing_names)
+                continue
+
+            # If control Surface exists, deform the correct wings
+            deform_surf(
+                cpacs=cpacs,
+                wkdir=wkdir,
+                surf=surf,
+                angle=angle,
+                wing_names=wing_names,
+            )
 
 
 # =================================================================================================

@@ -181,7 +181,15 @@ def run_gui(cpacs_file: Optional[str] = None):
         + env.get("PYTHONPATH", "")
     )
 
-    cmd = ["streamlit", "run", "CEASIOMpy.py", "--server.headless", "false"]
+    # Use an absolute path to the Streamlit script to avoid Streamlit resolving
+    # a stale or relative path (which can point to an old WKDIR location).
+    cmd = [
+        "streamlit",
+        "run",
+        str(Path(STREAMLIT_PATH, "CEASIOMpy.py").resolve()),
+        "--server.headless",
+        "false",
+    ]
     # If a cpacs file was provided to ceasiompy_run -g <path>, pass it to the script
     if cpacs_file:
         cmd += ["--", "--cpacs", str(cpacs_file)]

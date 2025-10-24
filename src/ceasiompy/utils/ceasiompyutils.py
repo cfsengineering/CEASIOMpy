@@ -223,11 +223,10 @@ def current_workflow_dir() -> Path:
     if idx_list:
         max_idx = max(idx_list)
         last_wkflow_dir = WKDIR_PATH / get_workflow_idx(max_idx)
+        has_subdirs = any(p.is_dir() for p in last_wkflow_dir.iterdir())
 
         # If the last workflow contains the toolinput file, we increment index
-        if (
-            (last_wkflow_dir / "ceasiompy.cfg").exists()
-        ):
+        if has_subdirs:
             new_idx = max_idx + 1
         else:
             new_idx = max_idx

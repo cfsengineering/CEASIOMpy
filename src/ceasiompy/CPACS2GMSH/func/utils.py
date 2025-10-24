@@ -15,19 +15,21 @@ Functions and constants for CPACS2GMSH module.
 
 import os
 import gmsh
-from typing import Union
-
+import signal
+import threading
 import numpy as np
 
 from cpacspy.cpacsfunctions import get_value
 
-from typing import Dict
 from pathlib import Path
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.configfiles import ConfigFile
+from typing import (
+    Dict,
+    Union,
+)
 
 from ceasiompy import log
-
 from ceasiompy.CPACS2GMSH import (
     GMSH_AUTO_REFINE_XPATH,
     GMSH_EXHAUST_PERCENT_XPATH,
@@ -120,7 +122,7 @@ def add_disk_actuator(brep_dir: Path, config_file: ConfigFile):
         )
 
         # Adding rotating disk
-        gmsh.initialize()
+        initialize_gmsh()
         # generate the inlet_disk (gmsh always create a disk in the xy plane)
         disk_tag = gmsh.model.occ.addDisk(*trans_vector, radius, radius)
         disk_dimtag = (2, disk_tag)
@@ -146,7 +148,7 @@ def add_disk_actuator(brep_dir: Path, config_file: ConfigFile):
 
         if sym == 2:
             # Adding the symmetric
-            gmsh.initialize()
+            initialize_gmsh()
             # generate the inlet_disk (gmsh always create a disk in the xy plane)
             disk_tag = gmsh.model.occ.addDisk(*trans_vector, radius, radius)
             disk_dimtag = (2, disk_tag)
@@ -182,9 +184,34 @@ def write_gmsh(results_dir: str, file: str) -> Path:
     return Path(su2mesh_path)
 
 
-def initialize_gmsh():
-    # Initialize gmsh
-    gmsh.initialize()
+def initialize_gmsh(*args, **kwargs):
+    """
+    Initialize gmsh. If called from a non-main thread, temporarily bypass the
+    signal.signal call inside gmsh.initialize to avoid the "signal only works
+    in main thread" ValueError.
+    """
+    if threading.current_thread() is threading.main_thread():
+        gmsh.initialize(*args, **kwargs)
+    else:
+        log.warning(
+            "Initializing gmsh from a non-main thread: temporarily bypassing "
+            "signal.signal to avoid ValueError. Prefer calling this from the "
+            "main thread if possible."
+        )
+        # Temporarily replace signal.signal with a no-op that returns a dummy handler
+        _orig_signal = signal.signal
+
+        def _no_op_signal(signum, handler):
+            # Return a reasonable dummy previous handler value
+            return signal.SIG_DFL
+
+        signal.signal = _no_op_signal
+        try:
+            gmsh.initialize(*args, **kwargs)
+        finally:
+            # Restore original signal function
+            signal.signal = _orig_signal
+
     # Stop gmsh output log in the terminal
     gmsh.option.setNumber("General.Terminal", 0)
     # Log complexity

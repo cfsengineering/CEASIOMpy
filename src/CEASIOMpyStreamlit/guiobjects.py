@@ -16,13 +16,16 @@ GUI objects in CEASIOMpy.
 import pandas as pd
 import streamlit as st
 
-from CEASIOMpyStreamlit.streamlitutils import save_cpacs_file
+from CEASIOMpyStreamlit.streamlitutils import save_gui_settings
 from cpacspy.cpacsfunctions import (
     get_string_vector,
     get_value_or_default,
 )
 
-from ceasiompy import log
+from ceasiompy import (
+    log,
+    WKDIR_PATH,
+)
 
 # ==============================================================================
 #   FUNCTIONS
@@ -46,7 +49,7 @@ def aeromap_selection(cpacs, xpath, key, description):
             options=aeromap_uid_list,
             index=idx,
             help=description,
-            on_change=save_cpacs_file,
+            on_change=save_gui_settings,
         )
 
 
@@ -69,7 +72,7 @@ def aeromap_checkbox(cpacs, xpath, key, description) -> None:
                 options=aeromap_uid_list,
                 default=default_otp,
                 help=description,
-                on_change=save_cpacs_file,
+                on_change=save_gui_settings,
             )
 
 
@@ -79,13 +82,13 @@ def path_vartype(key) -> None:
         type=["su2"],
     )
     if uploaded_file:
-        su2_file_path = st.session_state.workflow.working_dir / uploaded_file.name
+        su2_file_path = WKDIR_PATH / uploaded_file.name
 
         # Save the uploaded file to the specified path
         with open(su2_file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
         st.session_state[key] = str(su2_file_path)
-        save_cpacs_file()
+        save_gui_settings()
 
     if key in st.session_state:
         st.success(f"Uploaded file: {st.session_state[key]}")
@@ -107,21 +110,21 @@ def multiselect_vartype(default_value, name, key) -> None:
     # Add button to append the new value to the list
     if st.button("➕ Add", key=f"add_{key}"):
         st.session_state[key].append(new_value)
-        save_cpacs_file()
+        save_gui_settings()
         st.rerun()
 
     # Remove button to remove the last value from the list
     if st.button("❌ Remove", key=f"remove_last_{key}"):
         if st.session_state[key]:
             st.session_state[key].pop()
-            save_cpacs_file()
+            save_gui_settings()
             st.rerun()
 
 
 def int_vartype(tixi, xpath, default_value, name, key, description) -> None:
     with st.columns([1, 2])[0]:
         value = int(get_value_or_default(tixi, xpath, default_value))
-        st.number_input(name, value=value, key=key, help=description, on_change=save_cpacs_file)
+        st.number_input(name, value=value, key=key, help=description, on_change=save_gui_settings)
 
 
 def float_vartype(tixi, xpath, default_value, name, key, description) -> None:
@@ -133,7 +136,7 @@ def float_vartype(tixi, xpath, default_value, name, key, description) -> None:
             format="%g",
             key=key,
             help=description,
-            on_change=save_cpacs_file,
+            on_change=save_gui_settings,
         )
 
 
@@ -149,7 +152,7 @@ def list_vartype(tixi, xpath, default_value, name, key, description) -> None:
             index=idx,
             key=key,
             help=description,
-            on_change=save_cpacs_file,
+            on_change=save_gui_settings,
         )
 
 
@@ -173,7 +176,7 @@ def add_ctrl_surf_vartype(tixi, xpath, default_value, name, key, description) ->
         index=idx,
         key=key,
         help=description,
-        on_change=save_cpacs_file,
+        on_change=save_gui_settings,
     )
 
     # if value of st.radio is npot 'none' then add float_vartype entry
@@ -195,7 +198,7 @@ def bool_vartype(tixi, xpath, default_value, name, key, description) -> None:
         value=get_value_or_default(tixi, xpath, default_value),
         key=key,
         help=description,
-        on_change=save_cpacs_file,
+        on_change=save_gui_settings,
     )
 
 
@@ -208,5 +211,5 @@ def else_vartype(tixi, xpath, default_value, name, key, description) -> None:
                 value=value,
                 key=key,
                 help=description,
-                on_change=save_cpacs_file,
+                on_change=save_gui_settings,
             )

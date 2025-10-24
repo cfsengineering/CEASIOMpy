@@ -173,10 +173,14 @@ def run_gui():
 
     log.info("CEASIOMpy has been started from the GUI.")
     env = os.environ.copy()
+
     # Add the src directory to PYTHONPATH
     env["PYTHONPATH"] = (
-        str(Path(__file__).resolve().parents[2] / "src") + os.pathsep + env.get("PYTHONPATH", "")
+        str(Path(__file__).resolve().parents[2] / "src") 
+        + os.pathsep
+        + env.get("PYTHONPATH", "")
     )
+
     subprocess.run(
         ["streamlit", "run", "CEASIOMpy.py", "--server.headless", "false"],
         cwd=STREAMLIT_PATH,

@@ -4,10 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Streamlit utils functions for CEASIOMpy
-
-| Author : Aidan Jungo
-| Creation: 2022-12-01
-
 """
 
 # ==============================================================================
@@ -18,6 +14,7 @@ import re
 import pandas as pd
 import streamlit as st
 
+from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     add_value,
@@ -25,9 +22,12 @@ from cpacspy.cpacsfunctions import (
 
 from PIL import Image
 from pathlib import Path
-from cpacspy.cpacspy import CPACS
 
-from ceasiompy import log
+from ceasiompy import (
+    log,
+    WKDIR_PATH,
+)
+from CEASIOMpyStreamlit import GUI_SETTINGS
 from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
 
 # ==============================================================================
@@ -109,22 +109,21 @@ def get_last_workflow():
 
     last_workflow_nb = 0
 
-    for dir_ in Path(st.session_state.workflow.working_dir).iterdir():
+    for dir_ in Path(WKDIR_PATH).iterdir():
         if "Workflow_" in str(dir_):
             last_workflow_nb = max(last_workflow_nb, int(str(dir_).split("_")[-1]))
 
     if last_workflow_nb == 0:
         return None
 
-    return Path(st.session_state.workflow.working_dir, f"Workflow_{last_workflow_nb:03}")
+    return Path(WKDIR_PATH, f"Workflow_{last_workflow_nb:03}")
 
 
-def save_cpacs_file():
+def save_gui_settings():
     update_all_modified_value()
-    saved_cpacs_file = Path(st.session_state.workflow.working_dir, "CPACS_selected_from_GUI.xml")
-    st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
-    st.session_state.workflow.cpacs_in = saved_cpacs_file
-    st.session_state.cpacs = CPACS(saved_cpacs_file)
+    saved_gui_settings = Path(current_workflow_dir(), GUI_SETTINGS)
+    # st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
+    # st.session_state.cpacs = CPACS(saved_cpacs_file)
 
 
 def create_sidebar(how_to_text):
@@ -230,7 +229,7 @@ def section_edit_aeromap():
                 mach=mach, alt=alt, aos=aos, aoa=aoa
             )
             st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap).save()
-            save_cpacs_file()
+            save_gui_settings()
 
     if selected_aeromap:
         st.dataframe(st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap).df)

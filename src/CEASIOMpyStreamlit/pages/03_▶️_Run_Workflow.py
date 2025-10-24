@@ -24,11 +24,12 @@ import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 from streamlitutils import (
     create_sidebar,
-    save_cpacs_file,
+    save_gui_settings,
 )
 
 from pathlib import Path
 
+from ceasiompy import WKDIR_PATH
 from ceasiompy.utils.commonpaths import LOGFILE
 
 # ==============================================================================
@@ -84,7 +85,7 @@ def workflow_buttons() -> None:
             st.session_state.workflow.write_config_file()
 
             # Run workflow from an external script
-            config_path = Path(st.session_state.workflow.working_dir, "ceasiompy.cfg")
+            config_path = Path(WKDIR_PATH, "ceasiompy.cfg")
             os.system(f"python runworkflow.py {config_path} &")
 
     with col2:
@@ -134,7 +135,7 @@ if __name__ == "__main__":
     st.title(PAGE_NAME)
 
     if "last_page" in st.session_state and st.session_state.last_page != PAGE_NAME:
-        save_cpacs_file()
+        save_gui_settings()
 
     workflow_buttons()
     show_logs()

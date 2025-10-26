@@ -207,6 +207,9 @@ def current_workflow_dir() -> Path:
     # collect numeric suffixes only (defensive against unexpected folder names)
     idx_list: List[int] = []
 
+    # Make sure WKDIR_PATH exists as a dir
+    WKDIR_PATH.mkdir(exist_ok=True)
+
     pattern = re.compile(r"Workflow_(\d+)$")
     for p in WKDIR_PATH.iterdir():
         if not p.is_dir():

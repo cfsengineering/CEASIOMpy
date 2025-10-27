@@ -14,9 +14,9 @@ import shutil
 import importlib
 
 from ceasiompy.utils.guisettings import (
-    current_workflow_dir,
     update_gui_settings_from_specs,
 )
+from ceasiompy.utils.workflowutils import current_workflow_dir
 from ceasiompy.utils.ceasiompylogger import add_to_runworkflow_history
 from ceasiompy.utils.ceasiompyutils import (
     change_working_dir,
@@ -55,7 +55,7 @@ class Workflow:
         module: str,
         iteration: int,
         geometry: Union[CPACS, Path],
-        gui_settings: Optional[GUISettings] = None,
+        gui_settings: GUISettings,
     ) -> None:
         """
         Run a Specific Module.
@@ -66,20 +66,12 @@ class Workflow:
         if iteration == 0:
             log.info(f"Workflow's working directory: {self.workflow_dir} \n")
 
-        log.info("---------- Start of " + module + " ----------")
+        log.info(f"---------- Start of {module} ----------")
 
         init_module, main_module = _get_module_from_name(module)
 
         # Run the module
         with change_working_dir(self.workflow_dir):
-            if gui_settings is None:
-                log.info("Generating GUI Settings from __specs__")
-                gui_settings = update_gui_settings_from_specs(
-                    gui_settings=gui_settings,
-                    module_name=module,
-                    test=True,
-                )
-
             if init_module.RES_DIR:
                 results_dir = get_results_directory(
                     module,
@@ -90,7 +82,11 @@ class Workflow:
             else:
                 main_module.main(geometry, gui_settings)
 
-            log.info("---------- End of " + module + " ---------- \n")
+            # Some Modules Interact with others
+            # through GUI Settings
+            gui_settings.save()
+
+            log.info(f"---------- End of {module} ---------- \n")
 
     def run_workflow(
         self: "Workflow",
@@ -105,6 +101,14 @@ class Workflow:
         add_to_runworkflow_history(self.workflow_dir)
         log.info(f'Running the followuing list of modules: {modules_list=}')
 
+        if gui_settings is None:
+            log.info("Generating GUI Settings from __specs__")
+            gui_settings = update_gui_settings_from_specs(
+                gui_settings=gui_settings,
+                modules_list=modules_list,
+                test=True,
+            )
+
         for idx, module in enumerate(modules_list):
             self._run_module(
                 iteration=idx,
@@ -112,9 +116,6 @@ class Workflow:
                 geometry=geometry,
                 gui_settings=gui_settings,
             )
-            # Some Modules Interact with others
-            # through GUI Settings
-            gui_settings.save()
 
         # Copy logfile in the Workflow directory
         shutil.copy(LOGFILE, self.workflow_dir)

@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 
 from pandas import read_csv
-from ceasiompy.utils.guisettings import current_workflow_dir
+from ceasiompy.utils.workflowutils import current_workflow_dir
 from ceasiompy.utils.decorators import log_test
 from ceasiompy.SMTrain.func.sampling import (
     new_points,

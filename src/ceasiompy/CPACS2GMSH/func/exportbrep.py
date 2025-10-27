@@ -14,12 +14,12 @@ Small description of the script
 #   IMPORTS
 # =================================================================================================
 
-
 from tigl3.import_export_helper import export_shapes
 from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.CPACS2GMSH.func.engineconversion import engine_conversion
 
 from pathlib import Path
+from typing import Union
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.guisettings import GUISettings
@@ -159,27 +159,20 @@ def rotor_config(rotorcraft_config, brep_dir):
 
 
 def export_brep(
-    cpacs: CPACS,
+    geometry: Union[CPACS, Path],
     gui_settings: GUISettings,
     brep_dir: Path,
     engine_surface_percent: tuple[float, float] = (20, 20),
 ) -> None:
-    """Function to generate and export the geometries of a .xml file
+    """
+    Function to generate and export the geometries of a .xml file
 
     Function 'export_brep' is a subfunction of CPACS2GMSH that generate with TiGL
     the airplane geometry of the .xml file. Then all the airplane parts are
     exported in .brep format with their uid name
     mirrored element of the airplane have the subscript _mirrored : Wing1_mirrored.brep
-
-    Args:
-    cpacs : CPACS object (from cpacspy)
-        CPACS object (from cpacspy)
-    brep_dir : Path
-        Path object to the directory where the brep files are saved
-    engine_surface_percent : tuple
-        Tuple containing the position percentage of the surface intake and exhaust bc
-        for the engine
     """
+    cpacs = geometry
 
     # Get rotor config
     if get_value_or_default(gui_settings.tixi, GMSH_EXPORT_PROP_XPATH, False):

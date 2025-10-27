@@ -23,9 +23,6 @@ from ceasiompy.utils.moduleinterfaces import (
     get_all_module_specs,
     get_module_path,
     get_specs_for_module,
-    get_module_list,
-    get_toolinput_file_path,
-    get_tooloutput_file_path,
 )
 
 from cpacspy.cpacspy import CPACS
@@ -136,55 +133,6 @@ def test_check_cpacs_input_requirements():
 
     with pytest.raises(CPACSRequirementError):
         check_cpacs_input_requirements(cpacs_file.tixi, cpacs_inout=cpacs_inout)
-
-
-def test_get_module_list():
-    """
-    Test 'get_module_list' function
-    """
-
-    module_list = get_module_list(only_active=False)
-    for module_name in module_list:
-        assert len(module_name.split(".")) == 1
-
-    assert "SU2Run" in module_list
-    assert "utils" in module_list
-    assert "NotExistingModule" not in module_list
-
-    module_list_active = get_module_list(only_active=True)
-    assert "SU2Run" in module_list_active
-    assert "utils" not in module_list_active
-    assert "NotExistingModule" not in module_list_active
-
-    assert len(module_list_active) < len(module_list)
-
-
-def test_get_toolinput_file_path():
-    """
-    Test that 'get_toolinput_file_path' works
-    """
-
-    module_name = "ModuleTemplate"
-
-    toolinput_path = get_toolinput_file_path(module_name)
-
-    # Test that the end of the path is correct
-    assert toolinput_path == Path(MODULES_DIR_PATH, "ModuleTemplate", "ToolInput", "ToolInput.xml")
-
-
-def test_get_tooloutput_file_path():
-    """
-    Test that 'get_tooloutput_file_path' works
-    """
-
-    module_name = "ModuleTemplate"
-
-    toolinput_path = get_tooloutput_file_path(module_name)
-
-    # Test that the end of the path is correct
-    assert toolinput_path == Path(
-        MODULES_DIR_PATH, "ModuleTemplate", "ToolOutput", "ToolOutput.xml"
-    )
 
 
 def test_get_specs_for_module():

@@ -63,7 +63,11 @@ from typing import (
 
 from ceasiompy import log
 from ceasiompy.SU2Run import CONTROL_SURFACE_LIST
-
+from ceasiompy.ThermoData import (
+    THERMODATA_BC_XPATH,
+    THERMODATA_PRESSUREOUTLET_XPATH,
+    THERMODATA_TEMPERATUREOUTLET_XPATH,
+)
 from ceasiompy.utils.commonnames import (
     CONFIG_CFD_NAME,
     ACTUATOR_DISK_FILE_NAME,
@@ -74,11 +78,8 @@ from ceasiompy.utils.commonnames import (
 from ceasiompy.utils.guixpaths import (
     SU2MESH_XPATH,
     USED_SU2_MESH_XPATH,
-    ENGINE_TYPE_XPATH,
     PROPELLER_THRUST_XPATH,
     PROPELLER_BLADE_LOSS_XPATH,
-    ENGINE_BC_PRESSUREOUTLET_XPATH,
-    ENGINE_BC_TEMPERATUREOUTLET_XPATH,
 )
 from ceasiompy.SU2Run import (
     SU2_CFL_NB_XPATH,
@@ -106,8 +107,9 @@ from ceasiompy.SU2Run import (
 
 
 def add_actuator_disk(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
     cfg: ConfigFile,
-    tixi: Tixi3,
     case_dir_path: Path,
     actuator_disk_file: Path,
     mesh_markers: Dict,
@@ -143,8 +145,8 @@ def add_actuator_disk(
 
     # Get rotorcraft configuration (propeller)
     try:
-        tigl_rotor = open_tigl(tixi, rotorcraft=True)
-        rotorcraft = Rotorcraft(tixi, tigl_rotor)
+        tigl_rotor = open_tigl(cpacs.tixi, rotorcraft=True)
+        rotorcraft = Rotorcraft(cpacs.tixi, tigl_rotor)
         rotorcraft_config = rotorcraft.configuration
     except AttributeError:
         raise ValueError(
@@ -163,17 +165,21 @@ def add_actuator_disk(
         radius = rotor.get_radius()
         hub_radius = 0.0  # TODO: get correctly from CPACS
 
-        rotor_xpath = tixi.uIDGetXPath(rotor_uid)
+        rotor_xpath = cpacs.tixi.uIDGetXPath(rotor_uid)
 
         number_of_blades_xpath = (
             rotor_xpath + "/rotorHub/rotorBladeAttachments/rotorBladeAttachment/numberOfBlades"
         )
-        number_of_blades = get_value_or_default(tixi, number_of_blades_xpath, 3)
+        number_of_blades = get_value_or_default(cpacs.tixi, number_of_blades_xpath, 3)
 
         # TODO: this is the nominal speed, how to get a speed which correspond to
         # each flight condition
         rotational_velocity_xpath = rotor_xpath + "/nominalRotationsPerMinute"
-        rotational_velocity = get_value_or_default(tixi, rotational_velocity_xpath, 3000) / 60.0
+        rotational_velocity = get_value_or_default(
+            tixi=cpacs.tixi,
+            xpath=rotational_velocity_xpath,
+            default_value=3000
+        ) / 60.0
 
         rotor_uid_pos[rotor_uid] = (
             pos_x,
@@ -239,9 +245,9 @@ def add_actuator_disk(
         radial_stations = get_radial_stations(radius, hub_radius)
         advanced_ratio = get_advanced_ratio(free_stream_velocity, rotational_velocity, radius)
 
-        prandtl_correction = get_value(tixi, PROPELLER_BLADE_LOSS_XPATH)
+        prandtl_correction = get_value(gui_settings.tixi, PROPELLER_BLADE_LOSS_XPATH)
 
-        thrust = get_value(tixi, PROPELLER_THRUST_XPATH)
+        thrust = get_value(gui_settings.tixi, PROPELLER_THRUST_XPATH)
         total_thrust_coefficient = float(
             thrust / (Atm.density[0] * rotational_velocity**2 * (radius * 2) ** 4)
         )
@@ -299,9 +305,13 @@ def add_thermodata(
     case_nb: int,
     alt_list: List,
 ) -> None:
-    if tixi.checkElement(ENGINE_TYPE_XPATH):
+    """
+    tixi (Tixi3): tixi handle of GUI Settings.
+    """
+    if tixi.checkElement(THERMODATA_BC_XPATH):
         log.info("Adding engine BC to the SU2 config file.")
-        engine_type = get_value(tixi, ENGINE_TYPE_XPATH)
+
+        engine_type = get_value(tixi, THERMODATA_BC_XPATH)
         log.info(f"Engine type {engine_type}.")
 
         alt = alt_list[case_nb]
@@ -310,20 +320,21 @@ def add_thermodata(
         tot_pressure_in = Atm.pressure[0]
 
         if len(alt_list) > 1:
-            tot_temp_out = get_value(tixi, ENGINE_BC_TEMPERATUREOUTLET_XPATH).split(";")
-            tot_pressure_out = get_value(tixi, ENGINE_BC_PRESSUREOUTLET_XPATH).split(";")
+            tot_temp_out = get_value(tixi, THERMODATA_TEMPERATUREOUTLET_XPATH).split(";")
+            tot_pressure_out = get_value(tixi, THERMODATA_PRESSUREOUTLET_XPATH).split(";")
             tot_temp_out = tot_temp_out[case_nb]
             tot_pressure_out = tot_pressure_out[case_nb]
         else:
-            tot_temp_out = get_value(tixi, ENGINE_BC_TEMPERATUREOUTLET_XPATH)
-            tot_pressure_out = get_value(tixi, ENGINE_BC_PRESSUREOUTLET_XPATH)
+            tot_temp_out = get_value(tixi, THERMODATA_TEMPERATUREOUTLET_XPATH)
+            tot_pressure_out = get_value(tixi, THERMODATA_PRESSUREOUTLET_XPATH)
+
         cfg["INLET_TYPE"] = "TOTAL_CONDITIONS"
         cfg["MARKER_INLET"] = su2_format(
             f"INLET_ENGINE, {tot_temp_in}, {tot_pressure_in}, {1},{0},{0}, "
             f"OUTLET_ENGINE, {tot_temp_out}, {tot_pressure_out}, {1},{0},{0}"
         )
     else:
-        log.warning(f"No engines found at xPath {ENGINE_TYPE_XPATH}.")
+        log.warning(f"No engines found at xPath {THERMODATA_BC_XPATH}.")
 
 
 def add_reynolds_number(alt: float, mach: float, cfg: ConfigFile, cpacs: CPACS) -> None:
@@ -354,6 +365,7 @@ def add_reynolds_number(alt: float, mach: float, cfg: ConfigFile, cpacs: CPACS) 
 
 def add_case_data(
     cpacs: CPACS,
+    gui_settings: GUISettings,
     wkdir: Path,
     cfg: ConfigFile,
     rans: bool,
@@ -367,23 +379,14 @@ def add_case_data(
 ) -> None:
     """
     Adds case-specific data to the SU2 configuration file and sets up the case directory.
-
-    Args:
-        cpacs (CPACS): CPACS object containing the CPACS data.
-        wkdir (Path): Working directory path.
-        cfg (ConfigFile): SU2 configuration file object.
-        cpacs_path (Path): Path to the CPACS file.
-        rans (bool): Flag indicating if RANS (Reynolds-Averaged Navier-Stokes) is used.
-        mesh_markers (Dict): Dictionary containing mesh markers.
-        case_dir_name (str): Name of the case directory.
-        mach (float): Mach number for the case.
-        alt (float): Altitude for the case.
-        case_nb (int): Case number.
-        alt_list (List): List of altitudes.
-
     """
-    tixi = cpacs.tixi
-    add_thermodata(cfg, tixi, alt, case_nb, alt_list)
+    add_thermodata(
+        cfg=cfg,
+        tixi=gui_settings.tixi,
+        alt=alt,
+        case_nb=case_nb,
+        alt_list=alt_list,
+    )
 
     if rans:
         add_reynolds_number(alt, mach, cfg, cpacs)
@@ -392,11 +395,12 @@ def add_case_data(
     if not case_dir_path.exists():
         case_dir_path.mkdir()
 
-    if get_value(tixi, SU2_ACTUATOR_DISK_XPATH):
+    if get_value(gui_settings.tixi, SU2_ACTUATOR_DISK_XPATH):
         actuator_disk_file = Path(wkdir, ACTUATOR_DISK_FILE_NAME)
         add_actuator_disk(
+            cpacs=cpacs,
+            gui_settings=gui_settings,
             cfg=cfg,
-            tixi=tixi,
             case_dir_path=case_dir_path,
             actuator_disk_file=actuator_disk_file,
             mesh_markers=mesh_markers,
@@ -419,8 +423,8 @@ def add_case_data(
             cfg["MARKER_PLOTTING"] = bc_wall_str
             cfg["MARKER_MONITORING"] = bc_wall_str
 
-    if get_value(tixi, SU2_DAMPING_DER_XPATH):
-        rotation_rate = get_value(tixi, SU2_ROTATION_RATE_XPATH)
+    if get_value(gui_settings.tixi, SU2_DAMPING_DER_XPATH):
+        rotation_rate = get_value(gui_settings.tixi, SU2_ROTATION_RATE_XPATH)
         add_damping_derivatives(cfg, wkdir, case_dir_name, rotation_rate)
 
     ctrlsurf_case_dir_path = Path(case_dir_path, ctrlsurf)
@@ -547,6 +551,7 @@ def configure_cfd_environment(
 
                 add_case_data(
                     cpacs=cpacs,
+                    gui_settings=gui_settings,
                     wkdir=wkdir,
                     cfg=cfg,
                     rans=rans,
@@ -568,6 +573,7 @@ def configure_cfd_environment(
 
             add_case_data(
                 cpacs=cpacs,
+                gui_settings=gui_settings,
                 wkdir=wkdir,
                 cfg=cfg,
                 rans=rans,

@@ -55,6 +55,7 @@ from typing import (
     List,
     Dict,
     Tuple,
+    Union,
 )
 
 from ceasiompy import log
@@ -292,7 +293,7 @@ def control_disk_actuator_normal():
 
 
 def generate_gmsh(
-    cpacs: CPACS,
+    geometry: Union[CPACS, Path],
     gui_settings: GUISettings,
     brep_dir: Path,
     results_dir: Path,
@@ -379,7 +380,7 @@ def generate_gmsh(
 
         # Create the aircraft part object
         part_obj = ModelPart(uid=brep_file.stem)
-        part_obj.part_type = get_part_type(cpacs, part_obj.uid)
+        part_obj.part_type = get_part_type(geometry, part_obj.uid)
 
         # Add to the list of aircraft parts
         aircraft_parts.append(part_obj)
@@ -675,7 +676,7 @@ def generate_gmsh(
     # Thus be sure to define mesh size in a certain order to control
     # the size of the points on boundaries.
 
-    fuselage_maxlen, fuselage_minlen = fuselage_size(cpacs)
+    fuselage_maxlen, fuselage_minlen = fuselage_size(geometry)
     mesh_size_fuselage = ((fuselage_maxlen + fuselage_minlen) / 2) / fuselage_mesh_size_factor
     log.info(f"Mesh size fuselage={mesh_size_fuselage:.3f} m")
 
@@ -686,7 +687,7 @@ def generate_gmsh(
         "%.3f",
     )
 
-    wing_maxlen, wing_minlen = wings_size(cpacs)
+    wing_maxlen, wing_minlen = wings_size(geometry)
     mesh_size_wing = ((wing_maxlen * 0.8 + wing_minlen) / 2) / wing_mesh_size_factor
 
     log.info(f"Mesh size wing={mesh_size_wing:.3f} m")

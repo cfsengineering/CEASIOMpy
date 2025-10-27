@@ -28,9 +28,9 @@ from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
 )
 from ceasiompy.utils.guisettings import (
-    current_workflow_dir,
     update_gui_settings_from_specs,
 )
+from ceasiompy.utils.workflowutils import current_workflow_dir
 
 from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
@@ -87,7 +87,7 @@ class TestSaveAeroCoef(CeasiompyTest):
 
         update_gui_settings_from_specs(
             self.test_cpacs,
-            module_name=MODULE_NAME,
+            modules_list=[MODULE_NAME],
             test=True,
         )
 

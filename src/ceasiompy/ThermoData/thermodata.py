@@ -37,11 +37,15 @@ from ceasiompy import log
 from ceasiompy.SU2Run import SU2_AEROMAP_UID_XPATH
 from ceasiompy.utils.commonnames import ENGINE_BOUNDARY_CONDITIONS
 from ceasiompy.utils.guixpaths import (
-    ENGINE_BC,
     RANGE_XPATH,
-    ENGINE_TYPE_XPATH,
     RANGE_CRUISE_ALT_XPATH,
     RANGE_CRUISE_MACH_XPATH,
+)
+from ceasiompy.ThermoData import (
+    THERMODATA_XPATH,
+    THERMODATA_BC_XPATH,
+    THERMODATA_PRESSUREOUTLET_XPATH,
+    THERMODATA_TEMPERATUREOUTLET_XPATH,
 )
 
 # =================================================================================================
@@ -97,8 +101,8 @@ def main(
 
                 f = open(EngineBC, "w")
 
-                engine_type = get_value_or_default(tixi, ENGINE_TYPE_XPATH, 0)
-                create_branch(tixi, ENGINE_BC)
+                engine_type = get_value_or_default(tixi, THERMODATA_XPATH, 0)
+                create_branch(tixi, THERMODATA_BC_XPATH)
 
                 if engine_type == 0:
                     (
@@ -126,7 +130,6 @@ def main(
                     )
 
                 else:
-
                     (
                         T_tot_out_byp,
                         V_stat_out_byp,
@@ -160,7 +163,8 @@ def main(
                         massflow_stat_out_core=massflow_stat_out_core,
                         t_stat_out_core=T_stat_out_core,
                     )
-        add_float_vector(tixi, ENGINE_BC + "/temperatureOutlet", T_tot_out_array)
-        add_float_vector(tixi, ENGINE_BC + "/pressureOutlet", P_tot_out_array)
+        add_float_vector(tixi, THERMODATA_TEMPERATUREOUTLET_XPATH, T_tot_out_array)
+        add_float_vector(tixi, THERMODATA_PRESSUREOUTLET_XPATH, P_tot_out_array)
+        log.info("Updating T_tot_out_array and P_tot_out_array.")
 
     shutil.rmtree("reports", ignore_errors=True)

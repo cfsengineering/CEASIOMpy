@@ -60,7 +60,7 @@ from ceasiompy.CPACS2GMSH import (
 
 
 def run_cpacs2gmsh(
-    cpacs: CPACS,
+    geometry: Union[CPACS, Path],
     gui_settings: GUISettings,
     results_dir: Path,
     surf: Optional[str] = None,
@@ -112,7 +112,7 @@ def run_cpacs2gmsh(
 
     # Export airplane's part in .brep format
     export_brep(
-        cpacs=cpacs,
+        geometry=geometry,
         brep_dir=brep_dir,
         gui_settings=gui_settings,
         engine_surface_percent=(intake_percent, exhaust_percent),
@@ -120,7 +120,7 @@ def run_cpacs2gmsh(
 
     if type_mesh == "Euler":
         su2mesh_path = generate_gmsh(
-            cpacs=cpacs,
+            geometry=geometry,
             gui_settings=gui_settings,
             brep_dir=brep_dir,
             results_dir=results_dir,
@@ -144,7 +144,7 @@ def run_cpacs2gmsh(
         )
     else:
         gmesh_path, fuselage_maxlen = generate_2d_mesh_for_pentagrow(
-            cpacs,
+            geometry,
             brep_dir,
             results_dir,
             open_gmsh=open_gmsh,
@@ -267,15 +267,14 @@ def main(
     Defines setup for gmsh.
     """
 
-    if isinstance(geometry, CPACS):
-        cpacs: CPACS = geometry
-    else:
+    if not isinstance(geometry, CPACS):
         return run_cpacs2gmsh(
-            cpacs=cpacs,
+            geometry=geometry,
             results_dir=results_dir,
             gui_settings=gui_settings,
         )
 
+    cpacs: CPACS = geometry
     angles = get_value(gui_settings.tixi, GMSH_CTRLSURF_ANGLE_XPATH)
 
     # Unique angles list
@@ -286,7 +285,7 @@ def main(
     if not angles_list:
         # No specified angles: run as usual
         return run_cpacs2gmsh(
-            cpacs=cpacs,
+            geometry=cpacs,
             results_dir=results_dir,
             gui_settings=gui_settings,
         )
@@ -295,7 +294,7 @@ def main(
         if angle == 0.0:
             # No deformation for angle 0
             run_cpacs2gmsh(
-                cpacs=cpacs,
+                geometry=cpacs,
                 results_dir=results_dir,
                 gui_settings=gui_settings,
             )

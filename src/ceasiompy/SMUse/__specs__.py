@@ -17,7 +17,6 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy.utils.guixpaths import SM_XPATH
 from ceasiompy.SMUse import (
-    INCLUDE_GUI,
     SMUSE_DATASET_XPATH,
 )
 
@@ -37,7 +36,7 @@ cpacs_inout.add_input(
     default_value="-",
     descr="File that contains a trained model",
     xpath=SM_XPATH,
-    gui=INCLUDE_GUI,
+
     gui_name="Model to use",
     gui_group="Model",
     # Temporary work around
@@ -58,7 +57,7 @@ cpacs_inout.add_input(
         "Datasets on which to make the predictions, " "First aeromap: First level of fidelity."
     ),
     xpath=SMUSE_DATASET_XPATH,
-    gui=INCLUDE_GUI,
+
     gui_name="__AEROMAP_SELECTION",
     gui_group="Selected Aeromap",
 )

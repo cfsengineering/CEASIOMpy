@@ -258,7 +258,6 @@ for direction in ["x", "y", "z"]:
         unit="1",
         descr=f"Fuselage scaling on {direction} axis",
         xpath=FUSELAGES_XPATH + f"/fuselage/transformation/scaling/{direction}",
-        gui=True,
         gui_name=f"{direction.capitalize()} scaling",
         gui_group="Fuselage scaling",
     )
@@ -271,7 +270,6 @@ cpacs_inout.add_input(
     unit=None,
     descr="This is a test of description",
     xpath="/cpacs/toolspecific/CEASIOMpy/test/myTest",
-    gui=True,
     gui_name="My test",
     gui_group="Group Test",
 )
@@ -283,7 +281,6 @@ cpacs_inout.add_input(
     default_value=[2, 33, 444],
     unit="[unit]",
     xpath="/cpacs/toolspecific/CEASIOMpy/test/myList",
-    gui=True,
     gui_name="Choice",
     gui_group="My Selection",
 )
@@ -294,7 +291,6 @@ cpacs_inout.add_input(
     var_type=list,
     default_value=None,
     xpath='/cpacs/toolspecific/CEASIOMpy/test/aeroMapUIDSelection',
-    gui=True,
     gui_name='__AEROMAP_SELECTION',
 )
 
@@ -304,7 +300,7 @@ cpacs_inout.add_input(
     var_type=list,
     default_value=None,
     xpath='/cpacs/toolspecific/CEASIOMpy/test/aeroMapCheckBoxSelection',
-    gui=INCLUDE_GUI,
+    
     gui_name='__AEROMAP_CHECKBOX',
 )
 

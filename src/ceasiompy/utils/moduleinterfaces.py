@@ -24,7 +24,9 @@ from cpacspy.cpacsfunctions import (
 )
 
 from pathlib import Path
+from ceasiompy.utils.ceasiompymodules import CEASIOMpyModule
 from typing import (
+    List,
     Final,
     Optional,
 )
@@ -53,7 +55,6 @@ class _Entry:
 
     ONLY_INPUT = [
         "default_value",
-        "gui",
         "gui_group",
         "gui_name",
     ]
@@ -67,7 +68,6 @@ class _Entry:
         unit="1",
         descr="",
         xpath="",
-        gui=False,
         gui_name="",
         gui_group=None,
         test_value=None,
@@ -82,7 +82,6 @@ class _Entry:
             unit            (str): Unit of the required value, e.g. 'm/s'
             descr           (str): Description of the input or output data
             xpath           (str): CPACS node xpath
-            gui             (bool): 'True' if entry should appear in GUI
             gui_name        (str): GUI name
             gui_group       (str): Group name for GUI generation
         """
@@ -97,7 +96,6 @@ class _Entry:
         self.xpath = xpath
 
         # GUI specific
-        self.gui = gui
         self.gui_name = gui_name
         self.gui_group = gui_group
         self.expanded = expanded
@@ -148,9 +146,6 @@ class CPACSInOut:
 
         gui_settings_dict = {}
         for entry in self.inputs:
-            if not entry.gui:
-                continue
-
             # Logic here should be correct
             # If entry.test_value is not specified
             # and entry.default_value is None, we still get None
@@ -201,15 +196,6 @@ class CPACSInOut:
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
-
-
-def get_module_path(module_name: str) -> Path:
-    """Get the path to the module directory"""
-
-    if module_name not in get_module_list(only_active=False):
-        raise ValueError(f"Module '{module_name}' not found")
-
-    return Path(MODULES_DIR_PATH, module_name)
 
 
 def check_cpacs_input_requirements(tixi, *, module_name=None, submodule_level=1, cpacs_inout=None):
@@ -268,68 +254,94 @@ def check_cpacs_input_requirements(tixi, *, module_name=None, submodule_level=1,
             raise CPACSRequirementError("CPACS xpath(s) required but does not exist!")
 
 
-def get_module_list(only_active=True):
-    """Return a list of CEASIOMpy modules
+def get_module_path(module_name: str) -> Path:
+    """Get the path to the module directory"""
+    return MODULES_DIR_PATH / module_name
 
-    ['SkinFriction', 'PyAVL', ...]
+
+def get_init_for_module(module_name, raise_error=False):
+    """Return the __init__ module for a CEASIOMpy module
+
+    Args:
+        module_name (str): name of the module as a string
+        raise_error (bool): 'True' if error should be raised
+                            if __specs__ does not exist
+    """
+
+    if not module_name.startswith("ceasiompy."):
+        module_name = ".".join((MODNAME_TOP, module_name))
+    try:
+        init = importlib.import_module(".".join((module_name, MODNAME_INIT)))
+        return init
+    except ImportError:
+        if raise_error:
+            raise ImportError(f"{MODNAME_INIT} module not found for {module_name}")
+        return None
+
+
+def get_module_object(module_name: str):
+    """
+    Import the module's __init__ and return the CEASIOMpyModule instance it defines.
 
     Returns:
-        A list of module names (as strings)
+        CEASIOMpyModule instance or None if not found or import failed.
     """
+    init = get_init_for_module(module_name, raise_error=False)
+    if init is None:
+        log.info(f"{module_name}: __init__ could not be imported")
+        return None
 
-    module_list = []
+    # Prefer an explicit CEASIOMpyModule instance
+    for name, val in inspect.getmembers(init):
+        # log name and type only (avoid huge dumps)
+        try:
+            if isinstance(val, CEASIOMpyModule):
+                if getattr(val, "module_status", True):
+                    return val
+                log.info(f"{module_name}: found CEASIOMpyModule instance but module_status is False")
+                return None
+        except Exception:
+            # ignore weird type checks caused by import quirks
+            pass
+
+    # Fallback: check for a 'module_object' attribute commonly used as descriptor
+    if hasattr(init, "module_object"):
+        val = getattr(init, "module_object")
+        if isinstance(val, CEASIOMpyModule) and getattr(val, "module_status", True):
+            return val
+
+    log.warning(f"{module_name}: Did not define a CEASIOMpyModule Object.")
+    return None
+
+
+def get_active_module_list() -> List[Optional[CEASIOMpyModule]]:
+    """
+    Return list of CEASIOMpyModule objects for all modules found
+    in MODULES_DIR_PATH.
+    Modules that don't expose a CEASIOMpyModule instance
+    are returned as None (skipped by callers if needed).
+    """
+    modules = []
     for module_dir in MODULES_DIR_PATH.iterdir():
         module_name = module_dir.name
-
-        # Ignore "dunder"-files and dot files
         if module_name.startswith("__") or module_name.startswith("."):
             continue
-
-        init = get_init_for_module(module_name, raise_error=False)
-        try:
-            MODULE_STATUS = init.MODULE_STATUS
-        except AttributeError:
-            MODULE_STATUS = False
-            if module_name != "utils":
-                log.warning(
-                    f"Module status of {module_name} is not define in its __init__.py file."
-                )
-
-        if only_active:
-            if MODULE_STATUS:
-                module_list.append(module_name)
-        else:
-            module_list.append(module_name)
-
-    return module_list
+        modobj = get_module_object(module_name)
+        if modobj is not None and modobj.module_status:
+            modules.append(modobj)
+    return sorted(modules, key=lambda m: m.module_name if hasattr(m, "module_name") else str(m))
 
 
-def get_toolinput_file_path(module_name):
-    """Get the path to the ToolInput.xml CPACS file of a specific module
-
-    Args:
-        module_name (str): name of the module as a string
-
-    Retruns:
-        toolinput_path (str): Path to the ToolInput CPACS file
-
-    """
-
-    return Path(MODULES_DIR_PATH, module_name, "ToolInput", "ToolInput.xml")
-
-
-def get_tooloutput_file_path(module_name):
-    """Get the path to the ToolOutput.xml CPACS file of a specific module
-
-    Args:
-        module_name (str): name of the module as a string
-
-    Retruns:
-        tooloutput_path (str): Path to the ToolOutput CPACS file
-
-    """
-
-    return Path(MODULES_DIR_PATH, module_name, "ToolOutput", "ToolOutput.xml")
+def get_all_modules() -> List[Optional[CEASIOMpyModule]]:
+    modules = []
+    for module_dir in MODULES_DIR_PATH.iterdir():
+        module_name = module_dir.name
+        if module_name.startswith("__") or module_name.startswith("."):
+            continue
+        modobj = get_module_object(module_name)
+        if modobj is not None:
+            modules.append(modobj)
+    return sorted(modules, key=lambda m: m.module_name if hasattr(m, "module_name") else str(m))
 
 
 def get_specs_for_module(module_name: str, reloading=False, raise_error=False):
@@ -355,27 +367,6 @@ def get_specs_for_module(module_name: str, reloading=False, raise_error=False):
     return specs
 
 
-def get_init_for_module(module_name, raise_error=False):
-    """Return the __init__ module for a CEASIOMpy module
-
-    Args:
-        module_name (str): name of the module as a string
-        raise_error (bool): 'True' if error should be raised
-                            if __specs__ does not exist
-    """
-
-    if not module_name.startswith("ceasiompy."):
-        module_name = ".".join((MODNAME_TOP, module_name))
-
-    try:
-        init = importlib.import_module(".".join((module_name, MODNAME_INIT)))
-        return init
-    except ImportError:
-        if raise_error:
-            raise ImportError(f"{MODNAME_INIT} module not found for {module_name}")
-        return None
-
-
 def get_all_module_specs():
     """Return a dictionary with module names (keys) and specs files (values)
 
@@ -397,9 +388,10 @@ def get_all_module_specs():
     """
 
     all_specs = {}
-    for module_name in get_module_list(only_active=False):
-        specs = get_specs_for_module(module_name, raise_error=False)
-        all_specs[module_name] = specs
+    active_modules = get_active_module_list()
+    for module in active_modules:
+        specs = get_specs_for_module(module.module_name, raise_error=False)
+        all_specs[module.module_name] = specs
     return all_specs
 
 
@@ -448,7 +440,7 @@ def create_default_toolspecific():
 
 def module_to_remove_from_coverage():
 
-    active_modules = get_module_list(only_active=True)
+    active_modules = get_active_module_list()
 
     print(
         "\nYou can copy/paste the following lines in the file /CEASIOMpy/pyproject.toml and "
@@ -459,8 +451,9 @@ def module_to_remove_from_coverage():
     print("omit = [")
     print('  "*/__init__.py",')
     print('  "*/__specs__.py",')
-    for module in get_module_list(only_active=False):
-        if module not in active_modules and module != "utils":
+
+    for module in get_all_modules():
+        if module not in active_modules and module.module_name != "utils":
             print(f'  "*/{module}/*",')
     print("]")
 

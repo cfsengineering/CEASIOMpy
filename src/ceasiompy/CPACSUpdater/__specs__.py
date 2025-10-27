@@ -25,7 +25,6 @@ from ceasiompy.CPACSUpdater import (
     CPACSUPDATER_ADD_CTRLSURFACES_XPATH,
 )
 from ceasiompy.CPACSUpdater import (
-    INCLUDE_GUI,
     CONTROL_SURFACES_LIST,
 )
 
@@ -47,7 +46,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Adds control surfaces",
     xpath=CPACSUPDATER_ADD_CTRLSURFACES_XPATH,
-    gui=INCLUDE_GUI,
+
     gui_name="Add Control Surfaces",
     gui_group="Control Surfaces Settings",
 )
@@ -61,7 +60,7 @@ for wing_name, segment_name in segments_list:
         unit=None,
         descr="Type of control surface to add at specific wing and segment of wing.",
         xpath=CPACSUPDATER_CTRLSURF_XPATH + f"/{wing_name}/{segment_name}",
-        gui=INCLUDE_GUI,
+
         gui_name=f"Control Surface for segment {segment_name} of wing {wing_name}",
         gui_group="Control Surfaces Settings",
     )

@@ -56,7 +56,7 @@ def test_generate_gmsh():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        tixi=cpacs.tixi,
+        geometry=cpacs,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
@@ -98,7 +98,7 @@ def test_generate_gmsh_symm():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        tixi=cpacs.tixi,
+        geometry=cpacs,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
@@ -205,7 +205,7 @@ def test_define_engine_bc():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        tixi=cpacs.tixi,
+        geometry=cpacs,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
@@ -269,7 +269,7 @@ def test_define_doubleflux_engine_bc():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        tixi=cpacs.tixi,
+        geometry=cpacs,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
@@ -329,7 +329,7 @@ def test_disk_actuator_conversion():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        tixi=cpacs.tixi,
+        geometry=cpacs,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,

@@ -15,6 +15,7 @@ Initialization for CPACSUpdater module.
 # ==============================================================================
 
 from pathlib import Path
+from ceasiompy.utils.ceasiompymodules import CEASIOMpyModule
 
 from ceasiompy.utils.guixpaths import CEASIOMPY_XPATH
 
@@ -22,18 +23,15 @@ from ceasiompy.utils.guixpaths import CEASIOMPY_XPATH
 #   INITIALIZATION
 # ==============================================================================
 
-# ===== Module Status =====
-MODULE_STATUS = True
-
-# ===== Include GUI =====
-INCLUDE_GUI = True
-
-# ===== Add a Results Directory =====
-RES_DIR = False
-
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
+
+cpacsupdater = CEASIOMpyModule(
+    module_name=MODULE_NAME,
+    module_status=True,
+    res_dir=False,
+)
 
 # Specific to CPACSUpdater module
 CONTROL_SURFACES_LIST = [

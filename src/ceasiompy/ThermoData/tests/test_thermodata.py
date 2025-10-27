@@ -19,7 +19,7 @@ import numpy as np
 from pathlib import Path
 
 from ceasiompy.ThermoData.thermodata import main as thermo_data
-from ceasiompy.utils.guisettings import current_workflow_dir
+from ceasiompy.utils.workflowutils import current_workflow_dir
 from ceasiompy.ThermoData.func.turbojet import (
     turbojet_analysis,
     write_turbojet_file,

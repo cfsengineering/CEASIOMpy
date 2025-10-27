@@ -12,7 +12,7 @@ from ceasiompy.utils.decorators import log_test
 from ceasiompy.utils.ceasiompyutils import (
     create_branch,
 )
-from ceasiompy.utils.guisettings import current_workflow_dir
+from ceasiompy.utils.workflowutils import current_workflow_dir
 from ceasiompy.ExportCSV.exportcsv import main as export_aeromaps
 
 from pathlib import Path

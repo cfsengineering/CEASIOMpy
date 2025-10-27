@@ -15,6 +15,7 @@ Initialization for CLCalculator module.
 # ==============================================================================
 
 from pathlib import Path
+from ceasiompy.utils.ceasiompymodules import CEASIOMpyModule
 
 # ==============================================================================
 #   INITIALIZATION
@@ -37,3 +38,9 @@ RES_DIR = False
 # MODULE_NAME == 'ModuleTemplate'.
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
+
+module_template = CEASIOMpyModule(
+    module_name=MODULE_NAME,
+    module_status=MODULE_STATUS,
+    res_dir=RES_DIR,
+)

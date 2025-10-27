@@ -88,6 +88,7 @@ def main(
     if fidelity_level == LEVEL_TWO:
         run_adaptative_refinement(
             cpacs=cpacs,
+            gui_settings=gui_settings,
             results_dir=results_dir,
             model=model,
             level1_sets=sets,

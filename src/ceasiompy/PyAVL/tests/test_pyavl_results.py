@@ -13,7 +13,7 @@ Test functions for results.py
 from ceasiompy.utils.decorators import log_test
 from ceasiompy.PyAVL.func.results import get_avl_aerocoefs
 from ceasiompy.PyAVL.func.plot import plot_lift_distribution
-from ceasiompy.utils.guisettings import current_workflow_dir
+from ceasiompy.utils.workflowutils import current_workflow_dir
 from pathlib import Path
 from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest

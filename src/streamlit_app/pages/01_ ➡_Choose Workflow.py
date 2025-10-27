@@ -19,20 +19,32 @@ Streamlit page to create a CEASIOMpy workflow
 import streamlit as st
 
 from streamlit_app.utils.streamlitutils import create_sidebar
-from ceasiompy.utils.moduleinterfaces import get_module_list
+from ceasiompy.utils.moduleinterfaces import (
+    get_module_object,
+    get_active_module_list,
+)
 
-from typing import Final
+from ceasiompy.utils.ceasiompymodules import CEASIOMpyModule
+from typing import (
+    List,
+    Final,
+)
 
-from ceasiompy.SMUse import MODULE_NAME as SMUSE
-from ceasiompy.PyAVL import MODULE_NAME as PYAVL
-from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
-from ceasiompy.SMTrain import MODULE_NAME as SMTRAIN
-from ceasiompy.Database import MODULE_NAME as DATABASE
-from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
-from ceasiompy.CPACSUpdater import MODULE_NAME as CPACSUPDATER
-from ceasiompy.StaticStability import MODULE_NAME as STATICSTABILITY
-from ceasiompy.DynamicStability import MODULE_NAME as DYNAMICSTABILITY
-from ceasiompy.SaveAeroCoefficients import MODULE_NAME as SAVEAEROCOEF
+from ceasiompy import log
+from ceasiompy.SMUse import smuse
+from ceasiompy.PyAVL import pyavl
+from ceasiompy.SU2Run import su2run
+from ceasiompy.SMTrain import smtrain
+from ceasiompy.Database import database
+from ceasiompy.ExportCSV import exportcsv
+from ceasiompy.ThermoData import thermodata
+from ceasiompy.CPACS2GMSH import cpacs2gmsh
+from ceasiompy.CPACSUpdater import cpacsupdater
+from ceasiompy.CPACSCreator import cpacscreator
+from ceasiompy.SkinFriction import skinfriction
+from ceasiompy.StaticStability import staticstability
+from ceasiompy.DynamicStability import dynamicstability
+from ceasiompy.SaveAeroCoefficients import saveaerocoefficients
 
 # ==============================================================================
 #   CONSTANTS
@@ -86,18 +98,28 @@ def section_predefined_workflow():
 
     st.markdown("#### Predefined Workflows")
 
-    predefine_workflows = [
-        [PYAVL, STATICSTABILITY, DATABASE],
-        [CPACSUPDATER, "CPACSCreator", CPACS2GMSH, SU2RUN, "ExportCSV"],
-        [CPACS2GMSH, "ThermoData", SU2RUN, "SkinFriction", DATABASE],
-        [SMTRAIN, SMUSE, SAVEAEROCOEF],
-        [DYNAMICSTABILITY, DATABASE],
-        # ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"],
+    # Resolve the module objects lazily here (runtime, not import time)
+    predefine_workflows: List[List[CEASIOMpyModule]] = [
+        [m for m in (pyavl, staticstability, database) if m],
+        [m for m in (cpacsupdater, cpacscreator, cpacs2gmsh, su2run, exportcsv) if m],
+        [m for m in (cpacs2gmsh, thermodata, su2run, skinfriction, database) if m],
+        [m for m in (smtrain, smuse, saveaerocoefficients) if m],
+        [m for m in (dynamicstability, database) if m],
     ]
 
-    for workflow in predefine_workflows:
-        if st.button(" → ".join(workflow)):
-            st.session_state.workflow_modules = workflow
+    for workflow_idx, workflow in enumerate(predefine_workflows):
+        display_names = [
+            item.module_name
+            if isinstance(item, CEASIOMpyModule)
+            else item
+            for item in workflow
+        ]
+        log.info(f"{display_names=}")
+        button_label = " → ".join(display_names)
+        # Provide a unique key to avoid StreamlitDuplicateElementId
+        if st.button(button_label, key=f"predefined_workflow_{workflow_idx}"):
+            # store the actual module objects (or strings if they are placeholders)
+            st.session_state.modules_list = workflow
 
 
 def section_add_module():
@@ -107,44 +129,47 @@ def section_add_module():
 
     st.markdown("#### Your workflow")
 
-    if "workflow_modules" not in st.session_state:
-        st.session_state["workflow_modules"] = []
+    if "modules_list" not in st.session_state:
+        st.session_state["modules_list"] = []
 
-    if len(st.session_state.workflow_modules):
-        for i, module in enumerate(st.session_state.workflow_modules):
-
+    if len(st.session_state.modules_list):
+        for i, module in enumerate(st.session_state.modules_list):
             col1, col2, col3, _ = st.columns([6, 1, 1, 5])
 
             with col1:
-                st.button(module, key=f"module_number_{i}")
+                # Display human-friendly label but keep module object in state
+                label = module.module_name if isinstance(module, CEASIOMpyModule) else str(module)
+                st.button(label, key=f"module_number_{i}")
 
             with col2:
-                if st.button("⬆️", key=f"move{i}", help="Move up") and i > 0:
-                    st.session_state.workflow_modules.pop(i)
-                    st.session_state.workflow_modules.insert(i - 1, module)
+                if i > 0 and st.button("⬆️", key=f"move{i}", help="Move up"):
+                    st.session_state.modules_list.pop(i)
+                    st.session_state.modules_list.insert(i - 1, module)
                     st.rerun()
 
             with col3:
-                if st.button("❌", key=f"del{i}", help=f"Remove {module} from the workflow"):
-                    st.session_state.workflow_modules.pop(i)
+                if st.button("❌", key=f"del{i}", help=f"Remove {label} from the workflow"):
+                    st.session_state.modules_list.pop(i)
                     st.rerun()
     else:
         st.warning("No module has been added to the workflow.")
 
-    module_list = get_module_list(only_active=True)
-
-    available_module_list = sorted(module_list)
+    available_module_list = get_active_module_list()
 
     col1, col2 = st.columns(2)
 
     with col1:
-        module = st.selectbox("Module to add to the workflow:", available_module_list)
+        module = st.selectbox(
+            "Module to add to the workflow:",
+            available_module_list,
+            format_func=lambda m: m.module_name if isinstance(m, CEASIOMpyModule) else str(m),
+        )
 
     with col2:
         # Add vertical spacing to match the label height of selectbox
         st.markdown("<div style='margin-top: 28px;'></div>", unsafe_allow_html=True)
         if st.button("✔", help="Add this module to the workflow"):
-            st.session_state.workflow_modules.append(module)
+            st.session_state.modules_list.append(module)
             st.rerun()
 
 

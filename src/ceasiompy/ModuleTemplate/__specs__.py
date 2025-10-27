@@ -16,8 +16,6 @@ GUI Interface of ModuleTemplate.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy.ModuleTemplate import INCLUDE_GUI
-
 from ceasiompy.utils.guixpaths import CEASIOMPY_XPATH
 from ceasiompy.utils.cpacsxpaths import (
     FUSELAGES_XPATH,
@@ -44,7 +42,7 @@ for direction in ["x", "y", "z"]:
         unit=None,
         descr=f"Fuselage scaling on {direction} axis",
         xpath=FUSELAGES_XPATH + f"/fuselage/transformation/scaling/{direction}",
-        gui=INCLUDE_GUI,
+
         gui_name=f"{direction.capitalize()} scaling",
         gui_group="Fuselage scaling",
     )
@@ -56,7 +54,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="This is a test of description",
     xpath=CEASIOMPY_XPATH + "/test/myTest",
-    gui=INCLUDE_GUI,
+
     gui_name="My test",
     gui_group="Group Test",
 )
@@ -67,7 +65,7 @@ cpacs_inout.add_input(
     default_value=[2, 33, 444],
     unit="[unit]",
     xpath=CEASIOMPY_XPATH + "/test/myList",
-    gui=INCLUDE_GUI,
+
     gui_name="Choice",
     gui_group="My Selection",
 )

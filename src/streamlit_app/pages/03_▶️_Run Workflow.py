@@ -80,7 +80,7 @@ def workflow_buttons() -> None:
             workflow.run_workflow(
                 geometry=st.session_state.cpacs,
                 gui_settings=st.session_state.gui_settings,
-                modules_list=st.session_state.workflow_modules,
+                modules_list=st.session_state.modules_list,
             )
 
     with col2:

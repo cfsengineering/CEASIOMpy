@@ -14,9 +14,9 @@ import streamlit as st
 
 from pydantic import validate_call
 from ceasiompy.utils.guisettings import (
-    current_workflow_dir,
     update_gui_settings_from_specs,
 )
+from ceasiompy.utils.workflowutils import current_workflow_dir
 from ceasiompy.utils.ceasiompyutils import (
     get_wkdir_status,
     change_working_dir,
@@ -72,16 +72,20 @@ def call_main(main: Callable, module_name: str, cpacs_path: Path = None) -> None
         cpacs = CPACS(cpacs_path)
         log.info(f"Upload default values from {MODNAME_SPECS}.")
         gui_settings = update_gui_settings_from_specs(
-            cpacs=cpacs,
+            geometry=cpacs,
             gui_settings=None,
-            module_name=module_name,
+            modules_list=[module_name],
             test=True,
         )
 
     log.info(f"Finished uploading default values from {MODNAME_SPECS}.")
 
     if get_wkdir_status(module_name):
-        results_dir = get_results_directory(module_name, create=True, wkflow_dir=wkflow_dir)
+        results_dir = get_results_directory(
+            module_name,
+            create=True,
+            wkflow_dir=wkflow_dir,
+        )
         main(cpacs, gui_settings, results_dir)
     else:
         main(cpacs, gui_settings)

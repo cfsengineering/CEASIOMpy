@@ -26,7 +26,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Name of the aero map to calculate",
     xpath=EDGE_AEROMAP_UID_XPATH,
-    gui=True,
+    
     gui_name="__AEROMAP_SELECTION",
     gui_group="Aeromap settings",
 )
@@ -38,7 +38,7 @@ cpacs_inout.add_input(
     unit="m",
     descr="Reference length of the aircraft",
     xpath=REF_XPATH + "/length",
-    gui=False,
+    
     gui_name=None,
     gui_group=None,
 )
@@ -50,7 +50,7 @@ cpacs_inout.add_input(
     unit="m^2",
     descr="Reference area of the aircraft",
     xpath=REF_XPATH + "/area",
-    gui=False,
+    
     gui_name=None,
     gui_group=None,
 )
@@ -63,7 +63,7 @@ for direction in ["x", "y", "z"]:
         unit="m",
         descr=f"Fuselage scaling on {direction} axis",
         xpath=REF_XPATH + f"/point/{direction}",
-        gui=False,
+        
         gui_name=None,
         gui_group=None,
     )
@@ -75,7 +75,7 @@ cpacs_inout.add_input(
     unit="1",
     descr="Aircraft cruise Mach number",
     xpath=RANGE_XPATH + "/cruiseMach",
-    gui=False,
+    
     gui_name="Cruise Mach",
     gui_group="If fixed CL",
 )
@@ -87,7 +87,7 @@ cpacs_inout.add_input(
     unit="m",
     descr="Aircraft cruise altitude",
     xpath=RANGE_XPATH + "/cruiseAltitude",
-    gui=False,
+    
     gui_name="Cruise Altitude",
     gui_group="If fixed CL",
 )
@@ -99,7 +99,7 @@ cpacs_inout.add_input(
     unit="-",
     descr="FIXED_CL_MODE parameter for SU2",
     xpath=EDGE_FIXED_CL_XPATH,
-    gui=False,
+    
     gui_name=None,
     gui_group=None,
 )
@@ -111,7 +111,7 @@ cpacs_inout.add_input(
     unit="1",
     descr="Number of proc to use to run EDGE",
     xpath=EDGE_NB_CPU_XPATH,
-    gui=True,
+    
     gui_name="Nb of processor",
     gui_group="CPU",
 )
@@ -123,7 +123,7 @@ cpacs_inout.add_input(
     unit="1",
     descr="Maximum number of iterations performed by EDGE",
     xpath=EDGE_MAX_ITER_XPATH,
-    gui=True,
+    
     gui_name="Maximum iterations",
     gui_group="EDGE Parameters",
 )
@@ -135,7 +135,7 @@ cpacs_inout.add_input(
     unit="1",
     descr="CFL Number, Courant–Friedrichs–Lewy condition",
     xpath=EDGE_CFL_NB_XPATH,
-    gui=False,
+    
     gui_name="CFL Number",
     gui_group="EDGE Parameters",
 )
@@ -147,7 +147,7 @@ cpacs_inout.add_input(
     unit="1",
     descr="Multi-grid level (0 = no multigrid)",
     xpath=EDGE_MG_LEVEL_XPATH,
-    gui=True,
+    
     gui_name="Multigrid Level",
     gui_group="EDGE Parameters",
 )
@@ -159,7 +159,7 @@ cpacs_inout.add_input(
     unit="1",
     descr="Chose if perform a RANS or an Euler calculation",
     xpath=EDGE_SOLVER_XPATH,
-    gui=True,
+    
     gui_name="Solver for calculation",
     gui_group="EDGE parameters",
 )
@@ -171,7 +171,7 @@ cpacs_inout.add_input(
     unit="1",
     descr="Absolute path of the EDGE mesh",
     xpath=EDGE_MESH_XPATH,
-    gui=True,
+    
     gui_name="EDGE Mesh",
     gui_group="Inputs",
 )
@@ -183,7 +183,7 @@ cpacs_inout.add_input(
     unit="1",
     descr="Absolute path of the EDGE Boundary Condition file",
     xpath=EDGE_ABOC_XPATH,
-    gui=True,
+    
     gui_name="EDGE ABOC",
     gui_group="Inputs",
 )

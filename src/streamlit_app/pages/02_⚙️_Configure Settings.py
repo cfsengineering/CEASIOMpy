@@ -55,11 +55,11 @@ padding: 6px;
 
 
 def section_settings():
-    if "workflow_modules" not in st.session_state:
+    if "modules_list" not in st.session_state:
         st.warning("No module selected!")
         return
 
-    if not len(st.session_state.workflow_modules):
+    if not len(st.session_state.modules_list):
         st.warning("You must first build a workflow in the corresponding tab.")
 
     add_module_tab(new_file=st.session_state.new_file)

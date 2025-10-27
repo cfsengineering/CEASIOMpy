@@ -47,6 +47,7 @@ from cpacspy.cpacspy import CPACS
 from smt.applications import MFK
 from smt.surrogate_models import KRG
 from scipy.optimize import OptimizeResult
+from ceasiompy.utils.guisettings import GUISettings
 from skopt.space import (
     Real,
     Categorical,
@@ -344,6 +345,7 @@ def run_first_level_training(
 
 def run_adaptative_refinement(
     cpacs: CPACS,
+    gui_settings: GUISettings,
     results_dir: Path,
     model: Union[KRG, MFK],
     level1_sets: Dict[str, ndarray],
@@ -386,6 +388,7 @@ def run_adaptative_refinement(
         # Get data from SU2 at the high variance points
         new_df = launch_su2(
             cpacs=cpacs,
+            gui_settings=gui_settings,
             results_dir=results_dir,
             objective=objective,
             high_variance_points=high_var_pts,

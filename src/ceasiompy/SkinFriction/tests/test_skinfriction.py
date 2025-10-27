@@ -11,9 +11,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
 )
-from ceasiompy.utils.guisettings import (
-    current_workflow_dir,
-)
+from ceasiompy.utils.workflowutils import current_workflow_dir
 from ceasiompy.SkinFriction.skinfriction import (
     main as add_skin_friction,
     estimate_skin_friction_coef,

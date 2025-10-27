@@ -18,10 +18,7 @@ import importlib
 import subprocess
 
 from contextlib import contextmanager
-from ceasiompy.utils.moduleinterfaces import get_module_list
 from ceasiompy.utils.moduleinterfaces import (
-    get_toolinput_file_path,
-    get_tooloutput_file_path,
     check_cpacs_input_requirements,
 )
 from cpacspy.cpacsfunctions import (
@@ -49,6 +46,7 @@ from typing import (
 
 from ceasiompy import (
     log,
+    CEASIOMPY_MODULES,
 )
 from ceasiompy.utils.moduleinterfaces import (
     MODNAME_INIT,
@@ -140,7 +138,7 @@ def get_results_directory(module_name: str, create: bool = True, wkflow_dir: Pat
 
     """
 
-    if module_name not in get_module_list(only_active=False):
+    if module_name not in CEASIOMPY_MODULES:
         raise ValueError(f"Module '{module_name}' does not exist.")
 
     init = importlib.import_module(f"ceasiompy.{module_name}.{MODNAME_INIT}")
@@ -157,14 +155,6 @@ def get_results_directory(module_name: str, create: bool = True, wkflow_dir: Pat
 def get_wkdir_status(module_name: str) -> bool:
     init = importlib.import_module(f"ceasiompy.{module_name}.{MODNAME_INIT}")
     return init.RES_DIR
-
-
-def initialize_cpacs(module_name: str) -> Tuple[CPACS, Path]:
-    cpacs_in = get_toolinput_file_path(module_name)
-    cpacs_out = get_tooloutput_file_path(module_name)
-    check_cpacs_input_requirements(cpacs_in)
-    cpacs = CPACS(cpacs_in)
-    return cpacs, cpacs_out
 
 
 def get_install_path(software_name: str, raise_error: bool = False) -> Path:

@@ -16,8 +16,6 @@ GUI Interface of SkinFriction.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy.SkinFriction import INCLUDE_GUI
-
 from ceasiompy.utils.guixpaths import (
     SF_XPATH,
     GEOM_XPATH,
@@ -42,21 +40,9 @@ cpacs_inout.add_input(
     default_value=None,
     descr="To which aeroMap the skin friction coef should be added",
     xpath=SF_XPATH + "/aeroMapToCalculate",
-    gui=INCLUDE_GUI,
+
     gui_name="__AEROMAP_CHECKBOX",
     gui_group="Aeromap settings",
-)
-
-cpacs_inout.add_input(
-    var_name="wetted_area",
-    var_type=float,
-    default_value=None,
-    unit="m^2",
-    descr="Wetted area of the aircraft (calculated by SU2)",
-    xpath=GEOM_XPATH + "/analysis/wettedArea",
-    gui=False,
-    gui_name="Wetted Area",
-    gui_group="Wetted Area",
 )
 
 cpacs_inout.add_input(
@@ -66,7 +52,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Delete original aeroMap once skin friction coefficient has been added",
     xpath=SF_XPATH + "/deleteOriginal",
-    gui=INCLUDE_GUI,
+
     gui_name="Delete Original",
     gui_group="Delete",
 )
@@ -77,7 +63,7 @@ cpacs_inout.add_input(
     unit="[Mach]",
     descr="Cruise speed of aircraft",
     xpath=RANGE_CRUISE_MACH_XPATH,
-    gui=INCLUDE_GUI,
+
     gui_name="Aircraft cruise speed",
     gui_group="Aircraft cruise parameters",
 )
@@ -88,7 +74,7 @@ cpacs_inout.add_input(
     unit="[m]",
     descr="Cruise altitude of aircraft",
     xpath=RANGE_CRUISE_ALT_XPATH,
-    gui=INCLUDE_GUI,
+
     gui_name="Aircraft cruise altitude",
     gui_group="Aircraft cruise parameters",
 )

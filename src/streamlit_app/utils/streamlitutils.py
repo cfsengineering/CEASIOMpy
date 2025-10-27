@@ -118,7 +118,6 @@ def save_gui_settings():
             update_value(xpath, key)
 
     st.session_state.gui_settings.save()
-    log.info("Updated GUI Settings XML file.")
 
 
 def create_sidebar(

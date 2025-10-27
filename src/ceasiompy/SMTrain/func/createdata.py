@@ -120,6 +120,7 @@ def launch_avl(
 
 def launch_su2(
     cpacs: CPACS,
+    gui_settings: GUISettings,
     results_dir: Path,
     objective: str,
     high_variance_points: Union[str, None] = None,
@@ -149,7 +150,12 @@ def launch_su2(
 
     su2_mesh_path_type = get_value(tixi, USED_SU2_MESH_XPATH + "type")
     max_iters = str(get_value(tixi, SU2_MAX_ITER_XPATH))
-    update_gui_settings_from_specs(cpacs, SU2RUN_NAME, test=True)
+    gui_settings = update_gui_settings_from_specs(
+        geometry=cpacs,
+        gui_settings=gui_settings,
+        modules_list=[SU2RUN_NAME],
+        test=True,
+    )
 
     # Update CPACS with the new aeromap and su2 mesh paths
     tixi.updateTextElement(USED_SU2_MESH_XPATH + "type", su2_mesh_path_type)

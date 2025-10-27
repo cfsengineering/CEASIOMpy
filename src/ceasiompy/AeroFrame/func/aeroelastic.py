@@ -18,10 +18,6 @@ aerodynamic loads and FramAT for structural calculations.
 import numpy as np
 import pandas as pd
 
-from pathlib import Path
-from scipy.interpolate import interp1d
-from cpacspy.cpacspy import CPACS
-
 from ceasiompy.utils.ceasiompyutils import run_software
 from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
 from cpacspy.cpacsfunctions import get_value, get_value_or_default
@@ -41,6 +37,11 @@ from ceasiompy.AeroFrame.func.config import (
     write_deformed_geometry,
     write_deformed_command,
 )
+
+from pathlib import Path
+from cpacspy.cpacspy import CPACS
+from scipy.interpolate import interp1d
+from ceasiompy.utils.guisettings import GUISettings
 
 from ceasiompy import log
 from ceasiompy.AeroFrame import (
@@ -77,7 +78,15 @@ def compute_structural_work(row):
 
 
 # TODO: Reduce complexity
-def aeroelastic_loop(cpacs: CPACS, results_dir, case_dir_path, q, xyz, fxyz):
+def aeroelastic_loop(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+    results_dir,
+    case_dir_path,
+    q,
+    xyz,
+    fxyz,
+):
     """Function to execute the aeroelastic-loop.
 
     Function 'aeroelastic_loop' executes the aeroelastic-loop,
@@ -97,14 +106,13 @@ def aeroelastic_loop(cpacs: CPACS, results_dir, case_dir_path, q, xyz, fxyz):
     """
 
     AVL_ITER1_PATH = Path(case_dir_path, "Iteration_1", "AVL")
-    tixi = cpacs.tixi
 
     # Get the path to the undeformed/initial AVL geometry
     for path in results_dir.glob("*.avl"):
         avl_undeformed_path = path
     avl_undeformed_command = Path(AVL_ITER1_PATH, "avl_commands.txt")
 
-    nb_cpu = get_value(tixi, FRAMAT_NB_CPU_XPATH)
+    nb_cpu = get_value(gui_settings.tixi, FRAMAT_NB_CPU_XPATH)
 
     # Get the properties of each cross-section of the wing
     (
@@ -121,8 +129,8 @@ def aeroelastic_loop(cpacs: CPACS, results_dir, case_dir_path, q, xyz, fxyz):
     ) = compute_cross_section(cpacs)
 
     # Get the properties of the wing material and the number of beam nodes to use
-    young_modulus, shear_modulus, material_density = get_material_properties(tixi)
-    n_beam = get_value(tixi, FRAMAT_NB_NODES_XPATH)
+    young_modulus, shear_modulus, material_density = get_material_properties(gui_settings.tixi)
+    n_beam = get_value(gui_settings.tixi, FRAMAT_NB_NODES_XPATH)
 
     # Define the coordinates of the wing root and tip
     xyz_root = np.array(
@@ -164,7 +172,7 @@ def aeroelastic_loop(cpacs: CPACS, results_dir, case_dir_path, q, xyz, fxyz):
     xyz_tip = np.array([Xle_array[-1] + wg_chord_list[-1] / 2, Yle_array[-1], Zle_array[-1]])
 
     # Get cross-section properties from CPACS file (if constants)
-    area_const, Ix_const, Iy_const = get_section_properties(tixi)
+    area_const, Ix_const, Iy_const = get_section_properties(gui_settings.tixi)
 
     if area_const > 0:
         area_list = area_const * np.ones(len(wg_center_y_list))
@@ -181,8 +189,8 @@ def aeroelastic_loop(cpacs: CPACS, results_dir, case_dir_path, q, xyz, fxyz):
     twist_profile = interp1d(wg_center_y_list, wg_twist_list, fill_value="extrapolate")
 
     # Convergence settings
-    n_iter_max = get_value(tixi, AEROFRAME_MAXNB_ITERATIONS_XPATH)
-    tol = get_value(tixi, AEROFRAME_TOLERANCE_XPATH)
+    n_iter_max = get_value(gui_settings.tixi, AEROFRAME_MAXNB_ITERATIONS_XPATH)
+    tol = get_value(gui_settings.tixi, AEROFRAME_TOLERANCE_XPATH)
 
     # Initialize variables for the loop
     wing_df = pd.DataFrame()
@@ -283,7 +291,7 @@ def aeroelastic_loop(cpacs: CPACS, results_dir, case_dir_path, q, xyz, fxyz):
         )
         log.info("AVL done!")
 
-        save_avl_plot = get_value_or_default(tixi, AVL_PLOT_XPATH, False)
+        save_avl_plot = get_value_or_default(gui_settings.tixi, AVL_PLOT_XPATH, False)
         if save_avl_plot:
             convert_ps_to_pdf(wkdir=avl_iter_path)
 

@@ -26,7 +26,9 @@ from ceasiompy.SU2Run.func.config import (
 )
 
 from pathlib import Path
+from typing import Union
 from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.guisettings import GUISettings
 
 from ceasiompy import log
 from ceasiompy.CPACS2GMSH import (GMSH_SYMMETRY_XPATH)
@@ -42,7 +44,11 @@ from ceasiompy.SU2Run import (
 # =================================================================================================
 
 
-def main(cpacs: CPACS, results_dir: Path) -> None:
+def main(
+    geometry: Union[CPACS, Path],
+    gui_settings: GUISettings,
+    results_dir: Path,
+) -> None:
     """
     SU2Run module is decomposed into 4 parts.
 
@@ -52,29 +58,35 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         4. Retrieve force files results in configuration directory.
     """
 
-    # Define variable
-    tixi = cpacs.tixi
+    if isinstance(geometry, CPACS):
+        cpacs: CPACS = geometry
+    else:
+        raise NotImplementedError("DEAL WITH STP")
 
     # Define constants
-    nb_proc = int(get_value(tixi, SU2_NB_CPU_XPATH))
-    config_file_type = str(get_value(tixi, SU2_CONFIG_RANS_XPATH))
+    nb_proc = int(get_value(gui_settings.tixi, SU2_NB_CPU_XPATH))
+    config_file_type = str(get_value(gui_settings.tixi, SU2_CONFIG_RANS_XPATH))
     rans: bool = config_file_type == "RANS"
-    symmetric_mesh = str(get_value(tixi, GMSH_SYMMETRY_XPATH))
+    symmetric_mesh = str(get_value(gui_settings.tixi, GMSH_SYMMETRY_XPATH))
 
     # 1. Load .su2 mesh files
-    su2_mesh_paths, dynstab_su2_mesh_paths = load_su2_mesh_paths(tixi, results_dir)
+    (
+        su2_mesh_paths,
+        dynstab_su2_mesh_paths,
+    ) = load_su2_mesh_paths(gui_settings.tixi, results_dir)
 
     # Load only 1 mesh file for the su2 markers
     # Accross all different meshes for the same aircraft,
     # the markers will remain the same.
-    mesh_markers = define_markers(tixi, su2_mesh_paths[0])
+    mesh_markers = define_markers(gui_settings.tixi, su2_mesh_paths[0])
 
     # 2. Create configuration files
-    if get_value(tixi, SU2_DYNAMICDERIVATIVES_BOOL_XPATH):
+    if get_value(gui_settings.tixi, SU2_DYNAMICDERIVATIVES_BOOL_XPATH):
         log.info("----- Generating Dynamic Stability ConfigFile -----")
 
         generate_su2_cfd_config(
             cpacs=cpacs,
+            gui_settings=gui_settings,
             wkdir=results_dir,
             su2_mesh_paths=dynstab_su2_mesh_paths,
             mesh_markers=mesh_markers,
@@ -85,6 +97,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     log.info(f"----- Generating {config_file_type} ConfigFile -----")
     generate_su2_cfd_config(
         cpacs=cpacs,
+        gui_settings=gui_settings,
         wkdir=results_dir,
         su2_mesh_paths=su2_mesh_paths,
         mesh_markers=mesh_markers,
@@ -99,4 +112,8 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
     # 4. Retrieve SU2 results
     log.info("----- Updating CPACS and accessing results -----")
-    get_su2_results(cpacs, results_dir)
+    get_su2_results(
+        cpacs=cpacs,  # Update Aeromap
+        results_dir=results_dir,
+        gui_settings=gui_settings,
+    )

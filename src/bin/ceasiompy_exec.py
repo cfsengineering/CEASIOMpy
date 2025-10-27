@@ -35,7 +35,6 @@ from ceasiompy import (
     STREAMLIT_PATH,
     TEST_CASES_PATH,
     CPACS_FILES_PATH,
-    STREAMLIT_PAGES_PATH,
 )
 
 # =================================================================================================
@@ -143,7 +142,6 @@ def run_modules_list(args_list) -> None:
         with patch("streamlit.runtime.state.session_state_proxy"):
             workflow = Workflow()
             workflow.run_workflow(
-                test=True,
                 modules_list=modules_list,
                 geometry=CPACS(new_cpacs_path),
             )
@@ -187,7 +185,7 @@ def run_gui(cpacs_file: Optional[str] = None):
     cmd = [
         "streamlit",
         "run",
-        str(Path(STREAMLIT_PATH, "choosegeometry.py").resolve()),
+        str(Path(STREAMLIT_PATH, "00_✈️_Select Geometry.py").resolve()),
         "--server.headless",
         "false",
     ]
@@ -197,7 +195,7 @@ def run_gui(cpacs_file: Optional[str] = None):
         cmd += ["--", "--cpacs", str(cpacs_file)]
 
     subprocess.run(
-        cmd,
+        args=cmd,
         cwd=STREAMLIT_PATH,
         check=True,
         env=env,

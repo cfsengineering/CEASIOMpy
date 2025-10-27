@@ -21,6 +21,7 @@ from ceasiompy.utils.ceasiompyutils import (
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.guisettings import GUISettings
 
 from ceasiompy import log
 from ceasiompy.CPACSCreator import CPACSCREATOR_NAMES_LIST
@@ -30,7 +31,11 @@ from ceasiompy.CPACSCreator import CPACSCREATOR_NAMES_LIST
 # =================================================================================================
 
 
-def main(cpacs: CPACS, wkdir: Path) -> None:
+def main(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+    results_dir: Path,
+) -> None:
     """
     Runs CPACSCrator with an input CPACS file
     and puts the output CPACS file in the folder /ToolInput.
@@ -39,6 +44,9 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     Source :
         * For CPACSCreator https://github.com/cfsengineering/CPACSCreator
     """
+    # Since there are no specific gui_settings
+    # Maybe Remove it as a module ?
+
     software_name = None
 
     for name in CPACSCREATOR_NAMES_LIST:
@@ -54,5 +62,5 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     run_software(
         software_name=software_name,
         arguments=[str(cpacs.cpacs_file)],
-        wkdir=wkdir,
+        wkdir=results_dir,
     )

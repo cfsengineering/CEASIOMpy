@@ -18,6 +18,7 @@ from ceasiompy.utils.ceasiompyutils import aircraft_name
 
 from pandas import DataFrame
 from tixi3.tixi3wrapper import Tixi3
+from ceasiompy.utils.guisettings import GUISettings
 from ceasiompy.Database.func.storing import CeasiompyDb
 from typing import (
     List,
@@ -48,11 +49,13 @@ from ceasiompy.SMTrain import (
 # =================================================================================================
 
 
-def get_settings(cpacs: CPACS) -> Tuple[str, float, str, bool, bool, int, bool, float]:
+def get_settings(
+    gui_settings: GUISettings,
+) -> Tuple[str, float, str, bool, bool, int, bool, float]:
     """
     Reads the global and new suggested dataset settings.
     """
-    tixi = cpacs.tixi
+    tixi = gui_settings.tixi
     fidelity_level = get_value(tixi, SMTRAIN_FIDELITY_LEVEL_XPATH)
     data_repartition = get_value(tixi, SMTRAIN_TRAIN_PERC_XPATH)
     objective = get_value(tixi, SMTRAIN_OBJECTIVE_XPATH)
@@ -134,13 +137,13 @@ def retrieve_ceasiompy_db_data(
     return data_df
 
 
-def design_of_experiment(cpacs: CPACS) -> Tuple[int, Dict[str, List[float]]]:
+def design_of_experiment(gui_settings: GUISettings) -> Tuple[int, Dict[str, List[float]]]:
     """
     Retrieves the aeromap data,
     extracts the range for each input variable,
     and returns the number of samples and the defined ranges.
     """
-    tixi = cpacs.tixi
+    tixi = gui_settings.tixi
     n_samples = int(get_value(tixi, SMTRAIN_NSAMPLES_XPATH))
     if n_samples < 0:
         raise ValueError(

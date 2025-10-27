@@ -44,7 +44,9 @@ from ceasiompy.CPACSUpdater.func.utils import (
 )
 
 from numpy import ndarray
+from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
+from ceasiompy.utils.guisettings import GUISettings
 from typing import (
     List,
     Dict,
@@ -63,7 +65,7 @@ from ceasiompy.utils.cpacsxpaths import (
 # ==============================================================================
 
 
-def retrieve_gui_ctrlsurf(tixi: Tixi3) -> Dict[str, List]:
+def retrieve_gui_ctrlsurf(gui_settings: GUISettings) -> Dict[str, List]:
     """
     Retrieves all child xPaths under the given control surface xPath and returns a dictionary
     with wing names as keys and lists of segment names as values,
@@ -79,24 +81,24 @@ def retrieve_gui_ctrlsurf(tixi: Tixi3) -> Dict[str, List]:
     """
 
     # Load constants
-    wing_cnt = tixi.getNumberOfChilds(CPACSUPDATER_CTRLSURF_XPATH)
+    wing_cnt = gui_settings.tixi.getNumberOfChilds(CPACSUPDATER_CTRLSURF_XPATH)
 
     # Load variable
     result = {}
 
     #
     for i in range(1, wing_cnt + 1):
-        wing_name = tixi.getChildNodeName(CPACSUPDATER_CTRLSURF_XPATH, i)
+        wing_name = gui_settings.tixi.getChildNodeName(CPACSUPDATER_CTRLSURF_XPATH, i)
         wing_xpath = f"{CPACSUPDATER_CTRLSURF_XPATH}/{wing_name}"
-        seg_cnt = tixi.getNumberOfChilds(wing_xpath)
+        seg_cnt = gui_settings.tixi.getNumberOfChilds(wing_xpath)
 
         wing_sgt_list = []
         for j in range(1, seg_cnt + 1):
-            segment_name = tixi.getChildNodeName(wing_xpath, j)
+            segment_name = gui_settings.tixi.getChildNodeName(wing_xpath, j)
             segment_xpath = f"{wing_xpath}/{segment_name}"
-            segment_value = tixi.getTextElement(segment_xpath + "/ctrlsurf")
+            segment_value = gui_settings.tixi.getTextElement(segment_xpath + "/ctrlsurf")
             deformation_angle = get_value_or_default(
-                tixi,
+                gui_settings.tixi,
                 xpath=segment_xpath + "/deformation_angle",
                 default_value=0.0,
             )
@@ -111,6 +113,9 @@ def retrieve_gui_ctrlsurf(tixi: Tixi3) -> Dict[str, List]:
 
 
 def get_point(tixi: Tixi3, xpath: str) -> Tuple[float, float, float]:
+    """
+    tixi (Tixi3): tixi handle of CPACS file.
+    """
     x = tixi.getDoubleElement(xpath + "/x")
     y = tixi.getDoubleElement(xpath + "/y")
     z = tixi.getDoubleElement(xpath + "/z")
@@ -661,29 +666,32 @@ def deflection_angle(tixi: Tixi3, wing_uid: str, angle: float) -> None:
             tixi.updateTextElement(airfoil_xpath, ids)
 
 
-def add_control_surfaces(tixi: Tixi3) -> None:
+def add_control_surfaces(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+) -> None:
     """
     Adds control surfaces for each wings in CPACS file.
     """
 
-    ctrlsurf = retrieve_gui_ctrlsurf(tixi)
+    ctrlsurf = retrieve_gui_ctrlsurf(gui_settings)
     log.info(f"Modifying {ctrlsurf}.")
 
     if ctrlsurf:
         for wing_name, wing_data in ctrlsurf.items():
-            decompose_wing(tixi, wing_name)
+            decompose_wing(cpacs.tixi, wing_name)
             for (sgt, ctrltype, deformation_angle) in wing_data:
                 log.info(f'Updating {sgt=}, {ctrltype=}, with a {deformation_angle=}')
 
                 # Transform and scale original airfoil
-                transform_airfoil(tixi, sgt, ctrltype)
+                transform_airfoil(cpacs.tixi, sgt, ctrltype)
 
                 # Add small airfoil that will act as a control surface
-                add_airfoil(tixi, sgt, ctrltype)
+                add_airfoil(cpacs.tixi, sgt, ctrltype)
 
                 # Deflection function
                 if deformation_angle != 0.0:
-                    deflection_angle(tixi, ctrltype + "_" + sgt, angle=deformation_angle)
+                    deflection_angle(cpacs.tixi, ctrltype + "_" + sgt, angle=deformation_angle)
                     # deflection_angle(tixi, "right_" + ctrltype + "_" + sgt, angle=20.0)
                     # deflection_angle(tixi, "left_" + ctrltype + "_" + sgt, angle=-20.0)
 

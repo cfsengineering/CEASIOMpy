@@ -18,21 +18,35 @@ from cpacspy.cpacsfunctions import get_value
 from ceasiompy.CPACSUpdater.func.controlsurfaces import add_control_surfaces
 
 from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.guisettings import GUISettings
 
-from ceasiompy.CPACSUpdater import CPACSUPDATER_ADD_CTRLSURFACES_XPATH
+from ceasiompy import log
+from ceasiompy.CPACSUpdater import (
+    MODULE_NAME,
+    CPACSUPDATER_ADD_CTRLSURFACES_XPATH,
+)
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
 
-def main(cpacs: CPACS) -> None:
+def main(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+) -> None:
     """
     Checks GUI values and updates CPACS file accordingly.
     """
-    # Define variables
-    tixi = cpacs.tixi
 
     # Update CPACS
-    if get_value(tixi, CPACSUPDATER_ADD_CTRLSURFACES_XPATH):
-        add_control_surfaces(tixi)
+    if get_value(gui_settings.tixi, CPACSUPDATER_ADD_CTRLSURFACES_XPATH):
+        add_control_surfaces(
+            cpacs=cpacs,
+            gui_settings=gui_settings,
+        )
+    else:
+        log.warning(
+            f"You called the {MODULE_NAME} module "
+            "without adding control surfaces."
+        )

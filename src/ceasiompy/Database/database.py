@@ -18,6 +18,7 @@ from cpacspy.cpacsfunctions import get_value
 from ceasiompy.Database.func.storing import store_data
 
 from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.guisettings import GUISettings
 
 from ceasiompy import log
 from ceasiompy.Database import DATABASE_STOREDATA_XPATH
@@ -27,11 +28,16 @@ from ceasiompy.Database import DATABASE_STOREDATA_XPATH
 # =================================================================================================
 
 
-def main(cpacs: CPACS) -> None:
-    tixi = cpacs.tixi
+def main(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+) -> None:
 
     # Check if we store data
-    if get_value(tixi, DATABASE_STOREDATA_XPATH):
-        store_data(tixi)
+    if get_value(gui_settings.tixi, DATABASE_STOREDATA_XPATH):
+        store_data(
+            cpacs=cpacs,
+            gui_settings=gui_settings,
+        )
     else:
         log.info("Did not call database.")

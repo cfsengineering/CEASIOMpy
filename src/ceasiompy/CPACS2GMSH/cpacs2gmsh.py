@@ -42,6 +42,7 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.guisettings import GUISettings
 from typing import (
     List,
+    Union,
     Optional,
 )
 
@@ -61,7 +62,7 @@ from ceasiompy.CPACS2GMSH import (
 def run_cpacs2gmsh(
     cpacs: CPACS,
     gui_settings: GUISettings,
-    wkdir: Path,
+    results_dir: Path,
     surf: Optional[str] = None,
     angle: Optional[str] = None,
 ) -> None:
@@ -77,9 +78,9 @@ def run_cpacs2gmsh(
 
     # Create corresponding brep directory.
     if surf is None:
-        brep_dir = Path(wkdir, "brep_files")
+        brep_dir = Path(results_dir, "brep_files")
     else:
-        brep_dir = Path(wkdir, f"brep_files_{surf}_{angle}")
+        brep_dir = Path(results_dir, f"brep_files_{surf}_{angle}")
 
     # Retrieve GUI values
     (
@@ -122,7 +123,7 @@ def run_cpacs2gmsh(
             cpacs=cpacs,
             gui_settings=gui_settings,
             brep_dir=brep_dir,
-            results_dir=wkdir,
+            results_dir=results_dir,
             open_gmsh=open_gmsh,
             farfield_factor=farfield_factor,
             symmetry=symmetry,
@@ -145,7 +146,7 @@ def run_cpacs2gmsh(
         gmesh_path, fuselage_maxlen = generate_2d_mesh_for_pentagrow(
             cpacs,
             brep_dir,
-            wkdir,
+            results_dir,
             open_gmsh=open_gmsh,
             refine_factor=refine_factor,
             refine_truncated=refine_truncated,
@@ -164,7 +165,7 @@ def run_cpacs2gmsh(
             log.info("Mesh file exists. Proceeding to 3D mesh generation.")
 
             su2mesh_path = pentagrow_3d_mesh(
-                wkdir,
+                results_dir,
                 fuselage_maxlen=fuselage_maxlen,
                 farfield_factor=farfield_factor,
                 n_layer=n_layer,
@@ -180,7 +181,7 @@ def run_cpacs2gmsh(
             )
             if also_save_cgns:
                 pentagrow_3d_mesh(
-                    wkdir,
+                    results_dir,
                     fuselage_maxlen=fuselage_maxlen,
                     farfield_factor=farfield_factor,
                     n_layer=n_layer,
@@ -218,7 +219,7 @@ def run_cpacs2gmsh(
 
 def deform_surf(
     cpacs: CPACS,
-    wkdir: Path,
+    results_dir: Path,
     surf: str,
     angle: float,
     wing_names: List,
@@ -253,19 +254,23 @@ def deform_surf(
     tmp_cpacs.save_cpacs(new_file_path, overwrite=False)
 
     # Upload saved temporary CPACS file
-    run_cpacs2gmsh(CPACS(new_file_path), wkdir, surf, str(angle))
+    run_cpacs2gmsh(CPACS(new_file_path), results_dir, surf, str(angle))
 
 
-def main(cpacs: CPACS, gui_settings: GUISettings, wkdir: Path) -> None:
+def main(
+    geometry: Union[CPACS, Path],
+    gui_settings: GUISettings,
+    results_dir: Path,
+) -> None:
     """
     Main function.
     Defines setup for gmsh.
-
-    Args:
-        cpacs_path (str): Input CPACS path.
-        cpacs_out_path (str): Modified output CPACS path.
-
     """
+
+    if isinstance(geometry, CPACS):
+        cpacs: CPACS = geometry
+    else:
+        raise NotImplementedError("For STP FILES.")
 
     angles = get_value(gui_settings.tixi, GMSH_CTRLSURF_ANGLE_XPATH)
 
@@ -278,7 +283,7 @@ def main(cpacs: CPACS, gui_settings: GUISettings, wkdir: Path) -> None:
         # No specified angles: run as usual
         run_cpacs2gmsh(
             cpacs=cpacs,
-            wkdir=wkdir,
+            results_dir=results_dir,
             gui_settings=gui_settings,
         )
         return None
@@ -288,7 +293,7 @@ def main(cpacs: CPACS, gui_settings: GUISettings, wkdir: Path) -> None:
             # No deformation for angle 0
             run_cpacs2gmsh(
                 cpacs=cpacs,
-                wkdir=wkdir,
+                results_dir=results_dir,
                 gui_settings=gui_settings,
             )
             continue
@@ -309,7 +314,7 @@ def main(cpacs: CPACS, gui_settings: GUISettings, wkdir: Path) -> None:
             # If control Surface exists, deform the correct wings
             deform_surf(
                 cpacs=cpacs,
-                wkdir=wkdir,
+                results_dir=results_dir,
                 surf=surf,
                 angle=angle,
                 wing_names=wing_names,

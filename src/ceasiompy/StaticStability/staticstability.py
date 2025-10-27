@@ -22,6 +22,7 @@ from ceasiompy.StaticStability.func.extractdata import generate_stab_table
 
 from cpacspy.cpacspy import CPACS
 from markdownpy.markdownpy import MarkdownDoc
+from ceasiompy.utils.guisettings import GUISettings
 
 from ceasiompy import log
 from ceasiompy.StaticStability import (
@@ -34,19 +35,22 @@ from ceasiompy.StaticStability import (
 # =================================================================================================
 
 
-def main(cpacs: CPACS, wkdir: Path) -> None:
+def main(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+    results_dir: Path,
+) -> None:
     """
     Analyses longitudinal, directional and lateral stability
     from the data of a CPACS file.
 
     Args:
         cpacs (CPACS): Input CPACS file.
-        wkdir (str): Results directory.
+        results_dir (str): Results directory.
 
     """
 
-    tixi = cpacs.tixi
-    md = MarkdownDoc(Path(wkdir, f"{MODULE_NAME}.md"))
+    md = MarkdownDoc(Path(results_dir, f"{MODULE_NAME}.md"))
     md.h2(MODULE_NAME)
 
     for aeromap_uid in cpacs.get_aeromap_uid_list():
@@ -55,8 +59,8 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
             log.info(log_msg)
             md.h4(log_msg)
 
-            lr_bool = get_value(tixi, STATICSTABILITY_LR_XPATH)
-            table = generate_stab_table(cpacs, aeromap_uid, wkdir, lr_bool)
+            lr_bool = get_value(gui_settings.tixi, STATICSTABILITY_LR_XPATH)
+            table = generate_stab_table(cpacs, aeromap_uid, results_dir, lr_bool)
             markdownpy_to_markdown(md, table)
         except Exception as e:
             log.warning(

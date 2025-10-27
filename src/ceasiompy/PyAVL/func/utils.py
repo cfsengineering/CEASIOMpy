@@ -49,6 +49,8 @@ def practical_limit_rate_check(
     rotation_rates_list: list,
 ) -> None:
     '''
+    tixi (Tixi3): Tixi handle of CPACS file.
+
     See: https://web.mit.edu/drela/Public/web/avl/AVL_User_Primer.pdf
     '''
     rotation_rates = list(set(rotation_rates_list))
@@ -86,6 +88,9 @@ def practical_limit_rate_check(
 
 
 def get_points_ref(tixi: Tixi3) -> ndarray:
+    """
+    tixi (Tixi3): Tixi handle of CPACS file.
+    """
     return np.array([
         tixi.getDoubleElement(REF_XPATH + "/point/x"),
         tixi.getDoubleElement(REF_XPATH + "/point/y"),

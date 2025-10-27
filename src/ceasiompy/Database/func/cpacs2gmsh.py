@@ -19,7 +19,8 @@ from ceasiompy.utils.ceasiompyutils import aircraft_name
 
 from pathlib import Path
 from sqlite3 import Cursor
-from tixi3.tixi3wrapper import Tixi3
+from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.guisettings import GUISettings
 
 from ceasiompy import log
 
@@ -31,7 +32,8 @@ from ceasiompy import log
 def store_cpacs2gmsh_data(
     cursor: Cursor,
     wkdir: Path,
-    tixi: Tixi3,
+    cpacs: CPACS,
+    gui_settings: GUISettings,
     table_name: str,
 ) -> None:
     """
@@ -46,7 +48,7 @@ def store_cpacs2gmsh_data(
     table_name = "gmsh_data"
     files_list = list(wkdir.glob("*.su2"))
 
-    name = str(aircraft_name(tixi))
+    name = str(aircraft_name(cpacs))
 
     for file in sorted(files_list):
         file_name = str(file.name)

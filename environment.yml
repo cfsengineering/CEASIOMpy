@@ -69,7 +69,7 @@ dependencies:
 
   - pip:
     # STREAMLIT related
-    - streamlit
+    - streamlit>=1.50.0
     - streamlit-autorefresh
     - watchdog  # For better performance
 

@@ -30,7 +30,6 @@ from typing import (
     Optional,
 )
 
-from ceasiompy.utils.moduleinterfaces import MODNAME_INIT
 from ceasiompy import (
     log,
     LOGFILE,
@@ -48,7 +47,7 @@ class Workflow:
     def __init__(self: "Workflow") -> None:
         self.workflow_dir = current_workflow_dir()
 
-    def _run_modules(
+    def _run_module(
         self: "Workflow",
         module: str,
         iteration: int,
@@ -56,7 +55,9 @@ class Workflow:
         gui_settings: Optional[GUISettings] = None,
     ) -> None:
         """
-        Run a 'ModuleToRun' object in a specific wkdir.
+        Run a Specific Module.
+
+        Function inherent to Workflow Object.
         """
 
         if iteration == 0:
@@ -64,18 +65,17 @@ class Workflow:
 
         log.info("---------- Start of " + module + " ----------")
 
-        python_file = _get_main_python_file(from_module=module)
-
-        my_module: ModuleType = _get_ceasiompy_module(
-            module=module,
-            from_file=python_file,
-        )
+        my_module: ModuleType = _get_module_from_name(module)
 
         # Run the module
         with change_working_dir(self.workflow_dir):
             if gui_settings is None:
                 log.info("Generating GUI Settings from __specs__")
-                gui_settings = update_gui_settings_from_specs(gui_settings, module)
+                gui_settings = update_gui_settings_from_specs(
+                    gui_settings=gui_settings,
+                    module_name=module,
+                    test=True,
+                )
 
             if my_module.RES_DIR:
                 results_dir = get_results_directory(
@@ -94,7 +94,6 @@ class Workflow:
         geometry: Union[CPACS, Path],
         modules_list: list,
         gui_settings: Optional[GUISettings] = None,
-        test: bool = False,
     ) -> None:
         """
         Run the complete Worflow.
@@ -104,13 +103,15 @@ class Workflow:
         log.info(f'Running the followuing list of modules: {modules_list=}')
 
         for idx, module in enumerate(modules_list):
-            self._run_modules(
-                test=test,
+            self._run_module(
                 iteration=idx,
                 module=module,
                 geometry=geometry,
                 gui_settings=gui_settings,
             )
+            # Some Modules Interact with others
+            # through GUI Settings
+            gui_settings.save()
 
         # Copy logfile in the Workflow directory
         shutil.copy(LOGFILE, self.workflow_dir)
@@ -121,17 +122,28 @@ class Workflow:
 # =================================================================================================
 
 
+def _get_module_from_name(module: str) -> ModuleType:
+    python_file = _get_main_python_file(from_module=module)
+
+    return _get_ceasiompy_module(
+        module=module,
+        from_file=python_file,
+    )
+
+
 def _get_ceasiompy_module(
-    module: str,    
+    module: str,
     from_file: str,
 ) -> ModuleType:
     try:
         return importlib.import_module(f"ceasiompy.{module}.{from_file}")
     except Exception as e:
         log.warning(
-            f"Could not load ceasiompy module {module}"
-            f"from file {from_file}"
+            f"Could not load ceasiompy module {module} "
+            f"from file {from_file} "
+            f"got error {e=}"
         )
+
 
 def _get_main_python_file(from_module: str) -> str:
     pkg = importlib.import_module(f"ceasiompy.{from_module}")

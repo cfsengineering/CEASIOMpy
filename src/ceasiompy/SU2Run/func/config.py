@@ -54,6 +54,7 @@ from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from cpacspy.rotorcraft import Rotorcraft
 from ceasiompy.utils.configfiles import ConfigFile
+from ceasiompy.utils.guisettings import GUISettings
 from typing import (
     Dict,
     List,
@@ -612,6 +613,8 @@ def define_markers(tixi: Tixi3, su2_mesh_path: Path) -> Dict:
 
 def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], List[Path]]:
     """
+    tixi: Tixi handle of GUI Settings.
+
     Retrieve su2 mesh file data and paths.
     """
 
@@ -676,6 +679,7 @@ def configure_mesh_format(cfg: ConfigFile, mesh_path: Path) -> None:
 
 def generate_su2_cfd_config(
     cpacs: CPACS,
+    gui_settings: GUISettings,
     wkdir: Path,
     su2_mesh_paths: List[Path],
     mesh_markers: Dict,
@@ -692,7 +696,6 @@ def generate_su2_cfd_config(
             https://github.com/su2code/SU2/blob/master/config_template.cfg
 
     """
-    tixi = cpacs.tixi
 
     for su2_mesh_path in su2_mesh_paths:
 
@@ -701,8 +704,8 @@ def generate_su2_cfd_config(
 
         validate_file(su2_mesh_path, "SU2 mesh")
 
-        fixed_cl = get_value(tixi, SU2_FIXED_CL_XPATH)
-        target_cl = get_value(tixi, SU2_TARGET_CL_XPATH)
+        fixed_cl = get_value(gui_settings.tixi, SU2_FIXED_CL_XPATH)
+        target_cl = get_value(gui_settings.tixi, SU2_TARGET_CL_XPATH)
 
         tpl_type = "RANS" if rans else "EULER"
         cfg = ConfigFile(get_su2_cfg_tpl(tpl_type))
@@ -725,18 +728,18 @@ def generate_su2_cfd_config(
         # SU2 version 8.1.0.
         cfg["MUSCL_FLOW"] = "NO"
         cfg["MUSCL_ADJFLOW"] = "NO"
-        cfg["MGLEVEL"] = int(get_value(tixi, SU2_MG_LEVEL_XPATH))
+        cfg["MGLEVEL"] = int(get_value(gui_settings.tixi, SU2_MG_LEVEL_XPATH))
 
         # Settings
-        cfl_down = get_value(tixi, SU2_CFL_ADAPT_PARAM_DOWN_XPATH)
-        cfl_up = get_value(tixi, SU2_CFL_ADAPT_PARAM_UP_XPATH)
-        cfl_min = get_value(tixi, SU2_CFL_MIN_XPATH)
-        cfl_max = get_value(tixi, SU2_CFL_MAX_XPATH)
+        cfl_down = get_value(gui_settings.tixi, SU2_CFL_ADAPT_PARAM_DOWN_XPATH)
+        cfl_up = get_value(gui_settings.tixi, SU2_CFL_ADAPT_PARAM_UP_XPATH)
+        cfl_min = get_value(gui_settings.tixi, SU2_CFL_MIN_XPATH)
+        cfl_max = get_value(gui_settings.tixi, SU2_CFL_MAX_XPATH)
 
         if not dyn_stab:
-            cfg["CFL_ADAPT"] = str(get_value(tixi, SU2_CFL_ADAPT_XPATH))
-            cfg["INNER_ITER"] = int(get_value(tixi, SU2_MAX_ITER_XPATH))
-            cfg["CFL_NUMBER"] = str(get_value(tixi, SU2_CFL_NB_XPATH))
+            cfg["CFL_ADAPT"] = str(get_value(gui_settings.tixi, SU2_CFL_ADAPT_XPATH))
+            cfg["INNER_ITER"] = int(get_value(gui_settings.tixi, SU2_MAX_ITER_XPATH))
+            cfg["CFL_NUMBER"] = str(get_value(gui_settings.tixi, SU2_CFL_NB_XPATH))
             cfg["CFL_ADAPT_PARAM"] = su2_format(f"{cfl_down}, {cfl_up}, {cfl_min}, {cfl_max}")
 
             # Fixed CL mode (AOA will not be taken into account)

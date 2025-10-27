@@ -18,9 +18,11 @@ Module to export Aeromap (or other data?) to CSV
 
 from pathlib import Path
 
-from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
+from cpacspy.cpacsfunctions import get_string_vector
+
 from cpacspy.cpacspy import CPACS
 from cpacspy.aeromap import AeroMap
+from ceasiompy.utils.guisettings import GUISettings
 
 from ceasiompy import log
 from ceasiompy.utils.guixpaths import AEROMAP_TO_EXPORT_XPATH
@@ -30,15 +32,19 @@ from ceasiompy.utils.guixpaths import AEROMAP_TO_EXPORT_XPATH
 # =================================================================================================
 
 
-def main(cpacs: CPACS, wkdir: Path) -> None:
+def main(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+    results_dir: Path,
+) -> None:
 
-    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, AEROMAP_TO_EXPORT_XPATH)
+    aeromap_uid_list = get_string_vector(gui_settings.tixi, AEROMAP_TO_EXPORT_XPATH)
 
     if not aeromap_uid_list:
         aeromap_uid_list = cpacs.get_aeromap_uid_list()
 
     for aeromap_uid in aeromap_uid_list:
         aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
-        csv_path = Path(wkdir, f"{aeromap_uid}.csv")
+        csv_path = Path(results_dir, f"{aeromap_uid}.csv")
         aeromap.export_csv(csv_path)
         log.info(f"Aeromap {aeromap_uid} has been saved to \n {csv_path}")

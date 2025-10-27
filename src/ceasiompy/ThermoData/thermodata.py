@@ -31,6 +31,7 @@ from cpacspy.cpacsfunctions import (
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.guisettings import GUISettings
 
 from ceasiompy import log
 from ceasiompy.SU2Run import SU2_AEROMAP_UID_XPATH
@@ -48,12 +49,16 @@ from ceasiompy.utils.guixpaths import (
 # =================================================================================================
 
 
-def main(cpacs: CPACS, wkdir: Path) -> None:
+def main(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+    results_dir: Path,
+) -> None:
     """
     Running the PyCycle code by choosing between turbojet or turbofan engine
     """
 
-    tixi = cpacs.tixi
+    tixi = gui_settings.tixi
     Fn = get_value_or_default(tixi, RANGE_XPATH + "/NetForce", 2000)
 
     default_aeromap = cpacs.create_aeromap("DefaultAeromap")
@@ -83,7 +88,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
             alt = alt_list[case_nb]
             MN = mach_list[case_nb]
             case_dir_name = f"Case{str(case_nb).zfill(2)}_alt{alt}_mach{round(MN, 2)}"
-            case_dir_path = Path(wkdir, case_dir_name)
+            case_dir_path = Path(results_dir, case_dir_name)
 
             if not case_dir_path.exists():
                 case_dir_path.mkdir()

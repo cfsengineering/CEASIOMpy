@@ -40,6 +40,7 @@ from ceasiompy.DynamicStability.func.dotderivatives import (
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
+from ceasiompy.utils.guisettings import GUISettings
 
 from ceasiompy import log
 from ceasiompy.PyAVL import SOFTWARE_NAME as AVL_SOFTWARE
@@ -122,13 +123,15 @@ class SDSAFile:
     def __init__(
         self: "SDSAFile",
         cpacs: CPACS,
+        gui_settings: GUISettings,
         wkdir: Path,
         open_sdsa: bool = False,
     ) -> None:
 
         # Import input CPACS file
         self.cpacs = cpacs
-        self.tixi = self.cpacs.tixi
+        self.gui_settings = gui_settings
+
         self.open_sdsa = open_sdsa
 
         # Import SDSAEmpty.xml file
@@ -142,20 +145,23 @@ class SDSAFile:
         self.sdsa_file: Tixi3 = open_tixi(str(self.sdsa_path))
 
         # Get the reference dimensions
-        self.s = self.tixi.getDoubleElement(AREA_XPATH)
-        self.c = self.tixi.getDoubleElement(LENGTH_XPATH)
+        self.s = self.cpacs.tixi.getDoubleElement(AREA_XPATH)
+        self.c = self.cpacs.tixi.getDoubleElement(LENGTH_XPATH)
         self.b = self.s / self.c
 
         # Software for data used
-        self.software_data = str(get_value(self.tixi, DYNAMICSTABILITY_SOFTWARE_XPATH))
+        self.software_data = str(get_value(
+            tixi=self.gui_settings.tixi,
+            xpath=DYNAMICSTABILITY_SOFTWARE_XPATH,
+        ))
 
         # Access CEASIOMpy input data
-        self.nchordwise = int(get_value(self.tixi, DYNAMICSTABILITY_NCHORDWISE_XPATH))
-        self.nspanwise = int(get_value(self.tixi, DYNAMICSTABILITY_NSPANWISE_XPATH))
-        self.cgrid = get_value(self.tixi, DYNAMICSTABILITY_CGRID_XPATH)
-        self.aircraft_name: str = aircraft_name(self.tixi)
+        self.nchordwise = int(get_value(self.gui_settings.tixi, DYNAMICSTABILITY_NCHORDWISE_XPATH))
+        self.nspanwise = int(get_value(self.gui_settings.tixi, DYNAMICSTABILITY_NSPANWISE_XPATH))
+        self.cgrid = get_value(self.gui_settings.tixi, DYNAMICSTABILITY_CGRID_XPATH)
+        self.aircraft_name: str = aircraft_name(self.cpacs)
 
-        self.plot = get_value(self.tixi, DYNAMICSTABILITY_VISUALIZATION_XPATH)
+        self.plot = get_value(self.gui_settings.tixi, DYNAMICSTABILITY_VISUALIZATION_XPATH)
         log.info(f"{self.plot=}")
 
         # Initialize Doublet Lattice Model
@@ -183,8 +189,8 @@ class SDSAFile:
         )
 
         # Dot-derivatives to compute
-        self.alpha_derivatives = bool(get_value(self.tixi, ALPHA_DERIVATIVES_XPATH))
-        self.beta_derivatives = bool(get_value(self.tixi, BETA_DERIVATIVES_XPATH))
+        self.alpha_derivatives = bool(get_value(self.gui_settings.tixi, ALPHA_DERIVATIVES_XPATH))
+        self.beta_derivatives = bool(get_value(self.gui_settings.tixi, BETA_DERIVATIVES_XPATH))
         if self.alpha_derivatives:
             log.info("Computing alpha, alpha-dot derivatives")
         if self.beta_derivatives:

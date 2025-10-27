@@ -31,6 +31,7 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.PyAVL.func.cpacs2avl import Avl
+from ceasiompy.utils.guisettings import GUISettings
 from typing import (
     List,
     Tuple,
@@ -58,31 +59,41 @@ from ceasiompy.PyAVL import (
 
 
 @validate_call(config=ceasiompy_cfg)
-def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
+def retrieve_gui_values(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+    results_dir: Path,
+) -> Tuple[
     List, List, List, List,
     List, List,
     Path,
     bool, int, bool,
 ]:
-    tixi = cpacs.tixi
-    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, AVL_AEROMAP_UID_XPATH)
+    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
+        cpacs=cpacs,
+        xpath=AVL_AEROMAP_UID_XPATH,
+    )
 
-    save_fig = get_value(tixi, AVL_PLOT_XPATH)
-    rotation_rates_float = get_value(tixi, AVL_ROTRATES_XPATH)
-    control_surface_float = get_value(tixi, AVL_CTRLSURF_ANGLES_XPATH)
+    save_fig = get_value(gui_settings.tixi, AVL_PLOT_XPATH)
+    rotation_rates_float = get_value(gui_settings.tixi, AVL_ROTRATES_XPATH)
+    control_surface_float = get_value(gui_settings.tixi, AVL_CTRLSURF_ANGLES_XPATH)
 
     # Convert to lists
     rotation_rates_list = [float(x) for x in str(rotation_rates_float).split(";")]
     control_surface_list = [float(x) for x in str(control_surface_float).split(";")]
 
-    avl_file = Avl(tixi, results_dir)
+    avl_file = Avl(
+        cpacs=cpacs,
+        gui_settings=gui_settings,
+        results_dir=results_dir,
+    )
     avl_path = avl_file.convert_cpacs_to_avl()
 
-    nb_cpu = int(get_value(tixi, AVL_NB_CPU_XPATH))
-    expand = get_value(tixi, AVL_EXPAND_VALUES_XPATH)
+    nb_cpu = int(get_value(gui_settings.tixi, AVL_NB_CPU_XPATH))
+    expand = get_value(gui_settings.tixi, AVL_EXPAND_VALUES_XPATH)
 
     practical_limit_rate_check(
-        tixi=tixi,
+        tixi=cpacs.tixi,
         alt_list=alt_list,
         mach_list=mach_list,
         rotation_rates_list=rotation_rates_list,

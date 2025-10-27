@@ -64,23 +64,24 @@ def call_main(main: Callable, module_name: str, cpacs_path: Path = None) -> None
     else:
         xml_file = cpacs_path.name
 
+    log.info(f"Using {xml_file=}")
+
     with change_working_dir(wkflow_dir):
         cpacs = CPACS(cpacs_path)
         log.info(f"Upload default values from {MODNAME_SPECS}.")
-        update_gui_settings_from_specs(cpacs, module_name, test=True)
-
-    new_cpacs_path = wkflow_dir / xml_file
-    cpacs.save_cpacs(new_cpacs_path, overwrite=True)
-    cpacs = CPACS(new_cpacs_path)
+        gui_settings = update_gui_settings_from_specs(
+            cpacs=cpacs,
+            gui_settings=None,
+            module_name=module_name,
+            test=True,
+        )
 
     log.info(f"Finished uploading default values from {MODNAME_SPECS}.")
 
     if get_wkdir_status(module_name):
         results_dir = get_results_directory(module_name, create=True, wkflow_dir=wkflow_dir)
-        main(cpacs, results_dir)
+        main(cpacs, gui_settings, results_dir)
     else:
-        main(cpacs)
-
-    cpacs.save_cpacs(new_cpacs_path, overwrite=True)
+        main(cpacs, gui_settings)
 
     log.info("----- End of " + module_name + " -----")

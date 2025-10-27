@@ -35,6 +35,7 @@ from pathlib import Path
 from itertools import repeat
 from cpacspy.cpacspy import CPACS
 from concurrent.futures import ProcessPoolExecutor
+from ceasiompy.utils.guisettings import GUISettings
 from ceasiompy.Database.func.storing import CeasiompyDb
 
 from ceasiompy import log
@@ -66,7 +67,11 @@ def run_case(args: tuple[Path, Path], save_fig: bool) -> None:
         convert_ps_to_pdf(case_dir_path)
 
 
-def main(cpacs: CPACS, results_dir: Path) -> None:
+def main(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+    results_dir: Path,
+) -> None:
     """
     Run AVL calculations on specified CPACS file.
         1. Load the necessary data.
@@ -75,7 +80,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     """
 
     # 1. Load the necessary data
-    tixi = cpacs.tixi
 
     # Store list of arguments for each case
     case_args = []
@@ -91,7 +95,11 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         save_fig,
         nb_cpu,
         expand,
-    ) = retrieve_gui_values(cpacs, results_dir)
+    ) = retrieve_gui_values(
+        cpacs=cpacs,
+        gui_settings=gui_settings,
+        results_dir=results_dir,
+    )
 
     #
     # 2. p, q, r
@@ -125,7 +133,14 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         (
             roll_rate_star, pitch_rate_star, yaw_rate_star,
             ref_density, g_acceleration, ref_velocity,
-        ) = get_physics_conditions(tixi, alt, mach, p, q, r)
+        ) = get_physics_conditions(
+            tixi=cpacs.tixi,
+            alt=alt,
+            mach=mach,
+            roll_rate=p,
+            pitch_rate=q,
+            yaw_rate=r,
+        )
 
         if expand:
             db = CeasiompyDb()
@@ -212,7 +227,14 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             (
                 _, _, _,
                 ref_density, g_acceleration, ref_velocity,
-            ) = get_physics_conditions(tixi, alt, mach, 0.0, 0.0, 0.0)
+            ) = get_physics_conditions(
+                tixi=cpacs.tixi,
+                alt=alt,
+                mach=mach,
+                roll_rate=0.0,
+                pitch_rate=0.0,
+                yaw_rate=0.0,
+            )
 
             if expand:
                 db = CeasiompyDb()
@@ -270,4 +292,8 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     with ProcessPoolExecutor(max_workers=nb_cpu) as executor:
         executor.map(run_case, case_args, repeat(save_fig))
 
-    get_avl_results(cpacs, results_dir)
+    get_avl_results(
+        cpacs=cpacs,
+        gui_settings=gui_settings,
+        results_dir=results_dir,
+    )

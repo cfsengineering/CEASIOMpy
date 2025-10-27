@@ -28,8 +28,9 @@ from ceasiompy.Database.func.dynamicstability import (
 from pathlib import Path
 from sqlite3 import Cursor
 from sqlite3 import Connection
+from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
-
+from ceasiompy.utils.guisettings import GUISettings
 from typing import (
     List,
     Tuple,
@@ -185,7 +186,8 @@ class CeasiompyDb:
 
 
 def call_store_data(
-    tixi: Tixi3,
+    cpacs: CPACS,
+    gui_settings: GUISettings,
     store2db: Callable[[Cursor, Path, Tixi3, str], None],
     wkdir: Path,
     module_name: str,
@@ -199,7 +201,7 @@ def call_store_data(
     table_name = ceasiompy_db.connect_to_table(module_name)
 
     # Store data
-    store2db(ceasiompy_db.cursor, wkdir, tixi, table_name)
+    store2db(ceasiompy_db.cursor, wkdir, cpacs, gui_settings, table_name)
     log.info(f"Finished storing data in table {table_name}.")
 
     # Commit changes and close the connection
@@ -207,7 +209,10 @@ def call_store_data(
     ceasiompy_db.close()
 
 
-def store_data(tixi: Tixi3) -> None:
+def store_data(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+) -> None:
     """
     Looks at the workflow and stores data.
     Implemented for modules:
@@ -226,12 +231,24 @@ def store_data(tixi: Tixi3) -> None:
     su2_dir: Path = get_results_directory(SU2RUN_NAME, create=False)
 
     if avl_dir.is_dir():
-        call_store_data(tixi, store_pyavl_data, avl_dir, PYAVL_NAME)
+        call_store_data(cpacs, gui_settings, store_pyavl_data, avl_dir, PYAVL_NAME)
     if gmsh_dir.is_dir():
-        call_store_data(tixi, store_cpacs2gmsh_data, gmsh_dir, CPACS2GMSH_NAME)
+        call_store_data(cpacs, gui_settings, store_cpacs2gmsh_data, gmsh_dir, CPACS2GMSH_NAME)
     if dynstab_dir.is_dir():
-        call_store_data(tixi, store_beta_dynstab_data, dynstab_dir, DYNSTAB_NAME + "_beta")
-        call_store_data(tixi, store_alpha_dynstab_data, dynstab_dir, DYNSTAB_NAME + "_alpha")
+        call_store_data(
+            cpacs=cpacs,
+            gui_settings=gui_settings,
+            store2db=store_beta_dynstab_data,
+            wkdir=dynstab_dir,
+            module_name=DYNSTAB_NAME + "_beta",
+        )
+        call_store_data(
+            cpacs=cpacs,
+            gui_settings=gui_settings,
+            store2db=store_alpha_dynstab_data,
+            wkdir=dynstab_dir,
+            module_name=DYNSTAB_NAME + "_alpha",
+        )
     if su2_dir.is_dir():
-        call_store_data(tixi, store_su2run_data, su2_dir, SU2RUN_NAME)
+        call_store_data(cpacs, gui_settings, store_su2run_data, su2_dir, SU2RUN_NAME)
         log.warning("Not implemented yet.")

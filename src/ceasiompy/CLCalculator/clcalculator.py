@@ -14,6 +14,8 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+from cpacspy.cpacsfunctions import get_value
+
 from ceasiompy.CLCalculator.func.calculatecl import calculate_cl
 from ceasiompy.CLCalculator.func.utils import (
     retrieve_gui,
@@ -24,26 +26,35 @@ from ceasiompy.CLCalculator.func.utils import (
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from markdownpy.markdownpy import MarkdownDoc
+from ceasiompy.utils.guisettings import GUISettings
 
 from ceasiompy import log
+from ceasiompy.utils.cpacsxpaths import (
+    AREA_XPATH,
+)
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
 
-def main(cpacs: CPACS, wkdir: Path) -> None:
+def main(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+    results_dir: Path,
+) -> None:
     """
     Computes required CL in function
     of the parameters found in the CPACS file.
     """
 
-    tixi = cpacs.tixi
-
-    ref_area, mass_type, cruise_alt, cruise_mach, load_fact = retrieve_gui(tixi)
+    mass_type, cruise_alt, cruise_mach, load_fact = retrieve_gui(
+        gui_settings.tixi,
+    )
+    ref_area = get_value(cpacs.tixi, AREA_XPATH)
 
     # Create Markdown file
-    md = MarkdownDoc(Path(wkdir, "CL_Calculator.md"))
+    md = MarkdownDoc(Path(results_dir, "CL_Calculator.md"))
     md.h2("CLCalculator")
 
     # Required input data from CPACS
@@ -52,7 +63,12 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     md.p(ref_msg)
 
     # Mass
-    mass = deal_with_mass(md, tixi, mass_type)
+    mass = deal_with_mass(
+        md=md,
+        cpacs=cpacs,
+        gui_settings=gui_settings,
+        mass_type=mass_type,
+    )
     md.p(f"Mass: {mass}[kg]")
 
     # Required input data that could be replace by a default value if missing
@@ -67,6 +83,6 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     md.p(f"CL: {target_cl:.4f} [-]")
 
     # Save TargetCL and fixedCL option
-    save_for_su2(tixi, target_cl)
+    save_for_su2(gui_settings.tixi, target_cl)
 
     md.save()

@@ -24,7 +24,8 @@ from ceasiompy.Database.func.utils import (
 from typing import Dict
 from pathlib import Path
 from sqlite3 import Cursor
-from tixi3.tixi3wrapper import Tixi3
+from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.guisettings import GUISettings
 
 from ceasiompy.Database.func import (
     PYAVL_ST,
@@ -85,7 +86,8 @@ def get_avl_data(force_file: Path) -> Dict:
 def store_pyavl_data(
     cursor: Cursor,
     wkdir: Path,
-    tixi: Tixi3,
+    cpacs: CPACS,
+    gui_settings: GUISettings,
     table_name: str,
 ) -> None:
     """
@@ -103,7 +105,7 @@ def store_pyavl_data(
 
     case_dir_list = [case_dir for case_dir in wkdir.iterdir() if "Case" in case_dir.name]
     txt_file_name = "st.txt"
-    name = str(aircraft_name(tixi))
+    name = str(aircraft_name(cpacs))
 
     for config_dir in sorted(case_dir_list):
         # Checks if config_dir is a directory

@@ -41,8 +41,10 @@ from ceasiompy.utils.geometryfunctions import (
 
 from pathlib import Path
 from numpy import ndarray
+from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from scipy.interpolate import interp1d
+from ceasiompy.utils.guisettings import GUISettings
 from typing import (
     List,
     Tuple,
@@ -264,31 +266,35 @@ def write_airfoil_coords(
 class Avl:
     def __init__(
         self: "Avl",
-        tixi: Tixi3,
+        cpacs: CPACS,
+        gui_settings: GUISettings,
         results_dir: Path,
         gain: float = 0.0,
         control_type: str = "none",
     ) -> None:
         # Store input variables
-        self.tixi = tixi
+        self.cpacs = cpacs
+        self.gui_settings = gui_settings
         self.results_dir = results_dir
 
         self.gain = gain
         self.control_type = control_type
 
         # Retrieve GUI values
-        self.vortex_dist: int = convert_dist_to_avl_format(get_value(tixi, AVL_DISTR_XPATH))
-        self.nchordwise: int = get_value(tixi, AVL_NCHORDWISE_XPATH)
-        self.nspanwise: int = get_value(tixi, AVL_NSPANWISE_XPATH)
-        self.add_fuselage: bool = get_value(tixi, AVL_FUSELAGE_XPATH)
+        self.vortex_dist: int = convert_dist_to_avl_format(
+            vortex_dist=get_value(gui_settings.tixi, AVL_DISTR_XPATH)
+        )
+        self.nchordwise: int = get_value(gui_settings.tixi, AVL_NCHORDWISE_XPATH)
+        self.nspanwise: int = get_value(gui_settings.tixi, AVL_NSPANWISE_XPATH)
+        self.add_fuselage: bool = get_value(gui_settings.tixi, AVL_FUSELAGE_XPATH)
 
-        self.area_ref: float = tixi.getDoubleElement(AREA_XPATH)
-        self.chord_ref: float = tixi.getDoubleElement(LENGTH_XPATH)
+        self.area_ref: float = cpacs.tixi.getDoubleElement(AREA_XPATH)
+        self.chord_ref: float = cpacs.tixi.getDoubleElement(LENGTH_XPATH)
         self.span_ref: float = self.area_ref / self.chord_ref
-        self.points_ref: ndarray = get_points_ref(tixi)
+        self.points_ref: ndarray = get_points_ref(cpacs.tixi)
 
         # .avl file type
-        self.name_aircraft = self.tixi.getTextElement(AIRCRAFT_NAME_XPATH)
+        self.name_aircraft = cpacs.tixi.getTextElement(AIRCRAFT_NAME_XPATH)
         if gain == 0.0:
             self.avl_path = (
                 str(self.results_dir) + "/" + self.name_aircraft + ".avl"
@@ -325,7 +331,7 @@ class Avl:
         # 1. Initialize command file .avl
         self.initialize_avl_command_file()
 
-        mach = get_value(self.tixi, AVL_FREESTREAM_MACH_XPATH)
+        mach = get_value(self.gui_settings.tixi, AVL_FREESTREAM_MACH_XPATH)
         with open(self.avl_path, "a") as avl_file:
             # Default freestream mach number
             avl_file.write("#Mach\n")
@@ -365,15 +371,15 @@ class Avl:
 
         """
 
-        fus_cnt = elements_number(self.tixi, FUSELAGES_XPATH, "fuselage")
+        fus_cnt = elements_number(self.cpacs.tixi, FUSELAGES_XPATH, "fuselage")
 
         for i_fus in reversed(range(fus_cnt)):
             fus_xpath = FUSELAGES_XPATH + "/fuselage[" + str(i_fus + 1) + "]"
-            fus_uid = get_uid(self.tixi, fus_xpath)
+            fus_uid = get_uid(self.cpacs.tixi, fus_xpath)
             fus_dat_path = str(self.results_dir) + "/" + fus_uid + ".dat"
 
             fus_transf = Transformation()
-            fus_transf.get_cpacs_transf(self.tixi, fus_xpath)
+            fus_transf.get_cpacs_transf(self.cpacs.tixi, fus_xpath)
 
             body_transf = Transformation()
             body_transf.translation = fus_transf.translation
@@ -383,7 +389,7 @@ class Avl:
             self.write_fuselage_settings(fus_transf.scaling, body_transf.translation)
 
             sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(
-                self.tixi, fus_xpath, "fuselage"
+                self.cpacs.tixi, fus_xpath, "fuselage"
             )
 
             # Initialize to null array of size [sec_cnt]
@@ -398,16 +404,19 @@ class Avl:
 
             for i_sec in range(sec_cnt):
                 sec_xpath = fus_xpath + "/sections/section[" + str(i_sec + 1) + "]"
-                sec_uid = self.tixi.getTextAttribute(sec_xpath, "uID")
+                sec_uid = self.cpacs.tixi.getTextAttribute(sec_xpath, "uID")
                 sec_transf = Transformation()
-                sec_transf.get_cpacs_transf(self.tixi, sec_xpath)
+                sec_transf.get_cpacs_transf(self.cpacs.tixi, sec_xpath)
                 check_if_rotated(sec_transf.rotation, sec_uid)
 
-                elem_cnt = self.tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
+                elem_cnt = self.cpacs.tixi.getNamedChildrenCount(
+                    elementPath=sec_xpath + "/elements",
+                    childName="element",
+                )
 
                 for i_elem in range(elem_cnt):
                     elem_transf, prof_size_y, prof_size_z, _, _ = convert_fuselage_profiles(
-                        self.tixi, sec_xpath, i_sec, i_elem, pos_y_list, pos_z_list
+                        self.cpacs.tixi, sec_xpath, i_sec, i_elem, pos_y_list, pos_z_list
                     )
 
                     body_frm_width, body_frm_height = compute_fuselage_coords(
@@ -448,17 +457,17 @@ class Avl:
         fus_z_profile: interp1d,
         body_transf: Transformation,
     ) -> None:
-        wing_cnt = elements_number(self.tixi, WINGS_XPATH, "wing")
+        wing_cnt = elements_number(self.cpacs.tixi, WINGS_XPATH, "wing")
 
         for i_wing in range(wing_cnt):
             root_defined = False
             wing_xpath = WINGS_XPATH + "/wing[" + str(i_wing + 1) + "]"
 
             # Retrieve chord and span length of specific wing
-            c_ref, s_ref = get_chord_span(self.tixi, wing_xpath)
+            c_ref, s_ref = get_chord_span(self.cpacs.tixi, wing_xpath)
 
             wing_transf = Transformation()
-            wing_transf.get_cpacs_transf(self.tixi, wing_xpath)
+            wing_transf.get_cpacs_transf(self.cpacs.tixi, wing_xpath)
 
             # Create a class for the transformation of the WingSkeleton
             wg_sk_transf = Transformation()
@@ -472,21 +481,21 @@ class Avl:
             )
 
             sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(
-                self.tixi, wing_xpath, "wing"
+                self.cpacs.tixi, wing_xpath, "wing"
             )
 
             for i_sec in range(sec_cnt):
                 sec_xpath = wing_xpath + "/sections/section[" + str(i_sec + 1) + "]"
                 sec_transf = Transformation()
-                sec_transf.get_cpacs_transf(self.tixi, sec_xpath)
+                sec_transf.get_cpacs_transf(self.cpacs.tixi, sec_xpath)
 
                 elem_xpath = sec_xpath + "/elements/element[1]"
                 elem_transf = Transformation()
-                elem_transf.get_cpacs_transf(self.tixi, elem_xpath)
+                elem_transf.get_cpacs_transf(self.cpacs.tixi, elem_xpath)
 
                 # Get wing profile (airfoil)
                 prof_uid, prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(
-                    self.tixi, elem_xpath + "/airfoilUID"
+                    self.cpacs.tixi, elem_xpath + "/airfoilUID"
                 )
 
                 airfoil_dir = Path(self.results_dir) / "Airfoil_files"
@@ -560,7 +569,7 @@ class Avl:
                         root_defined = True
 
                 leadingedge_coordinates(
-                    self.tixi,
+                    self.cpacs.tixi,
                     self.avl_path,
                     i_wing,
                     i_sec,
@@ -593,8 +602,8 @@ class Avl:
 
             # Symmetry
             if (
-                self.tixi.checkAttribute(wing_xpath, "symmetry")
-                and self.tixi.getTextAttribute(wing_xpath, "symmetry") == "x-z-plane"
+                self.cpacs.tixi.checkAttribute(wing_xpath, "symmetry")
+                and self.cpacs.tixi.getTextAttribute(wing_xpath, "symmetry") == "x-z-plane"
             ):
                 avl_file.write("YDUPLICATE\n0\n\n")
 

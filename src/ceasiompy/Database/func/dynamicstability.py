@@ -22,7 +22,8 @@ from ceasiompy.utils.ceasiompyutils import aircraft_name
 
 from pathlib import Path
 from sqlite3 import Cursor
-from tixi3.tixi3wrapper import Tixi3
+from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.guisettings import GUISettings
 
 from ceasiompy.DynamicStability.func import (
     BETA_CSV_NAME,
@@ -41,7 +42,8 @@ from ceasiompy.DynamicStability import (
 def store_alpha_dynstab_data(
     cursor: Cursor,
     wkdir: Path,
-    tixi: Tixi3,
+    cpacs: CPACS,
+    gui_settings: GUISettings,
     table_name: str,
 ) -> None:
     """
@@ -56,7 +58,7 @@ def store_alpha_dynstab_data(
         FileNotFoundError: If no Force files are found.
 
     """
-    name = str(aircraft_name(tixi))
+    name = str(aircraft_name(cpacs))
 
     # Append data to it
     data = {}
@@ -72,8 +74,8 @@ def store_alpha_dynstab_data(
         # Load the CSV file into a DataFrame
         df = pd.read_csv(csv_alpha)
 
-        chord = get_value(tixi, DYNAMICSTABILITY_NCHORDWISE_XPATH)
-        span = get_value(tixi, DYNAMICSTABILITY_NSPANWISE_XPATH)
+        chord = get_value(gui_settings.tixi, DYNAMICSTABILITY_NCHORDWISE_XPATH)
+        span = get_value(gui_settings.tixi, DYNAMICSTABILITY_NSPANWISE_XPATH)
         method = "DLM"
 
         # Iterate over the rows of the DataFrame
@@ -95,7 +97,8 @@ def store_alpha_dynstab_data(
 def store_beta_dynstab_data(
     cursor: Cursor,
     wkdir: Path,
-    tixi: Tixi3,
+    cpacs: CPACS,
+    gui_settings: GUISettings,
     table_name: str,
 ) -> None:
     """
@@ -110,7 +113,7 @@ def store_beta_dynstab_data(
         FileNotFoundError: If no Force files are found.
 
     """
-    name = str(aircraft_name(tixi))
+    name = str(aircraft_name(cpacs))
 
     # Append data to it
     data = {}
@@ -126,8 +129,8 @@ def store_beta_dynstab_data(
         # Load the CSV file into a DataFrame
         df = pd.read_csv(csv_beta)
 
-        chord = get_value(tixi, DYNAMICSTABILITY_NCHORDWISE_XPATH)
-        span = get_value(tixi, DYNAMICSTABILITY_NSPANWISE_XPATH)
+        chord = get_value(gui_settings.tixi, DYNAMICSTABILITY_NCHORDWISE_XPATH)
+        span = get_value(gui_settings.tixi, DYNAMICSTABILITY_NSPANWISE_XPATH)
         method = "DLM"
 
         # Iterate over the rows of the DataFrame

@@ -21,32 +21,34 @@ TODO:
 
 import math
 
-from ceasiompy.utils.ceasiompyutils import (
-    get_aeromap_list_from_xpath,
-)
 from ceasiompy.utils.terminal import call_main
 from cpacspy.cpacsfunctions import (
     create_branch,
+    get_string_vector,
     add_string_vector,
     get_value_or_default,
 )
 
 from pathlib import Path
 from ambiance import Atmosphere
-from cpacspy.cpacspy import CPACS
+from cpacspy.cpacspy import (
+    CPACS,
+    AeroMap,
+)
 from markdownpy.markdownpy import MarkdownDoc
+from ceasiompy.utils.guisettings import GUISettings
 
 from ceasiompy import log
-
 from ceasiompy.utils.guixpaths import (
-    PLOT_XPATH,
     SF_XPATH,
     WETTED_AREA_XPATH,
     WING_AREA_XPATH,
     WING_SPAN_XPATH,
 )
-
-from ceasiompy.SkinFriction import MODULE_NAME
+from ceasiompy.SkinFriction import (
+    MODULE_NAME,
+    AEROMAP_TO_PLOT_XPATH,
+)
 
 # =================================================================================================
 #   FUNCTIONS
@@ -120,7 +122,11 @@ def estimate_skin_friction_coef(wetted_area, wing_area, wing_span, mach, alt):
     return cd0
 
 
-def main(cpacs: CPACS, wkdir: Path):
+def main(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+    results_dir: Path,
+) -> None:
     """Function to add the skin frictions drag coefficient to aerodynamic coefficients
 
     Function 'add_skin_friction' add the skin friction drag 'cd0' to  the
@@ -133,21 +139,20 @@ def main(cpacs: CPACS, wkdir: Path):
         cpacs_out_path (Path): Path to CPACS output file
     """
 
-    tixi = cpacs.tixi
-    md = MarkdownDoc(Path(wkdir, "Skin_Friction.md"))
+    md = MarkdownDoc(Path(results_dir, "Skin_Friction.md"))
     md.h2("SkinFriction")
 
     md.h3("Geometry")
-    wetted_area = get_value_or_default(tixi, WETTED_AREA_XPATH, 0.0)
+    wetted_area = get_value_or_default(gui_settings.tixi, WETTED_AREA_XPATH, 0.0)
     md.p(f"Wetted area: {wetted_area:.1f} [m^2]")
-    wing_area = get_value_or_default(tixi, WING_AREA_XPATH, cpacs.aircraft.wing_area)
+    wing_area = get_value_or_default(gui_settings.tixi, WING_AREA_XPATH, cpacs.aircraft.wing_area)
     md.p(f"Wing area: {wing_area:.1f} [m^2]")
-    wing_span = get_value_or_default(tixi, WING_SPAN_XPATH, cpacs.aircraft.wing_span)
+    wing_span = get_value_or_default(gui_settings.tixi, WING_SPAN_XPATH, cpacs.aircraft.wing_span)
     md.p(f"Wing span: {wing_span:.1f} [m]")
 
     # Get aeroMapToCalculate
     aeroMap_to_calculate_xpath = SF_XPATH + "/aeroMapToCalculate"
-    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, aeroMap_to_calculate_xpath)
+    aeromap_uid_list = get_string_vector(cpacs, aeroMap_to_calculate_xpath)
 
     if not aeromap_uid_list:
         raise ValueError(
@@ -169,9 +174,9 @@ def main(cpacs: CPACS, wkdir: Path):
         aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
         # Export aeromaps without skin friction
-        csv_path = Path(wkdir, f"{aeromap.uid}.csv")
+        csv_path = Path(results_dir, f"{aeromap.uid}.csv")
         aeromap.export_csv(csv_path)
-
+        aeromap: AeroMap
         # Create new aeromap object to store coef with added skin friction
         aeromap_sf = cpacs.duplicate_aeromap(aeromap_uid, aeromap_uid + "_SkinFriction")
         aeromap_sf.description = (
@@ -204,7 +209,7 @@ def main(cpacs: CPACS, wkdir: Path):
             axis=1,
         )
 
-        aeromap_sf_csv = Path(wkdir, f"{aeromap_sf.uid}.csv")
+        aeromap_sf_csv = Path(results_dir, f"{aeromap_sf.uid}.csv")
         aeromap.export_csv(aeromap_sf_csv)
 
         # TODO: Should we change something in moment coef?
@@ -213,23 +218,24 @@ def main(cpacs: CPACS, wkdir: Path):
         aeromap_sf.save()
 
     # Get aeroMap list to plot
-    aeromap_to_plot_xpath = PLOT_XPATH + "/aeroMapToPlot"
 
-    if tixi.checkElement(aeromap_to_plot_xpath):
+    if gui_settings.tixi.checkElement(AEROMAP_TO_PLOT_XPATH):
 
-        aeromap_uid_list = get_aeromap_list_from_xpath(
-            cpacs, aeromap_to_plot_xpath, empty_if_not_found=True
-        )
+        aeromap_uid_list = get_string_vector(gui_settings.tixi, AEROMAP_TO_PLOT_XPATH)
 
         if not aeromap_uid_list:
-            aeromap_uid_list = get_value_or_default(tixi, aeromap_to_plot_xpath, "DefaultAeromap")
+            aeromap_uid_list = get_value_or_default(
+                tixi=gui_settings.tixi,
+                xpath=AEROMAP_TO_PLOT_XPATH,
+                default_value="DefaultAeromap",
+            )
 
         new_aeromap_to_plot = aeromap_uid_list + new_aeromap_uid_list
         new_aeromap_to_plot = list(set(new_aeromap_to_plot))
-        add_string_vector(tixi, aeromap_to_plot_xpath, new_aeromap_to_plot)
+        add_string_vector(gui_settings.tixi, AEROMAP_TO_PLOT_XPATH, new_aeromap_to_plot)
     else:
-        create_branch(tixi, aeromap_to_plot_xpath)
-        add_string_vector(tixi, aeromap_to_plot_xpath, new_aeromap_uid_list)
+        create_branch(gui_settings.tixi, AEROMAP_TO_PLOT_XPATH)
+        add_string_vector(gui_settings.tixi, AEROMAP_TO_PLOT_XPATH, new_aeromap_uid_list)
 
     log.info('AeroMap "' + aeromap_uid + '" has been added to the CPACS file')
     md.save()

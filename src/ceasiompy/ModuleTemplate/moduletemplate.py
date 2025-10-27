@@ -24,9 +24,9 @@ from ceasiompy.utils.terminal import call_main
 from ceasiompy.ModuleTemplate.func.subfunc import get_fuselage_scaling
 
 from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.guisettings import GUISettings
 
 from ceasiompy.ModuleTemplate import MODULE_NAME
-
 from ceasiompy import (
     log,
     ceasiompy_cfg,
@@ -50,7 +50,10 @@ from ceasiompy import (
 # Try to always use the validate_call decorator if your function is called only once.
 # This way you can be sure that your function takes as inputs
 # and gives as outputs the correct types of object.
-def main(cpacs: CPACS) -> None:
+def main(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+) -> None:
 
     # Call a function which use CPACS inputs
     x, y, z = get_fuselage_scaling(cpacs)
@@ -58,6 +61,8 @@ def main(cpacs: CPACS) -> None:
     log.info("x = " + str(x))
     log.info("y = " + str(y))
     log.info("z = " + str(z))
+
+    # Add a test function with GUISettings
 
 
 if __name__ == "__main__":

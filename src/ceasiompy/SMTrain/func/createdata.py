@@ -16,19 +16,20 @@ from cpacspy.cpacsfunctions import get_value
 from ceasiompy.PyAVL.pyavl import main as run_avl
 from ceasiompy.SU2Run.su2run import main as run_su2
 from ceasiompy.SMTrain.func.utils import create_aeromap_from_varpts
+from ceasiompy.utils.guisettings import update_gui_settings_from_specs
 from ceasiompy.SMTrain.func.config import (
     retrieve_aeromap_data,
     retrieve_ceasiompy_db_data,
 )
 from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
-    update_gui_settings_from_specs,
 )
 
 from typing import Union
 from pathlib import Path
 from pandas import DataFrame
 from unittest.mock import MagicMock
+from ceasiompy.utils.guisettings import GUISettings
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
@@ -85,11 +86,22 @@ def launch_avl(
 
         # Run AVL analysis
         st.session_state = MagicMock()
-        update_gui_settings_from_specs(cpacs, PYAVL_NAME, test=True)
+        gui_settings: GUISettings = update_gui_settings_from_specs(
+            cpacs=cpacs,
+            gui_settings=None,
+            module_name=PYAVL_NAME,
+            test=True,
+        )
 
         # Update CPACS with the new aeromap
-        tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap.uid)
-        run_avl(cpacs, results_dir=get_results_directory(PYAVL_NAME))
+        gui_settings.tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap.uid)
+        gui_settings.save()
+
+        run_avl(
+            cpacs=cpacs,
+            gui_settings=gui_settings,
+            results_dir=get_results_directory(PYAVL_NAME),
+        )
         df_aeromap = retrieve_aeromap_data(cpacs, aeromap.uid, objective)
 
     if get_value(tixi, SMTRAIN_AVL_DATABASE_XPATH):

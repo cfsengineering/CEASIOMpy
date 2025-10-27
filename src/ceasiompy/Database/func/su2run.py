@@ -16,7 +16,8 @@ Store data from SU2Run results.
 
 from pathlib import Path
 from sqlite3 import Cursor
-from tixi3.tixi3wrapper import Tixi3
+from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.guisettings import GUISettings
 
 # ==============================================================================
 #   FUNCTIONS
@@ -26,7 +27,8 @@ from tixi3.tixi3wrapper import Tixi3
 def store_su2run_data(
     cursor: Cursor,
     wkdir: Path,
-    tixi: Tixi3,
+    cpacs: CPACS,
+    gui_settings: GUISettings,
     table_name: str,
 ) -> None:
     """

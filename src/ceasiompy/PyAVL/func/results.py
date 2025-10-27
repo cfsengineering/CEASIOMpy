@@ -23,8 +23,12 @@ from ceasiompy.PyAVL.func.utils import (
 
 from typing import Tuple
 from pathlib import Path
-from cpacspy.cpacspy import CPACS, AeroMap
 from tixi3.tixi3wrapper import Tixi3
+from ceasiompy.utils.guisettings import GUISettings
+from cpacspy.cpacspy import (
+    CPACS,
+    AeroMap,
+)
 
 from ceasiompy import log
 from ceasiompy.PyAVL.func import AVL_COEFS
@@ -91,6 +95,7 @@ def get_avl_aerocoefs(force_file: Path) -> Tuple[
 
 def add_coefficients_in_aeromap(
     cpacs: CPACS,
+    gui_settings: GUISettings,
     alt: float,
     mach: float,
     aos: float,
@@ -114,13 +119,13 @@ def add_coefficients_in_aeromap(
 
     """
 
-    tixi = cpacs.tixi
     cd, cs, cl, cmd, cms, cml, cmd_b, cms_a, cml_b = get_avl_aerocoefs(st_file_path)
 
-    if get_value(tixi, AVL_PLOTLIFT_XPATH):
+    if get_value(gui_settings.tixi, AVL_PLOTLIFT_XPATH):
         plot_lift_distribution(fs_file_path, aoa, aos, mach, alt, wkdir=config_dir)
 
-    aeromap_uid = get_value(tixi, AVL_AEROMAP_UID_XPATH)
+    aeromap_uid = get_value(gui_settings.tixi, AVL_AEROMAP_UID_XPATH)
+
     log.info(f"Loading coefficients in {aeromap_uid=}")
     aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
@@ -151,21 +156,22 @@ def add_coefficients_in_aeromap(
     increment_map_xpath = f"{increment_maps_xpath}/incrementMap"
 
     # Ensure the incrementMaps and incrementMap elements exist
-    if not tixi.checkElement(increment_maps_xpath):
-        tixi.createElement(aeromap.xpath, "incrementMaps")
-    if not tixi.checkElement(increment_map_xpath):
-        tixi.createElement(increment_maps_xpath, "incrementMap")
+    if not cpacs.tixi.checkElement(increment_maps_xpath):
+        cpacs.tixi.createElement(aeromap.xpath, "incrementMaps")
+    if not cpacs.tixi.checkElement(increment_map_xpath):
+        cpacs.tixi.createElement(increment_maps_xpath, "incrementMap")
 
     # Add text elements for the coefficients
-    ensure_and_append_text_element(tixi, increment_map_xpath, "dcmd", str(cmd_b))
-    ensure_and_append_text_element(tixi, increment_map_xpath, "dcms", str(cms_a))
-    ensure_and_append_text_element(tixi, increment_map_xpath, "dcml", str(cml_b))
+    ensure_and_append_text_element(cpacs.tixi, increment_map_xpath, "dcmd", str(cmd_b))
+    ensure_and_append_text_element(cpacs.tixi, increment_map_xpath, "dcms", str(cms_a))
+    ensure_and_append_text_element(cpacs.tixi, increment_map_xpath, "dcml", str(cml_b))
 
     aeromap.save()
 
 
 def add_coefficients(
-    tixi: Tixi3,
+    cpacs: CPACS,
+    gui_settings: GUISettings,
     xpath: str,
     table_name: str,
     coefficients: dict,
@@ -174,16 +180,17 @@ def add_coefficients(
     Adds aerodynamic coefficients to a specified table.
     """
 
-    if not tixi.checkElement(xpath):
-        tixi.createElement(AVL_XPATH, table_name)
+    if not gui_settings.tixi.checkElement(xpath):
+        gui_settings.tixi.createElement(AVL_XPATH, table_name)
 
     # Add text elements for the coefficients
     for name, value in coefficients.items():
-        ensure_and_append_text_element(tixi, xpath, name, str(value))
+        ensure_and_append_text_element(cpacs.tixi, xpath, name, str(value))
 
 
 def add_coefficients_in_table(
-    tixi: Tixi3,
+    cpacs: CPACS,
+    gui_settings: GUISettings,
     mach: float,
     aos: float,
     aoa: float,
@@ -225,11 +232,18 @@ def add_coefficients_in_table(
         "cml": cml,
     }
 
-    add_coefficients(tixi, AVL_TABLE_XPATH, "Table", coefficients)
+    add_coefficients(
+        cpacs=cpacs,
+        gui_settings=gui_settings,
+        xpath=AVL_TABLE_XPATH,
+        table_name="Table",
+        coefficients=coefficients,
+    )
 
 
 def add_coefficients_in_ctrltable(
-    tixi: Tixi3,
+    cpacs: CPACS,
+    gui_settings: GUISettings,
     mach: float,
     aoa: float,
     aileron: float,
@@ -269,7 +283,13 @@ def add_coefficients_in_ctrltable(
         "cml": cml,
     }
 
-    add_coefficients(tixi, AVL_CTRLTABLE_XPATH, "CtrlTable", coefficients)
+    add_coefficients(
+        cpacs=cpacs,
+        gui_settings=gui_settings,
+        xpath=AVL_CTRLTABLE_XPATH,
+        table_name="CtrlTable",
+        coefficients=coefficients,
+    )
 
 
 def get_force_files(config_dir: Path) -> Tuple[Path, Path]:
@@ -288,13 +308,16 @@ def get_force_files(config_dir: Path) -> Tuple[Path, Path]:
     return st_file_path, fs_file_path
 
 
-def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
+def get_avl_results(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+    results_dir: Path,
+) -> None:
     """
     Write AVL results in a CPACS file at xPath:
     '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap[n]/aeroPerformanceMap'
     """
 
-    tixi = cpacs.tixi
     case_dir_list = [
         case_dir
         for case_dir in results_dir.iterdir()
@@ -318,26 +341,28 @@ def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
 
             if (p == 0.0) and (q == 0.0) and (r == 0.0):
                 add_coefficients_in_aeromap(
-                    cpacs,
-                    alt,
-                    mach,
-                    aos,
-                    aoa,
-                    fs_file_path,
-                    st_file_path,
-                    config_dir,
+                    cpacs=cpacs,
+                    gui_settings=gui_settings,
+                    alt=alt,
+                    mach=mach,
+                    aos=aos,
+                    aoa=aoa,
+                    fs_file_path=fs_file_path,
+                    st_file_path=st_file_path,
+                    config_dir=config_dir,
                 )
 
             # Add coefficients for dynamic stability
             add_coefficients_in_table(
-                tixi,
-                mach,
-                aos,
-                aoa,
-                p,
-                q,
-                r,
-                st_file_path,
+                cpacs=cpacs,
+                gui_settings=gui_settings,
+                mach=mach,
+                aos=aos,
+                aoa=aoa,
+                p=p,
+                q=q,
+                r=r,
+                st_file_path=st_file_path,
             )
         else:  # Control surface deflections for dynamic stability
             aileron = split_dir(dir_name, 4, "aileron")
@@ -346,11 +371,12 @@ def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
 
             # Add coefficients for control surface deflections
             add_coefficients_in_ctrltable(
-                tixi,
-                mach,
-                aoa,
-                aileron,
-                elevator,
-                rudder,
-                st_file_path,
+                cpacs=cpacs,
+                gui_settings=gui_settings,
+                mach=mach,
+                aoa=aoa,
+                aileron=aileron,
+                elevator=elevator,
+                rudder=rudder,
+                st_file_path=st_file_path,
             )

@@ -15,12 +15,13 @@ import pandas as pd
 from typing import Dict
 from pathlib import Path
 from pandas import DataFrame
+from ceasiompy.utils.guisettings import GUISettings
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
 )
 
-from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
+from cpacspy.cpacsfunctions import get_string_vector
 
 from ceasiompy import log
 from ceasiompy.SMUse import SMUSE_PREDICTIONDATASET_XPATH
@@ -55,6 +56,7 @@ def save_new_dataset(
 
 def get_smu_results(
     cpacs: CPACS,
+    gui_settings: GUISettings,
     results_dir: Path,
     objective: str,
 ) -> None:
@@ -64,7 +66,7 @@ def get_smu_results(
 
     # Get all CSV files in results_dir, sorted to match aeromaps in order
     csv_files = sorted([f for f in os.listdir(results_dir) if f.endswith(".csv")])
-    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, SMUSE_PREDICTIONDATASET_XPATH)
+    aeromap_uid_list = get_string_vector(gui_settings, SMUSE_PREDICTIONDATASET_XPATH)
 
     log.info(f"Aeromap UIDs: {aeromap_uid_list}")
     for aeromap_uid, file_name in zip(aeromap_uid_list, csv_files):

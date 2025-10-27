@@ -73,7 +73,7 @@ def _log_fuselage_settings(
     """
     Functions that are only used in the scope of the script,
     should be prepended by a underscore _
-    
+
     This way it determines if this function can or should be imported
     outside the scope of its module.
     """

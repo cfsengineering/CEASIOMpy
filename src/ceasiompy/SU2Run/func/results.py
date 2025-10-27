@@ -50,6 +50,7 @@ from pathlib import Path
 from numpy import ndarray
 from ambiance import Atmosphere
 from tixi3.tixi3wrapper import Tixi3
+from ceasiompy.utils.guisettings import GUISettings
 from typing import (
     List,
     Dict,
@@ -194,7 +195,7 @@ def save_screenshots(config_dir: Path):
 
 
 def get_static_results(
-    tixi: Tixi3,
+    gui_settings: GUISettings,
     aeromap: AeroMap,
     config_dir: Path,
     fixed_cl: str,
@@ -208,16 +209,16 @@ def get_static_results(
     aoa, aos, mach, alt = get_value_at(case_nb, aoa_list, aos_list, mach_list, alt_list)
 
     if fixed_cl == "YES":
-        update_fixed_cl(tixi, aeromap, force_file_path)
+        update_fixed_cl(gui_settings.tixi, aeromap, force_file_path)
 
     # Load aerocoefs
     cl, cd, cs, cmd, cms, cml, velocity = get_su2_aerocoefs(force_file_path)
 
     # Damping derivatives
-    if get_value(tixi, SU2_DAMPING_DER_XPATH):
+    if get_value(gui_settings.tixi, SU2_DAMPING_DER_XPATH):
         coefs = {"cl": cl, "cd": cd, "cs": cs, "cmd": cmd, "cms": cms, "cml": cml}
         update_damping_derivatives(
-            tixi,
+            gui_settings.tixi,
             config_dir,
             aeromap,
             alt,
@@ -246,12 +247,12 @@ def get_static_results(
         # TODO: convert when it is possible to save TED in cpacspy
         raise NotImplementedError("TED not implemented yet")
 
-    update_wetted_area = get_value(tixi, SU2_UPDATE_WETTED_AREA_XPATH)
+    update_wetted_area = get_value(gui_settings.tixi, SU2_UPDATE_WETTED_AREA_XPATH)
     if not found_wetted_area and update_wetted_area:
-        update_wetted_area_func(tixi, config_dir)
+        update_wetted_area_func(gui_settings.tixi, config_dir)
         found_wetted_area = True
 
-    if get_value(tixi, SU2_EXTRACT_LOAD_XPATH):
+    if get_value(gui_settings.tixi, SU2_EXTRACT_LOAD_XPATH):
         extract_loads(config_dir)
 
 
@@ -440,24 +441,27 @@ def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
             )
 
 
-def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
+def get_su2_results(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+    results_dir: Path,
+) -> None:
     """
-    Updates CPACS file with SU2 results.
+    Updates gui_settings file with SU2 results.
 
     Updates Aeromap at xPath:
     '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap[n]/aeroPerformanceMap'
 
     """
-    tixi = cpacs.tixi
     found_wetted_area = False
 
-    fixed_cl = get_value(tixi, SU2_FIXED_CL_XPATH)
-    aeromap_uid = get_aeromap_uid(tixi, fixed_cl)
+    fixed_cl = get_value(gui_settings.tixi, SU2_FIXED_CL_XPATH)
+    aeromap_uid = get_aeromap_uid(gui_settings.tixi, fixed_cl)
     aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
     case_dir_list = [
         case_dir
-        for case_dir in wkdir.iterdir()
+        for case_dir in results_dir.iterdir()
         if ("Case" in case_dir.name) and (case_dir.is_dir())
     ]
 
@@ -468,6 +472,12 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
 
         # Retrieve non dynamic stability data
         if "dynstab" not in str(config_dir):
-            get_static_results(tixi, aeromap, config_dir, fixed_cl, found_wetted_area)
+            get_static_results(
+                aeromap=aeromap,
+                fixed_cl=fixed_cl,
+                config_dir=config_dir,
+                gui_settings=gui_settings,
+                found_wetted_area=found_wetted_area,
+            )
 
     aeromap.save()

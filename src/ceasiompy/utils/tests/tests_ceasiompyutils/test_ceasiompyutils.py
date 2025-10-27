@@ -26,7 +26,6 @@ from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
     write_inouts,
     change_working_dir,
-    get_aeromap_list_from_xpath,
     get_install_path,
     get_part_type,
     get_results_directory,
@@ -173,21 +172,6 @@ class TestCeasiompyUtils(CeasiompyTest):
 
         os.chdir(str(default_cwd))
 
-    def test_get_aeromap_list_from_xpath(self):
-
-        not_define_xpath = "/cpacs/toolspecific/CEASIOMpy/newListOfAeromap"
-        aeromap_list = get_aeromap_list_from_xpath(self.test_cpacs, not_define_xpath)
-        assert aeromap_list == ["aeromap_empty", "test_apm"]
-
-        not_define_xpath_2 = "/cpacs/toolspecific/CEASIOMpy/newListOfAeromap2"
-        aeromap_list = get_aeromap_list_from_xpath(
-            self.test_cpacs, not_define_xpath_2, empty_if_not_found=True)
-        assert aeromap_list == []
-
-        self.test_cpacs.tixi.updateTextElement(not_define_xpath, "test_apm")
-        aeromap_list = get_aeromap_list_from_xpath(self.test_cpacs, not_define_xpath)
-        assert aeromap_list == ["test_apm"]
-
     def test_get_results_directory(self):
 
         with change_working_dir(self.TMP_DIR):
@@ -206,7 +190,7 @@ class TestCeasiompyUtils(CeasiompyTest):
             results_dir = get_results_directory("NotExistingModule")
 
     @pytest.mark.skip(reason="Not implemented yet")
-    def test_run_module(self):
+    def testrun_module(self):
         """Test the function run_module."""
 
         # TODO: how to test this function?

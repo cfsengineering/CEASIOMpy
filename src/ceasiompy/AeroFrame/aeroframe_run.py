@@ -18,20 +18,19 @@ aerodynamic loads and FramAT for structural calculations.
 import shutil
 import numpy as np
 
+from ceasiompy.utils.terminal import call_main
+from cpacspy.cpacsfunctions import create_branch
+from ceasiompy.PyAVL.func.utils import create_case_dir
+from ceasiompy.AeroFrame.func.plot import plot_convergence
+from ceasiompy.AeroFrame.func.config import read_avl_fe_file
+from ceasiompy.utils.ceasiompyutils import get_aeromap_conditions
+from ceasiompy.AeroFrame.func.aeroelastic import aeroelastic_loop
+from ceasiompy.AeroFrame.func.firstavliteration import run_first_avl_iteration
+
 from pathlib import Path
 from ambiance import Atmosphere
 from cpacspy.cpacspy import CPACS
-
-from cpacspy.cpacsfunctions import create_branch
-from ceasiompy.PyAVL.func.utils import create_case_dir
-from ceasiompy.AeroFrame.func.config import read_avl_fe_file
-from ceasiompy.AeroFrame.func.plot import plot_convergence
-from ceasiompy.AeroFrame.func.aeroelastic import aeroelastic_loop
-from ceasiompy.AeroFrame.func.firstavliteration import run_first_avl_iteration
-from ceasiompy.utils.ceasiompyutils import (
-    get_aeromap_conditions,
-)
-from ceasiompy.utils.terminal import call_main
+from ceasiompy.utils.guisettings import GUISettings
 
 from ceasiompy import log
 from ceasiompy.PyAVL import AVL_AEROMAP_UID_XPATH
@@ -45,7 +44,11 @@ from ceasiompy.AeroFrame import (
 # =================================================================================================
 
 
-def main(cpacs: CPACS, results_dir: Path) -> None:
+def main(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+    results_dir: Path,
+) -> None:
     """
     Runs aeroelastic calculations coupling AVL and FramAT.
 
@@ -55,7 +58,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     """
 
     # 1. Get conditions
-    tixi = cpacs.tixi
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
         cpacs=cpacs,
         uid_xpath=AVL_AEROMAP_UID_XPATH,
@@ -67,7 +69,11 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     log.info(f"\tAngle of sideslip : {', '.join(str(a) for a in aos_list)} degrees\n")
 
     # 2. First AVL run
-    run_first_avl_iteration(cpacs, results_dir)
+    run_first_avl_iteration(
+        cpacs=cpacs,
+        gui_settings=gui_settings,
+        results_dir=results_dir,
+    )
 
     # 3. Aeroelastic loop
     for i_case, _ in enumerate(alt_list):
@@ -104,17 +110,22 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
         # Start the aeroelastic loop
         tip_deflection, residuals = aeroelastic_loop(
-            cpacs,
-            results_dir,
-            case_dir_path,
-            rho,
-            xyz_list[0],
-            f_xyz_array[0],
+            cpacs=cpacs,
+            gui_settings=gui_settings,
+            results_dir=results_dir,
+            case_dir_path=case_dir_path,
+            q=rho,
+            xyz=xyz_list[0],
+            fxyz=f_xyz_array[0],
         )
 
         # Write results in CPACS out
-        create_branch(tixi, FRAMAT_TIP_DEFLECTION_XPATH)
-        tixi.updateDoubleElement(FRAMAT_TIP_DEFLECTION_XPATH, tip_deflection[-1], "%g")
+        create_branch(gui_settings.tixi, FRAMAT_TIP_DEFLECTION_XPATH)
+        gui_settings.tixi.updateDoubleElement(
+            elementPath=FRAMAT_TIP_DEFLECTION_XPATH,
+            number=tip_deflection[-1],
+            format="%g",
+        )
 
         plot_convergence(tip_deflection, residuals, wkdir=case_dir_path)
 

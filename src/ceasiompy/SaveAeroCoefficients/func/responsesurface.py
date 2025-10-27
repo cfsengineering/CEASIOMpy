@@ -21,9 +21,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from cpacspy.cpacsfunctions import get_value
 from ceasiompy.SMUse.func.config import load_surrogate
-from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
+from cpacspy.cpacsfunctions import (
+    get_value,
+    get_string_vector,
+)
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
@@ -102,7 +104,7 @@ def plot_response_surface(cpacs: CPACS, results_dir: Path) -> None:
 
     # Retrieve aeromaps for scatter plot
     aeromap_for_scatter_xpath = PLOT_XPATH + "/aeroScatter"
-    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, aeromap_for_scatter_xpath)
+    aeromap_uid_list = get_string_vector(cpacs, aeromap_for_scatter_xpath)
 
     # Initialize a list to store DataFrames with aerodynamic map data
     aeromap_df_list = []

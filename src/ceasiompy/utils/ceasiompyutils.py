@@ -141,30 +141,6 @@ def ensure_and_append_text_element(
         tixi.updateTextElement(element_xpath, new_text)
 
 
-def get_aeromap_list_from_xpath(cpacs, aeromap_to_analyze_xpath, empty_if_not_found=False):
-    """Get a list of aeromap from the xpath where it is stored, if not define, return all aeromaps
-    and save them at the given xpath.
-
-    Args:
-        cpacs (obj): CPACS object (from cpacspy).
-        aeromap_to_analyze_xpath (str): Xpath where the list of aeromap to analyze is stored.
-        empty_if_not_found (bool): If true, return an empty list if the xpath did not exist.
-
-    """
-    tixi = cpacs.tixi
-
-    aeromap_uid_list = []
-    try:
-        aeromap_uid_list = get_string_vector(tixi, aeromap_to_analyze_xpath)
-    except ValueError:  # if aeroMapToPlot is not defined, select all aeromaps
-        if not empty_if_not_found:
-            aeromap_uid_list = cpacs.get_aeromap_uid_list()
-            create_branch(tixi, aeromap_to_analyze_xpath)
-            add_string_vector(tixi, aeromap_to_analyze_xpath, aeromap_uid_list)
-
-    return aeromap_uid_list
-
-
 def get_results_directory(module_name: str, create: bool = True, wkflow_dir: Path = None) -> Path:
     """
     Returns the results directory of a module.

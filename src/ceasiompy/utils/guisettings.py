@@ -9,6 +9,7 @@ from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 from ceasiompy.utils.moduleinterfaces import get_specs_for_module
 
 from typing import Optional
+from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
@@ -103,12 +104,12 @@ class GUISettings:
 
 
 def update_gui_settings_from_specs(
-    gui_settings: GUISettings,
+    gui_settings: Optional[GUISettings],
     module_name: str,
-    test: bool,
-) -> None:
-    tixi = gui_settings.tixi
-    st.session_state.gui_settings = gui_settings
+    test: bool,  # For github workflows
+) -> GUISettings:
+    tixi = Tixi3()
+
     cpacsin_out: CPACSInOut = get_specs_for_module(module_name).cpacs_inout
     inputs = cpacsin_out.get_gui_dict()
 
@@ -150,3 +151,5 @@ def update_gui_settings_from_specs(
             tixi.updateTextElement(xpath, ";".join(str(ele) for ele in value))
         else:
             tixi.updateTextElement(xpath, value)
+
+    st.session_state.gui_settings = gui_settings

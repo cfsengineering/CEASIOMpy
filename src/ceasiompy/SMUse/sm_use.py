@@ -9,17 +9,18 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 #   IMPORTS
 # =================================================================================================
 
-from pathlib import Path
-from cpacspy.cpacspy import CPACS
 
 from ceasiompy.utils.terminal import call_main
-
 from ceasiompy.SMUse.func.config import load_surrogate
 from ceasiompy.SMUse.func.predictions import make_predictions
 from ceasiompy.SMUse.func.results import (
     get_smu_results,
     save_new_dataset,
 )
+
+from pathlib import Path
+from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.guisettings import GUISettings
 
 from ceasiompy import log
 from ceasiompy.SMUse import MODULE_NAME
@@ -29,7 +30,11 @@ from ceasiompy.SMUse import MODULE_NAME
 # =================================================================================================
 
 
-def main(cpacs: CPACS, results_dir: Path) -> None:
+def main(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+    results_dir: Path,
+) -> None:
     """
     Run Surrogate model:
         1. Loads a pre-trained surrogate model.
@@ -40,7 +45,10 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
     # 1.Loads a pre-trained surrogate model
     log.info("Loading pre-trained surrogate model")
-    model, objective, datasets = load_surrogate(cpacs)
+    model, objective, datasets = load_surrogate(
+        cpacs=cpacs,
+        gui_settings=gui_settings,
+    )
 
     # 2. Makes aerodynamic predictions
     log.info("Making predictions")
@@ -52,7 +60,12 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
     # 4. Udpates aeromap accordingly
     log.info("Updates aeromap")
-    get_smu_results(cpacs, results_dir, objective)
+    get_smu_results(
+        cpacs=cpacs,
+        gui_settings=gui_settings,
+        results_dir=results_dir,
+        objective=objective,
+    )
 
 
 if __name__ == "__main__":

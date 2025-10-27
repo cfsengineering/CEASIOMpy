@@ -67,7 +67,6 @@ CSS: Final[str] = """
 
 
 def write_gui_xml(
-    file_name: str,
     stp_path: Optional[Path] = None,
     cpacs_path: Optional[Path] = None,
 ) -> Tixi3:
@@ -83,7 +82,6 @@ def write_gui_xml(
         )
 
     settings = GUISettings(
-        file_name=file_name,
         stp_path=stp_path,
         cpacs_path=cpacs_path,
     )
@@ -116,7 +114,6 @@ def section_select_cpacs() -> None:
 
         st.session_state.cpacs = CPACS(cpacs_path)
         st.session_state.gui_settings = write_gui_xml(
-            file_name=uploaded_file.name,
             cpacs_path=cpacs_path,
         )
 
@@ -132,7 +129,6 @@ def section_select_cpacs() -> None:
 
         st.session_state.stp_path = stp_path
         st.session_state.gui_settings = write_gui_xml(
-            file_name=uploaded_file.name,
             stp_path=stp_path,
         )
 
@@ -258,19 +254,18 @@ def loading_arg_cpacs() -> Optional[str]:
 
             st.session_state.cpacs = CPACS(cpacs_p)
             st.session_state.gui_settings = write_gui_xml(
-                file_name=cpacs_p.name,
                 cpacs_path=cpacs_p,
             )
-            log.info(f"Auto-loaded CPACS from CLI: {cpacs_p}")
+            log.info(f"Auto-loaded CPACS: {cpacs_p}")
 
             st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
             st.success(f"Uploaded file: {st.session_state.cpacs.cpacs_file}")
             log.info("Loading 3D section view.")
             section_3D_view()
-
         return cpacs_arg
+
     except Exception as e:
-        log.warning(f"Could not auto-load CPACS from CLI: {e}")
+        log.warning(f"Could not auto-load CPACS: {e=}")
         return None
 
 

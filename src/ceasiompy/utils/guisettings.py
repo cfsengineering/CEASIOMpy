@@ -8,10 +8,14 @@ from cpacspy.cpacsfunctions import create_branch
 from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 from ceasiompy.utils.moduleinterfaces import get_specs_for_module
 
-from typing import Optional
+from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from typing import (
+    Union,
+    Optional,
+)
 
 from ceasiompy import log
 from ceasiompy.utils import (
@@ -27,25 +31,19 @@ from ceasiompy.utils import (
 class GUISettings:
     def __init__(
         self: 'GUISettings',
-        file_name: str,
-        cpacs_path: Optional[str] = None,
-        stp_path: Optional[str] = None,
+        cpacs_path: Optional[Path] = None,
+        stp_path: Optional[Path] = None,
     ) -> None:
         #
-        self.file_name = file_name
         self.cpacs_path = cpacs_path
         self.stp_path = stp_path
+
+        self.file_name = self._get_file_name()
 
         # Create Basic GUI Settings
         self._create_document()
 
-    def _get_current_path_settings(self: 'GUISettings') -> str:
-        return f'{current_workflow_dir() / GUI_SETTINGS}'
-
-    def _create_document(self: 'GUISettings') -> None:
-        '''
-        Creates New GUI Settings (OVER-RIDE)
-        '''
+    def _safe_guard(self: 'GUISettings') -> None:
         # Safeguards
         if self.cpacs_path is not None and self.stp_path is not None:
             log.error(
@@ -58,6 +56,24 @@ class GUISettings:
                 "Either self.cpacs_path or self.stp_path should NOT be None. "
                 "One geometry path can only exist."
             )
+
+    def _get_file_name(self: 'GUISettings') -> str:
+        self._safe_guard()
+
+        if self.cpacs_path is not None:
+            return self.cpacs_path.name
+
+        if self.stp_path is not None:
+            return self.stp_path.name
+
+    def _get_current_path_settings(self: 'GUISettings') -> str:
+        return f'{current_workflow_dir() / GUI_SETTINGS}'
+
+    def _create_document(self: 'GUISettings') -> None:
+        '''
+        Creates New GUI Settings (OVER-RIDE)
+        '''
+        self._safe_guard()
 
         # Create New Document
         tixi = Tixi3()
@@ -104,12 +120,23 @@ class GUISettings:
 
 
 def update_gui_settings_from_specs(
+    geometry: Union[CPACS, Path],
     gui_settings: Optional[GUISettings],
     module_name: str,
     test: bool,  # For github workflows
 ) -> GUISettings:
-    tixi = Tixi3()
+    if gui_settings is None:
+        # Generate a New GUISettings Object
+        if isinstance(geometry, CPACS):
+            gui_settings = GUISettings(
+                cpacs_path=geometry.cpacs_file,
+            )
+        else:
+            gui_settings = GUISettings(
+                stp_path=geometry,
+            )
 
+    tixi = gui_settings.tixi
     cpacsin_out: CPACSInOut = get_specs_for_module(module_name).cpacs_inout
     inputs = cpacsin_out.get_gui_dict()
 
@@ -126,7 +153,7 @@ def update_gui_settings_from_specs(
                 tixi.createElement("/" + "/".join(parts[: i - 1]), parts[i - 1])
 
         # Check if the name or var_type is in the dictionary and call the corresponding function
-        if name in AEROMAP_LIST:
+        if name in AEROMAP_LIST and "cpacs" in st.session_state:
             aeromap_uid_list = st.session_state.cpacs.get_aeromap_uid_list()
             if not len(aeromap_uid_list):
                 log.error("You must create an aeromap in order to use this module !")
@@ -152,4 +179,7 @@ def update_gui_settings_from_specs(
         else:
             tixi.updateTextElement(xpath, value)
 
+    gui_settings.save()
+
     st.session_state.gui_settings = gui_settings
+    return gui_settings

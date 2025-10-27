@@ -60,6 +60,7 @@ def main(
     # 1. Get conditions
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
         cpacs=cpacs,
+        gui_settings=gui_settings,
         uid_xpath=AVL_AEROMAP_UID_XPATH,
     )
     log.info("FLIGHT CONDITIONS:")

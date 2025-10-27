@@ -14,11 +14,11 @@ import numpy as np
 
 from ceasiompy.utils.geometryfunctions import prod_points
 from ceasiompy.PyAVL.func.cpacs2avl import compute_fuselage_coords
-from ceasiompy.utils.ceasiompyutils import (
+from ceasiompy.utils.guisettings import (
     current_workflow_dir,
-    get_results_directory,
     update_gui_settings_from_specs,
 )
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 
 from pathlib import Path
 from ceasiompy.PyAVL.func.cpacs2avl import Avl

@@ -489,6 +489,7 @@ def configure_freestream(
 
 def configure_cfd_environment(
     cpacs: CPACS,
+    gui_settings: GUISettings,
     wkdir: Path,
     cfg: ConfigFile,
     su2_mesh_path: Path,
@@ -510,7 +511,11 @@ def configure_cfd_environment(
 
     """
     tixi = cpacs.tixi
-    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, SU2_AEROMAP_UID_XPATH)
+    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
+        cpacs=cpacs,
+        gui_settings=gui_settings,
+        uid_xpath=SU2_AEROMAP_UID_XPATH,
+    )
 
     cfg["MARKER_MOVING"] = su2_format("NONE")
     cfg["MESH_FILENAME"] = str(su2_mesh_path)
@@ -781,6 +786,7 @@ def generate_su2_cfd_config(
 
         configure_cfd_environment(
             cpacs=cpacs,
+            gui_settings=gui_settings,
             wkdir=wkdir,
             cfg=cfg,
             su2_mesh_path=su2_mesh_path,

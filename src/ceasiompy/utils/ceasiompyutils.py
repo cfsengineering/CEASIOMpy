@@ -16,9 +16,7 @@ import math
 import shutil
 import importlib
 import subprocess
-import streamlit as st
 
-from pydantic import validate_call
 from contextlib import contextmanager
 from ceasiompy.utils.moduleinterfaces import get_module_list
 from ceasiompy.utils.moduleinterfaces import (
@@ -30,16 +28,14 @@ from cpacspy.cpacsfunctions import (
     get_value,
     open_tixi,
     create_branch,
-    add_string_vector,
-    get_string_vector,
     get_value_or_default,
 )
 
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
-from unittest.mock import MagicMock
 from tixi3.tixi3wrapper import Tixi3
+from ceasiompy.utils.guisettings import GUISettings
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
@@ -49,22 +45,14 @@ from typing import (
     Tuple,
     TextIO,
     Optional,
-    Callable,
 )
 
 from ceasiompy import (
     log,
-    ceasiompy_cfg,
-)
-from ceasiompy import (
-    WKDIR_PATH,
-    CPACS_FILES_PATH,
 )
 from ceasiompy.utils.moduleinterfaces import (
     MODNAME_INIT,
-    MODNAME_SPECS,
 )
-
 from ceasiompy.utils.cpacsxpaths import AIRCRAFT_NAME_XPATH
 from ceasiompy.utils.guixpaths import (
     RANGE_CRUISE_ALT_XPATH,
@@ -169,53 +157,6 @@ def get_results_directory(module_name: str, create: bool = True, wkflow_dir: Pat
 def get_wkdir_status(module_name: str) -> bool:
     init = importlib.import_module(f"ceasiompy.{module_name}.{MODNAME_INIT}")
     return init.RES_DIR
-
-
-def get_workflow_idx(wkflow_idx: int) -> str:
-    return f"Workflow_{str(wkflow_idx).rjust(3, '0')}"
-
-
-def current_workflow_dir() -> Path:
-    """
-    Get the current workflow directory.
-    """
-
-    # collect numeric suffixes only (defensive against unexpected folder names)
-    idx_list: List[int] = []
-
-    # Make sure WKDIR_PATH exists as a dir
-    WKDIR_PATH.mkdir(exist_ok=True)
-
-    pattern = re.compile(r"Workflow_(\d+)$")
-    for p in WKDIR_PATH.iterdir():
-        if not p.is_dir():
-            log.warning(f"There should be only Directories in {WKDIR_PATH=}")
-            continue
-
-        m = pattern.match(p.name)
-        if m:
-            try:
-                idx_list.append(int(m.group(1)))
-            except ValueError as e:
-                log.error(f"Could not process pattern of workflows {e=}")
-
-    if idx_list:
-        max_idx = max(idx_list)
-        last_wkflow_dir = WKDIR_PATH / get_workflow_idx(max_idx)
-        has_subdirs = any(p.is_dir() for p in last_wkflow_dir.iterdir())
-
-        # If the last workflow contains the toolinput file, we increment index
-        if has_subdirs:
-            new_idx = max_idx + 1
-        else:
-            new_idx = max_idx
-    else:
-        new_idx = 1
-
-    current_wkflow_dir = WKDIR_PATH / get_workflow_idx(new_idx)
-    current_wkflow_dir.mkdir(parents=True, exist_ok=True)
-
-    return current_wkflow_dir
 
 
 def initialize_cpacs(module_name: str) -> Tuple[CPACS, Path]:
@@ -401,11 +342,14 @@ def get_conditions_from_aeromap(aeromap: AeroMap) -> Tuple[List, List, List, Lis
     return alt_list, mach_list, aoa_list, aos_list
 
 
-def get_aeromap_conditions(cpacs: CPACS, uid_xpath: str) -> Tuple[List, List, List, List]:
+def get_aeromap_conditions(
+    cpacs: CPACS,
+    gui_settings: GUISettings,
+    uid_xpath: str,
+) -> Tuple[List, List, List, List]:
     """
     Reads the flight conditions from the aeromap.
     """
-    tixi = cpacs.tixi
 
     # Get the first aeroMap as default one or create automatically one
     aeromap_list = cpacs.get_aeromap_uid_list()
@@ -413,7 +357,7 @@ def get_aeromap_conditions(cpacs: CPACS, uid_xpath: str) -> Tuple[List, List, Li
     if aeromap_list:
         aeromap_default = aeromap_list[0]
 
-        aeromap_uid = get_value_or_default(tixi, uid_xpath, aeromap_default)
+        aeromap_uid = get_value_or_default(gui_settings.tixi, uid_xpath, aeromap_default)
         log.info(f"Used aeromap: {aeromap_uid}.")
         aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
         alt_list, mach_list, aoa_list, aos_list = get_conditions_from_aeromap(aeromap)
@@ -421,8 +365,8 @@ def get_aeromap_conditions(cpacs: CPACS, uid_xpath: str) -> Tuple[List, List, Li
         default_aeromap = cpacs.create_aeromap("DefaultAeromap")
         default_aeromap.description = "Automatically created AeroMap."
 
-        mach = get_value(tixi, RANGE_CRUISE_MACH_XPATH)
-        alt = get_value(tixi, RANGE_CRUISE_ALT_XPATH)
+        mach = get_value(gui_settings.tixi, RANGE_CRUISE_MACH_XPATH)
+        alt = get_value(gui_settings.tixi, RANGE_CRUISE_ALT_XPATH)
 
         default_aeromap.add_row(alt=alt, mach=mach, aos=0.0, aoa=0.0)
         default_aeromap.save()
@@ -432,7 +376,7 @@ def get_aeromap_conditions(cpacs: CPACS, uid_xpath: str) -> Tuple[List, List, Li
         aoa_list = [0.0]
         aos_list = [0.0]
 
-        aeromap_uid = get_value_or_default(tixi, uid_xpath, "DefaultAeromap")
+        aeromap_uid = get_value_or_default(gui_settings.tixi, uid_xpath, "DefaultAeromap")
         log.info(f"{aeromap_uid} has been created.")
 
     return alt_list, mach_list, aoa_list, aos_list

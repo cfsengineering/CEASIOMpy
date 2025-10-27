@@ -10,6 +10,8 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
+)
+from ceasiompy.utils.guisettings import (
     current_workflow_dir,
 )
 from ceasiompy.SkinFriction.skinfriction import (

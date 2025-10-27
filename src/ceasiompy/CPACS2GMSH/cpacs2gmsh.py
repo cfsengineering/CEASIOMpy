@@ -270,7 +270,11 @@ def main(
     if isinstance(geometry, CPACS):
         cpacs: CPACS = geometry
     else:
-        raise NotImplementedError("For STP FILES.")
+        return run_cpacs2gmsh(
+            cpacs=cpacs,
+            results_dir=results_dir,
+            gui_settings=gui_settings,
+        )
 
     angles = get_value(gui_settings.tixi, GMSH_CTRLSURF_ANGLE_XPATH)
 
@@ -281,12 +285,11 @@ def main(
 
     if not angles_list:
         # No specified angles: run as usual
-        run_cpacs2gmsh(
+        return run_cpacs2gmsh(
             cpacs=cpacs,
             results_dir=results_dir,
             gui_settings=gui_settings,
         )
-        return None
 
     for angle in reversed(angles_list):
         if angle == 0.0:

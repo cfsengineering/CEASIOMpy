@@ -201,7 +201,11 @@ class SDSAFile:
         # Aeromap for dot-derivatives and mach values
         (
             alt_list, mach_list, aoa_list, aos_list,
-        ) = get_aeromap_conditions(self.cpacs, DYNAMICSTABILITY_AEROMAP_UID_XPATH)
+        ) = get_aeromap_conditions(
+            cpacs=self.cpacs,
+            gui_settings=self.gui_settings,
+            uid_xpath=DYNAMICSTABILITY_AEROMAP_UID_XPATH,
+        )
 
         self.alt_list = alt_list
 

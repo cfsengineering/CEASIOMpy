@@ -22,7 +22,7 @@ from pytest import approx
 from ceasiompy.utils.decorators import log_test
 from ceasiompy.CLCalculator.func.calculatecl import calculate_cl
 from ceasiompy.CLCalculator.clcalculator import main as cl_calculator
-from ceasiompy.utils.ceasiompyutils import (
+from ceasiompy.utils.guisettings import (
     current_workflow_dir,
     update_gui_settings_from_specs,
 )

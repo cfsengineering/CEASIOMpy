@@ -13,11 +13,13 @@ Functions utils to run ceasiompy workflows
 import streamlit as st
 
 from pydantic import validate_call
-from ceasiompy.utils.guisettings import update_gui_settings_from_specs
+from ceasiompy.utils.guisettings import (
+    current_workflow_dir,
+    update_gui_settings_from_specs,
+)
 from ceasiompy.utils.ceasiompyutils import (
     get_wkdir_status,
     change_working_dir,
-    current_workflow_dir,
     get_results_directory,
 )
 

@@ -71,7 +71,8 @@ def retrieve_gui_values(
 ]:
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
         cpacs=cpacs,
-        xpath=AVL_AEROMAP_UID_XPATH,
+        gui_settings=gui_settings,
+        uid_xpath=AVL_AEROMAP_UID_XPATH,
     )
 
     save_fig = get_value(gui_settings.tixi, AVL_PLOT_XPATH)

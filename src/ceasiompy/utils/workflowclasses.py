@@ -13,11 +13,13 @@ Classes to run ceasiompy workflows
 import shutil
 import importlib
 
-from ceasiompy.utils.guisettings import update_gui_settings_from_specs
+from ceasiompy.utils.guisettings import (
+    current_workflow_dir,
+    update_gui_settings_from_specs,
+)
 from ceasiompy.utils.ceasiompylogger import add_to_runworkflow_history
 from ceasiompy.utils.ceasiompyutils import (
     change_working_dir,
-    current_workflow_dir,
     get_results_directory,
 )
 

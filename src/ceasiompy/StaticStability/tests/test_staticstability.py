@@ -19,8 +19,10 @@ import tempfile
 
 from ceasiompy.utils.decorators import log_test
 from cpacspy.cpacsfunctions import create_branch
-from ceasiompy.utils.ceasiompyutils import (
+from ceasiompy.utils.guisettings import (
     current_workflow_dir,
+)
+from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
 )
 from ceasiompy.StaticStability.func.utils import markdownpy_to_markdown

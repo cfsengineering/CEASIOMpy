@@ -109,12 +109,6 @@ def get_last_workflow() -> Path:
 
 
 def save_gui_settings():
-    """
-    # saved_gui_settings = Path(current_workflow_dir(), GUI_SETTINGS)
-    # st.session_state.gui_settings
-    # st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
-    # st.session_state.cpacs = CPACS(saved_cpacs_file)
-    """
     if "xpath_to_update" not in st.session_state:
         print("No xpath_to_update in st.session_state. Initializing it to an empty dictionary.")
     elif st.session_state.xpath_to_update == {}:

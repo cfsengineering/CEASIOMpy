@@ -18,9 +18,9 @@ from ceasiompy.PyAVL.func.config import (
     get_physics_conditions,
 )
 from ceasiompy.utils.ceasiompyutils import (
-    current_workflow_dir,
     get_aeromap_conditions,
 )
+from ceasiompy.utils.guisettings import current_workflow_dir
 
 from pathlib import Path
 from unittest import main

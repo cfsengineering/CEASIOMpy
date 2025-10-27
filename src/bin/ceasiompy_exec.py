@@ -21,7 +21,7 @@ import os
 import argparse
 import subprocess
 
-from ceasiompy.utils.ceasiompyutils import current_workflow_dir
+from ceasiompy.utils.guisettings import current_workflow_dir
 
 from pathlib import Path
 from typing import Optional

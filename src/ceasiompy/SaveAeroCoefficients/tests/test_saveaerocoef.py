@@ -25,8 +25,10 @@ from ceasiompy.SaveAeroCoefficients.func.responsesurface import plot_response_su
 from ceasiompy.utils.ceasiompyutils import (
     create_branch,
     change_working_dir,
-    current_workflow_dir,
     get_results_directory,
+)
+from ceasiompy.utils.guisettings import (
+    current_workflow_dir,
     update_gui_settings_from_specs,
 )
 

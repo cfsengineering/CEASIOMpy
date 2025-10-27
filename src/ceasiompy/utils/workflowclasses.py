@@ -154,6 +154,7 @@ def _get_ceasiompy_module(
     except Exception:
         raise Exception
 
+
 def _get_main_python_file(from_module: str) -> str:
     pkg = importlib.import_module(f"ceasiompy.{from_module}")
     module_dir = Path(next(iter(pkg.__path__)))

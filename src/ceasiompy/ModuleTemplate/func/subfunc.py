@@ -66,6 +66,20 @@ class MyClass:
 # =================================================================================================
 
 
+@validate_call
+def _log_fuselage_settings(
+    fuselage_nb: float,
+) -> None:
+    """
+    Functions that are only used in the scope of the script,
+    should be prepended by a underscore _
+    
+    This way it determines if this function can or should be imported
+    outside the scope of its module.
+    """
+    log.info(f"Fuselage {fuselage_nb} scaling is {fuselage_nb}.")
+
+
 @validate_call(config=ceasiompy_cfg)
 def get_fuselage_scaling(cpacs: CPACS) -> Tuple[float, float, float]:
     """Function to get fuselage scaling along x,y,z axis.
@@ -91,9 +105,9 @@ def get_fuselage_scaling(cpacs: CPACS) -> Tuple[float, float, float]:
     z = float(get_value(tixi, z_fus_scaling_xpath))
 
     # Log
-    log.info(f"Fuselage x scaling is {x}.")
-    log.info(f"Fuselage y scaling is {y}.")
-    log.info(f"Fuselage z scaling is {z}.")
+    _log_fuselage_settings(x)
+    _log_fuselage_settings(y)
+    _log_fuselage_settings(z)
 
     return (x, y, z)
 
@@ -119,6 +133,4 @@ def my_subfunc(arg_a: str, arg_b: str) -> str:
         Example of warning
     """
 
-    new_arg = arg_a + " and " + arg_b
-
-    return new_arg
+    return arg_a + " and " + arg_b

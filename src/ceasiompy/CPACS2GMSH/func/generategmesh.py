@@ -686,7 +686,7 @@ def generate_gmsh(
         "%.3f",
     )
 
-    wing_maxlen, wing_minlen = wings_size(gui_settings.tixi)
+    wing_maxlen, wing_minlen = wings_size(cpacs)
     mesh_size_wing = ((wing_maxlen * 0.8 + wing_minlen) / 2) / wing_mesh_size_factor
 
     log.info(f"Mesh size wing={mesh_size_wing:.3f} m")

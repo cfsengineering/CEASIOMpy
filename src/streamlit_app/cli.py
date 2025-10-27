@@ -1,4 +1,17 @@
-"""Running CEASIOMpy script."""
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+Running CEASIOMpy script.
+
+| Author : Leon Deligny
+| Creation: 21 March 2025
+"""
+
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
 
 import os
 import sys
@@ -6,6 +19,10 @@ import shutil
 import subprocess
 
 from pathlib import Path
+
+# ==============================================================================
+#   FUNCTIONS
+# ==============================================================================
 
 
 def find_project_root():

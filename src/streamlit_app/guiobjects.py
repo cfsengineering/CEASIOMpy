@@ -16,7 +16,7 @@ GUI objects in CEASIOMpy.
 import pandas as pd
 import streamlit as st
 
-from CEASIOMpyStreamlit.streamlitutils import save_gui_settings
+from streamlit_app.streamlitutils import save_gui_settings
 from cpacspy.cpacsfunctions import (
     get_string_vector,
     get_value_or_default,

@@ -23,13 +23,14 @@ import streamlit as st
 import plotly.graph_objects as go
 
 from streamlit_autorefresh import st_autorefresh
-from streamlitutils import (
+from streamlit_app.streamlitutils import (
     create_sidebar,
     get_last_workflow,
     highlight_stability,
 )
 
 from pathlib import Path
+from typing import Final
 from cpacspy.cpacspy import CPACS
 
 from cpacspy.utils import PARAMS_COEFS
@@ -39,7 +40,7 @@ from ceasiompy import DEFAULT_PARAVIEW_STATE
 #    CONSTANTS
 # =================================================================================================
 
-HOW_TO_TEXT = (
+HOW_TO_TEXT: Final[str] = (
     "### How to check your results\n"
     "1. Select an aeromap(s) \n"
     "1. Choose the parameters to plot\n"
@@ -47,7 +48,7 @@ HOW_TO_TEXT = (
     "1. Check the results for each module\n"
 )
 
-PAGE_NAME = "Results"
+PAGE_NAME: Final[str] = "Results"
 
 # =================================================================================================
 #    FUNCTIONS

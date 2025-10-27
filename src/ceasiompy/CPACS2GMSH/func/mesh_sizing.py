@@ -7,8 +7,6 @@ This script contains different functions to classify and manipulate wing element
 
 | Author: Giacomo Benedetti
 | Creation: 2023-11-20
-
-
 """
 
 # =================================================================================================
@@ -17,8 +15,8 @@ This script contains different functions to classify and manipulate wing element
 
 import math
 
-from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 from ceasiompy.utils.geometryfunctions import get_positionings
+from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 
 from typing import Tuple
 from cpacspy.cpacspy import CPACS
@@ -26,7 +24,10 @@ from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.generalclasses import Transformation
 
 from ceasiompy import log
-from ceasiompy.utils.cpacsxpaths import FUSELAGES_XPATH, WINGS_XPATH
+from ceasiompy.utils.cpacsxpaths import (
+    WINGS_XPATH,
+    FUSELAGES_XPATH,
+)
 
 
 # =================================================================================================
@@ -34,7 +35,7 @@ from ceasiompy.utils.cpacsxpaths import FUSELAGES_XPATH, WINGS_XPATH
 # =================================================================================================
 
 
-def fuselage_size(cpacs: CPACS) -> None:
+def fuselage_size(cpacs: CPACS) -> tuple[float, float]:
     tixi: Tixi3 = cpacs.tixi
     if tixi.checkElement(FUSELAGES_XPATH):
         fus_cnt = tixi.getNamedChildrenCount(FUSELAGES_XPATH, "fuselage")
@@ -132,8 +133,8 @@ def fuselage_size(cpacs: CPACS) -> None:
     return fuselage_maxlen, fuselage_minlen
 
 
-def wings_size(tixi: Tixi3) -> Tuple[float, float]:
-
+def wings_size(cpacs: CPACS) -> Tuple[float, float]:
+    tixi = cpacs.tixi
     if tixi.checkElement(WINGS_XPATH):
         wing_cnt = tixi.getNamedChildrenCount(WINGS_XPATH, "wing")
 

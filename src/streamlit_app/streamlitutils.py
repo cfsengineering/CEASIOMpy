@@ -90,7 +90,7 @@ def update_value(xpath, key):
         donothing += ""
 
 
-def get_last_workflow():
+def get_last_workflow() -> Path:
     """Get the last workflow of the working directory"""
 
     if "workflow" not in st.session_state:
@@ -128,60 +128,15 @@ def save_gui_settings():
     log.info("Updated GUI Settings XML file.")
 
 
-def create_sidebar(how_to_text):
+def create_sidebar(how_to_text: str) -> None:
     """Create side bar with a text explaining how the page should be used."""
-
     im = Image.open(CEASIOMPY_LOGO_PATH)
-    st.set_page_config(page_title="CEASIOMpy", page_icon=im)
+    st.set_page_config(
+        page_title="CEASIOMpy",
+        page_icon=im,
+    )
     st.sidebar.image(im)
     st.sidebar.markdown(how_to_text)
-
-
-def st_directory_picker(initial_path=Path()):
-    """Workaround to be able to select a directory with Streamlit. Could be remove when this
-    function will be integrated into Streamlit."""
-
-    if "path" not in st.session_state:
-        st.session_state.path = initial_path.absolute().resolve()
-
-    manual_input = st.text_input("Selected directory:", st.session_state.path)
-
-    manual_input = Path(manual_input)
-    if manual_input != st.session_state.path:
-        st.session_state.path = manual_input
-        st.rerun()
-
-    _, col1, col2, col3, _ = st.columns([3, 1, 3, 1, 3])
-
-    with col1:
-        st.markdown("<div class='nav-button-container'>", unsafe_allow_html=True)
-        if st.button("⬅️") and "path" in st.session_state:
-            st.session_state.path = st.session_state.path.parent
-            st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    with col2:
-        subdirectroies = [
-            f.stem
-            for f in st.session_state.path.iterdir()
-            if f.is_dir() and (not f.stem.startswith(".") and not f.stem.startswith("__"))
-        ]
-        if subdirectroies:
-            st.session_state.new_dir = st.selectbox("Subdirectories", sorted(subdirectroies))
-        else:
-            st.markdown("<div style='margin-top: 32px;'>", unsafe_allow_html=True)
-            st.markdown("<font color='#FF0000'>No subdir</font>", unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
-
-    with col3:
-        if subdirectroies:
-            st.markdown("<div class='nav-button-container'>", unsafe_allow_html=True)
-            if st.button("➡️") and "path" in st.session_state:
-                st.session_state.path = Path(st.session_state.path, st.session_state.new_dir)
-                st.rerun()
-            st.markdown("</div>", unsafe_allow_html=True)
-
-    return st.session_state.path
 
 
 def section_edit_aeromap():

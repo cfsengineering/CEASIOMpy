@@ -35,7 +35,7 @@ setuptools.setup(
     url=URL,
     include_package_data=True,
     package_dir={"": PACKAGE_DIR},
-    entry_points={"console_scripts": ["ceasiompy_run = CEASIOMpyStreamlit.cli:main_exec"]},
+    entry_points={"console_scripts": ["ceasiompy_run = streamlit_app.cli:main_exec"]},
     license=license,
     packages=setuptools.find_packages(where=PACKAGE_DIR, exclude=EXCLUDE_DIRS),
     python_requires=REQUIRES_PYTHON,

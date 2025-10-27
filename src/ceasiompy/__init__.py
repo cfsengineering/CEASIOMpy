@@ -67,8 +67,11 @@ CEASIOMPY_LOGO_PATH = Path(CEASIOMPY_PATH, "documents", "logos", "CEASIOMpy_512p
 # /CEASIOMpy/.ceasiompy/.runworkflow_history
 RUNWORKFLOW_HISTORY_PATH = Path(CEASIOMPY_PATH, ".ceasiompy", ".runworkflow_history")
 
-# /CEASIOMpy/src/CEASIOMpyStreamlit
-STREAMLIT_PATH = Path(SRC_PATH, "CEASIOMpyStreamlit")
+# /CEASIOMpy/src/streamlit_app
+STREAMLIT_PATH = Path(SRC_PATH, "streamlit_app")
+
+# /CEASIOMpy/src/streamlit_app/pages
+STREAMLIT_PAGES_PATH = Path(STREAMLIT_PATH, "pages")
 
 # /CEASIOMpy/test_cases/
 TEST_CASES_PATH = Path(CEASIOMPY_PATH, "test_cases")

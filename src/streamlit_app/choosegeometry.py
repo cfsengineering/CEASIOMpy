@@ -22,7 +22,7 @@ import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
 
-from CEASIOMpyStreamlit.streamlitutils import create_sidebar
+from streamlit_app.streamlitutils import create_sidebar
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
@@ -47,12 +47,14 @@ from ceasiompy import (
 
 HOW_TO_TEXT: Final[str] = (
     "### How to use CEASIOMpy?\n"
-    "1. Choose a *Working directory*\n"
-    "1. Choose a *CPACS file*\n"
-    "1. Go to *Workflow* page (with menu above)\n"
+    "1. Load a *Geometry* (CPACS file or STP) \n"
+    "1. Select a *Workflow* \n"
+    "1. Configure your *Workflow*'s settings \n"
+    "1. Run the *Workflow* \n"
+    "1. View the Results \n"
 )
 
-PAGE_NAME: Final[str] = "CEASIOMpy"
+PAGE_NAME: Final[str] = "Load Geometry"
 
 CSS: Final[str] = """
 <style>
@@ -278,6 +280,7 @@ def loading_arg_cpacs() -> Optional[str]:
 
 
 if __name__ == "__main__":
+    # Initialize the Workflow
     if "workflow" not in st.session_state:
         st.session_state["workflow"] = Workflow()
 

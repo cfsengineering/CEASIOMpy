@@ -26,15 +26,16 @@ from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 from pathlib import Path
 from typing import Optional
 from argparse import Namespace
+from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy import log
 from unittest.mock import patch
-
 from ceasiompy import (
     STREAMLIT_PATH,
     TEST_CASES_PATH,
     CPACS_FILES_PATH,
+    STREAMLIT_PAGES_PATH,
 )
 
 # =================================================================================================
@@ -141,11 +142,11 @@ def run_modules_list(args_list) -> None:
     with patch("streamlit.runtime.scriptrunner_utils.script_run_context"):
         with patch("streamlit.runtime.state.session_state_proxy"):
             workflow = Workflow()
-            workflow.cpacs_in = new_cpacs_path
-            workflow.modules_list = modules_list
-            workflow.module_optim = ["NO"] * len(modules_list)
-            workflow.set_workflow()
-            workflow.run_workflow(test=True)
+            workflow.run_workflow(
+                test=True,
+                modules_list=modules_list,
+                geometry=CPACS(new_cpacs_path),
+            )
 
 
 def run_config_file(config_file) -> None:
@@ -186,10 +187,11 @@ def run_gui(cpacs_file: Optional[str] = None):
     cmd = [
         "streamlit",
         "run",
-        str(Path(STREAMLIT_PATH, "CEASIOMpy.py").resolve()),
+        str(Path(STREAMLIT_PATH, "choosegeometry.py").resolve()),
         "--server.headless",
         "false",
     ]
+
     # If a cpacs file was provided to ceasiompy_run -g <path>, pass it to the script
     if cpacs_file:
         cmd += ["--", "--cpacs", str(cpacs_file)]

@@ -21,10 +21,14 @@ from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
 )
 
-from typing import Union
 from pathlib import Path
+from types import ModuleType
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.guisettings import GUISettings
+from typing import (
+    Union,
+    Optional,
+)
 
 from ceasiompy.utils.moduleinterfaces import MODNAME_INIT
 from ceasiompy import (
@@ -47,10 +51,9 @@ class Workflow:
     def _run_modules(
         self: "Workflow",
         module: str,
+        iteration: int,
         geometry: Union[CPACS, Path],
-        gui_settings: GUISettings,
-        iteration: int = 0,
-        test: bool = False,
+        gui_settings: Optional[GUISettings] = None,
     ) -> None:
         """
         Run a 'ModuleToRun' object in a specific wkdir.
@@ -61,30 +64,20 @@ class Workflow:
 
         log.info("---------- Start of " + module + " ----------")
 
-        pkg = importlib.import_module(f"ceasiompy.{module}")
-        module_dir = Path(next(iter(pkg.__path__)))
+        python_file = _get_main_python_file(from_module=module)
 
-        # Find main python file for module
-        for file in module_dir.iterdir():
-            if file.name.endswith(".py") and not file.name.startswith("__"):
-                python_file = file.stem
-                break
-        else:
-            log.warning(f"No python files found for module {module}.")
-
-        # Import the main function from the module's python file
-        my_module = importlib.import_module(f"ceasiompy.{module}.{python_file}")
-
-        init = importlib.import_module(f"ceasiompy.{module}.{MODNAME_INIT}")
-        has_results_dir = init.RES_DIR
+        my_module: ModuleType = _get_ceasiompy_module(
+            module=module,
+            from_file=python_file,
+        )
 
         # Run the module
         with change_working_dir(self.workflow_dir):
-            if test:
-                log.info("Updating CPACS from __specs__")
-                update_gui_settings_from_specs(gui_settings, module, test)
+            if gui_settings is None:
+                log.info("Generating GUI Settings from __specs__")
+                gui_settings = update_gui_settings_from_specs(gui_settings, module)
 
-            if has_results_dir:
+            if my_module.RES_DIR:
                 results_dir = get_results_directory(
                     module,
                     create=True,
@@ -100,7 +93,7 @@ class Workflow:
         self: "Workflow",
         geometry: Union[CPACS, Path],
         modules_list: list,
-        gui_settings: GUISettings,
+        gui_settings: Optional[GUISettings] = None,
         test: bool = False,
     ) -> None:
         """
@@ -121,3 +114,35 @@ class Workflow:
 
         # Copy logfile in the Workflow directory
         shutil.copy(LOGFILE, self.workflow_dir)
+
+
+# =================================================================================================
+#   FUNCTIONS
+# =================================================================================================
+
+
+def _get_ceasiompy_module(
+    module: str,    
+    from_file: str,
+) -> ModuleType:
+    try:
+        return importlib.import_module(f"ceasiompy.{module}.{from_file}")
+    except Exception as e:
+        log.warning(
+            f"Could not load ceasiompy module {module}"
+            f"from file {from_file}"
+        )
+
+def _get_main_python_file(from_module: str) -> str:
+    pkg = importlib.import_module(f"ceasiompy.{from_module}")
+    module_dir = Path(next(iter(pkg.__path__)))
+
+    # Find main python file for module
+    for file in module_dir.iterdir():
+        if file.name.endswith(".py") and not file.name.startswith("__"):
+            python_file: str = file.stem
+            break
+    else:
+        log.warning(f"No python files found for module {from_module}.")
+
+    return python_file

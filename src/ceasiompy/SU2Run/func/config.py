@@ -325,7 +325,7 @@ def add_thermodata(
         log.warning(f"No engines found at xPath {ENGINE_TYPE_XPATH}.")
 
 
-def add_reynolds_number(alt: float, mach: float, cfg: ConfigFile, tixi: Tixi3) -> None:
+def add_reynolds_number(alt: float, mach: float, cfg: ConfigFile, cpacs: CPACS) -> None:
     """
     In case of RANS simulation, compute and add Reynolds number to configuration file cfg.
 
@@ -342,7 +342,7 @@ def add_reynolds_number(alt: float, mach: float, cfg: ConfigFile, tixi: Tixi3) -
     # Get speed from Mach Number
     speed = mach * Atm.speed_of_sound[0]
 
-    ref_chord = wings_size(tixi)[0] / 0.15
+    ref_chord = wings_size(cpacs)[0] / 0.15
     log.info(f"Reference chord is {ref_chord}.")
 
     # Reynolds number based on the mean chord
@@ -352,7 +352,7 @@ def add_reynolds_number(alt: float, mach: float, cfg: ConfigFile, tixi: Tixi3) -
 
 
 def add_case_data(
-    tixi: Tixi3,
+    cpacs: CPACS,
     wkdir: Path,
     cfg: ConfigFile,
     rans: bool,
@@ -381,11 +381,11 @@ def add_case_data(
         alt_list (List): List of altitudes.
 
     """
-
+    tixi = cpacs.tixi
     add_thermodata(cfg, tixi, alt, case_nb, alt_list)
 
     if rans:
-        add_reynolds_number(alt, mach, cfg, tixi)
+        add_reynolds_number(alt, mach, cfg, cpacs)
 
     case_dir_path = Path(wkdir, case_dir_name)
     if not case_dir_path.exists():
@@ -540,7 +540,7 @@ def configure_cfd_environment(
                 )
 
                 add_case_data(
-                    tixi=tixi,
+                    cpacs=cpacs,
                     wkdir=wkdir,
                     cfg=cfg,
                     rans=rans,
@@ -561,7 +561,7 @@ def configure_cfd_environment(
             )
 
             add_case_data(
-                tixi=tixi,
+                cpacs=cpacs,
                 wkdir=wkdir,
                 cfg=cfg,
                 rans=rans,

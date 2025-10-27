@@ -241,7 +241,7 @@ def generate_2d_mesh_for_pentagrow(
 
     # Compute fuselage and wing size for meshing
     fuselage_maxlen, fuselage_minlen = fuselage_size(cpacs)
-    wing_maxlen, wing_minlen = wings_size(cpacs.tixi)
+    wing_maxlen, wing_minlen = wings_size(cpacs)
 
     # Store the computed value of mesh size to use later
     mesh_size_by_group = {}

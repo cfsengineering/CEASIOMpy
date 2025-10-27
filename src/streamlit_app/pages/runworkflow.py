@@ -22,7 +22,7 @@ import signal
 import streamlit as st
 
 from streamlit_autorefresh import st_autorefresh
-from streamlitutils import (
+from streamlit_app.streamlitutils import (
     create_sidebar,
     save_gui_settings,
 )

@@ -47,7 +47,7 @@ def test_wing_size():
     on which the mesh size is calculated
     """
 
-    wing_maxlen, wing_minlen = wings_size(CPACS(CPACS_IN_PATH).tixi)
+    wing_maxlen, wing_minlen = wings_size(CPACS(CPACS_IN_PATH))
 
     assert wing_maxlen == approx(0.15, abs=1e-2)
     assert wing_minlen == approx(0.012, abs=1e-4)

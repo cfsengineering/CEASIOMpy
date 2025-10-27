@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 
 from scipy.spatial.distance import cdist
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
+from ceasiompy.utils.getprofile import get_profile_coord
 from ceasiompy.utils.geometryfunctions import (
     sum_points,
     prod_points,

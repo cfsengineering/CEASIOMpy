@@ -22,7 +22,7 @@ from pathlib import Path
 from ceasiompy.utils.cpacsxpaths import ENGINES_XPATH
 import gmsh
 import numpy as np
-from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
+from ceasiompy.CPACS2GMSH.func.engineclasses import Engine
 from ceasiompy import log
 from ceasiompy.utils.ceasiompyutils import get_part_type
 from ceasiompy.utils.configfiles import ConfigFile

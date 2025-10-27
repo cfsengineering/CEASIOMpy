@@ -30,6 +30,7 @@ from typing import (
     Optional,
 )
 
+from ceasiompy.utils.moduleinterfaces import MODNAME_INIT
 from ceasiompy import (
     log,
     LOGFILE,
@@ -65,7 +66,7 @@ class Workflow:
 
         log.info("---------- Start of " + module + " ----------")
 
-        my_module: ModuleType = _get_module_from_name(module)
+        init_module, main_module = _get_module_from_name(module)
 
         # Run the module
         with change_working_dir(self.workflow_dir):
@@ -77,15 +78,15 @@ class Workflow:
                     test=True,
                 )
 
-            if my_module.RES_DIR:
+            if init_module.RES_DIR:
                 results_dir = get_results_directory(
                     module,
                     create=True,
                     wkflow_dir=self.workflow_dir,
                 )
-                my_module.main(geometry, gui_settings, results_dir)
+                main_module.main(geometry, gui_settings, results_dir)
             else:
-                my_module.main(geometry, gui_settings)
+                main_module.main(geometry, gui_settings)
 
             log.info("---------- End of " + module + " ---------- \n")
 
@@ -122,13 +123,19 @@ class Workflow:
 # =================================================================================================
 
 
-def _get_module_from_name(module: str) -> ModuleType:
+def _get_module_from_name(module: str) -> tuple[ModuleType, ModuleType]:
     python_file = _get_main_python_file(from_module=module)
 
-    return _get_ceasiompy_module(
+    main = _get_ceasiompy_module(
         module=module,
         from_file=python_file,
     )
+    init = _get_ceasiompy_module(
+        module=module,
+        from_file=MODNAME_INIT,
+    )
+
+    return init, main
 
 
 def _get_ceasiompy_module(
@@ -137,13 +144,15 @@ def _get_ceasiompy_module(
 ) -> ModuleType:
     try:
         return importlib.import_module(f"ceasiompy.{module}.{from_file}")
-    except Exception as e:
+    except ValueError as e:
         log.warning(
             f"Could not load ceasiompy module {module} "
             f"from file {from_file} "
             f"got error {e=}"
         )
-
+        raise ValueError
+    except Exception:
+        raise Exception
 
 def _get_main_python_file(from_module: str) -> str:
     pkg = importlib.import_module(f"ceasiompy.{from_module}")

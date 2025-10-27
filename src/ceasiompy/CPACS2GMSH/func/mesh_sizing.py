@@ -16,7 +16,7 @@ This script contains different functions to classify and manipulate wing element
 import math
 
 from ceasiompy.utils.geometryfunctions import get_positionings
-from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
+from ceasiompy.utils.getprofile import get_profile_coord
 
 from typing import Tuple
 from cpacspy.cpacspy import CPACS

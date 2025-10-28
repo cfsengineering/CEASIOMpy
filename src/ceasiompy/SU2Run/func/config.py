@@ -64,7 +64,7 @@ from typing import (
 from ceasiompy import log
 from ceasiompy.SU2Run import CONTROL_SURFACE_LIST
 from ceasiompy.ThermoData import (
-    THERMODATA_BC_XPATH,
+    THERMODATA_XPATH,
     THERMODATA_PRESSUREOUTLET_XPATH,
     THERMODATA_TEMPERATUREOUTLET_XPATH,
 )
@@ -308,10 +308,10 @@ def add_thermodata(
     """
     tixi (Tixi3): tixi handle of GUI Settings.
     """
-    if tixi.checkElement(THERMODATA_BC_XPATH):
+    if tixi.checkElement(THERMODATA_XPATH):
         log.info("Adding engine BC to the SU2 config file.")
 
-        engine_type = get_value(tixi, THERMODATA_BC_XPATH)
+        engine_type = get_value(tixi, THERMODATA_XPATH)
         log.info(f"Engine type {engine_type}.")
 
         alt = alt_list[case_nb]
@@ -334,7 +334,7 @@ def add_thermodata(
             f"OUTLET_ENGINE, {tot_temp_out}, {tot_pressure_out}, {1},{0},{0}"
         )
     else:
-        log.warning(f"No engines found at xPath {THERMODATA_BC_XPATH}.")
+        log.warning(f"No engines found at xPath {THERMODATA_XPATH}.")
 
 
 def add_reynolds_number(alt: float, mach: float, cfg: ConfigFile, cpacs: CPACS) -> None:

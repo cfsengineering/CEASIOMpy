@@ -15,7 +15,6 @@ Initialization for PyAVL module.
 # ==============================================================================
 
 from pathlib import Path
-from ceasiompy.utils.ceasiompymodules import CEASIOMpyModule
 
 from ceasiompy.utils.guixpaths import CEASIOMPY_XPATH
 
@@ -23,15 +22,18 @@ from ceasiompy.utils.guixpaths import CEASIOMPY_XPATH
 #   INITIALIZATION
 # ==============================================================================
 
+# ===== Module Status =====
+MODULE_STATUS = True
+
+# ===== Include GUI =====
+INCLUDE_GUI = True
+
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 
-pyavl = CEASIOMpyModule(
-    module_name=MODULE_NAME,
-    module_status=True,
-    res_dir=True,
-)
+# ===== Add a Results Directory =====
+RES_DIR = True
 
 # ===== Name of Software used =====
 SOFTWARE_NAME = "avl"

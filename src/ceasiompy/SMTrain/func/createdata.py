@@ -16,7 +16,7 @@ from cpacspy.cpacsfunctions import get_value
 from ceasiompy.PyAVL.pyavl import main as run_avl
 from ceasiompy.SU2Run.su2run import main as run_su2
 from ceasiompy.SMTrain.func.utils import create_aeromap_from_varpts
-from ceasiompy.utils.guisettings import update_gui_settings_from_specs
+from ceasiompy.utils.guisettings import create_gui_settings_from_specs
 from ceasiompy.SMTrain.func.config import (
     retrieve_aeromap_data,
     retrieve_ceasiompy_db_data,
@@ -86,9 +86,8 @@ def launch_avl(
 
         # Run AVL analysis
         st.session_state = MagicMock()
-        gui_settings: GUISettings = update_gui_settings_from_specs(
-            cpacs=cpacs,
-            gui_settings=None,
+        gui_settings: GUISettings = create_gui_settings_from_specs(
+            geometry=cpacs,
             module_name=PYAVL_NAME,
             test=True,
         )
@@ -150,9 +149,7 @@ def launch_su2(
 
     su2_mesh_path_type = get_value(tixi, USED_SU2_MESH_XPATH + "type")
     max_iters = str(get_value(tixi, SU2_MAX_ITER_XPATH))
-    gui_settings = update_gui_settings_from_specs(
-        geometry=cpacs,
-        gui_settings=gui_settings,
+    gui_settings.update_from_specs(
         modules_list=[SU2RUN_NAME],
         test=True,
     )

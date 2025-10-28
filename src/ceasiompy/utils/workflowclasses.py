@@ -14,15 +14,15 @@ import shutil
 import importlib
 
 from ceasiompy.utils.guisettings import (
-    update_gui_settings_from_specs,
+    create_gui_settings_from_specs,
 )
 from ceasiompy.utils.workflowutils import current_workflow_dir
 from ceasiompy.utils.ceasiompylogger import add_to_runworkflow_history
 from ceasiompy.utils.ceasiompyutils import (
-    change_working_dir,
     get_results_directory,
 )
 
+from typing import List
 from pathlib import Path
 from types import ModuleType
 from cpacspy.cpacspy import CPACS
@@ -32,7 +32,9 @@ from typing import (
     Optional,
 )
 
-from ceasiompy.utils.moduleinterfaces import MODNAME_INIT
+from ceasiompy.utils.moduleinterfaces import (
+    MODNAME_INIT,
+)
 from ceasiompy import (
     log,
     LOGFILE,
@@ -68,30 +70,29 @@ class Workflow:
 
         log.info(f"---------- Start of {module} ----------")
 
-        init_module, main_module = _get_module_from_name(module)
+        init, main_module = _get_module_from_name(module)
 
         # Run the module
-        with change_working_dir(self.workflow_dir):
-            if init_module.RES_DIR:
-                results_dir = get_results_directory(
-                    module,
-                    create=True,
-                    wkflow_dir=self.workflow_dir,
-                )
-                main_module.main(geometry, gui_settings, results_dir)
-            else:
-                main_module.main(geometry, gui_settings)
+        if init.RES_DIR:
+            results_dir = get_results_directory(
+                module,
+                create=True,
+                wkflow_dir=self.workflow_dir,
+            )
+            main_module.main(geometry, gui_settings, results_dir)
+        else:
+            main_module.main(geometry, gui_settings)
 
-            # Some Modules Interact with others
-            # through GUI Settings
-            gui_settings.save()
+        # Some Modules Interact with others
+        # through GUI Settings
+        gui_settings.save()
 
-            log.info(f"---------- End of {module} ---------- \n")
+        log.info(f"---------- End of {module} ---------- \n")
 
     def run_workflow(
         self: "Workflow",
         geometry: Union[CPACS, Path],
-        modules_list: list,
+        modules_list: List[str],
         gui_settings: Optional[GUISettings] = None,
     ) -> None:
         """
@@ -99,12 +100,10 @@ class Workflow:
         """
 
         add_to_runworkflow_history(self.workflow_dir)
-        log.info(f'Running the followuing list of modules: {modules_list=}')
-
         if gui_settings is None:
             log.info("Generating GUI Settings from __specs__")
-            gui_settings = update_gui_settings_from_specs(
-                gui_settings=gui_settings,
+            gui_settings = create_gui_settings_from_specs(
+                geometry=geometry,
                 modules_list=modules_list,
                 test=True,
             )
@@ -128,7 +127,6 @@ class Workflow:
 
 def _get_module_from_name(module: str) -> tuple[ModuleType, ModuleType]:
     python_file = _get_main_python_file(from_module=module)
-
     main = _get_ceasiompy_module(
         module=module,
         from_file=python_file,
@@ -137,7 +135,6 @@ def _get_module_from_name(module: str) -> tuple[ModuleType, ModuleType]:
         module=module,
         from_file=MODNAME_INIT,
     )
-
     return init, main
 
 

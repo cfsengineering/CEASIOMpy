@@ -15,24 +15,28 @@ Initialization for CLCalculator module.
 # ==============================================================================
 
 from pathlib import Path
-from ceasiompy.utils.ceasiompymodules import CEASIOMpyModule
 
 from ceasiompy.utils.guixpaths import CLCALC_XPATH
-from ceasiompy.utils.cpacsxpaths import MASSBREAKDOWN_XPATH
+from ceasiompy.utils.cpacsxpaths import (
+    MASSBREAKDOWN_XPATH,
+)
 
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
 
+# ===== Module Status =====
+MODULE_STATUS = True
+
+# ===== Include GUI =====
+INCLUDE_GUI = True
+
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 
-clcalculator = CEASIOMpyModule(
-    module_name=MODULE_NAME,
-    module_status=True,
-    res_dir=True,
-)
+# ===== Add a Results Directory =====
+RES_DIR = True
 
 # ===== Air heat capacity ratio [-] =====
 GAMMA = 1.401

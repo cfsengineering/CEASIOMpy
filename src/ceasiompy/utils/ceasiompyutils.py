@@ -46,7 +46,6 @@ from typing import (
 
 from ceasiompy import (
     log,
-    CEASIOMPY_MODULES,
 )
 from ceasiompy.utils.moduleinterfaces import (
     MODNAME_INIT,
@@ -137,9 +136,6 @@ def get_results_directory(module_name: str, create: bool = True, wkflow_dir: Pat
         wkflow_dir (Path): Path to the workflow of the module.
 
     """
-
-    if module_name not in CEASIOMPY_MODULES:
-        raise ValueError(f"Module '{module_name}' does not exist.")
 
     init = importlib.import_module(f"ceasiompy.{module_name}.{MODNAME_INIT}")
     if wkflow_dir is None:
@@ -431,7 +427,6 @@ def get_part_type(
         "vehicles/engines/engine": "engine",
         "vehicles/rotorcraft/model/rotors/rotor": "rotor",
     }
-
     for path_name, part_name in path_part.items():
         if path_name in part_xpath:
             if print_info:

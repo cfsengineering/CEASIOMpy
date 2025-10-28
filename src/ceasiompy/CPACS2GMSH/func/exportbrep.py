@@ -179,8 +179,8 @@ def export_brep(
         try:
             rotorcraft_config = cpacs.rotorcraft.configuration
             rotor_config(rotorcraft_config, brep_dir)
-        except AttributeError:
-            pass
+        except AttributeError as e:
+            log.warning(f"Could not configure rotors {e=}")
 
     # get the aircraft configuration
     aircraft_config = cpacs.aircraft.configuration

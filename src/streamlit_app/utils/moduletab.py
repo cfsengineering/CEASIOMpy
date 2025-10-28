@@ -35,7 +35,6 @@ from streamlit_app.utils.guiobjects import (
 
 from collections import OrderedDict
 from tixi3.tixi3wrapper import Tixi3
-from ceasiompy.utils.ceasiompymodules import CEASIOMpyModule
 from typing import (
     List,
     Dict,
@@ -131,16 +130,7 @@ def checks(session_state, tabs) -> None:
         session_state["tabs"] = []
 
     if "modules_list" in session_state and session_state.modules_list:
-        safe_labels = []
-        for m in session_state.modules_list:
-            if m is None:
-                continue
-            if isinstance(m, CEASIOMpyModule):
-                safe_labels.append(m.module_name)
-            else:
-                safe_labels.append(str(m))
-        # create the tabs with string labels and store them
-        session_state.tabs = tabs(safe_labels)
+        session_state.tabs = tabs(session_state.modules_list)
 
     if "xpath_to_update" not in session_state:
         session_state.xpath_to_update = {}
@@ -236,7 +226,7 @@ def add_module_tab(new_file: bool) -> None:
         with tab :
             st.text("")
             specs = get_specs_for_module(
-                module.module_name,
+                module,
                 reloading=new_file,
             )
             # Check if specs.cpacs_inout is None
@@ -261,7 +251,7 @@ def add_module_tab(new_file: bool) -> None:
                 _,
                 _,
             ) in inputs.values():
-                key = f"{m}_{module.module_name}_{name.replace(' ', '')}_{group.replace(' ', '')}"
+                key = f"{m}_{module}_{name.replace(' ', '')}_{group.replace(' ', '')}"
                 process_unit(name, unit)
 
                 if var_type == "DynamicChoice":

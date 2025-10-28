@@ -28,7 +28,7 @@ from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
 )
 from ceasiompy.utils.guisettings import (
-    update_gui_settings_from_specs,
+    create_gui_settings_from_specs,
 )
 from ceasiompy.utils.workflowutils import current_workflow_dir
 
@@ -85,7 +85,7 @@ class TestSaveAeroCoef(CeasiompyTest):
         create_branch(self.test_cpacs.tixi, SM_XPATH)
         self.test_cpacs.tixi.updateTextElement(SM_XPATH, model_path)
 
-        update_gui_settings_from_specs(
+        create_gui_settings_from_specs(
             self.test_cpacs,
             modules_list=[MODULE_NAME],
             test=True,

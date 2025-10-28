@@ -117,31 +117,30 @@ class GUISettings:
                 "You need to instantiate a TIXI handle."
             )
 
+    def update_from_specs(
+        self: 'GUISettings',
+        modules_list: List[str],
+        test: bool = False,
+    ) -> None:
+        generate_settings(
+            gui_settings=self,
+            modules_list=modules_list,
+            test=test,
+        )
 
 # =================================================================================================
 #    FUNCTIONS
 # =================================================================================================
 
 
-def update_gui_settings_from_specs(
-    geometry: Union[CPACS, Path],
-    gui_settings: Optional[GUISettings],
+def generate_settings(
+    gui_settings: "GUISettings",
     modules_list: List[str],
-    test: bool,  # For github workflows
-) -> GUISettings:
-    if gui_settings is None:
-        # Generate a New GUISettings Object
-        if isinstance(geometry, CPACS):
-            gui_settings = GUISettings(
-                cpacs_path=geometry.cpacs_file,
-            )
-        else:
-            gui_settings = GUISettings(
-                stp_path=geometry,
-            )
-
+    test: bool,
+) -> None:
     tixi = gui_settings.tixi
-    for module_name in modules_list:
+    for module in modules_list:
+        module_name = module
         cpacsin_out: CPACSInOut = get_specs_for_module(module_name).cpacs_inout
         inputs = cpacsin_out.get_gui_dict()
 
@@ -187,5 +186,26 @@ def update_gui_settings_from_specs(
 
     gui_settings.save()
 
-    st.session_state.gui_settings = gui_settings
+
+def create_gui_settings_from_specs(
+    geometry: Union[CPACS, Path],
+    modules_list: List[str],
+    test: bool,  # For github workflows
+) -> GUISettings:
+    # Generate a New GUISettings Object
+    if isinstance(geometry, CPACS):
+        gui_settings = GUISettings(
+            cpacs_path=geometry.cpacs_file,
+        )
+    else:
+        gui_settings = GUISettings(
+            stp_path=geometry,
+        )
+
+    generate_settings(
+        gui_settings=gui_settings,
+        modules_list=modules_list,
+        test=test,
+    )
+
     return gui_settings

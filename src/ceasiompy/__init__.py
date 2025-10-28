@@ -90,13 +90,6 @@ LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
 # /CEASIOMpy/src/ceasiompy/SU2Run/files/default_paraview_state.pvsm
 DEFAULT_PARAVIEW_STATE = Path(MODULES_DIR_PATH, "SU2Run", "files", "default_paraview_state.pvsm")
 
-CEASIOMPY_MODULES = []
-for module_dir in MODULES_DIR_PATH.iterdir():
-    module_name = module_dir.name
-    if module_name.startswith("__") or module_name.startswith("."):
-        continue
-    CEASIOMPY_MODULES.append(module_dir)
-
 # =================================================================================================
 #   CLASSES
 # =================================================================================================

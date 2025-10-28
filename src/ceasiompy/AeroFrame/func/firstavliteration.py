@@ -18,7 +18,6 @@ import streamlit as st
 
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.PyAVL.pyavl import main as run_avl
-from ceasiompy.utils.guisettings import update_gui_settings_from_specs
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
@@ -57,9 +56,7 @@ def run_first_avl_iteration(
     nspan = str(get_value(gui_settings.tixi, AVL_NSPANWISE_XPATH))
     plot = str(get_value(gui_settings.tixi, AVL_PLOT_XPATH))
 
-    gui_settings = update_gui_settings_from_specs(
-        cpacs=cpacs,
-        gui_settings=gui_settings,
+    gui_settings.update_from_specs(
         modules_list=[PYAVL_NAME],
         test=True,
     )

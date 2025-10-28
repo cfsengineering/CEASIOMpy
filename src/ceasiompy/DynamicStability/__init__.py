@@ -25,8 +25,6 @@ from ceasiompy.utils.guixpaths import CEASIOMPY_XPATH
 # ===== Module Status =====
 MODULE_STATUS = True
 
-# ===== Include GUI =====
-INCLUDE_GUI = True
 
 # ===== Include Module"s name =====
 MODULE_DIR = Path(__file__).parent

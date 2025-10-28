@@ -50,7 +50,7 @@ def main(
     sdsa_file = SDSAFile(
         cpacs=cpacs,
         gui_settings=gui_settings,
-        results_dir=results_dir,
+        wkdir=results_dir,
         open_sdsa=open_sdsa,
     )
 

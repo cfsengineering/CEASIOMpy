@@ -14,7 +14,7 @@ GUI Interface of DynamicStability.
 #   IMPORTS
 # ==============================================================================
 
-import streamlit as st
+from ceasiompy.utils.geometry import get_geometry_aeromaps_uid
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
@@ -49,7 +49,7 @@ cpacs_inout = CPACSInOut()
 cpacs_inout.add_input(
     var_name="aeromap_uid",
     var_type=list,
-    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
+    default_value=get_geometry_aeromaps_uid(),
     unit=None,
     descr="Name of the aero map for dot-derivatives calculatations",
     xpath=DYNAMICSTABILITY_AEROMAP_UID_XPATH,

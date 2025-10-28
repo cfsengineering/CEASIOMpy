@@ -20,6 +20,9 @@ from pathlib import Path
 #   INITIALIZATION
 # ==============================================================================
 
+# ===== Module Status =====
+MODULE_STATUS = True
+
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name

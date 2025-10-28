@@ -25,8 +25,6 @@ from ceasiompy.utils.guixpaths import CEASIOMPY_XPATH
 # ===== Module Status =====
 MODULE_STATUS = True
 
-# ===== Include GUI =====
-INCLUDE_GUI = True
 
 # ===== Add a Results Directory =====
 RES_DIR = True

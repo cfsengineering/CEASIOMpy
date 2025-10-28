@@ -18,8 +18,11 @@ import streamlit as st
 
 from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.utils.geometryfunctions import get_aircrafts_list
-from streamlit_app.utils.streamlitutils import section_edit_aeromap
 from ceasiompy.utils.moduleinterfaces import get_specs_for_module
+from streamlit_app.utils.streamlitutils import (
+    section_edit_stp_aeromap,
+    section_edit_cpacs_aeromap,
+)
 from streamlit_app.utils.guiobjects import (
     int_vartype,
     list_vartype,
@@ -157,13 +160,22 @@ def add_gui_object(
 
         # Check if the name or var_type is in the dictionary and call the corresponding function
         if name in aeromap_map:
-            aeromap_map[name](
-                session_state.cpacs,
-                session_state.gui_settings,
-                xpath,
-                key,
-                description,
-            )
+            if "cpacs" in session_state:
+                aeromap_map[name](
+                    session_state.cpacs,
+                    session_state.gui_settings,
+                    xpath,
+                    key,
+                    description,
+                )
+            elif "stp" in session_state:
+                aeromap_map[name](
+                    session_state.stp,
+                    session_state.gui_settings,
+                    xpath,
+                    key,
+                    description,
+                )
         elif var_type == "path_type":
             path_vartype(key)
         elif var_type in vartype_map:
@@ -192,12 +204,15 @@ def add_gui_object(
 
 
 def add_module_tab(new_file: bool) -> None:
-    if "cpacs" not in st.session_state:
-        st.warning("No CPACS file has been selected!")
+    if "cpacs" not in st.session_state and "stp" not in st.session_state:
+        st.warning("No Geometry files have been selected!")
         return
 
     with st.expander("**Edit Aeromaps**", expanded=False):
-        section_edit_aeromap()
+        if "cpacs" in st.session_state:
+            section_edit_cpacs_aeromap()
+        if "stp" in st.session_state:
+            section_edit_stp_aeromap()
 
     checks(st.session_state, st.tabs)
 

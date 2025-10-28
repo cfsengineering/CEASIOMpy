@@ -30,6 +30,7 @@ import random
 
 from ceasiompy.CPACS2GMSH.func.utils import (
     check_path,
+    initialize_gmsh,
     load_rans_cgf_params,
 )
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
@@ -37,9 +38,11 @@ from ceasiompy.CPACS2GMSH.func.wingclassification import (
     classify_wing,
     exclude_lines,
 )
-from ceasiompy.CPACS2GMSH.func.generategmesh import (
+from ceasiompy.CPACS2GMSH.func.mesh_sizing import (
     wings_size,
     fuselage_size,
+)
+from ceasiompy.CPACS2GMSH.func.generategmesh import (
     process_gmsh_log,
 )
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
@@ -57,8 +60,10 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 
 from pathlib import Path
+from typing import Union
 from cpacspy.cpacspy import CPACS
 from itertools import combinations
+from ceasiompy.utils.stp import STP
 
 from ceasiompy import log
 from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
@@ -70,7 +75,7 @@ from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
 
 
 def generate_2d_mesh_for_pentagrow(
-    cpacs: CPACS,
+    geometry: Union[CPACS, STP],
     brep_dir: Path,
     results_dir: Path,
     open_gmsh: bool,
@@ -146,7 +151,7 @@ def generate_2d_mesh_for_pentagrow(
     brep_files.sort()
 
     # Initialize gmsh
-    gmsh.initialize()
+    initialize_gmsh()
     # Stop gmsh output log in the terminal
     gmsh.option.setNumber("General.Terminal", 0)
     # Log complexity
@@ -164,7 +169,7 @@ def generate_2d_mesh_for_pentagrow(
 
         # Create the aircraft part object
         part_obj = ModelPart(uid=brep_file.stem)
-        part_obj.part_type = get_part_type(cpacs, part_obj.uid)
+        part_obj.part_type = get_part_type(geometry, part_obj.uid)
         part_obj.volume = part_entities[0]
         part_obj.volume_tag = part_entities[0][1]
 
@@ -231,7 +236,12 @@ def generate_2d_mesh_for_pentagrow(
     fusing_parts(aircraft_parts, symmetry=symmetry, sym_box=sym_box)
 
     sort_surfaces_and_create_physical_groups(
-        aircraft_parts, brep_files, cpacs, model_bb, model_dimensions, symmetry=symmetry
+        aircraft_parts=aircraft_parts,
+        brep_files=brep_files,
+        geometry=geometry,
+        model_bb=model_bb,
+        model_dimensions=model_dimensions,
+        symmetry=symmetry
     )
     gmsh.model.occ.synchronize()
     log.info("Manipulation finished")
@@ -240,8 +250,8 @@ def generate_2d_mesh_for_pentagrow(
     log.info("Start of gmsh 2D surface meshing process")
 
     # Compute fuselage and wing size for meshing
-    fuselage_maxlen, fuselage_minlen = fuselage_size(cpacs)
-    wing_maxlen, wing_minlen = wings_size(cpacs)
+    fuselage_maxlen, fuselage_minlen = fuselage_size(geometry)
+    wing_maxlen, wing_minlen = wings_size(geometry)
 
     # Store the computed value of mesh size to use later
     mesh_size_by_group = {}
@@ -583,7 +593,12 @@ def fusing_parts(aircraft_parts, symmetry, sym_box):
 
 
 def sort_surfaces_and_create_physical_groups(
-    aircraft_parts, brep_files, cpacs, model_bb, model_dimensions, symmetry
+    aircraft_parts,
+    brep_files: Path,
+    geometry: Union[CPACS, STP],
+    model_bb,
+    model_dimensions,
+    symmetry,
 ):
     """
     Function to  compute which surfaces are in which volumes and assign the physical groups
@@ -641,7 +656,7 @@ def sort_surfaces_and_create_physical_groups(
         gmsh.model.occ.synchronize()
 
         part_obj = ModelPart(uid=brep_file.stem)
-        part_obj.part_type = get_part_type(cpacs, part_obj.uid, print_info=False)
+        part_obj.part_type = get_part_type(geometry, part_obj.uid, print_info=False)
         part_obj.volume = part_entities[0]
         part_obj.volume_tag = part_entities[0][1]
 

@@ -14,13 +14,16 @@ Small description of the script
 #   IMPORTS
 # =================================================================================================
 
+import shutil
+
 from tigl3.import_export_helper import export_shapes
 from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.CPACS2GMSH.func.engineconversion import engine_conversion
 
 from pathlib import Path
-from typing import Union
+from typing import Union, Optional
 from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.stp import STP
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.guisettings import GUISettings
 
@@ -28,6 +31,11 @@ from ceasiompy import log
 from ceasiompy.CPACS2GMSH import GMSH_EXPORT_PROP_XPATH
 from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
 
+from OCC.Core.STEPControl import STEPControl_Reader
+from OCC.Core.IFSelect import IFSelect_RetDone
+from OCC.Core.BRepTools import breptools_Write
+from OCC.Core.TopExp import TopExp_Explorer
+from OCC.Core.TopAbs import TopAbs_SOLID
 
 # =================================================================================================
 #   FUNCTIONS
@@ -158,22 +166,12 @@ def rotor_config(rotorcraft_config, brep_dir):
     config_file.write_file(rotors_cfg_file_path, overwrite=True)
 
 
-def export_brep(
-    geometry: Union[CPACS, Path],
+def export_cpacs_brep(
+    cpacs: CPACS,
     gui_settings: GUISettings,
     brep_dir: Path,
     engine_surface_percent: tuple[float, float] = (20, 20),
 ) -> None:
-    """
-    Function to generate and export the geometries of a .xml file
-
-    Function 'export_brep' is a subfunction of CPACS2GMSH that generate with TiGL
-    the airplane geometry of the .xml file. Then all the airplane parts are
-    exported in .brep format with their uid name
-    mirrored element of the airplane have the subscript _mirrored : Wing1_mirrored.brep
-    """
-    cpacs = geometry
-
     # Get rotor config
     if get_value_or_default(gui_settings.tixi, GMSH_EXPORT_PROP_XPATH, False):
         try:
@@ -243,3 +241,115 @@ def export_brep(
         for k in range(1, nb_engine + 1):
             engine = engines_config.get_engine(k)
             engine_export(cpacs, engine, brep_dir, engines_cfg_file, engine_surface_percent)
+
+
+def export_stp_brep(
+    stp: STP,
+    gui_settings: GUISettings,
+    brep_dir: Path,
+) -> None:
+    """
+    Export parts contained in a STEP file as individual .brep files.
+    Each found solid is written as: <STEP_stem>_part_<i>.brep
+    If no solids are found, the whole shape is written as <STEP_stem>.brep
+    """
+    if not stp.stp_path.exists():
+        raise FileNotFoundError(f"Geometry file not found: {stp.stp_path}")
+
+    brep_dir.mkdir(exist_ok=True, parents=True)
+
+    suffix = stp.stp_path.suffix.lower()
+
+    # If already a .brep just copy it
+    if suffix == ".brep":
+        target_brep = brep_dir / (stp.stp_path.stem + ".brep")
+        shutil.copy2(stp.stp_path, target_brep)
+        log.info(f"Copied existing BREP to {target_brep}")
+        return
+
+    # If STEP/ STP try to convert to BREP using pythonocc, export each solid as its own BREP
+    if suffix in (".stp", ".step"):
+        try:
+            reader = STEPControl_Reader()
+            status = reader.ReadFile(str(stp.stp_path))
+            if status != IFSelect_RetDone:
+                raise RuntimeError("STEP reader failed")
+
+            reader.TransferRoots()
+            shape = reader.OneShape()
+
+            # Explore solids and export each as a separate .brep
+            explorer = TopExp_Explorer(shape, TopAbs_SOLID)
+            part_idx = 1
+            exported = []
+            while explorer.More():
+                solid = explorer.Current()
+                part_brep = brep_dir / f"{stp.stp_path.stem}_part_{part_idx}.brep"
+                breptools_Write(solid, str(part_brep))
+                log.info(f"Exported STEP part {part_idx} -> {part_brep.name}")
+                exported.append(part_brep)
+                part_idx += 1
+                explorer.Next()
+
+            # If no solids were found, fall back to exporting the whole shape
+            target_brep = brep_dir / (stp.stp_path.stem + ".brep")
+            if not exported:
+                breptools_Write(shape, str(target_brep))
+                log.info(
+                    "No individual solids found. "
+                    f"Converted STEP {stp.stp_path.name} -> BREP {target_brep.name}"
+                )
+            else:
+                log.info(
+                    f"Exported {len(exported)} part(s) "
+                    f"from {stp.stp_path.name} to {brep_dir}"
+                )
+            return
+        except Exception as e:
+            log.warning(f"Could not convert STEP to BREP ({e}). Copying STEP to brep dir instead.")
+            shutil.copy2(stp.stp_path, brep_dir / stp.stp_path.name)
+            return
+
+    # Unsupported file type
+    raise ValueError(f"Unsupported geometry file type: {stp.stp_path.suffix}")
+
+
+def export_brep(
+    geometry: Union[CPACS, STP],
+    gui_settings: GUISettings,
+    results_dir: Path,
+    surf: Optional[str] = None,
+    angle: Optional[str] = None,
+    engine_surface_percent: tuple[float, float] = (20, 20),
+) -> Path:
+    """
+    Function to generate and export the geometries of a .xml file
+
+    Function 'export_brep' is a subfunction of CPACS2GMSH that generate with TiGL
+    the airplane geometry of the .xml file. Then all the airplane parts are
+    exported in .brep format with their uid name
+    mirrored element of the airplane have the subscript _mirrored : Wing1_mirrored.brep
+    """
+
+    # Create corresponding brep directory.
+    if surf is None:
+        brep_dir = Path(results_dir, "brep_files")
+    else:
+        brep_dir = Path(results_dir, f"brep_files_{surf}_{angle}")
+
+    if isinstance(geometry, CPACS):
+        export_cpacs_brep(
+            cpacs=geometry,
+            gui_settings=gui_settings,
+            brep_dir=brep_dir,
+            engine_surface_percent=engine_surface_percent,
+        )
+
+    if isinstance(geometry, STP):
+        export_stp_brep(
+            stp=geometry,
+            gui_settings=gui_settings,
+            brep_dir=brep_dir,
+        )
+
+    return brep_dir

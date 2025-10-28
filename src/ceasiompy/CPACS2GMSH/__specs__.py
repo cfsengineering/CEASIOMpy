@@ -361,11 +361,11 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="geom_output_format",
     var_type=bool,
-    default_value=False,
+    default_value=True,
+    test_value=False,
     unit=None,
     descr="Save also the geometry in the .cgns format",
     xpath=GMSH_SAVE_CGNS_XPATH,
-
     gui_name="Save CGNS",
     gui_group="Saving options",
 )

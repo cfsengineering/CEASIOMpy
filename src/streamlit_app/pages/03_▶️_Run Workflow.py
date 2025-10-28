@@ -77,11 +77,19 @@ def workflow_buttons() -> None:
             terminate_previous_workflows()
 
             workflow = Workflow()
-            workflow.run_workflow(
-                geometry=st.session_state.cpacs,
-                gui_settings=st.session_state.gui_settings,
-                modules_list=st.session_state.modules_list,
-            )
+            if "cpacs" in st.session_state:
+                workflow.run_workflow(
+                    geometry=st.session_state.cpacs,
+                    gui_settings=st.session_state.gui_settings,
+                    modules_list=st.session_state.modules_list,
+                )
+
+            if "stp" in st.session_state:
+                workflow.run_workflow(
+                    geometry=st.session_state.stp,
+                    gui_settings=st.session_state.gui_settings,
+                    modules_list=st.session_state.modules_list,
+                )
 
     with col2:
         if st.button("Terminate ✖️", help="Terminate the workflow"):

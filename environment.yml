@@ -66,6 +66,8 @@ dependencies:
   # GEOMETRY
   - cgns
   - conda-forge::trimesh
+  - conda::forge::libstdcxx-ng
+  - conda-forge::gcc_linux-64
 
   - pip:
     # STREAMLIT related

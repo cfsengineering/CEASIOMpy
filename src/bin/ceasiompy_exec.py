@@ -167,7 +167,10 @@ def run_config_file(config_file) -> None:
     workflow.run_workflow(test=True)
 
 
-def run_gui(cpacs_file: Optional[str] = None):
+def run_gui(
+    cpacs_file: Optional[str] = None,
+    stp_file: Optional[str] = None,
+) -> None:
     """Create an run a workflow from a GUI."""
 
     log.info("CEASIOMpy has been started from the GUI.")
@@ -190,9 +193,17 @@ def run_gui(cpacs_file: Optional[str] = None):
         "false",
     ]
 
+    # Safeguard
+    if cpacs_file is not None and stp_file is not None:
+        log.error("You need to choose between either a CPACS or STP file.")
+        return None
+
     # If a cpacs file was provided to ceasiompy_run -g <path>, pass it to the script
     if cpacs_file:
         cmd += ["--", "--cpacs", str(cpacs_file)]
+
+    if stp_file:
+        cmd += ["--", "--stp", str(stp_file)]
 
     subprocess.run(
         args=cmd,
@@ -249,6 +260,20 @@ def main():
         metavar="NB",
         help="run a test case [1, 2, or 3]",
     )
+    # Allow launching the GUI directly with a CPACS or STP file
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "--cpacs",
+        type=str,
+        metavar="PATH",
+        help="Open the GUI loading the given CPACS file",
+    )
+    group.add_argument(
+        "--stp",
+        type=str,
+        metavar="PATH",
+        help="Open the GUI loading the given STP/STEP file",
+    )
 
     args: Namespace = parser.parse_args()
 
@@ -264,12 +289,16 @@ def main():
         run_config_file(args.cfg)
         return
 
+    # If --cpacs or --stp provided, launch the GUI and pass them through
+    if args.cpacs or args.stp:
+        if args.cpacs and args.stp:
+            log.error("You need to choose between either a CPACS or STP file, not both.")
+            return None
+        run_gui(cpacs_file=args.cpacs, stp_file=args.stp)
+        return None
+
     if args.gui:
-        # args.gui is True if -g used without path, or a string path if provided
-        if isinstance(args.gui, str) and args.gui is not True:
-            run_gui(args.gui)
-        else:
-            run_gui()
+        run_gui()
 
     # If no argument is given, print the help
     parser.print_help()

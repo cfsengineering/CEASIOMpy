@@ -10,8 +10,7 @@ GUI Interface of Aeroframe.
 #   IMPORTS
 # ==============================================================================
 
-import streamlit as st
-
+from ceasiompy.utils.geometry import get_geometry_aeromaps_uid
 from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
@@ -49,11 +48,10 @@ cpacs_inout = CPACSInOut()
 cpacs_inout.add_input(
     var_name="aeromap_uid",
     var_type=list,
-    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
+    default_value=get_geometry_aeromaps_uid(),
     unit=None,
     descr="Name of the aero map to calculate",
     xpath=AVL_AEROMAP_UID_XPATH,
-
     gui_name="__AEROMAP_SELECTION",
     gui_group="Aeromap settings",
 )
@@ -65,7 +63,6 @@ cpacs_inout.add_input(
     unit=None,
     descr=("Select the type of distribution"),
     xpath=AVL_DISTR_XPATH,
-
     gui_name="Choice of distribution",
     gui_group="AVL: Vortex Lattice Spacing Distributions",
 )

@@ -39,6 +39,7 @@ from ceasiompy.CPACS2GMSH.func.rans_mesh_generator import (
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.stp import STP
 from ceasiompy.utils.guisettings import GUISettings
 from typing import (
     List,
@@ -60,7 +61,7 @@ from ceasiompy.CPACS2GMSH import (
 
 
 def run_cpacs2gmsh(
-    geometry: Union[CPACS, Path],
+    geometry: Union[CPACS, STP],
     gui_settings: GUISettings,
     results_dir: Path,
     surf: Optional[str] = None,
@@ -68,19 +69,7 @@ def run_cpacs2gmsh(
 ) -> None:
     """
     Starts meshing with gmsh.
-
-    Args:
-        cpacs (CPACS): CPACS file.
-        surf (str = None): Deflected control surface.
-        angle (str = None): Angle of deflection.
-
     """
-
-    # Create corresponding brep directory.
-    if surf is None:
-        brep_dir = Path(results_dir, "brep_files")
-    else:
-        brep_dir = Path(results_dir, f"brep_files_{surf}_{angle}")
 
     # Retrieve GUI values
     (
@@ -111,9 +100,11 @@ def run_cpacs2gmsh(
     ) = retrieve_gui_values(gui_settings.tixi)
 
     # Export airplane's part in .brep format
-    export_brep(
+    brep_dir = export_brep(
         geometry=geometry,
-        brep_dir=brep_dir,
+        surf=surf,
+        angle=angle,
+        results_dir=results_dir,
         gui_settings=gui_settings,
         engine_surface_percent=(intake_percent, exhaust_percent),
     )
@@ -144,9 +135,9 @@ def run_cpacs2gmsh(
         )
     else:
         gmesh_path, fuselage_maxlen = generate_2d_mesh_for_pentagrow(
-            geometry,
-            brep_dir,
-            results_dir,
+            geometry=geometry,
+            brep_dir=brep_dir,
+            results_dir=results_dir,
             open_gmsh=open_gmsh,
             refine_factor=refine_factor,
             refine_truncated=refine_truncated,
@@ -258,7 +249,7 @@ def deform_surf(
 
 
 def main(
-    geometry: Union[CPACS, Path],
+    geometry: Union[CPACS, STP],
     gui_settings: GUISettings,
     results_dir: Path,
 ) -> None:
@@ -267,7 +258,7 @@ def main(
     Defines setup for gmsh.
     """
 
-    if not isinstance(geometry, CPACS):
+    if isinstance(geometry, STP):
         return run_cpacs2gmsh(
             geometry=geometry,
             results_dir=results_dir,
@@ -280,7 +271,7 @@ def main(
     # Unique angles list
     angles_list = list(set([float(x) for x in str(angles).split(";")]))
 
-    log.info(f"List of deflection angles {angles_list}.")
+    log.info(f"List of deflection angles {angles_list=}.")
 
     if not angles_list:
         # No specified angles: run as usual

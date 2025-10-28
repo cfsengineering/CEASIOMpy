@@ -31,7 +31,7 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.guisettings import GUISettings
 
 from ceasiompy import log
-from ceasiompy.CPACS2GMSH import (GMSH_SYMMETRY_XPATH)
+from ceasiompy.CPACS2GMSH import GMSH_SYMMETRY_XPATH
 from ceasiompy.SU2Run import (
     SU2_NB_CPU_XPATH,
     SU2_CONFIG_RANS_XPATH,
@@ -108,12 +108,15 @@ def main(
 
     # 3. Run each configuration file in SU2
     log.info(f"----- Running  {config_file_type} simulations -----")
-    run_SU2_multi(results_dir, nb_proc)
+    run_SU2_multi(
+        wkdir=results_dir,
+        nb_proc=nb_proc,
+    )
 
     # 4. Retrieve SU2 results
     log.info("----- Updating CPACS and accessing results -----")
     get_su2_results(
-        cpacs=cpacs,  # Update Aeromap
+        geometry=geometry,  # Update Aeromap
         results_dir=results_dir,
         gui_settings=gui_settings,
     )

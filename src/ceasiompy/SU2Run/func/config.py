@@ -20,7 +20,7 @@ import numpy as np
 
 from shutil import copyfile
 from ceasiompy.SU2Run.func.plot import save_plots
-from ceasiompy.CPACS2GMSH.func.mesh_sizing import wings_size
+from ceasiompy.CPACS2GMSH.func.mesh_sizing import wings_cpacs_size
 from ceasiompy.utils.geometryfunctions import get_main_wing_le
 from ceasiompy.SU2Run.func.dotderivatives import load_parameters
 from ceasiompy.utils.ceasiompyutils import get_aeromap_conditions
@@ -354,7 +354,7 @@ def add_reynolds_number(alt: float, mach: float, cfg: ConfigFile, cpacs: CPACS) 
     # Get speed from Mach Number
     speed = mach * Atm.speed_of_sound[0]
 
-    ref_chord = wings_size(cpacs)[0] / 0.15
+    ref_chord = wings_cpacs_size(cpacs)[0] / 0.15
     log.info(f"Reference chord is {ref_chord}.")
 
     # Reynolds number based on the mean chord
@@ -389,7 +389,12 @@ def add_case_data(
     )
 
     if rans:
-        add_reynolds_number(alt, mach, cfg, cpacs)
+        add_reynolds_number(
+            alt=alt,
+            mach=mach,
+            cfg=cfg,
+            cpacs=cpacs,
+        )
 
     case_dir_path = Path(wkdir, case_dir_name)
     if not case_dir_path.exists():

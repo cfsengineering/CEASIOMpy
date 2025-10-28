@@ -18,10 +18,14 @@ import math
 from ceasiompy.utils.geometryfunctions import get_positionings
 from ceasiompy.utils.getprofile import get_profile_coord
 
-from typing import Tuple
 from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.stp import STP
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.generalclasses import Transformation
+from typing import (
+    Tuple,
+    Union,
+)
 
 from ceasiompy import log
 from ceasiompy.utils.cpacsxpaths import (
@@ -35,7 +39,14 @@ from ceasiompy.utils.cpacsxpaths import (
 # =================================================================================================
 
 
-def fuselage_size(cpacs: CPACS) -> tuple[float, float]:
+def fuselage_size(geometry: Union[CPACS, STP]) -> tuple[float, float]:
+    if isinstance(geometry, CPACS):
+        return fuselage_cpacs_size(cpacs=geometry)
+    if isinstance(geometry, STP):
+        return geometry.get_fuselage_size()
+
+
+def fuselage_cpacs_size(cpacs: CPACS) -> tuple[float, float]:
     tixi: Tixi3 = cpacs.tixi
     if tixi.checkElement(FUSELAGES_XPATH):
         fus_cnt = tixi.getNamedChildrenCount(FUSELAGES_XPATH, "fuselage")
@@ -133,7 +144,14 @@ def fuselage_size(cpacs: CPACS) -> tuple[float, float]:
     return fuselage_maxlen, fuselage_minlen
 
 
-def wings_size(cpacs: CPACS) -> Tuple[float, float]:
+def wings_size(geometry: Union[CPACS, STP]) -> tuple[float, float]:
+    if isinstance(geometry, CPACS):
+        return wings_cpacs_size(cpacs=geometry)
+    if isinstance(geometry, STP):
+        return geometry.get_wing_size()
+
+
+def wings_cpacs_size(cpacs: CPACS) -> Tuple[float, float]:
     tixi = cpacs.tixi
     if tixi.checkElement(WINGS_XPATH):
         wing_cnt = tixi.getNamedChildrenCount(WINGS_XPATH, "wing")

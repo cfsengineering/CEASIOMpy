@@ -161,8 +161,8 @@ def show_aeromap():
 
     st.markdown("#### Aeromap")
 
-    if "cpacs" not in st.session_state:
-        st.warning("No CPACS file has been selected!")
+    if "cpacs" not in st.session_state and "stp" not in st.session_state:
+        st.warning("No geometry files have been selected!")
         return
 
     current_workflow = get_last_workflow()
@@ -181,6 +181,7 @@ def show_aeromap():
 
     # Get aeromap(s) to plot from multiselect box
     aeromap_list = []
+
     aeromap_uid_list = cpacs.get_aeromap_uid_list()
     aeromap_selected = st.multiselect("Select aeromap", aeromap_uid_list)
     aeromap_list = [cpacs.get_aeromap_by_uid(aeromap_uid) for aeromap_uid in aeromap_selected]

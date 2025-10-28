@@ -26,6 +26,7 @@ from streamlit_app.utils.streamlitutils import create_sidebar
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.stp import STP
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.guisettings import GUISettings
 from ceasiompy.utils.workflowclasses import Workflow
@@ -127,7 +128,7 @@ def section_select_cpacs() -> None:
         with open(stp_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
 
-        st.session_state.stp_path = stp_path
+        st.session_state.stp = STP(stp_path)
         st.session_state.gui_settings = write_gui_xml(
             stp_path=stp_path,
         )
@@ -136,7 +137,7 @@ def section_select_cpacs() -> None:
         st.session_state.pop("cpacs", None)
 
     cpacs_exist: bool = "cpacs" in st.session_state and st.session_state.cpacs
-    stp_path_exist: bool = "stp_path" in st.session_state and st.session_state.stp_path
+    stp_exist: bool = "stp" in st.session_state and st.session_state.stp
 
     # CPACS case
     if cpacs_exist:
@@ -144,11 +145,11 @@ def section_select_cpacs() -> None:
         st.success(f"Uploaded file: {st.session_state.cpacs.cpacs_file}")
 
     # STP case
-    if stp_path_exist:
-        st.info(f"**File name:** {st.session_state.stp_path.name}")
-        st.success(f"Uploaded file: {st.session_state.stp_path}")
+    if stp_exist:
+        st.info(f"**File name:** {st.session_state.stp.name}")
+        st.success(f"Uploaded file: {st.session_state.stp.stp_path}")
 
-    if cpacs_exist or stp_path_exist:
+    if cpacs_exist:
         log.info("Loading 3D section view.")
         section_3D_view()
 
@@ -159,8 +160,8 @@ def section_3D_view() -> None:
     """
 
     # Export from STP
-    if "stp_path" in st.session_state and st.session_state.stp_path:
-        stp_file = f'{st.session_state.stp_path}'
+    if "stp" in st.session_state and st.session_state.stp:
+        stp_file = f'{st.session_state.stp.stp_path}'
 
     # Export from CPACS/tigl
     else:
@@ -236,36 +237,59 @@ def section_3D_view() -> None:
     st.plotly_chart(fig, use_container_width=False)
 
 
-def loading_arg_cpacs() -> Optional[str]:
-    # If a cpacs path was passed on the command line (streamlit passes args after the script),
-    # auto-load it into session_state so the GUI behaves as if the file was uploaded.
+def loading_arg_cpacs_arg() -> Optional[str]:
     try:
-        cpacs_arg = None
+        geometry_arg = None
+        geometry_type = None
         argv = sys.argv
+
         if "--cpacs" in argv:
             idx = argv.index("--cpacs")
             if idx + 1 < len(argv):
-                cpacs_arg = argv[idx + 1]
+                geometry_arg = argv[idx + 1]
+                geometry_type = "cpacs"
+        elif "--stp" in argv:
+            idx = argv.index("--stp")
+            if idx + 1 < len(argv):
+                geometry_arg = argv[idx + 1]
+                geometry_type = "stp"
 
-        log.info(f'{cpacs_arg=}')
-        if cpacs_arg is not None:
-            cpacs_p = Path(cpacs_arg)
+        log.info(f'{geometry_arg=}, {geometry_type=}')
+
+        if geometry_arg is not None:
+            geom_p = Path(geometry_arg)
             GEOMETRIES_PATH.mkdir(parents=True, exist_ok=True)
 
-            st.session_state.cpacs = CPACS(cpacs_p)
-            st.session_state.gui_settings = write_gui_xml(
-                cpacs_path=cpacs_p,
-            )
-            log.info(f"Auto-loaded CPACS: {cpacs_p}")
+            if not geom_p.exists():
+                log.warning(f"Auto-load failed, file does not exist: {geom_p}")
+                return None
 
-            st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
-            st.success(f"Uploaded file: {st.session_state.cpacs.cpacs_file}")
-            log.info("Loading 3D section view.")
-            section_3D_view()
-        return cpacs_arg
+            if geometry_type == "cpacs":
+                st.session_state.cpacs = CPACS(geom_p)
+                st.session_state.gui_settings = write_gui_xml(cpacs_path=geom_p)
+                st.session_state.pop("stp", None)
+                log.info(f"Auto-loaded CPACS: {geom_p}")
+                st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
+                st.success(f"Uploaded file: {st.session_state.cpacs.cpacs_file}")
+
+                log.info("Loading 3D section view.")
+                section_3D_view()
+
+            elif geometry_type == "stp":
+                st.session_state.stp = STP(geom_p)
+                st.session_state.gui_settings = write_gui_xml(stp_path=geom_p)
+                st.session_state.pop("cpacs", None)
+                log.info(f"Auto-loaded STP: {geom_p}")
+                st.info(f"**File name:** {st.session_state.stp.name}")
+                st.success(f"Uploaded file: {st.session_state.stp.stp_path}")
+            else:
+                log.error(f"Unrecognized geometry type {geometry_type=}")
+                return None
+
+        return geometry_arg
 
     except Exception as e:
-        log.warning(f"Could not auto-load CPACS: {e=}")
+        log.warning(f"Could not auto-load geometry: {e=}")
         return None
 
 
@@ -288,7 +312,7 @@ if __name__ == "__main__":
     st.markdown(CSS, unsafe_allow_html=True)
     st.title(PAGE_NAME)
 
-    cpacs_arg = loading_arg_cpacs()
+    geometry_arg = loading_arg_cpacs_arg()
 
-    if cpacs_arg is None:
+    if geometry_arg is None:
         section_select_cpacs()

@@ -18,9 +18,6 @@ import importlib
 import subprocess
 
 from contextlib import contextmanager
-from ceasiompy.utils.moduleinterfaces import (
-    check_cpacs_input_requirements,
-)
 from cpacspy.cpacsfunctions import (
     get_value,
     open_tixi,
@@ -31,6 +28,7 @@ from cpacspy.cpacsfunctions import (
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
+from ceasiompy.utils.stp import STP
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.guisettings import GUISettings
 from cpacspy.cpacspy import (
@@ -40,6 +38,7 @@ from cpacspy.cpacspy import (
 from typing import (
     List,
     Tuple,
+    Union,
     TextIO,
     Optional,
 )
@@ -397,7 +396,7 @@ def aircraft_name(tixi_or_cpacs) -> str:
 
 
 def get_part_type(
-    cpacs: CPACS,
+    geometry: Union[CPACS, STP],
     part_uid: str,
     print_info: bool = True,
 ) -> str:
@@ -413,28 +412,33 @@ def get_part_type(
 
     """
 
-    # split uid if mirrored part
-    part_uid = part_uid.split("_mirrored")[0]
-    part_xpath = cpacs.tixi.uIDGetXPath(part_uid)
+    if isinstance(geometry, STP):
+        return "wing"
 
-    path_part = {
-        "wings/wing": "wing",
-        "fuselages/fuselage": "fuselage",
-        "enginePylons/enginePylon": "pylon",
-        "engine/nacelle/fanCowl": "fanCowl",
-        "engine/nacelle/centerCowl": "centerCowl",
-        "engine/nacelle/coreCowl": "coreCowl",
-        "vehicles/engines/engine": "engine",
-        "vehicles/rotorcraft/model/rotors/rotor": "rotor",
-    }
-    for path_name, part_name in path_part.items():
-        if path_name in part_xpath:
-            if print_info:
-                log.info(f"'{part_uid}' is a {part_name}")
-            return part_name
+    if isinstance(geometry, CPACS):
+        # split uid if mirrored part
+        part_uid = part_uid.split("_mirrored")[0]
+        part_xpath = geometry.tixi.uIDGetXPath(part_uid)
 
-    if print_info:
-        log.warning(f"'{part_uid}' cannot be categorized!")
+        path_part = {
+            "wings/wing": "wing",
+            "fuselages/fuselage": "fuselage",
+            "enginePylons/enginePylon": "pylon",
+            "engine/nacelle/fanCowl": "fanCowl",
+            "engine/nacelle/centerCowl": "centerCowl",
+            "engine/nacelle/coreCowl": "coreCowl",
+            "vehicles/engines/engine": "engine",
+            "vehicles/rotorcraft/model/rotors/rotor": "rotor",
+        }
+        for path_name, part_name in path_part.items():
+            if path_name in part_xpath:
+                if print_info:
+                    log.info(f"'{part_uid}' is a {part_name}")
+                return part_name
+
+        if print_info:
+            log.warning(f"'{part_uid}' cannot be categorized!")
+
     return None
 
 

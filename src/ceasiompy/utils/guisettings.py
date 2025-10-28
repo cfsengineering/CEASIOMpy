@@ -10,6 +10,7 @@ from ceasiompy.utils.moduleinterfaces import get_specs_for_module
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.stp import STP
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from typing import (
@@ -158,8 +159,14 @@ def generate_settings(
 
             # Check if the name or var_type is in the dictionary
             # and call the corresponding function
-            if name in AEROMAP_LIST and "cpacs" in st.session_state:
-                aeromap_uid_list = st.session_state.cpacs.get_aeromap_uid_list()
+            if name in AEROMAP_LIST:
+                if "cpacs" in st.session_state:
+                    aeromap_uid_list = st.session_state.cpacs.get_aeromap_uid_list()
+                elif "stp" in st.session_state:
+                    aeromap_uid_list = st.session_state.stp.get_aeromaps_uid()
+                else:
+                    log.error("Error finding geometry.")
+
                 if not len(aeromap_uid_list):
                     log.error("You must create an aeromap in order to use this module !")
                 else:
@@ -188,7 +195,7 @@ def generate_settings(
 
 
 def create_gui_settings_from_specs(
-    geometry: Union[CPACS, Path],
+    geometry: Union[CPACS, STP],
     modules_list: List[str],
     test: bool,  # For github workflows
 ) -> GUISettings:
@@ -197,9 +204,9 @@ def create_gui_settings_from_specs(
         gui_settings = GUISettings(
             cpacs_path=geometry.cpacs_file,
         )
-    else:
+    elif isinstance(geometry, STP):
         gui_settings = GUISettings(
-            stp_path=geometry,
+            stp_path=geometry.stp_path,
         )
 
     generate_settings(

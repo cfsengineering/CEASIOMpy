@@ -26,6 +26,7 @@ from typing import List
 from pathlib import Path
 from types import ModuleType
 from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.stp import STP
 from ceasiompy.utils.guisettings import GUISettings
 from typing import (
     Union,
@@ -56,7 +57,7 @@ class Workflow:
         self: "Workflow",
         module: str,
         iteration: int,
-        geometry: Union[CPACS, Path],
+        geometry: Union[CPACS, STP],
         gui_settings: GUISettings,
     ) -> None:
         """
@@ -91,7 +92,7 @@ class Workflow:
 
     def run_workflow(
         self: "Workflow",
-        geometry: Union[CPACS, Path],
+        geometry: Union[CPACS, STP],
         modules_list: List[str],
         gui_settings: Optional[GUISettings] = None,
     ) -> None:

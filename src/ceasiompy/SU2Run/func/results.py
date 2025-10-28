@@ -23,6 +23,7 @@ import numpy as np
 import pyvista as pv
 
 from ceasiompy.SU2Run.func.extractloads import extract_loads
+from ceasiompy.utils.geometry import get_aeromaps_uid_from_geometry
 from ceasiompy.SU2Run.func.dotderivatives import (
     load_parameters,
     compute_derivatives,
@@ -49,12 +50,14 @@ from ceasiompy.SU2Run.func.utils import (
 from pathlib import Path
 from numpy import ndarray
 from ambiance import Atmosphere
+from ceasiompy.utils.stp import STP
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.guisettings import GUISettings
 from typing import (
     List,
     Dict,
     Tuple,
+    Union,
 )
 from cpacspy.cpacspy import (
     CPACS,
@@ -442,7 +445,7 @@ def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
 
 
 def get_su2_results(
-    cpacs: CPACS,
+    geometry: Union[CPACS, STP],
     gui_settings: GUISettings,
     results_dir: Path,
 ) -> None:
@@ -457,7 +460,7 @@ def get_su2_results(
 
     fixed_cl = get_value(gui_settings.tixi, SU2_FIXED_CL_XPATH)
     aeromap_uid = get_aeromap_uid(gui_settings.tixi, fixed_cl)
-    aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
+    aeromap: AeroMap = geometry.get_aeromap_by_uid(aeromap_uid)
 
     case_dir_list = [
         case_dir

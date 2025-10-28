@@ -16,6 +16,11 @@ GUI objects in CEASIOMpy.
 import pandas as pd
 import streamlit as st
 
+from typing import Union
+from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.stp import STP
+
+from ceasiompy.utils.geometry import get_aeromaps_uid_from_geometry
 from streamlit_app.utils.streamlitutils import save_gui_settings
 from cpacspy.cpacsfunctions import (
     get_string_vector,
@@ -33,13 +38,13 @@ from ceasiompy import (
 
 
 def aeromap_selection(
-    cpacs,
+    geometry: Union[CPACS, STP],
     settings_gui,
     xpath,
     key,
     description,
-):
-    aeromap_uid_list = cpacs.get_aeromap_uid_list()
+) -> None:
+    aeromap_uid_list = get_aeromaps_uid_from_geometry(geometry)
 
     if not len(aeromap_uid_list):
         st.error("You must create an aeromap in order to use this module!")
@@ -59,8 +64,14 @@ def aeromap_selection(
         )
 
 
-def aeromap_checkbox(cpacs, settings_gui, xpath, key, description) -> None:
-    aeromap_uid_list = cpacs.get_aeromap_uid_list()
+def aeromap_checkbox(
+    geometry: Union[CPACS, STP],
+    settings_gui,
+    xpath,
+    key,
+    description,
+) -> None:
+    aeromap_uid_list = get_aeromaps_uid_from_geometry(geometry)
 
     if not len(aeromap_uid_list):
         st.error("You must create an aeromap in order to use this module!")

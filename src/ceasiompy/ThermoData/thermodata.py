@@ -165,3 +165,4 @@ def main(
     add_float_vector(tixi, THERMODATA_TEMPERATUREOUTLET_XPATH, T_tot_out_array)
     add_float_vector(tixi, THERMODATA_PRESSUREOUTLET_XPATH, P_tot_out_array)
     log.info("Updating T_tot_out_array and P_tot_out_array.")
+    shutil.rmtree("reports", ignore_errors=True)

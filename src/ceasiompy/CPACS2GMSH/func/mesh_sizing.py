@@ -42,8 +42,10 @@ from ceasiompy.utils.cpacsxpaths import (
 def fuselage_size(geometry: Union[CPACS, STP]) -> tuple[float, float]:
     if isinstance(geometry, CPACS):
         return fuselage_cpacs_size(cpacs=geometry)
-    if isinstance(geometry, STP):
+    elif isinstance(geometry, STP):
         return geometry.get_fuselage_size()
+    else:
+        raise ValueError("Geometry is not of correct type.")
 
 
 def fuselage_cpacs_size(cpacs: CPACS) -> tuple[float, float]:
@@ -147,8 +149,10 @@ def fuselage_cpacs_size(cpacs: CPACS) -> tuple[float, float]:
 def wings_size(geometry: Union[CPACS, STP]) -> tuple[float, float]:
     if isinstance(geometry, CPACS):
         return wings_cpacs_size(cpacs=geometry)
-    if isinstance(geometry, STP):
+    elif isinstance(geometry, STP):
         return geometry.get_wing_size()
+    else:
+        raise ValueError("Geometry is not of correct type.")
 
 
 def wings_cpacs_size(cpacs: CPACS) -> Tuple[float, float]:

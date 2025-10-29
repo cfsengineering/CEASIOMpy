@@ -169,7 +169,10 @@ def generate_2d_mesh_for_pentagrow(
 
         # Create the aircraft part object
         part_obj = ModelPart(uid=brep_file.stem)
-        part_obj.part_type = get_part_type(geometry, part_obj.uid)
+        part_obj.part_type = get_part_type(
+            geometry=geometry,
+            part_uid=part_obj.uid,
+        )
         part_obj.volume = part_entities[0]
         part_obj.volume_tag = part_entities[0][1]
 
@@ -250,8 +253,8 @@ def generate_2d_mesh_for_pentagrow(
     log.info("Start of gmsh 2D surface meshing process")
 
     # Compute fuselage and wing size for meshing
-    fuselage_maxlen, fuselage_minlen = fuselage_size(geometry)
-    wing_maxlen, wing_minlen = wings_size(geometry)
+    fuselage_maxlen, fuselage_minlen = fuselage_size(geometry=geometry)
+    wing_maxlen, wing_minlen = wings_size(geometry=geometry)
 
     # Store the computed value of mesh size to use later
     mesh_size_by_group = {}
@@ -275,6 +278,15 @@ def generate_2d_mesh_for_pentagrow(
     # to construct the final mesh
     mesh_fields = {"nbfields": 0, "restrict_fields": []}
 
+    # Clear any existing gmsh mesh fields to avoid tag collisions from a previous gmsh session
+    try:
+        existing_fields = gmsh.model.mesh.field.getNumbers()
+        for f in existing_fields:
+            gmsh.model.mesh.field.remove(f)
+    except Exception:
+        # If the API call fails or no fields exist, just continue
+        pass
+
     # Now fix the mesh size for every part
     for model_part in aircraft_parts:
         # Take the right mesh size (name physical group should be wing or fuselage
@@ -285,14 +297,14 @@ def generate_2d_mesh_for_pentagrow(
         # To give the size to gmsh, we create a field with constant value containing only our
         # list of surfaces, and give it the size
         mesh_fields["nbfields"] += 1
-        gmsh.model.mesh.field.add("Constant", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setNumbers(
-            mesh_fields["nbfields"], "SurfacesList", model_part.surfaces_tags
-        )
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "VIn", lc)
-        gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
+        field_id = gmsh.model.mesh.field.add("Constant")
+        gmsh.model.mesh.field.setNumbers(field_id, "SurfacesList", model_part.surfaces_tags)
+        gmsh.model.mesh.field.setNumber(field_id, "VIn", lc)
+        gmsh.model.mesh.field.setAsBackgroundMesh(field_id)
+
         # Need to be stocked for when we take the min field:
-        mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
+        mesh_fields["restrict_fields"].append(field_id)
+
     mesh_fields = min_fields(mesh_fields)
     gmsh.model.occ.synchronize()
 
@@ -302,6 +314,7 @@ def generate_2d_mesh_for_pentagrow(
     mesh_fields = refine_between_parts(aircraft_parts, mesh_fields)
     mesh_fields = min_fields(mesh_fields)
     log.info("End of refinement between parts")
+
 
     # Now do the refinement on the le and te and end of wing
     if refine_factor != 1:
@@ -656,7 +669,11 @@ def sort_surfaces_and_create_physical_groups(
         gmsh.model.occ.synchronize()
 
         part_obj = ModelPart(uid=brep_file.stem)
-        part_obj.part_type = get_part_type(geometry, part_obj.uid, print_info=False)
+        part_obj.part_type = get_part_type(
+            geometry=geometry,
+            part_uid=part_obj.uid,
+            print_info=False,
+        )
         part_obj.volume = part_entities[0]
         part_obj.volume_tag = part_entities[0][1]
 
@@ -824,11 +841,13 @@ def refine_le_te_end(
     """
     aircraft = ModelPart("aircraft")
     lines_already_refined_lete = []
+
     # tag of the main volume constituing the aicraft, and of all the surfaces
     aircraft.volume_tag = gmsh.model.occ.getEntities(3)[0][1]
+
     # (there should be only one volume in the model)
-    aircraft.surfaces_tags = [tag for (dim, tag) in gmsh.model.occ.getEntities(2)]
-    aircraft.lines_tags = [tag for (dim, tag) in gmsh.model.occ.getEntities(1)]
+    aircraft.surfaces_tags = [tag for (_, tag) in gmsh.model.occ.getEntities(2)]
+    aircraft.lines_tags = [tag for (_, tag) in gmsh.model.occ.getEntities(1)]
 
     # For all the wing, we call the function classify that will detect the le and te between all
     # the lines and compute the mean chord length

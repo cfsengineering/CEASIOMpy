@@ -152,7 +152,11 @@ def _get_ceasiompy_module(
             f"got error {e=}"
         )
         raise ValueError
-    except Exception:
+    except Exception as e:
+        log.error(
+            f"For module {module=} {from_file=} "
+            f"finished with exception {e=}"
+        )
         raise Exception
 
 

@@ -133,19 +133,16 @@ def min_fields(mesh_fields):
     mesh_fields : dict
     """
 
-    # Add a minimal background mesh field
-    mesh_fields["nbfields"] += 1
-    gmsh.model.mesh.field.add("Min", mesh_fields["nbfields"])
-    gmsh.model.mesh.field.setNumbers(
-        mesh_fields["nbfields"], "FieldsList", mesh_fields["restrict_fields"]
-    )
-    gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
-
-    # When background mesh is used those options must be set to zero
-    gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
-    gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
-    gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
-
+    # Let gmsh assign a free field id for the Min field (avoid collisions)
+    field_id = gmsh.model.mesh.field.add("Min")
+    # Set the list of fields to take the min of
+    gmsh.model.mesh.field.setNumbers(field_id, "FieldsList", mesh_fields["restrict_fields"])
+    # Use this Min field as the background mesh
+    gmsh.model.mesh.field.setAsBackgroundMesh(field_id)
+    # Update mesh_fields bookkeeping to the newly created field id
+    mesh_fields["nbfields"] = field_id
+    # Replace restrict_fields with the new min field (nesting uses only the last min)
+    mesh_fields["restrict_fields"] = [field_id]
     return mesh_fields
 
 

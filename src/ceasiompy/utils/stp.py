@@ -38,7 +38,7 @@ class STP:
         self.bounding_box: Final[dict] = self._compute_bounding_box()
 
         self.span: float = self.bounding_box["length_y"]
-        self.area_wing: float = self.area / 10.0
+        self.area_wing: float = self.area / 20.0
         self.reference_chord: float = self.area_wing / self.span
 
     def _get_step(self: "STP") -> TopoDS_Shape:
@@ -114,7 +114,7 @@ class STP:
 
     def get_fuselage_size(self: "STP") -> tuple[float, float]:
         plane_yz = self.bounding_box["length_y"] * self.bounding_box["length_z"]
-        return plane_yz / 10.0, plane_yz / 100.0
+        return plane_yz / 100.0, plane_yz / 1000.0
 
     def get_wing_size(self: "STP") -> tuple[float, float]:
         return 0.15 * self.reference_chord, 0.08 * self.span

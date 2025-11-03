@@ -189,7 +189,7 @@ def generate_settings(
             elif var_type == "multiselect":
                 tixi.updateTextElement(xpath, ";".join(str(ele) for ele in value))
             else:
-                tixi.updateTextElement(xpath, value)
+                tixi.updateTextElement(xpath, str(value))
 
     gui_settings.save()
 

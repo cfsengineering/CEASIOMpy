@@ -30,20 +30,25 @@ TODO:
 
 import re
 import gmsh
-
 import numpy as np
 
-from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
-from ceasiompy.utils.ceasiompyutils import get_part_type
 from cpacspy.cpacsfunctions import create_branch
-
-from ceasiompy.CPACS2GMSH.func.mesh_sizing import fuselage_size, wings_size
-from ceasiompy.CPACS2GMSH.func.utils import initialize_gmsh, write_gmsh, cfg_rotors
+from ceasiompy.utils.ceasiompyutils import get_part_type
+from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
+from ceasiompy.CPACS2GMSH.func.mesh_sizing import (
+    wings_size,
+    fuselage_size,
+)
+from ceasiompy.CPACS2GMSH.func.utils import (
+    write_gmsh,
+    cfg_rotors,
+    initialize_gmsh,
+)
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
-    refine_wing_section,
-    set_domain_mesh,
-    refine_small_surfaces,
     min_fields,
+    set_domain_mesh,
+    refine_wing_section,
+    refine_small_surfaces,
 )
 
 from pathlib import Path
@@ -58,11 +63,11 @@ from typing import (
     Dict,
     Tuple,
     Union,
+    Optional,
 )
 
 from ceasiompy import log
 from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
-
 from ceasiompy.CPACS2GMSH import (
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
     GMSH_MESH_SIZE_WINGS_XPATH,
@@ -519,7 +524,7 @@ def _clean_model(
     final_domain: ModelPart,
     aircraft_parts: List[ModelPart],
 ) -> ModelPart:
-    """   
+    """
     Clean up associations left after fragmentation.
     When parts intersect, fragment operations can leave internal surfaces,
     lines or points that are not part of the final fluid domain (e.g. holes
@@ -804,43 +809,14 @@ def generate_gmsh(
 
     # Control of the mesh quality
     if refine_factor != 1 and auto_refine:
-        bad_surfaces = []
-
-        for part in aircraft_parts:
-            refined_surfaces, mesh_fields = refine_small_surfaces(
-                mesh_fields,
-                part,
-                mesh_size_farfield,
-                max(model_dimensions),
-                final_domain.volume_tag,
-            )
-            bad_surfaces.extend(refined_surfaces)
-
-        log.info("Refining small surfaces.")
-
-        if bad_surfaces:
-            log.info(f"{len(bad_surfaces)} surface(s) needs to be refined")
-
-            # Reset the background mesh
-            mesh_fields = min_fields(mesh_fields)
-
-            if open_gmsh:
-                log.info("Insufficient mesh size surfaces are displayed in red")
-                log.info("GMSH GUI is open, close it to continue...")
-                gmsh.fltk.run()
-
-            log.info("Start of gmsh 2D surface remeshing process")
-
-            gmsh.model.mesh.generate(1)
-            gmsh.model.mesh.generate(2)
-
-            for surface in bad_surfaces:
-                gmsh.model.setColor([(2, surface)], *MESH_COLORS["good_surface"], recursive=False)
-            gmsh.model.occ.synchronize()
-
-            log.info("Remeshing process finished")
-            if open_gmsh:
-                log.info("Corrected mesh surfaces are displayed in green")
+        _mesh_quality_control(
+            mesh_fields=mesh_fields,
+            open_gmsh=open_gmsh,
+            final_domain=final_domain,
+            aircraft_parts=aircraft_parts,
+            model_dimensions=model_dimensions,
+            mesh_size_farfield=mesh_size_farfield,
+        )
 
     gmsh.model.occ.removeAllDuplicates()
     gmsh.model.occ.synchronize()
@@ -849,39 +825,38 @@ def generate_gmsh(
     fusings: Dict[str, List] = {}
     tags_dict: Dict[str, List] = {}
     tags = []
+
     # Get all physical groups
     # TODO: Remap getPhysicalGroups
     surfaces: List[Tuple[int, int]] = gmsh.model.getPhysicalGroups(dim=2)
 
-    fusing = True
-    if fusing:
-        for dim, tag in surfaces:
-            name = gmsh.model.getPhysicalName(dim, tag)
-            log.info(f"Dimension: {dim}, Tag: {tag}, Name: {name}")
-            # Remove '_Seg{i}'
-            root_name = re.sub(r"_Seg\d+", "", name)
-            if root_name not in fusings:
-                fusings[root_name] = []
-                tags_dict[root_name] = []
+    for dim, tag in surfaces:
+        name = gmsh.model.getPhysicalName(dim, tag)
+        log.info(f"Dimension: {dim}, Tag: {tag}, Name: {name}")
+        # Remove '_Seg{i}'
+        root_name = re.sub(r"_Seg\d+", "", name)
+        if root_name not in fusings:
+            fusings[root_name] = []
+            tags_dict[root_name] = []
 
-            fusings[root_name].append(gmsh.model.getEntitiesForPhysicalGroup(dim, tag))
-            tags_dict[root_name].append(tag)
-            tags.append(tag)
+        fusings[root_name].append(gmsh.model.getEntitiesForPhysicalGroup(dim, tag))
+        tags_dict[root_name].append(tag)
+        tags.append(tag)
 
-        for fusing in fusings:
-            fused_len = len(fusings[fusing])
-            if fused_len > 1:
-                fused_entities = list(
-                    set([entity for group in fusings[fusing] for entity in group])
-                )
-                fused_tags = list(set([tag for tag in tags_dict[fusing]]))
-                log.info(f"Fusing {fused_len} wings named {fusing}")
-                new_tag = max(tags) + 1
-                tags.append(new_tag)
-                gmsh.model.addPhysicalGroup(2, fused_entities, new_tag)
-                gmsh.model.setPhysicalName(dim, new_tag, fusing)
-                gmsh.model.removePhysicalGroups([(2, tag) for tag in fused_tags])
-                gmsh.model.occ.synchronize()
+    for fusing in fusings:
+        fused_len = len(fusings[fusing])
+        if fused_len > 1:
+            fused_entities = list(
+                set([entity for group in fusings[fusing] for entity in group])
+            )
+            fused_tags = list(set([tag for tag in tags_dict[fusing]]))
+            log.info(f"Fusing {fused_len} wings named {fusing}")
+            new_tag = max(tags) + 1
+            tags.append(new_tag)
+            gmsh.model.addPhysicalGroup(2, fused_entities, new_tag)
+            gmsh.model.setPhysicalName(dim, new_tag, fusing)
+            gmsh.model.removePhysicalGroups([(2, tag) for tag in fused_tags])
+            gmsh.model.occ.synchronize()
 
     # Necessary for after fusing back wings
     gmsh.model.occ.removeAllDuplicates()
@@ -892,8 +867,6 @@ def generate_gmsh(
     gmsh.model.mesh.optimize("Laplace2D", niter=10)
     log.info("Smoothing process finished")
 
-    # gmsh.model.occ.removeAllDuplicates()
-
     # Synchronize again to update the model after removing duplicates
     gmsh.model.occ.synchronize()
 
@@ -903,10 +876,11 @@ def generate_gmsh(
         name = gmsh.model.getPhysicalName(dim, tag)
         log.info(f"New Dimension: {dim}, Tag: {tag}, Name: {name}")
 
-    if surf is None:
-        write_gmsh(results_dir, "surface_mesh.msh")
-    else:
-        write_gmsh(results_dir, f"surface_mesh_{surf}_{angle}.msh")
+    _write_surface_mesh(
+        surf=surf,
+        angle=angle,
+        results_dir=results_dir,
+    )
 
     if open_gmsh:
         log.info("Result of 2D surface mesh")
@@ -929,19 +903,16 @@ def generate_gmsh(
         # Control surface orientation
         _control_disk_actuator_normal()
 
-    if surf is None:
-        su2mesh_path = write_gmsh(results_dir, "mesh.su2")
-        write_gmsh(results_dir, "mesh.msh")
-    else:
-        mesh_name = f"mesh_{surf}_{angle}"
-        su2mesh_path = write_gmsh(results_dir, f"{mesh_name}.su2")
-        write_gmsh(results_dir, f"{mesh_name}.msh")
+    su2_mesh_path = _write_su2_mesh(
+        surf=surf,
+        angle=angle,
+        results_dir=results_dir,
+    )
 
     if also_save_cgns:
         write_gmsh(results_dir, "mesh.cgns")
 
     process_gmsh_log(gmsh.logger.get())
-
     gmsh.model.occ.synchronize()
 
     log.info("Mesh generation finished")
@@ -951,4 +922,78 @@ def generate_gmsh(
         gmsh.clear()
         gmsh.finalize()
 
+    return su2_mesh_path
+
+
+def _write_surface_mesh(
+    surf: Optional[str],
+    angle: float,
+    results_dir: Path,
+) -> None:
+    if surf is None:
+        write_gmsh(results_dir, "surface_mesh.msh")
+    else:
+        write_gmsh(results_dir, f"surface_mesh_{surf}_{angle}.msh")
+
+
+def _write_su2_mesh(
+    surf: Optional[str],
+    angle: float,
+    results_dir: Path,
+) -> Path:
+    if surf is None:
+        su2mesh_path = write_gmsh(results_dir, "mesh.su2")
+        write_gmsh(results_dir, "mesh.msh")
+    else:
+        mesh_name = f"mesh_{surf}_{angle}"
+        su2mesh_path = write_gmsh(results_dir, f"{mesh_name}.su2")
+        write_gmsh(results_dir, f"{mesh_name}.msh")
+
     return su2mesh_path
+
+
+def _mesh_quality_control(
+    mesh_fields,
+    open_gmsh: bool,
+    final_domain: ModelPart,
+    aircraft_parts: List[ModelPart],
+    model_dimensions: List[float],
+    mesh_size_farfield: float,
+) -> None:
+    bad_surfaces = []
+
+    for part in aircraft_parts:
+        refined_surfaces, mesh_fields = refine_small_surfaces(
+            mesh_fields,
+            part,
+            mesh_size_farfield,
+            max(model_dimensions),
+            final_domain.volume_tag,
+        )
+        bad_surfaces.extend(refined_surfaces)
+
+    log.info("Refining small surfaces.")
+
+    if bad_surfaces:
+        log.info(f"{len(bad_surfaces)} surface(s) needs to be refined")
+
+        # Reset the background mesh
+        mesh_fields = min_fields(mesh_fields)
+
+        if open_gmsh:
+            log.info("Insufficient mesh size surfaces are displayed in red")
+            log.info("GMSH GUI is open, close it to continue...")
+            gmsh.fltk.run()
+
+        log.info("Start of gmsh 2D surface remeshing process")
+
+        gmsh.model.mesh.generate(1)
+        gmsh.model.mesh.generate(2)
+
+        for surface in bad_surfaces:
+            gmsh.model.setColor([(2, surface)], *MESH_COLORS["good_surface"], recursive=False)
+        gmsh.model.occ.synchronize()
+
+        log.info("Remeshing process finished")
+        if open_gmsh:
+            log.info("Corrected mesh surfaces are displayed in green")

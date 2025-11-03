@@ -18,10 +18,8 @@ Streamlit page to create a CEASIOMpy workflow
 
 import streamlit as st
 
+from ceasiompy.utils.moduleinterfaces import get_module_list
 from streamlit_app.utils.streamlitutils import create_sidebar
-from ceasiompy.utils.moduleinterfaces import (
-    get_module_list,
-)
 
 from typing import (
     List,
@@ -83,21 +81,32 @@ border-right: solid 10px transparent;
 </style>
 """
 
-# Resolve the module objects lazily here (runtime, not import time)
-PREDEFINED_WORKFLOWS: Final[List[List[str]]] = [
-    [PYAVL, STATICSTABILITY, DATABASE],
-    [CPACSUPDATER, CPACSCREATOR, CPACS2GMSH, SU2RUN, EXPORTCSV],
-    [CPACS2GMSH, THERMODATA, SU2RUN, SKINFRICTION, DATABASE],
-    [SMTRAIN, SMUSE, SAVEAEROCOEF],
-    [DYNAMICSTABILITY, DATABASE],
-    # ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"],
-]
-
-AVAILABLE_MODULES: Final[List[str]] = get_module_list()
-
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
+
+
+def _get_predefined_workflows() -> List[List[str]]:
+    if "stp" in st.session_state:
+        return [
+            [CPACS2GMSH, SU2RUN],
+        ]
+    else:
+        return [
+            [PYAVL, STATICSTABILITY, DATABASE],
+            [CPACSUPDATER, CPACSCREATOR, CPACS2GMSH, SU2RUN, EXPORTCSV],
+            [CPACS2GMSH, THERMODATA, SU2RUN, SKINFRICTION, DATABASE],
+            [SMTRAIN, SMUSE, SAVEAEROCOEF],
+            [DYNAMICSTABILITY, DATABASE],
+            # ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"],
+        ]
+
+
+def _get_module_list() -> List[str]:
+    if "stp" in st.session_state:
+        return [CPACS2GMSH, SU2RUN]
+    else:
+        return get_module_list()
 
 
 def section_predefined_workflow():
@@ -107,12 +116,8 @@ def section_predefined_workflow():
 
     st.markdown("#### Predefined Workflows")
 
-    for workflow_idx, workflow in enumerate(PREDEFINED_WORKFLOWS):
-        display_names = [
-            item
-            for item in workflow
-        ]
-        button_label = " → ".join(display_names)
+    for workflow_idx, workflow in enumerate(_get_predefined_workflows()):
+        button_label = " → ".join(workflow)
         # Provide a unique key to avoid StreamlitDuplicateElementId
         if st.button(button_label, key=f"predefined_workflow_{workflow_idx}"):
             # store the actual module objects (or strings if they are placeholders)
@@ -140,7 +145,7 @@ def section_add_module():
 
             with col2:
                 if i > 0 and st.button("⬆️", key=f"move{i}", help="Move up"):
-                    st.session_state.modules_list.pop(i)
+                    st.session_state.modules_list.pop(int(i))
                     st.session_state.modules_list.insert(i - 1, module)
                     st.session_state.gui_settings.update_from_specs(
                         modules_list=st.session_state.modules_list,
@@ -149,7 +154,7 @@ def section_add_module():
 
             with col3:
                 if st.button("❌", key=f"del{i}", help=f"Remove {label} from the workflow"):
-                    st.session_state.modules_list.pop(i)
+                    st.session_state.modules_list.pop(int(i))
                     st.session_state.gui_settings.update_from_specs(
                         modules_list=st.session_state.modules_list,
                     )
@@ -161,7 +166,7 @@ def section_add_module():
     with col1:
         module = st.selectbox(
             "Module to add to the workflow:",
-            AVAILABLE_MODULES,
+            _get_module_list(),
         )
 
     with col2:

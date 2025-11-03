@@ -315,7 +315,6 @@ def generate_2d_mesh_for_pentagrow(
     mesh_fields = min_fields(mesh_fields)
     log.info("End of refinement between parts")
 
-
     # Now do the refinement on the le and te and end of wing
     if refine_factor != 1:
         log.info("Start refinement of leading and trailing edge and side of wing")

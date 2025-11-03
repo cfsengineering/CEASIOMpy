@@ -24,6 +24,14 @@ from OCC.Core.BRepGProp import brepgprop_SurfaceProperties
 # =================================================================================================
 
 
+class BREPPart:
+    def __init__(
+        self: "BREPPart",
+        name: str,
+    ) -> None:
+        self.name: str = name
+
+
 class STP:
     def __init__(self: "STP", stp_path: Path) -> None:
         #

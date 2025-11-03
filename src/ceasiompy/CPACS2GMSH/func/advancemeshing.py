@@ -20,12 +20,14 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+import sys
 import gmsh
 import numpy as np
+
 from itertools import combinations
+from ceasiompy.CPACS2GMSH.func.wingclassification import ModelPart
 
 from ceasiompy import log
-from ceasiompy.CPACS2GMSH.func.wingclassification import ModelPart
 from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
 
 
@@ -657,19 +659,24 @@ def refine_other_lines(
 
     # Need a mesh to create the nodes along the lines
     log.info("Must first generate a 1D mesh")
+
     # Don't need the parameters, because with curvature takes too long and is useless
     gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
     gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
     gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
     gmsh.model.mesh.generate(1)
     gmsh.model.occ.synchronize()
+
     # First we need to find which lines are the ones we want to refine
     log.info("Now finding which lines need refinement")
     lines = gmsh.model.getEntities(1)
 
     # We now inspect every line and compute angle from adjacent surfaces
     lines_to_refine_tag = []
-    for dim, line in lines:
+    total_lines = len(lines)
+    log.info(f"Starting search across lines {total_lines=}")
+
+    for idx, (dim, line) in enumerate(lines):
         surface_tags, _ = gmsh.model.getAdjacencies(dim, line)
         tags_coords_params = {-1: "yay"}
         # For each adjacent surface, get all the nodes
@@ -681,6 +688,15 @@ def refine_other_lines(
         # If so, we need to refine next to this line
         if small_angle:
             lines_to_refine_tag.append(line)
+
+        # realtime one-line update: inspected / total and number to refine
+        sys.stdout.write(
+            f"\rLines inspected: {idx+1}/{total_lines} — to refine: {len(lines_to_refine_tag)}"
+        )
+        sys.stdout.flush()
+
+    # finish progress line
+    sys.stdout.write("\n")
 
     # Take out the already refined lines
     lines_to_refine_tag = [li for li in lines_to_refine_tag if li not in te_le_already_refined]

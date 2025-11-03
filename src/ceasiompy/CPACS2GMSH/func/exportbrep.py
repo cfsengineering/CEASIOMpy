@@ -253,6 +253,7 @@ def export_stp_brep(
     Each found solid is written as: <STEP_stem>_part_<i>.brep
     If no solids are found, the whole shape is written as <STEP_stem>.brep
     """
+
     if not stp.stp_path.exists():
         raise FileNotFoundError(f"Geometry file not found: {stp.stp_path}")
 
@@ -268,50 +269,50 @@ def export_stp_brep(
         return
 
     # If STEP/ STP try to convert to BREP using pythonocc, export each solid as its own BREP
-    if suffix in (".stp", ".step"):
-        try:
-            reader = STEPControl_Reader()
-            status = reader.ReadFile(str(stp.stp_path))
-            if status != IFSelect_RetDone:
-                raise RuntimeError("STEP reader failed")
+    if suffix not in (".stp", ".step"):
+        # Unsupported file type
+        raise ValueError(f"Unsupported geometry file type: {stp.stp_path.suffix}")
 
-            reader.TransferRoots()
-            shape = reader.OneShape()
+    try:
+        reader = STEPControl_Reader()
+        status = reader.ReadFile(str(stp.stp_path))
+        if status != IFSelect_RetDone:
+            raise RuntimeError("STEP reader failed")
 
-            # Explore solids and export each as a separate .brep
-            explorer = TopExp_Explorer(shape, TopAbs_SOLID)
-            part_idx = 1
-            exported = []
-            while explorer.More():
-                solid = explorer.Current()
-                part_brep = brep_dir / f"{stp.stp_path.stem}_part_{part_idx}.brep"
-                breptools_Write(solid, str(part_brep))
-                log.info(f"Exported STEP part {part_idx} -> {part_brep.name}")
-                exported.append(part_brep)
-                part_idx += 1
-                explorer.Next()
+        reader.TransferRoots()
+        shape = reader.OneShape()
 
-            # If no solids were found, fall back to exporting the whole shape
-            target_brep = brep_dir / (stp.stp_path.stem + ".brep")
-            if not exported:
-                breptools_Write(shape, str(target_brep))
-                log.info(
-                    "No individual solids found. "
-                    f"Converted STEP {stp.stp_path.name} -> BREP {target_brep.name}"
-                )
-            else:
-                log.info(
-                    f"Exported {len(exported)} part(s) "
-                    f"from {stp.stp_path.name} to {brep_dir}"
-                )
-            return
-        except Exception as e:
-            log.warning(f"Could not convert STEP to BREP ({e}). Copying STEP to brep dir instead.")
-            shutil.copy2(stp.stp_path, brep_dir / stp.stp_path.name)
-            return
+        # Explore solids and export each as a separate .brep
+        explorer = TopExp_Explorer(shape, TopAbs_SOLID)
+        part_idx = 1
+        exported = []
+        while explorer.More():
+            solid = explorer.Current()
+            part_brep = brep_dir / f"{stp.stp_path.stem}_part_{part_idx}.brep"
+            breptools_Write(solid, str(part_brep))
+            log.info(f"Exported STEP part {part_idx} -> {part_brep.name}")
+            exported.append(part_brep)
+            part_idx += 1
+            explorer.Next()
 
-    # Unsupported file type
-    raise ValueError(f"Unsupported geometry file type: {stp.stp_path.suffix}")
+        # If no solids were found, fall back to exporting the whole shape
+        target_brep = brep_dir / (stp.stp_path.stem + ".brep")
+        if not exported:
+            breptools_Write(shape, str(target_brep))
+            log.info(
+                "No individual solids found. "
+                f"Converted STEP {stp.stp_path.name} -> BREP {target_brep.name}"
+            )
+        else:
+            log.info(
+                f"Exported {len(exported)} part(s) "
+                f"from {stp.stp_path.name} to {brep_dir}"
+            )
+        return
+    except Exception as e:
+        log.warning(f"Could not convert STEP to BREP ({e}). Copying STEP to brep dir instead.")
+        shutil.copy2(stp.stp_path, brep_dir / stp.stp_path.name)
+        return
 
 
 def export_brep(

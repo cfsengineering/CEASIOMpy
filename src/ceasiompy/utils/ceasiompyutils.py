@@ -30,6 +30,7 @@ from numpy import ndarray
 from pandas import DataFrame
 from ceasiompy.utils.stp import STP
 from tixi3.tixi3wrapper import Tixi3
+from ceasiompy.utils.parts import PartType
 from ceasiompy.utils.guisettings import GUISettings
 from cpacspy.cpacspy import (
     CPACS,
@@ -413,23 +414,69 @@ def get_part_type(
     """
 
     if isinstance(geometry, STP):
-        return "wing"
+
+        part_uid_to_part_type = {
+            "seaplane_part_1": PartType.fuselage,
+            "seaplane_part_2": PartType.fuselage,
+            "seaplane_part_21": PartType.fuselage,
+            "seaplane_part_30": PartType.fuselage,
+            "seaplane_part_31": PartType.fuselage,
+            "seaplane_part_32": PartType.fuselage,
+            "seaplane_part_33": PartType.fuselage,
+
+            "seaplane_part_3": PartType.wing,
+            "seaplane_part_4": PartType.wing,
+            "seaplane_part_5": PartType.wing,
+            "seaplane_part_6": PartType.wing,
+            "seaplane_part_7": PartType.wing,
+            "seaplane_part_8": PartType.wing,
+            "seaplane_part_9": PartType.wing,
+            "seaplane_part_10": PartType.wing,
+            "seaplane_part_11": PartType.wing,
+            "seaplane_part_12": PartType.wing,
+            "seaplane_part_13": PartType.wing,
+            "seaplane_part_14": PartType.wing,
+            "seaplane_part_15": PartType.wing,
+            "seaplane_part_16": PartType.wing,
+            "seaplane_part_17": PartType.wing,
+            "seaplane_part_18": PartType.wing,
+            "seaplane_part_19": PartType.wing,
+            "seaplane_part_20": PartType.wing,
+
+            "seaplane_part_22": PartType.wing,
+            "seaplane_part_23": PartType.wing,
+            "seaplane_part_24": PartType.wing,
+            "seaplane_part_25": PartType.wing,
+            "seaplane_part_26": PartType.wing,
+            "seaplane_part_27": PartType.wing,
+            "seaplane_part_28": PartType.wing,
+            "seaplane_part_29": PartType.wing,
+            "seaplane_part_34": PartType.wing,
+            "seaplane_part_35": PartType.wing,
+            "seaplane_part_36": PartType.wing,
+            "seaplane_part_37": PartType.wing,
+            "seaplane_part_38": PartType.wing,
+            "seaplane_part_39": PartType.wing,
+        }
+
+        return part_uid_to_part_type[part_uid]
 
     if isinstance(geometry, CPACS):
         # split uid if mirrored part
-        part_uid = part_uid.split("_mirrored")[0]
+        part_uid = part_uid.split("_mirrored")[0]  # Remove _mirrored (& the rest)
         part_xpath = geometry.tixi.uIDGetXPath(part_uid)
 
         path_part = {
-            "wings/wing": "wing",
-            "fuselages/fuselage": "fuselage",
-            "enginePylons/enginePylon": "pylon",
-            "engine/nacelle/fanCowl": "fanCowl",
-            "engine/nacelle/centerCowl": "centerCowl",
-            "engine/nacelle/coreCowl": "coreCowl",
-            "vehicles/engines/engine": "engine",
-            "vehicles/rotorcraft/model/rotors/rotor": "rotor",
+            "wings/wing": PartType.wing,
+            "fuselages/fuselage": PartType.fuselage,
+            "enginePylons/enginePylon": PartType.enginePylon,
+            "engine/nacelle/fanCowl": PartType.fanCowl,
+            "engine/nacelle/centerCowl": PartType.centerCowl,
+            "engine/nacelle/coreCowl": PartType.coreCowl,
+            "vehicles/engines/engine": PartType.engine,
+            "vehicles/rotorcraft/model/rotors/rotor": PartType.rotor,
         }
+
         for path_name, part_name in path_part.items():
             if path_name in part_xpath:
                 if print_info:

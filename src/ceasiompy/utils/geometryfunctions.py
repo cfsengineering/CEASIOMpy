@@ -237,6 +237,10 @@ def get_segments_wing(tixi: Tixi3, wing_name: str) -> List[Tuple[str, str, str]]
     return segment_list
 
 
+def get_generic_geometric_components(tixi: Tixi3) -> List[str]:
+    raise NotImplementedError('TODO')
+
+
 def get_segments(tixi: Tixi3) -> List[Tuple[str, str]]:
     """
     Retrieve and return a sorted list of
@@ -421,7 +425,7 @@ def elements_number(tixi: Tixi3, xpath: str, element: str, logg: bool = True) ->
             else:
                 log.warning(f"Incorrect element number {ele_cnt}.")
 
-    else:
+    elif logg:
         log.warning(f"xPath {xpath} does not exist.")
 
     return ele_cnt

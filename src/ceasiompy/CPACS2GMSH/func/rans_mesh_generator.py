@@ -341,7 +341,7 @@ def generate_2d_mesh_for_pentagrow(
             dimtags_surfs_y0 = gmsh.model.getEntitiesForPhysicalName("y symmetry plane")
             lines_y0_sym = gmsh.model.getBoundary(dimtags_surfs_y0,
                                                   combined=False, oriented=False)
-            te_le_already_refined.extend([t for (d, t) in lines_y0_sym])
+            te_le_already_refined.extend([t for (_, t) in lines_y0_sym])
 
         mesh_fields = refine_other_lines(
             te_le_already_refined,
@@ -355,8 +355,10 @@ def generate_2d_mesh_for_pentagrow(
         log.info("Refining process finished")
 
     if symmetry:
+        log.info('Applying symmetry.')
         all_volumes = gmsh.model.getEntities(3)
         gmsh.model.occ.remove(all_volumes)
+        log.info('Removing y0 surfaces.')
         gmsh.model.occ.remove(dimtags_surfs_y0)
         gmsh.model.occ.synchronize()
 
@@ -369,8 +371,11 @@ def generate_2d_mesh_for_pentagrow(
     gmsh.option.setNumber("Mesh.StlOneSolidPerSurface", 2)
 
     # Generate the mesh
+    log.info('Generating the mesh.')
     gmsh.logger.start()
+    log.info('Generating Dimension 1.')
     gmsh.model.mesh.generate(1)
+    log.info('Generating dimension 2.')
     gmsh.model.mesh.generate(2)
 
     process_gmsh_log(gmsh.logger.get())
@@ -530,7 +535,11 @@ def fusing_parts(aircraft_parts, symmetry, sym_box):
     counter = 0
     while len(dimtags_names) > 1:
         # Choose two entities to fuse
-        i, j = intersecting_entities_for_fusing(dimtags_names)
+        pair = intersecting_entities_for_fusing(dimtags_names)
+        if pair is None:
+            log.warning("No valid intersecting volumes left; aborting fusion.")
+            break
+        i, j = pair
         try:
             # Fuse them
             fused_entities, _ = gmsh.model.occ.fuse(
@@ -593,8 +602,8 @@ def fusing_parts(aircraft_parts, symmetry, sym_box):
             random.shuffle(dimtags_names)
         if counter > 20:
             # If here we have multiples times had problems with fusion and won't give one piece
-            names = [dimtags_names[k]["name"] for k in range(len(dimtags_names))]
-            log.warning(f"The end result is not in one piece. Parts by group : {names}")
+            # names = [dimtags_names[k]["name"] for k in range(len(dimtags_names))]
+            log.warning("The end result is not in one piece.")
             break
 
     if symmetry:

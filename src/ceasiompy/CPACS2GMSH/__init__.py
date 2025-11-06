@@ -38,6 +38,9 @@ CONTROL_SURFACES_LIST = ["aileron", "rudder", "flap"]
 
 # xPaths
 GMSH_XPATH = MESH_XPATH + "/gmshOptions"
+
+GMSH_GEN_TO_BREP_XPATH = GMSH_XPATH + "/gens_to_types"
+
 GMSH_OPEN_GUI_XPATH = GMSH_XPATH + "/open_gui"
 GMSH_SYMMETRY_XPATH = GMSH_XPATH + "/symmetry"
 GMSH_EXPORT_PROP_XPATH = GMSH_XPATH + "/exportPropellers"

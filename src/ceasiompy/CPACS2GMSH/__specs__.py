@@ -14,6 +14,8 @@ GUI Interface of CPACS2GMSH.
 #   IMPORTS
 # ==============================================================================
 
+import streamlit as st
+
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy.utils.guixpaths import SU2MESH_XPATH
@@ -44,6 +46,7 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_INTAKE_PERCENT_XPATH,
     GMSH_EXHAUST_PERCENT_XPATH,
     GMSH_SAVE_CGNS_XPATH,
+    GMSH_GEN_TO_BREP_XPATH,
 )
 
 # ==============================================================================
@@ -56,6 +59,9 @@ cpacs_inout = CPACSInOut()
 #   GUI INPUTS
 # ==============================================================================
 
+# if "cpacs" in st.session_state:
+#     ...
+
 cpacs_inout.add_input(
     var_name="open_gmsh",
     var_type=bool,
@@ -63,7 +69,6 @@ cpacs_inout.add_input(
     unit=None,
     descr="Open GMSH GUI when the mesh is created",
     xpath=GMSH_OPEN_GUI_XPATH,
-
     gui_name="Open GMSH GUI",
     gui_group="General options",
 )
@@ -75,7 +80,6 @@ cpacs_inout.add_input(
     unit=None,
     descr="Choose between Euler and RANS mesh",
     xpath=GMSH_MESH_TYPE_XPATH,
-
     gui_name="Choose the mesh type",
     gui_group="Mesh type",
 )
@@ -99,7 +103,6 @@ cpacs_inout.add_input(
     unit=None,
     descr="Create a symmetry condition",
     xpath=GMSH_SYMMETRY_XPATH,
-
     gui_name="Use Symmetry",
     gui_group="Domain",
 )

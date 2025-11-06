@@ -33,6 +33,9 @@ PYLONS_XPATH = "/cpacs/vehicles/aircraft/model/enginePylons"
 ENGINES_XPATH = "/cpacs/vehicles/aircraft/model/engines"
 AIRFOILS_XPATH = "/cpacs/vehicles/profiles/wingAirfoils"
 
+GEOMETRIC_XPATH = "/cpacs/vehicles/aircraft/model/genericGeometryComponents"
+
+
 # analyses
 AEROPERFORMANCE_XPATH = "/cpacs/vehicles/aircraft/model/analyses/aeroPerformance"
 MASSBREAKDOWN_XPATH = "/cpacs/vehicles/aircraft/model/analyses/massBreakdown"

@@ -14,10 +14,12 @@ Small description of the script
 #   IMPORTS
 # =================================================================================================
 
+import math
 import shutil
 
 from tigl3.import_export_helper import export_shapes
 from cpacspy.cpacsfunctions import get_value_or_default
+from ceasiompy.utils.geometryfunctions import elements_number
 from ceasiompy.CPACS2GMSH.func.engineconversion import engine_conversion
 
 from pathlib import Path
@@ -26,6 +28,7 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.stp import STP
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.guisettings import GUISettings
+from ceasiompy.utils.generalclasses import Transformation
 
 from ceasiompy import log
 from ceasiompy.CPACS2GMSH import GMSH_EXPORT_PROP_XPATH
@@ -35,7 +38,19 @@ from OCC.Core.STEPControl import STEPControl_Reader
 from OCC.Core.IFSelect import IFSelect_RetDone
 from OCC.Core.BRepTools import breptools_Write
 from OCC.Core.TopExp import TopExp_Explorer
-from OCC.Core.TopAbs import TopAbs_SOLID
+from OCC.Core.TopAbs import TopAbs_SHELL
+from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_GTransform, BRepBuilderAPI_Transform
+from OCC.Core.gp import (
+    gp_Ax1,
+    gp_Dir,
+    gp_GTrsf,
+    gp_Mat,
+    gp_Pnt,
+    gp_Trsf,
+    gp_Vec,
+    gp_XYZ,
+)
+from tixi3.tixi3wrapper import Tixi3Exception
 
 # =================================================================================================
 #   FUNCTIONS
@@ -69,6 +84,60 @@ def export(shape, brep_dir, uid):
     if not brep_file.exists():
         log.error(f"Failed to export {uid}")
         raise FileNotFoundError(f"Failed to export {uid}")
+
+
+def _apply_cpacs_transformation(shape, transf: Transformation):
+    """Apply CPACS scaling, rotation, and translation to the given shape."""
+
+    transformed_shape = shape
+
+    scaling = (
+        float(transf.scaling.x),
+        float(transf.scaling.y),
+        float(transf.scaling.z),
+    )
+    if not all(math.isclose(val, 1.0, abs_tol=1e-12) for val in scaling):
+        gtrsf = gp_GTrsf()
+        gtrsf.SetVectorialPart(
+            gp_Mat(
+                scaling[0],
+                0.0,
+                0.0,
+                0.0,
+                scaling[1],
+                0.0,
+                0.0,
+                0.0,
+                scaling[2],
+            )
+        )
+        gtrsf.SetTranslationPart(gp_XYZ(0.0, 0.0, 0.0))
+        transformed_shape = BRepBuilderAPI_GTransform(transformed_shape, gtrsf, True).Shape()
+
+    rotations = (
+        math.radians(float(transf.rotation.x)),
+        math.radians(float(transf.rotation.y)),
+        math.radians(float(transf.rotation.z)),
+    )
+    axes = (gp_Dir(1.0, 0.0, 0.0), gp_Dir(0.0, 1.0, 0.0), gp_Dir(0.0, 0.0, 1.0))
+    for angle, axis in zip(rotations, axes):
+        if math.isclose(angle, 0.0, abs_tol=1e-12):
+            continue
+        trsf = gp_Trsf()
+        trsf.SetRotation(gp_Ax1(gp_Pnt(0.0, 0.0, 0.0), axis), angle)
+        transformed_shape = BRepBuilderAPI_Transform(transformed_shape, trsf, True).Shape()
+
+    translation = (
+        float(transf.translation.x),
+        float(transf.translation.y),
+        float(transf.translation.z),
+    )
+    if not all(math.isclose(val, 0.0, abs_tol=1e-12) for val in translation):
+        trsf = gp_Trsf()
+        trsf.SetTranslation(gp_Vec(*translation))
+        transformed_shape = BRepBuilderAPI_Transform(transformed_shape, trsf, True).Shape()
+
+    return transformed_shape
 
 
 def engine_export(cpacs, engine, brep_dir, engines_cfg_file, engine_surface_percent):
@@ -242,6 +311,116 @@ def export_cpacs_brep(
             engine = engines_config.get_engine(k)
             engine_export(cpacs, engine, brep_dir, engines_cfg_file, engine_surface_percent)
 
+    # Export geometric components
+    tixi = cpacs.tixi
+
+    # Assume first model is aircraft\
+    gen_geometric_xpath = "/cpacs/vehicles/aircraft/model/genericGeometryComponents"
+
+    gen_geometric_nb = elements_number(
+        tixi=tixi,
+        xpath=gen_geometric_xpath,
+        element="genericGeometryComponent",
+        logg=False,
+    )
+    if gen_geometric_nb == 0:
+        log.info("No Generic Geometric Components found.")
+        return None
+
+    brep_dir.mkdir(exist_ok=True, parents=True)
+    cpacs_dir = (
+        Path(cpacs.cpacs_file).parent
+        if getattr(cpacs, "cpacs_file", None) is not None
+        else Path()
+    )
+
+    for gen_geometric_idx in range(1, gen_geometric_nb + 1):
+        component_xpath = (
+            f"{gen_geometric_xpath}/genericGeometryComponent[{gen_geometric_idx}]"
+        )
+        component_uid = tixi.getTextAttribute(component_xpath, "uID")
+        link_xpath = f"{component_xpath}/linkToFile"
+
+        if not tixi.checkElement(link_xpath):
+            log.warning(
+                "Generic geometry component '%s' has no linkToFile element; skipping.",
+                component_uid,
+            )
+            continue
+
+        geometry_ref = tixi.getTextElement(link_xpath).strip()
+        if geometry_ref == "":
+            log.warning(
+                "Generic geometry component '%s' has an empty linkToFile; skipping.",
+                component_uid,
+            )
+            continue
+
+        try:
+            geometry_format = tixi.getTextAttribute(link_xpath, "format")
+        except Tixi3Exception:
+            geometry_format = ""
+
+        geometry_format = (geometry_format or "").lower()
+        source_path = Path(geometry_ref)
+        if not source_path.is_absolute() and cpacs_dir:
+            source_path = (cpacs_dir / source_path).resolve()
+
+        if not source_path.exists():
+            log.warning(
+                "Generic geometry component '%s' references missing file '%s'; skipping.",
+                component_uid,
+                source_path,
+            )
+            continue
+
+        target_brep = brep_dir / f"{component_uid}.brep"
+        transf = Transformation()
+        transf.get_cpacs_transf(tixi, component_xpath)
+
+        if geometry_format in {"step", "stp"}:
+            try:
+                reader = STEPControl_Reader()
+                status = reader.ReadFile(str(source_path))
+                if status != IFSelect_RetDone:
+                    raise RuntimeError(f"STEP reader returned status {status}")
+
+                reader.TransferRoots()
+                shape = reader.OneShape()
+                transformed_shape = _apply_cpacs_transformation(shape, transf)
+                breptools_Write(transformed_shape, str(target_brep))
+                log.info(
+                    "Converted generic geometry component '%s' from STEP to %s.",
+                    component_uid,
+                    target_brep.name,
+                )
+            except Exception as exc:
+                log.warning(
+                    "Failed to export generic geometry component '%s' from STEP: %s",
+                    component_uid,
+                    exc,
+                )
+        elif geometry_format == "brep":
+            try:
+                shutil.copy2(source_path, target_brep)
+                log.info(
+                    "Copied generic geometry component '%s' BREP to %s.",
+                    component_uid,
+                    target_brep.name,
+                )
+            except Exception as exc:
+                log.warning(
+                    "Failed to copy BREP for generic geometry component '%s': %s",
+                    component_uid,
+                    exc,
+                )
+        else:
+            log.warning(
+                "Unsupported generic geometry format '%s' for component '%s'.",
+                geometry_format,
+                component_uid,
+            )
+
 
 def export_stp_brep(
     stp: STP,
@@ -282,30 +461,44 @@ def export_stp_brep(
         reader.TransferRoots()
         shape = reader.OneShape()
 
-        # Explore solids and export each as a separate .brep
-        explorer = TopExp_Explorer(shape, TopAbs_SOLID)
-        part_idx = 1
-        exported = []
-        while explorer.More():
-            solid = explorer.Current()
-            part_brep = brep_dir / f"{stp.stp_path.stem}_part_{part_idx}.brep"
-            breptools_Write(solid, str(part_brep))
-            log.info(f"Exported STEP part {part_idx} -> {part_brep.name}")
-            exported.append(part_brep)
-            part_idx += 1
-            explorer.Next()
+        def _export_topology(topology_name: str, topo_type) -> list[Path]:
+            # Export each sub-shape of the given topology as its own BREP
+            explorer = TopExp_Explorer(shape, topo_type)
+            exported_parts: list[Path] = []
+            part_idx = 1
+            while explorer.More():
+                sub_shape = explorer.Current()
+                part_brep = brep_dir / f"{stp.stp_path.stem}_{topology_name}_{part_idx}.brep"
+                breptools_Write(sub_shape, str(part_brep))
+                log.info(f"Exported STEP {topology_name} {part_idx} -> {part_brep.name}")
+                exported_parts.append(part_brep)
+                part_idx += 1
+                explorer.Next()
+            return exported_parts
 
-        # If no solids were found, fall back to exporting the whole shape
+        # Try solids first, then shells, finally individual faces
+        exported_solids = []
+        exported_shells = []
+        exported_faces = []
+
+        # If not exported_solids:
+        exported_shells = _export_topology("shell", TopAbs_SHELL)
+
+        # exported_faces = _export_topology("face", TopAbs_FACE)
+
+        total_exported = len(exported_solids) + len(exported_shells) + len(exported_faces)
+
+        # If no sub-shapes were found, fall back to exporting the whole shape
         target_brep = brep_dir / (stp.stp_path.stem + ".brep")
-        if not exported:
+        if total_exported == 0:
             breptools_Write(shape, str(target_brep))
             log.info(
-                "No individual solids found. "
+                "No individual solids/shells/faces found. "
                 f"Converted STEP {stp.stp_path.name} -> BREP {target_brep.name}"
             )
         else:
             log.info(
-                f"Exported {len(exported)} part(s) "
+                f"Exported {total_exported} sub-shape(s) "
                 f"from {stp.stp_path.name} to {brep_dir}"
             )
         return

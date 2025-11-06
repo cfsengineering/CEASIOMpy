@@ -9,4 +9,4 @@ class PartType(StrEnum):
     coreCowl = "coreCowl"
     fuselage = "fuselage"
     centerCowl = "centerCowl"
-    enginePylon = "enginePylon"
+    pylon = "pylon"

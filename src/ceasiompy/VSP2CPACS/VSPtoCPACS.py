@@ -16,7 +16,7 @@ After it will pass through this module to have a CPACS file.
 # =================================================================================================
 from pathlib import Path
 from ceasiompy.VSP2CPACS.func.Wing import Import_Wing
-#from ceasiompy.VSP2CPACS.func.Fuselage import Import_Fuse
+from ceasiompy.VSP2CPACS.func.Fuselage import Import_Fuse
 #from ceasiompy.VSP2CPACS.func.POD import Import_POD
 #from ceasiompy.VSP2CPACS.func.Duct import Import_Duct
 from ceasiompy.VSP2CPACS.func.Export_CPACS_format import Export_CPACS

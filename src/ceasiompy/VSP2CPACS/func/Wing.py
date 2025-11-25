@@ -1104,21 +1104,7 @@ def get_coord_edit_curve(xsec_id,n):
     
     return curve_pts[:, 0], curve_pts[:, 1], Name,Scaling,shift
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
 profile_mapping = {
     vsp.XS_UNDEFINED:         "Undefined ", 
     vsp.XS_POINT:             get_coord_point, #0

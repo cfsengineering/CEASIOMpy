@@ -39,10 +39,12 @@ WORKDIR /CEASIOMpy/installation/Pentagrow/bin
 RUN chmod +x pentagrow
 
 WORKDIR /
-RUN /CEASIOMpy/installation/Ubuntu/install_openvsp.sh && \
-    /CEASIOMpy/installation/Ubuntu/install_pentagrow.sh && \
-    /CEASIOMpy/installation/Ubuntu/install_su2_with_mpi.sh && \
-    /CEASIOMpy/installation/Ubuntu/install_pyavl.sh
+
+RUN /CEASIOMpy/installation/Ubuntu/install_openvsp.sh
+
+RUN /CEASIOMpy/installation/Ubuntu/install_pentagrow.sh
+RUN /CEASIOMpy/installation/Ubuntu/install_su2_with_mpi.sh
+RUN /CEASIOMpy/installation/Ubuntu/install_pyavl.sh
 
 # Install xvfb and other graphical display dependencies for Ubuntu
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -69,20 +71,11 @@ RUN mkdir -p /CEASIOMpy
 # Set the working directory to the mounted CEASIOMpy folder
 WORKDIR /CEASIOMpy
 
-# Get the required files for installing the conda environment
-RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/setup.py -O /CEASIOMpy/setup.py && \
-    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/pyproject.toml -O /CEASIOMpy/pyproject.toml && \
-    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/environment.yml -O /CEASIOMpy/environment.yml && \
-    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/README.md -O /CEASIOMpy/README.md && \
-    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/LICENSE -O /CEASIOMpy/LICENSE
+# Copy project files (including local environment.yml) into the image
+COPY . /CEASIOMpy
 
-# Ensure the directory structure exists
-RUN mkdir -p /CEASIOMpy/src
-
-COPY src /CEASIOMpy/src
-
-# Create the Conda environment from the environment.yml file
-RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && conda update -n base -c conda-forge conda -y && conda env create -f environment.yml"
+# Create the Conda environment from the local environment.yml file
+RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && conda update -n base -c conda-forge conda -y && conda env create -f /CEASIOMpy/environment.yml"
 
 # Automatically activate the Conda environment in new shells
 RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \

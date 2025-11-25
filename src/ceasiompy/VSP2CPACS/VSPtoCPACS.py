@@ -21,10 +21,10 @@ from ceasiompy.VSP2CPACS.func.Fuselage import Import_Fuse
 #from ceasiompy.VSP2CPACS.func.Duct import Import_Duct
 from ceasiompy.VSP2CPACS.func.Export_CPACS_format import Export_CPACS
 import openvsp as vsp
-
-
 import warnings
+
 warnings.filterwarnings("ignore")
+
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================

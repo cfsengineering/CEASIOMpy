@@ -75,7 +75,7 @@ make -j$(nproc)
 make install
 ### === Setup PATH and PYTHONPATH === ###
 bashrc_line_path="export PATH=\"\$PATH:$install_dir\""
-bashrc_line_python="export PYTHONPATH=\"$install_dir/python/openvsp\""
+bashrc_line_python="export PYTHONPATH=\"$install_dir/python:\$PYTHONPATH\""
 
 for file in "$HOME/.bashrc" "$HOME/.zshrc"; do
     if ! grep -qxF "$bashrc_line_path" "$file" 2>/dev/null; then

@@ -39,7 +39,8 @@ WORKDIR /CEASIOMpy/installation/Pentagrow/bin
 RUN chmod +x pentagrow
 
 WORKDIR /
-RUN /CEASIOMpy/installation/Ubuntu/install_pentagrow.sh && \
+RUN /CEASIOMpy/installation/Ubuntu/install_openvsp.sh && \
+    /CEASIOMpy/installation/Ubuntu/install_pentagrow.sh && \
     /CEASIOMpy/installation/Ubuntu/install_su2_with_mpi.sh && \
     /CEASIOMpy/installation/Ubuntu/install_pyavl.sh
 
@@ -90,7 +91,7 @@ RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
     echo "ceasiompy_run --gui" >> ~/.bashrc
 
 # Move the content of /INSTALLDIR to the mounted /CEASIOMpy/INSTALLDIR folder at runtime
-# CMD ["/bin/bash", "-c", "rm -rf /CEASIOMpy/INSTALLDIR && mkdir -p /CEASIOMpy/INSTALLDIR && mv /INSTALLDIR/* /CEASIOMpy/INSTALLDIR/ && exec bash"]
+CMD ["/bin/bash", "-c", "rm -rf /CEASIOMpy/INSTALLDIR && mkdir -p /CEASIOMpy/INSTALLDIR && mv /INSTALLDIR/* /CEASIOMpy/INSTALLDIR/ && exec bash"]
 
 # Now you just need click on: Networ URL
 

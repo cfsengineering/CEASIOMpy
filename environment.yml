@@ -71,3 +71,4 @@ dependencies:
     - framat==0.5
     - panelaero
     - defusedxml
+    - sphinx

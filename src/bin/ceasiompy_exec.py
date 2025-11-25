@@ -175,10 +175,12 @@ def run_gui():
     env = os.environ.copy()
     # Add the src directory to PYTHONPATH
     env["PYTHONPATH"] = (
-        str(Path(__file__).resolve().parents[2] / "src") + os.pathsep + env.get("PYTHONPATH", "")
+        str(Path(__file__).resolve().parents[2] / 'INSTALLDIR/OpenVSP/python/openvsp') + os.pathsep + str(Path(__file__).resolve().parents[2] / "src") + os.pathsep + env.get("PYTHONPATH", "")
     )
+    print(env["PYTHONPATH"])
+
     subprocess.run(
-        ["streamlit", "run", "CEASIOMpy.py", "--server.headless", "false"],
+        ["streamlit", "run", "CEASIOMpy.py"],
         cwd=STREAMLIT_PATH,
         check=True,
         env=env,

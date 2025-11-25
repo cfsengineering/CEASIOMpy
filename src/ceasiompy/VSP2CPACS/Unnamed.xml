@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cpacs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi_noNamespaceSchemaLocation="CPACS_21_Schema.xsd">
+  <header>
+    <name>Unnamed</name>
+    <version>0.2</version>
+    <cpacsVersion>3.0</cpacsVersion>
+    <versionInfos>
+      <versionInfo version="version1">
+        <description>Geometry from openVSP</description>
+        <creator>cpacs2to3</creator>
+        <version>0.3</version>
+        <cpacsVersion>3.0</cpacsVersion>
+        <timestamp>2025-10-30T13:40:44</timestamp>
+      </versionInfo>
+    </versionInfos>
+  </header>
+  <vehicles>
+    <aircraft>
+      <model uID="CPACS_test">
+        <name>CPACS_test</name>
+        <reference>
+          <area>1</area>
+          <length>1</length>
+          <point uID="Point">
+            <x>0</x>
+            <y>0</y>
+            <z>0</z>
+          </point>
+        </reference>
+        <wings>
+          <wing uID="WingGeom" symmetry="x-z-plane">
+            <name>WingGeom</name>
+            <description>Wing from openVSP</description>
+            <transformation uID="WingGeom_Tr">
+              <scaling uID="WingGeom_Tr_Scal">
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scaling>
+              <rotation uID="WingGeom_Tr_Rot">
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <translation uID="WingGeom_Tr_Transl" refType="absGlobal">
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </translation>
+            </transformation>
+            <sections>
+              <section uID="WingGeomSec0">
+                <name>WingGeomSec0</name>
+                <transformation uID="WingGeomSec0_Tr">
+                  <scaling uID="WingGeomSec0_Tr_Scal">
+                    <x>4.0</x>
+                    <y>1.0</y>
+                    <z>4.0</z>
+                  </scaling>
+                  <rotation uID="WingGeomSec0_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="WingGeomSec0_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="WingGeomSec0Elem">
+                    <name>WingGeomSec0Elem</name>
+                    <airfoilUID>WingGeomSec0_NACA0001</airfoilUID>
+                    <transformation uID="WingGeomSec0Elem_Tr">
+                      <scaling uID="WingGeomSec0Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="WingGeomSec0Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="WingGeomSec0Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="WingGeomSec1">
+                <name>WingGeomSec1</name>
+                <transformation uID="WingGeomSec1_Tr">
+                  <scaling uID="WingGeomSec1_Tr_Scal">
+                    <x>1.0</x>
+                    <y>1.0</y>
+                    <z>1.0</z>
+                  </scaling>
+                  <rotation uID="WingGeomSec1_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="WingGeomSec1_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="WingGeomSec1Elem">
+                    <name>WingGeomSec1Elem</name>
+                    <airfoilUID>WingGeomSec1_NACA0001</airfoilUID>
+                    <transformation uID="WingGeomSec1Elem_Tr">
+                      <scaling uID="WingGeomSec1Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="WingGeomSec1Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="WingGeomSec1Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+            </sections>
+            <positionings>
+              <positioning uID="WingGeomSec0GenPos">
+                <name>WingGeomSec0GenPos</name>
+                <length>0</length>
+                <sweepAngle>0</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <toSectionUID>WingGeomSec0</toSectionUID>
+              </positioning>
+              <positioning uID="WingGeomSec1GenPos">
+                <name>WingGeomSec1GenPos</name>
+                <length>10.392304845413262</length>
+                <sweepAngle>30.0</sweepAngle>
+                <dihedralAngle>0.0</dihedralAngle>
+                <fromSectionUID>WingGeomSec0</fromSectionUID>
+                <toSectionUID>WingGeomSec1</toSectionUID>
+              </positioning>
+            </positionings>
+            <segments>
+              <segment uID="WingGeomSeg1">
+                <name>WingGeomSeg1</name>
+                <fromElementUID>WingGeomSec0Elem</fromElementUID>
+                <toElementUID>WingGeomSec1Elem</toElementUID>
+              </segment>
+            </segments>
+          </wing>
+        </wings>
+      </model>
+    </aircraft>
+    <profiles>
+      <wingAirfoils>
+        <wingAirfoil uID="WingGeomSec0_NACA0001">
+          <name>WingGeomSec0_NACA0001</name>
+          <pointList>
+            <x mapType="vector">1.;0.9890738;0.95677273;0.9045085;0.8345653;0.75;0.6545085;0.55226423;0.44773577;0.3454915;0.25;0.1654347;0.0954915;0.04322727;0.0109262;0.;0.;0.0109262;0.04322727;0.0954915;0.1654347;0.25;0.3454915;0.44773577;0.55226423;0.6545085;0.75;0.8345653;0.9045085;0.95677273;0.9890738;1.</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">1.38777878e-17;-1.31411176e-03;-5.09313615e-03;-1.08924547e-02;-1.80929955e-02;-2.60036587e-02;-3.39051532e-02;-4.10338814e-02;-4.65601071e-02;-4.96306371e-02;-4.95062500e-02;-4.57510774e-02;-3.83740237e-02;-2.78239743e-02;-1.48080971e-02;-0.00000000e+00;0.00000000e+00;1.48080971e-02;2.78239743e-02;3.83740237e-02;4.57510774e-02;4.95062500e-02;4.96306371e-02;4.65601071e-02;4.10338814e-02;3.39051532e-02;2.60036587e-02;1.80929955e-02;1.08924547e-02;5.09313615e-03;1.31411176e-03;1.38777878e-17</z>
+          </pointList>
+        </wingAirfoil>
+        <wingAirfoil uID="WingGeomSec1_NACA0001">
+          <name>WingGeomSec1_NACA0001</name>
+          <pointList>
+            <x mapType="vector">1.;0.99615385;0.99230769;0.98846154;0.98461538;0.98076923;0.97692308;0.97307692;0.96923077;0.96538462;0.96153846;0.95769231;0.95384615;0.95;0.5;0.05;0.05;0.04615385;0.04230769;0.03846154;0.03461538;0.03076923;0.02692308;0.02307692;0.01923077;0.01538462;0.01153846;0.00769231;0.00384615;0.;0.;0.00384615;0.00769231;0.01153846;0.01538462;0.01923077;0.02307692;0.02692308;0.03076923;0.03461538;0.03846154;0.04230769;0.04615385;0.05;0.05;0.5;0.95;0.95384615;0.95769231;0.96153846;0.96538462;0.96923077;0.97307692;0.97692308;0.98076923;0.98461538;0.98846154;0.99230769;0.99615385;1.</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">1.38777878e-17;-4.64702203e-04;-9.27097286e-04;-1.38720249e-03;-1.84503507e-03;-2.30061225e-03;-2.75395128e-03;-3.20506941e-03;-3.65398387e-03;-4.10071191e-03;-4.54527078e-03;-4.98767771e-03;-5.42794969e-03;-5.86610158e-03;-4.40561827e-02;-2.89084938e-02;-2.89084938e-02;-2.82675514e-02;-2.76929167e-02;-2.71564616e-02;-2.65561873e-02;-2.57812948e-02;-2.47209848e-02;-2.32644582e-02;-2.13009160e-02;-1.87195590e-02;-1.54095880e-02;-1.12602039e-02;-6.16060762e-03;0.00000000e+00;0.00000000e+00;6.16060762e-03;1.12602039e-02;1.54095880e-02;1.87195590e-02;2.13009160e-02;2.32644582e-02;2.47209848e-02;2.57812948e-02;2.65561873e-02;2.71564616e-02;2.76929167e-02;2.82675514e-02;2.89084938e-02;2.89084938e-02;4.40561827e-02;5.86610158e-03;5.42794969e-03;4.98767771e-03;4.54527078e-03;4.10071191e-03;3.65398387e-03;3.20506941e-03;2.75395128e-03;2.30061225e-03;1.84503507e-03;1.38720249e-03;9.27097286e-04;4.64702203e-04;1.38777878e-17</z>
+          </pointList>
+        </wingAirfoil>
+      </wingAirfoils>
+    </profiles>
+  </vehicles>
+</cpacs>

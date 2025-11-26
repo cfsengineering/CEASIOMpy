@@ -46,6 +46,8 @@ source ~/.bashrc
 ./installation/CentOS/install_pyavl.sh
 ./installation/CentOS/install_su2.sh
 ./installation/CentOS/install_paraview.sh
+./installation/CentOS/install_openvsp.sh
+
 source ~/.bashrc
 ```
 

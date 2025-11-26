@@ -19,6 +19,7 @@ Main Streamlit page for CEASIOMpy GUI.
 import os
 import numpy as np
 import streamlit as st
+import subprocess
 import plotly.graph_objects as go
 
 from CEASIOMpyStreamlit.streamlitutils import create_sidebar
@@ -29,6 +30,7 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy.utils.commonpaths import WKDIR_PATH
+from ceasiompy.VSP2CPACS import VSPtoCPACS
 
 # =================================================================================================
 #    CONSTANTS
@@ -76,9 +78,28 @@ def section_select_cpacs():
     if "workflow" not in st.session_state:
         st.session_state["workflow"] = Workflow()
 
+    st.markdown("""
+    <h4 style='font-size:20px;'>
+        <b>📥  Open a CPACS file or import a model from OpenVSP</b><br><br>        
+        <b>✈️  Create a new geometry in OpenVSP</b>
+    </h4>
+    """, unsafe_allow_html=True)
+    
+    OPENVSP_DIR = Path(__file__).parent.parent.parent / "INSTALLDIR" / "OpenVSP"
+    VSP_EXEC = "vsp"
+
+    if OPENVSP_DIR.exists() and (OPENVSP_DIR / VSP_EXEC).exists():
+        if st.button("📌 Launch OpenVSP"):
+            try:
+                subprocess.Popen([f"./{VSP_EXEC}"], cwd=str(OPENVSP_DIR))
+                #st.success("OpenVSP has been launched!")
+            except Exception as e:
+                st.error(f"Could not open OpenVSP: {e}")
+    else:
+        st.warning(f"⚠️ OpenVSP executable not found at {OPENVSP_DIR / VSP_EXEC}")
+
     WKDIR_PATH.mkdir(parents=True, exist_ok=True)
     st.session_state.workflow.working_dir = WKDIR_PATH
-    st.markdown("#### CPACS file")
 
     # Check if the CPACS file path is already in session state
     if "cpacs_file_path" in st.session_state:
@@ -91,15 +112,27 @@ def section_select_cpacs():
 
     # File uploader widget
     uploaded_file = st.file_uploader(
-        "Select a CPACS file",
-        type=["xml"],
+        "Select a CPACS or a .vsp3 file",
+        type=["xml","vsp3"],
     )
 
-    if uploaded_file:
+    if uploaded_file and "vsp_converted" not in st.session_state:
         cpacs_new_path = Path(st.session_state.workflow.working_dir, uploaded_file.name)
 
-        with open(cpacs_new_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
+        if cpacs_new_path.suffix == ".vsp3":
+            with open(cpacs_new_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+
+            VSPtoCPACS.main(str(cpacs_new_path))
+
+            
+            module_dir = Path(__file__).parent  # path della cartella del modulo
+            cpacs_new_path = module_dir.parent / f"ceasiompy/VSP2CPACS/{Path(str(cpacs_new_path)).stem}.xml"
+            # Stop new uploding
+            st.session_state.vsp_converted = True
+        else:
+            with open(cpacs_new_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
 
         st.session_state.workflow.cpacs_in = cpacs_new_path
         cpacs = CPACS(cpacs_new_path)

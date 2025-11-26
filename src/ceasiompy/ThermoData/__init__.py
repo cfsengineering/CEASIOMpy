@@ -26,6 +26,9 @@ MODULE_STATUS = True
 # ===== Include GUI =====
 INCLUDE_GUI = True
 
+RES_DIR = True
+
+
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name

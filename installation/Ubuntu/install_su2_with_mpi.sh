@@ -7,9 +7,9 @@ current_dir="$(pwd)"
 
 # Get install dir from input if it exists
 if [ $# -gt 0 ]; then
-    install_dir="$1/INSTALLDIR"
+    install_dir="$1/INSTALLDIR/SU2"
 else
-    install_dir="$(pwd)/INSTALLDIR"
+    install_dir="$(pwd)/INSTALLDIR/SU2"
 fi
 
 echo "Creating install directory..."
@@ -64,7 +64,7 @@ cd "$current_dir"
 
 # Add SU2 environment variables to .bashrc and .zshrc
 su2_bin_path="$install_dir/bin"
-su2_home_path="$install_dir"
+su2_home_path="$install_dir/su2_source"
 
 for shellrc in "$HOME/.bashrc" "$HOME/.zshrc"; do
     # SU2

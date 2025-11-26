@@ -197,7 +197,6 @@ def run_gui():
         + os.pathsep
         + env.get("PYTHONPATH", "")
     )
-    print(env["PYTHONPATH"])
 
     subprocess.run(
         ["streamlit", "run", "CEASIOMpy.py"],

@@ -5,7 +5,7 @@
 su2_version="8.1.0"
 current_dir="$(pwd)"
 
-# NEW – install into INSTALLDIR/SU2
+# Get install dir from input if it exists
 if [ $# -gt 0 ]; then
     install_dir="$1/INSTALLDIR/SU2"
 else
@@ -63,6 +63,7 @@ mpirun --version
 cd "$current_dir"
 
 # Add SU2 environment variables to .bashrc and .zshrc
+su2_bin_path="$install_dir/bin"
 su2_home_path="$install_dir/su2_source"
 
 for shellrc in "$HOME/.bashrc" "$HOME/.zshrc"; do
@@ -70,6 +71,9 @@ for shellrc in "$HOME/.bashrc" "$HOME/.zshrc"; do
     if ! grep -Fxq "# SU2 Path" "$shellrc" 2>/dev/null; then
         echo "" >> "$shellrc"
         echo "# SU2 Path" >> "$shellrc"
+    fi
+    if ! grep -Fxq "export SU2_RUN=\"$su2_bin_path\"" "$shellrc" 2>/dev/null; then
+        echo "export SU2_RUN=\"$su2_bin_path\"" >> "$shellrc"
     fi
     if ! grep -Fxq "export SU2_HOME=\"$su2_home_path\"" "$shellrc" 2>/dev/null; then
         echo "export SU2_HOME=\"$su2_home_path\"" >> "$shellrc"
@@ -80,7 +84,6 @@ for shellrc in "$HOME/.bashrc" "$HOME/.zshrc"; do
     if ! grep -Fxq "export PATH=\"\$PATH:\$SU2_RUN\"" "$shellrc" 2>/dev/null; then
         echo "export PATH=\"\$PATH:\$SU2_RUN\"" >> "$shellrc"
     fi
-
     # MPI
     if ! grep -Fxq "# MPI Path" "$shellrc" 2>/dev/null; then
         echo "" >> "$shellrc"

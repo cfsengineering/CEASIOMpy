@@ -18,10 +18,7 @@ import math
 import numpy as np
 
 from numpy import array
-from cpacspy.cpacsfunctions import (
-    get_float_vector,
-    get_value_or_default,
-)
+from cpacspy.cpacsfunctions import get_float_vector
 from ceasiompy.utils.mathsfunctions import (
     rot,
     rotate_2d_point,
@@ -94,14 +91,9 @@ def retrieve_gui_ctrlsurf(tixi: Tixi3) -> Dict[str, List]:
         for j in range(1, seg_cnt + 1):
             segment_name = tixi.getChildNodeName(wing_xpath, j)
             segment_xpath = f"{wing_xpath}/{segment_name}"
-            segment_value = tixi.getTextElement(segment_xpath + "/ctrlsurf")
-            deformation_angle = get_value_or_default(
-                tixi,
-                xpath=segment_xpath + "/deformation_angle",
-                default_value=0.0,
-            )
+            segment_value = tixi.getTextElement(segment_xpath)
             if segment_value != "none":
-                wing_sgt_list.append((segment_name, segment_value, deformation_angle))
+                wing_sgt_list.append((segment_name, segment_value))
         result[wing_name] = wing_sgt_list
 
     if not result:
@@ -672,8 +664,7 @@ def add_control_surfaces(tixi: Tixi3) -> None:
     if ctrlsurf:
         for wing_name, wing_data in ctrlsurf.items():
             decompose_wing(tixi, wing_name)
-            for (sgt, ctrltype, deformation_angle) in wing_data:
-                log.info(f'Updating {sgt=}, {ctrltype=}, with a {deformation_angle=}')
+            for sgt, ctrltype in wing_data:
 
                 # Transform and scale original airfoil
                 transform_airfoil(tixi, sgt, ctrltype)
@@ -681,11 +672,10 @@ def add_control_surfaces(tixi: Tixi3) -> None:
                 # Add small airfoil that will act as a control surface
                 add_airfoil(tixi, sgt, ctrltype)
 
-                # Deflection function
-                if deformation_angle != 0.0:
-                    deflection_angle(tixi, ctrltype + "_" + sgt, angle=deformation_angle)
-                    # deflection_angle(tixi, "right_" + ctrltype + "_" + sgt, angle=20.0)
-                    # deflection_angle(tixi, "left_" + ctrltype + "_" + sgt, angle=-20.0)
+                # Test deflection function
+                # deflection_angle(tixi, ctrltype + "_" + sgt, angle=-20.0)
+                # deflection_angle(tixi, "right_" + ctrltype + "_" + sgt, angle=20.0)
+                # deflection_angle(tixi, "left_" + ctrltype + "_" + sgt, angle=-20.0)
 
         log.info("Finished adding control surfaces.")
     else:

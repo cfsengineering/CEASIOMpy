@@ -43,6 +43,7 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
+
 from ceasiompy.utils.commonxpaths import SU2MESH_XPATH
 from ceasiompy.CPACS2GMSH import (
     MODULE_NAME,
@@ -125,7 +126,6 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
             testing_gmsh=False,
             surf=surf,
             angle=angle,
-            also_save_cgns=also_save_cgns,
         )
     else:
         gmesh_path, fuselage_maxlen = generate_2d_mesh_for_pentagrow(
@@ -188,16 +188,15 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
     if su2mesh_path.exists():
         mesh_path = str(su2mesh_path)
         if tixi.checkElement(SU2MESH_XPATH):
-            meshes = tixi.getTextElement(SU2MESH_XPATH)
+            meshes = str(tixi.getTextElement(SU2MESH_XPATH))
             if meshes != "":
                 mesh_path = meshes + ";" + mesh_path
         else:
             # Create the branch if it does not exist.
             create_branch(tixi, SU2MESH_XPATH)
 
-        tixi.updateTextElement(SU2MESH_XPATH, mesh_path)
+        tixi.updateTextElement(SU2MESH_XPATH, str(mesh_path))
         log.info(f"SU2 Mesh at {mesh_path} has been correctly generated. \n")
-
     else:
         log.warning(f"Mesh path {su2mesh_path} does not exist. \n")
 

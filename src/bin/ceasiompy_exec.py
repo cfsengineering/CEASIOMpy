@@ -178,7 +178,7 @@ def run_gui():
         str(Path(__file__).resolve().parents[2] / "src") + os.pathsep + env.get("PYTHONPATH", "")
     )
     subprocess.run(
-        ["streamlit", "run", "CEASIOMpy.py", "--server.headless", "false"],
+        ["streamlit", "run", "CEASIOMpy.py"],
         cwd=STREAMLIT_PATH,
         check=True,
         env=env,

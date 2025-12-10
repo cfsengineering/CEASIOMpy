@@ -12,6 +12,7 @@ Sampling strategies for SMTrain.
 # ==============================================================================
 
 import numpy as np
+import pandas as pd
 
 from sklearn.model_selection import train_test_split
 from ceasiompy.SMTrain.func.utils import get_val_fraction
@@ -30,7 +31,10 @@ from typing import (
 
 from ceasiompy import log
 from ceasiompy.SMTrain import AEROMAP_FEATURES
-from ceasiompy.SMTrain.func import LH_SAMPLING_DATA_CSV
+from ceasiompy.SMTrain.func import (
+    AEROMAP_SELECTED_CSV,
+    LH_SAMPLING_DATA_GEOMETRY_CSV,
+)
 
 # =================================================================================================
 #   FUNCTIONS
@@ -77,18 +81,122 @@ def lh_sampling(
 
     # Post-process sampled data to apply precision constraints
     for key in sampled_dict:
-        if key == "altitude":
+        if key == "range_of_altitude":
             sampled_dict[key] = np.round(sampled_dict[key]).astype(int)  # Convert to int
-        elif key in ["machNumber", "angleOfAttack", "angleOfSideslip"]:
+        elif key in ["range_of_mach", "range_of_aoa", "range_of_aos"]:
             sampled_dict[key] = np.round(sampled_dict[key] / 0.01) * 0.01  # Round to nearest 0.01
 
     # Save sampled dataset
     sampled_df = DataFrame(sampled_dict)
-    output_file_path = results_dir / LH_SAMPLING_DATA_CSV
+    output_file_path = results_dir / AEROMAP_SELECTED_CSV
     sampled_df.to_csv(output_file_path, index=False)
     log.info(f"LHS dataset saved in {output_file_path}")
 
     return output_file_path
+
+# def lh_sampling(
+#     n_samples: int,
+#     ranges: Dict,
+#     results_dir: Path,
+#     random_state: int = 42,
+# ) -> Union[Path, None]:
+#     """
+#     Generate a Latin Hypercube Sampling (LHS) dataset within specified variable ranges.
+#     Uses the Enhanced Stochastic Evolutionary (ESE) criterion
+#     to generate a diverse set of samples within given variable limits.
+
+#     Args:
+#         n_samples (int): Number of samples to generate.
+#         ranges (Dict):
+#             Dictionary specifying the variable ranges in the format:
+#             { "variable_name": (min_value, max_value) }.
+#         results_dir (Path): Where the sampled dataset will be saved.
+#         random_state (int = 42): Seed for random number generation to ensure reproducibility.
+#     """
+#     if n_samples < 2:
+#         log.info(
+#             "Can not apply LHS on strictly less than 2 samples. "
+#             "Will use data from ceasiompy.db."
+#         )
+#         return None
+
+#     xlimits = np.array(list(ranges.values()))
+
+#     sampling = LHS(xlimits=xlimits, criterion="ese", random_state=random_state)
+#     samples = sampling(n_samples)
+
+#     # Maintain constant variables with fixed ranges
+#     fixed_cols = [idx for idx, (low, high) in enumerate(xlimits) if low == high]
+#     for idx in fixed_cols:
+#         samples[:, idx] = xlimits[idx, 0]
+
+#     sampled_dict = {key: samples[:, idx] for idx, key in enumerate(ranges.keys())}
+
+#         # Post-process sampled data to apply precision constraints
+#     for key in sampled_dict:
+#         if key == "range_of_altitude":
+#             sampled_dict[key] = np.round(sampled_dict[key]).astype(int)  # Convert to int
+#         elif key in ["range_of_mach", "range_of_aoa", "range_of_aos"]:
+#             sampled_dict[key] = np.round(sampled_dict[key] / 0.01) * 0.01  # Round to nearest 0.01
+
+
+#     # Save sampled dataset
+#     sampled_df = DataFrame(sampled_dict)
+#     output_file_path = results_dir / AEROMAP_SELECTED_CSV
+#     sampled_df.to_csv(output_file_path, index=False)
+#     log.info(f"LHS dataset saved in {output_file_path}")
+
+#     return output_file_path
+
+
+
+def lh_sampling_geom(
+    n_samples: int,
+    ranges: Dict,
+    results_dir: Path,
+    random_state: int = 42,
+) -> Union[Path, None]:
+    """
+    Generate a Latin Hypercube Sampling (LHS) dataset within specified variable ranges.
+    Uses the Enhanced Stochastic Evolutionary (ESE) criterion
+    to generate a diverse set of samples within given variable limits.
+
+    Args:
+        n_samples (int): Number of samples to generate.
+        ranges (Dict):
+            Dictionary specifying the variable ranges in the format:
+            { "variable_name": (min_value, max_value) }.
+        results_dir (Path): Where the sampled dataset will be saved.
+        random_state (int = 42): Seed for random number generation to ensure reproducibility.
+    """
+    if n_samples < 2:
+        log.info(
+            "Can not apply LHS on strictly less than 2 samples. "
+            "Will use data from ceasiompy.db."
+        )
+        return None
+
+    xlimits = np.array(list(ranges.values()))
+
+    sampling = LHS(xlimits=xlimits, criterion="ese", random_state=random_state)
+    samples = sampling(n_samples)
+
+    # Maintain constant variables with fixed ranges
+    fixed_cols = [idx for idx, (low, high) in enumerate(xlimits) if low == high]
+    for idx in fixed_cols:
+        samples[:, idx] = xlimits[idx, 0]
+
+    sampled_dict = {key: samples[:, idx] for idx, key in enumerate(ranges.keys())}
+
+    # Save sampled dataset
+    sampled_df = DataFrame(sampled_dict)
+    output_file_path = results_dir / LH_SAMPLING_DATA_GEOMETRY_CSV
+    sampled_df.to_csv(output_file_path, index=False)
+    log.info(f"LHS dataset saved in {output_file_path}")
+
+    return output_file_path
+
+
 
 
 def new_points(
@@ -139,6 +247,64 @@ def new_points(
         if new_point not in high_variance_set:
             high_var_pts.append(new_point)
             sampled_df = DataFrame([new_point], columns=AEROMAP_FEATURES)
+            sampled_df.to_csv(output_file_path, index=False)
+            return sampled_df
+
+    log.warning("No new points found, all have been selected.")
+    return None
+
+
+
+def new_points_geom(
+    x_array: ndarray,
+    model: Union[KRG, MFK],
+    results_dir: Path,
+    high_var_pts: List,
+) -> Union[DataFrame, None]:
+    """
+    Selects new sampling points based on variance predictions from a surrogate model.
+
+    This function identifies high-variance points from the `level_1` dataset for adaptive sampling.
+    In the first iteration, it selects the top 6 points with the highest variance. In subsequent
+    iterations, it picks the next highest variance point not previously selected.
+
+    Args:
+        datasets (Dict): Contains different fidelity datasets (expects 'level_1').
+        model (object): Surrogate model used to predict variance.
+        result_dir (Path): Directory where the selected points CSV file will be saved.
+        high_variance_points (List): List of previously selected high-variance points.
+
+    Returns:
+        DataFrame containing the newly selected points.
+        Or None if all high-variance points have already been chosen.
+    """
+
+    # Compute variance prediction
+    y_var_flat = np.asarray(model.predict_variances(x_array)).flatten()
+    sorted_indices = np.argsort(y_var_flat)[::-1]  # Sort indices by variance (descending)
+    name_param_path = results_dir / "ranges_for_gui.csv"
+    df_ranges_parameter = pd.read_csv(name_param_path)
+    columns_from_csv = df_ranges_parameter['Parameter'].tolist()
+    # First iteration: generate boundary points
+    output_file_path = results_dir / "new_points.csv"
+    if not high_var_pts:
+        log.info("First iteration: selecting the first 7 highest variance points.")
+        selected_points = [tuple(x_array[idx]) for idx in sorted_indices[:7]]
+        high_var_pts.extend(selected_points)
+        sampled_df = DataFrame(selected_points, columns=columns_from_csv)
+        sampled_df.to_csv(output_file_path, index=False)
+        return sampled_df
+
+    log.info("Selecting next highest variance point.")
+
+    # Convert list of points to a set for fast lookup
+    high_variance_set = set(tuple(p) for p in high_var_pts)
+
+    for idx in sorted_indices:
+        new_point = tuple(x_array[idx])
+        if new_point not in high_variance_set:
+            high_var_pts.append(new_point)
+            sampled_df = DataFrame([new_point], columns=columns_from_csv)
             sampled_df.to_csv(output_file_path, index=False)
             return sampled_df
 

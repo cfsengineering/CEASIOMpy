@@ -41,7 +41,7 @@ LEVEL_TWO = "Two levels"
 LEVEL_THREE = "Three levels"
 
 # ===== List of potential objectives =====
-OBJECTIVES_LIST = ["cl", "cd", "cs", "cmd", "cml", "cms"]
+OBJECTIVES_LIST = ["cl_cd", "cl", "cd", "cs", "cmd", "cml", "cms"]
 
 # ===== List of an aeromap (basic) features =====
 AEROMAP_FEATURES = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
@@ -49,10 +49,22 @@ AEROMAP_FEATURES = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"
 # ===== xPaths =====
 SMTRAIN_XPATH = CEASIOMPY_XPATH + "/SMTrain"
 
+SMTRAIN_UPLOAD_AVL_DATABASE_XPATH = SMTRAIN_XPATH + "/Upload_avl_db"
+
+# SMTRAIN_XPATH_CORES = SMTRAIN_XPATH + "/NbCPU"
+
+SMTRAIN_XPATH_AEROMAP = SMTRAIN_XPATH + "/Aeromap"
+SMTRAIN_XPATH_PARAMS_AEROMAP = SMTRAIN_XPATH_AEROMAP + "/AeroParams"
+SMTRAIN_XPATH_AEROMAP_UID = SMTRAIN_XPATH_AEROMAP + "/Aeromap_uID"
+SMTRAIN_XPATH_GEOMETRY = SMTRAIN_XPATH + "/Geometry"
+SMTRAIN_XPATH_WINGS = SMTRAIN_XPATH_GEOMETRY + "/wings"
+
+
 # Enriching dataset from previously computed values with AVL
 SMTRAIN_AVL_DATABASE_XPATH = SMTRAIN_XPATH + "/AVLDatabase"
 
 # Surrogate model settings
+SMTRAIN_SIMULATION_PURPOSE_XPATH = SMTRAIN_XPATH + "/SimulationPurpose"
 SMTRAIN_OBJECTIVE_XPATH = SMTRAIN_XPATH + "/Objective"
 SMTRAIN_FIDELITY_LEVEL_XPATH = SMTRAIN_XPATH + "/FidelityLevel"
 SMTRAIN_TRAIN_PERC_XPATH = SMTRAIN_XPATH + "/TrainingPercentage"
@@ -60,13 +72,42 @@ SMTRAIN_TRAIN_PERC_XPATH = SMTRAIN_XPATH + "/TrainingPercentage"
 # Plot
 SMTRAIN_PLOT_XPATH = SMTRAIN_XPATH + "/ValidationPlot"
 
-# Design Of Experiment
-SMTRAIN_DOE = SMTRAIN_XPATH + "/DesignOfExperiment"
-SMTRAIN_THRESHOLD_XPATH = SMTRAIN_DOE + "/rmseThreshold"
-SMTRAIN_NSAMPLES_XPATH = SMTRAIN_DOE + "/nSamples"
+# Design Of Experiment Aeropmap
+SMTRAIN_DOE_AEROMAP = SMTRAIN_XPATH + "/DesignOfExperiment_aeromap"
+SMTRAIN_THRESHOLD_XPATH = SMTRAIN_DOE_AEROMAP + "/rmseThreshold"
+SMTRAIN_NSAMPLES_AEROMAP_XPATH = SMTRAIN_DOE_AEROMAP + "/nSamples_aeromap"
 
-# Range
-SMTRAIN_MAX_ALT = SMTRAIN_XPATH + "/MaxAltitude"
-SMTRAIN_MAX_MACH = SMTRAIN_XPATH + "/MaxMach"
-SMTRAIN_MAX_AOA = SMTRAIN_XPATH + "/MaxAngleOfAttack"
-SMTRAIN_MAX_AOS = SMTRAIN_XPATH + "/MaxAngleOfSideslip"
+# Design Of Experiment Geometry
+SMTRAIN_DOE_GEOMETRY = SMTRAIN_XPATH + "/DesignOfExperiment_geometry"
+SMTRAIN_NSAMPLES_GEOMETRY_XPATH = SMTRAIN_DOE_GEOMETRY + "/nSamples_geometry"
+
+
+
+# Aeromap ranges
+SMTRAIN_MAX_ALT = SMTRAIN_XPATH_AEROMAP + "/MaxAltitude"
+SMTRAIN_MAX_MACH = SMTRAIN_XPATH_AEROMAP + "/MaxMach"
+SMTRAIN_MAX_AOA = SMTRAIN_XPATH_AEROMAP + "/MaxAngleOfAttack"
+SMTRAIN_MAX_AOS = SMTRAIN_XPATH_AEROMAP + "/MaxAngleOfSideslip"
+
+# Geometry ranges
+SMTRAIN_GEOM_WING_OPTIMISE = SMTRAIN_XPATH_GEOMETRY + "/Wings"
+
+SMTRAIN_MAX_SWEEPANGLE = SMTRAIN_XPATH_GEOMETRY + "/MaxSweepAngle"
+SMTRAIN_MAX_DIHEDRALANGLE = SMTRAIN_XPATH_GEOMETRY + "/MaxDIhedralAngle"
+SMTRAIN_MAX_LENGTH = SMTRAIN_XPATH_GEOMETRY + "/MaxLength"
+SMTRAIN_MAX_TWIST = SMTRAIN_XPATH_GEOMETRY + "/MaxTwist"
+SMTRAIN_MAX_CHORD = SMTRAIN_XPATH_GEOMETRY + "/MaxChord"
+SMTRAIN_MAX_THICKNESS = SMTRAIN_XPATH_GEOMETRY + "/MaxThickness"
+
+
+
+
+WING_PARAMETERS = ["sweepAngle", 
+                   "dihedralAngle", 
+                   "length", 
+                   "twist", 
+                   "chord", 
+                   "thickness"]
+
+
+

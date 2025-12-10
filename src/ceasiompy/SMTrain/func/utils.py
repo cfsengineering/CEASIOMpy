@@ -32,7 +32,7 @@ from typing import (
 )
 
 from ceasiompy import log
-from ceasiompy.SMTrain.func import LH_SAMPLING_DATA
+from ceasiompy.SMTrain.func import AEROMAP_SELECTED
 from ceasiompy.SU2Run import MODULE_NAME as SU2RUN_NAME
 from ceasiompy.SMTrain import (
     LEVEL_ONE,
@@ -89,7 +89,7 @@ def create_aeromap_from_varpts(
 
     # Select dataset based on high-variance points or LHS sampling
     if high_variance_points is None:
-        aeromap_uid = LH_SAMPLING_DATA
+        aeromap_uid = AEROMAP_SELECTED
     else:
         aeromap_uid = "new_points"
     dataset_path = results_dir / f"{aeromap_uid}.csv"

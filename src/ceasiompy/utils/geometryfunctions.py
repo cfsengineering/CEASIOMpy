@@ -392,6 +392,26 @@ def return_uidwings(tixi: Tixi3) -> List:
 def get_uid(tixi: Tixi3, xpath: str) -> str:
     return tixi.getTextAttribute(xpath, "uID")
 
+def return_uid_wings_sections(tixi: Tixi3) -> List[Tuple[str, str]]:
+    """
+    Returns a list of tuples, each containing the uID of a wing and the uID of one of its sections.
+    Example output: [("Wing1", "SectionA"), ("Wing1", "SectionB"), ("Wing2", "SectionC")]
+    """
+    result = []
+
+    wing_cnt = elements_number(tixi, WINGS_XPATH, "wing")
+    for i_wing in range(wing_cnt):
+        wing_xpath = f"{WINGS_XPATH}/wing[{i_wing + 1}]"
+        uid_wing = tixi.getTextAttribute(wing_xpath, "uID")
+
+        section_xpath = f"{wing_xpath}/sections"
+        section_cnt = elements_number(tixi, section_xpath, "section")
+        for i_sec in range(section_cnt):
+            sec_xpath = f"{section_xpath}/section[{i_sec + 1}]"
+            uid_section = tixi.getTextAttribute(sec_xpath, "uID")
+            result.append((uid_wing, uid_section))
+
+    return result
 
 def elements_number(tixi: Tixi3, xpath: str, element: str, logg: bool = True) -> int:
     """

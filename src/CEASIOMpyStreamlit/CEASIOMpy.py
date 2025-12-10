@@ -18,6 +18,7 @@ Main Streamlit page for CEASIOMpy GUI.
 
 import os
 import numpy as np
+import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 
@@ -26,6 +27,7 @@ from CEASIOMpyStreamlit.streamlitutils import create_sidebar
 from stl import mesh
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
+import joblib
 from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy.utils.commonpaths import WKDIR_PATH
@@ -112,19 +114,29 @@ def section_select_cpacs():
     if "cpacs_file_path" in st.session_state and st.session_state.cpacs_file_path:
         st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
         st.success(f"Uploaded file: {st.session_state.cpacs_file_path}")
-        section_3D_view()
+        section_3D_view(
+            working_dir=st.session_state.workflow.working_dir,
+            cpacs=st.session_state.cpacs,
+            aircraft_name="aircraft.stl",
+        )
+
+    
 
 
-def section_3D_view() -> None:
+def section_3D_view(
+    working_dir: Path,
+    cpacs: CPACS,
+    aircraft_name: str,
+) -> None:
     """
     Shows a 3D view of the aircraft by exporting a STL file.
     """
 
-    stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
-    if hasattr(st.session_state.cpacs, "aircraft") and hasattr(
-        st.session_state.cpacs.aircraft, "tigl"
+    stl_file = Path(working_dir, aircraft_name)
+    if hasattr(cpacs, "aircraft") and hasattr(
+        cpacs.aircraft, "tigl"
     ):
-        st.session_state.cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
+        cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
     your_mesh = mesh.Mesh.from_file(stl_file)
     triangles = your_mesh.vectors.reshape(-1, 3)
     vertices, indices = np.unique(triangles, axis=0, return_inverse=True)

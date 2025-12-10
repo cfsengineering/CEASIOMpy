@@ -11,7 +11,8 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
 ENV PATH=$CONDA_DIR/bin:$PATH
 
 RUN conda init bash
-RUN source ~/.bashrc && conda update -n base -c defaults conda
+RUN source ~/.bashrc
+RUN conda update -n base -c defaults conda
 
 # Copy
 WORKDIR /CEASIOMpy/installation/CentOS/

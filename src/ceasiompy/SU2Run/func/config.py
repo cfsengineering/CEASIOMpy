@@ -645,9 +645,14 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
     if not tixi.checkElement(SU2MESH_XPATH):
         create_branch(tixi, SU2MESH_XPATH)
 
-    log.info(f"su2_mesh_paths {su2_mesh_paths}")
+    log.info(f"{su2_mesh_paths=}")
+    su2_mesh_paths_str: list[str] = [
+        str(elem)
+        for elem in su2_mesh_paths
+    ]
+
     # Update tixi element at SU2MESH_XPATH with new paths
-    tixi_su2_mesh_paths = ";".join(str(su2_mesh_paths))
+    tixi_su2_mesh_paths = ";".join(su2_mesh_paths_str)
     tixi.updateTextElement(SU2MESH_XPATH, tixi_su2_mesh_paths)
 
     dynstab_su2_mesh_paths = [
@@ -681,7 +686,6 @@ def generate_su2_cfd_config(
     mesh_markers: Dict,
     dyn_stab: bool,
     rans: bool,
-    symmetry: bool,
 ) -> None:
     """
     Reads data in the CPACS file and generate configuration files
@@ -747,30 +751,21 @@ def generate_su2_cfd_config(
             cfg["ITER_DCL_DALPHA"] = "80"
 
         # Mesh Marker
-        walls = mesh_markers.get("wall", [])
+        bc_wall_str = su2_format(f"{','.join(mesh_markers['wall'])}")
 
-        if not rans:
-            bc_wall_str = su2_format(",".join(walls))
-            cfg["MARKER_EULER"] = bc_wall_str
-        else:
-            bc_wall_str = su2_format(",".join(f"{w}, 0.0" for w in walls))
-
-            cfg["MARKER_HEATFLUX"] = bc_wall_str
-
+        cfg["MARKER_EULER"] = bc_wall_str
         farfield_bc = (
-            mesh_markers.get("farfield", [])
-            + mesh_markers.get("engine_intake", [])
-            + mesh_markers.get("engine_exhaust", [])
+            mesh_markers["farfield"]
+            + mesh_markers["engine_intake"]
+            + mesh_markers["engine_exhaust"]
         )
-        cfg["MARKER_FAR"] = su2_format(",".join(farfield_bc))
-
-        if symmetry:
-            cfg["MARKER_SYM"] = su2_format(",".join(mesh_markers.get("symmetry", [])))
-
+        cfg["MARKER_FAR"] = su2_format(f"{','.join(farfield_bc)}")
+        cfg["MARKER_SYM"] = su2_format(f"{','.join(mesh_markers['symmetry'])}")
         cfg["MARKER_PLOTTING"] = bc_wall_str
         cfg["MARKER_MONITORING"] = bc_wall_str
-        cfg["DV_MARKER"] = su2_format(",".join(walls))
+        cfg["DV_MARKER"] = bc_wall_str
 
+        # Output
         cfg["WRT_FORCES_BREAKDOWN"] = "YES"
         cfg["BREAKDOWN_FILENAME"] = SU2_FORCES_BREAKDOWN_NAME
         cfg["OUTPUT_FILES"] = su2_format("RESTART, PARAVIEW, SURFACE_PARAVIEW")

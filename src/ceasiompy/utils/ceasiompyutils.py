@@ -146,6 +146,18 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
             tixi.updateTextElement(xpath + "type", str(value[0]))
         elif var_type == "multiselect":
             tixi.updateTextElement(xpath, ";".join(str(ele) for ele in value))
+        elif var_type == "AddGeometricParameter":
+            create_branch(tixi, xpath + "/status_range")
+            tixi.updateTextElement(xpath + "/status_range", str(value))
+            if value:
+                create_branch(tixi, xpath + "/range_value")
+                tixi.updateDoubleElement(xpath + "/range_value", value, format="%f")
+        elif var_type == "RangeAeromap":
+            create_branch(tixi, xpath + "/status_param")
+            tixi.updateTextElement(xpath + "/range_param", str(value))
+            if value:
+                create_branch(tixi, xpath + "/range_param")
+                tixi.updateDoubleElement(xpath + "/range_param", value, format="%f")
         else:
             tixi.updateTextElement(xpath, value)
 

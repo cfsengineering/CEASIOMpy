@@ -1,3 +1,6 @@
+# Ceasiompy DB
+src/ceasiompy/Database/databases/ceasiompy.db
+
 # Mac files
 *.DS_Store
 

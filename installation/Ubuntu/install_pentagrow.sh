@@ -81,27 +81,38 @@ else
     fi
 fi
 
-## 4. Final Configuration
+## 4. Download Pentagrow
+echo "--> Downloading Pentagrow into $install_dir"
+
+if [ ! -d "$install_dir/Pentagrow/.git" ]; then
+    if ! command -v git >/dev/null 2>&1; then
+        echo "git is required but not installed. Installing git..."
+        sudo apt-get install -y git || { echo "Failed to install git"; exit 1; }
+    fi
+
+    git clone https://github.com/cfsengineering/Pentagrow.git "$install_dir/Pentagrow" || { echo "Failed to clone Pentagrow repository"; exit 1; }
+else
+    echo "Pentagrow repository already present in $install_dir/Pentagrow"
+    git -C "$install_dir/Pentagrow" pull || echo "Warning: Failed to update Pentagrow repository"
+fi
+
+## 5. Final Configuration
 echo "--> Setting up environment"
 
-pentagrow_run_path="$install_dir/pentagrow/bin"
-mkdir -p "$pentagrow_run_path"
-
-pentagrow_bin_src="$(realpath "$install_dir/pentagrow/bin")"
+pentagrow_run_path="$install_dir/Pentagrow/bin"
 
 echo "install_dir is: $install_dir"
 ls -R "$install_dir"
 
 
-if [ -d "$pentagrow_bin_src" ] && [ -n "$(ls -A "$pentagrow_bin_src" 2>/dev/null)" ]; then
-    cp "$pentagrow_bin_src"/* "$pentagrow_run_path/" || { echo "Failed to copy Pentagrow executables."; exit 1; }
-    echo "Pentagrow executables copied successfully."
+if [ -d "$pentagrow_run_path" ] && [ -n "$(ls -A "$pentagrow_run_path" 2>/dev/null)" ]; then
+    echo "Pentagrow executables found in $pentagrow_run_path."
 else
-    echo "No binaries found in $pentagrow_bin_src"
+    echo "No binaries found in $pentagrow_run_path"
     exit 1
 fi
 
-echo "Trying to copy from: $(realpath "$pentagrow_bin_src" || echo "Path not found")"
+echo "Using Pentagrow binaries from: $(realpath "$pentagrow_run_path" || echo "Path not found")"
 
 # Function to add environment variables to a shell rc file if not already present
 add_to_shell_rc() {

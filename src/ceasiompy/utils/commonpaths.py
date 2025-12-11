@@ -17,6 +17,7 @@ called only from here to avoid mistakes.
 #   IMPORTS
 # =================================================================================================
 
+import os
 import ceasiompy
 
 from pathlib import Path
@@ -67,8 +68,21 @@ TEST_RESULTS_FILES_PATH = Path(CEASIOMPY_PATH, "test_files", "ResultsFiles")
 # /CEASIOMpy/WKDIR/
 WKDIR_PATH = Path(CEASIOMPY_PATH, "WKDIR")
 
+# /CEASIOMpy/INSTALLDIR/
+INSTALLDIR_PATH = Path(CEASIOMPY_PATH, "INSTALLDIR")
+
 # /CEASIOMpy/ceasiompy.log
 LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
 
 # /CEASIOMpy/src/ceasiompy/SU2Run/files/default_paraview_state.pvsm
 DEFAULT_PARAVIEW_STATE = Path(MODULES_DIR_PATH, "SU2Run", "files", "default_paraview_state.pvsm")
+
+
+# Functions
+def get_wkdir() -> Path:
+    """Return working directory passed from ceasiompy_exec, or the default."""
+
+    env_wkdir = os.environ.get("CEASIOMPY_WKDIR")
+    if env_wkdir:
+        return Path(env_wkdir)
+    return WKDIR_PATH

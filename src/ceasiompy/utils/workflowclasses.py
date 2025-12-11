@@ -14,6 +14,7 @@ import os
 import shutil
 import importlib
 
+from ceasiompy.utils import get_wkdir
 from ceasiompy.utils.moduleinterfaces import get_module_list
 from ceasiompy.utils.ceasiompylogger import add_to_runworkflow_history
 from ceasiompy.utils.ceasiompyutils import (
@@ -29,7 +30,6 @@ from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import MODNAME_INIT
 from ceasiompy.utils.commonpaths import (
     LOGFILE,
-    WKDIR_PATH,
     CPACS_FILES_PATH,
     MODULES_DIR_PATH,
 )
@@ -165,8 +165,7 @@ class Workflow:
     """Class to define and run CEASIOMpy workflow."""
 
     def __init__(self) -> None:
-
-        self.working_dir = WKDIR_PATH
+        self.working_dir = get_wkdir()
         self.cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml").resolve()
         self.current_wkflow_dir = None
 

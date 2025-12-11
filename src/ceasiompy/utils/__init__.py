@@ -14,6 +14,8 @@ Initialization for UTILS.
 #   IMPORTS
 # ==============================================================================
 
+from ceasiompy.utils.commonpaths import get_wkdir
+
 from pathlib import Path
 
 # ==============================================================================
@@ -28,4 +30,8 @@ MODULE_NAME = MODULE_DIR.name
 AEROMAP_LIST = [
     "__AEROMAP_SELECTION",
     "__AEROMAP_CHECKBOX",
+]
+
+__all__ = [
+    get_wkdir
 ]

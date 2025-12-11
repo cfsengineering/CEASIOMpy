@@ -31,6 +31,7 @@ from ceasiompy import log
 from unittest.mock import patch
 
 from ceasiompy.utils.commonpaths import (
+    WKDIR_PATH,
     STREAMLIT_PATH,
     TEST_CASES_PATH,
     CPACS_FILES_PATH,
@@ -169,17 +170,36 @@ def run_config_file(config_file) -> None:
 
 
 def run_gui(
-    headless: bool,
+    wkdir: Path | None = None,
+    headless: bool = False,
     port: int | None = None,
 ) -> None:
-    """Create an run a workflow from a GUI."""
+    """Create and run a workflow from the GUI."""
+
+    if wkdir is None:
+        wkdir = WKDIR_PATH
+
+    if wkdir.exists():
+        if not wkdir.is_dir():
+            raise NotADirectoryError(
+                f"The working directory path '{wkdir}' exists but is not a directory."
+            )
+    else:
+        try:
+            wkdir.mkdir(parents=True, exist_ok=True)
+        except Exception as exc:
+            raise OSError(f"Unable to create working directory '{wkdir}': {exc}") from exc
 
     log.info("CEASIOMpy has been started from the GUI.")
     env = os.environ.copy()
+
     # Add the src directory to PYTHONPATH
     env["PYTHONPATH"] = (
         str(Path(__file__).resolve().parents[2] / "src") + os.pathsep + env.get("PYTHONPATH", "")
     )
+    # Expose working directory to the Streamlit app
+    env["CEASIOMPY_WKDIR"] = str(wkdir)
+
     args = [
         "streamlit", "run", "CEASIOMpy.py",
         "--server.headless", f"{str(headless).lower()}",
@@ -230,6 +250,12 @@ def main():
         help="Select specific Port.",
     )
     parser.add_argument(
+        "--wkdir",
+        type=Path,
+        required=False,
+        help="Select specific work directory (for the results).",
+    )
+    parser.add_argument(
         "--headless",
         required=False,
         type=bool,
@@ -268,8 +294,10 @@ def main():
 
     if args.gui:
         port = int(args.port) if args.port is not None else None
+        wkdir = Path(args.wkdir) if args.wkdir is not None else None
         run_gui(
             port=port,
+            wkdir=wkdir,
             headless=args.headless,
         )
         return

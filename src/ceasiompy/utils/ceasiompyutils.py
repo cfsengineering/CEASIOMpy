@@ -12,7 +12,6 @@ Functions utils to run ceasiompy workflows
 
 import re
 import os
-import sys
 import math
 import shutil
 import importlib
@@ -21,6 +20,7 @@ import streamlit as st
 
 from pydantic import validate_call
 from contextlib import contextmanager
+from ceasiompy.utils import get_wkdir
 from ceasiompy.utils.moduleinterfaces import get_module_list
 from ceasiompy.utils.moduleinterfaces import (
     get_specs_for_module,
@@ -61,7 +61,7 @@ from ceasiompy import (
     ceasiompy_cfg,
 )
 from ceasiompy.utils.commonpaths import (
-    WKDIR_PATH,
+    INSTALLDIR_PATH,
     CPACS_FILES_PATH,
 )
 from ceasiompy.utils.moduleinterfaces import (
@@ -247,21 +247,22 @@ def current_workflow_dir() -> Path:
     """
     Get the current workflow directory.
     """
+    wkdir_path = get_wkdir()
 
-    # Ensure WKDIR_PATH exists
-    WKDIR_PATH.mkdir(parents=True, exist_ok=True)
+    # Ensure wkdir_path exists
+    wkdir_path.mkdir(parents=True, exist_ok=True)
 
     # Change the current working directory
-    os.chdir(WKDIR_PATH)
+    os.chdir(wkdir_path)
 
     # Check index of the last workflow directory to set the next one
-    wkflow_list = [int(dir.stem.split("_")[-1]) for dir in WKDIR_PATH.glob("Workflow_*")]
+    wkflow_list = [int(dir.stem.split("_")[-1]) for dir in wkdir_path.glob("Workflow_*")]
     if wkflow_list:
         wkflow_idx = str(max(wkflow_list) + 1).rjust(3, "0")
     else:
         wkflow_idx = "001"
 
-    current_wkflow_dir = Path.joinpath(WKDIR_PATH, "Workflow_" + wkflow_idx)
+    current_wkflow_dir = Path.joinpath(wkdir_path, "Workflow_" + wkflow_idx)
     current_wkflow_dir.mkdir()
 
     return current_wkflow_dir
@@ -371,6 +372,30 @@ def get_install_path(software_name: str, raise_error: bool = False) -> Path:
 
     """
 
+    # First, try to locate the software inside INSTALLDIR_PATH
+    if INSTALLDIR_PATH.exists():
+        # Directly under INSTALLDIR_PATH
+        candidate = INSTALLDIR_PATH / software_name
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            log.info(f"{software_name} is installed at: {candidate}")
+            return candidate
+
+        # Common layout: INSTALLDIR/<pkg>[/bin]/<software_name>
+        for subdir in INSTALLDIR_PATH.iterdir():
+            if not subdir.is_dir():
+                continue
+
+            direct = subdir / software_name
+            if direct.is_file() and os.access(direct, os.X_OK):
+                log.info(f"{software_name} is installed at: {direct}")
+                return direct
+
+            bin_candidate = subdir / "bin" / software_name
+            if bin_candidate.is_file() and os.access(bin_candidate, os.X_OK):
+                log.info(f"{software_name} is installed at: {bin_candidate}")
+                return bin_candidate
+
+    # If not found in INSTALLDIR, fall back to the system PATH
     install_path = shutil.which(software_name)
 
     if install_path is not None:
@@ -456,11 +481,7 @@ def run_software(
         f"over {os.cpu_count()} will be used for this calculation."
     )
 
-    if software_name == "pentagrow" or software_name == "Pentagrow":
-        ceasiompy_root = Path(__file__).resolve().parents[3]
-        install_path = ceasiompy_root / "installation" / "Pentagrow" / "bin" / "pentagrow"
-    else:
-        install_path = get_install_path(software_name)
+    install_path = get_install_path(software_name)
 
     command_line = []
     if with_mpi:

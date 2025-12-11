@@ -40,6 +40,15 @@ CEASIOMPY_PATH = SRC_PATH.parent
 # /CEASIOMpy/ceasiompy.log
 LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
 
+# ===== Include Module's name =====
+UTILS_PATH = Path(__file__, "utils")
+
+# Aeromap list
+AEROMAP_LIST = [
+    "__AEROMAP_SELECTION",
+    "__AEROMAP_CHECKBOX",
+]
+
 # =================================================================================================
 #   CLASSES
 # =================================================================================================

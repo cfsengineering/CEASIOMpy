@@ -43,7 +43,7 @@ from unittest.mock import MagicMock
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
 from unittest.mock import patch
-from ceasiompy.utils import MODULE_DIR
+from ceasiompy import UTILS_PATH
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 
 # =================================================================================================
@@ -56,7 +56,7 @@ class TestCeasiompyUtils(CeasiompyTest):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.TMP_DIR = Path(MODULE_DIR, "tests", "tests_ceasiompyutils", "tmp")
+        cls.TMP_DIR = Path(UTILS_PATH, "tests", "tests_ceasiompyutils", "tmp")
         cls.LOGFILE = Path(cls.TMP_DIR, "logfile_python.log")
 
     def test_check_version_true(self):
@@ -164,12 +164,12 @@ class TestCeasiompyUtils(CeasiompyTest):
 
         default_cwd = Path.cwd()
 
-        os.chdir(str(MODULE_DIR))
+        os.chdir(str(UTILS_PATH))
 
         with change_working_dir(self.TMP_DIR):
             assert Path.cwd() == self.TMP_DIR
 
-        assert Path.cwd() == MODULE_DIR
+        assert Path.cwd() == UTILS_PATH
 
         os.chdir(str(default_cwd))
 

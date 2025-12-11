@@ -55,7 +55,7 @@ from typing import (
     Callable,
 )
 
-from ceasiompy.utils import AEROMAP_LIST
+from ceasiompy import AEROMAP_LIST
 from ceasiompy import (
     log,
     ceasiompy_cfg,
@@ -77,6 +77,30 @@ from ceasiompy.utils.commonxpaths import (
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def _check_software_exists(soft_name: str) -> bool:
+    soft_path = get_install_path(software_name=soft_name)
+    if soft_path is None:
+        # i.e. the path to the software does not exist
+        return False
+    else:
+        return True
+
+
+def get_module_status(
+    default: bool,
+    needs_soft_name: str | None = None,
+) -> bool:
+    # Return
+    if not default:
+        return False
+
+    if needs_soft_name is not None:
+        return _check_software_exists(needs_soft_name)
+
+    # Does not need a specific software and default is True
+    return True
 
 
 def write_inouts(
@@ -363,7 +387,7 @@ def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
             log.info("---------- End of " + module_name + " ---------- \n")
 
 
-def get_install_path(software_name: str, raise_error: bool = False) -> Path:
+def get_install_path(software_name: str, raise_error: bool = False) -> Path | None:
     """Return the installation path of a software.
 
     Args:

@@ -14,6 +14,8 @@ Initialization for DynamicStability module.
 #   IMPORTS
 # ==============================================================================
 
+from ceasiompy.utils import get_module_status
+
 from pathlib import Path
 
 from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
@@ -21,9 +23,6 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
-
-# ===== Module Status =====
-MODULE_STATUS = True
 
 # ===== Include GUI =====
 INCLUDE_GUI = True
@@ -37,6 +36,12 @@ RES_DIR = True
 
 # Name of SDSA Software
 SOFTWARE_NAME = "SDSA"
+
+# ===== Module Status =====
+MODULE_STATUS = get_module_status(
+    default=True,
+    needs_soft_name=SOFTWARE_NAME,
+)
 
 # Default altitude used for SDSA
 ALT = 0.0

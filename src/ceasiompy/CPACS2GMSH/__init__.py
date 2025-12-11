@@ -14,6 +14,8 @@ Initialization for CPACS2Gmsh module.
 #   IMPORTS
 # ==============================================================================
 
+from ceasiompy.utils import get_module_status
+
 from pathlib import Path
 
 from ceasiompy.utils.commonxpaths import MESH_XPATH
@@ -22,8 +24,13 @@ from ceasiompy.utils.commonxpaths import MESH_XPATH
 #   INITIALIZATION
 # ==============================================================================
 
+SOFTWARE_NAME = "Pentagrow"
+
 # ===== Module Status =====
-MODULE_STATUS = True
+MODULE_STATUS = get_module_status(
+    default=True,
+    needs_soft_name=SOFTWARE_NAME,
+)
 
 # ===== Include GUI =====
 INCLUDE_GUI = True
@@ -34,6 +41,7 @@ RES_DIR = True
 # ===== Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
+
 
 # Specific to CPACS2Gmsh module
 CONTROL_SURFACES_LIST = ["aileron", "rudder", "flap"]

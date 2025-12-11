@@ -99,17 +99,33 @@ fi
 ## 5. Final Configuration
 echo "--> Setting up environment"
 
-pentagrow_run_path="$install_dir/Pentagrow/bin"
-
 echo "install_dir is: $install_dir"
 ls -R "$install_dir"
 
+# Try common locations for Pentagrow binaries
+candidate_paths=(
+    "$install_dir/Pentagrow/bin"
+    "$install_dir/Pentagrow/src/bin"
+)
 
-if [ -d "$pentagrow_run_path" ] && [ -n "$(ls -A "$pentagrow_run_path" 2>/dev/null)" ]; then
-    echo "Pentagrow executables found in $pentagrow_run_path."
-else
-    echo "No binaries found in $pentagrow_run_path"
-    exit 1
+pentagrow_run_path=""
+
+for path in "${candidate_paths[@]}"; do
+    if [ -d "$path" ] && [ -n "$(ls -A "$path" 2>/dev/null)" ]; then
+        pentagrow_run_path="$path"
+        echo "Found Pentagrow executables in: $pentagrow_run_path"
+        break
+    fi
+done
+
+if [ -z "$pentagrow_run_path" ]; then
+    # Fall back to default location and create it if needed,
+    # but do not fail hard if binaries are not yet built.
+    pentagrow_run_path="$install_dir/Pentagrow/bin"
+    mkdir -p "$pentagrow_run_path"
+    echo "Warning: No Pentagrow binaries found."
+    echo "Expected location for binaries: $pentagrow_run_path"
+    echo "Please build Pentagrow and place the executables in this directory."
 fi
 
 echo "Using Pentagrow binaries from: $(realpath "$pentagrow_run_path" || echo "Path not found")"

@@ -206,7 +206,7 @@ def run_gui(
     ]
     if port is not None:
         args += [
-            f"--server.port={port}"
+            "--server.port", f"{port}"
         ]
 
     subprocess.run(

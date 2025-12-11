@@ -168,7 +168,10 @@ def run_config_file(config_file) -> None:
     workflow.run_workflow(test=True)
 
 
-def run_gui(port: int | None = None) -> None:
+def run_gui(
+    headless: bool,
+    port: int | None = None,
+) -> None:
     """Create an run a workflow from a GUI."""
 
     log.info("CEASIOMpy has been started from the GUI.")
@@ -179,7 +182,7 @@ def run_gui(port: int | None = None) -> None:
     )
     args = [
         "streamlit", "run", "CEASIOMpy.py",
-        "--server.headless", "false",
+        "--server.headless", f"{str(headless).lower()}",
     ]
     if port is not None:
         args += [
@@ -224,7 +227,14 @@ def main():
         "-p",
         "--port",
         required=False,
-        help="Select Port",
+        help="Select specific Port.",
+    )
+    parser.add_argument(
+        "--headless",
+        required=False,
+        type=bool,
+        default=False,
+        help="Select if automatically opened or not.",
     )
     parser.add_argument(
         "-m",
@@ -258,7 +268,10 @@ def main():
 
     if args.gui:
         port = int(args.port) if args.port is not None else None
-        run_gui(port)
+        run_gui(
+            port=port,
+            headless=args.headless,
+        )
         return
 
     # If no argument is given, print the help

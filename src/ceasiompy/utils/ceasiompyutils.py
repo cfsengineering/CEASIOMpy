@@ -502,7 +502,7 @@ def run_software(
 
     log.info(
         f"{int(nb_cpu)} cpu{'s' if nb_cpu > 1 else ''} "
-        f"over {os.cpu_count()} will be used for this calculation."
+        f"over {os.environ.get('MAX_CPUS')} will be used for this calculation."
     )
 
     install_path = get_install_path(software_name)
@@ -552,7 +552,7 @@ def get_reasonable_nb_cpu() -> int:
     the user can then override this value with the settings.
     """
 
-    cpu_count = os.cpu_count()
+    cpu_count = os.environ.get('MAX_CPUS')
 
     if cpu_count is None:
         log.warning(
@@ -568,7 +568,7 @@ def check_nb_cpu(nb_proc: int) -> None:
     """
     Check if input nb_cpu from GUI is reasonable.
     """
-    if not os.cpu_count() > nb_proc:
+    if not os.environ.get('MAX_CPUS') > nb_proc:
         log.warning(f"{nb_proc} CPUs is too much for your engine.")
         nb_proc = get_reasonable_nb_cpu()
         log.info(f"Using by default {nb_proc} CPUs.")

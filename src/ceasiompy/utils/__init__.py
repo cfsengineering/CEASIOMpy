@@ -22,6 +22,6 @@ from ceasiompy.utils.ceasiompyutils import get_module_status
 # ==============================================================================
 
 __all__ = [
-    get_wkdir,
-    get_module_status,
+    f'{get_wkdir}',
+    f'{get_module_status}',
 ]

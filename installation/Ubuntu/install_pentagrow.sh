@@ -87,7 +87,7 @@ echo "--> Setting up environment"
 pentagrow_run_path="$install_dir/pentagrow/bin"
 mkdir -p "$pentagrow_run_path"
 
-pentagrow_bin_src="$(realpath "$script_dir/../Pentagrow/bin")"
+pentagrow_bin_src="$(realpath "$install_dir/Pentagrow/bin")"
 
 if [ -d "$pentagrow_bin_src" ] && [ -n "$(ls -A "$pentagrow_bin_src" 2>/dev/null)" ]; then
     cp "$pentagrow_bin_src"/* "$pentagrow_run_path/" || { echo "Failed to copy Pentagrow executables."; exit 1; }

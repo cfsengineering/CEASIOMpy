@@ -177,7 +177,7 @@ def run_gui(port: int | None = None) -> None:
     env["PYTHONPATH"] = (
         str(Path(__file__).resolve().parents[2] / "src") + os.pathsep + env.get("PYTHONPATH", "")
     )
-    args=[
+    args = [
         "streamlit", "run", "CEASIOMpy.py",
         "--server.headless", "false",
     ]
@@ -185,7 +185,7 @@ def run_gui(port: int | None = None) -> None:
         args += [
             f"--server.port={port}"
         ]
-    
+
     subprocess.run(
         args=args,
         cwd=STREAMLIT_PATH,

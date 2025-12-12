@@ -59,6 +59,8 @@ def section_predefined_workflow():
 
     st.markdown("#### Predefined Workflows")
 
+    active_modules = set(get_module_list(only_active=True))
+
     predefine_workflows = [
         [PYAVL, STATICSTABILITY, DATABASE],
         [CPACSUPDATER, "CPACSCreator", CPACS2GMSH, SU2RUN, "ExportCSV"],
@@ -68,7 +70,20 @@ def section_predefined_workflow():
         # ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"],
     ]
 
-    for workflow in predefine_workflows:
+    filtered_workflows = [
+        workflow
+        for workflow in predefine_workflows
+        if all(module in active_modules for module in workflow)
+    ]
+
+    if not filtered_workflows:
+        st.info(
+            "No predefined workflows are available "
+            "with the current module configuration."
+        )
+        return None
+
+    for workflow in filtered_workflows:
         if st.button(" → ".join(workflow)):
             st.session_state.workflow_modules = workflow
 

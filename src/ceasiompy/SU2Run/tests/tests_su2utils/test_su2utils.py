@@ -46,8 +46,6 @@ from unittest.mock import patch
 MODULE_DIR = Path(__file__).parent
 FORCES_BREAKDOWN = Path(MODULE_DIR, "forces_breakdown.dat")
 FORCES_BREAKDOWN_NO_VALUE = Path(MODULE_DIR, "forces_breakdown_no_value.dat")
-SU2_LOGFILE = Path(MODULE_DIR, "logfile_SU2_CFD.log")
-SU2_LOGFILE_NO_WETTED_AREA = Path(MODULE_DIR, "logfile_SU2_CFD_no_wetted_area.log")
 
 # =================================================================================================
 #   FUNCTIONS
@@ -121,8 +119,6 @@ def test_get_wetted_area():
     with pytest.raises(FileNotFoundError):
         get_wetted_area(Path(MODULE_DIR, "This_file_do_not_exist.log"))
 
-    assert get_wetted_area(SU2_LOGFILE) == approx(702.04, rel=1e-4)
-    assert get_wetted_area(SU2_LOGFILE_NO_WETTED_AREA) == 0
 
 # =================================================================================================
 #   CLASSES

@@ -81,23 +81,54 @@ else
     fi
 fi
 
-## 4. Final Configuration
-echo "--> Setting up environment"
+## 4. Download Pentagrow
+echo "--> Downloading Pentagrow into $install_dir"
 
-pentagrow_run_path="$install_dir/pentagrow/bin"
-mkdir -p "$pentagrow_run_path"
+if [ ! -d "$install_dir/Pentagrow/.git" ]; then
+    if ! command -v git >/dev/null 2>&1; then
+        echo "git is required but not installed. Installing git..."
+        sudo apt-get install -y git || { echo "Failed to install git"; exit 1; }
+    fi
 
-pentagrow_bin_src="$(realpath "$script_dir/../Pentagrow/bin")"
-
-if [ -d "$pentagrow_bin_src" ] && [ -n "$(ls -A "$pentagrow_bin_src" 2>/dev/null)" ]; then
-    cp "$pentagrow_bin_src"/* "$pentagrow_run_path/" || { echo "Failed to copy Pentagrow executables."; exit 1; }
-    echo "Pentagrow executables copied successfully."
+    git clone https://github.com/cfsengineering/Pentagrow.git "$install_dir/Pentagrow" || { echo "Failed to clone Pentagrow repository"; exit 1; }
 else
-    echo "No binaries found in $pentagrow_bin_src"
-    exit 1
+    echo "Pentagrow repository already present in $install_dir/Pentagrow"
+    git -C "$install_dir/Pentagrow" pull || echo "Warning: Failed to update Pentagrow repository"
 fi
 
-echo "Trying to copy from: $(realpath "$pentagrow_bin_src" || echo "Path not found")"
+## 5. Final Configuration
+echo "--> Setting up environment"
+
+echo "install_dir is: $install_dir"
+ls -R "$install_dir"
+
+# Try common locations for Pentagrow binaries
+candidate_paths=(
+    "$install_dir/Pentagrow/bin"
+    "$install_dir/Pentagrow/src/bin"
+)
+
+pentagrow_run_path=""
+
+for path in "${candidate_paths[@]}"; do
+    if [ -d "$path" ] && [ -n "$(ls -A "$path" 2>/dev/null)" ]; then
+        pentagrow_run_path="$path"
+        echo "Found Pentagrow executables in: $pentagrow_run_path"
+        break
+    fi
+done
+
+if [ -z "$pentagrow_run_path" ]; then
+    # Fall back to default location and create it if needed,
+    # but do not fail hard if binaries are not yet built.
+    pentagrow_run_path="$install_dir/Pentagrow/bin"
+    mkdir -p "$pentagrow_run_path"
+    echo "Warning: No Pentagrow binaries found."
+    echo "Expected location for binaries: $pentagrow_run_path"
+    echo "Please build Pentagrow and place the executables in this directory."
+fi
+
+echo "Using Pentagrow binaries from: $(realpath "$pentagrow_run_path" || echo "Path not found")"
 
 # Function to add environment variables to a shell rc file if not already present
 add_to_shell_rc() {

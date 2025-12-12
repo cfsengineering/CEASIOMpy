@@ -21,7 +21,6 @@ from pytest import approx
 from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
-from ceasiompy.utils.commonpaths import LOGFILE
 from ceasiompy.SkinFriction import MODULE_NAME
 
 # =================================================================================================
@@ -50,22 +49,6 @@ class TestSkinFriction(CeasiompyTest):
 
         for cd0, inputs in test_dict.items():
             assert cd0 == approx(estimate_skin_friction_coef(*inputs))
-
-        with open(LOGFILE, "r") as log_file:
-            estimate_skin_friction_coef(400.0, 50, 20, 0.22, 12000)
-            assert "Reynolds number is out of range." in log_file.read()
-
-        with open(LOGFILE, "r") as log_file:
-            estimate_skin_friction_coef(3401.0, 100, 20, 0.78, 12000)
-            assert "Wetted area is not in the correct range." in log_file.read()
-
-        with open(LOGFILE, "r") as log_file:
-            estimate_skin_friction_coef(701.813, 19, 20, 0.78, 12000)
-            assert "Wing area is not in the correct range." in log_file.read()
-
-        with open(LOGFILE, "r") as log_file:
-            estimate_skin_friction_coef(701.813, 100, 75, 0.78, 12000)
-            assert "Wing span is not in the correct range." in log_file.read()
 
     def test_add_skin_friction(self):
         """Test function 'add_skin_friction'"""

@@ -21,6 +21,7 @@ import os
 import argparse
 import subprocess
 
+from CEASIOMpyStreamlit.streamlitutils import rm_wkflow_status
 from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 
 from pathlib import Path
@@ -31,6 +32,7 @@ from ceasiompy import log
 from unittest.mock import patch
 
 from ceasiompy.utils.commonpaths import (
+    WKDIR_PATH,
     STREAMLIT_PATH,
     TEST_CASES_PATH,
     CPACS_FILES_PATH,
@@ -168,17 +170,53 @@ def run_config_file(config_file) -> None:
     workflow.run_workflow(test=True)
 
 
-def run_gui():
-    """Create an run a workflow from a GUI."""
+def run_gui(
+    cpus: int,
+    wkdir: Path | None = None,
+    headless: bool = False,
+    port: int | None = None,
+) -> None:
+    """Create and run a workflow from the GUI."""
+
+    if wkdir is None:
+        wkdir = WKDIR_PATH
+
+    if wkdir.exists():
+        if not wkdir.is_dir():
+            raise NotADirectoryError(
+                f"The working directory path '{wkdir}' exists but is not a directory."
+            )
+    else:
+        try:
+            wkdir.mkdir(parents=True, exist_ok=True)
+        except Exception as exc:
+            raise OSError(f"Unable to create working directory '{wkdir}': {exc}") from exc
 
     log.info("CEASIOMpy has been started from the GUI.")
     env = os.environ.copy()
+
     # Add the src directory to PYTHONPATH
     env["PYTHONPATH"] = (
         str(Path(__file__).resolve().parents[2] / "src") + os.pathsep + env.get("PYTHONPATH", "")
     )
+
+    # Environment variables must be strings
+    env["MAX_CPUS"] = str(cpus)
+
+    # Expose working directory to the Streamlit app
+    env["CEASIOMPY_WKDIR"] = str(wkdir)
+
+    args = [
+        "streamlit", "run", "CEASIOMpy.py",
+        "--server.headless", f"{str(headless).lower()}",
+    ]
+    if port is not None:
+        args += [
+            "--server.port", f"{port}"
+        ]
+
     subprocess.run(
-        ["streamlit", "run", "CEASIOMpy.py", "--server.headless", "false"],
+        args=args,
         cwd=STREAMLIT_PATH,
         check=True,
         env=env,
@@ -191,6 +229,8 @@ def run_gui():
 
 
 def main():
+
+    rm_wkflow_status()
 
     parser = argparse.ArgumentParser(
         description="CEASIOMpy: Conceptual Aircraft Design Environment",
@@ -210,6 +250,32 @@ def main():
         "--gui",
         action="store_true",
         help="create a CEASIOMpy workflow with the Graphical user interface",
+    )
+    parser.add_argument(
+        "-p",
+        "--port",
+        required=False,
+        help="Select specific Port.",
+    )
+    parser.add_argument(
+        "--wkdir",
+        type=Path,
+        required=False,
+        help="Select specific work directory (for the results).",
+    )
+    parser.add_argument(
+        "--headless",
+        required=False,
+        type=bool,
+        default=False,
+        help="Select if automatically opened or not.",
+    )
+    parser.add_argument(
+        "--cpus",
+        required=False,
+        type=int,
+        default=int(os.cpu_count() // 2 + 1),
+        help="Select maximum number of authorized CPUs.",
     )
     parser.add_argument(
         "-m",
@@ -242,7 +308,14 @@ def main():
         return
 
     if args.gui:
-        run_gui()
+        port = int(args.port) if args.port is not None else None
+        wkdir = Path(args.wkdir) if args.wkdir is not None else None
+        run_gui(
+            port=port,
+            cpus=int(args.cpus),
+            wkdir=wkdir,
+            headless=args.headless,
+        )
         return
 
     # If no argument is given, print the help

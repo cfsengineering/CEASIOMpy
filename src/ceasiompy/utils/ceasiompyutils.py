@@ -12,7 +12,6 @@ Functions utils to run ceasiompy workflows
 
 import re
 import os
-import sys
 import math
 import shutil
 import importlib
@@ -21,6 +20,7 @@ import streamlit as st
 
 from pydantic import validate_call
 from contextlib import contextmanager
+from ceasiompy.utils import get_wkdir
 from ceasiompy.utils.moduleinterfaces import get_module_list
 from ceasiompy.utils.moduleinterfaces import (
     get_specs_for_module,
@@ -55,13 +55,13 @@ from typing import (
     Callable,
 )
 
-from ceasiompy.utils import AEROMAP_LIST
+from ceasiompy import AEROMAP_LIST
 from ceasiompy import (
     log,
     ceasiompy_cfg,
 )
 from ceasiompy.utils.commonpaths import (
-    WKDIR_PATH,
+    INSTALLDIR_PATH,
     CPACS_FILES_PATH,
 )
 from ceasiompy.utils.moduleinterfaces import (
@@ -77,6 +77,30 @@ from ceasiompy.utils.commonxpaths import (
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def _check_software_exists(soft_name: str) -> bool:
+    soft_path = get_install_path(software_name=soft_name)
+    if soft_path is None:
+        # i.e. the path to the software does not exist
+        return False
+    else:
+        return True
+
+
+def get_module_status(
+    default: bool,
+    needs_soft_name: str | None = None,
+) -> bool:
+    # Return
+    if not default:
+        return False
+
+    if needs_soft_name is not None:
+        return _check_software_exists(needs_soft_name)
+
+    # Does not need a specific software and default is True
+    return True
 
 
 def write_inouts(
@@ -247,21 +271,22 @@ def current_workflow_dir() -> Path:
     """
     Get the current workflow directory.
     """
+    wkdir_path = get_wkdir()
 
-    # Ensure WKDIR_PATH exists
-    WKDIR_PATH.mkdir(parents=True, exist_ok=True)
+    # Ensure wkdir_path exists
+    wkdir_path.mkdir(parents=True, exist_ok=True)
 
     # Change the current working directory
-    os.chdir(WKDIR_PATH)
+    os.chdir(wkdir_path)
 
     # Check index of the last workflow directory to set the next one
-    wkflow_list = [int(dir.stem.split("_")[-1]) for dir in WKDIR_PATH.glob("Workflow_*")]
+    wkflow_list = [int(dir.stem.split("_")[-1]) for dir in wkdir_path.glob("Workflow_*")]
     if wkflow_list:
         wkflow_idx = str(max(wkflow_list) + 1).rjust(3, "0")
     else:
         wkflow_idx = "001"
 
-    current_wkflow_dir = Path.joinpath(WKDIR_PATH, "Workflow_" + wkflow_idx)
+    current_wkflow_dir = Path.joinpath(wkdir_path, "Workflow_" + wkflow_idx)
     current_wkflow_dir.mkdir()
 
     return current_wkflow_dir
@@ -362,7 +387,7 @@ def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
             log.info("---------- End of " + module_name + " ---------- \n")
 
 
-def get_install_path(software_name: str, raise_error: bool = False) -> Path:
+def get_install_path(software_name: str, raise_error: bool = False) -> Path | None:
     """Return the installation path of a software.
 
     Args:
@@ -371,6 +396,30 @@ def get_install_path(software_name: str, raise_error: bool = False) -> Path:
 
     """
 
+    # First, try to locate the software inside INSTALLDIR_PATH
+    if INSTALLDIR_PATH.exists():
+        # Directly under INSTALLDIR_PATH
+        candidate = INSTALLDIR_PATH / software_name
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            log.info(f"{software_name} is installed at: {candidate}")
+            return candidate
+
+        # Common layout: INSTALLDIR/<pkg>[/bin]/<software_name>
+        for subdir in INSTALLDIR_PATH.iterdir():
+            if not subdir.is_dir():
+                continue
+
+            direct = subdir / software_name
+            if direct.is_file() and os.access(direct, os.X_OK):
+                log.info(f"{software_name} is installed at: {direct}")
+                return direct
+
+            bin_candidate = subdir / "bin" / software_name
+            if bin_candidate.is_file() and os.access(bin_candidate, os.X_OK):
+                log.info(f"{software_name} is installed at: {bin_candidate}")
+                return bin_candidate
+
+    # If not found in INSTALLDIR, fall back to the system PATH
     install_path = shutil.which(software_name)
 
     if install_path is not None:
@@ -453,14 +502,10 @@ def run_software(
 
     log.info(
         f"{int(nb_cpu)} cpu{'s' if nb_cpu > 1 else ''} "
-        f"over {os.cpu_count()} will be used for this calculation."
+        f"over {get_total_cpu_count()} will be used for this calculation."
     )
 
-    if software_name == "pentagrow" or software_name == "Pentagrow":
-        ceasiompy_root = Path(__file__).resolve().parents[3]
-        install_path = ceasiompy_root / "installation" / "Pentagrow" / "bin" / "pentagrow"
-    else:
-        install_path = get_install_path(software_name)
+    install_path = get_install_path(software_name)
 
     command_line = []
     if with_mpi:
@@ -499,6 +544,49 @@ def run_software(
     log.info(f">>> {software_name} End")
 
 
+def _get_env_max_cpus() -> Optional[int]:
+    """
+    Return the value of MAX_CPUS if it exists and is a positive integer.
+    """
+    max_cpus_val = os.environ.get("MAX_CPUS")
+    if max_cpus_val is None:
+        return None
+
+    try:
+        max_cpus = int(max_cpus_val)
+    except ValueError:
+        log.warning("MAX_CPUS must be an integer, got %r.", max_cpus_val)
+        return None
+
+    if max_cpus < 1:
+        log.warning("MAX_CPUS must be positive, got %d.", max_cpus)
+        return None
+
+    return max_cpus
+
+
+def get_total_cpu_count() -> int:
+    """
+    Return a sane upper bound on the number of CPUs that can be used.
+    This prefers the MAX_CPUS environment variable and falls back to the
+    value returned by os.cpu_count(). A warning is emitted if neither source
+    yields a usable number.
+    """
+    env_cpus = _get_env_max_cpus()
+    if env_cpus is not None:
+        return env_cpus
+
+    system_cpus = (os.cpu_count() // 2) + 1
+    if system_cpus is None or system_cpus < 1:
+        log.warning(
+            "Could not figure out the number of CPU(s) on your machine. "
+            "This might be an issue with the OS you use."
+        )
+        return 1
+
+    return system_cpus
+
+
 def get_reasonable_nb_cpu() -> int:
     """
     Get a reasonable number of processors depending on the total number of processors on
@@ -507,23 +595,16 @@ def get_reasonable_nb_cpu() -> int:
     the user can then override this value with the settings.
     """
 
-    cpu_count = os.cpu_count()
-
-    if cpu_count is None:
-        log.warning(
-            "Could not figure out the number of CPU(s) on your machine. "
-            "This might be an issue with the OS you use."
-        )
-        return 1
-
-    return math.ceil(cpu_count / 4)
+    total_cpus = get_total_cpu_count()
+    return max(1, math.ceil(total_cpus / 4))
 
 
 def check_nb_cpu(nb_proc: int) -> None:
     """
     Check if input nb_cpu from GUI is reasonable.
     """
-    if not os.cpu_count() > nb_proc:
+    total_cpus = get_total_cpu_count()
+    if not total_cpus > nb_proc:
         log.warning(f"{nb_proc} CPUs is too much for your engine.")
         nb_proc = get_reasonable_nb_cpu()
         log.info(f"Using by default {nb_proc} CPUs.")

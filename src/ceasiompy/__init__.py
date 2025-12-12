@@ -37,11 +37,14 @@ SRC_PATH = Path(__file__).parents[1]
 # /CEASIOMpy/
 CEASIOMPY_PATH = SRC_PATH.parent
 
-# /CEASIOMpy/WKDIR/
-WKDIR_PATH = Path(CEASIOMPY_PATH, "WKDIR")
+# ===== Include Module's path =====
+UTILS_PATH = SRC_PATH / "ceasiompy" / "utils"
 
-# /CEASIOMpy/ceasiompy.log
-LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
+# Aeromap list
+AEROMAP_LIST = [
+    "__AEROMAP_SELECTION",
+    "__AEROMAP_CHECKBOX",
+]
 
 # =================================================================================================
 #   CLASSES
@@ -83,14 +86,6 @@ def get_logger() -> Logger:
 
     # Prevent propagation to root logger to avoid duplicates
     logger.propagate = False
-
-    # Add file handler
-    file_formatter = logging.Formatter("%(asctime)s - %(levelname)8s - %(module)18s - %(message)s")
-    file_handler = logging.FileHandler(filename=LOGFILE, mode="w")
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(file_formatter)
-    file_handler.addFilter(IgnoreSpecificError())  # Add the custom filter
-    logger.addHandler(file_handler)
 
     # Add console handler regardless of environment
     # (we need output to be visible in both terminal and Streamlit)

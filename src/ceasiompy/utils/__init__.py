@@ -14,18 +14,14 @@ Initialization for UTILS.
 #   IMPORTS
 # ==============================================================================
 
-from pathlib import Path
+from ceasiompy.utils.commonpaths import get_wkdir
+from ceasiompy.utils.ceasiompyutils import get_module_status
 
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
 
-# ===== Include Module's name =====
-MODULE_DIR = Path(__file__).parent
-MODULE_NAME = MODULE_DIR.name
-
-# Aeromap list
-AEROMAP_LIST = [
-    "__AEROMAP_SELECTION",
-    "__AEROMAP_CHECKBOX",
+__all__ = [
+    f'{get_wkdir}',
+    f'{get_module_status}',
 ]

@@ -23,7 +23,6 @@ from pathlib import Path
 
 from ceasiompy import log
 from unittest.mock import patch
-from ceasiompy.utils.commonpaths import LOGFILE
 
 # =================================================================================================
 #   CLASSES
@@ -40,18 +39,6 @@ class TestCeasiompyLogger(unittest.TestCase):
         log.warning("Test warning")
         log.error("Test error")
         log.critical("Test critical")
-
-        # Open and read (last five lines of) the logfile
-        with open(LOGFILE) as file:
-            data = file.readlines()
-        last_lines = data[-5:]
-
-        # Use correct module name and check substring (ignore timestamp)
-        self.assertIn("DEBUG - test_ceasiompylogger - Test debug", last_lines[0])
-        self.assertIn("INFO - test_ceasiompylogger - Test info", last_lines[1])
-        self.assertIn("WARNING - test_ceasiompylogger - Test warning", last_lines[2])
-        self.assertIn("ERROR - test_ceasiompylogger - Test error", last_lines[3])
-        self.assertIn("CRITICAL - test_ceasiompylogger - Test critical", last_lines[4])
 
     def test_get_last_runworkflow_exists_and_has_lines(self):
         # Create a fake history file

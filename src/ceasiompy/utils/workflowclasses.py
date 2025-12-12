@@ -29,7 +29,6 @@ from ceasiompy.utils.configfiles import ConfigFile
 
 from ceasiompy.utils.moduleinterfaces import MODNAME_INIT
 from ceasiompy.utils.commonpaths import (
-    LOGFILE,
     CPACS_FILES_PATH,
     MODULES_DIR_PATH,
 )
@@ -330,6 +329,3 @@ class Workflow:
                 )
 
         shutil.copy(module.cpacs_out, Path(self.current_wkflow_dir, "ToolOutput.xml"))
-
-        # Copy logfile in the Workflow directory
-        shutil.copy(LOGFILE, self.current_wkflow_dir)

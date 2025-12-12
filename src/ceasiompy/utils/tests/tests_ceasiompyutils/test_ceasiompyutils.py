@@ -57,7 +57,6 @@ class TestCeasiompyUtils(CeasiompyTest):
     def setUpClass(cls):
         super().setUpClass()
         cls.TMP_DIR = Path(UTILS_PATH, "tests", "tests_ceasiompyutils", "tmp")
-        cls.LOGFILE = Path(cls.TMP_DIR, "logfile_python.log")
 
     def test_check_version_true(self):
         """Test check_version returns True when version is sufficient."""
@@ -267,14 +266,10 @@ class TestCeasiompyUtils(CeasiompyTest):
         test_file_2 = Path(self.TMP_DIR, "test_file.brep")
         test_file_2.touch()
 
-        # Create the logfile before calling the function
-        self.LOGFILE.touch()
-
         remove_file_type_in_dir(self.TMP_DIR, [".txt", ".brep"])
 
         assert not test_file_1.exists()
         assert not test_file_2.exists()
-        assert self.LOGFILE.exists()
 
 
 # =================================================================================================

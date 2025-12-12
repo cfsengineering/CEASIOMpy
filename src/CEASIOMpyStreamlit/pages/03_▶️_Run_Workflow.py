@@ -28,8 +28,8 @@ from streamlitutils import (
 )
 
 from pathlib import Path
+from ceasiompy.utils.workflowclasses import Workflow
 
-from ceasiompy.utils.commonpaths import LOGFILE
 
 # ==============================================================================
 #   CONSTANTS
@@ -85,27 +85,15 @@ def workflow_buttons() -> None:
 
             # Run workflow from an external script
             config_path = Path(st.session_state.workflow.working_dir, "ceasiompy.cfg")
-            os.system(f"python runworkflow.py {config_path} &")
+
+            workflow = Workflow()
+            workflow.from_config_file(Path(config_path))
+            workflow.set_workflow()
+            workflow.run_workflow()
 
     with col2:
         if st.button("Terminate ✖️", help="Terminate the workflow"):
             terminate_previous_workflows()
-
-
-def show_logs() -> None:
-    """
-    Log interface.
-    """
-
-    st.markdown("")
-    st.markdown("##### Logfile")
-
-    with open(LOGFILE, "r") as f:
-        lines = f.readlines()
-
-    lines_str = "\n".join(reversed(lines))
-
-    st.text_area("(more recent on top)", lines_str, height=400, disabled=True)
 
 
 # =================================================================================================
@@ -137,7 +125,6 @@ if __name__ == "__main__":
         save_cpacs_file()
 
     workflow_buttons()
-    show_logs()
 
     # AutoRefresh for logs
     st_autorefresh(interval=1000, limit=10000, key="auto_refresh")

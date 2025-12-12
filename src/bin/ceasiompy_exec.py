@@ -274,7 +274,7 @@ def main():
         "--cpus",
         required=False,
         type=int,
-        default=int(os.cpu_count() // 2),
+        default=int(os.cpu_count() // 2 + 1),
         help="Select maximum number of authorized CPUs.",
     )
     parser.add_argument(

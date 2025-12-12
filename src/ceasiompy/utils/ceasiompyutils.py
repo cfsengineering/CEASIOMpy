@@ -502,7 +502,7 @@ def run_software(
 
     log.info(
         f"{int(nb_cpu)} cpu{'s' if nb_cpu > 1 else ''} "
-        f"over {os.environ.get('MAX_CPUS')} will be used for this calculation."
+        f"over {get_total_cpu_count()} will be used for this calculation."
     )
 
     install_path = get_install_path(software_name)
@@ -544,6 +544,49 @@ def run_software(
     log.info(f">>> {software_name} End")
 
 
+def _get_env_max_cpus() -> Optional[int]:
+    """
+    Return the value of MAX_CPUS if it exists and is a positive integer.
+    """
+    max_cpus_val = os.environ.get("MAX_CPUS")
+    if max_cpus_val is None:
+        return None
+
+    try:
+        max_cpus = int(max_cpus_val)
+    except ValueError:
+        log.warning("MAX_CPUS must be an integer, got %r.", max_cpus_val)
+        return None
+
+    if max_cpus < 1:
+        log.warning("MAX_CPUS must be positive, got %d.", max_cpus)
+        return None
+
+    return max_cpus
+
+
+def get_total_cpu_count() -> int:
+    """
+    Return a sane upper bound on the number of CPUs that can be used.
+    This prefers the MAX_CPUS environment variable and falls back to the
+    value returned by os.cpu_count(). A warning is emitted if neither source
+    yields a usable number.
+    """
+    env_cpus = _get_env_max_cpus()
+    if env_cpus is not None:
+        return env_cpus
+
+    system_cpus = (os.cpu_count() // 2) + 1
+    if system_cpus is None or system_cpus < 1:
+        log.warning(
+            "Could not figure out the number of CPU(s) on your machine. "
+            "This might be an issue with the OS you use."
+        )
+        return 1
+
+    return system_cpus
+
+
 def get_reasonable_nb_cpu() -> int:
     """
     Get a reasonable number of processors depending on the total number of processors on
@@ -552,23 +595,16 @@ def get_reasonable_nb_cpu() -> int:
     the user can then override this value with the settings.
     """
 
-    cpu_count = int(os.environ.get('MAX_CPUS'))
-
-    if cpu_count is None:
-        log.warning(
-            "Could not figure out the number of CPU(s) on your machine. "
-            "This might be an issue with the OS you use."
-        )
-        return 1
-
-    return math.ceil(cpu_count / 4)
+    total_cpus = get_total_cpu_count()
+    return max(1, math.ceil(total_cpus / 4))
 
 
 def check_nb_cpu(nb_proc: int) -> None:
     """
     Check if input nb_cpu from GUI is reasonable.
     """
-    if not int(os.environ.get('MAX_CPUS')) > nb_proc:
+    total_cpus = get_total_cpu_count()
+    if not total_cpus > nb_proc:
         log.warning(f"{nb_proc} CPUs is too much for your engine.")
         nb_proc = get_reasonable_nb_cpu()
         log.info(f"Using by default {nb_proc} CPUs.")

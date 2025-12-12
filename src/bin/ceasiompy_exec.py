@@ -21,6 +21,7 @@ import os
 import argparse
 import subprocess
 
+from CEASIOMpyStreamlit.streamlitutils import rm_wkflow_status
 from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 
 from pathlib import Path
@@ -228,6 +229,8 @@ def run_gui(
 
 
 def main():
+
+    rm_wkflow_status()
 
     parser = argparse.ArgumentParser(
         description="CEASIOMpy: Conceptual Aircraft Design Environment",

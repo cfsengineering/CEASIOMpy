@@ -19,12 +19,15 @@ Streamlit page to run a CEASIOMpy workflow
 import sys
 import psutil
 import subprocess
+import json
 import streamlit as st
 
 from streamlit_autorefresh import st_autorefresh
 from streamlitutils import (
     create_sidebar,
     save_cpacs_file,
+    rm_wkflow_status,
+    get_last_workflow,
 )
 
 from pathlib import Path
@@ -91,6 +94,64 @@ def terminate_previous_workflows() -> None:
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             continue
 
+    rm_wkflow_status()
+
+
+def get_modules_status():
+    """Load the module status of the last workflow if available."""
+
+    if "workflow" not in st.session_state:
+        return None
+
+    wkflow_dir = get_last_workflow()
+    if wkflow_dir is None:
+        return None
+
+    status_file = Path(wkflow_dir, "workflow_status.json")
+    if not status_file.exists():
+        return None
+
+    try:
+        with open(status_file, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return None
+
+
+def display_modules_status() -> None:
+    """Display each module with its current status."""
+
+    status_list = get_modules_status()
+    if not status_list:
+        st.write("No workflow is running.")
+        return None
+
+    solver_running: bool = False
+    for item in status_list:
+        if item.get("status", "waiting") == "running":
+            solver_running = True
+            break
+
+    st.markdown("#### Modules status")
+    if solver_running:
+        for item in status_list:
+            name = item.get("name", "Unknown")
+            status = item.get("status", "waiting")
+
+            if status == "running":
+                icon = "🟡"
+            elif status == "finished":
+                icon = "🟢"
+            else:
+                icon = "⚪"
+
+            st.write(f"{icon} **{name}** — {status}")
+    else:
+        st.info(
+            "Workflow finished running, "
+            "go in results page for analysis."
+        )
+
 
 def workflow_buttons() -> None:
     """
@@ -126,7 +187,7 @@ def workflow_buttons() -> None:
             st.session_state["workflow_pid"] = process.pid
 
     with col2:
-        if st.button("Terminate ✖️", help="Terminate the workflow"):
+        if st.button("Stop ✖️", help="Terminate the workflow"):
             terminate_previous_workflows()
 
 
@@ -158,7 +219,11 @@ if __name__ == "__main__":
     if "last_page" in st.session_state and st.session_state.last_page != PAGE_NAME:
         save_cpacs_file()
 
-    workflow_buttons()
+    col_left, col_right = st.columns([2, 1])
+    with col_left:
+        display_modules_status()
+    with col_right:
+        workflow_buttons()
 
     # AutoRefresh for logs
     st_autorefresh(interval=1000, limit=10000, key="auto_refresh")

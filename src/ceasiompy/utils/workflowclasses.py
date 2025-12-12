@@ -13,6 +13,7 @@ Classes to run ceasiompy workflows
 import os
 import shutil
 import importlib
+import json
 
 from ceasiompy.utils import get_wkdir
 from ceasiompy.utils.moduleinterfaces import get_module_list
@@ -316,8 +317,33 @@ class Workflow:
         """Run the complete Worflow"""
 
         add_to_runworkflow_history(self.current_wkflow_dir)
+        status_path = Path(self.current_wkflow_dir, "workflow_status.json")
 
-        for module in self.modules:
+        modules_status = []
+        for idx, module in enumerate(self.modules):
+            module_name = module.name
+            modules_status.append(
+                {
+                    "index": idx,
+                    "name": module_name,
+                    "status": "waiting",
+                }
+            )
+
+        try:
+            with open(status_path, "w", encoding="utf-8") as f:
+                json.dump(modules_status, f)
+        except OSError:
+            pass
+
+        for idx, module in enumerate(self.modules):
+            modules_status[idx]["status"] = "running"
+            try:
+                with open(status_path, "w", encoding="utf-8") as f:
+                    json.dump(modules_status, f)
+            except OSError:
+                pass
+
             if module.is_optim_module:
                 self.subworkflow.run_subworkflow()
             else:
@@ -327,5 +353,12 @@ class Workflow:
                     self.modules_list.index(module.name),
                     test,
                 )
+
+            modules_status[idx]["status"] = "finished"
+            try:
+                with open(status_path, "w", encoding="utf-8") as f:
+                    json.dump(modules_status, f)
+            except OSError:
+                pass
 
         shutil.copy(module.cpacs_out, Path(self.current_wkflow_dir, "ToolOutput.xml"))

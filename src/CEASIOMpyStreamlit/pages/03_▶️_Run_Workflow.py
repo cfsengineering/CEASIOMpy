@@ -16,9 +16,9 @@ Streamlit page to run a CEASIOMpy workflow
 #   IMPORTS
 # ==============================================================================
 
-import os
+import sys
 import psutil
-import signal
+import subprocess
 import streamlit as st
 
 from streamlit_autorefresh import st_autorefresh
@@ -28,7 +28,6 @@ from streamlitutils import (
 )
 
 from pathlib import Path
-from ceasiompy.utils.workflowclasses import Workflow
 
 
 # ==============================================================================
@@ -54,14 +53,43 @@ def terminate_previous_workflows() -> None:
     """
     Terminate any previously running workflow processes.
     """
-    for proc in psutil.process_iter(attrs=["pid", "name", "cmdline"]):
+    # First, terminate the workflow process tracked in the Streamlit session (if any)
+    workflow_pid = st.session_state.get("workflow_pid")
+    if workflow_pid is not None:
         try:
-            # Check if the process is running the workflow script
-            if "python" in proc.info["name"] and "runworkflow.py" in proc.info["cmdline"]:
-                # Terminate the process
-                os.kill(proc.info["pid"], signal.SIGTERM)
+            proc = psutil.Process(workflow_pid)
+
+            # Terminate child processes first
+            for child in proc.children(recursive=True):
+                try:
+                    child.terminate()
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                    continue
+
+            proc.terminate()
+            _, alive = psutil.wait_procs([proc], timeout=3)
+
+            # Force kill remaining processes if they did not terminate gracefully
+            for p in alive:
+                try:
+                    p.kill()
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                    continue
+
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
+        finally:
+            # Clear stored PID even if something went wrong
+            st.session_state["workflow_pid"] = None
+
+    # Fallback: look for any stray runworkflow.py processes and terminate them
+    for proc in psutil.process_iter(attrs=["pid", "cmdline"]):
+        try:
+            cmdline = proc.info.get("cmdline") or []
+            if any("runworkflow.py" in part for part in cmdline):
+                proc.terminate()
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            continue
 
 
 def workflow_buttons() -> None:
@@ -83,13 +111,19 @@ def workflow_buttons() -> None:
             )
             st.session_state.workflow.write_config_file()
 
-            # Run workflow from an external script
+            # Run workflow from an external script (separate process)
             config_path = Path(st.session_state.workflow.working_dir, "ceasiompy.cfg")
+            script_path = Path(__file__).resolve().parents[1] / "runworkflow.py"
 
-            workflow = Workflow()
-            workflow.from_config_file(Path(config_path))
-            workflow.set_workflow()
-            workflow.run_workflow()
+            # Launch the workflow in a separate process so it can be
+            # terminated independently of the Streamlit GUI.
+            process = subprocess.Popen(
+                [sys.executable, str(script_path), str(config_path)],
+                cwd=script_path.parent,
+            )
+
+            # Store the PID so that terminate_previous_workflows can stop it later
+            st.session_state["workflow_pid"] = process.pid
 
     with col2:
         if st.button("Terminate ✖️", help="Terminate the workflow"):

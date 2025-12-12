@@ -552,7 +552,7 @@ def get_reasonable_nb_cpu() -> int:
     the user can then override this value with the settings.
     """
 
-    cpu_count = os.environ.get('MAX_CPUS')
+    cpu_count = int(os.environ.get('MAX_CPUS'))
 
     if cpu_count is None:
         log.warning(
@@ -568,7 +568,7 @@ def check_nb_cpu(nb_proc: int) -> None:
     """
     Check if input nb_cpu from GUI is reasonable.
     """
-    if not os.environ.get('MAX_CPUS') > nb_proc:
+    if not int(os.environ.get('MAX_CPUS')) > nb_proc:
         log.warning(f"{nb_proc} CPUs is too much for your engine.")
         nb_proc = get_reasonable_nb_cpu()
         log.info(f"Using by default {nb_proc} CPUs.")

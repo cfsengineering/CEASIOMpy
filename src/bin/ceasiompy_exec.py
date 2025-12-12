@@ -199,7 +199,8 @@ def run_gui(
         str(Path(__file__).resolve().parents[2] / "src") + os.pathsep + env.get("PYTHONPATH", "")
     )
 
-    env["MAX_CPUS"] = cpus
+    # Environment variables must be strings
+    env["MAX_CPUS"] = str(cpus)
 
     # Expose working directory to the Streamlit app
     env["CEASIOMPY_WKDIR"] = str(wkdir)
@@ -308,7 +309,7 @@ def main():
         wkdir = Path(args.wkdir) if args.wkdir is not None else None
         run_gui(
             port=port,
-            cpus=args.cpus,
+            cpus=int(args.cpus),
             wkdir=wkdir,
             headless=args.headless,
         )

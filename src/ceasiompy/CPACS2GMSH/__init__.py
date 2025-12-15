@@ -27,10 +27,11 @@ from ceasiompy.utils.commonxpaths import MESH_XPATH
 SOFTWARE_NAME = "Pentagrow"
 
 # ===== Module Status =====
-MODULE_STATUS = get_module_status(
-    default=True,
-    needs_soft_name=SOFTWARE_NAME,
-)
+# MODULE_STATUS = get_module_status(
+#     default=True,
+#     needs_soft_name=SOFTWARE_NAME,
+# )
+MODULE_STATUS = True
 
 # ===== Include GUI =====
 INCLUDE_GUI = True
@@ -78,3 +79,4 @@ GMSH_GROWTH_RATIO_XPATH = GMSH_XPATH + "/growth_ratio"
 GMSH_FEATURE_ANGLE_XPATH = GMSH_XPATH + "/feature_angle"
 GMSH_CTRLSURF_ANGLE_XPATH = GMSH_XPATH + "/DeflectionAngle"
 GMSH_SAVE_CGNS_XPATH = GMSH_XPATH + "/SaveCGNS"
+GMSH_MESH_CHECKER_XPATH = GMSH_XPATH + "/MeshChecker"

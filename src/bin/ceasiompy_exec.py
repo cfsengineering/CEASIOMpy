@@ -21,6 +21,7 @@ import os
 import argparse
 import subprocess
 
+from CEASIOMpyStreamlit.streamlitutils import rm_wkflow_status
 from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 
 from pathlib import Path
@@ -262,7 +263,7 @@ def cleanup_previous_workflow_status(wkdir: Path | None = None) -> None:
 
 def main():
 
-    cleanup_previous_workflow_status()
+    rm_wkflow_status()
 
     parser = argparse.ArgumentParser(
         description="CEASIOMpy: Conceptual Aircraft Design Environment",

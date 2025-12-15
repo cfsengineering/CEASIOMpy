@@ -11,7 +11,11 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
 ENV PATH=$CONDA_DIR/bin:$PATH
 
 RUN conda init bash
-RUN source ~/.bashrc && conda update -n base -c defaults conda
+
+RUN /bin/bash -c "source ~/.bashrc && \
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main && \
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r && \
+    conda update -n base -c defaults conda"
 
 # Copy
 WORKDIR /CEASIOMpy/installation/CentOS/

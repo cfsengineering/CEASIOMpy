@@ -27,11 +27,10 @@ from ceasiompy.utils.commonxpaths import MESH_XPATH
 SOFTWARE_NAME = "Pentagrow"
 
 # ===== Module Status =====
-# MODULE_STATUS = get_module_status(
-#     default=True,
-#     needs_soft_name=SOFTWARE_NAME,
-# )
-MODULE_STATUS = True
+MODULE_STATUS = get_module_status(
+    default=True,
+    needs_soft_name=SOFTWARE_NAME,
+)
 
 # ===== Include GUI =====
 INCLUDE_GUI = True

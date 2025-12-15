@@ -21,7 +21,6 @@ import os
 import argparse
 import subprocess
 
-from CEASIOMpyStreamlit.streamlitutils import rm_wkflow_status
 from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 
 from pathlib import Path
@@ -223,6 +222,39 @@ def run_gui(
     )
 
 
+def cleanup_previous_workflow_status(wkdir: Path | None = None) -> None:
+    """Remove the last workflow status file without importing Streamlit."""
+    if wkdir is None:
+        wkdir = WKDIR_PATH
+
+    if not wkdir.exists():
+        return
+
+    workflow_dirs = [
+        wkdir_entry
+        for wkdir_entry in wkdir.iterdir()
+        if wkdir_entry.is_dir() and wkdir_entry.name.startswith("Workflow_")
+    ]
+
+    if not workflow_dirs:
+        return
+
+    def workflow_number(path: Path) -> int:
+        parts = path.name.split("_")
+        if parts and parts[-1].isdigit():
+            return int(parts[-1])
+        return -1
+
+    last_workflow = max(workflow_dirs, key=workflow_number)
+    status_file = last_workflow / "workflow_status.json"
+
+    if status_file.exists():
+        try:
+            status_file.unlink()
+        except OSError:
+            pass
+
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================
@@ -230,7 +262,7 @@ def run_gui(
 
 def main():
 
-    rm_wkflow_status()
+    cleanup_previous_workflow_status()
 
     parser = argparse.ArgumentParser(
         description="CEASIOMpy: Conceptual Aircraft Design Environment",
@@ -310,6 +342,7 @@ def main():
     if args.gui:
         port = int(args.port) if args.port is not None else None
         wkdir = Path(args.wkdir) if args.wkdir is not None else None
+        cleanup_previous_workflow_status(wkdir)
         run_gui(
             port=port,
             cpus=int(args.cpus),

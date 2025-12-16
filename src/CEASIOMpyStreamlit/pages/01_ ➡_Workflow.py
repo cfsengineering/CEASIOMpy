@@ -70,21 +70,13 @@ def section_predefined_workflow():
         # ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"],
     ]
 
-    filtered_workflows = [
-        workflow
-        for workflow in predefine_workflows
-        if all(module in active_modules for module in workflow)
-    ]
+    for workflow in predefine_workflows:
+        available = all(module in active_modules for module in workflow)
 
-    if not filtered_workflows:
-        st.info(
-            "No predefined workflows are available "
-            "with the current module configuration."
-        )
-        return None
+        button_label = " → ".join(workflow)
+        button_key = f"predefined_workflow_{button_label}"
 
-    for workflow in filtered_workflows:
-        if st.button(" → ".join(workflow)):
+        if st.button(button_label, key=button_key, disabled=not available):
             st.session_state.workflow_modules = workflow
 
 

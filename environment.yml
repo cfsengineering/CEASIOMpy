@@ -45,7 +45,7 @@ dependencies:
   - boost=1.85.0
   - libzip=1.9.2
 
-  # CEASIOMpyLite
+  # CEASIOMpyLight
   - conda-forge::fastapi
   - conda-forge::uvicorn
   - conda-forge::pydantic

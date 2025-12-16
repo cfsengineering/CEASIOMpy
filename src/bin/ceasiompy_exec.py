@@ -196,7 +196,9 @@ def run_gui(
 
     # Add the src directory to PYTHONPATH
     env["PYTHONPATH"] = (
-        str(Path(__file__).resolve().parents[2] / 'INSTALLDIR/OpenVSP/python/openvsp') + os.pathsep + str(Path(__file__).resolve().parents[2] / "src") + os.pathsep + env.get("PYTHONPATH", "")
+        str(Path(__file__).resolve().parents[2] / 'INSTALLDIR/OpenVSP/python/openvsp')
+        + os.pathsep + str(Path(__file__).resolve().parents[2] / "src")
+        + os.pathsep + env.get("PYTHONPATH", "")
     )
 
     # Environment variables must be strings

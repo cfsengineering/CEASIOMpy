@@ -28,7 +28,7 @@ from CEASIOMpyStreamlit.streamlitutils import create_sidebar
 from stl import mesh
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
-from ceasiompy.VSP2CPACS import VSPtoCPACS
+from ceasiompy.VSP2CPACS import vsp2cpacs
 from ceasiompy.utils.workflowclasses import Workflow
 
 # =================================================================================================
@@ -77,13 +77,16 @@ def section_select_cpacs():
     if "workflow" not in st.session_state:
         st.session_state["workflow"] = Workflow()
 
-    st.markdown("""
-    <h4 style='font-size:20px;'>
-        <b>📥  Open a CPACS file or import a model from OpenVSP</b><br><br>        
-        <b>✈️  Create a new geometry in OpenVSP</b>
-    </h4>
-    """, unsafe_allow_html=True)
-    
+    st.markdown(
+        """
+        <h4 style='font-size:20px;'>
+            <b>📥  Open a CPACS file or import a model from OpenVSP</b><br><br>
+            <b>✈️  Create a new geometry in OpenVSP</b>
+        </h4>
+        """,
+        unsafe_allow_html=True,
+    )
+
     OPENVSP_DIR = Path(__file__).parent.parent.parent / "INSTALLDIR" / "OpenVSP"
     VSP_EXEC = "vsp"
 
@@ -91,7 +94,6 @@ def section_select_cpacs():
         if st.button("📌 Launch OpenVSP"):
             try:
                 subprocess.Popen([f"./{VSP_EXEC}"], cwd=str(OPENVSP_DIR))
-                #st.success("OpenVSP has been launched!")
             except Exception as e:
                 st.error(f"Could not open OpenVSP: {e}")
     else:
@@ -124,11 +126,13 @@ def section_select_cpacs():
             with open(cpacs_new_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
 
-            VSPtoCPACS.main(str(cpacs_new_path))
+            vsp2cpacs.main(str(cpacs_new_path))
 
-            
             module_dir = Path(__file__).parent  # path della cartella del modulo
-            cpacs_new_path = module_dir.parent / f"ceasiompy/VSP2CPACS/{Path(str(cpacs_new_path)).stem}.xml"
+            cpacs_new_path = (
+                module_dir.parent
+                / f"ceasiompy/VSP2CPACS/{Path(str(cpacs_new_path)).stem}.xml"
+            )
             # Stop new uploding
             st.session_state.vsp_converted = True
         else:

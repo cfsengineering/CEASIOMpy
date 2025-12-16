@@ -23,7 +23,7 @@ import json
 import streamlit as st
 
 from streamlit_autorefresh import st_autorefresh
-from streamlitutils import (
+from CEASIOMpyStreamlit.streamlitutils import (
     create_sidebar,
     save_cpacs_file,
     rm_wkflow_status,
@@ -163,8 +163,8 @@ def workflow_buttons() -> None:
 
     with col1:
         if st.button("Run ▶️", help="Run the workflow"):
+            rm_wkflow_status()
             terminate_previous_workflows()
-
             st.session_state.workflow.modules_list = st.session_state.workflow_modules
             st.session_state.workflow.optim_method = "None"
             st.session_state.workflow.module_optim = ["NO"] * len(
@@ -217,13 +217,19 @@ if __name__ == "__main__":
     st.title(PAGE_NAME)
 
     if "last_page" in st.session_state and st.session_state.last_page != PAGE_NAME:
-        save_cpacs_file()
+        save_cpacs_file(logging=False)
 
-    col_left, col_right = st.columns([2, 1])
-    with col_left:
-        display_modules_status()
-    with col_right:
-        workflow_buttons()
+    if "cpacs" not in st.session_state:
+        st.warning("No CPACS file have been selected!")
+
+    if "workflow_modules" not in st.session_state or st.session_state.workflow_modules == []:
+        st.warning("No modules have been selected!")
+    else:
+        col_left, col_right = st.columns([2, 1])
+        with col_left:
+            display_modules_status()
+        with col_right:
+            workflow_buttons()
 
     # AutoRefresh for logs
     st_autorefresh(interval=1000, limit=10000, key="auto_refresh")

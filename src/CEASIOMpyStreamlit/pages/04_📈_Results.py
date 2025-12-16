@@ -23,7 +23,8 @@ import streamlit as st
 import plotly.graph_objects as go
 
 from streamlit_autorefresh import st_autorefresh
-from streamlitutils import (
+from ceasiompy.utils.commonpaths import get_wkdir
+from CEASIOMpyStreamlit.streamlitutils import (
     create_sidebar,
     get_last_workflow,
     highlight_stability,
@@ -155,138 +156,54 @@ def open_paraview(file):
     os.system(f"paraview {str(paraview_state)}")
 
 
-def show_aeromap():
-    """Interactive graph to display aeromaps contained in the CPACS file."""
+def workflow_number(path: Path) -> int:
+    parts = path.name.split("_")
+    if parts and parts[-1].isdigit():
+        return int(parts[-1])
+    return -1
 
-    st.markdown("#### Aeromap")
 
-    if "cpacs" not in st.session_state:
-        st.warning("No CPACS file has been selected!")
-        return
-
-    current_workflow = get_last_workflow()
-    list_of_files = []
-
-    for child in current_workflow.iterdir():
-        if child.is_file():
-            list_of_files.append(child.stem)
-
-    if "ToolOutput" in list_of_files:
-        cpacs = CPACS(Path(current_workflow, "ToolOutput.xml"))
-        st.success("Your results are ready!")
-    else:
-        cpacs = st.session_state.cpacs
-        st.info("No results found, these are aeromaps from the input CPACS file!")
-
-    # Get aeromap(s) to plot from multiselect box
-    aeromap_list = []
-    aeromap_uid_list = cpacs.get_aeromap_uid_list()
-    aeromap_selected = st.multiselect("Select aeromap", aeromap_uid_list)
-    aeromap_list = [cpacs.get_aeromap_by_uid(aeromap_uid) for aeromap_uid in aeromap_selected]
-
-    if not aeromap_list:
-        st.warning("You must select at least one aeromap!")
-        return
-
-    # temp (TODO: could be improve, how to look into all df)
-    df_tmp = aeromap_list[0].df
-
-    col1, col2, _ = st.columns(3)
-
-    with col1:
-        x_axis = st.selectbox("x", PARAMS_COEFS, 3)
-    with col2:
-        y_axis = st.selectbox("y", PARAMS_COEFS, 5)
-
-    with st.expander("Filter 1"):
-        filter1_column1, filter1_column2 = st.columns([1, 2])
-
-        with filter1_column1:
-            filter1_remaining = [item for item in PARAMS_COEFS if item not in [x_axis, y_axis]]
-            filter1 = st.selectbox("Filter by:", filter1_remaining)
-        with filter1_column2:
-            value_list = df_tmp[filter1].unique()
-            value_selected = st.multiselect("Filter value:", value_list, value_list[0])
-
-    with st.expander("Filter 2"):
-        filter2_column1, filter2_column2 = st.columns([1, 2])
-        with filter2_column1:
-            filter2_remaining = [
-                item for item in PARAMS_COEFS if item not in [x_axis, y_axis, filter1]
-            ]
-            filter2 = st.selectbox("Filter2 by:", filter2_remaining)
-        with filter2_column2:
-            value_list2 = df_tmp[filter2].unique()
-            value_selected2 = st.multiselect("Filter2 value:", value_list2, value_list2[0])
-
-    fig = go.Figure()
-    for aeromap in aeromap_list:
-
-        if not len(value_selected):
-            value_selected = value_list
-
-        for value in value_selected:
-            if not len(value_selected2):
-                value_selected2 = value_list2
-
-            for value2 in value_selected2:
-                df = aeromap.df[(aeromap.df[filter1] == value) & (aeromap.df[filter2] == value2)]
-                legend = f"{aeromap.uid}<br>{filter1}={value}<br>{filter2}={value2}"
-                fig.add_trace(go.Scatter(x=df[x_axis], y=df[y_axis], name=legend))
-
-    fig.update_traces(mode="markers+lines", hovertemplate="x: %{x:.2f} \ny: %{y:.2f} ")
-
-    fig.update_layout(
-        xaxis=dict(title=x_axis),
-        yaxis=dict(title=y_axis),
-        plot_bgcolor="rgb(255,255,255)",
-    )
-
-    axis_options = {
-        "showline": True,
-        "linewidth": 2,
-        "linecolor": "rgb(0,0,0)",
-        "gridcolor": "rgb(188,188,188)",
-        "zerolinecolor": "rgb(188,188,188)",
-    }
-
-    fig.update_xaxes(axis_options)
-    fig.update_yaxes(axis_options)
-
-    st.plotly_chart(fig)
-
-    col1, col2, _ = st.columns([2, 2, 3])
-
-    with col1:
-        img_format = st.selectbox("Format", [".png", ".svg", ".pdf"])
-    with col2:
-        st.markdown("")
-        st.markdown("")
-        if st.button("Save this figure 📷"):
-            fig_name = f"{cpacs.ac_name}_{y_axis}_vs_{x_axis}{img_format}"
-            current_workflow = get_last_workflow()
-            aerocoef_dir = Path(current_workflow, "Results", "ExportCSV")
-            if not aerocoef_dir.exists():
-                aerocoef_dir.mkdir(parents=True)
-            fig.write_image(Path(aerocoef_dir, fig_name))
+def get_workflow_dirs(current_wkdir: Path) -> list[Path]:
+    if not current_wkdir.exists():
+        return []
+    workflow_dirs = [
+        wkflow
+        for wkflow in current_wkdir.iterdir()
+        if wkflow.is_dir() and wkflow.name.startswith("Workflow_")
+    ]
+    return sorted(workflow_dirs, key=workflow_number)
 
 
 def show_results():
-    """Display all the results of the current workflow."""
+    """Display the results of the selected workflow."""
 
     st.markdown("#### Results")
 
-    current_workflow = get_last_workflow()
-    if not current_workflow:
+    current_wkdir = get_wkdir()
+    if not current_wkdir or not current_wkdir.exists():
+        st.warning("No Workflow working directory found.")
         return
 
-    results_dir = Path(current_workflow, "Results")
+    workflow_dirs = get_workflow_dirs(current_wkdir)
+    if not workflow_dirs:
+        st.warning("No workflows have been found in the working directory.")
+        return
+
+    workflow_names = [wkflow.name for wkflow in workflow_dirs]
+    default_index = max(len(workflow_names) - 1, 0)
+    chosen_workflow_name = st.selectbox(
+        "Choose workflow", workflow_names, index=default_index, key="results_chosen_workflow"
+    )
+    chosen_workflow = Path(current_wkdir, chosen_workflow_name)
+
+    results_dir = Path(chosen_workflow, "Results")
+    if not results_dir.exists():
+        st.warning("No results have been found for the selected workflow!")
+        return
     results_name = sorted([dir.stem for dir in results_dir.iterdir() if dir.is_dir()])
     if not results_name:
         st.warning("No results have been found!")
         return
-
-    st.info(f"All these results can be found in:\n\n{str(current_workflow.resolve())}")
 
     results_tabs = st.tabs(results_name)
 
@@ -306,14 +223,9 @@ if __name__ == "__main__":
 
     st.title("Results")
 
-    show_aeromap()
     show_results()
 
-    if st.button("🔄 Refresh"):
-        st.rerun()
-
-    if st.checkbox("Auto refresh"):
-        st_autorefresh(interval=2000, limit=10000, key="auto_refresh")
+    st_autorefresh(interval=2000, limit=10000, key="auto_refresh")
 
     # Update last_page
     st.session_state.last_page = PAGE_NAME

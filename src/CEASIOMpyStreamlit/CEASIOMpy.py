@@ -185,6 +185,4 @@ if __name__ == "__main__":
     )
 
     st.title(PAGE_NAME)
-    st.info(f'You are working in {str(get_wkdir())}')
-
     section_select_cpacs()

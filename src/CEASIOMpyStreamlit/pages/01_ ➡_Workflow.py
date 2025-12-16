@@ -18,7 +18,7 @@ Streamlit page to create a CEASIOMpy workflow
 
 import streamlit as st
 
-from streamlitutils import create_sidebar
+from CEASIOMpyStreamlit.streamlitutils import create_sidebar
 from ceasiompy.utils.moduleinterfaces import get_module_list
 
 from ceasiompy.SMUse import MODULE_NAME as SMUSE
@@ -117,7 +117,7 @@ def section_add_module():
                     st.session_state.workflow_modules.pop(i)
                     st.rerun()
     else:
-        st.warning("No module has been added to the workflow.")
+        st.warning("No module(s) have been added to the workflow.")
 
     module_list = get_module_list(only_active=True)
 

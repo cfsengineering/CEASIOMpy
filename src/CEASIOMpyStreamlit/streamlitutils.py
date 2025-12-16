@@ -19,8 +19,8 @@ import pandas as pd
 import streamlit as st
 
 from cpacspy.cpacsfunctions import (
-    add_string_vector,
     add_value,
+    add_string_vector,
 )
 
 from PIL import Image
@@ -132,9 +132,18 @@ def get_last_workflow():
     return Path(st.session_state.workflow.working_dir, f"Workflow_{last_workflow_nb:03}")
 
 
-def save_cpacs_file():
+def save_cpacs_file(logging: bool = True):
     update_all_modified_value()
+    if "workflow" not in st.session_state:
+        if logging:
+            st.warning("No Workflow has been defined yet!")
+        return None
+
     saved_cpacs_file = Path(st.session_state.workflow.working_dir, "CPACS_selected_from_GUI.xml")
+    if "cpacs" not in st.session_state:
+        if logging:
+            st.warning("No CPACS file has been selected!")
+        return None
     st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
     st.session_state.workflow.cpacs_in = saved_cpacs_file
     st.session_state.cpacs = CPACS(saved_cpacs_file)

@@ -216,15 +216,19 @@ if __name__ == "__main__":
 
     st.title(PAGE_NAME)
 
+    display_buttons: bool = True
     if "last_page" in st.session_state and st.session_state.last_page != PAGE_NAME:
         save_cpacs_file(logging=False)
 
     if "cpacs" not in st.session_state:
         st.warning("No CPACS file have been selected!")
+        display_buttons = False
 
     if "workflow_modules" not in st.session_state or st.session_state.workflow_modules == []:
         st.warning("No modules have been selected!")
-    else:
+        display_buttons = False
+
+    if display_buttons:
         col_left, col_right = st.columns([2, 1])
         with col_left:
             display_modules_status()

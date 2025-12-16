@@ -902,8 +902,7 @@ def generate_gmsh(
         su2mesh_path = write_gmsh(results_dir, f"{mesh_name}.su2")
         write_gmsh(results_dir, f"{mesh_name}.msh")
 
-    if also_save_cgns:
-        write_gmsh(results_dir, "mesh.cgns")
+    cgns_path = write_gmsh(results_dir, "mesh.cgns") if also_save_cgns else None
 
     process_gmsh_log(gmsh.logger.get())
 
@@ -916,4 +915,4 @@ def generate_gmsh(
         gmsh.clear()
         gmsh.finalize()
 
-    return su2mesh_path
+    return su2mesh_path, cgns_path

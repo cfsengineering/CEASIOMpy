@@ -31,6 +31,7 @@ from ceasiompy import log
 from unittest.mock import patch
 
 from ceasiompy.utils.commonpaths import (
+    WKDIR_PATH,
     STREAMLIT_PATH,
     TEST_CASES_PATH,
     CPACS_FILES_PATH,
@@ -168,23 +169,90 @@ def run_config_file(config_file) -> None:
     workflow.run_workflow(test=True)
 
 
-def run_gui():
-    """Create an run a workflow from a GUI."""
+def run_gui(
+    cpus: int,
+    wkdir: Path | None = None,
+    headless: bool = False,
+    port: int | None = None,
+) -> None:
+    """Create and run a workflow from the GUI."""
+
+    if wkdir is None:
+        wkdir = WKDIR_PATH
+
+    if wkdir.exists():
+        if not wkdir.is_dir():
+            raise NotADirectoryError(
+                f"The working directory path '{wkdir}' exists but is not a directory."
+            )
+    else:
+        try:
+            wkdir.mkdir(parents=True, exist_ok=True)
+        except Exception as exc:
+            raise OSError(f"Unable to create working directory '{wkdir}': {exc}") from exc
 
     log.info("CEASIOMpy has been started from the GUI.")
     env = os.environ.copy()
+
     # Add the src directory to PYTHONPATH
     env["PYTHONPATH"] = (
         str(Path(__file__).resolve().parents[2] / 'INSTALLDIR/OpenVSP/python/openvsp') + os.pathsep + str(Path(__file__).resolve().parents[2] / "src") + os.pathsep + env.get("PYTHONPATH", "")
     )
-    print(env["PYTHONPATH"])
+
+    # Environment variables must be strings
+    env["MAX_CPUS"] = str(cpus)
+
+    # Expose working directory to the Streamlit app
+    env["CEASIOMPY_WKDIR"] = str(wkdir)
+
+    args = [
+        "streamlit", "run", "CEASIOMpy.py",
+        "--server.headless", f"{str(headless).lower()}",
+    ]
+    if port is not None:
+        args += [
+            "--server.port", f"{port}"
+        ]
 
     subprocess.run(
-        ["streamlit", "run", "CEASIOMpy.py"],
+        args=args,
         cwd=STREAMLIT_PATH,
         check=True,
         env=env,
     )
+
+
+def cleanup_previous_workflow_status(wkdir: Path | None = None) -> None:
+    """Remove the last workflow status file without importing Streamlit."""
+    if wkdir is None:
+        wkdir = WKDIR_PATH
+
+    if not wkdir.exists():
+        return
+
+    workflow_dirs = [
+        wkdir_entry
+        for wkdir_entry in wkdir.iterdir()
+        if wkdir_entry.is_dir() and wkdir_entry.name.startswith("Workflow_")
+    ]
+
+    if not workflow_dirs:
+        return
+
+    def workflow_number(path: Path) -> int:
+        parts = path.name.split("_")
+        if parts and parts[-1].isdigit():
+            return int(parts[-1])
+        return -1
+
+    last_workflow = max(workflow_dirs, key=workflow_number)
+    status_file = last_workflow / "workflow_status.json"
+
+    if status_file.exists():
+        try:
+            status_file.unlink()
+        except OSError:
+            pass
 
 
 # =================================================================================================
@@ -192,8 +260,7 @@ def run_gui():
 # =================================================================================================
 
 
-def main():
-
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="CEASIOMpy: Conceptual Aircraft Design Environment",
         usage=argparse.SUPPRESS,
@@ -212,6 +279,32 @@ def main():
         "--gui",
         action="store_true",
         help="create a CEASIOMpy workflow with the Graphical user interface",
+    )
+    parser.add_argument(
+        "-p",
+        "--port",
+        required=False,
+        help="Select specific Port.",
+    )
+    parser.add_argument(
+        "--wkdir",
+        type=Path,
+        required=False,
+        help="Select specific work directory (for the results).",
+    )
+    parser.add_argument(
+        "--headless",
+        required=False,
+        type=bool,
+        default=False,
+        help="Select if automatically opened or not.",
+    )
+    parser.add_argument(
+        "--cpus",
+        required=False,
+        type=int,
+        default=int(os.cpu_count() // 2 + 1),
+        help="Select maximum number of authorized CPUs.",
     )
     parser.add_argument(
         "-m",
@@ -244,7 +337,15 @@ def main():
         return
 
     if args.gui:
-        run_gui()
+        port = int(args.port) if args.port is not None else None
+        wkdir = Path(args.wkdir) if args.wkdir is not None else None
+        cleanup_previous_workflow_status(wkdir)
+        run_gui(
+            port=port,
+            cpus=int(args.cpus),
+            wkdir=wkdir,
+            headless=args.headless,
+        )
         return
 
     # If no argument is given, print the help

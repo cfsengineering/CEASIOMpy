@@ -45,6 +45,7 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_INTAKE_PERCENT_XPATH,
     GMSH_EXHAUST_PERCENT_XPATH,
     GMSH_SAVE_CGNS_XPATH,
+    GMSH_MESH_CHECKER_XPATH,
 )
 
 # ==============================================================================
@@ -371,6 +372,19 @@ cpacs_inout.add_input(
     gui_name="Save CGNS",
     gui_group="Saving options",
 )
+
+cpacs_inout.add_input(
+    var_name="mesh_checker",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="Check mesh quality with pyvista",
+    xpath=GMSH_MESH_CHECKER_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Mesh Checker",
+    gui_group="Mesh Checker",
+)
+
 
 # ==============================================================================
 #   GUI OUTPUTS

@@ -19,7 +19,7 @@ Streamlit page to change settings of a CEASIOMpy workflow
 import streamlit as st
 
 from CEASIOMpyStreamlit.moduletab import add_module_tab
-from streamlitutils import (
+from CEASIOMpyStreamlit.streamlitutils import (
     create_sidebar,
     save_cpacs_file,
 )
@@ -50,6 +50,9 @@ def section_settings():
     if not len(st.session_state.workflow_modules):
         st.warning("You must first build a workflow in the corresponding tab.")
 
+    if "new_file" not in st.session_state:
+        st.session_state.new_file = True
+
     add_module_tab(new_file=st.session_state.new_file)
     st.session_state.new_file = False
 
@@ -57,7 +60,7 @@ def section_settings():
     # of __specs__.py files. Then save each modifications independently.
     # Important: Needs to be called after add_module_tab.
     if "save_cpacs_file_run" not in st.session_state:
-        save_cpacs_file()
+        save_cpacs_file(logging=False)
         st.session_state.save_cpacs_file_run = True
 
 

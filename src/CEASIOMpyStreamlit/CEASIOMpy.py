@@ -22,15 +22,14 @@ import streamlit as st
 import subprocess
 import plotly.graph_objects as go
 
+from ceasiompy.utils import get_wkdir
 from CEASIOMpyStreamlit.streamlitutils import create_sidebar
 
 from stl import mesh
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
-from ceasiompy.utils.workflowclasses import Workflow
-
-from ceasiompy.utils.commonpaths import WKDIR_PATH
 from ceasiompy.VSP2CPACS import VSPtoCPACS
+from ceasiompy.utils.workflowclasses import Workflow
 
 # =================================================================================================
 #    CONSTANTS
@@ -55,7 +54,7 @@ def clean_toolspecific(cpacs: CPACS) -> CPACS:
 
     if "ac_name" not in st.session_state or st.session_state.ac_name != air_name:
         # Remove CPACS_selected_from_GUI.xml if it exists
-        gui_xml = WKDIR_PATH / "CPACS_selected_from_GUI.xml"
+        gui_xml = get_wkdir() / "CPACS_selected_from_GUI.xml"
         if gui_xml.exists():
             os.remove(gui_xml)
 
@@ -98,8 +97,10 @@ def section_select_cpacs():
     else:
         st.warning(f"⚠️ OpenVSP executable not found at {OPENVSP_DIR / VSP_EXEC}")
 
-    WKDIR_PATH.mkdir(parents=True, exist_ok=True)
-    st.session_state.workflow.working_dir = WKDIR_PATH
+    wkdir = get_wkdir()
+    wkdir.mkdir(parents=True, exist_ok=True)
+    st.session_state.workflow.working_dir = wkdir
+    st.markdown("#### CPACS file")
 
     # Check if the CPACS file path is already in session state
     if "cpacs_file_path" in st.session_state:
@@ -218,5 +219,4 @@ if __name__ == "__main__":
     )
 
     st.title(PAGE_NAME)
-
     section_select_cpacs()

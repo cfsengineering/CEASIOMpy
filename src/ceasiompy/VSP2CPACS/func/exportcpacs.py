@@ -497,7 +497,7 @@ def Wing_positioning(doc, Parent, Name, Section_key, Sections_parameters, dih_li
              str(float(Sections_parameters[Section_key]['Dihedral_angle']) - dih_list[-1]))
 
         # Connectivity between wing sections
-        prev_name = f'{Name[:len(Name)-1]}{int(Name[-1])-1}'
+        prev_name = f'{Name[:len(Name) - 1]}{int(Name[-1]) - 1}'
         make(doc, 'fromSectionUID', positioning, prev_name)
         make(doc, 'toSectionUID', positioning, Name)
 

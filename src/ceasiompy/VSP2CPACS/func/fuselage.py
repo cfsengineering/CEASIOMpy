@@ -11,6 +11,7 @@ file.
 | Creation: ?????
 """
 
+# Imports
 import copy
 
 import numpy as np
@@ -18,11 +19,8 @@ import openvsp as vsp
 
 from ceasiompy.VSP2CPACS.func.wing import Extract_transformation, get_profile_section
 
-import warnings
 
-warnings.filterwarnings("ignore")
-
-
+# Functions
 def Import_Fuse(Fuselage):
     """Build a CPACS-ready dictionary describing the fuselage sections."""
 

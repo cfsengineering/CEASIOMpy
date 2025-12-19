@@ -29,7 +29,6 @@ from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy import log
 from unittest.mock import patch
-
 from ceasiompy.utils.commonpaths import (
     WKDIR_PATH,
     STREAMLIT_PATH,
@@ -40,6 +39,14 @@ from ceasiompy.utils.commonpaths import (
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def _get_cpu_count() -> int:
+    cpus = os.cpu_count()
+    if cpus is not None:
+        return int(cpus // 2 + 1)
+
+    return 1
 
 
 def testcase_message(testcase_nb):
@@ -170,7 +177,7 @@ def run_config_file(config_file) -> None:
 
 
 def run_gui(
-    cpus: int,
+    cpus: int = _get_cpu_count(),
     wkdir: Path | None = None,
     headless: bool = False,
     port: int | None = None,
@@ -198,7 +205,7 @@ def run_gui(
     project_root = Path(__file__).resolve().parents[2]
     src_dir = project_root / "src"
     vsp_python_root = project_root / "INSTALLDIR/OpenVSP/python"
-    vsp_openvsp_pkg = vsp_python_root / "openvsp" 
+    vsp_openvsp_pkg = vsp_python_root / "openvsp"
     degen_geom_pkg = vsp_python_root / "degen_geom"
     vsp_config_pkg = vsp_python_root / "openvsp_config"
     utilities_pkg = vsp_python_root / "utilities"
@@ -322,7 +329,7 @@ def main() -> None:
         "--cpus",
         required=False,
         type=int,
-        default=int(os.cpu_count() // 2 + 1),
+        default=_get_cpu_count(),
         help="Select maximum number of authorized CPUs.",
     )
     parser.add_argument(

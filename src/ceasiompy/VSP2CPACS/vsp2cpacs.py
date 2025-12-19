@@ -105,7 +105,7 @@ def main(vsp_file):
             # The pod is also a part inside the engine (centerCowl)
             if (
                 ComponentIdx > 2
-                and Data_from_VSP[f"{ComponentIdx-1}"]["Transformation"]["Name_type"] == "Duct"
+                and Data_from_VSP[f"{ComponentIdx - 1}"]["Transformation"]["Name_type"] == "Duct"
             ):
                 Data_from_VSP[f"{ComponentIdx}"]["Transformation"]["idx_engine"] = idx_engine
             else:
@@ -122,7 +122,7 @@ def main(vsp_file):
 
             # Check if it is an engine.
             # A complete engine needs Duct + Duct + Pod (fan + core + center in CPACS)
-            if Data_from_VSP[f"{ComponentIdx-1}"]["Transformation"]["Name_type"] != "Duct":
+            if Data_from_VSP[f"{ComponentIdx - 1}"]["Transformation"]["Name_type"] != "Duct":
                 idx_engine += 1
             Data_from_VSP[f"{ComponentIdx}"]["Transformation"]["idx_engine"] = idx_engine
 

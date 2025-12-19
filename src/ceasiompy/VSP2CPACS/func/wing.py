@@ -125,7 +125,7 @@ def Import_Wing(wing):
         # Compute translation to account for sweep location (shift from sweep_loc to LE)
         if Sections_information[f'Section{n_section_idx}']['Sweep_loc'] != 0:
             sweep_loc = Sections_information[f"Section{n_section_idx}"]["Sweep_loc"]
-            chord_root = Sections_information[f"Section{n_section_idx-1}"]["x_scal"]
+            chord_root = Sections_information[f"Section{n_section_idx - 1}"]["x_scal"]
             chord_tip = Sections_information[f"Section{n_section_idx}"]["x_scal"]
             dc_dy = (
                 chord_tip - chord_root
@@ -377,7 +377,9 @@ def get_coord_naca4_mod(xsec_id, n):
     thick_loc = geom_parm['ThickLoc']
     Invert_airfoil = geom_parm['Invert']
 
-    mods_value = int(f"{int(round(geom_parm['LERadIndx']))}{int(round(geom_parm['ThickLoc']*10))}")
+    mods_value = int(
+        f"{int(round(geom_parm['LERadIndx']))}{int(round(geom_parm['ThickLoc'] * 10))}"
+    )
 
     airfoils = ["0020-03", "0020-05", "0020-34", "0020-35", "0020-62",
                 "0020-63", "0020-64", "0020-65", "0020-66", "0020-93"]
@@ -494,7 +496,9 @@ def get_coord_naca5_mod(xsec_id, n):
     p = geom_parm['CamberLoc']
     t = geom_parm['ThickChord']
     thick_loc = geom_parm['ThickLoc']
-    mods_value = int(f"{int(round(geom_parm['LERadIndx']))}{int(round(geom_parm['ThickLoc']*10))}")
+    mods_value = int(
+        f"{int(round(geom_parm['LERadIndx']))}{int(round(geom_parm['ThickLoc'] * 10))}"
+    )
 
     # -----------------------------------------------------------
     # coefficients for thickness distribution (same as 4-digit mod)
@@ -1270,7 +1274,6 @@ def Tesselation(Component, idx, x, y):
             y_upper,
             kind="cubic",
             bounds_error=False,
-            fill_value="extrapolate",
         )
         y_upper = f_u(x_inter)
         x_lower, unique_idx = np.unique(x_lower, return_index=True)
@@ -1280,7 +1283,6 @@ def Tesselation(Component, idx, x, y):
             y_lower,
             kind="cubic",
             bounds_error=False,
-            fill_value="extrapolate",
         )
         y_lower = f_l(x_inter)
         x = np.concatenate((np.flip(x_inter), x_inter), axis=0)

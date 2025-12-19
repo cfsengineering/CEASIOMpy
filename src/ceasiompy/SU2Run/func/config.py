@@ -301,7 +301,7 @@ def add_thermodata(
     if not tixi.checkElement(ENGINE_TYPE_XPATH):
         log.warning(f"No engines found at xPath {ENGINE_TYPE_XPATH}.")
         return None
-    
+
     log.info("Adding engine BC to the SU2 config file.")
     engine_type = get_value(tixi, ENGINE_TYPE_XPATH)
     log.info(f"Engine type {engine_type}.")
@@ -311,13 +311,10 @@ def add_thermodata(
     tot_temp_in = Atm.temperature[0]
     tot_pressure_in = Atm.pressure[0]
 
-    if (
-    not (
+    if (not (
         tixi.checkElement(ENGINE_BC_TEMPERATUREOUTLET_XPATH)
-        and
-        tixi.checkElement(ENGINE_BC_PRESSUREOUTLET_XPATH)
-        )
-    ):
+        and tixi.checkElement(ENGINE_BC_PRESSUREOUTLET_XPATH)
+    )):
         log.warning('THERMODATA has not been called properly.')
         return None
 

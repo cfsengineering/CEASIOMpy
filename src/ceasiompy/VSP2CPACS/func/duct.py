@@ -12,7 +12,7 @@ to have a CPACS file.
 """
 
 import numpy as np
-import openvsp as vsp
+import openvsp as vsp  # type: ignore
 
 
 def get_coord_engine_profile(geom_id, n):

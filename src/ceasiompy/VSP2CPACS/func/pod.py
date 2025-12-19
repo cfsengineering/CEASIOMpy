@@ -13,7 +13,7 @@ After it will pass through this module to have a CPACS file.
 """
 
 import numpy as np
-import openvsp as vsp
+import openvsp as vsp  # type: ignore
 
 from ceasiompy.VSP2CPACS.func.wing import Extract_transformation
 

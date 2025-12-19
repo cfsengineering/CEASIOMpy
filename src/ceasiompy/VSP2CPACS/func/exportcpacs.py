@@ -841,7 +841,7 @@ class Export_CPACS:
 
     def run(self):
         # Create the document
-        Doc = md.Document()
+        Doc = md.Document()  # type: ignore[attr-defined]
 
         # find the keys
         keys = list(self.Data.keys())

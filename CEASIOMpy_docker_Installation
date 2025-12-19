@@ -35,7 +35,10 @@ RUN find /CEASIOMpy/installation -name "*.sh" -type f -exec dos2unix {} \;
 
 WORKDIR /CEASIOMpy/installation/Ubuntu
 RUN chmod +x install_*.sh
-WORKDIR /CEASIOMpy/installation/Pentagrow/bin
+
+WORKDIR /CEASIOMpy/INSTALLDIR
+RUN git clone https://github.com/cfsengineering/Pentagrow.git
+WORKDIR /CEASIOMpy/INSTALLDIR/Pentagrow/bin
 RUN chmod +x pentagrow
 
 WORKDIR /

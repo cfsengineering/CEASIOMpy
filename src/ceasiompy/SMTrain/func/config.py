@@ -55,6 +55,7 @@ from ceasiompy.SMTrain import (
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
     SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
+    SMTRAIN_SELECTED_MODEL,
     # SMTRAIN_XPATH_CORES,
 )
 
@@ -85,7 +86,7 @@ def get_settings(cpacs: CPACS):
     rmse_obj = get_value(tixi, SMTRAIN_THRESHOLD_XPATH)
     simulation_purpose = get_value(tixi, SMTRAIN_SIMULATION_PURPOSE_XPATH)
     old_new_sim = get_value(tixi, SMTRAIN_UPLOAD_AVL_DATABASE_XPATH)
-    # nb_cpu = get_value(tixi, SMTRAIN_XPATH_CORES)
+    selected_model = get_value(tixi, SMTRAIN_SELECTED_MODEL)
 
     log.info(f"Surrogate's model {objective=} with {fidelity_level=}")
 
@@ -97,8 +98,8 @@ def get_settings(cpacs: CPACS):
         show_plot,
         rmse_obj,
         simulation_purpose,
-        old_new_sim
-        # nb_cpu,
+        old_new_sim,
+        selected_model
     )
 
 

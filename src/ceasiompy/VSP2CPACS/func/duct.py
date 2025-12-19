@@ -118,7 +118,9 @@ def Import_Duct(Duct):
     ]
     Sym_value = vsp.GetParmVal(vsp.GetParm(Duct, "Sym_Planar_Flag", "Sym"))
     Symm_index = [" ", "x-y-plane", "x-z-plane", "y-z-plane"]
-    Symmetry = Symm_index[int(float(Sym_value))] if Sym_value != "0" else "0"
+    sym_idx = int(round(Sym_value))
+    sym_idx = max(0, min(sym_idx, len(Symm_index) - 1))
+    Symmetry = Symm_index[sym_idx] if sym_idx != 0 else "0"
     ParentUid = vsp.GetGeomParent(Duct)
     ParentUid = ParentUid if ParentUid is not None else 0
 

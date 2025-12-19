@@ -22,15 +22,14 @@ import streamlit as st
 import subprocess
 import plotly.graph_objects as go
 
+from ceasiompy.utils import get_wkdir
 from CEASIOMpyStreamlit.streamlitutils import create_sidebar
 
 from stl import mesh
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
+from ceasiompy.VSP2CPACS import vsp2cpacs
 from ceasiompy.utils.workflowclasses import Workflow
-
-from ceasiompy.utils.commonpaths import WKDIR_PATH
-from ceasiompy.VSP2CPACS import VSPtoCPACS
 
 # =================================================================================================
 #    CONSTANTS
@@ -55,7 +54,7 @@ def clean_toolspecific(cpacs: CPACS) -> CPACS:
 
     if "ac_name" not in st.session_state or st.session_state.ac_name != air_name:
         # Remove CPACS_selected_from_GUI.xml if it exists
-        gui_xml = WKDIR_PATH / "CPACS_selected_from_GUI.xml"
+        gui_xml = get_wkdir() / "CPACS_selected_from_GUI.xml"
         if gui_xml.exists():
             os.remove(gui_xml)
 
@@ -78,13 +77,16 @@ def section_select_cpacs():
     if "workflow" not in st.session_state:
         st.session_state["workflow"] = Workflow()
 
-    st.markdown("""
-    <h4 style='font-size:20px;'>
-        <b>📥  Open a CPACS file or import a model from OpenVSP</b><br><br>        
-        <b>✈️  Create a new geometry in OpenVSP</b>
-    </h4>
-    """, unsafe_allow_html=True)
-    
+    st.markdown(
+        """
+        <h4 style='font-size:20px;'>
+            <b>📥  Open a CPACS file or import a model from OpenVSP</b><br><br>
+            <b>✈️  Create a new geometry in OpenVSP</b>
+        </h4>
+        """,
+        unsafe_allow_html=True,
+    )
+
     OPENVSP_DIR = Path(__file__).parent.parent.parent / "INSTALLDIR" / "OpenVSP"
     VSP_EXEC = "vsp"
 
@@ -92,14 +94,15 @@ def section_select_cpacs():
         if st.button("📌 Launch OpenVSP"):
             try:
                 subprocess.Popen([f"./{VSP_EXEC}"], cwd=str(OPENVSP_DIR))
-                #st.success("OpenVSP has been launched!")
             except Exception as e:
                 st.error(f"Could not open OpenVSP: {e}")
     else:
         st.warning(f"⚠️ OpenVSP executable not found at {OPENVSP_DIR / VSP_EXEC}")
 
-    WKDIR_PATH.mkdir(parents=True, exist_ok=True)
-    st.session_state.workflow.working_dir = WKDIR_PATH
+    wkdir = get_wkdir()
+    wkdir.mkdir(parents=True, exist_ok=True)
+    st.session_state.workflow.working_dir = wkdir
+    st.markdown("#### CPACS file")
 
     # Check if the CPACS file path is already in session state
     if "cpacs_file_path" in st.session_state:
@@ -123,11 +126,13 @@ def section_select_cpacs():
             with open(cpacs_new_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
 
-            VSPtoCPACS.main(str(cpacs_new_path))
+            vsp2cpacs.main(str(cpacs_new_path))
 
-            
             module_dir = Path(__file__).parent  # path della cartella del modulo
-            cpacs_new_path = module_dir.parent / f"ceasiompy/VSP2CPACS/{Path(str(cpacs_new_path)).stem}.xml"
+            cpacs_new_path = (
+                module_dir.parent
+                / f"ceasiompy/VSP2CPACS/{Path(str(cpacs_new_path)).stem}.xml"
+            )
             # Stop new uploding
             st.session_state.vsp_converted = True
         else:
@@ -218,5 +223,4 @@ if __name__ == "__main__":
     )
 
     st.title(PAGE_NAME)
-
     section_select_cpacs()

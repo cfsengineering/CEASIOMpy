@@ -14,6 +14,8 @@ Initialization for SU2Run module.
 #   IMPORTS
 # ==============================================================================
 
+from ceasiompy.utils import get_module_status
+
 from pathlib import Path
 
 from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
@@ -21,9 +23,6 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
-
-# ===== Module Status =====
-MODULE_STATUS = True
 
 # ===== Include GUI =====
 INCLUDE_GUI = True
@@ -46,6 +45,12 @@ TEMPLATE_TYPE = ["EULER", "RANS"]
 # Name of used software
 SOFTWARE_NAME = "SU2_CFD"
 REQUIRED_VERSION = "8.1.0"
+
+# ===== Module Status =====
+MODULE_STATUS = get_module_status(
+    default=True,
+    needs_soft_name=SOFTWARE_NAME,
+)
 
 # xPaths
 SU2_XPATH = CEASIOMPY_XPATH + "/aerodynamics/su2"

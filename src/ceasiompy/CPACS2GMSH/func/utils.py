@@ -53,6 +53,7 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_GROWTH_RATIO_XPATH,
     GMSH_FEATURE_ANGLE_XPATH,
     GMSH_SAVE_CGNS_XPATH,
+    GMSH_MESH_CHECKER_XPATH,
 )
 
 
@@ -291,6 +292,8 @@ def retrieve_gui_values(tixi: Tixi3):
 
     also_save_cgns = get_value(tixi, GMSH_SAVE_CGNS_XPATH)
 
+    mesh_checker = get_value(tixi, GMSH_MESH_CHECKER_XPATH)
+
     return (
         open_gmsh,
         type_mesh,
@@ -316,4 +319,5 @@ def retrieve_gui_values(tixi: Tixi3):
         growth_ratio,
         feature_angle,
         also_save_cgns,
+        mesh_checker,
     )

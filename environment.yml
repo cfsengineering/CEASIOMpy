@@ -20,55 +20,66 @@ channels:
   - defaults
 
 dependencies:
-  - python=3.11.11
-  - cpacscreator=0.2
-  - clang=20.1.2
-  - codecov=2.1.11
-  - coverage=7.6.9
-  - flake8=7.1.1
-  - ipython=8.30.0
-  - ipywidgets=8.1.5
-  - numpy=2.2.4
-  - openmdao=3.38.0
-  - pandas=2.2.3
-  - plotly=5.24.1
-  - pip=25.0.1
-  - pytest-cov=6.0.0
-  - python-kaleido=0.2.1
-  - pythreejs=2.4.2
-  - scipy=1.13.1
-  - xmltodict=0.14.2
-  - hdf5=1.10.6  # Pentagrow needs an older version (1.10.X)
-  - libgfortran=14.2.0
-  - cgns=4.2.0
-  - expat=2.7.0  # Should be already installed
-  - boost=1.85.0
-  - libzip=1.9.2
+  - pip>=25.0.1
+  - python>=3.11.11
+  - ipython>=8.30.0
+  - ipywidgets>=8.1.5
+
+  # [not osx]
+  - cpacscreator>=0.2
+
+  # Testing and code quality
+  - clang>=20.1.2
+  - codecov>=2.1.11
+  - coverage>=7.6.9
+  - flake8>=7.1.1
+
+  - numpy>=2.2.4
+  - openmdao>=3.38.0
+  - pandas>=2.2.3
+  - plotly>=5.24.1
+  - pytest-cov>=6.0.0
+  - python-kaleido>=0.2.1
+  - pythreejs>=2.4.2
+  - scipy>=1.13.1
+  - xmltodict>=0.14.2
+  - hdf5>=1.10.6  # Pentagrow needs an older version (1.10.X)
+  - libgfortran>=14.2.0
+  - cgns>=4.2.0
+  - expat>=2.7.0  # Should be already installed
+  - boost>=1.85.0
+  - libzip>=1.9.2
+
+  # CEASIOMpyLight
+  - conda-forge::fastapi
+  - conda-forge::uvicorn
+  - conda-forge::pydantic
 
   - pip:
-    - altair==5.5.0
-    - ambiance==1.3.1
-    - black==25.1.0
-    - cpacspy==0.2.0
-    - Cython==3.0.12
-    - gmsh==4.13.1
-    - numpy-stl==3.2.0
-    - markdownpy==0.1.4
-    - matplotlib==3.10.1
-    - om-pycycle==4.3.0
-    - pycycle==0.0.8
-    - pydantic==2.11.3
-    - psutil==7.0.0
-    - pytest==8.3.4
-    - pyvista==0.44.2
-    - shapely==2.1.0
-    - smt==2.9.2
-    - stpyvista==0.1.4
-    - streamlit==1.45.1
+    - altair>=5.5.0
+    - ambiance>=1.3.1
+    - black>=25.1.0
+    - cpacspy>=0.2.0
+    - Cython>=3.0.12
+    - gmsh>=4.13.1
+    - numpy-stl>=3.2.0
+    - markdownpy>=0.1.4
+    - matplotlib>=3.10.1
+    - om-pycycle>=4.3.0
+    - pycycle>=0.0.8
+    - psutil>=7.0.0
+    - pytest>=8.3.4
+    - pyvista>=0.44.2
+    - shapely>=2.1.0
+    - smt>=2.9.2
+    - stpyvista>=0.1.4
+    - streamlit>=1.45.1
     - streamlit-autorefresh
-    - vtk==9.3.0
-    - scikit-optimize==0.10.2
-    - framat==0.5
+    - vtk>=9.3.0
+    - scikit-optimize>=0.10.2
+    - framat>=0.5
     - panelaero
     - defusedxml
     - sphinx
+    - jenn>=1.0.8
+    - stripe

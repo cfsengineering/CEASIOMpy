@@ -27,7 +27,7 @@ from ceasiompy.utils.commonpaths import MODULES_DIR_PATH
 from cpacspy.cpacsfunctions import create_branch, open_tixi
 
 
-from ceasiompy.utils import MODULE_DIR
+from ceasiompy import UTILS_PATH
 
 MODNAME_TOP = "ceasiompy"
 MODNAME_SPECS = "__specs__"
@@ -402,7 +402,7 @@ def create_default_toolspecific():
 
     """
 
-    EMPTY_CPACS_PATH = Path(MODULE_DIR, "doc", "empty_cpacs.xml")
+    EMPTY_CPACS_PATH = Path(UTILS_PATH, "doc", "empty_cpacs.xml")
 
     tixi_in = open_tixi(EMPTY_CPACS_PATH)
     tixi_out = open_tixi(EMPTY_CPACS_PATH)
@@ -432,8 +432,8 @@ def create_default_toolspecific():
                 xpath = entry.xpath
                 create_branch(tixi_out, xpath)
 
-    TOOLSPECIFIC_INPUT_PATH = Path(MODULE_DIR, "doc", "input_toolspecifics.xml")
-    TOOLSPECIFIC_OUTPUT_PATH = Path(MODULE_DIR, "doc", "output_toolspecifics.xml")
+    TOOLSPECIFIC_INPUT_PATH = Path(UTILS_PATH, "doc", "input_toolspecifics.xml")
+    TOOLSPECIFIC_OUTPUT_PATH = Path(UTILS_PATH, "doc", "output_toolspecifics.xml")
 
     tixi_in.save(str(TOOLSPECIFIC_INPUT_PATH))
     tixi_out.save(str(TOOLSPECIFIC_OUTPUT_PATH))

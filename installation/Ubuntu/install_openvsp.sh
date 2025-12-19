@@ -56,13 +56,13 @@ cmake -DCMAKE_BUILD_TYPE=Release \
 make -j$(nproc)
 make install
 
-'''### === Install Python API manually === ###
+"""### === Install Python API manually === ###
 echo ">>> Installing Python API..."
 mkdir -p "$install_dir/python/openvsp"
 if [ -d ../python_api/packages ]; then
     cp -r ../python_api/packages/* "$install_dir/python/openvsp/"
 fi
-'''
+"""
 ### === Build Python API === ###
 cd ../python_api
 mkdir -p build

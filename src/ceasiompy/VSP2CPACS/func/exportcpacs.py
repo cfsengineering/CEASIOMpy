@@ -14,7 +14,7 @@ to have a CPACS file.
 
 import re
 import numpy as np
-import xml.dom.minidom as md
+from defusedxml import minidom as md
 
 from ceasiompy import log
 
@@ -431,11 +431,11 @@ def Fuse_Profile(doc, Parent, Section_parameters, Section_key, uid):
     # CPACS vector formatting
     x_cpacs = np.column_stack((x_values, y_values, z_values))
 
-    for tag in range(0, len(txt)):
+    for tag, elem in enumerate(txt):
         values_str = ' '.join(str(x_cpacs[:, tag]).strip().split()) \
                         .replace('[ ', '').replace(
                             '[', '').replace(' ]', '').replace(']', '').replace(' ', ';')
-        child = make(doc, txt[tag], pointList, values_str)
+        child = make(doc, elem, pointList, values_str)
         child.setAttribute('mapType', 'vector')
 
 
@@ -525,11 +525,11 @@ def wingAirfoil(doc, Parent, Section_key, Section_parameters, uid):
 
     x_cpacs = np.column_stack((x_values, y_values, z_values))
 
-    for tag in range(0, len(txt)):
+    for tag, elem in enumerate(txt):
         values_str = ' '.join(str(x_cpacs[:, tag]).strip().split()) \
                         .replace('[ ', '').replace('[', '').replace(
                             ' ]', '').replace(']', '').replace(' ', ';')
-        child = make(doc, txt[tag], pointList, values_str)
+        child = make(doc, elem, pointList, values_str)
         child.setAttribute('mapType', 'vector')
 
 
@@ -868,9 +868,10 @@ class Export_CPACS:
                 self.Data[f'{item}']['Transformation']['Name_type'] == 'Duct'
                 or self.Data[f'{item}']['Transformation']['idx_engine'] is not None
             ):
-                dummy_idx_engine.append(
-                    self.Data[f'{item}']['Transformation']['idx_engine']
-                ) if len(dummy_idx_engine) < 3 else []
+                if len(dummy_idx_engine) < 3:
+                    dummy_idx_engine.append(
+                        self.Data[f'{item}']['Transformation']['idx_engine']
+                    )
                 Engine_to_CPACS(
                     self.Data[f'{item}'], Doc, model, vehicles,
                     dummy_idx_engine, self.name_file

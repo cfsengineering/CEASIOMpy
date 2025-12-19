@@ -83,10 +83,6 @@ RUN mkdir -p /CEASIOMpy/src
 
 COPY src /CEASIOMpy/src
 
-RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && \
-    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main && \
-    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r"
-
 # Create the Conda environment from the environment.yml file
 RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && conda update -n base -c conda-forge conda -y && conda env create -f environment.yml"
 

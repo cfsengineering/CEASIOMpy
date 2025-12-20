@@ -28,7 +28,6 @@ from CEASIOMpyStreamlit.streamlitutils import create_sidebar
 from stl import mesh
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
-from ceasiompy.VSP2CPACS import vsp2cpacs
 from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy.VSP2CPACS import (
@@ -42,8 +41,8 @@ from ceasiompy.VSP2CPACS import (
 
 HOW_TO_TEXT = (
     "### How to use CEASIOMpy?\n"
-    "1. Design your geometry*\n"
-    "1. Upload a already existing geomtry*\n"
+    "1. Design your geometry\n"
+    "1. Or upload an existing geometry\n"
     "1. Go to *Workflow* page (with menu above)\n"
 )
 
@@ -160,7 +159,19 @@ def section_select_cpacs():
                 f.write(uploaded_file.getbuffer())
 
             if cpacs_new_path.suffix == ".vsp3":
-                converted_path = vsp2cpacs.main(
+                try:
+                    from ceasiompy.VSP2CPACS.vsp2cpacs import main
+                except ModuleNotFoundError:
+                    st.error(
+                        "Cannot convert VSP3 files because the `openvsp` "
+                        "Python bindings are missing."
+                    )
+                    return None
+                except Exception as e:
+                    st.error(f"An error occurred while importing the VSP2CPACS module: {e}")
+                    return None
+
+                converted_path = main(
                     str(cpacs_new_path),
                     output_dir=wkdir,
                 )
@@ -172,8 +183,6 @@ def section_select_cpacs():
             cpacs = CPACS(cpacs_new_path)
             st.session_state.cpacs = clean_toolspecific(cpacs)
             st.session_state.cpacs_file_path = str(cpacs_new_path)
-
-            # st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
 
         # Display the file uploader widget with the previously uploaded file
         if "cpacs_file_path" in st.session_state and st.session_state.cpacs_file_path:

@@ -85,7 +85,7 @@ def section_add_module():
     Where to select the workflow.
     """
 
-    st.markdown("#### Your workflow")
+    st.markdown("#### Add Modules to your Workflow")
 
     if "workflow_modules" not in st.session_state:
         st.session_state["workflow_modules"] = []
@@ -109,7 +109,7 @@ def section_add_module():
                     st.session_state.workflow_modules.pop(i)
                     st.rerun()
     else:
-        st.warning("No module(s) have been added to the workflow.")
+        st.warning("No module(s) have been added in the workflow.")
 
     module_list = get_module_list(only_active=True)
 

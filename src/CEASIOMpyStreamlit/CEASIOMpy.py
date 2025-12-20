@@ -94,7 +94,7 @@ def render_openvsp_panel() -> None:
             st.caption("Use OpenVSP to edit your geometry, then re-import the CPACS.")
 
         with button_col:
-            if st.button("Launch OpenVSP", use_container_width=True):
+            if st.button("Launch OpenVSP", width="stretch"):
                 try:
                     launch_openvsp()
                 except Exception as e:
@@ -134,51 +134,52 @@ def section_select_cpacs():
     wkdir = get_wkdir()
     wkdir.mkdir(parents=True, exist_ok=True)
     st.session_state.workflow.working_dir = wkdir
-    st.markdown("#### Load a CPACS or VSP3 file")
+    with st.container(border=True):
+        st.markdown("#### Load a CPACS or VSP3 file")
 
-    # Check if the CPACS file path is already in session state
-    if "cpacs_file_path" in st.session_state:
-        cpacs_file_path = st.session_state.cpacs_file_path
-        if Path(cpacs_file_path).exists():
-            cpacs = CPACS(cpacs_file_path)
+        # Check if the CPACS file path is already in session state
+        if "cpacs_file_path" in st.session_state:
+            cpacs_file_path = st.session_state.cpacs_file_path
+            if Path(cpacs_file_path).exists():
+                cpacs = CPACS(cpacs_file_path)
+                st.session_state.cpacs = clean_toolspecific(cpacs)
+            else:
+                st.session_state.cpacs_file_path = None
+
+        # File uploader widget
+        uploaded_file = st.file_uploader(
+            "Load a CPACS (.xml) or VSP3 (.vsp3) file",
+            type=["xml", "vsp3"],
+        )
+
+        if uploaded_file and "vsp_converted" not in st.session_state:
+            wkdir = st.session_state.workflow.working_dir
+            cpacs_new_path = Path(wkdir, uploaded_file.name)
+
+            with open(cpacs_new_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+
+            if cpacs_new_path.suffix == ".vsp3":
+                converted_path = vsp2cpacs.main(
+                    str(cpacs_new_path),
+                    output_dir=wkdir,
+                )
+                cpacs_new_path = converted_path
+                # Stop new uploading
+                st.session_state.vsp_converted = True
+
+            st.session_state.workflow.cpacs_in = cpacs_new_path
+            cpacs = CPACS(cpacs_new_path)
             st.session_state.cpacs = clean_toolspecific(cpacs)
-        else:
-            st.session_state.cpacs_file_path = None
+            st.session_state.cpacs_file_path = str(cpacs_new_path)
 
-    # File uploader widget
-    uploaded_file = st.file_uploader(
-        "Load a CPACS (.xml) or VSP3 (.vsp3) file",
-        type=["xml", "vsp3"],
-    )
+            # st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
 
-    if uploaded_file and "vsp_converted" not in st.session_state:
-        wkdir = st.session_state.workflow.working_dir
-        cpacs_new_path = Path(wkdir, uploaded_file.name)
-
-        with open(cpacs_new_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-
-        if cpacs_new_path.suffix == ".vsp3":
-            converted_path = vsp2cpacs.main(
-                str(cpacs_new_path),
-                output_dir=wkdir,
-            )
-            cpacs_new_path = converted_path
-            # Stop new uploading
-            st.session_state.vsp_converted = True
-
-        st.session_state.workflow.cpacs_in = cpacs_new_path
-        cpacs = CPACS(cpacs_new_path)
-        st.session_state.cpacs = clean_toolspecific(cpacs)
-        st.session_state.cpacs_file_path = str(cpacs_new_path)
-
-        # st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
-
-    # Display the file uploader widget with the previously uploaded file
-    if "cpacs_file_path" in st.session_state and st.session_state.cpacs_file_path:
-        st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
-        st.success(f"Uploaded file: {st.session_state.cpacs_file_path}")
-        section_3D_view()
+        # Display the file uploader widget with the previously uploaded file
+        if "cpacs_file_path" in st.session_state and st.session_state.cpacs_file_path:
+            st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
+            st.success(f"Uploaded file: {st.session_state.cpacs_file_path}")
+            section_3D_view()
 
 
 def section_3D_view() -> None:
@@ -223,7 +224,7 @@ def section_3D_view() -> None:
             aspectmode="cube",
         ),
     )
-    st.plotly_chart(fig, use_container_width=False)
+    st.plotly_chart(fig, width="content")
 
 
 # =================================================================================================

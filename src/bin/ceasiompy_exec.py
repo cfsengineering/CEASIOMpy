@@ -232,7 +232,7 @@ def run_gui(
     env["CEASIOMPY_WKDIR"] = str(wkdir)
 
     args = [
-        "streamlit", "run", "CEASIOMpy.py",
+        "streamlit", "run", "✈️_Geometry.py",
         "--server.headless", f"{str(headless).lower()}",
     ]
     if port is not None:

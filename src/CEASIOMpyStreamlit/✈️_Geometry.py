@@ -46,7 +46,7 @@ HOW_TO_TEXT = (
     "1. Go to *Workflow* page (with menu above)\n"
 )
 
-PAGE_NAME = "Choose or Design YOUR geometry"
+PAGE_NAME = "Geometry"
 
 # =================================================================================================
 #    FUNCTIONS
@@ -72,28 +72,27 @@ def render_openvsp_panel() -> None:
     with st.container(border=True):
         st.markdown("#### Create or update geometries with OpenVSP")
 
-        if not VSP2CPACS_MODULE_STATUS:
-            st.info(
-                "OpenVSP is not enabled for this installation. "
-                "Install it inside `INSTALLDIR/OpenVSP` to use the geometry converter."
-            )
-            return
-
-        if OPENVSP_PATH is None or not OPENVSP_PATH.exists():
-            st.error("OpenVSP executable could not be located.")
-            st.caption(
-                "Expected to find the `vsp` binary inside `INSTALLDIR/OpenVSP`. "
-                "Use the platform specific installer inside the `installation/` folder."
-            )
-            return
-
+        button_disabled = True
         status_col, button_col = st.columns([4, 1])
         with status_col:
-            st.success("OpenVSP detected and ready to launch")
-            st.caption("Use OpenVSP to edit your geometry, then re-import the CPACS.")
+            if not VSP2CPACS_MODULE_STATUS:
+                st.info(
+                    "OpenVSP is not enabled for this installation. "
+                    "Install it inside `INSTALLDIR/OpenVSP` to use the geometry converter."
+                )
+            elif OPENVSP_PATH is None or not OPENVSP_PATH.exists():
+                st.error("OpenVSP executable could not be located.")
+                st.caption(
+                    "Expected to find the `vsp` binary inside `INSTALLDIR/OpenVSP`. "
+                    "Use the platform specific installer inside the `installation/` folder."
+                )
+            else:
+                st.success("OpenVSP detected and ready to launch")
+                st.caption("Use OpenVSP to edit your geometry, then re-import the CPACS.")
+                button_disabled = False
 
         with button_col:
-            if st.button("Launch OpenVSP", width="stretch"):
+            if st.button("Launch OpenVSP", width="stretch", disabled=button_disabled):
                 try:
                     launch_openvsp()
                 except Exception as e:
@@ -242,7 +241,6 @@ def section_3D_view() -> None:
 
 
 if __name__ == "__main__":
-
     create_sidebar(HOW_TO_TEXT)
     st.markdown(
         """

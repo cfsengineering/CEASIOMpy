@@ -149,11 +149,11 @@ def save_cpacs_file(logging: bool = True):
     st.session_state.cpacs = CPACS(saved_cpacs_file)
 
 
-def create_sidebar(how_to_text):
+def create_sidebar(how_to_text, page_title="CEASIOMpy"):
     """Create side bar with a text explaining how the page should be used."""
 
     im = Image.open(CEASIOMPY_LOGO_PATH)
-    st.set_page_config(page_title="CEASIOMpy", page_icon=im)
+    st.set_page_config(page_title=page_title, page_icon=im)
     st.sidebar.image(im)
     st.sidebar.markdown(how_to_text)
 

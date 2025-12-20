@@ -21,12 +21,12 @@ from pathlib import Path
 from ceasiompy import log
 
 try:
-    from defusedxml import defuse_stdlib  # type: ignore
+    from defusedxml import defuse_stdlib, minidom as _std_minidom  # type: ignore
 except ImportError:  # pragma: no cover - fallback if defusedxml missing
     defuse_stdlib = None
+    from xml.dom import minidom as _std_minidom
 else:
     defuse_stdlib()
-from xml.dom import minidom as _std_minidom
 
 _document_factory = _std_minidom.Document
 

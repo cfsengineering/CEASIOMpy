@@ -12,13 +12,28 @@ to have a CPACS file.
 | Creation: ?????
 """
 
+# Imports
 import re
 import numpy as np
-from defusedxml import minidom as md
+
+from pathlib import Path
 
 from ceasiompy import log
 
+try:
+    from defusedxml import minidom as md  # type: ignore
+except ImportError:  # pragma: no cover - fallback if defusedxml missing
+    md = None
+from xml.dom import minidom as _std_minidom
 
+_document_factory = None
+if md is not None and hasattr(md, "Document"):
+    _document_factory = md.Document
+else:
+    _document_factory = _std_minidom.Document
+
+
+# Functions
 def make(doc, name, parent=None, text=None, **attrs):
     """
     Create an XML element, optionally add attributes, text value,
@@ -492,9 +507,11 @@ def Wing_positioning(doc, Parent, Name, Section_key, Sections_parameters, dih_li
         make(doc, 'length', positioning, str(length_val))
 
         # Sweep and dihedral values
-        make(doc, 'sweepAngle', positioning, str(Sections_parameters[Section_key]['Sweep_angle']))
-        make(doc, 'dihedralAngle', positioning,
-             str(float(Sections_parameters[Section_key]['Dihedral_angle']) - dih_list[-1]))
+        sweep_angle = Sections_parameters[Section_key]['Sweep_angle']
+        dihedral_angle = Sections_parameters[Section_key].get('Dihedral_angle', 0.0)
+
+        make(doc, 'sweepAngle', positioning, str(sweep_angle))
+        make(doc, 'dihedralAngle', positioning, str(float(dihedral_angle) - dih_list[-1]))
 
         # Connectivity between wing sections
         prev_name = f'{Name[:len(Name) - 1]}{int(Name[-1]) - 1}'
@@ -502,7 +519,7 @@ def Wing_positioning(doc, Parent, Name, Section_key, Sections_parameters, dih_li
         make(doc, 'toSectionUID', positioning, Name)
 
     # Update dihedral history list
-    dih_val = Sections_parameters[Section_key]['Dihedral_angle']
+    dih_val = Sections_parameters[Section_key].get('Dihedral_angle', 0.0)
     if Sections_parameters["Transformation"]["Relative_dih"]:
         dih_list.append(dih_val)
     else:
@@ -533,7 +550,14 @@ def wingAirfoil(doc, Parent, Section_key, Section_parameters, uid):
         child.setAttribute('mapType', 'vector')
 
 
-def Wing_to_CPACS(WingData, doc, Parent_wing, Parent_prof,name_file):
+def Wing_to_CPACS(
+    WingData,
+    doc,
+    Parent_wing,
+    Parent_prof,
+    name_file,
+    output_dir: Path | None = None,
+):
 
     # ---- keys of the dictionary( number of sections, trasformation of the main wing...) ----#
     keys = list(WingData.keys())
@@ -610,10 +634,17 @@ def Wing_to_CPACS(WingData, doc, Parent_wing, Parent_prof,name_file):
         wingAirfoil(
             doc, wingAirfoils, Section_key, WingData, Name_airfoil[Section_key]['Name'])
 
-    Save_CPACS_file(doc,name_file)
+    return Save_CPACS_file(doc, name_file, output_dir)
 
 
-def Fuselage_to_CPACS(FuseData, doc, Parent_Fuse, Parent_prof,name_file):
+def Fuselage_to_CPACS(
+    FuseData,
+    doc,
+    Parent_Fuse,
+    Parent_prof,
+    name_file,
+    output_dir: Path | None = None,
+):
 
     # ---- keys of the dictionary( number of sections, trasformation of the fuselage...) ----#
     keys = list(FuseData.keys())
@@ -695,7 +726,7 @@ def Fuselage_to_CPACS(FuseData, doc, Parent_Fuse, Parent_prof,name_file):
     for Section_key in keys[1:]:
         Fuse_Profile(
             doc,fuselageProfiles,FuseData, Section_key,Name_airfoil[Section_key]['Name'])
-    Save_CPACS_file(doc,name_file)
+    return Save_CPACS_file(doc, name_file, output_dir)
 
 
 def Engine_profile(doc, vehicle, data, name, i):
@@ -758,7 +789,15 @@ def Engine_profile(doc, vehicle, data, name, i):
         make(doc, "y", pointList, coord_y)
 
 
-def Engine_to_CPACS(EngineData, doc, Parent_engine, Parent_prof, i,name_file):
+def Engine_to_CPACS(
+    EngineData,
+    doc,
+    Parent_engine,
+    Parent_prof,
+    i,
+    name_file,
+    output_dir: Path | None = None,
+):
     NameEngine = f"""{
         EngineData['Transformation']['Name']
     }_Engine{EngineData['Transformation']['idx_engine']}
@@ -789,7 +828,7 @@ def Engine_to_CPACS(EngineData, doc, Parent_engine, Parent_prof, i,name_file):
     # <profiles>
     Engine_profile(doc, Parent_prof, EngineData, NameEngine, i)
 
-    Save_CPACS_file(doc,name_file)
+    return Save_CPACS_file(doc, name_file, output_dir)
 
 
 def merge_elements(document, parent_tag, target_tag):
@@ -812,7 +851,7 @@ def merge_elements(document, parent_tag, target_tag):
     return document
 
 
-def Save_CPACS_file(Document,name_file):
+def Save_CPACS_file(Document, name_file, output_dir: Path | None = None) -> Path:
 
     merge_elements(Document, 'model', 'wings')
     merge_elements(Document, 'model', 'fuselages')
@@ -824,24 +863,33 @@ def Save_CPACS_file(Document,name_file):
 
     xml_str = Document.toprettyxml(indent="  ")
 
-    # The file will be saved in the same folder as this module,
-    # rather than in the directory from which the function is called.
-    from pathlib import Path
-    module_dir = Path(__file__).parent
-    output_path = module_dir.parent / f'{name_file}.xml'
+    # The file will be saved either in the provided output directory or, by default,
+    # in the same folder as this module.
+    if output_dir is None:
+        module_dir = Path(__file__).parent
+        output_dir = module_dir.parent
+    else:
+        output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+    output_path = output_dir / f'{name_file}.xml'
 
     with open(output_path, 'w') as xml_file:
         xml_file.write(xml_str)
 
+    return output_path
+
 
 class Export_CPACS:
-    def __init__(self, Data, name_file):
+    def __init__(self, Data, name_file, output_dir: Path | None = None):
         self.Data = Data
         self.name_file = name_file
+        self.output_dir = output_dir
+        self.output_path: Path | None = None
 
-    def run(self):
+    def run(self) -> Path:
         # Create the document
-        Doc = md.Document()  # type: ignore[attr-defined]
+        Doc = _document_factory()
 
         # find the keys
         keys = list(self.Data.keys())
@@ -856,14 +904,35 @@ class Export_CPACS:
         for item in keys:
             log.info(f"Component {item} {self.Data[f'{item}']['Transformation']['Name_type']} ")
             if self.Data[f'{item}']['Transformation']['Name_type'] == 'Wing':
-                Wing_to_CPACS(self.Data[f'{item}'], Doc, model, vehicles,self.name_file)
+                self.output_path = Wing_to_CPACS(
+                    self.Data[f'{item}'],
+                    Doc,
+                    model,
+                    vehicles,
+                    self.name_file,
+                    self.output_dir,
+                )
             if self.Data[f'{item}']['Transformation']['Name_type'] == 'Fuselage':
-                Fuselage_to_CPACS(self.Data[f'{item}'], Doc, model, vehicles, self.name_file)
+                self.output_path = Fuselage_to_CPACS(
+                    self.Data[f'{item}'],
+                    Doc,
+                    model,
+                    vehicles,
+                    self.name_file,
+                    self.output_dir,
+                )
             if (
                 self.Data[f'{item}']['Transformation']['Name_type'] == 'Pod'
                 and self.Data[f'{item}']['Transformation']['idx_engine'] is None
             ):
-                Fuselage_to_CPACS(self.Data[f'{item}'], Doc, model, vehicles, self.name_file)
+                self.output_path = Fuselage_to_CPACS(
+                    self.Data[f'{item}'],
+                    Doc,
+                    model,
+                    vehicles,
+                    self.name_file,
+                    self.output_dir,
+                )
             if (
                 self.Data[f'{item}']['Transformation']['Name_type'] == 'Duct'
                 or self.Data[f'{item}']['Transformation']['idx_engine'] is not None
@@ -872,7 +941,17 @@ class Export_CPACS:
                     dummy_idx_engine.append(
                         self.Data[f'{item}']['Transformation']['idx_engine']
                     )
-                Engine_to_CPACS(
-                    self.Data[f'{item}'], Doc, model, vehicles,
-                    dummy_idx_engine, self.name_file
+                self.output_path = Engine_to_CPACS(
+                    self.Data[f'{item}'],
+                    Doc,
+                    model,
+                    vehicles,
+                    dummy_idx_engine,
+                    self.name_file,
+                    self.output_dir,
                 )
+
+        if self.output_path is None:
+            raise RuntimeError("Failed to export CPACS file from OpenVSP geometry.")
+
+        return self.output_path

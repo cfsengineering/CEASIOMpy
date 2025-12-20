@@ -31,22 +31,74 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.VSP2CPACS import vsp2cpacs
 from ceasiompy.utils.workflowclasses import Workflow
 
+from ceasiompy.VSP2CPACS import (
+    SOFTWARE_PATH as OPENVSP_PATH,
+    MODULE_STATUS as VSP2CPACS_MODULE_STATUS,
+)
+
 # =================================================================================================
 #    CONSTANTS
 # =================================================================================================
 
 HOW_TO_TEXT = (
     "### How to use CEASIOMpy?\n"
-    "1. Choose a *Working directory*\n"
-    "1. Choose a *CPACS file*\n"
+    "1. Design your geometry*\n"
+    "1. Upload a already existing geomtry*\n"
     "1. Go to *Workflow* page (with menu above)\n"
 )
 
-PAGE_NAME = "CEASIOMpy"
+PAGE_NAME = "Choose or Design YOUR geometry"
 
 # =================================================================================================
 #    FUNCTIONS
 # =================================================================================================
+
+
+def launch_openvsp() -> None:
+    """Launch OpenVSP from the detected executable."""
+
+    if OPENVSP_PATH is None or not OPENVSP_PATH.exists():
+        st.error("OpenVSP path is not correctly set.")
+        return
+
+    subprocess.Popen(
+        args=[str(OPENVSP_PATH)],
+        cwd=str(OPENVSP_PATH.parent),
+    )
+
+
+def render_openvsp_panel() -> None:
+    """Render the OpenVSP status/launch controls."""
+
+    with st.container(border=True):
+        st.markdown("#### Create or update geometries with OpenVSP")
+
+        if not VSP2CPACS_MODULE_STATUS:
+            st.info(
+                "OpenVSP is not enabled for this installation. "
+                "Install it inside `INSTALLDIR/OpenVSP` to use the geometry converter."
+            )
+            return
+
+        if OPENVSP_PATH is None or not OPENVSP_PATH.exists():
+            st.error("OpenVSP executable could not be located.")
+            st.caption(
+                "Expected to find the `vsp` binary inside `INSTALLDIR/OpenVSP`. "
+                "Use the platform specific installer inside the `installation/` folder."
+            )
+            return
+
+        status_col, button_col = st.columns([4, 1])
+        with status_col:
+            st.success("OpenVSP detected and ready to launch")
+            st.caption("Use OpenVSP to edit your geometry, then re-import the CPACS.")
+
+        with button_col:
+            if st.button("Launch OpenVSP", use_container_width=True):
+                try:
+                    launch_openvsp()
+                except Exception as e:
+                    st.error(f"Could not open OpenVSP: {e}")
 
 
 def clean_toolspecific(cpacs: CPACS) -> CPACS:
@@ -77,32 +129,12 @@ def section_select_cpacs():
     if "workflow" not in st.session_state:
         st.session_state["workflow"] = Workflow()
 
-    st.markdown(
-        """
-        <h4 style='font-size:20px;'>
-            <b>📥  Open a CPACS file or import a model from OpenVSP</b><br><br>
-            <b>✈️  Create a new geometry in OpenVSP</b>
-        </h4>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    OPENVSP_DIR = Path(__file__).parent.parent.parent / "INSTALLDIR" / "OpenVSP"
-    VSP_EXEC = "vsp"
-
-    if OPENVSP_DIR.exists() and (OPENVSP_DIR / VSP_EXEC).exists():
-        if st.button("📌 Launch OpenVSP"):
-            try:
-                subprocess.Popen([f"./{VSP_EXEC}"], cwd=str(OPENVSP_DIR))
-            except Exception as e:
-                st.error(f"Could not open OpenVSP: {e}")
-    else:
-        st.warning(f"⚠️ OpenVSP executable not found at {OPENVSP_DIR / VSP_EXEC}")
+    render_openvsp_panel()
 
     wkdir = get_wkdir()
     wkdir.mkdir(parents=True, exist_ok=True)
     st.session_state.workflow.working_dir = wkdir
-    st.markdown("#### CPACS file")
+    st.markdown("#### Load a CPACS or VSP3 file")
 
     # Check if the CPACS file path is already in session state
     if "cpacs_file_path" in st.session_state:
@@ -115,29 +147,25 @@ def section_select_cpacs():
 
     # File uploader widget
     uploaded_file = st.file_uploader(
-        "Select a CPACS or a .vsp3 file",
-        type=["xml","vsp3"],
+        "Load a CPACS (.xml) or VSP3 (.vsp3) file",
+        type=["xml", "vsp3"],
     )
 
     if uploaded_file and "vsp_converted" not in st.session_state:
-        cpacs_new_path = Path(st.session_state.workflow.working_dir, uploaded_file.name)
+        wkdir = st.session_state.workflow.working_dir
+        cpacs_new_path = Path(wkdir, uploaded_file.name)
+
+        with open(cpacs_new_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
 
         if cpacs_new_path.suffix == ".vsp3":
-            with open(cpacs_new_path, "wb") as f:
-                f.write(uploaded_file.getbuffer())
-
-            vsp2cpacs.main(str(cpacs_new_path))
-
-            module_dir = Path(__file__).parent  # path della cartella del modulo
-            cpacs_new_path = (
-                module_dir.parent
-                / f"ceasiompy/VSP2CPACS/{Path(str(cpacs_new_path)).stem}.xml"
+            converted_path = vsp2cpacs.main(
+                str(cpacs_new_path),
+                output_dir=wkdir,
             )
-            # Stop new uploding
+            cpacs_new_path = converted_path
+            # Stop new uploading
             st.session_state.vsp_converted = True
-        else:
-            with open(cpacs_new_path, "wb") as f:
-                f.write(uploaded_file.getbuffer())
 
         st.session_state.workflow.cpacs_in = cpacs_new_path
         cpacs = CPACS(cpacs_new_path)

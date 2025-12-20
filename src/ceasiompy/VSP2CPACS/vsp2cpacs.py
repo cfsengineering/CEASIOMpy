@@ -56,13 +56,16 @@ def CheckParent(Data, idx, Parents, Uid):
             break
 
 
-def main(vsp_file):
+def main(vsp_file: str | Path, output_dir: str | Path | None = None) -> Path:
+    vsp_file = Path(vsp_file)
+    output_dir = Path(output_dir) if output_dir is not None else None
+
     # Read the file
     vsp.ClearVSPModel()
-    vsp.ReadVSPFile(vsp_file)
+    vsp.ReadVSPFile(str(vsp_file))
 
     # File Name
-    name_file = Path(vsp_file).stem
+    name_file = vsp_file.stem
 
     # Find the components
     geom_ids = vsp.FindGeoms()
@@ -131,5 +134,5 @@ def main(vsp_file):
     # Create a CPACS file.
     log.info("Creating CPACS file...")
 
-    CPACS_file = Export_CPACS(Data_from_VSP, name_file)
-    CPACS_file.run()
+    exporter = Export_CPACS(Data_from_VSP, name_file, output_dir=output_dir)
+    return exporter.run()

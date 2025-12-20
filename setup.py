@@ -11,7 +11,8 @@ AUTHOR = "CFS Engineering"
 EMAIL = "giacomo.benedetti@cfse.ch"
 DESCRIPTION = "A conceptual aircraft design environment"
 URL = "https://github.com/cfsengineering/CEASIOMpy"
-REQUIRES_PYTHON = ">=3.11.11"
+# Align python requirement with supported releases (>=3.11).
+REQUIRES_PYTHON = ">=3.11"
 REQUIRED = ["numpy"]
 README = "README.md"
 PACKAGE_DIR = "src"

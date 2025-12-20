@@ -387,21 +387,28 @@ def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
             log.info("---------- End of " + module_name + " ---------- \n")
 
 
-def get_install_path(software_name: str, raise_error: bool = False) -> Path | None:
+def get_install_path(
+    software_name: str,
+    raise_error: bool = False,
+    display_name: str | None = None,
+) -> Path | None:
     """Return the installation path of a software.
 
     Args:
         software_name (str): Name of the software.
         raise_error (bool, optional): If True, raise an error if the software is not installed.
+        display_name (str, optional): Friendly name used in logs. Defaults to software_name.
 
     """
+
+    display_name = display_name or software_name
 
     # First, try to locate the software inside INSTALLDIR_PATH
     if INSTALLDIR_PATH.exists():
         # Directly under INSTALLDIR_PATH
         candidate = INSTALLDIR_PATH / software_name
         if candidate.is_file() and os.access(candidate, os.X_OK):
-            log.info(f"{software_name} is installed at: {candidate}")
+            log.info(f"{display_name} is installed at: {candidate}")
             return candidate
 
         # Common layout: INSTALLDIR/<pkg>[/bin]/<software_name>
@@ -411,25 +418,25 @@ def get_install_path(software_name: str, raise_error: bool = False) -> Path | No
 
             direct = subdir / software_name
             if direct.is_file() and os.access(direct, os.X_OK):
-                log.info(f"{software_name} is installed at: {direct}")
+                log.info(f"{display_name} is installed at: {direct}")
                 return direct
 
             bin_candidate = subdir / "bin" / software_name
             if bin_candidate.is_file() and os.access(bin_candidate, os.X_OK):
-                log.info(f"{software_name} is installed at: {bin_candidate}")
+                log.info(f"{display_name} is installed at: {bin_candidate}")
                 return bin_candidate
 
     # If not found in INSTALLDIR, fall back to the system PATH
     install_path = shutil.which(software_name)
 
     if install_path is not None:
-        log.info(f"{software_name} is installed at: {install_path}")
+        log.info(f"{display_name} is installed at: {install_path}")
         return Path(install_path)
 
-    log.warning(f"{software_name} is not installed on your computer!")
+    log.warning(f"{display_name} is not installed on your computer!")
 
     if raise_error:
-        log.warning(f"{software_name} is not installed on your computer!")
+        log.warning(f"{display_name} is not installed on your computer!")
     else:
         return None
 

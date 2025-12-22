@@ -5,7 +5,6 @@
 current_dir="$(pwd)"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ceasiompy_root="$(cd "$script_dir/../.." && pwd)"
-install_dir="$ceasiompy_root/INSTALLDIR"
 
 # Go to /CEASIOMpy
 cd "$ceasiompy_root"

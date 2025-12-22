@@ -12,6 +12,7 @@ Functions utils to run ceasiompy workflows
 
 import re
 import os
+import sys
 import math
 import shutil
 import importlib
@@ -403,11 +404,24 @@ def get_install_path(
 
     display_name = display_name or software_name
 
+    def _is_compatible_executable(path: Path) -> bool:
+        if not (path.is_file() and os.access(path, os.X_OK)):
+            return False
+        if sys.platform == "darwin" and _detect_binary_format(path) == "elf":
+            log.warning(
+                "%s was found at %s but appears to be a Linux ELF executable; "
+                "skipping it on macOS.",
+                display_name,
+                path,
+            )
+            return False
+        return True
+
     # First, try to locate the software inside INSTALLDIR_PATH
     if INSTALLDIR_PATH.exists():
         # Directly under INSTALLDIR_PATH
         candidate = INSTALLDIR_PATH / software_name
-        if candidate.is_file() and os.access(candidate, os.X_OK):
+        if _is_compatible_executable(candidate):
             log.info(f"{display_name} is installed at: {candidate}")
             return candidate
 
@@ -417,12 +431,12 @@ def get_install_path(
                 continue
 
             direct = subdir / software_name
-            if direct.is_file() and os.access(direct, os.X_OK):
+            if _is_compatible_executable(direct):
                 log.info(f"{display_name} is installed at: {direct}")
                 return direct
 
             bin_candidate = subdir / "bin" / software_name
-            if bin_candidate.is_file() and os.access(bin_candidate, os.X_OK):
+            if _is_compatible_executable(bin_candidate):
                 log.info(f"{display_name} is installed at: {bin_candidate}")
                 return bin_candidate
 
@@ -430,15 +444,51 @@ def get_install_path(
     install_path = shutil.which(software_name)
 
     if install_path is not None:
-        log.info(f"{display_name} is installed at: {install_path}")
-        return Path(install_path)
+        resolved = Path(install_path)
+        if _is_compatible_executable(resolved):
+            log.info(f"{display_name} is installed at: {install_path}")
+            return resolved
 
     log.warning(f"{display_name} is not installed on your computer!")
 
     if raise_error:
-        log.warning(f"{display_name} is not installed on your computer!")
+        raise FileNotFoundError(f"{display_name} is not installed on your computer!")
     else:
         return None
+
+
+def _detect_binary_format(executable: Path) -> str:
+    """Best-effort detection of a binary format based on magic bytes.
+
+    Returns one of: "mach-o", "elf", "unknown".
+    """
+
+    try:
+        with open(executable, "rb") as handle:
+            header = handle.read(4)
+    except OSError:
+        return "unknown"
+
+    if header == b"\x7fELF":
+        return "elf"
+
+    # Mach-O magics (thin + universal).
+    if header in (
+        b"\xfe\xed\xfa\xce",
+        b"\xce\xfa\xed\xfe",
+        b"\xfe\xed\xfa\xcf",
+        b"\xcf\xfa\xed\xfe"
+    ):
+        return "mach-o"
+    if header in (
+        b"\xca\xfe\xba\xbe",
+        b"\xbe\xba\xfe\xca",
+        b"\xca\xfe\xba\xbf",
+        b"\xbf\xba\xfe\xca"
+    ):
+        return "mach-o"
+
+    return "unknown"
 
 
 def check_version(software_name: str, required_version: str) -> Tuple[bool, str]:
@@ -513,6 +563,22 @@ def run_software(
     )
 
     install_path = get_install_path(software_name)
+    if install_path is None:
+        raise FileNotFoundError(
+            f"{software_name} executable not found (check your INSTALLDIR and PATH)."
+        )
+
+    # On macOS, fail fast with a clear message
+    # if a Linux ELF binary is picked up (common for Pentagrow).
+    if sys.platform == "darwin":
+        fmt = _detect_binary_format(install_path)
+        if fmt == "elf":
+            raise OSError(
+                f"'{software_name}' at '{install_path}' is a Linux ELF executable "
+                "and cannot run on macOS.\n"
+                "Remove/rename this file and install a macOS-native build, "
+                "or use the Docker-based workflow."
+            )
 
     command_line = []
     if with_mpi:

@@ -3,13 +3,9 @@
 # Script to install Paraview on Centos 8
 
 current_dir="$(pwd)"
-
-# Get install dir from input if it exists
-if [ $# -gt 0 ]; then
-    install_dir="$1/INSTALLDIR"
-else
-    install_dir="$(pwd)/INSTALLDIR"
-fi
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ceasiompy_root="$(cd "$script_dir/../.." && pwd)"
+install_dir="$ceasiompy_root/INSTALLDIR"
 
 echo "Creating install directory..."
 mkdir -p "$install_dir"

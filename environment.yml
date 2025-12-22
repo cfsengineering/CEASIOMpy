@@ -25,8 +25,9 @@ dependencies:
   - ipython>=8.30.0
   - ipywidgets>=8.1.5
 
-  # [not osx]
   - cpacscreator>=0.2
+  - conda-forge::freetype>=2.13.0
+  - conda-forge::tetgen
 
   # Testing and code quality
   - clang>=20.1.2

@@ -49,6 +49,29 @@ def _get_cpu_count() -> int:
     return 1
 
 
+def _ensure_conda_prefix_bin_first(env: dict[str, str] | None = None) -> dict[str, str] | None:
+    """Ensure `$CONDA_PREFIX/bin` is prepended to PATH when CONDA_PREFIX is set."""
+
+    if env is None:
+        conda_prefix = os.environ.get("CONDA_PREFIX")
+        if not conda_prefix:
+            return None
+        conda_bin = str(Path(conda_prefix) / "bin")
+        path_parts = [p for p in os.environ.get("PATH", "").split(os.pathsep) if p]
+        path_parts = [p for p in path_parts if p != conda_bin]
+        os.environ["PATH"] = os.pathsep.join([conda_bin, *path_parts])
+        return None
+
+    conda_prefix = env.get("CONDA_PREFIX")
+    if not conda_prefix:
+        return env
+    conda_bin = str(Path(conda_prefix) / "bin")
+    path_parts = [p for p in env.get("PATH", "").split(os.pathsep) if p]
+    path_parts = [p for p in path_parts if p != conda_bin]
+    env["PATH"] = os.pathsep.join([conda_bin, *path_parts])
+    return env
+
+
 def testcase_message(testcase_nb):
     """Top message to show when a test case is run."""
 
@@ -200,6 +223,7 @@ def run_gui(
 
     log.info("CEASIOMpy has been started from the GUI.")
     env = os.environ.copy()
+    _ensure_conda_prefix_bin_first(env)
     # Add CEASIOMpy src directory first (for helper modules like `utilities`),
     # then OpenVSP Python roots (for degen_geom, openvsp, etc.) to PYTHONPATH.
     project_root = Path(__file__).resolve().parents[2]
@@ -287,6 +311,7 @@ def cleanup_previous_workflow_status(wkdir: Path | None = None) -> None:
 
 
 def main() -> None:
+    _ensure_conda_prefix_bin_first()
     parser = argparse.ArgumentParser(
         description="CEASIOMpy: Conceptual Aircraft Design Environment",
         usage=argparse.SUPPRESS,

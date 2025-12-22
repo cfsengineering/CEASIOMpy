@@ -49,7 +49,7 @@ RUN /CEASIOMpy/installation/Ubuntu/install_pentagrow.sh
 
 RUN /CEASIOMpy/installation/Ubuntu/install_su2_with_mpi.sh
 
-RUN /CEASIOMpy/installation/Ubuntu/install_pyavl.sh
+RUN /CEASIOMpy/installation/Ubuntu/install_avl.sh
 
 # Install xvfb and other graphical display dependencies for Ubuntu
 RUN apt-get update && apt-get install -y --no-install-recommends \

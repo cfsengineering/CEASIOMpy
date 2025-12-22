@@ -28,7 +28,7 @@ cd CEASIOMpy
 ./installation/Ubuntu/install_miniconda.sh
 source ~/.bashrc
 ./installation/Ubuntu/install_ceasiompy.sh
-./installation/Ubuntu/install_pyavl.sh
+./installation/Ubuntu/install_avl.sh
 ./installation/Ubuntu/install_su2_with_mpi.sh
 ./installation/Ubuntu/install_paraview.sh
 source ~/.bashrc
@@ -43,7 +43,7 @@ cd CEASIOMpy
 ./installation/CentOS/install_miniconda.sh
 source ~/.bashrc
 ./installation/CentOS/install_ceasiompy.sh
-./installation/CentOS/install_pyavl.sh
+./installation/CentOS/install_avl.sh
 ./installation/CentOS/install_su2.sh
 ./installation/CentOS/install_paraview.sh
 ./installation/CentOS/install_openvsp.sh

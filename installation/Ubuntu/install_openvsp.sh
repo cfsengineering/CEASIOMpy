@@ -3,18 +3,15 @@
 ### === OpenVSP Installer  === ###
 
 current_dir="$(pwd)"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ceasiompy_root="$(cd "$script_dir/../.." && pwd)"
+install_dir="$ceasiompy_root/INSTALLDIR"
 
-# Get install dir from input if it exists
-if [ $# -gt 0 ]; then
-    install_dir="$1/INSTALLDIR/OpenVSP"
-else
-    install_dir="$(pwd)/INSTALLDIR/OpenVSP"
-fi
+openvsp_dir="$install_dir/OpenVSP"
 
-
-echo ">>> Creating install directory at: $install_dir"
-mkdir -p "$install_dir"
-cd "$install_dir"
+echo ">>> Creating install directory at: $openvsp_dir"
+mkdir -p "$openvsp_dir"
+cd "$openvsp_dir"
 
 ### === Install Dependencies === ###
 echo ">>> Installing dependencies..."
@@ -58,9 +55,9 @@ make install
 
 """### === Install Python API manually === ###
 echo ">>> Installing Python API..."
-mkdir -p "$install_dir/python/openvsp"
+mkdir -p "$openvsp_dir/python/openvsp"
 if [ -d ../python_api/packages ]; then
-    cp -r ../python_api/packages/* "$install_dir/python/openvsp/"
+    cp -r ../python_api/packages/* "$openvsp_dir/python/openvsp/"
 fi
 """
 ### === Build Python API === ###
@@ -73,9 +70,10 @@ cmake -DCMAKE_BUILD_TYPE=Release \
       -DVSP_LIBRARY_PATH="$install_dir/src/buildlibs" ..
 make -j$(nproc)
 make install
+
 ### === Setup PATH and PYTHONPATH === ###
-bashrc_line_path="export PATH=\"\$PATH:$install_dir\""
-bashrc_line_python="export PYTHONPATH=\"$install_dir/python:\$PYTHONPATH\""
+bashrc_line_path="export PATH=\"\$PATH:$openvsp_dir\""
+bashrc_line_python="export PYTHONPATH=\"$openvsp_dir/python:\$PYTHONPATH\""
 
 for file in "$HOME/.bashrc" "$HOME/.zshrc"; do
     if ! grep -qxF "$bashrc_line_path" "$file" 2>/dev/null; then
@@ -86,8 +84,8 @@ for file in "$HOME/.bashrc" "$HOME/.zshrc"; do
     fi
 done
 
-sudo ln -sf "$install_dir/vsp" /usr/local/bin/openvsp
+sudo ln -sf "$openvsp_dir/vsp" /usr/local/bin/openvsp
 cd "$current_dir"
 
-echo ">>> OpenVSP installed successfully in: $install_dir"
+echo ">>> OpenVSP installed successfully in: $openvsp_dir"
 echo ">>> Run 'source ~/.bashrc' or 'source ~/.zshrc'"

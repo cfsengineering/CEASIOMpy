@@ -3,12 +3,9 @@
 # Script to install SDSA software on CentOS
 
 current_dir="$(pwd)"
-
-if [ $# -gt 0 ]; then
-    install_dir="$1/INSTALLDIR"
-else
-    install_dir="$(pwd)/INSTALLDIR"
-fi
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ceasiompy_root="$(cd "$script_dir/../.." && pwd)"
+install_dir="$ceasiompy_root/INSTALLDIR"
 
 sudo dnf install -y wget unzip
 

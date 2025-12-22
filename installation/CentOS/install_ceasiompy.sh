@@ -3,17 +3,12 @@
 # Script to install CEASIOMpy on Centos 8
 
 current_dir="$(pwd)"
-
-# Detect CEASIOMpy repo root from current_dir if present, else keep current_dir
-if [[ "$current_dir" == *"/CEASIOMpy"* ]]; then
-    repo_root="${current_dir%/CEASIOMpy*}/CEASIOMpy"
-else
-    echo "Warning: CEASIOMpy repo root not detected, using current directory: $current_dir"
-    repo_root="$current_dir"
-fi
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ceasiompy_root="$(cd "$script_dir/../.." && pwd)"
+install_dir="$ceasiompy_root/INSTALLDIR"
 
 # Go to /CEASIOMpy
-cd "$repo_root"
+cd "$ceasiompy_root"
 
 sudo dnf install gcc-c++
 sudo dnf install tbb

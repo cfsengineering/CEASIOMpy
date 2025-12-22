@@ -186,7 +186,6 @@ def section_select_cpacs():
         # Display the file uploader widget with the previously uploaded file
         if "cpacs_file_path" in st.session_state and st.session_state.cpacs_file_path:
             st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
-            st.success(f"Uploaded file: {st.session_state.cpacs_file_path}")
             section_3D_view()
 
 

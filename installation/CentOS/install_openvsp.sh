@@ -4,12 +4,14 @@
 
 
 current_dir="$(pwd)"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ceasiompy_root="$(cd "$script_dir/../.." && pwd)"
+install_dir="$ceasiompy_root/INSTALLDIR"
+openvsp_dir="$install_dir/OpenVSP"
 
-install_dir="$(pwd)/INSTALLDIR/OpenVSP"
-
-echo ">>> Creating install directory at: $install_dir"
-mkdir -p "$install_dir"
-cd "$install_dir"
+echo ">>> Creating install directory at: $openvsp_dir"
+mkdir -p "$openvsp_dir"
+cd "$openvsp_dir"
 
 ### === Install Dependencies === ###
 echo ">>> Installing dependencies..."
@@ -43,8 +45,8 @@ sed -i '/TARGET_LINK_LIBRARIES( cartesian_example/a\pthread' ../external/cartesi
 mkdir -p build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_INSTALL_PREFIX="$install_dir" \
-      -DVSP_LIBRARY_PATH="$install_dir/src/buildlibs" \
+      -DCMAKE_INSTALL_PREFIX="$openvsp_dir" \
+      -DVSP_LIBRARY_PATH="$openvsp_dir/src/buildlibs" \
       ..
 make -j$(nproc)
 make install
@@ -56,24 +58,24 @@ mkdir -p build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release \
       -DPYTHON_EXECUTABLE=$(which python) \
-      -DCMAKE_INSTALL_PREFIX="$install_dir" \
-      -DVSP_LIBRARY_PATH="$install_dir/src/buildlibs"
+      -DCMAKE_INSTALL_PREFIX="$openvsp_dir" \
+      -DVSP_LIBRARY_PATH="$openvsp_dir/src/buildlibs"
 make -j$(nproc)
 make install
 
 ### === Setup PATH and PYTHONPATH === ###
 
 echo ">>> Adding OpenVSP to PATH and PYTHONPATH..."
-bashrc_line_path="export PATH=\"\$PATH:$install_dir\""
-bashrc_line_python="export PYTHONPATH=\"$install_dir/python_api/packages\""
+bashrc_line_path="export PATH=\"\$PATH:$openvsp_dir\""
+bashrc_line_python="export PYTHONPATH=\"$openvsp_dir/python_api/packages\""
 
 grep -qxF "$bashrc_line_path" ~/.bashrc || echo "$bashrc_line_path" >> ~/.bashrc
 grep -qxF "$bashrc_line_python" ~/.bashrc || echo "$bashrc_line_python" >> ~/.bashrc
 
 ### === Create Symlink === ###
-sudo ln -sf "$install_dir/vsp" /usr/local/bin/openvsp
+sudo ln -sf "$openvsp_dir/vsp" /usr/local/bin/openvsp
 
-echo ">>> Done! OpenVSP installed in: $install_dir"
+echo ">>> Done! OpenVSP installed in: $openvsp_dir"
 echo ">>> Open a NEW terminal or run: source ~/.bashrc to use OpenVSP and its Python API"
 
 cd "$current_dir"

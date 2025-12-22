@@ -3,16 +3,10 @@
 # Improved script for installing Pentagrow on Ubuntu/Mint
 
 # Get absolute path of the script directory
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 current_dir="$(pwd)"
-
-## 1. Initial setup
-# Get install directory from input if provided, otherwise use default
-if [ $# -gt 0 ]; then
-    install_dir="$1/INSTALLDIR"
-else
-    install_dir="$(pwd)/INSTALLDIR"
-fi
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ceasiompy_root="$(cd "$script_dir/../.." && pwd)"
+install_dir="$ceasiompy_root/INSTALLDIR"
 
 echo "Creating install directory..."
 mkdir -p "$install_dir" || { echo "Failed to create installation directory"; exit 1; }

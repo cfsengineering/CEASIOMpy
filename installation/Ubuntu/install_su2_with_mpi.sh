@@ -1,20 +1,17 @@
 #!/bin/bash
 
 # Script to build and install SU2 from source with MPI support
-
 su2_version="8.1.0"
 current_dir="$(pwd)"
 
-# Get install dir from input if it exists
-if [ $# -gt 0 ]; then
-    install_dir="$1/INSTALLDIR/SU2"
-else
-    install_dir="$(pwd)/INSTALLDIR/SU2"
-fi
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ceasiompy_root="$(cd "$script_dir/../.." && pwd)"
+install_dir="$ceasiompy_root/INSTALLDIR"
+su2_dir="$install_dir/SU2"
 
 echo "Creating install directory..."
-mkdir -p "$install_dir"
-cd "$install_dir"
+mkdir -p "$su2_dir"
+cd "$su2_dir"
 
 echo "Installing build dependencies for Open MPI"
 sudo apt-get update && \
@@ -33,7 +30,7 @@ sudo apt-get update && sudo apt-get install -y --no-install-recommends \
 git clone --recursive --branch v${su2_version} https://github.com/su2code/SU2.git su2_source
 cd su2_source
 
-export INSTALL_DIR="$install_dir"
+export SU2_DIR="$su2_dir"
 export CC=mpicc
 export CXX=mpicxx
 
@@ -44,7 +41,7 @@ echo "Preconfiguring SU2..."
 python3 preconfigure.py
 
 echo "Configuring SU2 with Meson..."
-python3 meson.py build --prefix="${INSTALL_DIR}" \
+python3 meson.py build --prefix="${SU2_DIR}" \
     -Denable-autodiff=true \
     -Denable-directdiff=true \
     -Dwith-mpi=enabled \
@@ -55,7 +52,7 @@ echo "Building and installing SU2..."
 ninja -C build install
 
 echo "Checking SU2 version"
-"${INSTALL_DIR}/bin/SU2_CFD" --help
+"${SU2_DIR}/bin/SU2_CFD" --help
 
 echo "Checking MPI version"
 mpirun --version
@@ -63,8 +60,8 @@ mpirun --version
 cd "$current_dir"
 
 # Add SU2 environment variables to .bashrc and .zshrc
-su2_bin_path="$install_dir/bin"
-su2_home_path="$install_dir/su2_source"
+su2_bin_path="$su2_dir/bin"
+su2_home_path="$su2_dir/su2_source"
 
 for shellrc in "$HOME/.bashrc" "$HOME/.zshrc"; do
     # SU2
@@ -94,5 +91,5 @@ for shellrc in "$HOME/.bashrc" "$HOME/.zshrc"; do
     fi
 done
 
-echo "SU2 with MPI installed successfully in $install_dir and added to PATH."
+echo "SU2 with MPI installed successfully in $su2_dir and added to PATH."
 echo "Please run 'source ~/.bashrc' or 'source ~/.zshrc' or open a new terminal to update your PATH."

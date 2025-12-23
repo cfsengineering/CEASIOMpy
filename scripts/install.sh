@@ -85,43 +85,43 @@ ensure_conda() {
     return 0
   fi
 
-	local miniconda_script="$INSTALL_DIR/miniconda3.sh"
-	if [[ ! -f "$miniconda_script" ]]; then
-	  die "'conda' not found and no miniconda installer exists for $INSTALL_FLAVOR. Install Miniconda manually, then re-run."
-	fi
+  local miniconda_script="$INSTALL_DIR/miniconda3.sh"
+  if [[ ! -f "$miniconda_script" ]]; then
+    die "'conda' not found and no miniconda installer exists for $INSTALL_FLAVOR. Install Miniconda manually, then re-run."
+  fi
 
-	say "'conda' not found. Miniconda installer detected: $miniconda_script"
-	if [[ "$AUTO_YES" -eq 1 ]]; then
-	  say "Running: bash $miniconda_script"
-	  bash "$miniconda_script"
-else
-  read -r -p "Run Miniconda installer now? [y/N] " ans || true
-  if [[ "$ans" =~ ^[Yy]$ ]]; then
+  say "'conda' not found. Miniconda installer detected: $miniconda_script"
+  if [[ "$AUTO_YES" -eq 1 ]]; then
+    say "Running: bash $miniconda_script"
     bash "$miniconda_script"
   else
-    die "Miniconda installation skipped."
+    read -r -p "Run Miniconda installer now? [y/N] " ans || true
+    if [[ "$ans" =~ ^[Yy]$ ]]; then
+      bash "$miniconda_script"
+    else
+      die "Miniconda installation skipped."
+    fi
   fi
-fi
 
-# After installation, try to find conda in common locations and add to PATH for this process.
-local candidates=(
-  "$HOME/miniconda3/bin/conda"
-  "$HOME/anaconda3/bin/conda"
-  "$HOME/opt/miniconda3/bin/conda"
-)
-for c in "${candidates[@]}"; do
-  if [[ -x "$c" ]]; then
-    export PATH="$(dirname "$c"):$PATH"
-    break
+  # After installation, try to find conda in common locations and add to PATH for this process.
+  local candidates=(
+    "$HOME/miniconda3/bin/conda"
+    "$HOME/anaconda3/bin/conda"
+    "$HOME/opt/miniconda3/bin/conda"
+  )
+  for c in "${candidates[@]}"; do
+    if [[ -x "$c" ]]; then
+      export PATH="$(dirname "$c"):$PATH"
+      break
+    fi
+  done
+
+  if ! command -v conda >/dev/null 2>&1; then
+    say "Miniconda was installed, but 'conda' is still not on PATH for this shell."
+    say "Try: source ~/.bashrc   (or restart your terminal), then re-run: bash scripts/install.sh"
+    exit 2
   fi
-done
-
-	if ! command -v conda >/dev/null 2>&1; then
-	  say "Miniconda was installed, but 'conda' is still not on PATH for this shell."
-	  say "Try: source ~/.bashrc   (or restart your terminal), then re-run: bash scripts/install.sh"
-	  exit 2
-	fi
-	}
+}
 
 env_exists() {
   # Prefer `conda run` because it checks the env is runnable (not just listed).

@@ -4,14 +4,13 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-openVSP integration inside CEASIOmpy. Built the geometry in openVSP, save as
-.svp3 and after select it inside the GUI. After it will pass through this module
-to have a CPACS file.
+openVSP integration inside CEASIOMpy.
+The geometry is built in OpenVSP, saved as a .vsp3 file, and then selected in the GUI.
+It is subsequently processed by this module to generate a CPACS file.
 
 | Author: Nicolo' Perasso
-| Creation: ?????
+| Creation: 23/12/2025
 """
-
 # Imports
 import re
 import numpy as np
@@ -20,8 +19,8 @@ from pathlib import Path
 
 from ceasiompy import log
 
-from defusedxml import minidom as _std_minidom  # type: ignore
-_document_factory = _std_minidom.Document  # type: ignore
+from xml.dom.minidom import Document  # usa il Document della stdlib
+_document_factory = Document
 
 
 # Functions
@@ -789,10 +788,10 @@ def Engine_to_CPACS(
     name_file,
     output_dir: Path | None = None,
 ):
+    # ---- keys of the dictionary( number of sections, trasformation of the fuselage...) ----#
     NameEngine = f"""{
         EngineData['Transformation']['Name']
-    }_Engine{EngineData['Transformation']['idx_engine']}
-    """
+    }_Engine{EngineData['Transformation']['idx_engine']}"""
 
     if len(i) == 1:
         # <engines>

@@ -92,7 +92,7 @@ def render_openvsp_panel() -> None:
                 button_disabled = False
 
         with button_col:
-            if st.button("Launch OpenVSP", width="stretch", disabled=button_disabled):
+            if st.button("Launch OpenVSP", disabled=button_disabled):
                 try:
                     launch_openvsp()
                 except Exception as e:

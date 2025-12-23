@@ -1,15 +1,14 @@
-
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-openVSP integration inside CEASIOmpy. Built the geometry in openVSP,
-save as .svp3 and after select it inside the GUI.
-After it will pass through this module to have a CPACS file.
+openVSP integration inside CEASIOMpy.
+The geometry is built in OpenVSP, saved as a .vsp3 file, and then selected in the GUI.
+It is subsequently processed by this module to generate a CPACS file.
 
 | Author: Nicolo' Perasso
-| Creation: ?????
+| Creation: 23/12/2025
 """
 
 # =================================================================================================
@@ -18,9 +17,7 @@ After it will pass through this module to have a CPACS file.
 
 import numpy as np
 import openvsp as vsp
-
 from math import comb
-
 from scipy.interpolate import interp1d
 
 
@@ -31,14 +28,14 @@ from scipy.interpolate import interp1d
 
 def Import_Wing(wing):
 
-    # Some inizializations
+    # Some initializations
     Sections_information, Section_information = {}, {}
     n_section_idx = 0
     Twist_stored = [0]
 
     # ---- Trasforming information ----
-    # Inside Extract_transformation
-    # there are the global informations that characterize the component
+    # Inside Extract_transformation there are the global informations that characterize the
+    # component.
     Sections_information['Transformation'] = Extract_transformation(wing)
     Sections_information['Transformation']['idx_engine'] = None
 
@@ -101,7 +98,7 @@ def Import_Wing(wing):
             }
             Sections_information[f'Section{n_section_idx}']['Sweep_loc'] = 0
 
-        # Scaling is composed by the width and height or chord to scale the normalized profile.
+        # Scaling is defined by width and height (or chord) used to scale the normalized profile.
         if len(Scaling) == 2:
             Sections_information[f'Section{n_section_idx}']['x_scal'] = Scaling[0]
             Sections_information[f'Section{n_section_idx}']['y_scal'] = 1
@@ -111,10 +108,9 @@ def Import_Wing(wing):
             Sections_information[f'Section{n_section_idx}']['y_scal'] = 1
             Sections_information[f'Section{n_section_idx}']['z_scal'] = Scaling[0]
 
-        # There is a shift to do if EDIT CURVE is set
-        # because OpenVSP doesn't set the coordinate system on the LE.
-        # When the user moves the LE control point,
-        # a translation is required to keep the geometry consistent.
+        # There is a shift to do if it is set EDIT CURVE, because OpenVSP doesn't set the
+        # coordinate system on the LE; when the user changes the LE control point position,
+        # a translation is necessary to obtain the same geometry.
         if shift is not None:
             Sections_information[f"Section{n_section_idx}"]["x_trasl"] = (
                 (0.5 - np.abs(shift)) * Scaling[0]
@@ -235,7 +231,7 @@ def get_coord_naca5(xsec_id,n):
 
     theta = np.arctan(dyc_dx)
 
-    # upper e lower surface
+    # upper and lower surface
     x_u = x_line - y_t * np.sin(theta)
     y_u = y_c + y_t * np.cos(theta)
     x_l = x_line + y_t * np.sin(theta)
@@ -246,7 +242,7 @@ def get_coord_naca5(xsec_id,n):
     x[-1] = x[0]
     y[-1] = y[0]
 
-    # If it is set to inverse the airfoil
+    # Invert the airfoil if required
     if Invert_airfoil:
         y = -y
 
@@ -631,7 +627,6 @@ def get_coord_superellipse(xsec_id):
     n = 120
     Name = 'SuperEllipse'
 
-    # Superellipse con sollevamento verticale verso ±a/2 (MaxWidthLoc)
     geom_parm = get_params_by_name(
         xsec_id,
         [
@@ -657,11 +652,10 @@ def get_coord_superellipse(xsec_id):
     y_low = (a / 2) * np.abs(np.cos(theta_low))**(2 / N_low)
     x_low = (b / 2) * np.abs(np.sin(theta_low))**(2 / M_low)
 
-    # --- Legge di pesatura basata su x (non su y) ---
     x_core = core_frac * (b / 2)
 
     def weight(x):
-        # 0 nella zona centrale, 1 vicino ai bordi ±b/2
+        # 0 in the center, 1 close to ±b/2
         w = np.zeros_like(x)
         mask = np.abs(x) > x_core
         s = (np.abs(x[mask]) - x_core) / ((b / 2) - x_core)
@@ -670,16 +664,16 @@ def get_coord_superellipse(xsec_id):
 
     w_up = weight(x_up)
 
-    # --- Applica deformazione verticale (MacWLoc) ---
+    # --- vertical deformation (MacWLoc) ---
     y_up_stretched = y_up + MacWLoc * w_up
     y_low_stretched = y_low
 
-    # --- Ricostruzione profilo chiuso ---
+    # --- close profile ---
     y_full = np.concatenate((-y_low_stretched[::-1], -y_low_stretched,
                              y_up_stretched[::-1], y_up_stretched))
     x_full = np.concatenate((x_low[::-1], -x_low, -x_up[::-1], x_up))
 
-    # --- Shift per centraggio ---
+    # --- Shift  ---
     idx_min = np.argmin(x_full)
     x_full = x_full - x_full[idx_min]
     y_full = y_full - y_full[idx_min]
@@ -775,7 +769,7 @@ def get_coord_roundedrectangle(xsec_id, n):
     BR_Radius = geom_parm['RoundRectXSec_RadiusBR']
     BL_Radius = geom_parm['RoundRectXSec_RadiusBL']
 
-    # --- Vertici base ---
+    # --- Vertices ---
     bl = np.array([0 - skew / 2 - VSskew + (keystone - 0.5) * h / 2, 0])
     br = np.array([w - skew / 2, VSskew - (keystone - 0.5) * h / 2])
     tr = np.array([w + skew, h + VSskew + (keystone - 0.5) * h / 2])
@@ -802,7 +796,7 @@ def get_coord_roundedrectangle(xsec_id, n):
 
         info.append({'p_corner': p_corner, 'p_start': p_start, 'p_end': p_end, 'r': r})
 
-    # --- Funzioni ausiliarie ---
+    # --- secondary functions ---
     def interp(a, b, m):
         t = np.linspace(0, 1, m)
         return np.array([a + (b - a) * tt for tt in t])
@@ -816,7 +810,7 @@ def get_coord_roundedrectangle(xsec_id, n):
         )
 
     def clean(points):
-        # Rimuove duplicati consecutivi
+        # no duplicates
         cleaned = [points[0]]
         for p in points[1:]:
             if np.linalg.norm(p - cleaned[-1]) > 1e-8:
@@ -826,7 +820,6 @@ def get_coord_roundedrectangle(xsec_id, n):
     m_side = max(6, int(n / 4))
     m_arc = max(10, int(n / 10))
 
-    # --- Generazione lati ---
     bottom = np.vstack([
         interp(info[0]['p_end'], info[1]['p_start'], m_side),
         make_bezier(info[1]['p_start'], info[1]['p_corner'], info[1]['p_end'], m_arc)[1:]
@@ -844,15 +837,14 @@ def get_coord_roundedrectangle(xsec_id, n):
         make_bezier(info[0]['p_start'], info[0]['p_corner'], info[0]['p_end'], m_arc)[1:]
     ])
 
-    # --- Concatenamento ordinato ---
-    # Lower: TE inferiore → bottom → LE
+    # --- Create the profile ---
+    # Lower: TE  → bottom → LE
     lower = clean(np.vstack([bottom[::-1], left[::-1]]))
 
-    # Upper: LE → top → TE superiore
+    # Upper: LE → top → TE
     upper = clean(np.vstack([top[::-1], right[::-1]]))
     Coord = np.vstack([lower, upper])
 
-    # Chiusura
     if not np.allclose(Coord[0], Coord[-1]):
         Coord = np.vstack([Coord, Coord[0]])
 
@@ -907,7 +899,7 @@ def bezier_curve(ctrl_pts, n_points, s):
 
     n = len(ctrl_pts)
     curve = []
-    # Scorri ogni gruppo di 4 punti consecutivi con step 3
+
     for i in range(0, n - 1, 3):
         if i + 3 < n:
             seg = bezier4(ctrl_pts[i: i + 4])
@@ -1028,7 +1020,7 @@ def spline_curve(ctrl_pts, n_points,s):
 
 
 def linear_curve(ctrl_pts, n_points, s):
-    """Ricostruisce una curva lineare tra i punti di controllo."""
+    """Linear curve with control points."""
     n_points_per_seg = n_points // 4
     curve = []
     for i in range(len(ctrl_pts) - 1):
@@ -1078,7 +1070,7 @@ def get_coord_edit_curve(xsec_id,n):
     control_points = vsp.GetEditXSecCtrlVec(xsec_id,non_dimensional=True)
     pts = np.array([[p.x(),p.y(),p.z()] for p in control_points])
 
-    le_idx = len(pts) // 2  # 18 se sono 37 punti
+    le_idx = len(pts) // 2
     le_pt = pts[le_idx]
     shift = le_pt[0]
 
@@ -1232,8 +1224,9 @@ def Tesselation(Component, idx, x, y):
 
         # ---- LE and TE tesselation ---- #
         # This part refines and reconstructs the airfoil’s surface by redistributing points
-        # near the leading and trailing edges using adjustable
-        # tessellation parameters (TessLE, TessTE)
+        # near the leading and trailing edges using adjustable tessellation parameters
+        # (TessLE, TessTE).
+
         minimum = 0
         maximum = 1
         x_inter_LE = np.concatenate(

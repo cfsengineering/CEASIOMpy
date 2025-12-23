@@ -1,15 +1,14 @@
-
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-openVSP integration inside CEASIOmpy. Built the geometry in openVSP,
-save as .svp3 and after select it inside the GUI.
-After it will pass through this module to have a CPACS file.
+openVSP integration inside CEASIOMpy.
+The geometry is built in OpenVSP, saved as a .vsp3 file, and then selected in the GUI.
+It is subsequently processed by this module to generate a CPACS file.
 
 | Author: Nicolo' Perasso
-| Creation: ?????
+| Creation: 23/12/2025
 """
 
 import numpy as np
@@ -22,9 +21,10 @@ def Import_POD(POD):
     # Some inizializations
     Sections_information = {}
 
-    # ---- Trasforming information ----
-    # Inside Extract_transformation there are the global informations that characterize
-    # the component.
+    # ---- Transformation information ----
+    # Inside Extract_transformation
+    # there are the global informations that characterize the component
+
     Sections_information["Transformation"] = Extract_transformation(POD)
     Sections_information["Transformation"]["Length"] = vsp.GetParmVal(
         POD, "Length", "Design"
@@ -33,7 +33,7 @@ def Import_POD(POD):
         POD, "FineRatio", "Design"
     )
 
-    # Tesselation parameters
+    # Tessellation parameters
     Tess_W = vsp.GetParmVal(POD, "Tess_W", "Shape")
 
     # ---- section informations ----
@@ -85,13 +85,15 @@ def Import_POD(POD):
 
 
 def POD_shape_func(L, F_ratio):
-    """
-    The POD is modelled as a fuselage with a circular profile because the
-    exact surface is unknown. The shape is composed of three parts: a quarter
-    chord from 0 to 20 % of the length, a constant region until 50 %, and a
-    quarter ellipse to reach the tail. It is a simple superellipse whose
-    coefficient matches the OpenVSP geometry as closely as possible.
-    """
+    # The POD is modeled as a fuselage with a circular profile,
+    # since the exact surface shape is unknown.
+    # The shape is composed of three parts:
+    # - a quarter-ellipse from 0 to 20% of the length,
+    # - a constant-radius region up to 50% of the length,
+    # - a rear section tapering toward the tail.
+    # This is a simplified superellipse whose coefficients
+    # are chosen to closely match the OpenVSP geometry.
+
     r_max = L / F_ratio
     s1 = 0.3
     s2 = 0.6
@@ -140,14 +142,13 @@ def POD_Section(x_pos, r_section):
 
 
 def POD_profile(n):
-    """
-    Circle profile.
-    d: diameter
-    n: number of points
-    The first and the last point are the nose and tail of the pod. CPACS
-    rejects single-point profiles, so a default radius is provided and later
-    scaled to zero.
-    """
+    # Circle profile.
+    # d: diameter
+    # n: number of points
+    # The first and last points correspond to the nose and tail of the pod.
+    # Since CPACS does not accept a single point as a profile, a default radius
+    # is assigned and later scaled to zero.
+
     d = 2
     theta = np.linspace(0, np.pi, int(n / 2))
     x = d / 2 * np.cos(theta)

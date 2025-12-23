@@ -1,14 +1,15 @@
+
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-openVSP integration inside CEASIOmpy. Built the geometry in openVSP, save as
-.svp3 and after select it inside the GUI. After it will pass through this module
-to have a CPACS file.
+openVSP integration inside CEASIOMpy.
+The geometry is built in OpenVSP, saved as a .vsp3 file, and then selected in the GUI.
+It is subsequently processed by this module to generate a CPACS file.
 
 | Author: Nicolo' Perasso
-| Creation: ?????
+| Creation: 23/12/2025
 """
 
 import numpy as np
@@ -19,14 +20,20 @@ def get_coord_engine_profile(geom_id, n):
     """
     Compute coordinates of a NACA 4-series airfoil.
 
-    Uses the section parameters (Camber, CamberLoc, ThickChord, Invert, Chord) to
-    build the corresponding 4-digit NACA profile. The function derives the NACA
-    name, computes camber line and thickness, constructs upper and lower surfaces,
-    optionally inverts the airfoil, and applies chord scaling.
+    Uses the section parameters (Camber, CamberLoc, ThickChord, Invert, Chord)
+    to build the corresponding 4-digit NACA profile. The function:
+    - derives the NACA designation,
+    - computes camber line and thickness distribution,
+    - constructs upper and lower surfaces,
+    - optionally inverts the airfoil and applies chord scaling.
 
-    Returns (x, y), Name, Scaling.
+    Returns:
+        coord : list of ndarray
+            Airfoil coordinates [x, y]
+        Name : str
+            NACA airfoil name
+        Scaling : list
     """
-
     m = vsp.GetParmVal(vsp.GetParm(geom_id, "Camber", "Design"))
     p = vsp.GetParmVal(vsp.GetParm(geom_id, "CamberLoc", "Design"))
     t = vsp.GetParmVal(vsp.GetParm(geom_id, "ThickChord", "Design"))

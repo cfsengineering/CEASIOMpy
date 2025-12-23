@@ -1,14 +1,15 @@
+
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-openVSP integration inside CEASIOmpy. Built the geometry in openVSP, save as .svp3 and
-after select it inside the GUI. After it will pass through this module to have a CPACS
-file.
+openVSP integration inside CEASIOMpy.
+The geometry is built in OpenVSP, saved as a .vsp3 file, and then selected in the GUI.
+It is subsequently processed by this module to generate a CPACS file.
 
 | Author: Nicolo' Perasso
-| Creation: ?????
+| Creation: 23/12/2025
 """
 
 # Imports

@@ -3,12 +3,12 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-openVSP integration inside CEASIOmpy. Built the geometry in openVSP, save as .svp3 and
-after select it inside the GUI.
-After it will pass through this module to have a CPACS file.
+openVSP integration inside CEASIOMpy.
+The geometry is built in OpenVSP, saved as a .vsp3 file, and then selected in the GUI.
+It is subsequently processed by this module to generate a CPACS file.
 
 | Author: Nicolo' Perasso
-| Creation: ?????
+| Creation: 23/12/2025
 """
 
 # =================================================================================================
@@ -44,7 +44,7 @@ def get_plantform_area(geom_id):
 
 
 def CheckParent(Data, idx, Parents, Uid):
-
+    # Check parent-child relationships between OpenVSP components
     Parents[f"{idx}"] = {
         "Uid_parent": Data[f"{idx}"]["Transformation"]["ParentUid"],
         "Uid": Uid,
@@ -60,7 +60,7 @@ def main(vsp_file: str | Path, output_dir: str | Path | None = None) -> Path:
     vsp_file = Path(vsp_file)
     output_dir = Path(output_dir) if output_dir is not None else None
 
-    # Read the file
+    # Read the OpenVSP file
     vsp.ClearVSPModel()
     vsp.ReadVSPFile(str(vsp_file))
 
@@ -77,11 +77,11 @@ def main(vsp_file: str | Path, output_dir: str | Path | None = None) -> Path:
 
     log.info("Loading OpenVSP geometry... ")
     for geom_id in geom_ids:
-        # Search into the xml file the type of component.
+        # Determine the component type from the OpenVSP geometry
         geom_type = vsp.GetGeomTypeName(geom_id)
 
         if geom_type == "Wing":
-            # Take the correct parameters to define a CPACS file
+            # Extract the required parameters to define the CPACS component
             Data_from_VSP[f"{ComponentIdx}"] = Import_Wing(geom_id)
 
             # Check if it is a child connected to a parent
@@ -90,7 +90,7 @@ def main(vsp_file: str | Path, output_dir: str | Path | None = None) -> Path:
             ComponentIdx += 1
 
         elif geom_type == "Fuselage":
-            # Take the correct parameters to define a CPACS file
+            # Extract the required parameters to define the CPACS component
             Data_from_VSP[f"{ComponentIdx}"] = Import_Fuse(geom_id)
 
             # Check if it is a child connected to a parent
@@ -99,7 +99,7 @@ def main(vsp_file: str | Path, output_dir: str | Path | None = None) -> Path:
             ComponentIdx += 1
 
         elif geom_type == "Pod":
-            # Take the correct parameters to define a CPACS file
+            # Extract the required parameters to define the CPACS component
             Data_from_VSP[f"{ComponentIdx}"] = Import_POD(geom_id)
 
             # Check if it is a child connected to a parent
@@ -117,14 +117,15 @@ def main(vsp_file: str | Path, output_dir: str | Path | None = None) -> Path:
             ComponentIdx += 1
 
         elif geom_type == "Custom":
-            # Take the correct parameters to define a CPACS file
+            # Extract the required parameters to define the CPACS component
             Data_from_VSP[f"{ComponentIdx}"] = Import_Duct(geom_id)
 
             # Check if it is a child connected to a parent
             CheckParent(Data_from_VSP, ComponentIdx, Parent_List, geom_id)
 
-            # Check if it is an engine.
-            # A complete engine needs Duct + Duct + Pod (fan + core + center in CPACS)
+            # Check whether the component belongs to an engine.
+            # A complete engine in CPACS consists of two ducts and one pod
+            # (fan, core, and center body).
             if Data_from_VSP[f"{ComponentIdx - 1}"]["Transformation"]["Name_type"] != "Duct":
                 idx_engine += 1
             Data_from_VSP[f"{ComponentIdx}"]["Transformation"]["idx_engine"] = idx_engine

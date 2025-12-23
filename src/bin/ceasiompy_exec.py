@@ -72,7 +72,7 @@ def _ensure_conda_prefix_bin_first(env: dict[str, str] | None = None) -> dict[st
     return env
 
 
-def testcase_message(testcase_nb):
+def testcase_message(testcase_nb: int) -> None:
     """Top message to show when a test case is run."""
 
     log.info(f"CEASIOMpy as been started from test case {testcase_nb}")
@@ -200,12 +200,15 @@ def run_config_file(config_file) -> None:
 
 
 def run_gui(
-    cpus: int = _get_cpu_count(),
+    cpus: int | None = None,
     wkdir: Path | None = None,
     headless: bool = False,
     port: int | None = None,
 ) -> None:
     """Create and run a workflow from the GUI."""
+
+    if cpus is None:
+        cpus = _get_cpu_count()
 
     if wkdir is None:
         wkdir = WKDIR_PATH

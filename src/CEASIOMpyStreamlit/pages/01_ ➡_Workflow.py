@@ -63,11 +63,10 @@ def section_predefined_workflow():
 
     predefine_workflows = [
         [PYAVL, STATICSTABILITY, DATABASE],
-        [CPACSUPDATER, "CPACSCreator", CPACS2GMSH, SU2RUN, "ExportCSV"],
-        [CPACS2GMSH, "ThermoData", SU2RUN, "SkinFriction", DATABASE],
+        [CPACSUPDATER, "CPACSCreator", CPACS2GMSH, SU2RUN],
+        [CPACS2GMSH, SU2RUN, "SkinFriction", DATABASE],
         [SMTRAIN, SMUSE, SAVEAEROCOEF],
         [DYNAMICSTABILITY, DATABASE],
-        # ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"],
     ]
 
     for workflow in predefine_workflows:

@@ -46,7 +46,7 @@ def turbojet_analysis(alt, MN, Fn):
 
     if Fn > 2700:
         prob["DESIGN.balance.W"] = 75.453135137
-    elif 2700 <= Fn < 850:
+    elif 850 <= Fn <= 2700:
         prob["DESIGN.balance.W"] = 50.453135137
     else:
         prob["DESIGN.balance.W"] = 10.453135137
@@ -111,12 +111,19 @@ def write_turbojet_file(
 
 class Turbojet(pyc.Cycle):
     def setup(self):
-        USE_TABULAR = True
-
-        if USE_TABULAR:
-            self.options["thermo_method"] = "TABULAR"
-            self.options["thermo_data"] = pyc.AIR_JETA_TAB_SPEC
-            FUEL_TYPE = "FAR"
+        # pyCycle reads thermo options early in setup (and behavior changed across versions).
+        # Ensure they are set consistently, and choose a matching combustor fuel model.
+        thermo_method = self.options["thermo_method"]
+        if thermo_method == "TABULAR":
+            if self.options["thermo_data"] is None:
+                self.options["thermo_data"] = pyc.AIR_JETA_TAB_SPEC
+            fuel_type = "FAR"
+        elif thermo_method == "CEA":
+            if self.options["thermo_data"] is None:
+                self.options["thermo_data"] = pyc.species_data.janaf
+            fuel_type = "Jet-A(g)"
+        else:
+            raise ValueError(f"Unsupported thermo_method={thermo_method!r}")
 
         design = self.options["design"]
 
@@ -128,7 +135,7 @@ class Turbojet(pyc.Cycle):
             pyc.Compressor(map_data=pyc.AXI5, map_extrap=True),
             promotes_inputs=["Nmech"],
         )
-        self.add_subsystem("burner", pyc.Combustor(fuel_type=FUEL_TYPE))
+        self.add_subsystem("burner", pyc.Combustor(fuel_type=fuel_type))
         self.add_subsystem("turb", pyc.Turbine(map_data=pyc.LPT2269), promotes_inputs=["Nmech"])
         self.add_subsystem("nozz", pyc.Nozzle(nozzType="CD", lossCoef="Cv"))
         self.add_subsystem("shaft", pyc.Shaft(num_ports=2), promotes_inputs=["Nmech"])
@@ -157,7 +164,8 @@ class Turbojet(pyc.Cycle):
         self.connect("nozz.Fg", "perf.Fg_0")
 
         # Add balances for design and off-design
-        balance = self.add_subsystem("balance", om.BalanceComp())
+        balance = om.BalanceComp()
+        self.add_subsystem("balance", balance)
         if design:
 
             balance.add_balance("W", units="lbm/s", eq_units="lbf", rhs_name="Fn_target")
@@ -192,7 +200,10 @@ class Turbojet(pyc.Cycle):
 
 class MPTurbojet(pyc.MPCycle):
     def setup(self):
-        self.pyc_add_pnt("DESIGN", Turbojet())
+        # Pass thermo options at construction time for compatibility with newer pyCycle versions.
+        self.pyc_add_pnt(
+            "DESIGN", Turbojet(thermo_method="TABULAR", thermo_data=pyc.AIR_JETA_TAB_SPEC)
+        )
         self.set_input_defaults("DESIGN.Nmech", 8070.0, units="rpm")
         self.set_input_defaults("DESIGN.inlet.MN", 0.60)
         self.set_input_defaults("DESIGN.comp.MN", 0.020)  # .2

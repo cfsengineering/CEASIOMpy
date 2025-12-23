@@ -37,19 +37,19 @@ COPY ./installation .
 RUN find /CEASIOMpy/installation -name "*.sh" -type f -exec dos2unix {} \;
 
 WORKDIR /CEASIOMpy/installation/Ubuntu
-RUN chmod +x install_*.sh
+RUN chmod +x *.sh
 WORKDIR /CEASIOMpy/installation/Pentagrow/bin
 RUN chmod +x pentagrow
 
 WORKDIR /
 
-RUN /CEASIOMpy/installation/Ubuntu/install_openvsp.sh
+RUN /CEASIOMpy/installation/Ubuntu/openvsp.sh
 
-RUN /CEASIOMpy/installation/Ubuntu/install_pentagrow.sh
+RUN /CEASIOMpy/installation/Ubuntu/pentagrow.sh
 
-RUN /CEASIOMpy/installation/Ubuntu/install_su2_with_mpi.sh
+RUN /CEASIOMpy/installation/Ubuntu/su2.sh --with_mpi true
 
-RUN /CEASIOMpy/installation/Ubuntu/install_avl.sh
+RUN /CEASIOMpy/installation/Ubuntu/avl.sh
 
 # Install xvfb and other graphical display dependencies for Ubuntu
 RUN apt-get update && apt-get install -y --no-install-recommends \

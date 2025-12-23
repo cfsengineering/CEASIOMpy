@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to install SU2 on Centos 8
+# Script to install SU2 (without MPI) on Centos 8
 
 su2_version="8.1.0"
 

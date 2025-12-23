@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-# Script to build and install SU2 from source with MPI support on macOS.
+# Script to build and install SU2 from source (with MPI support on macOS).
 current_dir="$(pwd)"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ceasiompy_root="$(cd "$script_dir/../.." && pwd)"

@@ -12,7 +12,7 @@
 #
 # Apple Silicon (osx-arm64):
 # - `cpacscreator` is not available for `osx-arm64` on the configured channels.
-# - Use `install_ceasiompy.sh` bash script.
+# - Use `condaenv.sh` bash script.
 
 # Update conda with: conda update -n base -c conda-forge conda
 

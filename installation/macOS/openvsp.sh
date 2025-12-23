@@ -484,7 +484,17 @@ profile_files=("$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile")
 
 echo ">>> Updating shell configuration files..."
 for file in "${profile_files[@]}"; do
-    touch "$file"
+    if [ -e "$file" ]; then
+        if [ ! -w "$file" ]; then
+            echo ">>> Warning: '$file' exists but is not writable; skipping."
+            continue
+        fi
+    else
+        if ! touch "$file" 2>/dev/null; then
+            echo ">>> Warning: unable to create '$file' (permission denied?); skipping."
+            continue
+        fi
+    fi
     if ! grep -qxF "$path_line" "$file"; then
         echo "$path_line" >> "$file"
     fi

@@ -51,7 +51,7 @@ All input geometries are based on the open-standard format [CPACS](https://www.c
 
 #### Recommended storage
 
-At least 20 GB required.
+At least 20 GB required for overall installation.
 
 ### Linux/macOS
 
@@ -77,7 +77,7 @@ A video which explains how to install CEASIOMpy on Docker is now available!
 
 ## Usage
 
-Run the Streamlit app with:
+Run the Streamlit app with :
 
 ### Linux/macOS users
 

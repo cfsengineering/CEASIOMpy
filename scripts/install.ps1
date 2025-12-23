@@ -30,7 +30,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 function Show-Usage {
-    Write-Host @"
+    Write-Output @"
 Usage:
   powershell -ExecutionPolicy Bypass -File scripts/install.ps1 [-Yes] [-CoreOnly]
 
@@ -62,9 +62,9 @@ function Test-EnvExists([string]$EnvName) {
     return $LASTEXITCODE -eq 0
 }
 
-function Ensure-Env([string]$RepoRoot, [string]$EnvName) {
+function Initialize-CondaEnvironment([string]$RepoRoot, [string]$EnvName) {
     if (Test-EnvExists -EnvName $EnvName) {
-        Write-Host ">>> Conda env '$EnvName' exists."
+        Write-Output ">>> Conda env '$EnvName' exists."
         return
     }
 
@@ -73,7 +73,7 @@ function Ensure-Env([string]$RepoRoot, [string]$EnvName) {
         Fail "environment.yml not found at: $envFile"
     }
 
-    Write-Host ">>> Conda env '$EnvName' not found. Creating it from: $envFile"
+    Write-Output ">>> Conda env '$EnvName' not found. Creating it from: $envFile"
     & conda env create -f $envFile
     if ($LASTEXITCODE -ne 0) {
         Fail "Failed to create conda env '$EnvName' from environment.yml"
@@ -93,45 +93,45 @@ if (-not (Test-CondaAvailable)) {
 
 Push-Location $repoRoot
 try {
-    Ensure-Env -RepoRoot $repoRoot -EnvName $envName
+    Initialize-CondaEnvironment -RepoRoot $repoRoot -EnvName $envName
 
     if ($CoreOnly) {
-        Write-Host ">>> Skipping optional installers (-CoreOnly)."
+        Write-Output ">>> Skipping optional installers (-CoreOnly)."
         exit 0
     }
 
     $windowsInstallDir = Join-Path $repoRoot "installation\\WindowsOS"
     if (-not (Test-Path -LiteralPath $windowsInstallDir)) {
-        Write-Host ">>> No Windows optional installer directory found at: $windowsInstallDir"
+        Write-Output ">>> No Windows optional installer directory found at: $windowsInstallDir"
         exit 0
     }
 
     $installers = Get-ChildItem -LiteralPath $windowsInstallDir -Filter "*.ps1" -File | Sort-Object Name
     if ($installers.Count -eq 0) {
-        Write-Host ">>> No optional PowerShell installers found in: $windowsInstallDir"
+        Write-Output ">>> No optional PowerShell installers found in: $windowsInstallDir"
         exit 0
     }
 
-    Write-Host ">>> Optional PowerShell installers:"
-    $installers | ForEach-Object { Write-Host ("  - " + $_.Name) }
+    Write-Output ">>> Optional PowerShell installers:"
+    $installers | ForEach-Object { Write-Output ("  - " + $_.Name) }
 
     foreach ($installer in $installers) {
         if (-not $Yes) {
             $ans = Read-Host ("Run " + $installer.Name + "? [y/N]")
             if ($ans -notmatch '^[Yy]$') {
-                Write-Host ">>> Skipping $($installer.Name)"
+                Write-Output ">>> Skipping $($installer.Name)"
                 continue
             }
         }
 
-        Write-Host ">>> Running: $($installer.FullName)"
+        Write-Output ">>> Running: $($installer.FullName)"
         & powershell -ExecutionPolicy Bypass -File $installer.FullName
         if ($LASTEXITCODE -ne 0) {
             Fail "Installer failed: $($installer.Name)"
         }
     }
 
-    Write-Host ">>> Done."
+    Write-Output ">>> Done."
 } finally {
     Pop-Location
 }

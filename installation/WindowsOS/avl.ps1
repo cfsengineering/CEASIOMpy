@@ -59,7 +59,7 @@ try {
     # Ensure TLS 1.2+ for older Windows/PowerShell
     [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 } catch {
-    # Best effort; ignore if unsupported
+    Write-Verbose "Unable to set TLS 1.2; continuing (best effort)."
 }
 
 if ([string]::IsNullOrWhiteSpace($TargetDir)) {
@@ -80,9 +80,9 @@ $exePath = Join-Path $installDir "avl352.exe"
 $cmdPath = Join-Path $installDir "avl.cmd"
 
 if ((Test-Path -LiteralPath $exePath) -and (-not $Force)) {
-    Write-Host ">>> AVL already exists at: $exePath"
+    Write-Output ">>> AVL already exists at: $exePath"
 } else {
-    Write-Host ">>> Downloading AVL from: $url"
+    Write-Output ">>> Downloading AVL from: $url"
     $tmp = Join-Path ([IO.Path]::GetTempPath()) ("avl352_" + [Guid]::NewGuid().ToString("N") + ".exe")
     try {
         $invokeParams = @{
@@ -101,22 +101,22 @@ if ((Test-Path -LiteralPath $exePath) -and (-not $Force)) {
 
 $cmdContent = "@echo off`r`n""%~dp0avl352.exe"" %*`r`n"
 if ((Test-Path -LiteralPath $cmdPath) -and (-not $Force)) {
-    Write-Host ">>> Shim already exists at: $cmdPath"
+    Write-Output ">>> Shim already exists at: $cmdPath"
 } else {
     Set-Content -LiteralPath $cmdPath -Value $cmdContent -Encoding ASCII
-    Write-Host ">>> Created shim: $cmdPath"
+    Write-Output ">>> Created shim: $cmdPath"
 }
 
 if ($AddToPath) {
     $changed = Add-UserPathEntry $installDir
     if ($changed) {
-        Write-Host ">>> Added to User PATH: $installDir"
+        Write-Output ">>> Added to User PATH: $installDir"
     } else {
-        Write-Host ">>> User PATH already contains: $installDir"
+        Write-Output ">>> User PATH already contains: $installDir"
     }
 }
 
-Write-Host ""
-Write-Host "AVL installed under: $installDir"
-Write-Host "To use it from a new terminal, ensure this directory is on PATH."
-Write-Host "Test in a new terminal with: avl"
+Write-Output ""
+Write-Output "AVL installed under: $installDir"
+Write-Output "To use it from a new terminal, ensure this directory is on PATH."
+Write-Output "Test in a new terminal with: avl"

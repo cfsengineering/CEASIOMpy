@@ -72,7 +72,7 @@ try {
     # Ensure TLS 1.2+ for older Windows/PowerShell
     [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 } catch {
-    # Best effort; ignore if unsupported
+    Write-Verbose "Unable to set TLS 1.2; continuing (best effort)."
 }
 
 if (-not (Test-CondaAvailable)) {
@@ -86,9 +86,9 @@ if (-not (Test-EnvExists -Name $EnvName)) {
 $installedVersion = Get-InstalledSu2Version -Name $EnvName
 if (-not $Force -and -not [string]::IsNullOrWhiteSpace($installedVersion)) {
     if ([string]::IsNullOrWhiteSpace($Version) -or $installedVersion -eq $Version) {
-        Write-Host ">>> SU2 already installed in conda env '$EnvName' (version: $installedVersion)."
+        Write-Output ">>> SU2 already installed in conda env '$EnvName' (version: $installedVersion)."
         if (-not $NoVerify) {
-            Write-Host ">>> Verifying SU2 executables..."
+            Write-Output ">>> Verifying SU2 executables..."
             & conda run -n $EnvName SU2_CFD --help *> $null
             if ($LASTEXITCODE -ne 0) {
                 Fail "SU2 verification failed (SU2_CFD not runnable). Try re-running with -Force."
@@ -103,26 +103,26 @@ if (-not [string]::IsNullOrWhiteSpace($Version)) {
     $spec = "su2=$Version"
 }
 
-Write-Host ">>> Installing $spec into conda env '$EnvName' (channel: conda-forge)..."
-$args = @("install", "-n", $EnvName, "-c", "conda-forge", "-y", $spec)
+Write-Output ">>> Installing $spec into conda env '$EnvName' (channel: conda-forge)..."
+$condaArgs = @("install", "-n", $EnvName, "-c", "conda-forge", "-y", $spec)
 if ($Force) {
-    $args += "--force-reinstall"
+    $condaArgs += "--force-reinstall"
 }
 
-& conda @args
+& conda @condaArgs
 if ($LASTEXITCODE -ne 0) {
     Fail "Failed to install SU2 via conda into env '$EnvName'."
 }
 
 if (-not $NoVerify) {
-    Write-Host ">>> Verifying SU2 executables..."
+    Write-Output ">>> Verifying SU2 executables..."
     & conda run -n $EnvName SU2_CFD --help *> $null
     if ($LASTEXITCODE -ne 0) {
         Fail "SU2 verification failed: SU2_CFD not runnable in env '$EnvName'."
     }
 }
 
-Write-Host ""
-Write-Host "SU2 installed in conda env: $EnvName"
-Write-Host "Test with:"
-Write-Host "  conda run -n $EnvName SU2_CFD --help"
+Write-Output ""
+Write-Output "SU2 installed in conda env: $EnvName"
+Write-Output "Test with:"
+Write-Output "  conda run -n $EnvName SU2_CFD --help"

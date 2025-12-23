@@ -21,7 +21,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 function Show-Usage {
-    Write-Host @"
+    Write-Output @"
 Usage:
   powershell -ExecutionPolicy Bypass -File scripts/ceasiompy.ps1 [args...]
 

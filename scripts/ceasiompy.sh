@@ -10,7 +10,7 @@ Usage:
   bash scripts/ceasiompy.sh [--help] [--] [args...]
 
 What it does:
-  - Checks that `conda` is available
+  - Checks that 'conda' is available
   - Checks that the `ceasiompy` conda environment exists
   - Activates it
   - Runs `CEASIOMpyStreamlit.cli:main_exec` (same as `ceasiompy_run`)
@@ -32,7 +32,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if ! command -v conda >/dev/null 2>&1; then
-  die "`conda` not found on PATH. Install Miniconda/Anaconda, or run: bash scripts/install.sh --core-only"
+  die "'conda' not found on PATH. Install Miniconda/Anaconda, or run: bash scripts/install.sh --core-only"
 fi
 
 conda_base="$(conda info --base 2>/dev/null || true)"

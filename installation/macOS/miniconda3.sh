@@ -68,4 +68,4 @@ say "Installing Miniconda to: $prefix"
 bash "$dest" -b -p "$prefix"
 
 say "Miniconda installed: $prefix"
-say "Note: restart your terminal (or add '$prefix/bin' to PATH) to use `conda`."
+say "Note: restart your terminal (or add '$prefix/bin' to PATH) to use 'conda'."

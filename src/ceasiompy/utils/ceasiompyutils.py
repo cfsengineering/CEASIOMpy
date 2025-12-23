@@ -133,7 +133,12 @@ def write_inouts(
 def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
     tixi = cpacs.tixi
     st.session_state.cpacs = cpacs
-    cpacsin_out: CPACSInOut = get_specs_for_module(module_name).cpacs_inout
+    specs = get_specs_for_module(module_name)
+    if specs is None:
+        log.warning(f"No specs found for module {module_name}. \n")
+        return None
+
+    cpacsin_out: CPACSInOut = specs.cpacs_inout
     inputs = cpacsin_out.get_gui_dict()
 
     for name, default_value, var_type, _, xpath, _, _, test_value, _ in inputs.values():

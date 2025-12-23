@@ -11,16 +11,15 @@ It is subsequently processed by this module to generate a CPACS file.
 | Author: Nicolo' Perasso
 | Creation: 23/12/2025
 """
+
 # Imports
 import re
 import numpy as np
+import xml.etree.ElementTree as ET
 
 from pathlib import Path
 
 from ceasiompy import log
-
-from xml.dom.minidom import Document  # usa il Document della stdlib
-_document_factory = Document
 
 
 # Functions
@@ -66,7 +65,6 @@ def segment(doc, Parent, Name_wing, Name_Element, Name_Element_before, idx):
 
 
 def initialization(doc,data,name_file):
-
     cpacs = doc.createElement('cpacs')
     cpacs.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
     cpacs.setAttribute("xsi_noNamespaceSchemaLocation", "CPACS_21_Schema.xsd")
@@ -870,6 +868,88 @@ def Save_CPACS_file(Document, name_file, output_dir: Path | None = None) -> Path
     return output_path
 
 
+# Classes
+class _ETElement:
+    def __init__(self, element: ET.Element, parent: "_ETElement | None" = None):
+        self._element = element
+        self._parent = parent
+
+    @property
+    def parentNode(self) -> "_ETElement | None":
+        return self._parent
+
+    @property
+    def childNodes(self) -> list["_ETElement"]:
+        return [_ETElement(child, parent=self) for child in list(self._element)]
+
+    def setAttribute(self, key: str, value: str) -> None:
+        self._element.set(key, value)
+
+    def appendChild(self, node):
+        if isinstance(node, str):
+            text_value = str(node)
+            if self._element.text is None:
+                self._element.text = text_value
+            else:
+                self._element.text += text_value
+            return node
+        if isinstance(node, _ETElement):
+            self._element.append(node._element)
+            node._parent = self
+            return node
+        raise TypeError(f"Unsupported node type for appendChild: {type(node)!r}")
+
+    def removeChild(self, node: "_ETElement"):
+        if not isinstance(node, _ETElement):
+            raise TypeError(f"Unsupported node type for removeChild: {type(node)!r}")
+        self._element.remove(node._element)
+        node._parent = None
+        return node
+
+    def getElementsByTagName(self, tag: str) -> list["_ETElement"]:
+        matches: list[_ETElement] = []
+
+        def walk(element: ET.Element, parent_wrapper: _ETElement) -> None:
+            for child in list(element):
+                child_wrapper = _ETElement(child, parent=parent_wrapper)
+                if child.tag == tag:
+                    matches.append(child_wrapper)
+                walk(child, child_wrapper)
+
+        walk(self._element, self)
+        return matches
+
+
+class _ETDocument:
+    def __init__(self):
+        self._root: _ETElement | None = None
+
+    def createElement(self, name: str) -> _ETElement:
+        return _ETElement(ET.Element(name))
+
+    def createTextNode(self, value: str) -> str:
+        return str(value)
+
+    def appendChild(self, node: _ETElement) -> _ETElement:
+        if self._root is not None:
+            raise ValueError("Document already has a root element")
+        self._root = node
+        return node
+
+    def getElementsByTagName(self, tag: str) -> list[_ETElement]:
+        if self._root is None:
+            return []
+        if self._root._element.tag == tag:
+            return [self._root, *self._root.getElementsByTagName(tag)]
+        return self._root.getElementsByTagName(tag)
+
+    def toprettyxml(self, indent: str = "  ") -> str:
+        if self._root is None:
+            return ""
+        ET.indent(self._root._element, space=indent)
+        return ET.tostring(self._root._element, encoding="unicode", xml_declaration=True)
+
+
 class Export_CPACS:
     def __init__(self, Data, name_file, output_dir: Path | None = None):
         self.Data = Data
@@ -879,7 +959,7 @@ class Export_CPACS:
 
     def run(self) -> Path:
         # Create the document
-        Doc = _document_factory()
+        Doc = _ETDocument()
 
         # find the keys
         keys = list(self.Data.keys())

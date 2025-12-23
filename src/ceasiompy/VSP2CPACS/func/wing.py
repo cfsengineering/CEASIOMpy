@@ -17,9 +17,10 @@ It is subsequently processed by this module to generate a CPACS file.
 
 import numpy as np
 import openvsp as vsp
-from math import comb
-from scipy.interpolate import interp1d
 
+from math import comb
+
+from scipy.interpolate import interp1d
 
 # =================================================================================================
 #   FUNCTIONS

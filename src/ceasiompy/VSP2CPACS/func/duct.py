@@ -16,6 +16,7 @@ import numpy as np
 import openvsp as vsp  # type: ignore
 
 
+# Functions
 def get_coord_engine_profile(geom_id, n):
     """
     Compute coordinates of a NACA 4-series airfoil.

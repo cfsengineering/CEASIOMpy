@@ -1,0 +1,31 @@
+name: CEASIOMpy Docker Installation Test
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build CEASIOMpy installation image
+        run: docker build -t ceasiompy-install-test -f CEASIOMpy_docker_Installation .
+
+      - name: Run container smoke test
+        run: |
+          docker run --rm \
+            -e DISPLAY=:99 \
+            -e LIBGL_ALWAYS_SOFTWARE=1 \
+            -e OMPI_ALLOW_RUN_AS_ROOT=1 \
+            -e OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
+            ceasiompy-install-test \
+            /bin/bash -lc "source /opt/conda/etc/profile.d/conda.sh && print('Installed CEASIOMpy Successfully !')"
+
+      - name: Remove Docker image
+        if: always()
+        run: docker rmi ceasiompy-install-test || true

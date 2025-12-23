@@ -10,7 +10,7 @@ If you want to install CEASIOMpy manually, you should follow these steps:
 
 - Install [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
 - Clone the [CEASIOMpy](https://github.com/cfsengineering/CEASIOMpy) repository
-- Create the conda environment `ceasiompy` with the command `conda env create -f environment.yml`, if you have Apple Silicon processor, you need to use the command `CONDA_SUBDIR=osx-64 conda env create -f environment.yml`
+- Create the conda environment `ceasiompy` with `conda env create -f environment.yml`. On Apple Silicon you can either create an x86_64 env with `CONDA_SUBDIR=osx-64 conda env create -f environment.yml` (to get CPACSCreator).
 - Activate the conda environment with the command `conda activate ceasiompy`
 - Run the command `pip install -e .`
 - Install [AVL](https://web.mit.edu/drela/Public/web/avl)

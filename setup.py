@@ -13,7 +13,7 @@ DESCRIPTION = "A conceptual aircraft design environment"
 URL = "https://github.com/cfsengineering/CEASIOMpy"
 # Align python requirement with supported releases (>=3.11).
 REQUIRES_PYTHON = ">=3.11"
-REQUIRED = ["numpy"]
+REQUIRED = []
 README = "README.md"
 PACKAGE_DIR = "src"
 LICENSE = "LICENSE"
@@ -40,7 +40,7 @@ setuptools.setup(
     license=license,
     packages=setuptools.find_packages(where=PACKAGE_DIR, exclude=EXCLUDE_DIRS),
     python_requires=REQUIRES_PYTHON,
-    install_requires=[],
+    install_requires=REQUIRED,
     # See: https://pypi.org/classifiers/
     classifiers=[
         "Programming Language :: Python :: 3",

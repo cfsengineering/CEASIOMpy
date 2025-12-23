@@ -22,7 +22,6 @@ from scipy.constants import convert_temperature
 
 from ceasiompy import log
 
-
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
@@ -46,25 +45,16 @@ def turbojet_analysis(alt, MN, Fn):
     prob.set_val("DESIGN.turb.eff", 0.86)
 
     if Fn > 2700:
-        prob["DESIGN.balance.FAR"] = 0.0175506829934
         prob["DESIGN.balance.W"] = 75.453135137
-        prob["DESIGN.balance.turb_PR"] = 4.46138725662
-        prob["DESIGN.fc.balance.Pt"] = 14.6955113159
-        prob["DESIGN.fc.balance.Tt"] = 518.665288153
-
     elif 2700 <= Fn < 850:
-        prob["DESIGN.balance.FAR"] = 0.0175506829934
         prob["DESIGN.balance.W"] = 50.453135137
-        prob["DESIGN.balance.turb_PR"] = 4.46138725662
-        prob["DESIGN.fc.balance.Pt"] = 14.6955113159
-        prob["DESIGN.fc.balance.Tt"] = 518.665288153
-
     else:
-        prob["DESIGN.balance.FAR"] = 0.0175506829934
         prob["DESIGN.balance.W"] = 10.453135137
-        prob["DESIGN.balance.turb_PR"] = 4.46138725662
-        prob["DESIGN.fc.balance.Pt"] = 14.6955113159
-        prob["DESIGN.fc.balance.Tt"] = 518.665288153
+
+    prob["DESIGN.balance.FAR"] = 0.0175506829934
+    prob["DESIGN.balance.turb_PR"] = 4.46138725662
+    prob["DESIGN.fc.balance.Pt"] = 14.6955113159
+    prob["DESIGN.fc.balance.Tt"] = 518.665288153
 
     prob.set_solver_print(level=-1)
     prob.run_model()

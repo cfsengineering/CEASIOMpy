@@ -10,6 +10,11 @@ sudo apt install libtbb2
 
 # run the environment creation from the CEASIOMpy root so environment.yml can be found
 cd "$ceasiompy_root"
+
+# 2. Remove existing env if it failed halfway to ensure a clean start
+conda deactivate || true
+conda env remove -n ceasiompy -y || true
+
 conda env create -f environment.yml
 
 # Activate conda environment to install CEASIOMpy in it

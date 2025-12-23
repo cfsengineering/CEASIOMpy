@@ -15,6 +15,10 @@ sudo dnf install libXrender
 sudo dnf install libXcursor
 sudo dnf install libXinerama
 
+# 2. Remove existing env if it failed halfway to ensure a clean start
+conda deactivate || true
+conda env remove -n ceasiompy -y || true
+
 # Create conda environment
 conda env create -f environment.yml
 

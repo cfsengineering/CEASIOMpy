@@ -42,7 +42,7 @@ from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
 from unittest.mock import MagicMock
-from tixi3.tixi3wrapper import Tixi3
+from tixi3.tixi3wrapper import Tixi3  # type: ignore
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from cpacspy.cpacspy import (
     CPACS,

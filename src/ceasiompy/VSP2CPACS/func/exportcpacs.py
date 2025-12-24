@@ -14,6 +14,7 @@ It is subsequently processed by this module to generate a CPACS file.
 # Imports
 import re
 import numpy as np
+import xml.etree.ElementTree as ET
 
 from pathlib import Path
 
@@ -24,15 +25,13 @@ except ImportError as exc:  # pragma: no cover
         "Missing dependency 'defusedxml'. Install it to safely handle XML."
     ) from exc
 
+from ceasiompy import log
+
 defuse = getattr(defusedxml, "defuse_stdlib")
 
 if defuse is None:
     raise ImportError("defusedxml does not support defuse_stdlib in this version.")
 defuse()
-
-import xml.etree.ElementTree as ET
-
-from ceasiompy import log
 
 
 # Functions
@@ -569,6 +568,7 @@ def Wing_to_CPACS(
 
     # <wing>
     wing = make(doc, 'wing', wings, uID=Name_wing)
+    make(doc, 'name', wing, Name_wing)
 
     if WingData[keys[0]]['Symmetry'] != '0':
         wing.setAttribute(
@@ -655,6 +655,7 @@ def Fuselage_to_CPACS(
 
     # <fuselage>
     fuselage = make(doc, 'fuselage', fuselages, uID=Fuse_name)
+    make(doc, 'name', fuselage, Fuse_name)
 
     if FuseData[keys[0]]['Symmetry'] != '0':
         fuselage.setAttribute(

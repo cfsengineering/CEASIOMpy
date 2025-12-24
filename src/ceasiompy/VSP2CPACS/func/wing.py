@@ -1317,12 +1317,18 @@ def Extract_transformation(Component):
     Symmetry = Symm_index[int(float(Sym_value))] if Sym_value != "0" else "0"
     ParentUid = vsp.GetGeomParent(Component)
     ParentUid = ParentUid if ParentUid is not None else 0
-    Relative_dih = float(
-        vsp.GetParmVal(vsp.GetParm(Component, "RelativeDihedralFlag", Name_default_comp))
-    )
-    Relative_Twist = float(
-        vsp.GetParmVal(vsp.GetParm(Component, "RelativeTwistFlag", Name_default_comp))
-    )
+
+    # Only wings expose these parameters; avoid querying them for fuselages/pods
+    # to prevent OpenVSP "Can't Find Parm" errors.
+    Relative_dih = 0.0
+    Relative_Twist = 0.0
+    if Name_type == "Wing":
+        Relative_dih = float(
+            vsp.GetParmVal(vsp.GetParm(Component, "RelativeDihedralFlag", Name_default_comp))
+        )
+        Relative_Twist = float(
+            vsp.GetParmVal(vsp.GetParm(Component, "RelativeTwistFlag", Name_default_comp))
+        )
 
     transformation_dict = {
         "Name_type": Name_type,

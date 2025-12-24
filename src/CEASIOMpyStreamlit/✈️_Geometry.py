@@ -30,6 +30,7 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.workflowclasses import Workflow
 
+from ceasiompy import log
 from ceasiompy.VSP2CPACS import (
     SOFTWARE_PATH as OPENVSP_PATH,
     MODULE_STATUS as VSP2CPACS_MODULE_STATUS,
@@ -170,6 +171,7 @@ def section_select_cpacs():
                     st.error(f"An error occurred while importing the VSP2CPACS module: {e}")
                     return None
 
+                log.info("Converting VSP3 file to CPACS...")
                 cpacs_new_path = main(
                     str(cpacs_new_path),
                     output_dir=wkdir,

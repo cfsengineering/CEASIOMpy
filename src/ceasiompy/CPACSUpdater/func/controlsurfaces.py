@@ -43,11 +43,9 @@ from numpy import ndarray
 from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
+from ceasiompy.utils.commonxpaths import AIRFOILS_XPATH
 from ceasiompy.CPACSUpdater import CPACSUPDATER_CTRLSURF_XPATH
-from ceasiompy.utils.commonxpaths import (
-    WINGS_XPATH,
-    AIRFOILS_XPATH,
-)
+
 
 # ==============================================================================
 #   FUNCTIONS

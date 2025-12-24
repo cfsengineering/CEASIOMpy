@@ -38,9 +38,16 @@ fi
 conda_base="$(conda info --base 2>/dev/null || true)"
 [[ -n "${conda_base:-}" ]] || die "Unable to determine conda base (conda info --base failed)."
 
-# Ensure `conda activate` works in non-interactive shells.
-# shellcheck disable=SC1090
-source "$conda_base/etc/profile.d/conda.sh" || die "Unable to source conda.sh from: $conda_base"
+conda_sh="$conda_base/etc/profile.d/conda.sh"
+
+supports_no_capture_output() {
+  conda run -h 2>/dev/null | grep -q -- '--no-capture-output'
+}
+
+conda_run_cmd=(conda run -n "$ENV_NAME")
+if supports_no_capture_output; then
+  conda_run_cmd=(conda run --no-capture-output -n "$ENV_NAME")
+fi
 
 env_exists() {
   # Prefer `conda run` because it checks the env is runnable (not just listed).
@@ -55,6 +62,14 @@ if ! env_exists; then
   die "Conda env '$ENV_NAME' not found. Create it via: bash scripts/install.sh --core-only"
 fi
 
-conda activate "$ENV_NAME" || die "Failed to activate conda env: $ENV_NAME"
+if [[ -f "$conda_sh" ]]; then
+  # Ensure `conda activate` works in non-interactive shells.
+  # shellcheck disable=SC1090
+  source "$conda_sh" || die "Unable to source conda.sh from: $conda_base"
+  conda activate "$ENV_NAME" || die "Failed to activate conda env: $ENV_NAME"
+  exec python -c 'import sys; from CEASIOMpyStreamlit.cli import main_exec; sys.exit(main_exec())' "$@"
+fi
 
-exec python -c 'import sys; from CEASIOMpyStreamlit.cli import main_exec; sys.exit(main_exec())' "$@"
+say "Warning: conda activation script not found at: $conda_sh"
+say "Running via: ${conda_run_cmd[*]}"
+exec "${conda_run_cmd[@]}" python -c 'import sys; from CEASIOMpyStreamlit.cli import main_exec; sys.exit(main_exec())' "$@"

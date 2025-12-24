@@ -13,6 +13,7 @@ It is subsequently processed by this module to generate a CPACS file.
 
 # Imports
 import re
+import defusedxml
 import numpy as np
 import xml.etree.ElementTree as ET
 
@@ -22,17 +23,19 @@ from defusedxml import ElementTree as DefusedElementTree
 from ceasiompy import log
 
 
+defuse = getattr(defusedxml, "defuse_stdlib", None)
+if defuse is None:  # pragma: no cover
+    raise ImportError("defusedxml does not support defuse_stdlib in this version.")
+defuse()
+
+
 # Functions
 def safe_parse_xml(*args, **kwargs):
-    if DefusedElementTree is not None:
-        return DefusedElementTree.parse(*args, **kwargs)
-    return ET.parse(*args, **kwargs)
+    return DefusedElementTree.parse(*args, **kwargs)
 
 
 def safe_fromstring_xml(text: str):
-    if DefusedElementTree is not None:
-        return DefusedElementTree.fromstring(text)
-    return ET.fromstring(text)
+    return DefusedElementTree.fromstring(text)
 
 
 def make(doc, name, parent=None, text=None, **attrs):

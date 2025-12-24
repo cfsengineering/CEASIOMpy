@@ -23,12 +23,16 @@ import streamlit as st
 import subprocess
 import plotly.graph_objects as go
 
+from typing import Any
+
 from ceasiompy.utils import get_wkdir
 from CEASIOMpyStreamlit.streamlitutils import create_sidebar
 
 from stl import mesh
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
+from tixi3.tixi3wrapper import Tixi3
+from tigl3.tigl3wrapper import Tigl3
 from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy import log
@@ -53,6 +57,36 @@ PAGE_NAME = "Geometry"
 # =================================================================================================
 #    FUNCTIONS
 # =================================================================================================
+
+
+def close_cpacs_handles(cpacs: CPACS | None, *, detach: bool = True) -> None:
+    """Best-effort close of CPACS (TIXI/TIGL) resources.
+
+    Some CPACS wrappers close underlying C handles again in their destructor; to
+    avoid double-close heap corruption, this helper can optionally detach the
+    closed handles from the CPACS instance.
+    """
+
+    if cpacs is None:
+        return
+
+    tixi: Tixi3 | None = getattr(cpacs, "tixi", None)
+    if tixi is not None:
+        try:
+            tixi.close()
+        except Exception:
+            pass
+
+    tigl: Tigl3 | None = getattr(cpacs, "tigl", None)
+    if tigl is not None:
+        try:
+            tigl.close()
+        except Exception:
+            pass
+
+    if detach:
+        setattr(cpacs, "tixi", None)
+        setattr(cpacs, "tigl", None)
 
 
 def launch_openvsp() -> None:
@@ -105,8 +139,8 @@ def clean_toolspecific(cpacs: CPACS) -> CPACS:
     air_name = cpacs.ac_name
 
     if "ac_name" not in st.session_state or st.session_state.ac_name != air_name:
-        # Remove CPACS_selected_from_GUI.xml if it exists
-        gui_xml = get_wkdir() / "CPACS_selected_from_GUI.xml"
+        # Remove selected_cpacs.xml if it exists
+        gui_xml = get_wkdir() / "selected_cpacs.xml"
         if gui_xml.exists():
             os.remove(gui_xml)
 
@@ -116,19 +150,18 @@ def clean_toolspecific(cpacs: CPACS) -> CPACS:
         tixi = cpacs.tixi
         if tixi.checkElement("/cpacs/toolspecific/CEASIOMpy"):
             tixi.removeElement("/cpacs/toolspecific/CEASIOMpy")
+
+        # Reload CPACS file to apply changes
+        # Specific to CPACS-VSP3 conversion files
         cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
+        close_cpacs_handles(cpacs)
+        cpacs = CPACS(cpacs.cpacs_file)
+
         st.session_state["ac_name"] = cpacs.ac_name
         return cpacs
     else:
         st.session_state["new_file"] = False
         return cpacs
-
-
-def _close_cpacs(cpacs: CPACS | None) -> None:
-    if cpacs is None:
-        return None
-    cpacs.tigl.close()
-    cpacs.tixi.close()
 
 
 def section_select_cpacs():
@@ -156,7 +189,7 @@ def section_select_cpacs():
                         != Path(cpacs_file_path)
                     )
                 ):
-                    _close_cpacs(st.session_state.get("cpacs"))
+                    close_cpacs_handles(st.session_state.get("cpacs"))
                     st.session_state.cpacs = CPACS(cpacs_file_path)
                 st.session_state.cpacs = clean_toolspecific(st.session_state.cpacs)
             else:
@@ -213,7 +246,7 @@ def section_select_cpacs():
                     st.session_state.vsp_converted = True
 
             st.session_state.workflow.cpacs_in = cpacs_new_path
-            _close_cpacs(st.session_state.get("cpacs"))
+            close_cpacs_handles(st.session_state.get("cpacs"))
             st.session_state.cpacs = CPACS(cpacs_new_path)
             st.session_state.cpacs = clean_toolspecific(st.session_state.cpacs)
             st.session_state.cpacs_file_path = str(cpacs_new_path)

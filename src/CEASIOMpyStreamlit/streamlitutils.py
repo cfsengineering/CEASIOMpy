@@ -139,7 +139,7 @@ def save_cpacs_file(logging: bool = True):
             st.warning("No Workflow has been defined yet!")
         return None
 
-    saved_cpacs_file = Path(st.session_state.workflow.working_dir, "CPACS_selected_from_GUI.xml")
+    saved_cpacs_file = Path(st.session_state.workflow.working_dir, "selected_cpacs.xml")
     if "cpacs" not in st.session_state:
         if logging:
             st.warning("No CPACS file has been selected!")

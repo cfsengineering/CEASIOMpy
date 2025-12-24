@@ -14,24 +14,11 @@ It is subsequently processed by this module to generate a CPACS file.
 # Imports
 import re
 import numpy as np
-import xml.etree.ElementTree as ET
 
 from pathlib import Path
-
-try:
-    import defusedxml
-except ImportError as exc:  # pragma: no cover
-    raise ImportError(
-        "Missing dependency 'defusedxml'. Install it to safely handle XML."
-    ) from exc
+from defusedxml import ElementTree as ET
 
 from ceasiompy import log
-
-defuse = getattr(defusedxml, "defuse_stdlib")
-
-if defuse is None:
-    raise ImportError("defusedxml does not support defuse_stdlib in this version.")
-defuse()
 
 
 # Functions

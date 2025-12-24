@@ -51,11 +51,15 @@ fi
 
 env_exists() {
   # Prefer `conda run` because it checks the env is runnable (not just listed).
-  if conda run -n "$ENV_NAME" python -c "import sys" >/dev/null 2>&1; then
+  if "${conda_run_cmd[@]}" python -c "import sys" >/dev/null 2>&1; then
     return 0
   fi
-  # Fallback for older conda versions:
-  conda env list 2>/dev/null | awk '{print $1}' | grep -qx "$ENV_NAME"
+  # Fallback: check the configured environment list.
+  # Note: avoid `grep -q` in a pipeline with `set -o pipefail` (can trigger SIGPIPE).
+  conda env list 2>/dev/null | awk -v env="$ENV_NAME" '
+    $1 == env { found = 1 }
+    END { exit(!found) }
+  '
 }
 
 if ! env_exists; then

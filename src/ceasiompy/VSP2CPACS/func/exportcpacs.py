@@ -15,7 +15,7 @@ It is subsequently processed by this module to generate a CPACS file.
 import re
 import defusedxml
 import numpy as np
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET  # nosec B405
 
 from pathlib import Path
 from defusedxml import ElementTree as DefusedElementTree

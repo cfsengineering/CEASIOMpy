@@ -14,6 +14,13 @@ Test functions of 'ceasiompy/ThermoData/func/turbojet_func.py'
 #   IMPORTS
 # =================================================================================================
 
+import pytest
+
+from ceasiompy.ThermoData import MODULE_STATUS
+
+if not MODULE_STATUS:
+    pytest.skip("ThermoData module is deactivated (MODULE_STATUS=False)", allow_module_level=True)
+
 import numpy as np
 
 from pathlib import Path

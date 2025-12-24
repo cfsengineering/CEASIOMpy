@@ -12,6 +12,7 @@ Functions utils to run ceasiompy workflows
 
 import re
 import os
+import sys
 import math
 import shutil
 import importlib
@@ -41,7 +42,7 @@ from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
 from unittest.mock import MagicMock
-from tixi3.tixi3wrapper import Tixi3
+from tixi3.tixi3wrapper import Tixi3  # type: ignore
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from cpacspy.cpacspy import (
     CPACS,
@@ -132,7 +133,12 @@ def write_inouts(
 def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
     tixi = cpacs.tixi
     st.session_state.cpacs = cpacs
-    cpacsin_out: CPACSInOut = get_specs_for_module(module_name).cpacs_inout
+    specs = get_specs_for_module(module_name)
+    if specs is None:
+        log.warning(f"No specs found for module {module_name}. \n")
+        return None
+
+    cpacsin_out: CPACSInOut = specs.cpacs_inout
     inputs = cpacsin_out.get_gui_dict()
 
     for name, default_value, var_type, _, xpath, _, _, test_value, _ in inputs.values():
@@ -387,21 +393,41 @@ def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
             log.info("---------- End of " + module_name + " ---------- \n")
 
 
-def get_install_path(software_name: str, raise_error: bool = False) -> Path | None:
+def get_install_path(
+    software_name: str,
+    raise_error: bool = False,
+    display_name: str | None = None,
+) -> Path | None:
     """Return the installation path of a software.
 
     Args:
         software_name (str): Name of the software.
         raise_error (bool, optional): If True, raise an error if the software is not installed.
+        display_name (str, optional): Friendly name used in logs. Defaults to software_name.
 
     """
+
+    display_name = display_name or software_name
+
+    def _is_compatible_executable(path: Path) -> bool:
+        if not (path.is_file() and os.access(path, os.X_OK)):
+            return False
+        if sys.platform == "darwin" and _detect_binary_format(path) == "elf":
+            log.warning(
+                "%s was found at %s but appears to be a Linux ELF executable; "
+                "skipping it on macOS.",
+                display_name,
+                path,
+            )
+            return False
+        return True
 
     # First, try to locate the software inside INSTALLDIR_PATH
     if INSTALLDIR_PATH.exists():
         # Directly under INSTALLDIR_PATH
         candidate = INSTALLDIR_PATH / software_name
-        if candidate.is_file() and os.access(candidate, os.X_OK):
-            log.info(f"{software_name} is installed at: {candidate}")
+        if _is_compatible_executable(candidate):
+            log.info(f"{display_name} is installed at: {candidate}")
             return candidate
 
         # Common layout: INSTALLDIR/<pkg>[/bin]/<software_name>
@@ -410,28 +436,64 @@ def get_install_path(software_name: str, raise_error: bool = False) -> Path | No
                 continue
 
             direct = subdir / software_name
-            if direct.is_file() and os.access(direct, os.X_OK):
-                log.info(f"{software_name} is installed at: {direct}")
+            if _is_compatible_executable(direct):
+                log.info(f"{display_name} is installed at: {direct}")
                 return direct
 
             bin_candidate = subdir / "bin" / software_name
-            if bin_candidate.is_file() and os.access(bin_candidate, os.X_OK):
-                log.info(f"{software_name} is installed at: {bin_candidate}")
+            if _is_compatible_executable(bin_candidate):
+                log.info(f"{display_name} is installed at: {bin_candidate}")
                 return bin_candidate
 
     # If not found in INSTALLDIR, fall back to the system PATH
     install_path = shutil.which(software_name)
 
     if install_path is not None:
-        log.info(f"{software_name} is installed at: {install_path}")
-        return Path(install_path)
+        resolved = Path(install_path)
+        if _is_compatible_executable(resolved):
+            log.info(f"{display_name} is installed at: {install_path}")
+            return resolved
 
-    log.warning(f"{software_name} is not installed on your computer!")
+    log.warning(f"{display_name} is not installed on your computer!")
 
     if raise_error:
-        log.warning(f"{software_name} is not installed on your computer!")
+        raise FileNotFoundError(f"{display_name} is not installed on your computer!")
     else:
         return None
+
+
+def _detect_binary_format(executable: Path) -> str:
+    """Best-effort detection of a binary format based on magic bytes.
+
+    Returns one of: "mach-o", "elf", "unknown".
+    """
+
+    try:
+        with open(executable, "rb") as handle:
+            header = handle.read(4)
+    except OSError:
+        return "unknown"
+
+    if header == b"\x7fELF":
+        return "elf"
+
+    # Mach-O magics (thin + universal).
+    if header in (
+        b"\xfe\xed\xfa\xce",
+        b"\xce\xfa\xed\xfe",
+        b"\xfe\xed\xfa\xcf",
+        b"\xcf\xfa\xed\xfe"
+    ):
+        return "mach-o"
+    if header in (
+        b"\xca\xfe\xba\xbe",
+        b"\xbe\xba\xfe\xca",
+        b"\xca\xfe\xba\xbf",
+        b"\xbf\xba\xfe\xca"
+    ):
+        return "mach-o"
+
+    return "unknown"
 
 
 def check_version(software_name: str, required_version: str) -> Tuple[bool, str]:
@@ -506,6 +568,22 @@ def run_software(
     )
 
     install_path = get_install_path(software_name)
+    if install_path is None:
+        raise FileNotFoundError(
+            f"{software_name} executable not found (check your INSTALLDIR and PATH)."
+        )
+
+    # On macOS, fail fast with a clear message
+    # if a Linux ELF binary is picked up (common for Pentagrow).
+    if sys.platform == "darwin":
+        fmt = _detect_binary_format(install_path)
+        if fmt == "elf":
+            raise OSError(
+                f"'{software_name}' at '{install_path}' is a Linux ELF executable "
+                "and cannot run on macOS.\n"
+                "Remove/rename this file and install a macOS-native build, "
+                "or use the Docker-based workflow."
+            )
 
     command_line = []
     if with_mpi:

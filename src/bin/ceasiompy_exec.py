@@ -29,7 +29,6 @@ from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy import log
 from unittest.mock import patch
-
 from ceasiompy.utils.commonpaths import (
     WKDIR_PATH,
     STREAMLIT_PATH,
@@ -42,7 +41,38 @@ from ceasiompy.utils.commonpaths import (
 # =================================================================================================
 
 
-def testcase_message(testcase_nb):
+def _get_cpu_count() -> int:
+    cpus = os.cpu_count()
+    if cpus is not None:
+        return int(cpus // 2 + 1)
+
+    return 1
+
+
+def _ensure_conda_prefix_bin_first(env: dict[str, str] | None = None) -> dict[str, str] | None:
+    """Ensure `$CONDA_PREFIX/bin` is prepended to PATH when CONDA_PREFIX is set."""
+
+    if env is None:
+        conda_prefix = os.environ.get("CONDA_PREFIX")
+        if not conda_prefix:
+            return None
+        conda_bin = str(Path(conda_prefix) / "bin")
+        path_parts = [p for p in os.environ.get("PATH", "").split(os.pathsep) if p]
+        path_parts = [p for p in path_parts if p != conda_bin]
+        os.environ["PATH"] = os.pathsep.join([conda_bin, *path_parts])
+        return None
+
+    conda_prefix = env.get("CONDA_PREFIX")
+    if not conda_prefix:
+        return env
+    conda_bin = str(Path(conda_prefix) / "bin")
+    path_parts = [p for p in env.get("PATH", "").split(os.pathsep) if p]
+    path_parts = [p for p in path_parts if p != conda_bin]
+    env["PATH"] = os.pathsep.join([conda_bin, *path_parts])
+    return env
+
+
+def testcase_message(testcase_nb: int) -> None:
     """Top message to show when a test case is run."""
 
     log.info(f"CEASIOMpy as been started from test case {testcase_nb}")
@@ -170,12 +200,15 @@ def run_config_file(config_file) -> None:
 
 
 def run_gui(
-    cpus: int,
+    cpus: int | None = None,
     wkdir: Path | None = None,
     headless: bool = False,
     port: int | None = None,
 ) -> None:
     """Create and run a workflow from the GUI."""
+
+    if cpus is None:
+        cpus = _get_cpu_count()
 
     if wkdir is None:
         wkdir = WKDIR_PATH
@@ -193,10 +226,30 @@ def run_gui(
 
     log.info("CEASIOMpy has been started from the GUI.")
     env = os.environ.copy()
-
-    # Add the src directory to PYTHONPATH
+    _ensure_conda_prefix_bin_first(env)
+    # Add CEASIOMpy src directory first (for helper modules like `utilities`),
+    # then OpenVSP Python roots (for degen_geom, openvsp, etc.) to PYTHONPATH.
+    project_root = Path(__file__).resolve().parents[2]
+    src_dir = project_root / "src"
+    vsp_python_root = project_root / "INSTALLDIR/OpenVSP/python"
+    vsp_openvsp_pkg = vsp_python_root / "openvsp"
+    degen_geom_pkg = vsp_python_root / "degen_geom"
+    vsp_config_pkg = vsp_python_root / "openvsp_config"
+    utilities_pkg = vsp_python_root / "utilities"
     env["PYTHONPATH"] = (
-        str(Path(__file__).resolve().parents[2] / "src") + os.pathsep + env.get("PYTHONPATH", "")
+        str(src_dir)
+        + os.pathsep
+        # + str(vsp_python_root)
+        # + os.pathsep
+        + str(vsp_openvsp_pkg)
+        + os.pathsep
+        + str(vsp_config_pkg)
+        + os.pathsep
+        + str(degen_geom_pkg)
+        + os.pathsep
+        + str(utilities_pkg)
+        + os.pathsep
+        + env.get("PYTHONPATH", "")
     )
 
     # Environment variables must be strings
@@ -206,7 +259,7 @@ def run_gui(
     env["CEASIOMPY_WKDIR"] = str(wkdir)
 
     args = [
-        "streamlit", "run", "CEASIOMpy.py",
+        "streamlit", "run", "✈️_Geometry.py",
         "--server.headless", f"{str(headless).lower()}",
     ]
     if port is not None:
@@ -261,6 +314,7 @@ def cleanup_previous_workflow_status(wkdir: Path | None = None) -> None:
 
 
 def main() -> None:
+    _ensure_conda_prefix_bin_first()
     parser = argparse.ArgumentParser(
         description="CEASIOMpy: Conceptual Aircraft Design Environment",
         usage=argparse.SUPPRESS,
@@ -303,7 +357,7 @@ def main() -> None:
         "--cpus",
         required=False,
         type=int,
-        default=int(os.cpu_count() // 2 + 1),
+        default=_get_cpu_count(),
         help="Select maximum number of authorized CPUs.",
     )
     parser.add_argument(

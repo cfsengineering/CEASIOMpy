@@ -14,6 +14,9 @@ RUN apt-get install -y --no-install-recommends \
     libgl1 libglu1-mesa libegl1 libosmesa6 xvfb ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update && apt-get install -y gnupg curl && \
+    echo '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d
+
 # Install Miniconda
 ENV CONDA_DIR=/opt/conda
 RUN curl -fsSL https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -o /tmp/miniforge.sh && \
@@ -34,17 +37,23 @@ COPY ./installation .
 RUN find /CEASIOMpy/installation -name "*.sh" -type f -exec dos2unix {} \;
 
 WORKDIR /CEASIOMpy/installation/Ubuntu
-RUN chmod +x install_*.sh
+RUN chmod +x *.sh
 
 WORKDIR /CEASIOMpy/INSTALLDIR
+
 RUN git clone https://github.com/cfsengineering/Pentagrow.git
 WORKDIR /CEASIOMpy/INSTALLDIR/Pentagrow/bin
 RUN chmod +x pentagrow
 
 WORKDIR /
-RUN /CEASIOMpy/installation/Ubuntu/install_pentagrow.sh && \
-    /CEASIOMpy/installation/Ubuntu/install_su2_with_mpi.sh && \
-    /CEASIOMpy/installation/Ubuntu/install_pyavl.sh
+
+RUN /CEASIOMpy/installation/Ubuntu/openvsp.sh
+
+RUN /CEASIOMpy/installation/Ubuntu/pentagrow.sh
+
+RUN /CEASIOMpy/installation/Ubuntu/su2.sh --with_mpi true
+
+RUN /CEASIOMpy/installation/Ubuntu/avl.sh
 
 # Install xvfb and other graphical display dependencies for Ubuntu
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -71,12 +80,8 @@ RUN mkdir -p /CEASIOMpy
 # Set the working directory to the mounted CEASIOMpy folder
 WORKDIR /CEASIOMpy
 
-# Get the required files for installing the conda environment
-RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/setup.py -O /CEASIOMpy/setup.py && \
-    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/pyproject.toml -O /CEASIOMpy/pyproject.toml && \
-    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/environment.yml -O /CEASIOMpy/environment.yml && \
-    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/README.md -O /CEASIOMpy/README.md && \
-    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/LICENSE -O /CEASIOMpy/LICENSE
+# Copy project files (including local environment.yml) into the image
+COPY . /CEASIOMpy
 
 # Ensure the directory structure exists
 RUN mkdir -p /CEASIOMpy/src
@@ -93,7 +98,7 @@ RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
     echo "ceasiompy_run --gui" >> ~/.bashrc
 
 # Move the content of /INSTALLDIR to the mounted /CEASIOMpy/INSTALLDIR folder at runtime
-# CMD ["/bin/bash", "-c", "rm -rf /CEASIOMpy/INSTALLDIR && mkdir -p /CEASIOMpy/INSTALLDIR && mv /INSTALLDIR/* /CEASIOMpy/INSTALLDIR/ && exec bash"]
+CMD ["/bin/bash", "-c", "rm -rf /CEASIOMpy/INSTALLDIR && mkdir -p /CEASIOMpy/INSTALLDIR && mv /INSTALLDIR/* /CEASIOMpy/INSTALLDIR/ && exec bash"]
 
 # Now you just need click on: Networ URL
 

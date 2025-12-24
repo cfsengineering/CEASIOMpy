@@ -19,6 +19,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpaths import SU2MESH_XPATH
 from ceasiompy.CPACS2GMSH import (
     INCLUDE_GUI,
+    HAS_PENTAGROW,
     GMSH_OPEN_GUI_XPATH,
     GMSH_MESH_TYPE_XPATH,
     GMSH_CTRLSURF_ANGLE_XPATH,
@@ -77,9 +78,9 @@ cpacs_inout.add_input(
     unit=None,
     descr="Choose between Euler and RANS mesh",
     xpath=GMSH_MESH_TYPE_XPATH,
-    gui=INCLUDE_GUI,
     gui_name="Choose the mesh type",
     gui_group="Mesh type",
+    gui=not HAS_PENTAGROW,
 )
 
 cpacs_inout.add_input(

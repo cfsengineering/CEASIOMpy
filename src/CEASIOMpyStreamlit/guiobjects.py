@@ -87,9 +87,6 @@ def path_vartype(key) -> None:
         st.session_state[key] = str(su2_file_path)
         save_cpacs_file()
 
-    if key in st.session_state:
-        st.success(f"Uploaded file: {st.session_state[key]}")
-
 
 def multiselect_vartype(default_value, name, key) -> None:
     # Initialize the list in session state if it doesn't exist
@@ -192,7 +189,7 @@ def add_ctrl_surf_vartype(tixi, xpath, default_value, name, key, description) ->
 def bool_vartype(tixi, xpath, default_value, name, key, description) -> None:
     st.checkbox(
         name,
-        value=get_value_or_default(tixi, xpath, default_value),
+        value=bool(get_value_or_default(tixi, xpath, default_value)),
         key=key,
         help=description,
         on_change=save_cpacs_file,

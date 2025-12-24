@@ -78,7 +78,7 @@ def test_generate_rans_mesh():
     )
 
     pentagrow_3d_mesh(
-        result_dir=TEST_OUT_PATH,
+        result_dir=str(TEST_OUT_PATH),
         fuselage_maxlen=20,
         farfield_factor=10,
         n_layer=30,
@@ -216,5 +216,6 @@ def test_sort_surfaces_and_create_physical_groups():
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
 if __name__ == "__main__":
     test_generate_rans_mesh()

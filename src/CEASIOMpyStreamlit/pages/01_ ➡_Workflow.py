@@ -63,11 +63,10 @@ def section_predefined_workflow():
 
     predefine_workflows = [
         [PYAVL, STATICSTABILITY, DATABASE],
-        [CPACSUPDATER, "CPACSCreator", CPACS2GMSH, SU2RUN, "ExportCSV"],
-        [CPACS2GMSH, "ThermoData", SU2RUN, "SkinFriction", DATABASE],
+        [CPACSUPDATER, "CPACSCreator", CPACS2GMSH, SU2RUN],
+        [CPACS2GMSH, SU2RUN, "SkinFriction", DATABASE],
         [SMTRAIN, SMUSE, SAVEAEROCOEF],
         [DYNAMICSTABILITY, DATABASE],
-        # ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"],
     ]
 
     for workflow in predefine_workflows:
@@ -85,7 +84,7 @@ def section_add_module():
     Where to select the workflow.
     """
 
-    st.markdown("#### Your workflow")
+    st.markdown("#### Add Modules to your Workflow")
 
     if "workflow_modules" not in st.session_state:
         st.session_state["workflow_modules"] = []
@@ -109,7 +108,7 @@ def section_add_module():
                     st.session_state.workflow_modules.pop(i)
                     st.rerun()
     else:
-        st.warning("No module(s) have been added to the workflow.")
+        st.warning("No module(s) have been added in the workflow.")
 
     module_list = get_module_list(only_active=True)
 

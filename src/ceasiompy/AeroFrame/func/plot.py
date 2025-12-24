@@ -138,15 +138,15 @@ def plot_translations_rotations(centerline_df, wkdir):
     # Rotations
     axs[0][1].plot(centerline_df["y"], np.rad2deg(centerline_df["thx"]))
     axs[0][1].set_xlabel("$y$ [m]")
-    axs[0][1].set_ylabel("$\\theta_x~[^{\circ}]$")
+    axs[0][1].set_ylabel("$\\theta_x~[^{\\circ}]$")
 
     axs[1][1].plot(centerline_df["y"], np.rad2deg(centerline_df["thy"]))
     axs[1][1].set_xlabel("$y$ [m]")
-    axs[1][1].set_ylabel("$\\theta_y~[^{\circ}]$")
+    axs[1][1].set_ylabel("$\\theta_y~[^{\\circ}]$")
 
     axs[2][1].plot(centerline_df["y"], np.rad2deg(centerline_df["thz"]))
     axs[2][1].set_xlabel("$y$ [m]")
-    axs[2][1].set_ylabel("$\\theta_z~[^{\circ}]$")
+    axs[2][1].set_ylabel("$\\theta_z~[^{\\circ}]$")
 
     fig.suptitle("Structural translations/rotations along the span.")
     fig.tight_layout()
@@ -172,7 +172,7 @@ def plot_convergence(tip_deflection, res, wkdir):
     fig, axs = plt.subplots(1, 2)
     axs[0].plot(iter_vec, tip_deflection, "-o")
     axs[0].set_xlabel("Iteration")
-    axs[0].set_ylabel("$\delta_z$ [m]")
+    axs[0].set_ylabel(r"$\delta_z$ [m]")
     axs[0].set_title("Wing tip deflection")
 
     axs[1].plot(iter_vec[1:], res[1:], "-o")

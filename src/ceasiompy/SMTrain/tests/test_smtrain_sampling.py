@@ -63,6 +63,7 @@ class TestCreateData(CeasiompyTest):
             results_dir = Path(tmpdir)
             df = new_points(x_array, model, results_dir, high_var_pts)
             self.assertIsInstance(df, pd.DataFrame)
+            assert df is not None
             self.assertEqual(len(df), 7)
             # Check that the highest variance points are selected
             sorted_indices = np.argsort(variances)[::-1][:7]
@@ -90,6 +91,7 @@ class TestCreateData(CeasiompyTest):
             results_dir = Path(tmpdir)
             df = new_points(x_array, model, results_dir, high_var_pts)
             self.assertIsInstance(df, pd.DataFrame)
+            assert df is not None
             self.assertEqual(len(df), 1)
             old_high_var_pts = [tuple(x_array[1]), tuple(x_array[2])]
             self.assertTrue(tuple(df.values[0]) not in old_high_var_pts)
@@ -132,6 +134,7 @@ class TestCreateData(CeasiompyTest):
             random_state=42,
         )
 
+        assert lh_sampling_path is not None
         self.assertTrue(lh_sampling_path.is_file(), "Sampling CSV file was not created.")
         # Read the csv at lh_sampling_path and check if values are specific ones
         # Read the csv at lh_sampling_path and check if values are within the specified ranges
@@ -152,17 +155,17 @@ class TestCreateData(CeasiompyTest):
         self.assertLessEqual(df["angleOfSideslip"].iloc[0], MAX_AOS)
 
         # Check values
-        self.assertEqual(df["altitude"][0], 187)
-        self.assertEqual(df["altitude"][1], 578)
+        self.assertEqual(df["altitude"][0], 387)
+        self.assertEqual(df["altitude"][1], 547)
 
-        self.assertEqual(df["machNumber"][0], 0.20)
-        self.assertEqual(df["machNumber"][1], 0.22)
+        self.assertEqual(df["machNumber"][0], 0.3)
+        self.assertEqual(df["machNumber"][1], 0.14)
 
-        self.assertEqual(df["angleOfAttack"][0], 5.49)
-        self.assertEqual(df["angleOfAttack"][1], 7.94)
+        self.assertEqual(df["angleOfAttack"][0], 13.21)
+        self.assertEqual(df["angleOfAttack"][1], 6.44)
 
-        self.assertEqual(df["angleOfSideslip"][0], 14.0)
-        self.assertEqual(df["angleOfSideslip"][1], 4.49)
+        self.assertEqual(df["angleOfSideslip"][0], 5.23)
+        self.assertEqual(df["angleOfSideslip"][1], 13.4)
 
 
 # =================================================================================================

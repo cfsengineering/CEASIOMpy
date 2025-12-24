@@ -197,15 +197,19 @@ def write_hbtf_file(
 class HBTF(pyc.Cycle):
     def setup(self):
         design = self.options["design"]
-        USE_TABULAR = False
-        if USE_TABULAR:
-            self.options["thermo_method"] = "TABULAR"
-            self.options["thermo_data"] = pyc.AIR_JETA_TAB_SPEC
-            FUEL_TYPE = "FAR"
+        # pyCycle reads thermo options early in setup (and behavior changed across versions).
+        # Ensure they are set consistently, and choose a matching combustor fuel model.
+        thermo_method = self.options["thermo_method"]
+        if thermo_method == "TABULAR":
+            if self.options["thermo_data"] is None:
+                self.options["thermo_data"] = pyc.AIR_JETA_TAB_SPEC
+            fuel_type = "FAR"
+        elif thermo_method == "CEA":
+            if self.options["thermo_data"] is None:
+                self.options["thermo_data"] = pyc.species_data.janaf
+            fuel_type = "Jet-A(g)"
         else:
-            self.options["thermo_method"] = "CEA"
-            self.options["thermo_data"] = pyc.species_data.janaf
-            FUEL_TYPE = "Jet-A(g)"
+            raise ValueError(f"Unsupported thermo_method={thermo_method!r}")
 
         self.add_subsystem("fc", pyc.FlightConditions())
         self.add_subsystem("inlet", pyc.Inlet())
@@ -230,7 +234,7 @@ class HBTF(pyc.Cycle):
             promotes_inputs=[("Nmech", "HP_Nmech")],
         )
         self.add_subsystem("bld3", pyc.BleedOut(bleed_names=["cool3", "cool4"]))
-        self.add_subsystem("burner", pyc.Combustor(fuel_type=FUEL_TYPE))
+        self.add_subsystem("burner", pyc.Combustor(fuel_type=fuel_type))
         self.add_subsystem(
             "hpt",
             pyc.Turbine(map_data=pyc.HPTMap, bleed_names=["cool3", "cool4"], map_extrap=True),
@@ -270,7 +274,8 @@ class HBTF(pyc.Cycle):
         self.connect("fc.Fl_O:stat:P", "core_nozz.Ps_exhaust")
         self.connect("fc.Fl_O:stat:P", "byp_nozz.Ps_exhaust")
 
-        balance = self.add_subsystem("balance", om.BalanceComp())
+        balance = om.BalanceComp()
+        self.add_subsystem("balance", balance)
         if design:
             balance.add_balance("W", units="lbm/s", eq_units="lbf")
             self.connect("balance.W", "fc.W")
@@ -334,5 +339,6 @@ class HBTF(pyc.Cycle):
 
 class MPhbtf(pyc.MPCycle):
     def setup(self):
-        self.pyc_add_pnt("DESIGN", HBTF(thermo_method="CEA"))
+        # Pass thermo options at construction time for compatibility with newer pyCycle versions.
+        self.pyc_add_pnt("DESIGN", HBTF(thermo_method="CEA", thermo_data=pyc.species_data.janaf))
         super().setup()

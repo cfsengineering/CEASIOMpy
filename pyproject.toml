@@ -21,6 +21,7 @@ omit = [
   "*/__specs__.py",
   "*/BalanceConventional/*",
   "*/BalanceUnconventional/*",
+  "*/ThermoData/*",
   "*/CPACSUpdater/*",
   "*/ModuleTemplate/*",
   "*/Optimisation/*",

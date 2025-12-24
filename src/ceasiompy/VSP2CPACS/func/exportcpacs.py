@@ -14,14 +14,27 @@ It is subsequently processed by this module to generate a CPACS file.
 # Imports
 import re
 import numpy as np
+import xml.etree.ElementTree as ET
 
 from pathlib import Path
-from defusedxml import ElementTree as ET
+from defusedxml import ElementTree as DefusedElementTree
 
 from ceasiompy import log
 
 
 # Functions
+def safe_parse_xml(*args, **kwargs):
+    if DefusedElementTree is not None:
+        return DefusedElementTree.parse(*args, **kwargs)
+    return ET.parse(*args, **kwargs)
+
+
+def safe_fromstring_xml(text: str):
+    if DefusedElementTree is not None:
+        return DefusedElementTree.fromstring(text)
+    return ET.fromstring(text)
+
+
 def make(doc, name, parent=None, text=None, **attrs):
     """
     Create an XML element, optionally add attributes, text value,
@@ -871,7 +884,7 @@ def Save_CPACS_file(Document, name_file, output_dir: Path | None = None) -> Path
 
 # Classes
 class _ETElement:
-    def __init__(self, element: ET.Element, parent: "_ETElement | None" = None):
+    def __init__(self, element, parent: "_ETElement | None" = None):
         self._element = element
         self._parent = parent
 
@@ -910,7 +923,7 @@ class _ETElement:
     def getElementsByTagName(self, tag: str) -> list["_ETElement"]:
         matches: list[_ETElement] = []
 
-        def walk(element: ET.Element, parent_wrapper: _ETElement) -> None:
+        def walk(element, parent_wrapper: _ETElement) -> None:
             for child in list(element):
                 child_wrapper = _ETElement(child, parent=parent_wrapper)
                 if child.tag == tag:

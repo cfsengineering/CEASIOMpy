@@ -150,7 +150,7 @@ def section_select_cpacs():
             type=["xml", "vsp3"],
         )
 
-        if uploaded_file and "vsp_converted" not in st.session_state:
+        if uploaded_file:
             wkdir = st.session_state.workflow.working_dir
             cpacs_new_path = Path(wkdir, uploaded_file.name)
 
@@ -170,12 +170,10 @@ def section_select_cpacs():
                     st.error(f"An error occurred while importing the VSP2CPACS module: {e}")
                     return None
 
-                converted_path = main(
+                cpacs_new_path = main(
                     str(cpacs_new_path),
                     output_dir=wkdir,
                 )
-                cpacs_new_path = converted_path
-                # Stop new uploading
                 st.session_state.vsp_converted = True
 
             st.session_state.workflow.cpacs_in = cpacs_new_path

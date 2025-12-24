@@ -13,7 +13,7 @@ DESCRIPTION = "A conceptual aircraft design environment"
 URL = "https://github.com/cfsengineering/CEASIOMpy"
 # Align python requirement with supported releases (>=3.11).
 REQUIRES_PYTHON = ">=3.11"
-REQUIRED = []
+REQUIRED = ["defusedxml"]
 README = "README.md"
 PACKAGE_DIR = "src"
 LICENSE = "LICENSE"

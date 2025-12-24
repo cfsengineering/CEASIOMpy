@@ -61,12 +61,14 @@ def main(vsp_file: str | Path, output_dir: str | Path | None = None) -> Path:
     output_dir = Path(output_dir) if output_dir is not None else None
 
     # Read the OpenVSP file
+    log.info(f"Reading OpenVSP file: {vsp_file} ")
     vsp.ClearVSPModel()
     vsp.ReadVSPFile(str(vsp_file))
 
     # File Name
     name_file = vsp_file.stem
 
+    log.info("Processing OpenVSP geometry... ")
     # Find the components
     geom_ids = vsp.FindGeoms()
 

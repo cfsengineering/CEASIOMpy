@@ -17,6 +17,7 @@ Main Streamlit page for CEASIOMpy GUI.
 # =================================================================================================
 
 import os
+import hashlib
 import numpy as np
 import streamlit as st
 import subprocess
@@ -116,12 +117,18 @@ def clean_toolspecific(cpacs: CPACS) -> CPACS:
         if tixi.checkElement("/cpacs/toolspecific/CEASIOMpy"):
             tixi.removeElement("/cpacs/toolspecific/CEASIOMpy")
         cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
-        cleaned_cpacs = CPACS(cpacs.cpacs_file)
-        st.session_state["ac_name"] = cleaned_cpacs.ac_name
-        return cleaned_cpacs
+        st.session_state["ac_name"] = cpacs.ac_name
+        return cpacs
     else:
         st.session_state["new_file"] = False
         return cpacs
+
+
+def _close_cpacs(cpacs: CPACS | None) -> None:
+    if cpacs is None:
+        return None
+    cpacs.tigl.close()
+    cpacs.tixi.close()
 
 
 def section_select_cpacs():
@@ -140,8 +147,18 @@ def section_select_cpacs():
         if "cpacs_file_path" in st.session_state:
             cpacs_file_path = st.session_state.cpacs_file_path
             if Path(cpacs_file_path).exists():
-                cpacs = CPACS(cpacs_file_path)
-                st.session_state.cpacs = clean_toolspecific(cpacs)
+                # Reload the CPACS file into session state if its path exists
+                # and the CPACS object is not already loaded or is different
+                if (
+                    "cpacs" not in st.session_state
+                    or (
+                        Path(getattr(st.session_state.cpacs, "cpacs_file", ""))
+                        != Path(cpacs_file_path)
+                    )
+                ):
+                    _close_cpacs(st.session_state.get("cpacs"))
+                    st.session_state.cpacs = CPACS(cpacs_file_path)
+                st.session_state.cpacs = clean_toolspecific(st.session_state.cpacs)
             else:
                 st.session_state.cpacs_file_path = None
 
@@ -149,38 +166,56 @@ def section_select_cpacs():
         uploaded_file = st.file_uploader(
             "Load a CPACS (.xml) or VSP3 (.vsp3) file",
             type=["xml", "vsp3"],
+            key="geometry_file_uploader",
         )
 
         if uploaded_file:
+            uploaded_bytes = uploaded_file.getbuffer()
+            uploaded_digest = hashlib.sha256(uploaded_bytes).hexdigest()
+            last_digest = st.session_state.get("last_uploaded_digest")
+            last_name = st.session_state.get("last_uploaded_name")
+
+            # Streamlit reruns the script on any state change; prevent re-processing the
+            # exact same uploaded file over and over making an infinite-loop.
+
+            # CONDITION 1: same file content (digest)
+            # CONDITION 2: same file name (to avoid re-processing different files with same content
+            is_same_upload = (uploaded_digest == last_digest) and (uploaded_file.name == last_name)
+
             wkdir = st.session_state.workflow.working_dir
             cpacs_new_path = Path(wkdir, uploaded_file.name)
 
-            with open(cpacs_new_path, "wb") as f:
-                f.write(uploaded_file.getbuffer())
+            if not is_same_upload:
+                with open(cpacs_new_path, "wb") as f:
+                    f.write(uploaded_bytes)
+                st.session_state["last_uploaded_digest"] = uploaded_digest
+                st.session_state["last_uploaded_name"] = uploaded_file.name
 
             if cpacs_new_path.suffix == ".vsp3":
-                try:
-                    from ceasiompy.VSP2CPACS.vsp2cpacs import main
-                except ModuleNotFoundError:
-                    st.error(
-                        "Cannot convert VSP3 files because the `openvsp` "
-                        "Python bindings are missing."
-                    )
-                    return None
-                except Exception as e:
-                    st.error(f"An error occurred while importing the VSP2CPACS module: {e}")
-                    return None
+                if not is_same_upload or not st.session_state.get("vsp_converted"):
+                    try:
+                        from ceasiompy.VSP2CPACS.vsp2cpacs import main
+                    except ModuleNotFoundError:
+                        st.error(
+                            "Cannot convert VSP3 files because the `openvsp` "
+                            "Python bindings are missing."
+                        )
+                        return None
+                    except Exception as e:
+                        st.error(f"An error occurred while importing the VSP2CPACS module: {e}")
+                        return None
 
-                log.info("Converting VSP3 file to CPACS...")
-                cpacs_new_path = main(
-                    str(cpacs_new_path),
-                    output_dir=wkdir,
-                )
-                st.session_state.vsp_converted = True
+                    log.info("Converting VSP3 file to CPACS...")
+                    cpacs_new_path = main(
+                        str(cpacs_new_path),
+                        output_dir=wkdir,
+                    )
+                    st.session_state.vsp_converted = True
 
             st.session_state.workflow.cpacs_in = cpacs_new_path
-            cpacs = CPACS(cpacs_new_path)
-            st.session_state.cpacs = clean_toolspecific(cpacs)
+            _close_cpacs(st.session_state.get("cpacs"))
+            st.session_state.cpacs = CPACS(cpacs_new_path)
+            st.session_state.cpacs = clean_toolspecific(st.session_state.cpacs)
             st.session_state.cpacs_file_path = str(cpacs_new_path)
 
         # Display the file uploader widget with the previously uploaded file

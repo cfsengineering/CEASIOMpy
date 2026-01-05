@@ -54,6 +54,9 @@ dependencies:
   - boost>=1.85.0
   - libzip>=1.9.2
 
+  # OpenVSP
+  - conda-forge::sphinx
+
   # CEASIOMpyLight
   - conda-forge::fastapi
   - conda-forge::uvicorn
@@ -85,7 +88,6 @@ dependencies:
     - framat>=0.5
     - panelaero
     - defusedxml
-    - sphinx
     - jenn>=1.0.8
     - stripe
     - watchdog

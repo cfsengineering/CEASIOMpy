@@ -51,6 +51,17 @@ def _get_cpu_count() -> int:
     return 1
 
 
+def _parse_bool(value: str) -> bool:
+    """Parse a CLI boolean value."""
+
+    normalized = value.strip().lower()
+    if normalized in {"1", "true", "t", "yes", "y", "on"}:
+        return True
+    if normalized in {"0", "false", "f", "no", "n", "off"}:
+        return False
+    raise argparse.ArgumentTypeError(f"Invalid boolean value: {value!r}")
+
+
 def _ensure_conda_prefix_bin_first(env: dict[str, str] | None = None) -> dict[str, str] | None:
     """Ensure `$CONDA_PREFIX/bin` is prepended to PATH when CONDA_PREFIX is set."""
 
@@ -215,6 +226,13 @@ def run_gui(
     if wkdir is None:
         wkdir = WKDIR_PATH
 
+    if not headless and not os.environ.get("DISPLAY") and not os.environ.get("WAYLAND_DISPLAY"):
+        headless = True
+        log.info(
+            "No DISPLAY/WAYLAND_DISPLAY detected; starting Streamlit in headless mode "
+            "(open the printed URL manually)."
+        )
+
     if wkdir.exists():
         if not wkdir.is_dir():
             raise NotADirectoryError(
@@ -372,9 +390,11 @@ def main() -> None:
     parser.add_argument(
         "--headless",
         required=False,
-        type=bool,
+        nargs="?",
+        const=True,
+        type=_parse_bool,
         default=False,
-        help="Select if automatically opened or not.",
+        help="Run Streamlit in headless mode (no browser auto-open).",
     )
     parser.add_argument(
         "--cpus",

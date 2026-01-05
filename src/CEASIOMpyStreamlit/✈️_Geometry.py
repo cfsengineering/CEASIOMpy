@@ -23,6 +23,7 @@ import os
 import sys
 import hashlib
 import subprocess
+import time
 import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
@@ -161,9 +162,44 @@ def launch_openvsp() -> None:
         st.error("OpenVSP path is not correctly set.")
         return
 
+    wrapper = OPENVSP_PATH.with_name("openvsp")
+    exec_path = wrapper if wrapper.exists() else OPENVSP_PATH
+
+    if not os.environ.get("DISPLAY") and not os.environ.get("WAYLAND_DISPLAY"):
+        st.error(
+            "OpenVSP was found, but no graphical display is available for launching the GUI "
+            "from this process."
+        )
+        st.caption(
+            "If you are connected via SSH, enable X11 forwarding (`ssh -X`) or run OpenVSP on a "
+            "machine with a desktop session."
+        )
+        return
+
+    # OpenVSP is sensitive to polluted environments (e.g., HPC toolchains adding Intel/MPI libs to
+    # LD_LIBRARY_PATH). Launch it with a minimal environment to avoid loading incompatible X11/GL
+    # libraries.
+    home_dir = os.environ.get("HOME", str(Path.home()))
+    xauthority = os.environ.get("XAUTHORITY", str(Path(home_dir) / ".Xauthority"))
+    display = os.environ.get("DISPLAY", "")
+    vsp_lib_dir = OPENVSP_PATH.with_name("lib")
+    env = {
+        "HOME": home_dir,
+        "USER": os.environ.get("USER", ""),
+        "PATH": "/usr/bin:/bin",
+        "DISPLAY": display,
+        "XAUTHORITY": xauthority,
+        # Bundle libstdc++/libgcc when needed; keep LD_LIBRARY_PATH minimal on purpose.
+        "LD_LIBRARY_PATH": str(vsp_lib_dir) if vsp_lib_dir.is_dir() else "",
+        # Preserve locale if set (can affect font rendering).
+        "LANG": os.environ.get("LANG", ""),
+        "LC_ALL": os.environ.get("LC_ALL", ""),
+    }
     subprocess.Popen(
-        args=[str(OPENVSP_PATH)],
-        cwd=str(OPENVSP_PATH.parent),
+        args=[str(exec_path)],
+        cwd=str(exec_path.parent),
+        stderr=subprocess.STDOUT,
+        env=env,
     )
 
 

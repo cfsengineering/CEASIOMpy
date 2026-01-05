@@ -20,6 +20,9 @@ Options:
   --python EXE      Python interpreter used for the Python API (default: ceasiompy env python, else python3)
   --cc EXE          C compiler (default: /usr/bin/gcc if available, else cc)
   --cxx EXE         C++ compiler (default: /usr/bin/g++ if available, else c++)
+  --dnf-nobest      Pass --nobest to dnf (helpful on mixed repos)
+  --dnf-allowerasing Pass --allowerasing to dnf (can replace conflicting packages)
+  --dnf-skip-broken Pass --skip-broken to dnf (skip uninstallable packages)
   --skip-deps       Skip installing OS dependencies (no sudo)
   --clean           Remove existing INSTALLDIR/OpenVSP before building
   --keep-existing   Do not delete existing INSTALLDIR/OpenVSP (default: delete if present)
@@ -41,6 +44,9 @@ jobs=""
 python_override=""
 cc_override=""
 cxx_override=""
+dnf_nobest=0
+dnf_allowerasing=0
+dnf_skip_broken=0
 skip_deps=0
 clean=0
 keep_existing=0
@@ -81,6 +87,18 @@ while [[ $# -gt 0 ]]; do
       shift
       [[ $# -gt 0 ]] || die "--cxx requires a path"
       cxx_override="$1"
+      shift
+      ;;
+    --dnf-nobest)
+      dnf_nobest=1
+      shift
+      ;;
+    --dnf-allowerasing)
+      dnf_allowerasing=1
+      shift
+      ;;
+    --dnf-skip-broken)
+      dnf_skip_broken=1
       shift
       ;;
     --skip-deps)
@@ -191,17 +209,37 @@ build_dir="$openvsp_prefix/build"
 try_install() {
   # Usage: try_install pkg1 [pkg2 ...]
   # Returns 0 if installation succeeds, 1 otherwise.
-  sudo "$pkg_mgr" -y install "$@" >/dev/null 2>&1
+  sudo "$pkg_mgr" -y "${pkg_mgr_opts[@]}" install "$@" >/dev/null 2>&1
+}
+
+is_pkg_installed() {
+  local pkg="$1"
+  command -v rpm >/dev/null 2>&1 || return 1
+  rpm -q "$pkg" >/dev/null 2>&1
+}
+
+install_if_missing() {
+  local pkgs=("$@")
+  local missing=()
+  local p
+  for p in "${pkgs[@]}"; do
+    if is_pkg_installed "$p"; then
+      continue
+    fi
+    missing+=("$p")
+  done
+  [[ ${#missing[@]} -gt 0 ]] || return 0
+  sudo "$pkg_mgr" -y "${pkg_mgr_opts[@]}" install "${missing[@]}"
 }
 
 install_deps() {
   say ">>> Installing build/runtime dependencies via $pkg_mgr (requires sudo)..."
 
   # EPEL provides some tools on EL; ignore failures on non-EL distros.
-  sudo "$pkg_mgr" -y install epel-release >/dev/null 2>&1 || true
+  sudo "$pkg_mgr" -y "${pkg_mgr_opts[@]}" install epel-release >/dev/null 2>&1 || true
 
   # Build essentials + tooling.
-  sudo "$pkg_mgr" -y install \
+  install_if_missing \
     git \
     make \
     gcc \
@@ -226,7 +264,9 @@ install_deps() {
 
   # X11/OpenGL (GUI build).
   # OpenVSP builds FLTK; on Linux FLTK typically needs X11 + GLU headers.
-  sudo "$pkg_mgr" -y install \
+  # Only install packages that are missing to avoid forcing upgrades that can
+  # conflict on systems with mixed @System/appstream packages (e.g. AlmaLinux 10).
+  install_if_missing \
     libX11-devel \
     libXext-devel \
     libXrender-devel \
@@ -242,7 +282,7 @@ install_deps() {
     mesa-libGLU-devel || die "Failed to install required X11/OpenGL development packages (needed to build FLTK)."
 
   # Common compression/crypto/http deps for vendored builds.
-  sudo "$pkg_mgr" -y install \
+  sudo "$pkg_mgr" -y "${pkg_mgr_opts[@]}" install \
     zlib-devel \
     bzip2-devel \
     xz-devel \
@@ -259,6 +299,12 @@ install_deps() {
 }
 
 if [[ "$skip_deps" -eq 0 ]]; then
+  pkg_mgr_opts=()
+  if [[ "$pkg_mgr" == "dnf" ]]; then
+    [[ "$dnf_nobest" -eq 1 ]] && pkg_mgr_opts+=("--nobest")
+    [[ "$dnf_allowerasing" -eq 1 ]] && pkg_mgr_opts+=("--allowerasing")
+    [[ "$dnf_skip_broken" -eq 1 ]] && pkg_mgr_opts+=("--skip-broken")
+  fi
   install_deps
 else
   say ">>> Skipping OS dependency installation (--skip-deps)."

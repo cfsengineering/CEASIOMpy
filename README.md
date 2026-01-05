@@ -88,7 +88,7 @@ You might need to reboot your machine after the installation.
 #TODO - Add scripts
 
 
-````
+```
 bash ./scripts/install.sh
 ```
 

@@ -13,6 +13,9 @@ Logging method use by other CEASIOMpy modules
 
 """
 
+# Futures
+from __future__ import annotations
+
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
@@ -40,7 +43,7 @@ def add_to_runworkflow_history(working_dir: Path, comment: str = "") -> None:
         f.write(f"{datetime.now():%Y-%m-%d %H:%M:%S} - {working_dir}{comment}\n")
 
 
-def get_last_runworkflow() -> Path:
+def get_last_runworkflow() -> Path | None:
     """Return the last working directory used"""
 
     if not RUNWORKFLOW_HISTORY_PATH.exists():

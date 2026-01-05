@@ -18,6 +18,8 @@ Main module of CEASIOMpy to launch workflow by different way.
 # =================================================================================================
 
 import os
+import sys
+import signal
 import argparse
 import subprocess
 
@@ -259,7 +261,11 @@ def run_gui(
     env["CEASIOMPY_WKDIR"] = str(wkdir)
 
     args = [
-        "streamlit", "run", "✈️_Geometry.py",
+        sys.executable,
+        "-m",
+        "streamlit",
+        "run",
+        "✈️_Geometry.py",
         "--server.headless", f"{str(headless).lower()}",
     ]
     if port is not None:
@@ -267,12 +273,29 @@ def run_gui(
             "--server.port", f"{port}"
         ]
 
-    subprocess.run(
-        args=args,
-        cwd=STREAMLIT_PATH,
-        check=True,
-        env=env,
-    )
+    try:
+        subprocess.run(
+            args=args,
+            cwd=STREAMLIT_PATH,
+            check=True,
+            env=env,
+        )
+    except FileNotFoundError as exc:
+        log.error(
+            "Unable to start the GUI because Streamlit is not installed in the current "
+            "Python environment."
+        )
+        raise SystemExit(1) from exc
+    except subprocess.CalledProcessError as exc:
+        if exc.returncode < 0:
+            try:
+                sig_name = signal.Signals(-exc.returncode).name
+            except Exception:
+                sig_name = f"SIG{-exc.returncode}"
+            log.error(f"Streamlit crashed ({sig_name}).")
+        else:
+            log.error(f"Streamlit exited with code {exc.returncode}.")
+        raise SystemExit(exc.returncode or 1) from exc
 
 
 def cleanup_previous_workflow_status(wkdir: Path | None = None) -> None:

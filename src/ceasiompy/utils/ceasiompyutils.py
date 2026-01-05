@@ -243,7 +243,11 @@ def get_aeromap_list_from_xpath(cpacs, aeromap_to_analyze_xpath, empty_if_not_fo
     return aeromap_uid_list
 
 
-def get_results_directory(module_name: str, create: bool = True, wkflow_dir: Path = None) -> Path:
+def get_results_directory(
+    module_name: str,
+    create: bool = True,
+    wkflow_dir: Path | None = None,
+) -> Path:
     """
     Returns the results directory of a module.
 
@@ -254,7 +258,7 @@ def get_results_directory(module_name: str, create: bool = True, wkflow_dir: Pat
 
     """
 
-    if module_name not in get_module_list(only_active=False):
+    if module_name not in get_module_list(False):
         raise ValueError(f"Module '{module_name}' does not exist.")
 
     init = importlib.import_module(f"ceasiompy.{module_name}.{MODNAME_INIT}")
@@ -299,10 +303,9 @@ def current_workflow_dir() -> Path:
 
 
 @validate_call(config=ceasiompy_cfg)
-def call_main(main: Callable, module_name: str, cpacs_path: Path = None) -> None:
+def call_main(main: Callable, module_name: str, cpacs_path: Path | None = None) -> None:
     """
     Calls main with input/output CPACS of module named module_name.
-    #TODO: Add Args and Returns.
     """
     st.session_state = MagicMock()
     wkflow_dir = current_workflow_dir()
@@ -519,6 +522,9 @@ def get_version(software_name: str) -> str:
 
     version_file = get_install_path(software_name)
 
+    if version_file is None:
+        return ""
+
     if not version_file.exists():
         log.warning(f"The version file for {software_name} does not exist!")
         return ""
@@ -654,7 +660,11 @@ def get_total_cpu_count() -> int:
     if env_cpus is not None:
         return env_cpus
 
-    system_cpus = (os.cpu_count() // 2) + 1
+    cpu_count = os.cpu_count()
+    if cpu_count is None:
+        return 1
+
+    system_cpus = (cpu_count // 2) + 1
     if system_cpus is None or system_cpus < 1:
         log.warning(
             "Could not figure out the number of CPU(s) on your machine. "
@@ -753,7 +763,7 @@ def aircraft_name(tixi_or_cpacs) -> str:
     else:
         tixi = tixi_or_cpacs
 
-    name = get_value_or_default(tixi, AIRCRAFT_NAME_XPATH, "Aircraft")
+    name = str(get_value_or_default(tixi, AIRCRAFT_NAME_XPATH, "Aircraft"))
 
     name = name.replace(" ", "_")
     log.info(f"The name of the aircraft is : {name}")
@@ -761,7 +771,7 @@ def aircraft_name(tixi_or_cpacs) -> str:
     return str(name)
 
 
-def get_part_type(tixi, part_uid: str, print_info=True) -> str:
+def get_part_type(tixi: Tixi3, part_uid: str, print_info: bool = True) -> str | None:
     """The function get the type of the aircraft from the cpacs file.
 
     Args:
@@ -797,6 +807,7 @@ def get_part_type(tixi, part_uid: str, print_info=True) -> str:
 
     if print_info:
         log.warning(f"'{part_uid}' cannot be categorized!")
+
     return None
 
 

@@ -12,30 +12,32 @@ Main Streamlit page for CEASIOMpy GUI.
 
 """
 
+# Futures
+from __future__ import annotations
+
 # =================================================================================================
 #    IMPORTS
 # =================================================================================================
 
 import os
+import sys
 import hashlib
+import subprocess
 import numpy as np
 import streamlit as st
-import subprocess
 import plotly.graph_objects as go
-
-from typing import Any
 
 from ceasiompy.utils import get_wkdir
 from CEASIOMpyStreamlit.streamlitutils import create_sidebar
 
 from stl import mesh
+from typing import Final
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from tigl3.tigl3wrapper import Tigl3
 from ceasiompy.utils.workflowclasses import Workflow
 
-from ceasiompy import log
 from ceasiompy.VSP2CPACS import (
     SOFTWARE_PATH as OPENVSP_PATH,
     MODULE_STATUS as VSP2CPACS_MODULE_STATUS,
@@ -45,18 +47,81 @@ from ceasiompy.VSP2CPACS import (
 #    CONSTANTS
 # =================================================================================================
 
-HOW_TO_TEXT = (
+HOW_TO_TEXT: Final[str] = (
     "### How to use CEASIOMpy?\n"
     "1. Design your geometry\n"
     "1. Or upload an existing geometry\n"
     "1. Go to *Workflow* page (with menu above)\n"
 )
 
-PAGE_NAME = "Geometry"
+PAGE_NAME: Final[str] = "Geometry"
+
+_VSP2CPACS_OUT_TOKEN: Final[str] = "__CEASIOMPY_VSP2CPACS_OUT__="
 
 # =================================================================================================
 #    FUNCTIONS
 # =================================================================================================
+
+
+def convert_vsp3_to_cpacs(vsp3_path: Path, *, output_dir: Path) -> Path:
+    """Convert a VSP3 file to CPACS in a separate process.
+
+    OpenVSP Python bindings may segfault; running conversion out-of-process prevents the Streamlit
+    server from crashing and allows reporting the error.
+    """
+
+    env = os.environ.copy()
+    cmd = [
+        sys.executable,
+        "-c",
+        (
+            "import sys\n"
+            "from pathlib import Path\n"
+            "from ceasiompy.VSP2CPACS.vsp2cpacs import main\n"
+            "out = main(sys.argv[1], output_dir=sys.argv[2])\n"
+            f"print('{_VSP2CPACS_OUT_TOKEN}' + str(Path(out)))\n"
+        ),
+        str(vsp3_path),
+        str(output_dir),
+    ]
+
+    completed = subprocess.run(cmd, capture_output=True, text=True, env=env)
+
+    if completed.returncode != 0:
+        stderr = (completed.stderr or "").strip()
+        stdout = (completed.stdout or "").strip()
+        details = "\n".join([s for s in [stderr, stdout] if s])
+        if "ModuleNotFoundError" in details and "openvsp" in details:
+            raise RuntimeError(
+                "Cannot convert VSP3 files because the `openvsp` Python bindings are missing."
+            )
+        raise RuntimeError(
+            "VSP3 conversion failed"
+            + (f" (exit code {completed.returncode})." if completed.returncode > 0 else ".")
+            + (f"\n\n{details}" if details else "")
+        )
+
+    combined_output_lines = []
+    if completed.stdout:
+        combined_output_lines.extend(completed.stdout.splitlines())
+    if completed.stderr:
+        combined_output_lines.extend(completed.stderr.splitlines())
+
+    for line in reversed(combined_output_lines):
+        token_idx = line.find(_VSP2CPACS_OUT_TOKEN)
+        if token_idx == -1:
+            continue
+        reported_path = line[token_idx + len(_VSP2CPACS_OUT_TOKEN) :].strip()
+        if reported_path:
+            return Path(reported_path)
+
+    raise RuntimeError(
+        "VSP3 conversion finished but did not report the output CPACS path."
+        "\n\n--- stdout ---\n"
+        + (completed.stdout or "")
+        + "\n--- stderr ---\n"
+        + (completed.stderr or "")
+    )
 
 
 def close_cpacs_handles(cpacs: CPACS | None, *, detach: bool = True) -> None:
@@ -154,8 +219,6 @@ def clean_toolspecific(cpacs: CPACS) -> CPACS:
         # Reload CPACS file to apply changes
         # Specific to CPACS-VSP3 conversion files
         cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
-        close_cpacs_handles(cpacs)
-        cpacs = CPACS(cpacs.cpacs_file)
 
         st.session_state["ac_name"] = cpacs.ac_name
         return cpacs
@@ -164,7 +227,7 @@ def clean_toolspecific(cpacs: CPACS) -> CPACS:
         return cpacs
 
 
-def section_select_cpacs():
+def section_select_cpacs() -> None:
     if "workflow" not in st.session_state:
         st.session_state["workflow"] = Workflow()
 
@@ -173,6 +236,8 @@ def section_select_cpacs():
     wkdir = get_wkdir()
     wkdir.mkdir(parents=True, exist_ok=True)
     st.session_state.workflow.working_dir = wkdir
+
+    # Conversion container
     with st.container(border=True):
         st.markdown("#### Load a CPACS or VSP3 file")
 
@@ -216,57 +281,89 @@ def section_select_cpacs():
             is_same_upload = (uploaded_digest == last_digest) and (uploaded_file.name == last_name)
 
             wkdir = st.session_state.workflow.working_dir
-            cpacs_new_path = Path(wkdir, uploaded_file.name)
+            uploaded_path = Path(wkdir, uploaded_file.name)
 
             if not is_same_upload:
-                with open(cpacs_new_path, "wb") as f:
+                with open(uploaded_path, "wb") as f:
                     f.write(uploaded_bytes)
                 st.session_state["last_uploaded_digest"] = uploaded_digest
                 st.session_state["last_uploaded_name"] = uploaded_file.name
 
-            if cpacs_new_path.suffix == ".vsp3":
-                if not is_same_upload or not st.session_state.get("vsp_converted"):
-                    try:
-                        from ceasiompy.VSP2CPACS.vsp2cpacs import main
-                    except ModuleNotFoundError:
-                        st.error(
-                            "Cannot convert VSP3 files because the `openvsp` "
-                            "Python bindings are missing."
+            if uploaded_path.suffix == ".vsp3":
+                should_convert = (not is_same_upload) or (
+                    st.session_state.get("last_converted_vsp3_digest") != uploaded_digest
+                )
+
+                # Convert VSP3 file to CPACS file
+                if should_convert:
+                    with st.spinner("Converting VSP3 file to CPACS..."):
+                        try:
+                            new_cpacs_path = convert_vsp3_to_cpacs(
+                                uploaded_path,
+                                output_dir=wkdir,
+                            )
+                        except Exception as e:
+                            st.error(str(e))
+                            return None
+                    st.session_state["last_converted_vsp3_digest"] = uploaded_digest
+                    st.session_state["last_converted_cpacs_path"] = str(new_cpacs_path)
+
+                # No conversion
+                else:
+                    # Same file re-uploaded: reuse the last generated CPACS path.
+                    previous_cpacs_path = st.session_state.get("last_converted_cpacs_path")
+                    if previous_cpacs_path and Path(previous_cpacs_path).exists():
+                        # Use the last generated CPACS path
+                        new_cpacs_path = Path(previous_cpacs_path)
+                    else:
+                        # If no old generated CPACS found
+                        st.warning(
+                            "This VSP3 file was already uploaded, but no converted CPACS was "
+                            "found in the working directory. Converting again."
                         )
-                        return None
-                    except Exception as e:
-                        st.error(f"An error occurred while importing the VSP2CPACS module: {e}")
-                        return None
+                        with st.spinner("Converting VSP3 file to CPACS..."):
+                            try:
+                                new_cpacs_path = convert_vsp3_to_cpacs(
+                                    uploaded_path,
+                                    output_dir=wkdir,
+                                )
+                            except Exception as e:
+                                st.error(str(e))
+                                return None
+                        st.session_state["last_converted_vsp3_digest"] = uploaded_digest
+                        st.session_state["last_converted_cpacs_path"] = str(new_cpacs_path)
 
-                    log.info("Converting VSP3 file to CPACS...")
-                    cpacs_new_path = main(
-                        str(cpacs_new_path),
-                        output_dir=wkdir,
-                    )
-                    st.session_state.vsp_converted = True
+            elif uploaded_path.suffix == ".xml":
+                new_cpacs_path = uploaded_path
+                st.session_state["last_converted_cpacs_path"] = str(uploaded_path)
 
-            st.session_state.workflow.cpacs_in = cpacs_new_path
-            close_cpacs_handles(st.session_state.get("cpacs"))
-            st.session_state.cpacs = CPACS(cpacs_new_path)
-            st.session_state.cpacs = clean_toolspecific(st.session_state.cpacs)
-            st.session_state.cpacs_file_path = str(cpacs_new_path)
+            else:
+                st.warning(f"Unsupported file suffix {uploaded_path.suffix=}")
+                return None
 
         # Display the file uploader widget with the previously uploaded file
         if "cpacs_file_path" in st.session_state and st.session_state.cpacs_file_path:
             st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
-            section_3D_view()
+            with st.container(border=True):
+                section_3D_view(force_regenerate=True)
 
 
-def section_3D_view() -> None:
+def section_3D_view(*, force_regenerate: bool = False) -> None:
     """
     Shows a 3D view of the aircraft by exporting a STL file.
     """
 
     stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
-    if hasattr(st.session_state.cpacs, "aircraft") and hasattr(
+    if not force_regenerate and stl_file.exists():
+        pass
+    elif hasattr(st.session_state.cpacs, "aircraft") and hasattr(
         st.session_state.cpacs.aircraft, "tigl"
     ):
-        st.session_state.cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
+        with st.spinner("Meshing geometry (STL export)..."):
+            st.session_state.cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
+    else:
+        st.error("Cannot generate 3D preview (missing TIGL geometry handle).")
+        return
     your_mesh = mesh.Mesh.from_file(stl_file)
     triangles = your_mesh.vectors.reshape(-1, 3)
     vertices, indices = np.unique(triangles, axis=0, return_inverse=True)

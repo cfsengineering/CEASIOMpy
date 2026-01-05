@@ -26,10 +26,10 @@ All input geometries are based on the open-standard format [CPACS](https://www.c
   - [Installation](#installation)
       - [Recommended storage](#recommended-storage)
     - [Linux/macOS](#linuxmacos)
-    - [Windows (Under Development)](#windows-under-development)
-    - [Create Docker Container (Optional)](#create-docker-container-optional)
-  - [Usage](#usage)
-    - [Linux/macOS users](#linuxmacos-users)
+    - [Windows](#windows)
+      - [1. Download CEASIOMpy Repository](#1-download-ceasiompy-repository)
+      - [2. Install WSL with Ubuntu (if not done already)](#2-install-wsl-with-ubuntu-if-not-done-already)
+      - [3. Install the necesssary softwares](#3-install-the-necesssary-softwares)
     - [Windows users](#windows-users)
     - [Demo](#demo)
     - [Test cases](#test-cases)
@@ -63,12 +63,33 @@ cd CEASIOMpy
 ./scripts/install.sh
 ```
 
-### Windows (Under Development)
+### Windows
 
-```bash
+Windows requires WSL installation.
+
+#### 1. Download CEASIOMpy Repository
+
+```
 git clone https://github.com/cfsengineering/CEASIOMpy
 cd CEASIOMpy
-.\scripts\install.ps1
+```
+
+#### 2. Install WSL with Ubuntu (if not done already)
+
+```
+wsl --install
+wsl --install -d Ubuntu
+```
+
+You might need to reboot your machine after the installation.
+
+#### 3. Install the necesssary softwares
+
+#TODO - Add scripts
+
+
+````
+bash ./scripts/install.sh
 ```
 
 ### Create Docker Container (Optional)

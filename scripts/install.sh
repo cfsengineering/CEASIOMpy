@@ -91,17 +91,8 @@ ensure_conda() {
   fi
 
   say "'conda' not found. Miniconda installer detected: $miniconda_script"
-  if [[ "$AUTO_YES" -eq 1 ]]; then
-    say "Running: bash $miniconda_script"
-    bash "$miniconda_script"
-  else
-    read -r -p "Run Miniconda installer now? [y/N] " ans || true
-    if [[ "$ans" =~ ^[Yy]$ ]]; then
-      bash "$miniconda_script"
-    else
-      die "Miniconda installation skipped."
-    fi
-  fi
+  say "Running: bash $miniconda_script"
+  bash "$miniconda_script"
 
   # After installation, try to find conda in common locations and add to PATH for this process.
   local candidates=(

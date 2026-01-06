@@ -278,23 +278,23 @@ def section_select_cpacs() -> None:
         st.markdown("#### Load a CPACS or VSP3 file")
 
         # Check if the CPACS file path is already in session state
-        if "cpacs_file_path" in st.session_state:
-            cpacs_file_path = st.session_state.cpacs_file_path
-            if Path(cpacs_file_path).exists():
+        if "cpacs" in st.session_state:
+            cpacs: CPACS = st.session_state.cpacs
+            if Path(cpacs.cpacs_file).exists():
                 # Reload the CPACS file into session state if its path exists
                 # and the CPACS object is not already loaded or is different
                 if (
                     "cpacs" not in st.session_state
                     or (
                         Path(getattr(st.session_state.cpacs, "cpacs_file", ""))
-                        != Path(cpacs_file_path)
+                        != Path(cpacs.cpacs_file)
                     )
                 ):
                     close_cpacs_handles(st.session_state.get("cpacs"))
-                    st.session_state.cpacs = CPACS(cpacs_file_path)
+                    st.session_state.cpacs = CPACS(cpacs.cpacs_file)
                 st.session_state.cpacs = clean_toolspecific(st.session_state.cpacs)
             else:
-                st.session_state.cpacs_file_path = None
+                st.session_state.cpacs = None
 
         # File uploader widget
         uploaded_file = st.file_uploader(
@@ -343,6 +343,7 @@ def section_select_cpacs() -> None:
                             return None
                     st.session_state["last_converted_vsp3_digest"] = uploaded_digest
                     st.session_state["last_converted_cpacs_path"] = str(new_cpacs_path)
+                    st.session_state["cpacs"] = CPACS(str(new_cpacs_path))
 
                 # No conversion
                 else:
@@ -368,17 +369,18 @@ def section_select_cpacs() -> None:
                                 return None
                         st.session_state["last_converted_vsp3_digest"] = uploaded_digest
                         st.session_state["last_converted_cpacs_path"] = str(new_cpacs_path)
+                        st.session_state["cpacs"] = CPACS(str(new_cpacs_path))
 
             elif uploaded_path.suffix == ".xml":
                 new_cpacs_path = uploaded_path
                 st.session_state["last_converted_cpacs_path"] = str(uploaded_path)
-
+                st.session_state["cpacs"] = CPACS(str(uploaded_path))
             else:
                 st.warning(f"Unsupported file suffix {uploaded_path.suffix=}")
                 return None
 
         # Display the file uploader widget with the previously uploaded file
-        if "cpacs_file_path" in st.session_state and st.session_state.cpacs_file_path:
+        if "cpacs" in st.session_state and st.session_state.cpacs:
             st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
             with st.container(border=True):
                 section_3D_view(force_regenerate=True)

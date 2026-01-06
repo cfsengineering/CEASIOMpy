@@ -34,6 +34,9 @@ Notes:
   - This script uses the system package manager (dnf/yum) and may require sudo.
   - Building OpenVSP downloads third-party sources during the build (network required).
   - Output is installed under: <prefix>/INSTALLDIR/OpenVSP
+  - The installed GUI launcher is <prefix>/INSTALLDIR/OpenVSP/openvsp.
+    By default it isolates itself from conda to avoid GUI/library conflicts.
+    To use conda libraries at runtime, set: OPENVSP_LD_LIBRARY_MODE=conda
 EOF
 }
 
@@ -429,6 +432,77 @@ if needle in text and replacement not in text:
 PY
 }
 
+patch_glew_init_invalid_enum() {
+  # On some modern Mesa/Core-profile setups, `glewInit()` can return `GL_INVALID_ENUM`
+  # (0x0500). OpenVSP prints `Error: Unknown error` and exits, even though clearing
+  # the GL error and continuing is safe and commonly recommended for GLEW.
+  #
+  # This patch makes OpenVSP:
+  #   - set `glewExperimental = GL_TRUE;`
+  #   - clear the GL error after `glewInit()`
+  #   - do not hard-exit on `glewInit()` failure (print warning and continue)
+  local f="$src_dir/src/vsp_graphic/src/GraphicEngine.cpp"
+  [[ -f "$f" ]] || return 0
+
+  "$python_exec" - "$f" <<'PY'
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+text = path.read_text()
+
+if "glewExperimental = GL_TRUE;" in text and "glewInit() failed" in text:
+    sys.exit(0)
+
+needle = "void GraphicEngine::initGlew()"
+start = text.find(needle)
+if start == -1:
+    sys.exit(0)
+
+brace_open = text.find("{", start)
+if brace_open == -1:
+    sys.exit(0)
+
+# Find matching closing brace for the function.
+depth = 0
+end = None
+for idx, ch in enumerate(text[brace_open:], brace_open):
+    if ch == "{":
+        depth += 1
+    elif ch == "}":
+        depth -= 1
+        if depth == 0:
+            end = idx
+            break
+
+if end is None:
+    sys.exit(0)
+
+replacement_body = """
+void GraphicEngine::initGlew()
+{
+    glewExperimental = GL_TRUE;
+
+    GLenum glew_status = glewInit();
+    // GLEW can emit GL errors during initialization on core profiles; clear them.
+    (void)glGetError();
+
+    if ( glew_status != GLEW_OK )
+    {
+        fprintf( stderr, "Warning: glewInit() failed (%u): %s\\n",
+                 (unsigned int)glew_status, glewGetErrorString( glew_status ) );
+        // Continue anyway; OpenVSP can often run with a partially populated extension table.
+    }
+}
+""".strip()
+
+text = text[:start] + replacement_body + text[end + 1 :]
+path.write_text(text)
+PY
+}
+
 say ">>> Configuring & building OpenVSP third-party libraries..."
 mkdir -p "$buildlibs_dir"
 # gcc 15 defaults to C23; some vendored deps (e.g., STEPcode) require pre-C23 semantics.
@@ -470,6 +544,7 @@ cmake_rpath_args=(
 "${cmake_env[@]}" "$cmake_bin" --build "$buildlibs_dir" -- -j"$jobs"
 
 patch_stepcode_nullptr
+patch_glew_init_invalid_enum
 
 say ">>> Configuring & building OpenVSP..."
 mkdir -p "$build_dir"
@@ -521,16 +596,49 @@ write_openvsp_wrapper() {
 set -euo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$here"
-# Avoid inheriting conda/library paths which can break GUI startup.
-unset CONDA_PREFIX CONDA_DEFAULT_ENV CONDA_PROMPT_MODIFIER CONDA_SHLVL
-unset PYTHONPATH PYTHONHOME PYTHONNOUSERSITE
+# Runtime library selection:
+#   - bundled (default): use $here/lib only (if present), ignore conda/LD_LIBRARY_PATH
+#   - conda: prepend conda's $CONDA_PREFIX/lib (or $OPENVSP_CONDA_PREFIX/lib), then $here/lib
+#   - inherit: keep the user's LD_LIBRARY_PATH, and optionally prepend $here/lib
+mode="${OPENVSP_LD_LIBRARY_MODE:-bundled}"
+conda_prefix="${OPENVSP_CONDA_PREFIX:-${CONDA_PREFIX:-}}"
 
-# Prefer bundled runtime libraries (if present) to avoid GLIBCXX mismatches on EL.
-# Do not append existing LD_LIBRARY_PATH to prevent accidentally loading conda libX11/libxcb.
-if [[ -d "$here/lib" ]]; then
-  export LD_LIBRARY_PATH="$here/lib"
+if [[ "$mode" != "conda" ]]; then
+  # Avoid inheriting conda/python paths which can break GUI startup.
+  unset CONDA_PREFIX CONDA_DEFAULT_ENV CONDA_PROMPT_MODIFIER CONDA_SHLVL
+  unset PYTHONPATH PYTHONHOME PYTHONNOUSERSITE
+fi
+
+paths=()
+case "$mode" in
+  bundled)
+    [[ -d "$here/lib" ]] && paths+=("$here/lib")
+    ;;
+  conda)
+    if [[ -n "$conda_prefix" && -d "$conda_prefix/lib" ]]; then
+      paths+=("$conda_prefix/lib")
+    fi
+    [[ -d "$here/lib" ]] && paths+=("$here/lib")
+    ;;
+  inherit)
+    [[ -d "$here/lib" ]] && paths+=("$here/lib")
+    ;;
+  *)
+    echo "openvsp: unknown OPENVSP_LD_LIBRARY_MODE='$mode' (use bundled|conda|inherit)" >&2
+    exit 2
+    ;;
+esac
+
+if [[ "$mode" == "inherit" ]]; then
+  if ((${#paths[@]})); then
+    export LD_LIBRARY_PATH="$(IFS=:; echo "${paths[*]}")${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+  fi
 else
-  unset LD_LIBRARY_PATH
+  if ((${#paths[@]})); then
+    export LD_LIBRARY_PATH="$(IFS=:; echo "${paths[*]}")"
+  else
+    unset LD_LIBRARY_PATH
+  fi
 fi
 exec "$here/vsp" "$@"
 EOF
@@ -539,37 +647,88 @@ EOF
 }
 
 bundle_openvsp_runtime_libstdcpp_if_needed() {
-  # OpenVSP may be built with a newer libstdc++ than the system one (common on EL).
-  # If so, bundle libstdc++/libgcc from the selected Python environment.
-  local has_needed=0
-  if [[ -r /lib64/libstdc++.so.6 ]]; then
+  # OpenVSP can be built with a newer libstdc++ than the system one (common on EL7/EL8 when
+  # using devtoolset/gcc-toolset). If the runtime libstdc++ on the host doesn't provide the
+  # GLIBCXX symbols required by the built `vsp`, bundle libstdc++/libgcc into $openvsp_prefix/lib
+  # so the installed `openvsp` wrapper can preload them.
+  [[ -x "$openvsp_prefix/vsp" ]] || return 0
+
+  local required_glibcxx=""
+  if command -v rg >/dev/null 2>&1; then
+    required_glibcxx="$(strings "$openvsp_prefix/vsp" 2>/dev/null | rg -o 'GLIBCXX_[0-9]+\\.[0-9]+\\.[0-9]+' | sort -Vu | tail -n 1 || true)"
+  else
+    required_glibcxx="$(strings "$openvsp_prefix/vsp" 2>/dev/null | grep -oE 'GLIBCXX_[0-9]+\\.[0-9]+\\.[0-9]+' | sort -Vu | tail -n 1 || true)"
+  fi
+  [[ -n "$required_glibcxx" ]] || return 0
+
+  local system_libstdcpp="/lib64/libstdc++.so.6"
+  if [[ -r "$system_libstdcpp" ]]; then
     if command -v rg >/dev/null 2>&1; then
-      strings /lib64/libstdc++.so.6 2>/dev/null | rg -q 'GLIBCXX_3\.4\.30' && has_needed=1
+      strings "$system_libstdcpp" 2>/dev/null | rg -q "$required_glibcxx" && return 0
     else
-      strings /lib64/libstdc++.so.6 2>/dev/null | grep -q 'GLIBCXX_3\.4\.30' && has_needed=1
+      strings "$system_libstdcpp" 2>/dev/null | grep -q "$required_glibcxx" && return 0
     fi
   fi
-  [[ "$has_needed" -eq 1 ]] && return 0
 
-  local py_prefix=""
-  py_prefix="$("$python_exec" -c 'import sys; print(sys.prefix)' 2>/dev/null || true)"
-  [[ -n "$py_prefix" ]] || return 0
+  local src_libstdcpp=""
+  local src_libgcc=""
 
-  local src_lib="$py_prefix/lib/libstdc++.so.6"
-  if [[ ! -r "$src_lib" ]]; then
-    say ">>> Note: cannot bundle libstdc++ (missing: $src_lib)"
+  # Prefer the libstdc++ shipped with the compiler used for the build, if available.
+  local cxx_libstdcpp=""
+  cxx_libstdcpp="$("$cxx_exec" -print-file-name=libstdc++.so.6 2>/dev/null || true)"
+  if [[ -n "$cxx_libstdcpp" && -r "$cxx_libstdcpp" ]]; then
+    if command -v rg >/dev/null 2>&1; then
+      strings "$cxx_libstdcpp" 2>/dev/null | rg -q "$required_glibcxx" && src_libstdcpp="$cxx_libstdcpp"
+    else
+      strings "$cxx_libstdcpp" 2>/dev/null | grep -q "$required_glibcxx" && src_libstdcpp="$cxx_libstdcpp"
+    fi
+    src_libgcc="$("$cc_exec" -print-file-name=libgcc_s.so.1 2>/dev/null || true)"
+    [[ -r "$src_libgcc" ]] || src_libgcc=""
+  fi
+
+  # Fall back to the selected Python environment (conda/venv) if it has a new-enough libstdc++.
+  if [[ -z "$src_libstdcpp" ]]; then
+    local py_prefix=""
+    py_prefix="$("$python_exec" -c 'import sys; print(sys.prefix)' 2>/dev/null || true)"
+    if [[ -n "$py_prefix" && -r "$py_prefix/lib/libstdc++.so.6" ]]; then
+      if command -v rg >/dev/null 2>&1; then
+        strings "$py_prefix/lib/libstdc++.so.6" 2>/dev/null | rg -q "$required_glibcxx" && src_libstdcpp="$py_prefix/lib/libstdc++.so.6"
+      else
+        strings "$py_prefix/lib/libstdc++.so.6" 2>/dev/null | grep -q "$required_glibcxx" && src_libstdcpp="$py_prefix/lib/libstdc++.so.6"
+      fi
+      [[ -r "$py_prefix/lib/libgcc_s.so.1" ]] && src_libgcc="$py_prefix/lib/libgcc_s.so.1"
+    fi
+  fi
+
+  # Final fallback: scan common devtoolset/gcc-toolset locations (best effort).
+  if [[ -z "$src_libstdcpp" ]]; then
+    local candidate=""
+    for candidate in /opt/rh/gcc-toolset-*/root/usr/lib64/libstdc++.so.6 /opt/rh/devtoolset-*/root/usr/lib64/libstdc++.so.6; do
+      [[ -r "$candidate" ]] || continue
+      if command -v rg >/dev/null 2>&1; then
+        strings "$candidate" 2>/dev/null | rg -q "$required_glibcxx" || continue
+      else
+        strings "$candidate" 2>/dev/null | grep -q "$required_glibcxx" || continue
+      fi
+      src_libstdcpp="$candidate"
+      local maybe_gcc="${candidate%/libstdc++.so.6}/libgcc_s.so.1"
+      [[ -r "$maybe_gcc" ]] && src_libgcc="$maybe_gcc"
+      break
+    done
+  fi
+
+  if [[ -z "$src_libstdcpp" ]]; then
+    say ">>> Note: built OpenVSP requires '$required_glibcxx' but no suitable libstdc++.so.6 was found to bundle."
+    say ">>>       Fix: install/enable a newer gcc-toolset/devtoolset at runtime, or rebuild OpenVSP with an older compiler."
     return 0
   fi
-  if command -v rg >/dev/null 2>&1; then
-    strings "$src_lib" 2>/dev/null | rg -q 'GLIBCXX_3\.4\.30' || { say ">>> Note: $src_lib does not provide GLIBCXX_3.4.30"; return 0; }
-  else
-    strings "$src_lib" 2>/dev/null | grep -q 'GLIBCXX_3\.4\.30' || { say ">>> Note: $src_lib does not provide GLIBCXX_3.4.30"; return 0; }
-  fi
 
-  say ">>> System libstdc++ is too old for this OpenVSP build; bundling runtime libs from: $py_prefix"
+  say ">>> System libstdc++ is too old for this OpenVSP build (needs '$required_glibcxx'); bundling runtime libs."
+  say ">>>   libstdc++: $src_libstdcpp"
+  [[ -n "$src_libgcc" ]] && say ">>>   libgcc_s:  $src_libgcc"
   mkdir -p "$openvsp_prefix/lib"
-  cp -f "$src_lib" "$openvsp_prefix/lib/" || true
-  [[ -r "$py_prefix/lib/libgcc_s.so.1" ]] && cp -f "$py_prefix/lib/libgcc_s.so.1" "$openvsp_prefix/lib/" || true
+  cp -f "$src_libstdcpp" "$openvsp_prefix/lib/" || true
+  [[ -n "$src_libgcc" ]] && cp -f "$src_libgcc" "$openvsp_prefix/lib/" || true
 }
 
 write_openvsp_wrapper
@@ -583,7 +742,9 @@ if command -v readelf >/dev/null 2>&1; then
 fi
 
 python_path_line="export PYTHONPATH=\"$openvsp_prefix/python:\$PYTHONPATH\""
-path_line="export PATH=\"$openvsp_prefix/bin:\$PATH\""
+# OpenVSP installs binaries into $openvsp_prefix; keep $openvsp_prefix/bin for compatibility with
+# alternative install layouts.
+path_line="export PATH=\"$openvsp_prefix:$openvsp_prefix/bin:\$PATH\""
 profile_files=("$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.zshrc")
 
 say ">>> Updating shell configuration files (PATH/PYTHONPATH)..."

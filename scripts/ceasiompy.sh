@@ -3,6 +3,7 @@
 set -euo pipefail
 
 ENV_NAME="ceasiompy"
+ENV_PREFIX=""
 
 usage() {
   cat <<'EOF'
@@ -51,10 +52,46 @@ fi
 
 env_exists() {
   # Prefer `conda run` because it checks the env is runnable (not just listed).
-  if "${conda_run_cmd[@]}" python -c "import sys" >/dev/null 2>&1; then
+  local maybe_prefix
+  if maybe_prefix="$("${conda_run_cmd[@]}" python -c "import sys; print(sys.prefix)" 2>/dev/null)"; then
+    ENV_PREFIX="${maybe_prefix%%$'\n'*}"
     return 0
   fi
-  # Fallback: check the configured environment list.
+  # Fallback: check the configured environment list as JSON so we can match
+  # envs that are only shown via absolute paths (no name column).
+  local envs_json
+  envs_json="$(conda env list --json 2>/dev/null || true)"
+  if [[ -n "${envs_json:-}" ]]; then
+    local candidate_prefix
+    candidate_prefix="$(ENV_NAME="$ENV_NAME" ENVS_JSON="$envs_json" python3 - <<'PY'
+import json
+import os
+import sys
+
+env_name = os.environ.get("ENV_NAME")
+if not env_name:
+    sys.exit(1)
+
+envs_json = os.environ.get("ENVS_JSON", "")
+try:
+    data = json.loads(envs_json)
+except json.JSONDecodeError:
+    sys.exit(1)
+
+for env_path in data.get("envs", []):
+    if os.path.basename(env_path) == env_name:
+        print(env_path)
+        sys.exit(0)
+
+sys.exit(1)
+PY
+    )"
+    if [[ -n "${candidate_prefix:-}" ]]; then
+      ENV_PREFIX="$candidate_prefix"
+      return 0
+    fi
+  fi
+  # Fallback to older `conda env list` output parsing (names in column 1).
   # Note: avoid `grep -q` in a pipeline with `set -o pipefail` (can trigger SIGPIPE).
   conda env list 2>/dev/null | awk -v env="$ENV_NAME" '
     $1 == env { found = 1 }
@@ -66,11 +103,25 @@ if ! env_exists; then
   die "Conda env '$ENV_NAME' not found. Create it via: bash scripts/install.sh --core-only"
 fi
 
+if [[ ! -f "$conda_sh" && -n "${ENV_PREFIX:-}" ]]; then
+  fallback_base="$(dirname "$(dirname "$ENV_PREFIX")")"
+  fallback_sh="$fallback_base/etc/profile.d/conda.sh"
+  if [[ -f "$fallback_sh" ]]; then
+    conda_base="$fallback_base"
+    conda_sh="$fallback_sh"
+  fi
+fi
+
 if [[ -f "$conda_sh" ]]; then
   # Ensure `conda activate` works in non-interactive shells.
   # shellcheck disable=SC1090
+  set +u
   source "$conda_sh" || die "Unable to source conda.sh from: $conda_base"
-  conda activate "$ENV_NAME" || die "Failed to activate conda env: $ENV_NAME"
+  if ! conda activate "$ENV_NAME"; then
+    set -u
+    die "Failed to activate conda env: $ENV_NAME"
+  fi
+  set -u
   exec python -c 'import sys; from CEASIOMpyStreamlit.cli import main_exec; sys.exit(main_exec())' "$@"
 fi
 

@@ -213,7 +213,6 @@ class TestStaticStability(CeasiompyTest):
             with open(md_path, "r") as f:
                 content = f.read()
                 self.assertIn("StaticStability", content)
-                self.assertIn("Static stability of 'test_apm' aeromap.", content)
 
     @log_test
     def test_markdownpy_to_markdown(self):

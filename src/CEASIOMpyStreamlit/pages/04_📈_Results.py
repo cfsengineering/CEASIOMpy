@@ -20,20 +20,16 @@ import os
 
 import pandas as pd
 import streamlit as st
-import plotly.graph_objects as go
 
 from streamlit_autorefresh import st_autorefresh
 from ceasiompy.utils.commonpaths import get_wkdir
 from CEASIOMpyStreamlit.streamlitutils import (
     create_sidebar,
-    get_last_workflow,
     highlight_stability,
 )
 
 from pathlib import Path
-from cpacspy.cpacspy import CPACS
 
-from cpacspy.utils import PARAMS_COEFS
 from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
 
 # =================================================================================================

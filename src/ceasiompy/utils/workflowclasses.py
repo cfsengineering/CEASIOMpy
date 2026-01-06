@@ -344,21 +344,31 @@ class Workflow:
             except OSError:
                 pass
 
-            if module.is_optim_module:
-                self.subworkflow.run_subworkflow()
-            else:
-                run_module(
-                    module,
-                    self.current_wkflow_dir,
-                    self.modules_list.index(module.name),
-                    test,
-                )
-
-            modules_status[idx]["status"] = "finished"
             try:
-                with open(status_path, "w", encoding="utf-8") as f:
-                    json.dump(modules_status, f)
-            except OSError:
-                pass
+                if module.is_optim_module:
+                    self.subworkflow.run_subworkflow()
+                else:
+                    run_module(
+                        module,
+                        self.current_wkflow_dir,
+                        self.modules_list.index(module.name),
+                        test,
+                    )
+            except Exception as exc:
+                modules_status[idx]["status"] = "failed"
+                modules_status[idx]["error"] = str(exc)
+                try:
+                    with open(status_path, "w", encoding="utf-8") as f:
+                        json.dump(modules_status, f)
+                except OSError:
+                    pass
+                raise
+            else:
+                modules_status[idx]["status"] = "finished"
+                try:
+                    with open(status_path, "w", encoding="utf-8") as f:
+                        json.dump(modules_status, f)
+                except OSError:
+                    pass
 
         shutil.copy(module.cpacs_out, Path(self.current_wkflow_dir, "ToolOutput.xml"))

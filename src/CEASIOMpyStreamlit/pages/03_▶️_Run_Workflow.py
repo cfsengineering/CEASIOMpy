@@ -126,31 +126,35 @@ def display_modules_status() -> None:
         st.write("No workflow is running.")
         return None
 
-    solver_running: bool = False
-    for item in status_list:
-        if item.get("status", "waiting") == "running":
-            solver_running = True
-            break
+    solver_running = any(item.get("status", "waiting") == "running" for item in status_list)
+    has_failed = any(item.get("status") == "failed" for item in status_list)
 
     st.markdown("#### Modules status")
-    if solver_running:
-        for item in status_list:
-            name = item.get("name", "Unknown")
-            status = item.get("status", "waiting")
+    for item in status_list:
+        name = item.get("name", "Unknown")
+        status = item.get("status", "waiting")
 
-            if status == "running":
-                icon = "🟡"
-            elif status == "finished":
-                icon = "🟢"
-            else:
-                icon = "⚪"
+        if status == "running":
+            icon = "🟡"
+        elif status == "finished":
+            icon = "🟢"
+        elif status == "failed":
+            icon = "❌"
+        else:
+            icon = "⚪"
 
-            st.write(f"{icon} **{name}** — {status}")
-    else:
-        st.info(
-            "Workflow finished running, "
-            "go in results page for analysis."
-        )
+        st.write(f"{icon} **{name}** — {status}")
+
+    if has_failed:
+        errors = [
+            f"- {item.get('name', 'Unknown')}: {item.get('error', 'Unknown error')}"
+            for item in status_list
+            if item.get("status") == "failed"
+        ]
+        err_msg = "Workflow failed.\n" + "\n".join(errors)
+        st.error(err_msg)
+    elif not solver_running:
+        st.info("Workflow finished running, go in results page for analysis.")
 
 
 def workflow_buttons() -> None:

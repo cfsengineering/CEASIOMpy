@@ -154,12 +154,10 @@ if [[ "$(uname -s)" != "Linux" ]]; then
   die "This installer is for Linux; detected: $(uname -s)"
 fi
 
-id=""
 version_id=""
 if [[ -r /etc/os-release ]]; then
   # shellcheck disable=SC1091
   . /etc/os-release
-  id="${ID:-}"
   version_id="${VERSION_ID:-}"
 fi
 
@@ -728,7 +726,9 @@ bundle_openvsp_runtime_libstdcpp_if_needed() {
   [[ -n "$src_libgcc" ]] && say ">>>   libgcc_s:  $src_libgcc"
   mkdir -p "$openvsp_prefix/lib"
   cp -f "$src_libstdcpp" "$openvsp_prefix/lib/" || true
-  [[ -n "$src_libgcc" ]] && cp -f "$src_libgcc" "$openvsp_prefix/lib/" || true
+  if [[ -n "$src_libgcc" ]]; then
+    cp -f "$src_libgcc" "$openvsp_prefix/lib/" || true
+  fi
 }
 
 write_openvsp_wrapper

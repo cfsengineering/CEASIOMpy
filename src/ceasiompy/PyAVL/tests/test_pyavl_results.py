@@ -12,7 +12,6 @@ Test functions for results.py
 
 from ceasiompy.utils.decorators import log_test
 from ceasiompy.PyAVL.func.results import get_avl_aerocoefs
-from ceasiompy.PyAVL.func.plot import plot_lift_distribution
 from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 
 from pathlib import Path
@@ -55,21 +54,6 @@ class TestAvlResults(CeasiompyTest):
                 0.007158921712660261,
             ),
         )
-
-    @log_test
-    def test_plot_lift_distribution(self):
-        plot_lift_distribution(
-            force_file_fs=self.force_file_fs,
-            aoa=5,
-            aos=0,
-            mach=0.3,
-            alt=1000,
-            wkdir=self.wkdir,
-        )
-
-        assert Path(
-            self.wkdir, "lift_distribution.png"
-        ).exists(), "Plot 'lift_distribution.png' does not exist."
 
 
 # =================================================================================================

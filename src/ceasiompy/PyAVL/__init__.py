@@ -65,7 +65,6 @@ AVL_FUSELAGE_XPATH = AVL_XPATH + "/IntegrateFuselage"
 
 # Plot settings
 AVL_PLOT_XPATH = AVL_XPATH + "/SavePlots"
-AVL_PLOTLIFT_XPATH = AVL_XPATH + "/PlotLift"
 
 # Dynamic Stability
 AVL_TABLE_XPATH = AVL_XPATH + "/Table"

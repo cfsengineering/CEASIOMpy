@@ -17,6 +17,7 @@ Streamlit page to show results of CEASIOMpy
 # =================================================================================================
 
 import os
+import base64
 
 import pandas as pd
 import streamlit as st
@@ -71,7 +72,12 @@ def display_results(results_dir):
     try:
         # Display results depending on the file type.
 
-        container_list = ["logs_container", "figures_container", "paraview_container"]
+        container_list = [
+            "logs_container",
+            "figures_container",
+            "paraview_container",
+            "pdf_container",
+        ]
         clear_containers(container_list)
 
         for child in sorted(Path(results_dir).iterdir()):
@@ -93,6 +99,27 @@ def display_results(results_dir):
                     f"Open {child.name} with Paraview", key=f"{child}_vtu"
                 ):
                     open_paraview(child)
+
+            elif child.suffix == ".pdf":
+                if "pdf_container" not in st.session_state:
+                    st.session_state["pdf_container"] = st.container()
+                    st.session_state.pdf_container.markdown("**PDFs**")
+
+                pdf_bytes = child.read_bytes()
+                b64_pdf = base64.b64encode(pdf_bytes).decode("ascii")
+                st.session_state.pdf_container.markdown(f"**{child.name}**")
+                st.session_state.pdf_container.download_button(
+                    "Download PDF",
+                    data=pdf_bytes,
+                    file_name=child.name,
+                    mime="application/pdf",
+                    key=f"{child}_pdf_download",
+                )
+                st.session_state.pdf_container.markdown(
+                    f'<iframe src="data:application/pdf;base64,{b64_pdf}" '
+                    'width="100%" height="700" style="border:0"></iframe>',
+                    unsafe_allow_html=True,
+                )
 
             elif child.suffix == ".png":
                 if "figures_container" not in st.session_state:

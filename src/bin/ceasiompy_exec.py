@@ -85,6 +85,22 @@ def _ensure_conda_prefix_bin_first(env: dict[str, str] | None = None) -> dict[st
     return env
 
 
+def _ensure_usr_bin_in_path(env: dict[str, str] | None = None) -> dict[str, str] | None:
+    """Ensure `/usr/bin` is present in PATH."""
+
+    usr_bin = "/usr/bin"
+    if env is None:
+        path_parts = [p for p in os.environ.get("PATH", "").split(os.pathsep) if p]
+        if usr_bin not in path_parts:
+            os.environ["PATH"] = os.pathsep.join([*path_parts, usr_bin])
+        return None
+
+    path_parts = [p for p in env.get("PATH", "").split(os.pathsep) if p]
+    if usr_bin not in path_parts:
+        env["PATH"] = os.pathsep.join([*path_parts, usr_bin])
+    return env
+
+
 def testcase_message(testcase_nb: int) -> None:
     """Top message to show when a test case is run."""
 
@@ -356,6 +372,7 @@ def cleanup_previous_workflow_status(wkdir: Path | None = None) -> None:
 
 def main() -> None:
     _ensure_conda_prefix_bin_first()
+    _ensure_usr_bin_in_path()
     parser = argparse.ArgumentParser(
         description="CEASIOMpy: Conceptual Aircraft Design Environment",
         usage=argparse.SUPPRESS,

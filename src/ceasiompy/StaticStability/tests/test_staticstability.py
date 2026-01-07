@@ -208,11 +208,13 @@ class TestStaticStability(CeasiompyTest):
         self.test_cpacs.tixi.updateBooleanElement(STATICSTABILITY_LR_XPATH, False)
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            main(self.test_cpacs, Path(tmpdir))
-            md_path = Path(tmpdir, f"{MODULE_NAME}.md")
-            with open(md_path, "r") as f:
-                content = f.read()
-                self.assertIn("StaticStability", content)
+            try:
+                main(self.test_cpacs, Path(tmpdir))
+            finally:
+                md_path = Path(tmpdir, f"{MODULE_NAME}.md")
+                with open(md_path, "r") as f:
+                    content = f.read()
+                    self.assertIn("StaticStability", content)
 
     @log_test
     def test_markdownpy_to_markdown(self):

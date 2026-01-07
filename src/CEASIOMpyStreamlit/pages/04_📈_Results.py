@@ -100,6 +100,14 @@ def display_results(results_dir):
                 ):
                     open_paraview(child)
 
+            elif child.suffix == ".png":
+                if "figures_container" not in st.session_state:
+                    st.session_state["figures_container"] = st.container()
+                    st.session_state.figures_container.markdown("**Figures**")
+
+                st.session_state.figures_container.markdown(f"{child.stem.replace('_', ' ')}")
+                st.session_state.figures_container.image(str(child))
+
             elif child.suffix == ".pdf":
                 if "pdf_container" not in st.session_state:
                     st.session_state["pdf_container"] = st.container()
@@ -120,14 +128,6 @@ def display_results(results_dir):
                     'width="100%" height="700" style="border:0"></iframe>',
                     unsafe_allow_html=True,
                 )
-
-            elif child.suffix == ".png":
-                if "figures_container" not in st.session_state:
-                    st.session_state["figures_container"] = st.container()
-                    st.session_state.figures_container.markdown("**Figures**")
-
-                st.session_state.figures_container.markdown(f"{child.stem.replace('_', ' ')}")
-                st.session_state.figures_container.image(str(child))
 
             elif child.suffix == ".md":
                 md_text = child.read_text()

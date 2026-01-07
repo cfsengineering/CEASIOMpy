@@ -26,20 +26,22 @@ from ceasiompy import log
 def convert_ps_to_pdf(wkdir: Path) -> None:
     """
     Function to convert AVL 'plot.ps' to 'plot.pdf'.
-
-    Args:
-        wkdir (Path): Path to the working directory.
-
     """
     if not Path(wkdir, "plot.ps").exists():
         log.warning("File 'plot.ps' does not exist. Nothing to convert.")
-    else:
-        subprocess.run(["ps2pdf", "plot.ps", "plot.pdf"], cwd=wkdir)
-        subprocess.run(["rm", "plot.ps"], cwd=wkdir)
+        return None
+
+    subprocess.run(["ps2pdf", "plot.ps", "plot.pdf"], cwd=wkdir)
+    subprocess.run(["rm", "plot.ps"], cwd=wkdir)
 
 
 def plot_lift_distribution(
-    force_file_fs: Path, aoa: float, aos: float, mach: float, alt: float, wkdir: Path
+    force_file_fs: Path,
+    aoa: float,
+    aos: float,
+    mach: float,
+    alt: float,
+    wkdir: Path,
 ) -> None:
     """
     Plot the lift distribution from AVL strip forces file (fs.txt)

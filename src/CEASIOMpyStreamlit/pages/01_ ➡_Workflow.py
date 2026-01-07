@@ -62,11 +62,11 @@ def section_predefined_workflow():
     active_modules = set(get_module_list(only_active=True))
 
     predefine_workflows = [
-        [PYAVL, STATICSTABILITY, DATABASE],
+        [PYAVL, STATICSTABILITY],
         [CPACSUPDATER, "CPACSCreator", CPACS2GMSH, SU2RUN],
-        [CPACS2GMSH, SU2RUN, "SkinFriction", DATABASE],
+        [CPACS2GMSH, SU2RUN, "SkinFriction"],
         [SMTRAIN, SMUSE, SAVEAEROCOEF],
-        [DYNAMICSTABILITY, DATABASE],
+        [DYNAMICSTABILITY],
     ]
 
     for workflow in predefine_workflows:

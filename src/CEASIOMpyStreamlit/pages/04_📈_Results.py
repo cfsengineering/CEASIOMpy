@@ -69,7 +69,7 @@ def display_results_else(path):
 
 def display_results(results_dir):
     try:
-        # """Display results depending which type of file they are."""
+        # Display results depending on the file type.
 
         container_list = ["logs_container", "figures_container", "paraview_container"]
         clear_containers(container_list)

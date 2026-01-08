@@ -155,12 +155,20 @@ def display_results(results_dir):
         
             elif child.name == "ranges_for_gui.csv":
 
-                csv_rmse_path = Path(f"{results_dir}/rmse_model.csv")
-                rmse_df = None
-                if csv_rmse_path.exists():
-                    rmse_df = pd.read_csv(csv_rmse_path)
-                    rmse_value = rmse_df["rmse"].iloc[0]
-                    st.markdown(f"##### Root Mean Square Error of the trained model: {rmse_value:.6f}")
+                csv_rmse_krg_path = Path(f"{results_dir}/rmse_KRG.csv")
+                rmse_krg_df = None
+                if csv_rmse_krg_path.exists():
+                    rmse_krg_df = pd.read_csv(csv_rmse_krg_path)
+                    rmse_krg_value = rmse_krg_df["rmse"].iloc[0]
+                    st.markdown(f"##### Root Mean Square Error of KRG model: {rmse_krg_value:.6f}")
+
+                csv_rmse_rbf_path = Path(f"{results_dir}/rmse_RBF.csv")
+                rmse_rbf_df = None
+                if csv_rmse_rbf_path.exists():
+                    rmse_rbf_df = pd.read_csv(csv_rmse_rbf_path)
+                    rmse_rbf_value = rmse_rbf_df["rmse"].iloc[0]
+                    st.markdown(f"##### Root Mean Square Error of RBF model: {rmse_rbf_value:.6f}")
+
 
                 df_range = pd.read_csv(child)
                 sliders_values = {}
@@ -183,9 +191,20 @@ def display_results(results_dir):
                 tmp_cpacs = CPACS(cpacs_in)
                 tixi = tmp_cpacs.tixi
 
-                model_path = results_dir / "surrogateModel.pkl"
-                model, param_order = None, None
+                model_selected = st.radio(
+                    "Select the model to visualize:",
+                    ["KRG", "RBF"],
+                    index=0,
+                    horizontal=True,
+                )
 
+                if model_selected == "KRG":
+                    model_path = results_dir / "surrogateModel_krg.pkl"
+                else:
+                    model_path = results_dir / "surrogateModel_rbf.pkl"
+
+                model, param_order = None, None
+                
                 if model_path.exists():
                     with open(model_path, "rb") as file:
                         data = joblib.load(file)
@@ -267,19 +286,20 @@ def display_results(results_dir):
 
                         p1_range = st.slider(f"Range for {selected_params[0]}", float(p1_min), float(p1_max), (float(p1_min), float(p1_max)), key="rsm_slider_1")
                         p2_range = st.slider(f"Range for {selected_params[1]}", float(p2_min), float(p2_max), (float(p2_min), float(p2_max)), key="rsm_slider_2")
-
-                        st.markdown("**Fix values for other parameters:**")
-                        fixed_param_values = {}
-                        for p in param_order:
-                            if p not in selected_params:
-                                min_val, max_val = sliders_bounds.get(p, (0, 0))
-                                fixed_param_values[p] = st.slider(
-                                    f"{p}",
-                                    float(min_val),
-                                    float(max_val),
-                                    float((min_val + max_val) / 2),
-                                    key=f"fixed_slider_{p}"
-                                )
+                        
+                        if len(param_order) >= 3:
+                            st.markdown("**Fix values for other parameters:**")
+                            fixed_param_values = {}
+                            for p in param_order:
+                                if p not in selected_params:
+                                    min_val, max_val = sliders_bounds.get(p, (0, 0))
+                                    fixed_param_values[p] = st.slider(
+                                        f"{p}",
+                                        float(min_val),
+                                        float(max_val),
+                                        float((min_val + max_val) / 2),
+                                        key=f"fixed_slider_{p}"
+                                    )
 
                         if st.button("Generate response surface"):
                             with st.spinner("Calculating response surface..."):
@@ -301,8 +321,7 @@ def display_results(results_dir):
                                     Z = model.predict_values(inputs).reshape(P1.shape)
                                     fig = go.Figure(data=[go.Surface(z=Z, x=P1, y=P2)])
 
-                                    if df_samples is not None:
-                                        
+                                    if len(param_order) >= 3:
                                         mask = np.ones(len(df_samples), dtype=bool)
                                         tol = 0.1 * (max_val - min_val)
                                         for p, val in fixed_param_values.items():
@@ -337,6 +356,32 @@ def display_results(results_dir):
                                                 name=f"Sampling points (n={num_samples})",
                                                 showlegend=True
                                             ))
+                                    else:
+                                        x_samples = df_samples[selected_params[0]].values
+                                        y_samples = df_samples[selected_params[1]].values
+                                        
+                                        output_col = df_samples.columns[-1]
+                                        if output_col in df_samples.columns:
+                                            z_samples = df_samples[output_col].values
+                                        else:
+                                            z_samples = np.zeros_like(x_samples)
+                                        
+                                        num_samples = len(x_samples)
+
+                                        fig.add_trace(go.Scatter3d(
+                                            x=x_samples,
+                                            y=y_samples,
+                                            z=z_samples,
+                                            mode='markers',
+                                            marker=dict(
+                                                size=1,
+                                                color='green',
+                                                line=dict(width=0.5, color='rgba(100, 0, 0, 0.7)'),
+                                                symbol='circle'
+                                            ),
+                                            name=f"Sampling points (n={num_samples})",
+                                            showlegend=True
+                                        ))
 
                                     fig.update_layout(
                                         title='Surrogate Model Response Surface with Sample Points',
@@ -781,7 +826,7 @@ def show_results():
                 if uploaded_avl_dataset:
                     temp_dir = tempfile.mkdtemp()
                     avl_dataset_path = os.path.join(temp_dir, uploaded_avl_dataset.name)
-                    with open(ranges_path, "wb") as f:
+                    with open(avl_dataset_path, "wb") as f:
                         f.write(uploaded_avl_dataset.getbuffer())
                     st.session_state.avl_dataset_path = avl_dataset_path
                     st.success("AVL dataset loaded successfully")
@@ -802,126 +847,153 @@ def show_results():
         sliders_bounds = st.session_state["sliders_bounds"]
         sliders_values = st.session_state["sliders_values"]
         results_dir = Path(st.session_state.get("results_dir", "."))
-
+        
         cpacs_in = Path(st.session_state.cpacs_file_path)
         tmp_cpacs = CPACS(cpacs_in)
         tixi = tmp_cpacs.tixi
 
-
+        
         if model is not None and len(param_order) >= 2:
-                    st.subheader("Response Surface Visualization")
+            st.subheader("Response Surface Visualization")
 
-                    # Let user select 2 params to visualize
-                    selected_params = st.multiselect(
-                        "Select exactly 2 parameters to visualize:",
-                        options=param_order,
-                        default=param_order[:2],
-                        key="rsm_param_select"
-                    )
+            # Let user select 2 params to visualize
+            selected_params = st.multiselect(
+                "Select exactly 2 parameters to visualize:",
+                options=param_order,
+                default=param_order[:2],
+                key="rsm_param_select"
+            )
 
-                    if len(selected_params) == 2:
-                        p1_min, p1_max = sliders_bounds.get(selected_params[0], (-5, 15))
-                        p2_min, p2_max = sliders_bounds.get(selected_params[1], (-5, 15))
+            if len(selected_params) == 2:
+                p1_min, p1_max = sliders_bounds.get(selected_params[0], (-5, 15))
+                p2_min, p2_max = sliders_bounds.get(selected_params[1], (-5, 15))
 
-                        p1_range = st.slider(f"Range for {selected_params[0]}", float(p1_min), float(p1_max), (float(p1_min), float(p1_max)), key="rsm_slider_1")
-                        p2_range = st.slider(f"Range for {selected_params[1]}", float(p2_min), float(p2_max), (float(p2_min), float(p2_max)), key="rsm_slider_2")
+                p1_range = st.slider(f"Range for {selected_params[0]}", float(p1_min), float(p1_max), (float(p1_min), float(p1_max)), key="rsm_slider_1")
+                p2_range = st.slider(f"Range for {selected_params[1]}", float(p2_min), float(p2_max), (float(p2_min), float(p2_max)), key="rsm_slider_2")
 
-                        st.markdown("**Fix values for other parameters:**")
-                        fixed_param_values = {}
-                        for p in param_order:
-                            if p not in selected_params:
-                                min_val, max_val = sliders_bounds.get(p, (0, 0))
-                                fixed_param_values[p] = st.slider(
-                                    f"{p}",
-                                    float(min_val),
-                                    float(max_val),
-                                    float((min_val + max_val) / 2),
-                                    key=f"fixed_slider_{p}"
-                                )
+                if len(param_order) >= 3:
+                    st.markdown("**Fix values for other parameters:**")
+                    fixed_param_values = {}
+                    for p in param_order:
+                        if p not in selected_params:
+                            min_val, max_val = sliders_bounds.get(p, (0, 0))
+                            fixed_param_values[p] = st.slider(
+                                f"{p}",
+                                float(min_val),
+                                float(max_val),
+                                float((min_val + max_val) / 2),
+                                key=f"fixed_slider_{p}"
+                            )
 
-                        csv_path_sampling = Path(f"{results_dir}/avl_simulations_results.csv")
-                        df_samples = None
-                        if csv_path_sampling.exists():
-                            df_samples = pd.read_csv(csv_path_sampling)
 
-                        if st.button("Generate response surface"):
-                            with st.spinner("Calculating response surface..."):
-                                param1 = np.linspace(p1_range[0], p1_range[1], 50)
-                                param2 = np.linspace(p2_range[0], p2_range[1], 50)
-                                P1, P2 = np.meshgrid(param1, param2)
+                df_samples = pd.read_csv(avl_dataset_path)
+                
+                if st.button("Generate response surface"):
+                    with st.spinner("Calculating response surface..."):
+                        param1 = np.linspace(p1_range[0], p1_range[1], 50)
+                        param2 = np.linspace(p2_range[0], p2_range[1], 50)
+                        P1, P2 = np.meshgrid(param1, param2)
 
-                                inputs = np.zeros((P1.size, len(param_order)))
-                                for i, p in enumerate(param_order):
-                                    if p == selected_params[0]:
-                                        inputs[:, i] = P1.ravel()
-                                    elif p == selected_params[1]:
-                                        inputs[:, i] = P2.ravel()
+                        inputs = np.zeros((P1.size, len(param_order)))
+                        for i, p in enumerate(param_order):
+                            if p == selected_params[0]:
+                                inputs[:, i] = P1.ravel()
+                            elif p == selected_params[1]:
+                                inputs[:, i] = P2.ravel()
+                            else:
+                                low, high = sliders_bounds.get(p, (0, 0))
+                                inputs[:, i] = (low + high) / 2
+
+                        try:
+                            Z = model.predict_values(inputs).reshape(P1.shape)
+                            fig = go.Figure(data=[go.Surface(z=Z, x=P1, y=P2)])
+
+                            if len(param_order) >= 3:
+                                
+                                
+                                mask = np.ones(len(df_samples), dtype=bool)
+                                tol = 0.1 * (max_val - min_val)
+                                for p, val in fixed_param_values.items():
+                                    if p in df_samples.columns:
+                                        mask &= np.isclose(df_samples[p], val, atol=tol)
+                                
+                                filtered_samples = df_samples[mask].copy()
+                               
+                                if len(filtered_samples) > 0 and selected_params[0] in filtered_samples.columns and selected_params[1] in filtered_samples.columns:
+                                    x_samples = filtered_samples[selected_params[0]].values
+                                    y_samples = filtered_samples[selected_params[1]].values
+                                    
+                                    output_col = filtered_samples.columns[-1]
+                                    if output_col in filtered_samples.columns:
+                                        z_samples = filtered_samples[output_col].values
                                     else:
-                                        low, high = sliders_bounds.get(p, (0, 0))
-                                        inputs[:, i] = (low + high) / 2
+                                        z_samples = np.zeros_like(x_samples)
+                                    
+                                    num_samples = len(x_samples)
 
-                                try:
-                                    Z = model.predict_values(inputs).reshape(P1.shape)
-                                    fig = go.Figure(data=[go.Surface(z=Z, x=P1, y=P2)])
-
-                                    if df_samples is not None:
-                                        
-                                        mask = np.ones(len(df_samples), dtype=bool)
-                                        tol = 0.1 * (max_val - min_val)
-                                        for p, val in fixed_param_values.items():
-                                            if p in df_samples.columns:
-                                                mask &= np.isclose(df_samples[p], val, atol=tol)
-                                        
-                                        filtered_samples = df_samples[mask].copy()
-                                        
-                                        if len(filtered_samples) > 0 and selected_params[0] in filtered_samples.columns and selected_params[1] in filtered_samples.columns:
-                                            x_samples = filtered_samples[selected_params[0]].values
-                                            y_samples = filtered_samples[selected_params[1]].values
-                                            
-                                            output_col = filtered_samples.columns[-1]
-                                            if output_col in filtered_samples.columns:
-                                                z_samples = filtered_samples[output_col].values
-                                            else:
-                                                z_samples = np.zeros_like(x_samples)
-                                            
-                                            num_samples = len(x_samples)
-
-                                            fig.add_trace(go.Scatter3d(
-                                                x=x_samples,
-                                                y=y_samples,
-                                                z=z_samples,
-                                                mode='markers',
-                                                marker=dict(
-                                                    size=1,
-                                                    color='green',
-                                                    line=dict(width=0.5, color='rgba(100, 0, 0, 0.7)'),
-                                                    symbol='circle'
-                                                ),
-                                                name=f"Sampling points (n={num_samples})",
-                                                showlegend=True
-                                            ))
-
-                                    fig.update_layout(
-                                        title='Surrogate Model Response Surface with Sample Points',
-                                        scene=dict(
-                                            xaxis_title=selected_params[0],
-                                            yaxis_title=selected_params[1],
-                                            zaxis_title='Predicted Output'
+                                    fig.add_trace(go.Scatter3d(
+                                        x=x_samples,
+                                        y=y_samples,
+                                        z=z_samples,
+                                        mode='markers',
+                                        marker=dict(
+                                            size=1,
+                                            color='green',
+                                            line=dict(width=0.5, color='rgba(100, 0, 0, 0.7)'),
+                                            symbol='circle'
                                         ),
-                                        legend=dict(
-                                            bgcolor='rgba(255,255,255,0.9)',
-                                            bordercolor='green',
-                                            borderwidth=1.5,
-                                            font=dict(size=12),
-                                            yanchor="top",
-                                            y=0.99,
-                                            xanchor="right",
-                                            x=0.99
-                                        )
-                                    )
-                                    st.plotly_chart(fig, use_container_width=True)
-                                except Exception as e:
-                                    st.error(f"Error predicting response surface: {e}")    
+                                        name=f"Sampling points (n={num_samples})",
+                                        showlegend=True
+                                    ))
+                            else:
+                                x_samples = df_samples[selected_params[0]].values
+                                y_samples = df_samples[selected_params[1]].values
+                                
+                                output_col = df_samples.columns[-1]
+                                if output_col in df_samples.columns:
+                                    z_samples = df_samples[output_col].values
+                                else:
+                                    z_samples = np.zeros_like(x_samples)
+                                
+                                num_samples = len(x_samples)
+
+                                fig.add_trace(go.Scatter3d(
+                                    x=x_samples,
+                                    y=y_samples,
+                                    z=z_samples,
+                                    mode='markers',
+                                    marker=dict(
+                                        size=1,
+                                        color='green',
+                                        line=dict(width=0.5, color='rgba(100, 0, 0, 0.7)'),
+                                        symbol='circle'
+                                    ),
+                                    name=f"Sampling points (n={num_samples})",
+                                    showlegend=True
+                                ))
+                                    
+
+                            fig.update_layout(
+                                title='Surrogate Model Response Surface with Sample Points',
+                                scene=dict(
+                                    xaxis_title=selected_params[0],
+                                    yaxis_title=selected_params[1],
+                                    zaxis_title='Predicted Output'
+                                ),
+                                legend=dict(
+                                    bgcolor='rgba(255,255,255,0.9)',
+                                    bordercolor='green',
+                                    borderwidth=1.5,
+                                    font=dict(size=12),
+                                    yanchor="top",
+                                    y=0.99,
+                                    xanchor="right",
+                                    x=0.99
+                                )
+                            )
+                            st.plotly_chart(fig, use_container_width=True)
+                        except Exception as e:
+                            st.error(f"Error predicting response surface: {e}")    
 
 
         mode = st.radio(
@@ -1006,7 +1078,7 @@ def show_results():
                     file_name=new_file_name,
                     mime="application/xml"
                 )
-        
+    
 
         if mode == "Target-based exploration":
             if model is None:

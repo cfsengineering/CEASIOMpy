@@ -85,6 +85,8 @@ from ceasiompy.SMTrain import (
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
     SMTRAIN_AVL_DATABASE_XPATH,
+    SMTRAIN_KRG_MODEL,
+    SMTRAIN_RBF_MODEL,
 )
 
 from ceasiompy.CPACS2GMSH import (
@@ -229,7 +231,7 @@ def add_gui_object(
     selected_value = None
     # Iterate per group
     with groups_container[group]:
-        
+
         # Check if the name or var_type is in the dictionary and call the corresponding function
         if name in aeromap_map:
             aeromap_map[name](session_state.cpacs, xpath, key, description)
@@ -456,91 +458,82 @@ def add_gui_object(
                                                     on_change=save_cpacs_file,
                                                 )
 
-            """
-                uploaded_file = st.file_uploader(
-                    "Select a SU2 file",
-                    type=["su2"],
-                )
-                if uploaded_file:
-                    su2_file_path = st.session_state.workflow.working_dir / uploaded_file.name
-
-                    # Save the uploaded file to the specified path
-                    with open(su2_file_path, "wb") as f:
-                        f.write(uploaded_file.getbuffer())
-                    st.session_state[key] = str(su2_file_path)
-                    save_cpacs_file()
-
-                if key in st.session_state:
-                    st.success(f"Uploaded file: {st.session_state[key]}")
-            """
         if 'simulations_file_path' not in st.session_state:
             st.session_state['simulations_file_path'] = ''
 
         if 'simulations_df' not in st.session_state:
             st.session_state['simulations_df'] = None
 
-        elif selected_value == "Load Existing Simulations":
+        elif selected_value == "Load Geometry Exploration Simulations":
             # session_state.xpath_to_update[xpath + "/csvpath"] = 'existing_avl_results'
-            uploaded_existing_simulations = st.file_uploader(
-                "Upload file", 
-                type=["csv"], 
-                key='existing_avl_results'
-            )
-            if uploaded_existing_simulations:
-                # Ensure working directory exists
-                working_dir = Path(st.session_state.workflow.working_dir)
-                working_dir.mkdir(parents=True, exist_ok=True)
-                
-                # Save the uploaded CSV to the working directory
-                csv_filename = 'avl_simulations_results.csv'
-                csv_path = working_dir / csv_filename
-                with open(csv_path, "wb") as f:
-                    f.write(uploaded_existing_simulations.getbuffer())
-                
-                # Load the CSV into a DataFrame and store both DataFrame and path in session_state
-                simulations_df = pd.read_csv(csv_path)
-                st.session_state.simulations_df = simulations_df
-                st.session_state.simulations_file_path = str(csv_path)
-                
-                st.success("CSV copied to working directory!")
-                st.write(f"DataFrame shape: {simulations_df.shape}")
-                st.dataframe(simulations_df.head())  # Show a preview
-                st.write(f"Persistent path: {csv_path}")
-                
-            # if 'existing_avl_results' in st.session_state:
-            #     st.success(f"Uploaded file path: {st.session_state.simulations_file_path}")
-
-        # elif selected_value == "Load Existing Simulations":
-        #     session_state.xpath_to_update[xpath + "/csvpath"] = 'existing_avl_results'
-        #     uploaded_existing_simulations = st.file_uploader(
-        #         "Upload avl_simulations_results.csv file", 
-        #         type=["csv"], 
-        #         key='existing_avl_results'
-        #     )
-        #     if uploaded_existing_simulations:
-        #         # Get working directory from session_state
-                
-        #         working_dir = Path(st.session_state.workflow.working_dir)
-        #         working_dir.mkdir(parents=True, exist_ok=True)
-                
-        #         # Copy to working_dir (persistent)
-        #         csv_filename = uploaded_existing_simulations.name
-        #         csv_path = working_dir / csv_filename
-                
-        #         with open(csv_path, "wb") as f:
-        #             f.write(uploaded_existing_simulations.getbuffer())
-                
-                
-        #         simulations_df = pd.read_csv(csv_path)
-        #         st.session_state.simulations_df = simulations_df
-        #         st.session_state.simulations_file_path = str(csv_path)
-                
-        #         st.success("CSV copied to working directory!")
-        #         st.write(f"DataFrame shape: {simulations_df.shape}")
-        #         st.dataframe(simulations_df)
-        #         st.write(f"Persistent path: {csv_path}") 
+            coll,collr = st.columns(2)
+            with coll:
+                uploaded_existing_simulations = st.file_uploader(
+                    "Upload simulations file", 
+                    type=["csv"], 
+                    key='existing_avl_results'
+                )
+                if uploaded_existing_simulations:
+                    # Ensure working directory exists
+                    working_dir = Path(st.session_state.workflow.working_dir)
+                    working_dir.mkdir(parents=True, exist_ok=True)
+                    
+                    # Save the uploaded CSV to the working directory
+                    csv_filename = 'avl_simulations_results.csv'
+                    csv_path = working_dir / csv_filename
+                    with open(csv_path, "wb") as f:
+                        f.write(uploaded_existing_simulations.getbuffer())
+                    
+                    # Load the CSV into a DataFrame and store both DataFrame and path in session_state
+                    simulations_df = pd.read_csv(csv_path)
+                    st.session_state.simulations_df = simulations_df
+                    st.session_state.simulations_file_path = str(csv_path)
+                    
+                    st.success("CSV copied to working directory!")
+                    st.write(f"DataFrame shape: {simulations_df.shape}")
+                    st.dataframe(simulations_df.head())
+                    st.write(f"Persistent path: {csv_path}")
+            with collr:
+                uploaded_ranges_file = st.file_uploader(
+                    "Upload parameter ranges file", 
+                    type=["csv"], 
+                    key='existing_range_file'
+                )
+                    
+                if uploaded_ranges_file:
+                    # Ensure working directory exists
+                    working_dir = Path(st.session_state.workflow.working_dir)
+                    working_dir.mkdir(parents=True, exist_ok=True)
+                    
+                    # Save the uploaded CSV to the working directory
+                    csv_range_filename = 'ranges_for_gui.csv'
+                    csv_range_path = working_dir / csv_range_filename
+                    with open(csv_range_path, "wb") as f:
+                        f.write(uploaded_ranges_file.getbuffer())
+                    
+                    # Load the CSV into a DataFrame and store both DataFrame and path in session_state
+                    range_df = pd.read_csv(csv_range_path)
+                    st.session_state.range_df = range_df
+                    st.session_state.range_file_path = str(range_df)
+                    
+                    st.success("CSV copied to working directory!")
+                    st.write(f"DataFrame shape: {range_df.shape}")
+                    st.dataframe(range_df.head())
+                    st.write(f"Persistent path: {csv_range_path}")
+            
 
         if selected_value == 'Two levels':
+            # st.write('Select at least one model.')
+            # value = get_value_or_default(tixi, SMTRAIN_KRG_MODEL, False)
+            # session_state.xpath_to_update[SMTRAIN_KRG_MODEL] = f'{key}_krg_model'
+            # krg_model_bool = st.checkbox(
+            #     f'KRG',
+            #     value=get_value_or_default(tixi, SMTRAIN_KRG_MODEL, False),
+            #     key=f'{key}_krg_model',
+            #     help="Select this model for the simulation (choose more than one for comparison).",
+            #     on_change=save_cpacs_file,
+            # )
+
             value = get_value_or_default(tixi, SMTRAIN_THRESHOLD_XPATH, 0.05)
             session_state.xpath_to_update[SMTRAIN_THRESHOLD_XPATH] = f'{key}_th_rmse'
             with st.columns([1, 2])[0]:
@@ -745,7 +738,7 @@ def add_gui_object(
                             st.markdown("###### RANS options")
 
                             value = get_value_or_default(tixi, GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH, 1.5)
-                            session_state.xpath_to_update[GMSH_REFINE_FACTOR_XPATH] = f'{key}_refine_angled_factor'
+                            session_state.xpath_to_update[GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH] = f'{key}_refine_angled_factor'
                             with st.columns([5, 1])[0]:
                                 st.number_input(
                                     f"Refinement factor of lines in between angled surfaces (only in RANS)",
@@ -853,21 +846,28 @@ def add_gui_object(
                                     "the engine length from the beginning of the engine",
                             on_change=save_cpacs_file,
                         )
+        if selected_value == 'One levels':
+            st.write('Select at least one model.')
+            value = get_value_or_default(tixi, SMTRAIN_KRG_MODEL, False)
+            session_state.xpath_to_update[SMTRAIN_KRG_MODEL] = f'{key}_krg_model_lf'
+            krg_model_bool = st.checkbox(
+                f'KRG',
+                value=get_value_or_default(tixi, SMTRAIN_KRG_MODEL, False),
+                key=f'{key}_krg_model_lf',
+                help="Select this model for the simulation (choose more than one for comparison).",
+                on_change=save_cpacs_file,
+            )
 
+            value = get_value_or_default(tixi, SMTRAIN_RBF_MODEL, False)
+            session_state.xpath_to_update[SMTRAIN_RBF_MODEL] = f'{key}_rbf_model_lf'
+            rbf_model_bool = st.checkbox(
+                f'RBF',
+                value=get_value_or_default(tixi, SMTRAIN_RBF_MODEL, False),
+                key=f'{key}_rbf_model_lf',
+                help="Select this model for the simulation (choose more than one for comparison).",
+                on_change=save_cpacs_file,
+            )
                         
-                        
-                        
-
-
-
-                    
-                    
-                                
-
-
-
-        
-    
 
 
 def add_module_tab(new_file: bool) -> None:

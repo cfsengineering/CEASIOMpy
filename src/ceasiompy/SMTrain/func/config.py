@@ -55,8 +55,9 @@ from ceasiompy.SMTrain import (
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
     SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
-    SMTRAIN_SELECTED_MODEL,
-    # SMTRAIN_XPATH_CORES,
+    SMTRAIN_KRG_MODEL,
+    SMTRAIN_RBF_MODEL,
+    # SMTRAIN_SELECTED_MODEL,
 )
 
 from ceasiompy.utils.commonxpaths import (
@@ -86,8 +87,8 @@ def get_settings(cpacs: CPACS):
     rmse_obj = get_value(tixi, SMTRAIN_THRESHOLD_XPATH)
     simulation_purpose = get_value(tixi, SMTRAIN_SIMULATION_PURPOSE_XPATH)
     old_new_sim = get_value(tixi, SMTRAIN_UPLOAD_AVL_DATABASE_XPATH)
-    selected_model = get_value(tixi, SMTRAIN_SELECTED_MODEL)
-
+    selected_krg_model = get_value(tixi, SMTRAIN_KRG_MODEL)
+    selected_rbf_model = get_value(tixi, SMTRAIN_RBF_MODEL)
     log.info(f"Surrogate's model {objective=} with {fidelity_level=}")
 
     return (
@@ -99,7 +100,8 @@ def get_settings(cpacs: CPACS):
         rmse_obj,
         simulation_purpose,
         old_new_sim,
-        selected_model
+        selected_krg_model,
+        selected_rbf_model,
     )
 
 

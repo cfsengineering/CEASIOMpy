@@ -15,7 +15,7 @@ from pandas import concat
 from shutil import copyfile
 import shutil
 import gmsh
-from cpacspy.cpacsfunctions import get_value
+from cpacspy.cpacsfunctions import get_value, get_value_or_default
 from ceasiompy.PyAVL.pyavl import main as run_avl
 from ceasiompy.SU2Run.su2run import main as run_su2
 from ceasiompy.CPACS2GMSH.cpacs2gmsh import main as run_cpacs2gmsh
@@ -226,30 +226,29 @@ def launch_gmsh_su2_geom(
     4. Retrieves the results
 
     """
-    gmsh.clear()
     tixi = cpacs.tixi
     # Load default parameters
     st.session_state = MagicMock()
-    type_mesh = str(get_value(tixi, GMSH_MESH_TYPE_XPATH))
-    farfield_ms = str(get_value(tixi, GMSH_MESH_SIZE_FARFIELD_XPATH))
-    fuselage_ms = str(get_value(tixi, GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH))
-    wings_ms = str(get_value(tixi, GMSH_MESH_SIZE_FACTOR_WINGS_XPATH))
-    engines_ms = str(get_value(tixi, GMSH_MESH_SIZE_ENGINES_XPATH))
-    propellers_ms = str(get_value(tixi, GMSH_MESH_SIZE_PROPELLERS_XPATH))
-    Npower_fac = str(get_value(tixi, GMSH_N_POWER_FACTOR_XPATH))
-    Npower_field = str(get_value(tixi, GMSH_N_POWER_FIELD_XPATH))
-    refine_fac = str(get_value(tixi, GMSH_REFINE_FACTOR_XPATH))
-    refine_trunc = str(get_value(tixi, GMSH_REFINE_TRUNCATED_XPATH))
-    auto_ref = str(get_value(tixi, GMSH_AUTO_REFINE_XPATH))
-    angled_ar = str(get_value(tixi, GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH))
-    n_layer = str(get_value(tixi, GMSH_NUMBER_LAYER_XPATH))
-    h_first = str(get_value(tixi, GMSH_H_FIRST_LAYER_XPATH))
-    max_thick = str(get_value(tixi, GMSH_MAX_THICKNESS_LAYER_XPATH))
-    growth_ratio = str(get_value(tixi, GMSH_GROWTH_RATIO_XPATH))
-    growth_fac = str(get_value(tixi, GMSH_GROWTH_FACTOR_XPATH))
-    feature_angle = str(get_value(tixi, GMSH_FEATURE_ANGLE_XPATH))
-    intake_per = str(get_value(tixi, GMSH_INTAKE_PERCENT_XPATH))
-    exhaust_per = str(get_value(tixi, GMSH_EXHAUST_PERCENT_XPATH))
+    type_mesh = str(get_value_or_default(tixi, GMSH_MESH_TYPE_XPATH, "Euler"))
+    farfield_ms = str(get_value_or_default(tixi, GMSH_MESH_SIZE_FARFIELD_XPATH,10))
+    fuselage_ms = str(get_value_or_default(tixi, GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,1))
+    wings_ms = str(get_value_or_default(tixi, GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,1))
+    engines_ms = str(get_value_or_default(tixi, GMSH_MESH_SIZE_ENGINES_XPATH,0.23))
+    propellers_ms = str(get_value_or_default(tixi, GMSH_MESH_SIZE_PROPELLERS_XPATH,0.23))
+    Npower_fac = str(get_value_or_default(tixi, GMSH_N_POWER_FACTOR_XPATH,2))
+    Npower_field = str(get_value_or_default(tixi, GMSH_N_POWER_FIELD_XPATH,0.9))
+    refine_fac = str(get_value_or_default(tixi, GMSH_REFINE_FACTOR_XPATH,2))
+    refine_trunc = str(get_value_or_default(tixi, GMSH_REFINE_TRUNCATED_XPATH, False))
+    auto_ref = str(get_value_or_default(tixi, GMSH_AUTO_REFINE_XPATH, False))
+    angled_ar = str(get_value_or_default(tixi, GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,1.5))
+    n_layer = str(get_value_or_default(tixi, GMSH_NUMBER_LAYER_XPATH,20))
+    h_first = str(get_value_or_default(tixi, GMSH_H_FIRST_LAYER_XPATH,3))
+    max_thick = str(get_value_or_default(tixi, GMSH_MAX_THICKNESS_LAYER_XPATH,100))
+    growth_ratio = str(get_value_or_default(tixi, GMSH_GROWTH_RATIO_XPATH,1.2))
+    growth_fac = str(get_value_or_default(tixi, GMSH_GROWTH_FACTOR_XPATH,1.4))
+    feature_angle = str(get_value_or_default(tixi, GMSH_FEATURE_ANGLE_XPATH,40))
+    intake_per = str(get_value_or_default(tixi, GMSH_INTAKE_PERCENT_XPATH,20))
+    exhaust_per = str(get_value_or_default(tixi, GMSH_EXHAUST_PERCENT_XPATH,20))
     
     # Retrieve the CpACS2gmsh gui values of smtrain
     update_cpacs_from_specs(cpacs, CPACS2GMSH_NAME, test=False)
@@ -318,8 +317,6 @@ def launch_gmsh_su2_geom(
     run_su2(cpacs, results_dir=results_dir)
 
     df_su2 = retrieve_aeromap_data(cpacs, aeromap_uid, objective)
-    print("DATAFRAME FROM SU2:")
-    print(f"{df_su2}")
     obj_value = df_su2[objective].iloc[0]
-    print(f"SU2 objective value: {obj_value}")
+
     return obj_value 

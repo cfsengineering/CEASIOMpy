@@ -18,7 +18,10 @@ from smt.utils.misc import compute_rmse
 from pathlib import Path
 from numpy import ndarray
 from smt.applications import MFK
-from smt.surrogate_models import KRG
+from smt.surrogate_models import (
+    KRG,
+    RBF,
+)
 from typing import (
     Dict,
     Union,
@@ -32,7 +35,7 @@ from ceasiompy import log
 
 
 def plot_validation(
-    model: Union[KRG, MFK],
+    model: Union[KRG, MFK, RBF],
     sets: Dict,
     label: str,
     results_dir: Path,
@@ -40,11 +43,20 @@ def plot_validation(
     """
     Generates a Predicted vs Actual plot for model validation.
     """
+
+    if isinstance(model, KRG):
+        suffix = "krg"
+    elif isinstance(model, MFK):
+        suffix = "mfk"
+    elif isinstance(model, RBF):
+        suffix = "rbf"
+
     y_test: ndarray
     x_test, y_test = sets["x_test"], sets["y_test"]
     y_test_range = [y_test.min(), y_test.max()]
     predictions = model.predict_values(x_test)
-    log.info(f"kriging, rms err: {compute_rmse(model, x_test, y_test)}")
+
+    log.info(f"{suffix}, rms err: {compute_rmse(model, x_test, y_test)}")
 
     # Create figure
     fig = plt.figure(figsize=(6, 6))

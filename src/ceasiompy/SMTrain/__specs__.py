@@ -43,6 +43,9 @@ from ceasiompy.SMTrain import (
     SMTRAIN_SIMULATION_PURPOSE_XPATH,
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
+    # SMTRAIN_SELECTED_MODEL,
+    SMTRAIN_KRG_MODEL,
+    SMTRAIN_RBF_MODEL,
     SMTRAIN_AVL_DATABASE_XPATH,
     SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
     # SMTRAIN_XPATH_CORES,
@@ -97,7 +100,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="choose_db",
     var_type=list,
-    default_value=["Run New Simulations", "Load Existing Simulations"],
+    default_value=["Run New Simulations", "Load Geometry Exploration Simulations"],
     unit=None,
     descr="Load pre-computed results from files or Generate new simulations.",
     xpath=SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
@@ -129,6 +132,45 @@ cpacs_inout.add_input(
 #     gui_name="Choice of simulation Purpose",
 #     gui_group="Simulation Settings",
 # )
+
+
+# cpacs_inout.add_input(
+#     var_name="model",
+#     var_type=list,
+#     default_value=["RBF", "KRG" , "Use Both for Comparison"],
+#     unit=None,
+#     descr="Select a model for the simulation, or choose the last option to train both and use the best result.",
+#     xpath=SMTRAIN_SELECTED_MODEL,
+#     gui=INCLUDE_GUI,
+#     gui_name="Choice of the model",
+#     gui_group="Training Surrogate Settings",
+# )
+
+cpacs_inout.add_input(
+    var_name="krg_model",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="Select this model for the simulation (choose more than one for comparison).",
+    xpath=SMTRAIN_KRG_MODEL,
+    gui=INCLUDE_GUI,
+    gui_name="KRG",
+    gui_group="Training Surrogate Settings",
+)
+
+cpacs_inout.add_input(
+    var_name="rbf_model",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="Select this model for the simulation (choose more than one for comparison). " \
+            "This model will be trained only with AVL simulations.",
+    xpath=SMTRAIN_RBF_MODEL,
+    gui=INCLUDE_GUI,
+    gui_name="RBF",
+    gui_group="Training Surrogate Settings",
+)
+
 
 cpacs_inout.add_input(
     var_name="training_part",

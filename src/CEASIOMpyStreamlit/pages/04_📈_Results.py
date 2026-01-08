@@ -18,12 +18,14 @@ Streamlit page to show results of CEASIOMpy
 
 import os
 import base64
+import re
 
 import pandas as pd
 import streamlit as st
+import matplotlib.pyplot as plt
 
-from streamlit_autorefresh import st_autorefresh
 from ceasiompy.utils.commonpaths import get_wkdir
+from CEASIOMpyStreamlit.parsefunctions import display_avl_table_file
 from CEASIOMpyStreamlit.streamlitutils import (
     create_sidebar,
     highlight_stability,
@@ -31,6 +33,7 @@ from CEASIOMpyStreamlit.streamlitutils import (
 
 from pathlib import Path
 
+from ceasiompy.PyAVL import AVL_TABLE_FILES
 from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
 
 # =================================================================================================
@@ -39,13 +42,14 @@ from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
 
 HOW_TO_TEXT = (
     "### How to check your results\n"
-    "1. Select an aeromap(s) \n"
-    "1. Choose the parameters to plot\n"
-    "1. Save the figure\n"
-    "1. Check the results for each module\n"
+    "1. Check the results for your workflow\n"
 )
 
 PAGE_NAME = "Results"
+IGNORED_RESULT_FILES: set[str] = {
+    "avl_commands.txt",
+    "logfile_avl.log",
+}
 
 # =================================================================================================
 #    FUNCTIONS
@@ -80,11 +84,59 @@ def display_results(results_dir):
         ]
         clear_containers(container_list)
 
-        for child in sorted(Path(results_dir).iterdir()):
+        def results_sort_key(path: Path) -> tuple[int, str]:
+            '''Priority to files, priority=0 is highest priority.'''
+            suffix = path.suffix.lower()
+            if suffix == ".pdf":
+                priority = 0
+            elif suffix == ".txt":
+                priority = 2
+            else:
+                priority = 1
+            return priority, path.name
+
+        for child in sorted(Path(results_dir).iterdir(), key=results_sort_key):
+            if child.name in IGNORED_RESULT_FILES:
+                continue
 
             if child.suffix == ".smx":
                 if st.button(f"Open {child.name} with SUMO", key=f"{child}_sumo_geom"):
                     os.system(f"dwfsumo {str(child)}")
+
+            elif child.suffix == ".dat":
+                skip_first = False
+                first_line = child.read_text().splitlines()[:1]
+                if first_line:
+                    parts = first_line[0].strip().split()
+                    if len(parts) < 2:
+                        skip_first = True
+                    else:
+                        try:
+                            float(parts[0])
+                            float(parts[1])
+                        except ValueError:
+                            skip_first = True
+                df = pd.read_csv(
+                    child,
+                    sep=r"\s+",
+                    comment="#",
+                    header=None,
+                    skiprows=1 if skip_first else 0,
+                )
+                if df.shape[1] == 2:
+                    df = df.apply(pd.to_numeric, errors="coerce")
+                    df = df.iloc[:, :2].dropna()
+                    if not df.empty:
+                        df.columns = ["x", "y"]
+                        fig, ax = plt.subplots()
+                        ax.plot(df["x"].to_numpy(), df["y"].to_numpy())
+                        ax.set_aspect("equal", adjustable="box")
+                        ax.set_title(child.stem)
+                        ax.set_xlabel("x")
+                        ax.set_ylabel("y")
+                        st.pyplot(fig)
+                        continue
+                st.text_area(child.stem, child.read_text(), height=200)
 
             elif child.suffix == ".su2":
                 if st.button(f"Open {child.name} with Scope", key=f"{child}_su2_mesh"):
@@ -140,6 +192,9 @@ def display_results(results_dir):
                 st.text_area(child.stem, child.read_text(), height=200)
 
             elif child.suffix == ".log" or child.suffix == ".txt":
+                if child.name in AVL_TABLE_FILES:
+                    display_avl_table_file(child)
+                    continue
                 if "logs_container" not in st.session_state:
                     st.session_state["logs_container"] = st.container()
                     st.session_state.logs_container.markdown("**Logs**")
@@ -160,9 +215,8 @@ def display_results(results_dir):
                 st.markdown(f"**{child.name}**")
                 st.dataframe(pd.read_csv(child))
 
-            # elif "Case" in child.name and child.is_dir():
             elif child.is_dir():
-                with st.expander(child.stem, expanded=False):
+                with st.expander(child.stem, expanded=True):
                     display_results(child)
 
     except BaseException:
@@ -212,7 +266,7 @@ def show_results():
         st.warning("No workflows have been found in the working directory.")
         return
 
-    workflow_names = [wkflow.name for wkflow in workflow_dirs]
+    workflow_names = [wkflow.name for wkflow in workflow_dirs][::-1]
     default_index = max(len(workflow_names) - 1, 0)
     chosen_workflow_name = st.selectbox(
         "Choose workflow", workflow_names, index=default_index, key="results_chosen_workflow"
@@ -247,8 +301,6 @@ if __name__ == "__main__":
     st.title("Results")
 
     show_results()
-
-    st_autorefresh(interval=2000, limit=10000, key="auto_refresh")
 
     # Update last_page
     st.session_state.last_page = PAGE_NAME

@@ -24,7 +24,6 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 #   INITIALIZATION
 # ==============================================================================
 
-
 # ===== Include GUI =====
 INCLUDE_GUI = True
 
@@ -78,3 +77,14 @@ AVL_DISTR_XPATH = AVL_VORTEX_DISTR_XPATH + "/Distribution"
 
 # Specific for Dynamic Stability computation
 AVL_EXPAND_VALUES_XPATH = AVL_XPATH + "/ExpandValues"
+
+# === Constants ===
+
+AVL_TABLE_FILES: set[str] = {
+    "fe.txt",
+    "fn.txt",
+    "fs.txt",
+    "ft.txt",
+    "sb.txt",
+    "st.txt",
+}

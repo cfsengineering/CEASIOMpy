@@ -18,102 +18,125 @@ from pandas import DataFrame
 def display_avl_table_file(path: Path) -> None:
     text = path.read_text()
     with st.expander(path.name, expanded=False):
-        if "Clb Cnr / Clr Cnb" in text:
-            value, is_stable = _parse_st_spiral(text)
-            if value is not None:
-                st.metric(
-                    "Spiral stability ratio",
-                    f"{value:.6f}",
-                    "stable" if is_stable else "not stable",
-                )
-
-        if "Surface Forces (referred to Sref" in text:
-            refs = _parse_fn_refs(text)
-            if refs:
-                ref_df = DataFrame(
-                    {
-                        "Sref": [refs.get("Sref")],
-                        "Cref": [refs.get("Cref")],
-                        "Bref": [refs.get("Bref")],
-                        "Xref": [refs.get("Xref")],
-                        "Yref": [refs.get("Yref")],
-                        "Zref": [refs.get("Zref")],
-                    }
-                )
-                st.markdown("**Reference Values**")
-                _display_compact_dataframe(ref_df)
-            table1_df, table2_df = _parse_fn_tables(text)
-            if not table1_df.empty:
-                st.markdown("**Surface Forces (Sref/Cref/Bref)**")
-                _display_compact_dataframe(table1_df)
-            if not table2_df.empty:
-                st.markdown("**Surface Forces (Ssurf/Cave)**")
-                _display_compact_dataframe(table2_df)
-            if table1_df.empty and table2_df.empty:
-                st.text_area(path.stem, text, height=200, key=str(path))
+        _display_spiral_stability(text)
+        if _display_surface_forces(text, path):
             return
-
-        if "Vortex Lattice Output -- Total Forces" in text:
-            config, refs, summary, tables = _parse_sb_data(text)
-            config_df = _dict_to_table(config)
-            summary_df = _dict_to_table(summary)
-            ref_df = DataFrame(
-                {
-                    "Sref": [refs.get("Sref")],
-                    "Cref": [refs.get("Cref")],
-                    "Bref": [refs.get("Bref")],
-                    "Xref": [refs.get("Xref")],
-                    "Yref": [refs.get("Yref")],
-                    "Zref": [refs.get("Zref")],
-                }
-            )
-            if not config_df.empty:
-                st.markdown("**Configuration**")
-                _display_compact_dataframe(config_df)
-            if not ref_df.empty and not ref_df.isna().all(axis=None):
-                st.markdown("**Reference Values**")
-                _display_compact_dataframe(ref_df)
-            if not summary_df.empty:
-                st.markdown("**Run Case Summary**")
-                _display_compact_dataframe(summary_df)
-            for title, df in tables:
-                st.markdown(f"**{title}**")
-                _display_compact_dataframe(df)
-            if config_df.empty and summary_df.empty and not tables:
-                st.text_area(path.stem, text, height=200, key=str(path))
+        if _display_vortex_lattice_output(text, path):
             return
-
-        if "Surface and Strip Forces by surface" in text:
-            surfaces_df, strip_tables = _parse_fs_tables(text)
-            if not surfaces_df.empty:
-                st.markdown("**Surface Summary**")
-                _display_compact_dataframe(surfaces_df)
-            for surface_id, surface_name, _coeffs, strip_df in strip_tables:
-                with st.expander(f"Surface {surface_id} - {surface_name}", expanded=False):
-                    if not strip_df.empty:
-                        st.markdown("**Strip Forces**")
-                        _display_compact_dataframe(strip_df)
-            if surfaces_df.empty:
-                st.text_area(path.stem, text, height=200, key=str(path))
+        if _display_surface_strip_forces(text, path):
             return
+        _display_avl_fe_data(text, path)
 
-        try:
-            surfaces_df, strips_df, strip_tables = _parse_avl_fe(text)
-        except BaseException:
-            st.text_area(path.stem, text, height=200, key=str(path))
-            return
 
-        if not surfaces_df.empty:
-            st.markdown("**Surface Summary**")
-            _display_compact_dataframe(surfaces_df)
+def _display_spiral_stability(text: str) -> None:
+    if "Clb Cnr / Clr Cnb" not in text:
+        return
+    value, is_stable = _parse_st_spiral(text)
+    if value is not None:
+        st.metric(
+            "Spiral stability ratio",
+            f"{value:.6f}",
+            "stable" if is_stable else "not stable",
+        )
 
-        if not strips_df.empty:
-            st.markdown("**Strip Summary**")
-            _display_compact_dataframe(strips_df)
 
-        for strip_id, df in strip_tables:
-            with st.expander(f"Strip {strip_id} details", expanded=False):
-                _display_compact_dataframe(df)
+def _display_surface_forces(text: str, path: Path) -> bool:
+    if "Surface Forces (referred to Sref" not in text:
+        return False
+    refs = _parse_fn_refs(text)
+    if refs:
+        ref_df = DataFrame(
+            {
+                "Sref": [refs.get("Sref")],
+                "Cref": [refs.get("Cref")],
+                "Bref": [refs.get("Bref")],
+                "Xref": [refs.get("Xref")],
+                "Yref": [refs.get("Yref")],
+                "Zref": [refs.get("Zref")],
+            }
+        )
+        st.markdown("**Reference Values**")
+        _display_compact_dataframe(ref_df)
+    table1_df, table2_df = _parse_fn_tables(text)
+    if not table1_df.empty:
+        st.markdown("**Surface Forces (Sref/Cref/Bref)**")
+        _display_compact_dataframe(table1_df)
+    if not table2_df.empty:
+        st.markdown("**Surface Forces (Ssurf/Cave)**")
+        _display_compact_dataframe(table2_df)
+    if table1_df.empty and table2_df.empty:
+        st.text_area(path.stem, text, height=200, key=str(path))
+    return True
+
+
+def _display_vortex_lattice_output(text: str, path: Path) -> bool:
+    if "Vortex Lattice Output -- Total Forces" not in text:
+        return False
+    config, refs, summary, tables = _parse_sb_data(text)
+    config_df = _dict_to_table(config)
+    summary_df = _dict_to_table(summary)
+    ref_df = DataFrame(
+        {
+            "Sref": [refs.get("Sref")],
+            "Cref": [refs.get("Cref")],
+            "Bref": [refs.get("Bref")],
+            "Xref": [refs.get("Xref")],
+            "Yref": [refs.get("Yref")],
+            "Zref": [refs.get("Zref")],
+        }
+    )
+    if not config_df.empty:
+        st.markdown("**Configuration**")
+        _display_compact_dataframe(config_df)
+    if not ref_df.empty and not ref_df.isna().all(axis=None):
+        st.markdown("**Reference Values**")
+        _display_compact_dataframe(ref_df)
+    if not summary_df.empty:
+        st.markdown("**Run Case Summary**")
+        _display_compact_dataframe(summary_df)
+    for title, df in tables:
+        st.markdown(f"**{title}**")
+        _display_compact_dataframe(df)
+    if config_df.empty and summary_df.empty and not tables:
+        st.text_area(path.stem, text, height=200, key=str(path))
+    return True
+
+
+def _display_surface_strip_forces(text: str, path: Path) -> bool:
+    if "Surface and Strip Forces by surface" not in text:
+        return False
+    surfaces_df, strip_tables = _parse_fs_tables(text)
+    if not surfaces_df.empty:
+        st.markdown("**Surface Summary**")
+        _display_compact_dataframe(surfaces_df)
+    for surface_id, surface_name, _coeffs, strip_df in strip_tables:
+        with st.expander(f"Surface {surface_id} - {surface_name}", expanded=False):
+            if not strip_df.empty:
+                st.markdown("**Strip Forces**")
+                _display_compact_dataframe(strip_df)
+    if surfaces_df.empty:
+        st.text_area(path.stem, text, height=200, key=str(path))
+    return True
+
+
+def _display_avl_fe_data(text: str, path: Path) -> None:
+    try:
+        surfaces_df, strips_df, strip_tables = _parse_avl_fe(text)
+    except BaseException:
+        st.text_area(path.stem, text, height=200, key=str(path))
+        return
+
+    if not surfaces_df.empty:
+        st.markdown("**Surface Summary**")
+        _display_compact_dataframe(surfaces_df)
+
+    if not strips_df.empty:
+        st.markdown("**Strip Summary**")
+        _display_compact_dataframe(strips_df)
+
+    for strip_id, df in strip_tables:
+        with st.expander(f"Strip {strip_id} details", expanded=False):
+            _display_compact_dataframe(df)
 
 
 # =================================================================================================
@@ -362,29 +385,38 @@ def _parse_sb_data(
     dict[str, str | float],
     dict[str, float],
     dict[str, float],
-    list[tuple[str, DataFrame]]
+    list[tuple[str, DataFrame]],
 ]:
-    config: dict[str, str | float] = {}
     refs = _parse_fn_refs(text)
-    summary: dict[str, float] = {}
-    tables: list[tuple[str, DataFrame]] = []
-
     lines = text.splitlines()
-    in_summary = False
+    config = _parse_sb_config(lines)
+    summary = _parse_sb_summary(lines)
+    tables = _parse_sb_tables(lines)
+    return config, refs, summary, tables
+
+
+def _parse_sb_config(lines: list[str]) -> dict[str, str | float]:
+    config: dict[str, str | float] = {}
+    count_patterns = {
+        "Surfaces": r"#\s*Surfaces\s*=\s*([-+]?\d+)",
+        "Strips": r"#\s*Strips\s*=\s*([-+]?\d+)",
+        "Vortices": r"#\s*Vortices\s*=\s*([-+]?\d+)",
+    }
     for line in lines:
         config_match = re.search(r"Configuration:\s*(.+)$", line)
         if config_match:
             config["Configuration"] = config_match.group(1).strip()
-        count_match = re.search(r"#\s*Surfaces\s*=\s*([-+]?\d+)", line)
-        if count_match:
-            config["Surfaces"] = float(count_match.group(1))
-        count_match = re.search(r"#\s*Strips\s*=\s*([-+]?\d+)", line)
-        if count_match:
-            config["Strips"] = float(count_match.group(1))
-        count_match = re.search(r"#\s*Vortices\s*=\s*([-+]?\d+)", line)
-        if count_match:
-            config["Vortices"] = float(count_match.group(1))
+        for key, pattern in count_patterns.items():
+            count_match = re.search(pattern, line)
+            if count_match:
+                config[key] = float(count_match.group(1))
+    return config
 
+
+def _parse_sb_summary(lines: list[str]) -> dict[str, float]:
+    summary: dict[str, float] = {}
+    in_summary = False
+    for line in lines:
         if line.strip().startswith("Run case:"):
             in_summary = True
             continue
@@ -392,38 +424,11 @@ def _parse_sb_data(
             in_summary = False
         if in_summary:
             summary.update(_parse_fe_key_values(line))
+    return summary
 
-    def _parse_derivative_table(start_index: int) -> tuple[DataFrame, int]:
-        rows: list[dict[str, float | str]] = []
-        i = start_index + 1
-        while i < len(lines):
-            line = lines[i]
-            if not line.strip():
-                if rows:
-                    break
-                i += 1
-                continue
-            if line.strip().startswith("-"):
-                i += 1
-                continue
-            if "Geometry-axis derivatives" in line:
-                break
-            if "|" in line:
-                label = line.split("|", 1)[0].strip()
-                pairs = re.findall(
-                    r"([A-Za-z0-9']+)\s*=\s*([-+]?\d*\.?\d+(?:[Ee][-+]?\d+)?)",
-                    line,
-                )
-                row: dict[str, float | str] = {"label": label}
-                for key, value in pairs:
-                    row[key] = float(value)
-                rows.append(row)
-            i += 1
-        if not rows:
-            return DataFrame(), i
-        df = DataFrame(rows)
-        return df, i
 
+def _parse_sb_tables(lines: list[str]) -> list[tuple[str, DataFrame]]:
+    tables: list[tuple[str, DataFrame]] = []
     header_map = {
         "axial   vel. u": "Geometry-Axis Derivatives (u/v/w)",
         "roll rate  p": "Geometry-Axis Derivatives (p/q/r)",
@@ -432,7 +437,39 @@ def _parse_sb_data(
     for i, line in enumerate(lines):
         for marker, title in header_map.items():
             if marker in line:
-                df, _ = _parse_derivative_table(i)
+                df, _ = _parse_derivative_table(lines, i)
                 if not df.empty:
                     tables.append((title, df))
-    return config, refs, summary, tables
+    return tables
+
+
+def _parse_derivative_table(lines: list[str], start_index: int) -> tuple[DataFrame, int]:
+    rows: list[dict[str, float | str]] = []
+    i = start_index + 1
+    while i < len(lines):
+        line = lines[i]
+        if not line.strip():
+            if rows:
+                break
+            i += 1
+            continue
+        if line.strip().startswith("-"):
+            i += 1
+            continue
+        if "Geometry-axis derivatives" in line:
+            break
+        if "|" in line:
+            label = line.split("|", 1)[0].strip()
+            pairs = re.findall(
+                r"([A-Za-z0-9']+)\s*=\s*([-+]?\d*\.?\d+(?:[Ee][-+]?\d+)?)",
+                line,
+            )
+            row: dict[str, float | str] = {"label": label}
+            for key, value in pairs:
+                row[key] = float(value)
+            rows.append(row)
+        i += 1
+    if not rows:
+        return DataFrame(), i
+    df = DataFrame(rows)
+    return df, i

@@ -15,38 +15,12 @@ GUI objects in CEASIOMpy.
 
 import pandas as pd
 import streamlit as st
-
 from CEASIOMpyStreamlit.streamlitutils import save_cpacs_file
 from cpacspy.cpacsfunctions import (
     get_string_vector,
     get_value_or_default,
-    get_value,
 )
-
-from tixi3.tixi3wrapper import Tixi3
 from ceasiompy import log
-
-from ceasiompy.utils.geometryfunctions import (
-    return_uid_wings_sections,
-)
-
-from ceasiompy.utils.commonxpaths import (
-    WINGS_XPATH,
-    AEROPERFORMANCE_XPATH,
-)
-
-from ceasiompy.SMTrain import (
-    SMTRAIN_XPATH_AEROMAP_UID
-)
-
-from ceasiompy.SMTrain import (
-    WING_PARAMETERS,
-    AEROMAP_FEATURES,
-)
-
-from ceasiompy.SMTrain.func.config import (
-    get_xpath_for_param,
-)
 
 # ==============================================================================
 #   FUNCTIONS

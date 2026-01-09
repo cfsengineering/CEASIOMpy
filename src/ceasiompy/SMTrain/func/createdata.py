@@ -10,24 +10,17 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 # ==============================================================================
 
 import streamlit as st
-import pandas as pd
 from pandas import concat
-from shutil import copyfile
-import shutil
-import gmsh
 from cpacspy.cpacsfunctions import get_value, get_value_or_default
 from ceasiompy.PyAVL.pyavl import main as run_avl
 from ceasiompy.SU2Run.su2run import main as run_su2
 from ceasiompy.CPACS2GMSH.cpacs2gmsh import main as run_cpacs2gmsh
 from ceasiompy.SMTrain.func.utils import (
     create_aeromap_from_varpts,
-    generate_su2_wkdir,
 )
 from ceasiompy.SMTrain.func.config import (
     retrieve_aeromap_data,
     retrieve_ceasiompy_db_data,
-    get_xpath_for_param,
-    update_geometry_cpacs,
 )
 from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
@@ -48,7 +41,6 @@ from ceasiompy.SU2Run import SU2_MAX_ITER_XPATH
 from ceasiompy.SMTrain.func import AEROMAP_SELECTED
 from ceasiompy.SMTrain import (
     SMTRAIN_AVL_DATABASE_XPATH,
-    MODULE_NAME as SMTrain
 )
 from ceasiompy.PyAVL import (
     AVL_AEROMAP_UID_XPATH,

@@ -35,26 +35,15 @@ from ceasiompy.SMTrain.func.config import (
 
 from ceasiompy.SMTrain.func.trainsurrogatemodel import (
     save_model,
+    save_model_geom,
     run_first_level_training,
     run_first_level_training_geometry,
     run_adaptative_refinement,
     run_adaptative_refinement_geom,
     training_existing_db,
     run_adaptative_refinement_geom_existing_db,
-    save_model_RBF,
-    run_first_level_training_RBF,
-    run_first_level_training_geometry_RBF,
-    training_existing_db_RBF,
 )
 
-# from ceasiompy.SMTrain.func.trainsurrogateRBF import (
-#     save_model_RBF,
-#     run_first_level_training_RBF,
-#     run_first_level_training_geometry_RBF,
-#     run_adaptative_refinement_RBF,
-#     run_adaptative_refinement_geom_RBF,
-#     training_existing_db_RBF,
-# )
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
@@ -67,14 +56,9 @@ from ceasiompy.SMTrain import (
     MODULE_NAME,
 )
 
-from ceasiompy.utils.ceasiompyutils import (
-    get_conditions_from_aeromap,
-)
-
 import pandas as pd
 import sys
 import shutil
-import csv
 import time
 
 # =================================================================================================
@@ -143,7 +127,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 plot_dir.mkdir(parents=True, exist_ok=True)
                 plot_validation(model, sets, objective, plot_dir)
 
-            save_model(cpacs, model, objective, results_dir)
+                save_model(cpacs, model, objective, results_dir)
 
         if simulation_purpose == "Geometry Exploration":
 
@@ -254,7 +238,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
                     model_dir = Path(results_dir)
                     model_dir.mkdir(parents=True, exist_ok=True)
-                    save_model(cpacs, krg_model, objective, model_dir, param_order)
+                    save_model_geom(cpacs, krg_model, objective, model_dir, param_order)
 
                 if selected_rbf_model:
                     plot_dir = results_dir / "Validation_plot_RBF"
@@ -263,7 +247,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
                     model_dir = Path(results_dir)
                     model_dir.mkdir(parents=True, exist_ok=True)
-                    save_model(cpacs, rbf_model, objective, model_dir, param_order)
+                    save_model_geom(cpacs, rbf_model, objective, model_dir, param_order)
 
     if old_new_sim == "Load Geometry Exploration Simulations":
         krg_model, rbf_model, sets, param_order = training_existing_db(
@@ -294,7 +278,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
                 model_dir = Path(results_dir)
                 model_dir.mkdir(parents=True, exist_ok=True)
-                save_model(cpacs, krg_model, objective, model_dir, param_order)
+                save_model_geom(cpacs, krg_model, objective, model_dir, param_order)
 
             if selected_rbf_model:
                 plot_dir = results_dir / "Validation_plot_RBF"
@@ -303,7 +287,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
                 model_dir = Path(results_dir)
                 model_dir.mkdir(parents=True, exist_ok=True)
-                save_model(cpacs, rbf_model, objective, model_dir, param_order)
+                save_model_geom(cpacs, rbf_model, objective, model_dir, param_order)
 
     end = time.perf_counter()
     print(f"ESECUTION TIME: {end - start} seconds")

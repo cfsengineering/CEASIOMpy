@@ -45,27 +45,15 @@ from ceasiompy.SMTrain.func.utils import (
     concatenate_if_not_none,
 )
 
-from ceasiompy.PyAVL.pyavl import main as run_avl
 from ceasiompy.SMTrain.func.config import (
-    retrieve_aeromap_data,
     get_xpath_for_param,
     update_geometry_cpacs,
 )
-from unittest.mock import MagicMock
-import streamlit as st
-from ceasiompy.PyAVL import (
-    AVL_AEROMAP_UID_XPATH,
-    MODULE_NAME as PYAVL_NAME,
-)
+
 from ceasiompy.SU2Run import (
-    SU2_AEROMAP_UID_XPATH,
     MODULE_NAME as SU2RUN_NAME,
 )
-from ceasiompy.utils.ceasiompyutils import (
-    update_cpacs_from_specs,
-    get_results_directory,
-    current_workflow_dir,
-)
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.SMTrain.func import AEROMAP_SELECTED
 
 from numpy import ndarray

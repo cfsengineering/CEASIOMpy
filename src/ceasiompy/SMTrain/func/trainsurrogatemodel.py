@@ -394,7 +394,6 @@ def run_first_level_training_geometry(
     lh_sampling_geom_path: Union[Path, None],
     objective: str,
     split_ratio: float,
-    n_samples: int,
     pyavl_dir: Path,
     results_dir: Path,
     KRG_model_bool: bool,
@@ -922,41 +921,6 @@ def compute_loss_RBF(
     return compute_rmse(model, x_, y_) + lambda_penalty * np.mean(model.predict_variances(x_))
 
 
-def save_model_RBF(
-    cpacs: CPACS,
-    model: Union[RBF, MFK],
-    objective: str,
-    results_dir: Path,
-    param_order: list[str],
-) -> None:
-    """
-     Save multiple trained surrogate models (one per flight condition).
-
-    Args:
-        cpacs: CPACS file.
-        model: Trained surrogate model.
-        coefficient_name (str): Name of the aerodynamic coefficient (e.g., "cl" or "cd").
-        results_dir (Path): Where the model will be saved.
-    """
-    tixi = cpacs.tixi
-
-    model_path = results_dir / "surrogateModel.pkl"
-    with open(model_path, "wb") as file:
-        joblib.dump(
-            value={
-                "model": model,
-                "coefficient": objective,
-                "param_order": param_order,
-            },
-            filename=file,
-        )
-    log.info(f"Model saved to {model_path}")
-
-    create_branch(tixi, SM_XPATH)
-    add_value(tixi, SM_XPATH, model_path)
-    log.info("Finished Saving model.")
-
-
 def log_params_RBF(result: OptimizeResult) -> None:
     """Log parametri per RBF SMT (d0, poly_degree, reg)"""
     params = result.x
@@ -1058,6 +1022,7 @@ def training_existing_db_RBF(results_dir: Path, split_ratio: float):
     best_geometries_df.to_csv(results_dir / "best_geometric_configurations.csv", index=False)
 
     param_cols = df1.columns.drop(objective)
+    n_params = param_cols.columns.size
 
     df_norm = df1.copy()
     normalization_params = {}
@@ -1073,7 +1038,7 @@ def training_existing_db_RBF(results_dir: Path, split_ratio: float):
 
     level1_sets = split_data(df1, objective, split_ratio)
 
-    model, rmse = train_surrogate_model_RBF(level1_sets)
+    model, rmse = train_surrogate_model_RBF(n_params, level1_sets)
 
     param_order = [col for col in df1.columns if col != objective]
 

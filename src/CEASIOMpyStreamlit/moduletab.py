@@ -403,7 +403,7 @@ def add_gui_object(
                             sections_selected_xpath = (
                                 f"{xpath}/{wing_uid}/sections/{section_uid}/selected"
                             )
-                            col1,col2,col3 = st.columns([0.05,0.3,0.7])
+                            col2,col3 = st.columns([0.05,0.3,0.7])
                             with col2:
                                 st.markdown("""--""")
                                 section_selected = st.checkbox(

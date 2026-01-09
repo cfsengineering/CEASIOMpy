@@ -66,12 +66,6 @@ import time
 # =================================================================================================
 
 
-"""
-Stato attuale:
-separa simulazioni in funzione delle condizioni di volo, poi crea un modello per ognuno di questo
-"""
-
-
 def main(cpacs: CPACS, results_dir: Path) -> None:
     """
     Train a surrogate model (single-level or multi-fidelity) using aerodynamic data.
@@ -198,7 +192,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 lh_sampling_geom_path=lh_sampling_geom_path,
                 objective=objective,
                 split_ratio=split_ratio,
-                n_samples=n_samples_geometry,
                 pyavl_dir=computations_dir,
                 results_dir=results_dir,
                 KRG_model_bool=selected_krg_model,

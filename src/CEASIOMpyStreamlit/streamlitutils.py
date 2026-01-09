@@ -19,8 +19,8 @@ import pandas as pd
 import streamlit as st
 
 from cpacspy.cpacsfunctions import (
-    add_string_vector,
     add_value,
+    add_string_vector,
 )
 
 from PIL import Image
@@ -33,6 +33,19 @@ from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
+
+
+def rm_wkflow_status():
+    # Remove any status information for the last workflow (if any),
+    # so that a stopped run does not keep stale status entries.
+    wkflow_dir = get_last_workflow()
+    if wkflow_dir is not None:
+        status_file = Path(wkflow_dir, "workflow_status.json")
+        if status_file.exists():
+            try:
+                status_file.unlink()
+            except OSError:
+                pass
 
 
 def color_cell(cell):
@@ -119,19 +132,28 @@ def get_last_workflow():
     return Path(st.session_state.workflow.working_dir, f"Workflow_{last_workflow_nb:03}")
 
 
-def save_cpacs_file():
+def save_cpacs_file(logging: bool = True):
     update_all_modified_value()
-    saved_cpacs_file = Path(st.session_state.workflow.working_dir, "CPACS_selected_from_GUI.xml")
+    if "workflow" not in st.session_state:
+        if logging:
+            st.warning("No Workflow has been defined yet!")
+        return None
+
+    saved_cpacs_file = Path(st.session_state.workflow.working_dir, "selected_cpacs.xml")
+    if "cpacs" not in st.session_state:
+        if logging:
+            st.warning("No CPACS file has been selected!")
+        return None
     st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
     st.session_state.workflow.cpacs_in = saved_cpacs_file
     st.session_state.cpacs = CPACS(saved_cpacs_file)
 
 
-def create_sidebar(how_to_text):
+def create_sidebar(how_to_text, page_title="CEASIOMpy"):
     """Create side bar with a text explaining how the page should be used."""
 
     im = Image.open(CEASIOMPY_LOGO_PATH)
-    st.set_page_config(page_title="CEASIOMpy", page_icon=im)
+    st.set_page_config(page_title=page_title, page_icon=im)
     st.sidebar.image(im)
     st.sidebar.markdown(how_to_text)
 

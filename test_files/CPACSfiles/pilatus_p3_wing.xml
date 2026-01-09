@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cpacs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="../schema/cpacs_schema.xsd">
+  <header>
+    <name>P3 Wing Model</name>
+    <version>1.0.0</version>
+    <versionInfos>
+      <versionInfo version="1.0.0">
+        <cpacsVersion>3.5</cpacsVersion>
+        <creator>Prof. Dr. Michel Guillaume</creator>
+        <timestamp>2025-01-15T10:30:00</timestamp>
+        <description>This is a Pilatus P3 wing (design 1952)example with H tail</description>
+      </versionInfo>
+    </versionInfos>
+  </header>
+  <vehicles>
+    <aircraft>
+      <model uID="p3aircraft">
+        <name>P3</name>
+        <description>Data Lastannahmen Tragwerk &amp; Leitwerk Geometry wing from report S-098: P3 Pulsations und statischer Belastungsversuch  </description>
+        <wings>
+          <wing uID="wing1" symmetry="x-z-plane">
+            <name></name>
+            <description>wing1 leading edge is at x = 2.78m and z = -0.18m from origin of A/C coordinate system </description>
+            <transformation>
+              <translation>
+                <x>2.78</x>
+                <z>-0.18</z>
+              </translation>
+            </transformation>
+            <sections>
+              <section uID="wing1section1">
+                <name>root section</name>
+                <transformation>
+                  <rotation>
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <scaling>
+                    <x>1</x>
+                    <y>1</y>
+                    <z>1</z>
+                  </scaling>
+                  <translation>
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="wing1section1element1">
+                    <name>wing root element</name>
+                    <airfoilUID>NACA65415</airfoilUID>
+                    <transformation>
+                      <rotation>
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <scaling>
+                        <x>1.9</x>
+                        <y>1</y>
+                        <z>1.9</z>
+                      </scaling>
+                      <translation>
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="wing1section2">
+                <name>middle section</name>
+                <transformation>
+                  <rotation>
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <scaling>
+                    <x>1</x>
+                    <y>1</y>
+                    <z>1</z>
+                  </scaling>
+                  <translation>
+                    <x>0</x>
+                    <y>0</y>
+                    <z>0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="wing1section2element1">
+                    <name>wing tip element</name>
+                    <airfoilUID>NACA65415</airfoilUID>
+                    <transformation>
+                      <rotation>
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <scaling>
+                        <x>1.9</x>
+                        <y>1</y>
+                        <z>1.9</z>
+                      </scaling>
+                      <translation>
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="wing1section3">
+                <name>outer section</name>
+                <transformation>
+                  <rotation>
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <scaling>
+                    <x>1</x>
+                    <y>1</y>
+                    <z>1</z>
+                  </scaling>
+                  <translation>
+                    <x>0</x>
+                    <y>0</y>
+                    <z>0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="wing1section3element1">
+                    <name>wing tip element</name>
+                    <airfoilUID>NACA65415</airfoilUID>
+                    <transformation>
+                      <rotation>
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <scaling>
+                        <x>1.14</x>
+                        <y>1</y>
+                        <z>1.14</z>
+                      </scaling>
+                      <translation>
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+            </sections>
+            <segments>
+              <segment uID="wing1segment1">
+                <name>Inner Wing</name>
+                <fromElementUID>wing1section1element1</fromElementUID>
+                <toElementUID>wing1section2element1</toElementUID>
+              </segment>
+              <segment uID="wing1segment2">
+                <name>Outer Wing</name>
+                <fromElementUID>wing1section2element1</fromElementUID>
+                <toElementUID>wing1section3element1</toElementUID>
+              </segment>
+            </segments>
+            <positionings>
+              <positioning uID="pos1">
+                <name>position inner wing</name>
+                <dihedralAngle>0</dihedralAngle>
+                <sweepAngle>0</sweepAngle>
+                <toSectionUID>wing1section2</toSectionUID>
+                <length>1.25</length>
+              </positioning>
+              <positioning uID="pos2">
+                <name>position outer wing</name>
+                <dihedralAngle>3</dihedralAngle>
+                <sweepAngle>5</sweepAngle>
+                <fromSectionUID>wing1section2</fromSectionUID>
+                <toSectionUID>wing1section3</toSectionUID>
+                <length>3.75</length>
+              </positioning>
+            </positionings>
+            <componentSegments>
+              <componentSegment uID="wing1_CompSeg1">
+                <name>wing1_CompSeg1</name>
+                <description>Aileron with span 2.2, staring at 1.75 m from Outer wing segment, inner hinge line at 78% chord and outer hinge line at 65% chort (at wing tip)</description>
+                <fromElementUID isLink="True">wing1section2element1</fromElementUID>
+                <toElementUID isLink="True">wing1section3element1</toElementUID>
+                <controlSurfaces>
+                  <trailingEdgeDevices>
+                    <trailingEdgeDevice uID="wing1_CompSeg1_Aileron">
+                      <name>wing1_CompSeg1_Aileron</name>
+                      <description>Aileron as part of the Outer Wing</description>
+                      <parentUID isLink="True">wing1_CompSeg1</parentUID>
+                      <path>
+                        <steps>
+                          <step>
+                            <controlParameter>-1</controlParameter>
+                            <hingeLineRotation>-24</hingeLineRotation>
+                          </step>
+                          <step>
+                            <controlParameter>1</controlParameter>
+                            <hingeLineRotation>12</hingeLineRotation>
+                          </step>
+                        </steps>
+                        <innerHingePoint>
+                          <hingeRelHeight>0</hingeRelHeight>
+                          <hingeXsi>0.78</hingeXsi>
+                        </innerHingePoint>
+                        <outerHingePoint>
+                          <hingeRelHeight>0</hingeRelHeight>
+                          <hingeXsi>0.70</hingeXsi>
+                        </outerHingePoint>
+                      </path>
+                      <outerShape>
+                        <innerBorder>
+                          <etaLE>
+                            <eta>0.41</eta>
+                            <referenceUID>wing1_CompSeg1</referenceUID>
+                          </etaLE>
+                          <etaTE>
+                            <eta>0.41</eta>
+                            <referenceUID>wing1_CompSeg1</referenceUID>
+                          </etaTE>
+                          <xsiLE>
+                            <xsi>0.78</xsi>
+                            <referenceUID>wing1_CompSeg1</referenceUID>
+                          </xsiLE>
+                        </innerBorder>
+                        <outerBorder>
+                          <etaLE>
+                            <eta>1</eta>
+                            <referenceUID>wing1_CompSeg1</referenceUID>
+                          </etaLE>
+                          <etaTE>
+                            <eta>1</eta>
+                            <referenceUID>wing1_CompSeg1</referenceUID>
+                          </etaTE>
+                          <xsiLE>
+                            <xsi>0.72</xsi>
+                            <referenceUID>wing1_CompSeg1</referenceUID>
+                          </xsiLE>
+                        </outerBorder>
+                      </outerShape>
+                    </trailingEdgeDevice>
+                  </trailingEdgeDevices>
+                </controlSurfaces>
+              </componentSegment>
+            </componentSegments>
+          </wing>
+          <wing uID="HTP" symmetry="x-z-plane">
+            <name>HT wing</name>
+            <description>Position of leading edge is at x = 7.88 m, z = 0.47 from origin of A/C coordinate system</description>
+            <transformation>
+              <translation>
+                <x>7.88</x>
+                <z>0.47</z>
+              </translation>
+            </transformation>
+            <sections>
+              <section uID="HTPsection1">
+                <name>root section Tail</name>
+                <elements>
+                  <element uID="HTPsection1element1">
+                    <name>root element Tail</name>
+                    <airfoilUID>NACA0012</airfoilUID>
+                    <transformation>
+                      <rotation>
+                        <x>0</x>
+                        <y>0</y>
+                        <z>0</z>
+                      </rotation>
+                      <scaling>
+                        <x>1.3</x>
+                        <y>1</y>
+                        <z>1.3</z>
+                      </scaling>
+                      <translation>
+                        <x>0</x>
+                        <y>0</y>
+                        <z>0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+                <transformation />
+              </section>
+              <section uID="HTPsection2">
+                <name>Tip Tail Section</name>
+                <elements>
+                  <element uID="HTPsection2element1">
+                    <name>tip element Tail</name>
+                    <airfoilUID>NACA0012</airfoilUID>
+                    <transformation>
+                      <rotation>
+                        <x>0</x>
+                        <y>0</y>
+                        <z>0</z>
+                      </rotation>
+                      <scaling>
+                        <x>0.75</x>
+                        <y>1</y>
+                        <z>0.75</z>
+                      </scaling>
+                      <translation>
+                        <x>0</x>
+                        <y>0</y>
+                        <z>0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+                <transformation />
+              </section>
+            </sections>
+            <segments>
+              <segment uID="HTPsegment1">
+                <name>Root Tail Section</name>
+                <fromElementUID>HTPsection1element1</fromElementUID>
+                <toElementUID>HTPsection2element1</toElementUID>
+              </segment>
+            </segments>
+            <positionings>
+              <positioning uID="posHTP1">
+                <name>position inner wing</name>
+                <dihedralAngle>0</dihedralAngle>
+                <sweepAngle>11</sweepAngle>
+                <toSectionUID>HTPsection2</toSectionUID>
+                <length>1.575</length>
+              </positioning>
+            </positionings>
+            <parentUID>p3aircraft</parentUID>
+            <componentSegments>
+              <componentSegment uID="HTP_CompSeg1">
+                <name>Rudder of H Tail</name>
+                <description>Rudder tr = 0.5m at root and tr at ti tr = 0.29 m at tip; span rudder bH = 3.25 m</description>
+                <fromElementUID isLink="True">HTPsection1element1</fromElementUID>
+                <toElementUID isLink="True">HTPsection2element1</toElementUID>
+                <controlSurfaces>
+                  <trailingEdgeDevices>
+                    <trailingEdgeDevice uID="HTP_CompSeg1_Rud">
+                      <name>HTP_CompSeg1_Rud</name>
+                      <description>Rudder as part of the P3 H Tail</description>
+                      <parentUID isLink="True">HTP_CompSeg1</parentUID>
+                      <path>
+                        <steps>
+                          <step>
+                            <controlParameter>-1</controlParameter>
+                            <hingeLineRotation>-28</hingeLineRotation>
+                          </step>
+                          <step>
+                            <controlParameter>1</controlParameter>
+                            <hingeLineRotation>28</hingeLineRotation>
+                          </step>
+                        </steps>
+                        <innerHingePoint>
+                          <hingeRelHeight>0</hingeRelHeight>
+                          <hingeXsi>0.61</hingeXsi>
+                        </innerHingePoint>
+                        <outerHingePoint>
+                          <hingeRelHeight>0</hingeRelHeight>
+                          <hingeXsi>0.61</hingeXsi>
+                        </outerHingePoint>
+                      </path>
+                      <outerShape>
+                        <innerBorder>
+                          <etaTE>
+                            <eta>0</eta>
+                            <referenceUID>HTP_CompSeg1</referenceUID>
+                          </etaTE>
+                          <etaLE>
+                            <eta>0</eta>
+                            <referenceUID>HTP_CompSeg1</referenceUID>
+                          </etaLE>
+                          <xsiLE>
+                            <xsi>0.61</xsi>
+                            <referenceUID>HTP_CompSeg1</referenceUID>
+                          </xsiLE>
+                        </innerBorder>
+                        <outerBorder>
+                          <etaTE>
+                            <eta>1</eta>
+                            <referenceUID>HTP_CompSeg1</referenceUID>
+                          </etaTE>
+                          <etaLE>
+                            <eta>1</eta>
+                            <referenceUID>HTP_CompSeg1</referenceUID>
+                          </etaLE>
+                          <xsiLE>
+                            <xsi>0.61</xsi>
+                            <referenceUID>HTP_CompSeg1</referenceUID>
+                          </xsiLE>
+                        </outerBorder>
+                      </outerShape>
+                    </trailingEdgeDevice>
+                  </trailingEdgeDevices>
+                </controlSurfaces>
+              </componentSegment>
+            </componentSegments>
+          </wing>
+          <wing uID="VTP">
+            <name>VTP P3 Vertical Zail</name>
+            <description>VTP Tail root section 1.3 m; tip section 0.74 m; span (tail height) 1.4 m, sweep angle 10°, ref. length x = 7.5 m</description>
+            <transformation>
+              <translation>
+                <x>7.50</x>
+                <z>0.65</z>
+              </translation>
+            </transformation>
+            <sections>
+              <section uID="VTP_Sec1">
+                <name>TP Section 1</name>
+                <elements>
+                  <element uID="VTP_Sec1_El1">
+                    <name>TP Section 1 Main Element</name>
+                    <airfoilUID>NACA0012</airfoilUID>
+                    <transformation>
+                      <scaling>
+                        <x>1.3</x>
+                        <y>1</y>
+                        <z>1.3</z>
+                      </scaling>
+                    </transformation>
+                  </element>
+                </elements>
+                <transformation>
+                  <rotation>
+                    <x>90</x>
+                  </rotation>
+                </transformation>
+              </section>
+              <section uID="VTP_Sec2">
+                <name>TP Section 2</name>
+                <elements>
+                  <element uID="VTP_Sec2_El1">
+                    <name>TP Section 2 Main Element</name>
+                    <airfoilUID>NACA0009</airfoilUID>
+                    <transformation>
+                      <scaling>
+                        <x>0.74</x>
+                        <y>1</y>
+                        <z>0.74</z>
+                      </scaling>
+                    </transformation>
+                  </element>
+                </elements>
+                <transformation>
+                  <rotation>
+                    <x>90</x>
+                  </rotation>
+                </transformation>
+              </section>
+            </sections>
+            <segments>
+              <segment uID="VTP_Seg">
+                <name>Segment from TP Section 1 Main Element to TP Section 2 Main Element</name>
+                <fromElementUID>VTP_Sec1_El1</fromElementUID>
+                <toElementUID>VTP_Sec2_El1</toElementUID>
+              </segment>
+            </segments>
+            <positionings>
+              <positioning uID="VTP_positioning">
+                <name>TP Section Positioning</name>
+                <length>1.4</length>
+                <sweepAngle>10</sweepAngle>
+                <dihedralAngle>90</dihedralAngle>
+                <toSectionUID>VTP_Sec2</toSectionUID>
+              </positioning>
+            </positionings>
+            <parentUID>p3aircraft</parentUID>
+            <componentSegments>
+              <componentSegment uID="VTP_CompSeg1">
+                <name>Rudder of V Tail</name>
+                <description>Rudder tr = 0.5 t for the whole V Tail; span rudder bV = 1.4 m</description>
+                <fromElementUID isLink="True">VTP_Sec1_El1</fromElementUID>
+                <toElementUID isLink="True">VTP_Sec2_El1</toElementUID>
+                <controlSurfaces>
+                  <trailingEdgeDevices>
+                    <trailingEdgeDevice uID="VTP_CompSeg1_Rud">
+                      <name>VTP_CompSeg1_Rud</name>
+                      <description>Rudder as part of the P3 H Tail</description>
+                      <parentUID isLink="True">VTP_CompSeg1</parentUID>
+                      <path>
+                        <steps>
+                          <step>
+                            <controlParameter>-1</controlParameter>
+                            <hingeLineRotation>-24</hingeLineRotation>
+                          </step>
+                          <step>
+                            <controlParameter>1</controlParameter>
+                            <hingeLineRotation>24</hingeLineRotation>
+                          </step>
+                        </steps>
+                        <innerHingePoint>
+                          <hingeRelHeight>0</hingeRelHeight>
+                          <hingeXsi>0.5</hingeXsi>
+                        </innerHingePoint>
+                        <outerHingePoint>
+                          <hingeRelHeight>0</hingeRelHeight>
+                          <hingeXsi>0.5</hingeXsi>
+                        </outerHingePoint>
+                      </path>
+                      <outerShape>
+                        <innerBorder>
+                          <etaLE>
+                            <eta>0</eta>
+                            <referenceUID>VTP_CompSeg1</referenceUID>
+                          </etaLE>
+                          <etaTE>
+                            <eta>0</eta>
+                            <referenceUID>VTP_CompSeg1</referenceUID>
+                          </etaTE>
+                          <xsiLE>
+                            <xsi>0.5</xsi>
+                            <referenceUID>VTP_CompSeg1</referenceUID>
+                          </xsiLE>
+                        </innerBorder>
+                        <outerBorder>
+                          <etaLE>
+                            <eta>1</eta>
+                            <referenceUID>VTP_CompSeg1</referenceUID>
+                          </etaLE>
+                          <etaTE>
+                            <eta>1</eta>
+                            <referenceUID>VTP_CompSeg1</referenceUID>
+                          </etaTE>
+                          <xsiLE>
+                            <xsi>0.5</xsi>
+                            <referenceUID>VTP_CompSeg1</referenceUID>
+                          </xsiLE>
+                        </outerBorder>
+                      </outerShape>
+                    </trailingEdgeDevice>
+                  </trailingEdgeDevices>
+                </controlSurfaces>
+              </componentSegment>
+            </componentSegments>
+          </wing>
+        </wings>
+      </model>
+    </aircraft>
+    <profiles>
+      <wingAirfoils>
+        <wingAirfoil uID="NACA65415">
+          <name>NACA65 415 Airfoil</name>
+          <description>NACA 6-digit asymmetrical airfoil with a thickness of 15percent</description>
+          <pointList>
+            <x>1.0;0.95032;0.900660;0.850920;0.801090;0.751150;0.70111;0.650960;0.600870;0.5504;0.5;0.44954;0.39904;0.34853;0.29803;0.24756;0.19714;0.14681;0.09662;0.07162;0.04673;0.02207;0.00996;0.00526;0.00299;0.0;0.00701;0.00974;0.01504;0.02793;0.05327;0.07838;0.10338;0.15319;0.20286;0.25244;0.30197;0.35147;0.40096;0.45046;0.5;0.5496;0.59928;0.64904;0.69889;0.74885;0.79897;0.84908;0.89934;0.94968;1.0</x>
+            <y>0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0</y>
+            <z>0.0;0.00976;0.01982;0.0302;0.04062;0.05084;0.06055;0.06954;0.07762;0.08456;0.09016;0.09414;0.096148;0.09541;0.0926;0.08771;0.08066;0.07122;0.05864;0.05075;0.04121;0.02883;0.02038;0.01579;0.01291;0.0;-0.01091;-0.01299;-0.0161;-0.02139;-0.02857;-0.03379;-0.03796;-0.0443;-0.04882;-0.05191;-0.05372;-0.05421;-0.0533;-0.05034;-0.04604;-0.04076;-0.03478;-0.02834;-0.02167;-0.01504;-0.00878;-0.00328;0.00086;0.00288;0.0</z>
+          </pointList>
+        </wingAirfoil>
+        <wingAirfoil uID="NACA0009">
+          <name>NACA 0009 Airfoil</name>
+          <pointList>
+            <x>1.0;0.99572;0.98296;0.96194;0.93301;0.89668;0.85355;0.80438;0.75;0.69134;0.62941;0.56526;0.5;0.43474;0.37059;0.33928;0.30866;0.27886;0.25;0.22221;0.19562;0.17033;0.14645;0.12408;0.10332;0.08427;0.06699;0.05156;0.03806;0.02653;0.01704;0.00961;0.00428;0.00107;0.0;0.00107;0.00428;0.00961;0.01704;0.02653;0.03806;0.05156;0.06699;0.08427;0.10332;0.12408;0.14645;0.17033;0.19562;0.22221;0.25;0.27886;0.30866;0.33928;0.37059;0.43474;0.5;0.56526;0.62941;0.69134;0.75;0.80438;0.85355;0.89668;0.93301;0.96194;0.98296;0.99572;1.0</x>
+            <y>0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0</y>
+            <z>0.0;0.00057;0.00218;0.00463;0.0077;0.01127;0.01522;0.01945;0.02384;0.02823;0.03247;0.03638;0.03978;0.04248;0.04431;0.04484;0.04509;0.04504;0.04466;0.04397;0.04295;0.04161;0.03994;0.03795;0.03564;0.03305;0.03023;0.0272;0.02395;0.02039;0.01646;0.01214;0.00767;0.00349;0.0;-0.00349;-0.00767;-0.01214;-0.01646;-0.02039;-0.02395;-0.0272;-0.03023;-0.03305;-0.03564;-0.03795;-0.03994;-0.04161;-0.04295;-0.04397;-0.04466;-0.04504;-0.04509;-0.04484;-0.04431;-0.04248;-0.03978;-0.03638;-0.03247;-0.02823;-0.02384;-0.01945;-0.01522;-0.01127;-0.0077;-0.00463;-0.00218;-0.00057;0.0</z>
+          </pointList>
+        </wingAirfoil>
+        <wingAirfoil uID="NACA0012">
+          <name>NACA 0012 Airfoil</name>
+          <description>NACA 4-digit symmetrical airfoil with a thickness of 12percent</description>
+          <pointList>
+            <x>1.0;0.999416;0.997666;0.994753;0.990685;0.985471;0.979123;0.971656;0.963087;0.953437;0.942728;0.930985;0.918235;0.904509;0.889837;0.874255;0.8578;0.840508;0.822421;0.803581;0.784032;0.763820;0.742992;0.721596;0.699682;0.677303;0.654509;0.631354;0.607892;0.584179;0.560268;0.536217;0.512082;0.487918;0.463783;0.439732;0.415822;0.392108;0.368646;0.345492;0.322698;0.300318;0.278404;0.257008;0.236180;0.215968;0.196419;0.177579;0.159492;0.142201;0.125745;0.110163;0.095492;0.081765;0.069015;0.057272;0.046563;0.036913;0.028344;0.020877;0.014529;0.009315;0.005247;0.002334;0.000584;0.0;0.000584;0.002334;0.005247;0.009315;0.014529;0.020877;0.028344;0.036913;0.046563;0.057272;0.069015;0.081765;0.095492;0.110163;0.125745;0.142201;0.159492;0.177579;0.196419;0.215968;0.23618;0.257008;0.278404;0.300318;0.322698;0.345492;0.368646;0.392108;0.415822;0.439732;0.463783;0.487918;0.512082;0.536217;0.560268;0.584179;0.607892;0.631354;0.654509;0.677303;0.699682;0.721596;0.742992;0.76382;0.784032;0.803581;0.822421;0.840508;0.8578;0.874255;0.889837;0.904509;0.918235;0.930985;0.942728;0.953437;0.963087;0.971656;0.979123;0.985471;0.990685;0.994753;0.997666;0.999416;1.0</x>
+            <y>0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0</y>
+            <z>0.0;0.001342;0.001587;0.001994;0.002560;0.003280;0.004152;0.005169;0.006324;0.007611;0.009022;0.010549;0.012182;0.013914;0.015735;0.017635;0.019605;0.021635;0.023714;0.025834;0.027983;0.030152;0.032329;0.034506;0.03667;0.038811;0.040917;0.042978;0.04498;0.046912;0.048762;0.050516;0.052162;0.053687;0.055077;0.05632;0.057403;0.058314;0.059042;0.059575;0.059903;0.060017;0.05991;0.059576;0.059008;0.058205;0.057164;0.055886;0.054372;0.052625;0.050651;0.048457;0.046049;0.043437;0.040631;0.037641;0.034479;0.031156;0.027683;0.024071;0.02033;0.016471;0.012501;0.008429;0.00426;0.0;-0.00426;-0.008429;-0.012501;-0.016471;-0.02033;-0.024071;-0.027683;-0.031156;-0.034479;-0.037641;-0.040631;-0.043437;-0.046049;-0.048457;-0.050651;-0.052625;-0.054372;-0.055886;-0.057164;-0.058205;-0.059008;-0.059576;-0.05991;-0.060017;-0.059903;-0.059575;-0.059042;-0.058314;-0.057403;-0.05632;-0.055077;-0.053687;-0.052162;-0.050516;-0.048762;-0.046912;-0.04498;-0.042978;-0.040917;-0.038811;-0.03667;-0.034506;-0.032329;-0.030152;-0.027983;-0.025834;-0.023714;-0.021635;-0.019605;-0.017635;-0.015735;-0.013914;-0.012182;-0.010549;-0.009022;-0.007611;-0.006324;-0.005169;-0.004152;-0.00328;-0.00256;-0.001994;-0.001587;-0.001342;0.0</z>
+          </pointList>
+        </wingAirfoil>
+      </wingAirfoils>
+    </profiles>
+  </vehicles>
+</cpacs>

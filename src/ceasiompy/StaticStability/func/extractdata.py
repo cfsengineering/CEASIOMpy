@@ -183,6 +183,13 @@ def generate_stab_table(
     # Generate dataframe with necessary info
     df = generate_stab_df(cpacs, aeromap_uid, lr_bool)
 
+    if df.empty:
+        log.info(
+            f"No static stability data found for aeromap '{aeromap_uid}'. "
+            "Skipping table and plots."
+        )
+        return stability_table
+
     # Plot different stabilities
     plot_stability(results_dir, df, lr_bool)
 

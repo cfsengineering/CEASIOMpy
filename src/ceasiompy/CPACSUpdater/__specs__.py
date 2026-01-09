@@ -53,16 +53,16 @@ cpacs_inout.add_input(
 )
 
 segments_list = get_segments(st.session_state.cpacs.tixi)
-for wing_name, segment_name in segments_list:
+for wing_uid, segment_uid in segments_list:
     cpacs_inout.add_input(
-        var_name=f"control_surface_{wing_name}_{segment_name}",
-        var_type=list,
+        var_name=f"control_surface_{wing_uid}_{segment_uid}",
+        var_type="AddControlSurfaces",
         default_value=CONTROL_SURFACES_LIST,
         unit=None,
         descr="Type of control surface to add at specific wing and segment of wing.",
-        xpath=CPACSUPDATER_CTRLSURF_XPATH + f"/{wing_name}/{segment_name}",
+        xpath=CPACSUPDATER_CTRLSURF_XPATH + f"/{wing_uid}/{segment_uid}",
         gui=INCLUDE_GUI,
-        gui_name=f"Control Surface for segment {segment_name} of wing {wing_name}",
+        gui_name=f"Control Surface for segment {segment_uid} of wing {wing_uid}",
         gui_group="Control Surfaces Settings",
     )
 

@@ -306,6 +306,7 @@ def generate_gmsh(
     testing_gmsh: bool = False,
     surf: str = None,
     angle: str = None,
+    also_save_cgns: bool = False,
 ) -> Path:
     """
     Generates a mesh from brep files forming an airplane.
@@ -347,6 +348,7 @@ def generate_gmsh(
             - List of the aircraft parts in the model.
 
     """
+
     # Determine if rotors are present in the aircraft model
     rotor_model = cfg_rotors(brep_dir)
 
@@ -900,6 +902,8 @@ def generate_gmsh(
         su2mesh_path = write_gmsh(results_dir, f"{mesh_name}.su2")
         write_gmsh(results_dir, f"{mesh_name}.msh")
 
+    cgns_path = write_gmsh(results_dir, "mesh.cgns") if also_save_cgns else None
+
     process_gmsh_log(gmsh.logger.get())
 
     gmsh.model.occ.synchronize()
@@ -911,4 +915,4 @@ def generate_gmsh(
         gmsh.clear()
         gmsh.finalize()
 
-    return su2mesh_path
+    return su2mesh_path, cgns_path

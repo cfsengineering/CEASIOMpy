@@ -18,7 +18,7 @@ Streamlit page to create a CEASIOMpy workflow
 
 import streamlit as st
 
-from streamlitutils import create_sidebar
+from CEASIOMpyStreamlit.streamlitutils import create_sidebar
 from ceasiompy.utils.moduleinterfaces import get_module_list
 
 from ceasiompy.SMUse import MODULE_NAME as SMUSE
@@ -59,17 +59,23 @@ def section_predefined_workflow():
 
     st.markdown("#### Predefined Workflows")
 
+    active_modules = set(get_module_list(only_active=True))
+
     predefine_workflows = [
-        [PYAVL, STATICSTABILITY, DATABASE],
-        [CPACSUPDATER, "CPACSCreator", CPACS2GMSH, SU2RUN, "ExportCSV"],
-        [CPACS2GMSH, "ThermoData", SU2RUN, "SkinFriction", DATABASE],
+        [PYAVL, STATICSTABILITY],
+        [CPACSUPDATER, "CPACSCreator", CPACS2GMSH, SU2RUN],
+        [CPACS2GMSH, SU2RUN, "SkinFriction"],
         [SMTRAIN, SMUSE, SAVEAEROCOEF],
-        [DYNAMICSTABILITY, DATABASE],
-        # ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"],
+        [DYNAMICSTABILITY],
     ]
 
     for workflow in predefine_workflows:
-        if st.button(" → ".join(workflow)):
+        available = all(module in active_modules for module in workflow)
+
+        button_label = " → ".join(workflow)
+        button_key = f"predefined_workflow_{button_label}"
+
+        if st.button(button_label, key=button_key, disabled=not available):
             st.session_state.workflow_modules = workflow
 
 
@@ -78,7 +84,7 @@ def section_add_module():
     Where to select the workflow.
     """
 
-    st.markdown("#### Your workflow")
+    st.markdown("#### Add Modules to your Workflow")
 
     if "workflow_modules" not in st.session_state:
         st.session_state["workflow_modules"] = []
@@ -102,7 +108,7 @@ def section_add_module():
                     st.session_state.workflow_modules.pop(i)
                     st.rerun()
     else:
-        st.warning("No module has been added to the workflow.")
+        st.warning("No module(s) have been added in the workflow.")
 
     module_list = get_module_list(only_active=True)
 

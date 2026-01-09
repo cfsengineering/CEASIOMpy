@@ -18,6 +18,8 @@ Main module of CEASIOMpy to launch workflow by different way.
 # =================================================================================================
 
 import os
+import sys
+import signal
 import argparse
 import subprocess
 
@@ -29,8 +31,8 @@ from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy import log
 from unittest.mock import patch
-
 from ceasiompy.utils.commonpaths import (
+    WKDIR_PATH,
     STREAMLIT_PATH,
     TEST_CASES_PATH,
     CPACS_FILES_PATH,
@@ -41,7 +43,65 @@ from ceasiompy.utils.commonpaths import (
 # =================================================================================================
 
 
-def testcase_message(testcase_nb):
+def _get_cpu_count() -> int:
+    cpus = os.cpu_count()
+    if cpus is not None:
+        return int(cpus // 2 + 1)
+
+    return 1
+
+
+def _parse_bool(value: str) -> bool:
+    """Parse a CLI boolean value."""
+
+    normalized = value.strip().lower()
+    if normalized in {"1", "true", "t", "yes", "y", "on"}:
+        return True
+    if normalized in {"0", "false", "f", "no", "n", "off"}:
+        return False
+    raise argparse.ArgumentTypeError(f"Invalid boolean value: {value!r}")
+
+
+def _ensure_conda_prefix_bin_first(env: dict[str, str] | None = None) -> dict[str, str] | None:
+    """Ensure `$CONDA_PREFIX/bin` is prepended to PATH when CONDA_PREFIX is set."""
+
+    if env is None:
+        conda_prefix = os.environ.get("CONDA_PREFIX")
+        if not conda_prefix:
+            return None
+        conda_bin = str(Path(conda_prefix) / "bin")
+        path_parts = [p for p in os.environ.get("PATH", "").split(os.pathsep) if p]
+        path_parts = [p for p in path_parts if p != conda_bin]
+        os.environ["PATH"] = os.pathsep.join([conda_bin, *path_parts])
+        return None
+
+    conda_prefix = env.get("CONDA_PREFIX")
+    if not conda_prefix:
+        return env
+    conda_bin = str(Path(conda_prefix) / "bin")
+    path_parts = [p for p in env.get("PATH", "").split(os.pathsep) if p]
+    path_parts = [p for p in path_parts if p != conda_bin]
+    env["PATH"] = os.pathsep.join([conda_bin, *path_parts])
+    return env
+
+
+def _ensure_usr_bin_in_path(env: dict[str, str] | None = None) -> dict[str, str] | None:
+    """Ensure `/usr/bin` is present in PATH."""
+
+    usr_bin = "/usr/bin"
+    if env is None:
+        path_parts = [p for p in os.environ.get("PATH", "").split(os.pathsep) if p]
+        if usr_bin not in path_parts:
+            os.environ["PATH"] = os.pathsep.join([*path_parts, usr_bin])
+        return None
+
+    path_parts = [p for p in env.get("PATH", "").split(os.pathsep) if p]
+    if usr_bin not in path_parts:
+        env["PATH"] = os.pathsep.join([*path_parts, usr_bin])
+    return env
+
+
+def testcase_message(testcase_nb: int) -> None:
     """Top message to show when a test case is run."""
 
     log.info(f"CEASIOMpy as been started from test case {testcase_nb}")
@@ -168,21 +228,141 @@ def run_config_file(config_file) -> None:
     workflow.run_workflow(test=True)
 
 
-def run_gui():
-    """Create an run a workflow from a GUI."""
+def run_gui(
+    cpus: int | None = None,
+    wkdir: Path | None = None,
+    headless: bool = False,
+    port: int | None = None,
+) -> None:
+    """Create and run a workflow from the GUI."""
+
+    if cpus is None:
+        cpus = _get_cpu_count()
+
+    if wkdir is None:
+        wkdir = WKDIR_PATH
+
+    if not headless and not os.environ.get("DISPLAY") and not os.environ.get("WAYLAND_DISPLAY"):
+        headless = True
+        log.info(
+            "No DISPLAY/WAYLAND_DISPLAY detected; starting Streamlit in headless mode "
+            "(open the printed URL manually)."
+        )
+
+    if wkdir.exists():
+        if not wkdir.is_dir():
+            raise NotADirectoryError(
+                f"The working directory path '{wkdir}' exists but is not a directory."
+            )
+    else:
+        try:
+            wkdir.mkdir(parents=True, exist_ok=True)
+        except Exception as exc:
+            raise OSError(f"Unable to create working directory '{wkdir}': {exc}") from exc
 
     log.info("CEASIOMpy has been started from the GUI.")
     env = os.environ.copy()
-    # Add the src directory to PYTHONPATH
+    _ensure_conda_prefix_bin_first(env)
+    # Add CEASIOMpy src directory first (for helper modules like `utilities`),
+    # then OpenVSP Python roots (for degen_geom, openvsp, etc.) to PYTHONPATH.
+    project_root = Path(__file__).resolve().parents[2]
+    src_dir = project_root / "src"
+    vsp_python_root = project_root / "INSTALLDIR/OpenVSP/python"
+    vsp_openvsp_pkg = vsp_python_root / "openvsp"
+    degen_geom_pkg = vsp_python_root / "degen_geom"
+    vsp_config_pkg = vsp_python_root / "openvsp_config"
+    utilities_pkg = vsp_python_root / "utilities"
     env["PYTHONPATH"] = (
-        str(Path(__file__).resolve().parents[2] / "src") + os.pathsep + env.get("PYTHONPATH", "")
+        str(src_dir)
+        + os.pathsep
+        # + str(vsp_python_root)
+        # + os.pathsep
+        + str(vsp_openvsp_pkg)
+        + os.pathsep
+        + str(vsp_config_pkg)
+        + os.pathsep
+        + str(degen_geom_pkg)
+        + os.pathsep
+        + str(utilities_pkg)
+        + os.pathsep
+        + env.get("PYTHONPATH", "")
     )
-    subprocess.run(
-        ["streamlit", "run", "CEASIOMpy.py"],
-        cwd=STREAMLIT_PATH,
-        check=True,
-        env=env,
-    )
+
+    # Environment variables must be strings
+    env["MAX_CPUS"] = str(cpus)
+
+    # Expose working directory to the Streamlit app
+    env["CEASIOMPY_WKDIR"] = str(wkdir)
+
+    args = [
+        sys.executable,
+        "-m",
+        "streamlit",
+        "run",
+        "✈️_Geometry.py",
+        "--server.headless", f"{str(headless).lower()}",
+    ]
+    if port is not None:
+        args += [
+            "--server.port", f"{port}"
+        ]
+
+    try:
+        subprocess.run(
+            args=args,
+            cwd=STREAMLIT_PATH,
+            check=True,
+            env=env,
+        )
+    except FileNotFoundError as exc:
+        log.error(
+            "Unable to start the GUI because Streamlit is not installed in the current "
+            "Python environment."
+        )
+        raise SystemExit(1) from exc
+    except subprocess.CalledProcessError as exc:
+        if exc.returncode < 0:
+            try:
+                sig_name = signal.Signals(-exc.returncode).name
+            except Exception:
+                sig_name = f"SIG{-exc.returncode}"
+            log.error(f"Streamlit crashed ({sig_name}).")
+        else:
+            log.error(f"Streamlit exited with code {exc.returncode}.")
+        raise SystemExit(exc.returncode or 1) from exc
+
+
+def cleanup_previous_workflow_status(wkdir: Path | None = None) -> None:
+    """Remove the last workflow status file without importing Streamlit."""
+    if wkdir is None:
+        wkdir = WKDIR_PATH
+
+    if not wkdir.exists():
+        return
+
+    workflow_dirs = [
+        wkdir_entry
+        for wkdir_entry in wkdir.iterdir()
+        if wkdir_entry.is_dir() and wkdir_entry.name.startswith("Workflow_")
+    ]
+
+    if not workflow_dirs:
+        return
+
+    def workflow_number(path: Path) -> int:
+        parts = path.name.split("_")
+        if parts and parts[-1].isdigit():
+            return int(parts[-1])
+        return -1
+
+    last_workflow = max(workflow_dirs, key=workflow_number)
+    status_file = last_workflow / "workflow_status.json"
+
+    if status_file.exists():
+        try:
+            status_file.unlink()
+        except OSError:
+            pass
 
 
 # =================================================================================================
@@ -190,8 +370,9 @@ def run_gui():
 # =================================================================================================
 
 
-def main():
-
+def main() -> None:
+    _ensure_conda_prefix_bin_first()
+    _ensure_usr_bin_in_path()
     parser = argparse.ArgumentParser(
         description="CEASIOMpy: Conceptual Aircraft Design Environment",
         usage=argparse.SUPPRESS,
@@ -210,6 +391,34 @@ def main():
         "--gui",
         action="store_true",
         help="create a CEASIOMpy workflow with the Graphical user interface",
+    )
+    parser.add_argument(
+        "-p",
+        "--port",
+        required=False,
+        help="Select specific Port.",
+    )
+    parser.add_argument(
+        "--wkdir",
+        type=Path,
+        required=False,
+        help="Select specific work directory (for the results).",
+    )
+    parser.add_argument(
+        "--headless",
+        required=False,
+        nargs="?",
+        const=True,
+        type=_parse_bool,
+        default=False,
+        help="Run Streamlit in headless mode (no browser auto-open).",
+    )
+    parser.add_argument(
+        "--cpus",
+        required=False,
+        type=int,
+        default=_get_cpu_count(),
+        help="Select maximum number of authorized CPUs.",
     )
     parser.add_argument(
         "-m",
@@ -242,7 +451,15 @@ def main():
         return
 
     if args.gui:
-        run_gui()
+        port = int(args.port) if args.port is not None else None
+        wkdir = Path(args.wkdir) if args.wkdir is not None else None
+        cleanup_previous_workflow_status(wkdir)
+        run_gui(
+            port=port,
+            cpus=int(args.cpus),
+            wkdir=wkdir,
+            headless=args.headless,
+        )
         return
 
     # If no argument is given, print the help

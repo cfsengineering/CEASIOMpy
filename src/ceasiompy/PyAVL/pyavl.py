@@ -61,6 +61,7 @@ def run_case(args: tuple[Path, Path], save_fig: bool) -> None:
         wkdir=case_dir_path,
         with_mpi=False,
         stdin=open(str(command_path), "r"),
+        xvfb=True,
     )
     if save_fig:
         convert_ps_to_pdf(case_dir_path)

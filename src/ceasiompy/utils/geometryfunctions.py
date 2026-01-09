@@ -16,7 +16,6 @@ Scripts to convert CPACS file geometry into any geometry.
 # ==============================================================================
 
 import math
-import sqlite3
 import numpy as np
 
 from math import prod
@@ -29,8 +28,8 @@ from ceasiompy.utils.mathsfunctions import (
 
 from numpy import ndarray
 from tixi3.tixi3wrapper import Tixi3
-from ceasiompy.Database.func.storing import CeasiompyDb
 from typing import (
+    Iterable,
     List,
     Tuple,
 )
@@ -40,7 +39,6 @@ from ceasiompy.utils.generalclasses import (
 )
 
 from ceasiompy import log
-from ceasiompy.Database.func import ALLOWED_TABLES
 from ceasiompy.utils.commonpaths import CEASIOMPY_DB_PATH
 from ceasiompy.utils.commonxpaths import WINGS_XPATH
 
@@ -58,6 +56,10 @@ def get_aircrafts_list() -> List:
         (List): Aircraft names.
 
     """
+    import sqlite3
+    from ceasiompy.Database.func import ALLOWED_TABLES
+    from ceasiompy.Database.func.storing import CeasiompyDb
+
     # Codacy: Table and column names are strictly validated against whitelisted values.
     # Check if database exists
     if CEASIOMPY_DB_PATH.exists():
@@ -146,7 +148,7 @@ def convert_fuselage_profiles(
 def get_profile_coord(
     tixi: Tixi3,
     uid_xpath: str,
-) -> Tuple[ndarray, ndarray, ndarray]:
+) -> tuple[str, ndarray, ndarray, ndarray]:
     """
     Get profile coordinate points.
     """
@@ -192,34 +194,35 @@ def check_if_rotated(rotation: Point, elem_uid: str) -> None:
         )
 
 
-def find_wing_xpath(tixi: Tixi3, wing_name: str) -> str:
+def find_wing_xpath(tixi: Tixi3, wing_uid: str) -> str:
     """
-    Find the XPath of a wing by its name in the CPACS file.
+    Find the XPath of a wing by its uID in the CPACS file.
 
     Raises:
-        ValueError: If the wing with the specified name is not found.
+        ValueError: If the wing with the specified uID is not found.
     """
     # Load constant
     wings_xpath = WINGS_XPATH
 
-    # Get xPath from name
+    # Get xPath from uID
     wing_cnt = elements_number(tixi, wings_xpath, "wing", logg=False)
 
     for i in range(1, wing_cnt + 1):
         current_wing_xpath = f"{wings_xpath}/wing[{i}]"
-        current_wing_name = tixi.getTextElement(f"{current_wing_xpath}/name")
-
-        if current_wing_name == wing_name:
+        if not tixi.checkElement(current_wing_xpath):
+            continue
+        current_wing_uid = tixi.getTextAttribute(current_wing_xpath, "uID")
+        if current_wing_uid == wing_uid:
             return current_wing_xpath
 
-    raise ValueError(f"Wing with name '{wing_name}' not found.")
+    raise ValueError(f"Wing with uID '{wing_uid}' not found.")
 
 
-def get_segments_wing(tixi: Tixi3, wing_name: str) -> List[Tuple[str, str, str]]:
+def get_segments_wing(tixi: Tixi3, wing_uid: str) -> List[Tuple[str, str, str]]:
     # Define constants
-    wing_xpath = find_wing_xpath(tixi, wing_name)
+    wing_xpath = find_wing_xpath(tixi, wing_uid)
     segments_xpath = wing_xpath + "/segments"
-    wing_name = tixi.getTextElement(wing_xpath + "/name")
+    wing_uid = get_uid(tixi, wing_xpath)
     segment_cnt = elements_number(tixi, segments_xpath, "segment", logg=False)
 
     # Define variable
@@ -228,11 +231,11 @@ def get_segments_wing(tixi: Tixi3, wing_name: str) -> List[Tuple[str, str, str]]
     #
     for i_seg in range(segment_cnt):
         segment_xpath = segments_xpath + f"/segment[{i_seg + 1}]"
-        segment_name = tixi.getTextElement(segment_xpath + "/name")
+        segment_uid = get_uid(tixi, segment_xpath)
         segment_from_uid = tixi.getTextElement(segment_xpath + "/fromElementUID")
         segment_to_uid = tixi.getTextElement(segment_xpath + "/toElementUID")
 
-        segment_list.append((segment_name, segment_from_uid, segment_to_uid))
+        segment_list.append((segment_uid, segment_from_uid, segment_to_uid))
 
     return segment_list
 
@@ -257,13 +260,13 @@ def get_segments(tixi: Tixi3) -> List[Tuple[str, str]]:
     for i_wing in range(wing_cnt):
         wing_xpath = WINGS_XPATH + f"/wing[{i_wing + 1}]"
         segments_xpath = wing_xpath + "/segments"
-        wing_name = tixi.getTextElement(wing_xpath + "/name")
+        wing_uid = get_uid(tixi, wing_xpath)
         segment_cnt = elements_number(tixi, segments_xpath, "segment", logg=False)
 
         for i_seg in range(segment_cnt):
-            seg_xpath = segments_xpath + f"/segment[{i_seg + 1}]/name"
-            segment_name = tixi.getTextElement(seg_xpath)
-            segment_list.append((wing_name, segment_name))
+            seg_xpath = segments_xpath + f"/segment[{i_seg + 1}]"
+            segment_uid = get_uid(tixi, seg_xpath)
+            segment_list.append((wing_uid, segment_uid))
 
     unique_segment_list = list(set(segment_list))
 
@@ -349,25 +352,6 @@ def get_chord_span(tixi: Tixi3, wing_xpath: str) -> Tuple[float, float]:
     s_ref = y4 - y1
 
     return d12, s_ref
-
-
-def return_namewings(tixi: Tixi3) -> List:
-    """
-    Returns the names of all wings in the tixi handle of the CPACS file.
-    """
-
-    # Initialize list to store wing names
-    wing_names = []
-
-    wing_cnt = elements_number(tixi, WINGS_XPATH, "wing")
-
-    # Iterate through each wing and get its name
-    for i_wing in range(wing_cnt):
-        wing_xpath = WINGS_XPATH + "/wing[" + str(i_wing + 1) + "]"
-        wing_name = tixi.getTextElement(wing_xpath + "/name")
-        wing_names.append(wing_name)
-
-    return wing_names
 
 
 def return_uidwings(tixi: Tixi3) -> List:
@@ -613,14 +597,14 @@ def get_leading_edge(
 
 def access_leading_edges(
     tixi: Tixi3,
-    list_cnt: List,
+    list_cnt: Iterable[int],
     wing_sections_xpath: str,
     wing_transf: Transformation,
     wg_sk_transf: Transformation,
-    pos_x_list: List,
-    pos_y_list: List,
-    pos_z_list: List,
-) -> List[List]:
+    pos_x_list: List[float],
+    pos_y_list: List[float],
+    pos_z_list: List[float],
+) -> List[List[float]]:
     """
     Returns list of leading edges and chord length of each wings' sections (wing_sections_xpath).
 
@@ -666,11 +650,11 @@ def access_leading_edges(
 def wing_sections(
     tixi: Tixi3,
     wing_xpath: str,
-    pos_x_list: List,
-    pos_y_list: List,
-    pos_z_list: List,
+    pos_x_list: List[float],
+    pos_y_list: List[float],
+    pos_z_list: List[float],
     list_type: str,
-) -> List[List]:
+) -> List[List[float]]:
     """
     Retrieve and process the sections of a wing from the CPACS file.
 
@@ -729,6 +713,7 @@ def wing_sections(
             pos_y_list=pos_y_list,
             pos_z_list=pos_z_list,
         )
+    raise ValueError(f"Wing at xPath '{wing_xpath}' has no sections.")
 
 
 def get_main_wing_le(tixi: Tixi3) -> Tuple[float, float, float, float]:

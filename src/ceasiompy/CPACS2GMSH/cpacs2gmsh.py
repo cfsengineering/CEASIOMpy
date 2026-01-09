@@ -23,9 +23,9 @@ Small description of the script
 from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.utils.geometryfunctions import return_uidwings
+from ceasiompy.CPACS2GMSH.func.meshvis import cgns_mesh_checker
 from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
 from ceasiompy.CPACSUpdater.func.controlsurfaces import deflection_angle
-
 from cpacspy.cpacsfunctions import (
     get_value,
     create_branch,
@@ -100,13 +100,16 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
         growth_ratio,
         feature_angle,
         also_save_cgns,
+        mesh_checker,
     ) = retrieve_gui_values(tixi)
 
     # Export airplane's part in .brep format
     export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
 
+    cgns_path = None
+
     if type_mesh == "Euler":
-        su2mesh_path = generate_gmsh(
+        su2mesh_path, cgns_path = generate_gmsh(
             tixi,
             brep_dir,
             wkdir,
@@ -165,7 +168,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
                 angle=angle,
             )
             if also_save_cgns:
-                pentagrow_3d_mesh(
+                cgns_path = pentagrow_3d_mesh(
                     wkdir,
                     fuselage_maxlen=fuselage_maxlen,
                     farfield_factor=farfield_factor,
@@ -183,6 +186,13 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
 
         else:
             log.error("Error in generating SU2 mesh.")
+
+    log.info(f'{mesh_checker=} {cgns_path=}')
+    if mesh_checker and cgns_path is None:
+        log.warning('Mesh checker only works with cgns files.')
+
+    if mesh_checker and cgns_path is not None:
+        cgns_mesh_checker(cgns_path)
 
     # Update SU2 mesh xPath
     if su2mesh_path.exists():

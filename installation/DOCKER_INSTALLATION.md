@@ -33,8 +33,8 @@ Build the Docker image for your system's architecture:
 
 # Determine your computer's architecture:
 
-- Linux/macOS: Run uname -m in the terminal. Look for x86_64/amd64 (Intel/AMD) or arm64/aarch64 (ARM).
-- Windows: Run echo %PROCESSOR_ARCHITECTURE% in Command Prompt/PowerShell. Look for AMD64 (Intel/AMD) or ARM64 (ARM).
+- Linux/macOS: Run `uname -m` in the terminal. Look for x86_64/amd64 (Intel/AMD) or arm64/aarch64 (ARM).
+- Windows: Run `echo %PROCESSOR_ARCHITECTURE%` in Command Prompt/PowerShell. Look for AMD64 (Intel/AMD) or ARM64 (ARM).
 
 # Run the appropriate build command:
 
@@ -62,15 +62,15 @@ ceasiompy-image
 
 On Windows:
 
-```bash
-docker run -it --rm \
--e DISPLAY=$DISPLAY \
--e LIBGL_ALWAYS_SOFTWARE=1 \
--e OMPI_ALLOW_RUN_AS_ROOT=1 \
--e OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
--v /tmp/.X11-unix:/tmp/.X11-unix \
--p 8501:8501 \
--v ${PWD}:/CEASIOMpy \
+```cmd
+docker run -it --rm ^
+-e DISPLAY=$DISPLAY ^
+-e LIBGL_ALWAYS_SOFTWARE=1 ^
+-e OMPI_ALLOW_RUN_AS_ROOT=1 ^
+-e OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 ^
+-v /tmp/.X11-unix:/tmp/.X11-unix ^
+-p 8501:8501 ^
+-v %cd%:/CEASIOMpy ^
 ceasiompy-image
 ```
 

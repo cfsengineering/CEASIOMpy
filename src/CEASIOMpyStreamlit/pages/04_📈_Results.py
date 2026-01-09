@@ -17,17 +17,20 @@ Streamlit page to show results of CEASIOMpy
 # =================================================================================================
 
 import os
+import base64
+import re
 
 import pandas as pd
 import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
 import joblib
+import matplotlib.pyplot as plt
 
-from streamlit_autorefresh import st_autorefresh
-from streamlitutils import (
+from ceasiompy.utils.commonpaths import get_wkdir
+from CEASIOMpyStreamlit.parsefunctions import display_avl_table_file
+from CEASIOMpyStreamlit.streamlitutils import (
     create_sidebar,
-    get_last_workflow,
     highlight_stability,
 )
 
@@ -56,6 +59,8 @@ from SALib.sample import saltelli
 from SALib.analyze import sobol
 import altair as alt
 
+from ceasiompy.PyAVL import AVL_TABLE_FILES
+from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
 
 # =================================================================================================
 #    CONSTANTS
@@ -63,13 +68,14 @@ import altair as alt
 
 HOW_TO_TEXT = (
     "### How to check your results\n"
-    "1. Select an aeromap(s) \n"
-    "1. Choose the parameters to plot\n"
-    "1. Save the figure\n"
-    "1. Check the results for each module\n"
+    "1. Check the results for your workflow\n"
 )
 
 PAGE_NAME = "Results"
+IGNORED_RESULT_FILES: set[str] = {
+    "avl_commands.txt",
+    "logfile_avl.log",
+}
 
 # =================================================================================================
 #    FUNCTIONS
@@ -94,16 +100,70 @@ def display_results_else(path):
 
 def display_results(results_dir):
     try:
-        # """Display results depending which type of file they are."""
-        container_list = ["logs_container", "figures_container", "paraview_container"]
+        # Display results depending on the file type.
+
+        container_list = [
+            "logs_container",
+            "figures_container",
+            "paraview_container",
+            "pdf_container",
+        ]
         clear_containers(container_list)
 
-        for child in sorted(Path(results_dir).iterdir()):
-            print(f'{child=}')
+        def results_sort_key(path: Path) -> tuple[int, str]:
+            '''Priority to files, priority=0 is highest priority.'''
+            suffix = path.suffix.lower()
+            if suffix == ".pdf":
+                priority = 0
+            elif suffix == ".txt":
+                priority = 2
+            else:
+                priority = 1
+            return priority, path.name
+
+        for child in sorted(Path(results_dir).iterdir(), key=results_sort_key):
+            if child.name in IGNORED_RESULT_FILES:
+                continue
+
             if child.suffix == ".smx":
                 if st.button(f"Open {child.name} with SUMO", key=f"{child}_sumo_geom"):
                     os.system(f"dwfsumo {str(child)}")
-            
+
+            elif child.suffix == ".dat":
+                skip_first = False
+                first_line = child.read_text().splitlines()[:1]
+                if first_line:
+                    parts = first_line[0].strip().split()
+                    if len(parts) < 2:
+                        skip_first = True
+                    else:
+                        try:
+                            float(parts[0])
+                            float(parts[1])
+                        except ValueError:
+                            skip_first = True
+                df = pd.read_csv(
+                    child,
+                    sep=r"\s+",
+                    comment="#",
+                    header=None,
+                    skiprows=1 if skip_first else 0,
+                )
+                if df.shape[1] == 2:
+                    df = df.apply(pd.to_numeric, errors="coerce")
+                    df = df.iloc[:, :2].dropna()
+                    if not df.empty:
+                        df.columns = ["x", "y"]
+                        fig, ax = plt.subplots()
+                        ax.plot(df["x"].to_numpy(), df["y"].to_numpy())
+                        ax.set_aspect("equal", adjustable="box")
+                        ax.set_title(child.stem)
+                        ax.set_xlabel("x")
+                        ax.set_ylabel("y")
+                        st.pyplot(fig)
+                        continue
+                st.text_area(child.stem, child.read_text(), height=200)
+
             elif child.suffix == ".su2":
                 if st.button(f"Open {child.name} with Scope", key=f"{child}_su2_mesh"):
                     os.system(f"dwfscope {str(child)}")
@@ -126,6 +186,27 @@ def display_results(results_dir):
                 st.session_state.figures_container.markdown(f"{child.stem.replace('_', ' ')}")
                 st.session_state.figures_container.image(str(child))
 
+            elif child.suffix == ".pdf":
+                if "pdf_container" not in st.session_state:
+                    st.session_state["pdf_container"] = st.container()
+                    st.session_state.pdf_container.markdown("**PDFs**")
+
+                pdf_bytes = child.read_bytes()
+                b64_pdf = base64.b64encode(pdf_bytes).decode("ascii")
+                st.session_state.pdf_container.markdown(f"**{child.name}**")
+                st.session_state.pdf_container.download_button(
+                    "Download PDF",
+                    data=pdf_bytes,
+                    file_name=child.name,
+                    mime="application/pdf",
+                    key=f"{child}_pdf_download",
+                )
+                st.session_state.pdf_container.markdown(
+                    f'<iframe src="data:application/pdf;base64,{b64_pdf}" '
+                    'width="100%" height="700" style="border:0"></iframe>',
+                    unsafe_allow_html=True,
+                )
+
             elif child.suffix == ".md":
                 md_text = child.read_text()
                 # Simple table highlighting for "Stable"/"Unstable"
@@ -137,6 +218,9 @@ def display_results(results_dir):
                 st.text_area(child.stem, child.read_text(), height=200)
 
             elif child.suffix == ".log" or child.suffix == ".txt":
+                if child.name in AVL_TABLE_FILES:
+                    display_avl_table_file(child)
+                    continue
                 if "logs_container" not in st.session_state:
                     st.session_state["logs_container"] = st.container()
                     st.session_state.logs_container.markdown("**Logs**")
@@ -611,12 +695,9 @@ def display_results(results_dir):
                         aircraft_name="best_geometric_configuration",
                     )
 
-            # elif "Case" in child.name and child.is_dir():
             elif child.is_dir():
-                if child == "Computations":
-                    continue
-                # with st.expander(child.stem, expanded=False):
-                #     display_results(child)
+                with st.expander(child.stem, expanded=True):
+                    display_results(child)
 
     except BaseException:
         display_results_else(results_dir)
@@ -632,124 +713,26 @@ def open_paraview(file):
     os.system(f"paraview {str(paraview_state)}")
 
 
-def show_aeromap():
-    """Interactive graph to display aeromaps contained in the CPACS file."""
+def workflow_number(path: Path) -> int:
+    parts = path.name.split("_")
+    if parts and parts[-1].isdigit():
+        return int(parts[-1])
+    return -1
 
-    st.markdown("#### Aeromap")
 
-    if "cpacs" not in st.session_state:
-        st.warning("No CPACS file has been selected!")
-        return
-
-    current_workflow = get_last_workflow()
-    list_of_files = []
-
-    for child in current_workflow.iterdir():
-        if child.is_file():
-            list_of_files.append(child.stem)
-
-    if "ToolOutput" in list_of_files:
-        cpacs = CPACS(Path(current_workflow, "ToolOutput.xml"))
-        st.success("Your results are ready!")
-    else:
-        cpacs = st.session_state.cpacs
-        st.info("No results found, these are aeromaps from the input CPACS file!")
-
-    # Get aeromap(s) to plot from multiselect box
-    aeromap_list = []
-    aeromap_uid_list = cpacs.get_aeromap_uid_list()
-    aeromap_selected = st.multiselect("Select aeromap", aeromap_uid_list)
-    aeromap_list = [cpacs.get_aeromap_by_uid(aeromap_uid) for aeromap_uid in aeromap_selected]
-
-    if not aeromap_list:
-        st.warning("You must select at least one aeromap!")
-        return
-
-    # temp (TODO: could be improve, how to look into all df)
-    df_tmp = aeromap_list[0].df
-
-    col1, col2, _ = st.columns(3)
-
-    with col1:
-        x_axis = st.selectbox("x", PARAMS_COEFS, 3)
-    with col2:
-        y_axis = st.selectbox("y", PARAMS_COEFS, 5)
-
-    with st.expander("Filter 1"):
-        filter1_column1, filter1_column2 = st.columns([1, 2])
-
-        with filter1_column1:
-            filter1_remaining = [item for item in PARAMS_COEFS if item not in [x_axis, y_axis]]
-            filter1 = st.selectbox("Filter by:", filter1_remaining)
-        with filter1_column2:
-            value_list = df_tmp[filter1].unique()
-            value_selected = st.multiselect("Filter value:", value_list, value_list[0])
-
-    with st.expander("Filter 2"):
-        filter2_column1, filter2_column2 = st.columns([1, 2])
-        with filter2_column1:
-            filter2_remaining = [
-                item for item in PARAMS_COEFS if item not in [x_axis, y_axis, filter1]
-            ]
-            filter2 = st.selectbox("Filter2 by:", filter2_remaining)
-        with filter2_column2:
-            value_list2 = df_tmp[filter2].unique()
-            value_selected2 = st.multiselect("Filter2 value:", value_list2, value_list2[0])
-
-    fig = go.Figure()
-    for aeromap in aeromap_list:
-
-        if not len(value_selected):
-            value_selected = value_list
-
-        for value in value_selected:
-            if not len(value_selected2):
-                value_selected2 = value_list2
-
-            for value2 in value_selected2:
-                df = aeromap.df[(aeromap.df[filter1] == value) & (aeromap.df[filter2] == value2)]
-                legend = f"{aeromap.uid}<br>{filter1}={value}<br>{filter2}={value2}"
-                fig.add_trace(go.Scatter(x=df[x_axis], y=df[y_axis], name=legend))
-
-    fig.update_traces(mode="markers+lines", hovertemplate="x: %{x:.2f} \ny: %{y:.2f} ")
-
-    fig.update_layout(
-        xaxis=dict(title=x_axis),
-        yaxis=dict(title=y_axis),
-        plot_bgcolor="rgb(255,255,255)",
-    )
-
-    axis_options = {
-        "showline": True,
-        "linewidth": 2,
-        "linecolor": "rgb(0,0,0)",
-        "gridcolor": "rgb(188,188,188)",
-        "zerolinecolor": "rgb(188,188,188)",
-    }
-
-    fig.update_xaxes(axis_options)
-    fig.update_yaxes(axis_options)
-
-    st.plotly_chart(fig)
-
-    col1, col2, _ = st.columns([2, 2, 3])
-
-    with col1:
-        img_format = st.selectbox("Format", [".png", ".svg", ".pdf"])
-    with col2:
-        st.markdown("")
-        st.markdown("")
-        if st.button("Save this figure 📷"):
-            fig_name = f"{cpacs.ac_name}_{y_axis}_vs_{x_axis}{img_format}"
-            current_workflow = get_last_workflow()
-            aerocoef_dir = Path(current_workflow, "Results", "ExportCSV")
-            if not aerocoef_dir.exists():
-                aerocoef_dir.mkdir(parents=True)
-            fig.write_image(Path(aerocoef_dir, fig_name))
+def get_workflow_dirs(current_wkdir: Path) -> list[Path]:
+    if not current_wkdir.exists():
+        return []
+    workflow_dirs = [
+        wkflow
+        for wkflow in current_wkdir.iterdir()
+        if wkflow.is_dir() and wkflow.name.startswith("Workflow_")
+    ]
+    return sorted(workflow_dirs, key=workflow_number)
 
 
 def show_results():
-    """Display all the results of the current workflow."""
+    """Display the results of the selected workflow."""
 
     st.markdown("#### Results")
 
@@ -1207,378 +1190,33 @@ def show_results():
                         mime="application/xml"
                     )
     else: 
-        current_workflow = get_last_workflow()
-        if not current_workflow:
+        current_wkdir = get_wkdir()
+        if not current_wkdir or not current_wkdir.exists():
+            st.warning("No Workflow working directory found.")
             return
 
-        results_dir = Path(current_workflow, "Results")
+        workflow_dirs = get_workflow_dirs(current_wkdir)
+        if not workflow_dirs:
+            st.warning("No workflows have been found in the working directory.")
+            return
+
+        workflow_names = [wkflow.name for wkflow in workflow_dirs][::-1]
+        default_index = max(len(workflow_names) - 1, 0)
+        chosen_workflow_name = st.selectbox(
+            "Choose workflow", workflow_names, index=default_index, key="results_chosen_workflow"
+        )
+        chosen_workflow = Path(current_wkdir, chosen_workflow_name)
+
+        results_dir = Path(chosen_workflow, "Results")
+        if not results_dir.exists():
+            st.warning("No results have been found for the selected workflow!")
+            return
         results_name = sorted([dir.stem for dir in results_dir.iterdir() if dir.is_dir()])
         if not results_name:
             st.warning("No results have been found!")
             return
 
-        st.info(f"All these results can be found in:\n\n{str(current_workflow.resolve())}")
-
         results_tabs = st.tabs(results_name)
-
-        for tab, tab_name in zip(results_tabs, results_name):
-            with tab:
-                display_results(Path(results_dir, tab_name))
-    
-    
-    # mode = st.radio(
-    #     "**Decide whether to explore existing results or perform current simulation:**",
-    #     ["Currently simulation", "Review past results"],
-    #     index=0,
-    #     horizontal=True,
-    # )
-    # if mode == "Currently simulation":
-    #     current_workflow = get_last_workflow()
-    #     if not current_workflow:
-    #         return
-
-    #     results_dir = Path(current_workflow, "Results")
-    #     results_name = sorted([dir.stem for dir in results_dir.iterdir() if dir.is_dir()])
-    #     if not results_name:
-    #         st.warning("No results have been found!")
-    #         return
-
-    #     st.info(f"All these results can be found in:\n\n{str(current_workflow.resolve())}")
-
-    #     results_tabs = st.tabs(results_name)
-
-    #     for tab, tab_name in zip(results_tabs, results_name):
-    #         with tab:
-    #             display_results(Path(results_dir, tab_name))
-    
-
-    # if mode == "Review past results":
-    #     with st.expander("Upload files"):
-    #         col1, col2, col3 = st.columns(3)
-    #         with col1:
-    #             st.markdown("##### CPACS file")
-
-    #             # File uploader widget
-    #             uploaded_cpacs = st.file_uploader(
-    #                 "Select a CPACS file",
-    #                 type=["xml"],
-    #             )
-
-    #             if uploaded_cpacs:
-    #                 temp_dir = tempfile.mkdtemp()
-    #                 cpacs_path = os.path.join(temp_dir, uploaded_cpacs.name)
-    #                 with open(cpacs_path, "wb") as f:
-    #                     f.write(uploaded_cpacs.getvalue())
-    #                     st.session_state.cpacs_file_path = cpacs_path
-    #                 st.success("CPACS file loaded successfully")
-    #                 st.write(f"The file has been temporarily saved here: {cpacs_path}")
-
-    #             else:
-    #                 st.error("Please upload a CPACS file or manually enter the file path.")
-
-
-    #         with col2:
-    #             st.markdown("##### MODEL file")
-    #             uploaded_model = st.file_uploader("Upload trained surrogate model", type=["pkl"], key='model_uploader')
-    #             if uploaded_model:
-    #                 temp_dir = tempfile.mkdtemp()
-    #                 model_path = os.path.join(temp_dir, uploaded_model.name)
-    #                 with open(model_path, "wb") as f:
-    #                     f.write(uploaded_model.getbuffer())
-    #                 st.session_state.model_file_path = model_path
-    #                 model_data = joblib.load(model_path)
-    #                 st.session_state["model"] = model_data.get("model")
-    #                 st.session_state["param_order"] = model_data.get("param_order")
-    #                 st.success("Model loaded successfully")
-    #                 st.write(f"The model file has been temporarily saved here: {model_path}")
-    #             else:
-    #                 st.error("Please upload a MODEL file or manually enter the file path.")
-                
-
-            
-    #         with col3:
-    #             st.markdown("##### Ranges parameter")
-    #             uploaded_ranges = st.file_uploader("Upload ranges_for_gui CSV", type=["csv"], key='ranges')
-    #             if uploaded_ranges:
-    #                 temp_dir = tempfile.mkdtemp()
-    #                 ranges_path = os.path.join(temp_dir, uploaded_ranges.name)
-    #                 with open(ranges_path, "wb") as f:
-    #                     f.write(uploaded_ranges.getbuffer())
-    #                 st.session_state.ranges_file_path = ranges_path
-
-    #                 df = pd.read_csv(uploaded_ranges)
-    #                 sliders_bounds = {row["Parameter"]: (row["Min"], row["Max"]) for _, row in df.iterrows()}
-    #                 sliders_values = {param: bounds[0] for param, bounds in sliders_bounds.items()}
-    #                 st.session_state["sliders_bounds"] = sliders_bounds
-    #                 st.session_state["sliders_values"] = sliders_values
-    #                 st.success("Ranges loaded successfully")
-    #                 st.write(f"The ranges file has been temporarily saved here: {ranges_path}")
-
-    #             else:
-    #                 st.error("Please upload a RANGES CSV file or manually enter the file path.")
-
-    #     if "model" not in st.session_state or "sliders_bounds" not in st.session_state:
-    #         st.warning("Please upload model first.")
-    #         st.stop()
-
-
-    #     model = st.session_state["model"]
-    #     param_order = st.session_state["param_order"]
-    #     sliders_bounds = st.session_state["sliders_bounds"]
-    #     sliders_values = st.session_state["sliders_values"]
-    #     results_dir = Path(st.session_state.get("results_dir", "."))
-
-    #     cpacs_in = Path(st.session_state.cpacs_file_path)
-    #     tmp_cpacs = CPACS(cpacs_in)
-    #     tixi = tmp_cpacs.tixi
-
-    #     mode = st.radio(
-    #         "Select mode:",
-    #         ["Manual exploration", "Target-based exploration"],
-    #         index=0,
-    #         horizontal=True,
-    #     )
-
-    #     if mode == "Manual exploration":
-            
-    #         col_sliders, col_3d = st.columns(2)
-    #         with col_sliders:
-    #             st.subheader("Parameter sliders")
-    #             for param, (min_val, max_val) in sliders_bounds.items():
-    #                 sliders_values[param] = st.slider(
-    #                     label=f"➤ {param}",
-    #                     min_value=min_val,
-    #                     max_value=max_val,
-    #                     value=sliders_values.get(param, min_val),
-    #                     step=0.01,
-    #                     format="%.2f",
-    #                     help=f"Set the value for {param} between {min_val} and {max_val}.",
-    #                     key=f"slider_{param}",
-    #                     label_visibility="visible",
-    #                 )
-    #             input_vector = np.array([sliders_values[p] for p in param_order])
-    #             predicted_value = model.predict_values(input_vector.reshape(1, -1))[0]
-    #             st.metric("Predicted objective value", f"{predicted_value}")
-            
-            
-    #         df_params = pd.DataFrame({
-    #             "Parameter": list(sliders_values.keys()),
-    #             "Value": list(sliders_values.values())
-    #         })
-
-    #         csv_buffer = io.StringIO()
-    #         df_params.to_csv(csv_buffer, index=False)
-    #         csv_data = csv_buffer.getvalue()
-    #         file_name_csv = f"parameters_for_predicted_value_{predicted_value}.csv"
-            
-    #         with col_sliders:
-    #             st.download_button(
-    #                         label="Download parameters in CSV file",
-    #                         data=csv_data,
-    #                         file_name=file_name_csv,
-    #                         mime="text/csv",
-    #                     )
-
-    #         # update CPACS
-    #         params_to_update = {}
-    #         for name, val in sliders_values.items():
-    #             parts = name.split("_of_")
-    #             if len(parts) < 3:
-    #                 continue
-    #             name_parameter, uID_section, uID_wing = parts
-    #             xpath = get_xpath_for_param(tixi, name_parameter, uID_wing, uID_section)
-    #             params_to_update[xpath] = {"value": val, "xpath": xpath}
-
-    #         for xp, info in params_to_update.items():
-    #             create_branch(tixi, xp)
-    #             val = info['value']
-    #             tixi.updateDoubleElement(xp, float(val), "%g")
-
-    #         new_file_name = cpacs_in.stem + f"_objective_{predicted_value}.xml"
-    #         new_file_path = cpacs_in.with_name(new_file_name)
-    #         tmp_cpacs.save_cpacs(new_file_path, overwrite=True)
-
-    #         with col_3d:
-    #             st.subheader("| 3D View")
-    #             section_3D_view(
-    #                 working_dir=Path(results_dir),
-    #                 cpacs=CPACS(new_file_path),
-    #                 aircraft_name="geometry_from_gui",
-    #             )
-    #             with open(new_file_path, "rb") as f:
-    #                 cpacs_data = f.read()
-
-    #             st.download_button(
-    #                 label="Download CPACS file",
-    #                 data=cpacs_data,
-    #                 file_name=new_file_name,
-    #                 mime="application/xml"
-    #             )
-
-
-    
-    # if mode == "Target-based exploration":
-    #     if model is None:
-    #         st.error("Please train or load a surrogate model first.")
-    #         st.stop()
-
-    #     st.subheader("Target-based exploration")
-
-    #     selected_solver = st.selectbox(
-    #         label="Choose an optimization solver",
-    #         options=["L-BFGS-B","Powell","COBYLA","TNC","Nelder-Mead"],
-    #         help="Nelder-Mead is robust for small datasets; L-BFGS-B is efficient with larger datasets."
-    #     )
-
-
-    #     param_order_geom = [p for p in param_order if p in sliders_bounds]
-        
-    #     x0 = np.array([sliders_values[p] for p in param_order_geom])
-    #     predicted_value = model.predict_values(x0.reshape(1, -1))[0]
-    #     bounds = [sliders_bounds[p] for p in param_order_geom]
-
-    #     y_target = st.number_input(
-    #         "Enter target value",
-    #         value=float(predicted_value),
-    #         step=0.0001,
-    #         format="%0.4f"
-    #     )
-
-    #     def objective_inverse(x):
-    #         input_dict = {}
-    #         for i, p in enumerate(param_order_geom):
-    #             input_dict[p] = x[i]
-    #         input_vector_full = np.array([input_dict[p] for p in param_order])
-    #         y_pred = model.predict_values(input_vector_full.reshape(1, -1))[0]
-    #         return abs(y_pred - y_target)
-
-    #     if st.button("Find parameters for given target value"):
-            
-    #         result = minimize(
-    #             objective_inverse,
-    #             x0,
-    #             bounds=bounds,
-    #             method=selected_solver,
-    #         )
-    #         if result.success:
-                
-    #             input_dict_opt = {}
-    #             for i, p in enumerate(param_order_geom):
-    #                 input_dict_opt[p] = result.x[i]
-
-    #             y_pred_opt = model.predict_values(
-    #                 np.array([input_dict_opt[p] for p in param_order]).reshape(1, -1))[0]
-
-    #             st.session_state["optim_result"] = {
-    #                 "params": input_dict_opt,
-    #                 "y_pred_opt": y_pred_opt,
-    #                 "y_target": y_target,
-    #             }
-
-    #     if "optim_result" in st.session_state:
-    #         col_tab, col_view = st.columns([0.6, 0.4])
-    #         with col_tab:
-    #             st.subheader("Parameter values")
-    #             df_opt_params = pd.DataFrame({
-    #                 "Parameter": param_order_geom,
-    #                 "Value": [st.session_state["optim_result"]["params"][p] for p in param_order_geom]
-    #             })
-    #             st.table(df_opt_params)
-
-    #             st.metric(
-    #                 label="Predicted value for optimal parameters",
-    #                 value=f"{st.session_state['optim_result']['y_pred_opt']}"
-    #             )
-    #             st.markdown(
-    #                 f"**Absolute error:** "
-    #                 f"{abs(st.session_state['optim_result']['y_pred_opt'] - st.session_state['optim_result']['y_target'])}"
-    #             )
-
-                
-    #             csv_buffer = io.StringIO()
-    #             df_opt_params.to_csv(csv_buffer, index=False)
-    #             csv_data = csv_buffer.getvalue()
-    #             file_name_csv = f"optimal_parameters_target_value_{st.session_state['optim_result']['y_target']}.csv"
-
-    #             st.download_button(
-    #                 label="Download parameters in CSV file",
-    #                 data=csv_data,
-    #                 file_name=file_name_csv,
-    #                 mime="text/csv",
-    #             )
-
-    #         tmp_cpacs = CPACS(Path(st.session_state.cpacs_file_path))
-    #         tixi = tmp_cpacs.tixi
-
-    #         for name, val in st.session_state["optim_result"]["params"].items():
-    #             if "_of_" not in name:
-    #                 continue
-    #             parts = name.split("_of_")
-    #             name_parameter, uID_section, uID_wing = parts
-    #             xpath = get_xpath_for_param(tixi, name_parameter, uID_wing, uID_section)
-    #             create_branch(tixi, xpath)
-    #             tixi.updateDoubleElement(xpath, float(val), "%g")
-
-    #         # new_file_path = Path(results_dir) / "temp_optim_geometry.xml"
-    #         # tmp_cpacs.save_cpacs(new_file_path, overwrite=True)
-
-    #         new_file_name = cpacs_in.stem + f"_optim_geometry_{y_target}.xml"
-    #         new_file_path = cpacs_in.with_name(new_file_name)
-    #         tmp_cpacs.save_cpacs(new_file_path, overwrite=True)
-
-
-    #         with col_view:
-    #             st.subheader("| 3D View")
-    #             section_3D_view(
-    #                 working_dir=Path(results_dir),
-    #                 cpacs=CPACS(new_file_path),
-    #                 aircraft_name="geometry_from_gui",
-    #             )
-    #             with open(new_file_path, "rb") as f:
-    #                 cpacs_data = f.read()
-
-    #             st.download_button(
-    #                 label="Download CPACS file",
-    #                 data=cpacs_data,
-    #                 file_name=new_file_name,
-    #                 mime="application/xml"
-    #             )
-
-
-    #         # with col_view:
-    #         #     st.subheader("| 3D View")
-    #         #     section_3D_view(
-    #         #         working_dir=Path(results_dir),
-    #         #         cpacs=CPACS(new_file_path),
-    #         #         aircraft_name="geometry_optimised"
-    #         #     )
-
-    #         #     if st.button("Save CPACS file"):
-    #         #         cpacs_in = Path(st.session_state.cpacs.cpacs_file)
-    #         #         tmp_cpacs = CPACS(cpacs_in)
-    #         #         tixi = tmp_cpacs.tixi
-
-    #         #         for name, val in st.session_state["optim_result"]["params"].items():
-    #         #             if "_of_" not in name:
-    #         #                 continue
-    #         #             parts = name.split("_of_")
-    #         #             name_parameter, uID_section, uID_wing = parts
-    #         #             xpath = get_xpath_for_param(tixi, name_parameter, uID_wing, uID_section)
-    #         #             create_branch(tixi, xpath)
-    #         #             tixi.updateDoubleElement(xpath, float(val), "%g")
-
-    #         #         base_name = "cpacs_geometry_gui"
-    #         #         existing_files = [f.name for f in Path(results_dir).glob(f"{base_name}_*.xml")]
-    #         #         existing_indices = [int(f.stem.split('_')[-1]) for f in Path(results_dir).glob(f"{base_name}_*.xml") if f.stem.split('_')[-1].isdigit()]
-    #         #         next_index = max(existing_indices) + 1 if existing_indices else 1
-    #         #         new_file_name = f"{base_name}_{next_index}.xml"
-    #         #         new_file_path = Path(results_dir) / new_file_name
-
-    #         #         tmp_cpacs.save_cpacs(new_file_path, overwrite=True)
-    #         #         st.success(f"CPACS file saved as {new_file_name}")
-
-
-
 
 
 # =================================================================================================
@@ -1591,15 +1229,7 @@ if __name__ == "__main__":
     create_sidebar(HOW_TO_TEXT)
 
     st.title("Results")
-    
-    show_aeromap()
     show_results()
-
-    if st.button("🔄 Refresh"):
-        st.rerun()
-
-    if st.checkbox("Auto refresh"):
-        st_autorefresh(interval=2000, limit=10000, key="auto_refresh")
 
     # Update last_page
     st.session_state.last_page = PAGE_NAME

@@ -298,31 +298,39 @@ def add_thermodata(
     case_nb: int,
     alt_list: List,
 ) -> None:
-    if tixi.checkElement(ENGINE_TYPE_XPATH):
-        log.info("Adding engine BC to the SU2 config file.")
-        engine_type = get_value(tixi, ENGINE_TYPE_XPATH)
-        log.info(f"Engine type {engine_type}.")
-
-        alt = alt_list[case_nb]
-        Atm = Atmosphere(alt)
-        tot_temp_in = Atm.temperature[0]
-        tot_pressure_in = Atm.pressure[0]
-
-        if len(alt_list) > 1:
-            tot_temp_out = get_value(tixi, ENGINE_BC_TEMPERATUREOUTLET_XPATH).split(";")
-            tot_pressure_out = get_value(tixi, ENGINE_BC_PRESSUREOUTLET_XPATH).split(";")
-            tot_temp_out = tot_temp_out[case_nb]
-            tot_pressure_out = tot_pressure_out[case_nb]
-        else:
-            tot_temp_out = get_value(tixi, ENGINE_BC_TEMPERATUREOUTLET_XPATH)
-            tot_pressure_out = get_value(tixi, ENGINE_BC_PRESSUREOUTLET_XPATH)
-        cfg["INLET_TYPE"] = "TOTAL_CONDITIONS"
-        cfg["MARKER_INLET"] = su2_format(
-            f"INLET_ENGINE, {tot_temp_in}, {tot_pressure_in}, {1},{0},{0}, "
-            f"OUTLET_ENGINE, {tot_temp_out}, {tot_pressure_out}, {1},{0},{0}"
-        )
-    else:
+    if not tixi.checkElement(ENGINE_TYPE_XPATH):
         log.warning(f"No engines found at xPath {ENGINE_TYPE_XPATH}.")
+        return None
+
+    log.info("Adding engine BC to the SU2 config file.")
+    engine_type = get_value(tixi, ENGINE_TYPE_XPATH)
+    log.info(f"Engine type {engine_type}.")
+
+    alt = alt_list[case_nb]
+    Atm = Atmosphere(alt)
+    tot_temp_in = Atm.temperature[0]
+    tot_pressure_in = Atm.pressure[0]
+
+    if (not (
+        tixi.checkElement(ENGINE_BC_TEMPERATUREOUTLET_XPATH)
+        and tixi.checkElement(ENGINE_BC_PRESSUREOUTLET_XPATH)
+    )):
+        log.warning('THERMODATA has not been called properly.')
+        return None
+
+    if len(alt_list) > 1:
+        tot_temp_out = get_value(tixi, ENGINE_BC_TEMPERATUREOUTLET_XPATH).split(";")
+        tot_pressure_out = get_value(tixi, ENGINE_BC_PRESSUREOUTLET_XPATH).split(";")
+        tot_temp_out = tot_temp_out[case_nb]
+        tot_pressure_out = tot_pressure_out[case_nb]
+    else:
+        tot_temp_out = get_value(tixi, ENGINE_BC_TEMPERATUREOUTLET_XPATH)
+        tot_pressure_out = get_value(tixi, ENGINE_BC_PRESSUREOUTLET_XPATH)
+    cfg["INLET_TYPE"] = "TOTAL_CONDITIONS"
+    cfg["MARKER_INLET"] = su2_format(
+        f"INLET_ENGINE, {tot_temp_in}, {tot_pressure_in}, {1},{0},{0}, "
+        f"OUTLET_ENGINE, {tot_temp_out}, {tot_pressure_out}, {1},{0},{0}"
+    )
 
 
 def add_reynolds_number(alt: float, mach: float, cfg: ConfigFile, tixi: Tixi3) -> None:

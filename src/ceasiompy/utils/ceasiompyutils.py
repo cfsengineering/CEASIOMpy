@@ -21,6 +21,7 @@ import streamlit as st
 
 from pydantic import validate_call
 from contextlib import contextmanager
+from ceasiompy.utils import get_wkdir
 from ceasiompy.utils.moduleinterfaces import get_module_list
 from ceasiompy.utils.moduleinterfaces import (
     get_specs_for_module,
@@ -41,7 +42,7 @@ from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
 from unittest.mock import MagicMock
-from tixi3.tixi3wrapper import Tixi3
+from tixi3.tixi3wrapper import Tixi3  # type: ignore
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from cpacspy.cpacspy import (
     CPACS,
@@ -55,13 +56,13 @@ from typing import (
     Callable,
 )
 
-from ceasiompy.utils import AEROMAP_LIST
+from ceasiompy import AEROMAP_LIST
 from ceasiompy import (
     log,
     ceasiompy_cfg,
 )
 from ceasiompy.utils.commonpaths import (
-    WKDIR_PATH,
+    INSTALLDIR_PATH,
     CPACS_FILES_PATH,
 )
 from ceasiompy.utils.moduleinterfaces import (
@@ -77,6 +78,30 @@ from ceasiompy.utils.commonxpaths import (
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def _check_software_exists(soft_name: str) -> bool:
+    soft_path = get_install_path(software_name=soft_name)
+    if soft_path is None:
+        # i.e. the path to the software does not exist
+        return False
+    else:
+        return True
+
+
+def get_module_status(
+    default: bool,
+    needs_soft_name: str | None = None,
+) -> bool:
+    # Return
+    if not default:
+        return False
+
+    if needs_soft_name is not None:
+        return _check_software_exists(needs_soft_name)
+
+    # Does not need a specific software and default is True
+    return True
 
 
 def write_inouts(
@@ -108,7 +133,12 @@ def write_inouts(
 def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
     tixi = cpacs.tixi
     st.session_state.cpacs = cpacs
-    cpacsin_out: CPACSInOut = get_specs_for_module(module_name).cpacs_inout
+    specs = get_specs_for_module(module_name)
+    if specs is None:
+        log.warning(f"No specs found for module {module_name}. \n")
+        return None
+
+    cpacsin_out: CPACSInOut = specs.cpacs_inout
     inputs = cpacsin_out.get_gui_dict()
 
     for name, default_value, var_type, _, xpath, _, _, test_value, _ in inputs.values():
@@ -225,7 +255,11 @@ def get_aeromap_list_from_xpath(cpacs, aeromap_to_analyze_xpath, empty_if_not_fo
     return aeromap_uid_list
 
 
-def get_results_directory(module_name: str, create: bool = True, wkflow_dir: Path = None) -> Path:
+def get_results_directory(
+    module_name: str,
+    create: bool = True,
+    wkflow_dir: Path | None = None,
+) -> Path:
     """
     Returns the results directory of a module.
 
@@ -236,7 +270,7 @@ def get_results_directory(module_name: str, create: bool = True, wkflow_dir: Pat
 
     """
 
-    if module_name not in get_module_list(only_active=False):
+    if module_name not in get_module_list(False):
         raise ValueError(f"Module '{module_name}' does not exist.")
 
     init = importlib.import_module(f"ceasiompy.{module_name}.{MODNAME_INIT}")
@@ -259,31 +293,31 @@ def current_workflow_dir() -> Path:
     """
     Get the current workflow directory.
     """
+    wkdir_path = get_wkdir()
 
-    # Ensure WKDIR_PATH exists
-    WKDIR_PATH.mkdir(parents=True, exist_ok=True)
+    # Ensure wkdir_path exists
+    wkdir_path.mkdir(parents=True, exist_ok=True)
 
     # Change the current working directory
-    os.chdir(WKDIR_PATH)
+    os.chdir(wkdir_path)
 
     # Check index of the last workflow directory to set the next one
-    wkflow_list = [int(dir.stem.split("_")[-1]) for dir in WKDIR_PATH.glob("Workflow_*")]
+    wkflow_list = [int(dir.stem.split("_")[-1]) for dir in wkdir_path.glob("Workflow_*")]
     if wkflow_list:
         wkflow_idx = str(max(wkflow_list) + 1).rjust(3, "0")
     else:
         wkflow_idx = "001"
 
-    current_wkflow_dir = Path.joinpath(WKDIR_PATH, "Workflow_" + wkflow_idx)
+    current_wkflow_dir = Path.joinpath(wkdir_path, "Workflow_" + wkflow_idx)
     current_wkflow_dir.mkdir()
 
     return current_wkflow_dir
 
 
 @validate_call(config=ceasiompy_cfg)
-def call_main(main: Callable, module_name: str, cpacs_path: Path = None) -> None:
+def call_main(main: Callable, module_name: str, cpacs_path: Path | None = None) -> None:
     """
     Calls main with input/output CPACS of module named module_name.
-    #TODO: Add Args and Returns.
     """
     st.session_state = MagicMock()
     wkflow_dir = current_workflow_dir()
@@ -374,27 +408,107 @@ def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
             log.info("---------- End of " + module_name + " ---------- \n")
 
 
-def get_install_path(software_name: str, raise_error: bool = False) -> Path:
+def get_install_path(
+    software_name: str,
+    raise_error: bool = False,
+    display_name: str | None = None,
+) -> Path | None:
     """Return the installation path of a software.
 
     Args:
         software_name (str): Name of the software.
         raise_error (bool, optional): If True, raise an error if the software is not installed.
+        display_name (str, optional): Friendly name used in logs. Defaults to software_name.
 
     """
 
+    display_name = display_name or software_name
+
+    def _is_compatible_executable(path: Path) -> bool:
+        if not (path.is_file() and os.access(path, os.X_OK)):
+            return False
+        if sys.platform == "darwin" and _detect_binary_format(path) == "elf":
+            log.warning(
+                "%s was found at %s but appears to be a Linux ELF executable; "
+                "skipping it on macOS.",
+                display_name,
+                path,
+            )
+            return False
+        return True
+
+    # First, try to locate the software inside INSTALLDIR_PATH
+    if INSTALLDIR_PATH.exists():
+        # Directly under INSTALLDIR_PATH
+        candidate = INSTALLDIR_PATH / software_name
+        if _is_compatible_executable(candidate):
+            log.info(f"{display_name} is installed at: {candidate}")
+            return candidate
+
+        # Common layout: INSTALLDIR/<pkg>[/bin]/<software_name>
+        for subdir in INSTALLDIR_PATH.iterdir():
+            if not subdir.is_dir():
+                continue
+
+            direct = subdir / software_name
+            if _is_compatible_executable(direct):
+                log.info(f"{display_name} is installed at: {direct}")
+                return direct
+
+            bin_candidate = subdir / "bin" / software_name
+            if _is_compatible_executable(bin_candidate):
+                log.info(f"{display_name} is installed at: {bin_candidate}")
+                return bin_candidate
+
+    # If not found in INSTALLDIR, fall back to the system PATH
     install_path = shutil.which(software_name)
 
     if install_path is not None:
-        log.info(f"{software_name} is installed at: {install_path}")
-        return Path(install_path)
+        resolved = Path(install_path)
+        if _is_compatible_executable(resolved):
+            log.info(f"{display_name} is installed at: {install_path}")
+            return resolved
 
-    log.warning(f"{software_name} is not installed on your computer!")
+    log.warning(f"{display_name} is not installed on your computer!")
 
     if raise_error:
-        log.warning(f"{software_name} is not installed on your computer!")
+        raise FileNotFoundError(f"{display_name} is not installed on your computer!")
     else:
         return None
+
+
+def _detect_binary_format(executable: Path) -> str:
+    """Best-effort detection of a binary format based on magic bytes.
+
+    Returns one of: "mach-o", "elf", "unknown".
+    """
+
+    try:
+        with open(executable, "rb") as handle:
+            header = handle.read(4)
+    except OSError:
+        return "unknown"
+
+    if header == b"\x7fELF":
+        return "elf"
+
+    # Mach-O magics (thin + universal).
+    if header in (
+        b"\xfe\xed\xfa\xce",
+        b"\xce\xfa\xed\xfe",
+        b"\xfe\xed\xfa\xcf",
+        b"\xcf\xfa\xed\xfe"
+    ):
+        return "mach-o"
+    if header in (
+        b"\xca\xfe\xba\xbe",
+        b"\xbe\xba\xfe\xca",
+        b"\xca\xfe\xba\xbf",
+        b"\xbf\xba\xfe\xca"
+    ):
+        return "mach-o"
+
+    return "unknown"
 
 
 def check_version(software_name: str, required_version: str) -> Tuple[bool, str]:
@@ -419,6 +533,9 @@ def get_version(software_name: str) -> str:
     """
 
     version_file = get_install_path(software_name)
+
+    if version_file is None:
+        return ""
 
     if not version_file.exists():
         log.warning(f"The version file for {software_name} does not exist!")
@@ -465,14 +582,26 @@ def run_software(
 
     log.info(
         f"{int(nb_cpu)} cpu{'s' if nb_cpu > 1 else ''} "
-        f"over {os.cpu_count()} will be used for this calculation."
+        f"over {get_total_cpu_count()} will be used for this calculation."
     )
 
-    if software_name == "pentagrow" or software_name == "Pentagrow":
-        ceasiompy_root = Path(__file__).resolve().parents[3]
-        install_path = ceasiompy_root / "installation" / "Pentagrow" / "bin" / "pentagrow"
-    else:
-        install_path = get_install_path(software_name)
+    install_path = get_install_path(software_name)
+    if install_path is None:
+        raise FileNotFoundError(
+            f"{software_name} executable not found (check your INSTALLDIR and PATH)."
+        )
+
+    # On macOS, fail fast with a clear message
+    # if a Linux ELF binary is picked up (common for Pentagrow).
+    if sys.platform == "darwin":
+        fmt = _detect_binary_format(install_path)
+        if fmt == "elf":
+            raise OSError(
+                f"'{software_name}' at '{install_path}' is a Linux ELF executable "
+                "and cannot run on macOS.\n"
+                "Remove/rename this file and install a macOS-native build, "
+                "or use the Docker-based workflow."
+            )
 
     command_line = []
     if with_mpi:
@@ -511,6 +640,53 @@ def run_software(
     log.info(f">>> {software_name} End")
 
 
+def _get_env_max_cpus() -> Optional[int]:
+    """
+    Return the value of MAX_CPUS if it exists and is a positive integer.
+    """
+    max_cpus_val = os.environ.get("MAX_CPUS")
+    if max_cpus_val is None:
+        return None
+
+    try:
+        max_cpus = int(max_cpus_val)
+    except ValueError:
+        log.warning("MAX_CPUS must be an integer, got %r.", max_cpus_val)
+        return None
+
+    if max_cpus < 1:
+        log.warning("MAX_CPUS must be positive, got %d.", max_cpus)
+        return None
+
+    return max_cpus
+
+
+def get_total_cpu_count() -> int:
+    """
+    Return a sane upper bound on the number of CPUs that can be used.
+    This prefers the MAX_CPUS environment variable and falls back to the
+    value returned by os.cpu_count(). A warning is emitted if neither source
+    yields a usable number.
+    """
+    env_cpus = _get_env_max_cpus()
+    if env_cpus is not None:
+        return env_cpus
+
+    cpu_count = os.cpu_count()
+    if cpu_count is None:
+        return 1
+
+    system_cpus = (cpu_count // 2) + 1
+    if system_cpus is None or system_cpus < 1:
+        log.warning(
+            "Could not figure out the number of CPU(s) on your machine. "
+            "This might be an issue with the OS you use."
+        )
+        return 1
+
+    return system_cpus
+
+
 def get_reasonable_nb_cpu() -> int:
     """
     Get a reasonable number of processors depending on the total number of processors on
@@ -519,23 +695,16 @@ def get_reasonable_nb_cpu() -> int:
     the user can then override this value with the settings.
     """
 
-    cpu_count = os.cpu_count()
-
-    if cpu_count is None:
-        log.warning(
-            "Could not figure out the number of CPU(s) on your machine. "
-            "This might be an issue with the OS you use."
-        )
-        return 1
-
-    return math.ceil(cpu_count / 4)
+    total_cpus = get_total_cpu_count()
+    return max(1, math.ceil(total_cpus / 4))
 
 
 def check_nb_cpu(nb_proc: int) -> None:
     """
     Check if input nb_cpu from GUI is reasonable.
     """
-    if not os.cpu_count() > nb_proc:
+    total_cpus = get_total_cpu_count()
+    if not total_cpus > nb_proc:
         log.warning(f"{nb_proc} CPUs is too much for your engine.")
         nb_proc = get_reasonable_nb_cpu()
         log.info(f"Using by default {nb_proc} CPUs.")
@@ -606,7 +775,7 @@ def aircraft_name(tixi_or_cpacs) -> str:
     else:
         tixi = tixi_or_cpacs
 
-    name = get_value_or_default(tixi, AIRCRAFT_NAME_XPATH, "Aircraft")
+    name = str(get_value_or_default(tixi, AIRCRAFT_NAME_XPATH, "Aircraft"))
 
     name = name.replace(" ", "_")
     log.info(f"The name of the aircraft is : {name}")
@@ -614,7 +783,7 @@ def aircraft_name(tixi_or_cpacs) -> str:
     return str(name)
 
 
-def get_part_type(tixi, part_uid: str, print_info=True) -> str:
+def get_part_type(tixi: Tixi3, part_uid: str, print_info: bool = True) -> str | None:
     """The function get the type of the aircraft from the cpacs file.
 
     Args:
@@ -650,6 +819,7 @@ def get_part_type(tixi, part_uid: str, print_info=True) -> str:
 
     if print_info:
         log.warning(f"'{part_uid}' cannot be categorized!")
+
     return None
 
 

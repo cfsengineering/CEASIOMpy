@@ -20,14 +20,8 @@ from ceasiompy.SMTrain.func.utils import get_val_fraction
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
-from smt.applications import MFK
-from smt.surrogate_models import KRG
 from smt.sampling_methods import LHS
-from typing import (
-    Dict,
-    List,
-    Union,
-)
+from typing import Dict, List, Protocol, Union
 
 from ceasiompy import log
 from ceasiompy.SMTrain import AEROMAP_FEATURES
@@ -35,6 +29,13 @@ from ceasiompy.SMTrain.func import (
     AEROMAP_SELECTED_CSV,
     LH_SAMPLING_DATA_GEOMETRY_CSV,
 )
+
+
+class VariancePredictor(Protocol):
+    """Protocol describing the variance prediction capability required by new_points."""
+
+    def predict_variances(self, x_array: ndarray) -> ndarray:
+        ...
 
 # =================================================================================================
 #   FUNCTIONS
@@ -201,7 +202,7 @@ def lh_sampling_geom(
 
 def new_points(
     x_array: ndarray,
-    model: Union[KRG, MFK],
+    model: VariancePredictor,
     results_dir: Path,
     high_var_pts: List,
 ) -> Union[DataFrame, None]:

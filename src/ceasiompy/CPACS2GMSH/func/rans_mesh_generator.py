@@ -33,6 +33,8 @@ import random
 from itertools import combinations
 import gmsh
 
+import shutil
+
 from ceasiompy.CPACS2GMSH.func.utils import (
     load_rans_cgf_params,
 )
@@ -1011,8 +1013,8 @@ def pentagrow_3d_mesh(
     feature_angle,
     symmetry,
     output_format: str,
-    surf: str = None,
-    angle: str = None,
+    surf: str | None = None,
+    angle: str | None = None,
 ) -> Path:
     """
     Runs pentagrow.
@@ -1065,4 +1067,36 @@ def pentagrow_3d_mesh(
         nb_cpu=get_reasonable_nb_cpu(),
     )
 
-    return Path(result_dir, f"hybrid.{output_format}")
+    expected = Path(result_dir, f"hybrid.{str(output_format).lower()}")
+    if expected.exists():
+        return expected
+
+    # Pentagrow builds have historically differed in their output casing/naming.
+    candidates = []
+    candidates.extend(Path(result_dir).glob("hybrid.*"))
+    candidates.extend(Path(result_dir).glob("HYBRID.*"))
+
+    # Prefer same extension (case-insensitive), if present.
+    ext_lower = str(output_format).lower()
+    for cand in candidates:
+        if cand.suffix.lower().lstrip(".") == ext_lower:
+            try:
+                cand.rename(expected)
+            except OSError:
+                shutil.copyfile(cand, expected)
+            return expected
+
+    # If there is a single obvious 'hybrid.*', normalize its name.
+    unique = [c for c in candidates if c.is_file()]
+    if len(unique) == 1:
+        cand = unique[0]
+        try:
+            cand.rename(expected)
+        except OSError:
+            shutil.copyfile(cand, expected)
+        return expected
+
+    raise FileNotFoundError(
+        f"Pentagrow did not produce the expected mesh file '{expected}'. "
+        f"Found candidates: {[c.name for c in unique]}"
+    )

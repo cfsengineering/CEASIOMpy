@@ -53,6 +53,7 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_GROWTH_RATIO_XPATH,
     GMSH_FEATURE_ANGLE_XPATH,
     GMSH_SAVE_CGNS_XPATH,
+    GMSH_MESH_CHECKER_XPATH,
 )
 
 
@@ -211,16 +212,17 @@ def load_rans_cgf_params(
     output_format: str,
 ) -> Dict:
 
-    InitialHeight = h_first_layer * (10**-5)
-    MaxLayerThickness = max_layer_thickness / 10
-    if fuselage_maxlen * farfield_factor > 10:
-        FarfieldRadius = 1000
+    # Pentagrow expects values in "mesh length units", consistent with the STL export.
+    InitialHeight = float(h_first_layer)
+    MaxLayerThickness = float(max_layer_thickness)
+
+    FarfieldRadius = float(fuselage_maxlen) * float(farfield_factor)
+    if FarfieldRadius > 1000:
         log.warning(
-            'Farfield radius can not be too big, otherwise call to tetgen fails. '
-            'Using by default the value 1000.'
+            "Farfield radius is too large and might cause tetgen to fail; "
+            "capping it to 1000 mesh units."
         )
-    else:
-        FarfieldRadius = fuselage_maxlen * farfield_factor * 100
+        FarfieldRadius = 1000.0
     HeightIterations = 8
     NormalIterations = 8
     MaxCritIterations = 128
@@ -237,7 +239,7 @@ def load_rans_cgf_params(
         "MaxGrowthRatio": growth_ratio,
         "MaxLayerThickness": MaxLayerThickness,
         "FarfieldRadius": FarfieldRadius,
-        "OutputFormat": output_format,
+        "OutputFormat": str(output_format).lower(),
         "HolePosition": "0.0 0.0 0.0",
         "FarfieldCenter": "0.0 0.0 0.0",
         "TetgenOptions": "-pq1.3VY",
@@ -291,6 +293,8 @@ def retrieve_gui_values(tixi: Tixi3):
 
     also_save_cgns = get_value(tixi, GMSH_SAVE_CGNS_XPATH)
 
+    mesh_checker = get_value(tixi, GMSH_MESH_CHECKER_XPATH)
+
     return (
         open_gmsh,
         type_mesh,
@@ -316,4 +320,5 @@ def retrieve_gui_values(tixi: Tixi3):
         growth_ratio,
         feature_angle,
         also_save_cgns,
+        mesh_checker,
     )

@@ -14,6 +14,8 @@ Initialization for PyAVL module.
 #   IMPORTS
 # ==============================================================================
 
+from ceasiompy.utils import get_module_status
+
 from pathlib import Path
 
 from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
@@ -21,9 +23,6 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
-
-# ===== Module Status =====
-MODULE_STATUS = True
 
 # ===== Include GUI =====
 INCLUDE_GUI = True
@@ -37,6 +36,12 @@ RES_DIR = True
 
 # ===== Name of Software used =====
 SOFTWARE_NAME = "avl"
+
+# ===== Module Status =====
+MODULE_STATUS = get_module_status(
+    default=True,
+    needs_soft_name=SOFTWARE_NAME,
+)
 
 # =================================================================================================
 #    xPaths
@@ -59,7 +64,6 @@ AVL_FUSELAGE_XPATH = AVL_XPATH + "/IntegrateFuselage"
 
 # Plot settings
 AVL_PLOT_XPATH = AVL_XPATH + "/SavePlots"
-AVL_PLOTLIFT_XPATH = AVL_XPATH + "/PlotLift"
 
 # Dynamic Stability
 AVL_TABLE_XPATH = AVL_XPATH + "/Table"
@@ -73,3 +77,14 @@ AVL_DISTR_XPATH = AVL_VORTEX_DISTR_XPATH + "/Distribution"
 
 # Specific for Dynamic Stability computation
 AVL_EXPAND_VALUES_XPATH = AVL_XPATH + "/ExpandValues"
+
+# === Constants ===
+
+AVL_TABLE_FILES: set[str] = {
+    "fe.txt",
+    "fn.txt",
+    "fs.txt",
+    "ft.txt",
+    "sb.txt",
+    "st.txt",
+}

@@ -9,11 +9,11 @@
 
 <img align="right" width="300" height="300" src="documents/logos/CEASIOMpy_main_logos.png">
 
-CEASIOMpy is an open source conceptual aircraft design environment. CEASIOMpy can be used to set up complex design and optimisation workflows for both conventional and unconventional aircraft configurations. Tools for various aircraft design disciplines are provided, but the aerodynamic tools are the most advanced. They allow automatic generation of aerodynamic meshes and CFD calculations.
+CEASIOMpy is an open source conceptual aircraft design environment which can be used to set up complex design and optimisation workflows for both conventional and unconventional aircraft configurations.
 
 CEASIOMpy is mostly written in Python but it also depends on third-party libraries and software (like [SU2](https://su2code.github.io/) for the CFD calculation).
 
-CEASIOMpy is based on the open-standard format [CPACS](https://www.cpacs.de/), a *Common Parametric Aircraft Configuration Schema*. It is a data definition for the air transportation system which is developed by the German Aerospace Center [DLR](https://www.dlr.de/). CPACS enables engineers to exchange information between their tools.
+All input geometries are based on the open-standard format [CPACS](https://www.cpacs.de/), a *Common Parametric Aircraft Configuration Schema*. It uses a parametric definition for air transportation systems which is developed by the German Aerospace Center [DLR](https://www.dlr.de/).
 
 :scroll: CEASIOMpy is maintained by [CFS Engineering](https://cfse.ch/) and [Airinnova](https://airinnova.se/). CEASIOMpy is under the [Apache License 2.0](https://github.com/cfsengineering/CEASIOMpy/blob/main/LICENSE).
 
@@ -24,7 +24,13 @@ CEASIOMpy is based on the open-standard format [CPACS](https://www.cpacs.de/), a
 - [CEASIOMpy](#ceasiompy)
   - [Table of contents](#table-of-contents)
   - [Installation](#installation)
-  - [Usage](#usage)
+      - [Recommended storage](#recommended-storage)
+    - [Linux/macOS](#linuxmacos)
+    - [Windows](#windows)
+      - [1. Download CEASIOMpy Repository](#1-download-ceasiompy-repository)
+      - [2. Install WSL with Ubuntu (if not done already)](#2-install-wsl-with-ubuntu-if-not-done-already)
+      - [3. Install the necesssary softwares](#3-install-the-necesssary-softwares)
+    - [Windows users](#windows-users)
     - [Demo](#demo)
     - [Test cases](#test-cases)
     - [Run CEASIOMpy](#run-ceasiompy)
@@ -39,15 +45,72 @@ CEASIOMpy is based on the open-standard format [CPACS](https://www.cpacs.de/), a
       - [Data Analysis and Storage](#data-analysis-and-storage)
   - [Contributing](#contributing)
   - [More information](#more-information)
+  - [Cite us](#cite-us)
 
 ## Installation
 
-To install CEASIOMpy, please refer to the [installation page](installation/INSTALLATION.md), it will guide you through the installation process depending on your system.
+#### Recommended storage
 
+At least 20 GB required for overall installation.
+
+### Linux/macOS
+
+On Linux/macOS, run the installer to set up the conda environment and optional tools (some scripts are still under development):
+
+```bash
+git clone https://github.com/cfsengineering/CEASIOMpy
+cd CEASIOMpy
+./scripts/install.sh
+```
+
+### Windows
+
+Windows requires WSL installation.
+
+#### 1. Download CEASIOMpy Repository
+
+```
+git clone https://github.com/cfsengineering/CEASIOMpy
+cd CEASIOMpy
+```
+
+#### 2. Install WSL with Ubuntu (if not done already)
+
+```
+wsl --install
+wsl --install -d Ubuntu
+```
+
+You might need to reboot your machine after the installation.
+
+#### 3. Install the necesssary softwares
+
+#TODO - Add scripts
+
+
+```
+bash ./scripts/install.sh
+```
+
+### Create Docker Container (Optional)
 A video which explains how to install CEASIOMpy on Docker is now available!
 [![CEASIOMpy Docker Installation](installation/docker_installation.png)](https://www.youtube.com/watch?v=KTS1-6AsReU)
 
 ## Usage
+
+Run the Streamlit app with :
+
+### Linux/macOS users
+
+```bash
+./scripts/ceasiompy.sh -g
+```
+
+### Windows users
+
+```ps1
+.\scripts\ceasiompy.ps1 -g
+```
 
 ### Demo
 
@@ -205,4 +268,3 @@ This respository may be cited via BibTex as:
   year = {2025},
 }
 ```
-

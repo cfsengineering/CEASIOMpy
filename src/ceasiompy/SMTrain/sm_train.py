@@ -121,7 +121,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 plot_dir.mkdir(parents=True, exist_ok=True)
                 plot_validation(model, sets, objective, plot_dir)
 
-                save_model(cpacs, model, objective, results_dir)
+            save_model(cpacs, model, objective, results_dir)
 
         if simulation_purpose == "Geometry Exploration":
 
@@ -222,25 +222,22 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             # TODO: if fidelity_level == LEVEL_THREE:
 
             # 3. Plot, save and get results
-            if show_plot:
-                if selected_krg_model:
+            if selected_krg_model:
+                if show_plot:
                     log.info("Validation plots.")
                     plot_dir = results_dir / "Validation_plot_KRG"
                     plot_dir.mkdir(parents=True, exist_ok=True)
                     plot_validation(krg_model, sets, objective, plot_dir)
 
-                    model_dir = Path(results_dir)
-                    model_dir.mkdir(parents=True, exist_ok=True)
-                    save_model_geom(cpacs, krg_model, objective, model_dir, param_order)
+                save_model_geom(cpacs, krg_model, objective, results_dir, param_order)
 
-                if selected_rbf_model:
+            if selected_rbf_model:
+                if show_plot:
                     plot_dir = results_dir / "Validation_plot_RBF"
                     plot_dir.mkdir(parents=True, exist_ok=True)
                     plot_validation(rbf_model, sets, objective, plot_dir)
 
-                    model_dir = Path(results_dir)
-                    model_dir.mkdir(parents=True, exist_ok=True)
-                    save_model_geom(cpacs, rbf_model, objective, model_dir, param_order)
+                save_model_geom(cpacs, rbf_model, objective, results_dir, param_order)
 
     if old_new_sim == "Load Geometry Exploration Simulations":
         krg_model, rbf_model, sets, param_order = training_existing_db(
@@ -262,25 +259,23 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 param_order=param_order,
             )
 
-        if show_plot:
-            if selected_krg_model:
+        if selected_krg_model:
+            if show_plot:
                 log.info("Validation plots.")
                 plot_dir = results_dir / "Validation_plot_KRG"
                 plot_dir.mkdir(parents=True, exist_ok=True)
                 plot_validation(krg_model, sets, objective, plot_dir)
 
-                model_dir = Path(results_dir)
-                model_dir.mkdir(parents=True, exist_ok=True)
-                save_model_geom(cpacs, krg_model, objective, model_dir, param_order)
+            save_model_geom(cpacs, krg_model, objective, results_dir, param_order)
 
-            if selected_rbf_model:
+        if selected_rbf_model:
+            if show_plot:
+                log.info("Validation plots.")
                 plot_dir = results_dir / "Validation_plot_RBF"
                 plot_dir.mkdir(parents=True, exist_ok=True)
                 plot_validation(rbf_model, sets, objective, plot_dir)
 
-                model_dir = Path(results_dir)
-                model_dir.mkdir(parents=True, exist_ok=True)
-                save_model_geom(cpacs, rbf_model, objective, model_dir, param_order)
+            save_model_geom(cpacs, rbf_model, objective, results_dir, param_order)
 
     end = time.perf_counter()
     print(f"ESECUTION TIME: {end - start} seconds")

@@ -13,7 +13,8 @@ Sampling strategies for SMTrain.
 
 import numpy as np
 import pandas as pd
-
+from smt.surrogate_models import KRG
+from smt.applications import MFK
 from sklearn.model_selection import train_test_split
 from ceasiompy.SMTrain.func.utils import get_val_fraction
 
@@ -95,61 +96,6 @@ def lh_sampling(
 
     return output_file_path
 
-# def lh_sampling(
-#     n_samples: int,
-#     ranges: Dict,
-#     results_dir: Path,
-#     random_state: int = 42,
-# ) -> Union[Path, None]:
-#     """
-#     Generate a Latin Hypercube Sampling (LHS) dataset within specified variable ranges.
-#     Uses the Enhanced Stochastic Evolutionary (ESE) criterion
-#     to generate a diverse set of samples within given variable limits.
-
-#     Args:
-#         n_samples (int): Number of samples to generate.
-#         ranges (Dict):
-#             Dictionary specifying the variable ranges in the format:
-#             { "variable_name": (min_value, max_value) }.
-#         results_dir (Path): Where the sampled dataset will be saved.
-#         random_state (int = 42): Seed for random number generation to ensure reproducibility.
-#     """
-#     if n_samples < 2:
-#         log.info(
-#             "Can not apply LHS on strictly less than 2 samples. "
-#             "Will use data from ceasiompy.db."
-#         )
-#         return None
-
-#     xlimits = np.array(list(ranges.values()))
-
-#     sampling = LHS(xlimits=xlimits, criterion="ese", random_state=random_state)
-#     samples = sampling(n_samples)
-
-#     # Maintain constant variables with fixed ranges
-#     fixed_cols = [idx for idx, (low, high) in enumerate(xlimits) if low == high]
-#     for idx in fixed_cols:
-#         samples[:, idx] = xlimits[idx, 0]
-
-#     sampled_dict = {key: samples[:, idx] for idx, key in enumerate(ranges.keys())}
-
-#         # Post-process sampled data to apply precision constraints
-#     for key in sampled_dict:
-#         if key == "range_of_altitude":
-#             sampled_dict[key] = np.round(sampled_dict[key]).astype(int)  # Convert to int
-#         elif key in ["range_of_mach", "range_of_aoa", "range_of_aos"]:
-#             sampled_dict[key] = np.round(sampled_dict[key] / 0.01) * 0.01  # Round to nearest 0.01
-
-
-#     # Save sampled dataset
-#     sampled_df = DataFrame(sampled_dict)
-#     output_file_path = results_dir / AEROMAP_SELECTED_CSV
-#     sampled_df.to_csv(output_file_path, index=False)
-#     log.info(f"LHS dataset saved in {output_file_path}")
-
-#     return output_file_path
-
-
 
 def lh_sampling_geom(
     n_samples: int,
@@ -196,8 +142,6 @@ def lh_sampling_geom(
     log.info(f"LHS dataset saved in {output_file_path}")
 
     return output_file_path
-
-
 
 
 def new_points(
@@ -253,7 +197,6 @@ def new_points(
 
     log.warning("No new points found, all have been selected.")
     return None
-
 
 
 def new_points_geom(

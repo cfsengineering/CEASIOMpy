@@ -376,6 +376,7 @@ def return_uidwings(tixi: Tixi3) -> List:
 def get_uid(tixi: Tixi3, xpath: str) -> str:
     return tixi.getTextAttribute(xpath, "uID")
 
+
 def return_uid_wings_sections(tixi: Tixi3) -> List[Tuple[str, str]]:
     """
     Returns a list of tuples, each containing the uID of a wing and the uID of one of its sections.
@@ -396,6 +397,7 @@ def return_uid_wings_sections(tixi: Tixi3) -> List[Tuple[str, str]]:
             result.append((uid_wing, uid_section))
 
     return result
+
 
 def elements_number(tixi: Tixi3, xpath: str, element: str, logg: bool = True) -> int:
     """

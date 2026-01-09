@@ -58,9 +58,6 @@ from ceasiompy.SU2Run import (
     SU2_AEROMAP_UID_XPATH,
     MODULE_NAME as SU2RUN_NAME,
 )
-from ceasiompy.CPACS2GMSH import (
-    MODULE_NAME as CPACS2GMSH_NAME,
-)
 from ceasiompy.utils.commonxpaths import (
     SU2MESH_XPATH,
     USED_SU2_MESH_XPATH,
@@ -102,7 +99,7 @@ def launch_avl(
     objective: str,
     result_dir: Path,
 ) -> DataFrame:
-    
+
     """
     Executes AVL aerodynamic analysis running PyAVL Module
 
@@ -148,9 +145,8 @@ def launch_avl(
     # Log the generated dataset, with objective values
     log.info(f"Level one results extracted for {objective}:")
     log.info(df_aeromap)
-    
-    return df_aeromap
 
+    return df_aeromap
 
 
 def launch_su2(
@@ -171,7 +167,7 @@ def launch_su2(
     tixi = cpacs.tixi
     su2mesh, su2_mesh_path = None, None
     aeromap = create_aeromap_from_varpts(cpacs, results_dir, high_variance_points)
-    
+
     # Load default parameters
     st.session_state = MagicMock()
 
@@ -249,11 +245,11 @@ def launch_gmsh_su2_geom(
     feature_angle = str(get_value_or_default(tixi, GMSH_FEATURE_ANGLE_XPATH,40))
     intake_per = str(get_value_or_default(tixi, GMSH_INTAKE_PERCENT_XPATH,20))
     exhaust_per = str(get_value_or_default(tixi, GMSH_EXHAUST_PERCENT_XPATH,20))
-    
+
     # Retrieve the CpACS2gmsh gui values of smtrain
     update_cpacs_from_specs(cpacs, CPACS2GMSH_NAME, test=False)
 
-    # Load back the smtrain cpacs2gmsh gui values into the cpacs.tixi 
+    # Load back the smtrain cpacs2gmsh gui values into the cpacs.tixi
 
     local_mesh_dir = get_results_directory(CPACS2GMSH_NAME)
     # local_mesh_dir.mkdir(exist_ok=True)
@@ -283,7 +279,7 @@ def launch_gmsh_su2_geom(
 
     # tixi = cpacs.tixi
     su2mesh, su2_mesh_path = None, None
-    aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+    cpacs.get_aeromap_by_uid(aeromap_uid)
 
     # dest_path = Path(results_dir) / "currently_cpacs_to_run.xml"
     # shutil.copy2(get_results_directory(SMTrain), dest_path)
@@ -296,7 +292,6 @@ def launch_gmsh_su2_geom(
         if not su2_mesh_path:
             su2_mesh_path = None
 
-    
     # su2_mesh_path_type = str(get_value(tixi, USED_SU2_MESH_XPATH + "type"))
     max_iters = str(get_value(tixi, SU2_MAX_ITER_XPATH))
 
@@ -312,11 +307,11 @@ def launch_gmsh_su2_geom(
 
     if su2_mesh_path is not None:
         tixi.updateTextElement(USED_SU2_MESH_XPATH, str(su2_mesh_path))
-    
+
     # results = []
     run_su2(cpacs, results_dir=results_dir)
 
     df_su2 = retrieve_aeromap_data(cpacs, aeromap_uid, objective)
     obj_value = df_su2[objective].iloc[0]
 
-    return obj_value 
+    return obj_value

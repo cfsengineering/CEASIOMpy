@@ -158,23 +158,19 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             NEWCPACS_path.mkdir(exist_ok=True)
 
             cpacs_file = cpacs.cpacs_file
-            
+
             tixi = Tixi3()
             tixi.open(str(cpacs_file))
 
-
             print(f"The aeromap selected by the user is: {aeromap_selected}")
-            aeromap = cpacs.get_aeromap_by_uid(aeromap_selected)
-            alt_list, mach_list, aoa_list, aos_list = get_conditions_from_aeromap(aeromap)
 
-            aeromap_dict = {
-            "altitude": alt_list,
-            "machNumber": mach_list,
-            "angleOfAttack": aoa_list,
-            "angleOfSideslip": aos_list,
-            }
-
-            wings_to_optimise,sections_to_optimise,parameters_to_optimise, ranges_gui, n_samples_geometry = get_elements_to_optimise(cpacs)
+            (
+                wings_to_optimise,
+                sections_to_optimise,
+                parameters_to_optimise,
+                ranges_gui,
+                n_samples_geometry
+            ) = get_elements_to_optimise(cpacs)
 
             df_ranges_gui = pd.DataFrame([
                 {"Parameter": k, "Min": v[0], "Max": v[1]}
@@ -199,14 +195,24 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             lh_sampling_geom_path = lh_sampling_geom(n_samples_geometry, ranges_gui, results_dir)
 
             # Create the list of CPACS files (in function of geometry values of lh_smapling)
-            list_cpacs = create_list_cpacs_geometry(cpacs_file, lh_sampling_geom_path, NEWCPACS_path)
+            list_cpacs = create_list_cpacs_geometry(
+                cpacs_file,
+                lh_sampling_geom_path,
+                NEWCPACS_path
+            )
 
             # First level fidelity training
-            krg_model, rbf_model , sets, idx_best_geom_conf, param_order = run_first_level_training_geometry(
+            (
+                krg_model,
+                rbf_model,
+                sets,
+                idx_best_geom_conf,
+                param_order
+            ) = run_first_level_training_geometry(
                 cpacs_list=list_cpacs,
                 aeromap_uid=aeromap_selected,
                 lh_sampling_geom_path=lh_sampling_geom_path,
-                objective=objective, 
+                objective=objective,
                 split_ratio=split_ratio,
                 n_samples=n_samples_geometry,
                 pyavl_dir=computations_dir,
@@ -215,7 +221,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 RBF_model_bool=selected_rbf_model,
             )
 
-            files = sorted(list(NEWCPACS_path.glob("*.xml"))) 
+            files = sorted(list(NEWCPACS_path.glob("*.xml")))
             for i, best_cpacs_path in enumerate(files):
                 if i == idx_best_geom_conf:
                     print(f"{best_cpacs_path=}")
@@ -234,7 +240,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                     aeromap_uid=aeromap_selected,
                     param_order=param_order,
                 )
-            
+
             # Second level fidelity training
             # TODO: if fidelity_level == LEVEL_THREE:
 
@@ -258,10 +264,15 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                     model_dir = Path(results_dir)
                     model_dir.mkdir(parents=True, exist_ok=True)
                     save_model(cpacs, rbf_model, objective, model_dir, param_order)
-                
+
     if old_new_sim == "Load Geometry Exploration Simulations":
-        krg_model, rbf_model, sets, param_order = training_existing_db(results_dir, split_ratio,selected_krg_model,selected_rbf_model)
-        
+        krg_model, rbf_model, sets, param_order = training_existing_db(
+            results_dir,
+            split_ratio,
+            selected_krg_model,
+            selected_rbf_model
+        )
+
         if fidelity_level == LEVEL_TWO:
             run_adaptative_refinement_geom_existing_db(
                 cpacs=cpacs,
@@ -294,10 +305,9 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 model_dir.mkdir(parents=True, exist_ok=True)
                 save_model(cpacs, rbf_model, objective, model_dir, param_order)
 
-
     end = time.perf_counter()
     print(f"ESECUTION TIME: {end - start} seconds")
 
-   
+
 if __name__ == "__main__":
     call_main(main, MODULE_NAME)

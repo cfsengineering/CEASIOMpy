@@ -65,4 +65,3 @@ for wing_uid, segment_uid in segments_list:
         gui_name=f"Control Surface for segment {segment_uid} of wing {wing_uid}",
         gui_group="Control Surfaces Settings",
     )
-

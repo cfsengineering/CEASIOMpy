@@ -72,7 +72,6 @@ import pymeshfix
 import numpy as np
 
 
-
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
@@ -490,7 +489,7 @@ def generate_2d_mesh_for_pentagrow(
         # -----------------------------
         repaired_mesh.export(output_stl)
         # print(f"\n✔ Repaired mesh saved as: {Path(results_dir, "surface_mesh.stl")}")
-        
+
         print(f"{output_stl=}")
         gmsh.write(str(output_stl))
         print(f"{fuselage_maxlen=}")

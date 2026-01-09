@@ -13,12 +13,9 @@ Functions related to the training of the surrogate model.
 
 import time
 import joblib
-import csv
-import shutil
 from shutil import copyfile
 import numpy as np
 import pandas as pd
-import gmsh
 from pathlib import Path
 
 from pandas import concat
@@ -71,16 +68,12 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 from ceasiompy.SMTrain.func import AEROMAP_SELECTED
 
-from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
 from cpacspy.cpacspy import CPACS
 from smt.applications import MFK
 from smt.surrogate_models import KRG
-from scipy.optimize import (
-    OptimizeResult, 
-    minimize,
-)
+from scipy.optimize import OptimizeResult
 
 from skopt.space import (
     Real,
@@ -196,7 +189,7 @@ def train_surrogate_model(
             param_space=hyperparam_space,
             sets=level1_sets,
         )
-    
+
 
 def save_model(
     cpacs: CPACS,
@@ -216,8 +209,7 @@ def save_model(
     """
     tixi = cpacs.tixi
 
-    
-    model_path = results_dir / f"surrogateModel.pkl"
+    model_path = results_dir / "surrogateModel.pkl"
     with open(model_path, "wb") as file:
         joblib.dump(
             value={
@@ -229,7 +221,6 @@ def save_model(
         )
     log.info(f"Model saved to {model_path}")
 
-    
     create_branch(tixi, SM_XPATH)
     add_value(tixi, SM_XPATH, model_path)
     log.info("Finished Saving model.")
@@ -366,6 +357,7 @@ def mf_kriging(
 
     return best_model, best_loss
 
+
 def run_first_level_training(
     cpacs: CPACS,
     lh_sampling_path: Union[Path, None],
@@ -381,171 +373,6 @@ def run_first_level_training(
     level1_sets = split_data(level1_df, objective, split_ratio)
     model, _ = train_surrogate_model(level1_sets)
     return model, level1_sets, param_order
-
-
-# def run_first_level_training_geometry(
-#     cpacs_list: list,
-#     aeromap_uid: str,
-#     lh_sampling_geom_path: Union[Path, None],
-#     objective: str,
-#     split_ratio: float,
-#     n_samples: float,
-#     pyavl_dir: Path,
-#     results_dir: Path,
-# ) -> Tuple[Union[KRG, MFK], Dict[str, ndarray]]:
-#     """
-#     Run surrogate model training on first level of fidelity (AVL).
-#     """
-    
-#     df_geom = pd.read_csv(lh_sampling_geom_path)
-    
-#     # Loop through CPACS files
-#     final_dfs = []
-    
-#     for i,cpacs in enumerate(cpacs_list):
-#         tixi = cpacs.tixi
-#         pyavl_local_dir = pyavl_dir/f"PyAVL_{i+1}"
-#         pyavl_local_dir.mkdir(exist_ok=True)
-#         st.session_state = MagicMock()
-#         update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
-#         tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap_uid)
-
-#         # Store (cpacs, pyavllocaldir)
-
-#     #     with ProcessPoolExecutor(max_workers=nb_cpu) as executor:
-#     run_avl(cpacs, pyavl_local_dir)
-
-
-#         level1_df = retrieve_aeromap_data(cpacs, aeromap_uid, objective)
-#         objective_df = level1_df[[objective]]
-        
-#         n = len(level1_df)
-#         row_df_geom = df_geom.iloc[i]
-#         local_df_geom = pd.DataFrame([row_df_geom]*n).reset_index(drop=True)
-#         # Add the columns for the specific geometry in level1_df
-#         level1_df_combined = pd.concat([local_df_geom,objective_df.reset_index(drop=True)], axis=1)
-#         # Concatenate the dataframes
-#         final_dfs.append(level1_df_combined)
-
-#     # Concatenate the dataframes
-#     final_level1_df = pd.concat(final_dfs, axis = 0, ignore_index=True)
-    
-#     final_level1_df.to_csv(f"{results_dir}/avl_simulations_results.csv", index=False)
-    
-#     best_geometry_idx = final_level1_df[objective].idxmax()
-#     best_geometries_df = final_level1_df.loc[[best_geometry_idx]]
-#     best_geometries_df.to_csv(f"{results_dir}/best_geometric_configurations.csv", index=False)
-
-#     param_cols = final_level1_df.columns.drop(objective)
-
-#     df_norm = final_level1_df.copy()
-#     normalization_params = {}
-
-#     for col in param_cols:
-#         col_mean = final_level1_df[col].mean()
-#         col_std = final_level1_df[col].std()
-#         if col_std == 0:
-#             df_norm[col] = 0.0 
-#         else:
-#             df_norm[col] = (final_level1_df[col] - col_mean) / col_std
-#         normalization_params[col] = {"mean": col_mean, "std": col_std}
-
-
-#     level1_sets = split_data(df_norm, objective, split_ratio)
-#     model, rmse = train_surrogate_model(level1_sets)
-#     param_order = [col for col in df_norm.columns if col != objective]
-
-#     rmse_df = pd.DataFrame({"rmse": [rmse]})
-#     rmse_path = f"{results_dir}/rmse_model.csv"
-#     rmse_df.to_csv(rmse_path, index=False)
-
-#     return model, level1_sets, best_geometry_idx, param_order
-
-
-# def run_first_level_training_geometry(
-#     cpacs_list: list,
-#     aeromap_uid: str,
-#     lh_sampling_geom_path: Union[Path, None],
-#     objective: str,
-#     split_ratio: float,
-#     n_samples: float,
-#     pyavl_dir: Path,
-#     results_dir: Path,
-# ) -> Tuple[Union[KRG, MFK], Dict[str, ndarray]]:
-#     """
-#     Run surrogate model training on first level of fidelity (AVL).
-#     """
-    
-#     df_geom = pd.read_csv(lh_sampling_geom_path)
-    
-#     # Loop through CPACS files
-#     final_dfs = []
-    
-#     for i, cpacs in enumerate(cpacs_list):
-#         tixi = cpacs.tixi
-#         pyavl_local_dir = pyavl_dir / f"PyAVL_{i+1}"
-#         pyavl_local_dir.mkdir(exist_ok=True)
-#         st.session_state = MagicMock()
-#         update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
-#         tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap_uid)
-
-#         # Run AVL simulation with error handling
-#         try:
-#             run_avl(cpacs, pyavl_local_dir)
-#             level1_df = retrieve_aeromap_data(cpacs, aeromap_uid, objective)
-            
-#             if len(level1_df) > 0:  # Check if data was retrieved successfully
-#                 objective_df = level1_df[[objective]]
-#                 n = len(level1_df)
-#                 row_df_geom = df_geom.iloc[i]
-#                 local_df_geom = pd.DataFrame([row_df_geom] * n).reset_index(drop=True)
-#                 # Add the columns for the specific geometry in level1_df
-#                 level1_df_combined = pd.concat([local_df_geom, objective_df.reset_index(drop=True)], axis=1)
-#                 # Concatenate the dataframes
-#                 final_dfs.append(level1_df_combined)
-#             else:
-#                 print(f"Warning: No data retrieved for simulation {i+1}, skipping...")
-                
-#         except Exception as e:
-#             print(f"Error in AVL simulation {i+1}: {str(e)}. Skipping this simulation...")
-#             continue  # Skip to next iteration, don't add to final_dfs
-
-#     # Check if any successful simulations
-#     if not final_dfs:
-#         raise ValueError("No successful AVL simulations. Cannot proceed with surrogate model training.")
-    
-#     # Concatenate the dataframes
-#     final_level1_df = pd.concat(final_dfs, axis=0, ignore_index=True)
-    
-#     final_level1_df.to_csv(f"{results_dir}/avl_simulations_results.csv", index=False)
-    
-#     best_geometry_idx = final_level1_df[objective].idxmax()
-#     best_geometries_df = final_level1_df.loc[[best_geometry_idx]]
-#     best_geometries_df.to_csv(f"{results_dir}/best_geometric_configurations.csv", index=False)
-
-#     param_cols = final_level1_df.columns.drop(objective)
-
-#     df_norm = final_level1_df.copy()
-#     normalization_params = {}
-
-#     for col in param_cols:
-#         col_mean = final_level1_df[col].mean()
-#         col_std = final_level1_df[col].std()
-#         if col_std == 0:
-#             df_norm[col] = 0.0 
-#         else:
-#             df_norm[col] = (final_level1_df[col] - col_mean) / col_std
-#         normalization_params[col] = {"mean": col_mean, "std": col_std}
-
-#     level1_sets = split_data(df_norm, objective, split_ratio)
-#     model, rmse = train_surrogate_model(level1_sets)
-#     param_order = [col for col in df_norm.columns if col != objective]
-
-#     rmse_df = pd.DataFrame({"rmse": [rmse]})
-#     rmse_path = f"{results_dir}/rmse_model.csv"
-#     rmse_df.to_csv(rmse_path, index=False)
-
-#     return model, level1_sets, best_geometry_idx, param_order
 
 
 def run_adaptative_refinement(
@@ -611,7 +438,6 @@ def run_adaptative_refinement(
             break
 
 
-
 def run_adaptative_refinement_geom(
     cpacs: CPACS,
     results_dir: Path,
@@ -636,7 +462,7 @@ def run_adaptative_refinement_geom(
     aeromap_csv_path = results_dir / f"{AEROMAP_SELECTED}.csv"
 
     cpacs_list = []
-    
+
     for _ in range(nb_iters):
         # Find new high variance points based on inputs x_train
         new_point_df = new_points_geom(
@@ -658,20 +484,20 @@ def run_adaptative_refinement_geom(
         cpacs_file = cpacs.cpacs_file
 
         for i, geom_row in new_point_df.iterrows():
-            
-            cpacs_out_path = get_results_directory(SU2RUN_NAME) / f"CPACS_newpoint_{i+1:03d}_iter{_}.xml"
-            copyfile(cpacs_file, cpacs_out_path)
-            cpacs_out_obj = CPACS(cpacs_out_path)
+
+            cpacs_p = get_results_directory(SU2RUN_NAME) / f"CPACS_newpoint_{i+1:03d}_iter{_}.xml"
+            copyfile(cpacs_file, cpacs_p)
+            cpacs_out_obj = CPACS(cpacs_p)
             tixi = cpacs_out_obj.tixi
             params_to_update = {}
             for col in new_point_df.columns:
-                ### SINTAX: {comp}_of_{section}_of_{param}
+                # SINTAX: {comp}_of_{section}_of_{param}
                 col_parts = col.split('_of_')
                 uID_wing = col_parts[2]
                 uID_section = col_parts[1]
                 name_parameter = col_parts[0]
                 val = geom_row[col]
-                        
+
                 xpath = get_xpath_for_param(tixi, name_parameter, uID_wing, uID_section)
 
                 if name_parameter not in params_to_update:
@@ -680,12 +506,12 @@ def run_adaptative_refinement_geom(
                 params_to_update[name_parameter]['values'].append(val)
                 params_to_update[name_parameter]['xpath'].append(xpath)
             # Update CPACS file
-            cpacs_obj = update_geometry_cpacs(cpacs_file, cpacs_out_path, params_to_update)
+            cpacs_obj = update_geometry_cpacs(cpacs_file, cpacs_p, params_to_update)
             cpacs_list.append(cpacs_obj)
             # Get data from SU2 at the high variance points
         new_df_list = []
         for idx, cpacs_ in enumerate(cpacs_list):
-            
+
             dir_res = get_results_directory(SU2RUN_NAME) / f"SU2Run_{idx}_iter{_}"
             dir_res.mkdir(exist_ok=True)
             obj_value = launch_gmsh_su2_geom(
@@ -697,17 +523,12 @@ def run_adaptative_refinement_geom(
                 aeromap_uid=aeromap_uid,
             )
             new_row = new_point_df.iloc[idx].copy()
-            print(f"{new_row=}")  
             new_row[objective] = obj_value
-            print(f"{new_row=}")  
             new_df_list.append(new_row)
-            print(f"{new_df_list=}")
         new_df = pd.DataFrame(new_df_list)
 
-        print(f"{new_df=}")  
         # Stack new with old
         df = pd.concat([new_df, df], ignore_index=True)
-        
         df.to_csv(get_results_directory(SU2RUN_NAME) / f"SU2_dataframe_iter_{_}", index=False)
 
         model, rmse = train_surrogate_model(
@@ -733,7 +554,7 @@ def training_existing_db(results_dir: Path, split_ratio: float):
 
     # Trova il migliore
     objective = df1.columns[-1]
-    best_geometry_idx = df1[objective].idxmax() 
+    best_geometry_idx = df1[objective].idxmax()
     best_geometries_df = df1.loc[[best_geometry_idx]]
     best_geometries_df.to_csv(results_dir / "best_geometric_configurations.csv", index=False)
 
@@ -746,19 +567,17 @@ def training_existing_db(results_dir: Path, split_ratio: float):
         col_mean = df1[col].mean()
         col_std = df1[col].std()
         if col_std == 0:
-            df_norm[col] = 0.0 
+            df_norm[col] = 0.0
         else:
             df_norm[col] = (df1[col] - col_mean) / col_std
         normalization_params[col] = {"mean": col_mean, "std": col_std}
 
-    
     level1_sets = split_data(df_norm, objective, split_ratio)
 
     model, rmse = train_surrogate_model(level1_sets)
 
     param_order = [col for col in df1.columns if col != objective]
 
-    
     rmse_df = pd.DataFrame({"rmse": [rmse]})
     rmse_df.to_csv(results_dir / "rmse_model.csv", index=False)
 
@@ -766,8 +585,6 @@ def training_existing_db(results_dir: Path, split_ratio: float):
     norm_params_df.to_csv(results_dir / "normalization_params.csv")
 
     return model, level1_sets, param_order
-
-
 
 
 def run_adaptative_refinement_geom_existing_db(
@@ -794,7 +611,7 @@ def run_adaptative_refinement_geom_existing_db(
     aeromap_csv_path = results_dir / f"{AEROMAP_SELECTED}.csv"
 
     cpacs_list = []
-    
+
     for _ in range(nb_iters):
         # Find new high variance points based on inputs x_train
         new_point_df = new_points_geom(
@@ -816,20 +633,20 @@ def run_adaptative_refinement_geom_existing_db(
         cpacs_file = cpacs.cpacs_file
 
         for i, geom_row in new_point_df.iterrows():
-            
-            cpacs_out_path = get_results_directory(SU2RUN_NAME) / f"CPACS_newpoint_{i+1:03d}_iter{_}.xml"
-            copyfile(cpacs_file, cpacs_out_path)
-            cpacs_out_obj = CPACS(cpacs_out_path)
+
+            cpacs_p = get_results_directory(SU2RUN_NAME) / f"CPACS_newpoint_{i+1:03d}_iter{_}.xml"
+            copyfile(cpacs_file, cpacs_p)
+            cpacs_out_obj = CPACS(cpacs_p)
             tixi = cpacs_out_obj.tixi
             params_to_update = {}
             for col in new_point_df.columns:
-                ### SINTAX: {comp}_of_{section}_of_{param}
+                # SINTAX: {comp}_of_{section}_of_{param}
                 col_parts = col.split('_of_')
                 uID_wing = col_parts[2]
                 uID_section = col_parts[1]
                 name_parameter = col_parts[0]
                 val = geom_row[col]
-                        
+
                 xpath = get_xpath_for_param(tixi, name_parameter, uID_wing, uID_section)
 
                 if name_parameter not in params_to_update:
@@ -838,12 +655,12 @@ def run_adaptative_refinement_geom_existing_db(
                 params_to_update[name_parameter]['values'].append(val)
                 params_to_update[name_parameter]['xpath'].append(xpath)
             # Update CPACS file
-            cpacs_obj = update_geometry_cpacs(cpacs_file, cpacs_out_path, params_to_update)
+            cpacs_obj = update_geometry_cpacs(cpacs_file, cpacs_p, params_to_update)
             cpacs_list.append(cpacs_obj)
             # Get data from SU2 at the high variance points
         new_df_list = []
         for idx, cpacs_ in enumerate(cpacs_list):
-            
+
             dir_res = get_results_directory(SU2RUN_NAME) / f"SU2Run_{idx}_iter{_}"
             dir_res.mkdir(exist_ok=True)
             obj_value = launch_gmsh_su2_geom(
@@ -855,18 +672,12 @@ def run_adaptative_refinement_geom_existing_db(
                 aeromap_uid=aeromap_uid,
             )
             new_row = new_point_df.iloc[idx].copy()
-            print(f"{new_row=}")  
             new_row[objective] = obj_value
-            print(f"{new_row=}")  
             new_df_list.append(new_row)
-            print(f"{new_df_list=}")
         new_df = pd.DataFrame(new_df_list)
 
-        print(f"{new_df=}")  
-
-        
         df = pd.concat([new_df, df], ignore_index=True)
-        
+
         df.to_csv(get_results_directory(SU2RUN_NAME) / f"SU2_dataframe_iter_{_}", index=False)
 
         model, rmse = train_surrogate_model(
@@ -882,4 +693,3 @@ def run_adaptative_refinement_geom_existing_db(
             rmse_path = f"{results_dir}/rmse_model.csv"
             rmse_df.to_csv(rmse_path, index=False)
             break
-

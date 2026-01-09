@@ -85,8 +85,6 @@ SMTRAIN_NSAMPLES_AEROMAP_XPATH = SMTRAIN_DOE_AEROMAP + "/nSamples_aeromap"
 SMTRAIN_DOE_GEOMETRY = SMTRAIN_XPATH + "/DesignOfExperiment_geometry"
 SMTRAIN_NSAMPLES_GEOMETRY_XPATH = SMTRAIN_DOE_GEOMETRY + "/nSamples_geometry"
 
-
-
 # Aeromap ranges
 SMTRAIN_MAX_ALT = SMTRAIN_XPATH_AEROMAP + "/MaxAltitude"
 SMTRAIN_MAX_MACH = SMTRAIN_XPATH_AEROMAP + "/MaxMach"
@@ -103,15 +101,11 @@ SMTRAIN_MAX_TWIST = SMTRAIN_XPATH_GEOMETRY + "/MaxTwist"
 SMTRAIN_MAX_CHORD = SMTRAIN_XPATH_GEOMETRY + "/MaxChord"
 SMTRAIN_MAX_THICKNESS = SMTRAIN_XPATH_GEOMETRY + "/MaxThickness"
 
-
-
-
-WING_PARAMETERS = ["sweepAngle", 
-                   "dihedralAngle", 
-                   "length", 
-                   "twist", 
-                   "chord", 
-                   "thickness"]
-
-
-
+WING_PARAMETERS = [
+    "sweepAngle",
+    "dihedralAngle",
+    "length",
+    "twist",
+    "chord",
+    "thickness"
+]

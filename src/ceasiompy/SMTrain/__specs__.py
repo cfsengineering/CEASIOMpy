@@ -14,54 +14,23 @@ Initialization for SMTrain module.
 import streamlit as st
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
-from ceasiompy.SU2Run import SU2_MAX_ITER_XPATH
 from ceasiompy.utils.commonxpaths import (
-    USED_SU2_MESH_XPATH,
     SU2MESH_XPATH,
 )
 from ceasiompy.SMTrain import (
     INCLUDE_GUI,
     LEVEL_ONE,
     LEVEL_TWO,
-    OBJECTIVES_LIST,
-    AEROMAP_FEATURES,
-    SMTRAIN_XPATH_PARAMS_AEROMAP,
     SMTRAIN_XPATH_AEROMAP_UID,
-    SMTRAIN_MAX_ALT,
-    SMTRAIN_MAX_MACH,
-    SMTRAIN_MAX_AOA,
-    SMTRAIN_MAX_AOS,
-    WING_PARAMETERS,
-    SMTRAIN_XPATH_WINGS,
-    SMTRAIN_GEOM_WING_OPTIMISE,
-    SMTRAIN_THRESHOLD_XPATH,
-    SMTRAIN_NSAMPLES_AEROMAP_XPATH,
-    SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
     SMTRAIN_PLOT_XPATH,
-    SMTRAIN_OBJECTIVE_XPATH,
-    SMTRAIN_SIMULATION_PURPOSE_XPATH,
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
-    # SMTRAIN_SELECTED_MODEL,
     SMTRAIN_KRG_MODEL,
     SMTRAIN_RBF_MODEL,
     SMTRAIN_AVL_DATABASE_XPATH,
     SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
-    # SMTRAIN_XPATH_CORES,
 )
 
-
-import streamlit as st
-
-from ceasiompy.utils.geometryfunctions import (
-    get_segments,
-    get_positionings,
-    return_namewings,
-    return_uidwings,
-    wing_sections,
-    return_uid_wings_sections,
-)
 
 # ==============================================================================
 #   VARIABLE
@@ -85,18 +54,6 @@ cpacs_inout.add_input(
     gui_group="Aeromap settings",
 )
 
-# cpacs_inout.add_input(
-#     var_name="Number of cores",
-#     var_type=int,
-#     default_value=4,
-#     unit=None,
-#     descr="Select the number of cores for the simulations",
-#     xpath=SMTRAIN_XPATH_CORES,
-#     gui=INCLUDE_GUI,
-#     gui_name="Cores number",
-#     gui_group="Simulation Settings",
-# )
-
 cpacs_inout.add_input(
     var_name="choose_db",
     var_type=list,
@@ -108,43 +65,6 @@ cpacs_inout.add_input(
     gui_name="Load Existing or Run New Simulations",
     gui_group="Simulation Settings",
 )
-
-# cpacs_inout.add_input(
-#     var_name="objective",
-#     var_type=list,
-#     default_value=OBJECTIVES_LIST,
-#     unit=None,
-#     descr="Objective function list for the surrogate model to predict",
-#     xpath=SMTRAIN_OBJECTIVE_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Objective",
-#     gui_group="Simulation Settings",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="simulation_purpose",
-#     var_type=list,
-#     default_value=["Flight Condition Exploration", "Geometry Exploration"],
-#     unit=None,
-#     descr="""choose to train the model for optimal flight conditions given a fixed geometry or for optimal geometry given a fixed flight conditions.""",
-#     xpath=SMTRAIN_SIMULATION_PURPOSE_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Choice of simulation Purpose",
-#     gui_group="Simulation Settings",
-# )
-
-
-# cpacs_inout.add_input(
-#     var_name="model",
-#     var_type=list,
-#     default_value=["RBF", "KRG" , "Use Both for Comparison"],
-#     unit=None,
-#     descr="Select a model for the simulation, or choose the last option to train both and use the best result.",
-#     xpath=SMTRAIN_SELECTED_MODEL,
-#     gui=INCLUDE_GUI,
-#     gui_name="Choice of the model",
-#     gui_group="Training Surrogate Settings",
-# )
 
 cpacs_inout.add_input(
     var_name="krg_model",
@@ -163,14 +83,13 @@ cpacs_inout.add_input(
     var_type=bool,
     default_value=False,
     unit=None,
-    descr="Select this model for the simulation (choose more than one for comparison). " \
-            "This model will be trained only with AVL simulations.",
+    descr="Select this model for the simulation (choose more than one for comparison). "
+    "This model will be trained only with AVL simulations.",
     xpath=SMTRAIN_RBF_MODEL,
     gui=INCLUDE_GUI,
     gui_name="RBF",
     gui_group="Training Surrogate Settings",
 )
-
 
 cpacs_inout.add_input(
     var_name="training_part",
@@ -182,7 +101,6 @@ cpacs_inout.add_input(
     gui_name=r"% of training data",
     gui_group="Training Surrogate Settings",
 )
-
 
 cpacs_inout.add_input(
     var_name="fidelity_level",
@@ -197,70 +115,6 @@ cpacs_inout.add_input(
     gui_group="Training Surrogate Settings",
     test_value=[LEVEL_ONE],
 )
-
-
-
-# cpacs_inout.add_input(
-#     var_name=f"Aeromap_Parameter",
-#     var_type="RangeAeromap",
-#     default_value=False,
-#     unit=None,
-#     descr="Select if you want to consider this parameter",
-#     xpath=SMTRAIN_XPATH_PARAMS_AEROMAP,
-#     gui=INCLUDE_GUI,
-#     gui_name="DoE AeroMap",
-#     gui_group="Flight Condition Exploration Settings",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="number_of_samples",
-#     var_type=int,
-#     default_value=10,
-#     unit=None,
-#     descr="Choose the number of samples",
-#     xpath=SMTRAIN_NSAMPLES_AEROMAP_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Number of samples",
-#     gui_group="Flight Condition Exploration Settings",
-#     test_value=7,
-# )
-
-# cpacs_inout.add_input(
-#     var_name=f"Wings to optimise",
-#     var_type="SectionsOptimise",
-#     default_value=False,
-#     unit=None,
-#     descr="Choose the wings and related sections you want to optimise",
-#     xpath=SMTRAIN_GEOM_WING_OPTIMISE,
-#     gui=INCLUDE_GUI,
-#     gui_name="Wings to optimise",
-#     gui_group="Geometry Exploration Settings",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="number_of_samples",
-#     var_type=int,
-#     default_value=10,
-#     unit=None,
-#     descr="Choose the number of samples for the optimisation",
-#     xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Number of samples",
-#     gui_group="Geometry Exploration Settings",
-#     test_value=10,
-# )
-
-# cpacs_inout.add_input(
-#     var_name="nb_proc",
-#     var_type=int,
-#     default_value=get_reasonable_nb_cpu(),
-#     unit=None,
-#     descr="Number of proc to use to run SU2",
-#     xpath=SMTRAIN_XPATH_CORES,
-#     gui=INCLUDE_GUI,
-#     gui_name="Nb of processor",
-#     gui_group="CPU",
-# )
 
 cpacs_inout.add_input(
     var_name="show_validation_plot",
@@ -583,10 +437,3 @@ cpacs_inout.add_output(
     descr="Absolute path of the SU2 mesh",
     xpath=SU2MESH_XPATH,
 )
-
-"""
-
-provare a mettere un if su mesh settings, in modo che vada a recuperare la casella selezionata dall'utente. if tixi.qualcosa == twolevels allora add.inputs
-
-
-"""

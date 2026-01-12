@@ -433,26 +433,26 @@ def generate_2d_mesh_for_pentagrow(
 
     mesh = trimesh.load_mesh(input_stl)
 
-    print("=== MESH INFO ===")
-    print(f"Vertices: {len(mesh.vertices)}")
-    print(f"Faces:    {len(mesh.faces)}")
+    log.info("=== MESH INFO ===")
+    log.info(f"Vertices: {len(mesh.vertices)}")
+    log.info(f"Faces:    {len(mesh.faces)}")
 
     # -----------------------------
     # Watertight check
     # -----------------------------
 
     is_watertight = mesh.is_watertight
-    print(f"Watertight: {is_watertight}")
+    log.info(f"Watertight: {is_watertight}")
 
     if is_watertight:
-        print("✔ Mesh is already watertight. Saving copy.")
+        log.info("✔ Mesh is already watertight. Saving copy.")
         mesh.export(input_stl)
         return input_stl, fuselage_maxlen
     else:
         # -----------------------------
         # Repair with PyMeshFix
         # -----------------------------
-        print("⚠ Mesh is NOT watertight → repairing...")
+        log.warning("⚠ Mesh is NOT watertight → repairing...")
 
         vertices = np.array(mesh.vertices)
         faces = np.array(mesh.faces)
@@ -477,21 +477,19 @@ def generate_2d_mesh_for_pentagrow(
         # -----------------------------
         # Post-repair checks
         # -----------------------------
-        print("\n=== POST-REPAIR INFO ===")
-        print(f"Vertices: {len(repaired_mesh.vertices)}")
-        print(f"Faces:    {len(repaired_mesh.faces)}")
-        print(f"Watertight: {repaired_mesh.is_watertight}")
-        print(f"Euler number: {repaired_mesh.euler_number}")
+        log.info("\n=== POST-REPAIR INFO ===")
+        log.info(f"Vertices: {len(repaired_mesh.vertices)}")
+        log.info(f"Faces:    {len(repaired_mesh.faces)}")
+        log.info(f"Watertight: {repaired_mesh.is_watertight}")
+        log.info(f"Euler number: {repaired_mesh.euler_number}")
 
         # -----------------------------
         # Save result
         # -----------------------------
         repaired_mesh.export(output_stl)
-        # print(f"\n✔ Repaired mesh saved as: {Path(results_dir, "surface_mesh.stl")}")
-
-        print(f"{output_stl=}")
+        log.info(f"{output_stl=}")
         gmsh.write(str(output_stl))
-        print(f"{fuselage_maxlen=}")
+        log.info(f"{fuselage_maxlen=}")
 
         return output_stl, fuselage_maxlen
 
@@ -567,7 +565,7 @@ def fusing_parts(aircraft_parts, symmetry, sym_box):
             zmax + 0.01,
         ]
         if symmetry and ymax <= 0:
-            print(f"Removed a piece, {model_part.uid}")
+            log.info(f"Removed a piece, {model_part.uid}")
             aircraft_parts.remove(model_part)
         else:
             j += 1

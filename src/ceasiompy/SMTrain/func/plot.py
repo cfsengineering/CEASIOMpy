@@ -44,6 +44,8 @@ def plot_validation(
     Generates a Predicted vs Actual plot for model validation.
     """
 
+    suffix = model.__class__.__name__.lower()
+
     if isinstance(model, KRG):
         suffix = "krg"
     elif isinstance(model, MFK):

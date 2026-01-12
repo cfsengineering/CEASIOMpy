@@ -200,7 +200,7 @@ def save_model(
 ) -> None:
     """
     Save the trained surrogate model along with its metadata.
-    
+
     Args:
         cpacs: CPACS file.
         model: Trained surrogate model.
@@ -253,7 +253,7 @@ def save_model_geom(
         raise TypeError(f"Unsupported model type: {type(model)}")
 
     model_path = results_dir / f"surrogateModel_{suffix}.pkl"
-    
+
     with open(model_path, "wb") as file:
         joblib.dump(
             value={

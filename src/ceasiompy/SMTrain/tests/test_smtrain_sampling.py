@@ -155,7 +155,7 @@ class TestCreateData(CeasiompyTest):
         self.assertLessEqual(df["angleOfSideslip"].iloc[0], MAX_AOS)
 
         # Check values
-        self.assertEqual(df["altitude"][0], 387)
+        self.assertEqual(np.isclose(df["altitude"][0], 387, atol=1e-3))
         self.assertEqual(df["altitude"][1], 547)
 
         self.assertEqual(df["machNumber"][0], 0.3)

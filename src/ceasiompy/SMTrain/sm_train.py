@@ -35,7 +35,6 @@ from ceasiompy.SMTrain.func.config import (
 
 from ceasiompy.SMTrain.func.trainsurrogatemodel import (
     save_model,
-    save_model_geom,
     run_first_level_training,
     run_first_level_training_geometry,
     run_adaptative_refinement,
@@ -121,7 +120,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 plot_dir.mkdir(parents=True, exist_ok=True)
                 plot_validation(model, sets, objective, plot_dir)
 
-            save_model(cpacs, model, objective, results_dir)
+            save_model(cpacs, model, objective, results_dir,param_order)
 
         if simulation_purpose == "Geometry Exploration":
 
@@ -229,7 +228,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                     plot_dir.mkdir(parents=True, exist_ok=True)
                     plot_validation(krg_model, sets, objective, plot_dir)
 
-                save_model_geom(cpacs, krg_model, objective, results_dir, param_order)
+                save_model(cpacs, krg_model, objective, results_dir, param_order)
 
             if selected_rbf_model:
                 if show_plot:
@@ -237,7 +236,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                     plot_dir.mkdir(parents=True, exist_ok=True)
                     plot_validation(rbf_model, sets, objective, plot_dir)
 
-                save_model_geom(cpacs, rbf_model, objective, results_dir, param_order)
+                save_model(cpacs, rbf_model, objective, results_dir, param_order)
 
     if old_new_sim == "Load Geometry Exploration Simulations":
         krg_model, rbf_model, sets, param_order = training_existing_db(
@@ -266,7 +265,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 plot_dir.mkdir(parents=True, exist_ok=True)
                 plot_validation(krg_model, sets, objective, plot_dir)
 
-            save_model_geom(cpacs, krg_model, objective, results_dir, param_order)
+            save_model(cpacs, krg_model, objective, results_dir, param_order)
 
         if selected_rbf_model:
             if show_plot:
@@ -275,7 +274,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 plot_dir.mkdir(parents=True, exist_ok=True)
                 plot_validation(rbf_model, sets, objective, plot_dir)
 
-            save_model_geom(cpacs, rbf_model, objective, results_dir, param_order)
+            save_model(cpacs, rbf_model, objective, results_dir, param_order)
 
     end = time.perf_counter()
     print(f"ESECUTION TIME: {end - start} seconds")

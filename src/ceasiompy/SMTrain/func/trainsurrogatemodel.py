@@ -194,39 +194,6 @@ def train_surrogate_model(
 
 def save_model(
     cpacs: CPACS,
-    model: Union[KRG, MFK],
-    objective: str,
-    results_dir: Path,
-) -> None:
-    """
-    Save the trained surrogate model along with its metadata.
-
-    Args:
-        cpacs: CPACS file.
-        model: Trained surrogate model.
-        coefficient_name (str): Name of the aerodynamic coefficient (e.g., "cl" or "cd").
-        results_dir (Path): Where the model will be saved.
-    """
-    tixi = cpacs.tixi
-
-    model_path = results_dir / f"surrogateModel_{objective}.pkl"
-    with open(model_path, "wb") as file:
-        joblib.dump(
-            value={
-                "model": model,
-                "coefficient": objective,
-            },
-            filename=file,
-        )
-    log.info(f"Model saved to {model_path}")
-
-    create_branch(tixi, SM_XPATH)
-    add_value(tixi, SM_XPATH, model_path)
-    log.info("Finished Saving model.")
-
-
-def save_model_geom(
-    cpacs: CPACS,
     model: Union[KRG, MFK, RBF],
     objective: str,
     results_dir: Path,

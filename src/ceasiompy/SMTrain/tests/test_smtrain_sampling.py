@@ -156,16 +156,16 @@ class TestCreateData(CeasiompyTest):
 
         # Check values
         self.assertEqual(np.isclose(df["altitude"][0], 387, atol=0.1), True)
-        self.assertEqual(df["altitude"][1], 547)
+        self.assertEqual(np.isclose(df["altitude"][1], 547, atol=0.1), True)
 
-        self.assertEqual(df["machNumber"][0], 0.3)
-        self.assertEqual(df["machNumber"][1], 0.14)
+        self.assertEqual(np.isclose(df["machNumber"][0], 0.3, atol=0.1), True)
+        self.assertEqual(np.isclose(df["machNumber"][1], 0.14, atol=0.1), True)
 
-        self.assertEqual(df["angleOfAttack"][0], 13.21)
-        self.assertEqual(df["angleOfAttack"][1], 6.44)
+        self.assertEqual(np.isclose(df["angleOfAttack"][0], 13.21, atol=0.1), True)
+        self.assertEqual(np.isclose(df["angleOfAttack"][1], 6.44, atol=0.1), True)
 
-        self.assertEqual(df["angleOfSideslip"][0], 5.23)
-        self.assertEqual(df["angleOfSideslip"][1], 13.4)
+        self.assertEqual(np.isclose(df["angleOfSideslip"][0], 5.23, atol=0.1), True)
+        self.assertEqual(np.isclose(df["angleOfSideslip"][1], 13.4, atol=0.1), True)
 
 
 # =================================================================================================

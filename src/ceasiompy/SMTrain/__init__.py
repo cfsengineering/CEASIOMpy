@@ -128,4 +128,3 @@ AEROMAP_DEFAULTS = {
         "max": 10.0,
     },
 }
-

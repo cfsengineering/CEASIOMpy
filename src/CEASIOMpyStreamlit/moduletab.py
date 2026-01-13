@@ -275,7 +275,7 @@ def add_gui_object(
                         help='Choose the number of samples',
                         on_change=save_cpacs_file
                     )
-                
+
                 xpath = SMTRAIN_XPATH_PARAMS_AEROMAP
                 for par in AEROMAP_FEATURES:
                     session_state.xpath_to_update[xpath + f"/parameter/{par}/status"] = (

@@ -93,15 +93,6 @@ bash ./scripts/install.sh
 A video which explains how to install CEASIOMpy on Docker is now available!
 [![CEASIOMpy Docker Installation](installation/docker_installation.png)](https://www.youtube.com/watch?v=KTS1-6AsReU)
 
-## Usage
-
-Run the Streamlit app with :
-
-### Linux/macOS users
-
-```bash
-./scripts/ceasiompy.sh -g
-```
 ### Demo
 
 [![CEASIOMpy GUI Video tutorial (Test case 2)](./test_cases/test_case_2/testcase2_startvideo.png)](https://www.youtube.com/watch?v=d-AaSrF5g3k)

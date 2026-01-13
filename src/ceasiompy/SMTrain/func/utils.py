@@ -207,6 +207,6 @@ def get_val_fraction(train_fraction: float) -> float:
     return test_val_fraction
 
 
-def define_model_type(model:Union(KRG,MFK,RBF)):
+def define_model_type(model:Union[KRG,MFK,RBF]):
     suffix = model.__class__.__name__.lower()
     return suffix

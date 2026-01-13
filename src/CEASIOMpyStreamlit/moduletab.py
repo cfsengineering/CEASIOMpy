@@ -56,6 +56,7 @@ from ceasiompy.SU2Run import (
 from ceasiompy.SMTrain import (
     OBJECTIVES_LIST,
     AEROMAP_FEATURES,
+    AEROMAP_DEFAULTS,
     SMTRAIN_XPATH_PARAMS_AEROMAP,
     WING_PARAMETERS,
     SMTRAIN_GEOM_WING_OPTIMISE,
@@ -274,7 +275,7 @@ def add_gui_object(
                         help='Choose the number of samples',
                         on_change=save_cpacs_file
                     )
-
+                
                 xpath = SMTRAIN_XPATH_PARAMS_AEROMAP
                 for par in AEROMAP_FEATURES:
                     session_state.xpath_to_update[xpath + f"/parameter/{par}/status"] = (
@@ -293,8 +294,10 @@ def add_gui_object(
                     min_value_path = xpath + f"/parameter/{par}/min_value/value"
                     max_value_path = xpath + f"/parameter/{par}/max_value/value"
 
-                    default_min_value = 0.0
-                    default_max_value = 0.0
+                    defaults = AEROMAP_DEFAULTS.get(par, {"min": 0.0, "max": 0.0})
+
+                    default_min_value = defaults["min"]
+                    default_max_value = defaults["max"]
 
                     par_key = f"param_{par}"
                     min_key = f"param_{par}_min"
@@ -310,6 +313,7 @@ def add_gui_object(
                             help=f"Enable DoE for {par}",
                             on_change=save_cpacs_file,
                         )
+
                         if par_selected:
                             with col_2:
                                 st.number_input(

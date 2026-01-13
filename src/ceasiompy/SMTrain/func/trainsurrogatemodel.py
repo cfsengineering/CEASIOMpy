@@ -44,6 +44,7 @@ from ceasiompy.SMTrain.func.utils import (
     unpack_data,
     collect_level_data,
     concatenate_if_not_none,
+    define_model_type,
 )
 
 from ceasiompy.PyAVL.pyavl import main as run_avl
@@ -210,14 +211,7 @@ def save_model(
     """
     tixi = cpacs.tixi
 
-    if isinstance(model, KRG):
-        suffix = "krg"
-    elif isinstance(model, MFK):
-        suffix = "mfk"
-    elif isinstance(model, RBF):
-        suffix = "rbf"
-    else:
-        raise TypeError(f"Unsupported model type: {type(model)}")
+    suffix = define_model_type(model)
 
     model_path = results_dir / f"surrogateModel_{suffix}.pkl"
 

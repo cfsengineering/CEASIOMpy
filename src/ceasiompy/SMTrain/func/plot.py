@@ -26,7 +26,7 @@ from typing import (
     Dict,
     Union,
 )
-
+from ceasiompy.SMTrain.func.utils import define_model_type
 from ceasiompy import log
 
 # =================================================================================================
@@ -48,7 +48,7 @@ def plot_validation(
     x_test, y_test = sets["x_test"], sets["y_test"]
     y_test_range = [y_test.min(), y_test.max()]
     predictions = model.predict_values(x_test)
-    suffix = model.__class__.__name__.lower()
+    suffix = define_model_type(model)
 
     log.info(f"{suffix}, rms err: {compute_rmse(model, x_test, y_test)}")
 

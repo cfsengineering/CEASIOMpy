@@ -41,6 +41,9 @@ from ceasiompy.SMTrain import (
     AEROMAP_FEATURES,
 )
 
+from smt.applications import MFK
+from smt.surrogate_models import KRG,RBF
+
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
@@ -202,3 +205,8 @@ def get_val_fraction(train_fraction: float) -> float:
     # Convert from "% of train" to "% of test"
     test_val_fraction = 1 - train_fraction
     return test_val_fraction
+
+
+def define_model_type(model:Union(KRG,MFK,RBF)):
+    suffix = model.__class__.__name__.lower()
+    return suffix

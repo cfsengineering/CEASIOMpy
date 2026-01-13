@@ -7,7 +7,7 @@
 
 **State**: :heavy_check_mark:
 
-<img align="right" height="120" src="files/avl_logo.png">
+<img align="right" height="120" src="files/avl_logo.gif">
 
 `PyAVL` module is a launcher for the [Athena Vortex Lattice (AVL)](https://web.mit.edu/drela/Public/web/avl/) solver, developed by M. Drela and H. Youngren at MIT. It is a vortex lattice method (VLM) solver for low-fidelity aerodynamic computations.
 

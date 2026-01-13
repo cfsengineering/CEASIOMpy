@@ -15,19 +15,25 @@ sudo dnf install libXrender
 sudo dnf install libXcursor
 sudo dnf install libXinerama
 
-# 2. Remove existing env if it failed halfway to ensure a clean start
-conda deactivate || true
-conda env remove -n ceasiompy -y || true
+env_exists() {
+  conda info -e 2>/dev/null | awk '{print $1}' | grep -qx "ceasiompy"
+}
 
-# Create conda environment
-conda env create -f environment.yml
+if env_exists; then
+  echo "Conda env 'ceasiompy' already exists. Skipping creation."
+else
+  conda env create -f environment.yml
+fi
 
-# Activate conda environment to install CEASIOMpy in it
-CONDA_BASE=$(conda info --base)
-source "$CONDA_BASE/etc/profile.d/conda.sh"
-
-conda activate ceasiompy
-pip install -e .
+# Install CEASIOMpy into the env without requiring shell init.
+if conda run -n ceasiompy python -c "import sys" >/dev/null 2>&1; then
+  conda run -n ceasiompy pip install -e .
+else
+  CONDA_BASE=$(conda info --base)
+  source "$CONDA_BASE/etc/profile.d/conda.sh"
+  conda activate ceasiompy
+  pip install -e .
+fi
 
 # Go back to original directory
 cd "$current_dir"

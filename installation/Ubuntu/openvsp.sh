@@ -96,6 +96,7 @@ else
 fi
 
 say ">>> Installing OpenVSP (requires sudo)..."
+sudo mkdir -p /usr/share/applications
 sudo dpkg -i "$deb_path" || true
 
 say ">>> Resolving dependencies (requires sudo)..."

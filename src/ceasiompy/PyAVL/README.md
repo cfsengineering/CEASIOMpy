@@ -16,7 +16,7 @@
 `PyAVL` takes as input a CPACS file, the aircraft geometry is read to create the VLM model for the wings and fuselage. The flight conditions have to be defined within an aeromap, as well as the number of vortex panels to use.
 
 <p align="center">
-<img height="340" src="files/avl_example.png?raw=true">
+<img height="340" src="files/avl_model.png">
 </p>
 <p align="center">
 Example of AVL geometry model.
@@ -39,7 +39,7 @@ The following plots are generated:
 - `lift_distribution.png`: plot of the lift distribution along the span.
 
 <p align="center">
-<img height="340" src="files/avl_example_loads.png">
+<img height="340" src="files/avl_loads.png">
 </p>
 <p align="center">
 Example of aerodynamic loads computed by AVL.

@@ -1,5 +1,5 @@
 
-<img align="right" height="70" src="../../documents/logos/CEASIOMpy_banner_main.png">
+<img align="right" height="70" src="../../../documents/logos/CEASIOMpy_banner_main.png">
 
 # SMTrain
 

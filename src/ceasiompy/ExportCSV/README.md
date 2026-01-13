@@ -1,4 +1,4 @@
-<img align="right" height="70" src="../../documents/logos/CEASIOMpy_banner_mission.png">
+<img align="right" height="70" src="../../../documents/logos/CEASIOMpy_banner_mission.png">
 
 # DynamicStability
 

@@ -63,7 +63,7 @@ cd CEASIOMpy
 ./scripts/install.sh
 ```
 
-### Windows
+### Windows (Under Maintenance)
 
 Windows requires WSL installation.
 
@@ -85,9 +85,6 @@ You might need to reboot your machine after the installation.
 
 #### 3. Install the necesssary softwares
 
-#TODO - Add scripts
-
-
 ```
 bash ./scripts/install.sh
 ```
@@ -105,13 +102,6 @@ Run the Streamlit app with :
 ```bash
 ./scripts/ceasiompy.sh -g
 ```
-
-### Windows users
-
-```ps1
-.\scripts\ceasiompy.ps1 -g
-```
-
 ### Demo
 
 [![CEASIOMpy GUI Video tutorial (Test case 2)](./test_cases/test_case_2/testcase2_startvideo.png)](https://www.youtube.com/watch?v=d-AaSrF5g3k)

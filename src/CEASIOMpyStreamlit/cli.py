@@ -60,10 +60,22 @@ def main_exec():
     src_path = str(PROJECT_ROOT / "src")
     env["PYTHONPATH"] = src_path + os.pathsep + env.get("PYTHONPATH", "")
 
-    # If the ceasiompy conda env is not already active, try to run the script inside it.
+    # If the ceasiompy conda env is not already active (or the current interpreter does not
+    # belong to it), try to run the script inside it.
     target_conda_env = "ceasiompy"
     active_conda = env.get("CONDA_DEFAULT_ENV")
-    if active_conda != target_conda_env:
+
+    conda_prefix = env.get("CONDA_PREFIX")
+    expected_conda_python = (
+        Path(conda_prefix) / "bin" / "python" if conda_prefix else None
+    )
+    using_expected_conda_python = bool(
+        expected_conda_python
+        and expected_conda_python.exists()
+        and Path(sys.executable).resolve() == expected_conda_python.resolve()
+    )
+
+    if active_conda != target_conda_env or not using_expected_conda_python:
         # prefer conda, fall back to mamba
         conda_bin = shutil.which("conda") or shutil.which("mamba")
         if conda_bin:
@@ -80,8 +92,8 @@ def main_exec():
             ] + script_args
         else:
             print(
-                f"Warning: conda/mamba not found; \
-                running with current interpreter (env={active_conda}).",
+                "Warning: conda/mamba not found; "
+                "running with current interpreter (env={active_conda}).",
                 file=sys.stderr,
             )
 

@@ -24,7 +24,7 @@ jobs:
             -e OMPI_ALLOW_RUN_AS_ROOT=1 \
             -e OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
             ceasiompy-install-test \
-            /bin/bash -lc "source /opt/conda/etc/profile.d/conda.sh && print('Installed CEASIOMpy Successfully !')"
+            /bin/bash -lc "source /opt/conda/etc/profile.d/conda.sh && python -c \"print('Installed CEASIOMpy Successfully !')\""
 
       - name: Remove Docker image
         if: always()

@@ -25,7 +25,6 @@ from ceasiompy.PyAVL import (
     AVL_NB_CPU_XPATH,
     AVL_EXPAND_VALUES_XPATH,
     AVL_ROTRATES_XPATH,
-    AVL_PLOTLIFT_XPATH,
     AVL_FUSELAGE_XPATH,
     AVL_NSPANWISE_XPATH,
     AVL_NCHORDWISE_XPATH,
@@ -150,20 +149,6 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Default freestream Mach for Prandtl-Glauert corrections",
     gui_group="Default freestream Mach",
-)
-
-cpacs_inout.add_input(
-    var_name="plot_lift",
-    var_type=bool,
-    default_value=True,
-    unit=None,
-    descr="Select to plot lift along wing",
-    xpath=AVL_PLOTLIFT_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Plot Lift",
-    gui_group="Plots Settings",
-    test_value=False,
-    expanded=False,
 )
 
 cpacs_inout.add_input(

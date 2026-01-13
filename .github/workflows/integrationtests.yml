@@ -59,17 +59,17 @@ jobs:
     - name: Install AVL
       shell: bash -l {0}
       run: |
-        installation/Ubuntu/install_pyavl.sh
+        installation/Ubuntu/avl.sh
 
     - name: Install SU2
       shell: bash -l {0}
       run: |
-        installation/Ubuntu/install_su2_without_mpi.sh
+        installation/Ubuntu/su2.sh --with_mpi false
 
     - name: Install Pentagrow
       shell: bash -l {0}
       run: |
-        installation/Ubuntu/install_pentagrow.sh
+        installation/Ubuntu/pentagrow.sh
 
     - name: Run integration tests
       shell: bash -l {0}
@@ -78,7 +78,7 @@ jobs:
         pytest -v ./tests --cov=ceasiompy --cov-report xml:coverage.xml -m "not gui"
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3.1.0
+      uses: codecov/codecov-action@v4
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./coverage.xml

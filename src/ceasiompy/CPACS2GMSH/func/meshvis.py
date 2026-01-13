@@ -220,7 +220,7 @@ def process_block(block, name="", depth=0):
         return
 
     if isinstance(block, pv.MultiBlock):
-        log.info(f"\n{'  '*depth}📦 Found MultiBlock '{name}' with {len(block)} blocks")
+        log.info(f"\n{'  ' * depth}📦 Found MultiBlock '{name}' with {len(block)} blocks")
         for i, sub_block in enumerate(block):
             process_block(
                 sub_block,

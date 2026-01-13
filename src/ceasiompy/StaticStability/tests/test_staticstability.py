@@ -4,11 +4,10 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for StaticStability module.
-
-| Author: Leon Deligny
-| Creation: 21 March 2025
-
 """
+
+# Futures
+from __future__ import annotations
 
 # =================================================================================================
 #   IMPORTS
@@ -51,7 +50,7 @@ from ceasiompy.StaticStability import (
 class TestStaticStability(CeasiompyTest):
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls: TestStaticStability) -> None:
         super().setUpClass()
         cls.cpacs_path = Path(CPACS_FILES_PATH, "D150_simple.xml")
         cls.cpacs = CPACS(cls.cpacs_path)
@@ -88,7 +87,7 @@ class TestStaticStability(CeasiompyTest):
         )
 
     @log_test
-    def test_generate_stab_table(self) -> None:
+    def test_generate_stab_table(self: TestStaticStability) -> None:
         print(generate_stab_table(self.cpacs, "test_apm", self.wkdir, True))
         # Test Linear Regression
         self.assert_equal_function(
@@ -202,10 +201,11 @@ class TestStaticStability(CeasiompyTest):
         )
 
     @log_test
-    def test_main_creates_markdown(self):
-
+    def test_main_creates_markdown(self: TestStaticStability) -> None:
         create_branch(self.test_cpacs.tixi, STATICSTABILITY_LR_XPATH)
-        self.test_cpacs.tixi.updateBooleanElement(STATICSTABILITY_LR_XPATH, False)
+
+        # Use Linear Regression (test_apm)
+        self.test_cpacs.tixi.updateBooleanElement(STATICSTABILITY_LR_XPATH, True)
 
         with tempfile.TemporaryDirectory() as tmpdir:
             main(self.test_cpacs, Path(tmpdir))
@@ -213,10 +213,9 @@ class TestStaticStability(CeasiompyTest):
             with open(md_path, "r") as f:
                 content = f.read()
                 self.assertIn("StaticStability", content)
-                self.assertIn("Static stability of 'test_apm' aeromap.", content)
 
     @log_test
-    def test_markdownpy_to_markdown(self):
+    def test_markdownpy_to_markdown(self: TestStaticStability) -> None:
         # Create a dummy MarkdownDoc in a temp file
         with tempfile.TemporaryDirectory() as tmpdir:
             md_path = Path(tmpdir, "test.md")

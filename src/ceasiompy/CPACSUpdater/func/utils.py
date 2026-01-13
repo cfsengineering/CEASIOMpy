@@ -16,14 +16,14 @@ Utils for CPACSUpdater.
 
 import os
 import math
-import matplotlib
 
 import numpy as np
-import matplotlib.pyplot as plt
 
+import re
 from numpy import array
 
 from numpy import ndarray
+from numpy.typing import ArrayLike
 from typing import Optional
 from tixi3.tixi3wrapper import Tixi3
 
@@ -33,20 +33,6 @@ from typing import (
 )
 
 from ceasiompy import log
-
-# =================================================================================================
-#   BACKEND SETTING
-# =================================================================================================
-
-try:
-    # Try to use TkAgg if DISPLAY is set and Tkinter is available
-    if os.environ.get("DISPLAY", "") != "":
-        matplotlib.use("TkAgg")
-    else:
-        matplotlib.use("Agg")
-except Exception:
-    # Fallback to Agg if TkAgg is not available or fails
-    matplotlib.use("Agg")
 
 # ==============================================================================
 #   FUNCTIONS
@@ -68,6 +54,14 @@ def copy_children(tixi: Tixi3, source_xpath: str, target_xpath: str, copy_id: st
     """
     # Get the number of children at the source XPath
     num_children = tixi.getNumberOfChilds(source_xpath)
+
+    # If the source element only contains text, copy it directly. If it contains other child
+    # elements, ignore '#text' nodes (typically indentation/whitespace) to avoid TiXI errors
+    # like "cannot update text of an element with a non-text child node".
+    if num_children == 1 and tixi.getChildNodeName(source_xpath, 1) == "#text":
+        text_value = tixi.getTextElement(source_xpath)
+        tixi.updateTextElement(target_xpath, text_value)
+        return
 
     for i in range(1, num_children + 1):
         (child_name, child_xpath, num_same_name_children) = get_same_child(
@@ -100,22 +94,47 @@ def copy_children(tixi: Tixi3, source_xpath: str, target_xpath: str, copy_id: st
 
                 # Recursively copy the children of the child element
                 copy_children(tixi, child_xpath, new_child_xpath, copy_id)
-        elif child_name == "#text":
-            # Copy the text value if the child is a text node
-            text_value = tixi.getTextElement(source_xpath)
-            tixi.updateTextElement(target_xpath, text_value)
+        # Ignore '#text' nodes when the element has other children (indentation/whitespace).
 
 
-def array_to_str(x: ndarray, z: ndarray) -> Tuple[str, str, str]:
-    length = len(x)
-    y = np.zeros(length)
+def array_to_str(x: ArrayLike, z: ArrayLike) -> Tuple[str, str, str]:
+    x_arr = np.asarray(x).ravel()
+    z_arr = np.asarray(z).ravel()
+
+    length = x_arr.size
+    y_arr = np.zeros(length)
 
     # Convert back to strings
-    x_str = ";".join(map(str, x))
-    y_str = ";".join(map(str, y))
-    z_str = ";".join(map(str, z))
+    x_str = ";".join(map(str, x_arr))
+    y_str = ";".join(map(str, y_arr))
+    z_str = ";".join(map(str, z_arr))
 
     return x_str, y_str, z_str
+
+
+def sanitize_uid(uid: str) -> str:
+    """
+    Sanitize a string to a valid CPACS uID / XML NCName-like identifier.
+
+    CPACS uIDs are used as XML IDs and must not contain spaces and must start with a letter or '_'.
+    """
+    uid = uid.strip()
+    uid = re.sub(r"[^0-9A-Za-z_.-]", "_", uid)
+    if not uid:
+        uid = "uid"
+    if not re.match(r"[A-Za-z_]", uid[0]):
+        uid = f"uid_{uid}"
+    return uid
+
+
+def make_unique_uid(tixi: Tixi3, base_uid: str) -> str:
+    """Ensure returned uID is unique in the document."""
+    if not tixi.uIDCheckExists(base_uid):
+        return base_uid
+    i = 1
+    while tixi.uIDCheckExists(f"{base_uid}_{i}"):
+        i += 1
+    return f"{base_uid}_{i}"
 
 
 def copy(tixi: Tixi3, xpath: str, copy_name: str, ids: str, sym: bool = True) -> str:
@@ -132,12 +151,16 @@ def copy(tixi: Tixi3, xpath: str, copy_name: str, ids: str, sym: bool = True) ->
         (str): New xPath to copied element.
 
     """
-    # Create the new element at the same level as the source element
-    parent_xpath = xpath.rsplit("/", 1)[0]
-    new_xpath = f"{parent_xpath}/{ids}"
-    tixi.createElement(parent_xpath, ids)
+    # uID values must be valid XML IDs; sanitize + ensure uniqueness.
+    ids = make_unique_uid(tixi, sanitize_uid(ids))
 
-    # Copy the children of the source element to the new element
+    # Create the new element at the same level as the source element.
+    parent_xpath = xpath.rsplit("/", 1)[0]
+    existing_count = tixi.getNamedChildrenCount(parent_xpath, copy_name)
+    tixi.createElement(parent_xpath, copy_name)
+    new_xpath = f"{parent_xpath}/{copy_name}[{existing_count + 1}]"
+
+    # Copy the children of the source element to the new element.
     copy_children(tixi, xpath, new_xpath, "_" + ids)
 
     update_uids(tixi, new_xpath, "_" + ids)
@@ -153,13 +176,7 @@ def copy(tixi: Tixi3, xpath: str, copy_name: str, ids: str, sym: bool = True) ->
     if copy_name == "wing":
         modify_attribute(tixi, new_xpath, "xsi:type", "wingType")
 
-    parent_xpath = new_xpath.rsplit("/", 1)[0]
-
-    tixi.renameElement(parent_xpath, ids, copy_name)
-
-    ret_xpath = parent_xpath + f"/{copy_name}[@uID='{ids}']"
-
-    return ret_xpath
+    return new_xpath
 
 
 def symmetric_operation(tixi: Tixi3, xpath: str) -> None:
@@ -299,6 +316,8 @@ def modify_element(tixi: Tixi3, xpath: str, new_value: str) -> None:
 def modify_attribute(tixi: Tixi3, xpath: str, attribute: str, new_value: str) -> None:
     try:
         if tixi.checkElement(xpath):
+            if tixi.checkAttribute(xpath, attribute):
+                tixi.removeAttribute(xpath, attribute)
             tixi.addTextAttribute(xpath, attribute, new_value)
         else:
             raise ValueError(f"Element at xpath '{xpath}' not found.")
@@ -396,6 +415,20 @@ def plot_values(
     x_flap: ndarray = None,
     z_flap: ndarray = None,
 ) -> None:
+    import matplotlib
+
+    try:
+        # Try to use TkAgg if DISPLAY is set and Tkinter is available
+        if os.environ.get("DISPLAY", "") != "":
+            matplotlib.use("TkAgg")
+        else:
+            matplotlib.use("Agg")
+    except Exception:
+        # Fallback to Agg if TkAgg is not available or fails
+        matplotlib.use("Agg")
+
+    import matplotlib.pyplot as plt
+
     plt.plot(x, z, marker="o", label="X vs Z values")
 
     if x_flap is not None and z_flap is not None:

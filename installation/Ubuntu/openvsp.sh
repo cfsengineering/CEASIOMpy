@@ -97,10 +97,14 @@ fi
 
 say ">>> Installing OpenVSP (requires sudo)..."
 sudo mkdir -p /usr/share/applications
+say ">>> Ensuring dependencies for desktop entry (requires sudo)..."
+sudo apt-get update
+sudo apt-get install -y desktop-file-utils tzdata
+export DEBIAN_FRONTEND=noninteractive
+export TZ=Etc/UTC
 sudo dpkg -i "$deb_path" || true
 
 say ">>> Resolving dependencies (requires sudo)..."
-sudo apt-get update
 sudo apt-get install -y -f
 
 if command -v openvsp >/dev/null 2>&1; then

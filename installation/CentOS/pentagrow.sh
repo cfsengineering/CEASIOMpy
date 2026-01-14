@@ -27,7 +27,6 @@ sudo "$pkg_mgr" -y install \
     gfortran \
     libgfortran \
     mesa-libGLU \
-    xorg-x11-server-Xvfb \
     hdf5 \
     hdf5-devel \
     lapack-devel \

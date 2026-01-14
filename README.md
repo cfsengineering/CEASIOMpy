@@ -63,7 +63,7 @@ cd CEASIOMpy
 ./scripts/install.sh
 ```
 
-### Windows
+### Windows (Under Maintenance)
 
 Windows requires WSL installation.
 
@@ -85,32 +85,13 @@ You might need to reboot your machine after the installation.
 
 #### 3. Install the necesssary softwares
 
-#TODO - Add scripts
-
-
 ```
 bash ./scripts/install.sh
 ```
 
 ### Create Docker Container (Optional)
-A video which explains how to install CEASIOMpy on Docker is now available!
+A video which explains how to ![install](installation/DOCKER_INSTALLATION.md) CEASIOMpy on Docker is now available!
 [![CEASIOMpy Docker Installation](installation/docker_installation.png)](https://www.youtube.com/watch?v=KTS1-6AsReU)
-
-## Usage
-
-Run the Streamlit app with :
-
-### Linux/macOS users
-
-```bash
-./scripts/ceasiompy.sh -g
-```
-
-### Windows users
-
-```ps1
-.\scripts\ceasiompy.ps1 -g
-```
 
 ### Demo
 

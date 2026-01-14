@@ -455,6 +455,11 @@ def get_install_path(
                 log.info(f"{display_name} is installed at: {bin_candidate}")
                 return bin_candidate
 
+            bin_candidate = subdir / "bin" / software_name.lower()
+            if _is_compatible_executable(bin_candidate):
+                log.info(f"{display_name} is installed at: {bin_candidate}")
+                return bin_candidate
+
     # If not found in INSTALLDIR, fall back to the system PATH
     install_path = shutil.which(software_name)
 

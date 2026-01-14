@@ -80,7 +80,7 @@ cpacs_inout.add_input(
     xpath=GMSH_MESH_TYPE_XPATH,
     gui_name="Choose the mesh type",
     gui_group="Mesh type",
-    gui=not HAS_PENTAGROW,
+    gui=HAS_PENTAGROW,
 )
 
 cpacs_inout.add_input(

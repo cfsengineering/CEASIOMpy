@@ -11,9 +11,9 @@ ceasiompy_root="$(cd "$script_dir/../.." && pwd)"
 # Go to CEASIOMpy repository root before creating the environment
 cd "$ceasiompy_root"
 
-# 2. Remove existing env if it failed halfway to ensure a clean start
-conda deactivate || true
-conda env remove -n ceasiompy -y || true
+env_exists() {
+  conda info -e 2>/dev/null | awk '{print $1}' | grep -qx "ceasiompy"
+}
 
 # Force osx-64 for Apple Silicon to support cpacscreator
 if [[ "$(uname -m)" == "arm64" ]]; then
@@ -21,19 +21,27 @@ if [[ "$(uname -m)" == "arm64" ]]; then
   export CONDA_SUBDIR=osx-64
 fi
 
-# Create the environment
-conda env create -f environment.yml
+if env_exists; then
+  echo "Conda env 'ceasiompy' already exists. Skipping creation."
+else
+  conda env create -f environment.yml
+fi
 
-# Activate conda environment
-CONDA_BASE="$(conda info --base 2>/dev/null | tail -n 1)"
-source "$CONDA_BASE/etc/profile.d/conda.sh"
-
-conda activate ceasiompy
-
-# Ensure the environment stays in osx-64 mode for future pip/conda installs
-conda config --env --set subdir osx-64
-
-pip install -e .
+# Install CEASIOMpy into the env without requiring shell init.
+if conda run -n ceasiompy python -c "import sys" >/dev/null 2>&1; then
+  if [[ "$(uname -m)" == "arm64" ]]; then
+    conda run -n ceasiompy conda config --env --set subdir osx-64
+  fi
+  conda run -n ceasiompy pip install -e .
+else
+  CONDA_BASE="$(conda info --base 2>/dev/null | tail -n 1)"
+  source "$CONDA_BASE/etc/profile.d/conda.sh"
+  conda activate ceasiompy
+  if [[ "$(uname -m)" == "arm64" ]]; then
+    conda config --env --set subdir osx-64
+  fi
+  pip install -e .
+fi
 
 # Go back to original directory
 cd "$current_dir"

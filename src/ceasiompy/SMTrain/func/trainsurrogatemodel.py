@@ -412,15 +412,15 @@ def run_first_level_training_geometry(
         try:
             run_avl(cpacs, pyavl_local_dir)
             level1_df = retrieve_aeromap_data(cpacs, aeromap_uid, objective)
-
+            print(f"{level1_df=}")
             if len(level1_df) > 0:  # Check if data was retrieved successfully
-                objective_df = level1_df[[objective]]
+                # objective_df = level1_df[[objective]]
                 n = len(level1_df)
                 row_df_geom = df_geom.iloc[i]
                 local_df_geom = pd.DataFrame([row_df_geom] * n).reset_index(drop=True)
                 # Add the columns for the specific geometry in level1_df
                 level1_df_combined = pd.concat(
-                    [local_df_geom, objective_df.reset_index(drop=True)],
+                    [local_df_geom, level1_df.reset_index(drop=True)],
                     axis=1
                 )
                 # Concatenate the dataframes

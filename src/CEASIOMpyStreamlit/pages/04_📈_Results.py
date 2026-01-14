@@ -32,25 +32,22 @@ from CEASIOMpyStreamlit.parsefunctions import display_avl_table_file
 from CEASIOMpyStreamlit.streamlitutils import (
     create_sidebar,
     highlight_stability,
+    get_last_workflow,
 )
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import (
-    get_value,
-    get_value_or_default,
     create_branch,
 )
 
-from cpacspy.utils import PARAMS_COEFS
+from ceasiompy import log
 from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
-from ceasiompy.utils.ceasiompyutils import get_conditions_from_aeromap
-
 from scipy.optimize import minimize
 import io
 import tempfile
 
-from CEASIOMpy import section_select_cpacs, section_3D_view, clean_toolspecific
+from CEASIOMpyStreamlit.streamlitutils import section_3D_view
 from ceasiompy.SMTrain.func.config import (
     get_xpath_for_param,
 )
@@ -1255,34 +1252,24 @@ def show_results():
                         file_name=new_file_name,
                         mime="application/xml"
                     )
-    else:
-        current_wkdir = get_wkdir()
-        if not current_wkdir or not current_wkdir.exists():
-            st.warning("No Workflow working directory found.")
+    else: 
+        current_workflow = get_last_workflow()
+        if not current_workflow:
             return
 
-        workflow_dirs = get_workflow_dirs(current_wkdir)
-        if not workflow_dirs:
-            st.warning("No workflows have been found in the working directory.")
-            return
-
-        workflow_names = [wkflow.name for wkflow in workflow_dirs][::-1]
-        default_index = max(len(workflow_names) - 1, 0)
-        chosen_workflow_name = st.selectbox(
-            "Choose workflow", workflow_names, index=default_index, key="results_chosen_workflow"
-        )
-        chosen_workflow = Path(current_wkdir, chosen_workflow_name)
-
-        results_dir = Path(chosen_workflow, "Results")
-        if not results_dir.exists():
-            st.warning("No results have been found for the selected workflow!")
-            return
+        results_dir = Path(current_workflow, "Results")
         results_name = sorted([dir.stem for dir in results_dir.iterdir() if dir.is_dir()])
         if not results_name:
             st.warning("No results have been found!")
             return
 
-        st.tabs(results_name)
+        st.info(f"All these results can be found in:\n\n{str(current_workflow.resolve())}")
+
+        results_tabs = st.tabs(results_name)
+
+        for tab, tab_name in zip(results_tabs, results_name):
+            with tab:
+                display_results(Path(results_dir, tab_name))
 
 # =================================================================================================
 #    MAIN
@@ -1295,6 +1282,7 @@ if __name__ == "__main__":
     create_sidebar(HOW_TO_TEXT)
 
     st.title("Results")
+
     show_results()
 
     # Update last_page

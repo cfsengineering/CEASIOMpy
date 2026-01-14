@@ -133,12 +133,7 @@ def write_inouts(
 def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
     tixi = cpacs.tixi
     st.session_state.cpacs = cpacs
-    specs = get_specs_for_module(module_name)
-    if specs is None:
-        log.warning(f"No specs found for module {module_name}. \n")
-        return None
-
-    cpacsin_out: CPACSInOut = specs.cpacs_inout
+    cpacsin_out: CPACSInOut = get_specs_for_module(module_name).cpacs_inout
     inputs = cpacsin_out.get_gui_dict()
 
     for name, default_value, var_type, _, xpath, _, _, test_value, _ in inputs.values():
@@ -582,39 +577,36 @@ def run_software(
 
     log.info(
         f"{int(nb_cpu)} cpu{'s' if nb_cpu > 1 else ''} "
-        f"over {get_total_cpu_count()} will be used for this calculation."
+        f"over {os.cpu_count()} will be used for this calculation."
     )
 
-    install_path = get_install_path(software_name)
-    if install_path is None:
-        raise FileNotFoundError(
-            f"{software_name} executable not found (check your INSTALLDIR and PATH)."
-        )
-
-    # On macOS, fail fast with a clear message
-    # if a Linux ELF binary is picked up (common for Pentagrow).
-    if sys.platform == "darwin":
-        fmt = _detect_binary_format(install_path)
-        if fmt == "elf":
-            raise OSError(
-                f"'{software_name}' at '{install_path}' is a Linux ELF executable "
-                "and cannot run on macOS.\n"
-                "Remove/rename this file and install a macOS-native build, "
-                "or use the Docker-based workflow."
-            )
+    if software_name == "pentagrow" or software_name == "Pentagrow":
+        ceasiompy_root = Path(__file__).resolve().parents[3]
+        install_path = ceasiompy_root / "installation" / "Pentagrow" / "bin" / "pentagrow"
+    else:
+        install_path = get_install_path(software_name)
 
     command_line = []
     if with_mpi:
-        mpi_install_path = get_install_path("mpirun")  # "mpirun.mpich"
+        mpiexec_install_path = get_install_path("mpiexec")  # "mpirun.mpich"
         # If runs with open mpi add --allow-run-as-root
-        if mpi_install_path is not None:
-            command_line += [mpi_install_path, "-np", str(int(nb_cpu))]
+        if mpiexec_install_path is not None:
+            command_line += [mpiexec_install_path, "-np", str(int(nb_cpu))]
+        # mpirun_install_path = get_install_path("mpiexec")  # "mpirun.mpich"
+        # # If runs with open mpi add --allow-run-as-root
+        # if mpi_install_path is not None:
+        #     command_line += [mpi_install_path, "-np", str(int(nb_cpu))]
 
     command_line += [install_path]
     command_line += arguments
 
     if xvfb:
-        command_line = ["xvfb-run", "--auto-servernum"] + command_line
+        xvfb_run = shutil.which("xvfb-run")
+        if xvfb_run:
+            log.info(f'xvfb {xvfb_run=}')
+            command_line = ["xvfb-run", "--auto-servernum"] + command_line
+        else:
+            log.warning(f'{xvfb=}')
     else:
         log.warning("xvfb-run not found. Proceeding without it.")
 

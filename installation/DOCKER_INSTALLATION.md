@@ -62,6 +62,19 @@ ceasiompy-image
 
 On Windows:
 
+```
+docker run -it --rm \
+-e DISPLAY=$DISPLAY \
+-e LIBGL_ALWAYS_SOFTWARE=1 \
+-e OMPI_ALLOW_RUN_AS_ROOT=1 \
+-e OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
+-v /tmp/.X11-unix:/tmp/.X11-unix \
+-p 8501:8501 \
+-v ${PWD}:/CEASIOMpy \
+ceasiompy-image
+```
+
+If the above command did not work try the following:
 ```cmd
 docker run -it --rm ^
 -e DISPLAY=$DISPLAY ^

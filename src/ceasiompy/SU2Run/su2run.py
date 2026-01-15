@@ -29,7 +29,6 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-from ceasiompy.CPACS2GMSH import (GMSH_SYMMETRY_XPATH)
 from ceasiompy.SU2Run import (
     SU2_NB_CPU_XPATH,
     SU2_CONFIG_RANS_XPATH,
@@ -59,7 +58,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     nb_proc = int(get_value(tixi, SU2_NB_CPU_XPATH))
     config_file_type = str(get_value(tixi, SU2_CONFIG_RANS_XPATH))
     rans: bool = config_file_type == "RANS"
-    symmetric_mesh = str(get_value(tixi, GMSH_SYMMETRY_XPATH))
 
     # 1. Load .su2 mesh files
     su2_mesh_paths, dynstab_su2_mesh_paths = load_su2_mesh_paths(tixi, results_dir)
@@ -90,7 +88,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         mesh_markers=mesh_markers,
         dyn_stab=False,
         rans=rans,
-        symmetry=symmetric_mesh,
     )
 
     # 3. Run each configuration file in SU2

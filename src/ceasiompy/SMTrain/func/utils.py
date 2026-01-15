@@ -32,7 +32,7 @@ from typing import (
 )
 
 from ceasiompy import log
-from ceasiompy.SMTrain.func import LH_SAMPLING_DATA
+from ceasiompy.SMTrain.func import AEROMAP_SELECTED
 from ceasiompy.SU2Run import MODULE_NAME as SU2RUN_NAME
 from ceasiompy.SMTrain import (
     LEVEL_ONE,
@@ -40,6 +40,9 @@ from ceasiompy.SMTrain import (
     LEVEL_THREE,
     AEROMAP_FEATURES,
 )
+
+from smt.applications import MFK
+from smt.surrogate_models import KRG,RBF
 
 # =================================================================================================
 #   FUNCTIONS
@@ -89,7 +92,7 @@ def create_aeromap_from_varpts(
 
     # Select dataset based on high-variance points or LHS sampling
     if high_variance_points is None:
-        aeromap_uid = LH_SAMPLING_DATA
+        aeromap_uid = AEROMAP_SELECTED
     else:
         aeromap_uid = "new_points"
     dataset_path = results_dir / f"{aeromap_uid}.csv"
@@ -202,3 +205,8 @@ def get_val_fraction(train_fraction: float) -> float:
     # Convert from "% of train" to "% of test"
     test_val_fraction = 1 - train_fraction
     return test_val_fraction
+
+
+def define_model_type(model:Union[KRG,MFK,RBF]):
+    suffix = model.__class__.__name__.lower()
+    return suffix

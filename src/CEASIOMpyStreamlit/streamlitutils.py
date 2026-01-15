@@ -15,14 +15,16 @@ Streamlit utils functions for CEASIOMpy
 # ==============================================================================
 
 import re
+import numpy as np
 import pandas as pd
 import streamlit as st
-
+import plotly.graph_objects as go
 from cpacspy.cpacsfunctions import (
     add_value,
     add_string_vector,
 )
 
+from stl import mesh
 from PIL import Image
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
@@ -33,6 +35,57 @@ from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
+
+
+def section_3D_view(*, force_regenerate: bool = False) -> None:
+    """
+    Shows a 3D view of the aircraft by exporting a STL file.
+    """
+
+    stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
+    if not force_regenerate and stl_file.exists():
+        pass
+    elif hasattr(st.session_state.cpacs, "aircraft") and hasattr(
+        st.session_state.cpacs.aircraft, "tigl"
+    ):
+        with st.spinner("Meshing geometry (STL export)..."):
+            st.session_state.cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
+    else:
+        st.error("Cannot generate 3D preview (missing TIGL geometry handle).")
+        return
+    your_mesh = mesh.Mesh.from_file(stl_file)
+    triangles = your_mesh.vectors.reshape(-1, 3)
+    vertices, indices = np.unique(triangles, axis=0, return_inverse=True)
+    i, j, k = indices[0::3], indices[1::3], indices[2::3]
+    x, y, z = vertices.T
+
+    # Compute bounds and cube size
+    min_x, max_x = np.min(x), np.max(x)
+    min_y, max_y = np.min(y), np.max(y)
+    min_z, max_z = np.min(z), np.max(z)
+    center_x = (min_x + max_x) / 2
+    center_y = (min_y + max_y) / 2
+    center_z = (min_z + max_z) / 2
+    max_range = max(max_x - min_x, max_y - min_y, max_z - min_z) / 2
+
+    # Set axis limits so the mesh is centered in a cube
+    x_range = [center_x - max_range, center_x + max_range]
+    y_range = [center_y - max_range, center_y + max_range]
+    z_range = [center_z - max_range, center_z + max_range]
+
+    fig = go.Figure(data=[go.Mesh3d(x=x, y=y, z=z, i=i, j=j, k=k, color="orange", opacity=0.5)])
+    fig.update_layout(
+        width=900,
+        height=700,
+        margin=dict(l=0, r=0, t=0, b=0),
+        scene=dict(
+            xaxis=dict(range=x_range),
+            yaxis=dict(range=y_range),
+            zaxis=dict(range=z_range),
+            aspectmode="cube",
+        ),
+    )
+    st.plotly_chart(fig, width="content")
 
 
 def rm_wkflow_status():

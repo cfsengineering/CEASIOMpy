@@ -10,12 +10,14 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 # ==============================================================================
 
 import streamlit as st
-
 from pandas import concat
-from cpacspy.cpacsfunctions import get_value
+from cpacspy.cpacsfunctions import get_value, get_value_or_default
 from ceasiompy.PyAVL.pyavl import main as run_avl
 from ceasiompy.SU2Run.su2run import main as run_su2
-from ceasiompy.SMTrain.func.utils import create_aeromap_from_varpts
+from ceasiompy.CPACS2GMSH.cpacs2gmsh import main as run_cpacs2gmsh
+from ceasiompy.SMTrain.func.utils import (
+    create_aeromap_from_varpts,
+)
 from ceasiompy.SMTrain.func.config import (
     retrieve_aeromap_data,
     retrieve_ceasiompy_db_data,
@@ -36,8 +38,10 @@ from cpacspy.cpacspy import (
 
 from ceasiompy import log
 from ceasiompy.SU2Run import SU2_MAX_ITER_XPATH
-from ceasiompy.SMTrain.func import LH_SAMPLING_DATA
-from ceasiompy.SMTrain import SMTRAIN_AVL_DATABASE_XPATH
+from ceasiompy.SMTrain.func import AEROMAP_SELECTED
+from ceasiompy.SMTrain import (
+    SMTRAIN_AVL_DATABASE_XPATH,
+)
 from ceasiompy.PyAVL import (
     AVL_AEROMAP_UID_XPATH,
     MODULE_NAME as PYAVL_NAME,
@@ -51,6 +55,31 @@ from ceasiompy.utils.commonxpaths import (
     USED_SU2_MESH_XPATH,
 )
 
+from ceasiompy.CPACS2GMSH import (
+    MODULE_NAME as CPACS2GMSH_NAME,
+    GMSH_MESH_TYPE_XPATH,
+    GMSH_MESH_SIZE_FARFIELD_XPATH,
+    GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
+    GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
+    GMSH_MESH_SIZE_ENGINES_XPATH,
+    GMSH_MESH_SIZE_PROPELLERS_XPATH,
+    GMSH_N_POWER_FACTOR_XPATH,
+    GMSH_N_POWER_FIELD_XPATH,
+    GMSH_REFINE_FACTOR_XPATH,
+    GMSH_REFINE_TRUNCATED_XPATH,
+    GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,
+    GMSH_AUTO_REFINE_XPATH,
+    GMSH_NUMBER_LAYER_XPATH,
+    GMSH_H_FIRST_LAYER_XPATH,
+    GMSH_MAX_THICKNESS_LAYER_XPATH,
+    GMSH_GROWTH_RATIO_XPATH,
+    GMSH_GROWTH_FACTOR_XPATH,
+    GMSH_FEATURE_ANGLE_XPATH,
+    GMSH_INTAKE_PERCENT_XPATH,
+    GMSH_EXHAUST_PERCENT_XPATH,
+)
+
+
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
@@ -60,7 +89,9 @@ def launch_avl(
     cpacs: CPACS,
     lh_sampling_path: Union[Path, None],
     objective: str,
+    result_dir: Path,
 ) -> DataFrame:
+
     """
     Executes AVL aerodynamic analysis running PyAVL Module
 
@@ -71,10 +102,12 @@ def launch_avl(
         DataFrame: Contains AVL results for the requested objective.
     """
     tixi = cpacs.tixi
+    avl_results_dir = Path(result_dir,"PyAVL")
+    avl_results_dir.mkdir(exist_ok=True)
 
     # Remove existing aeromap if present
-    if tixi.uIDCheckExists(LH_SAMPLING_DATA):
-        cpacs.delete_aeromap(LH_SAMPLING_DATA)
+    if tixi.uIDCheckExists(AEROMAP_SELECTED):
+        cpacs.delete_aeromap(AEROMAP_SELECTED)
 
     aeromap = AeroMap(tixi, uid="ceasiompy_db", create_new=True)
     df_aeromap = None
@@ -89,7 +122,9 @@ def launch_avl(
 
         # Update CPACS with the new aeromap
         tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap.uid)
-        run_avl(cpacs, results_dir=get_results_directory(PYAVL_NAME))
+
+        run_avl(cpacs, avl_results_dir)
+
         df_aeromap = retrieve_aeromap_data(cpacs, aeromap.uid, objective)
 
     if get_value(tixi, SMTRAIN_AVL_DATABASE_XPATH):
@@ -130,14 +165,16 @@ def launch_su2(
 
     if tixi.checkElement(SU2MESH_XPATH):
         su2mesh = get_value(tixi, SU2MESH_XPATH)
+
     if tixi.checkElement(USED_SU2_MESH_XPATH):
         su2_mesh_path = tixi.getTextElement(USED_SU2_MESH_XPATH)
         if not su2_mesh_path:
             su2_mesh_path = None
 
     su2_mesh_path_type = get_value(tixi, USED_SU2_MESH_XPATH + "type")
-    max_iters = str(get_value(tixi, SU2_MAX_ITER_XPATH))
+
     update_cpacs_from_specs(cpacs, SU2RUN_NAME, test=True)
+    max_iters = str(get_value(tixi, SU2_MAX_ITER_XPATH))
 
     # Update CPACS with the new aeromap and su2 mesh paths
     tixi.updateTextElement(USED_SU2_MESH_XPATH + "type", su2_mesh_path_type)
@@ -158,3 +195,115 @@ def launch_su2(
     log.info(df)
 
     return df
+
+
+def launch_gmsh_su2_geom(
+    cpacs: CPACS,
+    results_dir: Path,
+    objective: str,
+    aeromap_csv_path,
+    new_point_df,
+    aeromap_uid,
+) -> DataFrame:
+    """
+    Executes SU2 CFD analysis using an aeromap or high-variance points.
+
+    1. Processes a CPACS file
+    2. Selects or generates an aeromap or high-variance points
+    3. Runs SU2 to compute aerodynamic coefficients
+    4. Retrieves the results
+
+    """
+    tixi = cpacs.tixi
+    # Load default parameters
+    st.session_state = MagicMock()
+    type_mesh = str(get_value_or_default(tixi, GMSH_MESH_TYPE_XPATH, "Euler"))
+    farfield_ms = str(get_value_or_default(tixi, GMSH_MESH_SIZE_FARFIELD_XPATH,10))
+    fuselage_ms = str(get_value_or_default(tixi, GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,1))
+    wings_ms = str(get_value_or_default(tixi, GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,1))
+    engines_ms = str(get_value_or_default(tixi, GMSH_MESH_SIZE_ENGINES_XPATH,0.23))
+    propellers_ms = str(get_value_or_default(tixi, GMSH_MESH_SIZE_PROPELLERS_XPATH,0.23))
+    Npower_fac = str(get_value_or_default(tixi, GMSH_N_POWER_FACTOR_XPATH,2))
+    Npower_field = str(get_value_or_default(tixi, GMSH_N_POWER_FIELD_XPATH,0.9))
+    refine_fac = str(get_value_or_default(tixi, GMSH_REFINE_FACTOR_XPATH,2))
+    refine_trunc = str(get_value_or_default(tixi, GMSH_REFINE_TRUNCATED_XPATH, False))
+    auto_ref = str(get_value_or_default(tixi, GMSH_AUTO_REFINE_XPATH, False))
+    angled_ar = str(get_value_or_default(tixi, GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,1.5))
+    n_layer = str(get_value_or_default(tixi, GMSH_NUMBER_LAYER_XPATH,20))
+    h_first = str(get_value_or_default(tixi, GMSH_H_FIRST_LAYER_XPATH,3))
+    max_thick = str(get_value_or_default(tixi, GMSH_MAX_THICKNESS_LAYER_XPATH,100))
+    growth_ratio = str(get_value_or_default(tixi, GMSH_GROWTH_RATIO_XPATH,1.2))
+    growth_fac = str(get_value_or_default(tixi, GMSH_GROWTH_FACTOR_XPATH,1.4))
+    feature_angle = str(get_value_or_default(tixi, GMSH_FEATURE_ANGLE_XPATH,40))
+    intake_per = str(get_value_or_default(tixi, GMSH_INTAKE_PERCENT_XPATH,20))
+    exhaust_per = str(get_value_or_default(tixi, GMSH_EXHAUST_PERCENT_XPATH,20))
+
+    # Retrieve the CpACS2gmsh gui values of smtrain
+    update_cpacs_from_specs(cpacs, CPACS2GMSH_NAME, test=False)
+
+    # Load back the smtrain cpacs2gmsh gui values into the cpacs.tixi
+
+    local_mesh_dir = get_results_directory(CPACS2GMSH_NAME)
+    # local_mesh_dir.mkdir(exist_ok=True)
+
+    tixi.updateTextElement(GMSH_MESH_TYPE_XPATH, type_mesh)
+    tixi.updateTextElement(GMSH_MESH_SIZE_FARFIELD_XPATH, farfield_ms)
+    tixi.updateTextElement(GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH, fuselage_ms)
+    tixi.updateTextElement(GMSH_MESH_SIZE_FACTOR_WINGS_XPATH, wings_ms)
+    tixi.updateTextElement(GMSH_MESH_SIZE_ENGINES_XPATH, engines_ms)
+    tixi.updateTextElement(GMSH_MESH_SIZE_PROPELLERS_XPATH, propellers_ms)
+    tixi.updateTextElement(GMSH_N_POWER_FACTOR_XPATH, Npower_fac)
+    tixi.updateTextElement(GMSH_N_POWER_FIELD_XPATH, Npower_field)
+    tixi.updateTextElement(GMSH_REFINE_FACTOR_XPATH, refine_fac)
+    tixi.updateTextElement(GMSH_REFINE_TRUNCATED_XPATH, refine_trunc)
+    tixi.updateTextElement(GMSH_AUTO_REFINE_XPATH, auto_ref)
+    tixi.updateTextElement(GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH, angled_ar)
+    tixi.updateTextElement(GMSH_NUMBER_LAYER_XPATH, n_layer)
+    tixi.updateTextElement(GMSH_H_FIRST_LAYER_XPATH, h_first)
+    tixi.updateTextElement(GMSH_MAX_THICKNESS_LAYER_XPATH, max_thick)
+    tixi.updateTextElement(GMSH_GROWTH_RATIO_XPATH, growth_ratio)
+    tixi.updateTextElement(GMSH_GROWTH_FACTOR_XPATH, growth_fac)
+    tixi.updateTextElement(GMSH_FEATURE_ANGLE_XPATH, feature_angle)
+    tixi.updateTextElement(GMSH_INTAKE_PERCENT_XPATH, intake_per)
+    tixi.updateTextElement(GMSH_EXHAUST_PERCENT_XPATH, exhaust_per)
+
+    run_cpacs2gmsh(cpacs, wkdir=local_mesh_dir)
+
+    # tixi = cpacs.tixi
+    su2mesh, su2_mesh_path = None, None
+    cpacs.get_aeromap_by_uid(aeromap_uid)
+
+    # dest_path = Path(results_dir) / "currently_cpacs_to_run.xml"
+    # shutil.copy2(get_results_directory(SMTrain), dest_path)
+
+    if tixi.checkElement(SU2MESH_XPATH):
+        su2mesh = get_value(tixi, SU2MESH_XPATH)
+
+    if tixi.checkElement(USED_SU2_MESH_XPATH):
+        su2_mesh_path = tixi.getTextElement(USED_SU2_MESH_XPATH)
+        if not su2_mesh_path:
+            su2_mesh_path = None
+
+    # su2_mesh_path_type = str(get_value(tixi, USED_SU2_MESH_XPATH + "type"))
+    max_iters = str(get_value(tixi, SU2_MAX_ITER_XPATH))
+
+    update_cpacs_from_specs(cpacs, SU2RUN_NAME, test=False)
+
+    tixi.updateTextElement(SU2_AEROMAP_UID_XPATH, aeromap_uid)
+    # tixi.updateTextElement(USED_SU2_MESH_XPATH + "type", su2_mesh_path_type)
+    tixi.updateTextElement(SU2_MAX_ITER_XPATH, max_iters)
+
+    if su2mesh is not None:
+        log.info(f'{su2mesh=}')
+        tixi.updateTextElement(SU2MESH_XPATH, su2mesh)
+
+    if su2_mesh_path is not None:
+        tixi.updateTextElement(USED_SU2_MESH_XPATH, str(su2_mesh_path))
+
+    # results = []
+    run_su2(cpacs, results_dir=results_dir)
+
+    df_su2 = retrieve_aeromap_data(cpacs, aeromap_uid, objective)
+    obj_value = df_su2[objective].iloc[0]
+
+    return obj_value

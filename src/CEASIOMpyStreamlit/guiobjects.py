@@ -15,13 +15,11 @@ GUI objects in CEASIOMpy.
 
 import pandas as pd
 import streamlit as st
-
 from CEASIOMpyStreamlit.streamlitutils import save_cpacs_file
 from cpacspy.cpacsfunctions import (
     get_string_vector,
     get_value_or_default,
 )
-
 from ceasiompy import log
 
 # ==============================================================================
@@ -127,44 +125,21 @@ def float_vartype(tixi, xpath, default_value, name, key, description) -> None:
         st.number_input(
             name,
             value=value,
-            format="%g",
+            format="%0.3f",
             key=key,
             help=description,
             on_change=save_cpacs_file,
         )
 
 
-def list_vartype(tixi, xpath, default_value, name, key, description) -> None:
+def list_vartype(tixi, xpath, default_value, name, key, description):
     if default_value is None:
         log.warning(f"Could not create GUI for {xpath} in list_vartype.")
-    else:
-        value = get_value_or_default(tixi, xpath, default_value[0])
-        idx = default_value.index(value)
-        st.radio(
-            name,
-            options=default_value,
-            index=idx,
-            key=key,
-            help=description,
-            on_change=save_cpacs_file,
-        )
-
-
-def add_ctrl_surf_vartype(tixi, xpath, default_value, name, key, description) -> None:
-    '''
-    Specific function for selecting a deformation angle in the CPACSUpdater module.
-    Special request of Giacomo Benedetti.
-    '''
-    if default_value is None:
-        log.warning(f"Could not create GUI for {xpath} in add_ctrl_surf_vartype.")
         return None
 
-    ctrl_xpath = xpath + "/ctrlsurf"
-    angle_xpath = xpath + "/deformation_angle"
-
-    value = get_value_or_default(tixi, ctrl_xpath, default_value[0])
+    value = get_value_or_default(tixi, xpath, default_value[0])
     idx = default_value.index(value)
-    selected = st.radio(
+    selected_value = st.radio(
         name,
         options=default_value,
         index=idx,
@@ -172,18 +147,7 @@ def add_ctrl_surf_vartype(tixi, xpath, default_value, name, key, description) ->
         help=description,
         on_change=save_cpacs_file,
     )
-
-    # if value of st.radio is npot 'none' then add float_vartype entry
-    if selected is not None and str(selected).lower() != "none":
-        deformation_angle = get_value_or_default(tixi, angle_xpath, default_value=0.0)
-        float_vartype(
-            tixi,
-            angle_xpath,
-            deformation_angle,  # Default value for deformation angle
-            "Deformation angle [deg]",
-            f"{key}_deformation_angle",
-            "Set the deformation angle for the selected control surface.",
-        )
+    return selected_value
 
 
 def bool_vartype(tixi, xpath, default_value, name, key, description) -> None:

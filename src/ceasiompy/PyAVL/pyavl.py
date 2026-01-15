@@ -52,9 +52,10 @@ def run_case(args: tuple[Path, Path], save_fig: bool) -> None:
     '''
     Runs the created avl cases separately on 1 CPU.
     '''
-    # Unpack the yuple
+    # Unpack the tuple
     case_dir_path, command_path = args
 
+    log.info(f'{case_dir_path=} {command_path}=')
     run_software(
         software_name=SOFTWARE_NAME,
         arguments=[""],

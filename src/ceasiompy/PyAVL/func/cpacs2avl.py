@@ -199,22 +199,25 @@ def leadingedge_coordinates(
                         "bool": [-1.0, -1.0],
                     },
                 }
-                control_type = CONTROL_DICT[control_uid]["type"]
-                if i_sec == CONTROL_DICT[control_uid]["i_sec"][0]:
+                control = CONTROL_DICT.get(control_uid, None)
+                if control is None:
+                    continue
+                control_type = control["type"]
+                if i_sec == control["i_sec"][0]:
                     write_control(
                         avl_file,
                         control_type,
                         innerhingeXsi,
-                        CONTROL_DICT[control_uid]["axis"],
-                        CONTROL_DICT[control_uid]["bool"][0],
+                        control["axis"],
+                        control["bool"][0],
                     )
-                elif i_sec == CONTROL_DICT[control_uid]["i_sec"][1]:
+                elif i_sec == control["i_sec"][1]:
                     write_control(
                         avl_file,
                         control_type,
                         outerhingeXsi,
-                        CONTROL_DICT[control_uid]["axis"],
-                        CONTROL_DICT[control_uid]["bool"][1],
+                        control["axis"],
+                        control["bool"][1],
                     )
                 else:
                     log.warning(

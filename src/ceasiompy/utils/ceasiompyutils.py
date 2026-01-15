@@ -607,7 +607,11 @@ def run_software(
     command_line += arguments
 
     if xvfb:
-        command_line = ["xvfb-run", "--auto-servernum"] + command_line
+        xvfb_run = shutil.which("xvfb-run")
+        if xvfb_run is None:
+            log.warning("xvfb-run not found. Proceeding without it.")
+        else:
+            command_line = ["xvfb-run", "--auto-servernum"] + command_line
     else:
         log.warning("xvfb-run not found. Proceeding without it.")
 

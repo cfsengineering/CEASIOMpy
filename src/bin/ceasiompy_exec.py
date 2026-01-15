@@ -233,6 +233,7 @@ def run_gui(
     wkdir: Path | None = None,
     headless: bool = False,
     port: int | None = None,
+    address: str | None = None,
 ) -> None:
     """Create and run a workflow from the GUI."""
 
@@ -305,6 +306,11 @@ def run_gui(
     if port is not None:
         args += [
             "--server.port", f"{port}"
+        ]
+
+    if address is not None:
+        args += [
+            "--server.address", f"{address}"
         ]
 
     try:
@@ -395,8 +401,15 @@ def main() -> None:
     parser.add_argument(
         "-p",
         "--port",
+        type=int,
         required=False,
         help="Select specific Port.",
+    )
+    parser.add_argument(
+        "--address",
+        type=str,
+        required=False,
+        help="Select server address.",
     )
     parser.add_argument(
         "--wkdir",
@@ -440,15 +453,15 @@ def main() -> None:
 
     if args.testcase:
         run_testcase(args.testcase)
-        return
+        return None
 
     if args.modules:
         run_modules_list(args.modules)
-        return
+        return None
 
     if args.cfg:
         run_config_file(args.cfg)
-        return
+        return None
 
     if args.gui:
         port = int(args.port) if args.port is not None else None
@@ -459,8 +472,9 @@ def main() -> None:
             cpus=int(args.cpus),
             wkdir=wkdir,
             headless=args.headless,
+            address=args.address,
         )
-        return
+        return None
 
     # If no argument is given, print the help
     parser.print_help()

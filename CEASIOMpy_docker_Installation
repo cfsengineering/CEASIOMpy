@@ -51,6 +51,9 @@ RUN /CEASIOMpy/installation/Ubuntu/openvsp.sh
 
 RUN /CEASIOMpy/installation/Ubuntu/pentagrow.sh
 
+RUN rm -rf /var/lib/apt/lists/* && \
+    apt-get update -o Acquire::Retries=5 -o Acquire::http::No-Cache=true -o Acquire::http::Pipeline-Depth=0
+
 RUN /CEASIOMpy/installation/Ubuntu/su2.sh --with_mpi true
 
 RUN /CEASIOMpy/installation/Ubuntu/avl.sh

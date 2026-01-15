@@ -95,3 +95,4 @@ dependencies:
     - stripe
     - watchdog
     - pymeshfix
+    - streamlit_nested_layout

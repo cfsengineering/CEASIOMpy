@@ -91,3 +91,4 @@ dependencies:
     - jenn>=1.0.8
     - stripe
     - watchdog
+    - streamlit_nested_layout

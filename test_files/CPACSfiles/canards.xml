@@ -36,8 +36,8 @@
         </reference>
         <analyses>
             <aeroPerformance>
-              <aeroMap uID="null_aeromap">
-              <name>null_aeromap</name>
+              <aeroMap uID="aeromap_empty">
+              <name>aeromap_empty</name>
               <description>Common default aeroMap</description>
               <boundaryCondition>
                 <atmosphericModel>ISA</atmosphericModel>

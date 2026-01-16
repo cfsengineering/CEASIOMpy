@@ -548,7 +548,7 @@ def get_version(software_name: str) -> str:
 def parse_bool(value: str) -> bool:
     """Parse a CLI boolean value."""
 
-    normalized = value.strip().lower()
+    normalized = str(value).strip().lower()
     if normalized in {"1", "true", "t", "yes", "y", "on"}:
         return True
     if normalized in {"0", "false", "f", "no", "n", "off"}:

@@ -17,10 +17,10 @@ TRI_FILE = "src/ceasiompy/STL2CPACS/slice_mesh_output.tri"
 N_Y_SLICES = 20 # number of Y slices 
 INTERSECT_TOL = 1e-6
 SLAB_TOLS = [1e-5, 5e-5, 1e-4, 5e-4, 1e-3]
-EXTREME_TOL = 5e-1   # at y ==0 and y == y_max the slicing captures point inside the airfoil so be aware about this setting 
+EXTREME_TOL = 1   # at y ==0 and y == y_max the slicing captures point inside the airfoil so be aware about this setting 
 SAVE_PER_SLICE_CSV = False  # set True if you want per-slice CSVs
 SUMMARY_CSV = "slices_summary.csv"
-N_SLICE_ADDING = 2  # number of slices to insert in transition regions
+N_SLICE_ADDING = 3  # number of slices to insert in transition regions
 # ---------------------------
 
 
@@ -343,7 +343,6 @@ def slice_mesh_at_Y(pts, tris, y_plane, tol):
     for ti in hits:
         
         i0, i1, i2 = tris[ti]
-        print(pts[i0], pts[i1], pts[i2])
         ip = intersect_triangle_with_plane_point_normal(
             p0, n, pts[i0], pts[i1], pts[i2], tol
         )
@@ -411,69 +410,74 @@ def compute_local_angles_from_le(le_pts):
 
     return sweep, dihedral
 
+
+
 def filter_and_insert(y_vals, sweep_deg, dihedral_deg, le_pts, n_insert):
     """
-    Preserve geometry while refining sweep/dihedral transitions.
+    Refine wing sections for CPACS generation.
 
     Rules:
-    - Always keep first and last slices
-    - Keep one slice per constant-angle region
-    - Refine transition regions with interpolated points
+    - Keep first slice
+    - Keep one slice before each transition
+    - Insert interpolated slices in transitions
+    - Skip slices in constant-angle regions after the first slice
+    - Always keep last slice
     """
+    import numpy as np
 
     y_vals = np.asarray(y_vals, dtype=float)
     sweep_deg = np.asarray(sweep_deg, dtype=float)
     dihedral_deg = np.asarray(dihedral_deg, dtype=float)
     le_pts = np.asarray(le_pts, dtype=float)
 
+    # Initialize output arrays with the first slice
     y_out = [y_vals[0]]
     sweep_out = [sweep_deg[0]]
     dihedral_out = [dihedral_deg[0]]
     le_out = [le_pts[0]]
     is_inserted = [False]
-    for i in range(len(y_vals) - 1):
 
+    for i in range(len(y_vals) - 1):
         same_angle = (
-            sweep_deg[i] == sweep_deg[i+1] and
-            dihedral_deg[i] == dihedral_deg[i+1]
+            sweep_deg[i] == sweep_deg[i + 1] and
+            dihedral_deg[i] == dihedral_deg[i + 1]
         )
 
-        if same_angle:
-            # keep representative slice (but don't duplicate)
-            continue
-        
-        y_out.append(y_vals[i])
-        le_out.append(le_pts[i])
-        sweep_out.append(sweep_deg[i])
-        dihedral_out.append(dihedral_deg[i])
-        is_inserted.append(False)
-        # -------- TRANSITION REGION --------
-        for k in range(1, n_insert + 2):
-            t = k / (n_insert + 2)
+        # If a transition is coming, keep the current slice as the "pre-transition" slice
+        if not same_angle:
+            # Keep current slice before starting transition
+            y_out.append(y_vals[i])
+            sweep_out.append(sweep_deg[i])
+            dihedral_out.append(dihedral_deg[i])
+            le_out.append(le_pts[i])
+            is_inserted.append(False)
 
-            y_new = (1 - t) * y_vals[i] + t * y_vals[i+1]
-            le_new = (1 - t) * le_pts[i] + t * le_pts[i+1]
-            sweep_new = (1 - t) * sweep_deg[i] + t * sweep_deg[i+1]
-            dihedral_new = (1 - t) * dihedral_deg[i] + t * dihedral_deg[i+1]
+            # Interpolate transition slices
+            for k in range(1, n_insert + 1):
+                t = k / (n_insert + 1)
+                y_new = (1 - t) * y_vals[i] + t * y_vals[i + 1]
+                le_new = (1 - t) * le_pts[i] + t * le_pts[i + 1]
+                sweep_new = (1 - t) * sweep_deg[i] + t * sweep_deg[i + 1]
+                dihedral_new = (1 - t) * dihedral_deg[i] + t * dihedral_deg[i + 1]
+                y_out.append(y_new)
+                le_out.append(le_new)
+                sweep_out.append(sweep_new)
+                dihedral_out.append(dihedral_new)
+                is_inserted.append(True)
 
-            y_out.append(y_new)
-            le_out.append(le_new)
-            sweep_out.append(sweep_new)
-            dihedral_out.append(dihedral_new)
-            is_inserted.append(True)
-        # keep right boundary of transition
-        y_out.append(y_vals[i+1])
-        le_out.append(le_pts[i+1])
-        sweep_out.append(sweep_deg[i+1])
-        dihedral_out.append(dihedral_deg[i+1])
-        is_inserted.append(False)
-    # --- FORCE LAST SLICE ---
-    if y_out[-1] != y_vals[-1]:
-        y_out.append(y_vals[-1])
-        le_out.append(le_pts[-1])
-        sweep_out.append(sweep_deg[-1])
-        dihedral_out.append(dihedral_deg[-1])
-        is_inserted.append(False)
+            # Keep right boundary of the transition
+            
+
+        else:
+            # Skip slice if same as previous (constant region), unless last slice
+            if i == len(y_vals) - 2:  # keep last slice
+                y_out.append(y_vals[i + 1])
+                le_out.append(le_pts[i + 1])
+                sweep_out.append(sweep_deg[i + 1])
+                dihedral_out.append(dihedral_deg[i + 1])
+                is_inserted.append(False)
+            # else skip slice in constant region
+
     return (
         np.array(y_out),
         np.rint(sweep_out).astype(int),
@@ -569,7 +573,6 @@ def main():
     # we stored summary_rows in order; update entries where LE found
     
     y_vals = le_pts[:,1].copy()
-    print(le_pts)
     # filter y_vals . 
     y_vals,sweep_deg,dihedral_deg,le_pts,is_inserted = filter_and_insert(y_vals, sweep_deg, dihedral_deg,le_pts, N_SLICE_ADDING)
     # slice with plane that are rotated by the dihedral angle.
@@ -605,10 +608,10 @@ def main():
             p0=lep,
             n=n_rot,
         )
-        if not is_inserted[i]:
-            airfoil_xz_prev.append(airfoil_xz.copy())
+        if is_inserted[i]:
+            airfoil_xz = airfoil_xz_prev[-1].copy()                        
         else:
-            airfoil_xz = airfoil_xz_prev[-1].copy()            
+            airfoil_xz_prev.append(airfoil_xz.copy())
                     
         
         '''plt.figure()
@@ -631,8 +634,8 @@ def main():
                 'Airfoil': 'Airfoil',
                 'Airfoil_coordinates': airfoil_xz,
                 'Sweep_loc': 0,
-                'Sweep_angle': 0,
-                'Dihedral_angle': 0
+                'Sweep_angle': sweep_deg[i],
+                'Dihedral_angle': dihedral_deg[i]
             }
 
         Wing_Dict["1"][f'Section{i+1}'] = {

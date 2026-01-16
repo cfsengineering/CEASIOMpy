@@ -9,7 +9,7 @@ def _enforce_session_token() -> None:
     expected_token = os.environ.get("CEASIOMPY_SESSION_TOKEN")
     if not expected_token:
         return None
-    params = st.experimental_get_query_params()
+    params = st.query_params
     provided_token = (params.get("session_token") or [""])[0]
     if provided_token != expected_token:
         st.error(

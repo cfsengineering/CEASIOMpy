@@ -14,7 +14,7 @@ cd "$install_dir"
 # You need xvfb to run in background
 echo "Updating packages..."
 sudo apt-get update
-sudo apt-get install xvfb
+sudo apt-get install xvfb ghostscript
 
 echo "Downloading AVL..."
 wget -q https://web.mit.edu/drela/Public/web/avl/avl3.40_execs/LINUX64/avl \

@@ -15,12 +15,12 @@ from ceasiompy.utils.exportcpacs import Export_CPACS
 STL_FILE = "src/ceasiompy/STL2CPACS/test.stl"
 TRI_FILE = "src/ceasiompy/STL2CPACS/slice_mesh_output.tri"
 N_Y_SLICES = 20 # number of Y slices 
-INTERSECT_TOL = 1e-5
+INTERSECT_TOL = 1e-6
 SLAB_TOLS = [1e-5, 5e-5, 1e-4, 5e-4, 1e-3]
-EXTREME_TOL = 1e-3   # at y ==0 and y == y_max the slicing captures point inside the airfoil so be aware about this setting 
+EXTREME_TOL = 5e-1   # at y ==0 and y == y_max the slicing captures point inside the airfoil so be aware about this setting 
 SAVE_PER_SLICE_CSV = False  # set True if you want per-slice CSVs
 SUMMARY_CSV = "slices_summary.csv"
-N_SLICE_ADDING = 2
+N_SLICE_ADDING = 2  # number of slices to insert in transition regions
 # ---------------------------
 
 
@@ -242,7 +242,7 @@ def write_cart3d_tri(filename, triangles):
     tri_idx = inverse.reshape(-1, 3) + 1  # 1-based indices
 
     with open(filename, "w") as f:
-        f.write(f"{uniq.shape[0]} {tri_idx.shape[0]}\n") # first line
+        f.write(f"{uniq.shape[0]} {tri_idx.shape[0]}\n") # first lie
         for v in uniq:
             f.write(f"{v[0]:.9g} {v[1]:.9g} {v[2]:.9g}\n") # vertices 
         for t in tri_idx:
@@ -344,7 +344,6 @@ def slice_mesh_at_Y(pts, tris, y_plane, tol):
         
         i0, i1, i2 = tris[ti]
         print(pts[i0], pts[i1], pts[i2])
-        breakpoint()
         ip = intersect_triangle_with_plane_point_normal(
             p0, n, pts[i0], pts[i1], pts[i2], tol
         )
@@ -431,7 +430,7 @@ def filter_and_insert(y_vals, sweep_deg, dihedral_deg, le_pts, n_insert):
     sweep_out = [sweep_deg[0]]
     dihedral_out = [dihedral_deg[0]]
     le_out = [le_pts[0]]
-
+    is_inserted = [False]
     for i in range(len(y_vals) - 1):
 
         same_angle = (
@@ -442,7 +441,12 @@ def filter_and_insert(y_vals, sweep_deg, dihedral_deg, le_pts, n_insert):
         if same_angle:
             # keep representative slice (but don't duplicate)
             continue
-
+        
+        y_out.append(y_vals[i])
+        le_out.append(le_pts[i])
+        sweep_out.append(sweep_deg[i])
+        dihedral_out.append(dihedral_deg[i])
+        is_inserted.append(False)
         # -------- TRANSITION REGION --------
         for k in range(1, n_insert + 2):
             t = k / (n_insert + 2)
@@ -456,25 +460,26 @@ def filter_and_insert(y_vals, sweep_deg, dihedral_deg, le_pts, n_insert):
             le_out.append(le_new)
             sweep_out.append(sweep_new)
             dihedral_out.append(dihedral_new)
-
+            is_inserted.append(True)
         # keep right boundary of transition
         y_out.append(y_vals[i+1])
         le_out.append(le_pts[i+1])
         sweep_out.append(sweep_deg[i+1])
         dihedral_out.append(dihedral_deg[i+1])
-
+        is_inserted.append(False)
     # --- FORCE LAST SLICE ---
     if y_out[-1] != y_vals[-1]:
         y_out.append(y_vals[-1])
         le_out.append(le_pts[-1])
         sweep_out.append(sweep_deg[-1])
         dihedral_out.append(dihedral_deg[-1])
-
+        is_inserted.append(False)
     return (
         np.array(y_out),
         np.rint(sweep_out).astype(int),
         np.rint(dihedral_out).astype(int),
-        np.array(le_out)
+        np.array(le_out),
+        np.array(is_inserted, dtype=bool),
     )
 
 
@@ -560,14 +565,16 @@ def main():
             }
     # compute sweep & dihedral along LE (per point)
     sweep_deg, dihedral_deg = compute_local_angles_from_le(le_pts)
-
+    # fill summary rows: map back sweep/dihedral into the summary_rows entries for valid_idxs
+    # we stored summary_rows in order; update entries where LE found
+    
     y_vals = le_pts[:,1].copy()
     print(le_pts)
     # filter y_vals . 
-    y_vals,sweep_deg,dihedral_deg,le_pts = filter_and_insert(y_vals, sweep_deg, dihedral_deg,le_pts, N_SLICE_ADDING)
+    y_vals,sweep_deg,dihedral_deg,le_pts,is_inserted = filter_and_insert(y_vals, sweep_deg, dihedral_deg,le_pts, N_SLICE_ADDING)
     # slice with plane that are rotated by the dihedral angle.
     airfoil_profiles = []
-
+    airfoil_xz_prev = []
     for i, y0 in enumerate(y_vals):
         if le_pts[i] is None:
             per_slice_clouds_rotate.append(np.zeros((0,3)))
@@ -598,7 +605,19 @@ def main():
             p0=lep,
             n=n_rot,
         )
-
+        if not is_inserted[i]:
+            airfoil_xz_prev.append(airfoil_xz.copy())
+        else:
+            airfoil_xz = airfoil_xz_prev[-1].copy()            
+                    
+        
+        '''plt.figure()
+        plt.plot(airfoil_xz[0,:], airfoil_xz[1,:], '-o')   
+        plt.title(f'Section {i} at y={y0:.3f}, chord={chord:.3f}')
+        plt.xlabel('x'); plt.ylabel('z')
+        plt.axis('equal')
+        plt.grid(True)
+        plt.show()'''
         # Store current chord for next iteration
 
         # Store in Wing_Dict

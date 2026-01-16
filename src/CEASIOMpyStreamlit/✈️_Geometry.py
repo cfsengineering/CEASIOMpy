@@ -28,6 +28,7 @@ import streamlit as st
 import plotly.graph_objects as go
 
 from ceasiompy.utils import get_wkdir
+from ceasiompy.utils.ceasiompyutils import parse_bool
 from CEASIOMpyStreamlit.streamlitutils import create_sidebar
 
 from stl import mesh
@@ -266,7 +267,8 @@ def section_select_cpacs() -> None:
     if "workflow" not in st.session_state:
         st.session_state["workflow"] = Workflow()
 
-    render_openvsp_panel()
+    if not parse_bool(os.environ.get("CEASIOMPY_CLOUD", False)):
+        render_openvsp_panel()
 
     wkdir = get_wkdir()
     wkdir.mkdir(parents=True, exist_ok=True)

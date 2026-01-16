@@ -15,6 +15,7 @@ import os
 import sys
 import math
 import shutil
+import argparse
 import importlib
 import subprocess
 import streamlit as st
@@ -542,6 +543,17 @@ def get_version(software_name: str) -> str:
     else:
         log.warning(f"Version information not found in the path: {version_file}.")
         return ""
+
+
+def parse_bool(value: str) -> bool:
+    """Parse a CLI boolean value."""
+
+    normalized = value.strip().lower()
+    if normalized in {"1", "true", "t", "yes", "y", "on"}:
+        return True
+    if normalized in {"0", "false", "f", "no", "n", "off"}:
+        return False
+    raise argparse.ArgumentTypeError(f"Invalid boolean value: {value!r}")
 
 
 def run_software(

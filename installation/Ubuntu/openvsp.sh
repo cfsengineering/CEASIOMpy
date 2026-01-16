@@ -117,4 +117,38 @@ else
   die "OpenVSP installation finished, but neither 'openvsp' nor 'vsp' is on PATH."
 fi
 
+find_openvsp_python_dir() {
+  local path
+  if command -v dpkg >/dev/null 2>&1; then
+    while IFS= read -r path; do
+      if [[ "$path" == */python/openvsp/__init__.py ]]; then
+        dirname "$(dirname "$path")"
+        return 0
+      fi
+    done < <(dpkg -L openvsp 2>/dev/null || true)
+  fi
+  for path in /usr/local/OpenVSP /usr/local/openvsp /usr/local/OpenVSP-* /opt/OpenVSP*; do
+    if [[ -d "$path/python/openvsp" ]]; then
+      printf '%s\n' "$path/python"
+      return 0
+    fi
+  done
+  return 1
+}
+
+openvsp_python_dir="$(find_openvsp_python_dir || true)"
+if [[ -n "$openvsp_python_dir" ]]; then
+  say ">>> Found OpenVSP Python bindings at: $openvsp_python_dir"
+  mkdir -p "$install_root/OpenVSP"
+  if [[ -e "$install_root/OpenVSP/python" ]]; then
+    say ">>> OpenVSP Python path already exists: $install_root/OpenVSP/python"
+  else
+    ln -s "$openvsp_python_dir" "$install_root/OpenVSP/python"
+    say ">>> Linked OpenVSP Python bindings: $install_root/OpenVSP/python -> $openvsp_python_dir"
+  fi
+else
+  say ">>> Warning: OpenVSP Python bindings not found on system."
+  say ">>>          You can set PYTHONPATH to the OpenVSP 'python' directory manually."
+fi
+
 say ">>> Done."

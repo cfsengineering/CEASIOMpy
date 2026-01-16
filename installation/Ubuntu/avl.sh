@@ -11,6 +11,11 @@ echo "Creating install directory..."
 mkdir -p "$install_dir"
 cd "$install_dir"
 
+# You need xvfb to run in background
+echo "Updating packages..."
+sudo apt-get update
+sudo apt-get install xvfb
+
 echo "Downloading AVL..."
 wget -q https://web.mit.edu/drela/Public/web/avl/avl3.40_execs/LINUX64/avl \
 || { echo "Error: Failed to download AVL." >&2; exit 1; }

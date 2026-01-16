@@ -26,6 +26,7 @@ import subprocess
 import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
+from urllib.parse import urlparse
 
 from ceasiompy.utils import get_wkdir
 from ceasiompy.utils.ceasiompyutils import parse_bool
@@ -59,6 +60,55 @@ HOW_TO_TEXT: Final[str] = (
 PAGE_NAME: Final[str] = "Geometry"
 
 _VSP2CPACS_OUT_TOKEN: Final[str] = "__CEASIOMPY_VSP2CPACS_OUT__="
+
+
+def _resolve_frontend_portal_url() -> str | None:
+    """Return the first configured frontend origin so we can link back to the portal."""
+    raw_origins = os.environ.get("VITE_FRONTEND_ORIGINS") or ""
+    for origin in raw_origins.split(","):
+        candidate = origin.strip()
+        if not candidate:
+            continue
+        parsed = urlparse(candidate)
+        if parsed.scheme and parsed.netloc:
+            return candidate
+        return f"http://{candidate}"
+    frontend_url = os.environ.get("VITE_STREAMLIT_URL")
+    if frontend_url:
+        parsed = urlparse(frontend_url)
+        if parsed.scheme and parsed.netloc:
+            return frontend_url
+        return f"http://{frontend_url}"
+    return None
+
+
+# =================================================================================================
+#    SESSION GUARD
+# =================================================================================================
+
+
+def _enforce_session_token() -> None:
+    """Ensure the Streamlit UI is accessed only via a matching session token."""
+    expected_token = os.environ.get("CEASIOMPY_SESSION_TOKEN")
+    if not expected_token:
+        return
+    params = st.query_params
+    provided_values = params.get("session_token")
+    provided_token = (provided_values or [""])[0]
+    if provided_token != expected_token:
+        st.error(
+            "Unauthorized access. Launch CEASIOMpy from the web portal to continue your session."
+        )
+        portal_url = _resolve_frontend_portal_url()
+        if portal_url:
+            st.markdown(
+                f"[Return to the web portal →]({portal_url})",
+                unsafe_allow_html=True,
+            )
+        st.stop()
+
+
+# _enforce_session_token()
 
 # =================================================================================================
 #    FUNCTIONS

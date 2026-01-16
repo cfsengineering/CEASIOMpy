@@ -81,7 +81,7 @@ dependencies:
     - shapely>=2.1.0
     - smt>=2.9.2
     - stpyvista>=0.1.4
-    - streamlit>=1.45.1
+    - streamlit>=1.53.0
     - streamlit-autorefresh
     - vtk>=9.3.0
     - scikit-optimize>=0.10.2
@@ -92,3 +92,5 @@ dependencies:
     - stripe
     - watchdog
     - streamlit_nested_layout
+    - httpx
+    # - gmshairfoil2d>=0.2.3

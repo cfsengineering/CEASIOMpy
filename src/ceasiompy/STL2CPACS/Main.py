@@ -5,19 +5,21 @@ import os
 import csv
 import matplotlib.pyplot as plt
 import struct
-from scipy.spatial import ConvexHull
 import matplotlib.cm as cm
-
+from scipy.interpolate import PchipInterpolator
 from ceasiompy.utils.exportcpacs import Export_CPACS
 # ---------------------------
 # CONFIG
 # ---------------------------
-STL_FILE = "src/ceasiompy/STL2CPACS/test.stl"
+#STL_FILE = "src/ceasiompy/STL2CPACS/test_wing.stl"
+STL_FILE = "src/ceasiompy/STL2CPACS/test_wing_winglet.stl"
+#STL_FILE = "src/ceasiompy/STL2CPACS/test_sweep.stl"
+
 TRI_FILE = "src/ceasiompy/STL2CPACS/slice_mesh_output.tri"
-N_Y_SLICES = 20 # number of Y slices 
+N_Y_SLICES = 30 # number of Y slices 
 INTERSECT_TOL = 1e-6
 SLAB_TOLS = [1e-5, 5e-5, 1e-4, 5e-4, 1e-3]
-EXTREME_TOL = 1   # at y ==0 and y == y_max the slicing captures point inside the airfoil so be aware about this setting 
+EXTREME_TOL = 1e-3   # at y ==0 and y == y_max the slicing captures point inside the airfoil so be aware about this setting 
 SAVE_PER_SLICE_CSV = False  # set True if you want per-slice CSVs
 SUMMARY_CSV = "slices_summary.csv"
 N_SLICE_ADDING = 3  # number of slices to insert in transition regions
@@ -25,8 +27,154 @@ N_SLICE_ADDING = 3  # number of slices to insert in transition regions
 
 
 # ---------------------------
-import numpy as np
-from scipy.spatial import ConvexHull
+def fix_airfoil_cpacs(x, z, tol_x=1e-5):
+    """
+    Fix airfoil point ordering and duplicates for CPACS robustness.
+
+    Input:
+        x, z : 1D arrays of airfoil coordinates (normalized)
+    Output:
+        x_fixed, z_fixed : CPACS-safe airfoil polyline
+    """
+
+    x = np.asarray(x)
+    z = np.asarray(z)
+
+    # -----------------------------
+    # Split lower / upper
+    # -----------------------------
+    lower = z < 0
+    upper = z > 0
+
+    xl, zl = x[lower], z[lower]
+    xu, zu = x[upper], z[upper]
+
+    # -----------------------------
+    # Collapse duplicate x (LOWER)
+    # keep most negative z
+    # -----------------------------
+    xlu = []
+    zlu = []
+
+    for xi in np.unique(np.round(xl / tol_x).astype(int)):
+        mask = np.abs(xl - xi * tol_x) < tol_x
+        xlu.append(np.mean(xl[mask]))
+        zlu.append(np.min(zl[mask]))
+
+    xl = np.array(xlu)
+    zl = np.array(zlu)
+
+    # -----------------------------
+    # Collapse duplicate x (UPPER)
+    # keep most positive z
+    # -----------------------------
+    xuu = []
+    zuu = []
+
+    for xi in np.unique(np.round(xu / tol_x).astype(int)):
+        mask = np.abs(xu - xi * tol_x) < tol_x
+        xuu.append(np.mean(xu[mask]))
+        zuu.append(np.max(zu[mask]))
+
+    xu = np.array(xuu)
+    zu = np.array(zuu)
+
+    # -----------------------------
+    # Sort strictly
+    # -----------------------------
+    idx = np.argsort(xl)[::-1]   # TE → LE
+    xl, zl = xl[idx], zl[idx]
+
+    idx = np.argsort(xu)         # LE → TE
+    xu, zu = xu[idx], zu[idx]
+
+    # -----------------------------
+    # Enforce single LE and TE
+    # -----------------------------
+    LE = np.array([[0.0], [0.0]])
+    TE = np.array([[1.0], [0.0]])
+
+    lower = np.vstack([xl, zl])
+    upper = np.vstack([xu, zu])
+
+    # remove near LE / TE
+    lower = lower[:, lower[0] > tol_x]
+    upper = upper[:, upper[0] < 1 - tol_x]
+
+    airfoil = np.hstack([
+        TE,
+        lower,
+        LE,
+        upper,
+        TE
+    ])
+
+    return airfoil
+
+def resample_airfoil_cpacs(airfoil, n_points=50, eps=0.001):
+    """
+    CPACS-safe airfoil regularization.
+    Removes spline oscillations and enforces monotonicity.
+    """
+
+    x = airfoil[0]
+    z = airfoil[1]
+
+    # -------------------------
+    # Split surfaces
+    # -------------------------
+    i_le = np.argmin(x)
+
+    lower_x = x[:i_le+1][::-1]   # LE → TE
+    lower_z = z[:i_le+1][::-1]
+
+    upper_x = x[i_le:]
+    upper_z = z[i_le:]
+
+    # Remove duplicates
+    lower_x, idx = np.unique(lower_x, return_index=True)
+    lower_z = lower_z[idx]
+
+    upper_x, idx = np.unique(upper_x, return_index=True)
+    upper_z = upper_z[idx]
+
+    # -------------------------
+    # Cosine spacing
+    # -------------------------
+    n_half = n_points // 2
+    beta = np.linspace(0, np.pi, n_half)
+    x_dist = 0.5 * (1 - np.cos(beta))  # LE → TE
+
+    # -------------------------
+    # -------------------------
+    pchip_lower = PchipInterpolator(lower_x, lower_z)
+    pchip_upper = PchipInterpolator(upper_x, upper_z)
+
+    z_lower = pchip_lower(x_dist)
+    z_upper = pchip_upper(x_dist)
+
+    # -------------------------
+    # -------------------------
+    z_lower[0] = 0.0
+    z_upper[0] = 0.0
+    z_lower[-1] = 0.0
+    z_upper[-1] = 0.0
+
+
+    # -------------------------
+    # Rebuild CPACS order
+    # -------------------------
+    airfoil_fixed = np.hstack([
+        np.array([[1.0], [0.0]]),
+        np.vstack([x_dist[::-1], z_lower[::-1]])[:, 1:-1],
+        np.array([[0.0], [0.0]]),
+        np.vstack([x_dist, z_upper])[:, 1:-1],
+        np.array([[1.0], [0.0]])
+    ])
+
+    return airfoil_fixed
+
+
 def extract_airfoil_surface_local(cloud_xyz, p0, n):
     """
     Extract CPACS-compatible airfoil from a rotated slice.
@@ -66,20 +214,11 @@ def extract_airfoil_surface_local(cloud_xyz, p0, n):
         for p in cloud_xyz
     ])
 
-    # -----------------------------
-    # External surface (convex hull)
-    # -----------------------------
-    try:
-        hull = ConvexHull(local)
-        pts = local[hull.vertices]
-    except:
-        return np.zeros((2, 0)), 0.0
-
-    x = pts[:, 0]
-    z = pts[:, 1]
+    x = local[:, 0]
+    z = local[:, 1]
 
     # -----------------------------
-    # Sort hull points CCW
+    # Sort points CCW (needed for consistent traversal)
     # -----------------------------
     cx, cz = np.mean(x), np.mean(z)
     angles = np.arctan2(z - cz, x - cx)
@@ -88,7 +227,7 @@ def extract_airfoil_surface_local(cloud_xyz, p0, n):
     z = z[order]
 
     # -----------------------------
-    # LE and TE detection (ROBUST)
+    # LE and TE detection
     # -----------------------------
     i_le = np.argmin(x)
     i_te = np.argmax(x)
@@ -101,7 +240,7 @@ def extract_airfoil_surface_local(cloud_xyz, p0, n):
         return np.zeros((2, 0)), 0.0
 
     # -----------------------------
-    # Split surfaces
+    # Split lower / upper surfaces
     # -----------------------------
     lower_mask = z < 0
     upper_mask = z >= 0
@@ -112,15 +251,17 @@ def extract_airfoil_surface_local(cloud_xyz, p0, n):
     x_upper = x[upper_mask]
     z_upper = z[upper_mask]
 
-    # sort by x
-    idx = np.argsort(x_lower)[::-1]  # TE -> LE
+    # -----------------------------
+    # Sort surfaces by x
+    # -----------------------------
+    idx = np.argsort(x_lower)[::-1]  # TE → LE
     x_lower, z_lower = x_lower[idx], z_lower[idx]
 
-    idx = np.argsort(x_upper)        # LE -> TE
+    idx = np.argsort(x_upper)        # LE → TE
     x_upper, z_upper = x_upper[idx], z_upper[idx]
 
     # -----------------------------
-    # Normalize
+    # Normalize to chord
     # -----------------------------
     x_lower = (x_lower - x_le) / chord
     x_upper = (x_upper - x_le) / chord
@@ -136,19 +277,17 @@ def extract_airfoil_surface_local(cloud_xyz, p0, n):
     lower = np.vstack([x_lower, z_lower])
     upper = np.vstack([x_upper, z_upper])
 
-    # remove near-LE duplicates
+    # remove near-LE / TE duplicates
     lower = lower[:, lower[0] > 1e-6]
     upper = upper[:, upper[0] < 1 - 1e-6]
 
-    airfoil = np.hstack([
-        TE,
-        lower,
-        LE,
-        upper,
-        TE
-    ])
-
+    airfoil = fix_airfoil_cpacs(
+    np.hstack([TE[0], lower[0], LE[0], upper[0], TE[0]]),
+    np.hstack([TE[1], lower[1], LE[1], upper[1], TE[1]])
+    )
+    airfoil = resample_airfoil_cpacs(airfoil, n_points=60)
     return airfoil, chord
+
 
 
 def parse_cart3d_tri(filename):
@@ -612,7 +751,8 @@ def main():
             airfoil_xz = airfoil_xz_prev[-1].copy()                        
         else:
             airfoil_xz_prev.append(airfoil_xz.copy())
-                    
+
+        print(chord,'at section', i)
         
         '''plt.figure()
         plt.plot(airfoil_xz[0,:], airfoil_xz[1,:], '-o')   
@@ -637,19 +777,20 @@ def main():
                 'Sweep_angle': sweep_deg[i],
                 'Dihedral_angle': dihedral_deg[i]
             }
-
-        Wing_Dict["1"][f'Section{i+1}'] = {
+        
+        else:            
+            Wing_Dict["1"][f'Section{i}'] = {
             'x_scal': round(chord, 2),
             'y_scal': 1,
             'z_scal': round(chord, 2),
             'x_trasl': 0,
-            'Span': abs(y_vals[i]/np.cos(np.deg2rad(dihedral_deg[i]))) if i==0 else abs((y_vals[i]-y_vals[i-1])/np.cos(np.deg2rad(dihedral_deg[i]))),
+            'Span': abs((y_vals[i]-y_vals[i-1])/np.cos(np.deg2rad(dihedral_deg[i]))),
             'Airfoil': 'Airfoil',
             'Airfoil_coordinates': airfoil_xz,
             'Sweep_loc': 0,
             'Sweep_angle': sweep_deg[i],
             'Dihedral_angle': dihedral_deg[i]
-        }
+            }
 
         airfoil_profiles.append(airfoil_xz)
 

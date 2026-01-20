@@ -45,6 +45,12 @@ from ceasiompy.SMTrain.func.utils import (
     collect_level_data,
     concatenate_if_not_none,
     define_model_type,
+    num_flight_conditions,
+    num_geom_params,
+    drop_constant_columns,
+)
+from ceasiompy.SaveAeroCoefficients import (
+    AEROMAP_FEATURES,
 )
 
 from ceasiompy.PyAVL.pyavl import main as run_avl
@@ -66,9 +72,10 @@ from ceasiompy.SU2Run import (
 from ceasiompy.utils.ceasiompyutils import (
     update_cpacs_from_specs,
     get_results_directory,
+    get_aeromap_conditions,
 )
 from ceasiompy.SMTrain.func import AEROMAP_SELECTED
-
+import sys
 from numpy import ndarray
 from pandas import DataFrame
 from cpacspy.cpacspy import CPACS
@@ -404,29 +411,56 @@ def run_first_level_training_geometry(
         tixi = cpacs.tixi
         pyavl_local_dir = pyavl_dir / f"PyAVL_{i+1}"
         pyavl_local_dir.mkdir(exist_ok=True)
+
         st.session_state = MagicMock()
         update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
         tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap_uid)
 
-        # Run AVL simulation with error handling
+        alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
+            cpacs=cpacs,
+            uid_xpath=AVL_AEROMAP_UID_XPATH,
+        )
+
+        n_flight_cond = num_flight_conditions(
+            alt_list, mach_list, aoa_list, aos_list
+        )
+        n_geom_params = num_geom_params(df_geom)
+
+        if n_flight_cond == 1 and n_geom_params == 1:
+            log.error(
+                "Simulation aborted: only one flight condition and one geometric parameter."
+            )
+            sys.exit(1)
+
         try:
             run_avl(cpacs, pyavl_local_dir)
             level1_df = retrieve_aeromap_data(cpacs, aeromap_uid, objective)
-            print(f"{level1_df=}")
-            if len(level1_df) > 0:  # Check if data was retrieved successfully
-                # objective_df = level1_df[[objective]]
+        
+            if level1_df is None or len(level1_df) == 0:
+                print(f"Warning: No data retrieved for simulation {i+1}, skipping...")
+                continue
+
+            row_df_geom = df_geom.iloc[i]
+
+            if n_flight_cond >= 2:
                 n = len(level1_df)
-                row_df_geom = df_geom.iloc[i]
                 local_df_geom = pd.DataFrame([row_df_geom] * n).reset_index(drop=True)
-                # Add the columns for the specific geometry in level1_df
+
                 level1_df_combined = pd.concat(
                     [local_df_geom, level1_df.reset_index(drop=True)],
                     axis=1
                 )
-                # Concatenate the dataframes
+
                 final_dfs.append(level1_df_combined)
             else:
-                print(f"Warning: No data retrieved for simulation {i+1}, skipping...")
+                minimal_df = pd.concat(
+                    [
+                        pd.DataFrame([row_df_geom]).reset_index(drop=True),
+                        level1_df[[objective]].reset_index(drop=True),
+                    ],
+                    axis=1
+                )
+                final_dfs.append(minimal_df)
 
         except Exception as e:
             print(f"Error in AVL simulation {i+1}: {str(e)}. Skipping this simulation...")
@@ -441,8 +475,28 @@ def run_first_level_training_geometry(
     # Concatenate the dataframes
     final_level1_df = pd.concat(final_dfs, axis=0, ignore_index=True)
 
-    final_level1_df.to_csv(f"{results_dir}/avl_simulations_results.csv", index=False)
+    # final_level1_df.to_csv(f"{results_dir}/avl_simulations_results.csv", index=False)
+    final_level1_df_c = drop_constant_columns(final_level1_df)
+    final_level1_df_c.to_csv(f"{results_dir}/avl_simulations_results.csv", index=False)
 
+    df_fc = pd.read_csv(f"{results_dir}/avl_simulations_results.csv")
+    flight_cols = [c for c in AEROMAP_FEATURES if c in df_fc.columns]
+    df_flight = df_fc[flight_cols]
+
+    ranges_fc = pd.DataFrame({
+        "Parameter": flight_cols,
+        "Min": [df_flight[c].min() for c in flight_cols],
+        "Max": [df_flight[c].max() for c in flight_cols],
+    })
+
+    ranges_for_gui = pd.read_csv(f"{results_dir}/ranges_for_gui.csv")
+    final_ranges_for_gui = pd.concat(
+        [ranges_for_gui,ranges_fc],
+        axis=0,
+        ignore_index=True,
+    )
+    
+    final_ranges_for_gui.to_csv(f"{results_dir}/ranges_for_gui.csv", index=False)
     best_geometry_idx = final_level1_df[objective].idxmax()
     best_geometries_df = final_level1_df.loc[[best_geometry_idx]]
     best_geometries_df.to_csv(f"{results_dir}/best_geometric_configurations.csv", index=False)
@@ -466,8 +520,8 @@ def run_first_level_training_geometry(
     rbf_model = None
     rbf_rmse = None
 
-    level1_sets = split_data(final_level1_df, objective, split_ratio)
-    param_order = [col for col in final_level1_df.columns if col != objective]
+    level1_sets = split_data(final_level1_df_c, objective, split_ratio)
+    param_order = [col for col in final_level1_df_c.columns if col != objective]
 
     if KRG_model_bool:
         print("\n\n")

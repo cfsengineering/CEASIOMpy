@@ -585,11 +585,7 @@ def run_software(
         f"over {os.cpu_count()} will be used for this calculation."
     )
 
-    if software_name == "pentagrow" or software_name == "Pentagrow":
-        ceasiompy_root = Path(__file__).resolve().parents[3]
-        install_path = ceasiompy_root / "installation" / "Pentagrow" / "bin" / "pentagrow"
-    else:
-        install_path = get_install_path(software_name)
+    install_path = get_install_path(software_name)
 
     command_line = []
     if with_mpi:

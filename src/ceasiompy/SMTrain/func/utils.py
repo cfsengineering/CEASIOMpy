@@ -15,7 +15,7 @@ TODO:
 # ==============================================================================
 
 import numpy as np
-
+import pandas as pd
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
@@ -210,3 +210,19 @@ def get_val_fraction(train_fraction: float) -> float:
 def define_model_type(model:Union[KRG,MFK,RBF]):
     suffix = model.__class__.__name__.lower()
     return suffix
+
+
+def num_flight_conditions(alt, mach, aoa, aos):
+    return max(len(alt), len(mach), len(aoa), len(aos))
+
+
+def num_geom_params(df_geom):
+    return df_geom.shape[1]
+
+
+def drop_constant_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Remove columns with constant values (no variance).
+    """
+    return df.loc[:, df.nunique(dropna=False) > 1]
+

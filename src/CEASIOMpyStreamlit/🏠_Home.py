@@ -68,49 +68,49 @@ if __name__ == "__main__":
 
     # Welcome section with logo
     st.markdown("---")
-    
+
     col_text, col_logo = st.columns([3, 1])
-    
+
     with col_text:
         st.markdown("## Welcome to CEASIOMpy")
-        
+
         st.markdown(f"""
         **CEASIOMpy** is a Conceptual Aircraft Design Software developed for CFS ENGINEERING.
-        
+
         Current version: `{VERSION}`
-        
+
         ### Quick Start Guide
-        
+
         1. **Geometry** - Design your aircraft or upload an existing geometry
         2. **Workflow** - Create a workflow by selecting analysis modules
         3. **Settings** - Configure the parameters for your analysis
         4. **Run Workflow** - Execute your workflow
         5. **Results** - View and analyze the results
         """)
-    
+
     with col_logo:
         st.image("../../documents/logos/CEASIOMpy_512px.png", width=250)
-    
+
     st.markdown("""
     ### Features
-    
+
     - 🛩️ Aircraft geometry design and manipulation
     - 🔄 Flexible workflow creation
     - 📊 Aerodynamic analysis (AVL, SU2)
     - 📈 Results visualization
     - 🤖 Surrogate modeling capabilities
-    
+
     ### Getting Started
-    
+
     Use the navigation menu on the left to access different pages of the application.
     Start with the **Geometry** page to load or create your aircraft model.
     """)
 
     st.markdown("---")
-    
+
     # Information boxes
     col1, col2 = st.columns(2)
-    
+
     with col1:
         st.info(
             "📖 **Documentation**\n\n"
@@ -118,7 +118,7 @@ if __name__ == "__main__":
             "[CEASIOMpy documentation](https://github.com/cfsengineering/CEASIOMpy/"
             "tree/main?tab=readme-ov-file#available-modules)"
         )
-    
+
     with col2:
         st.info(
             "💻 **GitHub**\n\n"
@@ -127,7 +127,7 @@ if __name__ == "__main__":
         )
 
     st.markdown("---")
-    
+
     # Footer
     st.markdown("""
     <div style='text-align: center; color: gray; padding: 20px;'>

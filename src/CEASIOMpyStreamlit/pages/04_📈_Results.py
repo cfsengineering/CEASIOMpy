@@ -18,7 +18,6 @@ Streamlit page to show results of CEASIOMpy
 
 import os
 import base64
-import re
 
 import pandas as pd
 import streamlit as st

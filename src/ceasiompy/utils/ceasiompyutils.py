@@ -143,42 +143,46 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
     inputs = cpacsin_out.get_gui_dict()
 
     for name, default_value, var_type, _, xpath, _, _, test_value, _ in inputs.values():
-        if test:
-            value = test_value
-        else:
-            value = default_value
-        parts = xpath.strip("/").split("/")
-        for i in range(1, len(parts) + 1):
-            path = "/" + "/".join(parts[:i])
-            if not tixi.checkElement(path):
-                tixi.createElement("/" + "/".join(parts[: i - 1]), parts[i - 1])
-
-        # Check if the name or var_type is in the dictionary and call the corresponding function
-        if name in AEROMAP_LIST:
-            aeromap_uid_list = cpacs.get_aeromap_uid_list()
-            if not len(aeromap_uid_list):
-                log.error("You must create an aeromap in order to use this module !")
+        try:
+            if test:
+                value = test_value
             else:
-                # Use first aeromap
-                tixi.updateTextElement(xpath, aeromap_uid_list[0])
+                value = default_value
+            parts = xpath.strip("/").split("/")
+            for i in range(1, len(parts) + 1):
+                path = "/" + "/".join(parts[:i])
+                if not tixi.checkElement(path):
+                    tixi.createElement("/" + "/".join(parts[: i - 1]), parts[i - 1])
 
-        elif var_type == str:
-            tixi.updateTextElement(xpath, value)
-        elif var_type == float:
-            tixi.updateDoubleElement(xpath, value, format="%g")
-        elif var_type == bool:
-            tixi.updateBooleanElement(xpath, value)
-        elif var_type == int:
-            tixi.updateIntegerElement(xpath, value, format="%d")
-        elif var_type == list:
-            tixi.updateTextElement(xpath, str(value[0]))
-        elif var_type == "DynamicChoice":
-            create_branch(tixi, xpath + "type")
-            tixi.updateTextElement(xpath + "type", str(value[0]))
-        elif var_type == "multiselect":
-            tixi.updateTextElement(xpath, ";".join(str(ele) for ele in value))
-        else:
-            tixi.updateTextElement(xpath, value)
+            # Check if the name or var_type is in the dictionary
+            # and call the corresponding function
+            if name in AEROMAP_LIST:
+                aeromap_uid_list = cpacs.get_aeromap_uid_list()
+                if not len(aeromap_uid_list):
+                    log.error("You must create an aeromap in order to use this module !")
+                else:
+                    # Use first aeromap
+                    tixi.updateTextElement(xpath, aeromap_uid_list[0])
+
+            elif var_type == str:
+                tixi.updateTextElement(xpath, value)
+            elif var_type == float:
+                tixi.updateDoubleElement(xpath, value, format="%g")
+            elif var_type == bool:
+                tixi.updateBooleanElement(xpath, value)
+            elif var_type == int:
+                tixi.updateIntegerElement(xpath, value, format="%d")
+            elif var_type == list:
+                tixi.updateTextElement(xpath, str(value[0]))
+            elif var_type == "DynamicChoice":
+                create_branch(tixi, xpath + "type")
+                tixi.updateTextElement(xpath + "type", str(value[0]))
+            elif var_type == "multiselect":
+                tixi.updateTextElement(xpath, ";".join(str(ele) for ele in value))
+            else:
+                tixi.updateTextElement(xpath, value)
+        except Exception as e:
+            raise ValueError(f"Issue {var_type=} {e=} at {xpath=} for {value=}")
 
 
 @contextmanager

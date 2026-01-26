@@ -330,7 +330,8 @@ class Workflow:
 
         for idx, module in enumerate(self.modules):
             modules_status[idx]["status"] = "running"
-            progress_callback(modules_status)
+            if progress_callback is not None:
+                progress_callback(modules_status)
 
             try:
                 if module.is_optim_module:
@@ -345,10 +346,12 @@ class Workflow:
             except Exception as exc:
                 modules_status[idx]["status"] = "failed"
                 modules_status[idx]["error"] = str(exc)
-                progress_callback(modules_status)
+                if progress_callback is not None:
+                    progress_callback(modules_status)
                 return None
             else:
                 modules_status[idx]["status"] = "finished"
-                progress_callback(modules_status)
+                if progress_callback is not None:
+                    progress_callback(modules_status)
 
         shutil.copy(module.cpacs_out, Path(self.current_wkflow_dir, "ToolOutput.xml"))

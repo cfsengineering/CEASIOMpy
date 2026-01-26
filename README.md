@@ -168,7 +168,6 @@ There are many different modules available in CEASIOMpy that can be combined to 
 
 #### General modules
 
-- [ModuleTemplate](src/ceasiompy/ModuleTemplate/README.md) :heavy_check_mark:
 - [Optimisation](src/ceasiompy/Optimisation/README.md) :x:
 - [SMTrain](src/ceasiompy/SMTrain/README.md) :heavy_check_mark:
 - [SMUse](src/ceasiompy/SMUse/README.md) :heavy_check_mark:

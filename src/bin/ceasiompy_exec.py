@@ -295,7 +295,7 @@ def run_gui(
         "-m",
         "streamlit",
         "run",
-        "✈️_Geometry.py",
+        "🏠_Home.py",
         "--server.headless", f"{str(headless).lower()}",
     ]
     if port is not None:

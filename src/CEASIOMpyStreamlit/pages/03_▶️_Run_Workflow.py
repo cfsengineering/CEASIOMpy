@@ -38,7 +38,6 @@ from ceasiompy.utils.workflowclasses import Workflow
 # Set the current page in session state
 PAGE_NAME = "Run Workflow"
 STATUS_PLACEHOLDER_KEY = "workflow_status_placeholder"
-RUN_SCRIPT = Path(__file__).resolve().parent.parent / "runworkflow.py"
 
 HOW_TO_TEXT = (
     "### How to Run your workflow?\n"
@@ -151,7 +150,7 @@ def workflow_buttons() -> None:
             workflow = Workflow()
             workflow.from_config_file(config_path)
             workflow.set_workflow()
-    
+
             with st.spinner(
                 'CEASIOMpy is running...',
                 show_time=True,
@@ -204,7 +203,7 @@ if __name__ == "__main__":
         workflow_buttons()
         _, right_col = st.columns(spec=[0.01, 0.99])
         with right_col:
-            progress_callback(st.session_state.get("workflow_status_list"))            
+            progress_callback(st.session_state.get("workflow_status_list"))
 
     # Update last_page
     st.session_state.last_page = PAGE_NAME

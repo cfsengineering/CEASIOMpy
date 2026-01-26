@@ -50,7 +50,11 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_CTRLSURF_ANGLE_XPATH,
 )
 
-# GMSH Signal Patch
+# =================================================================================================
+#   GMSH Signal Patch
+# =================================================================================================
+
+
 def _patch_signal_for_gmsh() -> None:
     """Avoid gmsh signal registration in non-main threads."""
 
@@ -66,6 +70,7 @@ def _patch_signal_for_gmsh() -> None:
     signal.signal = _noop_signal  # type: ignore[assignment]
     signal._ceasiompy_gmsh_patched = True  # type: ignore[attr-defined]
     log.warning("Patched signal.signal for gmsh import in non-main thread.")
+
 
 _patch_signal_for_gmsh()
 

@@ -35,19 +35,6 @@ from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
 # ==============================================================================
 
 
-def rm_wkflow_status():
-    # Remove any status information for the last workflow (if any),
-    # so that a stopped run does not keep stale status entries.
-    wkflow_dir = get_last_workflow()
-    if wkflow_dir is not None:
-        status_file = Path(wkflow_dir, "workflow_status.json")
-        if status_file.exists():
-            try:
-                status_file.unlink()
-            except OSError:
-                pass
-
-
 def color_cell(cell):
     if cell.strip() == "Stable":
         return '<td style="background-color:#d4edda;color:#155724;">Stable</td>'

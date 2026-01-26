@@ -82,7 +82,6 @@ dependencies:
     - smt>=2.9.2
     - stpyvista>=0.1.4
     - streamlit>=1.53.0
-    - streamlit-autorefresh
     - vtk>=9.3.0
     - scikit-optimize>=0.10.2
     - framat>=0.5

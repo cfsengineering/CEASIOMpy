@@ -19,8 +19,9 @@ import streamlit as st
 from CEASIOMpyStreamlit.streamlitutils import save_cpacs_file
 from cpacspy.cpacsfunctions import (
     get_string_vector,
-    get_value_or_default,
 )
+
+from tixi3.tixi3wrapper import Tixi3Exception
 
 from ceasiompy import log
 
@@ -29,13 +30,31 @@ from ceasiompy import log
 # ==============================================================================
 
 
-def aeromap_selection(cpacs, xpath, key, description):
-    aeromap_uid_list = cpacs.get_aeromap_uid_list()
+def safe_get_value(tixi, xpath, default_value):
+    """Read a value without creating missing CPACS branches."""
 
+    if tixi is None:
+        return default_value
+
+    try:
+        if tixi.checkElement(xpath):
+            return tixi.getTextElement(xpath)
+    except Tixi3Exception:
+        return default_value
+
+    return default_value
+
+
+def aeromap_selection(xpath, key, description) -> None:
+    cpacs = st.session_state.get("cpacs", None)
+    if cpacs is None:
+        st.error("No CPACS file has been selected!")
+        return None
+    aeromap_uid_list = cpacs.get_aeromap_uid_list()
     if not len(aeromap_uid_list):
         st.error("You must create an aeromap in order to use this module!")
     else:
-        value = get_value_or_default(cpacs.tixi, xpath, aeromap_uid_list[0])
+        value = safe_get_value(cpacs.tixi, xpath, aeromap_uid_list[0])
         if value in aeromap_uid_list:
             idx = aeromap_uid_list.index(value)
         else:
@@ -50,7 +69,11 @@ def aeromap_selection(cpacs, xpath, key, description):
         )
 
 
-def aeromap_checkbox(cpacs, xpath, key, description) -> None:
+def aeromap_checkbox(xpath, key, description) -> None:
+    cpacs = st.session_state.get("cpacs", None)
+    if cpacs is None:
+        st.error("No CPACS file has been selected!")
+        return None
     aeromap_uid_list = cpacs.get_aeromap_uid_list()
 
     if not len(aeromap_uid_list):
@@ -117,12 +140,20 @@ def multiselect_vartype(default_value, name, key) -> None:
 
 def int_vartype(tixi, xpath, default_value, name, key, description) -> None:
     with st.columns([1, 2])[0]:
-        value = int(get_value_or_default(tixi, xpath, default_value))
+        raw_value = safe_get_value(tixi, xpath, default_value)
+        try:
+            value = int(raw_value)
+        except (TypeError, ValueError):
+            value = int(default_value)
         st.number_input(name, value=value, key=key, help=description, on_change=save_cpacs_file)
 
 
 def float_vartype(tixi, xpath, default_value, name, key, description) -> None:
-    value = get_value_or_default(tixi, xpath, default_value)
+    raw_value = safe_get_value(tixi, xpath, default_value)
+    try:
+        value = float(raw_value)
+    except (TypeError, ValueError):
+        value = float(default_value)
     with st.columns([1, 2])[0]:
         st.number_input(
             name,
@@ -138,7 +169,7 @@ def list_vartype(tixi, xpath, default_value, name, key, description) -> None:
     if default_value is None:
         log.warning(f"Could not create GUI for {xpath} in list_vartype.")
     else:
-        value = get_value_or_default(tixi, xpath, default_value[0])
+        value = safe_get_value(tixi, xpath, default_value[0])
         idx = default_value.index(value)
         st.radio(
             name,
@@ -162,7 +193,7 @@ def add_ctrl_surf_vartype(tixi, xpath, default_value, name, key, description) ->
     ctrl_xpath = xpath + "/ctrlsurf"
     angle_xpath = xpath + "/deformation_angle"
 
-    value = get_value_or_default(tixi, ctrl_xpath, default_value[0])
+    value = safe_get_value(tixi, ctrl_xpath, default_value[0])
     idx = default_value.index(value)
     selected = st.radio(
         name,
@@ -175,7 +206,7 @@ def add_ctrl_surf_vartype(tixi, xpath, default_value, name, key, description) ->
 
     # if value of st.radio is npot 'none' then add float_vartype entry
     if selected is not None and str(selected).lower() != "none":
-        deformation_angle = get_value_or_default(tixi, angle_xpath, default_value=0.0)
+        deformation_angle = safe_get_value(tixi, angle_xpath, default_value=0.0)
         float_vartype(
             tixi,
             angle_xpath,
@@ -187,9 +218,14 @@ def add_ctrl_surf_vartype(tixi, xpath, default_value, name, key, description) ->
 
 
 def bool_vartype(tixi, xpath, default_value, name, key, description) -> None:
+    raw_value = safe_get_value(tixi, xpath, default_value)
+    if isinstance(raw_value, str):
+        value = raw_value.strip().lower() in {"1", "true", "yes", "y"}
+    else:
+        value = bool(raw_value)
     st.checkbox(
         name,
-        value=bool(get_value_or_default(tixi, xpath, default_value)),
+        value=value,
         key=key,
         help=description,
         on_change=save_cpacs_file,
@@ -198,7 +234,7 @@ def bool_vartype(tixi, xpath, default_value, name, key, description) -> None:
 
 def else_vartype(tixi, xpath, default_value, name, key, description) -> None:
     if name != "Choose mesh":
-        value = str(get_value_or_default(tixi, xpath, default_value))
+        value = str(safe_get_value(tixi, xpath, default_value))
         with st.columns([1, 2])[0]:
             st.text_input(
                 name,

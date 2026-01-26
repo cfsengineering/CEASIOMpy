@@ -14,8 +14,6 @@ Streamlit Tabs per module function.
 # ==============================================================================
 
 import streamlit as st
-
-from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.utils.geometryfunctions import get_aircrafts_list
 from CEASIOMpyStreamlit.streamlitutils import section_edit_aeromap
 from ceasiompy.utils.moduleinterfaces import get_specs_for_module
@@ -30,6 +28,7 @@ from CEASIOMpyStreamlit.guiobjects import (
     aeromap_selection,
     multiselect_vartype,
     add_ctrl_surf_vartype,
+    safe_get_value,
 )
 
 from typing import (
@@ -57,7 +56,7 @@ def if_choice_vartype(
 
     default_index = int(
         default_value.index(
-            get_value_or_default(session_state.cpacs.tixi, xpath + "type", "CPACS2GMSH mesh")
+            safe_get_value(session_state.cpacs.tixi, xpath + "type", "CPACS2GMSH mesh")
         )
     )
 
@@ -149,7 +148,7 @@ def add_gui_object(
 
         # Check if the name or var_type is in the dictionary and call the corresponding function
         if name in aeromap_map:
-            aeromap_map[name](session_state.cpacs, xpath, key, description)
+            aeromap_map[name](xpath, key, description)
         elif var_type == "path_type":
             path_vartype(key)
         elif var_type in vartype_map:
@@ -180,7 +179,7 @@ def add_gui_object(
 def add_module_tab(new_file: bool) -> None:
     if "cpacs" not in st.session_state:
         st.warning("No CPACS file has been selected!")
-        return
+        return None
 
     with st.expander("**Edit Aeromaps**", expanded=False):
         section_edit_aeromap()

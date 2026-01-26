@@ -11,20 +11,21 @@ Classes to run ceasiompy workflows
 # =================================================================================================
 
 import os
+import json
 import shutil
 import importlib
-import json
 
 from ceasiompy.utils import get_wkdir
 from ceasiompy.utils.moduleinterfaces import get_module_list
 from ceasiompy.utils.ceasiompylogger import add_to_runworkflow_history
 from ceasiompy.utils.ceasiompyutils import (
-    change_working_dir,
     run_module,
+    change_working_dir,
     get_results_directory,
 )
 
 from pathlib import Path
+from typing import Callable
 from datetime import datetime
 from ceasiompy.utils.configfiles import ConfigFile
 
@@ -313,36 +314,23 @@ class Workflow:
             )
             self.subworkflow.set_subworkflow()
 
-    def run_workflow(self, test=False) -> None:
+    def run_workflow(self, progress_callback: Callable | None = None, test=False) -> None:
         """Run the complete Worflow"""
 
         add_to_runworkflow_history(self.current_wkflow_dir)
-        status_path = Path(self.current_wkflow_dir, "workflow_status.json")
 
         modules_status = []
         for idx, module in enumerate(self.modules):
             module_name = module.name
-            modules_status.append(
-                {
-                    "index": idx,
-                    "name": module_name,
-                    "status": "waiting",
-                }
-            )
-
-        try:
-            with open(status_path, "w", encoding="utf-8") as f:
-                json.dump(modules_status, f)
-        except OSError:
-            pass
+            modules_status.append({
+                "index": idx,
+                "name": module_name,
+                "status": "waiting",
+            })
 
         for idx, module in enumerate(self.modules):
             modules_status[idx]["status"] = "running"
-            try:
-                with open(status_path, "w", encoding="utf-8") as f:
-                    json.dump(modules_status, f)
-            except OSError:
-                pass
+            progress_callback(modules_status)
 
             try:
                 if module.is_optim_module:
@@ -357,18 +345,10 @@ class Workflow:
             except Exception as exc:
                 modules_status[idx]["status"] = "failed"
                 modules_status[idx]["error"] = str(exc)
-                try:
-                    with open(status_path, "w", encoding="utf-8") as f:
-                        json.dump(modules_status, f)
-                except OSError:
-                    pass
-                raise
+                progress_callback(modules_status)
+                return None
             else:
                 modules_status[idx]["status"] = "finished"
-                try:
-                    with open(status_path, "w", encoding="utf-8") as f:
-                        json.dump(modules_status, f)
-                except OSError:
-                    pass
+                progress_callback(modules_status)
 
         shutil.copy(module.cpacs_out, Path(self.current_wkflow_dir, "ToolOutput.xml"))

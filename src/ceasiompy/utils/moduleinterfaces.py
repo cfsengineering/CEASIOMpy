@@ -141,8 +141,6 @@ class CPACSInOut:
 
         gui_settings_dict = {}
         for entry in self.inputs:
-            if not entry.gui:
-                continue
 
             # Logic here should be correct
             # If entry.test_value is not specified

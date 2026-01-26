@@ -17,9 +17,9 @@ Streamlit page to run a CEASIOMpy workflow
 # ==============================================================================
 
 import sys
+import json
 import psutil
 import subprocess
-import json
 import streamlit as st
 
 from streamlit_autorefresh import st_autorefresh
@@ -155,6 +155,9 @@ def display_modules_status() -> None:
         st.error(err_msg)
     elif not solver_running:
         st.info("Workflow finished running, go in results page for analysis.")
+    else:
+        # AutoRefresh for logs
+        st_autorefresh(interval=100_000, limit=1_000_000, key="auto_refresh")
 
 
 def workflow_buttons() -> None:
@@ -238,9 +241,6 @@ if __name__ == "__main__":
             display_modules_status()
         with col_right:
             workflow_buttons()
-
-    # AutoRefresh for logs
-    st_autorefresh(interval=1000, limit=10000, key="auto_refresh")
 
     # Update last_page
     st.session_state.last_page = PAGE_NAME

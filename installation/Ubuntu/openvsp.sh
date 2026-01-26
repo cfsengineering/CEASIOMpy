@@ -82,9 +82,20 @@ deb_path="$openvsp_cache_dir/$deb_name"
 say ">>> Creating cache directory at: $openvsp_cache_dir"
 mkdir -p "$openvsp_cache_dir"
 
+validate_deb() {
+  dpkg-deb --info "$1" >/dev/null 2>&1
+}
+
 if [[ -f "$deb_path" ]]; then
-  say ">>> Using cached installer: $deb_path"
-else
+  if validate_deb "$deb_path"; then
+    say ">>> Using cached installer: $deb_path"
+  else
+    say ">>> Cached installer is invalid; removing: $deb_path"
+    rm -f "$deb_path"
+  fi
+fi
+
+if [[ ! -f "$deb_path" ]]; then
   say ">>> Downloading OpenVSP $openvsp_version for Ubuntu $ubuntu_version_id ($arch)"
   if command -v curl >/dev/null 2>&1; then
     curl -fL --retry 3 --retry-delay 2 -o "$deb_path" "$deb_url"
@@ -95,17 +106,29 @@ else
   fi
 fi
 
+if ! validate_deb "$deb_path"; then
+  say ">>> Downloaded file is not a valid Debian package: $deb_path"
+  if command -v file >/dev/null 2>&1; then
+    say ">>> file: $(file -b "$deb_path" || true)"
+  fi
+  if command -v head >/dev/null 2>&1; then
+    say ">>> First few lines of the downloaded file:"
+    head -n 5 "$deb_path" || true
+  fi
+  die "Download from $deb_url did not produce a valid .deb. Verify the URL or update openvsp_version."
+fi
+
 say ">>> Installing OpenVSP (requires sudo)..."
 sudo mkdir -p /usr/share/applications
 say ">>> Ensuring dependencies for desktop entry (requires sudo)..."
-sudo apt-get update
-sudo apt-get install -y desktop-file-utils tzdata
-export DEBIAN_FRONTEND=noninteractive
-export TZ=Etc/UTC
-sudo dpkg -i "$deb_path" || true
+sudo DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update
+sudo DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y desktop-file-utils tzdata
+if ! sudo dpkg -i "$deb_path"; then
+  say ">>> dpkg reported errors (often missing dependencies); continuing with apt-get -f."
+fi
 
 say ">>> Resolving dependencies (requires sudo)..."
-sudo apt-get install -y -f
+sudo DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y -f
 
 if command -v openvsp >/dev/null 2>&1; then
   say ">>> OpenVSP OK: $(command -v openvsp)"

@@ -62,7 +62,7 @@ if [[ "${ubuntu_id,,}" != "ubuntu" ]]; then
   die "This installer is for Ubuntu; detected ID='${ubuntu_id:-unknown}'."
 fi
 
-openvsp_version="3.46.0"
+openvsp_version="3.47.0"
 deb_url=""
 case "$ubuntu_version_id" in
   24.04)
@@ -75,7 +75,6 @@ case "$ubuntu_version_id" in
     die "Unsupported Ubuntu version '$ubuntu_version_id' (supported: 22.04, 24.04)."
     ;;
 esac
-
 deb_name="OpenVSP-${openvsp_version}-Ubuntu-${ubuntu_version_id}_${arch}.deb"
 deb_path="$openvsp_cache_dir/$deb_name"
 

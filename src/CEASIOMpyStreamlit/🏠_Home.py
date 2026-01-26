@@ -112,10 +112,19 @@ if __name__ == "__main__":
     col1, col2 = st.columns(2)
     
     with col1:
-        st.info("📖 **Documentation**\n\nFor detailed information, visit the [CEASIOMpy documentation](https://github.com/cfsengineering/CEASIOMpy/tree/main?tab=readme-ov-file#available-modules)")
+        st.info(
+            "📖 **Documentation**\n\n"
+            "For detailed information, visit the "
+            "[CEASIOMpy documentation](https://github.com/cfsengineering/CEASIOMpy/"
+            "tree/main?tab=readme-ov-file#available-modules)"
+        )
     
     with col2:
-        st.info("💻 **GitHub**\n\nContribute or report issues on [GitHub](https://github.com/cfsengineering/CEASIOMpy)")
+        st.info(
+            "💻 **GitHub**\n\n"
+            "Contribute or report issues on "
+            "[GitHub](https://github.com/cfsengineering/CEASIOMpy)"
+        )
 
     st.markdown("---")
     

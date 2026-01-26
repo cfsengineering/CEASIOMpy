@@ -91,4 +91,4 @@ dependencies:
     - stripe
     - watchdog
     - httpx
-    # - gmshairfoil2d>=0.2.3
+    - gmshairfoil2d>=0.2.3

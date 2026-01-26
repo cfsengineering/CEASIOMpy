@@ -86,6 +86,18 @@ validate_deb() {
   dpkg-deb --info "$1" >/dev/null 2>&1
 }
 
+download_deb() {
+  local url="$1"
+  local dest="$2"
+  if command -v curl >/dev/null 2>&1; then
+    curl -fL --retry 3 --retry-delay 2 -o "$dest" "$url"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -O "$dest" "$url"
+  else
+    die "Neither 'curl' nor 'wget' is available to download OpenVSP."
+  fi
+}
+
 if [[ -f "$deb_path" ]]; then
   if validate_deb "$deb_path"; then
     say ">>> Using cached installer: $deb_path"
@@ -97,13 +109,7 @@ fi
 
 if [[ ! -f "$deb_path" ]]; then
   say ">>> Downloading OpenVSP $openvsp_version for Ubuntu $ubuntu_version_id ($arch)"
-  if command -v curl >/dev/null 2>&1; then
-    curl -fL --retry 3 --retry-delay 2 -o "$deb_path" "$deb_url"
-  elif command -v wget >/dev/null 2>&1; then
-    wget -O "$deb_path" "$deb_url"
-  else
-    die "Neither 'curl' nor 'wget' is available to download OpenVSP."
-  fi
+  download_deb "$deb_url" "$deb_path"
 fi
 
 if ! validate_deb "$deb_path"; then
@@ -115,7 +121,19 @@ if ! validate_deb "$deb_path"; then
     say ">>> First few lines of the downloaded file:"
     head -n 5 "$deb_path" || true
   fi
-  die "Download from $deb_url did not produce a valid .deb. Verify the URL or update openvsp_version."
+  if command -v rg >/dev/null 2>&1; then
+    redirect_url="$(rg -o 'https?://[^"'"'"' ]+\\.deb' "$deb_path" | head -n 1 || true)"
+  else
+    redirect_url="$(grep -oE 'https?://[^"'"'"' ]+\\.deb' "$deb_path" | head -n 1 || true)"
+  fi
+  if [[ -n "${redirect_url:-}" ]]; then
+    say ">>> Found download link in HTML; retrying: $redirect_url"
+    rm -f "$deb_path"
+    download_deb "$redirect_url" "$deb_path"
+  fi
+  if ! validate_deb "$deb_path"; then
+    die "Download from $deb_url did not produce a valid .deb. Verify the URL or update openvsp_version."
+  fi
 fi
 
 say ">>> Installing OpenVSP (requires sudo)..."

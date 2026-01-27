@@ -14,6 +14,10 @@ Streamlit Tabs per module function.
 # ==============================================================================
 
 import streamlit as st
+from pathlib import Path
+from cpacspy.cpacspy import CPACS
+from ceasiompy.utils import get_wkdir
+from ceasiompy.utils.cpacs_utils import SimpleCPACS
 from ceasiompy.utils.geometryfunctions import get_aircrafts_list
 from CEASIOMpyStreamlit.streamlitutils import section_edit_aeromap
 from ceasiompy.utils.moduleinterfaces import get_specs_for_module
@@ -177,9 +181,35 @@ def add_gui_object(
 
 
 def add_module_tab(new_file: bool) -> None:
+    # Check if CPACS file exists (either in session state or on disk)
     if "cpacs" not in st.session_state:
-        st.warning("No CPACS file has been selected!")
-        return None
+        # Try to load from cpacs_path if available
+        cpacs_path = None
+        if "cpacs_path" in st.session_state:
+            cpacs_path = Path(st.session_state["cpacs_path"])
+        
+        # If still no path, check default location
+        if cpacs_path is None or not cpacs_path.exists():
+            wkdir = get_wkdir()
+            cpacs_path = wkdir / "ToolInput.xml"
+        
+        if cpacs_path.exists():
+            try:
+                # Try to load with full CPACS class (3D)
+                st.session_state["cpacs"] = CPACS(str(cpacs_path))
+                st.session_state["cpacs_path"] = str(cpacs_path)
+            except Exception as e:
+                # If that fails, use SimpleCPACS for 2D cases
+                try:
+                    st.session_state["cpacs"] = SimpleCPACS(str(cpacs_path))
+                    st.session_state["cpacs_path"] = str(cpacs_path)
+                    st.info("📋 Using 2D airfoil mode - some 3D features may not be available")
+                except Exception as e2:
+                    st.error(f"Failed to load CPACS file: {e2}")
+                    return None
+        else:
+            st.warning("No CPACS file has been selected!")
+            return None
 
     with st.expander("**Edit Aeromaps**", expanded=False):
         section_edit_aeromap()
@@ -232,7 +262,37 @@ def add_module_tab(new_file: bool) -> None:
                 group,
                 _,
                 _,
+                gui_cond,
             ) in inputs.values():
+                # Check gui_cond to determine if this parameter should be shown
+                if gui_cond:
+                    # Evaluate the condition
+                    # Format: "xpath==value" or "xpath!=value"
+                    try:
+                        if "==" in gui_cond:
+                            cond_xpath, cond_value = gui_cond.split("==")
+                            cond_xpath = cond_xpath.strip()
+                            cond_value = cond_value.strip()
+                            # Check if xpath exists and has the specified value
+                            if not st.session_state.cpacs.tixi.checkElement(cond_xpath):
+                                continue
+                            actual_value = st.session_state.cpacs.tixi.getTextElement(cond_xpath)
+                            if actual_value != cond_value:
+                                continue
+                        elif "!=" in gui_cond:
+                            cond_xpath, cond_value = gui_cond.split("!=")
+                            cond_xpath = cond_xpath.strip()
+                            cond_value = cond_value.strip()
+                            # Check if xpath exists and does NOT have the specified value
+                            if st.session_state.cpacs.tixi.checkElement(cond_xpath):
+                                actual_value = st.session_state.cpacs.tixi.getTextElement(cond_xpath)
+                                if actual_value == cond_value:
+                                    continue
+                    except Exception as e:
+                        # If condition evaluation fails, skip this parameter
+                        log.warning(f"Failed to evaluate gui_cond '{gui_cond}': {e}")
+                        continue
+                
                 key = f"{m}_{module}_{name.replace(' ', '')}_{group.replace(' ', '')}"
                 process_unit(name, unit)
 

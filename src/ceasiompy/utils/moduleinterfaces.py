@@ -49,6 +49,7 @@ class _Entry:
         "gui",
         "gui_group",
         "gui_name",
+        "gui_cond",
     ]
 
     def __init__(
@@ -63,6 +64,7 @@ class _Entry:
         gui=False,
         gui_name="",
         gui_group=None,
+        gui_cond=None,
         test_value=None,
         expanded=True,
     ) -> None:
@@ -78,6 +80,7 @@ class _Entry:
             gui             (bool): 'True' if entry should appear in GUI
             gui_name        (str): GUI name
             gui_group       (str): Group name for GUI generation
+            gui_cond        (str): Condition for showing GUI element (e.g., "xpath==value")
         """
 
         # General information
@@ -93,6 +96,7 @@ class _Entry:
         self.gui = gui
         self.gui_name = gui_name
         self.gui_group = gui_group
+        self.gui_cond = gui_cond
         self.expanded = expanded
 
     def filter_unit(self, unit_entry: Union[None, str]) -> Union[None, str]:
@@ -160,6 +164,7 @@ class CPACSInOut:
                 entry.gui_group,
                 test_value,
                 entry.expanded,
+                entry.gui_cond,
             )
 
         return gui_settings_dict

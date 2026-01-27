@@ -31,6 +31,7 @@ from urllib.parse import urlparse
 from ceasiompy.utils import get_wkdir
 from ceasiompy.utils.ceasiompyutils import parse_bool
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH, GEOM_XPATH
+from ceasiompy.utils.cpacs_utils import create_minimal_cpacs_2d
 from CEASIOMpyStreamlit.streamlitutils import create_sidebar
 
 # Airfoil generation functions (optional)
@@ -123,6 +124,107 @@ def _enforce_session_token() -> None:
 # =================================================================================================
 #    FUNCTIONS
 # =================================================================================================
+
+
+def save_airfoil_and_create_cpacs(
+    airfoil_name: str,
+    airfoil_x: list[float],
+    airfoil_y: list[float],
+    wkdir: Path,
+) -> CPACS:
+    """
+    Save airfoil coordinates to a .dat file and create/update a CPACS file.
+
+    Args:
+        airfoil_name: Name of the airfoil (e.g., "0012", "e211")
+        airfoil_x: List of x coordinates
+        airfoil_y: List of y coordinates
+        wkdir: Working directory path
+
+    Returns:
+        CPACS object with the airfoil profile reference
+    """
+    # Create profiles directory if it doesn't exist
+    profiles_dir = wkdir / "profiles"
+    profiles_dir.mkdir(parents=True, exist_ok=True)
+
+    # Save airfoil coordinates to .dat file
+    airfoil_filename = f"airfoil_{airfoil_name}.dat"
+    airfoil_path = profiles_dir / airfoil_filename
+
+    with open(airfoil_path, "w") as f:
+        f.write(f"{airfoil_name}\n")
+        for x, y in zip(airfoil_x, airfoil_y):
+            f.write(f"{x:.8f} {y:.8f}\n")
+
+    # Create or update CPACS file
+    cpacs_path = wkdir / "ToolInput.xml"
+
+    if cpacs_path.exists():
+        # Update existing CPACS - open with TIXI for 2D
+        tixi = Tixi3()
+        tixi.open(str(cpacs_path))
+    else:
+        # Create minimal CPACS structure for 2D airfoil
+        tixi = create_minimal_cpacs_2d(cpacs_path, f"2D Airfoil Analysis - {airfoil_name}")
+
+    # Add airfoil profile to CPACS
+    airfoil_uid = f"airfoil_{airfoil_name}"
+
+    # Create airfoil node
+    airfoils_xpath = "/cpacs/vehicles/profiles/wingAirfoils"
+    create_branch(tixi, airfoils_xpath)
+
+    # Check if airfoil already exists, if so remove it
+    try:
+        existing_idx = 1
+        while True:
+            test_xpath = f"{airfoils_xpath}/wingAirfoil[{existing_idx}]"
+            try:
+                existing_uid = tixi.getTextAttribute(test_xpath, "uID")
+                if existing_uid == airfoil_uid:
+                    tixi.removeElement(test_xpath)
+                    break
+                existing_idx += 1
+            except Exception:
+                break
+    except Exception:
+        pass
+
+    # Add new airfoil
+    airfoil_xpath = f"{airfoils_xpath}/wingAirfoil"
+    tixi.createElement(airfoils_xpath, "wingAirfoil")
+
+    # Get the index of the newly created airfoil
+    n_airfoils = tixi.getNamedChildrenCount(airfoils_xpath, "wingAirfoil")
+    airfoil_xpath = f"{airfoils_xpath}/wingAirfoil[{n_airfoils}]"
+
+    tixi.addTextAttribute(airfoil_xpath, "uID", airfoil_uid)
+
+    create_branch(tixi, airfoil_xpath + "/name")
+    tixi.updateTextElement(airfoil_xpath + "/name", airfoil_name)
+
+    create_branch(tixi, airfoil_xpath + "/description")
+    tixi.updateTextElement(airfoil_xpath + "/description", f"2D airfoil profile {airfoil_name}")
+
+    # Add point list with file reference
+    create_branch(tixi, airfoil_xpath + "/pointList")
+    point_list_xpath = airfoil_xpath + "/pointList"
+
+    # Reference to external file
+    create_branch(tixi, point_list_xpath + "/file")
+    tixi.updateTextElement(point_list_xpath + "/file", str(airfoil_path))
+
+    # Set geometry mode to 2D
+    create_branch(tixi, GEOMETRY_MODE_XPATH)
+    tixi.updateTextElement(GEOMETRY_MODE_XPATH, "2D")
+
+    # Save CPACS file using TIXI
+    tixi.save(str(cpacs_path), True)
+    tixi.close()
+
+    # Return the path for reference
+    return cpacs_path
 
 
 def convert_vsp3_to_cpacs(vsp3_path: Path, *, output_dir: Path) -> Path:
@@ -601,24 +703,45 @@ def section_2d_airfoil() -> None:
                                 st.session_state["airfoil_code"] = naca_code
 
                             # Extract x and y coordinates (coords is [N, 3] with z=0)
-                            st.session_state["airfoil_x"] = coords[:, 0].tolist()
-                            st.session_state["airfoil_y"] = coords[:, 1].tolist()
+                            airfoil_x = coords[:, 0].tolist()
+                            airfoil_y = coords[:, 1].tolist()
 
-                            # Save to CPACS if available
-                            if "cpacs" in st.session_state:
-                                cpacs = st.session_state["cpacs"]
-                                create_branch(cpacs.tixi, GEOM_XPATH + "/airfoilType")
-                                if st.session_state["airfoil_type"] == "NACA":
-                                    cpacs.tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "NACA")
-                                    create_branch(cpacs.tixi, GEOM_XPATH + "/airfoilCode")
-                                    cpacs.tixi.updateTextElement(GEOM_XPATH + "/airfoilCode", naca_code)
-                                else:
-                                    cpacs.tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "Custom")
-                                    create_branch(cpacs.tixi, GEOM_XPATH + "/airfoilName")
-                                    cpacs.tixi.updateTextElement(GEOM_XPATH + "/airfoilName", naca_code)
-                                cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
+                            st.session_state["airfoil_x"] = airfoil_x
+                            st.session_state["airfoil_y"] = airfoil_y
 
-                            st.success(f"Airfoil '{naca_code}' generated successfully with {len(coords)} points")
+                            # Save airfoil to .dat file and create/update CPACS
+                            cpacs_path = save_airfoil_and_create_cpacs(
+                                airfoil_name=naca_code,
+                                airfoil_x=airfoil_x,
+                                airfoil_y=airfoil_y,
+                                wkdir=wkdir,
+                            )
+
+                            # Store path in session state
+                            st.session_state["cpacs_path"] = str(cpacs_path)
+
+                            # Also save geometry mode and airfoil type to CPACS
+                            tixi = Tixi3()
+                            tixi.open(str(cpacs_path))
+                            
+                            create_branch(tixi, GEOM_XPATH + "/airfoilType")
+                            if st.session_state["airfoil_type"] == "NACA":
+                                tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "NACA")
+                                create_branch(tixi, GEOM_XPATH + "/airfoilCode")
+                                tixi.updateTextElement(GEOM_XPATH + "/airfoilCode", naca_code)
+                            else:
+                                tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "Custom")
+                                create_branch(tixi, GEOM_XPATH + "/airfoilName")
+                                tixi.updateTextElement(GEOM_XPATH + "/airfoilName", naca_code)
+
+                            tixi.save(str(cpacs_path), True)
+                            tixi.close()
+
+                            st.success(
+                                f"✓ Airfoil '{naca_code}' generated with {len(coords)} points\n\n"
+                                f"📄 Saved to: `profiles/airfoil_{naca_code}.dat`\n\n"
+                                f"📋 CPACS updated: `ToolInput.xml`"
+                            )
                         except Exception as e:
                             st.error(f"Failed to generate airfoil: {str(e)}")
                             st.info("For NACA airfoils, use 4 digits (e.g., 0012, 2412). "
@@ -662,21 +785,45 @@ def section_2d_airfoil() -> None:
 
                     if len(coords_data) > 0:
                         coords = np.array(coords_data)
-                        st.session_state["airfoil_x"] = coords[:, 0].tolist()
-                        st.session_state["airfoil_y"] = coords[:, 1].tolist()
+                        airfoil_x = coords[:, 0].tolist()
+                        airfoil_y = coords[:, 1].tolist()
+
+                        st.session_state["airfoil_x"] = airfoil_x
+                        st.session_state["airfoil_y"] = airfoil_y
                         st.session_state["airfoil_type"] = "Custom"
                         st.session_state["airfoil_file"] = str(airfoil_path)
 
-                        # Save to CPACS if available
-                        if "cpacs" in st.session_state:
-                            cpacs = st.session_state["cpacs"]
-                            create_branch(cpacs.tixi, GEOM_XPATH + "/airfoilType")
-                            cpacs.tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "Custom")
-                            create_branch(cpacs.tixi, GEOM_XPATH + "/airfoilName")
-                            cpacs.tixi.updateTextElement(GEOM_XPATH + "/airfoilName", uploaded_file.name.split('.')[0])
-                            cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
+                        # Extract airfoil name from filename
+                        airfoil_name = uploaded_file.name.split('.')[0]
 
-                        st.success(f"Airfoil profile '{uploaded_file.name}' loaded successfully with {len(coords)} points")
+                        # Save airfoil to .dat file and create/update CPACS
+                        cpacs_path = save_airfoil_and_create_cpacs(
+                            airfoil_name=airfoil_name,
+                            airfoil_x=airfoil_x,
+                            airfoil_y=airfoil_y,
+                            wkdir=wkdir,
+                        )
+
+                        # Store path in session state
+                        st.session_state["cpacs_path"] = str(cpacs_path)
+
+                        # Also save geometry mode and airfoil type to CPACS
+                        tixi = Tixi3()
+                        tixi.open(str(cpacs_path))
+                        
+                        create_branch(tixi, GEOM_XPATH + "/airfoilType")
+                        tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "Custom")
+                        create_branch(tixi, GEOM_XPATH + "/airfoilName")
+                        tixi.updateTextElement(GEOM_XPATH + "/airfoilName", airfoil_name)
+                        
+                        tixi.save(str(cpacs_path), True)
+                        tixi.close()
+
+                        st.success(
+                            f"✓ Airfoil profile '{uploaded_file.name}' loaded with {len(coords)} points\n\n"
+                            f"📄 Saved to: `profiles/airfoil_{airfoil_name}.dat`\n\n"
+                            f"📋 CPACS updated: `ToolInput.xml`"
+                        )
                     else:
                         st.error("No valid coordinate data found in the file")
                 except Exception as e:

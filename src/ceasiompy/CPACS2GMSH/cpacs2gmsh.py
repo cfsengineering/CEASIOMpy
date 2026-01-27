@@ -42,9 +42,11 @@ from cpacspy.cpacsfunctions import (
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
+from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import SU2MESH_XPATH, GEOMETRY_MODE_XPATH, GEOM_XPATH
+from ceasiompy.utils.cpacs_utils import SimpleCPACS
 from ceasiompy.CPACS2GMSH import (
     MODULE_NAME,
     CONTROL_SURFACES_LIST,
@@ -317,9 +319,10 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
         aoa = 0.0
         log.info(f"Using default angle of attack: {aoa} deg")
 
-    # Determine airfoil type (NACA or custom)
+    # Determine airfoil type and look for airfoil profile in CPACS
     airfoil_type = None
     airfoil_name = None
+    airfoil_file = None
 
     try:
         airfoil_type = tixi.getTextElement(GEOM_XPATH + "/airfoilType")
@@ -328,20 +331,64 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
         airfoil_type = "NACA"
         airfoil_name = "0012"
 
+    # Try to find airfoil profile in CPACS wingAirfoils
+    try:
+        airfoils_xpath = "/cpacs/vehicles/profiles/wingAirfoils"
+        n_airfoils = tixi.getNamedChildrenCount(airfoils_xpath, "wingAirfoil")
+
+        for i in range(1, n_airfoils + 1):
+            airfoil_xpath = f"{airfoils_xpath}/wingAirfoil[{i}]"
+            try:
+                # Try to get the airfoil file path
+                file_path = tixi.getTextElement(airfoil_xpath + "/pointList/file")
+                if file_path and Path(file_path).exists():
+                    airfoil_file = Path(file_path)
+                    # Get airfoil name from CPACS
+                    try:
+                        airfoil_name = tixi.getTextElement(airfoil_xpath + "/name")
+                    except Exception:
+                        airfoil_name = Path(file_path).stem.replace("airfoil_", "")
+                    log.info(f"Found airfoil profile in CPACS: {airfoil_file}")
+                    break
+            except Exception:
+                continue
+    except Exception as e:
+        log.debug(f"Could not search for airfoil profiles in CPACS: {e}")
+
     # Build gmshairfoil2d command
     # Note: gmshairfoil2d generates the output filename automatically as mesh_airfoil_<name>.su2
 
     cmd = [
         "gmshairfoil2d",
-        "--aoa", str(aoa),
-        "--farfield", str(farfield_radius),
-        "--airfoil_mesh_size", str(airfoil_mesh_size),
-        "--ext_mesh_size", str(ext_mesh_size),
-        "--format", "su2",
-        "--output", str(wkdir),
+        "--aoa",
+        str(aoa),
+        "--farfield",
+        str(farfield_radius),
+        "--airfoil_mesh_size",
+        str(airfoil_mesh_size),
+        "--ext_mesh_size",
+        str(ext_mesh_size),
+        "--format",
+        "su2",
+        "--output",
+        str(wkdir),
     ]
 
-    if airfoil_type == "NACA":
+    # Use airfoil file if found in CPACS, otherwise use NACA code or name
+    if airfoil_file and airfoil_file.exists():
+        # Copy airfoil file to working directory if not already there
+        if airfoil_file.parent != wkdir:
+            import shutil
+
+            local_airfoil_file = wkdir / airfoil_file.name
+            shutil.copy(airfoil_file, local_airfoil_file)
+            airfoil_file = local_airfoil_file
+
+        cmd.extend(["--airfoil_path", str(airfoil_file)])
+        log.info(f"Generating mesh using airfoil file: {airfoil_file}")
+        expected_mesh_file = wkdir / f"mesh_{airfoil_file.stem}.su2"
+
+    elif airfoil_type == "NACA":
         if airfoil_name is None:
             try:
                 airfoil_name = tixi.getTextElement(GEOM_XPATH + "/airfoilCode")
@@ -350,6 +397,7 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
         cmd.extend(["--naca", airfoil_name])
         log.info(f"Generating mesh for NACA {airfoil_name} airfoil")
         expected_mesh_file = wkdir / f"mesh_airfoil_{airfoil_name}.su2"
+
     elif airfoil_type == "Custom":
         try:
             airfoil_name = tixi.getTextElement(GEOM_XPATH + "/airfoilName")
@@ -359,6 +407,7 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
         except Exception:
             log.error("Custom airfoil selected but no airfoil name provided")
             raise ValueError("Custom airfoil requires airfoilName in CPACS")
+
     else:
         log.warning(f"Unknown airfoil type: {airfoil_type}, using NACA 0012")
         cmd.extend(["--naca", "0012"])
@@ -383,14 +432,14 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
     log.info("2D airfoil processing completed.")
 
 
-def main(cpacs: CPACS, wkdir: Path) -> None:
+def main(cpacs: CPACS | SimpleCPACS, wkdir: Path) -> None:
     """
     Main function.
     Defines setup for gmsh.
 
     Args:
-        cpacs_path (str): Input CPACS path.
-        cpacs_out_path (str): Modified output CPACS path.
+        cpacs: CPACS or SimpleCPACS object
+        wkdir: Working directory path
 
     """
 
@@ -447,4 +496,25 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
 
 if __name__ == "__main__":
-    call_main(main, MODULE_NAME)
+    # Try to use standard call_main, but it will fail for 2D CPACS files
+    # In that case, we'll handle it with SimpleCPACS
+    try:
+        call_main(main, MODULE_NAME)
+    except Exception as e:
+        # If CPACS loading fails, try with SimpleCPACS for 2D mode
+        log.warning(f"Standard CPACS loading failed: {e}")
+        log.info("Attempting to load with SimpleCPACS for 2D mode...")
+
+        from ceasiompy.utils.ceasiompyutils import get_wkdir, current_workflow_dir
+
+        wkdir = current_workflow_dir()
+        cpacs_path = wkdir / "ToolInput.xml"
+
+        if cpacs_path.exists():
+            cpacs = SimpleCPACS(str(cpacs_path))
+            main(cpacs, wkdir)
+            cpacs.save_cpacs(str(cpacs_path), overwrite=True)
+            cpacs.close()
+        else:
+            log.error(f"CPACS file not found: {cpacs_path}")
+            raise

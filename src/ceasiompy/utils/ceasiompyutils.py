@@ -49,6 +49,7 @@ from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
 )
+from ceasiompy.utils.cpacs_utils import SimpleCPACS
 from typing import (
     List,
     Tuple,
@@ -388,7 +389,17 @@ def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
 
         # Run the module
         with change_working_dir(wkdir):
-            cpacs = CPACS(cpacs_in)
+            # Try loading with full CPACS (for 3D files)
+            # If it fails (e.g., 2D files without required structures), use SimpleCPACS
+            try:
+                cpacs = CPACS(cpacs_in)
+            except Exception as e:
+                log.warning(
+                    f"Standard CPACS loading failed for {cpacs_in}: {e}. "
+                    f"Attempting to load with SimpleCPACS (2D mode)."
+                )
+                cpacs = SimpleCPACS(str(cpacs_in))
+            
             if test:
                 log.info("Updating CPACS from __specs__")
                 update_cpacs_from_specs(cpacs, module_name, test)

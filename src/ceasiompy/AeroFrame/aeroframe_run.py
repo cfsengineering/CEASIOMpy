@@ -34,7 +34,7 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 
 from ceasiompy import log
-from ceasiompy.PyAVL import AVL_AEROMAP_UID_XPATH
+from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH
 from ceasiompy.AeroFrame import (
     MODULE_NAME,
     FRAMAT_TIP_DEFLECTION_XPATH,
@@ -58,7 +58,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     tixi = cpacs.tixi
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
         cpacs=cpacs,
-        uid_xpath=AVL_AEROMAP_UID_XPATH,
+        uid_xpath=SELECTED_AEROMAP_XPATH,
     )
     log.info("FLIGHT CONDITIONS:")
     log.info(f"\tAltitude          : {', '.join(str(a) for a in alt_list)} meters")

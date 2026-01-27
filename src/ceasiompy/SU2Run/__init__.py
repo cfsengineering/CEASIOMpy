@@ -54,7 +54,6 @@ MODULE_STATUS = get_module_status(
 
 # xPaths
 SU2_XPATH = CEASIOMPY_XPATH + "/aerodynamics/su2"
-SU2_AEROMAP_UID_XPATH = SU2_XPATH + "/aeroMapUID"
 SU2_NB_CPU_XPATH = SU2_XPATH + "/settings/nbCPU"
 SU2_EXTRACT_LOAD_XPATH = SU2_XPATH + "/results/extractLoads"
 SU2_UPDATE_WETTED_AREA_XPATH = SU2_XPATH + "/results/updateWettedArea"

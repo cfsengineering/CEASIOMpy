@@ -32,7 +32,6 @@ from ceasiompy.DynamicStability import (
     DYNAMICSTABILITY_ZREF_XPATH,
     DYNAMICSTABILITY_DEFAULTREF_XPATH,
     DYNAMICSTABILITY_OPEN_SDSA_XPATH,
-    DYNAMICSTABILITY_AEROMAP_UID_XPATH,
     DYNAMICSTABILITY_ALPHA_DERIVATIVES_XPATH,
     DYNAMICSTABILITY_BETA_DERIVATIVES_XPATH,
 )
@@ -46,18 +45,6 @@ cpacs_inout = CPACSInOut()
 # ==============================================================================
 #   GUI INPUTS
 # ==============================================================================
-
-cpacs_inout.add_input(
-    var_name="aeromap_uid",
-    var_type=list,
-    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
-    unit=None,
-    descr="Name of the aero map for dot-derivatives calculatations",
-    xpath=DYNAMICSTABILITY_AEROMAP_UID_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="__AEROMAP_SELECTION",
-    gui_group="Aeromap settings",
-)
 
 cpacs_inout.add_input(
     var_name="alpha_alpha_dot_derivatives",

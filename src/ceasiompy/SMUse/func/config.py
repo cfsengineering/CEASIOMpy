@@ -27,10 +27,8 @@ from typing import (
 
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.SMTrain.func.utils import level_to_str
-from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
 
 from ceasiompy import log
-from ceasiompy.SMUse import SMUSE_DATASET_XPATH
 from ceasiompy.utils.commonxpaths import SM_XPATH
 
 # =================================================================================================
@@ -44,7 +42,7 @@ def get_predictions_dataset(cpacs: CPACS) -> Dict[str, DataFrame]:
     by reading the specified aeromaps.
     """
 
-    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, SMUSE_DATASET_XPATH)
+    aeromap_uid_list = cpacs.get_aeromap_uid_list()
 
     dataset_dict: Dict[str, DataFrame] = {}
     for idx, aeromap_uid in enumerate(aeromap_uid_list, start=1):

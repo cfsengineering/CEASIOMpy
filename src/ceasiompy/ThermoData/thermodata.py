@@ -33,12 +33,12 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-from ceasiompy.SU2Run import SU2_AEROMAP_UID_XPATH
 from ceasiompy.utils.commonnames import ENGINE_BOUNDARY_CONDITIONS
 from ceasiompy.utils.commonxpaths import (
     ENGINE_BC,
     RANGE_XPATH,
     ENGINE_TYPE_XPATH,
+    SELECTED_AEROMAP_XPATH,
     RANGE_CRUISE_ALT_XPATH,
     RANGE_CRUISE_MACH_XPATH,
 )
@@ -64,7 +64,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     default_aeromap.save()
     alt_list = [alt]
     mach_list = [mach]
-    aeromap_uid = get_value_or_default(tixi, SU2_AEROMAP_UID_XPATH, "DefaultAeromap")
+    aeromap_uid = get_value_or_default(tixi, SELECTED_AEROMAP_XPATH, "DefaultAeromap")
     log.info(f"{aeromap_uid} has been created")
 
     aeromap_list = cpacs.get_aeromap_uid_list()
@@ -72,7 +72,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     if aeromap_list:
         aeromap_default = aeromap_list[0]
         log.info(f"The aeromap is {aeromap_default}")
-        aeromap_uid = get_value_or_default(tixi, SU2_AEROMAP_UID_XPATH, aeromap_default)
+        aeromap_uid = get_value_or_default(tixi, SELECTED_AEROMAP_XPATH, aeromap_default)
         activate_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
         alt_list = activate_aeromap.get("altitude").tolist()
         mach_list = activate_aeromap.get("machNumber").tolist()

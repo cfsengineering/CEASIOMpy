@@ -45,57 +45,6 @@ def safe_get_value(tixi, xpath, default_value):
     return default_value
 
 
-def aeromap_selection(xpath, key, description) -> None:
-    cpacs = st.session_state.get("cpacs", None)
-    if cpacs is None:
-        st.error("No CPACS file has been selected!")
-        return None
-    aeromap_uid_list = cpacs.get_aeromap_uid_list()
-    if not len(aeromap_uid_list):
-        st.error("You must create an aeromap in order to use this module!")
-    else:
-        value = safe_get_value(cpacs.tixi, xpath, aeromap_uid_list[0])
-        if value in aeromap_uid_list:
-            idx = aeromap_uid_list.index(value)
-        else:
-            idx = 0
-        st.radio(
-            "Select an aeromap",
-            key=key,
-            options=aeromap_uid_list,
-            index=idx,
-            help=description,
-            on_change=save_cpacs_file,
-        )
-
-
-def aeromap_checkbox(xpath, key, description) -> None:
-    cpacs = st.session_state.get("cpacs", None)
-    if cpacs is None:
-        st.error("No CPACS file has been selected!")
-        return None
-    aeromap_uid_list = cpacs.get_aeromap_uid_list()
-
-    if not len(aeromap_uid_list):
-        st.error("You must create an aeromap in order to use this module!")
-
-    else:
-        with st.columns([1, 2])[0]:
-            try:
-                default_otp = get_string_vector(cpacs.tixi, xpath)
-            except ValueError:
-                default_otp = None
-
-            st.multiselect(
-                "Select one or several aeromaps",
-                key=key,
-                options=aeromap_uid_list,
-                default=default_otp,
-                help=description,
-                on_change=save_cpacs_file,
-            )
-
-
 def path_vartype(key) -> None:
     uploaded_file = st.file_uploader(
         "Select a SU2 file",

@@ -278,7 +278,7 @@ def show_results():
         return
 
     workflow_names = [wkflow.name for wkflow in workflow_dirs][::-1]
-    default_index = max(len(workflow_names) - 1, 0)
+    default_index = 0
     chosen_workflow_name = st.selectbox(
         "Choose workflow", workflow_names, index=default_index, key="results_chosen_workflow"
     )

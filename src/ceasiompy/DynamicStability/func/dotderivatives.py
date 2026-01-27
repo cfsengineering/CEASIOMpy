@@ -60,7 +60,6 @@ from ceasiompy.DynamicStability import (
     DYNAMICSTABILITY_YREF_XPATH,
     DYNAMICSTABILITY_ZREF_XPATH,
     DYNAMICSTABILITY_DEFAULTREF_XPATH,
-    DYNAMICSTABILITY_AEROMAP_UID_XPATH,
 )
 
 # =================================================================================================

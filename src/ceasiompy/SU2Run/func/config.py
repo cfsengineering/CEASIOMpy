@@ -62,7 +62,6 @@ from typing import (
 
 from ceasiompy import log
 from ceasiompy.SU2Run import CONTROL_SURFACE_LIST
-
 from ceasiompy.utils.commonnames import (
     CONFIG_CFD_NAME,
     ACTUATOR_DISK_FILE_NAME,
@@ -72,9 +71,10 @@ from ceasiompy.utils.commonnames import (
 )
 from ceasiompy.utils.commonxpaths import (
     SU2MESH_XPATH,
-    USED_SU2_MESH_XPATH,
     ENGINE_TYPE_XPATH,
+    USED_SU2_MESH_XPATH,
     PROPELLER_THRUST_XPATH,
+    SELECTED_AEROMAP_XPATH,
     PROPELLER_BLADE_LOSS_XPATH,
     ENGINE_BC_PRESSUREOUTLET_XPATH,
     ENGINE_BC_TEMPERATUREOUTLET_XPATH,
@@ -90,7 +90,6 @@ from ceasiompy.SU2Run import (
     SU2_CFL_ADAPT_XPATH,
     SU2_TARGET_CL_XPATH,
     SU2_DAMPING_DER_XPATH,
-    SU2_AEROMAP_UID_XPATH,
     SU2_BC_FARFIELD_XPATH,
     SU2_ACTUATOR_DISK_XPATH,
     SU2_ROTATION_RATE_XPATH,
@@ -517,7 +516,7 @@ def configure_cfd_environment(
 
     """
     tixi = cpacs.tixi
-    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, SU2_AEROMAP_UID_XPATH)
+    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, SELECTED_AEROMAP_XPATH)
 
     cfg["MARKER_MOVING"] = su2_format("NONE")
     cfg["MESH_FILENAME"] = str(su2_mesh_path)

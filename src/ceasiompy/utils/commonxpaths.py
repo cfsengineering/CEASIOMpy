@@ -107,7 +107,6 @@ SPECIFIED_SUMOFILE_XPATH = CEASIOMPY_XPATH + "/SUMOAutoMesh" + "/specifiedSumoPa
 
 # EDGE
 EDGE_XPATH = CEASIOMPY_XPATH + "/aerodynamics/medge"
-EDGE_AEROMAP_UID_XPATH = EDGE_XPATH + "/aeroMapUID"
 EDGE_NB_CPU_XPATH = EDGE_XPATH + "/settings/nbCPU"
 EDGE_SOLVER_XPATH = EDGE_XPATH + "/settings/solver"
 EDGE_MAX_ITER_XPATH = EDGE_XPATH + "/settings/maxIter"

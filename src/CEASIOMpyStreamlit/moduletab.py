@@ -14,6 +14,7 @@ Streamlit Tabs per module function.
 # ==============================================================================
 
 import streamlit as st
+
 from ceasiompy.utils.geometryfunctions import get_aircrafts_list
 from CEASIOMpyStreamlit.streamlitutils import section_edit_aeromap
 from ceasiompy.utils.moduleinterfaces import get_specs_for_module
@@ -24,17 +25,11 @@ from CEASIOMpyStreamlit.guiobjects import (
     else_vartype,
     path_vartype,
     float_vartype,
-    aeromap_checkbox,
-    aeromap_selection,
     multiselect_vartype,
     add_ctrl_surf_vartype,
     safe_get_value,
 )
 
-from typing import (
-    List,
-    Dict,
-)
 from collections import OrderedDict
 
 from ceasiompy import log
@@ -98,10 +93,10 @@ def if_choice_vartype(
     session_state.xpath_to_update[xpath + "type"] = f"{key}_types"
 
 
-def order_by_gps(inputs: List) -> OrderedDict:
+def order_by_gps(inputs: list) -> OrderedDict:
     groups = list(OrderedDict.fromkeys([v[6] for v in inputs.values()]))
 
-    expanded_list: Dict[str, List[bool]] = {}
+    expanded_list: dict[str, list[bool]] = {}
     for v in inputs.values():
         group = f"{v[6]}"
         if group not in expanded_list:
@@ -135,7 +130,6 @@ def add_gui_object(
     group,
     groups_container,
     key,
-    aeromap_map,
     xpath,
     description,
     var_type,
@@ -145,11 +139,7 @@ def add_gui_object(
 
     # Iterate per group
     with groups_container[group]:
-
-        # Check if the name or var_type is in the dictionary and call the corresponding function
-        if name in aeromap_map:
-            aeromap_map[name](xpath, key, description)
-        elif var_type == "path_type":
+        if var_type == "path_type":
             path_vartype(key)
         elif var_type in vartype_map:
             vartype_map[var_type](
@@ -184,11 +174,6 @@ def add_module_tab(new_file: bool) -> None:
     section_edit_aeromap()
 
     checks(st.session_state, st.tabs)
-
-    aeromap_map = {
-        "__AEROMAP_SELECTION": aeromap_selection,
-        "__AEROMAP_CHECKBOX": aeromap_checkbox,
-    }
 
     vartype_map = {
         int: int_vartype,
@@ -254,7 +239,6 @@ def add_module_tab(new_file: bool) -> None:
                         group,
                         groups_container,
                         key,
-                        aeromap_map,
                         xpath,
                         description,
                         var_type,

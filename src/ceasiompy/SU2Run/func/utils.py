@@ -30,7 +30,10 @@ from typing import (
 )
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import USED_SU2_MESH_XPATH
+from ceasiompy.utils.commonxpaths import (
+    USED_SU2_MESH_XPATH,
+    SELECTED_AEROMAP_XPATH,
+)
 from ceasiompy.SU2Run.func import (
     SU2_FORCES_MOM,
     AERO_COEFFICIENTS,
@@ -41,7 +44,6 @@ from ceasiompy.SU2Run import (
     CONTROL_SURFACE_LIST,
     SU2_CONTROL_SURF_BOOL_XPATH,
     SU2_CONTROL_SURF_ANGLE_XPATH,
-    SU2_AEROMAP_UID_XPATH,
 )
 from ceasiompy.utils.commonnames import (
     CONFIG_CFD_NAME,
@@ -105,7 +107,7 @@ def get_aeromap_uid(tixi: Tixi3, fixed_cl: str) -> str:
     if fixed_cl == "YES":
         return "aeroMap_fixedCL_SU2"
     else:
-        return str(get_value(tixi, SU2_AEROMAP_UID_XPATH))
+        return str(get_value(tixi, SELECTED_AEROMAP_XPATH))
 
 
 def su2_format(string: str) -> str:

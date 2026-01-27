@@ -308,6 +308,12 @@ def run_gui(
             "--server.address", f"{address}"
         ]
 
+    if cloud:
+        args += [
+            "--server.enableCORS=flase",
+            "--server.enableXsrfProtection=false",
+        ]
+
     try:
         subprocess.run(
             args=args,

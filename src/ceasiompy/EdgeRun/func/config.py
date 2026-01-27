@@ -31,7 +31,6 @@ from ceasiompy.CPACS2GMSH import GMSH_SYMMETRY_XPATH
 from ceasiompy.utils.commonxpaths import (
     RANGE_XPATH,
     EDGE_MESH_XPATH,
-    EDGE_AEROMAP_UID_XPATH,
     EDGE_SOLVER_XPATH,
     EDGE_CFL_NB_XPATH,
     EDGE_MAX_ITER_XPATH,
@@ -39,6 +38,7 @@ from ceasiompy.utils.commonxpaths import (
     EDGE_NB_CPU_XPATH,
     EDGE_FIXED_CL_XPATH,
     EDGE_ABOC_XPATH,
+    SELECTED_AEROMAP_XPATH,
 )
 
 from ceasiompy import log
@@ -88,7 +88,7 @@ def edge_cfd(cpacs: CPACS, wkdir: Path):
             aeromap_default = aeromap_list[0]
             log.info(f"The aeromap is {aeromap_default}")
 
-            aeromap_uid = get_value_or_default(tixi, EDGE_AEROMAP_UID_XPATH, aeromap_default)
+            aeromap_uid = get_value_or_default(tixi, SELECTED_AEROMAP_XPATH, aeromap_default)
 
             activate_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
             alt_list = activate_aeromap.get("altitude").tolist()
@@ -112,7 +112,7 @@ def edge_cfd(cpacs: CPACS, wkdir: Path):
             aos_list = [0.0]
 
             aeromap_uid = get_value_or_default(
-                cpacs.tixi, EDGE_AEROMAP_UID_XPATH, "DefaultAeromap"
+                cpacs.tixi, SELECTED_AEROMAP_XPATH, "DefaultAeromap"
             )
             log.info(f"{aeromap_uid} has been created")
 

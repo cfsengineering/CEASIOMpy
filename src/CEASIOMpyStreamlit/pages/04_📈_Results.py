@@ -92,30 +92,29 @@ def display_results_else(path):
 
 
 def display_results(results_dir, chosen_workflow = None):
-    # Display results depending on the file type.
+    try:
+        # Display results depending on the file type.
+        container_list = [
+            "logs_container",
+            "figures_container",
+            "paraview_container",
+            "pdf_container",
+        ]
+        clear_containers(container_list)
 
-    container_list = [
-        "logs_container",
-        "figures_container",
-        "paraview_container",
-        "pdf_container",
-    ]
-    clear_containers(container_list)
+        def results_sort_key(path: Path) -> tuple[int, str]:
+            '''Priority to files, priority=0 is highest priority.'''
+            suffix = path.suffix.lower()
+            if suffix == ".pdf":
+                priority = 0
+            elif suffix == ".txt":
+                priority = 2
+            else:
+                priority = 1
+            return priority, path.name
 
-    def results_sort_key(path: Path) -> tuple[int, str]:
-        '''Priority to files, priority=0 is highest priority.'''
-        suffix = path.suffix.lower()
-        if suffix == ".pdf":
-            priority = 0
-        elif suffix == ".txt":
-            priority = 2
-        else:
-            priority = 1
-        return priority, path.name
-
-    child = None
-    for child in sorted(Path(results_dir).iterdir(), key=results_sort_key):
-        try:
+        child = None
+        for child in sorted(Path(results_dir).iterdir(), key=results_sort_key):
             if child.name in IGNORED_RESULT_FILES:
                 continue
 
@@ -182,25 +181,32 @@ def display_results(results_dir, chosen_workflow = None):
                 st.session_state.figures_container.image(str(child))
 
             elif child.suffix == ".pdf":
-                if "pdf_container" not in st.session_state:
-                    st.session_state["pdf_container"] = st.container()
-                    st.session_state.pdf_container.markdown("**PDFs**")
+                with st.container(border=True):
+                    show_pdf = st.checkbox(
+                        f"**{child.stem}**",
+                        value=True,
+                        key=f"{child}_dir_toggle",
+                    )
+                    if show_pdf:
+                        if "pdf_container" not in st.session_state:
+                            st.session_state["pdf_container"] = st.container()
+                            st.session_state.pdf_container.markdown("**PDFs**")
 
-                pdf_bytes = child.read_bytes()
-                b64_pdf = base64.b64encode(pdf_bytes).decode("ascii")
-                st.session_state.pdf_container.markdown(f"**{child.name}**")
-                st.session_state.pdf_container.download_button(
-                    "Download PDF",
-                    data=pdf_bytes,
-                    file_name=child.name,
-                    mime="application/pdf",
-                    key=f"{child}_pdf_download",
-                )
-                st.session_state.pdf_container.markdown(
-                    f'<iframe src="data:application/pdf;base64,{b64_pdf}" '
-                    'width="100%" height="700" style="border:0"></iframe>',
-                    unsafe_allow_html=True,
-                )
+                        pdf_bytes = child.read_bytes()
+                        b64_pdf = base64.b64encode(pdf_bytes).decode("ascii")
+                        st.session_state.pdf_container.markdown(f"**{child.name}**")
+                        st.session_state.pdf_container.download_button(
+                            "Download PDF",
+                            data=pdf_bytes,
+                            file_name=child.name,
+                            mime="application/pdf",
+                            key=f"{child}_pdf_download",
+                        )
+                        st.session_state.pdf_container.markdown(
+                            f'<iframe src="data:application/pdf;base64,{b64_pdf}" '
+                            'width="100%" height="900" style="border:0"></iframe>',
+                            unsafe_allow_html=True,
+                        )
 
             elif child.suffix == ".md":
                 md_text = child.read_text()
@@ -767,13 +773,19 @@ def display_results(results_dir, chosen_workflow = None):
                     )
 
             elif child.is_dir():
-                with st.expander(child.stem, expanded=False):
-                    display_results(child)
+                with st.container(border=True):
+                    show_dir = st.checkbox(
+                        f"**{child.stem}**",
+                        value=True,
+                        key=f"{child}_dir_toggle",
+                    )
+                    if show_dir:
+                        display_results(child)
 
-        except BaseException as e:
-            log.warning(f'{child=} {e=}')
-            st.warning(f"{child=} {e=}")
-            display_results_else(results_dir)
+    except BaseException as e:
+        log.warning(f'{child=} {e=}')
+        st.warning(f"{child=} {e=}")
+        display_results_else(results_dir)
 
 def open_paraview(file):
     """Open Paraview with the file pass as argument."""

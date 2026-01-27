@@ -12,25 +12,23 @@ Streamlit page to run a CEASIOMpy workflow
 
 """
 
+# Futures
+from __future__ import annotations
+
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
 
-import sys
 import psutil
-import subprocess
-import json
 import streamlit as st
 
-from streamlit_autorefresh import st_autorefresh
 from CEASIOMpyStreamlit.streamlitutils import (
     create_sidebar,
     save_cpacs_file,
-    rm_wkflow_status,
-    get_last_workflow,
 )
 
 from pathlib import Path
+from ceasiompy.utils.workflowclasses import Workflow
 
 
 # ==============================================================================
@@ -39,6 +37,7 @@ from pathlib import Path
 
 # Set the current page in session state
 PAGE_NAME = "Run Workflow"
+STATUS_PLACEHOLDER_KEY = "workflow_status_placeholder"
 
 HOW_TO_TEXT = (
     "### How to Run your workflow?\n"
@@ -52,109 +51,78 @@ HOW_TO_TEXT = (
 # ==============================================================================
 
 
-def terminate_previous_workflows() -> None:
-    """
-    Terminate any previously running workflow processes.
-    """
-    # First, terminate the workflow process tracked in the Streamlit session (if any)
-    workflow_pid = st.session_state.get("workflow_pid")
-    if workflow_pid is not None:
-        try:
-            proc = psutil.Process(workflow_pid)
+def get_status_placeholder():
+    """Get or create the placeholder used to display module status."""
 
-            # Terminate child processes first
-            for child in proc.children(recursive=True):
-                try:
-                    child.terminate()
-                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                    continue
-
-            proc.terminate()
-            _, alive = psutil.wait_procs([proc], timeout=3)
-
-            # Force kill remaining processes if they did not terminate gracefully
-            for p in alive:
-                try:
-                    p.kill()
-                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                    continue
-
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            pass
-        finally:
-            # Clear stored PID even if something went wrong
-            st.session_state["workflow_pid"] = None
-
-    # Fallback: look for any stray runworkflow.py processes and terminate them
-    for proc in psutil.process_iter(attrs=["pid", "cmdline"]):
-        try:
-            cmdline = proc.info.get("cmdline") or []
-            if any("runworkflow.py" in part for part in cmdline):
-                proc.terminate()
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            continue
-
-    rm_wkflow_status()
+    if STATUS_PLACEHOLDER_KEY not in st.session_state:
+        st.session_state[STATUS_PLACEHOLDER_KEY] = st.empty()
+    return st.session_state[STATUS_PLACEHOLDER_KEY]
 
 
-def get_modules_status():
-    """Load the module status of the last workflow if available."""
-
-    if "workflow" not in st.session_state:
-        return None
-
-    wkflow_dir = get_last_workflow()
-    if wkflow_dir is None:
-        return None
-
-    status_file = Path(wkflow_dir, "workflow_status.json")
-    if not status_file.exists():
-        return None
-
-    try:
-        with open(status_file, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return None
-
-
-def display_modules_status() -> None:
+def progress_callback(status_list: list = None) -> None:
     """Display each module with its current status."""
 
-    status_list = get_modules_status()
-    if not status_list:
-        st.write("No workflow is running.")
-        return None
+    if status_list is not None:
+        st.session_state.workflow_status_list = status_list
 
-    solver_running = any(item.get("status", "waiting") == "running" for item in status_list)
-    has_failed = any(item.get("status") == "failed" for item in status_list)
+    status_container = get_status_placeholder()
+    status_container.empty()
 
-    st.markdown("#### Modules status")
-    for item in status_list:
-        name = item.get("name", "Unknown")
-        status = item.get("status", "waiting")
+    with status_container.container():
+        if status_list is None or not status_list:
+            st.write("No workflow is running.")
+            return None
 
-        if status == "running":
-            icon = "🟡"
-        elif status == "finished":
-            icon = "🟢"
-        elif status == "failed":
-            icon = "❌"
-        else:
-            icon = "⚪"
+        solver_running = any(item.get("status", "waiting") == "running" for item in status_list)
+        has_failed = any(item.get("status") == "failed" for item in status_list)
 
-        st.write(f"{icon} **{name}** — {status}")
+        finished: bool = True
+        for item in status_list:
+            name = item.get("name", "Unknown")
+            status = item.get("status", "waiting")
 
-    if has_failed:
-        errors = [
-            f"- {item.get('name', 'Unknown')}: {item.get('error', 'Unknown error')}"
-            for item in status_list
-            if item.get("status") == "failed"
-        ]
-        err_msg = "Workflow failed.\n" + "\n".join(errors)
-        st.error(err_msg)
-    elif not solver_running:
-        st.info("Workflow finished running, go in results page for analysis.")
+            if status == "running":
+                icon = "🟡"
+                finished = False
+            elif status == "finished":
+                icon = "🟢"
+            elif status == "failed":
+                icon = "❌"
+                finished = False
+            else:
+                icon = "⚪"
+                finished = False
+
+            st.write(f"{icon} **{name}** — {status}")
+
+        if has_failed:
+            errors = [
+                f"- {item.get('name', 'Unknown')}: {item.get('error', 'Unknown error')}"
+                for item in status_list
+                if item.get("status") == "failed"
+            ]
+            err_msg = "Workflow failed.\n" + "\n".join(errors)
+            st.error(err_msg)
+        elif not solver_running and finished:
+            st.info("Workflow finished running, go in results page for analysis.")
+
+
+def terminate_solver_processes() -> None:
+    """Terminate known solver processes spawned by workflows."""
+
+    targets = {"avl", "su2_cfd", "su2_cfd.exe"}
+    for proc in psutil.process_iter(["name", "cmdline"]):
+        try:
+            name = (proc.info.get("name") or "").lower()
+            cmdline = " ".join(proc.info.get("cmdline") or []).lower()
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+
+        if any(target in name or target in cmdline for target in targets):
+            try:
+                proc.terminate()
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
 
 
 def workflow_buttons() -> None:
@@ -167,8 +135,6 @@ def workflow_buttons() -> None:
 
     with col1:
         if st.button("Run ▶️", help="Run the workflow"):
-            rm_wkflow_status()
-            terminate_previous_workflows()
             st.session_state.workflow.modules_list = st.session_state.workflow_modules
             st.session_state.workflow.optim_method = "None"
             st.session_state.workflow.module_optim = ["NO"] * len(
@@ -178,21 +144,22 @@ def workflow_buttons() -> None:
 
             # Run workflow from an external script (separate process)
             config_path = Path(st.session_state.workflow.working_dir, "ceasiompy.cfg")
-            script_path = Path(__file__).resolve().parents[1] / "runworkflow.py"
+            if not config_path.exists():
+                raise FileNotFoundError(f"Config file not found: {config_path}")
 
-            # Launch the workflow in a separate process so it can be
-            # terminated independently of the Streamlit GUI.
-            process = subprocess.Popen(
-                [sys.executable, str(script_path), str(config_path)],
-                cwd=script_path.parent,
-            )
+            workflow = Workflow()
+            workflow.from_config_file(config_path)
+            workflow.set_workflow()
 
-            # Store the PID so that terminate_previous_workflows can stop it later
-            st.session_state["workflow_pid"] = process.pid
+            with st.spinner(
+                'CEASIOMpy is running...',
+                show_time=True,
+            ):
+                workflow.run_workflow(progress_callback=progress_callback)
 
     with col2:
         if st.button("Stop ✖️", help="Terminate the workflow"):
-            terminate_previous_workflows()
+            terminate_solver_processes()
 
 
 # =================================================================================================
@@ -233,14 +200,10 @@ if __name__ == "__main__":
         display_buttons = False
 
     if display_buttons:
-        col_left, col_right = st.columns([2, 1])
-        with col_left:
-            display_modules_status()
-        with col_right:
-            workflow_buttons()
-
-    # AutoRefresh for logs
-    st_autorefresh(interval=1000, limit=10000, key="auto_refresh")
+        workflow_buttons()
+        _, right_col = st.columns(spec=[0.01, 0.99])
+        with right_col:
+            progress_callback(st.session_state.get("workflow_status_list"))
 
     # Update last_page
     st.session_state.last_page = PAGE_NAME

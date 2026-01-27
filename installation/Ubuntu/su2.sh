@@ -67,6 +67,25 @@ done
 
 current_dir="$(pwd)"
 
+apt_update() {
+  local tries=5
+  local delay=5
+  local attempt=1
+
+  while (( attempt <= tries )); do
+    if sudo apt-get update -o Acquire::Retries=3 -o Acquire::http::Timeout=30; then
+      return 0
+    fi
+    if (( attempt == tries )); then
+      echo "apt-get update failed after ${tries} attempts." >&2
+      return 1
+    fi
+    echo "apt-get update failed (attempt ${attempt}/${tries}); retrying in ${delay}s..." >&2
+    sleep "$delay"
+    attempt=$((attempt + 1))
+  done
+}
+
 add_su2_to_shellrc() {
   local shellrc="$1"
   local su2_run_path="$2"
@@ -103,7 +122,7 @@ if [[ "$with_mpi" == "true" ]]; then
   cd "$su2_dir"
 
   echo "Installing build dependencies (requires sudo)..."
-  sudo apt-get update
+  apt_update
   sudo apt-get install -y --no-install-recommends \
     build-essential \
     ca-certificates \
@@ -158,7 +177,7 @@ else
   echo "Installing SU2 v$su2_version without MPI into: $su2_root"
 
   echo "Installing download/unzip dependencies (requires sudo)..."
-  sudo apt-get update
+  apt_update
   sudo apt-get install -y --no-install-recommends \
     ca-certificates \
     wget \

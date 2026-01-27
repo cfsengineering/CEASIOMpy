@@ -31,6 +31,38 @@ sudo "$pkg_mgr" -y install \
     hdf5-devel \
     lapack-devel \
     blas-devel || { echo "Failed to install required dependencies"; exit 1; }
+install_if_available() {
+    local pkg="$1"
+
+    if "$pkg_mgr" -q list installed "$pkg" >/dev/null 2>&1; then
+        echo "Package $pkg is already installed."
+        return 0
+    fi
+
+    if "$pkg_mgr" -q list available "$pkg" >/dev/null 2>&1; then
+        if ! sudo "$pkg_mgr" -y install "$pkg"; then
+            echo "Failed to install $pkg"
+            return 1
+        fi
+    else
+        echo "Package $pkg not available in enabled repositories; skipping."
+    fi
+}
+
+deps=(
+    gfortran
+    libgfortran
+    mesa-libGLU
+    xorg-x11-server-Xvfb
+    hdf5
+    hdf5-devel
+    lapack-devel
+    blas-devel
+)
+
+for pkg in "${deps[@]}"; do
+    install_if_available "$pkg" || { echo "Failed to install required dependencies"; exit 1; }
+done
 
 echo "--> Checking if HDF5 libraries are linked correctly"
 if ! ldconfig -p | grep -q "libhdf5.so"; then

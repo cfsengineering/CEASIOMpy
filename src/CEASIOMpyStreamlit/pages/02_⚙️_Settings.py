@@ -59,9 +59,7 @@ def section_settings():
     # Make sure to run at least once to pre-load the default values
     # of __specs__.py files. Then save each modifications independently.
     # Important: Needs to be called after add_module_tab.
-    if "save_cpacs_file_run" not in st.session_state:
-        save_cpacs_file(logging=False)
-        st.session_state.save_cpacs_file_run = True
+    save_cpacs_file(logging=False)
 
 
 # =================================================================================================

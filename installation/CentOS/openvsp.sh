@@ -154,10 +154,12 @@ if [[ "$(uname -s)" != "Linux" ]]; then
   die "This installer is for Linux; detected: $(uname -s)"
 fi
 
+id=""
 version_id=""
 if [[ -r /etc/os-release ]]; then
   # shellcheck disable=SC1091
   . /etc/os-release
+  id="${ID:-}"
   version_id="${VERSION_ID:-}"
 fi
 
@@ -177,10 +179,17 @@ fi
 
 find_ceasiompy_python() {
   local user_home=""
+  local sudo_user_home=""
   user_home="$(getent passwd "$(id -un)" 2>/dev/null | cut -d: -f6 || true)"
   [[ -n "$user_home" ]] || user_home="$HOME"
+  if [[ -n "${SUDO_USER:-}" ]]; then
+    sudo_user_home="$(getent passwd "$SUDO_USER" 2>/dev/null | cut -d: -f6 || true)"
+  fi
 
   local candidates=(
+    "${sudo_user_home:-}/miniconda3/envs/ceasiompy/bin/python"
+    "${sudo_user_home:-}/miniforge3/envs/ceasiompy/bin/python"
+    "${sudo_user_home:-}/mambaforge/envs/ceasiompy/bin/python"
     "$HOME/miniconda3/envs/ceasiompy/bin/python"
     "$user_home/miniconda3/envs/ceasiompy/bin/python"
     "/home/$(id -un)/miniconda3/envs/ceasiompy/bin/python"
@@ -194,9 +203,17 @@ find_ceasiompy_python() {
 
   local conda_bin=""
   conda_bin="$(command -v conda || command -v mamba || true)"
+  if [[ -z "$conda_bin" && -n "${SUDO_USER:-}" ]]; then
+    conda_bin="$(command -v sudo >/dev/null 2>&1 && sudo -u "$SUDO_USER" command -v conda 2>/dev/null || true)"
+    [[ -n "$conda_bin" ]] || conda_bin="$(command -v sudo >/dev/null 2>&1 && sudo -u "$SUDO_USER" command -v mamba 2>/dev/null || true)"
+  fi
   if [[ -n "$conda_bin" ]]; then
     local env_path=""
-    env_path="$("$conda_bin" info --envs 2>/dev/null | awk '$1=="ceasiompy"{print $NF; exit}')"
+    if [[ -n "${SUDO_USER:-}" ]]; then
+      env_path="$(sudo -u "$SUDO_USER" "$conda_bin" info --envs 2>/dev/null | awk '$1=="ceasiompy"{print $NF; exit}')"
+    else
+      env_path="$("$conda_bin" info --envs 2>/dev/null | awk '$1=="ceasiompy"{print $NF; exit}')"
+    fi
     if [[ -n "$env_path" ]]; then
       candidates+=("$env_path/bin/python")
     fi
@@ -726,9 +743,7 @@ bundle_openvsp_runtime_libstdcpp_if_needed() {
   [[ -n "$src_libgcc" ]] && say ">>>   libgcc_s:  $src_libgcc"
   mkdir -p "$openvsp_prefix/lib"
   cp -f "$src_libstdcpp" "$openvsp_prefix/lib/" || true
-  if [[ -n "$src_libgcc" ]]; then
-    cp -f "$src_libgcc" "$openvsp_prefix/lib/" || true
-  fi
+  [[ -n "$src_libgcc" ]] && cp -f "$src_libgcc" "$openvsp_prefix/lib/" || true
 }
 
 write_openvsp_wrapper
@@ -742,12 +757,22 @@ if command -v readelf >/dev/null 2>&1; then
 fi
 
 python_path_line="export PYTHONPATH=\"$openvsp_prefix/python:\$PYTHONPATH\""
+# Ensure OpenVSP runtime libs and the CEASIOMpy Python lib are discoverable.
+py_prefix="$("$python_exec" -c 'import sys; print(sys.prefix)' 2>/dev/null || true)"
+py_lib_path=""
+if [[ -n "$py_prefix" && -d "$py_prefix/lib" ]]; then
+  py_lib_path="$py_prefix/lib"
+fi
+ld_paths=()
+[[ -n "$py_lib_path" ]] && ld_paths+=("$py_lib_path")
+ld_paths+=("$openvsp_prefix/lib")
+ld_library_path_line="export LD_LIBRARY_PATH=\"$(IFS=:; echo "${ld_paths[*]}"):\${LD_LIBRARY_PATH:-}\""
 # OpenVSP installs binaries into $openvsp_prefix; keep $openvsp_prefix/bin for compatibility with
 # alternative install layouts.
 path_line="export PATH=\"$openvsp_prefix:$openvsp_prefix/bin:\$PATH\""
 profile_files=("$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.zshrc")
 
-say ">>> Updating shell configuration files (PATH/PYTHONPATH)..."
+say ">>> Updating shell configuration files (PATH/PYTHONPATH/LD_LIBRARY_PATH)..."
 for file in "${profile_files[@]}"; do
   if [[ -e "$file" ]]; then
     [[ -w "$file" ]] || { say ">>> Warning: '$file' is not writable; skipping."; continue; }
@@ -756,6 +781,7 @@ for file in "${profile_files[@]}"; do
   fi
   grep -qxF "$path_line" "$file" || echo "$path_line" >> "$file"
   grep -qxF "$python_path_line" "$file" || echo "$python_path_line" >> "$file"
+  grep -qxF "$ld_library_path_line" "$file" || echo "$ld_library_path_line" >> "$file"
 done
 
 vsp_bin=""

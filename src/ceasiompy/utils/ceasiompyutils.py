@@ -15,6 +15,7 @@ import os
 import sys
 import math
 import shutil
+import argparse
 import importlib
 import subprocess
 import streamlit as st
@@ -42,7 +43,7 @@ from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
 from unittest.mock import MagicMock
-from tixi3.tixi3wrapper import Tixi3  # type: ignore
+from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from cpacspy.cpacspy import (
     CPACS,
@@ -137,54 +138,58 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
     inputs = cpacsin_out.get_gui_dict()
 
     for name, default_value, var_type, _, xpath, _, _, test_value, _ in inputs.values():
-        if test:
-            value = test_value
-        else:
-            value = default_value
-        parts = xpath.strip("/").split("/")
-        for i in range(1, len(parts) + 1):
-            path = "/" + "/".join(parts[:i])
-            if not tixi.checkElement(path):
-                tixi.createElement("/" + "/".join(parts[: i - 1]), parts[i - 1])
-
-        # Check if the name or var_type is in the dictionary and call the corresponding function
-        if name in AEROMAP_LIST:
-            aeromap_uid_list = cpacs.get_aeromap_uid_list()
-            if not len(aeromap_uid_list):
-                log.error("You must create an aeromap in order to use this module !")
+        try:
+            if test:
+                value = test_value
             else:
-                # Use first aeromap
-                tixi.updateTextElement(xpath, aeromap_uid_list[0])
+                value = default_value
+            parts = xpath.strip("/").split("/")
+            for i in range(1, len(parts) + 1):
+                path = "/" + "/".join(parts[:i])
+                if not tixi.checkElement(path):
+                    tixi.createElement("/" + "/".join(parts[: i - 1]), parts[i - 1])
 
-        elif var_type == str:
-            tixi.updateTextElement(xpath, value)
-        elif var_type == float:
-            tixi.updateDoubleElement(xpath, value, format="%g")
-        elif var_type == bool:
-            tixi.updateBooleanElement(xpath, value)
-        elif var_type == int:
-            tixi.updateIntegerElement(xpath, value, format="%d")
-        elif var_type == list:
-            tixi.updateTextElement(xpath, str(value[0]))
-        elif var_type == "DynamicChoice":
-            create_branch(tixi, xpath + "type")
-            tixi.updateTextElement(xpath + "type", str(value[0]))
-        elif var_type == "multiselect":
-            tixi.updateTextElement(xpath, ";".join(str(ele) for ele in value))
-        elif var_type == "AddGeometricParameter":
-            create_branch(tixi, xpath + "/status_range")
-            tixi.updateTextElement(xpath + "/status_range", str(value))
-            if value:
-                create_branch(tixi, xpath + "/range_value")
-                tixi.updateDoubleElement(xpath + "/range_value", value, format="%f")
-        elif var_type == "RangeAeromap":
-            create_branch(tixi, xpath + "/status_param")
-            tixi.updateTextElement(xpath + "/range_param", str(value))
-            if value:
-                create_branch(tixi, xpath + "/range_param")
-                tixi.updateDoubleElement(xpath + "/range_param", value, format="%f")
-        else:
-            tixi.updateTextElement(xpath, value)
+            # Check if the name or var_type is in the dictionary
+            # and call the corresponding function
+            if name in AEROMAP_LIST:
+                aeromap_uid_list = cpacs.get_aeromap_uid_list()
+                if not len(aeromap_uid_list):
+                    log.error("You must create an aeromap in order to use this module !")
+                else:
+                    # Use first aeromap
+                    tixi.updateTextElement(xpath, aeromap_uid_list[0])
+
+            elif var_type == str:
+                tixi.updateTextElement(xpath, value)
+            elif var_type == float:
+                tixi.updateDoubleElement(xpath, value, format="%g")
+            elif var_type == bool:
+                tixi.updateBooleanElement(xpath, value)
+            elif var_type == int:
+                tixi.updateIntegerElement(xpath, value, format="%d")
+            elif var_type == list:
+                tixi.updateTextElement(xpath, str(value[0]))
+            elif var_type == "DynamicChoice":
+                create_branch(tixi, xpath + "type")
+                tixi.updateTextElement(xpath + "type", str(value[0]))
+            elif var_type == "multiselect":
+                tixi.updateTextElement(xpath, ";".join(str(ele) for ele in value))
+            elif var_type == "AddGeometricParameter":
+                create_branch(tixi, xpath + "/status_range")
+                tixi.updateTextElement(xpath + "/status_range", str(value))
+                if value:
+                    create_branch(tixi, xpath + "/range_value")
+                    tixi.updateDoubleElement(xpath + "/range_value", value, format="%f")
+            elif var_type == "RangeAeromap":
+                create_branch(tixi, xpath + "/status_param")
+                tixi.updateTextElement(xpath + "/range_param", str(value))
+                if value:
+                    create_branch(tixi, xpath + "/range_param")
+                    tixi.updateDoubleElement(xpath + "/range_param", value, format="%f")
+            else:
+                tixi.updateTextElement(xpath, value)
+        except Exception as e:
+            raise ValueError(f"Issue {var_type=} {e=} at {xpath=} for {value=}")
 
 
 @contextmanager
@@ -551,6 +556,17 @@ def get_version(software_name: str) -> str:
         return ""
 
 
+def parse_bool(value: str) -> bool:
+    """Parse a CLI boolean value."""
+
+    normalized = str(value).strip().lower()
+    if normalized in {"1", "true", "t", "yes", "y", "on"}:
+        return True
+    if normalized in {"0", "false", "f", "no", "n", "off"}:
+        return False
+    raise argparse.ArgumentTypeError(f"Invalid boolean value: {value!r}")
+
+
 def run_software(
     software_name: str,
     arguments: List[str],
@@ -603,11 +619,10 @@ def run_software(
 
     if xvfb:
         xvfb_run = shutil.which("xvfb-run")
-        if xvfb_run:
-            log.info(f'xvfb {xvfb_run=}')
-            command_line = ["xvfb-run", "--auto-servernum"] + command_line
+        if xvfb_run is None:
+            log.warning("xvfb-run not found. Proceeding without it.")
         else:
-            log.warning(f'{xvfb=}')
+            command_line = ["xvfb-run", "--auto-servernum"] + command_line
     else:
         log.warning("xvfb-run not found. Proceeding without it.")
 

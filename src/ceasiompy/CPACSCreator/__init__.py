@@ -14,17 +14,23 @@ Initialization for CPACSCreator module.
 #   IMPORTS
 # ==============================================================================
 
+import os
+
+from ceasiompy.utils.ceasiompyutils import parse_bool
+
 from pathlib import Path
 
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
 
+# If CEASIOMPY_CLOUD do not display
+
 # ===== Module Status =====
-MODULE_STATUS = True
+MODULE_STATUS = not parse_bool(os.environ.get("CEASIOMPY_CLOUD", False))
 
 # ===== Include GUI =====
-INCLUDE_GUI = True
+INCLUDE_GUI = not parse_bool(os.environ.get("CEASIOMPY_CLOUD", False))
 
 # ===== Add a Results Directory =====
 RES_DIR = True

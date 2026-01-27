@@ -114,18 +114,6 @@ cpacs_inout.add_input(
     gui_group="Cruise",
 )
 
-cpacs_inout.add_input(
-    var_name="ref_area",
-    var_type=float,
-    default_value=None,
-    unit="[m^2]",
-    descr="Aircraft reference area",
-    xpath=AREA_XPATH,
-    gui=False,
-    gui_name=None,
-    gui_group="Reference Area",
-)
-
 # ==============================================================================
 #   GUI OUTPUTS
 # ==============================================================================

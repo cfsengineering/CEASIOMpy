@@ -23,7 +23,10 @@ import signal
 import argparse
 import subprocess
 
-from ceasiompy.utils.ceasiompyutils import current_workflow_dir
+from ceasiompy.utils.ceasiompyutils import (
+    parse_bool,
+    current_workflow_dir,
+)
 
 from pathlib import Path
 from argparse import Namespace
@@ -49,17 +52,6 @@ def _get_cpu_count() -> int:
         return int(cpus // 2 + 1)
 
     return 1
-
-
-def _parse_bool(value: str) -> bool:
-    """Parse a CLI boolean value."""
-
-    normalized = value.strip().lower()
-    if normalized in {"1", "true", "t", "yes", "y", "on"}:
-        return True
-    if normalized in {"0", "false", "f", "no", "n", "off"}:
-        return False
-    raise argparse.ArgumentTypeError(f"Invalid boolean value: {value!r}")
 
 
 def _ensure_conda_prefix_bin_first(env: dict[str, str] | None = None) -> dict[str, str] | None:
@@ -233,6 +225,8 @@ def run_gui(
     wkdir: Path | None = None,
     headless: bool = False,
     port: int | None = None,
+    address: str | None = None,
+    cloud: bool = False,
 ) -> None:
     """Create and run a workflow from the GUI."""
 
@@ -288,6 +282,8 @@ def run_gui(
         + env.get("PYTHONPATH", "")
     )
 
+    env["CEASIOMPY_CLOUD"] = str(cloud)
+
     # Environment variables must be strings
     env["MAX_CPUS"] = str(cpus)
 
@@ -305,6 +301,11 @@ def run_gui(
     if port is not None:
         args += [
             "--server.port", f"{port}"
+        ]
+
+    if address is not None:
+        args += [
+            "--server.address", f"{address}"
         ]
 
     try:
@@ -395,8 +396,24 @@ def main() -> None:
     parser.add_argument(
         "-p",
         "--port",
+        type=int,
         required=False,
         help="Select specific Port.",
+    )
+    parser.add_argument(
+        "--cloud",
+        required=False,
+        nargs="?",
+        const=True,
+        type=parse_bool,
+        default=False,
+        help="If running from a cloud instance.",
+    )
+    parser.add_argument(
+        "--address",
+        type=str,
+        required=False,
+        help="Select server address.",
     )
     parser.add_argument(
         "--wkdir",
@@ -409,7 +426,7 @@ def main() -> None:
         required=False,
         nargs="?",
         const=True,
-        type=_parse_bool,
+        type=parse_bool,
         default=False,
         help="Run Streamlit in headless mode (no browser auto-open).",
     )
@@ -440,15 +457,15 @@ def main() -> None:
 
     if args.testcase:
         run_testcase(args.testcase)
-        return
+        return None
 
     if args.modules:
         run_modules_list(args.modules)
-        return
+        return None
 
     if args.cfg:
         run_config_file(args.cfg)
-        return
+        return None
 
     if args.gui:
         port = int(args.port) if args.port is not None else None
@@ -459,8 +476,10 @@ def main() -> None:
             cpus=int(args.cpus),
             wkdir=wkdir,
             headless=args.headless,
+            address=args.address,
+            cloud=bool(args.cloud),
         )
-        return
+        return None
 
     # If no argument is given, print the help
     parser.print_help()

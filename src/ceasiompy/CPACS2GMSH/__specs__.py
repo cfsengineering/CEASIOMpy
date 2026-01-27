@@ -16,7 +16,7 @@ GUI Interface of CPACS2GMSH.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy.utils.commonxpaths import SU2MESH_XPATH
+from ceasiompy.utils.commonxpaths import SU2MESH_XPATH, GEOMETRY_MODE_XPATH
 from ceasiompy.CPACS2GMSH import (
     INCLUDE_GUI,
     HAS_PENTAGROW,
@@ -47,6 +47,10 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_EXHAUST_PERCENT_XPATH,
     GMSH_SAVE_CGNS_XPATH,
     GMSH_MESH_CHECKER_XPATH,
+    GMSH_2D_AIRFOIL_MESH_SIZE_XPATH,
+    GMSH_2D_EXT_MESH_SIZE_XPATH,
+    GMSH_2D_FARFIELD_RADIUS_XPATH,
+    GMSH_2D_AOA_XPATH,
 )
 
 # ==============================================================================
@@ -93,6 +97,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Aileron/Elevator/Rudder Angles",
     gui_group="Control surface settings",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -105,6 +110,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Use Symmetry",
     gui_group="Domain",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -117,6 +123,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Farfield size factor",
     gui_group="Domain",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -384,6 +391,62 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Mesh Checker",
     gui_group="Mesh Checker",
+)
+
+# ==============================================================================
+#   2D AIRFOIL MESH PARAMETERS
+# ==============================================================================
+
+cpacs_inout.add_input(
+    var_name="airfoil_mesh_size",
+    var_type=float,
+    default_value=0.01,
+    unit="[m]",
+    descr="Mesh size on the airfoil contour for 2D mesh generation",
+    xpath=GMSH_2D_AIRFOIL_MESH_SIZE_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Airfoil Mesh Size",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}==2D",
+)
+
+cpacs_inout.add_input(
+    var_name="external_mesh_size",
+    var_type=float,
+    default_value=0.2,
+    unit="[m]",
+    descr="Mesh size in the external domain for 2D mesh generation",
+    xpath=GMSH_2D_EXT_MESH_SIZE_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="External Mesh Size",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}==2D",
+)
+
+cpacs_inout.add_input(
+    var_name="farfield_radius",
+    var_type=float,
+    default_value=10.0,
+    unit="[m]",
+    descr="Farfield radius for 2D mesh generation",
+    xpath=GMSH_2D_FARFIELD_RADIUS_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Farfield Radius",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}==2D",
+)
+
+cpacs_inout.add_input(
+    var_name="angle_of_attack",
+    var_type=float,
+    default_value=0.0,
+    unit="[deg]",
+    descr="Angle of attack for 2D airfoil mesh",
+    xpath=GMSH_2D_AOA_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Angle of Attack",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}==2D",
 )
 
 

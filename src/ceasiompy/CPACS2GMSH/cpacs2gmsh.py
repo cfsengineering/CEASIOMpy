@@ -21,6 +21,7 @@ Small description of the script
 # =================================================================================================
 
 import signal
+import subprocess
 import threading
 
 from ceasiompy.utils.ceasiompyutils import call_main
@@ -43,11 +44,15 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import SU2MESH_XPATH
+from ceasiompy.utils.commonxpaths import SU2MESH_XPATH, GEOMETRY_MODE_XPATH, GEOM_XPATH
 from ceasiompy.CPACS2GMSH import (
     MODULE_NAME,
     CONTROL_SURFACES_LIST,
     GMSH_CTRLSURF_ANGLE_XPATH,
+    GMSH_2D_AIRFOIL_MESH_SIZE_XPATH,
+    GMSH_2D_EXT_MESH_SIZE_XPATH,
+    GMSH_2D_FARFIELD_RADIUS_XPATH,
+    GMSH_2D_AOA_XPATH,
 )
 
 # =================================================================================================
@@ -271,6 +276,113 @@ def deform_surf(cpacs: CPACS, wkdir: Path, surf: str, angle: float, wing_names: 
     run_cpacs2gmsh(CPACS(new_file_path), wkdir, surf, str(angle))
 
 
+def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
+    """
+    Process 2D airfoil geometry and generate 2D mesh.
+
+    This function handles the 2D airfoil case, reading the airfoil configuration
+    from the CPACS file and generating a 2D mesh using gmshairfoil2d.
+
+    Args:
+        cpacs (CPACS): CPACS object containing the airfoil geometry
+        wkdir (Path): Working directory path
+
+    """
+    log.info("Processing 2D airfoil geometry...")
+
+    tixi = cpacs.tixi
+
+    # Retrieve mesh parameters from CPACS (with defaults)
+    try:
+        airfoil_mesh_size = get_value(tixi, GMSH_2D_AIRFOIL_MESH_SIZE_XPATH)
+    except Exception:
+        airfoil_mesh_size = 0.01
+        log.info(f"Using default airfoil mesh size: {airfoil_mesh_size} m")
+
+    try:
+        ext_mesh_size = get_value(tixi, GMSH_2D_EXT_MESH_SIZE_XPATH)
+    except Exception:
+        ext_mesh_size = 0.2
+        log.info(f"Using default external mesh size: {ext_mesh_size} m")
+
+    try:
+        farfield_radius = get_value(tixi, GMSH_2D_FARFIELD_RADIUS_XPATH)
+    except Exception:
+        farfield_radius = 10.0
+        log.info(f"Using default farfield radius: {farfield_radius} m")
+
+    try:
+        aoa = get_value(tixi, GMSH_2D_AOA_XPATH)
+    except Exception:
+        aoa = 0.0
+        log.info(f"Using default angle of attack: {aoa} deg")
+
+    # Determine airfoil type (NACA or custom)
+    airfoil_type = None
+    airfoil_name = None
+
+    try:
+        airfoil_type = tixi.getTextElement(GEOM_XPATH + "/airfoilType")
+    except Exception:
+        log.warning("No airfoil type specified in CPACS, trying NACA 0012 as default")
+        airfoil_type = "NACA"
+        airfoil_name = "0012"
+
+    # Build gmshairfoil2d command
+    # Note: gmshairfoil2d generates the output filename automatically as mesh_airfoil_<name>.su2
+
+    cmd = [
+        "gmshairfoil2d",
+        "--aoa", str(aoa),
+        "--farfield", str(farfield_radius),
+        "--airfoil_mesh_size", str(airfoil_mesh_size),
+        "--ext_mesh_size", str(ext_mesh_size),
+        "--format", "su2",
+        "--output", str(wkdir),
+    ]
+
+    if airfoil_type == "NACA":
+        if airfoil_name is None:
+            try:
+                airfoil_name = tixi.getTextElement(GEOM_XPATH + "/airfoilCode")
+            except Exception:
+                airfoil_name = "0012"
+        cmd.extend(["--naca", airfoil_name])
+        log.info(f"Generating mesh for NACA {airfoil_name} airfoil")
+        expected_mesh_file = wkdir / f"mesh_airfoil_{airfoil_name}.su2"
+    elif airfoil_type == "Custom":
+        try:
+            airfoil_name = tixi.getTextElement(GEOM_XPATH + "/airfoilName")
+            cmd.extend(["--airfoil", airfoil_name])
+            log.info(f"Generating mesh for airfoil: {airfoil_name}")
+            expected_mesh_file = wkdir / f"mesh_airfoil_{airfoil_name}.su2"
+        except Exception:
+            log.error("Custom airfoil selected but no airfoil name provided")
+            raise ValueError("Custom airfoil requires airfoilName in CPACS")
+    else:
+        log.warning(f"Unknown airfoil type: {airfoil_type}, using NACA 0012")
+        cmd.extend(["--naca", "0012"])
+        expected_mesh_file = wkdir / "mesh_airfoil_0012.su2"
+
+    # Execute gmshairfoil2d
+    log.info(f"Running: {' '.join(cmd)}")
+
+    result = subprocess.run(cmd, capture_output=True, text=True, cwd=wkdir)
+
+    if result.returncode != 0:
+        log.error(f"gmshairfoil2d failed with error:\n{result.stderr}")
+        raise RuntimeError(f"Mesh generation failed: {result.stderr}")
+
+    log.info(f"2D mesh generated successfully: {expected_mesh_file}")
+
+    # Save mesh path to CPACS
+    create_branch(tixi, SU2MESH_XPATH)
+    tixi.updateTextElement(SU2MESH_XPATH, str(expected_mesh_file))
+    cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
+
+    log.info("2D airfoil processing completed.")
+
+
 def main(cpacs: CPACS, wkdir: Path) -> None:
     """
     Main function.
@@ -284,6 +396,18 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
     tixi = cpacs.tixi
 
+    # Check if we are in 2D mode
+    try:
+        geometry_mode = tixi.getTextElement(GEOMETRY_MODE_XPATH)
+        if geometry_mode == "2D":
+            log.info("2D airfoil mode detected. Running 2D processing...")
+            process_2d_airfoil(cpacs, wkdir)
+            return
+    except Exception:
+        # No geometry mode specified or xpath doesn't exist, assume 3D
+        log.info("No geometry mode specified, defaulting to 3D mode.")
+
+    # Continue with 3D processing
     angles = get_value(tixi, GMSH_CTRLSURF_ANGLE_XPATH)
 
     # Unique angles list

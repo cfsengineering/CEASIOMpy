@@ -81,3 +81,9 @@ GMSH_FEATURE_ANGLE_XPATH = GMSH_XPATH + "/feature_angle"
 GMSH_CTRLSURF_ANGLE_XPATH = GMSH_XPATH + "/DeflectionAngle"
 GMSH_SAVE_CGNS_XPATH = GMSH_XPATH + "/SaveCGNS"
 GMSH_MESH_CHECKER_XPATH = GMSH_XPATH + "/MeshChecker"
+
+# 2D Airfoil mesh parameters
+GMSH_2D_AIRFOIL_MESH_SIZE_XPATH = GMSH_XPATH + "/airfoil2D/airfoilMeshSize"
+GMSH_2D_EXT_MESH_SIZE_XPATH = GMSH_XPATH + "/airfoil2D/externalMeshSize"
+GMSH_2D_FARFIELD_RADIUS_XPATH = GMSH_XPATH + "/airfoil2D/farfieldRadius"
+GMSH_2D_AOA_XPATH = GMSH_XPATH + "/airfoil2D/angleOfAttack"

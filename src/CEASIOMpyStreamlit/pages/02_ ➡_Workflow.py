@@ -38,6 +38,9 @@ from ceasiompy.SaveAeroCoefficients import MODULE_NAME as SAVEAEROCOEF
 
 PAGE_NAME = "Workflow"
 
+# Modules compatible with 2D mode
+MODULES_2D = [CPACS2GMSH, SU2RUN]
+
 HOW_TO_TEXT = (
     "### How to use Create a workflow?\n"
     "You can either:\n"
@@ -59,6 +62,9 @@ def section_predefined_workflow():
 
     st.markdown("#### Predefined Workflows")
 
+    # Check geometry mode
+    is_2d_mode = st.session_state.get("geometry_mode") == "2D"
+
     active_modules = set(get_module_list(only_active=True))
 
     predefine_workflows = [
@@ -68,6 +74,12 @@ def section_predefined_workflow():
         [SMTRAIN, SMUSE, SAVEAEROCOEF],
         [DYNAMICSTABILITY],
     ]
+
+    # Filter workflows for 2D mode (only show workflows compatible with 2D)
+    if is_2d_mode:
+        predefine_workflows = [
+            [CPACS2GMSH, SU2RUN],
+        ]
 
     for workflow in predefine_workflows:
         available = all(module in active_modules for module in workflow)
@@ -85,6 +97,9 @@ def section_add_module():
     """
 
     st.markdown("#### Add Modules to your Workflow")
+
+    # Check geometry mode
+    is_2d_mode = st.session_state.get("geometry_mode") == "2D"
 
     if "workflow_modules" not in st.session_state:
         st.session_state["workflow_modules"] = []
@@ -112,7 +127,15 @@ def section_add_module():
 
     module_list = get_module_list(only_active=True)
 
+    # Filter modules for 2D mode
+    if is_2d_mode:
+        module_list = [m for m in module_list if m in MODULES_2D]
+
     available_module_list = sorted(module_list)
+
+    if not available_module_list:
+        st.warning("No modules available for the current geometry mode.")
+        return
 
     col1, col2 = st.columns(2)
 
@@ -167,6 +190,13 @@ if __name__ == "__main__":
     )
 
     st.title(PAGE_NAME)
+
+    # Display current geometry mode
+    geometry_mode = st.session_state.get("geometry_mode", "3D")
+    if geometry_mode == "2D":
+        st.info("📐 **2D Airfoil Mode** - Only 2D-compatible modules are available")
+    else:
+        st.info("✈️ **3D Geometry Mode** - All modules are available")
 
     section_predefined_workflow()
 

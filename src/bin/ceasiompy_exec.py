@@ -310,7 +310,7 @@ def run_gui(
 
     if cloud:
         args += [
-            "--server.enableCORS=flase",
+            "--server.enableCORS=false",
             "--server.enableXsrfProtection=false",
         ]
 

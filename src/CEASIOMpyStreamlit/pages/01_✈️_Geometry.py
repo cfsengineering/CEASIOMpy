@@ -488,6 +488,73 @@ def section_3D_view(*, force_regenerate: bool = False) -> None:
     st.plotly_chart(fig, width="content")
 
 
+def section_2d_airfoil() -> None:
+    """
+    Section for 2D airfoil selection and loading.
+    """
+
+    wkdir = get_wkdir()
+    wkdir.mkdir(parents=True, exist_ok=True)
+
+    with st.container(border=True):
+        st.markdown("#### Select or Load Airfoil Profile")
+
+        # Radio button to choose between predefined or custom airfoil
+        airfoil_option = st.radio(
+            "Choose airfoil source:",
+            ["Predefined Airfoil", "Upload Custom Profile"],
+            horizontal=True
+        )
+
+        if airfoil_option == "Predefined Airfoil":
+            # NACA airfoil selection
+            col1, col2 = st.columns([3, 1])
+
+            with col1:
+                naca_code = st.text_input(
+                    "Enter NACA code (e.g., 0012, 2412, 4415) or airfoil name (e.g., e211, dae11):",
+                    value="0012",
+                    help="Display all airfoil available in the database : https://m-selig.ae.illinois.edu/ads/coord_database.html"
+                )
+
+            with col2:
+                st.markdown("<div style='margin-top: 28px;'></div>", unsafe_allow_html=True)
+                if st.button("✔ Generate", help="Generate airfoil from NACA code"):
+                    if naca_code:
+                        st.session_state["airfoil_type"] = "NACA"
+                        st.session_state["airfoil_code"] = naca_code
+                        st.success(f"NACA {naca_code} airfoil selected")
+                    else:
+                        st.warning("Please enter a valid NACA code")
+
+        else:  # Upload Custom Profile
+            uploaded_file = st.file_uploader(
+                "Upload airfoil coordinate file",
+                type=["dat", "txt", "csv"],
+                help="Upload a file containing airfoil coordinates (x, y)"
+            )
+
+            if uploaded_file is not None:
+                # Save uploaded file
+                airfoil_path = Path(wkdir, uploaded_file.name)
+                with open(airfoil_path, "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+
+                st.session_state["airfoil_type"] = "Custom"
+                st.session_state["airfoil_file"] = str(airfoil_path)
+                st.success(f"Airfoil profile '{uploaded_file.name}' loaded successfully")
+
+    # Display current selection
+    if "airfoil_type" in st.session_state:
+        st.markdown("---")
+        st.markdown("#### Current Airfoil Selection")
+
+        if st.session_state["airfoil_type"] == "NACA":
+            st.info(f"**NACA {st.session_state.get('airfoil_code', 'N/A')}** airfoil selected")
+        elif st.session_state["airfoil_type"] == "Custom":
+            st.info(f"**Custom profile:** {Path(st.session_state['airfoil_file']).name}")
+
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================
@@ -513,4 +580,29 @@ if __name__ == "__main__":
     )
 
     st.title(PAGE_NAME)
-    section_select_cpacs()
+
+    # Mode selection buttons
+    st.markdown("### Select Geometry Mode")
+    col1, col2, _ = st.columns([3, 3, 6])
+
+    with col1:
+        if st.button("📐 2D Airfoil", use_container_width=True):
+            st.session_state["geometry_mode"] = "2D"
+
+    with col2:
+        if st.button("✈️ 3D Geometry", use_container_width=True):
+            st.session_state["geometry_mode"] = "3D"
+
+    # Initialize mode if not set
+    if "geometry_mode" not in st.session_state:
+        st.session_state["geometry_mode"] = "3D"
+
+    st.markdown("---")
+
+    # Display appropriate section based on mode
+    if st.session_state["geometry_mode"] == "3D":
+        st.markdown("**Mode:** 3D Geometry")
+        section_select_cpacs()
+    else:
+        st.markdown("**Mode:** 2D Airfoil")
+        section_2d_airfoil()

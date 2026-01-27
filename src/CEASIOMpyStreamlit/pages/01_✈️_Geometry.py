@@ -685,70 +685,73 @@ def section_2d_airfoil() -> None:
 
             with col2:
                 st.markdown("<div style='margin-top: 28px;'></div>", unsafe_allow_html=True)
-                if st.button("✔ Generate", help="Generate airfoil from NACA code"):
-                    if naca_code:
-                        try:
-                            # Check if it's a NACA 4-digit code
-                            if len(naca_code) == 4 and naca_code.isdigit():
-                                # Generate NACA 4-digit airfoil
-                                coords_list = NACA_4_digit_geom(naca_code, nb_points=200)
-                                coords = np.array(coords_list)
-                                st.session_state["airfoil_type"] = "NACA"
-                                st.session_state["airfoil_code"] = naca_code
-                            else:
-                                # Try to get airfoil from database
-                                coords_list = get_airfoil_points(naca_code)
-                                coords = np.array(coords_list)
-                                st.session_state["airfoil_type"] = "Predefined"
-                                st.session_state["airfoil_code"] = naca_code
+                generate_clicked = st.button("✔ Generate", help="Generate airfoil from NACA code")
+            
+            # Display success message full width outside columns
+            if generate_clicked:
+                if naca_code:
+                    try:
+                        # Check if it's a NACA 4-digit code
+                        if len(naca_code) == 4 and naca_code.isdigit():
+                            # Generate NACA 4-digit airfoil
+                            coords_list = NACA_4_digit_geom(naca_code, nb_points=200)
+                            coords = np.array(coords_list)
+                            st.session_state["airfoil_type"] = "NACA"
+                            st.session_state["airfoil_code"] = naca_code
+                        else:
+                            # Try to get airfoil from database
+                            coords_list = get_airfoil_points(naca_code)
+                            coords = np.array(coords_list)
+                            st.session_state["airfoil_type"] = "Predefined"
+                            st.session_state["airfoil_code"] = naca_code
 
-                            # Extract x and y coordinates (coords is [N, 3] with z=0)
-                            airfoil_x = coords[:, 0].tolist()
-                            airfoil_y = coords[:, 1].tolist()
+                        # Extract x and y coordinates (coords is [N, 3] with z=0)
+                        airfoil_x = coords[:, 0].tolist()
+                        airfoil_y = coords[:, 1].tolist()
 
-                            st.session_state["airfoil_x"] = airfoil_x
-                            st.session_state["airfoil_y"] = airfoil_y
+                        st.session_state["airfoil_x"] = airfoil_x
+                        st.session_state["airfoil_y"] = airfoil_y
 
-                            # Save airfoil to .dat file and create/update CPACS
-                            cpacs_path = save_airfoil_and_create_cpacs(
-                                airfoil_name=naca_code,
-                                airfoil_x=airfoil_x,
-                                airfoil_y=airfoil_y,
-                                wkdir=wkdir,
-                            )
+                        # Save airfoil to .dat file and create/update CPACS
+                        cpacs_path = save_airfoil_and_create_cpacs(
+                            airfoil_name=naca_code,
+                            airfoil_x=airfoil_x,
+                            airfoil_y=airfoil_y,
+                            wkdir=wkdir,
+                        )
 
-                            # Store path in session state
-                            st.session_state["cpacs_path"] = str(cpacs_path)
+                        # Store path in session state
+                        st.session_state["cpacs_path"] = str(cpacs_path)
 
-                            # Also save geometry mode and airfoil type to CPACS
-                            tixi = Tixi3()
-                            tixi.open(str(cpacs_path))
-                            
-                            create_branch(tixi, GEOM_XPATH + "/airfoilType")
-                            if st.session_state["airfoil_type"] == "NACA":
-                                tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "NACA")
-                                create_branch(tixi, GEOM_XPATH + "/airfoilCode")
-                                tixi.updateTextElement(GEOM_XPATH + "/airfoilCode", naca_code)
-                            else:
-                                tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "Custom")
-                                create_branch(tixi, GEOM_XPATH + "/airfoilName")
-                                tixi.updateTextElement(GEOM_XPATH + "/airfoilName", naca_code)
+                        # Also save geometry mode and airfoil type to CPACS
+                        tixi = Tixi3()
+                        tixi.open(str(cpacs_path))
+                        
+                        create_branch(tixi, GEOM_XPATH + "/airfoilType")
+                        if st.session_state["airfoil_type"] == "NACA":
+                            tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "NACA")
+                            create_branch(tixi, GEOM_XPATH + "/airfoilCode")
+                            tixi.updateTextElement(GEOM_XPATH + "/airfoilCode", naca_code)
+                        else:
+                            tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "Custom")
+                            create_branch(tixi, GEOM_XPATH + "/airfoilName")
+                            tixi.updateTextElement(GEOM_XPATH + "/airfoilName", naca_code)
 
-                            tixi.save(str(cpacs_path), True)
-                            tixi.close()
+                        tixi.save(str(cpacs_path), True)
+                        tixi.close()
 
-                            st.success(
-                                f"✓ Airfoil '{naca_code}' generated with {len(coords)} points\n\n"
-                                f"📄 Saved to: `profiles/airfoil_{naca_code}.dat`\n\n"
-                                f"📋 CPACS updated: `ToolInput.xml`"
-                            )
-                        except Exception as e:
-                            st.error(f"Failed to generate airfoil: {str(e)}")
-                            st.info("For NACA airfoils, use 4 digits (e.g., 0012, 2412). "
-                                   "For database airfoils, check the available names at: "
-                                   "https://m-selig.ae.illinois.edu/ads/coord_database.html")
-                    else:
-                        st.warning("Please enter a valid NACA code")
+                        st.success(
+                            f"✓ Airfoil '{naca_code}' generated with {len(coords)} points\n\n"
+                            f"📄 Saved to: `profiles/airfoil_{naca_code}.dat`\n\n"
+                            f"📋 CPACS updated: `ToolInput.xml`"
+                        )
+                    except Exception as e:
+                        st.error(f"Failed to generate airfoil: {str(e)}")
+                        st.info("For NACA airfoils, use 4 digits (e.g., 0012, 2412). "
+                               "For database airfoils, check the available names at: "
+                               "https://m-selig.ae.illinois.edu/ads/coord_database.html")
+                else:
+                    st.warning("Please enter a valid NACA code")
 
         else:  # Upload Custom Profile
             uploaded_file = st.file_uploader(
@@ -819,6 +822,8 @@ def section_2d_airfoil() -> None:
                         tixi.save(str(cpacs_path), True)
                         tixi.close()
 
+                    # Display success message full width outside nested context
+                    if len(coords_data) > 0:
                         st.success(
                             f"✓ Airfoil profile '{uploaded_file.name}' loaded with {len(coords)} points\n\n"
                             f"📄 Saved to: `profiles/airfoil_{airfoil_name}.dat`\n\n"

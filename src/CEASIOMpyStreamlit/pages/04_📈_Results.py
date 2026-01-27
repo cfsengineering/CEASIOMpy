@@ -68,7 +68,6 @@ PAGE_NAME = "Results"
 IGNORED_RESULT_FILES: set[str] = {
     "avl_commands.txt",
     "logfile_avl.log",
-    "aircraft.stl",
 }
 
 # =================================================================================================
@@ -114,46 +113,11 @@ def display_results(results_dir, chosen_workflow = None):
             priority = 1
         return priority, path.name
 
-    all_children = [
-        c for c in Path(results_dir).iterdir()
-        if c.name not in IGNORED_RESULT_FILES
-    ]
-    files = [c for c in all_children if c.is_file()]
-    dirs  = [c for c in all_children if c.is_dir()]
-
-    selected_files = st.multiselect(
-        "**Select result files**",
-        [c.name for c in files],
-        key=f"selected_files_{results_dir}"
-    )
-
-    selected_dirs = st.multiselect(
-        "**Select result folders**",
-        [c.name for c in dirs],
-        key=f"selected_dirs_{results_dir}"
-    )
-
-    selected_children = []
-
-    if selected_files:
-        selected_children.extend(
-            c for c in files if c.name in selected_files
-        )
-
-    if selected_dirs:
-        selected_children.extend(
-            c for c in dirs if c.name in selected_dirs
-        )
-
-    if not selected_children:
-        st.warning("**Select at least one file or folder to display.**")
-        return
-
-
-    for child in sorted(selected_children, key=results_sort_key):
+    child = None
+    for child in sorted(Path(results_dir).iterdir(), key=results_sort_key):
         try:
-            # if child.name in IGNORED_RESULT_FILES:
-            #     continue
+            if child.name in IGNORED_RESULT_FILES:
+                continue
 
             if child.suffix == ".smx":
                 if st.button(f"Open {child.name} with SUMO", key=f"{child}_sumo_geom"):
@@ -661,7 +625,7 @@ def display_results(results_dir, chosen_workflow = None):
 
                     y_target = st.number_input(
                         "Enter target value",
-                        value=float(predicted_value[0]),
+                        value=float(predicted_value),
                         step=0.0001,
                         format="%0.4f"
                     )
@@ -787,15 +751,6 @@ def display_results(results_dir, chosen_workflow = None):
                                 file_name=f"temp_optim_geometry_{y_target}.xml",
                                 mime="application/xml"
                             )
-            
-            elif child.suffix == ".xml":
-                st.markdown(f"**3D VIEW OF {child.name}**")
-                file_path = Path(results_dir) / f"{child.name}"
-                section_3D_view(
-                    results_dir=Path(results_dir),
-                    cpacs=CPACS(file_path),
-                    # aircraft_name="temp_optim_geometry",
-                )
 
             elif child.suffix == ".csv":
                 with st.expander(f"{child.name}"):
@@ -862,6 +817,7 @@ def show_results():
     if not workflow_dirs:
         st.warning("No workflows have been found in the working directory.")
         return
+
     workflow_names = [wkflow.name for wkflow in workflow_dirs][::-1]
     default_index = max(len(workflow_names) - 1, 0)
     chosen_workflow_name = st.selectbox(

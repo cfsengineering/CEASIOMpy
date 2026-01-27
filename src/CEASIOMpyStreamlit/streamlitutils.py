@@ -22,12 +22,17 @@ from cpacspy.cpacsfunctions import (
     add_value,
     add_string_vector,
 )
+from tixi3.tixi3wrapper import ReturnCode, Tixi3Exception
 
 from PIL import Image
 from pathlib import Path
-from cpacspy.cpacspy import CPACS
+from cpacspy.cpacspy import (
+    CPACS,
+    AeroMap,
+)
 
 from ceasiompy import log
+from cpacspy.utils import PARAMS
 from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
 
 # ==============================================================================
@@ -203,96 +208,138 @@ def st_directory_picker(initial_path=Path()):
     return st.session_state.path
 
 
-def section_edit_aeromap():
-    st.markdown("#### Available aeromaps")
+def section_edit_aeromap() -> None:
+    """Aeromap Editor and Selector"""
 
-    for i, aeromap in enumerate(st.session_state.cpacs.get_aeromap_uid_list()):
-        col1, col2, col3, _ = st.columns([6, 1, 1, 5])
+    cpacs: CPACS | None = st.session_state.get("cpacs", None)
+    if cpacs is None:
+        st.warning("No CPACS file has been selected !")
+        return None
 
-        with col1:
-            st.markdown(f"**{aeromap}**")
+    with st.container(border=True):
+        st.markdown("#### Selected Aeromap")
 
-        with col2:
-            if st.button("⬆️", key=f"export{i}", help="Export aeromap") and i != 0:
-                csv_file_name = aeromap.replace(" ", "_") + ".csv"
-                st.session_state.cpacs.get_aeromap_by_uid(aeromap).export_csv(csv_file_name)
-                with open(csv_file_name) as f:
-                    st.download_button("Download", f, file_name=csv_file_name)
+        # Create Custom Aeromap
+        custom_id = "custom_aeromap"
 
-        with col3:
-            if st.button("❌", key=f"del{i}", help="Delete this aeromap"):
-                st.session_state.cpacs.delete_aeromap(aeromap)
-                st.rerun()
-
-    st.markdown("#### Add a point")
-
-    selected_aeromap = st.selectbox(
-        "in",
-        st.session_state.cpacs.get_aeromap_uid_list(),
-        help="Choose in which aeromap you want to add the point",
-    )
-
-    col1, col2, col3, col4, col5 = st.columns([2, 2, 2, 2, 1])
-
-    with col1:
-        alt = st.number_input("Alt", value=1000, min_value=0, step=100)
-    with col2:
-        mach = st.number_input("Mach", value=0.3, min_value=0.0, step=0.1)
-    with col3:
-        aoa = st.number_input("AoA", value=0, min_value=-90, max_value=90, step=1)
-    with col4:
-        aos = st.number_input("AoS", value=0, min_value=-90, max_value=90, step=1)
-    with col5:
-        st.markdown("")
-        st.markdown("")
-        if st.button("➕"):
-            st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap).add_row(
-                mach=mach, alt=alt, aos=aos, aoa=aoa
+        try:
+            cpacs.get_aeromap_by_uid(custom_id)
+        except ValueError:
+            custom_aeromap = cpacs.create_aeromap(custom_id)
+            custom_aeromap.add_row(
+                alt=0.0,
+                mach=0.3,
+                aos=0.0,
+                aoa=3.0,
             )
-            st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap).save()
-            save_cpacs_file()
+            custom_aeromap.save()
+        except Exception as e:
+            raise Exception(f"{cpacs.cpacs_file=} {custom_id=} {e=}")
 
-    if selected_aeromap:
-        st.dataframe(st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap).df)
+        aeromap_list = cpacs.get_aeromap_uid_list()
+        selected_aeromap_id = st.selectbox(
+            "**Selected Aeromap**",
+            aeromap_list,
+            index=len(aeromap_list) - 1,        # custom_aeromap id by default
+            help="Choose an aeromap",
+            label_visibility="collapsed",
+            accept_new_options=True,
+            on_change=save_cpacs_file,
+        )
 
-    st.markdown("#### Create new aeromap")
+        if selected_aeromap_id:
+            try:
+                selected_aeromap = cpacs.get_aeromap_by_uid(selected_aeromap_id)
+            except ValueError:
+                st.warning(f"{selected_aeromap_id=} is not a valid aeromap ID.")
+                return None
 
-    form = st.form("create_new_aeromap_form")
+            if not isinstance(selected_aeromap, AeroMap):
+                st.warning(f"{selected_aeromap=} is not an AeroMap due to {selected_aeromap_id=}")
+                return None
 
-    help_aeromap_uid = "The aeromap will contain 1 point corresponding to the value above, then \
-                        you can add more point to it."
-    new_aeromap_uid = form.text_input(
-        "Aeromap uid",
-        help=help_aeromap_uid,
-    )
-    default_description = "Created with CEASIOMpy Graphical user interface"
-    new_aeromap_description = form.text_input(
-        "Aeromap description", value=default_description, help="optional"
-    )
+            selected_df = selected_aeromap.df[PARAMS]
+            original_df = selected_df.reset_index(drop=True)
 
-    if form.form_submit_button("Create new"):
-        if new_aeromap_uid not in st.session_state.cpacs.get_aeromap_uid_list():
-            new_aeromap = st.session_state.cpacs.create_aeromap(new_aeromap_uid)
-            new_aeromap.description = new_aeromap_description
-            new_aeromap.add_row(mach=mach, alt=alt, aos=aos, aoa=aoa)
-            new_aeromap.save()
-            log.info(f"Creating new aeromap {new_aeromap_uid}.")
-            st.rerun()
+            edited_aero_df = st.data_editor(
+                selected_df,
+                num_rows="dynamic",
+                hide_index=True,
+                column_config={
+                    "altitude": "Altitude",
+                    "machNumber": "Mach",
+                    "angleOfAttack": "α°",
+                    "angleOfSideslip": "β°",
+                    "Altitude": st.column_config.NumberColumn("Altitude", min_value=0.0),
+                    "Mach": st.column_config.NumberColumn("Mach", min_value=1e-3),
+                    "α°": st.column_config.NumberColumn("α°"),
+                    "β°": st.column_config.NumberColumn("β°"),
+                },
+                column_order=["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
+            )
+
+            edited_aero_df[PARAMS] = edited_aero_df[PARAMS].apply(
+                pd.to_numeric,
+                errors="coerce",
+            )
+            edited_aero_df[PARAMS] = edited_aero_df[PARAMS].astype(float)
+
+            active_rows = edited_aero_df[PARAMS].notna().any(axis=1)
+            active_df = edited_aero_df.loc[active_rows, PARAMS]
+
+            invalid_numeric = active_df.isna().any().any()
+            invalid_altitude = (active_df["altitude"] < 0.0).any()
+            invalid_mach = (active_df["machNumber"] <= 0.0).any()
+            duplicate_rows = active_df.duplicated().any()
+
+            if invalid_numeric or invalid_altitude or invalid_mach or duplicate_rows:
+                st.error(
+                    "Altitude must be >= 0.0, Mach must be > 0.0, all values must be numeric, "
+                    "and all rows must be distinct."
+                )
+            else:
+                cleaned_df = active_df[PARAMS].reset_index(drop=True)
+                if not cleaned_df.equals(original_df):
+                    selected_aeromap.df = cleaned_df
+                    try:
+                        selected_aeromap.save()
+                    except Tixi3Exception as exc:
+                        if exc.code == ReturnCode.ALREADY_SAVED and selected_aeromap.xpath:
+                            for param in PARAMS:
+                                param_xpath = f"{selected_aeromap.xpath}/{param}"
+                                if selected_aeromap.tixi.checkElement(param_xpath):
+                                    selected_aeromap.tixi.removeElement(param_xpath)
+                            selected_aeromap.save()
+                        else:
+                            raise
+                st.session_state["selected_aeromap"] = selected_aeromap
+
+        st.markdown("#### Import aeromap from CSV or Excel")
+
+        uploaded_csv = st.file_uploader(
+            label="Upload a AeroMap file",
+            label_visibility="collapsed",
+            type=["csv", "xlsx", "xls"],
+        )
+        if not uploaded_csv:
+            st.session_state.pop("last_imported_aeromap_uid", None)
+            return None
+
+        uploaded_aeromap_uid = uploaded_csv.name.rsplit(".", 1)[0]
+        if st.session_state.get("last_imported_aeromap_uid") == uploaded_aeromap_uid:
+            return None
+
+        if uploaded_aeromap_uid in cpacs.get_aeromap_uid_list():
+            st.info("Existing aeromap found; overwriting it with the uploaded file.")
+            cpacs.delete_aeromap(uploaded_aeromap_uid)
+
+        new_aeromap = cpacs.create_aeromap(uploaded_aeromap_uid)
+        if uploaded_csv.name.lower().endswith((".xlsx", ".xls")):
+            import_df = pd.read_excel(uploaded_csv, keep_default_na=False)
         else:
-            st.error("There is already an aeromap with this name!")
-
-    st.markdown("#### Import aeromap from CSV")
-
-    uploaded_csv = st.file_uploader("Choose a CSV file")
-    if uploaded_csv:
-        uploaded_aeromap_uid = uploaded_csv.name.split(".csv")[0]
-
-        if st.button("Add this aeromap"):
-            if uploaded_aeromap_uid in st.session_state.cpacs.get_aeromap_uid_list():
-                st.error("There is already an aeromap with this name!")
-                return
-
-            new_aeromap = st.session_state.cpacs.create_aeromap(uploaded_aeromap_uid)
-            new_aeromap.df = pd.read_csv(uploaded_csv, keep_default_na=False)
-            new_aeromap.save()
-            st.rerun()
+            import_df = pd.read_csv(uploaded_csv, keep_default_na=False)
+        new_aeromap.df = import_df
+        log.info(f"Saving AeroMap ID: {uploaded_aeromap_uid} in CPACS file.")
+        new_aeromap.save()
+        st.session_state["last_imported_aeromap_uid"] = uploaded_aeromap_uid
+        st.rerun()

@@ -181,8 +181,7 @@ def add_module_tab(new_file: bool) -> None:
         st.warning("No CPACS file has been selected!")
         return None
 
-    with st.expander("**Edit Aeromaps**", expanded=False):
-        section_edit_aeromap()
+    section_edit_aeromap()
 
     checks(st.session_state, st.tabs)
 

@@ -76,6 +76,10 @@ if __name__ == "__main__":
     st.markdown(
         """
         <style>
+        .block-container {
+            padding-top: 1rem;
+            padding-bottom: 0rem;
+        }
         .css-1awtkze {
             border-radius:3px;
             background-color: #9e9e93;

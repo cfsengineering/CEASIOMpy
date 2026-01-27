@@ -43,7 +43,7 @@ from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
 from unittest.mock import MagicMock
-from tixi3.tixi3wrapper import Tixi3  # type: ignore
+from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from cpacspy.cpacspy import (
     CPACS,
@@ -57,7 +57,6 @@ from typing import (
     Callable,
 )
 
-from ceasiompy import AEROMAP_LIST
 from ceasiompy import (
     log,
     ceasiompy_cfg,
@@ -71,6 +70,7 @@ from ceasiompy.utils.moduleinterfaces import (
     MODNAME_SPECS,
 )
 from ceasiompy.utils.commonxpaths import (
+    SELECTED_AEROMAP_XPATH,
     AIRCRAFT_NAME_XPATH,
     RANGE_CRUISE_ALT_XPATH,
     RANGE_CRUISE_MACH_XPATH,
@@ -142,29 +142,30 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
     cpacsin_out: CPACSInOut = specs.cpacs_inout
     inputs = cpacsin_out.get_gui_dict()
 
-    for name, default_value, var_type, _, xpath, _, _, test_value, _ in inputs.values():
+    aeromap_uid_list = cpacs.get_aeromap_uid_list()
+    if not len(aeromap_uid_list):
+        log.error("You must create an aeromap in order to use this module !")
+        return None
+
+    # Use first aeromap as the selected one
+    first_aeromap = aeromap_uid_list[0]
+    log.info(f"Using {first_aeromap=}")
+    tixi.updateTextElement(SELECTED_AEROMAP_XPATH, first_aeromap)
+
+    for _, default_value, var_type, _, xpath, _, _, test_value, _ in inputs.values():
         try:
             if test:
                 value = test_value
             else:
                 value = default_value
+
             parts = xpath.strip("/").split("/")
             for i in range(1, len(parts) + 1):
                 path = "/" + "/".join(parts[:i])
                 if not tixi.checkElement(path):
                     tixi.createElement("/" + "/".join(parts[: i - 1]), parts[i - 1])
 
-            # Check if the name or var_type is in the dictionary
-            # and call the corresponding function
-            if name in AEROMAP_LIST:
-                aeromap_uid_list = cpacs.get_aeromap_uid_list()
-                if not len(aeromap_uid_list):
-                    log.error("You must create an aeromap in order to use this module !")
-                else:
-                    # Use first aeromap
-                    tixi.updateTextElement(xpath, aeromap_uid_list[0])
-
-            elif var_type == str:
+            if var_type == str:
                 tixi.updateTextElement(xpath, value)
             elif var_type == float:
                 tixi.updateDoubleElement(xpath, value, format="%g")
@@ -181,6 +182,7 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
                 tixi.updateTextElement(xpath, ";".join(str(ele) for ele in value))
             else:
                 tixi.updateTextElement(xpath, value)
+
         except Exception as e:
             raise ValueError(f"Issue {var_type=} {e=} at {xpath=} for {value=}")
 

@@ -36,16 +36,6 @@ cpacs_inout = CPACSInOut()
 #   GUI INPUTS
 # ==============================================================================
 
-cpacs_inout.add_input(
-    var_name="",
-    var_type=list,
-    default_value=None,
-    descr="To which aeroMap the skin friction coef should be added",
-    xpath=SF_XPATH + "/aeroMapToCalculate",
-    gui=INCLUDE_GUI,
-    gui_name="__AEROMAP_CHECKBOX",
-    gui_group="Aeromap settings",
-)
 
 cpacs_inout.add_input(
     var_name="wetted_area",

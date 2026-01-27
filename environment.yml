@@ -69,7 +69,10 @@ dependencies:
     - black>=25.1.0
     - cpacspy>=0.2.0
     - Cython>=3.0.12
+
+    # CPACS2Gmsh
     - gmsh>=4.13.1
+
     - numpy-stl>=3.2.0
     - markdownpy>=0.1.4
     - matplotlib>=3.10.1
@@ -81,12 +84,19 @@ dependencies:
     - shapely>=2.1.0
     - smt>=2.9.2
     - stpyvista>=0.1.4
+
+    # Streamlit
     - streamlit>=1.53.0
+    - streamlit_sortables
+
     - vtk>=9.3.0
     - scikit-optimize>=0.10.2
     - framat>=0.5
+
+    # Dynamic Stability
     - panelaero
     - defusedxml
+
     - jenn>=1.0.8
     - stripe
     - watchdog

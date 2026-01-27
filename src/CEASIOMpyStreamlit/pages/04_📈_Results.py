@@ -309,6 +309,24 @@ if __name__ == "__main__":
     # Define interface
     create_sidebar(HOW_TO_TEXT)
 
+    # Custom CSS
+    st.markdown(
+        """
+        <style>
+        .block-container {
+            padding-top: 1rem;
+            padding-bottom: 0rem;
+        }
+        .css-4u7rgp  {
+            padding: 15px;
+            font-size: 20px;
+            border-radius:10px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     st.title("Results")
 
     show_results()

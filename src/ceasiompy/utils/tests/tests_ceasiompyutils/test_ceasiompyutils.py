@@ -190,10 +190,6 @@ class TestCeasiompyUtils(CeasiompyTest):
     def test_get_results_directory(self):
 
         with change_working_dir(self.TMP_DIR):
-            test_module_1 = "ExportCSV"
-            results_dir = get_results_directory(test_module_1)
-            assert results_dir == Path(Path.cwd(), "Results", test_module_1)
-
             test_module_2 = "PyAVL"
             results_dir = get_results_directory(test_module_2)
             assert results_dir == Path(Path.cwd(), "Results", test_module_2)

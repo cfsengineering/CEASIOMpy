@@ -86,7 +86,6 @@ class TestWorkflow:
     MODULE_TO_RUN = [
         "CLCalculator",
         "PyAVL",
-        "SaveAeroCoefficients",
     ]
     wkflow_test.mkdir(exist_ok=True)
     cfg_path = wkflow_test / "ceasiompy.cfg"
@@ -94,7 +93,7 @@ class TestWorkflow:
         cfg_path.write_text(
             "% File written 2022-01-17 14:46:53.344314\n"
             "CPACS_TOOLINPUT = ./D150_simple.xml\n"
-            "MODULE_TO_RUN = ( CLCalculator, PyAVL, SaveAeroCoefficients)\n"
+            "MODULE_TO_RUN = ( CLCalculator, PyAVL )\n"
         )
 
     def test_from_config_file(self):

@@ -150,6 +150,8 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
     # Use first aeromap as the selected one
     first_aeromap = aeromap_uid_list[0]
     log.info(f"Using {first_aeromap=}")
+    if not tixi.checkElement(SELECTED_AEROMAP_XPATH):
+        create_branch(tixi, SELECTED_AEROMAP_XPATH)
     tixi.updateTextElement(SELECTED_AEROMAP_XPATH, first_aeromap)
 
     for _, default_value, var_type, _, xpath, _, _, test_value, _ in inputs.values():

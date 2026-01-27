@@ -152,7 +152,7 @@ def run_testcase(testcase_nb):
         log.info(">> conda activate ceasiompy")
         log.info(
             ">> ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml "
-            "PyAVL SkinFriction SaveAeroCoefficients"
+            "PyAVL SkinFriction"
         )
 
     elif testcase_nb == 5:

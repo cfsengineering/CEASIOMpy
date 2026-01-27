@@ -122,7 +122,7 @@ These test cases are there to learn how to use CEASIOMpy. You will probably also
     If you run CEASIOMpy with the following command, you can build the workflow directly by defining the CPACS files and the modules you want to use.
 
     ```bash
-    ceasiompy_run -m test_files/CPACSfiles/D150_simple.xml PyAVL SaveAeroCoefficients
+    ceasiompy_run -m test_files/CPACSfiles/D150_simple.xml PyAVL
     ```
 
 Follow the [test cases](#test-cases) to discover the different way of using CEASIOMpy.
@@ -135,7 +135,7 @@ Follow the [test cases](#test-cases) to discover the different way of using CEAS
 
 ```mermaid
   graph LR;
-      PyAVL-->SaveAeroCoefficients;
+      PyAVL;
 ```
 
 </div>
@@ -148,8 +148,7 @@ Follow the [test cases](#test-cases) to discover the different way of using CEAS
   graph LR;
       CPACS2Updater-->CPACS2Gmsh;
       CPACS2Gmsh-->SU2Run;
-      SU2Run-->ExportCSV;
-      ExportCSV-->Database;
+      SU2Run-->Database;
 ```
 
 </div>
@@ -193,7 +192,6 @@ There are many different modules available in CEASIOMpy that can be combined to 
 - [PyAVL](src/ceasiompy/PyAVL/README.md) :heavy_check_mark:
 - [SU2Run](src/ceasiompy/SU2Run/README.md) :heavy_check_mark:
 - [SkinFriction](src/ceasiompy/SkinFriction/README.md) :heavy_check_mark:
-- [SaveAeroCoefficients](src/ceasiompy/SaveAeroCoefficients/README.md) :heavy_check_mark:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_weights.png">
 

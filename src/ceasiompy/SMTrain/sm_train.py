@@ -204,18 +204,19 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                     dest_path = Path(results_dir) / "best_geometric_configuration.xml"
                     shutil.copy2(best_cpacs_path, dest_path)
 
-            # Second level fidelity training
-            if fidelity_level == LEVEL_TWO:
-                run_adaptative_refinement_geom(
-                    cpacs=cpacs,
-                    results_dir=results_dir,
-                    model=krg_model,
-                    level1_sets=sets,
-                    rmse_obj=rmse_obj,
-                    objective=objective,
-                    aeromap_uid=aeromap_selected,
-                    param_order=param_order,
-                )
+            if selected_krg_model:
+                # Second level fidelity training
+                if fidelity_level == LEVEL_TWO:
+                    run_adaptative_refinement_geom(
+                        cpacs=cpacs,
+                        results_dir=results_dir,
+                        model=krg_model,
+                        level1_sets=sets,
+                        rmse_obj=rmse_obj,
+                        objective=objective,
+                        aeromap_uid=aeromap_selected,
+                        param_order=param_order,
+                    )
 
             # Second level fidelity training
             # TODO: if fidelity_level == LEVEL_THREE:

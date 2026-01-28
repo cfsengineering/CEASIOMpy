@@ -23,12 +23,13 @@ Small description of the script
 import signal
 import threading
 
-from ceasiompy.utils.ceasiompyutils import call_main
+from ceasiompy.utils.ceasiompyutils import call_main, current_workflow_dir
 from ceasiompy.utils.geometryfunctions import return_uidwings
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.CPACS2GMSH.func.meshvis import cgns_mesh_checker
 from ceasiompy.CPACS2GMSH.func.utils import retrieve_gui_values
 from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
+from ceasiompy.CPACS2GMSH.func.airfoil2d import process_2d_airfoil
 from ceasiompy.CPACSUpdater.func.controlsurfaces import deflection_angle
 from ceasiompy.CPACS2GMSH.func.rans_mesh_generator import (
     pentagrow_3d_mesh,
@@ -43,7 +44,8 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import SU2MESH_XPATH
+from ceasiompy.utils.commonxpaths import SU2MESH_XPATH, GEOMETRY_MODE_XPATH
+from ceasiompy.utils.cpacs_utils import SimpleCPACS
 from ceasiompy.CPACS2GMSH import (
     MODULE_NAME,
     CONTROL_SURFACES_LIST,
@@ -271,20 +273,45 @@ def deform_surf(cpacs: CPACS, wkdir: Path, surf: str, angle: float, wing_names: 
     run_cpacs2gmsh(CPACS(new_file_path), wkdir, surf, str(angle))
 
 
-def main(cpacs: CPACS, wkdir: Path) -> None:
+def main(cpacs: CPACS | SimpleCPACS, wkdir: Path) -> None:
     """
     Main function.
     Defines setup for gmsh.
 
     Args:
-        cpacs_path (str): Input CPACS path.
-        cpacs_out_path (str): Modified output CPACS path.
+        cpacs: CPACS or SimpleCPACS object
+        wkdir: Working directory path
 
     """
 
     tixi = cpacs.tixi
 
-    angles = get_value(tixi, GMSH_CTRLSURF_ANGLE_XPATH)
+    # Check if we are in 2D mode - separate try/except to not catch process_2d_airfoil errors
+    geometry_mode = None
+    try:
+        geometry_mode = tixi.getTextElement(GEOMETRY_MODE_XPATH)
+        log.info(f"Geometry mode found in CPACS: {geometry_mode}")
+    except Exception:
+        # No geometry mode specified or xpath doesn't exist, assume 3D
+        log.info("No geometry mode specified in CPACS, defaulting to 3D mode.")
+
+    # Process 2D if geometry mode is 2D (let exceptions propagate)
+    if geometry_mode == "2D":
+        log.info("2D airfoil mode detected. Running 2D processing only...")
+        process_2d_airfoil(cpacs, wkdir)
+        log.info("2D processing completed, returning without 3D mesh generation.")
+        return
+
+    # If we reach here, we are in 3D mode
+    log.info("Proceeding with 3D mesh generation...")
+
+    # Continue with 3D processing
+    try:
+        angles = get_value(tixi, GMSH_CTRLSURF_ANGLE_XPATH)
+    except Exception:
+        # If deflection angles not specified, use default of 0.0
+        angles = "0.0"
+        log.info("No control surface deflection angles specified, using default: 0.0")
 
     # Unique angles list
     angles_list = list(set([float(x) for x in str(angles).split(";")]))
@@ -323,4 +350,23 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
 
 if __name__ == "__main__":
-    call_main(main, MODULE_NAME)
+    # Try to use standard call_main, but it will fail for 2D CPACS files
+    # In that case, we'll handle it with SimpleCPACS
+    try:
+        call_main(main, MODULE_NAME)
+    except Exception as e:
+        # If CPACS loading fails, try with SimpleCPACS for 2D mode
+        log.warning(f"Standard CPACS loading failed: {e}")
+        log.info("Attempting to load with SimpleCPACS for 2D mode...")
+
+        wkdir = current_workflow_dir()
+        cpacs_path = wkdir / "ToolInput.xml"
+
+        if cpacs_path.exists():
+            cpacs = SimpleCPACS(str(cpacs_path))
+            main(cpacs, wkdir)
+            cpacs.save_cpacs(str(cpacs_path), overwrite=True)
+            cpacs.close()
+        else:
+            log.error(f"CPACS file not found: {cpacs_path}")
+            raise

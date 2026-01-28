@@ -34,6 +34,8 @@ from tixi3.tixi3wrapper import (
     ReturnCode,
     Tixi3Exception,
 )
+
+from ceasiompy.utils.cpacs_utils import SimpleCPACS
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
@@ -145,9 +147,15 @@ def save_cpacs_file(logging: bool = True):
         if logging:
             st.warning("No CPACS file has been selected!")
         return None
+
     st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
     st.session_state.workflow.cpacs_in = saved_cpacs_file
-    st.session_state.cpacs = CPACS(saved_cpacs_file)
+
+    # Try to reload with full CPACS, fallback to SimpleCPACS for 2D
+    try:
+        st.session_state.cpacs = CPACS(saved_cpacs_file)
+    except Exception:
+        st.session_state.cpacs = SimpleCPACS(str(saved_cpacs_file))
 
 
 def create_sidebar(how_to_text, page_title="CEASIOMpy"):

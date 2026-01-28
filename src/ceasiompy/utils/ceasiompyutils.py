@@ -48,6 +48,7 @@ from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
 )
+from ceasiompy.utils.cpacs_utils import SimpleCPACS
 from typing import (
     TextIO,
     Optional,
@@ -151,7 +152,7 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
         create_branch(tixi, SELECTED_AEROMAP_XPATH)
     tixi.updateTextElement(SELECTED_AEROMAP_XPATH, first_aeromap)
 
-    for _, default_value, var_type, _, xpath, _, _, test_value, _ in inputs.values():
+    for _, default_value, var_type, _, xpath, _, _, test_value, _, _ in inputs.values():
         try:
             if test:
                 value = test_value
@@ -389,7 +390,17 @@ def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
 
         # Run the module
         with change_working_dir(wkdir):
-            cpacs = CPACS(cpacs_in)
+            # Try loading with full CPACS (for 3D files)
+            # If it fails (e.g., 2D files without required structures), use SimpleCPACS
+            try:
+                cpacs = CPACS(cpacs_in)
+            except Exception as e:
+                log.warning(
+                    f"Standard CPACS loading failed for {cpacs_in}: {e}. "
+                    f"Attempting to load with SimpleCPACS (2D mode)."
+                )
+                cpacs = SimpleCPACS(str(cpacs_in))
+
             if test:
                 log.info("Updating CPACS from __specs__")
                 update_cpacs_from_specs(cpacs, module_name, test)

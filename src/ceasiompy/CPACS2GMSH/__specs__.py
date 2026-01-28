@@ -16,7 +16,7 @@ GUI Interface of CPACS2GMSH.
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy.utils.commonxpaths import SU2MESH_XPATH
+from ceasiompy.utils.commonxpaths import SU2MESH_XPATH, GEOMETRY_MODE_XPATH, SELECTED_AEROMAP_XPATH
 from ceasiompy.CPACS2GMSH import (
     INCLUDE_GUI,
     HAS_PENTAGROW,
@@ -47,6 +47,19 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_EXHAUST_PERCENT_XPATH,
     GMSH_SAVE_CGNS_XPATH,
     GMSH_MESH_CHECKER_XPATH,
+    GMSH_2D_AIRFOIL_MESH_SIZE_XPATH,
+    GMSH_2D_EXT_MESH_SIZE_XPATH,
+    GMSH_2D_FARFIELD_RADIUS_XPATH,
+    GMSH_2D_STRUCTURED_MESH_XPATH,
+    GMSH_2D_FARFIELD_TYPE_XPATH,
+    GMSH_2D_FIRST_LAYER_HEIGHT_XPATH,
+    GMSH_2D_HEIGHT_LENGTH_XPATH,
+    GMSH_2D_WAKE_LENGTH_XPATH,
+    GMSH_2D_LENGTH_XPATH,
+    GMSH_2D_NO_BL_XPATH,
+    GMSH_2D_RATIO_XPATH,
+    GMSH_2D_NB_LAYERS_XPATH,
+    GMSH_2D_MESH_FORMAT_XPATH,
 )
 
 # ==============================================================================
@@ -69,6 +82,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Open GMSH GUI",
     gui_group="General options",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -81,6 +95,7 @@ cpacs_inout.add_input(
     gui_name="Choose the mesh type",
     gui_group="Mesh type",
     gui=HAS_PENTAGROW,
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -93,6 +108,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Aileron/Elevator/Rudder Angles",
     gui_group="Control surface settings",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -105,6 +121,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Use Symmetry",
     gui_group="Domain",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -117,6 +134,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Farfield size factor",
     gui_group="Domain",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -130,6 +148,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Farfield mesh size factor",
     gui_group="Mesh options",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -142,6 +161,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Fuselage mesh size factor",
     gui_group="Mesh options",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -154,6 +174,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Wings mesh size factor",
     gui_group="Mesh options",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -166,6 +187,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Engines",
     gui_group="Mesh options",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -178,6 +200,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Propellers",
     gui_group="Mesh options",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -190,6 +213,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="n power factor",
     gui_group="Advanced mesh parameters",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -202,6 +226,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="n power field",
     gui_group="Advanced mesh parameters",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -214,6 +239,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="LE/TE refinement factor",
     gui_group="Advanced mesh parameters",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -226,6 +252,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Refine truncated TE",
     gui_group="Advanced mesh parameters",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -239,6 +266,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Auto refine",
     gui_group="Advanced mesh parameters",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -251,6 +279,7 @@ cpacs_inout.add_input(
     gui=True,
     gui_name="Refinement factor of lines in between angled surfaces (only in RANS)",
     gui_group="Advanced mesh parameters",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -263,6 +292,8 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Number of layer",
     gui_group="RANS options",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
+
 )
 
 cpacs_inout.add_input(
@@ -275,6 +306,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Height of first layer",
     gui_group="RANS options",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -287,6 +319,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Max layer thickness",
     gui_group="RANS options",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -299,6 +332,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Growth ratio",
     gui_group="RANS options",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -311,6 +345,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Growth factor",
     gui_group="RANS options",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -323,6 +358,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Feature Angle",
     gui_group="RANS options",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -335,6 +371,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Export propeller(s)",
     gui_group="General options",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -348,6 +385,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Engine intake position",
     gui_group="Engines",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 cpacs_inout.add_input(
     var_name="exhaust_percent",
@@ -360,6 +398,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Engine exhaust position",
     gui_group="Engines",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -372,6 +411,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Save CGNS",
     gui_group="Saving options",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(
@@ -384,8 +424,197 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Mesh Checker",
     gui_group="Mesh Checker",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
+# ==============================================================================
+#   AEROMAP INPUT (for both 2D and 3D)
+# ==============================================================================
+
+cpacs_inout.add_input(
+    var_name="aeromap_uid",
+    var_type=list,
+    default_value=None,
+    unit=None,
+    descr="Aeromap UID to use for CFD conditions (AoA, Mach, altitude, etc.)",
+    xpath=SELECTED_AEROMAP_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Aeromap Selection",
+    gui_group="Aeromap Options",
+)
+
+# ==============================================================================
+#   2D AIRFOIL MESH PARAMETERS
+# ==============================================================================
+
+cpacs_inout.add_input(
+    var_name="no_boundary_layer",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="Disable boundary layer (unstructured mesh with triangles only)",
+    xpath=GMSH_2D_NO_BL_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="No Boundary Layer",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}==2D",
+)
+
+cpacs_inout.add_input(
+    var_name="airfoil_mesh_size",
+    var_type=float,
+    default_value=0.01,
+    unit="[mm]",
+    descr="Mesh size on the airfoil contour for 2D mesh generation",
+    xpath=GMSH_2D_AIRFOIL_MESH_SIZE_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Airfoil Mesh Size",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}==2D",
+)
+
+cpacs_inout.add_input(
+    var_name="external_mesh_size",
+    var_type=float,
+    default_value=0.2,
+    unit="[mm]",
+    descr="Mesh size in the external domain for 2D mesh generation",
+    xpath=GMSH_2D_EXT_MESH_SIZE_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="External Mesh Size",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}==2D",
+)
+
+cpacs_inout.add_input(
+    var_name="structured_mesh",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="Chose if you want a structured mesh or a hybrid one",
+    xpath=GMSH_2D_STRUCTURED_MESH_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Structured Mesh",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}==2D",
+)
+
+cpacs_inout.add_input(
+    var_name="first_layer_height",
+    var_type=float,
+    default_value=0.001,
+    unit="[mm]",
+    descr="First layer height for 2D mesh generation",
+    xpath=GMSH_2D_FIRST_LAYER_HEIGHT_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="First Layer Height",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GMSH_2D_NO_BL_XPATH}!=True",
+)
+
+cpacs_inout.add_input(
+    var_name="farfield_type",
+    var_type=list,
+    default_value=["Rectangular", "Circular", "CType"],
+    unit=None,
+    descr="Choose farfield shape (automatically set to CType for structured mesh)",
+    xpath=GMSH_2D_FARFIELD_TYPE_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Farfield Type",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GMSH_2D_STRUCTURED_MESH_XPATH}!=True",
+)
+
+cpacs_inout.add_input(
+    var_name="farfield_radius",
+    var_type=float,
+    default_value=10.0,
+    unit="[m]",
+    descr="Farfield radius for circular farfield in 2D mesh generation",
+    xpath=GMSH_2D_FARFIELD_RADIUS_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Farfield Radius",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GMSH_2D_FARFIELD_TYPE_XPATH}==Circular",
+)
+
+cpacs_inout.add_input(
+    var_name="wake_length",
+    var_type=float,
+    default_value=6,
+    unit="[m]",
+    descr="Wake length downstream of the airfoil for rectangular/C-type farfield",
+    xpath=GMSH_2D_WAKE_LENGTH_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Wake Length",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GMSH_2D_FARFIELD_TYPE_XPATH}==CType",
+)
+
+cpacs_inout.add_input(
+    var_name="height",
+    var_type=float,
+    default_value=5,
+    unit="[m]",
+    descr="Height of domain for C-type/rectangular farfield",
+    xpath=GMSH_2D_HEIGHT_LENGTH_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Height",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GMSH_2D_FARFIELD_TYPE_XPATH}==CType or {GMSH_2D_FARFIELD_TYPE_XPATH}==Rectangular",
+)
+
+cpacs_inout.add_input(
+    var_name="length",
+    var_type=float,
+    default_value=5,
+    unit="[m]",
+    descr="Length of domain for rectangular farfield",
+    xpath=GMSH_2D_LENGTH_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Length",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GMSH_2D_FARFIELD_TYPE_XPATH}==Rectangular",
+)
+
+cpacs_inout.add_input(
+    var_name="growth_ratio",
+    var_type=float,
+    default_value=1.2,
+    unit=None,
+    descr="Growth ratio of boundary layer cells",
+    xpath=GMSH_2D_RATIO_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Growth Ratio",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GMSH_2D_NO_BL_XPATH}!=True",
+)
+
+cpacs_inout.add_input(
+    var_name="number_of_layers",
+    var_type=int,
+    default_value=25,
+    unit=None,
+    descr="Total number of layers in the boundary layer",
+    xpath=GMSH_2D_NB_LAYERS_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Number of Layers",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GMSH_2D_NO_BL_XPATH}!=True",
+)
+
+cpacs_inout.add_input(
+    var_name="mesh_format_2d",
+    var_type=list,
+    default_value=["su2", "msh", "vtk", "wrl", "stl", "mesh", "cgns", "dat"],
+    unit=None,
+    descr="Output format for 2D mesh file (su2, msh, vtk, wrl, stl, mesh, cgns, dat)",
+    xpath=GMSH_2D_MESH_FORMAT_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Mesh Format",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}==2D",
+)
 
 # ==============================================================================
 #   GUI OUTPUTS

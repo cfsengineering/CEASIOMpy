@@ -115,7 +115,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     )
     first_cases = len(new_alt_list)
 
-    log.info(f'{alt_list=} {new_alt_list=}')
     for i_case, alt in enumerate(new_alt_list):
         mach = new_mach_list[i_case]
         aoa = new_aoa_list[i_case]

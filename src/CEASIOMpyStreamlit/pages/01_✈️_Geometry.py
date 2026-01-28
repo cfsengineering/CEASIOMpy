@@ -23,16 +23,15 @@ import os
 import sys
 import hashlib
 import subprocess
-import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
-from urllib.parse import urlparse
+import numpy as np
 
 from ceasiompy.utils import get_wkdir
 from ceasiompy.utils.ceasiompyutils import parse_bool
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH, GEOM_XPATH
 from ceasiompy.utils.cpacs_utils import create_minimal_cpacs_2d
-from CEASIOMpyStreamlit.streamlitutils import create_sidebar
+from CEASIOMpyStreamlit.streamlitutils import create_sidebar, section_3D_view
 
 # Airfoil generation functions (optional)
 try:
@@ -44,6 +43,8 @@ except ImportError:
     get_airfoil_points = None
 
 from stl import mesh
+
+
 from typing import Final
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
@@ -53,6 +54,7 @@ from tigl3.tigl3wrapper import Tigl3
 from ceasiompy.utils.workflowclasses import Workflow
 
 from CEASIOMpyStreamlit import BLOCK_CONTAINER
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.VSP2CPACS import (
     SOFTWARE_PATH as OPENVSP_PATH,
     MODULE_STATUS as VSP2CPACS_MODULE_STATUS,
@@ -72,55 +74,6 @@ HOW_TO_TEXT: Final[str] = (
 PAGE_NAME: Final[str] = "Geometry"
 
 _VSP2CPACS_OUT_TOKEN: Final[str] = "__CEASIOMPY_VSP2CPACS_OUT__="
-
-
-def _resolve_frontend_portal_url() -> str | None:
-    """Return the first configured frontend origin so we can link back to the portal."""
-    raw_origins = os.environ.get("VITE_FRONTEND_ORIGINS") or ""
-    for origin in raw_origins.split(","):
-        candidate = origin.strip()
-        if not candidate:
-            continue
-        parsed = urlparse(candidate)
-        if parsed.scheme and parsed.netloc:
-            return candidate
-        return f"http://{candidate}"
-    frontend_url = os.environ.get("VITE_STREAMLIT_URL")
-    if frontend_url:
-        parsed = urlparse(frontend_url)
-        if parsed.scheme and parsed.netloc:
-            return frontend_url
-        return f"http://{frontend_url}"
-    return None
-
-
-# =================================================================================================
-#    SESSION GUARD
-# =================================================================================================
-
-
-def _enforce_session_token() -> None:
-    """Ensure the Streamlit UI is accessed only via a matching session token."""
-    expected_token = os.environ.get("CEASIOMPY_SESSION_TOKEN")
-    if not expected_token:
-        return
-    params = st.query_params
-    provided_values = params.get("session_token")
-    provided_token = (provided_values or [""])[0]
-    if provided_token != expected_token:
-        st.error(
-            "Unauthorized access. Launch CEASIOMpy from the web portal to continue your session."
-        )
-        portal_url = _resolve_frontend_portal_url()
-        if portal_url:
-            st.markdown(
-                f"[Return to the web portal →]({portal_url})",
-                unsafe_allow_html=True,
-            )
-        st.stop()
-
-
-# _enforce_session_token()
 
 # =================================================================================================
 #    FUNCTIONS
@@ -207,7 +160,6 @@ def save_airfoil_and_create_cpacs(
 
 def convert_vsp3_to_cpacs(vsp3_path: Path, *, output_dir: Path) -> Path:
     """Convert a VSP3 file to CPACS in a separate process.
-
     OpenVSP Python bindings may segfault; running conversion out-of-process prevents the Streamlit
     server from crashing and allows reporting the error.
     """
@@ -264,6 +216,24 @@ def convert_vsp3_to_cpacs(vsp3_path: Path, *, output_dir: Path) -> Path:
         + "\n--- stderr ---\n"
         + (completed.stderr or "")
     )
+
+
+def build_default_upload(cpacs_path: Path):
+    """Create a lightweight file-like object compatible with the upload flow."""
+
+    if not cpacs_path.exists():
+        st.error(f"CPACS file not found: {cpacs_path}")
+        return None
+
+    class _DefaultUploadedFile:
+        def __init__(self, path: Path) -> None:
+            self.name = path.name
+            self._data = path.read_bytes()
+
+        def getbuffer(self):
+            return self._data
+
+    return _DefaultUploadedFile(cpacs_path)
 
 
 def close_cpacs_handles(cpacs: CPACS | None, *, detach: bool = True) -> None:
@@ -451,6 +421,17 @@ def section_select_cpacs() -> None:
             key="geometry_file_uploader",
             label_visibility="collapsed",
         )
+
+        if not uploaded_file:
+            if st.button(
+                label="Load a default CPACS geometry",
+            ):
+                default_cpacs_path = Path(CPACS_FILES_PATH, "D150_simple.xml")
+                uploaded_file = build_default_upload(default_cpacs_path)
+                if uploaded_file is None:
+                    return None
+            else:
+                return None
 
         if uploaded_file:
             uploaded_bytes = uploaded_file.getbuffer()

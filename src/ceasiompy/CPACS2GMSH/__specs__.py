@@ -55,9 +55,11 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_2D_FIRST_LAYER_HEIGHT_XPATH,
     GMSH_2D_HEIGHT_LENGTH_XPATH,
     GMSH_2D_WAKE_LENGTH_XPATH,
+    GMSH_2D_LENGTH_XPATH,
     GMSH_2D_NO_BL_XPATH,
     GMSH_2D_RATIO_XPATH,
     GMSH_2D_NB_LAYERS_XPATH,
+    GMSH_2D_MESH_FORMAT_XPATH,
 )
 
 # ==============================================================================
@@ -546,20 +548,33 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Wake Length",
     gui_group="2D Airfoil Mesh",
-    gui_cond=f"{GMSH_2D_FARFIELD_TYPE_XPATH}!=Circular",
+    gui_cond=f"{GMSH_2D_FARFIELD_TYPE_XPATH}==CType",
 )
 
 cpacs_inout.add_input(
-    var_name="height_length",
+    var_name="height",
     var_type=float,
     default_value=5,
     unit="[m]",
-    descr="Height of domain for rectangular/C-type farfield",
+    descr="Height of domain for C-type/rectangular farfield",
     xpath=GMSH_2D_HEIGHT_LENGTH_XPATH,
     gui=INCLUDE_GUI,
-    gui_name="Height Length",
+    gui_name="Height",
     gui_group="2D Airfoil Mesh",
-    gui_cond=f"{GMSH_2D_FARFIELD_TYPE_XPATH}!=Circular",
+    gui_cond=f"{GMSH_2D_FARFIELD_TYPE_XPATH}==CType or {GMSH_2D_FARFIELD_TYPE_XPATH}==Rectangular",
+)
+
+cpacs_inout.add_input(
+    var_name="length",
+    var_type=float,
+    default_value=5,
+    unit="[m]",
+    descr="Length of domain for rectangular farfield",
+    xpath=GMSH_2D_LENGTH_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Length",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GMSH_2D_FARFIELD_TYPE_XPATH}==Rectangular",
 )
 
 cpacs_inout.add_input(
@@ -578,7 +593,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="number_of_layers",
     var_type=int,
-    default_value=35,
+    default_value=25,
     unit=None,
     descr="Total number of layers in the boundary layer",
     xpath=GMSH_2D_NB_LAYERS_XPATH,
@@ -586,6 +601,19 @@ cpacs_inout.add_input(
     gui_name="Number of Layers",
     gui_group="2D Airfoil Mesh",
     gui_cond=f"{GMSH_2D_NO_BL_XPATH}!=True",
+)
+
+cpacs_inout.add_input(
+    var_name="mesh_format_2d",
+    var_type=list,
+    default_value=["su2", "msh", "vtk", "wrl", "stl", "mesh", "cgns", "dat"],
+    unit=None,
+    descr="Output format for 2D mesh file (su2, msh, vtk, wrl, stl, mesh, cgns, dat)",
+    xpath=GMSH_2D_MESH_FORMAT_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Mesh Format",
+    gui_group="2D Airfoil Mesh",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}==2D",
 )
 
 # ==============================================================================

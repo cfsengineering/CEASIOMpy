@@ -19,6 +19,8 @@ import streamlit as st
 from PIL import Image
 from CEASIOMpyStreamlit.streamlitutils import create_sidebar
 from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
+from ceasiompy.utils.workflowclasses import Workflow
+from ceasiompy.utils.ceasiompyutils import get_wkdir
 
 # ==============================================================================
 #   CONSTANTS
@@ -44,6 +46,13 @@ if __name__ == "__main__":
     # Set page config with CEASIOMpy logo (must be first Streamlit command)
     logo = Image.open(CEASIOMPY_LOGO_PATH)
     st.set_page_config(page_title="CEASIOMpy", page_icon=logo, layout="wide")
+
+    # Initialize workflow in session state if not present
+    if "workflow" not in st.session_state:
+        st.session_state["workflow"] = Workflow()
+        wkdir = get_wkdir()
+        wkdir.mkdir(parents=True, exist_ok=True)
+        st.session_state.workflow.working_dir = wkdir
 
     # Redirect to Geometry page on first load
     if "visited_home" not in st.session_state:

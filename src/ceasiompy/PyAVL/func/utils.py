@@ -181,8 +181,11 @@ def duplicate_elements(expand: bool, *lists: List) -> Tuple[List, ...]:
 
     *initial_lists, last_list = lists
 
-    # Keep existing pairing between initial lists (no Cartesian product)
-    combinations = list(zip(*initial_lists))
+    if expand:
+        # Keep existing pairing between initial lists (no Cartesian product)
+        combinations = list(product(*initial_lists))
+    else:
+        combinations = list(zip(*initial_lists))
 
     n = len(initial_lists)
     new_lists = [[] for _ in initial_lists] + [[] for _ in range(3)]

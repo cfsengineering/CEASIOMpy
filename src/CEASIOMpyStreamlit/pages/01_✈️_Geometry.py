@@ -157,16 +157,9 @@ def save_airfoil_and_create_cpacs(
         for x, y in zip(airfoil_x, airfoil_y):
             f.write(f"{x:.8f} {y:.8f}\n")
 
-    # Create or update CPACS file
+    # Always create a fresh CPACS file from scratch for 2D airfoil
     cpacs_path = wkdir / "ToolInput.xml"
-
-    if cpacs_path.exists():
-        # Update existing CPACS - open with TIXI for 2D
-        tixi = Tixi3()
-        tixi.open(str(cpacs_path))
-    else:
-        # Create minimal CPACS structure for 2D airfoil
-        tixi = create_minimal_cpacs_2d(cpacs_path, f"2D Airfoil Analysis - {airfoil_name}")
+    tixi = create_minimal_cpacs_2d(cpacs_path, f"2D Airfoil Analysis - {airfoil_name}")
 
     # Add airfoil profile to CPACS
     airfoil_uid = f"airfoil_{airfoil_name}"
@@ -175,23 +168,7 @@ def save_airfoil_and_create_cpacs(
     airfoils_xpath = "/cpacs/vehicles/profiles/wingAirfoils"
     create_branch(tixi, airfoils_xpath)
 
-    # Check if airfoil already exists, if so remove it
-    try:
-        existing_idx = 1
-        while True:
-            test_xpath = f"{airfoils_xpath}/wingAirfoil[{existing_idx}]"
-            try:
-                existing_uid = tixi.getTextAttribute(test_xpath, "uID")
-                if existing_uid == airfoil_uid:
-                    tixi.removeElement(test_xpath)
-                    break
-                existing_idx += 1
-            except Exception:
-                break
-    except Exception:
-        pass
-
-    # Add new airfoil
+    # Add new airfoil (CPACS is fresh, so this is the only one)
     airfoil_xpath = f"{airfoils_xpath}/wingAirfoil"
     tixi.createElement(airfoils_xpath, "wingAirfoil")
 
@@ -736,13 +713,24 @@ def section_2d_airfoil() -> None:
                             tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "NACA")
                             create_branch(tixi, GEOM_XPATH + "/airfoilCode")
                             tixi.updateTextElement(GEOM_XPATH + "/airfoilCode", naca_code)
+                            # Remove airfoilName if it exists (from previous Custom selection)
+                            if tixi.checkElement(GEOM_XPATH + "/airfoilName"):
+                                tixi.removeElement(GEOM_XPATH + "/airfoilName")
                         else:
                             tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "Custom")
                             create_branch(tixi, GEOM_XPATH + "/airfoilName")
                             tixi.updateTextElement(GEOM_XPATH + "/airfoilName", naca_code)
+                            # Remove airfoilCode if it exists (from previous NACA selection)
+                            if tixi.checkElement(GEOM_XPATH + "/airfoilCode"):
+                                tixi.removeElement(GEOM_XPATH + "/airfoilCode")
 
                         tixi.save(str(cpacs_path), True)
                         tixi.close()
+
+                        # Reload CPACS in session state to ensure workflow uses updated file
+                        # Use SimpleCPACS for 2D (no TIGL validation)
+                        from ceasiompy.utils.cpacs_utils import SimpleCPACS
+                        st.session_state.cpacs = SimpleCPACS(str(cpacs_path))
 
                         st.success(
                             f"✓ Airfoil '{naca_code}' generated with {len(coords)} points\n\n"
@@ -824,9 +812,17 @@ def section_2d_airfoil() -> None:
                         tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "Custom")
                         create_branch(tixi, GEOM_XPATH + "/airfoilName")
                         tixi.updateTextElement(GEOM_XPATH + "/airfoilName", airfoil_name)
+                        # Remove airfoilCode if it exists (from previous NACA selection)
+                        if tixi.checkElement(GEOM_XPATH + "/airfoilCode"):
+                            tixi.removeElement(GEOM_XPATH + "/airfoilCode")
 
                         tixi.save(str(cpacs_path), True)
                         tixi.close()
+
+                        # Reload CPACS in session state to ensure workflow uses updated file
+                        # Use SimpleCPACS for 2D (no TIGL validation)
+                        from ceasiompy.utils.cpacs_utils import SimpleCPACS
+                        st.session_state.cpacs = SimpleCPACS(str(cpacs_path))
 
                     # Display success message full width outside nested context
                     if len(coords_data) > 0:
@@ -835,7 +831,6 @@ def section_2d_airfoil() -> None:
                                 f"✓ Airfoil profile '{uploaded_file.name}' "
                                 f"loaded with {len(coords)} points\n\n"
                                 f"📄 Saved to: `profiles/airfoil_{airfoil_name}.dat`\n\n"
-                                f"📋 CPACS updated: `ToolInput.xml`"
                             )
                         )
                     else:

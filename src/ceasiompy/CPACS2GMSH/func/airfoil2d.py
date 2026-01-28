@@ -156,12 +156,8 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
     airfoil_name = None
     airfoil_file = None
 
-    try:
-        airfoil_type = tixi.getTextElement(GEOM_XPATH + "/airfoilType")
-    except Exception:
-        log.warning("No airfoil type specified in CPACS, trying NACA 0012 as default")
-        airfoil_type = "NACA"
-        airfoil_name = "0012"
+    airfoil_type = tixi.getTextElement(GEOM_XPATH + "/airfoilType")
+
 
     # Get airfoil code/name from CPACS based on type
     if airfoil_type == "NACA":

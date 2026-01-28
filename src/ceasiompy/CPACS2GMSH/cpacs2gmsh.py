@@ -21,10 +21,9 @@ Small description of the script
 # =================================================================================================
 
 import signal
-import subprocess
 import threading
 
-from ceasiompy.utils.ceasiompyutils import call_main
+from ceasiompy.utils.ceasiompyutils import call_main, current_workflow_dir
 from ceasiompy.utils.geometryfunctions import return_uidwings
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.CPACS2GMSH.func.meshvis import cgns_mesh_checker
@@ -43,10 +42,9 @@ from cpacspy.cpacsfunctions import (
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
-from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import SU2MESH_XPATH, GEOMETRY_MODE_XPATH, GEOM_XPATH
+from ceasiompy.utils.commonxpaths import SU2MESH_XPATH, GEOMETRY_MODE_XPATH
 from ceasiompy.utils.cpacs_utils import SimpleCPACS
 from ceasiompy.CPACS2GMSH import (
     MODULE_NAME,
@@ -360,8 +358,6 @@ if __name__ == "__main__":
         # If CPACS loading fails, try with SimpleCPACS for 2D mode
         log.warning(f"Standard CPACS loading failed: {e}")
         log.info("Attempting to load with SimpleCPACS for 2D mode...")
-
-        from ceasiompy.utils.ceasiompyutils import get_wkdir, current_workflow_dir
 
         wkdir = current_workflow_dir()
         cpacs_path = wkdir / "ToolInput.xml"

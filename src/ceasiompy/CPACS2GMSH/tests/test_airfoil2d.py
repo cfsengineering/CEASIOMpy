@@ -19,10 +19,8 @@ from pathlib import Path
 
 import pytest
 from ceasiompy.CPACS2GMSH.func.airfoil2d import process_2d_airfoil
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.utils.cpacs_utils import SimpleCPACS, create_minimal_cpacs_2d
 from cpacspy.cpacsfunctions import create_branch
-from tixi3.tixi3wrapper import Tixi3
 
 MODULE_DIR = Path(__file__).parent
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput_2D")

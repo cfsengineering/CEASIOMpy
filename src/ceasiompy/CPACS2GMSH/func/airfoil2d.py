@@ -18,10 +18,11 @@ import subprocess
 from pathlib import Path
 
 from cpacspy.cpacspy import CPACS
-from cpacspy.cpacsfunctions import get_value, create_branch
+from cpacspy.cpacsfunctions import get_value_or_default, create_branch
 
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import SU2MESH_XPATH, GEOM_XPATH
+from ceasiompy.utils.moduleinterfaces import get_specs_for_module
 from ceasiompy.CPACS2GMSH import (
     GMSH_2D_AIRFOIL_MESH_SIZE_XPATH,
     GMSH_2D_EXT_MESH_SIZE_XPATH,
@@ -59,93 +60,66 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
 
     tixi = cpacs.tixi
 
-    # Retrieve mesh parameters from CPACS (with defaults)
-    try:
-        airfoil_mesh_size = get_value(tixi, GMSH_2D_AIRFOIL_MESH_SIZE_XPATH)
-    except Exception:
-        airfoil_mesh_size = 0.01
-        log.info(f"Using default airfoil mesh size: {airfoil_mesh_size} mm")
+    # Get default values from specs
+    specs = get_specs_for_module("CPACS2GMSH")
+    defaults = {}
+    for entry in specs.cpacs_inout.inputs:
+        defaults[entry.xpath] = entry.default_value
+        # For list types (dropdowns), use first item as default
+        if isinstance(defaults[entry.xpath], list) and len(defaults[entry.xpath]) > 0:
+            defaults[entry.xpath] = defaults[entry.xpath][0]
 
-    try:
-        ext_mesh_size = get_value(tixi, GMSH_2D_EXT_MESH_SIZE_XPATH)
-    except Exception:
-        ext_mesh_size = 0.2
-        log.info(f"Using default external mesh size: {ext_mesh_size} mm")
-
-    try:
-        structured_mesh = get_value(tixi, GMSH_2D_STRUCTURED_MESH_XPATH)
-    except Exception:
-        structured_mesh = False
-        log.info(f"Using default structured mesh: {structured_mesh}")
-
-    try:
-        first_layer_height = get_value(tixi, GMSH_2D_FIRST_LAYER_HEIGHT_XPATH)
-    except Exception:
-        first_layer_height = 0.001
-        log.info(f"Using default first layer height: {first_layer_height} mm")
-
-    try:
-        farfield_type = get_value(tixi, GMSH_2D_FARFIELD_TYPE_XPATH)
-    except Exception:
-        farfield_type = "Rectangular"
-        log.info(f"Using default farfield type: {farfield_type}")
+    # Retrieve mesh parameters from CPACS (with defaults from specs)
+    airfoil_mesh_size = get_value_or_default(
+        tixi, GMSH_2D_AIRFOIL_MESH_SIZE_XPATH, defaults.get(GMSH_2D_AIRFOIL_MESH_SIZE_XPATH)
+    )
+    ext_mesh_size = get_value_or_default(
+        tixi, GMSH_2D_EXT_MESH_SIZE_XPATH, defaults.get(GMSH_2D_EXT_MESH_SIZE_XPATH)
+    )
+    structured_mesh = get_value_or_default(
+        tixi, GMSH_2D_STRUCTURED_MESH_XPATH, defaults.get(GMSH_2D_STRUCTURED_MESH_XPATH)
+    )
+    first_layer_height = get_value_or_default(
+        tixi, GMSH_2D_FIRST_LAYER_HEIGHT_XPATH, defaults.get(GMSH_2D_FIRST_LAYER_HEIGHT_XPATH)
+    )
+    farfield_type = get_value_or_default(
+        tixi, GMSH_2D_FARFIELD_TYPE_XPATH, defaults.get(GMSH_2D_FARFIELD_TYPE_XPATH)
+    )
 
     # Force CType for structured mesh
     if structured_mesh:
         farfield_type = "CType"
         log.info("Structured mesh enabled: forcing farfield type to CType")
 
-    try:
-        farfield_radius = get_value(tixi, GMSH_2D_FARFIELD_RADIUS_XPATH)
-    except Exception:
-        farfield_radius = 10.0
-        log.info(f"Using default farfield radius: {farfield_radius} m")
+    farfield_radius = get_value_or_default(
+        tixi, GMSH_2D_FARFIELD_RADIUS_XPATH, defaults.get(GMSH_2D_FARFIELD_RADIUS_XPATH)
+    )
 
-    try:
-        wake_length = get_value(tixi, GMSH_2D_WAKE_LENGTH_XPATH)
-    except Exception:
-        wake_length = 6.0
-        log.info(f"Using default wake length: {wake_length} m")
-
-    try:
-        height_length = get_value(tixi, GMSH_2D_HEIGHT_LENGTH_XPATH)
-    except Exception:
-        height_length = 5.0
-        log.info(f"Using default height length: {height_length} m")
-
-    try:
-        length = get_value(tixi, GMSH_2D_LENGTH_XPATH)
-    except Exception:
-        length = 5.0
-        log.info(f"Using default length: {length} m")
-
-    try:
-        no_boundary_layer = get_value(tixi, GMSH_2D_NO_BL_XPATH)
-    except Exception:
-        no_boundary_layer = False
-        log.info(f"Using default no_boundary_layer: {no_boundary_layer}")
-
-    try:
-        growth_ratio = get_value(tixi, GMSH_2D_RATIO_XPATH)
-    except Exception:
-        growth_ratio = 1.2
-        log.info(f"Using default growth_ratio: {growth_ratio}")
-
-    try:
-        number_of_layers = int(get_value(tixi, GMSH_2D_NB_LAYERS_XPATH))
-    except Exception:
-        number_of_layers = 35
-        log.info(f"Using default number_of_layers: {number_of_layers}")
-
-    try:
-        mesh_format = get_value(tixi, GMSH_2D_MESH_FORMAT_XPATH)
-    except Exception:
-        mesh_format = "su2"
-        log.info(f"Using default mesh format: {mesh_format}")
+    wake_length = get_value_or_default(
+        tixi, GMSH_2D_WAKE_LENGTH_XPATH, defaults.get(GMSH_2D_WAKE_LENGTH_XPATH)
+    )
+    height_length = get_value_or_default(
+        tixi, GMSH_2D_HEIGHT_LENGTH_XPATH, defaults.get(GMSH_2D_HEIGHT_LENGTH_XPATH)
+    )
+    length = get_value_or_default(
+        tixi, GMSH_2D_LENGTH_XPATH, defaults.get(GMSH_2D_LENGTH_XPATH)
+    )
+    no_boundary_layer = get_value_or_default(
+        tixi, GMSH_2D_NO_BL_XPATH, defaults.get(GMSH_2D_NO_BL_XPATH)
+    )
+    growth_ratio = get_value_or_default(
+        tixi, GMSH_2D_RATIO_XPATH, defaults.get(GMSH_2D_RATIO_XPATH)
+    )
+    number_of_layers = int(
+        get_value_or_default(tixi, GMSH_2D_NB_LAYERS_XPATH, defaults.get(GMSH_2D_NB_LAYERS_XPATH))
+    )
+    mesh_format = get_value_or_default(
+        tixi, GMSH_2D_MESH_FORMAT_XPATH, defaults.get(GMSH_2D_MESH_FORMAT_XPATH)
+    )
 
     # AoA is always 0 for 2D airfoil mesh
     aoa = 0.0
-    log.info("Using AoA: 0.0 deg (fixed for 2D airfoil)")
+    # log.info("Using AoA: 0.0 deg (fixed for 2D airfoil)")
 
     # Deflection angle is always 0 (flap feature not implemented yet)
     deflection = 0.0

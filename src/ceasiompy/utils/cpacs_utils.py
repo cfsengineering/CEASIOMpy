@@ -41,16 +41,13 @@ class SimpleCPACS:
     def get_aeromap_uid_list(self):
         """Get list of aeromap UIDs from CPACS."""
         aeromap_list = []
-        try:
-            aeromaps_xpath = "/cpacs/vehicles/aircraft/model/analyses/aeroPerformance"
-            if self.tixi.checkElement(aeromaps_xpath):
-                n_aeromaps = self.tixi.getNamedChildrenCount(aeromaps_xpath, "aeroMap")
-                for i in range(1, n_aeromaps + 1):
-                    aeromap_xpath = f"{aeromaps_xpath}/aeroMap[{i}]"
-                    uid = self.tixi.getTextAttribute(aeromap_xpath, "uID")
-                    aeromap_list.append(uid)
-        except Exception:
-            pass
+        aeromaps_xpath = "/cpacs/vehicles/aircraft/model/analyses/aeroPerformance"
+        if self.tixi.checkElement(aeromaps_xpath):
+            n_aeromaps = self.tixi.getNamedChildrenCount(aeromaps_xpath, "aeroMap")
+            for i in range(1, n_aeromaps + 1):
+                aeromap_xpath = f"{aeromaps_xpath}/aeroMap[{i}]"
+                uid = self.tixi.getTextAttribute(aeromap_xpath, "uID")
+                aeromap_list.append(uid)
         return aeromap_list
 
     def get_aeromap_by_uid(self, uid: str):

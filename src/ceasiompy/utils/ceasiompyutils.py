@@ -403,7 +403,7 @@ def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
                     f"Attempting to load with SimpleCPACS (2D mode)."
                 )
                 cpacs = SimpleCPACS(str(cpacs_in))
-            
+
             if test:
                 log.info("Updating CPACS from __specs__")
                 update_cpacs_from_specs(cpacs, module_name, test)

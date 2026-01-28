@@ -676,9 +676,15 @@ def section_2d_airfoil() -> None:
 
             with col1:
                 naca_code = st.text_input(
-                    "Enter NACA code (e.g., 0012, 2412, 4415) or airfoil name (e.g., e211, dae11):",
+                    (
+                        "Enter NACA code (e.g., 0012, 2412, 4415) "
+                        "or airfoil name (e.g., e211, dae11):"
+                    ),
                     value="0012",
-                    help="Display all airfoil available in the database : https://m-selig.ae.illinois.edu/ads/coord_database.html"
+                    help=(
+                        "Display all airfoil available in the database : "
+                        "https://m-selig.ae.illinois.edu/ads/coord_database.html"
+                    ),
                 )
 
             with col2:
@@ -745,9 +751,11 @@ def section_2d_airfoil() -> None:
                         )
                     except Exception as e:
                         st.error(f"Failed to generate airfoil: {str(e)}")
-                        st.info("For NACA airfoils, use 4 digits (e.g., 0012, 2412). "
-                               "For database airfoils, check the available names at: "
-                               "https://m-selig.ae.illinois.edu/ads/coord_database.html")
+                        st.info(
+                            "For NACA airfoils, use 4 digits (e.g., 0012, 2412). "
+                            "For database airfoils, check the available names at: "
+                            "https://m-selig.ae.illinois.edu/ads/coord_database.html"
+                        )
                 else:
                     st.warning("Please enter a valid NACA code")
 
@@ -823,9 +831,12 @@ def section_2d_airfoil() -> None:
                     # Display success message full width outside nested context
                     if len(coords_data) > 0:
                         st.success(
-                            f"✓ Airfoil profile '{uploaded_file.name}' loaded with {len(coords)} points\n\n"
-                            f"📄 Saved to: `profiles/airfoil_{airfoil_name}.dat`\n\n"
-                            f"📋 CPACS updated: `ToolInput.xml`"
+                            (
+                                f"✓ Airfoil profile '{uploaded_file.name}' "
+                                f"loaded with {len(coords)} points\n\n"
+                                f"📄 Saved to: `profiles/airfoil_{airfoil_name}.dat`\n\n"
+                                f"📋 CPACS updated: `ToolInput.xml`"
+                            )
                         )
                     else:
                         st.error("No valid coordinate data found in the file")

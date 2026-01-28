@@ -15,6 +15,7 @@ Python version: >=3.8
 from pathlib import Path
 
 from tixi3.tixi3wrapper import Tixi3
+from cpacspy.cpacspy import AeroMap
 
 
 class SimpleCPACS:
@@ -23,6 +24,7 @@ class SimpleCPACS:
 
     This class provides minimal CPACS-like interface without full TIGL validation,
     suitable for 2D airfoil analysis where aircraft wings are not present.
+    Now includes support for aeromaps to manage CFD conditions (AoA, Mach, etc.).
     """
 
     def __init__(self, cpacs_file: str):
@@ -37,20 +39,44 @@ class SimpleCPACS:
         self.tixi.save(file_path, overwrite)
 
     def get_aeromap_uid_list(self):
-        """Return empty list for 2D cases (no aeromaps)."""
-        return []
+        """Get list of aeromap UIDs from CPACS."""
+        aeromap_list = []
+        try:
+            aeromaps_xpath = "/cpacs/vehicles/aircraft/model/analyses/aeroPerformance"
+            if self.tixi.checkElement(aeromaps_xpath):
+                n_aeromaps = self.tixi.getNamedChildrenCount(aeromaps_xpath, "aeroMap")
+                for i in range(1, n_aeromaps + 1):
+                    aeromap_xpath = f"{aeromaps_xpath}/aeroMap[{i}]"
+                    uid = self.tixi.getTextAttribute(aeromap_xpath, "uID")
+                    aeromap_list.append(uid)
+        except Exception:
+            pass
+        return aeromap_list
 
     def get_aeromap_by_uid(self, uid: str):
-        """Raise error if trying to access aeromap in 2D mode."""
-        raise NotImplementedError("Aeromaps are not supported in 2D airfoil mode")
+        """Get aeromap by UID."""
+        try:
+            return AeroMap(self.tixi, uid)
+        except Exception as e:
+            raise ValueError(f"AeroMap with uid '{uid}' not found: {e}")
 
     def create_aeromap(self, uid: str):
-        """Raise error if trying to create aeromap in 2D mode."""
-        raise NotImplementedError("Aeromaps are not supported in 2D airfoil mode")
+        """Create a new aeromap."""
+        if " " in uid:
+            raise ValueError("AeroMap uid should not contain any space!")
+        
+        if uid in self.get_aeromap_uid_list():
+            raise ValueError(f"AeroMap with uid '{uid}' already exists!")
+        
+        return AeroMap(self.tixi, uid, create_new=True)
 
     def delete_aeromap(self, uid: str):
-        """Raise error if trying to delete aeromap in 2D mode."""
-        raise NotImplementedError("Aeromaps are not supported in 2D airfoil mode")
+        """Delete an aeromap by UID."""
+        try:
+            aeromap = AeroMap(self.tixi, uid)
+            aeromap.delete()
+        except Exception as e:
+            raise ValueError(f"Cannot delete aeromap '{uid}': {e}")
 
     def close(self):
         """Close the TIXI handle."""

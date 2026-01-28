@@ -137,10 +137,10 @@ def save_cpacs_file(logging: bool = True):
         if logging:
             st.warning("No CPACS file has been selected!")
         return None
-    
+
     st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
     st.session_state.workflow.cpacs_in = saved_cpacs_file
-    
+
     # Try to reload with full CPACS, fallback to SimpleCPACS for 2D
     try:
         st.session_state.cpacs = CPACS(saved_cpacs_file)

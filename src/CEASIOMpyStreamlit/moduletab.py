@@ -177,12 +177,12 @@ def add_module_tab(new_file: bool) -> None:
         cpacs_path = None
         if "cpacs_path" in st.session_state:
             cpacs_path = Path(st.session_state["cpacs_path"])
-        
+
         # If still no path, check default location
         if cpacs_path is None or not cpacs_path.exists():
             wkdir = get_wkdir()
             cpacs_path = wkdir / "ToolInput.xml"
-        
+
         if cpacs_path.exists():
             try:
                 # Try to load with full CPACS class (3D)
@@ -201,6 +201,7 @@ def add_module_tab(new_file: bool) -> None:
             st.warning("No CPACS file has been selected!")
             return None
 
+    # Show aeromap section for both 2D and 3D modes
     section_edit_aeromap()
 
     checks(st.session_state, st.tabs)
@@ -276,7 +277,7 @@ def add_module_tab(new_file: bool) -> None:
                         # If condition evaluation fails, skip this parameter
                         log.warning(f"Failed to evaluate gui_cond '{gui_cond}': {e}")
                         continue
-                
+
                 key = f"{m}_{module}_{name.replace(' ', '')}_{group.replace(' ', '')}"
                 process_unit(name, unit)
 

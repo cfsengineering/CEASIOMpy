@@ -13,7 +13,6 @@ Functions utils to run ceasiompy workflows
 import re
 import os
 import sys
-import math
 import shutil
 import argparse
 import importlib
@@ -50,8 +49,6 @@ from cpacspy.cpacspy import (
     AeroMap,
 )
 from typing import (
-    List,
-    Tuple,
     TextIO,
     Optional,
     Callable,
@@ -350,7 +347,7 @@ def call_main(main: Callable, module_name: str, cpacs_path: Path | None = None) 
     log.info("----- End of " + module_name + " -----")
 
 
-def initialize_cpacs(module_name: str) -> Tuple[CPACS, Path]:
+def initialize_cpacs(module_name: str) -> tuple[CPACS, Path]:
     cpacs_in = get_toolinput_file_path(module_name)
     cpacs_out = get_tooloutput_file_path(module_name)
     check_cpacs_input_requirements(cpacs_in)
@@ -513,7 +510,7 @@ def _detect_binary_format(executable: Path) -> str:
     return "unknown"
 
 
-def check_version(software_name: str, required_version: str) -> Tuple[bool, str]:
+def check_version(software_name: str, required_version: str) -> tuple[bool, str]:
     """
     Check if the version is greater than or equal to the required version.
     """
@@ -566,7 +563,7 @@ def parse_bool(value: str) -> bool:
 
 def run_software(
     software_name: str,
-    arguments: List[str],
+    arguments: list[str],
     wkdir: Path,
     with_mpi: bool = False,
     nb_cpu: int = 1,
@@ -719,7 +716,7 @@ def _check_nb_cpu(nb_proc: int) -> None:
         log.info(f"Using by default {nb_proc} CPUs.")
 
 
-def get_conditions_from_aeromap(aeromap: AeroMap) -> Tuple[List, List, List, List]:
+def get_conditions_from_aeromap(aeromap: AeroMap) -> tuple[list, list, list, list]:
     alt_list = aeromap.get("altitude").tolist()
     mach_list = aeromap.get("machNumber").tolist()
     aoa_list = aeromap.get("angleOfAttack").tolist()
@@ -727,7 +724,7 @@ def get_conditions_from_aeromap(aeromap: AeroMap) -> Tuple[List, List, List, Lis
     return alt_list, mach_list, aoa_list, aos_list
 
 
-def get_aeromap_conditions(cpacs: CPACS, uid_xpath: str) -> Tuple[List, List, List, List]:
+def get_selected_aeromap_values(cpacs: CPACS) -> tuple[list, list, list, list]:
     """
     Reads the flight conditions from the aeromap.
     """
@@ -736,32 +733,17 @@ def get_aeromap_conditions(cpacs: CPACS, uid_xpath: str) -> Tuple[List, List, Li
     # Get the first aeroMap as default one or create automatically one
     aeromap_list = cpacs.get_aeromap_uid_list()
 
-    if aeromap_list:
-        aeromap_default = aeromap_list[0]
+    if not aeromap_list:
+        raise ValueError("You need to have defined aeromaps to retrieve a selected one.")
 
-        aeromap_uid = get_value_or_default(tixi, uid_xpath, aeromap_default)
-        log.info(f"Used aeromap: {aeromap_uid}.")
-        aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
-        alt_list, mach_list, aoa_list, aos_list = get_conditions_from_aeromap(aeromap)
-    else:
-        default_aeromap = cpacs.create_aeromap("DefaultAeromap")
-        default_aeromap.description = "Automatically created AeroMap."
+    aeromap_uid = get_value(
+        tixi=tixi,
+        xpath=SELECTED_AEROMAP_XPATH,
+    )
+    log.info(f"Using: {aeromap_uid=}")
+    aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
-        mach = get_value(tixi, RANGE_CRUISE_MACH_XPATH)
-        alt = get_value(tixi, RANGE_CRUISE_ALT_XPATH)
-
-        default_aeromap.add_row(alt=alt, mach=mach, aos=0.0, aoa=0.0)
-        default_aeromap.save()
-
-        alt_list = [alt]
-        mach_list = [mach]
-        aoa_list = [0.0]
-        aos_list = [0.0]
-
-        aeromap_uid = get_value_or_default(tixi, uid_xpath, "DefaultAeromap")
-        log.info(f"{aeromap_uid} has been created.")
-
-    return alt_list, mach_list, aoa_list, aos_list
+    return get_conditions_from_aeromap(aeromap)
 
 
 def aircraft_name(tixi_or_cpacs) -> str:
@@ -832,12 +814,12 @@ def get_part_type(tixi: Tixi3, part_uid: str, print_info: bool = True) -> str | 
     return None
 
 
-def remove_file_type_in_dir(directory: Path, file_type_list: List[str]) -> None:
+def remove_file_type_in_dir(directory: Path, file_type_list: list[str]) -> None:
     """Remove all files of a given type in a directory.
 
     Args:
         directory (Path): Path to the directory
-        file_type_list (List[str]): List of file types to remove.
+        file_type_list (list[str]): list of file types to remove.
 
     """
 

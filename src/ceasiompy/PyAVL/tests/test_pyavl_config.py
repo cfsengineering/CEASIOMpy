@@ -19,7 +19,7 @@ from ceasiompy.PyAVL.func.config import (
 )
 from ceasiompy.utils.ceasiompyutils import (
     current_workflow_dir,
-    get_aeromap_conditions,
+    get_selected_aeromap_values,
 )
 
 from pathlib import Path
@@ -72,6 +72,7 @@ class TestPyAVLConfig(CeasiompyTest):
         create_branch(tixi, xpath=AVL_NSPANWISE_XPATH)
         tixi.updateIntegerElement(AVL_NSPANWISE_XPATH, 1, "%d")
 
+        create_branch(tixi, xpath=SELECTED_AEROMAP_XPATH)
         tixi.updateTextElement(SELECTED_AEROMAP_XPATH, "aeromap_empty")
 
         create_branch(tixi, xpath=AVL_DISTR_XPATH)
@@ -97,10 +98,10 @@ class TestPyAVLConfig(CeasiompyTest):
         assert result[6] == Path(str(self.wkdir) + "/" + self.cpacs.ac_name + ".avl")
 
     @log_test
-    def test_get_aeromap_conditions(self) -> None:
+    def test_get_selected_aeromap_values(self) -> None:
         self.assert_equal_function(
-            f=get_aeromap_conditions,
-            input_args=(self.cpacs, SELECTED_AEROMAP_XPATH),
+            f=get_selected_aeromap_values,
+            input_args=(self.cpacs),
             expected=([1000.0], [0.3], [5.0], [0.0]),
         )
 

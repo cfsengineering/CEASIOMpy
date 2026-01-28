@@ -55,7 +55,7 @@ def section_settings():
     if "new_file" not in st.session_state:
         st.session_state.new_file = True
 
-    add_module_tab(new_file=st.session_state.new_file)
+    add_module_tab(st.session_state.new_file)
     st.session_state.new_file = False
 
     # Make sure to run at least once to pre-load the default values

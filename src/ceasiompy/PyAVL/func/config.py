@@ -22,7 +22,7 @@ from pydantic import validate_call
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.utils.ceasiompyutils import (
     has_display,
-    get_aeromap_conditions,
+    get_selected_aeromap_values,
 )
 from ceasiompy.utils.mathsfunctions import non_dimensionalize_rate
 from ceasiompy.PyAVL.func.utils import (
@@ -41,7 +41,6 @@ from ceasiompy.PyAVL.func import FORCE_FILES
 from ceasiompy.utils.commonxpaths import (
     AREA_XPATH,
     LENGTH_XPATH,
-    SELECTED_AEROMAP_XPATH,
 )
 from ceasiompy.PyAVL import (
     AVL_ROTRATES_XPATH,
@@ -62,7 +61,7 @@ def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> tuple[
     bool, int, bool,
 ]:
     tixi = cpacs.tixi
-    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, SELECTED_AEROMAP_XPATH)
+    alt_list, mach_list, aoa_list, aos_list = get_selected_aeromap_values(cpacs)
 
     rotation_rates_float = get_value(tixi, AVL_ROTRATES_XPATH)
     control_surface_float = get_value(tixi, AVL_CTRLSURF_ANGLES_XPATH)

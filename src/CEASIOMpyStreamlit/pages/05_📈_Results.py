@@ -278,7 +278,7 @@ def show_results():
         return
 
     workflow_names = [wkflow.name for wkflow in workflow_dirs][::-1]
-    default_index = max(len(workflow_names) - 1, 0)
+    default_index = 0
     chosen_workflow_name = st.selectbox(
         "Choose workflow", workflow_names, index=default_index, key="results_chosen_workflow"
     )
@@ -308,6 +308,24 @@ if __name__ == "__main__":
 
     # Define interface
     create_sidebar(HOW_TO_TEXT)
+
+    # Custom CSS
+    st.markdown(
+        """
+        <style>
+        .block-container {
+            padding-top: 1rem;
+            padding-bottom: 0rem;
+        }
+        .css-4u7rgp  {
+            padding: 15px;
+            font-size: 20px;
+            border-radius:10px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
     st.title("Results")
 

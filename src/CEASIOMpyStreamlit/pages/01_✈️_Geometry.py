@@ -388,7 +388,6 @@ def render_openvsp_panel() -> None:
                 )
             else:
                 st.success("OpenVSP detected and ready to launch")
-                st.caption("Use OpenVSP to edit your geometry, then re-import the CPACS.")
                 button_disabled = False
 
         with button_col:
@@ -439,7 +438,7 @@ def section_select_cpacs() -> None:
 
     # Conversion container
     with st.container(border=True):
-        st.markdown("#### Load a CPACS or VSP3 file")
+        st.markdown("#### Load a CPACS (.xml) or VSP3 (.vsp3) file")
 
         # Check if the CPACS file path is already in session state
         if "cpacs" in st.session_state:
@@ -465,6 +464,7 @@ def section_select_cpacs() -> None:
             "Load a CPACS (.xml) or VSP3 (.vsp3) file",
             type=["xml", "vsp3"],
             key="geometry_file_uploader",
+            label_visibility="collapsed",
         )
 
         if uploaded_file:
@@ -545,9 +545,7 @@ def section_select_cpacs() -> None:
 
         # Display the file uploader widget with the previously uploaded file
         if "cpacs" in st.session_state and st.session_state.cpacs:
-            st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
-            with st.container(border=True):
-                section_3D_view(force_regenerate=True)
+            section_3D_view(force_regenerate=True)
 
 
 def section_3D_view(*, force_regenerate: bool = False) -> None:
@@ -872,6 +870,10 @@ if __name__ == "__main__":
     st.markdown(
         """
         <style>
+        .block-container {
+            padding-top: 1rem;
+            padding-bottom: 0rem;
+        }
         /* Align navigation buttons with selectbox */
         .nav-button-container {
             display: flex;

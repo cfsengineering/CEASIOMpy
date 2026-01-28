@@ -24,7 +24,6 @@ from ceasiompy import NO_YES_LIST
 from ceasiompy.SU2Run import (
     INCLUDE_GUI,
     TEMPLATE_TYPE,
-    SU2_AEROMAP_UID_XPATH,
     SU2_DAMPING_DER_XPATH,
     SU2_ROTATION_RATE_XPATH,
     SU2_CONTROL_SURF_BOOL_XPATH,
@@ -72,18 +71,6 @@ cpacs_inout = CPACSInOut()
 # ==============================================================================
 #   GUI INPUTS
 # ==============================================================================
-
-cpacs_inout.add_input(
-    var_name="aeromap_uid",
-    var_type=list,
-    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
-    unit=None,
-    descr="Name of the aero map to calculate",
-    xpath=SU2_AEROMAP_UID_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="__AEROMAP_SELECTION",
-    gui_group="Aeromap settings",
-)
 
 cpacs_inout.add_input(
     var_name="mesh_choice",

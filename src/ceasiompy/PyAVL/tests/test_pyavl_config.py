@@ -28,6 +28,7 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH
 from ceasiompy.PyAVL import (
     MODULE_DIR,
     AVL_PLOT_XPATH,
@@ -37,7 +38,6 @@ from ceasiompy.PyAVL import (
     AVL_ROTRATES_XPATH,
     AVL_NSPANWISE_XPATH,
     AVL_NCHORDWISE_XPATH,
-    AVL_AEROMAP_UID_XPATH,
     AVL_EXPAND_VALUES_XPATH,
     AVL_FREESTREAM_MACH_XPATH,
     AVL_CTRLSURF_ANGLES_XPATH,
@@ -80,7 +80,7 @@ class TestPyAVLConfig(CeasiompyTest):
         create_branch(tixi, xpath=AVL_NSPANWISE_XPATH)
         tixi.updateIntegerElement(AVL_NSPANWISE_XPATH, 1, "%d")
 
-        tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, "aeromap_empty")
+        tixi.updateTextElement(SELECTED_AEROMAP_XPATH, "aeromap_empty")
 
         create_branch(tixi, xpath=AVL_DISTR_XPATH)
         tixi.updateTextElement(AVL_DISTR_XPATH, "cosine")
@@ -110,7 +110,7 @@ class TestPyAVLConfig(CeasiompyTest):
     def test_get_aeromap_conditions(self) -> None:
         self.assert_equal_function(
             f=get_aeromap_conditions,
-            input_args=(self.cpacs, AVL_AEROMAP_UID_XPATH),
+            input_args=(self.cpacs, SELECTED_AEROMAP_XPATH),
             expected=([1000.0], [0.3], [5.0], [0.0]),
         )
 

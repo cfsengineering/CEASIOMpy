@@ -28,7 +28,7 @@ This workflow will take as input the CPACS file of the aircraft (D150_simple.xml
 ```mermaid
   graph LR;
       D150([D150 CPACS file])-->PyAVL;
-      PyAVL-->ExportCSV;
+      PyAVL;
 ```
 
 You can find the exported CSV file in the results dir: `/Workflow_001/Results/Aeromaps/test_apm.csv` and it should look like this:
@@ -42,8 +42,6 @@ altitude,machNumber,angleOfSideslip,angleOfAttack,cd,cl,cs,cmd,cml,cms
 ```
 
 You can see than PyAVL ran four calculations with different angles of attack and sideslip, but at the same altitude and Mach number. On the next test case, you will learn how to define your own flight parameters.
-
-These results have also been written in the last output CPACS file that you can find at : `/Workflow_001/02_ExportCSV/ToolOutput.xml`. It is a big file, because it contains all the geometric description of the aircraft. However, if you open it in a text editor and look for `test_apm`, you should find the following:
 
 ```xml
 <aeroMap uID="test_apm">

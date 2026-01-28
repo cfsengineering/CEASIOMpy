@@ -40,11 +40,6 @@ CEASIOMPY_PATH = SRC_PATH.parent
 # ===== Include Module's path =====
 UTILS_PATH = SRC_PATH / "ceasiompy" / "utils"
 
-# Aeromap list
-AEROMAP_LIST = [
-    "__AEROMAP_SELECTION",
-    "__AEROMAP_CHECKBOX",
-]
 
 # =================================================================================================
 #   CLASSES

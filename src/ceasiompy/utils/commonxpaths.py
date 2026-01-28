@@ -51,6 +51,9 @@ MASS_CARGO_XPATH = MASSBREAKDOWN_XPATH + "/payload/mCargo/massDescription/mass"
 
 # CEASIOMpy
 CEASIOMPY_XPATH = "/cpacs/toolspecific/CEASIOMpy"
+
+SELECTED_AEROMAP_XPATH = CEASIOMPY_XPATH + "/SelectedAeroMap"
+
 EXPORT_XPATH = CEASIOMPY_XPATH + "/export"
 FUEL_XPATH = CEASIOMPY_XPATH + "/fuels"
 FUEL_CONSUMPTION_XPATH = CEASIOMPY_XPATH + "/fuelConsumption"
@@ -105,7 +108,6 @@ SPECIFIED_SUMOFILE_XPATH = CEASIOMPY_XPATH + "/SUMOAutoMesh" + "/specifiedSumoPa
 
 # EDGE
 EDGE_XPATH = CEASIOMPY_XPATH + "/aerodynamics/medge"
-EDGE_AEROMAP_UID_XPATH = EDGE_XPATH + "/aeroMapUID"
 EDGE_NB_CPU_XPATH = EDGE_XPATH + "/settings/nbCPU"
 EDGE_SOLVER_XPATH = EDGE_XPATH + "/settings/solver"
 EDGE_MAX_ITER_XPATH = EDGE_XPATH + "/settings/maxIter"

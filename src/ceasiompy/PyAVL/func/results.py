@@ -27,11 +27,11 @@ from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
 from ceasiompy.PyAVL.func import AVL_COEFS
+from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH
 from ceasiompy.PyAVL import (
     AVL_XPATH,
     AVL_TABLE_XPATH,
     AVL_CTRLTABLE_XPATH,
-    AVL_AEROMAP_UID_XPATH,
 )
 
 # =================================================================================================
@@ -115,7 +115,7 @@ def add_coefficients_in_aeromap(
     tixi = cpacs.tixi
     cd, cs, cl, cmd, cms, cml, cmd_b, cms_a, cml_b = get_avl_aerocoefs(st_file_path)
 
-    aeromap_uid = get_value(tixi, AVL_AEROMAP_UID_XPATH)
+    aeromap_uid = get_value(tixi, SELECTED_AEROMAP_XPATH)
     log.info(f"Loading coefficients in {aeromap_uid=}")
     aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
 

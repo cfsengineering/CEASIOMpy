@@ -47,13 +47,14 @@ from ceasiompy.DynamicStability import MODULE_DIR as DYNAMICSTABILITY_DIR
 from ceasiompy.utils.commonxpaths import (
     AREA_XPATH,
     LENGTH_XPATH,
+    SELECTED_AEROMAP_XPATH,
 )
+
 from ceasiompy.DynamicStability import (
     DYNAMICSTABILITY_CGRID_XPATH,
     DYNAMICSTABILITY_SOFTWARE_XPATH,
     DYNAMICSTABILITY_NSPANWISE_XPATH,
     DYNAMICSTABILITY_NCHORDWISE_XPATH,
-    DYNAMICSTABILITY_AEROMAP_UID_XPATH,
     DYNAMICSTABILITY_VISUALIZATION_XPATH,
     DYNAMICSTABILITY_BETA_DERIVATIVES_XPATH as BETA_DERIVATIVES_XPATH,
     DYNAMICSTABILITY_ALPHA_DERIVATIVES_XPATH as ALPHA_DERIVATIVES_XPATH,
@@ -195,7 +196,7 @@ class SDSAFile:
         # Aeromap for dot-derivatives and mach values
         (
             alt_list, mach_list, aoa_list, aos_list,
-        ) = get_aeromap_conditions(self.cpacs, DYNAMICSTABILITY_AEROMAP_UID_XPATH)
+        ) = get_aeromap_conditions(self.cpacs, SELECTED_AEROMAP_XPATH)
 
         self.alt_list = alt_list
 

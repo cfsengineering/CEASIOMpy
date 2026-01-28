@@ -51,7 +51,6 @@ MODULE_STATUS = get_module_status(
 AVL_XPATH = CEASIOMPY_XPATH + "/avl"
 
 # AeroMap settings
-AVL_AEROMAP_UID_XPATH = AVL_XPATH + "/aeroMapUID"
 AVL_ROTRATES_XPATH = AVL_XPATH + "/RotationRates"
 AVL_FREESTREAM_MACH_XPATH = AVL_XPATH + "/FreestreamMach"
 

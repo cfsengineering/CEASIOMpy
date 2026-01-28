@@ -288,26 +288,6 @@ cpacs_inout.add_input(
     gui_group="My Selection",
 )
 
-# For a selection a aeromaps (amongst those in the CPACS file) you should use the following syntax:
-cpacs_inout.add_input(
-    var_name='aeromap_uid_select',
-    var_type=list,
-    default_value=None,
-    xpath='/cpacs/toolspecific/CEASIOMpy/test/aeroMapUIDSelection',
-    gui=True,
-    gui_name='__AEROMAP_SELECTION',
-)
-
-# For a checkbox selection of aeromaps (amongst those in the CPACS file) you should use the following syntax:
-cpacs_inout.add_input(
-    var_name='aeromap_uid_cb',
-    var_type=list,
-    default_value=None,
-    xpath='/cpacs/toolspecific/CEASIOMpy/test/aeroMapCheckBoxSelection',
-    gui=INCLUDE_GUI,
-    gui_name='__AEROMAP_CHECKBOX',
-)
-
 # ----- Output -----
 
 cpacs_inout.add_output(

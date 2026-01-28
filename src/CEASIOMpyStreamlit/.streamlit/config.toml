@@ -4,6 +4,7 @@ base="light"
 [server]
 maxUploadSize=2500
 headless = true
+baseUrlPath = "/streamlit/"
 enableCORS = false
 enableXsrfProtection = false
 

@@ -25,12 +25,10 @@ from ceasiompy.SMUse import MODULE_NAME as SMUSE
 from ceasiompy.PyAVL import MODULE_NAME as PYAVL
 from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
 from ceasiompy.SMTrain import MODULE_NAME as SMTRAIN
-from ceasiompy.Database import MODULE_NAME as DATABASE
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
 from ceasiompy.CPACSUpdater import MODULE_NAME as CPACSUPDATER
 from ceasiompy.StaticStability import MODULE_NAME as STATICSTABILITY
 from ceasiompy.DynamicStability import MODULE_NAME as DYNAMICSTABILITY
-from ceasiompy.SaveAeroCoefficients import MODULE_NAME as SAVEAEROCOEF
 
 # ==============================================================================
 #   CONSTANTS
@@ -71,7 +69,7 @@ def section_predefined_workflow():
         [PYAVL, STATICSTABILITY],
         [CPACSUPDATER, "CPACSCreator", CPACS2GMSH, SU2RUN],
         [CPACS2GMSH, SU2RUN, "SkinFriction"],
-        [SMTRAIN, SMUSE, SAVEAEROCOEF],
+        [SMTRAIN, SMUSE],
         [DYNAMICSTABILITY],
     ]
 
@@ -163,6 +161,10 @@ if __name__ == "__main__":
     st.markdown(
         """
         <style>
+        .block-container {
+            padding-top: 1rem;
+            padding-bottom: 0rem;
+        }
         .css-1awtkze {
             border-radius:3px;
             background-color:#ff7f2a;

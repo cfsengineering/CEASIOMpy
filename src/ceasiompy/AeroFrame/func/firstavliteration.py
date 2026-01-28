@@ -25,13 +25,13 @@ from ceasiompy.utils.ceasiompyutils import update_cpacs_from_specs
 from cpacspy.cpacsfunctions import get_value
 
 from ceasiompy import log
+from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH
 from ceasiompy.PyAVL import (
     MODULE_NAME as PYAVL_NAME,
     AVL_PLOT_XPATH,
     AVL_DISTR_XPATH,
     AVL_NCHORDWISE_XPATH,
     AVL_NSPANWISE_XPATH,
-    AVL_AEROMAP_UID_XPATH,
 )
 
 # =================================================================================================
@@ -47,7 +47,7 @@ def run_first_avl_iteration(cpacs: CPACS, results_dir: Path) -> None:
     # Then you add back the ones that you wanted to specify.
     # Run AVL analysis
     st.session_state = MagicMock()
-    aeromap_uid = get_value(tixi, AVL_AEROMAP_UID_XPATH)
+    aeromap_uid = get_value(tixi, SELECTED_AEROMAP_XPATH)
     distribution = get_value(tixi, AVL_DISTR_XPATH)
     nchord = str(get_value(tixi, AVL_NCHORDWISE_XPATH))
     nspan = str(get_value(tixi, AVL_NSPANWISE_XPATH))
@@ -56,7 +56,7 @@ def run_first_avl_iteration(cpacs: CPACS, results_dir: Path) -> None:
     update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
 
     # Update CPACS with the new aeromap
-    tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap_uid)
+    tixi.updateTextElement(SELECTED_AEROMAP_XPATH, aeromap_uid)
     tixi.updateTextElement(AVL_DISTR_XPATH, distribution)
     tixi.updateTextElement(AVL_NCHORDWISE_XPATH, nchord)
     tixi.updateTextElement(AVL_NSPANWISE_XPATH, nspan)

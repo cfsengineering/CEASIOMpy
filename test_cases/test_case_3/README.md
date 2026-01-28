@@ -32,7 +32,7 @@ We will try to build the following workflow:
       D150([D150 CPACS file])-->CPACSCreator;
       CPACSCreator-->CPACS2GMSH;
       CPACS2GMSH-->SU2Run;
-      SU2Run-->SaveAeroCoefficients;
+      SU2Run;
 ```
 
 You can create this workflow by selecting the module in list and add them one by one, as demonstrate bellow.

@@ -21,7 +21,6 @@ from ceasiompy.PyAVL import (
     AVL_DISTR_XPATH,
     AVL_NSPANWISE_XPATH,
     AVL_NCHORDWISE_XPATH,
-    AVL_AEROMAP_UID_XPATH,
 )
 from ceasiompy.AeroFrame import (
     INCLUDE_GUI,
@@ -46,18 +45,6 @@ cpacs_inout = CPACSInOut()
 # ==============================================================================
 #   CALL
 # ==============================================================================
-
-cpacs_inout.add_input(
-    var_name="aeromap_uid",
-    var_type=list,
-    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
-    unit=None,
-    descr="Name of the aero map to calculate",
-    xpath=AVL_AEROMAP_UID_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="__AEROMAP_SELECTION",
-    gui_group="Aeromap settings",
-)
 
 cpacs_inout.add_input(
     var_name="panel_distribution",

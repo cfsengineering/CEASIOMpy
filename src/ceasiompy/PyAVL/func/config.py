@@ -31,10 +31,6 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.PyAVL.func.cpacs2avl import Avl
-from typing import (
-    List,
-    Tuple,
-)
 
 from ceasiompy import ceasiompy_cfg
 from ceasiompy.PyAVL import MODULE_DIR
@@ -42,12 +38,12 @@ from ceasiompy.PyAVL.func import FORCE_FILES
 from ceasiompy.utils.commonxpaths import (
     AREA_XPATH,
     LENGTH_XPATH,
+    SELECTED_AEROMAP_XPATH,
 )
 from ceasiompy.PyAVL import (
     AVL_PLOT_XPATH,
     AVL_NB_CPU_XPATH,
     AVL_ROTRATES_XPATH,
-    AVL_AEROMAP_UID_XPATH,
     AVL_EXPAND_VALUES_XPATH,
     AVL_CTRLSURF_ANGLES_XPATH,
 )
@@ -58,14 +54,14 @@ from ceasiompy.PyAVL import (
 
 
 @validate_call(config=ceasiompy_cfg)
-def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
-    List, List, List, List,
-    List, List,
+def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> tuple[
+    list, list, list, list,
+    list, list,
     Path,
     bool, int, bool,
 ]:
     tixi = cpacs.tixi
-    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, AVL_AEROMAP_UID_XPATH)
+    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, SELECTED_AEROMAP_XPATH)
 
     save_fig = get_value(tixi, AVL_PLOT_XPATH)
     rotation_rates_float = get_value(tixi, AVL_ROTRATES_XPATH)
@@ -103,7 +99,7 @@ def get_physics_conditions(
     roll_rate: float,
     pitch_rate: float,
     yaw_rate: float,
-) -> Tuple[float, float, float, float, float, float]:
+) -> tuple[float, float, float, float, float, float]:
     # Get the reference dimensions
     s = tixi.getDoubleElement(AREA_XPATH)
     c = tixi.getDoubleElement(LENGTH_XPATH)

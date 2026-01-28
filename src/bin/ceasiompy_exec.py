@@ -152,7 +152,7 @@ def run_testcase(testcase_nb):
         log.info(">> conda activate ceasiompy")
         log.info(
             ">> ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml "
-            "PyAVL SkinFriction SaveAeroCoefficients"
+            "PyAVL SkinFriction"
         )
 
     elif testcase_nb == 5:
@@ -306,6 +306,12 @@ def run_gui(
     if address is not None:
         args += [
             "--server.address", f"{address}"
+        ]
+
+    if cloud:
+        args += [
+            "--server.enableCORS=false",
+            "--server.enableXsrfProtection=false",
         ]
 
     try:

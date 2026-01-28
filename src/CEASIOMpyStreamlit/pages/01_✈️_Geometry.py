@@ -383,7 +383,7 @@ def clean_toolspecific(cpacs: CPACS) -> CPACS:
         # SimpleCPACS doesn't have ac_name, skip cleaning
         st.session_state["new_file"] = True
         return cpacs
-    
+
     air_name = cpacs.ac_name
 
     if "ac_name" not in st.session_state or st.session_state.ac_name != air_name:

@@ -188,7 +188,7 @@ def add_module_tab(new_file: bool) -> None:
                 # Try to load with full CPACS class (3D)
                 st.session_state["cpacs"] = CPACS(str(cpacs_path))
                 st.session_state["cpacs_path"] = str(cpacs_path)
-            except Exception as e:
+            except Exception:
                 # If that fails, use SimpleCPACS for 2D cases
                 try:
                     st.session_state["cpacs"] = SimpleCPACS(str(cpacs_path))
@@ -268,9 +268,11 @@ def add_module_tab(new_file: bool) -> None:
                             cond_xpath, cond_value = gui_cond.split("!=")
                             cond_xpath = cond_xpath.strip()
                             cond_value = cond_value.strip()
-                            # Check if xpath exists and does NOT have the specified value
+                            # Check if xpath exists and does NOT have specified value
                             if st.session_state.cpacs.tixi.checkElement(cond_xpath):
-                                actual_value = st.session_state.cpacs.tixi.getTextElement(cond_xpath)
+                                actual_value = (
+                                    st.session_state.cpacs.tixi.getTextElement(cond_xpath)
+                                )
                                 if actual_value == cond_value:
                                     continue
                     except Exception as e:

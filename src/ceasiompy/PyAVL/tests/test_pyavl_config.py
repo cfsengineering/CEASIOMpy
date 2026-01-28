@@ -134,7 +134,6 @@ class TestPyAVLConfig(CeasiompyTest):
             aileron=0.0,
             elevator=0.0,
             rudder=0.0,
-            save_plots=True,
         )
 
         file_exists = Path(self.wkdir, "avl_commands.txt").exists()

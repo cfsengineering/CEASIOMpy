@@ -692,13 +692,14 @@ def get_sane_max_cpu() -> int:
     value returned by os.cpu_count(). A warning is emitted if neither source
     yields a usable number.
     """
-    env_cpus = _get_env_max_cpus()
-    if env_cpus is not None:
-        return env_cpus
 
     cpu_count = os.cpu_count()
     if cpu_count is None or cpu_count in [1, 2]:
         return 1
+
+    env_cpus = _get_env_max_cpus()
+    if env_cpus is None:
+        return cpu_count - 1
 
     sane_cpu = min(cpu_count - 1, env_cpus)
     if sane_cpu < 1:

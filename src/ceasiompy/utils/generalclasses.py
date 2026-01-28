@@ -122,7 +122,7 @@ class Transformation:
 
         ref_name = "refType"
         ref_path = self.xpath + "/transformation/translation"
-        if tixi.checkAttribute(
+        if tixi.checkElement(ref_path) and tixi.checkAttribute(
             elementPath=ref_path,
             attributeName=ref_name,
         ):

@@ -17,11 +17,11 @@ import pandas as pd
 import streamlit as st
 
 from CEASIOMpyStreamlit.streamlitutils import save_cpacs_file
-from cpacspy.cpacsfunctions import (
-    get_string_vector,
-)
 
-from tixi3.tixi3wrapper import Tixi3Exception
+from tixi3.tixi3wrapper import (
+    Tixi3,
+    Tixi3Exception,
+)
 
 from ceasiompy import log
 
@@ -30,7 +30,7 @@ from ceasiompy import log
 # ==============================================================================
 
 
-def safe_get_value(tixi, xpath, default_value):
+def safe_get_value(tixi: Tixi3, xpath, default_value):
     """Read a value without creating missing CPACS branches."""
 
     if tixi is None:
@@ -60,51 +60,89 @@ def path_vartype(key) -> None:
         save_cpacs_file()
 
 
-def multiselect_vartype(default_value, name, key) -> None:
+def multiselect_vartype(default_value, name, key) -> list[float]:
     # Initialize the list in session state if it doesn't exist
     if key not in st.session_state:
         st.session_state[key] = []
         st.session_state[key].extend(default_value)
 
-    # Display the current list of floats in a table
-    if st.session_state[key]:
-        st.table(pd.DataFrame(st.session_state[key], columns=[name]))
+    gen_left_col, gen_right_col = st.columns(
+        spec=[2, 3],
+        vertical_alignment="center",
+    )
 
-    # Input for new float value
-    new_value = st.number_input(name, value=0.0, step=0.1, key=f"new_{key}")
-
-    # Add button to append the new value to the list
-    if st.button("➕ Add", key=f"add_{key}"):
-        st.session_state[key].append(new_value)
-        save_cpacs_file()
-        st.rerun()
-
-    # Remove button to remove the last value from the list
-    if st.button("❌ Remove", key=f"remove_last_{key}"):
+    with gen_left_col:
+        # Input for new float value
+        # Display the current list of floats in a table
         if st.session_state[key]:
-            st.session_state[key].pop()
-            save_cpacs_file()
-            st.rerun()
+            st.table(pd.DataFrame(st.session_state[key], columns=[name]))
+
+    with gen_right_col:
+        # Add button to append the new value to the list
+        left_col, mid_col, right_col = st.columns(
+            spec=[1, 1, 1],
+            vertical_alignment="bottom",
+        )
+
+        with left_col:
+            # Input for new float value
+            new_value = st.number_input(
+                label=name,
+                value=0.0,
+                key=f"new_{key}",
+            )
+
+        with mid_col:
+            # Add button to append the new value to the list
+            if st.button(
+                label="➕ Add",
+                key=f"add_{key}",
+                width="stretch",
+            ):
+                if new_value not in st.session_state[key]:
+                    st.session_state[key].append(new_value)
+                    save_cpacs_file()
+                    st.rerun()
+
+        with right_col:
+            # Remove button to remove the last value from the list
+            if st.button(
+                label="❌ Remove",
+                key=f"remove_last_{key}",
+                width="stretch",
+            ):
+                if st.session_state[key]:
+                    st.session_state[key].pop()
+                    save_cpacs_file()
+                    st.rerun()
+
+    return st.session_state[key]
 
 
-def int_vartype(tixi, xpath, default_value, name, key, description) -> None:
+def int_vartype(tixi, xpath, default_value, name, key, description) -> int:
     with st.columns([1, 2])[0]:
         raw_value = safe_get_value(tixi, xpath, default_value)
         try:
             value = int(raw_value)
         except (TypeError, ValueError):
             value = int(default_value)
-        st.number_input(name, value=value, key=key, help=description, on_change=save_cpacs_file)
+        return st.number_input(
+            name,
+            value=value,
+            key=key,
+            help=description,
+            on_change=save_cpacs_file,
+        )
 
 
-def float_vartype(tixi, xpath, default_value, name, key, description) -> None:
+def float_vartype(tixi, xpath, default_value, name, key, description) -> float:
     raw_value = safe_get_value(tixi, xpath, default_value)
     try:
         value = float(raw_value)
     except (TypeError, ValueError):
         value = float(default_value)
     with st.columns([1, 2])[0]:
-        st.number_input(
+        return st.number_input(
             name,
             value=value,
             format="%g",
@@ -112,22 +150,24 @@ def float_vartype(tixi, xpath, default_value, name, key, description) -> None:
             help=description,
             on_change=save_cpacs_file,
         )
+    return value
 
 
-def list_vartype(tixi, xpath, default_value, name, key, description) -> None:
+def list_vartype(tixi, xpath, default_value, name, key, description) -> str:
     if default_value is None:
-        log.warning(f"Could not create GUI for {xpath} in list_vartype.")
-    else:
-        value = safe_get_value(tixi, xpath, default_value[0])
-        idx = default_value.index(value)
-        st.radio(
-            name,
-            options=default_value,
-            index=idx,
-            key=key,
-            help=description,
-            on_change=save_cpacs_file,
-        )
+        raise ValueError(f"Could not create GUI for {xpath} in list_vartype.")
+
+    value = safe_get_value(tixi, xpath, default_value[0])
+    idx = default_value.index(value)
+    return st.radio(
+        name,
+        options=default_value,
+        index=idx,
+        key=key,
+        help=description,
+        horizontal=True,
+        on_change=save_cpacs_file,
+    )
 
 
 def add_ctrl_surf_vartype(tixi, xpath, default_value, name, key, description) -> None:
@@ -166,13 +206,14 @@ def add_ctrl_surf_vartype(tixi, xpath, default_value, name, key, description) ->
         )
 
 
-def bool_vartype(tixi, xpath, default_value, name, key, description) -> None:
+def bool_vartype(tixi, xpath, default_value, name, key, description) -> bool:
     raw_value = safe_get_value(tixi, xpath, default_value)
     if isinstance(raw_value, str):
         value = raw_value.strip().lower() in {"1", "true", "yes", "y"}
     else:
         value = bool(raw_value)
-    st.checkbox(
+
+    return st.checkbox(
         name,
         value=value,
         key=key,

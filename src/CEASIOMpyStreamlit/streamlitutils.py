@@ -16,13 +16,18 @@ Streamlit utils functions for CEASIOMpy
 
 import re
 import pandas as pd
+import warnings
 import streamlit as st
 
 from cpacspy.cpacsfunctions import (
     add_value,
+    create_branch,
     add_string_vector,
 )
-from tixi3.tixi3wrapper import ReturnCode, Tixi3Exception
+from tixi3.tixi3wrapper import (
+    ReturnCode,
+    Tixi3Exception,
+)
 
 from PIL import Image
 from pathlib import Path
@@ -35,6 +40,7 @@ from cpacspy.cpacspy import (
 from ceasiompy import log
 from cpacspy.utils import PARAMS
 from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
+from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH
 
 # ==============================================================================
 #   FUNCTIONS
@@ -159,6 +165,7 @@ def create_sidebar(how_to_text, page_title="CEASIOMpy"):
         section[data-testid="stSidebar"] {
             min-width: 220px;
             width: 220px;
+            padding-top: 1rem;
         }
         </style>
         """,
@@ -244,15 +251,27 @@ def section_edit_aeromap() -> None:
             raise Exception(f"{cpacs.cpacs_file=} {custom_id=} {e=}")
 
         aeromap_list = cpacs.get_aeromap_uid_list()
+        cached_aeromap_id = st.session_state.get("selected_aeromap_id", None)
+        if cached_aeromap_id is not None and cached_aeromap_id in aeromap_list:
+            initial_index = aeromap_list.index(cached_aeromap_id)
+        else:
+            initial_index = len(aeromap_list) - 1  # custom_aeromap id by default
+
         selected_aeromap_id = st.selectbox(
             "**Selected Aeromap**",
             aeromap_list,
-            index=len(aeromap_list) - 1,        # custom_aeromap id by default
+            index=initial_index,
             help="Choose an aeromap",
             label_visibility="collapsed",
             accept_new_options=True,
             on_change=save_cpacs_file,
+            key="selected_aeromap",
         )
+        if "xpath_to_update" not in st.session_state:
+            st.session_state.xpath_to_update = {}
+
+        st.session_state.xpath_to_update[SELECTED_AEROMAP_XPATH] = "selected_aeromap"
+        st.session_state["selected_aeromap_id"] = selected_aeromap_id
 
         if selected_aeromap_id:
             try:
@@ -268,22 +287,31 @@ def section_edit_aeromap() -> None:
             selected_df = selected_aeromap.df[PARAMS]
             original_df = selected_df.reset_index(drop=True)
 
-            edited_aero_df = st.data_editor(
-                selected_df,
-                num_rows="dynamic",
-                hide_index=True,
-                column_config={
-                    "altitude": "Altitude",
-                    "machNumber": "Mach",
-                    "angleOfAttack": "α°",
-                    "angleOfSideslip": "β°",
-                    "Altitude": st.column_config.NumberColumn("Altitude", min_value=0.0),
-                    "Mach": st.column_config.NumberColumn("Mach", min_value=1e-3),
-                    "α°": st.column_config.NumberColumn("α°"),
-                    "β°": st.column_config.NumberColumn("β°"),
-                },
-                column_order=["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
-            )
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore",
+                    message=(
+                        "The behavior of DataFrame concatenation with empty or "
+                        "all-NA entries is deprecated."
+                    ),
+                    category=FutureWarning,
+                )
+                edited_aero_df = st.data_editor(
+                    selected_df,
+                    num_rows="dynamic",
+                    hide_index=True,
+                    column_config={
+                        "altitude": "Altitude",
+                        "machNumber": "Mach",
+                        "angleOfAttack": "α°",
+                        "angleOfSideslip": "β°",
+                        "Altitude": st.column_config.NumberColumn("Altitude", min_value=0.0),
+                        "Mach": st.column_config.NumberColumn("Mach", min_value=1e-3),
+                        "α°": st.column_config.NumberColumn("α°"),
+                        "β°": st.column_config.NumberColumn("β°"),
+                    },
+                    column_order=["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"],
+                )
 
             edited_aero_df[PARAMS] = edited_aero_df[PARAMS].apply(
                 pd.to_numeric,
@@ -319,7 +347,6 @@ def section_edit_aeromap() -> None:
                             selected_aeromap.save()
                         else:
                             raise
-                st.session_state["selected_aeromap"] = selected_aeromap
 
         st.markdown("#### Import aeromap from CSV or Excel")
 

@@ -93,9 +93,7 @@ def add_coefficients_in_aeromap(
     mach: float,
     aos: float,
     aoa: float,
-    fs_file_path: Path,
     st_file_path: Path,
-    config_dir: Path,
 ) -> None:
     """
     Add aerodynamic coefficients from PyAVL in chosen aeromap.
@@ -267,20 +265,14 @@ def add_coefficients_in_ctrltable(
     add_coefficients(tixi, AVL_CTRLTABLE_XPATH, "CtrlTable", coefficients)
 
 
-def get_force_files(config_dir: Path) -> Tuple[Path, Path]:
+def get_force_files(config_dir: Path) -> Path:
     st_file_path = Path(config_dir, "st.txt")
     if not st_file_path.exists():
         raise FileNotFoundError(
             f"No result total forces 'st.txt' file have been found at {st_file_path}"
         )
 
-    fs_file_path = Path(config_dir, "fs.txt")
-    if not fs_file_path.exists():
-        raise FileNotFoundError(
-            f"No result strip forces 'fs.txt' file have been found {fs_file_path}"
-        )
-
-    return st_file_path, fs_file_path
+    return st_file_path
 
 
 def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
@@ -298,7 +290,7 @@ def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
 
     for config_dir in sorted(case_dir_list):
         dir_name = config_dir.name
-        st_file_path, fs_file_path = get_force_files(config_dir)
+        st_file_path = get_force_files(config_dir)
 
         # Extract common parameters
         alt = split_dir(dir_name, 1, "alt")
@@ -318,9 +310,7 @@ def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
                     mach,
                     aos,
                     aoa,
-                    fs_file_path,
                     st_file_path,
-                    config_dir,
                 )
 
             # Add coefficients for dynamic stability

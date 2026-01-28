@@ -33,7 +33,9 @@ from CEASIOMpyStreamlit.streamlitutils import (
 from pathlib import Path
 
 from ceasiompy.PyAVL import AVL_TABLE_FILES
+from CEASIOMpyStreamlit import BLOCK_CONTAINER
 from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
+
 
 # =================================================================================================
 #    CONSTANTS
@@ -313,10 +315,9 @@ if __name__ == "__main__":
     st.markdown(
         """
         <style>
-        .block-container {
-            padding-top: 1rem;
-            padding-bottom: 0rem;
-        }
+        """
+        + BLOCK_CONTAINER
+        + """
         .css-4u7rgp  {
             padding: 15px;
             font-size: 20px;

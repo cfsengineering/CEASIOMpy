@@ -47,11 +47,11 @@ All input geometries are based on the open-standard format [CPACS](https://www.c
   - [More information](#more-information)
   - [Cite us](#cite-us)
 
+## Online Version (in development)
+
+Visit: https://ceasiompy.com for an overview of what this repository has to offer.
+
 ## Installation
-
-#### Recommended storage
-
-At least 20 GB required for overall installation.
 
 ### Linux/macOS
 
@@ -61,35 +61,12 @@ On Linux/macOS, run the installer to set up the conda environment and optional t
 git clone https://github.com/cfsengineering/CEASIOMpy
 cd CEASIOMpy
 ./scripts/install.sh
+ceasiompy_run --g
 ```
 
-### Windows (Under Maintenance)
+For Windows users please use the online version at https://ceasiompy.com
 
-Windows requires WSL installation.
-
-#### 1. Download CEASIOMpy Repository
-
-```
-git clone https://github.com/cfsengineering/CEASIOMpy
-cd CEASIOMpy
-```
-
-#### 2. Install WSL with Ubuntu (if not done already)
-
-```
-wsl --install
-wsl --install -d Ubuntu
-```
-
-You might need to reboot your machine after the installation.
-
-#### 3. Install the necesssary softwares
-
-```
-bash ./scripts/install.sh
-```
-
-### Create Docker Container (Optional)
+### Create Docker Container (Windows, Optional)
 A video which explains how to ![install](installation/DOCKER_INSTALLATION.md) CEASIOMpy on Docker is now available!
 [![CEASIOMpy Docker Installation](installation/docker_installation.png)](https://www.youtube.com/watch?v=KTS1-6AsReU)
 
@@ -127,32 +104,6 @@ These test cases are there to learn how to use CEASIOMpy. You will probably also
 
 Follow the [test cases](#test-cases) to discover the different way of using CEASIOMpy.
 
-### Examples of workflows
-
-- **Simple workflow with PyAVL (Vortex Lattice Method)**
-
-<div align="center">
-
-```mermaid
-  graph LR;
-      PyAVL;
-```
-
-</div>
-
-- **Workflow with SU2 (CFD) at fixed CL**
-
-<div align="center">
-
-```mermaid
-  graph LR;
-      CPACS2Updater-->CPACS2Gmsh;
-      CPACS2Gmsh-->SU2Run;
-      SU2Run-->Database;
-```
-
-</div>
-
 ### Available modules
 
 There are many different modules available in CEASIOMpy that can be combined to create different workflows. The list of available modules is shown below. The modules' statuses are marked as follows:
@@ -169,7 +120,6 @@ There are many different modules available in CEASIOMpy that can be combined to 
 
 - [Optimisation](src/ceasiompy/Optimisation/README.md) :x:
 - [SMTrain](src/ceasiompy/SMTrain/README.md) :heavy_check_mark:
-- [SMUse](src/ceasiompy/SMUse/README.md) :heavy_check_mark:
 - [ThermoData](src/ceasiompy/ThermoData/README.md) :heavy_check_mark:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_geometry.png">
@@ -179,9 +129,6 @@ There are many different modules available in CEASIOMpy that can be combined to 
 - [CPACSCreator](src/ceasiompy/CPACSCreator/README.md) :heavy_check_mark:
 - [CPACSUpdater](src/ceasiompy/CPACSUpdater/README.md) :heavy_check_mark:
 - [CPACS2GMSH](src/ceasiompy/CPACS2GMSH/README.md) :heavy_check_mark:
-- [CPACS2SUMO](src/ceasiompy/CPACS2SUMO/README.md) :heavy_check_mark:
-- [SUMOAutoMesh](src/ceasiompy/SUMOAutoMesh/README.md) :warning:
-- SU2MeshDef :warning:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_aero.png">
 
@@ -198,7 +145,7 @@ There are many different modules available in CEASIOMpy that can be combined to 
 
 - BalanceConventional :warning:
 - BalanceUnconventional :warning:
-- [WeightConventional](./src/ceasiompy/WeightConventional/README.md) :heavy_check_mark:
+- [WeightConventional](./src/ceasiompy/WeightConventional/README.md) :warning:
 - WeightUnconventional :warning:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_mission.png">

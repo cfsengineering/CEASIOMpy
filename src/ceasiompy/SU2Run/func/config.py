@@ -23,7 +23,7 @@ from ceasiompy.SU2Run.func.plot import save_plots
 from ceasiompy.CPACS2GMSH.func.mesh_sizing import wings_size
 from ceasiompy.utils.geometryfunctions import get_main_wing_le
 from ceasiompy.SU2Run.func.dotderivatives import load_parameters
-from ceasiompy.utils.ceasiompyutils import get_aeromap_conditions
+from ceasiompy.utils.ceasiompyutils import get_selected_aeromap_values
 from cpacspy.cpacsfunctions import (
     get_value,
     open_tigl,
@@ -74,7 +74,6 @@ from ceasiompy.utils.commonxpaths import (
     ENGINE_TYPE_XPATH,
     USED_SU2_MESH_XPATH,
     PROPELLER_THRUST_XPATH,
-    SELECTED_AEROMAP_XPATH,
     PROPELLER_BLADE_LOSS_XPATH,
     ENGINE_BC_PRESSUREOUTLET_XPATH,
     ENGINE_BC_TEMPERATUREOUTLET_XPATH,
@@ -516,7 +515,7 @@ def configure_cfd_environment(
 
     """
     tixi = cpacs.tixi
-    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, SELECTED_AEROMAP_XPATH)
+    alt_list, mach_list, aoa_list, aos_list = get_selected_aeromap_values(cpacs)
 
     cfg["MARKER_MOVING"] = su2_format("NONE")
     cfg["MESH_FILENAME"] = str(su2_mesh_path)

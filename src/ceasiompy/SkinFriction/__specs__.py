@@ -36,19 +36,6 @@ cpacs_inout = CPACSInOut()
 #   GUI INPUTS
 # ==============================================================================
 
-
-cpacs_inout.add_input(
-    var_name="wetted_area",
-    var_type=float,
-    default_value=None,
-    unit="m^2",
-    descr="Wetted area of the aircraft (calculated by SU2)",
-    xpath=GEOM_XPATH + "/analysis/wettedArea",
-    gui=False,
-    gui_name="Wetted Area",
-    gui_group="Wetted Area",
-)
-
 cpacs_inout.add_input(
     var_name="Delete",
     var_type=bool,

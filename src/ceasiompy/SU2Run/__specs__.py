@@ -16,7 +16,7 @@ GUI Interface of ModuleTemplate.
 
 import streamlit as st
 
-from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
+from ceasiompy.utils.ceasiompyutils import get_sane_max_cpu
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
@@ -135,7 +135,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="nb_proc",
     var_type=int,
-    default_value=get_reasonable_nb_cpu(),
+    default_value=get_sane_max_cpu(),
     unit=None,
     descr="Number of proc to use to run SU2",
     xpath=SU2_NB_CPU_XPATH,

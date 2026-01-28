@@ -10,14 +10,9 @@ GUI Interface of Aeroframe.
 #   IMPORTS
 # ==============================================================================
 
-import streamlit as st
-
-from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
-
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy.PyAVL import (
-    AVL_PLOT_XPATH,
     AVL_DISTR_XPATH,
     AVL_NSPANWISE_XPATH,
     AVL_NCHORDWISE_XPATH,
@@ -27,7 +22,6 @@ from ceasiompy.AeroFrame import (
     FRAMAT_IX_XPATH,
     FRAMAT_IY_XPATH,
     FRAMAT_AREA_XPATH,
-    FRAMAT_NB_CPU_XPATH,
     FRAMAT_DENSITY_XPATH,
     FRAMAT_NB_NODES_XPATH,
     FRAMAT_SHEARMODULUS_XPATH,
@@ -80,20 +74,6 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Number of spanwise vortices",
     gui_group="AVL: Vortex Lattice Spacing Distributions",
-)
-
-cpacs_inout.add_input(
-    var_name="save_plots",
-    var_type=bool,
-    default_value=True,
-    unit=None,
-    descr="Select to save geometry and results plots",
-    xpath=AVL_PLOT_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Save AVL plots",
-    gui_group="Plots",
-    test_value=False,
-    expanded=False,
 )
 
 cpacs_inout.add_input(
@@ -204,16 +184,4 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Tolerance",
     gui_group="AeroFrame: Convergence settings",
-)
-
-cpacs_inout.add_input(
-    var_name="nb_proc",
-    var_type=int,
-    default_value=get_reasonable_nb_cpu(),
-    unit=None,
-    descr="Number of proc to use to run SU2",
-    xpath=FRAMAT_NB_CPU_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Nb of processor",
-    gui_group="CPU",
 )

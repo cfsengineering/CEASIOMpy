@@ -30,7 +30,7 @@ from ceasiompy.AeroFrame.func.aeroelastic import aeroelastic_loop
 from ceasiompy.AeroFrame.func.firstavliteration import run_first_avl_iteration
 from ceasiompy.utils.ceasiompyutils import (
     call_main,
-    get_aeromap_conditions,
+    get_selected_aeromap_values,
 )
 
 from ceasiompy import log
@@ -56,10 +56,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
     # 1. Get conditions
     tixi = cpacs.tixi
-    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
-        cpacs=cpacs,
-        uid_xpath=SELECTED_AEROMAP_XPATH,
-    )
+    alt_list, mach_list, aoa_list, aos_list = get_selected_aeromap_values(cpacs)
     log.info("FLIGHT CONDITIONS:")
     log.info(f"\tAltitude          : {', '.join(str(a) for a in alt_list)} meters")
     log.info(f"\tMach number       : {', '.join(str(m) for m in mach_list)}")

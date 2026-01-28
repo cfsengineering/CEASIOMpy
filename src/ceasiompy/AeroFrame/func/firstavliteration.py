@@ -28,7 +28,6 @@ from ceasiompy import log
 from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH
 from ceasiompy.PyAVL import (
     MODULE_NAME as PYAVL_NAME,
-    AVL_PLOT_XPATH,
     AVL_DISTR_XPATH,
     AVL_NCHORDWISE_XPATH,
     AVL_NSPANWISE_XPATH,
@@ -51,7 +50,6 @@ def run_first_avl_iteration(cpacs: CPACS, results_dir: Path) -> None:
     distribution = get_value(tixi, AVL_DISTR_XPATH)
     nchord = str(get_value(tixi, AVL_NCHORDWISE_XPATH))
     nspan = str(get_value(tixi, AVL_NSPANWISE_XPATH))
-    plot = str(get_value(tixi, AVL_PLOT_XPATH))
 
     update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
 
@@ -60,6 +58,5 @@ def run_first_avl_iteration(cpacs: CPACS, results_dir: Path) -> None:
     tixi.updateTextElement(AVL_DISTR_XPATH, distribution)
     tixi.updateTextElement(AVL_NCHORDWISE_XPATH, nchord)
     tixi.updateTextElement(AVL_NSPANWISE_XPATH, nspan)
-    tixi.updateTextElement(AVL_PLOT_XPATH, plot)
 
     run_avl(cpacs, results_dir)

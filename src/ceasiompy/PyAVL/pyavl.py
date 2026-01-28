@@ -55,7 +55,6 @@ def run_case(args: tuple[Path, Path], save_fig: bool) -> None:
     # Unpack the tuple
     case_dir_path, command_path = args
 
-    log.info(f'{case_dir_path=} {command_path=}')
     try:
 
         run_software(

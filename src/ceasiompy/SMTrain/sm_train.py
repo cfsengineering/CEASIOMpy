@@ -215,7 +215,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                         rmse_obj=rmse_obj,
                         objective=objective,
                         aeromap_uid=aeromap_selected,
-                        param_order=param_order,
                     )
 
             # Second level fidelity training
@@ -256,7 +255,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 rmse_obj=rmse_obj,
                 objective=objective,
                 aeromap_uid=aeromap_selected,
-                param_order=param_order,
             )
 
         if selected_krg_model:

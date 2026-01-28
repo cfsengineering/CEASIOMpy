@@ -54,6 +54,7 @@ from ceasiompy.SaveAeroCoefficients import (
 )
 
 from ceasiompy.PyAVL.pyavl import main as run_avl
+from ceasiompy.StaticStability.staticstability import main as run_staticstability
 from ceasiompy.SMTrain.func.config import (
     retrieve_aeromap_data,
     get_xpath_for_param,
@@ -68,6 +69,9 @@ from ceasiompy.PyAVL import (
 )
 from ceasiompy.SU2Run import (
     MODULE_NAME as SU2RUN_NAME,
+)
+from ceasiompy.StaticStability import (
+    MODULE_NAME as STATICSTABILITY_NAME,
 )
 from ceasiompy.utils.ceasiompyutils import (
     update_cpacs_from_specs,
@@ -403,7 +407,7 @@ def run_first_level_training_geometry(
     """
 
     df_geom = pd.read_csv(lh_sampling_geom_path)
-    n_params = df_geom.columns.size
+
     # Loop through CPACS files
     final_dfs = []
 
@@ -414,6 +418,7 @@ def run_first_level_training_geometry(
 
         st.session_state = MagicMock()
         update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
+        update_cpacs_from_specs(cpacs, STATICSTABILITY_NAME, test=True)
         tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap_uid)
 
         alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
@@ -434,6 +439,10 @@ def run_first_level_training_geometry(
 
         try:
             run_avl(cpacs, pyavl_local_dir)
+
+            # check the static stability of the configuration
+            run_staticstability(cpacs, pyavl_local_dir)
+
             level1_df = retrieve_aeromap_data(cpacs, aeromap_uid, objective)
 
             if level1_df is None or len(level1_df) == 0:
@@ -475,10 +484,12 @@ def run_first_level_training_geometry(
     # Concatenate the dataframes
     final_level1_df = pd.concat(final_dfs, axis=0, ignore_index=True)
 
-    # final_level1_df.to_csv(f"{results_dir}/avl_simulations_results.csv", index=False)
+    # delete rows where objective = 0 and constant columns
+    final_level1_df = final_level1_df.loc[final_level1_df.iloc[:, -1] != 0].copy()
     final_level1_df_c = drop_constant_columns(final_level1_df)
     final_level1_df_c.to_csv(f"{results_dir}/avl_simulations_results.csv", index=False)
 
+    n_params = final_level1_df_c.columns.drop(objective).size
     df_fc = pd.read_csv(f"{results_dir}/avl_simulations_results.csv")
     flight_cols = [c for c in AEROMAP_FEATURES if c in df_fc.columns]
     df_flight = df_fc[flight_cols]
@@ -495,8 +506,13 @@ def run_first_level_training_geometry(
         axis=0,
         ignore_index=True,
     )
-    
+
+    final_ranges_for_gui = final_ranges_for_gui.loc[
+    final_ranges_for_gui["Min"] != final_ranges_for_gui["Max"]
+    ].copy()
+
     final_ranges_for_gui.to_csv(f"{results_dir}/ranges_for_gui.csv", index=False)
+
     best_geometry_idx = final_level1_df[objective].idxmax()
     best_geometries_df = final_level1_df.loc[[best_geometry_idx]]
     best_geometries_df.to_csv(f"{results_dir}/best_geometric_configurations.csv", index=False)
@@ -537,7 +553,7 @@ def run_first_level_training_geometry(
     if KRG_model_bool:
         print("\n\n")
         log.info("--------------Star training KRG model.--------------\n")
-        krg_model, _ = train_surrogate_model(level1_sets)
+        krg_model, krg_rmse = train_surrogate_model(level1_sets)
         rmse_df = pd.DataFrame({"rmse": [krg_rmse]})
         rmse_path = f"{results_dir}/rmse_KRG.csv"
         rmse_df.to_csv(rmse_path, index=False)
@@ -546,7 +562,7 @@ def run_first_level_training_geometry(
     if RBF_model_bool:
         print("\n\n")
         log.info("--------------Star training RBF model.--------------\n")
-        rbf_model, _ = train_surrogate_model_RBF(n_params, level1_sets)
+        rbf_model, rbf_rmse = train_surrogate_model_RBF(n_params, level1_sets)
         rmse_df = pd.DataFrame({"rmse": [rbf_rmse]})
         rmse_path = f"{results_dir}/rmse_RBF.csv"
         rmse_df.to_csv(rmse_path, index=False)
@@ -626,7 +642,6 @@ def run_adaptative_refinement_geom(
     rmse_obj: float,
     objective: str,
     aeromap_uid,
-    param_order,
 ) -> None:
     """
     Iterative improvement using SU2 data.
@@ -744,6 +759,7 @@ def training_existing_db(
     best_geometries_df.to_csv(results_dir / "best_geometric_configurations.csv", index=False)
 
     param_cols = df1.columns.drop(objective)
+    n_params = param_cols.size
 
     df_norm = df1.copy()
     normalization_params = {}
@@ -757,34 +773,42 @@ def training_existing_db(
             df_norm[col] = (df1[col] - col_mean) / col_std
         normalization_params[col] = {"mean": col_mean, "std": col_std}
 
+    norm_df = pd.DataFrame.from_dict(
+        normalization_params,
+        orient="index"
+    ).reset_index()
+
+    norm_df.columns = ["Parameter", "mean", "std"]
+
+    norm_df.to_csv(
+        f"{results_dir}/normalization_params.csv",
+        index=False
+    )
+
     krg_model = None
     krg_rmse = None
     rbf_model = None
     rbf_rmse = None
-
-    level1_sets = split_data(df1, objective, split_ratio)
-    param_order = [col for col in df1.columns if col != objective]
-    n_params = df1.shape[1] - 1
+    level1_sets = split_data(df_norm, objective, split_ratio)
+    param_order = [col for col in df_norm.columns if col != objective]
 
     if KRG_model_bool:
-        log.info("Star training KRG model.")
-        krg_model, rmse = train_surrogate_model(level1_sets)
+        print("\n\n")
+        log.info("--------------Star training KRG model.--------------\n")
+        krg_model, krg_rmse = train_surrogate_model(level1_sets)
         rmse_df = pd.DataFrame({"rmse": [krg_rmse]})
         rmse_path = f"{results_dir}/rmse_KRG.csv"
         rmse_df.to_csv(rmse_path, index=False)
+        log.info("--------------KRG model trained.--------------\n")
 
     if RBF_model_bool:
-        log.info("Star training RBF model.")
-        rbf_model, rmse = train_surrogate_model_RBF(n_params, level1_sets)
+        print("\n\n")
+        log.info("--------------Star training RBF model.--------------\n")
+        rbf_model, rbf_rmse = train_surrogate_model_RBF(n_params, level1_sets)
         rmse_df = pd.DataFrame({"rmse": [rbf_rmse]})
         rmse_path = f"{results_dir}/rmse_RBF.csv"
         rmse_df.to_csv(rmse_path, index=False)
-
-    rmse_df = pd.DataFrame({"rmse": [rmse]})
-    rmse_df.to_csv(results_dir / "rmse_RBF.csv", index=False)
-
-    norm_params_df = pd.DataFrame(normalization_params).T
-    norm_params_df.to_csv(results_dir / "normalization_params.csv")
+        log.info("--------------RBF model trained.--------------\n")
 
     return krg_model, rbf_model, level1_sets, param_order
 
@@ -797,7 +821,6 @@ def run_adaptative_refinement_geom_existing_db(
     rmse_obj: float,
     objective: str,
     aeromap_uid,
-    param_order,
 ) -> None:
     """
     Iterative improvement using SU2 data.
@@ -1064,45 +1087,3 @@ def RBF_model(
     best_loss = compute_rmse(best_model, x_test, y_test)
     log.info(f"Final RMSE on test set: {best_loss:.6f}")
     return best_model, best_loss
-
-
-def training_existing_db_RBF(results_dir: Path, split_ratio: float):
-    csv_path = WKDIR_PATH / 'avl_simulations_results.csv'
-
-    # Leggi dati
-    df1 = pd.read_csv(csv_path)
-
-    # Trova il migliore
-    objective = df1.columns[-1]
-    best_geometry_idx = df1[objective].idxmax()
-    best_geometries_df = df1.loc[[best_geometry_idx]]
-    best_geometries_df.to_csv(results_dir / "best_geometric_configurations.csv", index=False)
-
-    param_cols = df1.columns.drop(objective)
-    n_params = param_cols.columns.size
-
-    df_norm = df1.copy()
-    normalization_params = {}
-
-    for col in param_cols:
-        col_mean = df1[col].mean()
-        col_std = df1[col].std()
-        if col_std == 0:
-            df_norm[col] = 0.0
-        else:
-            df_norm[col] = (df1[col] - col_mean) / col_std
-        normalization_params[col] = {"mean": col_mean, "std": col_std}
-
-    level1_sets = split_data(df1, objective, split_ratio)
-
-    model, rmse = train_surrogate_model_RBF(n_params, level1_sets)
-
-    param_order = [col for col in df1.columns if col != objective]
-
-    rmse_df = pd.DataFrame({"rmse": [rmse]})
-    rmse_df.to_csv(results_dir / "rmse_model.csv", index=False)
-
-    norm_params_df = pd.DataFrame(normalization_params).T
-    norm_params_df.to_csv(results_dir / "normalization_params.csv")
-
-    return model, level1_sets, param_order

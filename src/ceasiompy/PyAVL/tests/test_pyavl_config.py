@@ -56,6 +56,10 @@ class TestPyAVLConfig(CeasiompyTest):
         cls.command_dir = Path(MODULE_DIR, "tests", "avl_command_template.txt")
         cls.avl_path = Path(MODULE_DIR, "tests", "aircraft.avl")
 
+        # Ensure there is a selected aeromap
+        create_branch(cls.cpacs.tixi, xpath=SELECTED_AEROMAP_XPATH)
+        cls.cpacs.tixi.updateTextElement(SELECTED_AEROMAP_XPATH, "aeromap_empty")
+
     @log_test
     def test_retrieve_gui_values(self):
         tixi = self.cpacs.tixi
@@ -71,9 +75,6 @@ class TestPyAVLConfig(CeasiompyTest):
 
         create_branch(tixi, xpath=AVL_NSPANWISE_XPATH)
         tixi.updateIntegerElement(AVL_NSPANWISE_XPATH, 1, "%d")
-
-        create_branch(tixi, xpath=SELECTED_AEROMAP_XPATH)
-        tixi.updateTextElement(SELECTED_AEROMAP_XPATH, "aeromap_empty")
 
         create_branch(tixi, xpath=AVL_DISTR_XPATH)
         tixi.updateTextElement(AVL_DISTR_XPATH, "cosine")
@@ -101,7 +102,7 @@ class TestPyAVLConfig(CeasiompyTest):
     def test_get_selected_aeromap_values(self) -> None:
         self.assert_equal_function(
             f=get_selected_aeromap_values,
-            input_args=(self.cpacs),
+            input_args=(self.cpacs, ),
             expected=([1000.0], [0.3], [5.0], [0.0]),
         )
 

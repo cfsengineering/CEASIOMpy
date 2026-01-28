@@ -152,7 +152,7 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
         create_branch(tixi, SELECTED_AEROMAP_XPATH)
     tixi.updateTextElement(SELECTED_AEROMAP_XPATH, first_aeromap)
 
-    for _, default_value, var_type, _, xpath, _, _, test_value, _ in inputs.values():
+    for _, default_value, var_type, _, xpath, _, _, test_value, _, _ in inputs.values():
         try:
             if test:
                 value = test_value

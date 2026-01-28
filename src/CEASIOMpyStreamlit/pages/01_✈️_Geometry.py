@@ -686,7 +686,7 @@ def section_2d_airfoil() -> None:
             with col2:
                 st.markdown("<div style='margin-top: 28px;'></div>", unsafe_allow_html=True)
                 generate_clicked = st.button("✔ Generate", help="Generate airfoil from NACA code")
-            
+
             # Display success message full width outside columns
             if generate_clicked:
                 if naca_code:
@@ -726,7 +726,7 @@ def section_2d_airfoil() -> None:
                         # Also save geometry mode and airfoil type to CPACS
                         tixi = Tixi3()
                         tixi.open(str(cpacs_path))
-                        
+
                         create_branch(tixi, GEOM_XPATH + "/airfoilType")
                         if st.session_state["airfoil_type"] == "NACA":
                             tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "NACA")
@@ -813,12 +813,12 @@ def section_2d_airfoil() -> None:
                         # Also save geometry mode and airfoil type to CPACS
                         tixi = Tixi3()
                         tixi.open(str(cpacs_path))
-                        
+
                         create_branch(tixi, GEOM_XPATH + "/airfoilType")
                         tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "Custom")
                         create_branch(tixi, GEOM_XPATH + "/airfoilName")
                         tixi.updateTextElement(GEOM_XPATH + "/airfoilName", airfoil_name)
-                        
+
                         tixi.save(str(cpacs_path), True)
                         tixi.close()
 

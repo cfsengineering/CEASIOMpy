@@ -31,7 +31,7 @@ from ceasiompy.utils import get_wkdir
 from ceasiompy.utils.ceasiompyutils import parse_bool
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH, GEOM_XPATH
 from ceasiompy.utils.cpacs_utils import create_minimal_cpacs_2d
-from CEASIOMpyStreamlit.streamlitutils import create_sidebar, section_3D_view
+from CEASIOMpyStreamlit.streamlitutils import create_sidebar
 
 # Airfoil generation functions (optional)
 try:

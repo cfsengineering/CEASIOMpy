@@ -66,10 +66,6 @@ from ceasiompy.CPACS2GMSH.func.utils import check_path, MESH_COLORS
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
-import trimesh
-import pymeshfix
-import numpy as np
-
 
 # =================================================================================================
 #   FUNCTIONS

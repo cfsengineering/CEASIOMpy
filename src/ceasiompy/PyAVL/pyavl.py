@@ -66,8 +66,8 @@ def run_case(args: tuple[Path, Path], save_fig: bool) -> None:
             stdin=open(str(command_path), "r"),
             xvfb=True,
         )
-    except:
-        log.warning("AVL X11 rendering failed.")
+    except Exception as e:
+        log.warning("AVL X11 rendering failed.", exc_info=e)
     finally:
         convert_ps_to_pdf(case_dir_path)
 

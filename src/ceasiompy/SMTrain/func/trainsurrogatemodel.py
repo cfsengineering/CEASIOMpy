@@ -435,7 +435,7 @@ def run_first_level_training_geometry(
         try:
             run_avl(cpacs, pyavl_local_dir)
             level1_df = retrieve_aeromap_data(cpacs, aeromap_uid, objective)
-        
+
             if level1_df is None or len(level1_df) == 0:
                 print(f"Warning: No data retrieved for simulation {i+1}, skipping...")
                 continue

@@ -376,13 +376,13 @@ def add_gui_object(
                         for param in WING_PARAMETERS:
                             params_xpath = base_xpath + f"/{param}"
                             sections_key = f"section_{section_uid}"
-                            session_state.xpath_to_update[params_xpath + f"/status"] = (
+                            session_state.xpath_to_update[params_xpath + "/status"] = (
                                 f"{sections_key}_{param}"
                             )
-                            session_state.xpath_to_update[params_xpath + f"/min_value/value"] = (
+                            session_state.xpath_to_update[params_xpath + "/min_value/value"] = (
                                 f"{sections_key}_{param}_min"
                             )
-                            session_state.xpath_to_update[params_xpath + f"/max_value/value"] = (
+                            session_state.xpath_to_update[params_xpath + "/max_value/value"] = (
                                 f"{sections_key}_{param}_max"
                             )
 

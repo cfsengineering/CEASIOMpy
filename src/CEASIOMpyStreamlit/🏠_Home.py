@@ -45,6 +45,11 @@ if __name__ == "__main__":
     logo = Image.open(CEASIOMPY_LOGO_PATH)
     st.set_page_config(page_title="CEASIOMpy", page_icon=logo, layout="wide")
 
+    # Redirect to Geometry page on first load
+    if "visited_home" not in st.session_state:
+        st.session_state.visited_home = True
+        st.switch_page("pages/01_✈️_Geometry.py")
+
     # Create sidebar manually (without calling create_sidebar to avoid double set_page_config)
     st.sidebar.image(logo)
     st.sidebar.markdown(HOW_TO_TEXT)

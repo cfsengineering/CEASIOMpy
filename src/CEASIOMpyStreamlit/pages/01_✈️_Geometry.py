@@ -933,9 +933,9 @@ if __name__ == "__main__":
                 mode = cpacs.tixi.getTextElement(GEOMETRY_MODE_XPATH)
                 st.session_state["geometry_mode"] = mode
             except Exception:
-                st.session_state["geometry_mode"] = "3D"
+                st.session_state["geometry_mode"] = "2D"
         else:
-            st.session_state["geometry_mode"] = "3D"
+            st.session_state["geometry_mode"] = "2D"
 
     st.markdown("---")
 

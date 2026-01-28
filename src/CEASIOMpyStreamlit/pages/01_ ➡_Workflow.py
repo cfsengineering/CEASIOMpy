@@ -21,6 +21,7 @@ import streamlit as st
 from CEASIOMpyStreamlit.streamlitutils import create_sidebar
 from ceasiompy.utils.moduleinterfaces import get_module_list
 
+from CEASIOMpyStreamlit import BLOCK_CONTAINER
 from ceasiompy.SMUse import MODULE_NAME as SMUSE
 from ceasiompy.PyAVL import MODULE_NAME as PYAVL
 from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
@@ -138,10 +139,9 @@ if __name__ == "__main__":
     st.markdown(
         """
         <style>
-        .block-container {
-            padding-top: 1rem;
-            padding-bottom: 0rem;
-        }
+        """
+        + BLOCK_CONTAINER
+        + """
         .css-1awtkze {
             border-radius:3px;
             background-color:#ff7f2a;

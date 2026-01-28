@@ -16,6 +16,7 @@ Streamlit utils functions for CEASIOMpy
 
 import re
 import pandas as pd
+import warnings
 import streamlit as st
 
 from cpacspy.cpacsfunctions import (
@@ -152,6 +153,7 @@ def create_sidebar(how_to_text, page_title="CEASIOMpy"):
         section[data-testid="stSidebar"] {
             min-width: 220px;
             width: 220px;
+            padding-top: 1rem;
         }
         </style>
         """,
@@ -261,22 +263,31 @@ def section_edit_aeromap() -> None:
             selected_df = selected_aeromap.df[PARAMS]
             original_df = selected_df.reset_index(drop=True)
 
-            edited_aero_df = st.data_editor(
-                selected_df,
-                num_rows="dynamic",
-                hide_index=True,
-                column_config={
-                    "altitude": "Altitude",
-                    "machNumber": "Mach",
-                    "angleOfAttack": "α°",
-                    "angleOfSideslip": "β°",
-                    "Altitude": st.column_config.NumberColumn("Altitude", min_value=0.0),
-                    "Mach": st.column_config.NumberColumn("Mach", min_value=1e-3),
-                    "α°": st.column_config.NumberColumn("α°"),
-                    "β°": st.column_config.NumberColumn("β°"),
-                },
-                column_order=["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
-            )
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore",
+                    message=(
+                        "The behavior of DataFrame concatenation with empty or "
+                        "all-NA entries is deprecated."
+                    ),
+                    category=FutureWarning,
+                )
+                edited_aero_df = st.data_editor(
+                    selected_df,
+                    num_rows="dynamic",
+                    hide_index=True,
+                    column_config={
+                        "altitude": "Altitude",
+                        "machNumber": "Mach",
+                        "angleOfAttack": "α°",
+                        "angleOfSideslip": "β°",
+                        "Altitude": st.column_config.NumberColumn("Altitude", min_value=0.0),
+                        "Mach": st.column_config.NumberColumn("Mach", min_value=1e-3),
+                        "α°": st.column_config.NumberColumn("α°"),
+                        "β°": st.column_config.NumberColumn("β°"),
+                    },
+                    column_order=["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"],
+                )
 
             edited_aero_df[PARAMS] = edited_aero_df[PARAMS].apply(
                 pd.to_numeric,

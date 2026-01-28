@@ -22,9 +22,12 @@ from pathlib import Path
 from scipy.interpolate import interp1d
 from cpacspy.cpacspy import CPACS
 
-from ceasiompy.utils.ceasiompyutils import run_software
+from ceasiompy.utils.ceasiompyutils import (
+    has_display,
+    run_software,
+)
 from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
-from cpacspy.cpacsfunctions import get_value, get_value_or_default
+from cpacspy.cpacsfunctions import get_value
 from ceasiompy.AeroFrame.func.results import compute_deformations
 from ceasiompy.AeroFrame.func.plot import (
     plot_fem_mesh,
@@ -45,12 +48,10 @@ from ceasiompy.AeroFrame.func.config import (
 from ceasiompy import log
 from ceasiompy.AeroFrame import (
     SOFTWARE_NAME,
-    FRAMAT_NB_CPU_XPATH,
     FRAMAT_NB_NODES_XPATH,
     AEROFRAME_TOLERANCE_XPATH,
     AEROFRAME_MAXNB_ITERATIONS_XPATH,
 )
-from ceasiompy.PyAVL import AVL_PLOT_XPATH
 
 # =================================================================================================
 #   FUNCTIONS
@@ -103,8 +104,6 @@ def aeroelastic_loop(cpacs: CPACS, results_dir, case_dir_path, q, xyz, fxyz):
     for path in results_dir.glob("*.avl"):
         avl_undeformed_path = path
     avl_undeformed_command = Path(AVL_ITER1_PATH, "avl_commands.txt")
-
-    nb_cpu = get_value(tixi, FRAMAT_NB_CPU_XPATH)
 
     # Get the properties of each cross-section of the wing
     (
@@ -278,13 +277,11 @@ def aeroelastic_loop(cpacs: CPACS, results_dir, case_dir_path, q, xyz, fxyz):
             arguments=[""],
             wkdir=avl_iter_path,
             with_mpi=False,
-            nb_cpu=nb_cpu,
             stdin=open(str(avl_deformed_command), "r"),
         )
         log.info("AVL done!")
 
-        save_avl_plot = get_value_or_default(tixi, AVL_PLOT_XPATH, False)
-        if save_avl_plot:
+        if has_display():
             convert_ps_to_pdf(wkdir=avl_iter_path)
 
         # Read the new forces file to extract the loads

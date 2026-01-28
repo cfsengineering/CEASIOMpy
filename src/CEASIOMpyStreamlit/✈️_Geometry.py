@@ -40,6 +40,7 @@ from tixi3.tixi3wrapper import Tixi3
 from tigl3.tigl3wrapper import Tigl3
 from ceasiompy.utils.workflowclasses import Workflow
 
+from CEASIOMpyStreamlit import BLOCK_CONTAINER
 from ceasiompy.VSP2CPACS import (
     SOFTWARE_PATH as OPENVSP_PATH,
     MODULE_STATUS as VSP2CPACS_MODULE_STATUS,
@@ -497,10 +498,9 @@ if __name__ == "__main__":
     st.markdown(
         """
         <style>
-        .block-container {
-            padding-top: 1rem;
-            padding-bottom: 0rem;
-        }
+        """
+        + BLOCK_CONTAINER
+        + """
         /* Align navigation buttons with selectbox */
         .nav-button-container {
             display: flex;

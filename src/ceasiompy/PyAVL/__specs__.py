@@ -11,18 +11,11 @@ GUI Interface of PyAVL.
 #   IMPORTS
 # ==============================================================================
 
-import streamlit as st
-
-from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
-
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy.PyAVL import INCLUDE_GUI
-
 from ceasiompy.PyAVL import (
-    AVL_PLOT_XPATH,
+    INCLUDE_GUI,
     AVL_DISTR_XPATH,
-    AVL_NB_CPU_XPATH,
     AVL_EXPAND_VALUES_XPATH,
     AVL_ROTRATES_XPATH,
     AVL_FUSELAGE_XPATH,
@@ -75,7 +68,7 @@ cpacs_inout.add_input(
     xpath=AVL_FUSELAGE_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Integrate fuselage",
-    gui_group="Fuselage",
+    gui_group="Simulation Settings",
 )
 
 cpacs_inout.add_input(
@@ -87,7 +80,7 @@ cpacs_inout.add_input(
     xpath=AVL_DISTR_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Choice of distribution",
-    gui_group="Vortex Lattice Spacing Distributions",
+    gui_group="Simulation Settings",
 )
 
 cpacs_inout.add_input(
@@ -99,7 +92,7 @@ cpacs_inout.add_input(
     xpath=AVL_NCHORDWISE_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Number of chordwise vortices",
-    gui_group="Vortex Lattice Spacing Distributions",
+    gui_group="Simulation Settings",
 )
 
 cpacs_inout.add_input(
@@ -111,19 +104,7 @@ cpacs_inout.add_input(
     xpath=AVL_NSPANWISE_XPATH,
     gui=INCLUDE_GUI,
     gui_name="Number of spanwise vortices",
-    gui_group="Vortex Lattice Spacing Distributions",
-)
-
-cpacs_inout.add_input(
-    var_name="nb_proc",
-    var_type=int,
-    default_value=get_reasonable_nb_cpu(),
-    unit=None,
-    descr="Number of proc to use to run SU2",
-    xpath=AVL_NB_CPU_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Nb of processor",
-    gui_group="CPU",
+    gui_group="Simulation Settings",
 )
 
 cpacs_inout.add_input(
@@ -138,33 +119,20 @@ cpacs_inout.add_input(
     gui_group="Default freestream Mach",
 )
 
-cpacs_inout.add_input(
-    var_name="save_plots",
-    var_type=bool,
-    default_value=True,
-    unit=None,
-    descr="Select to save geometry and results plots",
-    xpath=AVL_PLOT_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Save plots",
-    gui_group="Plots Settings",
-    test_value=False,
-    expanded=False,
-)
-
-cpacs_inout.add_input(
-    var_name="expand_values",
-    var_type=bool,
-    default_value=False,
-    unit=None,
-    descr="""
-    Selected values from aeromap will form a n-dimension cube (Specific for Dynamic Stability)
-    For example (alt, mach): (0.0, 0.1), (1000.0, 0.5)
-    Will transform into (alt, mach): (0.0, 0.1), (1000.0, 0.1), (0.0, 0.5), (1000.0, 0.5)
-    """,
-    xpath=AVL_EXPAND_VALUES_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Values Expansion",
-    gui_group="Values Expansion",
-    expanded=False,
-)
+# Integrate In AeroMap Settings
+# cpacs_inout.add_input(
+#     var_name="expand_values",
+#     var_type=bool,
+#     default_value=False,
+#     unit=None,
+#     descr="""
+#     Selected values from aeromap will form a n-dimension cube (Specific for Dynamic Stability)
+#     For example (alt, mach): (0.0, 0.1), (1000.0, 0.5)
+#     Will transform into (alt, mach): (0.0, 0.1), (1000.0, 0.1), (0.0, 0.5), (1000.0, 0.5)
+#     """,
+#     xpath=AVL_EXPAND_VALUES_XPATH,
+#     gui=INCLUDE_GUI,
+#     gui_name="Values Expansion",
+#     gui_group="Values Expansion",
+#     expanded=False,
+# )

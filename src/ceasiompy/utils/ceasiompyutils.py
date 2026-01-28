@@ -588,14 +588,16 @@ def run_software(
     """
 
     # Check nb_cpus
-    nb_cpu = nb_cpu if with_mpi else 1
+    if not with_mpi and nb_cpu > 1:
+        log.warning("No need to use several CPUs for a non-parallelized process.")
+        nb_cpu = 1
 
     if nb_cpu > 1:
-        check_nb_cpu(nb_cpu)
+        _check_nb_cpu(nb_cpu)
 
     log.info(
         f"{int(nb_cpu)} cpu{'s' if nb_cpu > 1 else ''} "
-        f"over {get_total_cpu_count()} will be used for this calculation."
+        f"over {get_sane_max_cpu()} will be used for this calculation."
     )
 
     install_path = get_install_path(software_name)
@@ -678,7 +680,12 @@ def _get_env_max_cpus() -> Optional[int]:
     return max_cpus
 
 
-def get_total_cpu_count() -> int:
+def has_display() -> bool:
+    """X11 and Wayland conventions"""
+    return bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
+
+
+def get_sane_max_cpu() -> int:
     """
     Return a sane upper bound on the number of CPUs that can be used.
     This prefers the MAX_CPUS environment variable and falls back to the
@@ -690,40 +697,24 @@ def get_total_cpu_count() -> int:
         return env_cpus
 
     cpu_count = os.cpu_count()
-    if cpu_count is None:
+    if cpu_count is None or cpu_count in [1, 2]:
         return 1
 
-    system_cpus = (cpu_count // 2) + 1
-    if system_cpus is None or system_cpus < 1:
-        log.warning(
-            "Could not figure out the number of CPU(s) on your machine. "
-            "This might be an issue with the OS you use."
-        )
+    sane_cpu = min(cpu_count - 1, env_cpus)
+    if sane_cpu < 1:
         return 1
 
-    return system_cpus
+    return sane_cpu
 
 
-def get_reasonable_nb_cpu() -> int:
-    """
-    Get a reasonable number of processors depending on the total number of processors on
-    the host machine. Approximately 1/4 of the total number of processors will be used.
-    This function is generally used to set up a default value for the number of processors,
-    the user can then override this value with the settings.
-    """
-
-    total_cpus = get_total_cpu_count()
-    return max(1, math.ceil(total_cpus / 4))
-
-
-def check_nb_cpu(nb_proc: int) -> None:
+def _check_nb_cpu(nb_proc: int) -> None:
     """
     Check if input nb_cpu from GUI is reasonable.
     """
-    total_cpus = get_total_cpu_count()
-    if not total_cpus > nb_proc:
+    max_cpu_count = get_sane_max_cpu()
+    if max_cpu_count < nb_proc:
         log.warning(f"{nb_proc} CPUs is too much for your engine.")
-        nb_proc = get_reasonable_nb_cpu()
+        nb_proc = max_cpu_count
         log.info(f"Using by default {nb_proc} CPUs.")
 
 

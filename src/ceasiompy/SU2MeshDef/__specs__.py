@@ -1,4 +1,4 @@
-from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
+from ceasiompy.utils.ceasiompyutils import get_sane_max_cpu
 from ceasiompy.utils.commonxpaths import (
     REF_XPATH,
     SU2_BC_WALL_XPATH,
@@ -23,7 +23,7 @@ cpacs_inout = CPACSInOut()
 cpacs_inout.add_input(
     var_name="nb_proc",
     var_type=int,
-    default_value=get_reasonable_nb_cpu(),
+    default_value=get_sane_max_cpu(),
     unit="1",
     descr="Number of proc to use to run SU2",
     xpath=SU2_NB_CPU_XPATH,

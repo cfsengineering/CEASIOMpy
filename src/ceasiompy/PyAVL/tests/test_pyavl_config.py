@@ -31,9 +31,7 @@ from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH
 from ceasiompy.PyAVL import (
     MODULE_DIR,
-    AVL_PLOT_XPATH,
     AVL_DISTR_XPATH,
-    AVL_NB_CPU_XPATH,
     AVL_FUSELAGE_XPATH,
     AVL_ROTRATES_XPATH,
     AVL_NSPANWISE_XPATH,
@@ -62,17 +60,11 @@ class TestPyAVLConfig(CeasiompyTest):
     def test_retrieve_gui_values(self):
         tixi = self.cpacs.tixi
 
-        create_branch(tixi, xpath=AVL_PLOT_XPATH)
-        tixi.updateBooleanElement(AVL_PLOT_XPATH, False)
-
         create_branch(tixi, xpath=AVL_FUSELAGE_XPATH)
         tixi.updateBooleanElement(AVL_FUSELAGE_XPATH, False)
 
         create_branch(tixi, xpath=AVL_EXPAND_VALUES_XPATH)
         tixi.updateBooleanElement(AVL_EXPAND_VALUES_XPATH, False)
-
-        create_branch(tixi, xpath=AVL_NB_CPU_XPATH)
-        tixi.updateIntegerElement(AVL_NB_CPU_XPATH, 1, "%d")
 
         create_branch(tixi, xpath=AVL_NCHORDWISE_XPATH)
         tixi.updateIntegerElement(AVL_NCHORDWISE_XPATH, 1, "%d")
@@ -103,8 +95,6 @@ class TestPyAVLConfig(CeasiompyTest):
         assert result[4] == [0.0]
         assert result[5] == [0.0]
         assert result[6] == Path(str(self.wkdir) + "/" + self.cpacs.ac_name + ".avl")
-        assert result[7] is False
-        assert result[8] == 1
 
     @log_test
     def test_get_aeromap_conditions(self) -> None:

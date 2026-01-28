@@ -37,7 +37,7 @@ from ceasiompy.SU2Run.func.utils import get_mesh_markers, su2_format
 from ceasiompy import log
 from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
-    get_reasonable_nb_cpu,
+    get_sane_max_cpu,
     get_results_directory,
     run_software,
 )
@@ -753,7 +753,7 @@ def run_mesh_deformation(tixi, wkdir):
     ted_dir_list = [dir for dir in os.listdir(mesh_dir) if "_TED_" in dir]
 
     # Get number of proc to use from the CPACS file
-    nb_proc = get_value_or_default(tixi, SU2_NB_CPU_XPATH, get_reasonable_nb_cpu())
+    nb_proc = get_value_or_default(tixi, SU2_NB_CPU_XPATH, get_sane_max_cpu())
 
     # Iterate in all TED directory
     for dir in sorted(ted_dir_list):

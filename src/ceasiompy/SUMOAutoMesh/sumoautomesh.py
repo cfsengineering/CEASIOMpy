@@ -37,7 +37,7 @@ from ceasiompy.utils.ceasiompyutils import (
     run_software,
     aircraft_name,
     get_results_directory,
-    get_reasonable_nb_cpu,
+    get_sane_max_cpu,
 )
 
 from pathlib import Path
@@ -265,7 +265,7 @@ def main(cpacs: CPACS, wkdir: Path):
 
     current_os = platform.system()
 
-    nb_cpu = get_reasonable_nb_cpu()
+    nb_cpu = get_sane_max_cpu()
 
     if (current_os == "Darwin") or (current_os == "Linux"):
         log.info("Your OS is supported by SUMOAutoMesh.")

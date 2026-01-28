@@ -175,16 +175,14 @@ def duplicate_elements(expand: bool, *lists: List) -> Tuple[List, ...]:
 
     """
 
-    # If you do not wish to expand values
-    if not expand:
-        cst_list = len(lists[0]) * [lists[-1][0]]
-        return tuple(lists[:-1]) + (cst_list, cst_list, cst_list)
-
     # Ensure each elements in the list are unique
-    lists = tuple([list(set(list_)) for list_ in lists])
+    if expand:
+        lists = tuple([list(set(list_)) for list_ in lists])
 
     *initial_lists, last_list = lists
-    combinations = list(product(*initial_lists))
+
+    # Keep existing pairing between initial lists (no Cartesian product)
+    combinations = list(zip(*initial_lists))
 
     n = len(initial_lists)
     new_lists = [[] for _ in initial_lists] + [[] for _ in range(3)]

@@ -106,7 +106,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         new_roll_rate_list,
         new_yaw_rate_list,
     ) = duplicate_elements(
-        True,
+        False,
         alt_list,
         mach_list,
         aoa_list,
@@ -115,6 +115,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     )
     first_cases = len(new_alt_list)
 
+    log.info(f'{alt_list=} {new_alt_list=}')
     for i_case, alt in enumerate(new_alt_list):
         mach = new_mach_list[i_case]
         aoa = new_aoa_list[i_case]

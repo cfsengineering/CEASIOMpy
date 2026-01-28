@@ -15,22 +15,25 @@ Streamlit utils functions for CEASIOMpy
 # ==============================================================================
 
 import re
-import pandas as pd
 import warnings
+import pandas as pd
 import streamlit as st
+import numpy as np
+import plotly.graph_objects as go
 
 from cpacspy.cpacsfunctions import (
     add_value,
-    create_branch,
     add_string_vector,
 )
+
+from stl import mesh
+from PIL import Image
+from pathlib import Path
+
 from tixi3.tixi3wrapper import (
     ReturnCode,
     Tixi3Exception,
 )
-
-from PIL import Image
-from pathlib import Path
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
@@ -280,6 +283,8 @@ def section_edit_aeromap() -> None:
             selected_df = selected_aeromap.df[PARAMS]
             original_df = selected_df.reset_index(drop=True)
 
+            editor_key_version = st.session_state.get("aeromap_editor_key_version", 0)
+
             with warnings.catch_warnings():
                 warnings.filterwarnings(
                     "ignore",
@@ -290,18 +295,15 @@ def section_edit_aeromap() -> None:
                     category=FutureWarning,
                 )
                 edited_aero_df = st.data_editor(
-                    selected_df,
+                    st.session_state.get("aeromap_df", original_df),
                     num_rows="dynamic",
                     hide_index=True,
+                    key=f"aeromap_editor_{editor_key_version}",
                     column_config={
-                        "altitude": "Altitude",
-                        "machNumber": "Mach",
-                        "angleOfAttack": "α°",
-                        "angleOfSideslip": "β°",
-                        "Altitude": st.column_config.NumberColumn("Altitude", min_value=0.0),
-                        "Mach": st.column_config.NumberColumn("Mach", min_value=1e-3),
-                        "α°": st.column_config.NumberColumn("α°"),
-                        "β°": st.column_config.NumberColumn("β°"),
+                        "altitude": st.column_config.NumberColumn("Altitude", min_value=0.0),
+                        "machNumber": st.column_config.NumberColumn("Mach", min_value=1e-2),
+                        "angleOfAttack": st.column_config.NumberColumn("α°"),
+                        "angleOfSideslip": st.column_config.NumberColumn("β°"),
                     },
                     column_order=["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"],
                 )
@@ -311,21 +313,24 @@ def section_edit_aeromap() -> None:
                 errors="coerce",
             )
             edited_aero_df[PARAMS] = edited_aero_df[PARAMS].astype(float)
+            cleaned_aero_df = edited_aero_df.drop_duplicates(subset=PARAMS, keep="first")
 
-            active_rows = edited_aero_df[PARAMS].notna().any(axis=1)
-            active_df = edited_aero_df.loc[active_rows, PARAMS]
+            invalid_numeric = edited_aero_df.isna().any().any()
+            if not invalid_numeric:
+                cleaned_aero_df = cleaned_aero_df.reset_index(drop=True)
+                st.session_state["aeromap_df"] = cleaned_aero_df
 
+            if not invalid_numeric and not cleaned_aero_df.equals(edited_aero_df):
+                # Force the data editor to re-mount with the cleaned data.
+                st.session_state["aeromap_editor_key_version"] = editor_key_version + 1
+                st.rerun()
+
+            active_rows = cleaned_aero_df[PARAMS].notna().any(axis=1)
+            active_df = cleaned_aero_df.loc[active_rows, PARAMS]
             invalid_numeric = active_df.isna().any().any()
-            invalid_altitude = (active_df["altitude"] < 0.0).any()
-            invalid_mach = (active_df["machNumber"] <= 0.0).any()
-            duplicate_rows = active_df.duplicated().any()
 
-            if invalid_numeric or invalid_altitude or invalid_mach or duplicate_rows:
-                st.error(
-                    "Altitude must be >= 0.0, Mach must be > 0.0, all values must be numeric, "
-                    "and all rows must be distinct."
-                )
-            else:
+            if not invalid_numeric:
+                # Only save when its Valid Numeric
                 cleaned_df = active_df[PARAMS].reset_index(drop=True)
                 if not cleaned_df.equals(original_df):
                     selected_aeromap.df = cleaned_df
@@ -370,3 +375,55 @@ def section_edit_aeromap() -> None:
         new_aeromap.save()
         st.session_state["last_imported_aeromap_uid"] = uploaded_aeromap_uid
         st.rerun()
+
+
+def section_3D_view(
+    *,
+    force_regenerate: bool = False,
+) -> None:
+    """
+    Shows a 3D view of the aircraft by exporting a STL file.
+    """
+
+    stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
+    if not force_regenerate and stl_file.exists():
+        pass
+    elif hasattr(st.session_state.cpacs, "aircraft") and hasattr(
+        st.session_state.cpacs.aircraft, "tigl"
+    ):
+        with st.spinner("Meshing geometry (STL export)..."):
+            st.session_state.cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
+    else:
+        st.error("Cannot generate 3D preview (missing TIGL geometry handle).")
+        return
+    your_mesh = mesh.Mesh.from_file(stl_file)
+    triangles = your_mesh.vectors.reshape(-1, 3)
+    vertices, indices = np.unique(triangles, axis=0, return_inverse=True)
+    i, j, k = indices[0::3], indices[1::3], indices[2::3]
+    x, y, z = vertices.T
+
+    # Compute bounds and cube size
+    min_x, max_x = np.min(x), np.max(x)
+    min_y, max_y = np.min(y), np.max(y)
+    min_z, max_z = np.min(z), np.max(z)
+    center_x = (min_x + max_x) / 2
+    center_y = (min_y + max_y) / 2
+    center_z = (min_z + max_z) / 2
+    max_range = max(max_x - min_x, max_y - min_y, max_z - min_z) / 2
+
+    # Set axis limits so the mesh is centered in a cube
+    x_range = [center_x - max_range, center_x + max_range]
+    y_range = [center_y - max_range, center_y + max_range]
+    z_range = [center_z - max_range, center_z + max_range]
+
+    fig = go.Figure(data=[go.Mesh3d(x=x, y=y, z=z, i=i, j=j, k=k, color="orange", opacity=0.5)])
+    fig.update_layout(
+        margin=dict(l=0, r=0, t=0, b=0),
+        scene=dict(
+            xaxis=dict(range=x_range),
+            yaxis=dict(range=y_range),
+            zaxis=dict(range=z_range),
+            aspectmode="cube",
+        ),
+    )
+    st.plotly_chart(fig, width="content")

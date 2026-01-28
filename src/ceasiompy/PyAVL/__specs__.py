@@ -36,30 +36,6 @@ cpacs_inout = CPACSInOut()
 # ==============================================================================
 
 cpacs_inout.add_input(
-    var_name="rates",
-    var_type="multiselect",
-    default_value=[0.0],
-    unit="[deg/s]",
-    descr="List of p, q, r rates",
-    xpath=AVL_ROTRATES_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Rotation Rates",
-    gui_group="Rate settings",
-)
-
-cpacs_inout.add_input(
-    var_name="ctrl_surf_angles",
-    var_type="multiselect",
-    default_value=[0.0],
-    unit="[deg]",
-    descr="List of Aileron, Elevator, Rudder angles",
-    xpath=AVL_CTRLSURF_ANGLES_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Aileron/Elevator/Rudder Angles",
-    gui_group="Control surface settings",
-)
-
-cpacs_inout.add_input(
     var_name="integrate_fuselage",
     var_type=bool,
     default_value=False,
@@ -105,6 +81,30 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="Number of spanwise vortices",
     gui_group="Simulation Settings",
+)
+
+cpacs_inout.add_input(
+    var_name="rates",
+    var_type="multiselect",
+    default_value=[0.0],
+    unit="[deg/s]",
+    descr="List of p, q, r rates",
+    xpath=AVL_ROTRATES_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Rotation Rates",
+    gui_group="Rate settings",
+)
+
+cpacs_inout.add_input(
+    var_name="ctrl_surf_angles",
+    var_type="multiselect",
+    default_value=[0.0],
+    unit="[deg]",
+    descr="List of Aileron, Elevator, Rudder angles",
+    xpath=AVL_CTRLSURF_ANGLES_XPATH,
+    gui=INCLUDE_GUI,
+    gui_name="Aileron/Elevator/Rudder Angles",
+    gui_group="Control surface settings",
 )
 
 cpacs_inout.add_input(

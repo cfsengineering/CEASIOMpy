@@ -23,16 +23,16 @@ import os
 import sys
 import hashlib
 import subprocess
-import numpy as np
 import streamlit as st
-import plotly.graph_objects as go
-from urllib.parse import urlparse
 
+from urllib.parse import urlparse
 from ceasiompy.utils import get_wkdir
 from ceasiompy.utils.ceasiompyutils import parse_bool
-from CEASIOMpyStreamlit.streamlitutils import create_sidebar
+from CEASIOMpyStreamlit.streamlitutils import (
+    create_sidebar,
+    section_3D_view,
+)
 
-from stl import mesh
 from typing import Final
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
@@ -41,6 +41,7 @@ from tigl3.tigl3wrapper import Tigl3
 from ceasiompy.utils.workflowclasses import Workflow
 
 from CEASIOMpyStreamlit import BLOCK_CONTAINER
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.VSP2CPACS import (
     SOFTWARE_PATH as OPENVSP_PATH,
     MODULE_STATUS as VSP2CPACS_MODULE_STATUS,
@@ -61,55 +62,6 @@ PAGE_NAME: Final[str] = "Geometry"
 
 _VSP2CPACS_OUT_TOKEN: Final[str] = "__CEASIOMPY_VSP2CPACS_OUT__="
 
-
-def _resolve_frontend_portal_url() -> str | None:
-    """Return the first configured frontend origin so we can link back to the portal."""
-    raw_origins = os.environ.get("VITE_FRONTEND_ORIGINS") or ""
-    for origin in raw_origins.split(","):
-        candidate = origin.strip()
-        if not candidate:
-            continue
-        parsed = urlparse(candidate)
-        if parsed.scheme and parsed.netloc:
-            return candidate
-        return f"http://{candidate}"
-    frontend_url = os.environ.get("VITE_STREAMLIT_URL")
-    if frontend_url:
-        parsed = urlparse(frontend_url)
-        if parsed.scheme and parsed.netloc:
-            return frontend_url
-        return f"http://{frontend_url}"
-    return None
-
-
-# =================================================================================================
-#    SESSION GUARD
-# =================================================================================================
-
-
-def _enforce_session_token() -> None:
-    """Ensure the Streamlit UI is accessed only via a matching session token."""
-    expected_token = os.environ.get("CEASIOMPY_SESSION_TOKEN")
-    if not expected_token:
-        return
-    params = st.query_params
-    provided_values = params.get("session_token")
-    provided_token = (provided_values or [""])[0]
-    if provided_token != expected_token:
-        st.error(
-            "Unauthorized access. Launch CEASIOMpy from the web portal to continue your session."
-        )
-        portal_url = _resolve_frontend_portal_url()
-        if portal_url:
-            st.markdown(
-                f"[Return to the web portal →]({portal_url})",
-                unsafe_allow_html=True,
-            )
-        st.stop()
-
-
-# _enforce_session_token()
-
 # =================================================================================================
 #    FUNCTIONS
 # =================================================================================================
@@ -117,7 +69,6 @@ def _enforce_session_token() -> None:
 
 def convert_vsp3_to_cpacs(vsp3_path: Path, *, output_dir: Path) -> Path:
     """Convert a VSP3 file to CPACS in a separate process.
-
     OpenVSP Python bindings may segfault; running conversion out-of-process prevents the Streamlit
     server from crashing and allows reporting the error.
     """
@@ -174,6 +125,24 @@ def convert_vsp3_to_cpacs(vsp3_path: Path, *, output_dir: Path) -> Path:
         + "\n--- stderr ---\n"
         + (completed.stderr or "")
     )
+
+
+def build_default_upload(cpacs_path: Path):
+    """Create a lightweight file-like object compatible with the upload flow."""
+
+    if not cpacs_path.exists():
+        st.error(f"CPACS file not found: {cpacs_path}")
+        return None
+
+    class _DefaultUploadedFile:
+        def __init__(self, path: Path) -> None:
+            self.name = path.name
+            self._data = path.read_bytes()
+
+        def getbuffer(self):
+            return self._data
+
+    return _DefaultUploadedFile(cpacs_path)
 
 
 def close_cpacs_handles(cpacs: CPACS | None, *, detach: bool = True) -> None:
@@ -355,6 +324,17 @@ def section_select_cpacs() -> None:
             label_visibility="collapsed",
         )
 
+        if not uploaded_file:
+            if st.button(
+                label="Load a default CPACS geometry",
+            ):
+                default_cpacs_path = Path(CPACS_FILES_PATH, "D150_simple.xml")
+                uploaded_file = build_default_upload(default_cpacs_path)
+                if uploaded_file is None:
+                    return None
+            else:
+                return None
+
         if uploaded_file:
             uploaded_bytes = uploaded_file.getbuffer()
             uploaded_digest = hashlib.sha256(uploaded_bytes).hexdigest()
@@ -434,57 +414,6 @@ def section_select_cpacs() -> None:
         # Display the file uploader widget with the previously uploaded file
         if "cpacs" in st.session_state and st.session_state.cpacs:
             section_3D_view(force_regenerate=True)
-
-
-def section_3D_view(*, force_regenerate: bool = False) -> None:
-    """
-    Shows a 3D view of the aircraft by exporting a STL file.
-    """
-
-    stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
-    if not force_regenerate and stl_file.exists():
-        pass
-    elif hasattr(st.session_state.cpacs, "aircraft") and hasattr(
-        st.session_state.cpacs.aircraft, "tigl"
-    ):
-        with st.spinner("Meshing geometry (STL export)..."):
-            st.session_state.cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
-    else:
-        st.error("Cannot generate 3D preview (missing TIGL geometry handle).")
-        return
-    your_mesh = mesh.Mesh.from_file(stl_file)
-    triangles = your_mesh.vectors.reshape(-1, 3)
-    vertices, indices = np.unique(triangles, axis=0, return_inverse=True)
-    i, j, k = indices[0::3], indices[1::3], indices[2::3]
-    x, y, z = vertices.T
-
-    # Compute bounds and cube size
-    min_x, max_x = np.min(x), np.max(x)
-    min_y, max_y = np.min(y), np.max(y)
-    min_z, max_z = np.min(z), np.max(z)
-    center_x = (min_x + max_x) / 2
-    center_y = (min_y + max_y) / 2
-    center_z = (min_z + max_z) / 2
-    max_range = max(max_x - min_x, max_y - min_y, max_z - min_z) / 2
-
-    # Set axis limits so the mesh is centered in a cube
-    x_range = [center_x - max_range, center_x + max_range]
-    y_range = [center_y - max_range, center_y + max_range]
-    z_range = [center_z - max_range, center_z + max_range]
-
-    fig = go.Figure(data=[go.Mesh3d(x=x, y=y, z=z, i=i, j=j, k=k, color="orange", opacity=0.5)])
-    fig.update_layout(
-        width=900,
-        height=700,
-        margin=dict(l=0, r=0, t=0, b=0),
-        scene=dict(
-            xaxis=dict(range=x_range),
-            yaxis=dict(range=y_range),
-            zaxis=dict(range=z_range),
-            aspectmode="cube",
-        ),
-    )
-    st.plotly_chart(fig, width="content")
 
 
 # =================================================================================================

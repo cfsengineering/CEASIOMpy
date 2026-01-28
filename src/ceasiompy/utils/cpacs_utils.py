@@ -64,10 +64,10 @@ class SimpleCPACS:
         """Create a new aeromap."""
         if " " in uid:
             raise ValueError("AeroMap uid should not contain any space!")
-        
+
         if uid in self.get_aeromap_uid_list():
             raise ValueError(f"AeroMap with uid '{uid}' already exists!")
-        
+
         return AeroMap(self.tixi, uid, create_new=True)
 
     def delete_aeromap(self, uid: str):

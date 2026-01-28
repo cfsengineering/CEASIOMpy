@@ -158,7 +158,6 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
 
     airfoil_type = tixi.getTextElement(GEOM_XPATH + "/airfoilType")
 
-
     # Get airfoil code/name from CPACS based on type
     if airfoil_type == "NACA":
         airfoil_name = tixi.getTextElement(GEOM_XPATH + "/airfoilCode")

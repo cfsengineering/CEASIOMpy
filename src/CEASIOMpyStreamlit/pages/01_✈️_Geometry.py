@@ -377,6 +377,13 @@ def render_openvsp_panel() -> None:
 
 
 def clean_toolspecific(cpacs: CPACS) -> CPACS:
+    # Check if cpacs is SimpleCPACS (2D) - skip cleaning for 2D files
+    from ceasiompy.utils.cpacs_utils import SimpleCPACS
+    if isinstance(cpacs, SimpleCPACS):
+        # SimpleCPACS doesn't have ac_name, skip cleaning
+        st.session_state["new_file"] = True
+        return cpacs
+    
     air_name = cpacs.ac_name
 
     if "ac_name" not in st.session_state or st.session_state.ac_name != air_name:
@@ -902,22 +909,14 @@ if __name__ == "__main__":
     with col1:
         if st.button("📐 2D Airfoil", use_container_width=True):
             st.session_state["geometry_mode"] = "2D"
-            # Save mode to CPACS if available
-            if "cpacs" in st.session_state:
-                cpacs = st.session_state["cpacs"]
-                create_branch(cpacs.tixi, GEOMETRY_MODE_XPATH)
-                cpacs.tixi.updateTextElement(GEOMETRY_MODE_XPATH, "2D")
-                cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
+            # Clear 2D airfoil session data to start fresh
+            for key in ["airfoil_type", "airfoil_code", "airfoil_x", "airfoil_y", "airfoil_file"]:
+                st.session_state.pop(key, None)
 
     with col2:
         if st.button("✈️ 3D Geometry", use_container_width=True):
             st.session_state["geometry_mode"] = "3D"
-            # Save mode to CPACS if available
-            if "cpacs" in st.session_state:
-                cpacs = st.session_state["cpacs"]
-                create_branch(cpacs.tixi, GEOMETRY_MODE_XPATH)
-                cpacs.tixi.updateTextElement(GEOMETRY_MODE_XPATH, "3D")
-                cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
+            # Mode will be saved when loading a 3D CPACS file
 
     # Initialize mode if not set
     if "geometry_mode" not in st.session_state:

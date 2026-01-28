@@ -435,7 +435,10 @@ def section_select_cpacs() -> None:
         if "cpacs" in st.session_state and st.session_state.cpacs:
             st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
             with st.container(border=True):
-                section_3D_view(force_regenerate=True)
+                section_3D_view(
+                    cpacs=st.session_state.cpacs,
+                    force_regenerate=True,
+                )
 
 
 # =================================================================================================

@@ -33,7 +33,7 @@ from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
 )
-
+import streamlit as st
 from ceasiompy import log
 from ceasiompy.SMTrain import (
     SMTRAIN_PLOT_XPATH,
@@ -440,3 +440,62 @@ def create_list_cpacs_geometry(cpacs_file: Path, sampling_geom_csv: Path, NEWCPA
         list_cpacs.append(cpacs_obj)
 
     return list_cpacs
+
+def load_normalization_params(results_dir: Path) -> dict:
+    csv_path = Path(results_dir) / "normalization_params.csv"
+    if not csv_path.exists():
+        st.error("normalization_params.csv not found!")
+        st.stop()
+
+    df = pd.read_csv(csv_path)
+
+    required_cols = {"Parameter", "mean", "std"}
+    if not required_cols.issubset(df.columns):
+        st.error("Invalid normalization_params.csv format")
+        st.stop()
+
+    normalization_params = {
+        row["Parameter"]: {
+            "mean": float(row["mean"]),
+            "std": float(row["std"]),
+        }
+        for _, row in df.iterrows()
+    }
+
+    return normalization_params
+
+def normalize_input_from_gui(
+    sliders_values: dict,
+    param_order: list,
+    normalization_params: dict,
+) -> np.ndarray:
+
+    x_phys = np.array(
+        [sliders_values[p] for p in param_order],
+        dtype=float
+    )
+
+    x_norm = np.zeros_like(x_phys)
+    for i, p in enumerate(param_order):
+        mean = normalization_params[p]["mean"]
+        std  = normalization_params[p]["std"]
+        x_norm[i] = 0.0 if std == 0 else (x_phys[i] - mean) / std
+
+    return x_norm
+
+def phys_to_norm(x_phys, params, normalization_params):
+    x_norm = np.zeros_like(x_phys)
+    for i, p in enumerate(params):
+        mean = normalization_params[p]["mean"]
+        std  = normalization_params[p]["std"]
+        x_norm[i] = 0.0 if std == 0 else (x_phys[i] - mean) / std
+    return x_norm
+
+
+def norm_to_phys(x_norm, params, normalization_params):
+    x_phys = np.zeros_like(x_norm)
+    for i, p in enumerate(params):
+        mean = normalization_params[p]["mean"]
+        std  = normalization_params[p]["std"]
+        x_phys[i] = mean if std == 0 else x_norm[i] * std + mean
+    return x_phys

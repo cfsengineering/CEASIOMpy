@@ -42,6 +42,7 @@ def section_3D_view(
     results_dir: Path | None = None,
     cpacs: CPACS | None = st.session_state.get("cpacs", None),
     force_regenerate: bool = False,
+    file_name: str | str = "aircraft.stl",
 ) -> None:
     """
     Shows a 3D view of the aircraft by exporting a STL file.
@@ -53,7 +54,7 @@ def section_3D_view(
     if results_dir is None:
         results_dir = st.session_state.workflow.working_dir
 
-    stl_file = Path(results_dir, "aircraft.stl")
+    stl_file = Path(results_dir, file_name)
     if not force_regenerate and stl_file.exists():
         pass
     elif hasattr(cpacs, "aircraft") and hasattr(
@@ -63,7 +64,8 @@ def section_3D_view(
             cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
     else:
         st.error("Cannot generate 3D preview (missing TIGL geometry handle).")
-        return
+        return None
+
     your_mesh = mesh.Mesh.from_file(stl_file)
     triangles = your_mesh.vectors.reshape(-1, 3)
     vertices, indices = np.unique(triangles, axis=0, return_inverse=True)

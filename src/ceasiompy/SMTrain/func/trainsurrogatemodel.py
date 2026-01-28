@@ -501,27 +501,38 @@ def run_first_level_training_geometry(
     best_geometries_df = final_level1_df.loc[[best_geometry_idx]]
     best_geometries_df.to_csv(f"{results_dir}/best_geometric_configurations.csv", index=False)
 
-    param_cols = final_level1_df.columns.drop(objective)
+    param_cols = final_level1_df_c.columns.drop(objective)
 
-    df_norm = final_level1_df.copy()
+    df_norm = final_level1_df_c.copy()
     normalization_params = {}
 
     for col in param_cols:
-        col_mean = final_level1_df[col].mean()
-        col_std = final_level1_df[col].std()
+        col_mean = final_level1_df_c[col].mean()
+        col_std = final_level1_df_c[col].std()
         if col_std == 0:
             df_norm[col] = 0.0
         else:
-            df_norm[col] = (final_level1_df[col] - col_mean) / col_std
+            df_norm[col] = (final_level1_df_c[col] - col_mean) / col_std
         normalization_params[col] = {"mean": col_mean, "std": col_std}
+
+    norm_df = pd.DataFrame.from_dict(
+        normalization_params,
+        orient="index"
+    ).reset_index()
+
+    norm_df.columns = ["Parameter", "mean", "std"]
+
+    norm_df.to_csv(
+        f"{results_dir}/normalization_params.csv",
+        index=False
+    )
 
     krg_model = None
     krg_rmse = None
     rbf_model = None
     rbf_rmse = None
-
-    level1_sets = split_data(final_level1_df_c, objective, split_ratio)
-    param_order = [col for col in final_level1_df_c.columns if col != objective]
+    level1_sets = split_data(df_norm, objective, split_ratio)
+    param_order = [col for col in df_norm.columns if col != objective]
 
     if KRG_model_bool:
         print("\n\n")

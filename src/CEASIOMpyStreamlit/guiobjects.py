@@ -13,6 +13,7 @@ GUI objects in CEASIOMpy.
 #   IMPORTS
 # ==============================================================================
 
+import shutil
 import pandas as pd
 import streamlit as st
 from CEASIOMpyStreamlit.streamlitutils import save_cpacs_file
@@ -147,14 +148,14 @@ def int_vartype(tixi, xpath, default_value, name, key, description) -> None:
         st.number_input(name, value=value, key=key, help=description, on_change=save_cpacs_file)
 
 
-def float_vartype(tixi, xpath, default_value, name, key, description) -> None:
+def float_vartype(tixi, xpath, default_value, name, key, description) -> float:
     raw_value = safe_get_value(tixi, xpath, default_value)
     try:
         value = float(raw_value)
     except (TypeError, ValueError):
         value = float(default_value)
     with st.columns([1, 2])[0]:
-        st.number_input(
+        selected_value = st.number_input(
             name,
             value=value,
             format="%0.3f",
@@ -162,16 +163,17 @@ def float_vartype(tixi, xpath, default_value, name, key, description) -> None:
             help=description,
             on_change=save_cpacs_file,
         )
+        return selected_value
+    return value
 
 
-def list_vartype(tixi, xpath, default_value, name, key, description):
+def list_vartype(tixi, xpath, default_value, name, key, description) -> str:
     if default_value is None:
-        log.warning(f"Could not create GUI for {xpath} in list_vartype.")
-        return None
+        raise ValueError(f"Could not create GUI for {xpath} in list_vartype.")
 
     value = safe_get_value(tixi, xpath, default_value[0])
     idx = default_value.index(value)
-    st.radio(
+    selected_str = st.radio(
         name,
         options=default_value,
         index=idx,
@@ -179,6 +181,7 @@ def list_vartype(tixi, xpath, default_value, name, key, description):
         help=description,
         on_change=save_cpacs_file,
     )
+    return selected_str
 
 
 def add_ctrl_surf_vartype(tixi, xpath, default_value, name, key, description) -> None:
@@ -217,18 +220,27 @@ def add_ctrl_surf_vartype(tixi, xpath, default_value, name, key, description) ->
         )
 
 
-def bool_vartype(tixi, xpath, default_value, name, key, description) -> None:
+def bool_vartype(tixi, xpath, default_value, name, key, description) -> bool:
     raw_value = safe_get_value(tixi, xpath, default_value)
     if isinstance(raw_value, str):
         value = raw_value.strip().lower() in {"1", "true", "yes", "y"}
     else:
         value = bool(raw_value)
-    st.checkbox(
+
+    disabled = False
+    xvfb_run = shutil.which("xfvb-run")
+    print(f'{name=}')
+    if xvfb_run is None and name == "Save plots":
+        disabled = True
+        value = False
+
+    return st.checkbox(
         name,
         value=value,
         key=key,
         help=description,
         on_change=save_cpacs_file,
+        disabled=disabled,
     )
 
 

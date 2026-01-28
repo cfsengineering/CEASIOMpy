@@ -47,6 +47,10 @@ import io
 from CEASIOMpyStreamlit.streamlitutils import section_3D_view
 from ceasiompy.SMTrain.func.config import (
     get_xpath_for_param,
+    load_normalization_params,
+    normalize_input_from_gui,
+    phys_to_norm,
+    norm_to_phys,
 )
 
 from SALib.sample import saltelli
@@ -239,10 +243,7 @@ def display_results(results_dir, chosen_workflow = None):
                 st.line_chart(df[["rms[Rho]", "rms[RhoU]", "rms[RhoV]", "rms[RhoW]", "rms[RhoE]"]])
 
             elif child.suffix == ".pkl":
-                # st.markdown(f"{results_dir=}")
-                # st.markdown(f"{chosen_workflow=}")
                 csv_rmse_krg_path = Path(f"{results_dir}/rmse_KRG.csv")
-                rmse_krg_df = None
                 if csv_rmse_krg_path.exists():
                     rmse_krg_df = pd.read_csv(csv_rmse_krg_path)
                     rmse_krg_value = rmse_krg_df["rmse"].iloc[0]
@@ -272,12 +273,11 @@ def display_results(results_dir, chosen_workflow = None):
                     st.warning("No sampling data available.")
 
                 for _, row in df_range.iterrows():
-                    param = row["Parameter"]
+                    param = str(row["Parameter"]).strip()
                     min_val = float(row["Min"])
                     max_val = float(row["Max"])
                     sliders_bounds[param] = [min_val, max_val]
                     sliders_values[param] = min_val
-
 
                 cpacs_in = Path(chosen_workflow, "00_ToolInput.xml")
                 tmp_cpacs = CPACS(cpacs_in)
@@ -308,6 +308,13 @@ def display_results(results_dir, chosen_workflow = None):
                         "sliders will be available."
                     )
 
+                normalization_params = load_normalization_params(results_dir)
+                missing = [p for p in param_order if p not in normalization_params]
+                if missing:
+                    log.error(f"Missing normalization parameters for: {missing}")
+                    st.error(f"Missing normalization parameters for: {missing}")
+                    st.stop()
+
                 if model is not None and len(param_order) >= 2:
                     if st.button("Run Sobol analysis"):
 
@@ -335,13 +342,18 @@ def display_results(results_dir, chosen_workflow = None):
                         # ---- RUN MODEL ----
                         Y = []
                         for s in sample_set:
-                            x = np.zeros(len(param_order))
+                            x_phys = np.zeros(len(param_order))
                             for i, p in enumerate(param_order):
                                 if p in sobol_params:
-                                    x[i] = s[sobol_params.index(p)]
+                                    x_phys[i] = s[sobol_params.index(p)]
                                 else:
-                                    x[i] = sliders_bounds[p][0]
-                            Y.append(model.predict_values(x.reshape(1, -1))[0])
+                                    x_phys[i] = sliders_bounds[p][0]
+                            x_norm = normalize_input_from_gui(
+                                {p: x_phys[i] for i, p in enumerate(param_order)},
+                                param_order,
+                                normalization_params
+                            )
+                            Y.append(model.predict_values(x_norm.reshape(1, -1))[0])
 
                         Y = np.array(Y).flatten()
 
@@ -396,16 +408,14 @@ def display_results(results_dir, chosen_workflow = None):
                             f"Range for {selected_params[0]}",
                             float(p1_min),
                             float(p1_max),
-                            (float(p1_min),
-                            float(p1_max)),
+                            (float(p1_min), float(p1_max)),
                             key="rsm_slider_1"
                         )
                         p2_range = st.slider(
                             f"Range for {selected_params[1]}",
                             float(p2_min),
                             float(p2_max),
-                            (float(p2_min),
-                            float(p2_max)),
+                            (float(p2_min), float(p2_max)),
                             key="rsm_slider_2"
                         )
 
@@ -414,128 +424,75 @@ def display_results(results_dir, chosen_workflow = None):
                             fixed_param_values = {}
                             for p in param_order:
                                 if p not in selected_params:
-                                    min_val, max_val = sliders_bounds.get(p, (0, 0))
+                                    low, high = sliders_bounds.get(p, (0, 0))
                                     fixed_param_values[p] = st.slider(
                                         f"{p}",
-                                        float(min_val),
-                                        float(max_val),
-                                        float((min_val + max_val) / 2),
+                                        float(low),
+                                        float(high),
+                                        float((low + high) / 2),
                                         key=f"fixed_slider_{p}"
                                     )
 
                         if st.button("Generate response surface"):
                             with st.spinner("Calculating response surface..."):
-                                param1 = np.linspace(p1_range[0], p1_range[1], 50)
-                                param2 = np.linspace(p2_range[0], p2_range[1], 50)
-                                P1, P2 = np.meshgrid(param1, param2)
+                                # Create meshgrid for the two selected parameters
+                                param1_lin = np.linspace(p1_range[0], p1_range[1], 50)
+                                param2_lin = np.linspace(p2_range[0], p2_range[1], 50)
+                                P1, P2 = np.meshgrid(param1_lin, param2_lin)
 
-                                inputs = np.zeros((P1.size, len(param_order)))
-                                
+                                # Prepare full input matrix
+                                inputs_norm = np.zeros((P1.size, len(param_order)))
                                 for i, p in enumerate(param_order):
                                     if p == selected_params[0]:
-                                        inputs[:, i] = P1.ravel()
+                                        inputs_norm[:, i] = (P1.ravel() - normalization_params[p]["mean"]) / normalization_params[p]["std"]
                                     elif p == selected_params[1]:
-                                        inputs[:, i] = P2.ravel()
+                                        inputs_norm[:, i] = (P2.ravel() - normalization_params[p]["mean"]) / normalization_params[p]["std"]
                                     else:
-                                        low, high = sliders_bounds.get(p, (0, 0))
-                                        inputs[:, i] = (low + high) / 2
+                                        val = fixed_param_values.get(p, sliders_bounds[p][0])
+                                        mean = normalization_params[p]["mean"]
+                                        std  = normalization_params[p]["std"]
+                                        inputs_norm[:, i] = 0.0 if std == 0 else (val - mean) / std
 
+                                # Predict on normalized inputs
                                 try:
-                                    Z = model.predict_values(inputs).reshape(P1.shape)
-                                    fig = go.Figure(data=[go.Surface(z=Z, x=P1, y=P2)])
+                                    Z = model.predict_values(inputs_norm).reshape(P1.shape)
 
-                                    if len(param_order) >= 3:
+                                    fig = go.Figure(data=[go.Surface(x=P1, y=P2, z=Z, colorscale="RdBu", showscale=True)])
+
+                                    # Add sample points if available
+                                    if df_samples is not None:
                                         mask = np.ones(len(df_samples), dtype=bool)
                                         for p, val in fixed_param_values.items():
                                             if p in df_samples.columns:
-                                                p_min, p_max = sliders_bounds[p]
-                                                tol = 0.1 * (p_max - p_min) if p_max > p_min else 1e-6
+                                                tol = 0.01 * (sliders_bounds[p][1] - sliders_bounds[p][0])
                                                 mask &= np.isclose(df_samples[p], val, atol=tol)
 
-                                        filtered_samples = df_samples[mask].copy()
-
-                                        if (
-                                            len(filtered_samples) > 0
-                                            and selected_params[0] in filtered_samples.columns
-                                            and selected_params[1] in filtered_samples.columns
-                                        ):
-                                            x_samples = filtered_samples[selected_params[0]].values
-                                            y_samples = filtered_samples[selected_params[1]].values
-
-                                            output_col = filtered_samples.columns[-1]
-                                            if output_col in filtered_samples.columns:
-                                                z_samples = filtered_samples[output_col].values
-                                            else:
-                                                z_samples = np.zeros_like(x_samples)
-
-                                            num_samples = len(x_samples)
-
-                                            fig.add_trace(go.Scatter3d(
-                                                x=x_samples,
-                                                y=y_samples,
-                                                z=z_samples,
-                                                mode='markers',
-                                                marker=dict(
-                                                    size=1,
-                                                    color='green',
-                                                    line=dict(
-                                                        width=0.5,
-                                                        color='rgba(100, 0, 0, 0.7)'
-                                                    ),
-                                                    symbol='circle'
-                                                ),
-                                                name=f"Sampling points (n={num_samples})",
-                                                showlegend=True
-                                            ))
-                                    else:
-                                        x_samples = df_samples[selected_params[0]].values
-                                        y_samples = df_samples[selected_params[1]].values
-
-                                        output_col = df_samples.columns[-1]
-                                        if output_col in df_samples.columns:
-                                            z_samples = df_samples[output_col].values
-                                        else:
-                                            z_samples = np.zeros_like(x_samples)
-
-                                        num_samples = len(x_samples)
+                                        filtered_samples = df_samples[mask] if mask.any() else df_samples
+                                        x_samples = filtered_samples[selected_params[0]].values
+                                        y_samples = filtered_samples[selected_params[1]].values
+                                        z_samples = filtered_samples[df_samples.columns[-1]].values
 
                                         fig.add_trace(go.Scatter3d(
-                                            x=x_samples,
-                                            y=y_samples,
-                                            z=z_samples,
+                                            x=x_samples, y=y_samples, z=z_samples,
                                             mode='markers',
-                                            marker=dict(
-                                                size=1,
-                                                color='green',
-                                                line=dict(width=0.5, color='rgba(100, 0, 0, 0.7)'),
-                                                symbol='circle'
-                                            ),
-                                            name=f"Sampling points (n={num_samples})",
-                                            showlegend=True
+                                            marker=dict(size=2, color='green'),
+                                            name=f"Sampling points (n={len(x_samples)})"
                                         ))
 
                                     fig.update_layout(
-                                        title='Surrogate Model Response Surface with '
-                                        'Sample Points',
+                                        title='Surrogate Model Response Surface',
                                         scene=dict(
                                             xaxis_title=selected_params[0],
                                             yaxis_title=selected_params[1],
                                             zaxis_title='Predicted Output'
-                                        ),
-                                        legend=dict(
-                                            bgcolor='rgba(255,255,255,0.9)',
-                                            bordercolor='green',
-                                            borderwidth=1.5,
-                                            font=dict(size=12),
-                                            yanchor="top",
-                                            y=0.99,
-                                            xanchor="right",
-                                            x=0.99
                                         )
                                     )
+
                                     st.plotly_chart(fig, use_container_width=True)
+
                                 except Exception as e:
                                     st.error(f"Error predicting response surface: {e}")
+
                     else:
                         st.error("Please select 2 parameters.")
 
@@ -575,13 +532,42 @@ def display_results(results_dir, chosen_workflow = None):
                         val = info['value']
                         tixi.updateDoubleElement(xp, float(val), "%g")
 
-                    new_file_name = cpacs_in.stem + "_geometry_from_gui.xml"
-                    new_file_path = cpacs_in.with_name(new_file_name)
+                    new_file_path = Path(results_dir) / "temp_manual_geom_from_gui.xml"
                     tmp_cpacs.save_cpacs(new_file_path, overwrite=True)
 
-                    input_vector = np.array([sliders_values[p] for p in param_order])
-                    predicted_value = model.predict_values(input_vector.reshape(1, -1))[0]
+                    with col_3d:
+                        st.subheader('| 3D View')
+                        section_3D_view(
+                            results_dir=results_dir,
+                            cpacs=CPACS(new_file_path),
+                            force_regenerate=True,
+                            file_name = "temp_manual_geom_from_gui",
+                        )
+
+                    # Normalize GUI input
+                    x_norm = normalize_input_from_gui(
+                        sliders_values,
+                        param_order,
+                        normalization_params
+                    )
+
+                    # Predict
+                    predicted_value = model.predict_values(
+                        x_norm.reshape(1, -1)
+                    )[0]
+
                     st.metric("Predicted objective value", f"{predicted_value}")
+
+                    with col_3d:
+                        with open(new_file_path, "rb") as f:
+                            cpacs_data = f.read()
+
+                        st.download_button(
+                                label="Download CPACS file",
+                                data=cpacs_data,
+                                file_name=f"configuration_predicted_value_{predicted_value}.xml",
+                                mime="application/xml"
+                            )
 
                     df_config = pd.DataFrame(
                         list(sliders_values.items()),
@@ -599,84 +585,92 @@ def display_results(results_dir, chosen_workflow = None):
                         mime="text/csv",
                     )
 
-                    with col_3d:
-                        st.subheader('| 3D View')
-                        section_3D_view(
-                            results_dir=results_dir,
-                            cpacs=CPACS(new_file_path),
-                            # aircraft_name="geometry_from_gui",
-                        )
-
-                        with open(new_file_path, "rb") as f:
-                            cpacs_data = f.read()
-
-                        st.download_button(
-                                label="Download CPACS file",
-                                data=cpacs_data,
-                                file_name=f"configuration_predicted_value_{predicted_value}.xml",
-                                mime="application/xml"
-                            )
-
                 elif mode == "Target-based exploration":
 
                     st.subheader("Target-based exploration")
-
                     param_order_geom = [p for p in param_order if p in sliders_bounds]
 
-                    x0 = np.array([sliders_values[p] for p in param_order_geom])
-                    bounds = [sliders_bounds[p] for p in param_order_geom]
+                    x0_phys = np.array([sliders_values[p] for p in param_order_geom])
+                    x0 = phys_to_norm(x0_phys, param_order_geom, normalization_params)
 
-                    input_vector = np.array([sliders_values[p] for p in param_order])
-                    predicted_value = model.predict_values(input_vector.reshape(1, -1))[0]
+                    bounds = []
+                    for p in param_order_geom:
+                        lo, hi = sliders_bounds[p]
+                        mean = normalization_params[p]["mean"]
+                        std  = normalization_params[p]["std"]
+                        if std == 0:
+                            bounds.append((0.0, 0.0))
+                        else:
+                            bounds.append(((lo - mean) / std, (hi - mean) / std))
 
+                    # input target
+                    y_pred_init = model.predict_values(x0.reshape(1, -1))[0]
                     y_target = st.number_input(
                         "Enter target value",
-                        value=float(predicted_value),
+                        value=float(y_pred_init[0]),
                         step=0.0001,
                         format="%0.4f"
                     )
-
-                    def objective_inverse(x):
-                        input_dict = {}
-                        for i, p in enumerate(param_order_geom):
-                            input_dict[p] = x[i]
-                        input_vector_full = np.array([input_dict[p] for p in param_order])
-                        y_pred = model.predict_values(input_vector_full.reshape(1, -1))[0]
-                        return abs(y_pred - y_target)
-
+                    
                     selected_solver = st.selectbox(
-                        label="Choose an optimization solver",
+                        label="Choose the solver",
                         options=["L-BFGS-B","Powell","COBYLA","TNC","Nelder-Mead"],
-                        help="Select the optimization algorithm to be used for minimizing"
+                        help="Select the algorithm to be used for minimizing"
                         "the objective function. Each solver follows a different numerical"
                         "strategy and may perform better depending on the problem type"
                         "and constraints."
                     )
 
+                    def objective_inverse(x_norm):
+                        x_full = []
+                        for p in param_order:
+                            if p in param_order_geom:
+                                i = param_order_geom.index(p)
+                                x_full.append(x_norm[i])
+                            else:
+                                val_phys = sliders_values[p]
+                                mean = normalization_params[p]["mean"]
+                                std  = normalization_params[p]["std"]
+                                x_full.append(0.0 if std == 0 else (val_phys - mean) / std)
+                        x_full = np.array(x_full)
+                        y_pred = model.predict_values(x_full.reshape(1, -1))[0]
+                        return abs(y_pred - y_target)
+
                     if st.button("Find parameters for given target value"):
-                        result = minimize(
-                            objective_inverse,
-                            x0,
-                            bounds=bounds,
-                            method=selected_solver
-                        )
+                            result = minimize(
+                                objective_inverse,
+                                x0,
+                                bounds=bounds,
+                                method=selected_solver
+                            )
 
-                        if result.success:
-                            # st.success("✅ completed successfully")
+                            if result.success:
+                                x_opt_phys = norm_to_phys(
+                                    result.x,
+                                    param_order_geom,
+                                    normalization_params
+                                )
 
-                            input_dict_opt = {}
-                            for i, p in enumerate(param_order_geom):
-                                input_dict_opt[p] = result.x[i]
+                                input_dict_opt = dict(zip(param_order_geom, x_opt_phys))
 
-                            y_pred_opt = model.predict_values(
-                                np.array([input_dict_opt[p] for p in param_order]).reshape(1, -1)
-                            )[0]
+                                x_full_norm = []
+                                for p in param_order:
+                                    if p in input_dict_opt:
+                                        val = input_dict_opt[p]
+                                    else:
+                                        val = sliders_values[p]
+                                    mean = normalization_params[p]["mean"]
+                                    std  = normalization_params[p]["std"]
+                                    x_full_norm.append(0.0 if std == 0 else (val - mean)/std)
 
-                            st.session_state["optim_result"] = {
-                                "params": input_dict_opt,
-                                "y_pred_opt": y_pred_opt,
-                                "y_target": y_target,
-                            }
+                                y_pred_opt = model.predict_values(np.array(x_full_norm).reshape(1, -1))[0]
+
+                                st.session_state["optim_result"] = {
+                                    "params": input_dict_opt,
+                                    "y_pred_opt": y_pred_opt,
+                                    "y_target": y_target,
+                                }
+
 
                     if "optim_result" in st.session_state:
                         col_tab, col_view = st.columns([0.6,0.4])
@@ -736,7 +730,7 @@ def display_results(results_dir, chosen_workflow = None):
                             create_branch(tixi, xpath)
                             tixi.updateDoubleElement(xpath, float(val), "%g")
 
-                        new_file_path = Path(results_dir) / "temp_optim_geometry.xml"
+                        new_file_path = Path(results_dir) / "temp_target_geometry_from_gui.xml"
                         tmp_cpacs.save_cpacs(new_file_path, overwrite=True)
 
                         with col_view:
@@ -745,7 +739,8 @@ def display_results(results_dir, chosen_workflow = None):
                             section_3D_view(
                                 results_dir=Path(results_dir),
                                 cpacs=CPACS(new_file_path),
-                                # aircraft_name="temp_optim_geometry",
+                                force_regenerate=True,
+                                file_name="temp_optim_geometry",
                             )
 
                             with open(new_file_path, "rb") as f:
@@ -769,14 +764,13 @@ def display_results(results_dir, chosen_workflow = None):
                     section_3D_view(
                         results_dir=Path(results_dir),
                         cpacs=CPACS(Path(results_dir) / "best_geometric_configuration.xml"),
-                        # aircraft_name="best_geometric_configuration",
                     )
 
             elif child.is_dir():
                 with st.container(border=True):
                     show_dir = st.checkbox(
                         f"**{child.stem}**",
-                        value=True,
+                        value=False,
                         key=f"{child}_dir_toggle",
                     )
                     if show_dir:
@@ -784,8 +778,8 @@ def display_results(results_dir, chosen_workflow = None):
 
     except BaseException as e:
         log.warning(f'{child=} {e=}')
-        st.warning(f"{child=} {e=}")
         display_results_else(results_dir)
+
 
 def open_paraview(file):
     """Open Paraview with the file pass as argument."""
@@ -831,7 +825,7 @@ def show_results():
         return
 
     workflow_names = [wkflow.name for wkflow in workflow_dirs][::-1]
-    default_index = max(len(workflow_names) - 1, 0)
+    default_index = 0
     chosen_workflow_name = st.selectbox(
         "Choose workflow", workflow_names, index=default_index, key="results_chosen_workflow"
     )

@@ -55,16 +55,20 @@ def run_case(args: tuple[Path, Path], save_fig: bool) -> None:
     # Unpack the tuple
     case_dir_path, command_path = args
 
-    log.info(f'{case_dir_path=} {command_path}=')
-    run_software(
-        software_name=SOFTWARE_NAME,
-        arguments=[""],
-        wkdir=case_dir_path,
-        with_mpi=False,
-        stdin=open(str(command_path), "r"),
-        xvfb=True,
-    )
-    if save_fig:
+    log.info(f'{case_dir_path=} {command_path=}')
+    try:
+
+        run_software(
+            software_name=SOFTWARE_NAME,
+            arguments=[""],
+            wkdir=case_dir_path,
+            with_mpi=False,
+            stdin=open(str(command_path), "r"),
+            xvfb=True,
+        )
+    except:
+        log.warning("AVL X11 rendering failed.")
+    finally:
         convert_ps_to_pdf(case_dir_path)
 
 

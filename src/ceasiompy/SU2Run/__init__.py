@@ -51,6 +51,7 @@ MODULE_STATUS = get_module_status(
     default=True,
     needs_soft_name=SOFTWARE_NAME,
 )
+MODULE_TYPE = "Solver"
 
 # xPaths
 SU2_XPATH = CEASIOMPY_XPATH + "/aerodynamics/su2"

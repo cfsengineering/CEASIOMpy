@@ -29,25 +29,28 @@ from CEASIOMpyStreamlit.streamlitutils import (
 )
 
 from pathlib import Path
+from typing import Final
 from ceasiompy.utils.workflowclasses import Workflow
 
+from cpacspy.utils import PARAMS
 from CEASIOMpyStreamlit import BLOCK_CONTAINER
-
 
 # ==============================================================================
 #   CONSTANTS
 # ==============================================================================
 
 # Set the current page in session state
-PAGE_NAME = "Run Workflow"
-STATUS_PLACEHOLDER_KEY = "workflow_status_placeholder"
+PAGE_NAME: Final[str] = "Run Workflow"
+STATUS_PLACEHOLDER_KEY: Final[str] = "workflow_status_placeholder"
 
-HOW_TO_TEXT = (
+HOW_TO_TEXT: Final[str] = (
     "### How to Run your workflow?\n"
     "1. Click on the *Run* button\n"
     "Some workflows takes time, you can always check the LogFile \n\n"
     "2. When it is done, go to the *Results* page\n"
 )
+
+SPEC_SETTINGS: Final[list[float]] = [0.3, 0.7]
 
 # ==============================================================================
 #   FUNCTIONS
@@ -184,8 +187,8 @@ def workflow_buttons() -> None:
                     workflow.run_workflow(progress_callback=progress_callback)
                 except Exception as exc:
                     st.exception(exc)
-                    return None
-                st.rerun()
+                st.switch_page("pages/04_📈_Results.py")
+                st.stop()
 
     with col2:
         if st.button(
@@ -195,16 +198,51 @@ def workflow_buttons() -> None:
             terminate_solver_processes()
 
 
-def display_simulation_settings():
+def display_reference_geometry() -> None:
     left_col, right_col = st.columns(
-        spec=[1.0, 1.0],
+        spec=SPEC_SETTINGS
     )
     with left_col:
-        section_3D_view(force_regenerate=True)
+        st.markdown("#### ✈️ Geometry")
 
     with right_col:
-        st.markdown("#### Simulation Settings")
-        st.markdown(f"Using aeromap {st.session_state.selected_aeromap_id}")
+        section_3D_view(force_regenerate=True, height=200)
+
+
+def display_simulation_settings() -> None:
+    left_col, right_col = st.columns(
+        spec=SPEC_SETTINGS
+    )
+
+    with left_col:
+        st.markdown("#### ⚙️ Settings")
+
+    with right_col:
+        selected_aeromap = st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap_id)
+        aero_df = selected_aeromap.df[PARAMS].reset_index(drop=True)
+
+        st.markdown(f"Using AeroMap: **{selected_aeromap_id}**")
+        st.dataframe(
+            aero_df,
+            hide_index=True,
+            column_config={
+                "altitude": st.column_config.NumberColumn("Altitude", min_value=0.0),
+                "machNumber": st.column_config.NumberColumn("Mach", min_value=1e-2),
+                "angleOfAttack": st.column_config.NumberColumn("α°"),
+                "angleOfSideslip": st.column_config.NumberColumn("β°"),
+            },
+            column_order=["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"],
+        )
+
+
+def display_workflow_settings() -> None:
+    left_col, right_col = st.columns(
+        spec=SPEC_SETTINGS
+    )
+    with left_col:
+        st.markdown("#### ➡ Workflow")
+    with right_col:
+        st.button(" → ".join(st.session_state.workflow_modules))
 
 
 # =================================================================================================
@@ -235,29 +273,45 @@ if __name__ == "__main__":
 
     st.title(PAGE_NAME)
 
-    display_buttons: bool = True
+    display_geometry_view: bool = True
+    display_workflow_view: bool = True
+    display_simulation_view: bool = True
+
     if "last_page" in st.session_state and st.session_state.last_page != PAGE_NAME:
         save_cpacs_file(logging=False)
 
     if "cpacs" not in st.session_state:
         st.warning("No CPACS file have been selected!")
-        display_buttons = False
+        display_geometry_view = False
 
     if "workflow" not in st.session_state:
         st.warning("Workflow is not initialized. Load a CPACS file in the Geometry page first.")
-        display_buttons = False
+        display_workflow_view = False
 
     if "workflow_modules" not in st.session_state or st.session_state.workflow_modules == []:
         st.warning("No modules have been selected!")
-        display_buttons = False
+        display_workflow_view = False
 
-    st.markdown("---")
+    selected_aeromap_id = st.session_state.get("selected_aeromap_id", None)
+    if selected_aeromap_id is None:
+        st.warning("No aeromap has been selected, go to the Settings Page.")
+        display_simulation_view = False
 
-    display_simulation_settings()
+    if display_geometry_view:
+        st.markdown("---")
+        display_reference_geometry()
 
-    st.markdown("---")
+    if display_workflow_view:
+        st.markdown("---")
+        display_workflow_settings()
 
-    if display_buttons:
+    if display_simulation_view:
+        st.markdown("---")
+        display_simulation_settings()
+
+    if display_geometry_view and display_simulation_view:
+        st.markdown("---")
+
         workflow_buttons()
         _, right_col = st.columns(spec=[0.01, 0.99])
         with right_col:

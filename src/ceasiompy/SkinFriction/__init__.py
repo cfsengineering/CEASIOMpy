@@ -22,6 +22,7 @@ from pathlib import Path
 
 # ===== Module Status =====
 MODULE_STATUS = True
+MODULE_TYPE = "PostProcessing"
 
 # ===== Include GUI =====
 INCLUDE_GUI = True

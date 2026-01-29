@@ -24,6 +24,7 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 
 # ===== Module Status =====
 MODULE_STATUS = True
+MODULE_TYPE = "PostProcessing"
 
 # ===== Include GUI =====
 INCLUDE_GUI = True

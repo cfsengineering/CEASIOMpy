@@ -88,6 +88,7 @@ dependencies:
     # Streamlit
     - streamlit>=1.53.0
     - streamlit_sortables
+    - streamlit-flow-component>=1.6.1
 
     - vtk>=9.3.0
     - scikit-optimize>=0.10.2

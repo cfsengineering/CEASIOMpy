@@ -182,22 +182,20 @@ def display_results(results_dir):
                     if show_pdf:
                         if "pdf_container" not in st.session_state:
                             st.session_state["pdf_container"] = st.container()
-                            st.session_state.pdf_container.markdown("**PDFs**")
 
                         pdf_bytes = child.read_bytes()
                         b64_pdf = base64.b64encode(pdf_bytes).decode("ascii")
-                        st.session_state.pdf_container.markdown(f"**{child.name}**")
+                        st.session_state.pdf_container.markdown(
+                            f'<iframe src="data:application/pdf;base64,{b64_pdf}" '
+                            'width="100%" height="900" style="border:0"></iframe>',
+                            unsafe_allow_html=True,
+                        )
                         st.session_state.pdf_container.download_button(
                             "Download PDF",
                             data=pdf_bytes,
                             file_name=child.name,
                             mime="application/pdf",
                             key=f"{child}_pdf_download",
-                        )
-                        st.session_state.pdf_container.markdown(
-                            f'<iframe src="data:application/pdf;base64,{b64_pdf}" '
-                            'width="100%" height="900" style="border:0"></iframe>',
-                            unsafe_allow_html=True,
                         )
 
             elif child.suffix == ".md":
@@ -279,8 +277,6 @@ def get_workflow_dirs(current_wkdir: Path) -> list[Path]:
 def show_results():
     """Display the results of the selected workflow."""
 
-    st.markdown("#### Results")
-
     current_wkdir = get_wkdir()
     if not current_wkdir or not current_wkdir.exists():
         st.warning("No Workflow working directory found.")
@@ -340,7 +336,9 @@ if __name__ == "__main__":
         unsafe_allow_html=True,
     )
 
-    st.title("Results")
+    st.title(PAGE_NAME)
+
+    st.markdown("---")
 
     show_results()
 

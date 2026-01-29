@@ -34,6 +34,7 @@ RES_DIR = False
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
+MODULE_TYPE = "PreProcessing"
 
 # Specific to CPACSUpdater module
 CONTROL_SURFACES_LIST = [

@@ -15,7 +15,7 @@ SOFTWARE_PATH: Final[Path | None] = get_install_path(
 
 # ===== Module Status =====
 MODULE_STATUS = get_module_status(
-    default=True,
+    default=False,
     needs_soft_name=SOFTWARE_EXEC,
 )
 

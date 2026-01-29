@@ -425,6 +425,7 @@ def plot_airfoil_2d(x_coords, y_coords, title="Airfoil Profile"):
 def section_3D_view(
     *,
     force_regenerate: bool = False,
+    height: int | None = None,
 ) -> None:
     """
     Shows a 3D view of the aircraft by exporting a STL file.
@@ -478,6 +479,8 @@ def section_3D_view(
     center_y = (min_y + max_y) / 2
     center_z = (min_z + max_z) / 2
     max_range = max(max_x - min_x, max_y - min_y, max_z - min_z) / 2
+    zoom_out_factor = 1.5
+    max_range *= zoom_out_factor
 
     # Set axis limits so the mesh is centered in a cube
     x_range = [center_x - max_range, center_x + max_range]
@@ -494,4 +497,12 @@ def section_3D_view(
             aspectmode="cube",
         ),
     )
-    st.plotly_chart(fig, width="content")
+
+    if height is None:
+        height = "stretch"
+
+    st.plotly_chart(
+        fig,
+        height=height,
+        width="stretch",
+    )

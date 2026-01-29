@@ -25,6 +25,7 @@ import subprocess
 
 from ceasiompy.utils.ceasiompyutils import (
     parse_bool,
+    has_display,
     current_workflow_dir,
 )
 
@@ -236,7 +237,7 @@ def run_gui(
     if wkdir is None:
         wkdir = WKDIR_PATH
 
-    if not headless and not os.environ.get("DISPLAY") and not os.environ.get("WAYLAND_DISPLAY"):
+    if not headless and not has_display():
         headless = True
         log.info(
             "No DISPLAY/WAYLAND_DISPLAY detected; starting Streamlit in headless mode "

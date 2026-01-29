@@ -25,9 +25,11 @@ import hashlib
 import subprocess
 import streamlit as st
 
-from urllib.parse import urlparse
 from ceasiompy.utils import get_wkdir
-from ceasiompy.utils.ceasiompyutils import parse_bool
+from ceasiompy.utils.ceasiompyutils import (
+    parse_bool,
+    has_display,
+)
 from CEASIOMpyStreamlit.streamlitutils import (
     create_sidebar,
     section_3D_view,
@@ -185,7 +187,7 @@ def launch_openvsp() -> None:
     wrapper = OPENVSP_PATH.with_name("openvsp")
     exec_path = wrapper if wrapper.exists() else OPENVSP_PATH
 
-    if not os.environ.get("DISPLAY") and not os.environ.get("WAYLAND_DISPLAY"):
+    if not has_display():
         st.error(
             "OpenVSP was found, but no graphical display is available for launching the GUI "
             "from this process."

@@ -4,12 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Utility functions for CPACS file creation and manipulation.
-
-Python version: >=3.8
-
-| Author: CEASIOMpy Team
-| Creation: 2026-01-27
-
 """
 
 from pathlib import Path
@@ -81,7 +75,7 @@ class SimpleCPACS:
             self.tixi.close()
 
 
-def create_minimal_cpacs_2d(cpacs_path: Path, name: str = "2D Airfoil Analysis") -> Tixi3:
+def create_minimal_cpacs_2d(name: str = "2D Airfoil Analysis") -> Tixi3:
     """
     Create a minimal valid CPACS file for 2D airfoil analysis.
 
@@ -96,7 +90,6 @@ def create_minimal_cpacs_2d(cpacs_path: Path, name: str = "2D Airfoil Analysis")
     Returns:
         Tixi3 object of the created file
     """
-    cpacs_path = Path(cpacs_path)
 
     # Create minimal CPACS structure using TIXI directly
     tixi = Tixi3()

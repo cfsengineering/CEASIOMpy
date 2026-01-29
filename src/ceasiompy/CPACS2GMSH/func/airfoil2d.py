@@ -4,25 +4,27 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 2D airfoil mesh generation functions for CPACS2GMSH module.
-
-| Author: Giacomo Benedetti, Leon Deligny
-| Creation: 2025-01-28
-
 """
 
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
 
+import shutil
 import subprocess
-from pathlib import Path
 
+from ceasiompy.utils.moduleinterfaces import get_specs_for_module
+from cpacspy.cpacsfunctions import (
+    create_branch,
+    get_float_vector,
+    get_value_or_default,
+)
+
+from pathlib import Path
 from cpacspy.cpacspy import CPACS
-from cpacspy.cpacsfunctions import get_value_or_default, create_branch
 
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import SU2MESH_XPATH, GEOM_XPATH
-from ceasiompy.utils.moduleinterfaces import get_specs_for_module
 from ceasiompy.CPACS2GMSH import (
     GMSH_2D_AIRFOIL_MESH_SIZE_XPATH,
     GMSH_2D_EXT_MESH_SIZE_XPATH,
@@ -152,7 +154,36 @@ def _get_airfoil_info(tixi):
     return airfoil_type, airfoil_name, airfoil_file
 
 
-def _find_airfoil_file(tixi, airfoil_type):
+def _write_airfoil_from_pointlist(
+    tixi, airfoil_xpath: str, wkdir: Path, airfoil_name: str | None
+):
+    pointlist_xpath = airfoil_xpath + "/pointList"
+    if not tixi.checkElement(pointlist_xpath + "/x"):
+        return None
+
+    x_vals = get_float_vector(tixi, pointlist_xpath + "/x")
+    if tixi.checkElement(pointlist_xpath + "/z"):
+        z_vals = get_float_vector(tixi, pointlist_xpath + "/z")
+    elif tixi.checkElement(pointlist_xpath + "/y"):
+        z_vals = get_float_vector(tixi, pointlist_xpath + "/y")
+    else:
+        return None
+
+    if len(x_vals) != len(z_vals) or not x_vals:
+        return None
+
+    safe_name = (airfoil_name or "custom").replace(" ", "_")
+    airfoil_file = wkdir / f"airfoil_{safe_name}.dat"
+
+    with open(airfoil_file, "w") as f:
+        f.write(f"{safe_name}\n")
+        for x, z in zip(x_vals, z_vals):
+            f.write(f"{x:.8f} {z:.8f}\n")
+
+    return airfoil_file
+
+
+def _find_airfoil_file(tixi, airfoil_type, wkdir: Path):
     """
     Find airfoil profile file in CPACS wingAirfoils (only for Custom type).
 
@@ -161,10 +192,10 @@ def _find_airfoil_file(tixi, airfoil_type):
         airfoil_type: Type of airfoil (NACA or Custom)
 
     Returns:
-        tuple: (airfoil_name, airfoil_file Path or None)
+        tuple: (airfoil_name, airfoil_file Path or None, inline_generated bool)
     """
     if airfoil_type != "Custom":
-        return None, None
+        return None, None, False
 
     try:
         airfoils_xpath = "/cpacs/vehicles/profiles/wingAirfoils"
@@ -175,27 +206,36 @@ def _find_airfoil_file(tixi, airfoil_type):
             airfoil_xpath = f"{airfoils_xpath}/wingAirfoil[{i}]"
 
             # Try to get the airfoil file path
-            if not tixi.checkElement(airfoil_xpath + "/pointList/file"):
-                continue
+            if tixi.checkElement(airfoil_xpath + "/pointList/file"):
+                file_path = tixi.getTextElement(airfoil_xpath + "/pointList/file")
+                if file_path and Path(file_path).exists():
+                    airfoil_file = Path(file_path)
+                    # Get airfoil name from CPACS
+                    try:
+                        airfoil_name = tixi.getTextElement(airfoil_xpath + "/name")
+                    except Exception:
+                        airfoil_name = Path(file_path).stem.replace("airfoil_", "")
 
-            file_path = tixi.getTextElement(airfoil_xpath + "/pointList/file")
-            if not file_path or not Path(file_path).exists():
-                continue
+                    log.info(f"Found airfoil profile in CPACS: {airfoil_file}")
+                    return airfoil_name, airfoil_file, False
 
-            airfoil_file = Path(file_path)
-            # Get airfoil name from CPACS
+            # Fall back to inline pointList if present
             try:
                 airfoil_name = tixi.getTextElement(airfoil_xpath + "/name")
             except Exception:
-                airfoil_name = Path(file_path).stem.replace("airfoil_", "")
+                airfoil_name = None
 
-            log.info(f"Found airfoil profile in CPACS: {airfoil_file}")
-            return airfoil_name, airfoil_file
+            inline_file = _write_airfoil_from_pointlist(
+                tixi, airfoil_xpath, wkdir, airfoil_name
+            )
+            if inline_file:
+                log.info(f"Built airfoil profile from pointList: {inline_file}")
+                return airfoil_name, inline_file, True
 
     except Exception as e:
         log.debug(f"Could not search for airfoil profiles in CPACS: {e}")
 
-    return None, None
+    return None, None, False
 
 
 def _build_gmshairfoil2d_command(params, wkdir, airfoil_type, airfoil_name, airfoil_file):
@@ -268,7 +308,6 @@ def _build_gmshairfoil2d_command(params, wkdir, airfoil_type, airfoil_name, airf
     if airfoil_file and airfoil_file.exists():
         # Copy airfoil file to working directory if needed
         if airfoil_file.parent != wkdir:
-            import shutil
             local_airfoil_file = wkdir / airfoil_file.name
             shutil.copy(airfoil_file, local_airfoil_file)
             airfoil_file = local_airfoil_file
@@ -324,10 +363,13 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
 
     # Get airfoil information from CPACS
     airfoil_type, airfoil_name, airfoil_file = _get_airfoil_info(tixi)
+    inline_generated = False
 
     # Try to find airfoil file if Custom type
     if airfoil_type == "Custom":
-        found_name, found_file = _find_airfoil_file(tixi, airfoil_type)
+        found_name, found_file, inline_generated = _find_airfoil_file(
+            tixi, airfoil_type, wkdir
+        )
         if found_file:
             airfoil_file = found_file
             if found_name:
@@ -377,5 +419,9 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
     create_branch(tixi, SU2MESH_XPATH)
     tixi.updateTextElement(SU2MESH_XPATH, str(expected_mesh_file))
     cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
+
+    # Clean up temporary airfoil file generated from inline pointList
+    if airfoil_type == "Custom" and airfoil_file and inline_generated:
+        airfoil_file.unlink(missing_ok=True)
 
     log.info("2D airfoil processing completed.")

@@ -4,23 +4,23 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 2D airfoil mesh generation with gmshairfoil2d
-
-| Author: GitHub Copilot
-| Creation: 2026-01-28
-
 """
 
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
 
+import pytest
 import shutil
+
 from pathlib import Path
 
-import pytest
-from ceasiompy.CPACS2GMSH.func.airfoil2d import process_2d_airfoil
-from ceasiompy.utils.cpacs_utils import SimpleCPACS, create_minimal_cpacs_2d
 from cpacspy.cpacsfunctions import create_branch
+from gmshairfoil2d.airfoil_func import NACA_4_digit_geom
+from ceasiompy.utils.cpacs_utils import create_minimal_cpacs_2d
+from ceasiompy.CPACS2GMSH.func.airfoil2d import process_2d_airfoil
+
+from ceasiompy.utils.cpacs_utils import SimpleCPACS
 
 MODULE_DIR = Path(__file__).parent
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput_2D")
@@ -258,8 +258,7 @@ def test_process_2d_no_boundary_layer(test_output_dir):
     """
     Test 2D mesh generation without boundary layer.
     """
-    cpacs_path = test_output_dir / "test_2d_no_bl.xml"
-    tixi = create_minimal_cpacs_2d(cpacs_path, "Test NACA 0012 No BL")
+    tixi = create_minimal_cpacs_2d("Test NACA 0012 No BL")
 
     # Add NACA airfoil configuration
     geom_xpath = "/cpacs/toolspecific/CEASIOMpy/geometry"
@@ -307,21 +306,16 @@ def test_process_2d_custom_airfoil(test_output_dir):
     airfoil_file = profiles_dir / "airfoil_test2412.dat"
 
     # Generate NACA 2412 coordinates using gmshairfoil2d
-    try:
-        from gmshairfoil2d.airfoil_func import NACA_4_digit_geom
 
-        coords = NACA_4_digit_geom("2412", nb_points=100)
+    coords = NACA_4_digit_geom("2412", nb_points=100)
 
-        with open(airfoil_file, "w") as f:
-            f.write("test2412\n")
-            for point in coords:
-                f.write(f"{point[0]:.8f} {point[1]:.8f}\n")
-    except ImportError:
-        pytest.skip("gmshairfoil2d not available for generating test airfoil")
+    with open(airfoil_file, "w") as f:
+        f.write("test2412\n")
+        for point in coords:
+            f.write(f"{point[0]:.8f} {point[1]:.8f}\n")
 
     # Create CPACS with custom airfoil reference
-    cpacs_path = test_output_dir / "test_2d_custom.xml"
-    tixi = create_minimal_cpacs_2d(cpacs_path, "Test Custom Airfoil")
+    tixi = create_minimal_cpacs_2d("Test Custom Airfoil")
 
     # Add custom airfoil to wingAirfoils
     airfoils_xpath = "/cpacs/vehicles/profiles/wingAirfoils"

@@ -7,6 +7,7 @@ Entry point for the Streamlit UI with explicit page ordering.
 # Imports
 import streamlit as st
 
+
 # Main
 def main() -> None:
     """Reorder files pages correctly."""

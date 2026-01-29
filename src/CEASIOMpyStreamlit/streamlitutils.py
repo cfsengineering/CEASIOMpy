@@ -162,7 +162,11 @@ def create_sidebar(how_to_text, page_title="CEASIOMpy"):
     """Create side bar with a text explaining how the page should be used."""
 
     im = Image.open(CEASIOMPY_LOGO_PATH)
-    st.set_page_config(page_title=page_title, page_icon=im)
+    st.set_page_config(
+        page_title=page_title,
+        page_icon=im,
+        layout="centered",
+    )
     st.markdown(
         """
         <style>
@@ -378,6 +382,7 @@ def section_edit_aeromap() -> None:
             import_df = pd.read_excel(uploaded_csv, keep_default_na=False)
         else:
             import_df = pd.read_csv(uploaded_csv, keep_default_na=False)
+
         new_aeromap.df = import_df
         log.info(f"Saving AeroMap ID: {uploaded_aeromap_uid} in CPACS file.")
         new_aeromap.save()

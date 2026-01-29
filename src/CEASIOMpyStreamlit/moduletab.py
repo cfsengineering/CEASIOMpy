@@ -223,7 +223,7 @@ def add_module_tab(new_file: bool) -> None:
     for m, (tab, module) in enumerate(
         zip(st.session_state.tabs, st.session_state.workflow_modules)
     ):
-        with tab :
+        with tab:
             st.text("")
             specs = get_specs_for_module(module, reloading=new_file)
             # Check if specs.cpacs_inout is None

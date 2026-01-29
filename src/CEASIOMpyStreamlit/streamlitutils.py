@@ -44,7 +44,7 @@ from cpacspy.cpacspy import (
 from ceasiompy import log
 from cpacspy.utils import PARAMS
 from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
-from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH
+from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH, GEOMETRY_MODE_XPATH
 
 # ==============================================================================
 #   FUNCTIONS
@@ -385,14 +385,72 @@ def section_edit_aeromap() -> None:
         st.rerun()
 
 
+def plot_airfoil_2d(x_coords, y_coords, title="Airfoil Profile"):
+    """
+    Plot 2D airfoil coordinates using plotly.
+
+    Args:
+        x_coords: Array or list of X coordinates
+        y_coords: Array or list of Y coordinates
+        title: Plot title
+    """
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(
+        x=x_coords,
+        y=y_coords,
+        mode='lines+markers',
+        line=dict(color='blue', width=2),
+        marker=dict(size=3, color='blue'),
+        fill='toself',
+        fillcolor='rgba(0, 100, 200, 0.2)',
+        name='Airfoil'
+    ))
+
+    fig.update_layout(
+        title=title,
+        xaxis_title="x/c",
+        yaxis_title="y/c",
+        width=900,
+        height=500,
+        showlegend=False,
+        yaxis=dict(scaleanchor="x", scaleratio=1),
+        margin=dict(l=50, r=50, t=50, b=50),
+        hovermode='closest'
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+
 def section_3D_view(
     *,
     force_regenerate: bool = False,
 ) -> None:
     """
     Shows a 3D view of the aircraft by exporting a STL file.
+    For 2D geometry mode, displays the 2D airfoil profile instead.
     """
+    # Check if we're in 2D mode
+    geometry_mode = "3D"  # default
+    try:
+        geometry_mode = st.session_state.cpacs.tixi.getTextElement(GEOMETRY_MODE_XPATH)
+    except Exception:
+        pass
 
+    if geometry_mode == "2D":
+        # Display 2D airfoil if coordinates are available
+        if "airfoil_x" in st.session_state and "airfoil_y" in st.session_state:
+            airfoil_name = st.session_state.get('airfoil_code', 'Airfoil')
+            plot_airfoil_2d(
+                st.session_state["airfoil_x"],
+                st.session_state["airfoil_y"],
+                title=f"Airfoil: {airfoil_name}"
+            )
+        else:
+            st.info("2D airfoil geometry - coordinates not yet available for preview.")
+        return
+
+    # 3D mode - generate STL preview
     stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
     if not force_regenerate and stl_file.exists():
         pass

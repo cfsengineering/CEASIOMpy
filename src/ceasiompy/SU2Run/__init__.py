@@ -39,8 +39,8 @@ MODULE_NAME = MODULE_DIR.name
 # List of control surface scenarios
 CONTROL_SURFACE_LIST = ["flap", "rudder", "aileron"]
 
-# Either Euler or Rans simulation
-TEMPLATE_TYPE = ["EULER", "RANS"]
+# Either Euler, Rans or 2D simulation
+TEMPLATE_TYPE = ["EULER", "RANS", "2D"]
 
 # Name of used software
 SOFTWARE_NAME = "SU2_CFD"

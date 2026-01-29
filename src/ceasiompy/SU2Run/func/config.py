@@ -73,6 +73,7 @@ from ceasiompy.utils.commonxpaths import (
     SU2MESH_XPATH,
     ENGINE_TYPE_XPATH,
     USED_SU2_MESH_XPATH,
+    GEOMETRY_MODE_XPATH,
     PROPELLER_THRUST_XPATH,
     PROPELLER_BLADE_LOSS_XPATH,
     ENGINE_BC_PRESSUREOUTLET_XPATH,
@@ -700,6 +701,14 @@ def generate_su2_cfd_config(
     """
     tixi = cpacs.tixi
 
+    # Check if we are in 2D mode
+    geometry_mode = None
+    try:
+        geometry_mode = tixi.getTextElement(GEOMETRY_MODE_XPATH)
+        log.info(f"Geometry mode found in CPACS: {geometry_mode}")
+    except Exception:
+        log.info("No geometry mode specified in CPACS, defaulting to 3D mode.")
+
     for su2_mesh_path in su2_mesh_paths:
 
         ctrlsurf = check_control_surface(str(su2_mesh_path))
@@ -710,7 +719,12 @@ def generate_su2_cfd_config(
         fixed_cl = get_value(tixi, SU2_FIXED_CL_XPATH)
         target_cl = get_value(tixi, SU2_TARGET_CL_XPATH)
 
-        tpl_type = "RANS" if rans else "EULER"
+        # Select template based on geometry mode and simulation type
+        if geometry_mode == "2D":
+            tpl_type = "2D"
+            log.info("Using 2D template for 2D geometry mode")
+        else:
+            tpl_type = "RANS" if rans else "EULER"
         cfg = ConfigFile(get_su2_cfg_tpl(tpl_type))
         configure_mesh_format(cfg, su2_mesh_path)
 
@@ -718,15 +732,23 @@ def generate_su2_cfd_config(
             cfg.data.pop("ITER", None)
 
         # General parameters
-        aircraft = cpacs.aircraft
-        cfg["RESTART_SOL"] = "NO"
-        cfg["REF_LENGTH"] = aircraft.ref_length
-        cfg["REF_AREA"] = aircraft.ref_area
+        # For 2D mode (SimpleCPACS), use reference values from template
+        # For 3D mode (full CPACS), get values from aircraft object
+        if geometry_mode == "2D":
+            # SimpleCPACS doesn't have aircraft attribute
+            # Reference values are already set in cfg_tpl_2d.cfg
+            log.info("Using reference values from 2D template (SimpleCPACS mode)")
+        else:
+            aircraft = cpacs.aircraft
+            cfg["REF_LENGTH"] = aircraft.ref_length
+            cfg["REF_AREA"] = aircraft.ref_area
 
-        # TODO: Careful as not center gravity.
-        cfg["REF_ORIGIN_MOMENT_X"] = aircraft.ref_point_x
-        cfg["REF_ORIGIN_MOMENT_Y"] = aircraft.ref_point_y
-        cfg["REF_ORIGIN_MOMENT_Z"] = aircraft.ref_point_z
+            # TODO: Careful as not center gravity.
+            cfg["REF_ORIGIN_MOMENT_X"] = aircraft.ref_point_x
+            cfg["REF_ORIGIN_MOMENT_Y"] = aircraft.ref_point_y
+            cfg["REF_ORIGIN_MOMENT_Z"] = aircraft.ref_point_z
+
+        cfg["RESTART_SOL"] = "NO"
 
         # SU2 version 8.1.0.
         cfg["MUSCL_FLOW"] = "NO"

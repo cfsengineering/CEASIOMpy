@@ -30,6 +30,7 @@ from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
 from ceasiompy.CPACS2GMSH import (GMSH_SYMMETRY_XPATH)
+from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 from ceasiompy.SU2Run import (
     SU2_NB_CPU_XPATH,
     SU2_CONFIG_RANS_XPATH,
@@ -55,11 +56,27 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     # Define variable
     tixi = cpacs.tixi
 
+    # Check if we are in 2D mode
+    geometry_mode = None
+    try:
+        geometry_mode = tixi.getTextElement(GEOMETRY_MODE_XPATH)
+        log.info(f"Geometry mode found in CPACS: {geometry_mode}")
+    except Exception:
+        log.info("No geometry mode specified in CPACS, defaulting to 3D mode.")
+
     # Define constants
     nb_proc = int(get_value(tixi, SU2_NB_CPU_XPATH))
-    config_file_type = str(get_value(tixi, SU2_CONFIG_RANS_XPATH))
-    rans: bool = config_file_type == "RANS"
-    symmetric_mesh = str(get_value(tixi, GMSH_SYMMETRY_XPATH))
+
+    # In 2D mode, always use 2D template; otherwise read from CPACS
+    if geometry_mode == "2D":
+        config_file_type = "2D"
+        rans = False  # Not applicable for 2D
+        symmetric_mesh = "NO"  # No symmetry in 2D mode
+        log.info("Using 2D template for 2D geometry mode (no symmetry)")
+    else:
+        config_file_type = str(get_value(tixi, SU2_CONFIG_RANS_XPATH))
+        rans: bool = config_file_type == "RANS"
+        symmetric_mesh = str(get_value(tixi, GMSH_SYMMETRY_XPATH))
 
     # 1. Load .su2 mesh files
     su2_mesh_paths, dynstab_su2_mesh_paths = load_su2_mesh_paths(tixi, results_dir)

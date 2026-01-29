@@ -351,7 +351,7 @@ def get_su2_cfg_tpl(tpl_type: str) -> Path:
     corresponding to the correct SU2 version.
 
     Args:
-        template_type (str): Either "euler" or "rans".
+        template_type (str): Either "euler", "rans", or "2d".
 
     Returns:
         su2_cfg_tpe_euler_path (str): Path of the SU2 config template.
@@ -360,7 +360,8 @@ def get_su2_cfg_tpl(tpl_type: str) -> Path:
 
     if tpl_type not in TEMPLATE_TYPE:
         log.warning(
-            "template_type (str) should be either " "'EULER' or 'RANS' in get_su2_config_template."
+            "template_type (str) should be either "
+            "'EULER', 'RANS', or '2D' in get_su2_config_template."
         )
 
     tpl_type = tpl_type.lower()
@@ -395,7 +396,16 @@ def get_su2_aerocoefs(
         for key, var_name in AERO_COEFFICIENTS.items():
             if key in line:
                 if (key == "Free-stream velocity") and ("m/s" in line):
-                    results[var_name] = float(line.split(" ")[7])
+                    # Parse: "Free-stream velocity: (...) m/s. Magnitude: 102.089 m/s."
+                    # Extract the magnitude value
+                    parts = line.split("Magnitude:")
+                    if len(parts) > 1:
+                        # Get first token after "Magnitude:"
+                        magnitude_str = parts[1].strip().split()[0]
+                        results[var_name] = float(magnitude_str)
+                    else:
+                        # Fallback to old method if format is different
+                        results[var_name] = float(line.split(" ")[7])
                 elif not key == "Free-stream velocity":
                     results[var_name] = access_coef(line)
 

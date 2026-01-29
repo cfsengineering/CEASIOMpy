@@ -56,6 +56,10 @@ IGNORED_RESULT_FILES: set[str] = {
 #    FUNCTIONS
 # =================================================================================================
 
+# Global counter for unique keys
+if 'text_area_counter' not in st.session_state:
+    st.session_state.text_area_counter = 0
+
 
 def clear_containers(container_list):
     """Delete the session_state variable of a list of containers."""
@@ -70,7 +74,15 @@ def display_results_else(path):
         for child in path.iterdir():
             display_results(child)
     else:
-        st.text_area(path.stem, path.read_text(), height=200, key=str(path))
+        # Use counter to create unique key for each widget
+        st.session_state.text_area_counter += 1
+        unique_key = f"text_area_{st.session_state.text_area_counter}_{path.name}"
+        try:
+            content = path.read_text()
+            st.text_area(path.stem, content, height=200, key=unique_key)
+        except UnicodeDecodeError:
+            # File is binary, show message instead
+            st.info(f"📄 {path.name} (binary file, cannot display as text)")
 
 
 def display_results(results_dir):

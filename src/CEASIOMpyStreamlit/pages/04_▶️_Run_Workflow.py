@@ -139,7 +139,6 @@ def workflow_buttons() -> None:
         if st.button(
             label="Run ▶️",
             help="Run the workflow",
-            width=100,
         ):
             if "workflow" not in st.session_state:
                 st.error(
@@ -192,7 +191,6 @@ def workflow_buttons() -> None:
         if st.button(
             label="Stop ✖️",
             help="Terminate the workflow",
-            width=100,
         ):
             terminate_solver_processes()
 

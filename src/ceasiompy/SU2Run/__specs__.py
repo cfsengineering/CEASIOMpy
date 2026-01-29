@@ -58,6 +58,7 @@ from ceasiompy.utils.commonxpaths import (
     RANGE_CRUISE_MACH_XPATH,
     RANGE_CRUISE_ALT_XPATH,
     GEOM_XPATH,
+    GEOMETRY_MODE_XPATH,
     USED_SU2_MESH_XPATH,
     AEROPERFORMANCE_XPATH,
 )
@@ -154,6 +155,7 @@ cpacs_inout.add_input(
     gui=INCLUDE_GUI,
     gui_name="EULER or RANS simulation",
     gui_group="SU2 Parameters",
+    gui_cond=f"{GEOMETRY_MODE_XPATH}!=2D",
 )
 
 cpacs_inout.add_input(

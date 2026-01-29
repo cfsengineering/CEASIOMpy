@@ -29,6 +29,7 @@ from CEASIOMpyStreamlit.streamlitutils import (
 )
 
 from pathlib import Path
+from typing import Final
 from ceasiompy.utils.workflowclasses import Workflow
 
 from cpacspy.utils import PARAMS
@@ -39,15 +40,17 @@ from CEASIOMpyStreamlit import BLOCK_CONTAINER
 # ==============================================================================
 
 # Set the current page in session state
-PAGE_NAME = "Run Workflow"
-STATUS_PLACEHOLDER_KEY = "workflow_status_placeholder"
+PAGE_NAME: Final[str] = "Run Workflow"
+STATUS_PLACEHOLDER_KEY: Final[str] = "workflow_status_placeholder"
 
-HOW_TO_TEXT = (
+HOW_TO_TEXT: Final[str] = (
     "### How to Run your workflow?\n"
     "1. Click on the *Run* button\n"
     "Some workflows takes time, you can always check the LogFile \n\n"
     "2. When it is done, go to the *Results* page\n"
 )
+
+SPEC_SETTINGS: Final[list[float]] = [0.3, 0.7]
 
 # ==============================================================================
 #   FUNCTIONS
@@ -198,30 +201,50 @@ def workflow_buttons() -> None:
 
 
 def display_reference_geometry() -> None:
-    section_3D_view(force_regenerate=True, height=260)
+    left_col, right_col = st.columns(
+        spec=SPEC_SETTINGS
+    )
+    with left_col:
+        st.markdown("#### ✈️ Geometry")
+
+    with right_col:
+        section_3D_view(force_regenerate=True, height=200)
 
 
 def display_simulation_settings() -> None:
-    st.info(f"Using aeromap **{selected_aeromap_id}**")
-
-    selected_aeromap = st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap_id)
-    aero_df = selected_aeromap.df[PARAMS].reset_index(drop=True)
-
-    st.dataframe(
-        aero_df,
-        hide_index=True,
-        column_config={
-            "altitude": st.column_config.NumberColumn("Altitude", min_value=0.0),
-            "machNumber": st.column_config.NumberColumn("Mach", min_value=1e-2),
-            "angleOfAttack": st.column_config.NumberColumn("α°"),
-            "angleOfSideslip": st.column_config.NumberColumn("β°"),
-        },
-        column_order=["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"],
+    left_col, right_col = st.columns(
+        spec=SPEC_SETTINGS
     )
+
+    with left_col:
+        st.markdown("#### ⚙️ Settings")
+
+    with right_col:
+        selected_aeromap = st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap_id)
+        aero_df = selected_aeromap.df[PARAMS].reset_index(drop=True)
+
+        st.markdown(f"Using AeroMap: **{selected_aeromap_id}**")
+        st.dataframe(
+            aero_df,
+            hide_index=True,
+            column_config={
+                "altitude": st.column_config.NumberColumn("Altitude", min_value=0.0),
+                "machNumber": st.column_config.NumberColumn("Mach", min_value=1e-2),
+                "angleOfAttack": st.column_config.NumberColumn("α°"),
+                "angleOfSideslip": st.column_config.NumberColumn("β°"),
+            },
+            column_order=["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"],
+        )
 
 
 def display_workflow_settings() -> None:
-    st.button(" → ".join(st.session_state.workflow_modules))
+    left_col, right_col = st.columns(
+        spec=SPEC_SETTINGS
+    )
+    with left_col:
+        st.markdown("#### ➡ Workflow")
+    with right_col:
+        st.button(" → ".join(st.session_state.workflow_modules))
 
 
 # =================================================================================================
@@ -252,8 +275,6 @@ if __name__ == "__main__":
 
     st.title(PAGE_NAME)
 
-    st.markdown("---")
-
     display_geometry_view: bool = True
     display_workflow_view: bool = True
     display_simulation_view: bool = True
@@ -278,21 +299,17 @@ if __name__ == "__main__":
         st.warning("No aeromap has been selected, go to the Settings Page.")
         display_simulation_view = False
 
-    left_col, right_col = st.columns(
-        spec=[0.5, 0.5],
-    )
-
-    with left_col:
-        if display_geometry_view:
-            display_reference_geometry()
-
-    with right_col:
-        if display_simulation_view:
-            display_simulation_settings()
+    if display_geometry_view:
+        st.markdown("---")
+        display_reference_geometry()
 
     if display_workflow_view:
         st.markdown("---")
         display_workflow_settings()
+
+    if display_simulation_view:
+        st.markdown("---")
+        display_simulation_settings()
 
     if display_geometry_view and display_simulation_view:
         st.markdown("---")

@@ -54,11 +54,6 @@ if __name__ == "__main__":
         wkdir.mkdir(parents=True, exist_ok=True)
         st.session_state.workflow.working_dir = wkdir
 
-    # Redirect to Geometry page on first load
-    if "visited_home" not in st.session_state:
-        st.session_state.visited_home = True
-        st.switch_page("pages/01_✈️_Geometry.py")
-
     # Create sidebar manually (without calling create_sidebar to avoid double set_page_config)
     st.sidebar.image(logo)
     st.sidebar.markdown(HOW_TO_TEXT)

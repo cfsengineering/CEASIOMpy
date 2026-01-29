@@ -295,7 +295,7 @@ def run_gui(
         "-m",
         "streamlit",
         "run",
-        "🏠_Home.py",
+        "app.py",
         "--server.headless", f"{str(headless).lower()}",
     ]
     if port is not None:

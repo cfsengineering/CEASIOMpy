@@ -35,7 +35,10 @@ from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.PyAVL.func.cpacs2avl import Avl
 
-from ceasiompy import ceasiompy_cfg
+from ceasiompy import (
+    log,
+    ceasiompy_cfg,
+)
 from ceasiompy.PyAVL import MODULE_DIR
 from ceasiompy.PyAVL.func import FORCE_FILES
 from ceasiompy.utils.commonxpaths import (
@@ -191,6 +194,8 @@ def write_command_file(
         if has_display():
             command_file.writelines(["t\n", "h\n\n"])
             command_file.writelines(["g\n", "lo\n", "h\n\n"])
+        else:
+            log.info("No Display available, can not generate plot.ps file.")
 
         command_file.write("x\n")
 

@@ -170,22 +170,20 @@ def display_results(results_dir):
                     if show_pdf:
                         if "pdf_container" not in st.session_state:
                             st.session_state["pdf_container"] = st.container()
-                            st.session_state.pdf_container.markdown("**PDFs**")
 
                         pdf_bytes = child.read_bytes()
                         b64_pdf = base64.b64encode(pdf_bytes).decode("ascii")
-                        st.session_state.pdf_container.markdown(f"**{child.name}**")
+                        st.session_state.pdf_container.markdown(
+                            f'<iframe src="data:application/pdf;base64,{b64_pdf}" '
+                            'width="100%" height="900" style="border:0"></iframe>',
+                            unsafe_allow_html=True,
+                        )
                         st.session_state.pdf_container.download_button(
                             "Download PDF",
                             data=pdf_bytes,
                             file_name=child.name,
                             mime="application/pdf",
                             key=f"{child}_pdf_download",
-                        )
-                        st.session_state.pdf_container.markdown(
-                            f'<iframe src="data:application/pdf;base64,{b64_pdf}" '
-                            'width="100%" height="900" style="border:0"></iframe>',
-                            unsafe_allow_html=True,
                         )
 
             elif child.suffix == ".md":

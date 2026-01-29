@@ -265,8 +265,6 @@ def get_workflow_dirs(current_wkdir: Path) -> list[Path]:
 def show_results():
     """Display the results of the selected workflow."""
 
-    st.markdown("#### Results")
-
     current_wkdir = get_wkdir()
     if not current_wkdir or not current_wkdir.exists():
         st.warning("No Workflow working directory found.")
@@ -326,7 +324,9 @@ if __name__ == "__main__":
         unsafe_allow_html=True,
     )
 
-    st.title("Results")
+    st.title(PAGE_NAME)
+
+    st.markdown("---")
 
     show_results()
 

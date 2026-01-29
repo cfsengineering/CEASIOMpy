@@ -228,33 +228,32 @@ def launch_openvsp() -> None:
 def render_openvsp_panel() -> None:
     """Render the OpenVSP status/launch controls."""
 
-    with st.container(border=True):
-        st.markdown("#### Create or update geometries with OpenVSP")
+    st.markdown("#### Create or update geometries with OpenVSP")
 
-        button_disabled = True
-        status_col, button_col = st.columns([4, 1])
-        with status_col:
-            if not VSP2CPACS_MODULE_STATUS:
-                st.info(
-                    "OpenVSP is not enabled for this installation. "
-                    "Install it inside `INSTALLDIR/OpenVSP` to use the geometry converter."
-                )
-            elif OPENVSP_PATH is None or not OPENVSP_PATH.exists():
-                st.error("OpenVSP executable could not be located.")
-                st.caption(
-                    "Expected to find the `vsp` binary inside `INSTALLDIR/OpenVSP`. "
-                    "Use the platform specific installer inside the `installation/` folder."
-                )
-            else:
-                st.success("OpenVSP detected and ready to launch")
-                button_disabled = False
+    button_disabled = True
+    status_col, button_col = st.columns([4, 1])
+    with status_col:
+        if not VSP2CPACS_MODULE_STATUS:
+            st.info(
+                "OpenVSP is not enabled for this installation. "
+                "Install it inside `INSTALLDIR/OpenVSP` to use the geometry converter."
+            )
+        elif OPENVSP_PATH is None or not OPENVSP_PATH.exists():
+            st.error("OpenVSP executable could not be located.")
+            st.caption(
+                "Expected to find the `vsp` binary inside `INSTALLDIR/OpenVSP`. "
+                "Use the platform specific installer inside the `installation/` folder."
+            )
+        else:
+            st.success("OpenVSP detected and ready to launch")
+            button_disabled = False
 
-        with button_col:
-            if st.button("Launch OpenVSP", disabled=button_disabled):
-                try:
-                    launch_openvsp()
-                except Exception as e:
-                    st.error(f"Could not open OpenVSP: {e}")
+    with button_col:
+        if st.button("Launch OpenVSP", disabled=button_disabled):
+            try:
+                launch_openvsp()
+            except Exception as e:
+                st.error(f"Could not open OpenVSP: {e}")
 
 
 def clean_toolspecific(cpacs: CPACS) -> CPACS:
@@ -295,77 +294,117 @@ def section_select_cpacs() -> None:
     wkdir.mkdir(parents=True, exist_ok=True)
     st.session_state.workflow.working_dir = wkdir
 
-    # Conversion container
-    with st.container(border=True):
-        st.markdown("#### Load a CPACS (.xml) or VSP3 (.vsp3) file")
+    # CPACS Loader
 
-        # Check if the CPACS file path is already in session state
-        if "cpacs" in st.session_state:
-            cpacs: CPACS = st.session_state.cpacs
-            if Path(cpacs.cpacs_file).exists():
-                # Reload the CPACS file into session state if its path exists
-                # and the CPACS object is not already loaded or is different
-                if (
-                    "cpacs" not in st.session_state
-                    or (
-                        Path(getattr(st.session_state.cpacs, "cpacs_file", ""))
-                        != Path(cpacs.cpacs_file)
-                    )
-                ):
-                    close_cpacs_handles(st.session_state.get("cpacs"))
-                    st.session_state.cpacs = CPACS(cpacs.cpacs_file)
-                st.session_state.cpacs = clean_toolspecific(st.session_state.cpacs)
-            else:
-                st.session_state.cpacs = None
+    st.markdown("---")
 
-        # File uploader widget
-        uploaded_file = st.file_uploader(
-            "Load a CPACS (.xml) or VSP3 (.vsp3) file",
-            type=["xml", "vsp3"],
-            key="geometry_file_uploader",
-            label_visibility="collapsed",
-        )
+    st.markdown("#### Load a CPACS (.xml) or VSP3 (.vsp3) file")
 
-        if not uploaded_file:
-            if st.button(
-                label="Load a default CPACS geometry",
-            ):
-                default_cpacs_path = Path(CPACS_FILES_PATH, "oneraM6.xml")
-                uploaded_file = build_default_upload(default_cpacs_path)
-                if uploaded_file is None:
-                    return None
-            else:
-                return None
-
-        if uploaded_file:
-            uploaded_bytes = uploaded_file.getbuffer()
-            uploaded_digest = hashlib.sha256(uploaded_bytes).hexdigest()
-            last_digest = st.session_state.get("last_uploaded_digest")
-            last_name = st.session_state.get("last_uploaded_name")
-
-            # Streamlit reruns the script on any state change; prevent re-processing the
-            # exact same uploaded file over and over making an infinite-loop.
-
-            # CONDITION 1: same file content (digest)
-            # CONDITION 2: same file name (to avoid re-processing different files with same content
-            is_same_upload = (uploaded_digest == last_digest) and (uploaded_file.name == last_name)
-
-            wkdir = st.session_state.workflow.working_dir
-            uploaded_path = Path(wkdir, uploaded_file.name)
-
-            if not is_same_upload:
-                with open(uploaded_path, "wb") as f:
-                    f.write(uploaded_bytes)
-                st.session_state["last_uploaded_digest"] = uploaded_digest
-                st.session_state["last_uploaded_name"] = uploaded_file.name
-
-            if uploaded_path.suffix == ".vsp3":
-                should_convert = (not is_same_upload) or (
-                    st.session_state.get("last_converted_vsp3_digest") != uploaded_digest
+    # Check if the CPACS file path is already in session state
+    if "cpacs" in st.session_state:
+        cpacs: CPACS = st.session_state.cpacs
+        if Path(cpacs.cpacs_file).exists():
+            # Reload the CPACS file into session state if its path exists
+            # and the CPACS object is not already loaded or is different
+            if (
+                "cpacs" not in st.session_state
+                or (
+                    Path(getattr(st.session_state.cpacs, "cpacs_file", ""))
+                    != Path(cpacs.cpacs_file)
                 )
+            ):
+                close_cpacs_handles(st.session_state.get("cpacs"))
+                st.session_state.cpacs = CPACS(cpacs.cpacs_file)
+            st.session_state.cpacs = clean_toolspecific(st.session_state.cpacs)
+        else:
+            st.session_state.cpacs = None
 
-                # Convert VSP3 file to CPACS file
-                if should_convert:
+    # File uploader widget
+    uploaded_file = st.file_uploader(
+        "Load a CPACS (.xml) or VSP3 (.vsp3) file",
+        type=["xml", "vsp3"],
+        key="geometry_file_uploader",
+        label_visibility="collapsed",
+    )
+
+    uploaded_default = st.session_state.get("uploaded_default_cpacs", False)
+    pending_default_cpacs = st.session_state.get("pending_default_cpacs")
+
+    if not uploaded_file and pending_default_cpacs:
+        default_cpacs_path = Path(pending_default_cpacs)
+        uploaded_file = build_default_upload(default_cpacs_path)
+        if uploaded_file is None:
+            st.session_state["pending_default_cpacs"] = None
+            st.session_state["uploaded_default_cpacs"] = False
+            return None
+
+    if not uploaded_file and not uploaded_default:
+        if st.button(
+            label="Load a default CPACS geometry",
+        ):
+            default_cpacs_path = Path(CPACS_FILES_PATH, "oneraM6.xml")
+            st.session_state["pending_default_cpacs"] = str(default_cpacs_path)
+            st.session_state["uploaded_default_cpacs"] = True
+            st.rerun()
+        else:
+            return None
+
+    if uploaded_file:
+        st.session_state["uploaded_default_cpacs"] = False
+        uploaded_bytes = uploaded_file.getbuffer()
+        uploaded_digest = hashlib.sha256(uploaded_bytes).hexdigest()
+        last_digest = st.session_state.get("last_uploaded_digest")
+        last_name = st.session_state.get("last_uploaded_name")
+
+        # Streamlit reruns the script on any state change; prevent re-processing the
+        # exact same uploaded file over and over making an infinite-loop.
+
+        # CONDITION 1: same file content (digest)
+        # CONDITION 2: same file name (to avoid re-processing different files with same content
+        is_same_upload = (uploaded_digest == last_digest) and (uploaded_file.name == last_name)
+
+        wkdir = st.session_state.workflow.working_dir
+        uploaded_path = Path(wkdir, uploaded_file.name)
+
+        if not is_same_upload:
+            with open(uploaded_path, "wb") as f:
+                f.write(uploaded_bytes)
+            st.session_state["last_uploaded_digest"] = uploaded_digest
+            st.session_state["last_uploaded_name"] = uploaded_file.name
+
+        if uploaded_path.suffix == ".vsp3":
+            should_convert = (not is_same_upload) or (
+                st.session_state.get("last_converted_vsp3_digest") != uploaded_digest
+            )
+
+            # Convert VSP3 file to CPACS file
+            if should_convert:
+                with st.spinner("Converting VSP3 file to CPACS..."):
+                    try:
+                        new_cpacs_path = convert_vsp3_to_cpacs(
+                            uploaded_path,
+                            output_dir=wkdir,
+                        )
+                    except Exception as e:
+                        st.error(str(e))
+                        return None
+                st.session_state["last_converted_vsp3_digest"] = uploaded_digest
+                st.session_state["last_converted_cpacs_path"] = str(new_cpacs_path)
+                st.session_state["cpacs"] = CPACS(str(new_cpacs_path))
+
+            # No conversion
+            else:
+                # Same file re-uploaded: reuse the last generated CPACS path.
+                previous_cpacs_path = st.session_state.get("last_converted_cpacs_path")
+                if previous_cpacs_path and Path(previous_cpacs_path).exists():
+                    # Use the last generated CPACS path
+                    new_cpacs_path = Path(previous_cpacs_path)
+                else:
+                    # If no old generated CPACS found
+                    st.warning(
+                        "This VSP3 file was already uploaded, but no converted CPACS was "
+                        "found in the working directory. Converting again."
+                    )
                     with st.spinner("Converting VSP3 file to CPACS..."):
                         try:
                             new_cpacs_path = convert_vsp3_to_cpacs(
@@ -379,43 +418,17 @@ def section_select_cpacs() -> None:
                     st.session_state["last_converted_cpacs_path"] = str(new_cpacs_path)
                     st.session_state["cpacs"] = CPACS(str(new_cpacs_path))
 
-                # No conversion
-                else:
-                    # Same file re-uploaded: reuse the last generated CPACS path.
-                    previous_cpacs_path = st.session_state.get("last_converted_cpacs_path")
-                    if previous_cpacs_path and Path(previous_cpacs_path).exists():
-                        # Use the last generated CPACS path
-                        new_cpacs_path = Path(previous_cpacs_path)
-                    else:
-                        # If no old generated CPACS found
-                        st.warning(
-                            "This VSP3 file was already uploaded, but no converted CPACS was "
-                            "found in the working directory. Converting again."
-                        )
-                        with st.spinner("Converting VSP3 file to CPACS..."):
-                            try:
-                                new_cpacs_path = convert_vsp3_to_cpacs(
-                                    uploaded_path,
-                                    output_dir=wkdir,
-                                )
-                            except Exception as e:
-                                st.error(str(e))
-                                return None
-                        st.session_state["last_converted_vsp3_digest"] = uploaded_digest
-                        st.session_state["last_converted_cpacs_path"] = str(new_cpacs_path)
-                        st.session_state["cpacs"] = CPACS(str(new_cpacs_path))
+        elif uploaded_path.suffix == ".xml":
+            new_cpacs_path = uploaded_path
+            st.session_state["last_converted_cpacs_path"] = str(uploaded_path)
+            st.session_state["cpacs"] = CPACS(str(uploaded_path))
+        else:
+            st.warning(f"Unsupported file suffix {uploaded_path.suffix=}")
+            return None
 
-            elif uploaded_path.suffix == ".xml":
-                new_cpacs_path = uploaded_path
-                st.session_state["last_converted_cpacs_path"] = str(uploaded_path)
-                st.session_state["cpacs"] = CPACS(str(uploaded_path))
-            else:
-                st.warning(f"Unsupported file suffix {uploaded_path.suffix=}")
-                return None
-
-        # Display the file uploader widget with the previously uploaded file
-        if "cpacs" in st.session_state and st.session_state.cpacs:
-            section_3D_view(force_regenerate=True)
+    # Display the file uploader widget with the previously uploaded file
+    if "cpacs" in st.session_state and st.session_state.cpacs:
+        section_3D_view(force_regenerate=True)
 
 
 # =================================================================================================
@@ -446,4 +459,7 @@ if __name__ == "__main__":
     )
 
     st.title(PAGE_NAME)
+
+    st.markdown("---")
+
     section_select_cpacs()

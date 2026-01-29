@@ -30,6 +30,7 @@ INCLUDE_GUI = True
 # ===== Include Module"s name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
+MODULE_TYPE = "PostProcessing"
 
 # ===== Add a Results Directory =====
 RES_DIR = True

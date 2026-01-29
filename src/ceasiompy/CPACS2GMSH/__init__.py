@@ -33,6 +33,7 @@ HAS_PENTAGROW = get_module_status(
 
 # ===== Module Status =====
 MODULE_STATUS = True
+MODULE_TYPE = "Mesher"
 
 # ===== Include GUI =====
 INCLUDE_GUI = True

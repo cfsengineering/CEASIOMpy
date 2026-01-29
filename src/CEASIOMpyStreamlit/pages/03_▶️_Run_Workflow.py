@@ -255,8 +255,8 @@ if __name__ == "__main__":
     st.markdown("---")
 
     display_geometry_view: bool = True
-    display_workflow_view: bool = False
-    display_simulation_view: bool = False
+    display_workflow_view: bool = True
+    display_simulation_view: bool = True
 
     if "last_page" in st.session_state and st.session_state.last_page != PAGE_NAME:
         save_cpacs_file(logging=False)

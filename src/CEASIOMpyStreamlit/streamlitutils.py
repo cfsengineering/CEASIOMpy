@@ -432,10 +432,12 @@ def section_3D_view(
     """
     # Check if we're in 2D mode
     geometry_mode = "3D"  # default
-    try:
-        geometry_mode = st.session_state.cpacs.tixi.getTextElement(GEOMETRY_MODE_XPATH)
-    except Exception:
-        pass
+    if hasattr(st.session_state, 'cpacs') and st.session_state.cpacs:
+        try:
+            geometry_mode = st.session_state.cpacs.tixi.getTextElement(GEOMETRY_MODE_XPATH)
+        except (Tixi3Exception, AttributeError):
+            # GEOMETRY_MODE_XPATH doesn't exist or cpacs.tixi not available - default to 3D
+            geometry_mode = "3D"
 
     if geometry_mode == "2D":
         # Display 2D airfoil if coordinates are available

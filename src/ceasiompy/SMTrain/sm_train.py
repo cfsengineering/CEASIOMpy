@@ -39,6 +39,7 @@ from ceasiompy.SMTrain.func.trainsurrogatemodel import (
     run_first_level_training_geometry,
     run_adaptative_refinement,
     run_adaptative_refinement_geom,
+    run_adaptative_refinement_geom_RBF,
     training_existing_db,
     run_adaptative_refinement_geom_existing_db,
 )
@@ -211,6 +212,19 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                         cpacs=cpacs,
                         results_dir=results_dir,
                         model=krg_model,
+                        level1_sets=sets,
+                        rmse_obj=rmse_obj,
+                        objective=objective,
+                        aeromap_uid=aeromap_selected,
+                    )
+
+            if selected_rbf_model:
+                # Second level fidelity training
+                if fidelity_level == LEVEL_TWO:
+                    run_adaptative_refinement_geom_RBF(
+                        cpacs=cpacs,
+                        results_dir=results_dir,
+                        model=rbf_model,
                         level1_sets=sets,
                         rmse_obj=rmse_obj,
                         objective=objective,

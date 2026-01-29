@@ -16,9 +16,8 @@ import joblib
 from shutil import copyfile
 import numpy as np
 import pandas as pd
-import gmsh
 from pathlib import Path
-
+from copy import deepcopy
 from pandas import concat
 from skopt import gp_minimize
 from cpacspy.cpacsfunctions import (
@@ -416,7 +415,6 @@ def run_first_level_training_geometry(
         pyavl_local_dir = pyavl_dir / f"PyAVL_{i+1}"
         pyavl_local_dir.mkdir(exist_ok=True)
 
-        st.session_state = MagicMock()
         update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
         update_cpacs_from_specs(cpacs, STATICSTABILITY_NAME, test=True)
         tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap_uid)
@@ -719,7 +717,6 @@ def run_adaptative_refinement_geom(
             new_row = new_point_df.iloc[idx].copy()
             new_row[objective] = obj_value
             new_df_list.append(new_row)
-            gmsh.clear()
         new_df = pd.DataFrame(new_df_list)
 
         # Stack new with old
@@ -906,7 +903,6 @@ def run_adaptative_refinement_geom_existing_db(
             new_row = new_point_df.iloc[idx].copy()
             new_row[objective] = obj_value
             new_df_list.append(new_row)
-            gmsh.clear()
 
         new_df = pd.DataFrame(new_df_list)
         df = pd.concat([new_df, df_simulation], ignore_index=True)
@@ -978,27 +974,13 @@ def get_hyperparam_space_RBF(
         ]
 
 
-def train_surrogate_model_RBF(
-    n_params: int,
-    level1_sets: Dict[str, ndarray],
-    level2_sets: Union[Dict[str, ndarray], None] = None,
-    level3_sets: Union[Dict[str, ndarray], None] = None,
-) -> Tuple[Union[RBF, MFK], float]:
-    hyperparam_space = get_hyperparam_space_RBF(level1_sets, level2_sets, level3_sets, n_params)
-
-    return RBF_model(
-        param_space=hyperparam_space,
-        sets=level1_sets,
-    )
-
-
 def compute_loss_RBF(
     model: Union[RBF, MFK],
     lambda_penalty: float,
     x_: ndarray,
     y_: ndarray,
 ) -> float:
-    return compute_rmse(model, x_, y_) + lambda_penalty * np.mean(model.predict_variances(x_))
+    return compute_rmse(model, x_, y_)
 
 
 def log_params_RBF(result: OptimizeResult) -> None:
@@ -1047,11 +1029,109 @@ def compute_first_level_loss_RBF(
     return model, compute_loss_RBF(model, lambda_penalty, x_, y_)
 
 
+def mf_RBF(
+    level1_sets: Dict[str, ndarray],
+    level2_sets: Union[Dict[str, ndarray], None] = None,
+    level3_sets: Union[Dict[str, ndarray], None] = None,
+    n_calls: int = 10,
+    random_state: int = 42,
+) -> Tuple[RBF, float]:
+    """
+    Train a multi-fidelity RBF model using single/multi-level datasets.
+    Debug-enabled version to trace data issues.
+    """
+
+    log.info("=== Entered mf_RBF ===")
+
+    # Unpack first level
+    x_fl_train, x_val1, x_test1, y_fl_train, y_val1, y_test1 = collect_level_data(level1_sets)
+    log.info(f"Level 1 shapes: x_train={x_fl_train.shape}, y_train={y_fl_train.shape}, "
+             f"x_val={None if x_val1 is None else x_val1.shape}, y_val={None if y_val1 is None else y_val1.shape}, "
+             f"x_test={None if x_test1 is None else x_test1.shape}, y_test={None if y_test1 is None else y_test1.shape}")
+
+    # Unpack second level
+    if level2_sets:
+        x_sl_train, x_val2, x_test2, y_sl_train, y_val2, y_test2 = collect_level_data(level2_sets)
+        log.info(f"Level 2 shapes: x_train={x_sl_train.shape}, y_train={y_sl_train.shape}")
+    else:
+        x_sl_train, x_val2, x_test2, y_sl_train, y_val2, y_test2 = (None,) * 6
+
+    # Unpack third level
+    if level3_sets:
+        x_tl_train, x_val3, x_test3, y_tl_train, y_val3, y_test3 = collect_level_data(level3_sets)
+        log.info(f"Level 3 shapes: x_train={x_tl_train.shape}, y_train={y_tl_train.shape}")
+    else:
+        x_tl_train, x_val3, x_test3, y_tl_train, y_val3, y_test3 = (None,) * 6
+
+    # Combine validation/test sets across levels
+    x_val = concatenate_if_not_none([x_val1, x_val2, x_val3])
+    y_val = concatenate_if_not_none([y_val1, y_val2, y_val3])
+    x_test = concatenate_if_not_none([x_test1, x_test2, x_test3])
+    y_test = concatenate_if_not_none([y_test1, y_test2, y_test3])
+
+    log.info(f"Combined validation shapes: x_val={None if x_val is None else x_val.shape}, y_val={None if y_val is None else y_val.shape}")
+    log.info(f"Combined test shapes: x_test={None if x_test is None else x_test.shape}, y_test={None if y_test is None else y_test.shape}")
+
+    # Objective function for Bayesian optimization
+    def objective(params) -> float:
+        d0, poly_degree, reg, lambda_penalty = params
+        log.debug(f"Trying hyperparams: d0={d0}, poly_degree={poly_degree}, reg={reg}, lambda={lambda_penalty}")
+
+        model = RBF(d0=d0, poly_degree=int(poly_degree), reg=reg, print_global=False)
+        log.debug(f"Setting Level 1 training values: x_fl_train.shape={x_fl_train.shape}, y_fl_train.shape={y_fl_train.shape}")
+        model.set_training_values(x_fl_train, y_fl_train)
+
+        if x_sl_train is not None and y_sl_train is not None:
+            log.debug(f"Adding Level 2 training values: x_sl_train.shape={x_sl_train.shape}, y_sl_train.shape={y_sl_train.shape}")
+            model.set_training_values(x_sl_train, y_sl_train, name=2)
+
+        if x_tl_train is not None and y_tl_train is not None:
+            log.debug(f"Adding Level 3 training values: x_tl_train.shape={x_tl_train.shape}, y_tl_train.shape={y_tl_train.shape}")
+            model.set_training_values(x_tl_train, y_tl_train, name=3)
+
+        model.train()
+        loss_val = compute_loss_RBF(model, lambda_penalty, x_val, y_val)
+        log.debug(f"Validation loss: {loss_val:.6f}")
+        return loss_val
+
+    # Hyperparameter search space
+    hyperparam_space = [
+        Real(1, 500, name="d0"),
+        Categorical([-1], name="poly_degree"),
+        Real(1e-15, 1e-8, name="reg"),
+        Real(0.0, 1.0, name="lambda_penalty")
+    ]
+
+    best_params = optimize_hyper_parameters_RBF(objective, hyperparam_space, n_calls, random_state)
+    log.info(f"Best hyperparameters found: {best_params}")
+
+    # Train final model on all available data
+    x_final = np.vstack([x for x in [x_fl_train, x_sl_train, x_tl_train] if x is not None])
+    y_final = np.hstack([y for y in [y_fl_train, y_sl_train, y_tl_train] if y is not None])
+    log.info(f"Final training shapes: x_final={x_final.shape}, y_final={y_final.shape}")
+
+    d0, poly_degree, reg, lambda_penalty = best_params
+    final_model = RBF(d0=d0, poly_degree=int(poly_degree), reg=reg, print_global=False)
+    final_model.set_training_values(x_final, y_final)
+    final_model.train()
+
+    # Evaluate on test set
+    if x_test is not None and y_test is not None:
+        loss_test = compute_loss_RBF(final_model, lambda_penalty, x_test, y_test)
+        log.info(f"Final RMSE on test set (multi-fidelity RBF): {loss_test:.6f}")
+    else:
+        loss_test = 0.0
+        log.warning("No test set available for multi-fidelity RBF evaluation.")
+
+    log.info("=== Exiting mf_RBF ===")
+    return final_model, loss_test
+
+
 def RBF_model(
-        param_space: List,
-        sets: Dict[str, ndarray],
-        n_calls: int = 50,
-        random_state: int = 42
+    param_space: List,
+    sets: Dict[str, ndarray],
+    n_calls: int = 50,
+    random_state: int = 42
 ) -> Tuple[RBF, float]:
     x_train, x_test, x_val, y_train, y_test, y_val = unpack_data(sets)
 
@@ -1087,3 +1167,284 @@ def RBF_model(
     best_loss = compute_rmse(best_model, x_test, y_test)
     log.info(f"Final RMSE on test set: {best_loss:.6f}")
     return best_model, best_loss
+
+
+def train_surrogate_model_RBF(
+    n_params: int,
+    level1_sets: Dict[str, ndarray],
+    level2_sets: Union[Dict[str, ndarray], None] = None,
+    level3_sets: Union[Dict[str, ndarray], None] = None,
+) -> Tuple[Union[RBF, MFK], float]:
+    """
+    Train either single-fidelity or multi-fidelity RBF model.
+    """
+    n_params_ = n_params
+    hyperparam_space = get_hyperparam_space_RBF(level1_sets, level2_sets, level3_sets, n_params_)
+    log.info(f"{level1_sets=}")
+    log.info(f"{level2_sets=}")
+    log.info(f"{n_params=}")
+    if level2_sets is not None or level3_sets is not None:
+        # multi-fidelity RBF
+        log.info(f"{level2_sets=}")
+        return mf_RBF(
+            level1_sets=level1_sets,
+            level2_sets=level2_sets,
+            level3_sets=level3_sets,
+        )
+    else:
+        # single-fidelity
+        return RBF_model(
+            param_space=hyperparam_space,
+            sets=level1_sets,
+        )
+
+
+def new_points_RBF(
+    x_array: ndarray,
+    y_array: ndarray,
+    model: Union[KRG, MFK],
+    results_dir: Path,
+    high_poor_pts: float = 0.1,
+    n_local: int = 3,
+    perturb_scale: float = 0.05,
+    poor_pts: List = None
+) -> Union[pd.DataFrame, None]:
+    """
+    Generate new sampling points based on LOO error for RBF models.
+    Returns a DataFrame with the same columns as ranges_for_gui.csv.
+    """
+
+    log.info("Entered new_points_RBF function")
+
+    X = np.asarray(x_array)
+    y = np.asarray(y_array).ravel()
+    n_samples, n_dim = X.shape
+
+    # Load parameter names from ranges_for_gui.csv
+    ranges_csv_path = results_dir / "ranges_for_gui.csv"
+    df_ranges_parameter = pd.read_csv(ranges_csv_path)
+    columns_from_csv = df_ranges_parameter['Parameter'].tolist()
+
+    if poor_pts is None:
+        poor_pts = []
+
+    if X.shape[0] < 3:
+        log.warning("Not enough samples for LOO.")
+        return None
+
+    # --------------------------------------------------
+    # STEP 1 — Compute LOO error
+    # --------------------------------------------------
+    loo_error = np.zeros(n_samples)
+    for i in range(n_samples):
+        X_loo = np.delete(X, i, axis=0)
+        y_loo = np.delete(y, i, axis=0)
+        try:
+            model_loo = deepcopy(model)
+            model_loo.set_training_values(X_loo, y_loo)
+            model_loo.train()
+            y_pred_i = model_loo.predict_values(X[i].reshape(1, -1)).ravel()[0]
+            loo_error[i] = abs(y_pred_i - y[i])
+        except Exception as e:
+            log.warning(f"LOO failed at idx {i}: {e}")
+            loo_error[i] = np.nan
+
+    if np.all(np.isnan(loo_error)):
+        log.error("All LOO evaluations failed.")
+        return None
+
+    # --------------------------------------------------
+    # STEP 2 — Select worst points
+    # --------------------------------------------------
+    n_bad = 6
+    bad_idx = np.argsort(loo_error)[-n_bad:]
+    X_bad = X[bad_idx]
+
+    # --------------------------------------------------
+    # STEP 3 — Local perturbations
+    # --------------------------------------------------
+    X_new_list = []
+    for x in X_bad:
+        for _ in range(n_local):
+            delta = perturb_scale * (np.random.rand(n_dim) - 0.5)
+            x_new = x + delta
+            # avoid duplicating points already in poor_pts
+            if tuple(x_new) not in poor_pts:
+                X_new_list.append(x_new)
+                poor_pts.append(tuple(x_new))
+
+    if not X_new_list:
+        log.warning("No new poor-prediction points generated after perturbation.")
+        return None
+
+    X_new = np.array(X_new_list)
+    sampled_df = pd.DataFrame(X_new, columns=columns_from_csv)
+
+    log.info(f"Generated {len(sampled_df)} new poor-prediction points.")
+    return sampled_df
+
+
+def run_adaptative_refinement_geom_RBF(
+    cpacs: CPACS,
+    results_dir: Path,
+    model: Union[KRG, MFK],
+    level1_sets: Dict[str, ndarray],
+    rmse_obj: float,
+    objective: str,
+    aeromap_uid,
+) -> None:
+    """
+    Iterative adaptive refinement using RBF LOO-error based sampling.
+    """
+
+    norm_df = pd.read_csv(results_dir / "normalization_params.csv")
+    normalization_params = {
+        row["Parameter"]: {"mean": row["mean"], "std": row["std"]}
+        for _, row in norm_df.iterrows()
+    }
+
+    log.info("Loaded normalization parameters:")
+    for k, v in normalization_params.items():
+        log.debug(f"{k}: mean={v['mean']}, std={v['std']}")
+
+    poor_pts = []
+    rmse = float("inf")
+
+    df_old_path = results_dir / "avl_simulations_results.csv"
+    df_old = pd.read_csv(df_old_path)
+    df = pd.DataFrame(columns=df_old.columns)
+
+    n_params = len(df_old.columns.drop(objective))
+
+    x_array = level1_sets["x_train"]
+    y_array = level1_sets["y_train"]
+    nb_iters = len(x_array)
+
+    log.info(f"Starting RBF adaptive refinement with maximum {nb_iters=}.")
+
+    aeromap_csv_path = results_dir / f"{AEROMAP_SELECTED}.csv"
+    prev_rmse = np.inf
+
+    for it in range(nb_iters):
+
+        log.info(f"=== Iteration {it} ===")
+
+        # Generate new points
+        new_point_df_norm = new_points_RBF(
+            x_array=x_array,
+            y_array=y_array,
+            model=model,
+            results_dir=results_dir,
+            high_poor_pts=0.1,
+            n_local=1,
+            perturb_scale=1,
+        )
+
+        if new_point_df_norm is None or new_point_df_norm.empty:
+            log.warning("No new poor-prediction points found.")
+            break
+
+        new_point_df = new_point_df_norm.copy()
+
+        for col in new_point_df.columns:
+            if col not in normalization_params:
+                log.warning(f"No normalization params for {col}, skipping denorm.")
+                continue
+
+            mean = normalization_params[col]["mean"]
+            std = normalization_params[col]["std"]
+
+            new_point_df[col] = new_point_df[col] * std + mean
+
+        new_point_df_norm.to_csv(results_dir / f"new_points_norm_iter_{it}.csv", index=False)
+        new_point_df.to_csv(results_dir / f"new_points_phys_iter_{it}.csv", index=False)
+
+        log.info(
+            f"Generated {len(new_point_df)} new points "
+            f"(norm range [{new_point_df_norm.min().min():.3f}, "
+            f"{new_point_df_norm.max().max():.3f}], "
+            f"phys range [{new_point_df.min().min():.3f}, "
+            f"{new_point_df.max().max():.3f}])"
+        )
+
+        poor_pts.extend(new_point_df.to_numpy().tolist())
+        cpacs_file = cpacs.cpacs_file
+        cpacs_list = []
+
+        # Update CPACS for each new point
+        for i, geom_row in new_point_df.iterrows():
+
+            cpacs_p = get_results_directory(SU2RUN_NAME) / f"CPACS_newpoint_{i+1:03d}_iter{it}.xml"
+            copyfile(cpacs_file, cpacs_p)
+
+            cpacs_out_obj = CPACS(cpacs_p)
+            tixi = cpacs_out_obj.tixi
+
+            params_to_update = {}
+
+            for col in new_point_df.columns:
+                col_parts = col.split("_of_")
+                if len(col_parts) != 3:
+                    log.warning(f"Skipping unexpected param name format: {col}")
+                    continue
+                name_parameter, uID_section, uID_wing = col_parts
+                val = geom_row[col]
+
+                xpath = get_xpath_for_param(tixi, name_parameter, uID_wing, uID_section)
+
+                if name_parameter not in params_to_update:
+                    params_to_update[name_parameter] = {"values": [], "xpath": []}
+
+                params_to_update[name_parameter]["values"].append(val)
+                params_to_update[name_parameter]["xpath"].append(xpath)
+
+            cpacs_obj = update_geometry_cpacs(cpacs_file, cpacs_p, params_to_update)
+            cpacs_list.append(cpacs_obj)
+
+        # Run SU2 on new points
+        new_df_list = []
+        for idx, cpacs_ in enumerate(cpacs_list):
+            dir_res = get_results_directory(SU2RUN_NAME) / f"SU2Run_{idx}_iter{it}"
+            dir_res.mkdir(exist_ok=True)
+
+            obj_value = launch_gmsh_su2_geom(
+                cpacs=cpacs_,
+                results_dir=dir_res,
+                objective=objective,
+                aeromap_csv_path=aeromap_csv_path,
+                new_point_df=new_point_df.iloc[[idx]],
+                aeromap_uid=aeromap_uid,
+            )
+
+            new_row = new_point_df.iloc[idx].copy()
+            new_row[objective] = obj_value
+            new_df_list.append(new_row)
+
+        new_df = pd.DataFrame(new_df_list)
+
+        df_new = pd.concat([df, new_df], ignore_index=True, sort=False)
+
+        df_new.to_csv(get_results_directory(SU2RUN_NAME) / f"SU2_dataframe_iter_{it}.csv", index=False)
+
+        # Retrain surrogate
+
+        model, rmse = train_surrogate_model_RBF(
+            n_params=n_params,
+            level1_sets=level1_sets,
+            level2_sets=split_data(df_new, objective),
+        )
+        log.info(f"Iteration {it}: RMSE = {rmse:.6e}")
+        
+        # Breaking conditions
+        if rmse < rmse_obj:
+            log.info("Target RMSE reached. Stopping refinement.")
+            rmse_path = f"{results_dir}/rmse_RBF.csv"
+            rmse.to_csv(rmse_path, index=False)
+            break
+        elif it > 0 and abs(prev_rmse - rmse) < 1e-4 * prev_rmse:
+            log.info("RMSE plateau reached. Stopping refinement.")
+            rmse_path = f"{results_dir}/rmse_RBF.csv"
+            rmse.to_csv(rmse, index=False)
+            break
+
+        prev_rmse = rmse

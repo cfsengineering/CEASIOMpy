@@ -419,9 +419,9 @@ def display_results(results_dir, chosen_workflow = None):
                             key="rsm_slider_2"
                         )
 
+                        fixed_param_values = {}
                         if len(param_order) >= 3:
                             st.markdown("**Fix values for other parameters:**")
-                            fixed_param_values = {}
                             for p in param_order:
                                 if p not in selected_params:
                                     low, high = sliders_bounds.get(p, (0, 0))
@@ -552,11 +552,11 @@ def display_results(results_dir, chosen_workflow = None):
                     )
 
                     # Predict
-                    predicted_value = model.predict_values(
+                    raw_predicted_value = model.predict_values(
                         x_norm.reshape(1, -1)
                     )[0]
-
-                    st.metric("Predicted objective value", f"{predicted_value}")
+                    predicted_value = float(raw_predicted_value.item())
+                    st.metric("Predicted objective value", f"{predicted_value:.2f}")
 
                     with col_3d:
                         with open(new_file_path, "rb") as f:
@@ -609,7 +609,7 @@ def display_results(results_dir, chosen_workflow = None):
                         "Enter target value",
                         value=float(y_pred_init[0]),
                         step=0.0001,
-                        format="%0.4f"
+                        format="%0.2f"
                     )
                     
                     selected_solver = st.selectbox(
@@ -633,44 +633,51 @@ def display_results(results_dir, chosen_workflow = None):
                                 std  = normalization_params[p]["std"]
                                 x_full.append(0.0 if std == 0 else (val_phys - mean) / std)
                         x_full = np.array(x_full)
-                        y_pred = model.predict_values(x_full.reshape(1, -1))[0]
+                        y_pred = float(model.predict_values(x_full.reshape(1, -1))[0, 0])
                         return abs(y_pred - y_target)
 
                     if st.button("Find parameters for given target value"):
-                            result = minimize(
-                                objective_inverse,
-                                x0,
-                                bounds=bounds,
-                                method=selected_solver
+                        result = minimize(
+                            objective_inverse,
+                            x0,
+                            bounds=bounds,
+                            method=selected_solver
+                        )
+
+                        if not result.success:
+                            st.error(f"Optimization failed: {result.message}")
+                            st.write("Last x:", result.x)
+                            st.write("Objective value:", result.fun)
+                            return
+
+                        if result.success:
+                            x_opt_phys = norm_to_phys(
+                                result.x,
+                                param_order_geom,
+                                normalization_params
                             )
 
-                            if result.success:
-                                x_opt_phys = norm_to_phys(
-                                    result.x,
-                                    param_order_geom,
-                                    normalization_params
-                                )
+                            input_dict_opt = dict(zip(param_order_geom, x_opt_phys))
 
-                                input_dict_opt = dict(zip(param_order_geom, x_opt_phys))
+                            x_full_norm = []
+                            for p in param_order:
+                                if p in input_dict_opt:
+                                    val = input_dict_opt[p]
+                                else:
+                                    val = sliders_values[p]
+                                mean = normalization_params[p]["mean"]
+                                std  = normalization_params[p]["std"]
+                                x_full_norm.append(0.0 if std == 0 else (val - mean)/std)
 
-                                x_full_norm = []
-                                for p in param_order:
-                                    if p in input_dict_opt:
-                                        val = input_dict_opt[p]
-                                    else:
-                                        val = sliders_values[p]
-                                    mean = normalization_params[p]["mean"]
-                                    std  = normalization_params[p]["std"]
-                                    x_full_norm.append(0.0 if std == 0 else (val - mean)/std)
+                            y_pred_opt = float(
+                                model.predict_values(np.array(x_full_norm).reshape(1, -1))[0, 0]
+                            )
 
-                                y_pred_opt = model.predict_values(np.array(x_full_norm).reshape(1, -1))[0]
-
-                                st.session_state["optim_result"] = {
-                                    "params": input_dict_opt,
-                                    "y_pred_opt": y_pred_opt,
-                                    "y_target": y_target,
-                                }
-
+                            st.session_state.optim_result = {
+                                "params": input_dict_opt,
+                                "y_pred_opt": y_pred_opt,
+                                "y_target": y_target,
+                            }
 
                     if "optim_result" in st.session_state:
                         col_tab, col_view = st.columns([0.6,0.4])
@@ -689,21 +696,21 @@ def display_results(results_dir, chosen_workflow = None):
 
                             st.metric(
                                 label="Predicted value for optimal parameters",
-                                value=f"{st.session_state['optim_result']['y_pred_opt']}"
+                                value=f"{st.session_state['optim_result']['y_pred_opt']:.2f}"
                             )
 
                             abs_error = abs(
                                 st.session_state['optim_result']['y_pred_opt']
                                 - st.session_state['optim_result']['y_target']
                             )
-                            st.markdown(f"**Absolute error:** {abs_error}")
+                            st.markdown(f"**Absolute error:** {abs_error:.6f}")
 
                             csv_buffer = io.StringIO()
                             df_opt_params.to_csv(csv_buffer, index=False)
                             csv_data = csv_buffer.getvalue()
                             file_name_csv = (
                                 "optimal_parameters_target_value"
-                                f"_{st.session_state['optim_result']['y_target']:.4f}.csv"
+                                f"_{st.session_state['optim_result']['y_target']:.2f}.csv"
                             )
 
                             st.download_button(

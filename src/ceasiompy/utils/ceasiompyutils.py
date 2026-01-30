@@ -69,13 +69,20 @@ from ceasiompy.utils.moduleinterfaces import (
 from ceasiompy.utils.commonxpaths import (
     SELECTED_AEROMAP_XPATH,
     AIRCRAFT_NAME_XPATH,
-    RANGE_CRUISE_ALT_XPATH,
-    RANGE_CRUISE_MACH_XPATH,
 )
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def update_xpath_at_xyz(tixi: Tixi3, xpath: str, x: str, y: str, z: str) -> None:
+    """
+    Helper Function.
+    """
+    tixi.updateTextElement(xpath + "/x", x)
+    tixi.updateTextElement(xpath + "/y", y)
+    tixi.updateTextElement(xpath + "/z", z)
 
 
 def _check_software_exists(soft_name: str) -> bool:

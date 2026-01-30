@@ -12,6 +12,7 @@ import math
 import numpy as np
 
 from numpy import array
+from ceasiompy.utils.ceasiompyutils import update_xpath_at_xyz
 from cpacspy.cpacsfunctions import (
     get_float_vector,
     get_value_or_default,
@@ -575,15 +576,6 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
 
         else:
             log.warning(f"Airfoil uID {airfoil_uid} not found.")
-
-
-def update_xpath_at_xyz(tixi: Tixi3, xpath: str, x: str, y: str, z: str) -> None:
-    """
-    Helper Function.
-    """
-    tixi.updateTextElement(xpath + "/x", x)
-    tixi.updateTextElement(xpath + "/y", y)
-    tixi.updateTextElement(xpath + "/z", z)
 
 
 def createfrom_wing_airfoil(

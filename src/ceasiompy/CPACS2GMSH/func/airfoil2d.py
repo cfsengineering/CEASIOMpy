@@ -24,7 +24,10 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import SU2MESH_XPATH, GEOM_XPATH
+from ceasiompy.utils.commonxpaths import (
+    GEOM_XPATH,
+    SU2MESH_XPATH,
+)
 from ceasiompy.CPACS2GMSH import (
     GMSH_2D_AIRFOIL_MESH_SIZE_XPATH,
     GMSH_2D_EXT_MESH_SIZE_XPATH,
@@ -238,7 +241,7 @@ def _find_airfoil_file(tixi, airfoil_type, wkdir: Path):
     return None, None, False
 
 
-def _build_gmshairfoil2d_command(params, wkdir, airfoil_type, airfoil_name, airfoil_file):
+def _run_gmshairfoil2d(params, wkdir, airfoil_type, airfoil_name, airfoil_file):
     """
     Build the gmshairfoil2d command line.
 
@@ -376,7 +379,7 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
                 airfoil_name = found_name
 
     # Build gmshairfoil2d command
-    cmd, expected_mesh_file, needs_rename = _build_gmshairfoil2d_command(
+    cmd, expected_mesh_file, needs_rename = _run_gmshairfoil2d(
         params, wkdir, airfoil_type, airfoil_name, airfoil_file
     )
 

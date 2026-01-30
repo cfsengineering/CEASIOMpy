@@ -74,7 +74,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="spanwise_vort",
     var_type=int,
-    default_value=50,
+    default_value=30,
     unit=None,
     descr="Select the number of spanwise vortices",
     xpath=AVL_NSPANWISE_XPATH,

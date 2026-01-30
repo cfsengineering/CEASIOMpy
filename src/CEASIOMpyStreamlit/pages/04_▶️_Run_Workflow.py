@@ -211,7 +211,7 @@ def workflow_buttons() -> None:
                     workflow.run_workflow(progress_callback=progress_callback)
                 except Exception as exc:
                     st.exception(exc)
-                st.switch_page("pages/04_📈_Results.py")
+                st.switch_page("pages/05_📈_Results.py")
                 st.stop()
 
     with col2:

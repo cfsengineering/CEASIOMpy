@@ -97,6 +97,7 @@ def multiselect_vartype(default_value, name, key) -> list[float]:
             if st.button(
                 label="➕ Add",
                 key=f"add_{key}",
+                width="stretch",
             ):
                 if new_value not in st.session_state[key]:
                     st.session_state[key].append(new_value)
@@ -108,6 +109,7 @@ def multiselect_vartype(default_value, name, key) -> list[float]:
             if st.button(
                 label="❌ Remove",
                 key=f"remove_last_{key}",
+                width="stretch",
             ):
                 if st.session_state[key]:
                     st.session_state[key].pop()

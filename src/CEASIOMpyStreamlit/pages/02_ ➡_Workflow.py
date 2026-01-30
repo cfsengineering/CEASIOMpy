@@ -411,13 +411,6 @@ if __name__ == "__main__":
 
     st.title(PAGE_NAME)
 
-    # Display current geometry mode
-    geometry_mode = st.session_state.get("geometry_mode", "3D")
-    if geometry_mode == "2D":
-        st.info("📐 **2D Airfoil Mode** - Only 2D-compatible modules are available")
-    else:
-        st.info("✈️ **3D Geometry Mode** - All modules are available")
-
     st.markdown("---")
 
     section_predefined_workflow()

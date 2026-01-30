@@ -23,7 +23,7 @@ Small description of the script
 import signal
 import threading
 
-from ceasiompy.utils.ceasiompyutils import call_main, current_workflow_dir
+from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.utils.geometryfunctions import return_uidwings
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.CPACS2GMSH.func.meshvis import cgns_mesh_checker

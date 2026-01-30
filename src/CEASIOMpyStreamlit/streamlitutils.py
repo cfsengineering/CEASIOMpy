@@ -29,16 +29,15 @@ from cpacspy.cpacsfunctions import (
 from stl import mesh
 from PIL import Image
 from pathlib import Path
-
-from tixi3.tixi3wrapper import (
-    ReturnCode,
-    Tixi3Exception,
-)
-
-
+from tigl3.tigl3wrapper import Tigl3
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
+)
+from tixi3.tixi3wrapper import (
+    Tixi3,
+    ReturnCode,
+    Tixi3Exception,
 )
 
 from ceasiompy import log
@@ -135,6 +134,54 @@ def get_last_workflow():
     return Path(st.session_state.workflow.working_dir, f"Workflow_{last_workflow_nb:03}")
 
 
+def close_cpacs_handles(cpacs: CPACS | None, *, detach: bool = True) -> None:
+    """Best-effort close of CPACS (TIXI/TIGL) resources.
+
+    Some CPACS wrappers close underlying C handles again in their destructor; to
+    avoid double-close heap corruption, this helper can optionally detach the
+    closed handles from the CPACS instance.
+    """
+
+    if cpacs is None:
+        return
+
+    tixi: Tixi3 | None = getattr(cpacs, "tixi", None)
+    if tixi is not None:
+        try:
+            tixi.close()
+        except Exception:
+            pass
+
+    tigl: Tigl3 | None = getattr(cpacs, "tigl", None)
+    if tigl is not None:
+        try:
+            tigl.close()
+        except Exception:
+            pass
+
+    if detach:
+        setattr(cpacs, "tixi", None)
+        setattr(cpacs, "tigl", None)
+
+
+def build_default_upload(cpacs_path: Path):
+    """Create a lightweight file-like object compatible with the upload flow."""
+
+    if not cpacs_path.exists():
+        st.error(f"CPACS file not found: {cpacs_path}")
+        return None
+
+    class _DefaultUploadedFile:
+        def __init__(self, path: Path) -> None:
+            self.name = path.name
+            self._data = path.read_bytes()
+
+        def getbuffer(self):
+            return self._data
+
+    return _DefaultUploadedFile(cpacs_path)
+
+
 def save_cpacs_file(logging: bool = True):
     update_all_modified_value()
     if "workflow" not in st.session_state:
@@ -150,9 +197,8 @@ def save_cpacs_file(logging: bool = True):
 
     st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
     st.session_state.workflow.cpacs_in = saved_cpacs_file
-
-    # Try to reload with full CPACS
     st.session_state.cpacs = CPACS(saved_cpacs_file)
+
 
 def create_sidebar(how_to_text, page_title="CEASIOMpy"):
     """Create side bar with a text explaining how the page should be used."""

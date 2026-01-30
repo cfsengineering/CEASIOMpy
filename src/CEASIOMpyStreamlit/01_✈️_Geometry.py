@@ -20,46 +20,38 @@ from __future__ import annotations
 # =================================================================================================
 
 import os
-import sys
 import hashlib
-import subprocess
 import numpy as np
 import streamlit as st
-import plotly.graph_objects as go
 
 from ceasiompy.utils import get_wkdir
-from cpacspy.cpacsfunctions import create_branch
+from ceasiompy.utils.ceasiompyutils import (
+    parse_bool,
+    update_xpath_at_xyz,
+)
 from gmshairfoil2d.airfoil_func import (
     NACA_4_digit_geom,
     get_airfoil_points,
 )
-from ceasiompy.utils.ceasiompyutils import (
-    parse_bool,
-    has_display,
-)
 from CEASIOMpyStreamlit.streamlitutils import (
     create_sidebar,
     section_3D_view,
+    close_cpacs_handles,
+    build_default_upload,
+)
+from CEASIOMpyStreamlit.openvsp import (
+    render_openvsp_panel,
+    convert_vsp3_to_cpacs,
 )
 
 from typing import Final
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
-from tixi3.tixi3wrapper import Tixi3
-from tigl3.tigl3wrapper import Tigl3
 from ceasiompy.utils.workflowclasses import Workflow
 
 from CEASIOMpyStreamlit import BLOCK_CONTAINER
+from ceasiompy.utils.commonxpaths import AIRFOILS_XPATH
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
-from ceasiompy.utils.commonxpaths import (
-    GEOM_XPATH,
-    GEOMETRY_MODE_XPATH,
-)
-from ceasiompy.VSP2CPACS import (
-    SOFTWARE_PATH as OPENVSP_PATH,
-    MODULE_STATUS as VSP2CPACS_MODULE_STATUS,
-)
-
 
 # =================================================================================================
 #    CONSTANTS
@@ -74,285 +66,15 @@ HOW_TO_TEXT: Final[str] = (
 
 PAGE_NAME: Final[str] = "Geometry"
 
-_VSP2CPACS_OUT_TOKEN: Final[str] = "__CEASIOMPY_VSP2CPACS_OUT__="
-
 # =================================================================================================
-#    FUNCTIONS
+#    METHODS
 # =================================================================================================
 
 
-def save_airfoil_and_create_cpacs(
-    airfoil_name: str,
-    airfoil_x: list[float],
-    airfoil_y: list[float],
-) -> CPACS:
-    """
-    Save airfoil coordinates directly in CPACS and create/update a CPACS file.
-
-    Args:
-        airfoil_name: Name of the airfoil (e.g., "0012", "e211")
-        airfoil_x: List of x coordinates
-        airfoil_y: List of y coordinates
-        wkdir: Working directory path
-
-    Returns:
-        CPACS object with the airfoil profile reference
-    """
-    def _vector_to_str(values: list[float]) -> str:
-        return ";".join(f"{v:.8f}" for v in values)
-
-    tixi = create_minimal_cpacs_2d(f"2D Airfoil Analysis - {airfoil_name}")
-
-    # Add airfoil profile to CPACS
-    airfoil_uid = f"airfoil_{airfoil_name}"
-
-    # Create airfoil node
-    airfoils_xpath = "/cpacs/vehicles/profiles/wingAirfoils"
-    create_branch(tixi, airfoils_xpath)
-
-    # Add new airfoil (CPACS is fresh, so this is the only one)
-    airfoil_xpath = f"{airfoils_xpath}/wingAirfoil"
-    tixi.createElement(airfoils_xpath, "wingAirfoil")
-
-    # Get the index of the newly created airfoil
-    n_airfoils = tixi.getNamedChildrenCount(airfoils_xpath, "wingAirfoil")
-    airfoil_xpath = f"{airfoils_xpath}/wingAirfoil[{n_airfoils}]"
-
-    tixi.addTextAttribute(airfoil_xpath, "uID", airfoil_uid)
-
-    create_branch(tixi, airfoil_xpath + "/name")
-    tixi.updateTextElement(airfoil_xpath + "/name", airfoil_name)
-
-    create_branch(tixi, airfoil_xpath + "/description")
-    tixi.updateTextElement(airfoil_xpath + "/description", f"2D airfoil profile {airfoil_name}")
-
-    # Add point list with inline coordinates
-    create_branch(tixi, airfoil_xpath + "/pointList")
-    point_list_xpath = airfoil_xpath + "/pointList"
-
-    x_str = _vector_to_str(airfoil_x)
-    y_str = _vector_to_str([0.0] * len(airfoil_x))
-    z_str = _vector_to_str(airfoil_y)
-
-    create_branch(tixi, point_list_xpath + "/x")
-    tixi.updateTextElement(point_list_xpath + "/x", x_str)
-    tixi.addTextAttribute(point_list_xpath + "/x", "mapType", "vector")
-
-    create_branch(tixi, point_list_xpath + "/y")
-    tixi.updateTextElement(point_list_xpath + "/y", y_str)
-    tixi.addTextAttribute(point_list_xpath + "/y", "mapType", "vector")
-
-    create_branch(tixi, point_list_xpath + "/z")
-    tixi.updateTextElement(point_list_xpath + "/z", z_str)
-    tixi.addTextAttribute(point_list_xpath + "/z", "mapType", "vector")
-
-    # Set geometry mode to 2D
-    create_branch(tixi, GEOMETRY_MODE_XPATH)
-    tixi.updateTextElement(GEOMETRY_MODE_XPATH, "2D")
-
-    # Save CPACS file using TIXI
-    tixi.save(str(cpacs_path), True)
-    tixi.close()
-
-    # Return the path for reference
-    return cpacs_path
-
-
-def convert_vsp3_to_cpacs(vsp3_path: Path, *, output_dir: Path) -> Path:
-    """Convert a VSP3 file to CPACS in a separate process.
-    OpenVSP Python bindings may segfault; running conversion out-of-process prevents the Streamlit
-    server from crashing and allows reporting the error.
-    """
-
-    env = os.environ.copy()
-    cmd = [
-        sys.executable,
-        "-c",
-        (
-            "import sys\n"
-            "from pathlib import Path\n"
-            "from ceasiompy.VSP2CPACS.vsp2cpacs import main\n"
-            "out = main(sys.argv[1], output_dir=sys.argv[2])\n"
-            f"print('{_VSP2CPACS_OUT_TOKEN}' + str(Path(out)))\n"
-        ),
-        str(vsp3_path),
-        str(output_dir),
-    ]
-
-    completed = subprocess.run(cmd, capture_output=True, text=True, env=env)
-
-    if completed.returncode != 0:
-        stderr = (completed.stderr or "").strip()
-        stdout = (completed.stdout or "").strip()
-        details = "\n".join([s for s in [stderr, stdout] if s])
-        if "ModuleNotFoundError" in details and "openvsp" in details:
-            raise RuntimeError(
-                "Cannot convert VSP3 files because the `openvsp` Python bindings are missing."
-            )
-        raise RuntimeError(
-            "VSP3 conversion failed"
-            + (f" (exit code {completed.returncode})." if completed.returncode > 0 else ".")
-            + (f"\n\n{details}" if details else "")
-        )
-
-    combined_output_lines = []
-    if completed.stdout:
-        combined_output_lines.extend(completed.stdout.splitlines())
-    if completed.stderr:
-        combined_output_lines.extend(completed.stderr.splitlines())
-
-    for line in reversed(combined_output_lines):
-        token_idx = line.find(_VSP2CPACS_OUT_TOKEN)
-        if token_idx == -1:
-            continue
-        reported_path = line[token_idx + len(_VSP2CPACS_OUT_TOKEN) :].strip()
-        if reported_path:
-            return Path(reported_path)
-
-    raise RuntimeError(
-        "VSP3 conversion finished but did not report the output CPACS path."
-        "\n\n--- stdout ---\n"
-        + (completed.stdout or "")
-        + "\n--- stderr ---\n"
-        + (completed.stderr or "")
-    )
-
-
-def build_default_upload(cpacs_path: Path):
-    """Create a lightweight file-like object compatible with the upload flow."""
-
-    if not cpacs_path.exists():
-        st.error(f"CPACS file not found: {cpacs_path}")
-        return None
-
-    class _DefaultUploadedFile:
-        def __init__(self, path: Path) -> None:
-            self.name = path.name
-            self._data = path.read_bytes()
-
-        def getbuffer(self):
-            return self._data
-
-    return _DefaultUploadedFile(cpacs_path)
-
-
-def close_cpacs_handles(cpacs: CPACS | None, *, detach: bool = True) -> None:
-    """Best-effort close of CPACS (TIXI/TIGL) resources.
-
-    Some CPACS wrappers close underlying C handles again in their destructor; to
-    avoid double-close heap corruption, this helper can optionally detach the
-    closed handles from the CPACS instance.
-    """
-
-    if cpacs is None:
-        return
-
-    tixi: Tixi3 | None = getattr(cpacs, "tixi", None)
-    if tixi is not None:
-        try:
-            tixi.close()
-        except Exception:
-            pass
-
-    tigl: Tigl3 | None = getattr(cpacs, "tigl", None)
-    if tigl is not None:
-        try:
-            tigl.close()
-        except Exception:
-            pass
-
-    if detach:
-        setattr(cpacs, "tixi", None)
-        setattr(cpacs, "tigl", None)
-
-
-def launch_openvsp() -> None:
-    """Launch OpenVSP from the detected executable."""
-
-    if OPENVSP_PATH is None or not OPENVSP_PATH.exists():
-        st.error("OpenVSP path is not correctly set.")
-        return
-
-    wrapper = OPENVSP_PATH.with_name("openvsp")
-    exec_path = wrapper if wrapper.exists() else OPENVSP_PATH
-
-    if not has_display():
-        st.error(
-            "OpenVSP was found, but no graphical display is available for launching the GUI "
-            "from this process."
-        )
-        st.caption(
-            "If you are connected via SSH, enable X11 forwarding (`ssh -X`) or run OpenVSP on a "
-            "machine with a desktop session."
-        )
-        return
-
-    # OpenVSP is sensitive to polluted environments (e.g., HPC toolchains adding Intel/MPI libs to
-    # LD_LIBRARY_PATH). Launch it with a minimal environment to avoid loading incompatible X11/GL
-    # libraries.
-    home_dir = os.environ.get("HOME", str(Path.home()))
-    xauthority = os.environ.get("XAUTHORITY", str(Path(home_dir) / ".Xauthority"))
-    display = os.environ.get("DISPLAY", "")
-    vsp_lib_dir = OPENVSP_PATH.with_name("lib")
-    env = {
-        "HOME": home_dir,
-        "USER": os.environ.get("USER", ""),
-        "PATH": "/usr/bin:/bin",
-        "DISPLAY": display,
-        "XAUTHORITY": xauthority,
-        # Bundle libstdc++/libgcc when needed; keep LD_LIBRARY_PATH minimal on purpose.
-        "LD_LIBRARY_PATH": str(vsp_lib_dir) if vsp_lib_dir.is_dir() else "",
-        # Preserve locale if set (can affect font rendering).
-        "LANG": os.environ.get("LANG", ""),
-        "LC_ALL": os.environ.get("LC_ALL", ""),
-    }
-    subprocess.Popen(
-        args=[str(exec_path)],
-        cwd=str(exec_path.parent),
-        stderr=subprocess.STDOUT,
-        env=env,
-    )
-
-
-def render_openvsp_panel() -> None:
-    """Render the OpenVSP status/launch controls."""
-
-    st.markdown("#### Create geometries with OpenVSP's UI")
-
-    button_disabled = True
-    status_col, button_col = st.columns([3, 1], vertical_alignment="center")
-    with status_col:
-        if not VSP2CPACS_MODULE_STATUS:
-            st.info(
-                "OpenVSP should be installed inside `INSTALLDIR/OpenVSP`."
-            )
-        elif OPENVSP_PATH is None or not OPENVSP_PATH.exists():
-            st.error("OpenVSP executable could not be located.")
-            st.caption(
-                "Expected to find the `vsp` binary inside `INSTALLDIR/OpenVSP`. "
-                "Use the platform specific installer inside the `installation/` folder."
-            )
-        else:
-            st.success("OpenVSP detected and ready to launch")
-            button_disabled = False
-
-    with button_col:
-        if st.button("Launch OpenVSP", disabled=button_disabled):
-            try:
-                launch_openvsp()
-            except Exception as e:
-                st.error(f"Could not open OpenVSP: {e=}")
-
-
-def clean_toolspecific(cpacs: CPACS) -> CPACS:
+def _clean_toolspecific(cpacs: CPACS) -> CPACS:
     air_name = cpacs.ac_name
 
     if "ac_name" not in st.session_state or st.session_state.ac_name != air_name:
-        # Remove selected_cpacs.xml if it exists
-        gui_xml = get_wkdir() / "selected_cpacs.xml"
-        if gui_xml.exists():
-            os.remove(gui_xml)
-
         st.session_state.new_file = True
 
         # Clean input CPACS file
@@ -371,36 +93,6 @@ def clean_toolspecific(cpacs: CPACS) -> CPACS:
         return cpacs
 
 
-def section_select_cpacs() -> None:
-    wkdir = get_wkdir()
-    wkdir.mkdir(parents=True, exist_ok=True)
-    st.session_state.workflow.working_dir = wkdir
-
-    tabs = [
-        "Load Geometry",
-        "Generate Airfoil",
-    ]
-
-    show_openvsp = not parse_bool(os.environ.get("CEASIOMPY_CLOUD", False))
-
-    if show_openvsp:
-        tabs.append("OpenVSP's UI")
-
-    selected_tab = st.tabs(tabs)
-    with selected_tab[0]:
-        section_load_cpacs()
-    with selected_tab[1]:
-        section_generate_cpacs_airfoil()
-    if show_openvsp:
-        with selected_tab[2]:
-            render_openvsp_panel()
-
-    # Display the file uploader widget with the previously uploaded file
-    if "cpacs" in st.session_state and st.session_state.cpacs:
-        st.markdown("---")
-        section_3D_view(force_regenerate=True)
-
-
 def _generate_cpacs_airfoil(naca_code: str) -> None:
     # Check if it's a NACA 4-digit code
     if len(naca_code) == 4 and naca_code.isdigit():
@@ -416,15 +108,29 @@ def _generate_cpacs_airfoil(naca_code: str) -> None:
     airfoil_x = coords[:, 0].tolist()
     airfoil_y = coords[:, 1].tolist()
 
-    # Save airfoil to .dat file and create/update CPACS
-    cpacs_path = save_airfoil_and_create_cpacs(
-        airfoil_name=naca_code,
-        airfoil_x=airfoil_x,
-        airfoil_y=airfoil_y,
+    def _vector_to_str(values: list[float]) -> str:
+        return ";".join(f"{v:.8f}" for v in values)
+
+    newx_str = _vector_to_str(airfoil_x)
+    newy_str = _vector_to_str([0.0] * len(airfoil_x))
+    newz_str = _vector_to_str(airfoil_y)
+
+    airfoil_ref_path = Path(CPACS_FILES_PATH, "airfoil.xml")
+
+    cpacs = CPACS(airfoil_ref_path)
+
+    wingairfoil_xpath = AIRFOILS_XPATH + f"/wingAirfoil[0]"
+
+    update_xpath_at_xyz(
+        tixi=cpacs.tixi, 
+        xpath=wingairfoil_xpath + "/pointList",
+        x=newx_str,
+        y=newy_str,
+        z=newz_str,
     )
 
 
-def section_generate_cpacs_airfoil() -> None:
+def _section_generate_cpacs_airfoil() -> None:
     st.markdown("#### Generate an Airfoil Profile")
 
     # NACA airfoil selection
@@ -467,7 +173,7 @@ def section_generate_cpacs_airfoil() -> None:
             st.warning("Please enter a valid NACA code.")
 
 
-def section_load_cpacs():
+def _section_load_cpacs():
     st.markdown("#### Load a CPACS (.xml) or VSP3 (.vsp3) file or XY Airfoil (.csv, .dat, .txt)")
     st.markdown("We handle the conversion to the CPACS format.")
 
@@ -486,7 +192,7 @@ def section_load_cpacs():
             ):
                 close_cpacs_handles(st.session_state.get("cpacs"))
                 st.session_state.cpacs = CPACS(cpacs.cpacs_file)
-            st.session_state.cpacs = clean_toolspecific(st.session_state.cpacs)
+            st.session_state.cpacs = _clean_toolspecific(st.session_state.cpacs)
         else:
             st.session_state.cpacs = None
 
@@ -566,6 +272,7 @@ def section_load_cpacs():
                     except Exception as e:
                         st.error(str(e))
                         return None
+
                 st.session_state["last_converted_vsp3_digest"] = uploaded_digest
                 st.session_state["last_converted_cpacs_path"] = str(new_cpacs_path)
                 st.session_state["cpacs"] = CPACS(str(new_cpacs_path))
@@ -606,9 +313,43 @@ def section_load_cpacs():
 
 
 # =================================================================================================
-#    MAIN
+#    FUNCTIONS
 # =================================================================================================
 
+
+def section_select_cpacs() -> None:
+    wkdir = get_wkdir()
+    wkdir.mkdir(parents=True, exist_ok=True)
+    st.session_state.workflow.working_dir = wkdir
+
+    tabs = [
+        "Load Geometry",
+        "Generate Airfoil",
+    ]
+
+    show_openvsp = not parse_bool(os.environ.get("CEASIOMPY_CLOUD", False))
+
+    if show_openvsp:
+        tabs.append("OpenVSP's UI")
+
+    selected_tab = st.tabs(tabs)
+    with selected_tab[0]:
+        _section_load_cpacs()
+    with selected_tab[1]:
+        _section_generate_cpacs_airfoil()
+    if show_openvsp:
+        with selected_tab[2]:
+            render_openvsp_panel()
+
+    # Display the file uploader widget with the previously uploaded file
+    if "cpacs" in st.session_state and st.session_state.cpacs:
+        st.markdown("---")
+        section_3D_view(force_regenerate=True)
+
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
 
 if __name__ == "__main__":
 

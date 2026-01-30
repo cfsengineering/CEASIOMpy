@@ -149,7 +149,7 @@
               </positioning>
               <positioning uID="Wing1_Sec2GenPos" xsi:type="positioningType">
                 <name>p2</name>
-                <length>1.85623</length>
+                <length>1.0</length>
                 <sweepAngle>0</sweepAngle>
                 <dihedralAngle>0</dihedralAngle>
                 <fromSectionUID>Wing1_Sec1</fromSectionUID>
@@ -226,7 +226,7 @@
       <wingAirfoils xsi:type="wingAirfoilsType">
         <wingAirfoil uID="airfoil_VAMP_W_SupCritProf1">
           <name>Nameairfoil_VAMP_W_SupCritProf1</name>
-          <description>Profile generated automaticallz bz WingLib</description>
+          <description>Profile generated automatically</description>
           <pointList>
             <x mapType="vector">
               1;0.993181;0.972909;0.939737;0.89457;0.838641;0.773474;0.700848;0.622743;0.54129;0.45871;0.377257;0.299152;0.226526;0.161359;0.10543;0.0602631;0.0270914;0.00681934;0;0.00681934;0.0270914;0.0602631;0.10543;0.161359;0.226526;0.299152;0.377257;0.45871;0.54129;0.622743;0.700848;0.773474;0.838641;0.89457;0.939737;0.972909;0.993181;1</x>

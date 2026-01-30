@@ -11,7 +11,6 @@ Classes to run ceasiompy workflows
 # =================================================================================================
 
 import os
-import json
 import shutil
 import importlib
 
@@ -21,6 +20,7 @@ from ceasiompy.utils.ceasiompylogger import add_to_runworkflow_history
 from ceasiompy.utils.ceasiompyutils import (
     run_module,
     change_working_dir,
+    current_workflow_dir,
     get_results_directory,
 )
 
@@ -167,6 +167,7 @@ class Workflow:
 
     def __init__(self) -> None:
         self.working_dir = get_wkdir()
+        self.workflow_dir = current_workflow_dir()
         self.cpacs_in = Path(CPACS_FILES_PATH, "d150.xml").resolve()
         self.current_wkflow_dir = None
 

@@ -86,7 +86,7 @@ dependencies:
     - stpyvista>=0.1.4
 
     # Streamlit
-    - streamlit>=1.53.1
+    - streamlit==1.51.0
     - streamlit_sortables
     - streamlit-flow-component>=1.6.1
 

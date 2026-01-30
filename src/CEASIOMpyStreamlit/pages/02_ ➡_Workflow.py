@@ -18,15 +18,18 @@ Streamlit page to create a CEASIOMpy workflow
 
 import streamlit as st
 
+from streamlit_flow import streamlit_flow
+from CEASIOMpyStreamlit.streamlitutils import create_sidebar
+from ceasiompy.utils.moduleinterfaces import (
+    get_module_list,
+    get_init_for_module,
+)
+
 from streamlit_flow import (
     StreamlitFlowEdge,
     StreamlitFlowNode,
     StreamlitFlowState,
-    streamlit_flow,
 )
-
-from CEASIOMpyStreamlit.streamlitutils import create_sidebar
-from ceasiompy.utils.moduleinterfaces import get_init_for_module, get_module_list
 
 from CEASIOMpyStreamlit import BLOCK_CONTAINER
 from ceasiompy.PyAVL import MODULE_NAME as PYAVL
@@ -59,7 +62,7 @@ HOW_TO_TEXT = (
 # ==============================================================================
 
 
-def section_predefined_workflow():
+def section_predefined_workflow() -> None:
     """
     Where to define the Pre-defined workflows.
     """
@@ -96,7 +99,7 @@ def section_predefined_workflow():
             st.rerun()
 
 
-def section_add_module():
+def section_add_module() -> None:
     """
     Where to select the workflow.
     """

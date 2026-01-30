@@ -179,6 +179,21 @@ If you want to contribute to the development of CEASIOMpy, please read the docum
 - [CFS Engineering](https://cfse.ch/)
 - [Airinnova](https://airinnova.se/)
 
+## Upgrading environment
+
+Sometimes deleting cache helps.
+
+```bash
+sudo find . -name "__pycache__" -type d -prune -exec rm -rf {} +
+find . -name "*.pyc" -type f -delete
+```
+
+Or upgrading the environment.
+
+```bash
+conda env update -f environment.yml
+```
+
 ## Cite us
 
 This respository may be cited via BibTex as:

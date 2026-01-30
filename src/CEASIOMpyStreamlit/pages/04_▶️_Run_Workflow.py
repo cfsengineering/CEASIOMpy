@@ -115,7 +115,7 @@ def progress_callback(status_list: list = None) -> None:
 def terminate_solver_processes() -> None:
     """Terminate known solver processes spawned by workflows."""
 
-    targets = {"avl", "su2_cfd"}
+    targets = {"avl", "SU2_CFD"}
     for proc in psutil.process_iter(["name", "cmdline"]):
         try:
             name = (proc.info.get("name") or "").lower()

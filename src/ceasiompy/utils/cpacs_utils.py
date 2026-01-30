@@ -6,10 +6,13 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Utility functions for CPACS file creation and manipulation.
 """
 
-from pathlib import Path
+# Imports
 
-from tixi3.tixi3wrapper import Tixi3
 from cpacspy.cpacspy import AeroMap
+from tixi3.tixi3wrapper import Tixi3
+
+
+# Classes
 
 
 class SimpleCPACS:

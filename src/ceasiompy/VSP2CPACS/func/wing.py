@@ -1141,7 +1141,6 @@ def Get_coordinates_profile(idx, *args, **kwargs):
         return func(idx)
 
 
-
 def get_profile_section(
     Component,
     xsec_id,
@@ -1192,8 +1191,8 @@ def get_profile_section(
             Coord_rot = np.dot(RotationMatrix, Coord_shift) + Origin_shift
             x = Coord_rot[0, :]
             y = Coord_rot[1, :]
-    
-    # LE duplicates from twist part. 
+
+    # LE duplicates from twist part
     zero_idx = np.where(np.isclose(x, 0.0, atol=1e-12))[0]
     if len(zero_idx) > 1:
         x = np.delete(x, zero_idx[1:])

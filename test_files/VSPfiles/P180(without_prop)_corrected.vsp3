@@ -109,14 +109,14 @@
         <CORX Value="0.000000000000000000e+00" ID="VXFSAXGLHTC"/>
         <CORY Value="0.000000000000000000e+00" ID="MBSDAZMSAHW"/>
         <CORZ Value="0.000000000000000000e+00" ID="DERMUYSCCTX"/>
-        <PanX Value="-6.322919368743896484e+00" ID="BGXQLIYRNKV"/>
-        <PanY Value="-4.143533706665039062e+00" ID="IFXVNYUJZOJ"/>
-        <RotationX Value="3.526438962818089351e+01" ID="RIEPOREISMH"/>
-        <RotationY Value="-4.500000125223908043e+01" ID="DPSVUIVOALM"/>
-        <RotationZ Value="-6.000000166965211434e+01" ID="TIKXSFBFCXS"/>
+        <PanX Value="1.935714006423950195e+00" ID="BGXQLIYRNKV"/>
+        <PanY Value="-4.939745426177978516e+00" ID="IFXVNYUJZOJ"/>
+        <RotationX Value="1.834612545972790798e+01" ID="RIEPOREISMH"/>
+        <RotationY Value="-5.039818320615071912e+01" ID="DPSVUIVOALM"/>
+        <RotationZ Value="-7.256086298727812789e+01" ID="TIKXSFBFCXS"/>
         <ViewportX Value="1.165000000000000000e+03" ID="ZYIEKCREZLH"/>
         <ViewportY Value="9.170000000000000000e+02" ID="OGJIHOXSQZS"/>
-        <Zoom Value="8.949182927608489990e-03" ID="SMEVRGQEABI"/>
+        <Zoom Value="1.565217599272727966e-02" ID="SMEVRGQEABI"/>
       </AdjustView>
       <SetEditor>
         <CopySetsWithGeomsFlag Value="1.000000000000000000e+00" ID="SOYSVNZZKWD"/>
@@ -139,7 +139,7 @@
         <DirectionType Value="0.000000000000000000e+00" ID="PKOSDRWLNQS"/>
         <TargetHullFlag Value="0.000000000000000000e+00" ID="POYRMJKFZRP"/>
         <TargetType Value="0.000000000000000000e+00" ID="DGSXAWNKHEJ"/>
-        <XComp Value="0.000000000000000000e+00" ID="CYTANCVJNTD"/>
+        <XComp Value="1.000000000000000000e+00" ID="CYTANCVJNTD"/>
         <YComp Value="0.000000000000000000e+00" ID="MCNVATUIKPL"/>
         <ZComp Value="0.000000000000000000e+00" ID="IGFLFTGUJEQ"/>
       </Projection>
@@ -205,13 +205,13 @@
       </IGESSettings>
       <BBox>
         <ScaleIndependentX_Len Value="1.441999999999999993e+01" ID="UBDVPJZPTNB"/>
-        <ScaleIndependentX_Min Value="0.000000000000000000e+00" ID="SQXBDMYMRLX"/>
+        <ScaleIndependentX_Min Value="-3.700743415417188263e-17" ID="SQXBDMYMRLX"/>
         <ScaleIndependentY_Len Value="1.411115464342456427e+01" ID="UQTWSDQFKVJ"/>
         <ScaleIndependentY_Min Value="-7.055577321712282135e+00" ID="FWWKEGXEFSV"/>
         <ScaleIndependentZ_Len Value="3.654210384890497210e+00" ID="OESXCDCDFKU"/>
         <ScaleIndependentZ_Min Value="-3.990422976585292214e-01" ID="NIWMRDULRGF"/>
         <X_Len Value="1.441999999999999993e+01" ID="EQTJTBTNLIX"/>
-        <X_Min Value="0.000000000000000000e+00" ID="SCNBSWSKABH"/>
+        <X_Min Value="-1.643460219210441170e-32" ID="SCNBSWSKABH"/>
         <Y_Len Value="1.411115464342456427e+01" ID="YALKCRZLBLT"/>
         <Y_Min Value="-7.055577321712282135e+00" ID="DSDMUHXRNCF"/>
         <Z_Len Value="3.654210384890497210e+00" ID="EDGZCSXZZGO"/>
@@ -426,7 +426,7 @@
         </Attach>
         <Shape>
           <Tess_U Value="1.600000000000000000e+01" ID="GMOXSPHIFQO"/>
-          <Tess_W Value="1.700000000000000000e+01" ID="ABTNYMCNEFL"/>
+          <Tess_W Value="6.500000000000000000e+01" ID="ABTNYMCNEFL"/>
           <Wake Value="0.000000000000000000e+00" ID="ZKLQCZXJXKB"/>
         </Shape>
         <Mass_Props>
@@ -1725,7 +1725,7 @@
         </Attach>
         <Shape>
           <Tess_U Value="1.600000000000000000e+01" ID="IAKTEAZIVTS"/>
-          <Tess_W Value="3.300000000000000000e+01" ID="YUHRRUUGZHO"/>
+          <Tess_W Value="1.001000000000000000e+03" ID="YUHRRUUGZHO"/>
           <Wake Value="0.000000000000000000e+00" ID="JEJJORCIOHX"/>
         </Shape>
         <Mass_Props>
@@ -1759,14 +1759,14 @@
         <WingGeom>
           <CorrectAirfoilthicknessFlag Value="1.000000000000000000e+00" ID="IZENCMUWEHW"/>
           <CurvedArea Value="2.354936506996156087e+00" ID="MFODIBKVCMB"/>
-          <LECluster Value="2.500000000000000000e-01" ID="SKYZOQCBVRY"/>
+          <LECluster Value="2.500000000000000000e+00" ID="SKYZOQCBVRY"/>
           <MAC Value="7.047619047690473204e-01" ID="NBACTTXEIZB"/>
-          <MaxGrowth Value="1.437005756083839181e+00" ID="BPYBBGTCHDG"/>
+          <MaxGrowth Value="1.015229277859936108e+00" ID="BPYBBGTCHDG"/>
           <RelativeDihedralFlag Value="0.000000000000000000e+00" ID="MDYSXHCJJGE"/>
           <RelativeTwistFlag Value="0.000000000000000000e+00" ID="FQQPYBLMLNH"/>
           <RotateAirfoilMatchDideralFlag Value="1.000000000000000000e+00" ID="YGLPAKTDEHQ"/>
-          <SmallPanelW Value="3.848003231981165194e-03" ID="KGZIEVOLZCE"/>
-          <TECluster Value="2.500000000000000000e-01" ID="WTDYRKQBEOV"/>
+          <SmallPanelW Value="2.793985760531513441e-04" ID="KGZIEVOLZCE"/>
+          <TECluster Value="2.500000000000000000e+00" ID="WTDYRKQBEOV"/>
           <TotalAR Value="4.782607075245672412e+00" ID="MGQWRTVRILW"/>
           <TotalArea Value="2.354936506972290289e+00" ID="WZMSRJIIJNU"/>
           <TotalChord Value="6.999999999999999556e-01" ID="WAXAWUYTVRC"/>
@@ -2690,7 +2690,7 @@
         </Attach>
         <Shape>
           <Tess_U Value="1.600000000000000000e+01" ID="TEUBDPEKSMW"/>
-          <Tess_W Value="3.300000000000000000e+01" ID="CWPZRCLJIPN"/>
+          <Tess_W Value="5.300000000000000000e+01" ID="CWPZRCLJIPN"/>
           <Wake Value="0.000000000000000000e+00" ID="DDAGJBBXMCJ"/>
         </Shape>
         <Mass_Props>
@@ -2724,14 +2724,14 @@
         <WingGeom>
           <CorrectAirfoilthicknessFlag Value="1.000000000000000000e+00" ID="PTPTUUPYTSK"/>
           <CurvedArea Value="4.724999999999999645e+00" ID="JQTLOHYAWDP"/>
-          <LECluster Value="2.500000000000000000e-01" ID="YCFHJMYEGKC"/>
+          <LECluster Value="2.500000000000000000e+00" ID="YCFHJMYEGKC"/>
           <MAC Value="2.132142857142856673e+00" ID="GRAEZPQLFMY"/>
-          <MaxGrowth Value="1.437005756083839181e+00" ID="LEWESUGLYAO"/>
+          <MaxGrowth Value="1.278928735935514149e+00" ID="LEWESUGLYAO"/>
           <RelativeDihedralFlag Value="0.000000000000000000e+00" ID="MOCPTPHJZDF"/>
           <RelativeTwistFlag Value="0.000000000000000000e+00" ID="RLQCVLFDVJW"/>
           <RotateAirfoilMatchDideralFlag Value="0.000000000000000000e+00" ID="NVZBHQXBUSG"/>
-          <SmallPanelW Value="7.860878897373524410e-03" ID="GVLGTKOSNWN"/>
-          <TECluster Value="2.500000000000000000e-01" ID="GMYVNURISRD"/>
+          <SmallPanelW Value="1.129685029662903517e-01" ID="GVLGTKOSNWN"/>
+          <TECluster Value="2.500000000000000000e+00" ID="GMYVNURISRD"/>
           <TotalAR Value="1.071428571428571619e+00" ID="SDTQCAYSDQI"/>
           <TotalArea Value="4.724999999999999645e+00" ID="SYLUSCYVHEJ"/>
           <TotalChord Value="2.099999999999999645e+00" ID="BTTRHLWXFPT"/>
@@ -2775,7 +2775,7 @@
         </ParasiteDragProps>
         <Index>
           <ActiveAirfoil Value="1.000000000000000000e+00" ID="EJXRTXHGJMD"/>
-          <ActiveXSec Value="0.000000000000000000e+00" ID="IVMWDQTNWLC"/>
+          <ActiveXSec Value="1.000000000000000000e+00" ID="IVMWDQTNWLC"/>
         </Index>
       </ParmContainer>
       <GeomBase>
@@ -3617,7 +3617,7 @@
         </Attach>
         <Shape>
           <Tess_U Value="1.600000000000000000e+01" ID="TBNULTQFHTY"/>
-          <Tess_W Value="4.100000000000000000e+01" ID="MUWXLAHJUEJ"/>
+          <Tess_W Value="5.300000000000000000e+01" ID="MUWXLAHJUEJ"/>
           <Wake Value="0.000000000000000000e+00" ID="WEBAZJYTGBY"/>
         </Shape>
         <Mass_Props>
@@ -3651,14 +3651,14 @@
         <WingGeom>
           <CorrectAirfoilthicknessFlag Value="1.000000000000000000e+00" ID="RVVPAYITWAF"/>
           <CurvedArea Value="6.499999999999999112e-01" ID="APMYCUZZHBK"/>
-          <LECluster Value="2.500000000000000000e-01" ID="HRMRPQRNYHH"/>
+          <LECluster Value="2.500000000000000000e+00" ID="HRMRPQRNYHH"/>
           <MAC Value="2.600000000000000089e+00" ID="YIOTJSLIPAG"/>
-          <MaxGrowth Value="1.340474826460368085e+00" ID="SDZKVIDOJIZ"/>
+          <MaxGrowth Value="1.278928735935514149e+00" ID="SDZKVIDOJIZ"/>
           <RelativeDihedralFlag Value="0.000000000000000000e+00" ID="ADBQJCELSDH"/>
           <RelativeTwistFlag Value="0.000000000000000000e+00" ID="STECIPXSBRD"/>
           <RotateAirfoilMatchDideralFlag Value="0.000000000000000000e+00" ID="QKWAQEWRLKI"/>
-          <SmallPanelW Value="3.316343107846182747e-02" ID="WGDYREWYRCF"/>
-          <TECluster Value="2.500000000000000000e-01" ID="DAYMPNCKXMC"/>
+          <SmallPanelW Value="1.994297048959794150e-01" ID="WGDYREWYRCF"/>
+          <TECluster Value="2.500000000000000000e+00" ID="DAYMPNCKXMC"/>
           <TotalAR Value="9.615384615384614531e-02" ID="WYRXHMEXRES"/>
           <TotalArea Value="6.500000000000000222e-01" ID="ENBWYYHZQJG"/>
           <TotalChord Value="2.600000000000000089e+00" ID="NPUZNAYKIGO"/>
@@ -4586,7 +4586,7 @@
         </Attach>
         <Shape>
           <Tess_U Value="1.600000000000000000e+01" ID="YEVZRVKOJOT"/>
-          <Tess_W Value="3.300000000000000000e+01" ID="MHNKFKRKWPT"/>
+          <Tess_W Value="5.300000000000000000e+01" ID="MHNKFKRKWPT"/>
           <Wake Value="0.000000000000000000e+00" ID="MUHIFFXMBNZ"/>
         </Shape>
         <Mass_Props>
@@ -4620,14 +4620,14 @@
         <WingGeom>
           <CorrectAirfoilthicknessFlag Value="1.000000000000000000e+00" ID="BTLWMGEYVIL"/>
           <CurvedArea Value="4.152524999999999800e+00" ID="MGKXZJXKVWC"/>
-          <LECluster Value="2.500000000000000000e-01" ID="XOEXXWPPHSB"/>
+          <LECluster Value="2.500000000000000000e+00" ID="XOEXXWPPHSB"/>
           <MAC Value="9.923076923076924460e-01" ID="ENFBHIIFKCQ"/>
-          <MaxGrowth Value="1.437005756083839181e+00" ID="WLGDGFPYDFU"/>
+          <MaxGrowth Value="1.278928735935514149e+00" ID="WLGDGFPYDFU"/>
           <RelativeDihedralFlag Value="0.000000000000000000e+00" ID="DUHLYWVHLVR"/>
           <RelativeTwistFlag Value="0.000000000000000000e+00" ID="ECBUUPQWEKB"/>
           <RotateAirfoilMatchDideralFlag Value="1.000000000000000000e+00" ID="LYEXBMQLPCI"/>
-          <SmallPanelW Value="5.617899173561493285e-03" ID="UOZIZCMTBTR"/>
-          <TECluster Value="2.500000000000000000e-01" ID="TFCKPCVAGHC"/>
+          <SmallPanelW Value="5.805415044069039271e-02" ID="UOZIZCMTBTR"/>
+          <TECluster Value="2.500000000000000000e+00" ID="TFCKPCVAGHC"/>
           <TotalAR Value="4.346949592189922384e+00" ID="XXLMGALMAGG"/>
           <TotalArea Value="4.152524999999999800e+00" ID="KZSCFOGGLZU"/>
           <TotalChord Value="9.749999999999999778e-01" ID="FJFEBGHUDHD"/>
@@ -5509,7 +5509,7 @@
         </Attach>
         <Shape>
           <Tess_U Value="1.600000000000000000e+01" ID="KWFORMOLKWF"/>
-          <Tess_W Value="3.300000000000000000e+01" ID="YLXLWOKAGKB"/>
+          <Tess_W Value="5.300000000000000000e+01" ID="YLXLWOKAGKB"/>
           <Wake Value="0.000000000000000000e+00" ID="LWSOGFWTBAM"/>
         </Shape>
         <Mass_Props>
@@ -5543,14 +5543,14 @@
         <WingGeom>
           <CorrectAirfoilthicknessFlag Value="1.000000000000000000e+00" ID="QGBZHNPVIMI"/>
           <CurvedArea Value="5.599999999999999645e+00" ID="MPSZCHPYGNM"/>
-          <LECluster Value="1.000000000000000000e+00" ID="IBZGMFEKCWR"/>
+          <LECluster Value="2.500000000000000000e+00" ID="IBZGMFEKCWR"/>
           <MAC Value="4.000000000000000000e+00" ID="BMKSERRWTPB"/>
-          <MaxGrowth Value="1.271950623507714706e+00" ID="IGDOVHRGFBO"/>
+          <MaxGrowth Value="1.278928735935514149e+00" ID="IGDOVHRGFBO"/>
           <RelativeDihedralFlag Value="0.000000000000000000e+00" ID="ANBDAVUIPWF"/>
           <RelativeTwistFlag Value="0.000000000000000000e+00" ID="EORMPASNSJE"/>
           <RotateAirfoilMatchDideralFlag Value="1.000000000000000000e+00" ID="NCGHMLQDBVH"/>
-          <SmallPanelW Value="7.091184032103350909e-02" ID="ZKYMWXOMSNM"/>
-          <TECluster Value="2.500000000000000000e-01" ID="TKKANCJVJQY"/>
+          <SmallPanelW Value="3.222146016706151639e-01" ID="ZKYMWXOMSNM"/>
+          <TECluster Value="2.500000000000000000e+00" ID="TKKANCJVJQY"/>
           <TotalAR Value="2.472932752192948391e-01" ID="HNNHLRBFPUB"/>
           <TotalArea Value="5.599999999999999645e+00" ID="HMRXBBWBRVU"/>
           <TotalChord Value="4.000000000000000000e+00" ID="DEYZZSMDITT"/>
@@ -5594,7 +5594,7 @@
         </ParasiteDragProps>
         <Index>
           <ActiveAirfoil Value="1.000000000000000000e+00" ID="VGOYYJFCLYY"/>
-          <ActiveXSec Value="0.000000000000000000e+00" ID="WBJTRDRQJGG"/>
+          <ActiveXSec Value="1.000000000000000000e+00" ID="WBJTRDRQJGG"/>
         </Index>
       </ParmContainer>
       <GeomBase>
@@ -6022,7 +6022,7 @@
         </Attach>
         <Shape>
           <Tess_U Value="1.600000000000000000e+01" ID="VSPSAUCSULI"/>
-          <Tess_W Value="1.700000000000000000e+01" ID="OQPLFKJXLGC"/>
+          <Tess_W Value="6.500000000000000000e+01" ID="OQPLFKJXLGC"/>
           <Wake Value="0.000000000000000000e+00" ID="FONZYQANSNN"/>
         </Shape>
         <Mass_Props>
@@ -7566,7 +7566,7 @@
         </Attach>
         <Shape>
           <Tess_U Value="1.600000000000000000e+01" ID="TLTGKTSZAOT"/>
-          <Tess_W Value="1.700000000000000000e+01" ID="HAFEVGZFPKB"/>
+          <Tess_W Value="6.500000000000000000e+01" ID="HAFEVGZFPKB"/>
           <Wake Value="0.000000000000000000e+00" ID="SEHNEDXICCD"/>
         </Shape>
         <Mass_Props>
@@ -8627,7 +8627,7 @@
         </Attach>
         <Shape>
           <Tess_U Value="1.600000000000000000e+01" ID="GPKTBFQBMMG"/>
-          <Tess_W Value="3.300000000000000000e+01" ID="AAVEKWLYNUX"/>
+          <Tess_W Value="5.300000000000000000e+01" ID="AAVEKWLYNUX"/>
           <Wake Value="0.000000000000000000e+00" ID="FNJDDIUSBQT"/>
         </Shape>
         <Mass_Props>
@@ -8661,14 +8661,14 @@
         <WingGeom>
           <CorrectAirfoilthicknessFlag Value="1.000000000000000000e+00" ID="KGUQOGKDCAW"/>
           <CurvedArea Value="1.692835600461068779e+01" ID="NOQPPUJSZWE"/>
-          <LECluster Value="2.500000000000000000e-01" ID="OJYVGOULVRS"/>
+          <LECluster Value="2.500000000000000000e+00" ID="OJYVGOULVRS"/>
           <MAC Value="1.297206071333800947e+00" ID="WYRSXHHBJTF"/>
-          <MaxGrowth Value="1.437005756083839181e+00" ID="UPVKOBQQQNN"/>
+          <MaxGrowth Value="1.278928735935514149e+00" ID="UPVKOBQQQNN"/>
           <RelativeDihedralFlag Value="0.000000000000000000e+00" ID="AFUUHYIGXMM"/>
           <RelativeTwistFlag Value="0.000000000000000000e+00" ID="QATAYTZFMSM"/>
           <RotateAirfoilMatchDideralFlag Value="1.000000000000000000e+00" ID="PWCEDKHSNUG"/>
-          <SmallPanelW Value="8.301253737459362431e-03" ID="AUPWKEXZBAN"/>
-          <TECluster Value="2.500000000000000000e-01" ID="NVKEKOHWWSZ"/>
+          <SmallPanelW Value="5.402108495419127160e-02" ID="AUPWKEXZBAN"/>
+          <TECluster Value="2.500000000000000000e+00" ID="NVKEKOHWWSZ"/>
           <TotalAR Value="1.161912745171657768e+01" ID="KYKFFZZNDKL"/>
           <TotalArea Value="1.692949999999999733e+01" ID="KWUSHAXZKXH"/>
           <TotalChord Value="1.366666666666666474e+00" ID="QMLNKUHIUSE"/>
@@ -8712,7 +8712,7 @@
         </ParasiteDragProps>
         <Index>
           <ActiveAirfoil Value="1.000000000000000000e+00" ID="QPJDVVDTJAF"/>
-          <ActiveXSec Value="0.000000000000000000e+00" ID="ZWEPUIQZWSV"/>
+          <ActiveXSec Value="3.000000000000000000e+00" ID="ZWEPUIQZWSV"/>
         </Index>
       </ParmContainer>
       <GeomBase>
@@ -10323,7 +10323,64 @@
       </WingGeom>
     </Geom>
   </Vehicle>
-  <Materials/>
+  <Materials>
+    <Material>
+      <Name>Custom</Name>
+      <Ambient>0.000000000000000000e+00, 0.000000000000000000e+00, 5.019607843137254832e-01, 1.000000000000000000e+00, </Ambient>
+      <Diffuse>0.000000000000000000e+00, 0.000000000000000000e+00, 5.019607843137254832e-01, 1.000000000000000000e+00, </Diffuse>
+      <Specular>0.000000000000000000e+00, 0.000000000000000000e+00, 5.019607843137254832e-01, 1.000000000000000000e+00, </Specular>
+      <Emissive>0.000000000000000000e+00, 0.000000000000000000e+00, 5.019607843137254832e-01, 1.000000000000000000e+00, </Emissive>
+      <Shininess>0.000000000000000000e+00</Shininess>
+    </Material>
+    <Material>
+      <Name>wings</Name>
+      <Ambient>5.019607843137254832e-01, 0.000000000000000000e+00, 5.019607843137254832e-01, 1.000000000000000000e+00, </Ambient>
+      <Diffuse>0.000000000000000000e+00, 0.000000000000000000e+00, 5.019607843137254832e-01, 1.000000000000000000e+00, </Diffuse>
+      <Specular>0.000000000000000000e+00, 5.019607843137254832e-01, 5.019607843137254832e-01, 1.000000000000000000e+00, </Specular>
+      <Emissive>0.000000000000000000e+00, 0.000000000000000000e+00, 5.019607843137254832e-01, 1.000000000000000000e+00, </Emissive>
+      <Shininess>0.000000000000000000e+00</Shininess>
+    </Material>
+    <Material>
+      <Name>HS</Name>
+      <Ambient>1.000000000000000000e+00, 0.000000000000000000e+00, 0.000000000000000000e+00, 1.000000000000000000e+00, </Ambient>
+      <Diffuse>5.019607843137254832e-01, 0.000000000000000000e+00, 5.019607843137254832e-01, 1.000000000000000000e+00, </Diffuse>
+      <Specular>1.000000000000000000e+00, 0.000000000000000000e+00, 0.000000000000000000e+00, 1.000000000000000000e+00, </Specular>
+      <Emissive>1.000000000000000000e+00, 0.000000000000000000e+00, 0.000000000000000000e+00, 1.000000000000000000e+00, </Emissive>
+      <Shininess>1.280000000000000000e+02</Shininess>
+    </Material>
+    <Material>
+      <Name>VS</Name>
+      <Ambient>0.000000000000000000e+00, 1.000000000000000000e+00, 0.000000000000000000e+00, 1.000000000000000000e+00, </Ambient>
+      <Diffuse>0.000000000000000000e+00, 0.000000000000000000e+00, 1.000000000000000000e+00, 1.000000000000000000e+00, </Diffuse>
+      <Specular>5.019607843137254832e-01, 0.000000000000000000e+00, 5.019607843137254832e-01, 1.000000000000000000e+00, </Specular>
+      <Emissive>5.019607843137254832e-01, 0.000000000000000000e+00, 0.000000000000000000e+00, 1.000000000000000000e+00, </Emissive>
+      <Shininess>1.280000000000000000e+02</Shininess>
+    </Material>
+    <Material>
+      <Name>Transparent</Name>
+      <Ambient>2.000000000000000111e-01, 2.000000000000000111e-01, 2.000000000000000111e-01, 1.000000000000000000e+00, </Ambient>
+      <Diffuse>8.000000000000000444e-01, 8.000000000000000444e-01, 8.000000000000000444e-01, 2.999999999999999889e-01, </Diffuse>
+      <Specular>0.000000000000000000e+00, 0.000000000000000000e+00, 0.000000000000000000e+00, 1.000000000000000000e+00, </Specular>
+      <Emissive>0.000000000000000000e+00, 0.000000000000000000e+00, 0.000000000000000000e+00, 1.000000000000000000e+00, </Emissive>
+      <Shininess>1.280000000000000000e+02</Shininess>
+    </Material>
+    <Material>
+      <Name>Grey Rubber</Name>
+      <Ambient>3.568627450980392246e-01, 3.568627450980392246e-01, 3.568627450980392246e-01, 1.000000000000000000e+00, </Ambient>
+      <Diffuse>1.000000000000000021e-02, 1.000000000000000021e-02, 1.000000000000000021e-02, 1.000000000000000000e+00, </Diffuse>
+      <Specular>4.000000000000000222e-01, 4.000000000000000222e-01, 4.000000000000000222e-01, 1.000000000000000000e+00, </Specular>
+      <Emissive>0.000000000000000000e+00, 0.000000000000000000e+00, 0.000000000000000000e+00, 1.000000000000000000e+00, </Emissive>
+      <Shininess>1.000000000000000000e+01</Shininess>
+    </Material>
+    <Material>
+      <Name>Dark Grey Rubber</Name>
+      <Ambient>1.019607843137254888e-01, 1.019607843137254888e-01, 1.019607843137254888e-01, 1.000000000000000000e+00, </Ambient>
+      <Diffuse>1.000000000000000021e-02, 1.000000000000000021e-02, 1.000000000000000021e-02, 1.000000000000000000e+00, </Diffuse>
+      <Specular>4.000000000000000222e-01, 4.000000000000000222e-01, 4.000000000000000222e-01, 1.000000000000000000e+00, </Specular>
+      <Emissive>0.000000000000000000e+00, 0.000000000000000000e+00, 0.000000000000000000e+00, 1.000000000000000000e+00, </Emissive>
+      <Shininess>1.000000000000000000e+01</Shininess>
+    </Material>
+  </Materials>
   <UserParmContainer>
     <NumUserParms>16</NumUserParms>
     <UserParm Value="0.000000000000000000e+00" ID="User_0" Name="User_0" GroupName="User_Group" GroupDisplaySuffix="-1" Descript="Default Description" Type="0" UpperLimit="1.000000000000000000e+12" LowerLimit="-1.000000000000000000e+12"/>
@@ -10591,7 +10648,7 @@
   <VariablePresets/>
   <Modes/>
   <CFDMeshSettings>
-    <FarGeomID/>
+    <FarGeomID>SAIJMMXMOV</FarGeomID>
     <ModeID/>
     <ParmContainer>
       <ID>NUMHGJPYNK</ID>
@@ -10863,9 +10920,55 @@
         <UseMode Value="0.000000000000000000e+00" ID="VFQUMYYOKSE"/>
       </WaveDrag>
     </ParmContainer>
-    <ReferenceGeomID/>
+    <ReferenceGeomID>WLGRYUECFG</ReferenceGeomID>
     <ModeID/>
-    <FlowSS_List/>
+    <FlowSS_List>
+      <FlowSS>
+        <flowSS_ID>CLFWHFDQFT</flowSS_ID>
+      </FlowSS>
+      <FlowSS>
+        <flowSS_ID>MEVTAQRCQF</flowSS_ID>
+      </FlowSS>
+      <FlowSS>
+        <flowSS_ID>YTDHSUYFLV</flowSS_ID>
+      </FlowSS>
+      <FlowSS>
+        <flowSS_ID>JKBTULWPHK</flowSS_ID>
+      </FlowSS>
+      <FlowSS>
+        <flowSS_ID>YURFYMPCUJ</flowSS_ID>
+      </FlowSS>
+      <FlowSS>
+        <flowSS_ID>CLFWHFDQFT</flowSS_ID>
+      </FlowSS>
+      <FlowSS>
+        <flowSS_ID>MEVTAQRCQF</flowSS_ID>
+      </FlowSS>
+      <FlowSS>
+        <flowSS_ID>YTDHSUYFLV</flowSS_ID>
+      </FlowSS>
+      <FlowSS>
+        <flowSS_ID>JKBTULWPHK</flowSS_ID>
+      </FlowSS>
+      <FlowSS>
+        <flowSS_ID>YURFYMPCUJ</flowSS_ID>
+      </FlowSS>
+      <FlowSS>
+        <flowSS_ID>CLFWHFDQFT</flowSS_ID>
+      </FlowSS>
+      <FlowSS>
+        <flowSS_ID>MEVTAQRCQF</flowSS_ID>
+      </FlowSS>
+      <FlowSS>
+        <flowSS_ID>YTDHSUYFLV</flowSS_ID>
+      </FlowSS>
+      <FlowSS>
+        <flowSS_ID>JKBTULWPHK</flowSS_ID>
+      </FlowSS>
+      <FlowSS>
+        <flowSS_ID>YURFYMPCUJ</flowSS_ID>
+      </FlowSS>
+    </FlowSS_List>
   </WaveDragMgr>
   <ParasiteDragMgr>
     <ParmContainer>
@@ -10953,7 +11056,7 @@
           <Y Value="7.431423266328376798e+00" ID="KZTECPPUGTR"/>
           <Z Value="1.265000000000000036e+01" ID="MMCWRKHTOFK"/>
         </Background3D>
-        <BGFile>piaggio_p180_avanti_ii-24428.jpg</BGFile>
+        <BGFile>VSPfiles/piaggio_p180_avanti_ii-24428.jpg</BGFile>
       </ParmContainer>
     </Background3D_0>
     <Background3D_1>
@@ -10992,7 +11095,7 @@
           <Y Value="1.165000000000000036e+00" ID="ZMFZNQFEVBM"/>
           <Z Value="-1.352768444457623787e+00" ID="GDLXONVSYWT"/>
         </Background3D>
-        <BGFile>piaggio_p180_avanti_ii-24428.jpg</BGFile>
+        <BGFile>VSPfiles/piaggio_p180_avanti_ii-24428.jpg</BGFile>
       </ParmContainer>
     </Background3D_1>
     <Background3D_2>
@@ -11031,7 +11134,7 @@
           <Y Value="-1.199999999999999956e+00" ID="HHZUBVADERG"/>
           <Z Value="5.379999999999999893e+00" ID="MTHNECOMAUS"/>
         </Background3D>
-        <BGFile>piaggio_p180_avanti_ii-24428.jpg</BGFile>
+        <BGFile>VSPfiles/piaggio_p180_avanti_ii-24428.jpg</BGFile>
       </ParmContainer>
     </Background3D_2>
   </Background3D>

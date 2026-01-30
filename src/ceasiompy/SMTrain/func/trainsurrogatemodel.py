@@ -76,7 +76,6 @@ from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
     get_aeromap_conditions,
 )
-from ceasiompy.SMTrain.func import AEROMAP_SELECTED
 import sys
 from numpy import ndarray
 from pandas import DataFrame

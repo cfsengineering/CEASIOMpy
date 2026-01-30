@@ -4,7 +4,7 @@
 
 ## Run a simple workflow
 
-For the first test case, we will run a simple workflow which is already set up, you will just run it and observe the results. For this workflow, we will use the D150 aircraft (D150_simple.xml) which is an A320-like aircraft.
+For the first test case, we will run a simple workflow which is already set up, you will just run it and observe the results. For this workflow, we will use the D150 aircraft (d150.xml) which is an A320-like aircraft.
 
 <p align="center">
 <img height="300" src="./testcase1_D150.png">
@@ -23,7 +23,7 @@ conda activate ceasiompy
 ceasiompy_run --testcase 1
 ```
 
-This workflow will take as input the CPACS file of the aircraft (D150_simple.xml), it will run the PyAVL module, and it will export the aerodynamic coefficients in a CSV file.
+This workflow will take as input the CPACS file of the aircraft (d150.xml), it will run the PyAVL module, and it will export the aerodynamic coefficients in a CSV file.
 
 ```mermaid
   graph LR;

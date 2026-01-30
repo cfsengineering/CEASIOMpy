@@ -154,10 +154,26 @@ def float_vartype(tixi, xpath, default_value, name, key, description) -> float:
 
 
 def list_vartype(tixi, xpath, default_value, name, key, description) -> str:
+    # Special handling for aeromap selection when default_value is None
     if default_value is None:
-        raise ValueError(f"Could not create GUI for {xpath} in list_vartype.")
+        from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH
+
+        if xpath == SELECTED_AEROMAP_XPATH:
+            # Get available aeromaps from CPACS
+            aeromap_list = st.session_state.cpacs.get_aeromap_uid_list()
+            if not aeromap_list:
+                st.warning("No aeromaps available. Please create an aeromap first.")
+                return None
+            default_value = aeromap_list
+        else:
+            raise ValueError(f"Could not create GUI for {xpath} in list_vartype.")
 
     value = safe_get_value(tixi, xpath, default_value[0])
+
+    # Check if value is in the list, otherwise use first option
+    if value not in default_value:
+        value = default_value[0]
+
     idx = default_value.index(value)
     return st.radio(
         name,

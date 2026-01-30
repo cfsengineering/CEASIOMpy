@@ -29,6 +29,7 @@ from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.CPACS2GMSH.func.meshvis import cgns_mesh_checker
 from ceasiompy.CPACS2GMSH.func.utils import retrieve_gui_values
 from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
+from ceasiompy.CPACS2GMSH.func.airfoil2d import process_2d_airfoil
 from ceasiompy.CPACSUpdater.func.controlsurfaces import deflection_angle
 from ceasiompy.CPACS2GMSH.func.rans_mesh_generator import (
     pentagrow_3d_mesh,
@@ -43,7 +44,7 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import SU2MESH_XPATH
+from ceasiompy.utils.commonxpaths import SU2MESH_XPATH, GEOMETRY_MODE_XPATH
 from ceasiompy.CPACS2GMSH import (
     MODULE_NAME,
     CONTROL_SURFACES_LIST,
@@ -277,14 +278,39 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     Defines setup for gmsh.
 
     Args:
-        cpacs_path (str): Input CPACS path.
-        cpacs_out_path (str): Modified output CPACS path.
+        cpacs: CPACS
+        wkdir: Working directory path
 
     """
 
     tixi = cpacs.tixi
 
-    angles = get_value(tixi, GMSH_CTRLSURF_ANGLE_XPATH)
+    # Check if we are in 2D mode - separate try/except to not catch process_2d_airfoil errors
+    geometry_mode = None
+    try:
+        geometry_mode = tixi.getTextElement(GEOMETRY_MODE_XPATH)
+        log.info(f"Geometry mode found in CPACS: {geometry_mode}")
+    except Exception:
+        # No geometry mode specified or xpath doesn't exist, assume 3D
+        log.info("No geometry mode specified in CPACS, defaulting to 3D mode.")
+
+    # Process 2D if geometry mode is 2D (let exceptions propagate)
+    if geometry_mode == "2D":
+        log.info("2D airfoil mode detected. Running 2D processing only...")
+        process_2d_airfoil(cpacs, wkdir)
+        log.info("2D processing completed, returning without 3D mesh generation.")
+        return
+
+    # If we reach here, we are in 3D mode
+    log.info("Proceeding with 3D mesh generation...")
+
+    # Continue with 3D processing
+    try:
+        angles = get_value(tixi, GMSH_CTRLSURF_ANGLE_XPATH)
+    except Exception:
+        # If deflection angles not specified, use default of 0.0
+        angles = "0.0"
+        log.info("No control surface deflection angles specified, using default: 0.0")
 
     # Unique angles list
     angles_list = list(set([float(x) for x in str(angles).split(";")]))

@@ -34,7 +34,7 @@ from ceasiompy.StaticStability import MODULE_NAME as STATICSTABILITY
 
 MODULE_DIR = Path(__file__).parent
 WORKFLOW_TEST_DIR = Path(MODULE_DIR, "workflow_tests")
-CPACS_IN_PATH = Path(CPACS_FILES_PATH, "D150_simple.xml")
+CPACS_IN_PATH = Path(CPACS_FILES_PATH, "d150.xml")
 CPACS_RANS = Path(CPACS_FILES_PATH, "labARscaled.xml")
 
 # Remove previous workflow directory and create new one

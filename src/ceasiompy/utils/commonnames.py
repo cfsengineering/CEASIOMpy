@@ -4,19 +4,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 File to store the common names of files used in CEASIOMpy.
-
-| Author: Aidan jungo
-| Creation: 2022-05-13
-| Modified: Leon Deligny
-| Date: 25 March 2025
-
 """
-
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
-
-from ceasiompy import log
 
 # =================================================================================================
 #   CSTS

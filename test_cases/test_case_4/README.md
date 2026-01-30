@@ -13,7 +13,7 @@ To run this test case, you will need to open a terminal and run the following co
 conda activate ceasiompy
 
 # To run the test case 4
-ceasiompy_run -m test_files/CPACSfiles/D150_simple.xml PyAVL SkinFriction
+ceasiompy_run -m test_files/CPACSfiles/d150.xml PyAVL SkinFriction
 ```
 
 The following workflow will be executed:

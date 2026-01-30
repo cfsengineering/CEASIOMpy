@@ -29,20 +29,21 @@ from cpacspy.cpacsfunctions import (
 from stl import mesh
 from PIL import Image
 from pathlib import Path
-
-from tixi3.tixi3wrapper import (
-    ReturnCode,
-    Tixi3Exception,
-)
+from tigl3.tigl3wrapper import Tigl3
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
+)
+from tixi3.tixi3wrapper import (
+    Tixi3,
+    ReturnCode,
+    Tixi3Exception,
 )
 
 from ceasiompy import log
 from cpacspy.utils import PARAMS
 from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
-from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH
+from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH, GEOMETRY_MODE_XPATH
 
 # ==============================================================================
 #   FUNCTIONS
@@ -133,6 +134,54 @@ def get_last_workflow():
     return Path(st.session_state.workflow.working_dir, f"Workflow_{last_workflow_nb:03}")
 
 
+def close_cpacs_handles(cpacs: CPACS | None, *, detach: bool = True) -> None:
+    """Best-effort close of CPACS (TIXI/TIGL) resources.
+
+    Some CPACS wrappers close underlying C handles again in their destructor; to
+    avoid double-close heap corruption, this helper can optionally detach the
+    closed handles from the CPACS instance.
+    """
+
+    if cpacs is None:
+        return
+
+    tixi: Tixi3 | None = getattr(cpacs, "tixi", None)
+    if tixi is not None:
+        try:
+            tixi.close()
+        except Exception:
+            pass
+
+    tigl: Tigl3 | None = getattr(cpacs, "tigl", None)
+    if tigl is not None:
+        try:
+            tigl.close()
+        except Exception:
+            pass
+
+    if detach:
+        setattr(cpacs, "tixi", None)
+        setattr(cpacs, "tigl", None)
+
+
+def build_default_upload(cpacs_path: Path):
+    """Create a lightweight file-like object compatible with the upload flow."""
+
+    if not cpacs_path.exists():
+        st.error(f"CPACS file not found: {cpacs_path}")
+        return None
+
+    class _DefaultUploadedFile:
+        def __init__(self, path: Path) -> None:
+            self.name = path.name
+            self._data = path.read_bytes()
+
+        def getbuffer(self):
+            return self._data
+
+    return _DefaultUploadedFile(cpacs_path)
+
+
 def save_cpacs_file(logging: bool = True):
     update_all_modified_value()
     if "workflow" not in st.session_state:
@@ -145,6 +194,7 @@ def save_cpacs_file(logging: bool = True):
         if logging:
             st.warning("No CPACS file has been selected!")
         return None
+
     st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
     st.session_state.workflow.cpacs_in = saved_cpacs_file
     st.session_state.cpacs = CPACS(saved_cpacs_file)
@@ -154,7 +204,11 @@ def create_sidebar(how_to_text, page_title="CEASIOMpy"):
     """Create side bar with a text explaining how the page should be used."""
 
     im = Image.open(CEASIOMPY_LOGO_PATH)
-    st.set_page_config(page_title=page_title, page_icon=im)
+    st.set_page_config(
+        page_title=page_title,
+        page_icon=im,
+        layout="centered",
+    )
     st.markdown(
         """
         <style>
@@ -370,11 +424,49 @@ def section_edit_aeromap() -> None:
             import_df = pd.read_excel(uploaded_csv, keep_default_na=False)
         else:
             import_df = pd.read_csv(uploaded_csv, keep_default_na=False)
+
         new_aeromap.df = import_df
         log.info(f"Saving AeroMap ID: {uploaded_aeromap_uid} in CPACS file.")
         new_aeromap.save()
         st.session_state["last_imported_aeromap_uid"] = uploaded_aeromap_uid
         st.rerun()
+
+
+def plot_airfoil_2d(x_coords, y_coords, title="Airfoil Profile"):
+    """
+    Plot 2D airfoil coordinates using plotly.
+
+    Args:
+        x_coords: Array or list of X coordinates
+        y_coords: Array or list of Y coordinates
+        title: Plot title
+    """
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(
+        x=x_coords,
+        y=y_coords,
+        mode='lines+markers',
+        line=dict(color='blue', width=2),
+        marker=dict(size=3, color='blue'),
+        fill='toself',
+        fillcolor='rgba(0, 100, 200, 0.2)',
+        name='Airfoil'
+    ))
+
+    fig.update_layout(
+        title=title,
+        xaxis_title="x/c",
+        yaxis_title="y/c",
+        width=900,
+        height=500,
+        showlegend=False,
+        yaxis=dict(scaleanchor="x", scaleratio=1),
+        margin=dict(l=50, r=50, t=50, b=50),
+        hovermode='closest'
+    )
+
+    st.plotly_chart(fig, width='stretch')
 
 
 def section_3D_view(
@@ -384,8 +476,31 @@ def section_3D_view(
 ) -> None:
     """
     Shows a 3D view of the aircraft by exporting a STL file.
+    For 2D geometry mode, displays the 2D airfoil profile instead.
     """
+    # Check if we're in 2D mode
+    geometry_mode = "3D"  # default
+    if hasattr(st.session_state, 'cpacs') and st.session_state.cpacs:
+        try:
+            geometry_mode = st.session_state.cpacs.tixi.getTextElement(GEOMETRY_MODE_XPATH)
+        except (Tixi3Exception, AttributeError):
+            # GEOMETRY_MODE_XPATH doesn't exist or cpacs.tixi not available - default to 3D
+            geometry_mode = "3D"
 
+    if geometry_mode == "2D":
+        # Display 2D airfoil if coordinates are available
+        if "airfoil_x" in st.session_state and "airfoil_y" in st.session_state:
+            airfoil_name = st.session_state.get('airfoil_code', 'Airfoil')
+            plot_airfoil_2d(
+                st.session_state["airfoil_x"],
+                st.session_state["airfoil_y"],
+                title=f"Airfoil: {airfoil_name}"
+            )
+        else:
+            st.info("2D airfoil geometry - coordinates not yet available for preview.")
+        return
+
+    # 3D mode - generate STL preview
     stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
     if not force_regenerate and stl_file.exists():
         pass
@@ -430,11 +545,7 @@ def section_3D_view(
         ),
     )
 
-    if height is None:
-        height = "stretch"
+    if height is not None:
+        fig.update_layout(height=height)
 
-    st.plotly_chart(
-        fig,
-        height=height,
-        width="stretch",
-    )
+    st.plotly_chart(fig, width='stretch')

@@ -69,13 +69,20 @@ from ceasiompy.utils.moduleinterfaces import (
 from ceasiompy.utils.commonxpaths import (
     SELECTED_AEROMAP_XPATH,
     AIRCRAFT_NAME_XPATH,
-    RANGE_CRUISE_ALT_XPATH,
-    RANGE_CRUISE_MACH_XPATH,
 )
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def update_xpath_at_xyz(tixi: Tixi3, xpath: str, x: str, y: str, z: str) -> None:
+    """
+    Helper Function.
+    """
+    tixi.updateTextElement(xpath + "/x", x)
+    tixi.updateTextElement(xpath + "/y", y)
+    tixi.updateTextElement(xpath + "/z", z)
 
 
 def _check_software_exists(soft_name: str) -> bool:
@@ -151,7 +158,7 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
         create_branch(tixi, SELECTED_AEROMAP_XPATH)
     tixi.updateTextElement(SELECTED_AEROMAP_XPATH, first_aeromap)
 
-    for _, default_value, var_type, _, xpath, _, _, test_value, _ in inputs.values():
+    for _, default_value, var_type, _, xpath, _, _, test_value, _, _ in inputs.values():
         try:
             if test:
                 value = test_value
@@ -320,7 +327,7 @@ def call_main(main: Callable, module_name: str, cpacs_path: Path | None = None) 
     log.info("----- Start of " + module_name + " -----")
 
     if cpacs_path is None:
-        xml_file = "D150_simple.xml"
+        xml_file = "d150.xml"
         cpacs_path = Path(CPACS_FILES_PATH, xml_file)
     else:
         xml_file = cpacs_path.name
@@ -389,7 +396,9 @@ def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
 
         # Run the module
         with change_working_dir(wkdir):
+            # Try loading with full CPACS (for 3D files)
             cpacs = CPACS(cpacs_in)
+
             if test:
                 log.info("Updating CPACS from __specs__")
                 update_cpacs_from_specs(cpacs, module_name, test)

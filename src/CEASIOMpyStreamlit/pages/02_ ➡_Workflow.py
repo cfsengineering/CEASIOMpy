@@ -18,15 +18,18 @@ Streamlit page to create a CEASIOMpy workflow
 
 import streamlit as st
 
+from streamlit_flow import streamlit_flow
+from CEASIOMpyStreamlit.streamlitutils import create_sidebar
+from ceasiompy.utils.moduleinterfaces import (
+    get_module_list,
+    get_init_for_module,
+)
+
 from streamlit_flow import (
     StreamlitFlowEdge,
     StreamlitFlowNode,
     StreamlitFlowState,
-    streamlit_flow,
 )
-
-from CEASIOMpyStreamlit.streamlitutils import create_sidebar
-from ceasiompy.utils.moduleinterfaces import get_init_for_module, get_module_list
 
 from CEASIOMpyStreamlit import BLOCK_CONTAINER
 from ceasiompy.PyAVL import MODULE_NAME as PYAVL
@@ -42,6 +45,9 @@ from ceasiompy.DynamicStability import MODULE_NAME as DYNAMICSTABILITY
 
 PAGE_NAME = "Workflow"
 
+# Modules compatible with 2D mode
+MODULES_2D = [CPACS2GMSH, SU2RUN]
+
 HOW_TO_TEXT = (
     "### How to use Create a workflow?\n"
     "You can either:\n"
@@ -56,12 +62,15 @@ HOW_TO_TEXT = (
 # ==============================================================================
 
 
-def section_predefined_workflow():
+def section_predefined_workflow() -> None:
     """
     Where to define the Pre-defined workflows.
     """
 
     st.markdown("#### Predefined Workflows")
+
+    # Check geometry mode
+    is_2d_mode = st.session_state.get("geometry_mode") == "2D"
 
     active_modules = set(get_module_list(only_active=True))
 
@@ -70,6 +79,12 @@ def section_predefined_workflow():
         [CPACSUPDATER, CPACS2GMSH, SU2RUN, "SkinFriction"],
         [DYNAMICSTABILITY],
     ]
+
+    # Filter workflows for 2D mode (only show workflows compatible with 2D)
+    if is_2d_mode:
+        predefine_workflows = [
+            [CPACS2GMSH, SU2RUN],
+        ]
 
     for workflow in predefine_workflows:
         available = all(module in active_modules for module in workflow)
@@ -84,12 +99,15 @@ def section_predefined_workflow():
             st.rerun()
 
 
-def section_add_module():
+def section_add_module() -> None:
     """
     Where to select the workflow.
     """
 
     st.markdown("#### Add Modules to your Workflow")
+
+    # Check geometry mode
+    is_2d_mode = st.session_state.get("geometry_mode") == "2D"
 
     if "workflow_modules" not in st.session_state:
         st.session_state["workflow_modules"] = []
@@ -110,6 +128,14 @@ def section_add_module():
         "MetaModule": "Meta",
         "Other": "NA",
     }
+    # Filter modules for 2D mode
+    if is_2d_mode:
+        module_list = [m for m in module_list if m in MODULES_2D]
+
+    if not module_list:
+        st.warning(f"No modules available for the geometry mode {is_2d_mode=}.")
+        return None
+
     module_type_map = {}
     for module_name in module_list:
         init = get_init_for_module(module_name, raise_error=False)

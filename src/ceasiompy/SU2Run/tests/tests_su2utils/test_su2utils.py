@@ -206,11 +206,13 @@ class TestSU2UtilsExtra(CeasiompyTest):
             get_surface_pitching_omega("gamma", 1.0)
 
     def test_get_su2_cfg_tpl(self):
-        # Should return the correct path for euler and rans
+        # Should return the correct path for euler, rans, and 2d
         path_euler = get_su2_cfg_tpl("euler")
         self.assertTrue(str(path_euler).endswith("cfg_tpl_euler.cfg"))
         path_rans = get_su2_cfg_tpl("rans")
         self.assertTrue(str(path_rans).endswith("cfg_tpl_rans.cfg"))
+        path_2d = get_su2_cfg_tpl("2d")
+        self.assertTrue(str(path_2d).endswith("cfg_tpl_2d.cfg"))
         # Should warn and still return a path for invalid type
         with patch("ceasiompy.SU2Run.func.utils.log") as mock_log:
             path_invalid = get_su2_cfg_tpl("invalid")

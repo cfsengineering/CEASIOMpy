@@ -10,7 +10,7 @@ For the test case you must first create and save a file named `my_ceasiompy_conf
 
 ```text
 % This is an example of config file for ceasiompy
-CPACS_TOOLINPUT = ../test_files/CPACSfiles/D150_simple.xml
+CPACS_TOOLINPUT = ../test_files/CPACSfiles/d150.xml
 MODULE_TO_RUN = ( PyAVL )
 ```
 

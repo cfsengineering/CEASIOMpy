@@ -255,6 +255,7 @@ def load_rans_cgf_params(
 def retrieve_gui_values(tixi: Tixi3):
     """
     Returns input values from CEASIOMpy's GUI interface.
+    Note: This function is only used for 3D mesh generation.
     """
 
     # Retrieve value from the GUI Setting

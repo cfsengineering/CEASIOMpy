@@ -653,7 +653,6 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
     if not tixi.checkElement(SU2MESH_XPATH):
         create_branch(tixi, SU2MESH_XPATH)
 
-    log.info(f"{su2_mesh_paths=}")
     su2_mesh_paths_str: list[str] = [
         str(elem)
         for elem in su2_mesh_paths

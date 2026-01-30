@@ -1038,11 +1038,11 @@ def pentagrow_3d_mesh(
         for key, value in cfg_params.items():
             file.write(f"{key} = {value}\n")
 
-    check_path(Path(result_dir, "surface_mesh_try.stl"))
+    check_path(Path(result_dir, "surface_mesh.stl"))
     check_path(Path(result_dir, "config.cfg"))
     log.info(f"(Checked in folder {result_dir}) (and config penta path is {config_penta_path})")
 
-    command = ["surface_mesh_try.stl", "config.cfg"]
+    command = ["surface_mesh.stl", "config.cfg"]
 
     # Specify the file path
     file_path = "command.txt"

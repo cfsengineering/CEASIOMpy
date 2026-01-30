@@ -201,8 +201,6 @@ def launch_gmsh_su2_geom(
     cpacs: CPACS,
     results_dir: Path,
     objective: str,
-    aeromap_csv_path,
-    new_point_df,
     aeromap_uid,
 ) -> DataFrame:
     """
@@ -294,7 +292,6 @@ def launch_gmsh_su2_geom(
     tixi.updateTextElement(SU2_MAX_ITER_XPATH, max_iters)
 
     if su2mesh is not None:
-        log.info(f'{su2mesh=}')
         tixi.updateTextElement(SU2MESH_XPATH, su2mesh)
 
     if su2_mesh_path is not None:

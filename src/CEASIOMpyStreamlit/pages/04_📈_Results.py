@@ -773,6 +773,22 @@ def display_results(results_dir, chosen_workflow = None):
                         cpacs=CPACS(Path(results_dir) / "best_geometric_configuration.xml"),
                     )
 
+            elif child.name == "best_surrogate_geometry_RBF.xml":
+                with st.expander("Best geometric configuration from surrogate model predictions"):
+                    st.markdown("**Best geometric configuration from surrogate model predictions**")
+                    section_3D_view(
+                        results_dir=Path(results_dir),
+                        cpacs=CPACS(Path(results_dir) / "best_surrogate_geometry_RBF.xml"),
+                    )
+            
+            elif child.name == "best_surrogate_geometry_KRG.xml":
+                with st.expander("Best geometric configuration from surrogate model predictions"):
+                    st.markdown("**Best geometric configuration from surrogate model predictions**")
+                    section_3D_view(
+                        results_dir=Path(results_dir),
+                        cpacs=CPACS(Path(results_dir) / "best_surrogate_geometry_KRG.xml"),
+                    )
+
             elif child.is_dir():
                 with st.container(border=True):
                     show_dir = st.checkbox(

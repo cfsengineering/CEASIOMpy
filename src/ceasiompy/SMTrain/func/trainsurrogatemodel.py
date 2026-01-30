@@ -58,9 +58,8 @@ from ceasiompy.SMTrain.func.config import (
     retrieve_aeromap_data,
     get_xpath_for_param,
     update_geometry_cpacs,
+    save_best_surrogate_geometry,
 )
-from unittest.mock import MagicMock
-import streamlit as st
 from sklearn.metrics import r2_score
 from ceasiompy.PyAVL import (
     AVL_AEROMAP_UID_XPATH,
@@ -86,8 +85,9 @@ from smt.applications import MFK
 from smt.surrogate_models import KRG
 from smt.surrogate_models import RBF
 from smt.utils.misc import compute_rmse
-from scipy.optimize import OptimizeResult
-
+from scipy.optimize import (
+    OptimizeResult,
+)
 from skopt.space import (
     Real,
     Categorical,
@@ -549,22 +549,42 @@ def run_first_level_training_geometry(
     param_order = [col for col in df_norm.columns if col != objective]
 
     if KRG_model_bool:
-        print("\n\n")
         log.info("--------------Star training KRG model.--------------\n")
         krg_model, krg_rmse = train_surrogate_model(level1_sets)
         rmse_df = pd.DataFrame({"rmse": [krg_rmse]})
         rmse_path = f"{results_dir}/rmse_KRG.csv"
         rmse_df.to_csv(rmse_path, index=False)
         log.info("--------------KRG model trained.--------------\n")
+        
+        model_name = "KRG"
+        save_best_surrogate_geometry(
+            surrogate_model=krg_model,
+            model_name=model_name,
+            objective=objective,
+            param_order=param_order,
+            normalization_params=normalization_params,
+            final_level1_df_c=final_level1_df_c,
+            results_dir=results_dir,
+            )
 
     if RBF_model_bool:
-        print("\n\n")
         log.info("--------------Star training RBF model.--------------\n")
         rbf_model, rbf_rmse = train_surrogate_model_RBF(n_params, level1_sets)
         rmse_df = pd.DataFrame({"rmse": [rbf_rmse]})
         rmse_path = f"{results_dir}/rmse_RBF.csv"
         rmse_df.to_csv(rmse_path, index=False)
         log.info("--------------RBF model trained.--------------\n")
+
+        model_name = "RBF"
+        save_best_surrogate_geometry(
+            surrogate_model=rbf_model,
+            model_name=model_name,
+            objective=objective,
+            param_order=param_order,
+            normalization_params=normalization_params,
+            final_level1_df_c=final_level1_df_c,
+            results_dir=results_dir,
+            )
 
     return krg_model, rbf_model, level1_sets, best_geometry_idx, param_order
 
@@ -652,13 +672,23 @@ def run_adaptative_refinement_geom(
     x_array = level1_sets["x_train"]
     nb_iters = len(x_array)
     log.info(f"Starting adaptive refinement with maximum {nb_iters=}.")
-    aeromap_csv_path = results_dir / f"{AEROMAP_SELECTED}.csv"
+
+    norm_df = pd.read_csv(results_dir / "normalization_params.csv")
+    normalization_params = {
+        row["Parameter"]: {"mean": row["mean"], "std": row["std"]}
+        for _, row in norm_df.iterrows()
+    }
+
+    log.info("Loaded normalization parameters:")
+    for k, v in normalization_params.items():
+        log.debug(f"{k}: mean={v['mean']}, std={v['std']}")
+
 
     cpacs_list = []
 
     for _ in range(nb_iters):
         # Find new high variance points based on inputs x_train
-        new_point_df = new_points_geom(
+        new_point_df_norm = new_points_geom(
             x_array=x_array,
             model=model,
             results_dir=results_dir,
@@ -666,15 +696,27 @@ def run_adaptative_refinement_geom(
         )
 
         # 1st Breaking condition
-        if new_point_df is None:
+        if new_point_df_norm is None:
             log.warning("No new high-variance points found.")
             break
-        elif new_point_df.empty:
+        elif new_point_df_norm.empty:
             log.warning("No new high-variance points found.")
             break
-        high_var_pts.append(new_point_df.values[0])
+        high_var_pts.append(new_point_df_norm.values[0])
 
         cpacs_file = cpacs.cpacs_file
+        new_point_df = new_point_df_norm.copy()
+
+        for col in new_point_df.columns:
+            if col not in normalization_params:
+                log.warning(f"No normalization params for {col}, skipping denorm.")
+                continue
+
+            mean = normalization_params[col]["mean"]
+            std  = normalization_params[col]["std"]
+
+            new_point_df[col] = new_point_df[col] * std + mean
+
 
         for i, geom_row in new_point_df.iterrows():
 
@@ -701,7 +743,8 @@ def run_adaptative_refinement_geom(
             # Update CPACS file
             cpacs_obj = update_geometry_cpacs(cpacs_file, cpacs_p, params_to_update)
             cpacs_list.append(cpacs_obj)
-            # Get data from SU2 at the high variance points
+        
+        # Get data from SU2 at the high variance points
         new_df_list = []
         for idx, cpacs_ in enumerate(cpacs_list):
             dir_res = get_results_directory(SU2RUN_NAME) / f"SU2Run_{idx}_iter{_}"
@@ -710,8 +753,6 @@ def run_adaptative_refinement_geom(
                 cpacs=cpacs_,
                 results_dir=dir_res,
                 objective=objective,
-                aeromap_csv_path=aeromap_csv_path,
-                new_point_df=high_var_pts,
                 aeromap_uid=aeromap_uid,
             )
             new_row = new_point_df.iloc[idx].copy()
@@ -729,8 +770,19 @@ def run_adaptative_refinement_geom(
             level2_sets=split_data(df, objective),
         )
 
-        cpacs_list.clear()
+        model_name = "KRG"
+        param_order = [col for col in df.columns if col != objective]
+        save_best_surrogate_geometry(
+            surrogate_model=model,
+            model_name=model_name,
+            objective=objective,
+            param_order=param_order,
+            normalization_params=normalization_params,
+            final_level1_df_c=df,
+            results_dir=results_dir,
+            )
 
+        cpacs_list.clear()
         # 2nd Breaking condition
         if rmse > rmse_obj:
             rmse_df = pd.DataFrame({"rmse": [rmse]})
@@ -797,6 +849,16 @@ def training_existing_db(
         rmse_path = f"{results_dir}/rmse_KRG.csv"
         rmse_df.to_csv(rmse_path, index=False)
         log.info("--------------KRG model trained.--------------\n")
+        model_name = "RBF"
+        save_best_surrogate_geometry(
+            surrogate_model=rbf_model,
+            model_name=model_name,
+            objective=objective,
+            param_order=param_order,
+            normalization_params=normalization_params,
+            final_level1_df_c=df1,
+            results_dir=results_dir,
+            )
 
     if RBF_model_bool:
         print("\n\n")
@@ -806,6 +868,17 @@ def training_existing_db(
         rmse_path = f"{results_dir}/rmse_RBF.csv"
         rmse_df.to_csv(rmse_path, index=False)
         log.info("--------------RBF model trained.--------------\n")
+        
+        model_name = "RBF"
+        save_best_surrogate_geometry(
+            surrogate_model=rbf_model,
+            model_name=model_name,
+            objective=objective,
+            param_order=param_order,
+            normalization_params=normalization_params,
+            final_level1_df_c=df1,
+            results_dir=results_dir,
+            )
 
     return krg_model, rbf_model, level1_sets, param_order
 
@@ -813,7 +886,7 @@ def training_existing_db(
 def run_adaptative_refinement_geom_existing_db(
     cpacs: CPACS,
     results_dir: Path,
-    model: Union[KRG, MFK],
+    model: Union[KRG, MFK, RBF],
     level1_sets: Dict[str, ndarray],
     rmse_obj: float,
     objective: str,
@@ -837,7 +910,16 @@ def run_adaptative_refinement_geom_existing_db(
     x_array = level1_sets["x_train"]
     nb_iters = len(x_array)
     log.info(f"Starting adaptive refinement with maximum {nb_iters=}.")
-    aeromap_csv_path = results_dir / f"{AEROMAP_SELECTED}.csv"
+
+    norm_df = pd.read_csv(results_dir / "normalization_params.csv")
+    normalization_params = {
+        row["Parameter"]: {"mean": row["mean"], "std": row["std"]}
+        for _, row in norm_df.iterrows()
+    }
+
+    log.info("Loaded normalization parameters:")
+    for k, v in normalization_params.items():
+        log.debug(f"{k}: mean={v['mean']}, std={v['std']}")
 
     cpacs_list = []
 
@@ -896,8 +978,6 @@ def run_adaptative_refinement_geom_existing_db(
                 cpacs=cpacs_,
                 results_dir=dir_res,
                 objective=objective,
-                aeromap_csv_path=aeromap_csv_path,
-                new_point_df=high_var_pts,
                 aeromap_uid=aeromap_uid,
             )
             new_row = new_point_df.iloc[idx].copy()
@@ -912,6 +992,18 @@ def run_adaptative_refinement_geom_existing_db(
             level1_sets=level1_sets,
             level2_sets=split_data(df, objective),
         )
+
+        model_name = "KRG"
+        param_order = [col for col in df_simulation.columns if col != objective]
+        save_best_surrogate_geometry(
+            surrogate_model=model,
+            model_name=model_name,
+            objective=objective,
+            param_order=param_order,
+            normalization_params=normalization_params,
+            final_level1_df_c=df,
+            results_dir=results_dir,
+            )
 
         cpacs_list.clear()
 
@@ -1041,7 +1133,7 @@ def mf_RBF(
     Debug-enabled version to trace data issues.
     """
 
-    log.info("=== Entered mf_RBF ===")
+    log.info("=== Entered Multi Fidelity RBF ===")
 
     # Unpack first level
     x_fl_train, x_val1, x_test1, y_fl_train, y_val1, y_test1 = collect_level_data(level1_sets)
@@ -1165,7 +1257,7 @@ def RBF_model(
     print(f"R²:      {r2_score(y_test, y_pred):.4f}")
 
     best_loss = compute_rmse(best_model, x_test, y_test)
-    log.info(f"Final RMSE on test set: {best_loss:.6f}")
+    log.info(f"Final first level RMSE on test set: {best_loss:.6f}")
     return best_model, best_loss
 
 
@@ -1180,9 +1272,6 @@ def train_surrogate_model_RBF(
     """
     n_params_ = n_params
     hyperparam_space = get_hyperparam_space_RBF(level1_sets, level2_sets, level3_sets, n_params_)
-    log.info(f"{level1_sets=}")
-    log.info(f"{level2_sets=}")
-    log.info(f"{n_params=}")
     if level2_sets is not None or level3_sets is not None:
         # multi-fidelity RBF
         log.info(f"{level2_sets=}")
@@ -1322,9 +1411,6 @@ def run_adaptative_refinement_geom_RBF(
 
     log.info(f"Starting RBF adaptive refinement with maximum {nb_iters=}.")
 
-    aeromap_csv_path = results_dir / f"{AEROMAP_SELECTED}.csv"
-    prev_rmse = np.inf
-
     for it in range(nb_iters):
 
         log.info(f"=== Iteration {it} ===")
@@ -1411,8 +1497,6 @@ def run_adaptative_refinement_geom_RBF(
                 cpacs=cpacs_,
                 results_dir=dir_res,
                 objective=objective,
-                aeromap_csv_path=aeromap_csv_path,
-                new_point_df=new_point_df.iloc[[idx]],
                 aeromap_uid=aeromap_uid,
             )
 
@@ -1434,17 +1518,24 @@ def run_adaptative_refinement_geom_RBF(
             level2_sets=split_data(df_new, objective),
         )
         log.info(f"Iteration {it}: RMSE = {rmse:.6e}")
-        
-        # Breaking conditions
-        if rmse < rmse_obj:
-            log.info("Target RMSE reached. Stopping refinement.")
-            rmse_path = f"{results_dir}/rmse_RBF.csv"
-            rmse.to_csv(rmse_path, index=False)
-            break
-        elif it > 0 and abs(prev_rmse - rmse) < 1e-4 * prev_rmse:
-            log.info("RMSE plateau reached. Stopping refinement.")
-            rmse_path = f"{results_dir}/rmse_RBF.csv"
-            rmse.to_csv(rmse, index=False)
-            break
 
-        prev_rmse = rmse
+        # Breaking conditions
+        if rmse > rmse_obj:
+            log.info("Target RMSE reached. Stopping refinement.")
+            rmse_df = pd.DataFrame({"rmse": [rmse]})
+            rmse_path = f"{results_dir}/rmse_RBF.csv"
+            rmse_df.to_csv(rmse_path, index=False)
+
+            model_name = "RBF"
+            param_order = [col for col in df.columns if col != objective]
+            
+            save_best_surrogate_geometry(
+                surrogate_model=model,
+                model_name=model_name,
+                objective=objective,
+                param_order=param_order,
+                normalization_params=normalization_params,
+                final_level1_df_c=df_new,
+                results_dir=results_dir,
+                )
+            break

@@ -14,13 +14,15 @@ import numpy as np
 import pandas as pd
 from shutil import copyfile
 from pathlib import Path
-
+from ceasiompy.utils.commonpaths import get_wkdir
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.SMTrain.func.utils import get_columns
 from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
 )
-
+from scipy.optimize import (
+    differential_evolution,
+)
 from pandas import DataFrame
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.Database.func.storing import CeasiompyDb
@@ -499,3 +501,156 @@ def norm_to_phys(x_norm, params, normalization_params):
         std  = normalization_params[p]["std"]
         x_phys[i] = mean if std == 0 else x_norm[i] * std + mean
     return x_phys
+
+def optimize_surrogate(
+    surrogate_model,
+    model_name: str,
+    objective: str,
+    param_order: list,
+    normalization_params: dict,
+    final_level1_df_c: pd.DataFrame,
+):
+    """
+    Run global optimization on a surrogate model.
+    Returns optimal normalized/physical parameters and metadata.
+    """
+
+    MAXIMIZE_OBJECTIVES = {"cl", "cl/cd"}
+    maximize = objective.lower() in MAXIMIZE_OBJECTIVES
+
+    def surrogate_objective(x_norm):
+        x_norm = np.asarray(x_norm).reshape(1, -1)
+        y_pred = float(surrogate_model.predict_values(x_norm)[0, 0])
+        return -y_pred if maximize else y_pred
+
+    # ---- bounds in normalized space ----
+    bounds = []
+    for p in param_order:
+        mean = normalization_params[p]["mean"]
+        std  = normalization_params[p]["std"]
+
+        if std == 0:
+            bounds.append((0.0, 0.0))
+        else:
+            lo = (final_level1_df_c[p].min() - mean) / std
+            hi = (final_level1_df_c[p].max() - mean) / std
+            bounds.append((lo, hi))
+
+    log.info(f"--- Starting global optimization on {model_name} surrogate ---")
+
+    opt_result = differential_evolution(
+        surrogate_objective,
+        bounds=bounds,
+        tol=1e-3,
+        maxiter=1000,
+        polish=True
+    )
+
+    x_opt_norm = opt_result.x
+
+    # ---- denormalize ----
+    x_opt_phys = {}
+    for i, p in enumerate(param_order):
+        mean = normalization_params[p]["mean"]
+        std  = normalization_params[p]["std"]
+        x_opt_phys[p] = mean if std == 0 else x_opt_norm[i] * std + mean
+
+    y_opt = float(
+        surrogate_model.predict_values(
+            np.array(x_opt_norm).reshape(1, -1)
+        )[0, 0]
+    )
+
+    return {
+        "model": model_name,
+        "success": bool(opt_result.success),
+        "message": opt_result.message,
+        "objective": objective,
+        "x_opt_norm": x_opt_norm.tolist(),
+        "x_opt_phys": x_opt_phys,
+        "y_opt_predicted": y_opt,
+    }
+
+
+def save_best_surrogate_geometry(
+    surrogate_model,
+    model_name: str,
+    objective: str,
+    param_order: list,
+    normalization_params: dict,
+    final_level1_df_c: pd.DataFrame,
+    results_dir: Path,
+):
+    """
+    Optimize surrogate and save best configuration (CSV with predicted y, CPACS).
+    """
+
+    # ---- optimization ----
+    best_result = optimize_surrogate(
+        surrogate_model=surrogate_model,
+        model_name=model_name,
+        objective=objective,
+        param_order=param_order,
+        normalization_params=normalization_params,
+        final_level1_df_c=final_level1_df_c,
+    )
+
+    # ---- save CSV of best parameters + predicted y ----
+    csv_path = results_dir / f"best_surrogate_parameters_{model_name}.csv"
+    df_params = pd.DataFrame.from_dict(
+        best_result["x_opt_phys"],
+        orient="index",
+        columns=["value"]
+    )
+
+    # aggiungi y_opt_predicted come ultima riga con nome della colonna = objective
+    df_params.loc[objective] = best_result["y_opt_predicted"]
+    df_params.to_csv(csv_path)
+
+    log.info(f"Best surrogate parameters saved to CSV: {csv_path}")
+
+    # ---- update CPACS geometry ----
+    wkdir = get_wkdir()
+    cpacs_template = wkdir / "00_ToolInput.xml"
+    best_cpacs_path = results_dir / f"best_surrogate_geometry_{model_name}.xml"
+    copyfile(cpacs_template, best_cpacs_path)
+
+    best_cpacs = CPACS(best_cpacs_path)
+    tixi = best_cpacs.tixi
+
+    params_to_update = {}
+
+    for full_name, val in best_result["x_opt_phys"].items():
+        # SINTAX: {param}_of_{section}_of_{wing}
+        parts = full_name.split("_of_")
+        if len(parts) != 3:
+            log.warning(f"Skipping malformed parameter name: {full_name}")
+            continue
+
+        name_parameter, uID_section, uID_wing = parts
+
+        xpath = get_xpath_for_param(
+            tixi,
+            name_parameter,
+            uID_wing,
+            uID_section
+        )
+
+        if name_parameter not in params_to_update:
+            params_to_update[name_parameter] = {"values": [], "xpath": []}
+        params_to_update[name_parameter]["values"].append(float(val))
+        params_to_update[name_parameter]["xpath"].append(xpath)
+
+    update_geometry_cpacs(
+        best_cpacs_path,
+        best_cpacs_path,
+        params_to_update
+    )
+
+    best_cpacs.save_cpacs(best_cpacs_path, overwrite=True)
+
+    log.info(f"Best surrogate geometry saved to: {best_cpacs_path}")
+
+    return best_result
+
+

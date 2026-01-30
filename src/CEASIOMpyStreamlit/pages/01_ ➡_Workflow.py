@@ -24,7 +24,6 @@ from streamlit_flow import (
     StreamlitFlowState,
     streamlit_flow,
 )
-from streamlit_flow.layouts import LayeredLayout
 
 from CEASIOMpyStreamlit.streamlitutils import create_sidebar
 from ceasiompy.utils.moduleinterfaces import get_init_for_module, get_module_list
@@ -68,7 +67,7 @@ def section_predefined_workflow():
 
     predefine_workflows = [
         [PYAVL, STATICSTABILITY],
-        [CPACSUPDATER, "CPACSCreator", CPACS2GMSH, SU2RUN, "SkinFriction"],
+        [CPACSUPDATER, CPACS2GMSH, SU2RUN, "SkinFriction"],
         [DYNAMICSTABILITY],
     ]
 

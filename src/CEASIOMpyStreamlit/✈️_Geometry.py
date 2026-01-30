@@ -460,6 +460,4 @@ if __name__ == "__main__":
 
     st.title(PAGE_NAME)
 
-    st.markdown("---")
-
     section_select_cpacs()

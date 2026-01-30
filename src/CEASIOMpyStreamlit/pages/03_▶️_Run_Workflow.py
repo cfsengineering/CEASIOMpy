@@ -116,6 +116,9 @@ def terminate_solver_processes() -> None:
     """Terminate known solver processes spawned by workflows."""
 
     targets = {"avl", "su2_cfd"}
+    mpi_wrappers = {"mpirun", "mpiexec", "srun", "orterun", "mpiexec.hydra"}
+    to_terminate: list[psutil.Process] = []
+
     for proc in psutil.process_iter(["name", "cmdline"]):
         try:
             name = (proc.info.get("name") or "").lower()
@@ -123,9 +126,30 @@ def terminate_solver_processes() -> None:
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             continue
 
-        if any(target in name or target in cmdline for target in targets):
+        if any(target in name or target in cmdline for target in targets | mpi_wrappers):
+            to_terminate.append(proc)
+
+    for proc in to_terminate:
+        try:
+            children = proc.children(recursive=True)
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+
+        for child in children:
             try:
-                proc.terminate()
+                child.terminate()
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+
+        try:
+            proc.terminate()
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+
+        gone, alive = psutil.wait_procs(children + [proc], timeout=2.0)
+        for leftover in alive:
+            try:
+                leftover.kill()
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
 
@@ -142,7 +166,6 @@ def workflow_buttons() -> None:
         if st.button(
             label="Run ▶️",
             help="Run the workflow",
-            width=100,
         ):
             if "workflow" not in st.session_state:
                 st.error(
@@ -195,7 +218,6 @@ def workflow_buttons() -> None:
         if st.button(
             label="Stop ✖️",
             help="Terminate the workflow",
-            width=100,
         ):
             terminate_solver_processes()
 

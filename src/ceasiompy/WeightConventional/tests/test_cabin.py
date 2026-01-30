@@ -29,7 +29,7 @@ from ceasiompy.WeightConventional.func.weightutils import TOILET_LENGTH
 from cpacspy.cpacspy import CPACS
 
 MODULE_DIR = Path(__file__).parent
-TEST_CPACS_IN = Path(CPACS_FILES_PATH, "D150_simple.xml")
+TEST_CPACS_IN = Path(CPACS_FILES_PATH, "d150.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 # =================================================================================================

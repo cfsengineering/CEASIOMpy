@@ -99,7 +99,7 @@ These test cases are there to learn how to use CEASIOMpy. You will probably also
     If you run CEASIOMpy with the following command, you can build the workflow directly by defining the CPACS files and the modules you want to use.
 
     ```bash
-    ceasiompy_run -m test_files/CPACSfiles/D150_simple.xml PyAVL
+    ceasiompy_run -m test_files/CPACSfiles/d150.xml PyAVL
     ```
 
 Follow the [test cases](#test-cases) to discover the different way of using CEASIOMpy.

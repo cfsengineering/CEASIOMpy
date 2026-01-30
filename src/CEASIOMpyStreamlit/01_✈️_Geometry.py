@@ -29,7 +29,6 @@ import plotly.graph_objects as go
 
 from ceasiompy.utils import get_wkdir
 from cpacspy.cpacsfunctions import create_branch
-from ceasiompy.utils.cpacs_utils import create_minimal_cpacs_2d
 from gmshairfoil2d.airfoil_func import (
     NACA_4_digit_geom,
     get_airfoil_points,
@@ -48,7 +47,6 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from tigl3.tigl3wrapper import Tigl3
-from ceasiompy.utils.cpacs_utils import SimpleCPACS
 from ceasiompy.utils.workflowclasses import Workflow
 
 from CEASIOMpyStreamlit import BLOCK_CONTAINER
@@ -322,11 +320,11 @@ def render_openvsp_panel() -> None:
     st.markdown("#### Create geometries with OpenVSP's UI")
 
     button_disabled = True
-    status_col, button_col = st.columns([4, 1])
+    status_col, button_col = st.columns([3, 1], vertical_alignment="center")
     with status_col:
         if not VSP2CPACS_MODULE_STATUS:
             st.info(
-                "OpenVSP is installed inside `INSTALLDIR/OpenVSP`."
+                "OpenVSP should be installed inside `INSTALLDIR/OpenVSP`."
             )
         elif OPENVSP_PATH is None or not OPENVSP_PATH.exists():
             st.error("OpenVSP executable could not be located.")
@@ -343,7 +341,7 @@ def render_openvsp_panel() -> None:
             try:
                 launch_openvsp()
             except Exception as e:
-                st.error(f"Could not open OpenVSP: {e}")
+                st.error(f"Could not open OpenVSP: {e=}")
 
 
 def clean_toolspecific(cpacs: CPACS) -> CPACS:
@@ -374,120 +372,89 @@ def clean_toolspecific(cpacs: CPACS) -> CPACS:
 
 
 def section_select_cpacs() -> None:
-    if "workflow" not in st.session_state:
-        st.session_state["workflow"] = Workflow()
-
-    if not parse_bool(os.environ.get("CEASIOMPY_CLOUD", False)):
-        st.markdown("---")
-        render_openvsp_panel()
-
     wkdir = get_wkdir()
     wkdir.mkdir(parents=True, exist_ok=True)
     st.session_state.workflow.working_dir = wkdir
 
-    load_geom_tab, gen_geom_tab = st.tabs(
-        tabs=[
-            "Load Geometry",
-            "Generate Airfoil",
-        ]
-    )
-    with load_geom_tab:
+    tabs = [
+        "Load Geometry",
+        "Generate Airfoil",
+    ]
+
+    show_openvsp = not parse_bool(os.environ.get("CEASIOMPY_CLOUD", False))
+
+    if show_openvsp:
+        tabs.append("OpenVSP's UI")
+
+    selected_tab = st.tabs(tabs)
+    with selected_tab[0]:
         section_load_cpacs()
-    with gen_geom_tab:
-        section_generate_cpacs()
+    with selected_tab[1]:
+        section_generate_cpacs_airfoil()
+    if show_openvsp:
+        with selected_tab[2]:
+            render_openvsp_panel()
+
+    # Display the file uploader widget with the previously uploaded file
+    if "cpacs" in st.session_state and st.session_state.cpacs:
+        st.markdown("---")
+        section_3D_view(force_regenerate=True)
 
 
-def section_generate_cpacs() -> None:
+def _generate_cpacs_airfoil(naca_code: str) -> None:
+    # Check if it's a NACA 4-digit code
+    if len(naca_code) == 4 and naca_code.isdigit():
+        # Generate NACA 4-digit airfoil
+        coords_list = NACA_4_digit_geom(naca_code, nb_points=200)
+        coords = np.array(coords_list)
+    else:
+        # Try to get airfoil from database
+        coords_list = get_airfoil_points(naca_code)
+        coords = np.array(coords_list)
+
+    # Extract x and y coordinates (coords is [N, 3] with z=0)
+    airfoil_x = coords[:, 0].tolist()
+    airfoil_y = coords[:, 1].tolist()
+
+    # Save airfoil to .dat file and create/update CPACS
+    cpacs_path = save_airfoil_and_create_cpacs(
+        airfoil_name=naca_code,
+        airfoil_x=airfoil_x,
+        airfoil_y=airfoil_y,
+    )
+
+
+def section_generate_cpacs_airfoil() -> None:
     st.markdown("#### Generate an Airfoil Profile")
 
     # NACA airfoil selection
     col1, col2 = st.columns([3, 1])
 
     with col1:
-        naca_code = st.text_input(
-            (
-                "Enter NACA code (e.g., 0012, 2412, 4415) "
-                "or airfoil name (e.g., e211, dae11):"
-            ),
-            value="0012",
-            help=(
-                "Display all airfoil available at: "
-                "[Selig Airfoil Database]"
-                "(https://m-selig.ae.illinois.edu/ads/coord_database.html)"
-            ),
-        )
+        naca_code = st.text_input((
+            "Enter NACA code (e.g., 0012, 2412, 4415) "
+            "or airfoil name (e.g., e211, dae11):"
+        ),
+        value="0012",
+        help=(
+            "All airfoils are available at: "
+            "[Selig Airfoil Database]"
+            "(https://m-selig.ae.illinois.edu/ads/coord_database.html)"
+        ))
 
     with col2:
         st.markdown("<div style='margin-top: 28px;'></div>", unsafe_allow_html=True)
-        generate_clicked = st.button("✔ Generate", help="Generate airfoil from NACA code")
+        generate_clicked = st.button(
+            "Generate",
+            help="Generate airfoil from NACA code",
+            width="stretch",        
+        )
 
     # Display success message full width outside columns
     if generate_clicked:
         if naca_code:
             try:
-                # Check if it's a NACA 4-digit code
-                if len(naca_code) == 4 and naca_code.isdigit():
-                    # Generate NACA 4-digit airfoil
-                    coords_list = NACA_4_digit_geom(naca_code, nb_points=200)
-                    coords = np.array(coords_list)
-                    st.session_state["airfoil_type"] = "NACA"
-                    st.session_state["airfoil_code"] = naca_code
-                else:
-                    # Try to get airfoil from database
-                    coords_list = get_airfoil_points(naca_code)
-                    coords = np.array(coords_list)
-                    st.session_state["airfoil_type"] = "Predefined"
-                    st.session_state["airfoil_code"] = naca_code
-
-                # Extract x and y coordinates (coords is [N, 3] with z=0)
-                airfoil_x = coords[:, 0].tolist()
-                airfoil_y = coords[:, 1].tolist()
-
-                st.session_state["airfoil_x"] = airfoil_x
-                st.session_state["airfoil_y"] = airfoil_y
-
-                # Save airfoil to .dat file and create/update CPACS
-                cpacs_path = save_airfoil_and_create_cpacs(
-                    airfoil_name=naca_code,
-                    airfoil_x=airfoil_x,
-                    airfoil_y=airfoil_y,
-                )
-
-                # Store path in session state
-                st.session_state["cpacs_path"] = str(cpacs_path)
-
-                # Also save geometry mode and airfoil type to CPACS
-                tixi = Tixi3()
-                tixi.open(str(cpacs_path))
-
-                create_branch(tixi, GEOM_XPATH + "/airfoilType")
-                if st.session_state["airfoil_type"] == "NACA":
-                    tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "NACA")
-                    create_branch(tixi, GEOM_XPATH + "/airfoilCode")
-                    tixi.updateTextElement(GEOM_XPATH + "/airfoilCode", naca_code)
-                    # Remove airfoilName if it exists (from previous Custom selection)
-                    if tixi.checkElement(GEOM_XPATH + "/airfoilName"):
-                        tixi.removeElement(GEOM_XPATH + "/airfoilName")
-                else:
-                    tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "Custom")
-                    create_branch(tixi, GEOM_XPATH + "/airfoilName")
-                    tixi.updateTextElement(GEOM_XPATH + "/airfoilName", naca_code)
-                    # Remove airfoilCode if it exists (from previous NACA selection)
-                    if tixi.checkElement(GEOM_XPATH + "/airfoilCode"):
-                        tixi.removeElement(GEOM_XPATH + "/airfoilCode")
-
-                tixi.save(str(cpacs_path), True)
-                tixi.close()
-
-                # Reload CPACS in session state to ensure workflow uses updated file
-                # Use SimpleCPACS for 2D (no TIGL validation)
-                st.session_state.cpacs = SimpleCPACS(str(cpacs_path))
-
-                st.success(
-                    f"✓ Airfoil '{naca_code}' generated with {len(coords)} points\n\n"
-                    "📄 Airfoil points saved directly in CPACS\n\n"
-                    f"📋 CPACS updated: `ToolInput.xml`"
-                )
+                _generate_cpacs_airfoil(naca_code)
             except Exception as e:
                 st.error(f"Failed to generate airfoil: {str(e)}")
                 st.info(
@@ -497,152 +464,7 @@ def section_generate_cpacs() -> None:
                     "(https://m-selig.ae.illinois.edu/ads/coord_database.html)"
                 )
         else:
-            st.warning("Please enter a valid NACA code")
-
-    # Display current selection and plot
-    if "airfoil_type" in st.session_state:
-        st.markdown("---")
-        st.markdown("#### Current Airfoil Selection")
-
-        if st.session_state["airfoil_type"] == "NACA":
-            st.info(f"**NACA {st.session_state.get('airfoil_code', 'N/A')}** airfoil selected")
-        elif st.session_state["airfoil_type"] == "Predefined":
-            st.info(f"**Predefined airfoil:** {st.session_state.get('airfoil_code', 'N/A')}")
-        elif st.session_state["airfoil_type"] == "Custom":
-            st.info(f"**Custom profile:** {Path(st.session_state.get('airfoil_file', '')).name}")
-
-        # Display plot if coordinates are available
-        if "airfoil_x" in st.session_state and "airfoil_y" in st.session_state:
-            st.markdown("#### Airfoil Visualization")
-            with st.container(border=True):
-                airfoil_name = st.session_state.get('airfoil_code', 'Custom')
-                plot_airfoil_2d(
-                    st.session_state["airfoil_x"],
-                    st.session_state["airfoil_y"],
-                    title=f"Airfoil: {airfoil_name}"
-                )
-        else:
-            st.warning("Airfoil coordinates will be displayed here once generated/loaded")
-
-
-def _convert_airfoil_to_cpacs(wkdir: Path, uploaded_file: bytes) -> None:
-    try:
-        # Save uploaded file
-        airfoil_path = Path(wkdir, uploaded_file.name)
-        with open(airfoil_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-
-        # Read and parse the airfoil coordinates
-        # Try to read as space/tab separated values, skipping header lines
-        coords_data = []
-        with open(airfoil_path, "r") as f:
-            for line in f:
-                line = line.strip()
-                # Skip empty lines and lines that don't start with a number
-                if not line or not line[0].replace('-', '').replace('.', '').isdigit():
-                    continue
-                # Split by whitespace and take first two values
-                parts = line.split()
-                if len(parts) >= 2:
-                    try:
-                        x = float(parts[0])
-                        y = float(parts[1])
-                        coords_data.append([x, y])
-                    except ValueError:
-                        continue
-
-        if len(coords_data) > 0:
-            coords = np.array(coords_data)
-            airfoil_x = coords[:, 0].tolist()
-            airfoil_y = coords[:, 1].tolist()
-
-            st.session_state["airfoil_x"] = airfoil_x
-            st.session_state["airfoil_y"] = airfoil_y
-            st.session_state["airfoil_type"] = "Custom"
-            st.session_state["airfoil_file"] = str(airfoil_path)
-
-            # Extract airfoil name from filename
-            airfoil_name = uploaded_file.name.split('.')[0]
-
-            # Save airfoil to .dat file and create/update CPACS
-            cpacs_path = save_airfoil_and_create_cpacs(
-                airfoil_name=airfoil_name,
-                airfoil_x=airfoil_x,
-                airfoil_y=airfoil_y,
-            )
-
-            # Store path in session state
-            st.session_state["cpacs_path"] = str(cpacs_path)
-
-            # Also save geometry mode and airfoil type to CPACS
-            tixi = Tixi3()
-            tixi.open(str(cpacs_path))
-
-            create_branch(tixi, GEOM_XPATH + "/airfoilType")
-            tixi.updateTextElement(GEOM_XPATH + "/airfoilType", "Custom")
-            create_branch(tixi, GEOM_XPATH + "/airfoilName")
-            tixi.updateTextElement(GEOM_XPATH + "/airfoilName", airfoil_name)
-            # Remove airfoilCode if it exists (from previous NACA selection)
-            if tixi.checkElement(GEOM_XPATH + "/airfoilCode"):
-                tixi.removeElement(GEOM_XPATH + "/airfoilCode")
-
-            tixi.save(str(cpacs_path), True)
-            tixi.close()
-
-            # Reload CPACS in session state to ensure workflow uses updated file
-            # Use SimpleCPACS for 2D (no TIGL validation)
-            st.session_state["cpacs"] = CPACS(str(cpacs_path))
-            st.session_state["last_converted_cpacs_path"] = str(uploaded_path)
-
-        # Display success message full width outside nested context
-        if len(coords_data) > 0:
-            st.success((
-                f"✓ Airfoil profile '{uploaded_file.name}' "
-                f"loaded with {len(coords)} points\n\n"
-                f"📄 Saved to: `profiles/airfoil_{airfoil_name}.dat`\n\n"
-            ))
-        else:
-            st.error("No valid coordinate data found in the file")
-    except Exception as e:
-        st.error(f"Failed to read airfoil file: {str(e)}")
-        st.info("File should contain x y coordinates, one point per line")
-
-
-def plot_airfoil_2d(x_coords, y_coords, title="Airfoil Profile"):
-    """
-    Plot 2D airfoil coordinates using plotly.
-
-    Args:
-        x_coords: Array or list of X coordinates
-        y_coords: Array or list of Y coordinates
-        title: Plot title
-    """
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter(
-        x=x_coords,
-        y=y_coords,
-        mode='lines+markers',
-        line=dict(color='blue', width=2),
-        marker=dict(size=3, color='blue'),
-        fill='toself',
-        fillcolor='rgba(0, 100, 200, 0.2)',
-        name='Airfoil'
-    ))
-
-    fig.update_layout(
-        title=title,
-        xaxis_title="x/c",
-        yaxis_title="y/c",
-        width=900,
-        height=500,
-        showlegend=False,
-        yaxis=dict(scaleanchor="x", scaleratio=1),
-        margin=dict(l=50, r=50, t=50, b=50),
-        hovermode='closest'
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
+            st.warning("Please enter a valid NACA code.")
 
 
 def section_load_cpacs():
@@ -697,7 +519,6 @@ def section_load_cpacs():
             st.rerun()
         else:
             return None
-
 
     if uploaded_file:
         st.session_state["uploaded_default_cpacs"] = False
@@ -783,10 +604,6 @@ def section_load_cpacs():
             st.warning(f"Unsupported file suffix {uploaded_path.suffix=}")
             return None
 
-    # Display the file uploader widget with the previously uploaded file
-    if "cpacs" in st.session_state and st.session_state.cpacs:
-        section_3D_view(force_regenerate=True)
-
 
 # =================================================================================================
 #    MAIN
@@ -816,5 +633,9 @@ if __name__ == "__main__":
     )
 
     st.title(PAGE_NAME)
+
+    # Initialize the workflow object
+    if "workflow" not in st.session_state:
+        st.session_state["workflow"] = Workflow()
 
     section_select_cpacs()

@@ -38,7 +38,7 @@ from pathlib import Path
 MODULE_DIR = Path(__file__).parent
 BREP_IN_PATH = Path(MODULE_DIR, "ToolInput/brep_files_test_rans")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
-CPACS_D150_IN_PATH = Path(CPACS_FILES_PATH, "D150_simple.xml")
+CPACS_D150_IN_PATH = Path(CPACS_FILES_PATH, "d150.xml")
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
 
 # =================================================================================================

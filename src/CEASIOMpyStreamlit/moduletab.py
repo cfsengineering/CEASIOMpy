@@ -14,14 +14,11 @@ Streamlit Tabs per module function.
 # ==============================================================================
 
 import streamlit as st
-from pathlib import Path
-from cpacspy.cpacspy import CPACS
-from ceasiompy.utils import get_wkdir
-from ceasiompy.utils.cpacs_utils import SimpleCPACS
 
+from ceasiompy.utils import get_wkdir
 from ceasiompy.utils.geometryfunctions import get_aircrafts_list
-from CEASIOMpyStreamlit.streamlitutils import section_edit_aeromap
 from ceasiompy.utils.moduleinterfaces import get_specs_for_module
+from CEASIOMpyStreamlit.streamlitutils import section_edit_aeromap
 from CEASIOMpyStreamlit.guiobjects import (
     int_vartype,
     list_vartype,
@@ -29,11 +26,13 @@ from CEASIOMpyStreamlit.guiobjects import (
     else_vartype,
     path_vartype,
     float_vartype,
+    safe_get_value,
     multiselect_vartype,
     add_ctrl_surf_vartype,
-    safe_get_value,
 )
 
+from pathlib import Path
+from cpacspy.cpacspy import CPACS
 from collections import OrderedDict
 
 from ceasiompy import log
@@ -188,15 +187,9 @@ def add_module_tab(new_file: bool) -> None:
                 # Try to load with full CPACS class (3D)
                 st.session_state["cpacs"] = CPACS(str(cpacs_path))
                 st.session_state["cpacs_path"] = str(cpacs_path)
-            except Exception:
-                # If that fails, use SimpleCPACS for 2D cases
-                try:
-                    st.session_state["cpacs"] = SimpleCPACS(str(cpacs_path))
-                    st.session_state["cpacs_path"] = str(cpacs_path)
-                    st.info("📋 Using 2D airfoil mode - some 3D features may not be available")
-                except Exception as e2:
-                    st.error(f"Failed to load CPACS file: {e2}")
-                    return None
+            except Exception as e:
+                st.error(f"Failed to load CPACS file: {e=}")
+                return None
         else:
             st.warning("No CPACS file has been selected!")
             return None

@@ -167,7 +167,7 @@ class Workflow:
 
     def __init__(self) -> None:
         self.working_dir = get_wkdir()
-        self.cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml").resolve()
+        self.cpacs_in = Path(CPACS_FILES_PATH, "d150.xml").resolve()
         self.current_wkflow_dir = None
 
         self.modules_list = []  # List of modules to run (str)

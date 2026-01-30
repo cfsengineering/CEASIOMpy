@@ -52,7 +52,7 @@ class TestStaticStability(CeasiompyTest):
     @classmethod
     def setUpClass(cls: TestStaticStability) -> None:
         super().setUpClass()
-        cls.cpacs_path = Path(CPACS_FILES_PATH, "D150_simple.xml")
+        cls.cpacs_path = Path(CPACS_FILES_PATH, "d150.xml")
         cls.cpacs = CPACS(cls.cpacs_path)
         cls.wkdir = current_workflow_dir()
 

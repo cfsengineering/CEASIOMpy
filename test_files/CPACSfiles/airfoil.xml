@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cpacs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi_noNamespaceSchemaLocation="CPACS_21_Schema.xsd">
+  <header>
+    <name>airfoil</name>
+    <version>0.1</version>
+    <cpacsVersion>3.0</cpacsVersion>
+    <versionInfos>
+      <versionInfo version="3.3">
+        <description>airfoil</description>
+        <version>3.3</version>
+        <cpacsVersion>3.0</cpacsVersion>
+      </versionInfo>
+    </versionInfos>
+  </header>
+  <vehicles xsi:type="vehiclesType">
+    <aircraft xsi:type="aircraftType">
+      <model uID="airfoil_VAMP" xsi:type="aircraftModelType">
+        <name>VAMP_airfoil</name>
+        <description>VAMP_airfoil model</description>
+        <reference xsi:type="referenceType">
+          <area>122.4</area>
+          <length>4.193</length>
+          <point uID="Point">
+            <x>0</x>
+            <y>0</y>
+            <z>0</z>
+          </point>
+        </reference>
+        <wings xsi:type="wingsType">
+          <wing symmetry="x-z-plane" uID="Wing1" xsi:type="wingType">
+            <name>airfoil_wing_1</name>
+            <description>Wing</description>
+            <transformation xsi:type="transformationType" uID="Wing1_transformation1">
+              <scaling xsi:type="pointType" uID="Wing1_transformation1_scaling1">
+                <x>1</x>
+                <y>1</y>
+                <z>1</z>
+              </scaling>
+              <rotation xsi:type="pointType" uID="Wing1_transformation1_rotation1">
+                <x>0</x>
+                <y>2</y>
+                <z>0</z>
+              </rotation>
+              <translation refType="absGlobal" xsi:type="pointAbsRelType" uID="Wing1_transformation1_translation1">
+                <x>12.7456</x>
+                <y>0</y>
+                <z>-1.13628</z>
+              </translation>
+            </transformation>
+            <sections xsi:type="wingSectionsType">
+              <section uID="Wing1_Sec1" xsi:type="wingSectionType">
+                <name>Wing_Sec1</name>
+                <description>Wing_Sec1</description>
+                <transformation xsi:type="transformationType" uID="Wing1_Sec1_transformation1">
+                  <scaling xsi:type="pointType" uID="Wing1_Sec1_transformation1_scaling1">
+                    <x>6.07572</x>
+                    <y>1</y>
+                    <z>6.06092</z>
+                  </scaling>
+                  <rotation xsi:type="pointType" uID="Wing1_Sec1_transformation1_rotation1">
+                    <x>0</x>
+                    <y>0</y>
+                    <z>0</z>
+                  </rotation>
+                  <translation refType="absGlobal" xsi:type="pointAbsRelType" uID="Wing1_Sec1_transformation1_translation1">
+                    <x>0</x>
+                    <y>0</y>
+                    <z>0</z>
+                  </translation>
+                </transformation>
+                <elements xsi:type="wingElementsType">
+                  <element uID="Wing1_Sec1_Elem1" xsi:type="wingElementType">
+                    <name>Wing_Sec1_Elem1</name>
+                    <description>Wing_Sec1_Element1</description>
+                    <airfoilUID>airfoil_VAMP_W_SupCritProf1</airfoilUID>
+                    <transformation xsi:type="transformationType" uID="Wing1_Sec1_Elem1_transformation1">
+                      <scaling xsi:type="pointType" uID="Wing1_Sec1_Elem1_transformation1_scaling1">
+                        <x>1</x>
+                        <y>1</y>
+                        <z>1</z>
+                      </scaling>
+                      <rotation xsi:type="pointType" uID="Wing1_Sec1_Elem1_transformation1_rotation1">
+                        <x>0</x>
+                        <y>0</y>
+                        <z>0</z>
+                      </rotation>
+                      <translation refType="absGlobal" xsi:type="pointAbsRelType" uID="Wing1_Sec1_Elem1_transformation1_translation1">
+                        <x>0</x>
+                        <y>0</y>
+                        <z>0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="Wing1_Sec2" xsi:type="wingSectionType">
+                <name>Wing_Sec2</name>
+                <description>Wing_Sec2</description>
+                <transformation xsi:type="transformationType" uID="Wing1_Sec2_transformation1">
+                  <scaling xsi:type="pointType" uID="Wing1_Sec2_transformation1_scaling1">
+                    <x>6.07572</x>
+                    <y>1</y>
+                    <z>6.06092</z>
+                  </scaling>
+                  <rotation xsi:type="pointType" uID="Wing1_Sec2_transformation1_rotation1">
+                    <x>0</x>
+                    <y>0</y>
+                    <z>0</z>
+                  </rotation>
+                  <translation refType="absGlobal" xsi:type="pointAbsRelType" uID="Wing1_Sec2_transformation1_translation1">
+                    <x>0</x>
+                    <y>0</y>
+                    <z>0</z>
+                  </translation>
+                </transformation>
+                <elements xsi:type="wingElementsType">
+                  <element uID="Wing1_Sec2_Elem1" xsi:type="wingElementType">
+                    <name>Wing_Sec2_Elem1</name>
+                    <description>Wing_Sec2_Element1</description>
+                    <airfoilUID>airfoil_VAMP_W_SupCritProf1</airfoilUID>
+                    <transformation xsi:type="transformationType" uID="Wing1_Sec2_Elem1_transformation1">
+                      <scaling xsi:type="pointType" uID="Wing1_Sec2_Elem1_transformation1_scaling1">
+                        <x>1</x>
+                        <y>1</y>
+                        <z>1</z>
+                      </scaling>
+                      <rotation xsi:type="pointType" uID="Wing1_Sec2_Elem1_transformation1_rotation1">
+                        <x>0</x>
+                        <y>0</y>
+                        <z>0</z>
+                      </rotation>
+                      <translation refType="absGlobal" xsi:type="pointAbsRelType" uID="Wing1_Sec2_Elem1_transformation1_translation1">
+                        <x>0</x>
+                        <y>0</y>
+                        <z>0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+            </sections>
+            <positionings xsi:type="positioningsType">
+              <positioning uID="Wing1_Sec1GenPos" xsi:type="positioningType">
+                <name>p1</name>
+                <length>0</length>
+                <sweepAngle>0</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <toSectionUID>Wing1_Sec1</toSectionUID>
+              </positioning>
+              <positioning uID="Wing1_Sec2GenPos" xsi:type="positioningType">
+                <name>p2</name>
+                <length>1.85623</length>
+                <sweepAngle>0</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <fromSectionUID>Wing1_Sec1</fromSectionUID>
+                <toSectionUID>Wing1_Sec2</toSectionUID>
+              </positioning>
+            </positionings>
+            <segments xsi:type="wingSegmentsType">
+              <segment uID="Wing1_Seg1" xsi:type="wingSegmentType">
+                <name>Wing1_Seg1</name>
+                <description>Wing1_Seg1</description>
+                <fromElementUID>Wing1_Sec1_Elem1</fromElementUID>
+                <toElementUID>Wing1_Sec2_Elem1</toElementUID>
+              </segment>
+            </segments>
+          </wing>
+        </wings>
+        <analyses>
+          <massBreakdown>
+            <designMasses>
+              <mTOM uID="airfoil_VAMP_mTOM1">
+                <mass>78126</mass>
+                <location uID="airfoil_VAMP_mTOM1_location1">
+                  <x>16.3</x>
+                </location>
+              </mTOM>
+              <mZFM uID="airfoil_VAMP_mZFM1">
+                <mass>54038</mass>
+              </mZFM>
+              <mMLM uID="airfoil_VAMP_mMLM1">
+                <mass>57593</mass>
+              </mMLM>
+            </designMasses>
+          </massBreakdown>
+          <weightAndBalance>
+          </weightAndBalance>
+          <aeroPerformance>
+            <aeroMap uID="aeromap_empty">
+              <name>aeromap_empty</name>
+              <description>Common default aeroMap</description>
+              <boundaryCondition>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryCondition>
+              <aeroPerformanceMap>
+                <altitude mapType="vector">0.0</altitude>
+                <machNumber mapType="vector">0.3</machNumber>
+                <angleOfAttack mapType="vector">0.0</angleOfAttack>
+                <angleOfSideslip mapType="vector">0.0</angleOfSideslip>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="test_apm">
+              <name>test_apm</name>
+              <description>Aeromap for tests</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude mapType="vector">0;0;0;0;1000;1000;1000;1000</altitude>
+                <machNumber mapType="vector">0.3;0.3;0.3;0.3;0.5;0.5;0.5;0.5</machNumber>
+                <angleOfAttack mapType="vector">0;10;0;10;0;10;0;10</angleOfAttack>
+                <angleOfSideslip mapType="vector">0;0;10;10;0;0;10;10</angleOfSideslip>
+                <cd mapType="vector">0.01;0.01;0.01;0.01;0.01;0.01;0.01;0.01</cd>
+                <cl mapType="vector">0.1;0.1;0.1;0.1;0.1;0.1;0.1;0.1</cl>
+                <cs mapType="vector">0.001;0.001;0.001;0.001;0.001;0.001;0.001;0.001</cs>
+                <cml mapType="vector">0.002;0.002;0.004;0.002;0.002;0.002;0.004;0.002</cml>
+                <cmd mapType="vector">0.002;0.002;0.004;0.004;0.002;0.002;0.004;0.004</cmd>
+                <cms mapType="vector">0.004;0.002;0.004;0.002;0.004;0.002;0.004;0.002</cms>
+              </aeroPerformanceMap>
+            </aeroMap>
+          </aeroPerformance>
+        </analyses>
+      </model>
+    </aircraft>
+    <profiles>
+      <wingAirfoils xsi:type="wingAirfoilsType">
+        <wingAirfoil uID="airfoil_VAMP_W_SupCritProf1">
+          <name>Nameairfoil_VAMP_W_SupCritProf1</name>
+          <description>Profile generated automaticallz bz WingLib</description>
+          <pointList>
+            <x mapType="vector">
+              1;0.993181;0.972909;0.939737;0.89457;0.838641;0.773474;0.700848;0.622743;0.54129;0.45871;0.377257;0.299152;0.226526;0.161359;0.10543;0.0602631;0.0270914;0.00681934;0;0.00681934;0.0270914;0.0602631;0.10543;0.161359;0.226526;0.299152;0.377257;0.45871;0.54129;0.622743;0.700848;0.773474;0.838641;0.89457;0.939737;0.972909;0.993181;1</x>
+            <y mapType="vector">
+              0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0</y>
+            <z mapType="vector">
+              0;-0.00057906;-0.00238273;-0.00582898;-0.0117713;-0.0209512;-0.0334801;-0.0477972;-0.0619857;-0.0738688;-0.0820266;-0.0861878;-0.0865919;-0.0834552;-0.0770162;-0.0675308;-0.0546752;-0.0377444;-0.0203324;0;0.0234472;0.0414468;0.0542718;0.0620023;0.0660096;0.0669758;0.0652781;0.0618709;0.0573285;0.0520147;0.0461073;0.0396056;0.0324085;0.0247134;0.0170446;0.0100999;0.00478703;0.00156842;0</z>
+          </pointList>
+        </wingAirfoil>
+      </wingAirfoils>
+    </profiles>
+  </vehicles>
+</cpacs>

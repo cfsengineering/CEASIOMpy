@@ -48,7 +48,6 @@ from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
 )
-from ceasiompy.utils.cpacs_utils import SimpleCPACS
 from typing import (
     TextIO,
     Optional,
@@ -321,7 +320,7 @@ def call_main(main: Callable, module_name: str, cpacs_path: Path | None = None) 
     log.info("----- Start of " + module_name + " -----")
 
     if cpacs_path is None:
-        xml_file = "D150_simple.xml"
+        xml_file = "d150.xml"
         cpacs_path = Path(CPACS_FILES_PATH, xml_file)
     else:
         xml_file = cpacs_path.name
@@ -391,15 +390,7 @@ def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
         # Run the module
         with change_working_dir(wkdir):
             # Try loading with full CPACS (for 3D files)
-            # If it fails (e.g., 2D files without required structures), use SimpleCPACS
-            try:
-                cpacs = CPACS(cpacs_in)
-            except Exception as e:
-                log.warning(
-                    f"Standard CPACS loading failed for {cpacs_in}: {e}. "
-                    f"Attempting to load with SimpleCPACS (2D mode)."
-                )
-                cpacs = SimpleCPACS(str(cpacs_in))
+            cpacs = CPACS(cpacs_in)
 
             if test:
                 log.info("Updating CPACS from __specs__")

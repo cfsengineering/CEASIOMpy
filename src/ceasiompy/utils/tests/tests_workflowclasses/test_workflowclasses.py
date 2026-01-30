@@ -19,8 +19,8 @@ from ceasiompy.utils.workflowclasses import ModuleToRun, Workflow
 
 
 MODULE_DIR = Path(__file__).parent
-CPACS_PATH = Path(MODULE_DIR.parents[3].parent, "test_files", "CPACSfiles", "D150_simple.xml")
-CPACS_PATH_OUT = Path(MODULE_DIR, "D150_simple_out.xml")
+CPACS_PATH = Path(MODULE_DIR.parents[3].parent, "test_files", "CPACSfiles", "d150.xml")
+CPACS_PATH_OUT = Path(MODULE_DIR, "d150_out.xml")
 
 # =================================================================================================
 #   TESTS
@@ -92,7 +92,7 @@ class TestWorkflow:
     if not cfg_path.exists():
         cfg_path.write_text(
             "% File written 2022-01-17 14:46:53.344314\n"
-            "CPACS_TOOLINPUT = ./D150_simple.xml\n"
+            "CPACS_TOOLINPUT = ./d150.xml\n"
             "MODULE_TO_RUN = ( CLCalculator, PyAVL )\n"
         )
 

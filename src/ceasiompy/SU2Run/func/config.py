@@ -707,7 +707,7 @@ def generate_su2_cfd_config(
         geometry_mode = tixi.getTextElement(GEOMETRY_MODE_XPATH)
         log.info(f"Geometry mode found in CPACS: {geometry_mode}")
     except Exception:
-        log.info("No geometry mode specified in CPACS, defaulting to 3D mode.")
+        log.info(f"No geometry mode specified in CPACS, defaulting to 3D mode.")
 
     for su2_mesh_path in su2_mesh_paths:
 
@@ -732,13 +732,8 @@ def generate_su2_cfd_config(
             cfg.data.pop("ITER", None)
 
         # General parameters
-        # For 2D mode (SimpleCPACS), use reference values from template
         # For 3D mode (full CPACS), get values from aircraft object
-        if geometry_mode == "2D":
-            # SimpleCPACS doesn't have aircraft attribute
-            # Reference values are already set in cfg_tpl_2d.cfg
-            log.info("Using reference values from 2D template (SimpleCPACS mode)")
-        else:
+        if geometry_mode == "3D":
             aircraft = cpacs.aircraft
             cfg["REF_LENGTH"] = aircraft.ref_length
             cfg["REF_AREA"] = aircraft.ref_area

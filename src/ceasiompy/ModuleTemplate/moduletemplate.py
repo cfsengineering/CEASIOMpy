@@ -60,7 +60,7 @@ def main(cpacs: CPACS) -> None:
 
 
 if __name__ == "__main__":
-    # By default uses D150_simple.xml at CPACS_files.
+    # By default uses d150.xml at CPACS_files.
     call_main(main, MODULE_NAME)
     # If you want to run your module with a specific CPACS file,
     # you can use:

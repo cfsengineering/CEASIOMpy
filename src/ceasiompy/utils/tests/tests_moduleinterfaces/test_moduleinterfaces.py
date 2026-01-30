@@ -185,6 +185,6 @@ def test_get_all_module_specs():
     Test that 'get_all_module_specs()' runs
     """
     st.session_state = MagicMock()
-    st.session_state.cpacs = CPACS(Path(CPACS_FILES_PATH, "D150_simple.xml"))
+    st.session_state.cpacs = CPACS(Path(CPACS_FILES_PATH, "d150.xml"))
     all_specs = get_all_module_specs()
     assert isinstance(all_specs, dict)

@@ -35,7 +35,7 @@ from tixi3.tixi3wrapper import (
     Tixi3Exception,
 )
 
-from ceasiompy.utils.cpacs_utils import SimpleCPACS
+
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
@@ -151,12 +151,8 @@ def save_cpacs_file(logging: bool = True):
     st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
     st.session_state.workflow.cpacs_in = saved_cpacs_file
 
-    # Try to reload with full CPACS, fallback to SimpleCPACS for 2D
-    try:
-        st.session_state.cpacs = CPACS(saved_cpacs_file)
-    except Exception:
-        st.session_state.cpacs = SimpleCPACS(str(saved_cpacs_file))
-
+    # Try to reload with full CPACS
+    st.session_state.cpacs = CPACS(saved_cpacs_file)
 
 def create_sidebar(how_to_text, page_title="CEASIOMpy"):
     """Create side bar with a text explaining how the page should be used."""
@@ -424,7 +420,7 @@ def plot_airfoil_2d(x_coords, y_coords, title="Airfoil Profile"):
         hovermode='closest'
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
 
 
 def section_3D_view(
@@ -503,11 +499,7 @@ def section_3D_view(
         ),
     )
 
-    if height is None:
-        height = "stretch"
+    if height is not None:
+        fig.update_layout(height=height)
 
-    st.plotly_chart(
-        fig,
-        height=height,
-        width="stretch",
-    )
+    st.plotly_chart(fig, width='stretch')

@@ -124,7 +124,7 @@ def run_testcase(testcase_nb):
         workflow = Workflow()
         workflow.from_config_file(test_case_1_cfg)
         workflow.working_dir = current_workflow_dir()
-        workflow.cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml")
+        workflow.cpacs_in = Path(CPACS_FILES_PATH, "d150.xml")
 
         workflow.set_workflow()
         workflow.run_workflow(test=True)
@@ -152,7 +152,7 @@ def run_testcase(testcase_nb):
         )
         log.info(">> conda activate ceasiompy")
         log.info(
-            ">> ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml "
+            ">> ceasiompy_run -m ../test_files/CPACSfiles/d150.xml "
             "PyAVL SkinFriction"
         )
 

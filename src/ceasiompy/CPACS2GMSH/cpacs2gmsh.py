@@ -45,7 +45,6 @@ from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import SU2MESH_XPATH, GEOMETRY_MODE_XPATH
-from ceasiompy.utils.cpacs_utils import SimpleCPACS
 from ceasiompy.CPACS2GMSH import (
     MODULE_NAME,
     CONTROL_SURFACES_LIST,
@@ -273,13 +272,13 @@ def deform_surf(cpacs: CPACS, wkdir: Path, surf: str, angle: float, wing_names: 
     run_cpacs2gmsh(CPACS(new_file_path), wkdir, surf, str(angle))
 
 
-def main(cpacs: CPACS | SimpleCPACS, wkdir: Path) -> None:
+def main(cpacs: CPACS, wkdir: Path) -> None:
     """
     Main function.
     Defines setup for gmsh.
 
     Args:
-        cpacs: CPACS or SimpleCPACS object
+        cpacs: CPACS
         wkdir: Working directory path
 
     """
@@ -350,23 +349,4 @@ def main(cpacs: CPACS | SimpleCPACS, wkdir: Path) -> None:
 
 
 if __name__ == "__main__":
-    # Try to use standard call_main, but it will fail for 2D CPACS files
-    # In that case, we'll handle it with SimpleCPACS
-    try:
-        call_main(main, MODULE_NAME)
-    except Exception as e:
-        # If CPACS loading fails, try with SimpleCPACS for 2D mode
-        log.warning(f"Standard CPACS loading failed: {e}")
-        log.info("Attempting to load with SimpleCPACS for 2D mode...")
-
-        wkdir = current_workflow_dir()
-        cpacs_path = wkdir / "ToolInput.xml"
-
-        if cpacs_path.exists():
-            cpacs = SimpleCPACS(str(cpacs_path))
-            main(cpacs, wkdir)
-            cpacs.save_cpacs(str(cpacs_path), overwrite=True)
-            cpacs.close()
-        else:
-            log.error(f"CPACS file not found: {cpacs_path}")
-            raise
+    call_main(main, MODULE_NAME)

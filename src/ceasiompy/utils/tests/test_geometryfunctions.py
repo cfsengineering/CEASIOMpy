@@ -1,9 +1,7 @@
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
-Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
-
-Test the module CPACS2SUMO
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland.
 """
 
 # =================================================================================================

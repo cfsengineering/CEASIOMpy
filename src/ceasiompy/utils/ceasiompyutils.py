@@ -256,6 +256,11 @@ def get_aeromap_list_from_xpath(cpacs, aeromap_to_analyze_xpath, empty_if_not_fo
     return aeromap_uid_list
 
 
+def safe_remove(tixi: Tixi3, *, xpath: str) -> None:
+    if tixi.checkElement(xpath):
+        tixi.removeElement(xpath)
+
+
 def get_results_directory(
     module_name: str,
     create: bool = True,

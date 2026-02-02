@@ -12,10 +12,7 @@ Streamlit page to show results of CEASIOMpy
 
 """
 
-# =================================================================================================
-#    IMPORTS
-# =================================================================================================
-
+# Imports
 import os
 import base64
 
@@ -39,9 +36,7 @@ from ceasiompy.PyAVL import AVL_TABLE_FILES
 from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
 
 
-# =================================================================================================
-#    CONSTANTS
-# =================================================================================================
+# Constants
 
 HOW_TO_TEXT = (
     "### How to check your results\n"
@@ -285,6 +280,18 @@ def get_workflow_dirs(current_wkdir: Path) -> list[Path]:
     return sorted(workflow_dirs, key=workflow_number)
 
 
+def get_workflow_module_order(workflow_dir: Path) -> list[str]:
+    module_dirs = []
+    for module_dir in workflow_dir.iterdir():
+        if not module_dir.is_dir():
+            continue
+        parts = module_dir.name.split("_", 1)
+        if len(parts) != 2 or not parts[0].isdigit():
+            continue
+        module_dirs.append((int(parts[0]), parts[1]))
+    return [name for _, name in sorted(module_dirs, key=lambda item: item[0])]
+
+
 def show_results():
     """Display the results of the selected workflow."""
 
@@ -309,7 +316,12 @@ def show_results():
     if not results_dir.exists():
         st.warning("No results have been found for the selected workflow!")
         return
-    results_name = sorted([dir.stem for dir in results_dir.iterdir() if dir.is_dir()])
+    results_dirs = [dir for dir in results_dir.iterdir() if dir.is_dir()]
+    results_names = [dir.stem for dir in results_dirs]
+    workflow_module_order = get_workflow_module_order(chosen_workflow)
+    ordered_results = [name for name in workflow_module_order if name in results_names]
+    unordered_results = sorted([name for name in results_names if name not in ordered_results])
+    results_name = ordered_results + unordered_results
     if not results_name:
         st.warning("No results have been found!")
         return

@@ -127,6 +127,7 @@ def launch_su2(
 
     if tixi.checkElement(SU2MESH_XPATH):
         su2mesh = get_value(tixi, SU2MESH_XPATH)
+
     if tixi.checkElement(USED_SU2_MESH_XPATH):
         su2_mesh_path = tixi.getTextElement(USED_SU2_MESH_XPATH)
         if not su2_mesh_path:

@@ -2,18 +2,6 @@
 CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
-
-Small description of the script
-
-| Author:Tony Govoni
-| Creation: 2022-03-22
-| Modified by: Giacomo Benedetti, Guido Vallifuoco
-| Date: 2024-02-01
-| Modified by: Leon Deligny
-| Date: 06 March 2025
-| Modified by: Cassandre Renaud
-| Date: 08 May 2025
-
 """
 
 # =================================================================================================
@@ -133,7 +121,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
 
     cgns_path = None
 
-    if type_mesh == "Euler":
+    if type_mesh == "EULER":
         su2mesh_path, cgns_path = generate_gmsh(
             tixi,
             brep_dir,
@@ -299,7 +287,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         log.info("2D airfoil mode detected. Running 2D processing only...")
         process_2d_airfoil(cpacs, wkdir)
         log.info("2D processing completed, returning without 3D mesh generation.")
-        return
+        return None
 
     # If we reach here, we are in 3D mode
     log.info("Proceeding with 3D mesh generation...")

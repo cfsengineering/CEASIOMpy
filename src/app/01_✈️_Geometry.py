@@ -4,21 +4,12 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Main Streamlit page for CEASIOMpy GUI.
-
-| Author : Aidan Jungo
-| Creation: 2022-09-09
-| Author: Leon Deligny
-| Modified: 16th April 2025
-
 """
 
 # Futures
 from __future__ import annotations
 
-# =================================================================================================
-#    IMPORTS
-# =================================================================================================
-
+# Imports
 import os
 import hashlib
 import numpy as np
@@ -57,9 +48,7 @@ from ceasiompy.utils.commonxpaths import (
     GEOMETRY_MODE_XPATH,
 )
 
-# =================================================================================================
-#    CONSTANTS
-# =================================================================================================
+# Constants
 
 HOW_TO_TEXT: Final[str] = (
     "### How to use CEASIOMpy?\n"
@@ -70,11 +59,8 @@ HOW_TO_TEXT: Final[str] = (
 
 PAGE_NAME: Final[str] = "Geometry"
 
-# =================================================================================================
-#    METHODS
-# =================================================================================================
 
-
+# Methods
 def _clean_toolspecific(cpacs: CPACS) -> CPACS:
     air_name = cpacs.ac_name
 
@@ -122,6 +108,8 @@ def _generate_cpacs_airfoil(naca_code: str) -> None:
     airfoil_ref_path = Path(CPACS_FILES_PATH, "airfoil.xml")
 
     cpacs = CPACS(airfoil_ref_path)
+    create_branch(cpacs.tixi, GEOMETRY_MODE_XPATH)
+    cpacs.tixi.updateTextElement(GEOMETRY_MODE_XPATH, "2D")
 
     wingairfoil_xpath = AIRFOILS_XPATH + "/wingAirfoil[1]"
 
@@ -272,6 +260,8 @@ def _section_load_cpacs():
             or uploaded_path.suffix == ".dat"
             or uploaded_path.suffix == ".txt"
         ):
+            create_branch(cpacs.tixi, GEOMETRY_MODE_XPATH)
+            cpacs.tixi.updateTextElement(GEOMETRY_MODE_XPATH, "2D")
             # _convert_airfoil_to_cpacs(wkdir, uploaded_file)
             raise NotImplementedError("SOON.")
 
@@ -295,6 +285,8 @@ def _section_load_cpacs():
                 st.session_state["last_converted_vsp3_digest"] = uploaded_digest
                 st.session_state["last_converted_cpacs_path"] = str(new_cpacs_path)
                 st.session_state["cpacs"] = CPACS(str(new_cpacs_path))
+                create_branch(cpacs.tixi, GEOMETRY_MODE_XPATH)
+                cpacs.tixi.updateTextElement(GEOMETRY_MODE_XPATH, "3D")
 
             # No conversion
             else:
@@ -321,6 +313,8 @@ def _section_load_cpacs():
                     st.session_state["last_converted_vsp3_digest"] = uploaded_digest
                     st.session_state["last_converted_cpacs_path"] = str(new_cpacs_path)
                     st.session_state["cpacs"] = CPACS(str(new_cpacs_path))
+                create_branch(cpacs.tixi, GEOMETRY_MODE_XPATH)
+                cpacs.tixi.updateTextElement(GEOMETRY_MODE_XPATH, "3D")
 
         elif uploaded_path.suffix == ".xml":
             new_cpacs_path = uploaded_path

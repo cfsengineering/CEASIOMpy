@@ -310,9 +310,6 @@ class Avl:
         """
         Convert a CPACS file geometry into an AVL file geometry.
 
-        Source:
-        * https://github.com/cfsengineering/CEASIOMpy/blob/main/ceasiompy/CPACS2SUMO/cpacs2sumo.py
-
         Workflow:
             1. Initialize command file .avl
             2. Convert fuselage (if included)

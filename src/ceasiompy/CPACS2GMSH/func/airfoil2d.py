@@ -13,20 +13,23 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 import shutil
 import subprocess
 
-from ceasiompy.utils.moduleinterfaces import get_specs_for_module
+from shlex import join as shlex_join
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 from cpacspy.cpacsfunctions import (
+    get_value,
     create_branch,
     get_float_vector,
-    get_value_or_default,
 )
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
+from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
+from ceasiompy.CPACS2GMSH import MODULE_NAME
 from ceasiompy.utils.commonxpaths import (
-    GEOM_XPATH,
     SU2MESH_XPATH,
+    AIRFOILS_XPATH,
 )
 from ceasiompy.CPACS2GMSH import (
     GMSH_2D_AIRFOIL_MESH_SIZE_XPATH,
@@ -44,29 +47,15 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_2D_MESH_FORMAT_XPATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+
+# Methods
+def _safe_get_value(tixi: Tixi3, xpath: str):
+    if tixi.checkElement(xpath):
+        return get_value(tixi, xpath)
+    return None
 
 
-def _get_defaults_from_specs():
-    """
-    Get default values from __specs__.py file.
-
-    Returns:
-        dict: Dictionary mapping xpath to default value
-    """
-    specs = get_specs_for_module("CPACS2GMSH")
-    defaults = {}
-    for entry in specs.cpacs_inout.inputs:
-        defaults[entry.xpath] = entry.default_value
-        # For list types (dropdowns), use first item as default
-        if isinstance(defaults[entry.xpath], list) and len(defaults[entry.xpath]) > 0:
-            defaults[entry.xpath] = defaults[entry.xpath][0]
-    return defaults
-
-
-def _read_mesh_parameters(tixi, defaults):
+def _read_mesh_parameters(tixi: Tixi3):
     """
     Read mesh parameters from CPACS with defaults.
 
@@ -78,47 +67,19 @@ def _read_mesh_parameters(tixi, defaults):
         dict: Dictionary of mesh parameters
     """
     params = {
-        "airfoil_mesh_size": get_value_or_default(
-            tixi, GMSH_2D_AIRFOIL_MESH_SIZE_XPATH, defaults.get(GMSH_2D_AIRFOIL_MESH_SIZE_XPATH)
-        ),
-        "ext_mesh_size": get_value_or_default(
-            tixi, GMSH_2D_EXT_MESH_SIZE_XPATH, defaults.get(GMSH_2D_EXT_MESH_SIZE_XPATH)
-        ),
-        "structured_mesh": get_value_or_default(
-            tixi, GMSH_2D_STRUCTURED_MESH_XPATH, defaults.get(GMSH_2D_STRUCTURED_MESH_XPATH)
-        ),
-        "first_layer_height": get_value_or_default(
-            tixi, GMSH_2D_FIRST_LAYER_HEIGHT_XPATH, defaults.get(GMSH_2D_FIRST_LAYER_HEIGHT_XPATH)
-        ),
-        "farfield_type": get_value_or_default(
-            tixi, GMSH_2D_FARFIELD_TYPE_XPATH, defaults.get(GMSH_2D_FARFIELD_TYPE_XPATH)
-        ),
-        "farfield_radius": get_value_or_default(
-            tixi, GMSH_2D_FARFIELD_RADIUS_XPATH, defaults.get(GMSH_2D_FARFIELD_RADIUS_XPATH)
-        ),
-        "wake_length": get_value_or_default(
-            tixi, GMSH_2D_WAKE_LENGTH_XPATH, defaults.get(GMSH_2D_WAKE_LENGTH_XPATH)
-        ),
-        "height_length": get_value_or_default(
-            tixi, GMSH_2D_HEIGHT_LENGTH_XPATH, defaults.get(GMSH_2D_HEIGHT_LENGTH_XPATH)
-        ),
-        "length": get_value_or_default(
-            tixi, GMSH_2D_LENGTH_XPATH, defaults.get(GMSH_2D_LENGTH_XPATH)
-        ),
-        "no_boundary_layer": get_value_or_default(
-            tixi, GMSH_2D_NO_BL_XPATH, defaults.get(GMSH_2D_NO_BL_XPATH)
-        ),
-        "growth_ratio": get_value_or_default(
-            tixi, GMSH_2D_RATIO_XPATH, defaults.get(GMSH_2D_RATIO_XPATH)
-        ),
-        "number_of_layers": int(
-            get_value_or_default(
-                tixi, GMSH_2D_NB_LAYERS_XPATH, defaults.get(GMSH_2D_NB_LAYERS_XPATH)
-            )
-        ),
-        "mesh_format": get_value_or_default(
-            tixi, GMSH_2D_MESH_FORMAT_XPATH, defaults.get(GMSH_2D_MESH_FORMAT_XPATH)
-        ),
+        "airfoil_mesh_size": _safe_get_value(tixi, GMSH_2D_AIRFOIL_MESH_SIZE_XPATH),
+        "ext_mesh_size": _safe_get_value(tixi, GMSH_2D_EXT_MESH_SIZE_XPATH),
+        "structured_mesh": _safe_get_value(tixi, GMSH_2D_STRUCTURED_MESH_XPATH),
+        "first_layer_height": _safe_get_value(tixi, GMSH_2D_FIRST_LAYER_HEIGHT_XPATH),
+        "farfield_type": _safe_get_value(tixi, GMSH_2D_FARFIELD_TYPE_XPATH),
+        "farfield_radius": _safe_get_value(tixi, GMSH_2D_FARFIELD_RADIUS_XPATH),
+        "wake_length": _safe_get_value(tixi, GMSH_2D_WAKE_LENGTH_XPATH),
+        "height_length": _safe_get_value(tixi, GMSH_2D_HEIGHT_LENGTH_XPATH),
+        "length": _safe_get_value(tixi, GMSH_2D_LENGTH_XPATH),
+        "no_boundary_layer": _safe_get_value(tixi, GMSH_2D_NO_BL_XPATH),
+        "growth_ratio": _safe_get_value(tixi, GMSH_2D_RATIO_XPATH),
+        "number_of_layers": _safe_get_value(tixi, GMSH_2D_NB_LAYERS_XPATH),
+        "mesh_format": _safe_get_value(tixi, GMSH_2D_MESH_FORMAT_XPATH),
     }
 
     # Force CType for structured mesh
@@ -129,131 +90,17 @@ def _read_mesh_parameters(tixi, defaults):
     return params
 
 
-def _get_airfoil_info(tixi):
-    """
-    Extract airfoil type and name from CPACS.
-
-    Args:
-        tixi: TIXI handle
-
-    Returns:
-        tuple: (airfoil_type, airfoil_name, airfoil_file)
-    """
-    airfoil_type = tixi.getTextElement(GEOM_XPATH + "/airfoilType")
-    airfoil_name = None
-    airfoil_file = None
-
-    if airfoil_type == "NACA":
-        airfoil_name = tixi.getTextElement(GEOM_XPATH + "/airfoilCode")
-        log.info(f"Using NACA airfoil from CPACS: {airfoil_name}")
-
-    elif airfoil_type == "Custom":
-        try:
-            airfoil_name = tixi.getTextElement(GEOM_XPATH + "/airfoilName")
-            log.info(f"Using custom airfoil from CPACS: {airfoil_name}")
-        except Exception:
-            log.error("Custom airfoil type but no name found in CPACS")
-
-    return airfoil_type, airfoil_name, airfoil_file
-
-
-def _write_airfoil_from_pointlist(
-    tixi, airfoil_xpath: str, wkdir: Path, airfoil_name: str | None
-):
-    pointlist_xpath = airfoil_xpath + "/pointList"
-    if not tixi.checkElement(pointlist_xpath + "/x"):
-        return None
-
-    x_vals = get_float_vector(tixi, pointlist_xpath + "/x")
-    if tixi.checkElement(pointlist_xpath + "/z"):
-        z_vals = get_float_vector(tixi, pointlist_xpath + "/z")
-    elif tixi.checkElement(pointlist_xpath + "/y"):
-        z_vals = get_float_vector(tixi, pointlist_xpath + "/y")
-    else:
-        return None
-
-    if len(x_vals) != len(z_vals) or not x_vals:
-        return None
-
-    safe_name = (airfoil_name or "custom").replace(" ", "_")
-    airfoil_file = wkdir / f"airfoil_{safe_name}.dat"
-
-    with open(airfoil_file, "w") as f:
-        f.write(f"{safe_name}\n")
-        for x, z in zip(x_vals, z_vals):
-            f.write(f"{x:.8f} {z:.8f}\n")
-
-    return airfoil_file
-
-
-def _find_airfoil_file(tixi, airfoil_type, wkdir: Path):
-    """
-    Find airfoil profile file in CPACS wingAirfoils (only for Custom type).
-
-    Args:
-        tixi: TIXI handle
-        airfoil_type: Type of airfoil (NACA or Custom)
-
-    Returns:
-        tuple: (airfoil_name, airfoil_file Path or None, inline_generated bool)
-    """
-    if airfoil_type != "Custom":
-        return None, None, False
-
-    try:
-        airfoils_xpath = "/cpacs/vehicles/profiles/wingAirfoils"
-        n_airfoils = tixi.getNamedChildrenCount(airfoils_xpath, "wingAirfoil")
-
-        # Iterate backwards to get the most recent airfoil
-        for i in range(n_airfoils, 0, -1):
-            airfoil_xpath = f"{airfoils_xpath}/wingAirfoil[{i}]"
-
-            # Try to get the airfoil file path
-            if tixi.checkElement(airfoil_xpath + "/pointList/file"):
-                file_path = tixi.getTextElement(airfoil_xpath + "/pointList/file")
-                if file_path and Path(file_path).exists():
-                    airfoil_file = Path(file_path)
-                    # Get airfoil name from CPACS
-                    try:
-                        airfoil_name = tixi.getTextElement(airfoil_xpath + "/name")
-                    except Exception:
-                        airfoil_name = Path(file_path).stem.replace("airfoil_", "")
-
-                    log.info(f"Found airfoil profile in CPACS: {airfoil_file}")
-                    return airfoil_name, airfoil_file, False
-
-            # Fall back to inline pointList if present
-            try:
-                airfoil_name = tixi.getTextElement(airfoil_xpath + "/name")
-            except Exception:
-                airfoil_name = None
-
-            inline_file = _write_airfoil_from_pointlist(
-                tixi, airfoil_xpath, wkdir, airfoil_name
-            )
-            if inline_file:
-                log.info(f"Built airfoil profile from pointList: {inline_file}")
-                return airfoil_name, inline_file, True
-
-    except Exception as e:
-        log.debug(f"Could not search for airfoil profiles in CPACS: {e}")
-
-    return None, None, False
-
-
-def _run_gmshairfoil2d(params, wkdir, airfoil_type, airfoil_name, airfoil_file):
+def _run_gmshairfoil2d(params, wkdir, airfoil_file):
     """
     Build the gmshairfoil2d command line.
 
     Args:
         params: Dictionary of mesh parameters
         wkdir: Working directory Path
-        airfoil_type: Type of airfoil (NACA or Custom)
-        airfoil_name: Name/code of the airfoil
-        airfoil_file: Path to airfoil file (if Custom)
+        airfoil_file: Path to airfoil file.
 
     Returns:
-        tuple: (command list, expected_mesh_file Path, needs_rename bool)
+        tuple: (command list, expected_mesh_file Path, fallback_mesh_file Path | None)
     """
     aoa = 0.0
     deflection = 0.0
@@ -277,28 +124,38 @@ def _run_gmshairfoil2d(params, wkdir, airfoil_type, airfoil_name, airfoil_file):
 
     # Add boundary layer parameters
     if not params["no_boundary_layer"]:
-        cmd.extend(
-            [
-                "--first_layer",
-                str(params["first_layer_height"]),
-                "--ratio",
-                str(params["growth_ratio"]),
-                "--nb_layers",
-                str(params["number_of_layers"]),
-            ]
-        )
+        nb_of_layers = params["number_of_layers"]
+        if nb_of_layers is None:
+            raise ValueError(f"Number of layers not specified in Settings {nb_of_layers=}")
+
+        cmd.extend([
+            "--first_layer",
+            str(params["first_layer_height"]),
+            "--ratio",
+            str(params["growth_ratio"]),
+            "--nb_layers",
+            str(int(nb_of_layers)),
+        ])
     else:
         cmd.append("--no_bl")
         log.info("Boundary layer disabled, using unstructured mesh with triangles only")
 
     # Add farfield parameters
     if params["farfield_type"] == "Circular":
+        if params["farfield_radius"] is None:
+            raise ValueError("Farfield radius is required for Circular farfield type.")
         cmd.extend(["--farfield", str(params["farfield_radius"])])
     elif params["farfield_type"] == "CType":
         cmd.append("--farfield_ctype")
         if params["structured_mesh"]:
+            if params["wake_length"] is None or params["height_length"] is None:
+                raise ValueError(
+                    "Wake and height lengths are required for structured CType farfield."
+                )
             cmd.extend(["--arg_struc", f"{params['wake_length']}x{params['height_length']}"])
     elif params["farfield_type"] == "Rectangular":
+        if params["length"] is None or params["height_length"] is None:
+            raise ValueError("Length and height are required for Rectangular farfield type.")
         cmd.extend(["--box", f"{params['length']}x{params['height_length']}"])
 
     # Add structured mesh option
@@ -306,8 +163,6 @@ def _run_gmshairfoil2d(params, wkdir, airfoil_type, airfoil_name, airfoil_file):
         cmd.append("--structured")
 
     # Determine airfoil input and expected output file
-    needs_rename = False
-
     if airfoil_file and airfoil_file.exists():
         # Copy airfoil file to working directory if needed
         if airfoil_file.parent != wkdir:
@@ -318,101 +173,154 @@ def _run_gmshairfoil2d(params, wkdir, airfoil_type, airfoil_name, airfoil_file):
         cmd.extend(["--airfoil_path", str(airfoil_file)])
         log.info(f"Generating mesh using airfoil file: {airfoil_file}")
 
-        # Handle double 'airfoil_' prefix
         file_stem = airfoil_file.stem
-        if file_stem.startswith("airfoil_"):
-            file_stem = file_stem[8:]
-            needs_rename = True
-
         expected_mesh_file = wkdir / f"mesh_airfoil_{file_stem}.{params['mesh_format']}"
+        fallback_mesh_file = None
+        if file_stem.startswith("airfoil_"):
+            fallback_mesh_file = wkdir / f"mesh_airfoil_{file_stem[8:]}.{params['mesh_format']}"
 
-    elif airfoil_type == "NACA":
-        cmd.extend(["--naca", airfoil_name])
-        log.info(f"Generating mesh for NACA {airfoil_name} airfoil")
-        expected_mesh_file = wkdir / f"mesh_airfoil_{airfoil_name}.{params['mesh_format']}"
+    return cmd, expected_mesh_file, fallback_mesh_file
 
-    elif airfoil_type == "Custom":
-        if not airfoil_name:
-            raise ValueError("Custom airfoil requires airfoilName in CPACS")
-        cmd.extend(["--airfoil", airfoil_name])
-        log.info(f"Generating mesh for airfoil: {airfoil_name}")
-        expected_mesh_file = wkdir / f"mesh_airfoil_{airfoil_name}.{params['mesh_format']}"
 
+def _log_process_streams(
+    result,
+    *,
+    stdout_level="info",
+    stderr_level="error",
+    prefix="gmshairfoil2d",
+):
+    if result.stdout:
+        getattr(log, stdout_level)(f"{prefix} stdout:\n{result.stdout}")
+    if result.stderr:
+        getattr(log, stderr_level)(f"{prefix} stderr:\n{result.stderr}")
+
+
+def _collect_process_details(result, *, stdout_label="Output", stderr_label="Error"):
+    details = []
+    if result.stderr:
+        details.append(f"{stderr_label}: {result.stderr}")
+    if result.stdout:
+        details.append(f"{stdout_label}: {result.stdout}")
+    return "\n".join(details)
+
+
+def _generating_dat_file(cpacs: CPACS) -> Path:
+    wingairfoil_xpath = AIRFOILS_XPATH + "/wingAirfoil[1]"
+    wkdir = get_results_directory(MODULE_NAME)
+    tixi = cpacs.tixi
+
+    if not tixi.checkElement(wingairfoil_xpath):
+        raise ValueError(f"Missing wing airfoil definition at {wingairfoil_xpath}")
+
+    def _safe_airfoil_name(value: str) -> str:
+        safe = "".join(
+            char
+            if (char.isalnum() or char in ("-", "_"))
+            else "_" for char in value.strip()
+        )
+        return safe or "airfoil"
+
+    airfoil_id = "airfoil"
+    if tixi.checkAttribute(wingairfoil_xpath, "uID"):
+        airfoil_id = tixi.getTextAttribute(wingairfoil_xpath, "uID")
+    elif tixi.checkElement(wingairfoil_xpath + "/name"):
+        airfoil_id = tixi.getTextElement(wingairfoil_xpath + "/name")
+
+    airfoil_id = _safe_airfoil_name(airfoil_id)
+    dat_file = wkdir / f"airfoil_{airfoil_id}.dat"
+
+    file_xpath = wingairfoil_xpath + "/pointList/file"
+    if tixi.checkElement(file_xpath):
+        file_path = Path(tixi.getTextElement(file_xpath))
+        if file_path.exists():
+            if file_path.resolve() != dat_file.resolve():
+                shutil.copy(file_path, dat_file)
+            log.info(f"Using airfoil point file from CPACS: {dat_file}")
+            return dat_file
+
+    pointlist_xpath = wingairfoil_xpath + "/pointList"
+    if not tixi.checkElement(pointlist_xpath + "/x"):
+        raise ValueError(f"Missing airfoil x-coordinates at {pointlist_xpath}/x")
+
+    x_vals = get_float_vector(tixi, pointlist_xpath + "/x")
+    if tixi.checkElement(pointlist_xpath + "/z"):
+        z_vals = get_float_vector(tixi, pointlist_xpath + "/z")
+    elif tixi.checkElement(pointlist_xpath + "/y"):
+        z_vals = get_float_vector(tixi, pointlist_xpath + "/y")
     else:
-        raise ValueError(f"Unknown airfoil type: {airfoil_type}")
+        raise ValueError(f"Missing airfoil z/y-coordinates at {pointlist_xpath}")
 
-    return cmd, expected_mesh_file, needs_rename
+    if len(x_vals) != len(z_vals) or not x_vals:
+        raise ValueError("Airfoil coordinate lists are empty or length-mismatched")
+
+    with open(dat_file, "w") as dat_handle:
+        dat_handle.write(f"{airfoil_id}\n")
+        for coord_x, coord_z in zip(x_vals, z_vals):
+            dat_handle.write(f"{coord_x:.8f}\t{coord_z:.8f}\n")
+
+    log.info(f"Wrote airfoil coordinates to {dat_file}")
+    return dat_file
 
 
+# Functions
 def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
     """
     Process 2D airfoil geometry and generate 2D mesh.
 
     This function handles the 2D airfoil case, reading the airfoil configuration
     from the CPACS file and generating a 2D mesh using gmshairfoil2d.
-
-    Args:
-        cpacs (CPACS): CPACS object containing the airfoil geometry
-        wkdir (Path): Working directory path
-
     """
     log.info("Processing 2D airfoil geometry...")
 
     tixi = cpacs.tixi
 
     # Get default values and read mesh parameters
-    defaults = _get_defaults_from_specs()
-    params = _read_mesh_parameters(tixi, defaults)
+    log.info("Reading mesh parameters.")
+    params = _read_mesh_parameters(tixi)
 
-    # Get airfoil information from CPACS
-    airfoil_type, airfoil_name, airfoil_file = _get_airfoil_info(tixi)
-    inline_generated = False
-
-    # Try to find airfoil file if Custom type
-    if airfoil_type == "Custom":
-        found_name, found_file, inline_generated = _find_airfoil_file(
-            tixi, airfoil_type, wkdir
-        )
-        if found_file:
-            airfoil_file = found_file
-            if found_name:
-                airfoil_name = found_name
+    log.info("Generating .dat file for gmshairfoil2d from CPACS file.")
+    airfoil_file = _generating_dat_file(cpacs)
 
     # Build gmshairfoil2d command
-    cmd, expected_mesh_file, needs_rename = _run_gmshairfoil2d(
-        params, wkdir, airfoil_type, airfoil_name, airfoil_file
+    log.info("Building gmshairfoil2d command.")
+    cmd, expected_mesh_file, fallback_mesh_file = _run_gmshairfoil2d(
+        wkdir=wkdir,
+        params=params,
+        airfoil_file=airfoil_file,
     )
 
     # Execute gmshairfoil2d
-    log.info(f"Running: {' '.join(cmd)}")
+    log.info(f"Running: {shlex_join(cmd)}")
     result = subprocess.run(cmd, capture_output=True, text=True, cwd=wkdir)
 
     if result.returncode != 0:
         error_msg = f"Mesh generation failed with return code {result.returncode}"
-        if result.stderr:
-            log.error(f"gmshairfoil2d stderr:\n{result.stderr}")
-            error_msg += f"\nError: {result.stderr}"
-        if result.stdout:
-            log.error(f"gmshairfoil2d stdout:\n{result.stdout}")
-            error_msg += f"\nOutput: {result.stdout}"
+        _log_process_streams(result, stdout_level="error", stderr_level="error")
+        details = _collect_process_details(result)
+        if details:
+            error_msg = f"{error_msg}\n{details}"
         raise RuntimeError(error_msg)
 
-    # Rename file if needed to remove double 'airfoil_' prefix
-    if needs_rename:
-        gmsh_output_file = wkdir / f"mesh_airfoil_airfoil_{airfoil_name}.{params['mesh_format']}"
-        if gmsh_output_file.exists():
-            shutil.move(gmsh_output_file, expected_mesh_file)
-            log.info(f"Renamed {gmsh_output_file.name} to {expected_mesh_file.name}")
-
     # Verify mesh file was created
+    if not expected_mesh_file.exists() and fallback_mesh_file and fallback_mesh_file.exists():
+        expected_mesh_file = fallback_mesh_file
+
     if not expected_mesh_file.exists():
         error_msg = f"Mesh file not found after generation: {expected_mesh_file}"
-        if result.stdout:
-            log.info(f"gmshairfoil2d output:\n{result.stdout}")
-            error_msg += f"\n\nGmshairfoil2d output:\n{result.stdout}"
-        if result.stderr:
-            log.warning(f"gmshairfoil2d stderr:\n{result.stderr}")
-            error_msg += f"\n\nGmshairfoil2d stderr:\n{result.stderr}"
+        candidates = sorted(wkdir.glob(f"mesh_airfoil_*.{params['mesh_format']}"))
+        if candidates:
+            error_msg = (
+                f"{error_msg}\nAvailable mesh files: "
+                + ", ".join(str(path) for path in candidates)
+            )
+        _log_process_streams(result, stdout_level="info", stderr_level="warning")
+        details = _collect_process_details(
+            result,
+            stdout_label="Gmshairfoil2d output",
+            stderr_label="Gmshairfoil2d stderr",
+        )
+        if details:
+            error_msg = f"{error_msg}\n\n{details}"
         raise RuntimeError(error_msg)
 
     log.info(f"2D mesh generated successfully: {expected_mesh_file}")
@@ -420,10 +328,5 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
     # Save mesh path to CPACS
     create_branch(tixi, SU2MESH_XPATH)
     tixi.updateTextElement(SU2MESH_XPATH, str(expected_mesh_file))
-    cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
-
-    # Clean up temporary airfoil file generated from inline pointList
-    if airfoil_type == "Custom" and airfoil_file and inline_generated:
-        airfoil_file.unlink(missing_ok=True)
 
     log.info("2D airfoil processing completed.")

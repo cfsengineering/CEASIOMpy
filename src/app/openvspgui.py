@@ -9,10 +9,7 @@ Main Streamlit page for CEASIOMpy GUI.
 # Futures
 from __future__ import annotations
 
-# =================================================================================================
-#    IMPORTS
-# =================================================================================================
-
+# Imports
 import os
 import sys
 import subprocess
@@ -28,9 +25,7 @@ from ceasiompy.VSP2CPACS import (
     MODULE_STATUS as VSP2CPACS_MODULE_STATUS,
 )
 
-# =================================================================================================
-#    CONSTANTS
-# =================================================================================================
+# Constants
 
 _VSP2CPACS_OUT_TOKEN: Final[str] = "__CEASIOMPY_VSP2CPACS_OUT__="
 

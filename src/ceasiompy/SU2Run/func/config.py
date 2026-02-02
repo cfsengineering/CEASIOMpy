@@ -39,10 +39,10 @@ from ceasiompy.SU2Run.func.actuatordiskfile import (
 )
 from ceasiompy.SU2Run.func.utils import (
     su2_format,
+    to_su2_bool,
     validate_file,
     get_su2_cfg_tpl,
     get_mesh_markers,
-    su2_mesh_list_from_db,
     check_control_surface,
     add_damping_derivatives,
     get_surface_pitching_omega,
@@ -623,31 +623,35 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
     """
 
     # Using CPACS2Gmsh
-    if tixi.getTextElement(USED_SU2_MESH_XPATH + "type") == "CPACS2GMSH mesh":
-        log.info("Using mesh files from CPACS2Gmsh")
-        tixi_su2_mesh_paths = tixi.getTextElement(SU2MESH_XPATH)
-        su2_mesh_paths = [Path(x) for x in str(tixi_su2_mesh_paths).split(";")]
+    log.info("Using mesh files from CPACS2Gmsh")
+    tixi_su2_mesh_paths = tixi.getTextElement(SU2MESH_XPATH)
+    su2_mesh_paths = [Path(x) for x in str(tixi_su2_mesh_paths).split(";")]
 
-    # Using Specified mesh files from GUI
-    elif tixi.getTextElement(USED_SU2_MESH_XPATH + "type") == "Path":
-        log.info("Using specified mesh paths")
-        tixi_su2_mesh_paths = tixi.getTextElement(USED_SU2_MESH_XPATH)
-        su2_mesh_paths = [Path(x) for x in str(tixi_su2_mesh_paths).split(";")]
+    # if tixi.getTextElement(USED_SU2_MESH_XPATH + "type") == "CPACS2GMSH mesh":
+    #     log.info("Using mesh files from CPACS2Gmsh")
+    #     tixi_su2_mesh_paths = tixi.getTextElement(SU2MESH_XPATH)
+    #     su2_mesh_paths = [Path(x) for x in str(tixi_su2_mesh_paths).split(";")]
 
-    # Using ceasiompy.db
-    elif tixi.getTextElement(USED_SU2_MESH_XPATH + "type") == "db":
-        log.info("Using ceasiompy.db data")
-        su2_mesh_list = su2_mesh_list_from_db(tixi)
+    # # Using Specified mesh files from GUI
+    # elif tixi.getTextElement(USED_SU2_MESH_XPATH + "type") == "Path":
+    #     log.info("Using specified mesh paths")
+    #     tixi_su2_mesh_paths = tixi.getTextElement(USED_SU2_MESH_XPATH)
+    #     su2_mesh_paths = [Path(x) for x in str(tixi_su2_mesh_paths).split(";")]
 
-        # Upload files to the working directory and update paths
-        su2_mesh_paths = []
-        for su2_mesh, aircraft_name, deformation, angle in su2_mesh_list:
-            su2_path = results_dir / f"{aircraft_name}_{deformation}_{angle}.su2"
+    # # Using ceasiompy.db
+    # elif tixi.getTextElement(USED_SU2_MESH_XPATH + "type") == "db":
+    #     log.info("Using ceasiompy.db data")
+    #     su2_mesh_list = su2_mesh_list_from_db(tixi)
 
-            with open(su2_path, "w") as su2_file:
-                su2_file.write(su2_mesh.decode("utf-8"))
+    #     # Upload files to the working directory and update paths
+    #     su2_mesh_paths = []
+    #     for su2_mesh, aircraft_name, deformation, angle in su2_mesh_list:
+    #         su2_path = results_dir / f"{aircraft_name}_{deformation}_{angle}.su2"
 
-            su2_mesh_paths.append(Path(su2_path))
+    #         with open(su2_path, "w") as su2_file:
+    #             su2_file.write(su2_mesh.decode("utf-8"))
+
+    #         su2_mesh_paths.append(Path(su2_path))
 
     if not tixi.checkElement(SU2MESH_XPATH):
         create_branch(tixi, SU2MESH_XPATH)
@@ -717,7 +721,6 @@ def generate_su2_cfd_config(
         validate_file(su2_mesh_path, "SU2 mesh")
 
         fixed_cl = get_value(tixi, SU2_FIXED_CL_XPATH)
-        target_cl = get_value(tixi, SU2_TARGET_CL_XPATH)
 
         # Select template based on geometry mode and simulation type
         if geometry_mode == "2D":
@@ -725,6 +728,7 @@ def generate_su2_cfd_config(
             log.info("Using 2D template for 2D geometry mode")
         else:
             tpl_type = "RANS" if rans else "EULER"
+
         cfg = ConfigFile(get_su2_cfg_tpl(tpl_type))
         configure_mesh_format(cfg, su2_mesh_path)
 
@@ -751,20 +755,26 @@ def generate_su2_cfd_config(
         cfg["MGLEVEL"] = int(get_value(tixi, SU2_MG_LEVEL_XPATH))
 
         # Settings
-        cfl_down = get_value(tixi, SU2_CFL_ADAPT_PARAM_DOWN_XPATH)
-        cfl_up = get_value(tixi, SU2_CFL_ADAPT_PARAM_UP_XPATH)
-        cfl_min = get_value(tixi, SU2_CFL_MIN_XPATH)
-        cfl_max = get_value(tixi, SU2_CFL_MAX_XPATH)
 
         if not dyn_stab:
-            cfg["CFL_ADAPT"] = str(get_value(tixi, SU2_CFL_ADAPT_XPATH))
+            cfl_adapt = get_value(tixi, SU2_CFL_ADAPT_XPATH)
+            cfg["CFL_ADAPT"] = to_su2_bool(get_value(tixi, SU2_CFL_ADAPT_XPATH))
+            if cfl_adapt:
+                cfg["CFL_NUMBER"] = str(get_value(tixi, SU2_CFL_NB_XPATH))
+                cfl_down = get_value(tixi, SU2_CFL_ADAPT_PARAM_DOWN_XPATH)
+                cfl_up = get_value(tixi, SU2_CFL_ADAPT_PARAM_UP_XPATH)
+                cfl_min = get_value(tixi, SU2_CFL_MIN_XPATH)
+                cfl_max = get_value(tixi, SU2_CFL_MAX_XPATH)
+                cfg["CFL_ADAPT_PARAM"] = su2_format(f"{cfl_down}, {cfl_up}, {cfl_min}, {cfl_max}")
+
             cfg["INNER_ITER"] = int(get_value(tixi, SU2_MAX_ITER_XPATH))
-            cfg["CFL_NUMBER"] = str(get_value(tixi, SU2_CFL_NB_XPATH))
-            cfg["CFL_ADAPT_PARAM"] = su2_format(f"{cfl_down}, {cfl_up}, {cfl_min}, {cfl_max}")
 
             # Fixed CL mode (AOA will not be taken into account)
-            cfg["FIXED_CL_MODE"] = fixed_cl
-            cfg["TARGET_CL"] = target_cl
+            cfg["FIXED_CL_MODE"] = to_su2_bool(fixed_cl)
+            if fixed_cl:
+                target_cl = get_value(tixi, SU2_TARGET_CL_XPATH)
+                cfg["TARGET_CL"] = target_cl
+
             cfg["DCL_DALPHA"] = "0.1"
             cfg["UPDATE_AOA_ITER_LIMIT"] = "50"
             cfg["ITER_DCL_DALPHA"] = "80"

@@ -16,21 +16,20 @@ TODO:
 
 # Imports
 
-from pathlib import Path
-from ceasiompy.utils.commonxpaths import ENGINES_XPATH
 import gmsh
 import numpy as np
-from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
-from ceasiompy import log
 from ceasiompy.utils.ceasiompyutils import get_part_type
+
+from pathlib import Path
+from ceasiompy.utils.engine import Engine
 from ceasiompy.utils.configfiles import ConfigFile
 from scipy.spatial.transform import Rotation as R
 
+from ceasiompy import log
+from ceasiompy.utils.commonxpaths import ENGINES_XPATH
 
-#   FUNCTIONS
-# ==============================================================================
 
-
+# Functions
 def engine_conversion(cpacs, engine_uids, brep_dir, engines_cfg_file, engine_surface_percent):
     """
     Function to convert the nacelle part in one engine by closing it and positioning it

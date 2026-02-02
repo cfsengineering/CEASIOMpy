@@ -72,7 +72,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         config_file_type = "2D"
         rans = False  # Not applicable for 2D
         symmetric_mesh = "NO"  # No symmetry in 2D mode
-        log.info("Using 2D template for 2D geometry mode (no symmetry)")
+        log.info("Using 2D template for 2D geometry mode (no symmetry).")
     else:
         config_file_type = str(get_value(tixi, SU2_CONFIG_RANS_XPATH))
         rans: bool = config_file_type == "RANS"

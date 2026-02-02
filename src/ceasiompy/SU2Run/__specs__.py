@@ -3,11 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-GUI Interface of ModuleTemplate.
-
-| Author: Leon Deligny
-| Creation: 18-Mar-2025
-
+GUI Interface of SU2Run.
 """
 
 # Imports
@@ -15,6 +11,7 @@ GUI Interface of ModuleTemplate.
 import streamlit as st
 
 from cpacspy.cpacsfunctions import get_value
+from ceasiompy.utils.ceasiompyutils import safe_remove
 from ceasiompy.utils.guiobjects import (
     int_vartype,
     list_vartype,
@@ -25,6 +22,7 @@ from ceasiompy.utils.guiobjects import (
 
 from cpacspy.cpacspy import CPACS
 
+from ceasiompy.CPACS2GMSH import HAS_PENTAGROW
 from ceasiompy.SU2Run import (
     EULER_OR_RANS,
     SU2_DAMPING_DER_XPATH,
@@ -69,9 +67,10 @@ def gui_settings(cpacs: CPACS) -> None:
         with st.container(
             border=True,
         ):
+            default_value = EULER_OR_RANS if HAS_PENTAGROW else ["EULER"]
             list_vartype(
                 tixi=tixi,
-                default_value=EULER_OR_RANS,
+                default_value=default_value,
                 xpath=SU2_CONFIG_RANS_XPATH,
                 name="Euler or RANS simulation",
                 key="su2run_euler_or_rans",
@@ -111,6 +110,8 @@ def gui_settings(cpacs: CPACS) -> None:
                     key="damping_derivatives_rotation_rate",
                     description="Rotation rate use to calculate damping derivatives.",
                 )
+            else:
+                safe_remove(tixi, xpath=SU2_ROTATION_RATE_XPATH)
 
         with st.container(
             border=True,
@@ -175,6 +176,9 @@ def gui_settings(cpacs: CPACS) -> None:
                         description="CFL Adaptation Factor Up.",
                         key="cfl_adapt_param_up",
                     )
+            else:
+                safe_remove(tixi, xpath=SU2_CFL_ADAPT_PARAM_DOWN_XPATH)
+                safe_remove(tixi, xpath=SU2_CFL_ADAPT_PARAM_UP_XPATH)
 
         bool_vartype(
             tixi=tixi,
@@ -224,6 +228,8 @@ def gui_settings(cpacs: CPACS) -> None:
                 name="Control Surface",
                 key="su2run_ctrl_surf_deflection",
             )
+        else:
+            safe_remove(tixi, xpath=SU2_CONTROL_SURF_ANGLE_XPATH)
 
     with st.container(
         border=True,
@@ -301,70 +307,63 @@ def gui_settings(cpacs: CPACS) -> None:
                         Value of CL to achieve to have a level flight with the given conditions.
                     """,
                 )
+        else:
+            safe_remove(tixi, xpath=RANGE_CRUISE_MACH_XPATH)
+            safe_remove(tixi, xpath=RANGE_CRUISE_ALT_XPATH)
+            safe_remove(tixi, xpath=SU2_TARGET_CL_XPATH)
 
-
-# if dynamic_module in workflow:
-
-# # Dynamic Stability Settings
-# cpacs_inout.add_input(
-#     var_name="dot_derivatives",
-#     var_type=bool,
-#     default_value=False,
-#     unit=None,
-#     descr="Computing dot derivatives",
-#     xpath=SU2_DYNAMICDERIVATIVES_BOOL_XPATH,
-#     gui=True,
-#     gui_name="Compute derivatives",
-#     gui_group="Dynamic Stability Settings",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="time_steps",
-#     var_type=int,
-#     default_value=20,
-#     unit=None,
-#     descr="Size of time vector i.e. t = 2pi * (0, 1/n-1, ..., n-2/n-1)",
-#     xpath=SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH,
-#     gui=True,
-#     gui_name="Time Size (n > 1)",
-#     gui_group="Dynamic Stability Settings",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="amplitude",
-#     var_type=float,
-#     default_value=1.0,
-#     unit="[deg]",
-#     descr="Oscillation: a * sin(w t) and a > 0",
-#     xpath=SU2_DYNAMICDERIVATIVES_AMPLITUDE_XPATH,
-#     gui=True,
-#     gui_name="Oscillation's amplitude (a): ",
-#     gui_group="Dynamic Stability Settings",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="angular_frequency",
-#     var_type=float,
-#     default_value=0.087,
-#     unit="[rad/s]",
-#     descr="Oscillation: a * sin(w t) and w > 0",
-#     xpath=SU2_DYNAMICDERIVATIVES_FREQUENCY_XPATH,
-#     gui=True,
-#     gui_name="Oscillation's angular frequency (w)",
-#     gui_group="Dynamic Stability Settings",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="inner_iter",
-#     var_type=int,
-#     default_value=10,
-#     unit=None,
-#     descr="Per time step, the maximum number of iterations the solver will use.",
-#     xpath=SU2_DYNAMICDERIVATIVES_INNERITER_XPATH,
-#     gui=True,
-#     gui_name="Maximum number of inner iterations",
-#     gui_group="Dynamic Stability Settings",
-# )
+    with st.container(
+        border=True,
+    ):
+        su2_dot_derivatives = bool_vartype(
+            tixi=tixi,
+            xpath=SU2_DYNAMICDERIVATIVES_BOOL_XPATH,
+            default_value=False,
+            name="Compute Dot derivatives",
+            key="compute_derivatives",
+            description="Computing dot derivatives.",
+        )
+        if su2_dot_derivatives:
+            with st.container(
+                border=True,
+            ):
+                int_vartype(
+                    tixi=tixi,
+                    xpath=SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH,
+                    default_value=20,
+                    name="Time Size",
+                    key="time_size",
+                    description="Size of time vector i.e. t = 2pi * (0, 1/n-1, ..., n-2/n-1)",
+                )
+                float_vartype(
+                    tixi=tixi,
+                    xpath=SU2_DYNAMICDERIVATIVES_AMPLITUDE_XPATH,
+                    default_value=1.0,
+                    name="Oscillation's amplitude",
+                    key="oscillation_amplitude",
+                    description="Oscillation: a * sin(w t) and a > 0",
+                )
+                float_vartype(
+                    tixi=tixi,
+                    xpath=SU2_DYNAMICDERIVATIVES_FREQUENCY_XPATH,
+                    default_value=0.087,
+                    name="Oscillation's angular frequency (w)",
+                    key="oscillation_frequency",
+                    description="Oscillation: a * sin(w t) and w > 0",
+                )
+                int_vartype(
+                    tixi=tixi,
+                    xpath=SU2_DYNAMICDERIVATIVES_INNERITER_XPATH,
+                    default_value=10,
+                    name="Maximum number of inner iterations",
+                    key="inner_iter",
+                    description="Maximum number of inner iterations",
+                )
+        else:
+            safe_remove(tixi, xpath=SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH)
+            safe_remove(tixi, xpath=SU2_DYNAMICDERIVATIVES_AMPLITUDE_XPATH)
+            safe_remove(tixi, xpath=SU2_DYNAMICDERIVATIVES_FREQUENCY_XPATH)
+            safe_remove(tixi, xpath=SU2_DYNAMICDERIVATIVES_INNERITER_XPATH)
 
 # cpacs_inout.add_input(
 #     var_name="n",

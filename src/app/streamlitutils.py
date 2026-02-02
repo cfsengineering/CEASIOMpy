@@ -250,7 +250,7 @@ def plot_airfoil_2d(x_coords, y_coords, title="Airfoil Profile"):
 
 
 def section_3D_view(
-    cpacs: CPACS | None = st.session_state.get("cpacs", None),
+    cpacs: CPACS | None = None,
     *,
     force_regenerate: bool = False,
     height: int | None = None,
@@ -258,6 +258,9 @@ def section_3D_view(
     """
     Shows a 3D view of the aircraft by exporting a STL file.
     """
+
+    if cpacs is None:
+        cpacs = st.session_state.get("cpacs", None)
 
     if cpacs is None:
         return None

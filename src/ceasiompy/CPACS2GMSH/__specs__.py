@@ -10,6 +10,7 @@ GUI Interface of CPACS2GMSH.
 import streamlit as st
 
 from cpacspy.cpacsfunctions import get_value
+from ceasiompy.utils.ceasiompyutils import safe_remove
 from ceasiompy.utils.guiobjects import (
     int_vartype,
     list_vartype,
@@ -99,7 +100,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
     ):
 
         # default is specific to Pentagrow installed or not
-        default_value = ["Euler", "RANS"] if HAS_PENTAGROW else ["Euler"]
+        default_value = ["EULER", "RANS"] if HAS_PENTAGROW else ["EULER"]
         euler_rans = list_vartype(
             tixi=tixi,
             xpath=GMSH_MESH_TYPE_XPATH,
@@ -109,7 +110,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             description="Choose between Euler and RANS mesh.",
         )
 
-        if euler_rans == "Euler":
+        if euler_rans == "EULER":
             with st.container(
                 border=True,
             ):
@@ -137,6 +138,9 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                         of curvature to obtain cell size on it.
                     """,
                 )
+        else:
+            safe_remove(tixi, xpath=GMSH_MESH_SIZE_FARFIELD_XPATH)
+            safe_remove(tixi, xpath=GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH)
 
         # RANS Options
         if euler_rans == "RANS":
@@ -173,7 +177,8 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                     key="h_first_layer",
                     name="Height of first layer",
                     description="""
-                        Height of the first prismatic cell, touching the wall, in mesh length units.
+                        Height of the first prismatic cell,
+                        touching the wall, in mesh length units.
                     """,
                 )
 
@@ -184,28 +189,6 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                     key="max_layer_thickness",
                     name="Max layer thickness",
                     description="The maximum allowed absolute thickness of the prismatic layer.",
-                )
-
-                float_vartype(
-                    tixi=tixi,
-                    xpath=GMSH_GROWTH_RATIO_XPATH,
-                    default_value=1.2,
-                    key="growth_ratio",
-                    name="Growth ratio",
-                    description="""The largest allowed ratio between
-                        the wall-normal edge lengths of consecutive cells.
-                    """,
-                )
-
-                float_vartype(
-                    tixi=tixi,
-                    xpath=GMSH_GROWTH_FACTOR_XPATH,
-                    default_value=1.2,
-                    key="growth_factor",
-                    name="Growth factor",
-                    description="""The largest allowed ratio between
-                        the wall-normal edge lengths of consecutive cells.
-                    """
                 )
 
                 float_vartype(
@@ -240,6 +223,14 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                         from approximation of curved surfaces.
                     """,
                 )
+        else:
+            safe_remove(tixi, xpath=GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH)
+            safe_remove(tixi, xpath=GMSH_NUMBER_LAYER_XPATH)
+            safe_remove(tixi, xpath=GMSH_H_FIRST_LAYER_XPATH)
+            safe_remove(tixi, xpath=GMSH_MAX_THICKNESS_LAYER_XPATH)
+            safe_remove(tixi, xpath=GMSH_GROWTH_RATIO_XPATH)
+            safe_remove(tixi, xpath=GMSH_GROWTH_FACTOR_XPATH)
+            safe_remove(tixi, xpath=GMSH_FEATURE_ANGLE_XPATH)
 
     # General Mesh Options
     with st.expander(
@@ -396,7 +387,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
         multiselect_vartype(
             tixi=tixi,
             default_value=[0.0],
-            name="Aileron/Elevator/Rudder Angles",
+            name="Ail., Elev., Rudder Angles",
             key="ctrl_surf_angle",
             xpath=GMSH_CTRLSURF_ANGLE_XPATH,
             description="List of Aileron, Elevator, Rudder angles.",
@@ -405,131 +396,166 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
 
 def _load_2d_gui_settings(tixi: Tixi3) -> None:
 
-    # Mesh Options
-    no_boundary_layer = bool_vartype(
-        tixi=tixi,
-        xpath=GMSH_2D_NO_BL_XPATH,
-        default_value=False,
-        name="No Boundary Layer",
-        key="no_boundary_layer",
-        description="Disable boundary layer (unstructured mesh with triangles only).",
-    )
+    # Mesh sizes
+    with st.container(
+        border=True,
+    ):
+        st.markdown("#### Mesh Settings")
 
-    float_vartype(
-        tixi=tixi,
-        xpath=GMSH_2D_AIRFOIL_MESH_SIZE_XPATH,
-        default_value=0.01,
-        name="Airfoil Mesh Size",
-        key="airfoil_mesh_size",
-        description="Mesh size on the airfoil contour for 2D mesh generation",
-    )
-
-    float_vartype(
-        tixi=tixi,
-        xpath=GMSH_2D_EXT_MESH_SIZE_XPATH,
-        default_value=0.2,
-        name="External Mesh Size",
-        key="external_mesh_size",
-        description="Mesh size in the external domain for 2D mesh generation",
-    )
-
-    structured_mesh = bool_vartype(
-        tixi=tixi,
-        xpath=GMSH_2D_STRUCTURED_MESH_XPATH,
-        default_value=False,
-        name="Structured Mesh",
-        key="structured_mesh",
-        description="Choose if you want a structured mesh or a hybrid one."
-    )
-
-    if not no_boundary_layer:
         float_vartype(
             tixi=tixi,
-            xpath=GMSH_2D_FIRST_LAYER_HEIGHT_XPATH,
-            default_value=0.001,
-            name="First Layer Height",
-            key="first_layer_height",
-            description="First layer height for 2D mesh generation",
+            xpath=GMSH_2D_AIRFOIL_MESH_SIZE_XPATH,
+            default_value=0.01,
+            name="Airfoil Mesh Size",
+            key="airfoil_mesh_size",
+            description="Mesh size on the airfoil contour for 2D mesh generation",
         )
 
         float_vartype(
             tixi=tixi,
-            xpath=GMSH_2D_RATIO_XPATH,
-            default_value=1.2,
-            name="Growth Factor",
-            key="growth_factor",
-            description="Growth factor of boundary layer cells.",
+            xpath=GMSH_2D_EXT_MESH_SIZE_XPATH,
+            default_value=0.2,
+            name="External Mesh Size",
+            key="external_mesh_size",
+            description="Mesh size in the external domain for 2D mesh generation",
         )
 
-        int_vartype(
+        list_vartype(
             tixi=tixi,
-            xpath=GMSH_2D_NB_LAYERS_XPATH,
-            default_value=25,
-            name="Number of Layers",
-            key="nb_layers",
-            description="Number of layers in the boundary layer.",
+            xpath=GMSH_2D_MESH_FORMAT_XPATH,
+            default_value=["su2", "msh", "vtk", "wrl", "stl", "mesh", "cgns", "dat"],
+            name="Mesh Format",
+            key="mesh_format_2d",
+            description="""
+                Output format for 2D mesh file (su2, msh, vtk, wrl, stl, mesh, cgns, dat).
+            """,
         )
 
-    if not structured_mesh:
-        farfield_type = list_vartype(
+    # Boundary Layer
+    with st.container(
+        border=True,
+    ):
+        no_boundary_layer = bool_vartype(
             tixi=tixi,
-            xpath=GMSH_2D_FARFIELD_TYPE_XPATH,
-            default_value=["Rectangular", "Circular", "CType"],
-            name="Farfield Type",
-            key="farfield_type",
-            description="Choose farfield shape (automatically set to CType for structured mesh).",
+            xpath=GMSH_2D_NO_BL_XPATH,
+            default_value=True,
+            name="No Boundary Layer",
+            key="no_boundary_layer",
+            description="Disable boundary layer (unstructured mesh with triangles only).",
         )
 
-        if farfield_type == "Circular":
-            float_vartype(
-                tixi=tixi,
-                xpath=GMSH_2D_FARFIELD_RADIUS_XPATH,
-                default_value=10.0,
-                name="Farfield Radius",
-                key="farfield_radius",
-                description="Farfield radius for circular farfield in 2D mesh generation.",
-            )
+        if not no_boundary_layer:
+            with st.container(
+                border=True,
+            ):
 
-        elif farfield_type == "CType":
-            float_vartype(
-                tixi=tixi,
-                xpath=GMSH_2D_WAKE_LENGTH_XPATH,
-                default_value=6.0,
-                name="Wake Length",
-                key="wake_length",
-                description="""
-                    Wake length downstream of the airfoil for rectangular/C-type farfield
-                """,
-            )
+                float_vartype(
+                    tixi=tixi,
+                    xpath=GMSH_2D_FIRST_LAYER_HEIGHT_XPATH,
+                    default_value=0.001,
+                    name="First Layer Height",
+                    key="first_layer_height",
+                    description="First layer height for 2D mesh generation",
+                )
 
-        elif farfield_type == "CType" or farfield_type == "Rectangular":
-            float_vartype(
-                tixi=tixi,
-                xpath=GMSH_2D_HEIGHT_LENGTH_XPATH,
-                default_value=5.0,
-                name="Height",
-                key="height",
-                description="Height of domain for C-type/rectangular farfield",
-            )
+                float_vartype(
+                    tixi=tixi,
+                    xpath=GMSH_2D_RATIO_XPATH,
+                    default_value=1.2,
+                    name="Growth Factor",
+                    key="growth_factor",
+                    description="Growth factor of boundary layer cells.",
+                )
 
-        elif farfield_type == "Rectangular":
-            float_vartype(
-                tixi=tixi,
-                xpath=GMSH_2D_LENGTH_XPATH,
-                default_value=5.0,
-                name="Length",
-                key="length",
-                description="Length of domain for rectangular farfield",
-            )
+                int_vartype(
+                    tixi=tixi,
+                    xpath=GMSH_2D_NB_LAYERS_XPATH,
+                    default_value=25,
+                    name="Number of Layers",
+                    key="nb_layers",
+                    description="Number of layers in the boundary layer.",
+                )
+        else:
+            safe_remove(tixi, xpath=GMSH_2D_RATIO_XPATH)
+            safe_remove(tixi, xpath=GMSH_2D_NB_LAYERS_XPATH)
+            safe_remove(tixi, xpath=GMSH_2D_FIRST_LAYER_HEIGHT_XPATH)
 
-    list_vartype(
-        tixi=tixi,
-        xpath=GMSH_2D_MESH_FORMAT_XPATH,
-        default_value=["su2", "msh", "vtk", "wrl", "stl", "mesh", "cgns", "dat"],
-        name="Mesh Format",
-        key="mesh_format_2d",
-        description="Output format for 2D mesh file (su2, msh, vtk, wrl, stl, mesh, cgns, dat)",
-    )
+    # Structured Mesh
+    with st.container(
+        border=True,
+    ):
+        structured_mesh = bool_vartype(
+            tixi=tixi,
+            xpath=GMSH_2D_STRUCTURED_MESH_XPATH,
+            default_value=False,
+            name="Structured Mesh",
+            key="structured_mesh",
+            description="Choose if you want a structured mesh or a hybrid one."
+        )
+
+        if structured_mesh:
+            with st.container(
+                border=True,
+            ):
+                farfield_type = list_vartype(
+                    tixi=tixi,
+                    xpath=GMSH_2D_FARFIELD_TYPE_XPATH,
+                    default_value=["Rectangular", "Circular", "CType"],
+                    name="Farfield Type",
+                    key="farfield_type",
+                    description="""
+                        Choose farfield shape (automatically set to CType for structured mesh).
+                    """,
+                )
+
+                if farfield_type == "Circular":
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=GMSH_2D_FARFIELD_RADIUS_XPATH,
+                        default_value=10.0,
+                        name="Farfield Radius",
+                        key="farfield_radius",
+                        description="Farfield radius for circular farfield in 2D mesh generation.",
+                    )
+
+                elif farfield_type == "CType":
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=GMSH_2D_WAKE_LENGTH_XPATH,
+                        default_value=6.0,
+                        name="Wake Length",
+                        key="wake_length",
+                        description="""
+                            Wake length downstream of the airfoil for rectangular/C-type farfield
+                        """,
+                    )
+
+                elif farfield_type == "CType" or farfield_type == "Rectangular":
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=GMSH_2D_HEIGHT_LENGTH_XPATH,
+                        default_value=5.0,
+                        name="Height",
+                        key="height",
+                        description="Height of domain for C-type/rectangular farfield",
+                    )
+
+                elif farfield_type == "Rectangular":
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=GMSH_2D_LENGTH_XPATH,
+                        default_value=5.0,
+                        name="Length",
+                        key="length",
+                        description="Length of domain for rectangular farfield",
+                    )
+
+        else:
+            safe_remove(tixi, xpath=GMSH_2D_LENGTH_XPATH)
+            safe_remove(tixi, xpath=GMSH_2D_WAKE_LENGTH_XPATH)
+            safe_remove(tixi, xpath=GMSH_2D_HEIGHT_LENGTH_XPATH)
+            safe_remove(tixi, xpath=GMSH_2D_FARFIELD_TYPE_XPATH)
+            safe_remove(tixi, xpath=GMSH_2D_FARFIELD_RADIUS_XPATH)
 
 
 # Functions

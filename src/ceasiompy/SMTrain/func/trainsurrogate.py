@@ -7,9 +7,7 @@ Functions related to the training of the surrogate model.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import time
 import joblib

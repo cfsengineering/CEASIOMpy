@@ -12,9 +12,7 @@ accurately captured and if the meshes are fine.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import numpy as np
 import matplotlib.pyplot as plt

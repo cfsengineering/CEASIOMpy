@@ -10,9 +10,7 @@ Initialization for DynamicStability module.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from ceasiompy.utils import get_module_status
 
@@ -23,9 +21,6 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
-
-# ===== Include GUI =====
-INCLUDE_GUI = True
 
 # ===== Include Module"s name =====
 MODULE_DIR = Path(__file__).parent

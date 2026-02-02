@@ -14,9 +14,7 @@ TODO:
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from pathlib import Path
 from ceasiompy.utils.commonxpaths import ENGINES_XPATH

@@ -37,4 +37,3 @@ def markdownpy_to_markdown(md: MarkdownDoc, table: List[List[str]]) -> None:
     """
     if len(table) > 1:
         md.p(Table(table).write())
-        md.line()

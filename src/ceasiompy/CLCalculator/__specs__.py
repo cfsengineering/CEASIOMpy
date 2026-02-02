@@ -10,9 +10,7 @@ GUI Interface of CLCalculator.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
@@ -23,7 +21,6 @@ from ceasiompy.SU2Run import (
 )
 from ceasiompy.CLCalculator import (
     MASS_TYPES,
-    INCLUDE_GUI,
     CLCALC_MASS_TYPE_XPATH,
     CLCALC_LOAD_FACT_XPATH,
     CLCALC_CRUISE_ALT_XPATH,
@@ -32,15 +29,8 @@ from ceasiompy.CLCalculator import (
     CLCALC_CUSTOM_MASS_XPATH,
 )
 
-# ==============================================================================
-#   VARIABLE
-# ==============================================================================
-
+# Variable
 cpacs_inout = CPACSInOut()
-
-# ==============================================================================
-#   GUI INPUTS
-# ==============================================================================
 
 cpacs_inout.add_input(
     var_name="mass_type",
@@ -49,7 +39,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Type of mass to use for CL calculation",
     xpath=CLCALC_MASS_TYPE_XPATH,
-    gui=INCLUDE_GUI,
+    gui=True,
     gui_name="Type",
     gui_group="Mass",
 )
@@ -61,7 +51,7 @@ cpacs_inout.add_input(
     unit="kg",
     descr="Mass value if Custom is selected",
     xpath=CLCALC_CUSTOM_MASS_XPATH,
-    gui=INCLUDE_GUI,
+    gui=True,
     gui_name="Custom mass",
     gui_group="Mass",
 )
@@ -73,7 +63,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Percentage of fuel mass between mTOM and mZFM, if % fuel mass is selected",
     xpath=CLCALC_PERC_FUEL_MASS_XPATH,
-    gui=INCLUDE_GUI,
+    gui=True,
     gui_name="Percent fuel mass",
     gui_group="Mass",
 )
@@ -85,7 +75,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Aircraft cruise Mach number",
     xpath=CLCALC_CRUISE_MACH_XPATH,
-    gui=INCLUDE_GUI,
+    gui=True,
     gui_name="Mach",
     gui_group="Cruise",
 )
@@ -97,7 +87,7 @@ cpacs_inout.add_input(
     unit="[m]",
     descr="Aircraft cruise altitude",
     xpath=CLCALC_CRUISE_ALT_XPATH,
-    gui=INCLUDE_GUI,
+    gui=True,
     gui_name="Altitude",
     gui_group="Cruise",
 )
@@ -109,27 +99,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Aircraft cruise altitude",
     xpath=CLCALC_LOAD_FACT_XPATH,
-    gui=INCLUDE_GUI,
+    gui=True,
     gui_name="Load Factor",
     gui_group="Cruise",
-)
-
-# ==============================================================================
-#   GUI OUTPUTS
-# ==============================================================================
-
-cpacs_inout.add_output(
-    var_name="target_cl",
-    default_value=None,
-    unit=None,
-    descr="Value of CL to achieve to have a level flight with the given conditions",
-    xpath=SU2_TARGET_CL_XPATH,
-)
-
-cpacs_inout.add_output(
-    var_name="fixed_cl",
-    default_value=None,
-    unit=None,
-    descr="FIXED_CL_MODE parameter for SU2",
-    xpath=SU2_FIXED_CL_XPATH,
 )

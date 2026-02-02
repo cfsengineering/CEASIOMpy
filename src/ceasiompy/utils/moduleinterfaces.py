@@ -4,201 +4,26 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module interfaces functions to deal with CPACS input and output
-
-| Author : Aaron Dettmann
-| Creation: 2019-08-06
-
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
-
-
-import importlib
+# Imports
 import inspect
-import uuid
-from pathlib import Path
+import importlib
 
-from typing import Union
+from pathlib import Path
 
 from ceasiompy import log
 from ceasiompy.utils.commonpaths import MODULES_DIR_PATH
-from cpacspy.cpacsfunctions import create_branch, open_tixi
 
 
-from ceasiompy import UTILS_PATH
+# Constants
 
 MODNAME_TOP = "ceasiompy"
 MODNAME_SPECS = "__specs__"
 MODNAME_INIT = "__init__"
 
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
 
-
-class CPACSRequirementError(Exception):
-    pass
-
-
-class _Entry:
-
-    ONLY_INPUT = [
-        "default_value",
-        "gui",
-        "gui_group",
-        "gui_name",
-        "gui_cond",
-    ]
-
-    def __init__(
-        self,
-        *,
-        var_name="",
-        var_type=None,
-        default_value=None,
-        unit="1",
-        descr="",
-        xpath="",
-        gui=False,
-        gui_name="",
-        gui_group=None,
-        gui_cond=None,
-        test_value=None,
-        expanded=True,
-    ) -> None:
-        """Template for an entry which describes a module input or output
-
-        Args:
-            var_name        (str): Variable name as used in the module code
-            var_type        (type): Type of the expected input or output variable
-            default_value   (any): Default input value
-            unit            (str): Unit of the required value, e.g. 'm/s'
-            descr           (str): Description of the input or output data
-            xpath           (str): CPACS node xpath
-            gui             (bool): 'True' if entry should appear in GUI
-            gui_name        (str): GUI name
-            gui_group       (str): Group name for GUI generation
-            gui_cond        (str): Condition for showing GUI element (e.g., "xpath==value")
-        """
-
-        # General information
-        self.var_name = var_name
-        self.var_type = var_type
-        self.default_value = default_value
-        self.test_value = test_value
-        self.unit = self.filter_unit(unit)
-        self.descr = descr
-        self.xpath = xpath
-
-        # GUI specific
-        self.gui = gui
-        self.gui_name = gui_name
-        self.gui_group = gui_group
-        self.gui_cond = gui_cond
-        self.expanded = expanded
-
-    def filter_unit(self, unit_entry: Union[None, str]) -> Union[None, str]:
-        if unit_entry is None:
-            return None
-        if not unit_entry.startswith("["):
-            unit_entry = "[" + unit_entry
-        if not unit_entry.endswith("]"):
-            unit_entry = unit_entry + "]"
-        return unit_entry
-
-
-class CPACSInOut:
-    def __init__(self):
-        """
-        Class summarising the input and output data
-
-        Attributes:
-            inputs (list): List of CPACS inputs.
-            outputs (list): List of CPACS outputs.
-
-        """
-
-        self.inputs = []
-        self.outputs = []
-        self.change_listeners = {}
-
-    def add_input(self, **kwargs):
-        """Add a new entry to the inputs list"""
-
-        entry = _Entry(**kwargs)
-        self.inputs.append(entry)
-
-    def add_output(self, **kwargs):
-        """Add a new entry to the outputs list"""
-
-        for entry_name in _Entry.ONLY_INPUT:
-            if kwargs.get(entry_name, None) is not None:
-                raise ValueError(f"Output '{entry_name}' must be None")
-
-        entry = _Entry(**kwargs)
-        self.outputs.append(entry)
-
-    def get_gui_dict(self):
-        """Return a dictionary which can be processed by the GUI engine"""
-
-        gui_settings_dict = {}
-        for entry in self.inputs:
-
-            # Logic here should be correct
-            # If entry.test_value is not specified
-            # and entry.default_value is None, we still get None
-            test_value = entry.test_value
-            if test_value is None:
-                test_value = entry.default_value
-
-            # Every GUI element is identified by a random key
-            gui_settings_dict[str(uuid.uuid4())] = (
-                entry.gui_name,
-                entry.default_value,
-                entry.var_type,
-                entry.unit,
-                entry.xpath,
-                entry.descr,
-                entry.gui_group,
-                test_value,
-                entry.expanded,
-                entry.gui_cond,
-            )
-
-        return gui_settings_dict
-
-    def set_gui_visibility(self, var_name, visible):
-        """Set the visibility of a GUI element"""
-        for entry in self.inputs:
-            if entry.var_name == var_name:
-                entry.gui = visible
-
-    def add_change_listener(self, var_name, listener):
-        """Add a change listener for a specific input"""
-        if var_name in self.change_listeners:
-            self.change_listeners[var_name].append(listener)
-
-    def notify_change_listeners(self, var_name):
-        """Notify all change listeners for a specific input"""
-        if var_name in self.change_listeners:
-            for listener in self.change_listeners[var_name]:
-                listener()
-
-    def get_defaultvalue_xpath(self, var_name):
-        """Get the value of a specific input"""
-        for entry in self.inputs:
-            if entry.var_name == var_name:
-                return (entry.default_value, entry.xpath)
-        raise ValueError(f"Input '{var_name}' not found")
-
-
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
-
+# Functions
 def get_module_path(module_name: str) -> Path:
     """Get the path to the module directory"""
 
@@ -261,7 +86,7 @@ def check_cpacs_input_requirements(tixi, *, module_name=None, submodule_level=1,
             for missing in missing_nodes:
                 log.error("The following xpath cannot be found: " + missing)
 
-            raise CPACSRequirementError("CPACS xpath(s) required but does not exist!")
+            raise ValueError("CPACS xpath(s) required but does not exist!")
 
 
 def get_module_list(only_active=True):
@@ -370,76 +195,6 @@ def get_init_for_module(module_name, raise_error=False):
         if raise_error:
             raise ImportError(f"{MODNAME_INIT} module not found for {module_name}")
         return None
-
-
-def get_all_module_specs():
-    """Return a dictionary with module names (keys) and specs files (values)
-
-    Note:
-        * If the __specs__ module for a CEASIOMpy cannot
-          be located the module will be None
-
-    The dictionary has the form:
-
-    {
-        'SkinFriction': skinfriction_specs_module,
-        'PyAVL': pyavl_specs_module,
-        'SomeModuleWithoutSpecsFile': None,
-        ...
-    }
-
-    Returns:
-        all_specs (dict): Dictionary containing all module specs
-    """
-
-    all_specs = {}
-    for module_name in get_module_list(only_active=False):
-        specs = get_specs_for_module(module_name, raise_error=False)
-        all_specs[module_name] = specs
-    return all_specs
-
-
-def create_default_toolspecific():
-    """Create a default XML /toolspecific based on all __spec__ xpath and
-    default values. Two CPACS file are created and saved in /utils/doc/
-
-    """
-
-    EMPTY_CPACS_PATH = Path(UTILS_PATH, "doc", "empty_cpacs.xml")
-
-    tixi_in = open_tixi(EMPTY_CPACS_PATH)
-    tixi_out = open_tixi(EMPTY_CPACS_PATH)
-
-    for _, specs in get_all_module_specs().items():
-        if specs is not None:
-            # Inputs
-            for entry in specs.cpacs_inout.inputs:
-
-                xpath = entry.xpath
-                if xpath.endswith("/"):
-                    xpath = xpath[:-1]
-
-                value_name = xpath.split("/")[-1]
-                xpath_parent = xpath[: -(len(value_name) + 1)]
-
-                if not tixi_in.checkElement(xpath):
-                    create_branch(tixi_in, xpath_parent)
-                    if entry.default_value is not None:
-                        value = str(entry.default_value)
-                    else:
-                        value = "No default value"
-                    tixi_in.addTextElement(xpath_parent, value_name, value)
-
-            # Outputs
-            for entry in specs.cpacs_inout.outputs:
-                xpath = entry.xpath
-                create_branch(tixi_out, xpath)
-
-    TOOLSPECIFIC_INPUT_PATH = Path(UTILS_PATH, "doc", "input_toolspecifics.xml")
-    TOOLSPECIFIC_OUTPUT_PATH = Path(UTILS_PATH, "doc", "output_toolspecifics.xml")
-
-    tixi_in.save(str(TOOLSPECIFIC_INPUT_PATH))
-    tixi_out.save(str(TOOLSPECIFIC_OUTPUT_PATH))
 
 
 def module_to_remove_from_coverage():

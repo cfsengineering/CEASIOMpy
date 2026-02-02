@@ -10,9 +10,7 @@ Store data from workflow modules.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from sqlite3 import connect
 from ceasiompy.Database.func.utils import create_db

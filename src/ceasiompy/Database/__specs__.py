@@ -10,27 +10,18 @@ GUI Interface of Database.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy.Database import (
-    INCLUDE_GUI,
     DATABASE_STOREDATA_XPATH,
 )
 
-# ==============================================================================
-#   VARIABLE
-# ==============================================================================
+# Variable
 
 # ===== CPACS inputs and outputs =====
 cpacs_inout = CPACSInOut()
-
-# ==============================================================================
-#   GUI INPUTS
-# ==============================================================================
 
 cpacs_inout.add_input(
     var_name="store",
@@ -38,7 +29,7 @@ cpacs_inout.add_input(
     default_value=True,
     unit=None,
     xpath=DATABASE_STOREDATA_XPATH,
-    gui=INCLUDE_GUI,
+    gui=True,
     gui_name="Store data",
     gui_group="Storing Settings",
 )

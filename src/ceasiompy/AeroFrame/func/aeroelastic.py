@@ -11,9 +11,7 @@ aerodynamic loads and FramAT for structural calculations.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import numpy as np
 import pandas as pd

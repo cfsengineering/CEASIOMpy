@@ -18,6 +18,7 @@ Module to run SU2 Calculation in CEASIOMpy
 
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.SU2Run.func.results import get_su2_results
+from ceasiompy.utils.ceasiompyutils import get_sane_max_cpu
 from ceasiompy.SU2Run.func.runconfigfiles import run_SU2_multi
 from ceasiompy.SU2Run.func.config import (
     define_markers,
@@ -29,10 +30,9 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-from ceasiompy.CPACS2GMSH import (GMSH_SYMMETRY_XPATH)
+from ceasiompy.CPACS2GMSH import GMSH_SYMMETRY_XPATH
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 from ceasiompy.SU2Run import (
-    SU2_NB_CPU_XPATH,
     SU2_CONFIG_RANS_XPATH,
     SU2_DYNAMICDERIVATIVES_BOOL_XPATH,
 )
@@ -65,7 +65,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         log.info("No geometry mode specified in CPACS, defaulting to 3D mode.")
 
     # Define constants
-    nb_proc = int(get_value(tixi, SU2_NB_CPU_XPATH))
+    nb_proc = int(get_sane_max_cpu())
 
     # In 2D mode, always use 2D template; otherwise read from CPACS
     if geometry_mode == "2D":

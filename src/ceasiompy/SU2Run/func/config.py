@@ -707,7 +707,7 @@ def generate_su2_cfd_config(
         geometry_mode = tixi.getTextElement(GEOMETRY_MODE_XPATH)
         log.info(f"Geometry mode found in CPACS: {geometry_mode}")
     except Exception:
-        log.info(f"No geometry mode specified in CPACS, defaulting to 3D mode.")
+        log.info("No geometry mode specified in CPACS, defaulting to 3D mode.")
 
     for su2_mesh_path in su2_mesh_paths:
 

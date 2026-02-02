@@ -10,9 +10,7 @@ Initialization for CPACS2Gmsh module.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from ceasiompy.utils import get_module_status
 
@@ -34,9 +32,6 @@ HAS_PENTAGROW = get_module_status(
 # ===== Module Status =====
 MODULE_STATUS = True
 MODULE_TYPE = "Mesher"
-
-# ===== Include GUI =====
-INCLUDE_GUI = True
 
 # ===== Add a Results Directory =====
 RES_DIR = True

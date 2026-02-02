@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Initialization for AeroFrame new module.
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from pathlib import Path
 
@@ -19,11 +17,8 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 # ==============================================================================
 
 # ===== Module Status =====
-MODULE_STATUS = True
+MODULE_STATUS = False
 MODULE_TYPE = "MetaModule"
-
-# ===== Include GUI =====
-INCLUDE_GUI = True
 
 # ===== Add a Results Directory =====
 RES_DIR = True

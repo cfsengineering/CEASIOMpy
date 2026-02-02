@@ -47,8 +47,6 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
     tixi = cpacs.tixi
     md = MarkdownDoc(Path(wkdir, f"{MODULE_NAME}.md"))
-    md.h2(MODULE_NAME)
-
     errors = []
     success_count = 0
 

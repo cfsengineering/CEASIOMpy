@@ -291,12 +291,13 @@ def run_gui(
     # Expose working directory to the Streamlit app
     env["CEASIOMPY_WKDIR"] = str(wkdir)
 
+    streamlit_entrypoint = str(STREAMLIT_PATH / "app.py")
     args = [
         sys.executable,
         "-m",
         "streamlit",
         "run",
-        "app.py",
+        streamlit_entrypoint,
         "--server.headless", f"{str(headless).lower()}",
     ]
     if port is not None:

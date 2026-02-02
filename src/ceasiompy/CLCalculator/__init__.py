@@ -10,9 +10,7 @@ Initialization for CLCalculator module.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from pathlib import Path
 
@@ -26,11 +24,8 @@ from ceasiompy.utils.commonxpaths import (
 # ==============================================================================
 
 # ===== Module Status =====
-MODULE_STATUS = True
+MODULE_STATUS = False
 MODULE_TYPE = "PostProcessing"
-
-# ===== Include GUI =====
-INCLUDE_GUI = True
 
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent

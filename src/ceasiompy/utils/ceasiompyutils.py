@@ -43,7 +43,6 @@ from numpy import ndarray
 from pandas import DataFrame
 from unittest.mock import MagicMock
 from tixi3.tixi3wrapper import Tixi3
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
@@ -143,7 +142,8 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
         log.warning(f"No specs found for module {module_name}. \n")
         return None
 
-    cpacsin_out: CPACSInOut = specs.cpacs_inout
+    # cpacsin_out: CPACSInOut = specs.cpacs_inout
+    cpacsin_out = None
     inputs = cpacsin_out.get_gui_dict()
 
     aeromap_uid_list = cpacs.get_aeromap_uid_list()
@@ -268,7 +268,6 @@ def get_results_directory(
         module_name (str): Name of the module's result directory.
         create (bool): If you need to create it.
         wkflow_dir (Path): Path to the workflow of the module.
-
     """
 
     if module_name not in get_module_list(False):

@@ -11,9 +11,7 @@ Scripts to convert CPACS file geometry into any geometry.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import math
 import numpy as np

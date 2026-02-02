@@ -10,13 +10,10 @@ GUI Interface of ThermoData.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-from ceasiompy.ThermoData import INCLUDE_GUI
 from ceasiompy.SU2Run import (
     SU2_FIXED_CL_XPATH,
     SU2_TARGET_CL_XPATH,
@@ -26,15 +23,9 @@ from ceasiompy.utils.commonxpaths import (
     ENGINE_TYPE_XPATH,
 )
 
-# ==============================================================================
-#   VARIABLE
-# ==============================================================================
+# Variable
 
 cpacs_inout = CPACSInOut()
-
-# ==============================================================================
-#   GUI INPUTS
-# ==============================================================================
 
 cpacs_inout.add_input(
     var_name="net_force",
@@ -43,7 +34,7 @@ cpacs_inout.add_input(
     unit="N",
     descr="Engine net force",
     xpath=RANGE_XPATH + "/NetForce",
-    gui=INCLUDE_GUI,
+    gui=True,
     gui_name="NetForce",
     gui_group="Cruise",
 )
@@ -55,7 +46,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="0: TBJ, 1: TBF ",
     xpath=ENGINE_TYPE_XPATH,
-    gui=INCLUDE_GUI,
+    gui=True,
     gui_name="0 for Turbojet 1 for Turbofan",
     gui_group="User inputs",
 )

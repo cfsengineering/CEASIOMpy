@@ -14,9 +14,7 @@ the vortex-lattice method (VLM)
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from ceasiompy.utils.ceasiompyutils import (
     has_display,

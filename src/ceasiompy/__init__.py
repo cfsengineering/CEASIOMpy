@@ -11,9 +11,7 @@ Initialization for CEASIOMpy.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import sys
 import logging
@@ -114,8 +112,6 @@ def custom_print(*args, **kwargs):
 
 builtins.print = custom_print
 
-# Constants
-NO_YES_LIST = ["NO", "YES"]
 
 # Ignore arbitrary types
 ceasiompy_cfg = CustomConfig.model_config

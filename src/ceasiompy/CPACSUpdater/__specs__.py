@@ -4,64 +4,59 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI Interface of CPACSUpdater.
-
-| Author: Leon Deligny
-| Creation: 14-Mar-2025
-
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
-
+# Imports
 import streamlit as st
 
 from ceasiompy.utils.geometryfunctions import get_segments
+from ceasiompy.utils.guiobjects import (
+    bool_vartype,
+    add_ctrl_surf_vartype,
+)
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from cpacspy.cpacspy import CPACS
 
 from ceasiompy.CPACSUpdater import (
     CPACSUPDATER_CTRLSURF_XPATH,
     CPACSUPDATER_ADD_CTRLSURFACES_XPATH,
 )
 from ceasiompy.CPACSUpdater import (
-    INCLUDE_GUI,
     CONTROL_SURFACES_LIST,
 )
 
-# ==============================================================================
-#   VARIABLE
-# ==============================================================================
 
-cpacs_inout = CPACSInOut()
+# Functions
+def gui_settings(cpacs: CPACS) -> None:
+    """GUI Settings of CPACSUpdater module."""
+    tixi = cpacs.tixi
 
-# ==============================================================================
-#   CALL
-# ==============================================================================
+    with st.container(
+        border=True
+    ):
+        add_ctrl_surf = bool_vartype(
+            tixi=tixi,
+            key="add_control_surfaces",
+            xpath=CPACSUPDATER_ADD_CTRLSURFACES_XPATH,
+            default_value=True,
+            name="Add control surfaces",
+            description="Choose to add or not control surfaces.",
+        )
 
-
-cpacs_inout.add_input(
-    var_name="add_control_surfaces",
-    var_type=bool,
-    default_value=True,
-    unit=None,
-    descr="Adds control surfaces",
-    xpath=CPACSUPDATER_ADD_CTRLSURFACES_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Add Control Surfaces",
-    gui_group="Control Surfaces Settings",
-)
-
-segments_list = get_segments(st.session_state.cpacs.tixi)
-for wing_uid, segment_uid in segments_list:
-    cpacs_inout.add_input(
-        var_name=f"control_surface_{wing_uid}_{segment_uid}",
-        var_type="AddControlSurfaces",
-        default_value=CONTROL_SURFACES_LIST,
-        unit=None,
-        descr="Type of control surface to add at specific wing and segment of wing.",
-        xpath=CPACSUPDATER_CTRLSURF_XPATH + f"/{wing_uid}/{segment_uid}",
-        gui=INCLUDE_GUI,
-        gui_name=f"Control Surface for segment {segment_uid} of wing {wing_uid}",
-        gui_group="Control Surfaces Settings",
-    )
+        if add_ctrl_surf:
+            with st.container(
+                border=True
+            ):
+                segments_list = get_segments(tixi)
+                for wing_uid, segment_uid in segments_list:
+                    add_ctrl_surf_vartype(
+                        tixi=tixi,
+                        key=f"control_surface_{wing_uid}_{segment_uid}",
+                        default_value=CONTROL_SURFACES_LIST,
+                        name=f"Control Surface for segment {segment_uid} of wing {wing_uid}.",
+                        description="""
+                            Select the type of control surface to add
+                            for at specific wing and segment of wing.
+                        """,
+                        xpath=CPACSUPDATER_CTRLSURF_XPATH + f"/{wing_uid}/{segment_uid}",
+                    )

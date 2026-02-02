@@ -10,9 +10,7 @@ Initialization for Database module.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from pathlib import Path
 
@@ -25,9 +23,6 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 # ===== Module Status =====
 MODULE_STATUS = False
 MODULE_TYPE = "PostProcessing"
-
-# ===== Include GUI =====
-INCLUDE_GUI = True
 
 # ===== Add a Results Directory =====
 RES_DIR = False

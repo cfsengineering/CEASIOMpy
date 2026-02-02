@@ -7,9 +7,7 @@ Functions related to the loss computation of the surrogate model.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import numpy as np
 

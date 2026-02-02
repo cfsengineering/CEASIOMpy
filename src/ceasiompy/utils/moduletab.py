@@ -164,36 +164,41 @@ def section_edit_aeromap() -> None:
                         else:
                             raise
 
-        st.markdown("#### Import aeromap from CSV or Excel")
+        # Upload CSV content
+        _upload_csv(cpacs)
 
-        uploaded_csv = st.file_uploader(
-            label="Upload a AeroMap file",
-            label_visibility="collapsed",
-            type=["csv", "xlsx", "xls"],
-        )
-        if not uploaded_csv:
-            st.session_state.pop("last_imported_aeromap_uid", None)
-            return None
 
-        uploaded_aeromap_uid = uploaded_csv.name.rsplit(".", 1)[0]
-        if st.session_state.get("last_imported_aeromap_uid") == uploaded_aeromap_uid:
-            return None
+def _upload_csv(cpacs: CPACS) -> None:
+    st.markdown("#### Import aeromap from CSV or Excel")
 
-        if uploaded_aeromap_uid in cpacs.get_aeromap_uid_list():
-            st.info("Existing aeromap found; overwriting it with the uploaded file.")
-            cpacs.delete_aeromap(uploaded_aeromap_uid)
+    uploaded_csv = st.file_uploader(
+        label="Upload a AeroMap file",
+        label_visibility="collapsed",
+        type=["csv", "xlsx", "xls"],
+    )
+    if not uploaded_csv:
+        st.session_state.pop("last_imported_aeromap_uid", None)
+        return None
 
-        new_aeromap = cpacs.create_aeromap(uploaded_aeromap_uid)
-        if uploaded_csv.name.lower().endswith((".xlsx", ".xls")):
-            import_df = pd.read_excel(uploaded_csv, keep_default_na=False)
-        else:
-            import_df = pd.read_csv(uploaded_csv, keep_default_na=False)
+    uploaded_aeromap_uid = uploaded_csv.name.rsplit(".", 1)[0]
+    if st.session_state.get("last_imported_aeromap_uid") == uploaded_aeromap_uid:
+        return None
 
-        new_aeromap.df = import_df
-        log.info(f"Saving AeroMap ID: {uploaded_aeromap_uid} in CPACS file.")
-        new_aeromap.save()
-        st.session_state["last_imported_aeromap_uid"] = uploaded_aeromap_uid
-        st.rerun()
+    if uploaded_aeromap_uid in cpacs.get_aeromap_uid_list():
+        st.info("Existing aeromap found; overwriting it with the uploaded file.")
+        cpacs.delete_aeromap(uploaded_aeromap_uid)
+
+    new_aeromap = cpacs.create_aeromap(uploaded_aeromap_uid)
+    if uploaded_csv.name.lower().endswith((".xlsx", ".xls")):
+        import_df = pd.read_excel(uploaded_csv, keep_default_na=False)
+    else:
+        import_df = pd.read_csv(uploaded_csv, keep_default_na=False)
+
+    new_aeromap.df = import_df
+    log.info(f"Saving AeroMap ID: {uploaded_aeromap_uid} in CPACS file.")
+    new_aeromap.save()
+    st.session_state["last_imported_aeromap_uid"] = uploaded_aeromap_uid
+    st.rerun()
 
 
 def checks(session_state, tabs) -> None:

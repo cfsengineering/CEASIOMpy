@@ -119,8 +119,8 @@ class CST_shape(object):
 
         # Class function; taking input of N1 and N2
         C = np.zeros(len(x))
-        for i in range(len(x)):
-            C[i] = x[i] ** N1 * ((1 - x[i]) ** N2)
+        for i, x_i in enumerate(x):
+            C[i] = x_i ** N1 * ((1 - x_i) ** N2)
 
         # Shape function; using Bernstein Polynomials
         n = len(w) - 1  # Order of Bernstein polynomials
@@ -130,10 +130,10 @@ class CST_shape(object):
             K[i] = factorial(n) / (factorial(i) * (factorial((n) - (i))))
 
         S = np.zeros(len(x))
-        for i in range(len(x)):
+        for i, x_i in enumerate(x):
             S[i] = 0
             for j in range(0, n + 1):
-                S[i] += w[j] * K[j] * x[i] ** (j) * ((1 - x[i]) ** (n - (j)))
+                S[i] += w[j] * K[j] * x_i ** (j) * ((1 - x_i) ** (n - (j)))
 
         # Calculate y output
         y = np.zeros(len(x))

@@ -97,7 +97,18 @@ def _generate_cpacs_airfoil(naca_code: str) -> None:
     # Extract x and y coordinates (coords is [N, 3] with z=0)
     airfoil_x = coords[:, 0].tolist()
     airfoil_y = coords[:, 1].tolist()
+    _create_cpacs_from(
+        airfoil_x=airfoil_x,
+        airfoil_y=airfoil_y,
+        airfoil_name=naca_code,
+    )
 
+
+def _create_cpacs_from(
+    airfoil_x: list[float],
+    airfoil_y: list[float],
+    airfoil_name: str | None = None,
+) -> None:
     def _vector_to_str(values: list[float]) -> str:
         return ";".join(f"{v:.8f}" for v in values)
 
@@ -124,8 +135,10 @@ def _generate_cpacs_airfoil(naca_code: str) -> None:
     st.session_state["uploaded_default_cpacs"] = False
     wkdir = st.session_state.workflow.working_dir
     wkdir.mkdir(parents=True, exist_ok=True)
+    if airfoil_name is None:
+        airfoil_name = "custom"
     safe_name = "".join(
-        char if (char.isalnum() or char in ("-", "_")) else "_" for char in naca_code.strip()
+        char if (char.isalnum() or char in ("-", "_")) else "_" for char in airfoil_name.strip()
     )
     if not safe_name:
         safe_name = "custom"
@@ -138,6 +151,40 @@ def _generate_cpacs_airfoil(naca_code: str) -> None:
     st.session_state["last_uploaded_name"] = new_cpacs_path.name
     st.session_state["last_converted_cpacs_path"] = str(new_cpacs_path)
     st.session_state["cpacs"] = CPACS(str(new_cpacs_path))
+
+
+def _read_airfoil_xy(airfoil_path: Path) -> tuple[list[float], list[float]]:
+    x_vals: list[float] = []
+    y_vals: list[float] = []
+
+    with open(airfoil_path, "r", encoding="utf-8") as handle:
+        for raw_line in handle:
+            line = raw_line.strip()
+            if not line:
+                continue
+            if line.startswith(("#", "!", "%", "//")):
+                continue
+
+            line = line.replace(",", " ")
+            parts = [p for p in line.split() if p]
+            if len(parts) < 2:
+                continue
+
+            try:
+                x_val = float(parts[0])
+                y_val = float(parts[1])
+            except ValueError:
+                continue
+
+            x_vals.append(x_val)
+            y_vals.append(y_val)
+
+    if len(x_vals) < 3:
+        raise ValueError(
+            f"Airfoil file '{airfoil_path.name}' must contain at least 3 valid x y points."
+        )
+
+    return x_vals, y_vals
 
 
 def _section_generate_cpacs_airfoil() -> None:
@@ -260,10 +307,17 @@ def _section_load_cpacs():
             or uploaded_path.suffix == ".dat"
             or uploaded_path.suffix == ".txt"
         ):
-            create_branch(cpacs.tixi, GEOMETRY_MODE_XPATH)
-            cpacs.tixi.updateTextElement(GEOMETRY_MODE_XPATH, "2D")
-            # _convert_airfoil_to_cpacs(wkdir, uploaded_file)
-            raise NotImplementedError("SOON.")
+            try:
+                airfoil_x, airfoil_y = _read_airfoil_xy(uploaded_path)
+            except Exception as exc:
+                st.error(f"Failed to parse airfoil points from {uploaded_file.name}: {exc}")
+                return None
+
+            _create_cpacs_from(
+                airfoil_x=airfoil_x,
+                airfoil_y=airfoil_y,
+                airfoil_name=uploaded_path.stem,
+            )
 
         elif uploaded_path.suffix == ".vsp3":
             should_convert = (not is_same_upload) or (

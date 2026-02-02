@@ -105,17 +105,11 @@ def close_cpacs_handles(cpacs: CPACS | None, *, detach: bool = True) -> None:
 
     tixi: Tixi3 | None = getattr(cpacs, "tixi", None)
     if tixi is not None:
-        try:
-            tixi.close()
-        except Exception:
-            pass
+        tixi.close()
 
     tigl: Tigl3 | None = getattr(cpacs, "tigl", None)
     if tigl is not None:
-        try:
-            tigl.close()
-        except Exception:
-            pass
+        tigl.close()
 
     if detach:
         setattr(cpacs, "tixi", None)

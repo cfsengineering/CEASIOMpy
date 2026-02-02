@@ -172,6 +172,9 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                     default_value=3,
                     key="h_first_layer",
                     name="Height of first layer",
+                    description="""
+                        Height of the first prismatic cell, touching the wall, in mesh length units.
+                    """,
                 )
 
                 float_vartype(

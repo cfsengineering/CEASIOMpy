@@ -365,7 +365,7 @@ def section_select_cpacs() -> None:
             render_openvsp_panel()
 
     # Display the file uploader widget with the previously uploaded file
-    if "cpacs" in st.session_state and st.session_state.cpacs:
+    if st.session_state.get("cpacs", None) is not None:
         st.markdown("---")
         section_3D_view(force_regenerate=True)
 

@@ -217,6 +217,9 @@ def gui_settings(cpacs: CPACS) -> None:
 
         if su2run_control_surf:
             multiselect_vartype(
+                tixi=tixi,
+                xpath=SU2_CONTROL_SURF_ANGLE_XPATH,
+                description="Rotation angle of control surface.",
                 default_value=[0.0],
                 name="Control Surface",
                 key="su2run_ctrl_surf_deflection",

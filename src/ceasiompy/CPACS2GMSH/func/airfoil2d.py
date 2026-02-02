@@ -401,7 +401,6 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
     if needs_rename:
         gmsh_output_file = wkdir / f"mesh_airfoil_airfoil_{airfoil_name}.{params['mesh_format']}"
         if gmsh_output_file.exists():
-            import shutil
             shutil.move(gmsh_output_file, expected_mesh_file)
             log.info(f"Renamed {gmsh_output_file.name} to {expected_mesh_file.name}")
 

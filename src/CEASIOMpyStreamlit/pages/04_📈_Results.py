@@ -51,6 +51,7 @@ from ceasiompy.SMTrain.func.config import (
     normalize_input_from_gui,
     phys_to_norm,
     norm_to_phys,
+    get_elements_to_optimise,
 )
 
 from SALib.sample import saltelli
@@ -256,11 +257,11 @@ def display_results(results_dir, chosen_workflow = None):
                     rmse_rbf_value = rmse_rbf_df["rmse"].iloc[0]
                     st.markdown(f"##### Root Mean Square Error of RBF model: {rmse_rbf_value:.6f}")
 
-                csv_ranges_path = Path(f"{results_dir}/ranges_for_gui.csv")
-                if not csv_ranges_path.exists():
-                    st.error("ranges_for_gui.csv file not found!")
-                    return
-                df_range = pd.read_csv(csv_ranges_path)
+                cpacs_in = Path(chosen_workflow, "00_ToolInput.xml")
+                tmp_cpacs = CPACS(cpacs_in)
+                tixi = tmp_cpacs.tixi
+
+                (_, _, _, ranges_gui, _) = get_elements_to_optimise(tmp_cpacs)
 
                 sliders_values = {}
                 sliders_bounds = {}
@@ -272,16 +273,11 @@ def display_results(results_dir, chosen_workflow = None):
                 if df_samples is None:
                     st.warning("No sampling data available.")
 
-                for _, row in df_range.iterrows():
-                    param = str(row["Parameter"]).strip()
-                    min_val = float(row["Min"])
-                    max_val = float(row["Max"])
+                for param, bounds in ranges_gui.items():
+                    min_val = float(bounds[0])
+                    max_val = float(bounds[1])
                     sliders_bounds[param] = [min_val, max_val]
                     sliders_values[param] = min_val
-
-                cpacs_in = Path(chosen_workflow, "00_ToolInput.xml")
-                tmp_cpacs = CPACS(cpacs_in)
-                tixi = tmp_cpacs.tixi
 
                 model_selected = st.radio(
                     "Select the model to visualize:",

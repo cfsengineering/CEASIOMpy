@@ -154,8 +154,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 {"Parameter": k, "Min": v[0], "Max": v[1]}
                 for k, v in ranges_gui.items()
             ])
-            df_ranges_fui_path = results_dir / "ranges_for_gui.csv"
-            df_ranges_gui.to_csv(df_ranges_fui_path, index=False)
 
             if not wings_to_optimise:
                 log.error("SELECT AT LEAST ONE WING!")
@@ -196,6 +194,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 results_dir=results_dir,
                 KRG_model_bool=selected_krg_model,
                 RBF_model_bool=selected_rbf_model,
+                ranges_gui=ranges_gui,
             )
 
             files = sorted(list(NEWCPACS_path.glob("*.xml")))
@@ -216,6 +215,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                         rmse_obj=rmse_obj,
                         objective=objective,
                         aeromap_uid=aeromap_selected,
+                        ranges_gui=df_ranges_gui,
                     )
 
             if selected_rbf_model:
@@ -229,6 +229,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                         rmse_obj=rmse_obj,
                         objective=objective,
                         aeromap_uid=aeromap_selected,
+                        ranges_gui=df_ranges_gui,
                     )
 
             # Second level fidelity training

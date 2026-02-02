@@ -506,62 +506,32 @@ def add_gui_object(
             st.session_state['simulations_df'] = None
 
         elif selected_value == "Load Geometry Exploration Simulations":
-            coll,collr = st.columns(2)
-            with coll:
-                uploaded_existing_simulations = st.file_uploader(
-                    "Upload simulations file",
-                    type=["csv"],
-                    key='existing_avl_results'
-                )
-                if uploaded_existing_simulations:
-                    # Ensure working directory exists
-                    working_dir = Path(st.session_state.workflow.working_dir)
-                    working_dir.mkdir(parents=True, exist_ok=True)
+            uploaded_existing_simulations = st.file_uploader(
+                "Upload simulations file",
+                type=["csv"],
+                key='existing_avl_results'
+            )
+            if uploaded_existing_simulations:
+                # Ensure working directory exists
+                working_dir = Path(st.session_state.workflow.working_dir)
+                working_dir.mkdir(parents=True, exist_ok=True)
 
-                    # Save the uploaded CSV to the working directory
-                    csv_filename = 'avl_simulations_results.csv'
-                    csv_path = working_dir / csv_filename
-                    with open(csv_path, "wb") as f:
-                        f.write(uploaded_existing_simulations.getbuffer())
+                # Save the uploaded CSV to the working directory
+                csv_filename = 'avl_simulations_results.csv'
+                csv_path = working_dir / csv_filename
+                with open(csv_path, "wb") as f:
+                    f.write(uploaded_existing_simulations.getbuffer())
 
-                    # Load the CSV into a DataFrame and store both DataFrame
-                    # and path in session_state
-                    simulations_df = pd.read_csv(csv_path)
-                    st.session_state.simulations_df = simulations_df
-                    st.session_state.simulations_file_path = str(csv_path)
+                # Load the CSV into a DataFrame and store both DataFrame
+                # and path in session_state
+                simulations_df = pd.read_csv(csv_path)
+                st.session_state.simulations_df = simulations_df
+                st.session_state.simulations_file_path = str(csv_path)
 
-                    st.success("CSV copied to working directory!")
-                    st.write(f"DataFrame shape: {simulations_df.shape}")
-                    st.dataframe(simulations_df.head())
-                    st.write(f"Persistent path: {csv_path}")
-            with collr:
-                uploaded_ranges_file = st.file_uploader(
-                    "Upload parameter ranges file",
-                    type=["csv"],
-                    key='existing_range_file'
-                )
-
-                if uploaded_ranges_file:
-                    # Ensure working directory exists
-                    working_dir = Path(st.session_state.workflow.working_dir)
-                    working_dir.mkdir(parents=True, exist_ok=True)
-
-                    # Save the uploaded CSV to the working directory
-                    csv_range_filename = 'ranges_for_gui.csv'
-                    csv_range_path = working_dir / csv_range_filename
-                    with open(csv_range_path, "wb") as f:
-                        f.write(uploaded_ranges_file.getbuffer())
-
-                    # Load the CSV into a DataFrame and store both DataFrame
-                    # and path in session_state
-                    range_df = pd.read_csv(csv_range_path)
-                    st.session_state.range_df = range_df
-                    st.session_state.range_file_path = str(range_df)
-
-                    st.success("CSV copied to working directory!")
-                    st.write(f"DataFrame shape: {range_df.shape}")
-                    st.dataframe(range_df.head())
-                    st.write(f"Persistent path: {csv_range_path}")
+                st.success("CSV copied to working directory!")
+                st.write(f"DataFrame shape: {simulations_df.shape}")
+                st.dataframe(simulations_df.head())
+                st.write(f"Persistent path: {csv_path}")
 
         if selected_value == 'Two levels':
             value = get_value_or_default(tixi, SMTRAIN_THRESHOLD_XPATH, 0.05)

@@ -17,7 +17,6 @@ from shutil import copyfile
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from copy import deepcopy
 from pandas import concat
 from skopt import gp_minimize
 from cpacspy.cpacsfunctions import (
@@ -32,6 +31,7 @@ from ceasiompy.SMTrain.func.sampling import (
     split_data,
     new_points,
     new_points_geom,
+    new_points_RBF,
 )
 from ceasiompy.SMTrain.func.createdata import (
     launch_avl,
@@ -59,6 +59,7 @@ from ceasiompy.SMTrain.func.config import (
     get_xpath_for_param,
     update_geometry_cpacs,
     save_best_surrogate_geometry,
+    get_elements_to_optimise,
 )
 from sklearn.metrics import r2_score
 from ceasiompy.PyAVL import (
@@ -399,6 +400,7 @@ def run_first_level_training_geometry(
     results_dir: Path,
     KRG_model_bool: bool,
     RBF_model_bool: bool,
+    ranges_gui: DataFrame,
 ) -> Tuple[Union[KRG, MFK], Dict[str, ndarray]]:
     """
     Run surrogate model training on first level of fidelity (AVL).
@@ -497,7 +499,11 @@ def run_first_level_training_geometry(
         "Max": [df_flight[c].max() for c in flight_cols],
     })
 
-    ranges_for_gui = pd.read_csv(f"{results_dir}/ranges_for_gui.csv")
+    ranges_for_gui = pd.DataFrame([
+        {"Parameter": k, "Min": v[0], "Max": v[1]}
+        for k, v in ranges_gui.items()
+    ])
+
     final_ranges_for_gui = pd.concat(
         [ranges_for_gui,ranges_fc],
         axis=0,
@@ -507,8 +513,6 @@ def run_first_level_training_geometry(
     final_ranges_for_gui = final_ranges_for_gui.loc[
     final_ranges_for_gui["Min"] != final_ranges_for_gui["Max"]
     ].copy()
-
-    final_ranges_for_gui.to_csv(f"{results_dir}/ranges_for_gui.csv", index=False)
 
     best_geometry_idx = final_level1_df[objective].idxmax()
     best_geometries_df = final_level1_df.loc[[best_geometry_idx]]
@@ -658,7 +662,8 @@ def run_adaptative_refinement_geom(
     level1_sets: Dict[str, ndarray],
     rmse_obj: float,
     objective: str,
-    aeromap_uid,
+    aeromap_uid: str,
+    ranges_gui: DataFrame,
 ) -> None:
     """
     Iterative improvement using SU2 data.
@@ -692,6 +697,7 @@ def run_adaptative_refinement_geom(
             model=model,
             results_dir=results_dir,
             high_var_pts=high_var_pts,
+            ranges_gui=ranges_gui,
         )
 
         # 1st Breaking condition
@@ -901,11 +907,7 @@ def run_adaptative_refinement_geom_existing_db(
     copyfile(df_old_simulation_path, df_new_simulation_path)
     df_simulation_new = pd.read_csv(df_new_simulation_path)
     df_simulation = pd.DataFrame(columns=df_simulation_new.columns)
-
-    df_old_ranges_path = WKDIR_PATH / 'ranges_for_gui.csv'
-    df_new_ranges_path = results_dir / 'ranges_for_gui.csv'
-    copyfile(df_old_ranges_path, df_new_ranges_path)
-
+    
     x_array = level1_sets["x_train"]
     nb_iters = len(x_array)
     log.info(f"Starting adaptive refinement with maximum {nb_iters=}.")
@@ -1287,91 +1289,6 @@ def train_surrogate_model_RBF(
         )
 
 
-def new_points_RBF(
-    x_array: ndarray,
-    y_array: ndarray,
-    model: Union[KRG, MFK],
-    results_dir: Path,
-    high_poor_pts: float = 0.1,
-    n_local: int = 3,
-    perturb_scale: float = 0.05,
-    poor_pts: List = None
-) -> Union[pd.DataFrame, None]:
-    """
-    Generate new sampling points based on LOO error for RBF models.
-    Returns a DataFrame with the same columns as ranges_for_gui.csv.
-    """
-
-    log.info("Entered new_points_RBF function")
-
-    X = np.asarray(x_array)
-    y = np.asarray(y_array).ravel()
-    n_samples, n_dim = X.shape
-
-    # Load parameter names from ranges_for_gui.csv
-    ranges_csv_path = results_dir / "ranges_for_gui.csv"
-    df_ranges_parameter = pd.read_csv(ranges_csv_path)
-    columns_from_csv = df_ranges_parameter['Parameter'].tolist()
-
-    if poor_pts is None:
-        poor_pts = []
-
-    if X.shape[0] < 3:
-        log.warning("Not enough samples for LOO.")
-        return None
-
-    # --------------------------------------------------
-    # STEP 1 — Compute LOO error
-    # --------------------------------------------------
-    loo_error = np.zeros(n_samples)
-    for i in range(n_samples):
-        X_loo = np.delete(X, i, axis=0)
-        y_loo = np.delete(y, i, axis=0)
-        try:
-            model_loo = deepcopy(model)
-            model_loo.set_training_values(X_loo, y_loo)
-            model_loo.train()
-            y_pred_i = model_loo.predict_values(X[i].reshape(1, -1)).ravel()[0]
-            loo_error[i] = abs(y_pred_i - y[i])
-        except Exception as e:
-            log.warning(f"LOO failed at idx {i}: {e}")
-            loo_error[i] = np.nan
-
-    if np.all(np.isnan(loo_error)):
-        log.error("All LOO evaluations failed.")
-        return None
-
-    # --------------------------------------------------
-    # STEP 2 — Select worst points
-    # --------------------------------------------------
-    n_bad = 6
-    bad_idx = np.argsort(loo_error)[-n_bad:]
-    X_bad = X[bad_idx]
-
-    # --------------------------------------------------
-    # STEP 3 — Local perturbations
-    # --------------------------------------------------
-    X_new_list = []
-    for x in X_bad:
-        for _ in range(n_local):
-            delta = perturb_scale * (np.random.rand(n_dim) - 0.5)
-            x_new = x + delta
-            # avoid duplicating points already in poor_pts
-            if tuple(x_new) not in poor_pts:
-                X_new_list.append(x_new)
-                poor_pts.append(tuple(x_new))
-
-    if not X_new_list:
-        log.warning("No new poor-prediction points generated after perturbation.")
-        return None
-
-    X_new = np.array(X_new_list)
-    sampled_df = pd.DataFrame(X_new, columns=columns_from_csv)
-
-    log.info(f"Generated {len(sampled_df)} new poor-prediction points.")
-    return sampled_df
-
-
 def run_adaptative_refinement_geom_RBF(
     cpacs: CPACS,
     results_dir: Path,
@@ -1379,7 +1296,8 @@ def run_adaptative_refinement_geom_RBF(
     level1_sets: Dict[str, ndarray],
     rmse_obj: float,
     objective: str,
-    aeromap_uid,
+    aeromap_uid: str,
+    ranges_gui: DataFrame,
 ) -> None:
     """
     Iterative adaptive refinement using RBF LOO-error based sampling.
@@ -1419,8 +1337,7 @@ def run_adaptative_refinement_geom_RBF(
             x_array=x_array,
             y_array=y_array,
             model=model,
-            results_dir=results_dir,
-            high_poor_pts=0.1,
+            ranges_gui=ranges_gui,
             n_local=1,
             perturb_scale=1,
         )

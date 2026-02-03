@@ -37,6 +37,7 @@ from ceasiompy import log
 
 # Functions
 
+
 def get_radial_stations(radius: float, hub_radius: float, number_of_stations: int = 40) -> ndarray:
     """
     Non-dimensionalize the radius and remove values smaller than hub radius.

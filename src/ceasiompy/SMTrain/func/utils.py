@@ -41,6 +41,7 @@ from ceasiompy.SMTrain import (
 
 # Functions
 
+
 def concatenate_if_not_none(list_arrays: List[Union[ndarray, None]]) -> ndarray:
     """
     Concatenates arrays in the list that are not None.

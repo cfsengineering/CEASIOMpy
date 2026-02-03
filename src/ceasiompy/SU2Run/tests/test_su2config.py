@@ -22,6 +22,7 @@ MODULE_DIR = Path(__file__).parent
 
 # Functions
 
+
 def test_add_damping_derivatives(tmp_path):
     """Test function 'add_damping_derivatives'"""
 

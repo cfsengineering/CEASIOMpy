@@ -43,6 +43,7 @@ from ceasiompy.SMTrain import (
 
 # Functions
 
+
 def get_settings(cpacs: CPACS) -> Tuple[str, float, str, bool, bool, int, bool, float]:
     """
     Reads the global and new suggested dataset settings.

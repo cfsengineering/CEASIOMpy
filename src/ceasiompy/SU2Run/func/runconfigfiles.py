@@ -28,6 +28,7 @@ from ceasiompy.utils.commonnames import (
 
 # Functions
 
+
 def check_config_file_exists(config_file: List[Path], config_dir: Path) -> None:
     """
     Check that there exists exactly 1 configuration file for 1 scenario

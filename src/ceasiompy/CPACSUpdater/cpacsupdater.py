@@ -18,6 +18,7 @@ from ceasiompy.CPACSUpdater import CPACSUPDATER_ADD_CTRLSURFACES_XPATH
 
 # Main
 
+
 def main(cpacs: CPACS) -> None:
     """
     Checks GUI values and updates CPACS file accordingly.

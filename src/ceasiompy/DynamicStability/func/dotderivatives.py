@@ -62,6 +62,7 @@ from ceasiompy.DynamicStability import (
 
 # Functions
 
+
 def load_geometry(self) -> list:
     """
     Load geometry in PanelAero's format.

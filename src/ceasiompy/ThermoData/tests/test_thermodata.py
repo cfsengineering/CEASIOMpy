@@ -37,7 +37,9 @@ from ceasiompy.ThermoData.func.turbofan import (
 from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
+
 # Functions
+
 
 def test_turbojet_func():
     """Test function 'turbojet_analysis'"""

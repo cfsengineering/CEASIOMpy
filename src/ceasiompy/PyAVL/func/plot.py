@@ -17,6 +17,7 @@ from ceasiompy import log
 
 # Functions
 
+
 def convert_ps_to_pdf(wkdir: Path) -> None:
     """
     Function to convert AVL 'plot.ps' to 'plot.pdf'.

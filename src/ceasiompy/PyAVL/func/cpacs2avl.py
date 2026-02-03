@@ -69,6 +69,7 @@ from ceasiompy.utils.commonxpaths import (
 
 # Functions
 
+
 def compute_fuselage_coords(
     i_sec: int,
     elem_transf: Transformation,

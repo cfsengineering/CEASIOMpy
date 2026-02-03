@@ -42,6 +42,7 @@ from ceasiompy.SMTrain import (
 
 # Main
 
+
 def main(cpacs: CPACS, results_dir: Path) -> None:
     """
     Train a surrogate model (single-level or multi-fidelity) using aerodynamic data.

@@ -31,6 +31,7 @@ from ceasiompy import log
 
 # Functions
 
+
 def generate_stab_df(cpacs: CPACS, aeromap_uid: str, lr_bool: bool) -> DataFrame:
     """
     Generate the Markdownpy Table for

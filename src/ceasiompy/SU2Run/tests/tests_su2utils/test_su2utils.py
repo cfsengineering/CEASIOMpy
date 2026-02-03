@@ -47,6 +47,7 @@ FORCES_BREAKDOWN_NO_VALUE = Path(MODULE_DIR, "forces_breakdown_no_value.dat")
 
 # Functions
 
+
 def test_get_mesh_marker():
     """Test the class 'get_mesh_markers'"""
 

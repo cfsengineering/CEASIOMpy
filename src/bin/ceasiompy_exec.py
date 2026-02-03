@@ -40,8 +40,8 @@ from ceasiompy.utils.commonpaths import (
     CPACS_FILES_PATH,
 )
 
-# Functions
 
+# Functions
 def _get_cpu_count() -> int:
     cpus = os.cpu_count()
     if cpus is not None:

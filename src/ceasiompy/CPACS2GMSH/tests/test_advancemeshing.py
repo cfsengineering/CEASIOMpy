@@ -37,6 +37,7 @@ MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simple_sharp_airfoil.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
+
 # Functions
 
 def test_distance_field():

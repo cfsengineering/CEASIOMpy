@@ -21,6 +21,7 @@ from markdownpy.markdownpy import (
 
 # Main
 
+
 def markdownpy_to_markdown(md: MarkdownDoc, table: List[List[str]]) -> None:
     """
     Writes a Markdownpy Table to a Markdown object.

@@ -18,6 +18,7 @@ import numpy as np
 from shapely.geometry import Polygon
 from typing import Any, Dict, List, Tuple, Sequence
 
+
 # Functions
 
 def compute_delta_a(row: Dict[str, Any]) -> np.ndarray:

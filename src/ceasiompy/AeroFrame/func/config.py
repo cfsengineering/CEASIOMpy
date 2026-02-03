@@ -61,6 +61,7 @@ from ceasiompy.AeroFrame import (
     FRAMAT_YOUNGMODULUS_XPATH,
 )
 
+
 # Functions
 
 def compute_distance_and_moment(centerline_df: DataFrame, row: Series) -> Series:

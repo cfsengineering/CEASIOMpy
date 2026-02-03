@@ -39,6 +39,7 @@ TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 CPACS_D150_IN_PATH = Path(CPACS_FILES_PATH, "d150.xml")
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
 
+
 # Functions
 
 def test_generate_rans_mesh():

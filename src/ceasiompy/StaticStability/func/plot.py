@@ -73,6 +73,7 @@ LR_TITLES_DICT = {
 
 # Functions
 
+
 def generate_random_color() -> str:
     """
     Generate a random color in hexadecimal format.

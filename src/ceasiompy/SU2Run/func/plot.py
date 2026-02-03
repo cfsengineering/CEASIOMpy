@@ -37,6 +37,7 @@ except Exception:
 
 # Functions
 
+
 def save_plots(
     radial_stations: ndarray,
     radial_thrust_coefs: ndarray,

@@ -24,6 +24,7 @@ from ceasiompy.StaticStability import STABILITY_DICT
 
 # Functions
 
+
 def generate_message(row: Series) -> str:
     """
     Generates a message indicating the stability of the aircraft

@@ -13,6 +13,7 @@ from ambiance import Atmosphere
 from ceasiompy import log
 from ceasiompy.CLCalculator import GAMMA
 
+
 # Functions
 
 def calculate_cl(

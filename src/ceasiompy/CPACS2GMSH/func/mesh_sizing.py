@@ -22,6 +22,7 @@ from ceasiompy.utils.commonxpaths import (
     FUSELAGES_XPATH,
 )
 
+
 # Functions
 
 def fuselage_size(tixi: Tixi3) -> tuple[float, float]:

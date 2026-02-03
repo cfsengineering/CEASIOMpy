@@ -62,6 +62,7 @@ from ceasiompy.utils.commonxpaths import SM_XPATH
 
 # Functions
 
+
 def get_hyperparam_space(
     level1_sets: Dict[str, ndarray],
     level2_sets: Union[Dict[str, ndarray], None],

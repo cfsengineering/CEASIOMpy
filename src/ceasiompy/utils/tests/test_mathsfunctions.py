@@ -23,6 +23,7 @@ from unittest import main
 from ceasiompy.utils.generalclasses import Point
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
+
 # Functions
 
 class TestMathsFunctions(CeasiompyTest):

@@ -20,6 +20,7 @@ from math import comb
 
 from scipy.interpolate import interp1d
 
+
 # Functions
 
 def Import_Wing(wing):

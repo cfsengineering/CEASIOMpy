@@ -45,6 +45,7 @@ CORE_VARS = {
 
 # Functions
 
+
 def get_pycycle_var(prob, var, conversion=None, temp_unit=None):
     val = prob.get_val(var)
     if conversion is not None and isinstance(conversion, (int, float)):

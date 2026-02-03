@@ -29,6 +29,7 @@ from ceasiompy.SU2Run import (
 
 # Functions
 
+
 def norm(vector: ndarray) -> float:
     """
     Returns Euclidean norm of a vector ndarray.

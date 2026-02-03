@@ -34,6 +34,7 @@ from ceasiompy.PyAVL import SOFTWARE_NAME as AVL_SOFTWARE
 
 # Functions
 
+
 def dimensionalize_rate(df: DataFrame, alt: float, c: float, b: float) -> DataFrame:
     """
     Add dimensional rates (q, p, r) to the DataFrame using local Mach and altitude.

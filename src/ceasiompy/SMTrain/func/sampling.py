@@ -33,6 +33,7 @@ class VariancePredictor(Protocol):
 
 # Functions
 
+
 def lh_sampling(
     n_samples: int,
     ranges: Dict,

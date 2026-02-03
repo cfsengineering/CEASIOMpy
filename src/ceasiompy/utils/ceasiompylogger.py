@@ -23,6 +23,7 @@ from datetime import datetime
 
 from ceasiompy.utils.commonpaths import RUNWORKFLOW_HISTORY_PATH
 
+
 # Functions
 
 def add_to_runworkflow_history(working_dir: Path, comment: str = "") -> None:

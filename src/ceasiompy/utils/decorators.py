@@ -25,6 +25,7 @@ from typing import (
 
 from ceasiompy import log
 
+
 # Functions
 
 # TODO: Implement CEASIOMpy's own validate function

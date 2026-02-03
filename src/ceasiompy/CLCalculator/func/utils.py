@@ -42,6 +42,7 @@ from ceasiompy.CLCalculator import (
     CLCALC_PERC_FUEL_MASS_XPATH,
 )
 
+
 # Functions
 
 def save_for_su2(tixi: Tixi3, target_cl: float) -> None:

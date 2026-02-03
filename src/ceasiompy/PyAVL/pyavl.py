@@ -46,6 +46,7 @@ from ceasiompy.PyAVL import (
 
 # Main
 
+
 def run_case(args: tuple[Path, Path]) -> None:
     '''
     Runs the created avl cases separately on 1 CPU.

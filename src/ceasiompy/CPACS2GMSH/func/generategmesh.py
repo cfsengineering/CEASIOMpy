@@ -66,6 +66,7 @@ from ceasiompy.utils.commonnames import (
     GMSH_ENGINE_CONFIG_NAME,
 )
 
+
 # Functions
 
 def define_engine_bc(engine_part, brep_dir):

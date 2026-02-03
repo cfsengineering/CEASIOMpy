@@ -395,11 +395,6 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
 
 
 def _load_2d_gui_settings(tixi: Tixi3) -> None:
-
-    # TODO: Rectangular Length x Height
-
-    # TODO: CType: Height x Wake
-
     # Mesh sizes
     with st.container(
         border=True,
@@ -489,7 +484,7 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
         border=True,
     ):
         st.markdown("#### Mesh Settings")
-        
+
         structured_mesh = list_vartype(
             tixi=tixi,
             xpath=GMSH_2D_STRUCTURED_MESH_XPATH,
@@ -499,7 +494,11 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
             description="Choose if you want a structured mesh or a hybrid one."
         )
 
-        default_value = ["CType"] if structured_mesh == "Structured" else ["Rectangular", "Circular", "CType"]
+        default_value = (
+            ["CType"]
+            if structured_mesh == "Structured"
+            else ["Rectangular", "Circular", "CType"]
+        )
 
         farfield_type = list_vartype(
             tixi=tixi,
@@ -521,8 +520,10 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
                 key="farfield_radius",
                 description="Farfield radius for circular farfield in 2D mesh generation.",
             )
+        else:
+            safe_remove(tixi, xpath=GMSH_2D_FARFIELD_RADIUS_XPATH)
 
-        elif farfield_type == "CType":
+        if farfield_type == "CType":
             float_vartype(
                 tixi=tixi,
                 xpath=GMSH_2D_WAKE_LENGTH_XPATH,
@@ -530,29 +531,42 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
                 name="Wake Length",
                 key="wake_length",
                 description="""
-                    Wake length downstream of the airfoil for rectangular/C-type farfield
+                    Wake length downstream of the airfoil for C-type farfield.
                 """,
             )
-
-        elif farfield_type == "CType" or farfield_type == "Rectangular":
             float_vartype(
                 tixi=tixi,
                 xpath=GMSH_2D_HEIGHT_LENGTH_XPATH,
                 default_value=5.0,
                 name="Height",
                 key="height",
-                description="Height of domain for C-type/rectangular farfield",
+                description="Height of domain for C-type farfield.",
+            )
+        else:
+            safe_remove(tixi, xpath=GMSH_2D_WAKE_LENGTH_XPATH)
+            safe_remove(tixi, xpath=GMSH_2D_HEIGHT_LENGTH_XPATH)
+
+        if farfield_type == "Rectangular":
+            float_vartype(
+                tixi=tixi,
+                xpath=GMSH_2D_HEIGHT_LENGTH_XPATH,
+                default_value=5.0,
+                name="Height",
+                key="height",
+                description="Height of domain for rectangular farfield.",
             )
 
-        elif farfield_type == "Rectangular":
             float_vartype(
                 tixi=tixi,
                 xpath=GMSH_2D_LENGTH_XPATH,
                 default_value=5.0,
                 name="Length",
                 key="length",
-                description="Length of domain for rectangular farfield",
+                description="Length of domain for rectangular farfield.",
             )
+        else:
+            safe_remove(tixi, xpath=GMSH_2D_LENGTH_XPATH)
+            safe_remove(tixi, xpath=GMSH_2D_HEIGHT_LENGTH_XPATH)
 
 
 # Functions

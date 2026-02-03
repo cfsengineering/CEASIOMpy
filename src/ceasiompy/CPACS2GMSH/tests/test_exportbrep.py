@@ -26,6 +26,7 @@ CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
 CPACS_IN_SIMPLE_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_engine.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
+
 # Functions
 
 def test_export_brep():

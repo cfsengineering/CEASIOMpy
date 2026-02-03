@@ -29,6 +29,7 @@ from ceasiompy.DynamicStability import (
 
 # Main
 
+
 def main(cpacs: CPACS, wkdir: Path) -> None:
     """
     Opens SDSA with CPACS file and ceasiompy.db's data.

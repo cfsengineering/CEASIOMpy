@@ -23,6 +23,7 @@ from ceasiompy.PyAVL import SOFTWARE_NAME as AVL_SOFTWARE
 
 # Functions
 
+
 def get_alpha_max(self) -> DataFrame:
     """
     Compute alpha max, i.e. d Cm/ d alpha = 0.

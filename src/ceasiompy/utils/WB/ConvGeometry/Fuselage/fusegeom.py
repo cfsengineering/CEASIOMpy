@@ -16,6 +16,7 @@ import numpy as np
 
 from ceasiompy import log
 
+
 # Functions
 
 def fuselage_check_segment_connection(fus_nb, fuse_seg_nb, tigl):

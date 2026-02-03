@@ -19,13 +19,12 @@ from ceasiompy.CPACS2GMSH.func.mesh_sizing import (
 )
 
 from unittest import main
-from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
 
 # Classes
 class TestMeshSizing(CeasiompyTest):
-    
+
     def test_fuselage_size(self: CeasiompyTest) -> None:
         """
         This test takes the fuselage dimension on which the mesh size is calculated.

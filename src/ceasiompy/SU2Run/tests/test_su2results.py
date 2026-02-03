@@ -27,6 +27,7 @@ from ceasiompy.utils.commonpaths import TEST_RESULTS_FILES_PATH
 
 # Functions
 
+
 class TestSU2Results(CeasiompyTest):
 
     @pytest.mark.skipif("DISPLAY" not in os.environ, reason="requires display")

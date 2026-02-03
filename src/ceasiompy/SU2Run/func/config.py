@@ -98,6 +98,7 @@ from ceasiompy.SU2Run import (
 
 # Functions
 
+
 def add_actuator_disk(
     cfg: ConfigFile,
     tixi: Tixi3,

@@ -26,6 +26,7 @@ from ceasiompy import log
 
 # Functions
 
+
 def plot_validation(
     model: Union[KRG, MFK],
     sets: Dict,

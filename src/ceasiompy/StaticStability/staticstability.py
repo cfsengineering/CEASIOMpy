@@ -29,6 +29,7 @@ from ceasiompy.StaticStability import (
 
 # Main
 
+
 def main(cpacs: CPACS, wkdir: Path) -> None:
     """
     Analyses longitudinal, directional and lateral stability

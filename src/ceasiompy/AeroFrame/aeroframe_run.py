@@ -38,6 +38,7 @@ from ceasiompy.AeroFrame import (
     FRAMAT_TIP_DEFLECTION_XPATH,
 )
 
+
 # Functions
 
 def main(cpacs: CPACS, results_dir: Path) -> None:

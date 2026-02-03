@@ -41,6 +41,7 @@ from ceasiompy.utils.commonxpaths import (
     RANGE_CRUISE_MACH_XPATH,
 )
 
+
 # Functions
 
 def main(cpacs: CPACS, wkdir: Path) -> None:

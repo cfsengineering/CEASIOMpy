@@ -25,7 +25,6 @@ from numpy import ndarray
 from ceasiompy.utils.generalclasses import Point
 from scipy.spatial.transform import Rotation as R
 
-from ceasiompy import log
 
 # Functions
 

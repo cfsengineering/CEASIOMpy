@@ -25,6 +25,7 @@ from numpy import (
 
 # Functions
 
+
 def exp_i(omega: float, t: float) -> complex128:
     """
     Computes e^{iwt}.

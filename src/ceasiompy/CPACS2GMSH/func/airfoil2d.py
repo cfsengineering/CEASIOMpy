@@ -88,7 +88,7 @@ def _run_gmshairfoil2d(
     params,
     wkdir,
     airfoil_file,
-    flap_airfoil_file = None,
+    flap_airfoil_file: Path | None = None,
 ) -> None:
     """
     Build the gmshairfoil2d command line.

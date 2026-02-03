@@ -4,102 +4,100 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI Interface of CLCalculator.
-
-| Author: Leon Deligny
-| Creation: 18-Mar-2025
-
 """
 
 # Imports
+import streamlit as st
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
-
-from ceasiompy.utils.commonxpaths import AREA_XPATH
-from ceasiompy.SU2Run import (
-    SU2_FIXED_CL_XPATH,
-    SU2_TARGET_CL_XPATH,
+from ceasiompy.utils.ceasiompyutils import safe_remove
+from ceasiompy.utils.guiobjects import (
+    list_vartype,
+    float_vartype,
 )
+
+from cpacspy.cpacspy import CPACS
+
 from ceasiompy.CLCalculator import (
     MASS_TYPES,
     CLCALC_MASS_TYPE_XPATH,
     CLCALC_LOAD_FACT_XPATH,
     CLCALC_CRUISE_ALT_XPATH,
     CLCALC_CRUISE_MACH_XPATH,
-    CLCALC_PERC_FUEL_MASS_XPATH,
     CLCALC_CUSTOM_MASS_XPATH,
+    CLCALC_PERC_FUEL_MASS_XPATH,
 )
 
-# Variable
-cpacs_inout = CPACSInOut()
 
-cpacs_inout.add_input(
-    var_name="mass_type",
-    var_type=list,
-    default_value=MASS_TYPES,
-    unit=None,
-    descr="Type of mass to use for CL calculation",
-    xpath=CLCALC_MASS_TYPE_XPATH,
-    gui=True,
-    gui_name="Type",
-    gui_group="Mass",
-)
+# Functions
 
-cpacs_inout.add_input(
-    var_name="custom_mass",
-    var_type=float,
-    default_value=0.0,
-    unit="kg",
-    descr="Mass value if Custom is selected",
-    xpath=CLCALC_CUSTOM_MASS_XPATH,
-    gui=True,
-    gui_name="Custom mass",
-    gui_group="Mass",
-)
+def gui_settings(cpacs: CPACS) -> None:
+    tixi = cpacs.tixi
 
-cpacs_inout.add_input(
-    var_name="percent_fuel_mass",
-    var_type=float,
-    default_value=100,
-    unit=None,
-    descr="Percentage of fuel mass between mTOM and mZFM, if % fuel mass is selected",
-    xpath=CLCALC_PERC_FUEL_MASS_XPATH,
-    gui=True,
-    gui_name="Percent fuel mass",
-    gui_group="Mass",
-)
+    with st.container(
+        border=True,
+    ):
 
-cpacs_inout.add_input(
-    var_name="cruise_mach",
-    var_type=float,
-    default_value=0.78,
-    unit=None,
-    descr="Aircraft cruise Mach number",
-    xpath=CLCALC_CRUISE_MACH_XPATH,
-    gui=True,
-    gui_name="Mach",
-    gui_group="Cruise",
-)
+        mass_type = list_vartype(
+            tixi=tixi,
+            xpath=CLCALC_MASS_TYPE_XPATH,
+            name="Mass Type",
+            default_value=MASS_TYPES,
+            key="mass_type",
+            description="Type of mass to use for CL calculation.",
+        )
 
-cpacs_inout.add_input(
-    var_name="cruise_alt",
-    var_type=float,
-    default_value=12000.0,
-    unit="[m]",
-    descr="Aircraft cruise altitude",
-    xpath=CLCALC_CRUISE_ALT_XPATH,
-    gui=True,
-    gui_name="Altitude",
-    gui_group="Cruise",
-)
+        if mass_type == "Custom":
+            float_vartype(
+                tixi=tixi,
+                xpath=CLCALC_CUSTOM_MASS_XPATH,
+                description="Mass value user specified (custom).",
+                name="Mass Value.",
+                default_value=1.0,
+                key="custom_mass",
+            )
+        else:
+            safe_remove(tixi, xpath=CLCALC_CUSTOM_MASS_XPATH)
 
-cpacs_inout.add_input(
-    var_name="load_fact",
-    var_type=float,
-    default_value=1.05,
-    unit=None,
-    descr="Aircraft cruise altitude",
-    xpath=CLCALC_LOAD_FACT_XPATH,
-    gui=True,
-    gui_name="Load Factor",
-    gui_group="Cruise",
-)
+        if mass_type == r"%% fuel mass":
+            float_vartype(
+                tixi=tixi,
+                xpath=CLCALC_PERC_FUEL_MASS_XPATH,
+                default_value=100.0,
+                name="Percent fuel mass.",
+                description="Percentage of fuel mass between mTOM and mZFM.",
+                key="percent_fuel_mass",
+            )
+        else:
+            safe_remove(tixi, xpath=CLCALC_PERC_FUEL_MASS_XPATH)
+
+    with st.container(
+        border=True,
+    ):
+        st.markdown("#### Cruise Settings")
+
+        float_vartype(
+            tixi=tixi,
+            xpath=CLCALC_CRUISE_MACH_XPATH,
+            default_value=0.78,
+            description="Aircraft cruise Mach number.",
+            name="Cruise Mach",
+            key="mach_cruise",
+        )
+
+        float_vartype(
+            tixi=tixi,
+            xpath=CLCALC_CRUISE_ALT_XPATH,
+            default_value=1000.0,
+            description="Aircraft cruise altitude.",
+            name="Cruise Altitude",
+            key="altitude_cruise",
+        )
+
+        float_vartype(
+            tixi=tixi,
+            xpath=CLCALC_LOAD_FACT_XPATH,
+            default_value=1.05,
+            description="Load factor cruise of aircraft.",
+            name="Load Factor",
+            key="load_factor_cruise",
+        )

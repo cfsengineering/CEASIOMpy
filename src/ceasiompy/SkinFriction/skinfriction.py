@@ -3,16 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Calculate skin friction drag coefficient
-
-| Author: Aidan Jungo
-| Creation: 2019-06-13
-
-TODO:
-    * update __specs__ file
-    * (Check if projected value are realistic for different cases)
-    * Adapt the code deal with fixed CL mode case
-
+Calculate skin friction drag coefficient.
 """
 
 # =================================================================================================

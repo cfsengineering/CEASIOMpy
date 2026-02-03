@@ -19,7 +19,7 @@ from pathlib import Path
 # ==============================================================================
 
 # ===== Module Status =====
-MODULE_STATUS = False
+MODULE_STATUS = True
 MODULE_TYPE = "PostProcessing"
 
 # ===== Add a Results Directory =====

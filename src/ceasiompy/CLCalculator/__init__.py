@@ -24,7 +24,7 @@ from ceasiompy.utils.commonxpaths import (
 # ==============================================================================
 
 # ===== Module Status =====
-MODULE_STATUS = False
+MODULE_STATUS = True
 MODULE_TYPE = "PostProcessing"
 
 # ===== Include Module's name =====

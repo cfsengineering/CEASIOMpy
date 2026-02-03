@@ -4,12 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'lib/CLCalculator/clcalculator.py'
-
-| Author : Aidan Jungo
-| Creation: 2019-07-24
-| Author: Leon Deligny
-| Creation: 25 March 2025
-
 """
 
 # =================================================================================================

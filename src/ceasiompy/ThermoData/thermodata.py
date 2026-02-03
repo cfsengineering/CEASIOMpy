@@ -69,93 +69,96 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
     aeromap_list = cpacs.get_aeromap_uid_list()
 
-    if aeromap_list:
-        aeromap_default = aeromap_list[0]
-        log.info(f"The aeromap is {aeromap_default}")
-        aeromap_uid = get_value_or_default(tixi, SELECTED_AEROMAP_XPATH, aeromap_default)
-        activate_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
-        alt_list = activate_aeromap.get("altitude").tolist()
-        mach_list = activate_aeromap.get("machNumber").tolist()
-        T_tot_out_array = []
-        P_tot_out_array = []
+    if not aeromap_list:
+        log.warning("No valid aeromaps found.")
+        return None
 
-        for case_nb, alt in enumerate(alt_list):
-            alt = alt_list[case_nb]
-            MN = mach_list[case_nb]
-            case_dir_name = f"Case{str(case_nb).zfill(2)}_alt{alt}_mach{round(MN, 2)}"
-            case_dir_path = Path(wkdir, case_dir_name)
+    aeromap_default = aeromap_list[0]
+    log.info(f"The aeromap is {aeromap_default}")
+    aeromap_uid = get_value_or_default(tixi, SELECTED_AEROMAP_XPATH, aeromap_default)
+    activate_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+    alt_list = activate_aeromap.get("altitude").tolist()
+    mach_list = activate_aeromap.get("machNumber").tolist()
+    T_tot_out_array = []
+    P_tot_out_array = []
 
-            if not case_dir_path.exists():
-                case_dir_path.mkdir()
+    for case_nb, alt in enumerate(alt_list):
+        alt = alt_list[case_nb]
+        MN = mach_list[case_nb]
+        case_dir_name = f"Case{str(case_nb).zfill(2)}_alt{alt}_mach{round(MN, 2)}"
+        case_dir_path = Path(wkdir, case_dir_name)
 
-                EngineBC = Path(case_dir_path, ENGINE_BOUNDARY_CONDITIONS)
+        if not case_dir_path.exists():
+            case_dir_path.mkdir()
 
-                f = open(EngineBC, "w")
+            EngineBC = Path(case_dir_path, ENGINE_BOUNDARY_CONDITIONS)
 
-                engine_type = get_value_or_default(tixi, ENGINE_TYPE_XPATH, 0)
-                create_branch(tixi, ENGINE_BC)
+            f = open(EngineBC, "w")
 
-                if engine_type == 0:
-                    (
-                        T_tot_out,
-                        V_stat_out,
-                        MN_out,
-                        P_tot_out,
-                        massflow_stat_out,
-                        T_stat_out,
-                        P_stat_out,
-                    ) = turbojet_analysis(alt, MN, Fn)
+            engine_type = get_value_or_default(tixi, ENGINE_TYPE_XPATH, 0)
+            create_branch(tixi, ENGINE_BC)
 
-                    T_tot_out_array.append(T_tot_out)
-                    P_tot_out_array.append(P_tot_out)
+            if engine_type == 0:
+                (
+                    T_tot_out,
+                    V_stat_out,
+                    MN_out,
+                    P_tot_out,
+                    massflow_stat_out,
+                    T_stat_out,
+                    P_stat_out,
+                ) = turbojet_analysis(alt, MN, Fn)
 
-                    f = write_turbojet_file(
-                        file=f,
-                        T_tot_out=T_tot_out,
-                        V_stat_out=V_stat_out,
-                        MN_out=MN_out,
-                        P_tot_out=P_tot_out,
-                        massflow_stat_out=massflow_stat_out,
-                        T_stat_out=T_stat_out,
-                        P_stat_out=P_stat_out,
-                    )
+                T_tot_out_array.append(T_tot_out)
+                P_tot_out_array.append(P_tot_out)
 
-                else:
+                f = write_turbojet_file(
+                    file=f,
+                    T_tot_out=T_tot_out,
+                    V_stat_out=V_stat_out,
+                    MN_out=MN_out,
+                    P_tot_out=P_tot_out,
+                    massflow_stat_out=massflow_stat_out,
+                    T_stat_out=T_stat_out,
+                    P_stat_out=P_stat_out,
+                )
 
-                    (
-                        T_tot_out_byp,
-                        V_stat_out_byp,
-                        MN_out_byp,
-                        P_tot_out_byp,
-                        massflow_stat_out_byp,
-                        T_stat_out_byp,
-                        T_tot_out_core,
-                        V_stat_out_core,
-                        MN_out_core,
-                        P_tot_out_core,
-                        massflow_stat_out_core,
-                        T_stat_out_core,
-                    ) = turbofan_analysis(alt, MN, Fn)
+            else:
 
-                    T_tot_out_array.append(T_tot_out_core)
-                    P_tot_out_array.append(P_tot_out_core)
+                (
+                    T_tot_out_byp,
+                    V_stat_out_byp,
+                    MN_out_byp,
+                    P_tot_out_byp,
+                    massflow_stat_out_byp,
+                    T_stat_out_byp,
+                    T_tot_out_core,
+                    V_stat_out_core,
+                    MN_out_core,
+                    P_tot_out_core,
+                    massflow_stat_out_core,
+                    T_stat_out_core,
+                ) = turbofan_analysis(alt, MN, Fn)
 
-                    f = write_hbtf_file(
-                        file=f,
-                        t_tot_out_byp=T_tot_out_byp,
-                        v_stat_out_byp=V_stat_out_byp,
-                        mn_out_byp=MN_out_byp,
-                        p_tot_out_byp=P_tot_out_byp,
-                        massflow_stat_out_byp=massflow_stat_out_byp,
-                        t_stat_out_byp=T_stat_out_byp,
-                        t_tot_out_core=T_tot_out_core,
-                        v_stat_out_core=V_stat_out_core,
-                        mn_out_core=MN_out_core,
-                        p_tot_out_core=P_tot_out_core,
-                        massflow_stat_out_core=massflow_stat_out_core,
-                        t_stat_out_core=T_stat_out_core,
-                    )
-        add_float_vector(tixi, ENGINE_BC + "/temperatureOutlet", T_tot_out_array)
-        add_float_vector(tixi, ENGINE_BC + "/pressureOutlet", P_tot_out_array)
+                T_tot_out_array.append(T_tot_out_core)
+                P_tot_out_array.append(P_tot_out_core)
+
+                f = write_hbtf_file(
+                    file=f,
+                    t_tot_out_byp=T_tot_out_byp,
+                    v_stat_out_byp=V_stat_out_byp,
+                    mn_out_byp=MN_out_byp,
+                    p_tot_out_byp=P_tot_out_byp,
+                    massflow_stat_out_byp=massflow_stat_out_byp,
+                    t_stat_out_byp=T_stat_out_byp,
+                    t_tot_out_core=T_tot_out_core,
+                    v_stat_out_core=V_stat_out_core,
+                    mn_out_core=MN_out_core,
+                    p_tot_out_core=P_tot_out_core,
+                    massflow_stat_out_core=massflow_stat_out_core,
+                    t_stat_out_core=T_stat_out_core,
+                )
+    add_float_vector(tixi, ENGINE_BC + "/temperatureOutlet", T_tot_out_array)
+    add_float_vector(tixi, ENGINE_BC + "/pressureOutlet", P_tot_out_array)
 
     shutil.rmtree("reports", ignore_errors=True)

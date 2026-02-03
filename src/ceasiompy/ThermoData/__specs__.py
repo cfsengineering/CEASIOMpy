@@ -4,10 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI Interface of ThermoData.
-
-| Author: Leon Deligny
-| Creation: 18-Mar-2025
-
 """
 
 # Imports
@@ -49,25 +45,4 @@ cpacs_inout.add_input(
     gui=True,
     gui_name="0 for Turbojet 1 for Turbofan",
     gui_group="User inputs",
-)
-
-# ==============================================================================
-#   GUI OUTPUTS
-# ==============================================================================
-
-
-cpacs_inout.add_output(
-    var_name="target_cl",
-    default_value=None,
-    unit="1",
-    descr="Value of CL to achieve to have a level flight with the given conditions",
-    xpath=SU2_TARGET_CL_XPATH,
-)
-
-cpacs_inout.add_output(
-    var_name="fixed_cl",
-    default_value=None,
-    unit="-",
-    descr="FIXED_CL_MODE parameter for SU2",
-    xpath=SU2_FIXED_CL_XPATH,
 )

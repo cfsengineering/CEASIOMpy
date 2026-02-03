@@ -93,7 +93,7 @@ def process_config_dir(config_dir: Path, dict_dir: List[Dict]) -> None:
 
 
 def check_force_file_exists(config_dir: Path) -> Path:
-    force_file_path = Path(config_dir, "no_deformation", SU2_FORCES_BREAKDOWN_NAME)
+    force_file_path = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
     if not force_file_path.exists():
         raise OSError("No result force file have been found!")
     return force_file_path

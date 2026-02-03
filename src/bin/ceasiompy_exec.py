@@ -24,6 +24,7 @@ import subprocess
 from ceasiompy.utils.ceasiompyutils import (
     parse_bool,
     has_display,
+    workflow_number,
     current_workflow_dir,
 )
 
@@ -352,12 +353,6 @@ def cleanup_previous_workflow_status(wkdir: Path | None = None) -> None:
 
     if not workflow_dirs:
         return
-
-    def workflow_number(path: Path) -> int:
-        parts = path.name.split("_")
-        if parts and parts[-1].isdigit():
-            return int(parts[-1])
-        return -1
 
     last_workflow = max(workflow_dirs, key=workflow_number)
     status_file = last_workflow / "workflow_status.json"

@@ -123,7 +123,7 @@ def get_value_at(i: int, *lists: List[float]) -> Tuple[float, ...]:
 
 
 def update_wetted_area_func(tixi: Tixi3, config_dir: Path) -> None:
-    wetted_area = get_wetted_area(Path(config_dir, "no_deformation", "logfile_SU2_CFD.log"))
+    wetted_area = get_wetted_area(Path(config_dir, "logfile_SU2_CFD.log"))
 
     # Check if symmetry plane is defined (Default: False)
     sym_factor = 1.0
@@ -365,10 +365,10 @@ def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
         alpha_file = check_one_entry(dict_dir, mach, alt, "alpha")
         # beta_file = check_one_entry(dict_dir, "beta")
 
-        angle_file = {"alpha": alpha_file / "no_deformation"}  # "beta": beta_file
+        angle_file = {"alpha": alpha_file}  # "beta": beta_file
 
         # Retrieve forces and moments for (alpha, alpha_dot) = (0, 0)
-        none_force_file_path = Path(none_file, "no_deformation", SU2_FORCES_BREAKDOWN_NAME)
+        none_force_file_path = Path(none_file, SU2_FORCES_BREAKDOWN_NAME)
 
         (
             cfx_0,

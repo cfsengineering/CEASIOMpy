@@ -12,7 +12,6 @@ from __future__ import annotations
 
 # Imports
 
-from pytest import approx
 from ceasiompy.CPACS2GMSH.func.mesh_sizing import (
     wings_size,
     fuselage_size,

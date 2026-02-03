@@ -7,9 +7,46 @@ import streamlit as st
 from pathlib import Path
 from pandas import DataFrame
 
-# =================================================================================================
-#    FUNCTIONS
-# =================================================================================================
+
+# Functions
+
+def parse_ascii_tables(text: str):
+    """Extract ASCII tables delimited by +---+ and | ... | lines."""
+    lines = text.splitlines()
+    segments = []
+    buffer = []
+    i = 0
+
+    def flush_text():
+        if buffer:
+            segments.append(("text", "\n".join(buffer)))
+            buffer.clear()
+
+    while i < len(lines):
+        line = lines[i]
+        if line.startswith("+") and "-" in line:
+            rows = []
+            i += 1
+            while i < len(lines):
+                current = lines[i]
+                if current.startswith("+") and "-" in current:
+                    i += 1
+                    continue
+                if current.startswith("|"):
+                    parts = [cell.strip() for cell in current.split("|")[1:-1]]
+                    rows.append(parts)
+                    i += 1
+                    continue
+                break
+            if rows:
+                flush_text()
+                segments.append(("table", rows))
+                continue
+        buffer.append(line)
+        i += 1
+
+    flush_text()
+    return segments
 
 
 def display_avl_table_file(path: Path) -> None:

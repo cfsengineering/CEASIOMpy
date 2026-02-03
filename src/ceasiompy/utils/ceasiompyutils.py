@@ -71,6 +71,13 @@ from ceasiompy.utils.commonxpaths import (
 
 # Functions
 
+def workflow_number(path: Path) -> int:
+    parts = path.name.split("_")
+    if parts and parts[-1].isdigit():
+        return int(parts[-1])
+    return -1
+
+
 def update_xpath_at_xyz(tixi: Tixi3, xpath: str, x: str, y: str, z: str) -> None:
     """
     Helper Function.

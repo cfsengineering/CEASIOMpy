@@ -273,7 +273,7 @@ def new_points_RBF(
     y = np.asarray(y_array).ravel()
     n_samples, n_dim = X.shape
 
-    parameters_selected = list(ranges_gui.keys())
+    parameters_selected = ranges_gui['Parameter'].tolist()
 
     if poor_pts is None:
         poor_pts = []

@@ -443,28 +443,23 @@ def create_list_cpacs_geometry(cpacs_file: Path, sampling_geom_csv: Path, NEWCPA
 
     return list_cpacs
 
-def load_normalization_params(results_dir: Path) -> dict:
-    csv_path = Path(results_dir) / "normalization_params.csv"
-    if not csv_path.exists():
-        st.error("normalization_params.csv not found!")
-        st.stop()
+def normalize_dataset(dataset_path: Path):
+    dataset = pd.read_csv(dataset_path)
+    param_cols = dataset.columns[:-1]
 
-    df = pd.read_csv(csv_path)
+    df_norm = dataset.copy()
+    normalization_params = {}
 
-    required_cols = {"Parameter", "mean", "std"}
-    if not required_cols.issubset(df.columns):
-        st.error("Invalid normalization_params.csv format")
-        st.stop()
-
-    normalization_params = {
-        row["Parameter"]: {
-            "mean": float(row["mean"]),
-            "std": float(row["std"]),
-        }
-        for _, row in df.iterrows()
-    }
-
-    return normalization_params
+    for col in param_cols:
+        col_mean = dataset[col].mean()
+        col_std = dataset[col].std()
+        if col_std == 0:
+            df_norm[col] = 0.0
+        else:
+            df_norm[col] = (dataset[col] - col_mean) / col_std
+        normalization_params[col] = {"mean": col_mean, "std": col_std}
+    
+    return normalization_params,df_norm
 
 def normalize_input_from_gui(
     sliders_values: dict,

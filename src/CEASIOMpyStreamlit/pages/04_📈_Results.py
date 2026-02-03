@@ -47,7 +47,6 @@ import io
 from CEASIOMpyStreamlit.streamlitutils import section_3D_view
 from ceasiompy.SMTrain.func.config import (
     get_xpath_for_param,
-    load_normalization_params,
     normalize_input_from_gui,
     phys_to_norm,
     norm_to_phys,
@@ -303,8 +302,30 @@ def display_results(results_dir, chosen_workflow = None):
                         "⚠️ Surrogate model not found. Only geometry "
                         "sliders will be available."
                     )
+                
+                final_level1_df = pd.read_csv(f"{results_dir}/avl_simulations_results.csv")
+                param_cols = final_level1_df.columns[:-1]
 
-                normalization_params = load_normalization_params(results_dir)
+                df_norm = final_level1_df.copy()
+                normalization_params = {}
+
+                for col in param_cols:
+                    col_mean = final_level1_df[col].mean()
+                    col_std = final_level1_df[col].std()
+                    if col_std == 0:
+                        df_norm[col] = 0.0
+                    else:
+                        df_norm[col] = (final_level1_df[col] - col_mean) / col_std
+                    normalization_params[col] = {"mean": col_mean, "std": col_std}
+
+                norm_df = pd.DataFrame.from_dict(
+                    normalization_params,
+                    orient="index"
+                ).reset_index()
+
+                norm_df.columns = ["Parameter", "mean", "std"]
+
+                # normalization_params = load_normalization_params(results_dir)
                 missing = [p for p in param_order if p not in normalization_params]
                 if missing:
                     log.error(f"Missing normalization parameters for: {missing}")

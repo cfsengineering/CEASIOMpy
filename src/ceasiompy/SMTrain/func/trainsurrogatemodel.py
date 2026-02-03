@@ -59,7 +59,7 @@ from ceasiompy.SMTrain.func.config import (
     get_xpath_for_param,
     update_geometry_cpacs,
     save_best_surrogate_geometry,
-    get_elements_to_optimise,
+    normalize_dataset,
 )
 from sklearn.metrics import r2_score
 from ceasiompy.PyAVL import (
@@ -483,13 +483,14 @@ def run_first_level_training_geometry(
     # Concatenate the dataframes
     final_level1_df = pd.concat(final_dfs, axis=0, ignore_index=True)
 
+    avl_results = f"{results_dir}/avl_simulations_results.csv"
     # delete rows where objective = 0 and constant columns
     final_level1_df = final_level1_df.loc[final_level1_df.iloc[:, -1] != 0].copy()
     final_level1_df_c = drop_constant_columns(final_level1_df)
-    final_level1_df_c.to_csv(f"{results_dir}/avl_simulations_results.csv", index=False)
+    final_level1_df_c.to_csv(avl_results, index=False)
 
     n_params = final_level1_df_c.columns.drop(objective).size
-    df_fc = pd.read_csv(f"{results_dir}/avl_simulations_results.csv")
+    df_fc = pd.read_csv(avl_results)
     flight_cols = [c for c in AEROMAP_FEATURES if c in df_fc.columns]
     df_flight = df_fc[flight_cols]
 
@@ -518,31 +519,7 @@ def run_first_level_training_geometry(
     best_geometries_df = final_level1_df.loc[[best_geometry_idx]]
     best_geometries_df.to_csv(f"{results_dir}/best_geometric_configurations.csv", index=False)
 
-    param_cols = final_level1_df_c.columns.drop(objective)
-
-    df_norm = final_level1_df_c.copy()
-    normalization_params = {}
-
-    for col in param_cols:
-        col_mean = final_level1_df_c[col].mean()
-        col_std = final_level1_df_c[col].std()
-        if col_std == 0:
-            df_norm[col] = 0.0
-        else:
-            df_norm[col] = (final_level1_df_c[col] - col_mean) / col_std
-        normalization_params[col] = {"mean": col_mean, "std": col_std}
-
-    norm_df = pd.DataFrame.from_dict(
-        normalization_params,
-        orient="index"
-    ).reset_index()
-
-    norm_df.columns = ["Parameter", "mean", "std"]
-
-    norm_df.to_csv(
-        f"{results_dir}/normalization_params.csv",
-        index=False
-    )
+    normalization_params, df_norm = normalize_dataset(avl_results)
 
     krg_model = None
     krg_rmse = None
@@ -677,16 +654,7 @@ def run_adaptative_refinement_geom(
     nb_iters = len(x_array)
     log.info(f"Starting adaptive refinement with maximum {nb_iters=}.")
 
-    norm_df = pd.read_csv(results_dir / "normalization_params.csv")
-    normalization_params = {
-        row["Parameter"]: {"mean": row["mean"], "std": row["std"]}
-        for _, row in norm_df.iterrows()
-    }
-
-    log.info("Loaded normalization parameters:")
-    for k, v in normalization_params.items():
-        log.debug(f"{k}: mean={v['mean']}, std={v['std']}")
-
+    normalization_params, _ = normalize_dataset(df_old_path)
 
     cpacs_list = []
 
@@ -812,32 +780,9 @@ def training_existing_db(
     best_geometries_df = df1.loc[[best_geometry_idx]]
     best_geometries_df.to_csv(results_dir / "best_geometric_configurations.csv", index=False)
 
-    param_cols = df1.columns.drop(objective)
-    n_params = param_cols.size
+    n_params = df1.columns.drop(objective).size
 
-    df_norm = df1.copy()
-    normalization_params = {}
-
-    for col in param_cols:
-        col_mean = df1[col].mean()
-        col_std = df1[col].std()
-        if col_std == 0:
-            df_norm[col] = 0.0
-        else:
-            df_norm[col] = (df1[col] - col_mean) / col_std
-        normalization_params[col] = {"mean": col_mean, "std": col_std}
-
-    norm_df = pd.DataFrame.from_dict(
-        normalization_params,
-        orient="index"
-    ).reset_index()
-
-    norm_df.columns = ["Parameter", "mean", "std"]
-
-    norm_df.to_csv(
-        f"{results_dir}/normalization_params.csv",
-        index=False
-    )
+    normalization_params, df_norm = normalize_dataset(df_new_path)
 
     krg_model = None
     krg_rmse = None
@@ -907,20 +852,12 @@ def run_adaptative_refinement_geom_existing_db(
     copyfile(df_old_simulation_path, df_new_simulation_path)
     df_simulation_new = pd.read_csv(df_new_simulation_path)
     df_simulation = pd.DataFrame(columns=df_simulation_new.columns)
-    
+
     x_array = level1_sets["x_train"]
     nb_iters = len(x_array)
     log.info(f"Starting adaptive refinement with maximum {nb_iters=}.")
 
-    norm_df = pd.read_csv(results_dir / "normalization_params.csv")
-    normalization_params = {
-        row["Parameter"]: {"mean": row["mean"], "std": row["std"]}
-        for _, row in norm_df.iterrows()
-    }
-
-    log.info("Loaded normalization parameters:")
-    for k, v in normalization_params.items():
-        log.debug(f"{k}: mean={v['mean']}, std={v['std']}")
+    normalization_params, _ = normalize_dataset(df_new_simulation_path)
 
     cpacs_list = []
 
@@ -1303,16 +1240,9 @@ def run_adaptative_refinement_geom_RBF(
     Iterative adaptive refinement using RBF LOO-error based sampling.
     """
 
-    norm_df = pd.read_csv(results_dir / "normalization_params.csv")
-    normalization_params = {
-        row["Parameter"]: {"mean": row["mean"], "std": row["std"]}
-        for _, row in norm_df.iterrows()
-    }
-
-    log.info("Loaded normalization parameters:")
-    for k, v in normalization_params.items():
-        log.debug(f"{k}: mean={v['mean']}, std={v['std']}")
-
+    df_simulation_path = results_dir / "avl_simulations_results.csv"
+    normalization_params, _ = normalize_dataset(df_simulation_path)
+    
     poor_pts = []
     rmse = float("inf")
 

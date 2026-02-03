@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Get settings from GUI. Manage datasets and perform LHS when required.
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import numpy as np
 
@@ -43,9 +41,7 @@ from ceasiompy.SMTrain import (
     SMTRAIN_FIDELITY_LEVEL_XPATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+# Functions
 
 
 def get_settings(cpacs: CPACS) -> Tuple[str, float, str, bool, bool, int, bool, float]:

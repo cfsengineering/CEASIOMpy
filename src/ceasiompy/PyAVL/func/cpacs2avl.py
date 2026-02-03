@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Script to convert CPACS file geometry into AVL geometry
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import math
 import numpy as np
@@ -16,6 +14,7 @@ import numpy as np
 from cpacspy.cpacsfunctions import (
     get_uid,
     get_value,
+    create_branch,
 )
 from ceasiompy.utils.mathsfunctions import (
     euler2fix,
@@ -68,9 +67,7 @@ from ceasiompy.utils.commonxpaths import (
     AIRCRAFT_NAME_XPATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+# Functions
 
 
 def compute_fuselage_coords(
@@ -279,7 +276,6 @@ class Avl:
         self.gain = gain
         self.control_type = control_type
 
-        # Retrieve GUI values
         self.vortex_dist: int = convert_dist_to_avl_format(get_value(tixi, AVL_DISTR_XPATH))
         self.nchordwise: int = get_value(tixi, AVL_NCHORDWISE_XPATH)
         self.nspanwise: int = get_value(tixi, AVL_NSPANWISE_XPATH)
@@ -311,9 +307,6 @@ class Avl:
     def convert_cpacs_to_avl(self) -> Path:
         """
         Convert a CPACS file geometry into an AVL file geometry.
-
-        Source:
-        * https://github.com/cfsengineering/CEASIOMpy/blob/main/ceasiompy/CPACS2SUMO/cpacs2sumo.py
 
         Workflow:
             1. Initialize command file .avl

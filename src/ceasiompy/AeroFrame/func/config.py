@@ -11,9 +11,7 @@ from AVL 'fe.txt' element force file
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import re
 import numpy as np
@@ -22,7 +20,7 @@ import matplotlib.pyplot as plt
 
 from scipy.spatial.distance import cdist
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
+from ceasiompy.utils.getprofile import get_profile_coord
 from ceasiompy.utils.geometryfunctions import (
     sum_points,
     prod_points,
@@ -63,10 +61,8 @@ from ceasiompy.AeroFrame import (
     FRAMAT_YOUNGMODULUS_XPATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
+# Functions
 
 def compute_distance_and_moment(centerline_df: DataFrame, row: Series) -> Series:
     """Transfer of forces and induced moment to the closest beam node."""

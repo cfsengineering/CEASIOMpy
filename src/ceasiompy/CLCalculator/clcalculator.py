@@ -10,9 +10,7 @@ TODO:
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from ceasiompy.CLCalculator.func.calculatecl import calculate_cl
 from ceasiompy.CLCalculator.func.utils import (
@@ -27,10 +25,8 @@ from markdownpy.markdownpy import MarkdownDoc
 
 from ceasiompy import log
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
 
+# Main
 
 def main(cpacs: CPACS, wkdir: Path) -> None:
     """

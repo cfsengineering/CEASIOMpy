@@ -10,9 +10,7 @@ Store data from workflow modules.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from ceasiompy.utils.ceasiompyutils import aircraft_name
 

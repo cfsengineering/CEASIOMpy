@@ -11,9 +11,7 @@ Initialization for CEASIOMpy.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import sys
 import logging
@@ -27,9 +25,7 @@ from pydantic import (
     ConfigDict,
 )
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 # /CEASIOMpy/src
 SRC_PATH = Path(__file__).parents[1]
@@ -62,10 +58,7 @@ class CustomConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def get_logger() -> Logger:
     """
@@ -114,8 +107,6 @@ def custom_print(*args, **kwargs):
 
 builtins.print = custom_print
 
-# Constants
-NO_YES_LIST = ["NO", "YES"]
 
 # Ignore arbitrary types
 ceasiompy_cfg = CustomConfig.model_config

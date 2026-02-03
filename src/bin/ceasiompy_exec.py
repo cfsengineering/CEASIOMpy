@@ -13,9 +13,7 @@ Main module of CEASIOMpy to launch workflow by different way.
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import os
 import sys
@@ -26,6 +24,7 @@ import subprocess
 from ceasiompy.utils.ceasiompyutils import (
     parse_bool,
     has_display,
+    workflow_number,
     current_workflow_dir,
 )
 
@@ -42,11 +41,8 @@ from ceasiompy.utils.commonpaths import (
     CPACS_FILES_PATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
-
+# Functions
 def _get_cpu_count() -> int:
     cpus = os.cpu_count()
     if cpus is not None:
@@ -124,7 +120,7 @@ def run_testcase(testcase_nb):
         workflow = Workflow()
         workflow.from_config_file(test_case_1_cfg)
         workflow.working_dir = current_workflow_dir()
-        workflow.cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml")
+        workflow.cpacs_in = Path(CPACS_FILES_PATH, "d150.xml")
 
         workflow.set_workflow()
         workflow.run_workflow(test=True)
@@ -152,7 +148,7 @@ def run_testcase(testcase_nb):
         )
         log.info(">> conda activate ceasiompy")
         log.info(
-            ">> ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml "
+            ">> ceasiompy_run -m ../test_files/CPACSfiles/d150.xml "
             "PyAVL SkinFriction"
         )
 
@@ -291,12 +287,13 @@ def run_gui(
     # Expose working directory to the Streamlit app
     env["CEASIOMPY_WKDIR"] = str(wkdir)
 
+    streamlit_entrypoint = str(STREAMLIT_PATH / "app.py")
     args = [
         sys.executable,
         "-m",
         "streamlit",
         "run",
-        "✈️_Geometry.py",
+        streamlit_entrypoint,
         "--server.headless", f"{str(headless).lower()}",
     ]
     if port is not None:
@@ -357,12 +354,6 @@ def cleanup_previous_workflow_status(wkdir: Path | None = None) -> None:
     if not workflow_dirs:
         return
 
-    def workflow_number(path: Path) -> int:
-        parts = path.name.split("_")
-        if parts and parts[-1].isdigit():
-            return int(parts[-1])
-        return -1
-
     last_workflow = max(workflow_dirs, key=workflow_number)
     status_file = last_workflow / "workflow_status.json"
 
@@ -373,10 +364,7 @@ def cleanup_previous_workflow_status(wkdir: Path | None = None) -> None:
             pass
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 def main() -> None:
     _ensure_conda_prefix_bin_first()

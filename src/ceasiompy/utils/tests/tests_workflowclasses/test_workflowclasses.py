@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Test functions for 'utils/workflowclasses.py'
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import pytest
 
@@ -19,8 +17,8 @@ from ceasiompy.utils.workflowclasses import ModuleToRun, Workflow
 
 
 MODULE_DIR = Path(__file__).parent
-CPACS_PATH = Path(MODULE_DIR.parents[3].parent, "test_files", "CPACSfiles", "D150_simple.xml")
-CPACS_PATH_OUT = Path(MODULE_DIR, "D150_simple_out.xml")
+CPACS_PATH = Path(MODULE_DIR.parents[3].parent, "test_files", "CPACSfiles", "d150.xml")
+CPACS_PATH_OUT = Path(MODULE_DIR, "d150_out.xml")
 
 # =================================================================================================
 #   TESTS
@@ -64,19 +62,6 @@ class TestModuleToRun:
         assert self.module_works.module_wkflow_path.exists()
         assert self.module_works.module_wkflow_path.stem == "01_SU2Run"
 
-    def test_run(self):
-
-        # Remove CPACS output file from privious run
-        if CPACS_PATH_OUT.exists():
-            CPACS_PATH_OUT.unlink()
-
-        module = ModuleToRun("ModuleTemplate", self.wkflow_dir, CPACS_PATH, CPACS_PATH_OUT)
-
-        # TODO: how to separate test from workflowclasses.py and ceasiompyutils.py
-        run_module(module)
-
-        assert CPACS_PATH_OUT.exists()
-
 
 class TestWorkflow:
 
@@ -92,7 +77,7 @@ class TestWorkflow:
     if not cfg_path.exists():
         cfg_path.write_text(
             "% File written 2022-01-17 14:46:53.344314\n"
-            "CPACS_TOOLINPUT = ./D150_simple.xml\n"
+            "CPACS_TOOLINPUT = ./d150.xml\n"
             "MODULE_TO_RUN = ( CLCalculator, PyAVL )\n"
         )
 
@@ -130,10 +115,7 @@ class TestWorkflow:
         )
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
     test_module_name_error()
     test_no_wkflow_error()

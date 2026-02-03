@@ -16,9 +16,7 @@ TODO:
     * Never tested with 3 levels of fidelity
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.SMTrain.func.plot import plot_validation
@@ -42,9 +40,7 @@ from ceasiompy.SMTrain import (
     MODULE_NAME,
 )
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
+# Main
 
 
 def main(cpacs: CPACS, results_dir: Path) -> None:

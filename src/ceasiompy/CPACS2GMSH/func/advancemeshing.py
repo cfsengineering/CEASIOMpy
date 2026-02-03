@@ -16,9 +16,7 @@ TODO:
 """
 
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import gmsh
 import numpy as np
@@ -29,10 +27,7 @@ from ceasiompy.CPACS2GMSH.func.wingclassification import ModelPart
 from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def distance_field(mesh_fields, dim, object_tags):
     """

@@ -10,9 +10,7 @@ Test functions for 'ceasiompy/CPACS2GMSH/exportbrep.py'
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import shutil
 from pathlib import Path
@@ -28,10 +26,8 @@ CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
 CPACS_IN_SIMPLE_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_engine.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
+# Functions
 
 def test_export_brep():
     """Test function for 'export_brep'"""
@@ -92,10 +88,7 @@ def test_export_brep_with_engine():
             export_brep(cpacs, TEST_OUT_PATH)
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
 
     print("Test CPACS2GMSH")

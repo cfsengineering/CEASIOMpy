@@ -6,11 +6,16 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 GUI Interface of Aeroframe.
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
+import streamlit as st
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from cpacspy.cpacspy import CPACS
+
+from ceasiompy.utils.guiobjects import (
+    int_vartype,
+    list_vartype,
+    float_vartype,
+)
 
 from ceasiompy.PyAVL import (
     AVL_DISTR_XPATH,
@@ -18,7 +23,6 @@ from ceasiompy.PyAVL import (
     AVL_NCHORDWISE_XPATH,
 )
 from ceasiompy.AeroFrame import (
-    INCLUDE_GUI,
     FRAMAT_IX_XPATH,
     FRAMAT_IY_XPATH,
     FRAMAT_AREA_XPATH,
@@ -30,158 +34,135 @@ from ceasiompy.AeroFrame import (
     AEROFRAME_MAXNB_ITERATIONS_XPATH,
 )
 
-# ==============================================================================
-#   VARIABLE
-# ==============================================================================
 
-cpacs_inout = CPACSInOut()
+# Functions
 
-# ==============================================================================
-#   CALL
-# ==============================================================================
 
-cpacs_inout.add_input(
-    var_name="panel_distribution",
-    var_type=list,
-    default_value=["equal", "cosine", "sine"],
-    unit=None,
-    descr=("Select the type of distribution"),
-    xpath=AVL_DISTR_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Choice of distribution",
-    gui_group="AVL: Vortex Lattice Spacing Distributions",
-)
+def gui_settings(cpacs: CPACS) -> None:
+    tixi = cpacs.tixi
 
-cpacs_inout.add_input(
-    var_name="chordwise_vort",
-    var_type=int,
-    default_value=20,
-    unit=None,
-    descr="Select the number of chordwise vortices",
-    xpath=AVL_NCHORDWISE_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Number of chordwise vortices",
-    gui_group="AVL: Vortex Lattice Spacing Distributions",
-)
+    with st.expander(
+        label="Panel Settings",
+        expanded=True,
+    ):
+        list_vartype(
+            tixi=tixi,
+            name="Panel distribution",
+            key="panel_distribution",
+            default_value=["cosine", "sine", "equal"],
+            description="Select the type of distribution.",
+            xpath=AVL_DISTR_XPATH,
+        )
 
-cpacs_inout.add_input(
-    var_name="spanwise_vort",
-    var_type=int,
-    default_value=50,
-    unit=None,
-    descr="Select the number of spanwise vortices",
-    xpath=AVL_NSPANWISE_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Number of spanwise vortices",
-    gui_group="AVL: Vortex Lattice Spacing Distributions",
-)
+        int_vartype(
+            tixi=tixi,
+            name="Number of chordwise vortices",
+            key="chordwise_vortices_nb",
+            default_value=20,
+            description="Select the number of chordwise vortices.",
+            xpath=AVL_NCHORDWISE_XPATH,
+        )
 
-cpacs_inout.add_input(
-    var_name="N_beam",
-    var_type=int,
-    default_value=15,
-    unit=None,
-    descr="Enter number of nodes for the beam mesh.",
-    xpath=FRAMAT_NB_NODES_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Number of beam nodes",
-    gui_group="FramAT: Mesh properties",
-)
+        int_vartype(
+            tixi=tixi,
+            name="Number of spanwise vortices",
+            key="spanwise_vortices_nb",
+            default_value=30,
+            description="Select the number of spanwise vortices.",
+            xpath=AVL_NSPANWISE_XPATH,
+        )
 
-cpacs_inout.add_input(
-    var_name="young_modulus",
-    var_type=float,
-    default_value=70,
-    unit=None,
-    descr="Enter the Young modulus of the wing material in GPa.",
-    xpath=FRAMAT_YOUNGMODULUS_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Young modulus [GPa]",
-    gui_group="FramAT: Material properties",
-)
+    with st.container(
+        border=True,
+    ):
+        st.markdown("#### Convergence Settings")
 
-cpacs_inout.add_input(
-    var_name="shear_modulus",
-    var_type=float,
-    default_value=26,
-    unit=None,
-    descr="Enter the shear modulus of the wing material in GPa.",
-    xpath=FRAMAT_SHEARMODULUS_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Shear modulus [GPa]",
-    gui_group="FramAT: Material properties",
-)
+        int_vartype(
+            tixi=tixi,
+            xpath=AEROFRAME_MAXNB_ITERATIONS_XPATH,
+            default_value=8,
+            description="Maximum number of iterations of the aeroelastic-loop.",
+            name="Maximum number of iterations",
+            key="aeroframe_n_iter_max",
+        )
 
-cpacs_inout.add_input(
-    var_name="material_density",
-    var_type=float,
-    default_value=1960,
-    unit=None,
-    descr="Enter the density of the wing material in kg/m³.",
-    xpath=FRAMAT_DENSITY_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Material density [kg/m³]",
-    gui_group="FramAT: Material properties",
-)
+        float_vartype(
+            tixi=tixi,
+            xpath=AEROFRAME_TOLERANCE_XPATH,
+            default_value=1e-3,
+            name="Convergence Criterion (Tolerance)",
+            description="Tolerance for convergence of the wing deformation.",
+            key="aeroframe_conv_criterion",
+        )
 
-cpacs_inout.add_input(
-    var_name="cross_section_area",
-    var_type=float,
-    default_value=-1,
-    unit=None,
-    descr="Enter the area of the cross-section in m².",
-    xpath=FRAMAT_AREA_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Cross-section area [m²]",
-    gui_group="FramAT: Cross-section properties",
-)
+    with st.container(
+        border=True,
+    ):
+        st.markdown("#### FramAT Settings")
 
-cpacs_inout.add_input(
-    var_name="cross_section_Ix",
-    var_type=float,
-    default_value=-1,
-    unit=None,
-    descr="Enter the second moment of area of the cross-section \
-            about the horizontal axis, in m⁴.",
-    xpath=FRAMAT_IX_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Second moment of area Ix [m⁴]",
-    gui_group="FramAT: Cross-section properties",
-)
+        int_vartype(
+            tixi=tixi,
+            xpath=FRAMAT_NB_NODES_XPATH,
+            default_value=15,
+            description="Enter number of nodes for the beam mesh.",
+            name="Number of beam nodes",
+            key="aeroframe_beam_nodes",
+        )
 
-cpacs_inout.add_input(
-    var_name="cross_section_Iy",
-    var_type=float,
-    default_value=-1,
-    unit=None,
-    descr="Enter the second moment of area of the cross-section \
-            about the vertical axis, in m⁴",
-    xpath=FRAMAT_IY_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Second moment of area Iy [m⁴]",
-    gui_group="FramAT: Cross-section properties",
-)
+        float_vartype(
+            tixi=tixi,
+            xpath=FRAMAT_YOUNGMODULUS_XPATH,
+            description="Enter the Young modulus of the wing material in GPa.",
+            name="Young modulus [GPa]",
+            default_value=70.0,
+            key="aeroframe_young_modulus",
+        )
 
-cpacs_inout.add_input(
-    var_name="n_iter_max",
-    var_type=int,
-    default_value=8,
-    unit=None,
-    descr="Enter the maximum number of iterations of the aeroelastic-loop.",
-    xpath=AEROFRAME_MAXNB_ITERATIONS_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Maximum number of iterations",
-    gui_group="AeroFrame: Convergence settings",
-)
+        float_vartype(
+            tixi=tixi,
+            xpath=FRAMAT_SHEARMODULUS_XPATH,
+            name="Shear modulus [GPa]",
+            description="Enter the shear modulus of the wing material in GPa.",
+            default_value=26.0,
+            key="aeroframe_shearmodulus",
+        )
 
-cpacs_inout.add_input(
-    var_name="tolerance",
-    var_type=float,
-    default_value=1e-3,
-    unit=None,
-    descr="Enter the tolerance for convergence of the wing deformation.",
-    xpath=AEROFRAME_TOLERANCE_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Tolerance",
-    gui_group="AeroFrame: Convergence settings",
-)
+        float_vartype(
+            tixi=tixi,
+            xpath=FRAMAT_DENSITY_XPATH,
+            default_value=1960.0,
+            description="Density of the wing material in kg/m³.",
+            key="aeroframe_material_density",
+            name="Material density",
+        )
+
+        float_vartype(
+            tixi=tixi,
+            xpath=FRAMAT_AREA_XPATH,
+            name="Cross-section area",
+            description="Area of the cross-section in m².",
+            default_value=1.0,
+            key="aeroframe_cross_section_area",
+        )
+
+        float_vartype(
+            tixi=tixi,
+            xpath=FRAMAT_IX_XPATH,
+            name="Second moment of area Ix",
+            description="""Second moment of area of the cross-section
+                about the horizontal axis, in m⁴.
+            """,
+            default_value=1.0,
+            key="cross_section_ix",
+        )
+
+        float_vartype(
+            tixi=tixi,
+            xpath=FRAMAT_IY_XPATH,
+            name="Second moment of area Iy",
+            description="""Second moment of area of the cross-section
+                about the vertical axis, in m⁴.
+            """,
+            default_value=1.0,
+            key="cross_section_iy",
+        )

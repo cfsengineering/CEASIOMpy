@@ -12,9 +12,7 @@ Functions to simplify some file and data handling in CEASIOMpy
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from collections import OrderedDict
 

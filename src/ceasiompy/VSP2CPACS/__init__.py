@@ -18,6 +18,3 @@ MODULE_STATUS = get_module_status(
     default=False,
     needs_soft_name=SOFTWARE_EXEC,
 )
-
-# ===== Include GUI =====
-INCLUDE_GUI = False

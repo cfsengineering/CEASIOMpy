@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Test functions of 'ceasiompy/SU2Run/func/extractloads.py'
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import unittest
 import numpy as np
@@ -130,9 +128,6 @@ class TestSU2ExtractLoads(unittest.TestCase):
         self.assertTrue(mock_write_updated_mesh.called)
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
     main(verbosity=0)

@@ -9,9 +9,7 @@ Test functions for StaticStability module.
 # Futures
 from __future__ import annotations
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import unittest
 import tempfile
@@ -52,7 +50,7 @@ class TestStaticStability(CeasiompyTest):
     @classmethod
     def setUpClass(cls: TestStaticStability) -> None:
         super().setUpClass()
-        cls.cpacs_path = Path(CPACS_FILES_PATH, "D150_simple.xml")
+        cls.cpacs_path = Path(CPACS_FILES_PATH, "d150.xml")
         cls.cpacs = CPACS(cls.cpacs_path)
         cls.wkdir = current_workflow_dir()
 
@@ -212,7 +210,10 @@ class TestStaticStability(CeasiompyTest):
             md_path = Path(tmpdir, f"{MODULE_NAME}.md")
             with open(md_path, "r") as f:
                 content = f.read()
-                self.assertIn("StaticStability", content)
+                self.assertIn("mach", content)
+                self.assertIn("alt", content)
+                self.assertIn("aoa", content)
+                self.assertIn("aos", content)
 
     @log_test
     def test_markdownpy_to_markdown(self: TestStaticStability) -> None:
@@ -235,9 +236,6 @@ class TestStaticStability(CeasiompyTest):
                 self.assertIn("|val3|val4|", content)
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
     unittest.main(verbosity=0)

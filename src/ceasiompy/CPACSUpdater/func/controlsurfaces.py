@@ -4,14 +4,18 @@ CEASIOMpy: Conceptual Aircraft Design Software.
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland.
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import math
 import numpy as np
+import plotly.graph_objects as go
 
 from numpy import array
+from ceasiompy.utils.commonpaths import get_wkdir
+from ceasiompy.utils.ceasiompyutils import (
+    update_xpath_at_xyz,
+    get_results_directory,
+)
 from cpacspy.cpacsfunctions import (
     get_float_vector,
     get_value_or_default,
@@ -43,8 +47,14 @@ from numpy import ndarray
 from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import AIRFOILS_XPATH
-from ceasiompy.CPACSUpdater import CPACSUPDATER_CTRLSURF_XPATH
+from ceasiompy.CPACSUpdater import (
+    MODULE_NAME,
+    CPACSUPDATER_CTRLSURF_XPATH,
+)
+from ceasiompy.utils.commonxpaths import (
+    AIRFOILS_XPATH,
+    GEOMETRY_MODE_XPATH,
+)
 
 
 # ==============================================================================
@@ -137,43 +147,42 @@ def compute_abs_location(tixi: Tixi3, wing_xpath: str) -> dict[str, tuple[str, s
     element_uid = get_uid(tixi, ele_xpath)
     result[element_uid] = (str(x), str(y), str(z))
 
-    if secs_cnt > 2:
-        for i_sec in range(2, secs_cnt + 1):
-            sec_xpath = secs_xpath + f"/{sec}[{i_sec}]"
-            sec_uid = get_uid(tixi, sec_xpath)
+    for i_sec in range(2, secs_cnt + 1):
+        sec_xpath = secs_xpath + f"/{sec}[{i_sec}]"
+        sec_uid = get_uid(tixi, sec_xpath)
 
-            pos = "positioning"
-            poss_xpath = wing_xpath + f"/{pos}s"
-            poss_cnt = elements_number(tixi, poss_xpath, pos, logg=False)
+        pos = "positioning"
+        poss_xpath = wing_xpath + f"/{pos}s"
+        poss_cnt = elements_number(tixi, poss_xpath, pos, logg=False)
 
-            length = 0.0
-            sweep = 0.0
-            dih = 0.0
-            for i_pos in range(poss_cnt):
-                pos_xpath = poss_xpath + f"/{pos}[{i_pos + 1}]"
-                if tixi.getTextElement(pos_xpath + "/toSectionUID") == sec_uid:
-                    length: float = tixi.getDoubleElement(pos_xpath + "/length")
-                    sweep: float = math.radians(tixi.getDoubleElement(pos_xpath + "/sweepAngle"))
-                    dih: float = math.radians(tixi.getDoubleElement(pos_xpath + "/dihedralAngle"))
-                    break
-            else:
-                log.warning("Issue with positioning. Associated with wrong section uID.")
+        length = 0.0
+        sweep = 0.0
+        dih = 0.0
+        for i_pos in range(poss_cnt):
+            pos_xpath = poss_xpath + f"/{pos}[{i_pos + 1}]"
+            if tixi.getTextElement(pos_xpath + "/toSectionUID") == sec_uid:
+                length: float = tixi.getDoubleElement(pos_xpath + "/length")
+                sweep: float = math.radians(tixi.getDoubleElement(pos_xpath + "/sweepAngle"))
+                dih: float = math.radians(tixi.getDoubleElement(pos_xpath + "/dihedralAngle"))
+                break
+        else:
+            log.warning("Issue with positioning. Associated with wrong section uID.")
 
-            x_ = length * math.sin(sweep)
-            y_ = length * math.cos(dih) * math.cos(sweep)
-            z_ = length * math.sin(dih) * math.cos(sweep)
+        x_ = length * math.sin(sweep)
+        y_ = length * math.cos(dih) * math.cos(sweep)
+        z_ = length * math.sin(dih) * math.cos(sweep)
 
-            coord_ = array([x_, y_, z_])
-            x_, y_, z_ = rot.dot(coord_)
+        coord_ = array([x_, y_, z_])
+        x_, y_, z_ = rot.dot(coord_)
 
-            x += x_
-            y += y_
-            z += z_
+        x += x_
+        y += y_
+        z += z_
 
-            ele_xpath = sec_xpath + "/elements/element"
-            element_uid = get_uid(tixi, ele_xpath)
+        ele_xpath = sec_xpath + "/elements/element"
+        element_uid = get_uid(tixi, ele_xpath)
 
-            result[element_uid] = (str(x), str(y), str(z))
+        result[element_uid] = (str(x), str(y), str(z))
     return result
 
 
@@ -421,6 +430,10 @@ def plain_transform(
     newx_values = x_values[mask]
     newz_values = z_values[mask]
 
+    # Keep original order for points with x < x_ref.
+    if newx_values.size == 0:
+        return newx_values, newz_values, x_values, z_values
+
     # Create new x values using sine function
     x = np.arange(0.0, 1.1, 0.2)
     new_x = curve * np.sin(np.pi * x)
@@ -428,8 +441,39 @@ def plain_transform(
 
     close_x = max_x_pos + new_x
     close_z = np.linspace(z_pos, z_neg, len(close_x))
-    newx_values = np.concatenate((newx_values, close_x))
-    newz_values = np.concatenate((newz_values, close_z))
+
+    # Insert closing curve between the upper/lower points at max_x_pos to avoid a straight segment.
+    close_x_insert = close_x
+    close_z_insert = close_z
+    x_match = np.isclose(newx_values, max_x_pos, rtol=0.0, atol=1e-6)
+    match_indices = np.where(x_match)[0]
+    if match_indices.size >= 2:
+        match_z = newz_values[match_indices]
+        upper_idx = int(match_indices[np.argmax(match_z)])
+        lower_idx = int(match_indices[np.argmin(match_z)])
+        if upper_idx < lower_idx:
+            insert_at = upper_idx + 1
+        else:
+            insert_at = lower_idx + 1
+            close_x_insert = close_x_insert[::-1]
+            close_z_insert = close_z_insert[::-1]
+    else:
+        diffs = np.abs(newx_values - max_x_pos)
+        min_diff = np.min(diffs)
+        insert_candidates = np.where(diffs == min_diff)[0]
+        insert_at = int(insert_candidates[-1]) + 1
+
+    newx_values = np.concatenate((
+        newx_values[:insert_at],
+        close_x_insert,
+        newx_values[insert_at:],
+    ))
+    newz_values = np.concatenate((
+        newz_values[:insert_at],
+        close_z_insert,
+        newz_values[insert_at:],
+    ))
+    newx_values, newz_values = _remove_duplicate_points(newx_values, newz_values)
 
     # Flap
     x_flap = x_ref + 0.02
@@ -440,11 +484,11 @@ def plain_transform(
     _, z_pos, _, z_neg = find_min_x(newx_flapvalues, newz_flapvalues)
 
     # Create new x values for the flap using sine function
-    x = np.arange(1.0, -0.1, -0.05)
+    x = np.arange(1.0, -0.05, -0.05)
     new_x = curve * np.sin(np.pi * x)
 
     arc_x = x_flap + new_x
-    arc_z = np.linspace(z_pos - 0.001, z_neg + 0.001, len(x))[::-1]
+    arc_z = np.linspace(z_pos, z_neg, len(x))[::-1]
 
     # Sort the values such that the pairs (x, z) are ordered by z in decreasing order
     sorted_indices = np.argsort(newz_flapvalues)[::-1]
@@ -455,12 +499,93 @@ def plain_transform(
     newx_flapvalues = np.concatenate((newx_flapvalues, arc_x))
     newz_flapvalues = np.concatenate((newz_flapvalues, arc_z))
 
-    # Re-order for correct leading edge in CPACS format
-    min_x_index = np.argmin(newx_flapvalues)
-    newx_flapvalues = np.roll(newx_flapvalues, -min_x_index)
-    newz_flapvalues = np.roll(newz_flapvalues, -min_x_index)
-
     return newx_values, newz_values, newx_flapvalues, newz_flapvalues
+
+
+def _remove_duplicate_points(
+    x_values: ndarray,
+    z_values: ndarray,
+    tol: float = 1e-6,
+) -> tuple[ndarray, ndarray]:
+    """Remove exact/near-duplicate points while preserving order."""
+    if len(x_values) == 0:
+        return x_values, z_values
+
+    x = np.asarray(x_values, dtype=float)
+    z = np.asarray(z_values, dtype=float)
+
+    keep_indices = [0]
+    last_x = x[0]
+    last_z = z[0]
+    for i in range(1, len(x)):
+        if abs(x[i] - last_x) > tol or abs(z[i] - last_z) > tol:
+            keep_indices.append(i)
+            last_x = x[i]
+            last_z = z[i]
+
+    return x[keep_indices], z[keep_indices]
+
+
+def _clean_airfoil_input(
+    x_values: ndarray,
+    z_values: ndarray,
+    tol: float = 1e-6,
+) -> tuple[ndarray, ndarray]:
+    """Lightweight cleanup of airfoil point list.
+
+    - Remove consecutive duplicates
+    - Rotate so list starts at leading edge (min x)
+    - Ensure first/last are not identical
+    """
+    if len(x_values) == 0:
+        return x_values, z_values
+
+    x, z = _remove_duplicate_points(x_values, z_values, tol=tol)
+    if len(x) == 0:
+        return x, z
+
+    min_x_index = np.argmin(x)
+    x = np.roll(x, -min_x_index)
+    z = np.roll(z, -min_x_index)
+
+    if len(x) > 1:
+        if abs(x[0] - x[-1]) <= tol and abs(z[0] - z[-1]) <= tol:
+            x = x[:-1]
+            z = z[:-1]
+
+    return x, z
+
+
+def _save_airfoil_order_plot(x_values: ndarray, z_values: ndarray, airfoil_uid: str) -> None:
+    """Save an interactive HTML plot of airfoil point ordering."""
+    wkdir = get_wkdir()
+    if wkdir is None:
+        return
+
+    out_dir = get_results_directory(MODULE_NAME)
+
+    indices = list(range(len(x_values)))
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=x_values,
+            y=z_values,
+            mode="lines+markers+text",
+            text=[str(i) for i in indices],
+            textposition="top center",
+            name="airfoil",
+        )
+    )
+    fig.update_layout(
+        title=f"Airfoil point order: {airfoil_uid}",
+        xaxis_title="x",
+        yaxis_title="z",
+        yaxis_scaleanchor="x",
+        template="plotly_white",
+    )
+    out_path = out_dir / f"airfoil_order_{sanitize_uid(airfoil_uid)}.html"
+    fig.write_html(out_path, include_plotlyjs="cdn", full_html=True)
+    log.info(f"Saved html at {out_path=}")
 
 
 def fowler_flap_scale(
@@ -518,8 +643,13 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
     # Define constants
     if not tixi.uIDCheckExists(sgt):
         log.warning(f"Wing with uID '{sgt}' not found, skipping airfoil transform.")
-        return
+        return None
+
     wing_xpath = tixi.uIDGetXPath(sgt)
+
+    if wing_xpath.endswith("wing"):
+        wing_xpath += "[1]"
+
     sec = "section"
     secs_xpath = wing_xpath + f"/{sec}s"
     secs_cnt = elements_number(tixi, secs_xpath, sec, logg=False)
@@ -538,11 +668,15 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
             x = array(get_float_vector(tixi, pointlist_xpath + "/x"))
             z = array(get_float_vector(tixi, pointlist_xpath + "/z"))
 
+            x, z = _clean_airfoil_input(x, z)
+            _save_airfoil_order_plot(x, z, airfoil_uid)
+
             # TODO: Add choice of different interpolation techniques
             newx, newz = interpolate_points(x, z, max_dist=0.02)
             # CAREFUL: if you want to interpolate airfoil coordinates,
             # you need to apply the interpolation to all airfoils.
             # newx, newz = x, z
+            newx, newz = _clean_airfoil_input(newx, newz)
 
             if "fowler" in ctrltype:
                 # Store airfoil temporarily
@@ -561,6 +695,7 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
             update_xpath_at_xyz(
                 tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str
             )
+            _save_airfoil_order_plot(newx, newz, ids)
 
             # Update airfoil uID for each section
             tixi.updateTextElement(airfoil_xpath, ids)
@@ -572,18 +707,9 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
             update_xpath_at_xyz(
                 tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str
             )
-
+            _save_airfoil_order_plot(x_airfoil, z_airfoil, ids)
         else:
             log.warning(f"Airfoil uID {airfoil_uid} not found.")
-
-
-def update_xpath_at_xyz(tixi: Tixi3, xpath: str, x: str, y: str, z: str) -> None:
-    """
-    Helper Function.
-    """
-    tixi.updateTextElement(xpath + "/x", x)
-    tixi.updateTextElement(xpath + "/y", y)
-    tixi.updateTextElement(xpath + "/z", z)
 
 
 def createfrom_wing_airfoil(
@@ -623,7 +749,8 @@ def add_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
         wing_uid = left_ctrltype + "_" + sgt
         if not tixi.uIDCheckExists(wing_uid):
             log.warning(f"Wing with uID '{wing_uid}' not found, skipping symmetry operation.")
-            return
+            return None
+
         wingxpath = tixi.uIDGetXPath(wing_uid)
         symmetric_operation(tixi, wingxpath + "/transformation/scaling/y")
         symmetric_operation(tixi, wingxpath + "/transformation/translation/y")
@@ -642,11 +769,21 @@ def add_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
 
 
 def adding_airfoil(tixi: Tixi3, ctrltype: str, sgt: str, sym: bool) -> None:
-    # Define constants
+    # Sanity checks
     if not tixi.uIDCheckExists(sgt):
         log.warning(f"Wing with uID '{sgt}' not found, skipping airfoil addition.")
-        return
+        return None
+
+    # Define constants
+    if tixi.getTextElement(GEOMETRY_MODE_XPATH) == "2D":
+        scaler = 0.0
+    else:
+        scaler = 0.1
+
     wing_xpath = tixi.uIDGetXPath(sgt)
+    if wing_xpath.endswith("wing"):
+        wing_xpath += "[1]"
+
     flap_xpath = copy(tixi, wing_xpath, "wing", ctrltype + "_" + sgt, sym=sym)
     sec = "section"
     secs_xpath = flap_xpath + f"/{sec}s"
@@ -664,7 +801,7 @@ def adding_airfoil(tixi: Tixi3, ctrltype: str, sgt: str, sym: bool) -> None:
 
         # Scale flap accordingly
         sign = 1 if i_sec % 2 != 0 else -1
-        tixi.updateTextElement(ele_xpath + "/transformation/translation/y", str(0.1 * sign))
+        tixi.updateTextElement(ele_xpath + "/transformation/translation/y", str(scaler * sign))
 
 
 def deflection_angle(tixi: Tixi3, wing_uid: str, angle: float) -> None:
@@ -732,7 +869,7 @@ def _adding_control_surfaces(tixi: Tixi3, wing_uid: str, wing_data: list) -> Non
             continue
 
         log.info(
-            f"Updating sgt='{sgt}' (wing uID '{decomp_wing_uid}'), {ctrltype=}, "
+            f"Updating {sgt}= (wing uID '{decomp_wing_uid}'), {ctrltype=}, "
             f"with a {deformation_angle=}"
         )
 

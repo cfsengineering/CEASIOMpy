@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Extract results from AVL calculations and save them in a CPACS file.
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import shutil
 import subprocess
@@ -17,9 +15,7 @@ from pathlib import Path
 
 from ceasiompy import log
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+# Functions
 
 
 def convert_ps_to_pdf(wkdir: Path) -> None:

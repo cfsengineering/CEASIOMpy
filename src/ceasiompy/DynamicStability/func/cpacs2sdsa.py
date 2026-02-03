@@ -10,9 +10,7 @@ Transfer CPACS unsteady data into SDSA with the correct file format (for referen
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import shutil
 import numpy as np

@@ -7,9 +7,7 @@ Test functions for create_data functions in SMTrain module.
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from ceasiompy.utils.decorators import log_test
 from ceasiompy.SMTrain.func.createdata import retrieve_aeromap_data
@@ -47,9 +45,6 @@ class TestConfig(CeasiompyTest):
         )
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
     main(verbosity=0)

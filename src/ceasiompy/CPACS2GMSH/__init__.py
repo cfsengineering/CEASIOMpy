@@ -4,15 +4,9 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Initialization for CPACS2Gmsh module.
-
-| Author: Leon Deligny
-| Creation: 18-Mar-2025
-
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from ceasiompy.utils import get_module_status
 
@@ -34,9 +28,6 @@ HAS_PENTAGROW = get_module_status(
 # ===== Module Status =====
 MODULE_STATUS = True
 MODULE_TYPE = "Mesher"
-
-# ===== Include GUI =====
-INCLUDE_GUI = True
 
 # ===== Add a Results Directory =====
 RES_DIR = True
@@ -82,3 +73,19 @@ GMSH_FEATURE_ANGLE_XPATH = GMSH_XPATH + "/feature_angle"
 GMSH_CTRLSURF_ANGLE_XPATH = GMSH_XPATH + "/DeflectionAngle"
 GMSH_SAVE_CGNS_XPATH = GMSH_XPATH + "/SaveCGNS"
 GMSH_MESH_CHECKER_XPATH = GMSH_XPATH + "/MeshChecker"
+
+# 2D Airfoil mesh parameters
+GMSH_2D_AIRFOIL_MESH_SIZE_XPATH = GMSH_XPATH + "/airfoil2D/airfoilMeshSize"
+GMSH_2D_EXT_MESH_SIZE_XPATH = GMSH_XPATH + "/airfoil2D/externalMeshSize"
+GMSH_2D_FARFIELD_RADIUS_XPATH = GMSH_XPATH + "/airfoil2D/farfieldRadius"
+GMSH_2D_AOA_XPATH = GMSH_XPATH + "/airfoil2D/angleOfAttack"
+GMSH_2D_FARFIELD_TYPE_XPATH = GMSH_XPATH + "/airfoil2D/farfieldType"
+GMSH_2D_STRUCTURED_MESH_XPATH = GMSH_XPATH + "/airfoil2D/structuredMesh"
+GMSH_2D_FIRST_LAYER_HEIGHT_XPATH = GMSH_XPATH + "/airfoil2D/firstLayerHeight"
+GMSH_2D_HEIGHT_LENGTH_XPATH = GMSH_XPATH + "/airfoil2D/heightLength"
+GMSH_2D_WAKE_LENGTH_XPATH = GMSH_XPATH + "/airfoil2D/wakeLength"
+GMSH_2D_LENGTH_XPATH = GMSH_XPATH + "/airfoil2D/length"
+GMSH_2D_NO_BL_XPATH = GMSH_XPATH + "/airfoil2D/noBoundaryLayer"
+GMSH_2D_RATIO_XPATH = GMSH_XPATH + "/airfoil2D/growthRatio"
+GMSH_2D_NB_LAYERS_XPATH = GMSH_XPATH + "/airfoil2D/numberOfLayers"
+GMSH_2D_MESH_FORMAT_XPATH = GMSH_XPATH + "/airfoil2D/meshFormat"

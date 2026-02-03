@@ -4,15 +4,9 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Initialization for ThermoData module.
-
-| Author: Leon Deligny
-| Creation: 18-Mar-2025
-
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from pathlib import Path
 
@@ -22,9 +16,6 @@ from pathlib import Path
 
 # ===== Module Status =====
 MODULE_STATUS = False
-
-# ===== Include GUI =====
-INCLUDE_GUI = True
 
 RES_DIR = True
 

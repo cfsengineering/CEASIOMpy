@@ -10,9 +10,7 @@ Test functions of 'ceasiompy/ThermoData/func/turbojet_func.py'
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import pytest
 
@@ -39,9 +37,8 @@ from ceasiompy.ThermoData.func.turbofan import (
 from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+
+# Functions
 
 
 def test_turbojet_func():
@@ -173,9 +170,6 @@ class TestThermoData(CeasiompyTest):
         thermo_data(self.test_cpacs, self.wkdir)
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
     main(verbosity=0)

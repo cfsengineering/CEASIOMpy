@@ -10,9 +10,7 @@ Store data from SU2Run results.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from pathlib import Path
 from sqlite3 import Cursor

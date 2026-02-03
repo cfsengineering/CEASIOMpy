@@ -7,9 +7,7 @@ Functions related to the training of the surrogate model.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import time
 import joblib
@@ -62,9 +60,7 @@ from typing import (
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import SM_XPATH
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+# Functions
 
 
 def get_hyperparam_space(

@@ -6,9 +6,7 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 Functions utils to run ceasiompy workflows
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import re
 import os
@@ -43,7 +41,6 @@ from numpy import ndarray
 from pandas import DataFrame
 from unittest.mock import MagicMock
 from tixi3.tixi3wrapper import Tixi3
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
@@ -69,13 +66,25 @@ from ceasiompy.utils.moduleinterfaces import (
 from ceasiompy.utils.commonxpaths import (
     SELECTED_AEROMAP_XPATH,
     AIRCRAFT_NAME_XPATH,
-    RANGE_CRUISE_ALT_XPATH,
-    RANGE_CRUISE_MACH_XPATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+
+# Functions
+
+def workflow_number(path: Path) -> int:
+    parts = path.name.split("_")
+    if parts and parts[-1].isdigit():
+        return int(parts[-1])
+    return -1
+
+
+def update_xpath_at_xyz(tixi: Tixi3, xpath: str, x: str, y: str, z: str) -> None:
+    """
+    Helper Function.
+    """
+    tixi.updateTextElement(xpath + "/x", x)
+    tixi.updateTextElement(xpath + "/y", y)
+    tixi.updateTextElement(xpath + "/z", z)
 
 
 def _check_software_exists(soft_name: str) -> bool:
@@ -136,8 +145,14 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
         log.warning(f"No specs found for module {module_name}. \n")
         return None
 
-    cpacsin_out: CPACSInOut = specs.cpacs_inout
-    inputs = cpacsin_out.get_gui_dict()
+    if not hasattr(specs, "gui_settings"):
+        raise ValueError(f"gui_settings not found in specs file of {module_name=}")
+
+    gui_settings = specs.gui_settings
+    if not isinstance(gui_settings, Callable):
+        raise TypeError("gui_settings must be a callable function")
+
+    gui_settings(cpacs)
 
     aeromap_uid_list = cpacs.get_aeromap_uid_list()
     if not len(aeromap_uid_list):
@@ -150,40 +165,6 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
     if not tixi.checkElement(SELECTED_AEROMAP_XPATH):
         create_branch(tixi, SELECTED_AEROMAP_XPATH)
     tixi.updateTextElement(SELECTED_AEROMAP_XPATH, first_aeromap)
-
-    for _, default_value, var_type, _, xpath, _, _, test_value, _ in inputs.values():
-        try:
-            if test:
-                value = test_value
-            else:
-                value = default_value
-
-            parts = xpath.strip("/").split("/")
-            for i in range(1, len(parts) + 1):
-                path = "/" + "/".join(parts[:i])
-                if not tixi.checkElement(path):
-                    tixi.createElement("/" + "/".join(parts[: i - 1]), parts[i - 1])
-
-            if var_type == str:
-                tixi.updateTextElement(xpath, value)
-            elif var_type == float:
-                tixi.updateDoubleElement(xpath, value, format="%g")
-            elif var_type == bool:
-                tixi.updateBooleanElement(xpath, value)
-            elif var_type == int:
-                tixi.updateIntegerElement(xpath, value, format="%d")
-            elif var_type == list:
-                tixi.updateTextElement(xpath, str(value[0]))
-            elif var_type == "DynamicChoice":
-                create_branch(tixi, xpath + "type")
-                tixi.updateTextElement(xpath + "type", str(value[0]))
-            elif var_type == "multiselect":
-                tixi.updateTextElement(xpath, ";".join(str(ele) for ele in value))
-            else:
-                tixi.updateTextElement(xpath, value)
-
-        except Exception as e:
-            raise ValueError(f"Issue {var_type=} {e=} at {xpath=} for {value=}")
 
 
 @contextmanager
@@ -249,6 +230,11 @@ def get_aeromap_list_from_xpath(cpacs, aeromap_to_analyze_xpath, empty_if_not_fo
     return aeromap_uid_list
 
 
+def safe_remove(tixi: Tixi3, *, xpath: str) -> None:
+    if tixi.checkElement(xpath):
+        tixi.removeElement(xpath)
+
+
 def get_results_directory(
     module_name: str,
     create: bool = True,
@@ -261,7 +247,6 @@ def get_results_directory(
         module_name (str): Name of the module's result directory.
         create (bool): If you need to create it.
         wkflow_dir (Path): Path to the workflow of the module.
-
     """
 
     if module_name not in get_module_list(False):
@@ -320,7 +305,7 @@ def call_main(main: Callable, module_name: str, cpacs_path: Path | None = None) 
     log.info("----- Start of " + module_name + " -----")
 
     if cpacs_path is None:
-        xml_file = "D150_simple.xml"
+        xml_file = "d150.xml"
         cpacs_path = Path(CPACS_FILES_PATH, xml_file)
     else:
         xml_file = cpacs_path.name
@@ -389,7 +374,9 @@ def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
 
         # Run the module
         with change_working_dir(wkdir):
+            # Try loading with full CPACS (for 3D files)
             cpacs = CPACS(cpacs_in)
+
             if test:
                 log.info("Updating CPACS from __specs__")
                 update_cpacs_from_specs(cpacs, module_name, test)

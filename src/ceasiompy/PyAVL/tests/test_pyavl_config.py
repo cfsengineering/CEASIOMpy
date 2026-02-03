@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Test functions for config.py
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from cpacspy.cpacsfunctions import create_branch
 from ceasiompy.utils.decorators import log_test
@@ -50,7 +48,7 @@ class TestPyAVLConfig(CeasiompyTest):
 
     @classmethod
     def setUpClass(cls):
-        cpacs_path = Path(CPACS_FILES_PATH, "labARscaled.xml")
+        cpacs_path = Path(CPACS_FILES_PATH, "lab_ar_scaled.xml")
         cls.cpacs = CPACS(cpacs_path)
         cls.wkdir = current_workflow_dir()
         cls.command_dir = Path(MODULE_DIR, "tests", "avl_command_template.txt")
@@ -152,10 +150,7 @@ class TestPyAVLConfig(CeasiompyTest):
                 assert not file1.read() or not file2.read(), "File 'avl_commands.txt' not correct."
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 if __name__ == "__main__":
     main(verbosity=0)

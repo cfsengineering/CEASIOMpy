@@ -12,9 +12,7 @@ Functions to manipulate SU2 configuration and results.
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 
 from cpacspy.cpacsfunctions import get_value
@@ -40,7 +38,7 @@ from ceasiompy.SU2Run.func import (
 )
 from ceasiompy.SU2Run import (
     MODULE_DIR,
-    TEMPLATE_TYPE,
+    EULER_OR_RANS,
     CONTROL_SURFACE_LIST,
     SU2_CONTROL_SURF_BOOL_XPATH,
     SU2_CONTROL_SURF_ANGLE_XPATH,
@@ -54,9 +52,7 @@ from ceasiompy.utils.commonnames import (
     SU2_FORCES_BREAKDOWN_NAME,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+# Functions
 
 
 def check_one_entry(dict_dir: List[Dict], mach: float, alt: float, angle: str) -> Path:
@@ -97,10 +93,17 @@ def process_config_dir(config_dir: Path, dict_dir: List[Dict]) -> None:
 
 
 def check_force_file_exists(config_dir: Path) -> Path:
-    force_file_path = Path(config_dir, "no_deformation", SU2_FORCES_BREAKDOWN_NAME)
+    force_file_path = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
     if not force_file_path.exists():
         raise OSError("No result force file have been found!")
     return force_file_path
+
+
+def to_su2_bool(var: bool) -> str:
+    if var:
+        return "YES"
+    else:
+        return "NO"
 
 
 def get_aeromap_uid(tixi: Tixi3, fixed_cl: str) -> str:
@@ -351,16 +354,17 @@ def get_su2_cfg_tpl(tpl_type: str) -> Path:
     corresponding to the correct SU2 version.
 
     Args:
-        template_type (str): Either "euler" or "rans".
+        template_type (str): Either "euler", "rans", or "2d".
 
     Returns:
         su2_cfg_tpe_euler_path (str): Path of the SU2 config template.
 
     """
 
-    if tpl_type not in TEMPLATE_TYPE:
+    if tpl_type not in EULER_OR_RANS:
         log.warning(
-            "template_type (str) should be either " "'EULER' or 'RANS' in get_su2_config_template."
+            "template_type (str) should be either "
+            "'EULER', 'RANS' in get_su2_config_template."
         )
 
     tpl_type = tpl_type.lower()
@@ -395,7 +399,16 @@ def get_su2_aerocoefs(
         for key, var_name in AERO_COEFFICIENTS.items():
             if key in line:
                 if (key == "Free-stream velocity") and ("m/s" in line):
-                    results[var_name] = float(line.split(" ")[7])
+                    # Parse: "Free-stream velocity: (...) m/s. Magnitude: 102.089 m/s."
+                    # Extract the magnitude value
+                    parts = line.split("Magnitude:")
+                    if len(parts) > 1:
+                        # Get first token after "Magnitude:"
+                        magnitude_str = parts[1].strip().split()[0]
+                        results[var_name] = float(magnitude_str)
+                    else:
+                        # Fallback to old method if format is different
+                        results[var_name] = float(line.split(" ")[7])
                 elif not key == "Free-stream velocity":
                     results[var_name] = access_coef(line)
 

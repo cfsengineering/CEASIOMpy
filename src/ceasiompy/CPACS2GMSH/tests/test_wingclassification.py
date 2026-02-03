@@ -10,9 +10,7 @@ Test functions for 'ceasiompy/CPACS2GMSH/wingclassification.py'
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from pathlib import Path
 
@@ -28,10 +26,7 @@ CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def test_detect_normal_profile():
     """

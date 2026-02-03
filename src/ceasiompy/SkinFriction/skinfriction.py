@@ -3,21 +3,10 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Calculate skin friction drag coefficient
-
-| Author: Aidan Jungo
-| Creation: 2019-06-13
-
-TODO:
-    * update __specs__ file
-    * (Check if projected value are realistic for different cases)
-    * Adapt the code deal with fixed CL mode case
-
+Calculate skin friction drag coefficient.
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import math
 
@@ -49,9 +38,7 @@ from ceasiompy.utils.commonxpaths import (
 
 from ceasiompy.SkinFriction import MODULE_NAME
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+# Functions
 
 
 def estimate_skin_friction_coef(wetted_area, wing_area, wing_span, mach, alt):
@@ -236,10 +223,7 @@ def main(cpacs: CPACS, wkdir: Path):
     md.save()
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 if __name__ == "__main__":
     call_main(main, MODULE_NAME)

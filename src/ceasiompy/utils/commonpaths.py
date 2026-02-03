@@ -13,9 +13,7 @@ called only from here to avoid mistakes.
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import os
 import ceasiompy
@@ -53,8 +51,8 @@ CEASIOMPY_LOGO_PATH = Path(CEASIOMPY_PATH, "documents", "logos", "CEASIOMpy_512p
 # /CEASIOMpy/.ceasiompy/.runworkflow_history
 RUNWORKFLOW_HISTORY_PATH = Path(CEASIOMPY_PATH, ".ceasiompy", ".runworkflow_history")
 
-# /CEASIOMpy/src/CEASIOMpyStreamlit
-STREAMLIT_PATH = Path(SRC_PATH, "CEASIOMpyStreamlit")
+# /CEASIOMpy/src/app
+STREAMLIT_PATH = Path(SRC_PATH, "app")
 
 # /CEASIOMpy/test_cases/
 TEST_CASES_PATH = Path(CEASIOMPY_PATH, "test_cases")

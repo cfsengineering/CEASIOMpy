@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Extract results from AVL calculations and save them in a CPACS file.
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import math
 
@@ -34,9 +32,7 @@ from ceasiompy.PyAVL import (
     AVL_CTRLTABLE_XPATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+# Functions
 
 
 def get_avl_aerocoefs(force_file: Path) -> Tuple[

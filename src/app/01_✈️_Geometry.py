@@ -252,7 +252,7 @@ def _section_load_cpacs():
     # File uploader widget
     uploaded_file = st.file_uploader(
         "Load a CPACS (.xml) or VSP3 (.vsp3) file",
-        type=["xml", "vsp3"],
+        type=["xml", "vsp3", "csv", "dat", "txt"],
         key="geometry_file_uploader",
         label_visibility="collapsed",
     )
@@ -413,7 +413,8 @@ def section_select_cpacs() -> None:
             render_openvsp_panel()
 
     # Display the file uploader widget with the previously uploaded file
-    if st.session_state.get("cpacs", None) is not None:
+    cpacs = st.session_state.get("cpacs", None)
+    if cpacs is not None:
         st.markdown("---")
         section_3D_view(force_regenerate=True)
 

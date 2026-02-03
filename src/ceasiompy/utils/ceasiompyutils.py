@@ -142,9 +142,14 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
         log.warning(f"No specs found for module {module_name}. \n")
         return None
 
-    # cpacsin_out: CPACSInOut = specs.cpacs_inout
-    cpacsin_out = None
-    inputs = cpacsin_out.get_gui_dict()
+    if not hasattr(specs, "gui_settings"):
+        raise ValueError(f"gui_settings not found in specs file of {module_name=}")
+
+    gui_settings = specs.gui_settings
+    if not isinstance(gui_settings, Callable):
+        raise TypeError("gui_settings must be a callable function")
+
+    gui_settings(cpacs)
 
     aeromap_uid_list = cpacs.get_aeromap_uid_list()
     if not len(aeromap_uid_list):
@@ -157,40 +162,6 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
     if not tixi.checkElement(SELECTED_AEROMAP_XPATH):
         create_branch(tixi, SELECTED_AEROMAP_XPATH)
     tixi.updateTextElement(SELECTED_AEROMAP_XPATH, first_aeromap)
-
-    for _, default_value, var_type, _, xpath, _, _, test_value, _, _ in inputs.values():
-        try:
-            if test:
-                value = test_value
-            else:
-                value = default_value
-
-            parts = xpath.strip("/").split("/")
-            for i in range(1, len(parts) + 1):
-                path = "/" + "/".join(parts[:i])
-                if not tixi.checkElement(path):
-                    tixi.createElement("/" + "/".join(parts[: i - 1]), parts[i - 1])
-
-            if var_type == str:
-                tixi.updateTextElement(xpath, value)
-            elif var_type == float:
-                tixi.updateDoubleElement(xpath, value, format="%g")
-            elif var_type == bool:
-                tixi.updateBooleanElement(xpath, value)
-            elif var_type == int:
-                tixi.updateIntegerElement(xpath, value, format="%d")
-            elif var_type == list:
-                tixi.updateTextElement(xpath, str(value[0]))
-            elif var_type == "DynamicChoice":
-                create_branch(tixi, xpath + "type")
-                tixi.updateTextElement(xpath + "type", str(value[0]))
-            elif var_type == "multiselect":
-                tixi.updateTextElement(xpath, ";".join(str(ele) for ele in value))
-            else:
-                tixi.updateTextElement(xpath, value)
-
-        except Exception as e:
-            raise ValueError(f"Issue {var_type=} {e=} at {xpath=} for {value=}")
 
 
 @contextmanager

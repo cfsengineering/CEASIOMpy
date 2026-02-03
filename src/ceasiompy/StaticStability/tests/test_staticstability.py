@@ -212,7 +212,10 @@ class TestStaticStability(CeasiompyTest):
             md_path = Path(tmpdir, f"{MODULE_NAME}.md")
             with open(md_path, "r") as f:
                 content = f.read()
-                self.assertIn("StaticStability", content)
+                self.assertIn("mach", content)
+                self.assertIn("alt", content)
+                self.assertIn("aoa", content)
+                self.assertIn("aos", content)
 
     @log_test
     def test_markdownpy_to_markdown(self: TestStaticStability) -> None:

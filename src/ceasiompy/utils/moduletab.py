@@ -30,142 +30,184 @@ from ceasiompy import log
 from cpacspy.utils import PARAMS
 from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH
 
-# ==============================================================================
-#   FUNCTIONS
-# ==============================================================================
 
+# Functions
 
 def section_edit_aeromap() -> None:
     """Aeromap Editor and Selector"""
 
-    cpacs: CPACS | None = st.session_state.get("cpacs", None)
+    cpacs = _get_cpacs()
     if cpacs is None:
-        st.warning("No CPACS file has been selected !")
         return None
 
     with st.container(border=True):
         st.markdown("#### Selected Aeromap")
+        _ensure_custom_aeromap(cpacs)
 
-        # Create Custom Aeromap
-        custom_id = "custom_aeromap"
-
-        try:
-            cpacs.get_aeromap_by_uid(custom_id)
-        except ValueError:
-            custom_aeromap = cpacs.create_aeromap(custom_id)
-            custom_aeromap.add_row(
-                alt=0.0,
-                mach=0.3,
-                aos=0.0,
-                aoa=3.0,
-            )
-            custom_aeromap.save()
-        except Exception as e:
-            raise Exception(f"{cpacs.cpacs_file=} {custom_id=} {e=}")
-
-        aeromap_list = cpacs.get_aeromap_uid_list()
-        cached_aeromap_id = st.session_state.get("selected_aeromap_id", None)
-        if cached_aeromap_id is not None and cached_aeromap_id in aeromap_list:
-            initial_index = aeromap_list.index(cached_aeromap_id)
-        else:
-            initial_index = len(aeromap_list) - 1  # custom_aeromap id by default
-
-        selected_aeromap_id = st.selectbox(
-            "**Selected Aeromap**",
-            aeromap_list,
-            index=initial_index,
-            help="Choose an aeromap",
-            label_visibility="collapsed",
-            accept_new_options=True,
-            key="selected_aeromap",
-        )
-        add_value(
-            tixi=cpacs.tixi,
-            xpath=SELECTED_AEROMAP_XPATH,
-            value=selected_aeromap_id,
-        )
-
-        st.session_state["selected_aeromap_id"] = selected_aeromap_id
-
+        selected_aeromap_id = _select_aeromap_id(cpacs)
         if selected_aeromap_id:
-            try:
-                selected_aeromap = cpacs.get_aeromap_by_uid(selected_aeromap_id)
-            except ValueError:
-                st.warning(f"{selected_aeromap_id=} is not a valid aeromap ID.")
-                return None
-
-            if not isinstance(selected_aeromap, AeroMap):
-                st.warning(f"{selected_aeromap=} is not an AeroMap due to {selected_aeromap_id=}")
-                return None
-
-            selected_df = selected_aeromap.df[PARAMS]
-            original_df = selected_df.reset_index(drop=True)
-
-            editor_key_version = st.session_state.get("aeromap_editor_key_version", 0)
-
-            with warnings.catch_warnings():
-                warnings.filterwarnings(
-                    "ignore",
-                    message=(
-                        "The behavior of DataFrame concatenation with empty or "
-                        "all-NA entries is deprecated."
-                    ),
-                    category=FutureWarning,
-                )
-                edited_aero_df = st.data_editor(
-                    st.session_state.get("aeromap_df", original_df),
-                    num_rows="dynamic",
-                    hide_index=True,
-                    key=f"aeromap_editor_{editor_key_version}",
-                    column_config={
-                        "altitude": st.column_config.NumberColumn("Altitude", min_value=0.0),
-                        "machNumber": st.column_config.NumberColumn("Mach", min_value=1e-2),
-                        "angleOfAttack": st.column_config.NumberColumn("α°"),
-                        "angleOfSideslip": st.column_config.NumberColumn("β°"),
-                    },
-                    column_order=["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"],
-                )
-
-            edited_aero_df[PARAMS] = edited_aero_df[PARAMS].apply(
-                pd.to_numeric,
-                errors="coerce",
-            )
-            edited_aero_df[PARAMS] = edited_aero_df[PARAMS].astype(float)
-            cleaned_aero_df = edited_aero_df.drop_duplicates(subset=PARAMS, keep="first")
-
-            invalid_numeric = edited_aero_df.isna().any().any()
-            if not invalid_numeric:
-                cleaned_aero_df = cleaned_aero_df.reset_index(drop=True)
-                st.session_state["aeromap_df"] = cleaned_aero_df
-
-            if not invalid_numeric and not cleaned_aero_df.equals(edited_aero_df):
-                # Force the data editor to re-mount with the cleaned data.
-                st.session_state["aeromap_editor_key_version"] = editor_key_version + 1
-                st.rerun()
-
-            active_rows = cleaned_aero_df[PARAMS].notna().any(axis=1)
-            active_df = cleaned_aero_df.loc[active_rows, PARAMS]
-            invalid_numeric = active_df.isna().any().any()
-
-            if not invalid_numeric:
-                # Only save when its Valid Numeric
-                cleaned_df = active_df[PARAMS].reset_index(drop=True)
-                if not cleaned_df.equals(original_df):
-                    selected_aeromap.df = cleaned_df
-                    try:
-                        selected_aeromap.save()
-                    except Tixi3Exception as exc:
-                        if exc.code == ReturnCode.ALREADY_SAVED and selected_aeromap.xpath:
-                            for param in PARAMS:
-                                param_xpath = f"{selected_aeromap.xpath}/{param}"
-                                if selected_aeromap.tixi.checkElement(param_xpath):
-                                    selected_aeromap.tixi.removeElement(param_xpath)
-                            selected_aeromap.save()
-                        else:
-                            raise
+            _edit_selected_aeromap(cpacs, selected_aeromap_id)
 
         # Upload CSV content
         _upload_csv(cpacs)
+
+
+def _get_cpacs() -> CPACS | None:
+    cpacs: CPACS | None = st.session_state.get("cpacs", None)
+    if cpacs is None:
+        st.warning("No CPACS file has been selected !")
+    return cpacs
+
+
+def _ensure_custom_aeromap(cpacs: CPACS, custom_id: str = "custom_aeromap") -> None:
+    try:
+        cpacs.get_aeromap_by_uid(custom_id)
+    except ValueError:
+        custom_aeromap = cpacs.create_aeromap(custom_id)
+        custom_aeromap.add_row(
+            alt=0.0,
+            mach=0.3,
+            aos=0.0,
+            aoa=3.0,
+        )
+        custom_aeromap.save()
+    except Exception as e:
+        raise Exception(f"{cpacs.cpacs_file=} {custom_id=} {e=}")
+
+
+def _select_aeromap_id(cpacs: CPACS) -> str:
+    aeromap_list = cpacs.get_aeromap_uid_list()
+    cached_aeromap_id = st.session_state.get("selected_aeromap_id", None)
+    if cached_aeromap_id is not None and cached_aeromap_id in aeromap_list:
+        initial_index = aeromap_list.index(cached_aeromap_id)
+    else:
+        initial_index = len(aeromap_list) - 1  # custom_aeromap id by default
+
+    selected_aeromap_id = st.selectbox(
+        "**Selected Aeromap**",
+        aeromap_list,
+        index=initial_index,
+        help="Choose an aeromap",
+        label_visibility="collapsed",
+        accept_new_options=True,
+        key="selected_aeromap",
+    )
+    add_value(
+        tixi=cpacs.tixi,
+        xpath=SELECTED_AEROMAP_XPATH,
+        value=selected_aeromap_id,
+    )
+    st.session_state["selected_aeromap_id"] = selected_aeromap_id
+    return selected_aeromap_id
+
+
+def _edit_selected_aeromap(cpacs: CPACS, selected_aeromap_id: str) -> None:
+    selected_aeromap = _load_selected_aeromap(cpacs, selected_aeromap_id)
+    if selected_aeromap is None:
+        return None
+
+    original_df = selected_aeromap.df[PARAMS].reset_index(drop=True)
+    edited_aero_df = _render_aeromap_editor(original_df)
+    cleaned_aero_df, invalid_numeric = _normalize_aeromap_df(edited_aero_df)
+    if not invalid_numeric:
+        _maybe_rerun_editor(edited_aero_df, cleaned_aero_df)
+    _maybe_save_aeromap(selected_aeromap, cleaned_aero_df, original_df)
+
+
+def _load_selected_aeromap(cpacs: CPACS, selected_aeromap_id: str) -> AeroMap | None:
+    try:
+        selected_aeromap = cpacs.get_aeromap_by_uid(selected_aeromap_id)
+    except ValueError:
+        st.warning(f"{selected_aeromap_id=} is not a valid aeromap ID.")
+        return None
+
+    if not isinstance(selected_aeromap, AeroMap):
+        st.warning(f"{selected_aeromap=} is not an AeroMap due to {selected_aeromap_id=}")
+        return None
+
+    return selected_aeromap
+
+
+def _render_aeromap_editor(original_df: pd.DataFrame) -> pd.DataFrame:
+    editor_key_version = st.session_state.get("aeromap_editor_key_version", 0)
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            message=(
+                "The behavior of DataFrame concatenation with empty or "
+                "all-NA entries is deprecated."
+            ),
+            category=FutureWarning,
+        )
+        return st.data_editor(
+            st.session_state.get("aeromap_df", original_df),
+            num_rows="dynamic",
+            hide_index=True,
+            key=f"aeromap_editor_{editor_key_version}",
+            column_config={
+                "altitude": st.column_config.NumberColumn("Altitude", min_value=0.0),
+                "machNumber": st.column_config.NumberColumn("Mach", min_value=1e-2),
+                "angleOfAttack": st.column_config.NumberColumn("α°"),
+                "angleOfSideslip": st.column_config.NumberColumn("β°"),
+            },
+            column_order=["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"],
+        )
+
+
+def _normalize_aeromap_df(edited_aero_df: pd.DataFrame) -> tuple[pd.DataFrame, bool]:
+    edited_aero_df[PARAMS] = edited_aero_df[PARAMS].apply(
+        pd.to_numeric,
+        errors="coerce",
+    )
+    edited_aero_df[PARAMS] = edited_aero_df[PARAMS].astype(float)
+    cleaned_aero_df = edited_aero_df.drop_duplicates(subset=PARAMS, keep="first")
+
+    invalid_numeric = edited_aero_df.isna().any().any()
+    if not invalid_numeric:
+        cleaned_aero_df = cleaned_aero_df.reset_index(drop=True)
+        st.session_state["aeromap_df"] = cleaned_aero_df
+
+    return cleaned_aero_df, invalid_numeric
+
+
+def _maybe_rerun_editor(edited_aero_df: pd.DataFrame, cleaned_aero_df: pd.DataFrame) -> None:
+    if cleaned_aero_df.equals(edited_aero_df):
+        return None
+
+    editor_key_version = st.session_state.get("aeromap_editor_key_version", 0)
+    # Force the data editor to re-mount with the cleaned data.
+    st.session_state["aeromap_editor_key_version"] = editor_key_version + 1
+    st.rerun()
+
+
+def _maybe_save_aeromap(
+    selected_aeromap: AeroMap,
+    cleaned_aero_df: pd.DataFrame,
+    original_df: pd.DataFrame,
+) -> None:
+    active_rows = cleaned_aero_df[PARAMS].notna().any(axis=1)
+    active_df = cleaned_aero_df.loc[active_rows, PARAMS]
+    if active_df.isna().any().any():
+        return None
+
+    # Only save when its Valid Numeric
+    cleaned_df = active_df[PARAMS].reset_index(drop=True)
+    if cleaned_df.equals(original_df):
+        return None
+
+    selected_aeromap.df = cleaned_df
+    try:
+        selected_aeromap.save()
+    except Tixi3Exception as exc:
+        if exc.code == ReturnCode.ALREADY_SAVED and selected_aeromap.xpath:
+            for param in PARAMS:
+                param_xpath = f"{selected_aeromap.xpath}/{param}"
+                if selected_aeromap.tixi.checkElement(param_xpath):
+                    selected_aeromap.tixi.removeElement(param_xpath)
+            selected_aeromap.save()
+        else:
+            raise
 
 
 def _upload_csv(cpacs: CPACS) -> None:

@@ -18,8 +18,8 @@
         <name>VAMP_airfoil</name>
         <description>VAMP_airfoil model</description>
         <reference xsi:type="referenceType">
-          <area>122.4</area>
-          <length>4.193</length>
+          <area>1.0</area>
+          <length>1.0</length>
           <point uID="Point">
             <x>0</x>
             <y>0</y>
@@ -149,7 +149,7 @@
               </positioning>
               <positioning uID="Wing1_Sec2GenPos" xsi:type="positioningType">
                 <name>p2</name>
-                <length>1.0</length>
+                <length>1e-3</length>
                 <sweepAngle>0</sweepAngle>
                 <dihedralAngle>0</dihedralAngle>
                 <fromSectionUID>Wing1_Sec1</fromSectionUID>

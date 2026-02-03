@@ -50,7 +50,7 @@ class TestPyAVLConfig(CeasiompyTest):
 
     @classmethod
     def setUpClass(cls):
-        cpacs_path = Path(CPACS_FILES_PATH, "labARscaled.xml")
+        cpacs_path = Path(CPACS_FILES_PATH, "lab_ar_scaled.xml")
         cls.cpacs = CPACS(cpacs_path)
         cls.wkdir = current_workflow_dir()
         cls.command_dir = Path(MODULE_DIR, "tests", "avl_command_template.txt")

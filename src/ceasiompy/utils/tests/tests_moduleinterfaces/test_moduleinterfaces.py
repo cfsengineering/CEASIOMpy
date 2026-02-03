@@ -34,7 +34,7 @@ CPACS_TEST_FILE = Path(MODULE_DIR, "ToolInput", "cpacs_test_file.xml")
 def test_get_module_path():
     """Test function 'get_module_path'."""
 
-    assert get_module_path("ModuleTemplate") == Path(MODULES_DIR_PATH, "ModuleTemplate")
+    assert get_module_path("utils") == Path(MODULES_DIR_PATH, "utils")
 
     with pytest.raises(ValueError):
         get_module_path("NotExistingModule")

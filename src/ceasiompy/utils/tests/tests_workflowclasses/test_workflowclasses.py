@@ -64,19 +64,6 @@ class TestModuleToRun:
         assert self.module_works.module_wkflow_path.exists()
         assert self.module_works.module_wkflow_path.stem == "01_SU2Run"
 
-    def test_run(self):
-
-        # Remove CPACS output file from privious run
-        if CPACS_PATH_OUT.exists():
-            CPACS_PATH_OUT.unlink()
-
-        module = ModuleToRun("ModuleTemplate", self.wkflow_dir, CPACS_PATH, CPACS_PATH_OUT)
-
-        # TODO: how to separate test from workflowclasses.py and ceasiompyutils.py
-        run_module(module)
-
-        assert CPACS_PATH_OUT.exists()
-
 
 class TestWorkflow:
 

@@ -70,7 +70,6 @@ def _ensure_custom_aeromap(cpacs: CPACS, custom_id: str = "custom_aeromap") -> N
             aos=0.0,
             aoa=3.0,
         )
-        custom_aeromap.save()
     except Exception as e:
         raise Exception(f"{cpacs.cpacs_file=} {custom_id=} {e=}")
 
@@ -251,7 +250,7 @@ def checks(session_state, tabs) -> None:
         session_state.tabs = tabs(session_state.workflow_modules)
 
 
-def add_module_tab(new_file: bool) -> None:
+def add_module_tab() -> None:
     # Show aeromap section for both 2D and 3D modes
     section_edit_aeromap()
 
@@ -262,7 +261,7 @@ def add_module_tab(new_file: bool) -> None:
         zip(st.session_state.tabs, st.session_state.workflow_modules)
     ):
         with tab:
-            get_settings_of(module_name=module)
+            get_settings_of(module)
 
 
 def get_settings_of(module_name: str) -> None:

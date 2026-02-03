@@ -151,6 +151,7 @@ def _run_gmshairfoil2d(
             if params["wake_length"] is None or params["height_length"] is None:
                 raise ValueError(
                     "Wake and height lengths are required for structured CType farfield."
+                    f"""{params["wake_length"]=} {params["height_length"]=}"""
                 )
             cmd.extend(["--arg_struc", f"{params['wake_length']}x{params['height_length']}"])
     elif params["farfield_type"] == "Rectangular":

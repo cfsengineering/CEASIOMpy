@@ -47,17 +47,9 @@ def section_settings():
     if not len(st.session_state.workflow_modules):
         st.warning("You must first build a workflow in the corresponding tab.")
 
-    if "new_file" not in st.session_state:
-        st.session_state.new_file = True
-
     st.markdown("---")
 
-    add_module_tab(st.session_state.new_file)
-    st.session_state.new_file = False
-
-    # Make sure to run at least once to pre-load the default values
-    # of __specs__.py files. Then save each modifications independently.
-    # Important: Needs to be called after add_module_tab.
+    add_module_tab()
 
 
 # Main

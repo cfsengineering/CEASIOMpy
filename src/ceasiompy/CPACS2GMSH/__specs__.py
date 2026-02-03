@@ -534,28 +534,10 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
                     Wake length downstream of the airfoil for C-type farfield.
                 """,
             )
-            float_vartype(
-                tixi=tixi,
-                xpath=GMSH_2D_HEIGHT_LENGTH_XPATH,
-                default_value=5.0,
-                name="Height",
-                key="height",
-                description="Height of domain for C-type farfield.",
-            )
         else:
             safe_remove(tixi, xpath=GMSH_2D_WAKE_LENGTH_XPATH)
-            safe_remove(tixi, xpath=GMSH_2D_HEIGHT_LENGTH_XPATH)
 
         if farfield_type == "Rectangular":
-            float_vartype(
-                tixi=tixi,
-                xpath=GMSH_2D_HEIGHT_LENGTH_XPATH,
-                default_value=5.0,
-                name="Height",
-                key="height",
-                description="Height of domain for rectangular farfield.",
-            )
-
             float_vartype(
                 tixi=tixi,
                 xpath=GMSH_2D_LENGTH_XPATH,
@@ -566,6 +548,17 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
             )
         else:
             safe_remove(tixi, xpath=GMSH_2D_LENGTH_XPATH)
+
+        if farfield_type == "CType" or farfield_type == "Rectangular":
+            float_vartype(
+                tixi=tixi,
+                xpath=GMSH_2D_HEIGHT_LENGTH_XPATH,
+                default_value=5.0,
+                name="Height Length",
+                key="height_length",
+                description="Height of domain for C-type farfield.",
+            )
+        else:
             safe_remove(tixi, xpath=GMSH_2D_HEIGHT_LENGTH_XPATH)
 
 

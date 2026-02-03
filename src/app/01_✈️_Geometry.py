@@ -65,8 +65,6 @@ def _clean_toolspecific(cpacs: CPACS) -> CPACS:
     air_name = cpacs.ac_name
 
     if "ac_name" not in st.session_state or st.session_state.ac_name != air_name:
-        st.session_state.new_file = True
-
         # Clean input CPACS file
         tixi = cpacs.tixi
         if tixi.checkElement("/cpacs/toolspecific/CEASIOMpy"):

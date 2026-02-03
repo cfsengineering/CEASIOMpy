@@ -430,14 +430,9 @@ def plain_transform(
     newx_values = x_values[mask]
     newz_values = z_values[mask]
 
-    # Split into upper/lower parts so ordering is: upper -> closing curve -> lower
-    avg_z = 0.0
-    upper_mask = newz_values >= avg_z
-    lower_mask = ~upper_mask
-    upper_x = newx_values[upper_mask]
-    upper_z = newz_values[upper_mask]
-    lower_x = newx_values[lower_mask]
-    lower_z = newz_values[lower_mask]
+    # Keep original order for points with x < x_ref.
+    if newx_values.size == 0:
+        return newx_values, newz_values, x_values, z_values
 
     # Create new x values using sine function
     x = np.arange(0.0, 1.1, 0.2)
@@ -447,8 +442,30 @@ def plain_transform(
     close_x = max_x_pos + new_x
     close_z = np.linspace(z_pos, z_neg, len(close_x))
 
-    newx_values = np.concatenate((upper_x, close_x, lower_x))
-    newz_values = np.concatenate((upper_z, close_z, lower_z))
+    # Insert closing curve between the upper/lower points at max_x_pos to avoid a straight segment.
+    close_x_insert = close_x
+    close_z_insert = close_z
+    x_match = np.isclose(newx_values, max_x_pos, rtol=0.0, atol=1e-6)
+    match_indices = np.where(x_match)[0]
+    if match_indices.size >= 2:
+        match_z = newz_values[match_indices]
+        upper_idx = int(match_indices[np.argmax(match_z)])
+        lower_idx = int(match_indices[np.argmin(match_z)])
+        if upper_idx < lower_idx:
+            insert_at = upper_idx + 1
+        else:
+            insert_at = lower_idx + 1
+            close_x_insert = close_x_insert[::-1]
+            close_z_insert = close_z_insert[::-1]
+    else:
+        diffs = np.abs(newx_values - max_x_pos)
+        min_diff = np.min(diffs)
+        insert_candidates = np.where(diffs == min_diff)[0]
+        insert_at = int(insert_candidates[-1]) + 1
+
+    newx_values = np.concatenate((newx_values[:insert_at], close_x_insert, newx_values[insert_at:]))
+    newz_values = np.concatenate((newz_values[:insert_at], close_z_insert, newz_values[insert_at:]))
+    newx_values, newz_values = _remove_duplicate_points(newx_values, newz_values)
 
     # Flap
     x_flap = x_ref + 0.02

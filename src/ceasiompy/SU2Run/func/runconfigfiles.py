@@ -10,9 +10,7 @@ Module to run SU2 configuration files in CEASIOMpy.
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 
 from ceasiompy.utils.ceasiompyutils import run_software
@@ -28,10 +26,7 @@ from ceasiompy.utils.commonnames import (
     SU2_DYNSTAB_FORCES_BREAKDOWN_NAME,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def check_config_file_exists(config_file: List[Path], config_dir: Path) -> None:
     """
@@ -98,7 +93,7 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
                 arguments=[config_file[0]],
                 wkdir=config_dir,
                 with_mpi=True,
-                nb_cpu=nb_proc,
+                nb_cpu=1,
                 log_bool=True,
             )
 

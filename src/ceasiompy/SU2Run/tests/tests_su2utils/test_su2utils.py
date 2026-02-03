@@ -10,9 +10,7 @@ Test functions for 'ceasiompy/SU2Run/func/meshutils.py'
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import pytest
 import unittest
@@ -47,10 +45,7 @@ MODULE_DIR = Path(__file__).parent
 FORCES_BREAKDOWN = Path(MODULE_DIR, "forces_breakdown.dat")
 FORCES_BREAKDOWN_NO_VALUE = Path(MODULE_DIR, "forces_breakdown_no_value.dat")
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def test_get_mesh_marker():
     """Test the class 'get_mesh_markers'"""

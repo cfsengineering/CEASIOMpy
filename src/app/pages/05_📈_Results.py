@@ -152,6 +152,8 @@ def display_results(results_dir):
                     os.system(f"dwfscope {str(child)}")
 
             elif child.suffix == ".vtu":
+                # TODO: Open vtu file inside
+
                 if "paraview_container" not in st.session_state:
                     st.session_state["paraview_container"] = st.container()
                     st.session_state.paraview_container.markdown("**Paraview**")
@@ -333,10 +335,7 @@ def show_results():
             display_results(Path(results_dir, tab_name))
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
 
     # Define interface

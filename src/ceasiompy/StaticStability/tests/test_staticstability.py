@@ -9,9 +9,7 @@ Test functions for StaticStability module.
 # Futures
 from __future__ import annotations
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import unittest
 import tempfile
@@ -238,9 +236,6 @@ class TestStaticStability(CeasiompyTest):
                 self.assertIn("|val3|val4|", content)
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
     unittest.main(verbosity=0)

@@ -12,9 +12,7 @@ Test functions for 'lib/CLCalculator/clcalculator.py'
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from ceasiompy.utils.decorators import log_test
 from ceasiompy.CLCalculator.func.utils import (
@@ -113,10 +111,7 @@ class TestClCalculatorUtils(CeasiompyTest):
             deal_with_mass(md, tixi, "Custom")
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 if __name__ == "__main__":
     main(verbosity=0)

@@ -11,9 +11,7 @@ It is subsequently processed by this module to generate a CPACS file.
 | Creation: 23/12/2025
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import numpy as np
 import openvsp as vsp
@@ -22,10 +20,7 @@ from math import comb
 
 from scipy.interpolate import interp1d
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def Import_Wing(wing):
 

@@ -4,9 +4,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import signal
 import threading
@@ -64,10 +62,7 @@ def _patch_signal_for_gmsh() -> None:
 _patch_signal_for_gmsh()
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = None) -> None:
     """
@@ -331,10 +326,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         run_cpacs2gmsh(cpacs, wkdir)
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 if __name__ == "__main__":
     call_main(main, MODULE_NAME)

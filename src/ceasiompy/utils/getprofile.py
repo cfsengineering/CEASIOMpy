@@ -7,9 +7,7 @@ Functions used to get profile as list of point, either directly from
 the list point in the CPACS file or from the CPACS CST2D curve.
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import numpy as np
 
@@ -143,10 +141,7 @@ class CST_shape(object):
         return y
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def get_profile_coord(tixi: Tixi3, prof_uid: str) -> tuple[list, list, list]:
     """
@@ -157,10 +152,10 @@ def get_profile_coord(tixi: Tixi3, prof_uid: str) -> tuple[list, list, list]:
         prof_uid (str): uID of the airfoil/profile to get.
 
     Returns:
-         (tuple[list, list, list]): list of x, y, z coordinate points.
-            - list[float]: list of x-th coordinate points.
-            - list[float]: list of y-th coordinate points.
-            - list[float]: list of z-th coordinate points.
+         (Tuple[List, List, List]): List of x, y, z coordinate points.
+            - List[float]: List of x-th coordinate points.
+            - List[float]: List of y-th coordinate points.
+            - List[float]: List of z-th coordinate points.
 
     """
 
@@ -170,20 +165,20 @@ def get_profile_coord(tixi: Tixi3, prof_uid: str) -> tuple[list, list, list]:
     prof_vect_y = []
     prof_vect_z = []
 
-    if tixi.checkElement(prof_xpath + "/pointlist"):
+    if tixi.checkElement(prof_xpath + "/pointList"):
 
         try:
-            prof_vect_x = get_float_vector(tixi, prof_xpath + "/pointlist/x")
+            prof_vect_x = get_float_vector(tixi, prof_xpath + "/pointList/x")
         except ValueError:
             log.warning("No point list in x coordinate has been found!")
 
         try:
-            prof_vect_y = get_float_vector(tixi, prof_xpath + "/pointlist/y")
+            prof_vect_y = get_float_vector(tixi, prof_xpath + "/pointList/y")
         except ValueError:
             log.warning("No point list in y coordinate has been found!")
 
         try:
-            prof_vect_z = get_float_vector(tixi, prof_xpath + "/pointlist/z")
+            prof_vect_z = get_float_vector(tixi, prof_xpath + "/pointList/z")
         except ValueError:
             log.warning("No point list in z coordinate has been found!")
 
@@ -218,7 +213,7 @@ def get_profile_coord(tixi: Tixi3, prof_uid: str) -> tuple[list, list, list]:
 
     else:
         # TODO: add standardProfile (CPACS 3.3)
-        log.error('The profile "' + prof_uid + '" contains no "pointlist" or "cst2d" definition.')
+        log.error('The profile "' + prof_uid + '" contains no "pointList" or "cst2d" definition.')
 
     if not prof_vect_x and not prof_vect_y and not prof_vect_z:
         raise ValueError("Profile coordinates have not been found!")

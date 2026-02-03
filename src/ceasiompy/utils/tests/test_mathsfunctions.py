@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Test functions from 'lib/utils/mathfunctions.py'
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import numpy as np
 from pytest import approx
@@ -25,10 +23,7 @@ from unittest import main
 from ceasiompy.utils.generalclasses import Point
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 class TestMathsFunctions(CeasiompyTest):
     def test_rot_identity(self):
@@ -154,9 +149,6 @@ class TestMathsFunctions(CeasiompyTest):
         assert r == approx(r2)
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
     main(verbosity=0)

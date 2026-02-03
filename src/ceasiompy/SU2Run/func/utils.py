@@ -12,9 +12,7 @@ Functions to manipulate SU2 configuration and results.
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 
 from cpacspy.cpacsfunctions import get_value
@@ -54,10 +52,7 @@ from ceasiompy.utils.commonnames import (
     SU2_FORCES_BREAKDOWN_NAME,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def check_one_entry(dict_dir: List[Dict], mach: float, alt: float, angle: str) -> Path:
     """

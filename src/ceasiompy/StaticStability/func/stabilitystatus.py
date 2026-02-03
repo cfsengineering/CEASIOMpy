@@ -10,9 +10,7 @@ Scripts for checking the slope of the pitch, roll and yaw moments with respect t
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from typing import Tuple
 from sklearn.linear_model import LinearRegression
@@ -24,10 +22,7 @@ from pandas import (
 
 from ceasiompy.StaticStability import STABILITY_DICT
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def generate_message(row: Series) -> str:
     """

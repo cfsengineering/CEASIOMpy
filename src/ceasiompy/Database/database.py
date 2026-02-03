@@ -10,9 +10,7 @@ Main scripts for Database module.
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.Database.func.storing import store_data
@@ -22,10 +20,7 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy import log
 from ceasiompy.Database import DATABASE_STOREDATA_XPATH
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 def main(cpacs: CPACS) -> None:
     tixi = cpacs.tixi

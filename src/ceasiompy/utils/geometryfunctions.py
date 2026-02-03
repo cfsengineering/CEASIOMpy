@@ -41,10 +41,7 @@ from ceasiompy.utils.commonpaths import CEASIOMPY_DB_PATH
 from ceasiompy.utils.commonxpaths import WINGS_XPATH
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def get_aircrafts_list() -> List:
     """

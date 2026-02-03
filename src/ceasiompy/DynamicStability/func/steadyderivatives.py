@@ -10,9 +10,7 @@ Steady-derivatives computations through PyAVL.
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from pandas import concat
 from numpy import isclose
@@ -34,10 +32,7 @@ from ceasiompy import log
 from ceasiompy.DynamicStability import ALT
 from ceasiompy.PyAVL import SOFTWARE_NAME as AVL_SOFTWARE
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def dimensionalize_rate(df: DataFrame, alt: float, c: float, b: float) -> DataFrame:
     """

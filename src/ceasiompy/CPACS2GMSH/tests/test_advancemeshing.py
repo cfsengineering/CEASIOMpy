@@ -10,9 +10,7 @@ Test functions for 'ceasiompy/CPACS2GMSH/advancemeshing.py'
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import shutil
 from pathlib import Path
@@ -39,10 +37,7 @@ MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simple_sharp_airfoil.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def test_distance_field():
     """
@@ -385,10 +380,10 @@ def test_refine_between_parts():
     gmsh.finalize()
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
+# Main
+
 if __name__ == "__main__":
+    test_refine_wing_section()
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")

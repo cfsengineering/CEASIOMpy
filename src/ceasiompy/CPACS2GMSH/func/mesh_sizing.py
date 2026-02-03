@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 This script contains different functions to classify and manipulate wing elements.
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import math
 
@@ -24,14 +22,12 @@ from ceasiompy.utils.commonxpaths import (
     FUSELAGES_XPATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+# Functions
 
-
-def fuselage_size(tixi: Tixi3) -> None:
+def fuselage_size(tixi: Tixi3) -> tuple[float, float]:
     if tixi.checkElement(FUSELAGES_XPATH):
         fus_cnt = tixi.getNamedChildrenCount(FUSELAGES_XPATH, "fuselage")
+
     for i_fus in range(fus_cnt):
         fus_xpath = FUSELAGES_XPATH + "/fuselage[" + str(i_fus + 1) + "]"
         fus_transf = Transformation()

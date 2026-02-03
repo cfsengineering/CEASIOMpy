@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Calculate skin friction drag coefficient.
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import math
 
@@ -40,10 +38,7 @@ from ceasiompy.utils.commonxpaths import (
 
 from ceasiompy.SkinFriction import MODULE_NAME
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def estimate_skin_friction_coef(wetted_area, wing_area, wing_span, mach, alt):
     """Return an estimation of skin friction drag coefficient.
@@ -227,10 +222,7 @@ def main(cpacs: CPACS, wkdir: Path):
     md.save()
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 if __name__ == "__main__":
     call_main(main, MODULE_NAME)

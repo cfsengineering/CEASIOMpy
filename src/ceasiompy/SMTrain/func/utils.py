@@ -39,10 +39,7 @@ from ceasiompy.SMTrain import (
     AEROMAP_FEATURES,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def concatenate_if_not_none(list_arrays: List[Union[ndarray, None]]) -> ndarray:
     """

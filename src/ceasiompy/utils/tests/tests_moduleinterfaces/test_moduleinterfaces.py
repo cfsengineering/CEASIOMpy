@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Test functions for 'lib/moduleinterfaces.py'
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import pytest
 
@@ -26,10 +24,7 @@ from ceasiompy.utils.commonpaths import MODULES_DIR_PATH
 MODULE_DIR = Path(__file__).parent
 CPACS_TEST_FILE = Path(MODULE_DIR, "ToolInput", "cpacs_test_file.xml")
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def test_get_module_path():
     """Test function 'get_module_path'."""

@@ -12,9 +12,7 @@ Test for get_su2_results function.
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import os
 import pytest
@@ -27,10 +25,7 @@ from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
 from ceasiompy.utils.commonpaths import TEST_RESULTS_FILES_PATH
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 class TestSU2Results(CeasiompyTest):
 
@@ -46,9 +41,6 @@ class TestSU2Results(CeasiompyTest):
             screenshot_file.unlink()
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
     unittest.main(verbosity=0)

@@ -216,10 +216,7 @@ def module_to_remove_from_coverage():
     print("]")
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
 
     # The python script could be run to generate the default toolspecific file

@@ -13,10 +13,7 @@ from ambiance import Atmosphere
 from ceasiompy import log
 from ceasiompy.CLCalculator import GAMMA
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def calculate_cl(
     ref_area: float,

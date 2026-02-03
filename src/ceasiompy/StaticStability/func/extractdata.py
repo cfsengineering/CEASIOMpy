@@ -10,9 +10,7 @@ Data extraction from pyAVL for stability analysis
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from ceasiompy.StaticStability.func.plot import plot_stability
 from ceasiompy.StaticStability.func.stabilitystatus import (
@@ -31,10 +29,7 @@ from cpacspy.cpacspy import (
 
 from ceasiompy import log
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def generate_stab_df(cpacs: CPACS, aeromap_uid: str, lr_bool: bool) -> DataFrame:
     """

@@ -6,9 +6,7 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 Classes to run ceasiompy workflows
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import os
 import shutil

@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 2D airfoil mesh generation functions for CPACS2GMSH module.
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import shutil
 import subprocess
@@ -102,6 +100,7 @@ def _run_gmshairfoil2d(params, wkdir, airfoil_file):
     Returns:
         tuple: (command list, expected_mesh_file Path, fallback_mesh_file Path | None)
     """
+
     aoa = 0.0
     deflection = 0.0
     log.info("Using deflection angle: 0.0 deg (fixed for now)")
@@ -280,6 +279,8 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
 
     log.info("Generating .dat file for gmshairfoil2d from CPACS file.")
     airfoil_file = _generating_dat_file(cpacs)
+
+    # TODO: Add flap_path if CPACSUpdater
 
     # Build gmshairfoil2d command
     log.info("Building gmshairfoil2d command.")

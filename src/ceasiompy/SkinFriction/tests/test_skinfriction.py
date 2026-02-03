@@ -4,9 +4,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
@@ -74,10 +72,7 @@ class TestSkinFriction(CeasiompyTest):
         assert all([a == approx(b, rel=1e-4) for a, b in zip(apm_sf.get("cs"), cs_list_expected)])
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 if __name__ == "__main__":
     main(verbosity=0)

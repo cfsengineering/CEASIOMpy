@@ -20,10 +20,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from pandas import DataFrame
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def plot_fem_mesh(
     wing_df: DataFrame,

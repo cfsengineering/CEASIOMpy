@@ -61,10 +61,7 @@ from ceasiompy.AeroFrame import (
     FRAMAT_YOUNGMODULUS_XPATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def compute_distance_and_moment(centerline_df: DataFrame, row: Series) -> Series:
     """Transfer of forces and induced moment to the closest beam node."""

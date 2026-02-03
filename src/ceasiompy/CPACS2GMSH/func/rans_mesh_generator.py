@@ -21,9 +21,7 @@ TODO:
     - Integrate other parts during fragmentation
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import gmsh
 import random
@@ -66,10 +64,7 @@ from ceasiompy import log
 from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def generate_2d_mesh_for_pentagrow(
     cpacs: CPACS,

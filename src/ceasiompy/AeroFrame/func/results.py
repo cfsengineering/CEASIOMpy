@@ -26,10 +26,7 @@ from numpy import ndarray
 from pandas import DataFrame
 from scipy.interpolate import interp1d
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def compute_deformations(
     results: Path,

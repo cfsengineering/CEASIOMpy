@@ -67,10 +67,7 @@ from ceasiompy.utils.commonxpaths import (
     AIRCRAFT_NAME_XPATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def compute_fuselage_coords(
     i_sec: int,

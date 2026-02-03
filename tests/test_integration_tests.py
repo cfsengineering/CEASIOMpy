@@ -43,10 +43,7 @@ if WORKFLOW_TEST_DIR.exists():
 
 WORKFLOW_TEST_DIR.mkdir()
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def run_workflow_test(modules_to_run, cpacs_path=CPACS_IN_PATH):
     """Run a workflow test with the given modules and optional CPACS path."""

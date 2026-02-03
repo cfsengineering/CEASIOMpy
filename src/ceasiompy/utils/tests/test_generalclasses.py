@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Test functions for 'ceasiompy/utils/generalclasses.py'
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from unittest import main
 from unittest.mock import MagicMock
@@ -148,9 +146,6 @@ class TestGeneralClasses(CeasiompyTest):
         assert trans_wing.translation.z == 0.0
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
     main(verbosity=0)

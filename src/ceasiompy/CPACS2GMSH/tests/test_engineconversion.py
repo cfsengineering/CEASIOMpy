@@ -10,9 +10,7 @@ Test functions for 'ceasiompy/CPACS2GMSH/engineconversion.py'
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 
 import os
@@ -28,10 +26,7 @@ TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 TEST_IN_PATH = Path(MODULE_DIR, "ToolInput")
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def test_close_engine():
     """Test the close_engine function with a simple engine"""

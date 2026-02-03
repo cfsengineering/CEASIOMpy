@@ -16,19 +16,14 @@ Logging method use by other CEASIOMpy modules
 # Futures
 from __future__ import annotations
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from pathlib import Path
 from datetime import datetime
 
 from ceasiompy.utils.commonpaths import RUNWORKFLOW_HISTORY_PATH
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def add_to_runworkflow_history(working_dir: Path, comment: str = "") -> None:
     """Add a line to the runworkflow history"""

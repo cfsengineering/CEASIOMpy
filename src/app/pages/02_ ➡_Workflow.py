@@ -357,10 +357,7 @@ def section_add_module() -> None:
                 st.session_state.workflow_flow_modules = list(normalized_modules)
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 if __name__ == "__main__":
     # Define interface

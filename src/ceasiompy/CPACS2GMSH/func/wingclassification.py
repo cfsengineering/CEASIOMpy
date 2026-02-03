@@ -15,9 +15,7 @@ TODO:
     function detect_normal_profile() in order to prevent this.
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import gmsh
 import numpy as np
@@ -169,10 +167,7 @@ class ModelPart:
         self.points_tags = sorted([dimtag[1] for dimtag in self.points])
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def detect_normal_profile(le_te_pair: List, line_comp1, line_comp2):
     """

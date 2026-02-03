@@ -10,9 +10,7 @@ Function to run the PyCycle code for the turbojet engine
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import openmdao.api as om
 
@@ -22,10 +20,7 @@ from scipy.constants import convert_temperature
 
 from ceasiompy import log
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def turbojet_analysis(alt, MN, Fn):
     prob = om.Problem()

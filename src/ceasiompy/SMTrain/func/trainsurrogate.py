@@ -60,10 +60,7 @@ from typing import (
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import SM_XPATH
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def get_hyperparam_space(
     level1_sets: Dict[str, ndarray],

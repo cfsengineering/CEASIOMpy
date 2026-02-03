@@ -31,10 +31,7 @@ class VariancePredictor(Protocol):
     def predict_variances(self, x_array: ndarray) -> ndarray:
         ...
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def lh_sampling(
     n_samples: int,

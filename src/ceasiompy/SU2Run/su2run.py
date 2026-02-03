@@ -12,9 +12,7 @@ Module to run SU2 Calculation in CEASIOMpy
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.SU2Run.func.results import get_su2_results
@@ -38,10 +36,7 @@ from ceasiompy.SU2Run import (
 )
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 def main(cpacs: CPACS, results_dir: Path) -> None:
     """

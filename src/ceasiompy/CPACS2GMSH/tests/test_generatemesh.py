@@ -10,9 +10,7 @@ Test functions for 'ceasiompy/CPACS2GMSH/generategmesh.py'
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import shutil
 from pathlib import Path
@@ -36,11 +34,8 @@ CPACS_IN_SIMPLE_DOUBLEFLUX_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_doublefl
 CPACS_IN_PROPELLER_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_propeller.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
-
+# Functions
 def test_generate_gmsh():
     """
     This test try to generate a simple mesh and test if the SU2 markers
@@ -366,11 +361,11 @@ def test_disk_actuator_conversion():
     remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg"])
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
+    test_generate_gmsh()
+    test_generate_gmsh_symm()
+    test_define_doubleflux_engine_bc()
     test_disk_actuator_conversion()
     print("Test CPACS2GMSH")
     print("To run test use the following command:")

@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerlands
 Classes to save engine/nacelle value.
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from cpacspy.cpacsfunctions import get_float_vector
 

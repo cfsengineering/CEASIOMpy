@@ -43,10 +43,7 @@ from ceasiompy.PyAVL import (
     AVL_CTRLSURF_ANGLES_XPATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 @validate_call(config=ceasiompy_cfg)
 def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> tuple[

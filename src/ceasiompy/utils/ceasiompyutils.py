@@ -6,9 +6,7 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 Functions utils to run ceasiompy workflows
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import re
 import os
@@ -70,10 +68,7 @@ from ceasiompy.utils.commonxpaths import (
     AIRCRAFT_NAME_XPATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def update_xpath_at_xyz(tixi: Tixi3, xpath: str, x: str, y: str, z: str) -> None:
     """

@@ -38,10 +38,7 @@ from ceasiompy.AeroFrame import (
     FRAMAT_TIP_DEFLECTION_XPATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def main(cpacs: CPACS, results_dir: Path) -> None:
     """
@@ -114,9 +111,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         plot_convergence(tip_deflection, residuals, wkdir=case_dir_path)
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
     call_main(main, MODULE_NAME)

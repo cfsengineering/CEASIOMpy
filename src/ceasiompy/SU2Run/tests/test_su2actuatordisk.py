@@ -10,9 +10,7 @@ Test functions of 'ceasiompy/SU2Run/func/su2actuatordisk.py'
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from pathlib import Path
 
@@ -36,10 +34,7 @@ from ceasiompy.utils.ceasiompyutils import get_results_directory
 MODULE_DIR = Path(__file__).parent
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def test_get_radial_stations():
     """Test function 'get_radial_stations'"""
@@ -307,10 +302,7 @@ def test_write_actuator_disk_data(tmp_path):
     assert test_actuatordisk_path.read_text().split("\n") == correct_actuatordisk_file_content
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
     print("Test configfile.py")
     print("To run test use the following command:")

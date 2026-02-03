@@ -10,9 +10,7 @@ Test functions of 'ceasiompy/SU2Run/func/su2config.py'
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from pathlib import Path
 
@@ -22,10 +20,7 @@ from ceasiompy.utils.configfiles import ConfigFile
 
 MODULE_DIR = Path(__file__).parent
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def test_add_damping_derivatives(tmp_path):
     """Test function 'add_damping_derivatives'"""

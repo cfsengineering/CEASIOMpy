@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Test functions for config.py
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from cpacspy.cpacsfunctions import create_branch
 from ceasiompy.utils.decorators import log_test
@@ -152,10 +150,7 @@ class TestPyAVLConfig(CeasiompyTest):
                 assert not file1.read() or not file2.read(), "File 'avl_commands.txt' not correct."
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 if __name__ == "__main__":
     main(verbosity=0)

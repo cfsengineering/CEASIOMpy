@@ -20,7 +20,6 @@ from ceasiompy.AeroFrame.func.utils import (
     compute_delta_a,
 )
 
-from typing import Tuple
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
@@ -33,7 +32,7 @@ def compute_deformations(
     results: Path,
     wing_df: DataFrame,
     centerline_df: DataFrame,
-) -> Tuple[DataFrame, DataFrame, ndarray]:
+) -> tuple[DataFrame, DataFrame, ndarray]:
     """
     Computes the deformation at each beam node
     and translate the displacement to the VLM mesh.

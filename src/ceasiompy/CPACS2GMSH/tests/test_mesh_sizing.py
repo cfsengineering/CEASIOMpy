@@ -29,23 +29,21 @@ class TestMeshSizing(CeasiompyTest):
         """
         This test takes the fuselage dimension on which the mesh size is calculated.
         """
-        fuselage_maxlen, fuselage_minlen = fuselage_size(self.test_cpacs.tixi)
-        print(f'{fuselage_maxlen=} {fuselage_minlen=}')
         self.assert_equal_function(
             f=fuselage_size,
             input_args=(self.test_cpacs.tixi, ),
-            expected=(0.5, 0.05),
+            expected=(1.3953420631620659, 5e-05),
         )
 
     def test_wing_size(self: CeasiompyTest) -> None:
         """
         This test takes the fuselage dimension on which the mesh size is calculated.
         """
-
-        wing_maxlen, wing_minlen = wings_size(self.test_cpacs.tixi)
-        print(f'{wing_maxlen=} {wing_minlen=}')
-        assert wing_maxlen == approx(0.15, abs=1e-2)
-        assert wing_minlen == approx(0.012, abs=1e-4)
+        self.assert_equal_function(
+            f=wings_size,
+            input_args=(self.test_cpacs.tixi, ),
+            expected=(0.5571959999999999, 0.04457567999999999),
+        )
 
 
 # Main

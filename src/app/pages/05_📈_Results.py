@@ -152,16 +152,66 @@ def display_results(results_dir):
                     os.system(f"dwfscope {str(child)}")
 
             elif child.suffix == ".vtu":
-                # TODO: Open vtu file inside
+                with st.container(border=True):
+                    st.markdown(f"**{child.name}**")
+                    try:
+                        import pyvista as pv
+                        from stpyvista import stpyvista
+                    except ImportError:
+                        st.info("pyvista/stpyvista is not available; cannot render VTU files.")
+                        continue
 
-                if "paraview_container" not in st.session_state:
-                    st.session_state["paraview_container"] = st.container()
-                    st.session_state.paraview_container.markdown("**Paraview**")
+                    try:
+                        mesh = pv.read(str(child))
+                    except Exception as exc:
+                        st.error(f"Failed to read VTU file: {exc}")
+                        continue
 
-                if st.session_state.paraview_container.button(
-                    f"Open {child.name} with Paraview", key=f"{child}_vtu"
-                ):
-                    open_paraview(child)
+                    surface = mesh.extract_surface()
+                    point_arrays = list(surface.point_data.keys())
+                    cell_arrays = list(surface.cell_data.keys())
+                    scalar_options = [f"point:{name}" for name in point_arrays] + [
+                        f"cell:{name}" for name in cell_arrays
+                    ]
+
+                    plotter = pv.Plotter()
+                    if not scalar_options:
+                        plotter.add_mesh(surface, color="lightgray")
+                        stpyvista(plotter, key=f"{child}_vtu_geometry")
+                        st.caption("No scalar fields found in this VTU file.")
+                        continue
+
+                    preferred = ["Mach", "Pressure_Coefficient", "Pressure", "Cp"]
+                    default_scalar = None
+                    for pref in preferred:
+                        if pref in point_arrays:
+                            default_scalar = f"point:{pref}"
+                            break
+                        if pref in cell_arrays:
+                            default_scalar = f"cell:{pref}"
+                            break
+                    if default_scalar is None:
+                        default_scalar = scalar_options[0]
+
+                    scalar_choice = st.selectbox(
+                        "Field",
+                        scalar_options,
+                        index=scalar_options.index(default_scalar),
+                        key=f"{child}_vtu_field",
+                    )
+                    _, scalar = scalar_choice.split(":", 1)
+                    plotter.add_mesh(surface, scalars=scalar, show_scalar_bar=True)
+                    stpyvista(plotter, key=f"{child}_vtu_view")
+
+                    data_array = surface.point_data.get(scalar)
+                    if data_array is None:
+                        data_array = surface.cell_data.get(scalar)
+                    if data_array is not None and len(data_array) > 0:
+                        st.caption(
+                            f"{scalar} min/max: {float(data_array.min()):.6g} / "
+                            f"{float(data_array.max()):.6g}"
+                        )
+
 
             elif child.suffix == ".png":
                 if "figures_container" not in st.session_state:
@@ -252,16 +302,6 @@ def display_results(results_dir):
 
     except BaseException:
         display_results_else(results_dir)
-
-
-def open_paraview(file):
-    """Open Paraview with the file pass as argument."""
-
-    paraview_state_txt = DEFAULT_PARAVIEW_STATE.read_text()
-    paraview_state = Path(file.parent, "paraview_state.pvsm")
-    paraview_state.write_text(paraview_state_txt.replace("result_case_path", str(file)))
-
-    os.system(f"paraview {str(paraview_state)}")
 
 
 def workflow_number(path: Path) -> int:

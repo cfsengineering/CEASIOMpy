@@ -72,6 +72,11 @@ PAGE_NAME = "Results"
 IGNORED_RESULT_FILES: set[str] = {
     "avl_commands.txt",
     "logfile_avl.log",
+    "rmse_RBF.csv",
+    "rmse_KRG.csv",
+    "New_CPACS",
+    "Validation_plot_RBF",
+    "Validation_plot_KRG",
 }
 
 # =================================================================================================
@@ -265,7 +270,14 @@ def display_results(results_dir, chosen_workflow = None):
                 sliders_values = {}
                 sliders_bounds = {}
 
-                csv_path_sampling = Path(f"{results_dir}/avl_simulations_results.csv")
+                csv_path_sampling = (
+                    chosen_workflow
+                    / "Results"
+                    / "SMTrain"
+                    / "Low_Fidelity"
+                    / "avl_simulations_results.csv"
+                )
+
                 df_samples = None
                 if csv_path_sampling.exists():
                     df_samples = pd.read_csv(csv_path_sampling)
@@ -278,18 +290,23 @@ def display_results(results_dir, chosen_workflow = None):
                     sliders_bounds[param] = [min_val, max_val]
                     sliders_values[param] = min_val
 
-                model_selected = st.radio(
-                    "Select the model to visualize:",
-                    ["RBF" , "KRG"],
-                    index=0,
-                    horizontal=True,
-                    key="model_select_radio",
-                )
+                krg_model_path = results_dir / "surrogateModel_krg.pkl"
+                rbf_model_path = results_dir / "surrogateModel_rbf.pkl"
 
-                if model_selected == "KRG":
-                    model_path = results_dir / "surrogateModel_krg.pkl"
-                if model_selected == "RBF":
-                    model_path = results_dir / "surrogateModel_rbf.pkl"
+                if krg_model_path.exists() and rbf_model_path.exists():
+                    model_selected = st.radio(
+                        "Select the model to visualize:",
+                        ["RBF" , "KRG"],
+                        index=0,
+                        horizontal=True,
+                        key="model_select_radio",
+                    )
+
+                    model_path = rbf_model_path if model_selected == "RBF" else krg_model_path
+                elif krg_model_path.exists():
+                    model_path = krg_model_path
+                elif rbf_model_path.exists():
+                    model_path = rbf_model_path
 
                 model, param_order = None, None
                 if model_path.exists():
@@ -302,8 +319,8 @@ def display_results(results_dir, chosen_workflow = None):
                         "⚠️ Surrogate model not found. Only geometry "
                         "sliders will be available."
                     )
-                
-                final_level1_df = pd.read_csv(f"{results_dir}/avl_simulations_results.csv")
+
+                final_level1_df = pd.read_csv(csv_path_sampling)
                 param_cols = final_level1_df.columns[:-1]
 
                 df_norm = final_level1_df.copy()
@@ -333,80 +350,78 @@ def display_results(results_dir, chosen_workflow = None):
                     st.stop()
 
                 if model is not None and len(param_order) >= 2:
-                    if st.button("Run Sobol analysis"):
+                    st.subheader("Sobol Global Sensitivity Analysis")
+                    sobol_params = []
+                    sobol_bounds = []
 
-                        st.subheader("Sobol Global Sensitivity Analysis")
-                        sobol_params = []
-                        sobol_bounds = []
+                    for p in param_order:
+                        min_val, max_val = sliders_bounds[p]
+                        if max_val > min_val:
+                            sobol_params.append(p)
+                            sobol_bounds.append([min_val, max_val])
 
-                        for p in param_order:
-                            min_val, max_val = sliders_bounds[p]
-                            if max_val > min_val:
-                                sobol_params.append(p)
-                                sobol_bounds.append([min_val, max_val])
+                    # ---- DEFINE PROBLEM ----
+                    problem = {
+                        "num_vars": len(sobol_params),
+                        "names": sobol_params,
+                        "bounds": sobol_bounds,
+                    }
 
-                        # ---- DEFINE PROBLEM ----
-                        problem = {
-                            "num_vars": len(sobol_params),
-                            "names": sobol_params,
-                            "bounds": sobol_bounds,
-                        }
+                    # ---- GENERATE SAMPLES ----
+                    N = 256
+                    sample_set = saltelli.sample(problem, N)
 
-                        # ---- GENERATE SAMPLES ----
-                        N = 256
-                        sample_set = saltelli.sample(problem, N)
-
-                        # ---- RUN MODEL ----
-                        Y = []
-                        for s in sample_set:
-                            x_phys = np.zeros(len(param_order))
-                            for i, p in enumerate(param_order):
-                                if p in sobol_params:
-                                    x_phys[i] = s[sobol_params.index(p)]
-                                else:
-                                    x_phys[i] = sliders_bounds[p][0]
-                            x_norm = normalize_input_from_gui(
-                                {p: x_phys[i] for i, p in enumerate(param_order)},
-                                param_order,
-                                normalization_params
-                            )
-                            Y.append(model.predict_values(x_norm.reshape(1, -1))[0])
-
-                        Y = np.array(Y).flatten()
-
-                        # ---- SOBOL ANALYSIS ----
-                        Si = sobol.analyze(problem, Y)
-
-                        # ---- CONVERT TO DATAFRAME ----
-                        sens_df = pd.DataFrame({
-                            "Parameter": param_order,
-                            "Single effect index Si": Si["S1"],
-                            "Total-effect index ST": Si["ST"]
-                        })
-
-                        sens_df[["Single effect index Si", "Total-effect index ST"]] = sens_df[
-                            ["Single effect index Si", "Total-effect index ST"]
-                        ].clip(lower=0)
-
-                        sens_df = sens_df.sort_values(by="Total-effect index ST", ascending=False)
-
-                        # ---- SHOW RESULTS ----
-                        sens_df_melted = sens_df.melt(
-                            id_vars="Parameter",
-                            value_vars=["Single effect index Si", "Total-effect index ST"],
-                            var_name="Type",
-                            value_name="Sensitivity"
+                    # ---- RUN MODEL ----
+                    Y = []
+                    for s in sample_set:
+                        x_phys = np.zeros(len(param_order))
+                        for i, p in enumerate(param_order):
+                            if p in sobol_params:
+                                x_phys[i] = s[sobol_params.index(p)]
+                            else:
+                                x_phys[i] = sliders_bounds[p][0]
+                        x_norm = normalize_input_from_gui(
+                            {p: x_phys[i] for i, p in enumerate(param_order)},
+                            param_order,
+                            normalization_params
                         )
+                        Y.append(model.predict_values(x_norm.reshape(1, -1))[0])
 
-                        chart = alt.Chart(sens_df_melted).mark_bar().encode(
-                            x=alt.X("Parameter:N", sort=None, title="Parameter"),
-                            y=alt.Y("Sensitivity:Q", title="Sobol Index"),
-                            color=alt.Color("Type:N", scale=alt.Scale(scheme="category10")),
-                            xOffset="Type:N",
-                            tooltip=["Parameter", "Type", "Sensitivity"]
-                        ).properties(width=600, height=400)
+                    Y = np.array(Y).flatten()
 
-                        st.altair_chart(chart)
+                    # ---- SOBOL ANALYSIS ----
+                    Si = sobol.analyze(problem, Y)
+
+                    # ---- CONVERT TO DATAFRAME ----
+                    sens_df = pd.DataFrame({
+                        "Parameter": param_order,
+                        "Single effect index Si": Si["S1"],
+                        "Total-effect index ST": Si["ST"]
+                    })
+
+                    sens_df[["Single effect index Si", "Total-effect index ST"]] = sens_df[
+                        ["Single effect index Si", "Total-effect index ST"]
+                    ].clip(lower=0)
+
+                    sens_df = sens_df.sort_values(by="Total-effect index ST", ascending=False)
+
+                    # ---- SHOW RESULTS ----
+                    sens_df_melted = sens_df.melt(
+                        id_vars="Parameter",
+                        value_vars=["Single effect index Si", "Total-effect index ST"],
+                        var_name="Type",
+                        value_name="Sensitivity"
+                    )
+
+                    chart = alt.Chart(sens_df_melted).mark_bar().encode(
+                        x=alt.X("Parameter:N", sort=None, title="Parameter"),
+                        y=alt.Y("Sensitivity:Q", title="Sobol Index"),
+                        color=alt.Color("Type:N", scale=alt.Scale(scheme="category10")),
+                        xOffset="Type:N",
+                        tooltip=["Parameter", "Type", "Sensitivity"]
+                    ).properties(width=600, height=400)
+
+                    st.altair_chart(chart)
 
                     st.subheader("Response Surface Visualization")
                     # Let user select 2 params to visualize
@@ -493,10 +508,19 @@ def display_results(results_dir, chosen_workflow = None):
                                             x=x_samples, y=y_samples, z=z_samples,
                                             mode='markers',
                                             marker=dict(size=2, color='green'),
-                                            name=f"Sampling points (n={len(x_samples)})"
+                                            name=f"🟢 Training Samples (n={len(x_samples)})",
+                                            showlegend=True,
+                                            legendgroup="samples",
                                         ))
 
                                     fig.update_layout(
+                                        showlegend=True,
+                                        legend=dict(
+                                            yanchor="top",
+                                            y=0.99,
+                                            xanchor="left",
+                                            x=0.75
+                                        ),
                                         title='Surrogate Model Response Surface',
                                         scene=dict(
                                             xaxis_title=selected_params[0],
@@ -782,12 +806,12 @@ def display_results(results_dir, chosen_workflow = None):
                     st.markdown(f"**{child.name}**")
                     st.dataframe(pd.read_csv(child))
 
-            elif child.name == "best_geometric_configuration.xml":
+            elif child.name == "best_geometric_configuration_low_fidelity.xml":
                 with st.expander("Best geometric configuration from AVL simulations"):
                     st.markdown("**Best geometric configuration from AVL simulations**")
                     section_3D_view(
                         results_dir=Path(results_dir),
-                        cpacs=CPACS(Path(results_dir) / "best_geometric_configuration.xml"),
+                        cpacs=CPACS(Path(results_dir) / "best_geometric_configuration_low_fidelity.xml"),
                     )
 
             elif child.name == "best_surrogate_geometry_RBF.xml":

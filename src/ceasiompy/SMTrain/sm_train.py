@@ -129,10 +129,13 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 module_name='SMTrain',
             )
 
-            computations_dir = Path(results_dir, "Computations")
+            low_fidelity_dir = results_dir / "Low_Fidelity"
+            low_fidelity_dir.mkdir(exist_ok=True)
+
+            computations_dir = Path(low_fidelity_dir, "AVL")
             computations_dir.mkdir(exist_ok=True)
 
-            NEWCPACS_path = computations_dir / "New_CPACS"
+            NEWCPACS_path = low_fidelity_dir / "New_CPACS"
             NEWCPACS_path.mkdir(exist_ok=True)
 
             cpacs_file = cpacs.cpacs_file
@@ -191,7 +194,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 objective=objective,
                 split_ratio=split_ratio,
                 pyavl_dir=computations_dir,
-                results_dir=results_dir,
+                results_dir=low_fidelity_dir,
                 KRG_model_bool=selected_krg_model,
                 RBF_model_bool=selected_rbf_model,
                 ranges_gui=ranges_gui,
@@ -201,7 +204,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             for i, best_cpacs_path in enumerate(files):
                 if i == idx_best_geom_conf:
                     print(f"{best_cpacs_path=}")
-                    dest_path = Path(results_dir) / "best_geometric_configuration.xml"
+                    dest_path = Path(results_dir) / "best_geometric_configuration_low_fidelity.xml"
                     shutil.copy2(best_cpacs_path, dest_path)
 
             if selected_krg_model:

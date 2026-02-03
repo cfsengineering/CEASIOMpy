@@ -51,7 +51,7 @@ from ceasiompy.SMTrain.func.utils import (
 from ceasiompy.SaveAeroCoefficients import (
     AEROMAP_FEATURES,
 )
-
+from ceasiompy.utils.commonpaths import get_wkdir
 from ceasiompy.PyAVL.pyavl import main as run_avl
 from ceasiompy.StaticStability.staticstability import main as run_staticstability
 from ceasiompy.SMTrain.func.config import (
@@ -415,7 +415,6 @@ def run_first_level_training_geometry(
         tixi = cpacs.tixi
         pyavl_local_dir = pyavl_dir / f"PyAVL_{i+1}"
         pyavl_local_dir.mkdir(exist_ok=True)
-
         update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
         update_cpacs_from_specs(cpacs, STATICSTABILITY_NAME, test=True)
         tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap_uid)
@@ -482,8 +481,14 @@ def run_first_level_training_geometry(
 
     # Concatenate the dataframes
     final_level1_df = pd.concat(final_dfs, axis=0, ignore_index=True)
+    avl_results = (
+        get_wkdir()
+        / "Results"
+        / get_results_directory("SMTrain")
+        / "Low_Fidelity"
+        / "avl_simulations_results.csv"
+    )
 
-    avl_results = f"{results_dir}/avl_simulations_results.csv"
     # delete rows where objective = 0 and constant columns
     final_level1_df = final_level1_df.loc[final_level1_df.iloc[:, -1] != 0].copy()
     final_level1_df_c = drop_constant_columns(final_level1_df)
@@ -528,6 +533,12 @@ def run_first_level_training_geometry(
     level1_sets = split_data(df_norm, objective, split_ratio)
     param_order = [col for col in df_norm.columns if col != objective]
 
+    best_surrogate_geom_path = (
+        get_wkdir()
+        / "Results"
+        / get_results_directory("SMTrain")
+    )
+
     if KRG_model_bool:
         log.info("--------------Star training KRG model.--------------\n")
         krg_model, krg_rmse = train_surrogate_model(level1_sets)
@@ -544,7 +555,7 @@ def run_first_level_training_geometry(
             param_order=param_order,
             normalization_params=normalization_params,
             final_level1_df_c=final_level1_df_c,
-            results_dir=results_dir,
+            results_dir=best_surrogate_geom_path,
             )
 
     if RBF_model_bool:
@@ -563,7 +574,7 @@ def run_first_level_training_geometry(
             param_order=param_order,
             normalization_params=normalization_params,
             final_level1_df_c=final_level1_df_c,
-            results_dir=results_dir,
+            results_dir=best_surrogate_geom_path,
             )
 
     return krg_model, rbf_model, level1_sets, best_geometry_idx, param_order
@@ -647,7 +658,13 @@ def run_adaptative_refinement_geom(
     """
     high_var_pts = []
     rmse = float("inf")
-    df_old_path = results_dir / "avl_simulations_results.csv"
+    df_old_path = (
+        get_wkdir()
+        / "Results"
+        / get_results_directory("SMTrain")
+        / "Low_Fidelity"
+        / "avl_simulations_results.csv"
+    )
     df_old = pd.read_csv(df_old_path)
     df = pd.DataFrame(columns=df_old.columns)
     x_array = level1_sets["x_train"]
@@ -658,12 +675,18 @@ def run_adaptative_refinement_geom(
 
     cpacs_list = []
 
-    for _ in range(nb_iters):
+    high_fidelity_dir_KRG = results_dir / "High_Fidelity_Results_KRG"
+    high_fidelity_dir_KRG.mkdir(exist_ok=True)
+
+    SU2_local_dir = high_fidelity_dir_KRG / "SU2Run"
+    SU2_local_dir.mkdir(exist_ok=True)
+
+    for it in range(nb_iters):
         # Find new high variance points based on inputs x_train
         new_point_df_norm = new_points_geom(
             x_array=x_array,
             model=model,
-            results_dir=results_dir,
+            results_dir=high_fidelity_dir_KRG,
             high_var_pts=high_var_pts,
             ranges_gui=ranges_gui,
         )
@@ -693,7 +716,7 @@ def run_adaptative_refinement_geom(
 
         for i, geom_row in new_point_df.iterrows():
 
-            cpacs_p = get_results_directory(SU2RUN_NAME) / f"CPACS_newpoint_{i+1:03d}_iter{_}.xml"
+            cpacs_p = SU2_local_dir / f"CPACS_newpoint_{i+1:03d}_iter{it}.xml"
             copyfile(cpacs_file, cpacs_p)
             cpacs_out_obj = CPACS(cpacs_p)
             tixi = cpacs_out_obj.tixi
@@ -720,13 +743,13 @@ def run_adaptative_refinement_geom(
         # Get data from SU2 at the high variance points
         new_df_list = []
         for idx, cpacs_ in enumerate(cpacs_list):
-            dir_res = get_results_directory(SU2RUN_NAME) / f"SU2Run_{idx}_iter{_}"
-            dir_res.mkdir(exist_ok=True)
             obj_value = launch_gmsh_su2_geom(
                 cpacs=cpacs_,
-                results_dir=dir_res,
+                results_dir=high_fidelity_dir_KRG,
                 objective=objective,
                 aeromap_uid=aeromap_uid,
+                idx=idx,
+                it=it,
             )
             new_row = new_point_df.iloc[idx].copy()
             new_row[objective] = obj_value
@@ -735,8 +758,6 @@ def run_adaptative_refinement_geom(
 
         # Stack new with old
         df = pd.concat([new_df, df], ignore_index=True)
-
-        df.to_csv(get_results_directory(SU2RUN_NAME) / f"SU2_dataframe_iter_{_}", index=False)
 
         model, rmse = train_surrogate_model(
             level1_sets=level1_sets,
@@ -883,7 +904,7 @@ def run_adaptative_refinement_geom_existing_db(
 
         for i, geom_row in new_point_df.iterrows():
 
-            cpacs_p = get_results_directory(SU2RUN_NAME) / f"CPACS_newpoint_{i+1:03d}_iter{_}.xml"
+            cpacs_p = "SU2Run" / f"CPACS_newpoint_{i+1:03d}_iter{_}.xml"
             copyfile(cpacs_file, cpacs_p)
             cpacs_out_obj = CPACS(cpacs_p)
             tixi = cpacs_out_obj.tixi
@@ -910,7 +931,7 @@ def run_adaptative_refinement_geom_existing_db(
         new_df_list = []
         for idx, cpacs_ in enumerate(cpacs_list):
 
-            dir_res = get_results_directory(SU2RUN_NAME) / f"SU2Run_{idx}_iter{_}"
+            dir_res = "SU2Run" / f"SU2Run_{idx}_iter{_}"
             dir_res.mkdir(exist_ok=True)
             obj_value = launch_gmsh_su2_geom(
                 cpacs=cpacs_,
@@ -924,7 +945,7 @@ def run_adaptative_refinement_geom_existing_db(
 
         new_df = pd.DataFrame(new_df_list)
         df = pd.concat([new_df, df_simulation], ignore_index=True)
-        df.to_csv(get_results_directory(SU2RUN_NAME) / f"SU2_dataframe_iter_{_}", index=False)
+        # df.to_csv(get_results_directory(SU2RUN_NAME) / f"SU2_dataframe_iter_{_}", index=False)
 
         model, rmse = train_surrogate_model(
             level1_sets=level1_sets,
@@ -1239,24 +1260,30 @@ def run_adaptative_refinement_geom_RBF(
     """
     Iterative adaptive refinement using RBF LOO-error based sampling.
     """
-
-    df_simulation_path = results_dir / "avl_simulations_results.csv"
+    df_simulation_path = (
+        get_wkdir()
+        / "Results"
+        / get_results_directory("SMTrain")
+        / "Low_Fidelity"
+        / "avl_simulations_results.csv"
+    )
     normalization_params, _ = normalize_dataset(df_simulation_path)
-    
     poor_pts = []
     rmse = float("inf")
 
-    df_old_path = results_dir / "avl_simulations_results.csv"
-    df_old = pd.read_csv(df_old_path)
-    df = pd.DataFrame(columns=df_old.columns)
+    df_simulation = pd.read_csv(df_simulation_path)
+    df = pd.DataFrame(columns=df_simulation.columns)
 
-    n_params = len(df_old.columns.drop(objective))
+    n_params = len(df_simulation.columns.drop(objective))
 
     x_array = level1_sets["x_train"]
     y_array = level1_sets["y_train"]
     nb_iters = len(x_array)
 
     log.info(f"Starting RBF adaptive refinement with maximum {nb_iters=}.")
+
+    high_fidelity_dir_RBF = results_dir / "High_Fidelity_Results_RBF"
+    high_fidelity_dir_RBF.mkdir(exist_ok=True)
 
     for it in range(nb_iters):
 
@@ -1288,9 +1315,6 @@ def run_adaptative_refinement_geom_RBF(
 
             new_point_df[col] = new_point_df[col] * std + mean
 
-        new_point_df_norm.to_csv(results_dir / f"new_points_norm_iter_{it}.csv", index=False)
-        new_point_df.to_csv(results_dir / f"new_points_phys_iter_{it}.csv", index=False)
-
         log.info(
             f"Generated {len(new_point_df)} new points "
             f"(norm range [{new_point_df_norm.min().min():.3f}, "
@@ -1303,10 +1327,12 @@ def run_adaptative_refinement_geom_RBF(
         cpacs_file = cpacs.cpacs_file
         cpacs_list = []
 
+        SU2_local_dir = high_fidelity_dir_RBF / "SU2Run"
+        SU2_local_dir.mkdir(exist_ok=True)
         # Update CPACS for each new point
         for i, geom_row in new_point_df.iterrows():
 
-            cpacs_p = get_results_directory(SU2RUN_NAME) / f"CPACS_newpoint_{i+1:03d}_iter{it}.xml"
+            cpacs_p = SU2_local_dir / f"CPACS_newpoint_{i+1:03d}_iter{it}.xml"
             copyfile(cpacs_file, cpacs_p)
 
             cpacs_out_obj = CPACS(cpacs_p)
@@ -1336,14 +1362,14 @@ def run_adaptative_refinement_geom_RBF(
         # Run SU2 on new points
         new_df_list = []
         for idx, cpacs_ in enumerate(cpacs_list):
-            dir_res = get_results_directory(SU2RUN_NAME) / f"SU2Run_{idx}_iter{it}"
-            dir_res.mkdir(exist_ok=True)
 
             obj_value = launch_gmsh_su2_geom(
                 cpacs=cpacs_,
-                results_dir=dir_res,
+                results_dir=high_fidelity_dir_RBF,
                 objective=objective,
                 aeromap_uid=aeromap_uid,
+                idx=idx,
+                it=it,
             )
 
             new_row = new_point_df.iloc[idx].copy()
@@ -1351,13 +1377,9 @@ def run_adaptative_refinement_geom_RBF(
             new_df_list.append(new_row)
 
         new_df = pd.DataFrame(new_df_list)
-
         df_new = pd.concat([df, new_df], ignore_index=True, sort=False)
 
-        df_new.to_csv(get_results_directory(SU2RUN_NAME) / f"SU2_dataframe_iter_{it}.csv", index=False)
-
         # Retrain surrogate
-
         model, rmse = train_surrogate_model_RBF(
             n_params=n_params,
             level1_sets=level1_sets,
@@ -1374,7 +1396,7 @@ def run_adaptative_refinement_geom_RBF(
 
             model_name = "RBF"
             param_order = [col for col in df.columns if col != objective]
-            
+
             save_best_surrogate_geometry(
                 surrogate_model=model,
                 model_name=model_name,

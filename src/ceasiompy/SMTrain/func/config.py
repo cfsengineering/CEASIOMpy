@@ -598,7 +598,6 @@ def save_best_surrogate_geometry(
         columns=["value"]
     )
 
-    # aggiungi y_opt_predicted come ultima riga con nome della colonna = objective
     df_params.loc[objective] = best_result["y_opt_predicted"]
     df_params.to_csv(csv_path)
 

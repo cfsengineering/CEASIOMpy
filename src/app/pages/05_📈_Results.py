@@ -9,9 +9,11 @@ Streamlit page to show results of CEASIOMpy
 # Imports
 import os
 import base64
+import tempfile
 import pandas as pd
 import pyvista as pv
 import streamlit as st
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 from stpyvista import stpyvista
@@ -36,6 +38,7 @@ from ceasiompy.PyAVL import AVL_TABLE_FILES
 
 
 # Constants
+mpl.use("Agg")
 
 HOW_TO_TEXT = (
     "### How to check your results\n"
@@ -44,12 +47,26 @@ HOW_TO_TEXT = (
 
 PAGE_NAME = "Results"
 IGNORED_RESULT_FILES: set[str] = {
+    # AVL
     "avl_commands.txt",
     "logfile_avl.log",
+
+    # SU2
+    "restart_flow.dat",
 }
 
 
 # Functions
+def _looks_binary(data: bytes) -> bool:
+    if not data:
+        return False
+    sample = data[:4096]
+    if b"\x00" in sample:
+        return True
+    text_chars = b"\t\n\r\f\b" + bytes(range(32, 127))
+    nontext = sum(byte not in text_chars for byte in sample)
+    return nontext / len(sample) > 0.3
+
 
 def show_results():
     """Display the results of the selected workflow."""
@@ -105,29 +122,32 @@ def display_results_else(path):
         for child in path.iterdir():
             display_results(child)
     else:
-        try:
-            content = path.read_text()
-            st.text_area(path.stem, content, height=200)
-        except UnicodeDecodeError:
-            # File is binary, show message instead
+        data = path.read_bytes()
+        if _looks_binary(data):
             st.info(f"📄 {path.name} (binary file, cannot display as text)")
+        else:
+            content = data.decode("utf-8", errors="replace")
+            st.text_area(path.stem, content, height=200, key=f"{path}_text_fallback")
 
 
 def display_results(results_dir):
-    try:
-        # Display results depending on the file type.
-        container_list = [
-            "logs_container",
-            "figures_container",
-            "paraview_container",
-            "pdf_container",
-        ]
-        clear_containers(container_list)
+    if not Path(results_dir).is_dir():
+        display_results_else(results_dir)
+        return
 
-        for child in sorted(Path(results_dir).iterdir(), key=_results_sort_key):
-            if child.name in IGNORED_RESULT_FILES:
-                continue
+    # Display results depending on the file type.
+    container_list = [
+        "logs_container",
+        "figures_container",
+        "paraview_container",
+        "pdf_container",
+    ]
+    clear_containers(container_list)
 
+    for child in sorted(Path(results_dir).iterdir(), key=_results_sort_key):
+        if child.name in IGNORED_RESULT_FILES:
+            continue
+        try:
             if child.suffix == ".dat":
                 _display_dat(child)
 
@@ -144,52 +164,16 @@ def display_results(results_dir):
                 _display_pdf(child)
 
             elif child.suffix == ".md":
-                with st.container(border=True):
-                    md_text = child.read_text()
-                    html = highlight_stability(md_text)
-                    st.markdown(html, unsafe_allow_html=True)
+                _display_md(child)
 
             elif child.suffix == ".json":
                 _display_json(child)
 
-            elif child.suffix == ".log" or child.suffix == ".txt":
-                if child.name in AVL_TABLE_FILES:
-                    display_avl_table_file(child)
-                    continue
-                if "logs_container" not in st.session_state:
-                    st.session_state["logs_container"] = st.container()
-                    st.session_state.logs_container.markdown("**Logs**")
-                log_text = child.read_text()
-                if child.name == "logfile_SU2_CFD.log":
-                    format_tables = st.session_state.logs_container.checkbox(
-                        "Format tables",
-                        value=True,
-                        key=f"{child}_format_tables",
-                    )
-                    if format_tables:
-                        segments = parse_ascii_tables(log_text)
-                        for kind, payload in segments:
-                            if kind == "text":
-                                if payload.strip():
-                                    st.session_state.logs_container.code(payload)
-                            else:
-                                rows = payload
-                                if len(rows) > 1 and len(rows[0]) == len(rows[1]):
-                                    df = pd.DataFrame(rows[1:], columns=rows[0])
-                                else:
-                                    df = pd.DataFrame(rows)
-                                st.session_state.logs_container.table(df)
-                    else:
-                        st.session_state.logs_container.text_area(
-                            child.stem, log_text, height=200
-                        )
-                else:
-                    st.session_state.logs_container.text_area(
-                        child.stem,
-                        log_text,
-                        height=200,
-                        key=f"{child}_log_text",
-                    )
+            elif child.suffix == ".txt":
+                _display_txt(child)
+
+            elif child.suffix == ".log":
+                _display_log(child)
 
             elif child.suffix == ".csv":
                 _display_csv(child)
@@ -206,23 +190,120 @@ def display_results(results_dir):
                     )
                     if show_dir:
                         display_results(child)
-
-    except BaseException as e:
-        log.warning(f"Could not display... {e=}")
-        display_results_else(results_dir)
+        except BaseException as e:
+            log.warning(f"Could not display {child}: {e=}")
+            display_results_else(child)
 
 
 # Methods
+
+def _display_md(path: Path) -> None:
+    with st.container(border=True):
+        md_data = path.read_bytes()
+        if _looks_binary(md_data):
+            st.info(f"📄 {path.name} (binary file, cannot display as text)")
+            return None
+
+        md_text = md_data.decode("utf-8", errors="replace")
+        html = highlight_stability(md_text)
+        st.markdown(html, unsafe_allow_html=True)
+
+
+def _display_log(path: Path) -> None:
+    if "logs_container" not in st.session_state:
+        st.session_state["logs_container"] = st.container()
+
+    log_data = path.read_bytes()
+    if _looks_binary(log_data):
+        st.info(f"📄 {path.name} (binary file, cannot display as text)")
+        return None
+
+    log_text = log_data.decode("utf-8", errors="replace")
+    if path.name == "logfile_SU2_CFD.log":
+        with st.session_state.logs_container:
+            with st.container(border=True):
+                if st.checkbox(
+                    label=f"**{path.name}**",
+                    value=False,
+                ):
+                    segments = parse_ascii_tables(log_text)
+                    for kind, payload in segments:
+                        if kind == "text":
+                            if payload.strip():
+                                st.code(payload)
+                        else:
+                            rows = payload
+                            if len(rows) > 1 and len(rows[0]) == len(rows[1]):
+                                df = pd.DataFrame(rows[1:], columns=rows[0])
+                            else:
+                                df = pd.DataFrame(rows)
+                            st.table(df)
+        return None
+
+    with st.session_state.logs_container:
+        st.text_area(
+            path.stem,
+            log_text,
+            height=200,
+            key=f"{path}_log_text",
+        )
+
+
+def _display_txt(path: Path) -> None:
+    if path.name in AVL_TABLE_FILES:
+        display_avl_table_file(path)
+        return None
+
+    with st.container(border=True):
+        show_txt = st.checkbox(
+            label=f"**{path.name}**",
+            value=True,
+            key=f"{path}_txt_toggle",
+        )
+        if not show_txt:
+            return None
+        data = path.read_bytes()
+        if _looks_binary(data):
+            st.info(f"📄 {path.name} (binary file, cannot display as text)")
+            return None
+        text_data = data.decode("utf-8", errors="replace")
+        st.text_area(
+            path.stem,
+            text_data,
+            height=200,
+            key=f"{path}_txt_raw",
+        )
+
 
 def _display_su2(path: Path) -> None:
     """Display SU2 mesh in Streamlit using PyVista."""
     with st.container(border=True):
         st.markdown(f"**{path.name}**")
         try:
-            mesh = pv.read(str(path))
+            marker_map: dict[str, int] = {}
+            with path.open() as handle:
+                temp_file = tempfile.NamedTemporaryFile(
+                    mode="w",
+                    delete=False,
+                    suffix=".su2",
+                )
+                with temp_file as temp:
+                    for line in handle:
+                        if line.startswith("MARKER_TAG="):
+                            tag = line.split("=", 1)[1].strip()
+                            marker_map.setdefault(tag, len(marker_map) + 1)
+                            line = f"MARKER_TAG= {marker_map[tag]}\n"
+                        temp.write(line)
+            mesh = pv.read(temp_file.name)
         except Exception as exc:
             st.error(f"Failed to read SU2 mesh: {exc}")
             return
+        finally:
+            if "temp_file" in locals():
+                try:
+                    os.unlink(temp_file.name)
+                except OSError:
+                    pass
 
         surface = mesh.extract_surface()
         plotter = pv.Plotter()
@@ -239,9 +320,17 @@ def _display_dat(path: Path) -> None:
             label=f"**{path.name}**",
             value=True,
         ):
+            if path.name == "forces_breakdown.dat":
+                _display_forces_breakdown(path)
+                return None
 
             skip_first = False
-            first_line = path.read_text().splitlines()[:1]
+            data = path.read_bytes()
+            if _looks_binary(data):
+                st.info(f"📄 {path.name} (binary file, cannot display as text)")
+                return None
+            text_data = data.decode("utf-8", errors="replace")
+            first_line = text_data.splitlines()[:1]
             if first_line:
                 parts = first_line[0].strip().split()
                 if len(parts) < 2:
@@ -252,28 +341,99 @@ def _display_dat(path: Path) -> None:
                         float(parts[1])
                     except ValueError:
                         skip_first = True
-            df = pd.read_csv(
-                path,
-                sep=r"\s+",
-                comment="#",
-                header=None,
-                skiprows=1 if skip_first else 0,
-            )
-            if df.shape[1] == 2:
-                df = df.apply(pd.to_numeric, errors="coerce")
-                df = df.iloc[:, :2].dropna()
-                if not df.empty:
-                    df.columns = ["x", "y"]
-                    fig, ax = plt.subplots()
-                    ax.plot(df["x"].to_numpy(), df["y"].to_numpy())
-                    ax.set_aspect("equal", adjustable="box")
-                    ax.set_title(path.stem)
-                    ax.set_xlabel("x")
-                    ax.set_ylabel("y")
-                    st.pyplot(fig)
-                    return None
+            try:
+                df = pd.read_csv(
+                    path,
+                    sep=r"\s+",
+                    comment="#",
+                    header=None,
+                    skiprows=1 if skip_first else 0,
+                )
+                if df.shape[1] == 2:
+                    df = df.apply(pd.to_numeric, errors="coerce")
+                    df = df.iloc[:, :2].dropna()
+                    if not df.empty:
+                        df.columns = ["x", "y"]
+                        fig, ax = plt.subplots()
+                        ax.plot(df["x"].to_numpy(), df["y"].to_numpy())
+                        ax.set_aspect("equal", adjustable="box")
+                        ax.set_title(path.stem)
+                        ax.set_xlabel("x")
+                        ax.set_ylabel("y")
+                        st.pyplot(fig)
+                        return None
+            except Exception as exc:
+                st.warning(f"Could not parse {path.name} as DAT: {exc}")
 
-            st.text_area(path.stem, path.read_text(), height=200)
+            st.text_area(
+                path.stem,
+                text_data,
+                height=200,
+                key=f"{path}_dat_raw",
+            )
+
+
+def _display_forces_breakdown(path: Path) -> None:
+    text = path.read_text(errors="replace")
+    lines = [line.strip() for line in text.splitlines()]
+    rows = []
+    current_section = "Total"
+    for line in lines:
+        if not line:
+            continue
+        if line.startswith("Surface name:"):
+            current_section = line.replace("Surface name:", "").strip() or "Surface"
+            continue
+        if not line.startswith("Total "):
+            continue
+        if "|" not in line:
+            continue
+        left, right = line.split("|", 1)
+        metric_part = left.strip()
+        if ":" not in metric_part:
+            continue
+        metric_label, value_text = metric_part.split(":", 1)
+        try:
+            value = float(value_text.strip())
+        except ValueError:
+            continue
+
+        pressure = None
+        friction = None
+        momentum = None
+        for part in right.split("|"):
+            part = part.strip()
+            if part.startswith("Pressure"):
+                try:
+                    pressure = float(part.split(":", 1)[1].strip())
+                except ValueError:
+                    pressure = None
+            elif part.startswith("Friction"):
+                try:
+                    friction = float(part.split(":", 1)[1].strip())
+                except ValueError:
+                    friction = None
+            elif part.startswith("Momentum"):
+                try:
+                    momentum = float(part.split(":", 1)[1].strip())
+                except ValueError:
+                    momentum = None
+
+        rows.append(
+            {
+                "Section": current_section,
+                "Metric": metric_label.replace("Total ", "").strip(),
+                "Total": value,
+                "Pressure": pressure,
+                "Friction": friction,
+                "Momentum": momentum,
+            }
+        )
+
+    if rows:
+        st.table(pd.DataFrame(rows))
+    else:
+        st.text_area(path.stem, text, height=200, key=f"{path}_dat_raw")
 
 
 def _display_vtu(path: Path) -> None:
@@ -377,21 +537,65 @@ def _display_pdf(path: Path) -> None:
 
 
 def _display_json(path: Path) -> None:
-    st.text_area(path.stem, path.read_text(), height=200)
+    data = path.read_bytes()
+    if _looks_binary(data):
+        st.info(f"📄 {path.name} (binary file, cannot display as text)")
+        return None
+    text_data = data.decode("utf-8", errors="replace")
+    st.text_area(
+        path.stem,
+        text_data,
+        height=200,
+        key=f"{path}_json",
+    )
 
 
 def _display_csv(path: Path) -> None:
     if path.name == "history.csv":
-        st.markdown("**Convergence**")
+        with st.container(
+            border=True,
+        ):
+            if st.checkbox(
+                label="**Convergence**",
+                value=True,
+            ):
+                try:
+                    df = pd.read_csv(path)
+                    df.rename(columns=lambda x: x.strip().strip('"'), inplace=True)
 
-        df = pd.read_csv(path)
-        df.rename(columns=lambda x: x.strip().strip('"'), inplace=True)
+                    coef_cols = [col for col in ["CD", "CL", "CMy"] if col in df.columns]
+                    if coef_cols:
+                        st.line_chart(df[coef_cols])
 
-        st.line_chart(df[["CD", "CL", "CMy"]])
-        st.line_chart(df[["rms[Rho]", "rms[RhoU]", "rms[RhoV]", "rms[RhoW]", "rms[RhoE]"]])
+                    rms_cols = [
+                        col
+                        for col in ["rms[Rho]", "rms[RhoU]", "rms[RhoV]", "rms[RhoW]", "rms[RhoE]"]
+                        if col in df.columns
+                    ]
+                    if rms_cols:
+                        st.line_chart(df[rms_cols])
+
+                except Exception as exc:
+                    st.warning(f"Could not parse {path.name} as CSV: {exc}")
+                    data = path.read_bytes()
+                    if _looks_binary(data):
+                        st.info(f"📄 {path.name} (binary file, cannot display as text)")
+                        return None
+                    text_data = data.decode("utf-8", errors="replace")
+                    st.text_area(path.stem, text_data, height=200, key=f"{path}_csv_raw")
     else:
         st.markdown(f"**{path.name}**")
-        st.dataframe(pd.read_csv(path))
+        try:
+            df = pd.read_csv(path, engine="python", on_bad_lines="skip")
+            st.dataframe(df)
+        except Exception as exc:
+            st.warning(f"Could not parse {path.name} as CSV: {exc}")
+            data = path.read_bytes()
+            if _looks_binary(data):
+                st.info(f"📄 {path.name} (binary file, cannot display as text)")
+                return None
+            text_data = data.decode("utf-8", errors="replace")
+            st.text_area(path.stem, text_data, height=200, key=f"{path}_csv_raw")
 
 
 def _display_xml(path: Path) -> None:

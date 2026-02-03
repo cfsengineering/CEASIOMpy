@@ -6,7 +6,9 @@
     <cpacsVersion>3.0</cpacsVersion>
     <versionInfos>
       <versionInfo version="3.3">
-        <description>airfoil</description>
+        <description>2D Airfoil CPACS</description>
+        <creator>LD</creator>
+        <timestamp>2016-01-31T16:03:44</timestamp>
         <version>3.3</version>
         <cpacsVersion>3.0</cpacsVersion>
       </versionInfo>

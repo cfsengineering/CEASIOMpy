@@ -80,11 +80,6 @@ def _read_mesh_parameters(tixi: Tixi3):
         "mesh_format": _safe_get_value(tixi, GMSH_2D_MESH_FORMAT_XPATH),
     }
 
-    # Force CType for structured mesh
-    if params["structured_mesh"]:
-        params["farfield_type"] = "CType"
-        log.info("Structured mesh enabled: forcing farfield type to CType")
-
     return params
 
 

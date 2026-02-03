@@ -16,8 +16,8 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.CPACSUpdater import MODULE_NAME
 from ceasiompy.CPACSUpdater import CPACSUPDATER_ADD_CTRLSURFACES_XPATH
 
-# Main
 
+# Main
 
 def main(cpacs: CPACS) -> None:
     """

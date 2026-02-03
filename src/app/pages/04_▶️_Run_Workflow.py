@@ -203,6 +203,13 @@ def workflow_buttons() -> None:
                     workflow.run_workflow(progress_callback=progress_callback)
                 except Exception as exc:
                     st.exception(exc)
+                    st.session_state.workflow_run_failed = True
+
+                status_list = st.session_state.get("workflow_status_list", [])
+                has_failed = any(item.get("status") == "failed" for item in status_list)
+                if st.session_state.get("workflow_run_failed") or has_failed:
+                    return None
+
                 st.switch_page("pages/05_📈_Results.py")
                 st.stop()
 

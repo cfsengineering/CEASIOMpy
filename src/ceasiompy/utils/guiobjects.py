@@ -18,6 +18,7 @@ from cpacspy.cpacsfunctions import (
 
 from tixi3.tixi3wrapper import (
     Tixi3,
+    ReturnCode,
     Tixi3Exception,
 )
 
@@ -54,10 +55,18 @@ def add_value(tixi: Tixi3, xpath, value):
         xpath_parent = xpath[: -(len(xpath_child_name) + 1)]
 
         if not tixi.checkElement(xpath_parent):
-            create_branch(tixi, xpath_parent)
+            try:
+                create_branch(tixi, xpath_parent)
+            except Tixi3Exception as exc:
+                if exc.code != ReturnCode.ALREADY_SAVED:
+                    raise
 
         if not tixi.checkElement(xpath):
-            tixi.createElement(xpath_parent, xpath_child_name)
+            try:
+                tixi.createElement(xpath_parent, xpath_child_name)
+            except Tixi3Exception as exc:
+                if exc.code != ReturnCode.ALREADY_SAVED:
+                    raise
 
         tixi.updateTextElement(xpath, str(value))
 

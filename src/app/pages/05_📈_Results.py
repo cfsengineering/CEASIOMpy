@@ -13,6 +13,7 @@ import tempfile
 import pandas as pd
 import pyvista as pv
 import streamlit as st
+import streamlit.components.v1 as components
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
@@ -181,6 +182,9 @@ def display_results(results_dir):
             elif child.suffix == ".xml":
                 _display_xml(child)
 
+            elif child.suffix == ".html":
+                _display_html(child)
+
             elif child.is_dir():
                 with st.container(border=True):
                     show_dir = st.checkbox(
@@ -196,6 +200,23 @@ def display_results(results_dir):
 
 
 # Methods
+
+def _display_html(path: Path) -> None:
+    with st.container(border=True):
+        show_html = st.checkbox(
+            label=f"**{path.name}**",
+            value=True,
+            key=f"{path}_html_toggle",
+        )
+        if not show_html:
+            return None
+        data = path.read_bytes()
+        if _looks_binary(data):
+            st.info(f"📄 {path.name} (binary file, cannot display as text)")
+            return None
+        html_text = data.decode("utf-8", errors="replace")
+        components.html(html_text, height=500, scrolling=True)
+
 
 def _display_md(path: Path) -> None:
     with st.container(border=True):

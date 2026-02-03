@@ -87,7 +87,7 @@ def _generate_cpacs_airfoil(naca_code: str) -> None:
     # Check if it's a NACA 4-digit code
     if len(naca_code) == 4 and naca_code.isdigit():
         # Generate NACA 4-digit airfoil
-        coords_list = NACA_4_digit_geom(naca_code, nb_points=200)
+        coords_list = NACA_4_digit_geom(naca_code, nb_points=80)
         coords = np.array(coords_list)
     else:
         # Try to get airfoil from database

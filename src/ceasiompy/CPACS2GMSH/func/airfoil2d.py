@@ -29,6 +29,7 @@ from ceasiompy.utils.commonxpaths import (
     SU2MESH_XPATH,
     AIRFOILS_XPATH,
 )
+from ceasiompy.CPACSUpdater import CPACSUPDATER_ADD_CTRLSURFACES_XPATH
 from ceasiompy.CPACS2GMSH import (
     GMSH_2D_AIRFOIL_MESH_SIZE_XPATH,
     GMSH_2D_EXT_MESH_SIZE_XPATH,
@@ -83,7 +84,12 @@ def _read_mesh_parameters(tixi: Tixi3):
     return params
 
 
-def _run_gmshairfoil2d(params, wkdir, airfoil_file):
+def _run_gmshairfoil2d(
+    params,
+    wkdir,
+    airfoil_file,
+    flap_airfoil_file = None,
+) -> None:
     """
     Build the gmshairfoil2d command line.
 
@@ -165,7 +171,10 @@ def _run_gmshairfoil2d(params, wkdir, airfoil_file):
             airfoil_file = local_airfoil_file
 
         cmd.extend(["--airfoil_path", str(airfoil_file)])
-        log.info(f"Generating mesh using airfoil file: {airfoil_file}")
+
+        if flap_airfoil_file is not None:
+            log.info("Meshing with flap.")
+            cmd.extend(["--flap_path", str(flap_airfoil_file)])
 
         file_stem = airfoil_file.stem
         expected_mesh_file = wkdir / f"mesh_airfoil_{file_stem}.{params['mesh_format']}"
@@ -198,8 +207,11 @@ def _collect_process_details(result, *, stdout_label="Output", stderr_label="Err
     return "\n".join(details)
 
 
-def _generating_dat_file(cpacs: CPACS) -> Path:
-    wingairfoil_xpath = AIRFOILS_XPATH + "/wingAirfoil[1]"
+def _generating_dat_file(
+    cpacs: CPACS,
+    idx: int,
+) -> Path:
+    wingairfoil_xpath = AIRFOILS_XPATH + f"/wingAirfoil[{idx}]"
     wkdir = get_results_directory(MODULE_NAME)
     tixi = cpacs.tixi
 
@@ -273,9 +285,23 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
     params = _read_mesh_parameters(tixi)
 
     log.info("Generating .dat file for gmshairfoil2d from CPACS file.")
-    airfoil_file = _generating_dat_file(cpacs)
+    airfoil_file = _generating_dat_file(cpacs, idx=1)
 
-    # TODO: Add flap_path if CPACSUpdater
+    flap_airfoil_file = None
+    # IF CPACSUPDATER module is selected and more than 1 airfoil
+    add_control_surfaces = _safe_get_value(tixi, CPACSUPDATER_ADD_CTRLSURFACES_XPATH)
+    if add_control_surfaces:
+        airfoil_count = (
+            tixi.getNumberOfChilds(AIRFOILS_XPATH)
+            if tixi.checkElement(AIRFOILS_XPATH)
+            else 0
+        )
+        if airfoil_count > 1:
+            flap_airfoil_file = _generating_dat_file(cpacs, idx=2)
+            log.info(
+                "Detected multiple airfoils after CPACSUpdater; "
+                "using the second airfoil as flap definition."
+            )
 
     # Build gmshairfoil2d command
     log.info("Building gmshairfoil2d command.")
@@ -283,6 +309,7 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
         wkdir=wkdir,
         params=params,
         airfoil_file=airfoil_file,
+        flap_airfoil_file=flap_airfoil_file,
     )
 
     # Execute gmshairfoil2d

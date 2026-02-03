@@ -85,6 +85,7 @@ def _read_mesh_parameters(tixi: Tixi3):
 
 
 def _run_gmshairfoil2d(
+    tixi: Tixi3,
     params,
     wkdir,
     airfoil_file,
@@ -307,6 +308,7 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
     # Build gmshairfoil2d command
     log.info("Building gmshairfoil2d command.")
     cmd, expected_mesh_file, fallback_mesh_file = _run_gmshairfoil2d(
+        tixi=tixi,
         wkdir=wkdir,
         params=params,
         airfoil_file=airfoil_file,
@@ -316,6 +318,21 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
     # Execute gmshairfoil2d
     log.info(f"Running: {shlex_join(cmd)}")
     result = subprocess.run(cmd, capture_output=True, text=True, cwd=wkdir)
+
+    if result.returncode != 0 and flap_airfoil_file is not None:
+        log.warning(
+            "gmshairfoil2d failed with flap enabled; retrying without flap definition."
+        )
+        _log_process_streams(result, stdout_level="warning", stderr_level="warning")
+        cmd, expected_mesh_file, fallback_mesh_file = _run_gmshairfoil2d(
+            tixi=tixi,
+            wkdir=wkdir,
+            params=params,
+            airfoil_file=airfoil_file,
+            flap_airfoil_file=None,
+        )
+        log.info(f"Running: {shlex_join(cmd)}")
+        result = subprocess.run(cmd, capture_output=True, text=True, cwd=wkdir)
 
     if result.returncode != 0:
         error_msg = f"Mesh generation failed with return code {result.returncode}"

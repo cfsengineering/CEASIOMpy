@@ -18,11 +18,9 @@ from ceasiompy.utils.guiobjects import (
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy.CPACSUpdater import (
+    CONTROL_SURFACES_LIST,
     CPACSUPDATER_CTRLSURF_XPATH,
     CPACSUPDATER_ADD_CTRLSURFACES_XPATH,
-)
-from ceasiompy.CPACSUpdater import (
-    CONTROL_SURFACES_LIST,
 )
 
 

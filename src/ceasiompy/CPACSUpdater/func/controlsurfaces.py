@@ -463,8 +463,16 @@ def plain_transform(
         insert_candidates = np.where(diffs == min_diff)[0]
         insert_at = int(insert_candidates[-1]) + 1
 
-    newx_values = np.concatenate((newx_values[:insert_at], close_x_insert, newx_values[insert_at:]))
-    newz_values = np.concatenate((newz_values[:insert_at], close_z_insert, newz_values[insert_at:]))
+    newx_values = np.concatenate((
+        newx_values[:insert_at],
+        close_x_insert,
+        newx_values[insert_at:],
+    ))
+    newz_values = np.concatenate((
+        newz_values[:insert_at],
+        close_z_insert,
+        newz_values[insert_at:],
+    ))
     newx_values, newz_values = _remove_duplicate_points(newx_values, newz_values)
 
     # Flap
@@ -476,11 +484,11 @@ def plain_transform(
     _, z_pos, _, z_neg = find_min_x(newx_flapvalues, newz_flapvalues)
 
     # Create new x values for the flap using sine function
-    x = np.arange(1.0, -0.1, -0.05)
+    x = np.arange(1.0, -0.05, -0.05)
     new_x = curve * np.sin(np.pi * x)
 
     arc_x = x_flap + new_x
-    arc_z = np.linspace(z_pos - 0.001, z_neg + 0.001, len(x))[::-1]
+    arc_z = np.linspace(z_pos, z_neg, len(x))[::-1]
 
     # Sort the values such that the pairs (x, z) are ordered by z in decreasing order
     sorted_indices = np.argsort(newz_flapvalues)[::-1]
@@ -768,7 +776,7 @@ def adding_airfoil(tixi: Tixi3, ctrltype: str, sgt: str, sym: bool) -> None:
 
     # Define constants
     if tixi.getTextElement(GEOMETRY_MODE_XPATH) == "2D":
-        scaler = 1.0
+        scaler = 0.0
     else:
         scaler = 0.1
 

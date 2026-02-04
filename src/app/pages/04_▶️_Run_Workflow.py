@@ -36,10 +36,10 @@ PAGE_NAME: Final[str] = "Run Workflow"
 STATUS_PLACEHOLDER_KEY: Final[str] = "workflow_status_placeholder"
 
 HOW_TO_TEXT: Final[str] = (
-    "### How to Run your workflow?\n"
+    "### Run your workflow \n"
+    "1. Check your workflow's configuration \n"
     "1. Click on the *Run* button\n"
-    "Some workflows takes time, you can always check the LogFile \n\n"
-    "2. When it is done, go to the *Results* page\n"
+    "1. Go to the *Results*\n"
 )
 
 SPEC_SETTINGS: Final[list[float]] = [0.3, 0.7]

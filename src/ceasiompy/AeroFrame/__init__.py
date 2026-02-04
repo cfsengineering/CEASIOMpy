@@ -23,12 +23,9 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 SOFTWARE_NAME = "avl"
 
 # ===== Module Status =====
-MODULE_STATUS = (
-    st.session_state.get("geometry_mode", "") == "3D"
-    and get_module_status(
-        default=True,
-        needs_soft_name=SOFTWARE_NAME,
-    )
+MODULE_STATUS = get_module_status(
+    default=True,
+    needs_soft_name=SOFTWARE_NAME,
 )
 
 MODULE_TYPE = "MetaModule"

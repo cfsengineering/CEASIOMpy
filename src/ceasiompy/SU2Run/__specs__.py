@@ -17,7 +17,7 @@ from ceasiompy.utils.guiobjects import (
     list_vartype,
     bool_vartype,
     float_vartype,
-    multiselect_vartype,
+    dataframe_vartype,
 )
 
 from cpacspy.cpacspy import CPACS
@@ -220,7 +220,7 @@ def gui_settings(cpacs: CPACS) -> None:
         )
 
         if su2run_control_surf:
-            multiselect_vartype(
+            dataframe_vartype(
                 tixi=tixi,
                 xpath=SU2_CONTROL_SURF_ANGLE_XPATH,
                 description="Rotation angle of control surface.",

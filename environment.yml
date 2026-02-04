@@ -109,3 +109,6 @@ dependencies:
     - gmsh>=4.13.1
     - meshio>=5.3.5
     - pymeshfix
+
+    # Surrogate Modelling
+    - SALib

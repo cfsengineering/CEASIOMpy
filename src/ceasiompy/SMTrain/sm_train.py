@@ -72,7 +72,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         fidelity_level,
         split_ratio,
         objective,
-        show_plot,
         rmse_obj,
         simulation_purpose,
         old_new_sim,
@@ -106,11 +105,10 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 )
 
             # 3. Plot, save and get results
-            if show_plot:
-                log.info("Validation plots.")
-                plot_dir = results_dir / "Validation_plot"
-                plot_dir.mkdir(parents=True, exist_ok=True)
-                plot_validation(model, sets, objective, plot_dir)
+            log.info("Validation plots.")
+            plot_dir = results_dir / "Validation_plot"
+            plot_dir.mkdir(parents=True, exist_ok=True)
+            plot_validation(model, sets, objective, plot_dir)
 
             save_model(cpacs, model, objective, results_dir,param_order)
 

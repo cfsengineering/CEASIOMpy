@@ -16,7 +16,7 @@ from ceasiompy.utils.guiobjects import (
     list_vartype,
     bool_vartype,
     float_vartype,
-    multiselect_vartype,
+    dataframe_vartype,
 )
 
 from ceasiompy.PyAVL import (
@@ -68,7 +68,7 @@ def gui_settings(cpacs: CPACS) -> None:
         label="Specific Settings",
         expanded=True,
     ):
-        multiselect_vartype(
+        dataframe_vartype(
             name="Rotation rates",
             key="rates",
             default_value=[0.0],
@@ -77,7 +77,7 @@ def gui_settings(cpacs: CPACS) -> None:
             description="List of p, q, r rates.",
         )
 
-        multiselect_vartype(
+        dataframe_vartype(
             name="Control surface angles",
             key="ctrl_surf_angles",
             default_value=[0.0],

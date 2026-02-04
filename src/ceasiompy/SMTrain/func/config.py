@@ -27,9 +27,7 @@ from cpacspy.cpacspy import (
 
 from ceasiompy import log
 from ceasiompy.SMTrain import (
-    SMTRAIN_PLOT_XPATH,
     SMTRAIN_XPATH_PARAMS_AEROMAP,
-    SMTRAIN_XPATH_AEROMAP_UID,
     SMTRAIN_GEOM_WING_OPTIMISE,
     SMTRAIN_NSAMPLES_AEROMAP_XPATH,
     SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
@@ -39,12 +37,11 @@ from ceasiompy.SMTrain import (
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
     SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
-    SMTRAIN_KRG_MODEL,
-    SMTRAIN_RBF_MODEL,
 )
 
 from ceasiompy.utils.commonxpaths import (
     WINGS_XPATH,
+    SELECTED_AEROMAP_XPATH,
 )
 
 
@@ -56,11 +53,10 @@ def get_settings(cpacs: CPACS):
     Reads the global and new suggested dataset settings.
     """
     tixi = cpacs.tixi
-    aeromap_selected = get_value(tixi, SMTRAIN_XPATH_AEROMAP_UID)
+    aeromap_selected = get_value(tixi, SELECTED_AEROMAP_XPATH)
     fidelity_level = get_value(tixi, SMTRAIN_FIDELITY_LEVEL_XPATH)
     data_repartition = get_value(tixi, SMTRAIN_TRAIN_PERC_XPATH)
     objective = get_value(tixi, SMTRAIN_OBJECTIVE_XPATH)
-    show_plot = get_value(tixi, SMTRAIN_PLOT_XPATH)
     rmse_obj = get_value(tixi, SMTRAIN_THRESHOLD_XPATH)
     simulation_purpose = get_value(tixi, SMTRAIN_SIMULATION_PURPOSE_XPATH)
     old_new_sim = get_value(tixi, SMTRAIN_UPLOAD_AVL_DATABASE_XPATH)
@@ -73,7 +69,6 @@ def get_settings(cpacs: CPACS):
         fidelity_level,
         data_repartition,
         objective,
-        show_plot,
         rmse_obj,
         simulation_purpose,
         old_new_sim,

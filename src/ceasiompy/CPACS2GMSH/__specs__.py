@@ -16,7 +16,7 @@ from ceasiompy.utils.guiobjects import (
     list_vartype,
     bool_vartype,
     float_vartype,
-    multiselect_vartype,
+    dataframe_vartype,
 )
 
 from cpacspy.cpacspy import CPACS
@@ -384,7 +384,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
         label="Control Surfaces Settings",
         expanded=True,
     ):
-        multiselect_vartype(
+        dataframe_vartype(
             tixi=tixi,
             default_value=[0.0],
             name="Ail., Elev., Rudder Angles",

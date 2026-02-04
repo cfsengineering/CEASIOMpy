@@ -26,9 +26,10 @@ from ceasiompy import log
 
 # Functions
 def add_value(tixi: Tixi3, xpath, value) -> None:
-    """Add a value (string, integer of float) at the given XPath,
-    if the node does not exist, it will be created. Values will be
-    overwritten if paths exists.
+    """
+    Add a value (string, integer, float, list) at the given XPath,
+    if the node does not exist, it will be created.
+    Values will be overwritten if paths exists.
     """
 
     # Lists are different
@@ -94,7 +95,29 @@ def _sync_multiselect_to_cpacs(tixi: Tixi3, xpath: str, values: list[float]) -> 
 
 
 def multiselect_vartype(
-    tixi: Tixi3 ,
+    tixi: Tixi3,
+    xpath: str,
+    default_value,
+    name,
+    key,
+    description,
+) -> list[str]:
+    if not default_value:
+        raise 
+
+    output = st.multiselect(
+        label=name,
+        options=default_value,
+        key=key,
+        help=description,
+        default=default_value[0],
+    )
+    add_value(tixi, xpath, output)
+    return output
+
+
+def dataframe_vartype(
+    tixi: Tixi3,
     xpath: str,
     default_value,
     name,
@@ -181,7 +204,16 @@ def int_vartype(tixi, xpath, default_value, name, key, description) -> int:
         return output
 
 
-def float_vartype(tixi, xpath, default_value, name, key, description) -> float:
+def float_vartype(
+    tixi: Tixi3,
+    xpath,
+    default_value,
+    name,
+    key,
+    description,
+    min_value: float | None = None,
+    max_value: float | None = None,
+) -> float:
     raw_value = safe_get_value(tixi, xpath, default_value)
     try:
         default_value = float(raw_value)
@@ -195,6 +227,8 @@ def float_vartype(tixi, xpath, default_value, name, key, description) -> float:
             format="%g",
             key=key,
             help=description,
+            min_value=min_value,
+            max_value=max_value,
         )
         add_value(tixi, xpath, output)
         return output

@@ -29,7 +29,8 @@ sudo apt-get install -y \
     hdf5-helpers \
     gfortran \
     liblapack-dev \
-    libblas-dev
+    libblas-dev \
+    tetgen
 
 echo "--> Checking if HDF5 libraries are linked correctly"
 if ! ldconfig -p | grep -q "libhdf5.so.103"; then
@@ -63,16 +64,8 @@ echo "--> Verifying if TetGen is already installed"
 if command -v tetgen &> /dev/null; then
     echo "TetGen is already installed."
 else
-    echo "Downloading and installing TetGen..."
-    wget http://archive.ubuntu.com/ubuntu/pool/universe/t/tetgen/tetgen_1.5.0-5build1_amd64.deb || { echo "Failed to download TetGen package"; exit 1; }
-    sudo dpkg -i tetgen_1.5.0-5build1_amd64.deb || sudo apt-get install -f -y || { echo "Failed to install TetGen and fix dependencies"; exit 1; }
-
-    if command -v tetgen &> /dev/null; then
-        echo "TetGen installed successfully."
-    else
-        echo "TetGen installation failed."
-        exit 1
-    fi
+    echo "Installing TetGen via apt..."
+    sudo apt-get install -y tetgen || { echo "Failed to install TetGen"; exit 1; }
 fi
 
 ## 4. Download Pentagrow

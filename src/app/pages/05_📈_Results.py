@@ -388,7 +388,7 @@ def _display_dat(path: Path) -> None:
                             yaxis_scaleanchor="x",
                             yaxis_scaleratio=1,
                         )
-                        st.plotly_chart(fig, use_container_width=True)
+                        st.plotly_chart(fig, width="stretch")
                         return None
 
             except Exception as exc:

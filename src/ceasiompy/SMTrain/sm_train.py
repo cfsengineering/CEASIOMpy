@@ -257,6 +257,9 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 save_model(cpacs, rbf_model, objective, results_dir, param_order)
 
     if old_new_sim == "Load Geometry Exploration Simulations":
+
+        (_, _, _, ranges_gui, _) = get_elements_to_optimise(cpacs)
+
         krg_model, rbf_model, sets, param_order = training_existing_db(
             results_dir,
             split_ratio,
@@ -273,6 +276,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 rmse_obj=rmse_obj,
                 objective=objective,
                 aeromap_uid=aeromap_selected,
+                ranges_gui=ranges_gui,
             )
 
         if selected_krg_model:

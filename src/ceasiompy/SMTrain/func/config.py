@@ -35,7 +35,6 @@ from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
 )
-import streamlit as st
 from ceasiompy import log
 from ceasiompy.SMTrain import (
     SMTRAIN_PLOT_XPATH,

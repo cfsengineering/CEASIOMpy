@@ -66,9 +66,6 @@ from ceasiompy.PyAVL import (
     AVL_AEROMAP_UID_XPATH,
     MODULE_NAME as PYAVL_NAME,
 )
-from ceasiompy.SU2Run import (
-    MODULE_NAME as SU2RUN_NAME,
-)
 from ceasiompy.StaticStability import (
     MODULE_NAME as STATICSTABILITY_NAME,
 )
@@ -861,7 +858,8 @@ def run_adaptative_refinement_geom_existing_db(
     level1_sets: Dict[str, ndarray],
     rmse_obj: float,
     objective: str,
-    aeromap_uid,
+    aeromap_uid: str,
+    ranges_gui: DataFrame,
 ) -> None:
     """
     Iterative improvement using SU2 data.
@@ -882,13 +880,14 @@ def run_adaptative_refinement_geom_existing_db(
 
     cpacs_list = []
 
-    for _ in range(nb_iters):
+    for it in range(nb_iters):
         # Find new high variance points based on inputs x_train
         new_point_df = new_points_geom(
             x_array=x_array,
             model=model,
             results_dir=results_dir,
             high_var_pts=high_var_pts,
+            ranges_gui=ranges_gui,
         )
 
         # 1st Breaking condition
@@ -904,7 +903,7 @@ def run_adaptative_refinement_geom_existing_db(
 
         for i, geom_row in new_point_df.iterrows():
 
-            cpacs_p = "SU2Run" / f"CPACS_newpoint_{i+1:03d}_iter{_}.xml"
+            cpacs_p = "SU2Run" / f"CPACS_newpoint_{i+1:03d}_iter{it}.xml"
             copyfile(cpacs_file, cpacs_p)
             cpacs_out_obj = CPACS(cpacs_p)
             tixi = cpacs_out_obj.tixi
@@ -931,13 +930,15 @@ def run_adaptative_refinement_geom_existing_db(
         new_df_list = []
         for idx, cpacs_ in enumerate(cpacs_list):
 
-            dir_res = "SU2Run" / f"SU2Run_{idx}_iter{_}"
+            dir_res = "SU2Run" / f"SU2Run_{idx}_iter{it}"
             dir_res.mkdir(exist_ok=True)
             obj_value = launch_gmsh_su2_geom(
                 cpacs=cpacs_,
                 results_dir=dir_res,
                 objective=objective,
                 aeromap_uid=aeromap_uid,
+                idx=idx,
+                it=it,
             )
             new_row = new_point_df.iloc[idx].copy()
             new_row[objective] = obj_value
@@ -945,7 +946,6 @@ def run_adaptative_refinement_geom_existing_db(
 
         new_df = pd.DataFrame(new_df_list)
         df = pd.concat([new_df, df_simulation], ignore_index=True)
-        # df.to_csv(get_results_directory(SU2RUN_NAME) / f"SU2_dataframe_iter_{_}", index=False)
 
         model, rmse = train_surrogate_model(
             level1_sets=level1_sets,

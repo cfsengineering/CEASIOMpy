@@ -32,6 +32,26 @@ from streamlitutils import (
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
+from cpacspy.cpacsfunctions import (
+    create_branch,
+)
+
+from ceasiompy import log
+from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
+from scipy.optimize import minimize
+import io
+
+from ceasiompy.SMTrain.func.config import (
+    get_xpath_for_param,
+    normalize_input_from_gui,
+    phys_to_norm,
+    norm_to_phys,
+    get_elements_to_optimise,
+)
+
+from SALib.sample import saltelli
+from SALib.analyze import sobol
+import altair as alt
 
 from ceasiompy import log
 from constants import BLOCK_CONTAINER
@@ -54,11 +74,16 @@ IGNORED_RESULT_FILES: set[str] = {
 
     # SU2
     "restart_flow.dat",
+    "rmse_RBF.csv",
+    "rmse_KRG.csv",
+    "New_CPACS",
+    "Validation_plot_RBF",
+    "Validation_plot_KRG",
 }
 
 """
 
-def display_results(results_dir):
+def display_results(results_dir, chosen_workflow = None):
     try:
         # Display results depending on the file type.
 
@@ -81,6 +106,7 @@ def display_results(results_dir):
                 priority = 1
             return priority, path.name
 
+        child = None
         for child in sorted(Path(results_dir).iterdir(), key=results_sort_key):
             if child.name in IGNORED_RESULT_FILES:
                 continue
@@ -121,6 +147,7 @@ def display_results(results_dir):
                         ax.set_xlabel("x")
                         ax.set_ylabel("y")
                         st.pyplot(fig)
+                        plt.close(fig)
                         continue
                 st.text_area(child.stem, child.read_text(), height=200)
 
@@ -197,10 +224,8 @@ def display_results(results_dir):
                 st.line_chart(df[["CD", "CL", "CMy"]])
                 st.line_chart(df[["rms[Rho]", "rms[RhoU]", "rms[RhoV]", "rms[RhoW]", "rms[RhoE]"]])
 
-            elif child.name == "ranges_for_gui.csv":
-
+            elif child.suffix == ".pkl":
                 csv_rmse_krg_path = Path(f"{results_dir}/rmse_KRG.csv")
-                rmse_krg_df = None
                 if csv_rmse_krg_path.exists():
                     rmse_krg_df = pd.read_csv(csv_rmse_krg_path)
                     rmse_krg_value = rmse_krg_df["rmse"].iloc[0]
@@ -213,61 +238,110 @@ def display_results(results_dir):
                     rmse_rbf_value = rmse_rbf_df["rmse"].iloc[0]
                     st.markdown(f"##### Root Mean Square Error of RBF model: {rmse_rbf_value:.6f}")
 
-                df_range = pd.read_csv(child)
-                sliders_values = {}
-                sliders_bounds = {}
-
-                csv_path_sampling = Path(f"{results_dir}/avl_simulations_results.csv")
-                df_samples = None
-                if csv_path_sampling.exists():
-                    df_samples = pd.read_csv(csv_path_sampling)
-
-                for _, row in df_range.iterrows():
-                    param = row["Parameter"]
-                    min_val = float(row["Min"])
-                    max_val = float(row["Max"])
-                    sliders_bounds[param] = [min_val, max_val]
-                    sliders_values[param] = min_val
-
-                cpacs_in = Path(st.session_state.cpacs.cpacs_file)
+                cpacs_in = Path(chosen_workflow, "00_ToolInput.xml")
                 tmp_cpacs = CPACS(cpacs_in)
                 tixi = tmp_cpacs.tixi
 
-                model_selected = st.radio(
-                    "Select the model to visualize:",
-                    ["KRG", "RBF"],
-                    index=0,
-                    horizontal=True,
+                (_, _, _, ranges_gui, _) = get_elements_to_optimise(tmp_cpacs)
+
+                sliders_values = {}
+                sliders_bounds = {}
+
+                csv_path_sampling = (
+                    chosen_workflow
+                    / "Results"
+                    / "SMTrain"
+                    / "Low_Fidelity"
+                    / "avl_simulations_results.csv"
                 )
 
-                if model_selected == "KRG":
-                    model_path = results_dir / "surrogateModel_krg.pkl"
-                else:
-                    model_path = results_dir / "surrogateModel_rbf.pkl"
+                df_samples = None
+                if csv_path_sampling.exists():
+                    df_samples = pd.read_csv(csv_path_sampling)
+                if df_samples is None:
+                    st.warning("No sampling data available.")
+
+                for param, bounds in ranges_gui.items():
+                    min_val = float(bounds[0])
+                    max_val = float(bounds[1])
+                    sliders_bounds[param] = [min_val, max_val]
+                    sliders_values[param] = min_val
+
+                krg_model_path = results_dir / "surrogateModel_krg.pkl"
+                rbf_model_path = results_dir / "surrogateModel_rbf.pkl"
+
+                if krg_model_path.exists() and rbf_model_path.exists():
+                    model_selected = st.radio(
+                        "Select the model to visualize:",
+                        ["RBF" , "KRG"],
+                        index=0,
+                        horizontal=True,
+                        key="model_select_radio",
+                    )
+
+                    model_path = rbf_model_path if model_selected == "RBF" else krg_model_path
+                elif krg_model_path.exists():
+                    model_path = krg_model_path
+                elif rbf_model_path.exists():
+                    model_path = rbf_model_path
 
                 model, param_order = None, None
-
                 if model_path.exists():
                     with open(model_path, "rb") as file:
                         data = joblib.load(file)
                     model = data["model"]
                     param_order = data["param_order"]
-
                 else:
                     st.warning(
                         "⚠️ Surrogate model not found. Only geometry "
                         "sliders will be available."
                     )
 
-                if model is not None and param_order:
-                    # with st.expander("Sobol Global Sensitivity Analysis"):
+                final_level1_df = pd.read_csv(csv_path_sampling)
+                param_cols = final_level1_df.columns[:-1]
+
+                df_norm = final_level1_df.copy()
+                normalization_params = {}
+
+                for col in param_cols:
+                    col_mean = final_level1_df[col].mean()
+                    col_std = final_level1_df[col].std()
+                    if col_std == 0:
+                        df_norm[col] = 0.0
+                    else:
+                        df_norm[col] = (final_level1_df[col] - col_mean) / col_std
+                    normalization_params[col] = {"mean": col_mean, "std": col_std}
+
+                norm_df = pd.DataFrame.from_dict(
+                    normalization_params,
+                    orient="index"
+                ).reset_index()
+
+                norm_df.columns = ["Parameter", "mean", "std"]
+
+                # normalization_params = load_normalization_params(results_dir)
+                missing = [p for p in param_order if p not in normalization_params]
+                if missing:
+                    log.error(f"Missing normalization parameters for: {missing}")
+                    st.error(f"Missing normalization parameters for: {missing}")
+                    st.stop()
+
+                if model is not None and len(param_order) >= 2:
                     st.subheader("Sobol Global Sensitivity Analysis")
+                    sobol_params = []
+                    sobol_bounds = []
+
+                    for p in param_order:
+                        min_val, max_val = sliders_bounds[p]
+                        if max_val > min_val:
+                            sobol_params.append(p)
+                            sobol_bounds.append([min_val, max_val])
 
                     # ---- DEFINE PROBLEM ----
                     problem = {
-                        "num_vars": len(param_order),
-                        "names": param_order,
-                        "bounds": [sliders_bounds[p] for p in param_order]
+                        "num_vars": len(sobol_params),
+                        "names": sobol_params,
+                        "bounds": sobol_bounds,
                     }
 
                     # ---- GENERATE SAMPLES ----
@@ -277,8 +351,18 @@ def display_results(results_dir):
                     # ---- RUN MODEL ----
                     Y = []
                     for s in sample_set:
-                        pred = model.predict_values(np.array(s).reshape(1,-1))[0]
-                        Y.append(pred)
+                        x_phys = np.zeros(len(param_order))
+                        for i, p in enumerate(param_order):
+                            if p in sobol_params:
+                                x_phys[i] = s[sobol_params.index(p)]
+                            else:
+                                x_phys[i] = sliders_bounds[p][0]
+                        x_norm = normalize_input_from_gui(
+                            {p: x_phys[i] for i, p in enumerate(param_order)},
+                            param_order,
+                            normalization_params
+                        )
+                        Y.append(model.predict_values(x_norm.reshape(1, -1))[0])
 
                     Y = np.array(Y).flatten()
 
@@ -316,9 +400,7 @@ def display_results(results_dir):
 
                     st.altair_chart(chart)
 
-                if model is not None and len(param_order) >= 2:
                     st.subheader("Response Surface Visualization")
-
                     # Let user select 2 params to visualize
                     selected_params = st.multiselect(
                         "Select exactly 2 parameters to visualize:",
@@ -335,144 +417,102 @@ def display_results(results_dir):
                             f"Range for {selected_params[0]}",
                             float(p1_min),
                             float(p1_max),
-                            (float(p1_min),
-                             float(p1_max)),
+                            (float(p1_min), float(p1_max)),
                             key="rsm_slider_1"
                         )
                         p2_range = st.slider(
                             f"Range for {selected_params[1]}",
                             float(p2_min),
                             float(p2_max),
-                            (float(p2_min),
-                             float(p2_max)),
+                            (float(p2_min), float(p2_max)),
                             key="rsm_slider_2"
                         )
 
+                        fixed_param_values = {}
                         if len(param_order) >= 3:
                             st.markdown("**Fix values for other parameters:**")
-                            fixed_param_values = {}
                             for p in param_order:
                                 if p not in selected_params:
-                                    min_val, max_val = sliders_bounds.get(p, (0, 0))
+                                    low, high = sliders_bounds.get(p, (0, 0))
                                     fixed_param_values[p] = st.slider(
                                         f"{p}",
-                                        float(min_val),
-                                        float(max_val),
-                                        float((min_val + max_val) / 2),
+                                        float(low),
+                                        float(high),
+                                        float((low + high) / 2),
                                         key=f"fixed_slider_{p}"
                                     )
 
                         if st.button("Generate response surface"):
                             with st.spinner("Calculating response surface..."):
-                                param1 = np.linspace(p1_range[0], p1_range[1], 50)
-                                param2 = np.linspace(p2_range[0], p2_range[1], 50)
-                                P1, P2 = np.meshgrid(param1, param2)
+                                # Create meshgrid for the two selected parameters
+                                param1_lin = np.linspace(p1_range[0], p1_range[1], 50)
+                                param2_lin = np.linspace(p2_range[0], p2_range[1], 50)
+                                P1, P2 = np.meshgrid(param1_lin, param2_lin)
 
-                                inputs = np.zeros((P1.size, len(param_order)))
+                                # Prepare full input matrix
+                                inputs_norm = np.zeros((P1.size, len(param_order)))
                                 for i, p in enumerate(param_order):
                                     if p == selected_params[0]:
-                                        inputs[:, i] = P1.ravel()
+                                        inputs_norm[:, i] = (P1.ravel() - normalization_params[p]["mean"]) / normalization_params[p]["std"]
                                     elif p == selected_params[1]:
-                                        inputs[:, i] = P2.ravel()
+                                        inputs_norm[:, i] = (P2.ravel() - normalization_params[p]["mean"]) / normalization_params[p]["std"]
                                     else:
-                                        low, high = sliders_bounds.get(p, (0, 0))
-                                        inputs[:, i] = (low + high) / 2
+                                        val = fixed_param_values.get(p, sliders_bounds[p][0])
+                                        mean = normalization_params[p]["mean"]
+                                        std  = normalization_params[p]["std"]
+                                        inputs_norm[:, i] = 0.0 if std == 0 else (val - mean) / std
 
+                                # Predict on normalized inputs
                                 try:
-                                    Z = model.predict_values(inputs).reshape(P1.shape)
-                                    fig = go.Figure(data=[go.Surface(z=Z, x=P1, y=P2)])
+                                    Z = model.predict_values(inputs_norm).reshape(P1.shape)
 
-                                    if len(param_order) >= 3:
+                                    fig = go.Figure(data=[go.Surface(x=P1, y=P2, z=Z, colorscale="RdBu", showscale=True)])
+
+                                    # Add sample points if available
+                                    if df_samples is not None:
                                         mask = np.ones(len(df_samples), dtype=bool)
-                                        tol = 0.1 * (max_val - min_val)
                                         for p, val in fixed_param_values.items():
                                             if p in df_samples.columns:
+                                                tol = 0.01 * (sliders_bounds[p][1] - sliders_bounds[p][0])
                                                 mask &= np.isclose(df_samples[p], val, atol=tol)
 
-                                        filtered_samples = df_samples[mask].copy()
-
-                                        if (
-                                            len(filtered_samples) > 0
-                                            and selected_params[0] in filtered_samples.columns
-                                            and selected_params[1] in filtered_samples.columns
-                                        ):
-                                            x_samples = filtered_samples[selected_params[0]].values
-                                            y_samples = filtered_samples[selected_params[1]].values
-
-                                            output_col = filtered_samples.columns[-1]
-                                            if output_col in filtered_samples.columns:
-                                                z_samples = filtered_samples[output_col].values
-                                            else:
-                                                z_samples = np.zeros_like(x_samples)
-
-                                            num_samples = len(x_samples)
-
-                                            fig.add_trace(go.Scatter3d(
-                                                x=x_samples,
-                                                y=y_samples,
-                                                z=z_samples,
-                                                mode='markers',
-                                                marker=dict(
-                                                    size=1,
-                                                    color='green',
-                                                    line=dict(
-                                                        width=0.5,
-                                                        color='rgba(100, 0, 0, 0.7)'
-                                                    ),
-                                                    symbol='circle'
-                                                ),
-                                                name=f"Sampling points (n={num_samples})",
-                                                showlegend=True
-                                            ))
-                                    else:
-                                        x_samples = df_samples[selected_params[0]].values
-                                        y_samples = df_samples[selected_params[1]].values
-
-                                        output_col = df_samples.columns[-1]
-                                        if output_col in df_samples.columns:
-                                            z_samples = df_samples[output_col].values
-                                        else:
-                                            z_samples = np.zeros_like(x_samples)
-
-                                        num_samples = len(x_samples)
+                                        filtered_samples = df_samples[mask] if mask.any() else df_samples
+                                        x_samples = filtered_samples[selected_params[0]].values
+                                        y_samples = filtered_samples[selected_params[1]].values
+                                        z_samples = filtered_samples[df_samples.columns[-1]].values
 
                                         fig.add_trace(go.Scatter3d(
-                                            x=x_samples,
-                                            y=y_samples,
-                                            z=z_samples,
+                                            x=x_samples, y=y_samples, z=z_samples,
                                             mode='markers',
-                                            marker=dict(
-                                                size=1,
-                                                color='green',
-                                                line=dict(width=0.5, color='rgba(100, 0, 0, 0.7)'),
-                                                symbol='circle'
-                                            ),
-                                            name=f"Sampling points (n={num_samples})",
-                                            showlegend=True
+                                            marker=dict(size=1, color='green'),
+                                            name=f"🟢 Training Samples (n={len(x_samples)})",
+                                            showlegend=True,
+                                            legendgroup="samples",
                                         ))
 
                                     fig.update_layout(
-                                        title='Surrogate Model Response Surface with '
-                                        'Sample Points',
+                                        showlegend=True,
+                                        legend=dict(
+                                            yanchor="top",
+                                            y=0.99,
+                                            xanchor="left",
+                                            x=0.5
+                                        ),
+                                        title='Surrogate Model Response Surface',
                                         scene=dict(
                                             xaxis_title=selected_params[0],
                                             yaxis_title=selected_params[1],
                                             zaxis_title='Predicted Output'
-                                        ),
-                                        legend=dict(
-                                            bgcolor='rgba(255,255,255,0.9)',
-                                            bordercolor='green',
-                                            borderwidth=1.5,
-                                            font=dict(size=12),
-                                            yanchor="top",
-                                            y=0.99,
-                                            xanchor="right",
-                                            x=0.99
                                         )
                                     )
+
                                     st.plotly_chart(fig, use_container_width=True)
+
                                 except Exception as e:
                                     st.error(f"Error predicting response surface: {e}")
+
+                    else:
+                        st.error("Please select 2 parameters.")
 
                 mode = st.radio(
                     "Select mode:",
@@ -510,23 +550,42 @@ def display_results(results_dir):
                         val = info['value']
                         tixi.updateDoubleElement(xp, float(val), "%g")
 
-                    new_file_name = cpacs_in.stem + "_geometry_from_gui.xml"
-                    new_file_path = cpacs_in.with_name(new_file_name)
+                    new_file_path = Path(results_dir) / "temp_manual_geom_from_gui.xml"
                     tmp_cpacs.save_cpacs(new_file_path, overwrite=True)
 
                     with col_3d:
                         st.subheader('| 3D View')
                         section_3D_view(
-                            working_dir=Path(results_dir),
+                            results_dir=results_dir,
                             cpacs=CPACS(new_file_path),
-                            aircraft_name="geometry_from_gui",
+                            force_regenerate=True,
+                            file_name = "temp_manual_geom_from_gui",
                         )
 
-                    # if the model exist, show the prediction
-                    if model is not None:
-                        input_vector = np.array([sliders_values[p] for p in param_order])
-                        predicted_value = model.predict_values(input_vector.reshape(1, -1))[0]
-                        st.metric("Predicted objective value", f"{predicted_value}")
+                    # Normalize GUI input
+                    x_norm = normalize_input_from_gui(
+                        sliders_values,
+                        param_order,
+                        normalization_params
+                    )
+
+                    # Predict
+                    raw_predicted_value = model.predict_values(
+                        x_norm.reshape(1, -1)
+                    )[0]
+                    predicted_value = float(raw_predicted_value.item())
+                    st.metric("Predicted objective value", f"{predicted_value:.2f}")
+
+                    with col_3d:
+                        with open(new_file_path, "rb") as f:
+                            cpacs_data = f.read()
+
+                        st.download_button(
+                                label="Download CPACS file",
+                                data=cpacs_data,
+                                file_name=f"configuration_predicted_value_{predicted_value}.xml",
+                                mime="application/xml"
+                            )
 
                     df_config = pd.DataFrame(
                         list(sliders_values.items()),
@@ -545,43 +604,55 @@ def display_results(results_dir):
                     )
 
                 elif mode == "Target-based exploration":
-                    if model is None:
-                        st.error("Please train or load a surrogate model first.")
-                        st.stop()
 
                     st.subheader("Target-based exploration")
-
                     param_order_geom = [p for p in param_order if p in sliders_bounds]
 
-                    x0 = np.array([sliders_values[p] for p in param_order_geom])
-                    bounds = [sliders_bounds[p] for p in param_order_geom]
+                    x0_phys = np.array([sliders_values[p] for p in param_order_geom])
+                    x0 = phys_to_norm(x0_phys, param_order_geom, normalization_params)
 
-                    input_vector = np.array([sliders_values[p] for p in param_order])
-                    predicted_value = model.predict_values(input_vector.reshape(1, -1))[0]
+                    bounds = []
+                    for p in param_order_geom:
+                        lo, hi = sliders_bounds[p]
+                        mean = normalization_params[p]["mean"]
+                        std  = normalization_params[p]["std"]
+                        if std == 0:
+                            bounds.append((0.0, 0.0))
+                        else:
+                            bounds.append(((lo - mean) / std, (hi - mean) / std))
 
+                    # input target
+                    y_pred_init = model.predict_values(x0.reshape(1, -1))[0]
                     y_target = st.number_input(
                         "Enter target value",
-                        value=float(predicted_value),
+                        value=float(y_pred_init[0]),
                         step=0.0001,
-                        format="%0.4f"
+                        format="%0.2f"
                     )
-
-                    def objective_inverse(x):
-                        input_dict = {}
-                        for i, p in enumerate(param_order_geom):
-                            input_dict[p] = x[i]
-                        input_vector_full = np.array([input_dict[p] for p in param_order])
-                        y_pred = model.predict_values(input_vector_full.reshape(1, -1))[0]
-                        return abs(y_pred - y_target)
-
+                    
                     selected_solver = st.selectbox(
-                        label="Choose an optimization solver",
+                        label="Choose the solver",
                         options=["L-BFGS-B","Powell","COBYLA","TNC","Nelder-Mead"],
-                        help="Select the optimization algorithm to be used for minimizing"
+                        help="Select the algorithm to be used for minimizing"
                         "the objective function. Each solver follows a different numerical"
                         "strategy and may perform better depending on the problem type"
                         "and constraints."
                     )
+
+                    def objective_inverse(x_norm):
+                        x_full = []
+                        for p in param_order:
+                            if p in param_order_geom:
+                                i = param_order_geom.index(p)
+                                x_full.append(x_norm[i])
+                            else:
+                                val_phys = sliders_values[p]
+                                mean = normalization_params[p]["mean"]
+                                std  = normalization_params[p]["std"]
+                                x_full.append(0.0 if std == 0 else (val_phys - mean) / std)
+                        x_full = np.array(x_full)
+                        y_pred = float(model.predict_values(x_full.reshape(1, -1))[0, 0])
+                        return abs(y_pred - y_target)
 
                     if st.button("Find parameters for given target value"):
                         result = minimize(
@@ -591,18 +662,36 @@ def display_results(results_dir):
                             method=selected_solver
                         )
 
+                        if not result.success:
+                            st.error(f"Optimization failed: {result.message}")
+                            st.write("Last x:", result.x)
+                            st.write("Objective value:", result.fun)
+                            return
+
                         if result.success:
-                            # st.success("✅ completed successfully")
+                            x_opt_phys = norm_to_phys(
+                                result.x,
+                                param_order_geom,
+                                normalization_params
+                            )
 
-                            input_dict_opt = {}
-                            for i, p in enumerate(param_order_geom):
-                                input_dict_opt[p] = result.x[i]
+                            input_dict_opt = dict(zip(param_order_geom, x_opt_phys))
 
-                            y_pred_opt = model.predict_values(
-                                np.array([input_dict_opt[p] for p in param_order]).reshape(1, -1)
-                            )[0]
+                            x_full_norm = []
+                            for p in param_order:
+                                if p in input_dict_opt:
+                                    val = input_dict_opt[p]
+                                else:
+                                    val = sliders_values[p]
+                                mean = normalization_params[p]["mean"]
+                                std  = normalization_params[p]["std"]
+                                x_full_norm.append(0.0 if std == 0 else (val - mean)/std)
 
-                            st.session_state["optim_result"] = {
+                            y_pred_opt = float(
+                                model.predict_values(np.array(x_full_norm).reshape(1, -1))[0, 0]
+                            )
+
+                            st.session_state.optim_result = {
                                 "params": input_dict_opt,
                                 "y_pred_opt": y_pred_opt,
                                 "y_target": y_target,
@@ -625,21 +714,21 @@ def display_results(results_dir):
 
                             st.metric(
                                 label="Predicted value for optimal parameters",
-                                value=f"{st.session_state['optim_result']['y_pred_opt']}"
+                                value=f"{st.session_state['optim_result']['y_pred_opt']:.2f}"
                             )
 
                             abs_error = abs(
                                 st.session_state['optim_result']['y_pred_opt']
                                 - st.session_state['optim_result']['y_target']
                             )
-                            st.markdown(f"**Absolute error:** {abs_error}")
+                            st.markdown(f"**Absolute error:** {abs_error:.6f}")
 
                             csv_buffer = io.StringIO()
                             df_opt_params.to_csv(csv_buffer, index=False)
                             csv_data = csv_buffer.getvalue()
                             file_name_csv = (
                                 "optimal_parameters_target_value"
-                                f"_{st.session_state['optim_result']['y_target']:.4f}.csv"
+                                f"_{st.session_state['optim_result']['y_target']:.2f}.csv"
                             )
 
                             st.download_button(
@@ -649,7 +738,7 @@ def display_results(results_dir):
                                 mime="text/csv",
                             )
 
-                        tmp_cpacs = CPACS(Path(st.session_state.cpacs.cpacs_file))
+                        tmp_cpacs = CPACS(Path(chosen_workflow, "00_ToolInput.xml"))
                         tixi = tmp_cpacs.tixi
 
                         for name, val in st.session_state["optim_result"]["params"].items():
@@ -666,16 +755,17 @@ def display_results(results_dir):
                             create_branch(tixi, xpath)
                             tixi.updateDoubleElement(xpath, float(val), "%g")
 
-                        new_file_path = Path(results_dir) / "temp_optim_geometry.xml"
+                        new_file_path = Path(results_dir) / "temp_target_geometry_from_gui.xml"
                         tmp_cpacs.save_cpacs(new_file_path, overwrite=True)
 
                         with col_view:
                             st.subheader("| 3D View")
 
                             section_3D_view(
-                                working_dir=Path(results_dir),
+                                results_dir=Path(results_dir),
                                 cpacs=CPACS(new_file_path),
-                                aircraft_name="temp_optim_geometry"
+                                force_regenerate=True,
+                                file_name="temp_optim_geometry",
                             )
 
                             with open(new_file_path, "rb") as f:
@@ -689,35 +779,49 @@ def display_results(results_dir):
                             )
 
             elif child.suffix == ".csv":
-                with st.expander("CSV File"):
+                with st.expander(f"{child.name}"):
                     st.markdown(f"**{child.name}**")
                     st.dataframe(pd.read_csv(child))
 
-            elif child.name == "best_geometric_configuration.xml":
+            elif child.name == "best_geometric_configuration_low_fidelity.xml":
                 with st.expander("Best geometric configuration from AVL simulations"):
                     st.markdown("**Best geometric configuration from AVL simulations**")
                     section_3D_view(
-                        working_dir=Path(results_dir),
-                        cpacs=CPACS(Path(results_dir) / "best_geometric_configuration.xml"),
-                        aircraft_name="best_geometric_configuration",
+                        results_dir=Path(results_dir),
+                        cpacs=CPACS(Path(results_dir) / "best_geometric_configuration_low_fidelity.xml"),
+                    )
+
+            elif child.name == "best_surrogate_geometry_RBF.xml":
+                with st.expander("Best geometric configuration from surrogate model predictions"):
+                    st.markdown("**Best geometric configuration from surrogate model predictions**")
+                    section_3D_view(
+                        results_dir=Path(results_dir),
+                        cpacs=CPACS(Path(results_dir) / "best_surrogate_geometry_RBF.xml"),
+                    )
+            
+            elif child.name == "best_surrogate_geometry_KRG.xml":
+                with st.expander("Best geometric configuration from surrogate model predictions"):
+                    st.markdown("**Best geometric configuration from surrogate model predictions**")
+                    section_3D_view(
+                        results_dir=Path(results_dir),
+                        cpacs=CPACS(Path(results_dir) / "best_surrogate_geometry_KRG.xml"),
                     )
 
             elif child.is_dir():
                 with st.expander(child.stem, expanded=True):
                     display_results(child)
+                with st.container(border=True):
+                    show_dir = st.checkbox(
+                        f"**{child.stem}**",
+                        value=False,
+                        key=f"{child}_dir_toggle",
+                    )
+                    if show_dir:
+                        display_results(child)
 
-    except BaseException:
+    except BaseException as e:
+        log.warning(f'{child=} {e=}')
         display_results_else(results_dir)
-
-
-def open_paraview(file):
-    """Open Paraview with the file pass as argument."""
-
-    paraview_state_txt = DEFAULT_PARAVIEW_STATE.read_text()
-    paraview_state = Path(file.parent, "paraview_state.pvsm")
-    paraview_state.write_text(paraview_state_txt.replace("result_case_path", str(file)))
-
-    os.system(f"paraview {str(paraview_state)}")
 
 
 def workflow_number(path: Path) -> int:
@@ -739,8 +843,6 @@ def get_workflow_dirs(current_wkdir: Path) -> list[Path]:
 
 
 def show_results():
-    """Display the results of the selected workflow."""
-
     st.markdown("#### Results")
 
     past_result = st.checkbox("Review past results of SMTrain")
@@ -1245,6 +1347,11 @@ def show_results():
 
         st.tabs(results_name)
 """
+
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
 
 
 # Functions

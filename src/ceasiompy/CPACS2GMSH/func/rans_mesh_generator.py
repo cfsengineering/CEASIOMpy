@@ -64,10 +64,6 @@ from ceasiompy.CPACS2GMSH.func.utils import check_path, MESH_COLORS
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
-import trimesh
-import pymeshfix
-import numpy as np
-
 
 # Functions
 
@@ -420,73 +416,73 @@ def generate_2d_mesh_for_pentagrow(
     log.info(f"The gmsh path is {gmesh_path}.")
     gmsh.write(str(gmesh_path))
 
-    # -----------------------------
-    # Load mesh
-    # -----------------------------
-    input_stl = Path(results_dir, "surface_mesh.stl")
-    output_stl = Path(results_dir, "surface_mesh_try.stl")
+        # # -----------------------------
+        # # Load mesh
+        # # -----------------------------
+        # input_stl = Path(results_dir, "surface_mesh.stl")
+        # output_stl = Path(results_dir, "surface_mesh_try.stl")
 
-    mesh = trimesh.load_mesh(input_stl)
+        # mesh = trimesh.load_mesh(input_stl)
 
-    log.info("=== MESH INFO ===")
-    log.info(f"Vertices: {len(mesh.vertices)}")
-    log.info(f"Faces:    {len(mesh.faces)}")
+        # log.info("=== MESH INFO ===")
+        # log.info(f"Vertices: {len(mesh.vertices)}")
+        # log.info(f"Faces:    {len(mesh.faces)}")
 
-    # -----------------------------
-    # Watertight check
-    # -----------------------------
+        # # -----------------------------
+        # # Watertight check
+        # # -----------------------------
 
-    is_watertight = mesh.is_watertight
-    log.info(f"Watertight: {is_watertight}")
+        # is_watertight = mesh.is_watertight
+        # log.info(f"Watertight: {is_watertight}")
 
-    if is_watertight:
-        log.info("✔ Mesh is already watertight. Saving copy.")
-        mesh.export(input_stl)
-        return input_stl, fuselage_maxlen
-    else:
-        # -----------------------------
-        # Repair with PyMeshFix
-        # -----------------------------
-        log.warning("⚠ Mesh is NOT watertight → repairing...")
+        # if is_watertight:
+        #     log.info("✔ Mesh is already watertight. Saving copy.")
+        #     mesh.export(input_stl)
+        #     return input_stl, fuselage_maxlen
+        # else:
+        #     # -----------------------------
+        #     # Repair with PyMeshFix
+        #     # -----------------------------
+        #     log.warning("⚠ Mesh is NOT watertight → repairing...")
 
-        vertices = np.array(mesh.vertices)
-        faces = np.array(mesh.faces)
+        #     vertices = np.array(mesh.vertices)
+        #     faces = np.array(mesh.faces)
 
-        meshfix = pymeshfix.MeshFix(vertices, faces)
+        #     meshfix = pymeshfix.MeshFix(vertices, faces)
 
-        meshfix.repair(
-            verbose=True,
-            joincomp=True,     # join disconnected components
-            remove_smallest_components=False
-        )
+        #     meshfix.repair(
+        #         verbose=True,
+        #         joincomp=True,     # join disconnected components
+        #         remove_smallest_components=False
+        #     )
 
-        # -----------------------------
-        # Create repaired mesh
-        # -----------------------------
-        repaired_mesh = trimesh.Trimesh(
-            vertices=meshfix.v,
-            faces=meshfix.f,
-            process=True
-        )
+        #     # -----------------------------
+        #     # Create repaired mesh
+        #     # -----------------------------
+        #     repaired_mesh = trimesh.Trimesh(
+        #         vertices=meshfix.v,
+        #         faces=meshfix.f,
+        #         process=True
+        #     )
 
-        # -----------------------------
-        # Post-repair checks
-        # -----------------------------
-        log.info("\n=== POST-REPAIR INFO ===")
-        log.info(f"Vertices: {len(repaired_mesh.vertices)}")
-        log.info(f"Faces:    {len(repaired_mesh.faces)}")
-        log.info(f"Watertight: {repaired_mesh.is_watertight}")
-        log.info(f"Euler number: {repaired_mesh.euler_number}")
+        #     # -----------------------------
+        #     # Post-repair checks
+        #     # -----------------------------
+        #     log.info("\n=== POST-REPAIR INFO ===")
+        #     log.info(f"Vertices: {len(repaired_mesh.vertices)}")
+        #     log.info(f"Faces:    {len(repaired_mesh.faces)}")
+        #     log.info(f"Watertight: {repaired_mesh.is_watertight}")
+        #     log.info(f"Euler number: {repaired_mesh.euler_number}")
 
-        # -----------------------------
-        # Save result
-        # -----------------------------
-        repaired_mesh.export(output_stl)
-        log.info(f"{output_stl=}")
-        gmsh.write(str(output_stl))
-        log.info(f"{fuselage_maxlen=}")
+        #     # -----------------------------
+        #     # Save result
+        #     # -----------------------------
+        #     repaired_mesh.export(output_stl)
+        #     log.info(f"{output_stl=}")
+        #     gmsh.write(str(output_stl))
+        #     log.info(f"{fuselage_maxlen=}")
 
-        return output_stl, fuselage_maxlen
+    return gmesh_path, fuselage_maxlen
 
 
 def intersecting_entities_for_fusing(dimtags_names):
@@ -1037,11 +1033,11 @@ def pentagrow_3d_mesh(
         for key, value in cfg_params.items():
             file.write(f"{key} = {value}\n")
 
-    check_path(Path(result_dir, "surface_mesh_try.stl"))
+    check_path(Path(result_dir, "surface_mesh.stl"))
     check_path(Path(result_dir, "config.cfg"))
     log.info(f"(Checked in folder {result_dir}) (and config penta path is {config_penta_path})")
 
-    command = ["surface_mesh_try.stl", "config.cfg"]
+    command = ["surface_mesh.stl", "config.cfg"]
 
     # Specify the file path
     file_path = "command.txt"

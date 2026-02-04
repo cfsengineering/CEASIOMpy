@@ -101,3 +101,22 @@ WING_PARAMETERS = [
     "chord",
     "thickness"
 ]
+
+AEROMAP_DEFAULTS = {
+    "altitude": {
+        "min": 50,
+        "max": 1000,
+    },
+    "machNumber": {
+        "min": 0.1,
+        "max": 0.85,
+    },
+    "angleOfAttack": {
+        "min": -5.0,
+        "max": 5.0,
+    },
+    "angleOfSideslip": {
+        "min": -10.0,
+        "max": 10.0,
+    },
+}

@@ -585,29 +585,17 @@ def run_software(
     )
 
     install_path = get_install_path(software_name)
-    if install_path is None:
-        raise FileNotFoundError(
-            f"{software_name} executable not found (check your INSTALLDIR and PATH)."
-        )
-
-    # On macOS, fail fast with a clear message
-    # if a Linux ELF binary is picked up (common for Pentagrow).
-    if sys.platform == "darwin":
-        fmt = _detect_binary_format(install_path)
-        if fmt == "elf":
-            raise OSError(
-                f"'{software_name}' at '{install_path}' is a Linux ELF executable "
-                "and cannot run on macOS.\n"
-                "Remove/rename this file and install a macOS-native build, "
-                "or use the Docker-based workflow."
-            )
 
     command_line = []
     if with_mpi:
-        mpi_install_path = get_install_path("mpirun")  # "mpirun.mpich"
+        mpiexec_install_path = get_install_path("mpiexec")  # "mpirun.mpich"
         # If runs with open mpi add --allow-run-as-root
-        if mpi_install_path is not None:
-            command_line += [mpi_install_path, "-np", str(int(nb_cpu))]
+        if mpiexec_install_path is not None:
+            command_line += [mpiexec_install_path, "-np", str(int(nb_cpu))]
+        # mpirun_install_path = get_install_path("mpiexec")  # "mpirun.mpich"
+        # # If runs with open mpi add --allow-run-as-root
+        # if mpi_install_path is not None:
+        #     command_line += [mpi_install_path, "-np", str(int(nb_cpu))]
 
     command_line += [install_path]
     command_line += arguments

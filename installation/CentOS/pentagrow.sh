@@ -23,6 +23,14 @@ echo "Adding required libraries..."
 
 sudo "$pkg_mgr" -y install epel-release || echo "Warning: Failed to install epel-release"
 
+sudo "$pkg_mgr" -y install \
+    gfortran \
+    libgfortran \
+    mesa-libGLU \
+    hdf5 \
+    hdf5-devel \
+    lapack-devel \
+    blas-devel || { echo "Failed to install required dependencies"; exit 1; }
 install_if_available() {
     local pkg="$1"
 

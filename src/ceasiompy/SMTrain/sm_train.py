@@ -38,6 +38,7 @@ from ceasiompy.SMTrain.func.trainsurrogatemodel import (
     run_first_level_training_geometry,
     run_adaptative_refinement,
     run_adaptative_refinement_geom,
+    run_adaptative_refinement_geom_RBF,
     training_existing_db,
     run_adaptative_refinement_geom_existing_db,
 )
@@ -118,10 +119,13 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 module_name='SMTrain',
             )
 
-            computations_dir = Path(results_dir, "Computations")
+            low_fidelity_dir = results_dir / "Low_Fidelity"
+            low_fidelity_dir.mkdir(exist_ok=True)
+
+            computations_dir = Path(low_fidelity_dir, "AVL")
             computations_dir.mkdir(exist_ok=True)
 
-            NEWCPACS_path = computations_dir / "New_CPACS"
+            NEWCPACS_path = low_fidelity_dir / "New_CPACS"
             NEWCPACS_path.mkdir(exist_ok=True)
 
             cpacs_file = cpacs.cpacs_file
@@ -143,8 +147,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 {"Parameter": k, "Min": v[0], "Max": v[1]}
                 for k, v in ranges_gui.items()
             ])
-            df_ranges_fui_path = results_dir / "ranges_for_gui.csv"
-            df_ranges_gui.to_csv(df_ranges_fui_path, index=False)
 
             if not wings_to_optimise:
                 log.error("SELECT AT LEAST ONE WING!")
@@ -182,30 +184,46 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 objective=objective,
                 split_ratio=split_ratio,
                 pyavl_dir=computations_dir,
-                results_dir=results_dir,
+                results_dir=low_fidelity_dir,
                 KRG_model_bool=selected_krg_model,
                 RBF_model_bool=selected_rbf_model,
+                ranges_gui=ranges_gui,
             )
 
             files = sorted(list(NEWCPACS_path.glob("*.xml")))
             for i, best_cpacs_path in enumerate(files):
                 if i == idx_best_geom_conf:
                     print(f"{best_cpacs_path=}")
-                    dest_path = Path(results_dir) / "best_geometric_configuration.xml"
+                    dest_path = Path(results_dir) / "best_geometric_configuration_low_fidelity.xml"
                     shutil.copy2(best_cpacs_path, dest_path)
 
-            # Second level fidelity training
-            if fidelity_level == LEVEL_TWO:
-                run_adaptative_refinement_geom(
-                    cpacs=cpacs,
-                    results_dir=results_dir,
-                    model=krg_model,
-                    level1_sets=sets,
-                    rmse_obj=rmse_obj,
-                    objective=objective,
-                    aeromap_uid=aeromap_selected,
-                    param_order=param_order,
-                )
+            if selected_krg_model:
+                # Second level fidelity training
+                if fidelity_level == LEVEL_TWO:
+                    run_adaptative_refinement_geom(
+                        cpacs=cpacs,
+                        results_dir=results_dir,
+                        model=krg_model,
+                        level1_sets=sets,
+                        rmse_obj=rmse_obj,
+                        objective=objective,
+                        aeromap_uid=aeromap_selected,
+                        ranges_gui=df_ranges_gui,
+                    )
+
+            if selected_rbf_model:
+                # Second level fidelity training
+                if fidelity_level == LEVEL_TWO:
+                    run_adaptative_refinement_geom_RBF(
+                        cpacs=cpacs,
+                        results_dir=results_dir,
+                        model=rbf_model,
+                        level1_sets=sets,
+                        rmse_obj=rmse_obj,
+                        objective=objective,
+                        aeromap_uid=aeromap_selected,
+                        ranges_gui=df_ranges_gui,
+                    )
 
             # Second level fidelity training
             # TODO: if fidelity_level == LEVEL_THREE:
@@ -229,6 +247,9 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 save_model(cpacs, rbf_model, objective, results_dir, param_order)
 
     if old_new_sim == "Load Geometry Exploration Simulations":
+
+        (_, _, _, ranges_gui, _) = get_elements_to_optimise(cpacs)
+
         krg_model, rbf_model, sets, param_order = training_existing_db(
             results_dir,
             split_ratio,
@@ -245,7 +266,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 rmse_obj=rmse_obj,
                 objective=objective,
                 aeromap_uid=aeromap_selected,
-                param_order=param_order,
+                ranges_gui=ranges_gui,
             )
 
         if selected_krg_model:

@@ -66,6 +66,8 @@ def _check_modules_status(modules_list: list[str]) -> bool:
 
 # Tests
 WORKFLOW_1 = [AEROFRAME]
+
+
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
 @pytest.mark.skipif(
@@ -78,6 +80,8 @@ def test_integration_1():
 
 
 WORKFLOW_2 = [CPACS2GMSH, SU2RUN]
+
+
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
 @pytest.mark.skipif(not shutil.which("pentagrow"), reason="Pentagrow not installed")
@@ -92,6 +96,8 @@ def test_integration_2():
 
 
 WORKFLOW_3 = [PYAVL, STATICSTABILITY]
+
+
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
 @pytest.mark.skipif(

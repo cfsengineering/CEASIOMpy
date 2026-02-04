@@ -21,7 +21,6 @@ from bin.ceasiompy_exec import run_modules_list
 from ceasiompy.utils.ceasiompyutils import change_working_dir
 from ceasiompy.utils.moduleinterfaces import get_init_for_module
 
-from ceasiompy import log
 from ceasiompy.PyAVL import MODULE_NAME as PYAVL
 from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
 from ceasiompy.Database import MODULE_NAME as DATABASE

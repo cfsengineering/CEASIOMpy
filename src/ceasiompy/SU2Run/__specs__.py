@@ -251,22 +251,28 @@ def gui_settings(cpacs: CPACS) -> None:
         )
 
         if include_actuator_disk:
-            float_vartype(
-                tixi=tixi,
-                xpath=PROPELLER_THRUST_XPATH,
-                default_value=3000,
-                name="Thrust",
-                key="thrust",
-                description="Aircraft thrust.",
-            )
-            bool_vartype(
-                tixi=tixi,
-                xpath=PROPELLER_BLADE_LOSS_XPATH,
-                default_value=False,
-                name="Tip loss correction",
-                key="prandtl",
-                description="Enable or disable the tip loss correction of Prandtl.",
-            )
+            left_col, right_col = st.columns(2, vertical_alignment="bottom")
+            with left_col:
+                bool_vartype(
+                    tixi=tixi,
+                    xpath=PROPELLER_BLADE_LOSS_XPATH,
+                    default_value=False,
+                    name="Tip loss correction",
+                    key="prandtl",
+                    description="Enable or disable the tip loss correction of Prandtl.",
+                )
+            with right_col:
+                float_vartype(
+                    tixi=tixi,
+                    xpath=PROPELLER_THRUST_XPATH,
+                    default_value=3000,
+                    name="Thrust",
+                    key="thrust",
+                    description="Aircraft thrust.",
+                )
+        else:
+            safe_remove(tixi, xpath=PROPELLER_THRUST_XPATH)
+            safe_remove(tixi, xpath=PROPELLER_BLADE_LOSS_XPATH)
 
     with st.container(
         border=True,

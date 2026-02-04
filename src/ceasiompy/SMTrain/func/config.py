@@ -50,7 +50,6 @@ from ceasiompy.utils.commonxpaths import (
 
 # Functions
 
-
 def get_settings(cpacs: CPACS):
     """
     Reads the global and new suggested dataset settings.

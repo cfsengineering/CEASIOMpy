@@ -441,9 +441,11 @@ def display_results(results_dir):
 #                     inputs_norm = np.zeros((P1.size, len(param_order)))
 #                     for i, p in enumerate(param_order):
 #                         if p == selected_params[0]:
-#                             inputs_norm[:, i] = (P1.ravel() - normalization_params[p]["mean"]) / normalization_params[p]["std"]
+#                             inputs_norm[:, i] = (
+# P1.ravel() - normalization_params[p]["mean"]) / normalization_params[p]["std"]
 #                         elif p == selected_params[1]:
-#                             inputs_norm[:, i] = (P2.ravel() - normalization_params[p]["mean"]) / normalization_params[p]["std"]
+#                             inputs_norm[:, i] = (
+# P2.ravel() - normalization_params[p]["mean"]) / normalization_params[p]["std"]
 #                         else:
 #                             val = fixed_param_values.get(p, sliders_bounds[p][0])
 #                             mean = normalization_params[p]["mean"]
@@ -454,7 +456,8 @@ def display_results(results_dir):
 #                     try:
 #                         Z = model.predict_values(inputs_norm).reshape(P1.shape)
 
-#                         fig = go.Figure(data=[go.Surface(x=P1, y=P2, z=Z, colorscale="RdBu", showscale=True)])
+#                         fig = go.Figure(data=[go.Surface(
+# x=P1, y=P2, z=Z, colorscale="RdBu", showscale=True)])
 
 #                         # Add sample points if available
 #                         if df_samples is not None:
@@ -617,7 +620,6 @@ def display_results(results_dir):
 #             step=0.0001,
 #             format="%0.2f"
 #         )
-        
 #         selected_solver = st.selectbox(
 #             label="Choose the solver",
 #             options=["L-BFGS-B","Powell","COBYLA","TNC","Nelder-Mead"],

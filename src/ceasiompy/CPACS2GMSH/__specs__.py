@@ -72,10 +72,10 @@ from ceasiompy.CPACS2GMSH import (
 def _load_3d_gui_settings(tixi: Tixi3) -> None:
 
     with st.expander(
-        label="Domain Settings",
+        label="**Domain Settings**",
         expanded=True
     ):
-        left_col, right_col = st.columns(2)
+        left_col, right_col = st.columns(2, vertical_alignment="bottom")
 
         # Domain Group
         with left_col:
@@ -99,7 +99,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             )
 
     with st.expander(
-        label="Mesh Type",
+        label="**Mesh Type**",
         expanded=True,
     ):
 
@@ -242,7 +242,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
 
     # General Mesh Options
     with st.expander(
-        label="General Mesh Options",
+        label="**General Mesh Options**",
         expanded=True,
     ):
         left_col, mid_col, right_col = st.columns(3)
@@ -280,7 +280,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
 
     # Advanced Mesh Parameters
     with st.expander(
-        label="Advanced Mesh Parameters",
+        label="**Advanced Mesh Parameters**",
         expanded=True,
     ):
         left_col, mid_col, right_col = st.columns(3)
@@ -371,7 +371,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
         )
 
     with st.expander(
-        label="Engine(s) Settings",
+        label="**Engine(s) Settings**",
         expanded=False,
     ):
         left_col, right_col = st.columns(2)
@@ -404,7 +404,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             )
 
     with st.expander(
-        label="Control Surfaces Settings",
+        label="**Control Surfaces Settings**",
         expanded=True,
     ):
         dataframe_vartype(

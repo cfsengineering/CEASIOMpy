@@ -34,10 +34,10 @@ from ceasiompy.PyAVL import (
 def gui_settings(cpacs: CPACS) -> None:
     tixi = cpacs.tixi
     with st.expander(
-        label="Panel Settings",
+        label="**Panel Settings**",
         expanded=True,
     ):
-        left_col, mid_col, right_col = st.columns([5, 4, 4])
+        left_col, mid_col, right_col = st.columns([2, 1, 1])
         with left_col:
             list_vartype(
                 tixi=tixi,
@@ -51,7 +51,7 @@ def gui_settings(cpacs: CPACS) -> None:
         with mid_col:
             int_vartype(
                 tixi=tixi,
-                name="Number of chordwise vortices",
+                name="Chordwise vortices",
                 key="chordwise_vortices_nb",
                 default_value=20,
                 description="Select the number of chordwise vortices.",
@@ -61,7 +61,7 @@ def gui_settings(cpacs: CPACS) -> None:
         with right_col:
             int_vartype(
                 tixi=tixi,
-                name="Number of spanwise vortices",
+                name="Spanwise vortices",
                 key="spanwise_vortices_nb",
                 default_value=30,
                 description="Select the number of spanwise vortices.",
@@ -69,7 +69,7 @@ def gui_settings(cpacs: CPACS) -> None:
             )
 
     with st.expander(
-        label="Specific Settings",
+        label="**Specific Settings**",
         expanded=True,
     ):
         dataframe_vartype(

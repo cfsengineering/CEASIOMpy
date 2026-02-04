@@ -131,8 +131,8 @@ def dataframe_vartype(
         _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
 
     gen_left_col, gen_right_col = st.columns(
-        spec=[1, 2],
-        vertical_alignment="center",
+        spec=[2, 3],
+        vertical_alignment="bottom",
     )
 
     with gen_left_col:
@@ -143,8 +143,8 @@ def dataframe_vartype(
 
     with gen_right_col:
         # Add button to append the new value to the list
-        left_col, mid_col, right_col = st.columns(
-            spec=[3, 2, 2],
+        left_col, right_col = st.columns(
+            spec=[2, 1],
             vertical_alignment="bottom",
         )
 
@@ -157,8 +157,7 @@ def dataframe_vartype(
                 help=description,
             )
 
-        with mid_col:
-            # Add button to append the new value to the list
+        with right_col:
             if st.button(
                 label="➕ Add",
                 key=f"add_{key}",
@@ -170,8 +169,6 @@ def dataframe_vartype(
                     _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
                     st.rerun()
 
-        with right_col:
-            # Remove button to remove the last value from the list
             if st.button(
                 label="❌ Remove",
                 key=f"remove_last_{key}",
@@ -183,8 +180,8 @@ def dataframe_vartype(
                     _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
                     st.rerun()
 
-    _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
-    return st.session_state[key]
+            _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
+            return st.session_state[key]
 
 
 def int_vartype(tixi, xpath, default_value, name, key, description) -> int:

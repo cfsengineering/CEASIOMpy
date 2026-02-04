@@ -57,60 +57,70 @@ from ceasiompy.SMTrain import (
 def gui_settings(cpacs: CPACS) -> None:
     tixi = cpacs.tixi
 
-    chosen_models = multiselect_vartype(
-        tixi=tixi,
-        xpath=SMTRAIN_MODELS_XPATH,
-        default_value=["KRG", "RBF"],
-        name="Surrogate Model Type",
-        description="Kriging (KRG) or/and Radial Basis Functions (RBF).",
-        key="smtrain_chosen_model",
-    )
-    if not chosen_models:
-        st.warning("You need to select at least 1 model.")
-        return None
-
-    if "KRG" in chosen_models:
-        fidelity_level = list_vartype(
+    with st.expander(
+        label="**Simulation Settings**",
+        expanded=True,
+    ):
+        chosen_models = multiselect_vartype(
             tixi=tixi,
-            xpath=SMTRAIN_FIDELITY_LEVEL_XPATH,
-            default_value=FIDELITY_LEVELS,  # TODO: , "Three levels" not implemented yet
-            name="Range of fidelity level(s).",
-            description="""1st-level of fidelity (low fidelity),
-                2nd level of fidelity (low + high fidelity) on high-variance points.
-            """,
-            key="smtrain_fidelity_level",
+            xpath=SMTRAIN_MODELS_XPATH,
+            default_value=["KRG", "RBF"],
+            name="Surrogate Model Type",
+            description="Kriging (KRG) or/and Radial Basis Functions (RBF).",
+            key="smtrain_chosen_model",
         )
-        with st.expander(
-            label=f"First Level (Low Fidelity, {PYAVL} Settings)",
-            expanded=False,
-        ):
-            avl_settings(cpacs)
+        if not chosen_models:
+            st.warning("You need to select at least 1 model.")
+            # TODO: Lock user in page if no model selected (until he selects one).
+            return None
 
-        if fidelity_level == LEVEL_TWO:
+        if "KRG" in chosen_models:
+            fidelity_level = list_vartype(
+                tixi=tixi,
+                xpath=SMTRAIN_FIDELITY_LEVEL_XPATH,
+                default_value=FIDELITY_LEVELS,  # TODO: , "Three levels" not implemented yet
+                name="Range of fidelity level(s).",
+                description="""1st-level of fidelity (low fidelity),
+                    2nd level of fidelity (low + high fidelity) on high-variance points.
+                """,
+                key="smtrain_fidelity_level",
+            )
             with st.expander(
-                label=f"Second Level (High Fidelity, {CPACS2GMSH} + {SU2RUN} Settings)",
+                label=f"First Level (Low Fidelity, {PYAVL} Settings)",
+                expanded=False,
             ):
-                tabs = st.tabs(
-                    tabs=[CPACS2GMSH, SU2RUN],
-                )
-                with tabs[0]:
-                    gmsh_settings(cpacs)
-                with tabs[1]:
-                    su2_settings(cpacs)
+                avl_settings(cpacs)
 
-    else:
-        safe_remove(tixi, xpath=SMTRAIN_FIDELITY_LEVEL_XPATH)
+            if fidelity_level == LEVEL_TWO:
+                with st.expander(
+                    label=f"Second Level (High Fidelity, {CPACS2GMSH} + {SU2RUN} Settings)",
+                ):
+                    tabs = st.tabs(
+                        tabs=[CPACS2GMSH, SU2RUN],
+                    )
+                    with tabs[0]:
+                        gmsh_settings(cpacs)
+                    with tabs[1]:
+                        su2_settings(cpacs)
 
-    load_existing = list_vartype(
-        tixi=tixi,
-        default_value=["Run New Simulations", "Load Geometry Exploration Simulations"],
-        key="smtrain_load_or_explore",
-        name="Load Existing or Run New Simulations",
-        description="Load pre-computed results from files or Generate new simulations.",
-        xpath=SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
-    )
+        else:
+            safe_remove(tixi, xpath=SMTRAIN_FIDELITY_LEVEL_XPATH)
 
-    if load_existing == "Run New Simulations":
+        # load_existing = list_vartype(
+        #     tixi=tixi,
+        #     default_value=["Run New Simulations", "Load Geometry Exploration Simulations"],
+        #     key="smtrain_load_or_explore",
+        #     name="Load Existing or Run New Simulations",
+        #     description="Load pre-computed results from files or Generate new simulations.",
+        #     xpath=SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
+        # )
+
+        # if load_existing == "Run New Simulations":
+
+    with st.expander(
+        label="**Training Settings**",
+        expanded=True,
+    ):
         list_vartype(
             tixi=tixi,
             xpath=SMTRAIN_OBJECTIVE_XPATH,
@@ -120,89 +130,92 @@ def gui_settings(cpacs: CPACS) -> None:
             default_value=OBJECTIVES_LIST,
         )
 
-        float_vartype(
-            tixi=tixi,
-            xpath=SMTRAIN_TRAIN_PERC_XPATH,
-            default_value=0.7,
-            name=r"% used of training data",
-            description="Defining the percentage of the data to use to train the model.",
-            key="smtrain_training_percentage",
-            min_value=0.0,
-            max_value=1.0,
-        )
+        left_col, right_col = st.columns(2)
+        with left_col:
+            float_vartype(
+                tixi=tixi,
+                xpath=SMTRAIN_TRAIN_PERC_XPATH,
+                default_value=0.7,
+                name=r"% used of training data",
+                description="Defining the percentage of the data to use to train the model.",
+                key="smtrain_training_percentage",
+                min_value=0.0,
+                max_value=1.0,
+            )
 
-        int_vartype(
-            tixi=tixi,
-            xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
-            default_value=10,
-            key="smtrain_sample_number",
-            name="Number of samples",
-            description="""
-                Samples corresponds to the number of distinct geometry we will run the solver on.
-            """,
-        )
+        with right_col:
+            int_vartype(
+                tixi=tixi,
+                xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
+                default_value=10,
+                key="smtrain_sample_number",
+                name="Number of samples",
+                description="""
+                    Samples corresponds to the number of
+                    distinct geometry we will run the solver on.
+                """,
+            )
 
-        xpath = SMTRAIN_GEOM_WING_OPTIMISE
-        uid_list = return_uid_wings_sections(tixi)
-        wings = sorted(set(wing_uid for (wing_uid, _) in uid_list))
+    xpath = SMTRAIN_GEOM_WING_OPTIMISE
+    uid_list = return_uid_wings_sections(tixi)
+    wings = sorted(set(wing_uid for (wing_uid, _) in uid_list))
 
-        with st.expander(
-            label="Geometry Design Space",
-            expanded=True,
-        ):
-            st.markdown("**Wing**")
-            for i_wing, wing_uid in enumerate(wings):
-                with st.container(
-                    border=True,
-                ):
-                    default_value = True if i_wing == 0 else False
-                    wing_xpath = xpath + f"/{wing_uid}"
-                    wing_optimized = bool_vartype(
+    with st.expander(
+        label="Geometry Design Space",
+        expanded=True,
+    ):
+        for i_wing, wing_uid in enumerate(wings):
+            with st.container(
+                border=True,
+            ):
+                default_value = True if i_wing == 0 else False
+                wing_xpath = xpath + f"/{wing_uid}"
+                wing_optimized = bool_vartype(
+                    tixi=tixi,
+                    xpath=wing_xpath + "/selected",
+                    default_value=default_value,
+                    key=f"smtrain_{wing_uid}_selected",
+                    name=f"Wing {wing_uid=}",
+                    description=f"Optimize wing {wing_uid=}.",
+                )
+
+                if wing_optimized:
+                    _wing_settings(
                         tixi=tixi,
-                        xpath=wing_xpath + "/selected",
-                        default_value=default_value,
-                        key=f"smtrain_{wing_uid}_selected",
-                        name=f"Wing {wing_uid=}",
-                        description=f"Optimize wing {wing_uid=}.",
+                        xpath=xpath,
+                        uid_list=uid_list,
+                        wing_uid=wing_uid,
+                        wing_xpath=wing_xpath,
                     )
 
-                    if wing_optimized:
-                        _wing_settings(
-                            tixi=tixi,
-                            xpath=xpath,
-                            uid_list=uid_list,
-                            wing_uid=wing_uid,
-                            wing_xpath=wing_xpath,
-                        )
+    # elif load_existing == "Load Geometry Exploration Simulations":
+    #     st.info("Whats going on ?")
+    # uploaded_existing_simulations = st.file_uploader(
+    #     "Upload simulations file",
+    #     type=["csv"],
+    #     key='existing_avl_results'
+    # )
+    # if uploaded_existing_simulations:
+    #     # Ensure working directory exists
+    #     working_dir = Path(st.session_state.workflow.working_dir)
+    #     working_dir.mkdir(parents=True, exist_ok=True)
 
-    elif load_existing == "Load Geometry Exploration Simulations":
-        st.info("Whats going on ?")
-        # uploaded_existing_simulations = st.file_uploader(
-        #     "Upload simulations file",
-        #     type=["csv"],
-        #     key='existing_avl_results'
-        # )
-        # if uploaded_existing_simulations:
-        #     # Ensure working directory exists
-        #     working_dir = Path(st.session_state.workflow.working_dir)
-        #     working_dir.mkdir(parents=True, exist_ok=True)
+    #     # Save the uploaded CSV to the working directory
+    #     csv_filename = 'avl_simulations_results.csv'
+    #     csv_path = working_dir / csv_filename
+    #     with open(csv_path, "wb") as f:
+    #         f.write(uploaded_existing_simulations.getbuffer())
 
-        #     # Save the uploaded CSV to the working directory
-        #     csv_filename = 'avl_simulations_results.csv'
-        #     csv_path = working_dir / csv_filename
-        #     with open(csv_path, "wb") as f:
-        #         f.write(uploaded_existing_simulations.getbuffer())
+    #     # Load the CSV into a DataFrame and store both DataFrame
+    #     # and path in session_state
+    #     simulations_df = pd.read_csv(csv_path)
+    #     st.session_state.simulations_df = simulations_df
+    #     st.session_state.simulations_file_path = str(csv_path)
 
-        #     # Load the CSV into a DataFrame and store both DataFrame
-        #     # and path in session_state
-        #     simulations_df = pd.read_csv(csv_path)
-        #     st.session_state.simulations_df = simulations_df
-        #     st.session_state.simulations_file_path = str(csv_path)
-
-        #     st.success("CSV copied to working directory!")
-        #     st.write(f"DataFrame shape: {simulations_df.shape}")
-        #     st.dataframe(simulations_df.head())
-        #     st.write(f"Persistent path: {csv_path}")
+    #     st.success("CSV copied to working directory!")
+    #     st.write(f"DataFrame shape: {simulations_df.shape}")
+    #     st.dataframe(simulations_df.head())
+    #     st.write(f"Persistent path: {csv_path}")
 
 
 def _wing_settings(
@@ -243,7 +256,7 @@ def _wing_settings(
                         params_xpath = base_xpath + f"/{param}"
                         default_value = True if i_param == 0 else False
 
-                        left_col, right_col = st.columns([1, 3])
+                        left_col, right_col = st.columns([4, 10])
                         with left_col:
                             status = bool_vartype(
                                 tixi=tixi,
@@ -274,7 +287,7 @@ def _wing_settings(
                                 default_min_value = 0.8 * current_value
                                 default_max_value = 1.2 * current_value
 
-                                col_min, col_val, col_max = st.columns([0.5, 0.5, 0.5])
+                                col_min, col_val, col_max = st.columns([5, 4, 5])
 
                                 with col_min:
                                     float_vartype(
@@ -290,7 +303,7 @@ def _wing_settings(
                                         max_value=current_value,
                                     )
                                 with col_val:
-                                    st.markdown(f"{param} value")
+                                    st.markdown("Current value")
                                     st.markdown(f"<= {current_value:.3f} <=")
 
                                 with col_max:

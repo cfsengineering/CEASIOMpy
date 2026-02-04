@@ -104,6 +104,34 @@ def progress_callback(status_list: list = None) -> None:
             st.info("Workflow finished running, go in results page for analysis.")
 
 
+def lock_navigation() -> None:
+    st.markdown(
+        """
+        <style>
+        div[data-testid="stSidebarNav"] {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def unlock_navigation() -> None:
+    st.markdown(
+        """
+        <style>
+        div[data-testid="stSidebarNav"] {
+            pointer-events: auto;
+            opacity: 1;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def terminate_solver_processes() -> None:
     """Terminate known solver processes spawned by workflows."""
 
@@ -187,17 +215,7 @@ def workflow_buttons() -> None:
                 show_time=True,
             ):
                 # Lock user in this page
-                st.markdown(
-                    """
-                    <style>
-                    div[data-testid="stSidebarNav"] {
-                        pointer-events: none;
-                        opacity: 0.5;
-                    }
-                    </style>
-                    """,
-                    unsafe_allow_html=True,
-                )
+                lock_navigation()
                 st.sidebar.warning("Workflow running. Stop it to unlock navigation.")
                 try:
                     workflow.run_workflow(progress_callback=progress_callback)
@@ -208,6 +226,8 @@ def workflow_buttons() -> None:
                 status_list = st.session_state.get("workflow_status_list", [])
                 has_failed = any(item.get("status") == "failed" for item in status_list)
                 if st.session_state.get("workflow_run_failed") or has_failed:
+                    unlock_navigation()
+                    st.stop()
                     return None
 
                 st.switch_page("pages/05_📈_Results.py")
@@ -219,6 +239,7 @@ def workflow_buttons() -> None:
             help="Terminate the workflow",
         ):
             terminate_solver_processes()
+            unlock_navigation()
 
 
 def display_reference_geometry() -> None:

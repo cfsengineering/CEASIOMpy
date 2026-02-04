@@ -103,7 +103,7 @@ def multiselect_vartype(
     description,
 ) -> list[str]:
     if not default_value:
-        raise
+        raise ValueError(f"Settings {name=} have an uncorrect {default_value=}")
 
     output = st.multiselect(
         label=name,

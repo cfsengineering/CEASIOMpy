@@ -10,7 +10,6 @@ Initialization for SMTrain module.
 from pathlib import Path
 
 from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
-from ceasiompy.PyAVL import MODULE_STATUS as PYAVL_STATUS
 from ceasiompy.SU2Run import MODULE_STATUS as SU2RUN_STATUS
 
 # ==============================================================================

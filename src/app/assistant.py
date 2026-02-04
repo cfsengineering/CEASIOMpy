@@ -226,7 +226,7 @@ def _safe_urlopen(
 ):
     if urlparse(req.full_url).scheme not in allowed_schemes:
         raise ValueError("Blocked URL scheme.")
-    return urllib.request.urlopen(req, timeout=timeout)
+    return urllib.request.urlopen(req, timeout=timeout)  # nosec - scheme allowlist enforced above
 
 
 def _filter_chunks_for_query(prompt: str, chunks: list["RagChunk"]) -> list["RagChunk"]:

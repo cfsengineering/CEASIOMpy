@@ -36,11 +36,10 @@ from ceasiompy.StaticStability import MODULE_NAME as STATICSTABILITY
 PAGE_NAME = "Workflow"
 
 HOW_TO_TEXT = (
-    "### How to use Create a workflow?\n"
-    "You can either:\n"
-    "- Select a predefined workflow and modify it\n"
-    "- Build your own workflow by selecting among available modules\n"
-    "When it is done, go to the *Settings* page\n"
+    "### Create a workflow \n"
+    "1. Select a predefined workflow and modify it \n"
+    "1. Or Build from scratch\n"
+    "1. Go to the *Settings*\n"
 )
 
 

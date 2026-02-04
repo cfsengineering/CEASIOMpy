@@ -51,10 +51,10 @@ from ceasiompy.utils.commonxpaths import (
 # Constants
 
 HOW_TO_TEXT: Final[str] = (
-    "### How to use CEASIOMpy?\n"
-    "1. Design your geometry\n"
-    "1. Or upload an existing geometry\n"
-    "1. Go to *Workflow* page (with menu above)\n"
+    "### Select a Geometry \n"
+    "1. Design a new one\n"
+    "1. Upload an existing\n"
+    "1. Go to *Workflow* page \n"
 )
 
 PAGE_NAME: Final[str] = "Geometry"

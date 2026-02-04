@@ -31,13 +31,11 @@ RES_DIR = True
 SOFTWARE_NAME = "avl"
 
 # ===== Module Status =====
-MODULE_STATUS = (
-    st.session_state.get("geometry_mode", "") == "2D"
-    and get_module_status(
-        default=True,
-        needs_soft_name=SOFTWARE_NAME,
-    )
+MODULE_STATUS = get_module_status(
+    default=True,
+    needs_soft_name=SOFTWARE_NAME,
 )
+
 
 # =================================================================================================
 #    xPaths

@@ -42,8 +42,8 @@ from ceasiompy.PyAVL import AVL_TABLE_FILES
 mpl.use("Agg")
 
 HOW_TO_TEXT = (
-    "### How to check your results\n"
-    "1. Check the results for your workflow\n"
+    "### Results \n"
+    "1. Check each module's outputs"
 )
 
 PAGE_NAME = "Results"

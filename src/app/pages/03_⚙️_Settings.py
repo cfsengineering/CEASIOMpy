@@ -27,9 +27,9 @@ from constants import BLOCK_CONTAINER
 
 HOW_TO_TEXT = (
     "### How to use Settings?\n"
-    "1. With *Edit aeromap* you can create or modify an aeromap\n"
-    "1. Through each tab you can modify the settings of each module\n"
-    "1. Once finished, go to the *Run Workflow* page\n"
+    "1. Edit **custom aeromap** \n"
+    "1. Choose each modules' settings \n"
+    "1. Go to *Run Workflow*\n"
 )
 
 PAGE_NAME = "Settings"

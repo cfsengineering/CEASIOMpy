@@ -111,5 +111,21 @@ if __name__ == "__main__":
             "[YouTube tutorials](https://www.youtube.com/@cfs_engineering)."
         )
 
+    # Information boxes
+    col1, col2 = st.columns(2)
+    with col1:
+        st.warning(
+            "⚠️ **Issues**\n\n"
+            "Found an issue ? Open one "
+            "[at](https://github.com/cfsengineering/CEASIOMpy/issues)."
+        )
+
+    with col2:
+        st.success(
+            "✉️ **Contact Us**\n\n"
+            "Do you have a special request ? "
+            "Contact us [at](mailto:ceasiompy@gmail.com)."
+        )
+
     # Add last_page to session state
     st.session_state.last_page = PAGE_NAME

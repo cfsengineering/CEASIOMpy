@@ -157,6 +157,12 @@ def create_sidebar(how_to_text, page_title="CEASIOMpy"):
     )
     st.sidebar.image(im)
     st.sidebar.markdown(how_to_text)
+    contact_text = (
+        "✉️ **Contact Us**\n\n"
+        "Want to collaborate, request a feature ? \n \n"
+        "Share ideas at [mail](mailto:ceasiompy@gmail.com)."
+    )
+    st.sidebar.info(contact_text)
 
 
 def st_directory_picker(initial_path=Path()):

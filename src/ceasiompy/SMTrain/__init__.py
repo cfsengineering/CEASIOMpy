@@ -4,24 +4,23 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Initialization for SMTrain module.
-
-| Author: Leon Deligny
-| Creation: 18-Mar-2025
-
 """
 
 # Imports
-
 from pathlib import Path
 
 from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
+from ceasiompy.PyAVL import MODULE_STATUS as PYAVL_STATUS
+from ceasiompy.SU2Run import MODULE_STATUS as SU2RUN_STATUS
 
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
 
 # ===== Module Status =====
-MODULE_STATUS = True
+# SMTrain is true if PyAVL is true
+MODULE_STATUS = PYAVL_STATUS
+
 MODULE_TYPE = "MetaModule"
 
 # ===== Add a Results Directory =====
@@ -36,6 +35,9 @@ LEVEL_ONE = "One level"
 LEVEL_TWO = "Two levels"
 LEVEL_THREE = "Three levels"
 
+# Valid fidelity levels
+FIDELITY_LEVELS = [LEVEL_ONE, LEVEL_TWO] if SU2RUN_STATUS else [LEVEL_ONE]
+
 # ===== List of potential objectives =====
 OBJECTIVES_LIST = ["cl_cd", "cl", "cd", "cs", "cmd", "cml", "cms"]
 
@@ -46,14 +48,10 @@ AEROMAP_FEATURES = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"
 SMTRAIN_XPATH = CEASIOMPY_XPATH + "/SMTrain"
 
 SMTRAIN_UPLOAD_AVL_DATABASE_XPATH = SMTRAIN_XPATH + "/Upload_avl_db"
-
-# SMTRAIN_XPATH_CORES = SMTRAIN_XPATH + "/NbCPU"
-
 SMTRAIN_XPATH_AEROMAP = SMTRAIN_XPATH + "/Aeromap"
 SMTRAIN_XPATH_PARAMS_AEROMAP = SMTRAIN_XPATH_AEROMAP + "/AeroParams"
 SMTRAIN_XPATH_GEOMETRY = SMTRAIN_XPATH + "/Geometry"
 SMTRAIN_XPATH_WINGS = SMTRAIN_XPATH_GEOMETRY + "/wings"
-
 
 # Enriching dataset from previously computed values with AVL
 SMTRAIN_AVL_DATABASE_XPATH = SMTRAIN_XPATH + "/AVLDatabase"

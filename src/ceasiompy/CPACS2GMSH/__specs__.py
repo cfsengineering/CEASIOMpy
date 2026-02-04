@@ -75,24 +75,28 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
         label="Domain Settings",
         expanded=True
     ):
-        # Domain Group
-        bool_vartype(
-            tixi=tixi,
-            xpath=GMSH_SYMMETRY_XPATH,
-            default_value=False,
-            name="Use Symmetry",
-            key="symmetry",
-            description="Create a symmetry condition.",
-        )
+        left_col, right_col = st.columns(2)
 
-        float_vartype(
-            tixi=tixi,
-            xpath=GMSH_FARFIELD_FACTOR_XPATH,
-            default_value=10.0,
-            name="Farfield size factor",
-            key="farfield_size_factor",
-            description="Farfield size factor compare to the aircraft largest dimension.",
-        )
+        # Domain Group
+        with left_col:
+            bool_vartype(
+                tixi=tixi,
+                xpath=GMSH_SYMMETRY_XPATH,
+                default_value=False,
+                name="Use Symmetry",
+                key="symmetry",
+                description="Create a symmetry condition.",
+            )
+
+        with right_col:
+            float_vartype(
+                tixi=tixi,
+                xpath=GMSH_FARFIELD_FACTOR_XPATH,
+                default_value=10.0,
+                name="Farfield size factor",
+                key="farfield_size_factor",
+                description="Farfield size factor compare to the aircraft largest dimension.",
+            )
 
     with st.expander(
         label="Mesh Type",
@@ -114,30 +118,34 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             with st.container(
                 border=True,
             ):
-                st.markdown("#### Euler Mesh Options")
+                st.markdown("**Euler Mesh Options**")
 
-                # Euler Mesh options
-                float_vartype(
-                    tixi=tixi,
-                    xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
-                    default_value=1.0,
-                    name="Fuselage mesh size factor",
-                    key="fuselage_mesh_size_factor",
-                    description="""Factor proportional to the biggest cell
-                    on the plane to obtain cell size on the farfield
-                    """,
-                )
+                left_col, right_col = st.columns(2)
+                with left_col:
+                    # Euler Mesh options
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
+                        default_value=1.0,
+                        name="Fuselage mesh size factor",
+                        key="fuselage_mesh_size_factor",
+                        description="""Factor proportional to the biggest cell
+                        on the plane to obtain cell size on the farfield
+                        """,
+                    )
 
-                float_vartype(
-                    tixi=tixi,
-                    xpath=GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
-                    default_value=1.0,
-                    name="Wings mesh size factor",
-                    key="wing_mesh_size_factor_fuselage",
-                    description="""Factor proportional to fuselage radius
-                        of curvature to obtain cell size on it.
-                    """,
-                )
+                with right_col:
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
+                        default_value=1.0,
+                        name="Wings mesh size factor",
+                        key="wing_mesh_size_factor_fuselage",
+                        description="""Factor proportional to fuselage radius
+                            of curvature to obtain cell size on it.
+                        """,
+                    )
+
         else:
             safe_remove(tixi, xpath=GMSH_MESH_SIZE_FARFIELD_XPATH)
             safe_remove(tixi, xpath=GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH)
@@ -147,7 +155,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             with st.container(
                 border=True,
             ):
-                st.markdown("#### RANS Mesh Options")
+                st.markdown("**RANS Mesh Options**")
 
                 float_vartype(
                     tixi=tixi,
@@ -237,76 +245,74 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
         label="General Mesh Options",
         expanded=True,
     ):
-        float_vartype(
-            tixi=tixi,
-            xpath=GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
-            default_value=1.0,
-            name="Wings mesh size factor",
-            key="wing_mesh_size_factor_wing",
-            description="""
-                Factor proportional to wing radius of curvature to obtain cell size on it.
-            """,
-        )
+        left_col, mid_col, right_col = st.columns(3)
+        with left_col:
+            float_vartype(
+                tixi=tixi,
+                xpath=GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
+                default_value=1.0,
+                name="Wings mesh size factor",
+                key="wing_mesh_size_factor_wing",
+                description="""
+                    Factor proportional to wing radius of curvature to obtain cell size on it.
+                """,
+            )
 
-        float_vartype(
-            tixi=tixi,
-            xpath=GMSH_MESH_SIZE_ENGINES_XPATH,
-            default_value=0.23,
-            name="Engine Mesh Size",
-            key="engine_mesh_size",
-            description="Value assigned for the engine surfaces mesh size.",
-        )
+        with mid_col:
+            float_vartype(
+                tixi=tixi,
+                xpath=GMSH_MESH_SIZE_ENGINES_XPATH,
+                default_value=0.23,
+                name="Engine Mesh Size",
+                key="engine_mesh_size",
+                description="Value assigned for the engine surfaces mesh size.",
+            )
 
-        float_vartype(
-            tixi=tixi,
-            xpath=GMSH_MESH_SIZE_PROPELLERS_XPATH,
-            default_value=0.23,
-            name="Propellers Mesh Size",
-            key="propeller_mesh_size",
-            description="Value assigned for the propeller surfaces mesh size.",
-        )
+        with right_col:
+            float_vartype(
+                tixi=tixi,
+                xpath=GMSH_MESH_SIZE_PROPELLERS_XPATH,
+                default_value=0.23,
+                name="Propellers Mesh Size",
+                key="propeller_mesh_size",
+                description="Value assigned for the propeller surfaces mesh size.",
+            )
 
     # Advanced Mesh Parameters
     with st.expander(
         label="Advanced Mesh Parameters",
         expanded=True,
     ):
+        left_col, mid_col, right_col = st.columns(3)
+        with left_col:
+            float_vartype(
+                tixi=tixi,
+                xpath=GMSH_N_POWER_FACTOR_XPATH,
+                default_value=2.0,
+                name="n power factor",
+                key="n_power_factor",
+                description="Power of the power law of the refinement on LE and TE."
+            )
 
-        float_vartype(
-            tixi=tixi,
-            xpath=GMSH_N_POWER_FACTOR_XPATH,
-            default_value=2.0,
-            name="n power factor",
-            key="n_power_factor",
-            description="Power of the power law of the refinement on LE and TE."
-        )
+        with mid_col:
+            float_vartype(
+                tixi=tixi,
+                xpath=GMSH_N_POWER_FIELD_XPATH,
+                default_value=0.9,
+                name="n power field",
+                key="n_power_field",
+                description="Value that changes the measure of fist cells near aircraft parts.",
+            )
 
-        float_vartype(
-            tixi=tixi,
-            xpath=GMSH_N_POWER_FIELD_XPATH,
-            default_value=0.9,
-            name="n power field",
-            key="n_power_field",
-            description="Value that changes the measure of fist cells near aircraft parts.",
-        )
-
-        float_vartype(
-            tixi=tixi,
-            xpath=GMSH_REFINE_FACTOR_XPATH,
-            default_value=2.0,
-            name="LE/TE refinement factor",
-            key="refine_factor",
-            description="Refinement factor of wing leading/trailing edge mesh.",
-        )
-
-        bool_vartype(
-            tixi=tixi,
-            xpath=GMSH_REFINE_TRUNCATED_XPATH,
-            default_value=False,
-            name="Refine truncated TE",
-            key="refine_truncated",
-            description="Enable the refinement of truncated trailing edge.",
-        )
+        with right_col:
+            float_vartype(
+                tixi=tixi,
+                xpath=GMSH_REFINE_FACTOR_XPATH,
+                default_value=2.0,
+                name="LE/TE refinement factor",
+                key="refine_factor",
+                description="Refinement factor of wing leading/trailing edge mesh.",
+            )
 
         bool_vartype(
             tixi=tixi,
@@ -316,40 +322,6 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             key="auto_refine",
             description="""Automatically refine the mesh on surfaces that
                 are small compare to the chosen mesh size.
-            """,
-        )
-
-        bool_vartype(
-            tixi=tixi,
-            xpath=GMSH_EXPORT_PROP_XPATH,
-            default_value=False,
-            name="Export propeller(s) to be use as disk actuator",
-            key="export_propellers",
-            description="Export propeller(s) to be use as disk actuator",
-        )
-
-        float_vartype(
-            tixi=tixi,
-            xpath=GMSH_INTAKE_PERCENT_XPATH,
-            default_value=20.0,
-            name="Engine intake position",
-            key="intake_percent",
-            description="""
-                Position of the intake surface boundary condition
-                in percentage of the engine length from the
-                beginning of the engine.
-            """,
-        )
-
-        float_vartype(
-            tixi=tixi,
-            xpath=GMSH_EXHAUST_PERCENT_XPATH,
-            default_value=20.0,
-            name="Engine exhaust position",
-            key="exhaust_percent",
-            description="""Position of the exhaust surface boundary
-                condition in percentage of the engine length from
-                the end of the engine.
             """,
         )
 
@@ -379,6 +351,57 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             key="open_gmsh",
             description="Open GMSH GUI when the mesh is created",
         )
+
+        bool_vartype(
+            tixi=tixi,
+            xpath=GMSH_REFINE_TRUNCATED_XPATH,
+            default_value=False,
+            name="Refine truncated TE",
+            key="refine_truncated",
+            description="Enable the refinement of truncated trailing edge.",
+        )
+
+        bool_vartype(
+            tixi=tixi,
+            xpath=GMSH_EXPORT_PROP_XPATH,
+            default_value=False,
+            name="Export propeller(s) to be use as disk actuator",
+            key="export_propellers",
+            description="Export propeller(s) to be use as disk actuator",
+        )
+
+    with st.expander(
+        label="Engine(s) Settings",
+        expanded=False,
+    ):
+        left_col, right_col = st.columns(2)
+
+        with left_col:
+            float_vartype(
+                tixi=tixi,
+                xpath=GMSH_INTAKE_PERCENT_XPATH,
+                default_value=20.0,
+                name="Engine intake position",
+                key="intake_percent",
+                description="""
+                    Position of the intake surface boundary condition
+                    in percentage of the engine length from the
+                    beginning of the engine.
+                """,
+            )
+
+        with right_col:
+            float_vartype(
+                tixi=tixi,
+                xpath=GMSH_EXHAUST_PERCENT_XPATH,
+                default_value=20.0,
+                name="Engine exhaust position",
+                key="exhaust_percent",
+                description="""Position of the exhaust surface boundary
+                    condition in percentage of the engine length from
+                    the end of the engine.
+                """,
+            )
 
     with st.expander(
         label="Control Surfaces Settings",

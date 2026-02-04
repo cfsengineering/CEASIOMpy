@@ -76,9 +76,7 @@ from ceasiompy.CPACS2GMSH import (
 )
 
 
-# ==============================================================================
-#   FUNCTIONS
-# ==============================================================================
+# Functions
 
 
 def launch_avl(
@@ -213,84 +211,7 @@ def launch_gmsh_su2_geom(
     su2_dir = results_dir / "SU2Run" / f"SU2Run_{idx}_iter{it}"
     su2_dir.mkdir(exist_ok=True)
 
-    tixi = cpacs.tixi
-    # Load default parameters
-    st.session_state = MagicMock()
-    type_mesh = str(get_value_or_default(tixi, GMSH_MESH_TYPE_XPATH, "Euler"))
-    farfield_ms = str(get_value_or_default(tixi, GMSH_MESH_SIZE_FARFIELD_XPATH,10))
-    fuselage_ms = str(get_value_or_default(tixi, GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,1))
-    wings_ms = str(get_value_or_default(tixi, GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,1))
-    engines_ms = str(get_value_or_default(tixi, GMSH_MESH_SIZE_ENGINES_XPATH,0.23))
-    propellers_ms = str(get_value_or_default(tixi, GMSH_MESH_SIZE_PROPELLERS_XPATH,0.23))
-    Npower_fac = str(get_value_or_default(tixi, GMSH_N_POWER_FACTOR_XPATH,2))
-    Npower_field = str(get_value_or_default(tixi, GMSH_N_POWER_FIELD_XPATH,0.9))
-    refine_fac = str(get_value_or_default(tixi, GMSH_REFINE_FACTOR_XPATH,2))
-    refine_trunc = str(get_value_or_default(tixi, GMSH_REFINE_TRUNCATED_XPATH, False))
-    auto_ref = str(get_value_or_default(tixi, GMSH_AUTO_REFINE_XPATH, False))
-    angled_ar = str(get_value_or_default(tixi, GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,1.5))
-    n_layer = str(get_value_or_default(tixi, GMSH_NUMBER_LAYER_XPATH,20))
-    h_first = str(get_value_or_default(tixi, GMSH_H_FIRST_LAYER_XPATH,3))
-    max_thick = str(get_value_or_default(tixi, GMSH_MAX_THICKNESS_LAYER_XPATH,100))
-    growth_ratio = str(get_value_or_default(tixi, GMSH_GROWTH_RATIO_XPATH,1.2))
-    growth_fac = str(get_value_or_default(tixi, GMSH_GROWTH_FACTOR_XPATH,1.4))
-    feature_angle = str(get_value_or_default(tixi, GMSH_FEATURE_ANGLE_XPATH,40))
-    intake_per = str(get_value_or_default(tixi, GMSH_INTAKE_PERCENT_XPATH,20))
-    exhaust_per = str(get_value_or_default(tixi, GMSH_EXHAUST_PERCENT_XPATH,20))
-
-    # Retrieve the CpACS2gmsh gui values of smtrain
-    update_cpacs_from_specs(cpacs, CPACS2GMSH_NAME, test=False)
-
-    tixi.updateTextElement(GMSH_MESH_TYPE_XPATH, type_mesh)
-    tixi.updateTextElement(GMSH_MESH_SIZE_FARFIELD_XPATH, farfield_ms)
-    tixi.updateTextElement(GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH, fuselage_ms)
-    tixi.updateTextElement(GMSH_MESH_SIZE_FACTOR_WINGS_XPATH, wings_ms)
-    tixi.updateTextElement(GMSH_MESH_SIZE_ENGINES_XPATH, engines_ms)
-    tixi.updateTextElement(GMSH_MESH_SIZE_PROPELLERS_XPATH, propellers_ms)
-    tixi.updateTextElement(GMSH_N_POWER_FACTOR_XPATH, Npower_fac)
-    tixi.updateTextElement(GMSH_N_POWER_FIELD_XPATH, Npower_field)
-    tixi.updateTextElement(GMSH_REFINE_FACTOR_XPATH, refine_fac)
-    tixi.updateTextElement(GMSH_REFINE_TRUNCATED_XPATH, refine_trunc)
-    tixi.updateTextElement(GMSH_AUTO_REFINE_XPATH, auto_ref)
-    tixi.updateTextElement(GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH, angled_ar)
-    tixi.updateTextElement(GMSH_NUMBER_LAYER_XPATH, n_layer)
-    tixi.updateTextElement(GMSH_H_FIRST_LAYER_XPATH, h_first)
-    tixi.updateTextElement(GMSH_MAX_THICKNESS_LAYER_XPATH, max_thick)
-    tixi.updateTextElement(GMSH_GROWTH_RATIO_XPATH, growth_ratio)
-    tixi.updateTextElement(GMSH_GROWTH_FACTOR_XPATH, growth_fac)
-    tixi.updateTextElement(GMSH_FEATURE_ANGLE_XPATH, feature_angle)
-    tixi.updateTextElement(GMSH_INTAKE_PERCENT_XPATH, intake_per)
-    tixi.updateTextElement(GMSH_EXHAUST_PERCENT_XPATH, exhaust_per)
-
     run_cpacs2gmsh(cpacs, wkdir=gmsh_dir)
-
-    # tixi = cpacs.tixi
-    su2mesh, su2_mesh_path = None, None
-    cpacs.get_aeromap_by_uid(aeromap_uid)
-
-    if tixi.checkElement(SU2MESH_XPATH):
-        su2mesh = get_value(tixi, SU2MESH_XPATH)
-
-    if tixi.checkElement(USED_SU2_MESH_XPATH):
-        su2_mesh_path = tixi.getTextElement(USED_SU2_MESH_XPATH)
-        if not su2_mesh_path:
-            su2_mesh_path = None
-
-    # su2_mesh_path_type = str(get_value(tixi, USED_SU2_MESH_XPATH + "type"))
-    max_iters = str(get_value(tixi, SU2_MAX_ITER_XPATH))
-
-    update_cpacs_from_specs(cpacs, SU2RUN_NAME, test=False)
-
-    tixi.updateTextElement(SU2_AEROMAP_UID_XPATH, aeromap_uid)
-    # tixi.updateTextElement(USED_SU2_MESH_XPATH + "type", su2_mesh_path_type)
-    tixi.updateTextElement(SU2_MAX_ITER_XPATH, max_iters)
-
-    if su2mesh is not None:
-        tixi.updateTextElement(SU2MESH_XPATH, su2mesh)
-
-    if su2_mesh_path is not None:
-        tixi.updateTextElement(USED_SU2_MESH_XPATH, str(su2_mesh_path))
-
-    # results = []
     run_su2(cpacs, results_dir=su2_dir)
 
     df_su2 = retrieve_aeromap_data(cpacs, aeromap_uid, objective)

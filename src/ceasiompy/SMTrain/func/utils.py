@@ -220,4 +220,3 @@ def drop_constant_columns(df: pd.DataFrame) -> pd.DataFrame:
     Remove columns with constant values (no variance).
     """
     return df.loc[:, df.nunique(dropna=False) > 1]
-

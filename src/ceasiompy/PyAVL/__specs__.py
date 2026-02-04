@@ -37,32 +37,36 @@ def gui_settings(cpacs: CPACS) -> None:
         label="Panel Settings",
         expanded=True,
     ):
-        list_vartype(
-            tixi=tixi,
-            name="Panel distribution",
-            key="panel_distribution",
-            default_value=["cosine", "sine", "equal"],
-            description="Select the type of distribution.",
-            xpath=AVL_DISTR_XPATH,
-        )
+        left_col, mid_col, right_col = st.columns([5, 4, 4])
+        with left_col:
+            list_vartype(
+                tixi=tixi,
+                name="Panel distribution",
+                key="panel_distribution",
+                default_value=["cosine", "sine", "equal"],
+                description="Select the type of distribution.",
+                xpath=AVL_DISTR_XPATH,
+            )
 
-        int_vartype(
-            tixi=tixi,
-            name="Number of chordwise vortices",
-            key="chordwise_vortices_nb",
-            default_value=20,
-            description="Select the number of chordwise vortices.",
-            xpath=AVL_NCHORDWISE_XPATH,
-        )
+        with mid_col:
+            int_vartype(
+                tixi=tixi,
+                name="Number of chordwise vortices",
+                key="chordwise_vortices_nb",
+                default_value=20,
+                description="Select the number of chordwise vortices.",
+                xpath=AVL_NCHORDWISE_XPATH,
+            )
 
-        int_vartype(
-            tixi=tixi,
-            name="Number of spanwise vortices",
-            key="spanwise_vortices_nb",
-            default_value=30,
-            description="Select the number of spanwise vortices.",
-            xpath=AVL_NSPANWISE_XPATH,
-        )
+        with right_col:
+            int_vartype(
+                tixi=tixi,
+                name="Number of spanwise vortices",
+                key="spanwise_vortices_nb",
+                default_value=30,
+                description="Select the number of spanwise vortices.",
+                xpath=AVL_NSPANWISE_XPATH,
+            )
 
     with st.expander(
         label="Specific Settings",

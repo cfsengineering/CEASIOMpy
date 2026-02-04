@@ -103,7 +103,7 @@ def multiselect_vartype(
     description,
 ) -> list[str]:
     if not default_value:
-        raise 
+        raise
 
     output = st.multiselect(
         label=name,
@@ -188,20 +188,19 @@ def dataframe_vartype(
 
 
 def int_vartype(tixi, xpath, default_value, name, key, description) -> int:
-    with st.columns([1, 2])[0]:
-        raw_value = safe_get_value(tixi, xpath, default_value)
-        try:
-            value = int(raw_value)
-        except (TypeError, ValueError):
-            value = int(default_value)
-        output = st.number_input(
-            name,
-            value=value,
-            key=key,
-            help=description,
-        )
-        add_value(tixi, xpath, output)
-        return output
+    raw_value = safe_get_value(tixi, xpath, default_value)
+    try:
+        value = int(raw_value)
+    except (TypeError, ValueError):
+        value = int(default_value)
+    output = st.number_input(
+        label=name,
+        value=value,
+        key=key,
+        help=description,
+    )
+    add_value(tixi, xpath, output)
+    return output
 
 
 def float_vartype(
@@ -220,19 +219,17 @@ def float_vartype(
     except (TypeError, ValueError):
         default_value = float(default_value)
 
-    with st.columns([1, 2])[0]:
-        output = st.number_input(
-            name,
-            value=default_value,
-            format="%g",
-            key=key,
-            help=description,
-            min_value=min_value,
-            max_value=max_value,
-        )
-        add_value(tixi, xpath, output)
-        return output
-    return default_value
+    output = st.number_input(
+        name,
+        value=default_value,
+        format="%g",
+        key=key,
+        help=description,
+        min_value=min_value,
+        max_value=max_value,
+    )
+    add_value(tixi, xpath, output)
+    return output
 
 
 def list_vartype(tixi: Tixi3, xpath, default_value, name, key, description) -> str:
@@ -250,6 +247,7 @@ def list_vartype(tixi: Tixi3, xpath, default_value, name, key, description) -> s
         key=key,
         help=description,
         horizontal=True,
+        width="stretch",
     )
     add_value(tixi, xpath, output)
     return output
@@ -278,6 +276,7 @@ def add_ctrl_surf_vartype(
         index=idx,
         key=key,
         help=description,
+        width="stretch",
     )
     add_value(tixi, ctrl_xpath, selected)
 
@@ -304,10 +303,11 @@ def bool_vartype(tixi, xpath, default_value, name, key, description) -> bool:
         value = bool(raw_value)
 
     output = st.checkbox(
-        name,
+        label=name,
         value=value,
         key=key,
         help=description,
+        width="stretch",
     )
     add_value(tixi, xpath, output)
     return output

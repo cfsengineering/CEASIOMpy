@@ -230,19 +230,17 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
             # 3. Plot, save and get results
             if selected_krg_model:
-                if show_plot:
-                    log.info("Validation plots.")
-                    plot_dir = results_dir / "Validation_plot_KRG"
-                    plot_dir.mkdir(parents=True, exist_ok=True)
-                    plot_validation(krg_model, sets, objective, plot_dir)
+                log.info("Validation plots.")
+                plot_dir = results_dir / "Validation_plot_KRG"
+                plot_dir.mkdir(parents=True, exist_ok=True)
+                plot_validation(krg_model, sets, objective, plot_dir)
 
                 save_model(cpacs, krg_model, objective, results_dir, param_order)
 
             if selected_rbf_model:
-                if show_plot:
-                    plot_dir = results_dir / "Validation_plot_RBF"
-                    plot_dir.mkdir(parents=True, exist_ok=True)
-                    plot_validation(rbf_model, sets, objective, plot_dir)
+                plot_dir = results_dir / "Validation_plot_RBF"
+                plot_dir.mkdir(parents=True, exist_ok=True)
+                plot_validation(rbf_model, sets, objective, plot_dir)
 
                 save_model(cpacs, rbf_model, objective, results_dir, param_order)
 
@@ -270,20 +268,18 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             )
 
         if selected_krg_model:
-            if show_plot:
-                log.info("Validation plots.")
-                plot_dir = results_dir / "Validation_plot_KRG"
-                plot_dir.mkdir(parents=True, exist_ok=True)
-                plot_validation(krg_model, sets, objective, plot_dir)
+            log.info("Validation plots.")
+            plot_dir = results_dir / "Validation_plot_KRG"
+            plot_dir.mkdir(parents=True, exist_ok=True)
+            plot_validation(krg_model, sets, objective, plot_dir)
 
             save_model(cpacs, krg_model, objective, results_dir, param_order)
 
         if selected_rbf_model:
-            if show_plot:
-                log.info("Validation plots.")
-                plot_dir = results_dir / "Validation_plot_RBF"
-                plot_dir.mkdir(parents=True, exist_ok=True)
-                plot_validation(rbf_model, sets, objective, plot_dir)
+            log.info("Validation plots.")
+            plot_dir = results_dir / "Validation_plot_RBF"
+            plot_dir.mkdir(parents=True, exist_ok=True)
+            plot_validation(rbf_model, sets, objective, plot_dir)
 
             save_model(cpacs, rbf_model, objective, results_dir, param_order)
 

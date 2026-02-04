@@ -514,7 +514,7 @@ def run_first_level_training_geometry(
     )
 
     final_ranges_for_gui = final_ranges_for_gui.loc[
-    final_ranges_for_gui["Min"] != final_ranges_for_gui["Max"]
+        final_ranges_for_gui["Min"] != final_ranges_for_gui["Max"]
     ].copy()
 
     best_geometry_idx = final_level1_df[objective].idxmax()
@@ -543,7 +543,6 @@ def run_first_level_training_geometry(
         rmse_path = f"{results_dir}/rmse_KRG.csv"
         rmse_df.to_csv(rmse_path, index=False)
         log.info("--------------KRG model trained.--------------\n")
-        
         model_name = "KRG"
         save_best_surrogate_geometry(
             surrogate_model=krg_model,
@@ -553,7 +552,7 @@ def run_first_level_training_geometry(
             normalization_params=normalization_params,
             final_level1_df_c=final_level1_df_c,
             results_dir=best_surrogate_geom_path,
-            )
+        )
 
     if RBF_model_bool:
         log.info("--------------Star training RBF model.--------------\n")
@@ -572,7 +571,7 @@ def run_first_level_training_geometry(
             normalization_params=normalization_params,
             final_level1_df_c=final_level1_df_c,
             results_dir=best_surrogate_geom_path,
-            )
+        )
 
     return krg_model, rbf_model, level1_sets, best_geometry_idx, param_order
 
@@ -705,14 +704,11 @@ def run_adaptative_refinement_geom(
                 log.warning(f"No normalization params for {col}, skipping denorm.")
                 continue
 
+            std = normalization_params[col]["std"]
             mean = normalization_params[col]["mean"]
-            std  = normalization_params[col]["std"]
-
             new_point_df[col] = new_point_df[col] * std + mean
 
-
         for i, geom_row in new_point_df.iterrows():
-
             cpacs_p = SU2_local_dir / f"CPACS_newpoint_{i+1:03d}_iter{it}.xml"
             copyfile(cpacs_file, cpacs_p)
             cpacs_out_obj = CPACS(cpacs_p)
@@ -736,7 +732,7 @@ def run_adaptative_refinement_geom(
             # Update CPACS file
             cpacs_obj = update_geometry_cpacs(cpacs_file, cpacs_p, params_to_update)
             cpacs_list.append(cpacs_obj)
-        
+
         # Get data from SU2 at the high variance points
         new_df_list = []
         for idx, cpacs_ in enumerate(cpacs_list):
@@ -771,7 +767,7 @@ def run_adaptative_refinement_geom(
             normalization_params=normalization_params,
             final_level1_df_c=df,
             results_dir=results_dir,
-            )
+        )
 
         cpacs_list.clear()
         # 2nd Breaking condition
@@ -826,7 +822,7 @@ def training_existing_db(
             normalization_params=normalization_params,
             final_level1_df_c=df1,
             results_dir=results_dir,
-            )
+        )
 
     if RBF_model_bool:
         print("\n\n")
@@ -836,7 +832,6 @@ def training_existing_db(
         rmse_path = f"{results_dir}/rmse_RBF.csv"
         rmse_df.to_csv(rmse_path, index=False)
         log.info("--------------RBF model trained.--------------\n")
-        
         model_name = "RBF"
         save_best_surrogate_geometry(
             surrogate_model=rbf_model,
@@ -846,7 +841,7 @@ def training_existing_db(
             normalization_params=normalization_params,
             final_level1_df_c=df1,
             results_dir=results_dir,
-            )
+        )
 
     return krg_model, rbf_model, level1_sets, param_order
 
@@ -962,7 +957,7 @@ def run_adaptative_refinement_geom_existing_db(
             normalization_params=normalization_params,
             final_level1_df_c=df,
             results_dir=results_dir,
-            )
+        )
 
         cpacs_list.clear()
 
@@ -1096,9 +1091,6 @@ def mf_RBF(
 
     # Unpack first level
     x_fl_train, x_val1, x_test1, y_fl_train, y_val1, y_test1 = collect_level_data(level1_sets)
-    log.info(f"Level 1 shapes: x_train={x_fl_train.shape}, y_train={y_fl_train.shape}, "
-             f"x_val={None if x_val1 is None else x_val1.shape}, y_val={None if y_val1 is None else y_val1.shape}, "
-             f"x_test={None if x_test1 is None else x_test1.shape}, y_test={None if y_test1 is None else y_test1.shape}")
 
     # Unpack second level
     if level2_sets:
@@ -1120,24 +1112,21 @@ def mf_RBF(
     x_test = concatenate_if_not_none([x_test1, x_test2, x_test3])
     y_test = concatenate_if_not_none([y_test1, y_test2, y_test3])
 
-    log.info(f"Combined validation shapes: x_val={None if x_val is None else x_val.shape}, y_val={None if y_val is None else y_val.shape}")
-    log.info(f"Combined test shapes: x_test={None if x_test is None else x_test.shape}, y_test={None if y_test is None else y_test.shape}")
-
     # Objective function for Bayesian optimization
     def objective(params) -> float:
         d0, poly_degree, reg, lambda_penalty = params
-        log.debug(f"Trying hyperparams: d0={d0}, poly_degree={poly_degree}, reg={reg}, lambda={lambda_penalty}")
+        log.debug(f"Trying hyperparams: {d0=}, {poly_degree=}, {reg=}, {lambda_penalty=}")
 
         model = RBF(d0=d0, poly_degree=int(poly_degree), reg=reg, print_global=False)
-        log.debug(f"Setting Level 1 training values: x_fl_train.shape={x_fl_train.shape}, y_fl_train.shape={y_fl_train.shape}")
+        log.debug(f"Setting Level 1 training values: {x_fl_train.shape=}, {y_fl_train.shape=}")
         model.set_training_values(x_fl_train, y_fl_train)
 
         if x_sl_train is not None and y_sl_train is not None:
-            log.debug(f"Adding Level 2 training values: x_sl_train.shape={x_sl_train.shape}, y_sl_train.shape={y_sl_train.shape}")
+            log.debug(f"Adding Level 2 training values: {x_sl_train.shape=}, {y_sl_train.shape=}")
             model.set_training_values(x_sl_train, y_sl_train, name=2)
 
         if x_tl_train is not None and y_tl_train is not None:
-            log.debug(f"Adding Level 3 training values: x_tl_train.shape={x_tl_train.shape}, y_tl_train.shape={y_tl_train.shape}")
+            log.debug(f"Adding Level 3 training values: {x_tl_train.shape=}, {y_tl_train.shape=}")
             model.set_training_values(x_tl_train, y_tl_train, name=3)
 
         model.train()
@@ -1405,5 +1394,5 @@ def run_adaptative_refinement_geom_RBF(
                 normalization_params=normalization_params,
                 final_level1_df_c=df_new,
                 results_dir=results_dir,
-                )
+            )
             break

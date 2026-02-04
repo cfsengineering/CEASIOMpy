@@ -35,10 +35,10 @@ from ceasiompy.PyAVL import MODULE_NAME as PYAVL
 from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
 from ceasiompy.SMTrain import (
-    LEVEL_ONE,
     LEVEL_TWO,
     OBJECTIVES_LIST,
     WING_PARAMETERS,
+    FIDELITY_LEVELS,
     AEROMAP_FEATURES,
     SMTRAIN_MODELS_XPATH,
     SMTRAIN_OBJECTIVE_XPATH,
@@ -60,17 +60,20 @@ def gui_settings(cpacs: CPACS) -> None:
     chosen_models = multiselect_vartype(
         tixi=tixi,
         xpath=SMTRAIN_MODELS_XPATH,
-        default_value=["KRG, RBF"],
+        default_value=["KRG", "RBF"],
         name="Surrogate Model Type",
         description="Kriging (KRG) or/and Radial Basis Functions (RBF).",
         key="smtrain_chosen_model",
     )
+    if not chosen_models:
+        st.warning("You need to select at least 1 model.")
+        return None
 
     if "KRG" in chosen_models:
         fidelity_level = list_vartype(
             tixi=tixi,
             xpath=SMTRAIN_FIDELITY_LEVEL_XPATH,
-            default_value=[LEVEL_ONE, LEVEL_TWO],  # TODO: , "Three levels" not implemented yet
+            default_value=FIDELITY_LEVELS,  # TODO: , "Three levels" not implemented yet
             name="Range of fidelity level(s).",
             description="""1st-level of fidelity (low fidelity),
                 2nd level of fidelity (low + high fidelity) on high-variance points.
@@ -82,32 +85,21 @@ def gui_settings(cpacs: CPACS) -> None:
             expanded=False,
         ):
             avl_settings(cpacs)
-        
-        if fidelity_level == "Two levels":
+
+        if fidelity_level == LEVEL_TWO:
             with st.expander(
-                label=f"Second Level (High Fidelity, {CPACS2GMSH} + {SU2RUN} Settings)", 
+                label=f"Second Level (High Fidelity, {CPACS2GMSH} + {SU2RUN} Settings)",
             ):
-                tab = st.tabs(
+                tabs = st.tabs(
                     tabs=[CPACS2GMSH, SU2RUN],
                 )
-                if tab == CPACS2GMSH:
+                with tabs[0]:
                     gmsh_settings(cpacs)
-                if tab == SU2RUN:
+                with tabs[1]:
                     su2_settings(cpacs)
 
     else:
         safe_remove(tixi, xpath=SMTRAIN_FIDELITY_LEVEL_XPATH)
-
-    float_vartype(
-        tixi=tixi,
-        xpath=SMTRAIN_TRAIN_PERC_XPATH,
-        default_value=0.7,
-        name=r"% used of training data",
-        description="Defining the percentage of the data to use to train the model.",
-        key="smtrain_training_percentage",
-        min_value=0.0,
-        max_value=1.0,
-    )
 
     load_existing = list_vartype(
         tixi=tixi,
@@ -128,6 +120,17 @@ def gui_settings(cpacs: CPACS) -> None:
             default_value=OBJECTIVES_LIST,
         )
 
+        float_vartype(
+            tixi=tixi,
+            xpath=SMTRAIN_TRAIN_PERC_XPATH,
+            default_value=0.7,
+            name=r"% used of training data",
+            description="Defining the percentage of the data to use to train the model.",
+            key="smtrain_training_percentage",
+            min_value=0.0,
+            max_value=1.0,
+        )
+
         int_vartype(
             tixi=tixi,
             xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
@@ -143,26 +146,35 @@ def gui_settings(cpacs: CPACS) -> None:
         uid_list = return_uid_wings_sections(tixi)
         wings = sorted(set(wing_uid for (wing_uid, _) in uid_list))
 
-        st.markdown('###### Select the wings to optimise')
-        for i_wing, wing_uid in enumerate(wings):
-            default_value = True if i_wing == 0 else False
-            selected_wing_xpath = xpath + f"/{wing_uid}"
-            wing_optimized = bool_vartype(
-                tixi=tixi,
-                xpath=selected_wing_xpath,
-                default_value=default_value,
-                key=f"smtrain_{wing_uid}_selected",
-                name=f"Wing {wing_uid=}",
-                description=f"Optimize wing {wing_uid=}.",
-            )
+        with st.expander(
+            label="Geometry Design Space",
+            expanded=True,
+        ):
+            st.markdown("**Wing**")
+            for i_wing, wing_uid in enumerate(wings):
+                with st.container(
+                    border=True,
+                ):
+                    default_value = True if i_wing == 0 else False
+                    wing_xpath = xpath + f"/{wing_uid}"
+                    wing_optimized = bool_vartype(
+                        tixi=tixi,
+                        xpath=wing_xpath + "/selected",
+                        default_value=default_value,
+                        key=f"smtrain_{wing_uid}_selected",
+                        name=f"Wing {wing_uid=}",
+                        description=f"Optimize wing {wing_uid=}.",
+                    )
 
-            if wing_optimized:
-                _wing_settings(
-                    tixi=tixi,
-                    uid_list=uid_list,
-                    wing_uid=wing_uid,
-                    selected_wing_xpath=selected_wing_xpath,
-                )
+                    if wing_optimized:
+                        _wing_settings(
+                            tixi=tixi,
+                            xpath=xpath,
+                            uid_list=uid_list,
+                            wing_uid=wing_uid,
+                            wing_xpath=wing_xpath,
+                        )
+
     elif load_existing == "Load Geometry Exploration Simulations":
         st.info("Whats going on ?")
         # uploaded_existing_simulations = st.file_uploader(
@@ -198,7 +210,7 @@ def _wing_settings(
     xpath,
     uid_list,
     wing_uid,
-    selected_wing_xpath,
+    wing_xpath,
 ):
     # Sections of specific wing
     sections = [
@@ -206,83 +218,91 @@ def _wing_settings(
         for (wng, sec_uid) in uid_list
         if wng == wing_uid
     ]
-    st.markdown(f"##### ↪️ Sections of {wing_uid}")
     for i_sec, section_uid in enumerate(sections):
-        sec_left_col, sec_right_col = st.columns([2, 3])
-        sec_selected_xpath = selected_wing_xpath + f"/{section_uid}"
+        sec_selected_xpath = wing_xpath + f"/sections/{section_uid}/selected"
+        default_value = True if i_sec == 0 else False
 
-        with sec_left_col:
-            default_value = True if i_sec == 0 else False
+        with st.container(
+            border=True,
+        ):
             sec_optimized = bool_vartype(
                 tixi=tixi,
                 xpath=sec_selected_xpath,
                 key=f"smtrain_{wing_uid}_{section_uid}_selected",
                 description=f"Optimize {section_uid=} of {wing_uid=}",
                 default_value=default_value,
-                name=f"Section {section_uid=} of {wing_uid=}"
+                name=f"{section_uid}"
             )
 
-        with sec_right_col:
             if sec_optimized:
                 base_xpath = xpath + f"/{wing_uid}/sections/{section_uid}/parameters"
-                for i_param, param in enumerate(WING_PARAMETERS):
-                    params_xpath = base_xpath + f"/{param}"
-                    default_value = True if i_param == 0 else False
-                    status = bool_vartype(
-                        tixi=tixi,
-                        xpath=params_xpath + "/status",
-                        default_value=default_value,
-                        name=f"Status of {param}",
-                        key=f"smtrain_{wing_uid}_{section_uid}_{param}_status",
-                        description=f"""Choose if you want to optimize {param=}
-                            of geometry element {wing_uid=} at {section_uid=}
-                        """,
-                    )
+                with st.container(
+                    border=True,
+                ):
+                    for i_param, param in enumerate(WING_PARAMETERS):
+                        params_xpath = base_xpath + f"/{param}"
+                        default_value = True if i_param == 0 else False
 
-                    if status:
-                        params_current_value_xpath = get_xpath_for_param(
-                            tixi=tixi,
-                            param=param,
-                            wing_uid=wing_uid,
-                            section_uid=section_uid
-                        )
-
-                        current_value = get_value_or_default(
-                            tixi=tixi,
-                            xpath=params_current_value_xpath,
-                            default_value=0.0,
-                        )
-
-                        default_min_value = 0.8 * current_value
-                        default_max_value = 1.2 * current_value
-
-                        col_min, col_val, col_max = st.columns([0.5, 0.5, 0.5])
-
-                        with col_min:
-                            float_vartype(
+                        left_col, right_col = st.columns([1, 3])
+                        with left_col:
+                            status = bool_vartype(
                                 tixi=tixi,
-                                xpath=params_xpath + "/min_value/value",
-                                description=f"""Define the range (1d design space) for {param=}
+                                xpath=params_xpath + "/status",
+                                default_value=default_value,
+                                name=f"{param}",
+                                key=f"smtrain_{wing_uid}_{section_uid}_{param}_status",
+                                description=f"""Choose if you want to optimize {param=}
                                     of geometry element {wing_uid=} at {section_uid=}
                                 """,
-                                key=f"smtrain_{wing_uid}_{section_uid}_{param}_min_value",
-                                default_value=default_min_value,
-                                name=f"Minimum value of {param=}",
-                                max_value=current_value,
                             )
-                        with col_val:
-                            st.markdown("Current value:")
-                            st.markdown(f"<= {current_value:.3f} <=")
 
-                        with col_max:
-                            float_vartype(
-                                tixi=tixi,
-                                xpath=params_xpath + "/max_value/value",
-                                description=f"""Define the range (1d design space) for {param=}
-                                    of geometry element {wing_uid=} at {section_uid=}
-                                """,
-                                key=f"smtrain_{wing_uid}_{section_uid}_{param}_min_value",
-                                default_value=default_max_value,
-                                name=f"Maximum value of {param=}",
-                                min_value=current_value,
-                            )
+                        with right_col:
+                            if status:
+                                params_current_value_xpath = get_xpath_for_param(
+                                    tixi=tixi,
+                                    param=param,
+                                    wing_uid=wing_uid,
+                                    section_uid=section_uid
+                                )
+
+                                current_value = get_value_or_default(
+                                    tixi=tixi,
+                                    xpath=params_current_value_xpath,
+                                    default_value=0.0,
+                                )
+
+                                default_min_value = 0.8 * current_value
+                                default_max_value = 1.2 * current_value
+
+                                col_min, col_val, col_max = st.columns([0.5, 0.5, 0.5])
+
+                                with col_min:
+                                    float_vartype(
+                                        tixi=tixi,
+                                        xpath=params_xpath + "/min_value/value",
+                                        description=f"""Define the range (1d design space)
+                                            for {param=} of geometry element
+                                            {wing_uid=} at {section_uid=}
+                                        """,
+                                        key=f"smtrain_{wing_uid}_{section_uid}_{param}_min_value",
+                                        default_value=default_min_value,
+                                        name=f"{param} min",
+                                        max_value=current_value,
+                                    )
+                                with col_val:
+                                    st.markdown(f"{param} value")
+                                    st.markdown(f"<= {current_value:.3f} <=")
+
+                                with col_max:
+                                    float_vartype(
+                                        tixi=tixi,
+                                        xpath=params_xpath + "/max_value/value",
+                                        description=f"""Define the range (1d design space)
+                                            for {param=} of geometry element
+                                            {wing_uid=} at {section_uid=}
+                                        """,
+                                        key=f"smtrain_{wing_uid}_{section_uid}_{param}_max_value",
+                                        default_value=default_max_value,
+                                        name=f"{param} max",
+                                        min_value=current_value,
+                                    )

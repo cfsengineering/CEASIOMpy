@@ -7,8 +7,6 @@ Initialization for PyAVL module.
 """
 
 # Imports
-import streamlit as st
-
 from ceasiompy.utils import get_module_status
 
 from pathlib import Path
@@ -35,7 +33,6 @@ MODULE_STATUS = get_module_status(
     default=True,
     needs_soft_name=SOFTWARE_NAME,
 )
-
 
 # =================================================================================================
 #    xPaths

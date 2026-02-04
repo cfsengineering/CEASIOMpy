@@ -15,16 +15,9 @@ from shutil import copyfile
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.SMTrain.func.utils import get_columns
 from ceasiompy.utils.ceasiompyutils import aircraft_name
-
-from pathlib import Path
-from shutil import copyfile
+from ceasiompy.utils.geometryfunctions import get_xpath_for_param
 from pathlib import Path
 from ceasiompy.utils.commonpaths import get_wkdir
-from cpacspy.cpacsfunctions import get_value
-from ceasiompy.SMTrain.func.utils import get_columns
-from ceasiompy.utils.ceasiompyutils import (
-    aircraft_name,
-)
 from scipy.optimize import (
     differential_evolution,
 )
@@ -70,8 +63,8 @@ def get_settings(cpacs: CPACS):
     rmse_obj = get_value(tixi, SMTRAIN_THRESHOLD_XPATH)
     simulation_purpose = get_value(tixi, SMTRAIN_SIMULATION_PURPOSE_XPATH)
     old_new_sim = get_value(tixi, SMTRAIN_UPLOAD_AVL_DATABASE_XPATH)
-    selected_krg_model = get_value(tixi, SMTRAIN_KRG_MODEL)
-    selected_rbf_model = get_value(tixi, SMTRAIN_RBF_MODEL)
+    # selected_krg_model = get_value(tixi, SMTRAIN_KRG_MODEL)
+    # selected_rbf_model = get_value(tixi, SMTRAIN_RBF_MODEL)
     log.info(f"Surrogate's model {objective=} with {fidelity_level=}")
 
     return (
@@ -82,8 +75,8 @@ def get_settings(cpacs: CPACS):
         rmse_obj,
         simulation_purpose,
         old_new_sim,
-        selected_krg_model,
-        selected_rbf_model,
+        # selected_krg_model,
+        # selected_rbf_model,
     )
 
 
@@ -408,6 +401,7 @@ def create_list_cpacs_geometry(cpacs_file: Path, sampling_geom_csv: Path, NEWCPA
 
     return list_cpacs
 
+
 def normalize_dataset(dataset_path: Path):
     dataset = pd.read_csv(dataset_path)
     param_cols = dataset.columns[:-1]
@@ -423,15 +417,14 @@ def normalize_dataset(dataset_path: Path):
         else:
             df_norm[col] = (dataset[col] - col_mean) / col_std
         normalization_params[col] = {"mean": col_mean, "std": col_std}
-    
     return normalization_params,df_norm
+
 
 def normalize_input_from_gui(
     sliders_values: dict,
     param_order: list,
     normalization_params: dict,
 ) -> np.ndarray:
-
     x_phys = np.array(
         [sliders_values[p] for p in param_order],
         dtype=float
@@ -439,17 +432,18 @@ def normalize_input_from_gui(
 
     x_norm = np.zeros_like(x_phys)
     for i, p in enumerate(param_order):
+        std = normalization_params[p]["std"]
         mean = normalization_params[p]["mean"]
-        std  = normalization_params[p]["std"]
         x_norm[i] = 0.0 if std == 0 else (x_phys[i] - mean) / std
 
     return x_norm
 
+
 def phys_to_norm(x_phys, params, normalization_params):
     x_norm = np.zeros_like(x_phys)
     for i, p in enumerate(params):
+        std = normalization_params[p]["std"]
         mean = normalization_params[p]["mean"]
-        std  = normalization_params[p]["std"]
         x_norm[i] = 0.0 if std == 0 else (x_phys[i] - mean) / std
     return x_norm
 
@@ -457,10 +451,11 @@ def phys_to_norm(x_phys, params, normalization_params):
 def norm_to_phys(x_norm, params, normalization_params):
     x_phys = np.zeros_like(x_norm)
     for i, p in enumerate(params):
+        std = normalization_params[p]["std"]
         mean = normalization_params[p]["mean"]
-        std  = normalization_params[p]["std"]
         x_phys[i] = mean if std == 0 else x_norm[i] * std + mean
     return x_phys
+
 
 def optimize_surrogate(
     surrogate_model,
@@ -486,8 +481,8 @@ def optimize_surrogate(
     # ---- bounds in normalized space ----
     bounds = []
     for p in param_order:
+        std = normalization_params[p]["std"]
         mean = normalization_params[p]["mean"]
-        std  = normalization_params[p]["std"]
 
         if std == 0:
             bounds.append((0.0, 0.0))
@@ -511,8 +506,8 @@ def optimize_surrogate(
     # ---- denormalize ----
     x_opt_phys = {}
     for i, p in enumerate(param_order):
+        std = normalization_params[p]["std"]
         mean = normalization_params[p]["mean"]
-        std  = normalization_params[p]["std"]
         x_opt_phys[p] = mean if std == 0 else x_opt_norm[i] * std + mean
 
     y_opt = float(
@@ -589,10 +584,10 @@ def save_best_surrogate_geometry(
         name_parameter, uID_section, uID_wing = parts
 
         xpath = get_xpath_for_param(
-            tixi,
-            name_parameter,
-            uID_wing,
-            uID_section
+            tixi=tixi,
+            param=name_parameter,
+            wing_uid=uID_wing,
+            section_uid=uID_section
         )
 
         if name_parameter not in params_to_update:
@@ -611,5 +606,3 @@ def save_best_surrogate_geometry(
     log.info(f"Best surrogate geometry saved to: {best_cpacs_path}")
 
     return best_result
-
-

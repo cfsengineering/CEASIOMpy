@@ -27,9 +27,7 @@ from ceasiompy.utils.workflowclasses import Workflow
 from cpacspy.utils import PARAMS
 from constants import BLOCK_CONTAINER
 
-# ==============================================================================
-#   CONSTANTS
-# ==============================================================================
+# Constants
 
 # Set the current page in session state
 PAGE_NAME: Final[str] = "Run Workflow"
@@ -44,9 +42,7 @@ HOW_TO_TEXT: Final[str] = (
 
 SPEC_SETTINGS: Final[list[float]] = [0.3, 0.7]
 
-# ==============================================================================
-#   FUNCTIONS
-# ==============================================================================
+# Functions
 
 
 def get_status_placeholder():

@@ -6,9 +6,7 @@ from ceasiompy.PyAVL import MODULE_NAME as PYAVL_NAME
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH_NAME
 from ceasiompy.DynamicStability import MODULE_NAME as DYNSTAB_NAME
 
-# ==============================================================================
-#   CONSTANTS
-# ==============================================================================
+# Constants
 
 # Tables structure of ceasiompy.db
 TABLE_DICT = {

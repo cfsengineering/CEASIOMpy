@@ -116,33 +116,37 @@ def gui_settings(cpacs: CPACS) -> None:
         with st.container(
             border=True,
         ):
-            st.markdown("#### CFL Settings")
-            float_vartype(
-                tixi=tixi,
-                xpath=SU2_CFL_NB_XPATH,
-                default_value=1.0,
-                name="CFL Number",
-                key="cfl_nb",
-                description="CFL Number, Courant–Friedrichs–Lewy condition.",
-            )
+            st.markdown("**CFL Settings**")
+            left_col, mid_col, right_col = st.columns(3)
+            with left_col:
+                float_vartype(
+                    tixi=tixi,
+                    xpath=SU2_CFL_NB_XPATH,
+                    default_value=1.0,
+                    name="CFL Number",
+                    key="cfl_nb",
+                    description="CFL Number, Courant–Friedrichs–Lewy condition.",
+                )
 
-            float_vartype(
-                tixi=tixi,
-                xpath=SU2_CFL_MIN_XPATH,
-                default_value=0.5,
-                name="CFL Minimum Value",
-                key="cfl_min",
-                description="CFL Minimum Value.",
-            )
+            with mid_col:
+                float_vartype(
+                    tixi=tixi,
+                    xpath=SU2_CFL_MIN_XPATH,
+                    default_value=0.5,
+                    name="CFL Minimum Value",
+                    key="cfl_min",
+                    description="CFL Minimum Value.",
+                )
 
-            float_vartype(
-                tixi=tixi,
-                xpath=SU2_CFL_MAX_XPATH,
-                default_value=100,
-                name="CFL Maximum Value",
-                key="cfl_max",
-                description="CFL Maximum Value.",
-            )
+            with right_col:
+                float_vartype(
+                    tixi=tixi,
+                    xpath=SU2_CFL_MAX_XPATH,
+                    default_value=100,
+                    name="CFL Maximum Value",
+                    key="cfl_max",
+                    description="CFL Maximum Value.",
+                )
 
             su2run_cfl_adapt = bool_vartype(
                 tixi=tixi,
@@ -157,25 +161,28 @@ def gui_settings(cpacs: CPACS) -> None:
                 with st.container(
                     border=True,
                 ):
-                    st.markdown("#### CFL Adaptation Settings")
+                    st.markdown("**CFL Adaptation Settings**")
 
-                    float_vartype(
-                        tixi=tixi,
-                        xpath=SU2_CFL_ADAPT_PARAM_DOWN_XPATH,
-                        default_value=0.5,
-                        name="CFL Adaptation Factor Down",
-                        key="cfl_adapt_param_down",
-                        description="CFL Adaptation Factor Down.",
-                    )
+                    left_col, right_col = st.columns(2)
+                    with left_col:
+                        float_vartype(
+                            tixi=tixi,
+                            xpath=SU2_CFL_ADAPT_PARAM_DOWN_XPATH,
+                            default_value=0.5,
+                            name="CFL Adaptation Factor Down",
+                            key="cfl_adapt_param_down",
+                            description="CFL Adaptation Factor Down.",
+                        )
 
-                    float_vartype(
-                        tixi=tixi,
-                        xpath=SU2_CFL_ADAPT_PARAM_UP_XPATH,
-                        default_value=1.5,
-                        name="CFL Adaptation Factor Up",
-                        description="CFL Adaptation Factor Up.",
-                        key="cfl_adapt_param_up",
-                    )
+                    with right_col:
+                        float_vartype(
+                            tixi=tixi,
+                            xpath=SU2_CFL_ADAPT_PARAM_UP_XPATH,
+                            default_value=1.5,
+                            name="CFL Adaptation Factor Up",
+                            description="CFL Adaptation Factor Up.",
+                            key="cfl_adapt_param_up",
+                        )
             else:
                 safe_remove(tixi, xpath=SU2_CFL_ADAPT_PARAM_DOWN_XPATH)
                 safe_remove(tixi, xpath=SU2_CFL_ADAPT_PARAM_UP_XPATH)
@@ -277,36 +284,41 @@ def gui_settings(cpacs: CPACS) -> None:
             with st.container(
                 border=True,
             ):
-                st.markdown("#### Fixed CL Settings")
+                st.markdown("**Fixed CL Settings**")
 
-                float_vartype(
-                    tixi=tixi,
-                    xpath=RANGE_CRUISE_MACH_XPATH,
-                    default_value=0.78,
-                    name="Cruise Mach",
-                    key="cruise_mach",
-                    description="Aircraft cruise Mach number.",
-                )
+                left_col, mid_col, right_col = st.columns(3)
+                with left_col:
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=RANGE_CRUISE_MACH_XPATH,
+                        default_value=0.78,
+                        name="Cruise Mach",
+                        key="cruise_mach",
+                        description="Aircraft cruise Mach number.",
+                    )
 
-                float_vartype(
-                    tixi=tixi,
-                    xpath=RANGE_CRUISE_ALT_XPATH,
-                    default_value=120000.0,
-                    name="Cruise Altitude",
-                    key="cruise_alt",
-                    description="Aircraft cruise altitude.",
-                )
+                with mid_col:
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=RANGE_CRUISE_ALT_XPATH,
+                        default_value=120000.0,
+                        name="Cruise Altitude",
+                        key="cruise_alt",
+                        description="Aircraft cruise altitude.",
+                    )
 
-                float_vartype(
-                    tixi=tixi,
-                    xpath=SU2_TARGET_CL_XPATH,
-                    default_value=1.0,
-                    name="Target CL value",
-                    key="target_cl",
-                    description="""
-                        Value of CL to achieve to have a level flight with the given conditions.
-                    """,
-                )
+                with right_col:
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=SU2_TARGET_CL_XPATH,
+                        default_value=1.0,
+                        name="Target CL value",
+                        key="target_cl",
+                        description="""
+                            Value of CL to achieve to have a
+                            level flight with the given conditions.
+                        """,
+                    )
         else:
             safe_remove(tixi, xpath=RANGE_CRUISE_MACH_XPATH)
             safe_remove(tixi, xpath=RANGE_CRUISE_ALT_XPATH)
@@ -327,38 +339,43 @@ def gui_settings(cpacs: CPACS) -> None:
             with st.container(
                 border=True,
             ):
-                int_vartype(
-                    tixi=tixi,
-                    xpath=SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH,
-                    default_value=20,
-                    name="Time Size",
-                    key="time_size",
-                    description="Size of time vector i.e. t = 2pi * (0, 1/n-1, ..., n-2/n-1)",
-                )
-                float_vartype(
-                    tixi=tixi,
-                    xpath=SU2_DYNAMICDERIVATIVES_AMPLITUDE_XPATH,
-                    default_value=1.0,
-                    name="Oscillation's amplitude",
-                    key="oscillation_amplitude",
-                    description="Oscillation: a * sin(w t) and a > 0",
-                )
-                float_vartype(
-                    tixi=tixi,
-                    xpath=SU2_DYNAMICDERIVATIVES_FREQUENCY_XPATH,
-                    default_value=0.087,
-                    name="Oscillation's angular frequency (w)",
-                    key="oscillation_frequency",
-                    description="Oscillation: a * sin(w t) and w > 0",
-                )
-                int_vartype(
-                    tixi=tixi,
-                    xpath=SU2_DYNAMICDERIVATIVES_INNERITER_XPATH,
-                    default_value=10,
-                    name="Maximum number of inner iterations",
-                    key="inner_iter",
-                    description="Maximum number of inner iterations",
-                )
+                first_col, second_col, third_col, fourth_col = st.columns(4)
+                with first_col:
+                    int_vartype(
+                        tixi=tixi,
+                        xpath=SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH,
+                        default_value=20,
+                        name="Time Size",
+                        key="time_size",
+                        description="Size of time vector i.e. t = 2pi * (0, 1/n-1, ..., n-2/n-1)",
+                    )
+                with second_col:
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=SU2_DYNAMICDERIVATIVES_AMPLITUDE_XPATH,
+                        default_value=1.0,
+                        name="Amplitude",
+                        key="oscillation_amplitude",
+                        description="Oscillation's amplitude: a * sin(w t) and a > 0",
+                    )
+                with third_col:
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=SU2_DYNAMICDERIVATIVES_FREQUENCY_XPATH,
+                        default_value=0.087,
+                        name="Angular Frequency",
+                        key="oscillation_frequency",
+                        description="Oscillation's angular frequency (w): a * sin(w t) and w > 0",
+                    )
+                with fourth_col:
+                    int_vartype(
+                        tixi=tixi,
+                        xpath=SU2_DYNAMICDERIVATIVES_INNERITER_XPATH,
+                        default_value=10,
+                        name="Max nb of iterations",
+                        key="inner_iter",
+                        description="Maximum number of inner iterations",
+                    )
         else:
             safe_remove(tixi, xpath=SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH)
             safe_remove(tixi, xpath=SU2_DYNAMICDERIVATIVES_AMPLITUDE_XPATH)

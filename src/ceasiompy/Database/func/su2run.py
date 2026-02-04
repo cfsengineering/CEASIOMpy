@@ -16,9 +16,7 @@ from pathlib import Path
 from sqlite3 import Cursor
 from tixi3.tixi3wrapper import Tixi3
 
-# ==============================================================================
-#   FUNCTIONS
-# ==============================================================================
+# Functions
 
 
 def store_su2run_data(

@@ -156,7 +156,7 @@ def get_xpath_for_param(tixi: Tixi3, param, wing_uid, section_uid):
                     "uID"
                 )
                 return f"{positioning_path}/positioning[@uID='{pos_uid}']/{param}"
-        
+
         raise ValueError(f"{section_uid=} not found in cpacs.")
 
     wing_xpath = WINGS_XPATH + f"/wing[@uID='{wing_uid}']"

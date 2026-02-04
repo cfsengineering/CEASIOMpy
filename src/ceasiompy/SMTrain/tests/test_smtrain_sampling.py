@@ -165,6 +165,7 @@ class TestCreateData(CeasiompyTest):
         self.assertEqual(np.isclose(df["angleOfSideslip"][0], 5.23, atol=0.1), True)
         self.assertEqual(np.isclose(df["angleOfSideslip"][1], 13.4, atol=0.1), True)
 
+
 # Main
 
 if __name__ == "__main__":

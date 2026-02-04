@@ -54,9 +54,7 @@ from ceasiompy.utils.commonxpaths import (
 )
 
 
-# ==============================================================================
-#   FUNCTIONS
-# ==============================================================================
+# Functions
 
 
 def retrieve_gui_ctrlsurf(tixi: Tixi3) -> dict[str, list]:

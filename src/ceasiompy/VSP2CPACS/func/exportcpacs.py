@@ -496,31 +496,29 @@ def Wing_positioning(doc, Parent, Name, Section_key, Sections_parameters, dih_li
     make(doc, 'name', positioning, f'{Name}GenPos')
 
     # First wing section
-    if Name[-1] == '0':
+    if Name.endswith("Sec0"):
         make(doc, 'length', positioning, '0')
         make(doc, 'sweepAngle', positioning, '0')
         make(doc, 'dihedralAngle', positioning, '0')
         make(doc, 'toSectionUID', positioning, Name)
 
     else:
-        # Geometric longitudinal length
         length_val = Sections_parameters[Section_key]['Span'] / (
             np.cos(np.deg2rad(Sections_parameters[Section_key]['Sweep_angle']))
         )
         make(doc, 'length', positioning, str(length_val))
 
-        # Sweep and dihedral values
         sweep_angle = Sections_parameters[Section_key]['Sweep_angle']
         dihedral_angle = Sections_parameters[Section_key].get('Dihedral_angle', 0.0)
 
         make(doc, 'sweepAngle', positioning, str(sweep_angle))
         make(doc, 'dihedralAngle', positioning, str(float(dihedral_angle) - dih_list[-1]))
 
-        # Connectivity between wing sections
-        prev_name = f'{Name[:len(Name) - 1]}{int(Name[-1]) - 1}'
+        match = re.search(r'(.*?)(\d+)$', Name)
+        prev_name = f"{match.group(1)}{int(match.group(2)) - 1}"
+
         make(doc, 'fromSectionUID', positioning, prev_name)
         make(doc, 'toSectionUID', positioning, Name)
-
     # Update dihedral history list
     dih_val = Sections_parameters[Section_key].get('Dihedral_angle', 0.0)
     if Sections_parameters["Transformation"]["Relative_dih"]:

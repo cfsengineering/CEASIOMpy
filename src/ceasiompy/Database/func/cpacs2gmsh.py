@@ -21,9 +21,7 @@ from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
 
-# ==============================================================================
-#   FUNCTIONS
-# ==============================================================================
+# Functions
 
 
 def store_cpacs2gmsh_data(

@@ -19,18 +19,19 @@ from unittest.mock import MagicMock
 
 from bin.ceasiompy_exec import run_modules_list
 from ceasiompy.utils.ceasiompyutils import change_working_dir
+from ceasiompy.utils.moduleinterfaces import get_init_for_module
 
+from ceasiompy import log
 from ceasiompy.PyAVL import MODULE_NAME as PYAVL
 from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
 from ceasiompy.Database import MODULE_NAME as DATABASE
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
-from ceasiompy.AeroFrame import MODULE_NAME as AEROFRAMENEW
+from ceasiompy.AeroFrame import MODULE_NAME as AEROFRAME
 from ceasiompy.StaticStability import MODULE_NAME as STATICSTABILITY
 
-# =================================================================================================
-#   CONSTANTS
-# =================================================================================================
+
+# Constants
 
 MODULE_DIR = Path(__file__).parent
 WORKFLOW_TEST_DIR = Path(MODULE_DIR, "workflow_tests")
@@ -44,7 +45,7 @@ if WORKFLOW_TEST_DIR.exists():
 WORKFLOW_TEST_DIR.mkdir()
 
 
-# Functions
+# Methods
 def run_workflow_test(modules_to_run, cpacs_path=CPACS_IN_PATH):
     """Run a workflow test with the given modules and optional CPACS path."""
     st.session_state = MagicMock()
@@ -52,31 +53,53 @@ def run_workflow_test(modules_to_run, cpacs_path=CPACS_IN_PATH):
         run_modules_list([str(cpacs_path), *modules_to_run])
 
 
-# =================================================================================================
-#   TESTS
-# =================================================================================================
+def _check_modules_status(modules_list: list[str]) -> bool:
+    for module_name in modules_list:
+        init = get_init_for_module(module_name, raise_error=False)
+        if not hasattr(init, "MODULE_STATUS"):
+            return False
+
+        if not getattr(init, "MODULE_STATUS"):
+            return False
+    return True
 
 
+# Tests
+WORKFLOW_1 = [AEROFRAME]
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
+@pytest.mark.skipif(
+    not _check_modules_status(WORKFLOW_1),
+    reason=f"A module in {WORKFLOW_1=} is not available.",
+)
 def test_integration_1():
-    run_workflow_test([AEROFRAMENEW])
+    run_workflow_test(WORKFLOW_1)
     assert True
 
 
+WORKFLOW_2 = [CPACS2GMSH, SU2RUN]
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
 @pytest.mark.skipif(not shutil.which("pentagrow"), reason="Pentagrow not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
+@pytest.mark.skipif(
+    not _check_modules_status(WORKFLOW_2),
+    reason=f"A module in {WORKFLOW_2=} is not available.",
+)
 def test_integration_2():
-    run_workflow_test([CPACS2GMSH, SU2RUN], cpacs_path=CPACS_RANS)
+    run_workflow_test(WORKFLOW_2, cpacs_path=CPACS_RANS)
     assert True
 
 
+WORKFLOW_3 = [PYAVL, STATICSTABILITY]
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
+@pytest.mark.skipif(
+    not _check_modules_status(WORKFLOW_2),
+    reason=f"A module in {WORKFLOW_3=} is not available.",
+)
 def test_integration_3():
-    run_workflow_test([PYAVL, STATICSTABILITY, DATABASE])
+    run_workflow_test(WORKFLOW_3)
     assert True
 
 

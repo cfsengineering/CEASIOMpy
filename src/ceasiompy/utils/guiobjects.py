@@ -18,7 +18,6 @@ from cpacspy.cpacsfunctions import (
 
 from tixi3.tixi3wrapper import (
     Tixi3,
-    ReturnCode,
     Tixi3Exception,
 )
 
@@ -26,49 +25,35 @@ from ceasiompy import log
 
 
 # Functions
-def add_value(tixi: Tixi3, xpath, value):
+def add_value(tixi: Tixi3, xpath, value) -> None:
     """Add a value (string, integer of float) at the given XPath,
     if the node does not exist, it will be created. Values will be
     overwritten if paths exists.
-
-    Args:
-        tixi (handle): Tixi handle
-        xpath (str): XPath of the vector to add
-        value (list, tuple): Value to add
     """
 
     # Lists are different
     if isinstance(value, list):
         # Check if list is empty
-        if value:
-            add_string_vector(st.session_state.cpacs.tixi, xpath, value)
-            return None
-        else:
+        if not value:
             add_string_vector(st.session_state.cpacs.tixi, xpath, [""])
             return None
-    else:
-        # Strip trailing '/' (has no meaning here)
-        xpath = xpath.rstrip("/")
+        add_string_vector(st.session_state.cpacs.tixi, xpath, value)
+        return None
 
-        # Get the field name and the parent CPACS path
-        xpath_child_name = xpath.split("/")[-1]
-        xpath_parent = xpath[: -(len(xpath_child_name) + 1)]
+    # Strip trailing '/' (has no meaning here)
+    xpath = xpath.rstrip("/")
 
-        if not tixi.checkElement(xpath_parent):
-            try:
-                create_branch(tixi, xpath_parent)
-            except Tixi3Exception as exc:
-                if exc.code != ReturnCode.ALREADY_SAVED:
-                    raise
+    # Get the field name and the parent CPACS path
+    xpath_child_name = xpath.split("/")[-1]
+    xpath_parent = xpath[: -(len(xpath_child_name) + 1)]
 
-        if not tixi.checkElement(xpath):
-            try:
-                tixi.createElement(xpath_parent, xpath_child_name)
-            except Tixi3Exception as exc:
-                if exc.code != ReturnCode.ALREADY_SAVED:
-                    raise
+    if not tixi.checkElement(xpath_parent):
+        create_branch(tixi, xpath_parent)
 
-        tixi.updateTextElement(xpath, str(value))
+    if not tixi.checkElement(xpath):
+        tixi.createElement(xpath_parent, xpath_child_name)
+
+    tixi.updateTextElement(xpath, str(value))
 
 
 def safe_get_value(tixi: Tixi3, xpath, default_value):

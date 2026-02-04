@@ -13,9 +13,9 @@ import tempfile
 import pandas as pd
 import pyvista as pv
 import streamlit as st
-import streamlit.components.v1 as components
 import matplotlib as mpl
-import matplotlib.pyplot as plt
+import plotly.express as px
+import streamlit.components.v1 as components
 
 from stpyvista import stpyvista
 from ceasiompy.utils.commonpaths import get_wkdir
@@ -375,14 +375,22 @@ def _display_dat(path: Path) -> None:
                     df = df.iloc[:, :2].dropna()
                     if not df.empty:
                         df.columns = ["x", "y"]
-                        fig, ax = plt.subplots()
-                        ax.plot(df["x"].to_numpy(), df["y"].to_numpy())
-                        ax.set_aspect("equal", adjustable="box")
-                        ax.set_title(path.stem)
-                        ax.set_xlabel("x")
-                        ax.set_ylabel("y")
-                        st.pyplot(fig)
+                        fig = px.line(
+                            df,
+                            x="x",
+                            y="y",
+                            title=path.stem,
+                        )
+                        fig.update_traces(mode="lines")
+                        fig.update_layout(
+                            xaxis_title="x",
+                            yaxis_title="y",
+                            yaxis_scaleanchor="x",
+                            yaxis_scaleratio=1,
+                        )
+                        st.plotly_chart(fig, use_container_width=True)
                         return None
+
             except Exception as exc:
                 st.warning(f"Could not parse {path.name} as DAT: {exc}")
 

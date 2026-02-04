@@ -3,13 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Streamlit page to create a CEASIOMpy workflow
-
-| Author: Aidan Jungo
-| Creation: 2022-09-16
-| Modified: Leon Deligny
-| Date: 07-Mar-2025
-
+Streamlit page to create a CEASIOMpy workflow.
 """
 
 # Imports
@@ -33,7 +27,6 @@ from constants import BLOCK_CONTAINER
 from ceasiompy.PyAVL import MODULE_NAME as PYAVL
 from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
-from ceasiompy.CPACSUpdater import MODULE_NAME as CPACSUPDATER
 from ceasiompy.StaticStability import MODULE_NAME as STATICSTABILITY
 
 # ==============================================================================
@@ -63,21 +56,12 @@ def section_predefined_workflow() -> None:
 
     st.markdown("#### Predefined Workflows")
 
-    # Check geometry mode
-    is_2d_mode = st.session_state.get("geometry_mode") == "2D"
-
     active_modules = set(get_module_list(only_active=True))
 
     predefine_workflows = [
         [PYAVL, STATICSTABILITY],
-        [CPACSUPDATER, CPACS2GMSH, SU2RUN],
+        [CPACS2GMSH, SU2RUN],
     ]
-
-    # Filter workflows for 2D mode (only show workflows compatible with 2D)
-    if is_2d_mode:
-        predefine_workflows = [
-            [CPACS2GMSH, SU2RUN],
-        ]
 
     for workflow in predefine_workflows:
         available = all(module in active_modules for module in workflow)
@@ -98,9 +82,6 @@ def section_add_module() -> None:
     """
 
     st.markdown("#### Add Modules to your Workflow")
-
-    # Check geometry mode
-    is_2d_mode = st.session_state.get("geometry_mode") == "2D"
 
     if "workflow_modules" not in st.session_state:
         st.session_state["workflow_modules"] = []
@@ -123,7 +104,7 @@ def section_add_module() -> None:
     }
 
     if not module_list:
-        st.warning(f"No modules available for the geometry mode {is_2d_mode=}.")
+        st.warning("No modules available...")
         return None
 
     module_type_map = {}

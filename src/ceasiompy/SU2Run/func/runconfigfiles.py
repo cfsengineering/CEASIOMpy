@@ -78,9 +78,13 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
 
     # Iterate through different cases.
     for case_dir in case_dir_list:
+        config_dirs = [d for d in case_dir.iterdir() if d.is_dir()]
+        if not config_dirs:
+            # Support flat case directory (ConfigCFD.cfg directly inside case_dir).
+            config_dirs = [case_dir]
 
         # Iterate through [no_deformation, aileron, elevator, rudder].
-        for config_dir in case_dir.iterdir():
+        for config_dir in config_dirs:
             config_file = [
                 c
                 for c in config_dir.iterdir()

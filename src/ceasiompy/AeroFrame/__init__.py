@@ -7,6 +7,9 @@ Initialization for AeroFrame new module.
 """
 
 # Imports
+import streamlit as st
+
+from ceasiompy.utils import get_module_status
 
 from pathlib import Path
 
@@ -16,15 +19,22 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 #   INITIALIZATION
 # ==============================================================================
 
+# ===== Name of Software used =====
+SOFTWARE_NAME = "avl"
+
 # ===== Module Status =====
-MODULE_STATUS = True
+MODULE_STATUS = (
+    st.session_state.get("geometry_mode", "") == "2D"
+    and get_module_status(
+        default=True,
+        needs_soft_name=SOFTWARE_NAME,
+    )
+)
+
 MODULE_TYPE = "MetaModule"
 
 # ===== Add a Results Directory =====
 RES_DIR = True
-
-# ===== Name of Software used =====
-SOFTWARE_NAME = "avl"
 
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent

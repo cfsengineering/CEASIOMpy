@@ -70,6 +70,7 @@ def _ensure_custom_aeromap(cpacs: CPACS, custom_id: str = "custom_aeromap") -> N
             aos=0.0,
             aoa=3.0,
         )
+        custom_aeromap.save()
     except Exception as e:
         raise Exception(f"{cpacs.cpacs_file=} {custom_id=} {e=}")
 

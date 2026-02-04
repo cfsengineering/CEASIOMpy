@@ -366,6 +366,7 @@ def add_case_data(
     case_nb: int,
     alt_list: List,
     ctrlsurf: str,
+    dyn_stab: bool,
 ) -> None:
     """
     Adds case-specific data to the SU2 configuration file and sets up the case directory.
@@ -384,7 +385,6 @@ def add_case_data(
         alt_list (List): List of altitudes.
 
     """
-
     add_thermodata(cfg, tixi, alt, case_nb, alt_list)
 
     if rans:
@@ -425,9 +425,12 @@ def add_case_data(
         rotation_rate = get_value(tixi, SU2_ROTATION_RATE_XPATH)
         add_damping_derivatives(cfg, wkdir, case_dir_name, rotation_rate)
 
-    ctrlsurf_case_dir_path = Path(case_dir_path, ctrlsurf)
-    if not ctrlsurf_case_dir_path.exists():
-        ctrlsurf_case_dir_path.mkdir()
+    if dyn_stab:
+        ctrlsurf_case_dir_path = Path(case_dir_path, ctrlsurf)
+        if not ctrlsurf_case_dir_path.exists():
+            ctrlsurf_case_dir_path.mkdir()
+    else:
+        ctrlsurf_case_dir_path = Path(case_dir_path)
 
     config_output_path = Path(ctrlsurf_case_dir_path, CONFIG_CFD_NAME)
     cfg.write_file(config_output_path, overwrite=True)
@@ -554,6 +557,7 @@ def configure_cfd_environment(
                     case_nb=case_nb,
                     alt_list=alt_list,
                     ctrlsurf=ctrlsurf,
+                    dyn_stab=dyn_stab,
                 )
 
         # Stationary case
@@ -575,6 +579,7 @@ def configure_cfd_environment(
                 case_nb=case_nb,
                 alt_list=alt_list,
                 ctrlsurf=ctrlsurf,
+                dyn_stab=dyn_stab,
             )
 
 

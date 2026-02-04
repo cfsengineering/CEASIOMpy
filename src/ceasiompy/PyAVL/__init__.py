@@ -4,13 +4,10 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Initialization for PyAVL module.
-
-| Author: Leon Deligny
-| Creation: 18-Mar-2025
-
 """
 
 # Imports
+import streamlit as st
 
 from ceasiompy.utils import get_module_status
 
@@ -34,9 +31,12 @@ RES_DIR = True
 SOFTWARE_NAME = "avl"
 
 # ===== Module Status =====
-MODULE_STATUS = get_module_status(
-    default=True,
-    needs_soft_name=SOFTWARE_NAME,
+MODULE_STATUS = (
+    st.session_state.get("geometry_mode", "") == "2D"
+    and get_module_status(
+        default=True,
+        needs_soft_name=SOFTWARE_NAME,
+    )
 )
 
 # =================================================================================================

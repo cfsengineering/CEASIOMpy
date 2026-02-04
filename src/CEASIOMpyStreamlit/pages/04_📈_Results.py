@@ -507,7 +507,7 @@ def display_results(results_dir, chosen_workflow = None):
                                         fig.add_trace(go.Scatter3d(
                                             x=x_samples, y=y_samples, z=z_samples,
                                             mode='markers',
-                                            marker=dict(size=2, color='green'),
+                                            marker=dict(size=1, color='green'),
                                             name=f"🟢 Training Samples (n={len(x_samples)})",
                                             showlegend=True,
                                             legendgroup="samples",
@@ -519,7 +519,7 @@ def display_results(results_dir, chosen_workflow = None):
                                             yanchor="top",
                                             y=0.99,
                                             xanchor="left",
-                                            x=0.75
+                                            x=0.5
                                         ),
                                         title='Surrogate Model Response Surface',
                                         scene=dict(

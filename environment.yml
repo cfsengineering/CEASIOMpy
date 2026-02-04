@@ -49,10 +49,13 @@ dependencies:
   - xmltodict>=0.14.2
   - hdf5>=1.10.6  # Pentagrow needs an older version (1.10.X)
   - libgfortran>=14.2.0
-  - cgns>=4.2.0
   - expat>=2.7.0  # Should be already installed
   - boost>=1.85.0
   - libzip>=1.9.2
+
+  # Geometry/Meshing
+  - cgns>=4.2.0
+  - conda-forge::trimesh
 
   # OpenVSP
   - conda-forge::sphinx
@@ -86,6 +89,8 @@ dependencies:
     - streamlit==1.51.0
     - streamlit_sortables
     - streamlit-flow-component>=1.6.1
+    - streamlit-float
+    - pdfplumber
     - protobuf<=3.20.3
 
     - vtk>=9.3.0
@@ -105,3 +110,7 @@ dependencies:
     - gmshairfoil2d>=0.2.31
     - gmsh>=4.13.1
     - meshio>=5.3.5
+    - pymeshfix
+
+    # Surrogate Modelling
+    - SALib

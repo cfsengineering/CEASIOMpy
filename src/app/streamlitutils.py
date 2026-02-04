@@ -8,10 +8,14 @@ Streamlit utils functions for CEASIOMpy
 
 # Imports
 
+import os
 import re
 import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
+
+from streamlit_float import float_init
+from assistant import get_assistant_response
 
 from stl import mesh
 from PIL import Image
@@ -22,9 +26,7 @@ from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
 
-# ==============================================================================
-#   FUNCTIONS
-# ==============================================================================
+# Functions
 
 
 def save_cpacs_file():
@@ -163,6 +165,63 @@ def create_sidebar(how_to_text, page_title="CEASIOMpy"):
         "Share ideas at [mail](mailto:ceasiompy@gmail.com)."
     )
     st.sidebar.info(contact_text)
+    render_floating_ai_assistant()
+
+
+def render_floating_ai_assistant() -> None:
+    """Render a floating, bottom-left chat assistant on every page."""
+
+    if os.environ.get("CEASIOMPY_CLOUD", "False").lower() not in {"1", "true", "yes"}:
+        return None
+
+    if st.session_state.get("ai_assistant_disabled", False):
+        return None
+
+    if "ai_assistant_messages" not in st.session_state:
+        st.session_state.ai_assistant_messages = [{
+            "role": "assistant",
+            "content": """Hi! I can help explain how to use CEASIOMpy,
+                or summarize your latest CFD results.
+            """,
+        }]
+
+    float_init()
+
+    chat_container = st.container()
+    with chat_container:
+        header_cols = st.columns([3, 1])
+        with header_cols[0]:
+            st.markdown("**AI Assistant**")
+        with header_cols[1]:
+            if st.button(
+                label="Clear",
+                key="ai_assistant_clear",
+                width="stretch",
+            ):
+                st.session_state.pop("ai_assistant_messages")
+                st.rerun()
+
+        for message in st.session_state.ai_assistant_messages:
+            with st.chat_message(message["role"]):
+                st.write(message["content"])
+
+        prompt = st.chat_input("Ask about code or CFD results...")
+        if prompt:
+            st.session_state.ai_assistant_messages.append(
+                {"role": "user", "content": prompt}
+            )
+            response = get_assistant_response(prompt)
+            st.session_state.ai_assistant_messages.append(
+                {"role": "assistant", "content": response}
+            )
+            st.rerun()
+
+    chat_container.float(
+        "bottom: 40px; right: 40px; width: 400px; max-height: 60vh; "
+        "overflow-y: auto; border: 1px solid #d7d7d7; background: white; "
+        "border-radius: 10px; padding: 12px; "
+        "box-shadow: 2px 2px 10px rgba(0,0,0,0.1);"
+    )
 
 
 def st_directory_picker(initial_path=Path()):

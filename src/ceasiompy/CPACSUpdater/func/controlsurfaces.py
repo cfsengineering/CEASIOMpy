@@ -11,14 +11,11 @@ import numpy as np
 import plotly.graph_objects as go
 
 from numpy import array
+from cpacspy.cpacsfunctions import get_float_vector
 from ceasiompy.utils.commonpaths import get_wkdir
 from ceasiompy.utils.ceasiompyutils import (
     update_xpath_at_xyz,
     get_results_directory,
-)
-from cpacspy.cpacsfunctions import (
-    get_float_vector,
-    get_value_or_default,
 )
 from ceasiompy.utils.mathsfunctions import (
     rot,
@@ -57,9 +54,7 @@ from ceasiompy.utils.commonxpaths import (
 )
 
 
-# ==============================================================================
-#   FUNCTIONS
-# ==============================================================================
+# Functions
 
 
 def retrieve_gui_ctrlsurf(tixi: Tixi3) -> dict[str, list]:
@@ -93,14 +88,9 @@ def retrieve_gui_ctrlsurf(tixi: Tixi3) -> dict[str, list]:
         for j in range(1, seg_cnt + 1):
             segment_name = tixi.getChildNodeName(wing_xpath, j)
             segment_xpath = f"{wing_xpath}/{segment_name}"
-            segment_value = tixi.getTextElement(segment_xpath + "/ctrlsurf")
-            deformation_angle = get_value_or_default(
-                tixi,
-                xpath=segment_xpath + "/deformation_angle",
-                default_value=0.0,
-            )
+            segment_value = tixi.getTextElement(segment_xpath)
             if segment_value != "none":
-                wing_sgt_list.append((segment_name, segment_value, deformation_angle))
+                wing_sgt_list.append((segment_name, segment_value))
         result[wing_name] = wing_sgt_list
 
     if not result:

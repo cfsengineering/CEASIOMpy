@@ -19,9 +19,7 @@ from cpacspy.cpacsfunctions import open_tigl, open_tixi
 
 from ceasiompy import log
 
-# ==============================================================================
-#   FUNCTIONS
-# ==============================================================================
+# Functions
 
 # TODO: change name and maybe reuse conventional aircraft function
 

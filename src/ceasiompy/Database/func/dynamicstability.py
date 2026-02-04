@@ -31,9 +31,7 @@ from ceasiompy.DynamicStability import (
     DYNAMICSTABILITY_NCHORDWISE_XPATH,
 )
 
-# ==============================================================================
-#   FUNCTIONS
-# ==============================================================================
+# Functions
 
 
 def store_alpha_dynstab_data(

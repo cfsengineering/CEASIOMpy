@@ -21,9 +21,7 @@ from ceasiompy.utils.moduletab import add_module_tab
 
 from constants import BLOCK_CONTAINER
 
-# ==============================================================================
-#   CONSTANTS
-# ==============================================================================
+# Constants
 
 HOW_TO_TEXT = (
     "### How to use Settings?\n"
@@ -34,9 +32,7 @@ HOW_TO_TEXT = (
 
 PAGE_NAME = "Settings"
 
-# ==============================================================================
-#   FUNCTIONS
-# ==============================================================================
+# Functions
 
 
 def section_settings():

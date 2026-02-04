@@ -16,7 +16,7 @@ from ceasiompy.utils.guiobjects import (
     list_vartype,
     bool_vartype,
     float_vartype,
-    multiselect_vartype,
+    dataframe_vartype,
 )
 
 from ceasiompy.PyAVL import (
@@ -34,41 +34,45 @@ from ceasiompy.PyAVL import (
 def gui_settings(cpacs: CPACS) -> None:
     tixi = cpacs.tixi
     with st.expander(
-        label="Panel Settings",
+        label="**Panel Settings**",
         expanded=True,
     ):
-        list_vartype(
-            tixi=tixi,
-            name="Panel distribution",
-            key="panel_distribution",
-            default_value=["cosine", "sine", "equal"],
-            description="Select the type of distribution.",
-            xpath=AVL_DISTR_XPATH,
-        )
+        left_col, mid_col, right_col = st.columns([2, 1, 1])
+        with left_col:
+            list_vartype(
+                tixi=tixi,
+                name="Panel distribution",
+                key="panel_distribution",
+                default_value=["cosine", "sine", "equal"],
+                description="Select the type of distribution.",
+                xpath=AVL_DISTR_XPATH,
+            )
 
-        int_vartype(
-            tixi=tixi,
-            name="Number of chordwise vortices",
-            key="chordwise_vortices_nb",
-            default_value=20,
-            description="Select the number of chordwise vortices.",
-            xpath=AVL_NCHORDWISE_XPATH,
-        )
+        with mid_col:
+            int_vartype(
+                tixi=tixi,
+                name="Chordwise vortices",
+                key="chordwise_vortices_nb",
+                default_value=20,
+                description="Select the number of chordwise vortices.",
+                xpath=AVL_NCHORDWISE_XPATH,
+            )
 
-        int_vartype(
-            tixi=tixi,
-            name="Number of spanwise vortices",
-            key="spanwise_vortices_nb",
-            default_value=30,
-            description="Select the number of spanwise vortices.",
-            xpath=AVL_NSPANWISE_XPATH,
-        )
+        with right_col:
+            int_vartype(
+                tixi=tixi,
+                name="Spanwise vortices",
+                key="spanwise_vortices_nb",
+                default_value=30,
+                description="Select the number of spanwise vortices.",
+                xpath=AVL_NSPANWISE_XPATH,
+            )
 
     with st.expander(
-        label="Specific Settings",
+        label="**Specific Settings**",
         expanded=True,
     ):
-        multiselect_vartype(
+        dataframe_vartype(
             name="Rotation rates",
             key="rates",
             default_value=[0.0],
@@ -77,7 +81,7 @@ def gui_settings(cpacs: CPACS) -> None:
             description="List of p, q, r rates.",
         )
 
-        multiselect_vartype(
+        dataframe_vartype(
             name="Control surface angles",
             key="ctrl_surf_angles",
             default_value=[0.0],

@@ -63,7 +63,7 @@ class ConfigFile:
                     key, value = line.split("=")
 
                     if ";" in value:
-                        value_list = value.split(";")
+                        value_list = str(value).split(";")
                         value_list = [v.strip() for v in value_list]
 
                         self.data[key.strip()] = value_list

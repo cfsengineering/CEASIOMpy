@@ -2,7 +2,6 @@
 CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
-
 """
 
 # Imports
@@ -13,7 +12,10 @@ from pandas import concat
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.PyAVL.pyavl import main as run_avl
 from ceasiompy.SU2Run.su2run import main as run_su2
-from ceasiompy.SMTrain.func.utils import create_aeromap_from_varpts
+from ceasiompy.CPACS2GMSH.cpacs2gmsh import main as run_cpacs2gmsh
+from ceasiompy.SMTrain.func.utils import (
+    create_aeromap_from_varpts,
+)
 from ceasiompy.SMTrain.func.config import (
     retrieve_aeromap_data,
     retrieve_ceasiompy_db_data,
@@ -34,8 +36,10 @@ from cpacspy.cpacspy import (
 
 from ceasiompy import log
 from ceasiompy.SU2Run import SU2_MAX_ITER_XPATH
-from ceasiompy.SMTrain.func import LH_SAMPLING_DATA
-from ceasiompy.SMTrain import SMTRAIN_AVL_DATABASE_XPATH
+from ceasiompy.SMTrain.func import AEROMAP_SELECTED
+from ceasiompy.SMTrain import (
+    SMTRAIN_AVL_DATABASE_XPATH,
+)
 from ceasiompy.PyAVL import (
     MODULE_NAME as PYAVL_NAME,
 )
@@ -48,16 +52,16 @@ from ceasiompy.utils.commonxpaths import (
     SELECTED_AEROMAP_XPATH,
 )
 
-# ==============================================================================
-#   FUNCTIONS
-# ==============================================================================
 
+# Functions
 
 def launch_avl(
     cpacs: CPACS,
     lh_sampling_path: Union[Path, None],
     objective: str,
+    result_dir: Path,
 ) -> DataFrame:
+
     """
     Executes AVL aerodynamic analysis running PyAVL Module
 
@@ -68,10 +72,12 @@ def launch_avl(
         DataFrame: Contains AVL results for the requested objective.
     """
     tixi = cpacs.tixi
+    avl_results_dir = Path(result_dir,"PyAVL")
+    avl_results_dir.mkdir(exist_ok=True)
 
     # Remove existing aeromap if present
-    if tixi.uIDCheckExists(LH_SAMPLING_DATA):
-        cpacs.delete_aeromap(LH_SAMPLING_DATA)
+    if tixi.uIDCheckExists(AEROMAP_SELECTED):
+        cpacs.delete_aeromap(AEROMAP_SELECTED)
 
     aeromap = AeroMap(tixi, uid="ceasiompy_db", create_new=True)
     df_aeromap = None
@@ -134,8 +140,9 @@ def launch_su2(
             su2_mesh_path = None
 
     su2_mesh_path_type = get_value(tixi, USED_SU2_MESH_XPATH + "type")
-    max_iters = str(get_value(tixi, SU2_MAX_ITER_XPATH))
+
     update_cpacs_from_specs(cpacs, SU2RUN_NAME, test=True)
+    max_iters = str(get_value(tixi, SU2_MAX_ITER_XPATH))
 
     # Update CPACS with the new aeromap and su2 mesh paths
     tixi.updateTextElement(USED_SU2_MESH_XPATH + "type", su2_mesh_path_type)
@@ -156,3 +163,34 @@ def launch_su2(
     log.info(df)
 
     return df
+
+
+def launch_gmsh_su2_geom(
+    cpacs: CPACS,
+    results_dir: Path,
+    objective: str,
+    aeromap_uid: str,
+    idx: int,
+    it: int,
+) -> DataFrame:
+    """
+    Executes SU2 CFD analysis using an aeromap or high-variance points.
+
+    1. Processes a CPACS file
+    2. Selects or generates an aeromap or high-variance points
+    3. Runs SU2 to compute aerodynamic coefficients
+    4. Retrieves the results
+
+    """
+    gmsh_dir = results_dir / "CPACS2GMSH"
+    gmsh_dir.mkdir(exist_ok=True)
+    su2_dir = results_dir / "SU2Run" / f"SU2Run_{idx}_iter{it}"
+    su2_dir.mkdir(exist_ok=True)
+
+    run_cpacs2gmsh(cpacs, wkdir=gmsh_dir)
+    run_su2(cpacs, results_dir=su2_dir)
+
+    df_su2 = retrieve_aeromap_data(cpacs, aeromap_uid, objective)
+    obj_value = df_su2[objective].iloc[0]
+
+    return obj_value

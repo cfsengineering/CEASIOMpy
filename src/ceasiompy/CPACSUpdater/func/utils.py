@@ -32,9 +32,7 @@ from typing import (
 
 from ceasiompy import log
 
-# ==============================================================================
-#   FUNCTIONS
-# ==============================================================================
+# Functions
 
 
 def copy_children(tixi: Tixi3, source_xpath: str, target_xpath: str, copy_id: str) -> None:

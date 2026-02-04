@@ -35,10 +35,12 @@ def convert_ps_to_pdf(wkdir: Path) -> None:
 
     # Create the command accordingly
     ps2pdf_cmd = ["ps2pdf", "plot.ps", "plot.pdf"]
-    if shutil.which("xvfb-run"):
+    xvfb_run = shutil.which("xvfb-run")
+    if xvfb_run:
+        log.info(f'XVFB at {xvfb_run=}')
         ps2pdf_cmd = ["xvfb-run", "-a", *ps2pdf_cmd]
     else:
-        log.warning("xfbv-run not available.")
+        log.warning(f"{xvfb_run=} not available.")
 
     # Convert 'plot.ps' to 'plot.pdf'
     subprocess.run(

@@ -26,9 +26,10 @@ from ceasiompy import log
 
 # Functions
 def add_value(tixi: Tixi3, xpath, value) -> None:
-    """Add a value (string, integer of float) at the given XPath,
-    if the node does not exist, it will be created. Values will be
-    overwritten if paths exists.
+    """
+    Add a value (string, integer, float, list) at the given XPath,
+    if the node does not exist, it will be created.
+    Values will be overwritten if paths exists.
     """
 
     # Lists are different
@@ -94,7 +95,29 @@ def _sync_multiselect_to_cpacs(tixi: Tixi3, xpath: str, values: list[float]) -> 
 
 
 def multiselect_vartype(
-    tixi: Tixi3 ,
+    tixi: Tixi3,
+    xpath: str,
+    default_value,
+    name,
+    key,
+    description,
+) -> list[str]:
+    if not default_value:
+        raise ValueError(f"Settings {name=} have an uncorrect {default_value=}")
+
+    output = st.multiselect(
+        label=name,
+        options=default_value,
+        key=key,
+        help=description,
+        default=default_value[0],
+    )
+    add_value(tixi, xpath, output)
+    return output
+
+
+def dataframe_vartype(
+    tixi: Tixi3,
     xpath: str,
     default_value,
     name,
@@ -108,8 +131,8 @@ def multiselect_vartype(
         _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
 
     gen_left_col, gen_right_col = st.columns(
-        spec=[1, 2],
-        vertical_alignment="center",
+        spec=[2, 3],
+        vertical_alignment="bottom",
     )
 
     with gen_left_col:
@@ -120,8 +143,8 @@ def multiselect_vartype(
 
     with gen_right_col:
         # Add button to append the new value to the list
-        left_col, mid_col, right_col = st.columns(
-            spec=[3, 2, 2],
+        left_col, right_col = st.columns(
+            spec=[2, 1],
             vertical_alignment="bottom",
         )
 
@@ -134,8 +157,7 @@ def multiselect_vartype(
                 help=description,
             )
 
-        with mid_col:
-            # Add button to append the new value to the list
+        with right_col:
             if st.button(
                 label="➕ Add",
                 key=f"add_{key}",
@@ -147,8 +169,6 @@ def multiselect_vartype(
                     _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
                     st.rerun()
 
-        with right_col:
-            # Remove button to remove the last value from the list
             if st.button(
                 label="❌ Remove",
                 key=f"remove_last_{key}",
@@ -160,45 +180,53 @@ def multiselect_vartype(
                     _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
                     st.rerun()
 
-    _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
-    return st.session_state[key]
+            _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
+            return st.session_state[key]
 
 
 def int_vartype(tixi, xpath, default_value, name, key, description) -> int:
-    with st.columns([1, 2])[0]:
-        raw_value = safe_get_value(tixi, xpath, default_value)
-        try:
-            value = int(raw_value)
-        except (TypeError, ValueError):
-            value = int(default_value)
-        output = st.number_input(
-            name,
-            value=value,
-            key=key,
-            help=description,
-        )
-        add_value(tixi, xpath, output)
-        return output
+    raw_value = safe_get_value(tixi, xpath, default_value)
+    try:
+        value = int(raw_value)
+    except (TypeError, ValueError):
+        value = int(default_value)
+    output = st.number_input(
+        label=name,
+        value=value,
+        key=key,
+        help=description,
+    )
+    add_value(tixi, xpath, output)
+    return output
 
 
-def float_vartype(tixi, xpath, default_value, name, key, description) -> float:
+def float_vartype(
+    tixi: Tixi3,
+    xpath,
+    default_value,
+    name,
+    key,
+    description,
+    min_value: float | None = None,
+    max_value: float | None = None,
+) -> float:
     raw_value = safe_get_value(tixi, xpath, default_value)
     try:
         default_value = float(raw_value)
     except (TypeError, ValueError):
         default_value = float(default_value)
 
-    with st.columns([1, 2])[0]:
-        output = st.number_input(
-            name,
-            value=default_value,
-            format="%g",
-            key=key,
-            help=description,
-        )
-        add_value(tixi, xpath, output)
-        return output
-    return default_value
+    output = st.number_input(
+        name,
+        value=default_value,
+        format="%g",
+        key=key,
+        help=description,
+        min_value=min_value,
+        max_value=max_value,
+    )
+    add_value(tixi, xpath, output)
+    return output
 
 
 def list_vartype(tixi: Tixi3, xpath, default_value, name, key, description) -> str:
@@ -216,6 +244,7 @@ def list_vartype(tixi: Tixi3, xpath, default_value, name, key, description) -> s
         key=key,
         help=description,
         horizontal=True,
+        width="stretch",
     )
     add_value(tixi, xpath, output)
     return output
@@ -244,6 +273,7 @@ def add_ctrl_surf_vartype(
         index=idx,
         key=key,
         help=description,
+        width="stretch",
     )
     add_value(tixi, ctrl_xpath, selected)
 
@@ -270,10 +300,11 @@ def bool_vartype(tixi, xpath, default_value, name, key, description) -> bool:
         value = bool(raw_value)
 
     output = st.checkbox(
-        name,
+        label=name,
         value=value,
         key=key,
         help=description,
+        width="stretch",
     )
     add_value(tixi, xpath, output)
     return output

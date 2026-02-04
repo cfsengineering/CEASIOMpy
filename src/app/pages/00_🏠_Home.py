@@ -21,9 +21,7 @@ from importlib.metadata import PackageNotFoundError
 
 from constants import BLOCK_CONTAINER
 
-# ==============================================================================
-#   CONSTANTS
-# ==============================================================================
+# Constants
 
 PAGE_NAME = "Welcome to CEASIOMpy"
 

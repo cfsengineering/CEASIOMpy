@@ -657,9 +657,13 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
     if not tixi.checkElement(SU2MESH_XPATH):
         create_branch(tixi, SU2MESH_XPATH)
 
-    log.info(f"su2_mesh_paths {su2_mesh_paths}")
+    su2_mesh_paths_str: list[str] = [
+        str(elem)
+        for elem in su2_mesh_paths
+    ]
+
     # Update tixi element at SU2MESH_XPATH with new paths
-    tixi_su2_mesh_paths = ";".join(str(su2_mesh_paths))
+    tixi_su2_mesh_paths = ";".join(su2_mesh_paths_str)
     tixi.updateTextElement(SU2MESH_XPATH, tixi_su2_mesh_paths)
 
     dynstab_su2_mesh_paths = [

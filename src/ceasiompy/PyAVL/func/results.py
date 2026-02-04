@@ -43,7 +43,7 @@ def get_avl_aerocoefs(force_file: Path) -> Tuple[
     float,
 ]:
     """
-    Get aerodynamic coefficients and velocity from AVL total forces file (sb.txt).
+    Get aerodynamic coefficients and velocity from AVL total forces file (st.txt).
 
     Args:
         force_file_ft (Path): Path to the AVL total forces file.

@@ -29,9 +29,7 @@ from ceasiompy.Database.func import (
     ALLOWED_COLUMNS,
 )
 
-# ==============================================================================
-#   FUNCTIONS
-# ==============================================================================
+# Functions
 
 
 def split_line(line: str, index: int) -> float:

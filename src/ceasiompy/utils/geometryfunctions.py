@@ -140,6 +140,40 @@ def convert_fuselage_profiles(
     return elem_transf, prof_size_y, prof_size_z, prof_vect_y, prof_vect_z
 
 
+def get_xpath_for_param(tixi: Tixi3, param, wing_uid, section_uid):
+    if param in ["length", "sweepAngle", "dihedralAngle"]:
+        positioning_path = f"{WINGS_XPATH}/wing[@uID='{wing_uid}']/positionings"
+        if not tixi.checkElement(positioning_path):
+            raise ValueError(f"{positioning_path=} not found.")
+        count = tixi.getNumberOfChilds(positioning_path)
+        for i in range(count):
+            check_pos_uid = tixi.getTextElement(
+                positioning_path + f"/positioning[{i + 1}]/toSectionUID"
+            )
+            if check_pos_uid == section_uid:
+                pos_uid = tixi.getTextAttribute(
+                    positioning_path + f"/positioning[{i + 1}]",
+                    "uID"
+                )
+                return f"{positioning_path}/positioning[@uID='{pos_uid}']/{param}"
+        
+        raise ValueError(f"{section_uid=} not found in cpacs.")
+
+    wing_xpath = WINGS_XPATH + f"/wing[@uID='{wing_uid}']"
+    sec_xpath = wing_xpath + f"/sections/section[@uID='{section_uid}']/transformation"
+
+    if param == "twist":
+        return f"{sec_xpath}/rotation/y"
+
+    if param == "chord":
+        return f"{sec_xpath}/scaling/x"
+
+    if param == "thickness":
+        return f"{sec_xpath}/scaling/z"
+
+    raise NotImplementedError(f"{param=} not implemented yet in function get_xpath_for_param")
+
+
 def get_profile_coord(
     tixi: Tixi3,
     uid_xpath: str,

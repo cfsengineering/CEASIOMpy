@@ -11,26 +11,43 @@ Initialization for SMTrain module.
 import streamlit as st
 
 from ceasiompy.utils.ceasiompyutils import safe_remove
+from cpacspy.cpacsfunctions import get_value_or_default
+from ceasiompy.PyAVL.__specs__ import gui_settings as avl_settings
+from ceasiompy.SU2Run.__specs__ import gui_settings as su2_settings
+from ceasiompy.CPACS2GMSH.__specs__ import gui_settings as gmsh_settings
+
+from ceasiompy.utils.geometryfunctions import (
+    get_xpath_for_param,
+    return_uid_wings_sections,
+)
 from ceasiompy.utils.guiobjects import (
     int_vartype,
     list_vartype,
     bool_vartype,
     float_vartype,
-    dataframe_vartype,
     multiselect_vartype,
 )
 
-
 from cpacspy.cpacspy import CPACS
+from tixi3.tixi3wrapper import Tixi3
 
-from ceasiompy.utils.commonxpaths import SU2MESH_XPATH
+from ceasiompy.PyAVL import MODULE_NAME as PYAVL
+from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
+from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
 from ceasiompy.SMTrain import (
     LEVEL_ONE,
     LEVEL_TWO,
+    OBJECTIVES_LIST,
+    WING_PARAMETERS,
+    AEROMAP_FEATURES,
     SMTRAIN_MODELS_XPATH,
+    SMTRAIN_OBJECTIVE_XPATH,
     SMTRAIN_TRAIN_PERC_XPATH,
+    SMTRAIN_GEOM_WING_OPTIMISE,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
-    SMTRAIN_AVL_DATABASE_XPATH,
+    SMTRAIN_NSAMPLES_AEROMAP_XPATH,
+    SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
+    SMTRAIN_SIMULATION_PURPOSE_XPATH,
     SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
 )
 
@@ -39,15 +56,6 @@ from ceasiompy.SMTrain import (
 
 def gui_settings(cpacs: CPACS) -> None:
     tixi = cpacs.tixi
-
-    list_vartype(
-        tixi=tixi,
-        default_value=["Run New Simulations", "Load Geometry Exploration Simulations"],
-        key="smtrain_load_or_explore",
-        name="Load Existing or Run New Simulations",
-        description="Load pre-computed results from files or Generate new simulations.",
-        xpath=SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
-    )
 
     chosen_models = multiselect_vartype(
         tixi=tixi,
@@ -59,16 +67,36 @@ def gui_settings(cpacs: CPACS) -> None:
     )
 
     if "KRG" in chosen_models:
-        list_vartype(
+        fidelity_level = list_vartype(
             tixi=tixi,
             xpath=SMTRAIN_FIDELITY_LEVEL_XPATH,
-            default_value=[LEVEL_TWO, LEVEL_ONE],  # TODO: , "Three levels" not implemented yet
+            default_value=[LEVEL_ONE, LEVEL_TWO],  # TODO: , "Three levels" not implemented yet
             name="Range of fidelity level(s).",
             description="""1st-level of fidelity (low fidelity),
                 2nd level of fidelity (low + high fidelity) on high-variance points.
             """,
             key="smtrain_fidelity_level",
         )
+        with st.expander(
+            label=f"First Level (Low Fidelity, {PYAVL} Settings)",
+            expanded=False,
+        ):
+            avl_settings(cpacs)
+        
+        if fidelity_level == "Two levels":
+            with st.expander(
+                label=f"Second Level (High Fidelity, {CPACS2GMSH} + {SU2RUN} Settings)", 
+            ):
+                tab = st.tabs(
+                    tabs=[CPACS2GMSH, SU2RUN],
+                )
+                if tab == CPACS2GMSH:
+                    gmsh_settings(cpacs)
+                if tab == SU2RUN:
+                    su2_settings(cpacs)
+
+    else:
+        safe_remove(tixi, xpath=SMTRAIN_FIDELITY_LEVEL_XPATH)
 
     float_vartype(
         tixi=tixi,
@@ -81,301 +109,180 @@ def gui_settings(cpacs: CPACS) -> None:
         max_value=1.0,
     )
 
-    # cpacs_inout.add_input(
-    #     var_name="avl_dataset_enriching",
-    #     var_type=bool,
-    #     default_value=True,
-    #     unit=None,
-    #     descr="Enrich your dataset from previously computed AVL values stored in ceasiompy.db",
-    #     xpath=SMTRAIN_AVL_DATABASE_XPATH,
-    #     gui=True,
-    #     gui_name="Data from ceasiompy.db",
-    #     gui_group="Data Enriching Settings",
-    #     test_value=False,
-    #     expanded=True,
-    # )
+    load_existing = list_vartype(
+        tixi=tixi,
+        default_value=["Run New Simulations", "Load Geometry Exploration Simulations"],
+        key="smtrain_load_or_explore",
+        name="Load Existing or Run New Simulations",
+        description="Load pre-computed results from files or Generate new simulations.",
+        xpath=SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
+    )
 
-# cpacs_inout.add_input(
-#     var_name="mesh_choice",
-#     var_type="DynamicChoice",
-#     default_value=["CPACS2GMSH mesh", "Path", "db"],
-#     unit=None,
-#     descr="Choose from where to upload the mesh",
-#     xpath=USED_SU2_MESH_XPATH,
-#     gui=False,
-#     gui_name="Choose mesh",
-#     gui_group="Training Surrogate Settings",
-#     test_value=["CPACS2GMSH mesh"],
-# )
+    if load_existing == "Run New Simulations":
+        list_vartype(
+            tixi=tixi,
+            xpath=SMTRAIN_OBJECTIVE_XPATH,
+            description="Objective function list for the surrogate model to predict",
+            name="Objective",
+            key="smtrain_objective",
+            default_value=OBJECTIVES_LIST,
+        )
 
+        int_vartype(
+            tixi=tixi,
+            xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
+            default_value=10,
+            key="smtrain_sample_number",
+            name="Number of samples",
+            description="""
+                Samples corresponds to the number of distinct geometry we will run the solver on.
+            """,
+        )
 
-# cpacs_inout.add_input(
-# var_name="rmse_objective",
-# var_type=float,
-# default_value=0.05,
-# unit=None,
-# descr="Selects the model's RMSE threshold value for Bayesian optimisation",
-# xpath=SMTRAIN_THRESHOLD_XPATH,
-# gui=INCLUDE_GUI,
-# gui_name="RMSE Threshold",
-# gui_group="Training Surrogate Settings",
-# )
+        xpath = SMTRAIN_GEOM_WING_OPTIMISE
+        uid_list = return_uid_wings_sections(tixi)
+        wings = sorted(set(wing_uid for (wing_uid, _) in uid_list))
 
-# cpacs_inout.add_input(
-# var_name="max_iter",
-# var_type=int,
-# default_value=1000,
-# unit=None,
-# descr="Maximum number of iterations performed by SU2",
-# xpath=SU2_MAX_ITER_XPATH,
-# gui=INCLUDE_GUI,
-# gui_name="Maximum iterations",
-# gui_group="Training Surrogate Settings",
-# test_value=1,
-# )
+        st.markdown('###### Select the wings to optimise')
+        for i_wing, wing_uid in enumerate(wings):
+            default_value = True if i_wing == 0 else False
+            selected_wing_xpath = xpath + f"/{wing_uid}"
+            wing_optimized = bool_vartype(
+                tixi=tixi,
+                xpath=selected_wing_xpath,
+                default_value=default_value,
+                key=f"smtrain_{wing_uid}_selected",
+                name=f"Wing {wing_uid=}",
+                description=f"Optimize wing {wing_uid=}.",
+            )
 
-# cpacs_inout.add_input(
-#     var_name="type_mesh",
-#     var_type=list,
-#     default_value=["Euler", "RANS"],
-#     unit=None,
-#     descr="Choose between Euler and RANS mesh",
-#     xpath=GMSH_MESH_TYPE_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Choose the mesh type",
-#     gui_group="Mesh type",
-# )
+            if wing_optimized:
+                _wing_settings(
+                    tixi=tixi,
+                    uid_list=uid_list,
+                    wing_uid=wing_uid,
+                    selected_wing_xpath=selected_wing_xpath,
+                )
+    elif load_existing == "Load Geometry Exploration Simulations":
+        st.info("Whats going on ?")
+        # uploaded_existing_simulations = st.file_uploader(
+        #     "Upload simulations file",
+        #     type=["csv"],
+        #     key='existing_avl_results'
+        # )
+        # if uploaded_existing_simulations:
+        #     # Ensure working directory exists
+        #     working_dir = Path(st.session_state.workflow.working_dir)
+        #     working_dir.mkdir(parents=True, exist_ok=True)
 
+        #     # Save the uploaded CSV to the working directory
+        #     csv_filename = 'avl_simulations_results.csv'
+        #     csv_path = working_dir / csv_filename
+        #     with open(csv_path, "wb") as f:
+        #         f.write(uploaded_existing_simulations.getbuffer())
 
-# cpacs_inout.add_input(
-#     var_name="farfield_mesh_size_factor",
-#     var_type=float,
-#     default_value=10,
-#     unit=None,
-#     descr="""Factor proportional to the biggest cell on the plane
-#             to obtain cell size on the farfield(just for Euler)""",
-#     xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Farfield mesh size factor",
-#     gui_group="Mesh options",
-# )
+        #     # Load the CSV into a DataFrame and store both DataFrame
+        #     # and path in session_state
+        #     simulations_df = pd.read_csv(csv_path)
+        #     st.session_state.simulations_df = simulations_df
+        #     st.session_state.simulations_file_path = str(csv_path)
 
-# cpacs_inout.add_input(
-#     var_name="fuselage_mesh_size_factor",
-#     var_type=float,
-#     default_value=1.0,
-#     unit=None,
-#     descr="Factor proportional to fuselage radius of curvature to obtain cell size on it",
-#     xpath=GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Fuselage mesh size factor",
-#     gui_group="Mesh options",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="wing_mesh_size_factor",
-#     var_type=float,
-#     default_value=1.0,
-#     unit=None,
-#     descr="Factor proportional to wing radius of curvature to obtain cell size on it",
-#     xpath=GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Wings mesh size factor",
-#     gui_group="Mesh options",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="engine_mesh_size",
-#     var_type=float,
-#     default_value=0.23,
-#     unit="[m]",
-#     descr="Value assigned for the engine surfaces mesh size",
-#     xpath=GMSH_MESH_SIZE_ENGINES_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Engines",
-#     gui_group="Mesh options",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="propeller_mesh_size",
-#     var_type=float,
-#     default_value=0.23,
-#     unit="[m]",
-#     descr="Value assigned for the propeller surfaces mesh size",
-#     xpath=GMSH_MESH_SIZE_PROPELLERS_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Propellers",
-#     gui_group="Mesh options",
-# )
+        #     st.success("CSV copied to working directory!")
+        #     st.write(f"DataFrame shape: {simulations_df.shape}")
+        #     st.dataframe(simulations_df.head())
+        #     st.write(f"Persistent path: {csv_path}")
 
 
-# cpacs_inout.add_input(
-#     var_name="n_power_factor",
-#     var_type=float,
-#     default_value=2,
-#     unit=None,
-#     descr="Power of the power law of the refinement on LE and TE. ",
-#     xpath=GMSH_N_POWER_FACTOR_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="n power factor",
-#     gui_group="Advanced mesh parameters",
-# )
+def _wing_settings(
+    tixi: Tixi3,
+    xpath,
+    uid_list,
+    wing_uid,
+    selected_wing_xpath,
+):
+    # Sections of specific wing
+    sections = [
+        sec_uid
+        for (wng, sec_uid) in uid_list
+        if wng == wing_uid
+    ]
+    st.markdown(f"##### ↪️ Sections of {wing_uid}")
+    for i_sec, section_uid in enumerate(sections):
+        sec_left_col, sec_right_col = st.columns([2, 3])
+        sec_selected_xpath = selected_wing_xpath + f"/{section_uid}"
 
-# cpacs_inout.add_input(
-#     var_name="n_power_field",
-#     var_type=float,
-#     default_value=0.9,
-#     unit=None,
-#     descr="Value that changes the measure of fist cells near aircraft parts",
-#     xpath=GMSH_N_POWER_FIELD_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="n power field",
-#     gui_group="Advanced mesh parameters",
-# )
+        with sec_left_col:
+            default_value = True if i_sec == 0 else False
+            sec_optimized = bool_vartype(
+                tixi=tixi,
+                xpath=sec_selected_xpath,
+                key=f"smtrain_{wing_uid}_{section_uid}_selected",
+                description=f"Optimize {section_uid=} of {wing_uid=}",
+                default_value=default_value,
+                name=f"Section {section_uid=} of {wing_uid=}"
+            )
 
-# cpacs_inout.add_input(
-#     var_name="refine_factor",
-#     var_type=float,
-#     default_value=2.0,
-#     unit=None,
-#     descr="Refinement factor of wing leading/trailing edge mesh",
-#     xpath=GMSH_REFINE_FACTOR_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="LE/TE refinement factor",
-#     gui_group="Advanced mesh parameters",
-# )
+        with sec_right_col:
+            if sec_optimized:
+                base_xpath = xpath + f"/{wing_uid}/sections/{section_uid}/parameters"
+                for i_param, param in enumerate(WING_PARAMETERS):
+                    params_xpath = base_xpath + f"/{param}"
+                    default_value = True if i_param == 0 else False
+                    status = bool_vartype(
+                        tixi=tixi,
+                        xpath=params_xpath + "/status",
+                        default_value=default_value,
+                        name=f"Status of {param}",
+                        key=f"smtrain_{wing_uid}_{section_uid}_{param}_status",
+                        description=f"""Choose if you want to optimize {param=}
+                            of geometry element {wing_uid=} at {section_uid=}
+                        """,
+                    )
 
-# cpacs_inout.add_input(
-#     var_name="refine_truncated",
-#     var_type=bool,
-#     default_value=False,
-#     unit=None,
-#     descr="Enable the refinement of truncated trailing edge",
-#     xpath=GMSH_REFINE_TRUNCATED_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Refine truncated TE",
-#     gui_group="Advanced mesh parameters",
-# )
+                    if status:
+                        params_current_value_xpath = get_xpath_for_param(
+                            tixi=tixi,
+                            param=param,
+                            wing_uid=wing_uid,
+                            section_uid=section_uid
+                        )
 
-# cpacs_inout.add_input(
-#     var_name="auto_refine",
-#     var_type=bool,
-#     default_value=False,
-#     unit=None,
-#     descr="Automatically refine the mesh on surfaces that are small compare to the chosen mesh"
-#     "size, this option increase the mesh generation time",
-#     xpath=GMSH_AUTO_REFINE_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Auto refine",
-#     gui_group="Advanced mesh parameters",
-# )
+                        current_value = get_value_or_default(
+                            tixi=tixi,
+                            xpath=params_current_value_xpath,
+                            default_value=0.0,
+                        )
 
-# cpacs_inout.add_input(
-#     var_name="refine_factor_angled_lines",
-#     var_type=float,
-#     default_value=1.5,
-#     unit="1",
-#     descr="Refinement factor of edges at intersections that are not flat enough",
-#     xpath=GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,
-#     gui=True,
-#     gui_name="Refinement factor of lines in between angled surfaces (only in RANS)",
-#     gui_group="Advanced mesh parameters",
-# )
+                        default_min_value = 0.8 * current_value
+                        default_max_value = 1.2 * current_value
 
+                        col_min, col_val, col_max = st.columns([0.5, 0.5, 0.5])
 
-# cpacs_inout.add_input(
-#     var_name="n_layer",
-#     var_type=int,
-#     default_value=20,
-#     unit=None,
-#     descr="Number of prismatic element layers.",
-#     xpath=GMSH_NUMBER_LAYER_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Number of layer",
-#     gui_group="RANS options",
-# )
+                        with col_min:
+                            float_vartype(
+                                tixi=tixi,
+                                xpath=params_xpath + "/min_value/value",
+                                description=f"""Define the range (1d design space) for {param=}
+                                    of geometry element {wing_uid=} at {section_uid=}
+                                """,
+                                key=f"smtrain_{wing_uid}_{section_uid}_{param}_min_value",
+                                default_value=default_min_value,
+                                name=f"Minimum value of {param=}",
+                                max_value=current_value,
+                            )
+                        with col_val:
+                            st.markdown("Current value:")
+                            st.markdown(f"<= {current_value:.3f} <=")
 
-# cpacs_inout.add_input(
-#     var_name="h_first_layer",
-#     var_type=float,
-#     default_value=3,
-#     unit="[\u03bcm]",
-#     descr="is the height of the first prismatic cell, touching the wall, in mesh length units.",
-#     xpath=GMSH_H_FIRST_LAYER_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Height of first layer",
-#     gui_group="RANS options",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="max_layer_thickness",
-#     var_type=float,
-#     default_value=100,
-#     unit="[mm]",
-#     descr="The maximum allowed absolute thickness of the prismatic layer.",
-#     xpath=GMSH_MAX_THICKNESS_LAYER_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Max layer thickness",
-#     gui_group="RANS options",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="growth_ratio",
-#     var_type=float,
-#     default_value=1.2,
-#     unit=None,
-#     descr="the largest allowed ratio between the wall-normal edge lengths of consecutive cells",
-#     xpath=GMSH_GROWTH_RATIO_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Growth ratio",
-#     gui_group="RANS options",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="growth_factor",
-#     var_type=float,
-#     default_value=1.4,
-#     unit=None,
-#     descr="Desired growth factor between edge lengths of coincident tetrahedra",
-#     xpath=GMSH_GROWTH_FACTOR_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Growth factor",
-#     gui_group="RANS options",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="feature_angle",
-#     var_type=float,
-#     default_value=40,
-#     unit="[grad]",
-#     descr="Larger angles are treated as resulting from approximation of curved surfaces",
-#     xpath=GMSH_FEATURE_ANGLE_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Feature Angle",
-#     gui_group="RANS options",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="intake_percent",
-#     var_type=float,
-#     default_value=20,
-#     unit="[%]",
-#     descr="Position of the intake surface boundary condition in percentage of"
-#     " the engine length from the beginning of the engine",
-#     xpath=GMSH_INTAKE_PERCENT_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Engine intake position",
-#     gui_group="Engines",
-# )
-# cpacs_inout.add_input(
-#     var_name="exhaust_percent",
-#     var_type=float,
-#     default_value=20,
-#     unit="[%]",
-#     descr="Position of the exhaust surface boundary condition in percentage of"
-#     " the engine length from the end of the engine",
-#     xpath=GMSH_EXHAUST_PERCENT_XPATH,
-#     gui=INCLUDE_GUI,
-#     gui_name="Engine exhaust position",
-#     gui_group="Engines",
-# )
+                        with col_max:
+                            float_vartype(
+                                tixi=tixi,
+                                xpath=params_xpath + "/max_value/value",
+                                description=f"""Define the range (1d design space) for {param=}
+                                    of geometry element {wing_uid=} at {section_uid=}
+                                """,
+                                key=f"smtrain_{wing_uid}_{section_uid}_{param}_min_value",
+                                default_value=default_max_value,
+                                name=f"Maximum value of {param=}",
+                                min_value=current_value,
+                            )

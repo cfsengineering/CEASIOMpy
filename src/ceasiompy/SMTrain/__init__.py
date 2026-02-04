@@ -21,7 +21,7 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 # ==============================================================================
 
 # ===== Module Status =====
-MODULE_STATUS = False
+MODULE_STATUS = True
 MODULE_TYPE = "MetaModule"
 
 # ===== Add a Results Directory =====

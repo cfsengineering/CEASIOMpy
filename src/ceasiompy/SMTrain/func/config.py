@@ -371,33 +371,6 @@ def relative_ranges(
     return ranges
 
 
-def get_xpath_for_param(tixi : Tixi3, params, wing_uid, section_uid):
-    y_ = (
-        f"{WINGS_XPATH}/wing[@uID='{wing_uid}']/sections/section[@uID='{section_uid}']/"
-        "transformation"
-    )
-    if params == "twist":
-        return f"{y_}/rotation/y"
-    elif params == "chord":
-        return f"{y_}/scaling/x"
-    elif params == "thickness":
-        return f"{y_}/scaling/z"
-    elif params in ["length", "sweepAngle", "dihedralAngle"]:
-        positioning_path = f"{WINGS_XPATH}/wing[@uID='{wing_uid}']/positionings"
-        if tixi.checkElement(positioning_path):
-            count = tixi.getNumberOfChilds(positioning_path)
-            for i in range(count):
-                check_pos_uid = tixi.getTextElement(
-                    positioning_path + f"/positioning[{i+1}]/toSectionUID"
-                )
-                if check_pos_uid == section_uid:
-                    pos_uid = tixi.getTextAttribute(
-                        positioning_path + f"/positioning[{i+1}]",
-                        "uID"
-                    )
-                    return f"{positioning_path}/positioning[@uID='{pos_uid}']/{params}"
-
-
 def create_list_cpacs_geometry(cpacs_file: Path, sampling_geom_csv: Path, NEWCPACS_path: Path):
 
     tixi = Tixi3()

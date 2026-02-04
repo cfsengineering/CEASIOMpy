@@ -127,6 +127,5 @@ if __name__ == "__main__":
             "Contact us [at](mailto:ceasiompy@gmail.com)."
         )
 
-
     # Add last_page to session state
     st.session_state.last_page = PAGE_NAME

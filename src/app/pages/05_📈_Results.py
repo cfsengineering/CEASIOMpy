@@ -32,26 +32,6 @@ from streamlitutils import (
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
-from cpacspy.cpacsfunctions import (
-    create_branch,
-)
-
-from ceasiompy import log
-from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
-from scipy.optimize import minimize
-import io
-
-from ceasiompy.SMTrain.func.config import (
-    get_xpath_for_param,
-    normalize_input_from_gui,
-    phys_to_norm,
-    norm_to_phys,
-    get_elements_to_optimise,
-)
-
-from SALib.sample import saltelli
-from SALib.analyze import sobol
-import altair as alt
 
 from ceasiompy import log
 from constants import BLOCK_CONTAINER

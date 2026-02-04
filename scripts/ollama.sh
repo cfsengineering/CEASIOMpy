@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # ollama setup for Linux Users
 
 curl -fsSL https://ollama.com/install.sh | sh

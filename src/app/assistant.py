@@ -17,6 +17,7 @@ import urllib.error
 import shutil
 import subprocess
 import time
+from urllib.parse import urlparse
 from pathlib import Path
 from typing import Iterable
 
@@ -69,7 +70,7 @@ def _ollama_model_exists(model: str) -> bool:
         method="GET",
     )
     try:
-        with urllib.request.urlopen(req, timeout=2) as resp:
+        with _safe_urlopen(req, timeout=2) as resp:
             body = resp.read().decode("utf-8")
     except (urllib.error.URLError, TimeoutError):
         return False
@@ -123,7 +124,7 @@ def _ollama_server_alive() -> bool:
         method="GET",
     )
     try:
-        with urllib.request.urlopen(req, timeout=1) as resp:
+        with _safe_urlopen(req, timeout=1) as resp:
             return bool(resp.read())
     except (urllib.error.URLError, TimeoutError):
         return False
@@ -197,7 +198,7 @@ def _call_ollama(model: str, prompt: str) -> str:
         method="POST",
     )
     try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        with _safe_urlopen(req, timeout=30) as resp:
             body = resp.read().decode("utf-8")
     except (urllib.error.URLError, TimeoutError):
         return ""
@@ -218,6 +219,16 @@ def _format_sources(chunks: list["RagChunk"]) -> str:
     return "\n".join(lines)
 
 
+def _safe_urlopen(
+    req: urllib.request.Request,
+    timeout: float,
+    allowed_schemes: tuple[str, ...] = ("http", "https"),
+):
+    if urlparse(req.full_url).scheme not in allowed_schemes:
+        raise ValueError("Blocked URL scheme.")
+    return urllib.request.urlopen(req, timeout=timeout)
+
+
 def _filter_chunks_for_query(prompt: str, chunks: list["RagChunk"]) -> list["RagChunk"]:
     prompt_l = prompt.lower()
     module_tokens = ["pyavl", "su2run", "cpacs2gmsh", "smtrain", "staticstability"]
@@ -225,7 +236,6 @@ def _filter_chunks_for_query(prompt: str, chunks: list["RagChunk"]) -> list["Rag
         prompt_l = prompt_l.replace("avl", "pyavl")
 
     wants_settings = "settings" in prompt_l or "gui" in prompt_l
-    wants_meshing = "mesh" in prompt_l or "meshing" in prompt_l
 
     for token in module_tokens:
         if token in prompt_l:
@@ -234,9 +244,6 @@ def _filter_chunks_for_query(prompt: str, chunks: list["RagChunk"]) -> list["Rag
                 specs_only = [chunk for chunk in filtered if "__specs__.py" in chunk.path]
                 if specs_only:
                     return specs_only
-            if wants_meshing and token == "pyavl":
-                mesh_chunks = [chunk for chunk in chunks if "cpacs2gmsh" in chunk.path.lower()]
-                return mesh_chunks or filtered or chunks
             return filtered or chunks
     return chunks
 

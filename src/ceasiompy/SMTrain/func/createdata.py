@@ -9,7 +9,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 import streamlit as st
 
 from pandas import concat
-from cpacspy.cpacsfunctions import get_value, get_value_or_default
+from cpacspy.cpacsfunctions import get_value
 from ceasiompy.PyAVL.pyavl import main as run_avl
 from ceasiompy.SU2Run.su2run import main as run_su2
 from ceasiompy.CPACS2GMSH.cpacs2gmsh import main as run_cpacs2gmsh
@@ -51,33 +51,9 @@ from ceasiompy.utils.commonxpaths import (
     USED_SU2_MESH_XPATH,
     SELECTED_AEROMAP_XPATH,
 )
-from ceasiompy.CPACS2GMSH import (
-    MODULE_NAME as CPACS2GMSH_NAME,
-    GMSH_MESH_TYPE_XPATH,
-    GMSH_MESH_SIZE_FARFIELD_XPATH,
-    GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
-    GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
-    GMSH_MESH_SIZE_ENGINES_XPATH,
-    GMSH_MESH_SIZE_PROPELLERS_XPATH,
-    GMSH_N_POWER_FACTOR_XPATH,
-    GMSH_N_POWER_FIELD_XPATH,
-    GMSH_REFINE_FACTOR_XPATH,
-    GMSH_REFINE_TRUNCATED_XPATH,
-    GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,
-    GMSH_AUTO_REFINE_XPATH,
-    GMSH_NUMBER_LAYER_XPATH,
-    GMSH_H_FIRST_LAYER_XPATH,
-    GMSH_MAX_THICKNESS_LAYER_XPATH,
-    GMSH_GROWTH_RATIO_XPATH,
-    GMSH_GROWTH_FACTOR_XPATH,
-    GMSH_FEATURE_ANGLE_XPATH,
-    GMSH_INTAKE_PERCENT_XPATH,
-    GMSH_EXHAUST_PERCENT_XPATH,
-)
 
 
 # Functions
-
 
 def launch_avl(
     cpacs: CPACS,

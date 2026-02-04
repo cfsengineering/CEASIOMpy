@@ -19,7 +19,7 @@ from ceasiompy.SU2Run import MODULE_STATUS as SU2RUN_STATUS
 
 # ===== Module Status =====
 # SMTrain is true if PyAVL is true
-MODULE_STATUS = False  # PYAVL_STATUS
+MODULE_STATUS = False  # PYAVL_STATUS from ceasiompy.PyAVL import MODULE_STATUS as PYAVL_STATUS
 
 MODULE_TYPE = "MetaModule"
 

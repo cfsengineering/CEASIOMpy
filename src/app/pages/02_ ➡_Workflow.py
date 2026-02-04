@@ -26,7 +26,7 @@ from streamlit_flow import (
 from constants import BLOCK_CONTAINER
 from ceasiompy.PyAVL import MODULE_NAME as PYAVL
 from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
-from ceasiompy.SMTrain import MODULE_NAME as SMTRAIN
+# from ceasiompy.SMTrain import MODULE_NAME as SMTRAIN
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
 from ceasiompy.StaticStability import MODULE_NAME as STATICSTABILITY
 
@@ -56,7 +56,7 @@ def section_predefined_workflow() -> None:
     active_modules = set(get_module_list(only_active=True))
 
     predefine_workflows = [
-        [SMTRAIN],
+        # [SMTRAIN],
         [PYAVL, STATICSTABILITY],
         [CPACS2GMSH, SU2RUN],
     ]

@@ -6,19 +6,15 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Calculate CL script.
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from ambiance import Atmosphere
 
 from ceasiompy import log
 from ceasiompy.CLCalculator import GAMMA
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
+# Functions
 
 def calculate_cl(
     ref_area: float,

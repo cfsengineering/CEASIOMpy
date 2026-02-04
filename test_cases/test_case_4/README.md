@@ -1,4 +1,4 @@
-<img align="right" height="70" src="../../documents/logos/CEASIOMpy_banner_main.png">
+<img align="right" height="70" src="../../../documents/logos/CEASIOMpy_banner_main.png">
 
 # CEASIOMpy - Test case 4
 
@@ -13,7 +13,7 @@ To run this test case, you will need to open a terminal and run the following co
 conda activate ceasiompy
 
 # To run the test case 4
-ceasiompy_run -m test_files/CPACSfiles/D150_simple.xml PyAVL SkinFriction SaveAeroCoefficients
+ceasiompy_run -m test_files/CPACSfiles/d150.xml PyAVL SkinFriction
 ```
 
 The following workflow will be executed:
@@ -22,7 +22,6 @@ The following workflow will be executed:
   graph LR;
       D150([D150 CPACS file])-->PyAVL;
       PyAVL-->SkinFriction;
-      SkinFriction-->SaveAeroCoefficients:
 ```
 
 When it is over, you can check in the directory `WKDIR/Workflow_0**/Results/AeroCoefficients` (the Workflow number is incremented at every run), you should see a figure named `D150-Alt0.0-Mach0.3.png` which contains some plots of the aerodynamic coefficients. You can also check results from all modules in `WKDIR/Workflow_0**/Results`.

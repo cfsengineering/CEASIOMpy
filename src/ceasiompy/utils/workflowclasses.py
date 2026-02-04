@@ -6,25 +6,24 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 Classes to run ceasiompy workflows
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import os
 import shutil
 import importlib
-import json
 
 from ceasiompy.utils import get_wkdir
 from ceasiompy.utils.moduleinterfaces import get_module_list
 from ceasiompy.utils.ceasiompylogger import add_to_runworkflow_history
 from ceasiompy.utils.ceasiompyutils import (
-    change_working_dir,
     run_module,
+    change_working_dir,
+    current_workflow_dir,
     get_results_directory,
 )
 
 from pathlib import Path
+from typing import Callable
 from datetime import datetime
 from ceasiompy.utils.configfiles import ConfigFile
 
@@ -166,7 +165,8 @@ class Workflow:
 
     def __init__(self) -> None:
         self.working_dir = get_wkdir()
-        self.cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml").resolve()
+        self.workflow_dir = current_workflow_dir()
+        self.cpacs_in = Path(CPACS_FILES_PATH, "d150.xml").resolve()
         self.current_wkflow_dir = None
 
         self.modules_list = []  # List of modules to run (str)
@@ -246,7 +246,6 @@ class Workflow:
             raise ValueError("Working directory is not defined!")
 
         wkdir = self.working_dir
-        os.chdir(wkdir)
 
         # Check index of the last workflow directory to set the next one
         wkflow_list = [int(dir.stem.split("_")[-1]) for dir in wkdir.glob("Workflow_*")]
@@ -313,62 +312,51 @@ class Workflow:
             )
             self.subworkflow.set_subworkflow()
 
-    def run_workflow(self, test=False) -> None:
+    def run_workflow(self, progress_callback: Callable | None = None, test=False) -> None:
         """Run the complete Worflow"""
 
-        add_to_runworkflow_history(self.current_wkflow_dir)
-        status_path = Path(self.current_wkflow_dir, "workflow_status.json")
+        # Save the original working directory to restore it later
+        original_cwd = os.getcwd()
 
-        modules_status = []
-        for idx, module in enumerate(self.modules):
-            module_name = module.name
-            modules_status.append(
-                {
+        try:
+            add_to_runworkflow_history(self.current_wkflow_dir)
+
+            modules_status = []
+            for idx, module in enumerate(self.modules):
+                module_name = module.name
+                modules_status.append({
                     "index": idx,
                     "name": module_name,
                     "status": "waiting",
-                }
-            )
+                })
 
-        try:
-            with open(status_path, "w", encoding="utf-8") as f:
-                json.dump(modules_status, f)
-        except OSError:
-            pass
+            for idx, module in enumerate(self.modules):
+                modules_status[idx]["status"] = "running"
+                if progress_callback is not None:
+                    progress_callback(modules_status)
 
-        for idx, module in enumerate(self.modules):
-            modules_status[idx]["status"] = "running"
-            try:
-                with open(status_path, "w", encoding="utf-8") as f:
-                    json.dump(modules_status, f)
-            except OSError:
-                pass
-
-            try:
-                if module.is_optim_module:
-                    self.subworkflow.run_subworkflow()
+                try:
+                    if module.is_optim_module:
+                        self.subworkflow.run_subworkflow()
+                    else:
+                        run_module(
+                            module,
+                            self.current_wkflow_dir,
+                            self.modules_list.index(module.name),
+                            test,
+                        )
+                except Exception as exc:
+                    modules_status[idx]["status"] = "failed"
+                    modules_status[idx]["error"] = str(exc)
+                    if progress_callback is not None:
+                        progress_callback(modules_status)
+                    return None
                 else:
-                    run_module(
-                        module,
-                        self.current_wkflow_dir,
-                        self.modules_list.index(module.name),
-                        test,
-                    )
-            except Exception as exc:
-                modules_status[idx]["status"] = "failed"
-                modules_status[idx]["error"] = str(exc)
-                try:
-                    with open(status_path, "w", encoding="utf-8") as f:
-                        json.dump(modules_status, f)
-                except OSError:
-                    pass
-                raise
-            else:
-                modules_status[idx]["status"] = "finished"
-                try:
-                    with open(status_path, "w", encoding="utf-8") as f:
-                        json.dump(modules_status, f)
-                except OSError:
-                    pass
+                    modules_status[idx]["status"] = "finished"
+                    if progress_callback is not None:
+                        progress_callback(modules_status)
 
-        shutil.copy(module.cpacs_out, Path(self.current_wkflow_dir, "ToolOutput.xml"))
+            shutil.copy(module.cpacs_out, Path(self.current_wkflow_dir, "ToolOutput.xml"))
+        finally:
+            # Always restore the original working directory
+            os.chdir(original_cwd)

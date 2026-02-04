@@ -11,9 +11,7 @@ It is subsequently processed by this module to generate a CPACS file.
 | Creation: 23/12/2025
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import openvsp as vsp
 
@@ -28,10 +26,8 @@ from ceasiompy.VSP2CPACS.func.exportcpacs import Export_CPACS
 
 from ceasiompy import log
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
+# Functions
 
 def get_plantform_area(geom_id):
     vsp.Update()

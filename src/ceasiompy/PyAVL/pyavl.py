@@ -14,11 +14,13 @@ the vortex-lattice method (VLM)
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
-from ceasiompy.utils.ceasiompyutils import run_software
+from ceasiompy.utils.ceasiompyutils import (
+    has_display,
+    run_software,
+    get_sane_max_cpu,
+)
 from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
 from ceasiompy.PyAVL.func.results import get_avl_results
 from ceasiompy.PyAVL.func.utils import (
@@ -32,7 +34,6 @@ from ceasiompy.PyAVL.func.config import (
 )
 
 from pathlib import Path
-from itertools import repeat
 from cpacspy.cpacspy import CPACS
 from concurrent.futures import ProcessPoolExecutor
 from ceasiompy.Database.func.storing import CeasiompyDb
@@ -43,16 +44,14 @@ from ceasiompy.PyAVL import (
     SOFTWARE_NAME,
 )
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
+# Main
 
 
-def run_case(args: tuple[Path, Path], save_fig: bool) -> None:
+def run_case(args: tuple[Path, Path]) -> None:
     '''
     Runs the created avl cases separately on 1 CPU.
     '''
-    # Unpack the yuple
+    # Unpack the tuple
     case_dir_path, command_path = args
 
     run_software(
@@ -63,7 +62,7 @@ def run_case(args: tuple[Path, Path], save_fig: bool) -> None:
         stdin=open(str(command_path), "r"),
         xvfb=True,
     )
-    if save_fig:
+    if has_display():
         convert_ps_to_pdf(case_dir_path)
 
 
@@ -89,8 +88,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         rotation_rate_list,
         control_surface_list,
         avl_path,
-        save_fig,
-        nb_cpu,
         expand,
     ) = retrieve_gui_values(cpacs, results_dir)
 
@@ -105,7 +102,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         new_roll_rate_list,
         new_yaw_rate_list,
     ) = duplicate_elements(
-        expand,
+        False,
         alt_list,
         mach_list,
         aoa_list,
@@ -168,7 +165,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         command_path = write_command_file(
             avl_path=avl_path,  # No control surface deflection
             case_dir_path=case_dir_path,
-            save_plots=save_fig,
             ref_density=ref_density,
             g_acceleration=g_acceleration,
             ref_velocity=ref_velocity,
@@ -213,7 +209,14 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             (
                 _, _, _,
                 ref_density, g_acceleration, ref_velocity,
-            ) = get_physics_conditions(tixi, alt, mach, 0.0, 0.0, 0.0)
+            ) = get_physics_conditions(
+                tixi=tixi,
+                alt=alt,
+                mach=mach,
+                roll_rate=0.0,
+                pitch_rate=0.0,
+                yaw_rate=0.0,
+            )
 
             if expand:
                 db = CeasiompyDb()
@@ -254,7 +257,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             command_path = write_command_file(
                 avl_path=avl_path,
                 case_dir_path=case_dir_path,
-                save_plots=save_fig,
                 ref_density=ref_density,
                 g_acceleration=g_acceleration,
                 ref_velocity=ref_velocity,
@@ -268,7 +270,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             case_args.append((case_dir_path, command_path))
 
     # Run in parallel
-    with ProcessPoolExecutor(max_workers=nb_cpu) as executor:
-        executor.map(run_case, case_args, repeat(save_fig))
+    with ProcessPoolExecutor(max_workers=get_sane_max_cpu()) as executor:
+        executor.map(run_case, case_args)
 
     get_avl_results(cpacs, results_dir)

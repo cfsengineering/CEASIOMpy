@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Test functions for config.py
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from cpacspy.cpacsfunctions import create_branch
 from ceasiompy.utils.decorators import log_test
@@ -19,7 +17,7 @@ from ceasiompy.PyAVL.func.config import (
 )
 from ceasiompy.utils.ceasiompyutils import (
     current_workflow_dir,
-    get_aeromap_conditions,
+    get_selected_aeromap_values,
 )
 
 from pathlib import Path
@@ -28,16 +26,14 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH
 from ceasiompy.PyAVL import (
     MODULE_DIR,
-    AVL_PLOT_XPATH,
     AVL_DISTR_XPATH,
-    AVL_NB_CPU_XPATH,
     AVL_FUSELAGE_XPATH,
     AVL_ROTRATES_XPATH,
     AVL_NSPANWISE_XPATH,
     AVL_NCHORDWISE_XPATH,
-    AVL_AEROMAP_UID_XPATH,
     AVL_EXPAND_VALUES_XPATH,
     AVL_FREESTREAM_MACH_XPATH,
     AVL_CTRLSURF_ANGLES_XPATH,
@@ -52,18 +48,19 @@ class TestPyAVLConfig(CeasiompyTest):
 
     @classmethod
     def setUpClass(cls):
-        cpacs_path = Path(CPACS_FILES_PATH, "labARscaled.xml")
+        cpacs_path = Path(CPACS_FILES_PATH, "lab_ar_scaled.xml")
         cls.cpacs = CPACS(cpacs_path)
         cls.wkdir = current_workflow_dir()
         cls.command_dir = Path(MODULE_DIR, "tests", "avl_command_template.txt")
         cls.avl_path = Path(MODULE_DIR, "tests", "aircraft.avl")
 
+        # Ensure there is a selected aeromap
+        create_branch(cls.cpacs.tixi, xpath=SELECTED_AEROMAP_XPATH)
+        cls.cpacs.tixi.updateTextElement(SELECTED_AEROMAP_XPATH, "aeromap_empty")
+
     @log_test
     def test_retrieve_gui_values(self):
         tixi = self.cpacs.tixi
-
-        create_branch(tixi, xpath=AVL_PLOT_XPATH)
-        tixi.updateBooleanElement(AVL_PLOT_XPATH, False)
 
         create_branch(tixi, xpath=AVL_FUSELAGE_XPATH)
         tixi.updateBooleanElement(AVL_FUSELAGE_XPATH, False)
@@ -71,16 +68,11 @@ class TestPyAVLConfig(CeasiompyTest):
         create_branch(tixi, xpath=AVL_EXPAND_VALUES_XPATH)
         tixi.updateBooleanElement(AVL_EXPAND_VALUES_XPATH, False)
 
-        create_branch(tixi, xpath=AVL_NB_CPU_XPATH)
-        tixi.updateIntegerElement(AVL_NB_CPU_XPATH, 1, "%d")
-
         create_branch(tixi, xpath=AVL_NCHORDWISE_XPATH)
         tixi.updateIntegerElement(AVL_NCHORDWISE_XPATH, 1, "%d")
 
         create_branch(tixi, xpath=AVL_NSPANWISE_XPATH)
         tixi.updateIntegerElement(AVL_NSPANWISE_XPATH, 1, "%d")
-
-        tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, "aeromap_empty")
 
         create_branch(tixi, xpath=AVL_DISTR_XPATH)
         tixi.updateTextElement(AVL_DISTR_XPATH, "cosine")
@@ -103,14 +95,12 @@ class TestPyAVLConfig(CeasiompyTest):
         assert result[4] == [0.0]
         assert result[5] == [0.0]
         assert result[6] == Path(str(self.wkdir) + "/" + self.cpacs.ac_name + ".avl")
-        assert result[7] is False
-        assert result[8] == 1
 
     @log_test
-    def test_get_aeromap_conditions(self) -> None:
+    def test_get_selected_aeromap_values(self) -> None:
         self.assert_equal_function(
-            f=get_aeromap_conditions,
-            input_args=(self.cpacs, AVL_AEROMAP_UID_XPATH),
+            f=get_selected_aeromap_values,
+            input_args=(self.cpacs, ),
             expected=([1000.0], [0.3], [5.0], [0.0]),
         )
 
@@ -144,7 +134,6 @@ class TestPyAVLConfig(CeasiompyTest):
             aileron=0.0,
             elevator=0.0,
             rudder=0.0,
-            save_plots=True,
         )
 
         file_exists = Path(self.wkdir, "avl_commands.txt").exists()
@@ -161,10 +150,7 @@ class TestPyAVLConfig(CeasiompyTest):
                 assert not file1.read() or not file2.read(), "File 'avl_commands.txt' not correct."
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 if __name__ == "__main__":
     main(verbosity=0)

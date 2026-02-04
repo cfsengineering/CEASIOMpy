@@ -4,180 +4,123 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI Interface of PyAVL.
-
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
-
+# Imports
 import streamlit as st
 
-from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
+from cpacspy.cpacspy import CPACS
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
-
-from ceasiompy.PyAVL import INCLUDE_GUI
+from ceasiompy.utils.guiobjects import (
+    int_vartype,
+    list_vartype,
+    bool_vartype,
+    float_vartype,
+    multiselect_vartype,
+)
 
 from ceasiompy.PyAVL import (
-    AVL_PLOT_XPATH,
     AVL_DISTR_XPATH,
-    AVL_NB_CPU_XPATH,
-    AVL_EXPAND_VALUES_XPATH,
     AVL_ROTRATES_XPATH,
     AVL_FUSELAGE_XPATH,
     AVL_NSPANWISE_XPATH,
     AVL_NCHORDWISE_XPATH,
-    AVL_AEROMAP_UID_XPATH,
     AVL_FREESTREAM_MACH_XPATH,
     AVL_CTRLSURF_ANGLES_XPATH,
 )
 
-# ==============================================================================
-#   VARIABLE
-# ==============================================================================
 
-cpacs_inout = CPACSInOut()
+# Functions
+def gui_settings(cpacs: CPACS) -> None:
+    tixi = cpacs.tixi
+    with st.expander(
+        label="Panel Settings",
+        expanded=True,
+    ):
+        list_vartype(
+            tixi=tixi,
+            name="Panel distribution",
+            key="panel_distribution",
+            default_value=["cosine", "sine", "equal"],
+            description="Select the type of distribution.",
+            xpath=AVL_DISTR_XPATH,
+        )
 
-# ==============================================================================
-#   GUI INPUTS
-# ==============================================================================
+        int_vartype(
+            tixi=tixi,
+            name="Number of chordwise vortices",
+            key="chordwise_vortices_nb",
+            default_value=20,
+            description="Select the number of chordwise vortices.",
+            xpath=AVL_NCHORDWISE_XPATH,
+        )
 
-cpacs_inout.add_input(
-    var_name="aeromap_uid",
-    var_type=list,
-    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
-    unit=None,
-    descr="Name of the aero map to calculate",
-    xpath=AVL_AEROMAP_UID_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="__AEROMAP_SELECTION",
-    gui_group="Aeromap settings",
-)
+        int_vartype(
+            tixi=tixi,
+            name="Number of spanwise vortices",
+            key="spanwise_vortices_nb",
+            default_value=30,
+            description="Select the number of spanwise vortices.",
+            xpath=AVL_NSPANWISE_XPATH,
+        )
 
-cpacs_inout.add_input(
-    var_name="rates",
-    var_type="multiselect",
-    default_value=[0.0],
-    unit="[deg/s]",
-    descr="List of p, q, r rates",
-    xpath=AVL_ROTRATES_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Rotation Rates",
-    gui_group="Rate settings",
-)
+    with st.expander(
+        label="Specific Settings",
+        expanded=True,
+    ):
+        multiselect_vartype(
+            name="Rotation rates",
+            key="rates",
+            default_value=[0.0],
+            tixi=tixi,
+            xpath=AVL_ROTRATES_XPATH,
+            description="List of p, q, r rates.",
+        )
 
-cpacs_inout.add_input(
-    var_name="ctrl_surf_angles",
-    var_type="multiselect",
-    default_value=[0.0],
-    unit="[deg]",
-    descr="List of Aileron, Elevator, Rudder angles",
-    xpath=AVL_CTRLSURF_ANGLES_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Aileron/Elevator/Rudder Angles",
-    gui_group="Control surface settings",
-)
+        multiselect_vartype(
+            name="Control surface angles",
+            key="ctrl_surf_angles",
+            default_value=[0.0],
+            tixi=tixi,
+            xpath=AVL_CTRLSURF_ANGLES_XPATH,
+            description="List of Aileron, Elevator, Rudder angles.",
+        )
 
-cpacs_inout.add_input(
-    var_name="integrate_fuselage",
-    var_type=bool,
-    default_value=False,
-    unit=None,
-    descr="Select to integrate the fuselage in the AVL model",
-    xpath=AVL_FUSELAGE_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Integrate fuselage",
-    gui_group="Fuselage",
-)
+        float_vartype(
+            tixi=tixi,
+            name="Default freestream Mach",
+            key="default_freestream_mach",
+            default_value=0.6,
+            description="Usually 0.2 < default value < 0.8",
+            xpath=AVL_FREESTREAM_MACH_XPATH,
+        )
 
-cpacs_inout.add_input(
-    var_name="panel_distribution",
-    var_type=list,
-    default_value=["cosine", "sine", "equal"],
-    unit=None,
-    descr=("Select the type of distribution"),
-    xpath=AVL_DISTR_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Choice of distribution",
-    gui_group="Vortex Lattice Spacing Distributions",
-)
+    with st.container(
+        border=True
+    ):
+        bool_vartype(
+            tixi=tixi,
+            name="Integrate fuselage",
+            key="integrate_fuselage",
+            default_value=False,
+            description="Integrate the fuselage in the AVL model.",
+            xpath=AVL_FUSELAGE_XPATH,
+        )
 
-cpacs_inout.add_input(
-    var_name="chordwise_vort",
-    var_type=int,
-    default_value=20,
-    unit=None,
-    descr="Select the number of chordwise vortices",
-    xpath=AVL_NCHORDWISE_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Number of chordwise vortices",
-    gui_group="Vortex Lattice Spacing Distributions",
-)
-
-cpacs_inout.add_input(
-    var_name="spanwise_vort",
-    var_type=int,
-    default_value=50,
-    unit=None,
-    descr="Select the number of spanwise vortices",
-    xpath=AVL_NSPANWISE_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Number of spanwise vortices",
-    gui_group="Vortex Lattice Spacing Distributions",
-)
-
-cpacs_inout.add_input(
-    var_name="nb_proc",
-    var_type=int,
-    default_value=get_reasonable_nb_cpu(),
-    unit=None,
-    descr="Number of proc to use to run SU2",
-    xpath=AVL_NB_CPU_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Nb of processor",
-    gui_group="CPU",
-)
-
-cpacs_inout.add_input(
-    var_name="default_freestream_mach",
-    var_type=float,
-    default_value=0.6,
-    unit="[Mach]",
-    descr="Usually 0.2 < default value < 0.8",
-    xpath=AVL_FREESTREAM_MACH_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Default freestream Mach for Prandtl-Glauert corrections",
-    gui_group="Default freestream Mach",
-)
-
-cpacs_inout.add_input(
-    var_name="save_plots",
-    var_type=bool,
-    default_value=True,
-    unit=None,
-    descr="Select to save geometry and results plots",
-    xpath=AVL_PLOT_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Save plots",
-    gui_group="Plots Settings",
-    test_value=False,
-    expanded=False,
-)
-
-cpacs_inout.add_input(
-    var_name="expand_values",
-    var_type=bool,
-    default_value=False,
-    unit=None,
-    descr="""
-    Selected values from aeromap will form a n-dimension cube (Specific for Dynamic Stability)
-    For example (alt, mach): (0.0, 0.1), (1000.0, 0.5)
-    Will transform into (alt, mach): (0.0, 0.1), (1000.0, 0.1), (0.0, 0.5), (1000.0, 0.5)
-    """,
-    xpath=AVL_EXPAND_VALUES_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Values Expansion",
-    gui_group="Values Expansion",
-    expanded=False,
-)
+# Integrate In AeroMap Settings
+# cpacs_inout.add_input(
+#     var_name="expand_values",
+#     var_type=bool,
+#     default_value=False,
+#     unit=None,
+#     descr="""
+#     Selected values from aeromap will form a n-dimension cube (Specific for Dynamic Stability)
+#     For example (alt, mach): (0.0, 0.1), (1000.0, 0.5)
+#     Will transform into (alt, mach): (0.0, 0.1), (1000.0, 0.1), (0.0, 0.5), (1000.0, 0.5)
+#     """,
+#     xpath=AVL_EXPAND_VALUES_XPATH,
+#     gui=True,
+#     gui_name="Values Expansion",
+#     gui_group="Values Expansion",
+#     expanded=False,
+# )

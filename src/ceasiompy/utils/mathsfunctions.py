@@ -9,9 +9,7 @@ Math functions which are used in different modules of CEASIOMpy.
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import math
 
@@ -27,12 +25,8 @@ from numpy import ndarray
 from ceasiompy.utils.generalclasses import Point
 from scipy.spatial.transform import Rotation as R
 
-from ceasiompy import log
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def rot(angle: float) -> ndarray:
     """

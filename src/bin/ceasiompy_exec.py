@@ -13,9 +13,7 @@ Main module of CEASIOMpy to launch workflow by different way.
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import os
 import sys
@@ -23,7 +21,12 @@ import signal
 import argparse
 import subprocess
 
-from ceasiompy.utils.ceasiompyutils import current_workflow_dir
+from ceasiompy.utils.ceasiompyutils import (
+    parse_bool,
+    has_display,
+    workflow_number,
+    current_workflow_dir,
+)
 
 from pathlib import Path
 from argparse import Namespace
@@ -38,28 +41,14 @@ from ceasiompy.utils.commonpaths import (
     CPACS_FILES_PATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
-
+# Functions
 def _get_cpu_count() -> int:
     cpus = os.cpu_count()
     if cpus is not None:
         return int(cpus // 2 + 1)
 
     return 1
-
-
-def _parse_bool(value: str) -> bool:
-    """Parse a CLI boolean value."""
-
-    normalized = value.strip().lower()
-    if normalized in {"1", "true", "t", "yes", "y", "on"}:
-        return True
-    if normalized in {"0", "false", "f", "no", "n", "off"}:
-        return False
-    raise argparse.ArgumentTypeError(f"Invalid boolean value: {value!r}")
 
 
 def _ensure_conda_prefix_bin_first(env: dict[str, str] | None = None) -> dict[str, str] | None:
@@ -131,7 +120,7 @@ def run_testcase(testcase_nb):
         workflow = Workflow()
         workflow.from_config_file(test_case_1_cfg)
         workflow.working_dir = current_workflow_dir()
-        workflow.cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml")
+        workflow.cpacs_in = Path(CPACS_FILES_PATH, "d150.xml")
 
         workflow.set_workflow()
         workflow.run_workflow(test=True)
@@ -159,8 +148,8 @@ def run_testcase(testcase_nb):
         )
         log.info(">> conda activate ceasiompy")
         log.info(
-            ">> ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml "
-            "PyAVL SkinFriction SaveAeroCoefficients"
+            ">> ceasiompy_run -m ../test_files/CPACSfiles/d150.xml "
+            "PyAVL SkinFriction"
         )
 
     elif testcase_nb == 5:
@@ -233,6 +222,8 @@ def run_gui(
     wkdir: Path | None = None,
     headless: bool = False,
     port: int | None = None,
+    address: str | None = None,
+    cloud: bool = False,
 ) -> None:
     """Create and run a workflow from the GUI."""
 
@@ -242,7 +233,7 @@ def run_gui(
     if wkdir is None:
         wkdir = WKDIR_PATH
 
-    if not headless and not os.environ.get("DISPLAY") and not os.environ.get("WAYLAND_DISPLAY"):
+    if not headless and not has_display():
         headless = True
         log.info(
             "No DISPLAY/WAYLAND_DISPLAY detected; starting Streamlit in headless mode "
@@ -288,23 +279,37 @@ def run_gui(
         + env.get("PYTHONPATH", "")
     )
 
+    env["CEASIOMPY_CLOUD"] = str(cloud)
+
     # Environment variables must be strings
     env["MAX_CPUS"] = str(cpus)
 
     # Expose working directory to the Streamlit app
     env["CEASIOMPY_WKDIR"] = str(wkdir)
 
+    streamlit_entrypoint = str(STREAMLIT_PATH / "app.py")
     args = [
         sys.executable,
         "-m",
         "streamlit",
         "run",
-        "✈️_Geometry.py",
+        streamlit_entrypoint,
         "--server.headless", f"{str(headless).lower()}",
     ]
     if port is not None:
         args += [
             "--server.port", f"{port}"
+        ]
+
+    if address is not None:
+        args += [
+            "--server.address", f"{address}"
+        ]
+
+    if cloud:
+        args += [
+            "--server.enableCORS=false",
+            "--server.enableXsrfProtection=false",
         ]
 
     try:
@@ -349,12 +354,6 @@ def cleanup_previous_workflow_status(wkdir: Path | None = None) -> None:
     if not workflow_dirs:
         return
 
-    def workflow_number(path: Path) -> int:
-        parts = path.name.split("_")
-        if parts and parts[-1].isdigit():
-            return int(parts[-1])
-        return -1
-
     last_workflow = max(workflow_dirs, key=workflow_number)
     status_file = last_workflow / "workflow_status.json"
 
@@ -365,10 +364,7 @@ def cleanup_previous_workflow_status(wkdir: Path | None = None) -> None:
             pass
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 def main() -> None:
     _ensure_conda_prefix_bin_first()
@@ -395,8 +391,24 @@ def main() -> None:
     parser.add_argument(
         "-p",
         "--port",
+        type=int,
         required=False,
         help="Select specific Port.",
+    )
+    parser.add_argument(
+        "--cloud",
+        required=False,
+        nargs="?",
+        const=True,
+        type=parse_bool,
+        default=False,
+        help="If running from a cloud instance.",
+    )
+    parser.add_argument(
+        "--address",
+        type=str,
+        required=False,
+        help="Select server address.",
     )
     parser.add_argument(
         "--wkdir",
@@ -409,7 +421,7 @@ def main() -> None:
         required=False,
         nargs="?",
         const=True,
-        type=_parse_bool,
+        type=parse_bool,
         default=False,
         help="Run Streamlit in headless mode (no browser auto-open).",
     )
@@ -440,15 +452,15 @@ def main() -> None:
 
     if args.testcase:
         run_testcase(args.testcase)
-        return
+        return None
 
     if args.modules:
         run_modules_list(args.modules)
-        return
+        return None
 
     if args.cfg:
         run_config_file(args.cfg)
-        return
+        return None
 
     if args.gui:
         port = int(args.port) if args.port is not None else None
@@ -459,8 +471,10 @@ def main() -> None:
             cpus=int(args.cpus),
             wkdir=wkdir,
             headless=args.headless,
+            address=args.address,
+            cloud=bool(args.cloud),
         )
-        return
+        return None
 
     # If no argument is given, print the help
     parser.print_help()

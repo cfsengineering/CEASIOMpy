@@ -10,18 +10,14 @@ This file will analyse the fuselage geometry from cpacs file.
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import numpy as np
 
 from ceasiompy import log
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
+# Functions
 
 def fuselage_check_segment_connection(fus_nb, fuse_seg_nb, tigl):
     """The function checks for each segment the start and end section index

@@ -10,9 +10,7 @@ Initialization for DynamicStability module.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from ceasiompy.utils import get_module_status
 
@@ -24,12 +22,10 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 #   INITIALIZATION
 # ==============================================================================
 
-# ===== Include GUI =====
-INCLUDE_GUI = True
-
 # ===== Include Module"s name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
+MODULE_TYPE = "PostProcessing"
 
 # ===== Add a Results Directory =====
 RES_DIR = True
@@ -53,7 +49,6 @@ DYNAMICSTABILITY_AIRCRAFT_XPATH = DYNAMICSTABILITY_XPATH + "/Aircraft"
 # TODO: Add option to use ceasiompy.db
 DYNAMICSTABILITY_CEASIOMPYDATA_XPATH = DYNAMICSTABILITY_XPATH + "/CeasiompyData"
 
-DYNAMICSTABILITY_AEROMAP_UID_XPATH = DYNAMICSTABILITY_XPATH + "/aeroMapUID"
 DYNAMICSTABILITY_NCHORDWISE_XPATH = DYNAMICSTABILITY_XPATH + "/NChordwise"
 DYNAMICSTABILITY_NSPANWISE_XPATH = DYNAMICSTABILITY_XPATH + "/NSpanwise"
 DYNAMICSTABILITY_WINGS_XPATH = DYNAMICSTABILITY_XPATH + "/WingSelection"

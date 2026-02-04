@@ -1,4 +1,4 @@
-<img align="right" height="70" src="../../documents/logos/CEASIOMpy_banner_main.png">
+<img align="right" height="70" src="../../../documents/logos/CEASIOMpy_banner_main.png">
 
 # ThermoData
 
@@ -28,8 +28,6 @@
 
 For the turbofan engine are added also the values at the exit of the bypass nozzle.
 
-
-
 ## Installation or requirements
 `ThermoData` needs the installation of the openMDAO and pycycle suite that are included in the python environment of CEASIOMpy.
 
@@ -46,5 +44,3 @@ To be able to change the engine parameters other than those given as input (alti
 * [SU2 website](https://su2code.github.io/)
 
 * [SU2 Github repository](https://github.com/su2code/SU2)
-
-

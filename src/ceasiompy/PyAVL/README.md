@@ -1,5 +1,5 @@
 
-<img align="right" height="70" src="../../documents/logos/CEASIOMpy_banner_aero.png">
+<img align="right" height="70" src="../../../documents/logos/CEASIOMpy_banner_aero.png">
 
 # PyAVL
 
@@ -7,7 +7,7 @@
 
 **State**: :heavy_check_mark:
 
-<img align="right" height="120" src="files/avl_logo.png">
+<img align="right" height="120" src="files/avl_logo.gif">
 
 `PyAVL` module is a launcher for the [Athena Vortex Lattice (AVL)](https://web.mit.edu/drela/Public/web/avl/) solver, developed by M. Drela and H. Youngren at MIT. It is a vortex lattice method (VLM) solver for low-fidelity aerodynamic computations.
 
@@ -16,7 +16,7 @@
 `PyAVL` takes as input a CPACS file, the aircraft geometry is read to create the VLM model for the wings and fuselage. The flight conditions have to be defined within an aeromap, as well as the number of vortex panels to use.
 
 <p align="center">
-<img height="340" src="files/avl_example.png">
+<img height="340" src="files/avl_model.png">
 </p>
 <p align="center">
 Example of AVL geometry model.
@@ -39,7 +39,7 @@ The following plots are generated:
 - `lift_distribution.png`: plot of the lift distribution along the span.
 
 <p align="center">
-<img height="340" src="files/avl_example_loads.png">
+<img height="340" src="files/avl_loads.png">
 </p>
 <p align="center">
 Example of aerodynamic loads computed by AVL.

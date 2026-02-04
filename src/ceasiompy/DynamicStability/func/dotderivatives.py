@@ -14,9 +14,7 @@ Notation used:
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import math
 import copy
@@ -60,12 +58,9 @@ from ceasiompy.DynamicStability import (
     DYNAMICSTABILITY_YREF_XPATH,
     DYNAMICSTABILITY_ZREF_XPATH,
     DYNAMICSTABILITY_DEFAULTREF_XPATH,
-    DYNAMICSTABILITY_AEROMAP_UID_XPATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+# Functions
 
 
 def load_geometry(self) -> list:

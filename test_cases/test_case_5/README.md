@@ -1,4 +1,4 @@
-<img align="right" height="70" src="../../documents/logos/CEASIOMpy_banner_main.png">
+<img align="right" height="70" src="../../../documents/logos/CEASIOMpy_banner_main.png">
 
 # CEASIOMpy - Test case 5
 
@@ -10,8 +10,8 @@ For the test case you must first create and save a file named `my_ceasiompy_conf
 
 ```text
 % This is an example of config file for ceasiompy
-CPACS_TOOLINPUT = ../test_files/CPACSfiles/D150_simple.xml
-MODULE_TO_RUN = ( PyAVL, ExportCSV )
+CPACS_TOOLINPUT = ../test_files/CPACSfiles/d150.xml
+MODULE_TO_RUN = ( PyAVL )
 ```
 
 You can now run it with the following command:

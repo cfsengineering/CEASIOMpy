@@ -4,9 +4,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import pytest
 
@@ -47,13 +45,13 @@ class TestAvlResults(CeasiompyTest):
         # Should just repeat the last list's first value for the last three lists
         a = [1, 2]
         b = [3, 4]
-        c = [5]
+        c = [0.0, 5]
         result = duplicate_elements(False, a, b, c)
-        assert result[0] == a
-        assert result[1] == b
-        assert result[2] == [5, 5]
-        assert result[3] == [5, 5]
-        assert result[4] == [5, 5]
+        assert result[0] == [1, 2, 1, 2, 1, 2, 1, 2]
+        assert result[1] == [3, 4, 3, 4, 3, 4, 3, 4]
+        assert result[2] == [0.0, 0.0, 5, 5, 0.0, 0.0, 0.0, 0.0]
+        assert result[3] == [0.0, 0.0, 0.0, 0.0, 5, 5, 0.0, 0.0]
+        assert result[4] == [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5, 5]
 
     @log_test
     def test_duplicate_elements_expand(self):
@@ -75,9 +73,6 @@ class TestAvlResults(CeasiompyTest):
         assert result[2][-1] == 0.0 and result[3][-1] == 0.0 and result[4][-1] == 5
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
     main(verbosity=0)

@@ -105,7 +105,7 @@ prepend_var() {
 install_prebuilt_openvsp() {
     local arch="$1"
     local dest="$2"
-    local version="3.46.0"
+    local version="3.47.0"
     local base_url="https://openvsp.org/download.php?file=zips/current/mac"
     local zip_name=""
 

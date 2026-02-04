@@ -10,9 +10,7 @@ Initialization for StaticStability module.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from pathlib import Path
 
@@ -24,9 +22,7 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 
 # ===== Module Status =====
 MODULE_STATUS = True
-
-# ===== Include GUI =====
-INCLUDE_GUI = True
+MODULE_TYPE = "PostProcessing"
 
 # ===== Add a Results Directory =====
 RES_DIR = True

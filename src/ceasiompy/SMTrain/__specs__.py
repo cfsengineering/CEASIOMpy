@@ -4,145 +4,96 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Initialization for SMTrain module.
-
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import streamlit as st
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpaths import (
-    SU2MESH_XPATH,
+from ceasiompy.utils.ceasiompyutils import safe_remove
+from ceasiompy.utils.guiobjects import (
+    int_vartype,
+    list_vartype,
+    bool_vartype,
+    float_vartype,
+    dataframe_vartype,
+    multiselect_vartype,
 )
+
+
+from cpacspy.cpacspy import CPACS
+
+from ceasiompy.utils.commonxpaths import SU2MESH_XPATH
 from ceasiompy.SMTrain import (
-    INCLUDE_GUI,
     LEVEL_ONE,
     LEVEL_TWO,
-    SMTRAIN_XPATH_AEROMAP_UID,
-    SMTRAIN_PLOT_XPATH,
+    SMTRAIN_MODELS_XPATH,
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
-    SMTRAIN_KRG_MODEL,
-    SMTRAIN_RBF_MODEL,
     SMTRAIN_AVL_DATABASE_XPATH,
     SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
 )
 
 
-# ==============================================================================
-#   VARIABLE
-# ==============================================================================
+# Variable
 
-cpacs_inout = CPACSInOut()
+def gui_settings(cpacs: CPACS) -> None:
+    tixi = cpacs.tixi
 
-# ==============================================================================
-#   GUI INPUTS
-# ==============================================================================
+    list_vartype(
+        tixi=tixi,
+        default_value=["Run New Simulations", "Load Geometry Exploration Simulations"],
+        key="smtrain_load_or_explore",
+        name="Load Existing or Run New Simulations",
+        description="Load pre-computed results from files or Generate new simulations.",
+        xpath=SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
+    )
 
-cpacs_inout.add_input(
-    var_name="aeromap_uid",
-    var_type=list,
-    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
-    unit=None,
-    descr="Name of the aero map to calculate",
-    xpath=SMTRAIN_XPATH_AEROMAP_UID,
-    gui=INCLUDE_GUI,
-    gui_name="__AEROMAP_SELECTION",
-    gui_group="Aeromap settings",
-)
+    chosen_models = multiselect_vartype(
+        tixi=tixi,
+        xpath=SMTRAIN_MODELS_XPATH,
+        default_value=["KRG, RBF"],
+        name="Surrogate Model Type",
+        description="Kriging (KRG) or/and Radial Basis Functions (RBF).",
+        key="smtrain_chosen_model",
+    )
 
-cpacs_inout.add_input(
-    var_name="choose_db",
-    var_type=list,
-    default_value=["Run New Simulations", "Load Geometry Exploration Simulations"],
-    unit=None,
-    descr="Load pre-computed results from files or Generate new simulations.",
-    xpath=SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Load Existing or Run New Simulations",
-    gui_group="Simulation Settings",
-)
+    if "KRG" in chosen_models:
+        list_vartype(
+            tixi=tixi,
+            xpath=SMTRAIN_FIDELITY_LEVEL_XPATH,
+            default_value=[LEVEL_TWO, LEVEL_ONE],  # TODO: , "Three levels" not implemented yet
+            name="Range of fidelity level(s).",
+            description="""1st-level of fidelity (low fidelity),
+                2nd level of fidelity (low + high fidelity) on high-variance points.
+            """,
+            key="smtrain_fidelity_level",
+        )
 
-cpacs_inout.add_input(
-    var_name="krg_model",
-    var_type=bool,
-    default_value=False,
-    unit=None,
-    descr="Select this model for the simulation (choose more than one for comparison).",
-    xpath=SMTRAIN_KRG_MODEL,
-    gui=INCLUDE_GUI,
-    gui_name="KRG",
-    gui_group="Training Surrogate Settings",
-)
+    float_vartype(
+        tixi=tixi,
+        xpath=SMTRAIN_TRAIN_PERC_XPATH,
+        default_value=0.7,
+        name=r"% used of training data",
+        description="Defining the percentage of the data to use to train the model.",
+        key="smtrain_training_percentage",
+        min_value=0.0,
+        max_value=1.0,
+    )
 
-cpacs_inout.add_input(
-    var_name="rbf_model",
-    var_type=bool,
-    default_value=False,
-    unit=None,
-    descr="Select this model for the simulation (choose more than one for comparison). "
-    "This model will be trained only with AVL simulations.",
-    xpath=SMTRAIN_RBF_MODEL,
-    gui=INCLUDE_GUI,
-    gui_name="RBF",
-    gui_group="Training Surrogate Settings",
-)
-
-cpacs_inout.add_input(
-    var_name="training_part",
-    var_type=float,
-    default_value=0.7,
-    descr="Defining the percentage of the data to use to train the model in [0, 1]",
-    xpath=SMTRAIN_TRAIN_PERC_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name=r"% of training data",
-    gui_group="Training Surrogate Settings",
-)
-
-cpacs_inout.add_input(
-    var_name="fidelity_level",
-    var_type=list,
-    default_value=[LEVEL_TWO, LEVEL_ONE],  # TODO: , "Three levels" not implemented yet
-    unit=None,
-    descr="""Select if you want to train a simple kriging (1 level of fidelity) or you want to
-    train a Multi-Fidelity kriging (2 or 3 levels)""",
-    xpath=SMTRAIN_FIDELITY_LEVEL_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Choice of fidelity level",
-    gui_group="Training Surrogate Settings",
-    test_value=[LEVEL_ONE],
-)
-
-cpacs_inout.add_input(
-    var_name="show_validation_plot",
-    var_type=bool,
-    default_value=True,
-    unit=None,
-    descr="Choose if the validation plot must be shown or not",
-    xpath=SMTRAIN_PLOT_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Validation plot",
-    gui_group="Plot Settings",
-    test_value=False,
-    expanded=False,
-)
-
-cpacs_inout.add_input(
-    var_name="avl_dataset_enriching",
-    var_type=bool,
-    default_value=True,
-    unit=None,
-    descr="Enrich your dataset from previously computed AVL values stored in ceasiompy.db",
-    xpath=SMTRAIN_AVL_DATABASE_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Data from ceasiompy.db",
-    gui_group="Data Enriching Settings",
-    test_value=False,
-    expanded=True,
-)
+    # cpacs_inout.add_input(
+    #     var_name="avl_dataset_enriching",
+    #     var_type=bool,
+    #     default_value=True,
+    #     unit=None,
+    #     descr="Enrich your dataset from previously computed AVL values stored in ceasiompy.db",
+    #     xpath=SMTRAIN_AVL_DATABASE_XPATH,
+    #     gui=True,
+    #     gui_name="Data from ceasiompy.db",
+    #     gui_group="Data Enriching Settings",
+    #     test_value=False,
+    #     expanded=True,
+    # )
 
 # cpacs_inout.add_input(
 #     var_name="mesh_choice",
@@ -428,12 +379,3 @@ cpacs_inout.add_input(
 #     gui_name="Engine exhaust position",
 #     gui_group="Engines",
 # )
-
-cpacs_inout.add_output(
-    var_name="su2_mesh_path",
-    var_type="pathtype",
-    default_value=None,
-    unit=None,
-    descr="Absolute path of the SU2 mesh",
-    xpath=SU2MESH_XPATH,
-)

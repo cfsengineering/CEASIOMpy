@@ -10,9 +10,7 @@ Initialization for SU2Run module.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from ceasiompy.utils import get_module_status
 
@@ -23,9 +21,6 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
-
-# ===== Include GUI =====
-INCLUDE_GUI = True
 
 # ===== Add a Results Directory =====
 RES_DIR = True
@@ -39,8 +34,8 @@ MODULE_NAME = MODULE_DIR.name
 # List of control surface scenarios
 CONTROL_SURFACE_LIST = ["flap", "rudder", "aileron"]
 
-# Either Euler or Rans simulation
-TEMPLATE_TYPE = ["EULER", "RANS"]
+# Either Euler, Rans or 2D simulation
+EULER_OR_RANS = ["EULER", "RANS"]
 
 # Name of used software
 SOFTWARE_NAME = "SU2_CFD"
@@ -51,11 +46,10 @@ MODULE_STATUS = get_module_status(
     default=True,
     needs_soft_name=SOFTWARE_NAME,
 )
+MODULE_TYPE = "Solver"
 
 # xPaths
 SU2_XPATH = CEASIOMPY_XPATH + "/aerodynamics/su2"
-SU2_AEROMAP_UID_XPATH = SU2_XPATH + "/aeroMapUID"
-SU2_NB_CPU_XPATH = SU2_XPATH + "/settings/nbCPU"
 SU2_EXTRACT_LOAD_XPATH = SU2_XPATH + "/results/extractLoads"
 SU2_UPDATE_WETTED_AREA_XPATH = SU2_XPATH + "/results/updateWettedArea"
 

@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Extract results from AVL calculations and save them in a CPACS file.
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import math
 
@@ -27,16 +25,14 @@ from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
 from ceasiompy.PyAVL.func import AVL_COEFS
+from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH
 from ceasiompy.PyAVL import (
     AVL_XPATH,
     AVL_TABLE_XPATH,
     AVL_CTRLTABLE_XPATH,
-    AVL_AEROMAP_UID_XPATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+# Functions
 
 
 def get_avl_aerocoefs(force_file: Path) -> Tuple[
@@ -93,9 +89,7 @@ def add_coefficients_in_aeromap(
     mach: float,
     aos: float,
     aoa: float,
-    fs_file_path: Path,
     st_file_path: Path,
-    config_dir: Path,
 ) -> None:
     """
     Add aerodynamic coefficients from PyAVL in chosen aeromap.
@@ -115,7 +109,7 @@ def add_coefficients_in_aeromap(
     tixi = cpacs.tixi
     cd, cs, cl, cmd, cms, cml, cmd_b, cms_a, cml_b = get_avl_aerocoefs(st_file_path)
 
-    aeromap_uid = get_value(tixi, AVL_AEROMAP_UID_XPATH)
+    aeromap_uid = get_value(tixi, SELECTED_AEROMAP_XPATH)
     log.info(f"Loading coefficients in {aeromap_uid=}")
     aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
@@ -267,20 +261,14 @@ def add_coefficients_in_ctrltable(
     add_coefficients(tixi, AVL_CTRLTABLE_XPATH, "CtrlTable", coefficients)
 
 
-def get_force_files(config_dir: Path) -> Tuple[Path, Path]:
+def get_force_files(config_dir: Path) -> Path:
     st_file_path = Path(config_dir, "st.txt")
     if not st_file_path.exists():
         raise FileNotFoundError(
             f"No result total forces 'st.txt' file have been found at {st_file_path}"
         )
 
-    fs_file_path = Path(config_dir, "fs.txt")
-    if not fs_file_path.exists():
-        raise FileNotFoundError(
-            f"No result strip forces 'fs.txt' file have been found {fs_file_path}"
-        )
-
-    return st_file_path, fs_file_path
+    return st_file_path
 
 
 def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
@@ -298,7 +286,7 @@ def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
 
     for config_dir in sorted(case_dir_list):
         dir_name = config_dir.name
-        st_file_path, fs_file_path = get_force_files(config_dir)
+        st_file_path = get_force_files(config_dir)
 
         # Extract common parameters
         alt = split_dir(dir_name, 1, "alt")
@@ -318,9 +306,7 @@ def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
                     mach,
                     aos,
                     aoa,
-                    fs_file_path,
                     st_file_path,
-                    config_dir,
                 )
 
             # Add coefficients for dynamic stability

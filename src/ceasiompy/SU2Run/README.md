@@ -1,4 +1,4 @@
-<img align="right" height="70" src="../../documents/logos/CEASIOMpy_banner_aero.png">
+<img align="right" height="70" src="../../../documents/logos/CEASIOMpy_banner_aero.png">
 
 # SU2Run
 
@@ -16,8 +16,7 @@
 
 ```mermaid
   graph LR;
-      CPACS2SUMO-->SUMOAutoMesh;
-      SUMOAutoMesh-->SU2Run;
+      CPACS2Gmsh-->SU2Run;
       SU2Run-->SkinFriction;
 ```
 
@@ -50,7 +49,7 @@ We recommend to use a recent version of SU2, with older versions you might encou
 
 Although SU2 is able to run Navier-Stokes calculations, for now, `SU2Run` only supports Euler calculation, that is to say the skin friction is neglected. You can use the [`SkinFriction`](../SkinFriction/README.md) module to calculate the skin frictions (with empirical methods) afterwards and add them to the drag coefficient.
 
-If you want to perform calculation on an aircraft with an actuator disk you must use the module `CPACS2GMSH` to create the mesh. `CPACS2SUMO` and `SUMOAutoMesh` modules will NOT be able to add an actuator disk.
+If you want to perform calculation on an aircraft with an actuator disk you must use the module `CPACS2GMSH` to create the mesh.
 
 :warning: When you run `SU2Run` module, the number of iterations is set manually, be careful to check if it is enough to reach the convergence of the aerodynamic coefficients and ideally a good reduction of the residual.
 

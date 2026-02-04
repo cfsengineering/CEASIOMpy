@@ -10,9 +10,7 @@ Initialization for SMTrain module.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from pathlib import Path
 
@@ -23,10 +21,8 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 # ==============================================================================
 
 # ===== Module Status =====
-MODULE_STATUS = True
-
-# ===== Include GUI =====
-INCLUDE_GUI = True
+MODULE_STATUS = False
+MODULE_TYPE = "MetaModule"
 
 # ===== Add a Results Directory =====
 RES_DIR = True

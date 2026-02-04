@@ -7,9 +7,7 @@ Test functions for create_data functions in SMTrain module.
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import shutil
 import tempfile
@@ -167,10 +165,7 @@ class TestCreateData(CeasiompyTest):
         self.assertEqual(np.isclose(df["angleOfSideslip"][0], 5.23, atol=0.1), True)
         self.assertEqual(np.isclose(df["angleOfSideslip"][1], 13.4, atol=0.1), True)
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 if __name__ == "__main__":
     main(verbosity=0)

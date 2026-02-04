@@ -11,9 +11,7 @@ Scripts to convert CPACS file geometry into any geometry.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import time
 
@@ -27,10 +25,8 @@ from typing import (
 
 from ceasiompy import log
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
+# Functions
 
 # TODO: Implement CEASIOMpy's own validate function
 def validate_call():

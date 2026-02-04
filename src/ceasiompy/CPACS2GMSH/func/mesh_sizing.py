@@ -4,38 +4,31 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 This script contains different functions to classify and manipulate wing elements.
-
-| Author: Giacomo Benedetti
-| Creation: 2023-11-20
-
-
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import math
 
-from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
+from ceasiompy.utils.getprofile import get_profile_coord
 from ceasiompy.utils.geometryfunctions import get_positionings
 
-from typing import Tuple
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.generalclasses import Transformation
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpaths import FUSELAGES_XPATH, WINGS_XPATH
+from ceasiompy.utils.commonxpaths import (
+    WINGS_XPATH,
+    FUSELAGES_XPATH,
+)
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+# Functions
 
-
-def fuselage_size(tixi: Tixi3) -> None:
+def fuselage_size(tixi: Tixi3) -> tuple[float, float]:
     if tixi.checkElement(FUSELAGES_XPATH):
         fus_cnt = tixi.getNamedChildrenCount(FUSELAGES_XPATH, "fuselage")
+
     for i_fus in range(fus_cnt):
         fus_xpath = FUSELAGES_XPATH + "/fuselage[" + str(i_fus + 1) + "]"
         fus_transf = Transformation()
@@ -130,7 +123,7 @@ def fuselage_size(tixi: Tixi3) -> None:
     return fuselage_maxlen, fuselage_minlen
 
 
-def wings_size(tixi: Tixi3) -> Tuple[float, float]:
+def wings_size(tixi: Tixi3) -> tuple[float, float]:
 
     if tixi.checkElement(WINGS_XPATH):
         wing_cnt = tixi.getNamedChildrenCount(WINGS_XPATH, "wing")

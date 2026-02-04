@@ -10,9 +10,7 @@ Initialization for CPACSUpdater module.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from pathlib import Path
 
@@ -25,15 +23,13 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 # ===== Module Status =====
 MODULE_STATUS = True
 
-# ===== Include GUI =====
-INCLUDE_GUI = True
-
 # ===== Add a Results Directory =====
 RES_DIR = False
 
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
+MODULE_TYPE = "PreProcessing"
 
 # Specific to CPACSUpdater module
 CONTROL_SURFACES_LIST = [

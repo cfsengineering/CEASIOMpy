@@ -4,19 +4,16 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 General classes to get transformation from any part of a CPACS file
-
-| Author: Aidan Jungo
-| Creation: 2021-02-25
-
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
+from tixi3.tixi3wrapper import (
+    Tixi3,
+    Tixi3Exception,
+)
 
 from ceasiompy import log
-from tixi3.tixi3wrapper import Tixi3Exception
 
 # =================================================================================================
 #   CLASSES
@@ -101,7 +98,7 @@ class Transformation:
         self.rotation = Point()
         self.translation = Point()
 
-    def get_cpacs_transf(self, tixi, xpath):
+    def get_cpacs_transf(self, tixi: Tixi3, xpath) -> None:
         """
         Get scaling, rotation and translation
         from a given path in the CPACS file
@@ -120,16 +117,19 @@ class Transformation:
 
         # Find type of reference: absGlobal, absLocal or nothing
         # TODO: check if it correct to get parent when absLocal is used..?
-        ref_type = ""
-        try:
-            ref_type = self.tixi.getTextAttribute(
-                self.xpath + "/transformation/translation", "refType"
-            )
-        except Tixi3Exception:
-            log.info("No refType attribute")
 
-        if ref_type != "absGlobal":
-            self.get_parent_transformation()
+        ref_name = "refType"
+        ref_path = self.xpath + "/transformation/translation"
+        if tixi.checkElement(ref_path) and tixi.checkAttribute(
+            elementPath=ref_path,
+            attributeName=ref_name,
+        ):
+            ref_type = self.tixi.getTextAttribute(
+                elementPath=ref_path,
+                attributeName=ref_name,
+            )
+            if ref_type != "absGlobal":
+                self.get_parent_transformation()
 
     def get_parent_transformation(self):
 

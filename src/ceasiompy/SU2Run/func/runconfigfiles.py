@@ -10,9 +10,7 @@ Module to run SU2 configuration files in CEASIOMpy.
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 
 from ceasiompy.utils.ceasiompyutils import run_software
@@ -28,9 +26,7 @@ from ceasiompy.utils.commonnames import (
     SU2_DYNSTAB_FORCES_BREAKDOWN_NAME,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+# Functions
 
 
 def check_config_file_exists(config_file: List[Path], config_dir: Path) -> None:
@@ -82,9 +78,13 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
 
     # Iterate through different cases.
     for case_dir in case_dir_list:
+        config_dirs = [d for d in case_dir.iterdir() if d.is_dir()]
+        if not config_dirs:
+            # Support flat case directory (ConfigCFD.cfg directly inside case_dir).
+            config_dirs = [case_dir]
 
         # Iterate through [no_deformation, aileron, elevator, rudder].
-        for config_dir in case_dir.iterdir():
+        for config_dir in config_dirs:
             config_file = [
                 c
                 for c in config_dir.iterdir()
@@ -98,7 +98,7 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
                 arguments=[config_file[0]],
                 wkdir=config_dir,
                 with_mpi=True,
-                nb_cpu=nb_proc,
+                nb_cpu=1,
                 log_bool=True,
             )
 

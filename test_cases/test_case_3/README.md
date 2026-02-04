@@ -1,4 +1,4 @@
-<img align="right" height="70" src="../../documents/logos/CEASIOMpy_banner_main.png">
+<img align="right" height="70" src="../../../documents/logos/CEASIOMpy_banner_main.png">
 
 # CEASIOMpy - Test case 3
 
@@ -21,7 +21,7 @@ By running the above command, a new tab should appear in your default web browse
 
 From that page you can select a working directory, by using the arrows and the list to navigate in your folder. All your results will be saved in this directory.
 
-Then, select a CPACS file by clicking on the `Browse files` button, you can choose the `D150_simple.xml` (it could be found in /CEASIOMpy/test_files/CPACSfiles/D150_simple.xml). CPACS is a file format which contain the aircraft geometry and many other information.
+Then, select a CPACS file by clicking on the `Browse files` button, you can choose the `d150.xml` (it could be found in /CEASIOMpy/test_files/CPACSfiles/d150.xml). CPACS is a file format which contain the aircraft geometry and many other information.
 
 We can now use now the sidebar on the left to select the next tab, that is to say `Workflow`.
 
@@ -32,7 +32,7 @@ We will try to build the following workflow:
       D150([D150 CPACS file])-->CPACSCreator;
       CPACSCreator-->CPACS2GMSH;
       CPACS2GMSH-->SU2Run;
-      SU2Run-->SaveAeroCoefficients;
+      SU2Run;
 ```
 
 You can create this workflow by selecting the module in list and add them one by one, as demonstrate bellow.

@@ -11,9 +11,7 @@ aerodynamic loads and FramAT for structural calculations.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import shutil
 import numpy as np
@@ -30,20 +28,18 @@ from ceasiompy.AeroFrame.func.aeroelastic import aeroelastic_loop
 from ceasiompy.AeroFrame.func.firstavliteration import run_first_avl_iteration
 from ceasiompy.utils.ceasiompyutils import (
     call_main,
-    get_aeromap_conditions,
+    get_selected_aeromap_values,
 )
 
 from ceasiompy import log
-from ceasiompy.PyAVL import AVL_AEROMAP_UID_XPATH
+from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH
 from ceasiompy.AeroFrame import (
     MODULE_NAME,
     FRAMAT_TIP_DEFLECTION_XPATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
+# Functions
 
 def main(cpacs: CPACS, results_dir: Path) -> None:
     """
@@ -56,10 +52,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
     # 1. Get conditions
     tixi = cpacs.tixi
-    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
-        cpacs=cpacs,
-        uid_xpath=AVL_AEROMAP_UID_XPATH,
-    )
+    alt_list, mach_list, aoa_list, aos_list = get_selected_aeromap_values(cpacs)
     log.info("FLIGHT CONDITIONS:")
     log.info(f"\tAltitude          : {', '.join(str(a) for a in alt_list)} meters")
     log.info(f"\tMach number       : {', '.join(str(m) for m in mach_list)}")
@@ -119,9 +112,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         plot_convergence(tip_deflection, residuals, wkdir=case_dir_path)
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
     call_main(main, MODULE_NAME)

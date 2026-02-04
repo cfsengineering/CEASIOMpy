@@ -6,9 +6,10 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Initialization for AeroFrame new module.
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
+import streamlit as st
+
+from ceasiompy.utils import get_module_status
 
 from pathlib import Path
 
@@ -18,17 +19,22 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 #   INITIALIZATION
 # ==============================================================================
 
-# ===== Module Status =====
-MODULE_STATUS = True
+# ===== Name of Software used =====
+SOFTWARE_NAME = "avl"
 
-# ===== Include GUI =====
-INCLUDE_GUI = True
+# ===== Module Status =====
+MODULE_STATUS = (
+    st.session_state.get("geometry_mode", "") == "2D"
+    and get_module_status(
+        default=True,
+        needs_soft_name=SOFTWARE_NAME,
+    )
+)
+
+MODULE_TYPE = "MetaModule"
 
 # ===== Add a Results Directory =====
 RES_DIR = True
-
-# ===== Name of Software used =====
-SOFTWARE_NAME = "avl"
 
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
@@ -56,8 +62,6 @@ FRAMAT_AREA_XPATH = FRAMAT_SECTION_XPATH + "/Area"
 
 FRAMAT_IX_XPATH = FRAMAT_SECTION_XPATH + "/Ix"
 FRAMAT_IY_XPATH = FRAMAT_SECTION_XPATH + "/Iy"
-
-FRAMAT_NB_CPU_XPATH = FRAMAT_XPATH + "/NbCPU"
 
 # AeroFrame
 AEROFRAME_XPATH = CEASIOMPY_XPATH + "/aeroelasticity/AeroFrame"

@@ -2,49 +2,38 @@
 CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
-
-Small description of the script
-
-| Author:Tony Govoni
-| Creation: 2022-03-22
-| Modified by: Giacomo Benedetti, Guido Vallifuoco
-| Date: 2024-02-01
-| Modified by: Leon Deligny
-| Date: 06 March 2025
-| Modified by: Cassandre Renaud
-| Date: 08 May 2025
-
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
+
+import signal
+import threading
 
 from ceasiompy.utils.ceasiompyutils import call_main
-from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.utils.geometryfunctions import return_uidwings
+from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.CPACS2GMSH.func.meshvis import cgns_mesh_checker
+from ceasiompy.CPACS2GMSH.func.utils import retrieve_gui_values
 from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
+from ceasiompy.CPACS2GMSH.func.airfoil2d import process_2d_airfoil
 from ceasiompy.CPACSUpdater.func.controlsurfaces import deflection_angle
-from cpacspy.cpacsfunctions import (
-    get_value,
-    create_branch,
-)
-from ceasiompy.CPACS2GMSH.func.utils import (
-    retrieve_gui_values,
-)
 from ceasiompy.CPACS2GMSH.func.rans_mesh_generator import (
     pentagrow_3d_mesh,
     generate_2d_mesh_for_pentagrow,
 )
+from cpacspy.cpacsfunctions import (
+    get_value,
+    create_branch,
+)
 
-from typing import List
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-
-from ceasiompy.utils.commonxpaths import SU2MESH_XPATH
+from ceasiompy.utils.commonxpaths import (
+    SU2MESH_XPATH,
+    GEOMETRY_MODE_XPATH,
+)
 from ceasiompy.CPACS2GMSH import (
     MODULE_NAME,
     CONTROL_SURFACES_LIST,
@@ -52,9 +41,31 @@ from ceasiompy.CPACS2GMSH import (
 )
 
 # =================================================================================================
-#   FUNCTIONS
+#   GMSH Signal Patch
 # =================================================================================================
 
+
+def _patch_signal_for_gmsh() -> None:
+    """Avoid gmsh signal registration in non-main threads."""
+
+    if threading.current_thread() is threading.main_thread():
+        return
+
+    if getattr(signal, "_ceasiompy_gmsh_patched", False):
+        return
+
+    def _noop_signal(*_args, **_kwargs):
+        return None
+
+    signal.signal = _noop_signal  # type: ignore[assignment]
+    signal._ceasiompy_gmsh_patched = True  # type: ignore[attr-defined]
+    log.warning("Patched signal.signal for gmsh import in non-main thread.")
+
+
+_patch_signal_for_gmsh()
+
+
+# Functions
 
 def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = None) -> None:
     """
@@ -108,7 +119,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
 
     cgns_path = None
 
-    if type_mesh == "Euler":
+    if type_mesh == "EULER":
         su2mesh_path, cgns_path = generate_gmsh(
             tixi,
             brep_dir,
@@ -211,7 +222,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
         log.warning(f"Mesh path {su2mesh_path} does not exist. \n")
 
 
-def deform_surf(cpacs: CPACS, wkdir: Path, surf: str, angle: float, wing_names: List) -> None:
+def deform_surf(cpacs: CPACS, wkdir: Path, surf: str, angle: float, wing_names: list) -> None:
     """
     Deform the surface surf by angle angle,
     and run run_cpacs2gmsh with this modified CPACS.
@@ -220,7 +231,7 @@ def deform_surf(cpacs: CPACS, wkdir: Path, surf: str, angle: float, wing_names: 
         cpacs (CPACS): CPACS file to modify.
         surf (str): Specific control surface.
         angle (float): Deflection angle.
-        wing_names (List): Wings of aircraft.
+        wing_names (list): Wings of aircraft.
 
     """
     cpacs_in = Path(cpacs.cpacs_file)
@@ -251,19 +262,44 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     Defines setup for gmsh.
 
     Args:
-        cpacs_path (str): Input CPACS path.
-        cpacs_out_path (str): Modified output CPACS path.
+        cpacs: CPACS
+        wkdir: Working directory path
 
     """
 
     tixi = cpacs.tixi
 
-    angles = get_value(tixi, GMSH_CTRLSURF_ANGLE_XPATH)
+    # Check if we are in 2D mode - separate try/except to not catch process_2d_airfoil errors
+    geometry_mode = None
+    try:
+        geometry_mode = tixi.getTextElement(GEOMETRY_MODE_XPATH)
+        log.info(f"Geometry mode found in CPACS: {geometry_mode}")
+    except Exception:
+        # No geometry mode specified or xpath doesn't exist, assume 3D
+        log.info("No geometry mode specified in CPACS, defaulting to 3D mode.")
+
+    # Process 2D if geometry mode is 2D (let exceptions propagate)
+    if geometry_mode == "2D":
+        log.info("2D airfoil mode detected. Running 2D processing only...")
+        process_2d_airfoil(cpacs, wkdir)
+        log.info("2D processing completed, returning without 3D mesh generation.")
+        return None
+
+    # If we reach here, we are in 3D mode
+    log.info("Proceeding with 3D mesh generation...")
+
+    # Continue with 3D processing
+    try:
+        angles = get_value(tixi, GMSH_CTRLSURF_ANGLE_XPATH)
+    except Exception:
+        # If deflection angles not specified, use default of 0.0
+        angles = "0.0"
+        log.info("No control surface deflection angles specified, using default: 0.0")
 
     # Unique angles list
     angles_list = list(set([float(x) for x in str(angles).split(";")]))
 
-    log.info(f"List of deflection angles {angles_list}.")
+    log.info(f"list of deflection angles {angles_list}.")
 
     # Check if angles_list is empty
     if angles_list:
@@ -291,10 +327,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         run_cpacs2gmsh(cpacs, wkdir)
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 if __name__ == "__main__":
     call_main(main, MODULE_NAME)

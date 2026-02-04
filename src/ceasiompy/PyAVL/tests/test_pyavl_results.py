@@ -6,9 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Test functions for results.py
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from ceasiompy.utils.decorators import log_test
 from ceasiompy.PyAVL.func.results import get_avl_aerocoefs
@@ -56,10 +54,7 @@ class TestAvlResults(CeasiompyTest):
         )
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 if __name__ == "__main__":
     main(verbosity=0)

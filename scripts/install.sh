@@ -119,8 +119,20 @@ env_exists() {
   if conda run -n ceasiompy python -c "import sys" >/dev/null 2>&1; then
     return 0
   fi
-  # Fallback for older conda versions:
-  conda env list 2>/dev/null | awk '{print $1}' | grep -qx "ceasiompy"
+  # Fallback for older conda versions or shells without conda init.
+  if conda info -e 2>/dev/null | awk '{print $1}' | grep -qx "ceasiompy"; then
+    return 0
+  fi
+  if conda env list 2>/dev/null | awk '{print $1}' | grep -qx "ceasiompy"; then
+    return 0
+  fi
+  # Last-resort check: look for the env directory under conda base or common paths.
+  local conda_base
+  conda_base="$(conda info --base 2>/dev/null || true)"
+  if [[ -n "$conda_base" && -d "$conda_base/envs/ceasiompy" ]]; then
+    return 0
+  fi
+  [[ -d "$HOME/miniconda3/envs/ceasiompy" ]]
 }
 
 ensure_env() {

@@ -6,15 +6,13 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 Functions utils to run ceasiompy workflows
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import re
 import os
 import sys
-import math
 import shutil
+import argparse
 import importlib
 import subprocess
 import streamlit as st
@@ -42,21 +40,17 @@ from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
 from unittest.mock import MagicMock
-from tixi3.tixi3wrapper import Tixi3  # type: ignore
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from tixi3.tixi3wrapper import Tixi3
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
 )
 from typing import (
-    List,
-    Tuple,
     TextIO,
     Optional,
     Callable,
 )
 
-from ceasiompy import AEROMAP_LIST
 from ceasiompy import (
     log,
     ceasiompy_cfg,
@@ -70,14 +64,27 @@ from ceasiompy.utils.moduleinterfaces import (
     MODNAME_SPECS,
 )
 from ceasiompy.utils.commonxpaths import (
+    SELECTED_AEROMAP_XPATH,
     AIRCRAFT_NAME_XPATH,
-    RANGE_CRUISE_ALT_XPATH,
-    RANGE_CRUISE_MACH_XPATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+
+# Functions
+
+def workflow_number(path: Path) -> int:
+    parts = path.name.split("_")
+    if parts and parts[-1].isdigit():
+        return int(parts[-1])
+    return -1
+
+
+def update_xpath_at_xyz(tixi: Tixi3, xpath: str, x: str, y: str, z: str) -> None:
+    """
+    Helper Function.
+    """
+    tixi.updateTextElement(xpath + "/x", x)
+    tixi.updateTextElement(xpath + "/y", y)
+    tixi.updateTextElement(xpath + "/z", z)
 
 
 def _check_software_exists(soft_name: str) -> bool:
@@ -138,58 +145,26 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
         log.warning(f"No specs found for module {module_name}. \n")
         return None
 
-    cpacsin_out: CPACSInOut = specs.cpacs_inout
-    inputs = cpacsin_out.get_gui_dict()
+    if not hasattr(specs, "gui_settings"):
+        raise ValueError(f"gui_settings not found in specs file of {module_name=}")
 
-    for name, default_value, var_type, _, xpath, _, _, test_value, _ in inputs.values():
-        if test:
-            value = test_value
-        else:
-            value = default_value
-        parts = xpath.strip("/").split("/")
-        for i in range(1, len(parts) + 1):
-            path = "/" + "/".join(parts[:i])
-            if not tixi.checkElement(path):
-                tixi.createElement("/" + "/".join(parts[: i - 1]), parts[i - 1])
+    gui_settings = specs.gui_settings
+    if not isinstance(gui_settings, Callable):
+        raise TypeError("gui_settings must be a callable function")
 
-        # Check if the name or var_type is in the dictionary and call the corresponding function
-        if name in AEROMAP_LIST:
-            aeromap_uid_list = cpacs.get_aeromap_uid_list()
-            if not len(aeromap_uid_list):
-                log.error("You must create an aeromap in order to use this module !")
-            else:
-                # Use first aeromap
-                tixi.updateTextElement(xpath, aeromap_uid_list[0])
+    gui_settings(cpacs)
 
-        elif var_type == str:
-            tixi.updateTextElement(xpath, value)
-        elif var_type == float:
-            tixi.updateDoubleElement(xpath, value, format="%g")
-        elif var_type == bool:
-            tixi.updateBooleanElement(xpath, value)
-        elif var_type == int:
-            tixi.updateIntegerElement(xpath, value, format="%d")
-        elif var_type == list:
-            tixi.updateTextElement(xpath, str(value[0]))
-        elif var_type == "DynamicChoice":
-            create_branch(tixi, xpath + "type")
-            tixi.updateTextElement(xpath + "type", str(value[0]))
-        elif var_type == "multiselect":
-            tixi.updateTextElement(xpath, ";".join(str(ele) for ele in value))
-        elif var_type == "AddGeometricParameter":
-            create_branch(tixi, xpath + "/status_range")
-            tixi.updateTextElement(xpath + "/status_range", str(value))
-            if value:
-                create_branch(tixi, xpath + "/range_value")
-                tixi.updateDoubleElement(xpath + "/range_value", value, format="%f")
-        elif var_type == "RangeAeromap":
-            create_branch(tixi, xpath + "/status_param")
-            tixi.updateTextElement(xpath + "/range_param", str(value))
-            if value:
-                create_branch(tixi, xpath + "/range_param")
-                tixi.updateDoubleElement(xpath + "/range_param", value, format="%f")
-        else:
-            tixi.updateTextElement(xpath, value)
+    aeromap_uid_list = cpacs.get_aeromap_uid_list()
+    if not len(aeromap_uid_list):
+        log.error("You must create an aeromap in order to use this module !")
+        return None
+
+    # Use first aeromap as the selected one
+    first_aeromap = aeromap_uid_list[0]
+    log.info(f"Using {first_aeromap=}")
+    if not tixi.checkElement(SELECTED_AEROMAP_XPATH):
+        create_branch(tixi, SELECTED_AEROMAP_XPATH)
+    tixi.updateTextElement(SELECTED_AEROMAP_XPATH, first_aeromap)
 
 
 @contextmanager
@@ -255,6 +230,11 @@ def get_aeromap_list_from_xpath(cpacs, aeromap_to_analyze_xpath, empty_if_not_fo
     return aeromap_uid_list
 
 
+def safe_remove(tixi: Tixi3, *, xpath: str) -> None:
+    if tixi.checkElement(xpath):
+        tixi.removeElement(xpath)
+
+
 def get_results_directory(
     module_name: str,
     create: bool = True,
@@ -267,7 +247,6 @@ def get_results_directory(
         module_name (str): Name of the module's result directory.
         create (bool): If you need to create it.
         wkflow_dir (Path): Path to the workflow of the module.
-
     """
 
     if module_name not in get_module_list(False):
@@ -326,7 +305,7 @@ def call_main(main: Callable, module_name: str, cpacs_path: Path | None = None) 
     log.info("----- Start of " + module_name + " -----")
 
     if cpacs_path is None:
-        xml_file = "D150_simple.xml"
+        xml_file = "d150.xml"
         cpacs_path = Path(CPACS_FILES_PATH, xml_file)
     else:
         xml_file = cpacs_path.name
@@ -353,7 +332,7 @@ def call_main(main: Callable, module_name: str, cpacs_path: Path | None = None) 
     log.info("----- End of " + module_name + " -----")
 
 
-def initialize_cpacs(module_name: str) -> Tuple[CPACS, Path]:
+def initialize_cpacs(module_name: str) -> tuple[CPACS, Path]:
     cpacs_in = get_toolinput_file_path(module_name)
     cpacs_out = get_tooloutput_file_path(module_name)
     check_cpacs_input_requirements(cpacs_in)
@@ -395,7 +374,9 @@ def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
 
         # Run the module
         with change_working_dir(wkdir):
+            # Try loading with full CPACS (for 3D files)
             cpacs = CPACS(cpacs_in)
+
             if test:
                 log.info("Updating CPACS from __specs__")
                 update_cpacs_from_specs(cpacs, module_name, test)
@@ -460,6 +441,11 @@ def get_install_path(
                 log.info(f"{display_name} is installed at: {bin_candidate}")
                 return bin_candidate
 
+            bin_candidate = subdir / "bin" / software_name.lower()
+            if _is_compatible_executable(bin_candidate):
+                log.info(f"{display_name} is installed at: {bin_candidate}")
+                return bin_candidate
+
     # If not found in INSTALLDIR, fall back to the system PATH
     install_path = shutil.which(software_name)
 
@@ -511,7 +497,7 @@ def _detect_binary_format(executable: Path) -> str:
     return "unknown"
 
 
-def check_version(software_name: str, required_version: str) -> Tuple[bool, str]:
+def check_version(software_name: str, required_version: str) -> tuple[bool, str]:
     """
     Check if the version is greater than or equal to the required version.
     """
@@ -551,9 +537,20 @@ def get_version(software_name: str) -> str:
         return ""
 
 
+def parse_bool(value: str) -> bool:
+    """Parse a CLI boolean value."""
+
+    normalized = str(value).strip().lower()
+    if normalized in {"1", "true", "t", "yes", "y", "on"}:
+        return True
+    if normalized in {"0", "false", "f", "no", "n", "off"}:
+        return False
+    raise argparse.ArgumentTypeError(f"Invalid boolean value: {value!r}")
+
+
 def run_software(
     software_name: str,
-    arguments: List[str],
+    arguments: list[str],
     wkdir: Path,
     with_mpi: bool = False,
     nb_cpu: int = 1,
@@ -575,14 +572,16 @@ def run_software(
     """
 
     # Check nb_cpus
-    nb_cpu = nb_cpu if with_mpi else 1
+    if not with_mpi and nb_cpu > 1:
+        log.warning("No need to use several CPUs for a non-parallelized process.")
+        nb_cpu = 1
 
     if nb_cpu > 1:
-        check_nb_cpu(nb_cpu)
+        _check_nb_cpu(nb_cpu)
 
     log.info(
         f"{int(nb_cpu)} cpu{'s' if nb_cpu > 1 else ''} "
-        f"over {get_total_cpu_count()} will be used for this calculation."
+        f"over {get_sane_max_cpu()} will be used for this calculation."
     )
 
     install_path = get_install_path(software_name)
@@ -614,7 +613,11 @@ def run_software(
     command_line += arguments
 
     if xvfb:
-        command_line = ["xvfb-run", "--auto-servernum"] + command_line
+        xvfb_run = shutil.which("xvfb-run")
+        if xvfb_run is None:
+            log.warning("xvfb-run not found. Proceeding without it.")
+        else:
+            command_line = ["xvfb-run", "--auto-servernum"] + command_line
     else:
         log.warning("xvfb-run not found. Proceeding without it.")
 
@@ -661,56 +664,46 @@ def _get_env_max_cpus() -> Optional[int]:
     return max_cpus
 
 
-def get_total_cpu_count() -> int:
+def has_display() -> bool:
+    """X11 and Wayland conventions"""
+    return bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
+
+
+def get_sane_max_cpu() -> int:
     """
     Return a sane upper bound on the number of CPUs that can be used.
     This prefers the MAX_CPUS environment variable and falls back to the
     value returned by os.cpu_count(). A warning is emitted if neither source
     yields a usable number.
     """
-    env_cpus = _get_env_max_cpus()
-    if env_cpus is not None:
-        return env_cpus
 
     cpu_count = os.cpu_count()
-    if cpu_count is None:
+    if cpu_count is None or cpu_count in [1, 2]:
         return 1
 
-    system_cpus = (cpu_count // 2) + 1
-    if system_cpus is None or system_cpus < 1:
-        log.warning(
-            "Could not figure out the number of CPU(s) on your machine. "
-            "This might be an issue with the OS you use."
-        )
+    env_cpus = _get_env_max_cpus()
+    if env_cpus is None:
+        return cpu_count - 1
+
+    sane_cpu = min(cpu_count - 1, env_cpus)
+    if sane_cpu < 1:
         return 1
 
-    return system_cpus
+    return sane_cpu
 
 
-def get_reasonable_nb_cpu() -> int:
-    """
-    Get a reasonable number of processors depending on the total number of processors on
-    the host machine. Approximately 1/4 of the total number of processors will be used.
-    This function is generally used to set up a default value for the number of processors,
-    the user can then override this value with the settings.
-    """
-
-    total_cpus = get_total_cpu_count()
-    return max(1, math.ceil(total_cpus / 4))
-
-
-def check_nb_cpu(nb_proc: int) -> None:
+def _check_nb_cpu(nb_proc: int) -> None:
     """
     Check if input nb_cpu from GUI is reasonable.
     """
-    total_cpus = get_total_cpu_count()
-    if not total_cpus > nb_proc:
+    max_cpu_count = get_sane_max_cpu()
+    if max_cpu_count < nb_proc:
         log.warning(f"{nb_proc} CPUs is too much for your engine.")
-        nb_proc = get_reasonable_nb_cpu()
+        nb_proc = max_cpu_count
         log.info(f"Using by default {nb_proc} CPUs.")
 
 
-def get_conditions_from_aeromap(aeromap: AeroMap) -> Tuple[List, List, List, List]:
+def get_conditions_from_aeromap(aeromap: AeroMap) -> tuple[list, list, list, list]:
     alt_list = aeromap.get("altitude").tolist()
     mach_list = aeromap.get("machNumber").tolist()
     aoa_list = aeromap.get("angleOfAttack").tolist()
@@ -718,7 +711,7 @@ def get_conditions_from_aeromap(aeromap: AeroMap) -> Tuple[List, List, List, Lis
     return alt_list, mach_list, aoa_list, aos_list
 
 
-def get_aeromap_conditions(cpacs: CPACS, uid_xpath: str) -> Tuple[List, List, List, List]:
+def get_selected_aeromap_values(cpacs: CPACS) -> tuple[list, list, list, list]:
     """
     Reads the flight conditions from the aeromap.
     """
@@ -727,32 +720,17 @@ def get_aeromap_conditions(cpacs: CPACS, uid_xpath: str) -> Tuple[List, List, Li
     # Get the first aeroMap as default one or create automatically one
     aeromap_list = cpacs.get_aeromap_uid_list()
 
-    if aeromap_list:
-        aeromap_default = aeromap_list[0]
+    if not aeromap_list:
+        raise ValueError("You need to have defined aeromaps to retrieve a selected one.")
 
-        aeromap_uid = get_value_or_default(tixi, uid_xpath, aeromap_default)
-        log.info(f"Used aeromap: {aeromap_uid}.")
-        aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
-        alt_list, mach_list, aoa_list, aos_list = get_conditions_from_aeromap(aeromap)
-    else:
-        default_aeromap = cpacs.create_aeromap("DefaultAeromap")
-        default_aeromap.description = "Automatically created AeroMap."
+    aeromap_uid = get_value(
+        tixi=tixi,
+        xpath=SELECTED_AEROMAP_XPATH,
+    )
+    log.info(f"Using: {aeromap_uid=}")
+    aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
-        mach = get_value(tixi, RANGE_CRUISE_MACH_XPATH)
-        alt = get_value(tixi, RANGE_CRUISE_ALT_XPATH)
-
-        default_aeromap.add_row(alt=alt, mach=mach, aos=0.0, aoa=0.0)
-        default_aeromap.save()
-
-        alt_list = [alt]
-        mach_list = [mach]
-        aoa_list = [0.0]
-        aos_list = [0.0]
-
-        aeromap_uid = get_value_or_default(tixi, uid_xpath, "DefaultAeromap")
-        log.info(f"{aeromap_uid} has been created.")
-
-    return alt_list, mach_list, aoa_list, aos_list
+    return get_conditions_from_aeromap(aeromap)
 
 
 def aircraft_name(tixi_or_cpacs) -> str:
@@ -823,12 +801,12 @@ def get_part_type(tixi: Tixi3, part_uid: str, print_info: bool = True) -> str | 
     return None
 
 
-def remove_file_type_in_dir(directory: Path, file_type_list: List[str]) -> None:
+def remove_file_type_in_dir(directory: Path, file_type_list: list[str]) -> None:
     """Remove all files of a given type in a directory.
 
     Args:
         directory (Path): Path to the directory
-        file_type_list (List[str]): List of file types to remove.
+        file_type_list (list[str]): list of file types to remove.
 
     """
 

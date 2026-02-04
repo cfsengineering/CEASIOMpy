@@ -4,49 +4,47 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'ceasiompy/CPACS2GMSH/mesh_sizing.py'
-
-| Author : Giacomo Benedetti
-| Creation: 2023-11-23
-
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Futures
 
-from pathlib import Path
-from cpacspy.cpacspy import CPACS
-from pytest import approx
-from ceasiompy.CPACS2GMSH.func.mesh_sizing import fuselage_size, wings_size
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from __future__ import annotations
 
-CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
+# Imports
 
+from ceasiompy.CPACS2GMSH.func.mesh_sizing import (
+    wings_size,
+    fuselage_size,
+)
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+from unittest import main
+from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
 
-def test_fuselage_size():
-    """
-    This test takes the fuselage dimension from simpletest_cpacs.xml,
-    on which the mesh size is calculated
-    """
+# Classes
+class TestMeshSizing(CeasiompyTest):
 
-    fuselage_maxlen, fuselage_minlen = fuselage_size(CPACS(CPACS_IN_PATH).tixi)
+    def test_fuselage_size(self: CeasiompyTest) -> None:
+        """
+        This test takes the fuselage dimension on which the mesh size is calculated.
+        """
+        self.assert_equal_function(
+            f=fuselage_size,
+            input_args=(self.test_cpacs.tixi, ),
+            expected=(1.3953420631620659, 5e-05),
+        )
 
-    assert fuselage_maxlen == approx(0.5, abs=1e-2)
-    assert fuselage_minlen == approx(0.05, abs=1e-3)
+    def test_wing_size(self: CeasiompyTest) -> None:
+        """
+        This test takes the fuselage dimension on which the mesh size is calculated.
+        """
+        self.assert_equal_function(
+            f=wings_size,
+            input_args=(self.test_cpacs.tixi, ),
+            expected=(0.5571959999999999, 0.04457567999999999),
+        )
 
 
-def test_wing_size():
-    """
-    This test takes the fuselage dimension from simpletest_cpacs.xml,
-    on which the mesh size is calculated
-    """
-
-    wing_maxlen, wing_minlen = wings_size(CPACS(CPACS_IN_PATH).tixi)
-
-    assert wing_maxlen == approx(0.15, abs=1e-2)
-    assert wing_minlen == approx(0.012, abs=1e-4)
+# Main
+if __name__ == "__main__":
+    main(verbosity=0)

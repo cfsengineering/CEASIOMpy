@@ -10,9 +10,7 @@ Initialization for SkinFriction module.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from pathlib import Path
 
@@ -22,9 +20,7 @@ from pathlib import Path
 
 # ===== Module Status =====
 MODULE_STATUS = True
-
-# ===== Include GUI =====
-INCLUDE_GUI = True
+MODULE_TYPE = "PostProcessing"
 
 # ===== Add a Results Directory =====
 RES_DIR = True

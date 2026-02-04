@@ -4,15 +4,10 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Initialization for PyAVL module.
-
-| Author: Leon Deligny
-| Creation: 18-Mar-2025
-
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
+import streamlit as st
 
 from ceasiompy.utils import get_module_status
 
@@ -24,12 +19,10 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 #   INITIALIZATION
 # ==============================================================================
 
-# ===== Include GUI =====
-INCLUDE_GUI = True
-
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
+MODULE_TYPE = "Solver"
 
 # ===== Add a Results Directory =====
 RES_DIR = True
@@ -38,9 +31,12 @@ RES_DIR = True
 SOFTWARE_NAME = "avl"
 
 # ===== Module Status =====
-MODULE_STATUS = get_module_status(
-    default=True,
-    needs_soft_name=SOFTWARE_NAME,
+MODULE_STATUS = (
+    st.session_state.get("geometry_mode", "") == "2D"
+    and get_module_status(
+        default=True,
+        needs_soft_name=SOFTWARE_NAME,
+    )
 )
 
 # =================================================================================================
@@ -51,19 +47,12 @@ MODULE_STATUS = get_module_status(
 AVL_XPATH = CEASIOMPY_XPATH + "/avl"
 
 # AeroMap settings
-AVL_AEROMAP_UID_XPATH = AVL_XPATH + "/aeroMapUID"
 AVL_ROTRATES_XPATH = AVL_XPATH + "/RotationRates"
 AVL_FREESTREAM_MACH_XPATH = AVL_XPATH + "/FreestreamMach"
-
-# Software setting
-AVL_NB_CPU_XPATH = AVL_XPATH + "/NbCPU"
 
 # Geometry settings
 AVL_CTRLSURF_ANGLES_XPATH = AVL_XPATH + "/ControlSurfaceAngles"
 AVL_FUSELAGE_XPATH = AVL_XPATH + "/IntegrateFuselage"
-
-# Plot settings
-AVL_PLOT_XPATH = AVL_XPATH + "/SavePlots"
 
 # Dynamic Stability
 AVL_TABLE_XPATH = AVL_XPATH + "/Table"

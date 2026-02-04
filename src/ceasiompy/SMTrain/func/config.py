@@ -6,29 +6,20 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Get settings from GUI. Manage datasets and perform LHS when required.
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import numpy as np
 import pandas as pd
-from shutil import copyfile
-from pathlib import Path
 
+from shutil import copyfile
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.SMTrain.func.utils import get_columns
-from ceasiompy.utils.ceasiompyutils import (
-    aircraft_name,
-)
+from ceasiompy.utils.ceasiompyutils import aircraft_name
 
+from pathlib import Path
 from pandas import DataFrame
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.Database.func.storing import CeasiompyDb
-from typing import (
-    List,
-    Dict,
-    Tuple,
-)
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
@@ -57,9 +48,7 @@ from ceasiompy.utils.commonxpaths import (
 )
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+# Functions
 
 
 def get_settings(cpacs: CPACS):
@@ -164,7 +153,7 @@ def retrieve_ceasiompy_db_data(
     return data_df
 
 
-def design_of_experiment(cpacs: CPACS) -> Tuple[int, Dict[str, List[float]]]:
+def design_of_experiment(cpacs: CPACS) -> tuple[int, dict[str, list[float]]]:
     """
     Retrieves the aeromap data,
     extracts the range for each input variable,

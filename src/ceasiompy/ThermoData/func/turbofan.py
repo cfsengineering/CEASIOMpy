@@ -10,9 +10,7 @@ Function to run the PyCycle code for the turbofan engine
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import sys
 import numpy as np
@@ -45,9 +43,7 @@ CORE_VARS = {
     "T_stat_out_core": ("DESIGN.core_nozz.mux.Fl_O:stat:T", "Rankine", "Kelvin"),
 }
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+# Functions
 
 
 def get_pycycle_var(prob, var, conversion=None, temp_unit=None):

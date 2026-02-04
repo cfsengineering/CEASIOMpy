@@ -6,21 +6,16 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Script to get the flight conditions (alt, aoa, mach...) from
 the input CPACS file, and write the command file for AVL.
 More details at: https://web.mit.edu/drela/Public/web/avl/AVL_User_Primer.pdf.
-
-| Author: Romain Gauthier
-| Creation: 2024-03-14
-| Modified: Leon Deligny
-| Date: 11-Mar-2025
-
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from pydantic import validate_call
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy.utils.ceasiompyutils import get_aeromap_conditions
+from ceasiompy.utils.ceasiompyutils import (
+    has_display,
+    get_selected_aeromap_values,
+)
 from ceasiompy.utils.mathsfunctions import non_dimensionalize_rate
 from ceasiompy.PyAVL.func.utils import (
     get_atmospheric_cond,
@@ -31,12 +26,11 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.PyAVL.func.cpacs2avl import Avl
-from typing import (
-    List,
-    Tuple,
-)
 
-from ceasiompy import ceasiompy_cfg
+from ceasiompy import (
+    log,
+    ceasiompy_cfg,
+)
 from ceasiompy.PyAVL import MODULE_DIR
 from ceasiompy.PyAVL.func import FORCE_FILES
 from ceasiompy.utils.commonxpaths import (
@@ -44,30 +38,24 @@ from ceasiompy.utils.commonxpaths import (
     LENGTH_XPATH,
 )
 from ceasiompy.PyAVL import (
-    AVL_PLOT_XPATH,
-    AVL_NB_CPU_XPATH,
     AVL_ROTRATES_XPATH,
-    AVL_AEROMAP_UID_XPATH,
-    AVL_EXPAND_VALUES_XPATH,
+    # AVL_EXPAND_VALUES_XPATH,
     AVL_CTRLSURF_ANGLES_XPATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
+# Functions
 
 @validate_call(config=ceasiompy_cfg)
-def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
-    List, List, List, List,
-    List, List,
+def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> tuple[
+    list, list, list, list,
+    list, list,
     Path,
     bool, int, bool,
 ]:
     tixi = cpacs.tixi
-    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, AVL_AEROMAP_UID_XPATH)
+    alt_list, mach_list, aoa_list, aos_list = get_selected_aeromap_values(cpacs)
 
-    save_fig = get_value(tixi, AVL_PLOT_XPATH)
     rotation_rates_float = get_value(tixi, AVL_ROTRATES_XPATH)
     control_surface_float = get_value(tixi, AVL_CTRLSURF_ANGLES_XPATH)
 
@@ -77,9 +65,7 @@ def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
 
     avl_file = Avl(tixi, results_dir)
     avl_path = avl_file.convert_cpacs_to_avl()
-
-    nb_cpu = int(get_value(tixi, AVL_NB_CPU_XPATH))
-    expand = get_value(tixi, AVL_EXPAND_VALUES_XPATH)
+    expand = False  # get_value(tixi, AVL_EXPAND_VALUES_XPATH)
 
     practical_limit_rate_check(
         tixi=tixi,
@@ -91,8 +77,7 @@ def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
     return (
         alt_list, mach_list, aoa_list, aos_list,
         rotation_rates_list, control_surface_list,
-        avl_path,
-        save_fig, nb_cpu, expand,
+        avl_path, expand,
     )
 
 
@@ -103,7 +88,7 @@ def get_physics_conditions(
     roll_rate: float,
     pitch_rate: float,
     yaw_rate: float,
-) -> Tuple[float, float, float, float, float, float]:
+) -> tuple[float, float, float, float, float, float]:
     # Get the reference dimensions
     s = tixi.getDoubleElement(AREA_XPATH)
     c = tixi.getDoubleElement(LENGTH_XPATH)
@@ -131,7 +116,6 @@ def get_physics_conditions(
 def write_command_file(
     avl_path: Path,
     case_dir_path: Path,
-    save_plots: bool,
     ref_density: float,
     g_acceleration: float,
     ref_velocity: float,
@@ -197,9 +181,11 @@ def write_command_file(
         command_file.writelines(command)
         command_file.write("x\n")
 
-        if save_plots:
+        if has_display():
             command_file.writelines(["t\n", "h\n\n"])
             command_file.writelines(["g\n", "lo\n", "h\n\n"])
+        else:
+            log.info("No Display available, can not generate plot.ps file.")
 
         command_file.write("x\n")
 

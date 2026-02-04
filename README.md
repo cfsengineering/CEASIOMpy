@@ -47,11 +47,11 @@ All input geometries are based on the open-standard format [CPACS](https://www.c
   - [More information](#more-information)
   - [Cite us](#cite-us)
 
+## Online Version (in development)
+
+Visit: https://ceasiompy.com for an overview of what this repository has to offer.
+
 ## Installation
-
-#### Recommended storage
-
-At least 20 GB required for overall installation.
 
 ### Linux/macOS
 
@@ -61,56 +61,14 @@ On Linux/macOS, run the installer to set up the conda environment and optional t
 git clone https://github.com/cfsengineering/CEASIOMpy
 cd CEASIOMpy
 ./scripts/install.sh
+ceasiompy_run --g
 ```
 
-### Windows
+For Windows users please use the online version at https://ceasiompy.com
 
-Windows requires WSL installation.
-
-#### 1. Download CEASIOMpy Repository
-
-```
-git clone https://github.com/cfsengineering/CEASIOMpy
-cd CEASIOMpy
-```
-
-#### 2. Install WSL with Ubuntu (if not done already)
-
-```
-wsl --install
-wsl --install -d Ubuntu
-```
-
-You might need to reboot your machine after the installation.
-
-#### 3. Install the necesssary softwares
-
-#TODO - Add scripts
-
-
-```
-bash ./scripts/install.sh
-```
-
-### Create Docker Container (Optional)
-A video which explains how to install CEASIOMpy on Docker is now available!
+### Create Docker Container (Windows, Optional)
+A video which explains how to ![install](installation/DOCKER_INSTALLATION.md) CEASIOMpy on Docker is now available!
 [![CEASIOMpy Docker Installation](installation/docker_installation.png)](https://www.youtube.com/watch?v=KTS1-6AsReU)
-
-## Usage
-
-Run the Streamlit app with :
-
-### Linux/macOS users
-
-```bash
-./scripts/ceasiompy.sh -g
-```
-
-### Windows users
-
-```ps1
-.\scripts\ceasiompy.ps1 -g
-```
 
 ### Demo
 
@@ -141,37 +99,10 @@ These test cases are there to learn how to use CEASIOMpy. You will probably also
     If you run CEASIOMpy with the following command, you can build the workflow directly by defining the CPACS files and the modules you want to use.
 
     ```bash
-    ceasiompy_run -m test_files/CPACSfiles/D150_simple.xml PyAVL SaveAeroCoefficients
+    ceasiompy_run -m test_files/CPACSfiles/d150.xml PyAVL
     ```
 
 Follow the [test cases](#test-cases) to discover the different way of using CEASIOMpy.
-
-### Examples of workflows
-
-- **Simple workflow with PyAVL (Vortex Lattice Method)**
-
-<div align="center">
-
-```mermaid
-  graph LR;
-      PyAVL-->SaveAeroCoefficients;
-```
-
-</div>
-
-- **Workflow with SU2 (CFD) at fixed CL**
-
-<div align="center">
-
-```mermaid
-  graph LR;
-      CPACS2Updater-->CPACS2Gmsh;
-      CPACS2Gmsh-->SU2Run;
-      SU2Run-->ExportCSV;
-      ExportCSV-->Database;
-```
-
-</div>
 
 ### Available modules
 
@@ -187,10 +118,8 @@ There are many different modules available in CEASIOMpy that can be combined to 
 
 #### General modules
 
-- [ModuleTemplate](src/ceasiompy/ModuleTemplate/README.md) :heavy_check_mark:
 - [Optimisation](src/ceasiompy/Optimisation/README.md) :x:
 - [SMTrain](src/ceasiompy/SMTrain/README.md) :heavy_check_mark:
-- [SMUse](src/ceasiompy/SMUse/README.md) :heavy_check_mark:
 - [ThermoData](src/ceasiompy/ThermoData/README.md) :heavy_check_mark:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_geometry.png">
@@ -200,9 +129,6 @@ There are many different modules available in CEASIOMpy that can be combined to 
 - [CPACSCreator](src/ceasiompy/CPACSCreator/README.md) :heavy_check_mark:
 - [CPACSUpdater](src/ceasiompy/CPACSUpdater/README.md) :heavy_check_mark:
 - [CPACS2GMSH](src/ceasiompy/CPACS2GMSH/README.md) :heavy_check_mark:
-- [CPACS2SUMO](src/ceasiompy/CPACS2SUMO/README.md) :heavy_check_mark:
-- [SUMOAutoMesh](src/ceasiompy/SUMOAutoMesh/README.md) :warning:
-- SU2MeshDef :warning:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_aero.png">
 
@@ -212,7 +138,6 @@ There are many different modules available in CEASIOMpy that can be combined to 
 - [PyAVL](src/ceasiompy/PyAVL/README.md) :heavy_check_mark:
 - [SU2Run](src/ceasiompy/SU2Run/README.md) :heavy_check_mark:
 - [SkinFriction](src/ceasiompy/SkinFriction/README.md) :heavy_check_mark:
-- [SaveAeroCoefficients](src/ceasiompy/SaveAeroCoefficients/README.md) :heavy_check_mark:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_weights.png">
 
@@ -220,7 +145,7 @@ There are many different modules available in CEASIOMpy that can be combined to 
 
 - BalanceConventional :warning:
 - BalanceUnconventional :warning:
-- [WeightConventional](./src/ceasiompy/WeightConventional/README.md) :heavy_check_mark:
+- [WeightConventional](./src/ceasiompy/WeightConventional/README.md) :warning:
 - WeightUnconventional :warning:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_mission.png">
@@ -252,6 +177,21 @@ If you want to contribute to the development of CEASIOMpy, please read the docum
 - [CEASIOMpy YouTube channel](https://www.youtube.com/channel/UCcGsFJV29os1Zzv66YKFRZQ)
 - [CFS Engineering](https://cfse.ch/)
 - [Airinnova](https://airinnova.se/)
+
+## Upgrading environment
+
+Sometimes deleting cache helps.
+
+```bash
+sudo find . -name "__pycache__" -type d -prune -exec rm -rf {} +
+find . -name "*.pyc" -type f -delete
+```
+
+Or upgrading the environment.
+
+```bash
+conda env update -f environment.yml
+```
 
 ## Cite us
 

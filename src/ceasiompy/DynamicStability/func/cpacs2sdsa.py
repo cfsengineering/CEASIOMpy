@@ -10,9 +10,7 @@ Transfer CPACS unsteady data into SDSA with the correct file format (for referen
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import shutil
 import numpy as np
@@ -29,7 +27,7 @@ from ceasiompy.DynamicStability.func.steadyderivatives import (
 from ceasiompy.utils.ceasiompyutils import (
     get_value,
     open_tixi,
-    get_aeromap_conditions,
+    get_selected_aeromap_values,
 )
 from ceasiompy.DynamicStability.func.dotderivatives import (
     get_main_wing_le,
@@ -48,12 +46,12 @@ from ceasiompy.utils.commonxpaths import (
     AREA_XPATH,
     LENGTH_XPATH,
 )
+
 from ceasiompy.DynamicStability import (
     DYNAMICSTABILITY_CGRID_XPATH,
     DYNAMICSTABILITY_SOFTWARE_XPATH,
     DYNAMICSTABILITY_NSPANWISE_XPATH,
     DYNAMICSTABILITY_NCHORDWISE_XPATH,
-    DYNAMICSTABILITY_AEROMAP_UID_XPATH,
     DYNAMICSTABILITY_VISUALIZATION_XPATH,
     DYNAMICSTABILITY_BETA_DERIVATIVES_XPATH as BETA_DERIVATIVES_XPATH,
     DYNAMICSTABILITY_ALPHA_DERIVATIVES_XPATH as ALPHA_DERIVATIVES_XPATH,
@@ -195,7 +193,7 @@ class SDSAFile:
         # Aeromap for dot-derivatives and mach values
         (
             alt_list, mach_list, aoa_list, aos_list,
-        ) = get_aeromap_conditions(self.cpacs, DYNAMICSTABILITY_AEROMAP_UID_XPATH)
+        ) = get_selected_aeromap_values(self.cpacs)
 
         self.alt_list = alt_list
 

@@ -25,9 +25,7 @@ TODO:
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import random
 from itertools import combinations
@@ -58,7 +56,7 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_end_wing,
 )
 from ceasiompy.utils.ceasiompyutils import (
-    get_reasonable_nb_cpu,
+    get_sane_max_cpu,
     get_part_type,
     run_software,
 )
@@ -71,10 +69,7 @@ import pymeshfix
 import numpy as np
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def generate_2d_mesh_for_pentagrow(
     cpacs: CPACS,
@@ -1060,7 +1055,7 @@ def pentagrow_3d_mesh(
         arguments=command,
         wkdir=result_dir,
         with_mpi=False,
-        nb_cpu=get_reasonable_nb_cpu(),
+        nb_cpu=get_sane_max_cpu(),
     )
 
     expected = Path(result_dir, f"hybrid.{str(output_format).lower()}")

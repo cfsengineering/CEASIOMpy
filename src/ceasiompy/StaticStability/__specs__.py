@@ -4,37 +4,30 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI Interface of StaticStability.
-
-| Author: Leon Deligny
-| Creation: 18-Mar-2025
-
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
+import streamlit as st
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from ceasiompy.utils.guiobjects import bool_vartype
 
-from ceasiompy.StaticStability import (
-    INCLUDE_GUI,
-    STATICSTABILITY_LR_XPATH,
-)
+from cpacspy.cpacspy import CPACS
 
-# ==============================================================================
-#   VARIABLE
-# ==============================================================================
+from ceasiompy.StaticStability import STATICSTABILITY_LR_XPATH
 
-cpacs_inout = CPACSInOut()
 
-cpacs_inout.add_input(
-    var_name="static_stability_linear_regression_bool",
-    var_type=bool,
-    default_value=False,
-    unit=None,
-    descr="Either use linear regression or directly the derivative's values",
-    xpath=STATICSTABILITY_LR_XPATH,
-    gui=INCLUDE_GUI,
-    gui_name="Linear Regression",
-    gui_group="Static Stability Settings",
-)
+# Functions
+def gui_settings(cpacs: CPACS) -> None:
+    tixi = cpacs.tixi
+
+    with st.container(
+        border=True,
+    ):
+        bool_vartype(
+            tixi=tixi,
+            name="Linear Regression",
+            default_value=False,
+            xpath=STATICSTABILITY_LR_XPATH,
+            key="static_stability_linear_regression_bool",
+            description="Use linear regression or the derivative's values",
+        )

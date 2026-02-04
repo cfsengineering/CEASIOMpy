@@ -7,18 +7,17 @@ Script to train a Surrogate Model in CEASIOMPY.
 Either (1) Kriging or (2-3) Multi-Fidelity Kriging model can be used,
 depending on the level of fidelity chosen.
 
-| Author: Giacomo Gronda
-| Creation: 2025-03-20
-
 TODO:
     * Adapt SaveAeroCoefficient for the adaptive sampling
     * More tests on adaptive sampling
     * Never tested with 3 levels of fidelity
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
+import sys
+import time
+import shutil
+import pandas as pd
 
 from ceasiompy.utils.ceasiompyutils import call_main, get_results_directory
 from ceasiompy.SMTrain.func.plot import plot_validation
@@ -55,15 +54,8 @@ from ceasiompy.SMTrain import (
     MODULE_NAME,
 )
 
-import pandas as pd
-import sys
-import shutil
-import time
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 def main(cpacs: CPACS, results_dir: Path) -> None:
     """

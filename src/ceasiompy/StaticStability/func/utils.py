@@ -10,9 +10,7 @@ Utility functions for Static stability module.
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from typing import List
 
@@ -21,9 +19,7 @@ from markdownpy.markdownpy import (
     MarkdownDoc,
 )
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
+# Main
 
 
 def markdownpy_to_markdown(md: MarkdownDoc, table: List[List[str]]) -> None:
@@ -37,4 +33,3 @@ def markdownpy_to_markdown(md: MarkdownDoc, table: List[List[str]]) -> None:
     """
     if len(table) > 1:
         md.p(Table(table).write())
-        md.line()

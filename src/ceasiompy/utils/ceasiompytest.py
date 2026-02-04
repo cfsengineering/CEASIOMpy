@@ -9,9 +9,7 @@ Functions utils to run ceasiompy workflows
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import unittest
 
@@ -34,7 +32,7 @@ class CeasiompyTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml")
+        cpacs_in = Path(CPACS_FILES_PATH, "d150.xml")
         cls.test_cpacs = CPACS(cpacs_in)
 
     def assert_equal_function(self, f: Callable, input_args: Tuple, expected: Tuple) -> None:

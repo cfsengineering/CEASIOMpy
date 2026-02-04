@@ -10,9 +10,7 @@ and plot the convergence.
 | Creation: 2024-06-17
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import numpy as np
 import pandas as pd
@@ -22,22 +20,19 @@ from ceasiompy.AeroFrame.func.utils import (
     compute_delta_a,
 )
 
-from typing import Tuple
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
 from scipy.interpolate import interp1d
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
+# Functions
 
 def compute_deformations(
     results: Path,
     wing_df: DataFrame,
     centerline_df: DataFrame,
-) -> Tuple[DataFrame, DataFrame, ndarray]:
+) -> tuple[DataFrame, DataFrame, ndarray]:
     """
     Computes the deformation at each beam node
     and translate the displacement to the VLM mesh.

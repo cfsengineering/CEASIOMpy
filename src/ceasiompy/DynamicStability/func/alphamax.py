@@ -10,9 +10,7 @@ Compute AlphaMax for SDSA from ceasiomp.db.
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import numpy as np
 
@@ -23,9 +21,7 @@ from ceasiompy import log
 from ceasiompy.DynamicStability import ALT
 from ceasiompy.PyAVL import SOFTWARE_NAME as AVL_SOFTWARE
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+# Functions
 
 
 def get_alpha_max(self) -> DataFrame:

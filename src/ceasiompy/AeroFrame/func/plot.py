@@ -12,9 +12,7 @@ accurately captured and if the meshes are fine.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,10 +20,8 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from pandas import DataFrame
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
+# Functions
 
 def plot_fem_mesh(
     wing_df: DataFrame,

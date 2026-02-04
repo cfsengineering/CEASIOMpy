@@ -10,9 +10,7 @@ Test functions for 'ceasiompy/CPACS2GMSH/generategmesh.py'
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
@@ -38,13 +36,11 @@ from pathlib import Path
 MODULE_DIR = Path(__file__).parent
 BREP_IN_PATH = Path(MODULE_DIR, "ToolInput/brep_files_test_rans")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
-CPACS_D150_IN_PATH = Path(CPACS_FILES_PATH, "D150_simple.xml")
+CPACS_D150_IN_PATH = Path(CPACS_FILES_PATH, "d150.xml")
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
+# Functions
 
 def test_generate_rans_mesh():
     """
@@ -213,9 +209,6 @@ def test_sort_surfaces_and_create_physical_groups():
     remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg", ".stl"])
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
     test_generate_rans_mesh()

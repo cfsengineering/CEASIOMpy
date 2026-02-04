@@ -9,9 +9,7 @@ Functions and constants for CPACS2GMSH module.
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import os
 import gmsh
@@ -74,10 +72,8 @@ MESH_COLORS = {
     "good_surface": (0, 255, 0, 100),
 }
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
+# Functions
 
 def cfg_rotors(brep_dir: Path) -> bool:
     rotor_model = False
@@ -255,6 +251,7 @@ def load_rans_cgf_params(
 def retrieve_gui_values(tixi: Tixi3):
     """
     Returns input values from CEASIOMpy's GUI interface.
+    Note: This function is only used for 3D mesh generation.
     """
 
     # Retrieve value from the GUI Setting

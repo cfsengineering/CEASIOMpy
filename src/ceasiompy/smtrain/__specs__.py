@@ -15,7 +15,6 @@ from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.pyavl.__specs__ import gui_settings as avl_settings
 from ceasiompy.su2run.__specs__ import gui_settings as su2_settings
 from ceasiompy.cpacs2gmsh.__specs__ import gui_settings as gmsh_settings
-
 from ceasiompy.utils.geometryfunctions import (
     get_xpath_for_param,
     return_uid_wings_sections,
@@ -35,6 +34,7 @@ from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
 from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
 from ceasiompy.smtrain import (
+    SM_MODELS,
     LEVEL_TWO,
     OBJECTIVES_LIST,
     WING_PARAMETERS,
@@ -64,7 +64,7 @@ def gui_settings(cpacs: CPACS) -> None:
         chosen_models = multiselect_vartype(
             tixi=tixi,
             xpath=SMTRAIN_MODELS_XPATH,
-            default_value=["KRG", "RBF"],
+            default_value=SM_MODELS,
             name="Surrogate Model Type",
             description="Kriging (KRG) or/and Radial Basis Functions (RBF).",
             key="smtrain_chosen_model",
@@ -154,6 +154,7 @@ def gui_settings(cpacs: CPACS) -> None:
                     Samples corresponds to the number of
                     distinct geometry we will run the solver on.
                 """,
+                min_value=3,
             )
 
     xpath = SMTRAIN_GEOM_WING_OPTIMISE

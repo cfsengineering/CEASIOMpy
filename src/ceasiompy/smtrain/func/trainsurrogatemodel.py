@@ -370,7 +370,6 @@ def run_first_level_training(
 
 def run_first_level_training_geometry(
     cpacs_list: list,
-    aeromap_uid: str,
     lh_sampling_geom_path: Path | None,
     objective: str,
     split_ratio: float,
@@ -414,7 +413,7 @@ def run_first_level_training_geometry(
             # check the static stability of the configuration
             run_staticstability(cpacs, pyavl_local_dir)
 
-            level1_df = retrieve_aeromap_data(cpacs, aeromap_uid, objective)
+            level1_df = retrieve_aeromap_data(cpacs, objective)
 
             if level1_df is None or len(level1_df) == 0:
                 print(f"Warning: No data retrieved for simulation {i+1}, skipping...")
@@ -1212,7 +1211,7 @@ def train_surrogate_model_RBF(
         )
 
 
-def run_adaptative_refinement_geom_RBF(
+def run_adapt_refinement_geom_rbf(
     cpacs: CPACS,
     results_dir: Path,
     model: KRG | MFK,

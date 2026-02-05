@@ -12,88 +12,93 @@ import numpy as np
 import pandas as pd
 
 from shutil import copyfile
-from cpacspy.cpacsfunctions import get_value
+from cpacspy.cpacsfunctions import (
+    get_value,
+    get_string_vector,
+)
 from ceasiompy.utils.commonpaths import get_wkdir
 from scipy.optimize import differential_evolution
 from ceasiompy.smtrain.func.utils import get_columns
-from ceasiompy.utils.ceasiompyutils import aircraft_name
 from ceasiompy.utils.geometryfunctions import get_xpath_for_param
+from ceasiompy.utils.ceasiompyutils import (
+    aircraft_name,
+    get_selected_aeromap,
+    get_conditions_from_aeromap,
+)
 
 from pathlib import Path
 from pandas import DataFrame
+from pydantic import BaseModel
+from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.database.func.storing import CeasiompyDb
-from cpacspy.cpacspy import (
-    CPACS,
-    AeroMap,
-)
+
 from ceasiompy import log
+from ceasiompy.utils.commonxpaths import WINGS_XPATH
 from ceasiompy.smtrain import (
+    SMTRAIN_MODELS_XPATH,
     SMTRAIN_XPATH_PARAMS_AEROMAP,
     SMTRAIN_GEOM_WING_OPTIMISE,
     SMTRAIN_NSAMPLES_AEROMAP_XPATH,
     SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
     SMTRAIN_OBJECTIVE_XPATH,
-    SMTRAIN_SIMULATION_PURPOSE_XPATH,
-    SMTRAIN_THRESHOLD_XPATH,
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
-    SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
 )
-from ceasiompy.utils.commonxpaths import (
-    WINGS_XPATH,
-    SELECTED_AEROMAP_XPATH,
-)
+
+
+# Classes
+
+class TrainingSettings(BaseModel):
+    sm_models: list[str]
+    objective: str
+    n_samples: int
+    fidelity_level: str
+    data_repartition: float
 
 
 # Functions
 
-def get_settings(cpacs: CPACS):
+def get_settings(tixi: Tixi3) -> TrainingSettings:
     """
     Reads the global and new suggested dataset settings.
     """
-    tixi = cpacs.tixi
-    aeromap_selected = get_value(tixi, SELECTED_AEROMAP_XPATH)
+
+    # Extract values from CPACS
+    sm_models = get_string_vector(tixi, SMTRAIN_MODELS_XPATH)
+    objective = get_value(tixi, SMTRAIN_OBJECTIVE_XPATH)
+    n_samples = int(get_value(tixi, SMTRAIN_NSAMPLES_GEOMETRY_XPATH))
     fidelity_level = get_value(tixi, SMTRAIN_FIDELITY_LEVEL_XPATH)
     data_repartition = get_value(tixi, SMTRAIN_TRAIN_PERC_XPATH)
-    objective = get_value(tixi, SMTRAIN_OBJECTIVE_XPATH)
-    rmse_obj = get_value(tixi, SMTRAIN_THRESHOLD_XPATH)
-    simulation_purpose = get_value(tixi, SMTRAIN_SIMULATION_PURPOSE_XPATH)
-    old_new_sim = get_value(tixi, SMTRAIN_UPLOAD_AVL_DATABASE_XPATH)
-    # selected_krg_model = get_value(tixi, SMTRAIN_KRG_MODEL)
-    # selected_rbf_model = get_value(tixi, SMTRAIN_RBF_MODEL)
-    log.info(f"Surrogate's model {objective=} with {fidelity_level=}")
 
-    return (
-        aeromap_selected,
-        fidelity_level,
-        data_repartition,
-        objective,
-        rmse_obj,
-        simulation_purpose,
-        old_new_sim,
-        # selected_krg_model,
-        # selected_rbf_model,
+    if not sm_models:
+        raise ValueError("You need to choose a surrogate model type in the Settings Page.")
+
+    training_settings = TrainingSettings(
+        sm_models=sm_models,
+        objective=objective,
+        n_samples=n_samples,
+        fidelity_level=fidelity_level,
+        data_repartition=data_repartition,
     )
+    return training_settings
 
 
 def retrieve_aeromap_data(
     cpacs: CPACS,
-    aeromap_uid: str,
     objective: str,
+    aeromap_uid: str | None = None,
 ) -> DataFrame:
     """
     Retrieves the aerodynamic data from a CPACS aeromap
     and prepares input-output data for training.
     """
-    activate_aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
-    log.info(f"Aeromap {aeromap_uid} retrieved successfully.")
+    if aeromap_uid is None:
+        activate_aeromap = get_selected_aeromap(cpacs)
+    else:
+        activate_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
-    # Extract data as lists
-    altitude = activate_aeromap.get("altitude").tolist()
-    mach = activate_aeromap.get("machNumber").tolist()
-    aoa = activate_aeromap.get("angleOfAttack").tolist()
-    aos = activate_aeromap.get("angleOfSideslip").tolist()
+    altitude, mach, aoa, aos = get_conditions_from_aeromap(activate_aeromap)
 
     if objective == "cl_cd":
         cl = np.array(activate_aeromap.get("cl").tolist())
@@ -203,20 +208,11 @@ def get_elements_to_optimise(cpacs: CPACS):
     """
 
     tixi = cpacs.tixi
-    n_samples_geom = int(get_value(tixi, SMTRAIN_NSAMPLES_GEOMETRY_XPATH))
-    if n_samples_geom < 0:
-        raise ValueError(
-            "New samples can not be negative."
-            "If you solely intend to use the data from ceasiompy.db, "
-            "leave n_samples to 0."
-            "Otherwise, try choose a high-enough n_samples >=7."
-        )
 
-    tixi = cpacs.tixi
+    ranges_gui = {}
     wings_to_optimise = []
     sections_to_optimise = []
     parameters_to_optimise = []
-    ranges_gui = {}
 
     n_wings_to_optimise = tixi.getNumberOfChilds(SMTRAIN_GEOM_WING_OPTIMISE)
 
@@ -250,9 +246,16 @@ def get_elements_to_optimise(cpacs: CPACS):
                             max_value = tixi.getDoubleElement(max_value_path)
                             ranges_gui[
                                 f"{parameter_name}_of_{section_name}_of_{wing_name}"
-                            ] = [min_value,max_value]
+                            ] = [min_value, max_value]
 
-    return wings_to_optimise,sections_to_optimise,parameters_to_optimise,ranges_gui, n_samples_geom
+    if not wings_to_optimise:
+        raise ValueError("You need to select a wing to perform geometry optimization.")
+    if not sections_to_optimise:
+        raise ValueError("You need to select a section to perform geometry optimization.")
+    if not parameters_to_optimise:
+        raise ValueError("You need to select a parameter to perform geometry optimization.")
+
+    return ranges_gui
 
 
 def update_geometry_cpacs(cpacs_path_in: Path, cpacs_path_out: Path, geom_params: dict) -> CPACS:
@@ -361,8 +364,11 @@ def relative_ranges(
     return ranges
 
 
-def create_list_cpacs_geometry(cpacs_file: Path, sampling_geom_csv: Path, NEWCPACS_path: Path):
-
+def create_list_cpacs_geometry(
+    cpacs_file: Path,
+    sampling_geom_csv: Path,
+    NEWCPACS_path: Path,
+) -> list[CPACS]:
     tixi = Tixi3()
     tixi.open(str(cpacs_file))
 

@@ -8,8 +8,10 @@ Initialization for SMTrain module.
 
 # Imports
 from pathlib import Path
+from typing import Final
 
 from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
+from ceasiompy.pyavl import MODULE_STATUS as PYAVL_STATUS
 from ceasiompy.su2run import MODULE_STATUS as SU2RUN_STATUS
 
 # ==============================================================================
@@ -18,7 +20,7 @@ from ceasiompy.su2run import MODULE_STATUS as SU2RUN_STATUS
 
 # ===== Module Status =====
 # SMTrain is true if PyAVL is true
-MODULE_STATUS = False  # PYAVL_STATUS from ceasiompy.PyAVL import MODULE_STATUS as PYAVL_STATUS
+MODULE_STATUS = PYAVL_STATUS
 
 MODULE_TYPE = "MetaModule"
 
@@ -30,15 +32,18 @@ MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 
 # ===== Level Notations =====
-LEVEL_ONE = "One level"
-LEVEL_TWO = "Two levels"
-LEVEL_THREE = "Three levels"
+LEVEL_ONE: Final[str] = "One level"
+LEVEL_TWO: Final[str] = "Two levels"
+LEVEL_THREE: Final[str] = "Three levels"
 
 # Valid fidelity levels
 FIDELITY_LEVELS = [LEVEL_ONE, LEVEL_TWO] if SU2RUN_STATUS else [LEVEL_ONE]
 
+# Surrogate models choice
+SM_MODELS: Final[list[str]] = ["KRG", "RBF"]
+
 # ===== List of potential objectives =====
-OBJECTIVES_LIST = ["cl_cd", "cl", "cd", "cs", "cmd", "cml", "cms"]
+OBJECTIVES_LIST: Final[list[str]] = ["cl_cd", "cl", "cd", "cs", "cmd", "cml", "cms"]
 
 # ===== List of an aeromap (basic) features =====
 AEROMAP_FEATURES = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
@@ -67,7 +72,6 @@ SMTRAIN_TRAIN_PERC_XPATH = SMTRAIN_XPATH + "/TrainingPercentage"
 
 # Design Of Experiment Aeropmap
 SMTRAIN_DOE_AEROMAP = SMTRAIN_XPATH + "/DesignOfExperiment_aeromap"
-SMTRAIN_THRESHOLD_XPATH = SMTRAIN_DOE_AEROMAP + "/rmseThreshold"
 SMTRAIN_NSAMPLES_AEROMAP_XPATH = SMTRAIN_DOE_AEROMAP + "/nSamples_aeromap"
 
 # Design Of Experiment Geometry

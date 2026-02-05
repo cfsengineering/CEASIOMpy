@@ -184,7 +184,16 @@ def dataframe_vartype(
             return st.session_state[key]
 
 
-def int_vartype(tixi, xpath, default_value, name, key, description) -> int:
+def int_vartype(
+    tixi: Tixi3,
+    xpath: str,
+    default_value: int,
+    name: str,
+    key: str,
+    description: str,
+    min_value: int | None = None,
+    max_value: int | None = None,
+) -> int:
     raw_value = safe_get_value(tixi, xpath, default_value)
     try:
         value = int(raw_value)
@@ -195,6 +204,8 @@ def int_vartype(tixi, xpath, default_value, name, key, description) -> int:
         value=value,
         key=key,
         help=description,
+        min_value=min_value,
+        max_value=max_value,
     )
     add_value(tixi, xpath, output)
     return output

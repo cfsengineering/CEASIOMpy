@@ -699,6 +699,26 @@ def get_conditions_from_aeromap(aeromap: AeroMap) -> tuple[list, list, list, lis
     return alt_list, mach_list, aoa_list, aos_list
 
 
+def get_selected_aeromap(cpacs: CPACS) -> AeroMap:
+    """
+    Reads the flight conditions from the aeromap.
+    """
+    tixi = cpacs.tixi
+
+    # Get the first aeroMap as default one or create automatically one
+    aeromap_list = cpacs.get_aeromap_uid_list()
+
+    if not aeromap_list:
+        raise ValueError("You need to have defined aeromaps to retrieve a selected one.")
+
+    aeromap_uid = get_value(
+        tixi=tixi,
+        xpath=SELECTED_AEROMAP_XPATH,
+    )
+    log.info(f"Using: {aeromap_uid=}")
+    return cpacs.get_aeromap_by_uid(aeromap_uid)
+
+
 def get_selected_aeromap_values(cpacs: CPACS) -> tuple[list, list, list, list]:
     """
     Reads the flight conditions from the aeromap.

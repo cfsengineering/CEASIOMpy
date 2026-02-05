@@ -96,10 +96,9 @@ def lh_sampling(
 
 def lh_sampling_geom(
     n_samples: int,
-    ranges: dict,
-    results_dir: Path,
+    ranges: dict[str, tuple[float, float]],
     random_state: int = 42,
-) -> Path | None:
+) -> DataFrame:
     """
     Generate a Latin Hypercube Sampling (LHS) dataset within specified variable ranges.
     Uses the Enhanced Stochastic Evolutionary (ESE) criterion
@@ -110,16 +109,8 @@ def lh_sampling_geom(
         ranges (dict):
             dictionary specifying the variable ranges in the format:
             { "variable_name": (min_value, max_value) }.
-        results_dir (Path): Where the sampled dataset will be saved.
         random_state (int = 42): Seed for random number generation to ensure reproducibility.
     """
-    if n_samples < 2:
-        log.info(
-            "Can not apply LHS on strictly less than 2 samples. "
-            "Will use data from ceasiompy.db."
-        )
-        return None
-
     xlimits = np.array(list(ranges.values()))
 
     sampling = LHS(xlimits=xlimits, criterion="ese", random_state=random_state)
@@ -133,12 +124,11 @@ def lh_sampling_geom(
     sampled_dict = {key: samples[:, idx] for idx, key in enumerate(ranges.keys())}
 
     # Save sampled dataset
-    sampled_df = DataFrame(sampled_dict)
-    output_file_path = results_dir / LH_SAMPLING_DATA_GEOMETRY_CSV
-    sampled_df.to_csv(output_file_path, index=False)
-    log.info(f"LHS dataset saved in {output_file_path}")
+    # output_file_path = results_dir / LH_SAMPLING_DATA_GEOMETRY_CSV
+    # sampled_df.to_csv(output_file_path, index=False)
+    # log.info(f"LHS dataset saved in {output_file_path}")
 
-    return output_file_path
+    return DataFrame(sampled_dict)
 
 
 def new_points(

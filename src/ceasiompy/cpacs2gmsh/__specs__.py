@@ -30,7 +30,7 @@ from ceasiompy.cpacs2gmsh import (
     GMSH_SYMMETRY_XPATH,
     GMSH_FARFIELD_FACTOR_XPATH,
     GMSH_MESH_SIZE_FARFIELD_XPATH,
-    GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
+    GMSH_MESH_SIZE_FUSELAGE_XPATH,
     GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
     GMSH_MESH_SIZE_ENGINES_XPATH,
     GMSH_CTRLSURF_ANGLE_XPATH,
@@ -127,28 +127,24 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                         tixi=tixi,
                         xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
                         default_value=1.0,
-                        name="Fuselage mesh size factor",
-                        key="fuselage_mesh_size_factor",
-                        description="""Factor proportional to the biggest cell
-                        on the plane to obtain cell size on the farfield
-                        """,
+                        name="Farfield mesh size",
+                        key="farfield_mesh_size",
+                        description="""Cell size on the farfield.""",
                     )
 
                 with right_col:
                     float_vartype(
                         tixi=tixi,
-                        xpath=GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
-                        default_value=1.0,
-                        name="Wings mesh size factor",
-                        key="wing_mesh_size_factor_fuselage",
-                        description="""Factor proportional to fuselage radius
-                            of curvature to obtain cell size on it.
-                        """,
+                        xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH,
+                        default_value=0.1,
+                        name="Fuselage mesh size",
+                        key="fuselage_mesh_size",
+                        description="""Cell size on the fuselage (if any).""",
                     )
 
         else:
             safe_remove(tixi, xpath=GMSH_MESH_SIZE_FARFIELD_XPATH)
-            safe_remove(tixi, xpath=GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH)
+            safe_remove(tixi, xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH)
 
         # RANS Options
         if euler_rans == "RANS":

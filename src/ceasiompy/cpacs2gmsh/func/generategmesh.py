@@ -292,7 +292,7 @@ def generate_gmsh(
     farfield_size_factor=10,
     n_power_factor=2,
     n_power_field=0.9,
-    fuselage_mesh_size_factor=1,
+    fuselage_mesh_size=1,
     wing_mesh_size_factor=0.5,
     mesh_size_engines: float = 0.23,
     mesh_size_propellers: float = 0.23,
@@ -665,8 +665,7 @@ def generate_gmsh(
     # Thus be sure to define mesh size in a certain order to control
     # the size of the points on boundaries.
 
-    fuselage_maxlen, fuselage_minlen = fuselage_size(tixi)
-    mesh_size_fuselage = ((fuselage_maxlen + fuselage_minlen) / 2) / fuselage_mesh_size_factor
+    mesh_size_fuselage = fuselage_mesh_size
     log.info(f"Mesh size fuselage={mesh_size_fuselage:.3f} m")
 
     create_branch(tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH)
@@ -699,12 +698,9 @@ def generate_gmsh(
             log.warning(f"Incorrect part.part_type {part.part_type} in generategmesh.py.")
 
     # Set mesh size and color of the farfield
-    h_max_model = max(wing_maxlen, fuselage_maxlen)
-    mesh_size_farfield = h_max_model * farfield_size_factor
+    log.info(f"Farfield mesh size={farfield_size_factor:.3f} m")
 
-    log.info(f"Farfield mesh size={mesh_size_farfield:.3f} m")
-
-    gmsh.model.mesh.setSize(farfield_points, mesh_size_farfield)
+    gmsh.model.mesh.setSize(farfield_points, farfield_size_factor)
     gmsh.model.setColor(farfield_surfaces, *MESH_COLORS["farfield"], recursive=False)
 
     if symmetry:
@@ -741,7 +737,7 @@ def generate_gmsh(
         set_domain_mesh(
             mesh_fields,
             aircraft_parts,
-            mesh_size_farfield,
+            farfield_size_factor,
             max(model_dimensions),
             final_domain.volume_tag,
             n_power_factor,
@@ -771,7 +767,7 @@ def generate_gmsh(
             refined_surfaces, mesh_fields = refine_small_surfaces(
                 mesh_fields,
                 part,
-                mesh_size_farfield,
+                farfield_size_factor,
                 max(model_dimensions),
                 final_domain.volume_tag,
             )

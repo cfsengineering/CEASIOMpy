@@ -121,7 +121,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
         log.info("Euler meshing.")
         (
             farfield_size_factor,
-            fuselage_mesh_size_factor,
+            fuselage_mesh_size,
         ) = retrieve_euler_gui_values(tixi)
         su2mesh_path, cgns_path = generate_gmsh(
             tixi,
@@ -133,7 +133,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
             farfield_size_factor=farfield_size_factor,
             n_power_factor=n_power_factor,
             n_power_field=n_power_field,
-            fuselage_mesh_size_factor=fuselage_mesh_size_factor,
+            fuselage_mesh_size=fuselage_mesh_size,
             wing_mesh_size_factor=wing_mesh_size_factor,
             mesh_size_engines=mesh_size_engines,
             mesh_size_propellers=mesh_size_propellers,
@@ -163,7 +163,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
             refine_factor=refine_factor,
             refine_truncated=refine_truncated,
             refine_factor_angled_lines=refine_factor_angled_lines,
-            fuselage_mesh_size_factor=fuselage_mesh_size_factor,
+            fuselage_mesh_size=fuselage_mesh_size,
             wing_mesh_size_factor=wing_mesh_size_factor,
             mesh_size_engines=mesh_size_engines,
             mesh_size_propellers=mesh_size_propellers,

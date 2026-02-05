@@ -64,7 +64,7 @@ def test_generate_rans_mesh():
         refine_factor=2,
         refine_truncated=True,
         refine_factor_angled_lines=1.5,
-        fuselage_mesh_size_factor=0.7,
+        fuselage_mesh_size=0.7,
         wing_mesh_size_factor=0.8,
         mesh_size_engines=0.2,
         mesh_size_propellers=0.2,

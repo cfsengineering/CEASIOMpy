@@ -30,7 +30,7 @@ from ceasiompy.cpacs2gmsh import (
     GMSH_N_POWER_FIELD_XPATH,
     GMSH_INTAKE_PERCENT_XPATH,
     GMSH_MESH_SIZE_FARFIELD_XPATH,
-    GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
+    GMSH_MESH_SIZE_FUSELAGE_XPATH,
     GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
     GMSH_MESH_SIZE_ENGINES_XPATH,
     GMSH_MESH_SIZE_PROPELLERS_XPATH,
@@ -246,8 +246,8 @@ def load_rans_cgf_params(
 
 def retrieve_euler_gui_values(tixi: Tixi3) -> tuple[float, float]:
     farfield_size_factor = get_value(tixi, GMSH_MESH_SIZE_FARFIELD_XPATH)
-    fuselage_mesh_size_factor = get_value(tixi, GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH)
-    return farfield_size_factor, fuselage_mesh_size_factor
+    fuselage_mesh_size = get_value(tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH)
+    return farfield_size_factor, fuselage_mesh_size
 
 
 def retrieve_rans_gui_values(tixi: Tixi3):

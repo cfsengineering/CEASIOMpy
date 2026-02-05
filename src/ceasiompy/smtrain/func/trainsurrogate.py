@@ -49,13 +49,7 @@ from skopt.space import (
     Real,
     Categorical,
 )
-from typing import (
-    List,
-    Dict,
-    Tuple,
-    Union,
-    Callable,
-)
+from typing import Callable
 
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import SM_XPATH
@@ -64,10 +58,10 @@ from ceasiompy.utils.commonxpaths import SM_XPATH
 
 
 def get_hyperparam_space(
-    level1_sets: Dict[str, ndarray],
-    level2_sets: Union[Dict[str, ndarray], None],
-    level3_sets: Union[Dict[str, ndarray], None],
-) -> List[str]:
+    level1_sets: dict[str, ndarray],
+    level2_sets: dict[str, ndarray] | None,
+    level3_sets: dict[str, ndarray] | None,
+) -> list[str]:
     """
     Get Hyper-parameters space from the different fidelity datasets.
     Uniquely determined by the training set x_train.
@@ -118,10 +112,10 @@ def get_hyperparam_space(
 
 
 def train_surrogate_model(
-    level1_sets: Dict[str, ndarray],
-    level2_sets: Union[Dict[str, ndarray], None] = None,
-    level3_sets: Union[Dict[str, ndarray], None] = None,
-) -> Tuple[Union[KRG, MFK], float]:
+    level1_sets: dict[str, ndarray],
+    level2_sets: dict[str, ndarray] | None = None,
+    level3_sets: dict[str, ndarray] | None = None,
+) -> tuple[KRG | MFK, float]:
     """
     Train a surrogate model using kriging or Multi-Fidelity kriging:
     1. selects appropriate polynomial basis functions for regression
@@ -160,7 +154,7 @@ def train_surrogate_model(
 
 def save_model(
     cpacs: CPACS,
-    model: Union[KRG, MFK],
+    model: KRG | MFK,
     objective: str,
     results_dir: Path,
 ) -> None:
@@ -215,17 +209,17 @@ def optimize_hyper_parameters(
 
 
 def kriging(
-    param_space: List,
-    sets: Dict[str, ndarray],
+    param_space: list,
+    sets: dict[str, ndarray],
     n_calls: int = 50,
     random_state: int = 42,
-) -> Tuple[KRG, float]:
+) -> tuple[KRG, float]:
     """
     Trains a kriging model using Bayesian optimization.
 
     Args:
         param_space (list): Hyper-parameters for Bayesian optimization.
-        sets (dict): Dictionary containing training, validation, and test datasets.
+        sets (dict): dictionary containing training, validation, and test datasets.
         n_calls (int = 50):
             Number of iterations for Bayesian optimization.
             The lower the faster.
@@ -265,18 +259,18 @@ def kriging(
 
 
 def mf_kriging(
-    param_space: List,
-    level1_sets: Dict[str, ndarray],
-    level2_sets: Union[Dict[str, ndarray], None],
-    level3_sets: Union[Dict[str, ndarray], None],
+    param_space: list,
+    level1_sets: dict[str, ndarray],
+    level2_sets: dict[str, ndarray] | None,
+    level3_sets: dict[str, ndarray] | None,
     n_calls: int = 10,
     random_state: int = 42,
-) -> Tuple[MFK, float]:
+) -> tuple[MFK, float]:
     """
     Trains a multi-fidelity kriging model with 2/3 fidelity levels.
 
     Args:
-        param_space (list): List of parameter ranges for Bayesian optimization.
+        param_space (list): list of parameter ranges for Bayesian optimization.
         sets (dict): Training, validation, and test datasets.
         n_calls (int = 30): Number of iterations for Bayesian optimization.
         random_state (int = 42): Random seed for reproducibility.
@@ -325,10 +319,10 @@ def mf_kriging(
 
 def run_first_level_training(
     cpacs: CPACS,
-    lh_sampling_path: Union[Path, None],
+    lh_sampling_path: Path | None,
     objective: str,
     split_ratio: float,
-) -> Tuple[Union[KRG, MFK], Dict[str, ndarray]]:
+) -> tuple[KRG | MFK, dict[str, ndarray]]:
     """
     Run surrogate model training on first level of fidelity (AVL).
     """
@@ -341,8 +335,8 @@ def run_first_level_training(
 def run_adaptative_refinement(
     cpacs: CPACS,
     results_dir: Path,
-    model: Union[KRG, MFK],
-    level1_sets: Dict[str, ndarray],
+    model: KRG | MFK,
+    level1_sets: dict[str, ndarray],
     rmse_obj: float,
     objective: str,
 ) -> None:

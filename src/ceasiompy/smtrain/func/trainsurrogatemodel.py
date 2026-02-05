@@ -7,16 +7,17 @@ Functions related to the training of the surrogate model.
 """
 
 # Imports
-
+import sys
 import time
 import joblib
 import numpy as np
 import pandas as pd
 
-from shutil import copyfile
-from pathlib import Path
 from pandas import concat
+from shutil import copyfile
 from skopt import gp_minimize
+from sklearn.metrics import r2_score
+from smt.utils.misc import compute_rmse
 from cpacspy.cpacsfunctions import (
     add_value,
     create_branch,
@@ -56,29 +57,25 @@ from ceasiompy.smtrain.func.config import (
     save_best_surrogate_geometry,
     normalize_dataset,
 )
-from sklearn.metrics import r2_score
 from ceasiompy.utils.ceasiompyutils import (
     update_cpacs_from_specs,
     get_results_directory,
     get_selected_aeromap_values,
 )
 
-import sys
+from pathlib import Path
 from numpy import ndarray
+from typing import Callable
 from pandas import DataFrame
 from cpacspy.cpacspy import CPACS
 from smt.applications import MFK
 from smt.surrogate_models import KRG
 from smt.surrogate_models import RBF
-from smt.utils.misc import compute_rmse
-from scipy.optimize import (
-    OptimizeResult,
-)
+from scipy.optimize import OptimizeResult
 from skopt.space import (
     Real,
     Categorical,
 )
-from typing import Callable
 
 from ceasiompy import log
 from ceasiompy.smtrain import AEROMAP_FEATURES
@@ -88,10 +85,7 @@ from ceasiompy.pyavl import MODULE_NAME as PYAVL_NAME
 from ceasiompy.staticstability import MODULE_NAME as STATICSTABILITY_NAME
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def get_hyperparam_space(
     level1_sets: dict[str, ndarray],

@@ -13,9 +13,7 @@ from cpacspy.cpacsfunctions import get_value
 from ceasiompy.pyavl.pyavl import main as run_avl
 from ceasiompy.su2run.su2run import main as run_su2
 from ceasiompy.cpacs2gmsh.cpacs2gmsh import main as run_cpacs2gmsh
-from ceasiompy.smtrain.func.utils import (
-    create_aeromap_from_varpts,
-)
+from ceasiompy.smtrain.func.utils import create_aeromap_from_varpts
 from ceasiompy.smtrain.func.config import (
     retrieve_aeromap_data,
     retrieve_ceasiompy_db_data,
@@ -36,15 +34,9 @@ from cpacspy.cpacspy import (
 from ceasiompy import log
 from ceasiompy.su2run import SU2_MAX_ITER_XPATH
 from ceasiompy.smtrain.func import AEROMAP_SELECTED
-from ceasiompy.smtrain import (
-    SMTRAIN_AVL_DATABASE_XPATH,
-)
-from ceasiompy.pyavl import (
-    MODULE_NAME as PYAVL_NAME,
-)
-from ceasiompy.su2run import (
-    MODULE_NAME as SU2RUN_NAME,
-)
+from ceasiompy.smtrain import SMTRAIN_AVL_DATABASE_XPATH
+from ceasiompy.pyavl import MODULE_NAME as PYAVL_NAME
+from ceasiompy.su2run import MODULE_NAME as SU2RUN_NAME
 from ceasiompy.utils.commonxpaths import (
     SU2MESH_XPATH,
     USED_SU2_MESH_XPATH,

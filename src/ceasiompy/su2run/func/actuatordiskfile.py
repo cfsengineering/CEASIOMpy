@@ -26,17 +26,16 @@ from ceasiompy.utils.ceasiompyutils import get_results_directory
 from pathlib import Path
 from numpy import ndarray
 from markdownpy.markdownpy import MarkdownDoc
-
 from typing import (
-    Callable,
-    Tuple,
     TextIO,
+    Callable,
 )
 
 from ceasiompy import log
+from ceasiompy.su2run import MODULE_NAME as SU2_RUN
+
 
 # Functions
-
 
 def get_radial_stations(radius: float, hub_radius: float, number_of_stations: int = 40) -> ndarray:
     """
@@ -223,7 +222,7 @@ def check_input_output_values(
     radial_stations: ndarray,
     radius: float,
     rotational_velocity: int,
-) -> Tuple[float, float, float, float, float]:
+) -> tuple[float, float, float, float, float]:
     """
     Control input and output values, these values will be written in markdown file.
 
@@ -289,7 +288,7 @@ def thrust_calculator(
     prandtl_correction: bool,
     blades_number: int,
     rotational_velocity: int,
-) -> Tuple[float, float, float, float, float, float]:
+) -> tuple[float, float, float, float, float, float]:
     """
     Performing of a calculation to obtain thrust
     and power coefficients distribution.
@@ -310,7 +309,7 @@ def thrust_calculator(
     """
     # TODO: Improve this function...
 
-    results_dir = get_results_directory("SU2Run")
+    results_dir = get_results_directory(SU2_RUN)
     md = MarkdownDoc(Path(results_dir, "su2actuatordisk.md"))
 
     log.info("Start of thrust calculation distribution")
@@ -546,8 +545,8 @@ def write_actuator_disk_data(
     file: TextIO,
     inlet_marker: str,
     outlet_marker: str,
-    center: Tuple,
-    axis: Tuple,
+    center: tuple,
+    axis: tuple,
     radius: float,
     advanced_ratio: float,
     radial_stations: ndarray,

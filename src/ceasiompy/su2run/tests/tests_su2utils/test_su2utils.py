@@ -35,6 +35,7 @@ from pathlib import Path
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
 from unittest.mock import patch
+from ceasiompy.su2run import MODULE_NAME as SU2RUN
 
 # =================================================================================================
 #   CONSTANTS
@@ -210,7 +211,7 @@ class TestSU2UtilsExtra(CeasiompyTest):
         path_2d = get_su2_cfg_tpl("2d")
         self.assertTrue(str(path_2d).endswith("cfg_tpl_2d.cfg"))
         # Should warn and still return a path for invalid type
-        with patch("ceasiompy.SU2Run.func.utils.log") as mock_log:
+        with patch(f"ceasiompy.{SU2RUN}.func.utils.log") as mock_log:
             path_invalid = get_su2_cfg_tpl("invalid")
             self.assertTrue(str(path_invalid).endswith("cfg_tpl_invalid.cfg"))
             assert mock_log.warning.called
@@ -271,4 +272,5 @@ class TestSU2UtilsExtra(CeasiompyTest):
 # =================================================================================================
 
 if __name__ == "__main__":
+    test_get_mesh_marker()
     unittest.main(verbosity=0)

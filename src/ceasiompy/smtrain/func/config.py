@@ -40,7 +40,6 @@ from ceasiompy.smtrain import (
     SMTRAIN_FIDELITY_LEVEL_XPATH,
     SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
 )
-
 from ceasiompy.utils.commonxpaths import (
     WINGS_XPATH,
     SELECTED_AEROMAP_XPATH,

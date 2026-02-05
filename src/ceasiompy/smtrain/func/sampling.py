@@ -4,23 +4,24 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Sampling strategies for SMTrain.
-
 """
 
 # Imports
 
 import numpy as np
 import pandas as pd
-from smt.surrogate_models import KRG
-from smt.applications import MFK
+
+from copy import deepcopy
 from sklearn.model_selection import train_test_split
 from ceasiompy.smtrain.func.utils import get_val_fraction
-from copy import deepcopy
+
 from pathlib import Path
 from numpy import ndarray
+from typing import Protocol
 from pandas import DataFrame
+from smt.applications import MFK
 from smt.sampling_methods import LHS
-from typing import Dict, List, Protocol, Union
+from smt.surrogate_models import KRG
 
 from ceasiompy import log
 from ceasiompy.smtrain import AEROMAP_FEATURES
@@ -41,10 +42,10 @@ class VariancePredictor(Protocol):
 
 def lh_sampling(
     n_samples: int,
-    ranges: Dict,
+    ranges: dict,
     results_dir: Path,
     random_state: int = 42,
-) -> Union[Path, None]:
+) -> Path | None:
     """
     Generate a Latin Hypercube Sampling (LHS) dataset within specified variable ranges.
     Uses the Enhanced Stochastic Evolutionary (ESE) criterion
@@ -52,8 +53,8 @@ def lh_sampling(
 
     Args:
         n_samples (int): Number of samples to generate.
-        ranges (Dict):
-            Dictionary specifying the variable ranges in the format:
+        ranges (dict):
+            dictionary specifying the variable ranges in the format:
             { "variable_name": (min_value, max_value) }.
         results_dir (Path): Where the sampled dataset will be saved.
         random_state (int = 42): Seed for random number generation to ensure reproducibility.
@@ -95,10 +96,10 @@ def lh_sampling(
 
 def lh_sampling_geom(
     n_samples: int,
-    ranges: Dict,
+    ranges: dict,
     results_dir: Path,
     random_state: int = 42,
-) -> Union[Path, None]:
+) -> Path | None:
     """
     Generate a Latin Hypercube Sampling (LHS) dataset within specified variable ranges.
     Uses the Enhanced Stochastic Evolutionary (ESE) criterion
@@ -106,8 +107,8 @@ def lh_sampling_geom(
 
     Args:
         n_samples (int): Number of samples to generate.
-        ranges (Dict):
-            Dictionary specifying the variable ranges in the format:
+        ranges (dict):
+            dictionary specifying the variable ranges in the format:
             { "variable_name": (min_value, max_value) }.
         results_dir (Path): Where the sampled dataset will be saved.
         random_state (int = 42): Seed for random number generation to ensure reproducibility.
@@ -144,8 +145,8 @@ def new_points(
     x_array: ndarray,
     model: VariancePredictor,
     results_dir: Path,
-    high_var_pts: List,
-) -> Union[DataFrame, None]:
+    high_var_pts: list,
+) -> DataFrame | None:
     """
     Selects new sampling points based on variance predictions from a surrogate model.
 
@@ -154,10 +155,10 @@ def new_points(
     iterations, it picks the next highest variance point not previously selected.
 
     Args:
-        datasets (Dict): Contains different fidelity datasets (expects 'level_1').
+        datasets (dict): Contains different fidelity datasets (expects 'level_1').
         model (object): Surrogate model used to predict variance.
         result_dir (Path): Directory where the selected points CSV file will be saved.
-        high_variance_points (List): List of previously selected high-variance points.
+        high_variance_points (list): list of previously selected high-variance points.
 
     Returns:
         DataFrame containing the newly selected points.
@@ -197,11 +198,11 @@ def new_points(
 
 def new_points_geom(
     x_array: ndarray,
-    model: Union[KRG, MFK],
+    model: KRG | MFK,
     results_dir: Path,
-    high_var_pts: List,
+    high_var_pts: list,
     ranges_gui: DataFrame,
-) -> Union[DataFrame, None]:
+) -> DataFrame | None:
     """
     Selects new sampling points based on variance predictions from a surrogate model.
 
@@ -210,10 +211,10 @@ def new_points_geom(
     iterations, it picks the next highest variance point not previously selected.
 
     Args:
-        datasets (Dict): Contains different fidelity datasets (expects 'level_1').
+        datasets (dict): Contains different fidelity datasets (expects 'level_1').
         model (object): Surrogate model used to predict variance.
         result_dir (Path): Directory where the selected points CSV file will be saved.
-        high_variance_points (List): List of previously selected high-variance points.
+        high_variance_points (list): list of previously selected high-variance points.
 
     Returns:
         DataFrame containing the newly selected points.
@@ -254,12 +255,12 @@ def new_points_geom(
 def new_points_RBF(
     x_array: ndarray,
     y_array: ndarray,
-    model: Union[KRG, MFK],
+    model: KRG | MFK,
     ranges_gui: DataFrame,
     n_local: int = 3,
     perturb_scale: float = 0.05,
-    poor_pts: List = None
-) -> Union[pd.DataFrame, None]:
+    poor_pts: list = None
+) -> DataFrame | None:
     """
     Generate new sampling points based on LOO error for RBF models.
     Returns a DataFrame with the same columns as ranges_gui.
@@ -336,7 +337,7 @@ def split_data(
     train_fraction: float = 0.7,
     test_fraction_within_split: float = 0.3,
     random_state: int = 42,
-) -> Dict[str, ndarray]:
+) -> dict[str, ndarray]:
     """
     Splits dataframe into training, validation, and test sets based on the specified proportions.
     """

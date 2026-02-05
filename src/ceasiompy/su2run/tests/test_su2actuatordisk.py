@@ -12,11 +12,9 @@ Test functions of 'ceasiompy/SU2Run/func/su2actuatordisk.py'
 
 # Imports
 
-from pathlib import Path
-
-import numpy as np
 import pytest
-from ambiance import Atmosphere
+import numpy as np
+
 from ceasiompy.su2run.func.actuatordiskfile import (
     axial_interference_function,
     calculate_radial_thrust_coefs,
@@ -28,10 +26,12 @@ from ceasiompy.su2run.func.actuatordiskfile import (
     write_actuator_disk_data,
 )
 from ceasiompy.su2run.func.plot import save_plots
-
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 
-MODULE_DIR = Path(__file__).parent
+from pathlib import Path
+from ambiance import Atmosphere
+
+from ceasiompy.su2run import MODULE_NAME as SU2RUN
 
 
 # Functions
@@ -248,7 +248,7 @@ def test_thrust_calculator():
     assert np.sum((1 / 40.0) * renard_thrust_coeff) == pytest.approx(values[1][0], rel=1e-3)
     assert np.sum((1 / 40.0) * power_coeff) == pytest.approx(values[1][1], rel=1e-3)
 
-    results_dir = get_results_directory("SU2Run")
+    results_dir = get_results_directory(SU2RUN)
     markdown_file_path = Path(results_dir, "su2actuatordisk.md")
 
     if markdown_file_path.exists():
@@ -304,6 +304,7 @@ def test_write_actuator_disk_data(tmp_path):
 
 # Main
 if __name__ == "__main__":
+    test_thrust_calculator()
     print("Test configfile.py")
     print("To run test use the following command:")
     print(">> pytest -v")

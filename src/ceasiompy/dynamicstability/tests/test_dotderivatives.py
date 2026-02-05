@@ -31,11 +31,10 @@ from unittest import (
 )
 
 from unittest.mock import patch
+from ceasiompy.dynamicstability import MODULE_NAME as DYNAMIC_STABILITY
 
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
 
+# Classes
 
 class DummySelf:
     def __init__(self, s, c, b):
@@ -110,7 +109,7 @@ class TestDotDerivatives(TestCase):
     def test_check_x_hinge_warns(self: "TestDotDerivatives") -> None:
         aerogrid = {"offset_j": np.array([[1.0, 0.0, 0.0], [2.0, 0.0, 0.0]])}
         x_hinge = 1.0
-        with patch("ceasiompy.DynamicStability.func.dotderivatives.log") as mock_log:
+        with patch(f"ceasiompy.{DYNAMIC_STABILITY}.func.dotderivatives.log") as mock_log:
             check_x_hinge(aerogrid, x_hinge)
             mock_log.warning.assert_called()
             args, _ = mock_log.warning.call_args

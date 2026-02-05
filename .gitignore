@@ -192,9 +192,6 @@ docker
 
 /unittest_cov_html
 
-# Ignore txt files in root
-*.txt
-
 Remove all __main__ folders
 **/*__main__*/**
 

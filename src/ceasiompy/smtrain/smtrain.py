@@ -19,11 +19,11 @@ import time
 import shutil
 import pandas as pd
 
+from ceasiompy.smtrain.func.plot import plot_validation
 from ceasiompy.utils.ceasiompyutils import (
     call_main,
     get_results_directory,
 )
-from ceasiompy.smtrain.func.plot import plot_validation
 from ceasiompy.smtrain.func.sampling import (
     lh_sampling,
     lh_sampling_geom
@@ -36,12 +36,12 @@ from ceasiompy.smtrain.func.config import (
 )
 from ceasiompy.smtrain.func.trainsurrogatemodel import (
     save_model,
+    training_existing_db,
     run_first_level_training,
-    run_first_level_training_geometry,
     run_adaptative_refinement,
     run_adaptative_refinement_geom,
     run_adaptative_refinement_geom_RBF,
-    training_existing_db,
+    run_first_level_training_geometry,
     run_adaptative_refinement_geom_existing_db,
 )
 

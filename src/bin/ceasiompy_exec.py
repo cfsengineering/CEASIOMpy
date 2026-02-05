@@ -148,7 +148,7 @@ def run_testcase(testcase_nb):
         )
         log.info(">> conda activate ceasiompy")
         log.info(
-            ">> ceasiompy_run -m ../test_files/CPACSfiles/d150.xml "
+            ">> ceasiompy_run -m ../test_files/cpacsfiles/d150.xml "
             "PyAVL SkinFriction"
         )
 
@@ -258,7 +258,7 @@ def run_gui(
     # then OpenVSP Python roots (for degen_geom, openvsp, etc.) to PYTHONPATH.
     project_root = Path(__file__).resolve().parents[2]
     src_dir = project_root / "src"
-    vsp_python_root = project_root / "INSTALLDIR/OpenVSP/python"
+    vsp_python_root = project_root / "installdir/OpenVSP/python"
     vsp_openvsp_pkg = vsp_python_root / "openvsp"
     degen_geom_pkg = vsp_python_root / "degen_geom"
     vsp_config_pkg = vsp_python_root / "openvsp_config"
@@ -285,7 +285,7 @@ def run_gui(
     env["MAX_CPUS"] = str(cpus)
 
     # Expose working directory to the Streamlit app
-    env["CEASIOMPY_WKDIR"] = str(wkdir)
+    env["CEASIOMPY_wkdir"] = str(wkdir)
 
     streamlit_entrypoint = str(STREAMLIT_PATH / "app.py")
     args = [

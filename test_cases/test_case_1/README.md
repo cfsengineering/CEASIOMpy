@@ -31,7 +31,7 @@ This workflow will take as input the CPACS file of the aircraft (d150.xml), it w
       PyAVL;
 ```
 
-You can find the exported CSV file in the results dir: `/Workflow_001/Results/Aeromaps/test_apm.csv` and it should look like this:
+You can find the exported CSV file in the results dir: `/Workflow_001/Results/aeromaps/test_apm.csv` and it should look like this:
 
 ```text
 altitude,machNumber,angleOfSideslip,angleOfAttack,cd,cl,cs,cmd,cml,cms

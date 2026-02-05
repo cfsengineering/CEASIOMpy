@@ -42,6 +42,7 @@ from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
 from unittest.mock import patch
 from ceasiompy import UTILS_PATH
+from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 
 # =================================================================================================
@@ -188,9 +189,8 @@ class TestCeasiompyUtils(CeasiompyTest):
     def test_get_results_directory(self):
 
         with change_working_dir(self.TMP_DIR):
-            test_module_2 = "PyAVL"
-            results_dir = get_results_directory(test_module_2)
-            assert results_dir == Path(Path.cwd(), "Results", test_module_2)
+            results_dir = get_results_directory(PYAVL)
+            assert results_dir == Path(Path.cwd(), "Results", PYAVL)
 
             if results_dir.parent.exists():
                 shutil.rmtree(results_dir.parent)

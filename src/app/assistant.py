@@ -305,11 +305,11 @@ def _looks_like_cfd_question(prompt_l: str) -> bool:
 def _summarize_latest_results() -> str:
     wkdir = get_wkdir()
     if not wkdir.exists():
-        return "Results summary: WKDIR does not exist."
+        return "Results summary: wkdir does not exist."
 
     workflow_dir = _latest_workflow_dir(wkdir)
     if workflow_dir is None:
-        return "Results summary: no workflows found in WKDIR."
+        return "Results summary: no workflows found in wkdir."
 
     results_dir = workflow_dir / "Results"
     if not results_dir.exists():

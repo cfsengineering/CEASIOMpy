@@ -21,13 +21,13 @@ from bin.ceasiompy_exec import run_modules_list
 from ceasiompy.utils.ceasiompyutils import change_working_dir
 from ceasiompy.utils.moduleinterfaces import get_init_for_module
 
-from ceasiompy.PyAVL import MODULE_NAME as PYAVL
-from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
-from ceasiompy.Database import MODULE_NAME as DATABASE
+from ceasiompy.pyavl import MODULE_NAME as PYAVL
+from ceasiompy.su2run import MODULE_NAME as SU2RUN
+from ceasiompy.database import MODULE_NAME as DATABASE
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
-from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
-from ceasiompy.AeroFrame import MODULE_NAME as AEROFRAME
-from ceasiompy.StaticStability import MODULE_NAME as STATICSTABILITY
+from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
+from ceasiompy.aeroframe import MODULE_NAME as AEROFRAME
+from ceasiompy.staticstability import MODULE_NAME as STATICSTABILITY
 
 
 # Constants

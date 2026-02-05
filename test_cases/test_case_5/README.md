@@ -6,11 +6,11 @@
 
 A CEASIOMpy configuration file is a text file (saved as `*.cfg`) which contains the information necessary to run CEASIOMpy. To store and re-execute workflows that you run often, it may be worthwhile to store them in a configuration file. The file should contain at least two lines, one to give the path to the CPACS file and one to give the modules to be executed.
 
-For the test case you must first create and save a file named `my_ceasiompy_config_file.cfg` in `WKDIR`. Then, write the following lines in it:
+For the test case you must first create and save a file named `my_ceasiompy_config_file.cfg` in `wkdir`. Then, write the following lines in it:
 
 ```text
 % This is an example of config file for ceasiompy
-CPACS_TOOLINPUT = ../test_files/CPACSfiles/d150.xml
+CPACS_TOOLINPUT = ../test_files/cpacsfiles/d150.xml
 MODULE_TO_RUN = ( PyAVL )
 ```
 

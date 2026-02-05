@@ -1,0 +1,121 @@
+# With this Dockerfile, you are building a Docker image for
+# your LOCAL CEASIOMpy on Ubuntu latest, with system dependencies and Miniconda.
+# Use the commands below to build the Docker image,
+# and then to run the Docker container.
+
+FROM ubuntu:24.04
+
+RUN apt-get update
+RUN apt-get install -y libglu1-mesa-dev
+RUN apt update && apt upgrade -y
+RUN apt-get install -y apt-utils 
+RUN apt-get install -y --no-install-recommends \
+    git curl wget sudo unzip build-essential libtbbmalloc2 libtbb-dev libxrender1 libxcursor1 libxinerama1 libxft2 libxt6 \
+    libgl1 libglu1-mesa libegl1 libosmesa6 xvfb ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libglib2.0-0 \
+    libxi6 \
+    libxmu6 \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y gnupg curl && \
+    echo '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d
+
+# Install Miniconda
+ENV CONDA_DIR=/opt/conda
+RUN curl -fsSL https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -o /tmp/miniforge.sh && \
+    bash /tmp/miniforge.sh -b -p $CONDA_DIR && \
+    rm /tmp/miniforge.sh
+ENV PATH=$CONDA_DIR/bin:$PATH
+
+RUN apt-get install -y
+
+# Install dos2unix
+RUN apt-get update && apt-get install -y dos2unix && rm -rf /var/lib/apt/lists/*
+
+# Create the installation directory structure
+WORKDIR /CEASIOMpy/installation/
+COPY ./installation .
+
+# Fix line endings and permissions in one go
+RUN find /CEASIOMpy/installation -name "*.sh" -type f -exec dos2unix {} \;
+
+WORKDIR /CEASIOMpy/installation/ubuntu
+RUN chmod +x *.sh
+
+WORKDIR /CEASIOMpy/installdir
+
+RUN git clone https://github.com/cfsengineering/Pentagrow.git
+WORKDIR /CEASIOMpy/installdir/Pentagrow/bin
+RUN chmod +x pentagrow
+
+WORKDIR /
+
+RUN /CEASIOMpy/installation/ubuntu/openvsp.sh
+
+RUN /CEASIOMpy/installation/ubuntu/pentagrow.sh
+
+RUN /CEASIOMpy/installation/ubuntu/avl.sh
+
+RUN rm -rf /var/lib/apt/lists/* && \
+    apt-get update -o Acquire::Retries=5 -o Acquire::http::No-Cache=true -o Acquire::http::Pipeline-Depth=0
+
+RUN /CEASIOMpy/installation/ubuntu/su2.sh --with_mpi false
+
+# Install xvfb and other graphical display dependencies for Ubuntu
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    xvfb libgl1 libegl1 libosmesa6 libxt6 && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    g++ libtbbmalloc2 libtbb-dev libxrender1 libxcursor1 libxinerama1 libxft2 libxt6 \
+    libosmesa6 xvfb && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set the DISPLAY environment variable
+ENV DISPLAY=:99
+ENV LIBGL_ALWAYS_SOFTWARE=1
+
+# Error rendering
+ENV XDG_RUNTIME_DIR=/tmp/runtime-root
+RUN mkdir -p /tmp/runtime-root && chmod 700 /tmp/runtime-root
+
+# Create an empty folder for mounting
+RUN mkdir -p /CEASIOMpy
+
+# Set the working directory to the mounted CEASIOMpy folder
+WORKDIR /CEASIOMpy
+
+# Copy project files (including local environment.yml) into the image
+COPY . /CEASIOMpy
+
+# Ensure the directory structure exists
+RUN mkdir -p /CEASIOMpy/src
+
+COPY src /CEASIOMpy/src
+
+# Create the Conda environment from the environment.yml file
+RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && conda update -n base -c conda-forge conda -y && conda env create -f environment.yml"
+
+# Automatically activate the Conda environment in new shells
+RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate ceasiompy" >> ~/.bashrc && \
+    echo "pip install -e ." >> ~/.bashrc && \
+    echo "ceasiompy_run --gui" >> ~/.bashrc
+
+# Move the content of /installdir to the mounted /CEASIOMpy/installdir folder at runtime
+CMD ["/bin/bash", "-c", "rm -rf /CEASIOMpy/installdir && mkdir -p /CEASIOMpy/installdir && mv /installdir/* /CEASIOMpy/installdir/ && exec bash"]
+
+# Now you just need click on: Networ URL
+
+# If you did not have the necessary permissions:
+# Run the following command to add your user to the docker group:
+
+# sudo usermod -aG docker $USER
+
+# Then, use the following command to apply the group change:
+
+# newgrp docker

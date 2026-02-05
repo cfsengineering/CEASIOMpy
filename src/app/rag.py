@@ -96,14 +96,13 @@ def build_index(
             ".toml",
             ".ini",
             ".cfg",
-            ".pdf",
         ]
 
     chunks: list[dict] = []
     excluded_dirs = {
         ".git",
-        "WKDIR",
-        "INSTALLDIR",
+        "wkdir",
+        "installdir",
         "test_files",
         "test_cases",
         "tests",
@@ -153,7 +152,7 @@ def _is_knowledge_file(path: Path) -> bool:
         return True
     if name == "__specs__.py":
         return True
-    if name.endswith(".pdf"):
+    if name.endswith(".txt"):
         return True
     return False
 
@@ -163,20 +162,6 @@ def _tokenize(text: str) -> list[str]:
 
 
 def _read_file_lines(path: Path) -> list[str] | None:
-    if path.suffix.lower() == ".pdf":
-        if pdfplumber is None:
-            return None
-        try:
-            text_parts: list[str] = []
-            with pdfplumber.open(path) as pdf:
-                for page in pdf.pages:
-                    text = page.extract_text() or ""
-                    if text:
-                        text_parts.append(text)
-            return "\n".join(text_parts).splitlines()
-        except Exception:
-            return None
-
     try:
         return path.read_text(encoding="utf-8", errors="replace").splitlines()
     except OSError:

@@ -4,12 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'lib/CLCalculator/clcalculator.py'
-
-| Author : Aidan Jungo
-| Creation: 2019-07-24
-| Author: Leon Deligny
-| Creation: 25 March 2025
-
 """
 
 # Imports
@@ -26,6 +20,7 @@ from unittest.mock import MagicMock
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
 from unittest.mock import patch
+from ceasiompy.clcalculator import MODULE_NAME as CLCALCULATOR
 from ceasiompy.su2run import (
     SU2_FIXED_CL_XPATH,
     SU2_TARGET_CL_XPATH,
@@ -38,8 +33,8 @@ from ceasiompy.su2run import (
 
 class TestClCalculatorUtils(CeasiompyTest):
 
-    @patch("ceasiompy.CLCalculator.func.utils.create_branch")
-    @patch("ceasiompy.CLCalculator.func.utils.log")
+    @patch(f"ceasiompy.{CLCALCULATOR}.func.utils.create_branch")
+    @patch(f"ceasiompy.{CLCALCULATOR}.func.utils.log")
     @log_test
     def test_save_for_su2(self, mock_log, mock_create_branch):
         tixi = MagicMock()
@@ -49,7 +44,7 @@ class TestClCalculatorUtils(CeasiompyTest):
         tixi.updateTextElement.assert_called_with(SU2_FIXED_CL_XPATH, "YES")
         mock_log.info.assert_called()
 
-    @patch("ceasiompy.CLCalculator.func.utils.get_value")
+    @patch(f"ceasiompy.{CLCALCULATOR}.func.utils.get_value")
     @log_test
     def test_retrieve_gui(self, mock_get_value):
         tixi = MagicMock()
@@ -59,7 +54,7 @@ class TestClCalculatorUtils(CeasiompyTest):
         self.assertEqual(result, (123.4, "MTOM", 11000.0, 0.78, 2.5))
         self.assertEqual(mock_get_value.call_count, 5)
 
-    @patch("ceasiompy.CLCalculator.func.utils.get_value")
+    @patch(f"ceasiompy.{CLCALCULATOR}.func.utils.get_value")
     @log_test
     def test_deal_with_mass_custom(self, mock_get_value):
         md = MagicMock()
@@ -69,7 +64,7 @@ class TestClCalculatorUtils(CeasiompyTest):
         self.assertEqual(mass, 50000.0)
         md.p.assert_any_call("The mass used for the calculation is Custom")
 
-    @patch("ceasiompy.CLCalculator.func.utils.get_value")
+    @patch(f"ceasiompy.{CLCALCULATOR}.func.utils.get_value")
     @log_test
     def test_deal_with_mass_percent_fuel(self, mock_get_value):
         md = MagicMock()
@@ -81,7 +76,7 @@ class TestClCalculatorUtils(CeasiompyTest):
         self.assertEqual(mass, expected_mass)
         md.p.assert_any_call("The mass used for the calculation is % fuel mass")
 
-    @patch("ceasiompy.CLCalculator.func.utils.get_value")
+    @patch(f"ceasiompy.{CLCALCULATOR}.func.utils.get_value")
     @log_test
     def test_deal_with_mass_other(self, mock_get_value):
         md = MagicMock()
@@ -91,7 +86,7 @@ class TestClCalculatorUtils(CeasiompyTest):
         self.assertEqual(mass, 70000.0)
         md.p.assert_any_call("The mass used for the calculation is operatingMass")
 
-    @patch("ceasiompy.CLCalculator.func.utils.get_value")
+    @patch(f"ceasiompy.{CLCALCULATOR}.func.utils.get_value")
     @log_test
     def test_deal_with_mass_mzfm_gt_mtom(self, mock_get_value):
         md = MagicMock()
@@ -101,7 +96,7 @@ class TestClCalculatorUtils(CeasiompyTest):
         with self.assertRaises(ValueError):
             deal_with_mass(md, tixi, "% fuel mass")
 
-    @patch("ceasiompy.CLCalculator.func.utils.get_value")
+    @patch(f"ceasiompy.{CLCALCULATOR}.func.utils.get_value")
     @log_test
     def test_deal_with_mass_not_found(self, mock_get_value):
         md = MagicMock()

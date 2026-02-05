@@ -4,23 +4,23 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'ceasiompy/CPACS2GMSH/exportbrep.py'
-
-| Author : Tony Govoni
-| Creation: 2022-03-22
-
 """
 
 # Imports
 
 import shutil
-from pathlib import Path
-from unittest.mock import patch
-
 import pytest
+
 from ceasiompy.cpacs2gmsh.func.exportbrep import export_brep
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+
+from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
+from unittest.mock import patch
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
+
+# Constants
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
 CPACS_IN_SIMPLE_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_engine.xml")
@@ -53,7 +53,7 @@ def test_export_brep():
         brep_file.unlink()
 
     with pytest.raises(FileNotFoundError):
-        with patch("ceasiompy.CPACS2GMSH.func.exportbrep.export_shapes", return_value=True):
+        with patch(f"ceasiompy.{CPACS2GMSH}.func.exportbrep.export_shapes", return_value=True):
             export_brep(cpacs, TEST_OUT_PATH)
 
 
@@ -84,13 +84,13 @@ def test_export_brep_with_engine():
         brep_file.unlink()
 
     with pytest.raises(FileNotFoundError):
-        with patch("ceasiompy.CPACS2GMSH.func.exportbrep.export_shapes", return_value=True):
+        with patch(f"ceasiompy.{CPACS2GMSH}.func.exportbrep.export_shapes", return_value=True):
             export_brep(cpacs, TEST_OUT_PATH)
 
 
 # Main
 if __name__ == "__main__":
-
+    test_export_brep_with_engine()
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")

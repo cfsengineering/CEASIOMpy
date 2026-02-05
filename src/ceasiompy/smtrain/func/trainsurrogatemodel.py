@@ -4,18 +4,16 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Functions related to the training of the surrogate model.
-
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import time
 import joblib
-from shutil import copyfile
 import numpy as np
 import pandas as pd
+
+from shutil import copyfile
 from pathlib import Path
 from pandas import concat
 from skopt import gp_minimize
@@ -48,9 +46,6 @@ from ceasiompy.smtrain.func.utils import (
     num_geom_params,
     drop_constant_columns,
 )
-from ceasiompy.SaveAeroCoefficients import (
-    AEROMAP_FEATURES,
-)
 from ceasiompy.utils.commonpaths import get_wkdir
 from ceasiompy.pyavl.pyavl import main as run_avl
 from ceasiompy.staticstability.staticstability import main as run_staticstability
@@ -62,18 +57,12 @@ from ceasiompy.smtrain.func.config import (
     normalize_dataset,
 )
 from sklearn.metrics import r2_score
-from ceasiompy.pyavl import (
-    AVL_AEROMAP_UID_XPATH,
-    MODULE_NAME as PYAVL_NAME,
-)
-from ceasiompy.staticstability import (
-    MODULE_NAME as STATICSTABILITY_NAME,
-)
 from ceasiompy.utils.ceasiompyutils import (
     update_cpacs_from_specs,
     get_results_directory,
-    get_aeromap_conditions,
+    get_selected_aeromap_values,
 )
+
 import sys
 from numpy import ndarray
 from pandas import DataFrame
@@ -89,17 +78,15 @@ from skopt.space import (
     Real,
     Categorical,
 )
-from typing import (
-    List,
-    Dict,
-    Tuple,
-    Union,
-    Callable,
-)
+from typing import Callable
 
 from ceasiompy import log
+from ceasiompy.smtrain import AEROMAP_FEATURES
 from ceasiompy.utils.commonxpaths import SM_XPATH
 from ceasiompy.utils.commonpaths import WKDIR_PATH
+from ceasiompy.pyavl import MODULE_NAME as PYAVL_NAME
+from ceasiompy.staticstability import MODULE_NAME as STATICSTABILITY_NAME
+
 
 # =================================================================================================
 #   FUNCTIONS
@@ -107,10 +94,10 @@ from ceasiompy.utils.commonpaths import WKDIR_PATH
 
 
 def get_hyperparam_space(
-    level1_sets: Dict[str, ndarray],
-    level2_sets: Union[Dict[str, ndarray], None],
-    level3_sets: Union[Dict[str, ndarray], None],
-) -> List[str]:
+    level1_sets: dict[str, ndarray],
+    level2_sets: dict[str, ndarray] | None,
+    level3_sets: dict[str, ndarray] | None,
+) -> list[str]:
     """
     Get Hyper-parameters space from the different fidelity datasets.
     Uniquely determined by the training set x_train.
@@ -161,9 +148,9 @@ def get_hyperparam_space(
 
 
 def train_surrogate_model(
-    level1_sets: Dict[str, ndarray],
-    level2_sets: Union[Dict[str, ndarray], None] = None,
-    level3_sets: Union[Dict[str, ndarray], None] = None,
+    level1_sets: dict[str, ndarray],
+    level2_sets: dict[str, ndarray] | None = None,
+    level3_sets: dict[str, ndarray] | None = None,
 ):
     """
     Train a surrogate model using kriging or Multi-Fidelity kriging:
@@ -202,7 +189,7 @@ def train_surrogate_model(
 
 def save_model(
     cpacs: CPACS,
-    model: Union[KRG, MFK, RBF],
+    model: KRG | MFK | RBF,
     objective: str,
     results_dir: Path,
     param_order: list[str],
@@ -262,17 +249,17 @@ def optimize_hyper_parameters(
 
 
 def kriging(
-    param_space: List,
-    sets: Dict[str, ndarray],
+    param_space: list,
+    sets: dict[str, ndarray],
     n_calls: int = 50,
     random_state: int = 42,
-) -> Tuple[KRG, float]:
+) -> tuple[KRG, float]:
     """
     Trains a kriging model using Bayesian optimization.
 
     Args:
         param_space (list): Hyper-parameters for Bayesian optimization.
-        sets (dict): Dictionary containing training, validation, and test datasets.
+        sets (dict): dictionary containing training, validation, and test datasets.
         n_calls (int = 50):
             Number of iterations for Bayesian optimization.
             The lower the faster.
@@ -312,18 +299,18 @@ def kriging(
 
 
 def mf_kriging(
-    param_space: List,
-    level1_sets: Dict[str, ndarray],
-    level2_sets: Union[Dict[str, ndarray], None],
-    level3_sets: Union[Dict[str, ndarray], None],
+    param_space: list,
+    level1_sets: dict[str, ndarray],
+    level2_sets: dict[str, ndarray] | None,
+    level3_sets: dict[str, ndarray] | None,
     n_calls: int = 10,
     random_state: int = 42,
-) -> Tuple[MFK, float]:
+) -> tuple[MFK, float]:
     """
     Trains a multi-fidelity kriging model with 2/3 fidelity levels.
 
     Args:
-        param_space (list): List of parameter ranges for Bayesian optimization.
+        param_space (list): list of parameter ranges for Bayesian optimization.
         sets (dict): Training, validation, and test datasets.
         n_calls (int = 30): Number of iterations for Bayesian optimization.
         random_state (int = 42): Random seed for reproducibility.
@@ -372,11 +359,11 @@ def mf_kriging(
 
 def run_first_level_training(
     cpacs: CPACS,
-    lh_sampling_path: Union[Path, None],
+    lh_sampling_path: Path | None,
     objective: str,
     split_ratio: float,
     result_dir: Path,
-) -> Tuple[Union[KRG, MFK], Dict[str, ndarray]]:
+) -> tuple[KRG | MFK, dict[str, ndarray]]:
     """
     Run surrogate model training on first level of fidelity (AVL).
     """
@@ -390,7 +377,7 @@ def run_first_level_training(
 def run_first_level_training_geometry(
     cpacs_list: list,
     aeromap_uid: str,
-    lh_sampling_geom_path: Union[Path, None],
+    lh_sampling_geom_path: Path | None,
     objective: str,
     split_ratio: float,
     pyavl_dir: Path,
@@ -398,7 +385,7 @@ def run_first_level_training_geometry(
     KRG_model_bool: bool,
     RBF_model_bool: bool,
     ranges_gui: DataFrame,
-) -> Tuple[Union[KRG, MFK], Dict[str, ndarray]]:
+) -> tuple[KRG | MFK, dict[str, ndarray]]:
     """
     Run surrogate model training on first level of fidelity (AVL).
     """
@@ -409,17 +396,12 @@ def run_first_level_training_geometry(
     final_dfs = []
 
     for i, cpacs in enumerate(cpacs_list):
-        tixi = cpacs.tixi
         pyavl_local_dir = pyavl_dir / f"PyAVL_{i+1}"
         pyavl_local_dir.mkdir(exist_ok=True)
         update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
         update_cpacs_from_specs(cpacs, STATICSTABILITY_NAME, test=True)
-        tixi.updateTextElement(AVL_AEROMAP_UID_XPATH, aeromap_uid)
 
-        alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
-            cpacs=cpacs,
-            uid_xpath=AVL_AEROMAP_UID_XPATH,
-        )
+        alt_list, mach_list, aoa_list, aos_list = get_selected_aeromap_values(cpacs)
 
         n_flight_cond = num_flight_conditions(
             alt_list, mach_list, aoa_list, aos_list
@@ -579,8 +561,8 @@ def run_first_level_training_geometry(
 def run_adaptative_refinement(
     cpacs: CPACS,
     results_dir: Path,
-    model: Union[KRG, MFK],
-    level1_sets: Dict[str, ndarray],
+    model: KRG | MFK,
+    level1_sets: dict[str, ndarray],
     rmse_obj: float,
     objective: str,
 ) -> None:
@@ -642,8 +624,8 @@ def run_adaptative_refinement(
 def run_adaptative_refinement_geom(
     cpacs: CPACS,
     results_dir: Path,
-    model: Union[KRG, MFK],
-    level1_sets: Dict[str, ndarray],
+    model: KRG | MFK,
+    level1_sets: dict[str, ndarray],
     rmse_obj: float,
     objective: str,
     aeromap_uid: str,
@@ -849,8 +831,8 @@ def training_existing_db(
 def run_adaptative_refinement_geom_existing_db(
     cpacs: CPACS,
     results_dir: Path,
-    model: Union[KRG, MFK, RBF],
-    level1_sets: Dict[str, ndarray],
+    model: KRG | MFK | RBF,
+    level1_sets: dict[str, ndarray],
     rmse_obj: float,
     objective: str,
     aeromap_uid: str,
@@ -972,11 +954,11 @@ def run_adaptative_refinement_geom_existing_db(
 
 
 def get_hyperparam_space_RBF(
-    level1_sets: Dict[str, ndarray],
-    level2_sets: Union[Dict[str, ndarray], None],
-    level3_sets: Union[Dict[str, ndarray], None],
+    level1_sets: dict[str, ndarray],
+    level2_sets: dict[str, ndarray] | None,
+    level3_sets: dict[str, ndarray] | None,
     n_params: int,
-) -> List:
+) -> list:
     """
     Get Hyper-parameters space
     Uniquely determined by the training set x_train.
@@ -1021,7 +1003,7 @@ def get_hyperparam_space_RBF(
 
 
 def compute_loss_RBF(
-    model: Union[RBF, MFK],
+    model: KRG | MFK,
     lambda_penalty: float,
     x_: ndarray,
     y_: ndarray,
@@ -1057,7 +1039,7 @@ def optimize_hyper_parameters_RBF(
 
 
 def compute_first_level_loss_RBF(
-    params: Tuple,
+    params: tuple,
     x_train: ndarray,
     y_train: ndarray,
     x_: ndarray,
@@ -1076,12 +1058,12 @@ def compute_first_level_loss_RBF(
 
 
 def mf_RBF(
-    level1_sets: Dict[str, ndarray],
-    level2_sets: Union[Dict[str, ndarray], None] = None,
-    level3_sets: Union[Dict[str, ndarray], None] = None,
+    level1_sets: dict[str, ndarray],
+    level2_sets: dict[str, ndarray] | None = None,
+    level3_sets: dict[str, ndarray] | None = None,
     n_calls: int = 10,
     random_state: int = 42,
-) -> Tuple[RBF, float]:
+) -> tuple[RBF, float]:
     """
     Train a multi-fidelity RBF model using single/multi-level datasets.
     Debug-enabled version to trace data issues.
@@ -1168,11 +1150,11 @@ def mf_RBF(
 
 
 def RBF_model(
-    param_space: List,
-    sets: Dict[str, ndarray],
+    param_space: list,
+    sets: dict[str, ndarray],
     n_calls: int = 50,
     random_state: int = 42
-) -> Tuple[RBF, float]:
+) -> tuple[RBF, float]:
     x_train, x_test, x_val, y_train, y_test, y_val = unpack_data(sets)
 
     def objective(params) -> float:
@@ -1211,10 +1193,10 @@ def RBF_model(
 
 def train_surrogate_model_RBF(
     n_params: int,
-    level1_sets: Dict[str, ndarray],
-    level2_sets: Union[Dict[str, ndarray], None] = None,
-    level3_sets: Union[Dict[str, ndarray], None] = None,
-) -> Tuple[Union[RBF, MFK], float]:
+    level1_sets: dict[str, ndarray],
+    level2_sets: dict[str, ndarray] | None = None,
+    level3_sets: dict[str, ndarray] | None = None,
+) -> tuple[KRG | MFK, float]:
     """
     Train either single-fidelity or multi-fidelity RBF model.
     """
@@ -1239,8 +1221,8 @@ def train_surrogate_model_RBF(
 def run_adaptative_refinement_geom_RBF(
     cpacs: CPACS,
     results_dir: Path,
-    model: Union[KRG, MFK],
-    level1_sets: Dict[str, ndarray],
+    model: KRG | MFK,
+    level1_sets: dict[str, ndarray],
     rmse_obj: float,
     objective: str,
     aeromap_uid: str,

@@ -2,12 +2,6 @@
 CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
-
-| Author: Giacomo Gronda
-| Creation: 2025-03-20
-
-TODO:
-    *Improve loop and AVL and SU2 settings
 """
 
 # Imports
@@ -17,19 +11,16 @@ import pandas as pd
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
+from smt.applications import MFK
+from scipy.optimize import OptimizeResult
+from smt.surrogate_models import (
+    KRG,
+    RBF,
+)
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
 )
-from scipy.optimize import OptimizeResult
-from typing import (
-    List,
-    Dict,
-    Tuple,
-    Union,
-)
-from smt.applications import MFK
-from smt.surrogate_models import KRG,RBF
 
 from ceasiompy import log
 from ceasiompy.smtrain.func import AEROMAP_SELECTED
@@ -41,10 +32,10 @@ from ceasiompy.smtrain import (
     AEROMAP_FEATURES,
 )
 
+
 # Functions
 
-
-def concatenate_if_not_none(list_arrays: List[Union[ndarray, None]]) -> ndarray:
+def concatenate_if_not_none(list_arrays: list[ndarray | None]) -> ndarray:
     """
     Concatenates arrays in the list that are not None.
     """
@@ -58,15 +49,15 @@ def concatenate_if_not_none(list_arrays: List[Union[ndarray, None]]) -> ndarray:
 
 
 def collect_level_data(
-    level_sets: Union[Dict[str, ndarray], None],
-) -> Tuple[Union[ndarray, None], ...]:
+    level_sets: dict[str, ndarray] | None,
+) -> tuple[ndarray | None, ...]:
     if level_sets is None:
         return None, None, None, None, None, None
     else:
         return unpack_data(level_sets)
 
 
-def get_columns(objective: str) -> List[str]:
+def get_columns(objective: str) -> list[str]:
     aeromap_features = AEROMAP_FEATURES.copy()
     return aeromap_features + [objective]
 
@@ -82,7 +73,7 @@ def generate_su2_wkdir(iteration: int) -> None:
 def create_aeromap_from_varpts(
     cpacs: CPACS,
     results_dir: Path,
-    high_variance_points: Union[str, None],
+    high_variance_points: str | None,
 ) -> AeroMap:
 
     # Select dataset based on high-variance points or LHS sampling
@@ -123,8 +114,8 @@ def log_params(result: OptimizeResult) -> None:
 
 
 def unpack_data(
-    sets: Dict[str, ndarray],
-) -> Tuple[ndarray, ndarray, ndarray, ndarray, ndarray, ndarray]:
+    sets: dict[str, ndarray],
+) -> tuple[ndarray, ndarray, ndarray, ndarray, ndarray, ndarray]:
     # Extract training, validation, and test sets
     x_train, x_val, x_test = sets["x_train"], sets["x_val"], sets["x_test"]
     y_train, y_val, y_test = sets["y_train"], sets["y_val"], sets["y_test"]
@@ -151,19 +142,19 @@ def str_to_level(fidelity_level: str) -> int:
 
 def filter_constant_columns(
     df: DataFrame,
-    input_columns: List,
-) -> Tuple[DataFrame, Dict]:
+    input_columns: list,
+) -> tuple[DataFrame, dict]:
     """
     Removes input columns that have a single unique value
     and stores their values separately.
 
     Args:
         df (DataFrame): DataFrame containing the dataset.
-        input_columns (list): List of input column names to check.
+        input_columns (list): list of input column names to check.
 
     Returns:
         - df_filtered (DataFrame): Filtered dataFrame without constant columns.
-        - removed_columns (Dict): Removed columns with their constant values.
+        - removed_columns (dict): Removed columns with their constant values.
     """
 
     columns_to_keep = [col for col in input_columns if df[col].nunique() > 1]
@@ -175,7 +166,7 @@ def filter_constant_columns(
     return df[columns_to_keep], removed_columns
 
 
-def check_nan_inf(*arrays: Tuple[ndarray, ...]) -> Tuple[ndarray, ...]:
+def check_nan_inf(*arrays: tuple[ndarray, ...]) -> tuple[ndarray, ...]:
     """
     Checks for NaN or infinite values in the given arrays.
 
@@ -202,9 +193,8 @@ def get_val_fraction(train_fraction: float) -> float:
     return test_val_fraction
 
 
-def define_model_type(model:Union[KRG,MFK,RBF]):
-    suffix = model.__class__.__name__.lower()
-    return suffix
+def define_model_type(model: KRG | MFK | RBF) -> str:
+    return model.__class__.__name__.lower()
 
 
 def num_flight_conditions(alt, mach, aoa, aos):

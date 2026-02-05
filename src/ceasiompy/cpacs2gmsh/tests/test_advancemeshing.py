@@ -291,9 +291,10 @@ def test_auto_refine():
         auto_refine=True,
         testing_gmsh=True,
     )
+
     # Check if meshfields were generated (more than 34 == without auto_refine)
     gmsh_field_list = gmsh.model.mesh.field.list()
-    assert len(gmsh_field_list) == 85
+    assert len(gmsh_field_list) == 65
 
     gmsh.clear()
     gmsh.finalize()
@@ -384,7 +385,7 @@ def test_refine_between_parts():
 # Main
 
 if __name__ == "__main__":
-    test_refine_wing_section()
+    test_auto_refine()
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")

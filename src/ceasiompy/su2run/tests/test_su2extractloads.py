@@ -25,6 +25,7 @@ from unittest import main
 from unittest.mock import MagicMock
 
 from unittest.mock import patch
+from ceasiompy.su2run import MODULE_NAME as SU2RUN
 
 # =================================================================================================
 #   CLASSES
@@ -39,11 +40,11 @@ class TestSU2ExtractLoads(unittest.TestCase):
         normals = compute_point_normals(coords, cells)
         self.assertEqual(normals.shape, (3, 3))
 
-    @patch("ceasiompy.SU2Run.func.extractloads.compute_point_normals")
-    @patch("ceasiompy.SU2Run.func.extractloads.vtk_to_numpy")
-    @patch("ceasiompy.SU2Run.func.extractloads.get_mesh_markers_ids")
-    @patch("ceasiompy.SU2Run.func.extractloads.pd.DataFrame")
-    @patch("ceasiompy.SU2Run.func.extractloads.vtk.vtkXMLUnstructuredGridReader")
+    @patch(f"ceasiompy.{SU2RUN}.func.extractloads.compute_point_normals")
+    @patch(f"ceasiompy.{SU2RUN}.func.extractloads.vtk_to_numpy")
+    @patch(f"ceasiompy.{SU2RUN}.func.extractloads.get_mesh_markers_ids")
+    @patch(f"ceasiompy.{SU2RUN}.func.extractloads.pd.DataFrame")
+    @patch(f"ceasiompy.{SU2RUN}.func.extractloads.vtk.vtkXMLUnstructuredGridReader")
     def test_compute_forces(
         self, mock_reader, mock_df, mock_get_markers, mock_vtk_to_numpy, mock_compute_normals
     ):
@@ -99,7 +100,7 @@ class TestSU2ExtractLoads(unittest.TestCase):
         result = dimensionalize_pressure(p, config_dict)
         np.testing.assert_array_almost_equal(result, np.array([460000.0, 1020000.0]))
 
-    @patch("ceasiompy.SU2Run.func.extractloads.vtk.vtkXMLUnstructuredGridWriter")
+    @patch(f"ceasiompy.{SU2RUN}.func.extractloads.vtk.vtkXMLUnstructuredGridWriter")
     def test_write_updated_mesh(self, mock_writer):
         mesh = MagicMock()
         new_vtu_file_path = "dummy_out.vtu"
@@ -109,16 +110,16 @@ class TestSU2ExtractLoads(unittest.TestCase):
         self.assertTrue(mock_writer.return_value.Update.called)
 
     @patch("builtins.open", new_callable=mock_open, read_data="MARKER_TAG=TestMarker\n0 1 2 3\n")
-    @patch("ceasiompy.SU2Run.func.extractloads.log")
+    @patch(f"ceasiompy.{SU2RUN}.func.extractloads.log")
     def test_get_mesh_markers_ids(self, mock_log, _):
         result = get_mesh_markers_ids("dummy.su2")
         self.assertIn("TestMarker", result)
         self.assertIsInstance(result["TestMarker"], list)
         mock_log.info.assert_called()
 
-    @patch("ceasiompy.SU2Run.func.extractloads.write_updated_mesh")
-    @patch("ceasiompy.SU2Run.func.extractloads.compute_forces")
-    @patch("ceasiompy.SU2Run.func.extractloads.ConfigFile")
+    @patch(f"ceasiompy.{SU2RUN}.func.extractloads.write_updated_mesh")
+    @patch(f"ceasiompy.{SU2RUN}.func.extractloads.compute_forces")
+    @patch(f"ceasiompy.{SU2RUN}.func.extractloads.ConfigFile")
     def test_extract_loads(self, mock_configfile, mock_compute_forces, mock_write_updated_mesh):
         mock_configfile.return_value.data = {"dummy": "value"}
         mock_compute_forces.return_value = MagicMock()

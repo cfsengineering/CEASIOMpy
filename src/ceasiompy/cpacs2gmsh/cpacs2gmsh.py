@@ -114,7 +114,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
 
     cgns_path = None
 
-    if not type_mesh in ["EULER", "RANS"]:
+    if type_mesh not in ["EULER", "RANS"]:
         raise ValueError(f"{type_mesh=} needs to be either EULER or RANS.")
 
     if type_mesh == "EULER":

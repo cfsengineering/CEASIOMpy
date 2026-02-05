@@ -52,3 +52,14 @@ Following the automatic installation procedure on the [CEASIOMpy installation pa
 - [AVL documentation.](https://web.mit.edu/drela/Public/web/avl/AVL_User_Primer.pdf)
 - [AVL website.](https://web.mit.edu/drela/Public/web/avl/)
 - [FramAT documentation.](https://framat.readthedocs.io/en/latest/)
+
+## Settings reference (WIP)
+
+### Where settings live in CPACS
+
+- See `src/ceasiompy/AeroFrame/__init__.py` for module constants/XPaths.
+- See `src/ceasiompy/AeroFrame/__specs__.py` for Streamlit GUI controls and defaults.
+
+### Runtime mapping
+
+- Aerodynamic iteration logic and coupling lives under `src/ceasiompy/AeroFrame/func/`.

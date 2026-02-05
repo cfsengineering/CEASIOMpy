@@ -72,3 +72,135 @@ For unsteady simulations, it uses by default time marching : DUAL_TIME_STEPPING-
 <a id="Economon15">[1]</a> Economon and al. : SU2: An open-source suite for multiphysics simulation and design, AIAA Journal, 54(3):828-846, 2016. <http://arc.aiaa.org/doi/10.2514/1.J053813>
 
 <a id="Saetta20">[2]</a> Saetta20 and al. : Implementation and validation of a new actuator disk model in SU2, SU2 Conference 2020, 10/06/2020. <https://su2foundation.org/wp-content/uploads/2021/10/SU2_paper_UniNa_withHeader-1.pdf>
+
+## Settings reference (WIP)
+
+This section documents what each Streamlit setting changes in CPACS, and how those values are used
+to generate the SU2 configuration file.
+
+### Where SU2Run settings live in CPACS
+
+SU2Run stores its settings under:
+
+- Base XPath: `CEASIOMpy/aerodynamics/su2` (see `src/ceasiompy/SU2Run/__init__.py`)
+
+### Simulation settings (GUI → CPACS → SU2)
+
+#### Euler vs RANS simulation (3D only)
+
+- **GUI label:** “Euler or RANS simulation”
+- **CPACS XPath:** `.../options/config_type` (`SU2_CONFIG_RANS_XPATH`)
+- **Effect in CEASIOMpy:** selects which SU2 config template is used (`cfg_tpl_euler.cfg` vs
+  `cfg_tpl_rans.cfg`) and enables some extra RANS-related setup (e.g. Reynolds number). See
+  `src/ceasiompy/SU2Run/func/config.py`.
+
+Notes:
+- RANS meshing typically requires the Pentagrow-based hybrid meshing path.
+
+#### Maximum iterations (steady)
+
+- **GUI label:** “Maximum iterations”
+- **CPACS XPath:** `.../settings/maxIter` (`SU2_MAX_ITER_XPATH`)
+- **Used in SU2 config as:** `INNER_ITER` (see `src/ceasiompy/SU2Run/func/config.py`)
+
+#### Multigrid level
+
+- **GUI label:** “Multigrid Level”
+- **CPACS XPath:** `.../settings/multigridLevel` (`SU2_MG_LEVEL_XPATH`)
+- **Used in SU2 config as:** `MGLEVEL`
+
+#### CFL settings
+
+Stored under `.../settings/cflNumber/...`:
+
+- `.../value` (`SU2_CFL_NB_XPATH`)
+- `.../adaptation/value` (`SU2_CFL_ADAPT_XPATH`)
+- `.../adaptation/factor_down` (`SU2_CFL_ADAPT_PARAM_DOWN_XPATH`)
+- `.../adaptation/factor_up` (`SU2_CFL_ADAPT_PARAM_UP_XPATH`)
+- `.../adaptation/min` (`SU2_CFL_MIN_XPATH`)
+- `.../adaptation/max` (`SU2_CFL_MAX_XPATH`)
+
+Mapping to SU2 config (see `src/ceasiompy/SU2Run/func/config.py`):
+
+- `CFL_ADAPT` is set from `.../adaptation/value`.
+- If CFL adaptation is enabled, CEASIOMpy sets:
+  - `CFL_NUMBER`
+  - `CFL_ADAPT_PARAM` as a 4-tuple: `(factor_down, factor_up, min, max)`
+
+#### Extract loads
+
+- **GUI label:** “Extract loads”
+- **CPACS XPath:** `.../results/extractLoads` (`SU2_EXTRACT_LOAD_XPATH`)
+- **Effect in CEASIOMpy:** after each SU2 case, calls `extract_loads(config_dir)` (see
+  `src/ceasiompy/SU2Run/func/results.py`) to dump per-point/per-marker load data from SU2 outputs.
+
+#### Update wetted area
+
+- **GUI label:** “Update Wetted Area”
+- **CPACS XPath:** `.../results/updateWettedArea` (`SU2_UPDATE_WETTED_AREA_XPATH`)
+- **Effect in CEASIOMpy:** for the first case that has the data, extracts wetted area from SU2
+  outputs and writes it back into CPACS (see `src/ceasiompy/SU2Run/func/results.py`). This is a
+  common prerequisite for `SkinFriction`.
+
+#### Damping derivatives
+
+- **GUI label:** “Damping Derivatives”
+- **CPACS XPath:** `.../options/calculateDampingDerivatives` (`SU2_DAMPING_DER_XPATH`)
+- **Rotation rate XPath:** `.../options/rotationRate` (`SU2_ROTATION_RATE_XPATH`)
+- **Effect in SU2 config:** enables rotating-frame runs by setting `GRID_MOVEMENT=ROTATING_FRAME`
+  and writing three separate cases with `ROTATION_RATE` aligned with roll/pitch/yaw (see
+  `src/ceasiompy/SU2Run/func/utils.py:add_damping_derivatives`).
+
+#### Control surfaces (mesh selection helper)
+
+- **GUI label:** “Control Surfaces” (+ “Control Surface” deflection table)
+- **CPACS XPaths:** `.../ControlSurfaces/Bool` and `.../ControlSurfaces/Angle`
+  (`SU2_CONTROL_SURF_BOOL_XPATH`, `SU2_CONTROL_SURF_ANGLE_XPATH`)
+- **Current usage:** affects which SU2 meshes are retrieved when using database-driven mesh
+  selection (`src/ceasiompy/SU2Run/func/utils.py:su2_mesh_list_from_db`). The default path uses
+  meshes produced by `CPACS2GMSH`.
+
+#### Include actuator disk(s)
+
+- **GUI label:** “Include actuator disk(s)”
+- **CPACS XPath:** `.../options/includeActuatorDisk` (`SU2_ACTUATOR_DISK_XPATH`)
+- **Related propeller inputs:** thrust and tip-loss correction are stored on the propeller branch
+  (`PROPELLER_THRUST_XPATH`, `PROPELLER_BLADE_LOSS_XPATH`).
+- **Effect in SU2 config:** generates an actuator disk file and enables SU2’s actuator disk setup
+  (e.g. `ACTDISK_FILENAME`), plus adjusts monitored markers when actuator disk inlet/outlet markers
+  exist (see `src/ceasiompy/SU2Run/func/config.py`).
+
+#### Fixed CL mode (trim by CL)
+
+- **CPACS XPath:** `.../fixedCL` (`SU2_FIXED_CL_XPATH`)
+- **Target CL XPath:** `.../targetCL` (`SU2_TARGET_CL_XPATH`)
+- **SU2 config keys:** `FIXED_CL_MODE`, `TARGET_CL`
+
+Notes:
+- When fixed-CL is enabled, CEASIOMpy also writes some helper SU2 iteration controls (e.g.
+  `DCL_DALPHA`, `UPDATE_AOA_ITER_LIMIT`) in the generated config (see `src/ceasiompy/SU2Run/func/config.py`).
+
+#### Dot derivatives / unsteady oscillatory cases
+
+- **GUI label:** “Compute Dot derivatives”
+- **CPACS XPath:** `.../DynamicDerivatives/Bool` (`SU2_DYNAMICDERIVATIVES_BOOL_XPATH`)
+- **Parameters:**
+  - Time size: `.../DynamicDerivatives/TimeSize` (`SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH`)
+  - Amplitude: `.../DynamicDerivatives/Amplitude` (`SU2_DYNAMICDERIVATIVES_AMPLITUDE_XPATH`)
+  - Angular Frequency: `.../DynamicDerivatives/AngularFrequency` (`SU2_DYNAMICDERIVATIVES_FREQUENCY_XPATH`)
+  - Max nb of iterations: `.../DynamicDerivatives/InnerIter` (`SU2_DYNAMICDERIVATIVES_INNERITER_XPATH`)
+- **Effect in SU2 config:** switches to time-domain dual-time stepping and configures oscillatory
+  surface motion; uses these CPACS parameters to build the time vector and time step, and sets
+  `INNER_ITER` from `InnerIter` for unsteady runs (see
+  `src/ceasiompy/SU2Run/func/config.py:configure_unsteady_simulation` and
+  `src/ceasiompy/SU2Run/func/dotderivatives.py:load_parameters`).
+
+### Markers and boundary conditions (auto)
+
+SU2Run also writes some marker lists into CPACS based on the markers found in the SU2 mesh:
+
+- Wall markers: `SU2_BC_WALL_XPATH`
+- Farfield markers: `SU2_BC_FARFIELD_XPATH`
+- Actuator disk inlet/outlet markers: stored at `SU2_ACTUATOR_DISK_XPATH` as a marker list
+
+This is generated automatically from the mesh file (see `src/ceasiompy/SU2Run/func/config.py:define_markers`).

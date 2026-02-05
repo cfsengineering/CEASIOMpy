@@ -11,12 +11,14 @@ from pathlib import Path
 
 # Functions
 def find_project_root():
-    current = os.getcwd()
-    while current != "/":
-        if "setup.py" in os.listdir(current):
-            return current
-        current = os.path.dirname(current)
-    raise RuntimeError("Project root directory not found at " + os.getcwd())
+    current = Path.cwd().resolve()
+    while True:
+        if (current / "pyproject.toml").is_file() or (current / "setup.py").is_file():
+            return str(current)
+        if current.parent == current:
+            break
+        current = current.parent
+    raise RuntimeError(f"Project root directory not found from {Path.cwd()}")
 
 
 def main_exec():
@@ -95,7 +97,7 @@ def main_exec():
         else:
             print(
                 "Warning: conda/mamba not found; "
-                "running with current interpreter (env={active_conda}).",
+                f"running with current interpreter (env={active_conda}).",
                 file=sys.stderr,
             )
 

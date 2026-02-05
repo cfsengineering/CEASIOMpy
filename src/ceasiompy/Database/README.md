@@ -31,3 +31,10 @@ Database is a native CEASIOMpy module.
 ## More information
 
 NA
+
+## Settings reference (WIP)
+
+### Where settings live
+
+- Default database paths are defined in `src/ceasiompy/utils/commonpaths.py` (`CEASIOMPY_DB_PATH`).
+- If GUI settings exist, they are in `src/ceasiompy/Database/__specs__.py`.

@@ -15,7 +15,6 @@ import shutil
 import argparse
 import importlib
 import subprocess
-import streamlit as st
 
 from pydantic import validate_call
 from contextlib import contextmanager
@@ -139,6 +138,14 @@ def write_inouts(
 
 def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
     tixi = cpacs.tixi
+    try:
+        import streamlit as st
+    except ModuleNotFoundError as e:
+        raise RuntimeError(
+            "Streamlit is required for `update_cpacs_from_specs()` because it uses "
+            "`st.session_state` and module `gui_settings()`."
+        ) from e
+
     st.session_state.cpacs = cpacs
     specs = get_specs_for_module(module_name)
     if specs is None:
@@ -298,6 +305,14 @@ def call_main(main: Callable, module_name: str, cpacs_path: Path | None = None) 
     """
     Calls main with input/output CPACS of module named module_name.
     """
+    try:
+        import streamlit as st
+    except ModuleNotFoundError as e:
+        raise RuntimeError(
+            "Streamlit is required for `call_main()` because it patches `st.session_state` "
+            "to run modules that rely on Streamlit session state."
+        ) from e
+
     st.session_state = MagicMock()
     wkflow_dir = current_workflow_dir()
 
@@ -418,9 +433,9 @@ def get_install_path(
             return False
         return True
 
-    # First, try to locate the software inside INSTALLDIR_PATH
+    # First, try to locate the software inside INSTALLDIR_PATH.
     if INSTALLDIR_PATH.exists():
-        # Directly under INSTALLDIR_PATH
+        # Directly under the tools dir
         candidate = INSTALLDIR_PATH / software_name
         if _is_compatible_executable(candidate):
             log.info(f"{display_name} is installed at: {candidate}")

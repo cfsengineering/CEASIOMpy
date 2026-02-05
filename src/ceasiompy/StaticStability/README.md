@@ -42,3 +42,16 @@ In the results directory you can find:
 ## More information
 
 - <https://www.cpacs.de/documentation/CPACS_3_4_0_Docs/html/89b6a288-0944-bd56-a1ef-8d3c8e48ad95.htm>
+
+## Settings reference (WIP)
+
+### Where settings live in CPACS
+
+- See `src/ceasiompy/StaticStability/__init__.py` for module constants/XPaths.
+- See `src/ceasiompy/StaticStability/__specs__.py` for GUI controls and defaults.
+
+### Notes
+
+- If you run `PyAVL` before `StaticStability`, a single operating point may suffice (derivatives are
+  already computed).
+- Without `PyAVL`, the module assumes linearity and performs regressions over AoA/AoS samples.

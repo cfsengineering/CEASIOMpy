@@ -67,3 +67,13 @@ CPACSUpdater is a native CEASIOMpy module, hence it is available and installed b
 2. Don't add control surfaces if you intend to use PyAVL !
     -   PyAVL automatically looks in the CPACS file for control surface definitions at the xPath: /wing/componentSegments/componentSegment/ControlSurfaces.
     -   CPACSUpdater automatically removes the /componentSegments element in the CPACS file for every wing.
+
+## Settings reference (WIP)
+
+### Where settings live in CPACS
+
+- See `src/ceasiompy/CPACSUpdater/__init__.py` and `src/ceasiompy/CPACSUpdater/__specs__.py`.
+
+### Runtime mapping
+
+- Geometry mutation logic lives under `src/ceasiompy/CPACSUpdater/func/`.

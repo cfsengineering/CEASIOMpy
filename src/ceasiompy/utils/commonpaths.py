@@ -5,12 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 List of paths which are used in CEASIOMpy, if possible base paths must be
 called only from here to avoid mistakes.
-
-| Author: Aidan jungo
-| Creation: 2022-04-28
-| Modified: Leon Deligny
-| Date: 25 March 2025
-
 """
 
 # Imports
@@ -24,14 +18,38 @@ from pathlib import Path
 #   CSTS
 # =================================================================================================
 
-# /CEASIOMpy/src
-SRC_PATH = Path(ceasiompy.__file__).parents[1]
+def _find_repo_root(start: Path) -> Path | None:
+    """Best-effort detection of the CEASIOMpy repo root.
 
-# /CEASIOMpy/
-CEASIOMPY_PATH = SRC_PATH.parent
+    Works for editable installs where `ceasiompy` lives in `<repo>/src/ceasiompy`.
+    For regular site-packages installs, it typically returns `None`.
+    """
 
-# /CEASIOMpy/src/ceasiompy/
-MODULES_DIR_PATH = Path(SRC_PATH, "ceasiompy")
+    for candidate in [start, *start.parents]:
+        if (candidate / "pyproject.toml").is_file() and (candidate / "src").is_dir():
+            return candidate
+    return None
+
+
+# /.../site-packages/ceasiompy (or <repo>/src/ceasiompy)
+PACKAGE_DIR_PATH = Path(ceasiompy.__file__).resolve().parent
+
+_env_repo_root = os.environ.get("CEASIOMPY_HOME")
+_REPO_ROOT = Path(_env_repo_root).expanduser().resolve() if _env_repo_root else _find_repo_root(PACKAGE_DIR_PATH)
+
+if _REPO_ROOT:
+    # /CEASIOMpy/
+    CEASIOMPY_PATH = _REPO_ROOT
+    # /CEASIOMpy/src
+    SRC_PATH = _REPO_ROOT / "src"
+    # /CEASIOMpy/src/ceasiompy/
+    MODULES_DIR_PATH = SRC_PATH / "ceasiompy"
+else:
+    # For non-editable installs, the best "root" we have is the python environment's
+    # site-packages directory that contains both `ceasiompy/` and (optionally) `app/`.
+    SRC_PATH = PACKAGE_DIR_PATH.parent
+    CEASIOMPY_PATH = SRC_PATH
+    MODULES_DIR_PATH = PACKAGE_DIR_PATH
 
 # /CEASIOMpy/src/ceasiompy/Database/databases/ceasiompy.db
 CEASIOMPY_DB_PATH = Path(MODULES_DIR_PATH, "Database", "databases", "ceasiompy.db")
@@ -81,3 +99,21 @@ def get_wkdir() -> Path:
     if env_wkdir:
         return Path(env_wkdir)
     return WKDIR_PATH
+
+
+def get_repo_root() -> Path | None:
+    """Return the CEASIOMpy repository root if detectable."""
+
+    return _REPO_ROOT
+
+
+def require_repo_root() -> Path:
+    """Return repo root or raise with a helpful message."""
+
+    if _REPO_ROOT:
+        return _REPO_ROOT
+    raise RuntimeError(
+        "CEASIOMpy repository root not found. "
+        "If you are running from a packaged install, set `CEASIOMPY_HOME` to a clone of the repo "
+        "to use features that rely on `test_cases/`, `test_files/`, or `documents/`."
+    )

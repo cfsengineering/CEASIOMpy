@@ -68,3 +68,9 @@ Follow the standard installation procedure described in the CEASIOMpy installati
 
 - [OpenVSP website](https://openvsp.org/)
 - [CPACS documentation](https://cpacs.de/)
+
+## Settings reference (WIP)
+
+### Where settings live
+
+- See `src/ceasiompy/VSP2CPACS/__init__.py` and `src/ceasiompy/VSP2CPACS/__specs__.py` (if present).

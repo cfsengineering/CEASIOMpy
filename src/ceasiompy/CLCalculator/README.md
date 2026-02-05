@@ -52,3 +52,9 @@ When you run `CLCalculator` you must choose which mass it will use. However, in 
 ## More information
 
 * <https://en.wikipedia.org/wiki/Lift_coefficient>
+
+## Settings reference (WIP)
+
+### Where settings live in CPACS
+
+- See `src/ceasiompy/CLCalculator/__init__.py` and `src/ceasiompy/CLCalculator/__specs__.py`.

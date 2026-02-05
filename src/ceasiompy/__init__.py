@@ -5,17 +5,13 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Initialization for CEASIOMpy.
     1. Log initialization.
-
-| Author: Leon Deligny
-| Creation: 18-Mar-2025
-
 """
 
 # Imports
 
 import sys
 import logging
-import builtins
+import os
 
 from pathlib import Path
 from logging import Logger
@@ -25,16 +21,35 @@ from pydantic import (
     ConfigDict,
 )
 
-# Imports
+def _find_repo_root(start: Path) -> Path | None:
+    for candidate in [start, *start.parents]:
+        if (candidate / "pyproject.toml").is_file() and (candidate / "src").is_dir():
+            return candidate
+    return None
 
-# /CEASIOMpy/src
-SRC_PATH = Path(__file__).parents[1]
 
-# /CEASIOMpy/
-CEASIOMPY_PATH = SRC_PATH.parent
+# /.../site-packages/ceasiompy (or <repo>/src/ceasiompy)
+PACKAGE_DIR_PATH = Path(__file__).resolve().parent
 
-# ===== Include Module's path =====
-UTILS_PATH = SRC_PATH / "ceasiompy" / "utils"
+_env_repo_root = os.environ.get("CEASIOMPY_HOME")
+_REPO_ROOT = (
+    Path(_env_repo_root).expanduser().resolve()
+    if _env_repo_root
+    else _find_repo_root(PACKAGE_DIR_PATH)
+)
+
+if _REPO_ROOT:
+    # /CEASIOMpy/src
+    SRC_PATH = _REPO_ROOT / "src"
+    # /CEASIOMpy/
+    CEASIOMPY_PATH = _REPO_ROOT
+    # ===== Include Module's path =====
+    UTILS_PATH = SRC_PATH / "ceasiompy" / "utils"
+else:
+    # site-packages layout
+    SRC_PATH = PACKAGE_DIR_PATH.parent
+    CEASIOMPY_PATH = SRC_PATH
+    UTILS_PATH = PACKAGE_DIR_PATH / "utils"
 
 
 # =================================================================================================
@@ -98,14 +113,29 @@ def get_logger() -> Logger:
 # Log
 log = get_logger()
 
-# Override the built-in print function to use the logger
+def redirect_print_to_logger(enable: bool = True) -> None:
+    """Optionally redirect `print()` calls to the CEASIOMpy logger.
+
+    This used to be enabled unconditionally, but overriding `builtins.print` can break
+    third-party libraries and test tooling. Keep it opt-in.
+    """
+
+    if not enable:
+        return
+
+    import builtins as _builtins
+
+    def _print(*args, **kwargs):  # type: ignore[override]
+        sep = kwargs.get("sep", " ")
+        msg = sep.join(map(str, args))
+        log.info(msg)
+
+    _builtins.print = _print
 
 
-def custom_print(*args, **kwargs):
-    log.info(" ".join(map(str, args)))
-
-
-builtins.print = custom_print
+_redirect_print = os.environ.get("CEASIOMPY_REDIRECT_PRINT", "").strip().lower()
+if _redirect_print in {"1", "true", "yes", "y", "on"}:
+    redirect_print_to_logger(True)
 
 
 # Ignore arbitrary types

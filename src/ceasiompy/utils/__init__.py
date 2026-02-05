@@ -10,16 +10,17 @@ Initialization for UTILS.
 
 """
 
-# Imports
+from __future__ import annotations
 
 from ceasiompy.utils.commonpaths import get_wkdir
-from ceasiompy.utils.ceasiompyutils import get_module_status
 
-# ==============================================================================
-#   INITIALIZATION
-# ==============================================================================
 
-__all__ = [
-    f'{get_wkdir}',
-    f'{get_module_status}',
-]
+def get_module_status(*args, **kwargs):
+    """Lazy wrapper to avoid importing heavy deps at import time."""
+
+    from ceasiompy.utils.ceasiompyutils import get_module_status as _get_module_status
+
+    return _get_module_status(*args, **kwargs)
+
+
+__all__ = ["get_wkdir", "get_module_status"]

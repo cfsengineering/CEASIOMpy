@@ -44,3 +44,9 @@ Following the automatic installation procedure on the [CEASIOMpy installation pa
 Dynamic Stability Software: [SDSA](https://www.meil.pw.edu.pl/add/ADD/Teaching/Software/SDSA)
 Doublet Lattice Solver: [PanelAero](https://github.com/DLR-AE/PanelAero)
 Dot derivatives algorithm: [DotDerivatives](https://fr.overleaf.com/read/qjffvmtrzzhb#8fc920)
+
+## Settings reference (WIP)
+
+### Where settings live in CPACS
+
+- See `src/ceasiompy/DynamicStability/__init__.py` and `src/ceasiompy/DynamicStability/__specs__.py`.

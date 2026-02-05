@@ -200,3 +200,6 @@ Remove all __main__ folders
 
 # RAG
 **/index.json
+
+# Ignore testes workflows
+**/wkflow_test/**

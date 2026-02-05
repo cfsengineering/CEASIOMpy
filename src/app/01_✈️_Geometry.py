@@ -17,13 +17,10 @@ import streamlit as st
 
 from ceasiompy.utils import get_wkdir
 from cpacspy.cpacsfunctions import create_branch
+from gmshairfoil2d.airfoil_func import get_airfoil_points
 from ceasiompy.utils.ceasiompyutils import (
     parse_bool,
     update_xpath_at_xyz,
-)
-from gmshairfoil2d.airfoil_func import (
-    NACA_4_digit_geom,
-    get_airfoil_points,
 )
 from streamlitutils import (
     create_sidebar,
@@ -82,22 +79,11 @@ def _clean_toolspecific(cpacs: CPACS) -> CPACS:
 
 
 def _generate_cpacs_airfoil(naca_code: str) -> None:
-    # Check if it's a NACA 4-digit code
-    if len(naca_code) == 4 and naca_code.isdigit():
-        # Generate NACA 4-digit airfoil
-        coords_list = NACA_4_digit_geom(naca_code, nb_points=80)
-        coords = np.array(coords_list)
-    else:
-        # Try to get airfoil from database
-        coords_list = get_airfoil_points(naca_code)
-        coords = np.array(coords_list)
+    coords = np.array(get_airfoil_points(naca_code))
 
-    # Extract x and y coordinates (coords is [N, 3] with z=0)
-    airfoil_x = coords[:, 0].tolist()
-    airfoil_y = coords[:, 1].tolist()
     _create_cpacs_from(
-        airfoil_x=airfoil_x,
-        airfoil_y=airfoil_y,
+        airfoil_x=coords[:, 0].tolist(),
+        airfoil_y=coords[:, 1].tolist(),
         airfoil_name=naca_code,
     )
 

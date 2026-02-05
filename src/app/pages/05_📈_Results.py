@@ -500,7 +500,7 @@ def display_results(results_dir):
 #                             )
 #                         )
 
-#                         st.plotly_chart(fig, width="strecth")
+#                         st.plotly_chart(fig, width="stretch")
 
 #                     except Exception as e:
 #                         st.error(f"Error predicting response surface: {e}")
@@ -877,7 +877,7 @@ def _display_su2(path: Path) -> None:
                 data=path.read_bytes(),
                 file_name=path.name,
                 mime="application/octet-stream",
-                width="strecth",
+                width="stretch",
                 key=f"{path}_su2_download",
             )
         except OSError as exc:
@@ -1059,7 +1059,7 @@ def _display_vtu(path: Path) -> None:
                     data=path.read_bytes(),
                     file_name=path.name,
                     mime="application/octet-stream",
-                    width="strecth",
+                    width="stretch",
                     key=f"{path}_vtu_download",
                 )
             except OSError as exc:
@@ -1357,7 +1357,7 @@ def _display_surface_flow_cp_xc(path: Path, surface: pv.PolyData) -> None:
         yaxis_title="Cp",
         legend_title_text="Surface",
     )
-    st.plotly_chart(fig, width="strecth")
+    st.plotly_chart(fig, width="stretch")
 
 
 def _find_cp_field(surface: pv.PolyData) -> tuple[str | None, str | None]:

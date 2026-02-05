@@ -107,7 +107,7 @@ dependencies:
     - httpx
 
     # Meshing
-    - gmshairfoil2d>=0.2.31
+    - gmshairfoil2d>=0.2.33
     - gmsh>=4.13.1
     - meshio>=5.3.5
     - pymeshfix

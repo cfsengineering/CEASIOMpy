@@ -13,14 +13,13 @@ import pandas as pd
 
 from shutil import copyfile
 from cpacspy.cpacsfunctions import get_value
+from ceasiompy.utils.commonpaths import get_wkdir
+from scipy.optimize import differential_evolution
 from ceasiompy.smtrain.func.utils import get_columns
 from ceasiompy.utils.ceasiompyutils import aircraft_name
 from ceasiompy.utils.geometryfunctions import get_xpath_for_param
+
 from pathlib import Path
-from ceasiompy.utils.commonpaths import get_wkdir
-from scipy.optimize import (
-    differential_evolution,
-)
 from pandas import DataFrame
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.database.func.storing import CeasiompyDb

@@ -12,6 +12,7 @@ Functions related to plotting in SMTrain.
 import matplotlib.pyplot as plt
 
 from smt.utils.misc import compute_rmse
+from ceasiompy.smtrain.func.utils import define_model_type
 
 from pathlib import Path
 from numpy import ndarray
@@ -20,19 +21,15 @@ from smt.surrogate_models import (
     KRG,
     RBF,
 )
-from typing import (
-    Dict,
-    Union,
-)
-from ceasiompy.smtrain.func.utils import define_model_type
+
 from ceasiompy import log
+
 
 # Functions
 
-
 def plot_validation(
-    model: Union[KRG, MFK, RBF],
-    sets: Dict,
+    model: KRG | MFK | RBF,
+    sets: dict,
     label: str,
     results_dir: Path,
 ) -> None:

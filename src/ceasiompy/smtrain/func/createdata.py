@@ -25,7 +25,6 @@ from ceasiompy.utils.ceasiompyutils import (
     update_cpacs_from_specs,
 )
 
-from typing import Union
 from pathlib import Path
 from pandas import DataFrame
 from unittest.mock import MagicMock
@@ -57,7 +56,7 @@ from ceasiompy.utils.commonxpaths import (
 
 def launch_avl(
     cpacs: CPACS,
-    lh_sampling_path: Union[Path, None],
+    lh_sampling_path: Path | None,
     objective: str,
     result_dir: Path,
 ) -> DataFrame:
@@ -113,7 +112,7 @@ def launch_su2(
     cpacs: CPACS,
     results_dir: Path,
     objective: str,
-    high_variance_points: Union[str, None] = None,
+    high_variance_points: str | None = None,
 ) -> DataFrame:
     """
     Executes SU2 CFD analysis using an aeromap or high-variance points.

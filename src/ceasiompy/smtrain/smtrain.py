@@ -8,10 +8,10 @@ Either (1) Kriging or (2-3) Multi-Fidelity Kriging model can be used,
 depending on the level of fidelity chosen.
 
 TODO:
-    * Adapt SaveAeroCoefficient for the adaptive sampling
     * More tests on adaptive sampling
     * Never tested with 3 levels of fidelity
 """
+
 
 # Imports
 import sys
@@ -19,7 +19,10 @@ import time
 import shutil
 import pandas as pd
 
-from ceasiompy.utils.ceasiompyutils import call_main, get_results_directory
+from ceasiompy.utils.ceasiompyutils import (
+    call_main,
+    get_results_directory,
+)
 from ceasiompy.smtrain.func.plot import plot_validation
 from ceasiompy.smtrain.func.sampling import (
     lh_sampling,
@@ -31,7 +34,6 @@ from ceasiompy.smtrain.func.config import (
     get_elements_to_optimise,
     design_of_experiment,
 )
-
 from ceasiompy.smtrain.func.trainsurrogatemodel import (
     save_model,
     run_first_level_training,
@@ -46,7 +48,6 @@ from ceasiompy.smtrain.func.trainsurrogatemodel import (
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
-
 from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log

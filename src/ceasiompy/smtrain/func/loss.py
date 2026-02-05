@@ -16,21 +16,17 @@ from smt.utils.misc import compute_rmse
 from numpy import ndarray
 from smt.applications import MFK
 from smt.surrogate_models import KRG
-from typing import (
-    Tuple,
-    Union,
-)
+
 
 # Functions
 
-
 def compute_first_level_loss(
-    params: Tuple,
+    params: tuple,
     x_train: ndarray,
     y_train: ndarray,
     x_: ndarray,
     y_: ndarray,
-) -> Tuple[KRG, float]:
+) -> tuple[KRG, float]:
     """
     Returns model and the loss for this model on the x_, y_ set.
     """
@@ -47,16 +43,16 @@ def compute_first_level_loss(
 
 
 def compute_multi_level_loss(
-    params: Tuple,
+    params: tuple,
     x_fl_train: ndarray,
     y_fl_train: ndarray,
-    x_sl_train: Union[ndarray, None],
-    y_sl_train: Union[ndarray, None],
-    x_tl_train: Union[ndarray, None],
-    y_tl_train: Union[ndarray, None],
+    x_sl_train: ndarray | None,
+    y_sl_train: ndarray | None,
+    x_tl_train: ndarray | None,
+    y_tl_train: ndarray | None,
     x_: ndarray,
     y_: ndarray,
-) -> Tuple[MFK, float]:
+) -> tuple[MFK, float]:
     """
     Returns model and the loss for this model on the x_, y_ set.
     """
@@ -78,7 +74,7 @@ def compute_multi_level_loss(
 
 
 def compute_loss(
-    model: Union[KRG, MFK],
+    model: KRG | MFK,
     lambda_penalty: float,
     x_: ndarray,
     y_: ndarray,

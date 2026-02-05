@@ -4,14 +4,30 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Initialization for CEASIOMpy.
-    1. Log initialization.
+
+This module is imported by most of the codebase, so it must stay lightweight and
+avoid surprising import-time side effects (for example importing optional GUI
+dependencies, touching the filesystem, or monkeypatching global builtins).
+
+Environment variables
+---------------------
+`CEASIOMPY_HOME`
+    Optional path to a CEASIOMpy repository clone. When set, CEASIOMpy uses it to
+    locate repo-relative folders (e.g. `src/`, `documents/`, `test_cases/`).
+
+`CEASIOMPY_REDIRECT_PRINT`
+    Opt-in switch to redirect `print()` calls to the CEASIOMpy logger during
+    import. Accepted truthy values are: `1`, `true`, `yes`, `y`, `on`.
+    This is disabled by default because overriding `builtins.print` can break
+    third-party libraries and test tooling.
 """
 
 # Imports
 
+import os
 import sys
 import logging
-import os
+import builtins as _builtins
 
 from pathlib import Path
 from logging import Logger
@@ -20,6 +36,9 @@ from pydantic import (
     BaseModel,
     ConfigDict,
 )
+
+
+# Methods
 
 def _find_repo_root(start: Path) -> Path | None:
     for candidate in [start, *start.parents]:
@@ -52,10 +71,7 @@ else:
     UTILS_PATH = PACKAGE_DIR_PATH / "utils"
 
 
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
+# Classes
 
 class IgnoreSpecificError(logging.Filter):
     def filter(self, record):
@@ -113,6 +129,9 @@ def get_logger() -> Logger:
 # Log
 log = get_logger()
 
+
+# Functions
+
 def redirect_print_to_logger(enable: bool = True) -> None:
     """Optionally redirect `print()` calls to the CEASIOMpy logger.
 
@@ -122,8 +141,6 @@ def redirect_print_to_logger(enable: bool = True) -> None:
 
     if not enable:
         return
-
-    import builtins as _builtins
 
     def _print(*args, **kwargs):  # type: ignore[override]
         sep = kwargs.get("sep", " ")

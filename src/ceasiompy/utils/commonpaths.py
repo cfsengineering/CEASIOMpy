@@ -14,9 +14,8 @@ import ceasiompy
 
 from pathlib import Path
 
-# =================================================================================================
-#   CSTS
-# =================================================================================================
+
+# Constants
 
 def _find_repo_root(start: Path) -> Path | None:
     """Best-effort detection of the CEASIOMpy repo root.
@@ -35,7 +34,11 @@ def _find_repo_root(start: Path) -> Path | None:
 PACKAGE_DIR_PATH = Path(ceasiompy.__file__).resolve().parent
 
 _env_repo_root = os.environ.get("CEASIOMPY_HOME")
-_REPO_ROOT = Path(_env_repo_root).expanduser().resolve() if _env_repo_root else _find_repo_root(PACKAGE_DIR_PATH)
+_REPO_ROOT = (
+    Path(_env_repo_root).expanduser().resolve()
+    if _env_repo_root
+    else _find_repo_root(PACKAGE_DIR_PATH)
+)
 
 if _REPO_ROOT:
     # /CEASIOMpy/

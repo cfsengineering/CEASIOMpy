@@ -15,6 +15,7 @@ from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.pyavl.__specs__ import gui_settings as avl_settings
 from ceasiompy.su2run.__specs__ import gui_settings as su2_settings
 from ceasiompy.cpacs2gmsh.__specs__ import gui_settings as gmsh_settings
+from ceasiompy.staticstability.__specs__ import gui_settings as staticstability_settings
 from ceasiompy.utils.geometryfunctions import (
     get_xpath_for_param,
     return_uid_wings_sections,
@@ -33,6 +34,7 @@ from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
 from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
+from ceasiompy.staticstability import MODULE_NAME as STATICSTABILITY
 from ceasiompy.smtrain import (
     SM_MODELS,
     LEVEL_TWO,
@@ -86,10 +88,16 @@ def gui_settings(cpacs: CPACS) -> None:
                 key="smtrain_fidelity_level",
             )
             with st.expander(
-                label=f"First Level (Low Fidelity, {PYAVL} Settings)",
+                label=f"First Level (Low Fidelity, {PYAVL} + {STATICSTABILITY} Settings)",
                 expanded=False,
             ):
-                avl_settings(cpacs)
+                tabs = st.tabs(
+                    tabs=[PYAVL, STATICSTABILITY],
+                )
+                with tabs[0]:
+                    avl_settings(cpacs)
+                with tabs[1]:
+                    staticstability_settings(cpacs)
 
             if fidelity_level == LEVEL_TWO:
                 with st.expander(

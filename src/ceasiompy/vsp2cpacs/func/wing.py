@@ -854,13 +854,13 @@ def get_coord_roundedrectangle(xsec_id, n):
 def get_coord_from_file(xsec_id, _):
     """
     Load airfoil coordinates from an external file (OpenVSP input).
-    Suggest ot import an af file from selig database.
+    Suggest to import an af or DAT file from selig database.
 
     Reads upper and lower surface points from the selected x-section, merges them
     into a closed profile, and returns the coordinates along with the section name
     and chord scaling.
     """
-    geom_parm = get_params_by_name(xsec_id,['Chord'])
+    geom_parm = get_params_by_name(xsec_id,['Chord', 'ThickChord', 'BaseThickChord'])
     Name = vsp.GetXSecCurveAlias(xsec_id).replace(' ','_')
 
     # import the points
@@ -872,8 +872,9 @@ def get_coord_from_file(xsec_id, _):
     x_u, y_u = upper_coords[:, 0], upper_coords[:, 1]
     x_l, y_l = lower_coords[:, 0], lower_coords[:, 1]
 
+    chord_factor = geom_parm['ThickChord'] / geom_parm['BaseThickChord']
     x = np.concatenate((x_l[::-1], x_u), axis=0)
-    y = np.concatenate((y_l[::-1], y_u), axis=0)
+    y = np.concatenate((y_l[::-1], y_u), axis=0) * chord_factor
 
     # check if it close
     x[-1] = x[0]

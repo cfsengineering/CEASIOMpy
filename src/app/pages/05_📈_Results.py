@@ -233,7 +233,7 @@ def display_results(results_dir):
 #     tmp_cpacs = CPACS(cpacs_in)
 #     tixi = tmp_cpacs.tixi
 
-#     (_, _, _, ranges_gui, _) = get_elements_to_optimise(tmp_cpacs)
+#     (_, _, _, ranges_gui, _) = get_params_to_optimise(tmp_cpacs)
 
 #     sliders_values = {}
 #     sliders_bounds = {}
@@ -535,8 +535,8 @@ def display_results(results_dir):
 #             parts = name.split("_of_")
 #             if len(parts) < 3:
 #                 continue
-#             name_parameter, uID_section, uID_wing = parts
-#             xpath = get_xpath_for_param(tixi, name_parameter, uID_wing, uID_section)
+#             name_parameter, section_uid, wing_uid = parts
+#             xpath = get_xpath_for_param(tixi, name_parameter, wing_uid, section_uid)
 #             params_to_update[xpath] = {"value": val, "xpath": xpath}
 
 #         for xp, info in params_to_update.items():
@@ -738,12 +738,12 @@ def display_results(results_dir):
 #                 if "_of_" not in name:
 #                     continue
 #                 parts = name.split("_of_")
-#                 name_parameter, uID_section, uID_wing = parts
+#                 name_parameter, section_uid, wing_uid = parts
 #                 xpath = get_xpath_for_param(
 #                     tixi,
 #                     name_parameter,
-#                     uID_wing,
-#                     uID_section
+#                     wing_uid,
+#                     section_uid
 #                 )
 #                 create_branch(tixi, xpath)
 #                 tixi.updateDoubleElement(xpath, float(val), "%g")

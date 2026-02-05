@@ -5,7 +5,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 """
 
 # Imports
-
+import shutil
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -13,6 +13,8 @@ from numpy import ndarray
 from pandas import DataFrame
 from smt.applications import MFK
 from scipy.optimize import OptimizeResult
+from ceasiompy.smtrain.func.parameter import Parameter
+from ceasiompy.smtrain.func.config import TrainingSettings
 from smt.surrogate_models import (
     KRG,
     RBF,
@@ -24,7 +26,8 @@ from cpacspy.cpacspy import (
 
 from ceasiompy import log
 from ceasiompy.smtrain.func import AEROMAP_SELECTED
-from ceasiompy.su2run import MODULE_NAME as SU2RUN_NAME
+from ceasiompy.pyavl import MODULE_NAME as PYAVL
+from ceasiompy.su2run import MODULE_NAME as SU2RUN
 from ceasiompy.smtrain import (
     LEVEL_ONE,
     LEVEL_TWO,
@@ -34,6 +37,44 @@ from ceasiompy.smtrain import (
 
 
 # Functions
+
+def store_best_geom_from_training(
+    dataframe: DataFrame,
+    cpacs_list: list[CPACS],
+    lh_sampling: DataFrame,
+    results_dir: Path,
+    params_ranges: list[Parameter],
+    training_settings: TrainingSettings,
+) -> None:
+    # Save Best Low Fidelity Geometry Configuration from Training Data
+    geom_cols = [p.name for p in params_ranges]
+    objective = training_settings.objective
+    mean_obj_by_geom = (
+        dataframe.groupby(geom_cols, dropna=False)[objective]
+        .mean()
+        .reset_index()
+    )
+
+    # Store best geometry (CPACS, Configuration)
+    best_geom_dir = results_dir / "best_geometry"
+    best_geom_dir.mkdir(exist_ok=True)
+    best_geometry_idx = mean_obj_by_geom[objective].idxmax()
+    best_geometries_df = mean_obj_by_geom.loc[[best_geometry_idx]]
+    best_geometries_df.to_csv(f"{best_geom_dir}/best_geom_config.csv", index=False)
+
+    # Save associated CPACS file for the best geometry
+    best_geom_values = best_geometries_df[geom_cols].iloc[0].values
+    mask = (lh_sampling[geom_cols] == best_geom_values).all(axis=1)
+    if not mask.any():
+        raise ValueError("Could not match best geometry to a CPACS file. Skipping copy.")
+
+    best_cpacs_idx = int(mask.idxmax())
+    best_cpacs_path = cpacs_list[best_cpacs_idx].cpacs_file
+    shutil.copyfile(
+        best_cpacs_path,
+        best_geom_dir / f"best_geom_{best_cpacs_idx + 1:03d}.xml",
+    )
+
 
 def concatenate_if_not_none(list_arrays: list[ndarray | None]) -> ndarray:
     """
@@ -66,7 +107,7 @@ def generate_su2_wkdir(iteration: int) -> None:
     """
     Generate unique SU2 working directory using iteration
     """
-    wkdir_su2 = Path(SU2RUN_NAME) / f"SU2_{iteration}"
+    wkdir_su2 = Path(SU2RUN) / f"SU2_{iteration}"
     wkdir_su2.mkdir(parents=True, exist_ok=True)
 
 

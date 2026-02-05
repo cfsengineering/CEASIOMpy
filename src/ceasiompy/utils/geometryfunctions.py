@@ -140,7 +140,7 @@ def convert_fuselage_profiles(
     return elem_transf, prof_size_y, prof_size_z, prof_vect_y, prof_vect_z
 
 
-def get_xpath_for_param(tixi: Tixi3, param, wing_uid, section_uid):
+def get_xpath_for_param(tixi: Tixi3, param: str, wing_uid: str, section_uid: str) -> str:
     if param in ["length", "sweepAngle", "dihedralAngle"]:
         positioning_path = f"{WINGS_XPATH}/wing[@uID='{wing_uid}']/positionings"
         if not tixi.checkElement(positioning_path):
@@ -396,8 +396,8 @@ def return_uidwings(tixi: Tixi3) -> List:
     # Iterate through each wing and get its uID
     for i_wing in range(wing_cnt):
         wing_xpath = WINGS_XPATH + "/wing[" + str(i_wing + 1) + "]"
-        uid_wing = tixi.getTextAttribute(wing_xpath, "uID")
-        wing_uids.append(uid_wing)
+        wing_uid = tixi.getTextAttribute(wing_xpath, "uID")
+        wing_uids.append(wing_uid)
 
     return wing_uids
 
@@ -416,14 +416,14 @@ def return_uid_wings_sections(tixi: Tixi3) -> List[Tuple[str, str]]:
     wing_cnt = elements_number(tixi, WINGS_XPATH, "wing")
     for i_wing in range(wing_cnt):
         wing_xpath = f"{WINGS_XPATH}/wing[{i_wing + 1}]"
-        uid_wing = tixi.getTextAttribute(wing_xpath, "uID")
+        wing_uid = tixi.getTextAttribute(wing_xpath, "uID")
 
         section_xpath = f"{wing_xpath}/sections"
         section_cnt = elements_number(tixi, section_xpath, "section")
         for i_sec in range(section_cnt):
             sec_xpath = f"{section_xpath}/section[{i_sec + 1}]"
-            uid_section = tixi.getTextAttribute(sec_xpath, "uID")
-            result.append((uid_wing, uid_section))
+            section_uid = tixi.getTextAttribute(sec_xpath, "uID")
+            result.append((wing_uid, section_uid))
 
     return result
 

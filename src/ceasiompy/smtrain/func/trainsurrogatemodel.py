@@ -7,7 +7,6 @@ Functions related to the training of the surrogate model.
 """
 
 # Imports
-import sys
 import time
 import joblib
 import numpy as np
@@ -18,6 +17,10 @@ from shutil import copyfile
 from skopt import gp_minimize
 from sklearn.metrics import r2_score
 from smt.utils.misc import compute_rmse
+from ceasiompy.utils.commonpaths import get_wkdir
+from ceasiompy.pyavl.pyavl import main as run_avl
+from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.staticstability.staticstability import main as run_staticstability
 from cpacspy.cpacsfunctions import (
     add_value,
     create_branch,
@@ -43,13 +46,7 @@ from ceasiompy.smtrain.func.utils import (
     collect_level_data,
     concatenate_if_not_none,
     define_model_type,
-    num_flight_conditions,
-    num_geom_params,
-    drop_constant_columns,
 )
-from ceasiompy.utils.commonpaths import get_wkdir
-from ceasiompy.pyavl.pyavl import main as run_avl
-from ceasiompy.staticstability.staticstability import main as run_staticstability
 from ceasiompy.smtrain.func.config import (
     retrieve_aeromap_data,
     get_xpath_for_param,
@@ -57,12 +54,6 @@ from ceasiompy.smtrain.func.config import (
     save_best_surrogate_geometry,
     normalize_dataset,
 )
-from ceasiompy.utils.ceasiompyutils import (
-    update_cpacs_from_specs,
-    get_results_directory,
-    get_selected_aeromap_values,
-)
-
 from pathlib import Path
 from numpy import ndarray
 from typing import Callable
@@ -72,17 +63,18 @@ from smt.applications import MFK
 from smt.surrogate_models import KRG
 from smt.surrogate_models import RBF
 from scipy.optimize import OptimizeResult
+from ceasiompy.smtrain.func.parameter import Parameter
+from ceasiompy.smtrain.func.config import TrainingSettings
 from skopt.space import (
     Real,
     Categorical,
 )
 
 from ceasiompy import log
-from ceasiompy.smtrain import AEROMAP_FEATURES
+from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.utils.commonxpaths import SM_XPATH
 from ceasiompy.utils.commonpaths import WKDIR_PATH
-from ceasiompy.pyavl import MODULE_NAME as PYAVL_NAME
-from ceasiompy.staticstability import MODULE_NAME as STATICSTABILITY_NAME
+from ceasiompy.su2run import MODULE_NAME as SU2RUN
 
 
 # Functions
@@ -368,81 +360,56 @@ def run_first_level_training(
     return model, level1_sets, param_order
 
 
-def run_first_level_training_geometry(
-    cpacs_list: list,
-    lh_sampling_geom_path: Path | None,
-    objective: str,
-    split_ratio: float,
-    pyavl_dir: Path,
-    results_dir: Path,
-    KRG_model_bool: bool,
-    RBF_model_bool: bool,
-    ranges_gui: DataFrame,
-) -> tuple[KRG | MFK, dict[str, ndarray]]:
+def run_first_level_simulations(
+    cpacs_list: list[CPACS],
+    lh_sampling: DataFrame,
+    low_fidelity_dir: Path,
+    training_settings: TrainingSettings,
+) -> DataFrame:
     """
     Run surrogate model training on first level of fidelity (AVL).
     """
-
-    df_geom = pd.read_csv(lh_sampling_geom_path)
-
+    # Define variables
     # Loop through CPACS files
     final_dfs = []
 
     for i, cpacs in enumerate(cpacs_list):
-        pyavl_local_dir = pyavl_dir / f"PyAVL_{i+1}"
+        pyavl_local_dir = low_fidelity_dir / f"{PYAVL}_{i + 1}"
         pyavl_local_dir.mkdir(exist_ok=True)
-        update_cpacs_from_specs(cpacs, PYAVL_NAME, test=True)
-        update_cpacs_from_specs(cpacs, STATICSTABILITY_NAME, test=True)
-
-        alt_list, mach_list, aoa_list, aos_list = get_selected_aeromap_values(cpacs)
-
-        n_flight_cond = num_flight_conditions(
-            alt_list, mach_list, aoa_list, aos_list
-        )
-        n_geom_params = num_geom_params(df_geom)
-
-        if n_flight_cond == 1 and n_geom_params == 1:
-            log.error(
-                "Simulation aborted: only one flight condition and one geometric parameter."
-            )
-            sys.exit(1)
 
         try:
-            run_avl(cpacs, pyavl_local_dir)
+            run_avl(
+                cpacs=cpacs,
+                results_dir=pyavl_local_dir,
+            )
+            run_staticstability(
+                cpacs=cpacs,
+                results_dir=pyavl_local_dir,
+            )
 
-            # check the static stability of the configuration
-            run_staticstability(cpacs, pyavl_local_dir)
-
-            level1_df = retrieve_aeromap_data(cpacs, objective)
+            # Retrieve AeroMap Selected from GUI
+            level1_df = retrieve_aeromap_data(
+                cpacs=cpacs,
+                objective=training_settings.objective,
+            )
 
             if level1_df is None or len(level1_df) == 0:
-                print(f"Warning: No data retrieved for simulation {i+1}, skipping...")
+                log.error(f"No data retrieved for simulation {i + 1}, skipping...")
                 continue
 
-            row_df_geom = df_geom.iloc[i]
+            # Duplicate per AeroMap entries (same geometry, different aeromap values)
+            n = len(level1_df)
+            row_df_geom = lh_sampling.iloc[i]
+            local_df_geom = DataFrame([row_df_geom] * n).reset_index(drop=True)
 
-            if n_flight_cond >= 2:
-                n = len(level1_df)
-                local_df_geom = pd.DataFrame([row_df_geom] * n).reset_index(drop=True)
-
-                level1_df_combined = pd.concat(
-                    [local_df_geom, level1_df.reset_index(drop=True)],
-                    axis=1
-                )
-
-                final_dfs.append(level1_df_combined)
-            else:
-                minimal_df = pd.concat(
-                    [
-                        pd.DataFrame([row_df_geom]).reset_index(drop=True),
-                        level1_df[[objective]].reset_index(drop=True),
-                    ],
-                    axis=1
-                )
-                final_dfs.append(minimal_df)
+            level1_df_combined = pd.concat(
+                objs=[local_df_geom, level1_df.reset_index(drop=True)],
+                axis=1,
+            )
+            final_dfs.append(level1_df_combined)
 
         except Exception as e:
-            print(f"Error in AVL simulation {i+1}: {str(e)}. Skipping this simulation...")
+            log.error(f"Error in AVL simulation {i + 1}: {e=}. Skipping this simulation...")
             continue  # Skip to next iteration, don't add to final_dfs
 
     # Check if any successful simulations
@@ -451,104 +418,7 @@ def run_first_level_training_geometry(
             "No successful AVL simulations. Cannot proceed with surrogate model training."
         )
 
-    # Concatenate the dataframes
-    final_level1_df = pd.concat(final_dfs, axis=0, ignore_index=True)
-    avl_results = (
-        get_wkdir()
-        / "Results"
-        / get_results_directory("SMTrain")
-        / "Low_Fidelity"
-        / "avl_simulations_results.csv"
-    )
-
-    # delete rows where objective = 0 and constant columns
-    final_level1_df = final_level1_df.loc[final_level1_df.iloc[:, -1] != 0].copy()
-    final_level1_df_c = drop_constant_columns(final_level1_df)
-    final_level1_df_c.to_csv(avl_results, index=False)
-
-    n_params = final_level1_df_c.columns.drop(objective).size
-    df_fc = pd.read_csv(avl_results)
-    flight_cols = [c for c in AEROMAP_FEATURES if c in df_fc.columns]
-    df_flight = df_fc[flight_cols]
-
-    ranges_fc = pd.DataFrame({
-        "Parameter": flight_cols,
-        "Min": [df_flight[c].min() for c in flight_cols],
-        "Max": [df_flight[c].max() for c in flight_cols],
-    })
-
-    ranges_for_gui = pd.DataFrame([
-        {"Parameter": k, "Min": v[0], "Max": v[1]}
-        for k, v in ranges_gui.items()
-    ])
-
-    final_ranges_for_gui = pd.concat(
-        [ranges_for_gui,ranges_fc],
-        axis=0,
-        ignore_index=True,
-    )
-
-    final_ranges_for_gui = final_ranges_for_gui.loc[
-        final_ranges_for_gui["Min"] != final_ranges_for_gui["Max"]
-    ].copy()
-
-    best_geometry_idx = final_level1_df[objective].idxmax()
-    best_geometries_df = final_level1_df.loc[[best_geometry_idx]]
-    best_geometries_df.to_csv(f"{results_dir}/best_geometric_configurations.csv", index=False)
-
-    normalization_params, df_norm = normalize_dataset(avl_results)
-
-    krg_model = None
-    krg_rmse = None
-    rbf_model = None
-    rbf_rmse = None
-    level1_sets = split_data(df_norm, objective, split_ratio)
-    param_order = [col for col in df_norm.columns if col != objective]
-
-    best_surrogate_geom_path = (
-        get_wkdir()
-        / "Results"
-        / get_results_directory("SMTrain")
-    )
-
-    if KRG_model_bool:
-        log.info("--------------Star training KRG model.--------------\n")
-        krg_model, krg_rmse = train_surrogate_model(level1_sets)
-        rmse_df = pd.DataFrame({"rmse": [krg_rmse]})
-        rmse_path = f"{results_dir}/rmse_KRG.csv"
-        rmse_df.to_csv(rmse_path, index=False)
-        log.info("--------------KRG model trained.--------------\n")
-        model_name = "KRG"
-        save_best_surrogate_geometry(
-            surrogate_model=krg_model,
-            model_name=model_name,
-            objective=objective,
-            param_order=param_order,
-            normalization_params=normalization_params,
-            final_level1_df_c=final_level1_df_c,
-            results_dir=best_surrogate_geom_path,
-        )
-
-    if RBF_model_bool:
-        log.info("--------------Star training RBF model.--------------\n")
-        rbf_model, rbf_rmse = train_surrogate_model_RBF(n_params, level1_sets)
-        rmse_df = pd.DataFrame({"rmse": [rbf_rmse]})
-        rmse_path = f"{results_dir}/rmse_RBF.csv"
-        rmse_df.to_csv(rmse_path, index=False)
-        log.info("--------------RBF model trained.--------------\n")
-
-        model_name = "RBF"
-        save_best_surrogate_geometry(
-            surrogate_model=rbf_model,
-            model_name=model_name,
-            objective=objective,
-            param_order=param_order,
-            normalization_params=normalization_params,
-            final_level1_df_c=final_level1_df_c,
-            results_dir=best_surrogate_geom_path,
-        )
-
-    return krg_model, rbf_model, level1_sets, best_geometry_idx, param_order
+    return pd.concat(final_dfs, axis=0, ignore_index=True)
 
 
 def run_adaptative_refinement(
@@ -649,7 +519,7 @@ def run_adaptative_refinement_geom(
     high_fidelity_dir_KRG = results_dir / "High_Fidelity_Results_KRG"
     high_fidelity_dir_KRG.mkdir(exist_ok=True)
 
-    SU2_local_dir = high_fidelity_dir_KRG / "SU2Run"
+    SU2_local_dir = high_fidelity_dir_KRG / SU2RUN
     SU2_local_dir.mkdir(exist_ok=True)
 
     for it in range(nb_iters):
@@ -692,12 +562,12 @@ def run_adaptative_refinement_geom(
             for col in new_point_df.columns:
                 # SINTAX: {comp}_of_{section}_of_{param}
                 col_parts = col.split('_of_')
-                uID_wing = col_parts[2]
-                uID_section = col_parts[1]
+                wing_uid = col_parts[2]
+                section_uid = col_parts[1]
                 name_parameter = col_parts[0]
                 val = geom_row[col]
 
-                xpath = get_xpath_for_param(tixi, name_parameter, uID_wing, uID_section)
+                xpath = get_xpath_for_param(tixi, name_parameter, wing_uid, section_uid)
 
                 if name_parameter not in params_to_update:
                     params_to_update[name_parameter] = {'values': [], 'xpath': []}
@@ -781,7 +651,7 @@ def training_existing_db(
     param_order = [col for col in df_norm.columns if col != objective]
 
     if KRG_model_bool:
-        print("\n\n")
+        log.info("\n\n")
         log.info("--------------Star training KRG model.--------------\n")
         krg_model, krg_rmse = train_surrogate_model(level1_sets)
         rmse_df = pd.DataFrame({"rmse": [krg_rmse]})
@@ -800,9 +670,9 @@ def training_existing_db(
         )
 
     if RBF_model_bool:
-        print("\n\n")
+        log.info("\n\n")
         log.info("--------------Star training RBF model.--------------\n")
-        rbf_model, rbf_rmse = train_surrogate_model_RBF(n_params, level1_sets)
+        rbf_model, rbf_rmse = train_surrogate_model_rbf(n_params, level1_sets)
         rmse_df = pd.DataFrame({"rmse": [rbf_rmse]})
         rmse_path = f"{results_dir}/rmse_RBF.csv"
         rmse_df.to_csv(rmse_path, index=False)
@@ -873,7 +743,7 @@ def run_adaptative_refinement_geom_existing_db(
 
         for i, geom_row in new_point_df.iterrows():
 
-            cpacs_p = "SU2Run" / f"CPACS_newpoint_{i+1:03d}_iter{it}.xml"
+            cpacs_p = SU2RUN / f"CPACS_newpoint_{i+1:03d}_iter{it}.xml"
             copyfile(cpacs_file, cpacs_p)
             cpacs_out_obj = CPACS(cpacs_p)
             tixi = cpacs_out_obj.tixi
@@ -881,12 +751,12 @@ def run_adaptative_refinement_geom_existing_db(
             for col in new_point_df.columns:
                 # SINTAX: {comp}_of_{section}_of_{param}
                 col_parts = col.split('_of_')
-                uID_wing = col_parts[2]
-                uID_section = col_parts[1]
+                wing_uid = col_parts[2]
+                section_uid = col_parts[1]
                 name_parameter = col_parts[0]
                 val = geom_row[col]
 
-                xpath = get_xpath_for_param(tixi, name_parameter, uID_wing, uID_section)
+                xpath = get_xpath_for_param(tixi, name_parameter, wing_uid, section_uid)
 
                 if name_parameter not in params_to_update:
                     params_to_update[name_parameter] = {'values': [], 'xpath': []}
@@ -900,7 +770,7 @@ def run_adaptative_refinement_geom_existing_db(
         new_df_list = []
         for idx, cpacs_ in enumerate(cpacs_list):
 
-            dir_res = "SU2Run" / f"SU2Run_{idx}_iter{it}"
+            dir_res = SU2RUN / f"{SU2RUN}_{idx}_iter{it}"
             dir_res.mkdir(exist_ok=True)
             obj_value = launch_gmsh_su2_geom(
                 cpacs=cpacs_,
@@ -1175,16 +1045,16 @@ def RBF_model(
     best_model.train()
 
     y_pred = best_model.predict_values(x_test)
-    print(f"y_test:  [{y_test.min():.4f}, {y_test.max():.4f}]")
-    print(f"y_pred:  [{y_pred.min():.4f}, {y_pred.max():.4f}]")
-    print(f"R²:      {r2_score(y_test, y_pred):.4f}")
+    log.info(f"y_test:  [{y_test.min():.4f}, {y_test.max():.4f}]")
+    log.info(f"y_pred:  [{y_pred.min():.4f}, {y_pred.max():.4f}]")
+    log.info(f"R²:      {r2_score(y_test, y_pred):.4f}")
 
     best_loss = compute_rmse(best_model, x_test, y_test)
     log.info(f"Final first level RMSE on test set: {best_loss:.6f}")
     return best_model, best_loss
 
 
-def train_surrogate_model_RBF(
+def train_surrogate_model_rbf(
     n_params: int,
     level1_sets: dict[str, ndarray],
     level2_sets: dict[str, ndarray] | None = None,
@@ -1291,8 +1161,9 @@ def run_adapt_refinement_geom_rbf(
         cpacs_file = cpacs.cpacs_file
         cpacs_list = []
 
-        SU2_local_dir = high_fidelity_dir_RBF / "SU2Run"
+        SU2_local_dir = high_fidelity_dir_RBF / SU2RUN
         SU2_local_dir.mkdir(exist_ok=True)
+
         # Update CPACS for each new point
         for i, geom_row in new_point_df.iterrows():
 
@@ -1309,10 +1180,10 @@ def run_adapt_refinement_geom_rbf(
                 if len(col_parts) != 3:
                     log.warning(f"Skipping unexpected param name format: {col}")
                     continue
-                name_parameter, uID_section, uID_wing = col_parts
+                name_parameter, section_uid, wing_uid = col_parts
                 val = geom_row[col]
 
-                xpath = get_xpath_for_param(tixi, name_parameter, uID_wing, uID_section)
+                xpath = get_xpath_for_param(tixi, name_parameter, wing_uid, section_uid)
 
                 if name_parameter not in params_to_update:
                     params_to_update[name_parameter] = {"values": [], "xpath": []}
@@ -1344,7 +1215,7 @@ def run_adapt_refinement_geom_rbf(
         df_new = pd.concat([df, new_df], ignore_index=True, sort=False)
 
         # Retrain surrogate
-        model, rmse = train_surrogate_model_RBF(
+        model, rmse = train_surrogate_model_rbf(
             n_params=n_params,
             level1_sets=level1_sets,
             level2_sets=split_data(df_new, objective),
@@ -1371,3 +1242,45 @@ def run_adapt_refinement_geom_rbf(
                 results_dir=results_dir,
             )
             break
+
+
+def train_first_level_sm():
+    normalization_params, df_norm = normalize_dataset(avl_results)
+
+    level1_sets = split_data(df_norm, objective, split_ratio)
+    param_order = [col for col in df_norm.columns if col != objective]
+
+    log.info("--------------Star training KRG model.--------------\n")
+    krg_model, krg_rmse = train_surrogate_model(level1_sets)
+    rmse_df = pd.DataFrame({"rmse": [krg_rmse]})
+    rmse_path = f"{results_dir}/rmse_KRG.csv"
+    rmse_df.to_csv(rmse_path, index=False)
+    log.info("--------------KRG model trained.--------------\n")
+    model_name = "KRG"
+    save_best_surrogate_geometry(
+        surrogate_model=krg_model,
+        model_name=model_name,
+        objective=objective,
+        param_order=param_order,
+        normalization_params=normalization_params,
+        final_level1_df_c=final_level1_df_c,
+        results_dir=best_surrogate_geom_path,
+    )
+
+    log.info("--------------Star training RBF model.--------------\n")
+    rbf_model, rbf_rmse = train_surrogate_model_rbf(n_params, level1_sets)
+    rmse_df = pd.DataFrame({"rmse": [rbf_rmse]})
+    rmse_path = f"{results_dir}/rmse_RBF.csv"
+    rmse_df.to_csv(rmse_path, index=False)
+    log.info("--------------RBF model trained.--------------\n")
+
+    model_name = "RBF"
+    save_best_surrogate_geometry(
+        surrogate_model=rbf_model,
+        model_name=model_name,
+        objective=objective,
+        param_order=param_order,
+        normalization_params=normalization_params,
+        final_level1_df_c=final_level1_df_c,
+        results_dir=best_surrogate_geom_path,
+    )

@@ -14,12 +14,16 @@ import pandas as pd
 from shutil import copyfile
 from cpacspy.cpacsfunctions import (
     get_value,
+    create_branch,
     get_string_vector,
 )
 from ceasiompy.utils.commonpaths import get_wkdir
 from scipy.optimize import differential_evolution
-from ceasiompy.smtrain.func.utils import get_columns
 from ceasiompy.utils.geometryfunctions import get_xpath_for_param
+from ceasiompy.smtrain.func.utils import (
+    get_columns,
+    generate_smtrain_results_subdirs,
+)
 from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
     get_selected_aeromap,
@@ -32,6 +36,7 @@ from pydantic import BaseModel
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.database.func.storing import CeasiompyDb
+from ceasiompy.smtrain.func.parameter import Parameter
 
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import WINGS_XPATH
@@ -200,77 +205,87 @@ def design_of_experiment(cpacs: CPACS) -> tuple[int, dict[str, list[float]]]:
     return n_samples, range_params_aeromap
 
 
-def get_elements_to_optimise(cpacs: CPACS):
+def get_params_to_optimise(cpacs: CPACS) -> list[Parameter]:
 
     """
     Retrieves the geometric parameters selected bythe user for optimisation and the number
     of sample.
     """
+    log.info("Retrieving parameters to optimize.")
 
     tixi = cpacs.tixi
 
-    ranges_gui = {}
+    params_tranges: list[Parameter] = []
+
     wings_to_optimise = []
+    params_to_optimise = []
     sections_to_optimise = []
-    parameters_to_optimise = []
 
     n_wings_to_optimise = tixi.getNumberOfChilds(SMTRAIN_GEOM_WING_OPTIMISE)
 
-    for i in range(1,n_wings_to_optimise + 1):
+    # Wings
+    for i in range(1, n_wings_to_optimise + 1):
         wing_name = tixi.getChildNodeName(SMTRAIN_GEOM_WING_OPTIMISE, i)
         wing_selected_path = f"{SMTRAIN_GEOM_WING_OPTIMISE}/{wing_name}/selected"
         wing_status = tixi.getTextElement(wing_selected_path)
-        if wing_status.strip().lower() == "true":
-            wings_to_optimise.append(wing_name)
-            section_path = f"{SMTRAIN_GEOM_WING_OPTIMISE}/{wing_name}/sections"
-            n_section_to_optimise = tixi.getNumberOfChilds(section_path)
-            for j in range(1, n_section_to_optimise + 1):
-                section_name = tixi.getChildNodeName(section_path, j)
-                section_selected_path = section_path + f"/{section_name}/selected"
-                section_status = tixi.getTextElement(section_selected_path)
-                if section_status.strip().lower() == "true":
-                    sections_to_optimise.append(section_name)
-                    parameters_path = section_path + f"/{section_name}/parameters"
-                    n_parameters = tixi.getNumberOfChilds(parameters_path)
-                    for k in range(1,n_parameters + 1):
-                        parameter_name = tixi.getChildNodeName(parameters_path, k)
-                        status_parameter_path = parameters_path + f"/{parameter_name}/status"
-                        status_parameter = tixi.getTextElement(status_parameter_path)
-                        if status_parameter.strip().lower() == "true":
-                            parameters_to_optimise.append(
-                                f"{wing_name}_{section_name}_{parameter_name}"
-                            )
-                            min_value_path = parameters_path + f"/{parameter_name}/min_value/value"
-                            max_value_path = parameters_path + f"/{parameter_name}/max_value/value"
-                            min_value = tixi.getDoubleElement(min_value_path)
-                            max_value = tixi.getDoubleElement(max_value_path)
-                            ranges_gui[
-                                f"{parameter_name}_of_{section_name}_of_{wing_name}"
-                            ] = [min_value, max_value]
+        if wing_status.strip().lower() != "true":
+            continue
+
+        # Sections
+        wings_to_optimise.append(wing_name)
+        section_path = f"{SMTRAIN_GEOM_WING_OPTIMISE}/{wing_name}/sections"
+        n_section_to_optimise = tixi.getNumberOfChilds(section_path)
+        for j in range(1, n_section_to_optimise + 1):
+            section_name = tixi.getChildNodeName(section_path, j)
+            section_selected_path = section_path + f"/{section_name}/selected"
+            section_status = tixi.getTextElement(section_selected_path)
+            if section_status.strip().lower() != "true":
+                continue
+            sections_to_optimise.append(section_name)
+            parameters_path = section_path + f"/{section_name}/parameters"
+            n_parameters = tixi.getNumberOfChilds(parameters_path)
+
+            # Parameters
+            for k in range(1, n_parameters + 1):
+                parameter_name = tixi.getChildNodeName(parameters_path, k)
+                status_parameter_path = parameters_path + f"/{parameter_name}/status"
+                status_parameter = tixi.getTextElement(status_parameter_path)
+                if status_parameter.strip().lower() != "true":
+                    continue
+                params_to_optimise.append(
+                    f"{wing_name}_{section_name}_{parameter_name}"
+                )
+                min_value_path = parameters_path + f"/{parameter_name}/min_value/value"
+                max_value_path = parameters_path + f"/{parameter_name}/max_value/value"
+
+                min_value = tixi.getDoubleElement(min_value_path)
+                max_value = tixi.getDoubleElement(max_value_path)
+
+                if min_value == max_value:
+                    log.info(f"{parameter_name=} has constant range (i.e. not a variable). Skipping...")
+                    continue
+
+                param_to_opti = Parameter(
+                    name=f"{parameter_name}_of_{section_name}_of_{wing_name}",
+                    min_value=min_value,
+                    max_value=max_value,
+                )
+                params_tranges.append(param_to_opti)
 
     if not wings_to_optimise:
         raise ValueError("You need to select a wing to perform geometry optimization.")
     if not sections_to_optimise:
         raise ValueError("You need to select a section to perform geometry optimization.")
-    if not parameters_to_optimise:
+    if not params_to_optimise:
         raise ValueError("You need to select a parameter to perform geometry optimization.")
 
-    return ranges_gui
+    return params_tranges
 
 
 def update_geometry_cpacs(cpacs_path_in: Path, cpacs_path_out: Path, geom_params: dict) -> CPACS:
 
     tixi = Tixi3()
     tixi.open(str(cpacs_path_in), True)
-
-    # function to create missing branches in the XML tree if needed
-    def create_branch(tixi_handle, xpath: str):
-        parts = xpath.strip('/').split('/')
-        for i in range(1, len(parts) + 1):
-            pth = '/' + '/'.join(parts[:i])
-            if not tixi_handle.checkElement(pth):
-                parent = '/' + '/'.join(parts[:i - 1]) if i > 1 else '/'
-                tixi_handle.createElement(parent, parts[i - 1])
 
     for param_name, param_info in geom_params.items():
         values = param_info["values"]
@@ -295,10 +310,7 @@ def update_geometry_cpacs(cpacs_path_in: Path, cpacs_path_out: Path, geom_params
     # Save and close the CPACS file modified
     tixi.save(str(cpacs_path_out))
     tixi.close()
-
-    cpacs_obj = CPACS(cpacs_path_out)
-
-    return cpacs_obj
+    return CPACS(cpacs_path_out)
 
 
 def relative_ranges(
@@ -365,62 +377,71 @@ def relative_ranges(
 
 
 def create_list_cpacs_geometry(
-    cpacs_file: Path,
-    sampling_geom_csv: Path,
-    NEWCPACS_path: Path,
+    cpacs: CPACS,
+    lh_sampling: DataFrame,
+    results_dir: Path,
 ) -> list[CPACS]:
-    tixi = Tixi3()
-    tixi.open(str(cpacs_file))
+    log.info("Creating CPACS file from LHS samples.")
 
-    list_cpacs = []
+    # Constants
+    tixi = cpacs.tixi
+    cpacs_name = cpacs.ac_name
+    cpacs_path_in = cpacs.cpacs_file
 
-    df_geom = pd.read_csv(sampling_geom_csv)
+    generated_cpacs_dir = results_dir / "generated_cpacs"
+    generated_cpacs_dir.mkdir(exist_ok=True)
+
+    # Variables
+    cpacs_list = []
 
     # Loop for each configuration
-    for i, geom_row in df_geom.iterrows():
-        cpacs_out = NEWCPACS_path / f"CPACS_geom_{i+1:03d}.xml"
-        copyfile(cpacs_file, cpacs_out)
+    for i, geom_row in lh_sampling.iterrows():
+        cpacs_out = generated_cpacs_dir / f"{cpacs_name}_{i+1:03d}.xml"
+        copyfile(cpacs.cpacs_file, cpacs_out)
 
         params_to_update = {}
-        for col in df_geom.columns:
-            # SINTAX: {comp}_of_{section}_of_{param}
+        for col in lh_sampling.columns:
+            # SYNTAX: {comp}_of_{section}_of_{param}
             col_parts = col.split('_of_')
-            uID_wing = col_parts[2]
-            uID_section = col_parts[1]
-            name_parameter = col_parts[0]
+            param = col_parts[0]
+            wing_uid = col_parts[2]
+            section_uid = col_parts[1]
             val = geom_row[col]
 
-            xpath = get_xpath_for_param(tixi, name_parameter, uID_wing, uID_section)
+            xpath = get_xpath_for_param(
+                tixi=tixi,
+                param=param,
+                wing_uid=wing_uid,
+                section_uid=section_uid,
+            )
 
-            if name_parameter not in params_to_update:
-                params_to_update[name_parameter] = {'values': [], 'xpath': []}
+            if param not in params_to_update:
+                params_to_update[param] = {'values': [], 'xpath': []}
 
-            params_to_update[name_parameter]['values'].append(val)
-            params_to_update[name_parameter]['xpath'].append(xpath)
+            params_to_update[param]['values'].append(val)
+            params_to_update[param]['xpath'].append(xpath)
 
         # Update CPACS file
-        cpacs_obj = update_geometry_cpacs(cpacs_file, cpacs_out, params_to_update)
-        list_cpacs.append(cpacs_obj)
+        cpacs_obj = update_geometry_cpacs(
+            cpacs_path_in=cpacs_path_in,
+            cpacs_path_out=cpacs_out,
+            params_to_update=params_to_update,
+        )
+        cpacs_list.append(cpacs_obj)
 
-    return list_cpacs
+    return cpacs_list
 
 
-def normalize_dataset(dataset_path: Path):
-    dataset = pd.read_csv(dataset_path)
-    param_cols = dataset.columns[:-1]
-
-    df_norm = dataset.copy()
-    normalization_params = {}
-
-    for col in param_cols:
-        col_mean = dataset[col].mean()
+def normalize_dataset(dataset: DataFrame) -> DataFrame:
+    df_norm = dataset.copy(deep=True)
+    for col in dataset.columns:
         col_std = dataset[col].std()
-        if col_std == 0:
-            df_norm[col] = 0.0
-        else:
-            df_norm[col] = (dataset[col] - col_mean) / col_std
-        normalization_params[col] = {"mean": col_mean, "std": col_std}
-    return normalization_params,df_norm
+        col_mean = dataset[col].mean()
+        if col_std == 0.0:
+            raise ValueError("Constant column (variance==0)")
+        df_norm[col] = (dataset[col] - col_mean) / col_std
+
+    return df_norm
 
 
 def normalize_input_from_gui(
@@ -584,13 +605,13 @@ def save_best_surrogate_geometry(
             log.warning(f"Skipping malformed parameter name: {full_name}")
             continue
 
-        name_parameter, uID_section, uID_wing = parts
+        name_parameter, section_uid, wing_uid = parts
 
         xpath = get_xpath_for_param(
             tixi=tixi,
             param=name_parameter,
-            wing_uid=uID_wing,
-            section_uid=uID_section
+            wing_uid=wing_uid,
+            section_uid=section_uid
         )
 
         if name_parameter not in params_to_update:

@@ -22,13 +22,11 @@ from pandas import DataFrame
 from smt.applications import MFK
 from smt.sampling_methods import LHS
 from smt.surrogate_models import KRG
+from ceasiompy.smtrain.func.parameter import Parameter
 
 from ceasiompy import log
 from ceasiompy.smtrain import AEROMAP_FEATURES
-from ceasiompy.smtrain.func import (
-    AEROMAP_SELECTED_CSV,
-    LH_SAMPLING_DATA_GEOMETRY_CSV,
-)
+from ceasiompy.smtrain.func import AEROMAP_SELECTED_CSV
 
 
 class VariancePredictor(Protocol):
@@ -96,22 +94,16 @@ def lh_sampling(
 
 def lh_sampling_geom(
     n_samples: int,
-    ranges: dict[str, tuple[float, float]],
+    params_ranges: list[Parameter],
     random_state: int = 42,
 ) -> DataFrame:
     """
     Generate a Latin Hypercube Sampling (LHS) dataset within specified variable ranges.
     Uses the Enhanced Stochastic Evolutionary (ESE) criterion
     to generate a diverse set of samples within given variable limits.
-
-    Args:
-        n_samples (int): Number of samples to generate.
-        ranges (dict):
-            dictionary specifying the variable ranges in the format:
-            { "variable_name": (min_value, max_value) }.
-        random_state (int = 42): Seed for random number generation to ensure reproducibility.
     """
-    xlimits = np.array(list(ranges.values()))
+    log.info(f"Generating LHS sampling for {n_samples=}")
+    xlimits = np.array([(p.min_value, p.max_value) for p in params_ranges], dtype=float)
 
     sampling = LHS(xlimits=xlimits, criterion="ese", random_state=random_state)
     samples = sampling(n_samples)
@@ -121,7 +113,8 @@ def lh_sampling_geom(
     for idx in fixed_cols:
         samples[:, idx] = xlimits[idx, 0]
 
-    sampled_dict = {key: samples[:, idx] for idx, key in enumerate(ranges.keys())}
+    param_names = [p.name for p in params_ranges]
+    sampled_dict = {name: samples[:, idx] for idx, name in enumerate(param_names)}
 
     # Save sampled dataset
     # output_file_path = results_dir / LH_SAMPLING_DATA_GEOMETRY_CSV

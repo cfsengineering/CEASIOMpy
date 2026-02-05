@@ -14,11 +14,11 @@ TODO:
 
 
 # Imports
-import sys
 import shutil
 
 from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.smtrain.func.plot import plot_validation
+from ceasiompy.smtrain.func.utils import store_best_geom_from_training
 from ceasiompy.smtrain.func.sampling import (
     lh_sampling,
     lh_sampling_geom,
@@ -26,7 +26,7 @@ from ceasiompy.smtrain.func.sampling import (
 from ceasiompy.smtrain.func.config import (
     get_settings,
     design_of_experiment,
-    get_elements_to_optimise,
+    get_params_to_optimise,
     create_list_cpacs_geometry,
 )
 from ceasiompy.smtrain.func.trainsurrogatemodel import (
@@ -36,7 +36,7 @@ from ceasiompy.smtrain.func.trainsurrogatemodel import (
     run_adaptative_refinement,
     run_adapt_refinement_geom_rbf,
     run_adaptative_refinement_geom,
-    run_first_level_training_geometry,
+    run_first_level_simulations,
     run_adaptative_refinement_geom_existing_db,
 )
 
@@ -46,7 +46,6 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.smtrain.func.config import TrainingSettings
 
 from ceasiompy import log
-from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.smtrain import (
     LEVEL_TWO,
     MODULE_NAME as SMTRAIN,
@@ -56,7 +55,7 @@ from ceasiompy.smtrain import (
 # Methods
 
 def _load_smtrain_model(cpacs: CPACS) -> None:
-    ranges_gui = get_elements_to_optimise(cpacs)
+    ranges_gui = get_params_to_optimise(cpacs)
 
     krg_model, rbf_model, sets, param_order = training_existing_db(
         results_dir,
@@ -139,64 +138,50 @@ def _geometry_exploration(
     results_dir: Path,
     training_settings: TrainingSettings,
 ) -> None:
-    tixi = cpacs.tixi
+    # Get Parameters Ranges
+    params_ranges = get_params_to_optimise(cpacs)
 
-    # Low Fidelity First (+ Always available by default)
-    low_fidelity_dir = results_dir / "low_fidelity"
-    low_fidelity_dir.mkdir(exist_ok=True)
-
-    avl_results_dir = Path(low_fidelity_dir, PYAVL)
-    avl_results_dir.mkdir(exist_ok=True)
-
-    generated_cpacs_dir = low_fidelity_dir / "generated_cpacs"
-    generated_cpacs_dir.mkdir(exist_ok=True)
-
-    ranges_gui = get_elements_to_optimise(cpacs)
-    df_ranges_gui = DataFrame([
-        {"Parameter": k, "Min": v[0], "Max": v[1]}
-        for k, v in ranges_gui.items()
-    ])
-
+    # LHS sampling from the Parameter Ranges
     lh_sampling = lh_sampling_geom(
         n_samples=training_settings.n_samples,
-        ranges_gui=ranges_gui,
-        results_dir=results_dir,
+        params_ranges=params_ranges,
     )
 
     # Create the list of CPACS files (in function of geometry values of lh_smapling)
-    list_cpacs = create_list_cpacs_geometry(
-        tixi=tixi,
+    cpacs_list = create_list_cpacs_geometry(
+        cpacs=cpacs,
         lh_sampling=lh_sampling,
-        NEWCPACS_path
+        results_dir=results_dir,
     )
 
-    # First level fidelity training
-    (
-        krg_model,
-        rbf_model,
-        sets,
-        idx_best_geom_conf,
-        param_order
-    ) = run_first_level_training_geometry(
-        cpacs_list=list_cpacs,
-        lh_sampling_geom_path=lh_sampling_geom_path,
-        objective=objective,
-        split_ratio=split_ratio,
-        pyavl_dir=computations_dir,
+    # Generate directory where to store Low Fidelity runs
+    low_fidelity_dir = results_dir / "low_fidelity"
+    low_fidelity_dir.mkdir(exist_ok=True)
+
+    # Low Fidelity First (+ Always available by default)
+    level1_df: DataFrame = run_first_level_simulations(
+        cpacs_list=cpacs_list,
+        lh_sampling=lh_sampling,
+        results_dir=results_dir,
+        params_ranges=params_ranges,
+        training_settings=training_settings,
+    )
+
+    # Save Best Geometry from training in adequate Results Directory
+    store_best_geom_from_training(
+        dataframe=level1_df,
+        cpacs_list=cpacs_list,
+        lh_sampling=lh_sampling,
         results_dir=low_fidelity_dir,
-        ranges_gui=ranges_gui,
+        params_ranges=params_ranges,
+        training_settings=training_settings,
     )
 
-    files = sorted(list(NEWCPACS_path.glob("*.xml")))
-    for i, best_cpacs_path in enumerate(files):
-        if i == idx_best_geom_conf:
-            print(f"{best_cpacs_path=}")
-            dest_path = Path(results_dir) / "best_geometric_configuration_low_fidelity.xml"
-            shutil.copy2(best_cpacs_path, dest_path)
 
-    if selected_krg_model:
-        # Second level fidelity training
-        if fidelity_level == LEVEL_TWO:
+    # Adaptative Refinement
+    if training_settings.fidelity_level == LEVEL_TWO:
+        if "KRG" in training_settings.sm_models:
+            # On High-Variance Points
             run_adaptative_refinement_geom(
                 cpacs=cpacs,
                 results_dir=results_dir,
@@ -207,9 +192,8 @@ def _geometry_exploration(
                 ranges_gui=df_ranges_gui,
             )
 
-    if selected_rbf_model:
-        # Second level fidelity training
-        if fidelity_level == LEVEL_TWO:
+        if "RBF" in training_settings.sm_models:
+            # Second level fidelity training
             run_adapt_refinement_geom_rbf(
                 cpacs=cpacs,
                 results_dir=results_dir,
@@ -220,23 +204,18 @@ def _geometry_exploration(
                 ranges_gui=df_ranges_gui,
             )
 
-    # Second level fidelity training
-    # TODO: if fidelity_level == LEVEL_THREE:
-
     # 3. Plot, save and get results
-    if selected_krg_model:
+    if "KRG" in training_settings.sm_models:
         log.info("Validation plots.")
-        plot_dir = results_dir / "Validation_plot_KRG"
+        plot_dir = results_dir / "krg_validation_plot_"
         plot_dir.mkdir(parents=True, exist_ok=True)
         plot_validation(krg_model, sets, objective, plot_dir)
-
         save_model(cpacs, krg_model, objective, results_dir, param_order)
 
-    if selected_rbf_model:
-        plot_dir = results_dir / "Validation_plot_RBF"
+    if "RBF" in training_settings.sm_models:
+        plot_dir = results_dir / "rbf_validation_plot"
         plot_dir.mkdir(parents=True, exist_ok=True)
         plot_validation(rbf_model, sets, objective, plot_dir)
-
         save_model(cpacs, rbf_model, objective, results_dir, param_order)
 
 

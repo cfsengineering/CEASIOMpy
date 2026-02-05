@@ -5,7 +5,7 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  bash installation/CentOS/miniconda3.sh [--prefix PATH]
+  bash installation/centos/miniconda3.sh [--prefix PATH]
 
 What it does:
   - Downloads the latest Miniconda3 Linux installer for your CPU (x86_64/aarch64)

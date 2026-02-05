@@ -42,7 +42,7 @@ COPY ./installation .
 # Fix line endings and permissions in one go
 RUN find /CEASIOMpy/installation -name "*.sh" -type f -exec dos2unix {} \;
 
-WORKDIR /CEASIOMpy/installation/Ubuntu
+WORKDIR /CEASIOMpy/installation/ubuntu
 RUN chmod +x *.sh
 
 WORKDIR /CEASIOMpy/installdir
@@ -53,16 +53,16 @@ RUN chmod +x pentagrow
 
 WORKDIR /
 
-RUN /CEASIOMpy/installation/Ubuntu/openvsp.sh
+RUN /CEASIOMpy/installation/ubuntu/openvsp.sh
 
-RUN /CEASIOMpy/installation/Ubuntu/pentagrow.sh
+RUN /CEASIOMpy/installation/ubuntu/pentagrow.sh
 
-RUN /CEASIOMpy/installation/Ubuntu/avl.sh
+RUN /CEASIOMpy/installation/ubuntu/avl.sh
 
 RUN rm -rf /var/lib/apt/lists/* && \
     apt-get update -o Acquire::Retries=5 -o Acquire::http::No-Cache=true -o Acquire::http::Pipeline-Depth=0
 
-RUN /CEASIOMpy/installation/Ubuntu/su2.sh --with_mpi false
+RUN /CEASIOMpy/installation/ubuntu/su2.sh --with_mpi false
 
 # Install xvfb and other graphical display dependencies for Ubuntu
 RUN apt-get update && apt-get install -y --no-install-recommends \

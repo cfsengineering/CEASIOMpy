@@ -11,7 +11,7 @@ Supports:
   - Ubuntu 24.04 (Noble)
 
 Usage:
-  bash installation/Ubuntu/openvsp.sh
+  bash installation/ubuntu/openvsp.sh
 
 Notes:
   - This installs OpenVSP system-wide via `sudo dpkg -i`.

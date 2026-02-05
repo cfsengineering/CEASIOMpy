@@ -11,7 +11,7 @@ Supported:
   - Fedora (best effort)
 
 Usage:
-  bash installation/CentOS/openvsp.sh [options]
+  bash installation/centos/openvsp.sh [options]
 
 Options:
   --prefix PATH     Install root that contains installdir/ (default: repo root)

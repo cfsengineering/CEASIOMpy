@@ -59,17 +59,17 @@ jobs:
     - name: Install AVL
       shell: bash -l {0}
       run: |
-        installation/Ubuntu/avl.sh
+        installation/ubuntu/avl.sh
 
     - name: Install SU2
       shell: bash -l {0}
       run: |
-        installation/Ubuntu/su2.sh --with_mpi false
+        installation/ubuntu/su2.sh --with_mpi false
 
     - name: Install Pentagrow
       shell: bash -l {0}
       run: |
-        installation/Ubuntu/pentagrow.sh
+        installation/ubuntu/pentagrow.sh
 
     - name: Run integration tests
       shell: bash -l {0}

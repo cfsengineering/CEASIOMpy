@@ -5,7 +5,7 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  bash installation/macOS/miniconda3.sh [--prefix PATH]
+  bash installation/macos/miniconda3.sh [--prefix PATH]
 
 What it does:
   - Downloads the latest Miniconda3 macOS installer for your CPU (arm64/x86_64)

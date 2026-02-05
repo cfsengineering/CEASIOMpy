@@ -59,7 +59,7 @@ jobs:
     - name: Install Pentagrow
       shell: bash -l {0}
       run: |
-        installation/Ubuntu/pentagrow.sh
+        installation/ubuntu/pentagrow.sh
 
     - name: Run unit tests
       shell: bash -l {0}

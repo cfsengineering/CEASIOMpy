@@ -54,3 +54,9 @@ In CEASIOMpy currently you can use:
 
 ## More information
 - [SMT: Surrogate Modeling Toolbox](https://smt.readthedocs.io/en/latest/)
+
+## Settings reference (WIP)
+
+### Where settings live in CPACS
+
+- See `src/ceasiompy/SMTrain/__init__.py` and `src/ceasiompy/SMTrain/__specs__.py`.

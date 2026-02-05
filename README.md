@@ -19,6 +19,8 @@ All input geometries are based on the open-standard format [CPACS](https://www.c
 
 :book: The Documentation of CEASIOMpy is integrated in this repository and can be read in documents like this one. Follow links to find the information that you are looking for.
 
+For deeper, structured documentation (work in progress), see `docs/index.md`.
+
 ## Table of contents
 
 - [CEASIOMpy](#ceasiompy)

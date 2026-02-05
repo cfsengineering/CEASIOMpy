@@ -59,3 +59,10 @@ The equation used above should be valid in the following ranges of values:
 ## References
 
 <a id="Gerard12">[1]</a> Gerard W. H. van Es, Rapid Estimation of the Zero-Lift Drag Coefficient of Transport Aircraft, Journal of Aircraft, Volume 39, Number 4,  <https://arc.aiaa.org/doi/10.2514/2.2997>
+
+## Settings reference (WIP)
+
+SkinFriction is mostly parameter-free from the GUI side. Practically it depends on wetted area
+information already present in CPACS (commonly produced by `SU2Run` when “Update Wetted Area” is
+enabled). If GUI settings are added in the future, they should be documented here and implemented
+in `src/ceasiompy/SkinFriction/__specs__.py`.

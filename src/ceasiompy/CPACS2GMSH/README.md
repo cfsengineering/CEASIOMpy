@@ -140,3 +140,15 @@ For the RANS part, it is only possible to process aircraft consisting of .brep f
 * [CPACS official website](https://www.cpacs.de)
 
 * [GMSH official website](https://gmsh.info/)
+
+## Settings reference (WIP)
+
+### Where settings live in CPACS
+
+- See `src/ceasiompy/CPACS2GMSH/__init__.py` for the canonical XPaths.
+- See `src/ceasiompy/CPACS2GMSH/__specs__.py` for the Streamlit GUI controls and defaults.
+
+### Runtime mapping (CPACS → Gmsh/Pentagrow/Tetgen)
+
+- Primary config/build logic typically lives under `src/ceasiompy/CPACS2GMSH/func/`.
+- Mesh outputs are written to disk and referenced from CPACS for later modules (e.g. `SU2Run`).

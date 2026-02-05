@@ -44,3 +44,9 @@ To be able to change the engine parameters other than those given as input (alti
 * [SU2 website](https://su2code.github.io/)
 
 * [SU2 Github repository](https://github.com/su2code/SU2)
+
+## Settings reference (WIP)
+
+### Where settings live in CPACS
+
+- See `src/ceasiompy/ThermoData/__init__.py` and `src/ceasiompy/ThermoData/__specs__.py`.

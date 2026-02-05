@@ -16,10 +16,12 @@ import streamlit as st
 import matplotlib as mpl
 import plotly.express as px
 import streamlit.components.v1 as components
+import numpy as np
 
 from stpyvista import stpyvista
 from ceasiompy.utils.commonpaths import get_wkdir
 from ceasiompy.utils.ceasiompyutils import workflow_number
+from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 from parsefunctions import (
     parse_ascii_tables,
     display_avl_table_file,
@@ -32,6 +34,7 @@ from streamlitutils import (
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
+from functools import lru_cache
 
 from ceasiompy import log
 from constants import BLOCK_CONTAINER
@@ -1076,11 +1079,18 @@ def _display_vtu(path: Path) -> None:
                 scalar_map.setdefault(name, "cell")
             scalar_options = list(scalar_map.keys())
 
+            workflow_root = None
+            if path.name == "surface_flow.vtu":
+                workflow_root = _find_workflow_root(path)
+            geometry_mode = _get_geometry_mode(workflow_root) if workflow_root else None
+            show_vtu_view = not (path.name == "surface_flow.vtu" and geometry_mode == "2D")
+
             plotter = pv.Plotter()
             if not scalar_options:
-                plotter.add_mesh(surface, color="lightgray")
-                plotter.reset_camera()
-                stpyvista(plotter, key=f"{path}_vtu_geometry")
+                if show_vtu_view:
+                    plotter.add_mesh(surface, color="lightgray")
+                    plotter.reset_camera()
+                    stpyvista(plotter, key=f"{path}_vtu_geometry")
                 st.caption("No scalar fields found in this VTU file.")
                 return None
 
@@ -1097,16 +1107,22 @@ def _display_vtu(path: Path) -> None:
             if default_scalar is None:
                 default_scalar = scalar_options[0]
 
-            scalar_choice = st.selectbox(
-                "Field",
-                scalar_options,
-                index=scalar_options.index(default_scalar),
-                key=f"{path}_vtu_field",
-            )
-            location = scalar_map.get(scalar_choice, "point")
-            plotter.add_mesh(surface, scalars=scalar_choice, show_scalar_bar=True)
-            plotter.reset_camera()
-            stpyvista(plotter, key=f"{path}_vtu_view_{scalar_choice}")
+            location = None
+            scalar_choice = None
+            if show_vtu_view:
+                scalar_choice = st.selectbox(
+                    "Field",
+                    scalar_options,
+                    index=scalar_options.index(default_scalar),
+                    key=f"{path}_vtu_field",
+                )
+                location = scalar_map.get(scalar_choice, "point")
+
+                plotter.add_mesh(surface, scalars=scalar_choice, show_scalar_bar=True)
+                plotter.reset_camera()
+                stpyvista(plotter, key=f"{path}_vtu_view_{scalar_choice}")
+
+            _display_surface_flow_cp_xc(path, surface)
 
             if location == "point":
                 data_array = surface.point_data.get(scalar_choice)
@@ -1260,6 +1276,130 @@ def _get_workflow_module_order(workflow_dir: Path) -> list[str]:
             continue
         module_dirs.append((int(parts[0]), parts[1]))
     return [name for _, name in sorted(module_dirs, key=lambda item: item[0])]
+
+
+def _display_surface_flow_cp_xc(path: Path, surface: pv.PolyData) -> None:
+    if path.name != "surface_flow.vtu":
+        return None
+
+    workflow_root = _find_workflow_root(path)
+    if workflow_root is None:
+        return
+
+    geometry_mode = _get_geometry_mode(workflow_root)
+    if geometry_mode != "2D":
+        return
+
+    cp_field, location = _find_cp_field(surface)
+    if cp_field is None:
+        st.info("No pressure coefficient field found to plot Cp vs x/c.")
+        return
+
+    coords, cp_values = _get_scalar_with_coords(surface, cp_field, location)
+    if coords is None or cp_values is None or len(cp_values) == 0:
+        return
+
+    x_axis = 0
+    axis_ranges = np.ptp(coords, axis=0)
+    if axis_ranges[1] >= axis_ranges[2]:
+        y_axis = 1
+    else:
+        y_axis = 2
+
+    x_vals = coords[:, x_axis]
+    y_vals = coords[:, y_axis]
+    x_min = float(np.min(x_vals))
+    x_max = float(np.max(x_vals))
+    chord = x_max - x_min
+    if chord <= 0:
+        return
+
+    x_over_c = (x_vals - x_min) / chord
+
+    df = pd.DataFrame(
+        {
+            "x_over_c": x_over_c,
+            "y_coord": y_vals,
+            "cp": cp_values,
+        }
+    )
+    df = df.replace([np.inf, -np.inf], np.nan).dropna()
+    if df.empty:
+        return
+
+    bins = np.linspace(0.0, 1.0, 81)
+    df["bin"] = np.digitize(df["x_over_c"], bins, right=True)
+    y_mid = df.groupby("bin")["y_coord"].mean()
+    df["y_mid"] = df["bin"].map(y_mid)
+    df["surface"] = np.where(df["y_coord"] >= df["y_mid"], "Upper", "Lower")
+
+    grouped = (
+        df.groupby(["surface", "bin"], as_index=False)
+        .agg(
+            x_over_c=("x_over_c", "mean"),
+            cp=("cp", "mean"),
+        )
+        .sort_values(["surface", "x_over_c"])
+    )
+    if grouped.empty:
+        return
+
+    fig = px.line(
+        grouped,
+        x="x_over_c",
+        y="cp",
+        color="surface",
+        markers=True,
+        title="Pressure Coefficient vs x/c",
+    )
+    fig.update_layout(
+        xaxis_title="x/c",
+        yaxis_title="Cp",
+        legend_title_text="Surface",
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def _find_cp_field(surface: pv.PolyData) -> tuple[str | None, str | None]:
+    candidates = ["Pressure_Coefficient", "Cp", "C_p", "cp"]
+    for name in candidates:
+        if name in surface.point_data:
+            return name, "point"
+        if name in surface.cell_data:
+            return name, "cell"
+    return None, None
+
+
+def _get_scalar_with_coords(
+    surface: pv.PolyData, scalar_name: str, location: str
+) -> tuple[np.ndarray | None, np.ndarray | None]:
+    if location == "point":
+        return surface.points, surface.point_data.get(scalar_name)
+    if location == "cell":
+        return surface.cell_centers().points, surface.cell_data.get(scalar_name)
+    return None, None
+
+
+def _find_workflow_root(path: Path) -> Path | None:
+    for parent in path.parents:
+        if parent.name.startswith("Workflow_"):
+            return parent
+    return None
+
+
+@lru_cache(maxsize=8)
+def _get_geometry_mode(workflow_root: Path) -> str | None:
+    cpacs_path = workflow_root / "00_ToolInput.xml"
+    if not cpacs_path.exists():
+        return None
+    try:
+        cpacs = CPACS(cpacs_path)
+        tixi = cpacs.tixi
+        if tixi.checkElement(GEOMETRY_MODE_XPATH):
+            return tixi.getTextElement(GEOMETRY_MODE_XPATH)
+    except Exception as exc:
+        log.warning(f"Could not read geometry mode from {cpacs_path}: {exc}")
+    return None
 
 
 # Main

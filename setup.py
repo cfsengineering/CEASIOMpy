@@ -14,7 +14,7 @@ URL = "https://github.com/cfsengineering/CEASIOMpy"
 # Align python requirement with supported releases (>=3.11).
 REQUIRES_PYTHON = ">=3.11"
 REQUIRED = ["defusedxml"]
-README = "README.md"
+README = "readme.md"
 PACKAGE_DIR = "src"
 LICENSE = "license"
 

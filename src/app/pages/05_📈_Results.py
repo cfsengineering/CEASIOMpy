@@ -35,7 +35,7 @@ from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
 from constants import BLOCK_CONTAINER
-from ceasiompy.PyAVL import AVL_TABLE_FILES
+from ceasiompy.pyavl import AVL_TABLE_FILES
 
 
 # Constants
@@ -869,6 +869,17 @@ def _display_su2(path: Path) -> None:
     with st.container(border=True):
         st.markdown(f"**{path.name}**")
         try:
+            st.download_button(
+                label="Download SU2 mesh",
+                data=path.read_bytes(),
+                file_name=path.name,
+                mime="application/octet-stream",
+                use_container_width=True,
+                key=f"{path}_su2_download",
+            )
+        except OSError as exc:
+            st.warning(f"Unable to prepare download: {exc}")
+        try:
             marker_map: dict[str, int] = {}
             with path.open() as handle:
                 temp_file = tempfile.NamedTemporaryFile(
@@ -1039,6 +1050,17 @@ def _display_vtu(path: Path) -> None:
             label=f"**{path.name}**",
             value=True,
         ):
+            try:
+                st.download_button(
+                    label="Download VTU file",
+                    data=path.read_bytes(),
+                    file_name=path.name,
+                    mime="application/octet-stream",
+                    use_container_width=True,
+                    key=f"{path}_vtu_download",
+                )
+            except OSError as exc:
+                st.warning(f"Unable to prepare download: {exc}")
 
             try:
                 mesh = pv.read(str(path))

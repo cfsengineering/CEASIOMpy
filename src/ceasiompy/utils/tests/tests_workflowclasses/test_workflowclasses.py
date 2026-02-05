@@ -17,7 +17,7 @@ from ceasiompy.utils.workflowclasses import ModuleToRun, Workflow
 
 
 MODULE_DIR = Path(__file__).parent
-CPACS_PATH = Path(MODULE_DIR.parents[3].parent, "test_files", "CPACSfiles", "d150.xml")
+CPACS_PATH = Path(MODULE_DIR.parents[3].parent, "test_files", "cpacsfiles", "d150.xml")
 CPACS_PATH_OUT = Path(MODULE_DIR, "d150_out.xml")
 
 # =================================================================================================

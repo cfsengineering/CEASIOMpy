@@ -101,8 +101,8 @@ def build_index(
     chunks: list[dict] = []
     excluded_dirs = {
         ".git",
-        "WKDIR",
-        "INSTALLDIR",
+        "wkdir",
+        "installdir",
         "test_files",
         "test_cases",
         "tests",

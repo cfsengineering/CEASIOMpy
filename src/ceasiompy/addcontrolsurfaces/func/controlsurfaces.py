@@ -1,0 +1,911 @@
+"""
+CEASIOMpy: Conceptual Aircraft Design Software.
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland.
+"""
+
+# Imports
+
+import math
+import numpy as np
+import plotly.graph_objects as go
+
+from numpy import array
+from cpacspy.cpacsfunctions import get_float_vector
+from ceasiompy.utils.commonpaths import get_wkdir
+from ceasiompy.utils.ceasiompyutils import (
+    update_xpath_at_xyz,
+    get_results_directory,
+)
+from ceasiompy.utils.mathsfunctions import (
+    rot,
+    rotate_2d_point,
+    get_rotation_matrix,
+)
+from ceasiompy.utils.geometryfunctions import (
+    get_uid,
+    elements_number,
+    find_wing_xpath,
+    get_segments_wing,
+)
+from ceasiompy.addcontrolsurfaces.func.utils import (
+    copy,
+    remove,
+    find_max_x,
+    find_min_x,
+    array_to_str,
+    interpolate_points,
+    symmetric_operation,
+    sanitize_uid,
+    make_unique_uid,
+)
+
+from numpy import ndarray
+from tixi3.tixi3wrapper import Tixi3
+
+from ceasiompy import log
+from ceasiompy.addcontrolsurfaces import (
+    MODULE_NAME,
+    ADDCONTROLSURFACES_CTRLSURF_XPATH,
+)
+from ceasiompy.utils.commonxpaths import (
+    AIRFOILS_XPATH,
+    GEOMETRY_MODE_XPATH,
+)
+
+
+# Functions
+
+
+def retrieve_gui_ctrlsurf(tixi: Tixi3) -> dict[str, list]:
+    """
+    Retrieves all child xPaths under the given control surface xPath and returns a dictionary
+    with wing names as keys and lists of segment names as values,
+    excluding segments with value 'none'.
+
+    Args:
+        tixi (Tixi3): Tixi handle of CPACS file.
+        ctrlsurf_xpath (str): Base xPath for control surfaces.
+
+    Returns:
+        (dict): Keys are wing names, values are tuple(segment names, values).
+
+    """
+
+    # Load constants
+    wing_cnt = tixi.getNumberOfChilds(ADDCONTROLSURFACES_CTRLSURF_XPATH)
+
+    # Load variable
+    result = {}
+
+    #
+    for i in range(1, wing_cnt + 1):
+        wing_name = tixi.getChildNodeName(ADDCONTROLSURFACES_CTRLSURF_XPATH, i)
+        wing_xpath = f"{ADDCONTROLSURFACES_CTRLSURF_XPATH}/{wing_name}"
+        seg_cnt = tixi.getNumberOfChilds(wing_xpath)
+
+        wing_sgt_list = []
+        for j in range(1, seg_cnt + 1):
+            segment_name = tixi.getChildNodeName(wing_xpath, j)
+            segment_xpath = f"{wing_xpath}/{segment_name}"
+            segment_value = tixi.getTextElement(segment_xpath)
+            if segment_value != "none":
+                wing_sgt_list.append((segment_name, segment_value))
+        result[wing_name] = wing_sgt_list
+
+    if not result:
+        log.warning("You did not define any control surfaces.")
+
+    return result
+
+
+def get_point(tixi: Tixi3, xpath: str) -> tuple[float, float, float]:
+    x = tixi.getDoubleElement(xpath + "/x")
+    y = tixi.getDoubleElement(xpath + "/y")
+    z = tixi.getDoubleElement(xpath + "/z")
+    return x, y, z
+
+
+def compute_abs_location(tixi: Tixi3, wing_xpath: str) -> dict[str, tuple[str, str, str]]:
+    """
+    Need to compute absolute locations for the main wing.
+    """
+    # Define constants
+    sec = "section"
+    secs_xpath = wing_xpath + f"/{sec}s"
+    secs_cnt = elements_number(tixi, secs_xpath, sec, logg=False)
+
+    # Define variables
+    result = {}
+    # TODO: Case with scale, where do we put the scaling operation.
+    # scale_xpath = wing_xpath + "/transformation/scaling/"
+    # sx, sy, sz = get_point(tixi, scale_xpath)
+
+    rot_xpath = wing_xpath + "/transformation/rotation/"
+    deg_x, deg_y, deg_z = get_point(tixi, rot_xpath)
+    rax, ray, raz = -math.radians(deg_x), -math.radians(deg_y), -math.radians(deg_z)
+
+    trans_xpath = wing_xpath + "/transformation/translation/"
+    tx, ty, tz = get_point(tixi, trans_xpath)
+
+    rx, ry, rz = get_rotation_matrix(rax, ray, raz)
+    rot = rz @ ry @ rx
+    x, y, z = tx, ty, tz
+
+    # First section is kept identical
+    ele_xpath = secs_xpath + f"/{sec}[1]/elements/element[1]"
+    element_uid = get_uid(tixi, ele_xpath)
+    result[element_uid] = (str(x), str(y), str(z))
+
+    for i_sec in range(2, secs_cnt + 1):
+        sec_xpath = secs_xpath + f"/{sec}[{i_sec}]"
+        sec_uid = get_uid(tixi, sec_xpath)
+
+        pos = "positioning"
+        poss_xpath = wing_xpath + f"/{pos}s"
+        poss_cnt = elements_number(tixi, poss_xpath, pos, logg=False)
+
+        length = 0.0
+        sweep = 0.0
+        dih = 0.0
+        for i_pos in range(poss_cnt):
+            pos_xpath = poss_xpath + f"/{pos}[{i_pos + 1}]"
+            if tixi.getTextElement(pos_xpath + "/toSectionUID") == sec_uid:
+                length: float = tixi.getDoubleElement(pos_xpath + "/length")
+                sweep: float = math.radians(tixi.getDoubleElement(pos_xpath + "/sweepAngle"))
+                dih: float = math.radians(tixi.getDoubleElement(pos_xpath + "/dihedralAngle"))
+                break
+        else:
+            log.warning("Issue with positioning. Associated with wrong section uID.")
+
+        x_ = length * math.sin(sweep)
+        y_ = length * math.cos(dih) * math.cos(sweep)
+        z_ = length * math.sin(dih) * math.cos(sweep)
+
+        coord_ = array([x_, y_, z_])
+        x_, y_, z_ = rot.dot(coord_)
+
+        x += x_
+        y += y_
+        z += z_
+
+        ele_xpath = sec_xpath + "/elements/element"
+        element_uid = get_uid(tixi, ele_xpath)
+
+        result[element_uid] = (str(x), str(y), str(z))
+    return result
+
+
+def filter_sections(
+    tixi: Tixi3,
+    new_xpath: str,
+    wing_xpath: str,
+    uid_list: list,
+    removed_sec: list,
+    kept_sec: list,
+) -> None:
+    """
+    Remove sections where elements are not the one in seg_from_uid or seg_to_uid.
+    """
+    # Define constants
+    sec = "section"
+    secs_xpath = new_xpath + f"/{sec}s"
+    secs_cnt = elements_number(tixi, secs_xpath, sec, logg=False)
+
+    # Filter the sections
+    for i_sec in range(secs_cnt, 0, -1):
+        sec_xpath = secs_xpath + f"/{sec}[{i_sec}]"
+        org_sec_xpath = wing_xpath + f"/{sec}s/{sec}[{i_sec}]"
+        element_uid = get_uid(tixi, org_sec_xpath + "/elements/element")
+
+        # If it does not define the segment,
+        # remove the section.
+        sec_uid = get_uid(tixi, org_sec_xpath)
+        if element_uid not in uid_list:
+            removed_sec.append(sec_uid)
+            remove(tixi, sec_xpath)
+        else:
+            kept_sec.append(sec_uid)
+
+    if len(kept_sec) != 2:
+        log.warning("Issue with number of kept sections.")
+
+
+def filter_positionings(
+    tixi: Tixi3,
+    new_xpath: str,
+    wing_xpath: str,
+    kept_sec: list,
+) -> None:
+    """
+    Remove the correct positionings corresponding to the removed sections.
+    """
+    # Define constants
+    pos = "positioning"
+    poss_xpath = new_xpath + f"/{pos}s"
+    poss_cnt = elements_number(tixi, poss_xpath, pos, logg=False)
+
+    # Determine if the source wing uses a *relative* positioning chain (with fromSectionUID).
+    # If so, we must keep a root positioning even if it points to a removed section and then
+    # re-target it to the start of the remaining chain.
+    src_poss_xpath = wing_xpath + f"/{pos}s"
+    src_poss_cnt = elements_number(tixi, src_poss_xpath, pos, logg=False)
+    relative_mode = False
+    for i_pos in range(1, src_poss_cnt + 1):
+        if tixi.checkElement(src_poss_xpath + f"/{pos}[{i_pos}]/fromSectionUID"):
+            relative_mode = True
+            break
+
+    # Filter positionings
+    for i_pos in range(poss_cnt, 0, -1):
+        pos_xpath = poss_xpath + f"/{pos}[{i_pos}]"
+        org_pos_xpath = wing_xpath + f"/{pos}s/{pos}[{i_pos}]"
+        from_xpath = org_pos_xpath + "/fromSectionUID"
+        if tixi.checkElement(from_xpath):
+            from_sec_uid = tixi.getTextElement(from_xpath)
+        else:
+            from_sec_uid = ""
+        to_xpath = org_pos_xpath + "/toSectionUID"
+        to_sec_uid = tixi.getTextElement(to_xpath) if tixi.checkElement(to_xpath) else ""
+
+        # CPACS can define positionings as either:
+        # - relative chain: first positioning has no fromSectionUID, others have from/to
+        # - absolute: each positioning only has toSectionUID
+        if relative_mode:
+            if from_sec_uid == "":
+                # Keep root positioning; we'll retarget it after filtering.
+                continue
+            if not ((from_sec_uid in kept_sec) and (to_sec_uid in kept_sec)):
+                remove(tixi, pos_xpath)
+        else:
+            if to_sec_uid not in kept_sec:
+                remove(tixi, pos_xpath)
+
+    poss_cnt = elements_number(tixi, poss_xpath, pos, logg=False)
+
+    if not relative_mode:
+        return
+
+    # Update the "root" positioning (without fromSectionUID) to point to the start of the
+    # remaining relative chain.
+    root_indices: list[int] = []
+    edges: list[tuple[str, str]] = []
+
+    for i_pos in range(1, poss_cnt + 1):
+        pos_xpath = poss_xpath + f"/{pos}[{i_pos}]"
+        from_xpath = pos_xpath + "/fromSectionUID"
+        to_xpath = pos_xpath + "/toSectionUID"
+        from_sec_uid = tixi.getTextElement(from_xpath) if tixi.checkElement(from_xpath) else ""
+        to_sec_uid = tixi.getTextElement(to_xpath) if tixi.checkElement(to_xpath) else ""
+        if from_sec_uid == "":
+            root_indices.append(i_pos)
+        elif from_sec_uid and to_sec_uid:
+            edges.append((from_sec_uid, to_sec_uid))
+
+    if not root_indices or not edges:
+        log.warning("Could not update first positioning (missing from/to section UID).")
+        return
+
+    from_set = {f for f, _ in edges}
+    to_set = {t for _, t in edges}
+    starts = list(from_set - to_set)
+    chain_start = starts[0] if starts else edges[0][0]
+
+    # Keep only one root positioning (some CPACS exports may include multiple roots).
+    root_indices_sorted = sorted(root_indices)
+    root_to_keep = root_indices_sorted[0]
+    for root_index in reversed(root_indices_sorted[1:]):
+        remove(tixi, poss_xpath + f"/{pos}[{root_index}]")
+
+    tixi.updateTextElement(poss_xpath + f"/{pos}[{root_to_keep}]/toSectionUID", chain_start)
+
+
+def filter_segments(
+    tixi: Tixi3,
+    new_xpath: str,
+    wing_xpath: str,
+    seg_from_uid: str,
+    seg_to_uid: str,
+) -> None:
+    """
+    Keep only the Seg = [seg_from_uid, seg_to_uid] segment.
+    """
+    # Define constants
+    seg = "segment"
+    segs_xpath = new_xpath + f"/{seg}s"
+    segs_cnt = elements_number(tixi, segs_xpath, seg, logg=False)
+
+    #
+    # Filter segments iteratively
+    for i_seg in range(segs_cnt, 0, -1):
+        seg_xpath = segs_xpath + f"/{seg}[{i_seg}]"
+        org_seg_xpath = wing_xpath + f"/{seg}s/{seg}[{i_seg}]"
+
+        if not (
+            (tixi.getTextElement(org_seg_xpath + "/fromElementUID") == seg_from_uid)
+            and (tixi.getTextElement(org_seg_xpath + "/toElementUID") == seg_to_uid)
+        ):
+            remove(tixi, seg_xpath)
+
+    if elements_number(tixi, segs_xpath, seg, logg=False) != 1:
+        log.warning("Issue with number of segments.")
+
+
+def decompose_wing(tixi: Tixi3, wing_uid: str) -> dict[str, str]:
+    """
+    Decompose the wing wing_uid into many "sub"-wings with 1 segment each.
+    """
+    # Define constants
+    wing_xpath = find_wing_xpath(tixi, wing_uid)
+    segments = get_segments_wing(tixi, wing_uid)
+    loc = compute_abs_location(tixi, wing_xpath)
+
+    #
+    # Remove unecessary data
+    remove(tixi, wing_xpath + "/componentSegments")
+
+    # Copy wing times the number of sections with
+    seg_to_wing_uid: dict[str, str] = {}
+    for seg_uid, seg_from_uid, seg_to_uid in segments:
+        new_wing_uid = make_unique_uid(tixi, sanitize_uid(f"{wing_uid}_{seg_uid}"))
+        uid_list = [seg_from_uid, seg_to_uid]
+        new_xpath = copy(tixi, wing_xpath, "wing", new_wing_uid)
+        seg_to_wing_uid[seg_uid] = new_wing_uid
+        removed_sec = []
+        kept_sec = []
+
+        # Remove unneccessary sections
+        filter_sections(tixi, new_xpath, wing_xpath, uid_list, removed_sec, kept_sec)
+
+        # Remove positionings corresponding to the removed sections
+        # from the 'filter_sections' function.
+        filter_positionings(tixi, new_xpath, wing_xpath, kept_sec)
+
+        # Keep only the Seg = [seg_from_uid, seg_to_uid] segment
+        filter_segments(tixi, new_xpath, wing_xpath, seg_from_uid, seg_to_uid)
+
+        # Modify translate vector accordingly
+        trsl_xpath = new_xpath + "/transformation/translation"
+        if seg_from_uid in loc:
+            update_xpath_at_xyz(
+                tixi,
+                trsl_xpath,
+                loc[seg_from_uid][0],
+                loc[seg_from_uid][1],
+                loc[seg_from_uid][2],
+            )
+        else:
+            log.warning(
+                f"Could not compute absolute translation for '{seg_from_uid}', "
+                "keeping original wing translation."
+            )
+
+    # Remove original wing
+    remove(tixi, wing_xpath)
+    return seg_to_wing_uid
+
+
+def fowler_transform(
+    x_values: ndarray, z_values: ndarray, x_ref: float
+) -> tuple[ndarray, ndarray, ndarray]:
+    """
+    Transforms z values to 0.0 for x values greater than x_ref.
+    """
+
+    mask = (x_values > x_ref) & (z_values < 0)
+
+    # Apply the transformation to the z values where the mask is True
+    transformed_z = np.where(
+        mask,
+        z_values * np.exp(-100.0 * (x_values - x_ref) * (1 - x_values)),
+        z_values,
+    )
+
+    return transformed_z, x_values[mask], transformed_z[mask]
+
+
+def plain_transform(
+    x_values: ndarray,
+    z_values: ndarray,
+    x_ref: float,
+) -> tuple[ndarray, ndarray, ndarray, ndarray]:
+    """
+    Transforms z values to create a rounded shape nearest to x_ref.
+    """
+
+    curve = -0.035
+
+    # Mask for values less than x_ref
+    mask = x_values < x_ref
+    newx_values = x_values[mask]
+    newz_values = z_values[mask]
+
+    # Keep original order for points with x < x_ref.
+    if newx_values.size == 0:
+        return newx_values, newz_values, x_values, z_values
+
+    # Create new x values using sine function
+    x = np.arange(0.0, 1.1, 0.2)
+    new_x = curve * np.sin(np.pi * x)
+    max_x_pos, z_pos, _, z_neg = find_max_x(newx_values, newz_values)
+
+    close_x = max_x_pos + new_x
+    close_z = np.linspace(z_pos, z_neg, len(close_x))
+
+    # Insert closing curve between the upper/lower points at max_x_pos to avoid a straight segment.
+    close_x_insert = close_x
+    close_z_insert = close_z
+    x_match = np.isclose(newx_values, max_x_pos, rtol=0.0, atol=1e-6)
+    match_indices = np.where(x_match)[0]
+    if match_indices.size >= 2:
+        match_z = newz_values[match_indices]
+        upper_idx = int(match_indices[np.argmax(match_z)])
+        lower_idx = int(match_indices[np.argmin(match_z)])
+        if upper_idx < lower_idx:
+            insert_at = upper_idx + 1
+        else:
+            insert_at = lower_idx + 1
+            close_x_insert = close_x_insert[::-1]
+            close_z_insert = close_z_insert[::-1]
+    else:
+        diffs = np.abs(newx_values - max_x_pos)
+        min_diff = np.min(diffs)
+        insert_candidates = np.where(diffs == min_diff)[0]
+        insert_at = int(insert_candidates[-1]) + 1
+
+    newx_values = np.concatenate((
+        newx_values[:insert_at],
+        close_x_insert,
+        newx_values[insert_at:],
+    ))
+    newz_values = np.concatenate((
+        newz_values[:insert_at],
+        close_z_insert,
+        newz_values[insert_at:],
+    ))
+    newx_values, newz_values = _remove_duplicate_points(newx_values, newz_values)
+
+    # Flap
+    x_flap = x_ref + 0.02
+    mask_flap = x_values > x_flap
+    newx_flapvalues = x_values[mask_flap]
+    newz_flapvalues = z_values[mask_flap]
+
+    _, z_pos, _, z_neg = find_min_x(newx_flapvalues, newz_flapvalues)
+
+    # Create new x values for the flap using sine function
+    x = np.arange(1.0, -0.05, -0.05)
+    new_x = curve * np.sin(np.pi * x)
+
+    arc_x = x_flap + new_x
+    arc_z = np.linspace(z_pos, z_neg, len(x))[::-1]
+
+    # Sort the values such that the pairs (x, z) are ordered by z in decreasing order
+    sorted_indices = np.argsort(newz_flapvalues)[::-1]
+    newx_flapvalues = newx_flapvalues[sorted_indices]
+    newz_flapvalues = newz_flapvalues[sorted_indices]
+
+    # Concatenate the transition points with the existing arrays
+    newx_flapvalues = np.concatenate((newx_flapvalues, arc_x))
+    newz_flapvalues = np.concatenate((newz_flapvalues, arc_z))
+
+    return newx_values, newz_values, newx_flapvalues, newz_flapvalues
+
+
+def _remove_duplicate_points(
+    x_values: ndarray,
+    z_values: ndarray,
+    tol: float = 1e-6,
+) -> tuple[ndarray, ndarray]:
+    """Remove exact/near-duplicate points while preserving order."""
+    if len(x_values) == 0:
+        return x_values, z_values
+
+    x = np.asarray(x_values, dtype=float)
+    z = np.asarray(z_values, dtype=float)
+
+    keep_indices = [0]
+    last_x = x[0]
+    last_z = z[0]
+    for i in range(1, len(x)):
+        if abs(x[i] - last_x) > tol or abs(z[i] - last_z) > tol:
+            keep_indices.append(i)
+            last_x = x[i]
+            last_z = z[i]
+
+    return x[keep_indices], z[keep_indices]
+
+
+def _clean_airfoil_input(
+    x_values: ndarray,
+    z_values: ndarray,
+    tol: float = 1e-6,
+) -> tuple[ndarray, ndarray]:
+    """Lightweight cleanup of airfoil point list.
+
+    - Remove consecutive duplicates
+    - Rotate so list starts at leading edge (min x)
+    - Ensure first/last are not identical
+    """
+    if len(x_values) == 0:
+        return x_values, z_values
+
+    x, z = _remove_duplicate_points(x_values, z_values, tol=tol)
+    if len(x) == 0:
+        return x, z
+
+    min_x_index = np.argmin(x)
+    x = np.roll(x, -min_x_index)
+    z = np.roll(z, -min_x_index)
+
+    if len(x) > 1:
+        if abs(x[0] - x[-1]) <= tol and abs(z[0] - z[-1]) <= tol:
+            x = x[:-1]
+            z = z[:-1]
+
+    return x, z
+
+
+def _save_airfoil_order_plot(x_values: ndarray, z_values: ndarray, airfoil_uid: str) -> None:
+    """Save an interactive HTML plot of airfoil point ordering."""
+    wkdir = get_wkdir()
+    if wkdir is None:
+        return
+
+    out_dir = get_results_directory(MODULE_NAME)
+
+    indices = list(range(len(x_values)))
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=x_values,
+            y=z_values,
+            mode="lines+markers+text",
+            text=[str(i) for i in indices],
+            textposition="top center",
+            name="airfoil",
+        )
+    )
+    fig.update_layout(
+        title=f"Airfoil point order: {airfoil_uid}",
+        xaxis_title="x",
+        yaxis_title="z",
+        yaxis_scaleanchor="x",
+        template="plotly_white",
+    )
+    out_path = out_dir / f"airfoil_order_{sanitize_uid(airfoil_uid)}.html"
+    fig.write_html(out_path, include_plotlyjs="cdn", full_html=True)
+    log.info(f"Saved html at {out_path=}")
+
+
+def fowler_flap_scale(
+    x_airfoil: ndarray,
+    z_airfoil: ndarray,
+    x_flap: ndarray,
+    z_flap: ndarray,
+) -> tuple[ndarray, ndarray]:
+    """
+    Transform and rotate the flap airfoil to fit correctly wrt main wing.
+    """
+
+    x_min, x_max = np.min(x_flap), np.max(x_flap)
+    z_min, z_max = np.min(z_flap), np.max(z_flap)
+
+    # Calculate the angle of rotation
+    delta_x = x_max - x_min
+    delta_z = z_max - z_min
+    angle = np.arctan2(delta_z, delta_x)
+
+    rot_matrix = rot(angle)
+
+    airfoil_points = np.vstack((x_airfoil, z_airfoil))
+    rotated_airfoil_points = rot_matrix @ airfoil_points
+
+    x_airfoil_rotated = rotated_airfoil_points[0, :]
+    z_airfoil_rotated = rotated_airfoil_points[1, :]
+
+    # Scale the rotated airfoil points
+    scale = 0.7
+    x_airfoil_scaled = (
+        scale
+        * (x_airfoil_rotated - np.min(x_airfoil_rotated))
+        / (np.max(x_airfoil_rotated) - np.min(x_airfoil_rotated))
+    )
+    z_airfoil_scaled = (
+        scale
+        * (z_airfoil_rotated - np.min(z_airfoil_rotated))
+        / (np.max(z_airfoil_rotated) - np.min(z_airfoil_rotated))
+    )
+
+    # Translate the scaled airfoil points to fit within the domain
+    scale_p = 0.15
+    x_airfoil_transformed = x_min * (1 + scale_p / 4) + (x_max - x_min) * x_airfoil_scaled
+    z_airfoil_transformed = z_min * (1 - scale_p) + (z_max - z_min) * z_airfoil_scaled
+
+    return x_airfoil_transformed, z_airfoil_transformed
+
+
+def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
+    """
+    Transform the shape of wing's airfoil at segment sgt,
+    in format ctrltype.
+    """
+    # Define constants
+    if not tixi.uIDCheckExists(sgt):
+        log.warning(f"Wing with uID '{sgt}' not found, skipping airfoil transform.")
+        return None
+
+    wing_xpath = tixi.uIDGetXPath(sgt)
+
+    if wing_xpath.endswith("wing"):
+        wing_xpath += "[1]"
+
+    sec = "section"
+    secs_xpath = wing_xpath + f"/{sec}s"
+    secs_cnt = elements_number(tixi, secs_xpath, sec, logg=False)
+
+    ##########################
+    # Modify airfoil's shape #
+    ##########################
+
+    # Retrieve uIDs of section's airfoil
+    for i_sec in range(1, secs_cnt + 1):
+        airfoil_xpath = secs_xpath + f"/{sec}[{i_sec}]/elements/element[1]/airfoilUID"
+        airfoil_uid = tixi.getTextElement(airfoil_xpath)
+        wingairfoil_xpath = AIRFOILS_XPATH + f"/wingAirfoil[@uID='{airfoil_uid}']"
+        if tixi.checkElement(wingairfoil_xpath):
+            pointlist_xpath = wingairfoil_xpath + "/pointList"
+            x = array(get_float_vector(tixi, pointlist_xpath + "/x"))
+            z = array(get_float_vector(tixi, pointlist_xpath + "/z"))
+
+            x, z = _clean_airfoil_input(x, z)
+            _save_airfoil_order_plot(x, z, airfoil_uid)
+
+            # TODO: Add choice of different interpolation techniques
+            newx, newz = interpolate_points(x, z, max_dist=0.02)
+            # CAREFUL: if you want to interpolate airfoil coordinates,
+            # you need to apply the interpolation to all airfoils.
+            # newx, newz = x, z
+            newx, newz = _clean_airfoil_input(newx, newz)
+
+            if "fowler" in ctrltype:
+                # Store airfoil temporarily
+                x_airfoil, z_airfoil = newx, newz / 3.0
+
+                newz, xflap, zflap = fowler_transform(newx, newz, x_ref=0.6)
+                x_airfoil, z_airfoil = fowler_flap_scale(x_airfoil, z_airfoil, xflap, zflap)
+            elif "plain" in ctrltype:
+                newx, newz, x_airfoil, z_airfoil = plain_transform(newx, newz, x_ref=0.7)
+            else:
+                log.warning(f"Control surface {ctrltype} does not exist, or is not implemented.")
+
+            newx_str, newy_str, newz_str = array_to_str(newx, newz)
+            ids = "main_" + ctrltype + "_" + sgt + f"_{i_sec}"
+            new_airfoil_xpath = copy(tixi, wingairfoil_xpath, "wingAirfoil", ids, sym=False)
+            update_xpath_at_xyz(
+                tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str
+            )
+            _save_airfoil_order_plot(newx, newz, ids)
+
+            # Update airfoil uID for each section
+            tixi.updateTextElement(airfoil_xpath, ids)
+
+            # Add x_airfoil, z_airfoil in wingAirfoils (small flap definition)
+            newx_str, newy_str, newz_str = array_to_str(x_airfoil, z_airfoil)
+            ids = ctrltype + "_" + sgt + f"_{i_sec}"
+            new_airfoil_xpath = copy(tixi, wingairfoil_xpath, "wingAirfoil", ids, sym=False)
+            update_xpath_at_xyz(
+                tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str
+            )
+            _save_airfoil_order_plot(x_airfoil, z_airfoil, ids)
+        else:
+            log.warning(f"Airfoil uID {airfoil_uid} not found.")
+
+
+def createfrom_wing_airfoil(
+    tixi: Tixi3, wingairfoil_xpath: str,
+    xlist: list, zlist: list,
+    ids: str
+) -> None:
+    """
+    Creates a wingAirfoil.
+    """
+
+    newx_str, newy_str, newz_str = array_to_str(xlist, zlist)
+    new_airfoil_xpath = copy(tixi, wingairfoil_xpath, "wingAirfoil", ids, sym=False)
+    update_xpath_at_xyz(tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str)
+
+
+def add_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
+    """
+    Add the small airfoil flap behind/under the wing.
+
+    Args:
+        tixi (Tixi3): Tixi handle of CPACS file.
+        sgt (str): Segment of wing where we add the CPACS.
+        ctrltype (str): Type of the control surface.
+
+    """
+
+    if "aileron" in ctrltype:
+        sym = False
+        left_ctrltype = "left_" + ctrltype
+
+        # Add both right and left control surfaces
+        adding_airfoil(tixi, "right_" + ctrltype, sgt, sym)
+        adding_airfoil(tixi, left_ctrltype, sgt, sym)
+
+        # Modify the "left_" airfoil to put it on the left
+        wing_uid = left_ctrltype + "_" + sgt
+        if not tixi.uIDCheckExists(wing_uid):
+            log.warning(f"Wing with uID '{wing_uid}' not found, skipping symmetry operation.")
+            return None
+
+        wingxpath = tixi.uIDGetXPath(wing_uid)
+        symmetric_operation(tixi, wingxpath + "/transformation/scaling/y")
+        symmetric_operation(tixi, wingxpath + "/transformation/translation/y")
+
+    elif "rudder" in ctrltype:
+        # If the parent wing is symmetric, mirror the control surface as well.
+        wing_xpath = tixi.uIDGetXPath(sgt) if tixi.uIDCheckExists(sgt) else ""
+        sym_attr = (
+            tixi.getTextAttribute(wing_xpath, "symmetry")
+            if wing_xpath and tixi.checkAttribute(wing_xpath, "symmetry")
+            else ""
+        )
+        adding_airfoil(tixi, ctrltype, sgt, sym=(sym_attr == "x-z-plane"))
+    else:
+        adding_airfoil(tixi, ctrltype, sgt, sym=True)
+
+
+def adding_airfoil(tixi: Tixi3, ctrltype: str, sgt: str, sym: bool) -> None:
+    # Sanity checks
+    if not tixi.uIDCheckExists(sgt):
+        log.warning(f"Wing with uID '{sgt}' not found, skipping airfoil addition.")
+        return None
+
+    # Define constants
+    if tixi.getTextElement(GEOMETRY_MODE_XPATH) == "2D":
+        scaler = 0.0
+    else:
+        scaler = 0.1
+
+    wing_xpath = tixi.uIDGetXPath(sgt)
+    if wing_xpath.endswith("wing"):
+        wing_xpath += "[1]"
+
+    flap_xpath = copy(tixi, wing_xpath, "wing", ctrltype + "_" + sgt, sym=sym)
+    sec = "section"
+    secs_xpath = flap_xpath + f"/{sec}s"
+    secs_cnt = elements_number(tixi, secs_xpath, sec, logg=False)
+
+    #
+    # Retrieve uIDs of section's airfoil
+    for i_sec in range(1, secs_cnt + 1):
+        # Ensure ctrltype does not contain "left_" or "right_"
+        ctrltype = ctrltype.replace("left_", "").replace("right_", "")
+
+        ele_xpath = secs_xpath + f"/{sec}[{i_sec}]/elements/element[1]"
+        ids = ctrltype + "_" + sgt + f"_{i_sec}"
+        tixi.updateTextElement(ele_xpath + "/airfoilUID", ids)
+
+        # Scale flap accordingly
+        sign = 1 if i_sec % 2 != 0 else -1
+        tixi.updateTextElement(ele_xpath + "/transformation/translation/y", str(scaler * sign))
+
+
+def deflection_angle(tixi: Tixi3, wing_uid: str, angle: float) -> None:
+    # Define constants
+    if not tixi.uIDCheckExists(wing_uid):
+        log.warning(f"Wing with uID '{wing_uid}' not found, skipping deflection.")
+        return
+    wing_xpath = tixi.uIDGetXPath(wing_uid)
+    sec = "section"
+    secs_xpath = wing_xpath + f"/{sec}s"
+    secs_cnt = elements_number(tixi, secs_xpath, sec, logg=False)
+
+    ##########################
+    # Modify airfoil's shape #
+    ##########################
+
+    # Retrieve uIDs of section's airfoil
+    for i_sec in range(1, secs_cnt + 1):
+        airfoil_xpath = secs_xpath + f"/{sec}[{i_sec}]/elements/element[1]/airfoilUID"
+
+        # Modify wingAirfoil accordingly
+        if angle != 0.0:
+            airfoil_uid = tixi.getTextElement(airfoil_xpath)
+            wingairfoil_xpath = AIRFOILS_XPATH + f"/wingAirfoil[@uID='{airfoil_uid}']"
+            if tixi.checkElement(wingairfoil_xpath):
+                pointlist_xpath = wingairfoil_xpath + "/pointList"
+                x_list = get_float_vector(tixi, pointlist_xpath + "/x")
+                z_list = get_float_vector(tixi, pointlist_xpath + "/z")
+
+                # Find the point with the smallest x
+                min_x_index = x_list.index(min(x_list))
+                center_point = (x_list[min_x_index], z_list[min_x_index])
+
+                # Apply rotation to all points
+                rotated_points = [
+                    rotate_2d_point((x, z), center_point, angle) for x, z in zip(x_list, z_list)
+                ]
+
+                # Separate rotated points back into x and z lists
+                x_list_rotated, z_list_rotated = zip(*rotated_points)
+
+                newx_str, newy_str, newz_str = array_to_str(x_list_rotated, z_list_rotated)
+
+                ids = wing_uid + f"angle_{angle}" + f"_{i_sec}"
+                new_airfoil_xpath = copy(tixi, wingairfoil_xpath, "wingAirfoil", ids, sym=False)
+                update_xpath_at_xyz(
+                    tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str
+                )
+
+                # Update airfoil uID for each section
+                tixi.updateTextElement(airfoil_xpath, ids)
+
+        # Re-use previously defined airfoil
+        else:
+            ids = wing_uid + f"_{i_sec}"
+            tixi.updateTextElement(airfoil_xpath, ids)
+
+
+def _adding_control_surfaces(tixi: Tixi3, wing_uid: str, wing_data: list) -> None:
+    seg_to_wing_uid = decompose_wing(tixi, wing_uid)
+    for (sgt, ctrltype, deformation_angle) in wing_data:
+        decomp_wing_uid = seg_to_wing_uid.get(sgt)
+        if decomp_wing_uid is None:
+            log.warning(f"Could not find decomposed wing for segment '{sgt}', skipping.")
+            continue
+
+        log.info(
+            f"Updating {sgt}= (wing uID '{decomp_wing_uid}'), {ctrltype=}, "
+            f"with a {deformation_angle=}"
+        )
+
+        # Transform and scale original airfoil
+        transform_airfoil(tixi, decomp_wing_uid, ctrltype)
+
+        # Add small airfoil that will act as a control surface
+        add_airfoil(tixi, decomp_wing_uid, ctrltype)
+
+        # Deflection function
+        if deformation_angle != 0.0:
+            if "aileron" in ctrltype:
+                # Ailerons exist on both sides; convention: right positive, left negative.
+                deflection_angle(
+                    tixi,
+                    wing_uid="right_" + ctrltype + "_" + decomp_wing_uid,
+                    angle=deformation_angle,
+                )
+                deflection_angle(
+                    tixi,
+                    wing_uid="left_" + ctrltype + "_" + decomp_wing_uid,
+                    angle=-deformation_angle,
+                )
+            else:
+                deflection_angle(
+                    tixi,
+                    wing_uid=ctrltype + "_" + decomp_wing_uid,
+                    angle=deformation_angle,
+                )
+
+
+def add_control_surfaces(tixi: Tixi3) -> None:
+    """
+    Adds control surfaces for each wings in CPACS file.
+    """
+
+    ctrlsurf = retrieve_gui_ctrlsurf(tixi)
+    log.info(f"Modifying {ctrlsurf}.")
+
+    if ctrlsurf:
+        for wing_uid, wing_data in ctrlsurf.items():
+            try:
+                _adding_control_surfaces(tixi, wing_uid, wing_data)
+            except ValueError as exc:
+                log.warning(f"Skipping control surfaces for wing '{wing_uid}': {exc}")
+
+        log.info("Finished adding control surfaces.")
+    else:
+        log.warning("No control surfaces to add.")

@@ -24,11 +24,11 @@ from streamlit_flow import (
 )
 
 from constants import BLOCK_CONTAINER
-from ceasiompy.PyAVL import MODULE_NAME as PYAVL
-from ceasiompy.SU2Run import MODULE_NAME as SU2RUN
+from ceasiompy.pyavl import MODULE_NAME as PYAVL
+from ceasiompy.su2run import MODULE_NAME as SU2RUN
 # from ceasiompy.SMTrain import MODULE_NAME as SMTRAIN
-from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
-from ceasiompy.StaticStability import MODULE_NAME as STATICSTABILITY
+from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
+from ceasiompy.staticstability import MODULE_NAME as STATICSTABILITY
 
 
 # Constants

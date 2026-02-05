@@ -272,22 +272,22 @@ def current_workflow_dir() -> Path:
     """
     Get the current workflow directory.
     """
-    wkdir_path = get_wkdir()
+    WKDIR_PATH = get_wkdir()
 
-    # Ensure wkdir_path exists
-    wkdir_path.mkdir(parents=True, exist_ok=True)
+    # Ensure WKDIR_PATH exists
+    WKDIR_PATH.mkdir(parents=True, exist_ok=True)
 
     # Change the current working directory
-    os.chdir(wkdir_path)
+    os.chdir(WKDIR_PATH)
 
     # Check index of the last workflow directory to set the next one
-    wkflow_list = [int(dir.stem.split("_")[-1]) for dir in wkdir_path.glob("Workflow_*")]
+    wkflow_list = [int(dir.stem.split("_")[-1]) for dir in WKDIR_PATH.glob("Workflow_*")]
     if wkflow_list:
         wkflow_idx = str(max(wkflow_list) + 1).rjust(3, "0")
     else:
         wkflow_idx = "001"
 
-    current_wkflow_dir = Path.joinpath(wkdir_path, "Workflow_" + wkflow_idx)
+    current_wkflow_dir = Path.joinpath(WKDIR_PATH, "Workflow_" + wkflow_idx)
     current_wkflow_dir.mkdir()
 
     return current_wkflow_dir
@@ -426,7 +426,7 @@ def get_install_path(
             log.info(f"{display_name} is installed at: {candidate}")
             return candidate
 
-        # Common layout: INSTALLDIR/<pkg>[/bin]/<software_name>
+        # Common layout: installdir/<pkg>[/bin]/<software_name>
         for subdir in INSTALLDIR_PATH.iterdir():
             if not subdir.is_dir():
                 continue
@@ -446,7 +446,7 @@ def get_install_path(
                 log.info(f"{display_name} is installed at: {bin_candidate}")
                 return bin_candidate
 
-    # If not found in INSTALLDIR, fall back to the system PATH
+    # If not found in installdir, fall back to the system PATH
     install_path = shutil.which(software_name)
 
     if install_path is not None:

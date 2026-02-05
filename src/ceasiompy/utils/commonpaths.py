@@ -34,12 +34,12 @@ CEASIOMPY_PATH = SRC_PATH.parent
 MODULES_DIR_PATH = Path(SRC_PATH, "ceasiompy")
 
 # /CEASIOMpy/src/ceasiompy/Database/databases/ceasiompy.db
-CEASIOMPY_DB_PATH = Path(MODULES_DIR_PATH, "Database", "databases", "ceasiompy.db")
+CEASIOMPY_DB_PATH = Path(MODULES_DIR_PATH, "database", "databases", "ceasiompy.db")
 
 # /CEASIOMpy/src/ceasiompy/Database/tests/databases/testceasiompy.db
 TESTCEASIOMPY_DB_PATH = Path(
     MODULES_DIR_PATH,
-    "Database",
+    "database",
     "tests",
     "databases",
     "testceasiompy.db",
@@ -57,17 +57,17 @@ STREAMLIT_PATH = Path(SRC_PATH, "app")
 # /CEASIOMpy/test_cases/
 TEST_CASES_PATH = Path(CEASIOMPY_PATH, "test_cases")
 
-# /CEASIOMpy/test_files/CPACSfiles/
-CPACS_FILES_PATH = Path(CEASIOMPY_PATH, "test_files", "CPACSfiles")
+# /CEASIOMpy/test_files/cpacsfiles/
+CPACS_FILES_PATH = Path(CEASIOMPY_PATH, "test_files", "cpacsfiles")
 
 # /CEASIOMpy/test_files/ResultsFiles/
 TEST_RESULTS_FILES_PATH = Path(CEASIOMPY_PATH, "test_files", "ResultsFiles")
 
-# /CEASIOMpy/WKDIR/
-WKDIR_PATH = Path(CEASIOMPY_PATH, "WKDIR")
+# /CEASIOMpy/wkdir/
+WKDIR_PATH = Path(CEASIOMPY_PATH, "wkdir")
 
-# /CEASIOMpy/INSTALLDIR/
-INSTALLDIR_PATH = Path(CEASIOMPY_PATH, "INSTALLDIR")
+# /CEASIOMpy/installdir/
+INSTALLDIR_PATH = Path(CEASIOMPY_PATH, "installdir")
 
 # /CEASIOMpy/src/ceasiompy/SU2Run/files/default_paraview_state.pvsm
 DEFAULT_PARAVIEW_STATE = Path(MODULES_DIR_PATH, "SU2Run", "files", "default_paraview_state.pvsm")
@@ -77,7 +77,7 @@ DEFAULT_PARAVIEW_STATE = Path(MODULES_DIR_PATH, "SU2Run", "files", "default_para
 def get_wkdir() -> Path:
     """Return working directory passed from ceasiompy_exec, or the default."""
 
-    env_wkdir = os.environ.get("CEASIOMPY_WKDIR")
+    env_wkdir = os.environ.get("CEASIOMPY_wkdir")
     if env_wkdir:
         return Path(env_wkdir)
     return WKDIR_PATH

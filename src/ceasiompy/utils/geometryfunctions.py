@@ -52,8 +52,8 @@ def get_aircrafts_list() -> List:
 
     """
     import sqlite3
-    from ceasiompy.Database.func import ALLOWED_TABLES
-    from ceasiompy.Database.func.storing import CeasiompyDb
+    from ceasiompy.database.func import ALLOWED_TABLES
+    from ceasiompy.database.func.storing import CeasiompyDb
 
     # Codacy: Table and column names are strictly validated against whitelisted values.
     # Check if database exists

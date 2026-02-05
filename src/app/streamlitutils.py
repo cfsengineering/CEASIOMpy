@@ -168,13 +168,29 @@ def create_sidebar(how_to_text, page_title="CEASIOMpy"):
     render_floating_ai_assistant()
 
 
-def render_floating_ai_assistant() -> None:
+def render_floating_ai_assistant(
+    disabled: bool = True,
+) -> None:
     """Render a floating, bottom-left chat assistant on every page."""
 
     if os.environ.get("CEASIOMPY_CLOUD", "False").lower() not in {"1", "true", "yes"}:
         return None
 
     if st.session_state.get("ai_assistant_disabled", False):
+        return None
+
+    if disabled:
+        float_init()
+        placeholder = st.container()
+        with placeholder:
+            st.markdown("**AI Assistant**")
+            st.info("Coming soon.")
+        placeholder.float(
+            "bottom: 40px; right: 40px; width: 320px; max-height: 60vh; "
+            "overflow-y: auto; border: 1px solid #d7d7d7; background: white; "
+            "border-radius: 10px; padding: 12px; "
+            "box-shadow: 2px 2px 10px rgba(0,0,0,0.1);"
+        )
         return None
 
     if "ai_assistant_messages" not in st.session_state:

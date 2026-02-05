@@ -16,14 +16,14 @@ REQUIRES_PYTHON = ">=3.11"
 REQUIRED = ["defusedxml"]
 README = "README.md"
 PACKAGE_DIR = "src"
-license = "license"
+LICENSE = "license"
 
 here = Path(__file__).parent
 
 with open(Path(here, README), "r") as fp:
     long_description = fp.read()
 
-with open(license) as f:
+with open(LICENSE) as f:
     license = f.read()
 
 setuptools.setup(

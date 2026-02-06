@@ -44,8 +44,8 @@ from ceasiompy.pyavl import (
     SOFTWARE_NAME,
 )
 
-# Main
 
+# Main
 
 def run_case(args: tuple[Path, Path]) -> None:
     '''

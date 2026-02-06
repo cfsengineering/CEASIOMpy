@@ -5,14 +5,17 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 """
 
 # Imports
-
+import shutil
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
+from pydantic import BaseModel
 from smt.applications import MFK
 from scipy.optimize import OptimizeResult
+from ceasiompy.smtrain.func.parameter import Parameter
+from ceasiompy.smtrain.func.config import TrainingSettings
 from smt.surrogate_models import (
     KRG,
     RBF,
@@ -24,7 +27,8 @@ from cpacspy.cpacspy import (
 
 from ceasiompy import log
 from ceasiompy.smtrain.func import AEROMAP_SELECTED
-from ceasiompy.su2run import MODULE_NAME as SU2RUN_NAME
+from ceasiompy.pyavl import MODULE_NAME as PYAVL
+from ceasiompy.su2run import MODULE_NAME as SU2RUN
 from ceasiompy.smtrain import (
     LEVEL_ONE,
     LEVEL_TWO,
@@ -33,19 +37,57 @@ from ceasiompy.smtrain import (
 )
 
 
+# Classes
+
+class DataSplit(BaseModel):
+    x_train: ndarray
+    y_train: ndarray
+
+    x_val: ndarray
+    y_val: ndarray
+
+    x_test: ndarray
+    y_test: ndarray
+
+
 # Functions
 
-def concatenate_if_not_none(list_arrays: list[ndarray | None]) -> ndarray:
-    """
-    Concatenates arrays in the list that are not None.
-    """
-    # Filter out None values
-    valid_arrays = [arr for arr in list_arrays if arr is not None]
-    # If no valid arrays, raise an error or return an empty array
-    if not valid_arrays:
-        raise ValueError("All arrays are None. Cannot concatenate.")
+def store_best_geom_from_training(
+    dataframe: DataFrame,
+    cpacs_list: list[CPACS],
+    lh_sampling: DataFrame,
+    results_dir: Path,
+    params_ranges: list[Parameter],
+    training_settings: TrainingSettings,
+) -> None:
+    # Save Best Low Fidelity Geometry Configuration from Training Data
+    geom_cols = [p.name for p in params_ranges]
+    objective = training_settings.objective
+    mean_obj_by_geom = (
+        dataframe.groupby(geom_cols, dropna=False)[objective]
+        .mean()
+        .reset_index()
+    )
 
-    return np.concatenate(valid_arrays, axis=0)
+    # Store best geometry (CPACS, Configuration)
+    best_geom_dir = results_dir / "best_geometry"
+    best_geom_dir.mkdir(exist_ok=True)
+    best_geometry_idx = mean_obj_by_geom[objective].idxmax()
+    best_geometries_df = mean_obj_by_geom.loc[[best_geometry_idx]]
+    best_geometries_df.to_csv(f"{best_geom_dir}/best_geom_config.csv", index=False)
+
+    # Save associated CPACS file for the best geometry
+    best_geom_values = best_geometries_df[geom_cols].iloc[0].values
+    mask = (lh_sampling[geom_cols] == best_geom_values).all(axis=1)
+    if not mask.any():
+        raise ValueError("Could not match best geometry to a CPACS file. Skipping copy.")
+
+    best_cpacs_idx = int(mask.idxmax())
+    best_cpacs_path = cpacs_list[best_cpacs_idx].cpacs_file
+    shutil.copyfile(
+        best_cpacs_path,
+        best_geom_dir / f"best_geom_{best_cpacs_idx + 1:03d}.xml",
+    )
 
 
 def collect_level_data(
@@ -66,7 +108,7 @@ def generate_su2_wkdir(iteration: int) -> None:
     """
     Generate unique SU2 working directory using iteration
     """
-    wkdir_su2 = Path(SU2RUN_NAME) / f"SU2_{iteration}"
+    wkdir_su2 = Path(SU2RUN) / f"SU2_{iteration}"
     wkdir_su2.mkdir(parents=True, exist_ok=True)
 
 
@@ -101,7 +143,7 @@ def create_aeromap_from_varpts(
     return aeromap
 
 
-def log_params(result: OptimizeResult) -> None:
+def log_params_krg(result: OptimizeResult) -> None:
     params = result.x
     log.info(f"Theta0: {params[0]}")
     log.info(f"Correlation: {params[1]}")
@@ -110,6 +152,14 @@ def log_params(result: OptimizeResult) -> None:
     log.info(f"Nugget: {params[4]}")
     log.info(f"Rho regressor: {params[5]}")
     log.info(f"Penalty weight (λ): {params[6]}")
+    log.info(f"Lowest RMSE obtained: {result.fun:.6f}")
+
+
+def log_params_rbf(result: OptimizeResult) -> None:
+    params = result.x
+    log.info(f"d0 (scaling): {params[0]:.3f}")
+    log.info(f"poly_degree: {params[1]}")
+    log.info(f"reg (regularization): {params[2]:.2e}")
     log.info(f"Lowest RMSE obtained: {result.fun:.6f}")
 
 
@@ -193,7 +243,7 @@ def get_val_fraction(train_fraction: float) -> float:
     return test_val_fraction
 
 
-def define_model_type(model: KRG | MFK | RBF) -> str:
+def get_model_typename(model: KRG | MFK | RBF) -> str:
     return model.__class__.__name__.lower()
 
 

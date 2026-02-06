@@ -269,32 +269,18 @@ def deform_surf(cpacs: CPACS, wkdir: Path, surf: str, angle: float, wing_names: 
     run_cpacs2gmsh(CPACS(new_file_path), wkdir, surf, str(angle))
 
 
-def main(cpacs: CPACS, wkdir: Path) -> None:
+def main(cpacs: CPACS, results_dir: Path) -> None:
     """
     Main function.
     Defines setup for gmsh.
-
-    Args:
-        cpacs: CPACS
-        wkdir: Working directory path
-
     """
 
     tixi = cpacs.tixi
 
-    # Check if we are in 2D mode - separate try/except to not catch process_2d_airfoil errors
-    geometry_mode = None
-    try:
-        geometry_mode = tixi.getTextElement(GEOMETRY_MODE_XPATH)
-        log.info(f"Geometry mode found in CPACS: {geometry_mode}")
-    except Exception:
-        # No geometry mode specified or xpath doesn't exist, assume 3D
-        log.info("No geometry mode specified in CPACS, defaulting to 3D mode.")
-
     # Process 2D if geometry mode is 2D (let exceptions propagate)
-    if geometry_mode == "2D":
+    if tixi.getTextElement(GEOMETRY_MODE_XPATH) == "2D":
         log.info("2D airfoil mode detected. Running 2D processing only...")
-        process_2d_airfoil(cpacs, wkdir)
+        process_2d_airfoil(cpacs, results_dir)
         log.info("2D processing completed, returning without 3D mesh generation.")
         return None
 
@@ -302,12 +288,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     log.info("Proceeding with 3D mesh generation...")
 
     # Continue with 3D processing
-    try:
-        angles = get_value(tixi, GMSH_CTRLSURF_ANGLE_XPATH)
-    except Exception:
-        # If deflection angles not specified, use default of 0.0
-        angles = "0.0"
-        log.info("No control surface deflection angles specified, using default: 0.0")
+    angles = get_value(tixi, GMSH_CTRLSURF_ANGLE_XPATH)
 
     # Unique angles list
     angles_list = list(set([float(x) for x in str(angles).split(";")]))
@@ -315,29 +296,28 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     log.info(f"list of deflection angles {angles_list}.")
 
     # Check if angles_list is empty
-    if angles_list:
-        for angle in reversed(angles_list):
-            if angle != 0.0:
-                wing_names = return_uidwings(tixi)
-
-                # Flap deformation has no utily in stability derivatives
-                for surf in CONTROL_SURFACES_LIST:
-                    # Check if control surface exists through name of wings
-                    if not any(surf in wing for wing in wing_names):
-                        log.warning(
-                            f"No control surface {surf}. "
-                            f"It can not be deflected by angle {angle}."
-                        )
-                    else:
-                        # If control Surface exists, deform the correct wings
-                        deform_surf(cpacs, wkdir, surf, angle, wing_names)
-            else:
-                # No deformation for angle 0
-                run_cpacs2gmsh(cpacs, wkdir)
-
-    else:
+    if not angles_list:
         # No specified angles: run as usual
-        run_cpacs2gmsh(cpacs, wkdir)
+        run_cpacs2gmsh(cpacs, results_dir)
+        return None
+
+    for angle in reversed(angles_list):
+        if angle == 0.0:
+            # No deformation for angle 0
+            run_cpacs2gmsh(cpacs, results_dir)
+            continue
+
+        wing_names = return_uidwings(tixi)
+        # Flap deformation has no utily in stability derivatives
+        for surf in CONTROL_SURFACES_LIST:
+            # Check if control surface exists through name of wings
+            if not any(surf in wing for wing in wing_names):
+                raise ValueError(
+                    f"No control surface {surf}. "
+                    f"It can not be deflected by angle {angle}."
+                )
+            # If control Surface exists, deform the correct wings
+            deform_surf(cpacs, results_dir, surf, angle, wing_names)
 
 
 # Main

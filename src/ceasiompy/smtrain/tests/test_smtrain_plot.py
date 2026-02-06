@@ -16,6 +16,8 @@ import numpy as np
 import ceasiompy.smtrain.func.plot as smtrain_plot
 
 from ceasiompy.smtrain.func.plot import plot_validation
+from ceasiompy.smtrain.func.utils import DataSplit
+from ceasiompy.smtrain.func.config import TrainingSettings
 
 from pathlib import Path
 
@@ -48,13 +50,27 @@ class TestPlotValidation(unittest.TestCase):
         model = DummyModel()
         x_test = np.array([[1, 2], [3, 4]])
         y_test = np.array([[3], [7]])
-        sets = {"x_test": x_test, "y_test": y_test}
-        label = "TestLabel"
+        level1_split = DataSplit(
+            x_train=x_test,
+            y_train=y_test,
+            x_val=x_test,
+            y_val=y_test,
+            x_test=x_test,
+            y_test=y_test,
+        )
+        training_settings = TrainingSettings(
+            sm_models=["KRG"],
+            objective="TestLabel",
+            direction="max",
+            n_samples=1,
+            fidelity_level="level1",
+            data_repartition=0.8,
+        )
         tmpdir = tempfile.mkdtemp()
         try:
             results_dir = Path(tmpdir)
-            plot_validation(model, sets, label, results_dir)
-            expected_file = results_dir / f"validation_plot_{label}.png"
+            plot_validation(model, results_dir, level1_split, training_settings)
+            expected_file = results_dir / "test_plot_TestLabel.html"
             self.assertTrue(expected_file.is_file())
         finally:
             shutil.rmtree(tmpdir, ignore_errors=True)

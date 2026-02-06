@@ -15,7 +15,7 @@ from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.pyavl.__specs__ import gui_settings as avl_settings
 from ceasiompy.su2run.__specs__ import gui_settings as su2_settings
 from ceasiompy.cpacs2gmsh.__specs__ import gui_settings as gmsh_settings
-
+from ceasiompy.staticstability.__specs__ import gui_settings as staticstability_settings
 from ceasiompy.utils.geometryfunctions import (
     get_xpath_for_param,
     return_uid_wings_sections,
@@ -34,7 +34,9 @@ from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
 from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
+from ceasiompy.staticstability import MODULE_NAME as STATICSTABILITY
 from ceasiompy.smtrain import (
+    SM_MODELS,
     LEVEL_TWO,
     OBJECTIVES_LIST,
     WING_PARAMETERS,
@@ -49,6 +51,7 @@ from ceasiompy.smtrain import (
     SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
     # SMTRAIN_SIMULATION_PURPOSE_XPATH,
     # SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
+    SMTRAIN_OBJECTIVE_DIRECTION_XPATH,
 )
 
 
@@ -57,6 +60,8 @@ from ceasiompy.smtrain import (
 def gui_settings(cpacs: CPACS) -> None:
     tixi = cpacs.tixi
 
+    # TODO: Add Number of iterations for Bayesian optimization as a parameter
+
     with st.expander(
         label="**Simulation Settings**",
         expanded=True,
@@ -64,7 +69,7 @@ def gui_settings(cpacs: CPACS) -> None:
         chosen_models = multiselect_vartype(
             tixi=tixi,
             xpath=SMTRAIN_MODELS_XPATH,
-            default_value=["KRG", "RBF"],
+            default_value=SM_MODELS,
             name="Surrogate Model Type",
             description="Kriging (KRG) or/and Radial Basis Functions (RBF).",
             key="smtrain_chosen_model",
@@ -86,10 +91,16 @@ def gui_settings(cpacs: CPACS) -> None:
                 key="smtrain_fidelity_level",
             )
             with st.expander(
-                label=f"First Level (Low Fidelity, {PYAVL} Settings)",
+                label=f"First Level (Low Fidelity, {PYAVL} + {STATICSTABILITY} Settings)",
                 expanded=False,
             ):
-                avl_settings(cpacs)
+                tabs = st.tabs(
+                    tabs=[PYAVL, STATICSTABILITY],
+                )
+                with tabs[0]:
+                    avl_settings(cpacs)
+                with tabs[1]:
+                    staticstability_settings(cpacs)
 
             if fidelity_level == LEVEL_TWO:
                 with st.expander(
@@ -121,14 +132,27 @@ def gui_settings(cpacs: CPACS) -> None:
         label="**Training Settings**",
         expanded=True,
     ):
-        list_vartype(
-            tixi=tixi,
-            xpath=SMTRAIN_OBJECTIVE_XPATH,
-            description="Objective function list for the surrogate model to predict",
-            name="Objective",
-            key="smtrain_objective",
-            default_value=OBJECTIVES_LIST,
-        )
+        left_col, right_col = st.columns(2)
+        with left_col:
+            objective_name = list_vartype(
+                tixi=tixi,
+                xpath=SMTRAIN_OBJECTIVE_XPATH,
+                description="Objective function list for the surrogate model to predict",
+                name="Objective",
+                key="smtrain_objective",
+                default_value=OBJECTIVES_LIST,
+            )
+        with right_col:
+            list_vartype(
+                tixi=tixi,
+                xpath=SMTRAIN_OBJECTIVE_DIRECTION_XPATH,
+                default_value=["Maximize", "Minimize"],
+                name=f"Maximize or Minimize {objective_name}",
+                key="smtrain_obj_direction",
+                description=f"""Choose the direction (max/min)
+                    of the selected objective {objective_name}.
+                """
+            )
 
         left_col, right_col = st.columns(2)
         with left_col:
@@ -154,6 +178,7 @@ def gui_settings(cpacs: CPACS) -> None:
                     Samples corresponds to the number of
                     distinct geometry we will run the solver on.
                 """,
+                min_value=3,
             )
 
     xpath = SMTRAIN_GEOM_WING_OPTIMISE

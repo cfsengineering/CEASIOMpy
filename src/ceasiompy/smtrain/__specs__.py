@@ -51,6 +51,7 @@ from ceasiompy.smtrain import (
     SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
     # SMTRAIN_SIMULATION_PURPOSE_XPATH,
     # SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
+    SMTRAIN_OBJECTIVE_DIRECTION_XPATH,
 )
 
 
@@ -58,6 +59,8 @@ from ceasiompy.smtrain import (
 
 def gui_settings(cpacs: CPACS) -> None:
     tixi = cpacs.tixi
+
+    # TODO: Add Number of iterations for Bayesian optimization as a parameter
 
     with st.expander(
         label="**Simulation Settings**",
@@ -129,14 +132,27 @@ def gui_settings(cpacs: CPACS) -> None:
         label="**Training Settings**",
         expanded=True,
     ):
-        list_vartype(
-            tixi=tixi,
-            xpath=SMTRAIN_OBJECTIVE_XPATH,
-            description="Objective function list for the surrogate model to predict",
-            name="Objective",
-            key="smtrain_objective",
-            default_value=OBJECTIVES_LIST,
-        )
+        left_col, right_col = st.columns([3, 1])
+        with left_col:
+            objective_name = list_vartype(
+                tixi=tixi,
+                xpath=SMTRAIN_OBJECTIVE_XPATH,
+                description="Objective function list for the surrogate model to predict",
+                name="Objective",
+                key="smtrain_objective",
+                default_value=OBJECTIVES_LIST,
+            )
+        with right_col:
+            list_vartype(
+                tixi=tixi,
+                xpath=SMTRAIN_OBJECTIVE_DIRECTION_XPATH,
+                default_value=["Maximize", "Minimize"],
+                name=f"Maximize or Minimize {objective_name}",
+                key="smtrain_obj_direction",
+                description=f"""Choose the direction (max/min)
+                    of the selected objective {objective_name}.
+                """
+            )
 
         left_col, right_col = st.columns(2)
         with left_col:

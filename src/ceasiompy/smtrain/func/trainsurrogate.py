@@ -57,7 +57,7 @@ from ceasiompy.utils.commonxpaths import SM_XPATH
 # Functions
 
 
-def get_hyperparam_space(
+def get_hyperparam_space_kriging(
     level1_sets: dict[str, ndarray],
     level2_sets: dict[str, ndarray] | None,
     level3_sets: dict[str, ndarray] | None,
@@ -135,7 +135,7 @@ def train_surrogate_model(
         rmse (float): Root Mean Square Error of the trained model.
     """
 
-    hyperparam_space = get_hyperparam_space(level1_sets, level2_sets, level3_sets)
+    hyperparam_space = get_hyperparam_space_kriging(level1_sets, level2_sets, level3_sets)
 
     if level2_sets is not None or level3_sets is not None:
         # It will always be multi-fidelity level if not 1

@@ -26,8 +26,8 @@ from cpacspy.cpacsfunctions import (
     create_branch,
 )
 from ceasiompy.smtrain.func.loss import (
-    compute_first_level_loss,
-    compute_multi_level_loss,
+    compute_rbf_loss,
+    compute_kriging_loss,
 )
 from ceasiompy.smtrain.func.sampling import (
     split_data,
@@ -60,11 +60,14 @@ from typing import Callable
 from pandas import DataFrame
 from cpacspy.cpacspy import CPACS
 from smt.applications import MFK
-from smt.surrogate_models import KRG
-from smt.surrogate_models import RBF
 from scipy.optimize import OptimizeResult
+from ceasiompy.smtrain.func.utils import DataSplit
 from ceasiompy.smtrain.func.parameter import Parameter
 from ceasiompy.smtrain.func.config import TrainingSettings
+from smt.surrogate_models import (
+    KRG,
+    RBF,
+)
 from skopt.space import (
     Real,
     Categorical,
@@ -79,10 +82,10 @@ from ceasiompy.su2run import MODULE_NAME as SU2RUN
 
 # Functions
 
-def get_hyperparam_space(
-    level1_sets: dict[str, ndarray],
-    level2_sets: dict[str, ndarray] | None,
-    level3_sets: dict[str, ndarray] | None,
+def get_hyperparam_space_kriging(
+    level1_split: DataSplit,
+    level2_split: DataSplit | None = None,
+    level3_split: DataSplit | None = None,
 ) -> list[str]:
     """
     Get Hyper-parameters space from the different fidelity datasets.
@@ -90,11 +93,11 @@ def get_hyperparam_space(
     """
 
     # Concatenate only non-None arrays
-    arrays = [level1_sets["x_train"]]
-    if level2_sets is not None:
-        arrays.append(level2_sets["x_train"])
-    if level3_sets is not None:
-        arrays.append(level3_sets["x_train"])
+    arrays = [level1_split.x_train]
+    if level2_split is not None:
+        arrays.append(level2_split.x_train)
+    if level3_split is not None:
+        arrays.append(level3_split.x_train)
 
     x_train = np.concatenate(arrays, axis=0)
     n_samples, n_features = x_train.shape
@@ -120,7 +123,7 @@ def get_hyperparam_space(
             f"Number of training points must be greater than 2, current size: {n_samples}"
         )
 
-    hyperparam_space = [
+    return [
         Real(0.0001, 10, name="theta0"),
         Categorical(["abs_exp", "squar_exp", "matern52", "matern32"], name="corr"),
         Categorical(poly_options, name="poly"),
@@ -129,48 +132,6 @@ def get_hyperparam_space(
         Categorical(poly_options, name="rho_regr"),
         Real(0.1, 1, name="lambda_penalty"),
     ]
-
-    return hyperparam_space
-
-
-def train_surrogate_model(
-    level1_sets: dict[str, ndarray],
-    level2_sets: dict[str, ndarray] | None = None,
-    level3_sets: dict[str, ndarray] | None = None,
-):
-    """
-    Train a surrogate model using kriging or Multi-Fidelity kriging:
-    1. selects appropriate polynomial basis functions for regression
-    2. defines the hyperparameter space accordingly
-    3. trains the model
-
-    Polynomial Selection Logic:
-        if training samples > (n_features + 1) * (n_features + 2) / 2
-            Use ["constant", "linear", "quadratic"]
-        elif training samples > (n_features + 1)
-            Use ["constant", "linear"]
-        else
-            Use ["constant"]
-
-    Returns:
-        model: Trained surrogate model (kriging or Multi-Fidelity kriging).
-        rmse (float): Root Mean Square Error of the trained model.
-    """
-
-    hyperparam_space = get_hyperparam_space(level1_sets, level2_sets, level3_sets)
-    if level2_sets is not None or level3_sets is not None:
-        # It will always be multi-fidelity level if not 1
-        return mf_kriging(
-            param_space=hyperparam_space,
-            level1_sets=level1_sets,
-            level2_sets=level2_sets,
-            level3_sets=level3_sets,
-        )
-    else:
-        return kriging(
-            param_space=hyperparam_space,
-            sets=level1_sets,
-        )
 
 
 def save_model(
@@ -213,18 +174,22 @@ def save_model(
 
 def optimize_hyper_parameters(
     objective: Callable,
-    param_space,
     n_calls: int,
     random_state: int,
+    hyperparam_space,
 ) -> ndarray:
     """
     Using Bayesian Optimization.
     """
+    log.info("Starting Bayesian Optimization Algorithm.")
 
     # Perform Bayesian optimization
     start_time = time.time()
     result: OptimizeResult = gp_minimize(
-        objective, param_space, n_calls=n_calls, random_state=random_state
+        func=objective,
+        n_calls=n_calls,
+        dimensions=hyperparam_space,
+        random_state=random_state,
     )
     total_time = time.time() - start_time
     log.info(f"Total optimization time: {total_time:.2f} seconds ({total_time / 60:.2f} minutes)")
@@ -234,107 +199,69 @@ def optimize_hyper_parameters(
     return result.x
 
 
-def kriging(
-    param_space: list,
-    sets: dict[str, ndarray],
-    n_calls: int = 50,
-    random_state: int = 42,
-) -> tuple[KRG, float]:
-    """
-    Trains a kriging model using Bayesian optimization.
-
-    Args:
-        param_space (list): Hyper-parameters for Bayesian optimization.
-        sets (dict): dictionary containing training, validation, and test datasets.
-        n_calls (int = 50):
-            Number of iterations for Bayesian optimization.
-            The lower the faster.
-        random_state (int = 42): Random seed for reproducibility.
-
-    Returns:
-        tuple: Trained kriging model and RMSE on the test set.
-    """
-    x_train, x_test, x_val, y_train, y_test, y_val = unpack_data(sets)
-
-    def objective(params) -> float:
-        """
-        Needs to have params as an argument (gp_minimize restriction).
-        """
-        _, loss = compute_first_level_loss(
-            params,
-            x_train=x_train,
-            y_train=y_train,
-            x_=x_val,
-            y_=y_val,
-        )
-
-        return loss
-
-    best_params = optimize_hyper_parameters(objective, param_space, n_calls, random_state)
-    log.info("Evaluating on optimized hyper-parameters")
-    best_model, best_loss = compute_first_level_loss(
-        best_params,
-        x_train=x_train,
-        y_train=y_train,
-        x_=x_test,
-        y_=y_test,
-    )
-    log.info(f"Final RMSE on test set: {best_loss:.6f}")
-
-    return best_model, best_loss
-
-
-def mf_kriging(
-    param_space: list,
-    level1_sets: dict[str, ndarray],
-    level2_sets: dict[str, ndarray] | None,
-    level3_sets: dict[str, ndarray] | None,
+def kriging_training(
+    level1_split: DataSplit,
+    level2_split: DataSplit | None = None,
+    level3_split: DataSplit | None = None,
     n_calls: int = 10,
     random_state: int = 42,
-) -> tuple[MFK, float]:
+) -> tuple[KRG | MFK, float]:
     """
-    Trains a multi-fidelity kriging model with 2/3 fidelity levels.
-
-    Args:
-        param_space (list): list of parameter ranges for Bayesian optimization.
-        sets (dict): Training, validation, and test datasets.
-        n_calls (int = 30): Number of iterations for Bayesian optimization.
-        random_state (int = 42): Random seed for reproducibility.
+    Trains a multi-fidelity kriging model (with 2/3 fidelity levels).
     """
-    x_fl_train, x_val1, x_test1, y_fl_train, y_val1, y_test1 = collect_level_data(level1_sets)
-    x_sl_train, x_val2, x_test2, y_sl_train, y_val2, y_test2 = collect_level_data(level2_sets)
-    x_tl_train, x_val3, x_test3, y_tl_train, y_val3, y_test3 = collect_level_data(level3_sets)
+    hyperparam_space = get_hyperparam_space_kriging(
+        level1_split=level1_split,
+        level2_split=level2_split,
+        level3_split=level3_split,
+    )
 
-    # Gather all non-None validation and test sets
-    x_val = concatenate_if_not_none([x_val1, x_val2, x_val3])
-    y_val = concatenate_if_not_none([y_val1, y_val2, y_val3])
-    x_test = concatenate_if_not_none([x_test1, x_test2, x_test3])
-    y_test = concatenate_if_not_none([y_test1, y_test2, y_test3])
+    data_split: list[DataSplit] = [level1_split]
+    if level2_split is not None:
+        data_split.append(level2_split)
+    if level3_split is not None:
+        data_split.append(level3_split)
+
+    x_val = np.concatenate(
+        arrays=[data.x_val for data in data_split],
+        axis=0,
+    )
+    y_val = np.concatenate(
+        arrays=[data.y_val for data in data_split],
+        axis=0,
+    )
+    x_test = np.concatenate(
+        arrays=[data.x_test for data in data_split],
+        axis=0,
+    )
+    y_test = np.concatenate(
+        arrays=[data.y_test for data in data_split],
+        axis=0,
+    )
 
     def objective(params) -> float:
-        _, loss = compute_multi_level_loss(
-            params,
-            x_fl_train=x_fl_train,
-            y_fl_train=y_fl_train,
-            x_sl_train=x_sl_train,
-            y_sl_train=y_sl_train,
-            x_tl_train=x_tl_train,
-            y_tl_train=y_tl_train,
+        _, loss = compute_kriging_loss(
+            params=params,
+            level1_split=level1_split,
+            level2_split=level2_split,
+            level3_split=level3_split,
             x_=x_val,
             y_=y_val,
         )
 
         return loss
 
-    best_params = optimize_hyper_parameters(objective, param_space, n_calls, random_state)
-    best_model, best_loss = compute_multi_level_loss(
-        best_params,
-        x_fl_train=x_fl_train,
-        y_fl_train=y_fl_train,
-        x_sl_train=x_sl_train,
-        y_sl_train=y_sl_train,
-        x_tl_train=x_tl_train,
-        y_tl_train=y_tl_train,
+    best_params = optimize_hyper_parameters(
+        objective=objective,
+        n_calls=n_calls,
+        random_state=random_state,
+        hyperparam_space=hyperparam_space,
+    )
+
+    best_model, best_loss = compute_kriging_loss(
+        params=best_params,
+        level1_split=level1_split,
+        level2_split=level2_split,
+        level3_split=level3_split,
         x_=x_test,
         y_=y_test,
     )
@@ -672,7 +599,7 @@ def training_existing_db(
     if RBF_model_bool:
         log.info("\n\n")
         log.info("--------------Star training RBF model.--------------\n")
-        rbf_model, rbf_rmse = train_surrogate_model_rbf(n_params, level1_sets)
+        rbf_model, rbf_rmse = rbf_training(n_params, level1_sets)
         rmse_df = pd.DataFrame({"rmse": [rbf_rmse]})
         rmse_path = f"{results_dir}/rmse_RBF.csv"
         rmse_df.to_csv(rmse_path, index=False)
@@ -816,7 +743,7 @@ def run_adaptative_refinement_geom_existing_db(
 # -------- RBF ----------
 
 
-def get_hyperparam_space_RBF(
+def get_hyperparam_space_rbf(
     level1_sets: dict[str, ndarray],
     level2_sets: dict[str, ndarray] | None,
     level3_sets: dict[str, ndarray] | None,
@@ -920,99 +847,7 @@ def compute_first_level_loss_RBF(
     return model, compute_loss_RBF(model, lambda_penalty, x_, y_)
 
 
-def mf_RBF(
-    level1_sets: dict[str, ndarray],
-    level2_sets: dict[str, ndarray] | None = None,
-    level3_sets: dict[str, ndarray] | None = None,
-    n_calls: int = 10,
-    random_state: int = 42,
-) -> tuple[RBF, float]:
-    """
-    Train a multi-fidelity RBF model using single/multi-level datasets.
-    Debug-enabled version to trace data issues.
-    """
-
-    log.info("=== Entered Multi Fidelity RBF ===")
-
-    # Unpack first level
-    x_fl_train, x_val1, x_test1, y_fl_train, y_val1, y_test1 = collect_level_data(level1_sets)
-
-    # Unpack second level
-    if level2_sets:
-        x_sl_train, x_val2, x_test2, y_sl_train, y_val2, y_test2 = collect_level_data(level2_sets)
-        log.info(f"Level 2 shapes: x_train={x_sl_train.shape}, y_train={y_sl_train.shape}")
-    else:
-        x_sl_train, x_val2, x_test2, y_sl_train, y_val2, y_test2 = (None,) * 6
-
-    # Unpack third level
-    if level3_sets:
-        x_tl_train, x_val3, x_test3, y_tl_train, y_val3, y_test3 = collect_level_data(level3_sets)
-        log.info(f"Level 3 shapes: x_train={x_tl_train.shape}, y_train={y_tl_train.shape}")
-    else:
-        x_tl_train, x_val3, x_test3, y_tl_train, y_val3, y_test3 = (None,) * 6
-
-    # Combine validation/test sets across levels
-    x_val = concatenate_if_not_none([x_val1, x_val2, x_val3])
-    y_val = concatenate_if_not_none([y_val1, y_val2, y_val3])
-    x_test = concatenate_if_not_none([x_test1, x_test2, x_test3])
-    y_test = concatenate_if_not_none([y_test1, y_test2, y_test3])
-
-    # Objective function for Bayesian optimization
-    def objective(params) -> float:
-        d0, poly_degree, reg, lambda_penalty = params
-        log.debug(f"Trying hyperparams: {d0=}, {poly_degree=}, {reg=}, {lambda_penalty=}")
-
-        model = RBF(d0=d0, poly_degree=int(poly_degree), reg=reg, print_global=False)
-        log.debug(f"Setting Level 1 training values: {x_fl_train.shape=}, {y_fl_train.shape=}")
-        model.set_training_values(x_fl_train, y_fl_train)
-
-        if x_sl_train is not None and y_sl_train is not None:
-            log.debug(f"Adding Level 2 training values: {x_sl_train.shape=}, {y_sl_train.shape=}")
-            model.set_training_values(x_sl_train, y_sl_train, name=2)
-
-        if x_tl_train is not None and y_tl_train is not None:
-            log.debug(f"Adding Level 3 training values: {x_tl_train.shape=}, {y_tl_train.shape=}")
-            model.set_training_values(x_tl_train, y_tl_train, name=3)
-
-        model.train()
-        loss_val = compute_loss_RBF(model, lambda_penalty, x_val, y_val)
-        log.debug(f"Validation loss: {loss_val:.6f}")
-        return loss_val
-
-    # Hyperparameter search space
-    hyperparam_space = [
-        Real(1, 500, name="d0"),
-        Categorical([-1], name="poly_degree"),
-        Real(1e-15, 1e-8, name="reg"),
-        Real(0.0, 1.0, name="lambda_penalty")
-    ]
-
-    best_params = optimize_hyper_parameters_RBF(objective, hyperparam_space, n_calls, random_state)
-    log.info(f"Best hyperparameters found: {best_params}")
-
-    # Train final model on all available data
-    x_final = np.vstack([x for x in [x_fl_train, x_sl_train, x_tl_train] if x is not None])
-    y_final = np.hstack([y for y in [y_fl_train, y_sl_train, y_tl_train] if y is not None])
-    log.info(f"Final training shapes: x_final={x_final.shape}, y_final={y_final.shape}")
-
-    d0, poly_degree, reg, lambda_penalty = best_params
-    final_model = RBF(d0=d0, poly_degree=int(poly_degree), reg=reg, print_global=False)
-    final_model.set_training_values(x_final, y_final)
-    final_model.train()
-
-    # Evaluate on test set
-    if x_test is not None and y_test is not None:
-        loss_test = compute_loss_RBF(final_model, lambda_penalty, x_test, y_test)
-        log.info(f"Final RMSE on test set (multi-fidelity RBF): {loss_test:.6f}")
-    else:
-        loss_test = 0.0
-        log.warning("No test set available for multi-fidelity RBF evaluation.")
-
-    log.info("=== Exiting mf_RBF ===")
-    return final_model, loss_test
-
-
-def RBF_model(
+def rbf_model(
     param_space: list,
     sets: dict[str, ndarray],
     n_calls: int = 50,
@@ -1054,31 +889,75 @@ def RBF_model(
     return best_model, best_loss
 
 
-def train_surrogate_model_rbf(
-    n_params: int,
-    level1_sets: dict[str, ndarray],
-    level2_sets: dict[str, ndarray] | None = None,
-    level3_sets: dict[str, ndarray] | None = None,
-) -> tuple[KRG | MFK, float]:
+def rbf_training(
+    level1_split: DataSplit,
+    level2_split: DataSplit | None = None,
+    level3_split: DataSplit | None = None,
+    n_calls: int = 10,
+    random_state: int = 42,
+) -> tuple[RBF, float]:
     """
     Train either single-fidelity or multi-fidelity RBF model.
     """
-    n_params_ = n_params
-    hyperparam_space = get_hyperparam_space_RBF(level1_sets, level2_sets, level3_sets, n_params_)
-    if level2_sets is not None or level3_sets is not None:
-        # multi-fidelity RBF
-        log.info(f"{level2_sets=}")
-        return mf_RBF(
-            level1_sets=level1_sets,
-            level2_sets=level2_sets,
-            level3_sets=level3_sets,
+    hyperparam_space = get_hyperparam_space_rbf(
+        level1_split=level1_split,
+        level2_split=level2_split,
+        level3_split=level3_split,
+    )
+
+    data_split: list[DataSplit] = [level1_split]
+    if level2_split is not None:
+        data_split.append(level2_split)
+    if level3_split is not None:
+        data_split.append(level3_split)
+
+    x_val = np.concatenate(
+        arrays=[data.x_val for data in data_split],
+        axis=0,
+    )
+    y_val = np.concatenate(
+        arrays=[data.y_val for data in data_split],
+        axis=0,
+    )
+    x_test = np.concatenate(
+        arrays=[data.x_test for data in data_split],
+        axis=0,
+    )
+    y_test = np.concatenate(
+        arrays=[data.y_test for data in data_split],
+        axis=0,
+    )
+
+    # Objective function for Bayesian optimization
+    def objective(params) -> float:
+        _, loss = compute_rbf_loss(
+            params=params,
+            level1_split=level1_split,
+            level2_split=level2_split,
+            level3_split=level3_split,
+            x_=x_val,
+            y_=y_val,
         )
-    else:
-        # single-fidelity
-        return RBF_model(
-            param_space=hyperparam_space,
-            sets=level1_sets,
-        )
+        return loss
+
+    best_params = optimize_hyper_parameters(
+        objective=objective,
+        n_calls=n_calls,
+        random_state=random_state,
+        hyperparam_space=hyperparam_space,
+    )
+
+    best_model, best_loss = compute_rbf_loss(
+        params=best_params,
+        level1_split=level1_split,
+        level2_split=level2_split,
+        level3_split=level3_split,
+        x_=x_test,
+        y_=y_test,
+    )
+    log.info(f"Final RMSE on test set: {best_loss:.6f}")
+
+    return best_model, best_loss
 
 
 def run_adapt_refinement_geom_rbf(
@@ -1215,7 +1094,7 @@ def run_adapt_refinement_geom_rbf(
         df_new = pd.concat([df, new_df], ignore_index=True, sort=False)
 
         # Retrain surrogate
-        model, rmse = train_surrogate_model_rbf(
+        model, rmse = rbf_training(
             n_params=n_params,
             level1_sets=level1_sets,
             level2_sets=split_data(df_new, objective),
@@ -1246,10 +1125,10 @@ def run_adapt_refinement_geom_rbf(
 
 def train_first_level_sm(
     level1_df: DataFrame,
+    low_fidelity_dir: Path,
     training_settings: TrainingSettings,
 ) -> None:
     # Unpack
-    n_samples = training_settings.n_samples
     objective = training_settings.objective
     data_repartition = training_settings.data_repartition
 
@@ -1257,53 +1136,26 @@ def train_first_level_sm(
     level1_df_norm = normalize_dataset(level1_df)
 
     # Split
-    level1_sets = split_data(
+    level1_split: DataSplit = split_data(
         df=level1_df_norm,
         objective=objective,
         train_fraction=data_repartition,
     )
 
-    param_order = [
-        col
-        for col in df_norm.columns
-        if col != objective
-    ]
+    if "KRG" in training_settings.sm_models:
+        best_krg_model, best_krg_rmse = kriging_training(level1_split)
 
-    log.info("--------------Star training KRG model.--------------\n")
-    krg_model, krg_rmse = train_surrogate_model(level1_sets)
-    rmse_df = DataFrame({"rmse": [krg_rmse]})
-    rmse_path = f"{results_dir}/rmse_KRG.csv"
-    rmse_df.to_csv(rmse_path, index=False)
-    log.info("--------------KRG model trained.--------------\n")
-    model_name = "KRG"
+        save_best_surrogate_geometry(
+            model=best_krg_model,
+            results_dir=low_fidelity_dir,
+            training_settings=training_settings,
+        )
 
-    save_best_surrogate_geometry(
-        surrogate_model=krg_model,
-        model_name=model_name,
-        objective=objective,
-        param_order=param_order,
-        normalization_params=normalization_params,
-        final_level1_df_c=final_level1_df_c,
-        results_dir=best_surrogate_geom_path,
-    )
+    if "RBF" in training_settings.sm_models:
+        best_rbf_model, best_rbf_rmse = rbf_training(level1_split)
 
-    log.info("--------------Star training RBF model.--------------\n")
-    rbf_model, rbf_rmse = train_surrogate_model_rbf(
-        n_params=n_samples,
-        level1_sets=level1_sets,
-    )
-    rmse_df = pd.DataFrame({"rmse": [rbf_rmse]})
-    rmse_path = f"{results_dir}/rmse_RBF.csv"
-    rmse_df.to_csv(rmse_path, index=False)
-    log.info("--------------RBF model trained.--------------\n")
-
-    model_name = "RBF"
-    save_best_surrogate_geometry(
-        surrogate_model=rbf_model,
-        model_name=model_name,
-        objective=objective,
-        param_order=param_order,
-        normalization_params=normalization_params,
-        final_level1_df_c=final_level1_df_c,
-        results_dir=best_surrogate_geom_path,
-    )
+        save_best_surrogate_geometry(
+            model=best_rbf_model,
+            results_dir=low_fidelity_dir,
+            training_settings=training_settings,
+        )

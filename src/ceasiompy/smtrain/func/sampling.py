@@ -29,12 +29,6 @@ from ceasiompy.smtrain import AEROMAP_FEATURES
 from ceasiompy.smtrain.func import AEROMAP_SELECTED_CSV
 
 
-# Classes
-
-class TrainingData(BaseModel):
-    
-
-
 # Functions
 
 def lh_sampling(
@@ -319,7 +313,7 @@ def split_data(
     train_fraction: float = 0.7,
     test_fraction_within_split: float = 0.3,
     random_state: int = 42,
-) -> dict[str, ndarray]:
+) -> DataSplit:
     """
     Splits dataframe into training, validation, and test sets based on the specified proportions.
     """
@@ -364,11 +358,11 @@ def split_data(
 
     log.info(f"Validation size: {x_val.shape[0]}, Test size: {x_test.shape[0]}")
 
-    return {
-        "x_train": x_train,
-        "x_val": x_val,
-        "x_test": x_test,
-        "y_train": y_train,
-        "y_val": y_val,
-        "y_test": y_test,
-    }
+    return DataSplit(
+        x_train=x_train,
+        y_train=y_train,
+        x_val=x_val,
+        y_val=y_val,
+        x_test=x_test,
+        y_test=y_test,
+    )

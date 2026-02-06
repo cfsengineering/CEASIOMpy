@@ -181,6 +181,7 @@ def _geometry_exploration(
     # Train Selected Surrogate Models
     train_first_level_sm(
         level1_df=level1_df,
+        low_fidelity_dir=low_fidelity_dir,
         training_settings=training_settings,
     )
 

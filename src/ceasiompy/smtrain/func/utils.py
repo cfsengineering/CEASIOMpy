@@ -36,6 +36,19 @@ from ceasiompy.smtrain import (
 )
 
 
+# Classes
+
+class DataSplit(BaseModel):
+    x_train: ndarray
+    y_train: ndarray
+
+    x_val: ndarray
+    y_val: ndarray
+
+    x_test: ndarray
+    y_test: ndarray
+
+
 # Functions
 
 def store_best_geom_from_training(
@@ -76,7 +89,11 @@ def store_best_geom_from_training(
     )
 
 
-def concatenate_if_not_none(list_arrays: list[ndarray | None]) -> ndarray:
+def concatenate_if_not_none(
+    level1_split: DataSplit,
+    level2_split: DataSplit | None = None,
+    level3_split: DataSplit | None = None,
+) -> ndarray:
     """
     Concatenates arrays in the list that are not None.
     """

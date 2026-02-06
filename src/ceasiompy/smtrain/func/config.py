@@ -17,12 +17,10 @@ from cpacspy.cpacsfunctions import (
     create_branch,
     get_string_vector,
 )
-from ceasiompy.utils.commonpaths import get_wkdir
 from scipy.optimize import differential_evolution
 from ceasiompy.utils.geometryfunctions import get_xpath_for_param
 from ceasiompy.smtrain.func.utils import (
     get_columns,
-    generate_smtrain_results_subdirs,
 )
 from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
@@ -33,10 +31,15 @@ from ceasiompy.utils.ceasiompyutils import (
 from pathlib import Path
 from pandas import DataFrame
 from pydantic import BaseModel
+from smt.applications import MFK
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
-from ceasiompy.database.func.storing import CeasiompyDb
 from ceasiompy.smtrain.func.parameter import Parameter
+from ceasiompy.database.func.storing import CeasiompyDb
+from smt.surrogate_models import (
+    KRG,
+    RBF,
+)
 
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import WINGS_XPATH
@@ -49,6 +52,7 @@ from ceasiompy.smtrain import (
     SMTRAIN_OBJECTIVE_XPATH,
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
+    SMTRAIN_OBJECTIVE_DIRECTION_XPATH,
 )
 
 
@@ -57,6 +61,7 @@ from ceasiompy.smtrain import (
 class TrainingSettings(BaseModel):
     sm_models: list[str]
     objective: str
+    direction: str
     n_samples: int
     fidelity_level: str
     data_repartition: float
@@ -73,20 +78,21 @@ def get_settings(tixi: Tixi3) -> TrainingSettings:
     sm_models = get_string_vector(tixi, SMTRAIN_MODELS_XPATH)
     objective = get_value(tixi, SMTRAIN_OBJECTIVE_XPATH)
     n_samples = int(get_value(tixi, SMTRAIN_NSAMPLES_GEOMETRY_XPATH))
+    direction = get_value(tixi, xpath=SMTRAIN_OBJECTIVE_DIRECTION_XPATH)
     fidelity_level = get_value(tixi, SMTRAIN_FIDELITY_LEVEL_XPATH)
     data_repartition = get_value(tixi, SMTRAIN_TRAIN_PERC_XPATH)
 
     if not sm_models:
         raise ValueError("You need to choose a surrogate model type in the Settings Page.")
 
-    training_settings = TrainingSettings(
+    return TrainingSettings(
         sm_models=sm_models,
         objective=objective,
         n_samples=n_samples,
+        direction=direction,
         fidelity_level=fidelity_level,
         data_repartition=data_repartition,
     )
-    return training_settings
 
 
 def retrieve_aeromap_data(
@@ -522,7 +528,7 @@ def optimize_surrogate(
         bounds=bounds,
         tol=1e-3,
         maxiter=1000,
-        polish=True
+        polish=True,
     )
 
     x_opt_norm = opt_result.x
@@ -552,29 +558,19 @@ def optimize_surrogate(
 
 
 def save_best_surrogate_geometry(
-    surrogate_model,
-    model_name: str,
-    objective: str,
-    param_order: list,
-    normalization_params: dict,
-    final_level1_df_c: pd.DataFrame,
+    model: KRG | MFK | RBF,
     results_dir: Path,
+    training_settings: TrainingSettings,
 ):
     """
     Optimize surrogate and save best configuration (CSV with predicted y, CPACS).
     """
 
-    # ---- optimization ----
     best_result = optimize_surrogate(
-        surrogate_model=surrogate_model,
-        model_name=model_name,
-        objective=objective,
-        param_order=param_order,
-        normalization_params=normalization_params,
-        final_level1_df_c=final_level1_df_c,
+        model=model,
+        training_settings=training_settings,
     )
 
-    # ---- save CSV of best parameters + predicted y ----
     csv_path = results_dir / f"best_surrogate_parameters_{model_name}.csv"
     df_params = pd.DataFrame.from_dict(
         best_result["x_opt_phys"],
@@ -587,8 +583,6 @@ def save_best_surrogate_geometry(
 
     log.info(f"Best surrogate parameters saved to CSV: {csv_path}")
 
-    # ---- update CPACS geometry ----
-    wkdir = get_wkdir()
     cpacs_template = wkdir / "00_ToolInput.xml"
     best_cpacs_path = results_dir / f"best_surrogate_geometry_{model_name}.xml"
     copyfile(cpacs_template, best_cpacs_path)

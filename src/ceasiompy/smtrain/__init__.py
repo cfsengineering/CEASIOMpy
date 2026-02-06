@@ -43,7 +43,7 @@ FIDELITY_LEVELS = [LEVEL_ONE, LEVEL_TWO] if SU2RUN_STATUS else [LEVEL_ONE]
 SM_MODELS: Final[list[str]] = ["KRG", "RBF"]
 
 # ===== List of potential objectives =====
-OBJECTIVES_LIST: Final[list[str]] = ["cl_cd", "cl", "cd", "cs", "cmd", "cml", "cms"]
+OBJECTIVES_LIST: Final[list[str]] = ["cl_cd", "cl", "cd"]
 
 # ===== List of an aeromap (basic) features =====
 AEROMAP_FEATURES = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
@@ -63,6 +63,8 @@ SMTRAIN_AVL_DATABASE_XPATH = SMTRAIN_XPATH + "/AVLDatabase"
 # Surrogate model settings
 SMTRAIN_SIMULATION_PURPOSE_XPATH = SMTRAIN_XPATH + "/SimulationPurpose"
 SMTRAIN_OBJECTIVE_XPATH = SMTRAIN_XPATH + "/Objective"
+SMTRAIN_OBJECTIVE_DIRECTION_XPATH = SMTRAIN_XPATH + "/ObjectiveDirection"
+
 SMTRAIN_FIDELITY_LEVEL_XPATH = SMTRAIN_XPATH + "/FidelityLevel"
 # SMTRAIN_SELECTED_MODEL = SMTRAIN_XPATH + "/selected_model"
 SMTRAIN_MODELS = SMTRAIN_XPATH + "/models"

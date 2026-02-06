@@ -322,9 +322,10 @@ def _section_load_cpacs():
 
                 st.session_state["last_converted_vsp3_digest"] = uploaded_digest
                 st.session_state["last_converted_cpacs_path"] = str(new_cpacs_path)
-                st.session_state["cpacs"] = CPACS(str(new_cpacs_path))
+                cpacs = CPACS(str(new_cpacs_path))
                 create_branch(cpacs.tixi, GEOMETRY_MODE_XPATH)
                 cpacs.tixi.updateTextElement(GEOMETRY_MODE_XPATH, "3D")
+                st.session_state["cpacs"] = cpacs
 
             # No conversion
             else:

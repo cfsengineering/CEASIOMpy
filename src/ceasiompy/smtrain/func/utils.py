@@ -40,6 +40,7 @@ from ceasiompy.smtrain import (
 # Classes
 
 class DataSplit(BaseModel):
+    columns: list[str]
     x_train: ndarray
     y_train: ndarray
 
@@ -51,6 +52,30 @@ class DataSplit(BaseModel):
 
 
 # Functions
+
+def save_model(
+    model: KRG | MFK | RBF,
+    columns: list[str],
+    results_dir: Path,
+    training_settings: TrainingSettings,
+) -> None:
+    """
+    Save trained surrogate model.
+    """
+    suffix = get_model_typename(model)
+    model_path = results_dir / f"sm_{suffix}.pkl"
+
+    with open(model_path, "wb") as file:
+        joblib.dump(
+            value={
+                "model": model,
+                "columns": columns,
+                "objective": training_settings.objective,
+            },
+            filename=file,
+        )
+    log.info(f"Model saved to {model_path}")
+
 
 def store_best_geom_from_training(
     dataframe: DataFrame,
@@ -88,15 +113,6 @@ def store_best_geom_from_training(
         best_cpacs_path,
         best_geom_dir / f"best_geom_{best_cpacs_idx + 1:03d}.xml",
     )
-
-
-def collect_level_data(
-    level_sets: dict[str, ndarray] | None,
-) -> tuple[ndarray | None, ...]:
-    if level_sets is None:
-        return None, None, None, None, None, None
-    else:
-        return unpack_data(level_sets)
 
 
 def get_columns(objective: str) -> list[str]:
@@ -239,8 +255,7 @@ def get_val_fraction(train_fraction: float) -> float:
         train_fraction = max(0.1, min(train_fraction, 0.9))
 
     # Convert from "% of train" to "% of test"
-    test_val_fraction = 1 - train_fraction
-    return test_val_fraction
+    return 1 - train_fraction
 
 
 def get_model_typename(model: KRG | MFK | RBF) -> str:

@@ -14,35 +14,37 @@ TODO:
 
 
 # Imports
-import shutil
+import numpy as np
 
 from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.smtrain.func.plot import plot_validation
-from ceasiompy.smtrain.func.utils import store_best_geom_from_training
+from ceasiompy.smtrain.func.utils import (
+    save_model,
+    store_best_geom_from_training,
+)
 from ceasiompy.smtrain.func.sampling import (
-    lh_sampling,
+    split_data,
     lh_sampling_geom,
+    get_high_variance_points,
 )
 from ceasiompy.smtrain.func.config import (
     get_settings,
-    design_of_experiment,
+    normalize_dataset,
     get_params_to_optimise,
     create_list_cpacs_geometry,
+    save_best_surrogate_geometry,
 )
 from ceasiompy.smtrain.func.trainsurrogatemodel import (
-    save_model,
-    training_existing_db,
-    run_adaptative_refinement,
-    run_adapt_refinement_geom_rbf,
-    run_adapt_refinement_geom_krg,
+    rbf_training,
+    krg_training,
+    run_adapt_refinement_geom,
     run_first_level_simulations,
-    train_first_level_sm,
-    run_adapt_refinement_geom_krg_existing_db,
 )
 
 from pathlib import Path
 from pandas import DataFrame
 from cpacspy.cpacspy import CPACS
+from ceasiompy.smtrain.func.utils import DataSplit
 from ceasiompy.smtrain.func.config import TrainingSettings
 
 from ceasiompy import log
@@ -186,11 +188,33 @@ def _geometry_exploration(
         rbf_results_dir.mkdir(parents=True, exist_ok=True)
 
     # Train Selected Surrogate Models
-    level1_split = train_first_level_sm(
-        level1_df=level1_df,
-        low_fidelity_dir=low_fidelity_dir,
+    # Normalize
+
+    # Split
+    level1_split: DataSplit = split_data(
+        df=level1_df,
         training_settings=training_settings,
     )
+
+    if "KRG" in training_settings.sm_models:
+        best_krg_model, best_krg_rmse = krg_training(level1_split)
+        save_best_surrogate_geometry(
+            df_norm=level1_split,
+            best_rmse=best_krg_rmse,
+            best_model=best_krg_model,
+            results_dir=low_fidelity_dir,
+            level1_split=level1_split,
+            training_settings=training_settings,
+        )
+
+    if "RBF" in training_settings.sm_models:
+        best_rbf_model, best_rbf_rmse = rbf_training(level1_split)
+        save_best_surrogate_geometry(
+            best_rmse=best_rbf_rmse,
+            best_model=best_rbf_model,
+            results_dir=low_fidelity_dir,
+            training_settings=training_settings,
+        )
 
     # Adaptative Refinement
     if training_settings.fidelity_level == LEVEL_TWO:
@@ -205,24 +229,38 @@ def _geometry_exploration(
             high_fidelity_dir.mkdir(exist_ok=True)
 
         if "KRG" in training_settings.sm_models:
-            # On High-Variance Points
-            best_krg_model = run_adapt_refinement_geom_krg(
-                cpacs=cpacs,
+            high_var_pts: DataFrame = get_high_variance_points(
                 model=best_krg_model,
-                level1_df=level1_df,
-                results_dir=high_fidelity_dir,
+                level1_df_norm=level1_df_norm,
                 training_settings=training_settings,
             )
 
         if "RBF" in training_settings.sm_models:
-            # Second level fidelity training
-            best_rbf_model = run_adapt_refinement_geom_rbf(
-                cpacs=cpacs,
-                model=best_krg_model,
-                level1_df=level1_df,
-                results_dir=high_fidelity_dir,
-                training_settings=training_settings,
+            loo_pts = get_loo_points(
+                x_array=x_array,
+                y_array=y_array,
+                model=model,
+                ranges_gui=ranges_gui,
+                n_local=1,
+                perturb_scale=1,
             )
+
+        unvalid_pts = np.concatenate(
+            arrays=[high_var_pts, loo_pts]
+        )
+
+        # On High-Variance Points
+        level2_df = run_adapt_refinement_geom(
+            cpacs=cpacs,
+            unvalid_pts=unvalid_pts,
+            level1_df=level1_df,
+            results_dir=high_fidelity_dir,
+            training_settings=training_settings,
+        )
+        level2_split: DataSplit = split_data(
+            df=level2_df_norm,
+            training_settings=training_settings,
+        )
 
     columns: list[str] = [c for c in level1_df.columns if c != training_settings.objective]
 

@@ -9,11 +9,11 @@ Sampling strategies for SMTrain.
 # Imports
 
 import numpy as np
-import pandas as pd
 
 from copy import deepcopy
 from sklearn.model_selection import train_test_split
 from ceasiompy.smtrain.func.utils import get_val_fraction
+from ceasiompy.smtrain.func.config import normalize_dataset
 
 from pathlib import Path
 from numpy import ndarray
@@ -178,29 +178,24 @@ def new_points(
 
 def get_high_variance_points(
     model: KRG | MFK,
-    level1_df_norm: DataFrame,
-    training_settings: TrainingSettings,
+    level1_split: DataSplit,
 ) -> DataFrame:
     """
     Select points with high predictive variance from a normalized dataset.
     Returns a DataFrame of the selected rows (same columns as the input).
     """
 
-    # Sanity Check
-    if level1_df_norm.empty:
-        log.warning("Empty dataset provided, no high-variance points selected.")
-        return DataFrame()
-
-    # Constants
-    objective = training_settings.objective
-    feature_cols = [c for c in level1_df_norm.columns if c != objective]
-    x_array = level1_df_norm.loc[:, feature_cols].to_numpy(dtype=float)
+    # You are not training on x_val and x_test so might as well add them
+    x = np.concatenate(
+        arrays=[level1_split.x_train, level1_split.x_val, level1_split.x_test],
+        axis=0,
+    )
 
     # Predict variance for each row
-    y_var_flat = np.asarray(model.predict_variances(x_array)).flatten()
+    y_var_flat = np.asarray(model.predict_variances(x)).flatten()
     finite_mask = np.isfinite(y_var_flat)
     if not np.any(finite_mask):
-        log.error("All variance predictions are non-finite.")
+        log.error("All variance predictions are infinite.")
         return DataFrame()
 
     y_var = y_var_flat.copy()
@@ -227,8 +222,7 @@ def get_high_variance_points(
     log.info(
         f"Selected {n_high_idx} high-variance points using threshold {threshold:.6g}."
     )
-
-    return level1_df_norm.iloc[high_idx].copy()
+    return DataFrame(x[high_idx], columns=level1_split.columns)
 
 
 def new_points_rbf(
@@ -310,15 +304,21 @@ def new_points_rbf(
 
 
 def split_data(
-    df: DataFrame,
-    objective: str,
-    train_fraction: float = 0.7,
-    test_fraction_within_split: float = 0.3,
+    input_df: DataFrame,
+    training_settings: TrainingSettings,
     random_state: int = 42,
 ) -> DataSplit:
     """
     Splits dataframe into training, validation, and test sets based on the specified proportions.
     """
+    columns = df.columns
+
+    # Normalize
+    df = normalize_dataset(input_df)
+
+    # Unpack
+    objective = training_settings.objective
+    data_repartition = training_settings.data_repartition
 
     x = df.drop(columns=[objective]).to_numpy()
     y = df[objective].to_numpy()
@@ -329,13 +329,13 @@ def split_data(
     x_train, x_test, y_train, y_test = train_test_split(
         x,
         y,
-        test_size=get_val_fraction(train_fraction),
+        test_size=get_val_fraction(data_repartition),
         random_state=random_state,
     )
 
     if x_test.shape[0] < 1:
         raise ValueError(
-            f"Not enough samples for validation and test with {train_fraction=}"
+            f"Not enough samples for validation and test with {data_repartition=}"
             f"At least 1 samples is needed for test: avaiable {x_test.shape[0]}"
             f"Try to add some points or change '% of training data'"
         )
@@ -347,13 +347,13 @@ def split_data(
     x_val, x_test, y_val, y_test = train_test_split(
         x_test,
         y_test,
-        test_size=test_fraction_within_split,
+        test_size=0.5,                  # Take half (this way val ~= test)
         random_state=random_state,
     )
 
     if x_val.shape[0] < 1:
         raise ValueError(
-            f"Not enough samples for validation and test with {train_fraction=}"
+            f"Not enough samples for validation and test with {data_repartition=}"
             f"At least 1 samples is needed for test: avaiable {x_val.shape[0]}"
             f"Try to add some points or change '% of training data'"
         )
@@ -367,4 +367,5 @@ def split_data(
         y_val=y_val,
         x_test=x_test,
         y_test=y_test,
+        columns=columns,
     )

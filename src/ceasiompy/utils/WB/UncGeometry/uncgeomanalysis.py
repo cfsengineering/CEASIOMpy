@@ -16,10 +16,10 @@ geometry analysis for unconventional aircraft.
 # =============================================================================
 
 # Classes
-from ceasiompy.utils.InputClasses.Unconventional.aircraftgeometryclass import (
+from ceasiompy.utils.inputclasses.unconventional.aircraftgeometryclass import (
     AircraftWingGeometry,
 )
-from ceasiompy.utils.InputClasses.Unconventional.aircraftgeometryclass import (
+from ceasiompy.utils.inputclasses.unconventional.aircraftgeometryclass import (
     AircraftFuseGeometry,
 )
 

@@ -32,13 +32,12 @@ from ceasiompy.smtrain.func.config import (
 from ceasiompy.smtrain.func.trainsurrogatemodel import (
     save_model,
     training_existing_db,
-    run_first_level_training,
     run_adaptative_refinement,
     run_adapt_refinement_geom_rbf,
-    run_adaptative_refinement_geom,
+    run_adapt_refinement_geom_krg,
     run_first_level_simulations,
     train_first_level_sm,
-    run_adaptative_refinement_geom_existing_db,
+    run_adapt_refinement_geom_krg_existing_db,
 )
 
 from pathlib import Path
@@ -55,83 +54,83 @@ from ceasiompy.smtrain import (
 
 # Methods
 
-def _load_smtrain_model(cpacs: CPACS) -> None:
-    ranges_gui = get_params_to_optimise(cpacs)
+# def _load_smtrain_model(cpacs: CPACS) -> None:
+#     ranges_gui = get_params_to_optimise(cpacs)
 
-    krg_model, rbf_model, sets, param_order = training_existing_db(
-        results_dir,
-        split_ratio,
-        selected_krg_model,
-        selected_rbf_model
-    )
+#     krg_model, rbf_model, sets, param_order = training_existing_db(
+#         results_dir,
+#         split_ratio,
+#         selected_krg_model,
+#         selected_rbf_model
+#     )
 
-    if fidelity_level == LEVEL_TWO:
-        run_adaptative_refinement_geom_existing_db(
-            cpacs=cpacs,
-            results_dir=results_dir,
-            model=krg_model,
-            level1_sets=sets,
-            rmse_obj=rmse_obj,
-            objective=objective,
-            aeromap_uid=aeromap_selected,
-            ranges_gui=ranges_gui,
-        )
+#     if fidelity_level == LEVEL_TWO:
+#         run_adapt_refinement_geom_krg_existing_db(
+#             cpacs=cpacs,
+#             results_dir=results_dir,
+#             model=krg_model,
+#             level1_sets=sets,
+#             rmse_obj=rmse_obj,
+#             objective=objective,
+#             aeromap_uid=aeromap_selected,
+#             ranges_gui=ranges_gui,
+#         )
 
-    if selected_krg_model:
-        log.info("Validation plots.")
-        plot_dir = results_dir / "Validation_plot_KRG"
-        plot_dir.mkdir(parents=True, exist_ok=True)
-        plot_validation(krg_model, sets, objective, plot_dir)
+#     if selected_krg_model:
+#         log.info("Validation plots.")
+#         plot_dir = results_dir / "Validation_plot_KRG"
+#         plot_dir.mkdir(parents=True, exist_ok=True)
+#         plot_validation(krg_model, sets, objective, plot_dir)
 
-        save_model(cpacs, krg_model, objective, results_dir, param_order)
+#         save_model(cpacs, krg_model, objective, results_dir, param_order)
 
-    if selected_rbf_model:
-        log.info("Validation plots.")
-        plot_dir = results_dir / "Validation_plot_RBF"
-        plot_dir.mkdir(parents=True, exist_ok=True)
-        plot_validation(rbf_model, sets, objective, plot_dir)
+#     if selected_rbf_model:
+#         log.info("Validation plots.")
+#         plot_dir = results_dir / "Validation_plot_RBF"
+#         plot_dir.mkdir(parents=True, exist_ok=True)
+#         plot_validation(rbf_model, sets, objective, plot_dir)
 
-        save_model(cpacs, rbf_model, objective, results_dir, param_order)
+#         save_model(cpacs, rbf_model, objective, results_dir, param_order)
 
 
-def _flight_condition_exploration(
-    cpacs: CPACS,
-    results_dir: Path,
-    objective,
-    split_ratio,
-    fidelity_level,
-    rmse_obj,
-):
-    n_samples, ranges = design_of_experiment(cpacs)
-    lh_sampling_path = lh_sampling(n_samples, ranges, results_dir)
+# def _flight_condition_exploration(
+#     cpacs: CPACS,
+#     results_dir: Path,
+#     objective,
+#     split_ratio,
+#     fidelity_level,
+#     rmse_obj,
+# ):
+#     n_samples, ranges = design_of_experiment(cpacs)
+#     lh_sampling_path = lh_sampling(n_samples, ranges, results_dir)
 
-    # First level fidelity training
-    model, sets, param_order = run_first_level_training(
-        cpacs=cpacs,
-        lh_sampling_path=lh_sampling_path,
-        objective=objective,
-        split_ratio=split_ratio,
-        result_dir=results_dir,
-    )
+#     # First level fidelity training
+#     model, sets, param_order = run_first_level_training(
+#         cpacs=cpacs,
+#         lh_sampling_path=lh_sampling_path,
+#         objective=objective,
+#         split_ratio=split_ratio,
+#         result_dir=results_dir,
+#     )
 
-    # Second level fidelity training
-    if fidelity_level == LEVEL_TWO:
-        run_adaptative_refinement(
-            cpacs=cpacs,
-            results_dir=results_dir,
-            model=model,
-            level1_sets=sets,
-            rmse_obj=rmse_obj,
-            objective=objective,
-        )
+#     # Second level fidelity training
+#     if fidelity_level == LEVEL_TWO:
+#         run_adaptative_refinement(
+#             cpacs=cpacs,
+#             results_dir=results_dir,
+#             model=model,
+#             level1_sets=sets,
+#             rmse_obj=rmse_obj,
+#             objective=objective,
+#         )
 
-    # 3. Plot, save and get results
-    log.info("Validation plots.")
-    plot_dir = results_dir / "Validation_plot"
-    plot_dir.mkdir(parents=True, exist_ok=True)
-    plot_validation(model, sets, objective, plot_dir)
+#     # 3. Plot, save and get results
+#     log.info("Validation plots.")
+#     plot_dir = results_dir / "Validation_plot"
+#     plot_dir.mkdir(parents=True, exist_ok=True)
+#     plot_validation(model, sets, objective, plot_dir)
 
-    save_model(cpacs, model, objective, results_dir,param_order)
+#     save_model(cpacs, model, objective, results_dir,param_order)
 
 
 def _geometry_exploration(
@@ -157,7 +156,7 @@ def _geometry_exploration(
 
     # Generate directory where to store Low Fidelity runs
     low_fidelity_dir = results_dir / "low_fidelity"
-    low_fidelity_dir.mkdir(exist_ok=True)
+    low_fidelity_dir.mkdir(parents=True, exist_ok=True)
 
     # Low Fidelity First (+ Always available by default)
     level1_df: DataFrame = run_first_level_simulations(
@@ -178,8 +177,16 @@ def _geometry_exploration(
         training_settings=training_settings,
     )
 
+    if "KRG" in training_settings.sm_models:
+        krg_results_dir = results_dir / "krg_surrogate_model"
+        krg_results_dir.mkdir(parents=True, exist_ok=True)
+
+    if "RBF" in training_settings.sm_models:
+        rbf_results_dir = results_dir / "rbf_surrogate_model"
+        rbf_results_dir.mkdir(parents=True, exist_ok=True)
+
     # Train Selected Surrogate Models
-    train_first_level_sm(
+    level1_split = train_first_level_sm(
         level1_df=level1_df,
         low_fidelity_dir=low_fidelity_dir,
         training_settings=training_settings,
@@ -187,42 +194,66 @@ def _geometry_exploration(
 
     # Adaptative Refinement
     if training_settings.fidelity_level == LEVEL_TWO:
+        if (
+            ("KRG" in training_settings.sm_models)
+            or ("RBF" in training_settings.sm_models)
+        ):
+            log.info("Starting Adaptative Refinement of the Design Space.")
+
+            # Generate directory where to store Low Fidelity runs
+            high_fidelity_dir = results_dir / "high_fidelity"
+            high_fidelity_dir.mkdir(exist_ok=True)
+
         if "KRG" in training_settings.sm_models:
             # On High-Variance Points
-            run_adaptative_refinement_geom(
+            best_krg_model = run_adapt_refinement_geom_krg(
                 cpacs=cpacs,
-                results_dir=results_dir,
-                model=krg_model,
-                level1_sets=sets,
+                model=best_krg_model,
+                level1_df=level1_df,
+                results_dir=high_fidelity_dir,
                 training_settings=training_settings,
-                ranges_gui=df_ranges_gui,
             )
 
         if "RBF" in training_settings.sm_models:
             # Second level fidelity training
-            run_adapt_refinement_geom_rbf(
+            best_rbf_model = run_adapt_refinement_geom_rbf(
                 cpacs=cpacs,
-                results_dir=results_dir,
-                model=rbf_model,
-                level1_sets=sets,
-                rmse_obj=rmse_obj,
-                objective=objective,
-                ranges_gui=df_ranges_gui,
+                model=best_krg_model,
+                level1_df=level1_df,
+                results_dir=high_fidelity_dir,
+                training_settings=training_settings,
             )
+
+    columns: list[str] = [c for c in level1_df.columns if c != training_settings.objective]
 
     # 3. Plot, save and get results
     if "KRG" in training_settings.sm_models:
-        log.info("Validation plots.")
-        plot_dir = results_dir / "krg_validation_plot_"
-        plot_dir.mkdir(parents=True, exist_ok=True)
-        plot_validation(krg_model, sets, objective, plot_dir)
-        save_model(cpacs, krg_model, objective, results_dir, param_order)
+        plot_validation(
+            model=best_krg_model,
+            results_dir=krg_results_dir,
+            level1_split=level1_split,
+            training_settings=training_settings,
+        )
+        save_model(
+            model=best_krg_model,
+            columns=columns,
+            results_dir=krg_results_dir,
+            training_settings=training_settings,
+        )
 
     if "RBF" in training_settings.sm_models:
-        plot_dir = results_dir / "rbf_validation_plot"
-        plot_dir.mkdir(parents=True, exist_ok=True)
-        plot_validation(rbf_model, sets, objective, plot_dir)
-        save_model(cpacs, rbf_model, objective, results_dir, param_order)
+        plot_validation(
+            model=best_rbf_model,
+            results_dir=rbf_results_dir,
+            level1_split=level1_split,
+            training_settings=training_settings,
+        )
+        save_model(
+            model=best_rbf_model,
+            columns=columns,
+            results_dir=rbf_results_dir,
+            training_settings=training_settings,
+        )
 
 
 # Main
@@ -245,21 +276,25 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     if old_new_sim == "Run New Simulations":
         simulation_purpose = "Geometry Exploration"
         if simulation_purpose == "Flight Condition Exploration":
-            _flight_condition_exploration(
+            # _flight_condition_exploration(
+            #     cpacs=cpacs,
+            #     results_dir=results_dir,
+            #     training_settings=training_settings,
+            # )
+            raise NotImplementedError
+
+        if simulation_purpose == "Geometry Exploration":
+            _geometry_exploration(
                 cpacs=cpacs,
                 results_dir=results_dir,
                 training_settings=training_settings,
             )
 
-        if simulation_purpose == "Geometry Exploration":
-            _geometry_exploration(
-                cpacs
-            )
-
     if old_new_sim == "Load Geometry Exploration Simulations":
-        _load_smtrain_model(
-            cpacs=cpacs,
-        )
+        # _load_smtrain_model(
+        #     cpacs=cpacs,
+        # )
+        raise NotImplementedError
 
 
 if __name__ == "__main__":

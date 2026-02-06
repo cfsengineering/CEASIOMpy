@@ -32,6 +32,7 @@ from pathlib import Path
 from pandas import DataFrame
 from pydantic import BaseModel
 from smt.applications import MFK
+from scipy.optimize import Bounds
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.smtrain.func.parameter import Parameter
@@ -488,40 +489,31 @@ def norm_to_phys(x_norm, params, normalization_params):
 
 
 def optimize_surrogate(
-    surrogate_model,
-    model_name: str,
-    objective: str,
-    param_order: list,
-    normalization_params: dict,
-    final_level1_df_c: pd.DataFrame,
+    model: KRG | MFK | RBF,
+    df_norm: DataFrame,
+    training_settings: TrainingSettings,
 ):
     """
     Run global optimization on a surrogate model.
     Returns optimal normalized/physical parameters and metadata.
     """
 
-    MAXIMIZE_OBJECTIVES = {"cl", "cl/cd"}
-    maximize = objective.lower() in MAXIMIZE_OBJECTIVES
+    direction = 1 if training_settings.direction == "Maximize" else -1
 
-    def surrogate_objective(x_norm):
+    def surrogate_objective(x_norm) -> float:
         x_norm = np.asarray(x_norm).reshape(1, -1)
-        y_pred = float(surrogate_model.predict_values(x_norm)[0, 0])
-        return -y_pred if maximize else y_pred
+        y_pred = float(model.predict_values(x_norm)[0, 0])
+        # TODO: use a loss function
+        return direction * y_pred
+
 
     # ---- bounds in normalized space ----
-    bounds = []
-    for p in param_order:
-        std = normalization_params[p]["std"]
-        mean = normalization_params[p]["mean"]
+    feature_cols = [c for c in df_norm.columns if c != training_settings.objective]
+    lb = df_norm[feature_cols].min().to_numpy(dtype=float)
+    ub = df_norm[feature_cols].max().to_numpy(dtype=float)
+    bounds = Bounds(lb=lb, ub=ub)
 
-        if std == 0:
-            bounds.append((0.0, 0.0))
-        else:
-            lo = (final_level1_df_c[p].min() - mean) / std
-            hi = (final_level1_df_c[p].max() - mean) / std
-            bounds.append((lo, hi))
-
-    log.info(f"--- Starting global optimization on {model_name} surrogate ---")
+    log.info("Starting best geometry search on {model_name} surrogate ---")
 
     opt_result = differential_evolution(
         surrogate_objective,
@@ -541,13 +533,12 @@ def optimize_surrogate(
         x_opt_phys[p] = mean if std == 0 else x_opt_norm[i] * std + mean
 
     y_opt = float(
-        surrogate_model.predict_values(
+        model.predict_values(
             np.array(x_opt_norm).reshape(1, -1)
         )[0, 0]
     )
 
     return {
-        "model": model_name,
         "success": bool(opt_result.success),
         "message": opt_result.message,
         "objective": objective,
@@ -558,16 +549,19 @@ def optimize_surrogate(
 
 
 def save_best_surrogate_geometry(
-    model: KRG | MFK | RBF,
+    df_norm: DataFrame,
+    best_rmse: float,
+    best_model: KRG | MFK | RBF,
     results_dir: Path,
     training_settings: TrainingSettings,
-):
+) -> None:
     """
-    Optimize surrogate and save best configuration (CSV with predicted y, CPACS).
+    Optimize Geometry on surrogate's function.
     """
 
     best_result = optimize_surrogate(
-        model=model,
+        model=best_model,
+        df_norm=df_norm,
         training_settings=training_settings,
     )
 
@@ -591,9 +585,8 @@ def save_best_surrogate_geometry(
     tixi = best_cpacs.tixi
 
     params_to_update = {}
-
     for full_name, val in best_result["x_opt_phys"].items():
-        # SINTAX: {param}_of_{section}_of_{wing}
+        # SYNTAX: {param}_of_{section}_of_{wing}
         parts = full_name.split("_of_")
         if len(parts) != 3:
             log.warning(f"Skipping malformed parameter name: {full_name}")
@@ -618,9 +611,6 @@ def save_best_surrogate_geometry(
         best_cpacs_path,
         params_to_update
     )
-
     best_cpacs.save_cpacs(best_cpacs_path, overwrite=True)
 
     log.info(f"Best surrogate geometry saved to: {best_cpacs_path}")
-
-    return best_result

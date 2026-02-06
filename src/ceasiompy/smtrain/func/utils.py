@@ -11,6 +11,7 @@ import pandas as pd
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
+from pydantic import BaseModel
 from smt.applications import MFK
 from scipy.optimize import OptimizeResult
 from ceasiompy.smtrain.func.parameter import Parameter
@@ -89,23 +90,6 @@ def store_best_geom_from_training(
     )
 
 
-def concatenate_if_not_none(
-    level1_split: DataSplit,
-    level2_split: DataSplit | None = None,
-    level3_split: DataSplit | None = None,
-) -> ndarray:
-    """
-    Concatenates arrays in the list that are not None.
-    """
-    # Filter out None values
-    valid_arrays = [arr for arr in list_arrays if arr is not None]
-    # If no valid arrays, raise an error or return an empty array
-    if not valid_arrays:
-        raise ValueError("All arrays are None. Cannot concatenate.")
-
-    return np.concatenate(valid_arrays, axis=0)
-
-
 def collect_level_data(
     level_sets: dict[str, ndarray] | None,
 ) -> tuple[ndarray | None, ...]:
@@ -159,7 +143,7 @@ def create_aeromap_from_varpts(
     return aeromap
 
 
-def log_params(result: OptimizeResult) -> None:
+def log_params_krg(result: OptimizeResult) -> None:
     params = result.x
     log.info(f"Theta0: {params[0]}")
     log.info(f"Correlation: {params[1]}")
@@ -168,6 +152,14 @@ def log_params(result: OptimizeResult) -> None:
     log.info(f"Nugget: {params[4]}")
     log.info(f"Rho regressor: {params[5]}")
     log.info(f"Penalty weight (λ): {params[6]}")
+    log.info(f"Lowest RMSE obtained: {result.fun:.6f}")
+
+
+def log_params_rbf(result: OptimizeResult) -> None:
+    params = result.x
+    log.info(f"d0 (scaling): {params[0]:.3f}")
+    log.info(f"poly_degree: {params[1]}")
+    log.info(f"reg (regularization): {params[2]:.2e}")
     log.info(f"Lowest RMSE obtained: {result.fun:.6f}")
 
 
@@ -251,7 +243,7 @@ def get_val_fraction(train_fraction: float) -> float:
     return test_val_fraction
 
 
-def define_model_type(model: KRG | MFK | RBF) -> str:
+def get_model_typename(model: KRG | MFK | RBF) -> str:
     return model.__class__.__name__.lower()
 
 

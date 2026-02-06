@@ -22,6 +22,7 @@ from ceasiompy.utils.ceasiompyutils import (
 
 from pathlib import Path
 from pandas import DataFrame
+from ceasiompy.smtrain.func.config import TrainingSettings
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
@@ -32,7 +33,6 @@ from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
 from ceasiompy.smtrain.func import AEROMAP_SELECTED
 from ceasiompy.smtrain import SMTRAIN_AVL_DATABASE_XPATH
-from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
 
 
 # Functions
@@ -118,29 +118,20 @@ def launch_su2(
 def launch_gmsh_su2_geom(
     cpacs: CPACS,
     results_dir: Path,
-    objective: str,
-    aeromap_uid: str,
-    idx: int,
-    it: int,
+    training_settings: TrainingSettings,
 ) -> DataFrame:
     """
     Executes SU2 CFD analysis using an aeromap or high-variance points.
-
-    1. Processes a CPACS file
-    2. Selects or generates an aeromap or high-variance points
-    3. Runs SU2 to compute aerodynamic coefficients
-    4. Retrieves the results
-
     """
-    gmsh_dir = results_dir / CPACS2GMSH
-    gmsh_dir.mkdir(exist_ok=True)
-    su2_dir = results_dir / SU2RUN / f"{SU2RUN}_{idx}_iter{it}"
-    su2_dir.mkdir(exist_ok=True)
+    # Constants
+    objective = training_settings.objective
 
-    run_cpacs2gmsh(cpacs, wkdir=gmsh_dir)
-    run_su2(cpacs, results_dir=su2_dir)
+    run_cpacs2gmsh(cpacs, results_dir=results_dir)
+    run_su2(cpacs, results_dir=results_dir)
 
-    df_su2 = retrieve_aeromap_data(cpacs, aeromap_uid, objective)
-    obj_value = df_su2[objective].iloc[0]
+    df_su2 = retrieve_aeromap_data(
+        cpacs=cpacs,
+        objective=objective,
+    )
 
-    return obj_value
+    return df_su2[objective].iloc[0]

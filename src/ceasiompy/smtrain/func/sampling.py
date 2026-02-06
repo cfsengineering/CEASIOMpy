@@ -18,11 +18,15 @@ from ceasiompy.smtrain.func.utils import get_val_fraction
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
-from pydantic import BaseModel
 from smt.applications import MFK
 from smt.sampling_methods import LHS
-from smt.surrogate_models import KRG
+from smt.surrogate_models import (
+    RBF,
+    KRG,
+)
+from ceasiompy.smtrain.func.utils import DataSplit
 from ceasiompy.smtrain.func.parameter import Parameter
+from ceasiompy.smtrain.func.config import TrainingSettings
 
 from ceasiompy import log
 from ceasiompy.smtrain import AEROMAP_FEATURES
@@ -119,7 +123,7 @@ def lh_sampling_geom(
 
 def new_points(
     x_array: ndarray,
-    model: VariancePredictor,
+    model,
     results_dir: Path,
     high_var_pts: list,
 ) -> DataFrame | None:
@@ -172,66 +176,65 @@ def new_points(
     return None
 
 
-def new_points_geom(
-    x_array: ndarray,
+def get_high_variance_points(
     model: KRG | MFK,
-    results_dir: Path,
-    high_var_pts: list,
-    ranges_gui: DataFrame,
-) -> DataFrame | None:
+    level1_df_norm: DataFrame,
+    training_settings: TrainingSettings,
+) -> DataFrame:
     """
-    Selects new sampling points based on variance predictions from a surrogate model.
-
-    This function identifies high-variance points from the `level_1` dataset for adaptive sampling.
-    In the first iteration, it selects the top 6 points with the highest variance. In subsequent
-    iterations, it picks the next highest variance point not previously selected.
-
-    Args:
-        datasets (dict): Contains different fidelity datasets (expects 'level_1').
-        model (object): Surrogate model used to predict variance.
-        result_dir (Path): Directory where the selected points CSV file will be saved.
-        high_variance_points (list): list of previously selected high-variance points.
-
-    Returns:
-        DataFrame containing the newly selected points.
-        Or None if all high-variance points have already been chosen.
+    Select points with high predictive variance from a normalized dataset.
+    Returns a DataFrame of the selected rows (same columns as the input).
     """
 
-    # Compute variance prediction
+    # Sanity Check
+    if level1_df_norm.empty:
+        log.warning("Empty dataset provided, no high-variance points selected.")
+        return DataFrame()
+
+    # Constants
+    objective = training_settings.objective
+    feature_cols = [c for c in level1_df_norm.columns if c != objective]
+    x_array = level1_df_norm.loc[:, feature_cols].to_numpy(dtype=float)
+
+    # Predict variance for each row
     y_var_flat = np.asarray(model.predict_variances(x_array)).flatten()
-    sorted_indices = np.argsort(y_var_flat)[::-1]  # Sort indices by variance (descending)
-    parameters_selected = list(ranges_gui.keys())
-    # First iteration: generate boundary points
-    output_file_path = results_dir / "new_points.csv"
-    if not high_var_pts:
-        log.info("First iteration: selecting the first 7 highest variance points.")
-        selected_points = [tuple(x_array[idx]) for idx in sorted_indices[:7]]
-        high_var_pts.extend(selected_points)
-        sampled_df = DataFrame(selected_points, columns=parameters_selected)
-        sampled_df.to_csv(output_file_path, index=False)
-        return sampled_df
+    finite_mask = np.isfinite(y_var_flat)
+    if not np.any(finite_mask):
+        log.error("All variance predictions are non-finite.")
+        return DataFrame()
 
-    log.info("Selecting next highest variance point.")
+    y_var = y_var_flat.copy()
+    y_var[~finite_mask] = -np.inf
 
-    # Convert list of points to a set for fast lookup
-    high_variance_set = set(tuple(p) for p in high_var_pts)
+    n = len(y_var)
+    sorted_indices = np.argsort(y_var)[::-1]  # Descending variance
 
-    for idx in sorted_indices:
-        new_point = tuple(x_array[idx])
-        if new_point not in high_variance_set:
-            high_var_pts.append(new_point)
-            sampled_df = DataFrame([new_point], columns=parameters_selected)
-            sampled_df.to_csv(output_file_path, index=False)
-            return sampled_df
+    # Robust threshold: max(90th percentile, Q3 + 1.5 * IQR)
+    finite_vals = y_var[finite_mask]
+    q1, q3 = np.quantile(finite_vals, [0.25, 0.75])
+    iqr = q3 - q1
+    q90 = np.quantile(finite_vals, 0.90)
+    threshold = max(q90, q3 + 1.5 * iqr)
 
-    log.warning("No new points found, all have been selected.")
-    return None
+    high_idx = [idx for idx in sorted_indices if y_var[idx] >= threshold]
+
+    # Ensure at least a small fraction is selected
+    min_points = max(1, int(np.ceil(0.05 * n)))
+    n_high_idx = len(high_idx)
+    if n_high_idx < min_points:
+        high_idx = list(sorted_indices[:min_points])
+
+    log.info(
+        f"Selected {n_high_idx} high-variance points using threshold {threshold:.6g}."
+    )
+
+    return level1_df_norm.iloc[high_idx].copy()
 
 
-def new_points_RBF(
+def new_points_rbf(
     x_array: ndarray,
     y_array: ndarray,
-    model: KRG | MFK,
+    model: RBF,
     ranges_gui: DataFrame,
     n_local: int = 3,
     perturb_scale: float = 0.05,
@@ -241,7 +244,6 @@ def new_points_RBF(
     Generate new sampling points based on LOO error for RBF models.
     Returns a DataFrame with the same columns as ranges_gui.
     """
-
     X = np.asarray(x_array)
     y = np.asarray(y_array).ravel()
     n_samples, n_dim = X.shape
@@ -301,7 +303,7 @@ def new_points_RBF(
         return None
 
     X_new = np.array(X_new_list)
-    sampled_df = pd.DataFrame(X_new, columns=parameters_selected)
+    sampled_df = DataFrame(X_new, columns=parameters_selected)
 
     log.info(f"Generated {len(sampled_df)} new poor-prediction points.")
     return sampled_df

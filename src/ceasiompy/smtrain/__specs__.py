@@ -132,7 +132,7 @@ def gui_settings(cpacs: CPACS) -> None:
         label="**Training Settings**",
         expanded=True,
     ):
-        left_col, right_col = st.columns([3, 1])
+        left_col, right_col = st.columns(2)
         with left_col:
             objective_name = list_vartype(
                 tixi=tixi,

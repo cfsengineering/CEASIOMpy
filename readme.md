@@ -21,31 +21,18 @@ All input geometries are based on the open-standard format [CPACS](https://www.c
 
 ## Table of contents
 
-- [CEASIOMpy](#ceasiompy)
-  - [Table of contents](#table-of-contents)
-  - [Installation](#installation)
-      - [Recommended storage](#recommended-storage)
-    - [Linux/macOS](#linuxmacos)
-    - [Windows](#windows)
-      - [1. Download CEASIOMpy Repository](#1-download-ceasiompy-repository)
-      - [2. Install WSL with Ubuntu (if not done already)](#2-install-wsl-with-ubuntu-if-not-done-already)
-      - [3. Install the necesssary softwares](#3-install-the-necesssary-softwares)
-    - [Windows users](#windows-users)
-    - [Demo](#demo)
-    - [Test cases](#test-cases)
-    - [Run CEASIOMpy](#run-ceasiompy)
-    - [Examples of workflows](#examples-of-workflows)
-    - [Available modules](#available-modules)
-      - [General modules](#general-modules)
-      - [Geometry and Mesh](#geometry-and-mesh)
-      - [Aerodynamics](#aerodynamics)
-      - [Weight and Balance](#weight-and-balance)
-      - [Mission Analysis](#mission-analysis)
-      - [Structure](#structure)
-      - [Data Analysis and Storage](#data-analysis-and-storage)
-  - [contributing](#contributing)
-  - [More information](#more-information)
-  - [Cite us](#cite-us)
+- [Table of contents](#table-of-contents)
+- [Installation](#installation)
+  - [Linux/macOS](#linuxmacos)
+  - [Run CEASIOMpy](#run-ceasiompy)
+- [Available modules](#available-modules)
+  - [Geometry and Mesh](#geometry-and-mesh)
+  - [Aerodynamics](#aerodynamics)
+  - [Mission Analysis](#mission-analysis)
+  - [Structure](#structure)
+- [Contributing](#contributing)
+- [More information](#more-information)
+- [Cite us](#cite-us)
 
 ## Online Version (in development)
 
@@ -70,20 +57,6 @@ For Windows users please use the online version at https://ceasiompy.com
 A video which explains how to ![install](installation/DOCKER_INSTALLATION.md) CEASIOMpy on Docker is now available!
 [![CEASIOMpy Docker Installation](installation/docker_installation.png)](https://www.youtube.com/watch?v=KTS1-6AsReU)
 
-### Demo
-
-[![CEASIOMpy GUI Video tutorial (Test case 2)](./test_cases/test_case_2/testcase2_startvideo.png)](https://www.youtube.com/watch?v=d-AaSrF5g3k)
-
-### Test cases
-
-These test cases are there to learn how to use CEASIOMpy. You will probably also learn a few things about the CPACS format. You can also run these tests to verify that everything is installed and working as expected as they cover different possible ways of using CEASIOMpy. Be sure you finish the [installation](installation/INSTALLATION.md) before you try them.
-
-- [Test case 1](test_cases/test_case_1/README.md) : Run a simple workflow
-- [Test case 2](test_cases/test_case_2/README.md) : Create and run a workflow with the Graphical User Interface (Video tutorial)
-- [Test case 3](test_cases/test_case_3/README.md) : Create and run a workflow with the Graphical User Interface
-- [Test case 4](test_cases/test_case_4/README.md) : Create and run a from a command line
-- [Test case 5](test_cases/test_case_5/README.md) : Create and run a from a configuration file
-
 ### Run CEASIOMpy
 
 - **Run CEASIOMpy with a GUI to build the workflow**
@@ -94,72 +67,37 @@ These test cases are there to learn how to use CEASIOMpy. You will probably also
     ceasiompy_run --gui
     ```
 
-- **Run CEASIOMpy with a command line to build the workflow**
-
-    If you run CEASIOMpy with the following command, you can build the workflow directly by defining the CPACS files and the modules you want to use.
-
-    ```bash
-    ceasiompy_run -m test_files/cpacsfiles/d150.xml PyAVL
-    ```
-
 Follow the [test cases](#test-cases) to discover the different way of using CEASIOMpy.
 
 ### Available modules
 
-There are many different modules available in CEASIOMpy that can be combined to create different workflows. The list of available modules is shown below. The modules' statuses are marked as follows:
-
-:heavy_check_mark: : The module should work as expected. If you find bugs, do not hesitate to report them (more details [here](contributing.md#reporting-bugs)).
-
-:warning: : The module does not work as expected. It is not a bug, but some features or data handling are not yet compatible with the new file structure. Check the [Kanban Board](https://github.com/cfsengineering/CEASIOMpy/projects/1) to see planned and in-progress features.
-
-:x: : The module does not work at all. Some functions have been written, but need a lot of changes to be compatible with the rest of CEASIOMpy.
-
-<img align="right" height="80" src="documents/logos/CEASIOMpy_banner_main.png">
+There are many different modules available in CEASIOMpy that can be combined to create different workflows.
 
 #### Geometry and Mesh
 
-- [CPACSCreator](src/ceasiompy/CPACSCreator/README.md) :heavy_check_mark:
-- [CPACSUpdater](src/ceasiompy/CPACSUpdater/README.md) :heavy_check_mark:
-- [CPACS2GMSH](src/ceasiompy/CPACS2GMSH/README.md) :heavy_check_mark:
-
-<img align="right" height="80" src="documents/logos/CEASIOMpy_banner_aero.png">
+- [Add Control Surfaces](src/ceasiompy/addcontrolsurfaces/readme.md)
+- [CPACS to GMSH](src/ceasiompy/cpacs2gmsh/readme.md)
 
 #### Aerodynamics
 
-- [CLCalculator](src/ceasiompy/CLCalculator/README.md) :heavy_check_mark:
-- [PyAVL](src/ceasiompy/PyAVL/README.md) :heavy_check_mark:
-- [SU2Run](src/ceasiompy/SU2Run/README.md) :heavy_check_mark:
-- [SkinFriction](src/ceasiompy/SkinFriction/README.md) :heavy_check_mark:
-
-<img align="right" height="80" src="documents/logos/CEASIOMpy_banner_weights.png">
+- [AVL low-fidelity solver](src/ceasiompy/pyavl/readme.md)
+- [SU2 high-fidelity Solver](src/ceasiompy/su2run/readme.md)
 
 #### Meta modules
 
-- [SMTrain](src/ceasiompy/SMTrain/README.md) :heavy_check_mark:
-
-<img align="right" height="80" src="documents/logos/CEASIOMpy_banner_geometry.png">
+- [Surrogate Model Module](src/ceasiompy/smtrain/readme.md)
 
 #### Mission Analysis
 
-- [StaticStability](./src/ceasiompy/StaticStability/README.md) :heavy_check_mark:
-- [DynamicStability](./src/ceasiompy/DynamicStability/README.md) :x:
-
-<img align="right" height="80" src="documents/logos/CEASIOMpy_banner_structure.png">
+- [Static Stability](./src/ceasiompy/staticstability/readme.md)
 
 #### Structure
 
-- [AeroFrame](./src/ceasiompy/AeroFrame/README.md) :heavy_check_mark:
+- [Aeroframe](./src/ceasiompy/aeroframe/readme.md)
 
-#### Data Analysis and Storage
+## Contributing
 
-- [Database](./src/ceasiompy/Database/README.md) :x:
-
-
-## contributing
-
-CEASIOMpy is an open source project and we welcome contributions from everyone. Some CEASIOMpy modules have been developed by students as part of their internship or master thesis.
-
-If you want to contribute to the development of CEASIOMpy, please read the document [contributing.md](contributing.md).
+CEASIOMpy is an open source project and we welcome contributions from everyone. If you want to contribute to the development of CEASIOMpy, please read the document [contributing.md](contributing.md).
 
 ## More information
 

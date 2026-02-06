@@ -22,6 +22,7 @@ from tixi3.tixi3wrapper import (
 )
 
 from ceasiompy import log
+from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 
 
 # Functions
@@ -263,8 +264,12 @@ def list_vartype(tixi: Tixi3, xpath, default_value, name, key, description) -> s
 
 def add_ctrl_surf_vartype(
     tixi: Tixi3,
-    xpath, default_value, name, key, description,
-) -> float | None:
+    xpath,
+    default_value,
+    name,
+    key,
+    description,
+) -> tuple[float, float, float] | None:
     '''
     Specific function for selecting a deformation angle in the CPACSUpdater module.
     Special request of Giacomo Benedetti.
@@ -275,6 +280,8 @@ def add_ctrl_surf_vartype(
 
     ctrl_xpath = xpath + "/ctrlsurf"
     angle_xpath = xpath + "/deformation_angle"
+    left_trsl_xpath = xpath + "/left_trsl"
+    right_trsl_xpath = xpath + "/right_trsl"
 
     value = safe_get_value(tixi, ctrl_xpath, default_value[0])
     idx = default_value.index(value)
@@ -290,16 +297,55 @@ def add_ctrl_surf_vartype(
 
     # if value of st.radio is npot 'none' then add float_vartype entry
     if selected is not None and str(selected).lower() != "none":
-        deformation_angle = safe_get_value(tixi, angle_xpath, default_value=0.0)
-        output = float_vartype(
-            tixi,
-            angle_xpath,
-            deformation_angle,  # Default value for deformation angle
-            "Deformation angle [deg]",
-            f"{key}_deformation_angle",
-            "Set the deformation angle for the selected control surface.",
-        )
-        return output
+        left_col, mid_col, right_col = st.columns([2, 1, 1])
+        with left_col:
+            def_angle = float_vartype(
+                tixi=tixi,
+                xpath=angle_xpath,
+                default_value=0.0,
+                name="Deformation angle [deg]",
+                key=f"{key}_deformation_angle",
+                description="Set the deformation angle for the selected control surface.",
+                min_value=-90.0,
+                max_value=90.0,
+            )
+        # Define constants
+        if tixi.getTextElement(GEOMETRY_MODE_XPATH) != "2D":
+            with mid_col:
+                left_trsl = float_vartype(
+                    tixi=tixi,
+                    xpath=left_trsl_xpath,
+                    default_value=0.0,
+                    name="Left Gap",
+                    key=f"{key}_left_translation",
+                    description="Set the gap (left-translation) in y.",
+                    min_value=0.0,
+                )
+
+            with right_col:
+                right_trsl = float_vartype(
+                    tixi=tixi,
+                    xpath=right_trsl_xpath,
+                    default_value=0.0,
+                    name="Right Gap",
+                    key=f"{key}_right_translation",
+                    description="Set the gap (right-translation) in y.",
+                    min_value=0.0,
+                )
+        else:
+            # In the 2D case there is no y-translation
+            add_value(
+                tixi=tixi,
+                xpath=left_trsl_xpath,
+                value=0.0,
+            )
+            add_value(
+                tixi=tixi,
+                xpath=right_trsl_xpath,
+                value=0.0,
+            )
+
+        return def_angle, left_trsl, right_trsl
     return None
 
 

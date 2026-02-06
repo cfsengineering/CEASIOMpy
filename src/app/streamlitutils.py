@@ -375,7 +375,19 @@ def section_3D_view(
     y_range = [center_y - max_range, center_y + max_range]
     z_range = [center_z - max_range, center_z + max_range]
 
-    fig = go.Figure(data=[go.Mesh3d(x=x, y=y, z=z, i=i, j=j, k=k, color="orange", opacity=0.5)])
+    fig = go.Figure(
+        data=[
+            go.Mesh3d(
+                x=x, y=y, z=z,
+                i=i, j=j, k=k,
+                opacity=1.0,
+                color='lightgrey',
+                flatshading=False,
+                lighting=dict(ambient=0.2, diffuse=0.9, specular=0.4, roughness=0.05),
+                lightposition=dict(x=200, y=200, z=100),
+            )
+        ]
+    )
     fig.update_layout(
         margin=dict(l=0, r=0, t=0, b=0),
         scene=dict(

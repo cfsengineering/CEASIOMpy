@@ -10,17 +10,13 @@ GUI Interface of CPACSUpdater.
 import streamlit as st
 
 from ceasiompy.utils.geometryfunctions import get_segments
-from ceasiompy.utils.guiobjects import (
-    bool_vartype,
-    add_ctrl_surf_vartype,
-)
+from ceasiompy.utils.guiobjects import add_ctrl_surf_vartype
 
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy.addcontrolsurfaces import (
     CONTROL_SURFACES_LIST,
     ADDCONTROLSURFACES_CTRLSURF_XPATH,
-    ADDCONTROLSURFACES_ADD_CTRLSURFACES_XPATH,
 )
 
 
@@ -32,21 +28,15 @@ def gui_settings(cpacs: CPACS) -> None:
     with st.container(
         border=True
     ):
-        add_ctrl_surf = bool_vartype(
-            tixi=tixi,
-            key="add_control_surfaces",
-            xpath=ADDCONTROLSURFACES_ADD_CTRLSURFACES_XPATH,
-            default_value=True,
-            name="Add control surfaces",
-            description="Choose to add or not control surfaces.",
-        )
+        segments_list = get_segments(tixi)
+        wings = {}
+        for wing_uid, segment_uid in segments_list:
+            wings.setdefault(wing_uid, []).append(segment_uid)
 
-        if add_ctrl_surf:
-            with st.container(
-                border=True
-            ):
-                segments_list = get_segments(tixi)
-                for wing_uid, segment_uid in segments_list:
+        for wing_uid, segment_uids in wings.items():
+            with st.container(border=True):
+                st.markdown(f"**Wing {wing_uid}**")
+                for segment_uid in segment_uids:
                     add_ctrl_surf_vartype(
                         tixi=tixi,
                         key=f"control_surface_{wing_uid}_{segment_uid}",
@@ -56,5 +46,6 @@ def gui_settings(cpacs: CPACS) -> None:
                             Select the type of control surface to add
                             for at specific wing and segment of wing.
                         """,
-                        xpath=ADDCONTROLSURFACES_CTRLSURF_XPATH + f"/{wing_uid}/{segment_uid}",
+                        xpath=ADDCONTROLSURFACES_CTRLSURF_XPATH
+                        + f"/{wing_uid}/{segment_uid}",
                     )

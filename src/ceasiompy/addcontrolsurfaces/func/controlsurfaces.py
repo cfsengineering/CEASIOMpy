@@ -88,9 +88,30 @@ def retrieve_gui_ctrlsurf(tixi: Tixi3) -> dict[str, list]:
         for j in range(1, seg_cnt + 1):
             segment_name = tixi.getChildNodeName(wing_xpath, j)
             segment_xpath = f"{wing_xpath}/{segment_name}"
-            segment_value = tixi.getTextElement(segment_xpath)
-            if segment_value != "none":
-                wing_sgt_list.append((segment_name, segment_value))
+
+            ctrlsurf_xpath = segment_xpath + "/ctrlsurf"
+
+            ctrltype = "none"
+            if tixi.checkElement(ctrlsurf_xpath):
+                ctrltype = tixi.getTextElement(ctrlsurf_xpath)
+
+            if ctrltype != "none":
+                angle_xpath = segment_xpath + "/deformation_angle"
+                left_trsl_xpath = segment_xpath + "/left_trsl"
+                right_trsl_xpath = segment_xpath + "/right_trsl"
+
+                if not tixi.checkElement(angle_xpath):
+                    raise ValueError(f"""Could not retrieve deformation angle for
+                        wing {wing_name} segment {segment_name} of {ctrltype=}
+                    """)
+                deformation_angle = float(tixi.getTextElement(angle_xpath))
+                left_trsl = float(tixi.getTextElement(left_trsl_xpath))
+                right_trsl = float(tixi.getTextElement(right_trsl_xpath))
+
+                wing_sgt_list.append(
+                    (segment_name, ctrltype, deformation_angle, left_trsl, right_trsl)
+                )
+
         result[wing_name] = wing_sgt_list
 
     if not result:
@@ -546,38 +567,6 @@ def _clean_airfoil_input(
     return x, z
 
 
-def _save_airfoil_order_plot(x_values: ndarray, z_values: ndarray, airfoil_uid: str) -> None:
-    """Save an interactive HTML plot of airfoil point ordering."""
-    wkdir = get_wkdir()
-    if wkdir is None:
-        return
-
-    out_dir = get_results_directory(MODULE_NAME)
-
-    indices = list(range(len(x_values)))
-    fig = go.Figure()
-    fig.add_trace(
-        go.Scatter(
-            x=x_values,
-            y=z_values,
-            mode="lines+markers+text",
-            text=[str(i) for i in indices],
-            textposition="top center",
-            name="airfoil",
-        )
-    )
-    fig.update_layout(
-        title=f"Airfoil point order: {airfoil_uid}",
-        xaxis_title="x",
-        yaxis_title="z",
-        yaxis_scaleanchor="x",
-        template="plotly_white",
-    )
-    out_path = out_dir / f"airfoil_order_{sanitize_uid(airfoil_uid)}.html"
-    fig.write_html(out_path, include_plotlyjs="cdn", full_html=True)
-    log.info(f"Saved html at {out_path=}")
-
-
 def fowler_flap_scale(
     x_airfoil: ndarray,
     z_airfoil: ndarray,
@@ -659,7 +648,6 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
             z = array(get_float_vector(tixi, pointlist_xpath + "/z"))
 
             x, z = _clean_airfoil_input(x, z)
-            _save_airfoil_order_plot(x, z, airfoil_uid)
 
             # TODO: Add choice of different interpolation techniques
             newx, newz = interpolate_points(x, z, max_dist=0.02)
@@ -685,7 +673,6 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
             update_xpath_at_xyz(
                 tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str
             )
-            _save_airfoil_order_plot(newx, newz, ids)
 
             # Update airfoil uID for each section
             tixi.updateTextElement(airfoil_xpath, ids)
@@ -697,7 +684,6 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
             update_xpath_at_xyz(
                 tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str
             )
-            _save_airfoil_order_plot(x_airfoil, z_airfoil, ids)
         else:
             log.warning(f"Airfoil uID {airfoil_uid} not found.")
 
@@ -716,7 +702,13 @@ def createfrom_wing_airfoil(
     update_xpath_at_xyz(tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str)
 
 
-def add_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
+def add_airfoil(
+    tixi: Tixi3,
+    sgt: str,
+    ctrltype: str,
+    left_trsl: float,
+    right_trsl: float,
+) -> None:
     """
     Add the small airfoil flap behind/under the wing.
 
@@ -730,10 +722,18 @@ def add_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
     if "aileron" in ctrltype:
         sym = False
         left_ctrltype = "left_" + ctrltype
+        right_ctrltype = "right_" + ctrltype
 
         # Add both right and left control surfaces
-        adding_airfoil(tixi, "right_" + ctrltype, sgt, sym)
-        adding_airfoil(tixi, left_ctrltype, sgt, sym)
+        for side_ctrl in [left_ctrltype, right_ctrltype]:
+            adding_airfoil(
+                tixi=tixi,
+                ctrltype=side_ctrl,
+                sgt=sgt,
+                sym=sym,
+                left_trsl=left_trsl,
+                right_trsl=right_trsl,
+            )
 
         # Modify the "left_" airfoil to put it on the left
         wing_uid = left_ctrltype + "_" + sgt
@@ -753,22 +753,37 @@ def add_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
             if wing_xpath and tixi.checkAttribute(wing_xpath, "symmetry")
             else ""
         )
-        adding_airfoil(tixi, ctrltype, sgt, sym=(sym_attr == "x-z-plane"))
+        adding_airfoil(
+            tixi=tixi,
+            ctrltype=ctrltype,
+            sgt=sgt,
+            sym=(sym_attr == "x-z-plane"),
+            left_trsl=left_trsl,
+            right_trsl=right_trsl,
+        )
     else:
-        adding_airfoil(tixi, ctrltype, sgt, sym=True)
+        adding_airfoil(
+            tixi=tixi,
+            ctrltype=ctrltype,
+            sgt=sgt,
+            sym=True,
+            left_trsl=left_trsl,
+            right_trsl=right_trsl,
+        )
 
 
-def adding_airfoil(tixi: Tixi3, ctrltype: str, sgt: str, sym: bool) -> None:
+def adding_airfoil(
+    tixi: Tixi3,
+    ctrltype: str,
+    sgt: str,
+    sym: bool,
+    left_trsl: float,
+    right_trsl: float,
+) -> None:
     # Sanity checks
     if not tixi.uIDCheckExists(sgt):
         log.warning(f"Wing with uID '{sgt}' not found, skipping airfoil addition.")
         return None
-
-    # Define constants
-    if tixi.getTextElement(GEOMETRY_MODE_XPATH) == "2D":
-        scaler = 0.0
-    else:
-        scaler = 0.1
 
     wing_xpath = tixi.uIDGetXPath(sgt)
     if wing_xpath.endswith("wing"):
@@ -791,7 +806,8 @@ def adding_airfoil(tixi: Tixi3, ctrltype: str, sgt: str, sym: bool) -> None:
 
         # Scale flap accordingly
         sign = 1 if i_sec % 2 != 0 else -1
-        tixi.updateTextElement(ele_xpath + "/transformation/translation/y", str(scaler * sign))
+        trsl = left_trsl if i_sec % 2 != 0 else right_trsl
+        tixi.updateTextElement(ele_xpath + "/transformation/translation/y", str(trsl * sign))
 
 
 def deflection_angle(tixi: Tixi3, wing_uid: str, angle: float) -> None:
@@ -852,7 +868,7 @@ def deflection_angle(tixi: Tixi3, wing_uid: str, angle: float) -> None:
 
 def _adding_control_surfaces(tixi: Tixi3, wing_uid: str, wing_data: list) -> None:
     seg_to_wing_uid = decompose_wing(tixi, wing_uid)
-    for (sgt, ctrltype, deformation_angle) in wing_data:
+    for (sgt, ctrltype, deformation_angle, left_trsl, right_trsl) in wing_data:
         decomp_wing_uid = seg_to_wing_uid.get(sgt)
         if decomp_wing_uid is None:
             log.warning(f"Could not find decomposed wing for segment '{sgt}', skipping.")
@@ -867,7 +883,13 @@ def _adding_control_surfaces(tixi: Tixi3, wing_uid: str, wing_data: list) -> Non
         transform_airfoil(tixi, decomp_wing_uid, ctrltype)
 
         # Add small airfoil that will act as a control surface
-        add_airfoil(tixi, decomp_wing_uid, ctrltype)
+        add_airfoil(
+            tixi=tixi,
+            sgt=decomp_wing_uid,
+            ctrltype=ctrltype,
+            left_trsl=left_trsl,
+            right_trsl=right_trsl,
+        )
 
         # Deflection function
         if deformation_angle != 0.0:

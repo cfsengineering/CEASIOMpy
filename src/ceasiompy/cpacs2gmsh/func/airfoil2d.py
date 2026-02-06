@@ -24,13 +24,13 @@ from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
-from ceasiompy.cpacs2gmsh import MODULE_NAME
+from ceasiompy.addcontrolsurfaces import ADDCONTROLSURFACES_XPATH
 from ceasiompy.utils.commonxpaths import (
     SU2MESH_XPATH,
     AIRFOILS_XPATH,
 )
-from ceasiompy.addcontrolsurfaces import ADDCONTROLSURFACES_ADD_CTRLSURFACES_XPATH
 from ceasiompy.cpacs2gmsh import (
+    MODULE_NAME as CPACS2GMSH,
     GMSH_2D_AIRFOIL_MESH_SIZE_XPATH,
     GMSH_2D_EXT_MESH_SIZE_XPATH,
     GMSH_2D_FARFIELD_RADIUS_XPATH,
@@ -214,7 +214,7 @@ def _generating_dat_file(
     idx: int,
 ) -> Path:
     wingairfoil_xpath = AIRFOILS_XPATH + f"/wingAirfoil[{idx}]"
-    wkdir = get_results_directory(MODULE_NAME)
+    wkdir = get_results_directory(CPACS2GMSH)
     tixi = cpacs.tixi
 
     if not tixi.checkElement(wingairfoil_xpath):
@@ -290,9 +290,9 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
     airfoil_file = _generating_dat_file(cpacs, idx=1)
 
     flap_airfoil_file = None
-    # IF CPACSUPDATER module is selected and more than 1 airfoil
-    add_control_surfaces = _safe_get_value(tixi, ADDCONTROLSURFACES_ADD_CTRLSURFACES_XPATH)
-    if add_control_surfaces:
+
+    # IF AddControlSurfaces module is selected and more than 1 airfoil
+    if tixi.checkElement(ADDCONTROLSURFACES_XPATH):
         airfoil_count = (
             tixi.getNumberOfChilds(AIRFOILS_XPATH)
             if tixi.checkElement(AIRFOILS_XPATH)

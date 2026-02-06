@@ -7,14 +7,12 @@ Update geometry of a CPACS file.
 """
 
 # Imports
-from cpacspy.cpacsfunctions import get_value
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.addcontrolsurfaces.func.controlsurfaces import add_control_surfaces
 
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy.addcontrolsurfaces import MODULE_NAME
-from ceasiompy.addcontrolsurfaces import ADDCONTROLSURFACES_ADD_CTRLSURFACES_XPATH
 
 
 # Main
@@ -27,8 +25,7 @@ def main(cpacs: CPACS) -> None:
     tixi = cpacs.tixi
 
     # Update CPACS
-    if get_value(tixi, ADDCONTROLSURFACES_ADD_CTRLSURFACES_XPATH):
-        add_control_surfaces(tixi)
+    add_control_surfaces(tixi)
 
     # Post-Processing (i.e. store the resulting CPACS .xml file)
     wkdir = get_results_directory(MODULE_NAME)

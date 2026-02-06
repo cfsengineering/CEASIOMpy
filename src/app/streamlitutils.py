@@ -383,8 +383,17 @@ def section_3D_view(
                 opacity=1.0,
                 color='lightgrey',
                 flatshading=False,
-                lighting=dict(ambient=0.2, diffuse=0.9, specular=0.4, roughness=0.05),
-                lightposition=dict(x=200, y=200, z=100),
+                lighting=dict(
+                    ambient=0.5,
+                    diffuse=0.2,
+                    specular=0.3,
+                    roughness=0.2,
+                ),
+                lightposition=dict(
+                    x=0,
+                    y=100,
+                    z=0,
+                ),
             )
         ]
     )

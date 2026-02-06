@@ -128,7 +128,7 @@ def convert_vsp3_to_cpacs(vsp3_path: Path, *, output_dir: Path) -> Path:
         (
             "import sys\n"
             "from pathlib import Path\n"
-            "from ceasiompy.VSP2CPACS.vsp2cpacs import main\n"
+            "from ceasiompy.vsp2cpacs.vsp2cpacs import main\n"
             "out = main(sys.argv[1], output_dir=sys.argv[2])\n"
             f"print('{_VSP2CPACS_OUT_TOKEN}' + str(Path(out)))\n"
         ),

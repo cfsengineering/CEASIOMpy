@@ -15,7 +15,7 @@ import streamlit as st
 import plotly.graph_objects as go
 
 from streamlit_float import float_init
-from assistant import get_assistant_response
+from src.app.assistant import get_assistant_response
 
 from stl import mesh
 from PIL import Image

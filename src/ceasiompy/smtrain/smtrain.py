@@ -37,6 +37,7 @@ from ceasiompy.smtrain.func.trainsurrogatemodel import (
     run_adapt_refinement_geom_rbf,
     run_adaptative_refinement_geom,
     run_first_level_simulations,
+    train_first_level_sm,
     run_adaptative_refinement_geom_existing_db,
 )
 
@@ -177,6 +178,11 @@ def _geometry_exploration(
         training_settings=training_settings,
     )
 
+    # Train Selected Surrogate Models
+    train_first_level_sm(
+        level1_df=level1_df,
+        training_settings=training_settings,
+    )
 
     # Adaptative Refinement
     if training_settings.fidelity_level == LEVEL_TWO:
@@ -187,8 +193,7 @@ def _geometry_exploration(
                 results_dir=results_dir,
                 model=krg_model,
                 level1_sets=sets,
-                rmse_obj=rmse_obj,
-                objective=objective,
+                training_settings=training_settings,
                 ranges_gui=df_ranges_gui,
             )
 

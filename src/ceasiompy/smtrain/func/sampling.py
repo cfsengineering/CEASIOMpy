@@ -17,8 +17,8 @@ from ceasiompy.smtrain.func.utils import get_val_fraction
 
 from pathlib import Path
 from numpy import ndarray
-from typing import Protocol
 from pandas import DataFrame
+from pydantic import BaseModel
 from smt.applications import MFK
 from smt.sampling_methods import LHS
 from smt.surrogate_models import KRG
@@ -29,14 +29,13 @@ from ceasiompy.smtrain import AEROMAP_FEATURES
 from ceasiompy.smtrain.func import AEROMAP_SELECTED_CSV
 
 
-class VariancePredictor(Protocol):
-    """Protocol describing the variance prediction capability required by new_points."""
+# Classes
 
-    def predict_variances(self, x_array: ndarray) -> ndarray:
-        ...
+class TrainingData(BaseModel):
+    
+
 
 # Functions
-
 
 def lh_sampling(
     n_samples: int,

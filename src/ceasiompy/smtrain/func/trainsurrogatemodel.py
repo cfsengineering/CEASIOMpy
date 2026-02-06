@@ -1244,19 +1244,39 @@ def run_adapt_refinement_geom_rbf(
             break
 
 
-def train_first_level_sm():
-    normalization_params, df_norm = normalize_dataset(avl_results)
+def train_first_level_sm(
+    level1_df: DataFrame,
+    training_settings: TrainingSettings,
+) -> None:
+    # Unpack
+    n_samples = training_settings.n_samples
+    objective = training_settings.objective
+    data_repartition = training_settings.data_repartition
 
-    level1_sets = split_data(df_norm, objective, split_ratio)
-    param_order = [col for col in df_norm.columns if col != objective]
+    # Normalize
+    level1_df_norm = normalize_dataset(level1_df)
+
+    # Split
+    level1_sets = split_data(
+        df=level1_df_norm,
+        objective=objective,
+        train_fraction=data_repartition,
+    )
+
+    param_order = [
+        col
+        for col in df_norm.columns
+        if col != objective
+    ]
 
     log.info("--------------Star training KRG model.--------------\n")
     krg_model, krg_rmse = train_surrogate_model(level1_sets)
-    rmse_df = pd.DataFrame({"rmse": [krg_rmse]})
+    rmse_df = DataFrame({"rmse": [krg_rmse]})
     rmse_path = f"{results_dir}/rmse_KRG.csv"
     rmse_df.to_csv(rmse_path, index=False)
     log.info("--------------KRG model trained.--------------\n")
     model_name = "KRG"
+
     save_best_surrogate_geometry(
         surrogate_model=krg_model,
         model_name=model_name,
@@ -1268,7 +1288,10 @@ def train_first_level_sm():
     )
 
     log.info("--------------Star training RBF model.--------------\n")
-    rbf_model, rbf_rmse = train_surrogate_model_rbf(n_params, level1_sets)
+    rbf_model, rbf_rmse = train_surrogate_model_rbf(
+        n_params=n_samples,
+        level1_sets=level1_sets,
+    )
     rmse_df = pd.DataFrame({"rmse": [rbf_rmse]})
     rmse_path = f"{results_dir}/rmse_RBF.csv"
     rmse_df.to_csv(rmse_path, index=False)

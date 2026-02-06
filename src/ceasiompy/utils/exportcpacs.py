@@ -393,11 +393,9 @@ def Fuse_Element(doc, Parent, Name_section, Section_key, Section_parameters):
 
 
 def Fuse_positioning(doc, Parent, Name, Section_key, Section_parameters, length_before_perc):
-
     # Extract section index and prefix (letters only)
     number = int(''.join(filter(str.isdigit, Name)))
     prefix = Name.rstrip('0123456789')
-
     # Create <positioning> element with uID
     positioning = make(doc, 'positioning', Parent, uID=f'{Name}GenPos')
 
@@ -413,7 +411,6 @@ def Fuse_positioning(doc, Parent, Name, Section_key, Section_parameters, length_
         make(doc, 'length', positioning, '0')
         make(doc, 'toSectionUID', positioning, Name)
         length_before_perc.append(0)
-
     else:
         # Section longitudinal spacing
         section_length = float(

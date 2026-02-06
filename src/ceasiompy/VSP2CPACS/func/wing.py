@@ -864,7 +864,7 @@ def get_coord_from_file(xsec_id, _):
     into a closed profile, and returns the coordinates along with the section name
     and chord scaling.
     """
-    geom_parm = get_params_by_name(xsec_id,['Chord'])
+    geom_parm = get_params_by_name(xsec_id,['Chord','ThickChord','BaseThickChord'])
     Name = vsp.GetXSecCurveAlias(xsec_id).replace(' ','_')
 
     # import the points
@@ -874,10 +874,10 @@ def get_coord_from_file(xsec_id, _):
     lower_coords = np.array([[p.x(), p.y(), p.z()] for p in lower_pts])
 
     x_u, y_u = upper_coords[:, 0], upper_coords[:, 1]
-    x_l, y_l = lower_coords[:, 0], lower_coords[:, 1]
+    x_l, y_l = lower_coords[:, 0], lower_coords[:, 1] 
 
     x = np.concatenate((x_l[::-1], x_u), axis=0)
-    y = np.concatenate((y_l[::-1], y_u), axis=0)
+    y = np.concatenate((y_l[::-1], y_u), axis=0) * (geom_parm['ThickChord']/geom_parm['BaseThickChord'])
 
     # check if it close
     x[-1] = x[0]
@@ -1132,8 +1132,9 @@ def Get_coordinates_profile(idx, *args, **kwargs):
       trailing edge along the lower side to the leading edge and then along the
       upper side back to the trailing edge.
     """
-
+    breakpoint()
     Airfoil_name_type = vsp.GetXSecShape(idx)
+    print(Airfoil_name_type)
     func = profile_mapping[Airfoil_name_type]
     try:
         return func(idx, *args, **kwargs)
@@ -1153,7 +1154,6 @@ def get_profile_section(
 
     # Tess_W control how many points you need to define the shape of the profile
     Tess_W = int(vsp.GetParmVal(Component, "Tess_W", "Shape"))
-
     # get profile
     x, y, Airfoil_name, Scaling, shift = Get_coordinates_profile(xsec_id, Tess_W)
 
@@ -1191,6 +1191,12 @@ def get_profile_section(
             Coord_rot = np.dot(RotationMatrix, Coord_shift) + Origin_shift
             x = Coord_rot[0, :]
             y = Coord_rot[1, :]
+    
+    # LE duplicates from twist part. 
+    zero_idx = np.where(np.isclose(x, 0.0, atol=1e-12))[0]
+    if len(zero_idx) > 1:
+        x = np.delete(x, zero_idx[1:])
+        y = np.delete(y, zero_idx[1:])
 
     return [x, y], Airfoil_name, Scaling, shift
 

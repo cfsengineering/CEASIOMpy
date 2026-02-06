@@ -14,13 +14,15 @@ from ceasiompy.utils.exportcpacs import Export_CPACS
 # ---------------------------
 # CONFIG
 # ---------------------------
-STL_FILE = "src/ceasiompy/STL2CPACS/test_fuse.stl"
+#STL_FILE = "src/ceasiompy/STL2CPACS/Part Studio 1(1).stl"
+STL_FILE = "src/ceasiompy/STL2CPACS/test_wing.stl"
+#STL_FILE = "src/ceasiompy/STL2CPACS/test_concorde.stl"
 
 TRI_FILE = "src/ceasiompy/STL2CPACS/slice_mesh_output.tri"
-N_Y_SLICES = 50 # number of Y slices 
+N_Y_SLICES = 30 # number of Y slices 
 INTERSECT_TOL = 1e-6
 SLAB_TOLS = [1e-5, 5e-5, 1e-4, 5e-4, 1e-3]
-EXTREME_TOL_perc_start = 0.005    # at y ==0 and y == y_max the slicing captures point inside the airfoil so be aware about this setting 
+EXTREME_TOL_perc_start = 0.0001    # at y ==0 and y == y_max the slicing captures point inside the airfoil so be aware about this setting 
 EXTREME_TOL_perc_end = 0.005    # at y ==0 and y == y_max the slicing captures point inside the airfoil so be aware about this setting 
 N_SLICE_ADDING = 0 # number of slices to insert in transition regions
 DEBUG_AIRFOIL = False 
@@ -29,242 +31,281 @@ DEBUG_AIRFOIL = False
 #   FUNCTIONS
 # =================================================================================================
 
-def resample_fuselage_cpacs(
-    yr, zr,   # right side
-    yl, zl,   # left side
-    y_bot, z_bot,
-    y_top, z_top,
-    n_points,
-    use_cosine_spacing=False,
-):
-    """
-    Regularize a fuselage cross-section using PCHIP interpolation.
 
-    CPACS order:
-    bottom → right side → top → left side → bottom
+def fix_airfoil_cpacs(x, z, tol_x):
+    """
+    Remove duplicate / near-duplicate airfoil points.
+
+    If two points have |x1 - x2| < tol_x → keep only one
+    Keep the point that is farther from the local mean
+
     """
 
-    yr = np.asarray(yr)
-    zr = np.asarray(zr)
-    yl = np.asarray(yl)
-    zl = np.asarray(zl)
+    x = np.asarray(x)
+    z = np.asarray(z)
+    # Sort by x 
+    idx = np.argsort(x)
+    x = x[idx]
+    z = z[idx]
 
-    # -------------------------------------------------
-    # 1) Augment splines with extrema (CRITICAL STEP)
-    # -------------------------------------------------
-    zr_s = np.hstack([z_bot, zr, z_top])
-    yr_s = np.hstack([y_bot, yr, y_top])
-
-    zl_s = np.hstack([z_bot, zl, z_top])
-    yl_s = np.hstack([y_bot, yl, y_top])
-
-    # Ensure strict monotonicity for PCHIP
-    idx_r = np.argsort(zr_s)
-    idx_l = np.argsort(zl_s)
-
-    zr_s, yr_s = zr_s[idx_r], yr_s[idx_r]
-    zl_s, yl_s = zl_s[idx_l], yl_s[idx_l]
-
-    # -------------------------------------------------
-    # 2) Build splines (NO extrapolation needed)
-    # -------------------------------------------------
-    pchip_right = PchipInterpolator(zr_s, yr_s, extrapolate=False)
-    pchip_left  = PchipInterpolator(zl_s, yl_s, extrapolate=False)
-
-    # -------------------------------------------------
-    # 3) Build z distribution
-    # -------------------------------------------------
-    n_half = n_points // 2
-
-    if use_cosine_spacing:
-        beta = np.linspace(0.0, np.pi, n_half)
-        z_dist = z_bot + (z_top - z_bot) * 0.5 * (1 - np.cos(beta))
-    else:
-        z_dist = np.linspace(z_bot, z_top, n_half, endpoint=True)
-
-    # Remove extrema (added explicitly later)
-    z_mid = z_dist[1:-1]
-
-    # -------------------------------------------------
-    # 4) Evaluate splines
-    # -------------------------------------------------
-    y_right = pchip_right(z_mid)
-    y_left  = pchip_left(z_mid)
-
-    # -------------------------------------------------
-    # 5) Assemble CPACS closed loop
-    # -------------------------------------------------
-    Airfoil = np.hstack([
-        np.array([[y_bot], [z_bot]]),               # bottom
-        np.vstack([y_right, z_mid]),                # right side
-        np.array([[y_top], [z_top]]),               # top
-        np.vstack([y_left[::-1], z_mid[::-1]]),     # left side
-        np.array([[y_bot], [z_bot]])                # closure
-    ])
-    # -------------------------------------------------
-    # center 
-    Airfoil[0] = Airfoil[0] - Airfoil[0][np.argmax(Airfoil[0])] / 2
+    x_clean = [x[0]]
+    z_clean = [z[0]]
+    i = 0
+    while i < len(x)-1:
+        print(i,abs(z[i] - z[i+1]))
+        if  abs(z[i] - z[i+1]) < tol_x and abs(x[i] - x[i+1]) < tol_x:
+            print('here')
+            # if the points are too close keep the one farther from local mean
+            z_mean = 0.5 * (z[i+1] + z[i])
+            x_mean = 0.5 * (x[i+1] + x[i])
+            z_clean.append(z[i] if abs(z[i] - z_mean) > abs(z[i+1] - z_mean) else z[i+1])
+            x_clean.append(x[i] if abs(x[i] - x_mean) > abs(x[i+1] - x_mean) else x[i+1])
+            i += 2  # skip next point
+        
+        else:
+            x_clean.append(x[i])
+            z_clean.append(z[i])
+            i += 1
+            
+    print(f"Fixed airfoil: {len(x)} → {len(x_clean)} points")
+    print('trailing edge', x_clean[np.argmax(x_clean)])
     if DEBUG_AIRFOIL:
-        plt.plot(Airfoil[0], Airfoil[1], '-g', lw=2)
-        plt.xlabel("y/c")   
+        plt.plot(x_clean, z_clean, '.')
+        plt.xlabel("x/c")
+        plt.ylabel("z/c")
+        plt.title("Cleaned Airfoil Points") 
         plt.axis("equal")
         plt.grid()
-        plt.legend()
-        plt.title("Resampled Fuselage Section (Correct)")
         plt.show()
+    return np.array(x_clean), np.array(z_clean)
 
-    return Airfoil
+
+
+def resample_airfoil_cpacs(
+    xu, zu,
+    xl, zl,
+    x_te, z_te,
+    n_points,
+    
+):
+    """
+    Regularize an airfoil by spline-fitting upper/lower surfaces
+    and resampling with either uniform or cosine spacing in x.
+
+    xu, zu : array-like
+        Upper surface points.
+    xl, zl : array-like
+        Lower surface points .
+    x_te, z_te : float
+        Trailing edge coordinates.
+    n_points : int
+        Total number of points for the closed airfoil polyline.
+    """
+    use_cosine_spacing=False
+    xu = np.asarray(xu)
+    zu = np.asarray(zu)
+    xl = np.asarray(xl)
+    zl = np.asarray(zl)
+    print(f'shape is {np.shape(xu)} with inside { xu}')
+    #breakpoint()
+    # Sort surfaces
+    # Upper: LE -> TE
+    idx_u = np.argsort(xu)
+    xu, zu = xu[idx_u], zu[idx_u]
+    xu[-1] = x_te  
+    zu[-1] = z_te  
+    
+    # Lower: TE -> LE 
+    idx_l = np.argsort(xl)[::-1]
+    xl, zl = xl[idx_l], zl[idx_l]
+    xl[0] = x_te   
+    zl[0] = z_te   
+    
+    # Detect LE
+    x_le = min(xu.min(), xl.min())
+    # Take average z at LE using closest points in each surface
+    z_le = 0.5 * (zu[np.argmin(np.abs(xu - x_le))]
+                  + zl[np.argmin(np.abs(xl - x_le))])
+
+    # Build x-distribution on LE → TE
+    n_half = n_points // 2
+    if use_cosine_spacing:
+        beta = np.linspace(0.0, np.pi, n_half)
+        x_dist = x_le + (x_te - x_le) * 0.5 * (1 - np.cos(beta))
+    else:
+        x_dist = np.linspace(x_le, x_te, n_half)
+
+    x_dist = x_dist[1:-1]
+    # PCHIP interpolation 
+    pchip_upper = PchipInterpolator(xu, zu, extrapolate=False)
+    pchip_lower = PchipInterpolator(xl[::-1], zl[::-1], extrapolate=False)
+
+    z_upper = pchip_upper(x_dist)
+    z_lower = pchip_lower(x_dist)
+
+    
+
+    x_u, z_u = x_dist, z_upper              # LE -> TE
+    x_l, z_l = x_dist[::-1], z_lower[::-1]  # TE -> LE
+    # CPACS order
+    x_te = 1.0
+    x_le = 0.0
+    airfoil = np.hstack([
+        np.array([[x_te], [z_te]]),
+        np.vstack([x_l, z_l])[:, 1:-1],     
+        np.array([[x_le], [z_le]]),
+        np.vstack([x_u, z_u])[:, 1:-1],     
+        np.array([[x_te], [z_te]])
+    ])
+    if DEBUG_AIRFOIL:
+        plt.plot(airfoil[0, :], airfoil[1, :], '-g')
+        plt.plot(x_u, z_u, '.r', label='Upper Spline')
+        plt.plot(x_l, z_l, '.b', label='Lower Spline')
+        plt.xlabel("x/c")
+        plt.ylabel("z/c")
+        plt.title("Resampled Airfoil Points")
+        plt.axis("equal")
+        plt.grid()
+        plt.show()
+    
+    return airfoil
 
 
 
 
 def extract_airfoil_surface_local(cloud_xyz, p0, n):
-    print(np.shape(cloud_xyz))
     if cloud_xyz.shape[0] < 10:
         return np.zeros((2, 0)), 0.0
 
+    n = n / np.linalg.norm(n)
 
-    # -------------------------------------------------
-    # Define local in-plane basis (Y, Z)
-    # -------------------------------------------------
-    e1 = np.array([0.0, 1.0, 0.0])  # local y
-    e2 = np.array([0.0, 0.0, 1.0])  # local z
+    # Local basis
+    ex = np.array([1.0, 0.0, 0.0])
+    e1 = ex - np.dot(ex, n) * n
+    if np.linalg.norm(e1) < 1e-10:
+        return np.zeros((2, 0)), 0.0
+    e1 /= np.linalg.norm(e1)
 
-    # -------------------------------------------------
-    # Project cloud into slicing plane
-    # -------------------------------------------------
+    e2 = np.cross(n, e1)
+    e2 /= np.linalg.norm(e2)
+
+    # Project STL cloud
     local = np.array([
-        [
-            np.dot(p - p0, e1),  # y_local
-            np.dot(p - p0, e2),  # z_local
-        ]
+        [np.dot(p - p0, e1), np.dot(p - p0, -e2)]
         for p in cloud_xyz
     ])
 
-    y = local[:, 0]
+    x = local[:, 0]
     z = local[:, 1]
 
-    
     # LE / TE detection 
-    i_le = np.argmin(y)
-    i_te = np.argmax(y)
+    i_le = np.argmin(x)
+    i_te = np.argmax(x)
 
-    y_le = y[i_le]
-    y_te = y[i_te]
-
-    chord = y_te - y_le
+    x_le = x[i_le]
+    x_te = x[i_te]
+    
+    chord = x_te - x_le
 
     if chord <= 1e-8:
         return np.zeros((2, 0)), 0.0
 
     # Normalize ONCE
-    y = (y - y_le) / chord
+    x = (x - x_le) / chord
     z = z / chord
     
     # Split using camber line
     if DEBUG_AIRFOIL:
-        plt.plot(y, z, '.')
-        plt.xlabel("y/c")   
+        plt.plot(x, z, '.')
+        plt.xlabel("x/c")   
         plt.ylabel("z/c")
         plt.title("Raw Airfoil Points")
         plt.axis("equal")
         plt.grid()
         plt.show()
     n = 10 # number of bins for camber line, it is divided by 6 to have when len(x) is small a reasonable number of bins.
-    print(f'numenr o fbins {n} with len(y) = {len(y)}')
-    airfoil = split_fuselage_left_right_by_centerline(y, z,n)
+    print(f'numenr o fbins {n} with len(x) = {len(x)}')
+    airfoil = split_upper_lower_by_camber(x, z,n, 0.1)
     
     return airfoil, chord
 
-def split_fuselage_left_right_by_centerline(y_raw, z_raw, n_bins):
+def split_upper_lower_by_camber(x_raw, z_raw, n_bins, te_cut):
     """
-    Split fuselage cross-section into right (+y) and left (-y) sides
-    using a centerline computed from max/min y per z-bin.
-
-    Top and bottom extrema are excluded from left/right classification.
+     upper/lower split using camber line only where reliable.
+    The TE zone is not split to avoid sharp-edge issues.
     """
 
-    y = np.asarray(y_raw)
-    z = np.asarray(z_raw)
+    x, z = fix_airfoil_cpacs(x_raw, z_raw, 1e-4)
 
-    # Sort by z (vertical)
-    idx = np.argsort(z)
-    y = y[idx]
+    # Sort by x
+    idx = np.argsort(x)
+    x = x[idx]
     z = z[idx]
 
-    # --- Detect bottom / top ---
-    i_bot = np.argmin(z)
-    i_top = np.argmax(z)
+    # Detect LE / TE
+    i_le = np.argmin(x)
+    i_te = np.argmax(x)
 
-    z_bot, y_bot = z[i_bot], y[i_bot]
-    z_top, y_top = z[i_top], y[i_top]
+    x_le, z_le = x[i_le], z[i_le]
+    x_te, z_te = x[i_te], z[i_te]
 
-    # --- Remove top & bottom from processing ---
-    mask_mid = np.ones(len(z), dtype=bool)
-    mask_mid[[i_bot, i_top]] = False
+    # Define camber-valid zone
+    camber_mask = x < (x_te - te_cut)
+    x_camber = x[camber_mask]
+    z_camber = z[camber_mask]
 
-    y_mid = y[mask_mid]
-    z_mid = z[mask_mid]
+    # Build coarse camber line  
+    bins = np.linspace(x_le, x_te - te_cut, n_bins + 1)
 
-    # --- Build bins only in interior ---
-    bins = np.linspace(z_bot, z_top, n_bins + 1)
-
-    center_z = []
-    center_y = []
+    camber_x = [x_le]
+    camber_z = [z_le]
 
     for i in range(n_bins):
-        mask = (z_mid >= bins[i]) & (z_mid < bins[i + 1])
+        mask = (x_camber >= bins[i]) & (x_camber < bins[i + 1])
         if np.count_nonzero(mask) < 2:
             continue
 
-        y_bin = y_mid[mask]
-        z_bin = z_mid[mask]
+        x_bin = x_camber[mask]
+        z_bin = z_camber[mask]
+        # inside every bin, the camber point is done using the point with the maximum z and an other one wiht the minimum z
+        i_up = np.argmax(z_bin)
+        i_lo = np.argmin(z_bin)
+        camber_x.append(0.5 * (x_bin[i_up] + x_bin[i_lo]))
+        camber_z.append(0.5 * (z_bin[i_up] + z_bin[i_lo]))
+    
+    camber_x = np.array(camber_x)
+    camber_z = np.array(camber_z)
 
-        i_r = np.argmax(y_bin)
-        i_l = np.argmin(y_bin)
+    # Interpolate camber on camber zone
+    zc = np.interp(x_camber, camber_x, camber_z)
 
-        center_y.append(0.5 * (y_bin[i_r] + y_bin[i_l]))
-        center_z.append(0.5 * (z_bin[i_r] + z_bin[i_l]))
+    # Classification 
+    upper_mask = np.zeros_like(x, dtype=bool)
+    lower_mask = np.zeros_like(x, dtype=bool)
 
-    center_y = np.asarray(center_y)
-    center_z = np.asarray(center_z)
-
-    # --- Interpolate centerline over interior points only ---
-    y_center_mid = np.interp(z_mid, center_z, center_y)
-
-    # --- Classification (excluding extrema) ---
-    right_mask_mid = y_mid > y_center_mid
-    left_mask_mid  = y_mid < y_center_mid
-
-    # --- Rebuild full masks ---
-    right_mask = np.zeros(len(y), dtype=bool)
-    left_mask  = np.zeros(len(y), dtype=bool)
-
-    right_mask[np.where(mask_mid)[0][right_mask_mid]] = True
-    left_mask[np.where(mask_mid)[0][left_mask_mid]] = True
-
+    upper_mask[camber_mask] = z_camber > zc
+    lower_mask[camber_mask] = z_camber < zc
     if DEBUG_AIRFOIL:
-        plt.figure()
-        plt.plot(y[right_mask], z[right_mask], '.r', label='Right (+y)')
-        plt.plot(y[left_mask],  z[left_mask],  '.b', label='Left (-y)')
-        plt.plot(center_y, center_z, '-k', lw=2, label='Centerline')
-        plt.plot([y_bot], [z_bot], 'ok', label='Bottom')
-        plt.plot([y_top], [z_top], 'ok', label='Top')
-        plt.axis("equal")
-        plt.xlabel("y")
-        plt.ylabel("z")
-        plt.title("Fuselage Section Split (Extrema Excluded)")
+        plt.plot(x[upper_mask], z[upper_mask], '.', color='red', label='Upper')
+        plt.plot(x[lower_mask], z[lower_mask], '.', color='blue', label='Lower')
+        plt.plot(x_camber, zc, '-k', label='Camber Line')
+        plt.xlabel("x/c")
+        plt.ylabel("z/c")
+        plt.title("Airfoil Points Classification")
         plt.legend()
+        plt.axis("equal")
         plt.grid()
         plt.show()
-
-    return resample_fuselage_cpacs(
-        y[right_mask], z[right_mask],
-        y[left_mask],  z[left_mask],
-        y_bot, z_bot,
-        y_top, z_top,
-        80
+        
+    # Resample
+    return resample_airfoil_cpacs(
+        x[upper_mask], z[upper_mask],
+        x[lower_mask], z[lower_mask],
+        x_te=x_te,
+        z_te=z_te,
+        n_points=80
     )
+
 
 def parse_cart3d_tri(filename):
     with open(filename, 'r') as f:
@@ -516,12 +557,12 @@ def slice_mesh_rotated_YZ(
     return arr, e_span
 
 
-def slice_mesh_at_Y(pts, tris, x_plane, tol):
+def slice_mesh_at_Y(pts, tris, y_plane, tol):
     """
     slicing with plane Y = y_plane
     """
-    p0 = np.array([x_plane, 0.0, 0.0])
-    n  = np.array([1.0, 0.0, 0.0])  
+    p0 = np.array([0.0, y_plane, 0.0])
+    n  = np.array([0.0, 1.0, 0.0])  
     dverts = (pts - p0) @ n
     dtri = dverts[tris]
     
@@ -584,12 +625,12 @@ def compute_local_angles_from_le(le_pts):
         if abs(dy) < 1e-12:
             sweep[i] = 0
         else:
-            sweep[i] = int(np.rint(np.degrees(np.arctan(dy / np.sqrt(dz**2 + dx**2)))))  
+            sweep[i] = int(np.rint(np.degrees(np.arctan(dx / np.sqrt(dy**2 + dz**2)))))  
         # ---- DIHEDRAL: YZ projection ----
         if abs(dy) < 1e-12:
             dihedral[i] = 0
         else:
-            dihedral[i] = int(np.rint(np.degrees(np.arctan(dz / dx))))
+            dihedral[i] = int(np.rint(np.degrees(np.arctan(dz / dy))))
 
     # copy last value 
     sweep[-1] = sweep[-2]
@@ -666,16 +707,6 @@ def filter_and_insert(y_vals, sweep_deg, dihedral_deg, le_pts, n_insert):
 # ---------------------------
 # MAIN
 # ---------------------------
-
-
-
-
-
-
-
-
-
-
 def main():
     
     print("Start: export mesh from OpenVSP")
@@ -689,19 +720,24 @@ def main():
         "1": {}
     }
     per_slice_clouds = []
+    per_slice_clouds_rotate = []
     le_points = []   # leading edge per slice (min X)
-    le_x = []
+    le_y = []
+    summary_rows = []
+    vi = 0
+    per_slice_clouds_rotate = []
+
     
     # build Y sampling positions
-    xmin, xmax = float(np.min(pts[:,0])), float(np.max(pts[:,0]))
-    EXTREME_TOL_start = EXTREME_TOL_perc_start * (xmax - xmin)
-    EXTREME_TOL_end = EXTREME_TOL_perc_end * (xmax - xmin)
-    x_vals = np.linspace(xmin + EXTREME_TOL_start, xmax - EXTREME_TOL_end, N_Y_SLICES)
+    ymin, ymax = float(np.min(pts[:,1])), float(np.max(pts[:,1]))
+    EXTREME_TOL_start = EXTREME_TOL_perc_start * (ymax - ymin)
+    EXTREME_TOL_end = EXTREME_TOL_perc_end * (ymax - ymin)
+    y_vals = np.linspace(ymin + EXTREME_TOL_start, ymax - EXTREME_TOL_end, N_Y_SLICES)
 
     
     # First slicing to get the LE points,
-    for i, x0 in enumerate(x_vals):
-        cloud = slice_mesh_at_Y(pts, tris, x0, INTERSECT_TOL)
+    for i, y0 in enumerate(y_vals):
+        cloud = slice_mesh_at_Y(pts, tris, y0, INTERSECT_TOL)
 
         
         # if still empty, skip and record None
@@ -709,19 +745,17 @@ def main():
             print(f"Slice {i}: no points found at y={y0:.6g}")
             per_slice_clouds.append(np.zeros((0,3)))
             le_points.append(None)
-            le_x.append(x0)
+            le_y.append(y0)
+            summary_rows.append([i, y0, np.nan, np.nan, np.nan, np.nan, np.nan, 0])
             continue
 
         # find LE: point with minimum X
-        min_idx = int(np.argmin(cloud[:,1]))
+        min_idx = int(np.argmin(cloud[:,0]))
         le_pt = cloud[min_idx].copy()
 
         per_slice_clouds.append(cloud)
         le_points.append(le_pt)
-        le_x.append(x0)
-
-
-
+        le_y.append(y0)
 
         
 
@@ -736,26 +770,26 @@ def main():
 
     # start to build the dictionary to create all the necessary informations to generate the corresponding CPACS file. 
     Wing_Dict["1"]["Transformation"] = {
-                "Name_type": "Fuselage",
-                "Name": "Fuse", # load the name of the stl
+                "Name_type": "Wing",
+                "Name": "Wing1", # load the name of the stl
                 "X_Rot": [0, 0, 0],
-                "Symmetry": "2", # the user must split the component and tell with a botton if he wants the symmetric part part or not 
+                "X_Trasl": le_pts[0],
+                "Symmetry": 2, # the user must split the component and tell with a botton if he wants the symmetric part part or not 
                 "abs_system": True,
                 "Relative_dih": 0,
                 "Relative_Twist": 0,
                 "ParentUid": 0,
                 "reference_length": 0,
-                "idx_engine":None,
-                "Length": xmax - xmin
+                "idx_engine":None
             }
     # compute sweep & dihedral along LE (per point)
-    #sweep_deg, dihedral_deg = compute_local_angles_from_le(le_pts)
+    sweep_deg, dihedral_deg = compute_local_angles_from_le(le_pts)
 
     # =========================================================
     # DEBUG PLOT 
     # =========================================================
 
-    fig = plt.figure(figsize=(12, 8))
+    '''fig = plt.figure(figsize=(12, 8))
     ax = fig.add_subplot(111, projection="3d")
 
     # --- Plot original mesh vertices (light background)
@@ -814,26 +848,39 @@ def main():
     ax.legend()
     plt.tight_layout()
     plt.show()
-    
+    '''
 
 
     # =========================================================
-    x_vals = le_pts[:,0].copy()
+    y_vals = le_pts[:,1].copy()
+    # filter y_vals . 
+    y_vals,sweep_deg,dihedral_deg,le_pts,is_inserted = filter_and_insert(y_vals, sweep_deg, dihedral_deg,le_pts, N_SLICE_ADDING)
+    # slice with plane that are rotated by the dihedral angle.
     airfoil_profiles = []
-    chord_prev = 0
-    for i, x0 in enumerate(x_vals):
-        if le_pts[i] is None:
-            per_slice_clouds.append(np.zeros((0,3)))
-            continue
-        cloud = per_slice_clouds[i]
-        lep = le_pts[i]
-        print('we are here at slice ', i,lep)
-        
 
-        airfoil_xz, chord = extract_airfoil_surface_local(
-            cloud,
+    for i, y0 in enumerate(y_vals):
+        if le_pts[i] is None:
+            per_slice_clouds_rotate.append(np.zeros((0,3)))
+            continue
+
+        lep = le_pts[i]
+        dihedral = dihedral_deg[i]
+
+        # slice and rotate mesh
+        cloud_rot, n_rot = slice_mesh_rotated_YZ(
+            pts,
+            tris,
             p0=lep,
-            n=[1, 0, 0],
+            dihedral_deg=dihedral,
+            sweep_deg=sweep_deg[i],
+            tol=INTERSECT_TOL
+        )
+        per_slice_clouds_rotate.append(cloud_rot)
+        print('slice', i, 'at y =', y0, 'is inserted?', is_inserted[i])
+        airfoil_xz, chord = extract_airfoil_surface_local(
+            cloud_rot,
+            p0=lep,
+            n=n_rot,
         )
         
 
@@ -842,43 +889,34 @@ def main():
         # Store in Wing_Dict
         if i==0: 
             Wing_Dict["1"][f'Section{i}'] = {
-                'x_scal': 1,
-                'y_scal': round(chord, 2),
+                'x_scal': round(chord, 2),
+                'y_scal': 1,
                 'z_scal': round(chord, 2),
-                'x_loc': x0,
-                'y_trasl': le_pts[i][1] - chord/2,  # translate to put the LE at y=0
-                'z_trasl': le_pts[i][2],  # translate to put the LE at z=0
-                'x_rot': 0,
-                'y_rot': 0,
-                'z_rot': 0,
+                'x_trasl': 0,
                 'Span': 0,
                 'Airfoil': 'Airfoil',
                 'Airfoil_coordinates': airfoil_xz,
                 'Sweep_loc': 0,
-                'Sweep_angle': 0,
-                'Dihedral_angle': 0
+                'Sweep_angle': sweep_deg[i],
+                'Dihedral_angle': dihedral_deg[i]
             }
-            Wing_Dict["1"]["Transformation"]["X_Trasl"] = le_pts[i]   # the first section is located at the origin, so the translation is zero, for the next sections it will be computed as the difference between the current LE and the first LE
+        
         else:            
             Wing_Dict["1"][f'Section{i}'] = {
-            'x_scal': 1,
-            'y_scal': round(chord, 2),
+            'x_scal': round(chord, 2),
+            'y_scal': 1,
             'z_scal': round(chord, 2),
-            'x_loc': x0,
-            'y_trasl': abs((le_pts[i][1]-chord/2) - (le_pts[i-1][1]-chord_prev/2)),
-            'z_trasl': abs(le_pts[i][2] - le_pts[i-1][2]),
-            'x_rot': 0,
-            'y_rot': 0,
-            'z_rot': 0,
+            'x_trasl': 0,
+            'Span': abs((y_vals[i]-y_vals[i-1])/np.cos(np.deg2rad(dihedral_deg[i]))),
             'Airfoil': 'Airfoil',
             'Airfoil_coordinates': airfoil_xz,
             'Sweep_loc': 0,
-            'Sweep_angle': 0,
-            'Dihedral_angle': 0
+            'Sweep_angle': sweep_deg[i],
+            'Dihedral_angle': dihedral_deg[i]
             }
 
         airfoil_profiles.append(airfoil_xz)
-        chord_prev = chord
+
     
     
     exporter = Export_CPACS(Wing_Dict, "Test_STL2CPACS",'src/ceasiompy/STL2CPACS')

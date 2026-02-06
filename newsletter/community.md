@@ -4,7 +4,7 @@
 
 # 🚀 Welcome to the CEASIOMpy Community
 
-### **Hi there,**
+### **Hi there !**
 
 Thank you for joining the **CEASIOMpy community**!
 
@@ -14,7 +14,7 @@ We are the **CFS Engineering** team. If you don't know us yet, here are just a f
 * **Where we are:** Based at the **EPFL Innovation Park, Lausanne**, Switzerland.
 * **Our heritage:** Active since the late '90s, we have built a massive background in aerodynamics and aerothermodynamics.
 
-We are the creators of **NSMB** (Naveier-Stokes Multi-Block), our robust and widely used in-house code. If you want to dive deeper into our history, feel free to [visit our website](https://www.cfse.ch).
+We are the creators of **NSMB** (Navier-Stokes Multi-Block), our robust and widely used in-house code. If you want to dive deeper into our history, feel free to [visit our website](https://www.cfse.ch).
 
 ---
 

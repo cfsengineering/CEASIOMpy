@@ -188,7 +188,8 @@ def _geometry_exploration(
         rbf_results_dir.mkdir(parents=True, exist_ok=True)
 
     # Normalize
-    geom_bounds_norm, level1_df_norm = normalize_data(
+    geom_bounds_norm, level1_df_norm, aeromap_norm_df = normalize_data(
+        cpacs=cpacs,
         data_frame=level1_df,
         geom_bounds=geom_bounds,
     )
@@ -207,6 +208,7 @@ def _geometry_exploration(
             best_model=best_krg_model,
             geom_bounds=geom_bounds_norm,
             results_dir=low_fidelity_dir,
+            aeromap_norm_df=aeromap_norm_df,
             training_settings=training_settings,
         )
 
@@ -217,6 +219,7 @@ def _geometry_exploration(
             best_model=best_rbf_model,
             geom_bounds=geom_bounds_norm,
             results_dir=low_fidelity_dir,
+            aeromap_norm_df=aeromap_norm_df,
             training_settings=training_settings,
         )
 
@@ -269,7 +272,8 @@ def _geometry_exploration(
         )
 
         # Normalize
-        geom_bounds_norm, level2_df_norm = normalize_data(
+        geom_bounds_norm, level2_df_norm, _ = normalize_data(
+            cpacs=cpacs,
             data_frame=level2_df,
             geom_bounds=geom_bounds,
         )
@@ -288,6 +292,7 @@ def _geometry_exploration(
                 best_model=best_krg_model,
                 geom_bounds=geom_bounds_norm,
                 results_dir=high_fidelity_dir,
+                aeromap_norm_df=aeromap_norm_df,
                 training_settings=training_settings,
             )
 
@@ -301,6 +306,7 @@ def _geometry_exploration(
                 best_model=best_rbf_model,
                 geom_bounds=geom_bounds_norm,
                 results_dir=high_fidelity_dir,
+                aeromap_norm_df=aeromap_norm_df,
                 training_settings=training_settings,
             )
 

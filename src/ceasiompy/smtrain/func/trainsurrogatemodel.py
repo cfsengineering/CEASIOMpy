@@ -228,6 +228,7 @@ def _run_first_level_simulation_task(
         n = len(level1_df)
         local_df_geom = DataFrame([row_geom] * n).reset_index(drop=True)
 
+        # First Geometry Then Aeromap Values
         level1_df_combined = pd.concat(
             objs=[local_df_geom, level1_df.reset_index(drop=True)],
             axis=1,

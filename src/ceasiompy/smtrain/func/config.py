@@ -31,6 +31,7 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 
 from pathlib import Path
+from numpy import ndarray
 from pandas import DataFrame
 from smt.applications import MFK
 from scipy.optimize import Bounds
@@ -51,6 +52,7 @@ from ceasiompy import log
 from ceasiompy.utils.commonxpaths import WINGS_XPATH
 from ceasiompy.smtrain import (
     NORMALIZED_DOMAIN,
+    AEROMAP_FEATURES,
     SMTRAIN_MODELS_XPATH,
     SMTRAIN_XPATH_PARAMS_AEROMAP,
     SMTRAIN_GEOM_WING_OPTIMISE,
@@ -265,7 +267,7 @@ def get_params_to_optimise(cpacs: CPACS) -> GeomBounds:
                 min_value = tixi.getDoubleElement(min_value_path)
                 max_value = tixi.getDoubleElement(max_value_path)
 
-                if min_value == max_value:
+                if min_value >= max_value:
                     log.info(f"""{parameter_name=} has constant range
                         (i.e. not a variable). Skipping...
                     """)
@@ -286,6 +288,7 @@ def get_params_to_optimise(cpacs: CPACS) -> GeomBounds:
         lb=np.array(min_values, dtype=float),
         ub=np.array(max_values, dtype=float),
     )
+    log.info(f'{len(min_values)} Parameters with {bounds=}')
 
     return GeomBounds(
         bounds=bounds,
@@ -411,6 +414,9 @@ def create_list_cpacs_geometry(
 
         params_to_update = {}
         for col in lh_sampling.columns:
+            if "_of_" not in col:
+                raise ValueError(f"Syntax: _of_ i.e. {col=} is not a valid parameter.")
+
             # SYNTAX: {comp}_of_{section}_of_{param}
             col_parts = col.split('_of_')
             param = col_parts[0]
@@ -443,12 +449,14 @@ def create_list_cpacs_geometry(
 
 
 def normalize_data(
+    cpacs: CPACS,
     data_frame: DataFrame,
     geom_bounds: GeomBounds,
-) -> tuple[GeomBounds, ...]:
+) -> tuple[GeomBounds, DataFrame, DataFrame]:
     """
     Normalizes columns of data_frame
     contained in geom_bounds.param_names with geom_bouds.bounds values.
+    For the Aeromap values it uses the CPACS aeromap min/max (i.e. the selected aeromap).
     """
     lb = np.asarray(geom_bounds.bounds.lb, dtype=float)
     ub = np.asarray(geom_bounds.bounds.ub, dtype=float)
@@ -478,7 +486,56 @@ def normalize_data(
             NORMALIZED_DOMAIN,
         )
 
-    return geom_bounds_norm, df_norm
+    aeromap_min_max = {}
+    try:
+        selected_aeromap = get_selected_aeromap(cpacs)
+        altitude, mach, aoa, aos = get_conditions_from_aeromap(selected_aeromap)
+        aeromap_min_max = {
+            "altitude": (float(np.min(altitude)), float(np.max(altitude))),
+            "machNumber": (float(np.min(mach)), float(np.max(mach))),
+            "angleOfAttack": (float(np.min(aoa)), float(np.max(aoa))),
+            "angleOfSideslip": (float(np.min(aos)), float(np.max(aos))),
+        }
+    except Exception as exc:
+        log.warning(
+            "Could not retrieve aeromap min/max from CPACS; "
+            f"aeromap normalization will be skipped. {exc!r}"
+        )
+
+    aeromap_not_normalized = []
+    for feature in AEROMAP_FEATURES:
+        if feature not in df_norm.columns:
+            aeromap_not_normalized.append(feature)
+            continue
+        bounds = aeromap_min_max.get(feature)
+        if bounds is None:
+            aeromap_not_normalized.append(feature)
+            continue
+        df_norm[feature] = domain_converter(
+            df_norm[feature].to_numpy(dtype=float, copy=False),
+            bounds,
+            NORMALIZED_DOMAIN,
+        )
+
+    if aeromap_not_normalized:
+        log.warning(
+            "Aeromap columns not normalized: "
+            + ", ".join(aeromap_not_normalized)
+        )
+
+    aeromap_features_present = [
+        feature
+        for feature in AEROMAP_FEATURES
+        if feature in df_norm.columns
+    ]
+    if not aeromap_features_present:
+        raise ValueError("Could not normalize Aeromap values.")
+
+    aeromap_minimal = df_norm[aeromap_features_present].drop_duplicates(
+        ignore_index=True
+    )
+
+    return geom_bounds_norm, df_norm, aeromap_minimal
 
 
 def normalize_input_from_gui(
@@ -521,6 +578,7 @@ def norm_to_phys(x_norm, params, normalization_params):
 def optimize_surrogate(
     model: KRG | MFK | RBF,
     geom_bounds: GeomBounds,
+    aeromap_norm_df: DataFrame,
     training_settings: TrainingSettings,
 ) -> tuple[OptimizeResult, float]:
     """
@@ -530,39 +588,53 @@ def optimize_surrogate(
 
     model_name = get_model_typename(model)
     direction = 1 if training_settings.direction == "Maximize" else -1
+    aeromap_values = None
+    if not aeromap_norm_df.empty:
+        aeromap_features_present = [
+            feature for feature in AEROMAP_FEATURES if feature in aeromap_norm_df.columns
+        ]
+        if aeromap_features_present:
+            aeromap_values = aeromap_norm_df[aeromap_features_present].to_numpy(
+                dtype=float, copy=False
+            )
 
-    def surrogate_objective(x_norm) -> float:
-        x_norm = np.asarray(x_norm).reshape(1, -1)
-        y_pred = float(model.predict_values(x_norm)[0, 0])
-        # TODO: use a loss function
-        return direction * y_pred
+    def build_x_full(x_norm_row: ndarray) -> ndarray:
+        if aeromap_values is None or aeromap_values.size == 0:
+            return x_norm_row
+        n = aeromap_values.shape[0]
+        geom_block = np.repeat(x_norm_row, repeats=n, axis=0)
+        return np.concatenate([geom_block, aeromap_values], axis=1)
+
+    def surrogate_objective(x_norm: ndarray) -> float:
+        try:
+            x_norm = np.asarray(x_norm).reshape(1, -1)
+            x_full = build_x_full(x_norm)
+            y_pred_vec = model.predict_values(x_full).ravel()
+            y_pred = float(np.mean(y_pred_vec))
+
+            # TODO: use a loss function
+            return direction * y_pred
+        except Exception as exc:
+            raise RuntimeError(
+                f"surrogate_objective failed during differential_evolution evaluation: {exc!r}"
+            ) from exc
 
     log.info(f"Starting best geometry search on {model_name} surrogate ---")
 
-    # Get Optimal Results (TODO: Add documentation that used differential_evolution...)
-    max_workers = get_sane_max_cpu()
-    if max_workers > 1:
-        opt_result = differential_evolution(
-            func=surrogate_objective,
-            bounds=geom_bounds.bounds,
-            tol=1e-3,
-            maxiter=1000,
-            polish=True,
-            workers=max_workers,
-            updating="deferred",
-        )
-    else:
-        opt_result = differential_evolution(
-            func=surrogate_objective,
-            bounds=geom_bounds.bounds,
-            tol=1e-3,
-            maxiter=1000,
-            polish=True,
-            workers=1,
-        )
+    opt_result = differential_evolution(
+        func=surrogate_objective,
+        bounds=geom_bounds.bounds,
+        tol=1e-3,
+        maxiter=1000,
+        polish=True,
+    )
+
+    log.info("Finished finding best geometry from surrogate model functional space.")
 
     # Compute f(x_opt) = y_opt
-    y_opt = float(model.predict_values(np.array(opt_result.x).reshape(1, -1))[0, 0])
+    x_opt = np.array(opt_result.x).reshape(1, -1)
+    x_full = build_x_full(x_opt)
+    y_opt = float(np.mean(model.predict_values(x_full).ravel()))
 
     return opt_result, y_opt
 
@@ -572,6 +644,7 @@ def save_best_surrogate_geometry(
     best_model: KRG | MFK | RBF,
     geom_bounds: GeomBounds,
     results_dir: Path,
+    aeromap_norm_df: DataFrame,
     training_settings: TrainingSettings,
 ) -> None:
     """
@@ -582,6 +655,7 @@ def save_best_surrogate_geometry(
     best_result, _ = optimize_surrogate(
         model=best_model,
         geom_bounds=geom_bounds,
+        aeromap_norm_df=aeromap_norm_df,
         training_settings=training_settings,
     )
 
@@ -599,7 +673,7 @@ def save_best_surrogate_geometry(
     tixi = best_cpacs.tixi
 
     params_to_update = {}
-    for full_name, val in best_result.x.items():
+    for full_name, val in zip(geom_bounds.param_names, best_result.x):
         # SYNTAX: {param}_of_{section}_of_{wing}
         parts = full_name.split("_of_")
         if len(parts) != 3:

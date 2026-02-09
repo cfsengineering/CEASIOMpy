@@ -14,8 +14,6 @@ from ceasiompy.smtrain.func.utils import get_model_typename
 
 from pathlib import Path
 from smt.applications import MFK
-from ceasiompy.smtrain.func.utils import DataSplit
-from ceasiompy.smtrain.func.config import TrainingSettings
 from smt.surrogate_models import (
     KRG,
     RBF,
@@ -23,6 +21,10 @@ from smt.surrogate_models import (
 from plotly.graph_objects import (
     Figure,
     Scatter,
+)
+from ceasiompy.smtrain.func.utils import (
+    DataSplit,
+    TrainingSettings,
 )
 
 from ceasiompy import log

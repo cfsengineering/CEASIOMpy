@@ -23,8 +23,8 @@ from smt.surrogate_models import (
     RBF,
     KRG,
 )
-from ceasiompy.smtrain.func.utils import DataSplit
-from ceasiompy.smtrain.func.config import (
+from ceasiompy.smtrain.func.utils import (
+    DataSplit,
     GeomBounds,
     TrainingSettings,
 )

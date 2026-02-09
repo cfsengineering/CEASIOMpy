@@ -31,13 +31,16 @@ from ceasiompy.utils.ceasiompyutils import (
 
 from pathlib import Path
 from pandas import DataFrame
-from pydantic import BaseModel
 from smt.applications import MFK
 from scipy.optimize import Bounds
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from scipy.optimize import OptimizeResult
 from ceasiompy.database.func.storing import CeasiompyDb
+from ceasiompy.smtrain.func.utils import (
+    GeomBounds,
+    TrainingSettings,
+)
 from smt.surrogate_models import (
     KRG,
     RBF,
@@ -57,22 +60,6 @@ from ceasiompy.smtrain import (
     SMTRAIN_FIDELITY_LEVEL_XPATH,
     SMTRAIN_OBJECTIVE_DIRECTION_XPATH,
 )
-
-
-# Classes
-
-class TrainingSettings(BaseModel):
-    sm_models: list[str]
-    objective: str
-    direction: str
-    n_samples: int
-    fidelity_level: str
-    data_repartition: float
-
-
-class GeomBounds(BaseModel):
-    bounds: Bounds
-    param_names: list[str]
 
 
 # Functions
@@ -447,7 +434,7 @@ def create_list_cpacs_geometry(
         cpacs_obj = update_geometry_cpacs(
             cpacs_path_in=cpacs_path_in,
             cpacs_path_out=cpacs_out,
-            params_to_update=params_to_update,
+            geom_params=params_to_update,
         )
         cpacs_list.append(cpacs_obj)
 
@@ -580,7 +567,7 @@ def save_best_surrogate_geometry(
     """
     best_model_name = get_model_typename(best_model)
 
-    best_result, best_obj_value = optimize_surrogate(
+    best_result, _ = optimize_surrogate(
         model=best_model,
         geom_bounds=geom_bounds,
         training_settings=training_settings,

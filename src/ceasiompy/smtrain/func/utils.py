@@ -15,19 +15,15 @@ from numpy import ndarray
 from pandas import DataFrame
 from pydantic import BaseModel
 from smt.applications import MFK
-from scipy.optimize import OptimizeResult
-from ceasiompy.smtrain.func.config import (
-    GeomBounds,
-    TrainingSettings,
+from scipy.optimize import (
+    Bounds,
+    OptimizeResult,
 )
 from smt.surrogate_models import (
     KRG,
     RBF,
 )
-from cpacspy.cpacspy import (
-    CPACS,
-    AeroMap,
-)
+from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
@@ -40,6 +36,20 @@ from ceasiompy.smtrain import (
 
 
 # Classes
+
+class TrainingSettings(BaseModel):
+    sm_models: list[str]
+    objective: str
+    direction: str
+    n_samples: int
+    fidelity_level: str
+    data_repartition: float
+
+
+class GeomBounds(BaseModel):
+    bounds: Bounds
+    param_names: list[str]
+
 
 class DataSplit(BaseModel):
     columns: list[str]

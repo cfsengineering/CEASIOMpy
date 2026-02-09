@@ -165,7 +165,7 @@ def _geometry_exploration(
     level1_df: DataFrame = run_first_level_simulations(
         cpacs_list=cpacs_list,
         lh_sampling=lh_sampling,
-        results_dir=results_dir,
+        results_dir=low_fidelity_dir,
         training_settings=training_settings,
     )
 
@@ -189,8 +189,8 @@ def _geometry_exploration(
 
     # Normalize
     geom_bounds_norm, level1_df_norm = normalize_data(
+        level1_df,
         geom_bounds=geom_bounds,
-        data_frames=(level1_df),
     )
 
     # Split
@@ -201,7 +201,7 @@ def _geometry_exploration(
 
     # Train Selected Surrogate Models
     if "KRG" in training_settings.sm_models:
-        best_krg_model, __import__ = get_best_krg_model(level1_split)
+        best_krg_model, _ = get_best_krg_model(level1_split)
         save_best_surrogate_geometry(
             cpacs=cpacs,
             best_model=best_krg_model,
@@ -270,8 +270,8 @@ def _geometry_exploration(
 
         # Normalize
         geom_bounds_norm, level2_df_norm = normalize_data(
+            level2_df,
             geom_bounds=geom_bounds,
-            data_frames=(level2_df),
         )
         level2_split: DataSplit = split_data(
             data_frame=level2_df_norm,

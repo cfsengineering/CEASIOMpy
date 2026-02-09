@@ -30,7 +30,7 @@ from ceasiompy.staticstability import (
 # Main
 
 
-def main(cpacs: CPACS, wkdir: Path) -> None:
+def main(cpacs: CPACS, results_dir: Path) -> None:
     """
     Analyses longitudinal, directional and lateral stability
     from the data of a CPACS file.
@@ -42,14 +42,19 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     """
 
     tixi = cpacs.tixi
-    md = MarkdownDoc(Path(wkdir, f"{MODULE_NAME}.md"))
+    md = MarkdownDoc(Path(results_dir, f"{MODULE_NAME}.md"))
     errors = []
     success_count = 0
 
     for aeromap_uid in cpacs.get_aeromap_uid_list():
         try:
             lr_bool = get_value(tixi, STATICSTABILITY_LR_XPATH)
-            table = generate_stab_table(cpacs, aeromap_uid, wkdir, lr_bool)
+            table = generate_stab_table(
+                cpacs=cpacs,
+                lr_bool=lr_bool,
+                aeromap_uid=aeromap_uid,
+                results_dir=results_dir,
+            )
             if len(table) <= 1:
                 continue
 

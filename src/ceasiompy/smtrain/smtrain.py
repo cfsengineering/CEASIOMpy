@@ -14,7 +14,6 @@ TODO:
 
 
 # Imports
-import numpy as np
 import pandas as pd
 
 from ceasiompy.utils.ceasiompyutils import call_main
@@ -202,7 +201,7 @@ def _geometry_exploration(
 
     # Train Selected Surrogate Models
     if "KRG" in training_settings.sm_models:
-        best_krg_model, best_krg_rmse = get_best_krg_model(level1_split)
+        best_krg_model, __import__ = get_best_krg_model(level1_split)
         save_best_surrogate_geometry(
             cpacs=cpacs,
             best_model=best_krg_model,
@@ -212,7 +211,7 @@ def _geometry_exploration(
         )
 
     if "RBF" in training_settings.sm_models:
-        best_rbf_model, best_rbf_rmse = get_best_rbf_model(level1_split)
+        best_rbf_model, _ = get_best_rbf_model(level1_split)
         save_best_surrogate_geometry(
             cpacs=cpacs,
             best_model=best_rbf_model,
@@ -280,7 +279,7 @@ def _geometry_exploration(
         )
 
         if "KRG" in training_settings.sm_models:
-            best_krg_model, best_krg_rmse = get_best_krg_model(
+            best_krg_model, _ = get_best_krg_model(
                 level1_split=level1_split,
                 level2_split=level2_split,
             )
@@ -293,7 +292,7 @@ def _geometry_exploration(
             )
 
         if "RBF" in training_settings.sm_models:
-            best_rbf_model, best_rbf_rmse = get_best_rbf_model(
+            best_rbf_model, _ = get_best_rbf_model(
                 level1_split=level1_split,
                 level2_split=level2_split,
             )

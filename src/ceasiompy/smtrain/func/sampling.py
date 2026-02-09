@@ -13,7 +13,6 @@ import numpy as np
 from copy import deepcopy
 from sklearn.model_selection import train_test_split
 from ceasiompy.smtrain.func.utils import get_val_fraction
-from ceasiompy.smtrain.func.config import normalize_data
 
 from pathlib import Path
 from numpy import ndarray

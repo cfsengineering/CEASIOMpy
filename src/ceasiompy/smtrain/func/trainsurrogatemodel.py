@@ -479,10 +479,7 @@ def run_adapt_refinement_geom_rbf(
             obj_value = launch_gmsh_su2(
                 cpacs=cpacs_,
                 results_dir=high_fidelity_dir_RBF,
-                objective=objective,
-                aeromap_uid=aeromap_uid,
-                idx=idx,
-                it=it,
+                training_settings=training_settings,
             )
 
             new_row = new_point_df.iloc[idx].copy()

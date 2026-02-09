@@ -37,7 +37,6 @@ from scipy.optimize import Bounds
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from scipy.optimize import OptimizeResult
-from ceasiompy.smtrain.func.utils import DataSplit
 from ceasiompy.database.func.storing import CeasiompyDb
 from smt.surrogate_models import (
     KRG,

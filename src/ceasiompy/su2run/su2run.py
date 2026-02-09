@@ -153,10 +153,7 @@ def main(
     )
 
     def _su2_progress_update(**kwargs):
-        progress = kwargs.pop("progress", None)
-        if progress is not None:
-            progress = 0.7 + 0.2 * progress
-        _progress_update(progress_callback, progress=progress, **kwargs)
+        _progress_update(progress_callback, **kwargs)
 
     run_SU2_multi(results_dir, nb_proc, progress_callback=_su2_progress_update)
     _progress_update(progress_callback, detail="SU2 simulations completed.", progress=0.9)

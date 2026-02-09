@@ -577,20 +577,12 @@ def run_software(
     log_bool: bool = True,
     xvfb: bool = False,
     progress_callback: Optional[Callable[..., None]] = None,
-    progress_parser: Optional[Callable[[Path], tuple[float | None, str | None, str | None]]] = None,
+    progress_parser: Optional[Callable[[Path], tuple]] = None,
     poll_interval: float = 0.5,
 ) -> None:
     """Run a software with the given arguments in a specific wkdir. If the software is compatible
-    with MPI, 'with_mpi' can be set to True and the number of processors can be specified. A
-    logfile will be created in the wkdir.
-
-    Args:
-        software_name (str): Name of the software to run.
-        arguments (str): Arguments to pass to the software.
-        wkdir (Path, optional): Working directory where the software will be run.
-        with_mpi (bool = False): If True, run the software with MPI. Defaults to False.
-        nb_cpu (int = 1): Number of processors to use. Defaults to 1. If with_mpi is True,
-        #TODO: Add rest of documentation
+    with MPI, 'with_mpi' can be set to True and the number of processors can be specified.
+    A logfile will be created in the wkdir.
     """
 
     # Check nb_cpus

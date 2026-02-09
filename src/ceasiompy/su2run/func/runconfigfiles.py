@@ -155,7 +155,11 @@ def run_SU2_multi(
             total_iter = _parse_total_iterations(config_file[0])
             base = (config_index - 1) / total_configs
             span = 1.0 / total_configs
-            label = case_dir.name if config_dir == case_dir else f"{case_dir.name}/{config_dir.name}"
+            label = (
+                case_dir.name
+                if config_dir == case_dir
+                else f"{case_dir.name}/{config_dir.name}"
+            )
 
             def _progress_parser(log_path: Path):
                 log_text = _tail_text(log_path)
@@ -170,9 +174,7 @@ def run_SU2_multi(
                 else:
                     progress = base
                     detail = f"{label} · SU2 running..."
-                log_tail_lines = log_text.splitlines()[-6:]
-                log_tail = "\n".join(log_tail_lines)
-                return progress, detail, log_tail
+                return progress, detail, None
 
             run_software(
                 software_name=SOFTWARE_NAME,

@@ -135,22 +135,49 @@ def run_cpacs2gmsh(
     ) = retrieve_general_gui_values(tixi)
 
     # Export airplane's part in .brep format
-    _progress_update(progress_callback, detail="Exporting BREP geometry...", progress=0.08)
+    _progress_update(
+        progress_callback,
+        detail="Exporting BREP geometry...",
+        progress=0.08,
+    )
     export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
-    _progress_update(progress_callback, detail="BREP export completed.", progress=0.15)
+    _progress_update(
+        progress_callback,
+        detail="BREP export completed.",
+        progress=0.15,
+    )
 
     cgns_path = None
 
     if type_mesh not in ["EULER", "RANS"]:
         raise ValueError(f"{type_mesh=} needs to be either EULER or RANS.")
 
-    _progress_update(progress_callback, detail="Generating mesh...", progress=0.25)
+    _progress_update(
+        progress_callback,
+        detail="Generating mesh...",
+        progress=0.25,
+    )
     if type_mesh == "EULER":
         log.info("Euler meshing.")
         (
             farfield_size_factor,
             fuselage_mesh_size,
         ) = retrieve_euler_gui_values(tixi)
+        _progress_update(
+            progress_callback,
+            detail="1D mesh: curve discretization...",
+            progress=0.3,
+        )
+        _progress_update(
+            progress_callback,
+            detail="2D mesh: surface meshing...",
+            progress=0.45,
+        )
+        _progress_update(
+            progress_callback,
+            detail="3D mesh: volume meshing...",
+            progress=0.6,
+        )
         su2mesh_path, cgns_path = generate_gmsh(
             tixi,
             brep_dir,
@@ -204,6 +231,11 @@ def run_cpacs2gmsh(
         if gmesh_path.exists():
             log.info("Mesh file exists. Proceeding to 3D mesh generation.")
 
+            _progress_update(
+                progress_callback,
+                detail="2D mesh: surface meshing...",
+                progress=0.45,
+            )
             su2mesh_path = pentagrow_3d_mesh(
                 wkdir,
                 fuselage_maxlen=fuselage_maxlen,
@@ -218,6 +250,11 @@ def run_cpacs2gmsh(
                 output_format="su2",
                 surf=surf,
                 angle=angle,
+            )
+            _progress_update(
+                progress_callback,
+                detail="3D mesh: volume meshing...",
+                progress=0.6,
             )
             if also_save_cgns:
                 cgns_path = pentagrow_3d_mesh(
@@ -238,16 +275,28 @@ def run_cpacs2gmsh(
 
         else:
             log.error("Error in generating SU2 mesh.")
-    _progress_update(progress_callback, detail="Mesh generation completed.", progress=0.75)
+    _progress_update(
+        progress_callback,
+        detail="Mesh generation completed.",
+        progress=0.75,
+    )
 
     log.info(f'{mesh_checker=} {cgns_path=}')
     if mesh_checker and cgns_path is None:
         log.warning('Mesh checker only works with cgns files.')
 
     if mesh_checker and cgns_path is not None:
-        _progress_update(progress_callback, detail="Running mesh checker...", progress=0.82)
+        _progress_update(
+            progress_callback,
+            detail="Running mesh checker...",
+            progress=0.82,
+        )
         cgns_mesh_checker(cgns_path)
-        _progress_update(progress_callback, detail="Mesh checker completed.", progress=0.9)
+        _progress_update(
+            progress_callback,
+            detail="Mesh checker completed.",
+            progress=0.9,
+        )
 
     # Update SU2 mesh xPath
     if su2mesh_path.exists():
@@ -262,10 +311,18 @@ def run_cpacs2gmsh(
 
         tixi.updateTextElement(SU2MESH_XPATH, str(mesh_path))
         log.info(f"SU2 Mesh at {mesh_path} has been correctly generated. \n")
-        _progress_update(progress_callback, detail="SU2 mesh path updated.", progress=1.0)
+        _progress_update(
+            progress_callback,
+            detail="SU2 mesh path updated.",
+            progress=1.0,
+        )
     else:
         log.warning(f"Mesh path {su2mesh_path} does not exist. \n")
-        _progress_update(progress_callback, detail="SU2 mesh not found.", progress=1.0)
+        _progress_update(
+            progress_callback,
+            detail="SU2 mesh not found.",
+            progress=1.0,
+        )
 
 
 def deform_surf(

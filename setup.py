@@ -5,7 +5,7 @@ import setuptools
 from pathlib import Path
 
 NAME = "ceasiompy"
-EXCLUDE_DIRS = ["test_cases", "test_files", "installation"]
+EXCLUDE_DIRS = ["test_cases", "geometries", "installation"]
 VERSION = "0.2.0"
 AUTHOR = "CFS Engineering"
 EMAIL = "giacomo.benedetti@cfse.ch"

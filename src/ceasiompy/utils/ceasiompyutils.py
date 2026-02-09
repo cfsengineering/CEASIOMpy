@@ -14,6 +14,7 @@ import sys
 import shutil
 import argparse
 import importlib
+import inspect
 import subprocess
 import streamlit as st
 
@@ -340,7 +341,14 @@ def initialize_cpacs(module_name: str) -> tuple[CPACS, Path]:
     return cpacs, cpacs_out
 
 
-def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
+def run_module(
+    module,
+    wkdir=Path.cwd(),
+    iteration=0,
+    test=False,
+    *,
+    progress_callback: Optional[Callable[..., None]] = None,
+):
     """Run a 'ModuleToRun' object in a specific wkdir.
 
     Args:
@@ -380,10 +388,20 @@ def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
             if test:
                 log.info("Updating CPACS from __specs__")
                 update_cpacs_from_specs(cpacs, module_name, test)
+
+            main_kwargs: dict[str, object] = {}
+            if progress_callback is not None:
+                try:
+                    main_sig = inspect.signature(my_module.main)
+                except (TypeError, ValueError):
+                    main_sig = None
+                if main_sig is not None and "progress_callback" in main_sig.parameters:
+                    main_kwargs["progress_callback"] = progress_callback
+
             if module.results_dir is None:
-                my_module.main(cpacs)
+                my_module.main(cpacs, **main_kwargs)
             else:
-                my_module.main(cpacs, module.results_dir)
+                my_module.main(cpacs, module.results_dir, **main_kwargs)
             cpacs.save_cpacs(cpacs_out, overwrite=True)
 
             log.info("---------- End of " + module_name + " ---------- \n")

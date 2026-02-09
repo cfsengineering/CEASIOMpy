@@ -381,12 +381,12 @@ def section_select_cpacs() -> None:
         "Generate Airfoil",
     ]
 
-    show_openvsp = not parse_bool(os.environ.get("CEASIOMPY_CLOUD", False))
+    show_openvsp = not parse_bool(os.environ.get("CEASIOMPY_CLOUD", "False"))
 
     if show_openvsp:
         tabs.append("OpenVSP's UI")
 
-    selected_tab = st.tabs(tabs)
+    selected_tab = st.tabs(tabs, width="stretch")
     with selected_tab[0]:
         _section_load_cpacs()
     with selected_tab[1]:

@@ -4,6 +4,7 @@ import re
 import pandas as pd
 import streamlit as st
 
+from collections.abc import Mapping
 from pathlib import Path
 from pandas import DataFrame
 
@@ -73,11 +74,9 @@ def _display_spiral_stability(text: str) -> None:
         return
     value, is_stable = _parse_st_spiral(text)
     if value is not None:
-        st.metric(
-            "Spiral stability ratio",
-            f"{value:.6f}",
-            "stable" if is_stable else "not stable",
-        )
+        # Streamlit colors metric deltas green/red based on +/- prefix.
+        delta = "stable" if is_stable else "not stable"
+        st.metric("Spiral stability ratio", f"{value:.6f}", delta)
 
 
 def _display_surface_forces(text: str, path: Path) -> bool:
@@ -268,8 +267,8 @@ def _parse_st_spiral(text: str) -> tuple[float | None, bool | None]:
 
 
 def _parse_avl_fe(text: str) -> tuple[DataFrame, DataFrame, list[tuple[int, DataFrame]]]:
-    surfaces: list[dict] = []
-    strips: list[dict] = []
+    surfaces: list[dict[str, float | str]] = []
+    strips: list[dict[str, float]] = []
     strip_tables: list[tuple[int, DataFrame]] = []
 
     lines = text.splitlines()
@@ -279,7 +278,7 @@ def _parse_avl_fe(text: str) -> tuple[DataFrame, DataFrame, list[tuple[int, Data
 
         surface_match = re.match(r"^\s*Surface\s+#\s*(\d+)\s+(.+?)\s*$", line)
         if surface_match:
-            surface = {
+            surface: dict[str, float | str] = {
                 "surface_id": int(surface_match.group(1)),
                 "surface_name": surface_match.group(2).strip(),
             }
@@ -299,7 +298,7 @@ def _parse_avl_fe(text: str) -> tuple[DataFrame, DataFrame, list[tuple[int, Data
         )
         if strip_match:
             strip_id = int(strip_match.group(1))
-            strip = {
+            strip: dict[str, float] = {
                 "strip_id": strip_id,
                 "chordwise": int(strip_match.group(2)),
                 "first_vortex": int(strip_match.group(3)),
@@ -347,8 +346,7 @@ def _display_compact_dataframe(df: DataFrame) -> None:
     for col in safe_df.columns:
         if safe_df[col].dtype == "object":
             safe_df[col] = safe_df[col].apply(lambda value: "" if pd.isna(value) else str(value))
-    column_config = {col: st.column_config.Column(width="content") for col in safe_df.columns}
-    st.dataframe(safe_df, width="content", hide_index=True, column_config=column_config)
+    st.dataframe(safe_df, hide_index=True, width="content")
 
 
 def _normalize_fe_key(key: str) -> str:
@@ -413,7 +411,7 @@ def _parse_fn_refs(text: str) -> dict[str, float]:
     return refs
 
 
-def _dict_to_table(data: dict[str, float | str]) -> DataFrame:
+def _dict_to_table(data: Mapping[str, float | str]) -> DataFrame:
     if not data:
         return DataFrame()
     return DataFrame({"key": list(data.keys()), "value": list(data.values())})

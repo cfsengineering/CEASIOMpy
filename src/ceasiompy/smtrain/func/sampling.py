@@ -47,7 +47,7 @@ def lh_sampling_geom(
     """
     log.info(f"Generating LHS sampling for {n_samples=}")
     xlimits = np.stack(
-        arrays=[geom_bounds.bounds.lb, geom_bounds.bounds.ub],
+        [geom_bounds.bounds.lb, geom_bounds.bounds.ub],
         axis=1,
     ).astype(float)
 
@@ -140,7 +140,7 @@ def get_high_variance_points(
 
     # You are not training on x_val and x_test so might as well add them
     x = np.concatenate(
-        arrays=[level1_split.x_train, level1_split.x_val, level1_split.x_test],
+        [level1_split.x_train, level1_split.x_val, level1_split.x_test],
         axis=0,
     )
 

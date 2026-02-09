@@ -25,6 +25,7 @@ from ceasiompy.smtrain.func.utils import (
 )
 from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
+    get_sane_max_cpu,
     get_selected_aeromap,
     get_conditions_from_aeromap,
 )
@@ -442,11 +443,12 @@ def create_list_cpacs_geometry(
 
 
 def normalize_data(
+    data_frame: DataFrame,
     geom_bounds: GeomBounds,
-    *data_frames: DataFrame,
 ) -> tuple[GeomBounds, ...]:
     """
-    Normalizes columns of dataframes in geom_bounds.param_names with geom_bouds.bounds values.
+    Normalizes columns of data_frame
+    contained in geom_bounds.param_names with geom_bouds.bounds values.
     """
     lb = np.asarray(geom_bounds.bounds.lb, dtype=float)
     ub = np.asarray(geom_bounds.bounds.ub, dtype=float)
@@ -468,18 +470,15 @@ def normalize_data(
         param_names=geom_bounds.param_names,
     )
 
-    norm_data_frames: list[DataFrame] = []
-    for df in data_frames:
-        df_norm = df.copy()
-        for i, param in enumerate(geom_bounds.param_names):
-            df_norm[param] = domain_converter(
-                df_norm[param].to_numpy(dtype=float, copy=False),
-                (lb[i], ub[i]),
-                NORMALIZED_DOMAIN,
-            )
-        norm_data_frames.append(df_norm)
+    df_norm = data_frame.copy()
+    for i, param in enumerate(geom_bounds.param_names):
+        df_norm[param] = domain_converter(
+            df_norm[param].to_numpy(dtype=float, copy=False),
+            (lb[i], ub[i]),
+            NORMALIZED_DOMAIN,
+        )
 
-    return (geom_bounds_norm, *norm_data_frames)
+    return geom_bounds_norm, df_norm
 
 
 def normalize_input_from_gui(
@@ -541,13 +540,26 @@ def optimize_surrogate(
     log.info(f"Starting best geometry search on {model_name} surrogate ---")
 
     # Get Optimal Results (TODO: Add documentation that used differential_evolution...)
-    opt_result = differential_evolution(
-        surrogate_objective,
-        bounds=geom_bounds.bounds,
-        tol=1e-3,
-        maxiter=1000,
-        polish=True,
-    )
+    max_workers = get_sane_max_cpu()
+    if max_workers > 1:
+        opt_result = differential_evolution(
+            func=surrogate_objective,
+            bounds=geom_bounds.bounds,
+            tol=1e-3,
+            maxiter=1000,
+            polish=True,
+            workers=max_workers,
+            updating="deferred",
+        )
+    else:
+        opt_result = differential_evolution(
+            func=surrogate_objective,
+            bounds=geom_bounds.bounds,
+            tol=1e-3,
+            maxiter=1000,
+            polish=True,
+            workers=1,
+        )
 
     # Compute f(x_opt) = y_opt
     y_opt = float(model.predict_values(np.array(opt_result.x).reshape(1, -1))[0, 0])

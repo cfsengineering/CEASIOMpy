@@ -173,11 +173,6 @@ def run_cpacs2gmsh(
             detail="2D mesh: surface meshing...",
             progress=0.45,
         )
-        _progress_update(
-            progress_callback,
-            detail="3D mesh: volume meshing...",
-            progress=0.6,
-        )
         su2mesh_path, cgns_path = generate_gmsh(
             tixi,
             brep_dir,
@@ -198,6 +193,11 @@ def run_cpacs2gmsh(
             testing_gmsh=False,
             surf=surf,
             angle=angle,
+        )
+        _progress_update(
+            progress_callback,
+            detail="3D mesh: volume meshing completed.",
+            progress=0.6,
         )
     elif type_mesh == "RANS":
         log.info("RANS meshing.")
@@ -251,11 +251,6 @@ def run_cpacs2gmsh(
                 surf=surf,
                 angle=angle,
             )
-            _progress_update(
-                progress_callback,
-                detail="3D mesh: volume meshing...",
-                progress=0.6,
-            )
             if also_save_cgns:
                 cgns_path = pentagrow_3d_mesh(
                     wkdir,
@@ -272,6 +267,11 @@ def run_cpacs2gmsh(
                     surf=surf,
                     angle=angle,
                 )
+            _progress_update(
+                progress_callback,
+                detail="3D mesh: volume meshing completed.",
+                progress=0.6,
+            )
 
         else:
             log.error("Error in generating SU2 mesh.")

@@ -280,6 +280,7 @@ def make_progress_callback(status_container) -> Callable[[list | None], None]:
                     if item.get("status") == "failed"
                 ]
                 err_msg = "Workflow failed.\n" + "\n".join(errors)
+                st.markdown("---")
                 st.error(err_msg)
             elif not solver_running and finished:
                 st.info("Workflow finished running, go in results page for analysis.")

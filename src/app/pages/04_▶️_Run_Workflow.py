@@ -479,7 +479,7 @@ def display_simulation_settings() -> None:
     left_col, right_col = st.columns(2)
 
     with left_col:
-        st.markdown(f"Using CPACS: **{cpacs.ac_name}**")
+        st.markdown(f"CPACS: **{cpacs.ac_name}**")
         section_3D_view(
             cpacs=cpacs,
             force_regenerate=True,
@@ -490,7 +490,7 @@ def display_simulation_settings() -> None:
         selected_aeromap = cpacs.get_aeromap_by_uid(selected_aeromap_id)
         aero_df = selected_aeromap.df[PARAMS].reset_index(drop=True)
 
-        st.markdown(f"Using AeroMap: **{selected_aeromap_id}**")
+        st.markdown(f"AeroMap: **{selected_aeromap_id}**")
         st.dataframe(
             aero_df,
             hide_index=True,
@@ -501,6 +501,7 @@ def display_simulation_settings() -> None:
                 "angleOfSideslip": st.column_config.NumberColumn("β°"),
             },
             column_order=["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"],
+            height=210,
         )
 
 

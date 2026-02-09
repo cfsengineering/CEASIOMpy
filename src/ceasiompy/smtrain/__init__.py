@@ -10,6 +10,7 @@ Initialization for SMTrain module.
 from pathlib import Path
 from typing import Final
 
+from numpy import sqrt
 from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 from ceasiompy.pyavl import MODULE_STATUS as PYAVL_STATUS
 from ceasiompy.su2run import MODULE_STATUS as SU2RUN_STATUS
@@ -107,19 +108,23 @@ WING_PARAMETERS = [
 
 AEROMAP_DEFAULTS = {
     "altitude": {
-        "min": 50,
-        "max": 1000,
+        "min": 0.0,
+        "max": 10_000.0,
     },
     "machNumber": {
-        "min": 0.1,
-        "max": 0.85,
+        "min": 0.05,
+        "max": 0.8,
     },
     "angleOfAttack": {
         "min": -5.0,
-        "max": 5.0,
+        "max": 15.0,
     },
     "angleOfSideslip": {
-        "min": -10.0,
-        "max": 10.0,
+        "min": 0.0,
+        "max": 20.0,
     },
 }
+
+# Constants
+NORMALIZED: Final[float] = 1.0 / sqrt(2.0)
+NORMALIZED_DOMAIN: Final[tuple[float, float]] = (-NORMALIZED, NORMALIZED)

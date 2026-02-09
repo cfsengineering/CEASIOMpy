@@ -15,6 +15,7 @@ TODO:
 
 # Imports
 import numpy as np
+import pandas as pd
 
 from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.smtrain.func.plot import plot_validation
@@ -26,17 +27,18 @@ from ceasiompy.smtrain.func.sampling import (
     split_data,
     lh_sampling_geom,
     get_high_variance_points,
+    get_loo_points,
 )
 from ceasiompy.smtrain.func.config import (
     get_settings,
-    normalize_dataset,
+    normalize_data,
     get_params_to_optimise,
     create_list_cpacs_geometry,
     save_best_surrogate_geometry,
 )
 from ceasiompy.smtrain.func.trainsurrogatemodel import (
-    rbf_training,
-    krg_training,
+    get_best_rbf_model,
+    get_best_krg_model,
     run_adapt_refinement_geom,
     run_first_level_simulations,
 )
@@ -141,12 +143,12 @@ def _geometry_exploration(
     training_settings: TrainingSettings,
 ) -> None:
     # Get Parameters Ranges
-    params_ranges = get_params_to_optimise(cpacs)
+    geom_bounds = get_params_to_optimise(cpacs)
 
     # LHS sampling from the Parameter Ranges
     lh_sampling = lh_sampling_geom(
+        geom_bounds=geom_bounds,
         n_samples=training_settings.n_samples,
-        params_ranges=params_ranges,
     )
 
     # Create the list of CPACS files (in function of geometry values of lh_smapling)
@@ -165,7 +167,6 @@ def _geometry_exploration(
         cpacs_list=cpacs_list,
         lh_sampling=lh_sampling,
         results_dir=results_dir,
-        params_ranges=params_ranges,
         training_settings=training_settings,
     )
 
@@ -175,7 +176,7 @@ def _geometry_exploration(
         cpacs_list=cpacs_list,
         lh_sampling=lh_sampling,
         results_dir=low_fidelity_dir,
-        params_ranges=params_ranges,
+        geom_bounds=geom_bounds,
         training_settings=training_settings,
     )
 
@@ -187,36 +188,41 @@ def _geometry_exploration(
         rbf_results_dir = results_dir / "rbf_surrogate_model"
         rbf_results_dir.mkdir(parents=True, exist_ok=True)
 
-    # Train Selected Surrogate Models
     # Normalize
+    geom_bounds_norm, level1_df_norm = normalize_data(
+        geom_bounds=geom_bounds,
+        data_frames=(level1_df),
+    )
 
     # Split
     level1_split: DataSplit = split_data(
-        df=level1_df,
+        data_frame=level1_df_norm,
         training_settings=training_settings,
     )
 
+    # Train Selected Surrogate Models
     if "KRG" in training_settings.sm_models:
-        best_krg_model, best_krg_rmse = krg_training(level1_split)
+        best_krg_model, best_krg_rmse = get_best_krg_model(level1_split)
         save_best_surrogate_geometry(
-            df_norm=level1_split,
-            best_rmse=best_krg_rmse,
+            cpacs=cpacs,
             best_model=best_krg_model,
+            geom_bounds=geom_bounds_norm,
             results_dir=low_fidelity_dir,
-            level1_split=level1_split,
             training_settings=training_settings,
         )
 
     if "RBF" in training_settings.sm_models:
-        best_rbf_model, best_rbf_rmse = rbf_training(level1_split)
+        best_rbf_model, best_rbf_rmse = get_best_rbf_model(level1_split)
         save_best_surrogate_geometry(
-            best_rmse=best_rbf_rmse,
+            cpacs=cpacs,
             best_model=best_rbf_model,
+            geom_bounds=geom_bounds_norm,
             results_dir=low_fidelity_dir,
             training_settings=training_settings,
         )
 
     # Adaptative Refinement
+    level2_split = None
     if training_settings.fidelity_level == LEVEL_TWO:
         if (
             ("KRG" in training_settings.sm_models)
@@ -231,38 +237,73 @@ def _geometry_exploration(
         if "KRG" in training_settings.sm_models:
             high_var_pts: DataFrame = get_high_variance_points(
                 model=best_krg_model,
-                level1_df_norm=level1_df_norm,
+                level1_split=level1_split,
+            )
+
+        if "RBF" in training_settings.sm_models:
+            loo_pts: DataFrame = get_loo_points(
+                model=best_rbf_model,
+                level1_split=level1_split,
+            )
+
+        # Make sure to drop duplicates after concatenation
+        unvalid_pts = (
+            pd.concat(
+                objs=[
+                    df
+                    for df in [loo_pts, high_var_pts]
+                    if df is not None
+                ],
+                axis=0,
+                ignore_index=True,
+            )
+            .drop_duplicates()
+            .reset_index(drop=True)
+        )
+
+        # Run SU2 on unvalid points
+        level2_df = run_adapt_refinement_geom(
+            cpacs=cpacs,
+            unvalid_pts=unvalid_pts,
+            results_dir=high_fidelity_dir,
+            training_settings=training_settings,
+        )
+
+        # Normalize
+        geom_bounds_norm, level2_df_norm = normalize_data(
+            geom_bounds=geom_bounds,
+            data_frames=(level2_df),
+        )
+        level2_split: DataSplit = split_data(
+            data_frame=level2_df_norm,
+            training_settings=training_settings,
+        )
+
+        if "KRG" in training_settings.sm_models:
+            best_krg_model, best_krg_rmse = get_best_krg_model(
+                level1_split=level1_split,
+                level2_split=level2_split,
+            )
+            save_best_surrogate_geometry(
+                cpacs=cpacs,
+                best_model=best_krg_model,
+                geom_bounds=geom_bounds_norm,
+                results_dir=high_fidelity_dir,
                 training_settings=training_settings,
             )
 
         if "RBF" in training_settings.sm_models:
-            loo_pts = get_loo_points(
-                x_array=x_array,
-                y_array=y_array,
-                model=model,
-                ranges_gui=ranges_gui,
-                n_local=1,
-                perturb_scale=1,
+            best_rbf_model, best_rbf_rmse = get_best_rbf_model(
+                level1_split=level1_split,
+                level2_split=level2_split,
             )
-
-        unvalid_pts = np.concatenate(
-            arrays=[high_var_pts, loo_pts]
-        )
-
-        # On High-Variance Points
-        level2_df = run_adapt_refinement_geom(
-            cpacs=cpacs,
-            unvalid_pts=unvalid_pts,
-            level1_df=level1_df,
-            results_dir=high_fidelity_dir,
-            training_settings=training_settings,
-        )
-        level2_split: DataSplit = split_data(
-            df=level2_df_norm,
-            training_settings=training_settings,
-        )
-
-    columns: list[str] = [c for c in level1_df.columns if c != training_settings.objective]
+            save_best_surrogate_geometry(
+                cpacs=cpacs,
+                best_model=best_rbf_model,
+                geom_bounds=geom_bounds_norm,
+                results_dir=high_fidelity_dir,
+                training_settings=training_settings,
+            )
 
     # 3. Plot, save and get results
     if "KRG" in training_settings.sm_models:
@@ -270,11 +311,12 @@ def _geometry_exploration(
             model=best_krg_model,
             results_dir=krg_results_dir,
             level1_split=level1_split,
+            level2_split=level2_split,
             training_settings=training_settings,
         )
         save_model(
             model=best_krg_model,
-            columns=columns,
+            columns=level1_split.columns,
             results_dir=krg_results_dir,
             training_settings=training_settings,
         )
@@ -284,11 +326,12 @@ def _geometry_exploration(
             model=best_rbf_model,
             results_dir=rbf_results_dir,
             level1_split=level1_split,
+            level2_split=level2_split,
             training_settings=training_settings,
         )
         save_model(
             model=best_rbf_model,
-            columns=columns,
+            columns=level1_split.columns,
             results_dir=rbf_results_dir,
             training_settings=training_settings,
         )

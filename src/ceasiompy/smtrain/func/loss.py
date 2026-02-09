@@ -21,6 +21,7 @@ from smt.surrogate_models import (
     RBF,
 )
 
+
 # Methods
 
 def _compute_loss(

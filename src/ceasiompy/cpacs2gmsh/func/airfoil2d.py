@@ -271,7 +271,7 @@ def _generating_dat_file(
 
 
 # Functions
-def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
+def process_2d_airfoil(cpacs: CPACS, results_dir: Path) -> None:
     """
     Process 2D airfoil geometry and generate 2D mesh.
 
@@ -309,7 +309,7 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
     log.info("Building gmshairfoil2d command.")
     cmd, expected_mesh_file, fallback_mesh_file = _run_gmshairfoil2d(
         tixi=tixi,
-        wkdir=wkdir,
+        wkdir=results_dir,
         params=params,
         airfoil_file=airfoil_file,
         flap_airfoil_file=flap_airfoil_file,
@@ -317,7 +317,7 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
 
     # Execute gmshairfoil2d
     log.info(f"Running: {shlex_join(cmd)}")
-    result = subprocess.run(cmd, capture_output=True, text=True, cwd=wkdir)
+    result = subprocess.run(cmd, capture_output=True, text=True, cwd=results_dir)
 
     if result.returncode != 0 and flap_airfoil_file is not None:
         log.warning(
@@ -326,13 +326,13 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
         _log_process_streams(result, stdout_level="warning", stderr_level="warning")
         cmd, expected_mesh_file, fallback_mesh_file = _run_gmshairfoil2d(
             tixi=tixi,
-            wkdir=wkdir,
+            wkdir=results_dir,
             params=params,
             airfoil_file=airfoil_file,
             flap_airfoil_file=None,
         )
         log.info(f"Running: {shlex_join(cmd)}")
-        result = subprocess.run(cmd, capture_output=True, text=True, cwd=wkdir)
+        result = subprocess.run(cmd, capture_output=True, text=True, cwd=results_dir)
 
     if result.returncode != 0:
         error_msg = f"Mesh generation failed with return code {result.returncode}"
@@ -348,7 +348,7 @@ def process_2d_airfoil(cpacs: CPACS, wkdir: Path) -> None:
 
     if not expected_mesh_file.exists():
         error_msg = f"Mesh file not found after generation: {expected_mesh_file}"
-        candidates = sorted(wkdir.glob(f"mesh_airfoil_*.{params['mesh_format']}"))
+        candidates = sorted(results_dir.glob(f"mesh_airfoil_*.{params['mesh_format']}"))
         if candidates:
             error_msg = (
                 f"{error_msg}\nAvailable mesh files: "

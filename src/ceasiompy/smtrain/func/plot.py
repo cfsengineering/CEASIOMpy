@@ -9,8 +9,6 @@ Functions related to plotting in SMTrain.
 
 # Imports
 
-import plotly.graph_objects as go
-
 from smt.utils.misc import compute_rmse
 from ceasiompy.smtrain.func.utils import get_model_typename
 
@@ -22,53 +20,90 @@ from smt.surrogate_models import (
     KRG,
     RBF,
 )
+from plotly.graph_objects import (
+    Figure,
+    Scatter,
+)
 
 from ceasiompy import log
 
 
-# Functions
+# Methods
+
+def _add_split_trace(
+    fig: Figure,
+    model: KRG | MFK | RBF,
+    split: DataSplit,
+    label: str,
+    color: str,
+) -> float:
+    model_prediction = model.predict_values(split.x_test)
+    rmse_loss = compute_rmse(
+        sm=model,
+        xe=split.x_test,
+        ye=split.y_test,
+    )
+    fig.add_trace(
+        Scatter(
+            x=split.y_test.ravel(),
+            y=model_prediction.ravel(),
+            mode="markers",
+            marker=dict(color=color, opacity=0.5),
+            name=label,
+        )
+    )
+    return rmse_loss
+
 
 def plot_validation(
     model: KRG | MFK | RBF,
     results_dir: Path,
     level1_split: DataSplit,
+    level2_split: DataSplit | None,
     training_settings: TrainingSettings,
 ) -> None:
     """
-    Generates a Predicted vs Actual plot for model validation.
+    Generates a Predicted vs Actual plot for model validation on the Test Set.
     """
-
-    y_test_range = [level1_split.y_test.min(), level1_split.y_test.max()]
     typename = get_model_typename(model)
+    filename = "test_plot_" + training_settings.objective + ".html"
 
-    # Model Prediction on Test Set
-    model_prediction = model.predict_values(level1_split.x_test)
+    y_test_range = [
+        min(
+            level1_split.y_test.min(),
+            level2_split.y_test.min() if level2_split is not None else level1_split.y_test.min(),
+        ),
+        max(
+            level1_split.y_test.max(),
+            level2_split.y_test.max() if level2_split is not None else level1_split.y_test.max(),
+        ),
+    ]
 
-    # RMSE(y_test, model(x_test))
-    rmse_loss = compute_rmse(
-        sm=model,
-        xe=level1_split.x_test,
-        ye=level1_split.y_test,
+    fig = Figure()
+
+    rmse_level1 = _add_split_trace(
+        fig=fig,
+        model=model,
+        split=level1_split,
+        label="Level 1",
+        color="blue",
     )
+    log.info(f"{typename} (Level 1): {rmse_level1=}")
+    title_rmse = f"RMSE L1: {rmse_level1}"
 
-    log.info(f"{typename}: {rmse_loss=}")
-
-    # Create figure
-    y_test_values = level1_split.y_test.ravel()
-    y_pred_values = model_prediction.ravel()
-
-    fig = go.Figure()
-    fig.add_trace(
-        go.Scatter(
-            x=y_test_values,
-            y=y_pred_values,
-            mode="markers",
-            marker=dict(color="blue", opacity=0.5),
-            name="Prediction",
+    if level2_split is not None:
+        rmse_level2 = _add_split_trace(
+            fig=fig,
+            model=model,
+            split=level2_split,
+            label="Level 2",
+            color="orange",
         )
-    )
+        log.info(f"{typename} (Level 2): {rmse_level2=}")
+        title_rmse += f", RMSE L2: {rmse_level2}"
+
     fig.add_trace(
-        go.Scatter(
+        Scatter(
             x=y_test_range,
             y=y_test_range,
             mode="lines",
@@ -80,7 +115,7 @@ def plot_validation(
     fig.update_layout(
         title=(
             f"{typename}: Predicted vs Actual of {training_settings.objective}"
-            f"<br><sup>RMSE error on the test set {rmse_loss}</sup>"
+            f"<br><sup>{title_rmse}</sup>"
         ),
         xaxis_title=f"Actual {training_settings.objective}",
         yaxis_title=f"Predicted {training_settings.objective}",
@@ -88,4 +123,4 @@ def plot_validation(
     fig.update_xaxes(showgrid=True)
     fig.update_yaxes(showgrid=True)
 
-    fig.write_html(Path(results_dir, "test_plot_" + training_settings.objective + ".html"))
+    fig.write_html(Path(results_dir, filename))

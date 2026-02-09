@@ -375,7 +375,7 @@ def deform_surf(
 
 def main(
     cpacs: CPACS,
-    wkdir: Path,
+    results_dir: Path,
     progress_callback: Optional[Callable[..., None]] = None,
 ) -> None:
     """
@@ -400,7 +400,10 @@ def main(
     if tixi.getTextElement(GEOMETRY_MODE_XPATH) == "2D":
         log.info("2D airfoil mode detected. Running 2D processing only...")
         _progress_update(progress_callback, detail="Processing 2D airfoil...", progress=0.15)
-        process_2d_airfoil(cpacs, wkdir)
+        process_2d_airfoil(
+            cpacs=cpacs,
+            results_dir=results_dir,
+        )
         log.info("2D processing completed, returning without 3D mesh generation.")
         _progress_update(progress_callback, detail="2D processing completed.", progress=1.0)
         return None
@@ -453,7 +456,7 @@ def main(
         )
         _run_with_progress(
             0,
-            lambda **kwargs: run_cpacs2gmsh(cpacs, wkdir, **kwargs),
+            lambda **kwargs: run_cpacs2gmsh(cpacs, results_dir, **kwargs),
         )
         return None
 
@@ -467,7 +470,7 @@ def main(
             )
             _run_with_progress(
                 run_index,
-                lambda **kwargs: run_cpacs2gmsh(cpacs, wkdir, **kwargs),
+                lambda **kwargs: run_cpacs2gmsh(cpacs, results_dir, **kwargs),
             )
             run_index += 1
             continue
@@ -490,7 +493,7 @@ def main(
                     run_index,
                     lambda **kwargs: deform_surf(
                         cpacs,
-                        wkdir,
+                        results_dir,
                         surf,
                         angle,
                         wing_names,

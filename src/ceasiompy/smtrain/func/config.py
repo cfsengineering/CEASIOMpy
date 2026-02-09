@@ -3,13 +3,12 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Get settings from GUI. Manage datasets and perform LHS when required.
+Get settings from GUI. Manage data_frames and perform LHS when required.
 """
 
 # Imports
 
 import numpy as np
-import pandas as pd
 
 from shutil import copyfile
 from cpacspy.cpacsfunctions import (
@@ -21,6 +20,8 @@ from scipy.optimize import differential_evolution
 from ceasiompy.utils.geometryfunctions import get_xpath_for_param
 from ceasiompy.smtrain.func.utils import (
     get_columns,
+    domain_converter,
+    get_model_typename,
 )
 from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
@@ -35,7 +36,8 @@ from smt.applications import MFK
 from scipy.optimize import Bounds
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
-from ceasiompy.smtrain.func.parameter import Parameter
+from scipy.optimize import OptimizeResult
+from ceasiompy.smtrain.func.utils import DataSplit
 from ceasiompy.database.func.storing import CeasiompyDb
 from smt.surrogate_models import (
     KRG,
@@ -45,6 +47,7 @@ from smt.surrogate_models import (
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import WINGS_XPATH
 from ceasiompy.smtrain import (
+    NORMALIZED_DOMAIN,
     SMTRAIN_MODELS_XPATH,
     SMTRAIN_XPATH_PARAMS_AEROMAP,
     SMTRAIN_GEOM_WING_OPTIMISE,
@@ -68,11 +71,16 @@ class TrainingSettings(BaseModel):
     data_repartition: float
 
 
+class GeomBounds(BaseModel):
+    bounds: Bounds
+    param_names: list[str]
+
+
 # Functions
 
 def get_settings(tixi: Tixi3) -> TrainingSettings:
     """
-    Reads the global and new suggested dataset settings.
+    Reads the global and new suggested data_frame settings.
     """
 
     # Extract values from CPACS
@@ -127,7 +135,7 @@ def retrieve_aeromap_data(
     ]
 
     return DataFrame(
-        filtered,
+        data=filtered,
         columns=get_columns(objective),
     )
 
@@ -212,7 +220,7 @@ def design_of_experiment(cpacs: CPACS) -> tuple[int, dict[str, list[float]]]:
     return n_samples, range_params_aeromap
 
 
-def get_params_to_optimise(cpacs: CPACS) -> list[Parameter]:
+def get_params_to_optimise(cpacs: CPACS) -> GeomBounds:
 
     """
     Retrieves the geometric parameters selected bythe user for optimisation and the number
@@ -222,7 +230,9 @@ def get_params_to_optimise(cpacs: CPACS) -> list[Parameter]:
 
     tixi = cpacs.tixi
 
-    params_tranges: list[Parameter] = []
+    param_names: list[str] = []
+    min_values: list[float] = []
+    max_values: list[float] = []
 
     wings_to_optimise = []
     params_to_optimise = []
@@ -269,15 +279,14 @@ def get_params_to_optimise(cpacs: CPACS) -> list[Parameter]:
                 max_value = tixi.getDoubleElement(max_value_path)
 
                 if min_value == max_value:
-                    log.info(f"{parameter_name=} has constant range (i.e. not a variable). Skipping...")
+                    log.info(f"""{parameter_name=} has constant range
+                        (i.e. not a variable). Skipping...
+                    """)
                     continue
 
-                param_to_opti = Parameter(
-                    name=f"{parameter_name}_of_{section_name}_of_{wing_name}",
-                    min_value=min_value,
-                    max_value=max_value,
-                )
-                params_tranges.append(param_to_opti)
+                param_names.append(f"{parameter_name}_of_{section_name}_of_{wing_name}")
+                min_values.append(min_value)
+                max_values.append(max_value)
 
     if not wings_to_optimise:
         raise ValueError("You need to select a wing to perform geometry optimization.")
@@ -286,11 +295,18 @@ def get_params_to_optimise(cpacs: CPACS) -> list[Parameter]:
     if not params_to_optimise:
         raise ValueError("You need to select a parameter to perform geometry optimization.")
 
-    return params_tranges
+    bounds = Bounds(
+        lb=np.array(min_values, dtype=float),
+        ub=np.array(max_values, dtype=float),
+    )
+
+    return GeomBounds(
+        bounds=bounds,
+        param_names=param_names,
+    )
 
 
 def update_geometry_cpacs(cpacs_path_in: Path, cpacs_path_out: Path, geom_params: dict) -> CPACS:
-
     tixi = Tixi3()
     tixi.open(str(cpacs_path_in), True)
 
@@ -439,16 +455,45 @@ def create_list_cpacs_geometry(
     return cpacs_list
 
 
-def normalize_dataset(dataset: DataFrame) -> DataFrame:
-    df_norm = dataset.copy(deep=True)
-    for col in dataset.columns:
-        col_std = dataset[col].std()
-        col_mean = dataset[col].mean()
-        if col_std == 0.0:
-            raise ValueError("Constant column (variance==0)")
-        df_norm[col] = (dataset[col] - col_mean) / col_std
+def normalize_data(
+    geom_bounds: GeomBounds,
+    *data_frames: DataFrame,
+) -> tuple[GeomBounds, ...]:
+    """
+    Normalizes columns of dataframes in geom_bounds.param_names with geom_bouds.bounds values.
+    """
+    lb = np.asarray(geom_bounds.bounds.lb, dtype=float)
+    ub = np.asarray(geom_bounds.bounds.ub, dtype=float)
+    norm_lb = np.empty_like(lb, dtype=float)
+    norm_ub = np.empty_like(ub, dtype=float)
 
-    return df_norm
+    for i in range(len(geom_bounds.param_names)):
+        from_domain = (lb[i], ub[i])
+        norm_lb[i] = domain_converter(lb[i], from_domain, NORMALIZED_DOMAIN)
+        norm_ub[i] = domain_converter(ub[i], from_domain, NORMALIZED_DOMAIN)
+
+    norm_bounds = Bounds(
+        lb=norm_lb,
+        ub=norm_ub,
+    )
+
+    geom_bounds_norm = GeomBounds(
+        bounds=norm_bounds,
+        param_names=geom_bounds.param_names,
+    )
+
+    norm_data_frames: list[DataFrame] = []
+    for df in data_frames:
+        df_norm = df.copy()
+        for i, param in enumerate(geom_bounds.param_names):
+            df_norm[param] = domain_converter(
+                df_norm[param].to_numpy(dtype=float, copy=False),
+                (lb[i], ub[i]),
+                NORMALIZED_DOMAIN,
+            )
+        norm_data_frames.append(df_norm)
+
+    return (geom_bounds_norm, *norm_data_frames)
 
 
 def normalize_input_from_gui(
@@ -490,14 +535,15 @@ def norm_to_phys(x_norm, params, normalization_params):
 
 def optimize_surrogate(
     model: KRG | MFK | RBF,
-    df_norm: DataFrame,
+    geom_bounds: GeomBounds,
     training_settings: TrainingSettings,
-):
+) -> tuple[OptimizeResult, float]:
     """
     Run global optimization on a surrogate model.
-    Returns optimal normalized/physical parameters and metadata.
+    Returns optimal normalized/physical parameters.
     """
 
+    model_name = get_model_typename(model)
     direction = 1 if training_settings.direction == "Maximize" else -1
 
     def surrogate_objective(x_norm) -> float:
@@ -506,86 +552,56 @@ def optimize_surrogate(
         # TODO: use a loss function
         return direction * y_pred
 
+    log.info(f"Starting best geometry search on {model_name} surrogate ---")
 
-    # ---- bounds in normalized space ----
-    feature_cols = [c for c in df_norm.columns if c != training_settings.objective]
-    lb = df_norm[feature_cols].min().to_numpy(dtype=float)
-    ub = df_norm[feature_cols].max().to_numpy(dtype=float)
-    bounds = Bounds(lb=lb, ub=ub)
-
-    log.info("Starting best geometry search on {model_name} surrogate ---")
-
+    # Get Optimal Results (TODO: Add documentation that used differential_evolution...)
     opt_result = differential_evolution(
         surrogate_objective,
-        bounds=bounds,
+        bounds=geom_bounds.bounds,
         tol=1e-3,
         maxiter=1000,
         polish=True,
     )
 
-    x_opt_norm = opt_result.x
+    # Compute f(x_opt) = y_opt
+    y_opt = float(model.predict_values(np.array(opt_result.x).reshape(1, -1))[0, 0])
 
-    # ---- denormalize ----
-    x_opt_phys = {}
-    for i, p in enumerate(param_order):
-        std = normalization_params[p]["std"]
-        mean = normalization_params[p]["mean"]
-        x_opt_phys[p] = mean if std == 0 else x_opt_norm[i] * std + mean
-
-    y_opt = float(
-        model.predict_values(
-            np.array(x_opt_norm).reshape(1, -1)
-        )[0, 0]
-    )
-
-    return {
-        "success": bool(opt_result.success),
-        "message": opt_result.message,
-        "objective": objective,
-        "x_opt_norm": x_opt_norm.tolist(),
-        "x_opt_phys": x_opt_phys,
-        "y_opt_predicted": y_opt,
-    }
+    return opt_result, y_opt
 
 
 def save_best_surrogate_geometry(
-    df_norm: DataFrame,
-    best_rmse: float,
+    cpacs: CPACS,
     best_model: KRG | MFK | RBF,
+    geom_bounds: GeomBounds,
     results_dir: Path,
     training_settings: TrainingSettings,
 ) -> None:
     """
     Optimize Geometry on surrogate's function.
     """
+    best_model_name = get_model_typename(best_model)
 
-    best_result = optimize_surrogate(
+    best_result, best_obj_value = optimize_surrogate(
         model=best_model,
-        df_norm=df_norm,
+        geom_bounds=geom_bounds,
         training_settings=training_settings,
     )
 
-    csv_path = results_dir / f"best_surrogate_parameters_{model_name}.csv"
-    df_params = pd.DataFrame.from_dict(
-        best_result["x_opt_phys"],
-        orient="index",
-        columns=["value"]
-    )
+    sm_results_dir = results_dir / f"{best_model_name}_results"
+    sm_results_dir.mkdir(parents=True, exist_ok=True)
 
-    df_params.loc[objective] = best_result["y_opt_predicted"]
-    df_params.to_csv(csv_path)
+    csv_path = sm_results_dir / f"best_{best_model_name}_params.csv"
 
     log.info(f"Best surrogate parameters saved to CSV: {csv_path}")
 
-    cpacs_template = wkdir / "00_ToolInput.xml"
-    best_cpacs_path = results_dir / f"best_surrogate_geometry_{model_name}.xml"
-    copyfile(cpacs_template, best_cpacs_path)
+    best_cpacs_path = sm_results_dir / f"best_{best_model_name}_geometry.xml"
+    copyfile(cpacs.cpacs_file, best_cpacs_path)
 
     best_cpacs = CPACS(best_cpacs_path)
     tixi = best_cpacs.tixi
 
     params_to_update = {}
-    for full_name, val in best_result["x_opt_phys"].items():
+    for full_name, val in best_result.x.items():
         # SYNTAX: {param}_of_{section}_of_{wing}
         parts = full_name.split("_of_")
         if len(parts) != 3:
@@ -600,16 +616,16 @@ def save_best_surrogate_geometry(
             wing_uid=wing_uid,
             section_uid=section_uid
         )
-
         if name_parameter not in params_to_update:
             params_to_update[name_parameter] = {"values": [], "xpath": []}
+
         params_to_update[name_parameter]["values"].append(float(val))
         params_to_update[name_parameter]["xpath"].append(xpath)
 
     update_geometry_cpacs(
         best_cpacs_path,
         best_cpacs_path,
-        params_to_update
+        params_to_update,
     )
     best_cpacs.save_cpacs(best_cpacs_path, overwrite=True)
 

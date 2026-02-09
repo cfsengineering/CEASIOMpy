@@ -31,7 +31,7 @@ from ceasiompy.smtrain.func.sampling import (
     get_high_variance_points,
 )
 from ceasiompy.smtrain.func.createdata import (
-    launch_gmsh_su2_geom,
+    launch_gmsh_su2,
 )
 from ceasiompy.smtrain.func.utils import (
     log_params_krg,
@@ -42,7 +42,7 @@ from ceasiompy.smtrain.func.config import (
     get_xpath_for_param,
     update_geometry_cpacs,
     save_best_surrogate_geometry,
-    normalize_dataset,
+    normalize_data,
 )
 from pathlib import Path
 from numpy import ndarray
@@ -65,7 +65,7 @@ from ceasiompy.su2run import MODULE_NAME as SU2RUN
 
 # Functions
 
-def krg_training(
+def get_best_krg_model(
     level1_split: DataSplit,
     level2_split: DataSplit | None = None,
     level3_split: DataSplit | None = None,
@@ -204,7 +204,7 @@ def run_adapt_refinement_geom(
     unvalid_pts: DataFrame,
     results_dir: Path,
     training_settings: TrainingSettings,
-) -> None:
+) -> DataFrame:
     """
     Iterative improvement using SU2 data.
     """
@@ -213,31 +213,51 @@ def run_adapt_refinement_geom(
     log.info(f"Starting adaptive refinement on {len(unvalid_pts)} points.")
 
     cpacs_name = cpacs.ac_name
+
+    # TODO: Extract correctly from the generated cpacs folder
     generated_cpacs_dir = results_dir / "generated_cpacs"
-    if not generated_cpacs_dir.is_dir():
-        generated_cpacs_dir = results_dir.parent / "generated_cpacs"
 
-    level2_rows = []
+    final_dfs = []
     for i, high_var in enumerate(unvalid_pts.iterrows()):
-        idx = int(high_var[0])
-        cpacs_path = generated_cpacs_dir / f"{cpacs_name}_{idx + 1:03d}.xml"
-        cpacs = CPACS(cpacs_path)
+        try:
+            idx = int(high_var[0])
+            cpacs_path = generated_cpacs_dir / f"{cpacs_name}_{idx + 1:03d}.xml"
+            cpacs = CPACS(cpacs_path)
 
-        high_fidelity_dir = results_dir / f"{SU2RUN}_{i + 1}"
-        high_fidelity_dir.mkdir(exist_ok=True)
+            high_fidelity_dir = results_dir / f"{SU2RUN}_{i + 1}"
+            high_fidelity_dir.mkdir(exist_ok=True)
 
-        obj_value = launch_gmsh_su2_geom(
-            cpacs=cpacs,
-            results_dir=high_fidelity_dir,
-            training_settings=training_settings
+            level2_df = launch_gmsh_su2(
+                cpacs=cpacs,
+                results_dir=high_fidelity_dir,
+                training_settings=training_settings
+            )
+
+            if level2_df is None or len(level2_df) == 0:
+                log.error(f"No data retrieved for simulation {i + 1}, skipping...")
+                continue
+
+            # Duplicate per AeroMap entries (same geometry, different aeromap values)
+            n = len(level2_df)
+            row_df_geom = unvalid_pts.iloc[i]
+            local_df_geom = DataFrame([row_df_geom] * n).reset_index(drop=True)
+
+            level1_df_combined = pd.concat(
+                objs=[local_df_geom, unvalid_pts.reset_index(drop=True)],
+                axis=1,
+            )
+            final_dfs.append(level1_df_combined)
+        except Exception as e:
+            log.error(f"Error in SU2 simulation {i + 1}: {e=}. Skipping...")
+            continue  # Skip to next iteration, don't add to final_dfs
+
+    # Check if any successful simulations
+    if not final_dfs:
+        raise ValueError(
+            "No successful SU2 simulations. Cannot proceed with surrogate model training."
         )
 
-        # Essentially these new level2_df creates a new (high-fidelity dataframe)
-        new_row = high_var[1].copy()  # Series of input vars
-        new_row[training_settings.objective] = obj_value
-        level2_rows.append(new_row)
-
-    return DataFrame(level2_rows).reset_index(drop=True)
+    return pd.concat(final_dfs, axis=0, ignore_index=True)
 
 
 def optimize_hyper_parameters(
@@ -265,7 +285,7 @@ def optimize_hyper_parameters(
     return result
 
 
-def rbf_training(
+def get_best_rbf_model(
     level1_split: DataSplit,
     level2_split: DataSplit | None = None,
     level3_split: DataSplit | None = None,
@@ -347,6 +367,7 @@ def run_adapt_refinement_geom_rbf(
     objective: str,
     aeromap_uid: str,
     ranges_gui: DataFrame,
+    training_settings: TrainingSettings,
 ) -> None:
     """
     Iterative adaptive refinement using RBF LOO-error based sampling.
@@ -358,7 +379,7 @@ def run_adapt_refinement_geom_rbf(
         / "Low_Fidelity"
         / "avl_simulations_results.csv"
     )
-    normalization_params, _ = normalize_dataset(df_simulation_path)
+    normalization_params, _ = normalize_data(df_simulation_path)
     poor_pts = []
     rmse = float("inf")
 
@@ -455,7 +476,7 @@ def run_adapt_refinement_geom_rbf(
         new_df_list = []
         for idx, cpacs_ in enumerate(cpacs_list):
 
-            obj_value = launch_gmsh_su2_geom(
+            obj_value = launch_gmsh_su2(
                 cpacs=cpacs_,
                 results_dir=high_fidelity_dir_RBF,
                 objective=objective,
@@ -472,10 +493,13 @@ def run_adapt_refinement_geom_rbf(
         df_new = pd.concat([df, new_df], ignore_index=True, sort=False)
 
         # Retrain surrogate
-        model, rmse = rbf_training(
+        model, rmse = get_best_rbf_model(
             n_params=n_params,
             level1_sets=level1_sets,
-            level2_sets=split_data(df_new, objective),
+            level2_sets=split_data(
+                data_frame=df_new,
+                training_settings=training_settings,
+            ),
         )
         log.info(f"Iteration {it}: RMSE = {rmse:.6e}")
 

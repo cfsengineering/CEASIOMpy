@@ -6,16 +6,20 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 # Imports
 import shutil
+import joblib
 import numpy as np
 import pandas as pd
+
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
 from pydantic import BaseModel
 from smt.applications import MFK
 from scipy.optimize import OptimizeResult
-from ceasiompy.smtrain.func.parameter import Parameter
-from ceasiompy.smtrain.func.config import TrainingSettings
+from ceasiompy.smtrain.func.config import (
+    GeomBounds,
+    TrainingSettings,
+)
 from smt.surrogate_models import (
     KRG,
     RBF,
@@ -26,8 +30,6 @@ from cpacspy.cpacspy import (
 )
 
 from ceasiompy import log
-from ceasiompy.smtrain.func import AEROMAP_SELECTED
-from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
 from ceasiompy.smtrain import (
     LEVEL_ONE,
@@ -50,8 +52,37 @@ class DataSplit(BaseModel):
     x_test: ndarray
     y_test: ndarray
 
+    @property
+    def x_all(self) -> ndarray:
+        return np.concatenate([self.x_train, self.x_val, self.x_test], axis=0)
+
+    @property
+    def y_all(self) -> ndarray:
+        return np.concatenate([self.y_train, self.y_val, self.y_test], axis=0)
+
 
 # Functions
+
+def domain_converter(
+    t: float | ndarray,
+    from_domain: tuple[float, float],
+    to_domain: tuple[float, float],
+) -> float | ndarray:
+    a, b = from_domain[0], from_domain[1]
+    c, d = to_domain[0], to_domain[1]
+
+    # Convert accordingly from bounds
+    if a == b:
+        converted = (to_domain[0] + to_domain[1]) / 2.0
+    else:
+        converted = ((c - d) * t + (a * d - b * c)) / (a - b)
+
+    if isinstance(t, ndarray):
+        if t.ndim != 1:
+            raise ValueError('domain_converter only supports 1D numpy arrays.')
+        return converted
+    return float(converted)
+
 
 def save_model(
     model: KRG | MFK | RBF,
@@ -82,11 +113,11 @@ def store_best_geom_from_training(
     cpacs_list: list[CPACS],
     lh_sampling: DataFrame,
     results_dir: Path,
-    params_ranges: list[Parameter],
+    geom_bounds: GeomBounds,
     training_settings: TrainingSettings,
 ) -> None:
     # Save Best Low Fidelity Geometry Configuration from Training Data
-    geom_cols = [p.name for p in params_ranges]
+    geom_cols = geom_bounds.param_names
     objective = training_settings.objective
     mean_obj_by_geom = (
         dataframe.groupby(geom_cols, dropna=False)[objective]
@@ -126,37 +157,6 @@ def generate_su2_wkdir(iteration: int) -> None:
     """
     wkdir_su2 = Path(SU2RUN) / f"SU2_{iteration}"
     wkdir_su2.mkdir(parents=True, exist_ok=True)
-
-
-def create_aeromap_from_varpts(
-    cpacs: CPACS,
-    results_dir: Path,
-    high_variance_points: str | None,
-) -> AeroMap:
-
-    # Select dataset based on high-variance points or LHS sampling
-    if high_variance_points is None:
-        aeromap_uid = AEROMAP_SELECTED
-    else:
-        aeromap_uid = "new_points"
-    dataset_path = results_dir / f"{aeromap_uid}.csv"
-
-    if not dataset_path.is_file():
-        raise FileNotFoundError(f"Dataset not found: {dataset_path}")
-
-    # Remove existing aeromap if present
-    if cpacs.tixi.uIDCheckExists(aeromap_uid):
-        cpacs.delete_aeromap(aeromap_uid)
-
-    # Create and save new aeromap from the dataset
-    aeromap = cpacs.create_aeromap_from_csv(dataset_path)
-    if not aeromap:
-        raise ValueError(f"Failed to create aeromap '{aeromap_uid}'.")
-
-    aeromap.save()
-    log.info(f"Selected aeromap: {aeromap_uid}")
-
-    return aeromap
 
 
 def log_params_krg(result: OptimizeResult) -> None:

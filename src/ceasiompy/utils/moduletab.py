@@ -21,7 +21,7 @@ from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
 )
-from ceasiompy.utils.tixi3utils import (
+from tixi3.tixi3wrapper import (
     ReturnCode,
     Tixi3Exception,
 )

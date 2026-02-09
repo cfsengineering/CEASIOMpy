@@ -230,9 +230,10 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                         default_value=100.0,
                         key="max_layer_thickness",
                         name="Max layer thickness",
-                        description="The maximum allowed absolute thickness of the prismatic layer.",
+                        description="""
+                            The maximum allowed absolute thickness of the prismatic layer.
+                        """,
                     )
-
 
         else:
             safe_remove(tixi, xpath=GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH)

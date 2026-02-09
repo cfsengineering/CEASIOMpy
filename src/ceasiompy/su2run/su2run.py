@@ -44,10 +44,17 @@ def _progress_update(
     *,
     detail: str | None = None,
     progress: float | None = None,
+    log_path: str | None = None,
+    log_tail: str | None = None,
 ) -> None:
     if progress_callback is None:
         return
-    progress_callback(detail=detail, progress=progress)
+    progress_callback(
+        detail=detail,
+        progress=progress,
+        log_path=log_path,
+        log_tail=log_tail,
+    )
 
 
 def main(
@@ -144,7 +151,14 @@ def main(
         detail=f"Running {config_file_type} simulations...",
         progress=0.7,
     )
-    run_SU2_multi(results_dir, nb_proc)
+
+    def _su2_progress_update(**kwargs):
+        progress = kwargs.pop("progress", None)
+        if progress is not None:
+            progress = 0.7 + 0.2 * progress
+        _progress_update(progress_callback, progress=progress, **kwargs)
+
+    run_SU2_multi(results_dir, nb_proc, progress_callback=_su2_progress_update)
     _progress_update(progress_callback, detail="SU2 simulations completed.", progress=0.9)
 
     # 4. Retrieve SU2 results

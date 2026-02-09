@@ -15,7 +15,8 @@ Module to run SU2 configuration files in CEASIOMpy.
 
 from ceasiompy.utils.ceasiompyutils import run_software
 
-from typing import List
+import re
+from typing import List, Optional, Callable
 from pathlib import Path
 
 from ceasiompy.su2run import SOFTWARE_NAME
@@ -58,7 +59,52 @@ def check_force_files_exists(config_dir: Path) -> None:
         )
 
 
-def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
+def _tail_text(log_path: Path, max_bytes: int = 8192) -> str:
+    try:
+        with open(log_path, "rb") as fh:
+            fh.seek(0, 2)
+            size = fh.tell()
+            fh.seek(max(size - max_bytes, 0))
+            data = fh.read()
+        return data.decode(errors="replace")
+    except FileNotFoundError:
+        return ""
+
+
+def _parse_total_iterations(config_path: Path) -> Optional[int]:
+    pattern = re.compile(r"^\s*(INNER_ITER|ITER)\s*=\s*(\d+)", re.IGNORECASE)
+    inner_iter = None
+    iter_count = None
+    for line in config_path.read_text(errors="replace").splitlines():
+        match = pattern.match(line)
+        if not match:
+            continue
+        key = match.group(1).upper()
+        value = int(match.group(2))
+        if key == "INNER_ITER":
+            inner_iter = value
+        elif key == "ITER":
+            iter_count = value
+    return inner_iter if inner_iter is not None else iter_count
+
+
+def _parse_current_iteration(log_text: str) -> Optional[int]:
+    current = None
+    for line in log_text.splitlines():
+        match = re.match(r"^\|\s*(\d+)\s*\|", line)
+        if match:
+            value = int(match.group(1))
+            if current is None or value > current:
+                current = value
+    return current
+
+
+def run_SU2_multi(
+    wkdir: Path,
+    nb_proc: int = 1,
+    *,
+    progress_callback: Optional[Callable[..., None]] = None,
+) -> None:
     """
     Run in the given working directory SU2 calculations.
     The working directory must have a folder structure created by 'SU2Config' module.
@@ -75,6 +121,18 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
         raise FileNotFoundError(
             f"No Case directory has been found in the working directory: {wkdir}."
         )
+
+    # Pre-compute number of config runs for progress scaling.
+    total_configs = 0
+    for case_dir in case_dir_list:
+        config_dirs = [d for d in case_dir.iterdir() if d.is_dir()]
+        if not config_dirs:
+            total_configs += 1
+        else:
+            total_configs += len(config_dirs)
+    total_configs = max(total_configs, 1)
+
+    config_index = 0
 
     # Iterate through different cases.
     for case_dir in case_dir_list:
@@ -93,6 +151,29 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
 
             check_config_file_exists(config_file, config_dir)
 
+            config_index += 1
+            total_iter = _parse_total_iterations(config_file[0])
+            base = (config_index - 1) / total_configs
+            span = 1.0 / total_configs
+            label = case_dir.name if config_dir == case_dir else f"{case_dir.name}/{config_dir.name}"
+
+            def _progress_parser(log_path: Path):
+                log_text = _tail_text(log_path)
+                current_iter = _parse_current_iteration(log_text)
+                if total_iter and total_iter > 0 and current_iter is not None:
+                    ratio = min(max(current_iter / total_iter, 0.0), 1.0)
+                    progress = base + span * ratio
+                    detail = (
+                        f"{label} · SU2 iterations: "
+                        f"{current_iter}/{total_iter} ({ratio * 100:.1f}%)"
+                    )
+                else:
+                    progress = base
+                    detail = f"{label} · SU2 running..."
+                log_tail_lines = log_text.splitlines()[-6:]
+                log_tail = "\n".join(log_tail_lines)
+                return progress, detail, log_tail
+
             run_software(
                 software_name=SOFTWARE_NAME,
                 arguments=[config_file[0]],
@@ -100,6 +181,8 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
                 with_mpi=True,
                 nb_cpu=1,
                 log_bool=True,
+                progress_callback=progress_callback,
+                progress_parser=_progress_parser if progress_callback is not None else None,
             )
 
             check_force_files_exists(config_dir)

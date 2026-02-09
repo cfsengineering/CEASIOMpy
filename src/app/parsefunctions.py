@@ -4,9 +4,9 @@ import re
 import pandas as pd
 import streamlit as st
 
-from collections.abc import Mapping
 from pathlib import Path
 from pandas import DataFrame
+from collections.abc import Mapping
 
 
 # Functions

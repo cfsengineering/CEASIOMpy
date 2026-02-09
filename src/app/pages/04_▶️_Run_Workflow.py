@@ -96,6 +96,16 @@ def ensure_module_status_css() -> None:
             line-height: 1.2rem;
             margin-top: 0.1rem;
         }
+        .ceasiompy-module-log {
+            background: rgba(0, 0, 0, 0.04);
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-top: 0.4rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+                "Courier New", monospace;
+            font-size: 0.78rem;
+            white-space: pre-wrap;
+        }
 
         .ceasiompy-progress {
             height: 10px;
@@ -210,6 +220,13 @@ def make_progress_callback(status_container) -> Callable[[list | None], None]:
                     else ""
                 )
 
+                log_tail = item.get("log_tail")
+                log_tail_html = (
+                    f"<pre class='ceasiompy-module-log'>{escape(str(log_tail))}</pre>"
+                    if log_tail
+                    else ""
+                )
+
                 progress = item.get("progress")
                 progress_value: float | None = None
                 if isinstance(progress, (int, float)):
@@ -249,6 +266,7 @@ def make_progress_callback(status_container) -> Callable[[list | None], None]:
             {detail_html}
             {progress_html}
             {time_html}
+            {log_tail_html}
         </div>
                             """
                         ).strip(),

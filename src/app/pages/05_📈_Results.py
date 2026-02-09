@@ -10,18 +10,17 @@ Streamlit page to show results of CEASIOMpy
 import os
 import base64
 import tempfile
+import numpy as np
 import pandas as pd
 import pyvista as pv
 import streamlit as st
-import matplotlib as mpl
 import plotly.express as px
 import streamlit.components.v1 as components
-import numpy as np
 
 from stpyvista import stpyvista
+from functools import lru_cache
 from ceasiompy.utils.commonpaths import get_wkdir
 from ceasiompy.utils.ceasiompyutils import workflow_number
-from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 from parsefunctions import (
     parse_ascii_tables,
     display_avl_table_file,
@@ -34,15 +33,14 @@ from streamlitutils import (
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
-from functools import lru_cache
 
 from ceasiompy import log
 from constants import BLOCK_CONTAINER
 from ceasiompy.pyavl import AVL_TABLE_FILES
+from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 
 
 # Constants
-mpl.use("Agg")
 
 HOW_TO_TEXT = (
     "### Results \n"
@@ -65,12 +63,8 @@ IGNORED_RESULT_FILES: set[str] = {
 }
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
 # Functions
+
 def _looks_binary(data: bytes) -> bool:
     if not data:
         return False

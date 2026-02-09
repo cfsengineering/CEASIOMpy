@@ -7,13 +7,13 @@ channels:
 
 dependencies:
   - pip>=25.0.1
-  - python==3.11.11
+  - python==3.11.14
   - ipython>=8.30.0
   - ipywidgets>=8.1.5
 
   # DLR Library
   - dlr-sc::tigl3
-  # - dlr-sc::cpacscreator>=0.2
+  - dlr-sc::cpacscreator>=0.2
 
   - conda-forge::freetype>=2.13.0
 
@@ -68,10 +68,17 @@ dependencies:
       - pycycle
       - psutil>=7.0.0
       - pytest>=8.3.4
-      - pyvista>=0.44.2
+      - pyvista==0.46.5
+      - pyvista[jupyter]
+      - trame
+      - trame-vtk
+      - trame-client
+      - trame-server
+      - trame-components
       - shapely>=2.1.0
       - smt>=2.9.2
-      - stpyvista>=0.1.4
+      - stpyvista==0.1.4
+      - "pyvista[jupyter]"
 
       # Streamlit
       - streamlit==1.51.0

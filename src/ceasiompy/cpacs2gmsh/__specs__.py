@@ -153,80 +153,87 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             ):
                 st.markdown("**RANS Mesh Options**")
 
-                float_vartype(
-                    tixi=tixi,
-                    xpath=GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,
-                    default_value=1.5,
-                    key="refine_factor_angled_lines",
-                    name="Refinement factor of lines in between angled surfaces",
-                    description="""
-                        Refinement factor of edges at intersections
-                        that are not flat enough.
-                    """,
-                )
+                left_col, right_col = st.columns(2)
+                with left_col:
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,
+                        default_value=1.5,
+                        key="refine_factor_angled_lines",
+                        name="Edges Refinement factor",
+                        description="""
+                            Refinement factor of edges at intersections
+                            that are not flat enough (between angled surfaces).
+                        """,
+                    )
+                with right_col:
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=GMSH_FEATURE_ANGLE_XPATH,
+                        name="Feature Angle",
+                        default_value=40.0,
+                        key="feature_angle",
+                        description="""Larger angles are treated as resulting
+                            from approximation of curved surfaces.
+                        """,
+                    )
+                left_col, right_col = st.columns(2)
+                with left_col:
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=GMSH_GROWTH_RATIO_XPATH,
+                        name="Growth ratio",
+                        default_value=1.2,
+                        key="growth_ratio",
+                        description="""The largest allowed ratio between
+                            the wall-normal edge lengths of consecutive cells.
+                        """,
+                    )
+                with right_col:
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=GMSH_GROWTH_FACTOR_XPATH,
+                        name="Growth factor",
+                        default_value=1.4,
+                        key="growth_factor",
+                        description="""Desired growth factor between
+                            edge lengths of coincident tetrahedra.
+                        """,
+                    )
 
-                int_vartype(
-                    tixi=tixi,
-                    xpath=GMSH_NUMBER_LAYER_XPATH,
-                    default_value=20,
-                    key="n_layer",
-                    name="Number of layer",
-                    description="Number of prismatic element layers.",
-                )
+                left_col, mid_col, right_col = st.columns(3)
+                with left_col:
+                    int_vartype(
+                        tixi=tixi,
+                        xpath=GMSH_NUMBER_LAYER_XPATH,
+                        default_value=20,
+                        key="n_layer",
+                        name="Number of layers",
+                        description="Number of prismatic element layers.",
+                    )
+                with mid_col:
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=GMSH_H_FIRST_LAYER_XPATH,
+                        default_value=3,
+                        key="h_first_layer",
+                        name="Height of first layer",
+                        description="""
+                            Height of the first prismatic cell,
+                            touching the wall, in mesh length units.
+                        """,
+                    )
+                with right_col:
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=GMSH_MAX_THICKNESS_LAYER_XPATH,
+                        default_value=100.0,
+                        key="max_layer_thickness",
+                        name="Max layer thickness",
+                        description="The maximum allowed absolute thickness of the prismatic layer.",
+                    )
 
-                float_vartype(
-                    tixi=tixi,
-                    xpath=GMSH_H_FIRST_LAYER_XPATH,
-                    default_value=3,
-                    key="h_first_layer",
-                    name="Height of first layer",
-                    description="""
-                        Height of the first prismatic cell,
-                        touching the wall, in mesh length units.
-                    """,
-                )
 
-                float_vartype(
-                    tixi=tixi,
-                    xpath=GMSH_MAX_THICKNESS_LAYER_XPATH,
-                    default_value=100.0,
-                    key="max_layer_thickness",
-                    name="Max layer thickness",
-                    description="The maximum allowed absolute thickness of the prismatic layer.",
-                )
-
-                float_vartype(
-                    tixi=tixi,
-                    xpath=GMSH_GROWTH_RATIO_XPATH,
-                    name="Growth ratio",
-                    default_value=1.2,
-                    key="growth_ratio",
-                    description="""The largest allowed ratio between
-                        the wall-normal edge lengths of consecutive cells.
-                    """,
-                )
-
-                float_vartype(
-                    tixi=tixi,
-                    xpath=GMSH_GROWTH_FACTOR_XPATH,
-                    name="Growth factor",
-                    default_value=1.4,
-                    key="growth_factor",
-                    description="""Desired growth factor between
-                        edge lengths of coincident tetrahedra.
-                    """,
-                )
-
-                float_vartype(
-                    tixi=tixi,
-                    xpath=GMSH_FEATURE_ANGLE_XPATH,
-                    name="Feature Angle",
-                    default_value=40.0,
-                    key="feature_angle",
-                    description="""Larger angles are treated as resulting
-                        from approximation of curved surfaces.
-                    """,
-                )
         else:
             safe_remove(tixi, xpath=GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH)
             safe_remove(tixi, xpath=GMSH_NUMBER_LAYER_XPATH)

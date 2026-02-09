@@ -491,6 +491,11 @@ def display_simulation_settings() -> None:
         aero_df = selected_aeromap.df[PARAMS].reset_index(drop=True)
 
         st.markdown(f"AeroMap: **{selected_aeromap_id}**")
+        max_df_height = 210
+        header_height = 35
+        row_height = 35
+        df_height = header_height + row_height * len(aero_df)
+        df_height = min(df_height, max_df_height)
         st.dataframe(
             aero_df,
             hide_index=True,
@@ -501,7 +506,7 @@ def display_simulation_settings() -> None:
                 "angleOfSideslip": st.column_config.NumberColumn("β°"),
             },
             column_order=["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"],
-            height=210,
+            height=df_height,
         )
 
 

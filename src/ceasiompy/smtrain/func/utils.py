@@ -47,11 +47,13 @@ class TrainingSettings(BaseModel):
 
 
 class GeomBounds(BaseModel):
+    model_config = {"arbitrary_types_allowed": True}
     bounds: Bounds
     param_names: list[str]
 
 
 class DataSplit(BaseModel):
+    model_config = {"arbitrary_types_allowed": True}
     columns: list[str]
     x_train: ndarray
     y_train: ndarray

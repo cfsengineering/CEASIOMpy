@@ -98,11 +98,11 @@ SMTRAIN_MAX_CHORD = SMTRAIN_XPATH_GEOMETRY + "/MaxChord"
 SMTRAIN_MAX_THICKNESS = SMTRAIN_XPATH_GEOMETRY + "/MaxThickness"
 
 WING_PARAMETERS = [
+    "chord",
     "sweepAngle",
     "dihedralAngle",
     "length",
     "twist",
-    "chord",
     "thickness"
 ]
 

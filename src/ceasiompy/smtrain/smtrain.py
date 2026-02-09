@@ -270,8 +270,8 @@ def _geometry_exploration(
 
         # Normalize
         geom_bounds_norm, level2_df_norm = normalize_data(
-            level2_df,
             geom_bounds=geom_bounds,
+            level2_df,
         )
         level2_split: DataSplit = split_data(
             data_frame=level2_df_norm,

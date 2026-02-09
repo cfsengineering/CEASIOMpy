@@ -8,7 +8,7 @@ General classes to get transformation from any part of a CPACS file
 
 # Imports
 
-from tixi3.tixi3wrapper import (
+from ceasiompy.utils.tixi3utils import (
     Tixi3,
     Tixi3Exception,
 )

@@ -16,7 +16,7 @@ from cpacspy.cpacsfunctions import (
     add_string_vector,
 )
 
-from tixi3.tixi3wrapper import (
+from ceasiompy.utils.tixi3utils import (
     Tixi3,
     Tixi3Exception,
 )

@@ -2,6 +2,7 @@ name: ceasiompy
 
 channels:
   - conda-forge
+  - dlr-sc
   - defaults
 
 dependencies:
@@ -10,7 +11,10 @@ dependencies:
   - ipython>=8.30.0
   - ipywidgets>=8.1.5
 
+  # DLR Library
+  - dlr-sc::tigl3
   # - dlr-sc::cpacscreator>=0.2
+
   - conda-forge::freetype>=2.13.0
 
   # Testing and code quality
@@ -18,6 +22,7 @@ dependencies:
   - codecov>=2.1.11
   - coverage>=7.6.9
   - flake8>=7.1.1
+  - tixi3
 
   - numpy
   - pandas

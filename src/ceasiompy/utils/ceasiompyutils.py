@@ -473,6 +473,8 @@ def get_install_path(
         if _is_compatible_executable(resolved):
             log.info(f"{display_name} is installed at: {install_path}")
             return resolved
+        else:
+            log.warning(f"{software_name=} at {install_path=} is not compatible.")
 
     log.warning(f"{display_name} is not installed on your computer!")
 

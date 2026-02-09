@@ -13,6 +13,7 @@ dependencies:
 
   # DLR Library
   - dlr-sc::tigl3
+  - dlr-sc::tixi3
   - dlr-sc::cpacscreator>=0.2
 
   - conda-forge::freetype>=2.13.0
@@ -22,7 +23,6 @@ dependencies:
   - codecov>=2.1.11
   - coverage>=7.6.9
   - flake8>=7.1.1
-  - tixi3
 
   - numpy
   - pandas

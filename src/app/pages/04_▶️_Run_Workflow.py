@@ -20,9 +20,11 @@ from textwrap import dedent
 from streamlitutils import (
     create_sidebar,
     save_cpacs_file,
+    section_3D_view,
 )
 
 from pathlib import Path
+from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.workflowclasses import Workflow
 from typing import (
     Final,
@@ -187,20 +189,17 @@ def make_progress_callback(status_container) -> Callable[[list | None], None]:
             if status_list is None or not status_list:
                 return None
 
-            solver_running = any(
-                item.get("status", "waiting") == "running"
-                for item in status_list
-            )
-            has_failed = any(
-                item.get("status") == "failed"
-                for item in status_list
-            )
+            normalized_statuses: list[str] = []
+            for item in status_list:
+                raw_status = item.get("status", "waiting")
+                normalized_statuses.append(str(raw_status).strip().lower())
+
+            solver_running = any(status == "running" for status in normalized_statuses)
+            has_failed = any(status == "failed" for status in normalized_statuses)
 
             finished: bool = True
-            for item in status_list:
+            for item, status in zip(status_list, normalized_statuses):
                 name = item.get("name", "Unknown")
-                status = item.get("status", "waiting")
-
                 status_class = "waiting"
                 if status == "running":
                     status_class = "running"
@@ -282,7 +281,12 @@ def make_progress_callback(status_container) -> Callable[[list | None], None]:
                 err_msg = "Workflow failed.\n" + "\n".join(errors)
                 st.markdown("---")
                 st.error(err_msg)
-            elif not solver_running and finished:
+            elif (
+                not solver_running
+                and finished
+                and not st.session_state.get("workflow_is_running", False)
+                and st.session_state.get("workflow_has_completed", False)
+            ):
                 st.info("Workflow finished running, go in results page for analysis.")
 
     return _callback
@@ -364,6 +368,7 @@ def _run_workflow(
 ) -> None:
     st.session_state.workflow_is_running = True
     st.session_state.workflow_run_failed = False
+    st.session_state.workflow_has_completed = False
 
     st.session_state.workflow.modules_list = st.session_state.workflow_modules
     st.session_state.workflow.optim_method = "None"
@@ -414,6 +419,7 @@ def _run_workflow(
         return None
 
     # Workflow finished successfully: unlock navigation and redirect to Results.
+    st.session_state.workflow_has_completed = True
     unlock_navigation()
     results_page = "pages/05_📈_Results.py"
     try:
@@ -459,25 +465,43 @@ def workflow_runner(run_enabled: bool) -> None:
     on_progress(st.session_state.get("workflow_status_list"))
 
     if run_clicked:
+        st.session_state.workflow_status_list = []
+        st.session_state.workflow_has_completed = False
+        on_progress([])
         _run_workflow(on_progress, spinner_slot)
 
 
 def display_simulation_settings() -> None:
-    selected_aeromap = st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap_id)
-    aero_df = selected_aeromap.df[PARAMS].reset_index(drop=True)
+    cpacs = st.session_state.get("cpacs", None)
+    if cpacs is None:
+        return None
 
-    st.markdown(f"Using AeroMap: **{selected_aeromap_id}**")
-    st.dataframe(
-        aero_df,
-        hide_index=True,
-        column_config={
-            "altitude": st.column_config.NumberColumn("Altitude", min_value=0.0),
-            "machNumber": st.column_config.NumberColumn("Mach", min_value=1e-2),
-            "angleOfAttack": st.column_config.NumberColumn("α°"),
-            "angleOfSideslip": st.column_config.NumberColumn("β°"),
-        },
-        column_order=["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"],
-    )
+    left_col, right_col = st.columns(2)
+
+    with left_col:
+        st.markdown(f"Using CPACS: **{cpacs.ac_name}**")
+        section_3D_view(
+            cpacs=cpacs,
+            force_regenerate=True,
+            height=200,
+        )
+
+    with right_col:
+        selected_aeromap = cpacs.get_aeromap_by_uid(selected_aeromap_id)
+        aero_df = selected_aeromap.df[PARAMS].reset_index(drop=True)
+
+        st.markdown(f"Using AeroMap: **{selected_aeromap_id}**")
+        st.dataframe(
+            aero_df,
+            hide_index=True,
+            column_config={
+                "altitude": st.column_config.NumberColumn("Altitude", min_value=0.0),
+                "machNumber": st.column_config.NumberColumn("Mach", min_value=1e-2),
+                "angleOfAttack": st.column_config.NumberColumn("α°"),
+                "angleOfSideslip": st.column_config.NumberColumn("β°"),
+            },
+            column_order=["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"],
+        )
 
 
 # Main

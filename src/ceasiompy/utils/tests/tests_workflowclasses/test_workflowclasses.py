@@ -24,7 +24,7 @@ from ceasiompy.staticstability import MODULE_NAME as STATICSTABILITY
 
 
 MODULE_DIR = Path(__file__).parent
-CPACS_PATH = Path(MODULE_DIR.parents[3].parent, "test_files", "cpacsfiles", "d150.xml")
+CPACS_PATH = Path(MODULE_DIR.parents[3].parent, "geometries", "cpacsfiles", "d150.xml")
 CPACS_PATH_OUT = Path(MODULE_DIR, "d150_out.xml")
 
 # =================================================================================================

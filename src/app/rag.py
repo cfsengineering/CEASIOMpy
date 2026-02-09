@@ -103,7 +103,7 @@ def build_index(
         ".git",
         "wkdir",
         "installdir",
-        "test_files",
+        "geometries",
         "test_cases",
         "tests",
         "documents",

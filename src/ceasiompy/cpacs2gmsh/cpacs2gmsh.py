@@ -31,6 +31,7 @@ from ceasiompy.cpacs2gmsh.func.utils import (
 )
 
 from pathlib import Path
+from typing import Callable, Optional
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
@@ -71,7 +72,25 @@ _patch_signal_for_gmsh()
 
 # Functions
 
-def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = None) -> None:
+def _progress_update(
+    progress_callback: Optional[Callable[..., None]],
+    *,
+    detail: str | None = None,
+    progress: float | None = None,
+) -> None:
+    if progress_callback is None:
+        return
+    progress_callback(detail=detail, progress=progress)
+
+
+def run_cpacs2gmsh(
+    cpacs: CPACS,
+    wkdir: Path,
+    surf: str = None,
+    angle: str = None,
+    *,
+    progress_callback: Optional[Callable[..., None]] = None,
+) -> None:
     """
     Starts meshing with gmsh.
 
@@ -82,6 +101,12 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
 
     """
     tixi = cpacs.tixi
+
+    _progress_update(
+        progress_callback,
+        detail="Preparing Gmsh inputs...",
+        progress=0.02,
+    )
 
     # Create corresponding brep directory.
     if surf is None:
@@ -110,19 +135,44 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
     ) = retrieve_general_gui_values(tixi)
 
     # Export airplane's part in .brep format
+    _progress_update(
+        progress_callback,
+        detail="Exporting BREP geometry...",
+        progress=0.08,
+    )
     export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
+    _progress_update(
+        progress_callback,
+        detail="BREP export completed.",
+        progress=0.15,
+    )
 
     cgns_path = None
 
     if type_mesh not in ["EULER", "RANS"]:
         raise ValueError(f"{type_mesh=} needs to be either EULER or RANS.")
 
+    _progress_update(
+        progress_callback,
+        detail="Generating mesh...",
+        progress=0.25,
+    )
     if type_mesh == "EULER":
         log.info("Euler meshing.")
         (
             farfield_size_factor,
             fuselage_mesh_size,
         ) = retrieve_euler_gui_values(tixi)
+        _progress_update(
+            progress_callback,
+            detail="1D mesh: curve discretization...",
+            progress=0.3,
+        )
+        _progress_update(
+            progress_callback,
+            detail="2D mesh: surface meshing...",
+            progress=0.45,
+        )
         su2mesh_path, cgns_path = generate_gmsh(
             tixi,
             brep_dir,
@@ -143,6 +193,11 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
             testing_gmsh=False,
             surf=surf,
             angle=angle,
+        )
+        _progress_update(
+            progress_callback,
+            detail="3D mesh: volume meshing completed.",
+            progress=0.6,
         )
     elif type_mesh == "RANS":
         log.info("RANS meshing.")
@@ -176,6 +231,11 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
         if gmesh_path.exists():
             log.info("Mesh file exists. Proceeding to 3D mesh generation.")
 
+            _progress_update(
+                progress_callback,
+                detail="2D mesh: surface meshing...",
+                progress=0.45,
+            )
             su2mesh_path = pentagrow_3d_mesh(
                 wkdir,
                 fuselage_maxlen=fuselage_maxlen,
@@ -207,16 +267,36 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
                     surf=surf,
                     angle=angle,
                 )
+            _progress_update(
+                progress_callback,
+                detail="3D mesh: volume meshing completed.",
+                progress=0.6,
+            )
 
         else:
             log.error("Error in generating SU2 mesh.")
+    _progress_update(
+        progress_callback,
+        detail="Mesh generation completed.",
+        progress=0.75,
+    )
 
     log.info(f'{mesh_checker=} {cgns_path=}')
     if mesh_checker and cgns_path is None:
         log.warning('Mesh checker only works with cgns files.')
 
     if mesh_checker and cgns_path is not None:
+        _progress_update(
+            progress_callback,
+            detail="Running mesh checker...",
+            progress=0.82,
+        )
         cgns_mesh_checker(cgns_path)
+        _progress_update(
+            progress_callback,
+            detail="Mesh checker completed.",
+            progress=0.9,
+        )
 
     # Update SU2 mesh xPath
     if su2mesh_path.exists():
@@ -231,11 +311,29 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
 
         tixi.updateTextElement(SU2MESH_XPATH, str(mesh_path))
         log.info(f"SU2 Mesh at {mesh_path} has been correctly generated. \n")
+        _progress_update(
+            progress_callback,
+            detail="SU2 mesh path updated.",
+            progress=1.0,
+        )
     else:
         log.warning(f"Mesh path {su2mesh_path} does not exist. \n")
+        _progress_update(
+            progress_callback,
+            detail="SU2 mesh not found.",
+            progress=1.0,
+        )
 
 
-def deform_surf(cpacs: CPACS, wkdir: Path, surf: str, angle: float, wing_names: list) -> None:
+def deform_surf(
+    cpacs: CPACS,
+    wkdir: Path,
+    surf: str,
+    angle: float,
+    wing_names: list,
+    *,
+    progress_callback: Optional[Callable[..., None]] = None,
+) -> None:
     """
     Deform the surface surf by angle angle,
     and run run_cpacs2gmsh with this modified CPACS.
@@ -266,10 +364,20 @@ def deform_surf(cpacs: CPACS, wkdir: Path, surf: str, angle: float, wing_names: 
     tmp_cpacs.save_cpacs(new_file_path, overwrite=False)
 
     # Upload saved temporary CPACS file
-    run_cpacs2gmsh(CPACS(new_file_path), wkdir, surf, str(angle))
+    run_cpacs2gmsh(
+        CPACS(new_file_path),
+        wkdir,
+        surf,
+        str(angle),
+        progress_callback=progress_callback,
+    )
 
 
-def main(cpacs: CPACS, results_dir: Path) -> None:
+def main(
+    cpacs: CPACS,
+    wkdir: Path,
+    progress_callback: Optional[Callable[..., None]] = None,
+) -> None:
     """
     Main function.
     Defines setup for gmsh.
@@ -277,11 +385,24 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
     tixi = cpacs.tixi
 
+    _progress_update(progress_callback, detail="Reading CPACS settings...", progress=0.01)
+
+    # Check if we are in 2D mode - separate try/except to not catch process_2d_airfoil errors
+    geometry_mode = None
+    try:
+        geometry_mode = tixi.getTextElement(GEOMETRY_MODE_XPATH)
+        log.info(f"Geometry mode found in CPACS: {geometry_mode}")
+    except Exception:
+        # No geometry mode specified or xpath doesn't exist, assume 3D
+        log.info("No geometry mode specified in CPACS, defaulting to 3D mode.")
+
     # Process 2D if geometry mode is 2D (let exceptions propagate)
     if tixi.getTextElement(GEOMETRY_MODE_XPATH) == "2D":
         log.info("2D airfoil mode detected. Running 2D processing only...")
-        process_2d_airfoil(cpacs, results_dir)
+        _progress_update(progress_callback, detail="Processing 2D airfoil...", progress=0.15)
+        process_2d_airfoil(cpacs, wkdir)
         log.info("2D processing completed, returning without 3D mesh generation.")
+        _progress_update(progress_callback, detail="2D processing completed.", progress=1.0)
         return None
 
     # If we reach here, we are in 3D mode
@@ -295,29 +416,88 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
     log.info(f"list of deflection angles {angles_list}.")
 
+    # Compute number of runs to keep progress monotonic.
+    wing_names = return_uidwings(tixi)
+    total_runs = 0
+    if angles_list:
+        for angle in angles_list:
+            if angle == 0.0:
+                total_runs += 1
+                continue
+            total_runs += sum(
+                1 for surf in CONTROL_SURFACES_LIST
+                if any(surf in wing for wing in wing_names)
+            )
+    else:
+        total_runs = 1
+    total_runs = max(total_runs, 1)
+
+    def _run_with_progress(run_index: int, fn: Callable[..., None]) -> None:
+        offset = run_index / total_runs
+        span = 1.0 / total_runs
+
+        def _wrapped_progress(**kwargs):
+            progress = kwargs.pop("progress", None)
+            if progress is not None:
+                progress = offset + span * progress
+            _progress_update(progress_callback, progress=progress, **kwargs)
+
+        fn(progress_callback=_wrapped_progress)
+
     # Check if angles_list is empty
     if not angles_list:
         # No specified angles: run as usual
-        run_cpacs2gmsh(cpacs, results_dir)
+        _progress_update(
+            progress_callback,
+            detail="Meshing baseline (no deflection)...",
+        )
+        _run_with_progress(
+            0,
+            lambda **kwargs: run_cpacs2gmsh(cpacs, wkdir, **kwargs),
+        )
         return None
 
+    run_index = 0
     for angle in reversed(angles_list):
         if angle == 0.0:
             # No deformation for angle 0
-            run_cpacs2gmsh(cpacs, results_dir)
+            _progress_update(
+                progress_callback,
+                detail="Meshing baseline (no deflection)...",
+            )
+            _run_with_progress(
+                run_index,
+                lambda **kwargs: run_cpacs2gmsh(cpacs, wkdir, **kwargs),
+            )
+            run_index += 1
             continue
 
-        wing_names = return_uidwings(tixi)
         # Flap deformation has no utily in stability derivatives
         for surf in CONTROL_SURFACES_LIST:
             # Check if control surface exists through name of wings
             if not any(surf in wing for wing in wing_names):
-                raise ValueError(
+                log.warning(
                     f"No control surface {surf}. "
                     f"It can not be deflected by angle {angle}."
                 )
-            # If control Surface exists, deform the correct wings
-            deform_surf(cpacs, results_dir, surf, angle, wing_names)
+            else:
+                # If control Surface exists, deform the correct wings
+                _progress_update(
+                    progress_callback,
+                    detail=f"Meshing with {surf} deflection {angle} deg...",
+                )
+                _run_with_progress(
+                    run_index,
+                    lambda **kwargs: deform_surf(
+                        cpacs,
+                        wkdir,
+                        surf,
+                        angle,
+                        wing_names,
+                        **kwargs,
+                    ),
+                )
+                run_index += 1
 
 
 # Main

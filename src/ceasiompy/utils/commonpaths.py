@@ -57,11 +57,11 @@ STREAMLIT_PATH = Path(SRC_PATH, "app")
 # /CEASIOMpy/test_cases/
 TEST_CASES_PATH = Path(CEASIOMPY_PATH, "test_cases")
 
-# /CEASIOMpy/test_files/cpacsfiles/
-CPACS_FILES_PATH = Path(CEASIOMPY_PATH, "test_files", "cpacsfiles")
+# /CEASIOMpy/geometries/cpacsfiles/
+CPACS_FILES_PATH = Path(CEASIOMPY_PATH, "geometries", "cpacsfiles")
 
-# /CEASIOMpy/test_files/ResultsFiles/
-TEST_RESULTS_FILES_PATH = Path(CEASIOMPY_PATH, "test_files", "ResultsFiles")
+# /CEASIOMpy/geometries/ResultsFiles/
+TEST_RESULTS_FILES_PATH = Path(CEASIOMPY_PATH, "geometries", "ResultsFiles")
 
 # /CEASIOMpy/wkdir/
 WKDIR_PATH = Path(CEASIOMPY_PATH, "wkdir")

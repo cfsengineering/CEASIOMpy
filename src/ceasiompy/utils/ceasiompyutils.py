@@ -14,7 +14,9 @@ import sys
 import shutil
 import argparse
 import importlib
+import inspect
 import subprocess
+import time
 import streamlit as st
 
 from pydantic import validate_call
@@ -340,7 +342,14 @@ def initialize_cpacs(module_name: str) -> tuple[CPACS, Path]:
     return cpacs, cpacs_out
 
 
-def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
+def run_module(
+    module,
+    wkdir=Path.cwd(),
+    iteration=0,
+    test=False,
+    *,
+    progress_callback: Optional[Callable[..., None]] = None,
+):
     """Run a 'ModuleToRun' object in a specific wkdir.
 
     Args:
@@ -380,10 +389,20 @@ def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
             if test:
                 log.info("Updating CPACS from __specs__")
                 update_cpacs_from_specs(cpacs, module_name, test)
+
+            main_kwargs: dict[str, object] = {}
+            if progress_callback is not None:
+                try:
+                    main_sig = inspect.signature(my_module.main)
+                except (TypeError, ValueError):
+                    main_sig = None
+                if main_sig is not None and "progress_callback" in main_sig.parameters:
+                    main_kwargs["progress_callback"] = progress_callback
+
             if module.results_dir is None:
-                my_module.main(cpacs)
+                my_module.main(cpacs, **main_kwargs)
             else:
-                my_module.main(cpacs, module.results_dir)
+                my_module.main(cpacs, module.results_dir, **main_kwargs)
             cpacs.save_cpacs(cpacs_out, overwrite=True)
 
             log.info("---------- End of " + module_name + " ---------- \n")
@@ -557,18 +576,13 @@ def run_software(
     stdin: Optional[TextIO] = None,
     log_bool: bool = True,
     xvfb: bool = False,
+    progress_callback: Optional[Callable[..., None]] = None,
+    progress_parser: Optional[Callable[[Path], tuple]] = None,
+    poll_interval: float = 0.5,
 ) -> None:
     """Run a software with the given arguments in a specific wkdir. If the software is compatible
-    with MPI, 'with_mpi' can be set to True and the number of processors can be specified. A
-    logfile will be created in the wkdir.
-
-    Args:
-        software_name (str): Name of the software to run.
-        arguments (str): Arguments to pass to the software.
-        wkdir (Path, optional): Working directory where the software will be run.
-        with_mpi (bool = False): If True, run the software with MPI. Defaults to False.
-        nb_cpu (int = 1): Number of processors to use. Defaults to 1. If with_mpi is True,
-        #TODO: Add rest of documentation
+    with MPI, 'with_mpi' can be set to True and the number of processors can be specified.
+    A logfile will be created in the wkdir.
     """
 
     # Check nb_cpus
@@ -616,12 +630,34 @@ def run_software(
 
     with change_working_dir(wkdir):
         if log_bool:
-            logfile = Path(wkdir, f"logfile_{software_name}.log")
-            with open(logfile, "w") as logfile:
-                if stdin is None:
-                    subprocess.run(command_line, stdout=logfile, cwd=wkdir)
+            logfile_path = Path(wkdir, f"logfile_{software_name}.log")
+            with open(logfile_path, "w") as logfile:
+                if progress_parser is None:
+                    if stdin is None:
+                        subprocess.run(command_line, stdout=logfile, cwd=wkdir)
+                    else:
+                        subprocess.run(command_line, stdin=stdin, stdout=logfile, cwd=wkdir)
                 else:
-                    subprocess.run(command_line, stdin=stdin, stdout=logfile, cwd=wkdir)
+                    proc = subprocess.Popen(
+                        command_line,
+                        stdout=logfile,
+                        stdin=stdin,
+                        cwd=wkdir,
+                    )
+                    while True:
+                        retcode = proc.poll()
+                        progress, detail, log_tail = progress_parser(logfile_path)
+                        if progress_callback is not None:
+                            progress_callback(
+                                detail=detail,
+                                progress=progress,
+                                log_path=str(logfile_path),
+                                log_tail=log_tail,
+                            )
+                        if retcode is not None:
+                            break
+                        time.sleep(poll_interval)
+                    proc.wait()
         else:
             if stdin is None:
                 subprocess.run(command_line, cwd=wkdir)

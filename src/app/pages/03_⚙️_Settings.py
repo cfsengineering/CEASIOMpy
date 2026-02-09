@@ -1,15 +1,10 @@
+
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Streamlit page to change settings of a CEASIOMpy workflow
-
-| Author : Aidan Jungo
-| Creation: 2022-09-16
-| Modified : Leon Deligny
-| Date: 10-Mar-2025
-
+Streamlit page to change settings of a CEASIOMpy workflow.
 """
 
 # Imports

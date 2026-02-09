@@ -148,7 +148,7 @@ def run_testcase(testcase_nb):
         )
         log.info(">> conda activate ceasiompy")
         log.info(
-            ">> ceasiompy_run -m ../test_files/cpacsfiles/d150.xml "
+            ">> ceasiompy_run -m ../geometries/cpacsfiles/d150.xml "
             "PyAVL SkinFriction"
         )
 

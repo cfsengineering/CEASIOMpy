@@ -46,8 +46,8 @@ class ModuleToRun:
         self,
         name: str,
         wkflow_dir: Path,
-        cpacs_in: Path = None,
-        cpacs_out: Path = None,
+        cpacs_in: Path | None = None,
+        cpacs_out: Path | None = None,
     ) -> None:
 
         # Check module name validity
@@ -139,25 +139,6 @@ class OptimSubWorkflow:
                 self.modules[m].module_wkflow_path,
                 "iter_" + str(self.iteration).rjust(2, "0") + ".xml",
             )
-
-    def run_subworkflow(self) -> None:
-        """Run the opimisation subworflow"""
-
-        # log.info(f"Running optim subworkflow in {self.subworkflow_dir}")
-
-        # First iteration
-        for module in self.modules:
-            run_module(module, self.subworkflow_dir)
-
-        # TODO: copy last tool output when optim done (last iteration)
-        shutil.copy(self.modules[-1].cpacs_out, Path(self.subworkflow_dir, "ToolOutput.xml"))
-
-        # TODO: Probably not here
-        self.iteration += 1
-
-        # Other iterations
-        # module_optim = [module for module in self.modules]
-        # routine_launcher(self.optim_method, module_optim, self.subworkflow_dir.parent)
 
 
 class Workflow:
@@ -335,6 +316,30 @@ class Workflow:
                 if progress_callback is not None:
                     progress_callback(modules_status)
 
+                def module_progress_update(
+                    *,
+                    detail: str | None = None,
+                    progress: float | None = None,
+                    eta_seconds: float | None = None,
+                    elapsed_seconds: float | None = None,
+                    log_path: str | None = None,
+                    log_tail: str | None = None,
+                ) -> None:
+                    if detail is not None:
+                        modules_status[idx]["detail"] = detail
+                    if progress is not None:
+                        modules_status[idx]["progress"] = progress
+                    if eta_seconds is not None:
+                        modules_status[idx]["eta_seconds"] = eta_seconds
+                    if elapsed_seconds is not None:
+                        modules_status[idx]["elapsed_seconds"] = elapsed_seconds
+                    if log_path is not None:
+                        modules_status[idx]["log_path"] = log_path
+                    if log_tail is not None:
+                        modules_status[idx]["log_tail"] = log_tail
+                    if progress_callback is not None:
+                        progress_callback(modules_status)
+
                 try:
                     if module.is_optim_module:
                         self.subworkflow.run_subworkflow()
@@ -344,6 +349,7 @@ class Workflow:
                             self.current_wkflow_dir,
                             self.modules_list.index(module.name),
                             test,
+                            progress_callback=module_progress_update,
                         )
                 except Exception as exc:
                     modules_status[idx]["status"] = "failed"

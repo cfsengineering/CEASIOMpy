@@ -50,8 +50,7 @@ from ceasiompy.pyavl import (
 def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> tuple[
     list, list, list, list,
     list, list,
-    Path,
-    bool, int, bool,
+    Path, bool,
 ]:
     tixi = cpacs.tixi
     alt_list, mach_list, aoa_list, aos_list = get_selected_aeromap_values(cpacs)

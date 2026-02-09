@@ -180,4 +180,4 @@ aircraft_loads.csv
 # Exceptions
 !/ceasiompy/ModuleTemplate/ToolInput/ToolInput.xml
 !/ceasiompy/utils/tests/tests_workflowfunctions/ToolInput/ToolInput.xml
-!/test_files/aeromaps/*.csv
+!/geometries/aeromaps/*.csv

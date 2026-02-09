@@ -26,8 +26,8 @@ from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
 
-# Functions
 
+# Functions
 
 def save_cpacs_file():
     """Save Settings in selected_cpacs.xml"""
@@ -240,7 +240,7 @@ def render_floating_ai_assistant(
     )
 
 
-def st_directory_picker(initial_path=Path()):
+def st_directory_picker(initial_path=Path()) -> Path | None:
     """Workaround to be able to select a directory with Streamlit. Could be remove when this
     function will be integrated into Streamlit."""
 
@@ -248,6 +248,9 @@ def st_directory_picker(initial_path=Path()):
         st.session_state.path = initial_path.absolute().resolve()
 
     manual_input = st.text_input("Selected directory:", st.session_state.path)
+    if manual_input is None:
+        st.warning("No directory selected.")
+        return None
 
     manual_input = Path(manual_input)
     if manual_input != st.session_state.path:
@@ -321,7 +324,7 @@ def plot_airfoil_2d(x_coords, y_coords, title="Airfoil Profile"):
         hovermode='closest'
     )
 
-    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig, width="stretch")
 
 
 def section_3D_view(
@@ -410,4 +413,4 @@ def section_3D_view(
     if height is not None:
         fig.update_layout(height=height)
 
-    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig, width="stretch")

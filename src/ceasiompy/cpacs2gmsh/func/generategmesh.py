@@ -292,8 +292,8 @@ def generate_gmsh(
     farfield_size_factor=10,
     n_power_factor=2,
     n_power_field=0.9,
-    fuselage_mesh_size=1,
-    wing_mesh_size_factor=0.5,
+    fuselage_mesh_size=0.1,
+    wing_mesh_size=0.1,
     mesh_size_engines: float = 0.23,
     mesh_size_propellers: float = 0.23,
     refine_factor: float = 2.0,
@@ -671,20 +671,17 @@ def generate_gmsh(
     create_branch(tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH)
     tixi.updateDoubleElement(GMSH_MESH_SIZE_FUSELAGE_XPATH, mesh_size_fuselage, "%.3f")
 
-    wing_maxlen, wing_minlen = wings_size(tixi)
-    mesh_size_wing = ((wing_maxlen * 0.8 + wing_minlen) / 2) / wing_mesh_size_factor
-
-    log.info(f"Mesh size wing={mesh_size_wing:.3f} m")
+    log.info(f"Mesh size wing={wing_mesh_size:.3f} m")
 
     create_branch(tixi, GMSH_MESH_SIZE_WINGS_XPATH)
     create_branch(tixi, GMSH_MESH_SIZE_CTRLSURFS_XPATH)
 
-    tixi.updateDoubleElement(GMSH_MESH_SIZE_WINGS_XPATH, mesh_size_wing, "%.3f")
+    tixi.updateDoubleElement(GMSH_MESH_SIZE_WINGS_XPATH, wing_mesh_size, "%.3f")
 
     AIRCRAFT_DICT = {
         "fuselage": mesh_size_fuselage,
-        "wing": mesh_size_wing,
-        "pylon": mesh_size_wing,
+        "wing": wing_mesh_size,
+        "pylon": wing_mesh_size,
         "engine": mesh_size_engines,
         "rotor": mesh_size_propellers,
     }
@@ -728,7 +725,7 @@ def generate_gmsh(
                     final_domain.volume_tag,
                     aircraft,
                     part,
-                    mesh_size_wing,
+                    wing_mesh_size,
                     refine=refine_factor,
                     refine_truncated=refine_truncated,
                 )

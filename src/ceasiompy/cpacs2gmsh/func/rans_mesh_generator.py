@@ -69,7 +69,7 @@ def generate_2d_mesh_for_pentagrow(
     auto_refine: bool = False,
     n_power_factor: float = 2,
     fuselage_mesh_size: float = 1,
-    wing_mesh_size_factor: float = 0.5,
+    wing_mesh_size: float = 0.5,
     mesh_size_engines: float = 0.23,
     mesh_size_propellers: float = 0.23,
     farfield_size_factor: float = 10,
@@ -104,11 +104,9 @@ def generate_2d_mesh_for_pentagrow(
         Power of how much refinement on the le and te (and for now in the
         "refine acute angle" as well)
     fuselage_mesh_size : float
-        Factor of the fuselage mesh size : the mesh size will be the mean
-        fuselage width divided by this factor
-    wing_mesh_size_factor : float
-        Factor of the wing mesh size : the mesh size will be the mean
-        fuselage width divided by this factor
+        Cell size on the fuselage (if any)
+    wing_mesh_size : float
+        Cell size on the wings (if any)
     mesh_size_engines : float
         Size of the engines mesh
     mesh_size_propellers : float
@@ -234,19 +232,16 @@ def generate_2d_mesh_for_pentagrow(
 
     # Store the computed value of mesh size to use later
     mesh_size_by_group = {}
-    mesh_size_by_group["fuselage"] = (
-        (fuselage_maxlen + fuselage_minlen) / 2
-    ) / fuselage_mesh_size
-    mesh_size_by_group["wing"] = ((wing_maxlen * 0.8 + wing_minlen) / 2) / wing_mesh_size_factor
+    mesh_size_by_group["fuselage"] = fuselage_mesh_size
+    mesh_size_by_group["wing"] = wing_mesh_size
     mesh_size_by_group["engine"] = mesh_size_engines
     mesh_size_by_group["rotor"] = mesh_size_propellers
     mesh_size_by_group["pylon"] = mesh_size_propellers
 
-    mesh_size_fuselage = mesh_size_by_group["fuselage"]
-    log.info(f"Mesh size fuselage={mesh_size_fuselage:.3f} m")
-    log.info(
-        f"Mesh size wing={((wing_maxlen * 0.8 + wing_minlen) / 2) / wing_mesh_size_factor:.3f} m"
-    )
+    # mesh_size_fuselage = mesh_size_by_group["fuselage"]
+    # log.info(f"Mesh size fuselage={mesh_size_fuselage:.3f} m")
+    log.info(f"Mesh size fuselage={fuselage_mesh_size:.3f} m")
+    log.info(f"Mesh size wing={wing_mesh_size:.3f} m")
     log.info(f"Mesh size engine={mesh_size_engines:.3f} m")
     log.info(f"Mesh size rotor={mesh_size_propellers:.3f} m")
 

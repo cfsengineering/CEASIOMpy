@@ -289,9 +289,9 @@ def generate_gmsh(
     open_gmsh: bool = False,
     farfield_factor: float = 6.0,
     symmetry: bool = False,
-    farfield_size_factor=10,
     n_power_factor=2,
     n_power_field=0.9,
+    farfield_mesh_size=10,
     fuselage_mesh_size=0.1,
     wing_mesh_size=0.1,
     mesh_size_engines: float = 0.23,
@@ -695,9 +695,9 @@ def generate_gmsh(
             log.warning(f"Incorrect part.part_type {part.part_type} in generategmesh.py.")
 
     # Set mesh size and color of the farfield
-    log.info(f"Farfield mesh size={farfield_size_factor:.3f} m")
+    log.info(f"Farfield mesh size={farfield_mesh_size:.3f} m")
 
-    gmsh.model.mesh.setSize(farfield_points, farfield_size_factor)
+    gmsh.model.mesh.setSize(farfield_points, farfield_mesh_size)
     gmsh.model.setColor(farfield_surfaces, *MESH_COLORS["farfield"], recursive=False)
 
     if symmetry:
@@ -734,7 +734,7 @@ def generate_gmsh(
         set_domain_mesh(
             mesh_fields,
             aircraft_parts,
-            farfield_size_factor,
+            farfield_mesh_size,
             max(model_dimensions),
             final_domain.volume_tag,
             n_power_factor,
@@ -764,7 +764,7 @@ def generate_gmsh(
             refined_surfaces, mesh_fields = refine_small_surfaces(
                 mesh_fields,
                 part,
-                farfield_size_factor,
+                farfield_mesh_size,
                 max(model_dimensions),
                 final_domain.volume_tag,
             )

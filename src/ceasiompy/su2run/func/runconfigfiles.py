@@ -12,12 +12,13 @@ Module to run SU2 configuration files in CEASIOMpy.
 
 # Imports
 
+import os
+import re
 
 from ceasiompy.utils.ceasiompyutils import run_software
 
-import re
-from typing import List, Optional, Callable
 from pathlib import Path
+from typing import Callable
 
 from ceasiompy.su2run import SOFTWARE_NAME
 from ceasiompy.utils.commonnames import (
@@ -30,7 +31,7 @@ from ceasiompy.utils.commonnames import (
 # Functions
 
 
-def check_config_file_exists(config_file: List[Path], config_dir: Path) -> None:
+def check_config_file_exists(config_file: list[Path], config_dir: Path) -> None:
     """
     Check that there exists exactly 1 configuration file for 1 scenario
     """
@@ -71,7 +72,7 @@ def _tail_text(log_path: Path, max_bytes: int = 8192) -> str:
         return ""
 
 
-def _parse_total_iterations(config_path: Path) -> Optional[int]:
+def _parse_total_iterations(config_path: Path) -> int | None:
     pattern = re.compile(r"^\s*(INNER_ITER|ITER)\s*=\s*(\d+)", re.IGNORECASE)
     inner_iter = None
     iter_count = None
@@ -88,7 +89,7 @@ def _parse_total_iterations(config_path: Path) -> Optional[int]:
     return inner_iter if inner_iter is not None else iter_count
 
 
-def _parse_current_iteration(log_text: str) -> Optional[int]:
+def _parse_current_iteration(log_text: str) -> int | None:
     current = None
     for line in log_text.splitlines():
         match = re.match(r"^\|\s*(\d+)\s*\|", line)
@@ -99,11 +100,34 @@ def _parse_current_iteration(log_text: str) -> Optional[int]:
     return current
 
 
+def _parse_current_iteration_from_history(history_path: Path) -> int | None:
+    if not history_path.exists():
+        return None
+
+    try:
+        lines = history_path.read_text(errors="replace").splitlines()
+    except Exception:
+        return None
+
+    # Find last non-empty data line and parse first column as INNER_ITER.
+    for line in reversed(lines):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("%"):
+            continue
+        first_col = stripped.split(",")[0].strip().strip('"')
+        if first_col.isdigit():
+            return int(first_col)
+
+    return None
+
+
 def run_SU2_multi(
     wkdir: Path,
     nb_proc: int = 1,
     *,
-    progress_callback: Optional[Callable[..., None]] = None,
+    progress_callback: Callable[..., None] | None = None,
 ) -> None:
     """
     Run in the given working directory SU2 calculations.
@@ -115,28 +139,23 @@ def run_SU2_multi(
 
     """
 
-    case_dir_list = [dir for dir in wkdir.iterdir() if "Case" in dir.name]
+    case_dir_list = sorted(
+        iterable=[
+            dir
+            for dir in wkdir.iterdir()
+            if "Case" in dir.name
+        ],
+        key=lambda p: p.name,
+    )
 
     if not case_dir_list:
         raise FileNotFoundError(
             f"No Case directory has been found in the working directory: {wkdir}."
         )
 
-    # Pre-compute number of config runs for progress scaling.
-    total_configs = 0
-    for case_dir in case_dir_list:
-        config_dirs = [d for d in case_dir.iterdir() if d.is_dir()]
-        if not config_dirs:
-            total_configs += 1
-        else:
-            total_configs += len(config_dirs)
-    total_configs = max(total_configs, 1)
-
-    config_index = 0
-
     # Iterate through different cases.
     for case_dir in case_dir_list:
-        config_dirs = [d for d in case_dir.iterdir() if d.is_dir()]
+        config_dirs = sorted([d for d in case_dir.iterdir() if d.is_dir()], key=lambda p: p.name)
         if not config_dirs:
             # Support flat case directory (ConfigCFD.cfg directly inside case_dir).
             config_dirs = [case_dir]
@@ -151,31 +170,35 @@ def run_SU2_multi(
 
             check_config_file_exists(config_file, config_dir)
 
-            config_index += 1
             total_iter = _parse_total_iterations(config_file[0])
-            base = (config_index - 1) / total_configs
-            span = 1.0 / total_configs
             label = (
                 case_dir.name
                 if config_dir == case_dir
                 else f"{case_dir.name}/{config_dir.name}"
             )
+            history_path = Path(config_dir, "history.csv")
 
             def _progress_parser(log_path: Path):
-                log_text = _tail_text(log_path)
-                current_iter = _parse_current_iteration(log_text)
+                # Prefer history.csv (updated every INNER_ITER), fallback to logfile tail parsing.
+                current_iter = _parse_current_iteration_from_history(history_path)
+                if current_iter is None:
+                    log_text = _tail_text(log_path)
+                    current_iter = _parse_current_iteration(log_text)
+
                 if total_iter and total_iter > 0 and current_iter is not None:
                     ratio = min(max(current_iter / total_iter, 0.0), 1.0)
-                    progress = base + span * ratio
+                    progress = ratio
                     detail = (
                         f"{label} · SU2 iterations: "
                         f"{current_iter}/{total_iter} ({ratio * 100:.1f}%)"
                     )
                 else:
-                    progress = base
+                    progress = None
                     detail = f"{label} · SU2 running..."
                 return progress, detail, None
 
+            cloud = os.environ.get("CEASIOMPY_CLOUD", "False").lower() in {"1", "true", "yes"}
+            nb_proc = 1 if cloud else nb_proc
             run_software(
                 software_name=SOFTWARE_NAME,
                 arguments=[config_file[0]],
@@ -186,5 +209,11 @@ def run_SU2_multi(
                 progress_callback=progress_callback,
                 progress_parser=_progress_parser if progress_callback is not None else None,
             )
+
+            if progress_callback is not None:
+                progress_callback(
+                    detail=f"{label} · SU2 completed.",
+                    progress=1.0,
+                )
 
             check_force_files_exists(config_dir)

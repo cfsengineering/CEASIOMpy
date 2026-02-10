@@ -387,12 +387,13 @@ def _run_workflow(
     st.session_state.workflow.write_config_file()
 
     working_dir = Path(st.session_state.workflow.working_dir)
-    workflow_idx = str(st.session_state.workflow.workflow_dir).split(sep="_")[1]
     config_path = Path(working_dir, "ceasiompy.cfg")
 
     workflow = Workflow()
     workflow.from_config_file(config_path)
     workflow.set_workflow()
+    st.session_state.workflow.workflow_dir = workflow.current_wkflow_dir
+    workflow_idx = workflow.current_wkflow_dir.name.split(sep="_")[1]
 
     # Lock user in this page
     lock_navigation()
@@ -455,13 +456,17 @@ def workflow_runner(run_enabled: bool) -> None:
     spinner_slot = st.empty()
     status_placeholder = st.empty()
     on_progress = make_progress_callback(status_placeholder)
-    on_progress(st.session_state.get("workflow_status_list"))
 
     if run_clicked:
         st.session_state.workflow_status_list = []
+        st.session_state.workflow_run_failed = False
         st.session_state.workflow_has_completed = False
+        status_placeholder.empty()
         on_progress([])
         _run_workflow(on_progress, spinner_slot)
+        return None
+
+    on_progress(st.session_state.get("workflow_status_list"))
 
 
 def display_simulation_settings() -> None:

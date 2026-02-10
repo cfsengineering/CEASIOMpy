@@ -23,6 +23,7 @@ import random
 from ceasiompy.cpacs2gmsh.func.mesh_sizing import fuselage_size
 from ceasiompy.cpacs2gmsh.func.utils import (
     check_path,
+    initialize_gmsh,
     load_rans_cgf_params,
 )
 from ceasiompy.cpacs2gmsh.func.wingclassification import (
@@ -132,12 +133,8 @@ def generate_2d_mesh_for_pentagrow(
     brep_files = list(brep_dir.glob("*.brep"))
     brep_files.sort()
 
-    # Initialize gmsh
-    gmsh.initialize()
-    # Stop gmsh output log in the terminal
-    gmsh.option.setNumber("General.Terminal", 0)
-    # Log complexity
-    gmsh.option.setNumber("General.Verbosity", 5)
+    # Initialize gmsh (with a clean session on each run).
+    initialize_gmsh()
 
     log.info(f"Importing files from {brep_dir}")
 
@@ -467,6 +464,9 @@ def generate_2d_mesh_for_pentagrow(
     #     log.info(f"{output_stl=}")
     #     gmsh.write(str(output_stl))
     #     log.info(f"{fuselage_maxlen=}")
+
+    gmsh.clear()
+    gmsh.finalize()
 
     return gmesh_path, fuselage_maxlen
 

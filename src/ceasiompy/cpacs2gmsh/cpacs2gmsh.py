@@ -191,6 +191,7 @@ def run_cpacs2gmsh(
             testing_gmsh=False,
             surf=surf,
             angle=angle,
+            progress_callback=progress_callback,
         )
         _progress_update(
             progress_callback,

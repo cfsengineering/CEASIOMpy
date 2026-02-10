@@ -109,27 +109,32 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                 border=True,
             ):
                 st.markdown("**Euler Mesh Options**")
-
-                bool_vartype(
-                    tixi=tixi,
-                    xpath=GMSH_SYMMETRY_XPATH,
-                    default_value=False,
-                    name="Use Symmetry",
-                    key="symmetry",
-                    description="Create a symmetry condition.",
+                left_col, right_col = st.columns(
+                    spec=2,
+                    vertical_alignment="bottom",
                 )
+                with left_col:
+                    bool_vartype(
+                        tixi=tixi,
+                        xpath=GMSH_SYMMETRY_XPATH,
+                        default_value=False,
+                        name="Use Symmetry",
+                        key="symmetry",
+                        description="Create a symmetry condition.",
+                    )
 
-                # Euler Mesh options
-                float_vartype(
-                    tixi=tixi,
-                    xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
-                    default_value=10.0,
-                    name="Farfield mesh size",
-                    key="farfield_mesh_size",
-                    description="""Cell size on the farfield.""",
-                )
+                with right_col:
+                    float_vartype(
+                        tixi=tixi,
+                        xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
+                        default_value=10.0,
+                        name="Farfield mesh size",
+                        key="farfield_mesh_size",
+                        description="""Cell size on the farfield.""",
+                    )
 
         else:
+            safe_remove(tixi, xpath=GMSH_SYMMETRY_XPATH)
             safe_remove(tixi, xpath=GMSH_MESH_SIZE_FARFIELD_XPATH)
 
         # RANS Options

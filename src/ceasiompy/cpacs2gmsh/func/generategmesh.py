@@ -48,7 +48,7 @@ from pathlib import Path
 from ceasiompy.cpacs2gmsh.func.wingclassification import ModelPart
 from ceasiompy.utils.configfiles import ConfigFile
 from tixi3.tixi3wrapper import Tixi3
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Callable, Optional
 
 from ceasiompy import log
 from ceasiompy.cpacs2gmsh.func.utils import MESH_COLORS
@@ -303,6 +303,7 @@ def generate_gmsh(
     surf: str = None,
     angle: str = None,
     also_save_cgns: bool = False,
+    progress_callback: Optional[Callable[..., None]] = None,
 ) -> Path:
     """
     Generates a mesh from brep files forming an airplane.
@@ -843,6 +844,8 @@ def generate_gmsh(
 
     # Apply smoothing
     log.info("2D mesh smoothing process started")
+    if progress_callback is not None:
+        progress_callback(detail="2D mesh smoothing process started")
     gmsh.model.mesh.optimize("Laplace2D", niter=10)
     log.info("Smoothing process finished")
 
@@ -868,6 +871,11 @@ def generate_gmsh(
         gmsh.fltk.run()
 
     log.info("Start of gmsh 3D volume meshing process")
+    if progress_callback is not None:
+        progress_callback(
+            detail="Start of gmsh 3D volume meshing process",
+            progress=0.56,
+        )
     gmsh.model.mesh.generate(3)
     gmsh.model.occ.synchronize()
 

@@ -274,22 +274,34 @@ def current_workflow_dir() -> Path:
     """
     Get the current workflow directory.
     """
-    WKDIR_PATH = get_wkdir()
+    wkdir_path = get_wkdir()
 
     # Ensure WKDIR_PATH exists
-    WKDIR_PATH.mkdir(parents=True, exist_ok=True)
+    wkdir_path.mkdir(parents=True, exist_ok=True)
 
     # Change the current working directory
-    os.chdir(WKDIR_PATH)
+    os.chdir(wkdir_path)
 
-    # Check index of the last workflow directory to set the next one
-    wkflow_list = [int(dir.stem.split("_")[-1]) for dir in WKDIR_PATH.glob("Workflow_*")]
-    if wkflow_list:
-        wkflow_idx = str(max(wkflow_list) + 1).rjust(3, "0")
+    # Reuse latest workflow if it has not produced a Results directory yet.
+    workflow_dirs = []
+    for path in wkdir_path.glob("Workflow_*"):
+        if not path.is_dir():
+            continue
+        idx_str = path.stem.split("_")[-1]
+        if idx_str.isdigit():
+            workflow_dirs.append((int(idx_str), path))
+
+    if workflow_dirs:
+        _, last_wkflow_dir = max(workflow_dirs, key=lambda item: item[0])
+        # If no Results directory
+        if not Path(last_wkflow_dir, "Results").is_dir():
+            return last_wkflow_dir
+
+        wkflow_idx = str(max(idx for idx, _ in workflow_dirs) + 1).rjust(3, "0")
     else:
         wkflow_idx = "001"
 
-    current_wkflow_dir = Path.joinpath(WKDIR_PATH, "Workflow_" + wkflow_idx)
+    current_wkflow_dir = Path(wkdir_path, f"Workflow_{wkflow_idx}")
     current_wkflow_dir.mkdir()
 
     return current_wkflow_dir

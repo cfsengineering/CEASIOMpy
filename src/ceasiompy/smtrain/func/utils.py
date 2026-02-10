@@ -10,6 +10,11 @@ import joblib
 import numpy as np
 import pandas as pd
 
+from ceasiompy.utils.ceasiompyutils import (
+    get_selected_aeromap,
+    get_conditions_from_aeromap,
+)
+
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
@@ -96,10 +101,55 @@ def domain_converter(
     return float(converted)
 
 
+def get_aero_bounds(cpacs: CPACS) -> Bounds:
+    aeromap_min_max = {}
+    try:
+        selected_aeromap = get_selected_aeromap(cpacs)
+        altitude, mach, aoa, aos = get_conditions_from_aeromap(selected_aeromap)
+        aeromap_min_max = {
+            "altitude": (float(np.min(altitude)), float(np.max(altitude))),
+            "machNumber": (float(np.min(mach)), float(np.max(mach))),
+            "angleOfAttack": (float(np.min(aoa)), float(np.max(aoa))),
+            "angleOfSideslip": (float(np.min(aos)), float(np.max(aos))),
+        }
+    except Exception as exc:
+        log.warning(
+            "Could not retrieve aeromap min/max from CPACS; "
+            f"aeromap normalization will be skipped. {exc!r}"
+        )
+    lb: list[float] = []
+    ub: list[float] = []
+    missing: list[str] = []
+    for feature in AEROMAP_FEATURES:
+        bounds = aeromap_min_max.get(feature)
+        if bounds is None:
+            missing.append(feature)
+            lb.append(0.0)
+            ub.append(0.0)
+            continue
+        low, high = bounds
+        if high < low:
+            low, high = high, low
+        lb.append(float(low))
+        ub.append(float(high))
+    if missing:
+        log.warning(
+            "Missing aeromap bounds for: "
+            + ", ".join(missing)
+            + ". Using zeros."
+        )
+    return Bounds(
+        lb=np.asarray(lb, dtype=float),
+        ub=np.asarray(ub, dtype=float),
+    )
+
+
 def save_model(
+    cpacs: CPACS,
     model: KRG | MFK | RBF,
     columns: list[str],
     results_dir: Path,
+    geom_bounds: GeomBounds,
     training_settings: TrainingSettings,
 ) -> None:
     """
@@ -114,6 +164,8 @@ def save_model(
                 "model": model,
                 "columns": columns,
                 "objective": training_settings.objective,
+                "geom_bounds": geom_bounds,
+                "aero_bounds": get_aero_bounds(cpacs),
             },
             filename=file,
         )

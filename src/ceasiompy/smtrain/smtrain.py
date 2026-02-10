@@ -323,8 +323,10 @@ def _geometry_exploration(
             training_settings=training_settings,
         )
         save_model(
+            cpacs=cpacs,
             model=best_krg_model,
             columns=level1_split.columns,
+            geom_bounds=geom_bounds,
             results_dir=krg_results_dir,
             training_settings=training_settings,
         )
@@ -335,11 +337,14 @@ def _geometry_exploration(
             results_dir=rbf_results_dir,
             level1_split=level1_split,
             level2_split=level2_split,
+            geom_bounds=geom_bounds,
             training_settings=training_settings,
         )
         save_model(
+            cpacs=cpacs,
             model=best_rbf_model,
             columns=level1_split.columns,
+            geom_bounds=geom_bounds,
             results_dir=rbf_results_dir,
             training_settings=training_settings,
         )

@@ -37,8 +37,8 @@ from ceasiompy.smtrain.func.config import (
 from pathlib import Path
 from typing import Callable
 from pandas import DataFrame
-from cpacspy.cpacspy import CPACS
 from smt.applications import MFK
+from cpacspy.cpacspy import CPACS
 from scipy.optimize import OptimizeResult
 from ceasiompy.smtrain.func.utils import DataSplit
 from ceasiompy.smtrain.func.config import TrainingSettings

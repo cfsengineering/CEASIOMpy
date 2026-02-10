@@ -9,6 +9,7 @@ Streamlit page to show results of CEASIOMpy
 # Imports
 import os
 import base64
+import joblib
 import tempfile
 import numpy as np
 import pandas as pd
@@ -21,6 +22,8 @@ from stpyvista import stpyvista
 from functools import lru_cache
 from ceasiompy.utils.commonpaths import get_wkdir
 from ceasiompy.utils.ceasiompyutils import workflow_number
+from ceasiompy.smtrain.func.utils import domain_converter
+from ceasiompy.smtrain import AEROMAP_FEATURES, NORMALIZED_DOMAIN
 from parsefunctions import (
     parse_ascii_tables,
     display_avl_table_file,
@@ -32,7 +35,15 @@ from streamlitutils import (
 )
 
 from pathlib import Path
+from SALib.analyze import sobol
+from smt.applications import MFK
 from cpacspy.cpacspy import CPACS
+from SALib.sample import saltelli
+from scipy.optimize import Bounds
+from smt.surrogate_models import (
+    KRG,
+    RBF,
+)
 
 from ceasiompy import log
 from constants import BLOCK_CONTAINER
@@ -168,6 +179,9 @@ def display_results(results_dir):
             elif child.suffix == ".vtu":
                 _display_vtu(child)
 
+            elif child.suffix == ".pkl":
+                _display_pkl(child)
+
             elif child.suffix == ".png":
                 _display_png(child)
 
@@ -214,7 +228,7 @@ def display_results(results_dir):
 # Methods
 
 
-# def _display_plk(path: Path) -> None:
+# def _display_pkl(path: Path) -> None:
 #     csv_rmse_krg_path = Path(f"{results_dir}/rmse_KRG.csv")
 #     if csv_rmse_krg_path.exists():
 #         rmse_krg_df = pd.read_csv(csv_rmse_krg_path)
@@ -315,80 +329,6 @@ def display_results(results_dir):
 #         log.error(f"Missing normalization parameters for: {missing}")
 #         st.error(f"Missing normalization parameters for: {missing}")
 #         st.stop()
-
-#     if model is not None and len(param_order) >= 2:
-#         st.subheader("Sobol Global Sensitivity Analysis")
-#         sobol_params = []
-#         sobol_bounds = []
-
-#         for p in param_order:
-#             min_val, max_val = sliders_bounds[p]
-#             if max_val > min_val:
-#                 sobol_params.append(p)
-#                 sobol_bounds.append([min_val, max_val])
-
-#         # ---- DEFINE PROBLEM ----
-#         problem = {
-#             "num_vars": len(sobol_params),
-#             "names": sobol_params,
-#             "bounds": sobol_bounds,
-#         }
-
-#         # ---- GENERATE SAMPLES ----
-#         N = 256
-#         sample_set = saltelli.sample(problem, N)
-
-#         # ---- RUN MODEL ----
-#         Y = []
-#         for s in sample_set:
-#             x_phys = np.zeros(len(param_order))
-#             for i, p in enumerate(param_order):
-#                 if p in sobol_params:
-#                     x_phys[i] = s[sobol_params.index(p)]
-#                 else:
-#                     x_phys[i] = sliders_bounds[p][0]
-#             x_norm = normalize_input_from_gui(
-#                 {p: x_phys[i] for i, p in enumerate(param_order)},
-#                 param_order,
-#                 normalization_params
-#             )
-#             Y.append(model.predict_values(x_norm.reshape(1, -1))[0])
-
-#         Y = np.array(Y).flatten()
-
-#         # ---- SOBOL ANALYSIS ----
-#         Si = sobol.analyze(problem, Y)
-
-#         # ---- CONVERT TO DATAFRAME ----
-#         sens_df = pd.DataFrame({
-#             "Parameter": param_order,
-#             "Single effect index Si": Si["S1"],
-#             "Total-effect index ST": Si["ST"]
-#         })
-
-#         sens_df[["Single effect index Si", "Total-effect index ST"]] = sens_df[
-#             ["Single effect index Si", "Total-effect index ST"]
-#         ].clip(lower=0)
-
-#         sens_df = sens_df.sort_values(by="Total-effect index ST", ascending=False)
-
-#         # ---- SHOW RESULTS ----
-#         sens_df_melted = sens_df.melt(
-#             id_vars="Parameter",
-#             value_vars=["Single effect index Si", "Total-effect index ST"],
-#             var_name="Type",
-#             value_name="Sensitivity"
-#         )
-
-#         chart = alt.Chart(sens_df_melted).mark_bar().encode(
-#             x=alt.X("Parameter:N", sort=None, title="Parameter"),
-#             y=alt.Y("Sensitivity:Q", title="Sobol Index"),
-#             color=alt.Color("Type:N", scale=alt.Scale(scheme="category10")),
-#             xOffset="Type:N",
-#             tooltip=["Parameter", "Type", "Sensitivity"]
-#         ).properties(width=600, height=400)
-
-#         st.altair_chart(chart)
 
 #         st.subheader("Response Surface Visualization")
 #         # Let user select 2 params to visualize
@@ -769,6 +709,269 @@ def display_results(results_dir):
 #                     file_name=f"temp_optim_geometry_{y_target}.xml",
 #                     mime="application/xml"
 #                 )
+
+def _display_pkl(path: Path) -> None:
+    with st.container(border=True):
+        show_model = st.checkbox(
+            label=f"**{path.name}**",
+            value=True,
+            key=f"{path}_plk_toggle",
+        )
+        if not show_model:
+            return None
+
+        try:
+            data = _load_plk_cached(str(path), path.stat().st_mtime)
+        except Exception as exc:
+            st.error(f"Could not load model from {path.name}: {exc!r}")
+            return None
+
+        if not isinstance(data, dict):
+            st.error(f"Can not retrieve model info from {data=}")
+            return None
+
+        model = data.get("model")
+        if not isinstance(model, (KRG, RBF, MFK)):
+            st.error(f"Modeltype {model=} is uncorrect.")
+            return None
+
+        columns = data.get("columns")
+        objective = data.get("objective")
+
+        geom_bounds = data.get("geom_bounds")
+        aero_bounds = data.get("aero_bounds")
+
+        if columns and objective in columns:
+            columns = [
+                col
+                for col in columns
+                if col != objective
+            ]
+
+        if not columns:
+            st.info("No parameter metadata found in the model file.")
+            return None
+
+        bounds = {}
+        bounds_source = {}
+        try:
+            for idx, name in enumerate(geom_bounds.param_names):
+                bounds[name] = (
+                    float(geom_bounds.bounds.lb[idx]),
+                    float(geom_bounds.bounds.ub[idx]),
+                )
+                bounds_source[name] = "geom"
+        except Exception as e:
+            st.error(f"Could not extract geometric bounds from model {e=}")
+            return None
+
+        try:
+            for idx, name in enumerate(AEROMAP_FEATURES):
+                bounds.setdefault(
+                    name,
+                    (float(aero_bounds.lb[idx]), float(aero_bounds.ub[idx])),
+                )
+                bounds_source.setdefault(name, "aero")
+        except Exception as e:
+            st.error(f"Could not extract aerodynamic bounds from model {e=}")
+            return None
+
+        st.markdown("**Model Inputs**")
+
+        geom_inputs = [col for col in columns if bounds_source.get(col) == "geom"]
+        aero_inputs = [col for col in columns if bounds_source.get(col) == "aero"]
+        other_inputs = [
+            col for col in columns if col not in geom_inputs and col not in aero_inputs
+        ]
+
+        input_values: dict[str, float] = {}
+
+        def _input_widget(col: str, *, key_prefix: str = "", label: str | None = None) -> None:
+            display_label = label or col
+            lo, hi = bounds[col]
+            if hi < lo:
+                lo, hi = hi, lo
+            if hi == lo:
+                val = st.number_input(
+                    display_label,
+                    value=float(lo),
+                    key=f"{path}_plk_{key_prefix}{col}",
+                    disabled=True,
+                )
+            else:
+                step = (hi - lo) / 100.0
+                val = st.slider(
+                    display_label,
+                    min_value=float(lo),
+                    max_value=float(hi),
+                    value=float((lo + hi) / 2.0),
+                    step=float(step),
+                    key=f"{path}_plk_{key_prefix}{col}",
+                )
+            input_values[col] = float(val)
+
+        if geom_inputs:
+            st.markdown("**Geometry Inputs**")
+            for col in geom_inputs:
+                _input_widget(col, key_prefix="geom_")
+
+        if aero_inputs:
+            st.markdown("**Aero Inputs**")
+            aero_cols = st.columns(2)
+            aero_labels = {
+                "altitude": "Altitude",
+                "machNumber": "Mach",
+                "angleOfAttack": "α°",
+                "angleOfSideslip": "β°",
+            }
+            for idx, col in enumerate(aero_inputs):
+                with aero_cols[idx % 2]:
+                    _input_widget(
+                        col,
+                        key_prefix="aero_",
+                        label=aero_labels.get(col, col),
+                    )
+
+        if other_inputs:
+            st.markdown("**Other Inputs**")
+            for col in other_inputs:
+                _input_widget(col, key_prefix="other_")
+
+        normalized_values = []
+        for col in columns:
+            val = input_values.get(col, 0.0)
+            lo, hi = bounds[col]
+            if hi < lo:
+                lo, hi = hi, lo
+            if bounds_source.get(col) in {"geom", "aero"}:
+                normalized_values.append(
+                    float(domain_converter(float(val), (lo, hi), NORMALIZED_DOMAIN))
+                )
+            else:
+                normalized_values.append(float(val))
+
+        x = np.asarray(normalized_values, dtype=float).reshape(1, -1)
+
+        prediction = None
+        try:
+            prediction = model.predict_values(x)
+        except Exception as exc:
+            st.error(f"Model prediction failed: {exc!r}")
+            return None
+
+        if prediction is None:
+            st.info("Model does not support prediction.")
+            return None
+
+        pred_val = float(np.asarray(prediction).ravel()[0])
+        label = f"Predicted {objective}" if objective else "Predicted value"
+        st.metric(label=label, value=f"{pred_val:.6g}")
+
+        st.markdown("---")
+        _compute_sobol_analysis(
+            model=model,
+            bounds=bounds,
+            columns=columns,
+            bounds_source=bounds_source,
+        )
+
+
+def _compute_sobol_analysis(
+    model: RBF | KRG | MFK,
+    bounds: Bounds,
+    columns: list[str],
+    bounds_source: dict,
+) -> None:
+    sobol_params = []
+    sobol_bounds = []
+    for col in columns:
+        lo, hi = bounds[col]
+        if hi < lo:
+            lo, hi = hi, lo
+        if hi == lo:
+            continue
+        sobol_params.append(col)
+        sobol_bounds.append([float(lo), float(hi)])
+
+    if not sobol_params:
+        st.info("No variable inputs available for Sobol analysis.")
+        return None
+
+    problem = {
+        "num_vars": len(sobol_params),
+        "names": sobol_params,
+        "bounds": sobol_bounds,
+    }
+
+    n_base = 256
+    sample_set = saltelli.sample(problem, n_base, calc_second_order=False)
+
+    mids = {}
+    for col in columns:
+        lo, hi = bounds[col]
+        if hi < lo:
+            lo, hi = hi, lo
+        mids[col] = (float(lo) + float(hi)) / 2.0
+
+    x_rows = np.zeros((sample_set.shape[0], len(columns)), dtype=float)
+    for idx, col in enumerate(columns):
+        if col in sobol_params:
+            values = sample_set[:, sobol_params.index(col)]
+        else:
+            values = np.full(sample_set.shape[0], mids[col], dtype=float)
+        if bounds_source.get(col) in {"geom", "aero"}:
+            lo, hi = bounds[col]
+            if hi < lo:
+                lo, hi = hi, lo
+            values = np.array(
+                [domain_converter(v, (lo, hi), NORMALIZED_DOMAIN) for v in values],
+                dtype=float,
+            )
+        x_rows[:, idx] = values
+
+    try:
+        y_pred = model.predict_values(x_rows).ravel()
+    except Exception as exc:
+        st.error(f"Sobol prediction failed: {exc!r}")
+        return None
+
+    try:
+        si = sobol.analyze(problem, y_pred, calc_second_order=False)
+    except Exception as exc:
+        st.error(f"Sobol analysis failed: {exc!r}")
+        return None
+
+    df_sobol = pd.DataFrame(
+        {
+            "Parameter": sobol_params,
+            "S1": si.get("S1", []),
+            "ST": si.get("ST", []),
+        }
+    )
+    df_long = df_sobol.melt(
+        id_vars="Parameter",
+        value_vars=["S1", "ST"],
+        var_name="Index",
+        value_name="Value",
+    )
+    fig = px.bar(
+        df_long,
+        x="Parameter",
+        y="Value",
+        color="Index",
+        barmode="group",
+        title="Sobol Indices",
+    )
+    st.plotly_chart(
+        fig,
+        use_container_width=True,
+        config={"displayModeBar": True, "scrollZoom": True},
+    )
+
+
+@lru_cache(maxsize=8)
+def _load_plk_cached(path_str: str, mtime: float):
+    return joblib.load(path_str)
 
 
 def _display_html(path: Path) -> None:
@@ -1235,7 +1438,18 @@ def _display_csv(path: Path) -> None:
 def _display_xml(path: Path) -> None:
     with st.container(border=True):
         cpacs = CPACS(path)
-        st.markdown(f"""**CPACS {cpacs.ac_name}**""")
+        st.markdown(f"**CPACS {cpacs.ac_name}**")
+
+        # Download button for downloading CPACS file locally
+        st.download_button(
+            label="Download CPACS file",
+            data=path.read_bytes(),
+            file_name=path.name,
+            mime="application/xml",
+            use_container_width=True,
+        )
+
+        # Display the 3D geometry of the CPACS file
         section_3D_view(
             cpacs=cpacs,
             force_regenerate=True,

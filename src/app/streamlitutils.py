@@ -343,17 +343,16 @@ def section_3D_view(
     if cpacs is None:
         return None
 
-    # 3D mode - generate STL preview
-    stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
+    # 3D mode - generate STL preview at the same level as the cpacs file
+    stl_file = Path(Path(cpacs.cpacs_file).parent, "aircraft.stl")
     if not force_regenerate and stl_file.exists():
         pass
-    elif hasattr(cpacs, "aircraft") and hasattr(
-        cpacs.aircraft, "tigl"
-    ):
+
+    try:
         with st.spinner("Meshing geometry (STL export)..."):
             cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
-    else:
-        st.error("Cannot generate 3D preview (missing TIGL geometry handle).")
+    except Exception as e:
+        st.error(f"Cannot generate 3D preview (probably missing TIGL geometry handle): {e=}.")
         return None
 
     your_mesh = mesh.Mesh.from_file(stl_file)

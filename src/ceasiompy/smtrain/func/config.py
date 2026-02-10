@@ -25,7 +25,6 @@ from ceasiompy.smtrain.func.utils import (
 )
 from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
-    get_sane_max_cpu,
     get_selected_aeromap,
     get_conditions_from_aeromap,
 )
@@ -443,13 +442,6 @@ def create_list_cpacs_geometry(
             cpacs_path_out=cpacs_out,
             geom_params=params_to_update,
         )
-        name_parts = []
-        for param, data in params_to_update.items():
-            for idx, val in enumerate(data["values"], start=1):
-                name_parts.append(f"{param}{idx}-{val:.6g}")
-
-        if name_parts:
-            cpacs_obj.ac_name = f"{cpacs_obj.ac_name}_{'_'.join(name_parts)}"
         cpacs_list.append(cpacs_obj)
 
     return cpacs_list
@@ -525,7 +517,7 @@ def normalize_data(
         )
 
     if aeromap_not_normalized:
-        log.warning(
+        raise ValueError(
             "Aeromap columns not normalized: "
             + ", ".join(aeromap_not_normalized)
         )

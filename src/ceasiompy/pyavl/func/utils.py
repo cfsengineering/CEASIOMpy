@@ -109,7 +109,18 @@ def split_dir(dir_name: str, index: int, param: str) -> float:
 
 
 def split_line(line: str, index: int) -> float:
-    return float(line.split("=")[index].strip().split()[0])
+    try:
+        token = line.split("=")[index].strip().split()[0]
+        return float(token)
+    except IndexError:
+        log.warning(f"AVL parse issue (missing field at index {index}): '{line.strip()}'")
+        return np.nan
+    except ValueError:
+        if token and set(token) == {"*"}:
+            log.warning("AVL returned an undefined/overflow coefficient ('***********').")
+        else:
+            log.warning(f"AVL parse issue (invalid float '{token}'). Using NaN.")
+        return np.nan
 
 
 def get_atmospheric_cond(alt: float, mach: float) -> Tuple[float, float, float]:

@@ -18,6 +18,7 @@ import streamlit as st
 from html import escape
 from textwrap import dedent
 from streamlitutils import (
+    scoll_down,
     create_sidebar,
     save_cpacs_file,
     section_3D_view,
@@ -286,9 +287,10 @@ def make_progress_callback(status_container) -> Callable[[list | None], None]:
                 err_msg = "Workflow failed.\n"
                 if os.environ.get("CEASIOMPY_CLOUD", "False").lower() not in {"1", "true", "yes"}:
                     err_msg += "\n".join(errors)
-                    log.error(f"{errors}")
+                log.error(f"{errors}")
                 st.markdown("---")
                 st.error(err_msg)
+                scoll_down()
             elif (
                 not solver_running
                 and finished
@@ -296,6 +298,7 @@ def make_progress_callback(status_container) -> Callable[[list | None], None]:
                 and st.session_state.get("workflow_has_completed", False)
             ):
                 st.info("Workflow finished running, go in results page for analysis.")
+                scoll_down()
 
     return _callback
 
@@ -412,7 +415,6 @@ def _run_workflow(
             ):
                 workflow.run_workflow(progress_callback=on_progress)
     except Exception as exc:
-        log.warning(f"Workflow failed: {exc}")
         st.exception(exc)
         st.session_state.workflow_run_failed = True
     finally:
@@ -430,25 +432,8 @@ def _run_workflow(
     st.session_state.workflow_has_completed = True
     unlock_navigation()
     results_page = "pages/05_📈_Results.py"
-    try:
-        st.switch_page(results_page)
-        # Some Streamlit versions don't immediately rerun after `switch_page`.
-        _rerun()
-    except Exception as exc:
-        log.error(f"Page switch to Results failed: {exc}")
-        st.session_state["workflow_page_switch_error"] = str(exc)
-        st.success("Workflow finished running.")
-        if st.button(
-            "Go to Results",
-            type="primary",
-            **_filter_supported_kwargs(st.button, width="stretch"),
-            key="go_to_results_after_workflow",
-        ):
-            st.switch_page(results_page)
-            _rerun()
-        st.stop()
-        return None
-
+    st.switch_page(results_page)
+    _rerun()
     st.stop()
 
 

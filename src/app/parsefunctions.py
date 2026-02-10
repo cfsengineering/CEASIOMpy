@@ -71,11 +71,11 @@ def display_avl_table_file(path: Path) -> None:
 
 def _display_spiral_stability(text: str) -> None:
     if "Clb Cnr / Clr Cnb" not in text:
-        return
+        return None
     value, is_stable = _parse_st_spiral(text)
     if value is not None:
         # Streamlit colors metric deltas green/red based on +/- prefix.
-        delta = "stable" if is_stable else "not stable"
+        delta = "+stable" if is_stable else "-not stable"
         st.metric("Spiral stability ratio", f"{value:.6f}", delta)
 
 
@@ -458,18 +458,23 @@ def _parse_sb_summary(lines: list[str]) -> dict[str, float]:
         if line.strip().startswith("Run case:"):
             in_summary = True
             continue
-        if "Geometry-axis derivatives" in line:
+        if "Geometry-axis derivatives" in line or "Stability-axis derivatives" in line:
             in_summary = False
         if in_summary:
             summary.update(_parse_fe_key_values(line))
+    xnp = _parse_neutral_point(lines)
+    if xnp is not None:
+        summary["Xnp"] = xnp
     return summary
 
 
 def _parse_sb_tables(lines: list[str]) -> list[tuple[str, DataFrame]]:
     tables: list[tuple[str, DataFrame]] = []
     header_map = {
+        "alpha                beta": "Stability-Axis Derivatives (alpha/beta)",
+        "roll rate  p'": "Stability-Axis Derivatives (p'/q'/r')",
         "axial   vel. u": "Geometry-Axis Derivatives (u/v/w)",
-        "roll rate  p": "Geometry-Axis Derivatives (p/q/r)",
+        "roll rate  p       pitch rate  q": "Geometry-Axis Derivatives (p/q/r)",
         "flap         d01": "Control Derivatives (d01/d02/d03/d04)",
     }
     for i, line in enumerate(lines):
@@ -483,6 +488,8 @@ def _parse_sb_tables(lines: list[str]) -> list[tuple[str, DataFrame]]:
 
 def _parse_derivative_table(lines: list[str], start_index: int) -> tuple[DataFrame, int]:
     rows: list[dict[str, float | str]] = []
+    raw_header = lines[start_index].strip()
+    value_columns = [part.strip() for part in re.split(r"\s{2,}", raw_header) if part.strip()]
     i = start_index + 1
     while i < len(lines):
         line = lines[i]
@@ -499,15 +506,57 @@ def _parse_derivative_table(lines: list[str], start_index: int) -> tuple[DataFra
         if "|" in line:
             label = line.split("|", 1)[0].strip()
             pairs = re.findall(
-                r"([A-Za-z0-9']+)\s*=\s*([-+]?\d*\.?\d+(?:[Ee][-+]?\d+)?)",
-                line,
+                pattern=r"([A-Za-z0-9']+)\s*=\s*([*]+|[-+]?\d*\.?\d+(?:[Ee][-+]?\d+)?)",
+                string=line,
             )
             row: dict[str, float | str] = {"label": label}
-            for key, value in pairs:
-                row[key] = float(value)
+            values = [_parse_avl_float(value) for _key, value in pairs]
+
+            # Display like AVL tables: keep headers from the section title and
+            # only the parsed numeric values in the cells (no "CLp=", etc.).
+            if value_columns and len(value_columns) == len(values):
+                for col, value in zip(value_columns, values):
+                    row[col] = value
+            else:
+                fallback_columns = _parse_derivative_header_columns(raw_header, len(values))
+                for col, value in zip(fallback_columns, values):
+                    row[col] = value
             rows.append(row)
         i += 1
     if not rows:
         return DataFrame(), i
     df = DataFrame(rows)
     return df, i
+
+
+def _parse_avl_float(value: str) -> float:
+    if value and set(value) == {"*"}:
+        return float("nan")
+    return float(value)
+
+
+def _parse_derivative_header_columns(raw_header: str, expected: int) -> list[str]:
+    matches = re.findall(
+        (
+            r"(roll rate\s+p'?|pitch rate\s+q'?|yaw rate\s+r'?|alpha|beta|"
+            r"axial\s+vel\.\s+u|sideslip vel\.\s+v|normal\s+vel\.\s+w)"
+        ),
+        raw_header,
+        flags=re.IGNORECASE,
+    )
+    if len(matches) >= expected:
+        return [re.sub(r"\s+", " ", match.strip()) for match in matches[:expected]]
+
+    chunks = [part.strip() for part in re.split(r"\s{2,}", raw_header) if part.strip()]
+    if len(chunks) >= expected:
+        return chunks[:expected]
+
+    return [f"col_{idx}" for idx in range(1, expected + 1)]
+
+
+def _parse_neutral_point(lines: list[str]) -> float | None:
+    for line in lines:
+        match = re.search(r"Neutral point\s+Xnp\s*=\s*([-+]?\d*\.?\d+(?:[Ee][-+]?\d+)?)", line)
+        if match:
+            return float(match.group(1))
+    return None

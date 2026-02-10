@@ -10,7 +10,7 @@ Streamlit page to run a CEASIOMpy workflow.
 from __future__ import annotations
 
 # Imports
-
+import os
 import psutil
 import inspect
 import streamlit as st
@@ -284,8 +284,10 @@ def make_progress_callback(status_container) -> Callable[[list | None], None]:
                     for item in status_list
                     if item.get("status") == "failed"
                 ]
-                err_msg = "Workflow failed.\n" + "\n".join(errors)
-                log.error(f"{errors}")
+                err_msg = "Workflow failed.\n"
+                if os.environ.get("CEASIOMPY_CLOUD", "False").lower() not in {"1", "true", "yes"}:
+                    err_msg += "\n".join(errors)
+                    log.error(f"{errors}")
                 st.markdown("---")
                 st.error(err_msg)
             elif (

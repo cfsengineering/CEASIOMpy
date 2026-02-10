@@ -274,11 +274,18 @@ def make_progress_callback(status_container) -> Callable[[list | None], None]:
 
             if has_failed:
                 errors = [
-                    f"- {item.get('name', 'Unknown')}: {item.get('error', 'Unknown error')}"
+                    (
+                        f"- {item.get('name', 'Unknown')}: "
+                        f"{item.get('error', 'Unknown error')}"
+                        f"""{' (' + item.get('error_location')
+                            + ')' if item.get('error_location') else ''}
+                        """
+                    )
                     for item in status_list
                     if item.get("status") == "failed"
                 ]
                 err_msg = "Workflow failed.\n" + "\n".join(errors)
+                log.error(f"{errors}")
                 st.markdown("---")
                 st.error(err_msg)
             elif (
@@ -404,7 +411,7 @@ def _run_workflow(
             ):
                 workflow.run_workflow(progress_callback=on_progress)
     except Exception as exc:
-        log.error(f"Workflow failed: {exc}")
+        log.warning(f"Workflow failed: {exc}")
         st.exception(exc)
         st.session_state.workflow_run_failed = True
     finally:

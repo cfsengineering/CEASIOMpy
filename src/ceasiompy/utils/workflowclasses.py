@@ -11,6 +11,7 @@ Classes to run ceasiompy workflows
 import os
 import shutil
 import importlib
+import traceback
 
 from ceasiompy.utils import get_wkdir
 from ceasiompy.utils.moduleinterfaces import get_module_list
@@ -354,6 +355,12 @@ class Workflow:
                 except Exception as exc:
                     modules_status[idx]["status"] = "failed"
                     modules_status[idx]["error"] = str(exc)
+                    tb_frames = traceback.extract_tb(exc.__traceback__)
+                    if tb_frames:
+                        last_frame = tb_frames[-1]
+                        modules_status[idx]["error_location"] = (
+                            f"{last_frame.filename}:{last_frame.lineno}"
+                        )
                     if progress_callback is not None:
                         progress_callback(modules_status)
                     return None

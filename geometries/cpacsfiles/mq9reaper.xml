@@ -857,63 +857,63 @@
               </segment>
             </segments>
           </wing>
-          <wing uID="Y tail(Up)" symmetry="x-z-plane">
+          <wing uID="Y_tail_up" symmetry="x-z-plane">
             <parentUID>Mainwing</parentUID>
-            <name>Y tail(Up)</name>
+            <name>Y_tail_up</name>
             <description>Wing from openVSP</description>
-            <transformation uID="Y tail(Up)_Tr">
-              <scaling uID="Y tail(Up)_Tr_Scal">
+            <transformation uID="Y_tail_up_Tr">
+              <scaling uID="Y_tail_up_Tr_Scal">
                 <x>1.0</x>
                 <y>1.0</y>
                 <z>1.0</z>
               </scaling>
-              <rotation uID="Y tail(Up)_Tr_Rot">
+              <rotation uID="Y_tail_up_Tr_Rot">
                 <x>0.0</x>
                 <y>0.0</y>
                 <z>0.0</z>
               </rotation>
-              <translation uID="Y tail(Up)_Tr_Transl" refType="absGlobal">
+              <translation uID="Y_tail_up_Tr_Transl" refType="absGlobal">
                 <x>8.3</x>
                 <y>0.0</y>
                 <z>0.10000000000000009</z>
               </translation>
             </transformation>
             <sections>
-              <section uID="Y tail(Up)Sec0">
-                <name>Y tail(Up)Sec0</name>
-                <transformation uID="Y tail(Up)Sec0_Tr">
-                  <scaling uID="Y tail(Up)Sec0_Tr_Scal">
+              <section uID="Y_tail_upSec0">
+                <name>Y_tail_upSec0</name>
+                <transformation uID="Y_tail_upSec0_Tr">
+                  <scaling uID="Y_tail_upSec0_Tr_Scal">
                     <x>1.37</x>
                     <y>1.0</y>
                     <z>1.37</z>
                   </scaling>
-                  <rotation uID="Y tail(Up)Sec0_Tr_Rot">
+                  <rotation uID="Y_tail_upSec0_Tr_Rot">
                     <x>0.0</x>
                     <y>0.0</y>
                     <z>0.0</z>
                   </rotation>
-                  <translation uID="Y tail(Up)Sec0_Tr_Transl" refType="absGlobal">
+                  <translation uID="Y_tail_upSec0_Tr_Transl" refType="absGlobal">
                     <x>0.0</x>
                     <y>0.0</y>
                     <z>0.0</z>
                   </translation>
                 </transformation>
                 <elements>
-                  <element uID="Y tail(Up)Sec0Elem">
-                    <name>Y tail(Up)Sec0Elem</name>
-                    <airfoilUID>Y tail(Up)Sec0_</airfoilUID>
-                    <transformation uID="Y tail(Up)Sec0Elem_Tr">
-                      <scaling uID="Y tail(Up)Sec0Elem_Tr_Scal">
+                  <element uID="Y_tail_upSec0Elem">
+                    <name>Y_tail_upSec0Elem</name>
+                    <airfoilUID>Y_tail_upSec0_</airfoilUID>
+                    <transformation uID="Y_tail_upSec0Elem_Tr">
+                      <scaling uID="Y_tail_upSec0Elem_Tr_Scal">
                         <x>1.0</x>
                         <y>1.0</y>
                         <z>1.0</z>
                       </scaling>
-                      <rotation uID="Y tail(Up)Sec0Elem_Tr_Rot">
+                      <rotation uID="Y_tail_upSec0Elem_Tr_Rot">
                         <x>0.0</x>
                         <y>0.0</y>
                         <z>0.0</z>
                       </rotation>
-                      <translation uID="Y tail(Up)Sec0Elem_Tr_Transl" refType="absGlobal">
+                      <translation uID="Y_tail_upSec0Elem_Tr_Transl" refType="absGlobal">
                         <x>0.0</x>
                         <y>0.0</y>
                         <z>0.0</z>
@@ -922,41 +922,41 @@
                   </element>
                 </elements>
               </section>
-              <section uID="Y tail(Up)Sec1">
-                <name>Y tail(Up)Sec1</name>
-                <transformation uID="Y tail(Up)Sec1_Tr">
-                  <scaling uID="Y tail(Up)Sec1_Tr_Scal">
+              <section uID="Y_tail_upSec1">
+                <name>Y_tail_upSec1</name>
+                <transformation uID="Y_tail_upSec1_Tr">
+                  <scaling uID="Y_tail_upSec1_Tr_Scal">
                     <x>0.67</x>
                     <y>1.0</y>
                     <z>0.67</z>
                   </scaling>
-                  <rotation uID="Y tail(Up)Sec1_Tr_Rot">
+                  <rotation uID="Y_tail_upSec1_Tr_Rot">
                     <x>0.0</x>
                     <y>0.0</y>
                     <z>0.0</z>
                   </rotation>
-                  <translation uID="Y tail(Up)Sec1_Tr_Transl" refType="absGlobal">
+                  <translation uID="Y_tail_upSec1_Tr_Transl" refType="absGlobal">
                     <x>0.0</x>
                     <y>0.0</y>
                     <z>0.0</z>
                   </translation>
                 </transformation>
                 <elements>
-                  <element uID="Y tail(Up)Sec1Elem">
-                    <name>Y tail(Up)Sec1Elem</name>
-                    <airfoilUID>Y tail(Up)Sec1_</airfoilUID>
-                    <transformation uID="Y tail(Up)Sec1Elem_Tr">
-                      <scaling uID="Y tail(Up)Sec1Elem_Tr_Scal">
+                  <element uID="Y_tail_upSec1Elem">
+                    <name>Y_tail_upSec1Elem</name>
+                    <airfoilUID>Y_tail_upSec1_</airfoilUID>
+                    <transformation uID="Y_tail_upSec1Elem_Tr">
+                      <scaling uID="Y_tail_upSec1Elem_Tr_Scal">
                         <x>1.0</x>
                         <y>1.0</y>
                         <z>1.0</z>
                       </scaling>
-                      <rotation uID="Y tail(Up)Sec1Elem_Tr_Rot">
+                      <rotation uID="Y_tail_upSec1Elem_Tr_Rot">
                         <x>0.0</x>
                         <y>0.0</y>
                         <z>0.0</z>
                       </rotation>
-                      <translation uID="Y tail(Up)Sec1Elem_Tr_Transl" refType="absGlobal">
+                      <translation uID="Y_tail_upSec1Elem_Tr_Transl" refType="absGlobal">
                         <x>0.0</x>
                         <y>0.0</y>
                         <z>0.0</z>
@@ -967,87 +967,87 @@
               </section>
             </sections>
             <positionings>
-              <positioning uID="Y tail(Up)Sec0GenPos">
-                <name>Y tail(Up)Sec0GenPos</name>
+              <positioning uID="Y_tail_upSec0GenPos">
+                <name>Y_tail_upSec0GenPos</name>
                 <length>0</length>
                 <sweepAngle>0</sweepAngle>
                 <dihedralAngle>0</dihedralAngle>
-                <toSectionUID>Y tail(Up)Sec0</toSectionUID>
+                <toSectionUID>Y_tail_upSec0</toSectionUID>
               </positioning>
-              <positioning uID="Y tail(Up)Sec1GenPos">
-                <name>Y tail(Up)Sec1GenPos</name>
+              <positioning uID="Y_tail_upSec1GenPos">
+                <name>Y_tail_upSec1GenPos</name>
                 <length>4.243361225519695</length>
                 <sweepAngle>12.0</sweepAngle>
                 <dihedralAngle>35.0</dihedralAngle>
-                <fromSectionUID>Y tail(Up)Sec0</fromSectionUID>
-                <toSectionUID>Y tail(Up)Sec1</toSectionUID>
+                <fromSectionUID>Y_tail_upSec0</fromSectionUID>
+                <toSectionUID>Y_tail_upSec1</toSectionUID>
               </positioning>
             </positionings>
             <segments>
-              <segment uID="Y tail(Up)Seg1">
-                <name>Y tail(Up)Seg1</name>
-                <fromElementUID>Y tail(Up)Sec0Elem</fromElementUID>
-                <toElementUID>Y tail(Up)Sec1Elem</toElementUID>
+              <segment uID="Y_tail_upSeg1">
+                <name>Y_tail_upSeg1</name>
+                <fromElementUID>Y_tail_upSec0Elem</fromElementUID>
+                <toElementUID>Y_tail_upSec1Elem</toElementUID>
               </segment>
             </segments>
           </wing>
-          <wing uID="Y tail(bottom)" symmetry=" ">
-            <parentUID>Y tail(Up)</parentUID>
-            <name>Y tail(bottom)</name>
+          <wing uID="Y_tail_bottom" symmetry=" ">
+            <parentUID>Y_tail_up</parentUID>
+            <name>Y_tail_bottom</name>
             <description>Wing from openVSP</description>
-            <transformation uID="Y tail(bottom)_Tr">
-              <scaling uID="Y tail(bottom)_Tr_Scal">
+            <transformation uID="Y_tail_bottom_Tr">
+              <scaling uID="Y_tail_bottom_Tr_Scal">
                 <x>1.0</x>
                 <y>1.0</y>
                 <z>1.0</z>
               </scaling>
-              <rotation uID="Y tail(bottom)_Tr_Rot">
+              <rotation uID="Y_tail_bottom_Tr_Rot">
                 <x>-90.0</x>
                 <y>0.0</y>
                 <z>0.0</z>
               </rotation>
-              <translation uID="Y tail(bottom)_Tr_Transl" refType="absGlobal">
+              <translation uID="Y_tail_bottom_Tr_Transl" refType="absGlobal">
                 <x>8.25</x>
                 <y>0.0</y>
                 <z>0.0</z>
               </translation>
             </transformation>
             <sections>
-              <section uID="Y tail(bottom)Sec0">
-                <name>Y tail(bottom)Sec0</name>
-                <transformation uID="Y tail(bottom)Sec0_Tr">
-                  <scaling uID="Y tail(bottom)Sec0_Tr_Scal">
+              <section uID="Y_tail_bottomSec0">
+                <name>Y_tail_bottomSec0</name>
+                <transformation uID="Y_tail_bottomSec0_Tr">
+                  <scaling uID="Y_tail_bottomSec0_Tr_Scal">
                     <x>1.35</x>
                     <y>1.0</y>
                     <z>1.35</z>
                   </scaling>
-                  <rotation uID="Y tail(bottom)Sec0_Tr_Rot">
+                  <rotation uID="Y_tail_bottomSec0_Tr_Rot">
                     <x>0.0</x>
                     <y>0.0</y>
                     <z>0.0</z>
                   </rotation>
-                  <translation uID="Y tail(bottom)Sec0_Tr_Transl" refType="absGlobal">
+                  <translation uID="Y_tail_bottomSec0_Tr_Transl" refType="absGlobal">
                     <x>0.0</x>
                     <y>0.0</y>
                     <z>0.0</z>
                   </translation>
                 </transformation>
                 <elements>
-                  <element uID="Y tail(bottom)Sec0Elem">
-                    <name>Y tail(bottom)Sec0Elem</name>
-                    <airfoilUID>Y tail(bottom)Sec0_</airfoilUID>
-                    <transformation uID="Y tail(bottom)Sec0Elem_Tr">
-                      <scaling uID="Y tail(bottom)Sec0Elem_Tr_Scal">
+                  <element uID="Y_tail_bottomSec0Elem">
+                    <name>Y_tail_bottomSec0Elem</name>
+                    <airfoilUID>Y_tail_bottomSec0_</airfoilUID>
+                    <transformation uID="Y_tail_bottomSec0Elem_Tr">
+                      <scaling uID="Y_tail_bottomSec0Elem_Tr_Scal">
                         <x>1.0</x>
                         <y>1.0</y>
                         <z>1.0</z>
                       </scaling>
-                      <rotation uID="Y tail(bottom)Sec0Elem_Tr_Rot">
+                      <rotation uID="Y_tail_bottomSec0Elem_Tr_Rot">
                         <x>0.0</x>
                         <y>0.0</y>
                         <z>0.0</z>
                       </rotation>
-                      <translation uID="Y tail(bottom)Sec0Elem_Tr_Transl" refType="absGlobal">
+                      <translation uID="Y_tail_bottomSec0Elem_Tr_Transl" refType="absGlobal">
                         <x>0.0</x>
                         <y>0.0</y>
                         <z>0.0</z>
@@ -1056,41 +1056,41 @@
                   </element>
                 </elements>
               </section>
-              <section uID="Y tail(bottom)Sec1">
-                <name>Y tail(bottom)Sec1</name>
-                <transformation uID="Y tail(bottom)Sec1_Tr">
-                  <scaling uID="Y tail(bottom)Sec1_Tr_Scal">
+              <section uID="Y_tail_bottomSec1">
+                <name>Y_tail_bottomSec1</name>
+                <transformation uID="Y_tail_bottomSec1_Tr">
+                  <scaling uID="Y_tail_bottomSec1_Tr_Scal">
                     <x>0.71</x>
                     <y>1.0</y>
                     <z>0.71</z>
                   </scaling>
-                  <rotation uID="Y tail(bottom)Sec1_Tr_Rot">
+                  <rotation uID="Y_tail_bottomSec1_Tr_Rot">
                     <x>0.0</x>
                     <y>0.0</y>
                     <z>0.0</z>
                   </rotation>
-                  <translation uID="Y tail(bottom)Sec1_Tr_Transl" refType="absGlobal">
+                  <translation uID="Y_tail_bottomSec1_Tr_Transl" refType="absGlobal">
                     <x>0.0</x>
                     <y>0.0</y>
                     <z>0.0</z>
                   </translation>
                 </transformation>
                 <elements>
-                  <element uID="Y tail(bottom)Sec1Elem">
-                    <name>Y tail(bottom)Sec1Elem</name>
-                    <airfoilUID>Y tail(bottom)Sec1_</airfoilUID>
-                    <transformation uID="Y tail(bottom)Sec1Elem_Tr">
-                      <scaling uID="Y tail(bottom)Sec1Elem_Tr_Scal">
+                  <element uID="Y_tail_bottomSec1Elem">
+                    <name>Y_tail_bottomSec1Elem</name>
+                    <airfoilUID>Y_tail_bottomSec1_</airfoilUID>
+                    <transformation uID="Y_tail_bottomSec1Elem_Tr">
+                      <scaling uID="Y_tail_bottomSec1Elem_Tr_Scal">
                         <x>1.0</x>
                         <y>1.0</y>
                         <z>1.0</z>
                       </scaling>
-                      <rotation uID="Y tail(bottom)Sec1Elem_Tr_Rot">
+                      <rotation uID="Y_tail_bottomSec1Elem_Tr_Rot">
                         <x>0.0</x>
                         <y>0.0</y>
                         <z>0.0</z>
                       </rotation>
-                      <translation uID="Y tail(bottom)Sec1Elem_Tr_Transl" refType="absGlobal">
+                      <translation uID="Y_tail_bottomSec1Elem_Tr_Transl" refType="absGlobal">
                         <x>0.0</x>
                         <y>0.0</y>
                         <z>0.0</z>
@@ -1101,27 +1101,27 @@
               </section>
             </sections>
             <positionings>
-              <positioning uID="Y tail(bottom)Sec0GenPos">
-                <name>Y tail(bottom)Sec0GenPos</name>
+              <positioning uID="Y_tail_bottomSec0GenPos">
+                <name>Y_tail_bottomSec0GenPos</name>
                 <length>0</length>
                 <sweepAngle>0</sweepAngle>
                 <dihedralAngle>0</dihedralAngle>
-                <toSectionUID>Y tail(bottom)Sec0</toSectionUID>
+                <toSectionUID>Y_tail_bottomSec0</toSectionUID>
               </positioning>
-              <positioning uID="Y tail(bottom)Sec1GenPos">
-                <name>Y tail(bottom)Sec1GenPos</name>
+              <positioning uID="Y_tail_bottomSec1GenPos">
+                <name>Y_tail_bottomSec1GenPos</name>
                 <length>1.302455558292395</length>
                 <sweepAngle>28.0</sweepAngle>
                 <dihedralAngle>0.0</dihedralAngle>
-                <fromSectionUID>Y tail(bottom)Sec0</fromSectionUID>
-                <toSectionUID>Y tail(bottom)Sec1</toSectionUID>
+                <fromSectionUID>Y_tail_bottomSec0</fromSectionUID>
+                <toSectionUID>Y_tail_bottomSec1</toSectionUID>
               </positioning>
             </positionings>
             <segments>
-              <segment uID="Y tail(bottom)Seg1">
-                <name>Y tail(bottom)Seg1</name>
-                <fromElementUID>Y tail(bottom)Sec0Elem</fromElementUID>
-                <toElementUID>Y tail(bottom)Sec1Elem</toElementUID>
+              <segment uID="Y_tail_bottomSeg1">
+                <name>Y_tail_bottomSeg1</name>
+                <fromElementUID>Y_tail_bottomSec0Elem</fromElementUID>
+                <toElementUID>Y_tail_bottomSec1Elem</toElementUID>
               </segment>
             </segments>
           </wing>
@@ -1255,32 +1255,32 @@
             <z mapType="vector">-0.001;-0.00018158;0.00097224;0.00239619;0.00406116;0.00589183;0.00778419;0.00964981;0.01143161;0.01309789;0.01463746;0.01604352;0.017308;0.01842458;0.01939172;0.02021561;0.02089394;0.02141794;0.02178397;0.02199074;0.02203906;0.02192452;0.02163921;0.0211792;0.02054322;0.01973341;0.01874941;0.01758869;0.01625178;0.01474834;0.01310532;0.01136343;0.0095671;0.00774861;0.00593662;0.00415159;0.00240554;0.0007067;-0.00093981;-0.00253194;-0.00406969;-0.00555223;-0.00697912;-0.00835285;-0.00967277;-0.01093637;-0.01214684;-0.01330488;-0.01440838;-0.015462;-0.01646909;-0.01742827;-0.01833924;-0.01920229;-0.02001719;-0.02077978;-0.02148728;-0.02214213;-0.02274312;-0.02328894;-0.02378158;-0.02421885;-0.02459764;-0.02491931;-0.02518142;-0.02537946;-0.02551249;-0.02557742;-0.02556909;-0.0254846;-0.02531987;-0.02506868;-0.02472478;-0.02428045;-0.02372529;-0.02305172;-0.02225558;-0.02133612;-0.02029954;-0.01916684;-0.01797535;-0.01677465;-0.01560011;-0.0144777;-0.01340975;-0.01239072;-0.01140871;-0.01045261;-0.0095091;-0.00856353;-0.00759935;-0.00659798;-0.00552826;-0.00435697;-0.00307743;-0.00171358;-0.00032651;-0.00032651;0.00108229;0.00253723;0.00405664;0.00566208;0.00737028;0.00919023;0.011133;0.01321874;0.01547701;0.01794382;0.02065826;0.02365918;0.02698676;0.03067736;0.03474183;0.0391611;0.0438762;0.04879325;0.05381791;0.05886122;0.06385475;0.06875051;0.07351942;0.07814436;0.08261561;0.08692866;0.09108104;0.09507152;0.09890105;0.10257215;0.10608565;0.10944165;0.11264176;0.11568777;0.11858207;0.12132617;0.12392118;0.12636748;0.12866708;0.13082268;0.13283309;0.1346961;0.1364117;0.1379799;0.1394003;0.14067101;0.1417907;0.142761;0.14358041;0.14424691;0.14476001;0.14511912;0.14532211;0.14536601;0.14524791;0.14496781;0.14452641;0.14392371;0.14315861;0.14222921;0.1411339;0.13987031;0.138434;0.1368227;0.13503589;0.13307059;0.13092559;0.12860509;0.12611129;0.12344378;0.12060617;0.11760247;0.11443397;0.11111366;0.10765745;0.10406255;0.10032565;0.09645239;0.09244747;0.0883202;0.08409112;0.07977262;0.07537562;0.07092307;0.06642394;0.06188656;0.05734633;0.05283072;0.04834901;0.04391423;0.03954335;0.03524926;0.03103361;0.02689426;0.02284699;0.0189301;0.01517546;0.01163444;0.00848328;0.00587132;0.00377942;0.00213961;-0.001</z>
           </pointList>
         </wingAirfoil>
-        <wingAirfoil uID="Y tail(Up)Sec0_">
-          <name>Y tail(Up)Sec0_</name>
+        <wingAirfoil uID="Y_tail_upSec0_">
+          <name>Y_tail_upSec0_</name>
           <pointList>
             <x mapType="vector">1.;0.94999999;0.89999998;0.80000001;0.69999999;0.60000002;0.5;0.40000001;0.30000001;0.2;0.15000001;0.1;0.075;0.05;0.025;0.0125;0.;0.0125;0.025;0.05;0.075;0.1;0.15000001;0.2;0.30000001;0.40000001;0.5;0.60000002;0.69999999;0.80000001;0.89999998;0.94999999;1.</x>
             <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
             <z mapType="vector">-0.0012;-0.01027;-0.01867;-0.0332;-0.0448;-0.0532;-0.05827;-0.06;-0.058;-0.05093;-0.04493;-0.03653;-0.03133;-0.02493;-0.0168;-0.01133;0.;0.01133;0.0168;0.02493;0.03133;0.03653;0.04493;0.05093;0.058;0.06;0.05827;0.0532;0.0448;0.0332;0.01867;0.01027;-0.0012</z>
           </pointList>
         </wingAirfoil>
-        <wingAirfoil uID="Y tail(Up)Sec1_">
-          <name>Y tail(Up)Sec1_</name>
+        <wingAirfoil uID="Y_tail_upSec1_">
+          <name>Y_tail_upSec1_</name>
           <pointList>
             <x mapType="vector">1.;0.94999999;0.89999998;0.80000001;0.69999999;0.60000002;0.5;0.40000001;0.30000001;0.2;0.15000001;0.1;0.075;0.05;0.025;0.0125;0.;0.0125;0.025;0.05;0.075;0.1;0.15000001;0.2;0.30000001;0.40000001;0.5;0.60000002;0.69999999;0.80000001;0.89999998;0.94999999;1.</x>
             <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
             <z mapType="vector">-0.0012;-0.01027;-0.01867;-0.0332;-0.0448;-0.0532;-0.05827;-0.06;-0.058;-0.05093;-0.04493;-0.03653;-0.03133;-0.02493;-0.0168;-0.01133;0.;0.01133;0.0168;0.02493;0.03133;0.03653;0.04493;0.05093;0.058;0.06;0.05827;0.0532;0.0448;0.0332;0.01867;0.01027;-0.0012</z>
           </pointList>
         </wingAirfoil>
-        <wingAirfoil uID="Y tail(bottom)Sec0_">
-          <name>Y tail(bottom)Sec0_</name>
+        <wingAirfoil uID="Y_tail_bottomSec0_">
+          <name>Y_tail_bottomSec0_</name>
           <pointList>
             <x mapType="vector">1.;0.94999999;0.89999998;0.80000001;0.69999999;0.60000002;0.5;0.40000001;0.30000001;0.2;0.15000001;0.1;0.075;0.05;0.025;0.0125;0.;0.0125;0.025;0.05;0.075;0.1;0.15000001;0.2;0.30000001;0.40000001;0.5;0.60000002;0.69999999;0.80000001;0.89999998;0.94999999;1.</x>
             <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
             <z mapType="vector">-0.0012;-0.01027;-0.01867;-0.0332;-0.0448;-0.0532;-0.05827;-0.06;-0.058;-0.05093;-0.04493;-0.03653;-0.03133;-0.02493;-0.0168;-0.01133;0.;0.01133;0.0168;0.02493;0.03133;0.03653;0.04493;0.05093;0.058;0.06;0.05827;0.0532;0.0448;0.0332;0.01867;0.01027;-0.0012</z>
           </pointList>
         </wingAirfoil>
-        <wingAirfoil uID="Y tail(bottom)Sec1_">
-          <name>Y tail(bottom)Sec1_</name>
+        <wingAirfoil uID="Y_tail_bottomSec1_">
+          <name>Y_tail_bottomSec1_</name>
           <pointList>
             <x mapType="vector">1.;0.94999999;0.89999998;0.80000001;0.69999999;0.60000002;0.5;0.40000001;0.30000001;0.2;0.15000001;0.1;0.075;0.05;0.025;0.0125;0.;0.0125;0.025;0.05;0.075;0.1;0.15000001;0.2;0.30000001;0.40000001;0.5;0.60000002;0.69999999;0.80000001;0.89999998;0.94999999;1.</x>
             <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>

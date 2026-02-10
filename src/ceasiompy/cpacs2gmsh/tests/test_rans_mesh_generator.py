@@ -69,7 +69,7 @@ def test_generate_rans_mesh():
         mesh_size_engines=0.2,
         mesh_size_propellers=0.2,
         auto_refine=False,
-        farfield_size_factor=10,
+        farfield_mesh_size=10,
         symmetry=False,
     )
 

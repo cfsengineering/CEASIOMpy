@@ -24,7 +24,6 @@ from streamlitutils import (
 )
 
 from pathlib import Path
-from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.workflowclasses import Workflow
 from typing import (
     Final,

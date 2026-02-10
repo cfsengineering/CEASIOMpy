@@ -74,61 +74,6 @@ def lh_sampling_geom(
     })
 
 
-def new_points(
-    x_array: ndarray,
-    model,
-    results_dir: Path,
-    high_var_pts: list,
-) -> DataFrame | None:
-    """
-    Selects new sampling points based on variance predictions from a surrogate model.
-
-    This function identifies high-variance points from the `level_1` dataset for adaptive sampling.
-    In the first iteration, it selects the top 6 points with the highest variance. In subsequent
-    iterations, it picks the next highest variance point not previously selected.
-
-    Args:
-        datasets (dict): Contains different fidelity datasets (expects 'level_1').
-        model (object): Surrogate model used to predict variance.
-        result_dir (Path): Directory where the selected points CSV file will be saved.
-        high_variance_points (list): list of previously selected high-variance points.
-
-    Returns:
-        DataFrame containing the newly selected points.
-        Or None if all high-variance points have already been chosen.
-    """
-
-    # Compute variance prediction
-    y_var_flat = np.asarray(model.predict_variances(x_array)).flatten()
-    sorted_indices = np.argsort(y_var_flat)[::-1]  # Sort indices by variance (descending)
-
-    # First iteration: generate boundary points
-    output_file_path = results_dir / "new_points.csv"
-    if not high_var_pts:
-        log.info("First iteration: selecting the first 7 highest variance points.")
-        selected_points = [tuple(x_array[idx]) for idx in sorted_indices[:7]]
-        high_var_pts.extend(selected_points)
-        sampled_df = DataFrame(selected_points, columns=AEROMAP_FEATURES)
-        sampled_df.to_csv(output_file_path, index=False)
-        return sampled_df
-
-    log.info("Selecting next highest variance point.")
-
-    # Convert list of points to a set for fast lookup
-    high_variance_set = set(tuple(p) for p in high_var_pts)
-
-    for idx in sorted_indices:
-        new_point = tuple(x_array[idx])
-        if new_point not in high_variance_set:
-            high_var_pts.append(new_point)
-            sampled_df = DataFrame([new_point], columns=AEROMAP_FEATURES)
-            sampled_df.to_csv(output_file_path, index=False)
-            return sampled_df
-
-    log.warning("No new points found, all have been selected.")
-    return None
-
-
 def get_high_variance_points(
     model: KRG | MFK,
     level1_split: DataSplit,

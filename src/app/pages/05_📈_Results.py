@@ -48,18 +48,21 @@ HOW_TO_TEXT = (
 )
 
 PAGE_NAME = "Results"
-IGNORED_RESULT_FILES: set[str] = {
-    # AVL
+
+# Results we DO NOT show
+IGNORED_RESULTS: set[str] = {
+    # pyavl
     "avl_commands.txt",
     "logfile_avl.log",
 
-    # SU2
+    # su2run
     "restart_flow.dat",
-    "rmse_RBF.csv",
-    "rmse_KRG.csv",
-    "New_CPACS",
-    "Validation_plot_RBF",
-    "Validation_plot_KRG",
+}
+
+DISPLAYED_RESULTS: set[str] = {
+    # smtrain
+    "computations",
+    "generated_cpacs",
 }
 
 
@@ -153,7 +156,7 @@ def display_results(results_dir):
     clear_containers(container_list)
 
     for child in sorted(Path(results_dir).iterdir(), key=_results_sort_key):
-        if child.name in IGNORED_RESULT_FILES:
+        if child.name in IGNORED_RESULTS:
             continue
         try:
             if child.suffix == ".dat":
@@ -193,10 +196,12 @@ def display_results(results_dir):
                 _display_html(child)
 
             elif child.is_dir():
+                # Toggle Off if computations directory
+                value = False if child.name in DISPLAYED_RESULTS else True
                 with st.container(border=True):
                     show_dir = st.checkbox(
                         f"**{child.stem}**",
-                        value=True,
+                        value=value,
                         key=f"{child}_dir_toggle",
                     )
                     if show_dir:

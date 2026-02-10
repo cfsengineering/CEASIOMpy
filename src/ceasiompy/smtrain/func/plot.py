@@ -91,7 +91,7 @@ def plot_validation(
         color="blue",
     )
     log.info(f"{typename} (Level 1): {rmse_level1=}")
-    title_rmse = f"RMSE L1: {rmse_level1}"
+    title_rmse = f"RMSE (level 1): {rmse_level1}"
 
     if level2_split is not None:
         rmse_level2 = _add_split_trace(
@@ -102,7 +102,7 @@ def plot_validation(
             color="orange",
         )
         log.info(f"{typename} (Level 2): {rmse_level2=}")
-        title_rmse += f", RMSE L2: {rmse_level2}"
+        title_rmse += f", RMSE (level 2): {rmse_level2}"
 
     fig.add_trace(
         Scatter(

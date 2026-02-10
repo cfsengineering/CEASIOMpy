@@ -9,14 +9,15 @@ More details at: https://web.mit.edu/drela/Public/web/avl/AVL_User_Primer.pdf.
 """
 
 # Imports
+import os
 
 from pydantic import validate_call
 from cpacspy.cpacsfunctions import get_value
+from ceasiompy.utils.mathsfunctions import non_dimensionalize_rate
 from ceasiompy.utils.ceasiompyutils import (
     has_display,
     get_selected_aeromap_values,
 )
-from ceasiompy.utils.mathsfunctions import non_dimensionalize_rate
 from ceasiompy.pyavl.func.utils import (
     get_atmospheric_cond,
     practical_limit_rate_check,
@@ -31,13 +32,13 @@ from ceasiompy import (
     log,
     ceasiompy_cfg,
 )
-from ceasiompy.pyavl import MODULE_DIR
 from ceasiompy.pyavl.func import FORCE_FILES
 from ceasiompy.utils.commonxpaths import (
     AREA_XPATH,
     LENGTH_XPATH,
 )
 from ceasiompy.pyavl import (
+    MODULE_DIR,
     AVL_ROTRATES_XPATH,
     # AVL_EXPAND_VALUES_XPATH,
     AVL_CTRLSURF_ANGLES_XPATH,
@@ -149,16 +150,19 @@ def write_command_file(
 
     Returns:
         (Path): Path to the command file.
-
     """
 
     command_path = str(case_dir_path) + "/avl_commands.txt"
+
+    avl_path = Path(avl_path).resolve()
+    case_dir_path = Path(case_dir_path).resolve()
+    avl_path_for_cmd = Path(os.path.relpath(avl_path, case_dir_path))
 
     # Retrieve template file for mass
     mass_path = Path(MODULE_DIR, "files", "template.mass")
 
     command = [
-        "load " + str(avl_path) + "\n",
+        "load " + str(avl_path_for_cmd) + "\n",
         "mass " + str(mass_path) + "\n",
         "oper\n",
         "a a " + str(alpha) + "\n",

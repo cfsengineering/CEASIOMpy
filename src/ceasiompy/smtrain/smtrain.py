@@ -161,11 +161,14 @@ def _geometry_exploration(
     low_fidelity_dir = results_dir / "low_fidelity"
     low_fidelity_dir.mkdir(parents=True, exist_ok=True)
 
+    low_computations_dir = low_fidelity_dir / "computations"
+    low_computations_dir.mkdir(parents=True, exist_ok=True)
+
     # Low Fidelity First (+ Always available by default)
     level1_df: DataFrame = run_first_level_simulations(
         cpacs_list=cpacs_list,
         lh_sampling=lh_sampling,
-        results_dir=low_fidelity_dir,
+        results_dir=low_computations_dir,
         training_settings=training_settings,
     )
 

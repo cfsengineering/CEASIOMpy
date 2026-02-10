@@ -72,7 +72,7 @@ def generate_2d_mesh_for_pentagrow(
     wing_mesh_size: float = 0.5,
     mesh_size_engines: float = 0.23,
     mesh_size_propellers: float = 0.23,
-    farfield_size_factor: float = 10,
+    farfield_mesh_size: float = 10,
     symmetry=False,
 ):
     """
@@ -345,8 +345,8 @@ def generate_2d_mesh_for_pentagrow(
         final_domain_volume_tag = gmsh.model.occ.getEntities(3)[0][1]
 
         # Set mesh size and color of the farfield
-        h_max_model = max(wing_maxlen, fuselage_maxlen)
-        mesh_size_farfield = h_max_model * farfield_size_factor
+        # h_max_model = max(wing_maxlen, fuselage_maxlen)
+        # mesh_size_farfield = h_max_model * farfield_size_factor
 
         # Refine surfaces that are small and with really few triangles, to get more
         # precision in their shapes
@@ -354,7 +354,7 @@ def generate_2d_mesh_for_pentagrow(
             refined_surfaces, mesh_fields = refine_small_surfaces(
                 mesh_fields,
                 part,
-                mesh_size_farfield,
+                farfield_mesh_size,
                 max(model_dimensions),
                 [final_domain_volume_tag],
                 nb_min_triangle=75,

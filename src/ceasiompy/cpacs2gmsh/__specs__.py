@@ -83,8 +83,8 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             tixi=tixi,
             xpath=GMSH_FARFIELD_SIZE_FACTOR_XPATH,
             default_value=10.0,
-            name="Farfield size factor",
-            key="farfield_size_factor",
+            name="Farfield size",
+            key="farfield_size",
             description="Farfield size factor compare to the aircraft largest dimension.",
         )
 

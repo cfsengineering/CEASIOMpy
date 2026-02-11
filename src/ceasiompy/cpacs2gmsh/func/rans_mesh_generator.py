@@ -23,6 +23,7 @@ import random
 from ceasiompy.cpacs2gmsh.func.mesh_sizing import fuselage_size
 from ceasiompy.cpacs2gmsh.func.utils import (
     check_path,
+    initialize_gmsh,
     load_rans_cgf_params,
 )
 from ceasiompy.cpacs2gmsh.func.wingclassification import (
@@ -69,10 +70,10 @@ def generate_2d_mesh_for_pentagrow(
     auto_refine: bool = False,
     n_power_factor: float = 2,
     fuselage_mesh_size: float = 1,
-    wing_mesh_size_factor: float = 0.5,
+    wing_mesh_size: float = 0.5,
     mesh_size_engines: float = 0.23,
     mesh_size_propellers: float = 0.23,
-    farfield_size_factor: float = 10,
+    farfield_mesh_size: float = 10,
     symmetry=False,
 ):
     """
@@ -104,11 +105,9 @@ def generate_2d_mesh_for_pentagrow(
         Power of how much refinement on the le and te (and for now in the
         "refine acute angle" as well)
     fuselage_mesh_size : float
-        Factor of the fuselage mesh size : the mesh size will be the mean
-        fuselage width divided by this factor
-    wing_mesh_size_factor : float
-        Factor of the wing mesh size : the mesh size will be the mean
-        fuselage width divided by this factor
+        Cell size on the fuselage (if any)
+    wing_mesh_size : float
+        Cell size on the wings (if any)
     mesh_size_engines : float
         Size of the engines mesh
     mesh_size_propellers : float
@@ -134,12 +133,8 @@ def generate_2d_mesh_for_pentagrow(
     brep_files = list(brep_dir.glob("*.brep"))
     brep_files.sort()
 
-    # Initialize gmsh
-    gmsh.initialize()
-    # Stop gmsh output log in the terminal
-    gmsh.option.setNumber("General.Terminal", 0)
-    # Log complexity
-    gmsh.option.setNumber("General.Verbosity", 5)
+    # Initialize gmsh (with a clean session on each run).
+    initialize_gmsh()
 
     log.info(f"Importing files from {brep_dir}")
 
@@ -234,19 +229,16 @@ def generate_2d_mesh_for_pentagrow(
 
     # Store the computed value of mesh size to use later
     mesh_size_by_group = {}
-    mesh_size_by_group["fuselage"] = (
-        (fuselage_maxlen + fuselage_minlen) / 2
-    ) / fuselage_mesh_size
-    mesh_size_by_group["wing"] = ((wing_maxlen * 0.8 + wing_minlen) / 2) / wing_mesh_size_factor
+    mesh_size_by_group["fuselage"] = fuselage_mesh_size
+    mesh_size_by_group["wing"] = wing_mesh_size
     mesh_size_by_group["engine"] = mesh_size_engines
     mesh_size_by_group["rotor"] = mesh_size_propellers
     mesh_size_by_group["pylon"] = mesh_size_propellers
 
-    mesh_size_fuselage = mesh_size_by_group["fuselage"]
-    log.info(f"Mesh size fuselage={mesh_size_fuselage:.3f} m")
-    log.info(
-        f"Mesh size wing={((wing_maxlen * 0.8 + wing_minlen) / 2) / wing_mesh_size_factor:.3f} m"
-    )
+    # mesh_size_fuselage = mesh_size_by_group["fuselage"]
+    # log.info(f"Mesh size fuselage={mesh_size_fuselage:.3f} m")
+    log.info(f"Mesh size fuselage={fuselage_mesh_size:.3f} m")
+    log.info(f"Mesh size wing={wing_mesh_size:.3f} m")
     log.info(f"Mesh size engine={mesh_size_engines:.3f} m")
     log.info(f"Mesh size rotor={mesh_size_propellers:.3f} m")
 
@@ -350,8 +342,8 @@ def generate_2d_mesh_for_pentagrow(
         final_domain_volume_tag = gmsh.model.occ.getEntities(3)[0][1]
 
         # Set mesh size and color of the farfield
-        h_max_model = max(wing_maxlen, fuselage_maxlen)
-        mesh_size_farfield = h_max_model * farfield_size_factor
+        # h_max_model = max(wing_maxlen, fuselage_maxlen)
+        # mesh_size_farfield = h_max_model * farfield_size_factor
 
         # Refine surfaces that are small and with really few triangles, to get more
         # precision in their shapes
@@ -359,7 +351,7 @@ def generate_2d_mesh_for_pentagrow(
             refined_surfaces, mesh_fields = refine_small_surfaces(
                 mesh_fields,
                 part,
-                mesh_size_farfield,
+                farfield_mesh_size,
                 max(model_dimensions),
                 [final_domain_volume_tag],
                 nb_min_triangle=75,
@@ -472,6 +464,9 @@ def generate_2d_mesh_for_pentagrow(
     #     log.info(f"{output_stl=}")
     #     gmsh.write(str(output_stl))
     #     log.info(f"{fuselage_maxlen=}")
+
+    gmsh.clear()
+    gmsh.finalize()
 
     return gmesh_path, fuselage_maxlen
 

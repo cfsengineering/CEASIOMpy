@@ -25,13 +25,12 @@ from ceasiompy import log
 from ceasiompy.cpacs2gmsh import (
     GMSH_AUTO_REFINE_XPATH,
     GMSH_EXHAUST_PERCENT_XPATH,
-    GMSH_FARFIELD_FACTOR_XPATH,
+    GMSH_FARFIELD_SIZE_FACTOR_XPATH,
     GMSH_N_POWER_FACTOR_XPATH,
     GMSH_N_POWER_FIELD_XPATH,
     GMSH_INTAKE_PERCENT_XPATH,
-    GMSH_MESH_SIZE_FARFIELD_XPATH,
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
-    GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
+    GMSH_MESH_SIZE_WINGS_XPATH,
     GMSH_MESH_SIZE_ENGINES_XPATH,
     GMSH_MESH_SIZE_PROPELLERS_XPATH,
     GMSH_OPEN_GUI_XPATH,
@@ -176,8 +175,12 @@ def write_gmsh(results_dir: str, file: str) -> Path:
 
 
 def initialize_gmsh() -> None:
-    # Initialize gmsh
-    gmsh.initialize()
+    # Reset any stale model so each run starts clean.
+    # Avoid finalize() here: re-finalizing/re-initializing in embedded runtimes can be unstable.
+    if gmsh.isInitialized():
+        gmsh.clear()
+    else:
+        gmsh.initialize()
     # Stop gmsh output log in the terminal
     gmsh.option.setNumber("General.Terminal", 0)
     # Log complexity
@@ -244,10 +247,9 @@ def load_rans_cgf_params(
     }
 
 
-def retrieve_euler_gui_values(tixi: Tixi3) -> tuple[float, float]:
-    farfield_size_factor = get_value(tixi, GMSH_MESH_SIZE_FARFIELD_XPATH)
-    fuselage_mesh_size = get_value(tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH)
-    return farfield_size_factor, fuselage_mesh_size
+def retrieve_euler_gui_values(tixi: Tixi3) -> float:
+    farfield_size_factor = get_value(tixi, GMSH_FARFIELD_SIZE_FACTOR_XPATH)
+    return farfield_size_factor
 
 
 def retrieve_rans_gui_values(tixi: Tixi3):
@@ -281,12 +283,13 @@ def retrieve_general_gui_values(tixi: Tixi3):
     type_mesh = get_value(tixi, GMSH_MESH_TYPE_XPATH)
     symmetry = get_value(tixi, GMSH_SYMMETRY_XPATH)
 
-    farfield_factor = get_value(tixi, GMSH_FARFIELD_FACTOR_XPATH)
+    farfield_factor = get_value(tixi, GMSH_FARFIELD_SIZE_FACTOR_XPATH)
 
     n_power_factor = get_value(tixi, GMSH_N_POWER_FACTOR_XPATH)
     n_power_field = get_value(tixi, GMSH_N_POWER_FIELD_XPATH)
 
-    wing_mesh_size_factor = get_value(tixi, GMSH_MESH_SIZE_FACTOR_WINGS_XPATH)
+    fuselage_mesh_size = get_value(tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH)
+    wing_mesh_size = get_value(tixi, GMSH_MESH_SIZE_WINGS_XPATH)
 
     mesh_size_engines = get_value(tixi, GMSH_MESH_SIZE_ENGINES_XPATH)
     mesh_size_propellers = get_value(tixi, GMSH_MESH_SIZE_PROPELLERS_XPATH)
@@ -308,7 +311,8 @@ def retrieve_general_gui_values(tixi: Tixi3):
         farfield_factor,
         n_power_factor,
         n_power_field,
-        wing_mesh_size_factor,
+        fuselage_mesh_size,
+        wing_mesh_size,
         mesh_size_engines,
         mesh_size_propellers,
         refine_factor,

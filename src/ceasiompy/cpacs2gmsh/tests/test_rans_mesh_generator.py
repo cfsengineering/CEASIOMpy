@@ -65,11 +65,11 @@ def test_generate_rans_mesh():
         refine_truncated=True,
         refine_factor_angled_lines=1.5,
         fuselage_mesh_size=0.7,
-        wing_mesh_size_factor=0.8,
+        wing_mesh_size=0.8,
         mesh_size_engines=0.2,
         mesh_size_propellers=0.2,
         auto_refine=False,
-        farfield_size_factor=10,
+        farfield_mesh_size=10,
         symmetry=False,
     )
 

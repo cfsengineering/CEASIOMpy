@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Classes to run ceasiompy workflows
+Classes to run ceasiompy workflows.
 """
 
 # Imports
@@ -11,6 +11,7 @@ Classes to run ceasiompy workflows
 import os
 import shutil
 import importlib
+import traceback
 
 from ceasiompy.utils import get_wkdir
 from ceasiompy.utils.moduleinterfaces import get_module_list
@@ -18,7 +19,6 @@ from ceasiompy.utils.ceasiompylogger import add_to_runworkflow_history
 from ceasiompy.utils.ceasiompyutils import (
     run_module,
     change_working_dir,
-    current_workflow_dir,
     get_results_directory,
 )
 
@@ -146,7 +146,7 @@ class Workflow:
 
     def __init__(self) -> None:
         self.working_dir = get_wkdir()
-        self.workflow_dir = current_workflow_dir()
+        self.workflow_dir = None
         self.cpacs_in = Path(CPACS_FILES_PATH, "d150.xml").resolve()
         self.current_wkflow_dir = None
 
@@ -228,15 +228,31 @@ class Workflow:
 
         wkdir = self.working_dir
 
-        # Check index of the last workflow directory to set the next one
-        wkflow_list = [int(dir.stem.split("_")[-1]) for dir in wkdir.glob("Workflow_*")]
-        if wkflow_list:
-            wkflow_idx = str(max(wkflow_list) + 1).rjust(3, "0")
-        else:
-            wkflow_idx = "001"
+        # Reuse latest incomplete workflow (no Results folder), otherwise create next index.
+        workflow_dirs = []
+        for wkflow_dir in wkdir.glob("Workflow_*"):
+            if not wkflow_dir.is_dir():
+                continue
+            idx_str = wkflow_dir.stem.split("_")[-1]
+            if idx_str.isdigit():
+                workflow_dirs.append((int(idx_str), wkflow_dir))
 
-        self.current_wkflow_dir = Path.joinpath(wkdir, "Workflow_" + wkflow_idx)
-        self.current_wkflow_dir.mkdir()
+        if workflow_dirs:
+            last_idx, last_wkflow_dir = max(workflow_dirs, key=lambda item: item[0])
+            if not Path(last_wkflow_dir, "Results").is_dir():
+                self.current_wkflow_dir = last_wkflow_dir
+                for child in self.current_wkflow_dir.iterdir():
+                    if child.is_dir():
+                        shutil.rmtree(child)
+                    else:
+                        child.unlink()
+            else:
+                wkflow_idx = str(last_idx + 1).rjust(3, "0")
+                self.current_wkflow_dir = Path.joinpath(wkdir, "Workflow_" + wkflow_idx)
+                self.current_wkflow_dir.mkdir()
+        else:
+            self.current_wkflow_dir = Path.joinpath(wkdir, "Workflow_001")
+            self.current_wkflow_dir.mkdir()
 
         # Copy CPACS to the workflow dir
         if not self.cpacs_in.exists():
@@ -354,6 +370,12 @@ class Workflow:
                 except Exception as exc:
                     modules_status[idx]["status"] = "failed"
                     modules_status[idx]["error"] = str(exc)
+                    tb_frames = traceback.extract_tb(exc.__traceback__)
+                    if tb_frames:
+                        last_frame = tb_frames[-1]
+                        modules_status[idx]["error_location"] = (
+                            f"{last_frame.filename}:{last_frame.lineno}"
+                        )
                     if progress_callback is not None:
                         progress_callback(modules_status)
                     return None

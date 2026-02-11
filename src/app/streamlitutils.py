@@ -13,6 +13,7 @@ import re
 import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
+import streamlit.components.v1 as components
 
 from streamlit_float import float_init
 from assistant import get_assistant_response
@@ -92,6 +93,41 @@ def get_last_workflow():
         return None
 
     return Path(st.session_state.workflow.working_dir, f"Workflow_{last_workflow_nb:03}")
+
+
+def scoll_down() -> None:
+    scroll_nonce = int(st.session_state.get("_scroll_down_nonce", 0)) + 1
+    st.session_state._scroll_down_nonce = scroll_nonce
+
+    js = """
+    <script>
+        function scroll(){
+            const root = window.parent?.document;
+            if (!root) return;
+
+            const selectors = [
+                'section.main',
+                'section[data-testid="stMain"]',
+                'div[data-testid="stMain"]',
+                'div.main',
+                '[data-testid="stAppViewContainer"]'
+            ];
+
+            for (const selector of selectors) {
+                const target = root.querySelector(selector);
+                if (target) {
+                    target.scrollTop = target.scrollHeight;
+                    break;
+                }
+            }
+        }
+
+        requestAnimationFrame(scroll);
+    </script>
+    """
+    # Older Streamlit versions don't support `key` on components.html.
+    # Vary payload content so the component is re-sent on each call.
+    components.html(f"{js}<!-- scroll-nonce:{scroll_nonce} -->", height=0)
 
 
 def close_cpacs_handles(cpacs: CPACS | None, *, detach: bool = True) -> None:

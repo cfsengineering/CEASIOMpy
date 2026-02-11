@@ -10,7 +10,7 @@ Streamlit page to run a CEASIOMpy workflow.
 from __future__ import annotations
 
 # Imports
-
+import os
 import psutil
 import inspect
 import streamlit as st
@@ -18,13 +18,13 @@ import streamlit as st
 from html import escape
 from textwrap import dedent
 from streamlitutils import (
+    scoll_down,
     create_sidebar,
     save_cpacs_file,
     section_3D_view,
 )
 
 from pathlib import Path
-from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.workflowclasses import Workflow
 from typing import (
     Final,
@@ -274,13 +274,23 @@ def make_progress_callback(status_container) -> Callable[[list | None], None]:
 
             if has_failed:
                 errors = [
-                    f"- {item.get('name', 'Unknown')}: {item.get('error', 'Unknown error')}"
+                    (
+                        f"- {item.get('name', 'Unknown')}: "
+                        f"{item.get('error', 'Unknown error')}"
+                        f"""{' (' + item.get('error_location')
+                            + ')' if item.get('error_location') else ''}
+                        """
+                    )
                     for item in status_list
                     if item.get("status") == "failed"
                 ]
-                err_msg = "Workflow failed.\n" + "\n".join(errors)
+                err_msg = "Workflow failed.\n"
+                if os.environ.get("CEASIOMPY_CLOUD", "False").lower() not in {"1", "true", "yes"}:
+                    err_msg += "\n".join(errors)
+                log.error(f"{errors}")
                 st.markdown("---")
                 st.error(err_msg)
+                scoll_down()
             elif (
                 not solver_running
                 and finished
@@ -288,6 +298,7 @@ def make_progress_callback(status_container) -> Callable[[list | None], None]:
                 and st.session_state.get("workflow_has_completed", False)
             ):
                 st.info("Workflow finished running, go in results page for analysis.")
+                scoll_down()
 
     return _callback
 
@@ -376,12 +387,13 @@ def _run_workflow(
     st.session_state.workflow.write_config_file()
 
     working_dir = Path(st.session_state.workflow.working_dir)
-    workflow_idx = str(st.session_state.workflow.workflow_dir).split(sep="_")[1]
     config_path = Path(working_dir, "ceasiompy.cfg")
 
     workflow = Workflow()
     workflow.from_config_file(config_path)
     workflow.set_workflow()
+    st.session_state.workflow.workflow_dir = workflow.current_wkflow_dir
+    workflow_idx = workflow.current_wkflow_dir.name.split(sep="_")[1]
 
     # Lock user in this page
     lock_navigation()
@@ -404,7 +416,6 @@ def _run_workflow(
             ):
                 workflow.run_workflow(progress_callback=on_progress)
     except Exception as exc:
-        log.error(f"Workflow failed: {exc}")
         st.exception(exc)
         st.session_state.workflow_run_failed = True
     finally:
@@ -422,25 +433,8 @@ def _run_workflow(
     st.session_state.workflow_has_completed = True
     unlock_navigation()
     results_page = "pages/05_📈_Results.py"
-    try:
-        st.switch_page(results_page)
-        # Some Streamlit versions don't immediately rerun after `switch_page`.
-        _rerun()
-    except Exception as exc:
-        log.error(f"Page switch to Results failed: {exc}")
-        st.session_state["workflow_page_switch_error"] = str(exc)
-        st.success("Workflow finished running.")
-        if st.button(
-            "Go to Results",
-            type="primary",
-            **_filter_supported_kwargs(st.button, width="stretch"),
-            key="go_to_results_after_workflow",
-        ):
-            st.switch_page(results_page)
-            _rerun()
-        st.stop()
-        return None
-
+    st.switch_page(results_page)
+    _rerun()
     st.stop()
 
 
@@ -462,13 +456,17 @@ def workflow_runner(run_enabled: bool) -> None:
     spinner_slot = st.empty()
     status_placeholder = st.empty()
     on_progress = make_progress_callback(status_placeholder)
-    on_progress(st.session_state.get("workflow_status_list"))
 
     if run_clicked:
         st.session_state.workflow_status_list = []
+        st.session_state.workflow_run_failed = False
         st.session_state.workflow_has_completed = False
+        status_placeholder.empty()
         on_progress([])
         _run_workflow(on_progress, spinner_slot)
+        return None
+
+    on_progress(st.session_state.get("workflow_status_list"))
 
 
 def display_simulation_settings() -> None:

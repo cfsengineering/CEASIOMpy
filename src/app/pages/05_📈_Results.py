@@ -59,10 +59,11 @@ HOW_TO_TEXT = (
 )
 
 PAGE_NAME = "Results"
-
-# Results we DO NOT show
+NO_DISPLAY_DIR: set[str] = {
+    "Airfoil_files",
+}
 IGNORED_RESULTS: set[str] = {
-    # pyavl
+    # AVL
     "avl_commands.txt",
     "logfile_avl.log",
 
@@ -210,8 +211,7 @@ def display_results(results_dir):
                 _display_html(child)
 
             elif child.is_dir():
-                # Toggle Off if computations directory
-                value = False if child.name in DISPLAYED_RESULTS else True
+                value = False if child.name in NO_DISPLAY_DIR else True
                 with st.container(border=True):
                     show_dir = st.checkbox(
                         f"**{child.stem}**",

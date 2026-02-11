@@ -122,7 +122,8 @@ def run_cpacs2gmsh(
         farfield_factor,
         n_power_factor,
         n_power_field,
-        wing_mesh_size_factor,
+        wing_mesh_size,
+        fuselage_mesh_size,
         mesh_size_engines,
         mesh_size_propellers,
         refine_factor,
@@ -159,10 +160,7 @@ def run_cpacs2gmsh(
     )
     if type_mesh == "EULER":
         log.info("Euler meshing.")
-        (
-            farfield_size_factor,
-            fuselage_mesh_size,
-        ) = retrieve_euler_gui_values(tixi)
+        farfield_mesh_size = retrieve_euler_gui_values(tixi)
         _progress_update(
             progress_callback,
             detail="1D mesh: curve discretization...",
@@ -180,11 +178,11 @@ def run_cpacs2gmsh(
             open_gmsh=open_gmsh,
             farfield_factor=farfield_factor,
             symmetry=symmetry,
-            farfield_size_factor=farfield_size_factor,
+            farfield_mesh_size=farfield_mesh_size,
             n_power_factor=n_power_factor,
             n_power_field=n_power_field,
             fuselage_mesh_size=fuselage_mesh_size,
-            wing_mesh_size_factor=wing_mesh_size_factor,
+            wing_mesh_size=wing_mesh_size,
             mesh_size_engines=mesh_size_engines,
             mesh_size_propellers=mesh_size_propellers,
             refine_factor=refine_factor,
@@ -193,6 +191,7 @@ def run_cpacs2gmsh(
             testing_gmsh=False,
             surf=surf,
             angle=angle,
+            progress_callback=progress_callback,
         )
         _progress_update(
             progress_callback,
@@ -210,6 +209,7 @@ def run_cpacs2gmsh(
             max_layer_thickness,
             refine_factor_angled_lines,
         ) = retrieve_rans_gui_values(tixi)
+
         gmesh_path, fuselage_maxlen = generate_2d_mesh_for_pentagrow(
             cpacs,
             brep_dir,
@@ -219,11 +219,11 @@ def run_cpacs2gmsh(
             refine_truncated=refine_truncated,
             refine_factor_angled_lines=refine_factor_angled_lines,
             fuselage_mesh_size=fuselage_mesh_size,
-            wing_mesh_size_factor=wing_mesh_size_factor,
+            wing_mesh_size=wing_mesh_size,
             mesh_size_engines=mesh_size_engines,
             mesh_size_propellers=mesh_size_propellers,
             auto_refine=auto_refine,
-            farfield_size_factor=farfield_factor,
+            farfield_mesh_size=farfield_mesh_size,
             n_power_factor=n_power_factor,
             symmetry=symmetry,
         )

@@ -107,58 +107,6 @@ def testcase_message(testcase_nb: int) -> None:
     log.info("")
 
 
-def run_testcase(testcase_nb):
-    """Run a test case."""
-
-    if testcase_nb == 1:
-
-        testcase_message(1)
-
-        test_case_1_path = Path(TEST_CASES_PATH, "test_case_1")
-        test_case_1_cfg = Path(test_case_1_path, "testcase1.cfg")
-
-        workflow = Workflow()
-        workflow.from_config_file(test_case_1_cfg)
-        workflow.working_dir = current_workflow_dir()
-        workflow.cpacs_in = Path(CPACS_FILES_PATH, "d150.xml")
-
-        workflow.set_workflow()
-        workflow.run_workflow(test=True)
-
-        log.info("Congratulations, this Test case is now finished!")
-        log.info(f"You can now check your results in: {workflow.current_wkflow_dir}/Results")
-
-    elif testcase_nb == 2:
-        testcase_message(2)
-        log.info("Use the GUI to create your workflow.")
-        run_gui()
-        log.info("Congratulations, this Test case is now finished!")
-
-    elif testcase_nb == 3:
-        testcase_message(3)
-        log.info("Use the GUI to create your workflow.")
-        run_gui()
-        log.info("Congratulations, this Test case is now finished!")
-
-    elif testcase_nb == 4:
-        testcase_message(4)
-        log.info(
-            "To run this test case, you will need to open a terminal "
-            "and run the following command:"
-        )
-        log.info(">> conda activate ceasiompy")
-        log.info(
-            ">> ceasiompy_run -m ../geometries/cpacsfiles/d150.xml "
-            "PyAVL SkinFriction"
-        )
-
-    elif testcase_nb == 5:
-        testcase_message(5)
-
-    else:
-        log.info("Test case number must be 1,2,3,4 or 5.")
-
-
 def run_modules_list(args_list) -> None:
     """Run a workflow from a CPACS file and a list of modules."""
 
@@ -441,18 +389,7 @@ def main() -> None:
         help="create a CEASIOMpy workflow by giving the CPACS file and the list of module to run"
         " [Path to the CPACS] [Module list]",
     )
-    parser.add_argument(
-        "--testcase",
-        type=int,
-        metavar="NB",
-        help="run a test case [1, 2, or 3]",
-    )
-
     args: Namespace = parser.parse_args()
-
-    if args.testcase:
-        run_testcase(args.testcase)
-        return None
 
     if args.modules:
         run_modules_list(args.modules)

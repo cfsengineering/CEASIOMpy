@@ -149,17 +149,34 @@ def main(
     _progress_update(
         progress_callback,
         detail=f"Running {config_file_type} simulations...",
-        progress=0.7,
+        progress=0.0,
     )
 
-    def _su2_progress_update(**kwargs):
-        _progress_update(progress_callback, **kwargs)
+    def _su2_progress_update(
+        *,
+        detail: str | None = None,
+        progress: float | None = None,
+        log_path: str | None = None,
+        log_tail: str | None = None,
+    ) -> None:
+        mapped_progress: float | None = None
+        if isinstance(progress, (int, float)):
+            # Keep SU2 progress exact: iterations_done / iterations_total.
+            mapped_progress = min(max(float(progress), 0.0), 1.0)
+
+        _progress_update(
+            progress_callback,
+            detail=detail,
+            progress=mapped_progress,
+            log_path=log_path,
+            log_tail=log_tail,
+        )
 
     run_SU2_multi(results_dir, nb_proc, progress_callback=_su2_progress_update)
-    _progress_update(progress_callback, detail="SU2 simulations completed.", progress=0.9)
+    _progress_update(progress_callback, detail="SU2 simulations completed.", progress=1.0)
 
     # 4. Retrieve SU2 results
     log.info("----- Updating CPACS and accessing results -----")
-    _progress_update(progress_callback, detail="Updating CPACS with results...", progress=0.95)
+    _progress_update(progress_callback, detail="Updating CPACS with results...")
     get_su2_results(cpacs, results_dir)
     _progress_update(progress_callback, detail="SU2 results ready.", progress=1.0)

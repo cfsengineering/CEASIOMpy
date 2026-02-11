@@ -28,10 +28,10 @@ from ceasiompy.cpacs2gmsh import (
     GMSH_OPEN_GUI_XPATH,
     GMSH_MESH_TYPE_XPATH,
     GMSH_SYMMETRY_XPATH,
-    GMSH_FARFIELD_FACTOR_XPATH,
+    GMSH_FARFIELD_SIZE_FACTOR_XPATH,
     GMSH_MESH_SIZE_FARFIELD_XPATH,
+    GMSH_MESH_SIZE_WINGS_XPATH,
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
-    GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
     GMSH_MESH_SIZE_ENGINES_XPATH,
     GMSH_CTRLSURF_ANGLE_XPATH,
     GMSH_MESH_SIZE_PROPELLERS_XPATH,
@@ -78,25 +78,15 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
         left_col, right_col = st.columns(2, vertical_alignment="bottom")
 
         # Domain Group
-        with left_col:
-            bool_vartype(
-                tixi=tixi,
-                xpath=GMSH_SYMMETRY_XPATH,
-                default_value=False,
-                name="Use Symmetry",
-                key="symmetry",
-                description="Create a symmetry condition.",
-            )
 
-        with right_col:
-            float_vartype(
-                tixi=tixi,
-                xpath=GMSH_FARFIELD_FACTOR_XPATH,
-                default_value=10.0,
-                name="Farfield size factor",
-                key="farfield_size_factor",
-                description="Farfield size factor compare to the aircraft largest dimension.",
-            )
+        float_vartype(
+            tixi=tixi,
+            xpath=GMSH_FARFIELD_SIZE_FACTOR_XPATH,
+            default_value=10.0,
+            name="Farfield size",
+            key="farfield_size",
+            description="Farfield size factor compare to the aircraft largest dimension.",
+        )
 
     with st.expander(
         label="**Mesh Type**",
@@ -119,32 +109,33 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                 border=True,
             ):
                 st.markdown("**Euler Mesh Options**")
-
-                left_col, right_col = st.columns(2)
+                left_col, right_col = st.columns(
+                    spec=2,
+                    vertical_alignment="bottom",
+                )
                 with left_col:
-                    # Euler Mesh options
-                    float_vartype(
+                    bool_vartype(
                         tixi=tixi,
-                        xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
-                        default_value=1.0,
-                        name="Farfield mesh size",
-                        key="farfield_mesh_size",
-                        description="""Cell size on the farfield.""",
+                        xpath=GMSH_SYMMETRY_XPATH,
+                        default_value=False,
+                        name="Use Symmetry",
+                        key="symmetry",
+                        description="Create a symmetry condition.",
                     )
 
                 with right_col:
                     float_vartype(
                         tixi=tixi,
-                        xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH,
-                        default_value=0.1,
-                        name="Fuselage mesh size",
-                        key="fuselage_mesh_size",
-                        description="""Cell size on the fuselage (if any).""",
+                        xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
+                        default_value=10.0,
+                        name="Farfield mesh size",
+                        key="farfield_mesh_size",
+                        description="""Cell size on the farfield.""",
                     )
 
         else:
+            safe_remove(tixi, xpath=GMSH_SYMMETRY_XPATH)
             safe_remove(tixi, xpath=GMSH_MESH_SIZE_FARFIELD_XPATH)
-            safe_remove(tixi, xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH)
 
         # RANS Options
         if euler_rans == "RANS":
@@ -249,20 +240,30 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
         label="**General Mesh Options**",
         expanded=True,
     ):
-        left_col, mid_col, right_col = st.columns(3)
-        with left_col:
+        first_col, second_col, third_col, fourth_col = st.columns(4)
+        with first_col:
             float_vartype(
                 tixi=tixi,
-                xpath=GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
-                default_value=1.0,
-                name="Wings mesh size factor",
-                key="wing_mesh_size_factor_wing",
+                xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH,
+                default_value=0.1,
+                name="Fuselage mesh size",
+                key="fuselage_mesh_size",
+                description="""Cell size on the fuselage (if any).""",
+            )
+
+        with second_col:
+            float_vartype(
+                tixi=tixi,
+                xpath=GMSH_MESH_SIZE_WINGS_XPATH,
+                default_value=0.1,
+                name="Wings mesh size",
+                key="wing_mesh_size",
                 description="""
-                    Factor proportional to wing radius of curvature to obtain cell size on it.
+                    Cell size on the wings (if any).
                 """,
             )
 
-        with mid_col:
+        with third_col:
             float_vartype(
                 tixi=tixi,
                 xpath=GMSH_MESH_SIZE_ENGINES_XPATH,
@@ -272,7 +273,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                 description="Value assigned for the engine surfaces mesh size.",
             )
 
-        with right_col:
+        with fourth_col:
             float_vartype(
                 tixi=tixi,
                 xpath=GMSH_MESH_SIZE_PROPELLERS_XPATH,

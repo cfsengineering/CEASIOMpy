@@ -4,10 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'ceasiompy/CPACS2GMSH/advancemeshing.py'
-
-| Author : Tony Govoni
-| Creation: 2022-04-09
-
 """
 
 # Imports
@@ -217,11 +213,11 @@ def test_refine_wing_section():
         open_gmsh=False,
         farfield_factor=2,
         symmetry=False,
-        farfield_size_factor=30,
+        farfield_mesh_size=10,
         n_power_factor=2,
         n_power_field=0.9,
         fuselage_mesh_size=1,
-        wing_mesh_size_factor=1.5,
+        wing_mesh_size=1.5,
         mesh_size_engines=0.5,
         mesh_size_propellers=0.5,
         refine_factor=2.0,
@@ -279,11 +275,11 @@ def test_auto_refine():
         open_gmsh=False,
         farfield_factor=5,
         symmetry=False,
-        farfield_size_factor=17,
+        farfield_mesh_size=17,
         n_power_factor=2,
         n_power_field=0.9,
         fuselage_mesh_size=0.1,
-        wing_mesh_size_factor=0.1,
+        wing_mesh_size=0.1,
         mesh_size_engines=0.5,
         mesh_size_propellers=0.5,
         refine_factor=2.0,

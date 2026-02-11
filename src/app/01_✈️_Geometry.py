@@ -16,13 +16,18 @@ import numpy as np
 import streamlit as st
 
 from ceasiompy.utils import get_wkdir
-from cpacspy.cpacsfunctions import create_branch
+from cpacspy.cpacsfunctions import get_value
+from ceasiompy.utils.guiobjects import add_value
 from gmshairfoil2d.airfoil_func import get_airfoil_points
+from ceasiompy.utils.airfoil import compute_airfoil_ref_length
+from ceasiompy.utils.aircraft import compute_aircraft_ref_values
 from ceasiompy.utils.ceasiompyutils import (
     parse_bool,
+    safe_remove,
     update_xpath_at_xyz,
 )
 from streamlitutils import (
+    scroll_down,
     create_sidebar,
     section_3D_view,
     close_cpacs_handles,
@@ -38,9 +43,12 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.workflowclasses import Workflow
 
+from ceasiompy import log
 from constants import BLOCK_CONTAINER
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.utils.commonxpaths import (
+    AREA_XPATH,
+    LENGTH_XPATH,
     AIRFOILS_XPATH,
     GEOMETRY_MODE_XPATH,
 )
@@ -64,12 +72,16 @@ def _clean_toolspecific(cpacs: CPACS) -> CPACS:
     if "ac_name" not in st.session_state or st.session_state.ac_name != air_name:
         # Clean input CPACS file
         tixi = cpacs.tixi
+        geometry_mode = None
+        if tixi.checkElement(GEOMETRY_MODE_XPATH):
+            geometry_mode = tixi.getTextElement(GEOMETRY_MODE_XPATH)
         if tixi.checkElement("/cpacs/toolspecific/CEASIOMpy"):
             tixi.removeElement("/cpacs/toolspecific/CEASIOMpy")
-
-        # Reload CPACS file to apply changes
-        # Specific to CPACS-VSP3 conversion files
-        cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
+        add_value(
+            tixi=tixi,
+            xpath=GEOMETRY_MODE_XPATH,
+            value=geometry_mode if geometry_mode in {"2D", "3D"} else "3D",
+        )
 
         st.session_state["ac_name"] = cpacs.ac_name
     else:
@@ -78,10 +90,10 @@ def _clean_toolspecific(cpacs: CPACS) -> CPACS:
     return cpacs
 
 
-def _generate_cpacs_airfoil(naca_code: str) -> None:
+def _generate_cpacs_airfoil(naca_code: str) -> CPACS:
     coords = np.array(get_airfoil_points(naca_code))
 
-    _create_cpacs_from(
+    return _create_cpacs_from(
         airfoil_x=coords[:, 0].tolist(),
         airfoil_y=coords[:, 1].tolist(),
         airfoil_name=naca_code,
@@ -92,7 +104,7 @@ def _create_cpacs_from(
     airfoil_x: list[float],
     airfoil_y: list[float],
     airfoil_name: str | None = None,
-) -> None:
+) -> CPACS:
     def _vector_to_str(values: list[float]) -> str:
         return ";".join(f"{v:.8f}" for v in values)
 
@@ -103,8 +115,11 @@ def _create_cpacs_from(
     airfoil_ref_path = Path(CPACS_FILES_PATH, "airfoil.xml")
 
     cpacs = CPACS(airfoil_ref_path)
-    create_branch(cpacs.tixi, GEOMETRY_MODE_XPATH)
-    cpacs.tixi.updateTextElement(GEOMETRY_MODE_XPATH, "2D")
+    add_value(
+        tixi=cpacs.tixi,
+        xpath=GEOMETRY_MODE_XPATH,
+        value="2D",
+    )
 
     wingairfoil_xpath = AIRFOILS_XPATH + "/wingAirfoil[1]"
 
@@ -129,12 +144,10 @@ def _create_cpacs_from(
     new_cpacs_path = Path(wkdir, f"airfoil_{safe_name}.xml")
     cpacs.save_cpacs(new_cpacs_path, overwrite=True)
 
-    uploaded_bytes = new_cpacs_path.read_bytes()
-    uploaded_digest = hashlib.sha256(uploaded_bytes).hexdigest()
-    st.session_state["last_uploaded_digest"] = uploaded_digest
-    st.session_state["last_uploaded_name"] = new_cpacs_path.name
     st.session_state["last_converted_cpacs_path"] = str(new_cpacs_path)
-    st.session_state["cpacs"] = CPACS(str(new_cpacs_path))
+    cpacs = CPACS(str(new_cpacs_path))
+    st.session_state["cpacs"] = cpacs
+    return cpacs
 
 
 def _read_airfoil_xy(airfoil_path: Path) -> tuple[list[float], list[float]]:
@@ -171,7 +184,7 @@ def _read_airfoil_xy(airfoil_path: Path) -> tuple[list[float], list[float]]:
     return x_vals, y_vals
 
 
-def _section_generate_cpacs_airfoil() -> None:
+def _section_generate_cpacs_airfoil() -> CPACS | None:
     st.markdown("#### Generate an Airfoil Profile")
 
     # NACA airfoil selection
@@ -197,7 +210,7 @@ def _section_generate_cpacs_airfoil() -> None:
     # Display success message full width outside columns
     if generate_clicked and naca_code:
         try:
-            _generate_cpacs_airfoil(naca_code)
+            return _generate_cpacs_airfoil(naca_code)
         except Exception as e:
             st.error(f"Failed to generate airfoil of {naca_code=}: {str(e)}")
             st.info(
@@ -210,7 +223,7 @@ def _section_generate_cpacs_airfoil() -> None:
         st.warning("Please enter a valid NACA code.")
 
 
-def _section_load_cpacs():
+def _section_load_cpacs() -> CPACS | None:
     st.markdown("#### Load a CPACS (.xml) or VSP3 (.vsp3) file or XY Airfoil (.csv, .dat, .txt)")
     st.markdown("We handle the conversion to the CPACS format.")
 
@@ -277,6 +290,12 @@ def _section_load_cpacs():
         # CONDITION 2: same file name (to avoid re-processing different files with same content
         is_same_upload = (uploaded_digest == last_digest) and (uploaded_file.name == last_name)
 
+        # Any widget interaction (e.g. radio button) triggers reruns: avoid reloading
+        # only when the uploader selection is unchanged. If the user explicitly loads
+        # a different file, this condition is false and the file is processed.
+        if isinstance(st.session_state.get("cpacs"), CPACS) and is_same_upload:
+            return None
+
         wkdir = st.session_state.workflow.working_dir
         uploaded_path = Path(wkdir, uploaded_file.name)
 
@@ -297,7 +316,7 @@ def _section_load_cpacs():
                 st.error(f"Failed to parse airfoil points from {uploaded_file.name}: {exc}")
                 return None
 
-            _create_cpacs_from(
+            return _create_cpacs_from(
                 airfoil_x=airfoil_x,
                 airfoil_y=airfoil_y,
                 airfoil_name=uploaded_path.stem,
@@ -323,9 +342,13 @@ def _section_load_cpacs():
                 st.session_state["last_converted_vsp3_digest"] = uploaded_digest
                 st.session_state["last_converted_cpacs_path"] = str(new_cpacs_path)
                 cpacs = CPACS(str(new_cpacs_path))
-                create_branch(cpacs.tixi, GEOMETRY_MODE_XPATH)
-                cpacs.tixi.updateTextElement(GEOMETRY_MODE_XPATH, "3D")
+                add_value(
+                    tixi=cpacs.tixi,
+                    xpath=GEOMETRY_MODE_XPATH,
+                    value="3D",
+                )
                 st.session_state["cpacs"] = cpacs
+                return cpacs
 
             # No conversion
             else:
@@ -334,6 +357,7 @@ def _section_load_cpacs():
                 if previous_cpacs_path and Path(previous_cpacs_path).exists():
                     # Use the last generated CPACS path
                     new_cpacs_path = Path(previous_cpacs_path)
+                    cpacs = CPACS(str(new_cpacs_path))
                 else:
                     # If no old generated CPACS found
                     st.warning(
@@ -351,25 +375,33 @@ def _section_load_cpacs():
                             return None
                     st.session_state["last_converted_vsp3_digest"] = uploaded_digest
                     st.session_state["last_converted_cpacs_path"] = str(new_cpacs_path)
-                    st.session_state["cpacs"] = CPACS(str(new_cpacs_path))
-                create_branch(cpacs.tixi, GEOMETRY_MODE_XPATH)
-                cpacs.tixi.updateTextElement(GEOMETRY_MODE_XPATH, "3D")
+                    cpacs = CPACS(str(new_cpacs_path))
+                add_value(
+                    tixi=cpacs.tixi,
+                    xpath=GEOMETRY_MODE_XPATH,
+                    value="3D",
+                )
+                st.session_state["cpacs"] = cpacs
+                return cpacs
 
         elif uploaded_path.suffix == ".xml":
             new_cpacs_path = uploaded_path
             st.session_state["last_converted_cpacs_path"] = str(uploaded_path)
             cpacs = CPACS(str(uploaded_path))
-
-            create_branch(cpacs.tixi, GEOMETRY_MODE_XPATH)
-            cpacs.tixi.updateTextElement(GEOMETRY_MODE_XPATH, "3D")
+            add_value(
+                tixi=cpacs.tixi,
+                xpath=GEOMETRY_MODE_XPATH,
+                value="3D",
+            )
             st.session_state["cpacs"] = cpacs
         else:
             st.warning(f"Unsupported file suffix {uploaded_path.suffix=}")
             return None
 
+    return st.session_state.get("cpacs")
+
 
 # Functions
-
 
 def section_select_cpacs() -> None:
     wkdir = get_wkdir()
@@ -395,11 +427,87 @@ def section_select_cpacs() -> None:
         with selected_tab[2]:
             render_openvsp_panel()
 
-    # Display the file uploader widget with the previously uploaded file
-    cpacs = st.session_state.get("cpacs", None)
-    if cpacs is not None:
-        st.markdown("---")
-        section_3D_view(force_regenerate=True)
+    # ALWAYS use the session CPACS
+    cpacs = st.session_state.get("cpacs")
+    if not isinstance(cpacs, CPACS):
+        return None
+
+    tixi = cpacs.tixi
+
+    # 2D mode or else; geometry mode is expected to exist.
+    geometry_mode = str(get_value(tixi, xpath=GEOMETRY_MODE_XPATH))
+    dim_mode = (geometry_mode == "2D")
+
+    st.markdown("---")
+    section_3D_view(force_regenerate=True)
+
+    # Once 3D view of CPACS file is done scroll down
+    scroll_down()
+    st.markdown("---")
+
+    try:
+        if not dim_mode:
+            ref_area, ref_length = compute_aircraft_ref_values(cpacs)
+
+        if dim_mode:
+            ref_length = compute_airfoil_ref_length(cpacs)
+
+    except Exception as e:
+        ref_area, ref_length = 0.0, 0.0
+        log.warning(f"""Could not compute from the CPACS file
+            the reference area and length values {e=}
+        """)
+
+    spec = 1 if dim_mode else 2
+    cols = st.columns(
+        spec=spec,
+    )
+    with cols[0]:
+        new_ref_length = st.number_input(
+            label="Reference Length",
+            value=ref_length,
+            min_value=0.0,
+        )
+    if not dim_mode:
+        with cols[1]:
+            new_ref_area = st.number_input(
+                label="Reference Area",
+                value=ref_area,
+                min_value=0.0,
+            )
+
+    # 2D update
+    if (
+        dim_mode
+        and np.isfinite(ref_length) and ref_length > 0.0
+    ):
+        add_value(
+            tixi=tixi,
+            xpath=LENGTH_XPATH,
+            value=new_ref_length,
+        )
+        safe_remove(tixi, xpath=AREA_XPATH)
+        st.info(f"""Updated cpacs file with reference(length={new_ref_length})""")
+
+    # 3D update
+    if (
+        not dim_mode
+        and np.isfinite(ref_area) and ref_area > 0.0
+        and np.isfinite(ref_length) and ref_length > 0.0
+    ):
+        add_value(
+            tixi=tixi,
+            xpath=AREA_XPATH,
+            value=new_ref_area,
+        )
+        add_value(
+            tixi=tixi,
+            xpath=LENGTH_XPATH,
+            value=new_ref_length,
+        )
+        st.info(f"""Updated cpacs file with reference
+            (length={new_ref_length}, area={new_ref_area})
+        """)
 
 
 # Main

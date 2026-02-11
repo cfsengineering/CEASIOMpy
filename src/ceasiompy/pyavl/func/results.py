@@ -271,7 +271,10 @@ def get_force_files(config_dir: Path) -> Path:
     return st_file_path
 
 
-def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
+def get_avl_results(
+    cpacs: CPACS,
+    results_dir: Path,
+) -> None:
     """
     Write AVL results in a CPACS file at xPath:
     '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap[n]/aeroPerformanceMap'

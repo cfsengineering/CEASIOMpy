@@ -18,7 +18,7 @@ import streamlit as st
 from html import escape
 from textwrap import dedent
 from streamlitutils import (
-    scoll_down,
+    scroll_down,
     create_sidebar,
     save_cpacs_file,
     section_3D_view,
@@ -290,7 +290,7 @@ def make_progress_callback(status_container) -> Callable[[list | None], None]:
                 log.error(f"{errors}")
                 st.markdown("---")
                 st.error(err_msg)
-                scoll_down()
+                scroll_down()
             elif (
                 not solver_running
                 and finished
@@ -298,7 +298,7 @@ def make_progress_callback(status_container) -> Callable[[list | None], None]:
                 and st.session_state.get("workflow_has_completed", False)
             ):
                 st.info("Workflow finished running, go in results page for analysis.")
-                scoll_down()
+                scroll_down()
 
     return _callback
 

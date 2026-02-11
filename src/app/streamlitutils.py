@@ -26,6 +26,7 @@ from tigl3.tigl3wrapper import Tigl3
 from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
+from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 
 
 # Functions
@@ -95,7 +96,7 @@ def get_last_workflow():
     return Path(st.session_state.workflow.working_dir, f"Workflow_{last_workflow_nb:03}")
 
 
-def scoll_down() -> None:
+def scroll_down() -> None:
     scroll_nonce = int(st.session_state.get("_scroll_down_nonce", 0)) + 1
     st.session_state._scroll_down_nonce = scroll_nonce
 
@@ -387,11 +388,13 @@ def section_3D_view(
     try:
         with st.spinner("Meshing geometry (STL export)..."):
             cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
+
     except Exception as e:
         st.error(f"Cannot generate 3D preview (probably missing TIGL geometry handle): {e=}.")
         return None
 
     your_mesh = mesh.Mesh.from_file(stl_file)
+
     triangles = your_mesh.vectors.reshape(-1, 3)
     vertices, indices = np.unique(triangles, axis=0, return_inverse=True)
     i, j, k = indices[0::3], indices[1::3], indices[2::3]

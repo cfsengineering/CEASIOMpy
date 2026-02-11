@@ -45,6 +45,8 @@ def section_edit_aeromap() -> None:
     if cpacs is None:
         return None
 
+    _reset_aeromap_state_if_cpacs_changed(cpacs)
+
     with st.container(border=True):
         st.markdown("#### Selected Aeromap")
         _ensure_custom_aeromap(cpacs)
@@ -144,7 +146,7 @@ def section_edit_aeromap() -> None:
 
             submit_create = st.button(
                 label="Create Aeromap",
-                use_container_width=True,
+                width="stretch",
                 key="create_aeromap_button",
             )
 
@@ -246,6 +248,27 @@ def _ensure_custom_aeromap(cpacs: CPACS, custom_id: str = "custom_aeromap") -> N
         raise Exception(f"{cpacs.cpacs_file=} {custom_id=} {e=}")
 
 
+def _reset_aeromap_state_if_cpacs_changed(cpacs: CPACS) -> None:
+    current_cpacs_key = str(cpacs.cpacs_file)
+    previous_cpacs_key = st.session_state.get("aeromap_cpacs_key")
+
+    if previous_cpacs_key == current_cpacs_key:
+        return None
+
+    for key in (
+        "selected_aeromap_id",
+        "selected_aeromap",
+        "created_aeromap_uid",
+        "last_selected_aeromap_id",
+        "aeromap_df",
+        "aeromap_df_by_uid",
+        "aeromap_editor_key_version",
+    ):
+        st.session_state.pop(key, None)
+
+    st.session_state["aeromap_cpacs_key"] = current_cpacs_key
+
+
 def _select_aeromap_id(cpacs: CPACS) -> str:
     aeromap_list = cpacs.get_aeromap_uid_list()
     created_aeromap_uid = st.session_state.pop("created_aeromap_uid", None)
@@ -254,8 +277,6 @@ def _select_aeromap_id(cpacs: CPACS) -> str:
             aeromap_list.append(created_aeromap_uid)
         st.session_state["selected_aeromap_id"] = created_aeromap_uid
     cached_aeromap_id = st.session_state.get("selected_aeromap_id", None)
-    if cached_aeromap_id is not None and cached_aeromap_id not in aeromap_list:
-        aeromap_list.append(cached_aeromap_id)
     if cached_aeromap_id is not None and cached_aeromap_id in aeromap_list:
         initial_index = aeromap_list.index(cached_aeromap_id)
     else:

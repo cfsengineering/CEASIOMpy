@@ -15,14 +15,17 @@ the vortex-lattice method (VLM)
 """
 
 # Imports
+import time
 
+from concurrent.futures import wait
+from ceasiompy.pyavl.func.plot import convert_ps_to_pdf
+from ceasiompy.pyavl.func.results import get_avl_results
+from ceasiompy.pyavl.func.avllog import estimate_case_progress_from_log
 from ceasiompy.utils.ceasiompyutils import (
     has_display,
     run_software,
     get_sane_max_cpu,
 )
-from ceasiompy.pyavl.func.plot import convert_ps_to_pdf
-from ceasiompy.pyavl.func.results import get_avl_results
 from ceasiompy.pyavl.func.utils import (
     create_case_dir,
     duplicate_elements,
@@ -34,15 +37,14 @@ from ceasiompy.pyavl.func.config import (
 )
 
 from pathlib import Path
+from typing import Callable
 from cpacspy.cpacspy import CPACS
+# from ceasiompy.pyavl.func.data import AVLData
 from concurrent.futures import ProcessPoolExecutor
-from concurrent.futures import FIRST_COMPLETED, wait
 from ceasiompy.database.func.storing import CeasiompyDb
 
-import time
-from typing import Callable, Optional
-
 from ceasiompy import log
+from concurrent.futures import FIRST_COMPLETED
 from ceasiompy.pyavl import (
     MODULE_NAME,
     SOFTWARE_NAME,
@@ -70,56 +72,10 @@ def run_case(args: tuple[Path, Path]) -> None:
         convert_ps_to_pdf(case_dir_path)
 
 
-def _tail_file(path: Path, *, max_lines: int = 60, max_chars: int = 8000) -> str:
-    if not path.exists():
-        return ""
-    try:
-        with open(path, "rb") as handle:
-            handle.seek(0, 2)
-            size = handle.tell()
-            handle.seek(max(size - 65536, 0))
-            text = handle.read().decode(errors="ignore")
-    except OSError:
-        return ""
-    lines = text.splitlines()[-max_lines:]
-    tail = "\n".join(lines)
-    if len(tail) > max_chars:
-        tail = tail[-max_chars:]
-    return tail
-
-
-def _estimate_case_progress_from_log(log_path: Path) -> tuple[float, str]:
-    """Best-effort estimate of case completion from AVL stdout log."""
-
-    tail = _tail_file(log_path)
-    if not tail.strip():
-        return 0.0, "starting"
-
-    stages: list[tuple[float, str, tuple[str, ...]]] = [
-        (0.10, "reading geometry", ("Reading file:",)),
-        (0.25, "building surfaces", ("Building surface:", "Building duplicate image-surface:")),
-        (0.35, "initializing run cases", ("Initializing run cases",)),
-        (0.45, "reading mass distribution", ("Mass distribution read",)),
-        (0.60, "setting up run case", ("Operation of run case",)),
-        (0.70, "operating point", (".OPER",)),
-        (0.85, "writing results", ("Enter filename, or <return> for screen output",)),
-    ]
-
-    best_progress = 0.05
-    best_label = "running"
-    for progress, label, needles in stages:
-        if any(needle in tail for needle in needles):
-            if progress > best_progress:
-                best_progress = progress
-                best_label = label
-
-    return best_progress, best_label
-
-
 def main(
     cpacs: CPACS,
     results_dir: Path,
-    progress_callback: Optional[Callable[..., None]] = None,
+    progress_callback: Callable[..., None] | None = None,
 ) -> None:
     """
     Run AVL calculations on specified CPACS file.
@@ -327,77 +283,84 @@ def main(
     if progress_callback is not None:
         progress_callback(detail=f"Prepared {total_cases} AVL case(s).", progress=0.0)
 
-    if total_cases:
-        start_t = time.monotonic()
-        completed = 0
-        with ProcessPoolExecutor(max_workers=get_sane_max_cpu()) as executor:
-            future_to_args = {executor.submit(run_case, args): args for args in case_args}
+    if not total_cases:
+        raise ValueError("No AVL cases to run.")
 
-            while future_to_args:
-                done, not_done = wait(
-                    future_to_args,
-                    timeout=0.5,
-                    return_when=FIRST_COMPLETED,
+    start_t = time.monotonic()
+    completed = 0
+    with ProcessPoolExecutor(max_workers=get_sane_max_cpu()) as executor:
+        future_to_args = {executor.submit(run_case, args): args for args in case_args}
+
+        while future_to_args:
+            done, not_done = wait(
+                future_to_args,
+                timeout=0.5,
+                return_when=FIRST_COMPLETED,
+            )
+
+            if progress_callback is not None:
+                active_log_path: Path | None = None
+                active_case_progress = 0.0
+                active_case_label = "running"
+                active_case_name: str | None = None
+                if not_done:
+                    some_future = next(iter(not_done))
+                    case_dir_path, _ = future_to_args[some_future]
+                    active_log_path = Path(case_dir_path / f"logfile_{SOFTWARE_NAME}.log")
+                    active_case_progress, active_case_label = estimate_case_progress_from_log(
+                        active_log_path
+                    )
+                    active_case_name = Path(case_dir_path).name
+
+                elapsed_s = time.monotonic() - start_t
+                overall_progress = (
+                    (completed + active_case_progress) / total_cases if total_cases else 0.0
                 )
 
-                if progress_callback is not None:
-                    active_log_path: Path | None = None
-                    active_case_progress = 0.0
-                    active_case_label = "running"
-                    active_case_name: str | None = None
-                    if not_done:
-                        some_future = next(iter(not_done))
-                        case_dir_path, _ = future_to_args[some_future]
-                        active_log_path = Path(case_dir_path / f"logfile_{SOFTWARE_NAME}.log")
-                        active_case_progress, active_case_label = _estimate_case_progress_from_log(
-                            active_log_path
+                progress_callback(
+                    detail=(
+                        f"Running AVL cases ({completed}/{total_cases})…"
+                        + (
+                            f" Current: {active_case_name} ({active_case_label})"
+                            if active_case_name
+                            else ""
                         )
-                        active_case_name = case_dir_path.name
+                    ),
+                    progress=overall_progress,
+                    elapsed_seconds=elapsed_s,
+                )
 
+            for future in done:
+                case_dir_path, _ = future_to_args.pop(future)
+                try:
+                    future.result()
+                except Exception as exc:
+                    if progress_callback is not None:
+                        elapsed_s = time.monotonic() - start_t
+                        progress_callback(
+                            detail=f"AVL failed in {case_dir_path.name}: {exc}",
+                            progress=(completed / total_cases) if total_cases else 0.0,
+                            elapsed_seconds=elapsed_s,
+                        )
+                    raise
+
+                completed += 1
+                if progress_callback is not None:
                     elapsed_s = time.monotonic() - start_t
-                    overall_progress = (
-                        (completed + active_case_progress) / total_cases if total_cases else 0.0
-                    )
-
+                    overall_progress = completed / total_cases if total_cases else 0.0
                     progress_callback(
-                        detail=(
-                            f"Running AVL cases ({completed}/{total_cases})…"
-                            + (
-                                f" Current: {active_case_name} ({active_case_label})"
-                                if active_case_name
-                                else ""
-                            )
-                        ),
+                        detail=f"Completed {completed}/{total_cases}: {case_dir_path.name}",
                         progress=overall_progress,
                         elapsed_seconds=elapsed_s,
                     )
 
-                for future in done:
-                    case_dir_path, _ = future_to_args.pop(future)
-                    try:
-                        future.result()
-                    except Exception as exc:
-                        if progress_callback is not None:
-                            elapsed_s = time.monotonic() - start_t
-                            progress_callback(
-                                detail=f"AVL failed in {case_dir_path.name}: {exc}",
-                                progress=(completed / total_cases) if total_cases else 0.0,
-                                elapsed_seconds=elapsed_s,
-                            )
-                        raise
-
-                    completed += 1
-                    if progress_callback is not None:
-                        elapsed_s = time.monotonic() - start_t
-                        overall_progress = completed / total_cases if total_cases else 0.0
-                        progress_callback(
-                            detail=f"Completed {completed}/{total_cases}: {case_dir_path.name}",
-                            progress=overall_progress,
-                            elapsed_seconds=elapsed_s,
-                        )
-
     if progress_callback is not None:
         progress_callback(detail="Collecting AVL results…", progress=1.0)
-    get_avl_results(cpacs, results_dir)
+
+    get_avl_results(
+        cpacs=cpacs,
+        results_dir=results_dir,
+    )
+
     if progress_callback is not None:
         progress_callback(detail="AVL results ready.", progress=1.0)

@@ -21,9 +21,10 @@ import streamlit.components.v1 as components
 from stpyvista import stpyvista
 from functools import lru_cache
 from ceasiompy.utils.commonpaths import get_wkdir
-from ceasiompy.utils.ceasiompyutils import workflow_number
 from ceasiompy.smtrain.func.utils import domain_converter
-from ceasiompy.smtrain import AEROMAP_FEATURES, NORMALIZED_DOMAIN
+from ceasiompy.smtrain.func.config import update_geometry_cpacs
+from ceasiompy.utils.ceasiompyutils import workflow_number
+from ceasiompy.utils.geometryfunctions import get_xpath_for_param
 from parsefunctions import (
     parse_ascii_tables,
     display_avl_table_file,
@@ -49,6 +50,10 @@ from ceasiompy import log
 from constants import BLOCK_CONTAINER
 from ceasiompy.pyavl import AVL_TABLE_FILES
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
+from ceasiompy.smtrain import (
+    AEROMAP_FEATURES,
+    NORMALIZED_DOMAIN,
+)
 
 
 # Constants
@@ -60,21 +65,21 @@ HOW_TO_TEXT = (
 
 PAGE_NAME = "Results"
 NO_DISPLAY_DIR: set[str] = {
+    # pyavl
     "Airfoil_files",
+
+    # smtrain
+    "computations",
+    "generated_cpacs",
+
 }
 IGNORED_RESULTS: set[str] = {
-    # AVL
+    # pyavl
     "avl_commands.txt",
     "logfile_avl.log",
 
     # su2run
     "restart_flow.dat",
-}
-
-DISPLAYED_RESULTS: set[str] = {
-    # smtrain
-    "computations",
-    "generated_cpacs",
 }
 
 
@@ -837,6 +842,61 @@ def _display_pkl(path: Path) -> None:
             for col in other_inputs:
                 _input_widget(col, key_prefix="other_")
 
+        st.markdown("**Geometry**")
+        preview_cpacs = None
+        try:
+            workflow_root = _find_workflow_root(path)
+            if workflow_root is not None:
+                cpacs_in = workflow_root / "00_ToolInput.xml"
+                if cpacs_in.exists():
+                    base_cpacs = CPACS(cpacs_in)
+                    params_to_update: dict[str, dict[str, list[float | str]]] = {}
+                    for full_name in geom_inputs:
+                        if full_name not in input_values or "_of_" not in full_name:
+                            continue
+
+                        parts = full_name.split("_of_")
+                        if len(parts) != 3:
+                            continue
+
+                        param_name, section_uid, wing_uid = parts
+                        xpath = get_xpath_for_param(
+                            tixi=base_cpacs.tixi,
+                            param=param_name,
+                            wing_uid=wing_uid,
+                            section_uid=section_uid,
+                        )
+
+                        if param_name not in params_to_update:
+                            params_to_update[param_name] = {"values": [], "xpath": []}
+                        params_to_update[param_name]["values"].append(
+                            object=float(input_values[full_name])
+                        )
+                        params_to_update[param_name]["xpath"].append(xpath)
+
+                    if params_to_update:
+                        with tempfile.NamedTemporaryFile(
+                            prefix="ceasiompy_smtrain_preview_",
+                            suffix=".xml",
+                            delete=False,
+                        ) as tmp_file:
+                            preview_cpacs_path = Path(tmp_file.name)
+
+                        preview_cpacs = update_geometry_cpacs(
+                            cpacs_path_in=cpacs_in,
+                            cpacs_path_out=preview_cpacs_path,
+                            geom_params=params_to_update,
+                        )
+                    else:
+                        preview_cpacs = base_cpacs
+        except Exception as exc:
+            st.warning(f"Could not generate preview CPACS from geometry inputs: {exc!r}")
+
+        if preview_cpacs is not None:
+            section_3D_view(cpacs=preview_cpacs, force_regenerate=True)
+        else:
+            section_3D_view(force_regenerate=True)
+
         normalized_values = []
         for col in columns:
             val = input_values.get(col, 0.0)
@@ -964,7 +1024,7 @@ def _compute_sobol_analysis(
     )
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
         config={"displayModeBar": True, "scrollZoom": True},
     )
 
@@ -1256,18 +1316,6 @@ def _display_vtu(path: Path) -> None:
             value=True,
         ):
             try:
-                st.download_button(
-                    label="Download VTU file",
-                    data=path.read_bytes(),
-                    file_name=path.name,
-                    mime="application/octet-stream",
-                    width="stretch",
-                    key=f"{path}_vtu_download",
-                )
-            except OSError as exc:
-                st.warning(f"Unable to prepare download: {exc}")
-
-            try:
                 mesh = pv.read(str(path))
             except Exception as exc:
                 st.error(f"Failed to read VTU file: {exc}")
@@ -1335,6 +1383,17 @@ def _display_vtu(path: Path) -> None:
                     f"{scalar_choice} min/max: {float(data_array.min()):.6g} / "
                     f"{float(data_array.max()):.6g}"
                 )
+            try:
+                st.download_button(
+                    label="Download VTU file",
+                    data=path.read_bytes(),
+                    file_name=path.name,
+                    mime="application/octet-stream",
+                    width="stretch",
+                    key=f"{path}_vtu_download",
+                )
+            except OSError as exc:
+                st.warning(f"Unable to prepare download: {exc}")
 
 
 def _display_png(path: Path) -> None:
@@ -1440,19 +1499,19 @@ def _display_xml(path: Path) -> None:
         cpacs = CPACS(path)
         st.markdown(f"**CPACS {cpacs.ac_name}**")
 
+        # Display the 3D geometry of the CPACS file
+        section_3D_view(
+            cpacs=cpacs,
+            force_regenerate=True,
+        )
+
         # Download button for downloading CPACS file locally
         st.download_button(
             label="Download CPACS file",
             data=path.read_bytes(),
             file_name=path.name,
             mime="application/xml",
-            use_container_width=True,
-        )
-
-        # Display the 3D geometry of the CPACS file
-        section_3D_view(
-            cpacs=cpacs,
-            force_regenerate=True,
+            width="stretch",
         )
 
 

@@ -126,21 +126,15 @@ def display_avl_table_file(path: Path) -> None:
         "fs": "Surface and Strip Forces by surface",
         "ft": "Total Forces",
     }
-    with st.container(border=True):
-        show_dir = st.checkbox(
-            f"**{pathstem_to_title[path.stem]}**",
-            value=False,
-            key=f"{path}_dir_toggle",
-        )
-        if show_dir:
-            _display_spiral_stability(text)
-            if _display_surface_forces(text, path):
-                return
-            if _display_vortex_lattice_output(text, path):
-                return
-            if _display_surface_strip_forces(text, path):
-                return
-            _display_avl_fe_data(text, path)
+    st.markdown(f"**{pathstem_to_title[path.stem]}**")
+    _display_spiral_stability(text)
+    if _display_surface_forces(text, path):
+        return
+    if _display_vortex_lattice_output(text, path):
+        return
+    if _display_surface_strip_forces(text, path):
+        return
+    _display_avl_fe_data(text, path)
 
 
 def _display_spiral_stability(text: str) -> None:

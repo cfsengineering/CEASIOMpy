@@ -10,6 +10,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
+from ceasiompy.utils.guiobjects import add_value
 from ceasiompy.utils.ceasiompyutils import (
     get_selected_aeromap,
     get_conditions_from_aeromap,
@@ -31,6 +32,7 @@ from smt.surrogate_models import (
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
+from cpacspy.utils import AC_NAME_XPATH
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
 from ceasiompy.smtrain import (
     LEVEL_ONE,
@@ -190,11 +192,8 @@ def store_best_geom_from_training(
     )
 
     # Store best geometry (CPACS, Configuration)
-    best_geom_dir = results_dir / "best_geometry"
-    best_geom_dir.mkdir(exist_ok=True)
     best_geometry_idx = mean_obj_by_geom[objective].idxmax()
     best_geometries_df = mean_obj_by_geom.loc[[best_geometry_idx]]
-    best_geometries_df.to_csv(f"{best_geom_dir}/best_geom_config.csv", index=False)
 
     # Save associated CPACS file for the best geometry
     best_geom_values = best_geometries_df[geom_cols].iloc[0].values
@@ -204,10 +203,20 @@ def store_best_geom_from_training(
 
     best_cpacs_idx = int(mask.idxmax())
     best_cpacs_path = cpacs_list[best_cpacs_idx].cpacs_file
+
+    best_cpacs_path_results = results_dir / f"best_geom_{best_cpacs_idx + 1:03d}.xml"
     shutil.copyfile(
         best_cpacs_path,
-        best_geom_dir / f"best_geom_{best_cpacs_idx + 1:03d}.xml",
+        best_cpacs_path_results,
     )
+    # Change name accordingly
+    cpacs = CPACS(best_cpacs_path_results)
+    add_value(
+        tixi=cpacs.tixi,
+        xpath=AC_NAME_XPATH,
+        value=f"Best {cpacs.ac_name} Geometry from Generated Data",
+    )
+    cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
 
 
 def get_columns(objective: str) -> list[str]:

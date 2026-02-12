@@ -91,7 +91,7 @@ def plot_validation(
         color="blue",
     )
     log.info(f"{typename} (Level 1): {rmse_level1=}")
-    title_rmse = f"RMSE (level 1): {rmse_level1}"
+    title_rmse = f"RMSE (test set, lvl 1): {rmse_level1}"
 
     if level2_split is not None:
         rmse_level2 = _add_split_trace(
@@ -102,7 +102,7 @@ def plot_validation(
             color="orange",
         )
         log.info(f"{typename} (Level 2): {rmse_level2=}")
-        title_rmse += f", RMSE (level 2): {rmse_level2}"
+        title_rmse += f", RMSE (test set, lvl 2): {rmse_level2}"
 
     fig.add_trace(
         Scatter(
@@ -115,10 +115,9 @@ def plot_validation(
     )
 
     fig.update_layout(
-        title=(
-            f"{typename}: Predicted vs Actual of {training_settings.objective}"
-            f"<br><sup>{title_rmse}</sup>"
-        ),
+        title=f"""{typename} model results on test set:
+            Predicted/Actual of {training_settings.objective}
+            <br><sup>{title_rmse}</sup>""",
         xaxis_title=f"Actual {training_settings.objective}",
         yaxis_title=f"Predicted {training_settings.objective}",
     )

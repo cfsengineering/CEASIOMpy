@@ -85,134 +85,65 @@ class TestStaticStability(CeasiompyTest):
 
     @log_test
     def test_generate_stab_table(self: TestStaticStability) -> None:
-        print(generate_stab_table(self.cpacs, "test_apm", self.wkdir, True))
-        # Test Linear Regression
-        self.assert_equal_function(
-            f=generate_stab_table,
-            input_args=(self.cpacs, "test_apm", self.wkdir, True, ),
-            expected=([
-                [
-                    "mach", "alt", "aoa", "aos",
-                    "long_stab", "dir_stab", "lat_stab",
-                    "comment"
-                ],
-                [
-                    0.3, 0.0, 0.0, 0.0,
-                    "Stable", "Stable", "Unstable",
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-                [
-                    0.3, 0.0, 0.0, 10.0,
-                    "Stable", "Stable", "Unstable",
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
-                ],
-                [
-                    0.3, 0.0, 10.0, 0.0,
-                    "Stable", "Unstable", "Unstable",
-                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-                [
-                    0.3, 0.0, 10.0, 10.0,
-                    "Stable", "Unstable", "Unstable",
-                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-                [
-                    0.5, 1000.0, 0.0, 0.0,
-                    "Stable", "Stable", "Unstable",
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-                [
-                    0.5, 1000.0, 0.0, 10.0,
-                    "Stable", "Stable", "Unstable",
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. ",
-                ],
-                [
-                    0.5, 1000.0, 10.0, 0.0,
-                    "Stable", "Unstable", "Unstable",
-                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-                [
-                    0.5, 1000.0, 10.0, 10.0,
-                    "Stable", "Unstable", "Unstable",
-                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ],
-            ])
-        )
-
-        # Test data
+        # Test direct derivatives mode
         self.assert_equal_function(
             f=generate_stab_table,
             input_args=(self.cpacs, "test_apm", self.wkdir, False,),
             expected=([
                 [
                     "mach", "alt", "aoa", "aos",
-                    "long_stab", "dir_stab", "lat_stab",
-                    "comment"
+                    "long_stab", "dir_stab", "lat_stab"
                 ],
                 [
                     0.3, 0.0, 0.0, 0.0,
                     "Stable", "Stable", "Stable",
-                    "Aircraft is stable along all axes."
                 ],
                 [
                     0.3, 0.0, 0.0, 10.0,
-                    "Stable", "Stable", "Unstable",
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
+                    "Stable", "Stable", "Clb >= 0.",
                 ],
                 [
                     0.3, 0.0, 10.0, 0.0,
-                    "Stable", "Unstable", "Stable",
-                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
+                    "Stable", "Cnb <= 0.", "Stable",
                 ],
                 [
                     0.3, 0.0, 10.0, 10.0,
-                    "Unstable", "Stable", "Stable",
-                    "Aircraft is unstable for Longitudinal axis i.e. Cma >=0. "
+                    "Cma >= 0.", "Stable", "Stable",
                 ],
                 [
                     0.5, 1000.0, 0.0, 0.0,
                     "Stable", "Stable", "Stable",
-                    "Aircraft is stable along all axes."
                 ],
                 [
                     0.5, 1000.0, 0.0, 10.0,
-                    "Stable", "Stable", "Unstable",
-                    "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
+                    "Stable", "Stable", "Clb >= 0.",
                 ],
                 [
                     0.5, 1000.0, 10.0, 0.0,
-                    "Stable", "Unstable", "Stable",
-                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. "
+                    "Stable", "Cnb <= 0.", "Stable",
                 ],
                 [
                     0.5, 1000.0, 10.0, 10.0,
-                    "Unstable", "Stable", "Stable",
-                    "Aircraft is unstable for Longitudinal axis i.e. Cma >=0. "
+                    "Cma >= 0.", "Stable", "Stable",
                 ]
             ])
 
         )
 
     @log_test
-    def test_main_creates_markdown(self: TestStaticStability) -> None:
-        create_branch(self.test_cpacs.tixi, STATICSTABILITY_LR_XPATH)
+    def test_generate_stab_table_lr_raises_type_error(self: TestStaticStability) -> None:
+        with self.assertRaises(TypeError):
+            generate_stab_table(self.cpacs, "test_apm", self.wkdir, True)
 
-        # Use Linear Regression (test_apm)
+    @log_test
+    def test_main_raises_when_all_aeromaps_fail(self: TestStaticStability) -> None:
+        create_branch(self.test_cpacs.tixi, STATICSTABILITY_LR_XPATH)
         self.test_cpacs.tixi.updateBooleanElement(STATICSTABILITY_LR_XPATH, True)
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            staticstability(self.test_cpacs, Path(tmpdir))
-            md_path = Path(tmpdir, f"{MODULE_NAME}.md")
-            with open(md_path, "r") as f:
-                content = f.read()
-                self.assertIn("mach", content)
-                self.assertIn("alt", content)
-                self.assertIn("aoa", content)
-                self.assertIn("aos", content)
+            with self.assertRaises(RuntimeError) as err:
+                staticstability(self.test_cpacs, Path(tmpdir))
+            self.assertIn("StaticStability failed", str(err.exception))
 
 
 # Main

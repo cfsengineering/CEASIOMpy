@@ -33,7 +33,6 @@ from ceasiompy.smtrain.func.config import (
     normalize_data,
     get_params_to_optimise,
     create_list_cpacs_geometry,
-    save_best_surrogate_geometry,
 )
 from ceasiompy.smtrain.func.trainsurrogatemodel import (
     get_best_rbf_model,
@@ -141,6 +140,8 @@ def _geometry_exploration(
     results_dir: Path,
     training_settings: TrainingSettings,
 ) -> None:
+
+    # 1. Generate & Prepare Data
     # Get Parameters Ranges
     geom_bounds = get_params_to_optimise(cpacs)
 
@@ -161,37 +162,16 @@ def _geometry_exploration(
     low_fidelity_dir = results_dir / "low_fidelity"
     low_fidelity_dir.mkdir(parents=True, exist_ok=True)
 
-    low_computations_dir = low_fidelity_dir / "computations"
-    low_computations_dir.mkdir(parents=True, exist_ok=True)
-
     # Low Fidelity First (+ Always available by default)
     level1_df: DataFrame = run_first_level_simulations(
         cpacs_list=cpacs_list,
         lh_sampling=lh_sampling,
-        results_dir=low_computations_dir,
-        training_settings=training_settings,
-    )
-
-    # Save Best Geometry from training in adequate Results Directory
-    store_best_geom_from_training(
-        dataframe=level1_df,
-        cpacs_list=cpacs_list,
-        lh_sampling=lh_sampling,
         results_dir=low_fidelity_dir,
-        geom_bounds=geom_bounds,
         training_settings=training_settings,
     )
-
-    if "KRG" in training_settings.sm_models:
-        krg_results_dir = results_dir / "krg_surrogate_model"
-        krg_results_dir.mkdir(parents=True, exist_ok=True)
-
-    if "RBF" in training_settings.sm_models:
-        rbf_results_dir = results_dir / "rbf_surrogate_model"
-        rbf_results_dir.mkdir(parents=True, exist_ok=True)
 
     # Normalize
-    geom_bounds_norm, level1_df_norm, aeromap_norm_df = normalize_data(
+    _, level1_df_norm, _ = normalize_data(
         cpacs=cpacs,
         data_frame=level1_df,
         geom_bounds=geom_bounds,
@@ -206,38 +186,18 @@ def _geometry_exploration(
     # Train Selected Surrogate Models
     if "KRG" in training_settings.sm_models:
         best_krg_model, _ = get_best_krg_model(level1_split)
-        save_best_surrogate_geometry(
-            cpacs=cpacs,
-            best_model=best_krg_model,
-            geom_bounds=geom_bounds_norm,
-            results_dir=low_fidelity_dir,
-            aeromap_norm_df=aeromap_norm_df,
-            training_settings=training_settings,
-        )
 
     if "RBF" in training_settings.sm_models:
         best_rbf_model, _ = get_best_rbf_model(level1_split)
-        save_best_surrogate_geometry(
-            cpacs=cpacs,
-            best_model=best_rbf_model,
-            geom_bounds=geom_bounds_norm,
-            results_dir=low_fidelity_dir,
-            aeromap_norm_df=aeromap_norm_df,
-            training_settings=training_settings,
-        )
 
     # Adaptative Refinement
     level2_split = None
     if training_settings.fidelity_level == LEVEL_TWO:
-        if (
-            ("KRG" in training_settings.sm_models)
-            or ("RBF" in training_settings.sm_models)
-        ):
-            log.info("Starting Adaptative Refinement of the Design Space.")
+        log.info("Starting Adaptative Refinement of the Design Space.")
 
-            # Generate directory where to store Low Fidelity runs
-            high_fidelity_dir = results_dir / "high_fidelity"
-            high_fidelity_dir.mkdir(exist_ok=True)
+        # Generate directory where to store Low Fidelity runs
+        high_fidelity_dir = results_dir / "high_fidelity"
+        high_fidelity_dir.mkdir(exist_ok=True)
 
         if "KRG" in training_settings.sm_models:
             high_var_pts: DataFrame = get_high_variance_points(
@@ -275,7 +235,7 @@ def _geometry_exploration(
         )
 
         # Normalize
-        geom_bounds_norm, level2_df_norm, _ = normalize_data(
+        _, level2_df_norm, _ = normalize_data(
             cpacs=cpacs,
             data_frame=level2_df,
             geom_bounds=geom_bounds,
@@ -290,64 +250,85 @@ def _geometry_exploration(
                 level1_split=level1_split,
                 level2_split=level2_split,
             )
-            save_best_surrogate_geometry(
-                cpacs=cpacs,
-                best_model=best_krg_model,
-                geom_bounds=geom_bounds_norm,
-                results_dir=high_fidelity_dir,
-                aeromap_norm_df=aeromap_norm_df,
-                training_settings=training_settings,
-            )
 
         if "RBF" in training_settings.sm_models:
             best_rbf_model, _ = get_best_rbf_model(
                 level1_split=level1_split,
                 level2_split=level2_split,
             )
-            save_best_surrogate_geometry(
-                cpacs=cpacs,
-                best_model=best_rbf_model,
-                geom_bounds=geom_bounds_norm,
-                results_dir=high_fidelity_dir,
-                aeromap_norm_df=aeromap_norm_df,
-                training_settings=training_settings,
-            )
 
     # 3. Plot, save and get results
     if "KRG" in training_settings.sm_models:
-        plot_validation(
-            model=best_krg_model,
-            results_dir=krg_results_dir,
-            level1_split=level1_split,
-            level2_split=level2_split,
-            training_settings=training_settings,
-        )
         save_model(
             cpacs=cpacs,
             model=best_krg_model,
             columns=level1_split.columns,
             geom_bounds=geom_bounds,
-            results_dir=krg_results_dir,
+            results_dir=results_dir,
             training_settings=training_settings,
         )
 
     if "RBF" in training_settings.sm_models:
-        plot_validation(
-            model=best_rbf_model,
-            results_dir=rbf_results_dir,
-            level1_split=level1_split,
-            level2_split=level2_split,
-            geom_bounds=geom_bounds,
-            training_settings=training_settings,
-        )
         save_model(
             cpacs=cpacs,
             model=best_rbf_model,
             columns=level1_split.columns,
             geom_bounds=geom_bounds,
-            results_dir=rbf_results_dir,
+            results_dir=results_dir,
             training_settings=training_settings,
         )
+
+    export_col_map = {
+        "machNumber": "Mach",
+        "altitude": "Altitude",
+        "angleOfAttack": "α°",
+        "angleOfSideslip": "β°",
+        "angleOfSideSllip": "β°",
+    }
+
+    objective_col = training_settings.objective
+    ascending = training_settings.direction == "Minimize"
+
+    level1_export_df = level1_df.rename(columns=export_col_map)
+    if objective_col in level1_export_df.columns:
+        level1_export_df = level1_export_df.sort_values(
+            by=objective_col,
+            ascending=ascending,
+            kind="mergesort",
+        ).reset_index(drop=True)
+
+    level1_export_df.to_csv(
+        results_dir / "level1_simulation_results.csv",
+        index=False,
+    )
+    if "level2_df" in locals() and level2_df is not None:
+        level2_export_df = level2_df.rename(columns=export_col_map)
+        if objective_col in level2_export_df.columns:
+            level2_export_df = level2_export_df.sort_values(
+                by=objective_col,
+                ascending=ascending,
+                kind="mergesort",
+            ).reset_index(drop=True)
+
+        level2_export_df.to_csv(
+            results_dir / "level2_simulation_results.csv",
+            index=False,
+        )
+
+    # Save Best Geometry from training in adequate Results Directory
+    training_results_df = (
+        pd.concat([level1_df, level2_df], ignore_index=True, copy=False)
+        if "level2_df" in locals() and level2_df is not None
+        else level1_df
+    )
+    store_best_geom_from_training(
+        dataframe=training_results_df,
+        cpacs_list=cpacs_list,
+        lh_sampling=lh_sampling,
+        results_dir=results_dir,
+        geom_bounds=geom_bounds,
+        training_settings=training_settings,
+    )
 
 
 # Main

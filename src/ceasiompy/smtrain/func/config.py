@@ -16,6 +16,7 @@ from cpacspy.cpacsfunctions import (
     create_branch,
     get_string_vector,
 )
+from ceasiompy.utils.guiobjects import add_value
 from scipy.optimize import differential_evolution
 from ceasiompy.utils.geometryfunctions import get_xpath_for_param
 from ceasiompy.smtrain.func.utils import (
@@ -48,6 +49,7 @@ from smt.surrogate_models import (
 )
 
 from ceasiompy import log
+from cpacspy.utils import AC_NAME_XPATH
 from ceasiompy.utils.commonxpaths import WINGS_XPATH
 from ceasiompy.smtrain import (
     NORMALIZED_DOMAIN,
@@ -296,9 +298,8 @@ def get_params_to_optimise(cpacs: CPACS) -> GeomBounds:
 
 
 def update_geometry_cpacs(cpacs_path_in: Path, cpacs_path_out: Path, geom_params: dict) -> CPACS:
-    tixi = Tixi3()
-    tixi.open(str(cpacs_path_in), True)
-
+    cpacs_in = CPACS(cpacs_path_in)
+    tixi = cpacs_in.tixi
     for param_name, param_info in geom_params.items():
         values = param_info["values"]
         xpaths = param_info["xpath"]
@@ -319,9 +320,7 @@ def update_geometry_cpacs(cpacs_path_in: Path, cpacs_path_out: Path, geom_params
 
             tixi.updateDoubleElement(xp, float(val), "%g")
 
-    # Save and close the CPACS file modified
-    tixi.save(str(cpacs_path_out))
-    tixi.close()
+    cpacs_in.save_cpacs(cpacs_path_out, overwrite=True)
     return CPACS(cpacs_path_out)
 
 
@@ -397,6 +396,7 @@ def create_list_cpacs_geometry(
 
     # Constants
     tixi = cpacs.tixi
+
     cpacs_name = cpacs.ac_name
     cpacs_path_in = cpacs.cpacs_file
 
@@ -649,55 +649,12 @@ def save_best_surrogate_geometry(
     """
     Optimize Geometry on surrogate's function.
     """
-    best_model_name = get_model_typename(best_model)
+    _ = get_model_typename(best_model)
 
-    best_result, _ = optimize_surrogate(
+    _, _ = optimize_surrogate(
         model=best_model,
         geom_bounds=geom_bounds,
         aeromap_norm_df=aeromap_norm_df,
         training_settings=training_settings,
     )
-
-    sm_results_dir = results_dir / f"{best_model_name}_results"
-    sm_results_dir.mkdir(parents=True, exist_ok=True)
-
-    csv_path = sm_results_dir / f"best_{best_model_name}_params.csv"
-
-    log.info(f"Best surrogate parameters saved to CSV: {csv_path}")
-
-    best_cpacs_path = sm_results_dir / f"best_{best_model_name}_geometry.xml"
-    copyfile(cpacs.cpacs_file, best_cpacs_path)
-
-    best_cpacs = CPACS(best_cpacs_path)
-    tixi = best_cpacs.tixi
-
-    params_to_update = {}
-    for full_name, val in zip(geom_bounds.param_names, best_result.x):
-        # SYNTAX: {param}_of_{section}_of_{wing}
-        parts = full_name.split("_of_")
-        if len(parts) != 3:
-            log.warning(f"Skipping malformed parameter name: {full_name}")
-            continue
-
-        name_parameter, section_uid, wing_uid = parts
-
-        xpath = get_xpath_for_param(
-            tixi=tixi,
-            param=name_parameter,
-            wing_uid=wing_uid,
-            section_uid=section_uid
-        )
-        if name_parameter not in params_to_update:
-            params_to_update[name_parameter] = {"values": [], "xpath": []}
-
-        params_to_update[name_parameter]["values"].append(float(val))
-        params_to_update[name_parameter]["xpath"].append(xpath)
-
-    update_geometry_cpacs(
-        best_cpacs_path,
-        best_cpacs_path,
-        params_to_update,
-    )
-    best_cpacs.save_cpacs(best_cpacs_path, overwrite=True)
-
-    log.info(f"Best surrogate geometry saved to: {best_cpacs_path}")
+    raise NotImplementedError

@@ -368,6 +368,7 @@ def section_3D_view(
     *,
     force_regenerate: bool = False,
     height: int | None = None,
+    plot_key: str | None = None,
 ) -> None:
     """
     Shows a 3D view of the aircraft by exporting a STL file.
@@ -450,4 +451,7 @@ def section_3D_view(
     if height is not None:
         fig.update_layout(height=height)
 
-    st.plotly_chart(fig, width="stretch")
+    if plot_key is None:
+        st.plotly_chart(fig, width="stretch")
+    else:
+        st.plotly_chart(fig, width="stretch", key=plot_key)

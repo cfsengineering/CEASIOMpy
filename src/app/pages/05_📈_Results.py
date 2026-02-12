@@ -14,11 +14,14 @@ import shutil
 import joblib
 import hashlib
 import tempfile
+from time import perf_counter
+from contextlib import contextmanager
 import numpy as np
 import pandas as pd
 import pyvista as pv
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
 import streamlit.components.v1 as components
 
 from stpyvista import stpyvista
@@ -40,10 +43,11 @@ from streamlitutils import (
 )
 
 from pathlib import Path
-from SALib.analyze import sobol
+from pandas import DataFrame
+from SALib.analyze import sobol as sobol_analyze
 from smt.applications import MFK
 from cpacspy.cpacspy import CPACS
-from SALib.sample import saltelli
+from SALib.sample import sobol as sobol_sample
 from scipy.optimize import Bounds
 from smt.surrogate_models import (
     KRG,
@@ -89,6 +93,16 @@ IGNORED_RESULTS: set[str] = {
 
 # Functions
 
+@contextmanager
+def _timed(label: str):
+    start = perf_counter()
+    try:
+        yield
+    finally:
+        elapsed = perf_counter() - start
+        log.info(f"[timer] {label}: {elapsed:.3f}s")
+
+
 def _looks_binary(data: bytes) -> bool:
     if not data:
         return False
@@ -100,7 +114,7 @@ def _looks_binary(data: bytes) -> bool:
     return nontext / len(sample) > 0.3
 
 
-@lru_cache(maxsize=8)
+@st.cache_data(show_spinner=False)
 def _build_workflow_zip(workflow_path: str, workflow_mtime_ns: int) -> bytes:
     _ = workflow_mtime_ns  # cache invalidation key
     workflow_dir = Path(workflow_path)
@@ -146,18 +160,35 @@ def show_results():
 
     with right_col:
         try:
-            workflow_zip = _build_workflow_zip(
-                str(chosen_workflow),
-                chosen_workflow.stat().st_mtime_ns,
+            workflow_mtime_ns = chosen_workflow.stat().st_mtime_ns
+            zip_state_key = f"{chosen_workflow}_zip_state"
+            zip_state = st.session_state.get(zip_state_key, {})
+            is_current = (
+                zip_state.get("workflow_path") == str(chosen_workflow)
+                and zip_state.get("workflow_mtime_ns") == workflow_mtime_ns
             )
-            st.download_button(
-                label=f"Download {chosen_workflow_name}",
-                data=workflow_zip,
-                file_name=f"{chosen_workflow_name}.zip",
-                mime="application/zip",
-                width="stretch",
-                key=f"{chosen_workflow}_download",
-            )
+
+            if not is_current:
+                workflow_zip = _build_workflow_zip(
+                    str(chosen_workflow),
+                    workflow_mtime_ns,
+                )
+                st.session_state[zip_state_key] = {
+                    "workflow_path": str(chosen_workflow),
+                    "workflow_mtime_ns": workflow_mtime_ns,
+                    "workflow_zip": workflow_zip,
+                }
+                zip_state = st.session_state[zip_state_key]
+
+            if "workflow_zip" in zip_state:
+                st.download_button(
+                    label=f"Download {chosen_workflow_name}",
+                    data=zip_state["workflow_zip"],
+                    file_name=f"{chosen_workflow_name}.zip",
+                    mime="application/zip",
+                    width="stretch",
+                    key=f"{chosen_workflow}_download",
+                )
         except OSError as exc:
             st.warning(f"Unable to prepare workflow download: {exc}")
 
@@ -226,7 +257,6 @@ def display_results(results_dir):
         ".png": _display_png,
         ".pdf": _display_pdf,
         ".md": _display_md,
-        ".json": _display_json,
         ".txt": _display_txt,
         ".log": _display_log,
         ".csv": _display_csv,
@@ -235,15 +265,21 @@ def display_results(results_dir):
         ".json": _display_json,
     }
 
+    is_first_displayed_child = True
     for child in sorted(Path(results_dir).iterdir(), key=_results_sort_key):
         if child.name in IGNORED_RESULTS:
             continue
         try:
             handler = DISPLAY_BY_SUFFIX.get(child.suffix.lower())
             if handler is not None:
-                handler(child)
+                if not is_first_displayed_child:
+                    st.markdown("---")
+                with _timed(f"display handler {child.name}"):
+                    handler(child)
+                is_first_displayed_child = False
             elif child.is_dir():
-                _display_dir(child)
+                with _timed(f"display dir {child.name}"):
+                    _display_dir(child)
 
         except BaseException as e:
             log.warning(f"Could not display {child}: {e=}")
@@ -253,85 +289,77 @@ def display_results(results_dir):
 # Methods
 
 def _display_json(path: Path) -> None:
-    with st.container(border=True):
-        show_json = st.checkbox(
-            f"**{path.name}**",
-            value=True,
-            key=f"{path}_json_toggle",
+
+    data = path.read_bytes()
+    if _looks_binary(data):
+        st.info(f"📄 {path.name} (binary file, cannot display as text)")
+        return None
+
+    text_data = data.decode("utf-8", errors="replace")
+
+    try:
+        parsed = json.loads(text_data)
+    except json.JSONDecodeError as exc:
+        st.warning(f"Invalid JSON in {path.name}: {exc}")
+        st.text_area(path.stem, text_data, height=260, key=f"{path}_json_raw_invalid")
+        return None
+
+    left_col, right_col = st.columns([3, 1])
+    with left_col:
+        query = st.text_input(
+            "Search key/value",
+            value="",
+            key=f"{path}_json_search",
+            placeholder="e.g. mach, aoa, result",
+            label_visibility="collapsed",
+        ).strip()
+    with right_col:
+        expanded = st.toggle(
+            "Expand tree",
+            value=False,
+            key=f"{path}_json_expand",
         )
-        if not show_json:
-            return None
 
-        data = path.read_bytes()
-        if _looks_binary(data):
-            st.info(f"📄 {path.name} (binary file, cannot display as text)")
-            return None
+    def _iter_pairs(obj, prefix=""):
+        if isinstance(obj, dict):
+            for key, val in obj.items():
+                new_prefix = f"{prefix}.{key}" if prefix else str(key)
+                yield from _iter_pairs(val, new_prefix)
+        elif isinstance(obj, list):
+            for idx, val in enumerate(obj):
+                new_prefix = f"{prefix}[{idx}]"
+                yield from _iter_pairs(val, new_prefix)
+        else:
+            yield prefix or "$", obj
 
-        text_data = data.decode("utf-8", errors="replace")
+    if query:
+        query_lower = query.lower()
+        matches = []
+        for jpath, value in _iter_pairs(parsed):
+            if (query_lower in jpath.lower()) or (query_lower in str(value).lower()):
+                matches.append({"path": jpath, "value": value})
+        st.caption(f"{len(matches)} match(es) for '{query}'")
+        if matches:
+            st.dataframe(DataFrame(matches), width="stretch", hide_index=True)
+        else:
+            st.info("No matches found.")
 
-        try:
-            parsed = json.loads(text_data)
-        except json.JSONDecodeError as exc:
-            st.warning(f"Invalid JSON in {path.name}: {exc}")
-            st.text_area(path.stem, text_data, height=260, key=f"{path}_json_raw_invalid")
-            return None
-
-        left_col, right_col = st.columns([3, 1])
-        with left_col:
-            query = st.text_input(
-                "Search key/value",
-                value="",
-                key=f"{path}_json_search",
-                placeholder="e.g. mach, aoa, result",
-                label_visibility="collapsed",
-            ).strip()
-        with right_col:
-            expanded = st.toggle(
-                "Expand tree",
-                value=False,
-                key=f"{path}_json_expand",
-            )
-
-        def _iter_pairs(obj, prefix=""):
-            if isinstance(obj, dict):
-                for key, val in obj.items():
-                    new_prefix = f"{prefix}.{key}" if prefix else str(key)
-                    yield from _iter_pairs(val, new_prefix)
-            elif isinstance(obj, list):
-                for idx, val in enumerate(obj):
-                    new_prefix = f"{prefix}[{idx}]"
-                    yield from _iter_pairs(val, new_prefix)
-            else:
-                yield prefix or "$", obj
-
-        if query:
-            query_lower = query.lower()
-            matches = []
-            for jpath, value in _iter_pairs(parsed):
-                if (query_lower in jpath.lower()) or (query_lower in str(value).lower()):
-                    matches.append({"path": jpath, "value": value})
-            st.caption(f"{len(matches)} match(es) for '{query}'")
-            if matches:
-                st.dataframe(pd.DataFrame(matches), width="stretch", hide_index=True)
-            else:
-                st.info("No matches found.")
-
-        tab_flat, tab_tree, tab_raw = st.tabs(["Flat", "Tree", "Raw"])
-        with tab_tree:
-            st.json(parsed, expanded=expanded)
-        with tab_flat:
-            flat_rows = [{"path": jpath, "value": value} for jpath, value in _iter_pairs(parsed)]
-            st.dataframe(pd.DataFrame(flat_rows), width="stretch", hide_index=True)
-        with tab_raw:
-            st.text_area("Raw JSON", text_data, height=260, key=f"{path}_json_raw")
-            st.download_button(
-                "Download JSON",
-                data=text_data,
-                file_name=path.name,
-                mime="application/json",
-                key=f"{path}_json_download",
-                width="stretch",
-            )
+    tab_flat, tab_tree, tab_raw = st.tabs(["Flat", "Tree", "Raw"])
+    with tab_tree:
+        st.json(parsed, expanded=expanded)
+    with tab_flat:
+        flat_rows = [{"path": jpath, "value": value} for jpath, value in _iter_pairs(parsed)]
+        st.dataframe(DataFrame(flat_rows), width="stretch", hide_index=True)
+    with tab_raw:
+        st.text_area("Raw JSON", text_data, height=260, key=f"{path}_json_raw")
+        st.download_button(
+            "Download JSON",
+            data=text_data,
+            file_name=path.name,
+            mime="application/json",
+            key=f"{path}_json_download",
+            width="stretch",
+        )
 
 
 def _display_dir(path: Path) -> None:
@@ -346,135 +374,128 @@ def _display_dir(path: Path) -> None:
 
 
 def _display_pkl(path: Path) -> None:
-    with st.container(border=True):
-        show_model = st.checkbox(
-            label=f"**{path.name}**",
-            value=True,
-            key=f"{path}_plk_toggle",
-        )
-        if not show_model:
-            return None
+    path_mtime = path.stat().st_mtime
+    try:
+        with _timed(f"pkl load {path.name}"):
+            data = _load_plk_cached(str(path), path_mtime)
+    except Exception as exc:
+        st.error(f"Could not load model from {path.name}: {exc!r}")
+        return None
 
-        try:
-            data = _load_plk_cached(str(path), path.stat().st_mtime)
-        except Exception as exc:
-            st.error(f"Could not load model from {path.name}: {exc!r}")
-            return None
+    if not isinstance(data, dict):
+        st.error(f"Can not retrieve model info from {data=}")
+        return None
 
-        if not isinstance(data, dict):
-            st.error(f"Can not retrieve model info from {data=}")
-            return None
+    model = data.get("model")
+    if not isinstance(model, (KRG, RBF, MFK)):
+        st.error(f"Modeltype {model=} is uncorrect.")
+        return None
 
-        model = data.get("model")
-        if not isinstance(model, (KRG, RBF, MFK)):
-            st.error(f"Modeltype {model=} is uncorrect.")
-            return None
+    columns = data.get("columns")
+    objective = data.get("objective")
 
-        columns = data.get("columns")
-        objective = data.get("objective")
+    geom_bounds = data.get("geom_bounds")
+    aero_bounds = data.get("aero_bounds")
 
-        geom_bounds = data.get("geom_bounds")
-        aero_bounds = data.get("aero_bounds")
-
-        if columns and objective in columns:
-            columns = [
-                col
-                for col in columns
-                if col != objective
-            ]
-
-        if not columns:
-            st.info("No parameter metadata found in the model file.")
-            return None
-
-        bounds = {}
-        bounds_source = {}
-        try:
-            for idx, name in enumerate(geom_bounds.param_names):
-                bounds[name] = (
-                    float(geom_bounds.bounds.lb[idx]),
-                    float(geom_bounds.bounds.ub[idx]),
-                )
-                bounds_source[name] = "geom"
-        except Exception as e:
-            st.error(f"Could not extract geometric bounds from model {e=}")
-            return None
-
-        try:
-            for idx, name in enumerate(AEROMAP_FEATURES):
-                bounds.setdefault(
-                    name,
-                    (float(aero_bounds.lb[idx]), float(aero_bounds.ub[idx])),
-                )
-                bounds_source.setdefault(name, "aero")
-        except Exception as e:
-            st.error(f"Could not extract aerodynamic bounds from model {e=}")
-            return None
-
-        st.markdown("**Model Inputs**")
-
-        geom_inputs = [col for col in columns if bounds_source.get(col) == "geom"]
-        aero_inputs = [col for col in columns if bounds_source.get(col) == "aero"]
-        other_inputs = [
-            col for col in columns if col not in geom_inputs and col not in aero_inputs
+    if columns and objective in columns:
+        columns = [
+            col
+            for col in columns
+            if col != objective
         ]
 
-        input_values: dict[str, float] = {}
+    if not columns:
+        st.info("No parameter metadata found in the model file.")
+        return None
 
-        def _input_widget(col: str, *, key_prefix: str = "", label: str | None = None) -> None:
-            display_label = label or col
-            lo, hi = bounds[col]
-            if hi < lo:
-                lo, hi = hi, lo
-            if hi == lo:
-                val = st.number_input(
-                    display_label,
-                    value=float(lo),
-                    key=f"{path}_plk_{key_prefix}{col}",
-                    disabled=True,
+    bounds = {}
+    bounds_source = {}
+    try:
+        for idx, name in enumerate(geom_bounds.param_names):
+            bounds[name] = (
+                float(geom_bounds.bounds.lb[idx]),
+                float(geom_bounds.bounds.ub[idx]),
+            )
+            bounds_source[name] = "geom"
+    except Exception as e:
+        st.error(f"Could not extract geometric bounds from model {e=}")
+        return None
+
+    try:
+        for idx, name in enumerate(AEROMAP_FEATURES):
+            bounds.setdefault(
+                name,
+                (float(aero_bounds.lb[idx]), float(aero_bounds.ub[idx])),
+            )
+            bounds_source.setdefault(name, "aero")
+    except Exception as e:
+        st.error(f"Could not extract aerodynamic bounds from model {e=}")
+        return None
+
+    geom_inputs = [col for col in columns if bounds_source.get(col) == "geom"]
+    aero_inputs = [col for col in columns if bounds_source.get(col) == "aero"]
+    other_inputs = [
+        col for col in columns if col not in geom_inputs and col not in aero_inputs
+    ]
+
+    input_values: dict[str, float] = {}
+
+    def _input_widget(col: str, *, key_prefix: str = "", label: str | None = None) -> None:
+        display_label = label or col
+        lo, hi = bounds[col]
+        if hi < lo:
+            lo, hi = hi, lo
+        if hi == lo:
+            val = st.number_input(
+                display_label,
+                value=float(lo),
+                key=f"{path}_plk_{key_prefix}{col}",
+                disabled=True,
+            )
+        else:
+            step = (hi - lo) / 100.0
+            val = st.slider(
+                display_label,
+                min_value=float(lo),
+                max_value=float(hi),
+                value=float((lo + hi) / 2.0),
+                step=float(step),
+                key=f"{path}_plk_{key_prefix}{col}",
+            )
+        input_values[col] = float(val)
+
+    st.markdown("**Model Inputs**")
+    if geom_inputs:
+        st.markdown("**Geometry Inputs**")
+        for col in geom_inputs:
+            _input_widget(col, key_prefix="geom_")
+
+    if aero_inputs:
+        st.markdown("**Aero Inputs**")
+        aero_cols = st.columns(2)
+        aero_labels = {
+            "altitude": "Altitude",
+            "machNumber": "Mach",
+            "angleOfAttack": "α°",
+            "angleOfSideslip": "β°",
+        }
+        for idx, col in enumerate(aero_inputs):
+            with aero_cols[idx % 2]:
+                _input_widget(
+                    col,
+                    key_prefix="aero_",
+                    label=aero_labels.get(col, col),
                 )
-            else:
-                step = (hi - lo) / 100.0
-                val = st.slider(
-                    display_label,
-                    min_value=float(lo),
-                    max_value=float(hi),
-                    value=float((lo + hi) / 2.0),
-                    step=float(step),
-                    key=f"{path}_plk_{key_prefix}{col}",
-                )
-            input_values[col] = float(val)
 
-        if geom_inputs:
-            st.markdown("**Geometry Inputs**")
-            for col in geom_inputs:
-                _input_widget(col, key_prefix="geom_")
+    if other_inputs:
+        st.markdown("**Other Inputs**")
+        for col in other_inputs:
+            _input_widget(col, key_prefix="other_")
 
-        if aero_inputs:
-            st.markdown("**Aero Inputs**")
-            aero_cols = st.columns(2)
-            aero_labels = {
-                "altitude": "Altitude",
-                "machNumber": "Mach",
-                "angleOfAttack": "α°",
-                "angleOfSideslip": "β°",
-            }
-            for idx, col in enumerate(aero_inputs):
-                with aero_cols[idx % 2]:
-                    _input_widget(
-                        col,
-                        key_prefix="aero_",
-                        label=aero_labels.get(col, col),
-                    )
-
-        if other_inputs:
-            st.markdown("**Other Inputs**")
-            for col in other_inputs:
-                _input_widget(col, key_prefix="other_")
-
-        st.markdown("**Geometry**")
-        preview_cpacs = None
-        try:
+    st.markdown("**Geometry**")
+    preview_cpacs = None
+    try:
+        with _timed(f"geometry preview build {path.name}"):
             workflow_root = _find_workflow_root(path)
             if workflow_root is not None:
                 cpacs_in = workflow_root / "00_ToolInput.xml"
@@ -519,59 +540,396 @@ def _display_pkl(path: Path) -> None:
                         )
                     else:
                         preview_cpacs = base_cpacs
-        except Exception as exc:
-            st.warning(f"Could not generate preview CPACS from geometry inputs: {exc!r}")
+    except Exception as exc:
+        st.warning(f"Could not generate preview CPACS from geometry inputs: {exc!r}")
 
-        if preview_cpacs is not None:
-            section_3D_view(cpacs=preview_cpacs, force_regenerate=True)
+    if preview_cpacs is not None:
+        with _timed(f"geometry preview render {path.name}"):
+            section_3D_view(
+                cpacs=preview_cpacs,
+                force_regenerate=False,
+                plot_key=f"{path}_plk_geom_view",
+            )
+    else:
+        with _timed(f"geometry preview render fallback {path.name}"):
+            section_3D_view(
+                force_regenerate=False,
+                plot_key=f"{path}_plk_geom_view",
+            )
+
+    normalized_values = []
+    for col in columns:
+        val = input_values.get(col, 0.0)
+        lo, hi = bounds[col]
+        if hi < lo:
+            lo, hi = hi, lo
+        if bounds_source.get(col) in {"geom", "aero"}:
+            normalized_values.append(
+                float(domain_converter(float(val), (lo, hi), NORMALIZED_DOMAIN))
+            )
         else:
-            section_3D_view(force_regenerate=True)
+            normalized_values.append(float(val))
 
-        normalized_values = []
-        for col in columns:
-            val = input_values.get(col, 0.0)
-            lo, hi = bounds[col]
-            if hi < lo:
-                lo, hi = hi, lo
-            if bounds_source.get(col) in {"geom", "aero"}:
-                normalized_values.append(
-                    float(domain_converter(float(val), (lo, hi), NORMALIZED_DOMAIN))
-                )
-            else:
-                normalized_values.append(float(val))
+    x = np.asarray(normalized_values, dtype=float).reshape(1, -1)
 
-        x = np.asarray(normalized_values, dtype=float).reshape(1, -1)
+    try:
+        with _timed(f"objective prediction {path.name}"):
+            pred_val = _cached_objective_prediction(
+                path_str=str(path),
+                mtime=path_mtime,
+                x_row=_matrix_to_hashable(x)[0],
+            )
+    except Exception as exc:
+        st.error(f"Model prediction failed: {exc!r}")
+        return None
 
-        prediction = None
-        try:
-            prediction = model.predict_values(x)
-        except Exception as exc:
-            st.error(f"Model prediction failed: {exc!r}")
-            return None
+    label = f"Predicted {objective}" if objective else "Predicted value"
+    st.metric(label=label, value=f"{pred_val:.6g}")
 
-        if prediction is None:
-            st.info("Model does not support prediction.")
-            return None
+    variable_geom_inputs = [
+        col
+        for col in geom_inputs
+        if bounds[col][0] != bounds[col][1]
+    ]
 
-        pred_val = float(np.asarray(prediction).ravel()[0])
-        label = f"Predicted {objective}" if objective else "Predicted value"
-        st.metric(label=label, value=f"{pred_val:.6g}")
-
-        st.markdown("---")
-        _compute_sobol_analysis(
+    with _timed(f"response surface {path.name}"):
+        _display_response_surface(
+            path=path,
+            path_mtime=path_mtime,
             model=model,
             bounds=bounds,
             columns=columns,
             bounds_source=bounds_source,
+            objective=objective,
+            variable_geom_inputs=variable_geom_inputs,
         )
+
+    if len(variable_geom_inputs) > 1:
+        st.markdown("---")
+        with _timed(f"sobol {path.name}"):
+            _compute_sobol_analysis(
+                path=path,
+                path_mtime=path_mtime,
+                model=model,
+                bounds=bounds,
+                columns=columns,
+                bounds_source=bounds_source,
+            )
+
+
+def _display_response_surface(
+    path: Path,
+    path_mtime: float,
+    model: RBF | KRG | MFK,
+    bounds: dict[str, tuple[float, float]],
+    columns: list[str],
+    bounds_source: dict[str, str],
+    objective: str | None,
+    variable_geom_inputs: list[str],
+) -> None:
+    st.markdown("---")
+    st.markdown("**Response Surface**")
+
+    if not variable_geom_inputs:
+        st.info("No variable geometry parameters available for response surface display.")
+        return None
+
+    def _to_normalized(col: str, value: float | np.ndarray) -> float | np.ndarray:
+        if bounds_source.get(col) in {"geom", "aero"}:
+            lo, hi = bounds[col]
+            if hi < lo:
+                lo, hi = hi, lo
+            return domain_converter(value, (lo, hi), NORMALIZED_DOMAIN)
+        return value
+
+    def _to_physical(col: str, value: np.ndarray) -> np.ndarray:
+        if bounds_source.get(col) in {"geom", "aero"}:
+            lo, hi = bounds[col]
+            if hi < lo:
+                lo, hi = hi, lo
+            return domain_converter(value, NORMALIZED_DOMAIN, (lo, hi))
+        return value
+
+    def _extract_training_xy(
+        surrogate_model: RBF | KRG | MFK,
+    ) -> tuple[np.ndarray | None, np.ndarray | None]:
+        training_points = getattr(surrogate_model, "training_points", None)
+        if not isinstance(training_points, dict):
+            return None, None
+
+        x_blocks = []
+        y_blocks = []
+        for _, level_dict in training_points.items():
+            if not isinstance(level_dict, dict):
+                continue
+            for _, values in level_dict.items():
+                if not isinstance(values, (list, tuple)) or len(values) < 2:
+                    continue
+                x_block = np.asarray(values[0], dtype=float)
+                y_block = np.asarray(values[1], dtype=float).ravel()
+                if x_block.ndim != 2 or y_block.size != x_block.shape[0]:
+                    continue
+                x_blocks.append(x_block)
+                y_blocks.append(y_block)
+
+        if not x_blocks:
+            return None, None
+
+        return np.vstack(x_blocks), np.concatenate(y_blocks)
+
+    x_train_norm, y_train = _extract_training_xy(model)
+    x_train_phys = None
+    if x_train_norm is not None and x_train_norm.shape[1] == len(columns):
+        x_train_phys = np.empty_like(x_train_norm, dtype=float)
+        for i, col in enumerate(columns):
+            x_train_phys[:, i] = _to_physical(col, x_train_norm[:, i])
+
+    fixed_values = {}
+    for col in columns:
+        lo, hi = bounds[col]
+        if hi < lo:
+            lo, hi = hi, lo
+        fixed_values[col] = float((lo + hi) / 2.0)
+
+    x_base_norm = np.asarray(
+        [float(_to_normalized(col, fixed_values[col])) for col in columns],
+        dtype=float,
+    )
+
+    def _training_slice_mask(plotted_cols: list[str]) -> np.ndarray | None:
+        if x_train_phys is None or y_train is None:
+            return None
+        mask = np.ones(x_train_phys.shape[0], dtype=bool)
+        for col in columns:
+            if col in plotted_cols:
+                continue
+            idx = columns.index(col)
+            lo, hi = bounds[col]
+            if hi < lo:
+                lo, hi = hi, lo
+            tol = max((hi - lo) * 0.03, 1e-9)
+            mask &= np.abs(x_train_phys[:, idx] - fixed_values[col]) <= tol
+        return mask
+
+    if len(variable_geom_inputs) == 1:
+        x_col = variable_geom_inputs[0]
+        lo, hi = bounds[x_col]
+        if hi < lo:
+            lo, hi = hi, lo
+
+        x_grid = np.linspace(float(lo), float(hi), 100)
+        x_eval = np.tile(x_base_norm, (x_grid.size, 1))
+        x_idx = columns.index(x_col)
+        x_eval[:, x_idx] = _to_normalized(x_col, x_grid)
+        y_grid = np.asarray(
+            _cached_response_surface_prediction(
+                path_str=str(path),
+                mtime=path_mtime,
+                x_rows=_matrix_to_hashable(x_eval),
+            ),
+            dtype=float,
+        )
+
+        fig = px.line(
+            x=x_grid,
+            y=y_grid,
+            labels={"x": x_col, "y": objective or "Response"},
+            title=f"Response along {x_col}",
+        )
+
+        train_mask = _training_slice_mask([x_col])
+        if (
+            train_mask is not None
+            and np.any(train_mask)
+            and x_train_phys is not None
+            and y_train is not None
+        ):
+            fig.add_scatter(
+                x=x_train_phys[train_mask, x_idx],
+                y=y_train[train_mask],
+                mode="markers",
+                marker={"color": "black", "symbol": "x", "size": 8},
+                name="Training points",
+            )
+
+        st.plotly_chart(fig, width="stretch", key=f"{path}_plk_response_surface")
+        return None
+
+    if len(variable_geom_inputs) > 2:
+        axis_options = variable_geom_inputs.copy()
+        x_axis_key = f"{path}_plk_response_x_axis"
+        y_axis_key = f"{path}_plk_response_y_axis"
+
+        x_candidates = axis_options
+        x_default = st.session_state.get(x_axis_key, x_candidates[0])
+        if x_default not in x_candidates:
+            x_default = x_candidates[0]
+        x_col = st.selectbox(
+            "Surface X axis",
+            x_candidates,
+            index=x_candidates.index(x_default),
+            key=x_axis_key,
+        )
+        y_candidates = axis_options
+        y_default = st.session_state.get(y_axis_key, y_candidates[0])
+        if y_default not in y_candidates:
+            y_default = y_candidates[0]
+        y_col = st.selectbox(
+            "Surface Y axis",
+            y_candidates,
+            index=y_candidates.index(y_default),
+            key=y_axis_key,
+        )
+    else:
+        x_col = variable_geom_inputs[0]
+        y_col = variable_geom_inputs[1]
+
+    if x_col == y_col:
+        extra_cols = [col for col in variable_geom_inputs if col != x_col]
+    else:
+        extra_cols = [col for col in variable_geom_inputs if col not in {x_col, y_col}]
+
+    if extra_cols:
+        st.caption("Fix additional geometry parameters for this 3D slice:")
+        for col in extra_cols:
+            lo, hi = bounds[col]
+            if hi < lo:
+                lo, hi = hi, lo
+            step = max((hi - lo) / 100.0, 1e-9)
+            fixed_values[col] = float(
+                st.slider(
+                    col,
+                    min_value=float(lo),
+                    max_value=float(hi),
+                    value=float(fixed_values[col]),
+                    step=float(step),
+                    key=f"{path}_plk_response_fix_{col}",
+                )
+            )
+
+    if x_col == y_col:
+        x_lo, x_hi = bounds[x_col]
+        if x_hi < x_lo:
+            x_lo, x_hi = x_hi, x_lo
+
+        x_grid = np.linspace(float(x_lo), float(x_hi), 150)
+        x_eval = np.tile(x_base_norm, (x_grid.size, 1))
+        x_idx = columns.index(x_col)
+        x_eval[:, x_idx] = _to_normalized(x_col, x_grid)
+        y_grid = np.asarray(
+            _cached_response_surface_prediction(
+                path_str=str(path),
+                mtime=path_mtime,
+                x_rows=_matrix_to_hashable(x_eval),
+            ),
+            dtype=float,
+        )
+
+        fig = px.line(
+            x=x_grid,
+            y=y_grid,
+            labels={"x": x_col, "y": objective or "Response"},
+            title=f"Response along {x_col}",
+        )
+
+        train_mask = _training_slice_mask([x_col])
+        if (
+            train_mask is not None
+            and np.any(train_mask)
+            and x_train_phys is not None
+            and y_train is not None
+        ):
+            fig.add_scatter(
+                x=x_train_phys[train_mask, x_idx],
+                y=y_train[train_mask],
+                mode="markers",
+                marker={"color": "black", "symbol": "x", "size": 8},
+                name="Training points",
+            )
+
+        st.plotly_chart(fig, width="stretch", key=f"{path}_plk_response_surface")
+        return None
+
+    x_lo, x_hi = bounds[x_col]
+    y_lo, y_hi = bounds[y_col]
+    if x_hi < x_lo:
+        x_lo, x_hi = x_hi, x_lo
+    if y_hi < y_lo:
+        y_lo, y_hi = y_hi, y_lo
+
+    x_axis = np.linspace(float(x_lo), float(x_hi), 30)
+    y_axis = np.linspace(float(y_lo), float(y_hi), 30)
+    x_mesh, y_mesh = np.meshgrid(x_axis, y_axis)
+
+    x_eval = np.tile(x_base_norm, (x_mesh.size, 1))
+    x_idx = columns.index(x_col)
+    y_idx = columns.index(y_col)
+    x_eval[:, x_idx] = _to_normalized(x_col, x_mesh.ravel())
+    x_eval[:, y_idx] = _to_normalized(y_col, y_mesh.ravel())
+    for col in extra_cols:
+        idx = columns.index(col)
+        x_eval[:, idx] = float(_to_normalized(col, fixed_values[col]))
+
+    z_mesh = np.asarray(
+        _cached_response_surface_prediction(
+            path_str=str(path),
+            mtime=path_mtime,
+            x_rows=_matrix_to_hashable(x_eval),
+        ),
+        dtype=float,
+    ).reshape(x_mesh.shape)
+
+    fig = go.Figure()
+    fig.add_trace(
+        go.Surface(
+            x=x_mesh,
+            y=y_mesh,
+            z=z_mesh,
+            colorscale="Viridis",
+            name="Response surface",
+            showscale=True,
+            opacity=0.9,
+        )
+    )
+
+    train_mask = _training_slice_mask([x_col, y_col])
+    if (
+        train_mask is not None
+        and np.any(train_mask)
+        and x_train_phys is not None
+        and y_train is not None
+    ):
+        fig.add_trace(
+            go.Scatter3d(
+                x=x_train_phys[train_mask, x_idx],
+                y=x_train_phys[train_mask, y_idx],
+                z=y_train[train_mask],
+                mode="markers",
+                marker={"color": "black", "size": 4, "symbol": "x"},
+                name="Training points",
+            )
+        )
+
+    fig.update_layout(
+        title=f"Response surface: {objective or 'Response'}",
+        scene={
+            "xaxis_title": x_col,
+            "yaxis_title": y_col,
+            "zaxis_title": objective or "Response",
+        },
+    )
+    st.plotly_chart(fig, width="stretch", key=f"{path}_plk_response_surface")
 
 
 def _compute_sobol_analysis(
+    path: Path,
+    path_mtime: float,
     model: RBF | KRG | MFK,
-    bounds: Bounds,
+    bounds: dict[str, tuple[float, float]],
     columns: list[str],
-    bounds_source: dict,
+    bounds_source: dict[str, str],
 ) -> None:
+    _ = model
     sobol_params = []
     sobol_bounds = []
     for col in columns:
@@ -587,55 +945,28 @@ def _compute_sobol_analysis(
         st.info("No variable inputs available for Sobol analysis.")
         return None
 
-    problem = {
-        "num_vars": len(sobol_params),
-        "names": sobol_params,
-        "bounds": sobol_bounds,
-    }
-
-    n_base = 256
-    sample_set = saltelli.sample(problem, n_base, calc_second_order=False)
-
-    mids = {}
-    for col in columns:
-        lo, hi = bounds[col]
-        if hi < lo:
-            lo, hi = hi, lo
-        mids[col] = (float(lo) + float(hi)) / 2.0
-
-    x_rows = np.zeros((sample_set.shape[0], len(columns)), dtype=float)
-    for idx, col in enumerate(columns):
-        if col in sobol_params:
-            values = sample_set[:, sobol_params.index(col)]
-        else:
-            values = np.full(sample_set.shape[0], mids[col], dtype=float)
-        if bounds_source.get(col) in {"geom", "aero"}:
-            lo, hi = bounds[col]
-            if hi < lo:
-                lo, hi = hi, lo
-            values = np.array(
-                [domain_converter(v, (lo, hi), NORMALIZED_DOMAIN) for v in values],
-                dtype=float,
-            )
-        x_rows[:, idx] = values
-
     try:
-        y_pred = model.predict_values(x_rows).ravel()
-    except Exception as exc:
-        st.error(f"Sobol prediction failed: {exc!r}")
-        return None
-
-    try:
-        si = sobol.analyze(problem, y_pred, calc_second_order=False)
+        s1_vals, st_vals = _cached_sobol_indices(
+            path_str=str(path),
+            mtime=path_mtime,
+            sobol_params=tuple(sobol_params),
+            sobol_bounds=tuple(tuple(float(v) for v in pair) for pair in sobol_bounds),
+            columns=tuple(columns),
+            bounds_items=tuple(
+                (col, float(bounds[col][0]), float(bounds[col][1])) for col in columns
+            ),
+            bounds_source_items=tuple((col, bounds_source.get(col, "")) for col in columns),
+            n_base=256,
+        )
     except Exception as exc:
         st.error(f"Sobol analysis failed: {exc!r}")
         return None
 
-    df_sobol = pd.DataFrame(
+    df_sobol = DataFrame(
         {
             "Parameter": sobol_params,
-            "S1": si.get("S1", []),
-            "ST": si.get("ST", []),
+            "S1": list(s1_vals),
+            "ST": list(st_vals),
         }
     )
     df_long = df_sobol.melt(
@@ -664,8 +995,106 @@ def _load_plk_cached(path_str: str, mtime: float):
     return joblib.load(path_str)
 
 
+def _matrix_to_hashable(x_rows: np.ndarray) -> tuple[tuple[float, ...], ...]:
+    x_array = np.asarray(x_rows, dtype=float)
+    return tuple(tuple(float(v) for v in row) for row in x_array)
+
+
+@st.cache_data(show_spinner=False)
+def _cached_model_prediction(
+    path_str: str,
+    mtime: float,
+    x_rows: tuple[tuple[float, ...], ...],
+) -> tuple[float, ...]:
+    with _timed(f"cache miss model prediction load {Path(path_str).name}"):
+        data = _load_plk_cached(path_str, mtime)
+        model = data.get("model")
+    if not isinstance(model, (KRG, RBF, MFK)):
+        raise TypeError(f"Modeltype {model=} is uncorrect.")
+    if hasattr(model, "options"):
+        try:
+            model.options["print_global"] = False
+        except Exception:
+            pass
+    with _timed(f"cache miss predict_values {Path(path_str).name} ({len(x_rows)} pts)"):
+        y_pred = np.asarray(model.predict_values(np.asarray(x_rows, dtype=float)), dtype=float).ravel()
+    return tuple(float(v) for v in y_pred)
+
+
+@st.cache_data(show_spinner=False)
+def _cached_objective_prediction(
+    path_str: str,
+    mtime: float,
+    x_row: tuple[float, ...],
+) -> float:
+    return float(_cached_model_prediction(path_str, mtime, (x_row,))[0])
+
+
+@st.cache_data(show_spinner=False)
+def _cached_response_surface_prediction(
+    path_str: str,
+    mtime: float,
+    x_rows: tuple[tuple[float, ...], ...],
+) -> tuple[float, ...]:
+    return _cached_model_prediction(path_str, mtime, x_rows)
+
+
+@st.cache_data(show_spinner=False)
+def _cached_sobol_indices(
+    path_str: str,
+    mtime: float,
+    sobol_params: tuple[str, ...],
+    sobol_bounds: tuple[tuple[float, float], ...],
+    columns: tuple[str, ...],
+    bounds_items: tuple[tuple[str, float, float], ...],
+    bounds_source_items: tuple[tuple[str, str], ...],
+    n_base: int,
+) -> tuple[tuple[float, ...], tuple[float, ...]]:
+    problem = {
+        "num_vars": len(sobol_params),
+        "names": list(sobol_params),
+        "bounds": [list(b) for b in sobol_bounds],
+    }
+
+    with _timed(f"cache miss sobol sample {Path(path_str).name}"):
+        sample_set = sobol_sample.sample(problem, n_base, calc_second_order=False)
+    bounds_dict = {name: (low, high) for name, low, high in bounds_items}
+    bounds_source_dict = {name: src for name, src in bounds_source_items}
+    mids = {
+        col: (bounds_dict[col][0] + bounds_dict[col][1]) / 2.0
+        for col in columns
+    }
+    sobol_idx = {name: i for i, name in enumerate(sobol_params)}
+
+    x_rows = np.zeros((sample_set.shape[0], len(columns)), dtype=float)
+    for idx, col in enumerate(columns):
+        if col in sobol_idx:
+            values = sample_set[:, sobol_idx[col]]
+        else:
+            values = np.full(sample_set.shape[0], mids[col], dtype=float)
+        if bounds_source_dict.get(col) in {"geom", "aero"}:
+            lo, hi = bounds_dict[col]
+            if hi < lo:
+                lo, hi = hi, lo
+            values = np.array(
+                [domain_converter(v, (lo, hi), NORMALIZED_DOMAIN) for v in values],
+                dtype=float,
+            )
+        x_rows[:, idx] = values
+
+    with _timed(f"cache miss sobol model eval {Path(path_str).name}"):
+        y_pred = np.asarray(
+            _cached_model_prediction(path_str, mtime, _matrix_to_hashable(x_rows)),
+            dtype=float,
+        )
+    with _timed(f"cache miss sobol analyze {Path(path_str).name}"):
+        si = sobol_analyze.analyze(problem, y_pred, calc_second_order=False)
+    s1_vals = tuple(float(v) for v in si.get("S1", []))
+    st_vals = tuple(float(v) for v in si.get("ST", []))
+    return s1_vals, st_vals
+
+
 def _display_html(path: Path) -> None:
-    st.markdown("---")
     data = path.read_bytes()
     if _looks_binary(data):
         st.info(f"📄 {path.name} (binary file, cannot display as text)")
@@ -711,9 +1140,9 @@ def _display_log(path: Path) -> None:
                         else:
                             rows = payload
                             if len(rows) > 1 and len(rows[0]) == len(rows[1]):
-                                df = pd.DataFrame(rows[1:], columns=rows[0])
+                                df = DataFrame(rows[1:], columns=rows[0])
                             else:
-                                df = pd.DataFrame(rows)
+                                df = DataFrame(rows)
                             st.table(df)
         return None
 
@@ -731,25 +1160,17 @@ def _display_txt(path: Path) -> None:
         display_avl_table_file(path)
         return None
 
-    with st.container(border=True):
-        show_txt = st.checkbox(
-            label=f"**{path.name}**",
-            value=True,
-            key=f"{path}_txt_toggle",
-        )
-        if not show_txt:
-            return None
-        data = path.read_bytes()
-        if _looks_binary(data):
-            st.info(f"📄 {path.name} (binary file, cannot display as text)")
-            return None
-        text_data = data.decode("utf-8", errors="replace")
-        st.text_area(
-            path.stem,
-            text_data,
-            height=200,
-            key=f"{path}_txt_raw",
-        )
+    data = path.read_bytes()
+    if _looks_binary(data):
+        st.info(f"📄 {path.name} (binary file, cannot display as text)")
+        return None
+    text_data = data.decode("utf-8", errors="replace")
+    st.text_area(
+        path.stem,
+        text_data,
+        height=200,
+        key=f"{path}_txt_raw",
+    )
 
 
 def _display_su2(path: Path) -> None:
@@ -801,159 +1222,147 @@ def _display_su2(path: Path) -> None:
 
 
 def _display_dat(path: Path) -> None:
-    with st.container(
-        border=True,
-    ):
-        if st.checkbox(
-            label=f"**{path.name}**",
-            value=True,
-        ):
-            if path.name == "forces_breakdown.dat":
-                display_forces_breakdown(path)
-                return None
+    if path.name == "forces_breakdown.dat":
+        display_forces_breakdown(path)
+        return None
 
-            skip_first = False
-            data = path.read_bytes()
-            if _looks_binary(data):
-                st.info(f"📄 {path.name} (binary file, cannot display as text)")
-                return None
-            text_data = data.decode("utf-8", errors="replace")
-            first_line = text_data.splitlines()[:1]
-            if first_line:
-                parts = first_line[0].strip().split()
-                if len(parts) < 2:
-                    skip_first = True
-                else:
-                    try:
-                        float(parts[0])
-                        float(parts[1])
-                    except ValueError:
-                        skip_first = True
+    skip_first = False
+    data = path.read_bytes()
+    if _looks_binary(data):
+        st.info(f"📄 {path.name} (binary file, cannot display as text)")
+        return None
+    text_data = data.decode("utf-8", errors="replace")
+    first_line = text_data.splitlines()[:1]
+    if first_line:
+        parts = first_line[0].strip().split()
+        if len(parts) < 2:
+            skip_first = True
+        else:
             try:
-                df = pd.read_csv(
-                    path,
-                    sep=r"\s+",
-                    comment="#",
-                    header=None,
-                    skiprows=1 if skip_first else 0,
+                float(parts[0])
+                float(parts[1])
+            except ValueError:
+                skip_first = True
+    try:
+        df = pd.read_csv(
+            path,
+            sep=r"\s+",
+            comment="#",
+            header=None,
+            skiprows=1 if skip_first else 0,
+        )
+        if df.shape[1] == 2:
+            df = df.apply(pd.to_numeric, errors="coerce")
+            df = df.iloc[:, :2].dropna()
+            if not df.empty:
+                df.columns = ["x", "y"]
+                fig = px.line(
+                    df,
+                    x="x",
+                    y="y",
+                    title=path.stem,
                 )
-                if df.shape[1] == 2:
-                    df = df.apply(pd.to_numeric, errors="coerce")
-                    df = df.iloc[:, :2].dropna()
-                    if not df.empty:
-                        df.columns = ["x", "y"]
-                        fig = px.line(
-                            df,
-                            x="x",
-                            y="y",
-                            title=path.stem,
-                        )
-                        fig.update_traces(mode="lines")
-                        fig.update_layout(
-                            xaxis_title="x",
-                            yaxis_title="y",
-                            yaxis_scaleanchor="x",
-                            yaxis_scaleratio=1,
-                        )
-                        st.plotly_chart(fig, width="stretch")
-                        return None
+                fig.update_traces(mode="lines")
+                fig.update_layout(
+                    xaxis_title="x",
+                    yaxis_title="y",
+                    yaxis_scaleanchor="x",
+                    yaxis_scaleratio=1,
+                )
+                st.plotly_chart(fig, width="stretch")
+                return None
 
-            except Exception as exc:
-                st.warning(f"Could not parse {path.name} as DAT: {exc}")
+    except Exception as exc:
+        st.warning(f"Could not parse {path.name} as DAT: {exc}")
 
-            st.text_area(
-                path.stem,
-                text_data,
-                height=200,
-                key=f"{path}_dat_raw",
-            )
+    st.text_area(
+        path.stem,
+        text_data,
+        height=200,
+        key=f"{path}_dat_raw",
+    )
 
 
 def _display_vtu(path: Path) -> None:
-    with st.container(border=True):
-        if st.checkbox(
-            label=f"**{path.name}**",
-            value=True,
-        ):
-            try:
-                mesh = pv.read(str(path))
-            except Exception as exc:
-                st.error(f"Failed to read VTU file: {exc}")
-                return None
+    try:
+        mesh = pv.read(str(path))
+    except Exception as exc:
+        st.error(f"Failed to read VTU file: {exc}")
+        return None
 
-            surface = mesh.extract_surface()
-            point_arrays = list(surface.point_data.keys())
-            cell_arrays = list(surface.cell_data.keys())
-            scalar_map: dict[str, str] = {name: "point" for name in point_arrays}
-            for name in cell_arrays:
-                scalar_map.setdefault(name, "cell")
-            scalar_options = list(scalar_map.keys())
+    surface = mesh.extract_surface()
+    point_arrays = list(surface.point_data.keys())
+    cell_arrays = list(surface.cell_data.keys())
+    scalar_map: dict[str, str] = {name: "point" for name in point_arrays}
+    for name in cell_arrays:
+        scalar_map.setdefault(name, "cell")
+    scalar_options = list(scalar_map.keys())
 
-            workflow_root = None
-            if path.name == "surface_flow.vtu":
-                workflow_root = _find_workflow_root(path)
-            geometry_mode = _get_geometry_mode(workflow_root) if workflow_root else None
-            show_vtu_view = not (path.name == "surface_flow.vtu" and geometry_mode == "2D")
+    workflow_root = None
+    if path.name == "surface_flow.vtu":
+        workflow_root = _find_workflow_root(path)
+    geometry_mode = _get_geometry_mode(workflow_root) if workflow_root else None
+    show_vtu_view = not (path.name == "surface_flow.vtu" and geometry_mode == "2D")
 
-            plotter = pv.Plotter()
-            if not scalar_options:
-                if show_vtu_view:
-                    plotter.add_mesh(surface, color="lightgray")
-                    plotter.reset_camera()
-                    stpyvista(plotter, key=f"{path}_vtu_geometry")
-                st.caption("No scalar fields found in this VTU file.")
-                return None
+    plotter = pv.Plotter()
+    if not scalar_options:
+        if show_vtu_view:
+            plotter.add_mesh(surface, color="lightgray")
+            plotter.reset_camera()
+            stpyvista(plotter, key=f"{path}_vtu_geometry")
+        st.caption("No scalar fields found in this VTU file.")
+        return None
 
-            preferred = ["Mach", "Pressure_Coefficient", "Pressure", "Cp"]
-            default_scalar = None
-            for pref in preferred:
-                if pref in point_arrays:
-                    default_scalar = f"{pref}"
-                    break
-                if pref in cell_arrays:
-                    default_scalar = f"{pref}"
-                    break
+    preferred = ["Mach", "Pressure_Coefficient", "Pressure", "Cp"]
+    default_scalar = None
+    for pref in preferred:
+        if pref in point_arrays:
+            default_scalar = f"{pref}"
+            break
+        if pref in cell_arrays:
+            default_scalar = f"{pref}"
+            break
 
-            if default_scalar is None:
-                default_scalar = scalar_options[0]
+    if default_scalar is None:
+        default_scalar = scalar_options[0]
 
-            location = None
-            scalar_choice = None
-            if show_vtu_view:
-                scalar_choice = st.selectbox(
-                    "Field",
-                    scalar_options,
-                    index=scalar_options.index(default_scalar),
-                    key=f"{path}_vtu_field",
-                )
-                location = scalar_map.get(scalar_choice, "point")
+    location = None
+    scalar_choice = None
+    if show_vtu_view:
+        scalar_choice = st.selectbox(
+            "Field",
+            scalar_options,
+            index=scalar_options.index(default_scalar),
+            key=f"{path}_vtu_field",
+        )
+        location = scalar_map.get(scalar_choice, "point")
 
-                plotter.add_mesh(surface, scalars=scalar_choice, show_scalar_bar=True)
-                plotter.reset_camera()
-                stpyvista(plotter, key=f"{path}_vtu_view_{scalar_choice}")
+        plotter.add_mesh(surface, scalars=scalar_choice, show_scalar_bar=True)
+        plotter.reset_camera()
+        stpyvista(plotter, key=f"{path}_vtu_view_{scalar_choice}")
 
-            _display_surface_flow_cp_xc(path, surface)
+    _display_surface_flow_cp_xc(path, surface)
 
-            if location == "point":
-                data_array = surface.point_data.get(scalar_choice)
-            else:
-                data_array = surface.cell_data.get(scalar_choice)
-            if data_array is not None and len(data_array) > 0:
-                st.caption(
-                    f"{scalar_choice} min/max: {float(data_array.min()):.6g} / "
-                    f"{float(data_array.max()):.6g}"
-                )
-            try:
-                st.download_button(
-                    label="Download VTU file",
-                    data=path.read_bytes(),
-                    file_name=path.name,
-                    mime="application/octet-stream",
-                    width="stretch",
-                    key=f"{path}_vtu_download",
-                )
-            except OSError as exc:
-                st.warning(f"Unable to prepare download: {exc}")
+    if location == "point":
+        data_array = surface.point_data.get(scalar_choice)
+    else:
+        data_array = surface.cell_data.get(scalar_choice)
+    if data_array is not None and len(data_array) > 0:
+        st.caption(
+            f"{scalar_choice} min/max: {float(data_array.min()):.6g} / "
+            f"{float(data_array.max()):.6g}"
+        )
+    try:
+        st.download_button(
+            label="Download VTU file",
+            data=path.read_bytes(),
+            file_name=path.name,
+            mime="application/octet-stream",
+            width="stretch",
+            key=f"{path}_vtu_download",
+        )
+    except OSError as exc:
+        st.warning(f"Unable to prepare download: {exc}")
 
 
 def _display_png(path: Path) -> None:
@@ -1107,24 +1516,22 @@ def _display_csv(path: Path) -> None:
 
 
 def _display_xml(path: Path) -> None:
-    with st.container(border=True):
-        cpacs = CPACS(path)
-        st.markdown(f"**CPACS {cpacs.ac_name}**")
+    cpacs = CPACS(path)
+    st.markdown(f"**CPACS {cpacs.ac_name}**")
+    section_3D_view(
+        cpacs=cpacs,
+        force_regenerate=False,
+        plot_key=f"{path}_xml_geom_view",
+    )
 
-        # Display the 3D geometry of the CPACS file
-        section_3D_view(
-            cpacs=cpacs,
-            force_regenerate=True,
-        )
-
-        # Download button for downloading CPACS file locally
-        st.download_button(
-            label="Download CPACS file",
-            data=path.read_bytes(),
-            file_name=path.name,
-            mime="application/xml",
-            width="stretch",
-        )
+    st.download_button(
+        label="Download CPACS file",
+        data=path.read_bytes(),
+        file_name=path.name,
+        mime="application/xml",
+        width="stretch",
+        key=f"{path}_xml_download",
+    )
 
 
 def _results_sort_key(path: Path) -> tuple[int, str]:
@@ -1204,7 +1611,7 @@ def _display_surface_flow_cp_xc(path: Path, surface: pv.PolyData) -> None:
 
     x_over_c = (x_vals - x_min) / chord
 
-    df = pd.DataFrame(
+    df = DataFrame(
         {
             "x_over_c": x_over_c,
             "y_coord": y_vals,

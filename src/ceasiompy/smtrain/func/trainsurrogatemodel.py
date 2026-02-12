@@ -93,16 +93,28 @@ def get_best_krg_model(
         axis=0,
     )
 
-    def objective(params) -> float:
-        _, loss = compute_kriging_loss(
-            params=params,
-            level1_split=level1_split,
-            level2_split=level2_split,
-            level3_split=level3_split,
-            x_=x_val,
-            y_=y_val,
-        )
+    successful_params: list[tuple[list, float]] = []
 
+    def objective(params) -> float:
+        try:
+            _, loss = compute_kriging_loss(
+                params=params,
+                level1_split=level1_split,
+                level2_split=level2_split,
+                level3_split=level3_split,
+                x_=x_val,
+                y_=y_val,
+            )
+        except Exception as exc:
+            # Keep BO running when SMT fails on ill-conditioned combinations.
+            log.warning(f"KRG hyperparameter set failed ({params=}): {exc!r}")
+            return 1e30
+
+        loss = float(loss)
+        if not np.isfinite(loss):
+            return 1e30
+
+        successful_params.append((list(params), loss))
         return loss
 
     best_result = optimize_hyper_parameters(
@@ -113,14 +125,42 @@ def get_best_krg_model(
     )
     log_params_krg(best_result)
 
-    best_model, best_loss = compute_kriging_loss(
-        params=best_result.x,
-        level1_split=level1_split,
-        level2_split=level2_split,
-        level3_split=level3_split,
-        x_=x_test,
-        y_=y_test,
+    candidate_params: list[list] = []
+    if getattr(best_result, "x", None) is not None:
+        candidate_params.append(list(best_result.x))
+    candidate_params.extend(
+        [params for params, _ in sorted(successful_params, key=lambda x: x[1])]
     )
+
+    best_model = None
+    best_loss = None
+    seen = set()
+    for params in candidate_params:
+        key = tuple(map(str, params))
+        if key in seen:
+            continue
+        seen.add(key)
+        try:
+            model, loss = compute_kriging_loss(
+                params=params,
+                level1_split=level1_split,
+                level2_split=level2_split,
+                level3_split=level3_split,
+                x_=x_test,
+                y_=y_test,
+            )
+        except Exception as exc:
+            log.warning(f"KRG candidate failed during final fit ({params=}): {exc!r}")
+            continue
+        if np.isfinite(loss):
+            best_model = model
+            best_loss = float(loss)
+            break
+
+    if best_model is None or best_loss is None:
+        raise RuntimeError(
+            "Could not train a valid KRG/MFK model; all tested hyperparameters failed."
+        )
 
     log.info(f"Final RMSE on test set: {best_loss:.6f}")
 

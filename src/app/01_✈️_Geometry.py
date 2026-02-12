@@ -262,14 +262,15 @@ def _section_load_cpacs() -> CPACS | None:
     if not uploaded_file and pending_default_cpacs:
         default_cpacs_path = Path(pending_default_cpacs)
         uploaded_file = build_default_upload(default_cpacs_path)
+        st.session_state["pending_default_cpacs"] = None
+        st.session_state["uploaded_default_cpacs"] = False
         if uploaded_file is None:
-            st.session_state["pending_default_cpacs"] = None
-            st.session_state["uploaded_default_cpacs"] = False
             return None
 
     if not uploaded_file and not uploaded_default:
         if st.button(
             label="Load a default CPACS geometry",
+            width="stretch",
         ):
             default_cpacs_path = Path(CPACS_FILES_PATH, "onera_m6.xml")
             st.session_state["pending_default_cpacs"] = str(default_cpacs_path)
@@ -441,12 +442,7 @@ def section_select_cpacs() -> None:
     dim_mode = (geometry_mode == "2D")
 
     st.markdown("---")
-    section_3D_view(force_regenerate=True)
-
-    # Once 3D view of CPACS file is done scroll down
-    scroll_down()
-    st.markdown("---")
-
+    ref_area = None
     try:
         if not dim_mode:
             ref_area, ref_length = compute_aircraft_ref_values(cpacs)
@@ -459,6 +455,24 @@ def section_select_cpacs() -> None:
         log.warning(f"""Could not compute from the CPACS file
             the reference area and length values {e=}
         """)
+
+    title = f"**{cpacs.ac_name}** (Ref Length={float(ref_length):.3e}"
+    if ref_area is not None:
+        title += f", Ref Area={float(ref_area):.3e}"
+    title += ")"
+    st.markdown(title)
+
+    section_3D_view(cpacs=cpacs, force_regenerate=True)
+
+    # Once 3D view of CPACS file is done scroll down
+    scroll_down()
+    st.markdown("---")
+
+    if tixi.checkElement(AREA_XPATH):
+        ref_area = get_value(tixi, xpath=AREA_XPATH)
+
+    if tixi.checkElement(LENGTH_XPATH):
+        ref_length = get_value(tixi, xpath=LENGTH_XPATH)
 
     spec = 1 if dim_mode else 2
     cols = st.columns(
@@ -489,7 +503,7 @@ def section_select_cpacs() -> None:
             value=new_ref_length,
         )
         safe_remove(tixi, xpath=AREA_XPATH)
-        st.info(f"""Updated cpacs file with reference(length={new_ref_length})""")
+        st.info(f"""Updated cpacs file with reference (length={new_ref_length})""")
 
     # 3D update
     if (
@@ -508,7 +522,7 @@ def section_select_cpacs() -> None:
             value=new_ref_length,
         )
         st.info(f"""Updated cpacs file with reference
-            (length={new_ref_length}, area={new_ref_area})
+             (length={new_ref_length}, area={new_ref_area})
         """)
 
 

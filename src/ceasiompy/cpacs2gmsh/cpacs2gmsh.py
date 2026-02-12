@@ -118,7 +118,6 @@ def run_cpacs2gmsh(
     (
         open_gmsh,
         type_mesh,
-        symmetry,
         farfield_factor,
         n_power_factor,
         n_power_field,
@@ -160,7 +159,7 @@ def run_cpacs2gmsh(
     )
     if type_mesh == "EULER":
         log.info("Euler meshing.")
-        farfield_mesh_size = retrieve_euler_gui_values(tixi)
+        farfield_mesh_size, symmetry = retrieve_euler_gui_values(tixi)
         _progress_update(
             progress_callback,
             detail="1D mesh: curve discretization...",
@@ -177,7 +176,6 @@ def run_cpacs2gmsh(
             wkdir,
             open_gmsh=open_gmsh,
             farfield_factor=farfield_factor,
-            symmetry=symmetry,
             farfield_mesh_size=farfield_mesh_size,
             n_power_factor=n_power_factor,
             n_power_field=n_power_field,
@@ -223,9 +221,7 @@ def run_cpacs2gmsh(
             mesh_size_engines=mesh_size_engines,
             mesh_size_propellers=mesh_size_propellers,
             auto_refine=auto_refine,
-            farfield_mesh_size=farfield_mesh_size,
             n_power_factor=n_power_factor,
-            symmetry=symmetry,
         )
 
         if gmesh_path.exists():
@@ -246,7 +242,7 @@ def run_cpacs2gmsh(
                 growth_factor=growth_factor,
                 growth_ratio=growth_ratio,
                 feature_angle=feature_angle,
-                symmetry=symmetry,
+                symmetry=False,
                 output_format="su2",
                 surf=surf,
                 angle=angle,
@@ -262,7 +258,7 @@ def run_cpacs2gmsh(
                     growth_factor=growth_factor,
                     growth_ratio=growth_ratio,
                     feature_angle=feature_angle,
-                    symmetry=symmetry,
+                    symmetry=False,
                     output_format="cgns",
                     surf=surf,
                     angle=angle,

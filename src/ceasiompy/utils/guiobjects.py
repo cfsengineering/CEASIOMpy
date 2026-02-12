@@ -14,6 +14,7 @@ import streamlit as st
 from cpacspy.cpacsfunctions import (
     create_branch,
     add_string_vector,
+    get_string_vector,
 )
 
 from tixi3.tixi3wrapper import (
@@ -106,12 +107,25 @@ def multiselect_vartype(
     if not default_value:
         raise ValueError(f"Settings {name=} have an uncorrect {default_value=}")
 
+    # Prefer in-memory values first, then persisted CPACS values, and finally fallback.
+    if tixi is not None and tixi.checkElement(xpath):
+        stored_values = get_string_vector(
+            tixi=tixi,
+            xpath=xpath,
+        )
+        # Backward compatibility: some paths may contain a single ';'-joined entry.
+        if len(stored_values) == 1 and ";" in stored_values[0]:
+            stored_values = [val.strip() for val in stored_values[0].split(";")]
+        selected_values = [val for val in stored_values if val in default_value]
+    if not selected_values:
+        selected_values = [default_value[0]]
+
     output = st.multiselect(
         label=name,
         options=default_value,
         key=key,
         help=description,
-        default=default_value[0],
+        default=selected_values,
     )
     add_value(tixi, xpath, output)
     return output

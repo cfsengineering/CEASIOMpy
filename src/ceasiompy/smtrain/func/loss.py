@@ -26,11 +26,15 @@ from smt.surrogate_models import (
 
 def _compute_loss(
     model: KRG | MFK,
-    lambda_penalty: float,
     x_: ndarray,
     y_: ndarray,
+    lambda_penalty: float = 0.0,
 ) -> float:
-    return compute_rmse(model, x_, y_) + lambda_penalty * np.mean(model.predict_variances(x_))
+    rmse = compute_rmse(model, x_, y_)
+    if lambda_penalty == 0.0:
+        return rmse
+    return rmse + lambda_penalty * np.mean(model.predict_variances(x_))
+
 
 
 # Functions
@@ -72,7 +76,6 @@ def compute_rbf_loss(
         x_=x_,
         y_=y_,
         model=model,
-        lambda_penalty=params[6],
     )
 
 

@@ -4,10 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Scripts for plotting the results
-
-| Author: Leon Deligny
-| Creation: 2025-01-27
-
 """
 
 # Imports
@@ -17,11 +13,6 @@ import secrets
 from pathlib import Path
 from pandas import DataFrame
 import plotly.graph_objects as go
-
-from typing import (
-    Dict,
-    Tuple,
-)
 
 from ceasiompy.staticstability import AXES
 
@@ -56,7 +47,7 @@ TITLES_DICT = {
     "directional_y_title": "Yaw Moment",
     "lateral_title": "Lateral Stability Plot with tangent",
     "lateral_x_title": "Angle of Sideslip (deg)",
-    "lateral_y_title": "Roll Moment (deg)",
+    "lateral_y_title": "Roll Moment",
 }
 
 LR_TITLES_DICT = {
@@ -68,7 +59,7 @@ LR_TITLES_DICT = {
     "directional_y_title": "Yaw Moment",
     "lateral_title": "Lateral Stability Plot with Linear Regression",
     "lateral_x_title": "Angle of Sideslip (deg)",
-    "lateral_y_title": "Roll Moment (deg)",
+    "lateral_y_title": "Roll Moment",
 }
 
 # Functions
@@ -86,9 +77,9 @@ def generate_random_color() -> str:
     return f"#{secrets.randbelow(0xFFFFFF + 1):06x}"
 
 
-def set_html_plot(results_dir: Path, df: DataFrame, axis: str) -> Tuple[Path, Dict]:
+def set_html_plot(results_dir: Path, df: DataFrame, axis: str) -> tuple[Path, dict]:
     # Access where to store the plot
-    plot_path = Path(results_dir, f"Stability_{axis}_plot.html")
+    plot_path = Path(results_dir, f"staticstability_{axis}_plot.html")
 
     # Create a color map for different categories
     unique_combinations = df[["alt", "mach", f"{X_Y_DICT[f'{axis}_x_prime']}"]].drop_duplicates()
@@ -139,11 +130,25 @@ def add_stability_plot_tangent(results_dir: Path, df: DataFrame) -> None:
                 )
             axis_label = X_Y_DICT[f"{axis}_x_prime_short"]
 
+            if axis == "longitudinal":
+                inject_str = "SideSlip Angle (deg): %{customdata[1]}<br>"
+            else:
+                inject_str = "Angle of Attack (deg): %{customdata[0]}<br>"
+
             scatter = go.Scatter(
                 x=scatter_x,
                 y=scatter_y,
                 mode="markers",
                 marker=dict(color=color),
+                customdata=group[["aoa", "aos", "alt", "mach"]].to_numpy(),
+                hovertemplate=(
+                    "Alt: %{customdata[2]}<br>"
+                    "Mach: %{customdata[3]}<br>"
+                    + inject_str
+                    + f"{TITLES_DICT[axis + '_x_title']}: %{{x}}<br>"
+                    f"{TITLES_DICT[axis + '_y_title']}: %{{y}}"
+                    "<extra></extra>"
+                ),
                 name=(
                     f"Alt: {combination[0]}, "
                     f"Mach: {combination[1]}, "
@@ -178,12 +183,26 @@ def add_stability_plot_lr(results_dir: Path, df: DataFrame) -> None:
             scatter_x = group[f"{X_Y_DICT[f'{axis}_x']}"].tolist()
             scatter_y = group[f"{X_Y_DICT[f'{axis}_y']}"].tolist()
 
+            if axis == "longitudinal":
+                inject_str = "SideSlip Angle (deg): %{customdata[0]}<br>"
+            else:
+                inject_str = "Angle of Attack (deg): %{customdata[1]}<br>"
+
             # Plot the scatter points
             scatter = go.Scatter(
                 x=scatter_x,
                 y=scatter_y,
                 mode="markers",
                 marker=dict(color=color),
+                customdata=group[["aoa", "aos", "alt", "mach"]].to_numpy(),
+                hovertemplate=(
+                    "Altitude (m): %{customdata[2]}<br>"
+                    "Mach (Ma): %{customdata[3]}<br>"
+                    + inject_str
+                    + f"{LR_TITLES_DICT[axis + '_x_title']}: %{{x}}<br>"
+                    f"{LR_TITLES_DICT[axis + '_y_title']}: %{{y}}"
+                    "<extra></extra>"
+                ),
                 name=f"Alt: {combination[0]}, Mach: {combination[1]}, "
                 f"{X_Y_DICT[f'{axis}_x_prime_short']}: {combination[2]}",
             )

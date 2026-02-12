@@ -50,11 +50,82 @@ def parse_ascii_tables(text: str):
     return segments
 
 
+def display_forces_breakdown(path: Path) -> None:
+    text = path.read_text(errors="replace")
+    lines = [line.strip() for line in text.splitlines()]
+    rows = []
+    current_section = "Total"
+    for line in lines:
+        if not line:
+            continue
+        if line.startswith("Surface name:"):
+            current_section = line.replace("Surface name:", "").strip() or "Surface"
+            continue
+        if not line.startswith("Total "):
+            continue
+        if "|" not in line:
+            continue
+        left, right = line.split("|", 1)
+        metric_part = left.strip()
+        if ":" not in metric_part:
+            continue
+        metric_label, value_text = metric_part.split(":", 1)
+        try:
+            value = float(value_text.strip())
+        except ValueError:
+            continue
+
+        pressure = None
+        friction = None
+        momentum = None
+        for part in right.split("|"):
+            part = part.strip()
+            if part.startswith("Pressure"):
+                try:
+                    pressure = float(part.split(":", 1)[1].strip())
+                except ValueError:
+                    pressure = None
+            elif part.startswith("Friction"):
+                try:
+                    friction = float(part.split(":", 1)[1].strip())
+                except ValueError:
+                    friction = None
+            elif part.startswith("Momentum"):
+                try:
+                    momentum = float(part.split(":", 1)[1].strip())
+                except ValueError:
+                    momentum = None
+
+        rows.append(
+            {
+                "Section": current_section,
+                "Metric": metric_label.replace("Total ", "").strip(),
+                "Total": value,
+                "Pressure": pressure,
+                "Friction": friction,
+                "Momentum": momentum,
+            }
+        )
+
+    if rows:
+        st.table(pd.DataFrame(rows))
+    else:
+        st.text_area(path.stem, text, height=200, key=f"{path}_dat_raw")
+
+
 def display_avl_table_file(path: Path) -> None:
     text = path.read_text()
+    pathstem_to_title = {
+        "st": "Stability-axis derivatives",
+        "sb": "Geometry-axis derivatives",
+        "fe": "Vortex Strengths (by surface, by strip)",
+        "fn": "Surface Forces",
+        "fs": "Surface and Strip Forces by surface",
+        "ft": "Total Forces",
+    }
     with st.container(border=True):
         show_dir = st.checkbox(
-            f"**{path.stem}**",
+            f"**{pathstem_to_title[path.stem]}**",
             value=False,
             key=f"{path}_dir_toggle",
         )

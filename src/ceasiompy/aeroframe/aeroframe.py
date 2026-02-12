@@ -21,7 +21,7 @@ from ambiance import Atmosphere
 from cpacspy.cpacspy import CPACS
 
 from cpacspy.cpacsfunctions import create_branch
-from ceasiompy.pyavl.func.utils import create_case_dir
+from ceasiompy.pyavl.func.data import create_case_dir
 from ceasiompy.aeroframe.func.plot import plot_convergence
 from ceasiompy.aeroframe.func.config import read_avl_fe_file
 from ceasiompy.aeroframe.func.aeroelastic import aeroelastic_loop

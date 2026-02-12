@@ -19,8 +19,10 @@ from ceasiompy.utils import get_wkdir
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.utils.guiobjects import add_value
 from gmshairfoil2d.airfoil_func import get_airfoil_points
-from ceasiompy.utils.airfoil import compute_airfoil_ref_length
-from ceasiompy.utils.aircraft import compute_aircraft_ref_values
+from ceasiompy.utils.referencevalues import (
+    compute_airfoil_ref_length,
+    compute_aircraft_ref_values,
+)
 from ceasiompy.utils.ceasiompyutils import (
     parse_bool,
     safe_remove,

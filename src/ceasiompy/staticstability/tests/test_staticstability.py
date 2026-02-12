@@ -11,7 +11,6 @@ from __future__ import annotations
 
 # Imports
 
-import unittest
 import tempfile
 
 from ceasiompy.utils.decorators import log_test
@@ -20,19 +19,19 @@ from ceasiompy.utils.ceasiompyutils import (
     current_workflow_dir,
     get_results_directory,
 )
-from ceasiompy.staticstability.func.utils import markdownpy_to_markdown
 from ceasiompy.staticstability.staticstability import (
-    main,
+    main as staticstability,
     generate_stab_table,
 )
 
 from pathlib import Path
-from markdownpy.markdownpy import MarkdownDoc
+from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
 )
+
 from ceasiompy import log
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.staticstability import (
@@ -206,7 +205,7 @@ class TestStaticStability(CeasiompyTest):
         self.test_cpacs.tixi.updateBooleanElement(STATICSTABILITY_LR_XPATH, True)
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            main(self.test_cpacs, Path(tmpdir))
+            staticstability(self.test_cpacs, Path(tmpdir))
             md_path = Path(tmpdir, f"{MODULE_NAME}.md")
             with open(md_path, "r") as f:
                 content = f.read()
@@ -215,27 +214,7 @@ class TestStaticStability(CeasiompyTest):
                 self.assertIn("aoa", content)
                 self.assertIn("aos", content)
 
-    @log_test
-    def test_markdownpy_to_markdown(self: TestStaticStability) -> None:
-        # Create a dummy MarkdownDoc in a temp file
-        with tempfile.TemporaryDirectory() as tmpdir:
-            md_path = Path(tmpdir, "test.md")
-            md = MarkdownDoc(md_path)
-
-            # Simple table to test
-            table = [["col1", "col2"], ["val1", "val2"], ["val3", "val4"]]
-
-            markdownpy_to_markdown(md, table)
-            md.save()
-
-            # Check file content
-            with open(md_path, "r") as f:
-                content = f.read()
-                self.assertIn("|col1|col2|", content)
-                self.assertIn("|val1|val2|", content)
-                self.assertIn("|val3|val4|", content)
-
 
 # Main
 if __name__ == "__main__":
-    unittest.main(verbosity=0)
+    main(verbosity=0)

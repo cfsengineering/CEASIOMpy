@@ -315,7 +315,6 @@ class Avl:
 
         Returns:
             (Path): Path to the AVL input file.
-
         """
 
         # 1. Initialize command file .avl

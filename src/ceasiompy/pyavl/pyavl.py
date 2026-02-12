@@ -4,14 +4,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Script to run AVL calculations in CEASIOMpy.
-AVL allows to perform aerodynamic analyses using
-the vortex-lattice method (VLM)
-
-| Author: Romain Gauthier
-| Creation: 2024-03-14
-| Modified: Leon Deligny
-| Date: 11-Mar-2025
-
+AVL allows to perform aerodynamic analyses using the vortex-lattice method (VLM).
 """
 
 # Imports
@@ -20,6 +13,7 @@ import time
 from concurrent.futures import wait
 from ceasiompy.pyavl.func.plot import convert_ps_to_pdf
 from ceasiompy.pyavl.func.results import get_avl_results
+from ceasiompy.utils.referencevalues import get_ref_values
 from ceasiompy.pyavl.func.avllog import estimate_case_progress_from_log
 from ceasiompy.utils.ceasiompyutils import (
     has_display,
@@ -27,45 +21,38 @@ from ceasiompy.utils.ceasiompyutils import (
     get_sane_max_cpu,
 )
 from ceasiompy.pyavl.func.utils import (
-    create_case_dir,
     duplicate_elements,
 )
 from ceasiompy.pyavl.func.config import (
+    get_command_path,
     write_command_file,
     retrieve_gui_values,
-    get_physics_conditions,
 )
 
 from pathlib import Path
 from typing import Callable
 from cpacspy.cpacspy import CPACS
-# from ceasiompy.pyavl.func.data import AVLData
+from ceasiompy.pyavl.func.data import AVLData
 from concurrent.futures import ProcessPoolExecutor
-from ceasiompy.database.func.storing import CeasiompyDb
 
-from ceasiompy import log
 from concurrent.futures import FIRST_COMPLETED
 from ceasiompy.pyavl import (
-    MODULE_NAME,
     SOFTWARE_NAME,
 )
 
 
 # Main
 
-def run_case(args: tuple[Path, Path]) -> None:
+def run_case(case_dir_path: Path) -> None:
     '''
     Runs the created avl cases separately on 1 CPU.
     '''
-    # Unpack the tuple
-    case_dir_path, command_path = args
-
     run_software(
         software_name=SOFTWARE_NAME,
         arguments=[""],
         wkdir=case_dir_path,
         with_mpi=False,
-        stdin=open(str(command_path), "r"),
+        stdin=open(str(get_command_path(case_dir_path)), "r"),
         xvfb=True,
     )
     if has_display():
@@ -83,9 +70,6 @@ def main(
         2. Run avl with p, q, r rate deflections.
         3. Run avl with control surfaces deflections.
     """
-
-    # 1. Load the necessary data
-    tixi = cpacs.tixi
 
     # Store list of arguments for each case
     case_args = []
@@ -121,72 +105,34 @@ def main(
     )
     first_cases = len(new_alt_list)
 
-    for i_case, alt in enumerate(new_alt_list):
-        mach = new_mach_list[i_case]
-        aoa = new_aoa_list[i_case]
-        aos = new_aos_list[i_case]
+    ref_area, ref_length = get_ref_values(cpacs)
 
-        q = new_pitch_rate_list[i_case]
-        p = new_roll_rate_list[i_case]
-        r = new_yaw_rate_list[i_case]
+    for i_case, altitude in enumerate(new_alt_list):
+        avl_data = AVLData(
+            ref_area=ref_area,
+            ref_length=ref_length,
 
-        (
-            roll_rate_star, pitch_rate_star, yaw_rate_star,
-            ref_density, g_acceleration, ref_velocity,
-        ) = get_physics_conditions(tixi, alt, mach, p, q, r)
+            altitude=altitude,
+            mach=new_mach_list[i_case],
+            alpha=new_aoa_list[i_case],
+            beta=new_aos_list[i_case],
 
-        if expand:
-            db = CeasiompyDb()
-            tol = 1e-4
-            table_name = db.connect_to_table(MODULE_NAME)
-            data = db.get_data(
-                table_name=table_name,
-                columns=["mach"],
-                db_close=True,
-                filters=[
-                    f"mach = {mach}",
-                    f"aircraft = '{cpacs.ac_name}'",
-                    f"alt = {alt}",
-                    f"alpha BETWEEN {aoa - tol} AND {aoa + tol}",
-                    f"beta BETWEEN {aos - tol} AND {aos + tol}",
-                    f"pb_2V BETWEEN {roll_rate_star - tol} AND {roll_rate_star + tol}",
-                    f"qc_2V BETWEEN {pitch_rate_star - tol} AND {pitch_rate_star + tol}",
-                    f"rb_2V BETWEEN {yaw_rate_star - tol} AND {yaw_rate_star + tol}",
-                ]
-            )
-            if data:
-                # If data is already in ceasiompy.db
-                # Go to next iteration in for loop
-                log.info(f"Case {alt, mach, aoa, aos} already done.")
-                continue
-
-        case_dir_path = create_case_dir(
-            results_dir,
-            i_case,
-            alt=alt,
-            mach=mach,
-            aoa=aoa,
-            aos=aos,
-            q=q,
-            p=p,
-            r=r,
+            p=new_pitch_rate_list[i_case],
+            q=new_roll_rate_list[i_case],
+            r=new_yaw_rate_list[i_case],
         )
 
-        command_path = write_command_file(
-            avl_path=avl_path,  # No control surface deflection
-            case_dir_path=case_dir_path,
-            ref_density=ref_density,
-            g_acceleration=g_acceleration,
-            ref_velocity=ref_velocity,
-            alpha=aoa,
-            beta=aos,
-            pitch_rate_star=pitch_rate_star,
-            roll_rate_star=roll_rate_star,
-            yaw_rate_star=yaw_rate_star,
-            mach_number=mach,
+        case_dir_path = write_command_file(
+            i_case=i_case,
+            avl_path=avl_path,
+            avl_data=avl_data,
+            results_dir=results_dir,
         )
 
-        case_args.append((case_dir_path, command_path))
+        # Same AVL Configuration Parameters
+        avl_data.save_json(json_path=case_dir_path / "avldata.json")
+
+        case_args.append(case_dir_path)
 
     if control_surface_list != [0.0]:
 
@@ -208,76 +154,32 @@ def main(
         )
 
         # Iterate through each case
-        for i_case, alt in enumerate(new_alt_list):
-            mach = new_mach_list[i_case]
-            aoa = new_aoa_list[i_case]
+        for i_case, altitude in enumerate(new_alt_list):
+            avl_data = AVLData(
+                ref_area=ref_area,
+                ref_length=ref_length,
 
-            aileron = new_aileron_list[i_case]
-            elevator = new_elevator_list[i_case]
-            rudder = new_rudder_list[i_case]
+                altitude=altitude,
+                mach=new_mach_list[i_case],
+                alpha=new_aoa_list[i_case],
+                beta=new_aos_list[i_case],
 
-            (
-                _, _, _,
-                ref_density, g_acceleration, ref_velocity,
-            ) = get_physics_conditions(
-                tixi=tixi,
-                alt=alt,
-                mach=mach,
-                roll_rate=0.0,
-                pitch_rate=0.0,
-                yaw_rate=0.0,
+                rudder=new_rudder_list[i_case],
+                aileron=new_aileron_list[i_case],
+                elevator=new_elevator_list[i_case],
             )
 
-            if expand:
-                db = CeasiompyDb()
-                tol = 1e-4
-                table_name = db.connect_to_table(MODULE_NAME)
-                data = db.get_data(
-                    table_name=table_name,
-                    columns=["mach"],
-                    db_close=True,
-                    filters=[
-                        f"mach = {mach}",
-                        f"aircraft = '{cpacs.ac_name}'",
-                        f"alt = {alt}",
-                        f"alpha BETWEEN {aoa - tol} AND {aoa + tol}",
-                        "beta = 0.0",
-                        f"aileron BETWEEN {aileron - tol} AND {aileron + tol}",
-                        f"elevator BETWEEN {elevator - tol} AND {elevator + tol}",
-                        f"rudder BETWEEN {rudder - tol} AND {rudder + tol}",
-                    ]
-                )
-                if data:
-                    # If data is already in ceasiompy.db
-                    # Go to next iteration in for loop
-                    log.info(f"Case {alt, mach, aoa, aos} already done.")
-                    continue
-
-            case_dir_path = create_case_dir(
-                results_dir,
-                i_case + first_cases,
-                alt,
-                mach=mach,
-                aoa=aoa,
-                aileron=aileron,
-                elevator=elevator,
-                rudder=rudder,
-            )
-
-            command_path = write_command_file(
+            case_dir_path = write_command_file(
+                i_case=i_case + first_cases,
                 avl_path=avl_path,
-                case_dir_path=case_dir_path,
-                ref_density=ref_density,
-                g_acceleration=g_acceleration,
-                ref_velocity=ref_velocity,
-                alpha=aoa,
-                mach_number=mach,
-                aileron=aileron,
-                rudder=rudder,
-                elevator=elevator,
+                avl_data=avl_data,
+                results_dir=results_dir,
             )
 
-            case_args.append((case_dir_path, command_path))
+            # Same AVL Configuration Parameters
+            avl_data.save_json(json_path=case_dir_path / "avldata.json")
+
+            case_args.append(case_dir_path)
 
     total_cases = len(case_args)
     if progress_callback is not None:
@@ -305,12 +207,12 @@ def main(
                 active_case_name: str | None = None
                 if not_done:
                     some_future = next(iter(not_done))
-                    case_dir_path, _ = future_to_args[some_future]
-                    active_log_path = Path(case_dir_path / f"logfile_{SOFTWARE_NAME}.log")
+                    case_dir_path = Path(future_to_args[some_future])
+                    active_log_path = case_dir_path / f"logfile_{SOFTWARE_NAME}.log"
                     active_case_progress, active_case_label = estimate_case_progress_from_log(
                         active_log_path
                     )
-                    active_case_name = Path(case_dir_path).name
+                    active_case_name = case_dir_path.name
 
                 elapsed_s = time.monotonic() - start_t
                 overall_progress = (
@@ -331,7 +233,7 @@ def main(
                 )
 
             for future in done:
-                case_dir_path, _ = future_to_args.pop(future)
+                case_dir_path = Path(future_to_args.pop(future))
                 try:
                     future.result()
                 except Exception as exc:

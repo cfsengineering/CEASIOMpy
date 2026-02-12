@@ -4,10 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Static stability module
-
-| Author: Leon Deligny
-| Creation: 2025-01-27
-
 """
 
 # Imports
@@ -15,34 +11,23 @@ Static stability module
 from pathlib import Path
 
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy.staticstability.func.utils import markdownpy_to_markdown
 from ceasiompy.staticstability.func.extractdata import generate_stab_table
 
 from cpacspy.cpacspy import CPACS
-from markdownpy.markdownpy import MarkdownDoc
 
 from ceasiompy import log
-from ceasiompy.staticstability import (
-    MODULE_NAME,
-    STATICSTABILITY_LR_XPATH,
-)
+from ceasiompy.staticstability import STATICSTABILITY_LR_XPATH
+
 
 # Main
-
 
 def main(cpacs: CPACS, results_dir: Path) -> None:
     """
     Analyses longitudinal, directional and lateral stability
     from the data of a CPACS file.
-
-    Args:
-        cpacs (CPACS): Input CPACS file.
-        wkdir (str): Results directory.
-
     """
 
     tixi = cpacs.tixi
-    md = MarkdownDoc(Path(results_dir, f"{MODULE_NAME}.md"))
     errors = []
     success_count = 0
 
@@ -60,18 +45,13 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
             log_msg = f"Static stability of '{aeromap_uid}' aeromap."
             log.info(log_msg)
-            md.h4(log_msg)
-
-            markdownpy_to_markdown(md, table)
             success_count += 1
         except Exception as e:
             err_msg = (
-                f"Could not compute static stability of aeromap {aeromap_uid} due to error {e}"
+                f"Could not compute static stability of aeromap {aeromap_uid} due to {e=}"
             )
             log.warning(err_msg)
             errors.append(err_msg)
-
-    md.save()
 
     if errors and success_count == 0:
         raise RuntimeError("StaticStability failed:\n" + "\n".join(errors))

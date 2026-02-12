@@ -8,8 +8,11 @@ Streamlit page to show results of CEASIOMpy
 
 # Imports
 import os
+import json
 import base64
+import shutil
 import joblib
+import hashlib
 import tempfile
 import numpy as np
 import pandas as pd
@@ -28,6 +31,7 @@ from ceasiompy.utils.geometryfunctions import get_xpath_for_param
 from parsefunctions import (
     parse_ascii_tables,
     display_avl_table_file,
+    display_forces_breakdown,
 )
 from streamlitutils import (
     create_sidebar,
@@ -96,6 +100,21 @@ def _looks_binary(data: bytes) -> bool:
     return nontext / len(sample) > 0.3
 
 
+@lru_cache(maxsize=8)
+def _build_workflow_zip(workflow_path: str, workflow_mtime_ns: int) -> bytes:
+    _ = workflow_mtime_ns  # cache invalidation key
+    workflow_dir = Path(workflow_path)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        archive_base = Path(tmp_dir, workflow_dir.name)
+        archive_path = shutil.make_archive(
+            str(archive_base),
+            "zip",
+            root_dir=workflow_dir.parent,
+            base_dir=workflow_dir.name,
+        )
+        return Path(archive_path).read_bytes()
+
+
 def show_results():
     """Display the results of the selected workflow."""
 
@@ -111,10 +130,36 @@ def show_results():
 
     workflow_names = [wkflow.name for wkflow in workflow_dirs][::-1]
     default_index = 0
-    chosen_workflow_name = st.selectbox(
-        "Choose workflow", workflow_names, index=default_index, key="results_chosen_workflow"
+
+    left_col, right_col = st.columns(
+        spec=[2, 1],
+        vertical_alignment="bottom",
     )
-    chosen_workflow = Path(current_wkdir, chosen_workflow_name)
+    with left_col:
+        chosen_workflow_name = st.selectbox(
+            label="Choose workflow",
+            options=workflow_names,
+            index=default_index,
+            key="results_chosen_workflow",
+        )
+        chosen_workflow = Path(current_wkdir, chosen_workflow_name)
+
+    with right_col:
+        try:
+            workflow_zip = _build_workflow_zip(
+                str(chosen_workflow),
+                chosen_workflow.stat().st_mtime_ns,
+            )
+            st.download_button(
+                label=f"Download {chosen_workflow_name}",
+                data=workflow_zip,
+                file_name=f"{chosen_workflow_name}.zip",
+                mime="application/zip",
+                width="stretch",
+                key=f"{chosen_workflow}_download",
+            )
+        except OSError as exc:
+            st.warning(f"Unable to prepare workflow download: {exc}")
 
     results_dir = Path(chosen_workflow, "Results")
     if not results_dir.exists():
@@ -172,59 +217,34 @@ def display_results(results_dir):
     ]
     clear_containers(container_list)
 
+    # Inner constant...
+    DISPLAY_BY_SUFFIX = {
+        ".dat": _display_dat,
+        ".su2": _display_su2,
+        ".vtu": _display_vtu,
+        ".pkl": _display_pkl,
+        ".png": _display_png,
+        ".pdf": _display_pdf,
+        ".md": _display_md,
+        ".json": _display_json,
+        ".txt": _display_txt,
+        ".log": _display_log,
+        ".csv": _display_csv,
+        ".xml": _display_xml,
+        ".html": _display_html,
+        ".json": _display_json,
+    }
+
     for child in sorted(Path(results_dir).iterdir(), key=_results_sort_key):
         if child.name in IGNORED_RESULTS:
             continue
         try:
-            if child.suffix == ".dat":
-                _display_dat(child)
-
-            elif child.suffix == ".su2":
-                _display_su2(child)
-
-            elif child.suffix == ".vtu":
-                _display_vtu(child)
-
-            elif child.suffix == ".pkl":
-                _display_pkl(child)
-
-            elif child.suffix == ".png":
-                _display_png(child)
-
-            elif child.suffix == ".pdf":
-                _display_pdf(child)
-
-            elif child.suffix == ".md":
-                _display_md(child)
-
-            elif child.suffix == ".json":
-                _display_json(child)
-
-            elif child.suffix == ".txt":
-                _display_txt(child)
-
-            elif child.suffix == ".log":
-                _display_log(child)
-
-            elif child.suffix == ".csv":
-                _display_csv(child)
-
-            elif child.suffix == ".xml":
-                _display_xml(child)
-
-            elif child.suffix == ".html":
-                _display_html(child)
-
+            handler = DISPLAY_BY_SUFFIX.get(child.suffix.lower())
+            if handler is not None:
+                handler(child)
             elif child.is_dir():
-                value = False if child.name in NO_DISPLAY_DIR else True
-                with st.container(border=True):
-                    show_dir = st.checkbox(
-                        f"**{child.stem}**",
-                        value=value,
-                        key=f"{child}_dir_toggle",
-                    )
-                    if show_dir:
-                        display_results(child)
+                _display_dir(child)
+
         except BaseException as e:
             log.warning(f"Could not display {child}: {e=}")
             display_results_else(child)
@@ -232,488 +252,98 @@ def display_results(results_dir):
 
 # Methods
 
+def _display_json(path: Path) -> None:
+    with st.container(border=True):
+        show_json = st.checkbox(
+            f"**{path.name}**",
+            value=True,
+            key=f"{path}_json_toggle",
+        )
+        if not show_json:
+            return None
+
+        data = path.read_bytes()
+        if _looks_binary(data):
+            st.info(f"📄 {path.name} (binary file, cannot display as text)")
+            return None
+
+        text_data = data.decode("utf-8", errors="replace")
+
+        try:
+            parsed = json.loads(text_data)
+        except json.JSONDecodeError as exc:
+            st.warning(f"Invalid JSON in {path.name}: {exc}")
+            st.text_area(path.stem, text_data, height=260, key=f"{path}_json_raw_invalid")
+            return None
+
+        left_col, right_col = st.columns([3, 1])
+        with left_col:
+            query = st.text_input(
+                "Search key/value",
+                value="",
+                key=f"{path}_json_search",
+                placeholder="e.g. mach, aoa, result",
+                label_visibility="collapsed",
+            ).strip()
+        with right_col:
+            expanded = st.toggle(
+                "Expand tree",
+                value=False,
+                key=f"{path}_json_expand",
+            )
+
+        def _iter_pairs(obj, prefix=""):
+            if isinstance(obj, dict):
+                for key, val in obj.items():
+                    new_prefix = f"{prefix}.{key}" if prefix else str(key)
+                    yield from _iter_pairs(val, new_prefix)
+            elif isinstance(obj, list):
+                for idx, val in enumerate(obj):
+                    new_prefix = f"{prefix}[{idx}]"
+                    yield from _iter_pairs(val, new_prefix)
+            else:
+                yield prefix or "$", obj
+
+        if query:
+            query_lower = query.lower()
+            matches = []
+            for jpath, value in _iter_pairs(parsed):
+                if (query_lower in jpath.lower()) or (query_lower in str(value).lower()):
+                    matches.append({"path": jpath, "value": value})
+            st.caption(f"{len(matches)} match(es) for '{query}'")
+            if matches:
+                st.dataframe(pd.DataFrame(matches), width="stretch", hide_index=True)
+            else:
+                st.info("No matches found.")
+
+        tab_flat, tab_tree, tab_raw = st.tabs(["Flat", "Tree", "Raw"])
+        with tab_tree:
+            st.json(parsed, expanded=expanded)
+        with tab_flat:
+            flat_rows = [{"path": jpath, "value": value} for jpath, value in _iter_pairs(parsed)]
+            st.dataframe(pd.DataFrame(flat_rows), width="stretch", hide_index=True)
+        with tab_raw:
+            st.text_area("Raw JSON", text_data, height=260, key=f"{path}_json_raw")
+            st.download_button(
+                "Download JSON",
+                data=text_data,
+                file_name=path.name,
+                mime="application/json",
+                key=f"{path}_json_download",
+                width="stretch",
+            )
+
+
+def _display_dir(path: Path) -> None:
+    with st.container(border=True):
+        show_dir = st.checkbox(
+            f"**{path.stem}**",
+            value=False,
+            key=f"{path}_dir_toggle",
+        )
+        if show_dir:
+            display_results(path)
 
-# def _display_pkl(path: Path) -> None:
-#     csv_rmse_krg_path = Path(f"{results_dir}/rmse_KRG.csv")
-#     if csv_rmse_krg_path.exists():
-#         rmse_krg_df = pd.read_csv(csv_rmse_krg_path)
-#         rmse_krg_value = rmse_krg_df["rmse"].iloc[0]
-#         st.markdown(f"##### Root Mean Square Error of KRG model: {rmse_krg_value:.6f}")
-
-#     csv_rmse_rbf_path = Path(f"{results_dir}/rmse_RBF.csv")
-#     rmse_rbf_df = None
-#     if csv_rmse_rbf_path.exists():
-#         rmse_rbf_df = pd.read_csv(csv_rmse_rbf_path)
-#         rmse_rbf_value = rmse_rbf_df["rmse"].iloc[0]
-#         st.markdown(f"##### Root Mean Square Error of RBF model: {rmse_rbf_value:.6f}")
-
-#     cpacs_in = Path(chosen_workflow, "00_ToolInput.xml")
-#     tmp_cpacs = CPACS(cpacs_in)
-#     tixi = tmp_cpacs.tixi
-
-#     (_, _, _, ranges_gui, _) = get_params_to_optimise(tmp_cpacs)
-
-#     sliders_values = {}
-#     sliders_bounds = {}
-
-#     csv_path_sampling = (
-#         chosen_workflow
-#         / "Results"
-#         / "SMTrain"
-#         / "Low_Fidelity"
-#         / "avl_simulations_results.csv"
-#     )
-
-#     df_samples = None
-#     if csv_path_sampling.exists():
-#         df_samples = pd.read_csv(csv_path_sampling)
-#     if df_samples is None:
-#         st.warning("No sampling data available.")
-
-#     for param, bounds in ranges_gui.items():
-#         min_val = float(bounds[0])
-#         max_val = float(bounds[1])
-#         sliders_bounds[param] = [min_val, max_val]
-#         sliders_values[param] = min_val
-
-#     krg_model_path = results_dir / "surrogateModel_krg.pkl"
-#     rbf_model_path = results_dir / "surrogateModel_rbf.pkl"
-
-#     if krg_model_path.exists() and rbf_model_path.exists():
-#         model_selected = st.radio(
-#             "Select the model to visualize:",
-#             ["RBF" , "KRG"],
-#             index=0,
-#             horizontal=True,
-#             key="model_select_radio",
-#         )
-
-#         model_path = rbf_model_path if model_selected == "RBF" else krg_model_path
-#     elif krg_model_path.exists():
-#         model_path = krg_model_path
-#     elif rbf_model_path.exists():
-#         model_path = rbf_model_path
-
-#     model, param_order = None, None
-#     if model_path.exists():
-#         with open(model_path, "rb") as file:
-#             data = joblib.load(file)
-#         model = data["model"]
-#         param_order = data["param_order"]
-#     else:
-#         st.warning(
-#             "⚠️ Surrogate model not found. Only geometry "
-#             "sliders will be available."
-#         )
-
-#     final_level1_df = pd.read_csv(csv_path_sampling)
-#     param_cols = final_level1_df.columns[:-1]
-
-#     df_norm = final_level1_df.copy()
-#     normalization_params = {}
-
-#     for col in param_cols:
-#         col_mean = final_level1_df[col].mean()
-#         col_std = final_level1_df[col].std()
-#         if col_std == 0:
-#             df_norm[col] = 0.0
-#         else:
-#             df_norm[col] = (final_level1_df[col] - col_mean) / col_std
-#         normalization_params[col] = {"mean": col_mean, "std": col_std}
-
-#     norm_df = pd.DataFrame.from_dict(
-#         normalization_params,
-#         orient="index"
-#     ).reset_index()
-
-#     norm_df.columns = ["Parameter", "mean", "std"]
-
-#     # normalization_params = load_normalization_params(results_dir)
-#     missing = [p for p in param_order if p not in normalization_params]
-#     if missing:
-#         log.error(f"Missing normalization parameters for: {missing}")
-#         st.error(f"Missing normalization parameters for: {missing}")
-#         st.stop()
-
-#         st.subheader("Response Surface Visualization")
-#         # Let user select 2 params to visualize
-#         selected_params = st.multiselect(
-#             "Select exactly 2 parameters to visualize:",
-#             options=param_order,
-#             default=param_order[:2],
-#             key="rsm_param_select"
-#         )
-
-#         if len(selected_params) == 2:
-#             p1_min, p1_max = sliders_bounds.get(selected_params[0], (-5, 15))
-#             p2_min, p2_max = sliders_bounds.get(selected_params[1], (-5, 15))
-
-#             p1_range = st.slider(
-#                 f"Range for {selected_params[0]}",
-#                 float(p1_min),
-#                 float(p1_max),
-#                 (float(p1_min), float(p1_max)),
-#                 key="rsm_slider_1"
-#             )
-#             p2_range = st.slider(
-#                 f"Range for {selected_params[1]}",
-#                 float(p2_min),
-#                 float(p2_max),
-#                 (float(p2_min), float(p2_max)),
-#                 key="rsm_slider_2"
-#             )
-
-#             fixed_param_values = {}
-#             if len(param_order) >= 3:
-#                 st.markdown("**Fix values for other parameters:**")
-#                 for p in param_order:
-#                     if p not in selected_params:
-#                         low, high = sliders_bounds.get(p, (0, 0))
-#                         fixed_param_values[p] = st.slider(
-#                             f"{p}",
-#                             float(low),
-#                             float(high),
-#                             float((low + high) / 2),
-#                             key=f"fixed_slider_{p}"
-#                         )
-
-#             if st.button("Generate response surface"):
-#                 with st.spinner("Calculating response surface..."):
-#                     # Create meshgrid for the two selected parameters
-#                     param1_lin = np.linspace(p1_range[0], p1_range[1], 50)
-#                     param2_lin = np.linspace(p2_range[0], p2_range[1], 50)
-#                     P1, P2 = np.meshgrid(param1_lin, param2_lin)
-
-#                     # Prepare full input matrix
-#                     inputs_norm = np.zeros((P1.size, len(param_order)))
-#                     for i, p in enumerate(param_order):
-#                         if p == selected_params[0]:
-#                             inputs_norm[:, i] = (
-# P1.ravel() - normalization_params[p]["mean"]) / normalization_params[p]["std"]
-#                         elif p == selected_params[1]:
-#                             inputs_norm[:, i] = (
-# P2.ravel() - normalization_params[p]["mean"]) / normalization_params[p]["std"]
-#                         else:
-#                             val = fixed_param_values.get(p, sliders_bounds[p][0])
-#                             mean = normalization_params[p]["mean"]
-#                             std  = normalization_params[p]["std"]
-#                             inputs_norm[:, i] = 0.0 if std == 0 else (val - mean) / std
-
-#                     # Predict on normalized inputs
-#                     try:
-#                         Z = model.predict_values(inputs_norm).reshape(P1.shape)
-
-#                         fig = go.Figure(data=[go.Surface(
-# x=P1, y=P2, z=Z, colorscale="RdBu", showscale=True)])
-
-#                         # Add sample points if available
-#                         if df_samples is not None:
-#                             mask = np.ones(len(df_samples), dtype=bool)
-#                             for p, val in fixed_param_values.items():
-#                                 if p in df_samples.columns:
-#                                     tol = 0.01 * (sliders_bounds[p][1] - sliders_bounds[p][0])
-#                                     mask &= np.isclose(df_samples[p], val, atol=tol)
-
-#                             filtered_samples = df_samples[mask] if mask.any() else df_samples
-#                             x_samples = filtered_samples[selected_params[0]].values
-#                             y_samples = filtered_samples[selected_params[1]].values
-#                             z_samples = filtered_samples[df_samples.columns[-1]].values
-
-#                             fig.add_trace(go.Scatter3d(
-#                                 x=x_samples, y=y_samples, z=z_samples,
-#                                 mode='markers',
-#                                 marker=dict(size=1, color='green'),
-#                                 name=f"🟢 Training Samples (n={len(x_samples)})",
-#                                 showlegend=True,
-#                                 legendgroup="samples",
-#                             ))
-
-#                         fig.update_layout(
-#                             showlegend=True,
-#                             legend=dict(
-#                                 yanchor="top",
-#                                 y=0.99,
-#                                 xanchor="left",
-#                                 x=0.5
-#                             ),
-#                             title='Surrogate Model Response Surface',
-#                             scene=dict(
-#                                 xaxis_title=selected_params[0],
-#                                 yaxis_title=selected_params[1],
-#                                 zaxis_title='Predicted Output'
-#                             )
-#                         )
-
-#                         st.plotly_chart(fig, width="stretch")
-
-#                     except Exception as e:
-#                         st.error(f"Error predicting response surface: {e}")
-
-#         else:
-#             st.error("Please select 2 parameters.")
-
-#     mode = st.radio(
-#         "Select mode:",
-#         ["Manual exploration", "Target-based exploration"],
-#         index=0,
-#         horizontal=True,
-#     )
-
-#     if mode == "Manual exploration":
-#         col_tuning, col_3d = st.columns(2)
-#         with col_tuning:
-#             st.subheader('Parameters')
-#             for param, (min_val, max_val) in sliders_bounds.items():
-#                 sliders_values[param] = st.slider(
-#                     f'{param}',
-#                     min_val,
-#                     max_val,
-#                     min_val,
-#                     0.01,
-#                     key=f"slider_{param}"
-#                 )
-
-#         # update CPACS
-#         params_to_update = {}
-#         for name, val in sliders_values.items():
-#             parts = name.split("_of_")
-#             if len(parts) < 3:
-#                 continue
-#             name_parameter, section_uid, wing_uid = parts
-#             xpath = get_xpath_for_param(tixi, name_parameter, wing_uid, section_uid)
-#             params_to_update[xpath] = {"value": val, "xpath": xpath}
-
-#         for xp, info in params_to_update.items():
-#             create_branch(tixi, xp)
-#             val = info['value']
-#             tixi.updateDoubleElement(xp, float(val), "%g")
-
-#         new_file_path = Path(results_dir) / "temp_manual_geom_from_gui.xml"
-#         tmp_cpacs.save_cpacs(new_file_path, overwrite=True)
-
-#         with col_3d:
-#             st.subheader('| 3D View')
-#             section_3D_view(
-#                 results_dir=results_dir,
-#                 cpacs=CPACS(new_file_path),
-#                 force_regenerate=True,
-#                 file_name = "temp_manual_geom_from_gui",
-#             )
-
-#         # Normalize GUI input
-#         x_norm = normalize_input_from_gui(
-#             sliders_values,
-#             param_order,
-#             normalization_params
-#         )
-
-#         # Predict
-#         raw_predicted_value = model.predict_values(
-#             x_norm.reshape(1, -1)
-#         )[0]
-#         predicted_value = float(raw_predicted_value.item())
-#         st.metric("Predicted objective value", f"{predicted_value:.2f}")
-
-#         with col_3d:
-#             with open(new_file_path, "rb") as f:
-#                 cpacs_data = f.read()
-
-#             st.download_button(
-#                     label="Download CPACS file",
-#                     data=cpacs_data,
-#                     file_name=f"configuration_predicted_value_{predicted_value}.xml",
-#                     mime="application/xml"
-#                 )
-
-#         df_config = pd.DataFrame(
-#             list(sliders_values.items()),
-#             columns=['Parameter', 'Value']
-#         )
-#         csv_buffer = io.StringIO()
-#         df_config.to_csv(csv_buffer, index=False)
-#         csv_data = csv_buffer.getvalue()
-#         file_name_csv = f"configuration_for_obj_{predicted_value}.csv"
-
-#         st.download_button(
-#             label="Download configuration in CSV file",
-#             data=csv_data,
-#             file_name=file_name_csv,
-#             mime="text/csv",
-#         )
-
-#     elif mode == "Target-based exploration":
-
-#         st.subheader("Target-based exploration")
-#         param_order_geom = [p for p in param_order if p in sliders_bounds]
-
-#         x0_phys = np.array([sliders_values[p] for p in param_order_geom])
-#         x0 = phys_to_norm(x0_phys, param_order_geom, normalization_params)
-
-#         bounds = []
-#         for p in param_order_geom:
-#             lo, hi = sliders_bounds[p]
-#             mean = normalization_params[p]["mean"]
-#             std  = normalization_params[p]["std"]
-#             if std == 0:
-#                 bounds.append((0.0, 0.0))
-#             else:
-#                 bounds.append(((lo - mean) / std, (hi - mean) / std))
-
-#         # input target
-#         y_pred_init = model.predict_values(x0.reshape(1, -1))[0]
-#         y_target = st.number_input(
-#             "Enter target value",
-#             value=float(y_pred_init[0]),
-#             step=0.0001,
-#             format="%0.2f"
-#         )
-#         selected_solver = st.selectbox(
-#             label="Choose the solver",
-#             options=["L-BFGS-B","Powell","COBYLA","TNC","Nelder-Mead"],
-#             help="Select the algorithm to be used for minimizing"
-#             "the objective function. Each solver follows a different numerical"
-#             "strategy and may perform better depending on the problem type"
-#             "and constraints."
-#         )
-
-#         def objective_inverse(x_norm):
-#             x_full = []
-#             for p in param_order:
-#                 if p in param_order_geom:
-#                     i = param_order_geom.index(p)
-#                     x_full.append(x_norm[i])
-#                 else:
-#                     val_phys = sliders_values[p]
-#                     mean = normalization_params[p]["mean"]
-#                     std  = normalization_params[p]["std"]
-#                     x_full.append(0.0 if std == 0 else (val_phys - mean) / std)
-#             x_full = np.array(x_full)
-#             y_pred = float(model.predict_values(x_full.reshape(1, -1))[0, 0])
-#             return abs(y_pred - y_target)
-
-#         if st.button("Find parameters for given target value"):
-#             result = minimize(
-#                 objective_inverse,
-#                 x0,
-#                 bounds=bounds,
-#                 method=selected_solver
-#             )
-
-#             if not result.success:
-#                 st.error(f"Optimization failed: {result.message}")
-#                 st.write("Last x:", result.x)
-#                 st.write("Objective value:", result.fun)
-#                 return
-
-#             if result.success:
-#                 x_opt_phys = norm_to_phys(
-#                     result.x,
-#                     param_order_geom,
-#                     normalization_params
-#                 )
-
-#                 input_dict_opt = dict(zip(param_order_geom, x_opt_phys))
-
-#                 x_full_norm = []
-#                 for p in param_order:
-#                     if p in input_dict_opt:
-#                         val = input_dict_opt[p]
-#                     else:
-#                         val = sliders_values[p]
-#                     mean = normalization_params[p]["mean"]
-#                     std  = normalization_params[p]["std"]
-#                     x_full_norm.append(0.0 if std == 0 else (val - mean)/std)
-
-#                 y_pred_opt = float(
-#                     model.predict_values(np.array(x_full_norm).reshape(1, -1))[0, 0]
-#                 )
-
-#                 st.session_state.optim_result = {
-#                     "params": input_dict_opt,
-#                     "y_pred_opt": y_pred_opt,
-#                     "y_target": y_target,
-#                 }
-
-#         if "optim_result" in st.session_state:
-#             col_tab, col_view = st.columns([0.6,0.4])
-#             with col_tab:
-#                 st.subheader("Parameter values")
-#                 df_opt_params = pd.DataFrame(
-#                     {
-#                         "Parameter": param_order_geom,
-#                         "Value": [
-#                             st.session_state["optim_result"]["params"][p]
-#                             for p in param_order_geom
-#                         ]
-#                     }
-#                 )
-#                 st.table(df_opt_params)
-
-#                 st.metric(
-#                     label="Predicted value for optimal parameters",
-#                     value=f"{st.session_state['optim_result']['y_pred_opt']:.2f}"
-#                 )
-
-#                 abs_error = abs(
-#                     st.session_state['optim_result']['y_pred_opt']
-#                     - st.session_state['optim_result']['y_target']
-#                 )
-#                 st.markdown(f"**Absolute error:** {abs_error:.6f}")
-
-#                 csv_buffer = io.StringIO()
-#                 df_opt_params.to_csv(csv_buffer, index=False)
-#                 csv_data = csv_buffer.getvalue()
-#                 file_name_csv = (
-#                     "optimal_parameters_target_value"
-#                     f"_{st.session_state['optim_result']['y_target']:.2f}.csv"
-#                 )
-
-#                 st.download_button(
-#                     label="Download parameters in CSV file",
-#                     data=csv_data,
-#                     file_name=file_name_csv,
-#                     mime="text/csv",
-#                 )
-
-#             tmp_cpacs = CPACS(Path(chosen_workflow, "00_ToolInput.xml"))
-#             tixi = tmp_cpacs.tixi
-
-#             for name, val in st.session_state["optim_result"]["params"].items():
-#                 if "_of_" not in name:
-#                     continue
-#                 parts = name.split("_of_")
-#                 name_parameter, section_uid, wing_uid = parts
-#                 xpath = get_xpath_for_param(
-#                     tixi,
-#                     name_parameter,
-#                     wing_uid,
-#                     section_uid
-#                 )
-#                 create_branch(tixi, xpath)
-#                 tixi.updateDoubleElement(xpath, float(val), "%g")
-
-#             new_file_path = Path(results_dir) / "temp_target_geometry_from_gui.xml"
-#             tmp_cpacs.save_cpacs(new_file_path, overwrite=True)
-
-#             with col_view:
-#                 st.subheader("| 3D View")
-
-#                 section_3D_view(
-#                     results_dir=Path(results_dir),
-#                     cpacs=CPACS(new_file_path),
-#                     force_regenerate=True,
-#                     file_name="temp_optim_geometry",
-#                 )
-
-#                 with open(new_file_path, "rb") as f:
-#                     cpacs_data = f.read()
-
-#                 st.download_button(
-#                     label="Download CPACS file",
-#                     data=cpacs_data,
-#                     file_name=f"temp_optim_geometry_{y_target}.xml",
-#                     mime="application/xml"
-#                 )
 
 def _display_pkl(path: Path) -> None:
     with st.container(border=True):
@@ -1035,20 +665,13 @@ def _load_plk_cached(path_str: str, mtime: float):
 
 
 def _display_html(path: Path) -> None:
-    with st.container(border=True):
-        show_html = st.checkbox(
-            label=f"**{path.name}**",
-            value=True,
-            key=f"{path}_html_toggle",
-        )
-        if not show_html:
-            return None
-        data = path.read_bytes()
-        if _looks_binary(data):
-            st.info(f"📄 {path.name} (binary file, cannot display as text)")
-            return None
-        html_text = data.decode("utf-8", errors="replace")
-        components.html(html_text, height=500, scrolling=True)
+    st.markdown("---")
+    data = path.read_bytes()
+    if _looks_binary(data):
+        st.info(f"📄 {path.name} (binary file, cannot display as text)")
+        return None
+    html_text = data.decode("utf-8", errors="replace")
+    components.html(html_text, height=500, scrolling=True)
 
 
 def _display_md(path: Path) -> None:
@@ -1186,7 +809,7 @@ def _display_dat(path: Path) -> None:
             value=True,
         ):
             if path.name == "forces_breakdown.dat":
-                _display_forces_breakdown(path)
+                display_forces_breakdown(path)
                 return None
 
             skip_first = False
@@ -1244,69 +867,6 @@ def _display_dat(path: Path) -> None:
                 height=200,
                 key=f"{path}_dat_raw",
             )
-
-
-def _display_forces_breakdown(path: Path) -> None:
-    text = path.read_text(errors="replace")
-    lines = [line.strip() for line in text.splitlines()]
-    rows = []
-    current_section = "Total"
-    for line in lines:
-        if not line:
-            continue
-        if line.startswith("Surface name:"):
-            current_section = line.replace("Surface name:", "").strip() or "Surface"
-            continue
-        if not line.startswith("Total "):
-            continue
-        if "|" not in line:
-            continue
-        left, right = line.split("|", 1)
-        metric_part = left.strip()
-        if ":" not in metric_part:
-            continue
-        metric_label, value_text = metric_part.split(":", 1)
-        try:
-            value = float(value_text.strip())
-        except ValueError:
-            continue
-
-        pressure = None
-        friction = None
-        momentum = None
-        for part in right.split("|"):
-            part = part.strip()
-            if part.startswith("Pressure"):
-                try:
-                    pressure = float(part.split(":", 1)[1].strip())
-                except ValueError:
-                    pressure = None
-            elif part.startswith("Friction"):
-                try:
-                    friction = float(part.split(":", 1)[1].strip())
-                except ValueError:
-                    friction = None
-            elif part.startswith("Momentum"):
-                try:
-                    momentum = float(part.split(":", 1)[1].strip())
-                except ValueError:
-                    momentum = None
-
-        rows.append(
-            {
-                "Section": current_section,
-                "Metric": metric_label.replace("Total ", "").strip(),
-                "Total": value,
-                "Pressure": pressure,
-                "Friction": friction,
-                "Momentum": momentum,
-            }
-        )
-
-    if rows:
-        st.table(pd.DataFrame(rows))
-    else:
-        st.text_area(path.stem, text, height=200, key=f"{path}_dat_raw")
 
 
 def _display_vtu(path: Path) -> None:
@@ -1406,43 +966,23 @@ def _display_png(path: Path) -> None:
 
 
 def _display_pdf(path: Path) -> None:
-    with st.container(border=True):
-        show_pdf = st.checkbox(
-            f"**{path.stem}**",
-            value=True,
-            key=f"{path}_dir_toggle",
-        )
-        if show_pdf:
-            if "pdf_container" not in st.session_state:
-                st.session_state["pdf_container"] = st.container()
+    if "pdf_container" not in st.session_state:
+        st.session_state["pdf_container"] = st.container()
 
-            pdf_bytes = path.read_bytes()
-            b64_pdf = base64.b64encode(pdf_bytes).decode("ascii")
-            st.session_state.pdf_container.markdown(
-                f'<iframe src="data:application/pdf;base64,{b64_pdf}" '
-                'width="100%" height="900" style="border:0"></iframe>',
-                unsafe_allow_html=True,
-            )
-            st.session_state.pdf_container.download_button(
-                "Download PDF",
-                data=pdf_bytes,
-                file_name=path.name,
-                mime="application/pdf",
-                key=f"{path}_pdf_download",
-            )
-
-
-def _display_json(path: Path) -> None:
-    data = path.read_bytes()
-    if _looks_binary(data):
-        st.info(f"📄 {path.name} (binary file, cannot display as text)")
-        return None
-    text_data = data.decode("utf-8", errors="replace")
-    st.text_area(
-        path.stem,
-        text_data,
-        height=200,
-        key=f"{path}_json",
+    pdf_bytes = path.read_bytes()
+    b64_pdf = base64.b64encode(pdf_bytes).decode("ascii")
+    st.session_state.pdf_container.markdown(
+        f'<iframe src="data:application/pdf;base64,{b64_pdf}" '
+        'width="100%" height="900" style="border:0"></iframe>',
+        unsafe_allow_html=True,
+    )
+    st.session_state.pdf_container.download_button(
+        "Download PDF",
+        data=pdf_bytes,
+        file_name=path.name,
+        mime="application/pdf",
+        key=f"{path}_pdf_download",
+        width="stretch",
     )
 
 
@@ -1483,7 +1023,79 @@ def _display_csv(path: Path) -> None:
         st.markdown(f"**{path.name}**")
         try:
             df = pd.read_csv(path, engine="python", on_bad_lines="skip")
-            st.dataframe(df)
+            hidden_cols = [
+                col
+                for col in df.columns
+                if col in {"comment", "color", "Color"} or col.startswith("Unnamed:")
+            ]
+            if hidden_cols:
+                df = df.drop(columns=hidden_cols)
+            df_display = df.copy()
+            for col in df_display.columns:
+                numeric_series = pd.to_numeric(df_display[col], errors="coerce")
+                if numeric_series.notna().any():
+                    df_display[col] = numeric_series.map(
+                        lambda x: "" if pd.isna(x) else np.format_float_positional(x, trim="-")
+                    )
+
+            stab_cols = {"long_stab", "dir_stab", "lat_stab"}
+            if stab_cols.issubset(set(df.columns)):
+                stable_mask = (
+                    (df["long_stab"] == "Stable")
+                    & (df["dir_stab"] == "Stable")
+                    & (df["lat_stab"] == "Stable")
+                )
+
+                def _row_style(row):
+                    is_stable_row = bool(stable_mask.loc[row.name])
+                    if is_stable_row:
+                        return [
+                            "background-color: #d4edda; "
+                            "color: #155724; font-weight: 600;"
+                        ] * len(row)
+                    return [
+                        "background-color: #f8d7da; "
+                        "color: #721c24; font-weight: 600;"
+                    ] * len(row)
+
+                numeric_cols = [
+                    col for col in df.columns
+                    if pd.to_numeric(df[col], errors="coerce").notna().any()
+                ]
+
+                def _format_scientific_if_needed(value):
+                    if pd.isna(value):
+                        return ""
+                    val = float(value)
+                    fixed = f"{val:.12f}".rstrip("0").rstrip(".")
+                    if "." in fixed and len(fixed.split(".", 1)[1]) > 4:
+                        return f"{val:.3e}"
+                    return fixed
+
+                style_formatter = {
+                    col: _format_scientific_if_needed
+                    for col in numeric_cols
+                }
+
+                df_signature = hashlib.md5(
+                    (",".join(map(str, df_display.columns)) + f"|{df_display.shape}").encode()
+                ).hexdigest()
+
+                displayed_df = (
+                    df_display.style
+                    .apply(_row_style, axis=1)
+                    .format(style_formatter)
+                )
+                st.dataframe(
+                    data=displayed_df,
+                    hide_index=True,
+                    key=f"results_df_{df_signature}",
+                )
+            else:
+                st.dataframe(
+                    data=df_display,
+                    hide_index=True,
+                )
         except Exception as exc:
             st.warning(f"Could not parse {path.name} as CSV: {exc}")
             data = path.read_bytes()
@@ -1516,14 +1128,18 @@ def _display_xml(path: Path) -> None:
 
 
 def _results_sort_key(path: Path) -> tuple[int, str]:
-    '''Priority to files, priority=0 is highest priority.'''
+    """Priority to files, priority=0 is highest priority."""
+    if path.is_dir():
+        return 99, path.name  # directories last
+
     suffix = path.suffix.lower()
-    if suffix == ".pdf":
+    if suffix in {".pdf", ".md"}:
         priority = 0
     elif suffix == ".txt":
         priority = 2
     else:
         priority = 1
+
     return priority, path.name
 
 

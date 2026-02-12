@@ -500,7 +500,7 @@ def _display_pkl(path: Path) -> None:
                         if param_name not in params_to_update:
                             params_to_update[param_name] = {"values": [], "xpath": []}
                         params_to_update[param_name]["values"].append(
-                            object=float(input_values[full_name])
+                            float(input_values[full_name])
                         )
                         params_to_update[param_name]["xpath"].append(xpath)
 

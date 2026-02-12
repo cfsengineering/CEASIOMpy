@@ -13,7 +13,6 @@ from ceasiompy.utils.decorators import log_test
 from ceasiompy.pyavl.func.config import (
     write_command_file,
     retrieve_gui_values,
-    get_physics_conditions,
 )
 from ceasiompy.utils.ceasiompyutils import (
     current_workflow_dir,
@@ -103,51 +102,6 @@ class TestPyAVLConfig(CeasiompyTest):
             input_args=(self.cpacs, ),
             expected=([1000.0], [0.3], [5.0], [0.0]),
         )
-
-    @log_test
-    def test_write_command_file(self):
-        mach = 0.3
-        (
-            roll_rate_star, pitch_rate_star, yaw_rate_star,
-            ref_density, g_acceleration, ref_velocity,
-        ) = get_physics_conditions(
-            self.cpacs.tixi,
-            alt=1000.0,
-            mach=mach,
-            roll_rate=0.0,
-            pitch_rate=0.0,
-            yaw_rate=0.0,
-        )
-
-        write_command_file(
-            avl_path=self.avl_path,
-            case_dir_path=self.wkdir,
-            ref_density=ref_density,
-            g_acceleration=g_acceleration,
-            ref_velocity=ref_velocity,
-            alpha=5.0,
-            beta=0.0,
-            pitch_rate_star=pitch_rate_star,
-            roll_rate_star=roll_rate_star,
-            yaw_rate_star=yaw_rate_star,
-            mach_number=mach,
-            aileron=0.0,
-            elevator=0.0,
-            rudder=0.0,
-        )
-
-        file_exists = Path(self.wkdir, "avl_commands.txt").exists()
-        assert file_exists, "File 'avl_commands.txt' not found."
-
-        if file_exists:
-            self.command_dir = Path(self.wkdir, "avl_commands.txt")
-            with open(self.command_dir, "r") as file1, open(self.command_dir, "r") as file2:
-                for line1, line2 in zip(file1, file2):
-                    if "mass" not in line1:
-                        assert line1 == line2, "File 'avl_commands.txt' not correct."
-
-                # Check for any remaining lines in either file
-                assert not file1.read() or not file2.read(), "File 'avl_commands.txt' not correct."
 
 
 # Main

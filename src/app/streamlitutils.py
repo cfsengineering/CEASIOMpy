@@ -26,7 +26,6 @@ from tigl3.tigl3wrapper import Tigl3
 from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
-from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 
 
 # Functions

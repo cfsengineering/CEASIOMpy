@@ -90,7 +90,7 @@ def write_command_file(
     Writes the command file for AVL.
 
     Returns:
-        (Path): Path to the command file.
+        (Path): case_dir_path.
     """
 
     dynamic_case_params = {

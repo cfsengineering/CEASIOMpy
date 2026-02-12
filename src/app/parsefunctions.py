@@ -50,6 +50,51 @@ def parse_ascii_tables(text: str):
     return segments
 
 
+def _safe_float(text: str) -> float | None:
+    """Return float value when parseable, otherwise None."""
+    try:
+        return float(text.strip())
+    except ValueError:
+        return None
+
+
+def _parse_force_contributions(parts_text: str) -> dict[str, float | None]:
+    contributions = {"Pressure": None, "Friction": None, "Momentum": None}
+    for part in parts_text.split("|"):
+        part = part.strip()
+        for key in contributions:
+            if part.startswith(key):
+                _, _, value_text = part.partition(":")
+                contributions[key] = _safe_float(value_text)
+                break
+    return contributions
+
+
+def _parse_total_force_line(line: str, section: str) -> dict[str, object] | None:
+    if not line.startswith("Total ") or "|" not in line:
+        return None
+
+    left, right = line.split("|", 1)
+    metric_part = left.strip()
+    if ":" not in metric_part:
+        return None
+
+    metric_label, value_text = metric_part.split(":", 1)
+    total_value = _safe_float(value_text)
+    if total_value is None:
+        return None
+
+    contributions = _parse_force_contributions(right)
+    return {
+        "Section": section,
+        "Metric": metric_label.replace("Total ", "").strip(),
+        "Total": total_value,
+        "Pressure": contributions["Pressure"],
+        "Friction": contributions["Friction"],
+        "Momentum": contributions["Momentum"],
+    }
+
+
 def display_forces_breakdown(path: Path) -> None:
     text = path.read_text(errors="replace")
     lines = [line.strip() for line in text.splitlines()]
@@ -61,51 +106,9 @@ def display_forces_breakdown(path: Path) -> None:
         if line.startswith("Surface name:"):
             current_section = line.replace("Surface name:", "").strip() or "Surface"
             continue
-        if not line.startswith("Total "):
-            continue
-        if "|" not in line:
-            continue
-        left, right = line.split("|", 1)
-        metric_part = left.strip()
-        if ":" not in metric_part:
-            continue
-        metric_label, value_text = metric_part.split(":", 1)
-        try:
-            value = float(value_text.strip())
-        except ValueError:
-            continue
-
-        pressure = None
-        friction = None
-        momentum = None
-        for part in right.split("|"):
-            part = part.strip()
-            if part.startswith("Pressure"):
-                try:
-                    pressure = float(part.split(":", 1)[1].strip())
-                except ValueError:
-                    pressure = None
-            elif part.startswith("Friction"):
-                try:
-                    friction = float(part.split(":", 1)[1].strip())
-                except ValueError:
-                    friction = None
-            elif part.startswith("Momentum"):
-                try:
-                    momentum = float(part.split(":", 1)[1].strip())
-                except ValueError:
-                    momentum = None
-
-        rows.append(
-            {
-                "Section": current_section,
-                "Metric": metric_label.replace("Total ", "").strip(),
-                "Total": value,
-                "Pressure": pressure,
-                "Friction": friction,
-                "Momentum": momentum,
-            }
-        )
+        row = _parse_total_force_line(line, current_section)
+        if row is not None:
+            rows.append(row)
 
     if rows:
         st.table(pd.DataFrame(rows))

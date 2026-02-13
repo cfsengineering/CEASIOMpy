@@ -16,6 +16,15 @@ jobs:
       - name: Build CEASIOMpy installation image
         run: docker build -t ceasiompy-install-test -f ceasiompy_docker_Installation .
 
+      - name: Maximize Build Space & Swap
+        run: |
+          # Create a 4GB swap file to assist the 7GB RAM
+          sudo fallocate -l 4G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
+
       - name: Run container smoke test
         run: |
           docker run --rm \

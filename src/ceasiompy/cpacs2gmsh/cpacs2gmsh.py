@@ -381,16 +381,19 @@ def main(
 
     tixi = cpacs.tixi
 
-    _progress_update(progress_callback, detail="Reading CPACS settings...", progress=0.01)
+    _progress_update(
+        detail="Reading CPACS settings...",
+        progress=0.01,
+        progress_callback=progress_callback,
+    )
 
     # Check if we are in 2D mode - separate try/except to not catch process_2d_airfoil errors
     geometry_mode = None
-    try:
-        geometry_mode = tixi.getTextElement(GEOMETRY_MODE_XPATH)
-        log.info(f"Geometry mode found in CPACS: {geometry_mode}")
-    except Exception:
-        # No geometry mode specified or xpath doesn't exist, assume 3D
-        log.info("No geometry mode specified in CPACS, defaulting to 3D mode.")
+    if not tixi.checkElement(GEOMETRY_MODE_XPATH):
+        raise ValueError("Did not find geometry mode.")
+
+    geometry_mode = tixi.getTextElement(GEOMETRY_MODE_XPATH)
+    log.info(f"Geometry mode found in CPACS: {geometry_mode}")
 
     # Process 2D if geometry mode is 2D (let exceptions propagate)
     if tixi.getTextElement(GEOMETRY_MODE_XPATH) == "2D":

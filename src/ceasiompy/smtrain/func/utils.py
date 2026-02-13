@@ -10,7 +10,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from ceasiompy.utils.guiobjects import add_value
+from ceasiompy.utils.guiobjects import update_value
 from ceasiompy.utils.ceasiompyutils import (
     get_selected_aeromap,
     get_conditions_from_aeromap,
@@ -217,7 +217,7 @@ def store_best_geom_from_training(
     )
     # Change name accordingly
     cpacs = CPACS(best_cpacs_path_results)
-    add_value(
+    update_value(
         tixi=cpacs.tixi,
         xpath=AC_NAME_XPATH,
         value=f"Best {cpacs.ac_name} Geometry from Generated Data",

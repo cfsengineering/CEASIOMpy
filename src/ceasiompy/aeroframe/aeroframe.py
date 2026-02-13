@@ -12,7 +12,7 @@ aerodynamic loads and FramAT for structural calculations.
 import shutil
 import numpy as np
 
-from ceasiompy.utils.guiobjects import add_value
+from ceasiompy.utils.guiobjects import update_value
 from ceasiompy.pyavl.func.data import create_case_dir
 from ceasiompy.aeroframe.func.plot import plot_convergence
 from ceasiompy.aeroframe.func.config import read_avl_fe_file
@@ -98,7 +98,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             f_xyz_array[0],
         )
 
-        add_value(
+        update_value(
             tixi=tixi,
             xpath=FRAMAT_TIP_DEFLECTION_XPATH,
             value=tip_deflection[-1],

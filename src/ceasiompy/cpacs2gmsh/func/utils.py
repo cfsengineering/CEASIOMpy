@@ -6,22 +6,32 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 Functions and constants for CPACS2GMSH module.
 """
 
+# Futures
+
+from __future__ import annotations
+
 # Imports
 
 import os
 import gmsh
+import tempfile
 
 import numpy as np
 
 from cpacspy.cpacsfunctions import get_value
+from tigl3.import_export_helper import export_shapes
 
-from typing import Dict
+from typing import Any
 from pathlib import Path
+from pydantic import BaseModel
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.configfiles import ConfigFile
+from OCC.Core.TopoDS import TopoDS_Shape
+from tigl3.geometry import CNamedShape
+from gmsh.model import occ
+from gmsh.model.occ import 
 
 from ceasiompy import log
-
 from ceasiompy.cpacs2gmsh import (
     GMSH_AUTO_REFINE_XPATH,
     GMSH_EXHAUST_PERCENT_XPATH,
@@ -33,12 +43,11 @@ from ceasiompy.cpacs2gmsh import (
     GMSH_MESH_SIZE_WINGS_XPATH,
     GMSH_MESH_SIZE_ENGINES_XPATH,
     GMSH_MESH_SIZE_PROPELLERS_XPATH,
-    GMSH_OPEN_GUI_XPATH,
     GMSH_REFINE_FACTOR_XPATH,
     GMSH_REFINE_TRUNCATED_XPATH,
     GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,
     GMSH_SYMMETRY_XPATH,
-    GMSH_MESH_TYPE_XPATH,
+    GMSH_ADD_BOUNDARY_LAYER_XPATH,
     GMSH_NUMBER_LAYER_XPATH,
     GMSH_H_FIRST_LAYER_XPATH,
     GMSH_MAX_THICKNESS_LAYER_XPATH,
@@ -68,7 +77,140 @@ MESH_COLORS = {
 }
 
 
+def _import_geom(geom: CNamedShape | TopoDS_Shape) -> list[tuple[int, int]]:
+    """Returns: [(dim1, tag1), (dim2, tag2), ...], where,
+    
+    dim = topological dimension (0 point, 1 curve, 2 surface, 3 volume)
+    tag = gmsh ID for that entity in the OCC model
+
+    """
+    geom = _extract_topods(geom)
+    with tempfile.TemporaryDirectory(prefix="ceasiompy_occ_") as tmpdir:
+        brep_path = Path(tmpdir) / "shape.brep"
+        export_shapes([geom], str(brep_path))
+        shape = gmsh.model.occ.importShapes(str(brep_path), highestDimOnly=False)
+        gmsh.model.occ.synchronize()
+
+    if not shape:
+        raise RuntimeError(f"Failed to import {geom=} into gmsh OpenCASCADE model.")
+
+    return shape
+
+
+def _extract_topods(geom: CNamedShape | TopoDS_Shape) -> TopoDS_Shape:
+    if isinstance(geom, CNamedShape):
+        return geom.shape()
+
+    if isinstance(geom, TopoDS_Shape):
+        return geom
+
+    raise TypeError(f"Unsupported geometry type: {type(geom)}")
+
+
+def _get_bounding_box(volume_tag: int, bbox_margin: float) -> list[float]:
+    xmin, ymin, zmin, xmax, ymax, zmax = gmsh.model.occ.getBoundingBox(*volume_tag)
+    return [
+        xmin - bbox_margin, ymin - bbox_margin,
+        zmin - bbox_margin, xmax + bbox_margin,
+        ymax + bbox_margin, zmax + bbox_margin,
+    ]
+
+
+# Classes
+
+class Geometry:
+    bbox_margin = 0.01
+    def __init__(
+        self: Geometry,
+        uid: str,
+        geom: CNamedShape | TopoDS_Shape,
+    ) -> None:
+        self.uid = uid
+        self.geom = _extract_topods(geom)
+        self.shape = _import_geom(self.geom)
+
+        # Volume
+        self._update_volume_tag()
+
+    def _update_volume_tag(self: Geometry) -> list[int]:
+        dimtags_volumes: list[tuple[int, int]] = [dt for dt in self.shape if dt[0] == 3]
+        if not dimtags_volumes or len(dimtags_volumes) == 0 or len(dimtags_volumes) > 1:
+            raise RuntimeError(f"""Imported {len(dimtags_volumes)=} entities.
+                Imported dimTags: {self.shape}. There should be exactly 1 Volume.""")
+
+        self.volume_tag = dimtags_volumes[0][1]
+        self.bounding_box = _get_bounding_box(
+            volume_tag=self.volume_tag,
+            bbox_margin=self.bbox_margin,
+        )
+
+    def _update_surface_tags(self: Geometry) -> list[int]:
+        surfaces_dimtags = gmsh.model.getEntitiesInBoundingBox(*self.bounding_box, 2)
+        self.surface_tags = [tag for _, tag in surfaces_dimtags]
+
+
+class AircraftGeometry:
+    def __init__(
+        self: AircraftGeometry,
+        wing_geoms: list[Geometry],
+        pylon_geoms: list[Geometry],
+        fuselage_geoms: list[Geometry],
+    ) -> None:
+        self.wing_geoms = wing_geoms
+        self.pylon_geoms = pylon_geoms
+        self.fuselage_geoms = fuselage_geoms
+
+        self.all_geoms: list[Geometry] = self.wing_geoms + self.pylon_geoms + self.fuselage_geoms
+
+
+class MeshSettings(BaseModel):
+    symmetry: bool
+    add_boundary_layer: bool
+
+    wing_mesh_size: float
+    engine_mesh_size: float
+    fuselage_mesh_size: float
+    propeller_mesh_size: float
+
+
 # Functions
+
+def get_mesh_settings(tixi: Tixi3) -> MeshSettings:
+    """
+    Returns input values from CEASIOMpy's GUI interface.
+    Note: This function is only used for 3D mesh generation.
+    """
+
+    # Retrieve value from the GUI Setting
+    mesh_settings = MeshSettings(
+        add_boundary_layer=get_value(tixi, GMSH_ADD_BOUNDARY_LAYER_XPATH),
+
+        # Set Mesh Sizes
+        wing_mesh_size=get_value(tixi, GMSH_MESH_SIZE_WINGS_XPATH),
+        engine_mesh_size=get_value(tixi, GMSH_MESH_SIZE_ENGINES_XPATH),
+        fuselage_mesh_size=get_value(tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH),
+        propeller_mesh_size=get_value(tixi, GMSH_MESH_SIZE_PROPELLERS_XPATH),
+
+    )
+
+    farfield_factor = get_value(tixi, GMSH_FARFIELD_SIZE_FACTOR_XPATH)
+
+    n_power_field = get_value(tixi, GMSH_N_POWER_FIELD_XPATH)
+    n_power_factor = get_value(tixi, GMSH_N_POWER_FACTOR_XPATH)
+
+    refine_factor = get_value(tixi, GMSH_REFINE_FACTOR_XPATH)
+    refine_truncated = get_value(tixi, GMSH_REFINE_TRUNCATED_XPATH)
+
+
+    intake_percent = get_value(tixi, GMSH_INTAKE_PERCENT_XPATH)
+    exhaust_percent = get_value(tixi, GMSH_EXHAUST_PERCENT_XPATH)
+
+    also_save_cgns = get_value(tixi, GMSH_SAVE_CGNS_XPATH)
+    mesh_checker = get_value(tixi, GMSH_MESH_CHECKER_XPATH)
+    auto_refine = get_value(tixi, GMSH_AUTO_REFINE_XPATH)
+
+    return mesh_settings
+
 
 def cfg_rotors(brep_dir: Path) -> bool:
     rotor_model = False
@@ -181,6 +323,7 @@ def initialize_gmsh() -> None:
         gmsh.clear()
     else:
         gmsh.initialize()
+
     # Stop gmsh output log in the terminal
     gmsh.option.setNumber("General.Terminal", 0)
     # Log complexity
@@ -205,7 +348,7 @@ def load_rans_cgf_params(
     feature_angle: float,
     symmetry: bool,
     output_format: str,
-) -> Dict:
+) -> dict:
 
     # Pentagrow expects values in "mesh length units", consistent with the STL export.
     InitialHeight = float(h_first_layer)
@@ -218,6 +361,7 @@ def load_rans_cgf_params(
             "capping it to 1000 mesh units."
         )
         FarfieldRadius = 1000.0
+
     HeightIterations = 8
     NormalIterations = 8
     MaxCritIterations = 128
@@ -254,72 +398,28 @@ def retrieve_euler_gui_values(tixi: Tixi3) -> tuple[float, bool]:
     return farfield_size_factor, symmetry
 
 
+# 
+
+class BoundaryLayerSettings(BaseModel):
+    n_layer: int
+    max_layer_thickness: float
+    
+    growth_ratio: float
+    growth_factor: float
+    
+    h_first_layer: float
+    
+    feature_angle: float
+    refine_factor_angled_lines: bool
+
+
 def retrieve_rans_gui_values(tixi: Tixi3):
-    n_layer = get_value(tixi, GMSH_NUMBER_LAYER_XPATH)
-    growth_ratio = get_value(tixi, GMSH_GROWTH_RATIO_XPATH)
-    h_first_layer = get_value(tixi, GMSH_H_FIRST_LAYER_XPATH)
-    growth_factor = get_value(tixi, GMSH_GROWTH_FACTOR_XPATH)
-    feature_angle = get_value(tixi, GMSH_FEATURE_ANGLE_XPATH)
-    max_layer_thickness = get_value(tixi, GMSH_MAX_THICKNESS_LAYER_XPATH)
-    refine_factor_angled_lines = get_value(tixi, GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH)
-
-    return (
-        n_layer,
-        growth_ratio,
-        h_first_layer,
-        growth_factor,
-        feature_angle,
-        max_layer_thickness,
-        refine_factor_angled_lines,
-    )
-
-
-def retrieve_general_gui_values(tixi: Tixi3):
-    """
-    Returns input values from CEASIOMpy's GUI interface.
-    Note: This function is only used for 3D mesh generation.
-    """
-
-    # Retrieve value from the GUI Setting
-    open_gmsh = get_value(tixi, GMSH_OPEN_GUI_XPATH)
-    type_mesh = get_value(tixi, GMSH_MESH_TYPE_XPATH)
-
-    farfield_factor = get_value(tixi, GMSH_FARFIELD_SIZE_FACTOR_XPATH)
-
-    n_power_factor = get_value(tixi, GMSH_N_POWER_FACTOR_XPATH)
-    n_power_field = get_value(tixi, GMSH_N_POWER_FIELD_XPATH)
-
-    fuselage_mesh_size = get_value(tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH)
-    wing_mesh_size = get_value(tixi, GMSH_MESH_SIZE_WINGS_XPATH)
-
-    mesh_size_engines = get_value(tixi, GMSH_MESH_SIZE_ENGINES_XPATH)
-    mesh_size_propellers = get_value(tixi, GMSH_MESH_SIZE_PROPELLERS_XPATH)
-
-    refine_factor = get_value(tixi, GMSH_REFINE_FACTOR_XPATH)
-    refine_truncated = get_value(tixi, GMSH_REFINE_TRUNCATED_XPATH)
-    auto_refine = get_value(tixi, GMSH_AUTO_REFINE_XPATH)
-
-    intake_percent = get_value(tixi, GMSH_INTAKE_PERCENT_XPATH)
-    exhaust_percent = get_value(tixi, GMSH_EXHAUST_PERCENT_XPATH)
-
-    also_save_cgns = get_value(tixi, GMSH_SAVE_CGNS_XPATH)
-    mesh_checker = get_value(tixi, GMSH_MESH_CHECKER_XPATH)
-
-    return (
-        open_gmsh,
-        type_mesh,
-        farfield_factor,
-        n_power_factor,
-        n_power_field,
-        fuselage_mesh_size,
-        wing_mesh_size,
-        mesh_size_engines,
-        mesh_size_propellers,
-        refine_factor,
-        refine_truncated,
-        auto_refine,
-        intake_percent,
-        exhaust_percent,
-        also_save_cgns,
-        mesh_checker,
+    return BoundaryLayerSettings(
+        n_layer=get_value(tixi, GMSH_NUMBER_LAYER_XPATH),
+        growth_ratio=get_value(tixi, GMSH_GROWTH_RATIO_XPATH),
+        h_first_layer=get_value(tixi, GMSH_H_FIRST_LAYER_XPATH),
+        growth_factor=get_value(tixi, GMSH_GROWTH_FACTOR_XPATH),
+        feature_angle=get_value(tixi, GMSH_FEATURE_ANGLE_XPATH),
+        max_layer_thickness=get_value(tixi, GMSH_MAX_THICKNESS_LAYER_XPATH),
+        refine_factor_angled_lines=get_value(tixi, GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH),
     )

@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-from ceasiompy.utils.guiobjects import add_value
+from ceasiompy.utils.guiobjects import update_value
 
 from typing import Callable
 from types import ModuleType
@@ -209,7 +209,7 @@ def section_edit_aeromap() -> None:
                 )
                 created_aeromap.df = aeromap_df
                 created_aeromap.save()
-                add_value(
+                update_value(
                     tixi=cpacs.tixi,
                     xpath=SELECTED_AEROMAP_XPATH,
                     value=aeromap_uid,
@@ -291,7 +291,7 @@ def _select_aeromap_id(cpacs: CPACS) -> str:
         accept_new_options=True,
         key="selected_aeromap",
     )
-    add_value(
+    update_value(
         tixi=cpacs.tixi,
         xpath=SELECTED_AEROMAP_XPATH,
         value=selected_aeromap_id,

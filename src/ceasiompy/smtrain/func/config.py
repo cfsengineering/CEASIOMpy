@@ -16,7 +16,7 @@ from cpacspy.cpacsfunctions import (
     create_branch,
     get_string_vector,
 )
-from ceasiompy.utils.guiobjects import add_value
+from ceasiompy.utils.guiobjects import update_value
 from scipy.optimize import differential_evolution
 from ceasiompy.utils.geometryfunctions import get_xpath_for_param
 from ceasiompy.smtrain.func.utils import (

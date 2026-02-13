@@ -2,64 +2,41 @@
 CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
-
-Small description of the script
-
-| Author: Tony Govoni
-| Creation: 2022-03-22
-
-TODO:
-
-    - When TIGL new version is incorporated, function like get_uid may change for
-    get_object_uid
 """
+
+# Futures
+
+from __future__ import annotations
 
 # Imports
 
-from pathlib import Path
-
+from tigl3.import_export_helper import export_shapes
 from ceasiompy.cpacs2gmsh.func.engineconversion import engine_conversion
+
+from typing import Any
+from pathlib import Path
+from cpacspy.cpacspy import CPACS
+from tigl3.geometry import CNamedShape
+from OCC.Core.TopoDS import TopoDS_Shape
+from ceasiompy.utils.configfiles import ConfigFile
+from ceasiompy.cpacs2gmsh.func.utils import (
+    Geometry,
+    AircraftGeometry,
+)
+
 from ceasiompy import log
 from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
-from ceasiompy.cpacs2gmsh import GMSH_EXPORT_PROP_XPATH
-from ceasiompy.utils.configfiles import ConfigFile
-from cpacspy.cpacsfunctions import get_value_or_default
-
-from tigl3.import_export_helper import export_shapes
 
 
-# Functions
+# Methods
 
-def export(shape, brep_dir, uid):
-    """
-    Export a shape to a brep file and store its UID
-
-    Parameters
-    ----------
-    shape: TiGL Cshape
-        The shape to be exported
-    brep_dir (Path): Path to the brep directory
-        Path object to the directory where the brep files are saved
-    uid: str
-        The uID of the shape
-
-    Returns
-    -------
-    None
-
-    """
-
-    brep_dir.mkdir(exist_ok=True)
-    brep_file = Path(brep_dir, f"{uid}.brep")
-
-    export_shapes([shape], str(brep_file))
-
-    if not brep_file.exists():
-        log.error(f"Failed to export {uid}")
-        raise FileNotFoundError(f"Failed to export {uid}")
-
-
-def engine_export(cpacs, engine, brep_dir, engines_cfg_file, engine_surface_percent):
+def engine_export(
+    cpacs: CPACS,
+    engine: Any,
+    brep_dir: Path,
+    engines_cfg_file: Path,
+    engine_surface_percent: tuple[float, float],
+) -> None:
     """
     Export the engine to a brep file
 
@@ -78,7 +55,7 @@ def engine_export(cpacs, engine, brep_dir, engines_cfg_file, engine_surface_perc
         for the engine
     """
 
-    engine_uids = []
+    engine_uids: list[str] = []
     engine_uid = engine.get_uid()
     engine_uids.append(engine_uid)
     nacelle = engine.get_nacelle()
@@ -88,21 +65,21 @@ def engine_export(cpacs, engine, brep_dir, engines_cfg_file, engine_surface_perc
             center_cowl_uid = center_cowl.get_uid()
             engine_uids.append(center_cowl_uid)
             center_cowl_shape = center_cowl.build_loft()
-            export(center_cowl_shape, brep_dir, center_cowl_uid)
+            _export(center_cowl_shape, brep_dir, center_cowl_uid)
 
         core_cowl = nacelle.get_core_cowl()
         if core_cowl:
             core_cowl_uid = core_cowl.get_uid()
             engine_uids.append(core_cowl_uid)
             core_cowl_shape = core_cowl.build_loft()
-            export(core_cowl_shape, brep_dir, core_cowl_uid)
+            _export(core_cowl_shape, brep_dir, core_cowl_uid)
 
         fan_cowl = nacelle.get_fan_cowl()
         if fan_cowl:
             fan_cowl_uid = fan_cowl.get_uid()
             engine_uids.append(fan_cowl_uid)
             fan_cowl_shape = fan_cowl.build_loft()
-            export(fan_cowl_shape, brep_dir, fan_cowl_uid)
+            _export(fan_cowl_shape, brep_dir, fan_cowl_uid)
 
         # Determine engine type and save it in the engine config files
         config_file = ConfigFile(engines_cfg_file)
@@ -116,7 +93,7 @@ def engine_export(cpacs, engine, brep_dir, engines_cfg_file, engine_surface_perc
         engine_conversion(cpacs, engine_uids, brep_dir, engines_cfg_file, engine_surface_percent)
 
 
-def rotor_config(rotorcraft_config, brep_dir):
+def rotor_config(rotorcraft_config, brep_dir: Path) -> None:
     """
     Store the rotor configuration of the aircraft in a .cfg file in order to
     replace in gmsh the rotor by disk for the disk actuator modeling
@@ -128,6 +105,7 @@ def rotor_config(rotorcraft_config, brep_dir):
         Path object to the directory where the brep files are saved
     """
     rotor_cnt = rotorcraft_config.get_rotor_count()
+
     # create config file for the engine conversion
     rotors_cfg_file_path = Path(brep_dir, "config_rotors.cfg")
     config_file = ConfigFile()
@@ -154,92 +132,152 @@ def rotor_config(rotorcraft_config, brep_dir):
     config_file.write_file(rotors_cfg_file_path, overwrite=True)
 
 
-def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
-    """Function to generate and export the geometries of a .xml file
+# Methods
 
-    Function 'export_brep' is a subfunction of CPACS2GMSH that generate with TiGL
-    the airplane geometry of the .xml file. Then all the airplane parts are
-    exported in .brep format with their uid name
-    mirrored element of the airplane have the subscript _mirrored : Wing1_mirrored.brep
+def _export(
+    uid: str,
+    shape: CNamedShape | TopoDS_Shape,
+    results_dir: Path,
+) -> None:
+    """
+    Export a shape to a brep file and store its UID
 
-    Args:
-    cpacs : CPACS object (from cpacspy)
-        CPACS object (from cpacspy)
-    brep_dir : Path
-        Path object to the directory where the brep files are saved
-    engine_surface_percent : tuple
-        Tuple containing the position percentage of the surface intake and exhaust bc
-        for the engine
+    Parameters
+    ----------
+    shape: TiGL Cshape he shape to be exported
+    results_dir (Path): Directory where the brep files are saved
+    uid: str
+        The uID of the shape
     """
 
-    tixi = cpacs.tixi
+    results_dir.mkdir(exist_ok=True)
+    brep_file = Path(results_dir, f"{uid}.brep")
+    export_shapes([shape], str(brep_file))
 
-    # Get rotor config
-    if get_value_or_default(tixi, GMSH_EXPORT_PROP_XPATH, False):
-        try:
-            rotorcraft_config = cpacs.rotorcraft.configuration
-            rotor_config(rotorcraft_config, brep_dir)
-        except AttributeError:
-            pass
+    if not brep_file.exists():
+        log.error(f"Failed to _export {uid}")
+        raise FileNotFoundError(f"Failed to _export {uid}")        
 
-    # get the aircraft configuration
-    aircraft_config = cpacs.aircraft.configuration
 
-    # Retrieve aircraft parts
-    fuselage_cnt = aircraft_config.get_fuselage_count()
+def _export_wing_brep(aircraft_config: Any) -> list[Geometry]:
+    wing_breps: list[Geometry] = []
+
     wing_cnt = aircraft_config.get_wing_count()
+    log.info(f"Found {wing_cnt=} wings to convert as a .brep")
+    for k in range(1, wing_cnt + 1):
+        wing = aircraft_config.get_wing(k)
+        wing_uid = str(wing.get_uid())
+        wing_geom = wing.get_loft()
+        wing_breps.append(Geometry(
+            uid=wing_uid,
+            geom=wing_geom,
+        ))
+        wing_m_geom = wing.get_mirrored_loft()
+        if wing_m_geom is not None:
+            wing_breps.append(Geometry(
+                uid=wing_uid + "_mirrored",
+                geom=wing_m_geom,
+            ))
 
-    # Pylon configuration
-    pylons_config = aircraft_config.get_engine_pylons()
-    engines_config = aircraft_config.get_engines()
+    log.info(f"Found {len(wing_breps)=} Total Wing Geometries.")
+    return wing_breps
 
-    # Export into brep
 
-    # Fuselage
+def _export_fuselage_brep(aircraft_config: Any) -> list[Geometry]:
+    fuselage_breps: list[Geometry] = []
+    fuselage_cnt = aircraft_config.get_fuselage_count()
+    log.info(f"Found {fuselage_cnt=} fuselages to convert as a .brep")
     for k in range(1, fuselage_cnt + 1):
         fuselage = aircraft_config.get_fuselage(k)
         fuselage_uid = fuselage.get_uid()
         fuselage_geom = fuselage.get_loft()
-        export(fuselage_geom, brep_dir, fuselage_uid)
+        fuselage_breps.append(Geometry(
+            uid=fuselage_uid,
+            geom=fuselage_geom,
+        ))
+        fuselage_m_geom = fuselage.get_mirrored_loft()
+        if fuselage_m_geom is not None:
+            fuselage_breps.append(Geometry(
+                uid=fuselage_uid + "_mirrored",
+                geom=fuselage_m_geom,
+            ))
+    log.info(f"Found {len(fuselage_breps)=} Total Fuselage Geometries.")
+    return fuselage_breps
 
-        fuse_m_geom = fuselage.get_mirrored_loft()
-        if fuse_m_geom is not None:
-            export(fuse_m_geom, brep_dir, fuselage_uid + "_mirrored")
 
-    # Wing
-    for k in range(1, wing_cnt + 1):
-        wing = aircraft_config.get_wing(k)
-        wing_uid = wing.get_uid()
-        wing_geom = wing.get_loft()
-        export(wing_geom, brep_dir, wing_uid)
+def _export_pylon_brep(aircraft_config: Any) -> list[Geometry]:
+    pylon_breps: list[Geometry] = []
+    pylons_config = aircraft_config.get_engine_pylons()
+    if not pylons_config:
+        log.info("Did not find any engine pylons.")
+        return pylon_breps
 
-        wing_m_geom = wing.get_mirrored_loft()
-        if wing_m_geom is not None:
-            export(wing_m_geom, brep_dir, wing_uid + "_mirrored")
+    pylon_cnt = pylons_config.get_pylon_count()
+    log.info(f"Found {pylon_cnt=} engine pylons to convert as a .brep")
 
-    # Pylon
-    if pylons_config:
-        pylon_cnt = pylons_config.get_pylon_count()
-        for k in range(1, pylon_cnt + 1):
-            pylon = pylons_config.get_engine_pylon(k)
-            pylon_uid = pylon.get_uid()
-            pylon_geom = pylon.get_loft()
-            export(pylon_geom, brep_dir, pylon_uid)
+    for k in range(1, pylon_cnt + 1):
+        pylon = pylons_config.get_engine_pylon(k)
+        pylon_uid = pylon.get_uid()
+        pylon_geom = pylon.get_loft()
+        pylon_breps.append(Geometry(
+            uid=pylon_uid,
+            geom=pylon_geom,
+        ))
 
-            pylon_m_geom = pylon.get_mirrored_loft()
-            if pylon_m_geom is not None:
-                export(pylon_m_geom, brep_dir, pylon_uid + "_mirrored")
+        pylon_m_geom = pylon.get_mirrored_loft()
+        if pylon_m_geom is not None:
+            pylon_breps.append(Geometry(
+                uid=pylon_uid + "_mirrored",
+                geom=pylon_m_geom,
+            ))
+    log.info(f"Found {len(pylon_breps)=} Total Pylon Geometries.")
 
+    return pylon_breps
+
+
+def _export_engine_brep(
+    cpacs: CPACS,
+    results_dir: Path,
+    aircraft_config: Any,
+    engine_surface_percent: tuple[float, float]
+) -> None:
     # Engine
+    engines_config = aircraft_config.get_engines()
     if engines_config:
         nb_engine = engines_config.get_engine_count()
 
         # Create config file for the engine conversion
-        engines_cfg_file = Path(brep_dir, GMSH_ENGINE_CONFIG_NAME)
+        engines_cfg_file = Path(results_dir, GMSH_ENGINE_CONFIG_NAME)
         config_file = ConfigFile()
         config_file.write_file(engines_cfg_file, overwrite=True)
 
         # Export each engine
         for k in range(1, nb_engine + 1):
             engine = engines_config.get_engine(k)
-            engine_export(cpacs, engine, brep_dir, engines_cfg_file, engine_surface_percent)
+            engine_export(cpacs, engine, results_dir, engines_cfg_file, engine_surface_percent)
+
+
+# Functions
+
+def export_brep(cpacs: CPACS) -> AircraftGeometry:
+    """Generates with TiGL the airplane geometry of the .xml file.
+    All airplane parts are exported in .brep format with their uid name
+    mirrored element of the airplane have the subscript _mirrored.
+
+    For example: "Wing1.brep" and "Wing1_mirrored.brep"
+
+    engine_surface_percent : Tuple containing the position percentage
+        of the surface intake and exhaust bc for the engine
+    """
+
+    aircraft_config = cpacs.aircraft.configuration
+
+    wing_geoms = _export_wing_brep(aircraft_config)
+    pylon_geoms = _export_pylon_brep(aircraft_config)
+    fuselage_geoms = _export_fuselage_brep(aircraft_config)
+
+    return AircraftGeometry(
+        wing_geoms=wing_geoms,
+        pylon_geoms=pylon_geoms,
+        fuselage_geoms=fuselage_geoms,
+    )

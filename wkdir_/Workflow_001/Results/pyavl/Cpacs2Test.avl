@@ -1,0 +1,50 @@
+Cpacs2Test
+
+#Mach
+0.6
+
+#IYsym   IZsym   Zsym
+0	0	0
+
+#Sref    Cref    Bref
+1.000	1.000	1.000
+
+#Xref    Yref    Zref
+0.000	0.000	0.000	
+
+#--------------------------------------------------
+SURFACE
+Wing
+
+!Nchordwise  Cspace  Nspanwise  Sspace
+20.0  1   30.0 1
+
+COMPONENT
+1
+
+YDUPLICATE
+0
+
+ANGLE
+0
+
+SCALE
+1.0	1.0	1.0
+
+TRANSLATE
+0.0	0.0	0.0
+
+#---------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc
+0.000 0.000 0.000 0.806 0.0
+AFILE
+/users/disk12/cfse2/Leon/ceasiompy/CEASIOMpy/wkdir/Workflow_001/Results/pyavl/Airfoil_files/ONERAM6.dat
+
+#---------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc
+0.598 1.036 0.000 0.451 0.0
+AFILE
+/users/disk12/cfse2/Leon/ceasiompy/CEASIOMpy/wkdir/Workflow_001/Results/pyavl/Airfoil_files/ONERAM6.dat
+

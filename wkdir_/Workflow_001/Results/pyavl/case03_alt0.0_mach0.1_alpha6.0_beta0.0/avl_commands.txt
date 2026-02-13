@@ -1,0 +1,42 @@
+load ../Cpacs2Test.avl
+mass /users/disk12/cfse2/Leon/ceasiompy/CEASIOMpy/src/ceasiompy/pyavl/files/template.mass
+oper
+a a 6.0
+b b 0.0
+r r 0.0
+p p 0.0
+y y 0.0
+d2 d2 0.0
+d3 d3 0.0
+d4 d4 0.0
+m
+mn 0.1
+g 9.80665
+d 1.225000018124288
+v 34.0293988026089
+
+x
+t
+h
+
+g
+lo
+h
+
+x
+ft
+ft.txt
+fn
+fn.txt
+fs
+fs.txt
+fe
+fe.txt
+st
+st.txt
+sb
+sb.txt
+
+
+
+quit

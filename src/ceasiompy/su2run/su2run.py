@@ -40,7 +40,7 @@ from ceasiompy.su2run import (
 # Main
 
 def _progress_update(
-    progress_callback: Optional[Callable[..., None]],
+    progress_callback: Callable[..., None] | None,
     *,
     detail: str | None = None,
     progress: float | None = None,
@@ -60,7 +60,7 @@ def _progress_update(
 def main(
     cpacs: CPACS,
     results_dir: Path,
-    progress_callback: Optional[Callable[..., None]] = None,
+    progress_callback: Callable[..., None] | None = None,
 ) -> None:
     """
     SU2Run module is decomposed into 4 parts.

@@ -27,9 +27,9 @@ from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 
 
 # Functions
-def add_value(tixi: Tixi3, xpath, value) -> None:
+def update_value(tixi: Tixi3, xpath: str, value: str | int | float | list) -> None:
     """
-    Add a value (string, integer, float, list) at the given XPath,
+    Update a value (string, integer, float, list) at the given XPath,
     if the node does not exist, it will be created.
     Values will be overwritten if paths exists.
     """
@@ -57,6 +57,21 @@ def add_value(tixi: Tixi3, xpath, value) -> None:
         tixi.createElement(xpath_parent, xpath_child_name)
 
     tixi.updateTextElement(xpath, str(value))
+
+
+def add_value(tixi: Tixi3, xpath: str, value: str | int | float | list) -> None:
+    new_value = value
+    if (
+        tixi.checkElement(xpath)
+        and tixi.getTextElement(xpath) != ""
+    ):
+        new_value = tixi.getTextElement(xpath) + ";" + value
+
+    update_value(
+        tixi=tixi,
+        xpath=xpath,
+        value=new_value,
+    )
 
 
 def safe_get_value(tixi: Tixi3, xpath, default_value):
@@ -128,7 +143,7 @@ def multiselect_vartype(
         help=description,
         default=selected_values,
     )
-    add_value(tixi, xpath, output)
+    update_value(tixi, xpath, output)
     return output
 
 
@@ -240,7 +255,7 @@ def int_vartype(
         min_value=min_value,
         max_value=max_value,
     )
-    add_value(tixi, xpath, output)
+    update_value(tixi, xpath, output)
     return output
 
 
@@ -269,7 +284,7 @@ def float_vartype(
         min_value=min_value,
         max_value=max_value,
     )
-    add_value(tixi, xpath, output)
+    update_value(tixi, xpath, output)
     return output
 
 
@@ -290,7 +305,7 @@ def list_vartype(tixi: Tixi3, xpath, default_value, name, key, description) -> s
         horizontal=True,
         width="stretch",
     )
-    add_value(tixi, xpath, output)
+    update_value(tixi, xpath, output)
     return output
 
 
@@ -325,7 +340,7 @@ def add_ctrl_surf_vartype(
         help=description,
         width="stretch",
     )
-    add_value(tixi, ctrl_xpath, selected)
+    update_value(tixi, ctrl_xpath, selected)
 
     # if value of st.radio is npot 'none' then add float_vartype entry
     if selected is not None and str(selected).lower() != "none":
@@ -366,12 +381,12 @@ def add_ctrl_surf_vartype(
                 )
         else:
             # In the 2D case there is no y-translation
-            add_value(
+            update_value(
                 tixi=tixi,
                 xpath=left_trsl_xpath,
                 value=0.0,
             )
-            add_value(
+            update_value(
                 tixi=tixi,
                 xpath=right_trsl_xpath,
                 value=0.0,
@@ -381,7 +396,15 @@ def add_ctrl_surf_vartype(
     return None
 
 
-def bool_vartype(tixi, xpath, default_value, name, key, description) -> bool:
+def bool_vartype(
+    tixi: Tixi3,
+    xpath,
+    default_value,
+    name,
+    key,
+    description,
+    disabled: bool = False,
+) -> bool:
     raw_value = safe_get_value(tixi, xpath, default_value)
     if isinstance(raw_value, str):
         value = raw_value.strip().lower() in {"1", "true", "yes", "y"}
@@ -394,6 +417,7 @@ def bool_vartype(tixi, xpath, default_value, name, key, description) -> bool:
         key=key,
         help=description,
         width="stretch",
+        disabled=disabled,
     )
-    add_value(tixi, xpath, output)
+    update_value(tixi, xpath, output)
     return output

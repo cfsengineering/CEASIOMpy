@@ -44,11 +44,11 @@ CONTROL_SURFACES_LIST = ["aileron", "rudder", "flap"]
 GMSH_XPATH = MESH_XPATH + "/gmshOptions"
 GMSH_OPEN_GUI_XPATH = GMSH_XPATH + "/open_gui"
 GMSH_SYMMETRY_XPATH = GMSH_XPATH + "/symmetry"
-GMSH_EXPORT_PROP_XPATH = GMSH_XPATH + "/exportPropellers"
 GMSH_FARFIELD_SIZE_FACTOR_XPATH = GMSH_XPATH + "/farfield_size_factor"
 GMSH_N_POWER_FACTOR_XPATH = GMSH_XPATH + "/n_power_factor"
 GMSH_N_POWER_FIELD_XPATH = GMSH_XPATH + "/n_power_field"
-GMSH_MESH_TYPE_XPATH = GMSH_XPATH + "/type_mesh"
+GMSH_ADD_BOUNDARY_LAYER_XPATH = GMSH_XPATH + "/add_boundary_layer"
+
 GMSH_MESH_SIZE_FARFIELD_XPATH = GMSH_XPATH + "/mesh_size/farfield/value"
 GMSH_MESH_SIZE_FUSELAGE_XPATH = GMSH_XPATH + "/mesh_size/fuselage/value"
 GMSH_MESH_SIZE_WINGS_XPATH = GMSH_XPATH + "/mesh_size/wings/value"

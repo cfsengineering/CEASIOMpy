@@ -17,7 +17,7 @@ import streamlit as st
 
 from ceasiompy.utils import get_wkdir
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy.utils.guiobjects import add_value
+from ceasiompy.utils.guiobjects import update_value
 from gmshairfoil2d.airfoil_func import get_airfoil_points
 from ceasiompy.utils.referencevalues import (
     compute_airfoil_ref_length,
@@ -79,7 +79,7 @@ def _clean_toolspecific(cpacs: CPACS) -> CPACS:
             geometry_mode = tixi.getTextElement(GEOMETRY_MODE_XPATH)
         if tixi.checkElement("/cpacs/toolspecific/CEASIOMpy"):
             tixi.removeElement("/cpacs/toolspecific/CEASIOMpy")
-        add_value(
+        update_value(
             tixi=tixi,
             xpath=GEOMETRY_MODE_XPATH,
             value=geometry_mode if geometry_mode in {"2D", "3D"} else "3D",
@@ -117,7 +117,7 @@ def _create_cpacs_from(
     airfoil_ref_path = Path(CPACS_FILES_PATH, "airfoil.xml")
 
     cpacs = CPACS(airfoil_ref_path)
-    add_value(
+    update_value(
         tixi=cpacs.tixi,
         xpath=GEOMETRY_MODE_XPATH,
         value="2D",
@@ -345,7 +345,7 @@ def _section_load_cpacs() -> CPACS | None:
                 st.session_state["last_converted_vsp3_digest"] = uploaded_digest
                 st.session_state["last_converted_cpacs_path"] = str(new_cpacs_path)
                 cpacs = CPACS(str(new_cpacs_path))
-                add_value(
+                update_value(
                     tixi=cpacs.tixi,
                     xpath=GEOMETRY_MODE_XPATH,
                     value="3D",
@@ -379,7 +379,7 @@ def _section_load_cpacs() -> CPACS | None:
                     st.session_state["last_converted_vsp3_digest"] = uploaded_digest
                     st.session_state["last_converted_cpacs_path"] = str(new_cpacs_path)
                     cpacs = CPACS(str(new_cpacs_path))
-                add_value(
+                update_value(
                     tixi=cpacs.tixi,
                     xpath=GEOMETRY_MODE_XPATH,
                     value="3D",
@@ -391,7 +391,7 @@ def _section_load_cpacs() -> CPACS | None:
             new_cpacs_path = uploaded_path
             st.session_state["last_converted_cpacs_path"] = str(uploaded_path)
             cpacs = CPACS(str(uploaded_path))
-            add_value(
+            update_value(
                 tixi=cpacs.tixi,
                 xpath=GEOMETRY_MODE_XPATH,
                 value="3D",
@@ -497,7 +497,7 @@ def section_select_cpacs() -> None:
         dim_mode
         and np.isfinite(ref_length) and ref_length > 0.0
     ):
-        add_value(
+        update_value(
             tixi=tixi,
             xpath=LENGTH_XPATH,
             value=new_ref_length,
@@ -511,12 +511,12 @@ def section_select_cpacs() -> None:
         and np.isfinite(ref_area) and ref_area > 0.0
         and np.isfinite(ref_length) and ref_length > 0.0
     ):
-        add_value(
+        update_value(
             tixi=tixi,
             xpath=AREA_XPATH,
             value=new_ref_area,
         )
-        add_value(
+        update_value(
             tixi=tixi,
             xpath=LENGTH_XPATH,
             value=new_ref_length,

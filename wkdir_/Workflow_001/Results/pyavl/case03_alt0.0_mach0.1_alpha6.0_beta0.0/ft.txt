@@ -1,0 +1,31 @@
+ ---------------------------------------------------------------
+ Vortex Lattice Output -- Total Forces
+
+ Configuration: Cpacs2Test                                                  
+     # Surfaces =   2
+     # Strips   =  60
+     # Vortices =1200
+
+  Sref =  1.0000       Cref =  1.0000       Bref =  1.0000    
+  Xref =  0.0000       Yref =  0.0000       Zref =  0.0000    
+
+ Standard axis orientation,  X fwd, Z down         
+
+ Run case:  -unnamed-                              
+
+  Alpha =   6.00000     pb/2V =  -0.00000     p'b/2V =  -0.00000
+  Beta  =   0.00000     qc/2V =   0.00000
+  Mach  =     0.100     rb/2V =  -0.00000     r'b/2V =  -0.00000
+
+  CXtot =   0.03118     Cltot =   0.00000     Cl'tot =   0.00000
+  CYtot =   0.00000     Cmtot =  -0.18594
+  CZtot =  -0.44541     Cntot =  -0.00000     Cn'tot =  -0.00000
+
+  CLtot =   0.44622
+  CDtot =   0.01555
+  CDvis =   0.00000     CDind = 0.0155453
+  CLff  =   0.44786     CDff  = 0.0149410    | Trefftz
+  CYff  =   0.00000         e =    4.2732    | Plane  
+
+
+ ---------------------------------------------------------------

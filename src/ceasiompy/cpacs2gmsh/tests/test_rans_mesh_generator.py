@@ -20,7 +20,7 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 from ceasiompy.su2run.func.utils import get_mesh_markers
 from ceasiompy.cpacs2gmsh.func.rans_mesh_generator import (
-    generate_2d_mesh_for_pentagrow,
+    generate_2d_mesh,
     sort_surfaces_and_create_physical_groups,
     choose_correct_part,
     pentagrow_3d_mesh,
@@ -56,7 +56,7 @@ def test_generate_rans_mesh():
 
     export_brep(cpacs, TEST_OUT_PATH)
 
-    generate_2d_mesh_for_pentagrow(
+    generate_2d_mesh(
         cpacs,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,

@@ -14,7 +14,6 @@ from copy import deepcopy
 from sklearn.model_selection import train_test_split
 from ceasiompy.smtrain.func.utils import get_val_fraction
 
-from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
 from smt.applications import MFK
@@ -30,43 +29,67 @@ from ceasiompy.smtrain.func.utils import (
 )
 
 from ceasiompy import log
-from ceasiompy.smtrain import AEROMAP_FEATURES
 
 
 # Functions
 
-def lh_sampling_geom(
+def sample_geom(
     geom_bounds: GeomBounds,
-    n_samples: int,
+    training_settings: TrainingSettings,
     random_state: int = 42,
 ) -> DataFrame:
     """
-    Generate a Latin Hypercube Sampling (LHS) dataset within specified variable ranges.
-    Uses the Enhanced Stochastic Evolutionary (ESE) criterion
-    to generate a diverse set of samples within given variable limits.
+    Generate geometric samples within bounds using the selected method.
+
+    Supported methods:
+    - "LHS": Latin Hypercube Sampling (ESE criterion)
+    - "Grid": regular cartesian mesh-grid sampling
     """
-    log.info(f"Generating LHS sampling for {n_samples=}")
+    n_samples = training_settings.n_samples
+    sampling_method = training_settings.sampling_method
+
+    # Sanity Check
+    if n_samples < 1:
+        raise ValueError(f"Number of samples must be >= 1, got {n_samples}.")
+
+    n_dim = len(geom_bounds.param_names)
+    if n_dim < 1:
+        raise ValueError("No geometry parameter found to sample.")
+
+    log.info(f"Generating {sampling_method} sampling for {n_samples=}")
     xlimits = np.stack(
         [geom_bounds.bounds.lb, geom_bounds.bounds.ub],
         axis=1,
     ).astype(float)
 
-    sampling = LHS(
-        xlimits=xlimits,
-        criterion="ese",
-        random_state=random_state,
-    )
-    samples = sampling(n_samples)
+    if sampling_method == "LHS":
+        sampling = LHS(
+            xlimits=xlimits,
+            criterion="ese",
+            random_state=random_state,
+        )
+        samples = sampling(n_samples)
 
-    # Maintain constant variables with fixed ranges
-    fixed_cols = [idx for idx, (low, high) in enumerate(xlimits) if low == high]
-    for idx in fixed_cols:
-        samples[:, idx] = xlimits[idx, 0]
+        # Maintain constant variables with fixed ranges
+        fixed_cols = [idx for idx, (low, high) in enumerate(xlimits) if low == high]
+        for idx in fixed_cols:
+            samples[:, idx] = xlimits[idx, 0]
+    elif sampling_method == "Grid":
+        grid_axes = [
+            np.linspace(low, high, n_samples, dtype=float)
+            for (low, high) in xlimits
+        ]
+        mesh = np.meshgrid(*grid_axes, indexing="ij")
+        samples = np.stack(mesh, axis=-1).reshape(-1, n_dim)
 
-    # Save sampled dataset
-    # output_file_path = results_dir / ...
-    # sampled_df.to_csv(output_file_path, index=False)
-    # log.info(f"LHS dataset saved in {output_file_path}")
+        # Keep output size deterministic and consistent with requested n_samples.
+        if samples.shape[0] > n_samples:
+            selected_idx = np.linspace(0, samples.shape[0] - 1, n_samples, dtype=int)
+            samples = samples[selected_idx]
+    else:
+        raise ValueError(
+            f"Unknown sampling method {sampling_method!r}. Supported values are 'LHS' and 'Grid'."
+        )
 
     return DataFrame({
         name: samples[:, idx]
@@ -120,7 +143,15 @@ def get_high_variance_points(
     log.info(
         f"Selected {n_high_idx} high-variance points using threshold {threshold:.6g}."
     )
-    return DataFrame(x[high_idx], columns=level1_split.columns)
+    columns = level1_split.columns
+    if len(columns) != x.shape[1]:
+        log.warning(
+            "Column count mismatch for variance points "
+            f"({len(columns)} columns vs {x.shape[1]} features). "
+            "Truncating columns to match feature count."
+        )
+        columns = columns[: x.shape[1]]
+    return DataFrame(x[high_idx], columns=columns)
 
 
 def get_loo_points(
@@ -253,5 +284,5 @@ def split_data(
         y_val=y_val,
         x_test=x_test,
         y_test=y_test,
-        columns=data_frame.columns,
+        columns=list(data_frame.drop(columns=[objective]).columns),
     )

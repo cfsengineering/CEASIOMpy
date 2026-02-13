@@ -52,6 +52,7 @@ from ceasiompy.smtrain import (
     # SMTRAIN_SIMULATION_PURPOSE_XPATH,
     # SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
     SMTRAIN_OBJECTIVE_DIRECTION_XPATH,
+    SMTRAIN_SAMPLING_METHOD_XPATH,
 )
 
 
@@ -156,30 +157,52 @@ def gui_settings(cpacs: CPACS) -> None:
 
         left_col, right_col = st.columns(2)
         with left_col:
-            float_vartype(
+            sampling_method = list_vartype(
                 tixi=tixi,
-                xpath=SMTRAIN_TRAIN_PERC_XPATH,
-                default_value=0.7,
-                name=r"% used of training data",
-                description="Defining the percentage of the data to use to train the model.",
-                key="smtrain_training_percentage",
-                min_value=0.0,
-                max_value=1.0,
+                xpath=SMTRAIN_SAMPLING_METHOD_XPATH,
+                default_value=["LHS", "Grid"],
+                key="smtrain_geometry_sampling_method",
+                name="Sampling Method for Geometry Parameters",
+                description="Latin Hypercube Sampling (LHS) vs Grid (Regular Grid Sampling)",
             )
 
         with right_col:
-            int_vartype(
-                tixi=tixi,
-                xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
-                default_value=10,
-                key="smtrain_sample_number",
-                name="Number of samples",
-                description="""
-                    Samples corresponds to the number of
-                    distinct geometry we will run the solver on.
-                """,
-                min_value=3,
-            )
+            # Depending on the sampling method the sampling number is not the same
+            if sampling_method == "Grid":
+                int_vartype(
+                    tixi=tixi,
+                    xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
+                    default_value=4,
+                    key="smtrain_sample_number_grid",
+                    name="Number of samples per dimension",
+                    description="""Samples per Dimension,
+                        i.e. total number of samples = (geom_param)^n,
+                        where n is this selected number.
+                    """,
+                    min_value=2,
+                    max_value=6,
+                )
+            else:
+                int_vartype(
+                    tixi=tixi,
+                    xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
+                    default_value=10,
+                    key="smtrain_sample_number_lhs",
+                    name="Number of samples",
+                    description="""Total number of geometries as generated data.""",
+                    min_value=4,
+                )
+
+        float_vartype(
+            tixi=tixi,
+            xpath=SMTRAIN_TRAIN_PERC_XPATH,
+            default_value=0.7,
+            name=r"% used of training data",
+            description="Defining the percentage of the data to use to train the model.",
+            key="smtrain_training_percentage",
+            min_value=0.0,
+            max_value=1.0,
+        )
 
     xpath = SMTRAIN_GEOM_WING_OPTIMISE
     uid_list = return_uid_wings_sections(tixi)

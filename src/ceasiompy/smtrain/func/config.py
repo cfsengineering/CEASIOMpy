@@ -63,6 +63,7 @@ from ceasiompy.smtrain import (
     SMTRAIN_TRAIN_PERC_XPATH,
     SMTRAIN_FIDELITY_LEVEL_XPATH,
     SMTRAIN_OBJECTIVE_DIRECTION_XPATH,
+    SMTRAIN_SAMPLING_METHOD_XPATH,
 )
 
 
@@ -74,12 +75,13 @@ def get_settings(tixi: Tixi3) -> TrainingSettings:
     """
 
     # Extract values from CPACS
-    sm_models = get_string_vector(tixi, SMTRAIN_MODELS_XPATH)
-    objective = get_value(tixi, SMTRAIN_OBJECTIVE_XPATH)
-    n_samples = int(get_value(tixi, SMTRAIN_NSAMPLES_GEOMETRY_XPATH))
+    sm_models = get_string_vector(tixi, xpath=SMTRAIN_MODELS_XPATH)
+    objective = get_value(tixi, xpath=SMTRAIN_OBJECTIVE_XPATH)
+    n_samples = int(get_value(tixi, xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH))
     direction = get_value(tixi, xpath=SMTRAIN_OBJECTIVE_DIRECTION_XPATH)
-    fidelity_level = get_value(tixi, SMTRAIN_FIDELITY_LEVEL_XPATH)
-    data_repartition = get_value(tixi, SMTRAIN_TRAIN_PERC_XPATH)
+    fidelity_level = get_value(tixi, xpath=SMTRAIN_FIDELITY_LEVEL_XPATH)
+    sampling_method = get_value(tixi, xpath=SMTRAIN_SAMPLING_METHOD_XPATH)
+    data_repartition = get_value(tixi, xpath=SMTRAIN_TRAIN_PERC_XPATH)
 
     if not sm_models:
         raise ValueError("You need to choose a surrogate model type in the Settings Page.")
@@ -90,6 +92,7 @@ def get_settings(tixi: Tixi3) -> TrainingSettings:
         n_samples=n_samples,
         direction=direction,
         fidelity_level=fidelity_level,
+        sampling_method=sampling_method,
         data_repartition=data_repartition,
     )
 
@@ -389,8 +392,8 @@ def relative_ranges(
 
 def create_list_cpacs_geometry(
     cpacs: CPACS,
-    lh_sampling: DataFrame,
     results_dir: Path,
+    sampled_geom: DataFrame,
 ) -> list[CPACS]:
     log.info("Creating CPACS file from LHS samples.")
 
@@ -407,12 +410,12 @@ def create_list_cpacs_geometry(
     cpacs_list = []
 
     # Loop for each configuration
-    for i, geom_row in lh_sampling.iterrows():
+    for i, geom_row in sampled_geom.iterrows():
         cpacs_out = generated_cpacs_dir / f"{cpacs_name}_{i+1:03d}.xml"
         copyfile(cpacs.cpacs_file, cpacs_out)
 
         params_to_update = {}
-        for col in lh_sampling.columns:
+        for col in sampled_geom.columns:
             if "_of_" not in col:
                 raise ValueError(f"Syntax: _of_ i.e. {col=} is not a valid parameter.")
 

@@ -263,26 +263,61 @@ def aeroelastic_loop(cpacs: CPACS, results_dir, case_dir_path, q, xyz, fxyz):
 
         log_iteration_results(n_iter, deflection, percentage, res[-1])
 
-        # Run AVL with the new deformed geometry
-        write_deformed_geometry(avl_undeformed_path, avl_deformed_path, centerline_df, deformed_df)
-        write_deformed_command(avl_undeformed_command, avl_deformed_command)
-        log.info("")
-        log.info(f"----- AVL: Calculation {n_iter + 1} -----")
-        run_software(
-            software_name=SOFTWARE_NAME,
-            arguments=[""],
-            wkdir=avl_iter_path,
-            with_mpi=False,
-            stdin=open(str(avl_deformed_command), "r"),
-        )
-        log.info("AVL done!")
+        # Run AVL with the new deformed geometry.
+        # If AVL fails due to spanwise-spacing issues, retry with fewer sections.
+        xyz_list = p_xyz_list = None
+        avl_spacing_retry_divisors = [2, 3, 4, 6]
+        last_read_error = None
 
-        if has_display():
-            convert_ps_to_pdf(wkdir=avl_iter_path)
+        for i_retry, divisor in enumerate(avl_spacing_retry_divisors, start=1):
+            write_deformed_geometry(
+                avl_undeformed_path,
+                avl_deformed_path,
+                centerline_df,
+                deformed_df,
+                nspanwise_divisor=divisor,
+            )
+            write_deformed_command(avl_undeformed_command, avl_deformed_command)
 
-        # Read the new forces file to extract the loads
-        fe_path = Path(avl_iter_path, "fe.txt")
-        _, _, _, xyz_list, p_xyz_list, _ = read_avl_fe_file(fe_path, plot=False)
+            log.info("")
+            if i_retry == 1:
+                log.info(f"----- AVL: Calculation {n_iter + 1} -----")
+            else:
+                log.info(f"""----- AVL: Calculation {n_iter + 1}
+                    (retry {i_retry}/{len(avl_spacing_retry_divisors)}) -----""")
+
+            with open(str(avl_deformed_command), "r") as avl_stdin:
+                run_software(
+                    software_name=SOFTWARE_NAME,
+                    arguments=[""],
+                    wkdir=avl_iter_path,
+                    with_mpi=False,
+                    stdin=avl_stdin,
+                )
+            log.info("AVL done!")
+
+            if has_display():
+                convert_ps_to_pdf(wkdir=avl_iter_path)
+
+            fe_path = Path(avl_iter_path, "fe.txt")
+            try:
+                _, _, _, xyz_list, p_xyz_list, _ = read_avl_fe_file(fe_path, plot=False)
+                last_read_error = None
+                break
+            except FileNotFoundError as err:
+                last_read_error = err
+                err_msg = str(err)
+                spacing_error = "Insufficient number of spanwise vortices to work with"
+                if spacing_error in err_msg and i_retry < len(avl_spacing_retry_divisors):
+                    log.warning(f"""AVL failed due to spanwise spacing constraints;
+                        retrying with coarser section sampling
+                        (divisor={avl_spacing_retry_divisors[i_retry]})."
+                    """)
+                    continue
+                raise
+
+        if last_read_error is not None:
+            raise last_read_error
 
         xyz = xyz_list[0]
         fxyz = np.array(p_xyz_list[0]) * q

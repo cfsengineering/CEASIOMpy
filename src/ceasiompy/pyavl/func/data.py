@@ -207,11 +207,14 @@ def create_case_dir(
 ) -> Path:
     # Log the parameters
     param_log = ", ".join(f"{key}: {value}" for key, value in params.items())
+    if param_log != "":
+        param_log = "with " + param_log
+    param_log += ")"
     log.info(
         f"Running Case {i_case}: "
         f"(altitude={avl_data.altitude}, mach={avl_data.mach}, "
-        f"alpha={avl_data.alpha}, beta={avl_data.beta}) "
-        f"with {param_log} ---"
+        f"alpha={avl_data.alpha}, beta={avl_data.beta} "
+        f"{param_log} ---"
     )
 
     # Create the case directory name dynamically

@@ -169,8 +169,8 @@ def get_best_krg_model(
 
 def run_first_level_simulations(
     cpacs_list: list[CPACS],
-    lh_sampling: DataFrame,
     results_dir: Path,
+    sampled_geom: DataFrame,
     training_settings: TrainingSettings,
 ) -> DataFrame:
     """
@@ -183,7 +183,7 @@ def run_first_level_simulations(
         for i, cpacs in enumerate(cpacs_list):
             result = _run_first_level_simulation_task(
                 cpacs_path=cpacs.cpacs_file,
-                row_geom=lh_sampling.iloc[i].to_dict(),
+                row_geom=sampled_geom.iloc[i].to_dict(),
                 idx=i,
                 results_dir=results_dir,
                 objective=training_settings.objective,
@@ -207,7 +207,7 @@ def run_first_level_simulations(
                 executor.submit(
                     _run_first_level_simulation_task,
                     cpacs.cpacs_file,
-                    lh_sampling.iloc[i].to_dict(),
+                    sampled_geom.iloc[i].to_dict(),
                     i,
                     results_dir,
                     training_settings.objective,
@@ -281,7 +281,7 @@ def _run_first_level_simulation_task(
 
 
 def run_adapt_refinement_geom(
-    cpacs: CPACS,
+    cpacs_list: list[CPACS],
     unvalid_pts: DataFrame,
     results_dir: Path,
     training_settings: TrainingSettings,
@@ -292,26 +292,28 @@ def run_adapt_refinement_geom(
 
     # Define Variables
     log.info(f"Starting adaptive refinement on {len(unvalid_pts)} points.")
-
-    cpacs_name = cpacs.ac_name
-
-    # TODO: Extract correctly from the generated cpacs folder
-    generated_cpacs_dir = results_dir / "generated_cpacs"
+    if not cpacs_list:
+        raise ValueError("cpacs_list is empty; cannot run adaptive refinement.")
 
     final_dfs = []
     for i, high_var in enumerate(unvalid_pts.iterrows()):
         try:
             idx = int(high_var[0])
-            cpacs_path = generated_cpacs_dir / f"{cpacs_name}_{idx + 1:03d}.xml"
-            cpacs = CPACS(cpacs_path)
+            cpacs_idx = idx if 0 <= idx < len(cpacs_list) else i
+            if cpacs_idx >= len(cpacs_list):
+                raise IndexError(
+                    f"Adaptive point index {idx} (fallback {i}) out of range for "
+                    f"cpacs_list size {len(cpacs_list)}."
+                )
+            cpacs = cpacs_list[cpacs_idx]
 
             high_fidelity_dir = results_dir / f"{SU2RUN}_{i + 1}"
-            high_fidelity_dir.mkdir(exist_ok=True)
+            high_fidelity_dir.mkdir(parents=True, exist_ok=True)
 
             level2_df = launch_gmsh_su2(
                 cpacs=cpacs,
                 results_dir=high_fidelity_dir,
-                training_settings=training_settings
+                training_settings=training_settings,
             )
 
             if level2_df is None or len(level2_df) == 0:
@@ -320,14 +322,19 @@ def run_adapt_refinement_geom(
 
             # Duplicate per AeroMap entries (same geometry, different aeromap values)
             n = len(level2_df)
-            row_df_geom = unvalid_pts.iloc[i]
-            local_df_geom = DataFrame([row_df_geom] * n).reset_index(drop=True)
+            row_df = unvalid_pts.iloc[i].to_dict()
+            # Keep only geometry variables to avoid duplicate aeromap columns
+            # when concatenating with level2_df (which already contains aeromap features).
+            row_geom = {k: v for k, v in row_df.items() if "_of_" in k}
+            if not row_geom:
+                row_geom = row_df
+            local_df_geom = DataFrame([row_geom] * n).reset_index(drop=True)
 
-            level1_df_combined = pd.concat(
-                objs=[local_df_geom, unvalid_pts.reset_index(drop=True)],
+            level2_df_combined = pd.concat(
+                objs=[local_df_geom, level2_df.reset_index(drop=True)],
                 axis=1,
             )
-            final_dfs.append(level1_df_combined)
+            final_dfs.append(level2_df_combined)
         except Exception as e:
             log.error(f"Error in SU2 simulation {i + 1}: {e=}. Skipping...")
             continue  # Skip to next iteration, don't add to final_dfs

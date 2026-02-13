@@ -36,7 +36,6 @@ def _compute_loss(
     return rmse + lambda_penalty * np.mean(model.predict_variances(x_))
 
 
-
 # Functions
 
 def compute_rbf_loss(

@@ -14,8 +14,6 @@ import shutil
 import joblib
 import hashlib
 import tempfile
-from time import perf_counter
-from contextlib import contextmanager
 import numpy as np
 import pandas as pd
 import pyvista as pv
@@ -26,11 +24,14 @@ import streamlit.components.v1 as components
 
 from stpyvista import stpyvista
 from functools import lru_cache
+from time import perf_counter
+from contextlib import contextmanager
 from ceasiompy.utils.commonpaths import get_wkdir
 from ceasiompy.smtrain.func.utils import domain_converter
 from ceasiompy.smtrain.func.config import update_geometry_cpacs
 from ceasiompy.utils.ceasiompyutils import workflow_number
 from ceasiompy.utils.geometryfunctions import get_xpath_for_param
+from ceasiompy.smtrain.func.utils import get_model_typename
 from parsefunctions import (
     parse_ascii_tables,
     display_avl_table_file,
@@ -48,7 +49,6 @@ from SALib.analyze import sobol as sobol_analyze
 from smt.applications import MFK
 from cpacspy.cpacspy import CPACS
 from SALib.sample import sobol as sobol_sample
-from scipy.optimize import Bounds
 from smt.surrogate_models import (
     KRG,
     RBF,
@@ -411,10 +411,27 @@ def _display_pkl(path: Path) -> None:
     bounds = {}
     bounds_source = {}
     try:
-        for idx, name in enumerate(geom_bounds.param_names):
+        if isinstance(geom_bounds, dict):
+            geom_names = geom_bounds.get("param_names", [])
+            geom_lb = geom_bounds.get("lb", [])
+            geom_ub = geom_bounds.get("ub", [])
+        else:
+            # Backward compatibility with older pickles storing GeomBounds objects.
+            geom_names = getattr(geom_bounds, "param_names", [])
+            geom_bounds_obj = getattr(geom_bounds, "bounds", None)
+            geom_lb = getattr(geom_bounds_obj, "lb", [])
+            geom_ub = getattr(geom_bounds_obj, "ub", [])
+
+        if not geom_names:
+            raise ValueError("No geometric parameter names found in model metadata.")
+
+        if len(geom_lb) != len(geom_names) or len(geom_ub) != len(geom_names):
+            raise ValueError("Inconsistent geometric bounds lengths in model metadata.")
+
+        for idx, name in enumerate(geom_names):
             bounds[name] = (
-                float(geom_bounds.bounds.lb[idx]),
-                float(geom_bounds.bounds.ub[idx]),
+                float(geom_lb[idx]),
+                float(geom_ub[idx]),
             )
             bounds_source[name] = "geom"
     except Exception as e:
@@ -464,7 +481,7 @@ def _display_pkl(path: Path) -> None:
             )
         input_values[col] = float(val)
 
-    st.markdown("**Model Inputs**")
+    st.markdown(f"**Best Surrogate Model {get_model_typename(model)}**")
     if geom_inputs:
         st.markdown("**Geometry Inputs**")
         for col in geom_inputs:
@@ -628,7 +645,7 @@ def _display_response_surface(
     variable_geom_inputs: list[str],
 ) -> None:
     st.markdown("---")
-    st.markdown("**Response Surface**")
+    st.markdown(f"**Response Surface of best Surrogate Model {get_model_typename(model)}**")
 
     if not variable_geom_inputs:
         st.info("No variable geometry parameters available for response surface display.")
@@ -1017,7 +1034,10 @@ def _cached_model_prediction(
         except Exception:
             pass
     with _timed(f"cache miss predict_values {Path(path_str).name} ({len(x_rows)} pts)"):
-        y_pred = np.asarray(model.predict_values(np.asarray(x_rows, dtype=float)), dtype=float).ravel()
+        y_pred = np.asarray(
+            model.predict_values(np.asarray(x_rows, dtype=float)),
+            dtype=float,
+        ).ravel()
     return tuple(float(v) for v in y_pred)
 
 

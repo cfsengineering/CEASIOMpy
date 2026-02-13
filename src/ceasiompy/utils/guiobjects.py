@@ -104,6 +104,7 @@ def multiselect_vartype(
     key,
     description,
 ) -> list[str]:
+    selected_values = None
     if not default_value:
         raise ValueError(f"Settings {name=} have an uncorrect {default_value=}")
 
@@ -117,7 +118,7 @@ def multiselect_vartype(
         if len(stored_values) == 1 and ";" in stored_values[0]:
             stored_values = [val.strip() for val in stored_values[0].split(";")]
         selected_values = [val for val in stored_values if val in default_value]
-    if not selected_values:
+    if selected_values is None or not selected_values:
         selected_values = [default_value[0]]
 
     output = st.multiselect(
@@ -209,11 +210,28 @@ def int_vartype(
     min_value: int | None = None,
     max_value: int | None = None,
 ) -> int:
+    def _clamp_int(val: int) -> int:
+        if min_value is not None and val < min_value:
+            val = min_value
+        if max_value is not None and val > max_value:
+            val = max_value
+        return val
+
     raw_value = safe_get_value(tixi, xpath, default_value)
     try:
         value = int(raw_value)
     except (TypeError, ValueError):
         value = int(default_value)
+    value = _clamp_int(value)
+
+    # Streamlit validates session_state[key] against min/max before using `value=...`.
+    # Clamp persisted widget state as well to avoid StreamlitValueAboveMaxError.
+    if key in st.session_state:
+        try:
+            st.session_state[key] = _clamp_int(int(st.session_state[key]))
+        except (TypeError, ValueError):
+            st.session_state[key] = value
+
     output = st.number_input(
         label=name,
         value=value,

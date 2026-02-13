@@ -50,6 +50,7 @@ class TrainingSettings(BaseModel):
     direction: str
     n_samples: int
     fidelity_level: str
+    sampling_method: str
     data_repartition: float
 
 
@@ -159,6 +160,11 @@ def save_model(
     """
     suffix = get_model_typename(model)
     model_path = results_dir / f"sm_{suffix}.pkl"
+    geom_bounds_payload = {
+        "param_names": list(geom_bounds.param_names),
+        "lb": np.asarray(geom_bounds.bounds.lb, dtype=float).tolist(),
+        "ub": np.asarray(geom_bounds.bounds.ub, dtype=float).tolist(),
+    }
 
     with open(model_path, "wb") as file:
         joblib.dump(
@@ -166,7 +172,7 @@ def save_model(
                 "model": model,
                 "columns": columns,
                 "objective": training_settings.objective,
-                "geom_bounds": geom_bounds,
+                "geom_bounds": geom_bounds_payload,
                 "aero_bounds": get_aero_bounds(cpacs),
             },
             filename=file,
@@ -177,9 +183,9 @@ def save_model(
 def store_best_geom_from_training(
     dataframe: DataFrame,
     cpacs_list: list[CPACS],
-    lh_sampling: DataFrame,
     results_dir: Path,
     geom_bounds: GeomBounds,
+    sampled_geom: DataFrame,
     training_settings: TrainingSettings,
 ) -> None:
     # Save Best Low Fidelity Geometry Configuration from Training Data
@@ -197,7 +203,7 @@ def store_best_geom_from_training(
 
     # Save associated CPACS file for the best geometry
     best_geom_values = best_geometries_df[geom_cols].iloc[0].values
-    mask = (lh_sampling[geom_cols] == best_geom_values).all(axis=1)
+    mask = (sampled_geom[geom_cols] == best_geom_values).all(axis=1)
     if not mask.any():
         raise ValueError("Could not match best geometry to a CPACS file. Skipping copy.")
 

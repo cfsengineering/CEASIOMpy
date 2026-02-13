@@ -38,7 +38,7 @@ LEVEL_TWO: Final[str] = "Two levels"
 LEVEL_THREE: Final[str] = "Three levels"
 
 # Valid fidelity levels
-FIDELITY_LEVELS = [LEVEL_ONE, LEVEL_TWO] if SU2RUN_STATUS else [LEVEL_ONE]
+FIDELITY_LEVELS = [LEVEL_ONE]  # [LEVEL_ONE, LEVEL_TWO] if SU2RUN_STATUS else [LEVEL_ONE]
 
 # Surrogate models choice
 SM_MODELS: Final[list[str]] = ["KRG", "RBF"]
@@ -80,6 +80,7 @@ SMTRAIN_NSAMPLES_AEROMAP_XPATH = SMTRAIN_DOE_AEROMAP + "/nSamples_aeromap"
 # Design Of Experiment Geometry
 SMTRAIN_DOE_GEOMETRY = SMTRAIN_XPATH + "/DesignOfExperiment_geometry"
 SMTRAIN_NSAMPLES_GEOMETRY_XPATH = SMTRAIN_DOE_GEOMETRY + "/nSamples_geometry"
+SMTRAIN_SAMPLING_METHOD_XPATH = SMTRAIN_XPATH + "/SamplingMethod"
 
 # Aeromap ranges
 SMTRAIN_MAX_ALT = SMTRAIN_XPATH_AEROMAP + "/MaxAltitude"

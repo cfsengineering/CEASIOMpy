@@ -17,14 +17,13 @@ TODO:
 import pandas as pd
 
 from ceasiompy.utils.ceasiompyutils import call_main
-from ceasiompy.smtrain.func.plot import plot_validation
 from ceasiompy.smtrain.func.utils import (
     save_model,
     store_best_geom_from_training,
 )
 from ceasiompy.smtrain.func.sampling import (
     split_data,
-    lh_sampling_geom,
+    sample_geom,
     get_high_variance_points,
     get_loo_points,
 )
@@ -56,85 +55,6 @@ from ceasiompy.smtrain import (
 
 # Methods
 
-# def _load_smtrain_model(cpacs: CPACS) -> None:
-#     ranges_gui = get_params_to_optimise(cpacs)
-
-#     krg_model, rbf_model, sets, param_order = training_existing_db(
-#         results_dir,
-#         split_ratio,
-#         selected_krg_model,
-#         selected_rbf_model
-#     )
-
-#     if fidelity_level == LEVEL_TWO:
-#         run_adapt_refinement_geom_krg_existing_db(
-#             cpacs=cpacs,
-#             results_dir=results_dir,
-#             model=krg_model,
-#             level1_sets=sets,
-#             rmse_obj=rmse_obj,
-#             objective=objective,
-#             aeromap_uid=aeromap_selected,
-#             ranges_gui=ranges_gui,
-#         )
-
-#     if selected_krg_model:
-#         log.info("Validation plots.")
-#         plot_dir = results_dir / "Validation_plot_KRG"
-#         plot_dir.mkdir(parents=True, exist_ok=True)
-#         plot_validation(krg_model, sets, objective, plot_dir)
-
-#         save_model(cpacs, krg_model, objective, results_dir, param_order)
-
-#     if selected_rbf_model:
-#         log.info("Validation plots.")
-#         plot_dir = results_dir / "Validation_plot_RBF"
-#         plot_dir.mkdir(parents=True, exist_ok=True)
-#         plot_validation(rbf_model, sets, objective, plot_dir)
-
-#         save_model(cpacs, rbf_model, objective, results_dir, param_order)
-
-
-# def _flight_condition_exploration(
-#     cpacs: CPACS,
-#     results_dir: Path,
-#     objective,
-#     split_ratio,
-#     fidelity_level,
-#     rmse_obj,
-# ):
-#     n_samples, ranges = design_of_experiment(cpacs)
-#     lh_sampling_path = lh_sampling(n_samples, ranges, results_dir)
-
-#     # First level fidelity training
-#     model, sets, param_order = run_first_level_training(
-#         cpacs=cpacs,
-#         lh_sampling_path=lh_sampling_path,
-#         objective=objective,
-#         split_ratio=split_ratio,
-#         result_dir=results_dir,
-#     )
-
-#     # Second level fidelity training
-#     if fidelity_level == LEVEL_TWO:
-#         run_adaptative_refinement(
-#             cpacs=cpacs,
-#             results_dir=results_dir,
-#             model=model,
-#             level1_sets=sets,
-#             rmse_obj=rmse_obj,
-#             objective=objective,
-#         )
-
-#     # 3. Plot, save and get results
-#     log.info("Validation plots.")
-#     plot_dir = results_dir / "Validation_plot"
-#     plot_dir.mkdir(parents=True, exist_ok=True)
-#     plot_validation(model, sets, objective, plot_dir)
-
-#     save_model(cpacs, model, objective, results_dir,param_order)
-
-
 def _geometry_exploration(
     cpacs: CPACS,
     results_dir: Path,
@@ -146,16 +66,16 @@ def _geometry_exploration(
     geom_bounds = get_params_to_optimise(cpacs)
 
     # LHS sampling from the Parameter Ranges
-    lh_sampling = lh_sampling_geom(
+    sampled_geom = sample_geom(
         geom_bounds=geom_bounds,
-        n_samples=training_settings.n_samples,
+        training_settings=training_settings,
     )
 
     # Create the list of CPACS files (in function of geometry values of lh_smapling)
     cpacs_list = create_list_cpacs_geometry(
         cpacs=cpacs,
-        lh_sampling=lh_sampling,
         results_dir=results_dir,
+        sampled_geom=sampled_geom,
     )
 
     # Generate directory where to store Low Fidelity runs
@@ -165,8 +85,8 @@ def _geometry_exploration(
     # Low Fidelity First (+ Always available by default)
     level1_df: DataFrame = run_first_level_simulations(
         cpacs_list=cpacs_list,
-        lh_sampling=lh_sampling,
         results_dir=low_fidelity_dir,
+        sampled_geom=sampled_geom,
         training_settings=training_settings,
     )
 
@@ -199,12 +119,14 @@ def _geometry_exploration(
         high_fidelity_dir = results_dir / "high_fidelity"
         high_fidelity_dir.mkdir(exist_ok=True)
 
+        high_var_pts = None
         if "KRG" in training_settings.sm_models:
             high_var_pts: DataFrame = get_high_variance_points(
                 model=best_krg_model,
                 level1_split=level1_split,
             )
 
+        loo_pts = None
         if "RBF" in training_settings.sm_models:
             loo_pts: DataFrame = get_loo_points(
                 model=best_rbf_model,
@@ -228,7 +150,7 @@ def _geometry_exploration(
 
         # Run SU2 on unvalid points
         level2_df = run_adapt_refinement_geom(
-            cpacs=cpacs,
+            cpacs_list=cpacs_list,
             unvalid_pts=unvalid_pts,
             results_dir=high_fidelity_dir,
             training_settings=training_settings,
@@ -324,9 +246,9 @@ def _geometry_exploration(
     store_best_geom_from_training(
         dataframe=training_results_df,
         cpacs_list=cpacs_list,
-        lh_sampling=lh_sampling,
         results_dir=results_dir,
         geom_bounds=geom_bounds,
+        sampled_geom=sampled_geom,
         training_settings=training_settings,
     )
 

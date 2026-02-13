@@ -248,7 +248,18 @@ def read_avl_fe_file(
         with open(fe_path, "r") as file:
             file_content = file.read()
     except FileNotFoundError:
-        raise FileNotFoundError(f"Error reading {fe_path}")
+        msg = f"Error reading {fe_path}"
+        log_path = Path(fe_path).with_name("logfile_avl.log")
+        if log_path.exists():
+            try:
+                with open(log_path, "r") as log_file:
+                    log_lines = log_file.readlines()
+                avl_errors = [line.strip() for line in log_lines if "***" in line]
+                if avl_errors:
+                    msg += f". AVL error: {' | '.join(avl_errors[-2:])}"
+            except OSError:
+                pass
+        raise FileNotFoundError(msg)
 
     i_surface = [m.start() for m in re.finditer("Surface #", file_content)]
     number_surfaces = len(i_surface)
@@ -870,7 +881,13 @@ def compute_cross_section(
     )
 
 
-def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, deformed_df):
+def write_deformed_geometry(
+    UNDEFORMED_PATH,
+    DEFORMED_PATH,
+    centerline_df,
+    deformed_df,
+    nspanwise_divisor: int = 2,
+):
     """
     Function 'write_deformed_geometry' writes the AVL geometry input file of the
     deformed wing.
@@ -880,6 +897,8 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
         DEFORMED_PATH (Path): path to the deformed AVL input file.
         centerline_df (pandas dataframe): dataframe containing the beam nodes.
         deformed_df (pandas dataframe): dataframe containing the VLM nodes.
+        nspanwise_divisor (int): divisor used to limit the number of
+                                 generated AVL sections from Nspanwise.
     """
 
     deformed_df.sort_values(by="y_leading", inplace=True)
@@ -936,6 +955,20 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
 
             if selected_indices[-1] != len(y_coords) - 1:
                 selected_indices.append(len(y_coords) - 1)
+
+            # AVL needs enough spanwise vortices to distribute across section intervals.
+            # If too many sections are written for a given Nspanwise, AVL can abort with
+            # "Insufficient number of spanwise vortices to work with".
+            max_sections = max(2, int(Nspanwise // max(1, nspanwise_divisor)) + 1)
+            if len(selected_indices) > max_sections:
+                sampled_positions = np.linspace(
+                    0,
+                    len(selected_indices) - 1,
+                    num=max_sections,
+                    dtype=int,
+                )
+                selected_indices = [selected_indices[pos] for pos in sampled_positions]
+                selected_indices = sorted(set(selected_indices))
 
             for i_node in selected_indices:
                 x_new = deformed_df.iloc[i_node]["x_leading"]

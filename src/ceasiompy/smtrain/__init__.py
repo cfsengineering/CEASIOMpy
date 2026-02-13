@@ -8,8 +8,11 @@ Initialization for SMTrain module.
 
 # Imports
 from pathlib import Path
+from typing import Final
 
+from numpy import sqrt
 from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
+from ceasiompy.pyavl import MODULE_STATUS as PYAVL_STATUS
 from ceasiompy.su2run import MODULE_STATUS as SU2RUN_STATUS
 
 # ==============================================================================
@@ -18,7 +21,7 @@ from ceasiompy.su2run import MODULE_STATUS as SU2RUN_STATUS
 
 # ===== Module Status =====
 # SMTrain is true if PyAVL is true
-MODULE_STATUS = False  # PYAVL_STATUS from ceasiompy.PyAVL import MODULE_STATUS as PYAVL_STATUS
+MODULE_STATUS = PYAVL_STATUS
 
 MODULE_TYPE = "MetaModule"
 
@@ -30,15 +33,18 @@ MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 
 # ===== Level Notations =====
-LEVEL_ONE = "One level"
-LEVEL_TWO = "Two levels"
-LEVEL_THREE = "Three levels"
+LEVEL_ONE: Final[str] = "One level"
+LEVEL_TWO: Final[str] = "Two levels"
+LEVEL_THREE: Final[str] = "Three levels"
 
 # Valid fidelity levels
-FIDELITY_LEVELS = [LEVEL_ONE, LEVEL_TWO] if SU2RUN_STATUS else [LEVEL_ONE]
+FIDELITY_LEVELS = [LEVEL_ONE]  # [LEVEL_ONE, LEVEL_TWO] if SU2RUN_STATUS else [LEVEL_ONE]
+
+# Surrogate models choice
+SM_MODELS: Final[list[str]] = ["KRG", "RBF"]
 
 # ===== List of potential objectives =====
-OBJECTIVES_LIST = ["cl_cd", "cl", "cd", "cs", "cmd", "cml", "cms"]
+OBJECTIVES_LIST: Final[list[str]] = ["cl_cd", "cl", "cd"]
 
 # ===== List of an aeromap (basic) features =====
 AEROMAP_FEATURES = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
@@ -58,6 +64,8 @@ SMTRAIN_AVL_DATABASE_XPATH = SMTRAIN_XPATH + "/AVLDatabase"
 # Surrogate model settings
 SMTRAIN_SIMULATION_PURPOSE_XPATH = SMTRAIN_XPATH + "/SimulationPurpose"
 SMTRAIN_OBJECTIVE_XPATH = SMTRAIN_XPATH + "/Objective"
+SMTRAIN_OBJECTIVE_DIRECTION_XPATH = SMTRAIN_XPATH + "/ObjectiveDirection"
+
 SMTRAIN_FIDELITY_LEVEL_XPATH = SMTRAIN_XPATH + "/FidelityLevel"
 # SMTRAIN_SELECTED_MODEL = SMTRAIN_XPATH + "/selected_model"
 SMTRAIN_MODELS = SMTRAIN_XPATH + "/models"
@@ -67,12 +75,12 @@ SMTRAIN_TRAIN_PERC_XPATH = SMTRAIN_XPATH + "/TrainingPercentage"
 
 # Design Of Experiment Aeropmap
 SMTRAIN_DOE_AEROMAP = SMTRAIN_XPATH + "/DesignOfExperiment_aeromap"
-SMTRAIN_THRESHOLD_XPATH = SMTRAIN_DOE_AEROMAP + "/rmseThreshold"
 SMTRAIN_NSAMPLES_AEROMAP_XPATH = SMTRAIN_DOE_AEROMAP + "/nSamples_aeromap"
 
 # Design Of Experiment Geometry
 SMTRAIN_DOE_GEOMETRY = SMTRAIN_XPATH + "/DesignOfExperiment_geometry"
 SMTRAIN_NSAMPLES_GEOMETRY_XPATH = SMTRAIN_DOE_GEOMETRY + "/nSamples_geometry"
+SMTRAIN_SAMPLING_METHOD_XPATH = SMTRAIN_XPATH + "/SamplingMethod"
 
 # Aeromap ranges
 SMTRAIN_MAX_ALT = SMTRAIN_XPATH_AEROMAP + "/MaxAltitude"
@@ -91,29 +99,33 @@ SMTRAIN_MAX_CHORD = SMTRAIN_XPATH_GEOMETRY + "/MaxChord"
 SMTRAIN_MAX_THICKNESS = SMTRAIN_XPATH_GEOMETRY + "/MaxThickness"
 
 WING_PARAMETERS = [
+    "chord",
     "sweepAngle",
     "dihedralAngle",
     "length",
     "twist",
-    "chord",
     "thickness"
 ]
 
 AEROMAP_DEFAULTS = {
     "altitude": {
-        "min": 50,
-        "max": 1000,
+        "min": 0.0,
+        "max": 10_000.0,
     },
     "machNumber": {
-        "min": 0.1,
-        "max": 0.85,
+        "min": 0.05,
+        "max": 0.8,
     },
     "angleOfAttack": {
         "min": -5.0,
-        "max": 5.0,
+        "max": 15.0,
     },
     "angleOfSideslip": {
-        "min": -10.0,
-        "max": 10.0,
+        "min": 0.0,
+        "max": 20.0,
     },
 }
+
+# Constants
+NORMALIZED: Final[float] = 1.0 / sqrt(2.0)
+NORMALIZED_DOMAIN: Final[tuple[float, float]] = (-NORMALIZED, NORMALIZED)

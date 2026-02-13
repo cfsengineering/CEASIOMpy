@@ -14,6 +14,7 @@ import streamlit as st
 from cpacspy.cpacsfunctions import (
     create_branch,
     add_string_vector,
+    get_string_vector,
 )
 
 from tixi3.tixi3wrapper import (
@@ -103,15 +104,29 @@ def multiselect_vartype(
     key,
     description,
 ) -> list[str]:
+    selected_values = None
     if not default_value:
         raise ValueError(f"Settings {name=} have an uncorrect {default_value=}")
+
+    # Prefer in-memory values first, then persisted CPACS values, and finally fallback.
+    if tixi is not None and tixi.checkElement(xpath):
+        stored_values = get_string_vector(
+            tixi=tixi,
+            xpath=xpath,
+        )
+        # Backward compatibility: some paths may contain a single ';'-joined entry.
+        if len(stored_values) == 1 and ";" in stored_values[0]:
+            stored_values = [val.strip() for val in stored_values[0].split(";")]
+        selected_values = [val for val in stored_values if val in default_value]
+    if selected_values is None or not selected_values:
+        selected_values = [default_value[0]]
 
     output = st.multiselect(
         label=name,
         options=default_value,
         key=key,
         help=description,
-        default=default_value[0],
+        default=selected_values,
     )
     add_value(tixi, xpath, output)
     return output
@@ -185,17 +200,45 @@ def dataframe_vartype(
             return st.session_state[key]
 
 
-def int_vartype(tixi, xpath, default_value, name, key, description) -> int:
+def int_vartype(
+    tixi: Tixi3,
+    xpath: str,
+    default_value: int,
+    name: str,
+    key: str,
+    description: str,
+    min_value: int | None = None,
+    max_value: int | None = None,
+) -> int:
+    def _clamp_int(val: int) -> int:
+        if min_value is not None and val < min_value:
+            val = min_value
+        if max_value is not None and val > max_value:
+            val = max_value
+        return val
+
     raw_value = safe_get_value(tixi, xpath, default_value)
     try:
         value = int(raw_value)
     except (TypeError, ValueError):
         value = int(default_value)
+    value = _clamp_int(value)
+
+    # Streamlit validates session_state[key] against min/max before using `value=...`.
+    # Clamp persisted widget state as well to avoid StreamlitValueAboveMaxError.
+    if key in st.session_state:
+        try:
+            st.session_state[key] = _clamp_int(int(st.session_state[key]))
+        except (TypeError, ValueError):
+            st.session_state[key] = value
+
     output = st.number_input(
         label=name,
         value=value,
         key=key,
         help=description,
+        min_value=min_value,
+        max_value=max_value,
     )
     add_value(tixi, xpath, output)
     return output

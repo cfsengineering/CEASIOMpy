@@ -5,10 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Script to run aeroelastic computations using AVL to compute
 aerodynamic loads and FramAT for structural calculations.
-
-| Author: Romain Gauthier
-| Creation: 2024-06-17
-
 """
 
 # Imports
@@ -16,20 +12,21 @@ aerodynamic loads and FramAT for structural calculations.
 import shutil
 import numpy as np
 
-from pathlib import Path
-from ambiance import Atmosphere
-from cpacspy.cpacspy import CPACS
-
-from cpacspy.cpacsfunctions import create_branch
-from ceasiompy.pyavl.func.utils import create_case_dir
+from ceasiompy.utils.guiobjects import add_value
+from ceasiompy.pyavl.func.data import create_case_dir
 from ceasiompy.aeroframe.func.plot import plot_convergence
 from ceasiompy.aeroframe.func.config import read_avl_fe_file
 from ceasiompy.aeroframe.func.aeroelastic import aeroelastic_loop
-from ceasiompy.aeroframe.func.firstavliteration import run_first_avl_iteration
+from ceasiompy.utils.referencevalues import get_ref_values
+from ceasiompy.pyavl.pyavl import main as run_avl
 from ceasiompy.utils.ceasiompyutils import (
     call_main,
     get_selected_aeromap_values,
 )
+
+from pathlib import Path
+from cpacspy.cpacspy import CPACS
+from ceasiompy.pyavl.func.data import AVLData
 
 from ceasiompy import log
 from ceasiompy.aeroframe import (
@@ -49,38 +46,35 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
     3. Use a aeroelastic-loop to get the aeroelastic computations
     """
 
-    # 1. Get conditions
+    # Define constants
     tixi = cpacs.tixi
     alt_list, mach_list, aoa_list, aos_list = get_selected_aeromap_values(cpacs)
-    log.info("FLIGHT CONDITIONS:")
     log.info(f"\tAltitude          : {', '.join(str(a) for a in alt_list)} meters")
     log.info(f"\tMach number       : {', '.join(str(m) for m in mach_list)}")
     log.info(f"\tAngle of attack   : {', '.join(str(a) for a in aoa_list)} degrees")
     log.info(f"\tAngle of sideslip : {', '.join(str(a) for a in aos_list)} degrees\n")
 
-    # 2. First AVL run
-    run_first_avl_iteration(cpacs, results_dir)
+    ref_area, ref_length = get_ref_values(cpacs)
+
+    run_avl(
+        cpacs=cpacs,
+        results_dir=results_dir,
+    )
 
     # 3. Aeroelastic loop
-    for i_case, _ in enumerate(alt_list):
-        alt = alt_list[i_case]
-        mach = mach_list[i_case]
-        aoa = aoa_list[i_case]
-        aos = aos_list[i_case]
-
-        Atm = Atmosphere(alt)
-        rho = Atm.density[0]
-
+    for i_case, altitude in enumerate(alt_list):
+        avl_data = AVLData(
+            ref_area=ref_area,
+            ref_length=ref_length,
+            altitude=altitude,
+            mach=mach_list[i_case],
+            alpha=aoa_list[i_case],
+            beta=aos_list[i_case],
+        )
         case_dir_path = create_case_dir(
-            results_dir,
-            i_case,
-            alt,
-            mach=mach,
-            aoa=aoa,
-            aos=aos,
-            q=0.0,
-            p=0.0,
-            r=0.0,
+            i_case=i_case,
+            avl_data=avl_data,
+            results_dir=results_dir,
         )
         avl_iter_path = Path(case_dir_path, "Iteration_1", "AVL")
         avl_iter_path.mkdir(parents=True, exist_ok=True)
@@ -92,21 +86,23 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         fe_path = Path(avl_iter_path, "fe.txt")
         _, _, _, xyz_list, p_xyz_list, _ = read_avl_fe_file(fe_path, plot=False)
 
-        f_xyz_array = np.array(p_xyz_list) * rho
+        f_xyz_array = np.array(p_xyz_list) * avl_data.ref_density
 
         # Start the aeroelastic loop
         tip_deflection, residuals = aeroelastic_loop(
             cpacs,
             results_dir,
             case_dir_path,
-            rho,
+            avl_data.ref_density,
             xyz_list[0],
             f_xyz_array[0],
         )
 
-        # Write results in CPACS out
-        create_branch(tixi, FRAMAT_TIP_DEFLECTION_XPATH)
-        tixi.updateDoubleElement(FRAMAT_TIP_DEFLECTION_XPATH, tip_deflection[-1], "%g")
+        add_value(
+            tixi=tixi,
+            xpath=FRAMAT_TIP_DEFLECTION_XPATH,
+            value=tip_deflection[-1],
+        )
 
         plot_convergence(tip_deflection, residuals, wkdir=case_dir_path)
 

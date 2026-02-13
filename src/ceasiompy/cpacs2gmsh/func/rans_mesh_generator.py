@@ -19,6 +19,7 @@ TODO:
 import gmsh
 import shutil
 import random
+import subprocess
 
 from ceasiompy.cpacs2gmsh.func.mesh_sizing import fuselage_size
 from ceasiompy.cpacs2gmsh.func.utils import (
@@ -43,6 +44,7 @@ from ceasiompy.cpacs2gmsh.func.advancemeshing import (
     refine_end_wing,
 )
 from ceasiompy.utils.ceasiompyutils import (
+    get_install_path,
     get_sane_max_cpu,
     get_part_type,
     run_software,
@@ -73,7 +75,7 @@ def generate_2d_mesh_for_pentagrow(
     wing_mesh_size: float = 0.5,
     mesh_size_engines: float = 0.23,
     mesh_size_propellers: float = 0.23,
-    farfield_mesh_size: float = 10,
+    farfield_mesh_size: float = 10,     # Always uses default...
     symmetry=False,
 ):
     """
@@ -1024,6 +1026,32 @@ def pentagrow_3d_mesh(
     log.info(f"(Checked in folder {result_dir}) (and config penta path is {config_penta_path})")
 
     command = ["surface_mesh.stl", "config.cfg"]
+
+    # Fail fast with a clear error if Pentagrow runtime dependencies are missing.
+    pentagrow_path = get_install_path("pentagrow")
+    if pentagrow_path is not None and shutil.which("ldd") is not None:
+        ldd_run = subprocess.run(
+            ["ldd", str(pentagrow_path)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        missing_deps = []
+        for line in ldd_run.stdout.splitlines():
+            if "=> not found" in line:
+                dep_name = line.split("=>", 1)[0].strip()
+                missing_deps.append(dep_name)
+
+        if missing_deps:
+            hdf5_deps = [dep for dep in missing_deps if dep.startswith("libhdf5")]
+            if hdf5_deps:
+                raise RuntimeError(
+                    "Pentagrow is installed but cannot start because required HDF5 "
+                    f"runtime libraries are missing: {hdf5_deps}. "
+                    "Install compatibility libraries matching Pentagrow's expected sonames "
+                    "(e.g. libhdf5_hl.so.100 and libhdf5.so.103), or point "
+                    "LD_LIBRARY_PATH to a directory containing those exact files."
+                )
 
     # Running command = "pentagrow surface_mesh.stl config.cfg"
     run_software(

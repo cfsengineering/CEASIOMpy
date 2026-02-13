@@ -12,16 +12,17 @@ import math
 
 from cpacspy.aeromap import get_filter
 from cpacspy.cpacsfunctions import get_value
+from ceasiompy.pyavl.func.utils import split_line
 from ceasiompy.utils.ceasiompyutils import ensure_and_append_text_element
-from ceasiompy.pyavl.func.utils import (
-    split_dir,
-    split_line,
-)
 
-from typing import Tuple
 from pathlib import Path
-from cpacspy.cpacspy import CPACS, AeroMap
+from pandas import DataFrame
 from tixi3.tixi3wrapper import Tixi3
+from ceasiompy.pyavl.func.data import AVLData
+from cpacspy.cpacspy import (
+    CPACS,
+    AeroMap,
+)
 
 from ceasiompy import log
 from ceasiompy.pyavl.func import AVL_COEFS
@@ -35,7 +36,7 @@ from ceasiompy.pyavl import (
 # Functions
 
 
-def get_avl_aerocoefs(force_file: Path) -> Tuple[
+def get_avl_aerocoefs(force_file: Path) -> tuple[
     float, float, float,
     float, float, float,
     float,
@@ -85,25 +86,11 @@ def get_avl_aerocoefs(force_file: Path) -> Tuple[
 
 def add_coefficients_in_aeromap(
     cpacs: CPACS,
-    alt: float,
-    mach: float,
-    aos: float,
-    aoa: float,
+    avl_data: AVLData,
     st_file_path: Path,
 ) -> None:
     """
-    Add aerodynamic coefficients from PyAVL in chosen aeromap.
-
-    Args:
-        cpacs (CPACS): CPACS file.
-        alt (float): Altitude.
-        mach (float): Mach Number.
-        aos (float): SideSlip angle.
-        aoa (float): Angle of attack.
-        fs_file_path (Path): Path to force coefficients for plot.
-        st_file_path (Path): Path to moment coefficients.
-        config_dir (Path): Configuration Directory for plot.
-
+    Add aerodynamic coefficients from PyAVL in selected aeromap.
     """
 
     tixi = cpacs.tixi
@@ -113,21 +100,31 @@ def add_coefficients_in_aeromap(
     log.info(f"Loading coefficients in {aeromap_uid=}")
     aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
-    filt = get_filter(aeromap.df, [alt], [mach], [aos], [aoa])
+    (
+        altitude, mach, alpha, beta
+    ) = avl_data.altitude, avl_data.mach, avl_data.alpha, avl_data.beta
+
+    filt = get_filter(
+        df=aeromap.df,
+        alt_list=[altitude],
+        mach_list=[mach],
+        aos_list=[beta],
+        aoa_list=[avl_data.alpha],
+    )
     if aeromap.df.loc[filt].empty:
         aeromap.add_row(
-            alt=alt,
+            alt=altitude,
             mach=mach,
-            aos=aos,
-            aoa=aoa,
+            aos=beta,
+            aoa=alpha,
         )
 
     # Add coefficients to the aeromap
     aeromap.add_coefficients(
-        alt=alt,
+        alt=altitude,
         mach=mach,
-        aos=aos,
-        aoa=aoa,
+        aos=beta,
+        aoa=alpha,
         cd=cd,
         cl=cl,
         cs=cs,
@@ -271,7 +268,10 @@ def get_force_files(config_dir: Path) -> Path:
     return st_file_path
 
 
-def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
+def get_avl_results(
+    cpacs: CPACS,
+    results_dir: Path,
+) -> None:
     """
     Write AVL results in a CPACS file at xPath:
     '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap[n]/aeroPerformanceMap'
@@ -281,57 +281,80 @@ def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
     case_dir_list = [
         case_dir
         for case_dir in results_dir.iterdir()
-        if ("Case" in case_dir.name) and (case_dir.is_dir())
+        if ("case" in case_dir.name) and (case_dir.is_dir())
     ]
 
+    total_avl_results = []
+    eps = 1e-12
+
     for config_dir in sorted(case_dir_list):
-        dir_name = config_dir.name
         st_file_path = get_force_files(config_dir)
+        avl_data = AVLData.load_json(Path(config_dir, "avldata.json"))
 
-        # Extract common parameters
-        alt = split_dir(dir_name, 1, "alt")
-        mach = split_dir(dir_name, 2, "mach")
-        aoa = split_dir(dir_name, 3, "aoa")
-
-        if "p" in dir_name:  # Standard aeromap or dynamic stability
-            aos = split_dir(dir_name, 4, "aos")
-            q = split_dir(dir_name, 5, "q")
-            p = split_dir(dir_name, 6, "p")
-            r = split_dir(dir_name, 7, "r")
-
-            if (p == 0.0) and (q == 0.0) and (r == 0.0):
-                add_coefficients_in_aeromap(
-                    cpacs,
-                    alt,
-                    mach,
-                    aos,
-                    aoa,
-                    st_file_path,
-                )
-
-            # Add coefficients for dynamic stability
+        if (
+            (abs(avl_data.p) <= eps) and (abs(avl_data.q) <= eps) and (abs(avl_data.r) <= eps)
+            and (abs(avl_data.aileron) <= eps)
+            and (abs(avl_data.rudder) <= eps)
+            and (abs(avl_data.elevator) <= eps)
+        ):
+            add_coefficients_in_aeromap(
+                cpacs=cpacs,
+                avl_data=avl_data,
+                st_file_path=st_file_path,
+            )
+        elif (
+            (abs(avl_data.p) > eps) or (abs(avl_data.q) > eps) or (abs(avl_data.r) > eps)
+        ):
             add_coefficients_in_table(
-                tixi,
-                mach,
-                aos,
-                aoa,
-                p,
-                q,
-                r,
-                st_file_path,
+                tixi=tixi,
+                mach=avl_data.mach,
+                aos=avl_data.beta,
+                aoa=avl_data.alpha,
+                p=avl_data.p,
+                q=avl_data.q,
+                r=avl_data.r,
+                st_file_path=st_file_path,
             )
-        else:  # Control surface deflections for dynamic stability
-            aileron = split_dir(dir_name, 4, "aileron")
-            elevator = split_dir(dir_name, 5, "elevator")
-            rudder = split_dir(dir_name, 6, "rudder")
-
-            # Add coefficients for control surface deflections
+        else:
             add_coefficients_in_ctrltable(
-                tixi,
-                mach,
-                aoa,
-                aileron,
-                elevator,
-                rudder,
-                st_file_path,
+                tixi=tixi,
+                mach=avl_data.mach,
+                aoa=avl_data.alpha,
+                aileron=avl_data.aileron,
+                elevator=avl_data.elevator,
+                rudder=avl_data.rudder,
+                st_file_path=st_file_path,
             )
+
+        cd, cs, cl, cmd, cms, cml, _, _, _ = get_avl_aerocoefs(st_file_path)
+        total_avl_results.append(
+            {
+                **avl_data.case_key(),
+                "cd": cd,
+                "cs": cs,
+                "cl": cl,
+                "cmd": cmd,
+                "cms": cms,
+                "cml": cml,
+            }
+        )
+
+    # Remove columns with (p, q, r or aileron rudder elevator)
+    # if they have only 0.0 entries everywhere
+    if not total_avl_results:
+        log.warning(f"No AVL case results found in {results_dir}")
+        return None
+
+    df = DataFrame(total_avl_results)
+    cols_maybe_zero = ["p", "q", "r", "aileron", "rudder", "elevator"]
+    cols_to_drop = []
+    for col in cols_maybe_zero:
+        if col in df.columns and (df[col].abs() <= eps).all():
+            cols_to_drop.append(col)
+    if cols_to_drop:
+        df = df.drop(columns=cols_to_drop)
+
+    # Store in CSV format of total results configuration inside results_dir
+    csv_path = Path(results_dir, "avl_simulations_results.csv")
+    df.to_csv(csv_path, index=False)
+    log.info(f"Saved AVL aggregated results to {csv_path}")

@@ -140,7 +140,7 @@ def run_SU2_multi(
     """
 
     case_dir_list = sorted(
-        iterable=[
+        [
             dir
             for dir in wkdir.iterdir()
             if "Case" in dir.name

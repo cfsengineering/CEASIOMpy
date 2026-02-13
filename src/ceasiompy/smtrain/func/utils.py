@@ -5,26 +5,35 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 """
 
 # Imports
-
+import shutil
+import joblib
 import numpy as np
 import pandas as pd
+
+from ceasiompy.utils.guiobjects import add_value
+from ceasiompy.utils.ceasiompyutils import (
+    get_selected_aeromap,
+    get_conditions_from_aeromap,
+)
+
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
+from pydantic import BaseModel
 from smt.applications import MFK
-from scipy.optimize import OptimizeResult
+from scipy.optimize import (
+    Bounds,
+    OptimizeResult,
+)
 from smt.surrogate_models import (
     KRG,
     RBF,
 )
-from cpacspy.cpacspy import (
-    CPACS,
-    AeroMap,
-)
+from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-from ceasiompy.smtrain.func import AEROMAP_SELECTED
-from ceasiompy.su2run import MODULE_NAME as SU2RUN_NAME
+from cpacspy.utils import AC_NAME_XPATH
+from ceasiompy.su2run import MODULE_NAME as SU2RUN
 from ceasiompy.smtrain import (
     LEVEL_ONE,
     LEVEL_TWO,
@@ -33,28 +42,187 @@ from ceasiompy.smtrain import (
 )
 
 
+# Classes
+
+class TrainingSettings(BaseModel):
+    sm_models: list[str]
+    objective: str
+    direction: str
+    n_samples: int
+    fidelity_level: str
+    sampling_method: str
+    data_repartition: float
+
+
+class GeomBounds(BaseModel):
+    model_config = {"arbitrary_types_allowed": True}
+    bounds: Bounds
+    param_names: list[str]
+
+
+class DataSplit(BaseModel):
+    model_config = {"arbitrary_types_allowed": True}
+    columns: list[str]
+    x_train: ndarray
+    y_train: ndarray
+
+    x_val: ndarray
+    y_val: ndarray
+
+    x_test: ndarray
+    y_test: ndarray
+
+    @property
+    def x_all(self) -> ndarray:
+        return np.concatenate([self.x_train, self.x_val, self.x_test], axis=0)
+
+    @property
+    def y_all(self) -> ndarray:
+        return np.concatenate([self.y_train, self.y_val, self.y_test], axis=0)
+
+
 # Functions
 
-def concatenate_if_not_none(list_arrays: list[ndarray | None]) -> ndarray:
-    """
-    Concatenates arrays in the list that are not None.
-    """
-    # Filter out None values
-    valid_arrays = [arr for arr in list_arrays if arr is not None]
-    # If no valid arrays, raise an error or return an empty array
-    if not valid_arrays:
-        raise ValueError("All arrays are None. Cannot concatenate.")
+def domain_converter(
+    t: float | ndarray,
+    from_domain: tuple[float, float],
+    to_domain: tuple[float, float],
+) -> float | ndarray:
+    a, b = from_domain[0], from_domain[1]
+    c, d = to_domain[0], to_domain[1]
 
-    return np.concatenate(valid_arrays, axis=0)
-
-
-def collect_level_data(
-    level_sets: dict[str, ndarray] | None,
-) -> tuple[ndarray | None, ...]:
-    if level_sets is None:
-        return None, None, None, None, None, None
+    # Convert accordingly from bounds
+    if a == b:
+        converted = (to_domain[0] + to_domain[1]) / 2.0
     else:
-        return unpack_data(level_sets)
+        converted = ((c - d) * t + (a * d - b * c)) / (a - b)
+
+    if isinstance(t, ndarray):
+        if t.ndim != 1:
+            raise ValueError('domain_converter only supports 1D numpy arrays.')
+        return converted
+    return float(converted)
+
+
+def get_aero_bounds(cpacs: CPACS) -> Bounds:
+    aeromap_min_max = {}
+    try:
+        selected_aeromap = get_selected_aeromap(cpacs)
+        altitude, mach, aoa, aos = get_conditions_from_aeromap(selected_aeromap)
+        aeromap_min_max = {
+            "altitude": (float(np.min(altitude)), float(np.max(altitude))),
+            "machNumber": (float(np.min(mach)), float(np.max(mach))),
+            "angleOfAttack": (float(np.min(aoa)), float(np.max(aoa))),
+            "angleOfSideslip": (float(np.min(aos)), float(np.max(aos))),
+        }
+    except Exception as exc:
+        log.warning(
+            "Could not retrieve aeromap min/max from CPACS; "
+            f"aeromap normalization will be skipped. {exc!r}"
+        )
+    lb: list[float] = []
+    ub: list[float] = []
+    missing: list[str] = []
+    for feature in AEROMAP_FEATURES:
+        bounds = aeromap_min_max.get(feature)
+        if bounds is None:
+            missing.append(feature)
+            lb.append(0.0)
+            ub.append(0.0)
+            continue
+        low, high = bounds
+        if high < low:
+            low, high = high, low
+        lb.append(float(low))
+        ub.append(float(high))
+    if missing:
+        log.warning(
+            "Missing aeromap bounds for: "
+            + ", ".join(missing)
+            + ". Using zeros."
+        )
+    return Bounds(
+        lb=np.asarray(lb, dtype=float),
+        ub=np.asarray(ub, dtype=float),
+    )
+
+
+def save_model(
+    cpacs: CPACS,
+    model: KRG | MFK | RBF,
+    columns: list[str],
+    results_dir: Path,
+    geom_bounds: GeomBounds,
+    training_settings: TrainingSettings,
+) -> None:
+    """
+    Save trained surrogate model.
+    """
+    suffix = get_model_typename(model)
+    model_path = results_dir / f"sm_{suffix}.pkl"
+    geom_bounds_payload = {
+        "param_names": list(geom_bounds.param_names),
+        "lb": np.asarray(geom_bounds.bounds.lb, dtype=float).tolist(),
+        "ub": np.asarray(geom_bounds.bounds.ub, dtype=float).tolist(),
+    }
+
+    with open(model_path, "wb") as file:
+        joblib.dump(
+            value={
+                "model": model,
+                "columns": columns,
+                "objective": training_settings.objective,
+                "geom_bounds": geom_bounds_payload,
+                "aero_bounds": get_aero_bounds(cpacs),
+            },
+            filename=file,
+        )
+    log.info(f"Model saved to {model_path}")
+
+
+def store_best_geom_from_training(
+    dataframe: DataFrame,
+    cpacs_list: list[CPACS],
+    results_dir: Path,
+    geom_bounds: GeomBounds,
+    sampled_geom: DataFrame,
+    training_settings: TrainingSettings,
+) -> None:
+    # Save Best Low Fidelity Geometry Configuration from Training Data
+    geom_cols = geom_bounds.param_names
+    objective = training_settings.objective
+    mean_obj_by_geom = (
+        dataframe.groupby(geom_cols, dropna=False)[objective]
+        .mean()
+        .reset_index()
+    )
+
+    # Store best geometry (CPACS, Configuration)
+    best_geometry_idx = mean_obj_by_geom[objective].idxmax()
+    best_geometries_df = mean_obj_by_geom.loc[[best_geometry_idx]]
+
+    # Save associated CPACS file for the best geometry
+    best_geom_values = best_geometries_df[geom_cols].iloc[0].values
+    mask = (sampled_geom[geom_cols] == best_geom_values).all(axis=1)
+    if not mask.any():
+        raise ValueError("Could not match best geometry to a CPACS file. Skipping copy.")
+
+    best_cpacs_idx = int(mask.idxmax())
+    best_cpacs_path = cpacs_list[best_cpacs_idx].cpacs_file
+
+    best_cpacs_path_results = results_dir / f"best_geom_{best_cpacs_idx + 1:03d}.xml"
+    shutil.copyfile(
+        best_cpacs_path,
+        best_cpacs_path_results,
+    )
+    # Change name accordingly
+    cpacs = CPACS(best_cpacs_path_results)
+    add_value(
+        tixi=cpacs.tixi,
+        xpath=AC_NAME_XPATH,
+        value=f"Best {cpacs.ac_name} Geometry from Generated Data",
+    )
+    cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
 
 
 def get_columns(objective: str) -> list[str]:
@@ -66,42 +234,11 @@ def generate_su2_wkdir(iteration: int) -> None:
     """
     Generate unique SU2 working directory using iteration
     """
-    wkdir_su2 = Path(SU2RUN_NAME) / f"SU2_{iteration}"
+    wkdir_su2 = Path(SU2RUN) / f"SU2_{iteration}"
     wkdir_su2.mkdir(parents=True, exist_ok=True)
 
 
-def create_aeromap_from_varpts(
-    cpacs: CPACS,
-    results_dir: Path,
-    high_variance_points: str | None,
-) -> AeroMap:
-
-    # Select dataset based on high-variance points or LHS sampling
-    if high_variance_points is None:
-        aeromap_uid = AEROMAP_SELECTED
-    else:
-        aeromap_uid = "new_points"
-    dataset_path = results_dir / f"{aeromap_uid}.csv"
-
-    if not dataset_path.is_file():
-        raise FileNotFoundError(f"Dataset not found: {dataset_path}")
-
-    # Remove existing aeromap if present
-    if cpacs.tixi.uIDCheckExists(aeromap_uid):
-        cpacs.delete_aeromap(aeromap_uid)
-
-    # Create and save new aeromap from the dataset
-    aeromap = cpacs.create_aeromap_from_csv(dataset_path)
-    if not aeromap:
-        raise ValueError(f"Failed to create aeromap '{aeromap_uid}'.")
-
-    aeromap.save()
-    log.info(f"Selected aeromap: {aeromap_uid}")
-
-    return aeromap
-
-
-def log_params(result: OptimizeResult) -> None:
+def log_params_krg(result: OptimizeResult) -> None:
     params = result.x
     log.info(f"Theta0: {params[0]}")
     log.info(f"Correlation: {params[1]}")
@@ -110,6 +247,14 @@ def log_params(result: OptimizeResult) -> None:
     log.info(f"Nugget: {params[4]}")
     log.info(f"Rho regressor: {params[5]}")
     log.info(f"Penalty weight (λ): {params[6]}")
+    log.info(f"Lowest RMSE obtained: {result.fun:.6f}")
+
+
+def log_params_rbf(result: OptimizeResult) -> None:
+    params = result.x
+    log.info(f"d0 (scaling): {params[0]:.3f}")
+    log.info(f"poly_degree: {params[1]}")
+    log.info(f"reg (regularization): {params[2]:.2e}")
     log.info(f"Lowest RMSE obtained: {result.fun:.6f}")
 
 
@@ -189,11 +334,10 @@ def get_val_fraction(train_fraction: float) -> float:
         train_fraction = max(0.1, min(train_fraction, 0.9))
 
     # Convert from "% of train" to "% of test"
-    test_val_fraction = 1 - train_fraction
-    return test_val_fraction
+    return 1 - train_fraction
 
 
-def define_model_type(model: KRG | MFK | RBF) -> str:
+def get_model_typename(model: KRG | MFK | RBF) -> str:
     return model.__class__.__name__.lower()
 
 

@@ -13,7 +13,6 @@ import numpy as np
 from pydantic import validate_call
 from ceasiompy.utils.mathsfunctions import non_dimensionalize_rate
 
-from pathlib import Path
 from numpy import ndarray
 from itertools import product
 from ambiance import Atmosphere
@@ -130,24 +129,6 @@ def get_atmospheric_cond(alt: float, mach: float) -> Tuple[float, float, float]:
     velocity = Atm.speed_of_sound[0] * mach
 
     return density, g, velocity
-
-
-def create_case_dir(results_dir: Path, i_case: int, alt: float, **params: float) -> Path:
-    # Log the parameters
-    param_log = ", ".join(f"{key}: {value}" for key, value in params.items())
-    log.info(f"--- alt: {alt}, {param_log} ---")
-
-    # Create the case directory name dynamically
-    case_dir_name = f"Case{str(i_case).zfill(2)}_alt{alt}" + "".join(
-        f"_{key}{round(value, 2) if isinstance(value, float) else value}"
-        for key, value in params.items()
-    )
-
-    # Create the directory
-    case_dir_path = Path(results_dir, case_dir_name)
-    case_dir_path.mkdir(exist_ok=True)
-
-    return case_dir_path
 
 
 def convert_dist_to_avl_format(vortex_dist: str) -> int:

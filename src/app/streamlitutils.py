@@ -10,6 +10,7 @@ Streamlit utils functions for CEASIOMpy
 
 import os
 import re
+import tempfile
 import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
@@ -95,7 +96,7 @@ def get_last_workflow():
     return Path(st.session_state.workflow.working_dir, f"Workflow_{last_workflow_nb:03}")
 
 
-def scoll_down() -> None:
+def scroll_down() -> None:
     scroll_nonce = int(st.session_state.get("_scroll_down_nonce", 0)) + 1
     st.session_state._scroll_down_nonce = scroll_nonce
 
@@ -368,6 +369,7 @@ def section_3D_view(
     *,
     force_regenerate: bool = False,
     height: int | None = None,
+    plot_key: str | None = None,
 ) -> None:
     """
     Shows a 3D view of the aircraft by exporting a STL file.
@@ -379,20 +381,44 @@ def section_3D_view(
     if cpacs is None:
         return None
 
-    # 3D mode - generate STL preview
-    stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
+    # 3D mode - generate STL preview at the same level as the cpacs file
+    stl_file = Path(Path(cpacs.cpacs_file).parent, "aircraft.stl")
     if not force_regenerate and stl_file.exists():
         pass
-    elif hasattr(cpacs, "aircraft") and hasattr(
-        cpacs.aircraft, "tigl"
-    ):
+
+    try:
         with st.spinner("Meshing geometry (STL export)..."):
-            cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
-    else:
-        st.error("Cannot generate 3D preview (missing TIGL geometry handle).")
+            warning_signature = "Warning: 1 face has been skipped due to null triangulation"
+            with (
+                tempfile.TemporaryFile(mode="w+b") as stdout_capture,
+                tempfile.TemporaryFile(mode="w+b") as stderr_capture,
+            ):
+                saved_stdout_fd = os.dup(1)
+                saved_stderr_fd = os.dup(2)
+                try:
+                    os.dup2(stdout_capture.fileno(), 1)
+                    os.dup2(stderr_capture.fileno(), 2)
+                    cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
+                finally:
+                    os.dup2(saved_stdout_fd, 1)
+                    os.dup2(saved_stderr_fd, 2)
+                    os.close(saved_stdout_fd)
+                    os.close(saved_stderr_fd)
+
+                stdout_capture.seek(0)
+                stderr_capture.seek(0)
+                captured_stdout = stdout_capture.read().decode("utf-8", errors="ignore")
+                captured_stderr = stderr_capture.read().decode("utf-8", errors="ignore")
+                captured_output = captured_stdout + "\n" + captured_stderr
+                if warning_signature in captured_output:
+                    raise RuntimeError(warning_signature)
+
+    except Exception as e:
+        st.error(f"Cannot generate 3D preview (probably missing TIGL geometry handle): {e=}.")
         return None
 
     your_mesh = mesh.Mesh.from_file(stl_file)
+
     triangles = your_mesh.vectors.reshape(-1, 3)
     vertices, indices = np.unique(triangles, axis=0, return_inverse=True)
     i, j, k = indices[0::3], indices[1::3], indices[2::3]
@@ -449,4 +475,7 @@ def section_3D_view(
     if height is not None:
         fig.update_layout(height=height)
 
-    st.plotly_chart(fig, width="stretch")
+    if plot_key is None:
+        st.plotly_chart(fig, width="stretch")
+    else:
+        st.plotly_chart(fig, width="stretch", key=plot_key)

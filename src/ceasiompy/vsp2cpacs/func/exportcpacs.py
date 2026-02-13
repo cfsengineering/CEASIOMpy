@@ -261,13 +261,13 @@ def Wing_section(doc, Parent, Name_wing, Section_key, Sections_parameters):
     number = int(match.group()) if match else 0
 
     # --- Section UID ---
-    uID_section_root = f'{Name_wing}Sec{number}'
+    uid_section_root = f'{Name_wing}Sec{number}'
 
     # Create section element
-    section_root = make(doc, 'section', Parent, uID=uID_section_root)
+    section_root = make(doc, 'section', Parent, uID=uid_section_root)
 
     # Section name
-    make(doc, 'name', section_root, uID_section_root)
+    make(doc, 'name', section_root, uid_section_root)
 
     # --- Transformation parameters ---
     x_Scal = [
@@ -286,7 +286,7 @@ def Wing_section(doc, Parent, Name_wing, Section_key, Sections_parameters):
     Transformation(
         doc,
         section_root,
-        uID_section_root,
+        uid_section_root,
         x_Scal,
         x_Rot,
         x_Trasl,
@@ -297,7 +297,7 @@ def Wing_section(doc, Parent, Name_wing, Section_key, Sections_parameters):
     Element(
         doc,
         section_root,
-        uID_section_root,
+        uid_section_root,
         Section_key,
         Sections_parameters
     )
@@ -310,13 +310,13 @@ def Fuse_section(doc, Parent, Name, Section_key, Sections_parameters):
     number = int(match.group()) if match else 0
 
     # --- Section UID ---
-    uID_section = f'{Name}Sec{number}'
+    section_uid = f'{Name}Sec{number}'
 
     # Create section element
-    section = make(doc, 'section', Parent, uID=uID_section)
+    section = make(doc, 'section', Parent, uID=section_uid)
 
     # Section name
-    make(doc, 'name', section, uID_section)
+    make(doc, 'name', section, section_uid)
 
     # --- Transformation parameters ---
     X_Scal = [
@@ -341,7 +341,7 @@ def Fuse_section(doc, Parent, Name, Section_key, Sections_parameters):
     Transformation(
         doc,
         section,
-        uID_section,
+        section_uid,
         X_Scal,
         X_Rot,
         X_Trasl,
@@ -352,7 +352,7 @@ def Fuse_section(doc, Parent, Name, Section_key, Sections_parameters):
     Fuse_Element(
         doc,
         section,
-        uID_section,
+        section_uid,
         Section_key,
         Sections_parameters
     )

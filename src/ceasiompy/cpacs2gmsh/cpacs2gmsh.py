@@ -118,7 +118,6 @@ def run_cpacs2gmsh(
     (
         open_gmsh,
         type_mesh,
-        symmetry,
         farfield_factor,
         n_power_factor,
         n_power_field,
@@ -160,7 +159,7 @@ def run_cpacs2gmsh(
     )
     if type_mesh == "EULER":
         log.info("Euler meshing.")
-        farfield_mesh_size = retrieve_euler_gui_values(tixi)
+        farfield_mesh_size, symmetry = retrieve_euler_gui_values(tixi)
         _progress_update(
             progress_callback,
             detail="1D mesh: curve discretization...",
@@ -177,7 +176,6 @@ def run_cpacs2gmsh(
             wkdir,
             open_gmsh=open_gmsh,
             farfield_factor=farfield_factor,
-            symmetry=symmetry,
             farfield_mesh_size=farfield_mesh_size,
             n_power_factor=n_power_factor,
             n_power_field=n_power_field,
@@ -223,9 +221,7 @@ def run_cpacs2gmsh(
             mesh_size_engines=mesh_size_engines,
             mesh_size_propellers=mesh_size_propellers,
             auto_refine=auto_refine,
-            farfield_mesh_size=farfield_mesh_size,
             n_power_factor=n_power_factor,
-            symmetry=symmetry,
         )
 
         if gmesh_path.exists():
@@ -246,7 +242,7 @@ def run_cpacs2gmsh(
                 growth_factor=growth_factor,
                 growth_ratio=growth_ratio,
                 feature_angle=feature_angle,
-                symmetry=symmetry,
+                symmetry=False,
                 output_format="su2",
                 surf=surf,
                 angle=angle,
@@ -262,7 +258,7 @@ def run_cpacs2gmsh(
                     growth_factor=growth_factor,
                     growth_ratio=growth_ratio,
                     feature_angle=feature_angle,
-                    symmetry=symmetry,
+                    symmetry=False,
                     output_format="cgns",
                     surf=surf,
                     angle=angle,
@@ -375,17 +371,12 @@ def deform_surf(
 
 def main(
     cpacs: CPACS,
-    wkdir: Path,
+    results_dir: Path,
     progress_callback: Optional[Callable[..., None]] = None,
 ) -> None:
     """
     Main function.
     Defines setup for gmsh.
-
-    Args:
-        cpacs: CPACS
-        wkdir: Working directory path
-
     """
 
     tixi = cpacs.tixi
@@ -402,10 +393,13 @@ def main(
         log.info("No geometry mode specified in CPACS, defaulting to 3D mode.")
 
     # Process 2D if geometry mode is 2D (let exceptions propagate)
-    if geometry_mode == "2D":
+    if tixi.getTextElement(GEOMETRY_MODE_XPATH) == "2D":
         log.info("2D airfoil mode detected. Running 2D processing only...")
         _progress_update(progress_callback, detail="Processing 2D airfoil...", progress=0.15)
-        process_2d_airfoil(cpacs, wkdir)
+        process_2d_airfoil(
+            cpacs=cpacs,
+            results_dir=results_dir,
+        )
         log.info("2D processing completed, returning without 3D mesh generation.")
         _progress_update(progress_callback, detail="2D processing completed.", progress=1.0)
         return None
@@ -414,12 +408,7 @@ def main(
     log.info("Proceeding with 3D mesh generation...")
 
     # Continue with 3D processing
-    try:
-        angles = get_value(tixi, GMSH_CTRLSURF_ANGLE_XPATH)
-    except Exception:
-        # If deflection angles not specified, use default of 0.0
-        angles = "0.0"
-        log.info("No control surface deflection angles specified, using default: 0.0")
+    angles = get_value(tixi, GMSH_CTRLSURF_ANGLE_XPATH)
 
     # Unique angles list
     angles_list = list(set([float(x) for x in str(angles).split(";")]))
@@ -431,13 +420,13 @@ def main(
     total_runs = 0
     if angles_list:
         for angle in angles_list:
-            if angle != 0.0:
-                total_runs += sum(
-                    1 for surf in CONTROL_SURFACES_LIST
-                    if any(surf in wing for wing in wing_names)
-                )
-            else:
+            if angle == 0.0:
                 total_runs += 1
+                continue
+            total_runs += sum(
+                1 for surf in CONTROL_SURFACES_LIST
+                if any(surf in wing for wing in wing_names)
+            )
     else:
         total_runs = 1
     total_runs = max(total_runs, 1)
@@ -455,49 +444,7 @@ def main(
         fn(progress_callback=_wrapped_progress)
 
     # Check if angles_list is empty
-    if angles_list:
-        run_index = 0
-        for angle in reversed(angles_list):
-            if angle != 0.0:
-                # Flap deformation has no utily in stability derivatives
-                for surf in CONTROL_SURFACES_LIST:
-                    # Check if control surface exists through name of wings
-                    if not any(surf in wing for wing in wing_names):
-                        log.warning(
-                            f"No control surface {surf}. "
-                            f"It can not be deflected by angle {angle}."
-                        )
-                    else:
-                        # If control Surface exists, deform the correct wings
-                        _progress_update(
-                            progress_callback,
-                            detail=f"Meshing with {surf} deflection {angle} deg...",
-                        )
-                        _run_with_progress(
-                            run_index,
-                            lambda **kwargs: deform_surf(
-                                cpacs,
-                                wkdir,
-                                surf,
-                                angle,
-                                wing_names,
-                                **kwargs,
-                            ),
-                        )
-                        run_index += 1
-            else:
-                # No deformation for angle 0
-                _progress_update(
-                    progress_callback,
-                    detail="Meshing baseline (no deflection)...",
-                )
-                _run_with_progress(
-                    run_index,
-                    lambda **kwargs: run_cpacs2gmsh(cpacs, wkdir, **kwargs),
-                )
-                run_index += 1
-
-    else:
+    if not angles_list:
         # No specified angles: run as usual
         _progress_update(
             progress_callback,
@@ -505,8 +452,51 @@ def main(
         )
         _run_with_progress(
             0,
-            lambda **kwargs: run_cpacs2gmsh(cpacs, wkdir, **kwargs),
+            lambda **kwargs: run_cpacs2gmsh(cpacs, results_dir, **kwargs),
         )
+        return None
+
+    run_index = 0
+    for angle in reversed(angles_list):
+        if angle == 0.0:
+            # No deformation for angle 0
+            _progress_update(
+                progress_callback,
+                detail="Meshing baseline (no deflection)...",
+            )
+            _run_with_progress(
+                run_index,
+                lambda **kwargs: run_cpacs2gmsh(cpacs, results_dir, **kwargs),
+            )
+            run_index += 1
+            continue
+
+        # Flap deformation has no utily in stability derivatives
+        for surf in CONTROL_SURFACES_LIST:
+            # Check if control surface exists through name of wings
+            if not any(surf in wing for wing in wing_names):
+                log.warning(
+                    f"No control surface {surf}. "
+                    f"It can not be deflected by angle {angle}."
+                )
+            else:
+                # If control Surface exists, deform the correct wings
+                _progress_update(
+                    progress_callback,
+                    detail=f"Meshing with {surf} deflection {angle} deg...",
+                )
+                _run_with_progress(
+                    run_index,
+                    lambda **kwargs: deform_surf(
+                        cpacs,
+                        results_dir,
+                        surf,
+                        angle,
+                        wing_names,
+                        **kwargs,
+                    ),
+                )
+                run_index += 1
 
 
 # Main

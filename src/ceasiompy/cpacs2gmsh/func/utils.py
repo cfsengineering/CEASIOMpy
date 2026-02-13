@@ -247,9 +247,11 @@ def load_rans_cgf_params(
     }
 
 
-def retrieve_euler_gui_values(tixi: Tixi3) -> float:
+def retrieve_euler_gui_values(tixi: Tixi3) -> tuple[float, bool]:
     farfield_size_factor = get_value(tixi, GMSH_FARFIELD_SIZE_FACTOR_XPATH)
-    return farfield_size_factor
+    symmetry = get_value(tixi, GMSH_SYMMETRY_XPATH)
+
+    return farfield_size_factor, symmetry
 
 
 def retrieve_rans_gui_values(tixi: Tixi3):
@@ -281,7 +283,6 @@ def retrieve_general_gui_values(tixi: Tixi3):
     # Retrieve value from the GUI Setting
     open_gmsh = get_value(tixi, GMSH_OPEN_GUI_XPATH)
     type_mesh = get_value(tixi, GMSH_MESH_TYPE_XPATH)
-    symmetry = get_value(tixi, GMSH_SYMMETRY_XPATH)
 
     farfield_factor = get_value(tixi, GMSH_FARFIELD_SIZE_FACTOR_XPATH)
 
@@ -307,7 +308,6 @@ def retrieve_general_gui_values(tixi: Tixi3):
     return (
         open_gmsh,
         type_mesh,
-        symmetry,
         farfield_factor,
         n_power_factor,
         n_power_field,

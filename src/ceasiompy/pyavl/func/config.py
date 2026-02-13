@@ -9,6 +9,7 @@ More details at: https://web.mit.edu/drela/Public/web/avl/AVL_User_Primer.pdf.
 """
 
 # Imports
+import os
 
 from pydantic import validate_call
 from cpacspy.cpacsfunctions import get_value
@@ -16,28 +17,23 @@ from ceasiompy.utils.ceasiompyutils import (
     has_display,
     get_selected_aeromap_values,
 )
-from ceasiompy.utils.mathsfunctions import non_dimensionalize_rate
+from ceasiompy.pyavl.func.data import create_case_dir
 from ceasiompy.pyavl.func.utils import (
-    get_atmospheric_cond,
     practical_limit_rate_check,
 )
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
-from tixi3.tixi3wrapper import Tixi3
+from ceasiompy.pyavl.func.data import AVLData
 from ceasiompy.pyavl.func.cpacs2avl import Avl
 
 from ceasiompy import (
     log,
     ceasiompy_cfg,
 )
-from ceasiompy.pyavl import MODULE_DIR
 from ceasiompy.pyavl.func import FORCE_FILES
-from ceasiompy.utils.commonxpaths import (
-    AREA_XPATH,
-    LENGTH_XPATH,
-)
 from ceasiompy.pyavl import (
+    MODULE_DIR,
     AVL_ROTRATES_XPATH,
     # AVL_EXPAND_VALUES_XPATH,
     AVL_CTRLSURF_ANGLES_XPATH,
@@ -80,100 +76,68 @@ def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> tuple[
     )
 
 
-def get_physics_conditions(
-    tixi: Tixi3,
-    alt: float,
-    mach: float,
-    roll_rate: float,
-    pitch_rate: float,
-    yaw_rate: float,
-) -> tuple[float, float, float, float, float, float]:
-    # Get the reference dimensions
-    s = tixi.getDoubleElement(AREA_XPATH)
-    c = tixi.getDoubleElement(LENGTH_XPATH)
-    b = s / c
-
-    ref_density, g_acceleration, ref_velocity = get_atmospheric_cond(alt, mach)
-
-    # See https://web.mit.edu/drela/Public/web/avl/AVL_User_Primer.pdf
-    # for how he non-dimensionalize the rates
-    roll_rate_star, pitch_rate_star, yaw_rate_star = non_dimensionalize_rate(
-        p=roll_rate,
-        q=pitch_rate,
-        r=yaw_rate,
-        v=ref_velocity,
-        b=b,
-        c=c,
-    )
-
-    return (
-        roll_rate_star, pitch_rate_star, yaw_rate_star,
-        ref_density, g_acceleration, ref_velocity,
-    )
+def get_command_path(from_case_dir: Path) -> Path:
+    return from_case_dir / "avl_commands.txt"
 
 
 def write_command_file(
+    i_case: int,
     avl_path: Path,
-    case_dir_path: Path,
-    ref_density: float,
-    g_acceleration: float,
-    ref_velocity: float,
-    mach_number: float,
-    alpha: float,
-    beta: float = 0.0,
-    pitch_rate_star: float = 0.0,
-    roll_rate_star: float = 0.0,
-    yaw_rate_star: float = 0.0,
-    aileron: float = 0.0,
-    elevator: float = 0.0,
-    rudder: float = 0.0,
+    avl_data: AVLData,
+    results_dir: Path,
 ) -> Path:
     """
     Writes the command file for AVL.
 
-    Args:
-        tixi (handles): TIXI Handle of the CPACS file.
-        avl_path (Path): Path to the AVL input file.
-        case_dir_path (Path): path to the run case directory
-        alpha (float): angle of attack [deg]
-        beta (float): angle of attack [deg]
-        pitch_rate (float): pitch rate [deg/s]
-        roll_rate (float): roll rate [deg/s]
-        yaw_rate (float): yaw rate [deg/s]
-        mach_number (float): Mach number
-        alt (float): Altitude.
-        aileron (float): Aileron angle [deg].
-        elevator (float): Elevator angle [deg].
-        rudder (float): Rudder angle [deg].
-        save_plots (bool): Saving plots condition.
-
     Returns:
-        (Path): Path to the command file.
-
+        (Path): case_dir_path.
     """
 
-    command_path = str(case_dir_path) + "/avl_commands.txt"
+    dynamic_case_params = {
+        "q": avl_data.q,
+        "p": avl_data.p,
+        "r": avl_data.r,
+        "aileron": avl_data.aileron,
+        "elevator": avl_data.elevator,
+        "rudder": avl_data.rudder,
+    }
+    non_zero_case_params = {
+        key: value for key, value in dynamic_case_params.items() if abs(value) > 1e-12
+    }
+
+    case_dir_path = create_case_dir(
+        i_case=i_case,
+        avl_data=avl_data,
+        results_dir=results_dir,
+        **non_zero_case_params,
+    )
+
+    command_path = get_command_path(case_dir_path)
+
+    avl_path = Path(avl_path).resolve()
+    case_dir_path = Path(case_dir_path).resolve()
+    avl_path_for_cmd = Path(os.path.relpath(avl_path, case_dir_path))
 
     # Retrieve template file for mass
     mass_path = Path(MODULE_DIR, "files", "template.mass")
 
     command = [
-        "load " + str(avl_path) + "\n",
+        "load " + str(avl_path_for_cmd) + "\n",
         "mass " + str(mass_path) + "\n",
         "oper\n",
-        "a a " + str(alpha) + "\n",
-        "b b " + str(beta) + "\n",
-        "r r " + str(roll_rate_star) + "\n",
-        "p p " + str(pitch_rate_star) + "\n",
-        "y y " + str(yaw_rate_star) + "\n",
-        "d2 d2 " + str(aileron) + "\n",
-        "d3 d3 " + str(elevator) + "\n",
-        "d4 d4 " + str(rudder) + "\n",
+        "a a " + str(avl_data.alpha) + "\n",
+        "b b " + str(avl_data.beta) + "\n",
+        "r r " + str(avl_data.p_star) + "\n",
+        "p p " + str(avl_data.q_star) + "\n",
+        "y y " + str(avl_data.r_star) + "\n",
+        "d2 d2 " + str(avl_data.aileron) + "\n",
+        "d3 d3 " + str(avl_data.elevator) + "\n",
+        "d4 d4 " + str(avl_data.rudder) + "\n",
         "m\n",
-        "mn " + str(mach_number) + "\n",
-        "g " + str(g_acceleration) + "\n",
-        "d " + str(ref_density) + "\n",
-        "v " + str(ref_velocity) + "\n\n",
+        "mn " + str(avl_data.mach) + "\n",
+        "g " + str(avl_data.g_acceleration) + "\n",
+        "d " + str(avl_data.ref_density) + "\n",
+        "v " + str(avl_data.ref_velocity) + "\n\n",
     ]
 
     with open(command_path, "w") as command_file:
@@ -195,4 +159,4 @@ def write_command_file(
         command_file.write("\n\n\n")
         command_file.write("quit")
 
-    return Path(command_path)
+    return Path(case_dir_path)

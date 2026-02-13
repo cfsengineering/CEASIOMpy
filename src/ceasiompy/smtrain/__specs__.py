@@ -15,7 +15,7 @@ from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.pyavl.__specs__ import gui_settings as avl_settings
 from ceasiompy.su2run.__specs__ import gui_settings as su2_settings
 from ceasiompy.cpacs2gmsh.__specs__ import gui_settings as gmsh_settings
-
+from ceasiompy.staticstability.__specs__ import gui_settings as staticstability_settings
 from ceasiompy.utils.geometryfunctions import (
     get_xpath_for_param,
     return_uid_wings_sections,
@@ -34,7 +34,9 @@ from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
 from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
+from ceasiompy.staticstability import MODULE_NAME as STATICSTABILITY
 from ceasiompy.smtrain import (
+    SM_MODELS,
     LEVEL_TWO,
     OBJECTIVES_LIST,
     WING_PARAMETERS,
@@ -49,6 +51,8 @@ from ceasiompy.smtrain import (
     SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
     # SMTRAIN_SIMULATION_PURPOSE_XPATH,
     # SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
+    SMTRAIN_OBJECTIVE_DIRECTION_XPATH,
+    SMTRAIN_SAMPLING_METHOD_XPATH,
 )
 
 
@@ -57,6 +61,8 @@ from ceasiompy.smtrain import (
 def gui_settings(cpacs: CPACS) -> None:
     tixi = cpacs.tixi
 
+    # TODO: Add Number of iterations for Bayesian optimization as a parameter
+
     with st.expander(
         label="**Simulation Settings**",
         expanded=True,
@@ -64,7 +70,7 @@ def gui_settings(cpacs: CPACS) -> None:
         chosen_models = multiselect_vartype(
             tixi=tixi,
             xpath=SMTRAIN_MODELS_XPATH,
-            default_value=["KRG", "RBF"],
+            default_value=SM_MODELS,
             name="Surrogate Model Type",
             description="Kriging (KRG) or/and Radial Basis Functions (RBF).",
             key="smtrain_chosen_model",
@@ -86,10 +92,16 @@ def gui_settings(cpacs: CPACS) -> None:
                 key="smtrain_fidelity_level",
             )
             with st.expander(
-                label=f"First Level (Low Fidelity, {PYAVL} Settings)",
+                label=f"First Level (Low Fidelity, {PYAVL} + {STATICSTABILITY} Settings)",
                 expanded=False,
             ):
-                avl_settings(cpacs)
+                tabs = st.tabs(
+                    tabs=[PYAVL, STATICSTABILITY],
+                )
+                with tabs[0]:
+                    avl_settings(cpacs)
+                with tabs[1]:
+                    staticstability_settings(cpacs)
 
             if fidelity_level == LEVEL_TWO:
                 with st.expander(
@@ -121,40 +133,76 @@ def gui_settings(cpacs: CPACS) -> None:
         label="**Training Settings**",
         expanded=True,
     ):
-        list_vartype(
-            tixi=tixi,
-            xpath=SMTRAIN_OBJECTIVE_XPATH,
-            description="Objective function list for the surrogate model to predict",
-            name="Objective",
-            key="smtrain_objective",
-            default_value=OBJECTIVES_LIST,
-        )
+        left_col, right_col = st.columns(2)
+        with left_col:
+            objective_name = list_vartype(
+                tixi=tixi,
+                xpath=SMTRAIN_OBJECTIVE_XPATH,
+                description="Objective function list for the surrogate model to predict",
+                name="Objective",
+                key="smtrain_objective",
+                default_value=OBJECTIVES_LIST,
+            )
+        with right_col:
+            list_vartype(
+                tixi=tixi,
+                xpath=SMTRAIN_OBJECTIVE_DIRECTION_XPATH,
+                default_value=["Maximize", "Minimize"],
+                name=f"Maximize or Minimize {objective_name}",
+                key="smtrain_obj_direction",
+                description=f"""Choose the direction (max/min)
+                    of the selected objective {objective_name}.
+                """
+            )
 
         left_col, right_col = st.columns(2)
         with left_col:
-            float_vartype(
+            sampling_method = list_vartype(
                 tixi=tixi,
-                xpath=SMTRAIN_TRAIN_PERC_XPATH,
-                default_value=0.7,
-                name=r"% used of training data",
-                description="Defining the percentage of the data to use to train the model.",
-                key="smtrain_training_percentage",
-                min_value=0.0,
-                max_value=1.0,
+                xpath=SMTRAIN_SAMPLING_METHOD_XPATH,
+                default_value=["LHS", "Grid"],
+                key="smtrain_geometry_sampling_method",
+                name="Sampling Method for Geometry Parameters",
+                description="Latin Hypercube Sampling (LHS) vs Grid (Regular Grid Sampling)",
             )
 
         with right_col:
-            int_vartype(
-                tixi=tixi,
-                xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
-                default_value=10,
-                key="smtrain_sample_number",
-                name="Number of samples",
-                description="""
-                    Samples corresponds to the number of
-                    distinct geometry we will run the solver on.
-                """,
-            )
+            # Depending on the sampling method the sampling number is not the same
+            if sampling_method == "Grid":
+                int_vartype(
+                    tixi=tixi,
+                    xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
+                    default_value=4,
+                    key="smtrain_sample_number_grid",
+                    name="Number of samples per dimension",
+                    description="""Samples per Dimension,
+                        i.e. total number of samples = (geom_param)^n,
+                        where n is this selected number.
+                    """,
+                    min_value=2,
+                    max_value=6,
+                )
+            else:
+                int_vartype(
+                    tixi=tixi,
+                    xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
+                    default_value=10,
+                    key="smtrain_sample_number_lhs",
+                    name="Number of samples",
+                    description="""Total number of geometries as generated data.""",
+                    min_value=4,
+                )
+
+        float_vartype(
+            tixi=tixi,
+            xpath=SMTRAIN_TRAIN_PERC_XPATH,
+            default_value=0.7,
+            name=r"% used of training data",
+            description="Defining the percentage of the data to use to train the model.",
+            key="smtrain_training_percentage",
+            min_value=0.0,
+            max_value=1.0,
+        )
 
     xpath = SMTRAIN_GEOM_WING_OPTIMISE
     uid_list = return_uid_wings_sections(tixi)

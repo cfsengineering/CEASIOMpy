@@ -50,23 +50,91 @@ def parse_ascii_tables(text: str):
     return segments
 
 
+def _safe_float(text: str) -> float | None:
+    """Return float value when parseable, otherwise None."""
+    try:
+        return float(text.strip())
+    except ValueError:
+        return None
+
+
+def _parse_force_contributions(parts_text: str) -> dict[str, float | None]:
+    contributions = {"Pressure": None, "Friction": None, "Momentum": None}
+    for part in parts_text.split("|"):
+        part = part.strip()
+        for key in contributions:
+            if part.startswith(key):
+                _, _, value_text = part.partition(":")
+                contributions[key] = _safe_float(value_text)
+                break
+    return contributions
+
+
+def _parse_total_force_line(line: str, section: str) -> dict[str, object] | None:
+    if not line.startswith("Total ") or "|" not in line:
+        return None
+
+    left, right = line.split("|", 1)
+    metric_part = left.strip()
+    if ":" not in metric_part:
+        return None
+
+    metric_label, value_text = metric_part.split(":", 1)
+    total_value = _safe_float(value_text)
+    if total_value is None:
+        return None
+
+    contributions = _parse_force_contributions(right)
+    return {
+        "Section": section,
+        "Metric": metric_label.replace("Total ", "").strip(),
+        "Total": total_value,
+        "Pressure": contributions["Pressure"],
+        "Friction": contributions["Friction"],
+        "Momentum": contributions["Momentum"],
+    }
+
+
+def display_forces_breakdown(path: Path) -> None:
+    text = path.read_text(errors="replace")
+    lines = [line.strip() for line in text.splitlines()]
+    rows = []
+    current_section = "Total"
+    for line in lines:
+        if not line:
+            continue
+        if line.startswith("Surface name:"):
+            current_section = line.replace("Surface name:", "").strip() or "Surface"
+            continue
+        row = _parse_total_force_line(line, current_section)
+        if row is not None:
+            rows.append(row)
+
+    if rows:
+        st.table(pd.DataFrame(rows))
+    else:
+        st.text_area(path.stem, text, height=200, key=f"{path}_dat_raw")
+
+
 def display_avl_table_file(path: Path) -> None:
     text = path.read_text()
-    with st.container(border=True):
-        show_dir = st.checkbox(
-            f"**{path.stem}**",
-            value=False,
-            key=f"{path}_dir_toggle",
-        )
-        if show_dir:
-            _display_spiral_stability(text)
-            if _display_surface_forces(text, path):
-                return
-            if _display_vortex_lattice_output(text, path):
-                return
-            if _display_surface_strip_forces(text, path):
-                return
-            _display_avl_fe_data(text, path)
+    pathstem_to_title = {
+        "st": "Stability-axis derivatives",
+        "sb": "Geometry-axis derivatives",
+        "fe": "Vortex Strengths (by surface, by strip)",
+        "fn": "Surface Forces",
+        "fs": "Surface and Strip Forces by surface",
+        "ft": "Total Forces",
+    }
+    st.markdown(f"**{pathstem_to_title[path.stem]}**")
+    _display_spiral_stability(text)
+    if _display_surface_forces(text, path):
+        return
+    if _display_vortex_lattice_output(text, path):
+        return
+    if _display_surface_strip_forces(text, path):
+        return
+    _display_avl_fe_data(text, path)
 
 
 def _display_spiral_stability(text: str) -> None:

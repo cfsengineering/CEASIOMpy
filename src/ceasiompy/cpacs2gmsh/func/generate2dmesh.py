@@ -19,16 +19,11 @@ TODO:
 import gmsh
 import random
 
-from ceasiompy.cpacs2gmsh.func.mesh_sizing import fuselage_size
-from ceasiompy.cpacs2gmsh.func.utils import (
-    initialize_gmsh,
-)
 from ceasiompy.cpacs2gmsh.func.wingclassification import (
     classify_wing,
     exclude_lines,
 )
 from ceasiompy.cpacs2gmsh.func.generategmesh import (
-    wings_size,
     process_gmsh_log,
 )
 from ceasiompy.cpacs2gmsh.func.advancemeshing import (
@@ -42,9 +37,13 @@ from ceasiompy.cpacs2gmsh.func.advancemeshing import (
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from itertools import combinations
-from typing import TypedDict
-from ceasiompy.cpacs2gmsh.func.utils import MeshSettings, AircraftGeometry, Geometry
-from ceasiompy.cpacs2gmsh.func.wingclassification import ModelPart
+from pydantic import BaseModel, Field
+from ceasiompy.cpacs2gmsh.func.utils import (
+    PartType,
+    BoundingBox,
+    MeshSettings,
+    AircraftGeometry,
+)
 
 from ceasiompy import log
 from ceasiompy.cpacs2gmsh.func.utils import MESH_COLORS
@@ -53,12 +52,47 @@ from ceasiompy.cpacs2gmsh.func.utils import MESH_COLORS
 # Methods
 
 
-class FuseEntry(TypedDict):
-    dimtag: tuple[int, int]
+class FuseEntry(BaseModel):
     name: str
+    dimtag: tuple[int, int]
+    part_type: PartType
 
 
-def _bbox_union(volume_tags: list[int]) -> list[float]:
+class SurfacePart(BaseModel):
+    uid: str
+    part_type: PartType
+    volume: tuple[int, int]
+    surfaces: list[tuple[int, int]] = Field(default_factory=list)
+    surfaces_tags: list[int] = Field(default_factory=list)
+    lines: list[tuple[int, int]] = Field(default_factory=list)
+    lines_tags: list[int] = Field(default_factory=list)
+    points: list[tuple[int, int]] = Field(default_factory=list)
+    points_tags: list[int] = Field(default_factory=list)
+    wing_sections: list[dict] = Field(default_factory=list)
+    mesh_size: float = 0.0
+
+
+PART_TYPE_PRIORITY: tuple[PartType, ...] = (
+    PartType.fuselage,
+    PartType.wing,
+    PartType.pylon,
+)
+
+
+def _resolve_merged_part_type(
+    left_type: PartType,
+    right_type: PartType,
+) -> PartType:
+    """Resolve merged part type using fixed precedence."""
+    for candidate in PART_TYPE_PRIORITY:
+        if left_type == candidate or right_type == candidate:
+            return candidate
+
+    raise ValueError(f"Unsupported part type merge: {left_type=} {right_type=}")
+
+
+
+def _bounding_box(volume_tags: list[int]) -> list[float]:
     """Return a union bounding box [xmin, ymin, zmin, xmax, ymax, zmax]."""
     if not volume_tags:
         raise ValueError("Cannot compute bounding box union from an empty dimtag list.")
@@ -98,54 +132,80 @@ def _get_symmetry_box_tag() -> int:
     return gmsh.model.occ.addBox(x, y, z, dx, dy, dz)
 
 
-def _bbox_dimtag_volume(dimtag: tuple[int, int]) -> float:
-    """Return the axis-aligned bounding-box volume for a given OCC dimtag."""
-    xmin, ymin, zmin, xmax, ymax, zmax = gmsh.model.occ.getBoundingBox(*dimtag)
-    return max(0.0, xmax - xmin) * max(0.0, ymax - ymin) * max(0.0, zmax - zmin)
-
-
-def fusing_parts(
+def _fusing_parts(
     aircraft_geom: AircraftGeometry,
     max_failed_attempts: int = 20,
-) -> None:
+) -> list[FuseEntry]:
     """
     Build per-part metadata and fuse part volumes in gmsh OCC.
     """
+    log.info("Start fusion of the different parts")
 
-    dimtags_names: list[FuseEntry] = [
+    # Fuse all volume entities
+    wing_entries: list[FuseEntry] = [
         FuseEntry(
-            dimtag=(3, geom.volume_tag),
             name=geom.uid,
+            dimtag=(3, geom.ref_volume_tag),
+            part_type=PartType.wing,
         )
-        for geom in aircraft_geom.all_geoms
+        for geom in aircraft_geom.wing_geoms
     ]
+    pylon_entries: list[FuseEntry] = [
+        FuseEntry(
+            name=geom.uid,
+            dimtag=(3, geom.ref_volume_tag),
+            part_type=PartType.pylon,
+        )
+        for geom in aircraft_geom.pylon_geoms
+    ]
+    fuselage_entries: list[FuseEntry] = [
+        FuseEntry(
+            name=geom.uid,
+            dimtag=(3, geom.ref_volume_tag),
+            part_type=PartType.fuselage,
+        )
+        for geom in aircraft_geom.fuselage_geoms
+    ]
+    dimtags_names = wing_entries + pylon_entries + fuselage_entries
 
     failed_attempts = 0
     while len(dimtags_names) > 1:
-        i, j = intersecting_entities_for_fusing(dimtags_names)
-        left_name = str(dimtags_names[i]["name"])
-        right_name = str(dimtags_names[j]["name"])
+        # As long as intersecting: then fuse
+        pair = _get_intersecting_entites(dimtags_names)
+        if pair is None:
+            # Exit if no more intersecting entites
+            log.info("No intersections found. Finished Fusing parts.")
+            return dimtags_names
+
+        i, j = pair
+        left_name = str(dimtags_names[i].name)
+        right_name = str(dimtags_names[j].name)
         merged_name = f"{left_name}+{right_name}"
+        merged_part_type = _resolve_merged_part_type(
+            dimtags_names[i].part_type,
+            dimtags_names[j].part_type,
+        )
 
         try:
             # Fusing 3D entities
             fused_entities, _ = gmsh.model.occ.fuse(
-                [dimtags_names[i]["dimtag"]],
-                [dimtags_names[j]["dimtag"]],
+                [dimtags_names[i].dimtag],
+                [dimtags_names[j].dimtag],
             )
             gmsh.model.occ.synchronize()
-
-            for idx in sorted((i, j), reverse=True):
-                dimtags_names.pop(idx)
 
             if not fused_entities:
                 failed_attempts += 1
                 log.warning(f"Fuse produced no entity for pair {merged_name}; retrying.")
                 continue
 
+            for idx in sorted((i, j), reverse=True):
+                dimtags_names.pop(idx)
+
             dimtags_names.append(FuseEntry(
-                dimtag=fused_entities[0],
                 name=merged_name,
+                dimtag=fused_entities[0],
+                part_type=merged_part_type,
             ))
 
             if len(fused_entities) > 1:
@@ -155,113 +215,24 @@ def fusing_parts(
                 )
                 for k, extra_dimtag in enumerate(fused_entities[1:], start=2):
                     dimtags_names.append(FuseEntry(
-                        dimtag=extra_dimtag,
                         name=f"{merged_name}#part{k}",
+                        dimtag=extra_dimtag,
+                        part_type=merged_part_type,
                     ))
+
         except Exception as err:
             failed_attempts += 1
             log.warning(f"Fusion failed for pair ({i}, {j}): {err}")
             random.shuffle(dimtags_names)
 
         if failed_attempts > max_failed_attempts:
-            remaining = [str(item["name"]) for item in dimtags_names]
-            log.warning(
+            remaining = [str(item.name) for item in dimtags_names]
+            raise ValueError(
                 "Fusion stopped after repeated failures. "
                 f"Remaining disconnected groups ({len(remaining)}): {remaining}"
             )
-            break
 
-
-def sort_surfaces_and_create_physical_groups(
-    model_bb: list[float],
-    symmetry: bool,
-    aircraft_geom: AircraftGeometry,
-) -> list[ModelPart]:
-    """Compute which surfaces are in which volumes and assign the physical groups
-
-    Get all surfaces in bounding boxes of part,
-    and then take care of the ones that are classified "in multiple parts".
-    """
-    model_dim = _get_model_dim(model_bb)
-    tx = -((model_bb[0]) + (model_dim[0] / 2))
-    ty = -((model_bb[1]) + (model_dim[1] / 2))
-    tz = -((model_bb[2]) + (model_dim[2] / 2))
-
-    log.info("Starting surface classification.")
-
-    # We are after fusing parts therefore we look at overlapping surfaces.
-    for geom in aircraft_geom.all_geoms:
-        geom._update_surface_tags()
-
-    gmsh.model.occ.synchronize()
-
-    # Now we deal with the ones that are in multiple bounding box --> Find in which they belong
-    all_surfaces = gmsh.model.occ.getEntities(2)
-    all_surfaces_tag = [s[1] for s in all_surfaces]
-
-    # Reimport reference volumes from in-memory geometries for ownership disambiguation.
-    for geom in aircraft_geom.all_geoms:
-        ref_geom = Geometry(
-            uid=f"{geom.uid}__ref",
-            geom=geom.geom,
-        )
-        gmsh.model.occ.translate(ref_geom.shape, tx, ty, tz)
-        gmsh.model.occ.synchronize()
-        ref_geom._update_volume_tag()
-
-    # Now for each surface count in how many different part it is
-    for surf in all_surfaces_tag:
-        # Count all the parts surf is in
-        parts_in = []
-        for i, model_part in enumerate(aircraft_parts):
-            for surff in model_part.surfaces_tags:
-                if surff == surf:
-                    parts_in.append(i)
-
-        # Now deal with it if in more than one part
-        if len(parts_in) > 1:
-            aircraft_parts = choose_correct_part(
-                parts_in, surf, aircraft_parts, new_aircraft_parts
-            )
-
-    # Remove the parts we re-imported, to get a clean result (we won't need them anymore)
-    gmsh.model.occ.remove([model_part.volume for model_part in new_aircraft_parts], recursive=True)
-    gmsh.model.occ.synchronize()
-
-    if symmetry:
-        length = max(model_dim) + 1
-        bb_y_plane = (-length / 2, -0.0001, -length / 2, length / 2, 0.0001, length / 2)
-        surfaces_y_plane = gmsh.model.occ.getEntitiesInBoundingBox(*bb_y_plane, 2)
-
-        part_group = gmsh.model.addPhysicalGroup(2, [t for (d, t) in surfaces_y_plane])
-        gmsh.model.setPhysicalName(2, part_group, "y symmetry plane")
-        gmsh.model.occ.synchronize()
-    else:
-        surfaces_y_plane = []
-
-    # Now add the physical group to each part and the surfaces that are now sorted
-    for model_part in aircraft_parts:
-        # Just add group and name (which is the brep file without ".brep") to the surfaces
-        # of the part computed before
-        model_part.surfaces = list(set(model_part.surfaces) - set(surfaces_y_plane))
-        model_part.surfaces_tags = [t for (d, t) in model_part.surfaces]
-
-        part_group = gmsh.model.addPhysicalGroup(2, model_part.surfaces_tags)
-        name_group = model_part.uid
-        gmsh.model.setPhysicalName(2, part_group, name_group)
-
-        # Compute the linesand points in each part by taking the boundary of surfaces
-        # (need them later for wing refinement)
-        model_part.lines = gmsh.model.getBoundary(
-            model_part.surfaces, combined=False, oriented=False
-        )
-        model_part.lines_tags = [li[1] for li in model_part.lines]
-        model_part.points = gmsh.model.getBoundary(
-            model_part.lines, combined=False, oriented=False
-        )
-        model_part.points_tags = [po[1] for po in model_part.points]
-
-    return aircraft_parts
+    return dimtags_names
 
 
 def _get_model_dim(model_bb: list[float]) -> list[float]:
@@ -270,6 +241,162 @@ def _get_model_dim(model_bb: list[float]) -> list[float]:
         abs(model_bb[1] - model_bb[4]),
         abs(model_bb[2] - model_bb[5]),
     ]
+
+
+def _center_all_entities(model_bb: list[float]) -> None:
+    model_dimensions = _get_model_dim(model_bb)
+    gmsh.model.occ.synchronize()
+
+    # Center EVERYTHING around the center
+    all_entities = gmsh.model.getEntities(-1)
+    gmsh.model.occ.translate(
+        dimTags=all_entities,
+        dx=-((model_bb[0]) + (model_dimensions[0] / 2)),
+        dy=-((model_bb[1]) + (model_dimensions[1] / 2)),
+        dz=-((model_bb[2]) + (model_dimensions[2] / 2)),
+    )
+    gmsh.model.occ.synchronize()
+
+
+def _get_intersecting_entites(entries: list[FuseEntry]) -> tuple[int, int] | None:
+    """
+    Return indices of an intersecting volume pair, if any.
+
+    The search is optimized by first testing bounding-box overlap and only
+    running expensive OCC boolean intersections for candidate pairs.
+    """
+    if len(entries) < 2:
+        return None
+
+    def _bbox_overlap(
+        bb1: BoundingBox,
+        bb2: BoundingBox,
+    ) -> bool:
+        return (
+            bb1[0] <= bb2[3] and bb1[3] >= bb2[0]
+            and bb1[1] <= bb2[4] and bb1[4] >= bb2[1]
+            and bb1[2] <= bb2[5] and bb1[5] >= bb2[2]
+        )
+
+    bboxes: list[BoundingBox] = [
+        gmsh.model.occ.getBoundingBox(*entry.dimtag)
+        for entry in entries
+    ]
+
+    for i in range(len(entries) - 1):
+        entities1 = [entries[i].dimtag]
+        bb1 = bboxes[i]
+        for j in range(i + 1, len(entries)):
+            if not _bbox_overlap(bb1, bboxes[j]):
+                continue
+
+            entities2 = [entries[j].dimtag]
+            intersect = gmsh.model.occ.intersect(
+                entities1,
+                entities2,
+                removeObject=False,
+                removeTool=False,
+            )[0]
+
+            if intersect:
+                log.info(f"Intersecting entry {i} and entry {j}.")
+                gmsh.model.occ.remove(intersect, recursive=True)
+                gmsh.model.occ.synchronize()
+                return i, j
+
+    return None
+
+
+def _sort_surfaces(fused_parts: list[FuseEntry]) -> list[SurfacePart]:
+    """Collect surfaces, lines and points for each fused part volume."""
+    log.info("Starting surface classification.")
+    gmsh.model.occ.synchronize()
+
+    aircraft_parts: list[SurfacePart] = []
+    for part in fused_parts:
+        surfaces = gmsh.model.getBoundary(
+            [part.dimtag],
+            combined=True,
+            oriented=False,
+            recursive=False,
+        )
+        lines = gmsh.model.getBoundary(
+            surfaces,
+            combined=False,
+            oriented=False,
+            recursive=False,
+        )
+        points = gmsh.model.getBoundary(
+            lines,
+            combined=False,
+            oriented=False,
+            recursive=False,
+        )
+
+        aircraft_parts.append(
+            SurfacePart(
+                uid=part.name,
+                part_type=part.part_type,
+                volume=part.dimtag,
+                surfaces=surfaces,
+                surfaces_tags=[tag for _, tag in surfaces],
+                lines=lines,
+                lines_tags=[tag for _, tag in lines],
+                points=points,
+                points_tags=[tag for _, tag in points],
+            )
+        )
+
+    return aircraft_parts
+
+
+def _create_physical_groups(
+    aircraft_parts: list[SurfacePart],
+    model_bb: list[float],
+    symmetry: bool,
+) -> list[SurfacePart]:
+    """Create gmsh physical groups from sorted surfaces."""
+    model_dim = _get_model_dim(model_bb)
+
+    if symmetry:
+        length = max(model_dim) + 1
+        bb_y_plane = (-length / 2, -0.0001, -length / 2, length / 2, 0.0001, length / 2)
+        surfaces_y_plane = gmsh.model.occ.getEntitiesInBoundingBox(*bb_y_plane, 2)
+        if surfaces_y_plane:
+            part_group = gmsh.model.addPhysicalGroup(2, [t for (_, t) in surfaces_y_plane])
+            gmsh.model.setPhysicalName(2, part_group, "y symmetry plane")
+            gmsh.model.occ.synchronize()
+    else:
+        surfaces_y_plane = []
+
+    surfaces_y_plane_tags = {t for (_, t) in surfaces_y_plane}
+    for model_part in aircraft_parts:
+        model_part.surfaces = [
+            surface for surface in model_part.surfaces if surface[1] not in surfaces_y_plane_tags
+        ]
+        model_part.surfaces_tags = [t for (_, t) in model_part.surfaces]
+
+        if not model_part.surfaces_tags:
+            continue
+
+        part_group = gmsh.model.addPhysicalGroup(2, model_part.surfaces_tags)
+        gmsh.model.setPhysicalName(2, part_group, model_part.uid)
+
+    return aircraft_parts
+
+
+def sort_surfaces_and_create_physical_groups(
+    model_bb: list[float],
+    symmetry: bool,
+    fused_parts: list[FuseEntry],
+) -> list[SurfacePart]:
+    """Sort surfaces and then create physical groups for each part."""
+    aircraft_parts = _sort_surfaces(fused_parts=fused_parts)
+    return _create_physical_groups(
+        aircraft_parts=aircraft_parts,
+        model_bb=model_bb,
+        symmetry=symmetry,
+    )
 
 
 # Functions
@@ -294,30 +421,23 @@ def generate_2d_mesh(
 
     #
     for geom in aircraft_geom.all_geoms:
-        all_volume_tags.append(geom.volume_tag)
+        all_volume_tags.append(geom.ref_volume_tag)
 
-    model_bb = _bbox_union(all_volume_tags)
-    model_dimensions = _get_model_dim(model_bb)
-    gmsh.model.occ.synchronize()
+    # Get Model Bounding Box
+    model_bb = _bounding_box(all_volume_tags)
 
-    # Center everything around the center
-    all_entities = gmsh.model.getEntities(-1)
-    gmsh.model.occ.translate(
-        all_entities,
-        -((model_bb[0]) + (model_dimensions[0] / 2)),
-        -((model_bb[1]) + (model_dimensions[1] / 2)),
-        -((model_bb[2]) + (model_dimensions[2] / 2)),
-    )
-    gmsh.model.occ.synchronize()
+    # Center all entities around this Bounding Box
+    _center_all_entities(model_bb)
 
+    # If symmetry is applied get the current symmetry box tag
     if symmetry:
         sym_box_tag = _get_symmetry_box_tag()
 
-    log.info("Start fusion of the different parts")
-    fusing_parts(aircraft_geom)
+    # Fuse all parts of the model
+    fused_parts = _fusing_parts(aircraft_geom)
 
     if symmetry:
-        log.info("Start halving the model for symmetry")
+        log.info("Cutting in half the model (symmetry=True).")
         dimtag_vols = gmsh.model.occ.getEntities(3)
         # Cut with symmetric box
         gmsh.model.occ.cut(dimtag_vols, [(3, sym_box_tag)])
@@ -326,7 +446,7 @@ def generate_2d_mesh(
     aircraft_parts = sort_surfaces_and_create_physical_groups(
         model_bb=model_bb,
         symmetry=symmetry,
-        aircraft_geom=aircraft_geom,
+        fused_parts=fused_parts,
     )
     gmsh.model.occ.synchronize()
 
@@ -569,44 +689,6 @@ def generate_2d_mesh(
     gmsh.finalize()
 
     return surface_mesh_path
-
-
-def intersecting_entities_for_fusing(
-    dimtags_names: list[FuseEntry],
-) -> tuple[int, int]:
-    """
-    Function to find two entities (volumes) in the list that have a non-zero intersection.
-    If volumes are not next to each other, they do not fuse and so, create problems
-    Args:
-    ----------
-    dimtags_names : list of dict
-        List of the dimtag and names of all the volumes we want to search in
-    ...
-    Returns:
-    ----------
-    (i,j) : tuple (int,int)
-        indices in the list of the two volumes we want to fuse (by default return 0,1)
-    """
-    # For every surfaces i and j, check if they intersect. If yes, return i,j
-    for i in range(len(dimtags_names) - 1):
-        entities1 = [dimtags_names[i]["dimtag"]]
-        for j in range(i + 1, len(dimtags_names)):
-            entities2 = [dimtags_names[j]["dimtag"]]
-            intersect = gmsh.model.occ.intersect(
-                entities1, entities2, removeObject=False, removeTool=False
-            )[0]
-            gmsh.model.occ.synchronize()
-            # What's missing is that he sadly doesn't recognize the intersection by a face (only
-            # volume) (but rarely a problem)
-
-            # Check if there is an intersection (i.e. there will be a dimtag in intersect)
-            if len(intersect):
-                # Remove the intersection so it doesn't cause problems for meshing and others
-                gmsh.model.occ.remove(intersect, recursive=True)
-                gmsh.model.occ.synchronize()
-                return (i, j)
-    # There if doesn't find intersection (usually bug bc intersection of surfaces, and unlikely)
-    return (0, 1)
 
 
 def choose_correct_part(parts_in, surf, aircraft_parts, new_aircraft_parts):

@@ -21,15 +21,14 @@ import numpy as np
 from cpacspy.cpacsfunctions import get_value
 from tigl3.import_export_helper import export_shapes
 
-from typing import Any
+from enum import StrEnum
 from pathlib import Path
+from typing import TypeAlias
 from pydantic import BaseModel
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.configfiles import ConfigFile
 from OCC.Core.TopoDS import TopoDS_Shape
 from tigl3.geometry import CNamedShape
-from gmsh.model import occ
-from gmsh.model.occ import 
 
 from ceasiompy import log
 from ceasiompy.cpacs2gmsh import (
@@ -115,8 +114,17 @@ def _get_bounding_box(volume_tag: int, bbox_margin: float) -> list[float]:
         ymax + bbox_margin, zmax + bbox_margin,
     ]
 
+# Types
+
+BoundingBox: TypeAlias = tuple[float, float, float, float, float, float]
 
 # Classes
+
+class PartType(StrEnum):
+    wing = "wing"
+    pylon = "pylon"
+    fuselage = "fuselage"
+
 
 class Geometry:
     bbox_margin = 0.01
@@ -126,27 +134,27 @@ class Geometry:
         geom: CNamedShape | TopoDS_Shape,
     ) -> None:
         self.uid = uid
-        self.geom = _extract_topods(geom)
-        self.shape = _import_geom(self.geom)
+        self.ref_geom = _extract_topods(geom)
+        self.ref_shape = _import_geom(self.ref_geom)
 
         # Volume
         self._update_volume_tag()
 
     def _update_volume_tag(self: Geometry) -> list[int]:
-        dimtags_volumes: list[tuple[int, int]] = [dt for dt in self.shape if dt[0] == 3]
+        dimtags_volumes: list[tuple[int, int]] = [dt for dt in self.ref_shape if dt[0] == 3]
         if not dimtags_volumes or len(dimtags_volumes) == 0 or len(dimtags_volumes) > 1:
             raise RuntimeError(f"""Imported {len(dimtags_volumes)=} entities.
-                Imported dimTags: {self.shape}. There should be exactly 1 Volume.""")
+                Imported dimTags: {self.ref_shape}. There should be exactly 1 Volume.""")
 
-        self.volume_tag = dimtags_volumes[0][1]
-        self.bounding_box = _get_bounding_box(
-            volume_tag=self.volume_tag,
+        self.ref_volume_tag = dimtags_volumes[0][1]
+        self.ref_bounding_box = _get_bounding_box(
+            volume_tag=self.ref_volume_tag,
             bbox_margin=self.bbox_margin,
         )
 
     def _update_surface_tags(self: Geometry) -> list[int]:
-        surfaces_dimtags = gmsh.model.getEntitiesInBoundingBox(*self.bounding_box, 2)
-        self.surface_tags = [tag for _, tag in surfaces_dimtags]
+        surfaces_dimtags = gmsh.model.getEntitiesInBoundingBox(*self.ref_bounding_box, 2)
+        self.ref_surface_tags = [tag for _, tag in surfaces_dimtags]
 
 
 class AircraftGeometry:

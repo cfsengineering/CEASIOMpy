@@ -705,8 +705,6 @@ def _get_env_max_cpus() -> Optional[int]:
 
 def is_symmetric(cpacs: CPACS) -> bool:
     """Return True when all wings are symmetric about the xz plane."""
-    return False
-
     _, _, _, beta_list = get_selected_aeromap_values(cpacs)
     for beta in beta_list:
         if beta != 0:

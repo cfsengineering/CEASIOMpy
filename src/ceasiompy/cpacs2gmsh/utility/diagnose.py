@@ -9,6 +9,45 @@ from ceasiompy import log
 
 
 # Methods
+def _write_lines_vtp(
+    points: np.ndarray,
+    edges: np.ndarray,
+    output_path: Path,
+) -> None:
+    """Write polyline diagnostics to a VTP (VTK XML PolyData) file."""
+    n_points = int(points.shape[0])
+    n_lines = int(edges.shape[0])
+
+    connectivity = " ".join(f"{int(i)} {int(j)}" for i, j in edges)
+    offsets = " ".join(str(2 * (k + 1)) for k in range(n_lines))
+    point_values = " ".join(f"{x:.16g} {y:.16g} {z:.16g}" for x, y, z in points)
+
+    vtp_text = (
+        '<?xml version="1.0"?>\n'
+        '<VTKFile type="PolyData" version="0.1" byte_order="LittleEndian">\n'
+        "  <PolyData>\n"
+        f'    <Piece NumberOfPoints="{n_points}" NumberOfVerts="0" NumberOfLines="{n_lines}" '
+        'NumberOfStrips="0" NumberOfPolys="0">\n'
+        "      <Points>\n"
+        '        <DataArray type="Float64" NumberOfComponents="3" format="ascii">\n'
+        f"          {point_values}\n"
+        "        </DataArray>\n"
+        "      </Points>\n"
+        "      <Lines>\n"
+        '        <DataArray type="Int64" Name="connectivity" format="ascii">\n'
+        f"          {connectivity}\n"
+        "        </DataArray>\n"
+        '        <DataArray type="Int64" Name="offsets" format="ascii">\n'
+        f"          {offsets}\n"
+        "        </DataArray>\n"
+        "      </Lines>\n"
+        "    </Piece>\n"
+        "  </PolyData>\n"
+        "</VTKFile>\n"
+    )
+    output_path.write_text(vtp_text, encoding="utf-8")
+
+
 def _clean_surface_topology(mesh: Trimesh) -> Trimesh:
     """Apply fast mesh cleanups to remove common bad-surface artifacts in STL."""
     mesh = mesh.copy()
@@ -37,54 +76,33 @@ def _export_edge_diagnostics(
     mesh_path: Path,
     suffix: str,
     label: str,
-) -> None:
-    """Export selected edge diagnostics as CSV and VTP."""
+) -> Path | None:
+    """Export selected edge diagnostics as VTP."""
     if len(mesh.faces) == 0 or not np.any(edge_mask):
-        return
+        return None
 
     selected_edges = mesh.edges_unique[edge_mask]
-    segments = np.hstack(
-        [
-            mesh.vertices[selected_edges[:, 0]],
-            mesh.vertices[selected_edges[:, 1]],
-        ]
-    )
-
-    csv_path = mesh_path.with_name(f"{mesh_path.stem}_{suffix}.csv")
-    np.savetxt(
-        csv_path,
-        segments,
-        delimiter=",",
-        header="x1,y1,z1,x2,y2,z2",
-        comments="",
-    )
-    log.info(f"{label} diagnostics (CSV) saved at {csv_path}.")
-
     try:
-        import pyvista as pv
-
         used_vertices = np.unique(selected_edges.reshape(-1))
         index_map = {old: new for new, old in enumerate(used_vertices)}
         compact_points = mesh.vertices[used_vertices]
-
-        lines = np.empty(selected_edges.shape[0] * 3, dtype=np.int64)
-        lines[0::3] = 2
-        lines[1::3] = [index_map[i] for i in selected_edges[:, 0]]
-        lines[2::3] = [index_map[i] for i in selected_edges[:, 1]]
-
-        poly = pv.PolyData(compact_points)
-        poly.lines = lines
+        compact_edges = np.array(
+            [[index_map[i], index_map[j]] for i, j in selected_edges],
+            dtype=np.int64,
+        )
         vtp_path = mesh_path.with_name(f"{mesh_path.stem}_{suffix}.vtp")
-        poly.save(str(vtp_path))
+        _write_lines_vtp(compact_points, compact_edges, vtp_path)
         log.info(f"{label} diagnostics (VTP) saved at {vtp_path}.")
+        return vtp_path
     except Exception as err:
         log.warning(f"Could not write VTP {label.lower()} diagnostics: {err}")
+        return None
 
 
-def _export_boundary_diagnostics(mesh: Trimesh, mesh_path: Path) -> None:
+def _export_boundary_diagnostics(mesh: Trimesh, mesh_path: Path) -> Path | None:
     """Export boundary-edge locations for inspection."""
     edge_use = np.bincount(mesh.edges_unique_inverse, minlength=len(mesh.edges_unique))
-    _export_edge_diagnostics(
+    return _export_edge_diagnostics(
         mesh=mesh,
         edge_mask=(edge_use == 1),
         mesh_path=mesh_path,
@@ -93,10 +111,10 @@ def _export_boundary_diagnostics(mesh: Trimesh, mesh_path: Path) -> None:
     )
 
 
-def _export_nonmanifold_diagnostics(mesh: Trimesh, mesh_path: Path) -> None:
+def _export_nonmanifold_diagnostics(mesh: Trimesh, mesh_path: Path) -> Path | None:
     """Export non-manifold edge locations for inspection."""
     edge_use = np.bincount(mesh.edges_unique_inverse, minlength=len(mesh.edges_unique))
-    _export_edge_diagnostics(
+    return _export_edge_diagnostics(
         mesh=mesh,
         edge_mask=(edge_use > 2),
         mesh_path=mesh_path,
@@ -105,30 +123,12 @@ def _export_nonmanifold_diagnostics(mesh: Trimesh, mesh_path: Path) -> None:
     )
 
 
-def _snap_vertices_to_symmetry_plane(mesh: Trimesh, rel_tol: float = 1e-8) -> Trimesh:
-    """Snap vertices close to y=0 onto the symmetry plane and weld duplicates."""
-    if len(mesh.vertices) == 0:
-        return mesh
-
-    mesh = mesh.copy()
-    span = float(np.max(np.ptp(mesh.vertices, axis=0)))
-    tol = max(span * rel_tol, 1e-12)
-
-    y = mesh.vertices[:, 1]
-    on_plane = np.abs(y) <= tol
-    if np.any(on_plane):
-        mesh.vertices[on_plane, 1] = 0.0
-        mesh.merge_vertices()
-        mesh.remove_unreferenced_vertices()
-    return mesh
-
-
 # Functions
+
 def diagnose_surface_mesh(
+    symmetry: bool,
     mesh_path: Path,
-    symmetry: bool = False,
-    raise_on_issues: bool = False,
-) -> tuple[bool, int, int]:
+) -> None:
     """Check mesh topology and export diagnostics without repairing."""
     # For STL, duplicate vertices are common; process=True merges topology needed for watertight checks.
     loaded_mesh = trimesh.load_mesh(str(mesh_path), process=True)
@@ -140,9 +140,6 @@ def diagnose_surface_mesh(
     if not isinstance(mesh, Trimesh):
         raise ValueError("Could not convert exported STL to Trimesh; skipping watertightness check.")
 
-    if symmetry:
-        mesh = _snap_vertices_to_symmetry_plane(mesh)
-
     mesh = _clean_surface_topology(mesh)
     boundary_edges, nonmanifold_edges = _edge_topology_stats(mesh)
 
@@ -153,22 +150,15 @@ def diagnose_surface_mesh(
     log.info(f"Boundary edges: {boundary_edges}")
     log.info(f"Non-manifold edges: {nonmanifold_edges}")
 
-    if mesh.is_watertight and nonmanifold_edges == 0:
-        return True, boundary_edges, nonmanifold_edges
+    if boundary_edges == 0 and nonmanifold_edges == 0:
+        return
 
-    _export_boundary_diagnostics(mesh, mesh_path)
-    _export_nonmanifold_diagnostics(mesh, mesh_path)
-    message = (
-        "Mesh has topology issues. Inspect diagnostics files next to the STL: "
-        f"'{mesh_path.stem}_boundary_edges.[csv|vtp]' and "
-        f"'{mesh_path.stem}_nonmanifold_edges.[csv|vtp]'."
-    )
-    if raise_on_issues:
-        raise ValueError(message)
-    log.warning(message)
-    return False, boundary_edges, nonmanifold_edges
-
-
-def repair_surface_mesh(mesh_path: Path, symmetry: bool = False) -> None:
-    """Backward-compatible alias kept for older callers."""
-    diagnose_surface_mesh(mesh_path=mesh_path, symmetry=symmetry, raise_on_issues=True)
+    boundary_vtp = _export_boundary_diagnostics(mesh, mesh_path)
+    nonmanifold_vtp = _export_nonmanifold_diagnostics(mesh, mesh_path)
+    vtp_paths = [p for p in (boundary_vtp, nonmanifold_vtp) if p is not None]
+    if vtp_paths:
+        paths_text = ", ".join(str(path) for path in vtp_paths)
+        message = f"Mesh has topology issues. Inspect VTP diagnostics: {paths_text}."
+    else:
+        message = "Mesh has topology issues. Could not write VTP diagnostics."
+    raise ValueError(message)

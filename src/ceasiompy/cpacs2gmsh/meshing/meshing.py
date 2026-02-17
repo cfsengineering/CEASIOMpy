@@ -50,6 +50,7 @@ def process_3d_geometry(
         progress=0.02,
     )
     mesh_settings = get_2d_mesh_settings(cpacs)
+    farfield_settings = get_farfield_settings(tixi)
 
     # Create corresponding brep directory.
     progress_update(
@@ -72,8 +73,6 @@ def process_3d_geometry(
         mesh_settings=mesh_settings,
         aircraft_geom=aircraft_geom,
     )
-
-    farfield_settings = get_farfield_settings(tixi)
 
     if mesh_settings.add_boundary_layer:
         # Done using the Gmsh API (uses Pentagrow from now on)

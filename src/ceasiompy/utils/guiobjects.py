@@ -266,8 +266,10 @@ def float_vartype(
     name,
     key,
     description,
+    step: float | None = None,
     min_value: float | None = None,
     max_value: float | None = None,
+    disabled: bool = False,
 ) -> float:
     raw_value = safe_get_value(tixi, xpath, default_value)
     try:
@@ -281,8 +283,10 @@ def float_vartype(
         format="%g",
         key=key,
         help=description,
+        step=step,
         min_value=min_value,
         max_value=max_value,
+        disabled=disabled
     )
     update_value(tixi, xpath, output)
     return output

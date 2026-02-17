@@ -13,7 +13,7 @@ from pathlib import Path
 
 import gmsh
 import pytest
-from ceasiompy.cpacs2gmsh.func.advancemeshing import (
+from ceasiompy.cpacs2gmsh.meshing.advancemeshing import (
     compute_area,
     distance_field,
     min_fields,
@@ -21,8 +21,8 @@ from ceasiompy.cpacs2gmsh.func.advancemeshing import (
     compute_angle_surfaces,
     refine_between_parts,
 )
-from ceasiompy.cpacs2gmsh.func.wingclassification import ModelPart
-from ceasiompy.cpacs2gmsh.func.exportbrep import export_brep
+from ceasiompy.cpacs2gmsh.utility.wingclassification import ModelPart
+from ceasiompy.cpacs2gmsh.utility.exportbrep import export_brep
 from ceasiompy.cpacs2gmsh.func.generategmesh import generate_gmsh
 from ceasiompy.utils.ceasiompyutils import remove_file_type_in_dir
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
@@ -156,7 +156,7 @@ def test_min_fields():
     mesh_fields = restrict_fields(mesh_fields, 2, [1])
 
     # Create the min field
-    mesh_fields = min_fields(mesh_fields)
+    min_fields(mesh_fields)
 
     # Check mesh field are created
     assert mesh_fields["nbfields"] == 4

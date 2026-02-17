@@ -1185,6 +1185,9 @@ def _display_txt(path: Path) -> None:
         st.info(f"📄 {path.name} (binary file, cannot display as text)")
         return None
     text_data = data.decode("utf-8", errors="replace")
+    if text_data == "":
+        st.info(f"File {path.name} is empty.")
+        return None
     st.text_area(
         path.stem,
         text_data,
@@ -1197,17 +1200,6 @@ def _display_su2(path: Path) -> None:
     """Display SU2 mesh in Streamlit using PyVista."""
     with st.container(border=True):
         st.markdown(f"**{path.name}**")
-        try:
-            st.download_button(
-                label="Download SU2 mesh",
-                data=path.read_bytes(),
-                file_name=path.name,
-                mime="application/octet-stream",
-                width="stretch",
-                key=f"{path}_su2_download",
-            )
-        except OSError as exc:
-            st.warning(f"Unable to prepare download: {exc}")
         try:
             marker_map: dict[str, int] = {}
             with path.open() as handle:
@@ -1239,6 +1231,17 @@ def _display_su2(path: Path) -> None:
         plotter.add_mesh(surface, color="lightgray", show_edges=True)
         plotter.reset_camera()
         stpyvista(plotter, key=f"{path}_su2_view")
+        try:
+            st.download_button(
+                label="Download SU2 mesh",
+                data=path.read_bytes(),
+                file_name=path.name,
+                mime="application/octet-stream",
+                width="stretch",
+                key=f"{path}_su2_download",
+            )
+        except OSError as exc:
+            st.warning(f"Unable to prepare download: {exc}")
 
 
 def _display_dat(path: Path) -> None:

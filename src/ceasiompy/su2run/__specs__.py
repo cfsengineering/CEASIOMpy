@@ -86,7 +86,7 @@ def gui_settings(cpacs: CPACS) -> None:
             xpath=SU2_MAX_ITER_XPATH,
             default_value=1000,
             name="Maximum iterations",
-            key="max_iter",
+            key="su2run_max_iter",
             description="Maximum number of iterations.",
         )
 

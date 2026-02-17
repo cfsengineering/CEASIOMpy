@@ -15,7 +15,7 @@ Test functions for 'ceasiompy/CPACS2GMSH/wingclassification.py'
 from pathlib import Path
 
 import gmsh
-from ceasiompy.cpacs2gmsh.func.wingclassification import (
+from ceasiompy.cpacs2gmsh.utility.wingclassification import (
     detect_normal_profile,
     detect_truncated_profile,
 )

@@ -4,17 +4,12 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module to run SU2 Calculation in CEASIOMpy
-
-| Author : Aidan Jungo
-| Creation: 2018-11-06
-| Modified: Leon Deligny
-| Date: 24-Feb-2025
-
 """
 
 # Imports
 
 from cpacspy.cpacsfunctions import get_value
+from ceasiompy.utils.ceasiompyutils import is_symmetric
 from ceasiompy.su2run.func.results import get_su2_results
 from ceasiompy.utils.ceasiompyutils import get_sane_max_cpu
 from ceasiompy.su2run.func.runconfigfiles import run_SU2_multi
@@ -25,11 +20,10 @@ from ceasiompy.su2run.func.config import (
 )
 
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-from ceasiompy.cpacs2gmsh import GMSH_SYMMETRY_XPATH
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 from ceasiompy.su2run import (
     SU2_CONFIG_RANS_XPATH,
@@ -91,12 +85,12 @@ def main(
     if geometry_mode == "2D":
         config_file_type = "2D"
         rans = False  # Not applicable for 2D
-        symmetric_mesh = "NO"  # No symmetry in 2D mode
+        symmetric_mesh = False  # No symmetry in 2D mode
         log.info("Using 2D template for 2D geometry mode (no symmetry).")
     else:
         config_file_type = str(get_value(tixi, SU2_CONFIG_RANS_XPATH))
         rans: bool = config_file_type == "RANS"
-        symmetric_mesh = str(get_value(tixi, GMSH_SYMMETRY_XPATH))
+        symmetric_mesh = is_symmetric(cpacs)
 
     # 1. Load .su2 mesh files
     _progress_update(progress_callback, detail="Loading SU2 mesh paths...", progress=0.1)

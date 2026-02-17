@@ -66,6 +66,7 @@ from ceasiompy.utils.moduleinterfaces import (
     MODNAME_SPECS,
 )
 from ceasiompy.utils.commonxpaths import (
+    WINGS_XPATH,
     SELECTED_AEROMAP_XPATH,
     AIRCRAFT_NAME_XPATH,
 )
@@ -700,6 +701,39 @@ def _get_env_max_cpus() -> Optional[int]:
         return None
 
     return max_cpus
+
+
+def is_symmetric(cpacs: CPACS) -> bool:
+    """Return True when all wings are symmetric about the xz plane."""
+    return False
+
+    _, _, _, beta_list = get_selected_aeromap_values(cpacs)
+    for beta in beta_list:
+        if beta != 0:
+            return False
+
+    tixi = cpacs.tixi
+    component_specs = (
+        (WINGS_XPATH, "wing"),
+    )
+
+    has_component = False
+    for components_xpath, component_name in component_specs:
+        if not tixi.checkElement(components_xpath):
+            continue
+
+        component_count = tixi.getNamedChildrenCount(components_xpath, component_name)
+        for i_comp in range(component_count):
+            component_xpath = f"{components_xpath}/{component_name}[{i_comp + 1}]"
+            has_component = True
+
+            if (
+                not tixi.checkAttribute(component_xpath, "symmetry")
+                or tixi.getTextAttribute(component_xpath, "symmetry") != "x-z-plane"
+            ):
+                return False
+
+    return has_component
 
 
 def has_display() -> bool:

@@ -149,6 +149,55 @@ fi
 
 echo "Using Pentagrow binaries from: $(realpath "$pentagrow_run_path" || echo "Path not found")"
 
+ensure_pentagrow_hdf5_compat() {
+    local pentagrow_bin="$1/pentagrow"
+    local compat_dir="$install_dir/Pentagrow/lib-compat"
+    mkdir -p "$compat_dir"
+
+    if [ ! -x "$pentagrow_bin" ]; then
+        echo "Pentagrow binary not found at $pentagrow_bin, skipping HDF5 compatibility setup."
+        return 0
+    fi
+
+    local src_hdf5=""
+    local src_hdf5_hl=""
+
+    src_hdf5="$(find "$HOME/miniconda3" -type f -name "libhdf5.so.103*" 2>/dev/null | head -n 1 || true)"
+    src_hdf5_hl="$(find "$HOME/miniconda3" -type f -name "libhdf5_hl.so.100*" 2>/dev/null | head -n 1 || true)"
+
+    if [ -z "$src_hdf5" ]; then
+        src_hdf5="$(ldconfig -p | awk '/libhdf5\.so\.103/{print $NF; exit}')"
+    fi
+    if [ -z "$src_hdf5_hl" ]; then
+        src_hdf5_hl="$(ldconfig -p | awk '/libhdf5_hl\.so\.100/{print $NF; exit}')"
+    fi
+
+    if [ -z "$src_hdf5" ]; then
+        src_hdf5="$(ldconfig -p | awk '/libhdf5\.so\./{print $NF; exit}')"
+    fi
+    if [ -z "$src_hdf5_hl" ]; then
+        src_hdf5_hl="$(ldconfig -p | awk '/libhdf5_hl\.so\./{print $NF; exit}')"
+    fi
+
+    if [ -n "$src_hdf5" ]; then
+        cp -fL "$src_hdf5" "$compat_dir/$(basename "$src_hdf5")"
+        ln -sf "$(basename "$src_hdf5")" "$compat_dir/libhdf5.so.103"
+    fi
+    if [ -n "$src_hdf5_hl" ]; then
+        cp -fL "$src_hdf5_hl" "$compat_dir/$(basename "$src_hdf5_hl")"
+        ln -sf "$(basename "$src_hdf5_hl")" "$compat_dir/libhdf5_hl.so.100"
+    fi
+
+    if [ ! -e "$compat_dir/libhdf5.so.103" ] || [ ! -e "$compat_dir/libhdf5_hl.so.100" ]; then
+        echo "Warning: Could not prepare compatible HDF5 sonames for Pentagrow in $compat_dir"
+        return 0
+    fi
+
+    echo "Prepared Pentagrow HDF5 compatibility libraries in $compat_dir"
+}
+
+ensure_pentagrow_hdf5_compat "$pentagrow_run_path"
+
 # Function to add environment variables to a shell rc file if not already present
 add_to_shell_rc() {
     local rcfile="$1"
@@ -168,6 +217,15 @@ add_to_shell_rc() {
         echo "Tetgen path added to PATH in $rcfile (apply changes with: source $rcfile)"
     else
         echo "TETGEN_PATH is already set in $rcfile"
+    fi
+
+    if ! grep -q "PENTAGROW_LIB_COMPAT" "$rcfile" 2>/dev/null; then
+        echo "# Pentagrow HDF5 compatibility libraries" >> "$rcfile"
+        echo "export PENTAGROW_LIB_COMPAT=\"$install_dir/Pentagrow/lib-compat\"" >> "$rcfile"
+        echo "export LD_LIBRARY_PATH=\"\$PENTAGROW_LIB_COMPAT:\$LD_LIBRARY_PATH\"" >> "$rcfile"
+        echo "Pentagrow HDF5 compatibility path added to LD_LIBRARY_PATH in $rcfile"
+    else
+        echo "PENTAGROW_LIB_COMPAT is already set in $rcfile"
     fi
 }
 

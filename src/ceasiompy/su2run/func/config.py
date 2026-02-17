@@ -18,7 +18,7 @@ import numpy as np
 
 from shutil import copyfile
 from ceasiompy.su2run.func.plot import save_plots
-from ceasiompy.cpacs2gmsh.func.mesh_sizing import wings_size
+from ceasiompy.cpacs2gmsh.utility.mesh_sizing import get_wing_ref_chord
 from ceasiompy.utils.geometryfunctions import get_main_wing_le
 from ceasiompy.su2run.func.dotderivatives import load_parameters
 from ceasiompy.utils.ceasiompyutils import get_selected_aeromap_values
@@ -345,7 +345,7 @@ def add_reynolds_number(alt: float, mach: float, cfg: ConfigFile, tixi: Tixi3) -
     # Get speed from Mach Number
     speed = mach * Atm.speed_of_sound[0]
 
-    ref_chord = wings_size(tixi)[0] / 0.15
+    ref_chord = get_wing_ref_chord(tixi)
     log.info(f"Reference chord is {ref_chord}.")
 
     # Reynolds number based on the mean chord

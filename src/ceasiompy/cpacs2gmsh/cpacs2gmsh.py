@@ -11,8 +11,8 @@ import threading
 
 from ceasiompy.utils.progress import progress_update
 from ceasiompy.utils.ceasiompyutils import call_main
-from ceasiompy.cpacs2gmsh.func.meshing import process_3d_geometry
-from ceasiompy.cpacs2gmsh.func.airfoil2d import process_2d_airfoil
+from ceasiompy.cpacs2gmsh.meshing.meshing import process_3d_geometry
+from ceasiompy.cpacs2gmsh.airfoil2d.airfoil2d import process_2d_airfoil
 
 from pathlib import Path
 from typing import Callable

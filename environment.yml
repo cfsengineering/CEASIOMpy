@@ -44,6 +44,7 @@ dependencies:
   # Geometry/Meshing
   - cgns>=4.2.0
   - conda-forge::trimesh
+  - conda-forge::h5py
 
   # OpenVSP
   - conda-forge::sphinx

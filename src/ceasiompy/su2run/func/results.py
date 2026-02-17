@@ -7,12 +7,10 @@ Extract results from SU2 calculations and save them in a CPACS file.
 """
 
 # Imports
-
-import os
 import itertools
 import numpy as np
-import pyvista as pv
 
+from ceasiompy.utils.guiobjects import add_value
 from ceasiompy.su2run.func.extractloads import extract_loads
 from ceasiompy.su2run.func.dotderivatives import (
     load_parameters,
@@ -21,9 +19,9 @@ from ceasiompy.su2run.func.dotderivatives import (
 from cpacspy.cpacsfunctions import (
     get_value,
     create_branch,
-    get_value_or_default,
 )
 from ceasiompy.utils.ceasiompyutils import (
+    is_symmetric,
     get_conditions_from_aeromap,
     ensure_and_append_text_element,
 )
@@ -41,11 +39,6 @@ from pathlib import Path
 from numpy import ndarray
 from ambiance import Atmosphere
 from tixi3.tixi3wrapper import Tixi3
-from typing import (
-    List,
-    Dict,
-    Tuple,
-)
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
@@ -53,10 +46,8 @@ from cpacspy.cpacspy import (
 
 from ceasiompy import log
 from cpacspy.utils import COEFS
-from ceasiompy.cpacs2gmsh import GMSH_SYMMETRY_XPATH
 from ceasiompy.utils.commonnames import (
     SU2_FORCES_BREAKDOWN_NAME,
-    SURFACE_FLOW_FILE_NAME,
 )
 from ceasiompy.utils.commonxpaths import (
     AREA_XPATH,
@@ -75,24 +66,27 @@ from ceasiompy.su2run import (
     SU2_DYNAMICDERIVATIVES_DATA_XPATH,
 )
 
+
 # Functions
 
-
-def get_value_at(i: int, *lists: List[float]) -> Tuple[float, ...]:
+def get_value_at(i: int, *lists: list[float]) -> tuple[float, ...]:
     return tuple(lst[i] for lst in lists)
 
 
-def update_wetted_area_func(tixi: Tixi3, config_dir: Path) -> None:
+def update_wetted_area_func(cpacs: CPACS, config_dir: Path) -> None:
     wetted_area = get_wetted_area(Path(config_dir, "logfile_SU2_CFD.log"))
 
     # Check if symmetry plane is defined (Default: False)
     sym_factor = 1.0
-    if get_value_or_default(tixi, GMSH_SYMMETRY_XPATH, False):
+    if is_symmetric(cpacs):
         log.info("Symmetry plane is defined. Multiplying wetted area by 2.")
         sym_factor = 2.0
 
-    create_branch(tixi, WETTED_AREA_XPATH)
-    tixi.updateDoubleElement(WETTED_AREA_XPATH, wetted_area * sym_factor, "%g")
+    add_value(
+        tixi=cpacs.tixi,
+        xpath=WETTED_AREA_XPATH,
+        value=wetted_area * sym_factor,
+    )
 
 
 def update_damping_derivatives(
@@ -103,7 +97,7 @@ def update_damping_derivatives(
     mach: float,
     aoa: float,
     aos: float,
-    coefs: Dict,
+    coefs: dict,
     velocity: float,
 ) -> None:
     rotation_rate = get_value(tixi, SU2_ROTATION_RATE_XPATH)
@@ -141,12 +135,13 @@ def update_fixed_cl(tixi: Tixi3, aeromap: AeroMap, force_file_path: Path) -> Non
 
 
 def get_static_results(
-    tixi: Tixi3,
+    cpacs: CPACS,
     aeromap: AeroMap,
     config_dir: Path,
     fixed_cl: str,
     found_wetted_area: bool,
 ) -> None:
+    tixi = cpacs.tixi
     force_file_path = check_force_file_exists(config_dir)
     case_nb = int(config_dir.name.split("_")[0].split("Case")[1])
 
@@ -194,7 +189,10 @@ def get_static_results(
 
     update_wetted_area = get_value(tixi, SU2_UPDATE_WETTED_AREA_XPATH)
     if not found_wetted_area and update_wetted_area:
-        update_wetted_area_func(tixi, config_dir)
+        update_wetted_area_func(
+            cpacs=cpacs,
+            config_dir=config_dir,
+        )
         found_wetted_area = True
 
     if get_value(tixi, SU2_EXTRACT_LOAD_XPATH):
@@ -212,8 +210,8 @@ def get_dynamic_force_files(file_path: Path) -> Path:
 
 def compute_dynamic_coefs(
     tixi: Tixi3,
-    forces_coef_list: List,
-    moments_coef_list: List,
+    forces_coef_list: list,
+    moments_coef_list: list,
     f_static: ndarray,
     m_static: ndarray,
     alt: float,
@@ -221,7 +219,7 @@ def compute_dynamic_coefs(
     s: float,
     b: float,
     c: float,
-) -> Tuple[float, float, float, float]:
+) -> tuple[float, float, float, float]:
     # Convert the list to a numpy array
     f_time = np.array(forces_coef_list)
     m_time = np.array(moments_coef_list)
@@ -303,7 +301,7 @@ def add_dynamic_coefs(
     )
 
 
-def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
+def get_dynstab_results(tixi: Tixi3, dict_dir: dict) -> None:
     # Extract unique mach and alt values
     mach_values = list(set(d["mach"] for d in dict_dir))
     alt_values = list(set(d["alt"] for d in dict_dir))
@@ -407,12 +405,18 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
         if ("Case" in case_dir.name) and (case_dir.is_dir())
     ]
 
-    # dict_dir: List[Dict] = []
+    # dict_dir: list[dict] = []
     for config_dir in sorted(case_dir_list):
         # process_config_dir(config_dir, dict_dir)
 
         # Retrieve non dynamic stability data
         if "dynstab" not in str(config_dir):
-            get_static_results(tixi, aeromap, config_dir, fixed_cl, found_wetted_area)
+            get_static_results(
+                cpacs=cpacs,
+                aeromap=aeromap,
+                fixed_cl=fixed_cl,
+                config_dir=config_dir,
+                found_wetted_area=found_wetted_area,
+            )
 
     aeromap.save()

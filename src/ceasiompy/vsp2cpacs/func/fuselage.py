@@ -163,18 +163,41 @@ def Fuse_Section(Fuselage, idx, length):
     return [x_rot, y_rot, z_rot, x_loc, y_trasl, z_trasl, spin]
 
 
-def Spin_func(spin, Section_informations, x_loc, x_rot):
-    """
-    Duplicate a section and rotate it to represent pre/post-spin geometry.
-    """
-
+def Spin_func(spin, Section_informations, x_loc,x_rot):
+    # Spin parameters. 
+    # It is an implementation different from openVSP but is very close ot it. Be aware of it. 
+    # When at the section{i} is set a value of spin, it generates two more section one upstream 
+    # and one downstream that scale their dimension and rotate by a factor that take count of the spin.
+    
+    # copy the section{i}
     Add_section = copy.deepcopy(Section_informations)
-    a = abs(float(spin) - float(x_rot) * 0.25 / 90)
+    
+    a = float(spin) + (- float(x_rot) * 0.25 / 90)
+    
+    Add_section['x_rot'] = float(
+        x_rot) - ((float(spin) * 90)/0.25)
 
-    Add_section["x_rot"] = float(x_rot) - ((float(spin) * 90) / 0.25)
-    Add_section["y_scal"] = 2 * abs(a - 0.5)
-    Add_section["z_scal"] = 2 * abs(a - 0.5)
-    Add_section["x_scal"] = 1
-    Add_section["x_loc"] = x_loc
-
+    # Build a periodic attenuation factor from the spin phase.
+    # np.mod(a, 1.0) wraps any real value of a into a normalized phase in [0, 1):
+    #   a =  0.20 -> phase = 0.20
+    #   a =  1.20 -> phase = 0.20  (same phase one full turn later)
+    #   a = -0.20 -> phase = 0.80  (negative values are wrapped into [0,1))
+    # This gives a periodic behavior with period 1, independent of the sign/magnitude of a.
+    phase = np.mod(a, 1.0)
+    # Triangular wave from phase:
+    # factor = |2*phase - 1| maps phase in [0,1) to [0,1].
+    # When a is an integer (e.g., 0, 1): phase=0, so factor=∣0−1∣=1.0 (Full size).
+    # When a is a half-integer (e.g., 0.5): phase=0.5, so factor=∣1−1∣=0.0
+    factor = abs(2.0 * phase - 1.0)
+    
+    correction_factor = 1.5  # Adjust this to control how much the section scales during the spin transition
+    # Keep a small minimum so intermediate spin sections do not collapse to zero size.
+    # This avoids degenerate errors in CPACSCreator.
+    min_ratio = 0.01
+    y_base = float(Section_informations['y_scal'])
+    z_base = float(Section_informations['z_scal'])
+    Add_section['y_scal'] =  correction_factor * max(min_ratio * y_base, factor * y_base)
+    Add_section['z_scal'] = correction_factor * max(min_ratio * z_base, factor * z_base)
+    Add_section['x_scal'] = 1
+    Add_section['x_loc'] = x_loc
     return Add_section

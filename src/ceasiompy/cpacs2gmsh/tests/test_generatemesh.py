@@ -16,12 +16,12 @@ import shutil
 from pathlib import Path
 
 import gmsh
-from ceasiompy.cpacs2gmsh.func.exportbrep import export_brep
+from ceasiompy.cpacs2gmsh.utility.exportbrep import export_brep
 from ceasiompy.cpacs2gmsh.func.generategmesh import (
     ModelPart,
     generate_gmsh,
 )
-from ceasiompy.cpacs2gmsh.func.wingclassification import get_entities_from_volume
+from ceasiompy.cpacs2gmsh.utility.wingclassification import get_entities_from_volume
 from ceasiompy.su2run.func.utils import get_mesh_markers
 from ceasiompy.utils.ceasiompyutils import remove_file_type_in_dir
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH

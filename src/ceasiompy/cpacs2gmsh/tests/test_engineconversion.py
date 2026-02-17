@@ -18,7 +18,7 @@ import shutil
 from pathlib import Path
 
 import gmsh
-from ceasiompy.cpacs2gmsh.func.engineconversion import close_engine
+from ceasiompy.cpacs2gmsh.utility.engineconversion import close_engine
 from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
 
 MODULE_DIR = Path(__file__).parent

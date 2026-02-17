@@ -11,7 +11,7 @@ Test functions for 'ceasiompy/CPACS2GMSH/exportbrep.py'
 import shutil
 import pytest
 
-from ceasiompy.cpacs2gmsh.func.exportbrep import export_brep
+from ceasiompy.cpacs2gmsh.utility.exportbrep import export_brep
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS

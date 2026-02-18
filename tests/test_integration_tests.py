@@ -14,19 +14,20 @@ import shutil
 import pytest
 import streamlit as st
 
-from pathlib import Path
-from unittest.mock import MagicMock
-
 from bin.ceasiompy_exec import run_modules_list
 from ceasiompy.utils.ceasiompyutils import change_working_dir
 from ceasiompy.utils.moduleinterfaces import get_init_for_module
 
+from pathlib import Path
+from unittest.mock import MagicMock
+
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+
 from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
-from ceasiompy.database import MODULE_NAME as DATABASE
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
-from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
+from ceasiompy.smtrain import MODULE_NAME as SMTRAIN
 from ceasiompy.aeroframe import MODULE_NAME as AEROFRAME
+from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
 from ceasiompy.staticstability import MODULE_NAME as STATICSTABILITY
 
 
@@ -82,8 +83,7 @@ WORKFLOW_2 = [CPACS2GMSH, SU2RUN]
 
 
 @pytest.mark.slow
-@pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
-@pytest.mark.skipif(not shutil.which("pentagrow"), reason="Pentagrow not installed")
+@pytest.mark.skipif(not shutil.which("pentagrow"), reason="pentagrow not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 @pytest.mark.skipif(
     not _check_modules_status(WORKFLOW_2),
@@ -100,7 +100,7 @@ WORKFLOW_3 = [PYAVL, STATICSTABILITY]
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
 @pytest.mark.skipif(
-    not _check_modules_status(WORKFLOW_2),
+    not _check_modules_status(WORKFLOW_3),
     reason=f"A module in {WORKFLOW_3=} is not available.",
 )
 def test_integration_3():
@@ -108,10 +108,16 @@ def test_integration_3():
     assert True
 
 
-# @pytest.mark.slow
-# @pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
-# @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
-# @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
-# def test_integration_4():
-#     run_workflow_test([SMTRAIN])
-#     assert True
+WORKFLOW_4 = [SMTRAIN]
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
+@pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
+@pytest.mark.skipif(
+    not _check_modules_status(WORKFLOW_4),
+    reason=f"A module in {WORKFLOW_4=} is not available.",
+)
+def test_integration_4():
+    run_workflow_test(WORKFLOW_4)
+    assert True

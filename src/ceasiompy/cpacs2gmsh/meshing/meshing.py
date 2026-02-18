@@ -73,7 +73,6 @@ def process_3d_geometry(
         mesh_settings=mesh_settings,
         aircraft_geom=aircraft_geom,
         farfield_settings=farfield_settings,
-        build_euler_domain=not mesh_settings.add_boundary_layer,
     )
 
     if mesh_settings.add_boundary_layer:
@@ -106,6 +105,7 @@ def process_3d_geometry(
 
         su2mesh_path = euler_mesh(
             results_dir=results_dir,
+            mesh_settings=mesh_settings,
             farfield_settings=farfield_settings,
         )
 

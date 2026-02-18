@@ -9,6 +9,7 @@ import gmsh
 
 from pathlib import Path
 from ceasiompy.cpacs2gmsh.utility.utils import (
+    MeshSettings,
     FarfieldSettings,
 )
 
@@ -25,25 +26,6 @@ def _get_outer_surface_tags_from_volumes(volume_dimtags: list[tuple[int, int]]) 
         recursive=False,
     )
     return sorted({tag for dim, tag in boundary if dim == 2})
-
-
-def _find_planar_surface_tags(
-    surface_tags: list[int],
-    axis: int,
-    coordinate: float,
-    tol: float,
-) -> list[int]:
-    return sorted(
-        [
-            tag for tag in surface_tags
-            if _surface_is_planar_on_axis_coordinate(
-                surface_tag=tag,
-                axis=axis,
-                coordinate=coordinate,
-                tol=tol,
-            )
-        ]
-    )
 
 
 def _infer_wall_size_from_points(
@@ -179,13 +161,17 @@ def _get_physical_group_entities_by_name(dim: int, name: str) -> list[int]:
     """Return entity tags in the first physical group matching `name`."""
     for _, group_tag in gmsh.model.getPhysicalGroups(dim):
         if gmsh.model.getPhysicalName(dim, group_tag) == name:
-            return sorted([int(tag) for tag in gmsh.model.getEntitiesForPhysicalGroup(dim, group_tag)])
+            return sorted([
+                int(tag)
+                for tag in gmsh.model.getEntitiesForPhysicalGroup(dim, group_tag)
+            ])
     return []
 
 
 # Functions
 def euler_mesh(
     results_dir: Path,
+    mesh_settings: MeshSettings,
     farfield_settings: FarfieldSettings,
 ) -> Path:
 
@@ -209,7 +195,10 @@ def euler_mesh(
     if not farfield_group_tags:
         raise RuntimeError("No Farfield physical group found in reloaded surface mesh.")
 
-    _ = _get_physical_group_entities_by_name(2, "symmetry")
+    if mesh_settings.symmetry:
+        symmetry_group_tags = _get_physical_group_entities_by_name(2, "symmetry")
+        if not symmetry_group_tags:
+            raise RuntimeError("No Symmetry physical group found in reloaded surface mesh.")
 
     x_min, y_min, z_min, x_max, y_max, z_max = gmsh.model.getBoundingBox(-1, -1)
     model_span = max(x_max - x_min, y_max - y_min, z_max - z_min)

@@ -578,13 +578,11 @@ def _prepare_euler_fluid_domain(
         gmsh.option.setNumber("Mesh.MeshOnlyVisible", 0)
         gmsh.option.setNumber("Mesh.MeshOnlyEmpty", 0)
 
-    log.info(
-        "Prepared Euler fluid domain in 2D stage: walls=%d, farfield=%d, symmetry=%d, fluid_volumes=%d",
-        len(wall_surface_tags),
-        len(farfield_group_tags),
-        len(symmetry_surface_set),
-        len(fluid_volume_tags),
-    )
+    log.info("Prepared Euler fluid domain in 2D stage")
+    log.info(f"walls:         {len(wall_surface_tags)}")
+    log.info(f"farfield:      {len(farfield_group_tags)}")
+    log.info(f"symmetry:      {len(symmetry_surface_set)}")
+    log.info(f"fluid_volumes: {len(fluid_volume_tags)}")
 
 
 def _mesh_size_for_part(
@@ -877,7 +875,6 @@ def generate_2d_mesh(
     mesh_settings: MeshSettings,
     aircraft_geom: AircraftGeometry,
     farfield_settings: FarfieldSettings | None = None,
-    build_euler_domain: bool = False,
 ) -> Path:
     """
     Generate a surface mesh from brep files (which makes up the aircraft).
@@ -1037,13 +1034,10 @@ def generate_2d_mesh(
     gmsh.model.mesh.optimize("Laplace2D", niter=10)
     gmsh.model.occ.synchronize()
 
-    if build_euler_domain:
-        if farfield_settings is None:
-            raise ValueError("farfield_settings is required when build_euler_domain=True.")
-        _prepare_euler_fluid_domain(
-            mesh_settings=mesh_settings,
-            farfield_settings=farfield_settings,
-        )
+    _prepare_euler_fluid_domain(
+        mesh_settings=mesh_settings,
+        farfield_settings=farfield_settings,
+    )
 
     # Save mesh handoff artifact for downstream volume meshing.
     surface_mesh_path = Path(results_dir, "surface_mesh.msh")

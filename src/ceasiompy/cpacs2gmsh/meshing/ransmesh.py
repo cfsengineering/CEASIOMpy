@@ -30,7 +30,7 @@ def _load_rans_cgf_params(
     output_format: str,
     mesh_settings: MeshSettings,
     surface_mesh_path: Path,
-    volume_mesh_settings: FarfieldSettings,
+    farfield_settings: FarfieldSettings,
     boundary_layer_settings: BoundaryLayerSettings,
 ) -> dict[str, str]:
     return {
@@ -40,7 +40,7 @@ def _load_rans_cgf_params(
         "InitialHeight": str(boundary_layer_settings.h_first_layer),
         "MaxGrowthRatio": str(boundary_layer_settings.growth_ratio),
         "MaxLayerThickness": str(boundary_layer_settings.max_layer_thickness),
-        "FarfieldRadius": str(volume_mesh_settings.farfield_radius),
+        "FarfieldRadius": str(farfield_settings.farfield_radius),
         "OutputFormat": str(output_format).lower(),
         "HolePosition": "0.0 0.0 0.0",
         "FarfieldCenter": "0.0 0.0 0.0",
@@ -92,7 +92,7 @@ def pentagrow_3d_mesh(
     output_format: str,
     mesh_settings: MeshSettings,
     surface_mesh_path: Path,
-    volume_mesh_settings: FarfieldSettings,
+    farfield_settings: FarfieldSettings,
     boundary_layer_settings: BoundaryLayerSettings,
 ) -> Path:
     pentagrow_results_dir = results_dir / SOFTWARE_NAME
@@ -103,7 +103,7 @@ def pentagrow_3d_mesh(
         mesh_settings=mesh_settings,
         output_format=output_format,
         surface_mesh_path=surface_mesh_path,
-        volume_mesh_settings=volume_mesh_settings,
+        farfield_settings=farfield_settings,
         boundary_layer_settings=boundary_layer_settings,
     )
 

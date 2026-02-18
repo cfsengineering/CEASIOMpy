@@ -29,13 +29,31 @@ parse_bool() {
   esac
 }
 
+remove_conda_paths_from_path() {
+  local path_in="$1"
+  local path_out=""
+  local item=""
+  IFS=':' read -r -a _path_items <<<"$path_in"
+  for item in "${_path_items[@]}"; do
+    if [[ "$item" == *"/miniconda"* ]] || [[ "$item" == *"/anaconda"* ]] || [[ "$item" == *"/conda"* ]]; then
+      continue
+    fi
+    if [[ -z "$path_out" ]]; then
+      path_out="$item"
+    else
+      path_out="${path_out}:$item"
+    fi
+  done
+  echo "$path_out"
+}
+
 su2_version="8.1.0"
 with_mpi="false"
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Adjusting logic to find ceasiompy root or fallback to home
 ceasiompy_root="$(cd "$script_dir/../../" 2>/dev/null && pwd || echo "$HOME/ceasiompy")"
-prefix="$ceasiompy_root/INSTALLDIR"
+prefix="$ceasiompy_root/installdir"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -143,6 +161,12 @@ if [[ "$with_mpi" == "true" ]]; then
   export SU2_DIR="$su2_dir"
   export CC=mpicc
   export CXX=mpicxx
+
+  # Avoid mixing conda binutils/lib paths with system MPI wrappers.
+  unset CONDA_PREFIX CONDA_DEFAULT_ENV CONDA_EXE _CONDA_EXE _CE_CONDA _CE_M
+  unset LD LIBRARY_PATH
+  export PATH="$(remove_conda_paths_from_path "$PATH")"
+  export PATH="/usr/lib64/openmpi/bin:/usr/bin:/bin:$PATH"
 
   echo "Checking MPI compiler..."
   mpicc --version

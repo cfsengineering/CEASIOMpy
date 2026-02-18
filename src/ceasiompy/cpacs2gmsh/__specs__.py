@@ -90,7 +90,11 @@ def _load_3d_gui_settings(cpacs: CPACS) -> None:
             default_value=not has_sideslip,
             name="XZ-Symmetry",
             description=f"""Mesh half or the entire domain.
-                {" Found non-zero sidelip angle, disabling xz-symmetry." if has_sideslip else ""}""",
+                {
+                    " Found non-zero sidelip angle, disabling xz-symmetry."
+                    if has_sideslip
+                    else ""
+                }""",
             key=f"cpacs2gmsh_xz_symmetry_{has_sideslip}",
             disabled=has_sideslip,
         )

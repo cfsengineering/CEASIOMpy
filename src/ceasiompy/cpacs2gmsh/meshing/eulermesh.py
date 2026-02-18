@@ -70,8 +70,8 @@ def _set_euler_gradation_field(
         gmsh.model.mesh.field.remove(field_tag)
 
     wall_size = _infer_wall_size_from_points(wall_surface_tags, farfield_size)
-    dist_max = max(transition_distance, wall_size * 10.0)
-    near_wall_power = 2.0
+    dist_max = max(transition_distance, wall_size * 10.0) / 20.0
+    near_wall_power = 3.0
 
     distance_field = 1
     gmsh.model.mesh.field.add("Distance", distance_field)

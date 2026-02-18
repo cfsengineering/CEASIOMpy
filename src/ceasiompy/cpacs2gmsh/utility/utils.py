@@ -18,7 +18,6 @@ import numpy as np
 
 from cpacspy.cpacsfunctions import get_value
 from tigl3.import_export_helper import export_shapes
-from ceasiompy.utils.ceasiompyutils import is_symmetric
 
 from enum import StrEnum
 from pathlib import Path
@@ -32,16 +31,12 @@ from ceasiompy.utils.configfiles import ConfigFile
 
 from ceasiompy import log
 from ceasiompy.cpacs2gmsh import (
-    GMSH_AUTO_REFINE_XPATH,
-    GMSH_N_POWER_FACTOR_XPATH,
-    GMSH_N_POWER_FIELD_XPATH,
-    GMSH_MESH_SIZE_PYLON_XPATH,
+    GMSH_ADD_BOUNDARY_LAYER_XPATH,
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
     GMSH_MESH_SIZE_WING_XPATH,
-    GMSH_REFINE_FACTOR_XPATH,
-    GMSH_REFINE_TRUNCATED_XPATH,
+    GMSH_MESH_SIZE_PYLON_XPATH,
+    GMSH_XZ_SYMMETRY_XPATH,
     GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,
-    GMSH_ADD_BOUNDARY_LAYER_XPATH,
     GMSH_NUMBER_LAYER_XPATH,
     GMSH_H_FIRST_LAYER_XPATH,
     GMSH_MAX_THICKNESS_LAYER_XPATH,
@@ -81,7 +76,7 @@ MESH_COLORS = {
 
 def _import_geom(geom: CNamedShape | TopoDS_Shape) -> list[tuple[int, int]]:
     """Returns: [(dim1, tag1), (dim2, tag2), ...], where,
-    
+
     dim = topological dimension (0 point, 1 curve, 2 surface, 3 volume)
     tag = gmsh ID for that entity in the OCC model
 
@@ -122,6 +117,7 @@ def _get_bounding_box(volume_tag: int, bbox_margin: float) -> list[float]:
 
 BoundingBox: TypeAlias = tuple[float, float, float, float, float, float]
 
+
 # Classes
 
 class PartType(StrEnum):
@@ -132,6 +128,7 @@ class PartType(StrEnum):
 
 class Geometry:
     bbox_margin = 0.01
+
     def __init__(
         self: Geometry,
         uid: str,
@@ -191,7 +188,7 @@ class FarfieldSettings(BaseModel):
     upstream_length: float
 
     farfield_mesh_size: float
-    
+
 
 # Functions
 
@@ -263,8 +260,8 @@ def get_2d_mesh_settings(cpacs: CPACS) -> MeshSettings:
     tixi = cpacs.tixi
     # Retrieve value from the GUI Setting
     mesh_settings = MeshSettings(
-        symmetry=is_symmetric(cpacs),
-        add_boundary_layer=get_value(tixi, GMSH_ADD_BOUNDARY_LAYER_XPATH),
+        symmetry=get_value(tixi, xpath=GMSH_XZ_SYMMETRY_XPATH),
+        add_boundary_layer=get_value(tixi, xpath=GMSH_ADD_BOUNDARY_LAYER_XPATH),
 
         # Set Mesh Sizes
         wing_mesh_size=_get_mesh_size_by_uid(
@@ -286,15 +283,6 @@ def get_2d_mesh_settings(cpacs: CPACS) -> MeshSettings:
             mesh_size_xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH,
         ),
     )
-
-    n_power_field = get_value(tixi, GMSH_N_POWER_FIELD_XPATH)
-    n_power_factor = get_value(tixi, GMSH_N_POWER_FACTOR_XPATH)
-
-    refine_factor = get_value(tixi, GMSH_REFINE_FACTOR_XPATH)
-    refine_truncated = get_value(tixi, GMSH_REFINE_TRUNCATED_XPATH)
-
-    auto_refine = get_value(tixi, GMSH_AUTO_REFINE_XPATH)
-
     return mesh_settings
 
 
@@ -415,19 +403,23 @@ def initialize_gmsh() -> None:
     gmsh.option.setNumber("General.Terminal", 0)
     # Log complexity
     gmsh.option.setNumber("General.Verbosity", 5)
+    # Keep meshing deterministic across repeated runs.
+    gmsh.option.setNumber("General.NumThreads", 1)
+    gmsh.option.setNumber("Mesh.MaxNumThreads1D", 1)
+    gmsh.option.setNumber("Mesh.MaxNumThreads2D", 1)
+    gmsh.option.setNumber("Mesh.MaxNumThreads3D", 1)
 
 
-# 
-
+# Classes
 class BoundaryLayerSettings(BaseModel):
     n_layer: int
     max_layer_thickness: float
-    
+
     growth_ratio: float
     growth_factor: float
-    
+
     h_first_layer: float
-    
+
     feature_angle: float
     refine_factor_angled_lines: float
 

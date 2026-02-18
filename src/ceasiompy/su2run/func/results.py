@@ -10,7 +10,7 @@ Extract results from SU2 calculations and save them in a CPACS file.
 import itertools
 import numpy as np
 
-from ceasiompy.utils.guiobjects import add_value
+from ceasiompy.utils.guiobjects import update_value
 from ceasiompy.su2run.func.extractloads import extract_loads
 from ceasiompy.su2run.func.dotderivatives import (
     load_parameters,
@@ -21,7 +21,6 @@ from cpacspy.cpacsfunctions import (
     create_branch,
 )
 from ceasiompy.utils.ceasiompyutils import (
-    is_symmetric,
     get_conditions_from_aeromap,
     ensure_and_append_text_element,
 )
@@ -46,9 +45,8 @@ from cpacspy.cpacspy import (
 
 from ceasiompy import log
 from cpacspy.utils import COEFS
-from ceasiompy.utils.commonnames import (
-    SU2_FORCES_BREAKDOWN_NAME,
-)
+from ceasiompy.cpacs2gmsh import GMSH_XZ_SYMMETRY_XPATH
+from ceasiompy.utils.commonnames import SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.commonxpaths import (
     AREA_XPATH,
     LENGTH_XPATH,
@@ -78,11 +76,11 @@ def update_wetted_area_func(cpacs: CPACS, config_dir: Path) -> None:
 
     # Check if symmetry plane is defined (Default: False)
     sym_factor = 1.0
-    if is_symmetric(cpacs):
+    if get_value(cpacs.tixi, xpath=GMSH_XZ_SYMMETRY_XPATH):
         log.info("Symmetry plane is defined. Multiplying wetted area by 2.")
         sym_factor = 2.0
 
-    add_value(
+    update_value(
         tixi=cpacs.tixi,
         xpath=WETTED_AREA_XPATH,
         value=wetted_area * sym_factor,

@@ -15,7 +15,6 @@ from ceasiompy.utils.plot import get_aircraft_mesh_data
 from ceasiompy.cpacs2gmsh.utility.farfield import box_edges
 from ceasiompy.utils.ceasiompyutils import (
     safe_remove,
-    is_symmetric,
 )
 from ceasiompy.cpacs2gmsh.utility.mesh_sizing import (
     get_wing_ref_chord,
@@ -34,7 +33,7 @@ from numpy import sqrt
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 from ceasiompy.cpacs2gmsh import (
     HAS_PENTAGROW,
-    GMSH_FARFIELD_RADIUS_XPATH,
+    GMSH_XZ_SYMMETRY_XPATH,
     GMSH_ADD_BOUNDARY_LAYER_XPATH,
     GMSH_MESH_SIZE_FARFIELD_XPATH,
     GMSH_MESH_SIZE_WING_XPATH,
@@ -75,35 +74,47 @@ from ceasiompy.cpacs2gmsh import (
 # Methods
 def _load_3d_gui_settings(cpacs: CPACS) -> None:
     tixi = cpacs.tixi
-    aircraft_config = cpacs.aircraft.configuration
-    symmetry = is_symmetric(cpacs)
+    aircraft = cpacs.aircraft
+    aircraft_config = aircraft.configuration
 
-    # Bounding Box for General Aircraft Settings
-    x_min, y_min, z_min, x_max, y_max, z_max = cpacs.aircraft.tigl.configurationGetBoundingBox()
-    if symmetry:
-        y_min = 0.0
-    vec = {
-        "x": abs(x_max - x_min),
-        "y": abs(y_max - y_min),
-        "z": abs(z_max - z_min),
-    }
-    x_minyz = min(vec["x"], vec["y"], vec["z"])
-    radius = sqrt(vec["x"]**2 + vec["y"]**2 + vec["z"]**2)
+    left_col, right_col = st.columns([3, 1])
+    with right_col:
+        symmetry = bool_vartype(
+            tixi=tixi,
+            xpath=GMSH_XZ_SYMMETRY_XPATH,
+            default_value=True,
+            name="XZ-Symmetry",
+            description="Mesh half or the entire domain.",
+            key="cpacs2gmsh_xz_symmetry",
+        )
 
-    st.markdown(f"""**{"Symmetric " if symmetry else ""}Domain Settings**""")
-    st.markdown(
-        f"<p style='margin-top:-8px; color:#6b7280; font-size:0.85rem;'>"
-        f"Bounding Box size: ({vec['x']:.3f}, {vec['y']:.3f}, {vec['z']:.3f})</p>",
-        unsafe_allow_html=True,
-    )
+    with left_col:
+        # Bounding Box for General Aircraft Settings
+        x_min, y_min, z_min, x_max, y_max, z_max = aircraft.tigl.configurationGetBoundingBox()
+        if symmetry:
+            y_min = 0.0
+        vec = {
+            "x": abs(x_max - x_min),
+            "y": abs(y_max - y_min),
+            "z": abs(z_max - z_min),
+        }
+        x_minyz = min(vec["x"], vec["y"], vec["z"])
+        radius = sqrt(vec["x"]**2 + vec["y"]**2 + vec["z"]**2)
+
+        st.markdown(f"""**{"Symmetric " if symmetry else ""}Domain Settings**""")
+        st.markdown(
+            f"<p style='margin-top:-8px; color:#6b7280; font-size:0.85rem;'>"
+            f"Bounding Box size: ({vec['x']:.3f}, {vec['y']:.3f}, {vec['z']:.3f})</p>",
+            unsafe_allow_html=True,
+        )
 
     _domain_settings(
-        x_min=x_min, 
-        y_min=y_min, 
+        x_min=x_min,
+        y_min=y_min,
         z_min=z_min,
-        x_max=x_max, 
+        x_max=x_max,
         y_max=y_max,
-        z_max=z_max,        
+        z_max=z_max,
         cpacs=cpacs,
         symmetry=symmetry,
     )
@@ -113,7 +124,7 @@ def _load_3d_gui_settings(cpacs: CPACS) -> None:
     float_vartype(
         tixi=tixi,
         xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
-        default_value=round(radius/4.0, 3),
+        default_value=round(radius / 4.0, 3),
         name="Farfield mesh size",
         key="farfield_size",
         description=f"""Farfield mesh size, for reference
@@ -145,7 +156,7 @@ def _load_3d_gui_settings(cpacs: CPACS) -> None:
                     float_vartype(
                         tixi=tixi,
                         xpath=GMSH_MESH_SIZE_WING_XPATH + f"/{wing_uid}",
-                        default_value=ref_chord/10.0,
+                        default_value=ref_chord / 30.0,
                         min_value=0.0,
                         max_value=ref_chord,
                         name=f"Wing: {wing_uid} mesh size",
@@ -177,7 +188,7 @@ def _load_3d_gui_settings(cpacs: CPACS) -> None:
                     float_vartype(
                         tixi=tixi,
                         xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH + f"/{fus_uid}",
-                        default_value=fus_mean_circumference/10.0,
+                        default_value=fus_mean_circumference / 100.0,
                         min_value=0.0,
                         max_value=fus_mean_circumference,
                         name=f"Fuselage: {fus_uid} mesh size",
@@ -455,10 +466,10 @@ def _domain_settings(
             description="Length from upstream farfield to the aircraft's nose.",
             key="cpacs2gmsh_upstream_length",
             xpath=GMSH_UPSTREAM_LENGTH_XPATH,
-            default_value=round(vec["x"]*2.0/3.0, ndigits=3),
-            min_value=(delta_x:=vec["x"]/10.0),
+            default_value=round(vec["x"], ndigits=3),
+            min_value=(delta_x := vec["x"] / 10.0),
             step=delta_x,
-            max_value=5*vec["x"],
+            max_value=5.0 * vec["x"],
         )
 
     with right_col:
@@ -468,10 +479,10 @@ def _domain_settings(
             description="Downstream length: distance from farfield to the aircraft's tail.",
             key="cpacs2gmsh_wake_length",
             xpath=GMSH_WAKE_LENGTH_XPATH,
-            default_value=round(vec["x"], ndigits=3),
-            min_value=(delta_x:=vec["x"]/10.0),
+            default_value=round(1.5 * vec["x"], ndigits=3),
+            min_value=(delta_x := vec["x"] / 10.0),
             step=delta_x,
-            max_value=5*vec["x"],
+            max_value=5.0 * vec["x"],
         )
 
     left_col, right_col = st.columns(2)
@@ -482,10 +493,10 @@ def _domain_settings(
             description="Length to add in the y-direction.",
             xpath=GMSH_Y_LENGTH_XPATH,
             key="cpacs2gmsh_y_length",
-            default_value=round(vec["y"]/6.0, ndigits=3),
-            min_value=(delta_y:=vec["y"]/20.0),
+            default_value=round(vec["y"], ndigits=3),
+            min_value=(delta_y := vec["y"] / 10.0),
             step=delta_y,
-            max_value=2*vec["y"],
+            max_value=2 * vec["y"],
         )
     with right_col:
         z_length = float_vartype(
@@ -494,10 +505,10 @@ def _domain_settings(
             description="Length to add in the z-direction.",
             xpath=GMSH_Z_LENGTH_XPATH,
             key="cpacs2gmsh_z_length",
-            default_value=round(vec["z"], ndigits=3),
-            min_value=(delta_z:=vec["z"]/10.0),
+            default_value=round(3.0 * vec["z"], ndigits=3),
+            min_value=(delta_z := vec["z"] / 10.0),
             step=delta_z,
-            max_value=vec["z"]*10.0,
+            max_value=vec["z"] * 10.0,
         )
 
     inner_x, inner_y, inner_z = box_edges(

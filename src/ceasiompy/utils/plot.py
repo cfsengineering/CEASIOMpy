@@ -55,7 +55,7 @@ def get_aircraft_mesh_data(cpacs: CPACS, symmetry: bool) -> tuple[
     your_mesh = mesh.Mesh.from_file(stl_file)
     mesh_vectors = your_mesh.vectors
     if symmetry:
-        mesh_vectors = mesh_vectors[np.all(mesh_vectors[:, :, 1] >= 0.0, axis=1)]
+        mesh_vectors = mesh_vectors[np.all(mesh_vectors[:, :, 1] >= -1e-3, axis=1)]
 
     triangles = mesh_vectors.reshape(-1, 3)
     vertices, indices = np.unique(triangles, axis=0, return_inverse=True)

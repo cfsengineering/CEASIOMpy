@@ -22,7 +22,7 @@ from ceasiompy.utils.ceasiompyutils import (
 from pathlib import Path
 from unittest import main
 from cpacspy.cpacspy import CPACS
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH
@@ -43,7 +43,7 @@ from ceasiompy.pyavl import (
 # =================================================================================================
 
 
-class TestPyAVLConfig(CeasiompyTest):
+class TestPyAVLConfig(CEASIOMpyTest):
 
     @classmethod
     def setUpClass(cls):

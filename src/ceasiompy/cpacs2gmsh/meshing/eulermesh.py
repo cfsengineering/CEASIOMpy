@@ -13,95 +13,153 @@ from ceasiompy.cpacs2gmsh.utility.utils import (
     FarfieldSettings,
 )
 
-from math import pi
 from ceasiompy import log
 
 
 # Methods
-def _add_farfield_box(
-    x_min: float,
-    y_min: float,
-    z_min: float,
-    x_max: float,
-    y_max: float,
-    z_max: float,
-) -> tuple[list[int], int, int]:
-    """Create a farfield box with the GEO kernel.
+def _get_outer_surface_tags_from_volumes(volume_dimtags: list[tuple[int, int]]) -> list[int]:
+    """Return unique outer surface tags for the provided OCC/discrete volumes."""
+    boundary = gmsh.model.getBoundary(
+        volume_dimtags,
+        combined=True,
+        oriented=False,
+        recursive=False,
+    )
+    return sorted({tag for dim, tag in boundary if dim == 2})
 
-    Returns:
-        tuple[list[int], int, int]:
-            - list of outer surface tags
-            - outer surface-loop tag
-            - tag of the ymin face (used as symmetry plane when needed)
-    """
-    p0 = gmsh.model.geo.addPoint(x_min, y_min, z_min)
-    p1 = gmsh.model.geo.addPoint(x_max, y_min, z_min)
-    p2 = gmsh.model.geo.addPoint(x_max, y_max, z_min)
-    p3 = gmsh.model.geo.addPoint(x_min, y_max, z_min)
-    p4 = gmsh.model.geo.addPoint(x_min, y_min, z_max)
-    p5 = gmsh.model.geo.addPoint(x_max, y_min, z_max)
-    p6 = gmsh.model.geo.addPoint(x_max, y_max, z_max)
-    p7 = gmsh.model.geo.addPoint(x_min, y_max, z_max)
 
-    l01 = gmsh.model.geo.addLine(p0, p1)
-    l12 = gmsh.model.geo.addLine(p1, p2)
-    l23 = gmsh.model.geo.addLine(p2, p3)
-    l30 = gmsh.model.geo.addLine(p3, p0)
-    l45 = gmsh.model.geo.addLine(p4, p5)
-    l56 = gmsh.model.geo.addLine(p5, p6)
-    l67 = gmsh.model.geo.addLine(p6, p7)
-    l74 = gmsh.model.geo.addLine(p7, p4)
-    l04 = gmsh.model.geo.addLine(p0, p4)
-    l15 = gmsh.model.geo.addLine(p1, p5)
-    l26 = gmsh.model.geo.addLine(p2, p6)
-    l37 = gmsh.model.geo.addLine(p3, p7)
+def _find_planar_surface_tags(
+    surface_tags: list[int],
+    axis: int,
+    coordinate: float,
+    tol: float,
+) -> list[int]:
+    return sorted(
+        [
+            tag for tag in surface_tags
+            if _surface_is_planar_on_axis_coordinate(
+                surface_tag=tag,
+                axis=axis,
+                coordinate=coordinate,
+                tol=tol,
+            )
+        ]
+    )
 
-    bottom_loop = gmsh.model.geo.addCurveLoop([l01, l12, l23, l30])
-    top_loop = gmsh.model.geo.addCurveLoop([l45, l56, l67, l74])
-    ymin_loop = gmsh.model.geo.addCurveLoop([l01, l15, -l45, -l04])
-    ymax_loop = gmsh.model.geo.addCurveLoop([-l23, l26, l67, -l37])
-    xmin_loop = gmsh.model.geo.addCurveLoop([-l30, l37, l74, -l04])
-    xmax_loop = gmsh.model.geo.addCurveLoop([l12, l26, -l56, -l15])
 
-    s_bottom = gmsh.model.geo.addPlaneSurface([bottom_loop])
-    s_top = gmsh.model.geo.addPlaneSurface([top_loop])
-    s_ymin = gmsh.model.geo.addPlaneSurface([ymin_loop])
-    s_ymax = gmsh.model.geo.addPlaneSurface([ymax_loop])
-    s_xmin = gmsh.model.geo.addPlaneSurface([xmin_loop])
-    s_xmax = gmsh.model.geo.addPlaneSurface([xmax_loop])
+def _infer_wall_size_from_points(
+    wall_surface_tags: list[int],
+    farfield_size: float,
+) -> float:
+    """Infer near-wall target size from existing geometry point sizes."""
+    wall_points = gmsh.model.getBoundary(
+        [(2, tag) for tag in wall_surface_tags],
+        combined=True,
+        oriented=False,
+        recursive=True,
+    )
+    point_dimtags = sorted(
+        {(dim, tag) for dim, tag in wall_points if dim == 0},
+        key=lambda dt: dt[1],
+    )
+    if not point_dimtags:
+        return farfield_size * 0.05
 
-    outer_surfaces = [s_bottom, s_top, s_ymin, s_ymax, s_xmin, s_xmax]
-    outer_loop = gmsh.model.geo.addSurfaceLoop(outer_surfaces)
-    return outer_surfaces, outer_loop, s_ymin
+    sizes: list[float] = []
+    try:
+        point_sizes = gmsh.model.mesh.getSizes(point_dimtags)
+        sizes = [s for s in point_sizes if s > 0.0]
+    except Exception:
+        sizes = []
+
+    if sizes:
+        # Keep wall size thin but bounded to avoid pathological tiny cells.
+        return max(min(sizes), farfield_size * 1e-3)
+
+    return farfield_size * 0.05
+
+
+def _set_euler_gradation_field(
+    wall_surface_tags: list[int],
+    farfield_size: float,
+    transition_distance: float,
+) -> None:
+    """Create a Distance+Threshold background field for smooth wall-to-farfield grading."""
+    for field_tag in gmsh.model.mesh.field.list():
+        gmsh.model.mesh.field.remove(field_tag)
+
+    wall_size = _infer_wall_size_from_points(wall_surface_tags, farfield_size)
+    dist_max = max(transition_distance, wall_size * 10.0)
+
+    distance_field = 1
+    gmsh.model.mesh.field.add("Distance", distance_field)
+    gmsh.model.mesh.field.setNumbers(distance_field, "SurfacesList", wall_surface_tags)
+    gmsh.model.mesh.field.setNumber(distance_field, "Sampling", 100)
+
+    threshold_field = 2
+    gmsh.model.mesh.field.add("Threshold", threshold_field)
+    gmsh.model.mesh.field.setNumber(threshold_field, "InField", distance_field)
+    gmsh.model.mesh.field.setNumber(threshold_field, "SizeMin", wall_size)
+    gmsh.model.mesh.field.setNumber(threshold_field, "SizeMax", farfield_size)
+    gmsh.model.mesh.field.setNumber(threshold_field, "DistMin", 0.0)
+    gmsh.model.mesh.field.setNumber(threshold_field, "DistMax", dist_max)
+    gmsh.model.mesh.field.setAsBackgroundMesh(threshold_field)
+
+    log.info(
+        "Applied Euler gradation field: "
+        f"wall_size={wall_size:.4g}, farfield_size={farfield_size:.4g}, dist_max={dist_max:.4g}"
+    )
+
+
+def _surface_is_on_farfield_plane(
+    surface_tag: int,
+    box_bounds: tuple[float, float, float, float, float, float],
+    tol: float,
+) -> bool:
+    """Return True if a surface lies on one farfield box plane."""
+    x_min, y_min, z_min, x_max, y_max, z_max = box_bounds
+    bb = gmsh.model.getBoundingBox(2, surface_tag)
+    x_on_min = abs(bb[0] - x_min) <= tol and abs(bb[3] - x_min) <= tol
+    x_on_max = abs(bb[0] - x_max) <= tol and abs(bb[3] - x_max) <= tol
+    y_on_min = abs(bb[1] - y_min) <= tol and abs(bb[4] - y_min) <= tol
+    y_on_max = abs(bb[1] - y_max) <= tol and abs(bb[4] - y_max) <= tol
+    z_on_min = abs(bb[2] - z_min) <= tol and abs(bb[5] - z_min) <= tol
+    z_on_max = abs(bb[2] - z_max) <= tol and abs(bb[5] - z_max) <= tol
+
+    return x_on_min or x_on_max or y_on_min or y_on_max or z_on_min or z_on_max
+
+
+def _surface_is_planar_on_axis_coordinate(
+    surface_tag: int,
+    axis: int,
+    coordinate: float,
+    tol: float,
+) -> bool:
+    """Return True if surface is planar normal to an axis and lies at a given coordinate."""
+    bb = gmsh.model.getBoundingBox(2, surface_tag)
+    bb_min = bb[axis]
+    bb_max = bb[axis + 3]
+    return abs(bb_min - bb_max) <= tol and abs(bb_min - coordinate) <= tol
 
 
 # Functions
 def euler_mesh(
     results_dir: Path,
     mesh_settings: MeshSettings,
-    surface_mesh_path: Path,
     farfield_settings: FarfieldSettings,
 ) -> Path:
-    if not surface_mesh_path.is_file():
-        raise FileNotFoundError(f"{surface_mesh_path=} does not exist.")
-
-    gmsh.clear()
     log.info("Starting Euler Volume Meshing.")
-    gmsh.model.add("euler_volume_mesh")
+    inner_volume_dimtags = sorted(gmsh.model.getEntities(3), key=lambda dimtag: dimtag[1])
+    if not inner_volume_dimtags:
+        raise RuntimeError(
+            "No in-memory volumes found for Euler meshing. "
+            "This mode requires reusing the gmsh model produced by generate_2d_mesh."
+        )
 
-    # Import triangulated aircraft surface and build discrete CAD entities.
-    gmsh.merge(str(surface_mesh_path))
-    gmsh.model.mesh.classifySurfaces(
-        angle=40.0 * pi / 180.0,
-        boundary=True,
-        forReparametrization=True,
-        curveAngle=pi,
-    )
-    gmsh.model.mesh.createGeometry()
-
-    inner_surface_tags = [tag for dim, tag in gmsh.model.getEntities(2) if dim == 2]
+    inner_surface_tags = _get_outer_surface_tags_from_volumes(inner_volume_dimtags)
     if not inner_surface_tags:
-        raise RuntimeError("No aircraft surfaces found after importing the surface mesh.")
+        raise RuntimeError("No aircraft surfaces found in current gmsh model.")
+    log.info("Reusing in-memory gmsh model for Euler meshing (no surface mesh reload).")
 
     x_min, y_min, z_min, x_max, y_max, z_max = gmsh.model.getBoundingBox(-1, -1)
     upstream_length = farfield_settings.upstream_length
@@ -110,6 +168,13 @@ def euler_mesh(
     z_length = farfield_settings.z_length
     symmetry = mesh_settings.symmetry
 
+    model_span = max(
+        x_max - x_min,
+        y_max - y_min,
+        z_max - z_min,
+    )
+    plane_tol = max(1e-9, model_span * 1e-9)
+
     outer_x_min = x_min - upstream_length
     outer_x_max = x_max + wake_length
     outer_y_min = 0.0 if symmetry else y_min - y_length
@@ -117,41 +182,124 @@ def euler_mesh(
     outer_z_min = z_min - z_length
     outer_z_max = z_max + z_length
 
-    outer_surface_tags, outer_loop_tag, symmetry_surface_tag = _add_farfield_box(
-        x_min=outer_x_min,
-        y_min=outer_y_min,
-        z_min=outer_z_min,
-        x_max=outer_x_max,
-        y_max=outer_y_max,
-        z_max=outer_z_max,
+    existing_groups = gmsh.model.getPhysicalGroups()
+    if existing_groups:
+        gmsh.model.removePhysicalGroups(existing_groups)
+
+    farfield_box_tag = gmsh.model.occ.addBox(
+        outer_x_min,
+        outer_y_min,
+        outer_z_min,
+        outer_x_max - outer_x_min,
+        outer_y_max - outer_y_min,
+        outer_z_max - outer_z_min,
+    )
+    fluid_dimtags, _ = gmsh.model.occ.cut(
+        [(3, farfield_box_tag)],
+        inner_volume_dimtags,
+        removeObject=True,
+        removeTool=True,
+    )
+    gmsh.model.occ.synchronize()
+
+    fluid_volume_tags = sorted([tag for dim, tag in fluid_dimtags if dim == 3])
+    if not fluid_volume_tags:
+        raise RuntimeError("Failed to build fluid domain from farfield box and aircraft volumes.")
+
+    fluid_boundary_tags = _get_outer_surface_tags_from_volumes(
+        [(3, tag) for tag in fluid_volume_tags]
+    )
+    if not fluid_boundary_tags:
+        raise RuntimeError("No boundary surfaces found on fluid volume.")
+
+    model_span = max(
+        outer_x_max - outer_x_min,
+        outer_y_max - outer_y_min,
+        outer_z_max - outer_z_min,
+    )
+    # OCC booleans can slightly perturb farfield plane coordinates; keep tolerance practical.
+    plane_tol = max(1e-7, model_span * 1e-6)
+    farfield_bounds = (
+        outer_x_min, outer_y_min, outer_z_min,
+        outer_x_max, outer_y_max, outer_z_max,
     )
 
-    inner_loop_tag = gmsh.model.geo.addSurfaceLoop(inner_surface_tags)
-    fluid_volume_tag = gmsh.model.geo.addVolume([outer_loop_tag, inner_loop_tag])
-    gmsh.model.geo.synchronize()
+    farfield_surfaces = sorted(
+        [
+            tag for tag in fluid_boundary_tags
+            if _surface_is_on_farfield_plane(tag, farfield_bounds, plane_tol)
+        ]
+    )
+    if not farfield_surfaces:
+        raise RuntimeError("No farfield boundary surfaces detected on the fluid volume.")
 
-    farfield_surfaces = outer_surface_tags.copy()
-    if symmetry and symmetry_surface_tag in farfield_surfaces:
-        farfield_surfaces.remove(symmetry_surface_tag)
-        symmetry_group = gmsh.model.addPhysicalGroup(2, [symmetry_surface_tag])
+    inner_symmetry_surface_tags = []
+    if symmetry:
+        inner_symmetry_surface_tags = _find_planar_surface_tags(
+            surface_tags=fluid_boundary_tags,
+            axis=1,
+            coordinate=outer_y_min,
+            tol=plane_tol,
+        )
+
+    farfield_surface_set = set(farfield_surfaces)
+    symmetry_surface_set = set(inner_symmetry_surface_tags)
+    wall_surface_tags = sorted(
+        [
+            tag for tag in fluid_boundary_tags
+            if tag not in farfield_surface_set and tag not in symmetry_surface_set
+        ]
+    )
+    if not wall_surface_tags:
+        raise RuntimeError("All inner geometry surfaces were filtered out from wall group.")
+
+    if symmetry_surface_set:
+        symmetry_group = gmsh.model.addPhysicalGroup(2, sorted(symmetry_surface_set))
         gmsh.model.setPhysicalName(2, symmetry_group, "symmetry")
 
-    farfield_group = gmsh.model.addPhysicalGroup(2, farfield_surfaces)
+    farfield_group_tags = sorted(farfield_surface_set - symmetry_surface_set)
+    if not farfield_group_tags:
+        raise RuntimeError("No farfield surfaces left after symmetry-surface filtering.")
+    farfield_group = gmsh.model.addPhysicalGroup(2, farfield_group_tags)
     gmsh.model.setPhysicalName(2, farfield_group, "Farfield")
 
-    wall_group = gmsh.model.addPhysicalGroup(2, inner_surface_tags)
+    wall_group = gmsh.model.addPhysicalGroup(2, wall_surface_tags)
     gmsh.model.setPhysicalName(2, wall_group, "wall")
 
-    fluid_group = gmsh.model.addPhysicalGroup(3, [fluid_volume_tag])
+    fluid_group = gmsh.model.addPhysicalGroup(3, fluid_volume_tags)
     gmsh.model.setPhysicalName(3, fluid_group, "fluid")
 
-    gmsh.option.setNumber("Mesh.MeshSizeMin", farfield_settings.farfield_mesh_size)
-    gmsh.option.setNumber("Mesh.MeshSizeMax", farfield_settings.farfield_mesh_size)
+    transition_distance = max(
+        model_span * 0.35,
+        farfield_settings.y_length * 0.5,
+        farfield_settings.z_length * 0.5,
+    )
+    _set_euler_gradation_field(
+        wall_surface_tags=wall_surface_tags,
+        farfield_size=farfield_settings.farfield_mesh_size,
+        transition_distance=transition_distance,
+    )
+
     gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
     gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
     gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
+    gmsh.option.setNumber("Mesh.MeshSizeMax", farfield_settings.farfield_mesh_size)
+    gmsh.option.setNumber("General.NumThreads", 1)
+    gmsh.option.setNumber("Mesh.MaxNumThreads1D", 1)
+    gmsh.option.setNumber("Mesh.MaxNumThreads2D", 1)
+    gmsh.option.setNumber("Mesh.MaxNumThreads3D", 1)
 
-    gmsh.model.mesh.generate(3)
+    all_entities = gmsh.model.getEntities(-1)
+    fluid_entities = [(3, tag) for tag in fluid_volume_tags]
+    gmsh.model.mesh.clear()
+    gmsh.option.setNumber("Mesh.MeshOnlyVisible", 1)
+    gmsh.model.setVisibility(all_entities, 0, recursive=True)
+    gmsh.model.setVisibility(fluid_entities, 1, recursive=True)
+    try:
+        gmsh.model.mesh.generate(3)
+    finally:
+        gmsh.model.setVisibility(all_entities, 1, recursive=True)
+        gmsh.option.setNumber("Mesh.MeshOnlyVisible", 0)
 
     su2mesh_path = Path(results_dir, "mesh.su2")
     gmsh.write(str(su2mesh_path))

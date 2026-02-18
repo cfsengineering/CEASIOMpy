@@ -43,6 +43,8 @@ CONTROL_SURFACES_LIST = ["aileron", "rudder", "flap"]
 # xPaths
 GMSH_XPATH = MESH_XPATH + "/gmshOptions"
 
+GMSH_XZ_SYMMETRY_XPATH = GMSH_XPATH + "/xz_symmetry"
+
 GMSH_N_POWER_FACTOR_XPATH = GMSH_XPATH + "/n_power_factor"
 GMSH_N_POWER_FIELD_XPATH = GMSH_XPATH + "/n_power_field"
 GMSH_ADD_BOUNDARY_LAYER_XPATH = GMSH_XPATH + "/add_boundary_layer"

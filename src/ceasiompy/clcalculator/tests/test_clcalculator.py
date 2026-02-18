@@ -21,7 +21,7 @@ from ceasiompy.utils.ceasiompyutils import (
 
 from unittest import main
 from unittest.mock import MagicMock
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 
 from ceasiompy.clcalculator import MODULE_NAME
 
@@ -30,7 +30,7 @@ from ceasiompy.clcalculator import MODULE_NAME
 # =================================================================================================
 
 
-class TestClCalculator(CeasiompyTest):
+class TestClCalculator(CEASIOMpyTest):
 
     @log_test
     def test_calculate_cl(self):

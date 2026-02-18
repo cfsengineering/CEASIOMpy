@@ -26,7 +26,7 @@ from ceasiompy.staticstability.staticstability import (
 
 from pathlib import Path
 from unittest import main
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
@@ -44,7 +44,7 @@ from ceasiompy.staticstability import (
 # =================================================================================================
 
 
-class TestStaticStability(CeasiompyTest):
+class TestStaticStability(CEASIOMpyTest):
 
     @classmethod
     def setUpClass(cls: TestStaticStability) -> None:

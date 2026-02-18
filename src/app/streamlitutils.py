@@ -10,7 +10,6 @@ Streamlit utils functions for CEASIOMpy
 
 import os
 import re
-import tempfile
 import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
@@ -18,9 +17,9 @@ import streamlit.components.v1 as components
 
 from streamlit_float import float_init
 from assistant import get_assistant_response
+from ceasiompy.utils.guiobjects import update_value
 from ceasiompy.utils.plot import get_aircraft_mesh_data
 
-from stl import mesh
 from PIL import Image
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
@@ -371,10 +370,15 @@ def section_3D_view(
     if cpacs is None:
         return None
 
-    # 3D mode - generate STL preview at the same level as the cpacs file
-    stl_file = Path(Path(cpacs.cpacs_file).parent, "aircraft.stl")
-    if not force_regenerate and stl_file.exists():
-        pass
+    # 3D mode - generate STL preview at the same level as the cpacs file.
+    # Force refresh must invalidate cached STL artifacts, otherwise a newly
+    # loaded CPACS in the same directory can still show the previous geometry.
+    stl_dir = Path(cpacs.cpacs_file).parent
+    if force_regenerate:
+        for stale_name in ("aircraft.stl", "aircraft_symmtry.stl"):
+            stale_path = stl_dir / stale_name
+            if stale_path.exists():
+                stale_path.unlink()
 
     x, y, z, i, j, k = get_aircraft_mesh_data(
         cpacs=cpacs,

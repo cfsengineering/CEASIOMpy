@@ -21,12 +21,12 @@ from ceasiompy.utils.mathsfunctions import (
 
 from unittest import main
 from ceasiompy.utils.generalclasses import Point
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 
 
 # Functions
 
-class TestMathsFunctions(CeasiompyTest):
+class TestMathsFunctions(CEASIOMpyTest):
     def test_rot_identity(self):
         """Test rot returns identity matrix for 0 radians."""
         R = rot(0)

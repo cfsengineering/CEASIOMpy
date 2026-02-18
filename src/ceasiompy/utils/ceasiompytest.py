@@ -28,7 +28,7 @@ from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 # =================================================================================================
 
 
-class CeasiompyTest(unittest.TestCase):
+class CEASIOMpyTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):

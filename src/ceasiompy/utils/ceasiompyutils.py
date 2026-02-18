@@ -11,12 +11,12 @@ Functions utils to run ceasiompy workflows
 import re
 import os
 import sys
+import time
 import shutil
+import inspect
 import argparse
 import importlib
-import inspect
 import subprocess
-import time
 import streamlit as st
 
 from pydantic import validate_call
@@ -49,7 +49,6 @@ from cpacspy.cpacspy import (
 )
 from typing import (
     TextIO,
-    Optional,
     Callable,
 )
 
@@ -66,9 +65,8 @@ from ceasiompy.utils.moduleinterfaces import (
     MODNAME_SPECS,
 )
 from ceasiompy.utils.commonxpaths import (
-    WINGS_XPATH,
-    SELECTED_AEROMAP_XPATH,
     AIRCRAFT_NAME_XPATH,
+    SELECTED_AEROMAP_XPATH,
 )
 
 
@@ -588,11 +586,11 @@ def run_software(
     wkdir: Path,
     with_mpi: bool = False,
     nb_cpu: int = 1,
-    stdin: Optional[TextIO] = None,
+    stdin: TextIO | None = None,
     log_bool: bool = True,
     xvfb: bool = False,
     progress_callback: Callable[..., None] | None = None,
-    progress_parser: Optional[Callable[[Path], tuple]] = None,
+    progress_parser: Callable[[Path], tuple] | None = None,
     poll_interval: float = 0.5,
 ) -> None:
     """Run a software with the given arguments in a specific wkdir. If the software is compatible
@@ -682,7 +680,7 @@ def run_software(
     log.info(f">>> {software_name} End")
 
 
-def _get_env_max_cpus() -> Optional[int]:
+def _get_env_max_cpus() -> int | None:
     """
     Return the value of MAX_CPUS if it exists and is a positive integer.
     """
@@ -701,37 +699,6 @@ def _get_env_max_cpus() -> Optional[int]:
         return None
 
     return max_cpus
-
-
-def is_symmetric(cpacs: CPACS) -> bool:
-    """Return True when all wings are symmetric about the xz plane."""
-    _, _, _, beta_list = get_selected_aeromap_values(cpacs)
-    for beta in beta_list:
-        if beta != 0:
-            return False
-
-    tixi = cpacs.tixi
-    component_specs = (
-        (WINGS_XPATH, "wing"),
-    )
-
-    has_component = False
-    for components_xpath, component_name in component_specs:
-        if not tixi.checkElement(components_xpath):
-            continue
-
-        component_count = tixi.getNamedChildrenCount(components_xpath, component_name)
-        for i_comp in range(component_count):
-            component_xpath = f"{components_xpath}/{component_name}[{i_comp + 1}]"
-            has_component = True
-
-            if (
-                not tixi.checkAttribute(component_xpath, "symmetry")
-                or tixi.getTextAttribute(component_xpath, "symmetry") != "x-z-plane"
-            ):
-                return False
-
-    return has_component
 
 
 def has_display() -> bool:

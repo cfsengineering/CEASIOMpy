@@ -124,7 +124,10 @@ def pentagrow_3d_mesh(
     # Pentagrow may reuse the input STL path as CGNS section names; keep it short
     # to avoid CGNS 32-char truncation warnings. Place a local link/copy in the
     # Pentagrow working directory so relative CLI args always resolve.
-    local_surface_mesh_path = pentagrow_results_dir / f"{surface_mesh_path.stem}.{surface_mesh_path.suffix}"
+    local_surface_mesh_path = Path(
+        pentagrow_results_dir,
+        f"{surface_mesh_path.stem}.{surface_mesh_path.suffix}",
+    )
     if local_surface_mesh_path.exists() or local_surface_mesh_path.is_symlink():
         local_surface_mesh_path.unlink()
     local_surface_mesh_path.symlink_to(surface_mesh_path.resolve())

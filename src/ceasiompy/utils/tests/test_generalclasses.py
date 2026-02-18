@@ -10,7 +10,7 @@ Test functions for 'ceasiompy/utils/generalclasses.py'
 
 from unittest import main
 from unittest.mock import MagicMock
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 from ceasiompy.utils.generalclasses import (
     Point,
     Transformation,
@@ -24,7 +24,7 @@ from unittest.mock import patch
 # =================================================================================================
 
 
-class TestGeneralClasses(CeasiompyTest):
+class TestGeneralClasses(CEASIOMpyTest):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

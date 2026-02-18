@@ -38,7 +38,7 @@ from pathlib import Path
 from unittest import main
 from cpacspy.cpacspy import CPACS
 from unittest.mock import MagicMock
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 
 from unittest.mock import patch
 from ceasiompy import UTILS_PATH
@@ -50,7 +50,7 @@ from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 # =================================================================================================
 
 
-class TestCeasiompyUtils(CeasiompyTest):
+class TestCeasiompyUtils(CEASIOMpyTest):
 
     @classmethod
     def setUpClass(cls):

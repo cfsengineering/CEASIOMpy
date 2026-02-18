@@ -106,10 +106,12 @@ dependencies:
 
       # Meshing
       - gmshairfoil2d>=0.2.33
-      - gmsh>=4.13.1
+      - gmsh>=4.15.1
       - meshio>=5.3.5
       - pymeshfix
       - vtk>=9.3.0
+      - manifold3d
+      - blender
 
       # Surrogate Modelling
       - SALib

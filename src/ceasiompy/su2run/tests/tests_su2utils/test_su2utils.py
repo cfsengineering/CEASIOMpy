@@ -32,7 +32,7 @@ from ceasiompy.su2run.func.utils import (
 )
 
 from pathlib import Path
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 
 from unittest.mock import patch
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
@@ -122,7 +122,7 @@ def test_get_wetted_area():
 # =================================================================================================
 
 
-class TestSU2UtilsExtra(CeasiompyTest):
+class TestSU2UtilsExtra(CEASIOMpyTest):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

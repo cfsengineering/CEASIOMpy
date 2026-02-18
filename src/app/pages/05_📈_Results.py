@@ -1199,6 +1199,7 @@ def _display_txt(path: Path) -> None:
 def _display_su2(path: Path) -> None:
     """Display SU2 mesh in Streamlit using PyVista."""
     with st.container(border=True):
+        # TODO: Add with path.name #vertices #edges #surfaces of the displayed su2 mesh
         st.markdown(f"**{path.name}**")
         try:
             marker_map: dict[str, int] = {}

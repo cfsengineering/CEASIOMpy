@@ -37,8 +37,6 @@ from unittest.mock import patch
 from ceasiompy.utils.commonpaths import (
     WKDIR_PATH,
     STREAMLIT_PATH,
-    TEST_CASES_PATH,
-    CPACS_FILES_PATH,
 )
 
 
@@ -233,7 +231,7 @@ def run_gui(
     env["MAX_CPUS"] = str(cpus)
 
     # Expose working directory to the Streamlit app
-    env["CEASIOMPY_wkdir"] = str(wkdir)
+    env["CEASIOMPY_WKDIR"] = str(wkdir)
 
     streamlit_entrypoint = str(STREAMLIT_PATH / "app.py")
     args = [
@@ -324,7 +322,6 @@ def main() -> None:
     )
 
     parser.add_argument(
-        "-c",
         "--cfg",
         type=str,
         metavar="PATH",
@@ -337,7 +334,6 @@ def main() -> None:
         help="create a CEASIOMpy workflow with the Graphical user interface",
     )
     parser.add_argument(
-        "-p",
         "--port",
         type=int,
         required=False,
@@ -365,6 +361,12 @@ def main() -> None:
         help="Select specific work directory (for the results).",
     )
     parser.add_argument(
+        "--cpacs",
+        type=Path,
+        required=False,
+        help="Path for the input CPACS file.",
+    )
+    parser.add_argument(
         "--headless",
         required=False,
         nargs="?",
@@ -381,13 +383,11 @@ def main() -> None:
         help="Select maximum number of authorized CPUs.",
     )
     parser.add_argument(
-        "-m",
         "--modules",
         nargs="+",
         metavar="",
         default=[],
-        help="create a CEASIOMpy workflow by giving the CPACS file and the list of module to run"
-        " [Path to the CPACS] [Module list]",
+        help="List of module to run [Module list]",
     )
     args: Namespace = parser.parse_args()
 
@@ -402,6 +402,8 @@ def main() -> None:
     if args.gui:
         port = int(args.port) if args.port is not None else None
         wkdir = Path(args.wkdir) if args.wkdir is not None else None
+
+        # cpacs_path = Path(args.cpacs) if args.cpacs is not None else None
         cleanup_previous_workflow_status(wkdir)
         run_gui(
             port=port,
@@ -410,6 +412,8 @@ def main() -> None:
             headless=args.headless,
             address=args.address,
             cloud=bool(args.cloud),
+            # cpacs_path=cpacs_path,
+            # modules_list=args.modules,
         )
         return None
 

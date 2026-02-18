@@ -45,20 +45,21 @@ PAYLOAD_DESCRIPTION_XPATH = MASSBREAKDOWN_XPATH + "/payload/massDescription"
 PAYLOAD_MASS_XPATH = MASSBREAKDOWN_XPATH + "/payload/mass"
 PAYLOAD_CARGO_XPATH = MASSBREAKDOWN_XPATH + "/payload/mCargo"
 
-F_XPATH = "/cpacs/vehicles/fuels/fuel"  # TODO remove
 FUEL_DENSITY_XPATH = "/cpacs/vehicles/fuels/fuel/density"
 MASS_CARGO_XPATH = MASSBREAKDOWN_XPATH + "/payload/mCargo/massDescription/mass"
 
 # CEASIOMpy
 CEASIOMPY_XPATH = "/cpacs/toolspecific/CEASIOMpy"
 
-SELECTED_AEROMAP_XPATH = CEASIOMPY_XPATH + "/SelectedAeroMap"
+# CEASIOMpy - Geometry
+GEOM_XPATH = CEASIOMPY_XPATH + "/geometry"
+GEOMETRY_MODE_XPATH = GEOM_XPATH + "/dimension"
+
+SELECTED_AEROMAP_XPATH = CEASIOMPY_XPATH + "/selected_aeromap"
 
 EXPORT_XPATH = CEASIOMPY_XPATH + "/export"
 FUEL_XPATH = CEASIOMPY_XPATH + "/fuels"
 FUEL_CONSUMPTION_XPATH = CEASIOMPY_XPATH + "/fuelConsumption"
-GEOM_XPATH = CEASIOMPY_XPATH + "/geometry"
-GEOMETRY_MODE_XPATH = GEOM_XPATH + "/mode"
 MESH_XPATH = CEASIOMPY_XPATH + "/mesh"
 OPTIM_XPATH = CEASIOMPY_XPATH + "/optimisation"
 PROP_XPATH = CEASIOMPY_XPATH + "/propulsion"

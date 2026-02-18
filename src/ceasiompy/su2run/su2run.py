@@ -9,7 +9,6 @@ Module to run SU2 Calculation in CEASIOMpy
 # Imports
 
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy.utils.ceasiompyutils import is_symmetric
 from ceasiompy.su2run.func.results import get_su2_results
 from ceasiompy.utils.ceasiompyutils import get_sane_max_cpu
 from ceasiompy.su2run.func.runconfigfiles import run_SU2_multi
@@ -25,6 +24,7 @@ from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
+from ceasiompy.cpacs2gmsh import GMSH_XZ_SYMMETRY_XPATH
 from ceasiompy.su2run import (
     SU2_CONFIG_RANS_XPATH,
     SU2_DYNAMICDERIVATIVES_BOOL_XPATH,
@@ -90,7 +90,7 @@ def main(
     else:
         config_file_type = str(get_value(tixi, SU2_CONFIG_RANS_XPATH))
         rans: bool = config_file_type == "RANS"
-        symmetric_mesh = is_symmetric(cpacs)
+        symmetric_mesh = get_value(tixi, xpath=GMSH_XZ_SYMMETRY_XPATH)
 
     # 1. Load .su2 mesh files
     _progress_update(progress_callback, detail="Loading SU2 mesh paths...", progress=0.1)

@@ -41,7 +41,7 @@ class MeshFieldState:
 
 # Functions
 
-def distance_field(mesh_fields, dim, object_tags):
+def distance_field(mesh_fields: MeshFieldState, dim, object_tags):
     """
     This function creates a distance field and add it to the list of mesh fields
 
@@ -726,16 +726,17 @@ def refine_other_lines(
             # one will be much more refined, and therefore the other need to also be progressive
             # so we adapt refine factor so that the field start at the same size at the line
             refine_factor_adapted = refine * part_size_surf_m["mesh_size"] / min_mesh_size
-            mesh_fields = refine_surface(
-                part_uid=part.uid,
-                lines_to_refine=[line],
-                surfaces_tag=part_size_surf_m["surfs"],
-                mesh_fields=mesh_fields,
-                m=part_size_surf_m["m"],
-                n_power=n_power,
-                refine=refine_factor_adapted,
-                mesh_size=part_size_surf_m["mesh_size"],
-            )
+            refine_factor_adapted += 1
+            # mesh_fields = refine_surface(
+            #     part_uid=part.uid,
+            #     lines_to_refine=[line],
+            #     surfaces_tag=part_size_surf_m["surfs"],
+            #     mesh_fields=mesh_fields,
+            #     m=part_size_surf_m["m"],
+            #     n_power=n_power,
+            #     refine=refine_factor_adapted,
+            #     mesh_size=part_size_surf_m["mesh_size"],
+            # )
 
     return mesh_fields
 

@@ -156,7 +156,7 @@ def _export(
 
     if not brep_file.exists():
         log.error(f"Failed to _export {uid}")
-        raise FileNotFoundError(f"Failed to _export {uid}")        
+        raise FileNotFoundError(f"Failed to _export {uid}")
 
 
 def _export_wing_brep(aircraft_config: Any) -> list[Geometry]:
@@ -178,6 +178,9 @@ def _export_wing_brep(aircraft_config: Any) -> list[Geometry]:
                 uid=wing_uid + "_mirrored",
                 geom=wing_m_geom,
             ))
+            log.info(f"Added Wing {wing_uid} (+_mirrored).")
+            continue
+        log.info(f"Added Wing {wing_uid}")
 
     log.info(f"Found {len(wing_breps)=} Total Wing Geometries.")
     return wing_breps
@@ -201,6 +204,10 @@ def _export_fuselage_brep(aircraft_config: Any) -> list[Geometry]:
                 uid=fuselage_uid + "_mirrored",
                 geom=fuselage_m_geom,
             ))
+            log.info(f"Added Fuselage {fuselage_uid} (+_mirrored).")
+            continue
+        log.info(f"Added Fuselage {fuselage_uid}.")
+
     log.info(f"Found {len(fuselage_breps)=} Total Fuselage Geometries.")
     return fuselage_breps
 
@@ -223,13 +230,16 @@ def _export_pylon_brep(aircraft_config: Any) -> list[Geometry]:
             uid=pylon_uid,
             geom=pylon_geom,
         ))
-
         pylon_m_geom = pylon.get_mirrored_loft()
         if pylon_m_geom is not None:
             pylon_breps.append(Geometry(
                 uid=pylon_uid + "_mirrored",
                 geom=pylon_m_geom,
             ))
+            log.info(f"Added Pylon {pylon_uid} (+_mirrored).")
+            continue
+        log.info(f"Added Pylon {pylon_uid}.")
+
     log.info(f"Found {len(pylon_breps)=} Total Pylon Geometries.")
 
     return pylon_breps

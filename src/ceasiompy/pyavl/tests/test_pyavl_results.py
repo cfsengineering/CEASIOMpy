@@ -14,7 +14,7 @@ from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 
 from pathlib import Path
 from unittest import main
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 
 from ceasiompy.pyavl import MODULE_DIR
 
@@ -23,7 +23,7 @@ from ceasiompy.pyavl import MODULE_DIR
 # =================================================================================================
 
 
-class TestAvlResults(CeasiompyTest):
+class TestAvlResults(CEASIOMpyTest):
 
     @classmethod
     def setUpClass(cls):

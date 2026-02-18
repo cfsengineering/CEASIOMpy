@@ -130,7 +130,8 @@ def diagnose_surface_mesh(
     mesh_path: Path,
 ) -> None:
     """Check mesh topology and export diagnostics without repairing."""
-    # For STL, duplicate vertices are common; process=True merges topology needed for watertight checks.
+    # For STL, duplicate vertices are common;
+    # process=True merges topology needed for watertight checks.
     loaded_mesh = trimesh.load_mesh(str(mesh_path), process=True)
     if isinstance(loaded_mesh, trimesh.Scene):
         mesh = loaded_mesh.dump(concatenate=True)
@@ -138,7 +139,9 @@ def diagnose_surface_mesh(
         mesh = loaded_mesh
 
     if not isinstance(mesh, Trimesh):
-        raise ValueError("Could not convert exported STL to Trimesh; skipping watertightness check.")
+        raise ValueError(
+            """Could not convert exported STL to Trimesh; skipping watertightness check."""
+        )
 
     mesh = _clean_surface_topology(mesh)
     boundary_edges, nonmanifold_edges = _edge_topology_stats(mesh)

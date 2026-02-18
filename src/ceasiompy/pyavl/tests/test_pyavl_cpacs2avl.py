@@ -20,7 +20,7 @@ from ceasiompy.utils.ceasiompyutils import (
 
 from pathlib import Path
 from ceasiompy.pyavl.func.cpacs2avl import Avl
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 from ceasiompy.utils.generalclasses import (
     Point,
     Transformation,
@@ -33,7 +33,7 @@ from ceasiompy.pyavl import MODULE_NAME
 # =================================================================================================
 
 
-class TestWriteFuselage(CeasiompyTest):
+class TestWriteFuselage(CEASIOMpyTest):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

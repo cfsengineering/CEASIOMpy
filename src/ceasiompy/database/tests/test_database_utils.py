@@ -22,7 +22,7 @@ from ceasiompy.database.func.utils import (
 from pathlib import Path
 from unittest import main
 from ceasiompy.database.func.storing import CeasiompyDb
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 
 from ceasiompy import log
 from ceasiompy.pyavl import MODULE_NAME as PYAVL_NAME
@@ -33,7 +33,7 @@ from ceasiompy.utils.commonpaths import TESTCEASIOMPY_DB_PATH
 # =================================================================================================
 
 
-class TestDatabase(CeasiompyTest):
+class TestDatabase(CEASIOMpyTest):
 
     @classmethod
     def setUpClass(cls: "TestDatabase") -> None:

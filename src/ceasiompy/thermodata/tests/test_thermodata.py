@@ -35,7 +35,7 @@ from ceasiompy.thermodata.func.turbofan import (
 )
 
 from unittest import main
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 
 
 # Functions
@@ -160,7 +160,7 @@ def test_write_hbtf_file(tmp_path):
 # =================================================================================================
 
 
-class TestThermoData(CeasiompyTest):
+class TestThermoData(CEASIOMpyTest):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

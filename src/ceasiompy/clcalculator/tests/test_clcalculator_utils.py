@@ -17,7 +17,7 @@ from ceasiompy.clcalculator.func.utils import (
 
 from unittest import main
 from unittest.mock import MagicMock
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 
 from unittest.mock import patch
 from ceasiompy.clcalculator import MODULE_NAME as CLCALCULATOR
@@ -31,7 +31,7 @@ from ceasiompy.su2run import (
 # =================================================================================================
 
 
-class TestClCalculatorUtils(CeasiompyTest):
+class TestClCalculatorUtils(CEASIOMpyTest):
 
     @patch(f"ceasiompy.{CLCALCULATOR}.func.utils.create_branch")
     @patch(f"ceasiompy.{CLCALCULATOR}.func.utils.log")

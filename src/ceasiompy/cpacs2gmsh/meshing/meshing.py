@@ -105,7 +105,6 @@ def process_3d_geometry(
         su2mesh_path = euler_mesh(
             results_dir=results_dir,
             mesh_settings=mesh_settings,
-            surface_mesh_path=surface_mesh_path,
             farfield_settings=farfield_settings,
         )
 

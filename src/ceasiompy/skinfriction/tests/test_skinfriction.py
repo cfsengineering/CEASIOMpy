@@ -17,7 +17,7 @@ from ceasiompy.skinfriction.skinfriction import (
 from pytest import approx
 
 from unittest import main
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 
 from ceasiompy.skinfriction import MODULE_NAME
 
@@ -26,7 +26,7 @@ from ceasiompy.skinfriction import MODULE_NAME
 # =================================================================================================
 
 
-class TestSkinFriction(CeasiompyTest):
+class TestSkinFriction(CEASIOMpyTest):
 
     @classmethod
     def setUpClass(cls):

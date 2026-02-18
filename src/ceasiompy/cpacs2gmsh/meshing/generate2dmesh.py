@@ -1,30 +1,18 @@
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
-Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
-
-Use .brep files parts of an airplane to generate a fused airplane in GMSH with
-the OCC kernel. Then Spherical farfield is created around the airplane and the
-resulting domain is meshed using gmsh
-
-TODO:
-    - It may be good to move all the function and some of the code in generategmsh()
-    that are related to disk actuator to another python script and import it here
-    - Add mesh sizing for each aircraft part and as consequence add marker
-    - Integrate other parts during fragmentation
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland.
 """
 
 # Imports
 
+import re
 import gmsh
-import random
 
-from dataclasses import (
-    field,
-    dataclass,
-)
-from ceasiompy.cpacs2gmsh.utility.utils import process_gmsh_log
 from ceasiompy.cpacs2gmsh.utility.diagnose import diagnose_surface_mesh
+from ceasiompy.cpacs2gmsh.utility.sanity import (
+    check_surfaces_with_open_loops,
+)
 from ceasiompy.cpacs2gmsh.utility.wingclassification import (
     classify_wing,
     exclude_lines,
@@ -36,68 +24,24 @@ from ceasiompy.cpacs2gmsh.meshing.advancemeshing import (
 )
 
 from pathlib import Path
-from pydantic import BaseModel
 from itertools import combinations
+from collections import defaultdict
 from ceasiompy.cpacs2gmsh.meshing.advancemeshing import MeshFieldState
-from collections import (
-    deque,
-    defaultdict,
+from ceasiompy.cpacs2gmsh.utility.surface import (
+    FuseEntry,
+    SurfacePart,
 )
 from ceasiompy.cpacs2gmsh.utility.utils import (
     PartType,
     BoundingBox,
     MeshSettings,
     AircraftGeometry,
-    FarfieldSettings,
 )
 
 from ceasiompy import log
 
 
-# Constants
-
-PART_TYPE_PRIORITY: tuple[PartType, ...] = (
-    PartType.fuselage,
-    PartType.wing,
-    PartType.pylon,
-)
-
-# Classes
-
-class FuseEntry(BaseModel):
-    name: str
-    dimtag: tuple[int, int]
-    part_type: PartType
-
-
-@dataclass
-class SurfacePart:
-    uid: str
-    part_type: PartType
-    volume: tuple[int, int]
-    surfaces: list[tuple[int, int]] = field(default_factory=list)
-    surfaces_tags: list[int] = field(default_factory=list)
-    lines: list[tuple[int, int]] = field(default_factory=list)
-    lines_tags: list[int] = field(default_factory=list)
-    points: list[tuple[int, int]] = field(default_factory=list)
-    points_tags: list[int] = field(default_factory=list)
-    wing_sections: list[dict] = field(default_factory=list)
-    mesh_size: float = 0.0
-
-
 # Methods
-
-def _resolve_merged_part_type(
-    left_type: PartType,
-    right_type: PartType,
-) -> PartType:
-    """Resolve merged part type using fixed precedence."""
-    for candidate in PART_TYPE_PRIORITY:
-        if left_type == candidate or right_type == candidate:
-            return candidate
-
-    raise ValueError(f"Unsupported part type merge: {left_type=} {right_type=}")
-
 
 def _bounding_box(volume_tags: list[int]) -> list[float]:
     """Return a union bounding box [xmin, ymin, zmin, xmax, ymax, zmax]."""
@@ -157,7 +101,10 @@ def _apply_symmetry_cut(fused_parts: list[FuseEntry]) -> list[FuseEntry]:
     # outDimTagsMap entries are ordered as input object dimtags then tools.
     updated_parts: list[FuseEntry] = []
     for part, mapped_dimtags in zip(fused_parts, cut_map[:len(object_dimtags)]):
-        mapped_volumes = [dimtag for dimtag in mapped_dimtags if dimtag[0] == 3]
+        mapped_volumes = sorted(
+            [dimtag for dimtag in mapped_dimtags if dimtag[0] == 3],
+            key=lambda dimtag: dimtag[1],
+        )
         if not mapped_volumes:
             continue
 
@@ -177,82 +124,6 @@ def _apply_symmetry_cut(fused_parts: list[FuseEntry]) -> list[FuseEntry]:
         raise ValueError("Symmetry cut removed all volumes; cannot continue meshing.")
 
     return updated_parts
-
-
-def _fuse_intersecting_entries(
-    dimtags_names: list[FuseEntry],
-    max_failed_attempts: int = 20,
-) -> list[FuseEntry]:
-    """
-    Fuse intersecting volume entries in gmsh OCC.
-    """
-    log.info("Start fusion of the different parts.")
-
-    failed_attempts = 0
-    while len(dimtags_names) > 1:
-        # As long as intersecting: then fuse
-        pair = _get_intersecting_entites(dimtags_names)
-        if pair is None:
-            # Exit if no more intersecting entites
-            log.info("No intersections found. Finished Fusing parts.")
-            return dimtags_names
-
-        i, j = pair
-        left_name = str(dimtags_names[i].name)
-        right_name = str(dimtags_names[j].name)
-        merged_name = f"{left_name}+{right_name}"
-        merged_part_type = _resolve_merged_part_type(
-            dimtags_names[i].part_type,
-            dimtags_names[j].part_type,
-        )
-
-        try:
-            # Fusing 3D entities
-            fused_entities, _ = gmsh.model.occ.fuse(
-                [dimtags_names[i].dimtag],
-                [dimtags_names[j].dimtag],
-            )
-            gmsh.model.occ.synchronize()
-
-            if not fused_entities:
-                failed_attempts += 1
-                log.warning(f"Fuse produced no entity for pair {merged_name}; retrying.")
-                continue
-
-            for idx in sorted((i, j), reverse=True):
-                dimtags_names.pop(idx)
-
-            dimtags_names.append(FuseEntry(
-                name=merged_name,
-                dimtag=fused_entities[0],
-                part_type=merged_part_type,
-            ))
-
-            if len(fused_entities) > 1:
-                failed_attempts += 1
-                log.warning(
-                    f"Fuse of {merged_name} returned {len(fused_entities)} solids; keeping all."
-                )
-                for k, extra_dimtag in enumerate(fused_entities[1:], start=2):
-                    dimtags_names.append(FuseEntry(
-                        name=f"{merged_name}#part{k}",
-                        dimtag=extra_dimtag,
-                        part_type=merged_part_type,
-                    ))
-
-        except Exception as err:
-            failed_attempts += 1
-            log.warning(f"Fusion failed for pair ({i}, {j}): {err}")
-            random.shuffle(dimtags_names)
-
-        if failed_attempts > max_failed_attempts:
-            remaining = [str(item.name) for item in dimtags_names]
-            raise ValueError(
-                "Fusion stopped after repeated failures. "
-                f"Remaining disconnected groups ({len(remaining)}): {remaining}"
-            )
-
-    return dimtags_names
 
 
 def _build_entries_from_geometry(aircraft_geom: AircraftGeometry) -> list[FuseEntry]:
@@ -281,113 +152,10 @@ def _build_entries_from_geometry(aircraft_geom: AircraftGeometry) -> list[FuseEn
         )
         for geom in aircraft_geom.fuselage_geoms
     ]
-    return wing_entries + pylon_entries + fuselage_entries
-
-
-def _fragment_remove_shared_children(aircraft_geom: AircraftGeometry) -> list[FuseEntry]:
-    """Fragment all part volumes, then assign each child solid to one part."""
-    entries = _build_entries_from_geometry(aircraft_geom)
-    if len(entries) <= 1:
-        return entries
-
-    parent_volumes = [
-        gmsh.model.occ.getMass(*entry.dimtag)
-        for entry in entries
-    ]
-
-    log.info("Fragmenting part volumes to split intersections before meshing.")
-    parent_dimtags = [entry.dimtag for entry in entries]
-    _, children_dimtags = gmsh.model.occ.fragment(
-        [parent_dimtags[0]],
-        parent_dimtags[1:],
+    return sorted(
+        wing_entries + pylon_entries + fuselage_entries,
+        key=lambda entry: (str(entry.part_type), entry.name, entry.dimtag[1]),
     )
-    gmsh.model.occ.synchronize()
-
-    # Keep only volumetric children and track how many parents share each child.
-    children_per_parent: list[set[tuple[int, int]]] = []
-    child_usage: dict[tuple[int, int], int] = defaultdict(int)
-    for children in children_dimtags:
-        child_vols = {child for child in children if child[0] == 3}
-        children_per_parent.append(child_vols)
-        for child in child_vols:
-            child_usage[child] += 1
-
-    shared_children = {child for child, usage in child_usage.items() if usage > 1}
-    child_parents: dict[tuple[int, int], list[int]] = defaultdict(list)
-    for parent_idx, parent_children in enumerate(children_per_parent):
-        for child in parent_children:
-            child_parents[child].append(parent_idx)
-
-    owner_by_shared_child: dict[tuple[int, int], int] = {}
-    if shared_children:
-        part_type_owner_rank = {
-            PartType.wing: 2,
-            PartType.fuselage: 1,
-            PartType.pylon: 0,
-        }
-        for child in shared_children:
-            parents = child_parents[child]
-            owner_by_shared_child[child] = max(
-                parents,
-                key=lambda idx: (
-                    parent_volumes[idx],
-                    part_type_owner_rank[entries[idx].part_type],
-                    -idx,
-                ),
-            )
-        log.info(
-            f"Keeping {len(shared_children)} shared child volume(s) and assigning each to one owner part."
-        )
-
-    rebuilt_entries: list[FuseEntry] = []
-    for idx, (entry, parent_children) in enumerate(zip(entries, children_per_parent)):
-        assigned_children = sorted([
-            child
-            for child in parent_children
-            if child_usage[child] == 1 or owner_by_shared_child.get(child) == idx
-        ])
-        if not assigned_children:
-            log.info(f"Part {entry.name} has no remaining assigned child volume after fragment.")
-            continue
-
-        if len(assigned_children) == 1:
-            rebuilt_entries.append(FuseEntry(
-                name=entry.name,
-                dimtag=assigned_children[0],
-                part_type=entry.part_type,
-            ))
-            continue
-
-        fused_children, _ = gmsh.model.occ.fuse([assigned_children[0]], assigned_children[1:])
-        gmsh.model.occ.synchronize()
-        if not fused_children:
-            log.warning(
-                f"Could not fuse {len(assigned_children)} children of {entry.name}; keeping first."
-            )
-            rebuilt_entries.append(FuseEntry(
-                name=entry.name,
-                dimtag=assigned_children[0],
-                part_type=entry.part_type,
-            ))
-            continue
-
-        rebuilt_entries.append(FuseEntry(
-            name=entry.name,
-            dimtag=fused_children[0],
-            part_type=entry.part_type,
-        ))
-
-        for k, extra_dimtag in enumerate(fused_children[1:], start=2):
-            rebuilt_entries.append(FuseEntry(
-                name=f"{entry.name}#part{k}",
-                dimtag=extra_dimtag,
-                part_type=entry.part_type,
-            ))
-
-    if not rebuilt_entries:
-        raise ValueError("Fragment cleanup removed all volumes; cannot continue meshing.")
-
-    return rebuilt_entries
 
 
 def _get_model_dim(model_bb: list[float]) -> list[float]:
@@ -396,186 +164,6 @@ def _get_model_dim(model_bb: list[float]) -> list[float]:
         abs(model_bb[1] - model_bb[4]),
         abs(model_bb[2] - model_bb[5]),
     ]
-
-
-def _line_endpoints(line_tag: int) -> tuple[int, int] | None:
-    """Return endpoint point tags for a curve if available."""
-    _, points = gmsh.model.getAdjacencies(1, line_tag)
-    if len(points) != 2:
-        return None
-    return int(points[0]), int(points[1])
-
-
-def _count_free_edge_components(line_tags: list[int]) -> tuple[int, int]:
-    """Return number of connected free-edge components and how many are closed loops."""
-    if not line_tags:
-        return 0, 0
-
-    adjacency: dict[int, set[int]] = defaultdict(set)
-    valid_edges = 0
-    for line_tag in line_tags:
-        endpoints = _line_endpoints(line_tag)
-        if endpoints is None:
-            continue
-        p1, p2 = endpoints
-        adjacency[p1].add(p2)
-        adjacency[p2].add(p1)
-        valid_edges += 1
-
-    if valid_edges == 0:
-        return 0, 0
-
-    visited: set[int] = set()
-    components = 0
-    closed_loops = 0
-    for start in adjacency:
-        if start in visited:
-            continue
-        components += 1
-        queue: deque[int] = deque([start])
-        is_closed = True
-        while queue:
-            node = queue.popleft()
-            if node in visited:
-                continue
-            visited.add(node)
-            # In a closed loop each boundary vertex has degree 2.
-            if len(adjacency[node]) != 2:
-                is_closed = False
-            for nxt in adjacency[node]:
-                if nxt not in visited:
-                    queue.append(nxt)
-        if is_closed:
-            closed_loops += 1
-
-    return components, closed_loops
-
-
-def _volume_edge_topology(volume_tag: int) -> tuple[list[int], list[int]]:
-    """Return (free_edge_lines, nonmanifold_edge_lines) for one OCC volume."""
-    surfaces = gmsh.model.getBoundary(
-        [(3, volume_tag)],
-        combined=True,
-        oriented=False,
-        recursive=False,
-    )
-    line_use: dict[int, int] = defaultdict(int)
-    for surface in surfaces:
-        lines = gmsh.model.getBoundary(
-            [surface],
-            combined=False,
-            oriented=False,
-            recursive=False,
-        )
-        for _, line_tag in lines:
-            line_use[int(line_tag)] += 1
-
-    free_lines = sorted([line_tag for line_tag, n in line_use.items() if n == 1])
-    nonmanifold_lines = sorted([line_tag for line_tag, n in line_use.items() if n > 2])
-    return free_lines, nonmanifold_lines
-
-
-def _remap_fused_parts_if_needed(
-    fused_parts: list[FuseEntry],
-    old_centers: dict[str, tuple[float, float, float]],
-) -> None:
-    """Remap fused part volume tags if OCC healing changed them."""
-    current_volume_tags = [tag for (_, tag) in gmsh.model.occ.getEntities(3)]
-    current_volume_set = set(current_volume_tags)
-    stale_parts = [part for part in fused_parts if part.dimtag[1] not in current_volume_set]
-    if not stale_parts:
-        return
-
-    if len(current_volume_tags) != len(fused_parts):
-        raise ValueError(
-            "OCC healing changed the number of volumes and part-tag mapping is ambiguous. "
-            f"Current volumes={len(current_volume_tags)}, expected parts={len(fused_parts)}."
-        )
-
-    new_centers: dict[int, tuple[float, float, float]] = {}
-    for tag in current_volume_tags:
-        bb = gmsh.model.occ.getBoundingBox(3, tag)
-        new_centers[tag] = (
-            0.5 * (bb[0] + bb[3]),
-            0.5 * (bb[1] + bb[4]),
-            0.5 * (bb[2] + bb[5]),
-        )
-
-    unassigned_tags = set(current_volume_tags)
-    for part in fused_parts:
-        cx, cy, cz = old_centers[part.name]
-        best_tag = min(
-            unassigned_tags,
-            key=lambda tag: (
-                (new_centers[tag][0] - cx) ** 2
-                + (new_centers[tag][1] - cy) ** 2
-                + (new_centers[tag][2] - cz) ** 2
-            ),
-        )
-        part.dimtag = (3, best_tag)
-        unassigned_tags.remove(best_tag)
-
-    log.warning("OCC healing changed volume tags; remapped fused parts by geometric proximity.")
-
-
-def _heal_and_validate_occ_volumes(
-    fused_parts: list[FuseEntry],
-    *,
-    heal_tolerance: float = 1e-7,
-) -> None:
-    """Heal OCC volumes, then fail early if any open/non-manifold CAD edges remain."""
-    current_volumes = gmsh.model.occ.getEntities(3)
-    if not current_volumes:
-        raise ValueError("No OCC volumes available before meshing.")
-
-    old_centers: dict[str, tuple[float, float, float]] = {}
-    for part in fused_parts:
-        bb = gmsh.model.occ.getBoundingBox(*part.dimtag)
-        old_centers[part.name] = (
-            0.5 * (bb[0] + bb[3]),
-            0.5 * (bb[1] + bb[4]),
-            0.5 * (bb[2] + bb[5]),
-        )
-
-    log.info(
-        "Running OCC healing before meshing "
-        "(sewFaces=True, makeSolids=True, fixSmallEdges/Faces=True)."
-    )
-    gmsh.model.occ.healShapes(
-        dimTags=current_volumes,
-        tolerance=heal_tolerance,
-        fixDegenerated=True,
-        fixSmallEdges=True,
-        fixSmallFaces=True,
-        sewFaces=True,
-        makeSolids=True,
-    )
-    gmsh.model.occ.removeAllDuplicates()
-    gmsh.model.occ.synchronize()
-    _remap_fused_parts_if_needed(fused_parts, old_centers=old_centers)
-
-    failing_volumes: list[str] = []
-    for _, volume_tag in gmsh.model.occ.getEntities(3):
-        free_lines, nonmanifold_lines = _volume_edge_topology(volume_tag)
-        if not free_lines and not nonmanifold_lines:
-            continue
-
-        n_components, n_closed_loops = _count_free_edge_components(free_lines)
-        failing_volumes.append(
-            f"vol={volume_tag}: free_edges={len(free_lines)} "
-            f"(components={n_components}, closed_loops={n_closed_loops}), "
-            f"nonmanifold_edges={len(nonmanifold_lines)}"
-        )
-
-    if failing_volumes:
-        details = "; ".join(failing_volumes[:5])
-        if len(failing_volumes) > 5:
-            details += f"; ... (+{len(failing_volumes) - 5} more volumes)"
-        raise ValueError(
-            "Open/non-manifold CAD topology detected before surface meshing. "
-            "STL export only triangulates current OCC faces and does not create missing caps. "
-            f"Details: {details}"
-        )
 
 
 def _center_all_entities(model_bb: list[float]) -> None:
@@ -593,53 +181,265 @@ def _center_all_entities(model_bb: list[float]) -> None:
     gmsh.model.occ.synchronize()
 
 
-def _get_intersecting_entites(entries: list[FuseEntry]) -> tuple[int, int] | None:
-    """
-    Return indices of an intersecting volume pair, if any.
+def _validate_open_loops_or_raise(
+    results_dir: Path,
+    stage_label: str,
+    aircraft_parts: list[SurfacePart],
+) -> dict[int, list[str]]:
+    """Validate surface loops and store diagnostics immediately on failure."""
+    try:
+        stage_slug = re.sub(r"[^a-zA-Z0-9_-]+", "_", stage_label).strip("_").lower()
+        stage_results_dir = Path(results_dir, "topology_stages", stage_slug)
+        stage_results_dir.mkdir(parents=True, exist_ok=True)
+        return check_surfaces_with_open_loops(
+            results_dir=stage_results_dir,
+            aircraft_parts=aircraft_parts,
+        )
+    except ValueError as error:
+        raise ValueError(f"[{stage_label}] {error}") from error
 
-    The search is optimized by first testing bounding-box overlap and only
-    running expensive OCC boolean intersections for candidate pairs.
+
+def _bbox_overlap_with_tol(
+    bb1: BoundingBox,
+    bb2: BoundingBox,
+    tol: float,
+) -> bool:
+    return (
+        bb1[0] <= bb2[3] + tol and bb1[3] >= bb2[0] - tol
+        and bb1[1] <= bb2[4] + tol and bb1[4] >= bb2[1] - tol
+        and bb1[2] <= bb2[5] + tol and bb1[5] >= bb2[2] - tol
+    )
+
+
+def _part_owner_rank(part_type: PartType) -> int:
+    """Higher rank means stronger preference to keep overlap volume."""
+    if part_type == PartType.fuselage:
+        return 2
+    if part_type == PartType.wing:
+        return 1
+    return 0
+
+
+def _select_cut_index(
+    entries: list[FuseEntry],
+    i: int,
+    j: int,
+) -> int:
+    """Choose which entry to cut; keep overlap on the highest-priority owner."""
+    left = entries[i]
+    right = entries[j]
+    left_mass = abs(gmsh.model.occ.getMass(*left.dimtag))
+    right_mass = abs(gmsh.model.occ.getMass(*right.dimtag))
+    left_score = (left_mass, _part_owner_rank(left.part_type), left.name)
+    right_score = (right_mass, _part_owner_rank(right.part_type), right.name)
+    owner_index = i if left_score >= right_score else j
+    return j if owner_index == i else i
+
+
+def _pairwise_controlled_booleans(
+    results_dir: Path,
+    entries: list[FuseEntry],
+    model_bb: list[float],
+) -> list[FuseEntry]:
+    """
+    Apply sequential pairwise booleans with guards against fragile intersections.
+
+    Policy:
+    - skip near-tangent pairs (no volumetric intersection),
+    - skip tiny volumetric overlaps,
+    - cut only one side (non-owner) for robust overlap ownership.
     """
     if len(entries) < 2:
-        return None
+        return entries
 
-    def _bbox_overlap(
-        bb1: BoundingBox,
-        bb2: BoundingBox,
-    ) -> bool:
-        return (
-            bb1[0] <= bb2[3] and bb1[3] >= bb2[0]
-            and bb1[1] <= bb2[4] and bb1[4] >= bb2[1]
-            and bb1[2] <= bb2[5] and bb1[5] >= bb2[2]
-        )
+    model_dim = _get_model_dim(model_bb)
+    bb_tol = max(1e-9, max(model_dim) * 1e-8)
+    model_volume = max(model_dim[0] * model_dim[1] * model_dim[2], 1.0)
+    tiny_overlap_abs = model_volume * 1e-12
+    tiny_overlap_rel = 1e-8
+    near_tangent_pairs: list[str] = []
+    tiny_overlap_pairs: list[str] = []
+    performed_cuts = 0
 
-    bboxes: list[BoundingBox] = [
-        gmsh.model.occ.getBoundingBox(*entry.dimtag)
-        for entry in entries
-    ]
+    changed = True
+    while changed:
+        changed = False
+        bboxes = [gmsh.model.occ.getBoundingBox(*entry.dimtag) for entry in entries]
 
-    for i in range(len(entries) - 1):
-        entities1 = [entries[i].dimtag]
-        bb1 = bboxes[i]
-        for j in range(i + 1, len(entries)):
-            if not _bbox_overlap(bb1, bboxes[j]):
+        for i, j in combinations(range(len(entries)), 2):
+            if not _bbox_overlap_with_tol(bboxes[i], bboxes[j], bb_tol):
                 continue
 
-            entities2 = [entries[j].dimtag]
-            intersect = gmsh.model.occ.intersect(
-                entities1,
-                entities2,
+            intersection_entities, _ = gmsh.model.occ.intersect(
+                [entries[i].dimtag],
+                [entries[j].dimtag],
                 removeObject=False,
                 removeTool=False,
-            )[0]
+            )
+            gmsh.model.occ.synchronize()
+            if not intersection_entities:
+                continue
 
-            if intersect:
-                log.info(f"Intersecting entry {i} and entry {j}.")
-                gmsh.model.occ.remove(intersect, recursive=True)
+            inter_volumes = sorted(
+                [dimtag for dimtag in intersection_entities if dimtag[0] == 3],
+                key=lambda dimtag: dimtag[1],
+            )
+            if not inter_volumes:
+                near_tangent_pairs.append(
+                    f"{entries[i].name} <-> {entries[j].name}: "
+                    f"intersection_dims={sorted({dim for dim, _ in intersection_entities})}"
+                )
+                gmsh.model.occ.remove(intersection_entities, recursive=True)
                 gmsh.model.occ.synchronize()
-                return i, j
+                continue
 
-    return None
+            overlap_volume = sum(abs(gmsh.model.occ.getMass(*dimtag)) for dimtag in inter_volumes)
+            reference_volume = min(
+                abs(gmsh.model.occ.getMass(*entries[i].dimtag)),
+                abs(gmsh.model.occ.getMass(*entries[j].dimtag)),
+            )
+            if overlap_volume <= tiny_overlap_abs or overlap_volume <= reference_volume * tiny_overlap_rel:
+                tiny_overlap_pairs.append(
+                    f"{entries[i].name} <-> {entries[j].name}: overlap={overlap_volume:.6e}"
+                )
+                gmsh.model.occ.remove(intersection_entities, recursive=True)
+                gmsh.model.occ.synchronize()
+                continue
+
+            cut_index = _select_cut_index(entries, i=i, j=j)
+            keep_index = j if cut_index == i else i
+            cut_entry = entries[cut_index]
+            keep_entry = entries[keep_index]
+            cut_result, _ = gmsh.model.occ.cut(
+                [cut_entry.dimtag],
+                [keep_entry.dimtag],
+                removeObject=True,
+                removeTool=False,
+            )
+            gmsh.model.occ.remove(intersection_entities, recursive=True)
+            gmsh.model.occ.synchronize()
+
+            cut_volumes = sorted(
+                [dimtag for dimtag in cut_result if dimtag[0] == 3],
+                key=lambda dimtag: dimtag[1],
+            )
+            if not cut_volumes:
+                log.warning("Pairwise cut removed %s entirely.", cut_entry.name)
+                entries.pop(cut_index)
+            else:
+                log.info(
+                    "Pairwise cut: %s cut by %s (overlap=%.6e).",
+                    cut_entry.name,
+                    keep_entry.name,
+                    overlap_volume,
+                )
+                entries[cut_index] = FuseEntry(
+                    name=cut_entry.name,
+                    dimtag=cut_volumes[0],
+                    part_type=cut_entry.part_type,
+                )
+                for k, extra in enumerate(cut_volumes[1:], start=2):
+                    entries.append(FuseEntry(
+                        name=f"{cut_entry.name}#split{k}",
+                        dimtag=extra,
+                        part_type=cut_entry.part_type,
+                    ))
+
+            performed_cuts += 1
+            changed = True
+            break
+        if changed:
+            continue
+
+    debug_root = Path(results_dir, "debug_open_loops")
+    debug_root.mkdir(parents=True, exist_ok=True)
+    report_path = Path(debug_root, "pairwise_boolean_skips.txt")
+    with report_path.open("w", encoding="utf-8") as stream:
+        stream.write("# Pairwise controlled-boolean diagnostics\n")
+        stream.write(f"performed_cuts={performed_cuts}\n")
+        stream.write(f"near_tangent_skips={len(near_tangent_pairs)}\n")
+        stream.write(f"tiny_overlap_skips={len(tiny_overlap_pairs)}\n\n")
+        stream.write("[near_tangent]\n")
+        for line in near_tangent_pairs:
+            stream.write(f"{line}\n")
+        stream.write("\n[tiny_overlap]\n")
+        for line in tiny_overlap_pairs:
+            stream.write(f"{line}\n")
+
+    log.info(
+        "Pairwise booleans done: cuts=%d, near-tangent skips=%d, tiny-overlap skips=%d",
+        performed_cuts,
+        len(near_tangent_pairs),
+        len(tiny_overlap_pairs),
+    )
+    return entries
+
+
+def _fragment_parts_for_union(entries: list[FuseEntry]) -> list[FuseEntry]:
+    """
+    Fragment all input volumes together to imprint intersections globally.
+
+    This creates conformal edges/surfaces where parts intersect. Internal
+    surfaces are later discarded by keeping only the global external shell.
+    """
+    if not entries:
+        raise ValueError("Cannot fragment parts for union: no entries available.")
+    if len(entries) == 1:
+        return entries
+
+    object_dimtags = [entries[0].dimtag]
+    tool_dimtags = [entry.dimtag for entry in entries[1:]]
+    _, fragment_map = gmsh.model.occ.fragment(
+        object_dimtags,
+        tool_dimtags,
+        removeObject=True,
+        removeTool=True,
+    )
+    gmsh.model.occ.synchronize()
+
+    owner_by_volume: dict[int, FuseEntry] = {}
+    mapped_entries = fragment_map[:len(entries)]
+    for part, mapped_dimtags in zip(entries, mapped_entries):
+        for dim, tag in mapped_dimtags:
+            if dim != 3:
+                continue
+            previous_owner = owner_by_volume.get(tag)
+            if previous_owner is None:
+                owner_by_volume[tag] = part
+                continue
+
+            previous_rank = _part_owner_rank(previous_owner.part_type)
+            candidate_rank = _part_owner_rank(part.part_type)
+            if (candidate_rank, part.name) > (previous_rank, previous_owner.name):
+                owner_by_volume[tag] = part
+
+    volumes_by_owner: dict[str, list[int]] = defaultdict(list)
+    owner_type_by_name: dict[str, PartType] = {}
+    for tag in sorted(owner_by_volume):
+        owner = owner_by_volume[tag]
+        volumes_by_owner[owner.name].append(tag)
+        owner_type_by_name[owner.name] = owner.part_type
+
+    fragmented_parts: list[FuseEntry] = []
+    for owner_name in sorted(volumes_by_owner):
+        owned_tags = volumes_by_owner[owner_name]
+        owner_type = owner_type_by_name[owner_name]
+        fragmented_parts.append(FuseEntry(
+            name=owner_name,
+            dimtag=(3, owned_tags[0]),
+            part_type=owner_type,
+        ))
+        for k, tag in enumerate(owned_tags[1:], start=2):
+            fragmented_parts.append(FuseEntry(
+                name=f"{owner_name}#frag{k}",
+                dimtag=(3, tag),
+                part_type=owner_type,
+            ))
+
+    if not fragmented_parts:
+        raise ValueError("Fragment operation removed all volumes; cannot continue meshing.")
+
+    return fragmented_parts
 
 
 def _sort_surfaces(fused_parts: list[FuseEntry]) -> list[SurfacePart]:
@@ -666,18 +466,21 @@ def _sort_surfaces(fused_parts: list[FuseEntry]) -> list[SurfacePart]:
             recursive=False,
         )
         surfaces = [surface for surface in surfaces if surface[1] in outer_surface_tags]
+        surfaces.sort(key=lambda dimtag: dimtag[1])
         lines = gmsh.model.getBoundary(
             surfaces,
             combined=False,
             oriented=False,
             recursive=False,
         )
+        lines.sort(key=lambda dimtag: dimtag[1])
         points = gmsh.model.getBoundary(
             lines,
             combined=False,
             oriented=False,
             recursive=False,
         )
+        points.sort(key=lambda dimtag: dimtag[1])
         aircraft_parts.append(
             SurfacePart(
                 uid=part.name,
@@ -704,9 +507,18 @@ def _create_physical_groups(
     model_dim = _get_model_dim(model_bb)
 
     if symmetry:
-        length = max(model_dim) + 1
-        bb_y_plane = (-length / 2, -0.0001, -length / 2, length / 2, 0.0001, length / 2)
-        surfaces_y_plane = gmsh.model.occ.getEntitiesInBoundingBox(*bb_y_plane, 2)
+        # Use a strict tolerance to avoid accidentally removing near-center external faces.
+        plane_tol = max(1e-9, max(model_dim) * 1e-9)
+        outer_surface_tags = {
+            tag
+            for part in aircraft_parts
+            for tag in part.surfaces_tags
+        }
+        surfaces_y_plane: list[tuple[int, int]] = []
+        for tag in outer_surface_tags:
+            bb = gmsh.model.occ.getBoundingBox(2, tag)
+            if abs(bb[1]) <= plane_tol and abs(bb[4]) <= plane_tol:
+                surfaces_y_plane.append((2, tag))
         if surfaces_y_plane:
             part_group = gmsh.model.addPhysicalGroup(2, [t for (_, t) in surfaces_y_plane])
             gmsh.model.setPhysicalName(2, part_group, "y symmetry plane")
@@ -730,31 +542,22 @@ def _create_physical_groups(
     return aircraft_parts
 
 
-def _default_mesh_size(
-    part_type: str,
-    mesh_size_by_uid: dict[str, dict[str, float]],
-) -> float:
-    values = list(mesh_size_by_uid.get(part_type, {}).values())
-    return min(values) if values else 1.0
-
-
 def _mesh_size_for_part(
     surface_part: SurfacePart,
     mesh_size_by_uid: dict[str, dict[str, float]],
 ) -> float:
+    """Assign to each part (_mirrored) its specific mesh size"""
     part_type = str(surface_part.part_type)
     sizes_for_type = mesh_size_by_uid.get(part_type, {})
 
-    if surface_part.uid in sizes_for_type:
-        return sizes_for_type[surface_part.uid]
+    # Generated names can carry workflow suffixes (e.g. #frag2, #part2,
+    # #split2, #healed123) and optional mirror suffix.
+    uid_no_mirror = surface_part.uid.removesuffix("_mirrored")
+    base_uid = uid_no_mirror.split("#", 1)[0]
+    if base_uid in sizes_for_type:
+        return sizes_for_type[base_uid]
 
-    # Fused parts can have names like "Wing1+Wing2#part2": try each component UID.
-    uid_candidates = [token.split("#", 1)[0] for token in surface_part.uid.split("+")]
-    matched_sizes = [sizes_for_type[uid] for uid in uid_candidates if uid in sizes_for_type]
-    if matched_sizes:
-        return min(matched_sizes)
-
-    return _default_mesh_size(part_type, mesh_size_by_uid=mesh_size_by_uid)
+    raise ValueError(f"""Could not assign mesh size to {surface_part.uid}.""")
 
 
 def _refine_surface(
@@ -913,22 +716,35 @@ def generate_2d_mesh(
     # Get Model Bounding Box
     model_bb = _bounding_box(all_volume_tags)
 
-    # Center all entities around this Bounding Box
+    # Center all entities
     _center_all_entities(model_bb)
 
-    # Fragment all parts, assign each fragment child to one owner part, then fuse
-    # intersecting cleaned volumes to remove inner interfaces from the final shell.
-    cleaned_parts = _fragment_remove_shared_children(aircraft_geom)
-    fused_parts = _fuse_intersecting_entries(cleaned_parts)
+    # Global fragment to imprint intersections and make all interfaces conformal.
+
+    # Part Volume uIDs
+    source_entries = _build_entries_from_geometry(aircraft_geom)
+
+    # Fragment parts where they intersect
+    cleaned_parts = _fragment_parts_for_union(source_entries)
+
+    # Add back the fused parts in aircraft geometry
+    aircraft_parts = _sort_surfaces(cleaned_parts)
+    _validate_open_loops_or_raise(
+        results_dir=results_dir,
+        stage_label="after_fragment_union",
+        aircraft_parts=aircraft_parts,
+    )
 
     if symmetry:
         log.info("Cutting in half the model (symmetry=True).")
-        fused_parts = _apply_symmetry_cut(fused_parts)
+        cleaned_parts = _apply_symmetry_cut(cleaned_parts)
+        aircraft_parts = _sort_surfaces(cleaned_parts)
+        _validate_open_loops_or_raise(
+            results_dir=results_dir,
+            stage_label="after_symmetry_cut",
+            aircraft_parts=aircraft_parts,
+        )
 
-    # Sanity check
-    _heal_and_validate_occ_volumes(fused_parts)
-
-    aircraft_parts = _sort_surfaces(fused_parts)
     _create_physical_groups(
         model_bb=model_bb,
         symmetry=symmetry,
@@ -936,7 +752,7 @@ def generate_2d_mesh(
     )
 
     # Mesh generation
-    log.info("Start of gmsh 2D surface meshing process")
+    log.info("Start of gmsh 2D surface meshing process.")
 
     mesh_size_by_uid: dict[str, dict[str, float]] = {
         "wing": mesh_settings.wing_mesh_size,
@@ -948,16 +764,12 @@ def generate_2d_mesh(
     # to construct the final mesh
     mesh_fields = MeshFieldState()
 
-    # Now fix the mesh size for every part
+    # Assign mesh size to every part
     for model_part in aircraft_parts:
-        # Take the right mesh size (name physical group should be wing or fuselage
-        # or engine or propeller or rotor or pylon)
-        lc = _mesh_size_for_part(
+        model_part.mesh_size = _mesh_size_for_part(
             surface_part=model_part,
             mesh_size_by_uid=mesh_size_by_uid,
         )
-        model_part.mesh_size = lc
-
         # To give the size to gmsh, we create a field with constant value containing only our
         # list of surfaces, and give it the size
         mesh_fields.nbfields += 1
@@ -973,25 +785,12 @@ def generate_2d_mesh(
         gmsh.model.mesh.field.setNumber(
             tag=mesh_fields.nbfields,
             option="VIn",
-            value=lc,
+            value=model_part.mesh_size,
         )
+        log.info(f"Assigned to {model_part.uid} mesh size: {model_part.mesh_size}")
         gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields.nbfields)
         # Need to be stocked for when we take the min field:
         mesh_fields.restrict_fields.append(mesh_fields.nbfields)
-
-    # Representative values (used by edge refinement logic that still works by part type).
-    mesh_size_by_group: dict[str, float] = {}
-    for part_type in ("wing", "pylon", "fuselage"):
-        part_sizes = [
-            p.mesh_size
-            for p in aircraft_parts
-            if str(p.part_type) == part_type and p.mesh_size > 0.0
-        ]
-        mesh_size_by_group[part_type] = (
-            min(part_sizes)
-            if part_sizes
-            else _default_mesh_size(part_type, mesh_size_by_uid=mesh_size_by_uid)
-        )
 
     min_fields(mesh_fields)
     gmsh.model.occ.synchronize()
@@ -1011,19 +810,41 @@ def generate_2d_mesh(
     gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
     gmsh.option.setNumber("Mesh.Algorithm", 6)
     gmsh.option.setNumber("Mesh.LcIntegrationPrecision", 1e-6)
+    gmsh.option.setNumber("General.NumThreads", 1)
+    gmsh.option.setNumber("Mesh.MaxNumThreads1D", 1)
+    gmsh.option.setNumber("Mesh.MaxNumThreads2D", 1)
+    gmsh.option.setNumber("Mesh.MaxNumThreads3D", 1)
     # Keep default STL solid behavior to avoid per-surface segmentation seams.
     gmsh.option.setNumber("Mesh.StlOneSolidPerSurface", 0)
 
+    surface_to_parts = _validate_open_loops_or_raise(
+        results_dir=results_dir,
+        stage_label="before_2d_meshing",
+        aircraft_parts=aircraft_parts,
+    )
+
     # Generate the base mesh once (for gmsh quality/timing report).
+    all_entities = gmsh.model.getEntities(-1)
+    mesh_surface_dimtags = [(2, tag) for tag in sorted(surface_to_parts.keys())]
+
+    gmsh.option.setNumber("Mesh.MeshOnlyVisible", 1)
+    gmsh.model.setVisibility(all_entities, 0, recursive=True)
+    gmsh.model.setVisibility(mesh_surface_dimtags, 1, recursive=True)
+    gmsh.model.mesh.clear()
+    gmsh.option.setNumber("Mesh.Algorithm", 6)
     gmsh.logger.start()
+
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)
-    gmsh.model.occ.removeAllDuplicates()
+    gmsh.model.setVisibility(all_entities, 1, recursive=True)
+    gmsh.option.setNumber("Mesh.MeshOnlyVisible", 0)
+
+    log.info("Finished 2D Geometry.")
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.optimize("Laplace2D", niter=10)
-    process_gmsh_log(gmsh.logger.get())
     gmsh.model.occ.synchronize()
 
+    # Save for debug and pentagrow
     surface_mesh_path = Path(results_dir, "surface_mesh.stl")
     gmsh.write(str(surface_mesh_path))
     log.info(f"Stored 2D Surface mesh at {surface_mesh_path=}.")
@@ -1072,7 +893,7 @@ def refine_le_te_end(
         Contains the updated number of biggest used field and the tag of the fields already used
         and needed for the final min field (under name "nbfields" and "restrict_fields")
     """
-    aircraft = None # ModelPart("aircraft")
+    aircraft = None  # ModelPart("aircraft")
     lines_already_refined_lete = []
     # tag of the main volume constituing the aicraft, and of all the surfaces
     aircraft.volume_tag = gmsh.model.occ.getEntities(3)[0][1]

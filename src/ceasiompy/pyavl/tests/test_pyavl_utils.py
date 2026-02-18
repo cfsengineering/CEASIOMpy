@@ -15,7 +15,7 @@ from ceasiompy.pyavl.func.utils import (
 )
 
 from unittest import main
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 
 
 # =================================================================================================
@@ -38,7 +38,7 @@ def test_convert_dist_to_avl_format(vortex_dist, expected):
 # =================================================================================================
 
 
-class TestAvlResults(CeasiompyTest):
+class TestAvlResults(CEASIOMpyTest):
 
     @log_test
     def test_duplicate_elements_no_expand(self):

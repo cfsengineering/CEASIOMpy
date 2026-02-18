@@ -4,14 +4,9 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module to run SU2 configuration files in CEASIOMpy.
-
-| Author: Leon Deligny
-| Creation: 20 March 2025
-
 """
 
 # Imports
-
 import os
 import re
 
@@ -20,6 +15,7 @@ from ceasiompy.utils.ceasiompyutils import run_software
 from pathlib import Path
 from typing import Callable
 
+from ceasiompy import log
 from ceasiompy.su2run import SOFTWARE_NAME
 from ceasiompy.utils.commonnames import (
     CONFIG_CFD_NAME,
@@ -199,12 +195,14 @@ def run_SU2_multi(
 
             cloud = os.environ.get("CEASIOMPY_CLOUD", "False").lower() in {"1", "true", "yes"}
             nb_proc = 1 if cloud else nb_proc
+            if cloud:
+                log.info("Running on the cloud, allocating 1 CPU.")
             run_software(
                 software_name=SOFTWARE_NAME,
                 arguments=[config_file[0]],
                 wkdir=config_dir,
                 with_mpi=True,
-                nb_cpu=1,
+                nb_cpu=nb_proc,
                 log_bool=True,
                 progress_callback=progress_callback,
                 progress_parser=_progress_parser if progress_callback is not None else None,

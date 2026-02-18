@@ -335,15 +335,14 @@
             </sections>
             <positionings>
               <positioning uID="wing1_untrucSec1GenPos">
-                <name />
+                <name>wing1_untrucSec1GenPos</name>
                 <length>0</length>
                 <sweepAngle>0</sweepAngle>
                 <dihedralAngle>0</dihedralAngle>
-                <fromSectionUID />
                 <toSectionUID>wing1_untrucSec1</toSectionUID>
               </positioning>
               <positioning uID="wing1_untrucSec2GenPos">
-                <name />
+                <name>wing1_untrucSec2GenPos</name>
                 <length>1.1963</length>
                 <sweepAngle>30</sweepAngle>
                 <dihedralAngle>0</dihedralAngle>

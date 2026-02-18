@@ -164,18 +164,16 @@ def Fuse_Section(Fuselage, idx, length):
 
 
 def Spin_func(spin, Section_informations, x_loc,x_rot):
-    # Spin parameters. 
-    # It is an implementation different from openVSP but is very close ot it. Be aware of it. 
-    # When at the section{i} is set a value of spin, it generates two more section one upstream 
-    # and one downstream that scale their dimension and rotate by a factor that take count of the spin.
-    
+    # Spin parameters.
+    # It is an implementation different from openVSP but is very close ot it. Be aware of it.
+    # When at the section{i} is set a value of spin,
+    # it generates two more section one upstream
+    # and one downstream that scale their dimension
+    # and rotate by a factor that take count of the spin.
     # copy the section{i}
     Add_section = copy.deepcopy(Section_informations)
-    
     a = float(spin) + (- float(x_rot) * 0.25 / 90)
-    
-    Add_section['x_rot'] = float(
-        x_rot) - ((float(spin) * 90)/0.25)
+    Add_section['x_rot'] = float(x_rot) - ((float(spin) * 90) / 0.25)
 
     # Build a periodic attenuation factor from the spin phase.
     # np.mod(a, 1.0) wraps any real value of a into a normalized phase in [0, 1):
@@ -189,14 +187,16 @@ def Spin_func(spin, Section_informations, x_loc,x_rot):
     # When a is an integer (e.g., 0, 1): phase=0, so factor=∣0−1∣=1.0 (Full size).
     # When a is a half-integer (e.g., 0.5): phase=0.5, so factor=∣1−1∣=0.0
     factor = abs(2.0 * phase - 1.0)
-    
-    correction_factor = 1.5  # Adjust this to control how much the section scales during the spin transition
+
+    # Adjust this to control how much the section scales during the spin transition
+    correction_factor = 1.5
+
     # Keep a small minimum so intermediate spin sections do not collapse to zero size.
     # This avoids degenerate errors in CPACSCreator.
     min_ratio = 0.01
     y_base = float(Section_informations['y_scal'])
     z_base = float(Section_informations['z_scal'])
-    Add_section['y_scal'] =  correction_factor * max(min_ratio * y_base, factor * y_base)
+    Add_section['y_scal'] = correction_factor * max(min_ratio * y_base, factor * y_base)
     Add_section['z_scal'] = correction_factor * max(min_ratio * z_base, factor * z_base)
     Add_section['x_scal'] = 1
     Add_section['x_loc'] = x_loc

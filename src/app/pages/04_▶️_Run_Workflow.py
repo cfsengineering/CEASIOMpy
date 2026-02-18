@@ -11,6 +11,7 @@ from __future__ import annotations
 
 # Imports
 import os
+import gmsh
 import psutil
 import inspect
 import streamlit as st
@@ -333,6 +334,11 @@ def unlock_navigation() -> None:
 
 def terminate_solver_processes() -> None:
     """Terminate known solver processes spawned by workflows."""
+
+    # Clear any gmsh models
+    if gmsh.is_initialized == 1:
+        log.info("Cleared gmsh model.")
+        gmsh.clear()
 
     targets = {"avl", "su2_cfd"}
     mpi_wrappers = {"mpirun", "mpiexec", "srun", "orterun", "mpiexec.hydra"}

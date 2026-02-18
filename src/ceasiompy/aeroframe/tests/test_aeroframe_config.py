@@ -22,7 +22,7 @@ from ceasiompy.aeroframe.func.config import (
 from pathlib import Path
 from unittest import main
 from pandas import DataFrame
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 
 
 # =================================================================================================
@@ -30,7 +30,7 @@ from ceasiompy.utils.ceasiompytest import CeasiompyTest
 # =================================================================================================
 
 
-class TestAeroFrame(CeasiompyTest):
+class TestAeroFrame(CEASIOMpyTest):
 
     @log_test
     def test_poly_area(self):

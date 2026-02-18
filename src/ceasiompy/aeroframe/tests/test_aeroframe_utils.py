@@ -19,7 +19,7 @@ from ceasiompy.aeroframe.func.utils import (
 )
 
 from unittest import main
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 
 
 # =================================================================================================
@@ -27,7 +27,7 @@ from ceasiompy.utils.ceasiompytest import CeasiompyTest
 # =================================================================================================
 
 
-class TestAeroFrame(CeasiompyTest):
+class TestAeroFrame(CEASIOMpyTest):
 
     @log_test
     def test_calculate_angle(self):

@@ -18,13 +18,13 @@ from ceasiompy.cpacs2gmsh.utility.mesh_sizing import (
 )
 
 from unittest import main
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 
 
 # Classes
-class TestMeshSizing(CeasiompyTest):
+class TestMeshSizing(CEASIOMpyTest):
 
-    def test_fuselage_size(self: CeasiompyTest) -> None:
+    def test_fuselage_size(self: CEASIOMpyTest) -> None:
         """
         This test takes the fuselage dimension on which the mesh size is calculated.
         """
@@ -34,7 +34,7 @@ class TestMeshSizing(CeasiompyTest):
             expected=(17.441775789525824, ),
         )
 
-    def test_wing_size(self: CeasiompyTest) -> None:
+    def test_wing_size(self: CEASIOMpyTest) -> None:
         """
         This test takes the fuselage dimension on which the mesh size is calculated.
         """

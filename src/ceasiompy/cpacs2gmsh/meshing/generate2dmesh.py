@@ -705,11 +705,16 @@ def generate_2d_mesh(
     """
     # Define Constants
     symmetry = mesh_settings.symmetry
+    mesh_size_by_uid: dict[str, dict[str, float]] = {
+        "wing": mesh_settings.wing_mesh_size,
+        "pylon": mesh_settings.pylon_mesh_size,
+        "fuselage": mesh_settings.fuselage_mesh_size,
+    }
 
     # Define variables
     all_volume_tags: list[int] = []
 
-    #
+    # Get all volume tags
     for geom in aircraft_geom.all_geoms:
         all_volume_tags.append(geom.ref_volume_tag)
 
@@ -729,6 +734,8 @@ def generate_2d_mesh(
 
     # Add back the fused parts in aircraft geometry
     aircraft_parts = _sort_surfaces(cleaned_parts)
+
+    # Sanity Check
     _validate_open_loops_or_raise(
         results_dir=results_dir,
         stage_label="after_fragment_union",
@@ -753,12 +760,6 @@ def generate_2d_mesh(
 
     # Mesh generation
     log.info("Start of gmsh 2D surface meshing process.")
-
-    mesh_size_by_uid: dict[str, dict[str, float]] = {
-        "wing": mesh_settings.wing_mesh_size,
-        "pylon": mesh_settings.pylon_mesh_size,
-        "fuselage": mesh_settings.fuselage_mesh_size,
-    }
 
     # To keep count of the fields defined, and which are needed when we take the min
     # to construct the final mesh
@@ -834,12 +835,15 @@ def generate_2d_mesh(
     gmsh.option.setNumber("Mesh.Algorithm", 6)
     gmsh.logger.start()
 
+    log.info("Starting 1D Geometry.")
     gmsh.model.mesh.generate(1)
+
+    log.info("Starting 2D Geometry.")
     gmsh.model.mesh.generate(2)
     gmsh.model.setVisibility(all_entities, 1, recursive=True)
     gmsh.option.setNumber("Mesh.MeshOnlyVisible", 0)
 
-    log.info("Finished 2D Geometry.")
+    log.info("Starting 2D Geometry Mesh Optimization.")
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.optimize("Laplace2D", niter=10)
     gmsh.model.occ.synchronize()

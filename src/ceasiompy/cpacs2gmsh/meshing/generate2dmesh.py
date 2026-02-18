@@ -24,6 +24,7 @@ from ceasiompy.cpacs2gmsh.meshing.advancemeshing import (
 )
 
 from pathlib import Path
+from types import SimpleNamespace
 from itertools import combinations
 from collections import defaultdict
 from ceasiompy.cpacs2gmsh.meshing.advancemeshing import MeshFieldState
@@ -33,8 +34,8 @@ from ceasiompy.cpacs2gmsh.utility.surface import (
 )
 from ceasiompy.cpacs2gmsh.utility.utils import (
     PartType,
-    BoundingBox,
     MeshSettings,
+    FarfieldSettings,
     AircraftGeometry,
 )
 
@@ -190,25 +191,13 @@ def _validate_open_loops_or_raise(
     try:
         stage_slug = re.sub(r"[^a-zA-Z0-9_-]+", "_", stage_label).strip("_").lower()
         stage_results_dir = Path(results_dir, "topology_stages", stage_slug)
-        stage_results_dir.mkdir(parents=True, exist_ok=True)
         return check_surfaces_with_open_loops(
-            results_dir=stage_results_dir,
+            results_dir=results_dir,
             aircraft_parts=aircraft_parts,
+            debug_results_dir=stage_results_dir,
         )
     except ValueError as error:
         raise ValueError(f"[{stage_label}] {error}") from error
-
-
-def _bbox_overlap_with_tol(
-    bb1: BoundingBox,
-    bb2: BoundingBox,
-    tol: float,
-) -> bool:
-    return (
-        bb1[0] <= bb2[3] + tol and bb1[3] >= bb2[0] - tol
-        and bb1[1] <= bb2[4] + tol and bb1[4] >= bb2[1] - tol
-        and bb1[2] <= bb2[5] + tol and bb1[5] >= bb2[2] - tol
-    )
 
 
 def _part_owner_rank(part_type: PartType) -> int:
@@ -218,161 +207,6 @@ def _part_owner_rank(part_type: PartType) -> int:
     if part_type == PartType.wing:
         return 1
     return 0
-
-
-def _select_cut_index(
-    entries: list[FuseEntry],
-    i: int,
-    j: int,
-) -> int:
-    """Choose which entry to cut; keep overlap on the highest-priority owner."""
-    left = entries[i]
-    right = entries[j]
-    left_mass = abs(gmsh.model.occ.getMass(*left.dimtag))
-    right_mass = abs(gmsh.model.occ.getMass(*right.dimtag))
-    left_score = (left_mass, _part_owner_rank(left.part_type), left.name)
-    right_score = (right_mass, _part_owner_rank(right.part_type), right.name)
-    owner_index = i if left_score >= right_score else j
-    return j if owner_index == i else i
-
-
-def _pairwise_controlled_booleans(
-    results_dir: Path,
-    entries: list[FuseEntry],
-    model_bb: list[float],
-) -> list[FuseEntry]:
-    """
-    Apply sequential pairwise booleans with guards against fragile intersections.
-
-    Policy:
-    - skip near-tangent pairs (no volumetric intersection),
-    - skip tiny volumetric overlaps,
-    - cut only one side (non-owner) for robust overlap ownership.
-    """
-    if len(entries) < 2:
-        return entries
-
-    model_dim = _get_model_dim(model_bb)
-    bb_tol = max(1e-9, max(model_dim) * 1e-8)
-    model_volume = max(model_dim[0] * model_dim[1] * model_dim[2], 1.0)
-    tiny_overlap_abs = model_volume * 1e-12
-    tiny_overlap_rel = 1e-8
-    near_tangent_pairs: list[str] = []
-    tiny_overlap_pairs: list[str] = []
-    performed_cuts = 0
-
-    changed = True
-    while changed:
-        changed = False
-        bboxes = [gmsh.model.occ.getBoundingBox(*entry.dimtag) for entry in entries]
-
-        for i, j in combinations(range(len(entries)), 2):
-            if not _bbox_overlap_with_tol(bboxes[i], bboxes[j], bb_tol):
-                continue
-
-            intersection_entities, _ = gmsh.model.occ.intersect(
-                [entries[i].dimtag],
-                [entries[j].dimtag],
-                removeObject=False,
-                removeTool=False,
-            )
-            gmsh.model.occ.synchronize()
-            if not intersection_entities:
-                continue
-
-            inter_volumes = sorted(
-                [dimtag for dimtag in intersection_entities if dimtag[0] == 3],
-                key=lambda dimtag: dimtag[1],
-            )
-            if not inter_volumes:
-                near_tangent_pairs.append(
-                    f"{entries[i].name} <-> {entries[j].name}: "
-                    f"intersection_dims={sorted({dim for dim, _ in intersection_entities})}"
-                )
-                gmsh.model.occ.remove(intersection_entities, recursive=True)
-                gmsh.model.occ.synchronize()
-                continue
-
-            overlap_volume = sum(abs(gmsh.model.occ.getMass(*dimtag)) for dimtag in inter_volumes)
-            reference_volume = min(
-                abs(gmsh.model.occ.getMass(*entries[i].dimtag)),
-                abs(gmsh.model.occ.getMass(*entries[j].dimtag)),
-            )
-            if overlap_volume <= tiny_overlap_abs or overlap_volume <= reference_volume * tiny_overlap_rel:
-                tiny_overlap_pairs.append(
-                    f"{entries[i].name} <-> {entries[j].name}: overlap={overlap_volume:.6e}"
-                )
-                gmsh.model.occ.remove(intersection_entities, recursive=True)
-                gmsh.model.occ.synchronize()
-                continue
-
-            cut_index = _select_cut_index(entries, i=i, j=j)
-            keep_index = j if cut_index == i else i
-            cut_entry = entries[cut_index]
-            keep_entry = entries[keep_index]
-            cut_result, _ = gmsh.model.occ.cut(
-                [cut_entry.dimtag],
-                [keep_entry.dimtag],
-                removeObject=True,
-                removeTool=False,
-            )
-            gmsh.model.occ.remove(intersection_entities, recursive=True)
-            gmsh.model.occ.synchronize()
-
-            cut_volumes = sorted(
-                [dimtag for dimtag in cut_result if dimtag[0] == 3],
-                key=lambda dimtag: dimtag[1],
-            )
-            if not cut_volumes:
-                log.warning("Pairwise cut removed %s entirely.", cut_entry.name)
-                entries.pop(cut_index)
-            else:
-                log.info(
-                    "Pairwise cut: %s cut by %s (overlap=%.6e).",
-                    cut_entry.name,
-                    keep_entry.name,
-                    overlap_volume,
-                )
-                entries[cut_index] = FuseEntry(
-                    name=cut_entry.name,
-                    dimtag=cut_volumes[0],
-                    part_type=cut_entry.part_type,
-                )
-                for k, extra in enumerate(cut_volumes[1:], start=2):
-                    entries.append(FuseEntry(
-                        name=f"{cut_entry.name}#split{k}",
-                        dimtag=extra,
-                        part_type=cut_entry.part_type,
-                    ))
-
-            performed_cuts += 1
-            changed = True
-            break
-        if changed:
-            continue
-
-    debug_root = Path(results_dir, "debug_open_loops")
-    debug_root.mkdir(parents=True, exist_ok=True)
-    report_path = Path(debug_root, "pairwise_boolean_skips.txt")
-    with report_path.open("w", encoding="utf-8") as stream:
-        stream.write("# Pairwise controlled-boolean diagnostics\n")
-        stream.write(f"performed_cuts={performed_cuts}\n")
-        stream.write(f"near_tangent_skips={len(near_tangent_pairs)}\n")
-        stream.write(f"tiny_overlap_skips={len(tiny_overlap_pairs)}\n\n")
-        stream.write("[near_tangent]\n")
-        for line in near_tangent_pairs:
-            stream.write(f"{line}\n")
-        stream.write("\n[tiny_overlap]\n")
-        for line in tiny_overlap_pairs:
-            stream.write(f"{line}\n")
-
-    log.info(
-        "Pairwise booleans done: cuts=%d, near-tangent skips=%d, tiny-overlap skips=%d",
-        performed_cuts,
-        len(near_tangent_pairs),
-        len(tiny_overlap_pairs),
-    )
-    return entries
 
 
 def _fragment_parts_for_union(entries: list[FuseEntry]) -> list[FuseEntry]:
@@ -542,6 +376,217 @@ def _create_physical_groups(
     return aircraft_parts
 
 
+def _get_outer_surface_tags_from_volumes(volume_dimtags: list[tuple[int, int]]) -> list[int]:
+    """Return unique outer surface tags for the provided OCC volumes."""
+    boundary = gmsh.model.getBoundary(
+        volume_dimtags,
+        combined=True,
+        oriented=False,
+        recursive=False,
+    )
+    return sorted({tag for dim, tag in boundary if dim == 2})
+
+
+def _surface_is_on_farfield_plane(
+    surface_tag: int,
+    box_bounds: tuple[float, float, float, float, float, float],
+    tol: float,
+) -> bool:
+    """Return True if a surface lies on one farfield box plane."""
+    x_min, y_min, z_min, x_max, y_max, z_max = box_bounds
+    bb = gmsh.model.getBoundingBox(2, surface_tag)
+    x_on_min = abs(bb[0] - x_min) <= tol and abs(bb[3] - x_min) <= tol
+    x_on_max = abs(bb[0] - x_max) <= tol and abs(bb[3] - x_max) <= tol
+    y_on_min = abs(bb[1] - y_min) <= tol and abs(bb[4] - y_min) <= tol
+    y_on_max = abs(bb[1] - y_max) <= tol and abs(bb[4] - y_max) <= tol
+    z_on_min = abs(bb[2] - z_min) <= tol and abs(bb[5] - z_min) <= tol
+    z_on_max = abs(bb[2] - z_max) <= tol and abs(bb[5] - z_max) <= tol
+    return x_on_min or x_on_max or y_on_min or y_on_max or z_on_min or z_on_max
+
+
+def _surface_is_planar_on_axis_coordinate(
+    surface_tag: int,
+    axis: int,
+    coordinate: float,
+    tol: float,
+) -> bool:
+    bb = gmsh.model.getBoundingBox(2, surface_tag)
+    bb_min = bb[axis]
+    bb_max = bb[axis + 3]
+    return abs(bb_min - bb_max) <= tol and abs(bb_min - coordinate) <= tol
+
+
+def _find_planar_surface_tags(
+    surface_tags: list[int],
+    axis: int,
+    coordinate: float,
+    tol: float,
+) -> list[int]:
+    return sorted(
+        [
+            tag for tag in surface_tags
+            if _surface_is_planar_on_axis_coordinate(
+                surface_tag=tag,
+                axis=axis,
+                coordinate=coordinate,
+                tol=tol,
+            )
+        ]
+    )
+
+
+def _prepare_euler_fluid_domain(
+    mesh_settings: MeshSettings,
+    farfield_settings: FarfieldSettings,
+) -> None:
+    """Build farfield-cut fluid domain and complete 2D boundary mesh for Euler."""
+    inner_volume_dimtags = sorted(gmsh.model.getEntities(3), key=lambda dimtag: dimtag[1])
+    if not inner_volume_dimtags:
+        raise RuntimeError("No in-memory aircraft volumes found for Euler fluid-domain setup.")
+
+    x_min, y_min, z_min, x_max, y_max, z_max = gmsh.model.getBoundingBox(-1, -1)
+    symmetry = mesh_settings.symmetry
+    outer_x_min = x_min - farfield_settings.upstream_length
+    outer_x_max = x_max + farfield_settings.wake_length
+    outer_y_min = 0.0 if symmetry else y_min - farfield_settings.y_length
+    outer_y_max = y_max + farfield_settings.y_length
+    outer_z_min = z_min - farfield_settings.z_length
+    outer_z_max = z_max + farfield_settings.z_length
+
+    farfield_box_tag = gmsh.model.occ.addBox(
+        outer_x_min,
+        outer_y_min,
+        outer_z_min,
+        outer_x_max - outer_x_min,
+        outer_y_max - outer_y_min,
+        outer_z_max - outer_z_min,
+    )
+    fluid_dimtags, _ = gmsh.model.occ.cut(
+        [(3, farfield_box_tag)],
+        inner_volume_dimtags,
+        removeObject=True,
+        removeTool=True,
+    )
+    gmsh.model.occ.synchronize()
+
+    fluid_volume_tags = sorted([tag for dim, tag in fluid_dimtags if dim == 3])
+    if not fluid_volume_tags:
+        raise RuntimeError("Failed to build fluid domain from farfield box and aircraft volumes.")
+
+    fluid_boundary_tags = _get_outer_surface_tags_from_volumes(
+        [(3, tag) for tag in fluid_volume_tags]
+    )
+    if not fluid_boundary_tags:
+        raise RuntimeError("No boundary surfaces found on fluid volume.")
+
+    model_span = max(
+        outer_x_max - outer_x_min,
+        outer_y_max - outer_y_min,
+        outer_z_max - outer_z_min,
+    )
+    plane_tol = max(1e-7, model_span * 1e-6)
+    farfield_bounds = (
+        outer_x_min, outer_y_min, outer_z_min,
+        outer_x_max, outer_y_max, outer_z_max,
+    )
+
+    farfield_surfaces = sorted(
+        [
+            tag for tag in fluid_boundary_tags
+            if _surface_is_on_farfield_plane(tag, farfield_bounds, plane_tol)
+        ]
+    )
+    if not farfield_surfaces:
+        raise RuntimeError("No farfield boundary surfaces detected on the fluid volume.")
+
+    symmetry_surface_tags: list[int] = []
+    if symmetry:
+        symmetry_surface_tags = _find_planar_surface_tags(
+            surface_tags=fluid_boundary_tags,
+            axis=1,
+            coordinate=outer_y_min,
+            tol=plane_tol,
+        )
+
+    farfield_surface_set = set(farfield_surfaces)
+    symmetry_surface_set = set(symmetry_surface_tags)
+    wall_surface_tags = sorted(
+        [
+            tag for tag in fluid_boundary_tags
+            if tag not in farfield_surface_set and tag not in symmetry_surface_set
+        ]
+    )
+    if not wall_surface_tags:
+        raise RuntimeError("All inner geometry surfaces were filtered out from wall group.")
+
+    existing_groups = gmsh.model.getPhysicalGroups()
+    if existing_groups:
+        gmsh.model.removePhysicalGroups(existing_groups)
+
+    if symmetry_surface_set:
+        symmetry_group = gmsh.model.addPhysicalGroup(2, sorted(symmetry_surface_set))
+        gmsh.model.setPhysicalName(2, symmetry_group, "symmetry")
+
+    farfield_group_tags = sorted(farfield_surface_set - symmetry_surface_set)
+    if not farfield_group_tags:
+        raise RuntimeError("No farfield surfaces left after symmetry-surface filtering.")
+    farfield_group = gmsh.model.addPhysicalGroup(2, farfield_group_tags)
+    gmsh.model.setPhysicalName(2, farfield_group, "Farfield")
+
+    wall_group = gmsh.model.addPhysicalGroup(2, wall_surface_tags)
+    gmsh.model.setPhysicalName(2, wall_group, "wall")
+
+    fluid_group = gmsh.model.addPhysicalGroup(3, fluid_volume_tags)
+    gmsh.model.setPhysicalName(3, fluid_group, "fluid")
+
+    # Enforce farfield boundary target size explicitly before 2D completion.
+    farfield_points = gmsh.model.getBoundary(
+        [(2, tag) for tag in farfield_group_tags],
+        combined=True,
+        oriented=False,
+        recursive=True,
+    )
+    farfield_point_dimtags = sorted(
+        {(dim, tag) for dim, tag in farfield_points if dim == 0},
+        key=lambda dimtag: dimtag[1],
+    )
+    if farfield_point_dimtags:
+        gmsh.model.mesh.setSize(farfield_point_dimtags, farfield_settings.farfield_mesh_size)
+
+    # Temporary options for farfield/symmetry empty-surface completion.
+    prev_size_from_points = gmsh.option.getNumber("Mesh.MeshSizeFromPoints")
+    prev_size_max = gmsh.option.getNumber("Mesh.MeshSizeMax")
+    gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 1)
+    gmsh.option.setNumber("Mesh.MeshSizeMax", farfield_settings.farfield_mesh_size)
+
+    all_entities = gmsh.model.getEntities(-1)
+    gmsh.option.setNumber("Mesh.MeshOnlyVisible", 1)
+    gmsh.option.setNumber("Mesh.MeshOnlyEmpty", 1)
+    try:
+        gmsh.model.setVisibility(all_entities, 0, recursive=True)
+        gmsh.model.setVisibility(
+            [(2, tag) for tag in fluid_boundary_tags],
+            1,
+            recursive=True,
+        )
+        gmsh.model.mesh.generate(1)
+        gmsh.model.mesh.generate(2)
+    finally:
+        gmsh.option.setNumber("Mesh.MeshSizeFromPoints", prev_size_from_points)
+        gmsh.option.setNumber("Mesh.MeshSizeMax", prev_size_max)
+        gmsh.model.setVisibility(all_entities, 1, recursive=True)
+        gmsh.option.setNumber("Mesh.MeshOnlyVisible", 0)
+        gmsh.option.setNumber("Mesh.MeshOnlyEmpty", 0)
+
+    log.info(
+        "Prepared Euler fluid domain in 2D stage: walls=%d, farfield=%d, symmetry=%d, fluid_volumes=%d",
+        len(wall_surface_tags),
+        len(farfield_group_tags),
+        len(symmetry_surface_set),
+        len(fluid_volume_tags),
+    )
+
+
 def _mesh_size_for_part(
     surface_part: SurfacePart,
     mesh_size_by_uid: dict[str, dict[str, float]],
@@ -689,12 +734,150 @@ def _refine_between_parts(
         )
 
 
+def _get_global_aircraft_proxy() -> SimpleNamespace | None:
+    """Return a minimal proxy object expected by legacy refinement helpers."""
+    all_volumes = gmsh.model.occ.getEntities(3)
+    if not all_volumes:
+        return None
+
+    return SimpleNamespace(
+        volume_tag=all_volumes[0][1],
+        surfaces_tags=[tag for (_, tag) in gmsh.model.occ.getEntities(2)],
+        lines_tags=[tag for (_, tag) in gmsh.model.occ.getEntities(1)],
+    )
+
+
+def _wing_tip_refinement_width(wing_part: SurfacePart) -> float:
+    """Use the smallest wing-section chord to set wing-tip refinement width."""
+    if not wing_part.wing_sections:
+        return 1_000_000.0
+    return min(float(section["mean_chord"]) * 0.25 for section in wing_part.wing_sections)
+
+
+def _common_points_and_wing_surfaces(
+    wing_surface_set: set[int],
+    line_tags: tuple[int, ...],
+) -> tuple[list[set[int]], set[int]]:
+    """Compute pairwise common points and common wing surfaces for given lines."""
+    points_per_line: list[set[int]] = []
+    surfaces_per_line: list[set[int]] = []
+    for line in line_tags:
+        surfaces, points = gmsh.model.getAdjacencies(1, line)
+        points_per_line.append(set(points))
+        surfaces_per_line.append(set(surfaces))
+
+    common_points_sets: list[set[int]] = []
+    for left, right in combinations(range(len(points_per_line)), 2):
+        common_points_sets.append(points_per_line[left] & points_per_line[right])
+
+    common_surfaces = set.intersection(*surfaces_per_line) & wing_surface_set
+    return common_points_sets, common_surfaces
+
+
+def _refine_le_te_end(
+    aircraft_parts: list[SurfacePart],
+    mesh_fields: MeshFieldState,
+    refine_factor: float,
+    refine_truncated: bool,
+    n_power_factor: float,
+) -> None:
+    """Refine LE/TE and wing-tip regions for all wing parts."""
+    aircraft = _get_global_aircraft_proxy()
+    if aircraft is None:
+        return
+
+    wing_parts = [part for part in aircraft_parts if part.part_type == PartType.wing]
+    if not wing_parts:
+        return
+
+    already_refined_lines: set[int] = set()
+
+    for wing_part in wing_parts:
+        classify_wing(wing_part, aircraft_parts)
+        log.info(
+            f"Classification of {wing_part.uid} done"
+            f" {len(wing_part.wing_sections)} section(s) found "
+        )
+        for wing_section in wing_part.wing_sections:
+            already_refined_lines.update(int(line) for line in wing_section["lines_tags"])
+
+        refine_wing_section(
+            mesh_fields,
+            [aircraft.volume_tag],
+            aircraft,
+            wing_part,
+            wing_part.mesh_size,
+            refine=refine_factor,
+            refine_truncated=refine_truncated,
+            n_power=n_power_factor,
+        )
+
+    for wing_part in wing_parts:
+        x_chord = _wing_tip_refinement_width(wing_part)
+        lines_in_other_parts = set(exclude_lines(wing_part, aircraft_parts))
+        blocked_lines = already_refined_lines | lines_in_other_parts
+        candidate_lines = sorted(set(wing_part.lines_tags) - blocked_lines)
+        wing_surface_set = set(wing_part.surfaces_tags)
+
+        for line1, line2 in combinations(candidate_lines, 2):
+            common_points_sets, common_surfaces = _common_points_and_wing_surfaces(
+                wing_surface_set=wing_surface_set,
+                line_tags=(line1, line2),
+            )
+            if len(common_points_sets[0]) != 2 or len(common_surfaces) != 1:
+                continue
+
+            log.info(f"Found wing tip in {wing_part.uid}, refining lines {(line1, line2)}")
+            refine_end_wing(
+                [line1, line2],
+                aircraft,
+                x_chord,
+                wing_part.surfaces_tags,
+                refine_factor,
+                wing_part.mesh_size,
+                n_power_factor,
+                [aircraft.volume_tag],
+                mesh_fields,
+            )
+            gmsh.model.setColor([(1, line1), (1, line2)], 0, 180, 180)
+            already_refined_lines.update((line1, line2))
+
+        for line1, line2, line3 in combinations(candidate_lines, 3):
+            common_points_sets, common_surfaces = _common_points_and_wing_surfaces(
+                wing_surface_set=wing_surface_set,
+                line_tags=(line1, line2, line3),
+            )
+            if (
+                len(common_points_sets) != 3
+                or not all(len(points) == 1 for points in common_points_sets)
+                or len(common_surfaces) != 1
+            ):
+                continue
+
+            log.info(f"Found wing tip in {wing_part.uid}, refining lines {(line1, line2, line3)}")
+            refine_end_wing(
+                [line1, line2, line3],
+                aircraft,
+                x_chord,
+                wing_part.surfaces_tags,
+                refine_factor,
+                wing_part.mesh_size,
+                n_power_factor,
+                [aircraft.volume_tag],
+                mesh_fields,
+            )
+            gmsh.model.setColor([(1, line1), (1, line2), (1, line3)], 0, 180, 180)
+            already_refined_lines.update((line1, line2, line3))
+
+
 # Functions
 
 def generate_2d_mesh(
     results_dir: Path,
     mesh_settings: MeshSettings,
     aircraft_geom: AircraftGeometry,
+    farfield_settings: FarfieldSettings | None = None,
+    build_euler_domain: bool = False,
 ) -> Path:
     """
     Generate a surface mesh from brep files (which makes up the aircraft).
@@ -793,15 +976,21 @@ def generate_2d_mesh(
         # Need to be stocked for when we take the min field:
         mesh_fields.restrict_fields.append(mesh_fields.nbfields)
 
-    min_fields(mesh_fields)
-    gmsh.model.occ.synchronize()
-
     # Refine the parts when two parts intersects with different mesh size
     # (i.e. a "smooth transition" on the one with the bigger mesh size)
     log.info("Refine to get smooth transition between parts with different mesh sizes")
     _refine_between_parts(
         mesh_fields=mesh_fields,
         aircraft_parts=aircraft_parts,
+    )
+
+    log.info("Refine LE/TE and wing tips on wing parts (factor=3)")
+    _refine_le_te_end(
+        aircraft_parts=aircraft_parts,
+        mesh_fields=mesh_fields,
+        refine_factor=3.0,
+        refine_truncated=False,
+        n_power_factor=2.0,
     )
     min_fields(mesh_fields)
 
@@ -848,168 +1037,28 @@ def generate_2d_mesh(
     gmsh.model.mesh.optimize("Laplace2D", niter=10)
     gmsh.model.occ.synchronize()
 
-    # Save for debug and pentagrow
-    surface_mesh_path = Path(results_dir, "surface_mesh.stl")
+    if build_euler_domain:
+        if farfield_settings is None:
+            raise ValueError("farfield_settings is required when build_euler_domain=True.")
+        _prepare_euler_fluid_domain(
+            mesh_settings=mesh_settings,
+            farfield_settings=farfield_settings,
+        )
+
+    # Save mesh handoff artifact for downstream volume meshing.
+    surface_mesh_path = Path(results_dir, "surface_mesh.msh")
     gmsh.write(str(surface_mesh_path))
     log.info(f"Stored 2D Surface mesh at {surface_mesh_path=}.")
+
+    # Keep STL diagnostics export for watertightness and topology checks.
+    diagnostic_stl_path = Path(results_dir, "surface_mesh.stl")
+    gmsh.write(str(diagnostic_stl_path))
     diagnose_surface_mesh(
         symmetry=symmetry,
-        mesh_path=surface_mesh_path,
+        mesh_path=diagnostic_stl_path,
     )
 
     if not surface_mesh_path.is_file():
         raise FileNotFoundError(f"{surface_mesh_path=} does not exist.")
 
     return surface_mesh_path
-
-
-def refine_le_te_end(
-    aircraft_parts,
-    mesh_size_wing,
-    mesh_fields,
-    refine_factor,
-    refine_truncated,
-    n_power_factor,
-):
-    """
-    Function to refine the border of the wings (le, te, and tip of the wing).
-
-    First find the le and te lines, then refine them, then compute the tip lines, and refine them
-    Args:
-    ----------
-    aircraft_parts : list of ModelPart
-        List of all the parts in the airplane
-    mesh_size_wing : float
-        size of the wing mesh
-    mesh_fields : dictionary
-        Contains the updated number of biggest used field and the tag of the fields already used
-        and needed for the final min field (under name "nbfields" and "restrict_fields")
-    refine_factor : float
-        factor of the refinement for le and te
-    refine_truncated : bool
-        If set to true, the refinement can change to match the truncated te thickness
-    n_power_factor : float
-        Power of how much refinement on the le and te
-    ...
-    Returns:
-    ----------
-    mesh_fields : dictionnary
-        Contains the updated number of biggest used field and the tag of the fields already used
-        and needed for the final min field (under name "nbfields" and "restrict_fields")
-    """
-    aircraft = None  # ModelPart("aircraft")
-    lines_already_refined_lete = []
-    # tag of the main volume constituing the aicraft, and of all the surfaces
-    aircraft.volume_tag = gmsh.model.occ.getEntities(3)[0][1]
-    # (there should be only one volume in the model)
-    aircraft.surfaces_tags = [tag for (dim, tag) in gmsh.model.occ.getEntities(2)]
-    aircraft.lines_tags = [tag for (dim, tag) in gmsh.model.occ.getEntities(1)]
-
-    # For all the wing, we call the function classify that will detect the le and te between all
-    # the lines and compute the mean chord length
-    for model_part in aircraft_parts:
-        if model_part.part_type == "wing":
-            classify_wing(model_part, aircraft_parts)
-            log.info(
-                f"Classification of {model_part.uid} done"
-                f" {len(model_part.wing_sections)} section(s) found "
-            )
-            new_lines = [x["lines_tags"] for x in model_part.wing_sections]
-            for new_line in new_lines:
-                # Stock all of the already refined lines to not do it twice with the other fct
-                lines_already_refined_lete.extend(new_line)
-
-    for model_part in aircraft_parts:
-        if model_part.part_type == "wing":
-            # Refine will set fields to have smaller mesh size along te and le
-            refine_wing_section(
-                mesh_fields,
-                [aircraft.volume_tag],
-                aircraft,
-                model_part,
-                mesh_size_wing,
-                refine=refine_factor,
-                refine_truncated=refine_truncated,
-                n_power=n_power_factor,
-            )
-
-    # Refine also the end of the wing
-    for model_part in aircraft_parts:
-        if model_part.part_type == "wing":
-            # Want the same w_chord as the tip of the wing, which is the smallest one
-            x_chord = 1000000
-            for wing_section in model_part.wing_sections:
-                chord_mean = wing_section["mean_chord"]
-                x_chord = min(x_chord, chord_mean * 0.25)
-
-            # Now need to find the tip of the wing. We know it is not a line that touch
-            # another part, or one found in le and te, so take thouse out
-            lines_in_other_parts = exclude_lines(model_part, aircraft_parts)
-            lines_to_take_out = set(lines_already_refined_lete).union(set(lines_in_other_parts))
-            lines_left = sorted(list(set(model_part.lines_tags) - lines_to_take_out))
-            surfaces_in_wing = model_part.surfaces_tags
-            for (line1, line2) in list(combinations(lines_left, 2)):
-                # We know the two lines at the end of the wing share 2 points and 1 surface
-                # And no other lines in wing share this structure
-                surfaces1, points1 = gmsh.model.getAdjacencies(1, line1)
-                surfaces2, points2 = gmsh.model.getAdjacencies(1, line2)
-                common_points = list(set(points1) & set(points2))
-                common_surfaces = list(set(surfaces1) & set(
-                    surfaces2) & set(surfaces_in_wing))
-                if len(common_points) == 2 and len(common_surfaces) == 1:
-                    log.info(
-                        f"Found the end of wing in {model_part.uid}, refining lines {line1,line2}")
-                    refine_end_wing(
-                        [line1, line2],
-                        aircraft,
-                        x_chord,
-                        model_part.surfaces_tags,
-                        refine_factor,
-                        mesh_size_wing,
-                        n_power_factor,
-                        [aircraft.volume_tag],
-                        mesh_fields,
-                    )
-
-                    gmsh.model.setColor([(1, line1), (1, line2)], 0, 180, 180)  # to see
-                    lines_already_refined_lete.extend([line1, line2])
-
-            for line1, line2, line3 in list(combinations(lines_left, 3)):
-                surfaces1, points1 = gmsh.model.getAdjacencies(1, line1)
-                surfaces2, points2 = gmsh.model.getAdjacencies(1, line2)
-                surfaces3, points3 = gmsh.model.getAdjacencies(1, line3)
-                common_points12 = list(set(points1) & set(points2))
-                common_points13 = list(set(points1) & set(points3))
-                common_points23 = list(set(points3) & set(points2))
-                common_surfaces = list(
-                    set(surfaces1) & set(surfaces2) & set(surfaces3) & set(surfaces_in_wing)
-                )
-                if (
-                    len(common_points12) == 1
-                    and len(common_points13) == 1
-                    and len(common_points23) == 1
-                    and len(common_surfaces) == 1
-                ):
-                    mod = model_part.uid
-                    log.info(
-                        f"Found the end of wing in {mod}, refining lines {line1, line2, line3}"
-                    )
-                    refine_end_wing(
-                        [line1, line2, line3],
-                        aircraft,
-                        x_chord,
-                        model_part.surfaces_tags,
-                        refine_factor,
-                        mesh_size_wing,
-                        n_power_factor,
-                        [aircraft.volume_tag],
-                        mesh_fields,
-                    )
-                    gmsh.model.setColor(
-                        [(1, line1), (1, line2), (1, line3)], 0, 180, 180
-                    )  # to see
-                    lines_already_refined_lete.extend([line1, line2, line3])
-
-    # Generate the minimal background mesh field
-    min_fields(mesh_fields)
-    return mesh_fields, lines_already_refined_lete

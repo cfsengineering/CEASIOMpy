@@ -383,7 +383,11 @@ def collect_surfaces_with_open_loops(
     return surfaces_with_issues
 
 
-def check_surfaces_with_open_loops(results_dir: Path, aircraft_parts: list[SurfacePart]) -> dict[int, list[str]]:
+def check_surfaces_with_open_loops(
+    results_dir: Path,
+    aircraft_parts: list[SurfacePart],
+    debug_results_dir: Path | None = None,
+) -> dict[int, list[str]]:
     try:
         # Fail early with actionable diagnostics if any CAD surface has open curve loops.
         surface_to_parts: dict[int, list[str]] = defaultdict(list)
@@ -420,8 +424,9 @@ def check_surfaces_with_open_loops(results_dir: Path, aircraft_parts: list[Surfa
                 open_lines,
             )
 
+        target_debug_dir = debug_results_dir if debug_results_dir is not None else results_dir
         debug_dir = _store_open_loop_debug_snapshot(
-            results_dir=results_dir,
+            results_dir=target_debug_dir,
             surfaces_with_open_loops=surfaces_with_open_loops,
         )
         raise ValueError(

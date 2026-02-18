@@ -409,11 +409,14 @@ def bool_vartype(
     description,
     disabled: bool = False,
 ) -> bool:
-    raw_value = safe_get_value(tixi, xpath, default_value)
-    if isinstance(raw_value, str):
-        value = raw_value.strip().lower() in {"1", "true", "yes", "y"}
+    if disabled:
+        value = default_value
     else:
-        value = bool(raw_value)
+        raw_value = safe_get_value(tixi, xpath, default_value)
+        if isinstance(raw_value, str):
+            value = raw_value.strip().lower() in {"1", "true", "yes", "y"}
+        else:
+            value = bool(raw_value)
 
     output = st.checkbox(
         label=name,

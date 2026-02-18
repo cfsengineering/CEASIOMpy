@@ -265,6 +265,12 @@ def display_results(results_dir):
         ".json": _display_json,
     }
 
+    items = list(results_dir.iterdir())
+
+    # Check if there is exactly one item
+    if len(items) == 1:
+        results_dir = items[0]
+
     is_first_displayed_child = True
     for child in sorted(Path(results_dir).iterdir(), key=_results_sort_key):
         if child.name in IGNORED_RESULTS:
@@ -1421,37 +1427,30 @@ def _display_pdf(path: Path) -> None:
 
 def _display_csv(path: Path) -> None:
     if path.name == "history.csv":
-        with st.container(
-            border=True,
-        ):
-            if st.checkbox(
-                label="**Convergence**",
-                value=True,
-            ):
-                try:
-                    df = pd.read_csv(path)
-                    df.rename(columns=lambda x: x.strip().strip('"'), inplace=True)
+        try:
+            df = pd.read_csv(path)
+            df.rename(columns=lambda x: x.strip().strip('"'), inplace=True)
 
-                    coef_cols = [col for col in ["CD", "CL", "CMy"] if col in df.columns]
-                    if coef_cols:
-                        st.line_chart(df[coef_cols])
+            coef_cols = [col for col in ["CD", "CL", "CMy"] if col in df.columns]
+            if coef_cols:
+                st.line_chart(df[coef_cols])
 
-                    rms_cols = [
-                        col
-                        for col in ["rms[Rho]", "rms[RhoU]", "rms[RhoV]", "rms[RhoW]", "rms[RhoE]"]
-                        if col in df.columns
-                    ]
-                    if rms_cols:
-                        st.line_chart(df[rms_cols])
+            rms_cols = [
+                col
+                for col in ["rms[Rho]", "rms[RhoU]", "rms[RhoV]", "rms[RhoW]", "rms[RhoE]"]
+                if col in df.columns
+            ]
+            if rms_cols:
+                st.line_chart(df[rms_cols])
 
-                except Exception as exc:
-                    st.warning(f"Could not parse {path.name} as CSV: {exc}")
-                    data = path.read_bytes()
-                    if _looks_binary(data):
-                        st.info(f"📄 {path.name} (binary file, cannot display as text)")
-                        return None
-                    text_data = data.decode("utf-8", errors="replace")
-                    st.text_area(path.stem, text_data, height=200, key=f"{path}_csv_raw")
+        except Exception as exc:
+            st.warning(f"Could not parse {path.name} as CSV: {exc}")
+            data = path.read_bytes()
+            if _looks_binary(data):
+                st.info(f"📄 {path.name} (binary file, cannot display as text)")
+                return None
+            text_data = data.decode("utf-8", errors="replace")
+            st.text_area(path.stem, text_data, height=200, key=f"{path}_csv_raw")
     else:
         st.markdown(f"**{path.name}**")
         try:
@@ -1568,6 +1567,8 @@ def _results_sort_key(path: Path) -> tuple[int, str]:
         priority = 0
     elif suffix == ".txt":
         priority = 2
+    elif suffix == ".log":
+        priority = 98
     else:
         priority = 1
 

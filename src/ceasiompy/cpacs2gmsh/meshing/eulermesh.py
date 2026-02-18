@@ -9,7 +9,6 @@ import gmsh
 
 from pathlib import Path
 from ceasiompy.cpacs2gmsh.utility.utils import (
-    MeshSettings,
     FarfieldSettings,
 )
 
@@ -84,17 +83,18 @@ def _set_euler_gradation_field(
     farfield_size: float,
     transition_distance: float,
 ) -> None:
-    """Create a Distance+Threshold background field for smooth wall-to-farfield grading."""
+    """Create a near-wall-biased background field for wall-to-farfield grading."""
     for field_tag in gmsh.model.mesh.field.list():
         gmsh.model.mesh.field.remove(field_tag)
 
     wall_size = _infer_wall_size_from_points(wall_surface_tags, farfield_size)
     dist_max = max(transition_distance, wall_size * 10.0)
+    near_wall_power = 2.0
 
     distance_field = 1
     gmsh.model.mesh.field.add("Distance", distance_field)
     gmsh.model.mesh.field.setNumbers(distance_field, "SurfacesList", wall_surface_tags)
-    gmsh.model.mesh.field.setNumber(distance_field, "Sampling", 100)
+    gmsh.model.mesh.field.setNumber(distance_field, "Sampling", 200)
 
     threshold_field = 2
     gmsh.model.mesh.field.add("Threshold", threshold_field)
@@ -103,11 +103,32 @@ def _set_euler_gradation_field(
     gmsh.model.mesh.field.setNumber(threshold_field, "SizeMax", farfield_size)
     gmsh.model.mesh.field.setNumber(threshold_field, "DistMin", 0.0)
     gmsh.model.mesh.field.setNumber(threshold_field, "DistMax", dist_max)
-    gmsh.model.mesh.field.setAsBackgroundMesh(threshold_field)
+
+    # Steepen the first part of the transition near walls (smaller sizes close to surface).
+    near_wall_field = 3
+    gmsh.model.mesh.field.add("MathEval", near_wall_field)
+    gmsh.model.mesh.field.setString(
+        near_wall_field,
+        "F",
+        (
+            f"{wall_size} + ({farfield_size} - {wall_size})"
+            f"*(F{distance_field}/{dist_max})^{near_wall_power}"
+        ),
+    )
+
+    background_field = 4
+    gmsh.model.mesh.field.add("Min", background_field)
+    gmsh.model.mesh.field.setNumbers(
+        background_field,
+        "FieldsList",
+        [threshold_field, near_wall_field],
+    )
+    gmsh.model.mesh.field.setAsBackgroundMesh(background_field)
 
     log.info(
         "Applied Euler gradation field: "
-        f"wall_size={wall_size:.4g}, farfield_size={farfield_size:.4g}, dist_max={dist_max:.4g}"
+        f"wall_size={wall_size:.4g}, farfield_size={farfield_size:.4g}, "
+        f"dist_max={dist_max:.4g}, near_wall_power={near_wall_power:.2f}"
     )
 
 
@@ -142,69 +163,37 @@ def _surface_is_planar_on_axis_coordinate(
     return abs(bb_min - bb_max) <= tol and abs(bb_min - coordinate) <= tol
 
 
+def _surface_has_2d_elements(surface_tag: int) -> bool:
+    """Return True if a surface already has 2D mesh elements."""
+    _, element_tags, _ = gmsh.model.mesh.getElements(2, surface_tag)
+    return any(len(tags) > 0 for tags in element_tags)
+
+
+def _surface_2d_element_count(surface_tag: int) -> int:
+    """Return the total number of 2D elements on one surface."""
+    _, element_tags, _ = gmsh.model.mesh.getElements(2, surface_tag)
+    return int(sum(len(tags) for tags in element_tags))
+
+
+def _get_physical_group_entities_by_name(dim: int, name: str) -> list[int]:
+    """Return entity tags in the first physical group matching `name`."""
+    for _, group_tag in gmsh.model.getPhysicalGroups(dim):
+        if gmsh.model.getPhysicalName(dim, group_tag) == name:
+            return sorted([int(tag) for tag in gmsh.model.getEntitiesForPhysicalGroup(dim, group_tag)])
+    return []
+
+
 # Functions
 def euler_mesh(
     results_dir: Path,
-    mesh_settings: MeshSettings,
     farfield_settings: FarfieldSettings,
 ) -> Path:
-    log.info("Starting Euler Volume Meshing.")
-    inner_volume_dimtags = sorted(gmsh.model.getEntities(3), key=lambda dimtag: dimtag[1])
-    if not inner_volume_dimtags:
-        raise RuntimeError(
-            "No in-memory volumes found for Euler meshing. "
-            "This mode requires reusing the gmsh model produced by generate_2d_mesh."
-        )
 
-    inner_surface_tags = _get_outer_surface_tags_from_volumes(inner_volume_dimtags)
-    if not inner_surface_tags:
-        raise RuntimeError("No aircraft surfaces found in current gmsh model.")
-    log.info("Reusing in-memory gmsh model for Euler meshing (no surface mesh reload).")
-
-    x_min, y_min, z_min, x_max, y_max, z_max = gmsh.model.getBoundingBox(-1, -1)
-    upstream_length = farfield_settings.upstream_length
-    wake_length = farfield_settings.wake_length
-    y_length = farfield_settings.y_length
-    z_length = farfield_settings.z_length
-    symmetry = mesh_settings.symmetry
-
-    model_span = max(
-        x_max - x_min,
-        y_max - y_min,
-        z_max - z_min,
-    )
-    plane_tol = max(1e-9, model_span * 1e-9)
-
-    outer_x_min = x_min - upstream_length
-    outer_x_max = x_max + wake_length
-    outer_y_min = 0.0 if symmetry else y_min - y_length
-    outer_y_max = y_max + y_length
-    outer_z_min = z_min - z_length
-    outer_z_max = z_max + z_length
-
-    existing_groups = gmsh.model.getPhysicalGroups()
-    if existing_groups:
-        gmsh.model.removePhysicalGroups(existing_groups)
-
-    farfield_box_tag = gmsh.model.occ.addBox(
-        outer_x_min,
-        outer_y_min,
-        outer_z_min,
-        outer_x_max - outer_x_min,
-        outer_y_max - outer_y_min,
-        outer_z_max - outer_z_min,
-    )
-    fluid_dimtags, _ = gmsh.model.occ.cut(
-        [(3, farfield_box_tag)],
-        inner_volume_dimtags,
-        removeObject=True,
-        removeTool=True,
-    )
-    gmsh.model.occ.synchronize()
-
-    fluid_volume_tags = sorted([tag for dim, tag in fluid_dimtags if dim == 3])
+    fluid_volume_tags = _get_physical_group_entities_by_name(3, "fluid")
     if not fluid_volume_tags:
-        raise RuntimeError("Failed to build fluid domain from farfield box and aircraft volumes.")
+        fluid_volume_tags = sorted([tag for dim, tag in gmsh.model.getEntities(3) if dim == 3])
+    if not fluid_volume_tags:
+        raise RuntimeError("No fluid volumes found in the in-memory Euler domain.")
 
     fluid_boundary_tags = _get_outer_surface_tags_from_volumes(
         [(3, tag) for tag in fluid_volume_tags]
@@ -212,68 +201,19 @@ def euler_mesh(
     if not fluid_boundary_tags:
         raise RuntimeError("No boundary surfaces found on fluid volume.")
 
-    model_span = max(
-        outer_x_max - outer_x_min,
-        outer_y_max - outer_y_min,
-        outer_z_max - outer_z_min,
-    )
-    # OCC booleans can slightly perturb farfield plane coordinates; keep tolerance practical.
-    plane_tol = max(1e-7, model_span * 1e-6)
-    farfield_bounds = (
-        outer_x_min, outer_y_min, outer_z_min,
-        outer_x_max, outer_y_max, outer_z_max,
-    )
-
-    farfield_surfaces = sorted(
-        [
-            tag for tag in fluid_boundary_tags
-            if _surface_is_on_farfield_plane(tag, farfield_bounds, plane_tol)
-        ]
-    )
-    if not farfield_surfaces:
-        raise RuntimeError("No farfield boundary surfaces detected on the fluid volume.")
-
-    inner_symmetry_surface_tags = []
-    if symmetry:
-        inner_symmetry_surface_tags = _find_planar_surface_tags(
-            surface_tags=fluid_boundary_tags,
-            axis=1,
-            coordinate=outer_y_min,
-            tol=plane_tol,
-        )
-
-    farfield_surface_set = set(farfield_surfaces)
-    symmetry_surface_set = set(inner_symmetry_surface_tags)
-    wall_surface_tags = sorted(
-        [
-            tag for tag in fluid_boundary_tags
-            if tag not in farfield_surface_set and tag not in symmetry_surface_set
-        ]
-    )
+    wall_surface_tags = _get_physical_group_entities_by_name(2, "wall")
     if not wall_surface_tags:
-        raise RuntimeError("All inner geometry surfaces were filtered out from wall group.")
+        raise RuntimeError("No wall physical group found in reloaded surface mesh.")
 
-    if symmetry_surface_set:
-        symmetry_group = gmsh.model.addPhysicalGroup(2, sorted(symmetry_surface_set))
-        gmsh.model.setPhysicalName(2, symmetry_group, "symmetry")
-
-    farfield_group_tags = sorted(farfield_surface_set - symmetry_surface_set)
+    farfield_group_tags = _get_physical_group_entities_by_name(2, "Farfield")
     if not farfield_group_tags:
-        raise RuntimeError("No farfield surfaces left after symmetry-surface filtering.")
-    farfield_group = gmsh.model.addPhysicalGroup(2, farfield_group_tags)
-    gmsh.model.setPhysicalName(2, farfield_group, "Farfield")
+        raise RuntimeError("No Farfield physical group found in reloaded surface mesh.")
 
-    wall_group = gmsh.model.addPhysicalGroup(2, wall_surface_tags)
-    gmsh.model.setPhysicalName(2, wall_group, "wall")
+    _ = _get_physical_group_entities_by_name(2, "symmetry")
 
-    fluid_group = gmsh.model.addPhysicalGroup(3, fluid_volume_tags)
-    gmsh.model.setPhysicalName(3, fluid_group, "fluid")
-
-    transition_distance = max(
-        model_span * 0.35,
-        farfield_settings.y_length * 0.5,
-        farfield_settings.z_length * 0.5,
-    )
+    x_min, y_min, z_min, x_max, y_max, z_max = gmsh.model.getBoundingBox(-1, -1)
+    model_span = max(x_max - x_min, y_max - y_min, z_max - z_min)
+    transition_distance = max(model_span * 0.35, farfield_settings.farfield_mesh_size * 5.0)
     _set_euler_gradation_field(
         wall_surface_tags=wall_surface_tags,
         farfield_size=farfield_settings.farfield_mesh_size,
@@ -284,6 +224,9 @@ def euler_mesh(
     gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
     gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
     gmsh.option.setNumber("Mesh.MeshSizeMax", farfield_settings.farfield_mesh_size)
+    gmsh.option.setNumber("Mesh.Optimize", 0)
+    gmsh.option.setNumber("Mesh.OptimizeNetgen", 0)
+    gmsh.option.setNumber("Mesh.Smoothing", 0)
     gmsh.option.setNumber("General.NumThreads", 1)
     gmsh.option.setNumber("Mesh.MaxNumThreads1D", 1)
     gmsh.option.setNumber("Mesh.MaxNumThreads2D", 1)
@@ -291,19 +234,101 @@ def euler_mesh(
 
     all_entities = gmsh.model.getEntities(-1)
     fluid_entities = [(3, tag) for tag in fluid_volume_tags]
-    gmsh.model.mesh.clear()
+    # Keep previously generated aircraft surface mesh; only clear volume cells.
+    gmsh.model.mesh.clear(fluid_entities)
+
+    wall_surfaces_with_mesh = [tag for tag in wall_surface_tags if _surface_has_2d_elements(tag)]
+    wall_surfaces_missing_mesh = sorted(set(wall_surface_tags) - set(wall_surfaces_with_mesh))
+    existing_wall_mesh_count = len(wall_surfaces_with_mesh)
+    log.info(
+        "Reusing existing wall surface mesh on %d/%d wall surfaces.",
+        existing_wall_mesh_count,
+        len(wall_surface_tags),
+    )
+    if wall_surfaces_missing_mesh:
+        raise RuntimeError(
+            "Euler domain is incomplete: some wall surfaces have no inherited 2D mesh. "
+            "The farfield/boundary preparation must be done in generate_2d_mesh before Euler 3D."
+        )
+
+    wall_elements_before_3d = {
+        tag: _surface_2d_element_count(tag)
+        for tag in wall_surface_tags
+    }
+    wall_elements_total_before_3d = sum(wall_elements_before_3d.values())
+    log.info(
+        "Wall 2D elements before 3D generation: %d",
+        wall_elements_total_before_3d,
+    )
+
     gmsh.option.setNumber("Mesh.MeshOnlyVisible", 1)
-    gmsh.model.setVisibility(all_entities, 0, recursive=True)
-    gmsh.model.setVisibility(fluid_entities, 1, recursive=True)
+    gmsh.option.setNumber("Mesh.MeshOnlyEmpty", 0)
     try:
+        # Boundary mesh must already be complete from generate_2d_mesh.
+        gmsh.model.setVisibility(all_entities, 0, recursive=True)
+        gmsh.model.setVisibility(fluid_entities, 1, recursive=True)
         gmsh.model.mesh.generate(3)
     finally:
         gmsh.model.setVisibility(all_entities, 1, recursive=True)
         gmsh.option.setNumber("Mesh.MeshOnlyVisible", 0)
+        gmsh.option.setNumber("Mesh.MeshOnlyEmpty", 0)
+
+    fluid_volume_element_total = 0
+    for volume_tag in fluid_volume_tags:
+        _, element_tags, _ = gmsh.model.mesh.getElements(3, volume_tag)
+        fluid_volume_element_total += int(sum(len(tags) for tags in element_tags))
+    if fluid_volume_element_total == 0:
+        raise RuntimeError(
+            "Euler 3D generation produced zero volume elements on the fluid domain. "
+            "The written SU2 would be invalid (NELEM=0/NPOIN=0)."
+        )
+    log.info("Fluid 3D elements generated: %d", fluid_volume_element_total)
+
+    wall_elements_after_3d = {
+        tag: _surface_2d_element_count(tag)
+        for tag in wall_surface_tags
+    }
+    wall_elements_total_after_3d = sum(wall_elements_after_3d.values())
+    changed_wall_surfaces = sorted(
+        [
+            tag for tag in wall_surface_tags
+            if wall_elements_before_3d[tag] != wall_elements_after_3d[tag]
+        ]
+    )
+    if wall_elements_total_before_3d != wall_elements_total_after_3d:
+        details = ", ".join(
+            f"{tag}: {wall_elements_before_3d[tag]} -> {wall_elements_after_3d[tag]}"
+            for tag in changed_wall_surfaces[:20]
+        )
+        raise RuntimeError(
+            "Euler 3D generation modified the aircraft wall surface mesh. "
+            f"Wall 2D element total changed: {wall_elements_total_before_3d} -> "
+            f"{wall_elements_total_after_3d}. "
+            f"Changed surfaces={len(changed_wall_surfaces)}. Examples: {details}"
+        )
+    if changed_wall_surfaces:
+        details = ", ".join(
+            f"{tag}: {wall_elements_before_3d[tag]} -> {wall_elements_after_3d[tag]}"
+            for tag in changed_wall_surfaces[:20]
+        )
+        log.warning(
+            "Wall 2D element total was preserved, but distribution changed across wall "
+            "surfaces (%d surfaces). This usually means Gmsh reclassified boundary faces "
+            "between CAD patches during 3D generation. Examples: %s",
+            len(changed_wall_surfaces),
+            details,
+        )
+
+    log.info(
+        "Wall 2D elements preserved after 3D generation: %d",
+        wall_elements_total_after_3d,
+    )
 
     su2mesh_path = Path(results_dir, "mesh.su2")
     gmsh.write(str(su2mesh_path))
+
     stl_mesh_path = Path(results_dir, "mesh.stl")
     gmsh.write(str(stl_mesh_path))
+    log.info(f"Saved .stl at {stl_mesh_path=}")
 
     return su2mesh_path

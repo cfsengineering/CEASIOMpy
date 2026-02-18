@@ -15,6 +15,7 @@ from ceasiompy.utils.plot import get_aircraft_mesh_data
 from ceasiompy.cpacs2gmsh.utility.farfield import box_edges
 from ceasiompy.utils.ceasiompyutils import (
     safe_remove,
+    get_selected_aeromap,
 )
 from ceasiompy.cpacs2gmsh.utility.mesh_sizing import (
     get_wing_ref_chord,
@@ -79,13 +80,19 @@ def _load_3d_gui_settings(cpacs: CPACS) -> None:
 
     left_col, right_col = st.columns([3, 1])
     with right_col:
+        has_sideslip = False
+        for beta in get_selected_aeromap(cpacs).get(list_of="angleOfSideslip").tolist():
+            if beta != 0.0:
+                has_sideslip = True
         symmetry = bool_vartype(
             tixi=tixi,
             xpath=GMSH_XZ_SYMMETRY_XPATH,
-            default_value=True,
+            default_value=not has_sideslip,
             name="XZ-Symmetry",
-            description="Mesh half or the entire domain.",
-            key="cpacs2gmsh_xz_symmetry",
+            description=f"""Mesh half or the entire domain.
+                {" Found non-zero sidelip angle, disabling xz-symmetry." if has_sideslip else ""}""",
+            key=f"cpacs2gmsh_xz_symmetry_{has_sideslip}",
+            disabled=has_sideslip,
         )
 
     with left_col:
@@ -156,7 +163,7 @@ def _load_3d_gui_settings(cpacs: CPACS) -> None:
                     float_vartype(
                         tixi=tixi,
                         xpath=GMSH_MESH_SIZE_WING_XPATH + f"/{wing_uid}",
-                        default_value=ref_chord / 30.0,
+                        default_value=ref_chord / 20.0,
                         min_value=0.0,
                         max_value=ref_chord,
                         name=f"Wing: {wing_uid} mesh size",
@@ -188,7 +195,7 @@ def _load_3d_gui_settings(cpacs: CPACS) -> None:
                     float_vartype(
                         tixi=tixi,
                         xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH + f"/{fus_uid}",
-                        default_value=fus_mean_circumference / 100.0,
+                        default_value=fus_mean_circumference / 50.0,
                         min_value=0.0,
                         max_value=fus_mean_circumference,
                         name=f"Fuselage: {fus_uid} mesh size",

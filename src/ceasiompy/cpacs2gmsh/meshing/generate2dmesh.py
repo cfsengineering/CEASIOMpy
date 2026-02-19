@@ -444,6 +444,7 @@ def _prepare_euler_fluid_domain(
     if not inner_volume_dimtags:
         raise RuntimeError("No in-memory aircraft volumes found for Euler fluid-domain setup.")
 
+    log.info("Preparing euler fluid domain.")
     x_min, y_min, z_min, x_max, y_max, z_max = gmsh.model.getBoundingBox(-1, -1)
     symmetry = mesh_settings.symmetry
     outer_x_min = x_min - farfield_settings.upstream_length
@@ -569,7 +570,9 @@ def _prepare_euler_fluid_domain(
             1,
             recursive=True,
         )
+        log.info("Starting 1D Euler fluid domain.")
         gmsh.model.mesh.generate(1)
+        log.info("Starting 2D Euler fluid domain.")
         gmsh.model.mesh.generate(2)
     finally:
         gmsh.option.setNumber("Mesh.MeshSizeFromPoints", prev_size_from_points)

@@ -584,11 +584,18 @@ def _write_surface_subset_mesh(
             tmp_model_name = f"{tmp_model_name_base}_{suffix}"
     gmsh.model.setCurrent(tmp_model_name)
 
+    curves_with_elements = sorted(
+        [
+            entity_tag
+            for (dim, entity_tag), tags_by_type in element_tags_by_entity.items()
+            if dim == 1 and bool(tags_by_type)
+        ]
+    )
     if include_boundary_topology:
-        for _, point_tag in point_dimtags:
-            gmsh.model.addDiscreteEntity(0, point_tag)
-
-        for _, curve_tag in curve_dimtags:
+        # Do not add standalone point entities: in Gmsh v4 they are serialized
+        # as zero-bbox CAD points (often shown at 0,0,0) even when not meshed.
+        # Keep only curve entities that actually carry exported 1D elements.
+        for curve_tag in curves_with_elements:
             gmsh.model.addDiscreteEntity(1, curve_tag)
 
     for _, surface_tag in surface_dimtags:
@@ -596,7 +603,7 @@ def _write_surface_subset_mesh(
 
     added_nodes: set[int] = set()
     node_owner_dimtags = (
-        point_dimtags + curve_dimtags + surface_dimtags
+        [(1, curve_tag) for curve_tag in curves_with_elements] + surface_dimtags
         if include_boundary_topology
         else surface_dimtags
     )
@@ -879,6 +886,11 @@ def _prepare_euler_fluid_domain(
 
     farfield_boundary_tags = sorted(farfield_group_tags)
     closure_boundary_tags = sorted(fluid_boundary_tags)
+    boundary_tags_for_2d = (
+        farfield_boundary_tags
+        if symmetry
+        else closure_boundary_tags
+    )
     all_entities = gmsh.model.getEntities(-1)
     gmsh.option.setNumber("Mesh.MeshOnlyVisible", 1)
     gmsh.option.setNumber("Mesh.MeshOnlyEmpty", 1)
@@ -893,15 +905,19 @@ def _prepare_euler_fluid_domain(
         log.info("Starting 1D Euler fluid domain.")
         gmsh.model.mesh.generate(1)
 
-        # Stage 2: mesh all fluid-boundary surfaces in one 2D pass.
-        # Running separate 2D passes can leave only the last visible subset meshed.
+        # Stage 2:
+        # - symmetry=True: mesh farfield only (symmetry plane is handled separately).
+        # - symmetry=False: mesh all fluid-boundary surfaces in one pass.
         gmsh.model.setVisibility(all_entities, 0, recursive=True)
         gmsh.model.setVisibility(
-            [(2, tag) for tag in closure_boundary_tags],
+            [(2, tag) for tag in boundary_tags_for_2d],
             1,
             recursive=True,
         )
-        log.info("Starting 2D Euler fluid boundary domain.")
+        if symmetry:
+            log.info("Starting 2D Euler farfield domain.")
+        else:
+            log.info("Starting 2D Euler fluid boundary domain.")
         gmsh.model.mesh.generate(2)
     finally:
         gmsh.model.setVisibility(all_entities, 1, recursive=True)

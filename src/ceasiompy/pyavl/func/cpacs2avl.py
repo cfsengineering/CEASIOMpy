@@ -14,7 +14,6 @@ import numpy as np
 from cpacspy.cpacsfunctions import (
     get_uid,
     get_value,
-    create_branch,
 )
 from ceasiompy.utils.mathsfunctions import (
     euler2fix,
@@ -118,9 +117,9 @@ def leadingedge_coordinates(
     avl_path,
     i_wing,
     i_sec,
-    x_LE_rot,
-    y_LE_rot,
-    z_LE_rot,
+    x_le_rot,
+    y_le_rot,
+    z_le_rot,
     wg_sec_chord,
     wg_sec_rot,
     wing_xpath,
@@ -134,7 +133,7 @@ def leadingedge_coordinates(
         avl_file.write("#---------------\nSECTION\n")
         avl_file.write("#Xle    Yle    Zle     Chord   Ainc\n")
         avl_file.write(
-            f"{x_LE_rot:.3f} {y_LE_rot:.3f} {z_LE_rot:.3f} "
+            f"{x_le_rot:.3f} {y_le_rot:.3f} {z_le_rot:.3f} "
             f"{(wg_sec_chord):.3f} {wg_sec_rot.y}\n"
         )
 
@@ -149,22 +148,22 @@ def leadingedge_coordinates(
             for i in range(1, num_devices + 1):
                 control_xpath = f"{control_xpath_base}/trailingEdgeDevice[{i}]"
                 control_uid = tixi.getTextAttribute(control_xpath, "uID")
-                innerhingeXsi_xpath = control_xpath + "/path/innerHingePoint/hingeXsi"
-                outerhingeXsi_xpath = control_xpath + "/path/outerHingePoint/hingeXsi"
-                innerhingeXsi = float(get_value(tixi, innerhingeXsi_xpath))
-                outerhingeXsi = float(get_value(tixi, outerhingeXsi_xpath))
+                innerhinge_xsi_xpath = control_xpath + "/path/innerHingePoint/hingeXsi"
+                outerhinge_xsi_xpath = control_xpath + "/path/outerHingePoint/hingeXsi"
+                innerhinge_xsi = float(get_value(tixi, innerhinge_xsi_xpath))
+                outerhinge_xsi = float(get_value(tixi, outerhinge_xsi_xpath))
 
-                innerEta_xpath = control_xpath + "/outerShape/innerBorder/etaTE/eta"
-                outerEta_xpath = control_xpath + "/outerShape/outerBorder/etaTE/eta"
+                inner_eta_xpath = control_xpath + "/outerShape/innerBorder/etaTE/eta"
+                outer_eta_xpath = control_xpath + "/outerShape/outerBorder/etaTE/eta"
 
-                innerEta = float(get_value(tixi, innerEta_xpath))
-                outerEta = float(get_value(tixi, outerEta_xpath))
+                inner_eta = float(get_value(tixi, inner_eta_xpath))
+                outer_eta = float(get_value(tixi, outer_eta_xpath))
 
-                x_axis = (outerhingeXsi - innerhingeXsi) * c_ref
-                y_axis = (outerEta - innerEta) * s_ref
+                x_axis = (outerhinge_xsi - innerhinge_xsi) * c_ref
+                y_axis = (outer_eta - inner_eta) * s_ref
                 z_axis = 0.0
 
-                CONTROL_DICT = {
+                control_dict = {
                     "InnerFlap": {
                         "i_sec": [0, 1],
                         "type": "flap",
@@ -196,7 +195,7 @@ def leadingedge_coordinates(
                         "bool": [-1.0, -1.0],
                     },
                 }
-                control = CONTROL_DICT.get(control_uid, None)
+                control = control_dict.get(control_uid, None)
                 if control is None:
                     continue
                 control_type = control["type"]
@@ -204,7 +203,7 @@ def leadingedge_coordinates(
                     write_control(
                         avl_file,
                         control_type,
-                        innerhingeXsi,
+                        innerhinge_xsi,
                         control["axis"],
                         control["bool"][0],
                     )
@@ -212,7 +211,7 @@ def leadingedge_coordinates(
                     write_control(
                         avl_file,
                         control_type,
-                        outerhingeXsi,
+                        outerhinge_xsi,
                         control["axis"],
                         control["bool"][1],
                     )
@@ -515,12 +514,12 @@ class Avl:
 
                 if all(abs(value) < 1e-6 for value in pos_y_list):
                     # Define the leading edge position from translations
-                    x_LE, y_LE, z_LE = sum_points(sec_transf.translation, elem_transf.translation)
-                    x_LE_rot, y_LE_rot, z_LE_rot = rotate_points(
-                        x_LE, y_LE, z_LE, wg_sec_dihed, wg_sec_twist, wg_sec_yaw
+                    x_le, y_le, z_le = sum_points(sec_transf.translation, elem_transf.translation)
+                    x_le_rot, y_le_rot, z_le_rot = rotate_points(
+                        x_le, y_le, z_le, wg_sec_dihed, wg_sec_twist, wg_sec_yaw
                     )
                 else:
-                    x_LE_rot, y_LE_rot, z_LE_rot = rotate_points(
+                    x_le_rot, y_le_rot, z_le_rot = rotate_points(
                         pos_x_list[i_sec],
                         pos_y_list[i_sec],
                         pos_z_list[i_sec],
@@ -530,28 +529,28 @@ class Avl:
                     )
 
                 # Compute the absolute location of the leading edge
-                x_LE_abs = x_LE_rot + wg_sk_transf.translation.x
-                y_LE_abs = y_LE_rot + wg_sk_transf.translation.y
-                z_LE_abs = z_LE_rot + wg_sk_transf.translation.z
+                x_le_abs = x_le_rot + wg_sk_transf.translation.x
+                y_le_abs = y_le_rot + wg_sk_transf.translation.y
+                z_le_abs = z_le_rot + wg_sk_transf.translation.z
 
                 if self.add_fuselage:
                     # Compute the radius of the fuselage and the height difference ...
                     # between fuselage center and leading edge
-                    radius_fus = fus_radius_profile(x_LE_abs + wg_sec_chord / 2)
-                    fus_z_center = fus_z_profile(x_LE_abs + wg_sec_chord / 2)
-                    delta_z = np.abs(fus_z_center + body_transf.translation.z - z_LE_abs)
+                    radius_fus = fus_radius_profile(x_le_abs + wg_sec_chord / 2)
+                    fus_z_center = fus_z_profile(x_le_abs + wg_sec_chord / 2)
+                    delta_z = np.abs(fus_z_center + body_transf.translation.z - z_le_abs)
 
                     # If the root wing section is inside the fuselage, translate it to...
                     # the fuselage border
                     # To make sure there is no wing part inside the fuselage
                     if (
-                        np.sqrt((y_LE_abs) ** 2 + (delta_z) ** 2) < radius_fus
+                        np.sqrt((y_le_abs) ** 2 + (delta_z) ** 2) < radius_fus
                         and wg_sec_dihed < math.pi / 2
                         and root_defined is False
                     ):
 
-                        y_LE_abs += np.sqrt(radius_fus**2 - delta_z**2) - y_LE_abs
-                        y_LE_rot = y_LE_abs - wg_sk_transf.translation.y
+                        y_le_abs += np.sqrt(radius_fus**2 - delta_z**2) - y_le_abs
+                        y_le_rot = y_le_abs - wg_sk_transf.translation.y
                         root_defined = True
 
                 leadingedge_coordinates(
@@ -559,9 +558,9 @@ class Avl:
                     self.avl_path,
                     i_wing,
                     i_sec,
-                    x_LE_rot,
-                    y_LE_rot,
-                    z_LE_rot,
+                    x_le_rot,
+                    y_le_rot,
+                    z_le_rot,
                     wg_sec_chord,
                     wg_sec_rot,
                     wing_xpath,

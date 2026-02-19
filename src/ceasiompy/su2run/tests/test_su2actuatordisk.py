@@ -54,12 +54,12 @@ def test_get_advanced_ratio():
     with pytest.raises(ValueError):
         get_advanced_ratio(100, 0, 2)
 
-    Atm = Atmosphere(1000)
-    free_stream_velocity = 0.3 * Atm.speed_of_sound[0]
+    atmosphere = Atmosphere(1000)
+    free_stream_velocity = 0.3 * atmosphere.speed_of_sound[0]
     assert get_advanced_ratio(free_stream_velocity, 100, 2) == pytest.approx(0.2523, 1e-3)
 
-    Atm = Atmosphere(10000)
-    free_stream_velocity = 0.48 * Atm.speed_of_sound[0]
+    atmosphere = Atmosphere(10000)
+    free_stream_velocity = 0.48 * atmosphere.speed_of_sound[0]
     assert get_advanced_ratio(free_stream_velocity, 100, 1.5) == pytest.approx(0.47925, 1e-3)
 
 
@@ -90,14 +90,14 @@ def test_get_prandtl_correction_values():
 def test_get_error():
 
     radial_stations = np.arange(0.1, 1, 0.20)
-    dCt = calculate_radial_thrust_coefs(
+    thrust_coef_distribution = calculate_radial_thrust_coefs(
         radial_stations,
         advanced_ratio=1.0,
         opt_axial_interf_factor=np.array([1.0, 1.0, 1.0, 1.0, 1.0]),
     )
     radial_stations_spacing = radial_stations[1] - radial_stations[0]
 
-    error = np.sum(radial_stations_spacing * dCt)
+    error = np.sum(radial_stations_spacing * thrust_coef_distribution)
 
     assert error == pytest.approx(3.141, rel=1e-3)
 

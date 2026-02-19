@@ -153,16 +153,15 @@ def add_damping_derivatives(
 
     cfg["GRID_MOVEMENT"] = "ROTATING_FRAME"
 
-    RATE_DICT = {
+    rate_dict = {
         "roll": [f"{rotation_rate} 0.0 0.0", f"p_{rotation_rate}"],
         "pitch": [f"0.0 {rotation_rate} 0.0", f"q_{rotation_rate}"],
         "yaw": [f"0.0 0.0 {rotation_rate}", f"r_{rotation_rate}"],
     }
 
-    RATE = "ROTATION_RATE"
-    save_cfg_dir(cfg, wkdir, case_dir_name, "roll", RATE_DICT, RATE)
-    save_cfg_dir(cfg, wkdir, case_dir_name, "pitch", RATE_DICT, RATE)
-    save_cfg_dir(cfg, wkdir, case_dir_name, "yaw", RATE_DICT, RATE)
+    save_cfg_dir(cfg, wkdir, case_dir_name, "roll", rate_dict, "ROTATION_RATE")
+    save_cfg_dir(cfg, wkdir, case_dir_name, "pitch", rate_dict, "ROTATION_RATE")
+    save_cfg_dir(cfg, wkdir, case_dir_name, "yaw", rate_dict, "ROTATION_RATE")
 
     log.info("Damping derivatives cases directories have been created.")
 

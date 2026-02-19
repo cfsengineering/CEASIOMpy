@@ -31,7 +31,7 @@ from ceasiompy.utils.ceasiompyutils import (
 from streamlitutils import (
     scroll_down,
     create_sidebar,
-    section_3D_view,
+    section_3d_view,
     close_cpacs_handles,
     build_default_upload,
 )
@@ -462,7 +462,7 @@ def section_select_cpacs() -> None:
     title += ")"
     st.markdown(title)
 
-    section_3D_view(cpacs=cpacs, force_regenerate=True)
+    section_3d_view(cpacs=cpacs, force_regenerate=True)
 
     # Once 3D view of CPACS file is done scroll down
     scroll_down()

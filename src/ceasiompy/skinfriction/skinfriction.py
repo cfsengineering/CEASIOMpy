@@ -15,7 +15,6 @@ from ceasiompy.utils.ceasiompyutils import (
     get_aeromap_list_from_xpath,
 )
 from cpacspy.cpacsfunctions import (
-    get_value,
     create_branch,
     add_string_vector,
     get_value_or_default,
@@ -27,16 +26,15 @@ from cpacspy.cpacspy import CPACS
 from markdownpy.markdownpy import MarkdownDoc
 
 from ceasiompy import log
-
+from ceasiompy.skinfriction import MODULE_NAME
 from ceasiompy.utils.commonxpaths import (
-    PLOT_XPATH,
     SF_XPATH,
+    PLOT_XPATH,
     WETTED_AREA_XPATH,
     WING_AREA_XPATH,
     WING_SPAN_XPATH,
 )
 
-from ceasiompy.skinfriction import MODULE_NAME
 
 # Functions
 
@@ -80,14 +78,14 @@ def estimate_skin_friction_coef(wetted_area, wing_area, wing_span, mach, alt):
         log.warning("Wing span is not in the correct range. It must be between 10 and 68 [m]")
 
     # Get atmosphere values at this altitude
-    Atm = Atmosphere(alt)
+    atmosphere = Atmosphere(alt)
 
     # Get speed from Mach Number
-    speed = mach * Atm.speed_of_sound[0]
+    speed = mach * atmosphere.speed_of_sound[0]
     log.info(f"Mach number: {mach} [-] -> Velocity: {round(speed)} [m/s]")
 
     # Reynolds number based on the ratio Wetted Area / Wing Span
-    reynolds_number = (wetted_area / wing_span) * speed / Atm.kinematic_viscosity[0]
+    reynolds_number = (wetted_area / wing_span) * speed / atmosphere.kinematic_viscosity[0]
 
     log.info(f"Reynolds number: {reynolds_number:.2E} [-]")  # + str(round(reynolds_number)))
     if reynolds_number < 35e06 or reynolds_number > 390e06:

@@ -23,7 +23,7 @@ from ceasiompy.utils.ceasiompyutils import get_part_type
 from pathlib import Path
 from ceasiompy.utils.engine import Engine
 from ceasiompy.utils.configfiles import ConfigFile
-from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Rotation as ScipyRotation
 
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import ENGINES_XPATH
@@ -404,9 +404,9 @@ def reposition_engine(cpacs, engine_path, engine_uids, engines_cfg_file):
     # Save the engine axis in the engines config file
     original_gmsh_axis = [-1, 0, 0]
 
-    rx = R.from_euler("x", rotation.x, degrees=True)
-    ry = R.from_euler("y", rotation.y, degrees=True)
-    rz = R.from_euler("z", rotation.z, degrees=True)
+    rx = ScipyRotation.from_euler("x", rotation.x, degrees=True)
+    ry = ScipyRotation.from_euler("y", rotation.y, degrees=True)
+    rz = ScipyRotation.from_euler("z", rotation.z, degrees=True)
 
     rotation_new = rx.apply(original_gmsh_axis)
     rotation_new = ry.apply(rotation_new)

@@ -13,7 +13,7 @@ from typing import Final
 from numpy import sqrt
 from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 from ceasiompy.pyavl import MODULE_STATUS as PYAVL_STATUS
-from ceasiompy.su2run import MODULE_STATUS as SU2RUN_STATUS
+# from ceasiompy.su2run import MODULE_STATUS as SU2RUN_STATUS
 
 # ==============================================================================
 #   INITIALIZATION

@@ -39,7 +39,7 @@ from parsefunctions import (
 )
 from streamlitutils import (
     create_sidebar,
-    section_3D_view,
+    section_3d_view,
     highlight_stability,
 )
 
@@ -249,7 +249,7 @@ def display_results(results_dir):
     clear_containers(container_list)
 
     # Inner constant...
-    DISPLAY_BY_SUFFIX = {
+    display_by_suffix = {
         ".dat": _display_dat,
         ".su2": _display_su2,
         ".vtu": _display_vtu,
@@ -276,7 +276,7 @@ def display_results(results_dir):
         if child.name in IGNORED_RESULTS:
             continue
         try:
-            handler = DISPLAY_BY_SUFFIX.get(child.suffix.lower())
+            handler = display_by_suffix.get(child.suffix.lower())
             if handler is not None:
                 if not is_first_displayed_child:
                     st.markdown("---")
@@ -568,14 +568,14 @@ def _display_pkl(path: Path) -> None:
 
     if preview_cpacs is not None:
         with _timed(f"geometry preview render {path.name}"):
-            section_3D_view(
+            section_3d_view(
                 cpacs=preview_cpacs,
                 force_regenerate=False,
                 plot_key=f"{path}_plk_geom_view",
             )
     else:
         with _timed(f"geometry preview render fallback {path.name}"):
-            section_3D_view(
+            section_3d_view(
                 force_regenerate=False,
                 plot_key=f"{path}_plk_geom_view",
             )
@@ -1541,7 +1541,7 @@ def _display_csv(path: Path) -> None:
 def _display_xml(path: Path) -> None:
     cpacs = CPACS(path)
     st.markdown(f"**CPACS {cpacs.ac_name}**")
-    section_3D_view(
+    section_3d_view(
         cpacs=cpacs,
         force_regenerate=False,
         plot_key=f"{path}_xml_geom_view",

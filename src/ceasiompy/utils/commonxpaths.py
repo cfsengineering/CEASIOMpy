@@ -87,12 +87,9 @@ WING_SPAN_XPATH = CEASIOMPY_XPATH + "/geometry/analysis/wingSpan"
 # SMTRAIN_XPATH = CEASIOMPY_XPATH + "/surrogateModel"
 # SMUSE_XPATH = CEASIOMPY_XPATH + "/surrogateModelUse"
 
-OPTwkdir_XPATH = CEASIOMPY_XPATH + "/filesPath/optimPath"
 SMFILE_XPATH = CEASIOMPY_XPATH + "/filesPath/SMpath"
 SU2MESH_XPATH = CEASIOMPY_XPATH + "/filesPath/su2Mesh"
 EDGE_MESH_XPATH = CEASIOMPY_XPATH + "/filesPath/edgeMesh"
-
-wkdir_XPATH = CEASIOMPY_XPATH + "/filesPath/wkdirPath"
 
 SM_XPATH = CEASIOMPY_XPATH + "/filesPath/surrogateModelPath"
 SUGGESTED_POINTS_XPATH = CEASIOMPY_XPATH + "/filesPath/suggestedPointsPath"

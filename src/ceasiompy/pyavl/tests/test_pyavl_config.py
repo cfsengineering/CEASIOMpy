@@ -11,7 +11,6 @@ Test functions for config.py
 from cpacspy.cpacsfunctions import create_branch
 from ceasiompy.utils.decorators import log_test
 from ceasiompy.pyavl.func.config import (
-    write_command_file,
     retrieve_gui_values,
 )
 from ceasiompy.utils.ceasiompyutils import (

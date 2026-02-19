@@ -18,7 +18,6 @@ import streamlit.components.v1 as components
 
 from streamlit_float import float_init
 from assistant import get_assistant_response
-from ceasiompy.utils.guiobjects import update_value
 from ceasiompy.utils.plot import get_aircraft_mesh_data
 
 from PIL import Image
@@ -368,7 +367,7 @@ def plot_airfoil_2d(x_coords, y_coords, title="Airfoil Profile"):
     st.plotly_chart(fig, width="stretch")
 
 
-def section_3D_view(
+def section_3d_view(
     cpacs: CPACS | None = None,
     *,
     force_regenerate: bool = False,

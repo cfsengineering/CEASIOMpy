@@ -1,5 +1,7 @@
-{  
+{
     "python.analysis.extraPaths": [
-        "installdir/OpenVSP/python/openvsp"
+        "installdir/OpenVSP/python/openvsp",
+        "${workspaceFolder}/src",
+        "${workspaceFolder}/src/app"
     ]
 }

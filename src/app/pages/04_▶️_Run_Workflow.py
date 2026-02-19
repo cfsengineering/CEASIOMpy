@@ -22,7 +22,7 @@ from streamlitutils import (
     scroll_down,
     create_sidebar,
     save_cpacs_file,
-    section_3D_view,
+    section_3d_view,
 )
 
 from pathlib import Path
@@ -484,7 +484,7 @@ def display_simulation_settings() -> None:
 
     with left_col:
         st.markdown(f"CPACS: **{cpacs.ac_name}**")
-        section_3D_view(
+        section_3d_view(
             cpacs=cpacs,
             force_regenerate=True,
             height=200,

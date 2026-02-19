@@ -45,16 +45,15 @@ from ceasiompy.su2run import MODULE_NAME as SU2RUN
 MODULE_DIR = Path(__file__).parent
 FORCES_BREAKDOWN = Path(MODULE_DIR, "forces_breakdown.dat")
 FORCES_BREAKDOWN_NO_VALUE = Path(MODULE_DIR, "forces_breakdown_no_value.dat")
+NOT_SU2_MESH = Path(MODULE_DIR, "not_su2_mesh.txt")
+SU2_MESH_NO_MARKER = Path(MODULE_DIR, "test_mesh0.su2")
+SU2_MESH_1 = Path(MODULE_DIR, "test_mesh1.su2")
+
 
 # Functions
 
-
 def test_get_mesh_marker():
     """Test the class 'get_mesh_markers'"""
-
-    NOT_SU2_MESH = Path(MODULE_DIR, "not_su2_mesh.txt")
-    SU2_MESH_NO_MARKER = Path(MODULE_DIR, "test_mesh0.su2")
-    SU2_MESH_1 = Path(MODULE_DIR, "test_mesh1.su2")
 
     with pytest.raises(FileNotFoundError):
         get_mesh_markers(Path("This_file_do_not_exist.su2"))

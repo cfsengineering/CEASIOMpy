@@ -69,8 +69,8 @@ def main(vsp_file: str | Path, output_dir: str | Path | None = None) -> Path:
     geom_ids = vsp.FindGeoms()
 
     # Some initializations
-    ComponentIdx = 0
-    Data_from_VSP, Parent_List = {}, {}
+    component_idx = 0
+    data_from_vsp, parent_list = {}, {}
     idx_engine = 0
 
     log.info("Loading OpenVSP geometry... ")
@@ -80,58 +80,58 @@ def main(vsp_file: str | Path, output_dir: str | Path | None = None) -> Path:
 
         if geom_type == "Wing":
             # Extract the required parameters to define the CPACS component
-            Data_from_VSP[f"{ComponentIdx}"] = Import_Wing(geom_id)
+            data_from_vsp[f"{component_idx}"] = Import_Wing(geom_id)
 
             # Check if it is a child connected to a parent
-            CheckParent(Data_from_VSP, ComponentIdx, Parent_List, geom_id)
+            CheckParent(data_from_vsp, component_idx, parent_list, geom_id)
 
-            ComponentIdx += 1
+            component_idx += 1
 
         elif geom_type == "Fuselage":
             # Extract the required parameters to define the CPACS component
-            Data_from_VSP[f"{ComponentIdx}"] = Import_Fuse(geom_id)
+            data_from_vsp[f"{component_idx}"] = Import_Fuse(geom_id)
 
             # Check if it is a child connected to a parent
-            CheckParent(Data_from_VSP, ComponentIdx, Parent_List, geom_id)
+            CheckParent(data_from_vsp, component_idx, parent_list, geom_id)
 
-            ComponentIdx += 1
+            component_idx += 1
 
         elif geom_type == "Pod":
             # Extract the required parameters to define the CPACS component
-            Data_from_VSP[f"{ComponentIdx}"] = Import_POD(geom_id)
+            data_from_vsp[f"{component_idx}"] = Import_POD(geom_id)
 
             # Check if it is a child connected to a parent
-            CheckParent(Data_from_VSP, ComponentIdx, Parent_List, geom_id)
+            CheckParent(data_from_vsp, component_idx, parent_list, geom_id)
 
             # The pod is also a part inside the engine (centerCowl)
             if (
-                ComponentIdx > 2
-                and Data_from_VSP[f"{ComponentIdx - 1}"]["Transformation"]["Name_type"] == "Duct"
+                component_idx > 2
+                and data_from_vsp[f"{component_idx - 1}"]["Transformation"]["Name_type"] == "Duct"
             ):
-                Data_from_VSP[f"{ComponentIdx}"]["Transformation"]["idx_engine"] = idx_engine
+                data_from_vsp[f"{component_idx}"]["Transformation"]["idx_engine"] = idx_engine
             else:
-                Data_from_VSP[f"{ComponentIdx}"]["Transformation"]["idx_engine"] = None
+                data_from_vsp[f"{component_idx}"]["Transformation"]["idx_engine"] = None
 
-            ComponentIdx += 1
+            component_idx += 1
 
         elif geom_type == "Custom":
             # Extract the required parameters to define the CPACS component
-            Data_from_VSP[f"{ComponentIdx}"] = Import_Duct(geom_id)
+            data_from_vsp[f"{component_idx}"] = Import_Duct(geom_id)
 
             # Check if it is a child connected to a parent
-            CheckParent(Data_from_VSP, ComponentIdx, Parent_List, geom_id)
+            CheckParent(data_from_vsp, component_idx, parent_list, geom_id)
 
             # Check whether the component belongs to an engine.
             # A complete engine in CPACS consists of two ducts and one pod
             # (fan, core, and center body).
-            if Data_from_VSP[f"{ComponentIdx - 1}"]["Transformation"]["Name_type"] != "Duct":
+            if data_from_vsp[f"{component_idx - 1}"]["Transformation"]["Name_type"] != "Duct":
                 idx_engine += 1
-            Data_from_VSP[f"{ComponentIdx}"]["Transformation"]["idx_engine"] = idx_engine
+            data_from_vsp[f"{component_idx}"]["Transformation"]["idx_engine"] = idx_engine
 
-            ComponentIdx += 1
+            component_idx += 1
 
     # Create a CPACS file.
     log.info("Creating CPACS file...")
 
-    exporter = Export_CPACS(Data_from_VSP, name_file, output_dir=output_dir)
+    exporter = Export_CPACS(data_from_vsp, name_file, output_dir=output_dir)
     return exporter.run()

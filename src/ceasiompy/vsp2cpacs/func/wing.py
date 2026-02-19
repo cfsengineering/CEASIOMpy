@@ -1079,13 +1079,13 @@ def get_coord_edit_curve(xsec_id,n):
     curve_type_parm = vsp.GetXSecParm(xsec_id, "CurveType")
     curve_type = int(vsp.GetParmVal(curve_type_parm))
     if curve_type == 0:
-        curve_pts = linear_curve(pts,n,shift)
+        curve_pts = linear_curve(pts, n, shift)
         Name = "Linear_Spline"
     elif curve_type == 1:
-        curve_pts = spline_curve(pts,n,shift)
+        curve_pts = spline_curve(pts, n, shift)
         Name = "Cubic_Spline"
     elif curve_type == 2:
-        curve_pts = bezier_curve(pts,n,shift)
+        curve_pts = bezier_curve(pts, n, shift)
         Name = "Cubic_Bézier"
     return curve_pts[:, 0], curve_pts[:, 1], Name, Scaling, shift
 
@@ -1356,4 +1356,4 @@ def Wing_Sections(wing, idx):
     Twist = vsp.GetParmVal(wing,'Twist',f'XSec_{idx}')
     Twist_loc = vsp.GetParmVal(wing,'Twist_Location',f'XSec_{idx}')
     Span = vsp.GetParmVal(wing,'Span',f'XSec_{idx}')
-    return [Alias, Dihedral_Angle, Sweep_angle,Sweep_loc, Twist, Twist_loc, Span]
+    return [Alias, Dihedral_Angle, Sweep_angle, Sweep_loc, Twist, Twist_loc, Span]

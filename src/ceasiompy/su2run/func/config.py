@@ -52,11 +52,7 @@ from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from cpacspy.rotorcraft import Rotorcraft
 from ceasiompy.utils.configfiles import ConfigFile
-from typing import (
-    Dict,
-    List,
-    Tuple,
-)
+
 
 from ceasiompy import log
 from ceasiompy.su2run import CONTROL_SURFACE_LIST
@@ -70,7 +66,6 @@ from ceasiompy.utils.commonnames import (
 from ceasiompy.utils.commonxpaths import (
     SU2MESH_XPATH,
     ENGINE_TYPE_XPATH,
-    USED_SU2_MESH_XPATH,
     GEOMETRY_MODE_XPATH,
     PROPELLER_THRUST_XPATH,
     PROPELLER_BLADE_LOSS_XPATH,
@@ -104,7 +99,7 @@ def add_actuator_disk(
     tixi: Tixi3,
     case_dir_path: Path,
     actuator_disk_file: Path,
-    mesh_markers: Dict,
+    mesh_markers: dict,
     alt: float,
     mach: float,
 ) -> None:
@@ -227,8 +222,8 @@ def add_actuator_disk(
             ]
         )
 
-        Atm = Atmosphere(alt)
-        free_stream_velocity = mach * Atm.speed_of_sound[0]
+        atmosphere = Atmosphere(alt)
+        free_stream_velocity = mach * atmosphere.speed_of_sound[0]
 
         radial_stations = get_radial_stations(radius, hub_radius)
         advanced_ratio = get_advanced_ratio(free_stream_velocity, rotational_velocity, radius)
@@ -237,7 +232,7 @@ def add_actuator_disk(
 
         thrust = get_value(tixi, PROPELLER_THRUST_XPATH)
         total_thrust_coefficient = float(
-            thrust / (Atm.density[0] * rotational_velocity**2 * (radius * 2) ** 4)
+            thrust / (atmosphere.density[0] * rotational_velocity**2 * (radius * 2) ** 4)
         )
 
         (
@@ -291,7 +286,7 @@ def add_thermodata(
     tixi: Tixi3,
     alt: float,
     case_nb: int,
-    alt_list: List,
+    alt_list: list,
 ) -> None:
     if not tixi.checkElement(ENGINE_TYPE_XPATH):
         log.warning(f"No engines found at xPath {ENGINE_TYPE_XPATH}.")
@@ -302,9 +297,9 @@ def add_thermodata(
     log.info(f"Engine type {engine_type}.")
 
     alt = alt_list[case_nb]
-    Atm = Atmosphere(alt)
-    tot_temp_in = Atm.temperature[0]
-    tot_pressure_in = Atm.pressure[0]
+    atmosphere = Atmosphere(alt)
+    tot_temp_in = atmosphere.temperature[0]
+    tot_pressure_in = atmosphere.pressure[0]
 
     if (not (
         tixi.checkElement(ENGINE_BC_TEMPERATUREOUTLET_XPATH)
@@ -340,16 +335,16 @@ def add_reynolds_number(alt: float, mach: float, cfg: ConfigFile, tixi: Tixi3) -
 
     """
 
-    Atm = Atmosphere(alt)
+    atmosphere = Atmosphere(alt)
 
     # Get speed from Mach Number
-    speed = mach * Atm.speed_of_sound[0]
+    speed = mach * atmosphere.speed_of_sound[0]
 
     ref_chord = get_wing_ref_chord(tixi)
     log.info(f"Reference chord is {ref_chord}.")
 
     # Reynolds number based on the mean chord
-    reynolds = int(ref_chord * speed / Atm.kinematic_viscosity[0])
+    reynolds = int(ref_chord * speed / atmosphere.kinematic_viscosity[0])
     cfg["REYNOLDS_NUMBER"] = reynolds
     log.info(f"Reynolds number is {reynolds}.")
 
@@ -359,12 +354,12 @@ def add_case_data(
     wkdir: Path,
     cfg: ConfigFile,
     rans: bool,
-    mesh_markers: Dict,
+    mesh_markers: dict,
     case_dir_name: str,
     mach: float,
     alt: float,
     case_nb: int,
-    alt_list: List,
+    alt_list: list,
     ctrlsurf: str,
     dyn_stab: bool,
 ) -> None:
@@ -377,12 +372,12 @@ def add_case_data(
         cfg (ConfigFile): SU2 configuration file object.
         cpacs_path (Path): Path to the CPACS file.
         rans (bool): Flag indicating if RANS (Reynolds-Averaged Navier-Stokes) is used.
-        mesh_markers (Dict): Dictionary containing mesh markers.
+        mesh_markers (dict): Dictionary containing mesh markers.
         case_dir_name (str): Name of the case directory.
         mach (float): Mach number for the case.
         alt (float): Altitude for the case.
         case_nb (int): Case number.
-        alt_list (List): List of altitudes.
+        alt_list (list): list of altitudes.
 
     """
     add_thermodata(cfg, tixi, alt, case_nb, alt_list)
@@ -440,7 +435,7 @@ def configure_unsteady_simulation(
     cfg: ConfigFile,
     tixi: Tixi3,
     oscillation_type: str,
-    mesh_markers: Dict,
+    mesh_markers: dict,
     markers_len: int,
 ) -> None:
     # Center of gravity
@@ -483,13 +478,13 @@ def configure_freestream(
     aoa: float,
     aos: float,
 ) -> None:
-    Atm = Atmosphere(alt)
+    atmosphere = Atmosphere(alt)
 
     cfg["MACH_NUMBER"] = mach
     cfg["AOA"] = aoa
     cfg["SIDESLIP_ANGLE"] = aos
-    cfg["FREESTREAM_PRESSURE"] = Atm.pressure[0]
-    cfg["FREESTREAM_TEMPERATURE"] = Atm.temperature[0]
+    cfg["FREESTREAM_PRESSURE"] = atmosphere.pressure[0]
+    cfg["FREESTREAM_TEMPERATURE"] = atmosphere.temperature[0]
 
 
 def configure_cfd_environment(
@@ -499,7 +494,7 @@ def configure_cfd_environment(
     su2_mesh_path: Path,
     rans: bool,
     dyn_stab: bool,
-    mesh_markers: Dict,
+    mesh_markers: dict,
     ctrlsurf: str,
 ) -> None:
     """
@@ -511,7 +506,7 @@ def configure_cfd_environment(
         cfg (ConfigFile): Configuration file to modify.
         su2_mesh (Path): Path to the SU2 mesh file.
         rans (bool): True if RANS simulation.
-        mesh_markers (Dict): Dictionary of the mesh markers found in the SU2 mesh file.
+        mesh_markers (dict): Dictionary of the mesh markers found in the SU2 mesh file.
 
     """
     tixi = cpacs.tixi
@@ -583,7 +578,7 @@ def configure_cfd_environment(
             )
 
 
-def define_markers(tixi: Tixi3, su2_mesh_path: Path) -> Dict:
+def define_markers(tixi: Tixi3, su2_mesh_path: Path) -> dict:
     """
     Define markers in CPACS file.
     We assume that among all imported meshes,
@@ -618,7 +613,7 @@ def define_markers(tixi: Tixi3, su2_mesh_path: Path) -> Dict:
     return mesh_markers
 
 
-def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], List[Path]]:
+def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> tuple[list[Path], list[Path]]:
     """
     Retrieve su2 mesh file data and paths.
     """
@@ -673,9 +668,9 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
     ]
 
     if not su2_mesh_paths:
-        raise ValueError("List of su2 mesh paths is empty.")
+        raise ValueError("list of su2 mesh paths is empty.")
     if not dynstab_su2_mesh_paths:
-        raise ValueError("List of Dynamic Stability su2 mesh paths is empty.")
+        raise ValueError("list of Dynamic Stability su2 mesh paths is empty.")
 
     return su2_mesh_paths, dynstab_su2_mesh_paths
 
@@ -693,8 +688,8 @@ def configure_mesh_format(cfg: ConfigFile, mesh_path: Path) -> None:
 def generate_su2_cfd_config(
     cpacs: CPACS,
     wkdir: Path,
-    su2_mesh_paths: List[Path],
-    mesh_markers: Dict,
+    su2_mesh_paths: list[Path],
+    mesh_markers: dict,
     dyn_stab: bool,
     rans: bool,
     symmetry: bool,

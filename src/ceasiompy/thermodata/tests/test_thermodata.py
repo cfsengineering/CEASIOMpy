@@ -116,36 +116,36 @@ def test_turbofan_func():
 
 def test_write_hbtf_file(tmp_path):
     """Test function 'write_hbtf_file'"""
-    T_tot_out_core = 300
-    V_stat_out_core = 200
-    MN_out_core = 0.5
-    P_tot_out_core = 100000
+    temp_tot_out_core = 300
+    vel_stat_out_core = 200
+    mn_out_core = 0.5
+    pres_stat_out_core = 100000
     massflow_out_core = 50
-    T_stat_out_core = 400
-    T_tot_out_byp = 200000
-    V_stat_out_byp = 300
-    MN_out_byp = 1.2
-    P_tot_out_byp = 100000
+    temp_stat_out_core = 400
+    temp_tot_out_byp = 200000
+    vel_stat_out_byp = 300
+    mn_out_byp = 1.2
+    pres_tot_out_byp = 100000
     massflow_stat_out_byp = 1.6
-    T_stat_out_byp = 13
+    temp_stat_out_byp = 13
 
     test_thermodata_path = Path(tmp_path, "EngineBC.dat")
 
     with open(test_thermodata_path, "w") as file:
         write_hbtf_file(
             file,
-            T_tot_out_core,
-            V_stat_out_core,
-            MN_out_core,
-            P_tot_out_core,
+            temp_tot_out_core,
+            vel_stat_out_core,
+            mn_out_core,
+            pres_stat_out_core,
             massflow_out_core,
-            T_stat_out_core,
-            T_tot_out_byp,
-            V_stat_out_byp,
-            MN_out_byp,
-            P_tot_out_byp,
+            temp_stat_out_core,
+            temp_tot_out_byp,
+            vel_stat_out_byp,
+            mn_out_byp,
+            pres_tot_out_byp,
             massflow_stat_out_byp,
-            T_stat_out_byp,
+            temp_stat_out_byp,
         )
 
     with open(test_thermodata_path, "r") as file:

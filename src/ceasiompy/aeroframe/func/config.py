@@ -385,9 +385,9 @@ def create_framat_model(
             x=0,
             y=0,
             z=1,
-            RaX=centerline_df.iloc[i_node]["thx_new"],
-            RaY=-centerline_df.iloc[i_node]["thy_new"],
-            RaZ=centerline_df.iloc[i_node]["thz_new"],
+            rotation_angle_x=centerline_df.iloc[i_node]["thx_new"],
+            rotation_angle_y=-centerline_df.iloc[i_node]["thy_new"],
+            rotation_angle_z=centerline_df.iloc[i_node]["thz_new"],
         )
 
         beam.add(
@@ -989,17 +989,17 @@ def write_deformed_geometry(
                 )
 
 
-def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND) -> None:
+def write_deformed_command(undeformed_command, deformed_command) -> None:
     """
     Function 'write_deformed_command' writes the AVL command file to execute
     the computations for the deformed wing.
 
     Args:
-        UNDEFORMED_COMMAND (Path): path to the command file for the undeformed wing.
-        DEFORMED_COMMAND (Path): path to the command file for the deformed wing.
+        undeformed_command (Path): path to the command file for the undeformed wing.
+        deformed_command (Path): path to the command file for the deformed wing.
     """
-    with open(UNDEFORMED_COMMAND, "r") as undeformed:
-        with open(DEFORMED_COMMAND, "w") as deformed:
+    with open(undeformed_command, "r") as undeformed:
+        with open(deformed_command, "w") as deformed:
             deformed.write("load deformed.avl\n")
             for line in undeformed:
                 if "load" not in line:

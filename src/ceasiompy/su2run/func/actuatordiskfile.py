@@ -7,12 +7,6 @@ Functions to generate the actuator disk file for SU2.
 
 Source:
     https://github.com/su2code/SU2/blob/master/TestCases/rans/actuatordisk_variable_load/ActuatorDisk.dat
-
-| Author : Aidan Jungo and Giacomo Benedetti
-| Creation: 2022-12-05
-| Modified: Leon Deligny
-| Date: 24-Feb-2025
-
 """
 
 # Imports
@@ -33,6 +27,10 @@ from typing import (
 
 from ceasiompy import log
 from ceasiompy.su2run import MODULE_NAME as SU2_RUN
+
+
+# Constants
+EPSILON = 5e-20
 
 
 # Functions
@@ -145,14 +143,16 @@ def get_prandtl_correction_values(
 
 
 def get_error(
-    radial_stations_spacing: float, dCt: ndarray, total_thrust_coefficient: float
+    radial_stations_spacing: float,
+    thrust_coef_distribution: ndarray,
+    total_thrust_coefficient: float,
 ) -> float:
     """
     Computes error between calculated and input thrust coefficient.
 
     Args:
         radial_stations_spacing (float): spacing between r and r+dr
-        dCt (ndarray): local thrust coefficient
+        thrust_coef_distribution (ndarray): local thrust coefficient
         total_thrust_coefficient (float): integration of local thrust coefficient
     Returns:
         (float): Difference between calculated and input thrust coefficient.
@@ -160,7 +160,7 @@ def get_error(
     """
 
     # TODO: Why not return euclidean norm of error ?
-    return np.sum(radial_stations_spacing * dCt) - total_thrust_coefficient
+    return np.sum(radial_stations_spacing * thrust_coef_distribution) - total_thrust_coefficient
 
 
 def get_corrected_axial_factor(
@@ -314,8 +314,6 @@ def thrust_calculator(
 
     log.info("Start of thrust calculation distribution")
 
-    EPSILON = 5e-20
-
     advanced_ratio = free_stream_velocity / (rotational_velocity * (radius * 2))
     omega = rotational_velocity * 2 * np.pi
 
@@ -369,12 +367,16 @@ def thrust_calculator(
         non_dimensional_radius,
     )
 
-    dCt_0 = calculate_radial_thrust_coefs(
+    org_thrust_coef_dist = calculate_radial_thrust_coefs(
         radial_stations, advanced_ratio, initial_axial_interference_factor
     )
 
     # Compute the error with respect to the thrust coefficient given in input
-    initial_error = get_error(radial_stations_spacing, dCt_0, total_thrust_coefficient)
+    initial_error = get_error(
+        radial_stations_spacing,
+        org_thrust_coef_dist,
+        total_thrust_coefficient,
+    )
     log.info("Start of error calculation.")
 
     # Computation of the second try Lagrange multiplicator
@@ -388,12 +390,12 @@ def thrust_calculator(
         non_dimensional_radius,
     )
 
-    dCt_old = calculate_radial_thrust_coefs(
+    old_thrust_coef_dist = calculate_radial_thrust_coefs(
         radial_stations, advanced_ratio, old_axial_interference_factor
     )
 
     # Compute the error with respect to the thrust coefficient given in input
-    old_error = get_error(radial_stations_spacing, dCt_old, total_thrust_coefficient)
+    old_error = get_error(radial_stations_spacing, old_thrust_coef_dist, total_thrust_coefficient)
 
     # Iterate using the false position methods.
     # Based on the error from the thrust coefficient given in input
@@ -416,11 +418,10 @@ def thrust_calculator(
             non_dimensional_radius,
         )
 
-        dCt_new = calculate_radial_thrust_coefs(
+        new_thrust_coef_dist = calculate_radial_thrust_coefs(
             radial_stations, advanced_ratio, new_axial_interference_factor
         )
-
-        new_total_thrust_coefficient = radial_stations_spacing * np.sum(dCt_new)
+        new_total_thrust_coefficient = radial_stations_spacing * np.sum(new_thrust_coef_dist)
 
         new_error = new_total_thrust_coefficient - total_thrust_coefficient
 

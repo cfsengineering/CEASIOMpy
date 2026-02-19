@@ -26,21 +26,21 @@ from ceasiompy import log
 # =================================================================================================
 
 BYPASS_VARS = {
-    "T_tot_out_byp": ("DESIGN.byp_nozz.throat_total.flow.Fl_O:tot:T", "Rankine", "Celsius"),
-    "V_stat_out_byp": ("DESIGN.byp_nozz.mux.Fl_O:stat:V", 0.3048, None),
-    "MN_out_byp": ("DESIGN.byp_nozz.mux.Fl_O:stat:MN", None, None),
-    "P_tot_out_byp": ("DESIGN.byp_nozz.throat_total.flow.Fl_O:tot:P", 6894.7573, None),
+    "temp_tot_out_byp": ("DESIGN.byp_nozz.throat_total.flow.Fl_O:tot:T", "Rankine", "Celsius"),
+    "vel_stat_out_byp": ("DESIGN.byp_nozz.mux.Fl_O:stat:V", 0.3048, None),
+    "mn_out_byp": ("DESIGN.byp_nozz.mux.Fl_O:stat:MN", None, None),
+    "pres_tot_out_byp": ("DESIGN.byp_nozz.throat_total.flow.Fl_O:tot:P", 6894.7573, None),
     "massflow_stat_out_byp": ("DESIGN.byp_nozz.mux.Fl_O:stat:W", 0.45359237, None),
-    "T_stat_out_byp": ("DESIGN.byp_nozz.mux.Fl_O:stat:T", "Rankine", "Celsius"),
+    "temp_stat_out_byp": ("DESIGN.byp_nozz.mux.Fl_O:stat:T", "Rankine", "Celsius"),
 }
 
 CORE_VARS = {
-    "T_tot_out_core": ("DESIGN.core_nozz.throat_total.flow.Fl_O:tot:T", "Rankine", "Kelvin"),
-    "V_stat_out_core": ("DESIGN.core_nozz.mux.Fl_O:stat:V", 0.3048, None),
-    "MN_out_core": ("DESIGN.core_nozz.mux.Fl_O:stat:MN", None, None),
-    "P_tot_out_core": ("DESIGN.core_nozz.throat_total.flow.Fl_O:tot:P", 6894.7573, None),
+    "temp_tot_out_core": ("DESIGN.core_nozz.throat_total.flow.Fl_O:tot:T", "Rankine", "Kelvin"),
+    "vel_stat_out_core": ("DESIGN.core_nozz.mux.Fl_O:stat:V", 0.3048, None),
+    "mn_out_core": ("DESIGN.core_nozz.mux.Fl_O:stat:MN", None, None),
+    "pres_stat_out_core": ("DESIGN.core_nozz.throat_total.flow.Fl_O:tot:P", 6894.7573, None),
     "massflow_stat_out_core": ("DESIGN.core_nozz.mux.Fl_O:stat:W", 0.45359237, None),
-    "T_stat_out_core": ("DESIGN.core_nozz.mux.Fl_O:stat:T", "Rankine", "Kelvin"),
+    "temp_stat_out_core": ("DESIGN.core_nozz.mux.Fl_O:stat:T", "Rankine", "Kelvin"),
 }
 
 # Functions

@@ -40,8 +40,8 @@ def dimensionalize_rate(df: DataFrame, alt: float, c: float, b: float) -> DataFr
     Add dimensional rates (q, p, r) to the DataFrame using local Mach and altitude.
     """
     def compute_rates(row: Series) -> Series:
-        Atm = Atmosphere(alt)
-        v = Atm.speed_of_sound[0] * row["mach"]
+        atmosphere = Atmosphere(alt)
+        v = atmosphere.speed_of_sound[0] * row["mach"]
         p = round(row["pb_2V"] * 2 * v / b, 1)
         q = round(row["qc_2V"] * 2 * v / c, 1)
         r = round(row["rb_2V"] * 2 * v / b, 1)

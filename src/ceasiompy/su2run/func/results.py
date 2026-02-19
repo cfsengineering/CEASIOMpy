@@ -228,11 +228,11 @@ def compute_dynamic_coefs(
     mx, my = compute_derivatives(a, omega, t, m_time, m_static)
 
     # Velocity in m/s in atmospheric environment
-    Atm = Atmosphere(alt)
-    velocity = Atm.speed_of_sound[0] * mach
+    atmosphere = Atmosphere(alt)
+    velocity = atmosphere.speed_of_sound[0] * mach
 
     # Dynamic pressure
-    q_dyn = Atm.density[0] * (velocity**2) / 2.0
+    q_dyn = atmosphere.density[0] * (velocity**2) / 2.0
 
     qs = q_dyn * s
     qsb = qs * b

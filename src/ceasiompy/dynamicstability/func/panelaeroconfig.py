@@ -55,8 +55,8 @@ class AeroModel:
         offset_l = []  # 25% point l
         offset_k = []  # 50% point k
         offset_j = []  # 75% downwash control point j
-        offset_P1 = []  # Vortex point at 25% chord, 0% span
-        offset_P3 = []  # Vortex point at 25% chord, 100% span
+        offset_p1 = []  # Vortex point at 25% chord, 0% span
+        offset_p3 = []  # Vortex point at 25% chord, 100% span
         r = []  # vector P1 to P3, span of panel
 
         for i_panel in range(len(caero_panels["ID"])):
@@ -95,8 +95,8 @@ class AeroModel:
             offset_l.append(caero_grid["offset"][indices[0]] + 0.25 * l_m + 0.50 * b_1)
             offset_k.append(caero_grid["offset"][indices[0]] + 0.50 * l_m + 0.50 * b_1)
             offset_j.append(caero_grid["offset"][indices[0]] + 0.75 * l_m + 0.50 * b_1)
-            offset_P1.append(caero_grid["offset"][indices[0]] + 0.25 * l_1)
-            offset_P3.append(caero_grid["offset"][indices[3]] + 0.25 * l_2)
+            offset_p1.append(caero_grid["offset"][indices[0]] + 0.25 * l_1)
+            offset_p3.append(caero_grid["offset"][indices[3]] + 0.25 * l_2)
             r.append(
                 (caero_grid["offset"][indices[3]] + 0.25 * l_2)
                 - (caero_grid["offset"][indices[0]] + 0.25 * l_1)
@@ -125,8 +125,8 @@ class AeroModel:
             "offset_l": np.array(offset_l),
             "offset_k": np.array(offset_k),
             "offset_j": np.array(offset_j),
-            "offset_P1": np.array(offset_P1),
-            "offset_P3": np.array(offset_P3),
+            "offset_p1": np.array(offset_p1),
+            "offset_p3": np.array(offset_p3),
             "r": np.array(r),
             "set_l": set_l,
             "set_k": set_k,
@@ -183,14 +183,14 @@ class AeroModel:
 
         # from CAERO cards, construct corner points... '
         # then, combine four corner points to one panel
-        grid_ID = i_file * 100000  # the file number is used to set a range of grid IDs
+        grid_id = i_file * 100000  # the file number is used to set a range of grid IDs
         grids = {"ID": [], "offset": []}
         panels = {"ID": [], "CP": [], "CD": [], "cornerpoints": []}
 
         for caerocard in caerocards:
-            # calculate LE, Root and Tip vectors [x,y,z]^T
-            LE = caerocard["X4"] - caerocard["X1"]
-            Root = caerocard["X2"] - caerocard["X1"]
+            # calculate le, root and Tip vectors [x,y,z]^T
+            le = caerocard["X4"] - caerocard["X1"]
+            root = caerocard["X2"] - caerocard["X1"]
             Tip = caerocard["X3"] - caerocard["X4"]
 
             if caerocard["n_chord"] == 0:
@@ -217,22 +217,22 @@ class AeroModel:
                     # Define offset
                     offset = (
                         caerocard["X1"]
-                        + LE * d_span[i_strip]
-                        + (Root * (1.0 - d_span[i_strip]) + Tip * d_span[i_strip]) * d_chord[i_row]
+                        + le * d_span[i_strip]
+                        + (root * (1.0 - d_span[i_strip]) + Tip * d_span[i_strip]) * d_chord[i_row]
                     )
                     grids["offset"].append(offset)
 
-                    grids["ID"].append(grid_ID)
-                    grids_map[i_row, i_strip] = grid_ID
+                    grids["ID"].append(grid_id)
+                    grids_map[i_row, i_strip] = grid_id
 
-                    grid_ID += 1
+                    grid_id += 1
 
             # build panels from cornerpoints
             # index based on n_boxes
-            panel_ID = caerocard["EID"]
+            panel_id = caerocard["EID"]
             for i_strip in range(caerocard["n_span"]):
                 for i_row in range(caerocard["n_chord"]):
-                    panels["ID"].append(panel_ID)
+                    panels["ID"].append(panel_id)
                     panels["CP"].append(caerocard["CP"])  # applying CP of CAERO card to all grids
                     panels["CD"].append(caerocard["CP"])
                     panels["cornerpoints"].append(
@@ -244,7 +244,7 @@ class AeroModel:
                         ]
                     )
 
-                    panel_ID += 1
+                    panel_id += 1
 
         panels["ID"] = np.array(panels["ID"])
         panels["CP"] = np.array(panels["CP"])

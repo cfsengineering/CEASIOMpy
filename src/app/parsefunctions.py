@@ -445,7 +445,7 @@ def _parse_fn_tables(text: str) -> tuple[DataFrame, DataFrame]:
                 i += 1
                 continue
             numeric = parts[: len(columns)]
-            label = " ".join(parts[len(columns) :]).strip()
+            label = " ".join(parts[len(columns):]).strip()
             row = numeric + ([label] if label else [""])
             rows.append(row)
             i += 1

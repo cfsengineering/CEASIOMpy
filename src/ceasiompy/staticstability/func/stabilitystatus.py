@@ -38,10 +38,10 @@ def compute_stability_cma(group: DataFrame) -> DataFrame:
         Series: A series containing the stability status for the longitudinal direction.
 
     """
-    X_aoa = group[["aoa"]].values.reshape(-1, 1)
+    x_aoa = group[["aoa"]].values.reshape(-1, 1)
     y_cms = group["cms"].values
 
-    reg_cma = LinearRegression().fit(X_aoa, y_cms)
+    reg_cma = LinearRegression().fit(x_aoa, y_cms)
     lr_cma = reg_cma.coef_[0]
     lr_cma_intercept = reg_cma.intercept_
 
@@ -69,15 +69,15 @@ def compute_stability_cnb_clb(group: DataFrame) -> DataFrame:
 
     """
     # Linear regression for cnb (slope of cml to aos)
-    X_aos = group[["aos"]].values.reshape(-1, 1)
+    x_aos = group[["aos"]].values.reshape(-1, 1)
     y_cml = group["cml"].values
-    reg_cnb = LinearRegression().fit(X_aos, y_cml)
+    reg_cnb = LinearRegression().fit(x_aos, y_cml)
     lr_cnb = reg_cnb.coef_[0]
     lr_cnb_intercept = reg_cnb.intercept_
 
     # Linear regression for clb (slope of cmd to aos)
     y_cmd = group["cmd"].values
-    reg_clb = LinearRegression().fit(X_aos, y_cmd)
+    reg_clb = LinearRegression().fit(x_aos, y_cmd)
     lr_clb = reg_clb.coef_[0]
     lr_clb_intercept = reg_cnb.intercept_
 

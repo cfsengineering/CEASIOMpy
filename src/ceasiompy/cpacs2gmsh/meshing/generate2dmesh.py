@@ -893,14 +893,15 @@ def _prepare_euler_fluid_domain(
         log.info("Starting 1D Euler fluid domain.")
         gmsh.model.mesh.generate(1)
 
-        # Stage 2: mesh farfield surfaces in 2D.
+        # Stage 2: mesh all fluid-boundary surfaces in one 2D pass.
+        # Running separate 2D passes can leave only the last visible subset meshed.
         gmsh.model.setVisibility(all_entities, 0, recursive=True)
         gmsh.model.setVisibility(
-            [(2, tag) for tag in farfield_boundary_tags],
+            [(2, tag) for tag in closure_boundary_tags],
             1,
             recursive=True,
         )
-        log.info("Starting 2D Euler fluid domain.")
+        log.info("Starting 2D Euler fluid boundary domain.")
         gmsh.model.mesh.generate(2)
     finally:
         gmsh.model.setVisibility(all_entities, 1, recursive=True)
@@ -1505,11 +1506,14 @@ def generate_2d_mesh(
         )
         log.info(f"Stored 2D Surface mesh at {surface_mesh_path=}.")
     else:
-        log.info("Symmetry disabled: exporting aircraft+farfield together without stitching/collapse.")
+        log.info("Symmetry disabled: exporting fluid-boundary union from in-memory wall+farfield.")
+        wall_group_tags = _get_physical_group_surface_tags_by_name("wall")
         farfield_group_tags = _get_physical_group_surface_tags_by_name("Farfield")
+        if not wall_group_tags:
+            raise RuntimeError("No wall physical group found for non-symmetry surface export.")
         if not farfield_group_tags:
             raise RuntimeError("No Farfield physical group found for non-symmetry surface export.")
-        combined_surface_tags = sorted(set(surface_to_parts.keys()) | set(farfield_group_tags))
+        combined_surface_tags = sorted(set(wall_group_tags) | set(farfield_group_tags))
 
         union_surface_mesh_path = Path(results_dir, "surface_mesh_union_stage.msh")
         _write_surface_subset_mesh(

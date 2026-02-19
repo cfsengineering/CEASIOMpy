@@ -1204,51 +1204,88 @@ def _display_txt(path: Path) -> None:
 
 def _display_su2(path: Path) -> None:
     """Display SU2 mesh in Streamlit using PyVista."""
-    with st.container(border=True):
-        # TODO: Add with path.name #vertices #edges #surfaces of the displayed su2 mesh
-        st.markdown(f"**{path.name}**")
-        try:
-            marker_map: dict[str, int] = {}
-            with path.open() as handle:
-                temp_file = tempfile.NamedTemporaryFile(
-                    mode="w",
-                    delete=False,
-                    suffix=".su2",
-                )
-                with temp_file as temp:
-                    for line in handle:
-                        if line.startswith("MARKER_TAG="):
-                            tag = line.split("=", 1)[1].strip()
-                            marker_map.setdefault(tag, len(marker_map) + 1)
-                            line = f"MARKER_TAG= {marker_map[tag]}\n"
-                        temp.write(line)
-            mesh = pv.read(temp_file.name)
-        except Exception as exc:
-            st.error(f"Failed to read SU2 mesh: {exc}")
-            return
-        finally:
-            if "temp_file" in locals():
-                try:
-                    os.unlink(temp_file.name)
-                except OSError:
-                    pass
-
-        surface = mesh.extract_surface()
-        plotter = pv.Plotter()
-        plotter.add_mesh(surface, color="lightgray", show_edges=True)
-        plotter.reset_camera()
-        stpyvista(plotter, key=f"{path}_su2_view")
-        try:
-            st.download_button(
-                label="Download SU2 mesh",
-                data=path.read_bytes(),
-                file_name=path.name,
-                mime="application/octet-stream",
-                width="stretch",
-                key=f"{path}_su2_download",
+    try:
+        marker_map: dict[str, int] = {}
+        with path.open() as handle:
+            temp_file = tempfile.NamedTemporaryFile(
+                mode="w",
+                delete=False,
+                suffix=".su2",
             )
-        except OSError as exc:
-            st.warning(f"Unable to prepare download: {exc}")
+            with temp_file as temp:
+                for line in handle:
+                    if line.startswith("MARKER_TAG="):
+                        tag = line.split("=", 1)[1].strip()
+                        marker_map.setdefault(tag, len(marker_map) + 1)
+                        line = f"MARKER_TAG= {marker_map[tag]}\n"
+                    temp.write(line)
+        mesh = pv.read(temp_file.name)
+    except Exception as exc:
+        st.error(f"Failed to read SU2 mesh: {exc}")
+        return
+    finally:
+        if "temp_file" in locals():
+            try:
+                os.unlink(temp_file.name)
+            except OSError:
+                pass
+
+    surface = mesh.extract_surface()
+    n_vertices = int(surface.n_points)
+    n_surfaces = int(surface.n_cells)
+    n_edges = 0
+    faces = surface.faces
+    if faces.size:
+        edge_chunks = []
+        idx = 0
+        while idx < faces.size:
+            n_face_vertices = int(faces[idx])
+            face_vertices = faces[idx + 1: idx + 1 + n_face_vertices]
+            if n_face_vertices >= 2:
+                v_next = np.roll(face_vertices, -1)
+                edge_chunks.append(
+                    np.column_stack(
+                        (
+                            np.minimum(face_vertices, v_next),
+                            np.maximum(face_vertices, v_next),
+                        )
+                    )
+                )
+            idx += n_face_vertices + 1
+        if edge_chunks:
+            n_edges = int(np.unique(np.vstack(edge_chunks), axis=0).shape[0])
+
+    st.markdown(
+        f"**{path.name}** (Use `Shift` + mouse drag for translation)  \n"
+        f"Vertices: `{n_vertices}` | Edges: `{n_edges}` | Surfaces: `{n_surfaces}`"
+    )
+    plotter = pv.Plotter()
+    plotter.add_mesh(surface, color="lightgray", show_edges=True)
+    plotter.reset_camera()
+    stpyvista(plotter, key=f"{path}_su2_view")
+
+    try:
+        st.download_button(
+            label="Download SU2 mesh",
+            data=path.read_bytes(),
+            file_name=path.name,
+            mime="application/octet-stream",
+            width="stretch",
+            key=f"{path}_su2_download",
+        )
+    except OSError as exc:
+        st.warning(f"Unable to prepare download: {exc}")
+
+    y0_slice = mesh.slice(normal=(0.0, 1.0, 0.0), origin=(0.0, 0.0, 0.0))
+    if y0_slice.n_points > 0:
+        st.markdown("---")
+        st.markdown(f"**{path.name}** mesh slice at `y=0`")
+        slice_plotter = pv.Plotter()
+        slice_plotter.add_mesh(y0_slice, color="lightgray", show_edges=True)
+        slice_plotter.view_xz()
+        stpyvista(slice_plotter, key=f"{path}_su2_slice_y0_view")
+    else:
+        st.info("No volume-mesh intersection found at `y=0`.")
 
 
 def _display_dat(path: Path) -> None:

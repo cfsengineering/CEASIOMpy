@@ -394,10 +394,13 @@ def section_3d_view(
             if stale_path.exists():
                 stale_path.unlink()
 
-    x, y, z, i, j, k = get_aircraft_mesh_data(
+    mesh_data = get_aircraft_mesh_data(
         cpacs=cpacs,
         symmetry=False,
     )
+    if mesh_data is None:
+        return None
+    x, y, z, i, j, k = mesh_data
 
     # Compute bounds and cube size
     min_x, max_x = np.min(x), np.max(x)

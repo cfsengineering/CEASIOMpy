@@ -16,7 +16,7 @@ from cpacspy.cpacspy import CPACS
 def get_aircraft_mesh_data(cpacs: CPACS, symmetry: bool) -> tuple[
     ndarray, ndarray, ndarray,
     ndarray, ndarray, ndarray,
-]:
+] | None:
     """Returns (x, y, z, i, j, k)."""
     aircraft_name = f"""aircraft{"_symmtry" if symmetry else ""}.stl"""
     stl_file = Path(Path(cpacs.cpacs_file).parent, aircraft_name)
@@ -52,7 +52,11 @@ def get_aircraft_mesh_data(cpacs: CPACS, symmetry: bool) -> tuple[
             st.error(f"Cannot generate 3D preview (probably missing TIGL geometry handle): {e=}.")
             return None
 
-    your_mesh = mesh.Mesh.from_file(stl_file)
+    try:
+        your_mesh = mesh.Mesh.from_file(stl_file)
+    except Exception as e:
+        st.error(f"Cannot load 3D preview mesh file: {e=}.")
+        return None
     mesh_vectors = your_mesh.vectors
     if symmetry:
         mesh_vectors = mesh_vectors[np.all(mesh_vectors[:, :, 1] >= -1e-3, axis=1)]

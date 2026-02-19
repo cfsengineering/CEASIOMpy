@@ -234,10 +234,13 @@ def euler_mesh(
         existing_wall_mesh_count,
         len(wall_surface_tags),
     )
+    wall_mesh_complete_before_3d = not wall_surfaces_missing_mesh
     if wall_surfaces_missing_mesh:
-        raise RuntimeError(
-            "Euler domain is incomplete: some wall surfaces have no inherited 2D mesh. "
-            "The farfield/boundary preparation must be done in generate_2d_mesh before Euler 3D."
+        log.warning(
+            "Euler wall mesh is incomplete before 3D (%d missing surfaces). "
+            "Allowing 3D generation to fill missing boundary mesh. Missing tags: %s",
+            len(wall_surfaces_missing_mesh),
+            wall_surfaces_missing_mesh[:20],
         )
 
     wall_elements_before_3d = {
@@ -285,7 +288,7 @@ def euler_mesh(
             if wall_elements_before_3d[tag] != wall_elements_after_3d[tag]
         ]
     )
-    if wall_elements_total_before_3d != wall_elements_total_after_3d:
+    if wall_mesh_complete_before_3d and wall_elements_total_before_3d != wall_elements_total_after_3d:
         details = ", ".join(
             f"{tag}: {wall_elements_before_3d[tag]} -> {wall_elements_after_3d[tag]}"
             for tag in changed_wall_surfaces[:20]
@@ -296,7 +299,7 @@ def euler_mesh(
             f"{wall_elements_total_after_3d}. "
             f"Changed surfaces={len(changed_wall_surfaces)}. Examples: {details}"
         )
-    if changed_wall_surfaces:
+    if wall_mesh_complete_before_3d and changed_wall_surfaces:
         details = ", ".join(
             f"{tag}: {wall_elements_before_3d[tag]} -> {wall_elements_after_3d[tag]}"
             for tag in changed_wall_surfaces[:20]
@@ -309,10 +312,26 @@ def euler_mesh(
             details,
         )
 
-    log.info(
-        "Wall 2D elements preserved after 3D generation: %d",
-        wall_elements_total_after_3d,
+    wall_surfaces_missing_mesh_after_3d = sorted(
+        [tag for tag in wall_surface_tags if not _surface_has_2d_elements(tag)]
     )
+    if wall_surfaces_missing_mesh_after_3d:
+        raise RuntimeError(
+            "Euler 3D generation left wall boundary incomplete: "
+            f"{len(wall_surfaces_missing_mesh_after_3d)} surfaces still have no 2D elements. "
+            f"Examples: {wall_surfaces_missing_mesh_after_3d[:20]}"
+        )
+
+    if wall_mesh_complete_before_3d:
+        log.info(
+            "Wall 2D elements preserved after 3D generation: %d",
+            wall_elements_total_after_3d,
+        )
+    else:
+        log.info(
+            "Wall 2D elements after 3D generation: %d (boundary completion during 3D was allowed).",
+            wall_elements_total_after_3d,
+        )
 
     su2mesh_path = Path(results_dir, "mesh.su2")
     gmsh.write(str(su2mesh_path))

@@ -10,6 +10,7 @@ Streamlit utils functions for CEASIOMpy
 
 import os
 import re
+import base64
 import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
@@ -194,7 +195,21 @@ def create_sidebar(how_to_text, page_title="CEASIOMpy"):
         """,
         unsafe_allow_html=True,
     )
-    st.sidebar.image(im)
+    logo_b64 = base64.b64encode(CEASIOMPY_LOGO_PATH.read_bytes()).decode("utf-8")
+
+    # Write it specifically for flake8
+    h_ref_str = 'href="https://github.com/cfsengineering/CEASIOMpy"'
+    desc_str = 'target="_blank" rel="noopener noreferrer"'
+    alt_str = 'alt="CEASIOMpy logo"'
+    style_str = 'style="width: 100%; max-width: 200px;"'
+    st.sidebar.markdown(
+        f"""
+        <a {h_ref_str} {desc_str}>
+            <img src="data:image/png;base64,{logo_b64}" {alt_str} {style_str}>
+        </a>
+        """,
+        unsafe_allow_html=True,
+    )
     st.sidebar.markdown(how_to_text)
     contact_text = (
         "✉️ **Contact Us**\n\n"

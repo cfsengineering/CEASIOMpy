@@ -251,7 +251,8 @@ def euler_mesh(
     )
 
     gmsh.option.setNumber("Mesh.MeshOnlyVisible", 1)
-    gmsh.option.setNumber("Mesh.MeshOnlyEmpty", 0)
+    # Prevent boundary remeshing in 3D stage; boundary mesh is prepared in generate_2d_mesh.
+    gmsh.option.setNumber("Mesh.MeshOnlyEmpty", 1)
     try:
         # Boundary mesh must already be complete from generate_2d_mesh.
         gmsh.model.setVisibility(all_entities, 0, recursive=True)

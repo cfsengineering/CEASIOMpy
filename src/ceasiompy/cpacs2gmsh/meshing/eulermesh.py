@@ -157,6 +157,31 @@ def _surface_2d_element_count(surface_tag: int) -> int:
     return int(sum(len(tags) for tags in element_tags))
 
 
+def _mesh_missing_wall_surfaces(wall_surface_tags: list[int]) -> list[int]:
+    """Generate 1D/2D on wall surfaces that currently have no 2D elements."""
+    missing_before = sorted([tag for tag in wall_surface_tags if not _surface_has_2d_elements(tag)])
+    if not missing_before:
+        return []
+
+    all_entities = gmsh.model.getEntities(-1)
+    prev_mesh_only_visible = gmsh.option.getNumber("Mesh.MeshOnlyVisible")
+    prev_mesh_only_empty = gmsh.option.getNumber("Mesh.MeshOnlyEmpty")
+    gmsh.option.setNumber("Mesh.MeshOnlyVisible", 1)
+    gmsh.option.setNumber("Mesh.MeshOnlyEmpty", 1)
+    try:
+        gmsh.model.setVisibility(all_entities, 0, recursive=True)
+        gmsh.model.setVisibility([(2, tag) for tag in missing_before], 1, recursive=True)
+        log.info("Completing missing Euler wall boundary mesh on %d surfaces.", len(missing_before))
+        gmsh.model.mesh.generate(1)
+        gmsh.model.mesh.generate(2)
+    finally:
+        gmsh.model.setVisibility(all_entities, 1, recursive=True)
+        gmsh.option.setNumber("Mesh.MeshOnlyVisible", prev_mesh_only_visible)
+        gmsh.option.setNumber("Mesh.MeshOnlyEmpty", prev_mesh_only_empty)
+
+    return sorted([tag for tag in wall_surface_tags if not _surface_has_2d_elements(tag)])
+
+
 def _get_physical_group_entities_by_name(dim: int, name: str) -> list[int]:
     """Return entity tags in the first physical group matching `name`."""
     for _, group_tag in gmsh.model.getPhysicalGroups(dim):
@@ -242,6 +267,16 @@ def euler_mesh(
             len(wall_surfaces_missing_mesh),
             wall_surfaces_missing_mesh[:20],
         )
+        wall_surfaces_missing_mesh = _mesh_missing_wall_surfaces(wall_surface_tags)
+        if wall_surfaces_missing_mesh:
+            log.warning(
+                "Euler wall mesh is still incomplete after explicit 1D/2D completion "
+                "(%d missing surfaces). Missing tags: %s",
+                len(wall_surfaces_missing_mesh),
+                wall_surfaces_missing_mesh[:20],
+            )
+        else:
+            log.info("Completed Euler wall boundary mesh before 3D generation.")
 
     wall_elements_before_3d = {
         tag: _surface_2d_element_count(tag)
@@ -288,7 +323,10 @@ def euler_mesh(
             if wall_elements_before_3d[tag] != wall_elements_after_3d[tag]
         ]
     )
-    if wall_mesh_complete_before_3d and wall_elements_total_before_3d != wall_elements_total_after_3d:
+    if (
+        wall_mesh_complete_before_3d
+        and wall_elements_total_before_3d != wall_elements_total_after_3d
+    ):
         details = ", ".join(
             f"{tag}: {wall_elements_before_3d[tag]} -> {wall_elements_after_3d[tag]}"
             for tag in changed_wall_surfaces[:20]
@@ -324,14 +362,10 @@ def euler_mesh(
 
     if wall_mesh_complete_before_3d:
         log.info(
-            "Wall 2D elements preserved after 3D generation: %d",
-            wall_elements_total_after_3d,
-        )
+            f"Wall 2D elements preserved after 3D generation: {wall_elements_total_after_3d}")
     else:
-        log.info(
-            "Wall 2D elements after 3D generation: %d (boundary completion during 3D was allowed).",
-            wall_elements_total_after_3d,
-        )
+        log.info(f"""Wall 2D elements after 3D generation:
+            {wall_elements_total_after_3d} (boundary completion during 3D was allowed).""")
 
     su2mesh_path = Path(results_dir, "mesh.su2")
     gmsh.write(str(su2mesh_path))

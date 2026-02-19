@@ -277,7 +277,11 @@ def run_gui(
                 sig_name = signal.Signals(-exc.returncode).name
             except Exception:
                 sig_name = f"SIG{-exc.returncode}"
-            log.error(f"Streamlit crashed ({sig_name}).")
+            log.error(
+                f"Streamlit crashed ({sig_name}). "
+                "This is a signal-based termination; exiting with status code 1."
+            )
+            raise SystemExit(1) from exc
         else:
             log.error(f"Streamlit exited with code {exc.returncode}.")
         raise SystemExit(exc.returncode or 1) from exc

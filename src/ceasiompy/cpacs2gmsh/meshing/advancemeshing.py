@@ -205,7 +205,7 @@ def refine_wing_section(
     refine,
     refine_truncated,
     chord_percent=0.25,
-    n_power=2,
+    n_power: float = 2.0,
 ):
     """
     Function to refine the trailing and leading edge of an wing section,

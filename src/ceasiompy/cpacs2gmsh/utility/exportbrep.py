@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from tigl3.import_export_helper import export_shapes
 from ceasiompy.cpacs2gmsh.utility.engineconversion import engine_conversion
+from cpacspy.cpacsfunctions import get_value
 
 from typing import Any
 from pathlib import Path
@@ -23,6 +24,7 @@ from ceasiompy.cpacs2gmsh.utility.utils import (
     Geometry,
     AircraftGeometry,
 )
+from ceasiompy.cpacs2gmsh import GMSH_XZ_SYMMETRY_XPATH
 
 from ceasiompy import log
 from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
@@ -65,21 +67,33 @@ def engine_export(
             center_cowl_uid = center_cowl.get_uid()
             engine_uids.append(center_cowl_uid)
             center_cowl_shape = center_cowl.build_loft()
-            _export(center_cowl_shape, brep_dir, center_cowl_uid)
+            _export(
+                uid=center_cowl_uid,
+                shape=center_cowl_shape,
+                results_dir=brep_dir,
+            )
 
         core_cowl = nacelle.get_core_cowl()
         if core_cowl:
             core_cowl_uid = core_cowl.get_uid()
             engine_uids.append(core_cowl_uid)
             core_cowl_shape = core_cowl.build_loft()
-            _export(core_cowl_shape, brep_dir, core_cowl_uid)
+            _export(
+                uid=core_cowl_uid,
+                shape=core_cowl_shape,
+                results_dir=brep_dir,
+            )
 
         fan_cowl = nacelle.get_fan_cowl()
         if fan_cowl:
             fan_cowl_uid = fan_cowl.get_uid()
             engine_uids.append(fan_cowl_uid)
             fan_cowl_shape = fan_cowl.build_loft()
-            _export(fan_cowl_shape, brep_dir, fan_cowl_uid)
+            _export(
+                uid=fan_cowl_uid,
+                shape=fan_cowl_shape,
+                results_dir=brep_dir,
+            )
 
         # Determine engine type and save it in the engine config files
         config_file = ConfigFile(engines_cfg_file)
@@ -159,7 +173,7 @@ def _export(
         raise FileNotFoundError(f"Failed to _export {uid}")
 
 
-def _export_wing_brep(aircraft_config: Any) -> list[Geometry]:
+def _export_wing_brep(aircraft_config: Any, include_mirrored: bool = True) -> list[Geometry]:
     wing_breps: list[Geometry] = []
 
     wing_cnt = aircraft_config.get_wing_count()
@@ -172,7 +186,7 @@ def _export_wing_brep(aircraft_config: Any) -> list[Geometry]:
             uid=wing_uid,
             geom=wing_geom,
         ))
-        wing_m_geom = wing.get_mirrored_loft()
+        wing_m_geom = wing.get_mirrored_loft() if include_mirrored else None
         if wing_m_geom is not None:
             wing_breps.append(Geometry(
                 uid=wing_uid + "_mirrored",
@@ -186,7 +200,7 @@ def _export_wing_brep(aircraft_config: Any) -> list[Geometry]:
     return wing_breps
 
 
-def _export_fuselage_brep(aircraft_config: Any) -> list[Geometry]:
+def _export_fuselage_brep(aircraft_config: Any, include_mirrored: bool = True) -> list[Geometry]:
     fuselage_breps: list[Geometry] = []
     fuselage_cnt = aircraft_config.get_fuselage_count()
     log.info(f"Found {fuselage_cnt=} fuselages to convert as a .brep")
@@ -198,7 +212,7 @@ def _export_fuselage_brep(aircraft_config: Any) -> list[Geometry]:
             uid=fuselage_uid,
             geom=fuselage_geom,
         ))
-        fuselage_m_geom = fuselage.get_mirrored_loft()
+        fuselage_m_geom = fuselage.get_mirrored_loft() if include_mirrored else None
         if fuselage_m_geom is not None:
             fuselage_breps.append(Geometry(
                 uid=fuselage_uid + "_mirrored",
@@ -212,7 +226,7 @@ def _export_fuselage_brep(aircraft_config: Any) -> list[Geometry]:
     return fuselage_breps
 
 
-def _export_pylon_brep(aircraft_config: Any) -> list[Geometry]:
+def _export_pylon_brep(aircraft_config: Any, include_mirrored: bool = True) -> list[Geometry]:
     pylon_breps: list[Geometry] = []
     pylons_config = aircraft_config.get_engine_pylons()
     if not pylons_config:
@@ -230,7 +244,7 @@ def _export_pylon_brep(aircraft_config: Any) -> list[Geometry]:
             uid=pylon_uid,
             geom=pylon_geom,
         ))
-        pylon_m_geom = pylon.get_mirrored_loft()
+        pylon_m_geom = pylon.get_mirrored_loft() if include_mirrored else None
         if pylon_m_geom is not None:
             pylon_breps.append(Geometry(
                 uid=pylon_uid + "_mirrored",
@@ -281,10 +295,16 @@ def export_brep(cpacs: CPACS) -> AircraftGeometry:
     """
 
     aircraft_config = cpacs.aircraft.configuration
+    symmetry_enabled = bool(get_value(cpacs.tixi, xpath=GMSH_XZ_SYMMETRY_XPATH))
+    include_mirrored = not symmetry_enabled
+    if symmetry_enabled:
+        log.info(
+            "Symmetry mode enabled: skipping mirrored companion export for wing/pylon/fuselage."
+        )
 
-    wing_geoms = _export_wing_brep(aircraft_config)
-    pylon_geoms = _export_pylon_brep(aircraft_config)
-    fuselage_geoms = _export_fuselage_brep(aircraft_config)
+    wing_geoms = _export_wing_brep(aircraft_config, include_mirrored=include_mirrored)
+    pylon_geoms = _export_pylon_brep(aircraft_config, include_mirrored=include_mirrored)
+    fuselage_geoms = _export_fuselage_brep(aircraft_config, include_mirrored=include_mirrored)
 
     return AircraftGeometry(
         wing_geoms=wing_geoms,

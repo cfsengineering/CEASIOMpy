@@ -6,6 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland.
 
 # Imports
 
+import os
 import re
 import gmsh
 
@@ -44,6 +45,17 @@ from ceasiompy import log
 
 # Methods
 
+def _get_mesh_threads() -> int:
+    """Return thread count for Gmsh meshing (env override supported)."""
+    raw = os.getenv("CEASIOMPY_GMSH_THREADS")
+    if raw:
+        try:
+            return max(1, int(raw))
+        except ValueError:
+            pass
+    return max(1, os.cpu_count() or 1)
+
+
 def _bounding_box(volume_tags: list[int]) -> list[float]:
     """Return a union bounding box [xmin, ymin, zmin, xmax, ymax, zmax]."""
     if not volume_tags:
@@ -66,7 +78,65 @@ def _bounding_box(volume_tags: list[int]) -> list[float]:
     ]
 
 
-def _get_symmetry_box_tag() -> int:
+def _choose_symmetry_keep_positive_y(fused_parts: list[FuseEntry]) -> bool:
+    """Choose which side of y=0 to keep when applying symmetry cut."""
+    full_model_bb = gmsh.model.getBoundingBox(-1, -1)
+    model_span = max(
+        full_model_bb[3] - full_model_bb[0],
+        full_model_bb[4] - full_model_bb[1],
+        full_model_bb[5] - full_model_bb[2],
+    )
+    plane_tol = max(1e-7, model_span * 1e-6)
+
+    pos_mass = 0.0
+    neg_mass = 0.0
+    pos_part_names: set[str] = set()
+    neg_part_names: set[str] = set()
+
+    for part in fused_parts:
+        if part.dimtag[0] != 3:
+            continue
+        _, tag = part.dimtag
+        base_name = part.name.split("#", 1)[0]
+        bb = gmsh.model.occ.getBoundingBox(3, tag)
+        touches_pos = bb[4] >= -plane_tol
+        touches_neg = bb[1] <= plane_tol
+        if touches_pos:
+            pos_part_names.add(base_name)
+        if touches_neg:
+            neg_part_names.add(base_name)
+
+        try:
+            _, y_com, _ = gmsh.model.occ.getCenterOfMass(3, tag)
+        except Exception:
+            y_com = 0.5 * (bb[1] + bb[4])
+
+        try:
+            mass = float(gmsh.model.occ.getMass(3, tag))
+        except Exception:
+            mass = max((bb[3] - bb[0]) * (bb[4] - bb[1]) * (bb[5] - bb[2]), 0.0)
+
+        if y_com > 0.0:
+            pos_mass += mass
+        elif y_com < 0.0:
+            neg_mass += mass
+
+    log.info(
+        "Symmetry side selection stats: pos_parts=%d neg_parts=%d pos_mass=%.6g neg_mass=%.6g.",
+        len(pos_part_names),
+        len(neg_part_names),
+        pos_mass,
+        neg_mass,
+    )
+    if len(pos_part_names) != len(neg_part_names):
+        return len(pos_part_names) > len(neg_part_names)
+    if abs(pos_mass - neg_mass) > max(1e-12, 1e-9 * max(pos_mass, neg_mass, 1.0)):
+        return pos_mass > neg_mass
+    # Final tie -> keep historical behavior (y <= 0).
+    return False
+
+
+def _get_symmetry_box_tag(keep_positive_y: bool = False) -> int:
     """Create and return the OCC box tag used to cut for symmetry.
     Returns:
         int: The gmsh OCC volume tag of the symmetry-cut box.
@@ -80,46 +150,125 @@ def _get_symmetry_box_tag() -> int:
     ]
     domain_length = max(whole_model_dimensions)
     dx, dy, dz = 2 * domain_length, domain_length, 2 * domain_length
-    x, y, z = -domain_length / 2, -domain_length, -domain_length / 2
+    x = -domain_length / 2
+    y = 0.0 if keep_positive_y else -domain_length
+    z = -domain_length / 2
     return gmsh.model.occ.addBox(x, y, z, dx, dy, dz)
 
 
 def _apply_symmetry_cut(fused_parts: list[FuseEntry]) -> list[FuseEntry]:
-    """Cut fused OCC volumes with the symmetry box and return updated entries."""
+    """Apply symmetry by fragmenting with a half-space box and filtering children."""
     if not fused_parts:
         raise ValueError("Cannot apply symmetry cut: no fused parts available.")
 
-    sym_box_tag = _get_symmetry_box_tag()
+    keep_positive_hint = _choose_symmetry_keep_positive_y(fused_parts)
+    sym_box_tag = _get_symmetry_box_tag(keep_positive_y=keep_positive_hint)
     object_dimtags = [part.dimtag for part in fused_parts]
-    _, cut_map = gmsh.model.occ.cut(
+    _, fragment_map = gmsh.model.occ.fragment(
         object_dimtags,
         [(3, sym_box_tag)],
         removeObject=True,
-        removeTool=True,
+        removeTool=False,
     )
     gmsh.model.occ.synchronize()
 
     # outDimTagsMap entries are ordered as input object dimtags then tools.
-    updated_parts: list[FuseEntry] = []
-    for part, mapped_dimtags in zip(fused_parts, cut_map[:len(object_dimtags)]):
-        mapped_volumes = sorted(
+    full_model_bb = gmsh.model.getBoundingBox(-1, -1)
+    model_span = max(
+        full_model_bb[3] - full_model_bb[0],
+        full_model_bb[4] - full_model_bb[1],
+        full_model_bb[5] - full_model_bb[2],
+    )
+    plane_tol = max(1e-7, model_span * 1e-6)
+
+    mapped_rows: list[tuple[FuseEntry, list[tuple[tuple[int, int], float, float]]]] = []
+    for part, mapped_dimtags in zip(fused_parts, fragment_map[:len(object_dimtags)]):
+        mapped_volumes_all = sorted(
             [dimtag for dimtag in mapped_dimtags if dimtag[0] == 3],
             key=lambda dimtag: dimtag[1],
         )
-        if not mapped_volumes:
+        row: list[tuple[tuple[int, int], float, float]] = []
+        for dim, tag in mapped_volumes_all:
+            try:
+                _, y_com, _ = gmsh.model.occ.getCenterOfMass(dim, tag)
+            except Exception:
+                bb = gmsh.model.occ.getBoundingBox(dim, tag)
+                y_com = 0.5 * (bb[1] + bb[4])
+            try:
+                mass = float(gmsh.model.occ.getMass(dim, tag))
+            except Exception:
+                bb = gmsh.model.occ.getBoundingBox(dim, tag)
+                mass = max((bb[3] - bb[0]) * (bb[4] - bb[1]) * (bb[5] - bb[2]), 0.0)
+            row.append(((dim, tag), y_com, mass))
+        mapped_rows.append((part, row))
+
+    def _candidate_metrics(keep_positive: bool) -> tuple[int, int, float]:
+        kept_wing_names: set[str] = set()
+        kept_part_names: set[str] = set()
+        kept_mass = 0.0
+        for part, row in mapped_rows:
+            base_name = part.name.split("#", 1)[0]
+            for _, y_com, mass in row:
+                keep = y_com >= -plane_tol if keep_positive else y_com <= plane_tol
+                if not keep:
+                    continue
+                kept_part_names.add(base_name)
+                if part.part_type == PartType.wing:
+                    kept_wing_names.add(base_name)
+                kept_mass += mass
+        return (len(kept_wing_names), len(kept_part_names), kept_mass)
+
+    pos_metrics = _candidate_metrics(True)
+    neg_metrics = _candidate_metrics(False)
+    if pos_metrics != neg_metrics:
+        keep_positive_y = pos_metrics > neg_metrics
+    else:
+        keep_positive_y = keep_positive_hint
+
+    log.info(
+        "Symmetry cut keeps y %s 0 side (pos_metrics=%s, neg_metrics=%s).",
+        ">=" if keep_positive_y else "<=",
+        pos_metrics,
+        neg_metrics,
+    )
+
+    side_rejected: list[tuple[int, int]] = []
+    updated_parts: list[FuseEntry] = []
+    for part, row in mapped_rows:
+        kept_volumes = [
+            dimtag
+            for dimtag, y_com, _ in row
+            if (y_com >= -plane_tol if keep_positive_y else y_com <= plane_tol)
+        ]
+        side_rejected.extend(
+            [
+                dimtag
+                for dimtag, y_com, _ in row
+                if not (y_com >= -plane_tol if keep_positive_y else y_com <= plane_tol)
+            ]
+        )
+
+        if not kept_volumes:
             continue
 
-        updated_parts.append(FuseEntry(
-            name=part.name,
-            dimtag=mapped_volumes[0],
-            part_type=part.part_type,
-        ))
-        for k, extra_dimtag in enumerate(mapped_volumes[1:], start=2):
+        updated_parts.append(FuseEntry(name=part.name, dimtag=kept_volumes[0], part_type=part.part_type))
+        for k, extra_dimtag in enumerate(kept_volumes[1:], start=2):
             updated_parts.append(FuseEntry(
                 name=f"{part.name}#part{k}",
                 dimtag=extra_dimtag,
                 part_type=part.part_type,
             ))
+
+    if side_rejected:
+        gmsh.model.occ.remove(side_rejected, recursive=True)
+        gmsh.model.occ.synchronize()
+
+    # Remove the helper half-space box entity if still present.
+    try:
+        gmsh.model.occ.remove([(3, sym_box_tag)], recursive=True)
+        gmsh.model.occ.synchronize()
+    except Exception:
+        pass
 
     if not updated_parts:
         raise ValueError("Symmetry cut removed all volumes; cannot continue meshing.")
@@ -171,12 +320,13 @@ def _center_all_entities(model_bb: list[float]) -> None:
     model_dimensions = _get_model_dim(model_bb)
     gmsh.model.occ.synchronize()
 
-    # Center EVERYTHING around the center
+    # Keep Y unchanged to preserve original left/right placement for symmetry logic.
+    # Center only in X/Z.
     all_entities = gmsh.model.getEntities(-1)
     gmsh.model.occ.translate(
         dimTags=all_entities,
         dx=-((model_bb[0]) + (model_dimensions[0] / 2)),
-        dy=-((model_bb[1]) + (model_dimensions[1] / 2)),
+        dy=0.0,
         dz=-((model_bb[2]) + (model_dimensions[2] / 2)),
     )
     gmsh.model.occ.synchronize()
@@ -435,6 +585,107 @@ def _find_planar_surface_tags(
                 tol=tol,
             )
         ]
+    )
+
+
+def _infer_wall_size_from_surface_points(
+    wall_surface_tags: list[int],
+    farfield_size: float,
+) -> float:
+    """Infer near-wall target size from current point sizes on wall surfaces."""
+    wall_points = gmsh.model.getBoundary(
+        [(2, tag) for tag in wall_surface_tags],
+        combined=True,
+        oriented=False,
+        recursive=True,
+    )
+    point_dimtags = sorted({(dim, tag) for dim, tag in wall_points if dim == 0}, key=lambda dt: dt[1])
+    if not point_dimtags:
+        return farfield_size * 0.05
+
+    try:
+        point_sizes = gmsh.model.mesh.getSizes(point_dimtags)
+        positive_sizes = [float(s) for s in point_sizes if s > 0.0]
+    except Exception:
+        positive_sizes = []
+
+    if positive_sizes:
+        return max(min(positive_sizes), farfield_size * 1e-3)
+    return farfield_size * 0.05
+
+
+def _infer_wall_size_from_mesh_settings(
+    mesh_settings: MeshSettings,
+    farfield_size: float,
+) -> float | None:
+    """Infer wall size from configured aircraft part sizes."""
+    candidates = [
+        float(v)
+        for sizes in [
+            mesh_settings.wing_mesh_size,
+            mesh_settings.pylon_mesh_size,
+            mesh_settings.fuselage_mesh_size,
+        ]
+        for v in sizes.values()
+        if float(v) > 0.0
+    ]
+    if not candidates:
+        return None
+    return max(min(candidates), farfield_size * 1e-3)
+
+
+def _set_fluid_boundary_gradation_field(
+    wall_surface_tags: list[int],
+    farfield_size: float,
+    model_span: float,
+    wall_size_hint: float | None = None,
+) -> None:
+    """Apply smooth wall->farfield gradation on fluid-boundary remeshing stage."""
+    if not wall_surface_tags:
+        return
+
+    for field_tag in gmsh.model.mesh.field.list():
+        gmsh.model.mesh.field.remove(field_tag)
+
+    wall_size = (
+        wall_size_hint
+        if wall_size_hint is not None and wall_size_hint > 0.0
+        else _infer_wall_size_from_surface_points(wall_surface_tags, farfield_size)
+    )
+    dist_max = max(model_span * 0.08, farfield_size * 1.5)
+    near_wall_power = 2.2
+
+    distance_field = 1
+    gmsh.model.mesh.field.add("Distance", distance_field)
+    gmsh.model.mesh.field.setNumbers(distance_field, "SurfacesList", wall_surface_tags)
+    gmsh.model.mesh.field.setNumber(distance_field, "Sampling", 200)
+
+    threshold_field = 2
+    gmsh.model.mesh.field.add("Threshold", threshold_field)
+    gmsh.model.mesh.field.setNumber(threshold_field, "InField", distance_field)
+    gmsh.model.mesh.field.setNumber(threshold_field, "SizeMin", wall_size)
+    gmsh.model.mesh.field.setNumber(threshold_field, "SizeMax", farfield_size)
+    gmsh.model.mesh.field.setNumber(threshold_field, "DistMin", 0.0)
+    gmsh.model.mesh.field.setNumber(threshold_field, "DistMax", dist_max)
+
+    near_wall_field = 3
+    gmsh.model.mesh.field.add("MathEval", near_wall_field)
+    gmsh.model.mesh.field.setString(
+        near_wall_field,
+        "F",
+        (
+            f"{wall_size} + ({farfield_size} - {wall_size})"
+            f"*(F{distance_field}/{dist_max})^{near_wall_power}"
+        ),
+    )
+
+    background_field = 4
+    gmsh.model.mesh.field.add("Min", background_field)
+    gmsh.model.mesh.field.setNumbers(background_field, "FieldsList", [threshold_field, near_wall_field])
+    gmsh.model.mesh.field.setAsBackgroundMesh(background_field)
+    log.info(
+        "Applied fluid-boundary gradation field: "
+        f"wall_size={wall_size:.4g}, farfield_size={farfield_size:.4g}, dist_max={dist_max:.4g}"
     )
 
 
@@ -755,9 +1006,16 @@ def _prepare_euler_fluid_domain(
     results_dir: Path,
     mesh_settings: MeshSettings,
     farfield_settings: FarfieldSettings,
+    aircraft_volume_tags: list[int] | None = None,
 ) -> None:
     """Build farfield-cut fluid domain and complete 2D boundary mesh for Euler."""
-    inner_volume_dimtags = sorted(gmsh.model.getEntities(3), key=lambda dimtag: dimtag[1])
+    if aircraft_volume_tags is None:
+        inner_volume_dimtags = sorted(gmsh.model.getEntities(3), key=lambda dimtag: dimtag[1])
+    else:
+        existing_volume_tags = {tag for dim, tag in gmsh.model.getEntities(3) if dim == 3}
+        filtered_tags = sorted(set(int(tag) for tag in aircraft_volume_tags) & existing_volume_tags)
+        inner_volume_dimtags = [(3, tag) for tag in filtered_tags]
+
     if not inner_volume_dimtags:
         raise RuntimeError("No in-memory aircraft volumes found for Euler fluid-domain setup.")
 
@@ -784,11 +1042,29 @@ def _prepare_euler_fluid_domain(
         [(3, farfield_box_tag)],
         inner_volume_dimtags,
         removeObject=True,
-        removeTool=True,
+        # Keep aircraft tool volumes so their already-meshed wall surfaces can be reused.
+        removeTool=False,
     )
+    gmsh.model.occ.synchronize()
+    # Collapse coincident OCC topology created by boolean operations before
+    # classifying fluid boundaries.
+    gmsh.model.occ.removeAllDuplicates()
     gmsh.model.occ.synchronize()
 
     fluid_volume_tags = sorted([tag for dim, tag in fluid_dimtags if dim == 3])
+    # After duplicate removal, boolean output tags can be stale. Re-identify the
+    # fluid volume robustly from current 3D entities: keep the largest volume.
+    all_volume_tags = sorted([tag for dim, tag in gmsh.model.getEntities(3) if dim == 3])
+    if all_volume_tags:
+        def _volume_measure(tag: int) -> float:
+            try:
+                return float(gmsh.model.occ.getMass(3, tag))
+            except Exception:
+                bb = gmsh.model.occ.getBoundingBox(3, tag)
+                return max((bb[3] - bb[0]) * (bb[4] - bb[1]) * (bb[5] - bb[2]), 0.0)
+
+        fluid_volume_tags = [max(all_volume_tags, key=_volume_measure)]
+
     if not fluid_volume_tags:
         raise RuntimeError("Failed to build fluid domain from farfield box and aircraft volumes.")
 
@@ -880,19 +1156,27 @@ def _prepare_euler_fluid_domain(
 
     # Temporary options for farfield/symmetry empty-surface completion.
     prev_size_from_points = gmsh.option.getNumber("Mesh.MeshSizeFromPoints")
+    prev_size_extend = gmsh.option.getNumber("Mesh.MeshSizeExtendFromBoundary")
     prev_size_max = gmsh.option.getNumber("Mesh.MeshSizeMax")
-    gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 1)
+    gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
+    gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
     gmsh.option.setNumber("Mesh.MeshSizeMax", farfield_settings.farfield_mesh_size)
+    _set_fluid_boundary_gradation_field(
+        wall_surface_tags=wall_surface_tags,
+        farfield_size=farfield_settings.farfield_mesh_size,
+        model_span=model_span,
+        wall_size_hint=_infer_wall_size_from_mesh_settings(mesh_settings, farfield_settings.farfield_mesh_size),
+    )
 
     farfield_boundary_tags = sorted(farfield_group_tags)
     closure_boundary_tags = sorted(fluid_boundary_tags)
-    boundary_tags_for_2d = (
-        farfield_boundary_tags
-        if symmetry
-        else closure_boundary_tags
-    )
+    # Mesh the full fluid boundary in one pass to keep wall/farfield/symmetry
+    # interfaces conformal and avoid downstream open-loop issues.
+    boundary_tags_for_2d = closure_boundary_tags
     all_entities = gmsh.model.getEntities(-1)
     gmsh.option.setNumber("Mesh.MeshOnlyVisible", 1)
+    # Preserve previously generated aircraft/symmetry refinement and only fill
+    # missing boundary entities on the fluid topology.
     gmsh.option.setNumber("Mesh.MeshOnlyEmpty", 1)
     try:
         # Stage 1: build 1D on all fluid boundaries so each 2D stage has closed loops.
@@ -905,9 +1189,7 @@ def _prepare_euler_fluid_domain(
         log.info("Starting 1D Euler fluid domain.")
         gmsh.model.mesh.generate(1)
 
-        # Stage 2:
-        # - symmetry=True: mesh farfield only (symmetry plane is handled separately).
-        # - symmetry=False: mesh all fluid-boundary surfaces in one pass.
+        # Stage 2: mesh all fluid-boundary surfaces in one pass.
         gmsh.model.setVisibility(all_entities, 0, recursive=True)
         gmsh.model.setVisibility(
             [(2, tag) for tag in boundary_tags_for_2d],
@@ -915,7 +1197,7 @@ def _prepare_euler_fluid_domain(
             recursive=True,
         )
         if symmetry:
-            log.info("Starting 2D Euler farfield domain.")
+            log.info("Starting 2D Euler full fluid boundary domain (symmetry enabled).")
         else:
             log.info("Starting 2D Euler fluid boundary domain.")
         gmsh.model.mesh.generate(2)
@@ -933,10 +1215,6 @@ def _prepare_euler_fluid_domain(
     log.info(f"Stored staged farfield mesh at {farfield_stage_mesh_path=}.")
 
     if symmetry_surface_set:
-        _mesh_symmetry_plane(
-            symmetry_surface_tags=sorted(symmetry_surface_set),
-            farfield_mesh_size=farfield_settings.farfield_mesh_size,
-        )
         symmetry_stage_mesh_path = Path(results_dir, "surface_mesh_symmetry_stage.msh")
         _write_surface_subset_mesh(
             output_path=symmetry_stage_mesh_path,
@@ -946,6 +1224,7 @@ def _prepare_euler_fluid_domain(
         log.info(f"Stored staged symmetry mesh at {symmetry_stage_mesh_path=}.")
 
     gmsh.option.setNumber("Mesh.MeshSizeFromPoints", prev_size_from_points)
+    gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", prev_size_extend)
     gmsh.option.setNumber("Mesh.MeshSizeMax", prev_size_max)
 
     log.info("Prepared Euler fluid domain in 2D stage")
@@ -1435,10 +1714,11 @@ def generate_2d_mesh(
     gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
     gmsh.option.setNumber("Mesh.Algorithm", 6)
     gmsh.option.setNumber("Mesh.LcIntegrationPrecision", 1e-6)
-    gmsh.option.setNumber("General.NumThreads", 1)
-    gmsh.option.setNumber("Mesh.MaxNumThreads1D", 1)
-    gmsh.option.setNumber("Mesh.MaxNumThreads2D", 1)
-    gmsh.option.setNumber("Mesh.MaxNumThreads3D", 1)
+    mesh_threads = _get_mesh_threads()
+    gmsh.option.setNumber("General.NumThreads", mesh_threads)
+    gmsh.option.setNumber("Mesh.MaxNumThreads1D", mesh_threads)
+    gmsh.option.setNumber("Mesh.MaxNumThreads2D", mesh_threads)
+    gmsh.option.setNumber("Mesh.MaxNumThreads3D", mesh_threads)
     # Keep default STL solid behavior to avoid per-surface segmentation seams.
     gmsh.option.setNumber("Mesh.StlOneSolidPerSurface", 0)
 
@@ -1486,69 +1766,46 @@ def generate_2d_mesh(
         results_dir=results_dir,
         mesh_settings=mesh_settings,
         farfield_settings=farfield_settings,
+        aircraft_volume_tags=[
+            part.dimtag[1]
+            for part in cleaned_parts
+            if part.dimtag[0] == 3
+        ],
     )
-    farfield_stage_mesh_path = Path(results_dir, "surface_mesh_farfield_stage.msh")
-    stitched_outer_stage_path = farfield_stage_mesh_path
-    if symmetry:
-        symmetry_stage_mesh_path = Path(results_dir, "surface_mesh_symmetry_stage.msh")
-        farfield_symmetry_union_path = Path(
-            results_dir,
-            "surface_mesh_farfield_symmetry_union_stage.msh",
-        )
-        _merge_farfield_and_symmetry_with_duplicate_collapse(
-            output_path=farfield_symmetry_union_path,
-            farfield_stage_path=farfield_stage_mesh_path,
-            symmetry_stage_path=symmetry_stage_mesh_path,
-            model_name=current_model_name,
-        )
-        stitched_outer_stage_path = farfield_symmetry_union_path
-        log.info(f"Stored stitched farfield+symmetry mesh at {farfield_symmetry_union_path=}.")
-        union_surface_mesh_path = Path(results_dir, "surface_mesh_union_stage.msh")
-        _merge_stage_meshes_to_file(
-            output_path=union_surface_mesh_path,
-            stage_paths=[aircraft_stage_mesh_path, stitched_outer_stage_path],
-            model_name=current_model_name,
-            collapse_duplicates=True,
-        )
-        log.info(f"Stored concatenated boundary mesh at {union_surface_mesh_path=}.")
+    log.info("Exporting fluid-boundary union from in-memory wall/farfield/symmetry groups.")
+    wall_group_tags = _get_physical_group_surface_tags_by_name("wall")
+    farfield_group_tags = _get_physical_group_surface_tags_by_name("Farfield")
+    symmetry_group_tags = (
+        _get_physical_group_surface_tags_by_name("symmetry")
+        if symmetry
+        else []
+    )
+    if not wall_group_tags:
+        raise RuntimeError("No wall physical group found for surface export.")
+    if not farfield_group_tags:
+        raise RuntimeError("No Farfield physical group found for surface export.")
+    combined_surface_tags = sorted(
+        set(wall_group_tags) | set(farfield_group_tags) | set(symmetry_group_tags)
+    )
 
-        # Save mesh handoff artifact for downstream volume meshing.
-        surface_mesh_path = Path(results_dir, "surface_mesh.msh")
-        _merge_stage_meshes_to_file(
-            output_path=surface_mesh_path,
-            stage_paths=[aircraft_stage_mesh_path, stitched_outer_stage_path],
-            model_name=current_model_name,
-            collapse_duplicates=True,
-        )
-        log.info(f"Stored 2D Surface mesh at {surface_mesh_path=}.")
-    else:
-        log.info("Symmetry disabled: exporting fluid-boundary union from in-memory wall+farfield.")
-        wall_group_tags = _get_physical_group_surface_tags_by_name("wall")
-        farfield_group_tags = _get_physical_group_surface_tags_by_name("Farfield")
-        if not wall_group_tags:
-            raise RuntimeError("No wall physical group found for non-symmetry surface export.")
-        if not farfield_group_tags:
-            raise RuntimeError("No Farfield physical group found for non-symmetry surface export.")
-        combined_surface_tags = sorted(set(wall_group_tags) | set(farfield_group_tags))
+    union_surface_mesh_path = Path(results_dir, "surface_mesh_union_stage.msh")
+    _write_surface_subset_mesh(
+        output_path=union_surface_mesh_path,
+        surface_tags=combined_surface_tags,
+        model_name=current_model_name,
+        include_boundary_topology=True,
+    )
+    log.info(f"Stored concatenated boundary mesh at {union_surface_mesh_path=}.")
 
-        union_surface_mesh_path = Path(results_dir, "surface_mesh_union_stage.msh")
-        _write_surface_subset_mesh(
-            output_path=union_surface_mesh_path,
-            surface_tags=combined_surface_tags,
-            model_name=current_model_name,
-            include_boundary_topology=True,
-        )
-        log.info(f"Stored concatenated boundary mesh at {union_surface_mesh_path=}.")
-
-        # Save mesh handoff artifact for downstream volume meshing.
-        surface_mesh_path = Path(results_dir, "surface_mesh.msh")
-        _write_surface_subset_mesh(
-            output_path=surface_mesh_path,
-            surface_tags=combined_surface_tags,
-            model_name=current_model_name,
-            include_boundary_topology=True,
-        )
-        log.info(f"Stored 2D Surface mesh at {surface_mesh_path=}.")
+    # Save mesh handoff artifact for downstream volume meshing.
+    surface_mesh_path = Path(results_dir, "surface_mesh.msh")
+    _write_surface_subset_mesh(
+        output_path=surface_mesh_path,
+        surface_tags=combined_surface_tags,
+        model_name=current_model_name,
+        include_boundary_topology=True,
+    )
+    log.info(f"Stored 2D Surface mesh at {surface_mesh_path=}.")
 
     if not symmetry:
         # Keep STL diagnostics export for watertightness and topology checks.

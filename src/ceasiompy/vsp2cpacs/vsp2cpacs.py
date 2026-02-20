@@ -1,3 +1,4 @@
+
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
@@ -8,130 +9,134 @@ The geometry is built in OpenVSP, saved as a .vsp3 file, and then selected in th
 It is subsequently processed by this module to generate a CPACS file.
 
 | Author: Nicolo' Perasso
-| Creation: 23/12/2025
+| Creation: 22/12/2025
 """
 
-# Imports
-
-import openvsp as vsp
-
+# =================================================================================================
+#   IMPORTS
+# =================================================================================================
 from pathlib import Path
-
-from ceasiompy.vsp2cpacs.func.duct import Import_Duct
+from ceasiompy.vsp2cpacs.func.wing import Import_Wing
 from ceasiompy.vsp2cpacs.func.fuselage import Import_Fuse
 from ceasiompy.vsp2cpacs.func.pod import Import_POD
-from ceasiompy.vsp2cpacs.func.wing import Import_Wing
-
+from ceasiompy.vsp2cpacs.func.duct import Import_Duct
 from ceasiompy.vsp2cpacs.func.exportcpacs import Export_CPACS
+import openvsp as vsp
 
-from ceasiompy import log
+import warnings
 
+warnings.filterwarnings("ignore")
 
-# Functions
-
-def get_plantform_area(geom_id):
-    vsp.Update()
-    analysis = "Projection"
-    vsp.SetStringAnalysisInput(analysis, "TargetGeomID", [geom_id])
-    vsp.SetIntAnalysisInput(analysis, "TargetSet", [0])
-    vsp.SetIntAnalysisInput(analysis, "DirectionType", [2])
-    res_id = vsp.ExecAnalysis(analysis)
-    return vsp.GetDoubleResults(res_id, "Comp_Areas")
+# =================================================================================================
+#   FUNCTIONS
+# =================================================================================================
 
 
-def CheckParent(Data, idx, Parents, Uid):
+def CheckParent(Data, idx, Parents,Uid):
     # Check parent-child relationships between OpenVSP components
-    Parents[f"{idx}"] = {
-        "Uid_parent": Data[f"{idx}"]["Transformation"]["ParentUid"],
-        "Uid": Uid,
-        "Name": Data[f"{idx}"]["Transformation"]["Name"],
+    Parents[f'{idx}'] = {
+        'Uid_parent': Data[f'{idx}']['Transformation']['ParentUid'],
+        'Uid': Uid,
+        'Name': Data[f'{idx}']['Transformation']['Name']
     }
     for i in list(Parents.keys())[:idx]:
-        if Parents[i]["Uid"] == Parents[f"{idx}"]["Uid_parent"]:
-            Data[f"{idx}"]["Transformation"]["Child_to_Parent"] = Parents[i]["Name"]
+        if Parents[i]['Uid'] == Parents[f'{idx}']['Uid_parent']:
+            Data[f'{idx}']['Transformation']['Child_to_Parent'] = Parents[i]['Name']
             break
 
 
-def main(vsp_file: str | Path, output_dir: str | Path | None = None) -> Path:
-    vsp_file = Path(vsp_file)
-    output_dir = Path(output_dir) if output_dir is not None else None
 
-    # Read the OpenVSP file
-    log.info(f"Reading OpenVSP file: {vsp_file} ")
+def main(vsp_file):
+    
+    # Read the OpenVSP file 
+    print('------------------- Start of VSP2CPACS -------------------------')   
+    print('[INFO] Initializing VSP2CPACS module... ')
     vsp.ClearVSPModel()
-    vsp.ReadVSPFile(str(vsp_file))
-
+    vsp.ReadVSPFile(vsp_file)
+    
     # File Name
-    name_file = vsp_file.stem
-
-    log.info("Processing OpenVSP geometry... ")
+    name_file = Path(vsp_file).stem
+    
     # Find the components
-    geom_ids = vsp.FindGeoms()
-
+    geom_ids  = vsp.FindGeoms()
+    
     # Some initializations
-    component_idx = 0
-    data_from_vsp, parent_list = {}, {}
+    ComponentIdx = 0      
+    Data_from_VSP, Parent_List = {}, {}
+    total_plantform_area = 0
     idx_engine = 0
-
-    log.info("Loading OpenVSP geometry... ")
-    for geom_id in geom_ids:
+    
+    
+    print('[INFO] Loading OpenVSP geometry... ')
+    for geom_id  in geom_ids:
         # Determine the component type from the OpenVSP geometry
         geom_type = vsp.GetGeomTypeName(geom_id)
+    
+        
 
-        if geom_type == "Wing":
+        if geom_type == 'Wing':
+            
             # Extract the required parameters to define the CPACS component
-            data_from_vsp[f"{component_idx}"] = Import_Wing(geom_id)
-
+            Data_from_VSP[f'{ComponentIdx}'] = Import_Wing(geom_id)
+            
             # Check if it is a child connected to a parent
-            CheckParent(data_from_vsp, component_idx, parent_list, geom_id)
+            CheckParent(
+                Data_from_VSP, ComponentIdx, Parent_List,geom_id)
+            
+            ComponentIdx += 1
 
-            component_idx += 1
-
-        elif geom_type == "Fuselage":
+        elif geom_type == 'Fuselage':
+            
             # Extract the required parameters to define the CPACS component
-            data_from_vsp[f"{component_idx}"] = Import_Fuse(geom_id)
-
+            Data_from_VSP[f'{ComponentIdx}'] = Import_Fuse(geom_id)
+            
             # Check if it is a child connected to a parent
-            CheckParent(data_from_vsp, component_idx, parent_list, geom_id)
+            CheckParent(
 
-            component_idx += 1
-
-        elif geom_type == "Pod":
+                Data_from_VSP, ComponentIdx, Parent_List,geom_id)
+            
+            ComponentIdx += 1
+        elif geom_type == 'Pod' :
+            
             # Extract the required parameters to define the CPACS component
-            data_from_vsp[f"{component_idx}"] = Import_POD(geom_id)
-
+            Data_from_VSP[f'{ComponentIdx}'] = Import_POD(geom_id)
+            
+            
             # Check if it is a child connected to a parent
-            CheckParent(data_from_vsp, component_idx, parent_list, geom_id)
-
+            CheckParent(
+                Data_from_VSP, ComponentIdx, Parent_List,geom_id)
+            
             # The pod is also a part inside the engine (centerCowl)
-            if (
-                component_idx > 2
-                and data_from_vsp[f"{component_idx - 1}"]["Transformation"]["Name_type"] == "Duct"
-            ):
-                data_from_vsp[f"{component_idx}"]["Transformation"]["idx_engine"] = idx_engine
+            if ComponentIdx > 2 and Data_from_VSP[f'{ComponentIdx-1}']['Transformation']['Name_type'] == 'Duct' :
+                Data_from_VSP[f'{ComponentIdx}']['Transformation']['idx_engine'] = idx_engine
             else:
-                data_from_vsp[f"{component_idx}"]["Transformation"]["idx_engine"] = None
+                Data_from_VSP[f'{ComponentIdx}']['Transformation']['idx_engine'] = None
+            ComponentIdx += 1
+        
+        elif geom_type == 'Custom':
 
-            component_idx += 1
-
-        elif geom_type == "Custom":
             # Extract the required parameters to define the CPACS component
-            data_from_vsp[f"{component_idx}"] = Import_Duct(geom_id)
-
+            Data_from_VSP[f'{ComponentIdx}'] = Import_Duct(geom_id)
+            
             # Check if it is a child connected to a parent
-            CheckParent(data_from_vsp, component_idx, parent_list, geom_id)
-
+            CheckParent(
+                Data_from_VSP, ComponentIdx, Parent_List,geom_id)
+            
             # Check whether the component belongs to an engine.
             # A complete engine in CPACS consists of two ducts and one pod
             # (fan, core, and center body).
-            if data_from_vsp[f"{component_idx - 1}"]["Transformation"]["Name_type"] != "Duct":
-                idx_engine += 1
-            data_from_vsp[f"{component_idx}"]["Transformation"]["idx_engine"] = idx_engine
+            if Data_from_VSP[f'{ComponentIdx-1}']['Transformation']['Name_type'] != 'Duct':
+                idx_engine +=1 
+            Data_from_VSP[f'{ComponentIdx}']['Transformation']['idx_engine'] = idx_engine     
 
-            component_idx += 1
+            ComponentIdx += 1
 
+    
     # Create a CPACS file.
-    log.info("Creating CPACS file...")
+    print('[INFO] Creating CPACS file...')
+    
+    CPACS_file = Export_CPACS(Data_from_VSP,name_file)
+    CPACS_file.run()
+    print('[INFO] CPACS file saved in WKDIR')
+    print('-------------------End of VSP2CPACS-----------------------')
 
-    exporter = Export_CPACS(data_from_vsp, name_file, output_dir=output_dir)
-    return exporter.run()

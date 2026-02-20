@@ -17,13 +17,13 @@ import inspect
 import argparse
 import importlib
 import subprocess
-import streamlit as st
 
 from pydantic import validate_call
 from contextlib import contextmanager
 from ceasiompy.utils import get_wkdir
-from ceasiompy.utils.moduleinterfaces import get_module_list
+from ceasiompy.utils.guiobjects import update_value
 from ceasiompy.utils.moduleinterfaces import (
+    get_module_list,
     get_specs_for_module,
     get_toolinput_file_path,
     get_tooloutput_file_path,
@@ -41,7 +41,6 @@ from cpacspy.cpacsfunctions import (
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
-from unittest.mock import MagicMock
 from tixi3.tixi3wrapper import Tixi3
 from cpacspy.cpacspy import (
     CPACS,
@@ -66,6 +65,7 @@ from ceasiompy.utils.moduleinterfaces import (
 )
 from ceasiompy.utils.commonxpaths import (
     AIRCRAFT_NAME_XPATH,
+    GEOMETRY_MODE_XPATH,
     SELECTED_AEROMAP_XPATH,
 )
 
@@ -140,11 +140,23 @@ def write_inouts(
 
 def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
     tixi = cpacs.tixi
-    st.session_state.cpacs = cpacs
     specs = get_specs_for_module(module_name)
     if specs is None:
         log.warning(f"No specs found for module {module_name}. \n")
         return None
+
+    aeromap_uid_list = cpacs.get_aeromap_uid_list()
+    if not len(aeromap_uid_list):
+        log.error("You must create an aeromap in order to use this module !")
+        return None
+
+    # Some module gui_settings() read SELECTED_AEROMAP_XPATH directly.
+    # Initialize it before calling gui_settings.
+    first_aeromap = aeromap_uid_list[0]
+    log.info(f"Using {first_aeromap=}")
+    if not tixi.checkElement(SELECTED_AEROMAP_XPATH):
+        create_branch(tixi, SELECTED_AEROMAP_XPATH)
+    tixi.updateTextElement(SELECTED_AEROMAP_XPATH, first_aeromap)
 
     if not hasattr(specs, "gui_settings"):
         raise ValueError(f"gui_settings not found in specs file of {module_name=}")
@@ -154,18 +166,6 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str, test: bool) -> None:
         raise TypeError("gui_settings must be a callable function")
 
     gui_settings(cpacs)
-
-    aeromap_uid_list = cpacs.get_aeromap_uid_list()
-    if not len(aeromap_uid_list):
-        log.error("You must create an aeromap in order to use this module !")
-        return None
-
-    # Use first aeromap as the selected one
-    first_aeromap = aeromap_uid_list[0]
-    log.info(f"Using {first_aeromap=}")
-    if not tixi.checkElement(SELECTED_AEROMAP_XPATH):
-        create_branch(tixi, SELECTED_AEROMAP_XPATH)
-    tixi.updateTextElement(SELECTED_AEROMAP_XPATH, first_aeromap)
 
 
 @contextmanager
@@ -311,7 +311,6 @@ def call_main(main: Callable, module_name: str, cpacs_path: Path | None = None) 
     """
     Calls main with input/output CPACS of module named module_name.
     """
-    st.session_state = MagicMock()
     wkflow_dir = current_workflow_dir()
 
     log.info(f"Workflow's working directory: {wkflow_dir} \n")
@@ -325,6 +324,14 @@ def call_main(main: Callable, module_name: str, cpacs_path: Path | None = None) 
 
     with change_working_dir(wkflow_dir):
         cpacs = CPACS(cpacs_path)
+
+        # Call first
+        update_value(
+            tixi=cpacs.tixi,
+            xpath=GEOMETRY_MODE_XPATH,
+            value="3D",
+        )
+
         log.info(f"Upload default values from {MODNAME_SPECS}.")
         update_cpacs_from_specs(cpacs, module_name, test=True)
 
@@ -381,6 +388,7 @@ def run_module(
         log.warning("Optimisation module is only run at first iteration.")
 
     else:
+        python_file = None
         # Find main python file for module
         for file in module.module_dir.iterdir():
             if file.name.endswith(".py") and not file.name.startswith("__"):
@@ -388,6 +396,9 @@ def run_module(
                 break
         else:
             log.warning(f"No python files found for module {module_name}.")
+
+        if python_file is None:
+            raise ModuleNotFoundError(f"{module_name=} main file not found.")
 
         # Import the main function from the module's python file
         my_module = importlib.import_module(f"ceasiompy.{module_name}.{python_file}")

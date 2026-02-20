@@ -558,10 +558,15 @@ def _domain_settings(
 
     fig = go.Figure()
     try:
-        x, y, z, i, j, k = get_aircraft_mesh_data(
+        output = get_aircraft_mesh_data(
             cpacs=cpacs,
             symmetry=symmetry,
         )
+        if output is None:
+            st.warning(f"Can not display {cpacs.ac_name=}. Could not retrieve mesh data.")
+            return None
+
+        x, y, z, i, j, k = output
         fig.add_trace(
             go.Mesh3d(
                 x=x,

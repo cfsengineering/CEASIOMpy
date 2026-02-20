@@ -121,8 +121,8 @@ def run_cpacs2gmsh(
         farfield_factor,
         n_power_factor,
         n_power_field,
-        wing_mesh_size,
         fuselage_mesh_size,
+        wing_mesh_size,
         mesh_size_engines,
         mesh_size_propellers,
         refine_factor,
@@ -160,6 +160,7 @@ def run_cpacs2gmsh(
     if type_mesh == "EULER":
         log.info("Euler meshing.")
         farfield_mesh_size, symmetry = retrieve_euler_gui_values(tixi)
+        log.info(f"Euler symmetry={symmetry} farfield_mesh_size={farfield_mesh_size}")
         _progress_update(
             progress_callback,
             detail="1D mesh: curve discretization...",
@@ -176,6 +177,7 @@ def run_cpacs2gmsh(
             wkdir,
             open_gmsh=open_gmsh,
             farfield_factor=farfield_factor,
+            symmetry=symmetry,
             farfield_mesh_size=farfield_mesh_size,
             n_power_factor=n_power_factor,
             n_power_field=n_power_field,

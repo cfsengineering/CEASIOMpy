@@ -22,6 +22,10 @@ import random
 import subprocess
 
 from ceasiompy.cpacs2gmsh.func.mesh_sizing import fuselage_size
+from ceasiompy.cpacs2gmsh import (
+    GMSH_MESH_SIZE_FUSELAGE_XPATH,
+    GMSH_MESH_SIZE_WINGS_XPATH,
+)
 from ceasiompy.cpacs2gmsh.func.utils import (
     check_path,
     initialize_gmsh,
@@ -52,6 +56,7 @@ from ceasiompy.utils.ceasiompyutils import (
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
+from cpacspy.cpacsfunctions import create_branch
 from itertools import combinations
 from ceasiompy.cpacs2gmsh.func.wingclassification import ModelPart
 
@@ -236,6 +241,20 @@ def generate_2d_mesh_for_pentagrow(
     mesh_size_by_group["engine"] = mesh_size_engines
     mesh_size_by_group["rotor"] = mesh_size_propellers
     mesh_size_by_group["pylon"] = mesh_size_propellers
+
+    # Keep CPACS in sync with GUI inputs (RANS path did not persist these values).
+    create_branch(cpacs.tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH)
+    cpacs.tixi.updateDoubleElement(
+        GMSH_MESH_SIZE_FUSELAGE_XPATH,
+        fuselage_mesh_size,
+        "%.3f",
+    )
+    create_branch(cpacs.tixi, GMSH_MESH_SIZE_WINGS_XPATH)
+    cpacs.tixi.updateDoubleElement(
+        GMSH_MESH_SIZE_WINGS_XPATH,
+        wing_mesh_size,
+        "%.3f",
+    )
 
     # mesh_size_fuselage = mesh_size_by_group["fuselage"]
     # log.info(f"Mesh size fuselage={mesh_size_fuselage:.3f} m")

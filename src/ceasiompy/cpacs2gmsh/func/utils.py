@@ -29,6 +29,7 @@ from ceasiompy.cpacs2gmsh import (
     GMSH_N_POWER_FACTOR_XPATH,
     GMSH_N_POWER_FIELD_XPATH,
     GMSH_INTAKE_PERCENT_XPATH,
+    GMSH_MESH_SIZE_FARFIELD_XPATH,
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
     GMSH_MESH_SIZE_WINGS_XPATH,
     GMSH_MESH_SIZE_ENGINES_XPATH,
@@ -248,10 +249,20 @@ def load_rans_cgf_params(
 
 
 def retrieve_euler_gui_values(tixi: Tixi3) -> tuple[float, bool]:
-    farfield_size_factor = get_value(tixi, GMSH_FARFIELD_SIZE_FACTOR_XPATH)
+    farfield_mesh_size = get_value(tixi, GMSH_MESH_SIZE_FARFIELD_XPATH)
+
+    # Backward compatibility for older CPACS files using <farfield> instead of <farfield><value>.
+    if not tixi.checkElement(GMSH_MESH_SIZE_FARFIELD_XPATH):
+        legacy_xpath = GMSH_MESH_SIZE_FARFIELD_XPATH.replace("/value", "")
+        if tixi.checkElement(legacy_xpath):
+            try:
+                farfield_mesh_size = tixi.getTextElement(legacy_xpath)
+            except Exception:
+                pass
+
     symmetry = get_value(tixi, GMSH_SYMMETRY_XPATH)
 
-    return farfield_size_factor, symmetry
+    return farfield_mesh_size, symmetry
 
 
 def retrieve_rans_gui_values(tixi: Tixi3):

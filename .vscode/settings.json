@@ -3,5 +3,8 @@
         "installdir/OpenVSP/python/openvsp",
         "${workspaceFolder}/src",
         "${workspaceFolder}/src/app"
-    ]
+    ],
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
+    "python-envs.defaultPackageManager": "ms-python.python:conda",
+    "python-envs.pythonProjects": []
 }

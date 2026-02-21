@@ -132,19 +132,6 @@ def _surface_is_on_farfield_plane(
     return x_on_min or x_on_max or y_on_min or y_on_max or z_on_min or z_on_max
 
 
-def _surface_is_planar_on_axis_coordinate(
-    surface_tag: int,
-    axis: int,
-    coordinate: float,
-    tol: float,
-) -> bool:
-    """Return True if surface is planar normal to an axis and lies at a given coordinate."""
-    bb = gmsh.model.getBoundingBox(2, surface_tag)
-    bb_min = bb[axis]
-    bb_max = bb[axis + 3]
-    return abs(bb_min - bb_max) <= tol and abs(bb_min - coordinate) <= tol
-
-
 def _surface_has_2d_elements(surface_tag: int) -> bool:
     """Return True if a surface already has 2D mesh elements."""
     _, element_tags, _ = gmsh.model.mesh.getElements(2, surface_tag)

@@ -127,7 +127,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                     float_vartype(
                         tixi=tixi,
                         xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
-                        default_value=10.0,
+                        default_value=30.0,
                         name="Farfield mesh size",
                         key="farfield_mesh_size",
                         description="""Cell size on the farfield.""",

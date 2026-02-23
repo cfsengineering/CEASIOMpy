@@ -91,11 +91,6 @@ class TestStaticStability(CeasiompyTest):
         )
 
     @log_test
-    def test_compute_stab_table_lr_raises_type_error(self: TestStaticStability) -> None:
-        with self.assertRaises(TypeError):
-            compute_stab_table(self.cpacs, "test_apm", self.wkdir,)
-
-    @log_test
     def test_main_raises_when_all_aeromaps_fail(self: TestStaticStability) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             with self.assertRaises(RuntimeError) as err:

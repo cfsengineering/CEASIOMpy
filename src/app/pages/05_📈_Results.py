@@ -21,19 +21,21 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit.components.v1 as components
+
 from html import escape
 from textwrap import dedent
-
+from time import perf_counter
 from stpyvista import stpyvista
 from functools import lru_cache
-from time import perf_counter
 from contextlib import contextmanager
 from ceasiompy.utils.commonpaths import get_wkdir
+from SALib.sample.sobol import sample as sobol_sample
+from SALib.analyze.sobol import analyze as sobol_analyze
 from ceasiompy.smtrain.func.utils import domain_converter
-from ceasiompy.smtrain.func.config import update_geometry_cpacs
 from ceasiompy.utils.ceasiompyutils import workflow_number
-from ceasiompy.utils.geometryfunctions import get_xpath_for_param
 from ceasiompy.smtrain.func.utils import get_model_typename
+from ceasiompy.smtrain.func.config import update_geometry_cpacs
+from ceasiompy.utils.geometryfunctions import get_xpath_for_param
 from parsefunctions import (
     parse_ascii_tables,
     display_avl_table_file,
@@ -47,10 +49,8 @@ from streamlitutils import (
 
 from pathlib import Path
 from pandas import DataFrame
-from SALib.analyze.sobol import analyze as sobol_analyze
 from smt.applications import MFK
 from cpacspy.cpacspy import CPACS
-from SALib.sample.sobol import sample as sobol_sample
 from smt.surrogate_models import (
     KRG,
     RBF,

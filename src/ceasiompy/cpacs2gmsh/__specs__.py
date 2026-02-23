@@ -206,7 +206,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                     float_vartype(
                         tixi=tixi,
                         xpath=GMSH_H_FIRST_LAYER_XPATH,
-                        default_value=3,
+                        default_value=0.003,
                         key="h_first_layer",
                         name="Height of first layer",
                         description="""
@@ -218,7 +218,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                     float_vartype(
                         tixi=tixi,
                         xpath=GMSH_MAX_THICKNESS_LAYER_XPATH,
-                        default_value=100.0,
+                        default_value=10.0,
                         key="max_layer_thickness",
                         name="Max layer thickness",
                         description="""

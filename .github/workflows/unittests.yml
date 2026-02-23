@@ -13,6 +13,8 @@ on:
 
 env:
   CACHE_NUMBER: 1  # increase to reset cache manually
+  CONDA_RETRIES: 3
+  CONDA_TIMEOUT: 20
 
 jobs:
   build-linux:

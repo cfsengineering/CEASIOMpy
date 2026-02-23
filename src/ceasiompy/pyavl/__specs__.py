@@ -52,7 +52,7 @@ def gui_settings(cpacs: CPACS) -> None:
             int_vartype(
                 tixi=tixi,
                 name="Chordwise vortices",
-                key="chordwise_vortices_nb",
+                key="pyavl_chordwise_vortices_nb",
                 default_value=20,
                 description="Select the number of chordwise vortices.",
                 xpath=AVL_NCHORDWISE_XPATH,
@@ -62,7 +62,7 @@ def gui_settings(cpacs: CPACS) -> None:
             int_vartype(
                 tixi=tixi,
                 name="Spanwise vortices",
-                key="spanwise_vortices_nb",
+                key="pyavl_spanwise_vortices_nb",
                 default_value=30,
                 description="Select the number of spanwise vortices.",
                 xpath=AVL_NSPANWISE_XPATH,

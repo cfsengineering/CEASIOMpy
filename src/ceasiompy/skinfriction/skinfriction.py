@@ -15,7 +15,6 @@ from ceasiompy.utils.ceasiompyutils import (
     get_aeromap_list_from_xpath,
 )
 from cpacspy.cpacsfunctions import (
-    get_value,
     create_branch,
     add_string_vector,
     get_value_or_default,

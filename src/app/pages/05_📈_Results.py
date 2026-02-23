@@ -45,10 +45,10 @@ from streamlitutils import (
 
 from pathlib import Path
 from pandas import DataFrame
-from SALib.analyze import sobol as sobol_analyze
+from SALib.analyze.sobol import analyze as sobol_analyze
 from smt.applications import MFK
 from cpacspy.cpacspy import CPACS
-from SALib.sample import sobol as sobol_sample
+from SALib.sample.sobol import sample as sobol_sample
 from smt.surrogate_models import (
     KRG,
     RBF,
@@ -74,7 +74,7 @@ HOW_TO_TEXT = (
 PAGE_NAME = "Results"
 NO_DISPLAY_DIR: set[str] = {
     # pyavl
-    "Airfoil_files",
+    "airfoils",
 
     # smtrain
     "computations",
@@ -265,6 +265,7 @@ def display_results(results_dir):
         ".json": _display_json,
     }
 
+    is_first_displayed_dir = True
     is_first_displayed_child = True
     for child in sorted(Path(results_dir).iterdir(), key=_results_sort_key):
         if child.name in IGNORED_RESULTS:
@@ -278,8 +279,14 @@ def display_results(results_dir):
                     handler(child)
                 is_first_displayed_child = False
             elif child.is_dir():
+                if not is_first_displayed_child:
+                    st.markdown("---")
                 with _timed(f"display dir {child.name}"):
-                    _display_dir(child)
+                    _display_dir(
+                        path=child,
+                        display=is_first_displayed_dir,
+                    )
+                is_first_displayed_dir = False
 
         except BaseException as e:
             log.warning(f"Could not display {child}: {e=}")
@@ -362,15 +369,15 @@ def _display_json(path: Path) -> None:
         )
 
 
-def _display_dir(path: Path) -> None:
-    with st.container(border=True):
-        show_dir = st.checkbox(
-            f"**{path.stem}**",
-            value=False,
-            key=f"{path}_dir_toggle",
-        )
-        if show_dir:
-            display_results(path)
+def _display_dir(path: Path, display: bool) -> None:
+    show_dir = st.checkbox(
+        f"**{path.stem}**",
+        value=display,
+        key=f"{path}_dir_toggle",
+        width="stretch",
+    )
+    if show_dir:
+        display_results(path)
 
 
 def _display_pkl(path: Path) -> None:
@@ -439,10 +446,14 @@ def _display_pkl(path: Path) -> None:
         return None
 
     try:
+        aero_lb = getattr(aero_bounds, "lb", None)
+        aero_ub = getattr(aero_bounds, "ub", None)
+        if aero_lb is None or aero_ub is None:
+            raise ValueError("Aerodynamic bounds are missing from model metadata.")
         for idx, name in enumerate(AEROMAP_FEATURES):
             bounds.setdefault(
                 name,
-                (float(aero_bounds.lb[idx]), float(aero_bounds.ub[idx])),
+                (float(aero_lb[idx]), float(aero_ub[idx])),
             )
             bounds_source.setdefault(name, "aero")
     except Exception as e:
@@ -664,7 +675,7 @@ def _display_response_surface(
             lo, hi = bounds[col]
             if hi < lo:
                 lo, hi = hi, lo
-            return domain_converter(value, NORMALIZED_DOMAIN, (lo, hi))
+            return np.asarray(domain_converter(value, NORMALIZED_DOMAIN, (lo, hi)), dtype=float)
         return value
 
     def _extract_training_xy(
@@ -948,7 +959,7 @@ def _compute_sobol_analysis(
 ) -> None:
     _ = model
     sobol_params = []
-    sobol_bounds = []
+    sobol_bounds: list[tuple[float, float]] = []
     for col in columns:
         lo, hi = bounds[col]
         if hi < lo:
@@ -956,7 +967,7 @@ def _compute_sobol_analysis(
         if hi == lo:
             continue
         sobol_params.append(col)
-        sobol_bounds.append([float(lo), float(hi)])
+        sobol_bounds.append((float(lo), float(hi)))
 
     if not sobol_params:
         st.info("No variable inputs available for Sobol analysis.")
@@ -967,7 +978,7 @@ def _compute_sobol_analysis(
             path_str=str(path),
             mtime=path_mtime,
             sobol_params=tuple(sobol_params),
-            sobol_bounds=tuple(tuple(float(v) for v in pair) for pair in sobol_bounds),
+            sobol_bounds=tuple(sobol_bounds),
             columns=tuple(columns),
             bounds_items=tuple(
                 (col, float(bounds[col][0]), float(bounds[col][1])) for col in columns
@@ -1077,7 +1088,7 @@ def _cached_sobol_indices(
     }
 
     with _timed(f"cache miss sobol sample {Path(path_str).name}"):
-        sample_set = sobol_sample.sample(problem, n_base, calc_second_order=False)
+        sample_set = sobol_sample(problem, n_base, calc_second_order=False)
     bounds_dict = {name: (low, high) for name, low, high in bounds_items}
     bounds_source_dict = {name: src for name, src in bounds_source_items}
     mids = {
@@ -1108,7 +1119,7 @@ def _cached_sobol_indices(
             dtype=float,
         )
     with _timed(f"cache miss sobol analyze {Path(path_str).name}"):
-        si = sobol_analyze.analyze(problem, y_pred, calc_second_order=False)
+        si = sobol_analyze(problem, y_pred, calc_second_order=False)
     s1_vals = tuple(float(v) for v in si.get("S1", []))
     st_vals = tuple(float(v) for v in si.get("ST", []))
     return s1_vals, st_vals
@@ -1208,6 +1219,7 @@ def _display_su2(path: Path) -> None:
             )
         except OSError as exc:
             st.warning(f"Unable to prepare download: {exc}")
+        temp_file_path: str | None = None
         try:
             marker_map: dict[str, int] = {}
             with path.open() as handle:
@@ -1223,14 +1235,17 @@ def _display_su2(path: Path) -> None:
                             marker_map.setdefault(tag, len(marker_map) + 1)
                             line = f"MARKER_TAG= {marker_map[tag]}\n"
                         temp.write(line)
-            mesh = pv.read(temp_file.name)
+                temp_file_path = temp_file.name
+            if temp_file_path is None:
+                raise RuntimeError("Temporary SU2 file was not created.")
+            mesh = pv.read(temp_file_path)
         except Exception as exc:
             st.error(f"Failed to read SU2 mesh: {exc}")
             return
         finally:
-            if "temp_file" in locals():
+            if temp_file_path is not None:
                 try:
-                    os.unlink(temp_file.name)
+                    os.unlink(temp_file_path)
                 except OSError:
                     pass
 
@@ -1346,8 +1361,8 @@ def _display_vtu(path: Path) -> None:
     if default_scalar is None:
         default_scalar = scalar_options[0]
 
-    location = None
-    scalar_choice = None
+    location: str = "point"
+    scalar_choice = default_scalar
     if show_vtu_view:
         scalar_choice = st.selectbox(
             "Field",
@@ -1448,91 +1463,252 @@ def _display_csv(path: Path) -> None:
                         return None
                     text_data = data.decode("utf-8", errors="replace")
                     st.text_area(path.stem, text_data, height=200, key=f"{path}_csv_raw")
-    else:
-        st.markdown(f"**{path.name}**")
-        try:
-            df = pd.read_csv(path, engine="python", on_bad_lines="skip")
-            hidden_cols = [
-                col
-                for col in df.columns
-                if col in {"comment", "color", "Color"} or col.startswith("Unnamed:")
-            ]
-            if hidden_cols:
-                df = df.drop(columns=hidden_cols)
-            df_display = df.copy()
-            for col in df_display.columns:
-                numeric_series = pd.to_numeric(df_display[col], errors="coerce")
-                if numeric_series.notna().any():
-                    df_display[col] = numeric_series.map(
-                        lambda x: "" if pd.isna(x) else np.format_float_positional(x, trim="-")
-                    )
+        return None
 
-            stab_cols = {"long_stab", "dir_stab", "lat_stab"}
-            if stab_cols.issubset(set(df.columns)):
-                stable_mask = (
-                    (df["long_stab"] == "Stable")
-                    & (df["dir_stab"] == "Stable")
-                    & (df["lat_stab"] == "Stable")
+    st.markdown(f"**{path.name}**")
+    try:
+        df = pd.read_csv(path, engine="python", on_bad_lines="skip")
+        hidden_cols = [
+            col
+            for col in df.columns
+            if col in {"comment", "color", "Color"} or col.startswith("Unnamed:")
+        ]
+        if hidden_cols:
+            df = df.drop(columns=hidden_cols)
+        df_display = df.copy()
+        for col in df_display.columns:
+            numeric_series = pd.to_numeric(df_display[col], errors="coerce")
+            if numeric_series.notna().any():
+                df_display[col] = numeric_series.map(
+                    lambda x: "" if pd.isna(x) else np.format_float_positional(x, trim="-")
                 )
 
-                def _row_style(row):
-                    is_stable_row = bool(stable_mask.loc[row.name])
-                    if is_stable_row:
-                        return [
-                            "background-color: #d4edda; "
-                            "color: #155724; font-weight: 600;"
-                        ] * len(row)
+        stab_cols = {"long_stab", "dir_stab", "lat_stab"}
+        if stab_cols.issubset(set(df.columns)):
+            stable_mask = (
+                (df["long_stab"] == "Stable")
+                & (df["dir_stab"] == "Stable")
+                & (df["lat_stab"] == "Stable")
+            )
+
+            def _row_style(row):
+                is_stable_row = bool(stable_mask.loc[row.name])
+                if is_stable_row:
                     return [
-                        "background-color: #f8d7da; "
-                        "color: #721c24; font-weight: 600;"
+                        "background-color: #d4edda; "
+                        "color: #155724; font-weight: 600;"
                     ] * len(row)
+                return [
+                    "background-color: #f8d7da; "
+                    "color: #721c24; font-weight: 600;"
+                ] * len(row)
 
-                numeric_cols = [
-                    col for col in df.columns
-                    if pd.to_numeric(df[col], errors="coerce").notna().any()
-                ]
+            df_signature = hashlib.md5(
+                (",".join(map(str, df_display.columns)) + f"|{df_display.shape}").encode()
+            ).hexdigest()
 
-                def _format_scientific_if_needed(value):
-                    if pd.isna(value):
-                        return ""
-                    val = float(value)
-                    fixed = f"{val:.12f}".rstrip("0").rstrip(".")
-                    if "." in fixed and len(fixed.split(".", 1)[1]) > 4:
-                        return f"{val:.3e}"
-                    return fixed
+            displayed_df = (
+                df_display.style
+                .apply(_row_style, axis=1)
+            )
+            st.dataframe(
+                data=displayed_df,
+                hide_index=True,
+                key=f"results_df_{df_signature}",
+            )
+        else:
+            st.dataframe(
+                data=df_display,
+                hide_index=True,
+            )
+    except Exception as exc:
+        st.warning(f"Could not parse {path.name} as CSV: {exc}")
+        data = path.read_bytes()
+        if _looks_binary(data):
+            st.info(f"📄 {path.name} (binary file, cannot display as text)")
+            return None
+        text_data = data.decode("utf-8", errors="replace")
+        st.text_area(path.stem, text_data, height=200, key=f"{path}_csv_raw")
 
-                style_formatter = {
-                    col: _format_scientific_if_needed
-                    for col in numeric_cols
-                }
+    if path.name == "avl_simulations_results.csv" and "df" in locals():
+        col_lookup = {str(col).strip().lower(): col for col in df.columns}
 
-                df_signature = hashlib.md5(
-                    (",".join(map(str, df_display.columns)) + f"|{df_display.shape}").encode()
-                ).hexdigest()
+        def _get_col(*names: str) -> str | None:
+            for name in names:
+                key = name.strip().lower()
+                if key in col_lookup:
+                    return col_lookup[key]
+            return None
 
-                displayed_df = (
-                    df_display.style
-                    .apply(_row_style, axis=1)
-                    .format(style_formatter)
-                )
-                st.dataframe(
-                    data=displayed_df,
-                    hide_index=True,
-                    key=f"results_df_{df_signature}",
-                )
+        arg_candidates = {
+            "altitude": ("altitude", "alt", "h", "alt_m"),
+            "mach": ("mach", "mach_number"),
+            "alpha": ("alpha", "aoa", "angle_of_attack"),
+            "beta": ("beta", "sideslip"),
+        }
+        arg_cols = {k: _get_col(*v) for k, v in arg_candidates.items()}
+        missing_args = [name for name, col in arg_cols.items() if col is None]
+
+        cl_col = _get_col("cl")
+        cd_col = _get_col("cd")
+        if cl_col is None or cd_col is None:
+            st.info("Interactive AVL visualizer unavailable: missing CL/CD columns.")
+            return None
+        if missing_args:
+            st.info(
+                "Interactive AVL visualizer unavailable: missing "
+                + ", ".join(missing_args)
+                + " columns."
+            )
+            return None
+
+        plot_df = df.copy()
+        for col in [cl_col, cd_col, *arg_cols.values()]:
+            if col is not None:
+                plot_df[col] = pd.to_numeric(plot_df[col], errors="coerce")
+
+        plot_df["cl_cd_ratio"] = np.where(
+            np.abs(plot_df[cd_col].to_numpy(dtype=float)) > 1e-12,
+            plot_df[cl_col] / plot_df[cd_col],
+            np.nan,
+        )
+
+        target_options = {
+            "CL": cl_col,
+            "CD": cd_col,
+            "CL / CD": "cl_cd_ratio",
+        }
+        st.markdown("**AVL Interactive Data Visualizer**")
+        plot_container = st.container()
+        controls_container = st.container()
+
+        with controls_container:
+            target_label = st.selectbox(
+                "Field to plot",
+                options=list(target_options.keys()),
+                index=0,
+                key=f"{path}_avl_target",
+            )
+            target_col = target_options[target_label]
+
+        required_cols = [target_col, *[v for v in arg_cols.values() if v is not None]]
+        plot_df = plot_df.dropna(subset=required_cols).copy()
+        if plot_df.empty:
+            plot_container.info("No valid AVL rows available for interactive plotting.")
+            return None
+
+        varying_args = []
+        constant_args = []
+        fixed_values: dict[str, float] = {}
+        for arg_name, col in arg_cols.items():
+            values = np.sort(plot_df[col].dropna().unique())
+            if values.size <= 1:
+                constant_args.append(arg_name)
+                fixed_values[arg_name] = float(values[0]) if values.size else float("nan")
             else:
-                st.dataframe(
-                    data=df_display,
-                    hide_index=True,
-                )
-        except Exception as exc:
-            st.warning(f"Could not parse {path.name} as CSV: {exc}")
-            data = path.read_bytes()
-            if _looks_binary(data):
-                st.info(f"📄 {path.name} (binary file, cannot display as text)")
-                return None
-            text_data = data.decode("utf-8", errors="replace")
-            st.text_area(path.stem, text_data, height=200, key=f"{path}_csv_raw")
+                varying_args.append(arg_name)
+                fixed_values[arg_name] = float(values[0])
+
+        with controls_container:
+            if constant_args:
+                st.caption("Constant arguments")
+                const_cols = st.columns(len(constant_args))
+                for i, arg_name in enumerate(constant_args):
+                    with const_cols[i]:
+                        st.number_input(
+                            label=arg_name,
+                            value=float(fixed_values[arg_name]),
+                            disabled=True,
+                            key=f"{path}_avl_const_{arg_name}",
+                        )
+
+        x_arg = varying_args[0] if varying_args else list(arg_cols.keys())[0]
+        y_arg = varying_args[1] if len(varying_args) > 1 else x_arg
+
+        if len(varying_args) >= 2:
+            with controls_container:
+                axis_left, axis_right = st.columns(2)
+                with axis_left:
+                    x_arg = st.selectbox(
+                        "X axis",
+                        options=varying_args,
+                        index=0,
+                        key=f"{path}_avl_x",
+                    )
+                with axis_right:
+                    y_default_idx = 1 if len(varying_args) > 1 else 0
+                    y_arg = st.selectbox(
+                        "Y axis",
+                        options=varying_args,
+                        index=y_default_idx,
+                        key=f"{path}_avl_y",
+                    )
+        elif len(varying_args) == 1:
+            x_arg = varying_args[0]
+            y_arg = varying_args[0]
+
+        free_args = [a for a in varying_args if a not in {x_arg, y_arg}]
+        with controls_container:
+            if free_args:
+                st.caption("Fix remaining varying arguments")
+                for arg_name in free_args:
+                    col = arg_cols[arg_name]
+                    values = np.sort(plot_df[col].dropna().unique())
+                    selected = st.select_slider(
+                        arg_name,
+                        options=[float(v) for v in values],
+                        value=float(values[0]),
+                        key=f"{path}_avl_fix_{arg_name}",
+                    )
+                    fixed_values[arg_name] = float(selected)
+
+        filtered_df = plot_df
+        for arg_name in free_args:
+            col = arg_cols[arg_name]
+            selected = fixed_values[arg_name]
+            span = float(plot_df[col].max() - plot_df[col].min())
+            tol = max(span * 1e-6, 1e-9)
+            filtered_df = filtered_df[np.isclose(filtered_df[col], selected, atol=tol)]
+
+        if filtered_df.empty:
+            plot_container.info("No data points for the selected argument slice.")
+            return None
+
+        x_col = arg_cols[x_arg]
+        y_col = arg_cols[y_arg]
+        z_label = target_label
+
+        if x_arg == y_arg:
+            fig = px.scatter(
+                filtered_df,
+                x=x_col,
+                y=target_col,
+                labels={x_col: x_arg, target_col: z_label},
+                title=f"{z_label} vs {x_arg}",
+            )
+        else:
+            fig = go.Figure(
+                data=[
+                    go.Scatter3d(
+                        x=filtered_df[x_col],
+                        y=filtered_df[y_col],
+                        z=filtered_df[target_col],
+                        mode="markers",
+                        marker={"size": 5, "color": filtered_df[target_col], "colorscale": "Viridis"},
+                        name="AVL points",
+                    )
+                ]
+            )
+            fig.update_layout(
+                title=f"AVL data surface slice: {z_label}",
+                scene={
+                    "xaxis_title": x_arg,
+                    "yaxis_title": y_arg,
+                    "zaxis_title": z_label,
+                },
+            )
+
+        plot_container.plotly_chart(fig, width="stretch", key=f"{path}_avl_interactive_plot")
 
 
 def _display_xml(path: Path) -> None:
@@ -1556,6 +1732,9 @@ def _display_xml(path: Path) -> None:
 
 def _results_sort_key(path: Path) -> tuple[int, str]:
     """Priority to files, priority=0 is highest priority."""
+    if path.is_dir() and path.name == "airfoils":
+        return 100, path.name
+
     if path.is_dir():
         return 99, path.name  # directories last
 
@@ -1606,7 +1785,7 @@ def _display_surface_flow_cp_xc(path: Path, surface: pv.PolyData) -> None:
         return
 
     cp_field, location = _find_cp_field(surface)
-    if cp_field is None:
+    if cp_field is None or location is None:
         st.info("No pressure coefficient field found to plot Cp vs x/c.")
         return
 
@@ -1686,7 +1865,7 @@ def _find_cp_field(surface: pv.PolyData) -> tuple[str | None, str | None]:
 
 
 def _get_scalar_with_coords(
-    surface: pv.PolyData, scalar_name: str, location: str
+    surface: pv.PolyData, scalar_name: str, location: str | None
 ) -> tuple[np.ndarray | None, np.ndarray | None]:
     if location == "point":
         return surface.points, surface.point_data.get(scalar_name)

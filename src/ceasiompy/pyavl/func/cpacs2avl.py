@@ -484,7 +484,7 @@ class Avl:
                     self.tixi, elem_xpath + "/airfoilUID"
                 )
 
-                airfoil_dir = Path(self.results_dir) / "Airfoil_files"
+                airfoil_dir = Path(self.results_dir) / "airfoils"
                 airfoil_dir.mkdir(exist_ok=True)
                 foil_dat_path = str(airfoil_dir / f"{prof_uid}.dat")
 

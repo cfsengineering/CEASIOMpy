@@ -17,7 +17,7 @@ env:
   CONDA_TIMEOUT: 20
 
 jobs:
-build-linux:
+  build-linux:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4 # Updated to v4

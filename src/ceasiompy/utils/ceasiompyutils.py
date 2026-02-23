@@ -21,7 +21,7 @@ import streamlit as st
 
 from pydantic import validate_call
 from contextlib import contextmanager
-from ceasiompy.utils import get_wkdir
+from ceasiompy.utils.commonpaths import get_wkdir
 from ceasiompy.utils.moduleinterfaces import get_module_list
 from ceasiompy.utils.moduleinterfaces import (
     get_specs_for_module,

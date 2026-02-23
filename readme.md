@@ -21,18 +21,24 @@ All input geometries are based on the open-standard format [CPACS](https://www.c
 
 ## Table of contents
 
-- [Table of contents](#table-of-contents)
-- [Installation](#installation)
-  - [Linux/macOS](#linuxmacos)
-  - [Run CEASIOMpy](#run-ceasiompy)
-- [Available modules](#available-modules)
-  - [Geometry and Mesh](#geometry-and-mesh)
-  - [Aerodynamics](#aerodynamics)
-  - [Mission Analysis](#mission-analysis)
-  - [Structure](#structure)
-- [Contributing](#contributing)
-- [More information](#more-information)
-- [Cite us](#cite-us)
+- [CEASIOMpy](#ceasiompy)
+  - [Table of contents](#table-of-contents)
+  - [Online Version (in development)](#online-version-in-development)
+  - [Installation](#installation)
+    - [Linux/macOS](#linuxmacos)
+      - [Conda environment creation for Mac users](#conda-environment-creation-for-mac-users)
+    - [Create Docker Container (Windows, Optional)](#create-docker-container-windows-optional)
+    - [Run CEASIOMpy](#run-ceasiompy)
+    - [Available modules](#available-modules)
+      - [Geometry and Mesh](#geometry-and-mesh)
+      - [Aerodynamics](#aerodynamics)
+      - [Meta modules](#meta-modules)
+      - [Mission Analysis](#mission-analysis)
+      - [Structure](#structure)
+  - [Contributing](#contributing)
+  - [More information](#more-information)
+  - [Upgrading environment](#upgrading-environment)
+  - [Cite us](#cite-us)
 
 ## Online Version (in development)
 
@@ -49,6 +55,13 @@ git clone https://github.com/cfsengineering/CEASIOMpy
 cd CEASIOMpy
 ./scripts/install.sh
 ceasiompy_run --g
+```
+
+#### Conda environment creation for Mac users
+
+If you are using a mac specifify to use Intel version packages (due to the DLR packages):
+```
+CONDA_SUBDIR=osx-64 conda env create -f environment.yml
 ```
 
 For Windows users please use the online version at https://ceasiompy.com
@@ -117,7 +130,7 @@ find . -name "*.pyc" -type f -delete
 Or upgrading the environment.
 
 ```bash
-conda env update -f environment.yml
+conda env update -f environment.yml --prune
 ```
 
 ## Cite us

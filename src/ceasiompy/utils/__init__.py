@@ -10,16 +10,23 @@ Initialization for UTILS.
 
 """
 
-# Imports
-
-from ceasiompy.utils.commonpaths import get_wkdir
-from ceasiompy.utils.ceasiompyutils import get_module_status
-
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
 
 __all__ = [
-    f'{get_wkdir}',
-    f'{get_module_status}',
+    "get_wkdir",
+    "get_module_status",
 ]
+
+
+def get_wkdir():
+    # Lazy import to avoid package-level import cycles during app startup.
+    from ceasiompy.utils.commonpaths import get_wkdir as _get_wkdir
+    return _get_wkdir()
+
+
+def get_module_status(default: bool, needs_soft_name: str | None = None) -> bool:
+    # Lazy import to avoid loading ceasiompyutils while utils package is initializing.
+    from ceasiompy.utils.ceasiompyutils import get_module_status as _get_module_status
+    return _get_module_status(default=default, needs_soft_name=needs_soft_name)

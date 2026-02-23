@@ -12,26 +12,26 @@ import json
 import base64
 import shutil
 import joblib
+import meshio
 import hashlib
 import tempfile
 import numpy as np
 import pandas as pd
-import pyvista as pv
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit.components.v1 as components
 
-from stpyvista import stpyvista
-from functools import lru_cache
 from time import perf_counter
+from functools import lru_cache
 from contextlib import contextmanager
+from collections.abc import Hashable
 from ceasiompy.utils.commonpaths import get_wkdir
 from ceasiompy.smtrain.func.utils import domain_converter
-from ceasiompy.smtrain.func.config import update_geometry_cpacs
 from ceasiompy.utils.ceasiompyutils import workflow_number
-from ceasiompy.utils.geometryfunctions import get_xpath_for_param
 from ceasiompy.smtrain.func.utils import get_model_typename
+from ceasiompy.smtrain.func.config import update_geometry_cpacs
+from ceasiompy.utils.geometryfunctions import get_xpath_for_param
 from parsefunctions import (
     parse_ascii_tables,
     display_avl_table_file,
@@ -44,11 +44,12 @@ from streamlitutils import (
 )
 
 from pathlib import Path
+from numpy import ndarray
 from pandas import DataFrame
-from SALib.analyze import sobol as sobol_analyze
 from smt.applications import MFK
 from cpacspy.cpacspy import CPACS
 from SALib.sample import sobol as sobol_sample
+from SALib.analyze import sobol as sobol_analyze
 from smt.surrogate_models import (
     KRG,
     RBF,
@@ -445,10 +446,16 @@ def _display_pkl(path: Path) -> None:
         return None
 
     try:
+        aero_lb = getattr(aero_bounds, "lb", [])
+        aero_ub = getattr(aero_bounds, "ub", [])
+
+        if len(aero_lb) != len(AEROMAP_FEATURES) or len(aero_ub) != len(AEROMAP_FEATURES):
+            raise ValueError("Inconsistent aerodynamic bounds lengths in model metadata.")
+
         for idx, name in enumerate(AEROMAP_FEATURES):
             bounds.setdefault(
                 name,
-                (float(aero_bounds.lb[idx]), float(aero_bounds.ub[idx])),
+                (float(aero_lb[idx]), float(aero_ub[idx])),
             )
             bounds_source.setdefault(name, "aero")
     except Exception as e:
@@ -657,7 +664,7 @@ def _display_response_surface(
         st.info("No variable geometry parameters available for response surface display.")
         return None
 
-    def _to_normalized(col: str, value: float | np.ndarray) -> float | np.ndarray:
+    def _to_normalized(col: str, value: float | ndarray) -> float | ndarray:
         if bounds_source.get(col) in {"geom", "aero"}:
             lo, hi = bounds[col]
             if hi < lo:
@@ -665,17 +672,20 @@ def _display_response_surface(
             return domain_converter(value, (lo, hi), NORMALIZED_DOMAIN)
         return value
 
-    def _to_physical(col: str, value: np.ndarray) -> np.ndarray:
+    def _to_physical(col: str, value: ndarray) -> ndarray:
         if bounds_source.get(col) in {"geom", "aero"}:
             lo, hi = bounds[col]
             if hi < lo:
                 lo, hi = hi, lo
-            return domain_converter(value, NORMALIZED_DOMAIN, (lo, hi))
+            return np.asarray(
+                domain_converter(value, NORMALIZED_DOMAIN, (lo, hi)),
+                dtype=float,
+            )
         return value
 
     def _extract_training_xy(
         surrogate_model: RBF | KRG | MFK,
-    ) -> tuple[np.ndarray | None, np.ndarray | None]:
+    ) -> tuple[ndarray | None, ndarray | None]:
         training_points = getattr(surrogate_model, "training_points", None)
         if not isinstance(training_points, dict):
             return None, None
@@ -719,7 +729,7 @@ def _display_response_surface(
         dtype=float,
     )
 
-    def _training_slice_mask(plotted_cols: list[str]) -> np.ndarray | None:
+    def _training_slice_mask(plotted_cols: list[str]) -> ndarray | None:
         if x_train_phys is None or y_train is None:
             return None
         mask = np.ones(x_train_phys.shape[0], dtype=bool)
@@ -953,8 +963,8 @@ def _compute_sobol_analysis(
     bounds_source: dict[str, str],
 ) -> None:
     _ = model
-    sobol_params = []
-    sobol_bounds = []
+    sobol_params: list[str] = []
+    sobol_bounds: list[tuple[float, float]] = []
     for col in columns:
         lo, hi = bounds[col]
         if hi < lo:
@@ -962,7 +972,7 @@ def _compute_sobol_analysis(
         if hi == lo:
             continue
         sobol_params.append(col)
-        sobol_bounds.append([float(lo), float(hi)])
+        sobol_bounds.append((float(lo), float(hi)))
 
     if not sobol_params:
         st.info("No variable inputs available for Sobol analysis.")
@@ -973,7 +983,7 @@ def _compute_sobol_analysis(
             path_str=str(path),
             mtime=path_mtime,
             sobol_params=tuple(sobol_params),
-            sobol_bounds=tuple(tuple(float(v) for v in pair) for pair in sobol_bounds),
+            sobol_bounds=tuple(sobol_bounds),
             columns=tuple(columns),
             bounds_items=tuple(
                 (col, float(bounds[col][0]), float(bounds[col][1])) for col in columns
@@ -1018,7 +1028,7 @@ def _load_plk_cached(path_str: str, mtime: float):
     return joblib.load(path_str)
 
 
-def _matrix_to_hashable(x_rows: np.ndarray) -> tuple[tuple[float, ...], ...]:
+def _matrix_to_hashable(x_rows: ndarray) -> tuple[tuple[float, ...], ...]:
     x_array = np.asarray(x_rows, dtype=float)
     return tuple(tuple(float(v) for v in row) for row in x_array)
 
@@ -1203,52 +1213,224 @@ def _display_txt(path: Path) -> None:
 
 
 def _display_su2(path: Path) -> None:
-    """Display SU2 mesh in Streamlit using PyVista."""
-    with st.container(border=True):
-        # TODO: Add with path.name #vertices #edges #surfaces of the displayed su2 mesh
-        st.markdown(f"**{path.name}**")
-        try:
-            marker_map: dict[str, int] = {}
-            with path.open() as handle:
-                temp_file = tempfile.NamedTemporaryFile(
-                    mode="w",
-                    delete=False,
-                    suffix=".su2",
-                )
-                with temp_file as temp:
-                    for line in handle:
-                        if line.startswith("MARKER_TAG="):
-                            tag = line.split("=", 1)[1].strip()
-                            marker_map.setdefault(tag, len(marker_map) + 1)
-                            line = f"MARKER_TAG= {marker_map[tag]}\n"
-                        temp.write(line)
-            mesh = pv.read(temp_file.name)
-        except Exception as exc:
-            st.error(f"Failed to read SU2 mesh: {exc}")
-            return
-        finally:
-            if "temp_file" in locals():
-                try:
-                    os.unlink(temp_file.name)
-                except OSError:
-                    pass
-
-        surface = mesh.extract_surface()
-        plotter = pv.Plotter()
-        plotter.add_mesh(surface, color="lightgray", show_edges=True)
-        plotter.reset_camera()
-        stpyvista(plotter, key=f"{path}_su2_view")
-        try:
-            st.download_button(
-                label="Download SU2 mesh",
-                data=path.read_bytes(),
-                file_name=path.name,
-                mime="application/octet-stream",
-                width="stretch",
-                key=f"{path}_su2_download",
+    """Display SU2 mesh in Streamlit using Plotly."""
+    try:
+        marker_map: dict[str, int] = {}
+        with path.open() as handle:
+            temp_file = tempfile.NamedTemporaryFile(
+                mode="w",
+                delete=False,
+                suffix=".su2",
             )
-        except OSError as exc:
-            st.warning(f"Unable to prepare download: {exc}")
+            with temp_file as temp:
+                for line in handle:
+                    if line.startswith("MARKER_TAG="):
+                        tag = line.split("=", 1)[1].strip()
+                        marker_map.setdefault(tag, len(marker_map) + 1)
+                        line = f"MARKER_TAG= {marker_map[tag]}\n"
+                    temp.write(line)
+        mesh = meshio.read(temp_file.name)
+    except Exception as exc:
+        st.error(f"Failed to read SU2 mesh: {exc}")
+        return
+    finally:
+        if "temp_file" in locals():
+            try:
+                os.unlink(temp_file.name)
+            except OSError:
+                pass
+
+    points, triangles, _, _ = _extract_surface_mesh(mesh)
+    n_vertices = int(len(points))
+    n_surfaces = int(len(triangles))
+    n_tets = int(
+        sum(
+            len(cell_block.data)
+            for cell_block in mesh.cells
+            if str(cell_block.type).lower().startswith("tetra")
+        )
+    )
+    n_edges = 0
+    if n_surfaces > 0:
+        edges = np.vstack(
+            [
+                triangles[:, [0, 1]],
+                triangles[:, [1, 2]],
+                triangles[:, [2, 0]],
+            ]
+        )
+        edges = np.sort(edges, axis=1)
+        n_edges = int(len(np.unique(edges, axis=0)))
+
+    subtitle = (
+        f"#vertices={n_vertices}, #edges={n_edges}, "
+        f"#surfaces={n_surfaces}, #volume(tets)={n_tets}"
+    )
+    fig = _build_plotly_mesh3d(
+        points,
+        triangles,
+        title=f"{path.name}<br><sup>{subtitle}</sup>",
+        show_edges=True,
+    )
+    if fig is not None:
+        st.plotly_chart(fig, width="stretch", key=f"{path}_su2_plotly_view")
+    else:
+        st.info("Could not build Plotly 3D preview for this SU2 mesh.")
+    try:
+        st.download_button(
+            label="Download SU2 mesh",
+            data=path.read_bytes(),
+            file_name=path.name,
+            mime="application/octet-stream",
+            width="stretch",
+            key=f"{path}_su2_download",
+        )
+    except OSError as exc:
+        st.warning(f"Unable to prepare download: {exc}")
+
+    st.markdown("---")
+    if len(points) == 0:
+        st.info("No points available for slicing.")
+        return
+
+    y = points[:, 1]
+    y_min = float(np.min(y))
+    y_max = float(np.max(y))
+    y_slice_key = f"{path}_su2_slice_y_value"
+    y_default = 0.0 if y_min <= 0.0 <= y_max else 0.5 * (y_min + y_max)
+    y_current = float(st.session_state.get(y_slice_key, y_default))
+    if y_current < y_min or y_current > y_max:
+        y_current = y_default
+    st.session_state[y_slice_key] = y_current
+    y_slice = y_current
+
+    y_scale = float(np.nanmax(np.abs(y))) if len(y) else 0.0
+    eps = max(1e-9, y_scale * 1e-9)
+
+    def _intersections_for_edges(
+        p: ndarray,
+        edges_local: tuple[tuple[int, int], ...],
+    ) -> list[ndarray]:
+        yi = p[:, 1]
+        inter: list[ndarray] = []
+        for i0, i1 in edges_local:
+            p0 = p[i0]
+            p1 = p[i1]
+            y0 = yi[i0] - y_slice
+            y1 = yi[i1] - y_slice
+            on0 = abs(y0) <= eps
+            on1 = abs(y1) <= eps
+            if on0 and on1:
+                inter.append(p0)
+                inter.append(p1)
+                continue
+            if (y0 < -eps and y1 < -eps) or (y0 > eps and y1 > eps):
+                continue
+            dy = y1 - y0
+            if abs(dy) <= eps:
+                continue
+            t = -y0 / dy
+            if 0.0 <= t <= 1.0:
+                inter.append(p0 + t * (p1 - p0))
+        uniq: list[ndarray] = []
+        seen: set[tuple[float, float, float]] = set()
+        for q in inter:
+            key = (round(float(q[0]), 12), round(float(q[1]), 12), round(float(q[2]), 12))
+            if key in seen:
+                continue
+            seen.add(key)
+            uniq.append(q)
+        return uniq
+
+    surf_x: list[float | None] = []
+    surf_z: list[float | None] = []
+    for tri in triangles:
+        p = points[tri]
+        uniq = _intersections_for_edges(p, ((0, 1), (1, 2), (2, 0)))
+        if len(uniq) < 2:
+            continue
+        q0 = uniq[0]
+        q1 = uniq[1]
+        surf_x.extend([float(q0[0]), float(q1[0]), None])
+        surf_z.extend([float(q0[2]), float(q1[2]), None])
+
+    vol_x: list[float | None] = []
+    vol_z: list[float | None] = []
+    if n_tets > 0:
+        tet_edges = ((0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3))
+        for cell_block in mesh.cells:
+            if not str(cell_block.type).lower().startswith("tetra"):
+                continue
+            block = np.asarray(cell_block.data, dtype=np.int64)
+            if block.ndim != 2 or block.shape[1] < 4:
+                continue
+            for tet in block:
+                p = points[tet[:4]]
+                uniq = _intersections_for_edges(p, tet_edges)
+                if len(uniq) < 2:
+                    continue
+                if len(uniq) == 2:
+                    q0 = uniq[0]
+                    q1 = uniq[1]
+                    vol_x.extend([float(q0[0]), float(q1[0]), None])
+                    vol_z.extend([float(q0[2]), float(q1[2]), None])
+                    continue
+                q_arr = np.asarray(uniq, dtype=float)
+                center = np.mean(q_arr[:, [0, 2]], axis=0)
+                ang = np.arctan2(q_arr[:, 2] - center[1], q_arr[:, 0] - center[0])
+                order = np.argsort(ang)
+                q_ord = q_arr[order]
+                n_q = len(q_ord)
+                for i in range(n_q):
+                    q0 = q_ord[i]
+                    q1 = q_ord[(i + 1) % n_q]
+                    vol_x.extend([float(q0[0]), float(q1[0]), None])
+                    vol_z.extend([float(q0[2]), float(q1[2]), None])
+
+    if len(surf_x) == 0 and len(vol_x) == 0:
+        st.info(f"No intersection found for slice at y={y_slice:.6g}.")
+        return
+
+    traces: list[go.Scatter] = []
+    if len(vol_x) > 0:
+        traces.append(
+            go.Scatter(
+                x=vol_x,
+                y=vol_z,
+                mode="lines",
+                line=dict(color="#1f77b4", width=1),
+                hovertemplate="x=%{x:.6g}<br>z=%{y:.6g}<extra></extra>",
+                showlegend=False,
+            )
+        )
+    if len(surf_x) > 0:
+        traces.append(
+            go.Scatter(
+                x=surf_x,
+                y=surf_z,
+                mode="lines",
+                line=dict(color="black", width=1),
+                hovertemplate="x=%{x:.6g}<br>z=%{y:.6g}<extra></extra>",
+                showlegend=False,
+            )
+        )
+
+    slice_fig = go.Figure(data=traces)
+    slice_fig.update_layout(
+        title=f"Slice at y={y_slice:.6g}",
+        xaxis_title="x",
+        yaxis_title="z",
+        yaxis_scaleanchor="x",
+        yaxis_scaleratio=1,
+        margin=dict(l=0, r=0, t=35, b=0),
+    )
+    st.plotly_chart(slice_fig, width="stretch", key=f"{path}_su2_slice_y")
+    st.slider(
+        "Slice plane y",
+        min_value=y_min,
+        max_value=y_max,
+        key=y_slice_key,
+    )
 
 
 def _display_dat(path: Path) -> None:
@@ -1315,14 +1497,14 @@ def _display_dat(path: Path) -> None:
 
 def _display_vtu(path: Path) -> None:
     try:
-        mesh = pv.read(str(path))
+        mesh = meshio.read(str(path))
     except Exception as exc:
         st.error(f"Failed to read VTU file: {exc}")
         return None
 
-    surface = mesh.extract_surface()
-    point_arrays = list(surface.point_data.keys())
-    cell_arrays = list(surface.cell_data.keys())
+    points, triangles, point_data, cell_data = _extract_surface_mesh(mesh)
+    point_arrays = list(point_data.keys())
+    cell_arrays = list(cell_data.keys())
     scalar_map: dict[str, str] = {name: "point" for name in point_arrays}
     for name in cell_arrays:
         scalar_map.setdefault(name, "cell")
@@ -1334,12 +1516,13 @@ def _display_vtu(path: Path) -> None:
     geometry_mode = _get_geometry_mode(workflow_root) if workflow_root else None
     show_vtu_view = not (path.name == "surface_flow.vtu" and geometry_mode == "2D")
 
-    plotter = pv.Plotter()
     if not scalar_options:
         if show_vtu_view:
-            plotter.add_mesh(surface, color="lightgray")
-            plotter.reset_camera()
-            stpyvista(plotter, key=f"{path}_vtu_geometry")
+            fig = _build_plotly_mesh3d(points, triangles, title=path.name, show_edges=True)
+            if fig is not None:
+                st.plotly_chart(fig, width="stretch", key=f"{path}_vtu_plotly_geometry")
+            else:
+                st.info("Could not build Plotly 3D preview for this VTU mesh.")
         st.caption("No scalar fields found in this VTU file.")
         return None
 
@@ -1356,27 +1539,41 @@ def _display_vtu(path: Path) -> None:
     if default_scalar is None:
         default_scalar = scalar_options[0]
 
-    location = None
-    scalar_choice = None
+    scalar_choice = default_scalar
     if show_vtu_view:
         scalar_choice = st.selectbox(
             "Field",
             scalar_options,
             index=scalar_options.index(default_scalar),
-            key=f"{path}_vtu_field",
+            key=f"{path}_vtu_field_plotly",
         )
-        location = scalar_map.get(scalar_choice, "point")
+    location = scalar_map.get(scalar_choice, "point")
+    point_scalars = None
+    if location == "point":
+        point_scalars = point_data.get(scalar_choice)
+    elif location == "cell":
+        point_scalars = _cell_to_point_scalar(points, triangles, cell_data.get(scalar_choice))
 
-        plotter.add_mesh(surface, scalars=scalar_choice, show_scalar_bar=True)
-        plotter.reset_camera()
-        stpyvista(plotter, key=f"{path}_vtu_view_{scalar_choice}")
+    if show_vtu_view:
+        fig = _build_plotly_mesh3d(
+            points,
+            triangles,
+            scalars=point_scalars,
+            scalar_name=scalar_choice,
+            title=path.name,
+            show_edges=True,
+        )
+        if fig is not None:
+            st.plotly_chart(fig, width="stretch", key=f"{path}_vtu_plotly_view_{scalar_choice}")
+        else:
+            st.info("Could not build Plotly 3D preview for this VTU field.")
 
-    _display_surface_flow_cp_xc(path, surface)
+    _display_surface_flow_cp_xc(path, points, triangles, point_data, cell_data)
 
     if location == "point":
-        data_array = surface.point_data.get(scalar_choice)
+        data_array = point_data.get(scalar_choice)
     else:
-        data_array = surface.cell_data.get(scalar_choice)
+        data_array = cell_data.get(scalar_choice)
     if data_array is not None and len(data_array) > 0:
         st.caption(
             f"{scalar_choice} min/max: {float(data_array.min()):.6g} / "
@@ -1490,7 +1687,7 @@ def _display_csv(path: Path) -> None:
                         "color: #721c24; font-weight: 600;"
                     ] * len(row)
 
-                numeric_cols = [
+                numeric_cols: list[Hashable] = [
                     col for col in df.columns
                     if pd.to_numeric(df[col], errors="coerce").notna().any()
                 ]
@@ -1504,11 +1701,6 @@ def _display_csv(path: Path) -> None:
                         return f"{val:.3e}"
                     return fixed
 
-                style_formatter = {
-                    col: _format_scientific_if_needed
-                    for col in numeric_cols
-                }
-
                 df_signature = hashlib.md5(
                     (",".join(map(str, df_display.columns)) + f"|{df_display.shape}").encode()
                 ).hexdigest()
@@ -1516,7 +1708,7 @@ def _display_csv(path: Path) -> None:
                 displayed_df = (
                     df_display.style
                     .apply(_row_style, axis=1)
-                    .format(style_formatter)
+                    .format(_format_scientific_if_needed, subset=numeric_cols)
                 )
                 st.dataframe(
                     data=displayed_df,
@@ -1598,7 +1790,13 @@ def _get_workflow_module_order(workflow_dir: Path) -> list[str]:
     return [name for _, name in sorted(module_dirs, key=lambda item: item[0])]
 
 
-def _display_surface_flow_cp_xc(path: Path, surface: pv.PolyData) -> None:
+def _display_surface_flow_cp_xc(
+    path: Path,
+    points: ndarray,
+    triangles: ndarray,
+    point_data: dict[str, ndarray],
+    cell_data: dict[str, ndarray],
+) -> None:
     if path.name != "surface_flow.vtu":
         return None
 
@@ -1610,12 +1808,22 @@ def _display_surface_flow_cp_xc(path: Path, surface: pv.PolyData) -> None:
     if geometry_mode != "2D":
         return
 
-    cp_field, location = _find_cp_field(surface)
+    cp_field, location = _find_cp_field(point_data, cell_data)
     if cp_field is None:
         st.info("No pressure coefficient field found to plot Cp vs x/c.")
         return
+    if location is None:
+        st.info("No location found to plot Cp vs x/c.")
+        return
 
-    coords, cp_values = _get_scalar_with_coords(surface, cp_field, location)
+    coords, cp_values = _get_scalar_with_coords(
+        points,
+        triangles,
+        point_data,
+        cell_data,
+        cp_field,
+        location,
+    )
     if coords is None or cp_values is None or len(cp_values) == 0:
         return
 
@@ -1680,23 +1888,232 @@ def _display_surface_flow_cp_xc(path: Path, surface: pv.PolyData) -> None:
     st.plotly_chart(fig, width="stretch")
 
 
-def _find_cp_field(surface: pv.PolyData) -> tuple[str | None, str | None]:
+def _normalize_scalar_array(values: ndarray) -> ndarray:
+    arr = np.asarray(values)
+    if arr.ndim == 1:
+        return np.asarray(arr.astype(float, copy=False), dtype=float)
+    if arr.ndim == 2:
+        return np.asarray(
+            np.linalg.norm(arr.astype(float, copy=False), axis=1),
+            dtype=float,
+        )
+    return np.asarray(arr.reshape(-1).astype(float, copy=False), dtype=float)
+
+
+def _triangulate_cells(cells: ndarray) -> tuple[ndarray, ndarray]:
+    data = np.asarray(cells, dtype=np.int64)
+    if data.size == 0:
+        return np.empty((0, 3), dtype=np.int64), np.empty((0,), dtype=np.int64)
+    if data.ndim == 1:
+        data = data.reshape(1, -1)
+    if data.shape[1] < 3:
+        return np.empty((0, 3), dtype=np.int64), np.empty((0,), dtype=np.int64)
+    if data.shape[1] == 3:
+        tri_idx = np.arange(len(data), dtype=np.int64)
+        return data, tri_idx
+
+    triangles: list[list[int]] = []
+    source: list[int] = []
+    for cell_idx, cell in enumerate(data):
+        base = int(cell[0])
+        for k in range(1, len(cell) - 1):
+            triangles.append([base, int(cell[k]), int(cell[k + 1])])
+            source.append(cell_idx)
+    if not triangles:
+        return np.empty((0, 3), dtype=np.int64), np.empty((0,), dtype=np.int64)
+    return np.asarray(triangles, dtype=np.int64), np.asarray(source, dtype=np.int64)
+
+
+def _extract_surface_mesh(
+    mesh: meshio.Mesh,
+) -> tuple[ndarray, ndarray, dict[str, ndarray], dict[str, ndarray]]:
+    points = np.asarray(mesh.points, dtype=float)
+    if points.ndim != 2 or points.shape[1] < 3:
+        return np.empty((0, 3), dtype=float), np.empty((0, 3), dtype=np.int64), {}, {}
+    if points.shape[1] > 3:
+        points = points[:, :3]
+
+    surface_cell_types = {
+        "triangle",
+        "triangle6",
+        "quad",
+        "quad8",
+        "quad9",
+        "polygon",
+    }
+    triangles_parts: list[ndarray] = []
+    cell_data_parts: dict[str, list[ndarray]] = {}
+
+    for block_idx, cell_block in enumerate(mesh.cells):
+        cell_type = str(cell_block.type).lower()
+        if cell_type not in surface_cell_types:
+            continue
+        tri_block, source_idx = _triangulate_cells(cell_block.data)
+        if len(tri_block) == 0:
+            continue
+        triangles_parts.append(tri_block)
+
+        for name, per_block_values in mesh.cell_data.items():
+            if block_idx >= len(per_block_values):
+                continue
+            values = _normalize_scalar_array(np.asarray(per_block_values[block_idx]))
+            if len(values) == 0:
+                continue
+            mapped = values[source_idx]
+            cell_data_parts.setdefault(name, []).append(mapped.astype(float, copy=False))
+
+    triangles = (
+        np.vstack(triangles_parts)
+        if triangles_parts
+        else np.empty((0, 3), dtype=np.int64)
+    )
+    point_data: dict[str, ndarray] = {}
+    for name, values in mesh.point_data.items():
+        arr = _normalize_scalar_array(np.asarray(values))
+        if len(arr) == len(points):
+            point_data[name] = arr.astype(float, copy=False)
+
+    cell_data: dict[str, ndarray] = {}
+    for name, chunks in cell_data_parts.items():
+        if not chunks:
+            continue
+        arr = np.concatenate(chunks)
+        if len(arr) == len(triangles):
+            cell_data[name] = arr
+
+    return points, triangles, point_data, cell_data
+
+
+def _cell_to_point_scalar(
+    points: ndarray,
+    triangles: ndarray,
+    cell_scalars: ndarray | None,
+) -> ndarray | None:
+    if cell_scalars is None:
+        return None
+    if len(points) == 0 or len(triangles) == 0:
+        return None
+    values = np.asarray(cell_scalars, dtype=float)
+    if len(values) != len(triangles):
+        return None
+    idx = triangles.reshape(-1)
+    repeated_values = np.repeat(values, 3)
+    sums = np.zeros(len(points), dtype=float)
+    counts = np.zeros(len(points), dtype=float)
+    np.add.at(sums, idx, repeated_values)
+    np.add.at(counts, idx, 1.0)
+    out = np.full(len(points), np.nan, dtype=float)
+    np.divide(sums, counts, out=out, where=counts > 0)
+    return out
+
+
+def _build_plotly_mesh3d(
+    points: ndarray,
+    triangles: ndarray,
+    *,
+    scalars: ndarray | None = None,
+    scalar_name: str | None = None,
+    title: str | None = None,
+    show_edges: bool = False,
+) -> go.Figure | None:
+    if points is None or len(points) == 0 or len(triangles) == 0:
+        return None
+
+    mesh_kwargs: dict[str, object] = {
+        "x": points[:, 0],
+        "y": points[:, 1],
+        "z": points[:, 2],
+        "i": triangles[:, 0],
+        "j": triangles[:, 1],
+        "k": triangles[:, 2],
+        "opacity": 1.0,
+    }
+
+    if scalars is not None and len(scalars) == len(points):
+        mesh_kwargs["intensity"] = np.asarray(scalars, dtype=float)
+        mesh_kwargs["colorscale"] = "Viridis"
+        mesh_kwargs["colorbar"] = {
+            "title": scalar_name or "",
+        }
+        mesh_kwargs["showscale"] = True
+    else:
+        mesh_kwargs["color"] = "lightgrey"
+        mesh_kwargs["showscale"] = False
+
+    fig = go.Figure(data=[go.Mesh3d(**mesh_kwargs)])
+    if show_edges:
+        edges = np.vstack(
+            [
+                triangles[:, [0, 1]],
+                triangles[:, [1, 2]],
+                triangles[:, [2, 0]],
+            ]
+        )
+        edges = np.sort(edges, axis=1)
+        edges = np.unique(edges, axis=0)
+
+        xe: list[float | None] = []
+        ye: list[float | None] = []
+        ze: list[float | None] = []
+        for edge in edges:
+            p0 = points[int(edge[0])]
+            p1 = points[int(edge[1])]
+            xe.extend([float(p0[0]), float(p1[0]), None])
+            ye.extend([float(p0[1]), float(p1[1]), None])
+            ze.extend([float(p0[2]), float(p1[2]), None])
+
+        fig.add_trace(
+            go.Scatter3d(
+                x=xe,
+                y=ye,
+                z=ze,
+                mode="lines",
+                line=dict(color="black", width=2),
+                hoverinfo="skip",
+                showlegend=False,
+            )
+        )
+    fig.update_layout(
+        margin=dict(l=0, r=0, t=35 if title else 0, b=0),
+        title=title,
+        scene=dict(aspectmode="data"),
+    )
+    return fig
+
+
+def _find_cp_field(
+    point_data: dict[str, ndarray],
+    cell_data: dict[str, ndarray],
+) -> tuple[str | None, str | None]:
     candidates = ["Pressure_Coefficient", "Cp", "C_p", "cp"]
     for name in candidates:
-        if name in surface.point_data:
+        if name in point_data:
             return name, "point"
-        if name in surface.cell_data:
+        if name in cell_data:
             return name, "cell"
     return None, None
 
 
 def _get_scalar_with_coords(
-    surface: pv.PolyData, scalar_name: str, location: str
-) -> tuple[np.ndarray | None, np.ndarray | None]:
+    points: ndarray,
+    triangles: ndarray,
+    point_data: dict[str, ndarray],
+    cell_data: dict[str, ndarray],
+    scalar_name: str,
+    location: str,
+) -> tuple[ndarray | None, ndarray | None]:
     if location == "point":
-        return surface.points, surface.point_data.get(scalar_name)
+        return points, point_data.get(scalar_name)
     if location == "cell":
-        return surface.cell_centers().points, surface.cell_data.get(scalar_name)
+        values = cell_data.get(scalar_name)
+        if values is None or len(triangles) == 0:
+            return None, None
+        centers = (
+            points[triangles[:, 0]]
+            + points[triangles[:, 1]]
+            + points[triangles[:, 2]]
+        ) / 3.0
+        return centers, values
     return None, None
 
 

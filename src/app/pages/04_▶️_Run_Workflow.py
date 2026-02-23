@@ -399,7 +399,11 @@ def _run_workflow(
     workflow.from_config_file(config_path)
     workflow.set_workflow()
     st.session_state.workflow.workflow_dir = workflow.current_wkflow_dir
-    workflow_idx = workflow.current_wkflow_dir.name.split(sep="_")[1]
+
+    current_wkflow_dir = workflow.current_wkflow_dir
+    if current_wkflow_dir is None:
+        raise ValueError(f"{workflow.current_wkflow_dir=} is None.")
+    workflow_idx = current_wkflow_dir.name.split(sep="_")[1]
 
     # Lock user in this page
     lock_navigation()
@@ -454,7 +458,7 @@ def workflow_runner(run_enabled: bool) -> None:
 
     run_clicked = st.button(
         label=f"""Run: **{" → ".join(st.session_state.workflow_modules)}**""",
-        help="Run the workflow",
+        help=f"Run the selected workflow: {' → '.join(st.session_state.workflow_modules)}",
         type="primary",
         **_filter_supported_kwargs(st.button, width="stretch"),
     )

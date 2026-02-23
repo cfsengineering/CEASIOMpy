@@ -37,97 +37,98 @@ def process_3d_geometry(
 ) -> None:
     """If this function is called, it means we are meshing a 3D geometry."""
 
-    # Initialize gmsh (with a clean session on each run).
-    initialize_gmsh()
-
-    # Define variables
     tixi = cpacs.tixi
+    try:
+        # Initialize gmsh (with a clean session on each run).
+        log.info("Initializing Gmsh session for 3D meshing.")
+        initialize_gmsh()
+        log.info("Gmsh session initialized.")
 
-    # Retrieve GUI values
-    progress_update(
-        progress_callback,
-        detail="Proceeding with 3D meshing procedure.",
-        progress=0.02,
-    )
-    mesh_settings = get_2d_mesh_settings(cpacs)
-    farfield_settings = get_farfield_settings(tixi)
+        # Retrieve GUI values
+        progress_update(
+            progress_callback,
+            detail="Proceeding with 3D meshing procedure.",
+            progress=0.02,
+        )
+        mesh_settings = get_2d_mesh_settings(cpacs)
+        farfield_settings = get_farfield_settings(tixi)
 
-    # Create corresponding brep directory.
-    progress_update(
-        progress_callback,
-        detail="Exporting Geometry into brep files.",
-        progress=0.08,
-    )
+        # Create corresponding brep directory.
+        progress_update(
+            progress_callback,
+            detail="Exporting Geometry into brep files.",
+            progress=0.08,
+        )
+        log.info("Starting BREP export from CPACS geometry.")
+        aircraft_geom = export_brep(cpacs)
+        log.info("BREP export completed.")
 
-    aircraft_geom = export_brep(cpacs)
+        # 2D Surface meshing
+        progress_update(
+            progress_callback,
+            detail="Starting Surface meshing.",
+            progress=0.1,
+        )
+        log.info("Starting 2D surface meshing.")
+        surface_mesh_path = generate_2d_mesh(
+            results_dir=results_dir,
+            mesh_settings=mesh_settings,
+            aircraft_geom=aircraft_geom,
+            farfield_settings=farfield_settings,
+        )
+        log.info("2D surface meshing completed.")
 
-    # 2D Surface meshing
-    progress_update(
-        progress_callback,
-        detail="Starting Surface meshing.",
-        progress=0.1,
-    )
+        if mesh_settings.add_boundary_layer:
+            log.info("Starting Boundary Layer Generation.")
+            boundary_layer_settings = retrieve_rans_gui_values(tixi)
 
-    surface_mesh_path = generate_2d_mesh(
-        results_dir=results_dir,
-        mesh_settings=mesh_settings,
-        aircraft_geom=aircraft_geom,
-        farfield_settings=farfield_settings,
-    )
+            progress_update(
+                progress_callback,
+                detail="Starting Volume Meshing with Pentagrow.",
+                progress=0.5,
+            )
 
-    if mesh_settings.add_boundary_layer:
-        # Done using the Gmsh API (uses Pentagrow from now on)
-        gmsh.finalize()
-
-        log.info("Starting Boundary Layer Generation.")
-        boundary_layer_settings = retrieve_rans_gui_values(tixi)
+            su2mesh_path = pentagrow_3d_mesh(
+                results_dir=results_dir,
+                output_format="su2",
+                mesh_settings=mesh_settings,
+                surface_mesh_path=surface_mesh_path,
+                farfield_settings=farfield_settings,
+                boundary_layer_settings=boundary_layer_settings,
+            )
+        else:
+            progress_update(
+                progress_callback,
+                detail="Starting Volume Meshing.",
+                progress=0.6,
+            )
+            log.info("Starting Euler 3D volume meshing.")
+            su2mesh_path = euler_mesh(
+                results_dir=results_dir,
+                mesh_settings=mesh_settings,
+                farfield_settings=farfield_settings,
+            )
+            log.info("Euler 3D volume meshing completed.")
 
         progress_update(
             progress_callback,
-            detail="Starting Volume Meshing with Pentagrow.",
-            progress=0.5,
+            detail="Checking Mesh.",
+            progress=0.99,
         )
 
-        su2mesh_path = pentagrow_3d_mesh(
-            results_dir=results_dir,
-            output_format="su2",
-            mesh_settings=mesh_settings,
-            surface_mesh_path=surface_mesh_path,
-            farfield_settings=farfield_settings,
-            boundary_layer_settings=boundary_layer_settings,
+        add_value(
+            tixi=tixi,
+            xpath=SU2MESH_XPATH,
+            value=str(su2mesh_path),
         )
-    else:
+
+        log.info(f"{su2mesh_path=} has been correctly generated.")
+
         progress_update(
             progress_callback,
-            detail="Starting Volume Meshing.",
-            progress=0.6,
+            detail="Mesh generation finished.",
+            progress=1.0,
         )
-
-        su2mesh_path = euler_mesh(
-            results_dir=results_dir,
-            mesh_settings=mesh_settings,
-            farfield_settings=farfield_settings,
-        )
-
-    progress_update(
-        progress_callback,
-        detail="Checking Mesh.",
-        progress=0.99,
-    )
-
-    add_value(
-        tixi=tixi,
-        xpath=SU2MESH_XPATH,
-        value=str(su2mesh_path),
-    )
-
-    log.info(f"{su2mesh_path=} has been correctly generated.")
-
-    gmsh.clear()
-    gmsh.finalize()
-
-    progress_update(
-        progress_callback,
-        detail="Mesh generation finished.",
-        progress=1.0,
-    )
+    finally:
+        if gmsh.isInitialized():
+            gmsh.clear()

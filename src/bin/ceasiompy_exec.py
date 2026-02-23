@@ -226,6 +226,8 @@ def run_gui(
     )
 
     env["CEASIOMPY_CLOUD"] = str(cloud)
+    env.setdefault("PYVISTA_OFF_SCREEN", "true")
+    env.setdefault("VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN", "1")
 
     # Environment variables must be strings
     env["MAX_CPUS"] = str(cpus)

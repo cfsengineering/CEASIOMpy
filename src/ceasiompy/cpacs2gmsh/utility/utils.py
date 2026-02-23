@@ -392,12 +392,13 @@ def write_gmsh(results_dir: str, file: str) -> Path:
 
 def initialize_gmsh() -> None:
     # Reset any stale model so each run starts clean.
-    # Avoid finalize() here: re-finalizing/re-initializing in embedded runtimes can be unstable.
-    if gmsh.isInitialized():
-        gmsh.clear()
-    else:
+    # Avoid finalize()/re-initialize loops in embedded runtimes: they can be unstable.
+    if not hasattr(initialize_gmsh, "_initialized"):
+        initialize_gmsh._initialized = False  # type: ignore[attr-defined]
+    if not initialize_gmsh._initialized:  # type: ignore[attr-defined]
         gmsh.initialize()
-        gmsh.clear()
+        initialize_gmsh._initialized = True  # type: ignore[attr-defined]
+    gmsh.clear()
 
     # Stop gmsh output log in the terminal
     gmsh.option.setNumber("General.Terminal", 0)

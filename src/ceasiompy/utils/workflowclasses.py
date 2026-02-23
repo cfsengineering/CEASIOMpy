@@ -9,6 +9,7 @@ Classes to run ceasiompy workflows.
 # Imports
 
 import os
+import json
 import shutil
 import importlib
 import traceback
@@ -317,6 +318,7 @@ class Workflow:
 
         try:
             add_to_runworkflow_history(self.current_wkflow_dir)
+            status_file = Path(self.current_wkflow_dir, "workflow_status.json")
 
             modules_status = []
             for idx, module in enumerate(self.modules):
@@ -327,8 +329,25 @@ class Workflow:
                     "status": "waiting",
                 })
 
+            def persist_status() -> None:
+                payload = {
+                    "workflow": str(self.current_wkflow_dir),
+                    "updated_at": datetime.now().isoformat(timespec="seconds"),
+                    "modules": modules_status,
+                }
+                try:
+                    status_file.write_text(
+                        json.dumps(payload, indent=2),
+                        encoding="utf-8",
+                    )
+                except OSError:
+                    pass
+
+            persist_status()
+
             for idx, module in enumerate(self.modules):
                 modules_status[idx]["status"] = "running"
+                persist_status()
                 if progress_callback is not None:
                     progress_callback(modules_status)
 
@@ -353,6 +372,7 @@ class Workflow:
                         modules_status[idx]["log_path"] = log_path
                     if log_tail is not None:
                         modules_status[idx]["log_tail"] = log_tail
+                    persist_status()
                     if progress_callback is not None:
                         progress_callback(modules_status)
 
@@ -376,11 +396,13 @@ class Workflow:
                         modules_status[idx]["error_location"] = (
                             f"{last_frame.filename}:{last_frame.lineno}"
                         )
+                    persist_status()
                     if progress_callback is not None:
                         progress_callback(modules_status)
                     return None
                 else:
                     modules_status[idx]["status"] = "finished"
+                    persist_status()
                     if progress_callback is not None:
                         progress_callback(modules_status)
 

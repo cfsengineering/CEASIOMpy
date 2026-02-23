@@ -1,5 +1,6 @@
 # Imports
 import re
+import hashlib
 
 import pandas as pd
 import streamlit as st
@@ -59,7 +60,11 @@ def _safe_float(text: str) -> float | None:
 
 
 def _parse_force_contributions(parts_text: str) -> dict[str, float | None]:
-    contributions = {"Pressure": None, "Friction": None, "Momentum": None}
+    contributions: dict[str, float | None] = {
+        "Pressure": None,
+        "Friction": None,
+        "Momentum": None,
+    }
     for part in parts_text.split("|"):
         part = part.strip()
         for key in contributions:
@@ -118,6 +123,8 @@ def display_forces_breakdown(path: Path) -> None:
 
 def display_avl_table_file(path: Path) -> None:
     text = path.read_text()
+    # Keep dedup local to the current file render; otherwise reruns can hide all tables.
+    st.session_state["_displayed_dataframe_hashes"] = set()
     pathstem_to_title = {
         "st": "Stability-axis derivatives",
         "sb": "Geometry-axis derivatives",
@@ -126,7 +133,8 @@ def display_avl_table_file(path: Path) -> None:
         "fs": "Surface and Strip Forces by surface",
         "ft": "Total Forces",
     }
-    st.markdown(f"**{pathstem_to_title[path.stem]}**")
+    if path.stem != "fe":
+        st.markdown(f"**{pathstem_to_title[path.stem]}**")
     _display_spiral_stability(text)
     if _display_surface_forces(text, path):
         return
@@ -152,25 +160,30 @@ def _display_surface_forces(text: str, path: Path) -> bool:
         return False
     refs = _parse_fn_refs(text)
     if refs:
-        ref_df = DataFrame(
+        ref_df = _dict_to_table(
             {
-                "Sref": [refs.get("Sref")],
-                "Cref": [refs.get("Cref")],
-                "Bref": [refs.get("Bref")],
-                "Xref": [refs.get("Xref")],
-                "Yref": [refs.get("Yref")],
-                "Zref": [refs.get("Zref")],
+                "Sref": refs.get("Sref"),
+                "Cref": refs.get("Cref"),
+                "Bref": refs.get("Bref"),
+                "Xref": refs.get("Xref"),
+                "Yref": refs.get("Yref"),
+                "Zref": refs.get("Zref"),
             }
         )
-        st.markdown("**Reference Values**")
-        _display_compact_dataframe(ref_df)
+        _display_compact_dataframe(ref_df, title="Reference Values", horizontal=True)
     table1_df, table2_df = _parse_fn_tables(text)
     if not table1_df.empty:
-        st.markdown("**Surface Forces (Sref/Cref/Bref)**")
-        _display_compact_dataframe(table1_df)
+        _display_compact_dataframe(
+            table1_df,
+            title="Surface Forces (Sref/Cref/Bref)",
+            horizontal=False,
+        )
     if not table2_df.empty:
-        st.markdown("**Surface Forces (Ssurf/Cave)**")
-        _display_compact_dataframe(table2_df)
+        _display_compact_dataframe(
+            table2_df,
+            title="Surface Forces (Ssurf/Cave)",
+            horizontal=False,
+        )
     if table1_df.empty and table2_df.empty:
         st.text_area(path.stem, text, height=200, key=str(path))
     return True
@@ -182,28 +195,24 @@ def _display_vortex_lattice_output(text: str, path: Path) -> bool:
     config, refs, summary, tables = _parse_sb_data(text)
     config_df = _dict_to_table(config)
     summary_df = _dict_to_table(summary)
-    ref_df = DataFrame(
+    ref_df = _dict_to_table(
         {
-            "Sref": [refs.get("Sref")],
-            "Cref": [refs.get("Cref")],
-            "Bref": [refs.get("Bref")],
-            "Xref": [refs.get("Xref")],
-            "Yref": [refs.get("Yref")],
-            "Zref": [refs.get("Zref")],
+            "Sref": refs.get("Sref"),
+            "Cref": refs.get("Cref"),
+            "Bref": refs.get("Bref"),
+            "Xref": refs.get("Xref"),
+            "Yref": refs.get("Yref"),
+            "Zref": refs.get("Zref"),
         }
     )
     if not config_df.empty:
-        st.markdown("**Configuration**")
-        _display_compact_dataframe(config_df)
-    if not ref_df.empty and not ref_df.isna().all(axis=None):
-        st.markdown("**Reference Values**")
-        _display_compact_dataframe(ref_df)
+        _display_compact_dataframe(config_df, title="Configuration")
+    if not ref_df.empty and not ref_df["value"].isna().all():
+        _display_compact_dataframe(ref_df, title="Reference Values")
     if not summary_df.empty:
-        st.markdown("**Run Case Summary**")
-        _display_compact_dataframe(summary_df)
+        _display_compact_dataframe(summary_df, title="Run Case Summary")
     for title, df in tables:
-        st.markdown(f"**{title}**")
-        _display_compact_dataframe(df)
+        _display_compact_dataframe(df, title=title)
     if config_df.empty and summary_df.empty and not tables:
         st.text_area(path.stem, text, height=200, key=str(path))
     return True
@@ -214,14 +223,22 @@ def _display_surface_strip_forces(text: str, path: Path) -> bool:
         return False
     surfaces_df, strip_tables = _parse_fs_tables(text)
     if not surfaces_df.empty:
-        st.markdown("**Surface Summary**")
-        _display_compact_dataframe(surfaces_df)
+        _display_compact_dataframe(surfaces_df, title="Surface Summary", horizontal=False)
+
+    combined_strip_rows: list[DataFrame] = []
     for surface_id, surface_name, _coeffs, strip_df in strip_tables:
-        with st.expander(f"Surface {surface_id} - {surface_name}", expanded=False):
-            if not strip_df.empty:
-                st.markdown("**Strip Forces**")
-                _display_compact_dataframe(strip_df)
-    if surfaces_df.empty:
+        if strip_df.empty:
+            continue
+        surface_strip_df = strip_df.copy()
+        surface_strip_df.insert(0, "surface_name", surface_name)
+        surface_strip_df.insert(0, "surface_id", surface_id)
+        combined_strip_rows.append(surface_strip_df)
+
+    if combined_strip_rows:
+        all_strips_df = pd.concat(combined_strip_rows, ignore_index=True)
+        _display_compact_dataframe(all_strips_df, title="Strip Forces", horizontal=False)
+
+    if surfaces_df.empty and not combined_strip_rows:
         st.text_area(path.stem, text, height=200, key=str(path))
     return True
 
@@ -233,18 +250,35 @@ def _display_avl_fe_data(text: str, path: Path) -> None:
         st.text_area(path.stem, text, height=200, key=str(path))
         return
 
-    if not surfaces_df.empty:
-        st.markdown("**Surface Summary**")
-        _display_compact_dataframe(surfaces_df)
+    shown_any = False
 
-    if not strips_df.empty:
-        st.markdown("**Strip Summary**")
-        _display_compact_dataframe(strips_df)
+    shown_any = (
+        _display_compact_dataframe(surfaces_df, title="Surface Summary", horizontal=False)
+        or shown_any
+    )
 
+    shown_any = (
+        _display_compact_dataframe(strips_df, title="Strip Summary", horizontal=False) or shown_any
+    )
+
+    combined_strip_details: list[DataFrame] = []
     for strip_id, df in strip_tables:
-        with st.expander(f"Strip {strip_id} details", expanded=False):
-            _display_compact_dataframe(df)
+        if df.empty:
+            continue
+        strip_detail_df = df.copy()
+        strip_detail_df.insert(0, "strip_id", strip_id)
+        combined_strip_details.append(strip_detail_df)
 
+    if combined_strip_details:
+        all_strip_details_df = pd.concat(combined_strip_details, ignore_index=True)
+        shown_any = (
+            _display_compact_dataframe(
+                all_strip_details_df,
+                title="Strip Details",
+                horizontal=False,
+            )
+            or shown_any
+        )
 
 # =================================================================================================
 #    METHODS
@@ -407,14 +441,61 @@ def _parse_avl_fe(text: str) -> tuple[DataFrame, DataFrame, list[tuple[int, Data
     return DataFrame(surfaces), DataFrame(strips), strip_tables
 
 
-def _display_compact_dataframe(df: DataFrame) -> None:
+def _display_compact_dataframe(
+    df: DataFrame,
+    title: str | None = None,
+    horizontal: bool = True,
+) -> bool:
     if df.empty:
-        return
+        return False
     safe_df = df.copy()
     for col in safe_df.columns:
         if safe_df[col].dtype == "object":
             safe_df[col] = safe_df[col].apply(lambda value: "" if pd.isna(value) else str(value))
-    st.dataframe(safe_df, hide_index=True, width="content")
+    safe_df = safe_df.drop_duplicates(ignore_index=True)
+
+    displayed_hashes = st.session_state.setdefault("_displayed_dataframe_hashes", set())
+    fingerprint = _dataframe_fingerprint(safe_df)
+    if fingerprint in displayed_hashes:
+        return False
+    displayed_hashes.add(fingerprint)
+
+    if title:
+        st.markdown(f"**{title}**")
+    if horizontal:
+        first_col = str(safe_df.columns[0])
+        key_as_columns = safe_df.copy()
+        key_as_columns = key_as_columns.dropna(subset=[first_col])
+        key_as_columns[first_col] = key_as_columns[first_col].astype(str)
+        has_unique_keys = key_as_columns[first_col].is_unique
+        if safe_df.shape[1] >= 2 and has_unique_keys:
+            key_as_columns = key_as_columns.drop_duplicates(subset=[first_col], keep="last")
+            display_df = key_as_columns.set_index(first_col).transpose()
+            if display_df.shape[0] == 1:
+                display_df = display_df.reset_index(drop=True)
+            else:
+                display_df = display_df.reset_index()
+                display_df.columns = ["field"] + [str(col) for col in display_df.columns[1:]]
+        else:
+            display_df = safe_df.transpose().reset_index()
+            display_df.columns = ["field"] + [str(i + 1) for i in range(display_df.shape[1] - 1)]
+    else:
+        display_df = safe_df
+    column_config = {col: st.column_config.Column(width="small") for col in display_df.columns}
+    st.dataframe(
+        display_df,
+        hide_index=True,
+        width="content",
+        column_config=column_config,
+    )
+    return True
+
+
+def _dataframe_fingerprint(df: DataFrame) -> str:
+    digest = hashlib.sha1()
+    digest.update(",".join(map(str, df.columns)).encode())
+    digest.update(pd.util.hash_pandas_object(df, index=True).to_numpy().tobytes())
+    return digest.hexdigest()
 
 
 def _normalize_fe_key(key: str) -> str:
@@ -479,7 +560,7 @@ def _parse_fn_refs(text: str) -> dict[str, float]:
     return refs
 
 
-def _dict_to_table(data: Mapping[str, float | str]) -> DataFrame:
+def _dict_to_table(data: Mapping[str, float | str | None]) -> DataFrame:
     if not data:
         return DataFrame()
     return DataFrame({"key": list(data.keys()), "value": list(data.values())})

@@ -19,11 +19,19 @@ jobs:
       - name: Maximize Build Space & Swap
         run: |
           # Create a 4GB swap file to assist the 7GB RAM
-          sudo fallocate -l 4G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+          SWAPFILE=/swapfile_ceasiompy
+          if sudo swapon --show=NAME --noheadings | grep -qx "$SWAPFILE"; then
+            echo "Swap already active at $SWAPFILE"
+          else
+            sudo swapoff "$SWAPFILE" 2>/dev/null || true
+            sudo rm -f "$SWAPFILE"
+            sudo fallocate -l 4G "$SWAPFILE" || sudo dd if=/dev/zero of="$SWAPFILE" bs=1M count=4096
+            sudo chmod 600 "$SWAPFILE"
+            sudo mkswap "$SWAPFILE"
+            sudo swapon "$SWAPFILE"
+          fi
           free -h
+          sudo swapon --show
 
       - name: Run container smoke test
         run: |

@@ -19,17 +19,62 @@ STL_FILE = "src/ceasiompy/STL2CPACS/test_wing.stl"
 #STL_FILE = "src/ceasiompy/STL2CPACS/test_concorde.stl"
 
 TRI_FILE = "src/ceasiompy/STL2CPACS/slice_mesh_output.tri"
-N_Y_SLICES = 30 # number of Y slices 
+N_Y_SLICES = 1000 # number of Y slices 
 INTERSECT_TOL = 1e-6
 SLAB_TOLS = [1e-5, 5e-5, 1e-4, 5e-4, 1e-3]
-EXTREME_TOL_perc_start = 0.0001    # at y ==0 and y == y_max the slicing captures point inside the airfoil so be aware about this setting 
-EXTREME_TOL_perc_end = 0.005    # at y ==0 and y == y_max the slicing captures point inside the airfoil so be aware about this setting 
+EXTREME_TOL_perc_start = 0.01   # at y ==0 and y == y_max the slicing captures point inside the airfoil so be aware about this setting 
+EXTREME_TOL_perc_end = 0.01   # at y ==0 and y == y_max the slicing captures point inside the airfoil so be aware about this setting 
 N_SLICE_ADDING = 0 # number of slices to insert in transition regions
 DEBUG_AIRFOIL = False 
+WING_AIRFOIL_ROUND_DECIMALS = 5
+WING_AIRFOIL_MAX_ROUND_DECIMALS = 8
+WING_AIRFOIL_MIN_SEG = 1e-5
+WING_CHORD_SCALE_DECIMALS = 4
+WING_ANGLE_DECIMALS = 4
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+def _remove_consecutive_duplicate_points(poly, tol=1e-12):
+    """
+    Remove consecutive duplicate points in a 2xN polyline while preserving closure.
+    """
+    if poly.shape[1] <= 2:
+        return poly
+
+    keep = [0]
+    for i in range(1, poly.shape[1]):
+        if np.hypot(poly[0, i] - poly[0, keep[-1]], poly[1, i] - poly[1, keep[-1]]) > tol:
+            keep.append(i)
+
+    out = poly[:, keep]
+    if out.shape[1] >= 2 and np.hypot(out[0, 0] - out[0, -1], out[1, 0] - out[1, -1]) > tol:
+        out = np.hstack([out, out[:, [0]]])
+    return out
+
+
+def _round_airfoil_safely(poly, pref_dec=4, max_dec=8, min_seg=1e-5):
+    """
+    Round airfoil coordinates for CPACS while avoiding degenerate thin geometries.
+    """
+    base = _remove_consecutive_duplicate_points(np.asarray(poly, dtype=float), tol=1e-12)
+    if base.shape[1] < 5:
+        return base
+
+    for dec in range(pref_dec, max_dec + 1):
+        cand = np.round(base, dec)
+        cand = _remove_consecutive_duplicate_points(cand, tol=10 ** (-(dec + 2)))
+        if cand.shape[1] < 5:
+            continue
+        seg = np.hypot(np.diff(cand[0]), np.diff(cand[1]))
+        if seg.size == 0:
+            continue
+        if np.min(seg) >= min_seg:
+            return cand
+
+    # Fallback: keep original precision and only clean exact consecutive duplicates.
+    return base
 
 
 def fix_airfoil_cpacs(x, z, tol_x):
@@ -41,34 +86,57 @@ def fix_airfoil_cpacs(x, z, tol_x):
 
     """
 
-    x = np.asarray(x)
-    z = np.asarray(z)
-    # Sort by x 
+    x = np.asarray(x, dtype=float)
+    z = np.asarray(z, dtype=float)
+    if x.size == 0:
+        return x, z
+
+    # Preserve raw extrema references before any cleanup.
+    x_te_raw = float(np.max(x))
+    x_le_raw = float(np.min(x))
+    z_te_raw = float(np.mean(z[np.isclose(x, x_te_raw, atol=tol_x)]))
+    z_le_raw = float(np.mean(z[np.isclose(x, x_le_raw, atol=tol_x)]))
+
+    # Sort by x for robust deduplication in profile parameter space.
     idx = np.argsort(x)
     x = x[idx]
     z = z[idx]
 
     x_clean = [x[0]]
     z_clean = [z[0]]
-    i = 0
-    while i < len(x)-1:
-        print(i,abs(z[i] - z[i+1]))
-        if  abs(z[i] - z[i+1]) < tol_x and abs(x[i] - x[i+1]) < tol_x:
-            print('here')
-            # if the points are too close keep the one farther from local mean
-            z_mean = 0.5 * (z[i+1] + z[i])
-            x_mean = 0.5 * (x[i+1] + x[i])
-            z_clean.append(z[i] if abs(z[i] - z_mean) > abs(z[i+1] - z_mean) else z[i+1])
-            x_clean.append(x[i] if abs(x[i] - x_mean) > abs(x[i+1] - x_mean) else x[i+1])
-            i += 2  # skip next point
-        
-        else:
-            x_clean.append(x[i])
-            z_clean.append(z[i])
-            i += 1
-            
+    for i in range(1, len(x)):
+        dx = abs(x[i] - x_clean[-1])
+        dz = abs(z[i] - z_clean[-1])
+
+        # Keep TE/LE neighborhood points to avoid losing extrema.
+        near_te = (abs(x[i] - x_te_raw) <= tol_x) or (abs(x_clean[-1] - x_te_raw) <= tol_x)
+        near_le = (abs(x[i] - x_le_raw) <= tol_x) or (abs(x_clean[-1] - x_le_raw) <= tol_x)
+
+        if dx < tol_x and dz < tol_x and not (near_te or near_le):
+            # Skip near-duplicate interior point.
+            continue
+
+        x_clean.append(x[i])
+        z_clean.append(z[i])
+
+    x_clean = np.asarray(x_clean, dtype=float)
+    z_clean = np.asarray(z_clean, dtype=float)
+
+    # Enforce LE/TE presence explicitly.
+    if not np.any(np.isclose(x_clean, x_te_raw, atol=tol_x)):
+        x_clean = np.append(x_clean, x_te_raw)
+        z_clean = np.append(z_clean, z_te_raw)
+    if not np.any(np.isclose(x_clean, x_le_raw, atol=tol_x)):
+        x_clean = np.append(x_clean, x_le_raw)
+        z_clean = np.append(z_clean, z_le_raw)
+
+    # Restore x-sorted order after possible appends.
+    idx = np.argsort(x_clean)
+    x_clean = x_clean[idx]
+    z_clean = z_clean[idx]
+
     print(f"Fixed airfoil: {len(x)} → {len(x_clean)} points")
-    print('trailing edge', x_clean[np.argmax(x_clean)])
+    print("trailing edge", x_clean[np.argmax(x_clean)])
     if DEBUG_AIRFOIL:
         plt.plot(x_clean, z_clean, '.')
         plt.xlabel("x/c")
@@ -85,6 +153,7 @@ def resample_airfoil_cpacs(
     xu, zu,
     xl, zl,
     x_te, z_te,
+    x_le, z_le,
     n_points,
     
 ):
@@ -121,11 +190,11 @@ def resample_airfoil_cpacs(
     xl[0] = x_te   
     zl[0] = z_te   
     
-    # Detect LE
+    '''# Detect LE
     x_le = min(xu.min(), xl.min())
     # Take average z at LE using closest points in each surface
     z_le = 0.5 * (zu[np.argmin(np.abs(xu - x_le))]
-                  + zl[np.argmin(np.abs(xl - x_le))])
+                  + zl[np.argmin(np.abs(xl - x_le))])'''
 
     # Build x-distribution on LE → TE
     n_half = n_points // 2
@@ -152,11 +221,18 @@ def resample_airfoil_cpacs(
     x_le = 0.0
     airfoil = np.hstack([
         np.array([[x_te], [z_te]]),
-        np.vstack([x_l, z_l])[:, 1:-1],     
+        np.vstack([x_l, z_l]),     
         np.array([[x_le], [z_le]]),
-        np.vstack([x_u, z_u])[:, 1:-1],     
+        np.vstack([x_u, z_u]),     
         np.array([[x_te], [z_te]])
     ])
+    airfoil = _round_airfoil_safely(
+        airfoil,
+        pref_dec=WING_AIRFOIL_ROUND_DECIMALS,
+        max_dec=WING_AIRFOIL_MAX_ROUND_DECIMALS,
+        min_seg=WING_AIRFOIL_MIN_SEG,
+    )
+
     if DEBUG_AIRFOIL:
         plt.plot(airfoil[0, :], airfoil[1, :], '-g')
         plt.plot(x_u, z_u, '.r', label='Upper Spline')
@@ -204,8 +280,8 @@ def extract_airfoil_surface_local(cloud_xyz, p0, n):
 
     x_le = x[i_le]
     x_te = x[i_te]
-    
-    chord = x_te - x_le
+
+    chord = abs(x_te - x_le)
 
     if chord <= 1e-8:
         return np.zeros((2, 0)), 0.0
@@ -225,7 +301,7 @@ def extract_airfoil_surface_local(cloud_xyz, p0, n):
         plt.show()
     n = 10 # number of bins for camber line, it is divided by 6 to have when len(x) is small a reasonable number of bins.
     print(f'numenr o fbins {n} with len(x) = {len(x)}')
-    airfoil = split_upper_lower_by_camber(x, z,n, 0.1)
+    airfoil = split_upper_lower_by_camber(x, z,n, 0)
     
     return airfoil, chord
 
@@ -303,7 +379,9 @@ def split_upper_lower_by_camber(x_raw, z_raw, n_bins, te_cut):
         x[lower_mask], z[lower_mask],
         x_te=x_te,
         z_te=z_te,
-        n_points=80
+        x_le=x_le,
+        z_le=z_le,
+        n_points=60
     )
 
 
@@ -625,12 +703,12 @@ def compute_local_angles_from_le(le_pts):
         if abs(dy) < 1e-12:
             sweep[i] = 0
         else:
-            sweep[i] = int(np.rint(np.degrees(np.arctan(dx / np.sqrt(dy**2 + dz**2)))))  
+            sweep[i] = np.round((np.rint(np.degrees(np.arctan(dx / np.sqrt(dy**2 + dz**2))))),WING_ANGLE_DECIMALS)  
         # ---- DIHEDRAL: YZ projection ----
         if abs(dy) < 1e-12:
             dihedral[i] = 0
         else:
-            dihedral[i] = int(np.rint(np.degrees(np.arctan(dz / dy))))
+            dihedral[i] = np.round((np.rint(np.degrees(np.arctan(dz / dy)))),WING_ANGLE_DECIMALS)
 
     # copy last value 
     sweep[-1] = sweep[-2]
@@ -642,11 +720,11 @@ def filter_and_insert(y_vals, sweep_deg, dihedral_deg, le_pts, n_insert):
     """
     Refine wing sections for CPACS generation.
 
-    - Keep first slice
-    - Keep one slice before each transition
-    - Insert interpolated slices in transitions
-    - Skip slices in constant-angle regions after the first slice
-    - Always keep last slice
+    Behavior:
+    - Keep first slice.
+    - In constant-angle regions, keep only boundary slices (filter interior).
+    - When angles change between i and i+1, insert n_insert interpolated slices.
+    - Keep last slice.
     """
 
     y_vals = np.asarray(y_vals, dtype=float)
@@ -663,19 +741,12 @@ def filter_and_insert(y_vals, sweep_deg, dihedral_deg, le_pts, n_insert):
 
     for i in range(len(y_vals) - 1):
         same_angle = (
-            sweep_deg[i] == sweep_deg[i + 1] and
-            dihedral_deg[i] == dihedral_deg[i + 1]
+            np.isclose(sweep_deg[i], sweep_deg[i + 1],atol=0.1, rtol=0.0) and
+            np.isclose(dihedral_deg[i], dihedral_deg[i + 1],atol=0.1, rtol=0.0)
         )
 
-        if not same_angle:
-            # Keep current slice before starting transition
-            y_out.append(y_vals[i])
-            sweep_out.append(sweep_deg[i])
-            dihedral_out.append(dihedral_deg[i])
-            le_out.append(le_pts[i])
-            is_inserted.append(False)
-            
-            # Interpolate transition slices
+        if not same_angle and n_insert > 0:
+            # Interpolate transition slices with linear angle evolution.
             for k in range(1, n_insert + 1):
                 t = k / (n_insert + 1)
                 y_new = (1 - t) * y_vals[i] + t * y_vals[i + 1]
@@ -687,20 +758,28 @@ def filter_and_insert(y_vals, sweep_deg, dihedral_deg, le_pts, n_insert):
                 sweep_out.append(sweep_new)
                 dihedral_out.append(dihedral_new)
                 is_inserted.append(True)
-        else:
-            # Skip slice if same as previous (constant region), unless last slice
-            if i == len(y_vals) - 2:  # keep last slice
-                y_out.append(y_vals[i + 1])
-                le_out.append(le_pts[i + 1])
-                sweep_out.append(sweep_deg[i + 1])
-                dihedral_out.append(dihedral_deg[i + 1])
-                is_inserted.append(False)
-            # else skip slice in constant region
+
+        # Keep i+1 when:
+        # - entering or leaving a transition region
+        # - always for final slice
+        is_last_pair = (i == len(y_vals) - 2)
+        next_changes = False if is_last_pair else not (
+            np.isclose(sweep_deg[i + 1], sweep_deg[i + 2]) and
+            np.isclose(dihedral_deg[i + 1], dihedral_deg[i + 2])
+        )
+        keep_next = (not same_angle) or next_changes or is_last_pair
+
+        if keep_next:
+            y_out.append(y_vals[i + 1])
+            le_out.append(le_pts[i + 1])
+            sweep_out.append(sweep_deg[i + 1])
+            dihedral_out.append(dihedral_deg[i + 1])
+            is_inserted.append(False)
 
     return (
         np.array(y_out),
-        np.rint(sweep_out).astype(int),
-        np.rint(dihedral_out).astype(int),
+        np.array(sweep_out, dtype=float),
+        np.array(dihedral_out, dtype=float),
         np.array(le_out),
         np.array(is_inserted, dtype=bool),
     )
@@ -766,15 +845,16 @@ def main():
 
     le_pts = np.vstack([le_points[i] for i in valid_idxs])
     print(f"Found {le_pts.shape[0]} LE points from {N_Y_SLICES} Y-slices")
-
+    print(le_points[0])
+    breakpoint()
 
     # start to build the dictionary to create all the necessary informations to generate the corresponding CPACS file. 
     Wing_Dict["1"]["Transformation"] = {
                 "Name_type": "Wing",
                 "Name": "Wing1", # load the name of the stl
                 "X_Rot": [0, 0, 0],
-                "X_Trasl": le_pts[0],
-                "Symmetry": 2, # the user must split the component and tell with a botton if he wants the symmetric part part or not 
+                "X_Trasl":le_pts[0],
+                "Symmetry": "2", # the user must split the component and tell with a botton if he wants the symmetric part part or not 
                 "abs_system": True,
                 "Relative_dih": 0,
                 "Relative_Twist": 0,
@@ -857,7 +937,7 @@ def main():
     y_vals,sweep_deg,dihedral_deg,le_pts,is_inserted = filter_and_insert(y_vals, sweep_deg, dihedral_deg,le_pts, N_SLICE_ADDING)
     # slice with plane that are rotated by the dihedral angle.
     airfoil_profiles = []
-
+    
     for i, y0 in enumerate(y_vals):
         if le_pts[i] is None:
             per_slice_clouds_rotate.append(np.zeros((0,3)))
@@ -889,30 +969,31 @@ def main():
         # Store in Wing_Dict
         if i==0: 
             Wing_Dict["1"][f'Section{i}'] = {
-                'x_scal': round(chord, 2),
+                'x_scal': round(chord, WING_CHORD_SCALE_DECIMALS),
                 'y_scal': 1,
-                'z_scal': round(chord, 2),
+                'z_scal': round(chord, WING_CHORD_SCALE_DECIMALS),
                 'x_trasl': 0,
                 'Span': 0,
                 'Airfoil': 'Airfoil',
                 'Airfoil_coordinates': airfoil_xz,
                 'Sweep_loc': 0,
-                'Sweep_angle': sweep_deg[i],
-                'Dihedral_angle': dihedral_deg[i]
+                'Sweep_angle': round(float(sweep_deg[i]), WING_ANGLE_DECIMALS),
+                'Dihedral_angle': round(float(dihedral_deg[i]), WING_ANGLE_DECIMALS)
             }
-        
-        else:            
+            
+        else:      
+            print(y_vals[i],y_vals[i-1])
             Wing_Dict["1"][f'Section{i}'] = {
-            'x_scal': round(chord, 2),
+            'x_scal': round(chord, WING_CHORD_SCALE_DECIMALS),
             'y_scal': 1,
-            'z_scal': round(chord, 2),
+            'z_scal': round(chord, WING_CHORD_SCALE_DECIMALS),
             'x_trasl': 0,
             'Span': abs((y_vals[i]-y_vals[i-1])/np.cos(np.deg2rad(dihedral_deg[i]))),
             'Airfoil': 'Airfoil',
             'Airfoil_coordinates': airfoil_xz,
             'Sweep_loc': 0,
-            'Sweep_angle': sweep_deg[i],
-            'Dihedral_angle': dihedral_deg[i]
+            'Sweep_angle': round(float(sweep_deg[i]), WING_ANGLE_DECIMALS),
+            'Dihedral_angle': round(float(dihedral_deg[i]), WING_ANGLE_DECIMALS)
             }
 
         airfoil_profiles.append(airfoil_xz)

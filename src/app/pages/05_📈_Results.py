@@ -21,6 +21,8 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit.components.v1 as components
+from html import escape
+from textwrap import dedent
 
 from stpyvista import stpyvista
 from functools import lru_cache
@@ -129,6 +131,155 @@ def _build_workflow_zip(workflow_path: str, workflow_mtime_ns: int) -> bytes:
         return Path(archive_path).read_bytes()
 
 
+def _normalize_module_name(name: str) -> str:
+    return "".join(ch for ch in str(name).lower() if ch.isalnum())
+
+
+def _format_duration(seconds: float) -> str:
+    seconds = max(0, int(seconds))
+    hours, rem = divmod(seconds, 3600)
+    minutes, secs = divmod(rem, 60)
+    if hours:
+        return f"{hours:d}:{minutes:02d}:{secs:02d}"
+    return f"{minutes:d}:{secs:02d}"
+
+
+def _ensure_module_status_css() -> None:
+    st.markdown(
+        dedent(
+            """
+        <style>
+        .ceasiompy-module-card {
+            border-radius: 10px;
+            padding: 12px 14px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            margin: 0.5rem 0;
+        }
+        .ceasiompy-module-card.waiting { background: rgba(243, 244, 246, 0.9); }
+        .ceasiompy-module-card.running { background: rgba(254, 249, 195, 0.9); }
+        .ceasiompy-module-card.finished { background: rgba(220, 252, 231, 0.9); }
+        .ceasiompy-module-card.failed { background: rgba(254, 226, 226, 0.9); }
+
+        .ceasiompy-module-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: baseline;
+            margin-bottom: 0.25rem;
+        }
+        .ceasiompy-module-title { font-weight: 700; }
+        .ceasiompy-module-status { font-weight: 700; text-transform: lowercase; }
+        .ceasiompy-module-status.waiting { color: #6b7280; }
+        .ceasiompy-module-status.running { color: #ca8a04; }
+        .ceasiompy-module-status.finished { color: #16a34a; }
+        .ceasiompy-module-status.failed { color: #dc2626; }
+
+        .ceasiompy-module-meta {
+            color: rgba(0, 0, 0, 0.65);
+            font-size: 0.85rem;
+            line-height: 1.2rem;
+            margin-top: 0.1rem;
+        }
+
+        .ceasiompy-progress {
+            height: 10px;
+            background: rgba(0, 0, 0, 0.08);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        .ceasiompy-progress > div { height: 100%; width: 0%; }
+        .ceasiompy-progress.running > div { background: #f59e0b; }
+        .ceasiompy-progress.finished > div { background: #22c55e; }
+        .ceasiompy-progress.failed > div { background: #ef4444; }
+        .ceasiompy-progress.waiting > div { background: #9ca3af; }
+        </style>
+        """
+        ).strip(),
+        unsafe_allow_html=True,
+    )
+
+
+def _load_workflow_status_map(workflow_dir: Path) -> dict[str, dict]:
+    status_file = Path(workflow_dir, "workflow_status.json")
+    if not status_file.exists():
+        return {}
+    try:
+        payload = json.loads(status_file.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    modules = payload.get("modules", [])
+    if not isinstance(modules, list):
+        return {}
+    status_map: dict[str, dict] = {}
+    for item in modules:
+        if not isinstance(item, dict):
+            continue
+        module_name = item.get("name")
+        if not module_name:
+            continue
+        status_map[_normalize_module_name(str(module_name))] = item
+    return status_map
+
+
+def _render_workflow_status_summary(status_map: dict[str, dict], results_name: list[str]) -> None:
+    if not status_map:
+        return
+
+    _ensure_module_status_css()
+    st.markdown("**Final Workflow Status**")
+
+    for name in results_name:
+        item = status_map.get(_normalize_module_name(name), {})
+        status = str(item.get("status", "unknown")).strip().lower()
+        detail = item.get("detail", "")
+        progress = item.get("progress")
+        elapsed_seconds = item.get("elapsed_seconds")
+        status_class = status if status in {"waiting", "running", "finished", "failed"} else "waiting"
+
+        progress_html = ""
+        if isinstance(progress, (int, float)):
+            p = min(max(float(progress), 0.0), 1.0)
+            progress_html = (
+                f"<div class='ceasiompy-progress {status_class}'>"
+                f"<div style='width: {p * 100:.2f}%;'></div>"
+                f"</div>"
+                f"<div class='ceasiompy-module-meta'>{p * 100:.1f}%</div>"
+            )
+
+        elapsed_html = ""
+        if isinstance(elapsed_seconds, (int, float)):
+            elapsed_html = (
+                f"<div class='ceasiompy-module-meta'>"
+                f"elapsed {_format_duration(float(elapsed_seconds))}"
+                f"</div>"
+            )
+
+        detail_html = (
+            f"<div class='ceasiompy-module-meta'>{escape(str(detail))}</div>"
+            if detail
+            else ""
+        )
+
+        st.markdown(
+            dedent(
+                f"""
+        <div class="ceasiompy-module-card {status_class}">
+            <div class="ceasiompy-module-header">
+            <div class="ceasiompy-module-title">{escape(str(name))}</div>
+            <div class="ceasiompy-module-status {status_class}">{escape(str(status))}</div>
+            </div>
+            {detail_html}
+            {progress_html}
+            {elapsed_html}
+        </div>
+                """
+            ).strip(),
+            unsafe_allow_html=True,
+        )
+    st.markdown("---")
+
+
 def show_results():
     """Display the results of the selected workflow."""
 
@@ -205,6 +356,9 @@ def show_results():
     if not results_name:
         st.warning("No results have been found!")
         return
+
+    status_map = _load_workflow_status_map(chosen_workflow)
+    _render_workflow_status_summary(status_map, results_name)
 
     results_tabs = st.tabs(results_name)
 
@@ -1466,6 +1620,7 @@ def _display_csv(path: Path) -> None:
         return None
 
     st.markdown(f"**{path.name}**")
+    df: DataFrame | None = None
     try:
         df = pd.read_csv(path, engine="python", on_bad_lines="skip")
         hidden_cols = [
@@ -1530,7 +1685,7 @@ def _display_csv(path: Path) -> None:
         text_data = data.decode("utf-8", errors="replace")
         st.text_area(path.stem, text_data, height=200, key=f"{path}_csv_raw")
 
-    if path.name == "avl_simulations_results.csv" and "df" in locals():
+    if path.name == "avl_simulations_results.csv" and df is not None:
         col_lookup = {str(col).strip().lower(): col for col in df.columns}
 
         def _get_col(*names: str) -> str | None:
@@ -1561,11 +1716,13 @@ def _display_csv(path: Path) -> None:
                 + " columns."
             )
             return None
+        arg_cols_required: dict[str, str] = {
+            k: v for k, v in arg_cols.items() if v is not None
+        }
 
         plot_df = df.copy()
-        for col in [cl_col, cd_col, *arg_cols.values()]:
-            if col is not None:
-                plot_df[col] = pd.to_numeric(plot_df[col], errors="coerce")
+        for col in [cl_col, cd_col, *arg_cols_required.values()]:
+            plot_df[col] = pd.to_numeric(plot_df[col], errors="coerce")
 
         plot_df["cl_cd_ratio"] = np.where(
             np.abs(plot_df[cd_col].to_numpy(dtype=float)) > 1e-12,
@@ -1591,7 +1748,7 @@ def _display_csv(path: Path) -> None:
             )
             target_col = target_options[target_label]
 
-        required_cols = [target_col, *[v for v in arg_cols.values() if v is not None]]
+        required_cols = [target_col, *arg_cols_required.values()]
         plot_df = plot_df.dropna(subset=required_cols).copy()
         if plot_df.empty:
             plot_container.info("No valid AVL rows available for interactive plotting.")
@@ -1600,7 +1757,7 @@ def _display_csv(path: Path) -> None:
         varying_args = []
         constant_args = []
         fixed_values: dict[str, float] = {}
-        for arg_name, col in arg_cols.items():
+        for arg_name, col in arg_cols_required.items():
             values = np.sort(plot_df[col].dropna().unique())
             if values.size <= 1:
                 constant_args.append(arg_name)
@@ -1622,7 +1779,7 @@ def _display_csv(path: Path) -> None:
                             key=f"{path}_avl_const_{arg_name}",
                         )
 
-        x_arg = varying_args[0] if varying_args else list(arg_cols.keys())[0]
+        x_arg = varying_args[0] if varying_args else list(arg_cols_required.keys())[0]
         y_arg = varying_args[1] if len(varying_args) > 1 else x_arg
 
         if len(varying_args) >= 2:
@@ -1652,7 +1809,7 @@ def _display_csv(path: Path) -> None:
             if free_args:
                 st.caption("Fix remaining varying arguments")
                 for arg_name in free_args:
-                    col = arg_cols[arg_name]
+                    col = arg_cols_required[arg_name]
                     values = np.sort(plot_df[col].dropna().unique())
                     selected = st.select_slider(
                         arg_name,
@@ -1664,7 +1821,7 @@ def _display_csv(path: Path) -> None:
 
         filtered_df = plot_df
         for arg_name in free_args:
-            col = arg_cols[arg_name]
+            col = arg_cols_required[arg_name]
             selected = fixed_values[arg_name]
             span = float(plot_df[col].max() - plot_df[col].min())
             tol = max(span * 1e-6, 1e-9)
@@ -1674,8 +1831,8 @@ def _display_csv(path: Path) -> None:
             plot_container.info("No data points for the selected argument slice.")
             return None
 
-        x_col = arg_cols[x_arg]
-        y_col = arg_cols[y_arg]
+        x_col = arg_cols_required[x_arg]
+        y_col = arg_cols_required[y_arg]
         z_label = target_label
 
         if x_arg == y_arg:

@@ -21,7 +21,7 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 from ceasiompy.staticstability.staticstability import (
     main as staticstability,
-    generate_stab_table,
+    compute_stab_table,
 )
 
 from pathlib import Path
@@ -84,15 +84,15 @@ class TestStaticStability(CeasiompyTest):
         )
 
     @log_test
-    def test_generate_stab_table(self: TestStaticStability) -> None:
+    def test_compute_stab_table(self: TestStaticStability) -> None:
         # Test direct derivatives mode
         self.assert_equal_function(
-            f=generate_stab_table,
+            f=compute_stab_table,
             input_args=(self.cpacs, "test_apm", self.wkdir, False,),
             expected=([
                 [
                     "mach", "alt", "aoa", "aos",
-                    "long_stab", "dir_stab", "lat_stab"
+                    "longitudinal", "directional", "lateral"
                 ],
                 [
                     0.3, 0.0, 0.0, 0.0,
@@ -131,9 +131,9 @@ class TestStaticStability(CeasiompyTest):
         )
 
     @log_test
-    def test_generate_stab_table_lr_raises_type_error(self: TestStaticStability) -> None:
+    def test_compute_stab_table_lr_raises_type_error(self: TestStaticStability) -> None:
         with self.assertRaises(TypeError):
-            generate_stab_table(self.cpacs, "test_apm", self.wkdir, True)
+            compute_stab_table(self.cpacs, "test_apm", self.wkdir, True)
 
     @log_test
     def test_main_raises_when_all_aeromaps_fail(self: TestStaticStability) -> None:

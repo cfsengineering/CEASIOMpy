@@ -22,12 +22,9 @@ import streamlit as st
 from pydantic import validate_call
 from contextlib import contextmanager
 from ceasiompy.utils import get_wkdir
-from ceasiompy.utils.moduleinterfaces import get_module_list
 from ceasiompy.utils.moduleinterfaces import (
+    get_module_list,
     get_specs_for_module,
-    get_toolinput_file_path,
-    get_tooloutput_file_path,
-    check_cpacs_input_requirements,
 )
 from cpacspy.cpacsfunctions import (
     get_value,
@@ -344,14 +341,6 @@ def call_main(main: Callable, module_name: str, cpacs_path: Path | None = None) 
     cpacs.save_cpacs(new_cpacs_path, overwrite=True)
 
     log.info("----- End of " + module_name + " -----")
-
-
-def initialize_cpacs(module_name: str) -> tuple[CPACS, Path]:
-    cpacs_in = get_toolinput_file_path(module_name)
-    cpacs_out = get_tooloutput_file_path(module_name)
-    check_cpacs_input_requirements(cpacs_in)
-    cpacs = CPACS(cpacs_in)
-    return cpacs, cpacs_out
 
 
 def run_module(

@@ -31,7 +31,7 @@ def gui_settings(cpacs: CPACS) -> None:
         float_vartype(
             tixi=tixi,
             xpath=RANGE_XPATH + "/NetForce",
-            description="Engine net force.",
+            help="Engine net force.",
             default_value=2000.0,
             name="NetForce",
             key="thermodat_net_force",
@@ -41,7 +41,7 @@ def gui_settings(cpacs: CPACS) -> None:
             tixi=tixi,
             xpath=ENGINE_TYPE_XPATH,
             default_value=["Turbojet", "Turbofan"],
-            description="",
+            help="",
             name="Turbojet or Turbofan",
             key="thermoda_turbo_fan_jet",
         )

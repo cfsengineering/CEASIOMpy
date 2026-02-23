@@ -35,7 +35,12 @@ from ceasiompy.smtrain.func.utils import domain_converter
 from ceasiompy.utils.ceasiompyutils import workflow_number
 from ceasiompy.smtrain.func.utils import get_model_typename
 from ceasiompy.smtrain.func.config import update_geometry_cpacs
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.geometryfunctions import get_xpath_for_param
+
+from ceasiompy.skinfriction.skinfriction import main as skin_friction
+from ceasiompy.staticstability.staticstability import main as static_stability
+
 from parsefunctions import (
     parse_ascii_tables,
     display_avl_table_file,
@@ -51,6 +56,7 @@ from pathlib import Path
 from pandas import DataFrame
 from smt.applications import MFK
 from cpacspy.cpacspy import CPACS
+from tixi3.tixi3wrapper import Tixi3Exception
 from smt.surrogate_models import (
     KRG,
     RBF,
@@ -58,8 +64,17 @@ from smt.surrogate_models import (
 
 from ceasiompy import log
 from constants import BLOCK_CONTAINER
-from ceasiompy.pyavl import AVL_TABLE_FILES
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
+from ceasiompy.pyavl import (
+    AVL_TABLE_FILES,
+    MODULE_NAME as PYAVL_MODULE,
+)
+from ceasiompy.skinfriction import (
+    MODULE_NAME as SKINFRICTION_MODULE,
+)
+from ceasiompy.staticstability import (
+    MODULE_NAME as STATICSTABILITY_MODULE,
+)
 from ceasiompy.smtrain import (
     AEROMAP_FEATURES,
     NORMALIZED_DOMAIN,
@@ -74,22 +89,18 @@ HOW_TO_TEXT = (
 )
 
 PAGE_NAME = "Results"
-NO_DISPLAY_DIR: set[str] = {
-    # pyavl
-    "airfoils",
-
-    # smtrain
-    "computations",
-    "generated_cpacs",
-
-}
 IGNORED_RESULTS: set[str] = {
     # pyavl
+    "airfoils",
     "avl_commands.txt",
     "logfile_avl.log",
 
     # su2run
     "restart_flow.dat",
+
+    # smtrain
+    "computations",
+    "generated_cpacs",
 }
 
 
@@ -200,18 +211,22 @@ def _ensure_module_status_css() -> None:
     )
 
 
-def _load_workflow_status_map(workflow_dir: Path) -> dict[str, dict]:
+def _load_workflow_status_map(workflow_dir: Path) -> tuple[dict[str, dict], list[str]]:
     status_file = Path(workflow_dir, "workflow_status.json")
     if not status_file.exists():
-        return {}
+        return {}, []
     try:
         payload = json.loads(status_file.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
-        return {}
+        return {}, []
+
     modules = payload.get("modules", [])
     if not isinstance(modules, list):
-        return {}
+        return {}, []
+
     status_map: dict[str, dict] = {}
+    modules_name: list[str] = []
+
     for item in modules:
         if not isinstance(item, dict):
             continue
@@ -219,7 +234,8 @@ def _load_workflow_status_map(workflow_dir: Path) -> dict[str, dict]:
         if not module_name:
             continue
         status_map[_normalize_module_name(str(module_name))] = item
-    return status_map
+        modules_name.append(module_name)
+    return status_map, modules_name
 
 
 def _render_workflow_status_summary(status_map: dict[str, dict], results_name: list[str]) -> None:
@@ -280,7 +296,7 @@ def _render_workflow_status_summary(status_map: dict[str, dict], results_name: l
     st.markdown("---")
 
 
-def show_results():
+def show_results() -> None:
     """Display the results of the selected workflow."""
 
     current_wkdir = get_wkdir()
@@ -346,24 +362,64 @@ def show_results():
     results_dir = Path(chosen_workflow, "Results")
     if not results_dir.exists():
         st.warning("No results have been found for the selected workflow!")
-        return
+        return None
+
+    status_map, modules_name = _load_workflow_status_map(chosen_workflow)
+
     results_dirs = [dir for dir in results_dir.iterdir() if dir.is_dir()]
-    results_names = [dir.stem for dir in results_dirs]
+    results_names = list(set([dir.stem for dir in results_dirs]) & set(modules_name))
+
     workflow_module_order = _get_workflow_module_order(chosen_workflow)
     ordered_results = [name for name in workflow_module_order if name in results_names]
     unordered_results = sorted([name for name in results_names if name not in ordered_results])
     results_name = ordered_results + unordered_results
     if not results_name:
         st.warning("No results have been found!")
-        return
+        return None
 
-    status_map = _load_workflow_status_map(chosen_workflow)
     _render_workflow_status_summary(status_map, results_name)
 
-    results_tabs = st.tabs(results_name)
+    _display_xml(
+        path=Path(chosen_workflow, "selected_cpacs.xml"),
+        specify_name="Selected CPACS (Reference Geometry)",
+    )
 
-    for tab, tab_name in zip(results_tabs, results_name):
+    tab_names = list(results_name)
+
+    post_names = []
+    if PYAVL_MODULE in results_name and STATICSTABILITY_MODULE not in results_name:
+        post_names.append(STATICSTABILITY_MODULE)
+
+    if PYAVL_MODULE in results_name and SKINFRICTION_MODULE not in results_name:
+        post_names.append(SKINFRICTION_MODULE)
+
+    total_tabs = tab_names + post_names
+    results_tabs = st.tabs(total_tabs)
+    for tab, tab_name in zip(results_tabs, total_tabs):
         with tab:
+            if tab_name == STATICSTABILITY_MODULE:
+                try:
+                    static_stability(
+                        cpacs=CPACS(Path(chosen_workflow, "01_pyavl", "ToolOutput.xml")),
+                        results_dir=get_results_directory(
+                            module_name=STATICSTABILITY_MODULE,
+                            wkflow_dir=chosen_workflow,
+                        ),
+                    )
+                except Tixi3Exception:
+                    st.warning("No outputs from 'pyavl' found.")
+                    continue
+                except Exception as e:
+                    raise Exception(e)
+
+            if tab_name == SKINFRICTION_MODULE:
+                skin_friction(
+                    cpacs=CPACS(Path(chosen_workflow, "selected_cpacs.xml")),
+                    results_dir=get_results_directory(
+                        module_name=SKINFRICTION_MODULE,
+                        wkflow_dir=chosen_workflow,
+                    ),
+                )
             display_results(Path(results_dir, tab_name))
 
 
@@ -680,7 +736,7 @@ def _display_pkl(path: Path) -> None:
         with _timed(f"geometry preview build {path.name}"):
             workflow_root = _find_workflow_root(path)
             if workflow_root is not None:
-                cpacs_in = workflow_root / "00_ToolInput.xml"
+                cpacs_in = workflow_root / "selected_cpacs.xml"
                 if cpacs_in.exists():
                     base_cpacs = CPACS(cpacs_in)
                     params_to_update: dict[str, dict[str, list[float | str]]] = {}
@@ -1289,15 +1345,14 @@ def _display_html(path: Path) -> None:
 
 
 def _display_md(path: Path) -> None:
-    with st.container(border=True):
-        md_data = path.read_bytes()
-        if _looks_binary(md_data):
-            st.info(f"📄 {path.name} (binary file, cannot display as text)")
-            return None
+    md_data = path.read_bytes()
+    if _looks_binary(md_data):
+        st.info(f"📄 {path.name} (binary file, cannot display as text)")
+        return None
 
-        md_text = md_data.decode("utf-8", errors="replace")
-        html = highlight_stability(md_text)
-        st.markdown(html, unsafe_allow_html=True)
+    md_text = md_data.decode("utf-8", errors="replace")
+    html = highlight_stability(md_text)
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def _display_log(path: Path) -> None:
@@ -1312,23 +1367,22 @@ def _display_log(path: Path) -> None:
     log_text = log_data.decode("utf-8", errors="replace")
     if path.name == "logfile_SU2_CFD.log":
         with st.session_state.logs_container:
-            with st.container(border=True):
-                if st.checkbox(
-                    label=f"**{path.name}**",
-                    value=False,
-                ):
-                    segments = parse_ascii_tables(log_text)
-                    for kind, payload in segments:
-                        if kind == "text":
-                            if payload.strip():
-                                st.code(payload)
+            if st.checkbox(
+                label=f"**{path.name}**",
+                value=False,
+            ):
+                segments = parse_ascii_tables(log_text)
+                for kind, payload in segments:
+                    if kind == "text":
+                        if payload.strip():
+                            st.code(payload)
+                    else:
+                        rows = payload
+                        if len(rows) > 1 and len(rows[0]) == len(rows[1]):
+                            df = DataFrame(rows[1:], columns=rows[0])
                         else:
-                            rows = payload
-                            if len(rows) > 1 and len(rows[0]) == len(rows[1]):
-                                df = DataFrame(rows[1:], columns=rows[0])
-                            else:
-                                df = DataFrame(rows)
-                            st.table(df)
+                            df = DataFrame(rows)
+                        st.table(df)
         return None
 
     with st.session_state.logs_container:
@@ -1586,37 +1640,30 @@ def _display_pdf(path: Path) -> None:
 
 def _display_csv(path: Path) -> None:
     if path.name == "history.csv":
-        with st.container(
-            border=True,
-        ):
-            if st.checkbox(
-                label="**Convergence**",
-                value=True,
-            ):
-                try:
-                    df = pd.read_csv(path)
-                    df.rename(columns=lambda x: x.strip().strip('"'), inplace=True)
+        try:
+            df = pd.read_csv(path)
+            df.rename(columns=lambda x: x.strip().strip('"'), inplace=True)
 
-                    coef_cols = [col for col in ["CD", "CL", "CMy"] if col in df.columns]
-                    if coef_cols:
-                        st.line_chart(df[coef_cols])
+            coef_cols = [col for col in ["CD", "CL", "CMy"] if col in df.columns]
+            if coef_cols:
+                st.line_chart(df[coef_cols])
 
-                    rms_cols = [
-                        col
-                        for col in ["rms[Rho]", "rms[RhoU]", "rms[RhoV]", "rms[RhoW]", "rms[RhoE]"]
-                        if col in df.columns
-                    ]
-                    if rms_cols:
-                        st.line_chart(df[rms_cols])
+            rms_cols = [
+                col
+                for col in ["rms[Rho]", "rms[RhoU]", "rms[RhoV]", "rms[RhoW]", "rms[RhoE]"]
+                if col in df.columns
+            ]
+            if rms_cols:
+                st.line_chart(df[rms_cols])
 
-                except Exception as exc:
-                    st.warning(f"Could not parse {path.name} as CSV: {exc}")
-                    data = path.read_bytes()
-                    if _looks_binary(data):
-                        st.info(f"📄 {path.name} (binary file, cannot display as text)")
-                        return None
-                    text_data = data.decode("utf-8", errors="replace")
-                    st.text_area(path.stem, text_data, height=200, key=f"{path}_csv_raw")
+        except Exception as exc:
+            st.warning(f"Could not parse {path.name} as CSV: {exc}")
+            data = path.read_bytes()
+            if _looks_binary(data):
+                st.info(f"📄 {path.name} (binary file, cannot display as text)")
+                return None
+            text_data = data.decode("utf-8", errors="replace")
+            st.text_area(path.stem, text_data, height=200, key=f"{path}_csv_raw")
         return None
 
     st.markdown(f"**{path.name}**")
@@ -1638,12 +1685,12 @@ def _display_csv(path: Path) -> None:
                     lambda x: "" if pd.isna(x) else np.format_float_positional(x, trim="-")
                 )
 
-        stab_cols = {"long_stab", "dir_stab", "lat_stab"}
+        stab_cols = {"longitudinal", "directional", "lateral"}
         if stab_cols.issubset(set(df.columns)):
             stable_mask = (
-                (df["long_stab"] == "Stable")
-                & (df["dir_stab"] == "Stable")
-                & (df["lat_stab"] == "Stable")
+                (df["longitudinal"] == "Stable")
+                & (df["directional"] == "Stable")
+                & (df["lateral"] == "Stable")
             )
 
             def _row_style(row):
@@ -1766,6 +1813,11 @@ def _display_csv(path: Path) -> None:
                 varying_args.append(arg_name)
                 fixed_values[arg_name] = float(values[0])
 
+        if not varying_args:
+            # If nothing varies, there's no "trend" to visualize.
+            # We exit silently or provide a small note.
+            return None
+
         with controls_container:
             if constant_args:
                 st.caption("Constant arguments")
@@ -1871,9 +1923,13 @@ def _display_csv(path: Path) -> None:
         plot_container.plotly_chart(fig, width="stretch", key=f"{path}_avl_interactive_plot")
 
 
-def _display_xml(path: Path) -> None:
+def _display_xml(path: Path, specify_name: str | None = None) -> None:
     cpacs = CPACS(path)
-    st.markdown(f"**CPACS {cpacs.ac_name}**")
+    if specify_name is None:
+        st.markdown(f"**CPACS {cpacs.ac_name}**")
+    else:
+        st.markdown(f"**{specify_name}**")
+
     section_3D_view(
         cpacs=cpacs,
         force_regenerate=False,
@@ -2043,7 +2099,7 @@ def _find_workflow_root(path: Path) -> Path | None:
 
 @lru_cache(maxsize=8)
 def _get_geometry_mode(workflow_root: Path) -> str | None:
-    cpacs_path = workflow_root / "00_ToolInput.xml"
+    cpacs_path = workflow_root / "selected_cpacs.xml"
     if not cpacs_path.exists():
         return None
     try:

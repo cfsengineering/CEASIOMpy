@@ -43,14 +43,14 @@ def gui_settings(cpacs: CPACS) -> None:
             name="Mass Type",
             default_value=MASS_TYPES,
             key="mass_type",
-            description="Type of mass to use for CL calculation.",
+            help="Type of mass to use for CL calculation.",
         )
 
         if mass_type == "Custom":
             float_vartype(
                 tixi=tixi,
                 xpath=CLCALC_CUSTOM_MASS_XPATH,
-                description="Mass value user specified (custom).",
+                help="Mass value user specified (custom).",
                 name="Mass Value.",
                 default_value=1.0,
                 key="custom_mass",
@@ -64,7 +64,7 @@ def gui_settings(cpacs: CPACS) -> None:
                 xpath=CLCALC_PERC_FUEL_MASS_XPATH,
                 default_value=100.0,
                 name="Percent fuel mass.",
-                description="Percentage of fuel mass between mTOM and mZFM.",
+                help="Percentage of fuel mass between mTOM and mZFM.",
                 key="percent_fuel_mass",
             )
         else:
@@ -79,7 +79,7 @@ def gui_settings(cpacs: CPACS) -> None:
             tixi=tixi,
             xpath=CLCALC_CRUISE_MACH_XPATH,
             default_value=0.78,
-            description="Aircraft cruise Mach number.",
+            help="Aircraft cruise Mach number.",
             name="Cruise Mach",
             key="mach_cruise",
         )
@@ -88,7 +88,7 @@ def gui_settings(cpacs: CPACS) -> None:
             tixi=tixi,
             xpath=CLCALC_CRUISE_ALT_XPATH,
             default_value=1000.0,
-            description="Aircraft cruise altitude.",
+            help="Aircraft cruise altitude.",
             name="Cruise Altitude",
             key="altitude_cruise",
         )
@@ -97,7 +97,7 @@ def gui_settings(cpacs: CPACS) -> None:
             tixi=tixi,
             xpath=CLCALC_LOAD_FACT_XPATH,
             default_value=1.05,
-            description="Load factor cruise of aircraft.",
+            help="Load factor cruise of aircraft.",
             name="Load Factor",
             key="load_factor_cruise",
         )

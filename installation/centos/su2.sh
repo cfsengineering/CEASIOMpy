@@ -12,7 +12,7 @@ Usage:
 Options:
   --with_mpi true|false   Build from source with MPI (default: false).
   --version X.Y.Z         SU2 version to install (default: 8.1.0).
-  --prefix DIR            Install root (default: <CEASIOMpy>/INSTALLDIR).
+  --prefix DIR            Install root (default: <CEASIOMpy>/installdir).
   -h, --help              Show this help.
 
 Notes:
@@ -35,7 +35,7 @@ with_mpi="false"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Adjusting logic to find ceasiompy root or fallback to home
 ceasiompy_root="$(cd "$script_dir/../../" 2>/dev/null && pwd || echo "$HOME/ceasiompy")"
-prefix="$ceasiompy_root/INSTALLDIR"
+prefix="$ceasiompy_root/installdir"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in

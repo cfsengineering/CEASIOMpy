@@ -259,7 +259,7 @@ class Workflow:
         if not self.cpacs_in.exists():
             raise FileNotFoundError(f"{self.cpacs_in} has not been found!")
 
-        wkflow_cpacs_in = Path.joinpath(self.current_wkflow_dir, "00_ToolInput.xml").absolute()
+        wkflow_cpacs_in = Path.joinpath(self.current_wkflow_dir, "selected_cpacs.xml").absolute()
 
         shutil.copy(self.cpacs_in, wkflow_cpacs_in)
 

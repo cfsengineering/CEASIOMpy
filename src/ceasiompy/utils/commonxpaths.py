@@ -72,12 +72,8 @@ RANGE_CRUISE_ALT_XPATH = RANGE_XPATH + "/CruiseAltitude"
 WEIGHT_XPATH = CEASIOMPY_XPATH + "/weight"
 
 CLCALC_XPATH = CEASIOMPY_XPATH + "/aerodynamics/clCalculation"
-PLOT_XPATH = CEASIOMPY_XPATH + "/aerodynamics/plotAeroCoefficient"
-RS_XPATH = PLOT_XPATH + "/responseSurface"
-AEROMAP_TO_PLOT_XPATH = PLOT_XPATH + "/aeroMapToPlot"
-USED_SU2_MESH_XPATH = CEASIOMPY_XPATH + "/MeshPath"
 
-SF_XPATH = CEASIOMPY_XPATH + "/aerodynamics/skinFriction"
+USED_SU2_MESH_XPATH = CEASIOMPY_XPATH + "/MeshPath"
 
 WETTED_AREA_XPATH = CEASIOMPY_XPATH + "/geometry/analysis/wettedArea"
 WING_AREA_XPATH = CEASIOMPY_XPATH + "/geometry/analysis/wingArea"
@@ -86,12 +82,12 @@ WING_SPAN_XPATH = CEASIOMPY_XPATH + "/geometry/analysis/wingSpan"
 # SMTRAIN_XPATH = CEASIOMPY_XPATH + "/surrogateModel"
 # SMUSE_XPATH = CEASIOMPY_XPATH + "/surrogateModelUse"
 
-OPTwkdir_XPATH = CEASIOMPY_XPATH + "/filesPath/optimPath"
+OPTWKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/optimPath"
 SMFILE_XPATH = CEASIOMPY_XPATH + "/filesPath/SMpath"
 SU2MESH_XPATH = CEASIOMPY_XPATH + "/filesPath/su2Mesh"
 EDGE_MESH_XPATH = CEASIOMPY_XPATH + "/filesPath/edgeMesh"
 
-wkdir_XPATH = CEASIOMPY_XPATH + "/filesPath/wkdirPath"
+WKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/wkdirPath"
 
 SM_XPATH = CEASIOMPY_XPATH + "/filesPath/surrogateModelPath"
 SUGGESTED_POINTS_XPATH = CEASIOMPY_XPATH + "/filesPath/suggestedPointsPath"

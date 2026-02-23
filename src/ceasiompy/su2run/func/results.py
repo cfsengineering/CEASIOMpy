@@ -56,7 +56,6 @@ from cpacspy.utils import COEFS
 from ceasiompy.cpacs2gmsh import GMSH_SYMMETRY_XPATH
 from ceasiompy.utils.commonnames import (
     SU2_FORCES_BREAKDOWN_NAME,
-    SURFACE_FLOW_FILE_NAME,
 )
 from ceasiompy.utils.commonxpaths import (
     AREA_XPATH,
@@ -106,8 +105,8 @@ def update_damping_derivatives(
     coefs: Dict,
     velocity: float,
 ) -> None:
-    rotation_rate = get_value(tixi, SU2_ROTATION_RATE_XPATH)
-    ref_len = tixi.getTextElement(WING_SPAN_XPATH)
+    rotation_rate = float(get_value(tixi, SU2_ROTATION_RATE_XPATH))
+    ref_len = tixi.getDoubleElement(WING_SPAN_XPATH)
     adim_rot_rate = rotation_rate * ref_len / velocity
 
     for axis in ["dp", "dq", "dr"]:

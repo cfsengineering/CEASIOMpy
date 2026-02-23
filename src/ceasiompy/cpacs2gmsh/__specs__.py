@@ -85,7 +85,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             default_value=10.0,
             name="Farfield size",
             key="farfield_size",
-            description="Farfield size factor compare to the aircraft largest dimension.",
+            help="Farfield size factor compare to the aircraft largest dimension.",
         )
 
     with st.expander(
@@ -101,7 +101,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             default_value=default_value,
             name="Mesh type",
             key="mesh_type",
-            description="Choose between Euler and RANS mesh.",
+            help="Choose between Euler and RANS mesh.",
         )
 
         if euler_rans == "EULER":
@@ -120,7 +120,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                         default_value=False,
                         name="Use Symmetry",
                         key="symmetry",
-                        description="Create a symmetry condition.",
+                        help="Create a symmetry condition.",
                     )
 
                 with right_col:
@@ -130,7 +130,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                         default_value=30.0,
                         name="Farfield mesh size",
                         key="farfield_mesh_size",
-                        description="""Cell size on the farfield.""",
+                        help="""Cell size on the farfield.""",
                     )
 
         else:
@@ -152,7 +152,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                         default_value=1.5,
                         key="refine_factor_angled_lines",
                         name="Edges Refinement factor",
-                        description="""
+                        help="""
                             Refinement factor of edges at intersections
                             that are not flat enough (between angled surfaces).
                         """,
@@ -164,7 +164,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                         name="Feature Angle",
                         default_value=40.0,
                         key="feature_angle",
-                        description="""Larger angles are treated as resulting
+                        help="""Larger angles are treated as resulting
                             from approximation of curved surfaces.
                         """,
                     )
@@ -176,7 +176,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                         name="Growth ratio",
                         default_value=1.2,
                         key="growth_ratio",
-                        description="""The largest allowed ratio between
+                        help="""The largest allowed ratio between
                             the wall-normal edge lengths of consecutive cells.
                         """,
                     )
@@ -187,7 +187,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                         name="Growth factor",
                         default_value=1.4,
                         key="growth_factor",
-                        description="""Desired growth factor between
+                        help="""Desired growth factor between
                             edge lengths of coincident tetrahedra.
                         """,
                     )
@@ -200,7 +200,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                         default_value=20,
                         key="n_layer",
                         name="Number of layers",
-                        description="Number of prismatic element layers.",
+                        help="Number of prismatic element layers.",
                     )
                 with mid_col:
                     float_vartype(
@@ -209,7 +209,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                         default_value=0.003,
                         key="h_first_layer",
                         name="Height of first layer",
-                        description="""
+                        help="""
                             Height of the first prismatic cell,
                             touching the wall, in mesh length units.
                         """,
@@ -221,7 +221,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                         default_value=10.0,
                         key="max_layer_thickness",
                         name="Max layer thickness",
-                        description="""
+                        help="""
                             The maximum allowed absolute thickness of the prismatic layer.
                         """,
                     )
@@ -248,7 +248,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                 default_value=0.1,
                 name="Fuselage mesh size",
                 key="fuselage_mesh_size",
-                description="""Cell size on the fuselage (if any).""",
+                help="""Cell size on the fuselage (if any).""",
             )
 
         with second_col:
@@ -258,7 +258,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                 default_value=0.1,
                 name="Wings mesh size",
                 key="wing_mesh_size",
-                description="""
+                help="""
                     Cell size on the wings (if any).
                 """,
             )
@@ -270,7 +270,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                 default_value=0.23,
                 name="Engine Mesh Size",
                 key="engine_mesh_size",
-                description="Value assigned for the engine surfaces mesh size.",
+                help="Value assigned for the engine surfaces mesh size.",
             )
 
         with fourth_col:
@@ -280,7 +280,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                 default_value=0.23,
                 name="Propellers Mesh Size",
                 key="propeller_mesh_size",
-                description="Value assigned for the propeller surfaces mesh size.",
+                help="Value assigned for the propeller surfaces mesh size.",
             )
 
     # Advanced Mesh Parameters
@@ -296,7 +296,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                 default_value=2.0,
                 name="n power factor",
                 key="n_power_factor",
-                description="Power of the power law of the refinement on LE and TE."
+                help="Power of the power law of the refinement on LE and TE."
             )
 
         with mid_col:
@@ -306,7 +306,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                 default_value=0.9,
                 name="n power field",
                 key="n_power_field",
-                description="Value that changes the measure of fist cells near aircraft parts.",
+                help="Value that changes the measure of fist cells near aircraft parts.",
             )
 
         with right_col:
@@ -316,7 +316,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                 default_value=2.0,
                 name="LE/TE refinement factor",
                 key="refine_factor",
-                description="Refinement factor of wing leading/trailing edge mesh.",
+                help="Refinement factor of wing leading/trailing edge mesh.",
             )
 
         bool_vartype(
@@ -325,7 +325,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             default_value=False,
             name="Auto refine",
             key="auto_refine",
-            description="""Automatically refine the mesh on surfaces that
+            help="""Automatically refine the mesh on surfaces that
                 are small compare to the chosen mesh size.
             """,
         )
@@ -336,7 +336,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             default_value=False,
             name="Save CGNS",
             key="save_cgns",
-            description="Save also the geometry in the .cgns format",
+            help="Save also the geometry in the .cgns format",
         )
 
         bool_vartype(
@@ -345,7 +345,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             default_value=False,
             name="Mesh Checker",
             key="mesh_checker",
-            description="Check mesh quality with pyvista.",
+            help="Check mesh quality with pyvista.",
         )
 
         bool_vartype(
@@ -354,7 +354,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             default_value=False,
             name="Open GMSH GUI",
             key="open_gmsh",
-            description="Open GMSH GUI when the mesh is created",
+            help="Open GMSH GUI when the mesh is created",
         )
 
         bool_vartype(
@@ -363,7 +363,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             default_value=False,
             name="Refine truncated TE",
             key="refine_truncated",
-            description="Enable the refinement of truncated trailing edge.",
+            help="Enable the refinement of truncated trailing edge.",
         )
 
         bool_vartype(
@@ -372,7 +372,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             default_value=False,
             name="Export propeller(s) to be use as disk actuator",
             key="export_propellers",
-            description="Export propeller(s) to be use as disk actuator",
+            help="Export propeller(s) to be use as disk actuator",
         )
 
     with st.expander(
@@ -388,7 +388,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                 default_value=20.0,
                 name="Engine intake position",
                 key="intake_percent",
-                description="""
+                help="""
                     Position of the intake surface boundary condition
                     in percentage of the engine length from the
                     beginning of the engine.
@@ -402,7 +402,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                 default_value=20.0,
                 name="Engine exhaust position",
                 key="exhaust_percent",
-                description="""Position of the exhaust surface boundary
+                help="""Position of the exhaust surface boundary
                     condition in percentage of the engine length from
                     the end of the engine.
                 """,
@@ -418,7 +418,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             name="Ail., Elev., Rudder Angles",
             key="ctrl_surf_angle",
             xpath=GMSH_CTRLSURF_ANGLE_XPATH,
-            description="List of Aileron, Elevator, Rudder angles.",
+            help="List of Aileron, Elevator, Rudder angles.",
         )
 
 
@@ -435,7 +435,7 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
             default_value=0.01,
             name="Airfoil Mesh Size",
             key="airfoil_mesh_size",
-            description="Mesh size on the airfoil contour for 2D mesh generation",
+            help="Mesh size on the airfoil contour for 2D mesh generation",
         )
 
         float_vartype(
@@ -444,7 +444,7 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
             default_value=0.2,
             name="External Mesh Size",
             key="external_mesh_size",
-            description="Mesh size in the external domain for 2D mesh generation",
+            help="Mesh size in the external domain for 2D mesh generation",
         )
 
         list_vartype(
@@ -453,7 +453,7 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
             default_value=["su2", "msh", "vtk", "wrl", "stl", "mesh", "cgns", "dat"],
             name="Mesh Format",
             key="mesh_format_2d",
-            description="""
+            help="""
                 Output format for 2D mesh file (su2, msh, vtk, wrl, stl, mesh, cgns, dat).
             """,
         )
@@ -468,7 +468,7 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
             default_value=True,
             name="No Boundary Layer",
             key="no_boundary_layer",
-            description="Disable boundary layer (unstructured mesh with triangles only).",
+            help="Disable boundary layer (unstructured mesh with triangles only).",
         )
 
         if not no_boundary_layer:
@@ -482,7 +482,7 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
                     default_value=0.001,
                     name="First Layer Height",
                     key="first_layer_height",
-                    description="First layer height for 2D mesh generation",
+                    help="First layer height for 2D mesh generation",
                 )
 
                 float_vartype(
@@ -491,7 +491,7 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
                     default_value=1.2,
                     name="Growth Factor",
                     key="growth_factor",
-                    description="Growth factor of boundary layer cells.",
+                    help="Growth factor of boundary layer cells.",
                 )
 
                 int_vartype(
@@ -500,7 +500,7 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
                     default_value=25,
                     name="Number of Layers",
                     key="nb_layers",
-                    description="Number of layers in the boundary layer.",
+                    help="Number of layers in the boundary layer.",
                 )
         else:
             safe_remove(tixi, xpath=GMSH_2D_RATIO_XPATH)
@@ -519,7 +519,7 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
             default_value=["Structured", "Hybrid"],
             name="Structured or Hybrid Mesh",
             key="structured_mesh",
-            description="Choose if you want a structured mesh or a hybrid one."
+            help="Choose if you want a structured mesh or a hybrid one."
         )
 
         default_value = (
@@ -534,7 +534,7 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
             default_value=default_value,
             name="Farfield Type",
             key="farfield_type",
-            description="""
+            help="""
                 Choose farfield shape (automatically set to CType for structured mesh).
             """,
         )
@@ -546,7 +546,7 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
                 default_value=10.0,
                 name="Farfield Radius",
                 key="farfield_radius",
-                description="Farfield radius for circular farfield in 2D mesh generation.",
+                help="Farfield radius for circular farfield in 2D mesh generation.",
             )
         else:
             safe_remove(tixi, xpath=GMSH_2D_FARFIELD_RADIUS_XPATH)
@@ -558,7 +558,7 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
                 default_value=6.0,
                 name="Wake Length",
                 key="wake_length",
-                description="""
+                help="""
                     Wake length downstream of the airfoil for C-type farfield.
                 """,
             )
@@ -572,7 +572,7 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
                 default_value=5.0,
                 name="Length",
                 key="length",
-                description="Length of domain for rectangular farfield.",
+                help="Length of domain for rectangular farfield.",
             )
         else:
             safe_remove(tixi, xpath=GMSH_2D_LENGTH_XPATH)
@@ -584,7 +584,7 @@ def _load_2d_gui_settings(tixi: Tixi3) -> None:
                 default_value=5.0,
                 name="Height Length",
                 key="height_length",
-                description="Height of domain for C-type farfield.",
+                help="Height of domain for C-type farfield.",
             )
         else:
             safe_remove(tixi, xpath=GMSH_2D_HEIGHT_LENGTH_XPATH)

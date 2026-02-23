@@ -31,7 +31,7 @@ from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
 
 # Functions
 
-def save_cpacs_file():
+def save_cpacs_file() -> None:
     """Save Settings in selected_cpacs.xml"""
     saved_cpacs_file = Path(st.session_state.workflow.working_dir, "selected_cpacs.xml")
 

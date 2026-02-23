@@ -34,9 +34,6 @@ build-linux:
         environment-file: environment.yml
         use-mamba: true # Mamba is much faster and more reliable than Conda for solving envs
 
-    # Note: setup-miniconda v3 has built-in caching support! 
-    # It is often more reliable than the manual actions/cache@v4 block.
-
     - name: Install libGLU
       run: sudo apt-get install -y libglu1-mesa-dev
 

@@ -1831,6 +1831,9 @@ def _display_csv(path: Path) -> None:
             plot_container.info("No data points for the selected argument slice.")
             return None
 
+        if x_arg is None or y_arg is None:
+            raise ValueError("Can not assign to dict a None value.")
+
         x_col = arg_cols_required[x_arg]
         y_col = arg_cols_required[y_arg]
         z_label = target_label

@@ -24,19 +24,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.11.11
+    - name: Set up Python 3.11.14
       uses: actions/setup-python@v2
       with:
-        python-version: 3.11.11
+        python-version: 3.11.14
 
     - name: Setup Miniforge3
-      uses: conda-incubator/setup-miniconda@v2
+      uses: conda-incubator/setup-miniconda@v3
       with:
-        miniforge-variant: Miniforge3
-        miniforge-version: latest
-        activate-environment: ceasiompy
-        use-mamba: false
-        conda-version: 25.3.1
+        auto-update-conda: true
+        python-version: 3.11.14
 
     - name: Set cache date # With that, cache will be updated every day
       run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV

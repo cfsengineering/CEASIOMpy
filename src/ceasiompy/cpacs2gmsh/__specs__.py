@@ -167,7 +167,7 @@ def _load_3d_gui_settings(cpacs: CPACS) -> None:
                     float_vartype(
                         tixi=tixi,
                         xpath=GMSH_MESH_SIZE_WING_XPATH + f"/{wing_uid}",
-                        default_value=ref_chord / 20.0,
+                        default_value=round(ref_chord / 20.0, 5),
                         min_value=0.0,
                         max_value=ref_chord,
                         name=f"Wing: {wing_uid} mesh size",
@@ -177,9 +177,9 @@ def _load_3d_gui_settings(cpacs: CPACS) -> None:
                         """,
                     )
                 with right_col:
-                    st.number_input(
+                    st.text_input(
                         label=f"Reference Chord of wing {wing_uid}",
-                        value=ref_chord,
+                        value=f"{ref_chord:.5f}",
                         disabled=True,
                     )
 
@@ -199,7 +199,7 @@ def _load_3d_gui_settings(cpacs: CPACS) -> None:
                     float_vartype(
                         tixi=tixi,
                         xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH + f"/{fus_uid}",
-                        default_value=fus_mean_circumference / 50.0,
+                        default_value=round(fus_mean_circumference / 50.0, 5),
                         min_value=0.0,
                         max_value=fus_mean_circumference,
                         name=f"Fuselage: {fus_uid} mesh size",
@@ -208,10 +208,10 @@ def _load_3d_gui_settings(cpacs: CPACS) -> None:
                             {fus_uid}.""",
                     )
                 with right_col:
-                    st.number_input(
+                    st.text_input(
                         label="Mean Circumference",
                         disabled=True,
-                        value=fus_mean_circumference,
+                        value=f"{fus_mean_circumference:.5f}",
                     )
 
         pylons_config = aircraft_config.get_engine_pylons()
@@ -477,10 +477,10 @@ def _domain_settings(
             description="Length from upstream farfield to the aircraft's nose.",
             key="cpacs2gmsh_upstream_length",
             xpath=GMSH_UPSTREAM_LENGTH_XPATH,
-            default_value=round(vec["x"], ndigits=3),
+            default_value=round(3 * vec["x"], ndigits=3),
             min_value=(delta_x := vec["x"] / 10.0),
             step=delta_x,
-            max_value=5.0 * vec["x"],
+            # max_value=5.0 * vec["x"],
         )
 
     with right_col:
@@ -490,10 +490,10 @@ def _domain_settings(
             description="Downstream length: distance from farfield to the aircraft's tail.",
             key="cpacs2gmsh_wake_length",
             xpath=GMSH_WAKE_LENGTH_XPATH,
-            default_value=round(1.5 * vec["x"], ndigits=3),
+            default_value=round(8 * vec["x"], ndigits=3),
             min_value=(delta_x := vec["x"] / 10.0),
             step=delta_x,
-            max_value=5.0 * vec["x"],
+            # max_value=5.0 * vec["x"],
         )
 
     left_col, right_col = st.columns(2)
@@ -504,10 +504,10 @@ def _domain_settings(
             description="Length to add in the y-direction.",
             xpath=GMSH_Y_LENGTH_XPATH,
             key="cpacs2gmsh_y_length",
-            default_value=round(vec["y"], ndigits=3),
+            default_value=round(3 * vec["y"], ndigits=3),
             min_value=(delta_y := vec["y"] / 10.0),
             step=delta_y,
-            max_value=2 * vec["y"],
+            # max_value=2 * vec["y"],
         )
     with right_col:
         z_length = float_vartype(
@@ -516,7 +516,7 @@ def _domain_settings(
             description="Length to add in the z-direction.",
             xpath=GMSH_Z_LENGTH_XPATH,
             key="cpacs2gmsh_z_length",
-            default_value=round(3.0 * vec["z"], ndigits=3),
+            default_value=round(5.0 * vec["z"], ndigits=3),
             min_value=(delta_z := vec["z"] / 10.0),
             step=delta_z,
             max_value=vec["z"] * 10.0,

@@ -107,6 +107,7 @@ def process_3d_geometry(
             results_dir=results_dir,
             mesh_settings=mesh_settings,
             farfield_settings=farfield_settings,
+            surface_mesh_path=surface_mesh_path,
         )
 
     progress_update(

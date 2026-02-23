@@ -168,19 +168,25 @@ def show_results():
                 and zip_state.get("workflow_mtime_ns") == workflow_mtime_ns
             )
 
-            if not is_current:
-                workflow_zip = _build_workflow_zip(
-                    str(chosen_workflow),
-                    workflow_mtime_ns,
-                )
+            if st.button(
+                label=f"Prepare {chosen_workflow_name}.zip",
+                width="stretch",
+                key=f"{chosen_workflow}_prepare_zip",
+            ):
+                with st.spinner("Preparing ZIP..."):
+                    workflow_zip = _build_workflow_zip(
+                        str(chosen_workflow),
+                        workflow_mtime_ns,
+                    )
                 st.session_state[zip_state_key] = {
                     "workflow_path": str(chosen_workflow),
                     "workflow_mtime_ns": workflow_mtime_ns,
                     "workflow_zip": workflow_zip,
                 }
                 zip_state = st.session_state[zip_state_key]
+                is_current = True
 
-            if "workflow_zip" in zip_state:
+            if is_current and "workflow_zip" in zip_state:
                 st.download_button(
                     label=f"Download {chosen_workflow_name}",
                     data=zip_state["workflow_zip"],

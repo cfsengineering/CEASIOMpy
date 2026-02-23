@@ -251,7 +251,11 @@ def _apply_symmetry_cut(fused_parts: list[FuseEntry]) -> list[FuseEntry]:
         if not kept_volumes:
             continue
 
-        updated_parts.append(FuseEntry(name=part.name, dimtag=kept_volumes[0], part_type=part.part_type))
+        updated_parts.append(FuseEntry(
+            name=part.name,
+            dimtag=kept_volumes[0],
+            part_type=part.part_type,
+        ))
         for k, extra_dimtag in enumerate(kept_volumes[1:], start=2):
             updated_parts.append(FuseEntry(
                 name=f"{part.name}#part{k}",
@@ -599,7 +603,10 @@ def _infer_wall_size_from_surface_points(
         oriented=False,
         recursive=True,
     )
-    point_dimtags = sorted({(dim, tag) for dim, tag in wall_points if dim == 0}, key=lambda dt: dt[1])
+    point_dimtags = sorted(
+        {(dim, tag) for dim, tag in wall_points if dim == 0},
+        key=lambda dt: dt[1],
+    )
     if not point_dimtags:
         return farfield_size * 0.05
 
@@ -681,11 +688,16 @@ def _set_fluid_boundary_gradation_field(
 
     background_field = 4
     gmsh.model.mesh.field.add("Min", background_field)
-    gmsh.model.mesh.field.setNumbers(background_field, "FieldsList", [threshold_field, near_wall_field])
+    gmsh.model.mesh.field.setNumbers(
+        background_field,
+        "FieldsList",
+        [threshold_field, near_wall_field],
+    )
     gmsh.model.mesh.field.setAsBackgroundMesh(background_field)
     log.info(
         "Applied fluid-boundary gradation field: "
-        f"wall_size={wall_size:.4g}, farfield_size={farfield_size:.4g}, dist_max={dist_max:.4g}"
+        f"wall_size={wall_size:.4g}, farfield_size={farfield_size:.4g}, "
+        f"dist_max={dist_max:.4g}"
     )
 
 
@@ -760,7 +772,6 @@ def _write_surface_subset_mesh(
     unique_surface_tags = sorted(set(surface_tags))
     surface_dimtags = [(2, tag) for tag in unique_surface_tags]
     curve_dimtags: list[tuple[int, int]] = []
-    point_dimtags: list[tuple[int, int]] = []
     if include_boundary_topology:
         curve_dimtags = sorted(
             {
@@ -775,19 +786,6 @@ def _write_surface_subset_mesh(
             },
             key=lambda dimtag: dimtag[1],
         )
-        point_dimtags = sorted(
-            {
-                (0, tag)
-                for dim, tag in gmsh.model.getBoundary(
-                    curve_dimtags,
-                    combined=False,
-                    oriented=False,
-                    recursive=False,
-                )
-                if dim == 0
-            },
-            key=lambda dimtag: dimtag[1],
-        )
 
     element_tags_by_entity: dict[tuple[int, int], dict[int, list[int]]] = defaultdict(
         lambda: defaultdict(list)
@@ -797,9 +795,16 @@ def _write_surface_subset_mesh(
     )
     used_nodes: set[int] = set()
 
-    export_dimtags = curve_dimtags + surface_dimtags if include_boundary_topology else surface_dimtags
+    export_dimtags = (
+        curve_dimtags + surface_dimtags
+        if include_boundary_topology
+        else surface_dimtags
+    )
     for dim, entity_tag in export_dimtags:
-        elem_types, elem_tags_blocks, elem_node_blocks = gmsh.model.mesh.getElements(dim, entity_tag)
+        elem_types, elem_tags_blocks, elem_node_blocks = gmsh.model.mesh.getElements(
+            dim,
+            entity_tag,
+        )
         for elem_type, elem_tags_block, elem_node_block in zip(
             elem_types,
             elem_tags_blocks,
@@ -920,7 +925,7 @@ def _merge_stage_meshes_to_file(
     model_name: str,
     collapse_duplicates: bool = False,
 ) -> None:
-    """Concatenate stage mesh files into one output mesh in a temporary model."""
+    """Merge stage meshes into one output file in a temporary model."""
     existing_paths = [path for path in stage_paths if path.is_file()]
     if not existing_paths:
         return
@@ -955,71 +960,27 @@ def _merge_stage_meshes_to_file(
     gmsh.model.setCurrent(model_name)
 
 
-def _merge_farfield_and_symmetry_with_duplicate_collapse(
-    output_path: Path,
-    farfield_stage_path: Path,
-    symmetry_stage_path: Path,
-    model_name: str,
-) -> None:
-    """Merge farfield+symmetry stages and collapse superposed nodes/elements."""
-    existing_paths = [path for path in [farfield_stage_path, symmetry_stage_path] if path.is_file()]
-    if not existing_paths:
-        return
-
-    gmsh.model.setCurrent(model_name)
-    tmp_model_name_base = f"tmp_merge_{output_path.stem}"
-    tmp_model_name = tmp_model_name_base
-    suffix = 1
-    while True:
-        try:
-            gmsh.model.add(tmp_model_name)
-            break
-        except Exception:
-            suffix += 1
-            tmp_model_name = f"{tmp_model_name_base}_{suffix}"
-
-    gmsh.model.setCurrent(tmp_model_name)
-    for path in existing_paths:
-        gmsh.merge(str(path))
-
-    gmsh.model.mesh.removeDuplicateNodes()
-    removed_duplicate_elements = False
-    try:
-        gmsh.model.mesh.removeDuplicateElements()
-        removed_duplicate_elements = True
-    except Exception:
-        removed_duplicate_elements = False
-
-    if removed_duplicate_elements:
-        log.info("Collapsed duplicate nodes and elements in farfield+symmetry union stage.")
-    else:
-        log.info("Collapsed duplicate nodes in farfield+symmetry union stage.")
-
-    gmsh.write(str(output_path))
-
-    gmsh.model.setCurrent(tmp_model_name)
-    gmsh.model.remove()
-    gmsh.model.setCurrent(model_name)
-
-
 def _prepare_euler_fluid_domain(
-    results_dir: Path,
     mesh_settings: MeshSettings,
     farfield_settings: FarfieldSettings,
     aircraft_volume_tags: list[int] | None = None,
 ) -> None:
     """Build farfield-cut fluid domain and complete 2D boundary mesh for Euler."""
     if aircraft_volume_tags is None:
-        inner_volume_dimtags = sorted(gmsh.model.getEntities(3), key=lambda dimtag: dimtag[1])
+        inner_volume_dimtags = sorted(
+            gmsh.model.getEntities(3),
+            key=lambda dimtag: dimtag[1],
+        )
     else:
         existing_volume_tags = {tag for dim, tag in gmsh.model.getEntities(3) if dim == 3}
-        filtered_tags = sorted(set(int(tag) for tag in aircraft_volume_tags) & existing_volume_tags)
+        filtered_tags = sorted(
+            set(int(tag) for tag in aircraft_volume_tags) & existing_volume_tags
+        )
         inner_volume_dimtags = [(3, tag) for tag in filtered_tags]
 
     if not inner_volume_dimtags:
         raise RuntimeError("No in-memory aircraft volumes found for Euler fluid-domain setup.")
 
-    model_name = gmsh.model.getCurrent()
     log.info("Preparing euler fluid domain.")
     x_min, y_min, z_min, x_max, y_max, z_max = gmsh.model.getBoundingBox(-1, -1)
     symmetry = mesh_settings.symmetry
@@ -1165,13 +1126,15 @@ def _prepare_euler_fluid_domain(
         wall_surface_tags=wall_surface_tags,
         farfield_size=farfield_settings.farfield_mesh_size,
         model_span=model_span,
-        wall_size_hint=_infer_wall_size_from_mesh_settings(mesh_settings, farfield_settings.farfield_mesh_size),
+        wall_size_hint=_infer_wall_size_from_mesh_settings(
+            mesh_settings,
+            farfield_settings.farfield_mesh_size,
+        ),
     )
 
-    farfield_boundary_tags = sorted(farfield_group_tags)
     closure_boundary_tags = sorted(fluid_boundary_tags)
-    # Mesh the full fluid boundary in one pass to keep wall/farfield/symmetry
-    # interfaces conformal and avoid downstream open-loop issues.
+    # Always mesh the full fluid closure on the current fluid-domain topology so
+    # downstream Euler 3D reuses this exact boundary state.
     boundary_tags_for_2d = closure_boundary_tags
     all_entities = gmsh.model.getEntities(-1)
     gmsh.option.setNumber("Mesh.MeshOnlyVisible", 1)
@@ -1179,17 +1142,17 @@ def _prepare_euler_fluid_domain(
     # missing boundary entities on the fluid topology.
     gmsh.option.setNumber("Mesh.MeshOnlyEmpty", 1)
     try:
-        # Stage 1: build 1D on all fluid boundaries so each 2D stage has closed loops.
+        # Stage 1: build 1D on the same closure targeted by stage-2 2D meshing.
         gmsh.model.setVisibility(all_entities, 0, recursive=True)
         gmsh.model.setVisibility(
-            [(2, tag) for tag in closure_boundary_tags],
+            [(2, tag) for tag in boundary_tags_for_2d],
             1,
             recursive=True,
         )
         log.info("Starting 1D Euler fluid domain.")
         gmsh.model.mesh.generate(1)
 
-        # Stage 2: mesh all fluid-boundary surfaces in one pass.
+        # Stage 2: mesh targeted fluid-boundary surfaces.
         gmsh.model.setVisibility(all_entities, 0, recursive=True)
         gmsh.model.setVisibility(
             [(2, tag) for tag in boundary_tags_for_2d],
@@ -1197,7 +1160,7 @@ def _prepare_euler_fluid_domain(
             recursive=True,
         )
         if symmetry:
-            log.info("Starting 2D Euler full fluid boundary domain (symmetry enabled).")
+            log.info("Starting 2D Euler outer boundary domain (symmetry enabled).")
         else:
             log.info("Starting 2D Euler fluid boundary domain.")
         gmsh.model.mesh.generate(2)
@@ -1205,23 +1168,6 @@ def _prepare_euler_fluid_domain(
         gmsh.model.setVisibility(all_entities, 1, recursive=True)
         gmsh.option.setNumber("Mesh.MeshOnlyVisible", 0)
         gmsh.option.setNumber("Mesh.MeshOnlyEmpty", 0)
-
-    farfield_stage_mesh_path = Path(results_dir, "surface_mesh_farfield_stage.msh")
-    _write_surface_subset_mesh(
-        output_path=farfield_stage_mesh_path,
-        surface_tags=farfield_group_tags,
-        model_name=model_name,
-    )
-    log.info(f"Stored staged farfield mesh at {farfield_stage_mesh_path=}.")
-
-    if symmetry_surface_set:
-        symmetry_stage_mesh_path = Path(results_dir, "surface_mesh_symmetry_stage.msh")
-        _write_surface_subset_mesh(
-            output_path=symmetry_stage_mesh_path,
-            surface_tags=sorted(symmetry_surface_set),
-            model_name=model_name,
-        )
-        log.info(f"Stored staged symmetry mesh at {symmetry_stage_mesh_path=}.")
 
     gmsh.option.setNumber("Mesh.MeshSizeFromPoints", prev_size_from_points)
     gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", prev_size_extend)
@@ -1232,7 +1178,7 @@ def _prepare_euler_fluid_domain(
     log.info(f"farfield:      {len(farfield_group_tags)}")
     log.info(f"symmetry:      {len(symmetry_surface_set)}")
     log.info(f"fluid_volumes: {len(fluid_volume_tags)}")
-    log.info("Aircraft wall surfaces are preserved from geometry meshing stage.")
+    log.info("Fluid-wall surfaces are meshed on fluid-domain topology for Euler handoff.")
 
 
 def _mesh_size_for_part(
@@ -1430,8 +1376,8 @@ def _refine_le_te_end(
     n_power_factor: float,
 ) -> None:
     """Refine LE/TE and wing-tip regions for all wing parts."""
-    aircraft = _get_global_aircraft_proxy()
-    if aircraft is None:
+    global_aircraft = _get_global_aircraft_proxy()
+    if global_aircraft is None:
         return
 
     wing_parts = [part for part in aircraft_parts if part.part_type == PartType.wing]
@@ -1449,10 +1395,16 @@ def _refine_le_te_end(
         for wing_section in wing_part.wing_sections:
             already_refined_lines.update(int(line) for line in wing_section["lines_tags"])
 
+        wing_proxy = SimpleNamespace(
+            volume_tag=global_aircraft.volume_tag,
+            surfaces_tags=wing_part.surfaces_tags,
+            lines_tags=wing_part.lines_tags,
+        )
+
         refine_wing_section(
             mesh_fields,
-            [aircraft.volume_tag],
-            aircraft,
+            [wing_proxy.volume_tag],
+            wing_proxy,
             wing_part,
             wing_part.mesh_size,
             refine=refine_factor,
@@ -1461,6 +1413,11 @@ def _refine_le_te_end(
         )
 
     for wing_part in wing_parts:
+        wing_proxy = SimpleNamespace(
+            volume_tag=global_aircraft.volume_tag,
+            surfaces_tags=wing_part.surfaces_tags,
+            lines_tags=wing_part.lines_tags,
+        )
         x_chord = _wing_tip_refinement_width(wing_part)
         lines_in_other_parts = set(exclude_lines(wing_part, aircraft_parts))
         blocked_lines = already_refined_lines | lines_in_other_parts
@@ -1478,13 +1435,13 @@ def _refine_le_te_end(
             log.info(f"Found wing tip in {wing_part.uid}, refining lines {(line1, line2)}")
             refine_end_wing(
                 [line1, line2],
-                aircraft,
+                wing_proxy,
                 x_chord,
                 wing_part.surfaces_tags,
                 refine_factor,
                 wing_part.mesh_size,
                 n_power_factor,
-                [aircraft.volume_tag],
+                [wing_proxy.volume_tag],
                 mesh_fields,
             )
             gmsh.model.setColor([(1, line1), (1, line2)], 0, 180, 180)
@@ -1505,13 +1462,13 @@ def _refine_le_te_end(
             log.info(f"Found wing tip in {wing_part.uid}, refining lines {(line1, line2, line3)}")
             refine_end_wing(
                 [line1, line2, line3],
-                aircraft,
+                wing_proxy,
                 x_chord,
                 wing_part.surfaces_tags,
                 refine_factor,
                 wing_part.mesh_size,
                 n_power_factor,
-                [aircraft.volume_tag],
+                [wing_proxy.volume_tag],
                 mesh_fields,
             )
             gmsh.model.setColor([(1, line1), (1, line2), (1, line3)], 0, 180, 180)
@@ -1763,7 +1720,6 @@ def generate_2d_mesh(
     log.info(f"Stored staged aircraft mesh at {aircraft_stage_mesh_path=}.")
 
     _prepare_euler_fluid_domain(
-        results_dir=results_dir,
         mesh_settings=mesh_settings,
         farfield_settings=farfield_settings,
         aircraft_volume_tags=[
@@ -1772,38 +1728,43 @@ def generate_2d_mesh(
             if part.dimtag[0] == 3
         ],
     )
-    log.info("Exporting fluid-boundary union from in-memory wall/farfield/symmetry groups.")
-    wall_group_tags = _get_physical_group_surface_tags_by_name("wall")
+    log.info("Exporting outer boundary stage from in-memory farfield/symmetry groups.")
     farfield_group_tags = _get_physical_group_surface_tags_by_name("Farfield")
     symmetry_group_tags = (
         _get_physical_group_surface_tags_by_name("symmetry")
         if symmetry
         else []
     )
-    if not wall_group_tags:
-        raise RuntimeError("No wall physical group found for surface export.")
     if not farfield_group_tags:
         raise RuntimeError("No Farfield physical group found for surface export.")
-    combined_surface_tags = sorted(
-        set(wall_group_tags) | set(farfield_group_tags) | set(symmetry_group_tags)
-    )
+    outer_surface_tags = sorted(set(farfield_group_tags) | set(symmetry_group_tags))
 
-    union_surface_mesh_path = Path(results_dir, "surface_mesh_union_stage.msh")
+    outer_stage_mesh_path = Path(results_dir, "surface_mesh_outer_stage.msh")
     _write_surface_subset_mesh(
-        output_path=union_surface_mesh_path,
-        surface_tags=combined_surface_tags,
+        output_path=outer_stage_mesh_path,
+        surface_tags=outer_surface_tags,
         model_name=current_model_name,
         include_boundary_topology=True,
+    )
+    log.info(f"Stored staged outer boundary mesh at {outer_stage_mesh_path=}.")
+
+    union_surface_mesh_path = Path(results_dir, "surface_mesh_union_stage.msh")
+    _merge_stage_meshes_to_file(
+        output_path=union_surface_mesh_path,
+        stage_paths=[aircraft_stage_mesh_path, outer_stage_mesh_path],
+        model_name=current_model_name,
+        collapse_duplicates=True,
     )
     log.info(f"Stored concatenated boundary mesh at {union_surface_mesh_path=}.")
 
-    # Save mesh handoff artifact for downstream volume meshing.
+    # Save mesh handoff artifact for downstream volume meshing using the same
+    # merged-stage construction as the validated union artifact.
     surface_mesh_path = Path(results_dir, "surface_mesh.msh")
-    _write_surface_subset_mesh(
+    _merge_stage_meshes_to_file(
         output_path=surface_mesh_path,
-        surface_tags=combined_surface_tags,
+        stage_paths=[aircraft_stage_mesh_path, outer_stage_mesh_path],
         model_name=current_model_name,
-        include_boundary_topology=True,
+        collapse_duplicates=True,
     )
     log.info(f"Stored 2D Surface mesh at {surface_mesh_path=}.")
 

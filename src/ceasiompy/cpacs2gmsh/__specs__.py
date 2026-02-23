@@ -480,7 +480,6 @@ def _domain_settings(
             default_value=round(vec["x"], ndigits=3),
             min_value=(delta_x := vec["x"] / 10.0),
             step=delta_x,
-            max_value=5.0 * vec["x"],
         )
 
     with right_col:
@@ -493,7 +492,6 @@ def _domain_settings(
             default_value=round(1.5 * vec["x"], ndigits=3),
             min_value=(delta_x := vec["x"] / 10.0),
             step=delta_x,
-            max_value=5.0 * vec["x"],
         )
 
     left_col, right_col = st.columns(2)
@@ -507,7 +505,6 @@ def _domain_settings(
             default_value=round(vec["y"], ndigits=3),
             min_value=(delta_y := vec["y"] / 10.0),
             step=delta_y,
-            max_value=2 * vec["y"],
         )
     with right_col:
         z_length = float_vartype(
@@ -519,7 +516,6 @@ def _domain_settings(
             default_value=round(3.0 * vec["z"], ndigits=3),
             min_value=(delta_z := vec["z"] / 10.0),
             step=delta_z,
-            max_value=vec["z"] * 10.0,
         )
 
     inner_x, inner_y, inner_z = box_edges(

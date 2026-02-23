@@ -44,8 +44,9 @@ dependencies:
 
   # Geometry/Meshing
   - cgns>=4.2.0
-  - conda-forge::trimesh
   - conda-forge::h5py
+  - conda-forge::tetgen
+  - conda-forge::trimesh
 
   # OpenVSP
   - conda-forge::sphinx
@@ -62,6 +63,7 @@ dependencies:
       - black>=25.1.0
       - cpacspy>=0.2.0
       - Cython>=3.0.12
+      - pyright
 
       - numpy-stl>=3.2.0
       - markdownpy>=0.1.4
@@ -113,6 +115,7 @@ dependencies:
       - vtk>=9.3.0
       - manifold3d
       - blender
+      - tetgen
 
       # Surrogate Modelling
       - SALib

@@ -1,14 +1,23 @@
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
-Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland.
+
+Euler volume meshing from a staged surface mesh using TetGen.
 """
 
+# Futures
+from __future__ import annotations
+
 # Imports
-import os
-import gmsh
+import meshio
+import tetgen
+import numpy as np
 
 from pathlib import Path
+from numpy import ndarray
+from scipy.spatial import KDTree
+from collections import defaultdict
 from ceasiompy.cpacs2gmsh.utility.utils import (
     MeshSettings,
     FarfieldSettings,
@@ -17,481 +26,432 @@ from ceasiompy.cpacs2gmsh.utility.utils import (
 from ceasiompy import log
 
 
+# Constants
+SEEDED_QUALITY_SWITCHES = ("pq1.30Q", "pq1.20Q", "pq1.15Q", "pQ")
+BOUNDARY_QUALITY_SWITCHES = ("pq1.20Q", "pq1.15Q", "pq1.05Q", "pQ")
+ROBUST_SWITCH = "pQY"
+REFINEMENT_PROFILES = (
+    {
+        "name": "dense",
+        "max_anchor_nodes": 30000,
+        "layer_multipliers": (1.0, 2.2, 3.8),
+        "ratio_clip": (0.008, 0.055),
+        "min_clearance_factor": 0.20,
+    },
+    {
+        "name": "medium",
+        "max_anchor_nodes": 16000,
+        "layer_multipliers": (1.0, 2.0),
+        "ratio_clip": (0.010, 0.050),
+        "min_clearance_factor": 0.25,
+    },
+    {
+        "name": "sparse",
+        "max_anchor_nodes": 8000,
+        "layer_multipliers": (1.0,),
+        "ratio_clip": (0.012, 0.045),
+        "min_clearance_factor": 0.30,
+    },
+)
+
+
 # Methods
-def _get_mesh_threads() -> int:
-    """Return thread count for Gmsh meshing (env override supported)."""
-    raw = os.getenv("CEASIOMPY_GMSH_THREADS")
-    if raw:
-        try:
-            return max(1, int(raw))
-        except ValueError:
-            pass
-    return max(1, os.cpu_count() or 1)
 
-
-def _get_outer_surface_tags_from_volumes(volume_dimtags: list[tuple[int, int]]) -> list[int]:
-    """Return unique outer surface tags for the provided OCC/discrete volumes."""
-    boundary = gmsh.model.getBoundary(
-        volume_dimtags,
-        combined=True,
-        oriented=False,
-        recursive=False,
+def _coord_key(point: ndarray) -> tuple[float, float, float]:
+    """Build a rounded coordinate key robust to tiny floating-point differences."""
+    return (
+        round(float(point[0]), 12),
+        round(float(point[1]), 12),
+        round(float(point[2]), 12),
     )
-    return sorted({tag for dim, tag in boundary if dim == 2})
 
 
-def _infer_wall_size_from_points(
-    wall_surface_tags: list[int],
-    farfield_size: float,
-) -> float:
-    """Infer near-wall target size from existing geometry point sizes."""
-    wall_points = gmsh.model.getBoundary(
-        [(2, tag) for tag in wall_surface_tags],
-        combined=True,
-        oriented=False,
-        recursive=True,
-    )
-    point_dimtags = sorted(
-        {(dim, tag) for dim, tag in wall_points if dim == 0},
-        key=lambda dt: dt[1],
-    )
-    if not point_dimtags:
-        return farfield_size * 0.05
+def _load_surface_triangles(
+    surface_mesh_path: Path,
+) -> tuple[ndarray, ndarray, ndarray | None, dict[int, str]]:
+    """Load points, triangles, optional physical ids, and physical-name map."""
 
-    sizes: list[float] = []
-    try:
-        point_sizes = gmsh.model.mesh.getSizes(point_dimtags)
-        sizes = [s for s in point_sizes if s > 0.0]
-    except Exception:
-        sizes = []
+    if not surface_mesh_path.is_file():
+        raise FileNotFoundError(f"{surface_mesh_path=} does not exist.")
 
-    if sizes:
-        # Keep wall size thin but bounded to avoid pathological tiny cells.
-        return max(min(sizes), farfield_size * 1e-3)
+    surface = meshio.read(str(surface_mesh_path))
+    points = surface.points
+    if points.shape[1] > 3:
+        points = points[:, :3]
 
-    return farfield_size * 0.05
+    triangle_blocks = []
+    tri_phys_blocks = []
+    for block_idx, cell_block in enumerate(surface.cells):
+        if cell_block.type != "triangle":
+            continue
 
+        triangle_blocks.append(cell_block.data)
+        if "gmsh:physical" in surface.cell_data:
+            tri_phys_blocks.append(surface.cell_data["gmsh:physical"][block_idx])
+        else:
+            tri_phys_blocks.append(None)
 
-def _infer_wall_size_from_mesh_settings(
-    mesh_settings: MeshSettings,
-    farfield_size: float,
-) -> float | None:
-    """Infer wall size from configured aircraft part sizes."""
-    candidates = [
-        float(v)
-        for sizes in [
-            mesh_settings.wing_mesh_size,
-            mesh_settings.pylon_mesh_size,
-            mesh_settings.fuselage_mesh_size,
-        ]
-        for v in sizes.values()
-        if float(v) > 0.0
-    ]
-    if not candidates:
-        return None
-    return max(min(candidates), farfield_size * 1e-3)
+    if not triangle_blocks:
+        raise RuntimeError("surface_mesh.msh contains no triangle cells for TetGen.")
+
+    triangles = triangle_blocks[0]
+    if len(triangle_blocks) > 1:
+        triangles = np.vstack(triangle_blocks)
+
+    tri_phys = None
+    if any(block is not None for block in tri_phys_blocks):
+        phys_blocks = [block for block in tri_phys_blocks if block is not None]
+        if phys_blocks:
+            tri_phys = phys_blocks[0]
+            if len(phys_blocks) > 1:
+                tri_phys = np.hstack(phys_blocks)
+
+    phys_name_by_id: dict[int, str] = {}
+    for name, data in (surface.field_data or {}).items():
+        if len(data) >= 2 and int(data[1]) == 2:
+            phys_name_by_id[int(data[0])] = str(name)
+
+    return points, triangles, tri_phys, phys_name_by_id
 
 
-def _set_euler_gradation_field(
-    wall_surface_tags: list[int],
-    farfield_size: float,
-    transition_distance: float,
-    wall_size_hint: float | None = None,
+def _write_su2(
+    output_su2_path: Path,
+    tet_points: ndarray,
+    tet_elements: ndarray,
+    marker_tris: dict[str, list[tuple[int, int, int]]],
 ) -> None:
-    """Create a near-wall-biased background field for wall-to-farfield grading."""
-    for field_tag in gmsh.model.mesh.field.list():
-        gmsh.model.mesh.field.remove(field_tag)
+    """Write an SU2 mesh from tetrahedra and boundary triangles."""
+    with open(output_su2_path, "w", encoding="utf-8") as f:
+        f.write("NDIME=3\n")
+        f.write(f"NELEM={len(tet_elements)}\n")
+        for tet_cell in tet_elements:
+            f.write(
+                "10 "
+                f"{int(tet_cell[0])} {int(tet_cell[1])} "
+                f"{int(tet_cell[2])} {int(tet_cell[3])}\n"
+            )
 
-    wall_size = (
-        wall_size_hint
-        if wall_size_hint is not None and wall_size_hint > 0.0
-        else _infer_wall_size_from_points(wall_surface_tags, farfield_size)
-    )
-    dist_max = max(transition_distance, wall_size * 10.0) / 20.0
-    near_wall_power = 3.0
+        marker_names = sorted(name for name, tris in marker_tris.items() if tris)
+        f.write(f"NMARK={len(marker_names)}\n")
+        for marker_name in marker_names:
+            tris = marker_tris[marker_name]
+            f.write(f"MARKER_TAG={marker_name}\n")
+            f.write(f"MARKER_ELEMS={len(tris)}\n")
+            for a, b, c in tris:
+                f.write(f"5 {a} {b} {c}\n")
 
-    distance_field = 1
-    gmsh.model.mesh.field.add("Distance", distance_field)
-    gmsh.model.mesh.field.setNumbers(distance_field, "SurfacesList", wall_surface_tags)
-    gmsh.model.mesh.field.setNumber(distance_field, "Sampling", 200)
+        f.write(f"NPOIN={len(tet_points)}\n")
+        for idx, point in enumerate(tet_points):
+            f.write(
+                f"{float(point[0]):.16e} "
+                f"{float(point[1]):.16e} "
+                f"{float(point[2]):.16e} {idx}\n"
+            )
 
-    threshold_field = 2
-    gmsh.model.mesh.field.add("Threshold", threshold_field)
-    gmsh.model.mesh.field.setNumber(threshold_field, "InField", distance_field)
-    gmsh.model.mesh.field.setNumber(threshold_field, "SizeMin", wall_size)
-    gmsh.model.mesh.field.setNumber(threshold_field, "SizeMax", farfield_size)
-    gmsh.model.mesh.field.setNumber(threshold_field, "DistMin", 0.0)
-    gmsh.model.mesh.field.setNumber(threshold_field, "DistMax", dist_max)
 
-    # Steepen the first part of the transition near walls (smaller sizes close to surface).
-    near_wall_field = 3
-    gmsh.model.mesh.field.add("MathEval", near_wall_field)
-    gmsh.model.mesh.field.setString(
-        near_wall_field,
-        "F",
-        (
-            f"{wall_size} + ({farfield_size} - {wall_size})"
-            f"*(F{distance_field}/{dist_max})^{near_wall_power}"
+def _write_cgns(
+    output_cgns_path: Path,
+    tet_points: ndarray,
+    tet_elements: ndarray,
+) -> None:
+    """Write the volume mesh as CGNS."""
+
+    meshio.write(
+        str(output_cgns_path),
+        meshio.Mesh(
+            points=tet_points,
+            cells=[("tetra", tet_elements)],
         ),
+        file_format="cgns",
     )
 
-    background_field = 4
-    gmsh.model.mesh.field.add("Min", background_field)
-    gmsh.model.mesh.field.setNumbers(
-        background_field,
-        "FieldsList",
-        [threshold_field, near_wall_field],
+
+def _write_vtu(
+    output_vtu_path: Path,
+    tet_points: ndarray,
+    tet_elements: ndarray,
+) -> None:
+    """Write the volume mesh as VTU for robust visualization support."""
+
+    meshio.write(
+        str(output_vtu_path),
+        meshio.Mesh(
+            points=tet_points,
+            cells=[("tetra", tet_elements)],
+        ),
+        file_format="vtu",
     )
-    gmsh.model.mesh.field.setAsBackgroundMesh(background_field)
+
+
+def _get_volume_refinement_surface_nodes(
+    points: ndarray,
+    triangles: ndarray,
+    tri_phys: ndarray | None,
+    phys_name_by_id: dict[int, str],
+) -> tuple[ndarray, ndarray]:
+    """Return (aircraft_surface_node_ids, farfield_surface_node_ids)."""
+
+    if tri_phys is not None:
+        aircraft_nodes: set[int] = set()
+        farfield_nodes: set[int] = set()
+        for tri_idx, tri in enumerate(triangles):
+            marker_id = int(tri_phys[tri_idx])
+            marker_name = phys_name_by_id.get(marker_id, f"marker_{marker_id}").lower()
+            tri_nodes = (int(tri[0]), int(tri[1]), int(tri[2]))
+            if "farfield" in marker_name or "symmetry" in marker_name:
+                farfield_nodes.update(tri_nodes)
+            else:
+                aircraft_nodes.update(tri_nodes)
+
+        if aircraft_nodes and farfield_nodes:
+            return (
+                np.fromiter(sorted(aircraft_nodes), dtype=int),
+                np.fromiter(sorted(farfield_nodes), dtype=int),
+            )
+
+    # Fallback: classify farfield points as those on bounding-box planes.
+    mins = points.min(axis=0)
+    maxs = points.max(axis=0)
+    span = np.maximum(maxs - mins, 1e-12)
+    tol = 1e-6 + 1e-3 * span
+    on_box = (
+        (np.abs(points[:, 0] - mins[0]) <= tol[0])
+        | (np.abs(points[:, 0] - maxs[0]) <= tol[0])
+        | (np.abs(points[:, 1] - mins[1]) <= tol[1])
+        | (np.abs(points[:, 1] - maxs[1]) <= tol[1])
+        | (np.abs(points[:, 2] - mins[2]) <= tol[2])
+        | (np.abs(points[:, 2] - maxs[2]) <= tol[2])
+    )
+    farfield_ids = np.flatnonzero(on_box)
+    aircraft_ids = np.flatnonzero(~on_box)
+    return aircraft_ids.astype(int), farfield_ids.astype(int)
+
+
+def _augment_points_for_volume_refinement(
+    points: ndarray,
+    triangles: ndarray,
+    tri_phys: ndarray | None,
+    phys_name_by_id: dict[int, str],
+    mesh_settings: MeshSettings,
+    farfield_settings: FarfieldSettings,
+    max_anchor_nodes: int = 30000,
+    layer_multipliers: tuple[float, ...] = (1.0, 2.2, 3.8),
+    ratio_clip: tuple[float, float] = (0.008, 0.055),
+    min_clearance_factor: float = 0.20,
+) -> ndarray:
+    """Seed interior points near aircraft walls to drive thin->coarse tetra growth."""
+
+    aircraft_ids, farfield_ids = _get_volume_refinement_surface_nodes(
+        points=points,
+        triangles=triangles,
+        tri_phys=tri_phys,
+        phys_name_by_id=phys_name_by_id,
+    )
+    if len(aircraft_ids) == 0 or len(farfield_ids) == 0:
+        return points
+
+    # Keep preprocessing bounded for large meshes.
+    stride = max(1, int(np.ceil(len(aircraft_ids) / max_anchor_nodes)))
+    anchor_ids = aircraft_ids[::stride]
+
+    anchor_pts = points[anchor_ids]
+    farfield_pts = points[farfield_ids]
+    if len(anchor_pts) == 0 or len(farfield_pts) == 0:
+        return points
+
+    tree = KDTree(farfield_pts)
+    distances, nearest_ids = tree.query(anchor_pts, workers=-1)
+    # KDTree.query may return scalar or array depending on input shape; normalize for typing/indexing.
+    distances = np.atleast_1d(np.asarray(distances, dtype=float))
+    nearest_ids = np.atleast_1d(np.asarray(nearest_ids, dtype=np.intp))
+    valid = distances > 1e-9
+    if not np.any(valid):
+        return points
+
+    anchor_pts = anchor_pts[valid]
+    distances = distances[valid]
+    nearest_farfield = farfield_pts[nearest_ids[valid]]
+    directions = nearest_farfield - anchor_pts
+
+    aircraft_sizes = [
+        *mesh_settings.wing_mesh_size.values(),
+        *mesh_settings.pylon_mesh_size.values(),
+        *mesh_settings.fuselage_mesh_size.values(),
+    ]
+    aircraft_sizes = [float(s) for s in aircraft_sizes if float(s) > 0.0]
+    if aircraft_sizes:
+        wall_size = min(aircraft_sizes)
+    else:
+        wall_size = max(float(farfield_settings.farfield_mesh_size) * 0.03, 1e-6)
+
+    # Keep offsets safely away from wall facets to avoid TetGen subface recovery failures.
+    ratio_min, ratio_max = ratio_clip
+    base_ratio = np.clip(wall_size / distances, ratio_min, ratio_max)
+    max_offset_ratio = min(0.65, ratio_max * max(layer_multipliers))
+    layer_points = []
+    for mult in layer_multipliers:
+        layer_ratio = np.clip(base_ratio * mult, ratio_min, max_offset_ratio)
+        layer_points.append(anchor_pts + directions * layer_ratio[:, None])
+
+    extra_points = np.vstack(layer_points)
+    # Remove near-duplicate interior points and points too close to existing boundary nodes.
+    extra_points = np.unique(np.round(extra_points, decimals=12), axis=0)
+    if len(extra_points) == 0:
+        return points
+
+    boundary_tree = KDTree(points)
+    min_dist, _ = boundary_tree.query(extra_points, workers=-1)
+    min_clearance = max(
+        wall_size * min_clearance_factor,
+        farfield_settings.farfield_mesh_size * 2e-4,
+        1e-8,
+    )
+    keep = min_dist >= min_clearance
+    if not np.any(keep):
+        return points
+
+    return np.vstack([points, extra_points[keep]])
+
+
+def _run_tetgen_python(
+    output_su2_path: Path,
+    surface_mesh_path: Path,
+    mesh_settings: MeshSettings,
+    farfield_settings: FarfieldSettings,
+) -> int:
+
+    """Generate tetrahedra with tetgen Python module and write SU2."""
+    points, triangles, tri_phys, phys_name_by_id = _load_surface_triangles(surface_mesh_path)
+
+    tet = None
+    used_seeds = False
+    used_switch = ""
+    for profile in REFINEMENT_PROFILES:
+        tet_input_points = _augment_points_for_volume_refinement(
+            points=points,
+            triangles=triangles,
+            tri_phys=tri_phys,
+            phys_name_by_id=phys_name_by_id,
+            mesh_settings=mesh_settings,
+            farfield_settings=farfield_settings,
+            max_anchor_nodes=int(profile["max_anchor_nodes"]),
+            layer_multipliers=tuple(profile["layer_multipliers"]),
+            ratio_clip=tuple(profile["ratio_clip"]),
+            min_clearance_factor=float(profile["min_clearance_factor"]),
+        )
+        if len(tet_input_points) <= len(points):
+            continue
+
+        for switch in SEEDED_QUALITY_SWITCHES:
+            try:
+                candidate = tetgen.TetGen(tet_input_points, triangles)
+                candidate.tetrahedralize(switches=switch)
+                tet = candidate
+                used_seeds = True
+                used_switch = switch
+                break
+            except RuntimeError:
+                continue
+
+        if tet is not None:
+            log.info(
+                "TetGen seeded refinement succeeded with "
+                f"profile='{profile['name']}' and switches='{used_switch}'."
+            )
+            break
+
+        log.warning(
+            "TetGen failed with seeded refinement profile "
+            f"'{profile['name']}'; trying a less aggressive profile."
+        )
+
+    if tet is None:
+        log.warning("TetGen failed with all seeded profiles; retrying boundary-only points.")
+        for switch in BOUNDARY_QUALITY_SWITCHES:
+            try:
+                candidate = tetgen.TetGen(points, triangles)
+                candidate.tetrahedralize(switches=switch)
+                tet = candidate
+                used_switch = switch
+                break
+            except RuntimeError:
+                continue
+
+    if tet is None:
+        tet = tetgen.TetGen(points, triangles)
+        tet.tetrahedralize(switches=ROBUST_SWITCH)
+        used_switch = ROBUST_SWITCH
+        log.warning("TetGen fell back to robust switch set.")
 
     log.info(
-        "Applied Euler gradation field: "
-        f"wall_size={wall_size:.4g}, farfield_size={farfield_size:.4g}, "
-        f"dist_max={dist_max:.4g}, near_wall_power={near_wall_power:.2f}"
+        f"TetGen tetrahedralization succeeded with switches='{used_switch}'"
+        f"{' (with refinement seeds)' if used_seeds else ''}."
     )
 
+    tet_points = tet.node
+    tet_elements = tet.elem
+    if tet_points is None or tet_elements is None:
+        raise RuntimeError("TetGen backend failed to extract tetrahedral mesh arrays.")
+    if len(tet_elements) == 0:
+        raise RuntimeError("TetGen backend generated zero tetrahedra.")
 
-def _surface_is_on_farfield_plane(
-    surface_tag: int,
-    box_bounds: tuple[float, float, float, float, float, float],
-    tol: float,
-) -> bool:
-    """Return True if a surface lies on one farfield box plane."""
-    x_min, y_min, z_min, x_max, y_max, z_max = box_bounds
-    bb = gmsh.model.getBoundingBox(2, surface_tag)
-    x_on_min = abs(bb[0] - x_min) <= tol and abs(bb[3] - x_min) <= tol
-    x_on_max = abs(bb[0] - x_max) <= tol and abs(bb[3] - x_max) <= tol
-    y_on_min = abs(bb[1] - y_min) <= tol and abs(bb[4] - y_min) <= tol
-    y_on_max = abs(bb[1] - y_max) <= tol and abs(bb[4] - y_max) <= tol
-    z_on_min = abs(bb[2] - z_min) <= tol and abs(bb[5] - z_min) <= tol
-    z_on_max = abs(bb[2] - z_max) <= tol and abs(bb[5] - z_max) <= tol
+    tet_points = np.asarray(tet_points, dtype=float)
+    tet_elements = np.asarray(tet_elements, dtype=int)
 
-    return x_on_min or x_on_max or y_on_min or y_on_max or z_on_min or z_on_max
+    tet_index_by_coord = {
+        _coord_key(point): idx
+        for idx, point in enumerate(tet_points)
+    }
+    surf_to_tet_index: dict[int, int] = {}
+    for surf_idx, point in enumerate(points):
+        mapped = tet_index_by_coord.get(_coord_key(point))
+        if mapped is not None:
+            surf_to_tet_index[int(surf_idx)] = int(mapped)
 
-
-def _surface_is_planar_on_axis_coordinate(
-    surface_tag: int,
-    axis: int,
-    coordinate: float,
-    tol: float,
-) -> bool:
-    """Return True if surface is planar normal to an axis and lies at a given coordinate."""
-    bb = gmsh.model.getBoundingBox(2, surface_tag)
-    bb_min = bb[axis]
-    bb_max = bb[axis + 3]
-    return abs(bb_min - bb_max) <= tol and abs(bb_min - coordinate) <= tol
-
-
-def _surface_has_2d_elements(surface_tag: int) -> bool:
-    """Return True if a surface already has 2D mesh elements."""
-    _, element_tags, _ = gmsh.model.mesh.getElements(2, surface_tag)
-    return any(len(tags) > 0 for tags in element_tags)
-
-
-def _surface_2d_element_count(surface_tag: int) -> int:
-    """Return the total number of 2D elements on one surface."""
-    _, element_tags, _ = gmsh.model.mesh.getElements(2, surface_tag)
-    return int(sum(len(tags) for tags in element_tags))
-
-
-def _build_meshing_scope_entities(
-    fluid_volume_tags: list[int],
-    fluid_boundary_tags: list[int],
-) -> list[tuple[int, int]]:
-    """Return closure entities needed to mesh the fluid volume robustly."""
-    scope: set[tuple[int, int]] = {(3, tag) for tag in fluid_volume_tags}
-    surface_dimtags = [(2, tag) for tag in fluid_boundary_tags]
-    scope.update(surface_dimtags)
-
-    curve_boundary = gmsh.model.getBoundary(
-        surface_dimtags,
-        combined=True,
-        oriented=False,
-        recursive=False,
-    )
-    curve_dimtags = [(1, tag) for dim, tag in curve_boundary if dim == 1]
-    scope.update(curve_dimtags)
-
-    point_boundary = gmsh.model.getBoundary(
-        curve_dimtags,
-        combined=True,
-        oriented=False,
-        recursive=False,
-    )
-    scope.update((0, tag) for dim, tag in point_boundary if dim == 0)
-    return sorted(scope, key=lambda dt: (dt[0], dt[1]))
-
-
-def _mesh_missing_wall_surfaces(
-    wall_surface_tags: list[int],
-    closure_surface_tags: list[int] | None = None,
-    meshing_scope_entities: list[tuple[int, int]] | None = None,
-) -> list[int]:
-    """Generate missing 1D/2D wall mesh using a closed fluid-boundary visibility set."""
-    missing_before = sorted([tag for tag in wall_surface_tags if not _surface_has_2d_elements(tag)])
-    if not missing_before:
-        return []
-
-    closure_surface_tags = sorted(set(closure_surface_tags or wall_surface_tags))
-    if not closure_surface_tags:
-        closure_surface_tags = missing_before
-
-    visibility_scope = meshing_scope_entities or gmsh.model.getEntities(-1)
-    prev_mesh_only_visible = gmsh.option.getNumber("Mesh.MeshOnlyVisible")
-    prev_mesh_only_empty = gmsh.option.getNumber("Mesh.MeshOnlyEmpty")
-    gmsh.option.setNumber("Mesh.MeshOnlyVisible", 1)
-    gmsh.option.setNumber("Mesh.MeshOnlyEmpty", 1)
-    try:
-        gmsh.model.setVisibility(visibility_scope, 0, recursive=True)
-        gmsh.model.setVisibility([(2, tag) for tag in closure_surface_tags], 1, recursive=True)
-        log.info(
-            "Completing missing Euler wall boundary mesh on %d surfaces "
-            "(closure visibility set size=%d).",
-            len(missing_before),
-            len(closure_surface_tags),
+    if len(surf_to_tet_index) != len(points):
+        raise RuntimeError(
+            "TetGen backend could not map all staged surface nodes to tetra nodes. "
+            "Try stricter TetGen switches preserving boundary facets "
+            "(default uses 'pQY')."
         )
-        gmsh.model.mesh.generate(1)
-        gmsh.model.mesh.generate(2)
-    finally:
-        gmsh.model.setVisibility(visibility_scope, 1, recursive=True)
-        gmsh.option.setNumber("Mesh.MeshOnlyVisible", prev_mesh_only_visible)
-        gmsh.option.setNumber("Mesh.MeshOnlyEmpty", prev_mesh_only_empty)
 
-    return sorted([tag for tag in wall_surface_tags if not _surface_has_2d_elements(tag)])
+    marker_tris: dict[str, list[tuple[int, int, int]]] = defaultdict(list)
+    for tri_idx, tri in enumerate(triangles):
+        a = surf_to_tet_index[int(tri[0])]
+        b = surf_to_tet_index[int(tri[1])]
+        c = surf_to_tet_index[int(tri[2])]
+        if a == b or b == c or a == c:
+            continue
+
+        if tri_phys is None:
+            marker_name = "wall"
+        else:
+            marker_id = int(tri_phys[tri_idx])
+            marker_name = phys_name_by_id.get(marker_id, f"marker_{marker_id}")
+
+        marker_tris[marker_name].append((a, b, c))
+
+    _write_su2(output_su2_path, tet_points, tet_elements, marker_tris)
+    _write_cgns(output_su2_path.with_suffix(".cgns"), tet_points, tet_elements)
+    _write_vtu(output_su2_path.with_suffix(".vtu"), tet_points, tet_elements)
+    return int(len(tet_elements))
 
 
-def _get_physical_group_entities_by_name(dim: int, name: str) -> list[int]:
-    """Return entity tags in the first physical group matching `name`."""
-    for _, group_tag in gmsh.model.getPhysicalGroups(dim):
-        if gmsh.model.getPhysicalName(dim, group_tag) == name:
-            return sorted([
-                int(tag)
-                for tag in gmsh.model.getEntitiesForPhysicalGroup(dim, group_tag)
-            ])
-    return []
-
-
-# Functions
 def euler_mesh(
     results_dir: Path,
+    surface_mesh_path: Path,
     mesh_settings: MeshSettings,
     farfield_settings: FarfieldSettings,
 ) -> Path:
-
-    fluid_volume_tags = _get_physical_group_entities_by_name(3, "fluid")
-    if not fluid_volume_tags:
-        fluid_volume_tags = sorted([tag for dim, tag in gmsh.model.getEntities(3) if dim == 3])
-    if not fluid_volume_tags:
-        raise RuntimeError("No fluid volumes found in the in-memory Euler domain.")
-
-    fluid_boundary_tags = _get_outer_surface_tags_from_volumes(
-        [(3, tag) for tag in fluid_volume_tags]
-    )
-    if not fluid_boundary_tags:
-        raise RuntimeError("No boundary surfaces found on fluid volume.")
-
-    wall_surface_tags = _get_physical_group_entities_by_name(2, "wall")
-    if not wall_surface_tags:
-        raise RuntimeError("No wall physical group found in reloaded surface mesh.")
-
-    farfield_group_tags = _get_physical_group_entities_by_name(2, "Farfield")
-    if not farfield_group_tags:
-        raise RuntimeError("No Farfield physical group found in reloaded surface mesh.")
-
-    if mesh_settings.symmetry:
-        symmetry_group_tags = _get_physical_group_entities_by_name(2, "symmetry")
-        if not symmetry_group_tags:
-            raise RuntimeError("No Symmetry physical group found in reloaded surface mesh.")
-
-    x_min, y_min, z_min, x_max, y_max, z_max = gmsh.model.getBoundingBox(-1, -1)
-    model_span = max(x_max - x_min, y_max - y_min, z_max - z_min)
-    transition_distance = max(model_span * 0.35, farfield_settings.farfield_mesh_size * 5.0)
-    _set_euler_gradation_field(
-        wall_surface_tags=wall_surface_tags,
-        farfield_size=farfield_settings.farfield_mesh_size,
-        transition_distance=transition_distance,
-        wall_size_hint=_infer_wall_size_from_mesh_settings(
-            mesh_settings=mesh_settings,
-            farfield_size=farfield_settings.farfield_mesh_size,
-        ),
-    )
-
-    gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
-    gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
-    gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
-    gmsh.option.setNumber("Mesh.MeshSizeMax", farfield_settings.farfield_mesh_size)
-    gmsh.option.setNumber("Mesh.Optimize", 0)
-    gmsh.option.setNumber("Mesh.OptimizeNetgen", 0)
-    gmsh.option.setNumber("Mesh.Smoothing", 0)
-    mesh_threads = _get_mesh_threads()
-    gmsh.option.setNumber("General.NumThreads", mesh_threads)
-    gmsh.option.setNumber("Mesh.MaxNumThreads1D", mesh_threads)
-    gmsh.option.setNumber("Mesh.MaxNumThreads2D", mesh_threads)
-    gmsh.option.setNumber("Mesh.MaxNumThreads3D", mesh_threads)
-
-    meshing_scope_entities = _build_meshing_scope_entities(
-        fluid_volume_tags=fluid_volume_tags,
-        fluid_boundary_tags=fluid_boundary_tags,
-    )
-    # Do not clear here: in symmetry workflows we rely on pre-existing wall 2D
-    # boundary mesh attached to shared CAD surfaces.
-
-    wall_surfaces_with_mesh = [tag for tag in wall_surface_tags if _surface_has_2d_elements(tag)]
-    wall_surfaces_missing_mesh = sorted(set(wall_surface_tags) - set(wall_surfaces_with_mesh))
-    existing_wall_mesh_count = len(wall_surfaces_with_mesh)
-    log.info(
-        "Reusing existing wall surface mesh on %d/%d wall surfaces.",
-        existing_wall_mesh_count,
-        len(wall_surface_tags),
-    )
-    wall_mesh_complete_before_3d = not wall_surfaces_missing_mesh
-    if wall_surfaces_missing_mesh:
-        log.warning(
-            "Euler wall mesh is incomplete before 3D (%d missing surfaces). "
-            "Allowing 3D generation to fill missing boundary mesh. Missing tags: %s",
-            len(wall_surfaces_missing_mesh),
-            wall_surfaces_missing_mesh[:20],
-        )
-        try:
-            wall_surfaces_missing_mesh = _mesh_missing_wall_surfaces(
-                wall_surface_tags=wall_surface_tags,
-                closure_surface_tags=fluid_boundary_tags,
-                meshing_scope_entities=meshing_scope_entities,
-            )
-        except Exception as err:
-            log.warning(
-                "Explicit Euler wall-boundary completion failed (%s). "
-                "Continuing to 3D generation and letting Gmsh complete boundary faces there.",
-                err,
-            )
-            wall_surfaces_missing_mesh = sorted([
-                tag for tag in wall_surface_tags if not _surface_has_2d_elements(tag)
-            ])
-
-        if wall_surfaces_missing_mesh:
-            log.warning(
-                "Euler wall mesh is still incomplete before 3D (%d missing surfaces). "
-                "Proceeding with 3D generation. Missing tags: %s",
-                len(wall_surfaces_missing_mesh),
-                wall_surfaces_missing_mesh[:20],
-            )
-        else:
-            log.info("Completed Euler wall boundary mesh before 3D generation.")
-
-    wall_elements_before_3d = {
-        tag: _surface_2d_element_count(tag)
-        for tag in wall_surface_tags
-    }
-    wall_elements_total_before_3d = sum(wall_elements_before_3d.values())
-    log.info(
-        "Wall 2D elements before 3D generation: %d",
-        wall_elements_total_before_3d,
-    )
-
-    allow_boundary_remesh_in_3d = bool(wall_surfaces_missing_mesh)
-    gmsh.option.setNumber("Mesh.MeshOnlyVisible", 1)
-    gmsh.option.setNumber("Mesh.MeshOnlyEmpty", 0 if allow_boundary_remesh_in_3d else 1)
-    if allow_boundary_remesh_in_3d:
-        log.warning(
-            "Enabling boundary remeshing during 3D generation because %d wall surfaces "
-            "are still missing mesh.",
-            len(wall_surfaces_missing_mesh),
-        )
-    else:
-        log.info("Boundary remeshing disabled during 3D generation (wall mesh complete).")
-    try:
-        gmsh.model.setVisibility(meshing_scope_entities, 0, recursive=True)
-        gmsh.model.setVisibility([(3, tag) for tag in fluid_volume_tags], 1, recursive=True)
-        gmsh.model.mesh.generate(3)
-    finally:
-        gmsh.model.setVisibility(meshing_scope_entities, 1, recursive=True)
-        gmsh.option.setNumber("Mesh.MeshOnlyVisible", 0)
-        gmsh.option.setNumber("Mesh.MeshOnlyEmpty", 0)
-
-    fluid_volume_element_total = 0
-    for volume_tag in fluid_volume_tags:
-        _, element_tags, _ = gmsh.model.mesh.getElements(3, volume_tag)
-        fluid_volume_element_total += int(sum(len(tags) for tags in element_tags))
-    if fluid_volume_element_total == 0:
-        raise RuntimeError(
-            "Euler 3D generation produced zero volume elements on the fluid domain. "
-            "The written SU2 would be invalid (NELEM=0/NPOIN=0)."
-        )
-    log.info("Fluid 3D elements generated: %d", fluid_volume_element_total)
-
-    wall_elements_after_3d = {
-        tag: _surface_2d_element_count(tag)
-        for tag in wall_surface_tags
-    }
-    wall_elements_total_after_3d = sum(wall_elements_after_3d.values())
-    changed_wall_surfaces = sorted(
-        [
-            tag for tag in wall_surface_tags
-            if wall_elements_before_3d[tag] != wall_elements_after_3d[tag]
-        ]
-    )
-    if (
-        wall_mesh_complete_before_3d
-        and wall_elements_total_before_3d != wall_elements_total_after_3d
-    ):
-        total_delta = abs(wall_elements_total_after_3d - wall_elements_total_before_3d)
-        total_delta_tol = max(8, int(0.005 * wall_elements_total_before_3d))
-        details = ", ".join(
-            f"{tag}: {wall_elements_before_3d[tag]} -> {wall_elements_after_3d[tag]}"
-            for tag in changed_wall_surfaces[:20]
-        )
-        if total_delta > total_delta_tol:
-            raise RuntimeError(
-                "Euler 3D generation modified the aircraft wall surface mesh. "
-                f"Wall 2D element total changed: {wall_elements_total_before_3d} -> "
-                f"{wall_elements_total_after_3d}. "
-                f"Changed surfaces={len(changed_wall_surfaces)}. Examples: {details}"
-            )
-        log.warning(
-            "Wall 2D element total changed slightly after 3D generation "
-            "(%d -> %d, delta=%d <= tol=%d). "
-            "Treating as acceptable CAD patch reclassification drift. Examples: %s",
-            wall_elements_total_before_3d,
-            wall_elements_total_after_3d,
-            total_delta,
-            total_delta_tol,
-            details,
-        )
-    if wall_mesh_complete_before_3d and changed_wall_surfaces:
-        details = ", ".join(
-            f"{tag}: {wall_elements_before_3d[tag]} -> {wall_elements_after_3d[tag]}"
-            for tag in changed_wall_surfaces[:20]
-        )
-        log.warning(
-            "Wall 2D element total was preserved, but distribution changed across wall "
-            "surfaces (%d surfaces). This usually means Gmsh reclassified boundary faces "
-            "between CAD patches during 3D generation. Examples: %s",
-            len(changed_wall_surfaces),
-            details,
-        )
-
-    wall_surfaces_missing_mesh_after_3d = sorted(
-        [tag for tag in wall_surface_tags if not _surface_has_2d_elements(tag)]
-    )
-    if wall_surfaces_missing_mesh_after_3d:
-        raise RuntimeError(
-            "Euler 3D generation left wall boundary incomplete: "
-            f"{len(wall_surfaces_missing_mesh_after_3d)} surfaces still have no 2D elements. "
-            f"Examples: {wall_surfaces_missing_mesh_after_3d[:20]}"
-        )
-
-    if wall_mesh_complete_before_3d:
-        log.info(
-            f"Wall 2D elements preserved after 3D generation: {wall_elements_total_after_3d}")
-    else:
-        log.info(f"""Wall 2D elements after 3D generation:
-            {wall_elements_total_after_3d} (boundary completion during 3D was allowed).""")
+    """Generate Euler volume mesh with TetGen from staged surface mesh and export artifacts."""
 
     su2mesh_path = Path(results_dir, "mesh.su2")
-    gmsh.write(str(su2mesh_path))
-
-    stl_mesh_path = Path(results_dir, "mesh.stl")
-    gmsh.write(str(stl_mesh_path))
-    log.info(f"Saved .stl at {stl_mesh_path=}")
+    tet_count = _run_tetgen_python(
+        surface_mesh_path=surface_mesh_path,
+        output_su2_path=su2mesh_path,
+        mesh_settings=mesh_settings,
+        farfield_settings=farfield_settings,
+    )
+    log.info(f"Generated Euler volume mesh with TetGen creating {tet_count} tets.")
 
     return su2mesh_path

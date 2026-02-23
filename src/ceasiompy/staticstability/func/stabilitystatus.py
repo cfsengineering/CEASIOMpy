@@ -46,7 +46,7 @@ def _compute_stability_cma(group: DataFrame) -> DataFrame:
 
     return Series({
         "lr_cma": lr_cma,
-        "longitudinal": _status_or_reason(cma_stable, "Cma", lr_cma, ">= 0."),
+        "longitudinal": _status_or_reason(cma_stable, "Cma", f"{lr_cma}>= 0."),
     })
 
 
@@ -79,8 +79,16 @@ def _compute_stability_cnb_clb(group: DataFrame) -> DataFrame:
     return Series({
         "lr_cnb": lr_cnb,
         "lr_clb": lr_clb,
-        "directional": _status_or_reason(cnb_stable, "Cnb", lr_cnb, "<= 0."),
-        "lateral": _status_or_reason(clb_stable, "Clb", lr_clb, ">= 0."),
+        "directional": _status_or_reason(
+            is_stable=cnb_stable,
+            coef_name="Cnb",
+            limit_text=f"{lr_cnb}<= 0",
+        ),
+        "lateral": _status_or_reason(
+            is_stable=clb_stable,
+            coef_name="Clb",
+            limit_text=f"{lr_clb}>= 0",
+        ),
     })
 
 
@@ -126,11 +134,11 @@ def check_stability_tangent(cma: float, cnb: float, clb: float) -> tuple[str, st
         return "Undefined", "Undefined", "Undefined"
 
     cma_stable = cma < 0
-    cnb_stable = -cnb < 0
+    cnb_stable = cnb > 0
     clb_stable = clb < 0
 
     return (
-        _status_or_reason(cma_stable, "Cma", ">= 0."),
-        _status_or_reason(cnb_stable, "Cnb", "<= 0."),
-        _status_or_reason(clb_stable, "Clb", ">= 0."),
+        _status_or_reason(cma_stable, "Cma", f"{cma}>=0"),
+        _status_or_reason(cnb_stable, "Cnb", f"{cnb}<=0"),
+        _status_or_reason(clb_stable, "Clb", f"{clb}>=0"),
     )

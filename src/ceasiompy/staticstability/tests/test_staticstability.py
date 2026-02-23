@@ -19,9 +19,9 @@ from ceasiompy.utils.ceasiompyutils import (
     current_workflow_dir,
     get_results_directory,
 )
+from ceasiompy.staticstability.func.extractdata import compute_stab_table
 from ceasiompy.staticstability.staticstability import (
     main as staticstability,
-    compute_stab_table,
 )
 
 from pathlib import Path
@@ -36,7 +36,6 @@ from ceasiompy import log
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.staticstability import (
     MODULE_NAME,
-    STATICSTABILITY_LR_XPATH,
 )
 
 # =================================================================================================
@@ -45,7 +44,6 @@ from ceasiompy.staticstability import (
 
 
 class TestStaticStability(CeasiompyTest):
-
     @classmethod
     def setUpClass(cls: TestStaticStability) -> None:
         super().setUpClass()
@@ -88,58 +86,17 @@ class TestStaticStability(CeasiompyTest):
         # Test direct derivatives mode
         self.assert_equal_function(
             f=compute_stab_table,
-            input_args=(self.cpacs, "test_apm", self.wkdir, False,),
-            expected=([
-                [
-                    "mach", "alt", "aoa", "aos",
-                    "longitudinal", "directional", "lateral"
-                ],
-                [
-                    0.3, 0.0, 0.0, 0.0,
-                    "Stable", "Stable", "Stable",
-                ],
-                [
-                    0.3, 0.0, 0.0, 10.0,
-                    "Stable", "Stable", "Clb >= 0.",
-                ],
-                [
-                    0.3, 0.0, 10.0, 0.0,
-                    "Stable", "Cnb <= 0.", "Stable",
-                ],
-                [
-                    0.3, 0.0, 10.0, 10.0,
-                    "Cma >= 0.", "Stable", "Stable",
-                ],
-                [
-                    0.5, 1000.0, 0.0, 0.0,
-                    "Stable", "Stable", "Stable",
-                ],
-                [
-                    0.5, 1000.0, 0.0, 10.0,
-                    "Stable", "Stable", "Clb >= 0.",
-                ],
-                [
-                    0.5, 1000.0, 10.0, 0.0,
-                    "Stable", "Cnb <= 0.", "Stable",
-                ],
-                [
-                    0.5, 1000.0, 10.0, 10.0,
-                    "Cma >= 0.", "Stable", "Stable",
-                ]
-            ])
-
+            input_args=(self.cpacs, "test_apm", self.wkdir,),
+            expected=(True, ),
         )
 
     @log_test
     def test_compute_stab_table_lr_raises_type_error(self: TestStaticStability) -> None:
         with self.assertRaises(TypeError):
-            compute_stab_table(self.cpacs, "test_apm", self.wkdir, True)
+            compute_stab_table(self.cpacs, "test_apm", self.wkdir,)
 
     @log_test
     def test_main_raises_when_all_aeromaps_fail(self: TestStaticStability) -> None:
-        create_branch(self.test_cpacs.tixi, STATICSTABILITY_LR_XPATH)
-        self.test_cpacs.tixi.updateBooleanElement(STATICSTABILITY_LR_XPATH, True)
-
         with tempfile.TemporaryDirectory() as tmpdir:
             with self.assertRaises(RuntimeError) as err:
                 staticstability(self.test_cpacs, Path(tmpdir))

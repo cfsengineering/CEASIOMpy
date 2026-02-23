@@ -265,7 +265,7 @@ def _extract_settings_from_specs(chunks: list["RagChunk"]) -> list[str]:
                 name = _extract_quoted_value(stripped)
             elif stripped.startswith("default_value="):
                 default = stripped.split("=", 1)[1].strip().rstrip(",")
-            elif stripped.startswith("description="):
+            elif stripped.startswith("help="):
                 desc = _extract_quoted_value(stripped)
 
             if name and (default or desc):

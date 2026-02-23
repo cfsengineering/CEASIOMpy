@@ -13,8 +13,6 @@ import pytest
 from ceasiompy.utils.moduleinterfaces import (
     get_module_path,
     get_specs_for_module,
-    get_toolinput_file_path,
-    get_tooloutput_file_path,
 )
 
 from pathlib import Path
@@ -33,34 +31,6 @@ def test_get_module_path():
 
     with pytest.raises(ValueError):
         get_module_path("NotExistingModule")
-
-
-def test_get_toolinput_file_path():
-    """
-    Test that 'get_toolinput_file_path' works
-    """
-
-    module_name = "ModuleTemplate"
-
-    toolinput_path = get_toolinput_file_path(module_name)
-
-    # Test that the end of the path is correct
-    assert toolinput_path == Path(MODULES_DIR_PATH, "ModuleTemplate", "ToolInput", "ToolInput.xml")
-
-
-def test_get_tooloutput_file_path():
-    """
-    Test that 'get_tooloutput_file_path' works
-    """
-
-    module_name = "ModuleTemplate"
-
-    toolinput_path = get_tooloutput_file_path(module_name)
-
-    # Test that the end of the path is correct
-    assert toolinput_path == Path(
-        MODULES_DIR_PATH, "ModuleTemplate", "ToolOutput", "ToolOutput.xml"
-    )
 
 
 def test_get_specs_for_module():

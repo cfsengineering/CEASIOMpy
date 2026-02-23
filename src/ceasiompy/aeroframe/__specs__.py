@@ -45,7 +45,7 @@ def gui_settings(cpacs: CPACS) -> None:
                 tixi=tixi,
                 xpath=AEROFRAME_MAXNB_ITERATIONS_XPATH,
                 default_value=8,
-                description="Maximum number of iterations of the aeroelastic-loop.",
+                help="Maximum number of iterations of the aeroelastic-loop.",
                 name="Maximum number of iterations",
                 key="aeroframe_n_iter_max",
             )
@@ -56,7 +56,7 @@ def gui_settings(cpacs: CPACS) -> None:
                 xpath=AEROFRAME_TOLERANCE_XPATH,
                 default_value=1e-3,
                 name="Convergence Criterion (Tolerance)",
-                description="Tolerance for convergence of the wing deformation.",
+                help="Tolerance for convergence of the wing deformation.",
                 key="aeroframe_conv_criterion",
             )
 
@@ -76,7 +76,7 @@ def gui_settings(cpacs: CPACS) -> None:
             float_vartype(
                 tixi=tixi,
                 xpath=FRAMAT_YOUNGMODULUS_XPATH,
-                description="Enter the Young modulus of the wing material in GPa.",
+                help="Enter the Young modulus of the wing material in GPa.",
                 name="Young modulus [GPa]",
                 default_value=70.0,
                 key="aeroframe_young_modulus",
@@ -87,7 +87,7 @@ def gui_settings(cpacs: CPACS) -> None:
                 tixi=tixi,
                 xpath=FRAMAT_SHEARMODULUS_XPATH,
                 name="Shear modulus [GPa]",
-                description="Enter the shear modulus of the wing material in GPa.",
+                help="Enter the shear modulus of the wing material in GPa.",
                 default_value=26.0,
                 key="aeroframe_shearmodulus",
             )
@@ -99,7 +99,7 @@ def gui_settings(cpacs: CPACS) -> None:
                 tixi=tixi,
                 xpath=FRAMAT_AREA_XPATH,
                 name="Cross-section area",
-                description="Area of the cross-section in m².",
+                help="Area of the cross-section in m².",
                 default_value=1.0,
                 key="aeroframe_cross_section_area",
             )
@@ -109,7 +109,7 @@ def gui_settings(cpacs: CPACS) -> None:
                 tixi=tixi,
                 xpath=FRAMAT_IX_XPATH,
                 name="Second moment of area Ix",
-                description="""Second moment of area of the cross-section
+                help="""Second moment of area of the cross-section
                     about the horizontal axis, in m⁴.
                 """,
                 default_value=1.0,
@@ -121,7 +121,7 @@ def gui_settings(cpacs: CPACS) -> None:
                 tixi=tixi,
                 xpath=FRAMAT_IY_XPATH,
                 name="Second moment of area Iy",
-                description="""Second moment of area of the cross-section
+                help="""Second moment of area of the cross-section
                     about the vertical axis, in m⁴.
                 """,
                 default_value=1.0,
@@ -135,7 +135,7 @@ def gui_settings(cpacs: CPACS) -> None:
                 tixi=tixi,
                 xpath=FRAMAT_NB_NODES_XPATH,
                 default_value=15,
-                description="Enter number of nodes for the beam mesh.",
+                help="Enter number of nodes for the beam mesh.",
                 name="Number of beam nodes",
                 key="aeroframe_beam_nodes",
             )
@@ -145,7 +145,7 @@ def gui_settings(cpacs: CPACS) -> None:
                 tixi=tixi,
                 xpath=FRAMAT_DENSITY_XPATH,
                 default_value=1960.0,
-                description="Density of the wing material in kg/m³.",
+                help="Density of the wing material in kg/m³.",
                 key="aeroframe_material_density",
                 name="Material density",
             )

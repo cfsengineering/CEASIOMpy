@@ -26,6 +26,18 @@ from ceasiompy import log
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 
 
+# Methods
+
+def _get_label(name: str, unit: str | None) -> str:
+    if unit is not None:
+        if "[" != unit[0]:
+            unit += f"[{unit}"
+        if "]" != unit[0]:
+            unit += f"{unit}]"
+        name = f"{name} {unit}"
+    return name
+
+
 # Functions
 def add_value(tixi: Tixi3, xpath, value) -> None:
     """
@@ -102,7 +114,7 @@ def multiselect_vartype(
     default_value,
     name,
     key,
-    description,
+    help,
 ) -> list[str]:
     selected_values = None
     if not default_value:
@@ -125,7 +137,7 @@ def multiselect_vartype(
         label=name,
         options=default_value,
         key=key,
-        help=description,
+        help=help,
         default=selected_values,
     )
     add_value(tixi, xpath, output)
@@ -138,7 +150,7 @@ def dataframe_vartype(
     default_value,
     name,
     key,
-    description,
+    help,
 ) -> list[float]:
     # Initialize the list in session state if it doesn't exist
     if key not in st.session_state:
@@ -170,7 +182,7 @@ def dataframe_vartype(
                 label=name,
                 value=0.0,
                 key=f"new_{key}",
-                help=description,
+                help=help,
             )
 
         with right_col:
@@ -206,7 +218,7 @@ def int_vartype(
     default_value: int,
     name: str,
     key: str,
-    description: str,
+    help: str,
     min_value: int | None = None,
     max_value: int | None = None,
 ) -> int:
@@ -236,7 +248,7 @@ def int_vartype(
         label=name,
         value=value,
         key=key,
-        help=description,
+        help=help,
         min_value=min_value,
         max_value=max_value,
     )
@@ -246,11 +258,12 @@ def int_vartype(
 
 def float_vartype(
     tixi: Tixi3,
-    xpath,
-    default_value,
-    name,
-    key,
-    description,
+    name: str,
+    help: str,
+    xpath: str,
+    default_value: float,
+    key: str | None = None,
+    unit: str | None = None,
     min_value: float | None = None,
     max_value: float | None = None,
 ) -> float:
@@ -260,12 +273,21 @@ def float_vartype(
     except (TypeError, ValueError):
         default_value = float(default_value)
 
+    label = _get_label(
+        name=name,
+        unit=unit,
+    )
+
+    # Just use xpath of the value (should be unique in itself)
+    if key is None:
+        key = xpath.lower()
+
     output = st.number_input(
-        name,
+        key=key,
+        help=help,
+        label=label,
         value=default_value,
         format="%g",
-        key=key,
-        help=description,
         min_value=min_value,
         max_value=max_value,
     )
@@ -273,7 +295,7 @@ def float_vartype(
     return output
 
 
-def list_vartype(tixi: Tixi3, xpath, default_value, name, key, description) -> str:
+def list_vartype(tixi: Tixi3, xpath, default_value, name, key, help) -> str:
     value = safe_get_value(tixi, xpath, default_value[0])
 
     # Check if value is in the list, otherwise use first option
@@ -286,11 +308,13 @@ def list_vartype(tixi: Tixi3, xpath, default_value, name, key, description) -> s
         options=default_value,
         index=idx,
         key=key,
-        help=description,
+        help=help,
         horizontal=True,
         width="stretch",
     )
     add_value(tixi, xpath, output)
+    if output is None:
+        raise TypeError("Argument can not be None in ceasiompy - st.radio")
     return output
 
 
@@ -300,7 +324,7 @@ def add_ctrl_surf_vartype(
     default_value,
     name,
     key,
-    description,
+    help,
 ) -> tuple[float, float, float] | None:
     '''
     Specific function for selecting a deformation angle in the CPACSUpdater module.
@@ -322,7 +346,7 @@ def add_ctrl_surf_vartype(
         options=default_value,
         index=idx,
         key=key,
-        help=description,
+        help=help,
         width="stretch",
     )
     add_value(tixi, ctrl_xpath, selected)
@@ -337,7 +361,7 @@ def add_ctrl_surf_vartype(
                 default_value=0.0,
                 name="Deformation angle [deg]",
                 key=f"{key}_deformation_angle",
-                description="Set the deformation angle for the selected control surface.",
+                help="Set the deformation angle for the selected control surface.",
                 min_value=-90.0,
                 max_value=90.0,
             )
@@ -350,7 +374,7 @@ def add_ctrl_surf_vartype(
                     default_value=0.0,
                     name="Left Gap",
                     key=f"{key}_left_translation",
-                    description="Set the gap (left-translation) in y.",
+                    help="Set the gap (left-translation) in y.",
                     min_value=0.0,
                 )
 
@@ -361,7 +385,7 @@ def add_ctrl_surf_vartype(
                     default_value=0.0,
                     name="Right Gap",
                     key=f"{key}_right_translation",
-                    description="Set the gap (right-translation) in y.",
+                    help="Set the gap (right-translation) in y.",
                     min_value=0.0,
                 )
         else:
@@ -381,7 +405,7 @@ def add_ctrl_surf_vartype(
     return None
 
 
-def bool_vartype(tixi, xpath, default_value, name, key, description) -> bool:
+def bool_vartype(tixi, xpath, default_value, name, key, help) -> bool:
     raw_value = safe_get_value(tixi, xpath, default_value)
     if isinstance(raw_value, str):
         value = raw_value.strip().lower() in {"1", "true", "yes", "y"}
@@ -392,7 +416,7 @@ def bool_vartype(tixi, xpath, default_value, name, key, description) -> bool:
         label=name,
         value=value,
         key=key,
-        help=description,
+        help=help,
         width="stretch",
     )
     add_value(tixi, xpath, output)

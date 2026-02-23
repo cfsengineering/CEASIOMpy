@@ -15,7 +15,6 @@ from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.pyavl.__specs__ import gui_settings as avl_settings
 from ceasiompy.su2run.__specs__ import gui_settings as su2_settings
 from ceasiompy.cpacs2gmsh.__specs__ import gui_settings as gmsh_settings
-from ceasiompy.staticstability.__specs__ import gui_settings as staticstability_settings
 from ceasiompy.utils.geometryfunctions import (
     get_xpath_for_param,
     return_uid_wings_sections,
@@ -34,7 +33,6 @@ from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
 from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
-from ceasiompy.staticstability import MODULE_NAME as STATICSTABILITY
 from ceasiompy.smtrain import (
     SM_MODELS,
     LEVEL_TWO,
@@ -72,7 +70,7 @@ def gui_settings(cpacs: CPACS) -> None:
             xpath=SMTRAIN_MODELS_XPATH,
             default_value=SM_MODELS,
             name="Surrogate Model Type",
-            description="Kriging (KRG) or/and Radial Basis Functions (RBF).",
+            help="Kriging (KRG) or/and Radial Basis Functions (RBF).",
             key="smtrain_chosen_model",
         )
         if not chosen_models:
@@ -86,22 +84,20 @@ def gui_settings(cpacs: CPACS) -> None:
                 xpath=SMTRAIN_FIDELITY_LEVEL_XPATH,
                 default_value=FIDELITY_LEVELS,  # TODO: , "Three levels" not implemented yet
                 name="Range of fidelity level(s).",
-                description="""1st-level of fidelity (low fidelity),
+                help="""1st-level of fidelity (low fidelity),
                     2nd level of fidelity (low + high fidelity) on high-variance points.
                 """,
                 key="smtrain_fidelity_level",
             )
             with st.expander(
-                label=f"First Level (Low Fidelity, {PYAVL} + {STATICSTABILITY} Settings)",
+                label=f"First Level (Low Fidelity, {PYAVL} Settings)",
                 expanded=False,
             ):
                 tabs = st.tabs(
-                    tabs=[PYAVL, STATICSTABILITY],
+                    tabs=[PYAVL],
                 )
                 with tabs[0]:
                     avl_settings(cpacs)
-                with tabs[1]:
-                    staticstability_settings(cpacs)
 
             if fidelity_level == LEVEL_TWO:
                 with st.expander(
@@ -123,7 +119,7 @@ def gui_settings(cpacs: CPACS) -> None:
         #     default_value=["Run New Simulations", "Load Geometry Exploration Simulations"],
         #     key="smtrain_load_or_explore",
         #     name="Load Existing or Run New Simulations",
-        #     description="Load pre-computed results from files or Generate new simulations.",
+        #     help="Load pre-computed results from files or Generate new simulations.",
         #     xpath=SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
         # )
 
@@ -138,7 +134,7 @@ def gui_settings(cpacs: CPACS) -> None:
             objective_name = list_vartype(
                 tixi=tixi,
                 xpath=SMTRAIN_OBJECTIVE_XPATH,
-                description="Objective function list for the surrogate model to predict",
+                help="Objective function list for the surrogate model to predict",
                 name="Objective",
                 key="smtrain_objective",
                 default_value=OBJECTIVES_LIST,
@@ -150,7 +146,7 @@ def gui_settings(cpacs: CPACS) -> None:
                 default_value=["Maximize", "Minimize"],
                 name=f"Maximize or Minimize {objective_name}",
                 key="smtrain_obj_direction",
-                description=f"""Choose the direction (max/min)
+                help=f"""Choose the direction (max/min)
                     of the selected objective {objective_name}.
                 """
             )
@@ -163,7 +159,7 @@ def gui_settings(cpacs: CPACS) -> None:
                 default_value=["LHS", "Grid"],
                 key="smtrain_geometry_sampling_method",
                 name="Sampling Method for Geometry Parameters",
-                description="Latin Hypercube Sampling (LHS) vs Grid (Regular Grid Sampling)",
+                help="Latin Hypercube Sampling (LHS) vs Grid (Regular Grid Sampling)",
             )
 
         with right_col:
@@ -175,7 +171,7 @@ def gui_settings(cpacs: CPACS) -> None:
                     default_value=4,
                     key="smtrain_sample_number_grid",
                     name="Number of samples per dimension",
-                    description="""Samples per Dimension,
+                    help="""Samples per Dimension,
                         i.e. total number of samples = (geom_param)^n,
                         where n is this selected number.
                     """,
@@ -189,7 +185,7 @@ def gui_settings(cpacs: CPACS) -> None:
                     default_value=10,
                     key="smtrain_sample_number_lhs",
                     name="Number of samples",
-                    description="""Total number of geometries as generated data.""",
+                    help="""Total number of geometries as generated data.""",
                     min_value=4,
                 )
 
@@ -198,7 +194,7 @@ def gui_settings(cpacs: CPACS) -> None:
             xpath=SMTRAIN_TRAIN_PERC_XPATH,
             default_value=0.7,
             name=r"% used of training data",
-            description="Defining the percentage of the data to use to train the model.",
+            help="Defining the percentage of the data to use to train the model.",
             key="smtrain_training_percentage",
             min_value=0.0,
             max_value=1.0,
@@ -224,7 +220,7 @@ def gui_settings(cpacs: CPACS) -> None:
                     default_value=default_value,
                     key=f"smtrain_{wing_uid}_selected",
                     name=f"Wing {wing_uid=}",
-                    description=f"Optimize wing {wing_uid=}.",
+                    help=f"Optimize wing {wing_uid=}.",
                 )
 
                 if wing_optimized:
@@ -290,7 +286,7 @@ def _wing_settings(
                 tixi=tixi,
                 xpath=sec_selected_xpath,
                 key=f"smtrain_{wing_uid}_{section_uid}_selected",
-                description=f"Optimize {section_uid=} of {wing_uid=}",
+                help=f"Optimize {section_uid=} of {wing_uid=}",
                 default_value=default_value,
                 name=f"{section_uid}"
             )
@@ -312,7 +308,7 @@ def _wing_settings(
                                 default_value=default_value,
                                 name=f"{param}",
                                 key=f"smtrain_{wing_uid}_{section_uid}_{param}_status",
-                                description=f"""Choose if you want to optimize {param=}
+                                help=f"""Choose if you want to optimize {param=}
                                     of geometry element {wing_uid=} at {section_uid=}
                                 """,
                             )
@@ -341,7 +337,7 @@ def _wing_settings(
                                     float_vartype(
                                         tixi=tixi,
                                         xpath=params_xpath + "/min_value/value",
-                                        description=f"""Define the range (1d design space)
+                                        help=f"""Define the range (1d design space)
                                             for {param=} of geometry element
                                             {wing_uid=} at {section_uid=}
                                         """,
@@ -358,7 +354,7 @@ def _wing_settings(
                                     float_vartype(
                                         tixi=tixi,
                                         xpath=params_xpath + "/max_value/value",
-                                        description=f"""Define the range (1d design space)
+                                        help=f"""Define the range (1d design space)
                                             for {param=} of geometry element
                                             {wing_uid=} at {section_uid=}
                                         """,

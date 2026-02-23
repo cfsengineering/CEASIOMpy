@@ -44,7 +44,7 @@ def gui_settings(cpacs: CPACS) -> None:
                 name="Panel distribution",
                 key="panel_distribution",
                 default_value=["cosine", "sine", "equal"],
-                description="Select the type of distribution.",
+                help="Select the type of distribution.",
                 xpath=AVL_DISTR_XPATH,
             )
 
@@ -52,9 +52,9 @@ def gui_settings(cpacs: CPACS) -> None:
             int_vartype(
                 tixi=tixi,
                 name="Chordwise vortices",
-                key="chordwise_vortices_nb",
+                key="pyavl_chordwise_vortices_nb",
                 default_value=20,
-                description="Select the number of chordwise vortices.",
+                help="Select the number of chordwise vortices.",
                 xpath=AVL_NCHORDWISE_XPATH,
             )
 
@@ -62,9 +62,9 @@ def gui_settings(cpacs: CPACS) -> None:
             int_vartype(
                 tixi=tixi,
                 name="Spanwise vortices",
-                key="spanwise_vortices_nb",
+                key="pyavl_spanwise_vortices_nb",
                 default_value=30,
-                description="Select the number of spanwise vortices.",
+                help="Select the number of spanwise vortices.",
                 xpath=AVL_NSPANWISE_XPATH,
             )
 
@@ -78,7 +78,7 @@ def gui_settings(cpacs: CPACS) -> None:
             default_value=[0.0],
             tixi=tixi,
             xpath=AVL_ROTRATES_XPATH,
-            description="List of p, q, r rates.",
+            help="List of p, q, r rates.",
         )
 
         dataframe_vartype(
@@ -87,7 +87,7 @@ def gui_settings(cpacs: CPACS) -> None:
             default_value=[0.0],
             tixi=tixi,
             xpath=AVL_CTRLSURF_ANGLES_XPATH,
-            description="List of Aileron, Elevator, Rudder angles.",
+            help="List of Aileron, Elevator, Rudder angles.",
         )
 
         float_vartype(
@@ -95,7 +95,7 @@ def gui_settings(cpacs: CPACS) -> None:
             name="Default freestream Mach",
             key="default_freestream_mach",
             default_value=0.6,
-            description="Usually 0.2 < default value < 0.8",
+            help="Usually 0.2 < default value < 0.8",
             xpath=AVL_FREESTREAM_MACH_XPATH,
         )
 
@@ -107,7 +107,7 @@ def gui_settings(cpacs: CPACS) -> None:
             name="Integrate fuselage",
             key="integrate_fuselage",
             default_value=False,
-            description="Integrate the fuselage in the AVL model.",
+            help="Integrate the fuselage in the AVL model.",
             xpath=AVL_FUSELAGE_XPATH,
         )
 

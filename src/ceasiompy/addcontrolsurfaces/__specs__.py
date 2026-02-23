@@ -42,7 +42,7 @@ def gui_settings(cpacs: CPACS) -> None:
                         key=f"control_surface_{wing_uid}_{segment_uid}",
                         default_value=CONTROL_SURFACES_LIST,
                         name=f"Control Surface for segment {segment_uid} of wing {wing_uid}.",
-                        description="""
+                        help="""
                             Select the type of control surface to add
                             for at specific wing and segment of wing.
                         """,

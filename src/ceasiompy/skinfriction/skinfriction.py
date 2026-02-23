@@ -12,85 +12,48 @@ import math
 
 from ceasiompy.utils.ceasiompyutils import (
     call_main,
-    get_aeromap_list_from_xpath,
-)
-from cpacspy.cpacsfunctions import (
-    create_branch,
-    add_string_vector,
-    get_value_or_default,
+    get_selected_aeromap,
 )
 
 from pathlib import Path
+from pandas import DataFrame
 from ambiance import Atmosphere
 from cpacspy.cpacspy import CPACS
-from markdownpy.markdownpy import MarkdownDoc
 
 from ceasiompy import log
-
-from ceasiompy.utils.commonxpaths import (
-    PLOT_XPATH,
-    SF_XPATH,
-    WETTED_AREA_XPATH,
-    WING_AREA_XPATH,
-    WING_SPAN_XPATH,
-)
-
 from ceasiompy.skinfriction import MODULE_NAME
 
-# Functions
 
+# Methods
 
-def estimate_skin_friction_coef(wetted_area, wing_area, wing_span, mach, alt):
-    """Return an estimation of skin friction drag coefficient.
-
-    Function 'estimate_skin_friction_coef' gives an estimation of the skin
-    friction drag coefficient, based on an empirical formala (see source).
+def estimate_skin_friction_coef(
+    alt: float,
+    mach: float,
+    wing_area: float,
+    wing_span: float,
+    wetted_area: float,
+) -> float:
+    """Return an estimation of skin friction drag coefficient based on an empirical formulas.
 
     Source:
         * Gerard W. H. van Es.  "Rapid Estimation of the Zero-Lift Drag
           Coefficient of Transport Aircraft", Journal of Aircraft, Vol. 39,
           No. 4 (2002), pp. 597-599. https://doi.org/10.2514/2.2997
 
-    Args:
-        wetted_area (float):  Wetted Area of the entire aircraft [m^2]
-        wing_area (float):  Main wing area [m^2]
-        wing_span (float):  Main wing span [m]
-        mach (float):  Cruise Mach number [-]
-        alt (float):  Aircraft altitude [m]
-        md (MarkdownDoc): Markdown Document object
-
     Returns:
-        cd0 (float): Drag coefficient due to skin friction [-]
+        cd0 (float): Drag coefficient due to skin friction.
     """
 
-    # Check if the input parameters are in the correct range
-    log.info(f"Wetted area: {wetted_area:.1f} [m^2]")
-    if wetted_area < 120 or wetted_area > 3400:
-        log.warning(
-            "Wetted area is not in the correct range. It must be between 120 and 3400 [m^2]"
-        )
-
-    log.info(f"Wing area: {wing_area:.1f} [m^2]")
-    if wing_area < 20 or wing_area > 580:
-        log.warning("Wing area is not in the correct range. It must be between 20 and 580 [m^2]")
-
-    log.info(f"Wing span: {wing_span:.1f} [m]")
-    if wing_span < 10 or wing_span > 68:
-        log.warning("Wing span is not in the correct range. It must be between 10 and 68 [m]")
-
     # Get atmosphere values at this altitude
-    Atm = Atmosphere(alt)
+    atmosphere = Atmosphere(alt)
 
     # Get speed from Mach Number
-    speed = mach * Atm.speed_of_sound[0]
+    speed = mach * atmosphere.speed_of_sound[0]
     log.info(f"Mach number: {mach} [-] -> Velocity: {round(speed)} [m/s]")
 
     # Reynolds number based on the ratio Wetted Area / Wing Span
-    reynolds_number = (wetted_area / wing_span) * speed / Atm.kinematic_viscosity[0]
-
-    log.info(f"Reynolds number: {reynolds_number:.2E} [-]")  # + str(round(reynolds_number)))
-    if reynolds_number < 35e06 or reynolds_number > 390e06:
-        log.warning("Reynolds number is out of range. It must be between 35*10^6 and 390*10^6.")
+    reynolds_number = (wetted_area / wing_span) * speed / atmosphere.kinematic_viscosity[0]
+    log.info(f"Reynolds number: {reynolds_number:.2E} [-]")
 
     # Skin friction coefficient, formula from source (see function description)
     cfe = (
@@ -107,122 +70,86 @@ def estimate_skin_friction_coef(wetted_area, wing_area, wing_span, mach, alt):
     return cd0
 
 
-def main(cpacs: CPACS, wkdir: Path):
-    """Function to add the skin frictions drag coefficient to aerodynamic coefficients
-
-    Function 'add_skin_friction' add the skin friction drag 'cd0' to  the
-    aeroMap, if their UID is not given, it will add skin
-    friction to all aeroMap. For each aeroMap it creates a new aeroMap where
-    the skin friction drag coefficient is added with the correct projections.
-
-    Args:
-        cpacs_path (Path):  Path to CPACS file
-        cpacs_out_path (Path): Path to CPACS output file
+def _compute_wetted_area(cpacs: CPACS) -> float:
     """
+    Computes the total wetted area by summing the surface area of 
+    all wings and fuselages via the TiGL configuration.
+    """
+    # Access the configuration manager
+    aircraft_config = cpacs.aircraft.configuration
 
-    tixi = cpacs.tixi
-    md = MarkdownDoc(Path(wkdir, "Skin_Friction.md"))
-    md.h2("SkinFriction")
+    # Initialize the total wetted area
+    total_wetted_area = 0.0
 
-    md.h3("Geometry")
-    wetted_area = get_value_or_default(tixi, WETTED_AREA_XPATH, 0.0)
-    md.p(f"Wetted area: {wetted_area:.1f} [m^2]")
-    wing_area = get_value_or_default(tixi, WING_AREA_XPATH, cpacs.aircraft.wing_area)
-    md.p(f"Wing area: {wing_area:.1f} [m^2]")
-    wing_span = get_value_or_default(tixi, WING_SPAN_XPATH, cpacs.aircraft.wing_span)
-    md.p(f"Wing span: {wing_span:.1f} [m]")
+    # 1. Sum wetted area of all fuselages
+    for f in range(1, aircraft_config.get_fuselage_count() + 1):
+        fuselage = aircraft_config.get_fuselage(f)
+        total_wetted_area += fuselage.get_surface_area()
 
-    # Get aeroMapToCalculate
-    aeroMap_to_calculate_xpath = SF_XPATH + "/aeroMapToCalculate"
-    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, aeroMap_to_calculate_xpath)
+    # 2. Sum wetted area of all wings
+    for wing_idx in range(1, aircraft_config.get_wing_count() + 1):
+        wing = aircraft_config.get_wing(wing_idx)
+        wing_uid = wing.get_uid()
+        total_wetted_area += cpacs.tigl.wingGetWettedArea(wing_uid)
 
-    if not aeromap_uid_list:
-        raise ValueError(
-            "No aeroMap has been found in this CPACS file, "
-            "you need at least one to add skin friction!"
-        )
-
-    # Get unique aeroMap list
-    aeromap_uid_list = list(set(aeromap_uid_list))
-    new_aeromap_uid_list = []
-
-    # Add skin friction to all listed aeroMap
-    for aeromap_uid in aeromap_uid_list:
-
-        log.info("adding skin friction coefficients to: " + aeromap_uid)
-
-        new_aeromap_uid_list.append(aeromap_uid + "_SkinFriction")
-
-        aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
-
-        # Export aeromaps without skin friction
-        csv_path = Path(wkdir, f"{aeromap.uid}.csv")
-        aeromap.export_csv(csv_path)
-
-        # Create new aeromap object to store coef with added skin friction
-        aeromap_sf = cpacs.duplicate_aeromap(aeromap_uid, aeromap_uid + "_SkinFriction")
-        aeromap_sf.description = (
-            aeromap_sf.description + " Skin friction has been add to this AeroMap."
-        )
-
-        aeromap_sf.df["cd0"] = aeromap.df.apply(
-            lambda row: estimate_skin_friction_coef(
-                wetted_area, wing_area, wing_span, row["machNumber"], row["altitude"]
-            ),
-            axis=1,
-        )
-
-        # Add skin friction to all force coefficient (with projections)
-        aeromap_sf.df["cd"] = aeromap.df.apply(
-            lambda row: row["cd"]
-            + row["cd0"]
-            * math.cos(math.radians(row["angleOfAttack"]))
-            * math.cos(math.radians(row["angleOfSideslip"])),
-            axis=1,
-        )
-
-        aeromap_sf.df["cl"] = aeromap.df.apply(
-            lambda row: row["cl"] + row["cd0"] * math.sin(math.radians(row["angleOfAttack"])),
-            axis=1,
-        )
-
-        aeromap_sf.df["cs"] = aeromap.df.apply(
-            lambda row: row["cs"] + row["cd0"] * math.sin(math.radians(row["angleOfSideslip"])),
-            axis=1,
-        )
-
-        aeromap_sf_csv = Path(wkdir, f"{aeromap_sf.uid}.csv")
-        aeromap.export_csv(aeromap_sf_csv)
-
-        # TODO: Should we change something in moment coef?
-        # e.i. if a force is not apply at aero center...?
-
-        aeromap_sf.save()
-
-    # Get aeroMap list to plot
-    aeromap_to_plot_xpath = PLOT_XPATH + "/aeroMapToPlot"
-
-    if tixi.checkElement(aeromap_to_plot_xpath):
-
-        aeromap_uid_list = get_aeromap_list_from_xpath(
-            cpacs, aeromap_to_plot_xpath, empty_if_not_found=True
-        )
-
-        if not aeromap_uid_list:
-            aeromap_uid_list = get_value_or_default(tixi, aeromap_to_plot_xpath, "DefaultAeromap")
-
-        new_aeromap_to_plot = aeromap_uid_list + new_aeromap_uid_list
-        new_aeromap_to_plot = list(set(new_aeromap_to_plot))
-        add_string_vector(tixi, aeromap_to_plot_xpath, new_aeromap_to_plot)
-    else:
-        create_branch(tixi, aeromap_to_plot_xpath)
-        add_string_vector(tixi, aeromap_to_plot_xpath, new_aeromap_uid_list)
-
-    log.info('AeroMap "' + aeromap_uid + '" has been added to the CPACS file')
-    md.save()
+    return total_wetted_area
 
 
 # Main
+def main(cpacs: CPACS, results_dir: Path) -> None:
+    """Computes the skin friction drag 'cd0'."""
+
+    # Compute geometric properties
+    wetted_area = _compute_wetted_area(cpacs)
+    wing_area = cpacs.aircraft.wing_area
+    wing_span = cpacs.aircraft.wing_span
+
+    # FIX 1: Remove 'axis=0' from DataFrame constructor
+    geometry_df = DataFrame(
+        data=[
+            {
+                "Wetted Area [m^2]": wetted_area,
+                "Wing Area [m^2]": wing_area,
+                "Wing Span [m]": wing_span,
+            }
+        ]
+    )
+    geometry_df.to_csv(
+        Path(results_dir, "geometry.csv"),
+        index=False,
+    )
+
+    # Note: Ensure get_selected_aeromap returns the object, not just the UID
+    # If it returns a UID, use: aeromap = cpacs.get_aeromap_by_uid(selected_aeromap)
+    selected_aeromap = get_selected_aeromap(cpacs)
+
+    # 1. Create a DataFrame of unique flight conditions (alt, mach)
+    df_unique_conditions = selected_aeromap.df[["altitude", "machNumber"]].drop_duplicates().copy()
+
+    # 2. Compute cd0 for these unique points
+    df_unique_conditions["cd0"] = df_unique_conditions.apply(
+        lambda row: estimate_skin_friction_coef(
+            alt=row["altitude"],
+            mach=row["machNumber"],
+            wing_area=wing_area, 
+            wing_span=wing_span,
+            wetted_area=wetted_area,
+        ),
+        axis=1,
+    )
+
+    # FIX 2: Use .rename() instead of .apply() to change column names
+    df_rename = df_unique_conditions.rename(
+        columns={
+            "machNumber": "mach",
+            "cd0": "Skin Friction Drag Coefficient",
+        }
+    )
+
+    # 3. Save this specific computation to a CSV
+    csv_path = Path(results_dir, "skin_friction.csv")
+    df_rename.to_csv(csv_path, index=False)
+
 
 if __name__ == "__main__":
     call_main(main, MODULE_NAME)

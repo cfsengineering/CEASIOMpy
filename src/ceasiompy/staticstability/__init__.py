@@ -17,11 +17,11 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 # ==============================================================================
 
 # ===== Module Status =====
-MODULE_STATUS = True
+MODULE_STATUS = False
 MODULE_TYPE = "PostProcessing"
 
 # ===== Add a Results Directory =====
-RES_DIR = True
+RES_DIR = False
 
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
@@ -32,8 +32,3 @@ STABILITY_DICT = {True: "Stable", False: "Unstable"}
 
 # ===== Stability Axes =====
 AXES = ["longitudinal", "directional", "lateral"]
-
-# ===== xPaths =====
-
-STATICSTABILITY_XPATH = CEASIOMPY_XPATH + "/StaticStability"
-STATICSTABILITY_LR_XPATH = STATICSTABILITY_XPATH + "/LinearRegression"

@@ -54,7 +54,7 @@ The equation used above should be valid in the following ranges of values:
 
 ## More information
 
-* <https://en.wikipedia.org/wiki/Skin_friction_drag>
+* <https://en.wikipedia.org/wiki/skin_friction_drag>
 
 ## References
 

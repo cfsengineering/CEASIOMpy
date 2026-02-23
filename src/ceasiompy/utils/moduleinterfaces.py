@@ -125,34 +125,6 @@ def get_module_list(only_active=True):
     return module_list
 
 
-def get_toolinput_file_path(module_name):
-    """Get the path to the ToolInput.xml CPACS file of a specific module
-
-    Args:
-        module_name (str): name of the module as a string
-
-    Retruns:
-        toolinput_path (str): Path to the ToolInput CPACS file
-
-    """
-
-    return Path(MODULES_DIR_PATH, module_name, "ToolInput", "ToolInput.xml")
-
-
-def get_tooloutput_file_path(module_name):
-    """Get the path to the ToolOutput.xml CPACS file of a specific module
-
-    Args:
-        module_name (str): name of the module as a string
-
-    Retruns:
-        tooloutput_path (str): Path to the ToolOutput CPACS file
-
-    """
-
-    return Path(MODULES_DIR_PATH, module_name, "ToolOutput", "ToolOutput.xml")
-
-
 def get_specs_for_module(module_name: str, reloading=False, raise_error=False):
     """Return the __specs__ module for a CEASIOMpy module
 

@@ -4,13 +4,10 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Data extraction from pyAVL for stability analysis
-
-| Author: Leon Deligny
-| Creation: 2025-01-27
-
 """
 
 # Imports
+import numpy as np
 
 from ceasiompy.staticstability.func.plot import plot_stability
 from ceasiompy.staticstability.func.stabilitystatus import (
@@ -18,7 +15,6 @@ from ceasiompy.staticstability.func.stabilitystatus import (
     check_stability_tangent,
 )
 
-from typing import List
 from pathlib import Path
 from pandas import DataFrame
 from tixi3.tixi3wrapper import Tixi3
@@ -30,8 +26,12 @@ from cpacspy.cpacspy import (
 from ceasiompy import log
 
 
-# Functions
+# Constants
 
+SCIENTIFIC_COLUMNS = ("cma", "clb", "cnb")
+
+
+# Methods
 
 def _safe_filename(name: str) -> str:
     return "".join(char if char.isalnum() or char in ("-", "_", ".") else "_" for char in name)
@@ -47,7 +47,7 @@ def _read_increment_values(tixi: Tixi3, increment_map_xpath: str, tag: str) -> l
     return [float(value) for value in raw.split(";") if value != ""]
 
 
-def generate_stab_df(cpacs: CPACS, aeromap_uid: str, lr_bool: bool) -> DataFrame:
+def generate_stab_df(cpacs: CPACS, aeromap_uid: str) -> DataFrame:
     """
     Generate the Markdownpy Table for
     longitudinal/directional/lateral stability
@@ -56,13 +56,11 @@ def generate_stab_df(cpacs: CPACS, aeromap_uid: str, lr_bool: bool) -> DataFrame
     Args:
         cpacs (CPACS object): CPACS file.
         aeromap (AeroMap object): Chosen Aeromap.
-        lr_bool (bool): True if using Linear Regression.
 
     Returns:
         (DataFrame): Contains stability data for each combination of mach, alt, aoa, and aos.
 
     """
-
     tixi: Tixi3 = cpacs.tixi
     aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
@@ -84,214 +82,128 @@ def generate_stab_df(cpacs: CPACS, aeromap_uid: str, lr_bool: bool) -> DataFrame
         columns={
             "machNumber": "mach",
             "altitude": "alt",
-            "angleOfAttack": "aoa",
-            "angleOfSideslip": "aos",
+            "angleOfAttack": "alpha",
+            "angleOfSideslip": "beta",
         },
         inplace=True,
     )
 
     # Extract values from CPACS
-    if not lr_bool:
-        log.info("Looking at the slopes of the stability derivatives.")
+    log.info("Looking at the slopes of the stability derivatives.")
 
-        clb = _read_increment_values(tixi, increment_map_xpath, "dcmd")
-        cma = _read_increment_values(tixi, increment_map_xpath, "dcms")
-        cnb = _read_increment_values(tixi, increment_map_xpath, "dcml")
+    clb = _read_increment_values(tixi, increment_map_xpath, "dcmd")
+    cma = _read_increment_values(tixi, increment_map_xpath, "dcms")
+    cnb = _read_increment_values(tixi, increment_map_xpath, "dcml")
 
-        if not clb or not cma or not cnb:
-            log.info(
-                f"Skipping aeromap '{aeromap_uid}': missing incrementMap derivatives "
-                "(expected dcmd, dcms, dcml)."
-            )
-            return DataFrame()
-
-        n_der = min(len(clb), len(cma), len(cnb))
-        if n_der == 0:
-            return DataFrame()
-
-        if len(df) != n_der:
-            flat_df = aeromap.df.rename(
-                columns={
-                    "machNumber": "mach",
-                    "altitude": "alt",
-                    "angleOfAttack": "aoa",
-                    "angleOfSideslip": "aos",
-                }
-            ).reset_index(drop=True)
-            if len(flat_df) == n_der:
-                df = flat_df
-            else:
-                align_n = min(len(df), n_der)
-                log.warning(
-                    f"Aeromap '{aeromap_uid}' has inconsistent lengths between sampled points "
-                    f"({len(df)}) and increment derivatives ({n_der}); truncating to {align_n}."
-                )
-                df = df.iloc[:align_n].reset_index(drop=True)
-                n_der = align_n
-
-        # Add the extracted values to the DataFrame
-        df["cma"] = cma[:n_der]
-        df["cnb"] = cnb[:n_der]
-        df["clb"] = clb[:n_der]
-        for coeff_name in ("cms", "cml", "cmd"):
-            if coeff_name not in df.columns:
-                df[coeff_name] = float("nan")
-
-        # Check stability for each row
-        (
-            df["long_stab"],
-            df["dir_stab"],
-            df["lat_stab"],
-        ) = zip(
-            *df.apply(
-                lambda row: check_stability_tangent(row["cma"], row["cnb"], row["clb"]),
-                axis=1,
-            )
-        )
-
-        return df[
-            [
-                "mach",
-                "alt",
-                "aoa",
-                "aos",
-                "cms",
-                "cml",
-                "cmd",
-                "cma",
-                "clb",
-                "cnb",
-                "long_stab",
-                "dir_stab",
-                "lat_stab",
-            ]
-        ]
-
-    else:
+    if not clb or not cma or not cnb:
         log.info("Using Linear Regression to compute the stability derivatives.")
-        df = check_stability_lr(df)
-        required_cols = [
-            "mach",
-            "alt",
-            "aoa",
-            "aos",
-            "cms",
-            "cml",
-            "cmd",
-            "lr_cma",
-            "lr_cma_intercept",
-            "lr_clb",
-            "lr_clb_intercept",
-            "lr_cnb",
-            "lr_cnb_intercept",
-            "long_stab",
-            "dir_stab",
-            "lat_stab",
-        ]
-        missing_cols = [col for col in required_cols if col not in df.columns]
-        if missing_cols:
-            sample_row = {}
-            if not df.empty:
-                sample_row = df.iloc[0].to_dict()
+        return check_stability_lr(df)
+
+    log.info("Using the direct values of the stability derivatives.")
+    n_der = min(len(clb), len(cma), len(cnb))
+    if n_der == 0:
+        return DataFrame()
+
+    if len(df) != n_der:
+        flat_df = aeromap.df.rename(
+            columns={
+                "machNumber": "mach",
+                "altitude": "alt",
+                "angleOfAttack": "alpha",
+                "angleOfSideslip": "beta",
+            }
+        ).reset_index(drop=True)
+        if len(flat_df) == n_der:
+            df = flat_df
+        else:
+            align_n = min(len(df), n_der)
             log.warning(
-                f"Aeromap '{aeromap_uid}' missing LR stability columns {missing_cols}. "
-                f"Available columns: {list(df.columns)}. Sample row: {sample_row}"
+                f"Aeromap '{aeromap_uid}' has inconsistent lengths between sampled points "
+                f"({len(df)}) and increment derivatives ({n_der}); truncating to {align_n}."
             )
-            return DataFrame()
+            df = df.iloc[:align_n].reset_index(drop=True)
+            n_der = align_n
 
-        return df[required_cols]
+    # Add the extracted values to the DataFrame
+    df["cma"] = cma[:n_der]
+    df["cnb"] = cnb[:n_der]
+    df["clb"] = clb[:n_der]
+    for coeff_name in ("cms", "cml", "cmd"):
+        if coeff_name not in df.columns:
+            df[coeff_name] = float("nan")
+
+    # Check stability for each row
+    (
+        df["longitudinal"],
+        df["directional"],
+        df["lateral"],
+    ) = zip(
+        *df.apply(
+            lambda row: check_stability_tangent(row["cma"], row["cnb"], row["clb"]),
+            axis=1,
+        )
+    )
+
+    return df
 
 
-def generate_stab_table(
+# Functions
+
+def compute_stab_table(
     cpacs: CPACS,
     aeromap_uid: str,
     results_dir: Path,
-    lr_bool: bool,
-) -> List[List[str]]:
+) -> bool:
     """
     Generate the Markdownpy Table for the longitudinal/directional/lateral
     stability to show in the results.
-
-    Args:
-        cpacs (CPACS object): CPACS file.
-
-    Returns:
-        (List[List[str]]): Contains stability data for each combination of mach, alt, aoa, and aos.
-
     """
 
-    # Define what the stability table will contain
-    stability_table = [
-        ["mach", "alt", "aoa", "aos", "long_stab", "dir_stab", "lat_stab"]
-    ]
-
     # Generate dataframe with necessary info
-    df = generate_stab_df(cpacs, aeromap_uid, lr_bool)
+    stab_df = generate_stab_df(
+        cpacs=cpacs,
+        aeromap_uid=aeromap_uid,
+    )
 
-    if df.empty:
+    if stab_df.empty:
         log.info(
             f"No static stability data found for aeromap '{aeromap_uid}'. "
             "Skipping table and plots."
         )
-        return stability_table
+        return False
 
     # Plot different stabilities
-    plot_stability(results_dir, df, lr_bool)
+    plot_stability(
+        stab_df=stab_df,
+        results_dir=results_dir,
+    )
 
     # Save tabular results to CSV so they can be loaded directly as a dataframe in the UI.
     csv_name = f"staticstability_{_safe_filename(aeromap_uid)}.csv"
     csv_path = Path(results_dir, csv_name)
     try:
-        if lr_bool:
-            export_cols = [
-                "mach",
-                "alt",
-                "aoa",
-                "aos",
-                "cms",
-                "cml",
-                "cmd",
-                "lr_cma",
-                "lr_cma_intercept",
-                "lr_clb",
-                "lr_clb_intercept",
-                "lr_cnb",
-                "lr_cnb_intercept",
-                "long_stab",
-                "dir_stab",
-                "lat_stab",
-            ]
-        else:
-            export_cols = [
-                "mach",
-                "alt",
-                "aoa",
-                "aos",
-                "cma",
-                "clb",
-                "cnb",
-                "long_stab",
-                "dir_stab",
-                "lat_stab",
-            ]
-        export_df = df[[col for col in export_cols if col in df.columns]]
-        export_df.to_csv(csv_path, index=False, float_format="%.12g")
-    except Exception as exc:
-        log.warning(f"Could not save static stability dataframe to CSV at {csv_path}: {exc}")
+        export_df = stab_df.copy()
+        if not export_df.empty:
+            cols_to_format = [col for col in SCIENTIFIC_COLUMNS if col in export_df.columns]
+            if cols_to_format:
+                export_df.loc[:, cols_to_format] = np.char.mod(
+                    "%.3e",
+                    export_df.loc[:, cols_to_format].to_numpy(dtype=float, copy=False),
+                )
 
-    # Append the results to the stability_table
-    stability_table.extend(
-        df[
-            [
-                "mach",
-                "alt",
-                "aoa",
-                "aos",
-                "long_stab",
-                "dir_stab",
-                "lat_stab",
-            ]
-        ].values.tolist()
-    )
+        export_df[[
+            "mach",
+            "alt",
+            "alpha",
+            "beta",
+            "cma",
+            "clb",
+            "cnb",
+            "longitudinal",
+            "directional",
+            "lateral",
+        ]].to_csv(csv_path, index=False, float_format="%.12g")
+    except Exception as e:
+        log.warning(f"Could not save static stability dataframe to .csv at {csv_path}: {e=}")
 
-    return stability_table
+    return True

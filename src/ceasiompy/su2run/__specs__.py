@@ -74,7 +74,7 @@ def gui_settings(cpacs: CPACS) -> None:
                 xpath=SU2_CONFIG_RANS_XPATH,
                 name="Euler or RANS simulation",
                 key="su2run_euler_or_rans",
-                description="Running Euler or RANS calculation.",
+                help="Running Euler or RANS calculation.",
             )
 
     with st.expander(
@@ -87,7 +87,7 @@ def gui_settings(cpacs: CPACS) -> None:
             default_value=1000,
             name="Maximum iterations",
             key="max_iter",
-            description="Maximum number of iterations.",
+            help="Maximum number of iterations.",
         )
 
         with st.container(
@@ -99,7 +99,7 @@ def gui_settings(cpacs: CPACS) -> None:
                 default_value=False,
                 name="Damping Derivatives",
                 key="su2_run_damping_der",
-                description="To check if damping derivatives should be calculated or not.",
+                help="To check if damping derivatives should be calculated or not.",
             )
             if su2_run_damping_der:
                 float_vartype(
@@ -108,7 +108,7 @@ def gui_settings(cpacs: CPACS) -> None:
                     default_value=1.0,
                     name="Damping Der. rotation rate",
                     key="damping_derivatives_rotation_rate",
-                    description="Rotation rate use to calculate damping derivatives.",
+                    help="Rotation rate use to calculate damping derivatives.",
                 )
             else:
                 safe_remove(tixi, xpath=SU2_ROTATION_RATE_XPATH)
@@ -125,7 +125,7 @@ def gui_settings(cpacs: CPACS) -> None:
                     default_value=1.0,
                     name="CFL Number",
                     key="cfl_nb",
-                    description="CFL Number, Courant–Friedrichs–Lewy condition.",
+                    help="CFL Number, Courant–Friedrichs–Lewy condition.",
                 )
 
             with mid_col:
@@ -135,7 +135,7 @@ def gui_settings(cpacs: CPACS) -> None:
                     default_value=0.5,
                     name="CFL Minimum Value",
                     key="cfl_min",
-                    description="CFL Minimum Value.",
+                    help="CFL Minimum Value.",
                 )
 
             with right_col:
@@ -145,7 +145,7 @@ def gui_settings(cpacs: CPACS) -> None:
                     default_value=100,
                     name="CFL Maximum Value",
                     key="cfl_max",
-                    description="CFL Maximum Value.",
+                    help="CFL Maximum Value.",
                 )
 
             su2run_cfl_adapt = bool_vartype(
@@ -154,7 +154,7 @@ def gui_settings(cpacs: CPACS) -> None:
                 default_value=False,
                 name="CFL Adaptation",
                 key="su2run_cfl_adapt",
-                description="CFL Adaptation.",
+                help="CFL Adaptation.",
             )
 
             if su2run_cfl_adapt:
@@ -171,7 +171,7 @@ def gui_settings(cpacs: CPACS) -> None:
                             default_value=0.5,
                             name="CFL Adaptation Factor Down",
                             key="cfl_adapt_param_down",
-                            description="CFL Adaptation Factor Down.",
+                            help="CFL Adaptation Factor Down.",
                         )
 
                     with right_col:
@@ -180,7 +180,7 @@ def gui_settings(cpacs: CPACS) -> None:
                             xpath=SU2_CFL_ADAPT_PARAM_UP_XPATH,
                             default_value=1.5,
                             name="CFL Adaptation Factor Up",
-                            description="CFL Adaptation Factor Up.",
+                            help="CFL Adaptation Factor Up.",
                             key="cfl_adapt_param_up",
                         )
             else:
@@ -193,7 +193,7 @@ def gui_settings(cpacs: CPACS) -> None:
             default_value=False,
             name="Extract loads",
             key="extract_loads",
-            description="Option to extract loads (forces in each point) from results.",
+            help="Option to extract loads (forces in each point) from results.",
         )
 
         int_vartype(
@@ -202,7 +202,7 @@ def gui_settings(cpacs: CPACS) -> None:
             default_value=3,
             name="Multigrid Level",
             key="mg_level",
-            description="Multi-grid level (0 = no multigrid)",
+            help="Multi-grid level (0 = no multigrid)",
         )
 
         bool_vartype(
@@ -211,7 +211,7 @@ def gui_settings(cpacs: CPACS) -> None:
             default_value=True,
             name="Update Wetted Area",
             key="update_wetted_area",
-            description="Option to update the wetted area from the latest SU2 result.",
+            help="Option to update the wetted area from the latest SU2 result.",
         )
 
     with st.container(
@@ -223,14 +223,14 @@ def gui_settings(cpacs: CPACS) -> None:
             default_value=False,
             name="Control Surfaces",
             key="su2run_control_surf",
-            description="To check if control surfaces deflections should be calculated.",
+            help="To check if control surfaces deflections should be calculated.",
         )
 
         if su2run_control_surf:
             dataframe_vartype(
                 tixi=tixi,
                 xpath=SU2_CONTROL_SURF_ANGLE_XPATH,
-                description="Rotation angle of control surface.",
+                help="Rotation angle of control surface.",
                 default_value=[0.0],
                 name="Control Surface",
                 key="su2run_ctrl_surf_deflection",
@@ -247,7 +247,7 @@ def gui_settings(cpacs: CPACS) -> None:
             default_value=False,
             name="Include actuator disk(s)",
             key="include_actuator_disk",
-            description="To check if actuator disk(s) should be included.",
+            help="To check if actuator disk(s) should be included.",
         )
 
         if include_actuator_disk:
@@ -259,7 +259,7 @@ def gui_settings(cpacs: CPACS) -> None:
                     default_value=False,
                     name="Tip loss correction",
                     key="prandtl",
-                    description="Enable or disable the tip loss correction of Prandtl.",
+                    help="Enable or disable the tip loss correction of Prandtl.",
                 )
             with right_col:
                 float_vartype(
@@ -268,7 +268,7 @@ def gui_settings(cpacs: CPACS) -> None:
                     default_value=3000,
                     name="Thrust",
                     key="thrust",
-                    description="Aircraft thrust.",
+                    help="Aircraft thrust.",
                 )
         else:
             safe_remove(tixi, xpath=PROPELLER_THRUST_XPATH)
@@ -283,7 +283,7 @@ def gui_settings(cpacs: CPACS) -> None:
             default_value=False,
             name="Fixed CL",
             key="su2run_fixed_cl",
-            description="FIXED_CL_MODE parameter for SU2.",
+            help="FIXED_CL_MODE parameter for SU2.",
         )
 
         if su2run_fixed_cl:
@@ -300,7 +300,7 @@ def gui_settings(cpacs: CPACS) -> None:
                         default_value=0.78,
                         name="Cruise Mach",
                         key="cruise_mach",
-                        description="Aircraft cruise Mach number.",
+                        help="Aircraft cruise Mach number.",
                     )
 
                 with mid_col:
@@ -310,7 +310,7 @@ def gui_settings(cpacs: CPACS) -> None:
                         default_value=120000.0,
                         name="Cruise Altitude",
                         key="cruise_alt",
-                        description="Aircraft cruise altitude.",
+                        help="Aircraft cruise altitude.",
                     )
 
                 with right_col:
@@ -320,7 +320,7 @@ def gui_settings(cpacs: CPACS) -> None:
                         default_value=1.0,
                         name="Target CL value",
                         key="target_cl",
-                        description="""
+                        help="""
                             Value of CL to achieve to have a
                             level flight with the given conditions.
                         """,
@@ -339,7 +339,7 @@ def gui_settings(cpacs: CPACS) -> None:
             default_value=False,
             name="Compute Dot derivatives",
             key="compute_derivatives",
-            description="Computing dot derivatives.",
+            help="Computing dot derivatives.",
         )
         if su2_dot_derivatives:
             with st.container(
@@ -353,7 +353,7 @@ def gui_settings(cpacs: CPACS) -> None:
                         default_value=20,
                         name="Time Size",
                         key="time_size",
-                        description="Size of time vector i.e. t = 2pi * (0, 1/n-1, ..., n-2/n-1)",
+                        help="Size of time vector i.e. t = 2pi * (0, 1/n-1, ..., n-2/n-1)",
                     )
                 with second_col:
                     float_vartype(
@@ -362,7 +362,7 @@ def gui_settings(cpacs: CPACS) -> None:
                         default_value=1.0,
                         name="Amplitude",
                         key="oscillation_amplitude",
-                        description="Oscillation's amplitude: a * sin(w t) and a > 0",
+                        help="Oscillation's amplitude: a * sin(w t) and a > 0",
                     )
                 with third_col:
                     float_vartype(
@@ -371,7 +371,7 @@ def gui_settings(cpacs: CPACS) -> None:
                         default_value=0.087,
                         name="Angular Frequency",
                         key="oscillation_frequency",
-                        description="Oscillation's angular frequency (w): a * sin(w t) and w > 0",
+                        help="Oscillation's angular frequency (w): a * sin(w t) and w > 0",
                     )
                 with fourth_col:
                     int_vartype(
@@ -380,7 +380,7 @@ def gui_settings(cpacs: CPACS) -> None:
                         default_value=10,
                         name="Max nb of iterations",
                         key="inner_iter",
-                        description="Maximum number of inner iterations",
+                        help="Maximum number of inner iterations",
                     )
         else:
             safe_remove(tixi, xpath=SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH)

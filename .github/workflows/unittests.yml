@@ -25,7 +25,7 @@ build-linux:
     - name: Set cache date
       run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
-    - name: Setup Miniforge3
+    - name: Setup MiniConda3
       uses: conda-incubator/setup-miniconda@v3
       with:
         auto-update-conda: true

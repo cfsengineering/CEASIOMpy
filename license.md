@@ -32,4 +32,4 @@ This software is provided "as is," without warranty of any kind, express or impl
 This license and any dispute arising out of it shall be governed by and construed in accordance with the laws of Switzerland.
 
 6. CONTACT FOR LICENSING
-For commercial licensing, HPC deployment permissions, or cloud integration, please visit: https://cfse.ch
+For commercial licensing, HPC deployment permissions, or cloud integration, please contact us at: ceasiompy@gmail.com

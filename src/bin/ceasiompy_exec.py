@@ -7,10 +7,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Main module of CEASIOMpy to launch workflow by different way.
-
-| Author: Aidan Jungo
-| Creation: 2022-03-29
-
 """
 
 # Imports
@@ -38,7 +34,7 @@ from ceasiompy.utils.commonpaths import (
 )
 
 
-# Functions
+# Methods
 def _get_cpu_count() -> int:
     cpus = os.cpu_count()
     if cpus is not None:
@@ -164,7 +160,7 @@ def run_gui(
     env["CEASIOMPY_WKDIR"] = str(wkdir)
     if geometry_path is not None:
         env["CEASIOMPY_GEOMETRY"] = str(geometry_path)
-    if modules_list:
+    if modules_list is not None:
         env["CEASIOMPY_MODULES"] = json.dumps(modules_list)
 
     streamlit_entrypoint = str(STREAMLIT_PATH / "app.py")
@@ -176,6 +172,7 @@ def run_gui(
         streamlit_entrypoint,
         "--server.headless", f"{str(headless).lower()}",
     ]
+
     if port is not None:
         args += [
             "--server.port", f"{port}"

@@ -429,12 +429,5 @@ if __name__ == "__main__":
 
     section_add_module()
 
-    if (
-        st.session_state.get("_cli_modules_autonext", False)
-        and st.session_state.get("workflow_modules")
-    ):
-        st.session_state["_cli_modules_autonext"] = False
-        st.switch_page("pages/03_⚙️_Settings.py")
-
     # Add last_page
     st.session_state.last_page = PAGE_NAME

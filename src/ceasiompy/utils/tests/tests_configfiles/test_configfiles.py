@@ -31,8 +31,8 @@ def test_configfiles():
     """Test the class 'ConfigFile'"""
 
     # Test Simple ConfigFile class not from a file
-    CONFIG_0 = Path(MODULE_DIR, "config_test0.cfg")
-    CONFIG_OUT_0 = Path(MODULE_DIR, "config_test0_out.cfg")
+    config_0 = Path(MODULE_DIR, "config_test0.cfg")
+    config_out_0 = Path(MODULE_DIR, "config_test0_out.cfg")
 
     config0 = ConfigFile()
     config0["TEXT"] = "text"
@@ -40,13 +40,13 @@ def test_configfiles():
     config0["LIST_OF_TEXT"] = ["abc", "def", "hij"]
     config0["LIST_OF_NUM"] = [1, 2.71, 3.1416]
 
-    config0.write_file(CONFIG_OUT_0, overwrite=True)
+    config0.write_file(config_out_0, overwrite=True)
 
-    with open(CONFIG_0, "r") as c, open(CONFIG_OUT_0, "r") as cout:
+    with open(config_0, "r") as c, open(config_out_0, "r") as cout:
         assert c.readlines() == cout.readlines()
 
     # Test ConfigFile from a Path object instead of string
-    file_path = Path(CONFIG_0)
+    file_path = Path(config_0)
     config0_path = ConfigFile(file_path)
     assert config0["LIST_OF_NUM"] == config0_path["LIST_OF_NUM"]
 
@@ -59,15 +59,15 @@ def test_configfiles():
         ConfigFile(Path("config_test1000.cfg"))
 
     # Read a config file modifing it and write it back
-    CONFIG_1 = Path(MODULE_DIR, "config_test1.cfg")
-    CONFIG_OUT_1 = Path(MODULE_DIR, "config_test1_out.cfg")
+    config_1 = Path(MODULE_DIR, "config_test1.cfg")
+    config_out_1 = Path(MODULE_DIR, "config_test1_out.cfg")
 
-    config1 = ConfigFile(CONFIG_1)
+    config1 = ConfigFile(config_1)
     config1["NEWLINE"] = "text"
     config1["VALUE1"] = 4
     config1["comment_6"] = "Test comment"
 
-    config1.write_file(CONFIG_OUT_1, overwrite=True)
+    config1.write_file(config_out_1, overwrite=True)
 
     assert config1["VALUE1"] == 4
     assert config1["VALUE2"] is None
@@ -80,7 +80,7 @@ def test_configfiles():
     assert config1["NEWLINE"] == "text"
     assert config1["comment_6"] == "Test comment"
 
-    with open(CONFIG_OUT_1, "r") as cout:
+    with open(config_out_1, "r") as cout:
         lines = cout.readlines()
 
     assert lines[1] == "% Comment 2\n"
@@ -92,19 +92,19 @@ def test_configfiles():
     assert lines[8] == "% Test comment\n"
 
     with pytest.raises(FileExistsError):
-        config1.write_file(CONFIG_OUT_1, overwrite=False)
+        config1.write_file(config_out_1, overwrite=False)
 
-    CONFIG_2 = Path(MODULE_DIR, "config_test2.cfg")
+    config_2 = Path(MODULE_DIR, "config_test2.cfg")
 
     with pytest.raises(ValueError):
-        ConfigFile(CONFIG_2)
+        ConfigFile(config_2)
 
     # Remove output files
-    if CONFIG_OUT_0.exists():
-        CONFIG_OUT_0.unlink()
+    if config_out_0.exists():
+        config_out_0.unlink()
 
-    if CONFIG_OUT_1.exists():
-        CONFIG_OUT_1.unlink()
+    if config_out_1.exists():
+        config_out_1.unlink()
 
 
 # Main

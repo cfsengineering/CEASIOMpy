@@ -77,7 +77,7 @@ DEFAULT_PARAVIEW_STATE = Path(MODULES_DIR_PATH, "SU2Run", "files", "default_para
 def get_wkdir() -> Path:
     """Return working directory passed from ceasiompy_exec, or the default."""
 
-    env_wkdir = os.environ.get("CEASIOMPY_wkdir")
+    env_wkdir = os.environ.get("CEASIOMPY_WKDIR")
     if env_wkdir:
         return Path(env_wkdir)
     return WKDIR_PATH

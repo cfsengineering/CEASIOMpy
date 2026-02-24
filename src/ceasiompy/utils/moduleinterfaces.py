@@ -108,21 +108,49 @@ def get_module_list(only_active=True):
 
         init = get_init_for_module(module_name, raise_error=False)
         try:
-            MODULE_STATUS = init.MODULE_STATUS
+            module_status = init.MODULE_STATUS
         except AttributeError:
-            MODULE_STATUS = False
+            module_status = False
             if module_name != "utils":
                 log.warning(
                     f"Module status of {module_name} is not define in its __init__.py file."
                 )
 
         if only_active:
-            if MODULE_STATUS:
+            if module_status:
                 module_list.append(module_name)
         else:
             module_list.append(module_name)
 
     return module_list
+
+
+def get_toolinput_file_path(module_name):
+    """Get the path to the ToolInput.xml CPACS file of a specific module
+
+    Args:
+        module_name (str): name of the module as a string
+
+    Retruns:
+        toolinput_path (str): Path to the ToolInput CPACS file
+
+    """
+
+    return Path(MODULES_DIR_PATH, module_name, "ToolInput", "ToolInput.xml")
+
+
+def get_tooloutput_file_path(module_name):
+    """Get the path to the ToolOutput.xml CPACS file of a specific module
+
+    Args:
+        module_name (str): name of the module as a string
+
+    Retruns:
+        tooloutput_path (str): Path to the ToolOutput CPACS file
+
+    """
+
+    return Path(MODULES_DIR_PATH, module_name, "ToolOutput", "ToolOutput.xml")
 
 
 def get_specs_for_module(module_name: str, reloading=False, raise_error=False):

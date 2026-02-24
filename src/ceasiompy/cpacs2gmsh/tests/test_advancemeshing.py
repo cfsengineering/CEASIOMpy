@@ -368,7 +368,7 @@ def test_refine_between_parts():
     m2.lines_tags = [t for (d, t) in m2.lines]
     m3.lines_tags = [t for (d, t) in m3.lines]
 
-    mesh_fields = {"nbfields": 0, "restrict_fields" : []}
+    mesh_fields = {"nbfields": 0, "restrict_fields": []}
 
     refine_between_parts(aircraft_parts, mesh_fields)
 

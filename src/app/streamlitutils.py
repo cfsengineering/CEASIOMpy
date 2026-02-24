@@ -353,16 +353,14 @@ def plot_airfoil_2d(x_coords, y_coords, title="Airfoil Profile"):
     st.plotly_chart(fig, width="stretch")
 
 
-def section_3D_view(
+def section_3d_view(
     cpacs: CPACS | None = None,
     *,
     force_regenerate: bool = False,
     height: int | None = None,
     plot_key: str | None = None,
 ) -> None:
-    """
-    Shows a 3D view of the aircraft by exporting a STL file.
-    """
+    """Shows a 3D view of the aircraft by exporting a STL file."""
 
     if cpacs is None:
         cpacs = st.session_state.get("cpacs", None)

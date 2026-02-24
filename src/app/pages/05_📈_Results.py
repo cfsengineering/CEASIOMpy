@@ -37,7 +37,6 @@ from ceasiompy.smtrain.func.utils import get_model_typename
 from ceasiompy.smtrain.func.config import update_geometry_cpacs
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.geometryfunctions import get_xpath_for_param
-
 from ceasiompy.skinfriction.skinfriction import main as skin_friction
 from ceasiompy.staticstability.staticstability import main as static_stability
 
@@ -48,7 +47,7 @@ from parsefunctions import (
 )
 from streamlitutils import (
     create_sidebar,
-    section_3D_view,
+    section_3d_view,
     highlight_stability,
 )
 
@@ -251,7 +250,11 @@ def _render_workflow_status_summary(status_map: dict[str, dict], results_name: l
         detail = item.get("detail", "")
         progress = item.get("progress")
         elapsed_seconds = item.get("elapsed_seconds")
-        status_class = status if status in {"waiting", "running", "finished", "failed"} else "waiting"
+        status_class = (
+            status
+            if status in {"waiting", "running", "finished", "failed"}
+            else "waiting"
+        )
 
         progress_html = ""
         if isinstance(progress, (int, float)):
@@ -459,7 +462,7 @@ def display_results(results_dir):
     clear_containers(container_list)
 
     # Inner constant...
-    DISPLAY_BY_SUFFIX = {
+    display_by_suffix = {
         ".dat": _display_dat,
         ".su2": _display_su2,
         ".vtu": _display_vtu,
@@ -481,7 +484,7 @@ def display_results(results_dir):
         if child.name in IGNORED_RESULTS:
             continue
         try:
-            handler = DISPLAY_BY_SUFFIX.get(child.suffix.lower())
+            handler = display_by_suffix.get(child.suffix.lower())
             if handler is not None:
                 if not is_first_displayed_child:
                     st.markdown("---")
@@ -783,14 +786,14 @@ def _display_pkl(path: Path) -> None:
 
     if preview_cpacs is not None:
         with _timed(f"geometry preview render {path.name}"):
-            section_3D_view(
+            section_3d_view(
                 cpacs=preview_cpacs,
                 force_regenerate=False,
                 plot_key=f"{path}_plk_geom_view",
             )
     else:
         with _timed(f"geometry preview render fallback {path.name}"):
-            section_3D_view(
+            section_3d_view(
                 force_regenerate=False,
                 plot_key=f"{path}_plk_geom_view",
             )
@@ -1906,7 +1909,11 @@ def _display_csv(path: Path) -> None:
                         y=filtered_df[y_col],
                         z=filtered_df[target_col],
                         mode="markers",
-                        marker={"size": 5, "color": filtered_df[target_col], "colorscale": "Viridis"},
+                        marker={
+                            "size": 5,
+                            "color": filtered_df[target_col],
+                            "colorscale": "Viridis",
+                        },
                         name="AVL points",
                     )
                 ]
@@ -1930,7 +1937,7 @@ def _display_xml(path: Path, specify_name: str | None = None) -> None:
     else:
         st.markdown(f"**{specify_name}**")
 
-    section_3D_view(
+    section_3d_view(
         cpacs=cpacs,
         force_regenerate=False,
         plot_key=f"{path}_xml_geom_view",

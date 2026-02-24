@@ -16,7 +16,6 @@ from cpacspy.cpacsfunctions import (
     create_branch,
     get_string_vector,
 )
-from ceasiompy.utils.guiobjects import add_value
 from scipy.optimize import differential_evolution
 from ceasiompy.utils.geometryfunctions import get_xpath_for_param
 from ceasiompy.smtrain.func.utils import (
@@ -49,8 +48,6 @@ from smt.surrogate_models import (
 )
 
 from ceasiompy import log
-from cpacspy.utils import AC_NAME_XPATH
-from ceasiompy.utils.commonxpaths import WINGS_XPATH
 from ceasiompy.smtrain import (
     NORMALIZED_DOMAIN,
     AEROMAP_FEATURES,
@@ -187,14 +184,14 @@ def design_of_experiment(cpacs: CPACS) -> tuple[int, dict[str, list[float]]]:
 
     range_params_aeromap = {}
 
-    for i in range(1,n_param_aeromap + 1):
+    for i in range(1, n_param_aeromap + 1):
         name_param = tixi.getChildNodeName(params_aeromap_xpath, i)
         status_param = tixi.getTextElement(f"{params_aeromap_xpath}/{name_param}/status")
 
         if status_param.strip().lower() == "false":
             param_min_value = 0.0
             param_max_value = 0.0
-            range_params_aeromap[name_param] = (param_min_value , param_max_value)
+            range_params_aeromap[name_param] = (param_min_value, param_max_value)
             continue
 
         if status_param.strip().lower() == "true":
@@ -204,7 +201,7 @@ def design_of_experiment(cpacs: CPACS) -> tuple[int, dict[str, list[float]]]:
             param_max_value = tixi.getDoubleElement(
                 f"{params_aeromap_xpath}/{name_param}/max_value/value"
             )
-            range_params_aeromap[name_param] = (param_min_value , param_max_value)
+            range_params_aeromap[name_param] = (param_min_value, param_max_value)
 
     log.info(f"Design of Experiment Settings for {n_samples=}.")
     for key, (min_value, max_value) in range_params_aeromap.items():
@@ -325,69 +322,6 @@ def update_geometry_cpacs(cpacs_path_in: Path, cpacs_path_out: Path, geom_params
 
     cpacs_in.save_cpacs(cpacs_path_out, overwrite=True)
     return CPACS(cpacs_path_out)
-
-
-def relative_ranges(
-    cpacs:CPACS,
-    wings_to_optimise: list,
-    sections_to_optimise: list,
-    max_geom_ranges: dict
-):
-
-    tixi = cpacs.tixi
-
-    ranges = {}
-
-    for wing_selected in wings_to_optimise:
-        wing_section_path = WINGS_XPATH + f"/wing[@uID='{wing_selected}']/sections"
-        wing_positioning_path = WINGS_XPATH + f"/wing[@uID='{wing_selected}']/positionings"
-        n_sections_wing = tixi.getNumberOfChilds(wing_section_path)
-        for i in range(1,n_sections_wing + 1):
-            section_path = wing_section_path + f"/section[{i}]"
-            section_uid = tixi.getTextAttribute(section_path,"uID")
-            if section_uid not in sections_to_optimise:
-                continue
-            for params,toll_percentage in max_geom_ranges.items():
-                transf_path = f"{wing_section_path}/section[@uID='{section_uid}']/transformation"
-                toll = toll_percentage / 100
-                if params == "twist":
-                    node_path = f"{transf_path}/rotation/y"
-                    val = tixi.getDoubleElement(node_path)
-                    key_name = f"{wing_selected}_{section_uid}_{params}"
-                    ranges[key_name] = [val * (1 - toll), val * (1 + toll)]
-                elif params == "chord":
-                    node_path = f"{transf_path}/scaling/x"
-                    val = tixi.getDoubleElement(node_path)
-                    key_name = f"{wing_selected}_{section_uid}_{params}"
-                    ranges[key_name] = [val * (1 - toll), val * (1 + toll)]
-                elif params == "thickness":
-                    node_path = f"{transf_path}/scaling/z"
-                    val = tixi.getDoubleElement(node_path)
-                    key_name = f"{wing_selected}_{section_uid}_{params}"
-                    ranges[key_name] = [val * (1 - toll), val * (1 + toll)]
-
-            positioning_path = wing_positioning_path + f"/positioning[{i}]"
-            positioning_uid = tixi.getTextAttribute(positioning_path,"uID")
-            for params,toll in max_geom_ranges.items():
-                toll = toll_percentage / 100
-                if any(positioning_uid.startswith(a) for a in sections_to_optimise):
-                    x_ = f"{wing_positioning_path}/positioning[@uID='{positioning_uid}']"
-                    if params == "length":
-                        node_path = f"{x_}/{params}"
-                        val = tixi.getDoubleElement(node_path)
-                        key_name = f"{wing_selected}_{section_uid}_{params}"
-                        ranges[key_name] = [val * (1 - toll), val * (1 + toll)]
-                    if params == "sweepAngle":
-                        node_path = f"{x_}/{params}"
-                        val = tixi.getDoubleElement(node_path)
-                        key_name = f"{wing_selected}_{section_uid}_{params}"
-                        ranges[key_name] = [val * (1 - toll), val * (1 + toll)]
-                    if params == "dihedralAngle":
-                        node_path = f"{x_}/{params}"
-                        val = tixi.getDoubleElement(node_path)
-                        key_name = f"{wing_selected}_{section_uid}_{params}"
-                        ranges[key_name] = [val * (1 - toll), val * (1 + toll)]
-    return ranges
 
 
 def create_list_cpacs_geometry(

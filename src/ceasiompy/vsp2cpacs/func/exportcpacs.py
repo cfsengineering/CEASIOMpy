@@ -4,44 +4,33 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
+openVSP integration inside CEASIOMpy.
 The geometry is built in OpenVSP, saved as a .vsp3 file, and then selected in the GUI.
 It is subsequently processed by this module to generate a CPACS file.
 
-| Author: Nicolo Perasso
-| Creation: 23/12/2025
+| Author: Nicolo' Perasso
+| Creation: 22/12/2025
 """
 
-# Imports
-import re
-import defusedxml
+# =================================================================================================
+#   IMPORTS
+# =================================================================================================
+
+import xml.dom.minidom as md
 import numpy as np
-import xml.etree.ElementTree as ET  # nosec B405
-
+import re
 from pathlib import Path
-from defusedxml import ElementTree as DefusedElementTree
 
-from ceasiompy import log
-
-
-defuse = getattr(defusedxml, "defuse_stdlib", None)
-if defuse is None:  # pragma: no cover
-    raise ImportError("defusedxml does not support defuse_stdlib in this version.")
-defuse()
-
-
-# Functions
-def safe_parse_xml(*args, **kwargs):
-    return DefusedElementTree.parse(*args, **kwargs)
-
-
-def safe_fromstring_xml(text: str):
-    return DefusedElementTree.fromstring(text)
-
-
+import warnings
+warnings.filterwarnings("ignore")
+# =================================================================================================
+#   FUNCTIONS
+# =================================================================================================
 def make(doc, name, parent=None, text=None, **attrs):
     """
     Create an XML element, optionally add attributes, text value,
     and append to a parent element.
+    
     """
     node = doc.createElement(name)
 
@@ -59,10 +48,8 @@ def make(doc, name, parent=None, text=None, **attrs):
 
     return node
 
-
-def add_text(doc, name, parent, value):
+def add_text(doc,name,parent, value):
     make(doc, name, parent, text=value)
-
 
 def segment(doc, Parent, Name_wing, Name_Element, Name_Element_before, idx):
     segment = doc.createElement('segment')
@@ -80,11 +67,14 @@ def segment(doc, Parent, Name_wing, Name_Element, Name_Element_before, idx):
 
 
 def initialization(doc,data,name_file):
-    cpacs = doc.createElement('cpacs')
-    cpacs.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
-    cpacs.setAttribute("xsi_noNamespaceSchemaLocation", "CPACS_21_Schema.xsd")
-    doc.appendChild(cpacs)
 
+    cpacs = doc.createElement('cpacs')
+    cpacs.setAttribute(
+        'xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
+    cpacs.setAttribute(
+        'xsi_noNamespaceSchemaLocation', 'CPACS_21_Schema.xsd')
+    doc.appendChild(cpacs)
+    
     # --- HEADER ---
     header = make(doc, 'header', cpacs)
     make(doc, 'name', header, name_file)
@@ -105,10 +95,9 @@ def initialization(doc,data,name_file):
     keys = list(data.keys())
     for i, k in enumerate(keys):
 
-        if data[k]["Transformation"]["idx_engine"] is not None:
+        if data[k]['Transformation']['idx_engine'] is not None:
 
-            transformation = data[k]["Transformation"]
-            NameEngine = f"{transformation['Name']}_Engine{transformation['idx_engine']}"
+            NameEngine = f"{data[k]['Transformation']['Name']}_Engine{data[k]['Transformation']['idx_engine']}"
             engines = make(doc, 'engines', vehicles)
 
             # ENGINE
@@ -118,80 +107,39 @@ def initialization(doc,data,name_file):
             # NACELLE
             nacelle = make(doc, 'nacelle', engine, uID=f'{NameEngine}_Nacelle')
 
-            # CASE 1 : Normal nacelle
-            prev_trans = data[keys[i - 1]]["Transformation"]
-            if prev_trans["Name_type"] != "Duct":
+            # CASE 1 : Standard nacelle 
+            if data[keys[i-1]]['Transformation']['Name_type'] != 'Duct':
 
                 fanCowl = make(doc, 'fanCowl', nacelle, uID=f'{NameEngine}_Nacelle_fanCowl')
 
                 sections = make(doc, 'sections', fanCowl)
                 section = make(doc, 'section', sections, uID=f'{NameEngine}_Nacelle_fanCowl_Sec1')
-                make(
-                    doc,
-                    'profileUID', section,
-                    f"{NameEngine}_Nacelle_fanCowl_{data[k]['Airfoil']}"
-                )
+                make(doc, 'profileUID', section, f"{NameEngine}_Nacelle_fanCowl_{data[k]['Airfoil']}")
 
-                Transformation(
-                    doc,
-                    section,
-                    f"{NameEngine}_Nacelle_fanCowl_Sec1",
-                    [
-                        data[k]["Transformation"]["chord"],
-                        1,
-                        data[k]["Transformation"]["chord"] / 2,
-                    ],
-                    [0, 0, 0],
-                    [0, 0, 0.5],
-                )
+                Transformation(doc, section, f"{NameEngine}_Nacelle_fanCowl_Sec1",
+                               [data[k]['Transformation']['chord'], 1, data[k]['Transformation']['chord']/2],
+                               [0,0,0], [0,0,0.5])
 
-                rotationCurve = make(
-                    doc,
-                    'rotationCurve',
-                    fanCowl,
-                    uID=f'{NameEngine}_Nacelle_fanCowl_RotCurve',
-                )
-                make(doc, 'referenceSectionUID', rotationCurve,
-                     f'{NameEngine}_Nacelle_fanCowl_Sec1')
+                rotationCurve = make(doc, 'rotationCurve', fanCowl, uID=f'{NameEngine}_Nacelle_fanCowl_RotCurve')
+                make(doc, 'referenceSectionUID', rotationCurve, f'{NameEngine}_Nacelle_fanCowl_Sec1')
                 make(doc, 'curveProfileUID', rotationCurve, f'{NameEngine}_fanCowlRotationCurve')
                 make(doc, 'startZeta', rotationCurve, '-0.28')
                 make(doc, 'endZeta', rotationCurve, '-0.25')
                 make(doc, 'startZetaBlending', rotationCurve, '-0.3')
                 make(doc, 'endZetaBlending', rotationCurve, '-0.23')
 
-            # CASE 2 : Duct + Duct
-            elif (
-                prev_trans["Name_type"] == "Duct"
-                and data[k]["Transformation"]["Name_type"] == "Duct"
-            ):
-
+            # CASE 2 : Core cowl generated from two consecutive duct sections
+            elif data[keys[i-1]]['Transformation']['Name_type'] == 'Duct' and data[k]['Transformation']['Name_type'] == 'Duct':
                 coreCowl = make(doc, 'coreCowl', nacelle, uID=f'{NameEngine}_coreCowl')
-
                 sections = make(doc, 'sections', coreCowl)
                 section = make(doc, 'section', sections, uID=f'{NameEngine}_coreCowl_Sec1')
-                make(doc, 'profileUID',
-                     section, f"{NameEngine}_Nacelle_coreCowl_{data[k]['Airfoil']}")
+                make(doc, 'profileUID', section, f"{NameEngine}_Nacelle_coreCowl_{data[k]['Airfoil']}")
+                Transformation(doc, section, f"{NameEngine}_coreCowl_Sec1",
+                               [data[k]['Transformation']['chord'], 1, data[k]['Transformation']['chord']/2],
+                               [0,0,0], [0,0,(0.5*data[k]['Transformation']['height'])/
+                                         data[keys[i-1]]['Transformation']['height']])
 
-                Transformation(
-                    doc,
-                    section,
-                    f"{NameEngine}_coreCowl_Sec1",
-                    [
-                        data[k]["Transformation"]["chord"],
-                        1,
-                        data[k]["Transformation"]["chord"] / 2,
-                    ],
-                    [0, 0, 0],
-                    [
-                        0,
-                        0,
-                        (0.5 * data[k]["Transformation"]["height"])
-                        / data[keys[i - 1]]["Transformation"]["height"],
-                    ],
-                )
-
-                rotationCurve = make(doc, 'rotationCurve',
-                                     coreCowl, uID=f'{NameEngine}_coreCowl_RotCurve')
+                rotationCurve = make(doc, 'rotationCurve', coreCowl, uID=f'{NameEngine}_coreCowl_RotCurve')
                 make(doc, 'referenceSectionUID', rotationCurve, f'{NameEngine}_coreCowl_Sec1')
                 make(doc, 'curveProfileUID', rotationCurve, f'{NameEngine}_coreCowlRotationCurve')
                 make(doc, 'startZeta', rotationCurve, '-0.28')
@@ -205,12 +153,10 @@ def initialization(doc,data,name_file):
                 centerCowl = make(doc, 'centerCowl', nacelle, uID=f'{NameEngine}_centerCowl')
                 make(doc, 'curveUID', centerCowl, f'{NameEngine}_centerCowlRotationCurve')
 
-                offset_val = (
-                    data[keys[i - 2]]["Transformation"]["X_Trasl"][0]
-                    - data[keys[i - 2]]["Transformation"]["chord"] / 2
-                    - data[k]["Transformation"]["X_Trasl"][0]
-                    - data[keys[i - 2]]["Transformation"]["chord"] / 2
-                )
+                offset_val = (data[keys[i-2]]['Transformation']['X_Trasl'][0]
+                              - data[keys[i-2]]['Transformation']['chord']/2) \
+                              - data[k]['Transformation']['X_Trasl'][0] \
+                              - data[keys[i-2]]['Transformation']['chord']/2
 
                 make(doc, 'xOffset', centerCowl, offset_val)
 
@@ -232,7 +178,9 @@ def initialization(doc,data,name_file):
     return doc, model, vehicles
 
 
+
 def Transformation(doc, Parent, Name, X_scal, X_Rot, X_Trasl, abs_or_rel=None):
+
     transformation = make(doc, 'transformation', Parent, uID=f'{Name}_Tr')
 
     txt = ['x', 'y', 'z']
@@ -254,6 +202,7 @@ def Transformation(doc, Parent, Name, X_scal, X_Rot, X_Trasl, abs_or_rel=None):
             make(doc, ax, child, x_Transf[i, idx])
 
 
+
 def Wing_section(doc, Parent, Name_wing, Section_key, Sections_parameters):
 
     # Extract numeric index at the end of the section key
@@ -261,47 +210,46 @@ def Wing_section(doc, Parent, Name_wing, Section_key, Sections_parameters):
     number = int(match.group()) if match else 0
 
     # --- Section UID ---
-    uid_section_root = f'{Name_wing}Sec{number}'
+    uID_section_root = f'{Name_wing}Sec{number}'
 
     # Create section element
-    section_root = make(doc, 'section', Parent, uID=uid_section_root)
+    section_root = make(doc, 'section', Parent, uID=uID_section_root)
 
     # Section name
-    make(doc, 'name', section_root, uid_section_root)
+    make(doc, 'name', section_root, uID_section_root)
 
     # --- Transformation parameters ---
     x_Scal = [
-        Sections_parameters[Section_key]["x_scal"],
-        Sections_parameters[Section_key]["y_scal"],
-        Sections_parameters[Section_key]["z_scal"],
+        Sections_parameters[Section_key]['x_scal'],
+        Sections_parameters[Section_key]['y_scal'],
+        Sections_parameters[Section_key]['z_scal']
     ]
     x_Rot = np.zeros(3)
     x_Trasl = [
-        Sections_parameters[Section_key]["x_trasl"],
+        Sections_parameters[Section_key]['x_trasl'],
         0,
-        0,
+        0
     ]
 
     # --- Transformation ---
     Transformation(
         doc,
         section_root,
-        uid_section_root,
+        uID_section_root,
         x_Scal,
         x_Rot,
         x_Trasl,
-        Sections_parameters["Transformation"]["abs_system"],
+        Sections_parameters['Transformation']['abs_system']
     )
 
     # --- Element definition for the section ---
     Element(
         doc,
         section_root,
-        uid_section_root,
+        uID_section_root,
         Section_key,
         Sections_parameters
     )
-
 
 def Fuse_section(doc, Parent, Name, Section_key, Sections_parameters):
 
@@ -310,53 +258,52 @@ def Fuse_section(doc, Parent, Name, Section_key, Sections_parameters):
     number = int(match.group()) if match else 0
 
     # --- Section UID ---
-    section_uid = f'{Name}Sec{number}'
+    uID_section = f'{Name}Sec{number}'
 
     # Create section element
-    section = make(doc, 'section', Parent, uID=section_uid)
+    section = make(doc, 'section', Parent, uID=uID_section)
 
     # Section name
-    make(doc, 'name', section, section_uid)
+    make(doc, 'name', section, uID_section)
 
     # --- Transformation parameters ---
     X_Scal = [
-        Sections_parameters[Section_key]["x_scal"],
-        Sections_parameters[Section_key]["y_scal"],
-        Sections_parameters[Section_key]["z_scal"],
+        Sections_parameters[Section_key]['x_scal'],
+        Sections_parameters[Section_key]['y_scal'],
+        Sections_parameters[Section_key]['z_scal']
     ]
 
     X_Rot = [
-        Sections_parameters[Section_key]["x_rot"],
-        Sections_parameters[Section_key]["y_rot"],
-        Sections_parameters[Section_key]["z_rot"],
+        Sections_parameters[Section_key]['x_rot'],
+        Sections_parameters[Section_key]['y_rot'],
+        Sections_parameters[Section_key]['z_rot']
     ]
 
     X_Trasl = [
         0,
-        Sections_parameters[Section_key]["y_trasl"],
-        Sections_parameters[Section_key]["z_trasl"],
+        Sections_parameters[Section_key]['y_trasl'],
+        Sections_parameters[Section_key]['z_trasl']
     ]
 
     # --- Transformation ---
     Transformation(
         doc,
         section,
-        section_uid,
+        uID_section,
         X_Scal,
         X_Rot,
         X_Trasl,
-        Sections_parameters["Transformation"]["abs_system"],
+        Sections_parameters['Transformation']['abs_system']
     )
 
     # --- Element definition of the fuselage section ---
     Fuse_Element(
         doc,
         section,
-        section_uid,
+        uID_section,
         Section_key,
         Sections_parameters
     )
-
 
 def Fuse_Element(doc, Parent, Name_section, Section_key, Section_parameters):
 
@@ -391,7 +338,6 @@ def Fuse_Element(doc, Parent, Name_section, Section_key, Section_parameters):
         Section_parameters['Transformation']['abs_system']
     )
 
-
 def Fuse_positioning(doc, Parent, Name, Section_key, Section_parameters, length_before_perc):
 
     # Extract section index and prefix (letters only)
@@ -416,9 +362,7 @@ def Fuse_positioning(doc, Parent, Name, Section_key, Section_parameters, length_
 
     else:
         # Section longitudinal spacing
-        section_length = float(
-            Section_parameters[Section_key]['x_loc']
-        ) - float(length_before_perc[-1])
+        section_length = float(Section_parameters[Section_key]['x_loc']) - float(length_before_perc[-1])
         length_before_perc.append(float(Section_parameters[Section_key]['x_loc']))
 
         make(doc, 'length', positioning, str(section_length))
@@ -427,7 +371,6 @@ def Fuse_positioning(doc, Parent, Name, Section_key, Section_parameters, length_
         Name_prev = f"{prefix}{number - 1}"
         make(doc, 'fromSectionUID', positioning, Name_prev)
         make(doc, 'toSectionUID', positioning, Name)
-
 
 def Fuse_Profile(doc, Parent, Section_parameters, Section_key, uid):
 
@@ -449,13 +392,11 @@ def Fuse_Profile(doc, Parent, Section_parameters, Section_key, uid):
     # CPACS vector formatting
     x_cpacs = np.column_stack((x_values, y_values, z_values))
 
-    for tag, elem in enumerate(txt):
+    for tag in range(0, len(txt)):
         values_str = ' '.join(str(x_cpacs[:, tag]).strip().split()) \
-                        .replace('[ ', '').replace(
-                            '[', '').replace(' ]', '').replace(']', '').replace(' ', ';')
-        child = make(doc, elem, pointList, values_str)
+                        .replace('[ ', '').replace('[', '').replace(' ]', '').replace(']', '').replace(' ', ';')
+        child = make(doc, txt[tag], pointList, values_str)
         child.setAttribute('mapType', 'vector')
-
 
 def Element(doc, Parent, Name_section, Section_key, Section_parameters):
 
@@ -496,6 +437,7 @@ def Wing_positioning(doc, Parent, Name, Section_key, Sections_parameters, dih_li
     make(doc, 'name', positioning, f'{Name}GenPos')
 
     # First wing section
+    import re 
     if Name.endswith("Sec0"):
         make(doc, 'length', positioning, '0')
         make(doc, 'sweepAngle', positioning, '0')
@@ -543,55 +485,50 @@ def wingAirfoil(doc, Parent, Section_key, Section_parameters, uid):
 
     x_cpacs = np.column_stack((x_values, y_values, z_values))
 
-    for tag, elem in enumerate(txt):
+    for tag in range(0, len(txt)):
         values_str = ' '.join(str(x_cpacs[:, tag]).strip().split()) \
-                        .replace('[ ', '').replace('[', '').replace(
-                            ' ]', '').replace(']', '').replace(' ', ';')
-        child = make(doc, elem, pointList, values_str)
+                        .replace('[ ', '').replace('[', '').replace(' ]', '').replace(']', '').replace(' ', ';')
+        child = make(doc, txt[tag], pointList, values_str)
         child.setAttribute('mapType', 'vector')
 
 
-def Wing_to_CPACS(
-    WingData,
-    doc,
-    Parent_wing,
-    Parent_prof,
-    name_file,
-    output_dir: Path | None = None,
-):
+def Wing_to_CPACS(WingData, doc, Parent_wing, Parent_prof,name_file):
 
     # ---- keys of the dictionary( number of sections, trasformation of the main wing...) ----#
     keys = list(WingData.keys())
-    Name_wing = WingData[keys[0]]['Name']
-
-    # <wings>
+    Name_wing = WingData[keys[0]]['Name'] 
+    
+    # <wings> 
     wings = make(doc, 'wings', Parent_wing)
-
+    
+    
     # <wing>
-    wing = make(doc, 'wing', wings, uID=Name_wing)
-    make(doc, 'name', wing, Name_wing)
-
+    wing = make(doc, 'wing', wings, uID=Name_wing)   
+    # set the parent Uid if it is necessary
+    if 'Child_to_Parent' in WingData.get('Transformation', {}):
+        parentUid = make(doc,'parentUID',wing,WingData[keys[0]]['Child_to_Parent'])
+        
     if WingData[keys[0]]['Symmetry'] != '0':
         wing.setAttribute(
             'symmetry', WingData[keys[0]]['Symmetry'])
-
+    
     # name - description - transformation #
+    name = make(doc,'name',wing,Name_wing)
+    description = make(doc,'description',wing,'Wing from openVSP')
     Transformation(doc, wing, Name_wing, np.ones(
-        3).T, np.array(WingData[keys[0]]['X_Rot']),
-        WingData[keys[0]]['X_Trasl'], WingData[keys[0]]['abs_system'])
+        3).T, np.array(WingData[keys[0]]['X_Rot']), WingData[keys[0]]['X_Trasl'], WingData[keys[0]]['abs_system'])
 
     # <sections>
     Name_section = {}
     Name_element = {}
     Name_airfoil = {}
     sections = make(doc,'sections',wing)
-
+    
     for Section_key in keys[1:]:
-
-        # <section>f'{Name_wing}Sec{Section_key[-1]}'
+        
         Wing_section(
             doc, sections, Name_wing, Section_key, WingData)
-
+        
         match = re.search(r'\d+$', Section_key)
         number = int(match.group()) if match else 0
 
@@ -604,7 +541,7 @@ def Wing_to_CPACS(
         Name_airfoil[Section_key] = {
             'Name':f"{Name_wing}Sec{number}_{WingData[Section_key]['Airfoil']}"
         }
-
+    
     # <positioning>
     positionings = make(doc,'positionings',wing)
     dih_list = []
@@ -614,19 +551,17 @@ def Wing_to_CPACS(
 
     # <segments>
     segments = make(doc,'segments',wing)
-    Name_element_before = None
     for Section_key in keys[1:]:
-
+        
         match = re.search(r'\d+$', Section_key)
         number = int(match.group()) if match else 0
 
-        if Section_key != 'Section0' and Name_element_before is not None:
+        if Section_key != 'Section0':
             segment(
-                doc, segments, Name_wing,
-                Name_element[Section_key]['Name'], Name_element_before, number
-            )
+                doc, segments, Name_wing, Name_element[Section_key]['Name'], Name_element_before, number)
             Name_element_before = Name_element[Section_key]['Name']
-        Name_element_before = Name_element[Section_key]['Name']
+        else:
+            Name_element_before = Name_element[Section_key]['Name']
 
     # <profiles>
     profiles = make(doc,'profiles',Parent_prof)
@@ -636,18 +571,11 @@ def Wing_to_CPACS(
         wingAirfoil(
             doc, wingAirfoils, Section_key, WingData, Name_airfoil[Section_key]['Name'])
 
-    return Save_CPACS_file(doc, name_file, output_dir)
+    Save_CPACS_file(doc,name_file)
 
 
-def Fuselage_to_CPACS(
-    FuseData,
-    doc,
-    Parent_Fuse,
-    Parent_prof,
-    name_file,
-    output_dir: Path | None = None,
-):
-
+def Fuselage_to_CPACS(FuseData, doc, Parent_Fuse, Parent_prof,name_file):
+    
     # ---- keys of the dictionary( number of sections, trasformation of the fuselage...) ----#
     keys = list(FuseData.keys())
     Fuse_name = FuseData[keys[0]]['Name']
@@ -655,17 +583,22 @@ def Fuselage_to_CPACS(
     fuselages = make(doc,'fuselages',Parent_Fuse)
 
     # <fuselage>
-    fuselage = make(doc, 'fuselage', fuselages, uID=Fuse_name)
-    make(doc, 'name', fuselage, Fuse_name)
+    fuselage = make(doc,'fuselage',fuselages,uID = Fuse_name)
+
+    
+    # set the parent Uid if it is necessary
+    if 'Child_to_Parent' in FuseData.get('Transformation', {}):
+        parentUid = make(doc,'parentUID',Parent_Fuse,FuseData[keys[0]]['Child_to_Parent'])
 
     if FuseData[keys[0]]['Symmetry'] != '0':
         fuselage.setAttribute(
             'symmetry', FuseData[keys[0]]['Symmetry'])
 
     # name - description - transformation #
+    name = make(doc,'name',fuselage,Fuse_name)
+    description = make(doc,'description',fuselage,'Fuse from openVSP')
     Transformation(doc, fuselage, Fuse_name, np.ones(
-        3).T, np.array(FuseData[keys[0]]['X_Rot']),
-        FuseData[keys[0]]['X_Trasl'], FuseData[keys[0]]['abs_system'])
+        3).T, np.array(FuseData[keys[0]]['X_Rot']), FuseData[keys[0]]['X_Trasl'], FuseData[keys[0]]['abs_system'])
 
     # <sections>
     Name_section = {}
@@ -673,13 +606,15 @@ def Fuselage_to_CPACS(
     Name_airfoil = {}
     sections = make(doc,'sections',fuselage)
 
+    
     for Section_key in keys[1:]:
+        
         # <section>
         Fuse_section(
             doc, sections, Fuse_name, Section_key, FuseData)
 
         match = re.search(r'\d+$', Section_key)
-
+        
         number = int(match.group()) if match else 0
 
         Name_section[Section_key] = {
@@ -691,36 +626,29 @@ def Fuselage_to_CPACS(
         Name_airfoil[Section_key] = {
             'Name':f"{Fuse_name}Sec{number}_{FuseData[Section_key]['Airfoil']}"
         }
-
+        
     # <positioning>
     positionings = make(doc,'positionings',fuselage)
 
     Store_perc_length = []
     for Section_key in keys[1:]:
         Fuse_positioning(
-            doc, positionings,
-            Name_section[Section_key]['Name'], Section_key, FuseData, Store_perc_length)
+            doc, positionings, Name_section[Section_key]['Name'], Section_key, FuseData, Store_perc_length)
 
     # <segments>
     segments = make(doc,'segments',fuselage)
 
-    Name_element_before = None
     for Section_key in keys[1:]:
-
+        
         match = re.search(r'\d+$', Section_key)
         number = int(match.group()) if match else 0
 
-        if Section_key != "Section0" and Name_element_before is not None:
+        if Section_key != 'Section0':
             segment(
-                doc,
-                segments,
-                Fuse_name,
-                Name_element[Section_key]["Name"],
-                Name_element_before,
-                number,
-            )
-
-        Name_element_before = Name_element[Section_key]["Name"]
+                doc, segments, Fuse_name, Name_element[Section_key]['Name'], Name_element_before, number)
+            Name_element_before = Name_element[Section_key]['Name']
+        else:
+            Name_element_before = Name_element[Section_key]['Name']
 
     # <profiles>
     profiles = make(doc,'profiles',Parent_prof)
@@ -729,7 +657,9 @@ def Fuselage_to_CPACS(
     for Section_key in keys[1:]:
         Fuse_Profile(
             doc,fuselageProfiles,FuseData, Section_key,Name_airfoil[Section_key]['Name'])
-    return Save_CPACS_file(doc, name_file, output_dir)
+        
+        
+    Save_CPACS_file(doc,name_file)
 
 
 def Engine_profile(doc, vehicle, data, name, i):
@@ -744,67 +674,40 @@ def Engine_profile(doc, vehicle, data, name, i):
         make(doc, 'x', pointList, '0;1')
         make(doc, 'y', pointList, '-0.06;-0.06')
     elif len(i) == 2:
-        curveProfile = make(doc, 'curveProfile',
-                            curveProfiles, uID=f"{name}_coreCowlRotationCurve")
+        curveProfile = make(doc, 'curveProfile', curveProfiles, uID=f"{name}_coreCowlRotationCurve")
         pointList = make(doc, 'pointList', curveProfile)
         make(doc, 'x', pointList, '0.27108433734939763;0.2720883534136546')
         make(doc, 'y', pointList, '-0.0252;-0.0252')
     elif len(i) == 3:
-        curveProfile = make(doc, 'curveProfile',
-                            curveProfiles, uID=f"{name}_centerCowlRotationCurve")
+        curveProfile = make(doc, 'curveProfile', curveProfiles, uID=f"{name}_centerCowlRotationCurve")
         pointList = make(doc, 'pointList', curveProfile)
-        cp = " ".join(str(data["Transformation"]["curveProfile"][0]).strip().split())
-        cp = cp.replace("[ ", "").replace(
-            "[", "").replace(" ]", "").replace("]", "").replace(" ", ";")
-        make(doc, "x", pointList, cp)
-        cp = " ".join(str(data["Transformation"]["curveProfile"][1]).strip().split())
-        cp = cp.replace("[ ", "").replace(
-            "[", "").replace(" ]", "").replace("]", "").replace(" ", ";")
-        make(doc, "y", pointList, cp)
+        make(doc, 'x', pointList, ' '.join(str(data['Transformation']['curveProfile'][0]).strip().split())
+             .replace('[ ', '').replace('[', '').replace(' ]', '').replace(']', '').replace(' ', ';'))
+        make(doc, 'y', pointList, ' '.join(str(data['Transformation']['curveProfile'][1]).strip().split())
+             .replace('[ ', '').replace('[', '').replace(' ]', '').replace(']', '').replace(' ', ';'))
 
     # <nacelleProfiles>
     nacelleProfiles = make(doc, 'nacelleProfiles', profiles)
     if len(i) == 1:
-        nacelleProfile = make(doc, 'nacelleProfile',
-                              nacelleProfiles, uID=f"{name}_Nacelle_fanCowl_{data['Airfoil']}")
+        nacelleProfile = make(doc, 'nacelleProfile', nacelleProfiles, uID=f"{name}_Nacelle_fanCowl_{data['Airfoil']}")
         make(doc, 'name', nacelleProfile, data['Airfoil'])
         pointList = make(doc, 'pointList', nacelleProfile)
-        coord_x = " ".join(str(data["Airfoil_coordinates"][0]).strip().split())
-        coord_x = coord_x.replace("[ ", "").replace("[", "").replace(
-            " ]", "").replace("]", "").replace(" ", ";")
-        make(doc, "x", pointList, coord_x)
-        coord_y = " ".join(str(data["Airfoil_coordinates"][1]).strip().split())
-        coord_y = coord_y.replace("[ ", "").replace("[", "").replace(
-            " ]", "").replace("]", "").replace(" ", ";")
-        make(doc, "y", pointList, coord_y)
+        make(doc, 'x', pointList, ' '.join(str(data['Airfoil_coordinates'][0]).strip().split())
+             .replace('[ ', '').replace('[', '').replace(' ]', '').replace(']', '').replace(' ', ';'))
+        make(doc, 'y', pointList, ' '.join(str(data['Airfoil_coordinates'][1]).strip().split())
+             .replace('[ ', '').replace('[', '').replace(' ]', '').replace(']', '').replace(' ', ';'))
     elif len(i) == 2:
-        nacelleProfile = make(doc, 'nacelleProfile',
-                              nacelleProfiles, uID=f"{name}_Nacelle_coreCowl_{data['Airfoil']}")
+        nacelleProfile = make(doc, 'nacelleProfile', nacelleProfiles, uID=f"{name}_Nacelle_coreCowl_{data['Airfoil']}")
         make(doc, 'name', nacelleProfile, data['Airfoil'])
         pointList = make(doc, 'pointList', nacelleProfile)
-        coord_x = " ".join(str(data["Airfoil_coordinates"][0]).strip().split())
-        coord_x = coord_x.replace("[ ", "").replace(
-            "[", "").replace(" ]", "").replace("]", "").replace(" ", ";")
-        make(doc, "x", pointList, coord_x)
-        coord_y = " ".join(str(data["Airfoil_coordinates"][1]).strip().split())
-        coord_y = coord_y.replace("[ ", "").replace("[", "").replace(
-            " ]", "").replace("]", "").replace(" ", ";")
-        make(doc, "y", pointList, coord_y)
+        make(doc, 'x', pointList, ' '.join(str(data['Airfoil_coordinates'][0]).strip().split())
+             .replace('[ ', '').replace('[', '').replace(' ]', '').replace(']', '').replace(' ', ';'))
+        make(doc, 'y', pointList, ' '.join(str(data['Airfoil_coordinates'][1]).strip().split())
+             .replace('[ ', '').replace('[', '').replace(' ]', '').replace(']', '').replace(' ', ';'))
 
 
-def Engine_to_CPACS(
-    EngineData,
-    doc,
-    Parent_engine,
-    Parent_prof,
-    i,
-    name_file,
-    output_dir: Path | None = None,
-):
-    # ---- keys of the dictionary( number of sections, trasformation of the fuselage...) ----#
-    NameEngine = f"""{
-        EngineData['Transformation']['Name']
-    }_Engine{EngineData['Transformation']['idx_engine']}"""
+def Engine_to_CPACS(EngineData, doc, Parent_engine, Parent_prof, i,name_file):
+    NameEngine = f"{EngineData['Transformation']['Name']}_Engine{EngineData['Transformation']['idx_engine']}"
 
     if len(i) == 1:
         # <engines>
@@ -823,20 +726,37 @@ def Engine_to_CPACS(
 
         # Transformation for engine
         Transformation(doc, engine, NameEngine,
-                       [1, EngineData['Transformation']['width'],
-                        EngineData['Transformation']['height']],
+                       [1, EngineData['Transformation']['width'], EngineData['Transformation']['height']],
                        EngineData['Transformation']['X_Rot'],
                        EngineData['Transformation']['X_Trasl'])
 
     # <profiles>
     Engine_profile(doc, Parent_prof, EngineData, NameEngine, i)
 
-    return Save_CPACS_file(doc, name_file, output_dir)
+    Save_CPACS_file(doc,name_file)
 
 
 def merge_elements(document, parent_tag, target_tag):
+    
+    # unify more <target_tag> inside the node <parent_tag>.
+    # Only if they exist.
+    
+    parent_nodes = document.getElementsByTagName(parent_tag)
+    parent = parent_nodes[0]
+    elements = list(parent.getElementsByTagName(target_tag))
+    first = elements[0]
+    
+    if len(elements) > 1:
+        for extra in elements[1:]:
+            for c in list(extra.childNodes):
+                extra.removeChild(c)
+                first.appendChild(c)
+            extra.parentNode.removeChild(extra)
 
-    # unify more element <target_tag> inside the arent node <parent_tag> , only if exist.
+
+def merge_elements(document, parent_tag, target_tag):
+    
+    # Merge multiple <target_tag> elements into a single one inside <parent_tag>, if they exist
     parent_nodes = document.getElementsByTagName(parent_tag)
     if not parent_nodes:
         return document
@@ -854,8 +774,8 @@ def merge_elements(document, parent_tag, target_tag):
     return document
 
 
-def Save_CPACS_file(Document, name_file, output_dir: Path | None = None) -> Path:
-
+def Save_CPACS_file(Document,name_file):
+    
     merge_elements(Document, 'model', 'wings')
     merge_elements(Document, 'model', 'fuselages')
     merge_elements(Document, 'vehicles', 'profiles')
@@ -865,178 +785,54 @@ def Save_CPACS_file(Document, name_file, output_dir: Path | None = None) -> Path
     merge_elements(Document,'profiles','nacelleProfiles')
 
     xml_str = Document.toprettyxml(indent="  ")
-
-    # The file will be saved either in the provided output directory or, by default,
-    # in the same folder as this module.
-    if output_dir is None:
-        module_dir = Path(__file__).parent
-        output_dir = module_dir.parent
-    else:
-        output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-    output_path = output_dir / f'{name_file}.xml'
-
+    
+    module_dir = Path(__file__).parent
+    ceasiompy_root = module_dir.parents[3]  
+    output_dir = ceasiompy_root / "WKDIR"
+    output_path = output_dir / f"{name_file}.xml"    
+    
     with open(output_path, 'w') as xml_file:
         xml_file.write(xml_str)
 
-    return output_path
-
-
-# Classes
-class _ETElement:
-    def __init__(self, element, parent: "_ETElement | None" = None):
-        self._element = element
-        self._parent = parent
-
-    @property
-    def parentNode(self) -> "_ETElement | None":
-        return self._parent
-
-    @property
-    def childNodes(self) -> list["_ETElement"]:
-        return [_ETElement(child, parent=self) for child in list(self._element)]
-
-    def setAttribute(self, key: str, value: str) -> None:
-        self._element.set(key, value)
-
-    def appendChild(self, node):
-        if isinstance(node, str):
-            text_value = str(node)
-            if self._element.text is None:
-                self._element.text = text_value
-            else:
-                self._element.text += text_value
-            return node
-        if isinstance(node, _ETElement):
-            self._element.append(node._element)
-            node._parent = self
-            return node
-        raise TypeError(f"Unsupported node type for appendChild: {type(node)!r}")
-
-    def removeChild(self, node: "_ETElement"):
-        if not isinstance(node, _ETElement):
-            raise TypeError(f"Unsupported node type for removeChild: {type(node)!r}")
-        self._element.remove(node._element)
-        node._parent = None
-        return node
-
-    def getElementsByTagName(self, tag: str) -> list["_ETElement"]:
-        matches: list[_ETElement] = []
-
-        def walk(element, parent_wrapper: _ETElement) -> None:
-            for child in list(element):
-                child_wrapper = _ETElement(child, parent=parent_wrapper)
-                if child.tag == tag:
-                    matches.append(child_wrapper)
-                walk(child, child_wrapper)
-
-        walk(self._element, self)
-        return matches
-
-
-class _ETDocument:
-    def __init__(self):
-        self._root: _ETElement | None = None
-
-    def createElement(self, name: str) -> _ETElement:
-        return _ETElement(ET.Element(name))
-
-    def createTextNode(self, value: str) -> str:
-        return str(value)
-
-    def appendChild(self, node: _ETElement) -> _ETElement:
-        if self._root is not None:
-            raise ValueError("Document already has a root element")
-        self._root = node
-        return node
-
-    def getElementsByTagName(self, tag: str) -> list[_ETElement]:
-        if self._root is None:
-            return []
-        if self._root._element.tag == tag:
-            return [self._root, *self._root.getElementsByTagName(tag)]
-        return self._root.getElementsByTagName(tag)
-
-    def toprettyxml(self, indent: str = "  ") -> str:
-        if self._root is None:
-            return ""
-        ET.indent(self._root._element, space=indent)
-        return ET.tostring(self._root._element, encoding="unicode", xml_declaration=True)
 
 
 class Export_CPACS:
-    def __init__(self, Data, name_file, output_dir: Path | None = None):
+    def __init__(self, Data,name_file):
         self.Data = Data
         self.name_file = name_file
-        self.output_dir = output_dir
-        self.output_path: Path | None = None
-
-    def run(self) -> Path:
+        
+    def run(self):
+        
         # Create the document
-        Doc = _ETDocument()
-
+        Doc = md.Document()
+        
         # find the keys
         keys = list(self.Data.keys())
-
+        
         # dummy variable for the engine
         dummy_idx_engine = []
 
+        
+        
         # CPACS's initialization
-        Doc, model, vehicles = initialization(Doc, self.Data, self.name_file)
-
-        # Loop to connect the components inside the CPACS
+        Doc, model, vehicles = initialization(Doc,self.Data,self.name_file)
+        # Loop to connect the components inside the CPACS 
         for item in keys:
-            log.info(f"Component {item} {self.Data[f'{item}']['Transformation']['Name_type']} ")
+            print(f"------------ Component {item} {self.Data[f'{item}']['Transformation']['Name_type']} ")
             if self.Data[f'{item}']['Transformation']['Name_type'] == 'Wing':
-                self.output_path = Wing_to_CPACS(
-                    self.Data[f'{item}'],
-                    Doc,
-                    model,
-                    vehicles,
-                    self.name_file,
-                    self.output_dir,
-                )
+                Wing_to_CPACS(self.Data[f'{item}'], Doc, model, vehicles,self.name_file)
             if self.Data[f'{item}']['Transformation']['Name_type'] == 'Fuselage':
-                self.output_path = Fuselage_to_CPACS(
-                    self.Data[f'{item}'],
-                    Doc,
-                    model,
-                    vehicles,
-                    self.name_file,
-                    self.output_dir,
-                )
-            if (
-                self.Data[f'{item}']['Transformation']['Name_type'] == 'Pod'
-                and self.Data[f'{item}']['Transformation']['idx_engine'] is None
-            ):
-                self.output_path = Fuselage_to_CPACS(
-                    self.Data[f'{item}'],
-                    Doc,
-                    model,
-                    vehicles,
-                    self.name_file,
-                    self.output_dir,
-                )
-            if (
-                self.Data[f'{item}']['Transformation']['Name_type'] == 'Duct'
-                or self.Data[f'{item}']['Transformation']['idx_engine'] is not None
-            ):
-                if len(dummy_idx_engine) < 3:
-                    dummy_idx_engine.append(
-                        self.Data[f'{item}']['Transformation']['idx_engine']
-                    )
-                self.output_path = Engine_to_CPACS(
-                    self.Data[f'{item}'],
-                    Doc,
-                    model,
-                    vehicles,
-                    dummy_idx_engine,
-                    self.name_file,
-                    self.output_dir,
-                )
+                Fuselage_to_CPACS(self.Data[f'{item}'], Doc, model, vehicles,self.name_file)
+            if self.Data[f'{item}']['Transformation']['Name_type'] == 'Pod' and self.Data[f'{item}']['Transformation']['idx_engine'] is None:
+                Fuselage_to_CPACS(self.Data[f'{item}'], Doc, model, vehicles,self.name_file)
+            if self.Data[f'{item}']['Transformation']['Name_type'] == 'Duct' or self.Data[f'{item}']['Transformation']['idx_engine'] is not None :
+                dummy_idx_engine.append(self.Data[f'{item}']['Transformation']['idx_engine']) if len(dummy_idx_engine)<3 else []
+                Engine_to_CPACS(self.Data[f'{item}'], Doc, model, vehicles,dummy_idx_engine,self.name_file)
 
-        if self.output_path is None:
-            raise RuntimeError("Failed to export CPACS file from OpenVSP geometry.")
+        
 
-        return self.output_path
+
+
+
+
+

@@ -20,10 +20,9 @@ from math import (
     sin,
 )
 
-from typing import Tuple
 from numpy import ndarray
 from ceasiompy.utils.generalclasses import Point
-from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Rotation as ScipyRotation
 
 
 # Functions
@@ -50,20 +49,20 @@ def rot(angle: float) -> ndarray:
 
 
 def rotate_2d_point(
-    x: Tuple[float, float],
-    center_point: Tuple[float, float],
+    x: tuple[float, float],
+    center_point: tuple[float, float],
     angle: float,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """
     Rotate a point in a 2d space.
 
     Args:
-        x (Tuple[float, float]): (x, z) point to rotate.
-        center_point (Tuple[float, float]): Center of rotation.
+        x (tuple[float, float]): (x, z) point to rotate.
+        center_point (tuple[float, float]): Center of rotation.
         angle (float): Angle of ration [deg].
 
     Returns:
-        (Tuple[float, float]): Rotated point.
+        (tuple[float, float]): Rotated point.
 
     """
     angle_rad = math.radians(angle)
@@ -79,24 +78,28 @@ def rotate_2d_point(
     return rotated_point[0] + center_point[0], rotated_point[1] + center_point[1]
 
 
-def get_rotation_matrix(RaX: float, RaY: float, RaZ: float) -> Tuple[ndarray, ndarray, ndarray]:
+def get_rotation_matrix(
+    rotation_angle_x: float,
+    rotation_angle_y: float,
+    rotation_angle_z: float,
+) -> tuple[ndarray, ndarray, ndarray]:
     """
     Computes the rotation matrices for rotations around the X, Y, and Z axes.
 
     Args:
-        RaX (float): Rotation angle around the X-axis [rad].
-        RaY (float): Rotation angle around the Y-axis [rad].
-        RaZ (float): Rotation angle around the Z-axis [rad].
+        rotation_angle_x (float): Rotation angle around the X-axis [rad].
+        rotation_angle_y (float): Rotation angle around the Y-axis [rad].
+        rotation_angle_z (float): Rotation angle around the Z-axis [rad].
 
     Returns:
-        (Tuple[ndarray, ndarray, ndarray]): Rotation matrices for the X, Y, and Z axes resp.
+        (tuple[ndarray, ndarray, ndarray]): Rotation matrices for the X, Y, and Z axes resp.
 
     """
 
-    cx = cos(RaX)
-    sx = sin(RaX)
+    cx = cos(rotation_angle_x)
+    sx = sin(rotation_angle_x)
 
-    Rx = np.array(
+    rotation_x = np.array(
         [
             [1.0, 0.0, 0.0],
             [0.0, cx, -sx],
@@ -104,10 +107,10 @@ def get_rotation_matrix(RaX: float, RaY: float, RaZ: float) -> Tuple[ndarray, nd
         ]
     )
 
-    cy = cos(RaY)
-    sy = sin(RaY)
+    cy = cos(rotation_angle_y)
+    sy = sin(rotation_angle_y)
 
-    Ry = np.array(
+    rotation_y = np.array(
         [
             [cy, 0.0, -sy],
             [0.0, 1.0, 0.0],
@@ -115,10 +118,10 @@ def get_rotation_matrix(RaX: float, RaY: float, RaZ: float) -> Tuple[ndarray, nd
         ]
     )
 
-    cz = cos(RaZ)
-    sz = sin(RaZ)
+    cz = cos(rotation_angle_z)
+    sz = sin(rotation_angle_z)
 
-    Rz = np.array(
+    rotation_z = np.array(
         [
             [cz, -sz, 0.0],
             [sz, cz, 0.0],
@@ -126,7 +129,7 @@ def get_rotation_matrix(RaX: float, RaY: float, RaZ: float) -> Tuple[ndarray, nd
         ]
     )
 
-    return Rx, Ry, Rz
+    return rotation_x, rotation_y, rotation_z
 
 
 def euler2fix(rotation_euler):
@@ -149,7 +152,7 @@ def euler2fix(rotation_euler):
         object_ = True
         rotation_euler = np.array([rotation_euler.x, rotation_euler.y, rotation_euler.z])
 
-    rotation = R.from_euler("zyx", rotation_euler, degrees=True)
+    rotation = ScipyRotation.from_euler("zyx", rotation_euler, degrees=True)
 
     fix_angles = rotation.as_euler("xyz", degrees=True)
 
@@ -184,7 +187,7 @@ def fix2euler(rotation_fix):
         object_ = True
         rotation_fix = np.array([rotation_fix.x, rotation_fix.y, rotation_fix.z])
 
-    rotation = R.from_euler("xyz", rotation_fix, degrees=True)
+    rotation = ScipyRotation.from_euler("xyz", rotation_fix, degrees=True)
 
     euler_angles = rotation.as_euler("zyx", degrees=True)
 
@@ -199,8 +202,9 @@ def fix2euler(rotation_fix):
 
 
 def rotate_points(
-    x: float, y: float, z: float, RaX: float, RaY: float, RaZ: float
-) -> Tuple[float, float, float]:
+    x: float, y: float, z: float,
+    rotation_angle_x: float, rotation_angle_y: float, rotation_angle_z: float,
+) -> tuple[float, float, float]:
     """
     Applies a 3D rotation to the coordinates of a point.
 
@@ -208,17 +212,21 @@ def rotate_points(
         x (float): x coordinate of the initial point.
         y (float): y coordinate of the initial point.
         z (float): z coordinate of the initial point.
-        RaX (float): Rotation angle around x-axis [rad].
+        rotation_angle_x (float): Rotation angle around x-axis [rad].
         Ray (float): Rotation angle around y-axis [rad].
-        RaZ (float): Rotation angle around z-axis [rad].
+        rotation_angle_z (float): Rotation angle around z-axis [rad].
 
     Returns:
-        (Tuple[float, float, float]): x, y, z coordinates of the rotated point.
+        (tuple[float, float, float]): x, y, z coordinates of the rotated point.
 
     """
-    R_x, R_y, R_z = get_rotation_matrix(RaX, RaY, RaZ)
+    rotation_x, rotation_y, rotation_z = get_rotation_matrix(
+        rotation_angle_x=rotation_angle_x,
+        rotation_angle_y=rotation_angle_y,
+        rotation_angle_z=rotation_angle_z,
+    )
 
-    rotation_matrix = R_z @ R_y @ R_x
+    rotation_matrix = rotation_z @ rotation_y @ rotation_x
 
     point = np.array([x, y, z])
     rotated_point = rotation_matrix @ point
@@ -233,7 +241,7 @@ def non_dimensionalize_rate(
     v: float,
     b: float,
     c: float,
-) -> Tuple[float, float, float]:
+) -> tuple[float, float, float]:
     """
     Non-dimensionalize pitch, roll and yaw rates.
 
@@ -246,33 +254,33 @@ def non_dimensionalize_rate(
         c (float): Chord of aircraft [m].
 
     Returns:
-        pStar (float): Non-dimensionalized roll rate in [deg/s].
-        qStar (float): Non-dimensionalized pitch rate in [deg/s].
-        rStar (float): Non-dimensionalized yaw rate in [deg/s].
+        p_star (float): Non-dimensionalized roll rate in [deg/s].
+        q_star (float): Non-dimensionalized pitch rate in [deg/s].
+        r_star (float): Non-dimensionalized yaw rate in [deg/s].
 
     """
-    pStar = p * b / (2 * v)
-    qStar = q * c / (2 * v)
-    rStar = r * b / (2 * v)
+    p_star = p * b / (2 * v)
+    q_star = q * c / (2 * v)
+    r_star = r * b / (2 * v)
 
-    return pStar, qStar, rStar
+    return p_star, q_star, r_star
 
 
 def dimensionalize_rate(
-    pStar: float,
-    qStar: float,
-    rStar: float,
+    p_star: float,
+    q_star: float,
+    r_star: float,
     v: float,
     b: float,
     c: float,
-) -> Tuple[float, float, float]:
+) -> tuple[float, float, float]:
     """
     Dimensionalize pitch, roll and yaw rates.
 
     Args:
-        pStar (float): Non-dimensionalized roll rate in [deg/s].
-        qStar (float): Non-dimensionalized pitch rate in [deg/s].
-        rStar (float): Non-dimensionalized yaw rate in [deg/s].
+        p_star (float): Non-dimensionalized roll rate in [deg/s].
+        q_star (float): Non-dimensionalized pitch rate in [deg/s].
+        r_star (float): Non-dimensionalized yaw rate in [deg/s].
         v (float): Velocity in [m/s].
         b (float): Span of aircraft [m].
         c (float): Chord of aircraft [m].
@@ -283,8 +291,8 @@ def dimensionalize_rate(
         r (float): Yaw rate in [deg/s].
 
     """
-    p = pStar * (2 * v) / b
-    q = qStar * (2 * v) / c
-    r = rStar * (2 * v) / b
+    p = p_star * (2 * v) / b
+    q = q_star * (2 * v) / c
+    r = r_star * (2 * v) / b
 
     return p, q, r

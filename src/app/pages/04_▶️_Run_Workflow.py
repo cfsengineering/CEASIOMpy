@@ -21,7 +21,7 @@ from streamlitutils import (
     scroll_down,
     create_sidebar,
     save_cpacs_file,
-    section_3D_view,
+    section_3d_view,
 )
 
 from pathlib import Path
@@ -392,8 +392,11 @@ def _run_workflow(
     workflow = Workflow()
     workflow.from_config_file(config_path)
     workflow.set_workflow()
-    st.session_state.workflow.workflow_dir = workflow.current_wkflow_dir
-    workflow_idx = workflow.current_wkflow_dir.name.split(sep="_")[1]
+    current_wkflowdir = workflow.current_wkflow_dir
+    if current_wkflowdir is None:
+        raise ValueError("Current Workflow Directory can not be None.")
+    st.session_state.workflow.workflow_dir = current_wkflowdir
+    workflow_idx = current_wkflowdir.name.split(sep="_")[1]
 
     # Lock user in this page
     lock_navigation()
@@ -478,7 +481,7 @@ def display_simulation_settings() -> None:
 
     with left_col:
         st.markdown(f"CPACS: **{cpacs.ac_name}**")
-        section_3D_view(
+        section_3d_view(
             cpacs=cpacs,
             force_regenerate=True,
             height=200,

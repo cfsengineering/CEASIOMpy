@@ -17,7 +17,7 @@ Module to run SU2 Calculation in CEASIOMpy
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.su2run.func.results import get_su2_results
 from ceasiompy.utils.ceasiompyutils import get_sane_max_cpu
-from ceasiompy.su2run.func.runconfigfiles import run_SU2_multi
+from ceasiompy.su2run.func.runconfigfiles import run_su2_multi
 from ceasiompy.su2run.func.config import (
     define_markers,
     load_su2_mesh_paths,
@@ -172,7 +172,7 @@ def main(
             log_tail=log_tail,
         )
 
-    run_SU2_multi(results_dir, nb_proc, progress_callback=_su2_progress_update)
+    run_su2_multi(results_dir, nb_proc, progress_callback=_su2_progress_update)
     _progress_update(progress_callback, detail="SU2 simulations completed.", progress=1.0)
 
     # 4. Retrieve SU2 results

@@ -123,7 +123,7 @@ def _parse_current_iteration_from_history(history_path: Path) -> int | None:
     return None
 
 
-def run_SU2_multi(
+def run_su2_multi(
     wkdir: Path,
     nb_proc: int = 1,
     *,

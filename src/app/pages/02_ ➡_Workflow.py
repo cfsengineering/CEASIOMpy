@@ -8,15 +8,19 @@ Streamlit page to create a CEASIOMpy workflow.
 
 # Imports
 
+import os
+import json
 import streamlit as st
 
 from streamlit_flow import streamlit_flow
 from streamlitutils import create_sidebar
+from cpacspy.cpacsfunctions import get_value
 from ceasiompy.utils.moduleinterfaces import (
     get_module_list,
     get_init_for_module,
 )
 
+from cpacspy.cpacspy import CPACS
 from streamlit_flow import (
     StreamlitFlowEdge,
     StreamlitFlowNode,
@@ -24,10 +28,12 @@ from streamlit_flow import (
 )
 
 from constants import BLOCK_CONTAINER
+from ceasiompy.to3d import MODULE_NAME as TO3D
 from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
 from ceasiompy.smtrain import MODULE_NAME as SMTRAIN
 from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
+from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 
 
 # Constants
@@ -44,6 +50,31 @@ HOW_TO_TEXT = (
 
 # Functions
 
+def _bootstrap_cli_modules() -> None:
+    """Preload workflow modules passed from CLI once."""
+
+    if st.session_state.get("_cli_modules_bootstrapped"):
+        return
+
+    st.session_state["_cli_modules_bootstrapped"] = True
+    raw_modules = os.environ.get("CEASIOMPY_MODULES", "").strip()
+    if not raw_modules:
+        return
+
+    try:
+        parsed = json.loads(raw_modules)
+        modules = [m.strip() for m in parsed if isinstance(m, str) and m.strip()]
+    except json.JSONDecodeError:
+        modules = [m.strip() for m in raw_modules.split() if m.strip()]
+
+    if not modules:
+        return
+
+    st.session_state.workflow_modules = modules
+    st.session_state.pop("workflow_flow_state", None)
+    st.session_state.pop("workflow_flow_modules", None)
+    st.session_state["_cli_modules_autonext"] = True
+
 
 def section_predefined_workflow() -> None:
     """
@@ -59,6 +90,19 @@ def section_predefined_workflow() -> None:
         [CPACS2GMSH, SU2RUN],
         [SMTRAIN],
     ]
+
+    # Add 2D to 3D workflow if cpacs is 2D
+    cpacs = st.session_state.get("cpacs", None)
+    if isinstance(cpacs, CPACS):
+        if (
+            get_value(
+                tixi=cpacs.tixi,
+                xpath=GEOMETRY_MODE_XPATH,
+            ) == "2D"
+        ):
+            predefine_workflows.append(
+                [CPACS2GMSH, SU2RUN, TO3D, CPACS2GMSH, SU2RUN]
+            )
 
     for workflow in predefine_workflows:
         available = all(module in active_modules for module in workflow)
@@ -340,6 +384,7 @@ def section_add_module() -> None:
 if __name__ == "__main__":
     # Define interface
     create_sidebar(HOW_TO_TEXT)
+    _bootstrap_cli_modules()
 
     # Custom CSS
     st.markdown(
@@ -383,6 +428,13 @@ if __name__ == "__main__":
     st.markdown("---")
 
     section_add_module()
+
+    if (
+        st.session_state.get("_cli_modules_autonext", False)
+        and st.session_state.get("workflow_modules")
+    ):
+        st.session_state["_cli_modules_autonext"] = False
+        st.switch_page("pages/03_⚙️_Settings.py")
 
     # Add last_page
     st.session_state.last_page = PAGE_NAME

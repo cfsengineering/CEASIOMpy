@@ -3,14 +3,14 @@
 # Imports
 import os
 import sys
-import subprocess
 import shutil
+import subprocess
 
 from pathlib import Path
 
 
-# Functions
-def find_project_root():
+# Methods
+def _find_project_root():
     current = os.getcwd()
     while current != "/":
         if "setup.py" in os.listdir(current):
@@ -19,6 +19,17 @@ def find_project_root():
     raise RuntimeError("Project root directory not found at " + os.getcwd())
 
 
+# Constants
+
+# Define the absolute path to the project root based on the Docker mount.
+PROJECT_ROOT = Path(_find_project_root())
+
+# Define the path to the ceasiompy_exec.py script relative to the project root.
+SCRIPT_RELATIVE_PATH = Path("src") / "bin" / "ceasiompy_exec.py"
+SCRIPT_ABSOLUTE_PATH = PROJECT_ROOT / SCRIPT_RELATIVE_PATH
+
+
+# Main
 def main_exec():
     """
     Entry point function for the run_ceasiompy command.
@@ -27,12 +38,6 @@ def main_exec():
     in src/bin within the project root, setting the working directory
     to the project root and passing along all command-line arguments.
     """
-    # Define the absolute path to the project root based on the Docker mount.
-    PROJECT_ROOT = Path(find_project_root())
-
-    # Define the path to the ceasiompy_exec.py script relative to the project root.
-    SCRIPT_RELATIVE_PATH = Path("src") / "bin" / "ceasiompy_exec.py"
-    SCRIPT_ABSOLUTE_PATH = PROJECT_ROOT / SCRIPT_RELATIVE_PATH
 
     # --- Validation ---
 

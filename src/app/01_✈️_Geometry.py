@@ -31,7 +31,7 @@ from ceasiompy.utils.ceasiompyutils import (
 from streamlitutils import (
     scroll_down,
     create_sidebar,
-    section_3D_view,
+    section_3d_view,
     close_cpacs_handles,
     build_default_upload,
 )
@@ -68,6 +68,30 @@ PAGE_NAME: Final[str] = "Geometry"
 
 
 # Methods
+def _bootstrap_cli_geometry() -> None:
+    """Inject geometry passed from CLI into the same upload/conversion flow."""
+
+    if st.session_state.get("_cli_geometry_bootstrapped"):
+        return
+
+    st.session_state["_cli_geometry_bootstrapped"] = True
+    cli_geometry = os.environ.get("CEASIOMPY_GEOMETRY", "").strip()
+    if not cli_geometry:
+        return
+
+    geometry_path = Path(cli_geometry).expanduser()
+    if not geometry_path.is_absolute():
+        geometry_path = (Path.cwd() / geometry_path).resolve()
+
+    if not geometry_path.exists():
+        st.warning(f"CLI geometry path does not exist: {geometry_path}")
+        return
+
+    st.session_state["pending_default_cpacs"] = str(geometry_path)
+    st.session_state["uploaded_default_cpacs"] = True
+    st.session_state["_cli_geometry_autonext"] = True
+
+
 def _clean_toolspecific(cpacs: CPACS) -> CPACS:
     air_name = cpacs.ac_name
 
@@ -462,7 +486,7 @@ def section_select_cpacs() -> None:
     title += ")"
     st.markdown(title)
 
-    section_3D_view(cpacs=cpacs, force_regenerate=True)
+    section_3d_view(cpacs=cpacs, force_regenerate=True)
 
     # Once 3D view of CPACS file is done scroll down
     scroll_down()
@@ -555,6 +579,15 @@ if __name__ == "__main__":
     if "workflow" not in st.session_state:
         st.session_state["workflow"] = Workflow()
 
+    _bootstrap_cli_geometry()
+
     st.markdown("---")
 
     section_select_cpacs()
+
+    if (
+        st.session_state.get("_cli_geometry_autonext", False)
+        and isinstance(st.session_state.get("cpacs"), CPACS)
+    ):
+        st.session_state["_cli_geometry_autonext"] = False
+        st.switch_page("pages/02_ ➡_Workflow.py")

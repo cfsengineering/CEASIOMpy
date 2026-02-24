@@ -166,7 +166,7 @@ def convert_vsp3_to_cpacs(vsp3_path: Path, *, output_dir: Path) -> Path:
         token_idx = line.find(_VSP2CPACS_OUT_TOKEN)
         if token_idx == -1:
             continue
-        reported_path = line[token_idx + len(_VSP2CPACS_OUT_TOKEN) :].strip()
+        reported_path = line[token_idx + len(_VSP2CPACS_OUT_TOKEN):].strip()
         if reported_path:
             return Path(reported_path)
 

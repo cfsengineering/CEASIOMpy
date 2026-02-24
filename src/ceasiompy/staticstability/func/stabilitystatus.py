@@ -37,10 +37,10 @@ def _compute_stability_cma(group: DataFrame) -> DataFrame:
         Series: A series containing the stability status for the longitudinal direction.
 
     """
-    X_aoa = group[["alpha"]].values.reshape(-1, 1)
+    x_aoa = group[["alpha"]].values.reshape(-1, 1)
     y_cms = group["cms"].values
 
-    reg_cma = LinearRegression().fit(X_aoa, y_cms)
+    reg_cma = LinearRegression().fit(x_aoa, y_cms)
     lr_cma = reg_cma.coef_[0]
     cma_stable = lr_cma < 0
 

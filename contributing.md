@@ -94,8 +94,7 @@ These guidelines have been adapted from:
 Logging the output of a module can be very useful to understand what happens during its execution or debugging it.  The CEASIOMpy logger can be imported and used as following:
 
 ```python
-from lib.utils.ceasiomlogger import get_logger
-log = get_logger()
+from ceasiompy import log
 ```
 
 Then, you can use the following logging function anywhere in the code of the module:
@@ -119,14 +118,14 @@ Pytest, [flake8](https://flake8.pycqa.org/en/latest/) and [codecov](https://abou
 You can also run the CI manually with on your machine with:
 
 ```bash
-cd CEASIOMpy/tests
-./run_ci.sh
+cd CEASIOMpy
+./tests/run_ci.sh
 ```
 
 The CI will run [Black](https://black.readthedocs.io/en/stable/), Flake8, Unit tests, Integration tests and Coverage. You can also use options to run only a part of the CI. Use the help to see the available options.
 
 ```bash
-./run_ci.sh --help
+./tests/run_ci.sh --help
 CEASIOMpy run Continuous Integration tests (Unit and Integration)
 
 Syntax: ./run_ci [-f|g|h|i|u]
@@ -137,18 +136,6 @@ options:
 -i     Skip integration tests.
 -u     Skip unit tests.
 ```
-
-#### Learn Python
-
-If you are new to Python we recommend some material that could help you (you can also find many other resources online):
-
-- Website with Python tutorials:
-
-  - [learnpython.org](https://www.learnpython.org/)
-
-- On YouTube, videos by [Corey Schafer](https://www.youtube.com/channel/UCCezIgC97PvUuR4_gbFUs5g):
-  - [Python Programming Beginner Tutorials playlist](https://www.youtube.com/playlist?list=PL-osiE80TeTskrapNbzXhwoFUiLCjGgY7)
-  - [Python Object-Oriented Tutorial playlist](https://www.youtube.com/playlist?list=PL-osiE80TeTsqhIuOqKhwlXsIBIdSeYtc)
 
 ### CPACS
 
@@ -166,27 +153,11 @@ If you are new to Python we recommend some material that could help you (you can
 
 Other resources that could the useful.
 
-#### GMSH
-
-- [GMSH website](https://gmsh.info/)
-- [Python API](https://gitlab.onelab.info/gmsh/gmsh/-/blob/master/api/gmsh.py)
-
-#### SUMO
-
-- [SUMO website](https://www.larosterna.com/oss/)
-
-#### AVL
-
-- [AVL website](https://web.mit.edu/drela/Public/web/avl/)
-
-#### SU2
-
-- [SU2 website](https://su2code.github.io/)
-- [SU2 Configuration template file](https://github.com/su2code/SU2/blob/master/config_template.cfg)
-
-#### Paraview
-
-- [Paraview website](https://www.paraview.org/)
+- [gmsh website](https://gmsh.info/)
+- [avl website](https://web.mit.edu/drela/Public/web/avl/)
+- [su2 website](https://su2code.github.io/)
+- [su2 config template file](https://github.com/su2code/SU2/blob/master/config_template.cfg)
+- [paraview website](https://www.paraview.org/)
 
 ## How to contribute
 
@@ -197,112 +168,8 @@ If you find a bug, please report it on the [Github issues page](https://github.c
 ### Writing a new module
 
 We highly encourage and appreciate any contributions to the CEASIOMpy codebase. If you have an idea for a new module, it could be a good thing to contact the CEASIOMpy team which could help you to write the module and be sure it is coherent with the rest of the project. You can also check the [CEASIOMpy project board](https://github.com/cfsengineering/CEASIOMpy/projects/1) to see what is the development status of the project.
-If you want to write a new module, you can use the [Module Template](https://github.com/cfsengineering/CEASIOMpy/tree/main/ceasiompy/ModuleTemplate) to help you. Normally, all modules follow the same file structure:
-
-```text
-.
-├── files               <- Files related to this module
-│   ├── doc1.pdf
-│   └── module_logo.png
-├── func                <- Module subfunction import by the main one.
-│   ├── subfunc1.py
-│   └── subfunc2.py
-├── tests               <- Test function for this module.
-│   ├── cpacsfile_for_test.xml
-│   ├── test_subfunc1.py
-│   ├── test_subfunc2.py
-│   └── test_moduletemplate.py
-├── __specs__.py        <- Specification of the module.
-├── moduletemplate.py   <- Main script of the module.
-└── README.md           <- Readme for the module.
-```
-
-To develop a new module you should follow the steps bellow:
-
-- Create a fork of the CEASIOMpy repository
-- On your fork, create a new branch
-- On this branch, write your module and its test functions
-- Create a pull request on the CEASIOMpy repository
-- Ask for a review of the pull request
-- If the pull request is accepted, the module will be merged into the CEASIOMpy repository
-
-### Writing specs file
-
-The `__specs__.py` file is a python file that contains the specification of the module. It is used to define your module input and output. It is also used to automatically create a settings tab in the GUI interface with the correct input and default values. Don't forget to pass module status to `True` when your module is ready to by used.
-
-The `__specs__.py` file should look like this:
-
-```python
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpath import FUSELAGES_XPATH, WINGS_XPATH
-# Hint: you can check the file /ceasiompy/utils/xpath.py to find all the XPath which are already defined. If you use a new XPath, you can add it in the file.
-
-# ===== Module Status =====
-# True if the module is active
-# False if the module is disabled (not working or not ready)
-MODULE_STATUS = False
-
-# ===== CPACS inputs and outputs =====
-
-cpacs_inout = CPACSInOut()
-
-# ----- Input -----
-
-# In the following example we add three (!) new entries to 'cpacs_inout'
-# Try to use (readable) loops instead of copy-pasting three almost same entries
-for direction in ["x", "y", "z"]:
-    cpacs_inout.add_input(
-        var_name=direction,
-        var_type=float,
-        default_value=None,
-        unit="1",
-        descr=f"Fuselage scaling on {direction} axis",
-        xpath=FUSELAGES_XPATH + f"/fuselage/transformation/scaling/{direction}",
-        gui=True,
-        gui_name=f"{direction.capitalize()} scaling",
-        gui_group="Fuselage scaling",
-    )
-
-# You can add input for different types of variables. In this case a string.
-cpacs_inout.add_input(
-    var_name="test",
-    var_type=str,
-    default_value="This is a test",
-    unit=None,
-    descr="This is a test of description",
-    xpath="/cpacs/toolspecific/CEASIOMpy/test/myTest",
-    gui=True,
-    gui_name="My test",
-    gui_group="Group Test",
-)
-
-# You can also provide a list of possible values for the input. In the GUI, it will appear as a combobox.
-cpacs_inout.add_input(
-    var_name="other_var",
-    var_type=list,
-    default_value=[2, 33, 444],
-    unit="[unit]",
-    xpath="/cpacs/toolspecific/CEASIOMpy/test/myList",
-    gui=True,
-    gui_name="Choice",
-    gui_group="My Selection",
-)
-
-# ----- Output -----
-
-cpacs_inout.add_output(
-    var_name="output",
-    default_value=None,
-    unit="1",
-    descr="Description of the output",
-    xpath="/cpacs/toolspecific/CEASIOMpy/test/myOutput",
-)
-
-```
 
 ## References
-
-<!-- How to cite a reference [[1]](#Alder20) -->
 
 <a id="Alder20">[1]</a> M. Alder, E. Moerland, J. Jepsen and B. Nagel. Recent Advances in Establishing a Common Language for Aircraft Design with CPACS. Aerospace Europe Conference 2020, Bordeaux, France, 2020. <https://elib.dlr.de/134341/>  
 

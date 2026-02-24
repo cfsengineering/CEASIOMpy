@@ -24,7 +24,7 @@ here = Path(__file__).parent
 with open(Path(here, README), "r") as fp:
     long_description = fp.read()
 
-with open(LICENSE) as f:
+with open(Path(here, "license.md"), "r") as f:
     license = f.read()
 
 setuptools.setup(
@@ -45,7 +45,7 @@ setuptools.setup(
     # See: https://pypi.org/classifiers/
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: Apache Software License",
+        "License :: Other/Proprietary License",
         "Operating System :: OS Independent",
         "Intended Audience :: Developers",
         "Intended Audience :: Education",

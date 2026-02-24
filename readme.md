@@ -102,7 +102,7 @@ There are many different modules available in CEASIOMpy that can be combined to 
 
 ## Contributing
 
-CEASIOMpy is an open source project and we welcome contributions from everyone. If you want to contribute to the development of CEASIOMpy, please read the document [contributing.md](contributing.md).
+We welcome contributions from everyone. If you want to contribute to the development of CEASIOMpy, please read the document [contributing.md](contributing.md).
 
 ## More information
 
@@ -137,4 +137,3 @@ This respository may be cited via BibTex as:
   note = {Proprietary License - Commercial/HPC use requires authorization.}
 }
 ```
-

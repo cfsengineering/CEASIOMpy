@@ -23,7 +23,7 @@ LICENSE = "license"
 
 here = Path(__file__).parent
 
-with open(Path(here, README), "r") as fp:
+with open(Path(here, README), "r", encoding="utf-8") as fp:
     long_description = fp.read()
 
 with open(Path(here, "license.md"), "r") as f:
@@ -36,6 +36,7 @@ setuptools.setup(
     author_email=EMAIL,
     description=DESCRIPTION,
     long_description=long_description,
+    long_description_content_type="text/markdown",
     url=URL,
     include_package_data=True,
     package_dir={"": PACKAGE_DIR},

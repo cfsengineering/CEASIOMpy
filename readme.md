@@ -125,18 +125,14 @@ Or upgrading the environment.
 conda env update -f environment.yml
 ```
 
-## Cite us
+## How to Cite
 
 This respository may be cited via BibTex as:
 ```
-@software{CEASIOMpy,
-  author = {
-    Benedetti G. and
-    Deligny L. and
-    Jungo A.
-},
-  title = {CEASIOMpy: a python Aircraft Design environment},
+@software{ceasiompy2026,
+  author = {CFS Engineering},
+  title = {CEASIOMpy: Conceptual Aircraft Design and Optimization Framework},
+  year = {2026},
   url = {https://github.com/cfsengineering/CEASIOMpy},
-  year = {2025},
-}
-```
+  note = {Proprietary License - Commercial/HPC use requires authorization.}
+}```

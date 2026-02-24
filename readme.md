@@ -14,7 +14,7 @@ For the legacy open-source version, please refer to all [v1.x] versions.
 
 <img align="right" width="300" height="300" src="documents/logos/CEASIOMpy_main_logos.png">
 
-CEASIOMpy is an open source conceptual aircraft design environment which can be used to set up complex design and optimisation workflows for both conventional and unconventional aircraft configurations.
+CEASIOMpy is an conceptual aircraft design environment which can be used to set up complex design and optimisation workflows for both conventional and unconventional aircraft configurations.
 
 CEASIOMpy is mostly written in Python but it also depends on third-party libraries and software (like [SU2](https://su2code.github.io/) for the CFD calculation).
 

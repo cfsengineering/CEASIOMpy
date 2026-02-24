@@ -5,6 +5,11 @@
 [![Black code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/cfsengineering/CEASIOMpy/blob/main/license)
 
+> ⚠️ **WARNING**  
+> LICENSE CHANGE NOTICE (2026): This project has transitioned from an open-source license to a Proprietary License. Use of this software is now restricted to evaluation and academic research; all commercial use, Cloud, or HPC deployment requires a separate agreement from CFSE. Please refer to the LICENSE.md file for full terms and contact information.
+
+For the legacy open-source version, please refer to all [v1.x] versions.
+
 # CEASIOMpy
 
 <img align="right" width="300" height="300" src="documents/logos/CEASIOMpy_main_logos.png">

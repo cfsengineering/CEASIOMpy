@@ -7,7 +7,7 @@ from pathlib import Path
 
 NAME = "ceasiompy"
 EXCLUDE_DIRS = ["test_cases", "geometries", "installation"]
-VERSION = "0.2.0"
+VERSION = "2.0.0"
 AUTHOR = "CFS Engineering"
 EMAIL = "giacomo.benedetti@cfse.ch"
 DESCRIPTION = "A conceptual aircraft design environment"

@@ -3,7 +3,7 @@
 [![Codecov](https://codecov.io/gh/cfsengineering/CEASIOMpy/branch/main/graph/badge.svg?token=d6cyUEOmOQ)](https://codecov.io/gh/cfsengineering/CEASIOMpy)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/a2bd41b9be294e578382ca3f20281c85)](https://www.codacy.com/gh/cfsengineering/CEASIOMpy/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cfsengineering/CEASIOMpy&amp;utm_campaign=Badge_Grade)
 [![Black code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/cfsengineering/CEASIOMpy/blob/main/license)
+[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](https://github.com/cfsengineering/CEASIOMpy/blob/main/license.md)
 
 > ⚠️ **WARNING**  
 > LICENSE CHANGE NOTICE (2026): This project has transitioned from an open-source license to a Proprietary License. Use of this software is now restricted to evaluation and academic research; all commercial use, Cloud, or HPC deployment requires a separate agreement from CFSE. Please refer to the license.md file for full terms and contact information.

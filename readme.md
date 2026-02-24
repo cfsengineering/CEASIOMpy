@@ -3,19 +3,24 @@
 [![Codecov](https://codecov.io/gh/cfsengineering/CEASIOMpy/branch/main/graph/badge.svg?token=d6cyUEOmOQ)](https://codecov.io/gh/cfsengineering/CEASIOMpy)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/a2bd41b9be294e578382ca3f20281c85)](https://www.codacy.com/gh/cfsengineering/CEASIOMpy/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cfsengineering/CEASIOMpy&amp;utm_campaign=Badge_Grade)
 [![Black code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/cfsengineering/CEASIOMpy/blob/main/license)
+[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](https://github.com/cfsengineering/CEASIOMpy/blob/main/license.md)
+
+> ⚠️ **WARNING**  
+> LICENSE CHANGE NOTICE (2026): This project has transitioned from an open-source license to a Proprietary License. Use of this software is now restricted to evaluation and academic research; all commercial use, Cloud, or HPC deployment requires a separate agreement from CFSE. Please refer to the license.md file for full terms and contact information.
+
+For the legacy open-source version, please refer to all [v1.x] versions.
 
 # CEASIOMpy
 
 <img align="right" width="300" height="300" src="documents/logos/CEASIOMpy_main_logos.png">
 
-CEASIOMpy is an open source conceptual aircraft design environment which can be used to set up complex design and optimisation workflows for both conventional and unconventional aircraft configurations.
+CEASIOMpy is an conceptual aircraft design environment which can be used to set up complex design and optimisation workflows for both conventional and unconventional aircraft configurations.
 
 CEASIOMpy is mostly written in Python but it also depends on third-party libraries and software (like [SU2](https://su2code.github.io/) for the CFD calculation).
 
 All input geometries are based on the open-standard format [CPACS](https://www.cpacs.de/), a *Common Parametric Aircraft Configuration Schema*. It uses a parametric definition for air transportation systems which is developed by the German Aerospace Center [DLR](https://www.dlr.de/).
 
-:scroll: CEASIOMpy is maintained by [CFS Engineering](https://cfse.ch/) and [Airinnova](https://airinnova.se/). CEASIOMpy is under the [Apache License 2.0](https://github.com/cfsengineering/CEASIOMpy/blob/main/license).
+:scroll: CEASIOMpy is maintained by [CFS Engineering](https://cfse.ch/).
 
 :book: The Documentation of CEASIOMpy is integrated in this repository and can be read in documents like this one. Follow links to find the information that you are looking for.
 
@@ -104,7 +109,7 @@ There are many different modules available in CEASIOMpy that can be combined to 
 
 ## Contributing
 
-CEASIOMpy is an open source project and we welcome contributions from everyone. If you want to contribute to the development of CEASIOMpy, please read the document [contributing.md](contributing.md).
+We welcome contributions from everyone. If you want to contribute to the development of CEASIOMpy, please read the document [contributing.md](contributing.md).
 
 ## More information
 
@@ -127,18 +132,15 @@ Or upgrading the environment.
 conda env update -f environment.yml
 ```
 
-## Cite us
+## How to Cite
 
 This respository may be cited via BibTex as:
-```
-@software{CEASIOMpy,
-  author = {
-    Benedetti G. and
-    Deligny L. and
-    Jungo A.
-},
-  title = {CEASIOMpy: a python Aircraft Design environment},
+```bash
+@software{ceasiompy2026,
+  author = {CFS Engineering},
+  title = {CEASIOMpy: Conceptual Aircraft Design and Optimization Framework},
+  year = {2026},
   url = {https://github.com/cfsengineering/CEASIOMpy},
-  year = {2025},
+  note = {Proprietary License - Commercial/HPC use requires authorization.}
 }
 ```

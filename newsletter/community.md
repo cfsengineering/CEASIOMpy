@@ -19,7 +19,7 @@ We are the creators of **NSMB** (Navier-Stokes Multi-Block), our robust and wide
 ---
 
 ### ✈️ About CEASIOMpy
-**CEASIOMpy** is our open-source framework for conceptual aircraft design. It has been developed over years of research to streamline the integration of CFD and stability analysis.
+**CEASIOMpy** is a conceptual aircraft design tool. It has been developed over years of research to streamline the integration of CFD and stability analysis.
 
 * **Explore the code:** [CEASIOMpy GitHub Repository](https://github.com/cfsengineering/CEASIOMpy)
 * **Documentation:** [Read the Docs](https://ceasiompy.readthedocs.io/)

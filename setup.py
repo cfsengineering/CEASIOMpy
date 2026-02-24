@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+# Imports
 import setuptools
 
 from pathlib import Path
 
+# Constants
+
 NAME = "ceasiompy"
 EXCLUDE_DIRS = ["test_cases", "geometries", "installation"]
-VERSION = "0.2.0"
+VERSION = "2.0.0"
 AUTHOR = "CFS Engineering"
 EMAIL = "giacomo.benedetti@cfse.ch"
 DESCRIPTION = "A conceptual aircraft design environment"
 URL = "https://github.com/cfsengineering/CEASIOMpy"
-# Align python requirement with supported releases (>=3.11).
-REQUIRES_PYTHON = ">=3.11"
+REQUIRES_PYTHON = ">=3.11.14"
 REQUIRED = ["defusedxml"]
 README = "readme.md"
 PACKAGE_DIR = "src"
@@ -21,10 +23,10 @@ LICENSE = "license"
 
 here = Path(__file__).parent
 
-with open(Path(here, README), "r") as fp:
+with open(Path(here, README), "r", encoding="utf-8") as fp:
     long_description = fp.read()
 
-with open(LICENSE) as f:
+with open(Path(here, "license.md"), "r") as f:
     license = f.read()
 
 setuptools.setup(
@@ -34,6 +36,7 @@ setuptools.setup(
     author_email=EMAIL,
     description=DESCRIPTION,
     long_description=long_description,
+    long_description_content_type="text/markdown",
     url=URL,
     include_package_data=True,
     package_dir={"": PACKAGE_DIR},
@@ -42,10 +45,9 @@ setuptools.setup(
     packages=setuptools.find_packages(where=PACKAGE_DIR, exclude=EXCLUDE_DIRS),
     python_requires=REQUIRES_PYTHON,
     install_requires=REQUIRED,
-    # See: https://pypi.org/classifiers/
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: Apache Software License",
+        "License :: Other/Proprietary License",
         "Operating System :: OS Independent",
         "Intended Audience :: Developers",
         "Intended Audience :: Education",

@@ -3,10 +3,8 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Calculate outlet conditions fot turbojet and turbofan engines by using the open source code PyCycle
-and saving those conditions in a text file
-| Author: Francesco Marcucci
-| Creation: 2023-12-12
+Calculate outlet conditions fot turbojet and turbofan engines by using the PyCycle
+library and saving those conditions in a text file.
 """
 
 # Imports

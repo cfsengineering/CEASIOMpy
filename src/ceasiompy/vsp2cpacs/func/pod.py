@@ -55,17 +55,17 @@ def Import_POD(POD):
     # For the engine
     Sections_information['Transformation']['curveProfile'] = [(X_pos),-(r_distr)/2]
 
-    for i in range(0,len(X_pos)):
+    for i, (x_pos, r_section) in enumerate(zip(X_pos, r_distr)):
 
         # ---- section ----
-        Section_VSP = POD_Section(X_pos[i],r_distr[i])
+        Section_VSP = POD_Section(x_pos, r_section)
         Sections_information[f'Section{i}'] = dict(
             zip(Output_inf, Section_VSP))
 
         # ---- default profile of the POD. It is a circle ----
-        Name = 'Circle' if r_distr[i] != 0 else 'Point'
+        Name = 'Circle' if r_section != 0 else 'Point'
         coord = POD_profile(Tess_W)
-        Scaling = [r_distr[i]]
+        Scaling = [r_section]
         Sections_information[f'Section{i}']['Airfoil'] = Name
         Sections_information[f'Section{i}']['Airfoil_coordinates'] = coord
         if Name == 'Point':

@@ -392,10 +392,10 @@ def Fuse_Profile(doc, Parent, Section_parameters, Section_key, uid):
     # CPACS vector formatting
     x_cpacs = np.column_stack((x_values, y_values, z_values))
 
-    for tag in range(0, len(txt)):
+    for tag, coord in enumerate(txt):
         values_str = ' '.join(str(x_cpacs[:, tag]).strip().split()) \
                         .replace('[ ', '').replace('[', '').replace(' ]', '').replace(']', '').replace(' ', ';')
-        child = make(doc, txt[tag], pointList, values_str)
+        child = make(doc, coord, pointList, values_str)
         child.setAttribute('mapType', 'vector')
 
 def Element(doc, Parent, Name_section, Section_key, Section_parameters):
@@ -808,7 +808,6 @@ class Export_CPACS:
             if self.Data[f'{item}']['Transformation']['Name_type'] == 'Duct' or self.Data[f'{item}']['Transformation']['idx_engine'] is not None :
                 dummy_idx_engine.append(self.Data[f'{item}']['Transformation']['idx_engine']) if len(dummy_idx_engine)<3 else []
                 Engine_to_CPACS(self.Data[f'{item}'], Doc, model, vehicles,dummy_idx_engine,self.name_file)
-
 
 
 

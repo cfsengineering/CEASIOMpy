@@ -1,6 +1,7 @@
 """Helpers to import the OpenVSP Python binding robustly."""
 
 from importlib import import_module
+import sys
 
 
 def get_openvsp_module():
@@ -9,6 +10,14 @@ def get_openvsp_module():
     vsp = import_module("openvsp")
     if hasattr(vsp, "XS_UNDEFINED"):
         return vsp
+
+    # Some OpenVSP distributions expose `openvsp` as a namespace package and
+    # keep sibling modules (e.g. `openvsp_config`) under the same directory.
+    # Add those paths to sys.path so importing `openvsp.openvsp` can resolve
+    # its absolute imports.
+    for path_entry in getattr(vsp, "__path__", []):
+        if path_entry not in sys.path:
+            sys.path.insert(0, path_entry)
 
     try:
         nested_vsp = import_module("openvsp.openvsp")

@@ -160,13 +160,11 @@ def _create_cpacs_from(
     st.session_state["uploaded_default_cpacs"] = False
     wkdir = st.session_state.workflow.working_dir
     wkdir.mkdir(parents=True, exist_ok=True)
-    if airfoil_name is None:
-        airfoil_name = "custom"
-    safe_name = "".join(
-        char if (char.isalnum() or char in ("-", "_")) else "_" for char in airfoil_name.strip()
-    )
-    if not safe_name:
+
+    safe_name = airfoil_name
+    if safe_name is None:
         safe_name = "custom"
+
     new_cpacs_path = Path(wkdir, f"airfoil_{safe_name}.xml")
     cpacs.save_cpacs(new_cpacs_path, overwrite=True)
 
@@ -501,7 +499,10 @@ def section_select_cpacs() -> None:
     title += ")"
     st.markdown(title)
 
-    section_3d_view(cpacs=cpacs, force_regenerate=True)
+    section_3d_view(
+        cpacs=cpacs,
+        force_regenerate=True,
+    )
 
     # Once 3D view of CPACS file is done scroll down
     scroll_down()

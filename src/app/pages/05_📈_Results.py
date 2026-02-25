@@ -12,6 +12,7 @@ import json
 import base64
 import shutil
 import joblib
+import meshio
 import hashlib
 import tempfile
 import numpy as np
@@ -22,10 +23,10 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit.components.v1 as components
 
+from typing import Any
 from html import escape
 from textwrap import dedent
 from time import perf_counter
-from stpyvista import stpyvista
 from functools import lru_cache
 from contextlib import contextmanager
 from ceasiompy.utils.commonpaths import get_wkdir
@@ -43,7 +44,6 @@ from ceasiompy.staticstability.staticstability import main as static_stability
 from parsefunctions import (
     parse_ascii_tables,
     display_avl_table_file,
-    display_forces_breakdown,
 )
 from streamlitutils import (
     create_sidebar,
@@ -52,6 +52,7 @@ from streamlitutils import (
 )
 
 from pathlib import Path
+from numpy import ndarray
 from pandas import DataFrame
 from smt.applications import MFK
 from cpacspy.cpacspy import CPACS
@@ -88,11 +89,26 @@ HOW_TO_TEXT = (
 )
 
 PAGE_NAME = "Results"
+PARAVIEW_COOL_TO_WARM: list[list[float | str]] = [
+    # ParaView default preset: Cool to Warm
+    [0.0, "rgb(59,76,192)"],
+    [0.5, "rgb(221,221,221)"],
+    [1.0, "rgb(180,4,38)"],
+]
+VTU_DARKBLUE_TO_DARKRED: list[list[float | str]] = [
+    [0.0, "rgb(0,0,139)"],      # dark blue
+    [0.33, "rgb(0,128,0)"],     # green
+    [0.66, "rgb(255,215,0)"],   # yellow
+    [1.0, "rgb(139,0,0)"],      # dark red
+]
 IGNORED_RESULTS: set[str] = {
     # pyavl
     "airfoils",
     "avl_commands.txt",
     "logfile_avl.log",
+
+    # cpacs2gmsh
+    "brep_files",
 
     # su2run
     "restart_flow.dat",
@@ -124,6 +140,424 @@ def _looks_binary(data: bytes) -> bool:
     text_chars = b"\t\n\r\f\b" + bytes(range(32, 127))
     nontext = sum(byte not in text_chars for byte in sample)
     return nontext / len(sample) > 0.3
+
+
+def _as_polydata(data_obj: object) -> pv.PolyData | None:
+    """Return object as PolyData when possible, else None."""
+    return data_obj if isinstance(data_obj, pv.PolyData) else None
+
+
+def _render_surface_interactive(
+    surface: pv.PolyData,
+    *,
+    height: int = 500,
+    scalar_name: str | None = None,
+    scalar_location: str = "point",
+    su2_grid_style: bool = False,
+) -> None:
+    """Render a PyVista surface as an interactive Plotly mesh."""
+
+    try:
+        tri_surface = _as_polydata(surface.triangulate().clean())
+        if tri_surface is None:
+            st.warning("Interactive preview requires PolyData surface.")
+            return
+        faces = tri_surface.faces.reshape(-1, 4)
+        if faces.size == 0:
+            st.warning("No mesh faces available for interactive preview.")
+            return
+
+        mesh_kwargs: dict[str, object] = dict(
+            x=tri_surface.points[:, 0],
+            y=tri_surface.points[:, 1],
+            z=tri_surface.points[:, 2],
+            i=faces[:, 1],
+            j=faces[:, 2],
+            k=faces[:, 3],
+            opacity=1.0,
+            flatshading=True,
+            lighting=dict(ambient=0.9, diffuse=0.9, specular=0.3, roughness=0.35, fresnel=0.1),
+            lightposition=dict(x=8, y=8, z=12),
+        )
+
+        if scalar_name:
+            if scalar_location == "cell":
+                values = tri_surface.cell_data.get(scalar_name)
+                if values is not None and len(values) == faces.shape[0]:
+                    mesh_kwargs["intensity"] = values
+                    mesh_kwargs["intensitymode"] = "cell"
+            else:
+                values = tri_surface.point_data.get(scalar_name)
+                if values is not None and len(values) == tri_surface.n_points:
+                    mesh_kwargs["intensity"] = values
+                    mesh_kwargs["intensitymode"] = "vertex"
+            mesh_kwargs["colorscale"] = PARAVIEW_COOL_TO_WARM
+            mesh_kwargs["showscale"] = True
+            mesh_kwargs["colorbar"] = dict(title=scalar_name)
+        else:
+            mesh_kwargs["color"] = "#f5f5f5"
+            mesh_kwargs["showscale"] = False
+
+        # Add a back-face copy so the surface still appears solid when camera moves inside.
+        backface_kwargs = dict(mesh_kwargs)
+        backface_kwargs["i"] = faces[:, 1]
+        backface_kwargs["j"] = faces[:, 3]
+        backface_kwargs["k"] = faces[:, 2]
+
+        x_min, x_max, y_min, y_max, z_min, z_max = tri_surface.bounds
+        show_yaxis = abs(y_max - y_min) > 1e-8
+
+        def _axis_range(vmin: float, vmax: float, pad_ratio: float = 0.25) -> list[float]:
+            axis_span = max(vmax - vmin, 1e-9)
+            pad = pad_ratio * axis_span
+            return [vmin - pad, vmax + pad]
+
+        def _min_max_ticks(vmin: float, vmax: float) -> list[float]:
+            if not np.isfinite(vmin) or not np.isfinite(vmax):
+                return []
+            if abs(vmax - vmin) <= 1e-12:
+                return [float(vmin)]
+            return [float(vmin), float(vmax)]
+
+        if su2_grid_style:
+            x_range = [float(x_min), float(x_max)]
+            y_range = [float(y_min), float(y_max)] if show_yaxis else [0.0, 0.0]
+            z_range = [float(z_min), float(z_max)]
+            x_ticks = _min_max_ticks(x_range[0], x_range[1])
+            y_ticks = _min_max_ticks(y_range[0], y_range[1]) if show_yaxis else []
+            z_ticks = _min_max_ticks(z_range[0], z_range[1])
+        else:
+            x_range = _axis_range(x_min, x_max)
+            y_range = _axis_range(y_min, y_max)
+            z_range = _axis_range(z_min, z_max)
+            x_ticks = None
+            y_ticks = None
+            z_ticks = None
+
+        fig = go.Figure(
+            data=[
+                go.Mesh3d(**mesh_kwargs),
+                go.Mesh3d(**backface_kwargs),
+            ],
+        )
+        fig.update_layout(
+            margin=dict(l=8, r=8, t=8, b=8),
+            scene=dict(
+                aspectmode="data",
+                camera=dict(projection=dict(type="orthographic")),
+                xaxis=dict(
+                    title="X",
+                    range=x_range,
+                    tickmode="array" if x_ticks is not None else "auto",
+                    tickvals=x_ticks,
+                    showgrid=True,
+                    gridcolor="#e3e3e3",
+                    zeroline=False,
+                ),
+                yaxis=dict(
+                    title="Y" if show_yaxis else "",
+                    range=y_range,
+                    tickmode="array" if y_ticks is not None else "auto",
+                    tickvals=y_ticks,
+                    visible=show_yaxis if su2_grid_style else True,
+                    showgrid=show_yaxis if su2_grid_style else True,
+                    showticklabels=show_yaxis if su2_grid_style else True,
+                    gridcolor="#e3e3e3",
+                    zeroline=False,
+                ),
+                zaxis=dict(
+                    title="Z",
+                    range=z_range,
+                    tickmode="array" if z_ticks is not None else "auto",
+                    tickvals=z_ticks,
+                    showgrid=True,
+                    gridcolor="#e3e3e3",
+                    zeroline=False,
+                ),
+            ),
+        )
+        st.plotly_chart(fig, width="stretch")
+    except Exception as exc:
+        st.warning(f"Interactive 3D rendering failed: {exc}")
+
+
+def _render_surface_edges_interactive(surface: pv.PolyData, *, height: int = 500) -> None:
+    """Render a PyVista surface with edge overlay in an interactive Plotly view."""
+
+    try:
+        clean_surface = _as_polydata(surface.clean())
+        if clean_surface is None:
+            st.warning("Interactive preview requires PolyData surface.")
+            return
+        tri_surface = _as_polydata(clean_surface.triangulate())
+        if tri_surface is None:
+            st.warning("No triangulated surface available for interactive preview.")
+            return
+        tri_faces = tri_surface.faces.reshape(-1, 4)
+        if tri_faces.size == 0:
+            st.warning("No triangulated surface available for interactive preview.")
+            return
+
+        edge_poly: pv.PolyData | None = None
+        try:
+            edge_poly = _as_polydata(clean_surface.extract_feature_edges(
+                feature_angle=35.0,
+                boundary_edges=True,
+                feature_edges=True,
+                manifold_edges=False,
+                non_manifold_edges=False,
+            ))
+        except TypeError:
+            edge_poly = _as_polydata(clean_surface.extract_feature_edges())
+
+        line_data = edge_poly.lines if edge_poly is not None else None
+        if line_data is None or len(line_data) == 0:
+            # Closed smooth surfaces may have no "feature" edges; broaden extraction.
+            try:
+                edge_poly = _as_polydata(clean_surface.extract_feature_edges(
+                    feature_angle=180.0,
+                    boundary_edges=True,
+                    feature_edges=True,
+                    manifold_edges=True,
+                    non_manifold_edges=True,
+                ))
+            except TypeError:
+                try:
+                    edge_poly = _as_polydata(tri_surface.extract_all_edges())
+                except Exception:
+                    edge_poly = None
+            line_data = edge_poly.lines if edge_poly is not None else None
+
+        # VTK lines are encoded as [n_pts, p0, p1, ..., n_pts, ...].
+        x_lines: list[float | None] = []
+        y_lines: list[float | None] = []
+        z_lines: list[float | None] = []
+        if line_data is not None and len(line_data) > 0 and edge_poly is not None:
+            points = edge_poly.points
+            idx = 0
+            while idx < len(line_data):
+                n_pts = int(line_data[idx])
+                idx += 1
+                if n_pts < 2 or idx + n_pts > len(line_data):
+                    break
+                ids = line_data[idx: idx + n_pts]
+                idx += n_pts
+                for pid in ids:
+                    p = points[int(pid)]
+                    x_lines.append(float(p[0]))
+                    y_lines.append(float(p[1]))
+                    z_lines.append(float(p[2]))
+                x_lines.append(None)
+                y_lines.append(None)
+                z_lines.append(None)
+
+        x_min, x_max, y_min, y_max, z_min, z_max = clean_surface.bounds
+        show_yaxis = abs(y_max - y_min) > 1e-8
+
+        x_range = [float(x_min), float(x_max)]
+        y_range = [float(y_min), float(y_max)] if show_yaxis else [0.0, 0.0]
+        z_range = [float(z_min), float(z_max)]
+
+        def _min_max_ticks(vmin: float, vmax: float) -> list[float]:
+            if not np.isfinite(vmin) or not np.isfinite(vmax):
+                return []
+            if abs(vmax - vmin) <= 1e-12:
+                return [float(vmin)]
+            return [float(vmin), float(vmax)]
+
+        x_ticks = _min_max_ticks(x_range[0], x_range[1])
+        y_ticks = _min_max_ticks(y_range[0], y_range[1]) if show_yaxis else []
+        z_ticks = _min_max_ticks(z_range[0], z_range[1])
+
+        traces: list[Any] = [
+            go.Mesh3d(
+                x=tri_surface.points[:, 0],
+                y=tri_surface.points[:, 1],
+                z=tri_surface.points[:, 2],
+                i=tri_faces[:, 1],
+                j=tri_faces[:, 2],
+                k=tri_faces[:, 3],
+                color="#f5f5f5",
+                opacity=1.0,
+                flatshading=True,
+                lighting=dict(
+                    ambient=0.9,
+                    diffuse=0.9,
+                    specular=0.05,
+                    roughness=0.35,
+                    fresnel=0.1,
+                ),
+                lightposition=dict(x=8, y=8, z=12),
+                hoverinfo="skip",
+                showscale=False,
+            ),
+            go.Mesh3d(
+                x=tri_surface.points[:, 0],
+                y=tri_surface.points[:, 1],
+                z=tri_surface.points[:, 2],
+                i=tri_faces[:, 1],
+                j=tri_faces[:, 3],
+                k=tri_faces[:, 2],
+                color="#f5f5f5",
+                opacity=1.0,
+                flatshading=True,
+                lighting=dict(
+                    ambient=0.55,
+                    diffuse=0.82,
+                    specular=0.22,
+                    roughness=0.35,
+                    fresnel=0.1,
+                ),
+                lightposition=dict(x=8, y=8, z=12),
+                hoverinfo="skip",
+                showscale=False,
+            ),
+        ]
+        if x_lines:
+            traces.append(
+                go.Scatter3d(
+                    x=x_lines,
+                    y=y_lines,
+                    z=z_lines,
+                    mode="lines",
+                    line=dict(color="#101010", width=3),
+                    hoverinfo="skip",
+                    showlegend=False,
+                ),
+            )
+
+        fig = go.Figure(data=traces)
+        fig.update_layout(
+            margin=dict(l=6, r=6, t=6, b=6),
+            font=dict(color="black"),
+            scene=dict(
+                aspectmode="data",
+                xaxis=dict(
+                    title="X",
+                    titlefont=dict(color="black"),
+                    tickfont=dict(color="black"),
+                    range=x_range,
+                    tickmode="array",
+                    tickvals=x_ticks,
+                    showgrid=True,
+                    gridcolor="#d9d9d9",
+                    zeroline=False,
+                    backgroundcolor="white",
+                ),
+                yaxis=dict(
+                    title="Y" if show_yaxis else "",
+                    titlefont=dict(color="black"),
+                    tickfont=dict(color="black"),
+                    range=y_range,
+                    tickmode="array",
+                    tickvals=y_ticks,
+                    visible=show_yaxis,
+                    showgrid=show_yaxis,
+                    showticklabels=show_yaxis,
+                    gridcolor="#d9d9d9",
+                    zeroline=False,
+                    backgroundcolor="white",
+                ),
+                zaxis=dict(
+                    title="Z",
+                    titlefont=dict(color="black"),
+                    tickfont=dict(color="black"),
+                    range=z_range,
+                    tickmode="array",
+                    tickvals=z_ticks,
+                    showgrid=True,
+                    gridcolor="#d9d9d9",
+                    zeroline=False,
+                    backgroundcolor="white",
+                ),
+                camera=dict(
+                    eye=dict(
+                        x=2.2 if show_yaxis else 0.8,
+                        y=2.2 if show_yaxis else 2.8,
+                        z=1.8 if show_yaxis else 0.0,
+                    ),
+                    projection=dict(type="orthographic"),
+                    up=dict(x=0.0, y=0.0, z=1.0),
+                    center=dict(x=0.0, y=0.0, z=0.0),
+                ),
+            ),
+        )
+        st.plotly_chart(
+            fig,
+            width="stretch",
+            config={
+                "scrollZoom": True,
+                "displaylogo": False,
+                "toImageButtonOptions": {"scale": 2},
+            },
+        )
+    except Exception as exc:
+        st.warning(f"Interactive 3D edge rendering failed: {exc}")
+
+
+def _remove_farfield_surface_component(surface: pv.PolyData) -> pv.PolyData:
+    """Remove an enclosing farfield component from a disconnected surface mesh."""
+
+    if surface.n_cells == 0:
+        return surface
+
+    try:
+        connected = _as_polydata(surface.connectivity())
+    except Exception:
+        return surface
+    if connected is None:
+        return surface
+
+    region_ids = connected.cell_data.get("RegionId")
+    if region_ids is None or len(region_ids) != connected.n_cells:
+        return surface
+
+    unique_regions = np.unique(np.asarray(region_ids, dtype=np.int64))
+    if len(unique_regions) <= 1:
+        return surface
+
+    g_xmin, g_xmax, g_ymin, g_ymax, g_zmin, g_zmax = connected.bounds
+    global_span = max(g_xmax - g_xmin, g_ymax - g_ymin, g_zmax - g_zmin, 1.0)
+    tol = 1e-6 * global_span
+
+    farfield_region: int | None = None
+    farfield_cells = -1
+    for rid in unique_regions:
+        cell_mask = np.asarray(region_ids, dtype=np.int64) == int(rid)
+        if not np.any(cell_mask):
+            continue
+        comp = connected.extract_cells(cell_mask)
+        if comp.n_cells == 0:
+            continue
+        c_xmin, c_xmax, c_ymin, c_ymax, c_zmin, c_zmax = comp.bounds
+
+        covers_global_bounds = (
+            abs(c_xmin - g_xmin) <= tol
+            and abs(c_xmax - g_xmax) <= tol
+            and abs(c_ymin - g_ymin) <= tol
+            and abs(c_ymax - g_ymax) <= tol
+            and abs(c_zmin - g_zmin) <= tol
+            and abs(c_zmax - g_zmax) <= tol
+        )
+        if covers_global_bounds and comp.n_cells > farfield_cells:
+            farfield_region = int(rid)
+            farfield_cells = int(comp.n_cells)
+
+    if farfield_region is None:
+        return surface
+
+    keep_mask = np.asarray(region_ids, dtype=np.int64) != farfield_region
+    filtered = connected.extract_cells(keep_mask)
+    if filtered.n_cells == 0:
+        return surface
+    try:
+        filtered_surface = _as_polydata(filtered.extract_surface(algorithm="dataset_surface"))
+    except TypeError:
+        filtered_surface = _as_polydata(filtered.extract_surface())
+    if filtered_surface is None:
+        return surface
+    cleaned = _as_polydata(filtered_surface.clean())
+    return cleaned if cleaned is not None else filtered_surface
 
 
 @st.cache_data(show_spinner=False)
@@ -208,6 +642,150 @@ def _ensure_module_status_css() -> None:
         ).strip(),
         unsafe_allow_html=True,
     )
+
+
+def _normalize_scalar_array(values: ndarray) -> ndarray:
+    arr = np.asarray(values)
+    if arr.ndim == 1:
+        return np.asarray(arr.astype(float, copy=False), dtype=float)
+    if arr.ndim == 2:
+        return np.asarray(
+            np.linalg.norm(arr.astype(float, copy=False), axis=1),
+            dtype=float,
+        )
+    return np.asarray(arr.reshape(-1).astype(float, copy=False), dtype=float)
+
+
+def _triangulate_cells(cells: ndarray) -> tuple[ndarray, ndarray]:
+    data = np.asarray(cells, dtype=np.int64)
+    if data.size == 0:
+        return np.empty((0, 3), dtype=np.int64), np.empty((0,), dtype=np.int64)
+    if data.ndim == 1:
+        data = data.reshape(1, -1)
+    if data.shape[1] < 3:
+        return np.empty((0, 3), dtype=np.int64), np.empty((0,), dtype=np.int64)
+    if data.shape[1] == 3:
+        tri_idx = np.arange(len(data), dtype=np.int64)
+        return data, tri_idx
+
+    triangles: list[list[int]] = []
+    source: list[int] = []
+    for cell_idx, cell in enumerate(data):
+        base = int(cell[0])
+        for k in range(1, len(cell) - 1):
+            triangles.append([base, int(cell[k]), int(cell[k + 1])])
+            source.append(cell_idx)
+    if not triangles:
+        return np.empty((0, 3), dtype=np.int64), np.empty((0,), dtype=np.int64)
+    return np.asarray(triangles, dtype=np.int64), np.asarray(source, dtype=np.int64)
+
+
+def _extract_surface_edges(mesh: meshio.Mesh) -> ndarray:
+    """Return unique edges from original surface cells (no triangulation diagonals)."""
+    surface_cell_types = {
+        "triangle",
+        "triangle6",
+        "quad",
+        "quad8",
+        "quad9",
+        "polygon",
+    }
+    edge_parts: list[ndarray] = []
+
+    for cell_block in mesh.cells:
+        cell_type = str(cell_block.type).lower()
+        if cell_type not in surface_cell_types:
+            continue
+
+        cells = np.asarray(cell_block.data, dtype=np.int64)
+        if cells.size == 0:
+            continue
+        if cells.ndim == 1:
+            cells = cells.reshape(1, -1)
+
+        if cell_type == "triangle6":
+            cells = cells[:, :3]
+        elif cell_type in {"quad8", "quad9"}:
+            cells = cells[:, :4]
+
+        n_nodes = int(cells.shape[1]) if cells.ndim == 2 else 0
+        if n_nodes < 2:
+            continue
+
+        start = cells
+        end = np.roll(cells, shift=-1, axis=1)
+        edges = np.stack((start, end), axis=2).reshape(-1, 2)
+        edges = np.sort(edges, axis=1)
+        edge_parts.append(edges)
+
+    if not edge_parts:
+        return np.empty((0, 2), dtype=np.int64)
+    return np.unique(np.vstack(edge_parts), axis=0)
+
+
+def _extract_surface_mesh(
+    mesh: meshio.Mesh,
+) -> tuple[ndarray, ndarray, dict[str, ndarray], dict[str, ndarray]]:
+    points = np.asarray(mesh.points, dtype=float)
+    if points.ndim != 2 or points.shape[1] < 2:
+        return np.empty((0, 3), dtype=float), np.empty((0, 3), dtype=np.int64), {}, {}
+    if points.shape[1] == 2:
+        # Embed 2D meshes in 3D on the y=0 plane to enable 3D/slice views.
+        points = np.column_stack(
+            (points[:, 0], np.zeros(len(points), dtype=float), points[:, 1])
+        )
+    if points.shape[1] > 3:
+        points = points[:, :3]
+
+    surface_cell_types = {
+        "triangle",
+        "triangle6",
+        "quad",
+        "quad8",
+        "quad9",
+        "polygon",
+    }
+    triangles_parts: list[ndarray] = []
+    cell_data_parts: dict[str, list[ndarray]] = {}
+
+    for block_idx, cell_block in enumerate(mesh.cells):
+        cell_type = str(cell_block.type).lower()
+        if cell_type not in surface_cell_types:
+            continue
+        tri_block, source_idx = _triangulate_cells(cell_block.data)
+        if len(tri_block) == 0:
+            continue
+        triangles_parts.append(tri_block)
+
+        for name, per_block_values in mesh.cell_data.items():
+            if block_idx >= len(per_block_values):
+                continue
+            values = _normalize_scalar_array(np.asarray(per_block_values[block_idx]))
+            if len(values) == 0:
+                continue
+            mapped = values[source_idx]
+            cell_data_parts.setdefault(name, []).append(mapped.astype(float, copy=False))
+
+    triangles = (
+        np.vstack(triangles_parts)
+        if triangles_parts
+        else np.empty((0, 3), dtype=np.int64)
+    )
+    point_data: dict[str, ndarray] = {}
+    for name, values in mesh.point_data.items():
+        arr = _normalize_scalar_array(np.asarray(values))
+        if len(arr) == len(points):
+            point_data[name] = arr.astype(float, copy=False)
+
+    cell_data: dict[str, ndarray] = {}
+    for name, chunks in cell_data_parts.items():
+        if not chunks:
+            continue
+        arr = np.concatenate(chunks)
+        if len(arr) == len(triangles):
+            cell_data[name] = arr
+
+    return points, triangles, point_data, cell_data
 
 
 def _load_workflow_status_map(workflow_dir: Path) -> tuple[dict[str, dict], list[str]]:
@@ -338,19 +916,7 @@ def show_results() -> None:
                 and zip_state.get("workflow_mtime_ns") == workflow_mtime_ns
             )
 
-            if not is_current:
-                workflow_zip = _build_workflow_zip(
-                    str(chosen_workflow),
-                    workflow_mtime_ns,
-                )
-                st.session_state[zip_state_key] = {
-                    "workflow_path": str(chosen_workflow),
-                    "workflow_mtime_ns": workflow_mtime_ns,
-                    "workflow_zip": workflow_zip,
-                }
-                zip_state = st.session_state[zip_state_key]
-
-            if "workflow_zip" in zip_state:
+            if is_current and "workflow_zip" in zip_state:
                 st.download_button(
                     label=f"Download {chosen_workflow_name}",
                     data=zip_state["workflow_zip"],
@@ -359,6 +925,23 @@ def show_results() -> None:
                     width="stretch",
                     key=f"{chosen_workflow}_download",
                 )
+            elif st.button(
+                label=f"Prepare {chosen_workflow_name}",
+                width="stretch",
+                key=f"{chosen_workflow}_prepare_download",
+            ):
+                if not is_current or "workflow_zip" not in zip_state:
+                    with st.spinner("Preparing workflow archive..."):
+                        workflow_zip = _build_workflow_zip(
+                            str(chosen_workflow),
+                            workflow_mtime_ns,
+                        )
+                    st.session_state[zip_state_key] = {
+                        "workflow_path": str(chosen_workflow),
+                        "workflow_mtime_ns": workflow_mtime_ns,
+                        "workflow_zip": workflow_zip,
+                    }
+                st.rerun()
         except OSError as exc:
             st.warning(f"Unable to prepare workflow download: {exc}")
 
@@ -1415,61 +1998,266 @@ def _display_txt(path: Path) -> None:
     )
 
 
+@st.cache_resource(show_spinner=False)
+def _load_su2_mesh_cached(path_str: str, mtime_ns: int) -> pv.DataSet:
+    _ = mtime_ns  # cache invalidation key
+    path = Path(path_str)
+    temp_file_path: str | None = None
+    try:
+        marker_map: dict[str, int] = {}
+        with path.open() as handle:
+            temp_file = tempfile.NamedTemporaryFile(
+                mode="w",
+                delete=False,
+                suffix=".su2",
+            )
+            with temp_file as temp:
+                for line in handle:
+                    if line.startswith("MARKER_TAG="):
+                        tag = line.split("=", 1)[1].strip()
+                        marker_map.setdefault(tag, len(marker_map) + 1)
+                        line = f"MARKER_TAG= {marker_map[tag]}\n"
+                    temp.write(line)
+            temp_file_path = temp_file.name
+        if temp_file_path is None:
+            raise RuntimeError("Temporary SU2 file was not created.")
+        return pv.read(temp_file_path)
+    finally:
+        if temp_file_path is not None:
+            try:
+                os.unlink(temp_file_path)
+            except OSError:
+                pass
+
+
+@st.cache_resource(show_spinner=False)
+def _build_su2_surface_cached(path_str: str, mtime_ns: int) -> pv.PolyData:
+    mesh = _load_su2_mesh_cached(path_str, mtime_ns)
+    try:
+        surface = _as_polydata(mesh.extract_surface(algorithm="dataset_surface"))
+    except TypeError:
+        surface = _as_polydata(mesh.extract_surface())
+    if surface is None:
+        raise RuntimeError("Failed to extract SU2 surface as PolyData.")
+    surface = _remove_farfield_surface_component(surface)
+    try:
+        normals = surface.compute_normals(
+            auto_orient_normals=True,
+            consistent_normals=True,
+            feature_angle=35.0,
+        )
+        surface = _as_polydata(normals) or surface
+    except TypeError:
+        try:
+            normals = surface.compute_normals(
+                auto_orient_normals=True,
+                consistent_normals=True,
+            )
+            surface = _as_polydata(normals) or surface
+        except TypeError:
+            normals = surface.compute_normals()
+            surface = _as_polydata(normals) or surface
+    return surface
+
+
+@st.cache_resource(show_spinner=False)
+def _load_su2_meshio_cached(path_str: str, mtime_ns: int) -> meshio.Mesh:
+    _ = mtime_ns  # cache invalidation key
+    path = Path(path_str)
+    temp_file_path: str | None = None
+    try:
+        marker_map: dict[str, int] = {}
+        with path.open() as handle:
+            temp_file = tempfile.NamedTemporaryFile(
+                mode="w",
+                delete=False,
+                suffix=".su2",
+            )
+            with temp_file as temp:
+                for line in handle:
+                    if line.startswith("MARKER_TAG="):
+                        tag = line.split("=", 1)[1].strip()
+                        marker_map.setdefault(tag, len(marker_map) + 1)
+                        line = f"MARKER_TAG= {marker_map[tag]}\n"
+                    temp.write(line)
+            temp_file_path = temp_file.name
+        if temp_file_path is None:
+            raise RuntimeError("Temporary SU2 file was not created.")
+        return meshio.read(temp_file_path)
+    finally:
+        if temp_file_path is not None:
+            try:
+                os.unlink(temp_file_path)
+            except OSError:
+                pass
+
+
+@st.cache_data(show_spinner=False)
+def _build_su2_slice_payload_cached(
+    path_str: str,
+    mtime_ns: int,
+    y_value: float,
+) -> dict[str, object]:
+    mesh = _load_su2_meshio_cached(path_str, mtime_ns)
+    points, triangles, _, _ = _extract_surface_mesh(mesh)
+    if len(points) == 0:
+        return {"ok": False, "msg": "No points available for slicing."}
+
+    y_coords = points[:, 1]
+    y_scale = float(np.nanmax(np.abs(y_coords))) if len(y_coords) else 0.0
+    eps = max(1e-9, y_scale * 1e-9)
+
+    def _intersections_for_edges(
+        p: ndarray,
+        edges_local: tuple[tuple[int, int], ...],
+    ) -> list[ndarray]:
+        yi = p[:, 1]
+        inter: list[ndarray] = []
+        for i0, i1 in edges_local:
+            p0 = p[i0]
+            p1 = p[i1]
+            y0 = yi[i0] - y_value
+            y1 = yi[i1] - y_value
+            on0 = abs(y0) <= eps
+            on1 = abs(y1) <= eps
+            if on0 and on1:
+                inter.append(p0)
+                inter.append(p1)
+                continue
+            if (y0 < -eps and y1 < -eps) or (y0 > eps and y1 > eps):
+                continue
+            dy = y1 - y0
+            if abs(dy) <= eps:
+                continue
+            t = -y0 / dy
+            if 0.0 <= t <= 1.0:
+                inter.append(p0 + t * (p1 - p0))
+
+        uniq: list[ndarray] = []
+        seen: set[tuple[float, float, float]] = set()
+        for q in inter:
+            key = (round(float(q[0]), 12), round(float(q[1]), 12), round(float(q[2]), 12))
+            if key in seen:
+                continue
+            seen.add(key)
+            uniq.append(q)
+        return uniq
+
+    surf_x: list[float] = []
+    surf_z: list[float] = []
+    for tri in triangles:
+        p = points[tri]
+        uniq = _intersections_for_edges(p, ((0, 1), (1, 2), (2, 0)))
+        if len(uniq) < 2:
+            continue
+        q0 = uniq[0]
+        q1 = uniq[1]
+        surf_x.extend([float(q0[0]), float(q1[0]), np.nan])
+        surf_z.extend([float(q0[2]), float(q1[2]), np.nan])
+
+    vol_x: list[float] = []
+    vol_z: list[float] = []
+    tet_edges = ((0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3))
+    for cell_block in mesh.cells:
+        if not str(cell_block.type).lower().startswith("tetra"):
+            continue
+        block = np.asarray(cell_block.data, dtype=np.int64)
+        if block.ndim != 2 or block.shape[1] < 4:
+            continue
+        for tet in block:
+            p = points[tet[:4]]
+            uniq = _intersections_for_edges(p, tet_edges)
+            if len(uniq) < 2:
+                continue
+            if len(uniq) == 2:
+                q0 = uniq[0]
+                q1 = uniq[1]
+                vol_x.extend([float(q0[0]), float(q1[0]), np.nan])
+                vol_z.extend([float(q0[2]), float(q1[2]), np.nan])
+                continue
+            q_arr = np.asarray(uniq, dtype=float)
+            center = np.mean(q_arr[:, [0, 2]], axis=0)
+            ang = np.arctan2(q_arr[:, 2] - center[1], q_arr[:, 0] - center[0])
+            order = np.argsort(ang)
+            q_ord = q_arr[order]
+            n_q = len(q_ord)
+            for i in range(n_q):
+                q0 = q_ord[i]
+                q1 = q_ord[(i + 1) % n_q]
+                vol_x.extend([float(q0[0]), float(q1[0]), np.nan])
+                vol_z.extend([float(q0[2]), float(q1[2]), np.nan])
+
+    if len(surf_x) == 0 and len(vol_x) == 0:
+        return {"ok": False, "msg": f"No intersection found for slice at y={y_value:.6g}."}
+
+    x_min = float(np.min(points[:, 0]))
+    x_max = float(np.max(points[:, 0]))
+    y_min = float(np.min(points[:, 1]))
+    y_max = float(np.max(points[:, 1]))
+    z_min = float(np.min(points[:, 2]))
+    z_max = float(np.max(points[:, 2]))
+    return {
+        "ok": True,
+        "surf_x": np.asarray(surf_x, dtype=np.float64),
+        "surf_z": np.asarray(surf_z, dtype=np.float64),
+        "vol_x": np.asarray(vol_x, dtype=np.float64),
+        "vol_z": np.asarray(vol_z, dtype=np.float64),
+        "x_min": x_min,
+        "x_max": x_max,
+        "y_min": y_min,
+        "y_max": y_max,
+        "z_min": z_min,
+        "z_max": z_max,
+    }
+
+
 def _display_su2(path: Path) -> None:
     """Display SU2 mesh in Streamlit using PyVista."""
-    with st.container(border=True):
-        st.markdown(f"**{path.name}**")
-        try:
-            st.download_button(
-                label="Download SU2 mesh",
-                data=path.read_bytes(),
-                file_name=path.name,
-                mime="application/octet-stream",
-                width="stretch",
-                key=f"{path}_su2_download",
-            )
-        except OSError as exc:
-            st.warning(f"Unable to prepare download: {exc}")
-        temp_file_path: str | None = None
-        try:
-            marker_map: dict[str, int] = {}
-            with path.open() as handle:
-                temp_file = tempfile.NamedTemporaryFile(
-                    mode="w",
-                    delete=False,
-                    suffix=".su2",
-                )
-                with temp_file as temp:
-                    for line in handle:
-                        if line.startswith("MARKER_TAG="):
-                            tag = line.split("=", 1)[1].strip()
-                            marker_map.setdefault(tag, len(marker_map) + 1)
-                            line = f"MARKER_TAG= {marker_map[tag]}\n"
-                        temp.write(line)
-                temp_file_path = temp_file.name
-            if temp_file_path is None:
-                raise RuntimeError("Temporary SU2 file was not created.")
-            mesh = pv.read(temp_file_path)
-        except Exception as exc:
-            st.error(f"Failed to read SU2 mesh: {exc}")
-            return
-        finally:
-            if temp_file_path is not None:
-                try:
-                    os.unlink(temp_file_path)
-                except OSError:
-                    pass
+    st.markdown(f"**{path.name}**")
+    path_str = str(path)
+    mtime_ns = path.stat().st_mtime_ns
 
-        surface = mesh.extract_surface()
-        plotter = pv.Plotter()
-        plotter.add_mesh(surface, color="lightgray", show_edges=True)
-        plotter.reset_camera()
-        stpyvista(plotter, key=f"{path}_su2_view")
+    try:
+        surface = _build_su2_surface_cached(path_str, mtime_ns)
+    except Exception as exc:
+        st.error(f"Failed to read SU2 mesh: {exc}")
+        return
+
+    _render_surface_edges_interactive(
+        surface=surface,
+        height=500,
+    )
+
+    try:
+        st.download_button(
+            label="Download .su2 mesh",
+            data=path.read_bytes(),
+            file_name=path.name,
+            mime="application/octet-stream",
+            width="stretch",
+            key=f"{path}_su2_download",
+        )
+    except OSError as exc:
+        st.warning(f"Unable to prepare download: {exc}")
+
+    st.markdown("---")
+    st.caption("Y-slice preview is temporarily hidden for performance.")
 
 
 def _display_dat(path: Path) -> None:
     if path.name == "forces_breakdown.dat":
-        display_forces_breakdown(path)
+        try:
+            path_str = str(path)
+            mtime_ns = path.stat().st_mtime_ns
+            rows = _parse_forces_breakdown_cached(path_str, mtime_ns)
+            if rows:
+                st.table(pd.DataFrame(rows))
+                return None
+        except Exception as exc:
+            st.warning(f"Could not parse {path.name} force table: {exc}")
+
+        text = path.read_text(errors="replace")
+        st.text_area(path.stem, text, height=200, key=f"{path}_dat_raw")
         return None
 
     skip_first = False
@@ -1529,14 +2317,275 @@ def _display_dat(path: Path) -> None:
     )
 
 
-def _display_vtu(path: Path) -> None:
+@st.cache_data(show_spinner=False)
+def _parse_forces_breakdown_cached(
+    path_str: str,
+    mtime_ns: int,
+) -> list[dict[str, object]]:
+    _ = mtime_ns  # cache invalidation key
+
+    def _safe_float(text: str) -> float | None:
+        try:
+            return float(text.strip())
+        except ValueError:
+            return None
+
+    def _parse_force_contributions(parts_text: str) -> dict[str, float | None]:
+        contributions: dict[str, float | None] = {
+            "Pressure": None,
+            "Friction": None,
+            "Momentum": None,
+        }
+        for part in parts_text.split("|"):
+            part = part.strip()
+            for key in contributions:
+                if part.startswith(key):
+                    _, _, value_text = part.partition(":")
+                    contributions[key] = _safe_float(value_text)
+                    break
+        return contributions
+
+    rows: list[dict[str, object]] = []
+    text = Path(path_str).read_text(errors="replace")
+    lines = [line.strip() for line in text.splitlines()]
+    current_section = "Total"
+    for line in lines:
+        if not line:
+            continue
+        if line.startswith("Surface name:"):
+            current_section = line.replace("Surface name:", "").strip() or "Surface"
+            continue
+        if not line.startswith("Total ") or "|" not in line:
+            continue
+        left, right = line.split("|", 1)
+        metric_part = left.strip()
+        if ":" not in metric_part:
+            continue
+        metric_label, value_text = metric_part.split(":", 1)
+        total_value = _safe_float(value_text)
+        if total_value is None:
+            continue
+        contributions = _parse_force_contributions(right)
+        rows.append(
+            {
+                "Section": current_section,
+                "Metric": metric_label.replace("Total ", "").strip(),
+                "Total": total_value,
+                "Pressure": contributions["Pressure"],
+                "Friction": contributions["Friction"],
+                "Momentum": contributions["Momentum"],
+            }
+        )
+    return rows
+
+
+@st.cache_resource(show_spinner=False)
+def _load_vtu_surface_cached(path_str: str, mtime_ns: int) -> pv.PolyData:
+    _ = mtime_ns  # cache invalidation key
+    mesh = pv.read(path_str)
     try:
-        mesh = pv.read(str(path))
+        surface = _as_polydata(mesh.extract_surface(algorithm="dataset_surface"))
+    except TypeError:
+        surface = _as_polydata(mesh.extract_surface())
+    if surface is None:
+        raise RuntimeError("Failed to extract VTU surface as PolyData.")
+    return surface
+
+
+@st.cache_data(show_spinner=False)
+def _build_vtu_render_payload_cached(
+    path_str: str,
+    mtime_ns: int,
+    scalar_name: str | None,
+    scalar_location: str,
+) -> dict[str, object]:
+    surface = _load_vtu_surface_cached(path_str, mtime_ns)
+    tri_surface = _as_polydata(surface.triangulate().clean())
+    if tri_surface is None:
+        return {"ok": False, "msg": "Interactive preview requires PolyData surface."}
+
+    faces = tri_surface.faces.reshape(-1, 4)
+    if faces.size == 0:
+        return {"ok": False, "msg": "No mesh faces available for interactive preview."}
+
+    payload: dict[str, object] = {
+        "ok": True,
+        "points": np.asarray(tri_surface.points, dtype=np.float64),
+        "faces": np.asarray(faces[:, 1:], dtype=np.int64),
+        "bounds": tuple(float(v) for v in tri_surface.bounds),
+    }
+    if scalar_name:
+        if scalar_location == "cell":
+            values = tri_surface.cell_data.get(scalar_name)
+            if values is not None and len(values) == faces.shape[0]:
+                payload["intensity"] = np.asarray(values, dtype=np.float64)
+                payload["intensitymode"] = "cell"
+        else:
+            values = tri_surface.point_data.get(scalar_name)
+            if values is not None and len(values) == tri_surface.n_points:
+                payload["intensity"] = np.asarray(values, dtype=np.float64)
+                payload["intensitymode"] = "vertex"
+    return payload
+
+
+@st.cache_data(show_spinner=False)
+def _load_history_csv_cached(path_str: str, mtime_ns: int) -> pd.DataFrame:
+    _ = mtime_ns  # cache invalidation key
+    df = pd.read_csv(path_str)
+    df.rename(columns=lambda x: x.strip().strip('"'), inplace=True)
+    return df
+
+
+def _render_cached_surface_payload_interactive(
+    payload: dict[str, object],
+    *,
+    scalar_name: str | None = None,
+    su2_grid_style: bool = False,
+) -> None:
+    if not bool(payload.get("ok", False)):
+        st.warning(str(payload.get("msg", "Interactive rendering payload is invalid.")))
+        return
+
+    points = np.asarray(payload["points"])
+    faces = np.asarray(payload["faces"])
+    bounds = tuple(float(v) for v in payload["bounds"])
+    intensity = payload.get("intensity")
+    intensitymode = payload.get("intensitymode")
+    if intensity is not None:
+        intensity = np.asarray(intensity, dtype=np.float64)
+
+    mesh_kwargs: dict[str, object] = dict(
+        x=points[:, 0],
+        y=points[:, 1],
+        z=points[:, 2],
+        i=faces[:, 0],
+        j=faces[:, 1],
+        k=faces[:, 2],
+        opacity=1.0,
+        flatshading=True,
+        lighting=dict(ambient=0.9, diffuse=0.9, specular=0.3, roughness=0.35, fresnel=0.1),
+        lightposition=dict(x=8, y=8, z=12),
+    )
+    if intensity is not None and intensitymode in {"cell", "vertex"}:
+        mesh_kwargs["intensity"] = intensity
+        mesh_kwargs["intensitymode"] = intensitymode
+        mesh_kwargs["colorscale"] = VTU_DARKBLUE_TO_DARKRED
+        mesh_kwargs["showscale"] = True
+        mesh_kwargs["colorbar"] = dict(title=scalar_name or "")
+    else:
+        mesh_kwargs["color"] = "#f5f5f5"
+        mesh_kwargs["showscale"] = False
+
+    backface_kwargs = dict(mesh_kwargs)
+    backface_kwargs["i"] = faces[:, 0]
+    backface_kwargs["j"] = faces[:, 2]
+    backface_kwargs["k"] = faces[:, 1]
+
+    x_min, x_max, y_min, y_max, z_min, z_max = bounds
+    show_yaxis = abs(y_max - y_min) > 1e-8
+
+    def _axis_range(vmin: float, vmax: float, pad_ratio: float = 0.25) -> list[float]:
+        axis_span = max(vmax - vmin, 1e-9)
+        pad = pad_ratio * axis_span
+        return [vmin - pad, vmax + pad]
+
+    def _min_max_ticks(vmin: float, vmax: float) -> list[float]:
+        if not np.isfinite(vmin) or not np.isfinite(vmax):
+            return []
+        if abs(vmax - vmin) <= 1e-12:
+            return [float(vmin)]
+        return [float(vmin), float(vmax)]
+
+    if su2_grid_style:
+        x_range = [float(x_min), float(x_max)]
+        y_range = [float(y_min), float(y_max)] if show_yaxis else [0.0, 0.0]
+        z_range = [float(z_min), float(z_max)]
+        x_ticks = _min_max_ticks(x_range[0], x_range[1])
+        y_ticks = _min_max_ticks(y_range[0], y_range[1]) if show_yaxis else []
+        z_ticks = _min_max_ticks(z_range[0], z_range[1])
+    else:
+        x_range = _axis_range(x_min, x_max)
+        y_range = _axis_range(y_min, y_max)
+        z_range = _axis_range(z_min, z_max)
+        x_ticks = None
+        y_ticks = None
+        z_ticks = None
+
+    fig = go.Figure(
+        data=[
+            go.Mesh3d(**mesh_kwargs),
+            go.Mesh3d(**backface_kwargs),
+        ],
+    )
+    fig.update_layout(
+        margin=dict(l=6, r=6, t=6, b=6),
+        scene=dict(
+            aspectmode="data",
+            camera=dict(
+                eye=dict(
+                    x=2.2 if show_yaxis else 0.8,
+                    y=2.2 if show_yaxis else 2.8,
+                    z=1.8 if show_yaxis else 0.0,
+                ),
+                projection=dict(type="orthographic"),
+                up=dict(x=0.0, y=0.0, z=1.0),
+                center=dict(x=0.0, y=0.0, z=0.0),
+            ),
+            xaxis=dict(
+                title="X",
+                range=x_range,
+                tickmode="array" if x_ticks is not None else "auto",
+                tickvals=x_ticks,
+                showgrid=True,
+                gridcolor="#d9d9d9",
+                zeroline=False,
+                backgroundcolor="white",
+            ),
+            yaxis=dict(
+                title="Y" if show_yaxis else "",
+                range=y_range,
+                tickmode="array" if y_ticks is not None else "auto",
+                tickvals=y_ticks,
+                visible=show_yaxis if su2_grid_style else True,
+                showgrid=show_yaxis if su2_grid_style else True,
+                showticklabels=show_yaxis if su2_grid_style else True,
+                gridcolor="#d9d9d9",
+                zeroline=False,
+                backgroundcolor="white",
+            ),
+            zaxis=dict(
+                title="Z",
+                range=z_range,
+                tickmode="array" if z_ticks is not None else "auto",
+                tickvals=z_ticks,
+                showgrid=True,
+                gridcolor="#d9d9d9",
+                zeroline=False,
+                backgroundcolor="white",
+            ),
+        ),
+    )
+    st.plotly_chart(
+        fig,
+        width="stretch",
+        config={
+            "scrollZoom": True,
+            "displaylogo": False,
+            "toImageButtonOptions": {"scale": 2},
+        },
+    )
+
+
+def _display_vtu(path: Path) -> None:
+    path_str = str(path)
+    mtime_ns = path.stat().st_mtime_ns
+
+    try:
+        surface = _load_vtu_surface_cached(path_str, mtime_ns)
     except Exception as exc:
         st.error(f"Failed to read VTU file: {exc}")
         return None
 
-    surface = mesh.extract_surface()
     point_arrays = list(surface.point_data.keys())
     cell_arrays = list(surface.cell_data.keys())
     scalar_map: dict[str, str] = {name: "point" for name in point_arrays}
@@ -1550,12 +2599,10 @@ def _display_vtu(path: Path) -> None:
     geometry_mode = _get_geometry_mode(workflow_root) if workflow_root else None
     show_vtu_view = not (path.name == "surface_flow.vtu" and geometry_mode == "2D")
 
-    plotter = pv.Plotter()
     if not scalar_options:
         if show_vtu_view:
-            plotter.add_mesh(surface, color="lightgray")
-            plotter.reset_camera()
-            stpyvista(plotter, key=f"{path}_vtu_geometry")
+            payload = _build_vtu_render_payload_cached(path_str, mtime_ns, None, "point")
+            _render_cached_surface_payload_interactive(payload, su2_grid_style=True)
         st.caption("No scalar fields found in this VTU file.")
         return None
 
@@ -1583,9 +2630,17 @@ def _display_vtu(path: Path) -> None:
         )
         location = scalar_map.get(scalar_choice, "point")
 
-        plotter.add_mesh(surface, scalars=scalar_choice, show_scalar_bar=True)
-        plotter.reset_camera()
-        stpyvista(plotter, key=f"{path}_vtu_view_{scalar_choice}")
+        payload = _build_vtu_render_payload_cached(
+            path_str,
+            mtime_ns,
+            scalar_name=scalar_choice,
+            scalar_location=location,
+        )
+        _render_cached_surface_payload_interactive(
+            payload,
+            scalar_name=scalar_choice,
+            su2_grid_style=True,
+        )
 
     _display_surface_flow_cp_xc(path, surface)
 
@@ -1644,8 +2699,8 @@ def _display_pdf(path: Path) -> None:
 def _display_csv(path: Path) -> None:
     if path.name == "history.csv":
         try:
-            df = pd.read_csv(path)
-            df.rename(columns=lambda x: x.strip().strip('"'), inplace=True)
+            st.markdown("**Convergence History**")
+            df = _load_history_csv_cached(str(path), path.stat().st_mtime_ns)
 
             coef_cols = [col for col in ["CD", "CL", "CMy"] if col in df.columns]
             if coef_cols:
@@ -1966,6 +3021,8 @@ def _results_sort_key(path: Path) -> tuple[int, str]:
         priority = 0
     elif suffix == ".txt":
         priority = 2
+    elif suffix == ".log":
+        priority = 98
     else:
         priority = 1
 
@@ -2106,6 +3163,19 @@ def _find_workflow_root(path: Path) -> Path | None:
 
 @lru_cache(maxsize=8)
 def _get_geometry_mode(workflow_root: Path) -> str | None:
+    try:
+        for child in workflow_root.iterdir():
+            if not child.is_dir():
+                continue
+            parts = child.name.split("_", 1)
+            if len(parts) != 2 or not parts[0].isdigit():
+                continue
+            module_name = parts[1].strip().lower()
+            if module_name == "to3d" or "to3d" in module_name:
+                return "3D"
+    except OSError:
+        pass
+
     cpacs_path = workflow_root / "selected_cpacs.xml"
     if not cpacs_path.exists():
         return None

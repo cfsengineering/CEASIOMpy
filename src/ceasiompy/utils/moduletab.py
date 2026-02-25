@@ -47,182 +47,181 @@ def section_edit_aeromap() -> None:
 
     _reset_aeromap_state_if_cpacs_changed(cpacs)
 
-    with st.container(border=True):
-        st.markdown("#### Selected Aeromap")
-        _ensure_custom_aeromap(cpacs)
+    st.markdown("#### Selected Aeromap")
+    _ensure_custom_aeromap(cpacs)
 
-        selected_aeromap_id = _select_aeromap_id(cpacs)
-        if selected_aeromap_id:
-            _edit_selected_aeromap(cpacs, selected_aeromap_id)
+    selected_aeromap_id = _select_aeromap_id(cpacs)
+    if selected_aeromap_id:
+        _edit_selected_aeromap(cpacs, selected_aeromap_id)
 
-        with st.popover(
-            label="Create a new Aeromap",
-            help="Create a new aeromap from different sampling methods in a selected range.",
-            width="stretch",
+    with st.popover(
+        label="Create a new Aeromap",
+        help="Create a new aeromap from different sampling methods in a selected range.",
+        width="stretch",
+    ):
+        with st.container(
+            border=True,
         ):
-            with st.container(
-                border=True,
-            ):
-                st.markdown("**Sampling**")
-                left_col, right_col = st.columns(
-                    spec=2,
-                    vertical_alignment="bottom",
+            st.markdown("**Sampling**")
+            left_col, right_col = st.columns(
+                spec=2,
+                vertical_alignment="bottom",
+            )
+            with left_col:
+                sampling_method = st.radio(
+                    label="Sampling Method",
+                    options=["LHS", "Grid"],
+                    help="Latin Hypercube Sampling (LHS) vs Grid (Regular Grid Sampling)",
+                    horizontal=True,
+                    label_visibility="collapsed",
+                    key="aeromap_sampling_method",
+                    width="stretch",
                 )
-                with left_col:
-                    sampling_method = st.radio(
-                        label="Sampling Method",
-                        options=["LHS", "Grid"],
-                        help="Latin Hypercube Sampling (LHS) vs Grid (Regular Grid Sampling)",
-                        horizontal=True,
-                        label_visibility="collapsed",
-                        key="aeromap_sampling_method",
-                        width="stretch",
+            with right_col:
+                if sampling_method == "LHS":
+                    left_col, right_col = st.columns(
+                        spec=2,
+                        vertical_alignment="bottom",
                     )
-                with right_col:
-                    if sampling_method == "LHS":
-                        left_col, right_col = st.columns(
-                            spec=2,
-                            vertical_alignment="bottom",
-                        )
-                        with left_col:
-                            nb_samples = st.number_input(
-                                label="Samples",
-                                help="Total number of samples created with LHS method.",
-                                min_value=1,
-                                value=8,
-                                max_value=100,
-                            )
-                        with right_col:
-                            random_state = st.number_input(
-                                label="Seed",
-                                help="Random Seed used by the LHS method.",
-                                min_value=1,
-                                max_value=100,
-                                value=42,
-                                step=1,
-                            )
-
-                    if sampling_method == "Grid":
+                    with left_col:
                         nb_samples = st.number_input(
-                            label="Samples per Dimension",
-                            help="Samples per Dimension, i.e. total number of samples = 4^n.",
+                            label="Samples",
+                            help="Total number of samples created with LHS method.",
                             min_value=1,
-                            value=3,
-                            max_value=10,
+                            value=8,
+                            max_value=100,
+                        )
+                    with right_col:
+                        random_state = st.number_input(
+                            label="Seed",
+                            help="Random Seed used by the LHS method.",
+                            min_value=1,
+                            max_value=100,
+                            value=42,
+                            step=1,
                         )
 
-            with st.container(
-                border=True,
-            ):
-                st.markdown("**Ranges**")
-                alt_range = st.slider(
-                    label="Altitude [m]",
-                    min_value=0.0,
-                    max_value=50_000.0,     # Max altitude aircraft
-                    value=(0.0, 1000.0),
-                    step=100.0,
-                )
-                mach_range = st.slider(
-                    label="Mach [Ma]",
-                    min_value=0.1,
-                    max_value=25.0,
-                    value=(0.1, 1.0),       # Keep small for low-fidelity solvers
-                    step=0.1,
-                )
-                aoa_range = st.slider(
-                    label="α° [deg]",
-                    min_value=-10.0,
-                    max_value=20.0,
-                    value=(-2.0, 10.0),
-                    step=0.5,
-                )
-                aos_range = st.slider(
-                    label="β° [deg]",
-                    min_value=0.0,
-                    max_value=25.0,         # Assume symmetry around x-z
-                    value=(0.0, 10.0),
-                    step=0.5,
-                )
+                if sampling_method == "Grid":
+                    nb_samples = st.number_input(
+                        label="Samples per Dimension",
+                        help="Samples per Dimension, i.e. total number of samples = 4^n.",
+                        min_value=1,
+                        value=3,
+                        max_value=10,
+                    )
 
-            submit_create = st.button(
-                label="Create Aeromap",
-                width="stretch",
-                key="create_aeromap_button",
+        with st.container(
+            border=True,
+        ):
+            st.markdown("**Ranges**")
+            alt_range = st.slider(
+                label="Altitude [m]",
+                min_value=0.0,
+                max_value=50_000.0,     # Max altitude aircraft
+                value=(0.0, 1000.0),
+                step=100.0,
+            )
+            mach_range = st.slider(
+                label="Mach [Ma]",
+                min_value=0.1,
+                max_value=25.0,
+                value=(0.1, 1.0),       # Keep small for low-fidelity solvers
+                step=0.1,
+            )
+            aoa_range = st.slider(
+                label="α° [deg]",
+                min_value=-10.0,
+                max_value=20.0,
+                value=(-2.0, 10.0),
+                step=0.5,
+            )
+            aos_range = st.slider(
+                label="β° [deg]",
+                min_value=0.0,
+                max_value=25.0,         # Assume symmetry around x-z
+                value=(0.0, 10.0),
+                step=0.5,
             )
 
-            if submit_create:
-                date_time = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-                base_uid = f"created_{date_time}"
-                aeromap_uid = base_uid
-                suffix = 1
-                while True:
-                    try:
-                        cpacs.get_aeromap_by_uid(aeromap_uid)
-                    except ValueError:
-                        break
-                    aeromap_uid = f"{base_uid}_{suffix}"
-                    suffix += 1
-                log.info(f"Clicked on create an aeromap button: {aeromap_uid}")
-                created_aeromap = cpacs.create_aeromap(aeromap_uid)
+        submit_create = st.button(
+            label="Create Aeromap",
+            width="stretch",
+            key="create_aeromap_button",
+        )
 
-                ranges = {
-                    "altitude": alt_range,
-                    "machNumber": mach_range,
-                    "angleOfAttack": aoa_range,
-                    "angleOfSideslip": aos_range,
-                }
+        if submit_create:
+            date_time = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+            base_uid = f"created_{date_time}"
+            aeromap_uid = base_uid
+            suffix = 1
+            while True:
+                try:
+                    cpacs.get_aeromap_by_uid(aeromap_uid)
+                except ValueError:
+                    break
+                aeromap_uid = f"{base_uid}_{suffix}"
+                suffix += 1
+            log.info(f"Clicked on create an aeromap button: {aeromap_uid}")
+            created_aeromap = cpacs.create_aeromap(aeromap_uid)
 
-                if sampling_method == "LHS":
-                    n_samples = int(nb_samples)
-                    log.info(f"Generating LHS sampling for {n_samples=}")
-                    xlimits = np.stack(
-                        arrays=[
-                            [ranges[param][0] for param in PARAMS],
-                            [ranges[param][1] for param in PARAMS],
-                        ],
-                        axis=1,
-                    ).astype(float)
-                    sampling = LHS(
-                        xlimits=xlimits,
-                        criterion="ese",
-                        random_state=random_state,
+            ranges = {
+                "altitude": alt_range,
+                "machNumber": mach_range,
+                "angleOfAttack": aoa_range,
+                "angleOfSideslip": aos_range,
+            }
+
+            if sampling_method == "LHS":
+                n_samples = int(nb_samples)
+                log.info(f"Generating LHS sampling for {n_samples=}")
+                xlimits = np.stack(
+                    arrays=[
+                        [ranges[param][0] for param in PARAMS],
+                        [ranges[param][1] for param in PARAMS],
+                    ],
+                    axis=1,
+                ).astype(float)
+                sampling = LHS(
+                    xlimits=xlimits,
+                    criterion="ese",
+                    random_state=random_state,
+                )
+                samples = sampling(n_samples)
+            else:
+                n_per_dim = int(nb_samples)
+                grid_axes = [
+                    np.linspace(
+                        ranges[param][0],
+                        ranges[param][1],
+                        n_per_dim,
+                        dtype=float,
                     )
-                    samples = sampling(n_samples)
-                else:
-                    n_per_dim = int(nb_samples)
-                    grid_axes = [
-                        np.linspace(
-                            ranges[param][0],
-                            ranges[param][1],
-                            n_per_dim,
-                            dtype=float,
-                        )
-                        for param in PARAMS
-                    ]
-                    mesh = np.meshgrid(*grid_axes, indexing="ij")
-                    samples = np.stack(mesh, axis=-1).reshape(-1, len(PARAMS))
+                    for param in PARAMS
+                ]
+                mesh = np.meshgrid(*grid_axes, indexing="ij")
+                samples = np.stack(mesh, axis=-1).reshape(-1, len(PARAMS))
 
-                aeromap_df = (
-                    DataFrame(samples, columns=PARAMS)
-                    .drop_duplicates(subset=PARAMS)
-                    .reset_index(drop=True)
-                )
-                created_aeromap.df = aeromap_df
-                created_aeromap.save()
-                add_value(
-                    tixi=cpacs.tixi,
-                    xpath=SELECTED_AEROMAP_XPATH,
-                    value=aeromap_uid,
-                )
-                aeromap_cache = st.session_state.get("aeromap_df_by_uid", {})
-                aeromap_cache[aeromap_uid] = aeromap_df
-                st.session_state["aeromap_df_by_uid"] = aeromap_cache
-                st.session_state["created_aeromap_uid"] = aeromap_uid
-                st.session_state["selected_aeromap_id"] = aeromap_uid
-                st.session_state["aeromap_df"] = aeromap_df
-                editor_key_version = st.session_state.get("aeromap_editor_key_version", 0)
-                st.session_state["aeromap_editor_key_version"] = editor_key_version + 1
-                st.rerun()
+            aeromap_df = (
+                DataFrame(samples, columns=PARAMS)
+                .drop_duplicates(subset=PARAMS)
+                .reset_index(drop=True)
+            )
+            created_aeromap.df = aeromap_df
+            created_aeromap.save()
+            add_value(
+                tixi=cpacs.tixi,
+                xpath=SELECTED_AEROMAP_XPATH,
+                value=aeromap_uid,
+            )
+            aeromap_cache = st.session_state.get("aeromap_df_by_uid", {})
+            aeromap_cache[aeromap_uid] = aeromap_df
+            st.session_state["aeromap_df_by_uid"] = aeromap_cache
+            st.session_state["created_aeromap_uid"] = aeromap_uid
+            st.session_state["selected_aeromap_id"] = aeromap_uid
+            st.session_state["aeromap_df"] = aeromap_df
+            editor_key_version = st.session_state.get("aeromap_editor_key_version", 0)
+            st.session_state["aeromap_editor_key_version"] = editor_key_version + 1
+            st.rerun()
 
 
 def _get_cpacs() -> CPACS | None:

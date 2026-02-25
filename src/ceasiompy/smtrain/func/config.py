@@ -345,7 +345,7 @@ def create_list_cpacs_geometry(
 
     # Loop for each configuration
     for i, geom_row in sampled_geom.iterrows():
-        cpacs_out = generated_cpacs_dir / f"{cpacs_name}_{i+1:03d}.xml"
+        cpacs_out = generated_cpacs_dir / f"{cpacs_name}_{i + 1:03d}.xml"
         copyfile(cpacs.cpacs_file, cpacs_out)
 
         params_to_update = {}

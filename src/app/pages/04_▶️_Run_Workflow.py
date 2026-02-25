@@ -277,8 +277,10 @@ def make_progress_callback(status_container) -> Callable[[list | None], None]:
                     (
                         f"- {item.get('name', 'Unknown')}: "
                         f"{item.get('error', 'Unknown error')}"
-                        f"""{' (' + item.get('error_location')
-                            + ')' if item.get('error_location') else ''}
+                        f"""{
+                            ' (' + item.get('error_location')
+                            + ')' if item.get('error_location') else ''
+                        }
                         """
                     )
                     for item in status_list

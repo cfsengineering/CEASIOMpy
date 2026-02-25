@@ -25,11 +25,11 @@ from ceasiompy.su2run.func.config import (
 )
 
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-from ceasiompy.cpacs2gmsh import GMSH_SYMMETRY_XPATH
+from ceasiompy.cpacs2gmsh import GMSH_XZ_SYMMETRY_XPATH
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 from ceasiompy.su2run import (
     SU2_CONFIG_RANS_XPATH,
@@ -40,7 +40,7 @@ from ceasiompy.su2run import (
 # Main
 
 def _progress_update(
-    progress_callback: Optional[Callable[..., None]],
+    progress_callback: Callable[..., None] | None,
     *,
     detail: str | None = None,
     progress: float | None = None,
@@ -60,7 +60,7 @@ def _progress_update(
 def main(
     cpacs: CPACS,
     results_dir: Path,
-    progress_callback: Optional[Callable[..., None]] = None,
+    progress_callback: Callable[..., None] | None = None,
 ) -> None:
     """
     SU2Run module is decomposed into 4 parts.
@@ -89,14 +89,14 @@ def main(
 
     # In 2D mode, always use 2D template; otherwise read from CPACS
     if geometry_mode == "2D":
-        config_file_type = "2D"
-        rans = False  # Not applicable for 2D
-        symmetric_mesh = "NO"  # No symmetry in 2D mode
+        symmetric_mesh = False  # No symmetry in 2D mode
         log.info("Using 2D template for 2D geometry mode (no symmetry).")
     else:
-        config_file_type = str(get_value(tixi, SU2_CONFIG_RANS_XPATH))
-        rans: bool = config_file_type == "RANS"
-        symmetric_mesh = str(get_value(tixi, GMSH_SYMMETRY_XPATH))
+        symmetric_raw = get_value(tixi, GMSH_XZ_SYMMETRY_XPATH)
+        symmetric_mesh = str(symmetric_raw).strip().lower() in {"1", "true", "yes", "on"}
+
+    config_file_type = str(get_value(tixi, SU2_CONFIG_RANS_XPATH))
+    rans: bool = config_file_type == "RANS"
 
     # 1. Load .su2 mesh files
     _progress_update(progress_callback, detail="Loading SU2 mesh paths...", progress=0.1)
@@ -125,6 +125,7 @@ def main(
             mesh_markers=mesh_markers,
             dyn_stab=True,
             rans=rans,
+            symmetry=symmetric_mesh,
         )
 
     log.info(f"----- Generating {config_file_type} ConfigFile -----")

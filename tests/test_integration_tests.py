@@ -6,111 +6,114 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Integration test for some typical CEASIOMpy workflows.
 """
 
-# ====================================================================================================================
-#   IMPORTS
-# ====================================================================================================================
-
+# Imports
 import shutil
 import pytest
-import streamlit as st
 
 from pathlib import Path
-from unittest.mock import MagicMock
+from ceasiompy.utils.workflowclasses import Workflow
 
-from bin.ceasiompy_exec import run_modules_list
-from ceasiompy.utils.ceasiompyutils import change_working_dir
-from ceasiompy.utils.moduleinterfaces import get_init_for_module
+from ceasiompy.utils.commonpaths import (
+    CPACS_FILES_PATH,
+)
 
+from ceasiompy.to3d import MODULE_NAME as TO3D
 from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
-from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
+from ceasiompy.smtrain import MODULE_NAME as SMTRAIN
 from ceasiompy.aeroframe import MODULE_NAME as AEROFRAME
-from ceasiompy.staticstability import MODULE_NAME as STATICSTABILITY
-
-
-# Constants
-
-MODULE_DIR = Path(__file__).parent
-WORKFLOW_TEST_DIR = Path(MODULE_DIR, "workflow_tests")
-CPACS_IN_PATH = Path(CPACS_FILES_PATH, "d150.xml")
-CPACS_RANS = Path(CPACS_FILES_PATH, "labARscaled.xml")
-
-# Remove previous workflow directory and create new one
-if WORKFLOW_TEST_DIR.exists():
-    shutil.rmtree(WORKFLOW_TEST_DIR)
-
-WORKFLOW_TEST_DIR.mkdir()
+from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
+from ceasiompy.airfoil2gmsh import MODULE_NAME as AIRFOIL2GMSH
 
 
 # Methods
-def run_workflow_test(modules_to_run, cpacs_path=CPACS_IN_PATH):
+
+def _run_workflow_test(
+    modules_to_run: list[str],
+    cpacs_path: Path = Path(CPACS_FILES_PATH, "onera_m6.xml"),
+) -> None:
     """Run a workflow test with the given modules and optional CPACS path."""
-    st.session_state = MagicMock()
-    with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(cpacs_path), *modules_to_run])
-
-
-def _check_modules_status(modules_list: list[str]) -> bool:
-    for module_name in modules_list:
-        init = get_init_for_module(module_name, raise_error=False)
-        if not hasattr(init, "MODULE_STATUS"):
-            return False
-
-        if not getattr(init, "MODULE_STATUS"):
-            return False
-    return True
+    workflow = Workflow()
+    workflow.cpacs_in = cpacs_path
+    workflow.modules_list = modules_to_run
+    workflow.module_optim = ["NO"] * len(modules_to_run)
+    workflow.write_config_file()
+    workflow.set_workflow()
+    workflow.run_workflow(test=True)
 
 
 # Tests
-WORKFLOW_1 = [AEROFRAME]
-
 
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
-@pytest.mark.skipif(
-    not _check_modules_status(WORKFLOW_1),
-    reason=f"A module in {WORKFLOW_1=} is not available.",
-)
-def test_integration_1():
-    run_workflow_test(WORKFLOW_1)
+def test_aeroframe_workflow() -> None:
+    WORKFLOW_1 = [AEROFRAME]
+    _run_workflow_test(
+        modules_to_run=WORKFLOW_1,
+    )
     assert True
 
 
-WORKFLOW_2 = [CPACS2GMSH, SU2RUN]
-
-
 @pytest.mark.slow
-@pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
-@pytest.mark.skipif(not shutil.which("pentagrow"), reason="Pentagrow not installed")
+@pytest.mark.skipif(not shutil.which("pentagrow"), reason="pentagrow not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
-@pytest.mark.skipif(
-    not _check_modules_status(WORKFLOW_2),
-    reason=f"A module in {WORKFLOW_2=} is not available.",
-)
-def test_integration_2():
-    run_workflow_test(WORKFLOW_2, cpacs_path=CPACS_RANS)
+def test_cpacs2gmsh_su2run_workflow() -> None:
+    WORKFLOW_2 = [CPACS2GMSH, SU2RUN]
+    _run_workflow_test(
+        cpacs_path=Path(CPACS_FILES_PATH, "labARscaled.xml"),
+        modules_to_run=WORKFLOW_2,
+    )
     assert True
-
-
-WORKFLOW_3 = [PYAVL, STATICSTABILITY]
 
 
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
-@pytest.mark.skipif(
-    not _check_modules_status(WORKFLOW_2),
-    reason=f"A module in {WORKFLOW_3=} is not available.",
-)
-def test_integration_3():
-    run_workflow_test(WORKFLOW_3)
+def test_pyavl_workflow() -> None:
+    WORKFLOW_3 = [PYAVL]
+    _run_workflow_test(
+        modules_to_run=WORKFLOW_3,
+    )
     assert True
 
 
-# @pytest.mark.slow
-# @pytest.mark.skipif(not shutil.which("gmsh"), reason="gmsh not installed")
-# @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
-# @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
-# def test_integration_4():
-#     run_workflow_test([SMTRAIN])
-#     assert True
+@pytest.mark.slow
+@pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
+@pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
+def test_smtrain_workflow() -> None:
+    WORKFLOW_4 = [SMTRAIN]
+    _run_workflow_test(
+        modules_to_run=WORKFLOW_4,
+    )
+    assert True
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
+def test_airfoil_workflow() -> None:
+    WORKFLOW_5 = [AIRFOIL2GMSH, SU2RUN]
+    _run_workflow_test(
+        cpacs_path=Path(CPACS_FILES_PATH, "airfoil.xml"),
+        modules_to_run=WORKFLOW_5,
+    )
+    assert True
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
+def test_to3d_workflow() -> None:
+    WORKFLOW_6 = [TO3D, CPACS2GMSH, SU2RUN]
+
+    _run_workflow_test(
+        cpacs_path=Path(CPACS_FILES_PATH, "airfoil.xml"),
+        modules_to_run=WORKFLOW_6,
+    )
+    assert True
+
+
+if __name__ == "__main__":
+    test_aeroframe_workflow()
+    test_cpacs2gmsh_su2run_workflow()
+    test_pyavl_workflow()
+    test_smtrain_workflow()
+    test_airfoil_workflow()
+    test_to3d_workflow()

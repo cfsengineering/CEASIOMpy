@@ -20,14 +20,16 @@ from ceasiompy.utils.guiobjects import (
 )
 
 from cpacspy.cpacspy import CPACS
-from tixi3.tixi3wrapper import Tixi3
 
+from ceasiompy import log
+from ceasiompy.to3d import MODULE_NAME as TO3D
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 from ceasiompy.cpacs2gmsh import (
+    MODULE_NAME as CPACS2GMSH,
     HAS_PENTAGROW,
     GMSH_OPEN_GUI_XPATH,
     GMSH_MESH_TYPE_XPATH,
-    GMSH_SYMMETRY_XPATH,
+    GMSH_XZ_SYMMETRY_XPATH,
     GMSH_FARFIELD_SIZE_FACTOR_XPATH,
     GMSH_MESH_SIZE_FARFIELD_XPATH,
     GMSH_MESH_SIZE_WINGS_XPATH,
@@ -52,24 +54,18 @@ from ceasiompy.cpacs2gmsh import (
     GMSH_EXHAUST_PERCENT_XPATH,
     GMSH_SAVE_CGNS_XPATH,
     GMSH_MESH_CHECKER_XPATH,
-    GMSH_2D_AIRFOIL_MESH_SIZE_XPATH,
-    GMSH_2D_EXT_MESH_SIZE_XPATH,
-    GMSH_2D_FARFIELD_RADIUS_XPATH,
-    GMSH_2D_STRUCTURED_MESH_XPATH,
-    GMSH_2D_FARFIELD_TYPE_XPATH,
-    GMSH_2D_FIRST_LAYER_HEIGHT_XPATH,
-    GMSH_2D_HEIGHT_LENGTH_XPATH,
-    GMSH_2D_WAKE_LENGTH_XPATH,
-    GMSH_2D_LENGTH_XPATH,
-    GMSH_2D_NO_BL_XPATH,
-    GMSH_2D_RATIO_XPATH,
-    GMSH_2D_NB_LAYERS_XPATH,
-    GMSH_2D_MESH_FORMAT_XPATH,
 )
 
 
-# Methods
-def _load_3d_gui_settings(tixi: Tixi3) -> None:
+# Functions
+def gui_settings(cpacs: CPACS) -> None:
+    tixi = cpacs.tixi
+
+    if get_value(tixi, GEOMETRY_MODE_XPATH) != "3D":
+        if TO3D in st.session_state.get("workflow_modules", None):
+            log.info("gmsh will be called on 3D variant.")
+        else:
+            raise ValueError(f"You can not call {CPACS2GMSH} on a 2D geometry.")
 
     with st.expander(
         label="**Domain Settings**",
@@ -116,7 +112,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                 with left_col:
                     bool_vartype(
                         tixi=tixi,
-                        xpath=GMSH_SYMMETRY_XPATH,
+                        xpath=GMSH_XZ_SYMMETRY_XPATH,
                         default_value=False,
                         name="Use Symmetry",
                         key="symmetry",
@@ -134,7 +130,7 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
                     )
 
         else:
-            safe_remove(tixi, xpath=GMSH_SYMMETRY_XPATH)
+            safe_remove(tixi, xpath=GMSH_XZ_SYMMETRY_XPATH)
             safe_remove(tixi, xpath=GMSH_MESH_SIZE_FARFIELD_XPATH)
 
         # RANS Options
@@ -420,182 +416,3 @@ def _load_3d_gui_settings(tixi: Tixi3) -> None:
             xpath=GMSH_CTRLSURF_ANGLE_XPATH,
             help="List of Aileron, Elevator, Rudder angles.",
         )
-
-
-def _load_2d_gui_settings(tixi: Tixi3) -> None:
-    # Mesh sizes
-    with st.container(
-        border=True,
-    ):
-        st.markdown("#### Mesh Settings")
-
-        float_vartype(
-            tixi=tixi,
-            xpath=GMSH_2D_AIRFOIL_MESH_SIZE_XPATH,
-            default_value=0.01,
-            name="Airfoil Mesh Size",
-            key="airfoil_mesh_size",
-            help="Mesh size on the airfoil contour for 2D mesh generation",
-        )
-
-        float_vartype(
-            tixi=tixi,
-            xpath=GMSH_2D_EXT_MESH_SIZE_XPATH,
-            default_value=0.2,
-            name="External Mesh Size",
-            key="external_mesh_size",
-            help="Mesh size in the external domain for 2D mesh generation",
-        )
-
-        list_vartype(
-            tixi=tixi,
-            xpath=GMSH_2D_MESH_FORMAT_XPATH,
-            default_value=["su2", "msh", "vtk", "wrl", "stl", "mesh", "cgns", "dat"],
-            name="Mesh Format",
-            key="mesh_format_2d",
-            help="""
-                Output format for 2D mesh file (su2, msh, vtk, wrl, stl, mesh, cgns, dat).
-            """,
-        )
-
-    # Boundary Layer
-    with st.container(
-        border=True,
-    ):
-        no_boundary_layer = bool_vartype(
-            tixi=tixi,
-            xpath=GMSH_2D_NO_BL_XPATH,
-            default_value=True,
-            name="No Boundary Layer",
-            key="no_boundary_layer",
-            help="Disable boundary layer (unstructured mesh with triangles only).",
-        )
-
-        if not no_boundary_layer:
-            with st.container(
-                border=True,
-            ):
-
-                float_vartype(
-                    tixi=tixi,
-                    xpath=GMSH_2D_FIRST_LAYER_HEIGHT_XPATH,
-                    default_value=0.001,
-                    name="First Layer Height",
-                    key="first_layer_height",
-                    help="First layer height for 2D mesh generation",
-                )
-
-                float_vartype(
-                    tixi=tixi,
-                    xpath=GMSH_2D_RATIO_XPATH,
-                    default_value=1.2,
-                    name="Growth Factor",
-                    key="growth_factor",
-                    help="Growth factor of boundary layer cells.",
-                )
-
-                int_vartype(
-                    tixi=tixi,
-                    xpath=GMSH_2D_NB_LAYERS_XPATH,
-                    default_value=25,
-                    name="Number of Layers",
-                    key="nb_layers",
-                    help="Number of layers in the boundary layer.",
-                )
-        else:
-            safe_remove(tixi, xpath=GMSH_2D_RATIO_XPATH)
-            safe_remove(tixi, xpath=GMSH_2D_NB_LAYERS_XPATH)
-            safe_remove(tixi, xpath=GMSH_2D_FIRST_LAYER_HEIGHT_XPATH)
-
-    # Structured Mesh
-    with st.container(
-        border=True,
-    ):
-        st.markdown("#### Mesh Settings")
-
-        structured_mesh = list_vartype(
-            tixi=tixi,
-            xpath=GMSH_2D_STRUCTURED_MESH_XPATH,
-            default_value=["Structured", "Hybrid"],
-            name="Structured or Hybrid Mesh",
-            key="structured_mesh",
-            help="Choose if you want a structured mesh or a hybrid one."
-        )
-
-        default_value = (
-            ["CType"]
-            if structured_mesh == "Structured"
-            else ["Rectangular", "Circular", "CType"]
-        )
-
-        farfield_type = list_vartype(
-            tixi=tixi,
-            xpath=GMSH_2D_FARFIELD_TYPE_XPATH,
-            default_value=default_value,
-            name="Farfield Type",
-            key="farfield_type",
-            help="""
-                Choose farfield shape (automatically set to CType for structured mesh).
-            """,
-        )
-
-        if farfield_type == "Circular":
-            float_vartype(
-                tixi=tixi,
-                xpath=GMSH_2D_FARFIELD_RADIUS_XPATH,
-                default_value=10.0,
-                name="Farfield Radius",
-                key="farfield_radius",
-                help="Farfield radius for circular farfield in 2D mesh generation.",
-            )
-        else:
-            safe_remove(tixi, xpath=GMSH_2D_FARFIELD_RADIUS_XPATH)
-
-        if farfield_type == "CType":
-            float_vartype(
-                tixi=tixi,
-                xpath=GMSH_2D_WAKE_LENGTH_XPATH,
-                default_value=6.0,
-                name="Wake Length",
-                key="wake_length",
-                help="""
-                    Wake length downstream of the airfoil for C-type farfield.
-                """,
-            )
-        else:
-            safe_remove(tixi, xpath=GMSH_2D_WAKE_LENGTH_XPATH)
-
-        if farfield_type == "Rectangular":
-            float_vartype(
-                tixi=tixi,
-                xpath=GMSH_2D_LENGTH_XPATH,
-                default_value=5.0,
-                name="Length",
-                key="length",
-                help="Length of domain for rectangular farfield.",
-            )
-        else:
-            safe_remove(tixi, xpath=GMSH_2D_LENGTH_XPATH)
-
-        if farfield_type == "CType" or farfield_type == "Rectangular":
-            float_vartype(
-                tixi=tixi,
-                xpath=GMSH_2D_HEIGHT_LENGTH_XPATH,
-                default_value=5.0,
-                name="Height Length",
-                key="height_length",
-                help="Height of domain for C-type farfield.",
-            )
-        else:
-            safe_remove(tixi, xpath=GMSH_2D_HEIGHT_LENGTH_XPATH)
-
-
-# Functions
-def gui_settings(cpacs: CPACS) -> None:
-    """CPACS2Gmsh GUI Settings."""
-    tixi = cpacs.tixi
-
-    if get_value(tixi, GEOMETRY_MODE_XPATH) == "3D":
-        _load_3d_gui_settings(tixi)
-    else:
-        _load_2d_gui_settings(tixi)

@@ -33,6 +33,9 @@ from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
 from ceasiompy.smtrain import MODULE_NAME as SMTRAIN
 from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
+from ceasiompy.airfoil2gmsh import MODULE_NAME as AIRFOIL2GMSH
+from ceasiompy.addcontrolsurfaces import MODULE_NAME as ADDCONTROLSURFACES
+
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 
 
@@ -85,11 +88,7 @@ def section_predefined_workflow() -> None:
 
     active_modules = set(get_module_list(only_active=True))
 
-    predefine_workflows = [
-        [PYAVL],
-        [CPACS2GMSH, SU2RUN],
-        [SMTRAIN],
-    ]
+    predefine_workflows = []
 
     # Add 2D to 3D workflow if cpacs is 2D
     cpacs = st.session_state.get("cpacs", None)
@@ -101,8 +100,17 @@ def section_predefined_workflow() -> None:
             ) == "2D"
         ):
             predefine_workflows.append(
-                [CPACS2GMSH, SU2RUN, TO3D, CPACS2GMSH, SU2RUN]
+                [AIRFOIL2GMSH, SU2RUN]
             )
+            predefine_workflows.append(
+                [TO3D, CPACS2GMSH, SU2RUN]
+            )
+        else:
+            predefine_workflows.append([PYAVL])
+            predefine_workflows.append(
+                [CPACS2GMSH, SU2RUN]
+            )
+            predefine_workflows.append([SMTRAIN])
 
     for workflow in predefine_workflows:
         available = all(module in active_modules for module in workflow)
@@ -128,6 +136,7 @@ def section_add_module() -> None:
         st.session_state["workflow_modules"] = []
 
     module_list = get_module_list(only_active=True)
+    selectable_candidates = list(module_list)
     module_type_order = {
         "PreProcessing": 0,
         "Mesher": 1,
@@ -154,18 +163,46 @@ def section_add_module() -> None:
         module_type = getattr(init, "MODULE_TYPE", "Other")
         module_type_map[module_name] = module_type
 
+    cpacs_is_2d = False
+    cpacs = st.session_state.get("cpacs", None)
+    if isinstance(cpacs, CPACS):
+        cpacs_is_2d = (
+            get_value(
+                tixi=cpacs.tixi,
+                xpath=GEOMETRY_MODE_XPATH,
+            ) == "2D"
+        )
+    if not cpacs_is_2d and TO3D in module_list:
+        module_list.remove(TO3D)
+
+    if not cpacs_is_2d and TO3D in selectable_candidates:
+        selectable_candidates.remove(TO3D)
+    if not cpacs_is_2d and AIRFOIL2GMSH in selectable_candidates:
+        selectable_candidates.remove(AIRFOIL2GMSH)
+
+    if cpacs_is_2d and CPACS2GMSH in selectable_candidates:
+        selectable_candidates.remove(CPACS2GMSH)
+    if cpacs_is_2d and ADDCONTROLSURFACES in selectable_candidates:
+        selectable_candidates.remove(ADDCONTROLSURFACES)
+    if cpacs_is_2d and PYAVL in selectable_candidates:
+        selectable_candidates.remove(PYAVL)
+    if cpacs_is_2d and SMTRAIN in selectable_candidates:
+        selectable_candidates.remove(SMTRAIN)
+
     available_module_list = sorted(
-        module_list,
+        selectable_candidates,
         key=lambda name: (
             module_type_order.get(module_type_map.get(name, "Other"), 99),
             module_type_map.get(name, "Other"),
             name,
         ),
     )
-    available_module_set = set(available_module_list)
+    available_module_set = set(module_list)
     selected_modules = set(st.session_state.get("workflow_modules", []))
     selectable_module_list = [
-        name for name in available_module_list if name not in selected_modules
+        name
+        for name in available_module_list
+        if name not in selected_modules
     ]
 
     def insert_module_in_workflow(modules, new_module):

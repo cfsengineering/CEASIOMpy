@@ -12,7 +12,6 @@ import shutil
 import subprocess
 
 from shlex import join as shlex_join
-from ceasiompy.utils.ceasiompyutils import get_results_directory
 from cpacspy.cpacsfunctions import (
     get_value,
     create_branch,
@@ -29,21 +28,19 @@ from ceasiompy.utils.commonxpaths import (
     SU2MESH_XPATH,
     AIRFOILS_XPATH,
 )
-from ceasiompy.cpacs2gmsh import (
-    MODULE_NAME as CPACS2GMSH,
-    GMSH_2D_AIRFOIL_MESH_SIZE_XPATH,
-    GMSH_2D_EXT_MESH_SIZE_XPATH,
-    GMSH_2D_FARFIELD_RADIUS_XPATH,
-    GMSH_2D_STRUCTURED_MESH_XPATH,
-    GMSH_2D_FARFIELD_TYPE_XPATH,
-    GMSH_2D_FIRST_LAYER_HEIGHT_XPATH,
-    GMSH_2D_WAKE_LENGTH_XPATH,
-    GMSH_2D_HEIGHT_LENGTH_XPATH,
-    GMSH_2D_LENGTH_XPATH,
-    GMSH_2D_NO_BL_XPATH,
-    GMSH_2D_RATIO_XPATH,
-    GMSH_2D_NB_LAYERS_XPATH,
-    GMSH_2D_MESH_FORMAT_XPATH,
+from ceasiompy.airfoil2gmsh import (
+    AIRFOIL2GMSH_AIRFOIL_MESH_SIZE_XPATH,
+    AIRFOIL2GMSH_EXT_MESH_SIZE_XPATH,
+    AIRFOIL2GMSH_FARFIELD_RADIUS_XPATH,
+    AIRFOIL2GMSH_STRUCTURED_MESH_XPATH,
+    AIRFOIL2GMSH_FARFIELD_TYPE_XPATH,
+    AIRFOIL2GMSH_FIRST_LAYER_HEIGHT_XPATH,
+    AIRFOIL2GMSH_WAKE_LENGTH_XPATH,
+    AIRFOIL2GMSH_HEIGHT_LENGTH_XPATH,
+    AIRFOIL2GMSH_LENGTH_XPATH,
+    AIRFOIL2GMSH_NO_BL_XPATH,
+    AIRFOIL2GMSH_RATIO_XPATH,
+    AIRFOIL2GMSH_NB_LAYERS_XPATH,
 )
 
 
@@ -66,28 +63,27 @@ def _read_mesh_parameters(tixi: Tixi3):
         dict: Dictionary of mesh parameters
     """
     params = {
-        "airfoil_mesh_size": _safe_get_value(tixi, GMSH_2D_AIRFOIL_MESH_SIZE_XPATH),
-        "ext_mesh_size": _safe_get_value(tixi, GMSH_2D_EXT_MESH_SIZE_XPATH),
-        "structured_mesh": _safe_get_value(tixi, GMSH_2D_STRUCTURED_MESH_XPATH),
-        "first_layer_height": _safe_get_value(tixi, GMSH_2D_FIRST_LAYER_HEIGHT_XPATH),
-        "farfield_type": _safe_get_value(tixi, GMSH_2D_FARFIELD_TYPE_XPATH),
-        "farfield_radius": _safe_get_value(tixi, GMSH_2D_FARFIELD_RADIUS_XPATH),
-        "wake_length": _safe_get_value(tixi, GMSH_2D_WAKE_LENGTH_XPATH),
-        "height_length": _safe_get_value(tixi, GMSH_2D_HEIGHT_LENGTH_XPATH),
-        "length": _safe_get_value(tixi, GMSH_2D_LENGTH_XPATH),
-        "no_boundary_layer": _safe_get_value(tixi, GMSH_2D_NO_BL_XPATH),
-        "growth_ratio": _safe_get_value(tixi, GMSH_2D_RATIO_XPATH),
-        "number_of_layers": _safe_get_value(tixi, GMSH_2D_NB_LAYERS_XPATH),
-        "mesh_format": _safe_get_value(tixi, GMSH_2D_MESH_FORMAT_XPATH),
+        "airfoil_mesh_size": _safe_get_value(tixi, AIRFOIL2GMSH_AIRFOIL_MESH_SIZE_XPATH),
+        "ext_mesh_size": _safe_get_value(tixi, AIRFOIL2GMSH_EXT_MESH_SIZE_XPATH),
+        "structured_mesh": _safe_get_value(tixi, AIRFOIL2GMSH_STRUCTURED_MESH_XPATH),
+        "first_layer_height": _safe_get_value(tixi, AIRFOIL2GMSH_FIRST_LAYER_HEIGHT_XPATH),
+        "farfield_type": _safe_get_value(tixi, AIRFOIL2GMSH_FARFIELD_TYPE_XPATH),
+        "farfield_radius": _safe_get_value(tixi, AIRFOIL2GMSH_FARFIELD_RADIUS_XPATH),
+        "wake_length": _safe_get_value(tixi, AIRFOIL2GMSH_WAKE_LENGTH_XPATH),
+        "height_length": _safe_get_value(tixi, AIRFOIL2GMSH_HEIGHT_LENGTH_XPATH),
+        "length": _safe_get_value(tixi, AIRFOIL2GMSH_LENGTH_XPATH),
+        "boundary_layer": _safe_get_value(tixi, AIRFOIL2GMSH_NO_BL_XPATH),
+        "growth_ratio": _safe_get_value(tixi, AIRFOIL2GMSH_RATIO_XPATH),
+        "number_of_layers": _safe_get_value(tixi, AIRFOIL2GMSH_NB_LAYERS_XPATH),
+        "mesh_format": "su2",
     }
 
     return params
 
 
 def _run_gmshairfoil2d(
-    tixi: Tixi3,
     params,
-    wkdir,
+    wkdir: Path,
     airfoil_file,
     flap_airfoil_file: Path | None = None,
 ) -> None:
@@ -124,7 +120,7 @@ def _run_gmshairfoil2d(
     ]
 
     # Add boundary layer parameters
-    if not params["no_boundary_layer"]:
+    if params["boundary_layer"]:
         nb_of_layers = params["number_of_layers"]
         if nb_of_layers is None:
             raise ValueError(f"Number of layers not specified in Settings {nb_of_layers=}")
@@ -210,11 +206,11 @@ def _collect_process_details(result, *, stdout_label="Output", stderr_label="Err
 
 
 def _generating_dat_file(
-    cpacs: CPACS,
     idx: int,
+    cpacs: CPACS,
+    results_dir: Path,
 ) -> Path:
     wingairfoil_xpath = AIRFOILS_XPATH + f"/wingAirfoil[{idx}]"
-    wkdir = get_results_directory(CPACS2GMSH)
     tixi = cpacs.tixi
 
     if not tixi.checkElement(wingairfoil_xpath):
@@ -235,7 +231,7 @@ def _generating_dat_file(
         airfoil_id = tixi.getTextElement(wingairfoil_xpath + "/name")
 
     airfoil_id = _safe_airfoil_name(airfoil_id)
-    dat_file = wkdir / f"airfoil_{airfoil_id}.dat"
+    dat_file = results_dir / f"airfoil_{airfoil_id}.dat"
 
     file_xpath = wingairfoil_xpath + "/pointList/file"
     if tixi.checkElement(file_xpath):
@@ -287,7 +283,11 @@ def process_2d_airfoil(cpacs: CPACS, results_dir: Path) -> None:
     params = _read_mesh_parameters(tixi)
 
     log.info("Generating .dat file for gmshairfoil2d from CPACS file.")
-    airfoil_file = _generating_dat_file(cpacs, idx=1)
+    airfoil_file = _generating_dat_file(
+        idx=1,
+        cpacs=cpacs,
+        results_dir=results_dir,
+    )
 
     flap_airfoil_file = None
 
@@ -299,7 +299,11 @@ def process_2d_airfoil(cpacs: CPACS, results_dir: Path) -> None:
             else 0
         )
         if airfoil_count > 1:
-            flap_airfoil_file = _generating_dat_file(cpacs, idx=2)
+            flap_airfoil_file = _generating_dat_file(
+                idx=2,
+                cpacs=cpacs,
+                results_dir=results_dir,
+            )
             log.info(
                 "Detected multiple airfoils after CPACSUpdater; "
                 "using the second airfoil as flap definition."
@@ -308,7 +312,6 @@ def process_2d_airfoil(cpacs: CPACS, results_dir: Path) -> None:
     # Build gmshairfoil2d command
     log.info("Building gmshairfoil2d command.")
     cmd, expected_mesh_file, fallback_mesh_file = _run_gmshairfoil2d(
-        tixi=tixi,
         wkdir=results_dir,
         params=params,
         airfoil_file=airfoil_file,
@@ -325,7 +328,6 @@ def process_2d_airfoil(cpacs: CPACS, results_dir: Path) -> None:
         )
         _log_process_streams(result, stdout_level="warning", stderr_level="warning")
         cmd, expected_mesh_file, fallback_mesh_file = _run_gmshairfoil2d(
-            tixi=tixi,
             wkdir=results_dir,
             params=params,
             airfoil_file=airfoil_file,

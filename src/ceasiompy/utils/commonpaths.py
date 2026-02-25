@@ -5,12 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 List of paths which are used in CEASIOMpy, if possible base paths must be
 called only from here to avoid mistakes.
-
-| Author: Aidan jungo
-| Creation: 2022-04-28
-| Modified: Leon Deligny
-| Date: 25 March 2025
-
 """
 
 # Imports

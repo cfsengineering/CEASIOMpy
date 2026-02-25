@@ -14,7 +14,6 @@ from ceasiompy.utils.geometryfunctions import return_uidwings
 from ceasiompy.cpacs2gmsh.func.exportbrep import export_brep
 from ceasiompy.cpacs2gmsh.func.meshvis import cgns_mesh_checker
 from ceasiompy.cpacs2gmsh.func.generategmesh import generate_gmsh
-from ceasiompy.cpacs2gmsh.func.airfoil2d import process_2d_airfoil
 from ceasiompy.addcontrolsurfaces.func.controlsurfaces import deflection_angle
 from ceasiompy.cpacs2gmsh.func.rans_mesh_generator import (
     pentagrow_3d_mesh,
@@ -31,7 +30,7 @@ from ceasiompy.cpacs2gmsh.func.utils import (
 )
 
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
@@ -73,7 +72,7 @@ _patch_signal_for_gmsh()
 # Functions
 
 def _progress_update(
-    progress_callback: Optional[Callable[..., None]],
+    progress_callback: Callable[..., None] | None,
     *,
     detail: str | None = None,
     progress: float | None = None,
@@ -89,7 +88,7 @@ def run_cpacs2gmsh(
     surf: str = None,
     angle: str = None,
     *,
-    progress_callback: Optional[Callable[..., None]] = None,
+    progress_callback: Callable[..., None] | None = None,
 ) -> None:
     """
     Starts meshing with gmsh.
@@ -330,7 +329,7 @@ def deform_surf(
     angle: float,
     wing_names: list,
     *,
-    progress_callback: Optional[Callable[..., None]] = None,
+    progress_callback: Callable[..., None] | None = None,
 ) -> None:
     """
     Deform the surface surf by angle angle,
@@ -374,7 +373,7 @@ def deform_surf(
 def main(
     cpacs: CPACS,
     results_dir: Path,
-    progress_callback: Optional[Callable[..., None]] = None,
+    progress_callback: Callable[..., None] | None = None,
 ) -> None:
     """
     Main function.
@@ -395,16 +394,8 @@ def main(
         log.info("No geometry mode specified in CPACS, defaulting to 3D mode.")
 
     # Process 2D if geometry mode is 2D (let exceptions propagate)
-    if tixi.getTextElement(GEOMETRY_MODE_XPATH) == "2D":
-        log.info("2D airfoil mode detected. Running 2D processing only...")
-        _progress_update(progress_callback, detail="Processing 2D airfoil...", progress=0.15)
-        process_2d_airfoil(
-            cpacs=cpacs,
-            results_dir=results_dir,
-        )
-        log.info("2D processing completed, returning without 3D mesh generation.")
-        _progress_update(progress_callback, detail="2D processing completed.", progress=1.0)
-        return None
+    if tixi.getTextElement(GEOMETRY_MODE_XPATH) != "3D":
+        raise ValueError(f"Can not call {MODULE_NAME} for a airfoil-cpacs file.")
 
     # If we reach here, we are in 3D mode
     log.info("Proceeding with 3D mesh generation...")

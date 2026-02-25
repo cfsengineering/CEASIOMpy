@@ -6,6 +6,7 @@ Entry point for the Streamlit UI with explicit page ordering.
 
 # Imports
 
+import asyncio
 import os
 import json
 import streamlit as st
@@ -13,12 +14,18 @@ import streamlit as st
 from ceasiompy.utils import get_wkdir
 from openvspgui import convert_vsp3_to_cpacs
 from ceasiompy.utils.guiobjects import add_value
+from ceasiompy.utils.ceasiompyutils import update_xpath_at_xyz
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.workflowclasses import Workflow
 
-from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH, AIRFOILS_XPATH
+
+# VTK web rendering can fail with uvloop event loops.
+# Force the stdlib asyncio policy early so spawned subprocesses inherit it.
+asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
 
 
 # Methods
@@ -47,6 +54,67 @@ def _parse_cli_modules() -> list[str] | None:
     return modules
 
 
+def _read_airfoil_xy(airfoil_path: Path) -> tuple[list[float], list[float]]:
+    x_vals: list[float] = []
+    y_vals: list[float] = []
+
+    with open(airfoil_path, "r", encoding="utf-8") as handle:
+        for raw_line in handle:
+            line = raw_line.strip()
+            if not line:
+                continue
+            if line.startswith(("#", "!", "%", "//")):
+                continue
+
+            line = line.replace(",", " ")
+            parts = [p for p in line.split() if p]
+            if len(parts) < 2:
+                continue
+
+            try:
+                x_vals.append(float(parts[0]))
+                y_vals.append(float(parts[1]))
+            except ValueError:
+                continue
+
+    if len(x_vals) < 3:
+        raise ValueError(
+            f"Airfoil file '{airfoil_path.name}' must contain at least 3 valid x y points."
+        )
+
+    return x_vals, y_vals
+
+
+def _create_cpacs_from_airfoil(airfoil_path: Path, wkdir: Path) -> Path:
+    airfoil_x, airfoil_y = _read_airfoil_xy(airfoil_path)
+
+    def _vector_to_str(values: list[float]) -> str:
+        return ";".join(f"{v:.8f}" for v in values)
+
+    newx_str = _vector_to_str(airfoil_x)
+    newy_str = _vector_to_str([0.0] * len(airfoil_x))
+    newz_str = _vector_to_str(airfoil_y)
+
+    cpacs = CPACS(Path(CPACS_FILES_PATH, "airfoil.xml"))
+    add_value(
+        tixi=cpacs.tixi,
+        xpath=GEOMETRY_MODE_XPATH,
+        value="2D",
+    )
+
+    wingairfoil_xpath = AIRFOILS_XPATH + "/wingAirfoil[1]"
+    update_xpath_at_xyz(
+        tixi=cpacs.tixi,
+        xpath=wingairfoil_xpath + "/pointList",
+        x=newx_str,
+        y=newy_str,
+        z=newz_str,
+    )
+    cpacs_path = Path(wkdir, f"{airfoil_path.stem}.xml")
+    cpacs.save_cpacs(cpacs_path, overwrite=True)
+    return cpacs_path
+
+
 def _load_cli_geometry(geometry_path: Path, wkdir: Path) -> None:
     suffix = geometry_path.suffix.lower()
 
@@ -56,6 +124,9 @@ def _load_cli_geometry(geometry_path: Path, wkdir: Path) -> None:
     elif suffix in {".vsp", ".vsp3"}:
         cpacs_path = convert_vsp3_to_cpacs(geometry_path, output_dir=wkdir)
         geometry_mode = "3D"
+    elif suffix in {".csv", ".dat", ".txt"}:
+        cpacs_path = _create_cpacs_from_airfoil(geometry_path, wkdir)
+        geometry_mode = "2D"
     else:
         raise ValueError(f"Unsupported geometry file format: {geometry_path.suffix}")
 

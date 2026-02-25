@@ -10,7 +10,7 @@ Extract results from SU2 calculations and save them in a CPACS file.
 import itertools
 import numpy as np
 
-from ceasiompy.utils.guiobjects import update_value
+from ceasiompy.utils.guiobjects import add_value
 from ceasiompy.su2run.func.extractloads import extract_loads
 from ceasiompy.su2run.func.dotderivatives import (
     load_parameters,
@@ -53,6 +53,7 @@ from ceasiompy.utils.commonxpaths import (
     RANGE_LD_RATIO_XPATH,
     WING_SPAN_XPATH,
     WETTED_AREA_XPATH,
+    GEOMETRY_MODE_XPATH,
 )
 from ceasiompy.su2run import (
     SU2_EXTRACT_LOAD_XPATH,
@@ -72,16 +73,26 @@ def get_value_at(i: int, *lists: list[float]) -> tuple[float, ...]:
 
 
 def update_wetted_area_func(cpacs: CPACS, config_dir: Path) -> None:
+    tixi = cpacs.tixi
     wetted_area = get_wetted_area(Path(config_dir, "logfile_SU2_CFD.log"))
 
     # Check if symmetry plane is defined (Default: False)
     sym_factor = 1.0
-    if get_value(cpacs.tixi, xpath=GMSH_XZ_SYMMETRY_XPATH):
+    if (
+        get_value(
+            tixi=tixi,
+            xpath=GEOMETRY_MODE_XPATH,
+        ) == "3D"
+        and get_value(
+            tixi=tixi,
+            xpath=GMSH_XZ_SYMMETRY_XPATH,
+        )
+    ):
         log.info("Symmetry plane is defined. Multiplying wetted area by 2.")
         sym_factor = 2.0
 
-    update_value(
-        tixi=cpacs.tixi,
+    add_value(
+        tixi=tixi,
         xpath=WETTED_AREA_XPATH,
         value=wetted_area * sym_factor,
     )

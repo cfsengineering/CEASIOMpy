@@ -253,7 +253,7 @@ def get_results_directory(
 
     init = importlib.import_module(f"ceasiompy.{module_name}.{MODNAME_INIT}")
     if wkflow_dir is None:
-        wkflow_dir = Path.cwd()
+        wkflow_dir = current_workflow_dir()
     results_dir = Path(wkflow_dir, "Results", init.MODULE_NAME)
 
     if create and not results_dir.is_dir():
@@ -349,7 +349,7 @@ def run_module(
     iteration=0,
     test=False,
     *,
-    progress_callback: Optional[Callable[..., None]] = None,
+    progress_callback: Callable[..., None] | None = None,
 ):
     """Run a 'ModuleToRun' object in a specific wkdir.
 
@@ -579,7 +579,7 @@ def run_software(
     stdin: Optional[TextIO] = None,
     log_bool: bool = True,
     xvfb: bool = False,
-    progress_callback: Optional[Callable[..., None]] = None,
+    progress_callback: Callable[..., None] | None = None,
     progress_parser: Optional[Callable[[Path], tuple]] = None,
     poll_interval: float = 0.5,
 ) -> None:

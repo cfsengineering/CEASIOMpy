@@ -38,7 +38,7 @@ MODULE_STATUS = get_module_status(
 MODULE_TYPE = "Geometry"
 
 # xPaths
-TO_THREED_XPATH = CEASIOMPY_XPATH + "/2dto3d"
+TO_THREED_XPATH = CEASIOMPY_XPATH + "/to3d"
 
 # First Section Geometry
 

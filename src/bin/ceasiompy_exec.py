@@ -134,7 +134,7 @@ def run_gui(
     vsp_python_root = project_root / "installdir/OpenVSP/python"
     vsp_python_openvsp_root = vsp_python_root / "openvsp"
     existing_pythonpath = env.get("PYTHONPATH", "")
-    py_paths = [str(src_dir), str(vsp_python_root), str(vsp_python_openvsp_root)]
+    py_paths = [str(src_dir), str(vsp_python_openvsp_root), str(vsp_python_root)]
     if existing_pythonpath:
         py_paths.append(existing_pythonpath)
 

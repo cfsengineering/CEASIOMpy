@@ -1,0 +1,57 @@
+name: VSP2CPACS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/ceasiompy/vsp2cpacs/**"
+      - "geometries/vspfiles/**"
+      - "installation/ubuntu/openvsp.sh"
+      - "environment.yml"
+      - "setup.py"
+      - "pyproject.toml"
+      - ".github/workflows/vsp2cpacs.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "src/ceasiompy/vsp2cpacs/**"
+      - "geometries/vspfiles/**"
+      - "installation/ubuntu/openvsp.sh"
+      - "environment.yml"
+      - "setup.py"
+      - "pyproject.toml"
+      - ".github/workflows/vsp2cpacs.yml"
+  workflow_dispatch:
+
+jobs:
+  vsp2cpacs-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup MiniConda3
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        auto-update-conda: true
+        python-version: "3.12"
+        activate-environment: ceasiompy
+        environment-file: environment.yml
+        use-mamba: true
+
+    - name: Install libGLU
+      run: sudo apt-get install -y libglu1-mesa-dev
+
+    - name: Install ceasiompy and OpenVSP
+      shell: bash -l {0}
+      run: |
+        pip install -e .
+        installation/ubuntu/openvsp.sh
+
+    - name: Run vsp2cpacs test
+      shell: bash -l {0}
+      env:
+        PYTHONPATH: ${{ github.workspace }}/installdir/OpenVSP/python:${{ env.PYTHONPATH }}
+      run: |
+        pytest -v src/ceasiompy/vsp2cpacs/tests/test_vsp2cpacs.py

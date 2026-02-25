@@ -37,11 +37,10 @@ jobs:
     - name: Install libGLU
       run: sudo apt-get install -y libglu1-mesa-dev
 
-    - name: Install ceasiompy, OpenVSP and Pentagrow
+    - name: Install ceasiompy and Pentagrow
       shell: bash -l {0}
       run: |
         pip install -e .
-        installation/ubuntu/openvsp.sh
         installation/ubuntu/pentagrow.sh
 
     - name: Run unit tests

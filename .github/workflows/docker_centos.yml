@@ -18,7 +18,7 @@ jobs:
     - name: Set up Python 3.12
       uses: actions/setup-python@v2
       with:
-        python-version: 3.12
+        python-version: "3.12"
      
     - name: Run Dockerfile installation and tests
       run: |

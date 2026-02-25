@@ -22,13 +22,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.11.14
+    - name: Set up Python 3.12
       uses: actions/setup-python@v2
       with:
         python-version: "3.12"
 
     - name: Setup Miniforge3
-      uses: conda-incubator/setup-miniconda@v2
+      uses: conda-incubator/setup-miniconda@v3
       with:
         miniforge-variant: Miniforge3
         miniforge-version: latest
@@ -91,8 +91,3 @@ jobs:
       with:
         name: integration-test-logs
         path: tests/workflow_tests/**/ceasiompy.log
-
-    # - name: Setup tmate session to SSH to the remote machine (for debugging)
-    #   if: ${{ failure() }}
-    #   uses: mxschmitt/action-tmate@v3
-    #   timeout-minutes: 15

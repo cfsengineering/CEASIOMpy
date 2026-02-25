@@ -7,9 +7,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 openVSP integration inside CEASIOMpy.
 The geometry is built in OpenVSP, saved as a .vsp3 file, and then selected in the GUI.
 It is subsequently processed by this module to generate a CPACS file.
-
-| Author: Nicolo' Perasso
-| Creation: 22/12/2025
 """
 
 # =================================================================================================
@@ -23,9 +20,11 @@ from pathlib import Path
 
 import warnings
 warnings.filterwarnings("ignore")
+
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
 def make(doc, name, parent=None, text=None, **attrs):
     """
     Create an XML element, optionally add attributes, text value,
@@ -437,7 +436,6 @@ def Wing_positioning(doc, Parent, Name, Section_key, Sections_parameters, dih_li
     make(doc, 'name', positioning, f'{Name}GenPos')
 
     # First wing section
-    import re
     if Name.endswith("Sec0"):
         make(doc, 'length', positioning, '0')
         make(doc, 'sweepAngle', positioning, '0')
@@ -485,10 +483,10 @@ def wingAirfoil(doc, Parent, Section_key, Section_parameters, uid):
 
     x_cpacs = np.column_stack((x_values, y_values, z_values))
 
-    for tag in range(0, len(txt)):
+    for tag, coord in enumerate(txt):
         values_str = ' '.join(str(x_cpacs[:, tag]).strip().split()) \
                         .replace('[ ', '').replace('[', '').replace(' ]', '').replace(']', '').replace(' ', ';')
-        child = make(doc, txt[tag], pointList, values_str)
+        child = make(doc, coord, pointList, values_str)
         child.setAttribute('mapType', 'vector')
 
 
@@ -806,9 +804,9 @@ class Export_CPACS:
             if self.Data[f'{item}']['Transformation']['Name_type'] == 'Pod' and self.Data[f'{item}']['Transformation']['idx_engine'] is None:
                 Fuselage_to_CPACS(self.Data[f'{item}'], Doc, model, vehicles,self.name_file)
             if self.Data[f'{item}']['Transformation']['Name_type'] == 'Duct' or self.Data[f'{item}']['Transformation']['idx_engine'] is not None :
-                dummy_idx_engine.append(self.Data[f'{item}']['Transformation']['idx_engine']) if len(dummy_idx_engine)<3 else []
+                if len(dummy_idx_engine) < 3:
+                    dummy_idx_engine.append(self.Data[f'{item}']['Transformation']['idx_engine'])
                 Engine_to_CPACS(self.Data[f'{item}'], Doc, model, vehicles,dummy_idx_engine,self.name_file)
-
 
 
 

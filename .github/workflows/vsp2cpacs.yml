@@ -52,6 +52,6 @@ jobs:
     - name: Run vsp2cpacs test
       shell: bash -l {0}
       env:
-        PYTHONPATH: ${{ github.workspace }}/installdir/OpenVSP/python:${{ env.PYTHONPATH }}
+        PYTHONPATH: ${{ github.workspace }}/installdir/OpenVSP/python:/usr/local/OpenVSP/python:${{ env.PYTHONPATH }}
       run: |
         pytest -v src/ceasiompy/vsp2cpacs/tests/test_vsp2cpacs.py

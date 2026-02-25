@@ -126,30 +126,18 @@ def run_gui(
     log.info("CEASIOMpy has been started from the GUI.")
     env = os.environ.copy()
     _ensure_conda_prefix_bin_first(env)
-    # Add CEASIOMpy src directory first (for helper modules like `utilities`),
-    # then OpenVSP Python roots (for degen_geom, openvsp, etc.) to PYTHONPATH.
+    # Add CEASIOMpy src directory first, then OpenVSP Python root.
+    # The parent directory must be used (not package subdirectories) so
+    # `import openvsp` resolves the OpenVSP package correctly.
     project_root = Path(__file__).resolve().parents[2]
     src_dir = project_root / "src"
     vsp_python_root = project_root / "installdir/OpenVSP/python"
-    vsp_openvsp_pkg = vsp_python_root / "openvsp"
-    degen_geom_pkg = vsp_python_root / "degen_geom"
-    vsp_config_pkg = vsp_python_root / "openvsp_config"
-    utilities_pkg = vsp_python_root / "utilities"
-    env["PYTHONPATH"] = (
-        str(src_dir)
-        + os.pathsep
-        # + str(vsp_python_root)
-        # + os.pathsep
-        + str(vsp_openvsp_pkg)
-        + os.pathsep
-        + str(vsp_config_pkg)
-        + os.pathsep
-        + str(degen_geom_pkg)
-        + os.pathsep
-        + str(utilities_pkg)
-        + os.pathsep
-        + env.get("PYTHONPATH", "")
-    )
+    existing_pythonpath = env.get("PYTHONPATH", "")
+    py_paths = [str(src_dir), str(vsp_python_root)]
+    if existing_pythonpath:
+        py_paths.append(existing_pythonpath)
+
+    env["PYTHONPATH"] = os.pathsep.join(py_paths)
 
     env["CEASIOMPY_CLOUD"] = str(cloud)
 

@@ -102,7 +102,6 @@ def test_airfoil_workflow() -> None:
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_to3d_workflow() -> None:
     WORKFLOW_6 = [TO3D, CPACS2GMSH, SU2RUN]
-
     _run_workflow_test(
         cpacs_path=Path(CPACS_FILES_PATH, "airfoil.xml"),
         modules_to_run=WORKFLOW_6,

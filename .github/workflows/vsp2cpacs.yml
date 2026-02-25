@@ -47,7 +47,15 @@ jobs:
       shell: bash -l {0}
       run: |
         pip install -e .
+        pip uninstall -y openvsp || true
         installation/ubuntu/openvsp.sh
+
+    - name: Validate OpenVSP Python binding
+      shell: bash -l {0}
+      env:
+        PYTHONPATH: ${{ github.workspace }}/installdir/OpenVSP/python:/usr/local/OpenVSP/python:${{ env.PYTHONPATH }}
+      run: |
+        python -c "import openvsp as vsp; print(vsp.__file__); assert hasattr(vsp, 'XS_UNDEFINED'), 'Wrong openvsp module imported (missing XS_UNDEFINED)'"
 
     - name: Run vsp2cpacs test
       shell: bash -l {0}

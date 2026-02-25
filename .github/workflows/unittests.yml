@@ -47,7 +47,9 @@ jobs:
       shell: bash -l {0}
       run: |
         # No source ~/.bashrc needed because of 'shell: bash -l {0}' and 'activate-environment'
-        pytest -v src/ceasiompy --cov=ceasiompy --cov-report xml:coverage.xml
+        pytest -v src/ceasiompy \
+          --ignore=src/ceasiompy/vsp2cpacs/tests/test_vsp2cpacs.py \
+          --cov=ceasiompy --cov-report xml:coverage.xml
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4

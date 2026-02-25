@@ -1,6 +1,8 @@
 # Imports
 import pytest
 
+pytest.importorskip("openvsp")
+
 from ceasiompy.vsp2cpacs.vsp2cpacs import main
 
 from ceasiompy.utils.commonpaths import (

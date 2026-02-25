@@ -40,7 +40,6 @@ def Import_POD(POD):
 
     # Tessellation parameters
     Tess_W = vsp.GetParmVal(POD,'Tess_W','Shape')
-    Tess_U = vsp.GetParmVal(POD,'Tess_U','Shape')
 
 
     # ---- section informations ----

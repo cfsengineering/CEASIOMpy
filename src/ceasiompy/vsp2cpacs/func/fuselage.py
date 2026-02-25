@@ -55,7 +55,6 @@ def Import_Fuse(Fuselage):
     
     for i in range(num_xsecs):
         xsec_id = vsp.GetXSec(xsec_surf_id,i)
-        xsec_type = vsp.GetXSecShape(xsec_id)
         
         # ---- section ----
         Section_VSP = Fuse_Section(Fuselage, i, Sections_information['Transformation']['Length'])
@@ -237,5 +236,4 @@ def Spin_func(spin, Section_informations, x_loc,x_rot):
     Add_section['x_scal'] = 1
     Add_section['x_loc'] = x_loc
     return Add_section
-
 

@@ -63,7 +63,6 @@ def main(vsp_file):
     # Some initializations
     ComponentIdx = 0      
     Data_from_VSP, Parent_List = {}, {}
-    total_plantform_area = 0
     idx_engine = 0
     
     
@@ -139,4 +138,3 @@ def main(vsp_file):
     CPACS_file.run()
     print('[INFO] CPACS file saved in WKDIR')
     print('-------------------End of VSP2CPACS-----------------------')
-

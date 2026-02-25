@@ -122,7 +122,7 @@ def get_coord_engine_profile(geom_id,n):
     
     # Invert the airfoil if required
     if Invert_airfoil:
-        y_airfoil = - y_airfoil
+        y = -y
         
     # center the normalized profile with the origin in the middle of the airfoil
     x -= 0.5
@@ -135,7 +135,6 @@ def Import_Duct(Duct):
     
     # Some initializations
     Sections_information = {}
-    parm_ids = vsp.GetGeomParmIDs(Duct)
 
     
     

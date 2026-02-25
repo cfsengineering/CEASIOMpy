@@ -506,15 +506,15 @@ def Wing_to_CPACS(WingData, doc, Parent_wing, Parent_prof,name_file):
     wing = make(doc, 'wing', wings, uID=Name_wing)   
     # set the parent Uid if it is necessary
     if 'Child_to_Parent' in WingData.get('Transformation', {}):
-        parentUid = make(doc,'parentUID',wing,WingData[keys[0]]['Child_to_Parent'])
+        make(doc,'parentUID',wing,WingData[keys[0]]['Child_to_Parent'])
         
     if WingData[keys[0]]['Symmetry'] != '0':
         wing.setAttribute(
             'symmetry', WingData[keys[0]]['Symmetry'])
     
     # name - description - transformation #
-    name = make(doc,'name',wing,Name_wing)
-    description = make(doc,'description',wing,'Wing from openVSP')
+    make(doc,'name',wing,Name_wing)
+    make(doc,'description',wing,'Wing from openVSP')
     Transformation(doc, wing, Name_wing, np.ones(
         3).T, np.array(WingData[keys[0]]['X_Rot']), WingData[keys[0]]['X_Trasl'], WingData[keys[0]]['abs_system'])
 
@@ -551,17 +551,16 @@ def Wing_to_CPACS(WingData, doc, Parent_wing, Parent_prof,name_file):
 
     # <segments>
     segments = make(doc,'segments',wing)
+    Name_element_before = None
     for Section_key in keys[1:]:
         
         match = re.search(r'\d+$', Section_key)
         number = int(match.group()) if match else 0
 
-        if Section_key != 'Section0':
+        if Section_key != 'Section0' and Name_element_before is not None:
             segment(
                 doc, segments, Name_wing, Name_element[Section_key]['Name'], Name_element_before, number)
-            Name_element_before = Name_element[Section_key]['Name']
-        else:
-            Name_element_before = Name_element[Section_key]['Name']
+        Name_element_before = Name_element[Section_key]['Name']
 
     # <profiles>
     profiles = make(doc,'profiles',Parent_prof)
@@ -588,15 +587,15 @@ def Fuselage_to_CPACS(FuseData, doc, Parent_Fuse, Parent_prof,name_file):
     
     # set the parent Uid if it is necessary
     if 'Child_to_Parent' in FuseData.get('Transformation', {}):
-        parentUid = make(doc,'parentUID',Parent_Fuse,FuseData[keys[0]]['Child_to_Parent'])
+        make(doc,'parentUID',Parent_Fuse,FuseData[keys[0]]['Child_to_Parent'])
 
     if FuseData[keys[0]]['Symmetry'] != '0':
         fuselage.setAttribute(
             'symmetry', FuseData[keys[0]]['Symmetry'])
 
     # name - description - transformation #
-    name = make(doc,'name',fuselage,Fuse_name)
-    description = make(doc,'description',fuselage,'Fuse from openVSP')
+    make(doc,'name',fuselage,Fuse_name)
+    make(doc,'description',fuselage,'Fuse from openVSP')
     Transformation(doc, fuselage, Fuse_name, np.ones(
         3).T, np.array(FuseData[keys[0]]['X_Rot']), FuseData[keys[0]]['X_Trasl'], FuseData[keys[0]]['abs_system'])
 
@@ -637,18 +636,17 @@ def Fuselage_to_CPACS(FuseData, doc, Parent_Fuse, Parent_prof,name_file):
 
     # <segments>
     segments = make(doc,'segments',fuselage)
+    Name_element_before = None
 
     for Section_key in keys[1:]:
         
         match = re.search(r'\d+$', Section_key)
         number = int(match.group()) if match else 0
 
-        if Section_key != 'Section0':
+        if Section_key != 'Section0' and Name_element_before is not None:
             segment(
                 doc, segments, Fuse_name, Name_element[Section_key]['Name'], Name_element_before, number)
-            Name_element_before = Name_element[Section_key]['Name']
-        else:
-            Name_element_before = Name_element[Section_key]['Name']
+        Name_element_before = Name_element[Section_key]['Name']
 
     # <profiles>
     profiles = make(doc,'profiles',Parent_prof)
@@ -738,24 +736,6 @@ def Engine_to_CPACS(EngineData, doc, Parent_engine, Parent_prof, i,name_file):
 
 def merge_elements(document, parent_tag, target_tag):
     
-    # unify more <target_tag> inside the node <parent_tag>.
-    # Only if they exist.
-    
-    parent_nodes = document.getElementsByTagName(parent_tag)
-    parent = parent_nodes[0]
-    elements = list(parent.getElementsByTagName(target_tag))
-    first = elements[0]
-    
-    if len(elements) > 1:
-        for extra in elements[1:]:
-            for c in list(extra.childNodes):
-                extra.removeChild(c)
-                first.appendChild(c)
-            extra.parentNode.removeChild(extra)
-
-
-def merge_elements(document, parent_tag, target_tag):
-    
     # Merge multiple <target_tag> elements into a single one inside <parent_tag>, if they exist
     parent_nodes = document.getElementsByTagName(parent_tag)
     if not parent_nodes:
@@ -830,7 +810,6 @@ class Export_CPACS:
                 Engine_to_CPACS(self.Data[f'{item}'], Doc, model, vehicles,dummy_idx_engine,self.name_file)
 
         
-
 
 
 

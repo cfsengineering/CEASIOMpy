@@ -54,7 +54,6 @@ def Import_Wing(wing):
 
     for i in range(num_xsecs):
         xsec_id = vsp.GetXSec(xsec_surf_id,i)
-        xsec_type = vsp.GetXSecShape(xsec_id)
         if i != 0:
             # ---- from section 1 to tip's section ----#
             Section_VSP = Wing_Sections(wing,i)
@@ -170,7 +169,6 @@ def get_coord_naca5(xsec_id,n):
     )
 
     # mean data for the profiles 210–250
-    MeanLine_designation = [210, 220, 230, 240, 250]
     p_values = np.array([0.05, 0.10, 0.15, 0.20, 0.25])
     m_values = np.array([0.0580, 0.1260, 0.2025, 0.2900, 0.3910])
     k1_values = np.array([361.400, 51.640, 15.957, 6.643, 3.230])
@@ -333,7 +331,7 @@ def get_coord_naca4(xsec_id,n):
     
     # Invert the airfoil if required
     if Invert_airfoil:
-        y_airfoil = - y_airfoil
+        y = -y
         
     Scaling = [geom_parm['Chord']]
     return x, y, Name,Scaling,None
@@ -540,7 +538,6 @@ def get_coord_naca5_mod(xsec_id, n):
             y_t[i] = coeffs['d0'] + coeffs['d1']*x1 + coeffs['d2']*x1**2 + coeffs['d3']*x1**3
 
     # Mean camber line (NACA 5-digit standard form)
-    MeanLine_designation = [210, 220, 230, 240, 250]
     p_values = np.array([0.05, 0.10, 0.15, 0.20, 0.25])
     m_values = np.array([0.0580, 0.1260, 0.2025, 0.2900, 0.3910])
     k1_values = np.array([361.400, 51.640, 15.957, 6.643, 3.230])

@@ -27,14 +27,14 @@ jobs:
       with:
         python-version: "3.12"
 
-    - name: Setup Miniforge3
+    - name: Setup MiniConda3
       uses: conda-incubator/setup-miniconda@v3
       with:
-        miniforge-variant: Miniforge3
-        miniforge-version: latest
-        activate-environment: ceasiompy
-        use-mamba: false
-        conda-version: 25.3.1
+        auto-update-conda: true
+        python-version: "3.12"
+        activate-environment: ceasiompy # This keeps the env active for all 'bash -l' steps
+        environment-file: environment.yml
+        use-mamba: true # Mamba is much faster and more reliable than Conda for solving envs
 
     - name: Set cache date # With that, cache will be updated every day
       run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV

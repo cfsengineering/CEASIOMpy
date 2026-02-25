@@ -60,7 +60,6 @@ def test_aeroframe_workflow() -> None:
 def test_cpacs2gmsh_su2run_workflow() -> None:
     WORKFLOW_2 = [CPACS2GMSH, SU2RUN]
     _run_workflow_test(
-        cpacs_path=Path(CPACS_FILES_PATH, "labARscaled.xml"),
         modules_to_run=WORKFLOW_2,
     )
     assert True

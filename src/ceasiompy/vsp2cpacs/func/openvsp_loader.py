@@ -19,6 +19,17 @@ def get_openvsp_module():
         if path_entry not in sys.path:
             sys.path.insert(0, path_entry)
 
+    # Some OpenVSP packages ship an `openvsp_config` module without all
+    # expected flags. Patch missing attributes before importing bindings.
+    try:
+        openvsp_config = import_module("openvsp_config")
+        if not hasattr(openvsp_config, "LOAD_GRAPHICS"):
+            openvsp_config.LOAD_GRAPHICS = False
+        if not hasattr(openvsp_config, "LOAD_FACADE"):
+            openvsp_config.LOAD_FACADE = False
+    except Exception:
+        pass
+
     try:
         nested_vsp = import_module("openvsp.openvsp")
     except ModuleNotFoundError as exc:

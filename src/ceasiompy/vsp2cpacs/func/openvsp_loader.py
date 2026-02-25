@@ -18,6 +18,17 @@ def _ensure_openvsp_config_flags() -> None:
         openvsp_config.LOAD_GRAPHICS = False
     if not hasattr(openvsp_config, "LOAD_FACADE"):
         openvsp_config.LOAD_FACADE = False
+    if not hasattr(openvsp_config, "LOAD_MULTI_FACADE"):
+        openvsp_config.LOAD_MULTI_FACADE = False
+
+    # Fallback for OpenVSP variants expecting additional LOAD_* flags.
+    if not hasattr(openvsp_config, "__getattr__"):
+        def _config_getattr(name: str):
+            if name.startswith("LOAD_"):
+                return False
+            raise AttributeError(name)
+
+        openvsp_config.__getattr__ = _config_getattr
 
 
 def get_openvsp_module():
@@ -27,8 +38,8 @@ def get_openvsp_module():
     try:
         vsp = import_module("openvsp")
     except AttributeError as exc:
-        # Some builds fail during import when openvsp_config misses flags.
-        if "LOAD_GRAPHICS" not in str(exc):
+        # Some builds fail during import when openvsp_config misses LOAD_* flags.
+        if "openvsp_config" not in str(exc) and "LOAD_" not in str(exc):
             raise
         _ensure_openvsp_config_flags()
         sys.modules.pop("openvsp", None)

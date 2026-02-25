@@ -17,7 +17,7 @@ It is subsequently processed by this module to generate a CPACS file.
 # =================================================================================================
 
 import numpy as np
-import openvsp as vsp
+from ceasiompy.vsp2cpacs.func.openvsp_loader import vsp
 
 import warnings
 warnings.filterwarnings("ignore")

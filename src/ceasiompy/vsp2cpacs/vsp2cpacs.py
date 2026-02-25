@@ -21,7 +21,7 @@ from ceasiompy.vsp2cpacs.func.fuselage import Import_Fuse
 from ceasiompy.vsp2cpacs.func.pod import Import_POD
 from ceasiompy.vsp2cpacs.func.duct import Import_Duct
 from ceasiompy.vsp2cpacs.func.exportcpacs import Export_CPACS
-import openvsp as vsp
+from ceasiompy.vsp2cpacs.func.openvsp_loader import vsp
 
 import warnings
 

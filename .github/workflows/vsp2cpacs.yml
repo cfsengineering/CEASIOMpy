@@ -55,7 +55,7 @@ jobs:
       env:
         PYTHONPATH: ${{ github.workspace }}/installdir/OpenVSP/python:/usr/local/OpenVSP/python:${{ env.PYTHONPATH }}
       run: |
-        python -c "import openvsp as vsp; print(vsp.__file__); assert hasattr(vsp, 'XS_UNDEFINED'), 'Wrong openvsp module imported (missing XS_UNDEFINED)'"
+        python -c "import importlib; m = importlib.import_module('openvsp'); v = m if hasattr(m, 'XS_UNDEFINED') else importlib.import_module('openvsp.openvsp'); print(getattr(v, '__file__', None)); assert hasattr(v, 'XS_UNDEFINED'), 'OpenVSP binding missing XS_UNDEFINED'"
 
     - name: Run vsp2cpacs test
       shell: bash -l {0}

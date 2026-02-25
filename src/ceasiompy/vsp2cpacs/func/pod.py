@@ -27,13 +27,13 @@ warnings.filterwarnings("ignore")
 # =================================================================================================
 
 def Import_POD(POD):
-    
+
     # Some initializations
     Sections_information = {}
 
     # ---- Transformation information ----
     # Inside Extract_transformation there are the global informations that characterize the component
-    
+
     Sections_information['Transformation'] = Extract_transformation(POD)
     Sections_information['Transformation']['Length'] = vsp.GetParmVal(POD,'Length','Design')
     Sections_information['Transformation']['FineRatio'] = vsp.GetParmVal(POD,'FineRatio','Design')
@@ -43,26 +43,26 @@ def Import_POD(POD):
 
 
     # ---- section informations ----
-    # Save the parameters to define sections 
-    
+    # Save the parameters to define sections
+
     # Create a nested dictionary where for every section there are specific keys to import the parameters
     Output_inf = ['x_scal', 'y_scal', 'z_scal','x_rot', 'y_rot', 'z_rot' ,'x_loc', 'y_trasl', 'z_trasl', 'spin']
-    
+
 
     # shape of the pod.
     X_pos, r_distr = POD_shape_func(Sections_information['Transformation']['Length'],Sections_information['Transformation']['FineRatio'])
-    
+
     # For the engine
     Sections_information['Transformation']['curveProfile'] = [(X_pos),-(r_distr)/2]
-    
+
     for i in range(0,len(X_pos)):
-        
+
         # ---- section ----
         Section_VSP = POD_Section(X_pos[i],r_distr[i])
         Sections_information[f'Section{i}'] = dict(
             zip(Output_inf, Section_VSP))
-        
-        # ---- default profile of the POD. It is a circle ---- 
+
+        # ---- default profile of the POD. It is a circle ----
         Name = 'Circle' if r_distr[i] != 0 else 'Point'
         coord = POD_profile(Tess_W)
         Scaling = [r_distr[i]]
@@ -74,17 +74,14 @@ def Import_POD(POD):
             Sections_information[f'Section{i}']['z_scal'] = 0
         else:
             Sections_information[f'Section{i}']['x_scal'] = 0
-            Sections_information[f'Section{i}']['y_scal'] = Scaling[0] 
-            Sections_information[f'Section{i}']['z_scal'] = Scaling[0] 
-            
-        '''if Sections_information['Transformation']['reference_length'] < Scaling[0]:           
-                Sections_information['Transformation']['reference_length'] = Scaling[0]''' 
-        
+            Sections_information[f'Section{i}']['y_scal'] = Scaling[0]
+            Sections_information[f'Section{i}']['z_scal'] = Scaling[0]
+
     return Sections_information
 
 
 def POD_shape_func(L,F_ratio):
-    
+
     # The POD is modeled as a fuselage with a circular profile, since the exact surface shape is unknown.
     # The shape is composed of three parts:
     # - a quarter-ellipse from 0 to 20% of the length,
@@ -106,21 +103,21 @@ def POD_shape_func(L,F_ratio):
         if si <= s1:
             a = s1
             b = r_max
-            R[i] = b * np.sqrt(1 - (1 - si/a)**1.5)   
+            R[i] = b * np.sqrt(1 - (1 - si/a)**1.5)
         elif si <= s2:
-            R[i] = r_max 
-        
+            R[i] = r_max
+
         else:
             a = 1 - s2
             t = (si - s2)/a
             R[i] = r_max * np.sqrt(1 - t**1)
     return x,np.trunc(R*100)/100
-    
-    
-    
-    
+
+
+
+
 def POD_Section(x_pos,r_section):
-    
+
     # translations - rotations - spin - scaling
     x_loc = x_pos
     y_trasl = 0
@@ -133,7 +130,7 @@ def POD_Section(x_pos,r_section):
         x_scal,y_scal,z_scal = 1,0,0
     else:
         x_scal,y_scal,z_scal = 1,r_section+1,r_section+1
-        
+
     return [x_scal,y_scal,z_scal,x_rot, y_rot, z_rot,x_loc, y_trasl, z_trasl,spin]
 
 
@@ -142,7 +139,7 @@ def POD_profile(n):
     # Circle profile.
     # d: diameter
     # n: number of points
-    
+
     # The first and last points correspond to the nose and tail of the pod.
     # Since CPACS does not accept a single point as a profile, a default radius
     # is assigned and later scaled to zero.
@@ -151,12 +148,12 @@ def POD_profile(n):
     theta = np.linspace(0, np.pi, int(n/2))
     x = d/2 * np.cos(theta)
     y = d/2 * np.sin(theta)
-    
+
     x_full = np.concatenate((x, -x), axis=0)
     y_full = np.concatenate((-y, y), axis=0)
 
-    # close profile 
+    # close profile
     y_full[0] = y_full[-1]
     x_full[0] = x_full[-1]
-    
+
     return x_full, y_full

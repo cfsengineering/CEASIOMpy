@@ -30,27 +30,27 @@ warnings.filterwarnings("ignore")
 # =================================================================================================
 
 def Import_Wing(wing):
-    
+
     # Some initializations
     Sections_information, Section_information = {}, {}
     n_section_idx = 0
     Twist_stored = [0]
-    
+
     # Some initializations
     # Inside Extract_transformation there are the global informations that characterize the component
     Sections_information['Transformation'] = Extract_transformation(wing)
     Sections_information['Transformation']['idx_engine'] = None
-    
+
     # ---- section informations ----
-    # Save the parameters to define sections 
-    
+    # Save the parameters to define sections
+
     # Create a nested dictionary where for every section there are specific keys to import the parameters
     Output_inf = ['Alias', 'Dihedral_angle', 'Sweep_angle','Sweep_loc', 'Twist', 'Twist_loc', 'Span']
 
     # Number of sections
     xsec_surf_id = vsp.GetXSecSurf(wing,0)
     num_xsecs = vsp.GetNumXSec(xsec_surf_id)
-    
+
 
     for i in range(num_xsecs):
         xsec_id = vsp.GetXSec(xsec_surf_id,i)
@@ -60,26 +60,26 @@ def Import_Wing(wing):
             Section_information = dict(zip(Output_inf, Section_VSP))
             # ---- profile ---- #
             coord, Name,Scaling,shift = get_profile_section(wing,xsec_id, i, Section_information['Twist'], Section_information['Twist_loc'],Sections_information['Transformation']['Relative_Twist'], Twist_stored)
-            
+
             Section_information['Airfoil'] = Name
             Section_information['Airfoil_coordinates'] = coord
             Sections_information[f'Section{n_section_idx}'] = Section_information
-            
-            
+
+
 
         else:
-            
+
             # ---- takes the root section == section0
-            # The root section is defined to have zero incidence. If you want to change the incidence you will do it in the next analysis. 
+            # The root section is defined to have zero incidence. If you want to change the incidence you will do it in the next analysis.
             coordRoot, Name,Scaling,shift = get_profile_section(wing, xsec_id, i, Twist_val=0, Twist_loc=0,Rel=Sections_information['Transformation']['Relative_Twist'], Twist_list=Twist_stored)
             Sections_information[f'Section{n_section_idx}'] = {
                                                                     'Airfoil':Name,
                                                                     'Airfoil_coordinates': coordRoot
-                                                                } 
-            
+                                                                }
+
             Sections_information[f'Section{n_section_idx}']['Sweep_loc'] = 0
-            
-        
+
+
         # Scaling is defined by width and height (or chord) used to scale the normalized profile.
         if len(Scaling) == 2:
             Sections_information[f'Section{n_section_idx}']['x_scal'] = Scaling[0]
@@ -89,12 +89,12 @@ def Import_Wing(wing):
             Sections_information[f'Section{n_section_idx}']['x_scal'] = Scaling[0]
             Sections_information[f'Section{n_section_idx}']['y_scal'] = 1
             Sections_information[f'Section{n_section_idx}']['z_scal'] = Scaling[0]
-            
+
         # There is a shift to do if it is set EDIT CURVE, because openvsp doesn't set the coordinates system on the LE so, when the user changes the position of
         # the LE control point is necessary a translation to have the same geometry
         if shift is not None:
             Sections_information[f'Section{n_section_idx}']['x_trasl'] = (0.5- np.abs(shift)) * Scaling[0]
-        else: 
+        else:
             Sections_information[f'Section{n_section_idx}']['x_trasl'] = 0
 
         # Compute translation to account for sweep location (shift from sweep_loc to LE)
@@ -104,10 +104,10 @@ def Import_Wing(wing):
             chord_tip = Sections_information[f'Section{n_section_idx}']['x_scal']
             dc_dy = (chord_tip-chord_root)/Sections_information[f'Section{n_section_idx}']['Span']
             Sections_information[f'Section{n_section_idx}']['Sweep_angle'] = np.degrees(np.arctan(np.tan(np.radians(Sections_information[f'Section{n_section_idx}']['Sweep_angle'])) - sweep_loc * dc_dy))
-            
+
         # next section
         n_section_idx += 1
-            
+
     return Sections_information
 
 def get_params_by_name(xsec_id,label):
@@ -119,8 +119,8 @@ def get_params_by_name(xsec_id,label):
         name = vsp.GetParmName(pid)
         if name in label:
             result[name] = vsp.GetParmVal(pid)
-    
-    return result 
+
+    return result
 
 
 
@@ -138,25 +138,25 @@ def get_coord_naca5(xsec_id,n):
 
     Returns (x, y, Name, Scaling, None).
     """
-    
+
     geom_parm = get_params_by_name(xsec_id, ['CamberLoc','ThickChord','IdealCl','Invert','Chord'])
     l = geom_parm['IdealCl']
     p = geom_parm['CamberLoc']
     t = geom_parm['ThickChord']
     Invert_airfoil = geom_parm['Invert']
 
-    XX = int(np.ceil(t * 100))      
+    XX = int(np.ceil(t * 100))
     n1, n2 = XX // 10, XX % 10
 
-    # bug in openVSP, the five digit name is not correct !!!!!!!!! This is correct 
-    
+    # bug in openVSP, the five digit name is not correct !!!!!!!!! This is correct
+
     p1 = int(p/0.05)
     Name = [int(round(l/0.15)), p1,0,n1,n2]
     Name = f'NACA{Name[0]}{Name[1]}{Name[2]}{Name[3]}{Name[4]}'
-    
+
     theta = np.linspace(0, np.pi, n//2)
     x_line = 0.5 * (1 - np.cos(theta))
-    
+
     # thickness distribution
     y_t = (
         t / 0.2 * (
@@ -172,15 +172,15 @@ def get_coord_naca5(xsec_id,n):
     p_values = np.array([0.05, 0.10, 0.15, 0.20, 0.25])
     m_values = np.array([0.0580, 0.1260, 0.2025, 0.2900, 0.3910])
     k1_values = np.array([361.400, 51.640, 15.957, 6.643, 3.230])
-    
+
     # interpolation
     m = np.interp(p, p_values, m_values)
     k1 = np.interp(p, p_values, k1_values)
-    
-    # k1 scale 
+
+    # k1 scale
     Cl_ref = 0.3  # riferimento NACA
     k1 = k1 * (l / Cl_ref)
-    
+
     # split between front and back
     x_line_front = x_line[x_line < m]
     x_line_back  = x_line[x_line >= m]
@@ -205,7 +205,7 @@ def get_coord_naca5(xsec_id,n):
 
     dyc_dx_back = np.full_like(x_line_back, -k1 * m**3 / 6)
 
-    # attach the two segment 
+    # attach the two segment
     y_c = np.concatenate((y_c_front, y_c_back))
     dyc_dx = np.concatenate((dyc_dx_front, dyc_dx_back))
 
@@ -221,16 +221,16 @@ def get_coord_naca5(xsec_id,n):
     y = np.concatenate((y_l[::-1], y_u), axis=0)
     x[-1] = x[0]
     y[-1] = y[0]
-    
-        
+
+
     # Invert the airfoil if required
     if Invert_airfoil:
         y = - y
-    
-    
+
+
 
     Scaling = [geom_parm['Chord']]
-    
+
     return x, y, Name, Scaling, None
 
 
@@ -252,10 +252,10 @@ def get_coord_naca4(xsec_id,n):
     p = geom_parm['CamberLoc'] if m != 0 else 0
     t = geom_parm['ThickChord']
     Invert_airfoil = geom_parm['Invert']
-    
+
     theta = np.linspace(0,np.pi,n//2)
     x_line = 0.5 * (1 - np.cos(theta))
-    
+
     # thickness line
     y_t = (
         t
@@ -309,14 +309,14 @@ def get_coord_naca4(xsec_id,n):
     # uncambered airfoil:
     else:
         XX = np.ceil(t*10)
-        
-        
+
+
         n1,n2 = divmod(int(XX),10)
         Name = [int(round(m*100)), int(round(p*10)),n1,n2]
         Name = f'NACA{Name[0]}{Name[1]}{Name[2]}{Name[3]}'
         y_c = 0 * x_line
         dyc_dx = y_c
-        
+
         # upper and lower surface
         x_u = x_line
         y_u = y_t
@@ -328,11 +328,11 @@ def get_coord_naca4(xsec_id,n):
     y = np.concatenate((y_l[::-1], y_u), axis=0)
     x[-1] = x[0]
     y[-1] = y[0]
-    
+
     # Invert the airfoil if required
     if Invert_airfoil:
         y = -y
-        
+
     Scaling = [geom_parm['Chord']]
     return x, y, Name,Scaling,None
 
@@ -354,7 +354,7 @@ def get_coord_naca4_mod(xsec_id, n):
 
     Returns (x, y, Name, Scaling, None).
     """
-    
+
     geom_parm = get_params_by_name(xsec_id, ['Camber','CamberLoc','ThickChord','ThickLoc','LERadIndx','Invert','Chord'])
     m = geom_parm['Camber']
     p = geom_parm['CamberLoc']
@@ -409,7 +409,7 @@ def get_coord_naca4_mod(xsec_id, n):
         n1,n2 = divmod(int(XX),10)
         Name = [int(round(m*100)), int(round(p*10)),n1,n2]
         Name = f'NACA{Name[0]}{Name[1]}{Name[2]}{Name[3]}-{mods_value}'
-        
+
         x_line_front = x_line[x_line < p]
         x_line_back = x_line[x_line >= p]
         y_c = np.concatenate([
@@ -430,7 +430,7 @@ def get_coord_naca4_mod(xsec_id, n):
         n1,n2 = divmod(int(XX),10)
         Name = [int(round(m*100)), 0 ,n1,n2]
         Name = f'NACA{Name[0]}{Name[1]}{Name[2]}{Name[3]}-{mods_value}'
-        
+
         x_u = x_line
         y_u = y_t
         x_l = x_line
@@ -443,27 +443,21 @@ def get_coord_naca4_mod(xsec_id, n):
     if Invert_airfoil:
         y = -y
 
-    
-    # close profile 
-    x[-1] = x[0] 
-    y[-1] = y[0] 
-    
+
+    # close profile
+    x[-1] = x[0]
+    y[-1] = y[0]
+
     Scaling = [geom_parm['Chord']]
-    '''plt.figure()
-    plt.plot(x, y,'.')
-    plt.axis('equal')
-    plt.title(Name)
-    plt.show()
-    '''
     return x, y, Name,Scaling,None
 
 
 
 
 
-    
-    
-    
+
+
+
 def get_coord_naca5_mod(xsec_id, n):
     """
     Compute coordinates of a modified NACA 5-series airfoil.
@@ -477,15 +471,15 @@ def get_coord_naca5_mod(xsec_id, n):
 
     Returns (x, y, Name, Scaling, None).
     """
-    
+
     # --- retrieve geometry params (user function) ---
     geom_parm = get_params_by_name(xsec_id, ['CamberLoc','ThickChord','IdealCl','ThickLoc','LERadIndx','Chord'])
-    
+
     # user inputs
-    l = geom_parm['IdealCl']        
-    p = geom_parm['CamberLoc']      
-    t = geom_parm['ThickChord']     
-    thick_loc = geom_parm['ThickLoc']  
+    l = geom_parm['IdealCl']
+    p = geom_parm['CamberLoc']
+    t = geom_parm['ThickChord']
+    thick_loc = geom_parm['ThickLoc']
     mods_value = int(f"{int(round(geom_parm['LERadIndx']))}{int(round(geom_parm['ThickLoc']*10))}")
 
     # -----------------------------------------------------------
@@ -519,12 +513,12 @@ def get_coord_naca5_mod(xsec_id, n):
     XX = np.ceil(t*100)
     n1,n2 = divmod(int(XX),10)
 
-    # bug in openVSP, the five digit name is not correct !!!!!!!!! This is correct     
+    # bug in openVSP, the five digit name is not correct !!!!!!!!! This is correct
     p1 = int(p/0.05)
     Name = [int(round(l/0.15)), p1,0,n1,n2]
     Name = f'NACA{Name[0]}{Name[1]}{Name[2]}{Name[3]}{Name[4]}-{mods_value}'
 
-    
+
 
     # Thickness distribution
     theta = np.linspace(0, np.pi, n//2)
@@ -569,7 +563,7 @@ def get_coord_naca5_mod(xsec_id, n):
     y = np.concatenate((y_l[::-1], y_u[1:]))
 
     Scaling = geom_parm['Chord']
-    
+
     return x, y, Name, Scaling,None
 
 
@@ -582,45 +576,45 @@ def get_coord_ellipse(xsec_id,n):
     Builds a closed 2D ellipse from the input section parameters
     (Ellipse_Width, Ellipse_Height).
     """
-    
+
     Name = 'Ellipse'
     geom_parm = get_params_by_name(xsec_id,['Ellipse_Height','Ellipse_Width'])
-    a = 1       
-    b = 1     
+    a = 1
+    b = 1
 
     theta = np.linspace(0,np.pi, n//2)
     x = (a / 2) * np.cos(theta)
     y = (b / 2) * np.sin(theta)
-    
-    
+
+
     x_full = np.concatenate((x, -x), axis=0)
     y_full = np.concatenate((-y, y), axis=0)
 
-    # close profile 
+    # close profile
     y_full[0] = y_full[-1]
     x_full[0] = x_full[-1]
-    
-    # shift 
-    idx_min = np.argmin(x_full) 
-    
+
+    # shift
+    idx_min = np.argmin(x_full)
+
     x_full = x_full - x_full[idx_min]
     y_full = y_full - y_full[idx_min]
     Scaling = [geom_parm['Ellipse_Width'],geom_parm['Ellipse_Height'] ]
 
     return x_full, y_full, Name,Scaling,None
-    
+
 
 def get_coord_superellipse(xsec_id):
     """
     Generate coordinates for an super-elliptical airfoil-like profile.
 
     """
-    
+
     core_frac=0.7
     n = 120
     Name = 'SuperEllipse'
     # Superellipse con sollevamento verticale verso ±a/2 (MaxWidthLoc)
-    
+
     geom_parm = get_params_by_name(xsec_id,
         ['Super_Height','Super_Width','Super_N','Super_M',
          'Super_N_bot','Super_M_bot','Super_MaxWidthLoc'])
@@ -670,7 +664,7 @@ def get_coord_superellipse(xsec_id):
     y_full = y_full - y_full[idx_min]
 
     Scaling = [geom_parm['Super_Width'],geom_parm['Super_Height'] ]
-   
+
 
     return x_full, y_full, Name, Scaling,None
 
@@ -680,13 +674,13 @@ def get_coord_point(xsec_id):
     """
     Generate coordinates for point.
     It will be a circle with a scaling = 0
-    
+
     d: diameter
     n: number of points
     """
-    
+
     Name = 'Point'
-    
+
     d = 1
     n = 40
     theta = np.linspace(0, np.pi, int(n/2))
@@ -695,23 +689,23 @@ def get_coord_point(xsec_id):
     x_full = np.concatenate((x, -x), axis=0)
     y_full = np.concatenate((-y, y), axis=0)
 
-    # close profile 
+    # close profile
     y_full[0] = y_full[-1]
     x_full[0] = x_full[-1]
-    
-    # shift 
-    idx_min = np.argmin(x_full) 
-    
+
+    # shift
+    idx_min = np.argmin(x_full)
+
     x_full = x_full - x_full[idx_min]
     y_full = y_full - y_full[idx_min]
-    
+
     Scaling = [1]
     return x_full,y_full, Name,Scaling,None
 
 def get_coord_circle(xsec_id,n):
     """
     Generate coordinates for a cicle airfoil-like profile.
-    
+
     d: diameter
     """
     print(f'number of point {n}')
@@ -725,15 +719,15 @@ def get_coord_circle(xsec_id,n):
     x_full = np.concatenate((x, -x), axis=0)
     y_full = np.concatenate((-y, y), axis=0)
 
-    # close profile 
+    # close profile
     y_full[0] = y_full[-1]
     x_full[0] = x_full[-1]
-    
-    # shift 
-    idx_min = np.argmin(x_full) 
+
+    # shift
+    idx_min = np.argmin(x_full)
     x_full = x_full - x_full[idx_min]
     y_full = y_full - y_full[idx_min]
-    
+
     # Scaling
     Scaling = [geom_parm['Circle_Diameter']]
     return x_full, y_full, Name,Scaling,None
@@ -741,14 +735,14 @@ def get_coord_circle(xsec_id,n):
 
 
 def get_coord_roundedrectangle(xsec_id, n):
-    
+
     """
     Generate coordinates for a rounded-rectangle airfoil profile.
-    
+
     Uses section parameters (width, height, skew, vertical skew, keystone taper,
     and individual corner radii) to build a closed shape with straight sides and
-    Bezier-blended rounded corners.   
-      
+    Bezier-blended rounded corners.
+
     """
 
     Name = 'RoundedRectangle'
@@ -848,9 +842,9 @@ def get_coord_roundedrectangle(xsec_id, n):
         Coord = np.vstack([Coord, Coord[0]])
 
     Coord[:,1] = Coord[:,1] - np.mean(Coord[:,1])
-    
+
     Scaling = [geom_parm['RoundedRect_Width'],geom_parm['RoundedRect_Height']]
-    
+
     return Coord[:,0], Coord[:,1], Name ,Scaling, None
 
 
@@ -868,24 +862,24 @@ def get_coord_from_file(xsec_id, n):
 
     # Name
     Name = vsp.GetXSecCurveAlias(xsec_id).replace(' ','_')
-    
-    # import the points 
+
+    # import the points
     upper_pts = np.array(vsp.GetAirfoilUpperPnts(xsec_id))
     lower_pts = np.array(vsp.GetAirfoilLowerPnts(xsec_id))
     upper_coords = np.array([[p.x(), p.y(), p.z()] for p in upper_pts])
     lower_coords = np.array([[p.x(), p.y(), p.z()] for p in lower_pts])
 
-    
+
     x_u, y_u = upper_coords[:,0], upper_coords[:,1]
-    x_l, y_l = lower_coords[:,0], lower_coords[:,1] 
+    x_l, y_l = lower_coords[:,0], lower_coords[:,1]
 
     x = np.concatenate((x_l[::-1], x_u), axis=0)
     y = np.concatenate((y_l[::-1], y_u), axis=0) * (geom_parm['ThickChord']/geom_parm['BaseThickChord'])
-    
-    # check if it close 
-    x[-1] = x[0] 
+
+    # check if it close
+    x[-1] = x[0]
     y[-1] = y[0]
-    
+
     Scaling = [geom_parm['Chord']]
     return x,y, Name, Scaling,None
 
@@ -909,7 +903,7 @@ def bezier_curve(ctrl_pts, n_points,s):
         if i + 3 < n:
             seg = bezier4(ctrl_pts[i:i+4])
             curve.append(seg)
-            
+
     # --- Convert list of segments into a single array ---
     curve = np.vstack(curve)
     # --- Find LE split index robustly ---
@@ -923,23 +917,23 @@ def bezier_curve(ctrl_pts, n_points,s):
         le_idx = le_candidates[np.argmin(np.abs(curve[le_candidates, 1]))]
     # --- Separate lower and upper surfaces ---
     # Lower: TE (x~1) -> LE (x=0), include LE, exclude duplicate TE final
-    lower_surface = curve[:le_idx+1]  
+    lower_surface = curve[:le_idx+1]
 
     # Upper: LE -> TE final (x~1), include TE final, exclude duplicate LE
-    upper_surface = curve[le_idx:] 
-    
+    upper_surface = curve[le_idx:]
+
     # --- Combine surfaces without duplicating TE or LE ---
     ordered_curve = np.vstack([lower_surface, upper_surface])
 
      # --- Normalize chord length to 1 and save scaling ---
     x = ordered_curve[:, 0]
     y = ordered_curve[:, 1]
-    
+
     # Shift so LE is at x=0
     x -= s
     x[-1] = x[0]
     y[-1] = y[0]
-    
+
     normalized_curve = np.column_stack([x, y])
     np.save('bezier_curve.npy', normalized_curve)
     np.save('ctrl_pts_Bezier.npy', ctrl_pts)
@@ -950,7 +944,7 @@ def bezier_curve(ctrl_pts, n_points,s):
 def spline_curve(ctrl_pts, n_points,s):
     """
     Reconstruct a complete cubic spline curve from control points.
-    
+
     ctrl_pts: numpy array of shape (N, 2)
         Control points from OpenVSP (usually only one side of the profile)
     n_points: int
@@ -961,7 +955,7 @@ def spline_curve(ctrl_pts, n_points,s):
             Interpolated spline points forming a complete airfoil profile
     """
     alpha = 0.5  # centripetal Catmull-Rom parameter
-    
+
     # --- Take XY coordinates (ignore Z) ---
     pts = np.array(ctrl_pts[:, :2])
 
@@ -1014,13 +1008,13 @@ def spline_curve(ctrl_pts, n_points,s):
     # --- Find index of LE (minimum x) ---
     curve[:,0] = curve[:,0] - s  # Shift x to ensure LE is at x=0
     le_idx = np.argmin(curve[:, 0])
-    
+
     # --- Separate lower and upper surfaces ---
     # Lower: TE (x~1) -> LE (x=0), include LE, exclude duplicate TE final
     lower_surface = curve[:le_idx]
-    
+
     # Upper: LE -> TE final (x~1), include TE final, exclude duplicate LE
-    upper_surface = curve[le_idx:] 
+    upper_surface = curve[le_idx:]
     plt.plot(lower_surface[:,0],lower_surface[:,1],'.',label='Lower Surface')
     plt.plot(upper_surface[:,0],upper_surface[:,1],'.',label='Upper Surface')
     plt.plot(lower_surface[0,0],lower_surface[0,1],'bo',label='TE_lower')
@@ -1057,7 +1051,7 @@ def spline_curve(ctrl_pts, n_points,s):
         else:
             x = np.full(target_n, x[0])
             y = np.full(target_n, y[0])
-    
+
     x[-1] = x[0]
     y[-1] = y[0]
     normalized_curve = np.column_stack([x, y])
@@ -1072,8 +1066,8 @@ def linear_curve(ctrl_pts, n_points,s):
     for i in range(len(ctrl_pts) - 1):
         seg = np.linspace(ctrl_pts[i, :2], ctrl_pts[i + 1, :2], n_points_per_seg)
         curve.append(seg)
-    
-        
+
+
     # --- Convert list of segments into a single array ---
     curve = np.vstack(curve)
 
@@ -1092,11 +1086,11 @@ def linear_curve(ctrl_pts, n_points,s):
      # --- Normalize chord length to 1 and save scaling ---
     x = ordered_curve[:, 0]
     y = ordered_curve[:, 1]
-    
+
     # Shift so LE is at x=0
     x -= s
-    
-    
+
+
     x[-1] = x[0]
     y[-1] = y[0]
 
@@ -1112,24 +1106,24 @@ def get_coord_edit_curve(xsec_id,n):
 
     Reads the control points of the selected cross-section and evaluates the
     resulting curve using the type specified in OpenVSP (linear, spline, or
-    cubic Bézier). 
+    cubic Bézier).
     """
     geom_parm = get_params_by_name(xsec_id,['Width','Height'])
     Scaling = [geom_parm['Width'],geom_parm['Height']]
     control_points = vsp.GetEditXSecCtrlVec(xsec_id,non_dimensional=True)
     pts = np.array([[p.x(),p.y(),p.z()] for p in control_points])
-    
+
     le_idx = len(pts) // 2  # 18 se sono 37 punti
     le_pt = pts[le_idx]
     shift  = le_pt[0]
-    
-    # check the type of curve 
-    # 0 -> linear 
-    # 1 -> spline 
-    # 2 -> cubic bezier 
-    
+
+    # check the type of curve
+    # 0 -> linear
+    # 1 -> spline
+    # 2 -> cubic bezier
+
     curve_type_parm = vsp.GetXSecParm(xsec_id, "CurveType")
-    curve_type = int(vsp.GetParmVal(curve_type_parm))  
+    curve_type = int(vsp.GetParmVal(curve_type_parm))
     if curve_type == 0:
         curve_pts = linear_curve(pts,n,shift)
         Name = "Linear_Spline"
@@ -1139,13 +1133,13 @@ def get_coord_edit_curve(xsec_id,n):
     elif curve_type == 2:
         curve_pts = bezier_curve(pts,n,shift)
         Name = "Cubic_Bézier"
-    
-    
+
+
     return curve_pts[:, 0], curve_pts[:, 1], Name,Scaling,shift
 
 
 profile_mapping = {
-    vsp.XS_UNDEFINED:         "Undefined ", 
+    vsp.XS_UNDEFINED:         "Undefined ",
     vsp.XS_POINT:             get_coord_point, #0
     vsp.XS_CIRCLE:            get_coord_circle, #1
     vsp.XS_ELLIPSE:           get_coord_ellipse, #2
@@ -1173,21 +1167,21 @@ profile_mapping = {
 
 
 def Get_coordinates_profile(idx, *args, **kwargs):
-    """ 
+    """
     profile_mapping links each OpenVSP XSec shape ID to the corresponding
     coordinate generation function. `Get_coordinates_profile()` reads the section
     type from OpenVSP, selects the appropriate function, and returns the computed
     coordinate set. Functions that require discretization receive `n`; others are
     called without it.
-    
+
     CPACS requires:
-    - For a conventional wing, the airfoil coordinates are defined in x and z with 
+    - For a conventional wing, the airfoil coordinates are defined in x and z with
     all the y-coordinates set to "0". The points have to be ordered from the trailing
     edge along the lower side to the leading edge and then along the upper side back to
     the trailing edge.
-    
+
     """
-    
+
     Airfoil_name_type = vsp.GetXSecShape(idx)
     func = profile_mapping[Airfoil_name_type]
     print(f'we are wirking with {idx}')
@@ -1200,15 +1194,15 @@ def Get_coordinates_profile(idx, *args, **kwargs):
 
 
 def get_profile_section(Component,xsec_id, idx, Twist_val, Twist_loc, Rel, Twist_list):
-     
-    # Tess_W control how many points you need to define the shape of the profile    
+
+    # Tess_W control how many points you need to define the shape of the profile
     Tess_W = int(vsp.GetParmVal(Component,'Tess_W','Shape'))
-    
+
     # get profile
     x, y, Airfoil_name,Scaling,shift = Get_coordinates_profile(xsec_id,Tess_W)
 
     # ---- Tesselation ----
-    if vsp.GetGeomTypeName(Component) == 'Wing': 
+    if vsp.GetGeomTypeName(Component) == 'Wing':
         x_airfoil, y_airfoil = Tesselation(Component,xsec_id ,x, y)
 
         # ---- geometrical twist ----
@@ -1240,7 +1234,7 @@ def get_profile_section(Component,xsec_id, idx, Twist_val, Twist_loc, Rel, Twist
             Coord_rot = np.dot(RotationMatrix, Coord_shift) + Origin_shift
             x = Coord_rot[0, :]
             y = Coord_rot[1, :]
-        
+
 
     zero_idx = np.where(np.isclose(x, 0.0, atol=1e-12))[0]
     if len(zero_idx) > 1:
@@ -1255,7 +1249,7 @@ def Tesselation(Component,idx, x, y):
     # ---- import from the vsp file ----
     TessLE = vsp.GetParmVal(Component,'LECluster','WingGeom')
     TessTE = vsp.GetParmVal(Component,'TECluster','WingGeom')
-    
+
     # ---- Constrain tessellation values ----
     if TessLE > 9:
         TessLE = 9
@@ -1277,16 +1271,16 @@ def Tesselation(Component,idx, x, y):
         y_upper = y[LE_index:]
         x_lower = x[:LE_index+1]
         y_lower = y[:LE_index+1]
-        
+
         # ---- LE and TE tesselation ---- #
-        # This part refines and reconstructs the airfoil’s surface by redistributing points 
+        # This part refines and reconstructs the airfoil’s surface by redistributing points
         # near the leading and trailing edges using adjustable tessellation parameters (TessLE, TessTE)
-        min = 0
-        max = 1
-        x_inter_LE = np.concatenate((np.linspace(min, max/2 * (TessLE/10), int(nb_points/2 * (
-            1-TessLE/10))), np.linspace(max/2 * TessLE/10, max/2, int(nb_points/2 * TessLE/10))), axis=0)
-        x_inter_TE = np.concatenate((np.linspace(max/2, max - (max/2 * TessTE/10), int(nb_points/2 * TessTE/10)),
-                                    np.linspace(max - (max/2 * TessTE/10), max, int(nb_points/2 * (1 - TessTE/10)))), axis=0)
+        x_min = 0
+        x_max = 1
+        x_inter_LE = np.concatenate((np.linspace(x_min, x_max/2 * (TessLE/10), int(nb_points/2 * (
+            1-TessLE/10))), np.linspace(x_max/2 * TessLE/10, x_max/2, int(nb_points/2 * TessLE/10))), axis=0)
+        x_inter_TE = np.concatenate((np.linspace(x_max/2, x_max - (x_max/2 * TessTE/10), int(nb_points/2 * TessTE/10)),
+                                    np.linspace(x_max - (x_max/2 * TessTE/10), x_max, int(nb_points/2 * (1 - TessTE/10)))), axis=0)
         x_inter = np.concatenate((x_inter_LE, x_inter_TE), axis=0)
         x_upper, unique_idx = np.unique(x_upper, return_index=True)
         y_upper = y_upper[unique_idx]
@@ -1298,13 +1292,13 @@ def Tesselation(Component,idx, x, y):
         f_l = interp1d(x_lower, y_lower, kind='cubic',
                     bounds_error=False, fill_value='extrapolate')
         y_lower = f_l(x_inter)
-        
-        
-        
+
+
+
         x = np.concatenate((np.flip(x_inter), x_inter[1:-1]), axis=0)
         y = np.concatenate((np.flip(y_lower), y_upper[1:-1]), axis=0)
-        
-    # Close the profile    
+
+    # Close the profile
     y[-1] = y[0]
     x[-1] = x[0]
     return x, y
@@ -1312,14 +1306,14 @@ def Tesselation(Component,idx, x, y):
 
 def Extract_transformation(Component):
     Name_type = vsp.GetGeomTypeName(Component)
-    if Name_type == 'Wing': 
-        Name_default_comp = 'WingGeom' 
+    if Name_type == 'Wing':
+        Name_default_comp = 'WingGeom'
         reference_length = vsp.GetParmVal(Component,'MAC','WingGeom')
     elif Name_type == 'Fuselage':
-        Name_default_comp = 'FuseGeom' 
+        Name_default_comp = 'FuseGeom'
         reference_length = 0 # It will be updated later using the diameter
     elif Name_type == 'Pod':
-        Name_default_comp = 'Geom' 
+        Name_default_comp = 'Geom'
         reference_length = 0 # it will be update later wiht the diameter
 
 
@@ -1329,7 +1323,7 @@ def Extract_transformation(Component):
     trasl_names = ["X_Location", "Y_Location", "Z_Location"]
     x_Rot, y_Rot, z_Rot = [vsp.GetParmVal(vsp.GetParm(Component, pname, "XForm")) for pname in rot_names]
     x_trasl, y_trasl, z_trasl = [vsp.GetParmVal(vsp.GetParm(Component, pname, "XForm")) for pname in trasl_names]
-    
+
     Sym_value = vsp.GetParmVal(vsp.GetParm(Component, "Sym_Planar_Flag", "Sym"))
     Symm_index = [" ", "x-y-plane", "x-z-plane", "y-z-plane"]
     Symmetry = Symm_index[int(float(Sym_value))] if Sym_value != '0' else '0'
@@ -1338,7 +1332,7 @@ def Extract_transformation(Component):
     Relative_dih =  float(vsp.GetParmVal(vsp.GetParm(Component, 'RelativeDihedralFlag', Name_default_comp)))
     Relative_Twist =  float(vsp.GetParmVal(vsp.GetParm(Component, 'RelativeTwistFlag', Name_default_comp)))
 
-    
+
     transformation_dict = {
         'Name_type': Name_type,
         'Name': Name,

@@ -16,7 +16,7 @@ It is subsequently processed by this module to generate a CPACS file.
 #   IMPORTS
 # =================================================================================================
 
-import xml.dom.minidom as md
+from defusedxml import minidom as md
 import numpy as np
 import re
 from pathlib import Path
@@ -30,7 +30,7 @@ def make(doc, name, parent=None, text=None, **attrs):
     """
     Create an XML element, optionally add attributes, text value,
     and append to a parent element.
-    
+
     """
     node = doc.createElement(name)
 
@@ -74,7 +74,7 @@ def initialization(doc,data,name_file):
     cpacs.setAttribute(
         'xsi_noNamespaceSchemaLocation', 'CPACS_21_Schema.xsd')
     doc.appendChild(cpacs)
-    
+
     # --- HEADER ---
     header = make(doc, 'header', cpacs)
     make(doc, 'name', header, name_file)
@@ -107,7 +107,7 @@ def initialization(doc,data,name_file):
             # NACELLE
             nacelle = make(doc, 'nacelle', engine, uID=f'{NameEngine}_Nacelle')
 
-            # CASE 1 : Standard nacelle 
+            # CASE 1 : Standard nacelle
             if data[keys[i-1]]['Transformation']['Name_type'] != 'Duct':
 
                 fanCowl = make(doc, 'fanCowl', nacelle, uID=f'{NameEngine}_Nacelle_fanCowl')
@@ -437,7 +437,7 @@ def Wing_positioning(doc, Parent, Name, Section_key, Sections_parameters, dih_li
     make(doc, 'name', positioning, f'{Name}GenPos')
 
     # First wing section
-    import re 
+    import re
     if Name.endswith("Sec0"):
         make(doc, 'length', positioning, '0')
         make(doc, 'sweepAngle', positioning, '0')
@@ -496,22 +496,22 @@ def Wing_to_CPACS(WingData, doc, Parent_wing, Parent_prof,name_file):
 
     # ---- keys of the dictionary( number of sections, trasformation of the main wing...) ----#
     keys = list(WingData.keys())
-    Name_wing = WingData[keys[0]]['Name'] 
-    
-    # <wings> 
+    Name_wing = WingData[keys[0]]['Name']
+
+    # <wings>
     wings = make(doc, 'wings', Parent_wing)
-    
-    
+
+
     # <wing>
-    wing = make(doc, 'wing', wings, uID=Name_wing)   
+    wing = make(doc, 'wing', wings, uID=Name_wing)
     # set the parent Uid if it is necessary
     if 'Child_to_Parent' in WingData.get('Transformation', {}):
         make(doc,'parentUID',wing,WingData[keys[0]]['Child_to_Parent'])
-        
+
     if WingData[keys[0]]['Symmetry'] != '0':
         wing.setAttribute(
             'symmetry', WingData[keys[0]]['Symmetry'])
-    
+
     # name - description - transformation #
     make(doc,'name',wing,Name_wing)
     make(doc,'description',wing,'Wing from openVSP')
@@ -523,12 +523,12 @@ def Wing_to_CPACS(WingData, doc, Parent_wing, Parent_prof,name_file):
     Name_element = {}
     Name_airfoil = {}
     sections = make(doc,'sections',wing)
-    
+
     for Section_key in keys[1:]:
-        
+
         Wing_section(
             doc, sections, Name_wing, Section_key, WingData)
-        
+
         match = re.search(r'\d+$', Section_key)
         number = int(match.group()) if match else 0
 
@@ -541,7 +541,7 @@ def Wing_to_CPACS(WingData, doc, Parent_wing, Parent_prof,name_file):
         Name_airfoil[Section_key] = {
             'Name':f"{Name_wing}Sec{number}_{WingData[Section_key]['Airfoil']}"
         }
-    
+
     # <positioning>
     positionings = make(doc,'positionings',wing)
     dih_list = []
@@ -553,7 +553,7 @@ def Wing_to_CPACS(WingData, doc, Parent_wing, Parent_prof,name_file):
     segments = make(doc,'segments',wing)
     Name_element_before = None
     for Section_key in keys[1:]:
-        
+
         match = re.search(r'\d+$', Section_key)
         number = int(match.group()) if match else 0
 
@@ -574,7 +574,7 @@ def Wing_to_CPACS(WingData, doc, Parent_wing, Parent_prof,name_file):
 
 
 def Fuselage_to_CPACS(FuseData, doc, Parent_Fuse, Parent_prof,name_file):
-    
+
     # ---- keys of the dictionary( number of sections, trasformation of the fuselage...) ----#
     keys = list(FuseData.keys())
     Fuse_name = FuseData[keys[0]]['Name']
@@ -584,7 +584,7 @@ def Fuselage_to_CPACS(FuseData, doc, Parent_Fuse, Parent_prof,name_file):
     # <fuselage>
     fuselage = make(doc,'fuselage',fuselages,uID = Fuse_name)
 
-    
+
     # set the parent Uid if it is necessary
     if 'Child_to_Parent' in FuseData.get('Transformation', {}):
         make(doc,'parentUID',Parent_Fuse,FuseData[keys[0]]['Child_to_Parent'])
@@ -605,15 +605,15 @@ def Fuselage_to_CPACS(FuseData, doc, Parent_Fuse, Parent_prof,name_file):
     Name_airfoil = {}
     sections = make(doc,'sections',fuselage)
 
-    
+
     for Section_key in keys[1:]:
-        
+
         # <section>
         Fuse_section(
             doc, sections, Fuse_name, Section_key, FuseData)
 
         match = re.search(r'\d+$', Section_key)
-        
+
         number = int(match.group()) if match else 0
 
         Name_section[Section_key] = {
@@ -625,7 +625,7 @@ def Fuselage_to_CPACS(FuseData, doc, Parent_Fuse, Parent_prof,name_file):
         Name_airfoil[Section_key] = {
             'Name':f"{Fuse_name}Sec{number}_{FuseData[Section_key]['Airfoil']}"
         }
-        
+
     # <positioning>
     positionings = make(doc,'positionings',fuselage)
 
@@ -639,7 +639,7 @@ def Fuselage_to_CPACS(FuseData, doc, Parent_Fuse, Parent_prof,name_file):
     Name_element_before = None
 
     for Section_key in keys[1:]:
-        
+
         match = re.search(r'\d+$', Section_key)
         number = int(match.group()) if match else 0
 
@@ -655,8 +655,8 @@ def Fuselage_to_CPACS(FuseData, doc, Parent_Fuse, Parent_prof,name_file):
     for Section_key in keys[1:]:
         Fuse_Profile(
             doc,fuselageProfiles,FuseData, Section_key,Name_airfoil[Section_key]['Name'])
-        
-        
+
+
     Save_CPACS_file(doc,name_file)
 
 
@@ -735,7 +735,7 @@ def Engine_to_CPACS(EngineData, doc, Parent_engine, Parent_prof, i,name_file):
 
 
 def merge_elements(document, parent_tag, target_tag):
-    
+
     # Merge multiple <target_tag> elements into a single one inside <parent_tag>, if they exist
     parent_nodes = document.getElementsByTagName(parent_tag)
     if not parent_nodes:
@@ -755,7 +755,7 @@ def merge_elements(document, parent_tag, target_tag):
 
 
 def Save_CPACS_file(Document,name_file):
-    
+
     merge_elements(Document, 'model', 'wings')
     merge_elements(Document, 'model', 'fuselages')
     merge_elements(Document, 'vehicles', 'profiles')
@@ -765,12 +765,12 @@ def Save_CPACS_file(Document,name_file):
     merge_elements(Document,'profiles','nacelleProfiles')
 
     xml_str = Document.toprettyxml(indent="  ")
-    
+
     module_dir = Path(__file__).parent
-    ceasiompy_root = module_dir.parents[3]  
+    ceasiompy_root = module_dir.parents[3]
     output_dir = ceasiompy_root / "WKDIR"
-    output_path = output_dir / f"{name_file}.xml"    
-    
+    output_path = output_dir / f"{name_file}.xml"
+
     with open(output_path, 'w') as xml_file:
         xml_file.write(xml_str)
 
@@ -780,23 +780,23 @@ class Export_CPACS:
     def __init__(self, Data,name_file):
         self.Data = Data
         self.name_file = name_file
-        
+
     def run(self):
-        
+
         # Create the document
         Doc = md.Document()
-        
+
         # find the keys
         keys = list(self.Data.keys())
-        
+
         # dummy variable for the engine
         dummy_idx_engine = []
 
-        
-        
+
+
         # CPACS's initialization
         Doc, model, vehicles = initialization(Doc,self.Data,self.name_file)
-        # Loop to connect the components inside the CPACS 
+        # Loop to connect the components inside the CPACS
         for item in keys:
             print(f"------------ Component {item} {self.Data[f'{item}']['Transformation']['Name_type']} ")
             if self.Data[f'{item}']['Transformation']['Name_type'] == 'Wing':
@@ -809,7 +809,6 @@ class Export_CPACS:
                 dummy_idx_engine.append(self.Data[f'{item}']['Transformation']['idx_engine']) if len(dummy_idx_engine)<3 else []
                 Engine_to_CPACS(self.Data[f'{item}'], Doc, model, vehicles,dummy_idx_engine,self.name_file)
 
-        
 
 
 

@@ -42,21 +42,21 @@ def get_coord_engine_profile(geom_id,n):
         Name : str
             NACA airfoil name
         Scaling : list
-            
+
     """
-    
-    # import the parameters 
+
+    # import the parameters
     m = vsp.GetParmVal(vsp.GetParm(geom_id,'Camber','Design'))
     p = vsp.GetParmVal(vsp.GetParm(geom_id,'CamberLoc','Design'))
     t = vsp.GetParmVal(vsp.GetParm(geom_id,'ThickChord','Design'))
     Invert_airfoil = vsp.GetParmVal(vsp.GetParm(geom_id,'InvertFlag','Design'))
 
-    
+
     Name = [int(round(m*100)), int(round(p*10)),int(round(t*100))]
     Name = f'NACA{Name[0]}{Name[1]}{Name[2]}'
     theta = np.linspace(0,np.pi,n//2)
     x_line = 0.5 * (1 - np.cos(theta))
-    
+
     # thickness line
     y_t = (
         t
@@ -72,7 +72,7 @@ def get_coord_engine_profile(geom_id,n):
 
     # cambered airfoil:
     if p != 0:
-        
+
         x_line_front = x_line[x_line < p]
 
         x_line_back = x_line[x_line >= p]
@@ -118,26 +118,26 @@ def get_coord_engine_profile(geom_id,n):
     y = np.concatenate((y_l[::-1], y_u), axis=0)
     x[-1] = x[0]
     y[-1] = y[0]
-    
-    
+
+
     # Invert the airfoil if required
     if Invert_airfoil:
         y = -y
-        
+
     # center the normalized profile with the origin in the middle of the airfoil
     x -= 0.5
-    
+
     Scaling = [vsp.GetParmVal(vsp.GetParm(geom_id,'Chord','Design')),vsp.GetParmVal(vsp.GetParm(geom_id,'Width','Design')),vsp.GetParmVal(vsp.GetParm(geom_id,'Height','Design'))]
-    
+
     return [x, y], Name, Scaling
-    
+
 def Import_Duct(Duct):
-    
+
     # Some initializations
     Sections_information = {}
 
-    
-    
+
+
     # ---- Transformation information ----
     rot_names = ["X_Rotation", "Y_Rotation", "Z_Rotation"]
     trasl_names = ["X_Location", "Y_Location", "Z_Location"]
@@ -159,18 +159,18 @@ def Import_Duct(Duct):
         'ParentUid': ParentUid,
         'reference_length':False
     }
-    
-    # ---- Take the airfoil section of the engine 
+
+    # ---- Take the airfoil section of the engine
     coord,Name,Scaling = get_coord_engine_profile(Duct,120)
     Sections_information['Airfoil'] = Name
     Sections_information['Airfoil_coordinates'] = coord
-    
-    # ---- Import the transformation parameters 
+
+    # ---- Import the transformation parameters
     Sections_information['Transformation']['chord'] = Scaling[0]
     Sections_information['Transformation']['width'] = Scaling[1]
     Sections_information['Transformation']['height'] = Scaling[2]
-    
+
     Sections_information['Transformation']['X_Rot'] = [x_Rot,y_Rot,z_Rot]
     Sections_information['Transformation']['X_Trasl'] = [x_trasl,y_trasl,z_trasl]
-    
+
     return Sections_information

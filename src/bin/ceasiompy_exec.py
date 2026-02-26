@@ -30,6 +30,7 @@ from argparse import Namespace
 from ceasiompy import log
 from ceasiompy.utils.commonpaths import (
     WKDIR_PATH,
+    CEASIOMPY_PATH,
     STREAMLIT_PATH,
 )
 
@@ -129,16 +130,12 @@ def run_gui(
     # Add CEASIOMpy src directory first, then OpenVSP Python roots.
     # Some OpenVSP builds place top-level modules (e.g. openvsp_config)
     # under <python>/openvsp, so include both directories.
-    project_root = Path(__file__).resolve().parents[2]
-    src_dir = project_root / "src"
-    vsp_python_root = project_root / "installdir/OpenVSP/python"
-    vsp_python_openvsp_root = vsp_python_root / "openvsp"
-    existing_pythonpath = env.get("PYTHONPATH", "")
-    py_paths = [str(src_dir), str(vsp_python_openvsp_root), str(vsp_python_root)]
-    if existing_pythonpath:
-        py_paths.append(existing_pythonpath)
-
-    env["PYTHONPATH"] = os.pathsep.join(py_paths)
+    src_dir = CEASIOMPY_PATH / "src"
+    env["PYTHONPATH"] = (
+        str(src_dir)
+        + os.pathsep
+        + env.get("PYTHONPATH", "")
+    )
 
     env["CEASIOMPY_CLOUD"] = str(cloud)
 

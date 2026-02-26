@@ -525,9 +525,39 @@ cmake_c_flags="-std=gnu11"
 # Avoid leaking conda environment paths into OpenVSP's runtime RPATH (can break GUI startup).
 cmake_env=(env)
 for var in CONDA_PREFIX CONDA_DEFAULT_ENV CONDA_PROMPT_MODIFIER CONDA_SHLVL \
-           CMAKE_PREFIX_PATH PKG_CONFIG_PATH LD_LIBRARY_PATH PYTHONPATH PYTHONHOME; do
+           CMAKE_PREFIX_PATH PKG_CONFIG_PATH LD_LIBRARY_PATH PYTHONPATH PYTHONHOME \
+           LD AR AS NM RANLIB STRIP OBJCOPY OBJDUMP READELF \
+           CC CXX CPP CFLAGS CXXFLAGS CPPFLAGS LDFLAGS LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH; do
   cmake_env+=("-u" "$var")
 done
+
+# Build with a sanitized PATH to avoid conda's linker/toolchain leaking into vendored deps
+# (e.g. STEPCODE linking with $CONDA_PREFIX/bin/ld and failing GLIBCXX symbol resolution).
+build_path_entries=(
+  "$(dirname "$cc_compiler")"
+  "$(dirname "$cxx_compiler")"
+  "$(dirname "$(command -v "$cmake_bin")")"
+  /usr/local/sbin
+  /usr/local/bin
+  /usr/sbin
+  /usr/bin
+  /sbin
+  /bin
+)
+clean_path=""
+for p in "${build_path_entries[@]}"; do
+  [[ -d "$p" ]] || continue
+  case ":$clean_path:" in
+    *":$p:"*) ;;
+    *) clean_path="${clean_path:+$clean_path:}$p" ;;
+  esac
+done
+cmake_env+=("PATH=$clean_path")
+
+# Ensure collect2/gcc resolves to the system linker, not a conda-provided ld.
+if [[ -x /usr/bin/ld ]]; then
+  cmake_env+=("LD=/usr/bin/ld")
+fi
 
 "$python_exec" - <<'PY'
 import sys
@@ -541,6 +571,39 @@ cmake_rpath_args=(
   -DCMAKE_INSTALL_RPATH=
   -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=OFF
 )
+
+print_build_error_summary() {
+  local log_file="$1"
+  [[ -f "$log_file" ]] || return 0
+  say ">>> Build failed. Error summary from: $log_file"
+  if command -v rg >/dev/null 2>&1; then
+    rg -n "error:|fatal:|\\*\\*\\*" "$log_file" | head -n 80 || true
+  else
+    grep -nE "error:|fatal:|\\*\\*\\*" "$log_file" | head -n 80 || true
+  fi
+}
+
+build_with_retry() {
+  local build_path="$1"
+  local label="$2"
+  local log_parallel="$build_path/${label}_build_j${jobs}.log"
+  local log_serial="$build_path/${label}_build_j1.log"
+
+  say ">>> Building $label with -j$jobs (log: $log_parallel)"
+  if "${cmake_env[@]}" "$cmake_bin" --build "$build_path" -- -j"$jobs" 2>&1 | tee "$log_parallel"; then
+    return 0
+  fi
+
+  print_build_error_summary "$log_parallel"
+  say ">>> Retrying $label with -j1 (log: $log_serial)"
+  if "${cmake_env[@]}" "$cmake_bin" --build "$build_path" -- -j1 2>&1 | tee "$log_serial"; then
+    say ">>> Retry with -j1 succeeded."
+    return 0
+  fi
+
+  print_build_error_summary "$log_serial"
+  die "Build failed for '$label'. See logs above."
+}
 
 "${cmake_env[@]}" "$cmake_bin" -S "$src_dir/Libraries" -B "$buildlibs_dir" \
   -DCMAKE_BUILD_TYPE=Release \
@@ -556,7 +619,7 @@ cmake_rpath_args=(
   -DVSP_USE_SYSTEM_GLEW=false \
   -DVSP_USE_SYSTEM_CMINPACK=false \
   -DVSP_USE_SYSTEM_CPPTEST=false
-"${cmake_env[@]}" "$cmake_bin" --build "$buildlibs_dir" -- -j"$jobs"
+build_with_retry "$buildlibs_dir" "buildlibs"
 
 patch_stepcode_nullptr
 patch_glew_init_invalid_enum
@@ -581,7 +644,7 @@ fi
   -DPYTHON_EXECUTABLE="$python_exec" \
   -DVSP_LIBRARY_PATH="$buildlibs_dir" \
   "${pydoc_cmake_flag[@]}"
-"${cmake_env[@]}" "$cmake_bin" --build "$build_dir" -- -j"$jobs"
+build_with_retry "$build_dir" "openvsp"
 "${cmake_env[@]}" "$cmake_bin" --build "$build_dir" --target install
 
 strip_rpath() {

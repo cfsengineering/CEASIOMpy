@@ -20,7 +20,7 @@ import numpy as np
 from ceasiompy.vsp2cpacs.func.wing import Extract_transformation
 from ceasiompy.vsp2cpacs.func.wing import get_profile_section
 import copy
-from ceasiompy.vsp2cpacs.func.openvsp_loader import vsp
+from ceasiompy.vsp2cpacs.openvsp_runtime import vsp
 
 import warnings
 warnings.filterwarnings("ignore")

@@ -17,10 +17,11 @@ It is subsequently processed by this module to generate a CPACS file.
 # =================================================================================================
 
 import numpy as np
-from ceasiompy.vsp2cpacs.func.openvsp_loader import vsp
+from ceasiompy.vsp2cpacs.openvsp_runtime import vsp
 
 import warnings
 warnings.filterwarnings("ignore")
+
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================

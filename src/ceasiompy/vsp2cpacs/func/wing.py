@@ -19,7 +19,7 @@ It is subsequently processed by this module to generate a CPACS file.
 import numpy as np
 from scipy.interpolate import interp1d
 
-from ceasiompy.vsp2cpacs.func.openvsp_loader import vsp
+from ceasiompy.vsp2cpacs.openvsp_runtime import vsp
 import matplotlib.pyplot as plt
 import warnings
 
@@ -884,8 +884,7 @@ def get_coord_from_file(xsec_id, n):
     return x,y, Name, Scaling,None
 
 
-
-def bezier_curve(ctrl_pts, n_points,s):
+def bezier_curve(ctrl_pts, n_points, s):
     n_points_per_seg = n_points//10
     from math import comb
     # built the bezier curve
@@ -935,8 +934,8 @@ def bezier_curve(ctrl_pts, n_points,s):
     y[-1] = y[0]
 
     normalized_curve = np.column_stack([x, y])
-    np.save('bezier_curve.npy', normalized_curve)
-    np.save('ctrl_pts_Bezier.npy', ctrl_pts)
+    # np.save('bezier_curve.npy', normalized_curve)
+    # np.save('ctrl_pts_Bezier.npy', ctrl_pts)
     return normalized_curve
 
 
@@ -1095,8 +1094,8 @@ def linear_curve(ctrl_pts, n_points,s):
     y[-1] = y[0]
 
     normalized_curve = np.column_stack([x, y])
-    np.save('linear_curve.npy', normalized_curve)
-    np.save('ctrl_pts_Linear.npy', ctrl_pts)
+    # np.save('linear_curve.npy', normalized_curve)
+    # np.save('ctrl_pts_Linear.npy', ctrl_pts)
     return normalized_curve
 
 
@@ -1138,29 +1137,30 @@ def get_coord_edit_curve(xsec_id,n):
     return curve_pts[:, 0], curve_pts[:, 1], Name,Scaling,shift
 
 
-profile_mapping = {
-    vsp.XS_UNDEFINED:         "Undefined ",
-    vsp.XS_POINT:             get_coord_point, #0
-    vsp.XS_CIRCLE:            get_coord_circle, #1
-    vsp.XS_ELLIPSE:           get_coord_ellipse, #2
-    vsp.XS_SUPER_ELLIPSE:     get_coord_superellipse, #3
-    vsp.XS_ROUNDED_RECTANGLE: get_coord_roundedrectangle, #4
-    vsp.XS_GENERAL_FUSE:      "General Fuselage", #5
-    vsp.XS_FILE_FUSE:         "Fuselage File", #6
-    vsp.XS_FOUR_SERIES:       lambda idx, n=None: get_coord_naca4(idx, n), #7
-    vsp.XS_SIX_SERIES:        "NACA 6-Series",#8
-    vsp.XS_BICONVEX:          "Biconvex", #9
-    vsp.XS_WEDGE:             "Wedge", #10
-    vsp.XS_EDIT_CURVE:        get_coord_edit_curve, #11
-    vsp.XS_FILE_AIRFOIL:      lambda idx, n=None: get_coord_from_file(idx, n), #12
-    vsp.XS_CST_AIRFOIL:       "CST Parameterized", #13
-    vsp.XS_VKT_AIRFOIL:       "VKT ", #14
-    vsp.XS_FOUR_DIGIT_MOD:    lambda idx, n=None: get_coord_naca4_mod(idx, n), #15
-    vsp.XS_FIVE_DIGIT:        lambda idx, n=None: get_coord_naca5(idx, n), #16
-    vsp.XS_FIVE_DIGIT_MOD:    lambda idx, n=None: get_coord_naca5_mod(idx, n), #17
-    vsp.XS_ONE_SIX_SERIES:    "16-Series", #18
-    vsp.XS_NUM_TYPES:         "Number of XSec Types (placeholder)" #19
-}
+def profile_mapping():
+    return {
+        vsp.XS_UNDEFINED: "Undefined ",
+        vsp.XS_POINT: get_coord_point,  # 0
+        vsp.XS_CIRCLE: get_coord_circle,  # 1
+        vsp.XS_ELLIPSE: get_coord_ellipse,  # 2
+        vsp.XS_SUPER_ELLIPSE: get_coord_superellipse,  # 3
+        vsp.XS_ROUNDED_RECTANGLE: get_coord_roundedrectangle,  # 4
+        vsp.XS_GENERAL_FUSE: "General Fuselage",  # 5
+        vsp.XS_FILE_FUSE: "Fuselage File",  # 6
+        vsp.XS_FOUR_SERIES: lambda idx, n=None: get_coord_naca4(idx, n),  # 7
+        vsp.XS_SIX_SERIES: "NACA 6-Series",  # 8
+        vsp.XS_BICONVEX: "Biconvex",  # 9
+        vsp.XS_WEDGE: "Wedge",  # 10
+        vsp.XS_EDIT_CURVE: get_coord_edit_curve,  # 11
+        vsp.XS_FILE_AIRFOIL: lambda idx, n=None: get_coord_from_file(idx, n),  # 12
+        vsp.XS_CST_AIRFOIL: "CST Parameterized",  # 13
+        vsp.XS_VKT_AIRFOIL: "VKT ",  # 14
+        vsp.XS_FOUR_DIGIT_MOD: lambda idx, n=None: get_coord_naca4_mod(idx, n),  # 15
+        vsp.XS_FIVE_DIGIT: lambda idx, n=None: get_coord_naca5(idx, n),  # 16
+        vsp.XS_FIVE_DIGIT_MOD: lambda idx, n=None: get_coord_naca5_mod(idx, n),  # 17
+        vsp.XS_ONE_SIX_SERIES: "16-Series",  # 18
+        vsp.XS_NUM_TYPES: "Number of XSec Types (placeholder)",  # 19
+    }
 
 
 
@@ -1183,7 +1183,7 @@ def Get_coordinates_profile(idx, *args, **kwargs):
     """
 
     Airfoil_name_type = vsp.GetXSecShape(idx)
-    func = profile_mapping[Airfoil_name_type]
+    func = profile_mapping()[Airfoil_name_type]
     print(f'we are wirking with {idx}')
     try:
         return func(idx, *args, **kwargs)

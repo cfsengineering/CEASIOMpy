@@ -228,27 +228,11 @@ def int_vartype(
     min_value: int | None = None,
     max_value: int | None = None,
 ) -> int:
-    def _clamp_int(val: int) -> int:
-        if min_value is not None and val < min_value:
-            val = min_value
-        if max_value is not None and val > max_value:
-            val = max_value
-        return val
-
     raw_value = safe_get_value(tixi, xpath, default_value)
     try:
         value = int(raw_value)
     except (TypeError, ValueError):
         value = int(default_value)
-    value = _clamp_int(value)
-
-    # Streamlit validates session_state[key] against min/max before using `value=...`.
-    # Clamp persisted widget state as well to avoid StreamlitValueAboveMaxError.
-    if key in st.session_state:
-        try:
-            st.session_state[key] = _clamp_int(int(st.session_state[key]))
-        except (TypeError, ValueError):
-            st.session_state[key] = value
 
     output = st.number_input(
         label=name,
@@ -270,8 +254,10 @@ def float_vartype(
     default_value: float,
     key: str | None = None,
     unit: str | None = None,
+    step: float | None = None,
     min_value: float | None = None,
     max_value: float | None = None,
+    disabled: bool = False,
 ) -> float:
     raw_value = safe_get_value(tixi, xpath, default_value)
     try:
@@ -294,8 +280,10 @@ def float_vartype(
         label=label,
         value=default_value,
         format="%g",
+        step=step,
         min_value=min_value,
         max_value=max_value,
+        disabled=disabled
     )
     add_value(tixi, xpath, output)
     return output
@@ -354,6 +342,7 @@ def add_ctrl_surf_vartype(
         key=key,
         help=help,
         width="stretch",
+        horizontal=True,
     )
     add_value(tixi, ctrl_xpath, selected)
 
@@ -411,12 +400,23 @@ def add_ctrl_surf_vartype(
         return def_angle, 0.0, 0.0
 
 
-def bool_vartype(tixi, xpath, default_value, name, key, help) -> bool:
+def bool_vartype(
+    tixi: Tixi3,
+    xpath: str,
+    default_value: bool,
+    name: str,
+    help: str,
+    key: str | None = None,
+    disabled: bool = False,
+) -> bool:
     raw_value = safe_get_value(tixi, xpath, default_value)
     if isinstance(raw_value, str):
         value = raw_value.strip().lower() in {"1", "true", "yes", "y"}
     else:
         value = bool(raw_value)
+
+    if key is None:
+        key = xpath.lower()
 
     output = st.checkbox(
         label=name,
@@ -424,6 +424,7 @@ def bool_vartype(tixi, xpath, default_value, name, key, help) -> bool:
         key=key,
         help=help,
         width="stretch",
+        disabled=disabled,
     )
     add_value(tixi, xpath, output)
     return output

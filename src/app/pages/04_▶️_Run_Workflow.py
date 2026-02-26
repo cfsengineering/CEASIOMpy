@@ -485,7 +485,7 @@ def display_simulation_settings() -> None:
         st.markdown(f"CPACS: **{cpacs.ac_name}**")
         section_3d_view(
             cpacs=cpacs,
-            force_regenerate=True,
+            force_regenerate=False,
             height=200,
         )
 

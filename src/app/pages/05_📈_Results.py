@@ -104,10 +104,12 @@ VTU_DARKBLUE_TO_DARKRED: list[list[float | str]] = [
 IGNORED_RESULTS: set[str] = {
     # pyavl
     "airfoils",
+    "fuselages",
     "avl_commands.txt",
     "logfile_avl.log",
 
     # cpacs2gmsh
+    "mesh.vtu",
     "brep_files",
 
     # su2run
@@ -147,141 +149,12 @@ def _as_polydata(data_obj: object) -> pv.PolyData | None:
     return data_obj if isinstance(data_obj, pv.PolyData) else None
 
 
-def _render_surface_interactive(
+def _render_surface_edges_interactive(
     surface: pv.PolyData,
     *,
     height: int = 500,
-    scalar_name: str | None = None,
-    scalar_location: str = "point",
-    su2_grid_style: bool = False,
+    fixed_edges: tuple[ndarray, ndarray] | None = None,
 ) -> None:
-    """Render a PyVista surface as an interactive Plotly mesh."""
-
-    try:
-        tri_surface = _as_polydata(surface.triangulate().clean())
-        if tri_surface is None:
-            st.warning("Interactive preview requires PolyData surface.")
-            return
-        faces = tri_surface.faces.reshape(-1, 4)
-        if faces.size == 0:
-            st.warning("No mesh faces available for interactive preview.")
-            return
-
-        mesh_kwargs: dict[str, object] = dict(
-            x=tri_surface.points[:, 0],
-            y=tri_surface.points[:, 1],
-            z=tri_surface.points[:, 2],
-            i=faces[:, 1],
-            j=faces[:, 2],
-            k=faces[:, 3],
-            opacity=1.0,
-            flatshading=True,
-            lighting=dict(ambient=0.9, diffuse=0.9, specular=0.3, roughness=0.35, fresnel=0.1),
-            lightposition=dict(x=8, y=8, z=12),
-        )
-
-        if scalar_name:
-            if scalar_location == "cell":
-                values = tri_surface.cell_data.get(scalar_name)
-                if values is not None and len(values) == faces.shape[0]:
-                    mesh_kwargs["intensity"] = values
-                    mesh_kwargs["intensitymode"] = "cell"
-            else:
-                values = tri_surface.point_data.get(scalar_name)
-                if values is not None and len(values) == tri_surface.n_points:
-                    mesh_kwargs["intensity"] = values
-                    mesh_kwargs["intensitymode"] = "vertex"
-            mesh_kwargs["colorscale"] = PARAVIEW_COOL_TO_WARM
-            mesh_kwargs["showscale"] = True
-            mesh_kwargs["colorbar"] = dict(title=scalar_name)
-        else:
-            mesh_kwargs["color"] = "#f5f5f5"
-            mesh_kwargs["showscale"] = False
-
-        # Add a back-face copy so the surface still appears solid when camera moves inside.
-        backface_kwargs = dict(mesh_kwargs)
-        backface_kwargs["i"] = faces[:, 1]
-        backface_kwargs["j"] = faces[:, 3]
-        backface_kwargs["k"] = faces[:, 2]
-
-        x_min, x_max, y_min, y_max, z_min, z_max = tri_surface.bounds
-        show_yaxis = abs(y_max - y_min) > 1e-8
-
-        def _axis_range(vmin: float, vmax: float, pad_ratio: float = 0.25) -> list[float]:
-            axis_span = max(vmax - vmin, 1e-9)
-            pad = pad_ratio * axis_span
-            return [vmin - pad, vmax + pad]
-
-        def _min_max_ticks(vmin: float, vmax: float) -> list[float]:
-            if not np.isfinite(vmin) or not np.isfinite(vmax):
-                return []
-            if abs(vmax - vmin) <= 1e-12:
-                return [float(vmin)]
-            return [float(vmin), float(vmax)]
-
-        if su2_grid_style:
-            x_range = [float(x_min), float(x_max)]
-            y_range = [float(y_min), float(y_max)] if show_yaxis else [0.0, 0.0]
-            z_range = [float(z_min), float(z_max)]
-            x_ticks = _min_max_ticks(x_range[0], x_range[1])
-            y_ticks = _min_max_ticks(y_range[0], y_range[1]) if show_yaxis else []
-            z_ticks = _min_max_ticks(z_range[0], z_range[1])
-        else:
-            x_range = _axis_range(x_min, x_max)
-            y_range = _axis_range(y_min, y_max)
-            z_range = _axis_range(z_min, z_max)
-            x_ticks = None
-            y_ticks = None
-            z_ticks = None
-
-        fig = go.Figure(
-            data=[
-                go.Mesh3d(**mesh_kwargs),
-                go.Mesh3d(**backface_kwargs),
-            ],
-        )
-        fig.update_layout(
-            margin=dict(l=8, r=8, t=8, b=8),
-            scene=dict(
-                aspectmode="data",
-                camera=dict(projection=dict(type="orthographic")),
-                xaxis=dict(
-                    title="X",
-                    range=x_range,
-                    tickmode="array" if x_ticks is not None else "auto",
-                    tickvals=x_ticks,
-                    showgrid=True,
-                    gridcolor="#e3e3e3",
-                    zeroline=False,
-                ),
-                yaxis=dict(
-                    title="Y" if show_yaxis else "",
-                    range=y_range,
-                    tickmode="array" if y_ticks is not None else "auto",
-                    tickvals=y_ticks,
-                    visible=show_yaxis if su2_grid_style else True,
-                    showgrid=show_yaxis if su2_grid_style else True,
-                    showticklabels=show_yaxis if su2_grid_style else True,
-                    gridcolor="#e3e3e3",
-                    zeroline=False,
-                ),
-                zaxis=dict(
-                    title="Z",
-                    range=z_range,
-                    tickmode="array" if z_ticks is not None else "auto",
-                    tickvals=z_ticks,
-                    showgrid=True,
-                    gridcolor="#e3e3e3",
-                    zeroline=False,
-                ),
-            ),
-        )
-        st.plotly_chart(fig, width="stretch")
-    except Exception as exc:
-        st.warning(f"Interactive 3D rendering failed: {exc}")
-
-
-def _render_surface_edges_interactive(surface: pv.PolyData, *, height: int = 500) -> None:
     """Render a PyVista surface with edge overlay in an interactive Plotly view."""
 
     try:
@@ -298,20 +171,43 @@ def _render_surface_edges_interactive(surface: pv.PolyData, *, height: int = 500
             st.warning("No triangulated surface available for interactive preview.")
             return
 
-        edge_poly: pv.PolyData | None = None
-        try:
-            edge_poly = _as_polydata(clean_surface.extract_feature_edges(
-                feature_angle=35.0,
-                boundary_edges=True,
-                feature_edges=True,
-                manifold_edges=False,
-                non_manifold_edges=False,
-            ))
-        except TypeError:
-            edge_poly = _as_polydata(clean_surface.extract_feature_edges())
+        x_min, x_max, y_min, y_max, z_min, z_max = clean_surface.bounds
+        show_yaxis = abs(y_max - y_min) > 1e-8
 
-        line_data = edge_poly.lines if edge_poly is not None else None
-        if line_data is None or len(line_data) == 0:
+        edge_poly: pv.PolyData | None = None
+        line_data = None
+        if fixed_edges is not None:
+            edge_points, edge_pairs = fixed_edges
+            if len(edge_points) > 0 and len(edge_pairs) > 0:
+                x_lines: list[float | None] = []
+                y_lines: list[float | None] = []
+                z_lines: list[float | None] = []
+                for i0, i1 in edge_pairs:
+                    p0 = edge_points[int(i0)]
+                    p1 = edge_points[int(i1)]
+                    x_lines.extend([float(p0[0]), float(p1[0]), None])
+                    y_lines.extend([float(p0[1]), float(p1[1]), None])
+                    z_lines.extend([float(p0[2]), float(p1[2]), None])
+            else:
+                x_lines, y_lines, z_lines = [], [], []
+        elif not show_yaxis:
+            # 2D meshes need all segment edges, not only boundary/feature edges.
+            edge_poly = _as_polydata(tri_surface.extract_all_edges())
+        else:
+            try:
+                edge_poly = _as_polydata(clean_surface.extract_feature_edges(
+                    feature_angle=35.0,
+                    boundary_edges=True,
+                    feature_edges=True,
+                    manifold_edges=False,
+                    non_manifold_edges=False,
+                ))
+            except TypeError:
+                edge_poly = _as_polydata(clean_surface.extract_feature_edges())
+
+        if fixed_edges is None:
+            line_data = edge_poly.lines if edge_poly is not None else None
+        if fixed_edges is None and (line_data is None or len(line_data) == 0):
             # Closed smooth surfaces may have no "feature" edges; broaden extraction.
             try:
                 edge_poly = _as_polydata(clean_surface.extract_feature_edges(
@@ -329,30 +225,28 @@ def _render_surface_edges_interactive(surface: pv.PolyData, *, height: int = 500
             line_data = edge_poly.lines if edge_poly is not None else None
 
         # VTK lines are encoded as [n_pts, p0, p1, ..., n_pts, ...].
-        x_lines: list[float | None] = []
-        y_lines: list[float | None] = []
-        z_lines: list[float | None] = []
-        if line_data is not None and len(line_data) > 0 and edge_poly is not None:
-            points = edge_poly.points
-            idx = 0
-            while idx < len(line_data):
-                n_pts = int(line_data[idx])
-                idx += 1
-                if n_pts < 2 or idx + n_pts > len(line_data):
-                    break
-                ids = line_data[idx: idx + n_pts]
-                idx += n_pts
-                for pid in ids:
-                    p = points[int(pid)]
-                    x_lines.append(float(p[0]))
-                    y_lines.append(float(p[1]))
-                    z_lines.append(float(p[2]))
-                x_lines.append(None)
-                y_lines.append(None)
-                z_lines.append(None)
-
-        x_min, x_max, y_min, y_max, z_min, z_max = clean_surface.bounds
-        show_yaxis = abs(y_max - y_min) > 1e-8
+        if fixed_edges is None:
+            x_lines = []
+            y_lines = []
+            z_lines = []
+            if line_data is not None and len(line_data) > 0 and edge_poly is not None:
+                points = edge_poly.points
+                idx = 0
+                while idx < len(line_data):
+                    n_pts = int(line_data[idx])
+                    idx += 1
+                    if n_pts < 2 or idx + n_pts > len(line_data):
+                        break
+                    ids = line_data[idx: idx + n_pts]
+                    idx += n_pts
+                    for pid in ids:
+                        p = points[int(pid)]
+                        x_lines.append(float(p[0]))
+                        y_lines.append(float(p[1]))
+                        z_lines.append(float(p[2]))
+                    x_lines.append(None)
+                    y_lines.append(None)
+                    z_lines.append(None)
 
         x_range = [float(x_min), float(x_max)]
         y_range = [float(y_min), float(y_max)] if show_yaxis else [0.0, 0.0]
@@ -2033,13 +1927,32 @@ def _load_su2_mesh_cached(path_str: str, mtime_ns: int) -> pv.DataSet:
 @st.cache_resource(show_spinner=False)
 def _build_su2_surface_cached(path_str: str, mtime_ns: int) -> pv.PolyData:
     mesh = _load_su2_mesh_cached(path_str, mtime_ns)
-    try:
-        surface = _as_polydata(mesh.extract_surface(algorithm="dataset_surface"))
-    except TypeError:
-        surface = _as_polydata(mesh.extract_surface())
+    x_min, x_max, y_min, y_max, z_min, z_max = mesh.bounds
+    is_flat_2d = min(abs(x_max - x_min), abs(y_max - y_min), abs(z_max - z_min)) <= 1e-10
+
+    surface: pv.PolyData | None = None
+    if is_flat_2d:
+        # For 2D SU2 meshes, keep all surface cells (not only outer boundary).
+        meshio_mesh = _load_su2_meshio_cached(path_str, mtime_ns)
+        points, triangles, _, _ = _extract_surface_mesh(meshio_mesh)
+        if len(points) > 0 and len(triangles) > 0:
+            faces = np.hstack(
+                (
+                    np.full((len(triangles), 1), 3, dtype=np.int64),
+                    triangles.astype(np.int64, copy=False),
+                )
+            ).ravel()
+            surface = _as_polydata(pv.PolyData(points, faces))
+
     if surface is None:
-        raise RuntimeError("Failed to extract SU2 surface as PolyData.")
-    surface = _remove_farfield_surface_component(surface)
+        try:
+            surface = _as_polydata(mesh.extract_surface(algorithm="dataset_surface"))
+        except TypeError:
+            surface = _as_polydata(mesh.extract_surface())
+        if surface is None:
+            raise RuntimeError("Failed to extract SU2 surface as PolyData.")
+        surface = _remove_farfield_surface_component(surface)
+
     try:
         normals = surface.compute_normals(
             auto_orient_normals=True,
@@ -2057,6 +1970,73 @@ def _build_su2_surface_cached(path_str: str, mtime_ns: int) -> pv.PolyData:
         except TypeError:
             normals = surface.compute_normals()
             surface = _as_polydata(normals) or surface
+    return surface
+
+
+@st.cache_resource(show_spinner=False)
+def _build_su2_display_surface_cached(path_str: str, mtime_ns: int) -> pv.PolyData:
+    """Build SU2 display surface without Farfield triangles, preserving symmetry."""
+
+    meshio_mesh = _load_su2_meshio_cached(path_str, mtime_ns)
+    points, triangles, _, cell_data = _extract_surface_mesh(meshio_mesh)
+    if len(points) == 0 or len(triangles) == 0:
+        raise RuntimeError("No surface triangles available in SU2 mesh.")
+
+    keep_mask = np.ones(len(triangles), dtype=bool)
+    phys_ids_raw = cell_data.get("gmsh:physical")
+    field_data = meshio_mesh.field_data or {}
+
+    if phys_ids_raw is not None and len(phys_ids_raw) == len(triangles) and field_data:
+        phys_ids = np.asarray(np.rint(phys_ids_raw), dtype=np.int64)
+        farfield_phys_ids: set[int] = set()
+        for name, data in field_data.items():
+            if not isinstance(name, str):
+                continue
+            lname = name.strip().lower()
+            if "farfield" not in lname:
+                continue
+            try:
+                marker_id = int(np.asarray(data).reshape(-1)[0])
+            except Exception:
+                continue
+            farfield_phys_ids.add(marker_id)
+
+        if farfield_phys_ids:
+            keep_mask = ~np.isin(phys_ids, np.fromiter(sorted(farfield_phys_ids), dtype=np.int64))
+
+    if not np.any(keep_mask):
+        # Fallback to legacy builder if markers are missing/ambiguous.
+        return _build_su2_surface_cached(path_str, mtime_ns)
+
+    kept_triangles = triangles[keep_mask]
+    faces = np.hstack(
+        (
+            np.full((len(kept_triangles), 1), 3, dtype=np.int64),
+            kept_triangles.astype(np.int64, copy=False),
+        )
+    ).ravel()
+    surface = _as_polydata(pv.PolyData(points, faces))
+    if surface is None:
+        return _build_su2_surface_cached(path_str, mtime_ns)
+
+    try:
+        normals = surface.compute_normals(
+            auto_orient_normals=True,
+            consistent_normals=True,
+            feature_angle=35.0,
+        )
+        surface = _as_polydata(normals) or surface
+    except TypeError:
+        try:
+            normals = surface.compute_normals(
+                auto_orient_normals=True,
+                consistent_normals=True,
+            )
+            surface = _as_polydata(normals) or surface
+        except TypeError:
+            normals = surface.compute_normals()
+            surface = _as_polydata(normals) or surface
+
     return surface
 
 
@@ -2218,14 +2198,28 @@ def _display_su2(path: Path) -> None:
     mtime_ns = path.stat().st_mtime_ns
 
     try:
-        surface = _build_su2_surface_cached(path_str, mtime_ns)
+        surface = _build_su2_display_surface_cached(path_str, mtime_ns)
     except Exception as exc:
         st.error(f"Failed to read SU2 mesh: {exc}")
         return
 
+    fixed_edges: tuple[ndarray, ndarray] | None = None
+    try:
+        sx_min, sx_max, sy_min, sy_max, sz_min, sz_max = surface.bounds
+        is_flat_2d = min(abs(sx_max - sx_min), abs(sy_max - sy_min), abs(sz_max - sz_min)) <= 1e-10
+        if is_flat_2d:
+            meshio_mesh = _load_su2_meshio_cached(path_str, mtime_ns)
+            edge_points, _, _, _ = _extract_surface_mesh(meshio_mesh)
+            edge_pairs = _extract_surface_edges(meshio_mesh)
+            if len(edge_points) > 0 and len(edge_pairs) > 0:
+                fixed_edges = (edge_points, edge_pairs)
+    except Exception:
+        fixed_edges = None
+
     _render_surface_edges_interactive(
         surface=surface,
         height=500,
+        fixed_edges=fixed_edges,
     )
 
     try:
@@ -2431,8 +2425,13 @@ def _build_vtu_render_payload_cached(
 @st.cache_data(show_spinner=False)
 def _load_history_csv_cached(path_str: str, mtime_ns: int) -> pd.DataFrame:
     _ = mtime_ns  # cache invalidation key
-    df = pd.read_csv(path_str)
+    df = pd.read_csv(
+        path_str,
+        na_values=["empty", "EMPTY", "Empty"],
+        keep_default_na=True,
+    )
     df.rename(columns=lambda x: x.strip().strip('"'), inplace=True)
+    df = df.replace(r"^\s*empty\s*$", np.nan, regex=True)
     return df
 
 
@@ -2701,10 +2700,15 @@ def _display_csv(path: Path) -> None:
         try:
             st.markdown("**Convergence History**")
             df = _load_history_csv_cached(str(path), path.stat().st_mtime_ns)
+            # Force numeric types for convergence plotting, tolerate placeholder strings.
+            df = df.replace(r"^\s*empty\s*$", np.nan, regex=True)
 
             coef_cols = [col for col in ["CD", "CL", "CMy"] if col in df.columns]
             if coef_cols:
-                st.line_chart(df[coef_cols])
+                coef_df = df[coef_cols].apply(pd.to_numeric, errors="coerce")
+                coef_df = coef_df.dropna(how="all")
+                if not coef_df.empty:
+                    st.line_chart(coef_df)
 
             rms_cols = [
                 col
@@ -2712,7 +2716,10 @@ def _display_csv(path: Path) -> None:
                 if col in df.columns
             ]
             if rms_cols:
-                st.line_chart(df[rms_cols])
+                rms_df = df[rms_cols].apply(pd.to_numeric, errors="coerce")
+                rms_df = rms_df.dropna(how="all")
+                if not rms_df.empty:
+                    st.line_chart(rms_df)
 
         except Exception as exc:
             st.warning(f"Could not parse {path.name} as CSV: {exc}")
@@ -2840,6 +2847,23 @@ def _display_csv(path: Path) -> None:
             "CD": cd_col,
             "CL / CD": "cl_cd_ratio",
         }
+
+        valid_target_labels = []
+        for label, col in target_options.items():
+            required_cols = [col, *arg_cols_required.values()]
+            candidate_df = plot_df.dropna(subset=required_cols)
+            if candidate_df.empty:
+                continue
+            has_varying_arg = any(
+                np.sort(candidate_df[arg_col].dropna().unique()).size > 1
+                for arg_col in arg_cols_required.values()
+            )
+            if has_varying_arg:
+                valid_target_labels.append(label)
+
+        if not valid_target_labels:
+            return None
+
         st.markdown("**AVL Interactive Data Visualizer**")
         plot_container = st.container()
         controls_container = st.container()
@@ -2847,7 +2871,7 @@ def _display_csv(path: Path) -> None:
         with controls_container:
             target_label = st.selectbox(
                 "Field to plot",
-                options=list(target_options.keys()),
+                options=valid_target_labels,
                 index=0,
                 key=f"{path}_avl_target",
             )
@@ -2856,7 +2880,6 @@ def _display_csv(path: Path) -> None:
         required_cols = [target_col, *arg_cols_required.values()]
         plot_df = plot_df.dropna(subset=required_cols).copy()
         if plot_df.empty:
-            plot_container.info("No valid AVL rows available for interactive plotting.")
             return None
 
         varying_args = []
@@ -2872,8 +2895,6 @@ def _display_csv(path: Path) -> None:
                 fixed_values[arg_name] = float(values[0])
 
         if not varying_args:
-            # If nothing varies, there's no "trend" to visualize.
-            # We exit silently or provide a small note.
             return None
 
         with controls_container:
@@ -2995,7 +3016,6 @@ def _display_xml(path: Path, specify_name: str | None = None) -> None:
     section_3d_view(
         cpacs=cpacs,
         force_regenerate=False,
-        plot_key=f"{path}_xml_geom_view",
     )
 
     st.download_button(

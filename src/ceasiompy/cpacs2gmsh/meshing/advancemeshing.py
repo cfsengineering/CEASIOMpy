@@ -20,23 +20,35 @@ TODO:
 
 import gmsh
 import numpy as np
+
+from dataclasses import (
+    field,
+    dataclass,
+)
+
 from itertools import combinations
 
 from ceasiompy import log
-from ceasiompy.cpacs2gmsh.func.wingclassification import ModelPart
-from ceasiompy.cpacs2gmsh.func.utils import MESH_COLORS
+from ceasiompy.cpacs2gmsh.utility.utils import MESH_COLORS
+
+
+# Classes
+@dataclass
+class MeshFieldState:
+    nbfields: int = 0
+    restrict_fields: list[int] = field(default_factory=list)
 
 
 # Functions
 
-def distance_field(mesh_fields, dim, object_tags):
+def distance_field(mesh_fields: MeshFieldState, dim, object_tags):
     """
     This function creates a distance field and add it to the list of mesh fields
 
     Args:
     ----------
     mesh_fields : dict
-        mesh_fields["nbfields"] : number of existing mesh field in the model,
+        mesh_fields.nbfields : number of existing mesh field in the model,
         each field must be created with a different index !!!
     dim : int
         dimension of the object to apply the distance field on
@@ -49,17 +61,17 @@ def distance_field(mesh_fields, dim, object_tags):
     """
 
     # Create new distance field
-    mesh_fields["nbfields"] += 1
-    gmsh.model.mesh.field.add("Distance", mesh_fields["nbfields"])
+    mesh_fields.nbfields += 1
+    gmsh.model.mesh.field.add("Distance", mesh_fields.nbfields)
     if dim == 1:
         dim_list = "CurvesList"
     elif dim == 2:
         dim_list = "SurfacesList"
     else:
         raise ValueError("Dimension must be 1 or 2")
-    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], dim_list, object_tags)
+    gmsh.model.mesh.field.setNumbers(mesh_fields.nbfields, dim_list, object_tags)
 
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Sampling", 100)
+    gmsh.model.mesh.field.setNumber(mesh_fields.nbfields, "Sampling", 100)
 
     return mesh_fields
 
@@ -71,7 +83,7 @@ def restrict_fields(mesh_fields, dim, object_tags, infield=None):
     Args:
     ----------
     mesh_fields : dict
-        mesh_fields["nbfields"] : number of existing mesh field in the model,
+        mesh_fields.nbfields : number of existing mesh field in the model,
         each field must be created with a different index !!!
     dim : int
         dimension of the object to apply the restrict field on
@@ -86,13 +98,13 @@ def restrict_fields(mesh_fields, dim, object_tags, infield=None):
     """
 
     # Create new Restrict field
-    mesh_fields["nbfields"] += 1
-    gmsh.model.mesh.field.add("Restrict", mesh_fields["nbfields"])
+    mesh_fields.nbfields += 1
+    gmsh.model.mesh.field.add("Restrict", mesh_fields.nbfields)
 
     if infield is None:
-        infield = mesh_fields["nbfields"] - 1
+        infield = mesh_fields.nbfields - 1
 
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", infield)
+    gmsh.model.mesh.field.setNumber(mesh_fields.nbfields, "InField", infield)
     if dim == 2:
         dim_list = "SurfacesList"
     elif dim == 3:
@@ -100,48 +112,54 @@ def restrict_fields(mesh_fields, dim, object_tags, infield=None):
     else:
         raise ValueError("Dimension must be 2 or 3")
 
-    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], dim_list, object_tags)
+    gmsh.model.mesh.field.setNumbers(mesh_fields.nbfields, dim_list, object_tags)
 
     # Add the new field to the list of restrict fields
-    mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
+    mesh_fields.restrict_fields.append(mesh_fields.nbfields)
 
     return mesh_fields
 
 
-def min_fields(mesh_fields):
+def min_fields(mesh_fields: MeshFieldState) -> None:
     """
-    This function creates a Min field:
+    Create and activate a Gmsh ``Min`` background field from existing restrictions.
 
-    A min field take a FieldsList of all the restrict field
-    Then it compute the minimum mesh constraint of all the different fields
-    This field is set as the background field for the model and it is the "final"
-    field that is used by gmsh to compute the mesh
+    The function appends a new field index to ``mesh_fields.nbfields``,
+    defines a ``Min`` field whose ``FieldsList`` is
+    ``mesh_fields.restrict_fields``, and sets this ``Min`` field as the
+    active background field. Gmsh then uses the smallest size constraint from
+    all listed fields at each point of the model.
 
     Args:
     ----------
-    mesh_fields : dict
-        mesh_fields["nbfields"] : number of existing mesh field in the model,
-        each field must be created with a different index !!!
+    mesh_fields : MeshFieldState
+        Mutable field-state dictionary with:
+        - ``nbfields``: current number of created fields.
+        - ``restrict_fields``: indices of fields to combine with ``Min``.
 
     Returns:
     ----------
-    mesh_fields : dict
+    None
+        ``mesh_fields`` is updated in place.
     """
 
     # Add a minimal background mesh field
-    mesh_fields["nbfields"] += 1
-    gmsh.model.mesh.field.add("Min", mesh_fields["nbfields"])
-    gmsh.model.mesh.field.setNumbers(
-        mesh_fields["nbfields"], "FieldsList", mesh_fields["restrict_fields"]
+    mesh_fields.nbfields += 1
+    gmsh.model.mesh.field.add(
+        fieldType="Min",
+        tag=mesh_fields.nbfields,
     )
-    gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
+    gmsh.model.mesh.field.setNumbers(
+        tag=mesh_fields.nbfields,
+        option="FieldsList",
+        values=mesh_fields.restrict_fields,
+    )
+    gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields.nbfields)
 
     # When background mesh is used those options must be set to zero
     gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
     gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
     gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
-
-    return mesh_fields
 
 
 def compute_area(surface_tag):
@@ -182,12 +200,12 @@ def refine_wing_section(
     mesh_fields,
     final_domain_volume_tag,
     aircraft,
-    wing_part: ModelPart,
+    wing_part,
     mesh_size_wings,
     refine,
     refine_truncated,
     chord_percent=0.25,
-    n_power=2,
+    n_power: float = 2.0,
 ):
     """
     Function to refine the trailing and leading edge of an wing section,
@@ -215,9 +233,9 @@ def refine_wing_section(
     Args:
     ----------
     mesh_fields : dict
-        mesh_fields["nbfields"] : number of existing mesh field in the model,
+        mesh_fields.nbfields : number of existing mesh field in the model,
         each field must be created with a different index !!!
-        mesh_fields["restrict_fields"] : list of the restrict fields,
+        mesh_fields.restrict_fields : list of the restrict fields,
         this is the list to be use for the final "Min" background field
     aircraft : ModelPart
         the aircraft model part
@@ -273,15 +291,15 @@ def refine_wing_section(
         # 1 : Math eval field
 
         mesh_fields = distance_field(mesh_fields, 1, lines_to_refine)
-        distance_field_tag = mesh_fields["nbfields"]
+        distance_field_tag = mesh_fields.nbfields
 
         # Create a mesh function for the leading edge
-        mesh_fields["nbfields"] += 1
-        math_eval_field = mesh_fields["nbfields"]
-        gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
+        mesh_fields.nbfields += 1
+        math_eval_field = mesh_fields.nbfields
+        gmsh.model.mesh.field.add("MathEval", mesh_fields.nbfields)
 
         gmsh.model.mesh.field.setString(
-            mesh_fields["nbfields"],
+            mesh_fields.nbfields,
             "F",
             f"({mesh_size_wings}/{refine}) + "
             f"{mesh_size_wings}*(1-(1/{refine}))*"
@@ -296,11 +314,11 @@ def refine_wing_section(
         # 2 : Threshold field(in fact not needed for RANS, as we set the size with constant fields)
 
         # Create the threshold field
-        mesh_fields["nbfields"] += 1
-        gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_wings)
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_wings)
+        mesh_fields.nbfields += 1
+        gmsh.model.mesh.field.add("Threshold", mesh_fields.nbfields)
+        gmsh.model.mesh.field.setNumber(mesh_fields.nbfields, "InField", distance_field_tag)
+        gmsh.model.mesh.field.setNumber(mesh_fields.nbfields, "SizeMax", mesh_size_wings)
+        gmsh.model.mesh.field.setNumber(mesh_fields.nbfields, "SizeMin", mesh_size_wings)
 
         mesh_fields = restrict_fields(mesh_fields, 2, surfaces_wing)
 
@@ -364,9 +382,9 @@ def refine_end_wing(
     final_domain_volume_tagslist : list
         list of the tag(s) of the final domain volume (usually one)
     mesh_fields : dict
-        mesh_fields["nbfields"] : number of existing mesh field in the model,
+        mesh_fields.nbfields : number of existing mesh field in the model,
         each field must be created with a different index !!!
-        mesh_fields["restrict_fields"] : list of the restrict fields,
+        mesh_fields.restrict_fields : list of the restrict fields,
         this is the list to be use for the final "Min" background field
     ...
     Return:
@@ -376,15 +394,15 @@ def refine_end_wing(
     # 1 : Math eval field
 
     mesh_fields = distance_field(mesh_fields, 1, lines_to_refine)
-    distance_field_tag = mesh_fields["nbfields"]
+    distance_field_tag = mesh_fields.nbfields
 
     # Create a mesh function for the leading edge
-    mesh_fields["nbfields"] += 1
-    math_eval_field = mesh_fields["nbfields"]
-    gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
+    mesh_fields.nbfields += 1
+    math_eval_field = mesh_fields.nbfields
+    gmsh.model.mesh.field.add("MathEval", mesh_fields.nbfields)
 
     gmsh.model.mesh.field.setString(
-        mesh_fields["nbfields"],
+        mesh_fields.nbfields,
         "F",
         f"({mesh_size_wings}/{refine}) + "
         f"{mesh_size_wings}*(1-(1/{refine}))*"
@@ -399,11 +417,11 @@ def refine_end_wing(
     # 2 : Threshold field (in fact not needed for RANS, as we set the size with constant fields)
 
     # Create the threshold field
-    mesh_fields["nbfields"] += 1
-    gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_wings)
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_wings)
+    mesh_fields.nbfields += 1
+    gmsh.model.mesh.field.add("Threshold", mesh_fields.nbfields)
+    gmsh.model.mesh.field.setNumber(mesh_fields.nbfields, "InField", distance_field_tag)
+    gmsh.model.mesh.field.setNumber(mesh_fields.nbfields, "SizeMax", mesh_size_wings)
+    gmsh.model.mesh.field.setNumber(mesh_fields.nbfields, "SizeMin", mesh_size_wings)
 
     mesh_fields = restrict_fields(mesh_fields, 2, surfaces_wing)
 
@@ -441,9 +459,9 @@ def set_domain_mesh(
     Args:
     ----------
     mesh_fields : dict
-        mesh_fields["nbfields"] : number of existing mesh field in the model,
+        mesh_fields.nbfields : number of existing mesh field in the model,
         each field must be created with a different index !!!
-        mesh_fields["restrict_fields"] : list of the restrict fields,
+        mesh_fields.restrict_fields : list of the restrict fields,
         this is the list to be use for the final "Min" background field
     aircraft_parts : list(ModelPart)
         list of the aircraft parts in the model
@@ -462,13 +480,13 @@ def set_domain_mesh(
         # 1 : Math eval field between the part surface and the farfield
 
         mesh_fields = distance_field(mesh_fields, 2, part.surfaces_tags)
-        distance_field_tag = mesh_fields["nbfields"]
+        distance_field_tag = mesh_fields.nbfields
 
         # Create a mesh function
-        mesh_fields["nbfields"] += 1
-        gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
+        mesh_fields.nbfields += 1
+        gmsh.model.mesh.field.add("MathEval", mesh_fields.nbfields)
         gmsh.model.mesh.field.setString(
-            mesh_fields["nbfields"],
+            mesh_fields.nbfields,
             "F",
             f"{part.mesh_size} + ({mesh_size_farfield} - {part.mesh_size})*"
             f"(F{distance_field_tag}/{aircraft_charact_length})^{n_power_factor}",
@@ -478,12 +496,12 @@ def set_domain_mesh(
         # 2 : Threshold field for constant mesh on the part surface
 
         # Create the threshold field
-        mesh_fields["nbfields"] += 1
-        gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", part.mesh_size)
+        mesh_fields.nbfields += 1
+        gmsh.model.mesh.field.add("Threshold", mesh_fields.nbfields)
+        gmsh.model.mesh.field.setNumber(mesh_fields.nbfields, "InField", distance_field_tag)
+        gmsh.model.mesh.field.setNumber(mesh_fields.nbfields, "SizeMax", part.mesh_size)
         gmsh.model.mesh.field.setNumber(
-            mesh_fields["nbfields"], "SizeMin", part.mesh_size * n_power_field
+            mesh_fields.nbfields, "SizeMin", part.mesh_size * n_power_field
         )
 
         mesh_fields = restrict_fields(mesh_fields, 2, part.surfaces_tags)
@@ -491,13 +509,13 @@ def set_domain_mesh(
         # 3 : Threshold field for the farfield surface
 
         # Create the threshold field
-        mesh_fields["nbfields"] += 1
-        gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
+        mesh_fields.nbfields += 1
+        gmsh.model.mesh.field.add("Threshold", mesh_fields.nbfields)
+        gmsh.model.mesh.field.setNumber(mesh_fields.nbfields, "InField", distance_field_tag)
 
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_farfield)
+        gmsh.model.mesh.field.setNumber(mesh_fields.nbfields, "SizeMax", mesh_size_farfield)
         gmsh.model.mesh.field.setNumber(
-            mesh_fields["nbfields"], "SizeMin", mesh_size_farfield * 0.9
+            mesh_fields.nbfields, "SizeMin", mesh_size_farfield * 0.9
         )
 
         mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
@@ -525,9 +543,9 @@ def refine_small_surfaces(
     Args:
     ----------
     mesh_fields : dict
-        mesh_fields["nbfields"] : number of existing mesh field in the model,
+        mesh_fields.nbfields : number of existing mesh field in the model,
         each field must be created with a different index !!!
-        mesh_fields["restrict_fields"] : list of the restrict fields,
+        mesh_fields.restrict_fields : list of the restrict fields,
         this is the list to be use for the final "Min" background field
     part : ModelPart
         part inspect
@@ -545,7 +563,7 @@ def refine_small_surfaces(
     Returns:
     ----------
     mesh_fields : dict
-        mesh_fields["nbfields"] : number of existing mesh field in the model
+        mesh_fields.nbfields : number of existing mesh field in the model
     part : ModelPart
         part to check and refine if necessary
 
@@ -573,24 +591,24 @@ def refine_small_surfaces(
             gmsh.model.setColor([(2, surface_tag)], *MESH_COLORS["bad_surface"], recursive=False)
 
             mesh_fields = distance_field(mesh_fields, 2, [surface_tag])
-            distance_field_tag = mesh_fields["nbfields"]
+            distance_field_tag = mesh_fields.nbfields
 
             # Create new threshold field
-            mesh_fields["nbfields"] += 1
-            gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
+            mesh_fields.nbfields += 1
+            gmsh.model.mesh.field.add("Threshold", mesh_fields.nbfields)
             gmsh.model.mesh.field.setNumber(
-                mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
+                mesh_fields.nbfields, "InField", mesh_fields.nbfields - 1
             )
-            gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", new_mesh_size)
-            gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", new_mesh_size)
+            gmsh.model.mesh.field.setNumber(mesh_fields.nbfields, "SizeMin", new_mesh_size)
+            gmsh.model.mesh.field.setNumber(mesh_fields.nbfields, "SizeMax", new_mesh_size)
 
             mesh_fields = restrict_fields(mesh_fields, 2, [surface_tag])
 
             # Math eval field (not needed for RANS, but doesn't change anything)
-            mesh_fields["nbfields"] += 1
-            gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
+            mesh_fields.nbfields += 1
+            gmsh.model.mesh.field.add("MathEval", mesh_fields.nbfields)
             gmsh.model.mesh.field.setString(
-                mesh_fields["nbfields"],
+                mesh_fields.nbfields,
                 "F",
                 f"{new_mesh_size} + ({mesh_size_farfield} - {new_mesh_size})*"
                 f"(F{distance_field_tag}/{aircraft_charact_length})^{n_power}",
@@ -637,9 +655,9 @@ def refine_other_lines(
     aircraft_parts : list of ModelPart
         list of all the parts in the aircraft
     mesh_fields : dict
-        mesh_fields["nbfields"] : number of existing mesh field in the model,
+        mesh_fields.nbfields : number of existing mesh field in the model,
         each field must be created with a different index !!!
-        mesh_fields["restrict_fields"] : list of the restrict fields,
+        mesh_fields.restrict_fields : list of the restrict fields,
         this is the list to be use for the final "Min" background field
     mesh_size_by_part : dict
         dictionary of the mesh size depending on the type of part
@@ -649,7 +667,7 @@ def refine_other_lines(
     Returns:
     ----------
     mesh_fields : dict
-        mesh_fields["nbfields"] : number of existing mesh field in the model
+        mesh_fields.nbfields : number of existing mesh field in the model
 
     """
 
@@ -708,97 +726,17 @@ def refine_other_lines(
             # one will be much more refined, and therefore the other need to also be progressive
             # so we adapt refine factor so that the field start at the same size at the line
             refine_factor_adapted = refine * part_size_surf_m["mesh_size"] / min_mesh_size
-            mesh_fields = refine_surface(
-                part_uid=part.uid,
-                lines_to_refine=[line],
-                surfaces_tag=part_size_surf_m["surfs"],
-                mesh_fields=mesh_fields,
-                m=part_size_surf_m["m"],
-                n_power=n_power,
-                refine=refine_factor_adapted,
-                mesh_size=part_size_surf_m["mesh_size"],
-            )
-
-    return mesh_fields
-
-
-def refine_surface(
-    part_uid, lines_to_refine, surfaces_tag, mesh_fields, m, n_power, refine, mesh_size
-):
-    """
-    Function to refine the surfaces on a specific part along some given lines by creating Fields
-
-    refining with a mathEval field, as before:
-
-            MeshSize (x_le) = mesh_w/r + mesh_w"(1-1/r)*(x_le/x_chord)^n_power
-
-    with :
-        - mesh_w : the mesh size of the wing = mesh_size_wings
-        - r : the refine factor = refine
-        - x_chord : the distance at which the refinement function stop = chord_percent*chord_length
-        - n_power : the power of the refinement function = n_power
-
-        x_le is computed automatically by a distance field F, and give the distance (x,y,z)
-        from the leading edge curve
-
-    Args:
-    ----------
-    part_uid : string
-        name of the part the surface is on
-    lines_to_refine : list of int
-        list of the tags of the lines we need to refine
-    surface_tag : list int
-        list of tags of the surface(s) we are refining
-    mesh_fields : dict
-        mesh_fields["nbfields"] : number of existing mesh field in the model,
-        each field must be created with a different index !!!
-        mesh_fields["restrict_fields"] : list of the restrict fields,
-        this is the list to be use for the final "Min" background field
-    m : float
-        length of the refinement (from the line, if more than distance m then
-        has "normal" mesh size)
-    n_power : float
-        power of the power law for the refinement
-    refine : float
-        refinement factor
-    mesh_size : float
-        mesh size depending of the part
-    ...
-    Returns:
-    ----------
-    mesh_fields : dict
-        mesh_fields["nbfields"] : number of existing mesh field in the model
-
-    """
-    for line in lines_to_refine:
-
-        # 1 : Math eval field
-        mesh_fields["nbfields"] += 1
-        gmsh.model.mesh.field.add("Distance", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "CurvesList", [line])
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Sampling", 200)
-
-        # 2 : Create a mesh function for the line (Matheval field)
-        mesh_fields["nbfields"] += 1
-        gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setString(
-            mesh_fields["nbfields"],
-            "F",
-            f"({mesh_size}/{refine}) + "
-            f"{mesh_size}*(1-(1/{refine})) * "
-            f"(F{mesh_fields['nbfields'] - 1} / {m})^{n_power}",
-        )
-
-        # 3 : Create the restrict field
-        mesh_fields["nbfields"] += 1
-        gmsh.model.mesh.field.add("Restrict", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "SurfacesList", surfaces_tag)
-        gmsh.model.mesh.field.setNumber(
-            mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
-        )
-        mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
-        gmsh.model.occ.synchronize()
+            refine_factor_adapted += 1
+            # mesh_fields = refine_surface(
+            #     part_uid=part.uid,
+            #     lines_to_refine=[line],
+            #     surfaces_tag=part_size_surf_m["surfs"],
+            #     mesh_fields=mesh_fields,
+            #     m=part_size_surf_m["m"],
+            #     n_power=n_power,
+            #     refine=refine_factor_adapted,
+            #     mesh_size=part_size_surf_m["mesh_size"],
+            # )
 
     return mesh_fields
 
@@ -861,60 +799,3 @@ def compute_angle_surfaces(surface_tags, tags_coords_params, line):
                     if cosalpha < 0.63:  # (angle of more than 50 degrees from being flat)
                         return True
     return False
-
-
-def refine_between_parts(aircraft_parts, mesh_fields):
-    """
-    Function to adapt the transition when two parts with different mesh sizes intersect.
-    --> Add a mathEval field similar to other from small mesh size to big mesh size
-
-    Args:
-    ----------
-    aircraft_parts : list of ModelPart
-        list of the modelPart of all the parts in the aircraft
-    mesh_fields : dict
-        mesh_fields["nbfields"] : number of existing mesh field in the model,
-        each field must be created with a different index !!!
-        mesh_fields["restrict_fields"] : list of the restrict fields,
-        this is the list to be use for the final "Min" background field
-    ...
-    Returns:
-    ----------
-    mesh_fields : dict
-        updated dictionary
-
-    """
-    for part, part2 in list(combinations(aircraft_parts, 2)):
-        if part.mesh_size != part2.mesh_size:
-            if part.mesh_size < part2.mesh_size:
-                small_part = part
-                big_part = part2
-            else:
-                small_part = part2
-                big_part = part
-
-            lines_at_intersection = list(set(part.lines_tags) & set(part2.lines_tags))
-            gmsh.model.setColor([(1, line) for line in lines_at_intersection], 255, 0, 0)  # red
-            if lines_at_intersection:
-                p, p2, lai = part.uid, part2.uid, lines_at_intersection
-                log.info(f"Refining between parts {p} and {p2}, line(s) {lai} ")
-            for line in lines_at_intersection:
-                surfaces_adjacent, _ = gmsh.model.getAdjacencies(1, line)
-                surfaces_to_refine = list(set(surfaces_adjacent) & set(big_part.surfaces_tags))
-
-                bb = big_part.bounding_box
-                size = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
-                size.sort()
-                m = size[1] / 4
-                mesh_fields = refine_surface(
-                    big_part.uid,
-                    [line],
-                    surfaces_to_refine,
-                    mesh_fields,
-                    m,
-                    2,
-                    big_part.mesh_size / small_part.mesh_size,
-                    big_part.mesh_size,
-                )
-
-    return mesh_fields

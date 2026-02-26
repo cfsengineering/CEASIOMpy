@@ -12,36 +12,36 @@ from __future__ import annotations
 
 # Imports
 
-from ceasiompy.cpacs2gmsh.func.mesh_sizing import (
-    wings_size,
-    fuselage_size,
+from ceasiompy.cpacs2gmsh.utility.mesh_sizing import (
+    get_wing_ref_chord,
+    get_fuselage_mean_circumference,
 )
 
 from unittest import main
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from ceasiompy.utils.ceasiompytest import CEASIOMpyTest
 
 
 # Classes
-class TestMeshSizing(CeasiompyTest):
+class TestMeshSizing(CEASIOMpyTest):
 
-    def test_fuselage_size(self: CeasiompyTest) -> None:
+    def test_fuselage_size(self: CEASIOMpyTest) -> None:
         """
         This test takes the fuselage dimension on which the mesh size is calculated.
         """
         self.assert_equal_function(
-            f=fuselage_size,
+            f=get_fuselage_mean_circumference,
             input_args=(self.test_cpacs.tixi, ),
-            expected=(1.3953420631620659, 5e-05),
+            expected=(17.441775789525824, ),
         )
 
-    def test_wing_size(self: CeasiompyTest) -> None:
+    def test_wing_size(self: CEASIOMpyTest) -> None:
         """
         This test takes the fuselage dimension on which the mesh size is calculated.
         """
         self.assert_equal_function(
-            f=wings_size,
+            f=get_wing_ref_chord,
             input_args=(self.test_cpacs.tixi, ),
-            expected=(0.5571959999999999, 0.04457567999999999),
+            expected=(3.71464, ),
         )
 
 

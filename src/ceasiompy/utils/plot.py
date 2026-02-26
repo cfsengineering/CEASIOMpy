@@ -30,38 +30,36 @@ def get_aircraft_mesh_data(
         cpacs_path = cpacs_path.with_name(f"{cpacs_path.stem}_symmetry{cpacs_path.suffix}")
     stl_file = cpacs_path.with_suffix(".stl")
 
-    if not force_regenerate and stl_file.exists():
-        pass
+    if force_regenerate or not stl_file.exists():
+        try:
+            with st.spinner("Meshing geometry (STL export)..."):
+                warning_signature = "Warning: 1 face has been skipped due to null triangulation"
+                with (
+                    tempfile.TemporaryFile(mode="w+b") as stdout_capture,
+                    tempfile.TemporaryFile(mode="w+b") as stderr_capture,
+                ):
+                    saved_stdout_fd = os.dup(1)
+                    saved_stderr_fd = os.dup(2)
+                    try:
+                        os.dup2(stdout_capture.fileno(), 1)
+                        os.dup2(stderr_capture.fileno(), 2)
+                        cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
+                    finally:
+                        os.dup2(saved_stdout_fd, 1)
+                        os.dup2(saved_stderr_fd, 2)
+                        os.close(saved_stdout_fd)
+                        os.close(saved_stderr_fd)
 
-    try:
-        with st.spinner("Meshing geometry (STL export)..."):
-            warning_signature = "Warning: 1 face has been skipped due to null triangulation"
-            with (
-                tempfile.TemporaryFile(mode="w+b") as stdout_capture,
-                tempfile.TemporaryFile(mode="w+b") as stderr_capture,
-            ):
-                saved_stdout_fd = os.dup(1)
-                saved_stderr_fd = os.dup(2)
-                try:
-                    os.dup2(stdout_capture.fileno(), 1)
-                    os.dup2(stderr_capture.fileno(), 2)
-                    cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
-                finally:
-                    os.dup2(saved_stdout_fd, 1)
-                    os.dup2(saved_stderr_fd, 2)
-                    os.close(saved_stdout_fd)
-                    os.close(saved_stderr_fd)
-
-                stdout_capture.seek(0)
-                stderr_capture.seek(0)
-                captured_stdout = stdout_capture.read().decode("utf-8", errors="ignore")
-                captured_stderr = stderr_capture.read().decode("utf-8", errors="ignore")
-                captured_output = captured_stdout + "\n" + captured_stderr
-                if warning_signature in captured_output:
-                    raise RuntimeError(warning_signature)
-    except Exception as e:
-        st.error(f"Cannot generate 3D preview (probably missing TIGL geometry handle): {e=}.")
-        return None
+                    stdout_capture.seek(0)
+                    stderr_capture.seek(0)
+                    captured_stdout = stdout_capture.read().decode("utf-8", errors="ignore")
+                    captured_stderr = stderr_capture.read().decode("utf-8", errors="ignore")
+                    captured_output = captured_stdout + "\n" + captured_stderr
+                    if warning_signature in captured_output:
+                        raise RuntimeError(warning_signature)
+        except Exception as e:
+            st.error(f"Cannot generate 3D preview (probably missing TIGL geometry handle): {e=}.")
+            return None
 
     try:
         your_mesh = mesh.Mesh.from_file(stl_file)

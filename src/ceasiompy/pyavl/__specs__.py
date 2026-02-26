@@ -14,7 +14,7 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.guiobjects import (
     int_vartype,
     list_vartype,
-    bool_vartype,
+    # bool_vartype,
     float_vartype,
     dataframe_vartype,
 )
@@ -22,7 +22,7 @@ from ceasiompy.utils.guiobjects import (
 from ceasiompy.pyavl import (
     AVL_DISTR_XPATH,
     AVL_ROTRATES_XPATH,
-    AVL_FUSELAGE_XPATH,
+    # AVL_FUSELAGE_XPATH,
     AVL_NSPANWISE_XPATH,
     AVL_NCHORDWISE_XPATH,
     AVL_FREESTREAM_MACH_XPATH,
@@ -33,83 +33,78 @@ from ceasiompy.pyavl import (
 # Functions
 def gui_settings(cpacs: CPACS) -> None:
     tixi = cpacs.tixi
-    with st.expander(
-        label="**Panel Settings**",
-        expanded=True,
-    ):
-        left_col, mid_col, right_col = st.columns([2, 1, 1])
-        with left_col:
-            list_vartype(
-                tixi=tixi,
-                name="Panel distribution",
-                key="panel_distribution",
-                default_value=["cosine", "sine", "equal"],
-                help="Select the type of distribution.",
-                xpath=AVL_DISTR_XPATH,
-            )
 
-        with mid_col:
-            int_vartype(
-                tixi=tixi,
-                name="Chordwise vortices",
-                key="pyavl_chordwise_vortices_nb",
-                default_value=20,
-                help="Select the number of chordwise vortices.",
-                xpath=AVL_NCHORDWISE_XPATH,
-            )
-
-        with right_col:
-            int_vartype(
-                tixi=tixi,
-                name="Spanwise vortices",
-                key="pyavl_spanwise_vortices_nb",
-                default_value=30,
-                help="Select the number of spanwise vortices.",
-                xpath=AVL_NSPANWISE_XPATH,
-            )
-
-    with st.expander(
-        label="**Specific Settings**",
-        expanded=True,
-    ):
-        dataframe_vartype(
-            name="Rotation rates",
-            key="rates",
-            default_value=[0.0],
+    # TODO: Do vortices preview from panel settings
+    st.markdown("**Panel Settings**")
+    left_col, mid_col, right_col = st.columns([2, 1, 1])
+    with left_col:
+        list_vartype(
             tixi=tixi,
-            xpath=AVL_ROTRATES_XPATH,
-            help="List of p, q, r rates.",
+            name="Panel distribution",
+            key="panel_distribution",
+            default_value=["cosine", "sine", "equal"],
+            help="Select the type of distribution.",
+            xpath=AVL_DISTR_XPATH,
         )
 
-        dataframe_vartype(
-            name="Control surface angles",
-            key="ctrl_surf_angles",
-            default_value=[0.0],
+    with mid_col:
+        int_vartype(
             tixi=tixi,
-            xpath=AVL_CTRLSURF_ANGLES_XPATH,
-            help="List of Aileron, Elevator, Rudder angles.",
+            name="Chordwise vortices",
+            key="pyavl_chordwise_vortices_nb",
+            default_value=20,
+            help="Select the number of chordwise vortices.",
+            xpath=AVL_NCHORDWISE_XPATH,
         )
 
-        float_vartype(
+    with right_col:
+        int_vartype(
             tixi=tixi,
-            name="Default freestream Mach",
-            key="default_freestream_mach",
-            default_value=0.6,
-            help="Usually 0.2 < default value < 0.8",
-            xpath=AVL_FREESTREAM_MACH_XPATH,
+            name="Spanwise vortices",
+            key="pyavl_spanwise_vortices_nb",
+            default_value=30,
+            help="Select the number of spanwise vortices.",
+            xpath=AVL_NSPANWISE_XPATH,
         )
 
-    with st.container(
-        border=True
-    ):
-        bool_vartype(
-            tixi=tixi,
-            name="Integrate fuselage",
-            key="integrate_fuselage",
-            default_value=False,
-            help="Integrate the fuselage in the AVL model.",
-            xpath=AVL_FUSELAGE_XPATH,
-        )
+    st.markdown("---")
+    st.markdown("**Specific Settings**")
+
+    dataframe_vartype(
+        name="Rotation rates",
+        key="rates",
+        default_value=[0.0],
+        tixi=tixi,
+        xpath=AVL_ROTRATES_XPATH,
+        help="List of p, q, r rates.",
+    )
+
+    dataframe_vartype(
+        name="Control surface angles",
+        key="ctrl_surf_angles",
+        default_value=[0.0],
+        tixi=tixi,
+        xpath=AVL_CTRLSURF_ANGLES_XPATH,
+        help="List of Aileron, Elevator, Rudder angles.",
+    )
+
+    # float_vartype(
+    #     tixi=tixi,
+    #     name="Default freestream Mach",
+    #     key="default_freestream_mach",
+    #     default_value=0.6,
+    #     help="Usually 0.2 < default value < 0.8",
+    #     xpath=AVL_FREESTREAM_MACH_XPATH,
+    # )
+
+    # bool_vartype(
+    #     tixi=tixi,
+    #     name="Integrate fuselage",
+    #     key="integrate_fuselage",
+    #     default_value=False,
+    #     help="Integrate the fuselage in the AVL model.",
+    #     xpath=AVL_FUSELAGE_XPATH,
+    # )
 
 # Integrate In AeroMap Settings
 # cpacs_inout.add_input(

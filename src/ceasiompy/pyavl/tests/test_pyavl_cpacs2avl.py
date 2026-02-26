@@ -25,6 +25,7 @@ from ceasiompy.utils.generalclasses import (
     Point,
     Transformation,
 )
+from ceasiompy.utils.commonxpaths import FUSELAGES_XPATH
 
 from ceasiompy.pyavl import MODULE_NAME
 
@@ -129,6 +130,39 @@ class TestWriteFuselage(CeasiompyTest):
             content = f.read()
         assert "SCALE\n1.0\t2.0\t3.0" in content
         assert "TRANSLATE\n4.0\t5.0\t6.0" in content
+
+    def test_write_fuselage_settings_with_custom_nbody(self):
+        update_cpacs_from_specs(
+            self.test_cpacs,
+            MODULE_NAME,
+            True,
+        )
+        avl = Avl(self.test_cpacs.tixi, results_dir=self.results_dir)
+        avl.write_fuselage_settings(
+            scaling=Point(1.0, 1.0, 1.0),
+            translation=Point(0.0, 0.0, 0.0),
+            nbody=68,
+        )
+        with open(avl.avl_path) as f:
+            content = f.read()
+        assert "!Nbody  Bspace\n68\t1.0" in content
+
+    def test_convert_cpacs_to_avl_writes_bfile_once_per_fuselage(self):
+        update_cpacs_from_specs(
+            self.test_cpacs,
+            MODULE_NAME,
+            True,
+        )
+        avl = Avl(self.test_cpacs.tixi, results_dir=self.results_dir)
+        avl_path = avl.convert_cpacs_to_avl()
+
+        with open(avl_path) as f:
+            avl_lines = f.read().splitlines()
+
+        bfile_count = sum(line.strip() == "BFILE" for line in avl_lines)
+        fuselage_count = elements_number(self.test_cpacs.tixi, FUSELAGES_XPATH, "fuselage")
+
+        assert bfile_count == fuselage_count
 
 
 # =================================================================================================

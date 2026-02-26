@@ -372,39 +372,37 @@ def section_3d_view(
     preview_dir = Path(cpacs.cpacs_file).parent
     vtp_file = Path(preview_dir, "aircraft.vtp")
 
-    if not force_regenerate and vtp_file.exists():
-        pass
+    if force_regenerate or not vtp_file.exists():
+        try:
+            with st.spinner("Meshing geometry (preview export)..."):
+                warning_signature = "Warning: 1 face has been skipped due to null triangulation"
+                with (
+                    tempfile.TemporaryFile(mode="w+b") as stdout_capture,
+                    tempfile.TemporaryFile(mode="w+b") as stderr_capture,
+                ):
+                    saved_stdout_fd = os.dup(1)
+                    saved_stderr_fd = os.dup(2)
+                    try:
+                        os.dup2(stdout_capture.fileno(), 1)
+                        os.dup2(stderr_capture.fileno(), 2)
+                        cpacs.aircraft.tigl.exportMeshedGeometryVTK(str(vtp_file), 0.01)
+                    finally:
+                        os.dup2(saved_stdout_fd, 1)
+                        os.dup2(saved_stderr_fd, 2)
+                        os.close(saved_stdout_fd)
+                        os.close(saved_stderr_fd)
 
-    try:
-        with st.spinner("Meshing geometry (preview export)..."):
-            warning_signature = "Warning: 1 face has been skipped due to null triangulation"
-            with (
-                tempfile.TemporaryFile(mode="w+b") as stdout_capture,
-                tempfile.TemporaryFile(mode="w+b") as stderr_capture,
-            ):
-                saved_stdout_fd = os.dup(1)
-                saved_stderr_fd = os.dup(2)
-                try:
-                    os.dup2(stdout_capture.fileno(), 1)
-                    os.dup2(stderr_capture.fileno(), 2)
-                    cpacs.aircraft.tigl.exportMeshedGeometryVTK(str(vtp_file), 0.01)
-                finally:
-                    os.dup2(saved_stdout_fd, 1)
-                    os.dup2(saved_stderr_fd, 2)
-                    os.close(saved_stdout_fd)
-                    os.close(saved_stderr_fd)
+                    stdout_capture.seek(0)
+                    stderr_capture.seek(0)
+                    captured_stdout = stdout_capture.read().decode("utf-8", errors="ignore")
+                    captured_stderr = stderr_capture.read().decode("utf-8", errors="ignore")
+                    captured_output = captured_stdout + "\n" + captured_stderr
+                    if warning_signature in captured_output:
+                        raise RuntimeError(warning_signature)
 
-                stdout_capture.seek(0)
-                stderr_capture.seek(0)
-                captured_stdout = stdout_capture.read().decode("utf-8", errors="ignore")
-                captured_stderr = stderr_capture.read().decode("utf-8", errors="ignore")
-                captured_output = captured_stdout + "\n" + captured_stderr
-                if warning_signature in captured_output:
-                    raise RuntimeError(warning_signature)
-
-    except Exception as e:
-        st.error(f"Cannot generate 3D preview (probably missing TIGL geometry handle): {e=}.")
-        return None
+        except Exception as e:
+            st.error(f"Cannot generate 3D preview (probably missing TIGL geometry handle): {e=}.")
+            return None
 
     try:
         pv_mesh = pv.read(str(vtp_file))
@@ -515,4 +513,7 @@ def section_3d_view(
             ),
         ),
     )
+    if height is not None:
+        fig.update_layout(dict1=dict(height=height))
+
     st.plotly_chart(fig, width="stretch", key=plot_key)

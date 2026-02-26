@@ -81,6 +81,39 @@ deb_path="$openvsp_cache_dir/$deb_name"
 say ">>> Creating cache directory at: $openvsp_cache_dir"
 mkdir -p "$openvsp_cache_dir"
 
+find_ceasiompy_python() {
+  local candidates=()
+
+  if [[ -n "${CONDA_PREFIX:-}" ]] && [[ "$(basename "$CONDA_PREFIX")" == "ceasiompy" ]] && [[ -x "$CONDA_PREFIX/bin/python" ]]; then
+    printf '%s\n' "$CONDA_PREFIX/bin/python"
+    return 0
+  fi
+
+  if command -v conda >/dev/null 2>&1; then
+    local env_path=""
+    env_path="$(conda info --envs 2>/dev/null | awk '$1=="ceasiompy"{print $NF; exit}')"
+    if [[ -n "$env_path" && -x "$env_path/bin/python" ]]; then
+      printf '%s\n' "$env_path/bin/python"
+      return 0
+    fi
+  fi
+
+  candidates+=(
+    "$HOME/miniconda3/envs/ceasiompy/bin/python"
+    "$HOME/miniforge3/envs/ceasiompy/bin/python"
+    "$HOME/mambaforge/envs/ceasiompy/bin/python"
+  )
+
+  local c=""
+  for c in "${candidates[@]}"; do
+    if [[ -x "$c" ]]; then
+      printf '%s\n' "$c"
+      return 0
+    fi
+  done
+  return 1
+}
+
 validate_deb() {
   dpkg-deb --info "$1" >/dev/null 2>&1
 }
@@ -185,6 +218,27 @@ if [[ -n "$openvsp_python_dir" ]]; then
   else
     ln -s "$openvsp_python_dir" "$install_root/OpenVSP/python"
     say ">>> Linked OpenVSP Python bindings: $install_root/OpenVSP/python -> $openvsp_python_dir"
+  fi
+
+  ceasiompy_python="$(find_ceasiompy_python || true)"
+  if [[ -n "$ceasiompy_python" ]]; then
+    say ">>> Found ceasiompy conda env Python: $ceasiompy_python"
+    ceasiompy_site_packages="$("$ceasiompy_python" -c 'import site; print(next((p for p in site.getsitepackages() if p.endswith("site-packages")), ""))' 2>/dev/null || true)"
+    if [[ -n "$ceasiompy_site_packages" && -d "$ceasiompy_site_packages" ]]; then
+      pth_file="$ceasiompy_site_packages/ceasiompy_openvsp.pth"
+      cat >"$pth_file" <<EOF
+$openvsp_python_dir
+$openvsp_python_dir/openvsp
+$openvsp_python_dir/openvsp_config
+$openvsp_python_dir/degen_geom
+$openvsp_python_dir/utilities
+EOF
+      say ">>> Wrote OpenVSP Python paths into ceasiompy env: $pth_file"
+    else
+      say ">>> Warning: could not determine ceasiompy site-packages; skipping .pth integration."
+    fi
+  else
+    say ">>> Warning: ceasiompy conda env not found; skipping Python env integration."
   fi
 else
   say ">>> Warning: OpenVSP Python bindings not found on system."

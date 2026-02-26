@@ -43,6 +43,11 @@ jobs:
     - name: Install libGLU
       run: sudo apt-get install -y libglu1-mesa-dev
 
+    - name: Pin NumPy ABI for OpenVSP
+      shell: bash -l {0}
+      run: |
+        conda install -y "numpy<2"
+
     - name: Install ceasiompy and OpenVSP
       shell: bash -l {0}
       run: |
@@ -55,6 +60,7 @@ jobs:
       env:
         PYTHONPATH: ${{ github.workspace }}/installdir/OpenVSP/python/openvsp:${{ github.workspace }}/installdir/OpenVSP/python:/usr/local/OpenVSP/python/openvsp:/usr/local/OpenVSP/python:${{ env.PYTHONPATH }}
       run: |
+        conda activate ceasiompy
         python -c "from ceasiompy.vsp2cpacs.openvsp_runtime import load_openvsp; vsp=load_openvsp(); print(vsp.__file__); assert hasattr(vsp,'XS_UNDEFINED')"
 
     - name: Run vsp2cpacs test
@@ -62,4 +68,5 @@ jobs:
       env:
         PYTHONPATH: ${{ github.workspace }}/installdir/OpenVSP/python/openvsp:${{ github.workspace }}/installdir/OpenVSP/python:/usr/local/OpenVSP/python/openvsp:/usr/local/OpenVSP/python:${{ env.PYTHONPATH }}
       run: |
+        conda activate ceasiompy
         pytest -v src/ceasiompy/vsp2cpacs/tests/test_vsp2cpacs.py

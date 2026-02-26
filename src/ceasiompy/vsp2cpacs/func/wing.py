@@ -1184,7 +1184,7 @@ def Get_coordinates_profile(idx, *args, **kwargs):
 
     Airfoil_name_type = vsp.GetXSecShape(idx)
     func = profile_mapping()[Airfoil_name_type]
-    print(f'we are wirking with {idx}')
+    print(f'Working with {idx}')
     try:
         return func(idx, *args, **kwargs)
     except TypeError:

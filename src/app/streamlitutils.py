@@ -370,7 +370,7 @@ def section_3d_view(
         return None
 
     preview_dir = Path(cpacs.cpacs_file).parent
-    vtp_file = Path(preview_dir, "aircraft.vtp")
+    vtp_file = Path(preview_dir, f"{cpacs.ac_name.lower()}.vtp")
 
     if force_regenerate or not vtp_file.exists():
         try:

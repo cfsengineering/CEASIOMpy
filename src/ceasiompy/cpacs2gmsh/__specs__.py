@@ -29,6 +29,7 @@ from ceasiompy.utils.guiobjects import (
 )
 
 from pathlib import Path
+from pyvista import PolyData
 from cpacspy.cpacspy import CPACS
 
 from numpy import sqrt
@@ -68,11 +69,17 @@ def _get_aircraft_preview_surface(
     cpacs: CPACS,
     symmetry: bool,
     force_regenerate: bool = False,
-) -> None:
+) -> PolyData | None:
     """Export/load aircraft preview as VTK and optionally clip to y >= 0 for symmetry."""
 
     suffix = "_symmetry" if symmetry else ""
-    vtp_file = Path(get_wkdir(), f"{cpacs.ac_name.lower()}{suffix}.vtp")
+    cpacs_stem = Path(cpacs.cpacs_file).stem.lower()
+    vtp_file = Path(get_wkdir(), f"{cpacs_stem}{suffix}.vtp")
+    cpacs_file = Path(cpacs.cpacs_file)
+
+    # Invalidate cached preview when CPACS input has changed.
+    if not force_regenerate and vtp_file.exists() and cpacs_file.exists():
+        force_regenerate = cpacs_file.stat().st_mtime > vtp_file.stat().st_mtime
 
     if force_regenerate or not vtp_file.exists():
         try:
@@ -109,11 +116,25 @@ def gui_settings(cpacs: CPACS) -> None:
     aircraft_config = aircraft.configuration
 
     # Sanity Check
-    if get_value(tixi, GEOMETRY_MODE_XPATH) != "3D":
-        if TO3D in st.session_state.get("workflow_modules", None):
-            log.info("gmsh will be called on 3D variant.")
+    displayed_cpacs = None
+    workflow_modules = st.session_state.get("workflow_modules", None) or []
+    if TO3D in workflow_modules:
+        to3d_cpacs_file = Path(cpacs.cpacs_file).with_name(
+            f"{Path(cpacs.cpacs_file).stem}_{TO3D}"
+        ).with_suffix(".xml")
+        if to3d_cpacs_file.exists():
+            log.info(f"Using TO3D CPACS for display/settings: {to3d_cpacs_file}")
+            displayed_cpacs = CPACS(cpacs_file=to3d_cpacs_file)
+            aircraft = displayed_cpacs.aircraft
+            aircraft_config = aircraft.configuration
         else:
-            raise ValueError(f"You can not call {CPACS2GMSH} on a 2D geometry.")
+            log.warning(f"TO3D module is in workflow but file not found: {to3d_cpacs_file}")
+
+    if get_value(tixi, GEOMETRY_MODE_XPATH) != "3D" and displayed_cpacs is None:
+        raise ValueError(f"You can not call {CPACS2GMSH} on a 2D geometry.")
+
+    using_to3d_display = displayed_cpacs is not None
+    display_tixi = (displayed_cpacs or cpacs).tixi
 
     left_col, right_col = st.columns([3, 1])
     with right_col:
@@ -140,13 +161,18 @@ def gui_settings(cpacs: CPACS) -> None:
         # Bounding Box for General Aircraft Settings
         x_min, y_min, z_min, x_max, y_max, z_max = aircraft.tigl.configurationGetBoundingBox()
         surface = _get_aircraft_preview_surface(
-            cpacs=cpacs,
+            cpacs=displayed_cpacs or cpacs,
             symmetry=symmetry,
         )
         if surface is not None:
             x_min, x_max, y_min, y_max, z_min, z_max = surface.bounds
         if symmetry:
-            y_min = max(0.0, y_min)
+            if using_to3d_display:
+                # For TO3D display, enforce symmetric half-span around y=0.
+                y_half = max(abs(y_min), abs(y_max))
+                y_min, y_max = 0.0, y_half
+            else:
+                y_min = max(0.0, y_min)
         vec = {
             "x": abs(x_max - x_min),
             "y": abs(y_max - y_min),
@@ -172,7 +198,7 @@ def gui_settings(cpacs: CPACS) -> None:
         x_max=x_max,
         y_max=y_max,
         z_max=z_max,
-        cpacs=cpacs,
+        cpacs=displayed_cpacs or cpacs,
         symmetry=symmetry,
         surface=surface,
     )
@@ -205,7 +231,7 @@ def gui_settings(cpacs: CPACS) -> None:
                 wing_uid = str(wing.get_uid())
 
                 ref_chord = get_wing_ref_chord(
-                    tixi=tixi,
+                    tixi=display_tixi,
                     wing_uid=wing_uid,
                 )
 
@@ -214,7 +240,7 @@ def gui_settings(cpacs: CPACS) -> None:
                     float_vartype(
                         tixi=tixi,
                         xpath=GMSH_MESH_SIZE_WING_XPATH + f"/{wing_uid}",
-                        default_value=ref_chord / 60.0,
+                        default_value=ref_chord / 10.0,
                         min_value=0.0,
                         max_value=ref_chord,
                         name=f"Wing: {wing_uid} mesh size",
@@ -238,7 +264,7 @@ def gui_settings(cpacs: CPACS) -> None:
                 fuselage = aircraft_config.get_fuselage(k)
                 fus_uid = fuselage.get_uid()
                 fus_mean_circumference = get_fuselage_mean_circumference(
-                    tixi=tixi,
+                    tixi=display_tixi,
                     fus_uid=fus_uid,
                 )
                 left_col, right_col = st.columns(2)
@@ -246,7 +272,7 @@ def gui_settings(cpacs: CPACS) -> None:
                     float_vartype(
                         tixi=tixi,
                         xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH + f"/{fus_uid}",
-                        default_value=fus_mean_circumference / 60.0,
+                        default_value=fus_mean_circumference / 10.0,
                         min_value=0.0,
                         max_value=fus_mean_circumference,
                         name=f"Fuselage: {fus_uid} mesh size",

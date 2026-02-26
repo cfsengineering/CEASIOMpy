@@ -1273,11 +1273,14 @@ def prepare_euler_surface_mesh(
         staged_union_inputs.append(symmetry_stage_mesh_path)
 
     union_surface_mesh_path = Path(results_dir, "surface_mesh_union_stage.msh")
+    # Without xz symmetry, aircraft and farfield must stay as independent
+    # disconnected surfaces; only concatenate stage files.
+    collapse_duplicates = bool(symmetry)
     _merge_stage_meshes_to_file(
         output_path=union_surface_mesh_path,
         stage_paths=staged_union_inputs,
         model_name=current_model_name,
-        collapse_duplicates=True,
+        collapse_duplicates=collapse_duplicates,
     )
     log.info(f"Stored concatenated boundary mesh at {union_surface_mesh_path=}.")
 
@@ -1287,7 +1290,7 @@ def prepare_euler_surface_mesh(
         output_path=surface_mesh_path,
         stage_paths=staged_union_inputs,
         model_name=current_model_name,
-        collapse_duplicates=True,
+        collapse_duplicates=collapse_duplicates,
     )
     log.info(f"Stored Euler 2D Surface mesh at {surface_mesh_path=}.")
 
@@ -1643,7 +1646,7 @@ def _refine_fuselage_nose_tail(
 
 # Functions
 
-def generate_2d_mesh(
+def generate_surface_mesh(
     results_dir: Path,
     mesh_settings: MeshSettings,
     aircraft_geom: AircraftGeometry,
@@ -1816,24 +1819,9 @@ def generate_2d_mesh(
     )
     gmsh.model.occ.synchronize()
 
-    current_model_name = gmsh.model.getCurrent()
-    aircraft_stage_mesh_path = Path(results_dir, "surface_mesh_aircraft_stage.msh")
-    _write_surface_subset_mesh(
-        output_path=aircraft_stage_mesh_path,
-        surface_tags=sorted(surface_to_parts.keys()),
-        model_name=current_model_name,
-        include_boundary_topology=False,
-    )
-    log.info(f"Stored staged aircraft mesh at {aircraft_stage_mesh_path=}.")
-
     # Save aircraft-only surface mesh handoff artifact.
     surface_mesh_path = Path(results_dir, "surface_mesh.msh")
-    _merge_stage_meshes_to_file(
-        output_path=surface_mesh_path,
-        stage_paths=[aircraft_stage_mesh_path],
-        model_name=current_model_name,
-        collapse_duplicates=True,
-    )
+    gmsh.write(str(surface_mesh_path))
     log.info(f"Stored aircraft 2D Surface mesh at {surface_mesh_path=}.")
 
     if not symmetry:

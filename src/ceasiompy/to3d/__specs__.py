@@ -173,22 +173,20 @@ def gui_settings(cpacs: CPACS) -> None:
             return None
 
         x, y, z, i, j, k = output
+        x = np.asarray(x)
+        y = np.asarray(y)
+        z = np.asarray(z)
 
-        # Compute bounds and cube size
+        # Shift geometry to positive axes and use [0, max] bounding-box ranges.
         min_x, max_x = np.min(x), np.max(x)
         min_y, max_y = np.min(y), np.max(y)
         min_z, max_z = np.min(z), np.max(z)
-        center_x = (min_x + max_x) / 2
-        center_y = (min_y + max_y) / 2
-        center_z = (min_z + max_z) / 2
-        max_range = max(max_x - min_x, max_y - min_y, max_z - min_z) / 2
-        zoom_out_factor = 1.5
-        max_range *= zoom_out_factor
-
-        # Set axis limits so the mesh is centered in a cube
-        x_range = [center_x - max_range, center_x + max_range]
-        y_range = [center_y - max_range, center_y + max_range]
-        z_range = [center_z - max_range, center_z + max_range]
+        x = x - min_x
+        y = y - min_y
+        z = z - min_z
+        x_max = max_x - min_x
+        y_max = max_y - min_y
+        z_max = max_z - min_z
 
         fig = go.Figure(
             data=[
@@ -215,11 +213,45 @@ def gui_settings(cpacs: CPACS) -> None:
 
         fig.update_layout(
             margin=dict(l=0, r=0, t=0, b=0),
+            font=dict(color="black"),
             scene=dict(
-                xaxis=dict(range=x_range),
-                yaxis=dict(range=y_range),
-                zaxis=dict(range=z_range),
-                aspectmode="cube",
+                xaxis=dict(
+                    title="X",
+                    titlefont=dict(color="black"),
+                    tickfont=dict(color="black"),
+                    range=[0.0, x_max],
+                    tickmode="array",
+                    tickvals=[0.0, 0.5 * x_max, x_max],
+                    showgrid=True,
+                    gridcolor="black",
+                    zeroline=False,
+                    backgroundcolor="white",
+                ),
+                yaxis=dict(
+                    title="Y",
+                    titlefont=dict(color="black"),
+                    tickfont=dict(color="black"),
+                    range=[0.0, y_max],
+                    tickmode="array",
+                    tickvals=[0.0, 0.5 * y_max, y_max],
+                    showgrid=True,
+                    gridcolor="black",
+                    zeroline=False,
+                    backgroundcolor="white",
+                ),
+                zaxis=dict(
+                    title="Z",
+                    titlefont=dict(color="black"),
+                    tickfont=dict(color="black"),
+                    range=[0.0, z_max],
+                    tickmode="array",
+                    tickvals=[0.0, 0.5 * z_max, z_max],
+                    showgrid=True,
+                    gridcolor="black",
+                    zeroline=False,
+                    backgroundcolor="white",
+                ),
+                aspectmode="data",
             ),
         )
 

@@ -194,16 +194,8 @@ def _render_surface_edges_interactive(
             # 2D meshes need all segment edges, not only boundary/feature edges.
             edge_poly = _as_polydata(tri_surface.extract_all_edges())
         else:
-            try:
-                edge_poly = _as_polydata(clean_surface.extract_feature_edges(
-                    feature_angle=35.0,
-                    boundary_edges=True,
-                    feature_edges=True,
-                    manifold_edges=False,
-                    non_manifold_edges=False,
-                ))
-            except TypeError:
-                edge_poly = _as_polydata(clean_surface.extract_feature_edges())
+            # In 3D, render all visible surface mesh edges (not only sharp features).
+            edge_poly = _as_polydata(tri_surface.extract_all_edges())
 
         if fixed_edges is None:
             line_data = edge_poly.lines if edge_poly is not None else None
@@ -574,7 +566,35 @@ def _triangulate_cells(cells: ndarray) -> tuple[ndarray, ndarray]:
     return np.asarray(triangles, dtype=np.int64), np.asarray(source, dtype=np.int64)
 
 
-def _extract_surface_edges(mesh: meshio.Mesh) -> ndarray:
+def _collect_surface_marker_ids(mesh: meshio.Mesh) -> tuple[set[int], set[int]]:
+    """Return marker ids for wall and outer boundaries from mesh field data."""
+
+    wall_ids: set[int] = set()
+    outer_ids: set[int] = set()
+    field_data = mesh.field_data or {}
+
+    for name, data in field_data.items():
+        if not isinstance(name, str):
+            continue
+        marker_name = name.strip().lower()
+        try:
+            marker_id = int(np.asarray(data).reshape(-1)[0])
+        except Exception:
+            continue
+        if "wall" in marker_name:
+            wall_ids.add(marker_id)
+        elif "farfield" in marker_name or "symmetry" in marker_name:
+            outer_ids.add(marker_id)
+
+    return wall_ids, outer_ids
+
+
+def _extract_surface_edges(
+    mesh: meshio.Mesh,
+    *,
+    allowed_phys_ids: set[int] | None = None,
+    excluded_phys_ids: set[int] | None = None,
+) -> ndarray:
     """Return unique edges from original surface cells (no triangulation diagonals)."""
     surface_cell_types = {
         "triangle",
@@ -586,7 +606,9 @@ def _extract_surface_edges(mesh: meshio.Mesh) -> ndarray:
     }
     edge_parts: list[ndarray] = []
 
-    for cell_block in mesh.cells:
+    phys_blocks = mesh.cell_data.get("gmsh:physical", [])
+
+    for block_idx, cell_block in enumerate(mesh.cells):
         cell_type = str(cell_block.type).lower()
         if cell_type not in surface_cell_types:
             continue
@@ -596,6 +618,27 @@ def _extract_surface_edges(mesh: meshio.Mesh) -> ndarray:
             continue
         if cells.ndim == 1:
             cells = cells.reshape(1, -1)
+        if cells.size == 0:
+            continue
+
+        if (allowed_phys_ids or excluded_phys_ids) and block_idx < len(phys_blocks):
+            phys_ids = _normalize_scalar_array(np.asarray(phys_blocks[block_idx]))
+            if len(phys_ids) == len(cells):
+                phys_ids = np.asarray(np.rint(phys_ids), dtype=np.int64)
+                keep_mask = np.ones(len(cells), dtype=bool)
+                if allowed_phys_ids:
+                    keep_mask &= np.isin(
+                        phys_ids,
+                        np.fromiter(sorted(allowed_phys_ids), dtype=np.int64),
+                    )
+                if excluded_phys_ids:
+                    keep_mask &= ~np.isin(
+                        phys_ids,
+                        np.fromiter(sorted(excluded_phys_ids), dtype=np.int64),
+                    )
+                cells = cells[keep_mask]
+                if len(cells) == 0:
+                    continue
 
         if cell_type == "triangle6":
             cells = cells[:, :3]
@@ -1984,25 +2027,21 @@ def _build_su2_display_surface_cached(path_str: str, mtime_ns: int) -> pv.PolyDa
 
     keep_mask = np.ones(len(triangles), dtype=bool)
     phys_ids_raw = cell_data.get("gmsh:physical")
-    field_data = meshio_mesh.field_data or {}
 
-    if phys_ids_raw is not None and len(phys_ids_raw) == len(triangles) and field_data:
+    if phys_ids_raw is not None and len(phys_ids_raw) == len(triangles):
         phys_ids = np.asarray(np.rint(phys_ids_raw), dtype=np.int64)
-        farfield_phys_ids: set[int] = set()
-        for name, data in field_data.items():
-            if not isinstance(name, str):
-                continue
-            lname = name.strip().lower()
-            if "farfield" not in lname:
-                continue
-            try:
-                marker_id = int(np.asarray(data).reshape(-1)[0])
-            except Exception:
-                continue
-            farfield_phys_ids.add(marker_id)
+        wall_phys_ids, outer_phys_ids = _collect_surface_marker_ids(meshio_mesh)
 
-        if farfield_phys_ids:
-            keep_mask = ~np.isin(phys_ids, np.fromiter(sorted(farfield_phys_ids), dtype=np.int64))
+        if wall_phys_ids:
+            keep_mask = np.isin(
+                phys_ids,
+                np.fromiter(sorted(wall_phys_ids), dtype=np.int64),
+            )
+        elif outer_phys_ids:
+            keep_mask = ~np.isin(
+                phys_ids,
+                np.fromiter(sorted(outer_phys_ids), dtype=np.int64),
+            )
 
     if not np.any(keep_mask):
         # Fallback to legacy builder if markers are missing/ambiguous.
@@ -2210,7 +2249,14 @@ def _display_su2(path: Path) -> None:
         if is_flat_2d:
             meshio_mesh = _load_su2_meshio_cached(path_str, mtime_ns)
             edge_points, _, _, _ = _extract_surface_mesh(meshio_mesh)
-            edge_pairs = _extract_surface_edges(meshio_mesh)
+            wall_phys_ids, outer_phys_ids = _collect_surface_marker_ids(meshio_mesh)
+            edge_pairs = _extract_surface_edges(
+                meshio_mesh,
+                allowed_phys_ids=wall_phys_ids if wall_phys_ids else None,
+                excluded_phys_ids=outer_phys_ids if (
+                    not wall_phys_ids and outer_phys_ids
+                ) else None,
+            )
             if len(edge_points) > 0 and len(edge_pairs) > 0:
                 fixed_edges = (edge_points, edge_pairs)
     except Exception:

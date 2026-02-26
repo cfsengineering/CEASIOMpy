@@ -213,7 +213,7 @@ def _write_surface_boundary_msh(
             key = tuple(sorted((int(a), int(b), int(c))))
             if key in seen_faces:
                 continue
-            seen_faces.add(key)
+            seen_faces.add((int(a), int(b), int(c)))
             tris.append((int(a), int(b), int(c)))
             tri_phys.append(marker_id)
 

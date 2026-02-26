@@ -278,7 +278,7 @@ class Avl:
         self.vortex_dist: int = convert_dist_to_avl_format(get_value(tixi, AVL_DISTR_XPATH))
         self.nchordwise: int = get_value(tixi, AVL_NCHORDWISE_XPATH)
         self.nspanwise: int = get_value(tixi, AVL_NSPANWISE_XPATH)
-        self.add_fuselage: bool = True #  get_value(tixi, AVL_FUSELAGE_XPATH)
+        self.add_fuselage: bool = True  # get_value(tixi, AVL_FUSELAGE_XPATH)
 
         self.area_ref: float = tixi.getDoubleElement(AREA_XPATH)
         self.chord_ref: float = tixi.getDoubleElement(LENGTH_XPATH)

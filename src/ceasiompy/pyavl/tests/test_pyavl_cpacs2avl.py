@@ -10,7 +10,10 @@ import unittest
 import tempfile
 import numpy as np
 
-from ceasiompy.utils.geometryfunctions import prod_points
+from ceasiompy.utils.geometryfunctions import (
+    prod_points,
+    elements_number,
+)
 from ceasiompy.pyavl.func.cpacs2avl import compute_fuselage_coords
 from ceasiompy.utils.ceasiompyutils import (
     current_workflow_dir,

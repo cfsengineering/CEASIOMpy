@@ -15,7 +15,6 @@ from ceasiompy.utils.guiobjects import (
     int_vartype,
     list_vartype,
     # bool_vartype,
-    float_vartype,
     dataframe_vartype,
 )
 
@@ -25,7 +24,7 @@ from ceasiompy.pyavl import (
     # AVL_FUSELAGE_XPATH,
     AVL_NSPANWISE_XPATH,
     AVL_NCHORDWISE_XPATH,
-    AVL_FREESTREAM_MACH_XPATH,
+    # AVL_FREESTREAM_MACH_XPATH,
     AVL_CTRLSURF_ANGLES_XPATH,
 )
 

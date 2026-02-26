@@ -35,7 +35,10 @@ def gui_settings(cpacs: CPACS) -> None:
     """GUI Settings of CPACSUpdater module."""
     tixi = cpacs.tixi
     domain_preview_placeholder = st.empty()
-    domain_preview_placeholder.markdown("<div style='height: 440px;'></div>", unsafe_allow_html=True)
+    domain_preview_placeholder.markdown(
+        body="<div style='height: 440px;'></div>",
+        unsafe_allow_html=True,
+    )
 
     segments_list = get_segments(tixi)
     wings = {}

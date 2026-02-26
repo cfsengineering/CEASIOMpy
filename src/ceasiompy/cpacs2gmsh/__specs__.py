@@ -214,7 +214,7 @@ def gui_settings(cpacs: CPACS) -> None:
                     float_vartype(
                         tixi=tixi,
                         xpath=GMSH_MESH_SIZE_WING_XPATH + f"/{wing_uid}",
-                        default_value=ref_chord / 40.0,
+                        default_value=ref_chord / 60.0,
                         min_value=0.0,
                         max_value=ref_chord,
                         name=f"Wing: {wing_uid} mesh size",

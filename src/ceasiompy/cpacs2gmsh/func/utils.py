@@ -38,7 +38,7 @@ from ceasiompy.cpacs2gmsh import (
     GMSH_REFINE_FACTOR_XPATH,
     GMSH_REFINE_TRUNCATED_XPATH,
     GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH,
-    GMSH_SYMMETRY_XPATH,
+    GMSH_XZ_SYMMETRY_XPATH,
     GMSH_MESH_TYPE_XPATH,
     GMSH_NUMBER_LAYER_XPATH,
     GMSH_H_FIRST_LAYER_XPATH,
@@ -260,7 +260,7 @@ def retrieve_euler_gui_values(tixi: Tixi3) -> tuple[float, bool]:
             except Exception:
                 pass
 
-    symmetry = get_value(tixi, GMSH_SYMMETRY_XPATH)
+    symmetry = get_value(tixi, GMSH_XZ_SYMMETRY_XPATH)
 
     return farfield_mesh_size, symmetry
 

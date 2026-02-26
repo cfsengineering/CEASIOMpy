@@ -11,15 +11,15 @@ Streamlit utils functions for CEASIOMpy
 import os
 import re
 import tempfile
-import numpy as np
+import pyvista as pv
 import streamlit as st
 import plotly.graph_objects as go
 import streamlit.components.v1 as components
 
 from streamlit_float import float_init
+from cpacspy.cpacsfunctions import get_value
 from assistant import get_assistant_response
 
-from stl import mesh
 from PIL import Image
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
@@ -27,6 +27,7 @@ from tigl3.tigl3wrapper import Tigl3
 from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
+from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 
 
 # Functions
@@ -353,16 +354,14 @@ def plot_airfoil_2d(x_coords, y_coords, title="Airfoil Profile"):
     st.plotly_chart(fig, width="stretch")
 
 
-def section_3D_view(
+def section_3d_view(
     cpacs: CPACS | None = None,
     *,
     force_regenerate: bool = False,
     height: int | None = None,
     plot_key: str | None = None,
 ) -> None:
-    """
-    Shows a 3D view of the aircraft by exporting a STL file.
-    """
+    """Shows a 3D view of the aircraft by exporting a preview mesh file."""
 
     if cpacs is None:
         cpacs = st.session_state.get("cpacs", None)
@@ -370,13 +369,14 @@ def section_3D_view(
     if cpacs is None:
         return None
 
-    # 3D mode - generate STL preview at the same level as the cpacs file
-    stl_file = Path(Path(cpacs.cpacs_file).parent, "aircraft.stl")
-    if not force_regenerate and stl_file.exists():
+    preview_dir = Path(cpacs.cpacs_file).parent
+    vtp_file = Path(preview_dir, "aircraft.vtp")
+
+    if not force_regenerate and vtp_file.exists():
         pass
 
     try:
-        with st.spinner("Meshing geometry (STL export)..."):
+        with st.spinner("Meshing geometry (preview export)..."):
             warning_signature = "Warning: 1 face has been skipped due to null triangulation"
             with (
                 tempfile.TemporaryFile(mode="w+b") as stdout_capture,
@@ -387,7 +387,7 @@ def section_3D_view(
                 try:
                     os.dup2(stdout_capture.fileno(), 1)
                     os.dup2(stderr_capture.fileno(), 2)
-                    cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
+                    cpacs.aircraft.tigl.exportMeshedGeometryVTK(str(vtp_file), 0.01)
                 finally:
                     os.dup2(saved_stdout_fd, 1)
                     os.dup2(saved_stderr_fd, 2)
@@ -406,65 +406,113 @@ def section_3D_view(
         st.error(f"Cannot generate 3D preview (probably missing TIGL geometry handle): {e=}.")
         return None
 
-    your_mesh = mesh.Mesh.from_file(stl_file)
+    try:
+        pv_mesh = pv.read(str(vtp_file))
+        surface = pv_mesh.extract_surface(algorithm="dataset_surface").triangulate().clean()
+        surface = surface.compute_normals()
+    except Exception as exc:
+        st.error(f"Failed to read generated preview mesh for 3D view: {exc}")
+        return None
 
-    triangles = your_mesh.vectors.reshape(-1, 3)
-    vertices, indices = np.unique(triangles, axis=0, return_inverse=True)
-    i, j, k = indices[0::3], indices[1::3], indices[2::3]
-    x, y, z = vertices.T
-
-    # Compute bounds and cube size
-    min_x, max_x = np.min(x), np.max(x)
-    min_y, max_y = np.min(y), np.max(y)
-    min_z, max_z = np.min(z), np.max(z)
-    center_x = (min_x + max_x) / 2
-    center_y = (min_y + max_y) / 2
-    center_z = (min_z + max_z) / 2
-    max_range = max(max_x - min_x, max_y - min_y, max_z - min_z) / 2
-    zoom_out_factor = 1.5
-    max_range *= zoom_out_factor
-
-    # Set axis limits so the mesh is centered in a cube
-    x_range = [center_x - max_range, center_x + max_range]
-    y_range = [center_y - max_range, center_y + max_range]
-    z_range = [center_z - max_range, center_z + max_range]
-
-    fig = go.Figure(
-        data=[
-            go.Mesh3d(
-                x=x, y=y, z=z,
-                i=i, j=j, k=k,
-                opacity=1.0,
-                color='lightgrey',
-                flatshading=False,
-                lighting=dict(
-                    ambient=0.5,
-                    diffuse=0.2,
-                    specular=0.3,
-                    roughness=0.2,
-                ),
-                lightposition=dict(
-                    x=0,
-                    y=100,
-                    z=0,
-                ),
-            )
-        ]
+    dim_mode = get_value(
+        tixi=cpacs.tixi,
+        xpath=GEOMETRY_MODE_XPATH,
     )
+    show_yaxis = dim_mode != "2D"
+    if not show_yaxis:
+        surface.points[:, 1] = 0.0
+
+    x_min, x_max, y_min, y_max, z_min, z_max = surface.bounds
+    # Keep displayed geometry in positive axes for more intuitive labels.
+    surface.points[:, 0] -= x_min
+    surface.points[:, 1] -= y_min
+    surface.points[:, 2] -= z_min
+    x_min, x_max, y_min, y_max, z_min, z_max = surface.bounds
+    faces = surface.faces.reshape(-1, 4)
+    if faces.size == 0:
+        st.warning("No mesh faces available for 3D preview.")
+        return None
+
+    mesh_trace = go.Mesh3d(
+        x=surface.points[:, 0],
+        y=surface.points[:, 1],
+        z=surface.points[:, 2],
+        i=faces[:, 1],
+        j=faces[:, 2],
+        k=faces[:, 3],
+        color="#d3d3d3",
+        opacity=1.0,
+        lighting=dict(ambient=0.45, diffuse=0.55, specular=0.08, roughness=0.75, fresnel=0.1),
+        lightposition=dict(x=8, y=8, z=12),
+        flatshading=False,
+        showscale=False,
+    )
+
+    def _axis_values(vmin: float, vmax: float, count: int) -> list[float]:
+        if count <= 0:
+            return []
+        if count == 1:
+            return [(vmin + vmax) * 0.5]
+        step = (vmax - vmin) / (count - 1)
+        return [vmin + i * step for i in range(count)]
+
+    x_ticks = _axis_values(x_min, x_max, 3)
+    y_ticks = _axis_values(y_min, y_max, 3) if show_yaxis else []
+    z_ticks = _axis_values(z_min, z_max, 2)
+
+    fig = go.Figure(data=[mesh_trace])
     fig.update_layout(
-        margin=dict(l=0, r=0, t=0, b=0),
+        margin=dict(l=10, r=10, t=10, b=10),
+        font=dict(color="black"),
         scene=dict(
-            xaxis=dict(range=x_range),
-            yaxis=dict(range=y_range),
-            zaxis=dict(range=z_range),
-            aspectmode="cube",
+            aspectmode="data",
+            xaxis=dict(
+                title="X",
+                titlefont=dict(color="black"),
+                tickfont=dict(color="black"),
+                range=[x_min, x_max],
+                tickmode="array",
+                tickvals=x_ticks,
+                showgrid=True,
+                gridcolor="black",
+                zeroline=False,
+                backgroundcolor="white",
+            ),
+            yaxis=dict(
+                title="Y" if show_yaxis else "",
+                titlefont=dict(color="black"),
+                tickfont=dict(color="black"),
+                range=[y_min, y_max] if show_yaxis else [0.0, 0.0],
+                tickmode="array",
+                tickvals=y_ticks,
+                visible=show_yaxis,
+                gridcolor="black",
+                showgrid=show_yaxis,
+                showticklabels=show_yaxis,
+                zeroline=False,
+                backgroundcolor="white",
+            ),
+            zaxis=dict(
+                title="Z",
+                titlefont=dict(color="black"),
+                tickfont=dict(color="black"),
+                range=[z_min, z_max],
+                tickmode="array",
+                tickvals=z_ticks,
+                showgrid=True,
+                gridcolor="black",
+                zeroline=False,
+                backgroundcolor="white",
+            ),
+            camera=dict(
+                eye=dict(
+                    x=2.2 if show_yaxis else 4.0,
+                    y=2.2 if show_yaxis else 2.8,
+                    z=1.8 if show_yaxis else 1.0,
+                ),
+                up=dict(x=0.0, y=0.0, z=1.0),
+                center=dict(x=0.0, y=0.0, z=0.0),
+            ),
         ),
     )
-
-    if height is not None:
-        fig.update_layout(height=height)
-
-    if plot_key is None:
-        st.plotly_chart(fig, width="stretch")
-    else:
-        st.plotly_chart(fig, width="stretch", key=plot_key)
+    st.plotly_chart(fig, width="stretch", key=plot_key)

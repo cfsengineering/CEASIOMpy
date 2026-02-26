@@ -72,7 +72,14 @@ A video which explains how to ![install](installation/DOCKER_INSTALLATION.md) CE
     ceasiompy_run --gui
     ```
 
-Follow the [test cases](#test-cases) to discover the different way of using CEASIOMpy.
+- **For a list of all available commands**
+
+    If you want the list of all possible commands for ceasiompy:
+
+    ```bash
+    ceasiompy_run --help
+    ```
+
 
 ### Available modules
 

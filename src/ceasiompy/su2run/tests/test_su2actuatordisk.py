@@ -26,12 +26,9 @@ from ceasiompy.su2run.func.actuatordiskfile import (
     write_actuator_disk_data,
 )
 from ceasiompy.su2run.func.plot import save_plots
-from ceasiompy.utils.ceasiompyutils import get_results_directory
 
 from pathlib import Path
 from ambiance import Atmosphere
-
-from ceasiompy.su2run import MODULE_NAME as SU2RUN
 
 
 # Functions
@@ -54,12 +51,12 @@ def test_get_advanced_ratio():
     with pytest.raises(ValueError):
         get_advanced_ratio(100, 0, 2)
 
-    Atm = Atmosphere(1000)
-    free_stream_velocity = 0.3 * Atm.speed_of_sound[0]
+    atmosphere = Atmosphere(1000)
+    free_stream_velocity = 0.3 * atmosphere.speed_of_sound[0]
     assert get_advanced_ratio(free_stream_velocity, 100, 2) == pytest.approx(0.2523, 1e-3)
 
-    Atm = Atmosphere(10000)
-    free_stream_velocity = 0.48 * Atm.speed_of_sound[0]
+    atmosphere = Atmosphere(10000)
+    free_stream_velocity = 0.48 * atmosphere.speed_of_sound[0]
     assert get_advanced_ratio(free_stream_velocity, 100, 1.5) == pytest.approx(0.47925, 1e-3)
 
 
@@ -90,14 +87,14 @@ def test_get_prandtl_correction_values():
 def test_get_error():
 
     radial_stations = np.arange(0.1, 1, 0.20)
-    dCt = calculate_radial_thrust_coefs(
+    thrust_coef_distribution = calculate_radial_thrust_coefs(
         radial_stations,
         advanced_ratio=1.0,
         opt_axial_interf_factor=np.array([1.0, 1.0, 1.0, 1.0, 1.0]),
     )
     radial_stations_spacing = radial_stations[1] - radial_stations[0]
 
-    error = np.sum(radial_stations_spacing * dCt)
+    error = np.sum(radial_stations_spacing * thrust_coef_distribution)
 
     assert error == pytest.approx(3.141, rel=1e-3)
 
@@ -247,19 +244,246 @@ def test_thrust_calculator():
 
     assert np.sum((1 / 40.0) * renard_thrust_coeff) == pytest.approx(values[1][0], rel=1e-3)
     assert np.sum((1 / 40.0) * power_coeff) == pytest.approx(values[1][1], rel=1e-3)
+    output = thrust_calculator(get_radial_stations(1.5, 0.2), 0.5, 1.5, 150, True, 2, 33)
+    expected_output = (
+        np.array(
+            [
+                0.02078195,
+                0.03256252,
+                0.04786722,
+                0.06698531,
+                0.09012885,
+                0.11742818,
+                0.14892926,
+                0.18459271,
+                0.22429463,
+                0.2678288,
+                0.31491016,
+                0.36517897,
+                0.41820553,
+                0.47349492,
+                0.53049132,
+                0.58858183,
+                0.64709911,
+                0.70532275,
+                0.76247894,
+                0.81773804,
+                0.87020954,
+                0.91893373,
+                0.96286896,
+                1.00087305,
+                1.031676,
+                1.05384008,
+                1.06569946,
+                1.06526611,
+                1.05007506,
+                1.01691255,
+                0.9612927,
+                0.87631138,
+                0.74958649,
+                0.55155389,
+                0.0,
+            ]
+        ),
+        np.array(
+            [
+                0.04414487,
+                0.06905163,
+                0.10132347,
+                0.1415201,
+                0.19002749,
+                0.24704882,
+                0.3125994,
+                0.38650567,
+                0.46840797,
+                0.55776666,
+                0.65387087,
+                0.75584924,
+                0.86268168,
+                0.97321154,
+                1.08615734,
+                1.20012332,
+                1.3136083,
+                1.42501223,
+                1.53263983,
+                1.6347008,
+                1.72930577,
+                1.81445713,
+                1.88803302,
+                1.94776248,
+                1.99118768,
+                2.01560727,
+                2.01798957,
+                1.99483563,
+                1.94195218,
+                1.85405013,
+                1.72396697,
+                1.54095551,
+                1.28609572,
+                0.91467686,
+                0.0,
+            ]
+        ),
+        np.array(
+            [
+                0.31101767,
+                0.36285395,
+                0.41469023,
+                0.46652651,
+                0.51836279,
+                0.57019907,
+                0.62203535,
+                0.67387162,
+                0.7257079,
+                0.77754418,
+                0.82938046,
+                0.88121674,
+                0.93305302,
+                0.9848893,
+                1.03672558,
+                1.08856185,
+                1.14039813,
+                1.19223441,
+                1.24407069,
+                1.29590697,
+                1.34774325,
+                1.39957953,
+                1.45141581,
+                1.50325208,
+                1.55508836,
+                1.60692464,
+                1.65876092,
+                1.7105972,
+                1.76243348,
+                1.81426976,
+                1.86610604,
+                1.91794232,
+                1.96977859,
+                2.02161487,
+                2.07345115,
+            ]
+        ),
+        np.array(
+            [
+                0.01885475,
+                0.02516654,
+                0.03215161,
+                0.03970322,
+                0.04771119,
+                0.05606441,
+                0.064653,
+                0.07337019,
+                0.08211375,
+                0.09078708,
+                0.09929983,
+                0.1075683,
+                0.11551535,
+                0.12307017,
+                0.13016774,
+                0.1367481,
+                0.14275548,
+                0.14813724,
+                0.15284265,
+                0.15682157,
+                0.16002283,
+                0.16239239,
+                0.16387106,
+                0.1643917,
+                0.16387534,
+                0.16222599,
+                0.15932295,
+                0.15500896,
+                0.14907081,
+                0.14120494,
+                0.1309506,
+                0.11754146,
+                0.09950375,
+                0.07309429,
+                0.0,
+            ]
+        ),
+        np.array(
+            [
+                0.2732678,
+                0.2675221,
+                0.26119863,
+                0.25436391,
+                0.24708657,
+                0.23943554,
+                0.23147848,
+                0.22328039,
+                0.21490254,
+                0.20640161,
+                0.1978291,
+                0.18923096,
+                0.18064743,
+                0.17211307,
+                0.16365683,
+                0.15530236,
+                0.14706821,
+                0.13896824,
+                0.13101187,
+                0.12320438,
+                0.11554722,
+                0.1080381,
+                0.10067112,
+                0.09343664,
+                0.08632096,
+                0.07930573,
+                0.07236671,
+                0.06547179,
+                0.05857729,
+                0.05162119,
+                0.04450944,
+                0.03708477,
+                0.02904023,
+                0.01957538,
+                0.0,
+            ]
+        ),
+        np.array(
+            [
+                0.90972805,
+                0.90434105,
+                0.89862739,
+                0.89256626,
+                0.88613532,
+                0.87931058,
+                0.87206619,
+                0.86437428,
+                0.85620469,
+                0.84752477,
+                0.838299,
+                0.82848865,
+                0.81805138,
+                0.80694062,
+                0.79510505,
+                0.7824877,
+                0.76902508,
+                0.75464592,
+                0.73926965,
+                0.72280447,
+                0.70514474,
+                0.68616768,
+                0.66572875,
+                0.64365536,
+                0.619738,
+                0.5937172,
+                0.56526388,
+                0.53394827,
+                0.49918808,
+                0.46015586,
+                0.41559731,
+                0.36342601,
+                0.29962042,
+                0.21391652,
+                0.0,
+            ]
+        ),
+    )
 
-    results_dir = get_results_directory(SU2RUN)
-    markdown_file_path = Path(results_dir, "su2actuatordisk.md")
-
-    if markdown_file_path.exists():
-        markdown_file_path.unlink()
-
-    thrust_calculator(get_radial_stations(1.5, 0.2), 0.5, 1.5, 150, True, 2, 33)
-
-    assert markdown_file_path.exists()
-
-    if markdown_file_path.exists():
-        markdown_file_path.unlink()
+    for output_arr, expected_arr in zip(output, expected_output):
+        np.testing.assert_allclose(output_arr, expected_arr, rtol=1e-6, atol=1e-8)
 
 
 def test_write_actuator_disk_data(tmp_path):

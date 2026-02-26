@@ -29,18 +29,18 @@ from ceasiompy.utils.ceasiompytest import CeasiompyTest
 class TestMathsFunctions(CeasiompyTest):
     def test_rot_identity(self):
         """Test rot returns identity matrix for 0 radians."""
-        R = rot(0)
-        np.testing.assert_array_almost_equal(R, np.array([[1, 0], [0, 1]]))
+        r_mat = rot(0)
+        np.testing.assert_array_almost_equal(r_mat, np.array([[1, 0], [0, 1]]))
 
     def test_rot_90deg(self):
         """Test rot returns correct matrix for 90 degrees (pi/2 radians)."""
-        R = rot(np.pi / 2)
-        np.testing.assert_array_almost_equal(R, np.array([[0, -1], [1, 0]]), decimal=6)
+        r_mat = rot(np.pi / 2)
+        np.testing.assert_array_almost_equal(r_mat, np.array([[0, -1], [1, 0]]), decimal=6)
 
     def test_rot_minus_90deg(self):
         """Test rot returns correct matrix for -90 degrees (-pi/2 radians)."""
-        R = rot(-np.pi / 2)
-        np.testing.assert_array_almost_equal(R, np.array([[0, 1], [-1, 0]]), decimal=6)
+        r_mat = rot(-np.pi / 2)
+        np.testing.assert_array_almost_equal(r_mat, np.array([[0, 1], [-1, 0]]), decimal=6)
 
     def test_rotate_2d_point_no_rotation(self):
         """Test rotate_2d_point returns the same point for 0 degree rotation."""
@@ -119,19 +119,19 @@ class TestMathsFunctions(CeasiompyTest):
         b = 30.0   # m
         c = 5.0    # m
 
-        pStar, qStar, rStar = non_dimensionalize_rate(p, q, r, v, b, c)
-        assert pStar == approx(10.0 * 30.0 / (2 * 100.0))
-        assert qStar == approx(20.0 * 5.0 / (2 * 100.0))
-        assert rStar == approx(30.0 * 30.0 / (2 * 100.0))
+        p_star, q_star, r_star = non_dimensionalize_rate(p, q, r, v, b, c)
+        assert p_star == approx(10.0 * 30.0 / (2 * 100.0))
+        assert q_star == approx(20.0 * 5.0 / (2 * 100.0))
+        assert r_star == approx(30.0 * 30.0 / (2 * 100.0))
 
     def test_dimensionalize_rate(self):
         """Test dimensionalize_rate returns correct values."""
-        pStar, qStar, rStar = 1.5, 0.5, 2.0
+        p_star, q_star, r_star = 1.5, 0.5, 2.0
         v = 80.0
         b = 20.0
         c = 4.0
 
-        p, q, r = dimensionalize_rate(pStar, qStar, rStar, v, b, c)
+        p, q, r = dimensionalize_rate(p_star, q_star, r_star, v, b, c)
         assert p == approx(1.5 * (2 * 80.0) / 20.0)
         assert q == approx(0.5 * (2 * 80.0) / 4.0)
         assert r == approx(2.0 * (2 * 80.0) / 20.0)
@@ -143,8 +143,8 @@ class TestMathsFunctions(CeasiompyTest):
         b = 40.0
         c = 6.0
 
-        pStar, qStar, rStar = non_dimensionalize_rate(p, q, r, v, b, c)
-        p2, q2, r2 = dimensionalize_rate(pStar, qStar, rStar, v, b, c)
+        p_star, q_star, r_star = non_dimensionalize_rate(p, q, r, v, b, c)
+        p2, q2, r2 = dimensionalize_rate(p_star, q_star, r_star, v, b, c)
         assert p == approx(p2)
         assert q == approx(q2)
         assert r == approx(r2)

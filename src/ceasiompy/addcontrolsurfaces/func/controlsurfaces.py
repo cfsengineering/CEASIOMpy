@@ -8,14 +8,11 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland.
 
 import math
 import numpy as np
-import plotly.graph_objects as go
 
 from numpy import array
 from cpacspy.cpacsfunctions import get_float_vector
-from ceasiompy.utils.commonpaths import get_wkdir
 from ceasiompy.utils.ceasiompyutils import (
     update_xpath_at_xyz,
-    get_results_directory,
 )
 from ceasiompy.utils.mathsfunctions import (
     rot,
@@ -45,12 +42,10 @@ from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
 from ceasiompy.addcontrolsurfaces import (
-    MODULE_NAME,
     ADDCONTROLSURFACES_CTRLSURF_XPATH,
 )
 from ceasiompy.utils.commonxpaths import (
     AIRFOILS_XPATH,
-    GEOMETRY_MODE_XPATH,
 )
 
 

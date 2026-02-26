@@ -205,7 +205,7 @@ def gui_settings(cpacs: CPACS) -> None:
     wings = sorted(set(wing_uid for (wing_uid, _) in uid_list))
 
     with st.expander(
-        label="Geometry Design Space",
+        label="Geometry Design hce",
         expanded=True,
     ):
         for i_wing, wing_uid in enumerate(wings):

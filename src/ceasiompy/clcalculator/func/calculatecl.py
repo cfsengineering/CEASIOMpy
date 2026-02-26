@@ -46,11 +46,11 @@ def calculate_cl(
 
     """
 
-    Atm = Atmosphere(alt)
+    atmosphere = Atmosphere(alt)
 
     # Calculate lift coefficient
-    weight = mass * Atm.grav_accel[0]
-    dyn_pres = 0.5 * GAMMA * Atm.pressure[0] * mach**2
+    weight = mass * atmosphere.grav_accel[0]
+    dyn_pres = 0.5 * GAMMA * atmosphere.pressure[0] * mach**2
     target_cl = weight * load_fact / (dyn_pres * ref_area)
     log.info(f"A lift coefficient (CL) of {target_cl} has been calculated.")
 

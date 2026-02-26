@@ -27,8 +27,8 @@ HOW_TO_TEXT = (
 
 PAGE_NAME = "Settings"
 
-# Functions
 
+# Functions
 
 def section_settings():
     if "workflow_modules" not in st.session_state:

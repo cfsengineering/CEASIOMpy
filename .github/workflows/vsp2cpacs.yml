@@ -1,0 +1,72 @@
+name: VSP2CPACS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/ceasiompy/vsp2cpacs/**"
+      - "geometries/vspfiles/**"
+      - "installation/ubuntu/openvsp.sh"
+      - "environment.yml"
+      - "setup.py"
+      - "pyproject.toml"
+      - ".github/workflows/vsp2cpacs.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "src/ceasiompy/vsp2cpacs/**"
+      - "geometries/vspfiles/**"
+      - "installation/ubuntu/openvsp.sh"
+      - "environment.yml"
+      - "setup.py"
+      - "pyproject.toml"
+      - ".github/workflows/vsp2cpacs.yml"
+  workflow_dispatch:
+
+jobs:
+  vsp2cpacs-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup MiniConda3
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        auto-update-conda: true
+        python-version: "3.12"
+        activate-environment: ceasiompy
+        environment-file: environment.yml
+        use-mamba: true
+
+    - name: Install libGLU
+      run: sudo apt-get install -y libglu1-mesa-dev
+
+    - name: Pin NumPy ABI for OpenVSP
+      shell: bash -l {0}
+      run: |
+        conda install -y "numpy<2"
+
+    - name: Install ceasiompy and OpenVSP
+      shell: bash -l {0}
+      run: |
+        pip install -e .
+        pip uninstall -y openvsp || true
+        installation/ubuntu/openvsp.sh
+
+    - name: Validate OpenVSP Python binding
+      shell: bash -l {0}
+      env:
+        PYTHONPATH: ${{ github.workspace }}/installdir/OpenVSP/python/openvsp:${{ github.workspace }}/installdir/OpenVSP/python:/usr/local/OpenVSP/python/openvsp:/usr/local/OpenVSP/python:${{ env.PYTHONPATH }}
+      run: |
+        conda activate ceasiompy
+        python -c "from ceasiompy.vsp2cpacs.openvsp_runtime import load_openvsp; vsp=load_openvsp(); print(vsp.__file__); assert hasattr(vsp,'XS_UNDEFINED')"
+
+    - name: Run vsp2cpacs test
+      shell: bash -l {0}
+      env:
+        PYTHONPATH: ${{ github.workspace }}/installdir/OpenVSP/python/openvsp:${{ github.workspace }}/installdir/OpenVSP/python:/usr/local/OpenVSP/python/openvsp:/usr/local/OpenVSP/python:${{ env.PYTHONPATH }}
+      run: |
+        conda activate ceasiompy
+        pytest -v src/ceasiompy/vsp2cpacs/tests/vsp2cpacs.py

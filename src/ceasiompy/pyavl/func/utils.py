@@ -54,10 +54,10 @@ def practical_limit_rate_check(
     b = s / c
 
     # Speed of sound is lower at higher altitude
-    Atm = Atmosphere(max(alt_list))
+    atmosphere = Atmosphere(max(alt_list))
 
     # With a lower mach we have a lower reference velocity
-    velocity = Atm.speed_of_sound[0] * min(mach_list)
+    velocity = atmosphere.speed_of_sound[0] * min(mach_list)
 
     # See https://web.mit.edu/drela/Public/web/avl/AVL_User_Primer.pdf
     # for how he non-dimensionalize the rates
@@ -123,10 +123,10 @@ def split_line(line: str, index: int) -> float:
 
 
 def get_atmospheric_cond(alt: float, mach: float) -> Tuple[float, float, float]:
-    Atm = Atmosphere(alt)
-    density = Atm.density[0]
-    g = Atm.grav_accel[0]
-    velocity = Atm.speed_of_sound[0] * mach
+    atmosphere = Atmosphere(alt)
+    density = atmosphere.density[0]
+    g = atmosphere.grav_accel[0]
+    velocity = atmosphere.speed_of_sound[0] * mach
 
     return density, g, velocity
 

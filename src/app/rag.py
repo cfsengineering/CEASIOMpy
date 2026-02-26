@@ -125,7 +125,7 @@ def build_index(
             continue
 
         for idx in range(0, len(lines), chunk_lines):
-            chunk = lines[idx : idx + chunk_lines]
+            chunk = lines[idx: idx + chunk_lines]
             if not chunk:
                 continue
             chunks.append(

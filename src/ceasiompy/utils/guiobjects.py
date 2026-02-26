@@ -17,6 +17,7 @@ from cpacspy.cpacsfunctions import (
     get_string_vector,
 )
 
+from pint import UnitRegistry
 from tixi3.tixi3wrapper import (
     Tixi3,
     Tixi3Exception,
@@ -25,17 +26,22 @@ from tixi3.tixi3wrapper import (
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 
+# Constants
+UREG = UnitRegistry()
+
 
 # Methods
 
 def _get_label(name: str, unit: str | None) -> str:
-    if unit is not None:
-        if "[" != unit[0]:
-            unit += f"[{unit}"
-        if "]" != unit[0]:
-            unit += f"{unit}]"
-        name = f"{name} {unit}"
-    return name
+    if not unit:
+        return name
+    try:
+        u = UREG.Unit(unit)
+        # Pretty compact formatting; use "~P" or "~L" depending on output target
+        return f"{name} [{u:~P}]"
+    except Exception:
+        # Fallback if unit string is unknown
+        return f"{name} [{unit}]"
 
 
 # Functions
@@ -365,6 +371,7 @@ def add_ctrl_surf_vartype(
                 min_value=-90.0,
                 max_value=90.0,
             )
+
         # Define constants
         if tixi.getTextElement(GEOMETRY_MODE_XPATH) != "2D":
             with mid_col:
@@ -388,21 +395,20 @@ def add_ctrl_surf_vartype(
                     help="Set the gap (right-translation) in y.",
                     min_value=0.0,
                 )
-        else:
-            # In the 2D case there is no y-translation
-            add_value(
-                tixi=tixi,
-                xpath=left_trsl_xpath,
-                value=0.0,
-            )
-            add_value(
-                tixi=tixi,
-                xpath=right_trsl_xpath,
-                value=0.0,
-            )
+            return def_angle, left_trsl, right_trsl
 
-        return def_angle, left_trsl, right_trsl
-    return None
+        # In the 2D case there is no y-translation
+        add_value(
+            tixi=tixi,
+            xpath=left_trsl_xpath,
+            value=0.0,
+        )
+        add_value(
+            tixi=tixi,
+            xpath=right_trsl_xpath,
+            value=0.0,
+        )
+        return def_angle, 0.0, 0.0
 
 
 def bool_vartype(tixi, xpath, default_value, name, key, help) -> bool:

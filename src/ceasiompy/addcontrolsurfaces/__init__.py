@@ -18,7 +18,7 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 MODULE_STATUS = True
 
 # ===== Add a Results Directory =====
-RES_DIR = False
+RES_DIR = True
 
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent

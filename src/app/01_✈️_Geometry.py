@@ -31,7 +31,7 @@ from ceasiompy.utils.ceasiompyutils import (
 from streamlitutils import (
     scroll_down,
     create_sidebar,
-    section_3D_view,
+    section_3d_view,
     close_cpacs_handles,
     build_default_upload,
 )
@@ -68,6 +68,30 @@ PAGE_NAME: Final[str] = "Geometry"
 
 
 # Methods
+def _bootstrap_cli_geometry() -> None:
+    """Inject geometry passed from CLI into the same upload/conversion flow."""
+
+    if st.session_state.get("_cli_geometry_bootstrapped"):
+        return
+
+    st.session_state["_cli_geometry_bootstrapped"] = True
+    cli_geometry = os.environ.get("CEASIOMPY_GEOMETRY", "").strip()
+    if not cli_geometry:
+        return
+
+    geometry_path = Path(cli_geometry).expanduser()
+    if not geometry_path.is_absolute():
+        geometry_path = (Path.cwd() / geometry_path).resolve()
+
+    if not geometry_path.exists():
+        st.warning(f"CLI geometry path does not exist: {geometry_path}")
+        return
+
+    st.session_state["pending_default_cpacs"] = str(geometry_path)
+    st.session_state["uploaded_default_cpacs"] = True
+    st.session_state["_cli_geometry_autonext"] = True
+
+
 def _clean_toolspecific(cpacs: CPACS) -> CPACS:
     air_name = cpacs.ac_name
 
@@ -136,13 +160,11 @@ def _create_cpacs_from(
     st.session_state["uploaded_default_cpacs"] = False
     wkdir = st.session_state.workflow.working_dir
     wkdir.mkdir(parents=True, exist_ok=True)
-    if airfoil_name is None:
-        airfoil_name = "custom"
-    safe_name = "".join(
-        char if (char.isalnum() or char in ("-", "_")) else "_" for char in airfoil_name.strip()
-    )
-    if not safe_name:
+
+    safe_name = airfoil_name
+    if safe_name is None:
         safe_name = "custom"
+
     new_cpacs_path = Path(wkdir, f"airfoil_{safe_name}.xml")
     cpacs.save_cpacs(new_cpacs_path, overwrite=True)
 
@@ -184,6 +206,20 @@ def _read_airfoil_xy(airfoil_path: Path) -> tuple[list[float], list[float]]:
         )
 
     return x_vals, y_vals
+
+
+def _to_float_or_default(value: str | int | float | None, default: float = 0.0) -> float:
+    """Best-effort conversion to float for Streamlit numeric widgets."""
+
+    if value is None:
+        return default
+
+    try:
+        casted = float(value)
+    except (TypeError, ValueError):
+        return default
+
+    return casted if np.isfinite(casted) else default
 
 
 def _section_generate_cpacs_airfoil() -> CPACS | None:
@@ -308,11 +344,9 @@ def _section_load_cpacs() -> CPACS | None:
             st.session_state["last_uploaded_digest"] = uploaded_digest
             st.session_state["last_uploaded_name"] = uploaded_file.name
 
-        if (
-            uploaded_path.suffix == ".csv"
-            or uploaded_path.suffix == ".dat"
-            or uploaded_path.suffix == ".txt"
-        ):
+        suffix = uploaded_path.suffix.lower()
+
+        if suffix in {".csv", ".dat", ".txt"}:
             try:
                 airfoil_x, airfoil_y = _read_airfoil_xy(uploaded_path)
             except Exception as exc:
@@ -325,7 +359,7 @@ def _section_load_cpacs() -> CPACS | None:
                 airfoil_name=uploaded_path.stem,
             )
 
-        elif uploaded_path.suffix == ".vsp3":
+        elif suffix in {".vsp3", ".vsp"}:
             should_convert = (not is_same_upload) or (
                 st.session_state.get("last_converted_vsp3_digest") != uploaded_digest
             )
@@ -387,7 +421,7 @@ def _section_load_cpacs() -> CPACS | None:
                 st.session_state["cpacs"] = cpacs
                 return cpacs
 
-        elif uploaded_path.suffix == ".xml":
+        elif suffix == ".xml":
             new_cpacs_path = uploaded_path
             st.session_state["last_converted_cpacs_path"] = str(uploaded_path)
             cpacs = CPACS(str(uploaded_path))
@@ -442,13 +476,16 @@ def section_select_cpacs() -> None:
     dim_mode = (geometry_mode == "2D")
 
     st.markdown("---")
-    ref_area = None
+    ref_area: float | None = None
+    ref_length: float = 0.0
     try:
         if not dim_mode:
-            ref_area, ref_length = compute_aircraft_ref_values(cpacs)
+            area, length = compute_aircraft_ref_values(cpacs)
+            ref_area = _to_float_or_default(area, 0.0)
+            ref_length = _to_float_or_default(length, 0.0)
 
         if dim_mode:
-            ref_length = compute_airfoil_ref_length(cpacs)
+            ref_length = _to_float_or_default(compute_airfoil_ref_length(cpacs), 0.0)
 
     except Exception as e:
         ref_area, ref_length = 0.0, 0.0
@@ -462,17 +499,20 @@ def section_select_cpacs() -> None:
     title += ")"
     st.markdown(title)
 
-    section_3D_view(cpacs=cpacs, force_regenerate=True)
+    section_3d_view(
+        cpacs=cpacs,
+        force_regenerate=True,
+    )
 
     # Once 3D view of CPACS file is done scroll down
     scroll_down()
     st.markdown("---")
 
     if tixi.checkElement(AREA_XPATH):
-        ref_area = get_value(tixi, xpath=AREA_XPATH)
+        ref_area = _to_float_or_default(get_value(tixi, xpath=AREA_XPATH), 0.0)
 
     if tixi.checkElement(LENGTH_XPATH):
-        ref_length = get_value(tixi, xpath=LENGTH_XPATH)
+        ref_length = _to_float_or_default(get_value(tixi, xpath=LENGTH_XPATH), 0.0)
 
     spec = 1 if dim_mode else 2
     cols = st.columns(
@@ -484,11 +524,12 @@ def section_select_cpacs() -> None:
             value=ref_length,
             min_value=0.0,
         )
+    new_ref_area: float | None = ref_area
     if not dim_mode:
         with cols[1]:
             new_ref_area = st.number_input(
                 label="Reference Area",
-                value=ref_area,
+                value=ref_area if ref_area is not None else 0.0,
                 min_value=0.0,
             )
 
@@ -508,8 +549,10 @@ def section_select_cpacs() -> None:
     # 3D update
     if (
         not dim_mode
+        and ref_area is not None
         and np.isfinite(ref_area) and ref_area > 0.0
         and np.isfinite(ref_length) and ref_length > 0.0
+        and new_ref_area is not None
     ):
         add_value(
             tixi=tixi,
@@ -554,6 +597,8 @@ if __name__ == "__main__":
     # Initialize the workflow object
     if "workflow" not in st.session_state:
         st.session_state["workflow"] = Workflow()
+
+    _bootstrap_cli_geometry()
 
     st.markdown("---")
 

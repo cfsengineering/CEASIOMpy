@@ -29,7 +29,7 @@ jobs:
       uses: conda-incubator/setup-miniconda@v3
       with:
         auto-update-conda: true
-        python-version: "3.11"
+        python-version: "3.12"
         activate-environment: ceasiompy # This keeps the env active for all 'bash -l' steps
         environment-file: environment.yml
         use-mamba: true # Mamba is much faster and more reliable than Conda for solving envs
@@ -47,7 +47,9 @@ jobs:
       shell: bash -l {0}
       run: |
         # No source ~/.bashrc needed because of 'shell: bash -l {0}' and 'activate-environment'
-        pytest -v src/ceasiompy --cov=ceasiompy --cov-report xml:coverage.xml
+        pytest -v src/ceasiompy \
+          --ignore=src/ceasiompy/vsp2cpacs/tests/test_vsp2cpacs.py \
+          --cov=ceasiompy --cov-report xml:coverage.xml
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4

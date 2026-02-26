@@ -13,15 +13,13 @@ It is subsequently processed by this module to generate a CPACS file.
 
 # Imports
 
-import openvsp as vsp
+from ceasiompy.vsp2cpacs.func.pod import Import_POD
+from ceasiompy.vsp2cpacs.func.duct import Import_Duct
+from ceasiompy.vsp2cpacs.func.wing import Import_Wing
+from ceasiompy.vsp2cpacs.func.fuselage import Import_Fuse
+from ceasiompy.vsp2cpacs.openvsp_runtime import vsp
 
 from pathlib import Path
-
-from ceasiompy.vsp2cpacs.func.duct import Import_Duct
-from ceasiompy.vsp2cpacs.func.fuselage import Import_Fuse
-from ceasiompy.vsp2cpacs.func.pod import Import_POD
-from ceasiompy.vsp2cpacs.func.wing import Import_Wing
-
 from ceasiompy.vsp2cpacs.func.exportcpacs import Export_CPACS
 
 from ceasiompy import log
@@ -53,6 +51,7 @@ def CheckParent(Data, idx, Parents, Uid):
 
 
 def main(vsp_file: str | Path, output_dir: str | Path | None = None) -> Path:
+
     vsp_file = Path(vsp_file)
     output_dir = Path(output_dir) if output_dir is not None else None
 

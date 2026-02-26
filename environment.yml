@@ -7,14 +7,15 @@ channels:
 
 dependencies:
   - pip>=25.0.1
-  - python==3.11.14
+  - python>=3.12,<3.13
   - ipython>=8.30.0
   - ipywidgets>=8.1.5
+  # - python-freethreading  # Not possible due to dlr-sc libraries
 
   # DLR Library
   - dlr-sc::tigl3
   - dlr-sc::tixi3
-  - dlr-sc::cpacscreator>=0.2
+  # - dlr-sc::cpacscreator>=0.2
 
   - conda-forge::freetype>=2.13.0
 
@@ -50,7 +51,6 @@ dependencies:
 
   # CEASIOMpyLight
   - conda-forge::fastapi
-  - conda-forge::uvicorn
   - conda-forge::pydantic
 
   - conda-forge::altair
@@ -61,27 +61,31 @@ dependencies:
       - cpacspy>=0.2.0
       - Cython>=3.0.12
 
+      # Scientific tools
+      - pint
       - numpy-stl>=3.2.0
       - markdownpy>=0.1.4
+
+      # Visualization
       - matplotlib>=3.10.1
       - om-pycycle>=4.3.0
       - pycycle
       - psutil>=7.0.0
       - pytest>=8.3.4
-      - pyvista==0.46.5
-      - pyvista[jupyter]
-      - trame
+
+      - vtk>=9.6.0
+      - pyvista>=0.47.1
+      - panel>=1.4.1
+      - trame>=3.12.0
       - trame-vtk
       - trame-client
       - trame-server
       - trame-components
       - shapely>=2.1.0
-      - smt>=2.9.2
-      - stpyvista==0.1.4
-      - "pyvista[jupyter]"
+      - cadquery
 
       # Streamlit
-      - streamlit==1.51.0
+      - streamlit>=1.54.0
       - streamlit_sortables
       - streamlit-flow-component>=1.6.1
       - streamlit-float
@@ -89,6 +93,7 @@ dependencies:
       - protobuf<=3.20.3
 
       # Optimization
+      - smt>=2.9.2
       - scikit-optimize>=0.10.2
 
       # Aeroframe
@@ -108,7 +113,6 @@ dependencies:
       - gmsh>=4.13.1
       - meshio>=5.3.5
       - pymeshfix
-      - vtk>=9.3.0
 
       # Surrogate Modelling
       - SALib

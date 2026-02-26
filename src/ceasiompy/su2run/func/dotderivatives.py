@@ -111,10 +111,10 @@ def compute_derivatives(
     n_cwt = norm(cwt)
     n_swt = norm(swt)
 
-    # Define the matrix M (corresponds to M^-1 in latex).
-    M = np.array([[n_cwt, -cwt_swt], [-cwt_swt, n_swt]])
+    # Define the matrix matrix (corresponds to matrix^-1 in latex).
+    matrix = np.array([[n_cwt, -cwt_swt], [-cwt_swt, n_swt]])
 
-    det_M = n_cwt * n_swt - (cwt_swt**2)
+    det_matrix = n_cwt * n_swt - (cwt_swt**2)
 
     # Differences
     f = f_time - f_static
@@ -125,7 +125,7 @@ def compute_derivatives(
 
     log.info("vector shape: %s", vector.shape)
 
-    x_min, y_min = (det_M / a) * np.dot(M, vector)
+    x_min, y_min = (det_matrix / a) * np.dot(matrix, vector)
 
     log.info("x_min shape: %s, y_min shape: %s", x_min.shape, y_min.shape)
 

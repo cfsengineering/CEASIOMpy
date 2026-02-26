@@ -10,8 +10,6 @@ Initialization for StaticStability module.
 
 from pathlib import Path
 
-from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
-
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================

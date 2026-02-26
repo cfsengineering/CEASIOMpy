@@ -403,7 +403,7 @@ def classify_wing(wing_part: ModelPart, aircraft_parts: List) -> None:
     le_te_pair = []
 
     for i, line_comp1 in enumerate(lines_composition):
-        for line_comp2 in lines_composition[(i + 1) :]:
+        for line_comp2 in lines_composition[(i + 1):]:
             # try to detect if two line form a normal profile
             le_te_pair, found_normal = detect_normal_profile(le_te_pair, line_comp1, line_comp2)
             if not found_normal:

@@ -5,22 +5,18 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 """
 
 # Imports
-import gmsh
 import signal
 import threading
 
 from ceasiompy.utils.guiobjects import add_value
 from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.utils.progress import progress_update
-
 from ceasiompy.cpacs2gmsh.meshing.eulermesh import euler_mesh
-from ceasiompy.cpacs2gmsh.meshing.gmshvolume import gmsh_volume_mesh
-
 from ceasiompy.cpacs2gmsh.utility.exportbrep import export_brep
 from ceasiompy.cpacs2gmsh.meshing.ransmesh import pentagrow_3d_mesh
 from ceasiompy.cpacs2gmsh.meshing.generate2dmesh import (
     generate_surface_mesh,
-    prepare_euler_surface_mesh,
+    generate_volume_mesh,
 )
 from ceasiompy.cpacs2gmsh.utility.utils import (
     initialize_gmsh,
@@ -60,6 +56,9 @@ def _patch_signal_for_gmsh() -> None:
 
 _patch_signal_for_gmsh()
 
+# Import gmsh only after patching signal handlers for non-main-thread runtimes.
+import gmsh
+
 
 # Functions
 
@@ -96,13 +95,15 @@ def main(
         raise ValueError(f"Can not call {MODULE_NAME} for a airfoil-cpacs file.")
 
     # If we reach here, we are in 3D mode
-    log.info("Proceeding with 3D mesh generation...")
     tixi = cpacs.tixi
     try:
         # Initialize gmsh (with a clean session on each run).
-        log.info("Initializing Gmsh session for 3D meshing.")
+        progress_update(
+            progress_callback,
+            detail="Initializing Gmsh session for 3D meshing.",
+            progress=0.01,
+        )
         initialize_gmsh()
-        log.info("Gmsh session initialized.")
 
         mesh_settings = get_2d_mesh_settings(cpacs)
         farfield_settings = get_farfield_settings(tixi)
@@ -113,75 +114,63 @@ def main(
             detail="Exporting Geometry into brep files.",
             progress=0.08,
         )
-        log.info("Starting BREP export from CPACS geometry.")
         aircraft_geom = export_brep(cpacs)
-        log.info("BREP export completed.")
 
-        # 2D Surface meshing
         progress_update(
             progress_callback,
-            detail="Starting Surface meshing.",
+            detail="Starting 2D mesh creation.",
             progress=0.1,
         )
-        log.info("Starting 2D surface meshing.")
+
         surface_mesh_path = generate_surface_mesh(
             results_dir=results_dir,
             mesh_settings=mesh_settings,
             aircraft_geom=aircraft_geom,
+            farfield_settings=farfield_settings,
+            progress_callback=progress_callback,
         )
-        log.info("2D surface meshing completed.")
 
-        if mesh_settings.add_boundary_layer:
-            log.info("Starting Boundary Layer Generation.")
-            boundary_layer_settings = retrieve_rans_gui_values(tixi)
+        # if mesh_settings.add_boundary_layer:
+        #     # 2D aircraft surface meshing (Pentagrow input)
+        #     progress_update(
+        #         progress_callback,
+        #         detail="Starting Surface meshing.",
+        #         progress=0.1,
+        #     )
 
-            progress_update(
-                progress_callback,
-                detail="Starting Volume Meshing with Pentagrow.",
-                progress=0.5,
-            )
+        #     boundary_layer_settings = retrieve_rans_gui_values(tixi)
+        #     progress_update(
+        #         progress_callback,
+        #         detail="Starting Volume Meshing with Pentagrow.",
+        #         progress=0.5,
+        #     )
 
-            su2mesh_path = pentagrow_3d_mesh(
-                results_dir=results_dir,
-                output_format="su2",
-                mesh_settings=mesh_settings,
-                surface_mesh_path=surface_mesh_path,
-                farfield_settings=farfield_settings,
-                boundary_layer_settings=boundary_layer_settings,
-            )
-        else:
-            progress_update(
-                progress_callback,
-                detail="Starting Euler 3D volume meshing.",
-                progress=0.6,
-            )
-            log.info("Starting Farfield Visualization.")
-            euler_surface_mesh_path = prepare_euler_surface_mesh(
-                results_dir=results_dir,
-                mesh_settings=mesh_settings,
-                farfield_settings=farfield_settings,
-                aircraft_surface_mesh_path=surface_mesh_path,
-            )
-            progress_update(
-                progress_callback,
-                detail="Running TetGen Euler volume meshing.",
-                progress=0.75,
-            )
-            use_gmsh: bool = True
-            if use_gmsh:
-                su2mesh_path = gmsh_volume_mesh(
-                    results_dir=results_dir,
-                    mesh_settings=mesh_settings,
-                    farfield_settings=farfield_settings,
-                )
-            else:
-                su2mesh_path = euler_mesh(
-                    results_dir=results_dir,
-                    mesh_settings=mesh_settings,
-                    surface_mesh_path=euler_surface_mesh_path,
-                    farfield_settings=farfield_settings,
-                )
-            log.info("Euler 3D volume meshing completed.")
+        #     su2mesh_path = pentagrow_3d_mesh(
+        #         results_dir=results_dir,
+        #         output_format="su2",
+        #         mesh_settings=mesh_settings,
+        #         surface_mesh_path=surface_mesh_path,
+        #         farfield_settings=farfield_settings,
+        #         boundary_layer_settings=boundary_layer_settings,
+        #     )
+
+        progress_update(
+            progress_callback,
+            detail="Starting Volume Meshing.",
+            progress=0.75,
+        )
+        # su2mesh_path = generate_volume_mesh(
+        #     results_dir=results_dir,
+        #     mesh_settings=mesh_settings,
+        #     farfield_settings=farfield_settings,
+        #     progress_callback=progress_callback,
+        # )
+        su2mesh_path = euler_mesh(
+            results_dir=results_dir,
+            surface_mesh_path=surface_mesh_path,
+            mesh_settings=mesh_settings,
+            farfield_settings=farfield_settings,
+        )
 
         progress_update(
             progress_callback,

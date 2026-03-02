@@ -145,7 +145,7 @@ def gui_settings(cpacs: CPACS) -> None:
         symmetry = bool_vartype(
             tixi=tixi,
             xpath=GMSH_XZ_SYMMETRY_XPATH,
-            default_value=not has_sideslip,
+            default_value=False,    # not has_sideslip,
             name="XZ-Symmetry",
             help=f"""Mesh half or the entire domain.
                 {
@@ -581,7 +581,6 @@ def _domain_settings(
             default_value=round(vec["y"], ndigits=3),
             min_value=(delta_y := vec["y"] / 10.0),
             step=delta_y,
-            max_value=2 * vec["y"],
         )
     with right_col:
         z_length = float_vartype(

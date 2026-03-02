@@ -2,6 +2,8 @@
 
 from typing import Callable
 
+from ceasiompy import log
+
 
 # Functions
 
@@ -12,7 +14,9 @@ def progress_update(
     progress: float | None = None,
 ) -> None:
     if progress_callback is None:
-        return
+        return None
+
+    log.info(detail)
     progress_callback(
         detail=detail,
         progress=progress,

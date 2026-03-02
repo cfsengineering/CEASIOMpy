@@ -11,7 +11,7 @@ from __future__ import annotations
 # Imports
 
 from tigl3.import_export_helper import export_shapes
-from ceasiompy.cpacs2gmsh.utility.engineconversion import engine_conversion
+from ceasiompy.CPACS2GMSH.utility.engineconversion import engine_conversion
 from cpacspy.cpacsfunctions import get_value
 
 from typing import Any
@@ -20,11 +20,11 @@ from cpacspy.cpacspy import CPACS
 from tigl3.geometry import CNamedShape
 from OCC.Core.TopoDS import TopoDS_Shape
 from ceasiompy.utils.configfiles import ConfigFile
-from ceasiompy.cpacs2gmsh.utility.utils import (
+from ceasiompy.CPACS2GMSH.utility.utils import (
     Geometry,
     AircraftGeometry,
 )
-from ceasiompy.cpacs2gmsh import GMSH_XZ_SYMMETRY_XPATH
+from ceasiompy.CPACS2GMSH import GMSH_XZ_SYMMETRY_XPATH
 
 from ceasiompy import log
 from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
@@ -293,6 +293,7 @@ def export_brep(cpacs: CPACS) -> AircraftGeometry:
     engine_surface_percent : Tuple containing the position percentage
         of the surface intake and exhaust bc for the engine
     """
+
     aircraft_config = cpacs.aircraft.configuration
     symmetry_enabled = bool(get_value(cpacs.tixi, xpath=GMSH_XZ_SYMMETRY_XPATH))
     include_mirrored = not symmetry_enabled

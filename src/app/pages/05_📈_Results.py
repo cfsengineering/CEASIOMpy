@@ -577,13 +577,14 @@ def _collect_surface_marker_ids(mesh: meshio.Mesh) -> tuple[set[int], set[int]]:
         if not isinstance(name, str):
             continue
         marker_name = name.strip().lower()
+        marker_norm = "".join(ch for ch in marker_name if ch.isalnum())
         try:
             marker_id = int(np.asarray(data).reshape(-1)[0])
         except Exception:
             continue
-        if "wall" in marker_name:
+        if "wall" in marker_norm:
             wall_ids.add(marker_id)
-        elif "farfield" in marker_name or "symmetry" in marker_name:
+        elif "farfield" in marker_norm or "symmetry" in marker_norm:
             outer_ids.add(marker_id)
 
     return wall_ids, outer_ids
@@ -2017,8 +2018,14 @@ def _build_su2_surface_cached(path_str: str, mtime_ns: int) -> pv.PolyData:
 
 
 @st.cache_resource(show_spinner=False)
-def _build_su2_display_surface_cached(path_str: str, mtime_ns: int) -> pv.PolyData:
-    """Build SU2 display surface without Farfield triangles, preserving symmetry."""
+def _build_su2_display_surface_cached(
+    path_str: str,
+    mtime_ns: int,
+    wall_only_3d: bool,
+    marker_filter_version: int = 1,
+) -> pv.PolyData:
+    """Build SU2 display surface and optionally keep only wall markers for 3D."""
+    _ = marker_filter_version  # cache key for marker filtering logic updates
 
     meshio_mesh = _load_su2_meshio_cached(path_str, mtime_ns)
     points, triangles, _, cell_data = _extract_surface_mesh(meshio_mesh)
@@ -2027,21 +2034,25 @@ def _build_su2_display_surface_cached(path_str: str, mtime_ns: int) -> pv.PolyDa
 
     keep_mask = np.ones(len(triangles), dtype=bool)
     phys_ids_raw = cell_data.get("gmsh:physical")
+    wall_filter_applied = False
 
     if phys_ids_raw is not None and len(phys_ids_raw) == len(triangles):
         phys_ids = np.asarray(np.rint(phys_ids_raw), dtype=np.int64)
         wall_phys_ids, outer_phys_ids = _collect_surface_marker_ids(meshio_mesh)
 
-        if wall_phys_ids:
-            keep_mask = np.isin(
-                phys_ids,
-                np.fromiter(sorted(wall_phys_ids), dtype=np.int64),
-            )
-        elif outer_phys_ids:
-            keep_mask = ~np.isin(
-                phys_ids,
-                np.fromiter(sorted(outer_phys_ids), dtype=np.int64),
-            )
+        if wall_only_3d:
+            if outer_phys_ids:
+                keep_mask &= ~np.isin(
+                    phys_ids,
+                    np.fromiter(sorted(outer_phys_ids), dtype=np.int64),
+                )
+                wall_filter_applied = True
+            if wall_phys_ids:
+                keep_mask &= np.isin(
+                    phys_ids,
+                    np.fromiter(sorted(wall_phys_ids), dtype=np.int64),
+                )
+                wall_filter_applied = True
 
     if not np.any(keep_mask):
         # Fallback to legacy builder if markers are missing/ambiguous.
@@ -2076,6 +2087,11 @@ def _build_su2_display_surface_cached(path_str: str, mtime_ns: int) -> pv.PolyDa
             normals = surface.compute_normals()
             surface = _as_polydata(normals) or surface
 
+    # Fallback for 3D SU2 files without usable marker metadata:
+    # remove enclosing farfield connected component by geometry.
+    if wall_only_3d and not wall_filter_applied:
+        surface = _remove_farfield_surface_component(surface)
+
     return surface
 
 
@@ -2102,7 +2118,16 @@ def _load_su2_meshio_cached(path_str: str, mtime_ns: int) -> meshio.Mesh:
             temp_file_path = temp_file.name
         if temp_file_path is None:
             raise RuntimeError("Temporary SU2 file was not created.")
-        return meshio.read(temp_file_path)
+        mesh = meshio.read(temp_file_path)
+        # Keep original marker names in field_data so callers can identify
+        # "wall"/"Farfield"/"symmetry" even though SU2 tags were remapped to ints.
+        field_data = dict(mesh.field_data or {})
+        for marker_name, marker_id in marker_map.items():
+            if marker_name in field_data:
+                continue
+            field_data[marker_name] = np.array([marker_id, 2], dtype=int)
+        mesh.field_data = field_data
+        return mesh
     finally:
         if temp_file_path is not None:
             try:
@@ -2236,8 +2261,24 @@ def _display_su2(path: Path) -> None:
     path_str = str(path)
     mtime_ns = path.stat().st_mtime_ns
 
+    is_3d = True
     try:
-        surface = _build_su2_display_surface_cached(path_str, mtime_ns)
+        meshio_mesh = _load_su2_meshio_cached(path_str, mtime_ns)
+        points = np.asarray(meshio_mesh.points, dtype=float)
+        if points.shape[1] > 3:
+            points = points[:, :3]
+        spans = np.ptp(points, axis=0) if len(points) else np.zeros(3, dtype=float)
+        is_3d = float(np.min(spans)) > 1e-10
+    except Exception:
+        is_3d = True
+
+    try:
+        surface = _build_su2_display_surface_cached(
+            path_str,
+            mtime_ns,
+            wall_only_3d=is_3d,
+            marker_filter_version=2,
+        )
     except Exception as exc:
         st.error(f"Failed to read SU2 mesh: {exc}")
         return

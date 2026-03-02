@@ -4,8 +4,8 @@ import gmsh
 import shutil
 
 from pathlib import Path
-from ceasiompy.cpacs2gmsh.utility.utils import PartType
-from ceasiompy.cpacs2gmsh.utility.surface import (
+from ceasiompy.CPACS2GMSH.utility.utils import PartType
+from ceasiompy.CPACS2GMSH.utility.surface import (
     FuseEntry,
     SurfacePart,
 )
@@ -82,6 +82,190 @@ def _surface_open_boundary_lines(surface_tag: int) -> list[int]:
         open_lines.update(lines_by_point.get(point, set()))
 
     return sorted(open_lines)
+
+
+def _remap_fused_parts_if_needed(
+    fused_parts: list[FuseEntry],
+    old_centers: dict[str, tuple[float, float, float]],
+) -> None:
+    """Remap fused part volume tags if OCC healing changed them."""
+    current_volume_tags = sorted(tag for (_, tag) in gmsh.model.occ.getEntities(3))
+    current_volume_set = set(current_volume_tags)
+    stale_parts = [part for part in fused_parts if part.dimtag[1] not in current_volume_set]
+    if not stale_parts:
+        return
+
+    new_centers: dict[int, tuple[float, float, float]] = {}
+    for tag in current_volume_tags:
+        bb = gmsh.model.occ.getBoundingBox(3, tag)
+        new_centers[tag] = (
+            0.5 * (bb[0] + bb[3]),
+            0.5 * (bb[1] + bb[4]),
+            0.5 * (bb[2] + bb[5]),
+        )
+
+    # OCC healing can merge/split volumes. Rebuild mapping robustly if counts differ.
+    if len(current_volume_tags) != len(fused_parts):
+        def _sqdist(part: FuseEntry, tag: int) -> float:
+            cx, cy, cz = old_centers[part.name]
+            nx, ny, nz = new_centers[tag]
+            return (nx - cx) ** 2 + (ny - cy) ** 2 + (nz - cz) ** 2
+
+        # Ensure every healed volume tag is represented at least once.
+        grouped_parts: dict[int, list[FuseEntry]] = defaultdict(list)
+        assigned_parts: set[str] = set()
+        assigned_tags: set[int] = set()
+        part_by_name: dict[str, FuseEntry] = {part.name: part for part in fused_parts}
+
+        candidate_pairs = sorted(
+            [
+                (_sqdist(part, tag), tag, part.name)
+                for part in fused_parts
+                for tag in current_volume_tags
+            ],
+            key=lambda item: (item[0], item[1], item[2]),
+        )
+
+        for _, tag, part_name in candidate_pairs:
+            if len(assigned_tags) == len(current_volume_tags):
+                break
+            if tag in assigned_tags or part_name in assigned_parts:
+                continue
+            part = part_by_name[part_name]
+            grouped_parts[tag].append(part)
+            assigned_tags.add(tag)
+            assigned_parts.add(part_name)
+
+        # Attach remaining old parts to their nearest healed volume.
+        for part in fused_parts:
+            if part.name in assigned_parts:
+                continue
+            best_tag = min(
+                current_volume_tags,
+                key=lambda tag: (_sqdist(part, tag), tag),
+            )
+            grouped_parts[best_tag].append(part)
+
+        # Keep any still-unassigned healed tags instead of dropping geometry.
+        fallback_part = min(
+            fused_parts,
+            key=lambda p: (
+                0 if p.part_type == PartType.fuselage else 1,
+                p.name,
+            ),
+        )
+        for tag in current_volume_tags:
+            if tag not in grouped_parts:
+                grouped_parts[tag].append(fallback_part)
+
+        rebuilt_parts: list[FuseEntry] = []
+        for tag in sorted(current_volume_tags):
+            grouped = grouped_parts[tag]
+            fuselage_names = [part.name for part in grouped if part.part_type == PartType.fuselage]
+            primary_name = fuselage_names[0] if fuselage_names else grouped[0].name
+            merged_name = f"{primary_name}#healed{tag}"
+            merged_type = grouped[0].part_type
+            for part in grouped[1:]:
+                merged_type = resolve_merged_part_type(merged_type, part.part_type)
+            rebuilt_parts.append(FuseEntry(
+                name=merged_name,
+                dimtag=(3, tag),
+                part_type=merged_type,
+            ))
+
+        fused_parts[:] = rebuilt_parts
+        log.warning(
+            "OCC healing changed volume count (%d -> %d); rebuilt part-to-volume mapping.",
+            len(old_centers),
+            len(current_volume_tags),
+        )
+        return
+
+    unassigned_tags = set(current_volume_tags)
+    for part in fused_parts:
+        cx, cy, cz = old_centers[part.name]
+        best_tag = min(
+            unassigned_tags,
+            key=lambda tag: (
+                (new_centers[tag][0] - cx) ** 2
+                + (new_centers[tag][1] - cy) ** 2
+                + (new_centers[tag][2] - cz) ** 2,
+                tag,
+            ),
+        )
+        part.dimtag = (3, best_tag)
+        unassigned_tags.remove(best_tag)
+
+    log.warning("OCC healing changed volume tags; remapped fused parts by geometric proximity.")
+
+
+def _count_free_edge_components(line_tags: list[int]) -> tuple[int, int]:
+    """Return number of connected free-edge components and how many are closed loops."""
+    if not line_tags:
+        return 0, 0
+
+    adjacency: dict[int, set[int]] = defaultdict(set)
+    valid_edges = 0
+    for line_tag in line_tags:
+        endpoints = _line_endpoints(line_tag)
+        if endpoints is None:
+            continue
+        p1, p2 = endpoints
+        adjacency[p1].add(p2)
+        adjacency[p2].add(p1)
+        valid_edges += 1
+
+    if valid_edges == 0:
+        return 0, 0
+
+    visited: set[int] = set()
+    components = 0
+    closed_loops = 0
+    for start in adjacency:
+        if start in visited:
+            continue
+        components += 1
+        queue: deque[int] = deque([start])
+        is_closed = True
+        while queue:
+            node = queue.popleft()
+            if node in visited:
+                continue
+            visited.add(node)
+            # In a closed loop each boundary vertex has degree 2.
+            if len(adjacency[node]) != 2:
+                is_closed = False
+            for nxt in adjacency[node]:
+                if nxt not in visited:
+                    queue.append(nxt)
+        if is_closed:
+            closed_loops += 1
+
+    return components, closed_loops
+
+
+def _volume_edge_topology(volume_tag: int) -> tuple[list[int], list[int]]:
+    """Return (free_edge_lines, nonmanifold_edge_lines) for one OCC volume."""
+    surfaces = gmsh.model.getBoundary(
+        [(3, volume_tag)],
+        combined=True,
+        oriented=False,
+        recursive=False,
+    )
+    line_use: dict[int, int] = defaultdict(int)
+    for surface in surfaces:
+        lines = gmsh.model.getBoundary(
+            [surface],
+            combined=False,
+            oriented=False,
+            recursive=False,
+        )
+        for _, line_tag in lines:
+            line_use[int(line_tag)] += 1
+
+    free_lines = sorted([line_tag for line_tag, n in line_use.items() if n == 1])
+    nonmanifold_lines = sorted([line_tag for line_tag, n in line_use.items() if n > 2])
+    return free_lines, nonmanifold_lines
 
 
 def _highlight_open_loop_entities(

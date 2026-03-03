@@ -33,7 +33,7 @@ from ceasiompy.utils.ceasiompyutils import (
 from streamlitutils import (
     scroll_down,
     create_sidebar,
-    section_3D_view,
+    section_3d_view,
     close_cpacs_handles,
     build_default_upload,
 )
@@ -41,7 +41,7 @@ from openvspgui import (
     render_openvsp_panel,
     convert_vsp3_to_cpacs,
 )
-from ceasiompy.stl2cpacs.func.splitstlgeom import split_main, split_stl_by_symmetry_plane
+from ceasiompy.stl2cpacs.func.split_stl_into_components import split_main, split_stl_by_symmetry_plane
 from ceasiompy.stl2cpacs.stl2cpacs import main as stl2cpacs_main
 
 from typing import Final
@@ -978,7 +978,7 @@ def section_select_cpacs() -> None:
     title += ")"
     st.markdown(title)
 
-    section_3D_view(
+    section_3d_view(
         cpacs=cpacs,
         force_regenerate=True,
         plot_key="geometry_page_cpacs_preview",

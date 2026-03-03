@@ -11,21 +11,15 @@ import struct
 import matplotlib.cm as cm
 from scipy.interpolate import PchipInterpolator
 from ceasiompy.utils.exportcpacs import Export_CPACS
+from ceasiompy.stl2cpacs.stl2cpacs import export_mesh,parse_cart3d_tri
+from pathlib import Path
+
 # ---------------------------
 # CONFIG
 # ---------------------------
-#STL_FILE = "src/ceasiompy/STL2CPACS/Part Studio 1(1).stl"
-STL_FILE = "src/ceasiompy/STL2CPACS/test_wing.stl"
-#STL_FILE = "src/ceasiompy/STL2CPACS/test_concorde.stl"
 
-TRI_FILE = "src/ceasiompy/STL2CPACS/slice_mesh_output.tri"
-N_Y_SLICES = 1000 # number of Y slices 
 INTERSECT_TOL = 1e-6
 SLAB_TOLS = [1e-5, 5e-5, 1e-4, 5e-4, 1e-3]
-EXTREME_TOL_perc_start = 0.01   # at y ==0 and y == y_max the slicing captures point inside the airfoil so be aware about this setting 
-EXTREME_TOL_perc_end = 0.01   # at y ==0 and y == y_max the slicing captures point inside the airfoil so be aware about this setting 
-N_SLICE_ADDING = 0 # number of slices to insert in transition regions
-DEBUG_AIRFOIL = False 
 WING_AIRFOIL_ROUND_DECIMALS = 5
 WING_AIRFOIL_MAX_ROUND_DECIMALS = 8
 WING_AIRFOIL_MIN_SEG = 1e-5
@@ -36,7 +30,79 @@ WING_ANGLE_DECIMALS = 4
 #   FUNCTIONS
 # =================================================================================================
 
+def _save_debug_stl_and_slices_plot(
+    pts: np.ndarray,
+    tris: np.ndarray,
+    per_slice_clouds: list[np.ndarray],
+    le_points: list[np.ndarray | None],
+    output_directory: str | Path,
+    name: str,
+) -> None:
+    """
+    Save a debug 3D figure with STL points, first slice clouds, and LE picks.
+    """
+
+    out_dir = Path(output_directory)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    debug_path = out_dir / f"{name}_debug_stl_first_slices.png"
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+
+    # STL as semi-transparent surface for better visibility than sparse points.
+    if tris.shape[0] > 0:
+        max_tris = 50000
+        if tris.shape[0] > max_tris:
+            tri_idx = np.linspace(0, tris.shape[0] - 1, max_tris, dtype=int)
+            tris_plot = tris[tri_idx]
+        else:
+            tris_plot = tris
+        ax.plot_trisurf(
+            pts[:, 0],
+            pts[:, 1],
+            pts[:, 2],
+            triangles=tris_plot,
+            color="#4C78A8",
+            alpha=0.24,
+            linewidth=0.0,
+            shade=False,
+        )
+        # Proxy handle so STL appears in legend.
+        ax.plot([], [], [], color="#4C78A8", lw=4, alpha=0.85, label="STL mesh")
+
+    cmap = cm.get_cmap("viridis", max(1, len(per_slice_clouds)))
+    first_slice_label = True
+    for i, cloud in enumerate(per_slice_clouds):
+        if cloud.shape[0] == 0:
+            continue
+        ax.scatter(
+            cloud[:, 0],
+            cloud[:, 1],
+            cloud[:, 2],
+            s=5,
+            color=cmap(i),
+            alpha=0.8,
+            label="Slice intersections" if first_slice_label else None,
+        )
+        first_slice_label = False
+
+    
+
+    ax.set_title("Wing slicing ")
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
+    ax.grid(True, alpha=0.3)
+    ax.legend(loc="upper right",fontsize = 18)
+    ax.axis('equal')
+    fig.savefig(debug_path, dpi=200)
+    plt.close(fig)
+    print(f"Saved debug plot: {debug_path}")
+
+
 def _remove_consecutive_duplicate_points(poly, tol=1e-12):
+    
+    
     """
     Remove consecutive duplicate points in a 2xN polyline while preserving closure.
     """
@@ -135,16 +201,7 @@ def fix_airfoil_cpacs(x, z, tol_x):
     x_clean = x_clean[idx]
     z_clean = z_clean[idx]
 
-    print(f"Fixed airfoil: {len(x)} → {len(x_clean)} points")
-    print("trailing edge", x_clean[np.argmax(x_clean)])
-    if DEBUG_AIRFOIL:
-        plt.plot(x_clean, z_clean, '.')
-        plt.xlabel("x/c")
-        plt.ylabel("z/c")
-        plt.title("Cleaned Airfoil Points") 
-        plt.axis("equal")
-        plt.grid()
-        plt.show()
+    
     return np.array(x_clean), np.array(z_clean)
 
 
@@ -175,8 +232,6 @@ def resample_airfoil_cpacs(
     zu = np.asarray(zu)
     xl = np.asarray(xl)
     zl = np.asarray(zl)
-    print(f'shape is {np.shape(xu)} with inside { xu}')
-    #breakpoint()
     # Sort surfaces
     # Upper: LE -> TE
     idx_u = np.argsort(xu)
@@ -189,12 +244,7 @@ def resample_airfoil_cpacs(
     xl, zl = xl[idx_l], zl[idx_l]
     xl[0] = x_te   
     zl[0] = z_te   
-    
-    '''# Detect LE
-    x_le = min(xu.min(), xl.min())
-    # Take average z at LE using closest points in each surface
-    z_le = 0.5 * (zu[np.argmin(np.abs(xu - x_le))]
-                  + zl[np.argmin(np.abs(xl - x_le))])'''
+
 
     # Build x-distribution on LE → TE
     n_half = n_points // 2
@@ -233,23 +283,27 @@ def resample_airfoil_cpacs(
         min_seg=WING_AIRFOIL_MIN_SEG,
     )
 
-    if DEBUG_AIRFOIL:
-        plt.plot(airfoil[0, :], airfoil[1, :], '-g')
-        plt.plot(x_u, z_u, '.r', label='Upper Spline')
-        plt.plot(x_l, z_l, '.b', label='Lower Spline')
+    if not hasattr(resample_airfoil_cpacs, "_debug_plot_saved"):
+        plt.figure()
+        plt.plot(airfoil[0,:np.shape(airfoil)[1]//2], airfoil[1,:np.shape(airfoil)[1]//2], ".", color="red", label="Input upper")
+        plt.plot(airfoil[0,np.shape(airfoil)[1]//2:-1], airfoil[1,np.shape(airfoil)[1]//2:-1], ".", color="blue", label="Input lower")
+        plt.plot(airfoil[0, :], airfoil[1, :], "-k", linewidth=1.2, label="Resampled profile")
         plt.xlabel("x/c")
         plt.ylabel("z/c")
-        plt.title("Resampled Airfoil Points")
+        plt.title("Airfoil Resampling")
+        plt.legend()
         plt.axis("equal")
         plt.grid()
-        plt.show()
-    
+        plt.savefig("airfoil resampling")
+        plt.close()
+        resample_airfoil_cpacs._debug_plot_saved = True
+
     return airfoil
 
 
 
 
-def extract_airfoil_surface_local(cloud_xyz, p0, n):
+def extract_airfoil_surface_local(cloud_xyz, p0, n,N_BIN, TE_CUT):
     if cloud_xyz.shape[0] < 10:
         return np.zeros((2, 0)), 0.0
 
@@ -290,18 +344,9 @@ def extract_airfoil_surface_local(cloud_xyz, p0, n):
     x = (x - x_le) / chord
     z = z / chord
     
-    # Split using camber line
-    if DEBUG_AIRFOIL:
-        plt.plot(x, z, '.')
-        plt.xlabel("x/c")   
-        plt.ylabel("z/c")
-        plt.title("Raw Airfoil Points")
-        plt.axis("equal")
-        plt.grid()
-        plt.show()
-    n = 10 # number of bins for camber line, it is divided by 6 to have when len(x) is small a reasonable number of bins.
-    print(f'numenr o fbins {n} with len(x) = {len(x)}')
-    airfoil = split_upper_lower_by_camber(x, z,n, 0)
+    
+     
+    airfoil = split_upper_lower_by_camber(x, z,N_BIN, TE_CUT)
     
     return airfoil, chord
 
@@ -361,18 +406,9 @@ def split_upper_lower_by_camber(x_raw, z_raw, n_bins, te_cut):
 
     upper_mask[camber_mask] = z_camber > zc
     lower_mask[camber_mask] = z_camber < zc
-    if DEBUG_AIRFOIL:
-        plt.plot(x[upper_mask], z[upper_mask], '.', color='red', label='Upper')
-        plt.plot(x[lower_mask], z[lower_mask], '.', color='blue', label='Lower')
-        plt.plot(x_camber, zc, '-k', label='Camber Line')
-        plt.xlabel("x/c")
-        plt.ylabel("z/c")
-        plt.title("Airfoil Points Classification")
-        plt.legend()
-        plt.axis("equal")
-        plt.grid()
-        plt.show()
-        
+    
+    
+
     # Resample
     return resample_airfoil_cpacs(
         x[upper_mask], z[upper_mask],
@@ -385,21 +421,6 @@ def split_upper_lower_by_camber(x_raw, z_raw, n_bins, te_cut):
     )
 
 
-def parse_cart3d_tri(filename):
-    with open(filename, 'r') as f:
-        lines = [ln.strip() for ln in f if ln.strip() and not ln.strip().startswith("#")]
-    header = lines[0].split()
-    npts = int(header[0]); ntris = int(header[1])
-    pts = np.zeros((npts,3), dtype=float)
-    for i in range(npts):
-        vals = lines[1+i].split()
-        pts[i] = [float(vals[0]), float(vals[1]), float(vals[2])]
-    tris = np.zeros((ntris,3), dtype=int)
-    start = 1 + npts
-    for i in range(ntris):
-        a,b,c = lines[start+i].split()[:3]
-        tris[i] = [int(a)-1, int(b)-1, int(c)-1] # TRI files use 1-based indexing so the -1 is only for python indexing 
-    return pts, tris
 
 def intersect_triangle_with_plane_point_normal(p0, n, a, b, c, tol=INTERSECT_TOL):
     da = np.dot(n, a - p0); db = np.dot(n, b - p0); dc = np.dot(n, c - p0)
@@ -427,80 +448,6 @@ def intersect_triangle_with_plane_point_normal(p0, n, a, b, c, tol=INTERSECT_TOL
     return uniq
 
 
-def read_ascii_stl(path):
-    """Reads ASCII STL and returns Nx3x3 triangle array"""
-    tri = []
-    with open(path, "r") as f:
-        for line in f:
-            if line.strip().startswith("vertex"):
-                _, x, y, z = line.split()
-                tri.append([float(x), float(y), float(z)])
-    tri = np.array(tri).reshape(-1, 3, 3)
-    return tri
-
-def read_binary_stl(path):
-    """Reads binary STL and returns Nx3x3 triangle array"""
-    with open(path, "rb") as f:
-        header = f.read(80)
-        ntri = struct.unpack("<I", f.read(4))[0]
-        data = f.read()
-
-    tri = []
-    offset = 0
-    for _ in range(ntri):
-        offset += 12  # skip normal
-        v1 = struct.unpack_from("<fff", data, offset); offset += 12
-        v2 = struct.unpack_from("<fff", data, offset); offset += 12
-        v3 = struct.unpack_from("<fff", data, offset); offset += 12
-        offset += 2   # skip attribute
-        tri.append([v1, v2, v3])
-
-    return np.array(tri, dtype=float)
-
-def load_stl_auto(path):
-    with open(path, "rb") as f:
-        start = f.read(80)
-    if start[:5].lower() == b"solid":
-        try:
-            return read_ascii_stl(path)
-        except:
-            return read_binary_stl(path)
-    return read_binary_stl(path)
-
-def write_cart3d_tri(filename, triangles):
-    """
-    Saves triangles to Cart3D .tri format 
-    """
-    verts = triangles.reshape(-1, 3)
-    uniq, inverse = np.unique(verts, axis=0, return_inverse=True)
-    tri_idx = inverse.reshape(-1, 3) + 1  # 1-based indices
-
-    with open(filename, "w") as f:
-        f.write(f"{uniq.shape[0]} {tri_idx.shape[0]}\n") # first lie
-        for v in uniq:
-            f.write(f"{v[0]:.9g} {v[1]:.9g} {v[2]:.9g}\n") # vertices 
-        for t in tri_idx:
-            f.write(f"{t[0]} {t[1]} {t[2]}\n") # triangle 
-
-    return filename
-
-def export_mesh(tri_filename=TRI_FILE, stl_filename=STL_FILE):
-    """
-    Direct STL → TRI converter.
-    """
-    if not os.path.exists(stl_filename):
-        raise FileNotFoundError(f"STL not found: {stl_filename}")
-
-    print("Reading STL ...")
-    tris = load_stl_auto(stl_filename)
-    print(f"Loaded {tris.shape[0]} triangles")
-
-    print("Writing Cart3D TRI ...")
-    write_cart3d_tri(tri_filename, tris)
-
-    print("Done.")
-    return tri_filename
-
 
 
 def slice_mesh_rotated_YZ(
@@ -510,7 +457,7 @@ def slice_mesh_rotated_YZ(
     dihedral_deg,
     sweep_deg,
     tol=INTERSECT_TOL,
-    debug=False,
+    
 ):
     """
     Slice mesh with a plane orthogonal to local span direction
@@ -570,67 +517,7 @@ def slice_mesh_rotated_YZ(
     _, idx = np.unique(key.view(dtype), return_index=True)
     arr = arr[np.sort(idx)]
 
-    # -------------------------------------------------
-    # DEBUG PLOT
-    # -------------------------------------------------
-    if debug:
-        import matplotlib.pyplot as plt
-        from mpl_toolkits.mplot3d import Axes3D
-
-        fig = plt.figure(figsize=(9, 7))
-        ax = fig.add_subplot(111, projection="3d")
-
-        # Mesh 
-        ax.scatter(
-            pts[:, 0], pts[:, 1], pts[:, 2],
-            s=1, alpha=0.1, color="gray", label="Mesh"
-        )
-
-        # Intersection points
-        ax.scatter(
-            arr[:, 0], arr[:, 1], arr[:, 2],
-            s=20, color="red", label="Slice points"
-        )
-
-        # Plane normal
-        L = np.linalg.norm(arr.max(axis=0) - arr.min(axis=0))
-        ax.quiver(
-            p0[0], p0[1], p0[2],
-            e_span[0], e_span[1], e_span[2],
-            length=0.3 * L,
-            color="blue",
-            linewidth=3,
-            label="Plane normal"
-        )
-
-        # Plane visualization
-        u = np.linspace(-0.3 * L, 0.3 * L, 10)
-        v = np.linspace(-0.3 * L, 0.3 * L, 10)
-        U, V = np.meshgrid(u, v)
-
-        # Two orthogonal vectors in plane
-        t1 = np.cross(e_span, [1, 0, 0])
-        if np.linalg.norm(t1) < 1e-6:
-            t1 = np.cross(e_span, [0, 0, 1])
-        t1 /= np.linalg.norm(t1)
-        t2 = np.cross(e_span, t1)
-
-        Xp = p0[0] + U * t1[0] + V * t2[0]
-        Yp = p0[1] + U * t1[1] + V * t2[1]
-        Zp = p0[2] + U * t1[2] + V * t2[2]
-
-        ax.plot_surface(Xp, Yp, Zp, alpha=0.25, color="cyan")
-
-        ax.set_xlabel("X")
-        ax.set_ylabel("Y")
-        ax.set_zlabel("Z")
-        ax.set_title(
-            f"Slice plane\nDihedral={dihedral_deg:.1f}°, Sweep={sweep_deg:.1f}°"
-        )
-        ax.legend()
-        ax.set_box_aspect([1, 1, 1])
-        plt.tight_layout()
-        plt.show()
+    
 
     return arr, e_span
 
@@ -724,6 +611,7 @@ def filter_and_insert(y_vals, sweep_deg, dihedral_deg, le_pts, n_insert):
     - Keep first slice.
     - In constant-angle regions, keep only boundary slices (filter interior).
     - When angles change between i and i+1, insert n_insert interpolated slices.
+    - Keep the slice at the middle to be sure that also symmetrical wings are well treated.
     - Keep last slice.
     """
 
@@ -737,12 +625,12 @@ def filter_and_insert(y_vals, sweep_deg, dihedral_deg, le_pts, n_insert):
     sweep_out = [sweep_deg[0]]
     dihedral_out = [dihedral_deg[0]]
     le_out = [le_pts[0]]
-    is_inserted = [False]
 
     for i in range(len(y_vals) - 1):
         same_angle = (
             np.isclose(sweep_deg[i], sweep_deg[i + 1],atol=0.1, rtol=0.0) and
-            np.isclose(dihedral_deg[i], dihedral_deg[i + 1],atol=0.1, rtol=0.0)
+            np.isclose(dihedral_deg[i], dihedral_deg[i + 1],atol=0.1, rtol=0.0) and
+            i != len(y_vals)//2
         )
 
         if not same_angle and n_insert > 0:
@@ -757,7 +645,6 @@ def filter_and_insert(y_vals, sweep_deg, dihedral_deg, le_pts, n_insert):
                 le_out.append(le_new)
                 sweep_out.append(sweep_new)
                 dihedral_out.append(dihedral_new)
-                is_inserted.append(True)
 
         # Keep i+1 when:
         # - entering or leaving a transition region
@@ -774,39 +661,45 @@ def filter_and_insert(y_vals, sweep_deg, dihedral_deg, le_pts, n_insert):
             le_out.append(le_pts[i + 1])
             sweep_out.append(sweep_deg[i + 1])
             dihedral_out.append(dihedral_deg[i + 1])
-            is_inserted.append(False)
 
     return (
         np.array(y_out),
         np.array(sweep_out, dtype=float),
         np.array(dihedral_out, dtype=float),
         np.array(le_out),
-        np.array(is_inserted, dtype=bool),
     )
+    
+    
+    
+    
+    
 # ---------------------------
 # MAIN
 # ---------------------------
-def main():
+def stl2wing_main(stl_file: str | Path, setting: dict,output_directory: str|Path,name: str):
     
-    print("Start: export mesh from OpenVSP")
-    tri_fname = export_mesh(TRI_FILE)
+    print("Start: importing wing stl file ... ")
+    tri_fname = export_mesh(output_directory,stl_file,name)
     pts, tris = parse_cart3d_tri(tri_fname)
-    print("Loaded mesh:", pts.shape, tris.shape)
 
     # some initializtion 
     airfoil_profiles = []
-    Wing_Dict = {
-        "1": {}
-    }
+    Wing_Dict = {}
     per_slice_clouds = []
     per_slice_clouds_rotate = []
-    le_points = []   # leading edge per slice (min X)
+    le_points = []   
     le_y = []
     summary_rows = []
-    vi = 0
     per_slice_clouds_rotate = []
+    airfoil_profiles = []
 
-    
+    # extract the setting 
+    EXTREME_TOL_perc_start = setting['EXTREME_TOL_perc_start']
+    EXTREME_TOL_perc_end = setting['EXTREME_TOL_perc_end']
+    N_Y_SLICES = setting['N_Y_SLICES']
+    N_SLICE_ADDING = setting['N_SLICE_ADDING']
+    TE_CUT = setting['TE_CUT']
+    N_BIN = setting['N_BIN']
     # build Y sampling positions
     ymin, ymax = float(np.min(pts[:,1])), float(np.max(pts[:,1]))
     EXTREME_TOL_start = EXTREME_TOL_perc_start * (ymax - ymin)
@@ -836,7 +729,14 @@ def main():
         le_points.append(le_pt)
         le_y.append(y0)
 
-        
+    _save_debug_stl_and_slices_plot(
+        pts=pts,
+        tris=tris,
+        per_slice_clouds=per_slice_clouds,
+        le_points=le_points,
+        output_directory=output_directory,
+        name=name,
+    )
 
     # build LE array 
     valid_idxs = [i for i, p in enumerate(le_points) if p is not None]
@@ -844,17 +744,14 @@ def main():
         raise RuntimeError("Too few LE points found. Check mesh and N_Y_SLICES.")
 
     le_pts = np.vstack([le_points[i] for i in valid_idxs])
-    print(f"Found {le_pts.shape[0]} LE points from {N_Y_SLICES} Y-slices")
-    print(le_points[0])
-    breakpoint()
 
     # start to build the dictionary to create all the necessary informations to generate the corresponding CPACS file. 
-    Wing_Dict["1"]["Transformation"] = {
+    Wing_Dict["Transformation"] = {
                 "Name_type": "Wing",
                 "Name": "Wing1", # load the name of the stl
                 "X_Rot": [0, 0, 0],
                 "X_Trasl":le_pts[0],
-                "Symmetry": "2", # the user must split the component and tell with a botton if he wants the symmetric part part or not 
+                "Symmetry": "",  
                 "abs_system": True,
                 "Relative_dih": 0,
                 "Relative_Twist": 0,
@@ -862,81 +759,20 @@ def main():
                 "reference_length": 0,
                 "idx_engine":None
             }
+    
+    
+    
+    
+    
+    
     # compute sweep & dihedral along LE (per point)
     sweep_deg, dihedral_deg = compute_local_angles_from_le(le_pts)
 
     # =========================================================
-    # DEBUG PLOT 
-    # =========================================================
-
-    '''fig = plt.figure(figsize=(12, 8))
-    ax = fig.add_subplot(111, projection="3d")
-
-    # --- Plot original mesh vertices (light background)
-    ax.scatter(
-        pts[:, 0], pts[:, 1], pts[:, 2],
-        s=0.5, c="lightgray", alpha=0.2, label="Mesh vertices"
-    )
-
-    # --- Plot slice clouds
-    colors = cm.viridis(np.linspace(0, 1, len(per_slice_clouds)))
-
-    for i, cloud in enumerate(per_slice_clouds):
-        if cloud.shape[0] == 0:
-            continue
-        ax.scatter(
-            cloud[:, 0], cloud[:, 1], cloud[:, 2],
-            s=6, color=colors[i], alpha=0.8
-        )
-
-    # --- Plot detected LE points
-    le_valid = [(i, p) for i, p in enumerate(le_points) if p is not None]
-    if le_valid:
-        le_pts_dbg = np.vstack([p for _, p in le_valid])
-        ax.plot(
-            le_pts_dbg[:, 0],
-            le_pts_dbg[:, 1],
-            le_pts_dbg[:, 2],
-            '-k',
-            lw=2,
-            label="Detected LE"
-            
-        )
-
-    # --- Axis labels
-    ax.set_xlabel("X")
-    ax.set_ylabel("Y")
-    ax.set_zlabel("Z")
-    ax.set_title("DEBUG: Raw mesh slices before filtering")
-
-    # --- Equal axis scaling
-    all_dbg_pts = np.vstack(
-        [pts] +
-        [c for c in per_slice_clouds if c.shape[0] > 0]
-    )
-    X, Y, Z = all_dbg_pts[:, 0], all_dbg_pts[:, 1], all_dbg_pts[:, 2]
-    max_range = max(
-        np.ptp(X),
-        np.ptp(Y),
-        np.ptp(Z)
-    ) / 2
-    mid_x, mid_y, mid_z = X.mean(), Y.mean(), Z.mean()
-    ax.set_xlim(mid_x - max_range, mid_x + max_range)
-    ax.set_ylim(mid_y - max_range, mid_y + max_range)
-    ax.set_zlim(mid_z - max_range, mid_z + max_range)
-
-    ax.legend()
-    plt.tight_layout()
-    plt.show()
-    '''
-
-
-    # =========================================================
     y_vals = le_pts[:,1].copy()
     # filter y_vals . 
-    y_vals,sweep_deg,dihedral_deg,le_pts,is_inserted = filter_and_insert(y_vals, sweep_deg, dihedral_deg,le_pts, N_SLICE_ADDING)
+    y_vals,sweep_deg,dihedral_deg,le_pts = filter_and_insert(y_vals, sweep_deg, dihedral_deg,le_pts, N_SLICE_ADDING)
     # slice with plane that are rotated by the dihedral angle.
-    airfoil_profiles = []
     
     for i, y0 in enumerate(y_vals):
         if le_pts[i] is None:
@@ -956,11 +792,13 @@ def main():
             tol=INTERSECT_TOL
         )
         per_slice_clouds_rotate.append(cloud_rot)
-        print('slice', i, 'at y =', y0, 'is inserted?', is_inserted[i])
+        
         airfoil_xz, chord = extract_airfoil_surface_local(
             cloud_rot,
             p0=lep,
             n=n_rot,
+            N_BIN = N_BIN,
+            TE_CUT= TE_CUT,
         )
         
 
@@ -968,7 +806,7 @@ def main():
 
         # Store in Wing_Dict
         if i==0: 
-            Wing_Dict["1"][f'Section{i}'] = {
+            Wing_Dict[f'Section{i}'] = {
                 'x_scal': round(chord, WING_CHORD_SCALE_DECIMALS),
                 'y_scal': 1,
                 'z_scal': round(chord, WING_CHORD_SCALE_DECIMALS),
@@ -982,8 +820,7 @@ def main():
             }
             
         else:      
-            print(y_vals[i],y_vals[i-1])
-            Wing_Dict["1"][f'Section{i}'] = {
+            Wing_Dict[f'Section{i}'] = {
             'x_scal': round(chord, WING_CHORD_SCALE_DECIMALS),
             'y_scal': 1,
             'z_scal': round(chord, WING_CHORD_SCALE_DECIMALS),
@@ -999,61 +836,11 @@ def main():
         airfoil_profiles.append(airfoil_xz)
 
     
-    
+    return Wing_Dict
+
+
     exporter = Export_CPACS(Wing_Dict, "Test_STL2CPACS",'src/ceasiompy/STL2CPACS')
     exporter.run()
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    # ---------- Save and debug ---------------------------
-    
-    # DEBUG PLOT
-    fig = plt.figure(figsize=(10,7))
-    ax = fig.add_subplot(111, projection='3d')
-
-    colors = cm.rainbow(np.linspace(0,1,len(per_slice_clouds_rotate)))
-    # ---- LEADING EDGE CURVE ----
-    ax.plot(
-        le_pts[:,0],
-        le_pts[:,1],
-        le_pts[:,2],
-        '-k',
-        lw=2,
-        label='Leading Edge'
-    )
-
-    for i, cloud in enumerate(per_slice_clouds_rotate):
-        if cloud.shape[0] > 0:
-            ax.scatter(cloud[:,0], cloud[:,1], cloud[:,2], s=3, color=colors[i])
-    ax.set_xlabel("X"); ax.set_ylabel("Y"); ax.set_zlabel("Z")
-    ax.set_title("All slices + LE")
-    # equal axis scale
-    all_pts = np.vstack([c for c in per_slice_clouds_rotate if c.shape[0]>0])
-    X,Y,Z = all_pts[:,0], all_pts[:,1], all_pts[:,2]
-    max_range = np.max([X.max()-X.min(), Y.max()-Y.min(), Z.max()-Z.min()]) / 2.0
-    mid_x = (X.max()+X.min())*0.5
-    mid_y = (Y.max()+Y.min())*0.5
-    mid_z = (Z.max()+Z.min())*0.5
-    ax.set_xlim(mid_x-max_range, mid_x+max_range)
-    ax.set_ylim(mid_y-max_range, mid_y+max_range)
-    ax.set_zlim(mid_z-max_range, mid_z+max_range)
-    plt.tight_layout()
-    plt.legend()
-    plt.show()
-    
-    
-    
-
-if __name__ == "__main__":
-    main()

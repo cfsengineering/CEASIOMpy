@@ -12,10 +12,12 @@ from __future__ import annotations
 # Imports
 import os
 import hashlib
+import shutil
 import numpy as np
 import streamlit as st
-
-from ceasiompy.utils import get_wkdir
+from stl import mesh
+import plotly.graph_objects as go
+import colorsys
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.utils.guiobjects import add_value
 from gmshairfoil2d.airfoil_func import get_airfoil_points
@@ -31,7 +33,7 @@ from ceasiompy.utils.ceasiompyutils import (
 from streamlitutils import (
     scroll_down,
     create_sidebar,
-    section_3d_view,
+    section_3D_view,
     close_cpacs_handles,
     build_default_upload,
 )
@@ -39,6 +41,8 @@ from openvspgui import (
     render_openvsp_panel,
     convert_vsp3_to_cpacs,
 )
+from ceasiompy.stl2cpacs.func.splitstlgeom import split_main, split_stl_by_symmetry_plane
+from ceasiompy.stl2cpacs.stl2cpacs import main as stl2cpacs_main
 
 from typing import Final
 from pathlib import Path
@@ -47,7 +51,7 @@ from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy import log
 from constants import BLOCK_CONTAINER
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH, get_wkdir
 from ceasiompy.utils.commonxpaths import (
     AREA_XPATH,
     LENGTH_XPATH,
@@ -68,30 +72,162 @@ PAGE_NAME: Final[str] = "Geometry"
 
 
 # Methods
-def _bootstrap_cli_geometry() -> None:
-    """Inject geometry passed from CLI into the same upload/conversion flow."""
+def _show_stl_mesh(stl_path: str, key: str,show_wireframe: bool | None = None) -> None:
+    """Interactive STL viewer with proper wireframe toggle refresh."""
+    
 
-    if st.session_state.get("_cli_geometry_bootstrapped"):
+    # --- Cache STL loading only ---
+    @st.cache_data(show_spinner=False)
+    def load_stl(path):
+        return mesh.Mesh.from_file(path)
+
+    stl_mesh = load_stl(stl_path)
+
+
+    # Build unique vertices + face indices
+    vertices = stl_mesh.vectors.reshape(-1, 3)
+    verts_unique, index = np.unique(vertices, axis=0, return_inverse=True)
+
+    x, y, z = verts_unique.T
+    i = index[0::3]
+    j = index[1::3]
+    k = index[2::3]
+
+    fig = go.Figure()
+
+    # ---- Surface mesh ----
+    fig.add_trace(
+        go.Mesh3d(
+            x=x,
+            y=y,
+            z=z,
+            i=i,
+            j=j,
+            k=k,
+            color="grey",
+            opacity=1.0,
+            flatshading=True,
+        )
+    )
+
+    # ---- Wireframe ----
+    if show_wireframe:
+        edge_x = []
+        edge_y = []
+        edge_z = []
+
+        for tri in stl_mesh.vectors:
+            for e in [(0, 1), (1, 2), (2, 0)]:
+                edge_x += [tri[e[0]][0], tri[e[1]][0], None]
+                edge_y += [tri[e[0]][1], tri[e[1]][1], None]
+                edge_z += [tri[e[0]][2], tri[e[1]][2], None]
+
+        fig.add_trace(
+            go.Scatter3d(
+                x=edge_x,
+                y=edge_y,
+                z=edge_z,
+                mode="lines",
+                line=dict(color="black", width=1),
+            )
+        )
+
+    fig.update_layout(
+        scene=dict(aspectmode="data"),
+        margin=dict(l=0, r=0, t=0, b=0),
+    )
+
+    # Force redraw by changing key when toggle changes
+    dynamic_key = f"{key}_{show_wireframe}"
+
+    st.plotly_chart(fig, use_container_width=True, key=dynamic_key)
+    
+
+def _show_split_components_mesh(
+    split_dir: str | Path, key: str, show_wireframe: bool | None = None
+) -> None:
+    """Display split STL components with one color per component."""
+
+    split_dir = Path(split_dir)
+    component_files = sorted(split_dir.glob("*.stl"))
+    if not component_files:
+        st.warning(f"No split component STL found in: {split_dir}")
         return
 
-    st.session_state["_cli_geometry_bootstrapped"] = True
-    cli_geometry = os.environ.get("CEASIOMPY_GEOMETRY", "").strip()
-    if not cli_geometry:
-        return
+    @st.cache_data(show_spinner=False)
+    def load_stl(path: str):
+        return mesh.Mesh.from_file(path)
 
-    geometry_path = Path(cli_geometry).expanduser()
-    if not geometry_path.is_absolute():
-        geometry_path = (Path.cwd() / geometry_path).resolve()
+    n_components = len(component_files)
 
-    if not geometry_path.exists():
-        st.warning(f"CLI geometry path does not exist: {geometry_path}")
-        return
+    def generate_distinct_colors(n: int) -> list[str]:
+        if n <= 0:
+            return []
+        colors = []
+        for idx in range(n):
+            h = idx / float(n)
+            r, g, b = colorsys.hsv_to_rgb(h, 0.75, 0.95)
+            colors.append(f"#{int(r * 255):02x}{int(g * 255):02x}{int(b * 255):02x}")
+        return colors
 
-    st.session_state["pending_default_cpacs"] = str(geometry_path)
-    st.session_state["uploaded_default_cpacs"] = True
-    st.session_state["_cli_geometry_autonext"] = True
+    colors = generate_distinct_colors(n_components)
 
+    fig = go.Figure()
+    for idx, comp_file in enumerate(component_files):
+        stl_mesh = load_stl(str(comp_file))
+        vertices = stl_mesh.vectors.reshape(-1, 3)
+        verts_unique, index = np.unique(vertices, axis=0, return_inverse=True)
 
+        x, y, z = verts_unique.T
+        i = index[0::3]
+        j = index[1::3]
+        k = index[2::3]
+
+        fig.add_trace(
+            go.Mesh3d(
+                x=x,
+                y=y,
+                z=z,
+                i=i,
+                j=j,
+                k=k,
+                color=colors[idx],
+                opacity=1.0,
+                flatshading=True,
+                name=comp_file.stem,
+                showlegend=True,
+            )
+        )
+
+        if show_wireframe:
+            edge_x = []
+            edge_y = []
+            edge_z = []
+            for tri in stl_mesh.vectors:
+                for e in [(0, 1), (1, 2), (2, 0)]:
+                    edge_x += [tri[e[0]][0], tri[e[1]][0], None]
+                    edge_y += [tri[e[0]][1], tri[e[1]][1], None]
+                    edge_z += [tri[e[0]][2], tri[e[1]][2], None]
+
+            fig.add_trace(
+                go.Scatter3d(
+                    x=edge_x,
+                    y=edge_y,
+                    z=edge_z,
+                    mode="lines",
+                    line=dict(color="black", width=1),
+                    showlegend=False,
+                )
+            )
+
+    fig.update_layout(
+        scene=dict(aspectmode="data"),
+        margin=dict(l=0, r=0, t=0, b=0),
+    )
+    dynamic_key = f"{key}_{show_wireframe}_{len(component_files)}"
+    st.plotly_chart(fig, use_container_width=True, key=dynamic_key)
+    
+    
 def _clean_toolspecific(cpacs: CPACS) -> CPACS:
     air_name = cpacs.ac_name
 
@@ -160,11 +296,13 @@ def _create_cpacs_from(
     st.session_state["uploaded_default_cpacs"] = False
     wkdir = st.session_state.workflow.working_dir
     wkdir.mkdir(parents=True, exist_ok=True)
-
-    safe_name = airfoil_name
-    if safe_name is None:
+    if airfoil_name is None:
+        airfoil_name = "custom"
+    safe_name = "".join(
+        char if (char.isalnum() or char in ("-", "_")) else "_" for char in airfoil_name.strip()
+    )
+    if not safe_name:
         safe_name = "custom"
-
     new_cpacs_path = Path(wkdir, f"airfoil_{safe_name}.xml")
     cpacs.save_cpacs(new_cpacs_path, overwrite=True)
 
@@ -206,20 +344,6 @@ def _read_airfoil_xy(airfoil_path: Path) -> tuple[list[float], list[float]]:
         )
 
     return x_vals, y_vals
-
-
-def _to_float_or_default(value: str | int | float | None, default: float = 0.0) -> float:
-    """Best-effort conversion to float for Streamlit numeric widgets."""
-
-    if value is None:
-        return default
-
-    try:
-        casted = float(value)
-    except (TypeError, ValueError):
-        return default
-
-    return casted if np.isfinite(casted) else default
 
 
 def _section_generate_cpacs_airfoil() -> CPACS | None:
@@ -344,9 +468,11 @@ def _section_load_cpacs() -> CPACS | None:
             st.session_state["last_uploaded_digest"] = uploaded_digest
             st.session_state["last_uploaded_name"] = uploaded_file.name
 
-        suffix = uploaded_path.suffix.lower()
-
-        if suffix in {".csv", ".dat", ".txt"}:
+        if (
+            uploaded_path.suffix == ".csv"
+            or uploaded_path.suffix == ".dat"
+            or uploaded_path.suffix == ".txt"
+        ):
             try:
                 airfoil_x, airfoil_y = _read_airfoil_xy(uploaded_path)
             except Exception as exc:
@@ -359,7 +485,7 @@ def _section_load_cpacs() -> CPACS | None:
                 airfoil_name=uploaded_path.stem,
             )
 
-        elif suffix in {".vsp3", ".vsp"}:
+        elif uploaded_path.suffix == ".vsp3":
             should_convert = (not is_same_upload) or (
                 st.session_state.get("last_converted_vsp3_digest") != uploaded_digest
             )
@@ -421,7 +547,7 @@ def _section_load_cpacs() -> CPACS | None:
                 st.session_state["cpacs"] = cpacs
                 return cpacs
 
-        elif suffix == ".xml":
+        elif uploaded_path.suffix == ".xml":
             new_cpacs_path = uploaded_path
             st.session_state["last_converted_cpacs_path"] = str(uploaded_path)
             cpacs = CPACS(str(uploaded_path))
@@ -438,6 +564,351 @@ def _section_load_cpacs() -> CPACS | None:
     return st.session_state.get("cpacs")
 
 
+def _section_stl_to_cpacs():
+    # 1. Load the stl
+    st.markdown("#### Load an STL file or multiple file")
+    st.markdown("You can upload a 3D STL model (binary or ASCII) to convert it to CPACS later.")
+
+    # 1. Load STL files via the Streamlit uploader
+    uploaded_files = st.file_uploader(
+        label="Upload an STL geometry",
+        type=["stl"],
+        key="stl_file_uploader",
+        accept_multiple_files=True,
+        label_visibility="collapsed",
+    )
+
+    # Return early if nothing loaded
+    if not uploaded_files:
+        st.info("Please upload one or more STL files first.")
+        return None
+
+    # Avoid rewriting same files, but still render preview on every rerun.
+    wkdir = st.session_state.workflow.working_dir
+    wkdir.mkdir(parents=True, exist_ok=True)
+    previous_uploads = st.session_state.get("last_uploaded_stl_files", {})
+    current_uploads: dict[str, dict[str, str]] = {}
+    uploaded_paths: list[Path] = []
+    had_new_upload = False
+
+    for uploaded_file in uploaded_files:
+        uploaded_bytes = uploaded_file.getbuffer()
+        uploaded_digest = hashlib.sha256(uploaded_bytes).hexdigest()
+        uploaded_path = wkdir / uploaded_file.name
+
+        previous_meta = previous_uploads.get(uploaded_file.name, {})
+        is_same_upload = (
+            previous_meta.get("digest") == uploaded_digest
+            and Path(previous_meta.get("path", "")).exists()
+        )
+
+        if is_same_upload:
+            uploaded_path = Path(previous_meta["path"])
+        else:
+            with open(uploaded_path, "wb") as f:
+                f.write(uploaded_bytes)
+            had_new_upload = True
+
+        current_uploads[uploaded_file.name] = {
+            "digest": uploaded_digest,
+            "path": str(uploaded_path),
+        }
+        uploaded_paths.append(uploaded_path)
+
+    st.session_state["last_uploaded_stl_files"] = current_uploads
+    st.session_state["last_uploaded_stl_paths"] = [str(path) for path in uploaded_paths]
+
+    selected_stl_name = st.selectbox(
+        "Select STL to preview",
+        options=[path.name for path in uploaded_paths],
+        key="selected_stl_for_preview",
+    )
+    uploaded_path = next(path for path in uploaded_paths if path.name == selected_stl_name)
+
+    # New uploads invalidate stale split results from older geometries.
+    if had_new_upload:
+        st.session_state.pop("last_split_components_dir", None)
+        st.session_state["show_split_tools"] = False
+        st.session_state["show_cpacs_conversion_tools"] = False
+    
+    # 2. visualization
+    wireframe_view = st.toggle("Wireframe view", value=False, key="stl_wireframe_view")
+    
+    # 3. split tools (hidden by default)
+    if "show_split_tools" not in st.session_state:
+        st.session_state["show_split_tools"] = False
+    previous_show_split_tools = bool(st.session_state["show_split_tools"])
+    st.session_state["show_split_tools"] = st.toggle(
+        "Enable split tools",
+        value=bool(st.session_state["show_split_tools"]),
+        key="split_tools_toggle",
+    )
+    split_just_enabled = st.session_state["show_split_tools"] and not previous_show_split_tools
+
+    split_dir = st.session_state.get("last_split_components_dir")
+    if split_dir and Path(split_dir).exists():
+        _show_split_components_mesh(split_dir, key="stl_viewer_split", show_wireframe=wireframe_view)
+    else:
+        _show_stl_mesh(str(uploaded_path), key="stl_viewer", show_wireframe=wireframe_view)
+
+    if st.session_state["show_split_tools"]:
+
+        if split_just_enabled:
+            try:
+                split_root = wkdir / "STL2CPACS"
+                if split_root.exists():
+                    shutil.rmtree(split_root)
+
+                split_dir = split_main(
+                    stl_path=str(uploaded_path),
+                    namefile=f"{uploaded_path.stem}_",
+                    out_dir=wkdir,
+                )
+                st.session_state["last_split_components_dir"] = str(split_dir)
+                st.success("Component split completed.")
+                st.rerun()
+            except Exception as exc:
+                st.error(f"STL split failed: {exc}")
+
+        
+    # 4. Convert to CPACS
+    if "show_cpacs_conversion_tools" not in st.session_state:
+        st.session_state["show_cpacs_conversion_tools"] = False
+    st.session_state["show_cpacs_conversion_tools"] = st.toggle(
+        "Enable CPACS conversion tools",
+        value=bool(st.session_state["show_cpacs_conversion_tools"]),
+        key="cpacs_conversion_tools_toggle",
+    )
+    if not st.session_state["show_cpacs_conversion_tools"]:
+        return None
+
+    st.markdown("#### Convert to CPACS")
+
+    # Build list 
+    stl_sources: dict[str, str] = {}
+    for stl_path in uploaded_paths:
+        stl_sources[f"Uploaded: {stl_path.name}"] = str(stl_path)
+    if split_dir and Path(split_dir).exists():
+        for comp_path in sorted(Path(split_dir).glob("*.stl")):
+            stl_sources[f"Split: {comp_path.name}"] = str(comp_path)
+
+    source_labels = list(stl_sources.keys())
+    if not source_labels:
+        st.warning("No STL sources found in the working directory.")
+        return None
+
+    if "stl_component_rows_count" not in st.session_state:
+        st.session_state["stl_component_rows_count"] = 1
+
+    rows_count = max(1, int(st.session_state["stl_component_rows_count"]))
+    st.caption("Define one or more components to map into CPACS.")
+
+    for idx in range(rows_count):
+        st.markdown(f"**Component {idx + 1}**")
+        
+        source_col, type_col, advanced_col = st.columns([4, 2, 2], vertical_alignment="bottom")
+
+        with source_col:
+            selected_label = st.selectbox(
+                "STL",
+                options=source_labels,
+                key=f"stl_component_source_{idx}",
+            )
+
+        with type_col:
+            
+            cpacs_type = st.selectbox(
+                "CPACS Type",
+                options=["wing", "fuselage"],
+                key=f"stl_component_type_{idx}",
+            )
+
+        with advanced_col:
+            use_advanced = st.toggle(
+                "Advanced",
+                value=False,
+                key=f"stl_component_advanced_{idx}",
+            )
+
+        if use_advanced:
+            if cpacs_type == "wing":
+                adv_col1, adv_col2,adv_col3 = st.columns(3)
+
+                with adv_col1:
+                    st.number_input(
+                        "EXTREME_TOL_perc_start",
+                        value=0.02,
+                        min_value=0.0,
+                        max_value=1.0,
+                        format="%.4f",
+                        key=f"stl_component_adv_extreme_tol_start_{idx}",
+                    )
+                    st.number_input(
+                        "Slices",
+                        value=50,
+                        min_value=2,
+                        step=1,
+                        key=f"stl_component_adv_n_y_slices_{idx}",
+                    )
+                with adv_col2:
+                    st.number_input(
+                        "EXTREME_TOL_perc_end",
+                        value=0.02,
+                        min_value=0.0,
+                        max_value=1.0,
+                        format="%.4f",
+                        key=f"stl_component_adv_extreme_tol_end_{idx}",
+                    )
+                    st.number_input(
+                        "N_SLICE_ADDING",
+                        value=0,
+                        min_value=0,
+                        step=1,
+                        key=f"stl_component_adv_n_slice_adding_{idx}",
+                    )
+                with adv_col3:
+                    st.number_input(
+                        "TE_CUT",
+                        value=0.0,
+                        min_value=0.0,
+                        max_value=0.5,
+                        format="%.4f",
+                        help="Description of TE_CUT",
+                        key=f"stl_component_adv_te_cut_{idx}",
+                    )
+                    st.number_input(
+                        "N_BIN",
+                        value=10,
+                        min_value=3,
+                        step=1,
+                        key=f"stl_component_adv_n_bin_{idx}",
+                    )
+
+            else:
+                adv_col1, adv_col2 = st.columns(2)
+                with adv_col1:
+                    st.number_input(
+                        "EXTREME_TOL_perc_start",
+                        value=0.02,
+                        min_value=0.0,
+                        max_value=1.0,
+                        format="%.4f",
+                        key=f"stl_component_adv_extreme_tol_start_{idx}",
+                    )
+                    st.number_input(
+                        "N_X_SLICES",
+                        value=50,
+                        min_value=2,
+                        step=1,
+                        key=f"stl_component_adv_n_x_slices_{idx}",
+                    )
+                with adv_col2:
+                    st.number_input(
+                        "EXTREME_TOL_perc_end",
+                        value=0.02,
+                        min_value=0.0,
+                        max_value=1.0,
+                        format="%.4f",
+                        key=f"stl_component_adv_extreme_tol_end_{idx}",
+                    )
+                    st.number_input(
+                        "N_SLICE_ADDING",
+                        value=0,
+                        min_value=0,
+                        step=1,
+                        key=f"stl_component_adv_n_slice_adding_{idx}",
+                    )
+
+                
+    action_col1, action_col2, action_col3 = st.columns([1, 1, 4])
+    with action_col1:
+        if st.button("➕ Add", key="add_stl_component_row", width="stretch"):
+            st.session_state["stl_component_rows_count"] = rows_count + 1
+            st.rerun()
+    with action_col2:
+        if st.button("➖ Remove", key="remove_stl_component_row", width="stretch"):
+            st.session_state["stl_component_rows_count"] = max(1, rows_count - 1)
+            st.rerun()
+    # 5. call STL2CPACS
+    with action_col3:
+        if st.button("Convert to CPACS", key="convert_stl_to_cpacs_button", width="stretch"):
+            try:
+                selected_stl_files: list[str] = []
+                cpacs_components: list[str] = []
+                settings: list[dict] = []
+
+                for idx in range(rows_count):
+                    selected_label = st.session_state.get(f"stl_component_source_{idx}")
+                    selected_type = str(st.session_state.get(f"stl_component_type_{idx}", "wing")).lower()
+                    use_advanced = bool(st.session_state.get(f"stl_component_advanced_{idx}", False))
+
+                    if not selected_label or selected_label not in stl_sources:
+                        continue
+
+                    selected_stl_files.append(stl_sources[selected_label])
+                    cpacs_components.append(selected_type)
+
+                    if selected_type == "wing":
+                        setting_dict: dict[str, float | int] = {}
+                        if use_advanced:
+                            setting_dict["EXTREME_TOL_perc_start"] = float(
+                                st.session_state[f"stl_component_adv_extreme_tol_start_{idx}"]
+                            )
+                            setting_dict["EXTREME_TOL_perc_end"] = float(
+                                st.session_state[f"stl_component_adv_extreme_tol_end_{idx}"]
+                            )
+                            setting_dict["N_Y_SLICES"] = int(
+                                st.session_state[f"stl_component_adv_n_y_slices_{idx}"]
+                            )
+                            setting_dict["N_SLICE_ADDING"] = int(
+                                st.session_state[f"stl_component_adv_n_slice_adding_{idx}"]
+                            )
+                            setting_dict["TE_CUT"] = float(
+                                st.session_state[f"stl_component_adv_te_cut_{idx}"]
+                            )
+                            setting_dict["N_BIN"] = int(
+                                st.session_state[f"stl_component_adv_n_bin_{idx}"]
+                            )
+                    else:
+                        setting_dict = {}
+                        if use_advanced:
+                            setting_dict["EXTREME_TOL_perc_start"] = float(
+                                st.session_state[f"stl_component_adv_extreme_tol_start_{idx}"]
+                            )
+                            setting_dict["EXTREME_TOL_perc_end"] = float(
+                                st.session_state[f"stl_component_adv_extreme_tol_end_{idx}"]
+                            )
+                            setting_dict["N_X_SLICES"] = int(
+                                st.session_state[f"stl_component_adv_n_x_slices_{idx}"]
+                            )
+                            setting_dict["N_SLICE_ADDING"] = int(
+                                st.session_state[f"stl_component_adv_n_slice_adding_{idx}"]
+                            )
+
+                    settings.append(setting_dict)
+
+                if not selected_stl_files:
+                    st.warning("Please select at least one STL component.")
+                    return None
+
+                cpacs_path = stl2cpacs_main(
+                    stl_file=selected_stl_files,
+                    setting=settings,
+                    out_dir=wkdir,
+                )
+
+                st.session_state["last_converted_cpacs_path"] = str(cpacs_path)
+                close_cpacs_handles(st.session_state.get("cpacs"))
+                st.session_state["cpacs"] = CPACS(str(cpacs_path))
+                st.success(f"CPACS generated: {cpacs_path}")
+            except Exception as exc:
+                st.error(f"STL to CPACS conversion failed: {exc}")
+    
+   
+    
+    return st.session_state.get("cpacs")
+
+
 # Functions
 
 def section_select_cpacs() -> None:
@@ -448,6 +919,7 @@ def section_select_cpacs() -> None:
     tabs = [
         "Load Geometry",
         "Generate Airfoil",
+        "STL to CPACS",
     ]
 
     show_openvsp = not parse_bool(os.environ.get("CEASIOMPY_CLOUD", "False"))
@@ -460,11 +932,14 @@ def section_select_cpacs() -> None:
         _section_load_cpacs()
     with selected_tab[1]:
         _section_generate_cpacs_airfoil()
+    with selected_tab[2]:
+        _section_stl_to_cpacs()
     if show_openvsp:
-        with selected_tab[2]:
+        with selected_tab[3]:
             render_openvsp_panel()
 
     # ALWAYS use the session CPACS
+    print('CPACS IS ',st.session_state.get("cpacs"))
     cpacs = st.session_state.get("cpacs")
     if not isinstance(cpacs, CPACS):
         return None
@@ -472,20 +947,24 @@ def section_select_cpacs() -> None:
     tixi = cpacs.tixi
 
     # 2D mode or else; geometry mode is expected to exist.
+    # STL2CPACS exports may not include CEASIOMpy geometry mode; default to 3D.
+    if not tixi.checkElement(GEOMETRY_MODE_XPATH):
+        add_value(
+            tixi=tixi,
+            xpath=GEOMETRY_MODE_XPATH,
+            value="3D",
+        )
     geometry_mode = str(get_value(tixi, xpath=GEOMETRY_MODE_XPATH))
     dim_mode = (geometry_mode == "2D")
 
     st.markdown("---")
-    ref_area: float | None = None
-    ref_length: float = 0.0
+    ref_area = None
     try:
         if not dim_mode:
-            area, length = compute_aircraft_ref_values(cpacs)
-            ref_area = _to_float_or_default(area, 0.0)
-            ref_length = _to_float_or_default(length, 0.0)
+            ref_area, ref_length = compute_aircraft_ref_values(cpacs)
 
         if dim_mode:
-            ref_length = _to_float_or_default(compute_airfoil_ref_length(cpacs), 0.0)
+            ref_length = compute_airfoil_ref_length(cpacs)
 
     except Exception as e:
         ref_area, ref_length = 0.0, 0.0
@@ -499,9 +978,10 @@ def section_select_cpacs() -> None:
     title += ")"
     st.markdown(title)
 
-    section_3d_view(
+    section_3D_view(
         cpacs=cpacs,
         force_regenerate=True,
+        plot_key="geometry_page_cpacs_preview",
     )
 
     # Once 3D view of CPACS file is done scroll down
@@ -509,10 +989,10 @@ def section_select_cpacs() -> None:
     st.markdown("---")
 
     if tixi.checkElement(AREA_XPATH):
-        ref_area = _to_float_or_default(get_value(tixi, xpath=AREA_XPATH), 0.0)
+        ref_area = get_value(tixi, xpath=AREA_XPATH)
 
     if tixi.checkElement(LENGTH_XPATH):
-        ref_length = _to_float_or_default(get_value(tixi, xpath=LENGTH_XPATH), 0.0)
+        ref_length = get_value(tixi, xpath=LENGTH_XPATH)
 
     spec = 1 if dim_mode else 2
     cols = st.columns(
@@ -524,12 +1004,11 @@ def section_select_cpacs() -> None:
             value=ref_length,
             min_value=0.0,
         )
-    new_ref_area: float | None = ref_area
     if not dim_mode:
         with cols[1]:
             new_ref_area = st.number_input(
                 label="Reference Area",
-                value=ref_area if ref_area is not None else 0.0,
+                value=ref_area,
                 min_value=0.0,
             )
 
@@ -549,10 +1028,8 @@ def section_select_cpacs() -> None:
     # 3D update
     if (
         not dim_mode
-        and ref_area is not None
         and np.isfinite(ref_area) and ref_area > 0.0
         and np.isfinite(ref_length) and ref_length > 0.0
-        and new_ref_area is not None
     ):
         add_value(
             tixi=tixi,
@@ -597,8 +1074,6 @@ if __name__ == "__main__":
     # Initialize the workflow object
     if "workflow" not in st.session_state:
         st.session_state["workflow"] = Workflow()
-
-    _bootstrap_cli_geometry()
 
     st.markdown("---")
 

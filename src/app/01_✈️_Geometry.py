@@ -721,7 +721,7 @@ def _section_stl_to_cpacs():
                     setting_dict["EXTREME_TOL_perc_start"] = float(
                         st.number_input(
                             "EXTREME_TOL_perc_start",
-                            value=0.02,
+                            value=0.005,
                             min_value=0.0,
                             max_value=1.0,
                             format="%.4f",
@@ -741,7 +741,7 @@ def _section_stl_to_cpacs():
                     setting_dict["EXTREME_TOL_perc_end"] = float(
                         st.number_input(
                             "EXTREME_TOL_perc_end",
-                            value=0.02,
+                            value=0.005,
                             min_value=0.0,
                             max_value=1.0,
                             format="%.4f",
@@ -784,7 +784,7 @@ def _section_stl_to_cpacs():
                     setting_dict["EXTREME_TOL_perc_start"] = float(
                         st.number_input(
                             "EXTREME_TOL_perc_start",
-                            value=0.02,
+                            value=0.005,
                             min_value=0.0,
                             max_value=1.0,
                             format="%.4f",
@@ -804,7 +804,7 @@ def _section_stl_to_cpacs():
                     setting_dict["EXTREME_TOL_perc_end"] = float(
                         st.number_input(
                             "EXTREME_TOL_perc_end",
-                            value=0.02,
+                            value=0.005,
                             min_value=0.0,
                             max_value=1.0,
                             format="%.4f",

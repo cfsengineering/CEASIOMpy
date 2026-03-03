@@ -878,12 +878,32 @@ def stl2fuselage_main(stl_file: str | Path, setting: dict,output_directory: str|
     N_X_SLICES = setting['N_X_SLICES']
     N_SLICE_ADDING = setting['N_SLICE_ADDING']
     
-    # build Y sampling positions
+    # build X sampling positions
     xmin, xmax = float(np.min(pts[:,0])), float(np.max(pts[:,0]))
     EXTREME_TOL_start = EXTREME_TOL_perc_start * (xmax - xmin)
     EXTREME_TOL_end = EXTREME_TOL_perc_end * (xmax - xmin)
-    x_vals = np.linspace(xmin + EXTREME_TOL_start, xmax - EXTREME_TOL_end, N_X_SLICES)
+    x_start = xmin + EXTREME_TOL_start
+    x_end = xmax - EXTREME_TOL_end
 
+    
+    
+    x_vals_base = np.linspace(x_start, x_end, N_X_SLICES, dtype=float)
+    # refine in the nose and tail regions
+    # Refine first and last 5% of effective fuselage length with +10 slices each.
+    extra_slices = 10
+    refine_frac = 0.05
+    x_len = x_end - x_start
+    nose_end = x_start + refine_frac * x_len
+    tail_start = x_end - refine_frac * x_len
+
+    # Internal points only: avoid duplicating x_start/x_end.
+    x_nose_extra = np.linspace(x_start, nose_end, extra_slices + 2, dtype=float)[1:-1]
+    x_tail_extra = np.linspace(tail_start, x_end, extra_slices + 2, dtype=float)[1:-1]
+
+    x_vals = np.unique(np.concatenate([x_vals_base, x_nose_extra, x_tail_extra]))
+
+    
+    
     # First slicing to get one reference point per slice (bottom point),
     for i, x0 in enumerate(x_vals):
         cloud = slice_mesh_at_Y(pts, tris, x0, INTERSECT_TOL)
@@ -1025,7 +1045,7 @@ def stl2fuselage_main(stl_file: str | Path, setting: dict,output_directory: str|
             'x_scal': 1,
             'y_scal': round(Scaling[0], 2),
             'z_scal': round(Scaling[1], 2),
-            'x_loc': x0,
+            'x_loc': x0-x_start,
             'y_trasl': y_center - center_prev[0],
             'z_trasl': z_center - center_prev[1],
             'x_rot': 0,

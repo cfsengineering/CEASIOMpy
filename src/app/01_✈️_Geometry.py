@@ -43,6 +43,7 @@ from openvspgui import (
 )
 from ceasiompy.stl2cpacs.func.split_stl_into_components import split_main, split_stl_by_symmetry_plane
 from ceasiompy.stl2cpacs.stl2cpacs import main as stl2cpacs_main
+from ceasiompy.stl2cpacs.stl2cpacs import cpacs_component_detection
 
 from typing import Final
 from pathlib import Path
@@ -671,238 +672,168 @@ def _section_stl_to_cpacs():
                 st.error(f"STL split failed: {exc}")
 
         
-    # 4. Convert to CPACS
-    if "show_cpacs_conversion_tools" not in st.session_state:
-        st.session_state["show_cpacs_conversion_tools"] = False
-    st.session_state["show_cpacs_conversion_tools"] = st.toggle(
-        "Enable CPACS conversion tools",
-        value=bool(st.session_state["show_cpacs_conversion_tools"]),
-        key="cpacs_conversion_tools_toggle",
-    )
-    if not st.session_state["show_cpacs_conversion_tools"]:
-        return None
-
+    # 4. Convert to CPACS using automatic component detection
     st.markdown("#### Convert to CPACS")
 
-    # Build list 
-    stl_sources: dict[str, str] = {}
-    for stl_path in uploaded_paths:
-        stl_sources[f"Uploaded: {stl_path.name}"] = str(stl_path)
+    candidate_paths: list[Path]
     if split_dir and Path(split_dir).exists():
-        for comp_path in sorted(Path(split_dir).glob("*.stl")):
-            stl_sources[f"Split: {comp_path.name}"] = str(comp_path)
+        candidate_paths = sorted(Path(split_dir).glob("*.stl"))
+    else:
+        candidate_paths = uploaded_paths
 
-    source_labels = list(stl_sources.keys())
-    if not source_labels:
+    if not candidate_paths:
         st.warning("No STL sources found in the working directory.")
         return None
 
-    if "stl_component_rows_count" not in st.session_state:
-        st.session_state["stl_component_rows_count"] = 1
 
-    rows_count = max(1, int(st.session_state["stl_component_rows_count"]))
-    st.caption("Define one or more components to map into CPACS.")
+    current_candidates = [str(path) for path in candidate_paths]
+    selected_stl_files = current_candidates
+    try:
+        detected_cpacs_types = cpacs_component_detection(selected_stl_files)
+    except Exception as exc:
+        st.error(f"Failed to detect CPACS component types: {exc}")
+        return None
 
-    for idx in range(rows_count):
-        st.markdown(f"**Component {idx + 1}**")
-        
-        source_col, type_col, advanced_col = st.columns([4, 2, 2], vertical_alignment="bottom")
+    if len(selected_stl_files) != len(detected_cpacs_types):
+        st.error("Detected component data is inconsistent.")
+        return None
 
-        with source_col:
-            selected_label = st.selectbox(
-                "STL",
-                options=source_labels,
-                key=f"stl_component_source_{idx}",
-            )
+    for idx, (stl_path, auto_type) in enumerate(zip(selected_stl_files, detected_cpacs_types)):
+        normalized_type = "fuselage" if str(auto_type).lower() == "fuselage" else "wing"
+        st.markdown(
+            f"**Component {idx + 1}** - `{Path(stl_path).name}` "
+            f"(auto-detected: `{normalized_type}`)"
+        )
 
-        with type_col:
-            
-            cpacs_type = st.selectbox(
-                "CPACS Type",
-                options=["wing", "fuselage"],
-                key=f"stl_component_type_{idx}",
-            )
+        use_advanced = st.toggle(
+            "Advanced",
+            value=False,
+            key=f"stl_component_advanced_{idx}",
+        )
 
-        with advanced_col:
-            use_advanced = st.toggle(
-                "Advanced",
-                value=False,
-                key=f"stl_component_advanced_{idx}",
-            )
-
+        setting_dict: dict[str, float | int] = {}
         if use_advanced:
-            if cpacs_type == "wing":
-                adv_col1, adv_col2,adv_col3 = st.columns(3)
-
+            if normalized_type == "wing":
+                adv_col1, adv_col2, adv_col3 = st.columns(3)
                 with adv_col1:
-                    st.number_input(
-                        "EXTREME_TOL_perc_start",
-                        value=0.02,
-                        min_value=0.0,
-                        max_value=1.0,
-                        format="%.4f",
-                        key=f"stl_component_adv_extreme_tol_start_{idx}",
+                    setting_dict["EXTREME_TOL_perc_start"] = float(
+                        st.number_input(
+                            "EXTREME_TOL_perc_start",
+                            value=0.02,
+                            min_value=0.0,
+                            max_value=1.0,
+                            format="%.4f",
+                            key=f"stl_component_adv_extreme_tol_start_{idx}",
+                        )
                     )
-                    st.number_input(
-                        "Slices",
-                        value=50,
-                        min_value=2,
-                        step=1,
-                        key=f"stl_component_adv_n_y_slices_{idx}",
+                    setting_dict["N_Y_SLICES"] = int(
+                        st.number_input(
+                            "Slices",
+                            value=50,
+                            min_value=2,
+                            step=1,
+                            key=f"stl_component_adv_n_y_slices_{idx}",
+                        )
                     )
                 with adv_col2:
-                    st.number_input(
-                        "EXTREME_TOL_perc_end",
-                        value=0.02,
-                        min_value=0.0,
-                        max_value=1.0,
-                        format="%.4f",
-                        key=f"stl_component_adv_extreme_tol_end_{idx}",
+                    setting_dict["EXTREME_TOL_perc_end"] = float(
+                        st.number_input(
+                            "EXTREME_TOL_perc_end",
+                            value=0.02,
+                            min_value=0.0,
+                            max_value=1.0,
+                            format="%.4f",
+                            key=f"stl_component_adv_extreme_tol_end_{idx}",
+                        )
                     )
-                    st.number_input(
-                        "N_SLICE_ADDING",
-                        value=0,
-                        min_value=0,
-                        step=1,
-                        key=f"stl_component_adv_n_slice_adding_{idx}",
+                    setting_dict["N_SLICE_ADDING"] = int(
+                        st.number_input(
+                            "N_SLICE_ADDING",
+                            value=0,
+                            min_value=0,
+                            step=1,
+                            key=f"stl_component_adv_n_slice_adding_{idx}",
+                        )
                     )
                 with adv_col3:
-                    st.number_input(
-                        "TE_CUT",
-                        value=0.0,
-                        min_value=0.0,
-                        max_value=0.5,
-                        format="%.4f",
-                        help="Description of TE_CUT",
-                        key=f"stl_component_adv_te_cut_{idx}",
+                    setting_dict["TE_CUT"] = float(
+                        st.number_input(
+                            "TE_CUT",
+                            value=0.0,
+                            min_value=0.0,
+                            max_value=0.5,
+                            format="%.4f",
+                            help="Description of TE_CUT",
+                            key=f"stl_component_adv_te_cut_{idx}",
+                        )
                     )
-                    st.number_input(
-                        "N_BIN",
-                        value=10,
-                        min_value=3,
-                        step=1,
-                        key=f"stl_component_adv_n_bin_{idx}",
+                    setting_dict["N_BIN"] = int(
+                        st.number_input(
+                            "N_BIN",
+                            value=10,
+                            min_value=3,
+                            step=1,
+                            key=f"stl_component_adv_n_bin_{idx}",
+                        )
                     )
-
             else:
                 adv_col1, adv_col2 = st.columns(2)
                 with adv_col1:
-                    st.number_input(
-                        "EXTREME_TOL_perc_start",
-                        value=0.02,
-                        min_value=0.0,
-                        max_value=1.0,
-                        format="%.4f",
-                        key=f"stl_component_adv_extreme_tol_start_{idx}",
+                    setting_dict["EXTREME_TOL_perc_start"] = float(
+                        st.number_input(
+                            "EXTREME_TOL_perc_start",
+                            value=0.02,
+                            min_value=0.0,
+                            max_value=1.0,
+                            format="%.4f",
+                            key=f"stl_component_adv_extreme_tol_start_{idx}",
+                        )
                     )
-                    st.number_input(
-                        "N_X_SLICES",
-                        value=50,
-                        min_value=2,
-                        step=1,
-                        key=f"stl_component_adv_n_x_slices_{idx}",
+                    setting_dict["N_X_SLICES"] = int(
+                        st.number_input(
+                            "N_X_SLICES",
+                            value=50,
+                            min_value=2,
+                            step=1,
+                            key=f"stl_component_adv_n_x_slices_{idx}",
+                        )
                     )
                 with adv_col2:
-                    st.number_input(
-                        "EXTREME_TOL_perc_end",
-                        value=0.02,
-                        min_value=0.0,
-                        max_value=1.0,
-                        format="%.4f",
-                        key=f"stl_component_adv_extreme_tol_end_{idx}",
+                    setting_dict["EXTREME_TOL_perc_end"] = float(
+                        st.number_input(
+                            "EXTREME_TOL_perc_end",
+                            value=0.02,
+                            min_value=0.0,
+                            max_value=1.0,
+                            format="%.4f",
+                            key=f"stl_component_adv_extreme_tol_end_{idx}",
+                        )
                     )
-                    st.number_input(
-                        "N_SLICE_ADDING",
-                        value=0,
-                        min_value=0,
-                        step=1,
-                        key=f"stl_component_adv_n_slice_adding_{idx}",
+                    setting_dict["N_SLICE_ADDING"] = int(
+                        st.number_input(
+                            "N_SLICE_ADDING",
+                            value=0,
+                            min_value=0,
+                            step=1,
+                            key=f"stl_component_adv_n_slice_adding_{idx}",
+                        )
                     )
+        settings.append(setting_dict)
 
-                
-    action_col1, action_col2, action_col3 = st.columns([1, 1, 4])
-    with action_col1:
-        if st.button("➕ Add", key="add_stl_component_row", width="stretch"):
-            st.session_state["stl_component_rows_count"] = rows_count + 1
-            st.rerun()
-    with action_col2:
-        if st.button("➖ Remove", key="remove_stl_component_row", width="stretch"):
-            st.session_state["stl_component_rows_count"] = max(1, rows_count - 1)
-            st.rerun()
-    # 5. call STL2CPACS
-    with action_col3:
-        if st.button("Convert to CPACS", key="convert_stl_to_cpacs_button", width="stretch"):
-            try:
-                selected_stl_files: list[str] = []
-                cpacs_components: list[str] = []
-                settings: list[dict] = []
+    if st.button("Convert Geometry to CPACS", key="convert_stl_to_cpacs_button", width="stretch"):
+        try:
+            cpacs_path = stl2cpacs_main(
+                stl_file=selected_stl_files,
+                setting=settings,
+                out_dir=wkdir,
+            )
 
-                for idx in range(rows_count):
-                    selected_label = st.session_state.get(f"stl_component_source_{idx}")
-                    selected_type = str(st.session_state.get(f"stl_component_type_{idx}", "wing")).lower()
-                    use_advanced = bool(st.session_state.get(f"stl_component_advanced_{idx}", False))
-
-                    if not selected_label or selected_label not in stl_sources:
-                        continue
-
-                    selected_stl_files.append(stl_sources[selected_label])
-                    cpacs_components.append(selected_type)
-
-                    if selected_type == "wing":
-                        setting_dict: dict[str, float | int] = {}
-                        if use_advanced:
-                            setting_dict["EXTREME_TOL_perc_start"] = float(
-                                st.session_state[f"stl_component_adv_extreme_tol_start_{idx}"]
-                            )
-                            setting_dict["EXTREME_TOL_perc_end"] = float(
-                                st.session_state[f"stl_component_adv_extreme_tol_end_{idx}"]
-                            )
-                            setting_dict["N_Y_SLICES"] = int(
-                                st.session_state[f"stl_component_adv_n_y_slices_{idx}"]
-                            )
-                            setting_dict["N_SLICE_ADDING"] = int(
-                                st.session_state[f"stl_component_adv_n_slice_adding_{idx}"]
-                            )
-                            setting_dict["TE_CUT"] = float(
-                                st.session_state[f"stl_component_adv_te_cut_{idx}"]
-                            )
-                            setting_dict["N_BIN"] = int(
-                                st.session_state[f"stl_component_adv_n_bin_{idx}"]
-                            )
-                    else:
-                        setting_dict = {}
-                        if use_advanced:
-                            setting_dict["EXTREME_TOL_perc_start"] = float(
-                                st.session_state[f"stl_component_adv_extreme_tol_start_{idx}"]
-                            )
-                            setting_dict["EXTREME_TOL_perc_end"] = float(
-                                st.session_state[f"stl_component_adv_extreme_tol_end_{idx}"]
-                            )
-                            setting_dict["N_X_SLICES"] = int(
-                                st.session_state[f"stl_component_adv_n_x_slices_{idx}"]
-                            )
-                            setting_dict["N_SLICE_ADDING"] = int(
-                                st.session_state[f"stl_component_adv_n_slice_adding_{idx}"]
-                            )
-
-                    settings.append(setting_dict)
-
-                if not selected_stl_files:
-                    st.warning("Please select at least one STL component.")
-                    return None
-
-                cpacs_path = stl2cpacs_main(
-                    stl_file=selected_stl_files,
-                    setting=settings,
-                    out_dir=wkdir,
-                )
-
-                st.session_state["last_converted_cpacs_path"] = str(cpacs_path)
-                close_cpacs_handles(st.session_state.get("cpacs"))
-                st.session_state["cpacs"] = CPACS(str(cpacs_path))
-                st.success(f"CPACS generated: {cpacs_path}")
-            except Exception as exc:
-                st.error(f"STL to CPACS conversion failed: {exc}")
+            st.session_state["last_converted_cpacs_path"] = str(cpacs_path)
+            close_cpacs_handles(st.session_state.get("cpacs"))
+            st.session_state["cpacs"] = CPACS(str(cpacs_path))
+            st.success(f"CPACS generated: {cpacs_path}")
+        except Exception as exc:
+            st.error(f"STL to CPACS conversion failed: {exc}")
     
    
     

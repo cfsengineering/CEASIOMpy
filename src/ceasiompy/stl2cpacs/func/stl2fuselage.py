@@ -531,14 +531,25 @@ def slice_mesh_rotated_YZ(
     debug=False,
 ):
     """
-    Slice mesh with a YZ plane (normal along +X) passing through p0.
-    dihedral_deg and sweep_deg are kept only for API compatibility.
+    Slice mesh with a plane orthogonal to local direction
+    defined by dihedral.
     """
-    _ = dihedral_deg, sweep_deg
-    n_plane = np.array([1.0, 0.0, 0.0])
+    # Build local direction
+    a = np.deg2rad(dihedral_deg)
+
+    Rx = np.array([
+        [1, 0,           0          ],
+        [0, np.cos(a),  -np.sin(a)],
+        [0, np.sin(a),   np.cos(a)]
+    ])
+
+    RR = Rx
+
+    e_span = RR @ np.array([1.0, 0.0, 0.0])
+    e_span /= np.linalg.norm(e_span)
 
     # Signed distances
-    dverts = (pts - p0) @ n_plane
+    dverts = (pts - p0) @ e_span
     dtri = dverts[tris]
 
     tri_min = dtri.min(axis=1)
@@ -546,7 +557,7 @@ def slice_mesh_rotated_YZ(
 
     hits = np.where((tri_min <= tol) & (tri_max >= -tol))[0]
     if hits.size == 0:
-        return np.zeros((0, 3)), n_plane
+        return np.zeros((0, 3)), e_span
 
     # -------------------------------------------------
     # Intersections
@@ -555,7 +566,7 @@ def slice_mesh_rotated_YZ(
     for ti in hits:
         i0, i1, i2 = tris[ti]
         ip = intersect_triangle_with_plane_point_normal(
-            p0, n_plane,
+            p0, e_span,
             pts[i0], pts[i1], pts[i2],
             tol=tol
         )
@@ -563,7 +574,7 @@ def slice_mesh_rotated_YZ(
             inter.extend(ip)
 
     if not inter:
-        return np.zeros((0, 3)), n_plane
+        return np.zeros((0, 3)), e_span
 
     arr = np.vstack(inter)
 
@@ -600,7 +611,7 @@ def slice_mesh_rotated_YZ(
         L = np.linalg.norm(arr.max(axis=0) - arr.min(axis=0))
         ax.quiver(
             p0[0], p0[1], p0[2],
-            n_plane[0], n_plane[1], n_plane[2],
+            e_span[0], e_span[1], e_span[2],
             length=0.3 * L,
             color="blue",
             linewidth=3,
@@ -613,11 +624,11 @@ def slice_mesh_rotated_YZ(
         U, V = np.meshgrid(u, v)
 
         # Two orthogonal vectors in plane
-        t1 = np.cross(n_plane, [1, 0, 0])
+        t1 = np.cross(e_span, [1, 0, 0])
         if np.linalg.norm(t1) < 1e-6:
-            t1 = np.cross(n_plane, [0, 0, 1])
+            t1 = np.cross(e_span, [0, 0, 1])
         t1 /= np.linalg.norm(t1)
-        t2 = np.cross(n_plane, t1)
+        t2 = np.cross(e_span, t1)
 
         Xp = p0[0] + U * t1[0] + V * t2[0]
         Yp = p0[1] + U * t1[1] + V * t2[1]
@@ -629,14 +640,14 @@ def slice_mesh_rotated_YZ(
         ax.set_ylabel("Y")
         ax.set_zlabel("Z")
         ax.set_title(
-            f"YZ slice plane (x = {p0[0]:.4f})"
+            f"Rotated slice plane (dihedral={dihedral_deg:.2f} deg)"
         )
         ax.legend()
         ax.set_box_aspect([1, 1, 1])
         plt.tight_layout()
         plt.show()
 
-    return arr, n_plane
+    return arr, e_span
 
 
 def slice_mesh_at_Y(pts, tris, x_plane, tol):
@@ -721,7 +732,7 @@ def compute_local_angles_from_ref(ref_pts):
 
     return sweep, dihedral
 
-def filter_and_insert(y_vals, sweep_deg, dihedral_deg, ref_pts, n_insert):
+def insert_slices(y_vals, sweep_deg, dihedral_deg, ref_pts, n_insert):
     """
     Keep all original slices and only insert new slices at angle transitions.
     """
@@ -873,7 +884,6 @@ def stl2fuselage_main(stl_file: str | Path, setting: dict,output_directory: str|
     EXTREME_TOL_end = EXTREME_TOL_perc_end * (xmax - xmin)
     x_vals = np.linspace(xmin + EXTREME_TOL_start, xmax - EXTREME_TOL_end, N_X_SLICES)
 
-    
     # First slicing to get one reference point per slice (bottom point),
     for i, x0 in enumerate(x_vals):
         cloud = slice_mesh_at_Y(pts, tris, x0, INTERSECT_TOL)
@@ -940,7 +950,7 @@ def stl2fuselage_main(stl_file: str | Path, setting: dict,output_directory: str|
     sweep_deg, dihedral_deg = compute_local_angles_from_ref(center_pts)
     
     # =========================================================
-    x_vals, sweep_deg, dihedral_deg, center_pts, is_inserted = filter_and_insert(
+    x_vals, sweep_deg, dihedral_deg, center_pts, is_inserted = insert_slices(
         center_pts[:, 0],
         sweep_deg,
         dihedral_deg,

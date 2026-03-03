@@ -12,9 +12,7 @@ Functions to simplify some file and data handling in CEASIOMpy
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 from collections import OrderedDict
 
@@ -65,7 +63,7 @@ class ConfigFile:
                     key, value = line.split("=")
 
                     if ";" in value:
-                        value_list = value.split(";")
+                        value_list = str(value).split(";")
                         value_list = [v.strip() for v in value_list]
 
                         self.data[key.strip()] = value_list

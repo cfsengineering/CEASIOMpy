@@ -14,7 +14,7 @@ What it does:
   - Checks that 'conda' is available
   - Checks that the `ceasiompy` conda environment exists
   - Activates it
-  - Runs `CEASIOMpyStreamlit.cli:main_exec` (same as `ceasiompy_run`)
+  - Runs `app.cli:main_exec` (same as `ceasiompy_run`)
 
 Arguments:
   Any additional arguments are forwarded to the Python entrypoint.
@@ -122,9 +122,9 @@ if [[ -f "$conda_sh" ]]; then
     die "Failed to activate conda env: $ENV_NAME"
   fi
   set -u
-  exec python -c 'import sys; from CEASIOMpyStreamlit.cli import main_exec; sys.exit(main_exec())' "$@"
+  exec python -c 'import sys; from app.cli import main_exec; sys.exit(main_exec())' "$@"
 fi
 
 say "Warning: conda activation script not found at: $conda_sh"
 say "Running via: ${conda_run_cmd[*]}"
-exec "${conda_run_cmd[@]}" python -c 'import sys; from CEASIOMpyStreamlit.cli import main_exec; sys.exit(main_exec())' "$@"
+exec "${conda_run_cmd[@]}" python -c 'import sys; from app.cli import main_exec; sys.exit(main_exec())' "$@"

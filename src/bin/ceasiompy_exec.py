@@ -7,59 +7,41 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Main module of CEASIOMpy to launch workflow by different way.
-
-| Author: Aidan Jungo
-| Creation: 2022-03-29
-
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import os
 import sys
 import signal
+import json
 import argparse
 import subprocess
 
-from ceasiompy.utils.ceasiompyutils import current_workflow_dir
+from ceasiompy.utils.ceasiompyutils import (
+    parse_bool,
+    has_display,
+    workflow_number,
+)
 
 from pathlib import Path
 from argparse import Namespace
-from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy import log
-from unittest.mock import patch
 from ceasiompy.utils.commonpaths import (
     WKDIR_PATH,
+    CEASIOMPY_PATH,
     STREAMLIT_PATH,
-    TEST_CASES_PATH,
-    CPACS_FILES_PATH,
 )
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
-
+# Methods
 def _get_cpu_count() -> int:
     cpus = os.cpu_count()
     if cpus is not None:
         return int(cpus // 2 + 1)
 
     return 1
-
-
-def _parse_bool(value: str) -> bool:
-    """Parse a CLI boolean value."""
-
-    normalized = value.strip().lower()
-    if normalized in {"1", "true", "t", "yes", "y", "on"}:
-        return True
-    if normalized in {"0", "false", "f", "no", "n", "off"}:
-        return False
-    raise argparse.ArgumentTypeError(f"Invalid boolean value: {value!r}")
 
 
 def _ensure_conda_prefix_bin_first(env: dict[str, str] | None = None) -> dict[str, str] | None:
@@ -101,138 +83,20 @@ def _ensure_usr_bin_in_path(env: dict[str, str] | None = None) -> dict[str, str]
     return env
 
 
-def testcase_message(testcase_nb: int) -> None:
-    """Top message to show when a test case is run."""
-
-    log.info(f"CEASIOMpy as been started from test case {testcase_nb}")
-
-    log.info("")
-    log.info("#" * 30)
-    log.info(f"### CEASIOMpy: Test case {testcase_nb} ###")
-    log.info("#" * 30)
-    log.info("More information about this test case at:")
-    log.info(
-        "https://github.com/cfsengineering/CEASIOMpy/blob/main/"
-        f"test_cases/test_case_{testcase_nb}/README.md"
-    )
-    log.info("")
-
-
-def run_testcase(testcase_nb):
-    """Run a test case."""
-
-    if testcase_nb == 1:
-
-        testcase_message(1)
-
-        test_case_1_path = Path(TEST_CASES_PATH, "test_case_1")
-        test_case_1_cfg = Path(test_case_1_path, "testcase1.cfg")
-
-        workflow = Workflow()
-        workflow.from_config_file(test_case_1_cfg)
-        workflow.working_dir = current_workflow_dir()
-        workflow.cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml")
-
-        workflow.set_workflow()
-        workflow.run_workflow(test=True)
-
-        log.info("Congratulations, this Test case is now finished!")
-        log.info(f"You can now check your results in: {workflow.current_wkflow_dir}/Results")
-
-    elif testcase_nb == 2:
-        testcase_message(2)
-        log.info("Use the GUI to create your workflow.")
-        run_gui()
-        log.info("Congratulations, this Test case is now finished!")
-
-    elif testcase_nb == 3:
-        testcase_message(3)
-        log.info("Use the GUI to create your workflow.")
-        run_gui()
-        log.info("Congratulations, this Test case is now finished!")
-
-    elif testcase_nb == 4:
-        testcase_message(4)
-        log.info(
-            "To run this test case, you will need to open a terminal "
-            "and run the following command:"
-        )
-        log.info(">> conda activate ceasiompy")
-        log.info(
-            ">> ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml "
-            "PyAVL SkinFriction SaveAeroCoefficients"
-        )
-
-    elif testcase_nb == 5:
-        testcase_message(5)
-
-    else:
-        log.info("Test case number must be 1,2,3,4 or 5.")
-
-
-def run_modules_list(args_list) -> None:
-    """Run a workflow from a CPACS file and a list of modules."""
-
-    if len(args_list) < 2:
-        log.warning(
-            "At least 2 arguments are required to run a CEASIOMpy, the first onw must be the "
-            "CPACS file and the modules to run. You can add as many modules as you want."
-        )
-        return None
-
-    cpacs_path = Path(args_list[0])
-    if cpacs_path.suffix != ".xml":
-        log.warning(
-            'The first argument of "-m/--modules" option must be the path to a CPACS file.',
-        )
-        return None
-
-    cwd = os.getcwd()
-    new_cpacs_path = Path(Path(cwd), cpacs_path)
-
-    if not new_cpacs_path.exists():
-        log.warning(f"The CPACS file {new_cpacs_path} does not exist.")
-        return None
-
-    modules_list = args_list[1:]
-
-    log.info("CEASIOMpy has been started from a command line.")
-    with patch("streamlit.runtime.scriptrunner_utils.script_run_context"):
-        with patch("streamlit.runtime.state.session_state_proxy"):
-            workflow = Workflow()
-            workflow.cpacs_in = new_cpacs_path
-            workflow.modules_list = modules_list
-            workflow.module_optim = ["NO"] * len(modules_list)
-            workflow.write_config_file()
-            workflow.set_workflow()
-            workflow.run_workflow(test=True)
-
-
-def run_config_file(config_file) -> None:
-    """Run a workflow from a config file"""
-
-    log.info("CEASIOMpy has been started from a config file.")
-    config_file_path = Path(config_file)
-
-    cwd = os.getcwd()
-    new_cfg_path = Path(Path(cwd), config_file_path)
-
-    if not new_cfg_path.exists():
-        log.warning(f"The config file {new_cfg_path} does not exist.")
-        return
-
-    workflow = Workflow()
-    workflow.from_config_file(new_cfg_path)
-    workflow.working_dir = current_workflow_dir()
-    workflow.set_workflow()
-    workflow.run_workflow(test=True)
-
+# Functions
 
 def run_gui(
+    # Modify default CEASIOMpy Streamlit
+    modules_list: list[str] | None = None,
+    geometry_path: Path | None = None,
+
+    # Cloud Instance Parameters
     cpus: int | None = None,
     wkdir: Path | None = None,
     headless: bool = False,
     port: int | None = None,
+    address: str | None = None,
+    cloud: bool = False,
 ) -> None:
     """Create and run a workflow from the GUI."""
 
@@ -242,7 +106,7 @@ def run_gui(
     if wkdir is None:
         wkdir = WKDIR_PATH
 
-    if not headless and not os.environ.get("DISPLAY") and not os.environ.get("WAYLAND_DISPLAY"):
+    if not headless and not has_display():
         headless = True
         log.info(
             "No DISPLAY/WAYLAND_DISPLAY detected; starting Streamlit in headless mode "
@@ -263,48 +127,52 @@ def run_gui(
     log.info("CEASIOMpy has been started from the GUI.")
     env = os.environ.copy()
     _ensure_conda_prefix_bin_first(env)
-    # Add CEASIOMpy src directory first (for helper modules like `utilities`),
-    # then OpenVSP Python roots (for degen_geom, openvsp, etc.) to PYTHONPATH.
-    project_root = Path(__file__).resolve().parents[2]
-    src_dir = project_root / "src"
-    vsp_python_root = project_root / "INSTALLDIR/OpenVSP/python"
-    vsp_openvsp_pkg = vsp_python_root / "openvsp"
-    degen_geom_pkg = vsp_python_root / "degen_geom"
-    vsp_config_pkg = vsp_python_root / "openvsp_config"
-    utilities_pkg = vsp_python_root / "utilities"
+    # Add CEASIOMpy src directory first, then OpenVSP Python roots.
+    # Some OpenVSP builds place top-level modules (e.g. openvsp_config)
+    # under <python>/openvsp, so include both directories.
+    src_dir = CEASIOMPY_PATH / "src"
     env["PYTHONPATH"] = (
         str(src_dir)
         + os.pathsep
-        # + str(vsp_python_root)
-        # + os.pathsep
-        + str(vsp_openvsp_pkg)
-        + os.pathsep
-        + str(vsp_config_pkg)
-        + os.pathsep
-        + str(degen_geom_pkg)
-        + os.pathsep
-        + str(utilities_pkg)
-        + os.pathsep
         + env.get("PYTHONPATH", "")
     )
+
+    env["CEASIOMPY_CLOUD"] = str(cloud)
 
     # Environment variables must be strings
     env["MAX_CPUS"] = str(cpus)
 
     # Expose working directory to the Streamlit app
     env["CEASIOMPY_WKDIR"] = str(wkdir)
+    if geometry_path is not None:
+        env["CEASIOMPY_GEOMETRY"] = str(geometry_path)
+    if modules_list is not None:
+        env["CEASIOMPY_MODULES"] = json.dumps(modules_list)
 
+    streamlit_entrypoint = str(STREAMLIT_PATH / "app.py")
     args = [
         sys.executable,
         "-m",
         "streamlit",
         "run",
-        "✈️_Geometry.py",
+        streamlit_entrypoint,
         "--server.headless", f"{str(headless).lower()}",
     ]
+
     if port is not None:
         args += [
             "--server.port", f"{port}"
+        ]
+
+    if address is not None:
+        args += [
+            "--server.address", f"{address}"
+        ]
+
+    if cloud:
+        args += [
+            "--server.enableCORS=false",
+            "--server.enableXsrfProtection=false",
         ]
 
     try:
@@ -349,12 +217,6 @@ def cleanup_previous_workflow_status(wkdir: Path | None = None) -> None:
     if not workflow_dirs:
         return
 
-    def workflow_number(path: Path) -> int:
-        parts = path.name.split("_")
-        if parts and parts[-1].isdigit():
-            return int(parts[-1])
-        return -1
-
     last_workflow = max(workflow_dirs, key=workflow_number)
     status_file = last_workflow / "workflow_status.json"
 
@@ -365,38 +227,95 @@ def cleanup_previous_workflow_status(wkdir: Path | None = None) -> None:
             pass
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 
 def main() -> None:
     _ensure_conda_prefix_bin_first()
     _ensure_usr_bin_in_path()
     parser = argparse.ArgumentParser(
-        description="CEASIOMpy: Conceptual Aircraft Design Environment",
+        description="CEASIOMpy: Open Source Conceptual Aircraft Design Environment.",
         usage=argparse.SUPPRESS,
-        formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=80, width=99),
+        add_help=False,
+        formatter_class=lambda prog: argparse.RawTextHelpFormatter(
+            prog, max_help_position=80, width=99
+        ),
     )
 
     parser.add_argument(
-        "-c",
-        "--cfg",
-        type=str,
-        metavar="PATH",
-        help="create a CEASIOMpy workflow from a configuration file [PATH to the config file]",
+        "-h",
+        "--help",
+        action="help",
+        default=argparse.SUPPRESS,
+        help="Show this help message and exit.",
     )
+
+    # By default is GUI
     parser.add_argument(
         "-g",
+        "--g",
+        "-gui",
         "--gui",
+
+        # Don't look for an argument
         action="store_true",
-        help="create a CEASIOMpy workflow with the Graphical user interface",
+        help="Creates a CEASIOMpy workflow with the Graphical user interface.",
+        required=False,
     )
+
+    parser.add_argument(
+        "--geometry",
+        help=(
+            "Specify the path to your geometry (.vsp, .xml).\n"
+            "\n"
+            "Examples:\n"
+            "  ceasiompy_run --geometry path/to/cpacs.xml\n"
+            "  ceasiompy_run --geometry path/to/geometry.vsp\n"
+            "\n"
+        ),
+        type=Path,
+        required=False,
+    )
+
+    parser.add_argument(
+        "--modules",
+        nargs="+",
+        metavar="",
+        default=None,
+        type=str,
+        required=False,
+        help=(
+            "Creates a CEASIOMpy workflow by giving the list of modules to run.\n"
+            "\n"
+            "Examples:\n"
+            "  ceasiompy_run --modules pyavl\n"
+            "  ceasiompy_run --modules cpacs2gmsh su2run\n"
+            "  ceasiompy_run --modules smtrain\n"
+            "\n"
+        ),
+    )
+
+    # Specific to CEASIOMpy Cloud
     parser.add_argument(
         "-p",
         "--port",
+        type=int,
         required=False,
-        help="Select specific Port.",
+        help="Specify a preferred Port.",
+    )
+    parser.add_argument(
+        "--cloud",
+        required=False,
+        nargs="?",
+        const=True,
+        type=parse_bool,
+        default=False,
+        help="If running from a cloud instance.",
+    )
+    parser.add_argument(
+        "--address",
+        type=str,
+        required=False,
+        help="Select server address.",
     )
     parser.add_argument(
         "--wkdir",
@@ -409,7 +328,7 @@ def main() -> None:
         required=False,
         nargs="?",
         const=True,
-        type=_parse_bool,
+        type=parse_bool,
         default=False,
         help="Run Streamlit in headless mode (no browser auto-open).",
     )
@@ -420,50 +339,28 @@ def main() -> None:
         default=_get_cpu_count(),
         help="Select maximum number of authorized CPUs.",
     )
-    parser.add_argument(
-        "-m",
-        "--modules",
-        nargs="+",
-        metavar="",
-        default=[],
-        help="create a CEASIOMpy workflow by giving the CPACS file and the list of module to run"
-        " [Path to the CPACS] [Module list]",
-    )
-    parser.add_argument(
-        "--testcase",
-        type=int,
-        metavar="NB",
-        help="run a test case [1, 2, or 3]",
-    )
 
     args: Namespace = parser.parse_args()
 
-    if args.testcase:
-        run_testcase(args.testcase)
-        return
+    port = int(args.port) if args.port is not None else None
+    wkdir = Path(args.wkdir) if args.wkdir is not None else None
+    geometry_path = (
+        Path(args.geometry).expanduser().resolve(strict=False)
+        if args.geometry is not None
+        else None
+    )
 
-    if args.modules:
-        run_modules_list(args.modules)
-        return
-
-    if args.cfg:
-        run_config_file(args.cfg)
-        return
-
-    if args.gui:
-        port = int(args.port) if args.port is not None else None
-        wkdir = Path(args.wkdir) if args.wkdir is not None else None
-        cleanup_previous_workflow_status(wkdir)
-        run_gui(
-            port=port,
-            cpus=int(args.cpus),
-            wkdir=wkdir,
-            headless=args.headless,
-        )
-        return
-
-    # If no argument is given, print the help
-    parser.print_help()
+    cleanup_previous_workflow_status(wkdir)
+    run_gui(
+        port=port,
+        cpus=int(args.cpus),
+        wkdir=wkdir,
+        headless=args.headless,
+        address=args.address,
+        cloud=bool(args.cloud),
+        modules_list=args.modules if args.modules else None,
+        geometry_path=geometry_path,
+    )
 
 
 if __name__ == "__main__":

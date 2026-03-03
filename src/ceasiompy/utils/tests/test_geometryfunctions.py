@@ -1,14 +1,10 @@
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
-Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
-
-Test the module CPACS2SUMO
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland.
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import unittest
 import numpy as np
@@ -22,6 +18,7 @@ from ceasiompy.utils.geometryfunctions import (
 )
 
 from unittest.mock import MagicMock
+from ceasiompy.utils.generalclasses import Point
 
 from unittest.mock import patch
 
@@ -33,13 +30,12 @@ from unittest.mock import patch
 class TestGeometryFunctions(unittest.TestCase):
 
     @patch("ceasiompy.utils.geometryfunctions.CEASIOMPY_DB_PATH")
-    def test_get_aircrafts_list_db_missing(self, MockPath):
-        MockPath.exists.return_value = False
+    def test_get_aircrafts_list_db_missing(self, mock_path):
+        mock_path.exists.return_value = False
         result = get_aircrafts_list()
         self.assertEqual(result, ["Can't use ceasiompy.db"])
 
     def test_sum_points(self):
-        Point = type("Point", (), {})
         p1 = Point()
         p1.x, p1.y, p1.z = 1, 2, 3
         p2 = Point()
@@ -47,7 +43,6 @@ class TestGeometryFunctions(unittest.TestCase):
         self.assertEqual(sum_points(p1, p2), (5, 7, 9))
 
     def test_prod_points(self):
-        Point = type("Point", (), {})
         p1 = Point()
         p1.x, p1.y, p1.z = 2, 3, 4
         p2 = Point()
@@ -55,7 +50,6 @@ class TestGeometryFunctions(unittest.TestCase):
         self.assertEqual(prod_points(p1, p2), (10, 18, 28))
 
     def test_check_if_rotated_warns(self):
-        Point = type("Point", (), {})
         rot = Point()
         rot.x, rot.y, rot.z = 1, 0, 0
         with patch("ceasiompy.utils.geometryfunctions.log.warning") as mock_warn:
@@ -63,7 +57,6 @@ class TestGeometryFunctions(unittest.TestCase):
             mock_warn.assert_called_once()
 
     def test_check_if_rotated_no_warn(self):
-        Point = type("Point", (), {})
         rot = Point()
         rot.x, rot.y, rot.z = 0, 0, 0
         with patch("ceasiompy.utils.geometryfunctions.log.warning") as mock_warn:

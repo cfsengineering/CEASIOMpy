@@ -1,0 +1,298 @@
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+Script to train a Surrogate Model in CEASIOMPY.
+Either (1) Kriging or (2-3) Multi-Fidelity Kriging model can be used,
+depending on the level of fidelity chosen.
+
+TODO:
+    * More tests on adaptive sampling
+    * Never tested with 3 levels of fidelity
+"""
+
+
+# Imports
+import pandas as pd
+
+from ceasiompy.utils.ceasiompyutils import call_main
+from ceasiompy.smtrain.func.utils import (
+    save_model,
+    store_best_geom_from_training,
+)
+from ceasiompy.smtrain.func.sampling import (
+    split_data,
+    sample_geom,
+    get_high_variance_points,
+    get_loo_points,
+)
+from ceasiompy.smtrain.func.config import (
+    get_settings,
+    normalize_data,
+    get_params_to_optimise,
+    create_list_cpacs_geometry,
+)
+from ceasiompy.smtrain.func.trainsurrogatemodel import (
+    get_best_rbf_model,
+    get_best_krg_model,
+    run_adapt_refinement_geom,
+    run_first_level_simulations,
+)
+
+from pathlib import Path
+from pandas import DataFrame
+from cpacspy.cpacspy import CPACS
+from ceasiompy.smtrain.func.utils import DataSplit
+from ceasiompy.smtrain.func.config import TrainingSettings
+
+from ceasiompy import log
+from ceasiompy.smtrain import (
+    LEVEL_TWO,
+    MODULE_NAME as SMTRAIN,
+)
+
+
+# Methods
+
+def _geometry_exploration(
+    cpacs: CPACS,
+    results_dir: Path,
+    training_settings: TrainingSettings,
+) -> None:
+
+    # 1. Generate & Prepare Data
+    # Get Parameters Ranges
+    geom_bounds = get_params_to_optimise(cpacs)
+
+    # LHS sampling from the Parameter Ranges
+    sampled_geom = sample_geom(
+        geom_bounds=geom_bounds,
+        training_settings=training_settings,
+    )
+
+    # Create the list of CPACS files (in function of geometry values of lh_smapling)
+    cpacs_list = create_list_cpacs_geometry(
+        cpacs=cpacs,
+        results_dir=results_dir,
+        sampled_geom=sampled_geom,
+    )
+
+    # Generate directory where to store Low Fidelity runs
+    low_fidelity_dir = results_dir / "low_fidelity"
+    low_fidelity_dir.mkdir(parents=True, exist_ok=True)
+
+    # Low Fidelity First (+ Always available by default)
+    level1_df: DataFrame = run_first_level_simulations(
+        cpacs_list=cpacs_list,
+        results_dir=low_fidelity_dir,
+        sampled_geom=sampled_geom,
+        training_settings=training_settings,
+    )
+
+    # Normalize
+    _, level1_df_norm, _ = normalize_data(
+        cpacs=cpacs,
+        data_frame=level1_df,
+        geom_bounds=geom_bounds,
+    )
+
+    # Split
+    level1_split: DataSplit = split_data(
+        data_frame=level1_df_norm,
+        training_settings=training_settings,
+    )
+
+    # Train Selected Surrogate Models
+    if "KRG" in training_settings.sm_models:
+        best_krg_model, _ = get_best_krg_model(level1_split)
+
+    if "RBF" in training_settings.sm_models:
+        best_rbf_model, _ = get_best_rbf_model(level1_split)
+
+    # Adaptative Refinement
+    level2_split = None
+    if training_settings.fidelity_level == LEVEL_TWO:
+        log.info("Starting Adaptative Refinement of the Design Space.")
+
+        # Generate directory where to store Low Fidelity runs
+        high_fidelity_dir = results_dir / "high_fidelity"
+        high_fidelity_dir.mkdir(exist_ok=True)
+
+        high_var_pts = None
+        if "KRG" in training_settings.sm_models:
+            high_var_pts: DataFrame = get_high_variance_points(
+                model=best_krg_model,
+                level1_split=level1_split,
+            )
+
+        loo_pts = None
+        if "RBF" in training_settings.sm_models:
+            loo_pts: DataFrame = get_loo_points(
+                model=best_rbf_model,
+                level1_split=level1_split,
+            )
+
+        # Make sure to drop duplicates after concatenation
+        unvalid_pts = (
+            pd.concat(
+                objs=[
+                    df
+                    for df in [loo_pts, high_var_pts]
+                    if df is not None
+                ],
+                axis=0,
+                ignore_index=True,
+            )
+            .drop_duplicates()
+            .reset_index(drop=True)
+        )
+
+        # Run SU2 on unvalid points
+        level2_df = run_adapt_refinement_geom(
+            cpacs_list=cpacs_list,
+            unvalid_pts=unvalid_pts,
+            results_dir=high_fidelity_dir,
+            training_settings=training_settings,
+        )
+
+        # Normalize
+        _, level2_df_norm, _ = normalize_data(
+            cpacs=cpacs,
+            data_frame=level2_df,
+            geom_bounds=geom_bounds,
+        )
+        level2_split: DataSplit = split_data(
+            data_frame=level2_df_norm,
+            training_settings=training_settings,
+        )
+
+        if "KRG" in training_settings.sm_models:
+            best_krg_model, _ = get_best_krg_model(
+                level1_split=level1_split,
+                level2_split=level2_split,
+            )
+
+        if "RBF" in training_settings.sm_models:
+            best_rbf_model, _ = get_best_rbf_model(
+                level1_split=level1_split,
+                level2_split=level2_split,
+            )
+
+    # 3. Plot, save and get results
+    if "KRG" in training_settings.sm_models:
+        save_model(
+            cpacs=cpacs,
+            model=best_krg_model,
+            columns=level1_split.columns,
+            geom_bounds=geom_bounds,
+            results_dir=results_dir,
+            training_settings=training_settings,
+        )
+
+    if "RBF" in training_settings.sm_models:
+        save_model(
+            cpacs=cpacs,
+            model=best_rbf_model,
+            columns=level1_split.columns,
+            geom_bounds=geom_bounds,
+            results_dir=results_dir,
+            training_settings=training_settings,
+        )
+
+    export_col_map = {
+        "machNumber": "Mach",
+        "altitude": "Altitude",
+        "angleOfAttack": "α°",
+        "angleOfSideslip": "β°",
+        "angleOfSideSllip": "β°",
+    }
+
+    objective_col = training_settings.objective
+    ascending = training_settings.direction == "Minimize"
+
+    level1_export_df = level1_df.rename(columns=export_col_map)
+    if objective_col in level1_export_df.columns:
+        level1_export_df = level1_export_df.sort_values(
+            by=objective_col,
+            ascending=ascending,
+            kind="mergesort",
+        ).reset_index(drop=True)
+
+    level1_export_df.to_csv(
+        results_dir / "level1_simulation_results.csv",
+        index=False,
+    )
+    if "level2_df" in locals() and level2_df is not None:
+        level2_export_df = level2_df.rename(columns=export_col_map)
+        if objective_col in level2_export_df.columns:
+            level2_export_df = level2_export_df.sort_values(
+                by=objective_col,
+                ascending=ascending,
+                kind="mergesort",
+            ).reset_index(drop=True)
+
+        level2_export_df.to_csv(
+            results_dir / "level2_simulation_results.csv",
+            index=False,
+        )
+
+    # Save Best Geometry from training in adequate Results Directory
+    training_results_df = (
+        pd.concat([level1_df, level2_df], ignore_index=True, copy=False)
+        if "level2_df" in locals() and level2_df is not None
+        else level1_df
+    )
+    store_best_geom_from_training(
+        dataframe=training_results_df,
+        cpacs_list=cpacs_list,
+        results_dir=results_dir,
+        geom_bounds=geom_bounds,
+        sampled_geom=sampled_geom,
+        training_settings=training_settings,
+    )
+
+
+# Main
+
+def main(cpacs: CPACS, results_dir: Path) -> None:
+    """
+    Train a surrogate model (single-level or multi-fidelity) using aerodynamic data.
+
+    1. Retrieve settings from the CPACS file
+    2. Train surrogate model
+    3. Plot and save model
+    """
+    tixi = cpacs.tixi
+
+    # 1. Retrieve settings from the CPACS file
+    training_settings = get_settings(tixi)
+
+    old_new_sim = "Run New Simulations"
+
+    if old_new_sim == "Run New Simulations":
+        simulation_purpose = "Geometry Exploration"
+        if simulation_purpose == "Flight Condition Exploration":
+            # _flight_condition_exploration(
+            #     cpacs=cpacs,
+            #     results_dir=results_dir,
+            #     training_settings=training_settings,
+            # )
+            raise NotImplementedError
+
+        if simulation_purpose == "Geometry Exploration":
+            _geometry_exploration(
+                cpacs=cpacs,
+                results_dir=results_dir,
+                training_settings=training_settings,
+            )
+
+    if old_new_sim == "Load Geometry Exploration Simulations":
+        # _load_smtrain_model(
+        #     cpacs=cpacs,
+        # )
+        raise NotImplementedError
+
+
+if __name__ == "__main__":
+    call_main(main, SMTRAIN)

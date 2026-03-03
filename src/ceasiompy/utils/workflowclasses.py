@@ -3,28 +3,28 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Classes to run ceasiompy workflows
+Classes to run ceasiompy workflows.
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import os
+import json
 import shutil
 import importlib
-import json
+import traceback
 
 from ceasiompy.utils import get_wkdir
 from ceasiompy.utils.moduleinterfaces import get_module_list
 from ceasiompy.utils.ceasiompylogger import add_to_runworkflow_history
 from ceasiompy.utils.ceasiompyutils import (
-    change_working_dir,
     run_module,
+    change_working_dir,
     get_results_directory,
 )
 
 from pathlib import Path
+from typing import Callable
 from datetime import datetime
 from ceasiompy.utils.configfiles import ConfigFile
 
@@ -47,8 +47,8 @@ class ModuleToRun:
         self,
         name: str,
         wkflow_dir: Path,
-        cpacs_in: Path = None,
-        cpacs_out: Path = None,
+        cpacs_in: Path | None = None,
+        cpacs_out: Path | None = None,
     ) -> None:
 
         # Check module name validity
@@ -141,32 +141,14 @@ class OptimSubWorkflow:
                 "iter_" + str(self.iteration).rjust(2, "0") + ".xml",
             )
 
-    def run_subworkflow(self) -> None:
-        """Run the opimisation subworflow"""
-
-        # log.info(f"Running optim subworkflow in {self.subworkflow_dir}")
-
-        # First iteration
-        for module in self.modules:
-            run_module(module, self.subworkflow_dir)
-
-        # TODO: copy last tool output when optim done (last iteration)
-        shutil.copy(self.modules[-1].cpacs_out, Path(self.subworkflow_dir, "ToolOutput.xml"))
-
-        # TODO: Probably not here
-        self.iteration += 1
-
-        # Other iterations
-        # module_optim = [module for module in self.modules]
-        # routine_launcher(self.optim_method, module_optim, self.subworkflow_dir.parent)
-
 
 class Workflow:
     """Class to define and run CEASIOMpy workflow."""
 
     def __init__(self) -> None:
         self.working_dir = get_wkdir()
-        self.cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml").resolve()
+        self.workflow_dir = None
+        self.cpacs_in = Path(CPACS_FILES_PATH, "d150.xml").resolve()
         self.current_wkflow_dir = None
 
         self.modules_list = []  # List of modules to run (str)
@@ -246,23 +228,38 @@ class Workflow:
             raise ValueError("Working directory is not defined!")
 
         wkdir = self.working_dir
-        os.chdir(wkdir)
 
-        # Check index of the last workflow directory to set the next one
-        wkflow_list = [int(dir.stem.split("_")[-1]) for dir in wkdir.glob("Workflow_*")]
-        if wkflow_list:
-            wkflow_idx = str(max(wkflow_list) + 1).rjust(3, "0")
+        # Reuse latest incomplete workflow (no Results folder), otherwise create next index.
+        workflow_dirs = []
+        for wkflow_dir in wkdir.glob("Workflow_*"):
+            if not wkflow_dir.is_dir():
+                continue
+            idx_str = wkflow_dir.stem.split("_")[-1]
+            if idx_str.isdigit():
+                workflow_dirs.append((int(idx_str), wkflow_dir))
+
+        if workflow_dirs:
+            last_idx, last_wkflow_dir = max(workflow_dirs, key=lambda item: item[0])
+            if not Path(last_wkflow_dir, "Results").is_dir():
+                self.current_wkflow_dir = last_wkflow_dir
+                for child in self.current_wkflow_dir.iterdir():
+                    if child.is_dir():
+                        shutil.rmtree(child)
+                    else:
+                        child.unlink()
+            else:
+                wkflow_idx = str(last_idx + 1).rjust(3, "0")
+                self.current_wkflow_dir = Path.joinpath(wkdir, "Workflow_" + wkflow_idx)
+                self.current_wkflow_dir.mkdir()
         else:
-            wkflow_idx = "001"
-
-        self.current_wkflow_dir = Path.joinpath(wkdir, "Workflow_" + wkflow_idx)
-        self.current_wkflow_dir.mkdir()
+            self.current_wkflow_dir = Path.joinpath(wkdir, "Workflow_001")
+            self.current_wkflow_dir.mkdir()
 
         # Copy CPACS to the workflow dir
         if not self.cpacs_in.exists():
             raise FileNotFoundError(f"{self.cpacs_in} has not been found!")
 
-        wkflow_cpacs_in = Path.joinpath(self.current_wkflow_dir, "00_ToolInput.xml").absolute()
+        wkflow_cpacs_in = Path.joinpath(self.current_wkflow_dir, "selected_cpacs.xml").absolute()
 
         shutil.copy(self.cpacs_in, wkflow_cpacs_in)
 
@@ -313,62 +310,103 @@ class Workflow:
             )
             self.subworkflow.set_subworkflow()
 
-    def run_workflow(self, test=False) -> None:
+    def run_workflow(self, progress_callback: Callable | None = None, test=False) -> None:
         """Run the complete Worflow"""
 
-        add_to_runworkflow_history(self.current_wkflow_dir)
-        status_path = Path(self.current_wkflow_dir, "workflow_status.json")
+        # Save the original working directory to restore it later
+        original_cwd = os.getcwd()
 
-        modules_status = []
-        for idx, module in enumerate(self.modules):
-            module_name = module.name
-            modules_status.append(
-                {
+        try:
+            add_to_runworkflow_history(self.current_wkflow_dir)
+            status_file = Path(self.current_wkflow_dir, "workflow_status.json")
+
+            modules_status = []
+            for idx, module in enumerate(self.modules):
+                module_name = module.name
+                modules_status.append({
                     "index": idx,
                     "name": module_name,
                     "status": "waiting",
+                })
+
+            def persist_status() -> None:
+                payload = {
+                    "workflow": str(self.current_wkflow_dir),
+                    "updated_at": datetime.now().isoformat(timespec="seconds"),
+                    "modules": modules_status,
                 }
-            )
-
-        try:
-            with open(status_path, "w", encoding="utf-8") as f:
-                json.dump(modules_status, f)
-        except OSError:
-            pass
-
-        for idx, module in enumerate(self.modules):
-            modules_status[idx]["status"] = "running"
-            try:
-                with open(status_path, "w", encoding="utf-8") as f:
-                    json.dump(modules_status, f)
-            except OSError:
-                pass
-
-            try:
-                if module.is_optim_module:
-                    self.subworkflow.run_subworkflow()
-                else:
-                    run_module(
-                        module,
-                        self.current_wkflow_dir,
-                        self.modules_list.index(module.name),
-                        test,
+                try:
+                    status_file.write_text(
+                        json.dumps(payload, indent=2),
+                        encoding="utf-8",
                     )
-            except Exception as exc:
-                modules_status[idx]["status"] = "failed"
-                modules_status[idx]["error"] = str(exc)
-                try:
-                    with open(status_path, "w", encoding="utf-8") as f:
-                        json.dump(modules_status, f)
-                except OSError:
-                    pass
-                raise
-            else:
-                modules_status[idx]["status"] = "finished"
-                try:
-                    with open(status_path, "w", encoding="utf-8") as f:
-                        json.dump(modules_status, f)
                 except OSError:
                     pass
 
-        shutil.copy(module.cpacs_out, Path(self.current_wkflow_dir, "ToolOutput.xml"))
+            persist_status()
+
+            for idx, module in enumerate(self.modules):
+                modules_status[idx]["status"] = "running"
+                persist_status()
+                if progress_callback is not None:
+                    progress_callback(modules_status)
+
+                def module_progress_update(
+                    *,
+                    detail: str | None = None,
+                    progress: float | None = None,
+                    eta_seconds: float | None = None,
+                    elapsed_seconds: float | None = None,
+                    log_path: str | None = None,
+                    log_tail: str | None = None,
+                ) -> None:
+                    if detail is not None:
+                        modules_status[idx]["detail"] = detail
+                    if progress is not None:
+                        modules_status[idx]["progress"] = progress
+                    if eta_seconds is not None:
+                        modules_status[idx]["eta_seconds"] = eta_seconds
+                    if elapsed_seconds is not None:
+                        modules_status[idx]["elapsed_seconds"] = elapsed_seconds
+                    if log_path is not None:
+                        modules_status[idx]["log_path"] = log_path
+                    if log_tail is not None:
+                        modules_status[idx]["log_tail"] = log_tail
+                    persist_status()
+                    if progress_callback is not None:
+                        progress_callback(modules_status)
+
+                try:
+                    if module.is_optim_module:
+                        self.subworkflow.run_subworkflow()
+                    else:
+                        run_module(
+                            module,
+                            self.current_wkflow_dir,
+                            self.modules_list.index(module.name),
+                            test,
+                            progress_callback=module_progress_update,
+                        )
+                except Exception as exc:
+                    modules_status[idx]["status"] = "failed"
+                    modules_status[idx]["error"] = str(exc)
+                    tb_frames = traceback.extract_tb(exc.__traceback__)
+                    if tb_frames:
+                        last_frame = tb_frames[-1]
+                        modules_status[idx]["error_location"] = (
+                            f"{last_frame.filename}:{last_frame.lineno}"
+                        )
+                    persist_status()
+                    if progress_callback is not None:
+                        progress_callback(modules_status)
+                    return None
+                else:
+                    modules_status[idx]["status"] = "finished"
+                    persist_status()
+                    if progress_callback is not None:
+                        progress_callback(modules_status)
+
+            shutil.copy(module.cpacs_out, Path(self.current_wkflow_dir, "ToolOutput.xml"))
+        finally:
+            # Always restore the original working directory
+            os.chdir(original_cwd)

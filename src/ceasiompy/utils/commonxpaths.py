@@ -51,10 +51,14 @@ MASS_CARGO_XPATH = MASSBREAKDOWN_XPATH + "/payload/mCargo/massDescription/mass"
 
 # CEASIOMpy
 CEASIOMPY_XPATH = "/cpacs/toolspecific/CEASIOMpy"
+
+SELECTED_AEROMAP_XPATH = CEASIOMPY_XPATH + "/SelectedAeroMap"
+
 EXPORT_XPATH = CEASIOMPY_XPATH + "/export"
 FUEL_XPATH = CEASIOMPY_XPATH + "/fuels"
 FUEL_CONSUMPTION_XPATH = CEASIOMPY_XPATH + "/fuelConsumption"
 GEOM_XPATH = CEASIOMPY_XPATH + "/geometry"
+GEOMETRY_MODE_XPATH = GEOM_XPATH + "/mode"
 MESH_XPATH = CEASIOMPY_XPATH + "/mesh"
 OPTIM_XPATH = CEASIOMPY_XPATH + "/optimisation"
 PROP_XPATH = CEASIOMPY_XPATH + "/propulsion"
@@ -68,12 +72,8 @@ RANGE_CRUISE_ALT_XPATH = RANGE_XPATH + "/CruiseAltitude"
 WEIGHT_XPATH = CEASIOMPY_XPATH + "/weight"
 
 CLCALC_XPATH = CEASIOMPY_XPATH + "/aerodynamics/clCalculation"
-PLOT_XPATH = CEASIOMPY_XPATH + "/aerodynamics/plotAeroCoefficient"
-RS_XPATH = PLOT_XPATH + "/responseSurface"
-AEROMAP_TO_PLOT_XPATH = PLOT_XPATH + "/aeroMapToPlot"
-USED_SU2_MESH_XPATH = CEASIOMPY_XPATH + "/MeshPath"
 
-SF_XPATH = CEASIOMPY_XPATH + "/aerodynamics/skinFriction"
+USED_SU2_MESH_XPATH = CEASIOMPY_XPATH + "/MeshPath"
 
 WETTED_AREA_XPATH = CEASIOMPY_XPATH + "/geometry/analysis/wettedArea"
 WING_AREA_XPATH = CEASIOMPY_XPATH + "/geometry/analysis/wingArea"
@@ -104,7 +104,6 @@ SPECIFIED_SUMOFILE_XPATH = CEASIOMPY_XPATH + "/SUMOAutoMesh" + "/specifiedSumoPa
 
 # EDGE
 EDGE_XPATH = CEASIOMPY_XPATH + "/aerodynamics/medge"
-EDGE_AEROMAP_UID_XPATH = EDGE_XPATH + "/aeroMapUID"
 EDGE_NB_CPU_XPATH = EDGE_XPATH + "/settings/nbCPU"
 EDGE_SOLVER_XPATH = EDGE_XPATH + "/settings/solver"
 EDGE_MAX_ITER_XPATH = EDGE_XPATH + "/settings/maxIter"

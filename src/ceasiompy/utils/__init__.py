@@ -10,9 +10,7 @@ Initialization for UTILS.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 from ceasiompy.utils.commonpaths import get_wkdir
 from ceasiompy.utils.ceasiompyutils import get_module_status

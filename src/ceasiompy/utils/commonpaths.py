@@ -5,17 +5,9 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 List of paths which are used in CEASIOMpy, if possible base paths must be
 called only from here to avoid mistakes.
-
-| Author: Aidan jungo
-| Creation: 2022-04-28
-| Modified: Leon Deligny
-| Date: 25 March 2025
-
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import os
 import ceasiompy
@@ -36,12 +28,12 @@ CEASIOMPY_PATH = SRC_PATH.parent
 MODULES_DIR_PATH = Path(SRC_PATH, "ceasiompy")
 
 # /CEASIOMpy/src/ceasiompy/Database/databases/ceasiompy.db
-CEASIOMPY_DB_PATH = Path(MODULES_DIR_PATH, "Database", "databases", "ceasiompy.db")
+CEASIOMPY_DB_PATH = Path(MODULES_DIR_PATH, "database", "databases", "ceasiompy.db")
 
 # /CEASIOMpy/src/ceasiompy/Database/tests/databases/testceasiompy.db
 TESTCEASIOMPY_DB_PATH = Path(
     MODULES_DIR_PATH,
-    "Database",
+    "database",
     "tests",
     "databases",
     "testceasiompy.db",
@@ -53,23 +45,26 @@ CEASIOMPY_LOGO_PATH = Path(CEASIOMPY_PATH, "documents", "logos", "CEASIOMpy_512p
 # /CEASIOMpy/.ceasiompy/.runworkflow_history
 RUNWORKFLOW_HISTORY_PATH = Path(CEASIOMPY_PATH, ".ceasiompy", ".runworkflow_history")
 
-# /CEASIOMpy/src/CEASIOMpyStreamlit
-STREAMLIT_PATH = Path(SRC_PATH, "CEASIOMpyStreamlit")
+# /CEASIOMpy/src/app
+STREAMLIT_PATH = Path(SRC_PATH, "app")
 
 # /CEASIOMpy/test_cases/
 TEST_CASES_PATH = Path(CEASIOMPY_PATH, "test_cases")
 
-# /CEASIOMpy/test_files/CPACSfiles/
-CPACS_FILES_PATH = Path(CEASIOMPY_PATH, "test_files", "CPACSfiles")
+# /CEASIOMpy/geometries/vspfiles/
+VSP_DIR = CEASIOMPY_PATH / "geometries" / "vspfiles"
 
-# /CEASIOMpy/test_files/ResultsFiles/
-TEST_RESULTS_FILES_PATH = Path(CEASIOMPY_PATH, "test_files", "ResultsFiles")
+# /CEASIOMpy/geometries/cpacsfiles/
+CPACS_FILES_PATH = Path(CEASIOMPY_PATH, "geometries", "cpacsfiles")
 
-# /CEASIOMpy/WKDIR/
-WKDIR_PATH = Path(CEASIOMPY_PATH, "WKDIR")
+# /CEASIOMpy/geometries/ResultsFiles/
+TEST_RESULTS_FILES_PATH = Path(CEASIOMPY_PATH, "geometries", "ResultsFiles")
 
-# /CEASIOMpy/INSTALLDIR/
-INSTALLDIR_PATH = Path(CEASIOMPY_PATH, "INSTALLDIR")
+# /CEASIOMpy/wkdir/
+WKDIR_PATH = Path(CEASIOMPY_PATH, "wkdir")
+
+# /CEASIOMpy/installdir/
+INSTALLDIR_PATH = Path(CEASIOMPY_PATH, "installdir")
 
 # /CEASIOMpy/src/ceasiompy/SU2Run/files/default_paraview_state.pvsm
 DEFAULT_PARAVIEW_STATE = Path(MODULES_DIR_PATH, "SU2Run", "files", "default_paraview_state.pvsm")

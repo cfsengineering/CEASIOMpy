@@ -9,7 +9,7 @@ extend-exclude = '''
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--cov=ceasiompy/"
+addopts = "--cov=ceasiompy"
 markers = [
   "slow: marks tests as slow (deselect with '-m \"not slow\"')",
   "serial",
@@ -19,19 +19,4 @@ markers = [
 omit = [
   "*/__init__.py",
   "*/__specs__.py",
-  "*/BalanceConventional/*",
-  "*/BalanceUnconventional/*",
-  "*/ThermoData/*",
-  "*/CPACSUpdater/*",
-  "*/ModuleTemplate/*",
-  "*/Optimisation/*",
-  "*/SMTrain.old/*",
-  "*/SMUse.old/*",
-  "*/SUMOAutoMesh/*",
-  "*/Range/*",
-  "*/SU2MeshDef/*",
-  "*/WeightConventional/*",
-  "*/WeightUnconventional/*",
-  "*/WB/*",
-  "*/EdgeRun/*",
 ]

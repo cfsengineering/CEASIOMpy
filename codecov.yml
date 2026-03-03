@@ -1,15 +1,4 @@
 coverage:
-  ignore:
-    - "*/SUMOAutoMesh/*"
-    - "*/SU2MeshDef/*"
-    - "*/utils/*"
-    - "*/Range/*"
-    - "*/ModuleTemplate/*"
-    - "*/BalanceConventional/*"
-    - "*/BalanceUnconventional/*"
-    - "*/WeightConventional/*"
-    - "*/WeightUnconventional/*"
-    - "*/EdgeRun/*"
   status:
     project:
       default:

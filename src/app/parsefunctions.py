@@ -1,0 +1,711 @@
+# Imports
+import re
+import hashlib
+
+import pandas as pd
+import streamlit as st
+
+from pathlib import Path
+from pandas import DataFrame
+from collections.abc import Mapping
+
+
+# Functions
+
+def parse_ascii_tables(text: str):
+    """Extract ASCII tables delimited by +---+ and | ... | lines."""
+    lines = text.splitlines()
+    segments = []
+    buffer = []
+    i = 0
+
+    def flush_text():
+        if buffer:
+            segments.append(("text", "\n".join(buffer)))
+            buffer.clear()
+
+    while i < len(lines):
+        line = lines[i]
+        if line.startswith("+") and "-" in line:
+            rows = []
+            i += 1
+            while i < len(lines):
+                current = lines[i]
+                if current.startswith("+") and "-" in current:
+                    i += 1
+                    continue
+                if current.startswith("|"):
+                    parts = [cell.strip() for cell in current.split("|")[1:-1]]
+                    rows.append(parts)
+                    i += 1
+                    continue
+                break
+            if rows:
+                flush_text()
+                segments.append(("table", rows))
+                continue
+        buffer.append(line)
+        i += 1
+
+    flush_text()
+    return segments
+
+
+def _safe_float(text: str) -> float | None:
+    """Return float value when parseable, otherwise None."""
+    try:
+        return float(text.strip())
+    except ValueError:
+        return None
+
+
+def _parse_force_contributions(parts_text: str) -> dict[str, float | None]:
+    contributions: dict[str, float | None] = {
+        "Pressure": None,
+        "Friction": None,
+        "Momentum": None,
+    }
+    for part in parts_text.split("|"):
+        part = part.strip()
+        for key in contributions:
+            if part.startswith(key):
+                _, _, value_text = part.partition(":")
+                contributions[key] = _safe_float(value_text)
+                break
+    return contributions
+
+
+def _parse_total_force_line(line: str, section: str) -> dict[str, object] | None:
+    if not line.startswith("Total ") or "|" not in line:
+        return None
+
+    left, right = line.split("|", 1)
+    metric_part = left.strip()
+    if ":" not in metric_part:
+        return None
+
+    metric_label, value_text = metric_part.split(":", 1)
+    total_value = _safe_float(value_text)
+    if total_value is None:
+        return None
+
+    contributions = _parse_force_contributions(right)
+    return {
+        "Section": section,
+        "Metric": metric_label.replace("Total ", "").strip(),
+        "Total": total_value,
+        "Pressure": contributions["Pressure"],
+        "Friction": contributions["Friction"],
+        "Momentum": contributions["Momentum"],
+    }
+
+
+def display_forces_breakdown(path: Path) -> None:
+    text = path.read_text(errors="replace")
+    lines = [line.strip() for line in text.splitlines()]
+    rows = []
+    current_section = "Total"
+    for line in lines:
+        if not line:
+            continue
+        if line.startswith("Surface name:"):
+            current_section = line.replace("Surface name:", "").strip() or "Surface"
+            continue
+        row = _parse_total_force_line(line, current_section)
+        if row is not None:
+            rows.append(row)
+
+    if rows:
+        st.table(pd.DataFrame(rows))
+    else:
+        st.text_area(path.stem, text, height=200, key=f"{path}_dat_raw")
+
+
+def display_avl_table_file(path: Path) -> None:
+    text = path.read_text()
+    # Keep dedup local to the current file render; otherwise reruns can hide all tables.
+    st.session_state["_displayed_dataframe_hashes"] = set()
+    pathstem_to_title = {
+        "st": "Stability-axis derivatives",
+        "sb": "Geometry-axis derivatives",
+        "fe": "Vortex Strengths (by surface, by strip)",
+        "fn": "Surface Forces",
+        "fs": "Surface and Strip Forces by surface",
+        "ft": "Total Forces",
+    }
+    if path.stem != "fe":
+        st.markdown(f"**{pathstem_to_title[path.stem]}**")
+    _display_spiral_stability(text)
+    if _display_surface_forces(text, path):
+        return
+    if _display_vortex_lattice_output(text, path):
+        return
+    if _display_surface_strip_forces(text, path):
+        return
+    _display_avl_fe_data(text, path)
+
+
+def _display_spiral_stability(text: str) -> None:
+    if "Clb Cnr / Clr Cnb" not in text:
+        return None
+    value, is_stable = _parse_st_spiral(text)
+    if value is not None:
+        # Streamlit colors metric deltas green/red based on +/- prefix.
+        delta = "+stable" if is_stable else "-not stable"
+        st.metric("Spiral stability ratio", f"{value:.6f}", delta)
+
+
+def _display_surface_forces(text: str, path: Path) -> bool:
+    if "Surface Forces (referred to Sref" not in text:
+        return False
+    refs = _parse_fn_refs(text)
+    if refs:
+        ref_df = _dict_to_table(
+            {
+                "Sref": refs.get("Sref"),
+                "Cref": refs.get("Cref"),
+                "Bref": refs.get("Bref"),
+                "Xref": refs.get("Xref"),
+                "Yref": refs.get("Yref"),
+                "Zref": refs.get("Zref"),
+            }
+        )
+        _display_compact_dataframe(ref_df, title="Reference Values", horizontal=True)
+    table1_df, table2_df = _parse_fn_tables(text)
+    if not table1_df.empty:
+        _display_compact_dataframe(
+            table1_df,
+            title="Surface Forces (Sref/Cref/Bref)",
+            horizontal=False,
+        )
+    if not table2_df.empty:
+        _display_compact_dataframe(
+            table2_df,
+            title="Surface Forces (Ssurf/Cave)",
+            horizontal=False,
+        )
+    if table1_df.empty and table2_df.empty:
+        st.text_area(path.stem, text, height=200, key=str(path))
+    return True
+
+
+def _display_vortex_lattice_output(text: str, path: Path) -> bool:
+    if "Vortex Lattice Output -- Total Forces" not in text:
+        return False
+    config, refs, summary, tables = _parse_sb_data(text)
+    config_df = _dict_to_table(config)
+    summary_df = _dict_to_table(summary)
+    ref_df = _dict_to_table(
+        {
+            "Sref": refs.get("Sref"),
+            "Cref": refs.get("Cref"),
+            "Bref": refs.get("Bref"),
+            "Xref": refs.get("Xref"),
+            "Yref": refs.get("Yref"),
+            "Zref": refs.get("Zref"),
+        }
+    )
+    if not config_df.empty:
+        _display_compact_dataframe(config_df, title="Configuration")
+    if not ref_df.empty and not ref_df["value"].isna().all():
+        _display_compact_dataframe(ref_df, title="Reference Values")
+    if not summary_df.empty:
+        _display_compact_dataframe(summary_df, title="Run Case Summary")
+    for title, df in tables:
+        _display_compact_dataframe(df, title=title)
+    if config_df.empty and summary_df.empty and not tables:
+        st.text_area(path.stem, text, height=200, key=str(path))
+    return True
+
+
+def _display_surface_strip_forces(text: str, path: Path) -> bool:
+    if "Surface and Strip Forces by surface" not in text:
+        return False
+    surfaces_df, strip_tables = _parse_fs_tables(text)
+    if not surfaces_df.empty:
+        _display_compact_dataframe(surfaces_df, title="Surface Summary", horizontal=False)
+
+    combined_strip_rows: list[DataFrame] = []
+    for surface_id, surface_name, _coeffs, strip_df in strip_tables:
+        if strip_df.empty:
+            continue
+        surface_strip_df = strip_df.copy()
+        surface_strip_df.insert(0, "surface_name", surface_name)
+        surface_strip_df.insert(0, "surface_id", surface_id)
+        combined_strip_rows.append(surface_strip_df)
+
+    if combined_strip_rows:
+        all_strips_df = pd.concat(combined_strip_rows, ignore_index=True)
+        _display_compact_dataframe(all_strips_df, title="Strip Forces", horizontal=False)
+
+    if surfaces_df.empty and not combined_strip_rows:
+        st.text_area(path.stem, text, height=200, key=str(path))
+    return True
+
+
+def _display_avl_fe_data(text: str, path: Path) -> None:
+    try:
+        surfaces_df, strips_df, strip_tables = _parse_avl_fe(text)
+    except BaseException:
+        st.text_area(path.stem, text, height=200, key=str(path))
+        return
+
+    shown_any = False
+
+    shown_any = (
+        _display_compact_dataframe(surfaces_df, title="Surface Summary", horizontal=False)
+        or shown_any
+    )
+
+    shown_any = (
+        _display_compact_dataframe(strips_df, title="Strip Summary", horizontal=False) or shown_any
+    )
+
+    combined_strip_details: list[DataFrame] = []
+    for strip_id, df in strip_tables:
+        if df.empty:
+            continue
+        strip_detail_df = df.copy()
+        strip_detail_df.insert(0, "strip_id", strip_id)
+        combined_strip_details.append(strip_detail_df)
+
+    if combined_strip_details:
+        all_strip_details_df = pd.concat(combined_strip_details, ignore_index=True)
+        shown_any = (
+            _display_compact_dataframe(
+                all_strip_details_df,
+                title="Strip Details",
+                horizontal=False,
+            )
+            or shown_any
+        )
+
+# =================================================================================================
+#    METHODS
+# =================================================================================================
+
+
+def _parse_fs_tables(
+    text: str,
+) -> tuple[DataFrame, list[tuple[int, str, dict[str, float], DataFrame]]]:
+    surfaces: list[dict] = []
+    strip_tables: list[tuple[int, str, dict[str, float], DataFrame]] = []
+    lines = text.splitlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        surface_match = re.match(r"^\s*Surface\s+#\s*(\d+)\s+(.+?)\s*$", line)
+        if surface_match:
+            surface_id = int(surface_match.group(1))
+            surface_name = surface_match.group(2).strip()
+            surface: dict[str, float | int | str] = {
+                "surface_id": surface_id,
+                "surface_name": surface_name,
+            }
+            surface_coeffs: dict[str, float] = {}
+            i += 1
+            while i < len(lines):
+                line = lines[i]
+                if re.match(r"^\s*Surface\s+#", line) or line.strip().startswith(
+                    "Strip Forces"
+                ):
+                    break
+                chord_span = re.search(
+                    r"#\s*Chordwise\s*=\s*(\d+).+#\s*Spanwise\s*=\s*(\d+).+"
+                    r"First strip\s*=\s*(\d+)",
+                    line,
+                )
+                if chord_span:
+                    surface["chordwise"] = int(chord_span.group(1))
+                    surface["spanwise"] = int(chord_span.group(2))
+                    surface["first_strip"] = int(chord_span.group(3))
+                area_pattern = (
+                    r"Surface area Ssurf\s*=\s*([-+]?\d*\.?\d+)\s+"
+                    r"Ave\. chord Cave\s*=\s*([-+]?\d*\.?\d+)"
+                )
+                area_match = re.search(area_pattern, line)
+                if area_match:
+                    surface["Ssurf"] = float(area_match.group(1))
+                    surface["Cave"] = float(area_match.group(2))
+                surface_coeffs.update(_parse_fe_key_values(line))
+                i += 1
+
+            strip_df = DataFrame()
+            if i < len(lines) and lines[i].strip().startswith("Strip Forces"):
+                i += 1
+                while i < len(lines) and not lines[i].strip().startswith("j"):
+                    i += 1
+                if i < len(lines) and lines[i].strip().startswith("j"):
+                    columns = lines[i].split()
+                    i += 1
+                    rows: list[list[str]] = []
+                    while i < len(lines):
+                        line = lines[i]
+                        if not line.strip() or re.match(r"^\s*Surface\s+#", line):
+                            break
+                        values = line.split()
+                        if len(values) == len(columns):
+                            rows.append(values)
+                        i += 1
+                    if rows:
+                        strip_df = DataFrame(rows, columns=columns)
+                        for col in strip_df.columns:
+                            strip_df[col] = pd.to_numeric(strip_df[col], errors="coerce")
+
+            surfaces.append({**surface, **surface_coeffs})
+            strip_tables.append((surface_id, surface_name, surface_coeffs, strip_df))
+            continue
+        i += 1
+
+    return DataFrame(surfaces), strip_tables
+
+
+def _parse_st_spiral(text: str) -> tuple[float | None, bool | None]:
+    match = re.search(r"Clb\s*Cnr\s*/\s*Clr\s*Cnb\s*=\s*([-+]?\d*\.?\d+(?:[Ee][-+]?\d+)?)", text)
+    if not match:
+        return None, None
+    value = float(match.group(1))
+    return value, value > 1.0
+
+
+def _parse_avl_fe(text: str) -> tuple[DataFrame, DataFrame, list[tuple[int, DataFrame]]]:
+    surfaces: list[dict[str, float | str]] = []
+    strips: list[dict[str, float]] = []
+    strip_tables: list[tuple[int, DataFrame]] = []
+
+    lines = text.splitlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+
+        surface_match = re.match(r"^\s*Surface\s+#\s*(\d+)\s+(.+?)\s*$", line)
+        if surface_match:
+            surface: dict[str, float | str] = {
+                "surface_id": int(surface_match.group(1)),
+                "surface_name": surface_match.group(2).strip(),
+            }
+            i += 1
+            while i < len(lines):
+                line = lines[i]
+                if re.match(r"^\s*(Strip\s+#|Surface\s+#|\*{3,})", line):
+                    break
+                surface.update(_parse_fe_key_values(line))
+                i += 1
+            surfaces.append(surface)
+            continue
+
+        strip_match = re.match(
+            r"^\s*Strip\s+#\s*(\d+).*#\s*Chordwise\s*=\s*(\d+).*First\s+Vortex\s*=\s*(\d+)",
+            line,
+        )
+        if strip_match:
+            strip_id = int(strip_match.group(1))
+            strip: dict[str, float] = {
+                "strip_id": strip_id,
+                "chordwise": int(strip_match.group(2)),
+                "first_vortex": int(strip_match.group(3)),
+            }
+            i += 1
+            while i < len(lines):
+                line = lines[i]
+                if line.strip().startswith("I"):
+                    break
+                if re.match(r"^\s*(Strip\s+#|Surface\s+#|\*{3,})", line):
+                    break
+                strip.update(_parse_fe_key_values(line))
+                i += 1
+
+            if i < len(lines) and lines[i].strip().startswith("I"):
+                columns = lines[i].split()
+                i += 1
+                rows: list[list[str]] = []
+                while i < len(lines):
+                    line = lines[i]
+                    if not line.strip() or re.match(r"^\s*(Strip\s+#|Surface\s+#|\*{3,})", line):
+                        break
+                    values = line.split()
+                    if len(values) == len(columns):
+                        rows.append(values)
+                    i += 1
+                if rows:
+                    df = DataFrame(rows, columns=columns)
+                    for col in df.columns:
+                        df[col] = pd.to_numeric(df[col], errors="coerce")
+                    strip_tables.append((strip_id, df))
+
+            strips.append(strip)
+            continue
+
+        i += 1
+
+    return DataFrame(surfaces), DataFrame(strips), strip_tables
+
+
+def _display_compact_dataframe(
+    df: DataFrame,
+    title: str | None = None,
+    horizontal: bool = True,
+) -> bool:
+    if df.empty:
+        return False
+    safe_df = df.copy()
+    for col in safe_df.columns:
+        if safe_df[col].dtype == "object":
+            safe_df[col] = safe_df[col].apply(lambda value: "" if pd.isna(value) else str(value))
+    safe_df = safe_df.drop_duplicates(ignore_index=True)
+
+    displayed_hashes = st.session_state.setdefault("_displayed_dataframe_hashes", set())
+    fingerprint = _dataframe_fingerprint(safe_df)
+    if fingerprint in displayed_hashes:
+        return False
+    displayed_hashes.add(fingerprint)
+
+    if title:
+        st.markdown(f"**{title}**")
+    if horizontal:
+        first_col = str(safe_df.columns[0])
+        key_as_columns = safe_df.copy()
+        key_as_columns = key_as_columns.dropna(subset=[first_col])
+        key_as_columns[first_col] = key_as_columns[first_col].astype(str)
+        has_unique_keys = key_as_columns[first_col].is_unique
+        if safe_df.shape[1] >= 2 and has_unique_keys:
+            key_as_columns = key_as_columns.drop_duplicates(subset=[first_col], keep="last")
+            display_df = key_as_columns.set_index(first_col).transpose()
+            if display_df.shape[0] == 1:
+                display_df = display_df.reset_index(drop=True)
+            else:
+                display_df = display_df.reset_index()
+                display_df.columns = ["field"] + [str(col) for col in display_df.columns[1:]]
+        else:
+            display_df = safe_df.transpose().reset_index()
+            display_df.columns = ["field"] + [str(i + 1) for i in range(display_df.shape[1] - 1)]
+    else:
+        display_df = safe_df
+    column_config = {col: st.column_config.Column(width="small") for col in display_df.columns}
+    st.dataframe(
+        display_df,
+        hide_index=True,
+        width="content",
+        column_config=column_config,
+    )
+    return True
+
+
+def _dataframe_fingerprint(df: DataFrame) -> str:
+    digest = hashlib.sha1()
+    digest.update(",".join(map(str, df.columns)).encode())
+    digest.update(pd.util.hash_pandas_object(df, index=True).to_numpy().tobytes())
+    return digest.hexdigest()
+
+
+def _normalize_fe_key(key: str) -> str:
+    return key.strip().replace(".", "").replace("/", "_").replace("-", "_")
+
+
+def _parse_fe_key_values(line: str) -> dict[str, float]:
+    sanitized = line.replace("cm c/4", "cm_c4").replace("wake dnwsh", "wake_dnwsh")
+    matches = re.findall(r"([A-Za-z0-9._/]+)\s*=\s*([-+]?\d*\.?\d+(?:[Ee][-+]?\d+)?)", sanitized)
+    return {_normalize_fe_key(key): float(value) for key, value in matches}
+
+
+def _parse_fn_tables(text: str) -> tuple[DataFrame, DataFrame]:
+    def parse_table(lines: list[str], start_index: int, columns: list[str]) -> DataFrame:
+        rows: list[list[str]] = []
+        i = start_index + 1
+        while i < len(lines):
+            line = lines[i].strip()
+            if not line:
+                if rows:
+                    break
+                i += 1
+                continue
+            if line.startswith("-") or line.startswith("Surface Forces"):
+                break
+            parts = line.split()
+            if len(parts) < len(columns) or not re.match(r"^[-+]?\d", parts[0]):
+                i += 1
+                continue
+            numeric = parts[: len(columns)]
+            label = " ".join(parts[len(columns):]).strip()
+            row = numeric + ([label] if label else [""])
+            rows.append(row)
+            i += 1
+        if not rows:
+            return DataFrame()
+        df = DataFrame(rows, columns=columns + ["surface_name"])
+        for col in columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+        return df
+
+    lines = text.splitlines()
+    table1_columns = ["n", "Area", "CL", "CD", "Cm", "CY", "Cn", "Cl", "CDi", "CDv"]
+    table2_columns = ["n", "Ssurf", "Cave", "cl", "cd", "cdv"]
+    table1_df = DataFrame()
+    table2_df = DataFrame()
+    for i, line in enumerate(lines):
+        header = line.strip()
+        if re.match(r"^n\s+Area\s+CL", header):
+            table1_df = parse_table(lines, i, table1_columns)
+        if re.match(r"^n\s+Ssurf\s+Cave", header):
+            table2_df = parse_table(lines, i, table2_columns)
+    return table1_df, table2_df
+
+
+def _parse_fn_refs(text: str) -> dict[str, float]:
+    refs: dict[str, float] = {}
+    for line in text.splitlines():
+        refs.update(_parse_fe_key_values(line))
+        if all(key in refs for key in ("Sref", "Cref", "Bref", "Xref", "Yref", "Zref")):
+            break
+    return refs
+
+
+def _dict_to_table(data: Mapping[str, float | str | None]) -> DataFrame:
+    if not data:
+        return DataFrame()
+    return DataFrame({"key": list(data.keys()), "value": list(data.values())})
+
+
+def _parse_sb_data(
+    text: str,
+) -> tuple[
+    dict[str, str | float],
+    dict[str, float],
+    dict[str, float],
+    list[tuple[str, DataFrame]],
+]:
+    refs = _parse_fn_refs(text)
+    lines = text.splitlines()
+    config = _parse_sb_config(lines)
+    summary = _parse_sb_summary(lines)
+    tables = _parse_sb_tables(lines)
+    return config, refs, summary, tables
+
+
+def _parse_sb_config(lines: list[str]) -> dict[str, str | float]:
+    config: dict[str, str | float] = {}
+    count_patterns = {
+        "Surfaces": r"#\s*Surfaces\s*=\s*([-+]?\d+)",
+        "Strips": r"#\s*Strips\s*=\s*([-+]?\d+)",
+        "Vortices": r"#\s*Vortices\s*=\s*([-+]?\d+)",
+    }
+    for line in lines:
+        config_match = re.search(r"Configuration:\s*(.+)$", line)
+        if config_match:
+            config["Configuration"] = config_match.group(1).strip()
+        for key, pattern in count_patterns.items():
+            count_match = re.search(pattern, line)
+            if count_match:
+                config[key] = float(count_match.group(1))
+    return config
+
+
+def _parse_sb_summary(lines: list[str]) -> dict[str, float]:
+    summary: dict[str, float] = {}
+    in_summary = False
+    for line in lines:
+        if line.strip().startswith("Run case:"):
+            in_summary = True
+            continue
+        if "Geometry-axis derivatives" in line or "Stability-axis derivatives" in line:
+            in_summary = False
+        if in_summary:
+            summary.update(_parse_fe_key_values(line))
+    xnp = _parse_neutral_point(lines)
+    if xnp is not None:
+        summary["Xnp"] = xnp
+    return summary
+
+
+def _parse_sb_tables(lines: list[str]) -> list[tuple[str, DataFrame]]:
+    tables: list[tuple[str, DataFrame]] = []
+    header_map = {
+        "alpha                beta": "Stability-Axis Derivatives (alpha/beta)",
+        "roll rate  p'": "Stability-Axis Derivatives (p'/q'/r')",
+        "axial   vel. u": "Geometry-Axis Derivatives (u/v/w)",
+        "roll rate  p       pitch rate  q": "Geometry-Axis Derivatives (p/q/r)",
+        "flap         d01": "Control Derivatives (d01/d02/d03/d04)",
+    }
+    for i, line in enumerate(lines):
+        for marker, title in header_map.items():
+            if marker in line:
+                df, _ = _parse_derivative_table(lines, i)
+                if not df.empty:
+                    tables.append((title, df))
+    return tables
+
+
+def _parse_derivative_table(lines: list[str], start_index: int) -> tuple[DataFrame, int]:
+    rows: list[dict[str, float | str]] = []
+    raw_header = lines[start_index].strip()
+    value_columns = [part.strip() for part in re.split(r"\s{2,}", raw_header) if part.strip()]
+    i = start_index + 1
+    while i < len(lines):
+        line = lines[i]
+        if not line.strip():
+            if rows:
+                break
+            i += 1
+            continue
+        if line.strip().startswith("-"):
+            i += 1
+            continue
+        if "Geometry-axis derivatives" in line:
+            break
+        if "|" in line:
+            label = line.split("|", 1)[0].strip()
+            pairs = re.findall(
+                pattern=r"([A-Za-z0-9']+)\s*=\s*([*]+|[-+]?\d*\.?\d+(?:[Ee][-+]?\d+)?)",
+                string=line,
+            )
+            row: dict[str, float | str] = {"label": label}
+            values = [_parse_avl_float(value) for _key, value in pairs]
+
+            # Display like AVL tables: keep headers from the section title and
+            # only the parsed numeric values in the cells (no "CLp=", etc.).
+            if value_columns and len(value_columns) == len(values):
+                for col, value in zip(value_columns, values):
+                    row[col] = value
+            else:
+                fallback_columns = _parse_derivative_header_columns(raw_header, len(values))
+                for col, value in zip(fallback_columns, values):
+                    row[col] = value
+            rows.append(row)
+        i += 1
+    if not rows:
+        return DataFrame(), i
+    df = DataFrame(rows)
+    return df, i
+
+
+def _parse_avl_float(value: str) -> float:
+    if value and set(value) == {"*"}:
+        return float("nan")
+    return float(value)
+
+
+def _parse_derivative_header_columns(raw_header: str, expected: int) -> list[str]:
+    matches = re.findall(
+        (
+            r"(roll rate\s+p'?|pitch rate\s+q'?|yaw rate\s+r'?|alpha|beta|"
+            r"axial\s+vel\.\s+u|sideslip vel\.\s+v|normal\s+vel\.\s+w)"
+        ),
+        raw_header,
+        flags=re.IGNORECASE,
+    )
+    if len(matches) >= expected:
+        return [re.sub(r"\s+", " ", match.strip()) for match in matches[:expected]]
+
+    chunks = [part.strip() for part in re.split(r"\s{2,}", raw_header) if part.strip()]
+    if len(chunks) >= expected:
+        return chunks[:expected]
+
+    return [f"col_{idx}" for idx in range(1, expected + 1)]
+
+
+def _parse_neutral_point(lines: list[str]) -> float | None:
+    for line in lines:
+        match = re.search(r"Neutral point\s+Xnp\s*=\s*([-+]?\d*\.?\d+(?:[Ee][-+]?\d+)?)", line)
+        if match:
+            return float(match.group(1))
+    return None

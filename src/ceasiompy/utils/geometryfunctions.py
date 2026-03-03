@@ -11,9 +11,7 @@ Scripts to convert CPACS file geometry into any geometry.
 
 """
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+# Imports
 
 import math
 import numpy as np
@@ -43,10 +41,7 @@ from ceasiompy.utils.commonpaths import CEASIOMPY_DB_PATH
 from ceasiompy.utils.commonxpaths import WINGS_XPATH
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
+# Functions
 
 def get_aircrafts_list() -> List:
     """
@@ -57,8 +52,8 @@ def get_aircrafts_list() -> List:
 
     """
     import sqlite3
-    from ceasiompy.Database.func import ALLOWED_TABLES
-    from ceasiompy.Database.func.storing import CeasiompyDb
+    from ceasiompy.database.func import ALLOWED_TABLES
+    from ceasiompy.database.func.storing import CeasiompyDb
 
     # Codacy: Table and column names are strictly validated against whitelisted values.
     # Check if database exists
@@ -143,6 +138,40 @@ def convert_fuselage_profiles(
     pos_z_list[i_sec] += (1 + prof_min_z) * prof_size_z * elem_transf.scaling.z
 
     return elem_transf, prof_size_y, prof_size_z, prof_vect_y, prof_vect_z
+
+
+def get_xpath_for_param(tixi: Tixi3, param: str, wing_uid: str, section_uid: str) -> str:
+    if param in ["length", "sweepAngle", "dihedralAngle"]:
+        positioning_path = f"{WINGS_XPATH}/wing[@uID='{wing_uid}']/positionings"
+        if not tixi.checkElement(positioning_path):
+            raise ValueError(f"{positioning_path=} not found.")
+        count = tixi.getNumberOfChilds(positioning_path)
+        for i in range(count):
+            check_pos_uid = tixi.getTextElement(
+                positioning_path + f"/positioning[{i + 1}]/toSectionUID"
+            )
+            if check_pos_uid == section_uid:
+                pos_uid = tixi.getTextAttribute(
+                    positioning_path + f"/positioning[{i + 1}]",
+                    "uID"
+                )
+                return f"{positioning_path}/positioning[@uID='{pos_uid}']/{param}"
+
+        raise ValueError(f"{section_uid=} not found in cpacs.")
+
+    wing_xpath = WINGS_XPATH + f"/wing[@uID='{wing_uid}']"
+    sec_xpath = wing_xpath + f"/sections/section[@uID='{section_uid}']/transformation"
+
+    if param == "twist":
+        return f"{sec_xpath}/rotation/y"
+
+    if param == "chord":
+        return f"{sec_xpath}/scaling/x"
+
+    if param == "thickness":
+        return f"{sec_xpath}/scaling/z"
+
+    raise NotImplementedError(f"{param=} not implemented yet in function get_xpath_for_param")
 
 
 def get_profile_coord(
@@ -367,14 +396,36 @@ def return_uidwings(tixi: Tixi3) -> List:
     # Iterate through each wing and get its uID
     for i_wing in range(wing_cnt):
         wing_xpath = WINGS_XPATH + "/wing[" + str(i_wing + 1) + "]"
-        uid_wing = tixi.getTextAttribute(wing_xpath, "uID")
-        wing_uids.append(uid_wing)
+        wing_uid = tixi.getTextAttribute(wing_xpath, "uID")
+        wing_uids.append(wing_uid)
 
     return wing_uids
 
 
 def get_uid(tixi: Tixi3, xpath: str) -> str:
     return tixi.getTextAttribute(xpath, "uID")
+
+
+def return_uid_wings_sections(tixi: Tixi3) -> List[Tuple[str, str]]:
+    """
+    Returns a list of tuples, each containing the uID of a wing and the uID of one of its sections.
+    Example output: [("Wing1", "SectionA"), ("Wing1", "SectionB"), ("Wing2", "SectionC")]
+    """
+    result = []
+
+    wing_cnt = elements_number(tixi, WINGS_XPATH, "wing")
+    for i_wing in range(wing_cnt):
+        wing_xpath = f"{WINGS_XPATH}/wing[{i_wing + 1}]"
+        wing_uid = tixi.getTextAttribute(wing_xpath, "uID")
+
+        section_xpath = f"{wing_xpath}/sections"
+        section_cnt = elements_number(tixi, section_xpath, "section")
+        for i_sec in range(section_cnt):
+            sec_xpath = f"{section_xpath}/section[{i_sec + 1}]"
+            section_uid = tixi.getTextAttribute(sec_xpath, "uID")
+            result.append((wing_uid, section_uid))
+
+    return result
 
 
 def elements_number(tixi: Tixi3, xpath: str, element: str, logg: bool = True) -> int:

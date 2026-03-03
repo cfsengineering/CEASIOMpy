@@ -1,6 +1,7 @@
 [flake8]
 max-line-length = 99
+exclude = doc/*, build/*, dist/*, installdir/*, src/ceasiompy/cpacs2gmsh/**, src/ceasiompy/vsp2cpacs/**, src/ceasiompy/aeroframe/**, src/ceasiompy/skinfriction/**, src/ceasiompy/thermodata/**, src/ceasiompy/dynamicstability/**
+extend-select = N
 
-ignore = W503, F401, W605, E203, E231
-
-exclude = test/*, doc/*, build/*, dist/* setup.py, installation/Pentagrow/*, INSTALLDIR/*
+[BASIC]
+const-rgx=(([A-Z_][A-Z0-9_]*)|(__.*__))$

@@ -10,12 +10,9 @@ Test functions for 'utils/ceasiompyutils.py'
 
 """
 
-# =================================================================================================
-#   IMPORTS
-# =================================================================================================
+# Imports
 
 import os
-import shutil
 import pytest
 import tempfile
 import numpy as np
@@ -29,7 +26,6 @@ from ceasiompy.utils.ceasiompyutils import (
     get_aeromap_list_from_xpath,
     get_install_path,
     get_part_type,
-    get_results_directory,
     remove_file_type_in_dir,
     run_software,
     check_version,
@@ -45,6 +41,7 @@ from ceasiompy.utils.ceasiompytest import CeasiompyTest
 from unittest.mock import patch
 from ceasiompy import UTILS_PATH
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+
 
 # =================================================================================================
 #   CLASSES
@@ -187,38 +184,10 @@ class TestCeasiompyUtils(CeasiompyTest):
         aeromap_list = get_aeromap_list_from_xpath(self.test_cpacs, not_define_xpath)
         assert aeromap_list == ["test_apm"]
 
-    def test_get_results_directory(self):
-
-        with change_working_dir(self.TMP_DIR):
-            test_module_1 = "ExportCSV"
-            results_dir = get_results_directory(test_module_1)
-            assert results_dir == Path(Path.cwd(), "Results", test_module_1)
-
-            test_module_2 = "PyAVL"
-            results_dir = get_results_directory(test_module_2)
-            assert results_dir == Path(Path.cwd(), "Results", test_module_2)
-
-            if results_dir.parent.exists():
-                shutil.rmtree(results_dir.parent)
-
-        with pytest.raises(ValueError):
-            results_dir = get_results_directory("NotExistingModule")
-
-    @pytest.mark.skip(reason="Not implemented yet")
-    def test_run_module(self):
-        """Test the function run_module."""
-
-        # TODO: how to test this function?
-
     def test_get_install_path(self):
         """Test the function 'get_install_path'."""
-
         assert isinstance(get_install_path("python"), Path)
-
         assert get_install_path("NotExistingSoftware") is None
-
-        # with pytest.raises(SoftwareNotInstalled):
-        #    get_install_path("NotExistingSoftware", raise_error=True)
 
     def test_run_software(self):
         """Test the function 'run_software'."""
@@ -272,9 +241,6 @@ class TestCeasiompyUtils(CeasiompyTest):
         assert not test_file_2.exists()
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
+# Main
 if __name__ == "__main__":
     main(verbosity=0)

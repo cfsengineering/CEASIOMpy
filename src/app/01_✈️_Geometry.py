@@ -698,6 +698,8 @@ def _section_stl_to_cpacs():
         st.error("Detected component data is inconsistent.")
         return None
 
+    st.markdown("##### Component Settings")
+    settings: list[dict] = []
     for idx, (stl_path, auto_type) in enumerate(zip(selected_stl_files, detected_cpacs_types)):
         normalized_type = "fuselage" if str(auto_type).lower() == "fuselage" else "wing"
         st.markdown(
@@ -870,7 +872,6 @@ def section_select_cpacs() -> None:
             render_openvsp_panel()
 
     # ALWAYS use the session CPACS
-    print('CPACS IS ',st.session_state.get("cpacs"))
     cpacs = st.session_state.get("cpacs")
     if not isinstance(cpacs, CPACS):
         return None

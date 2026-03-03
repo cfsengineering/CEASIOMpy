@@ -108,20 +108,22 @@ def initialization(doc,data,name_file):
         if data[k]["Transformation"]["idx_engine"] is not None:
 
             transformation = data[k]["Transformation"]
-            NameEngine = f"{transformation['Name']}_Engine{transformation['idx_engine']}"
-            engines = make(doc, 'engines', vehicles)
 
-            # ENGINE
-            engine = make(doc, 'engine', engines, uID=NameEngine)
-            make(doc, 'name', engine, NameEngine)
-
-            # NACELLE
-            nacelle = make(doc, 'nacelle', engine, uID=f'{NameEngine}_Nacelle')
 
             # CASE 1 : Normal nacelle
             prev_trans = data[keys[i - 1]]["Transformation"]
             if prev_trans["Name_type"] != "Duct":
+                NameEngine = f"{transformation['Name']}_Engine{transformation['idx_engine']}"
+                
+                # ENGINES
+                engines = make(doc, 'engines', vehicles)
 
+                # ENGINE
+                engine = make(doc, 'engine', engines, uID=NameEngine)
+                make(doc, 'name', engine, NameEngine)
+
+                # NACELLE
+                nacelle = make(doc, 'nacelle', engine, uID=f'{NameEngine}_Nacelle')
                 fanCowl = make(doc, 'fanCowl', nacelle, uID=f'{NameEngine}_Nacelle_fanCowl')
 
                 sections = make(doc, 'sections', fanCowl)
@@ -164,6 +166,7 @@ def initialization(doc,data,name_file):
                 prev_trans["Name_type"] == "Duct"
                 and data[k]["Transformation"]["Name_type"] == "Duct"
             ):
+                NameEngine = f"{transformation['Name']}_Engine{transformation['idx_engine']}"
 
                 coreCowl = make(doc, 'coreCowl', nacelle, uID=f'{NameEngine}_coreCowl')
 
@@ -201,6 +204,7 @@ def initialization(doc,data,name_file):
 
             # CASE 3 : Duct + Duct + Pod
             elif data[k]['Transformation']['Name_type'] == 'Pod':
+                NameEngine = f"{transformation['Name']}_Engine{transformation['idx_engine']}"
 
                 centerCowl = make(doc, 'centerCowl', nacelle, uID=f'{NameEngine}_centerCowl')
                 make(doc, 'curveUID', centerCowl, f'{NameEngine}_centerCowlRotationCurve')
@@ -292,7 +296,6 @@ def Wing_section(doc, Parent, Name_wing, Section_key, Sections_parameters):
         x_Trasl,
         Sections_parameters["Transformation"]["abs_system"],
     )
-    print('Here')
     # --- Element definition for the section ---
     Element(
         doc,
@@ -740,8 +743,8 @@ def Engine_profile(doc, vehicle, data, name, i):
     if len(i) == 1:
         curveProfile = make(doc, 'curveProfile', curveProfiles, uID=f"{name}_fanCowlRotationCurve")
         pointList = make(doc, 'pointList', curveProfile)
-        make(doc, 'x', pointList, '0;1')
-        make(doc, 'y', pointList, '-0.06;-0.06')
+        make(doc, 'x', pointList, '0;0.05;0.1;0.15;0.2;0.3;0.4;0.5;0.6;0.7;0.8;0.85;0.9;0.95;1')
+        make(doc, 'y', pointList, '0;-0.006;-0.0085;-0.0102;-0.0113;-0.0125;-0.0132;-0.0135;-0.013;-0.0118;-0.0098;-0.0082;-0.0062;-0.0035;0')
     elif len(i) == 2:
         curveProfile = make(doc, 'curveProfile',
                             curveProfiles, uID=f"{name}_coreCowlRotationCurve")
@@ -826,7 +829,7 @@ def Engine_to_CPACS(
                         EngineData['Transformation']['height']],
                        EngineData['Transformation']['X_Rot'],
                        EngineData['Transformation']['X_Trasl'])
-
+    
     # <profiles>
     Engine_profile(doc, Parent_prof, EngineData, NameEngine, i)
 

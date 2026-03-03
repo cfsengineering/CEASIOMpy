@@ -285,7 +285,7 @@ def main(stl_file: list[str | Path], setting: list[dict], out_dir: str | Path) -
         item_norm = str(item).strip().lower()
        
         comp_name = Path(stl_path).stem
-        if item_norm == "wing":
+        if item_norm == "wing" or item_norm == "wing_vertical_tail":
             effective_setting = {
                 "EXTREME_TOL_perc_start": 0.02,
                 "EXTREME_TOL_perc_end": 0.02,
@@ -293,6 +293,7 @@ def main(stl_file: list[str | Path], setting: list[dict], out_dir: str | Path) -
                 "N_SLICE_ADDING": 0,
                 "TE_CUT": 0.0,
                 "N_BIN": 10,
+                "vertical_tail": True if item_norm == "wing_vertical_tail" else False,
             }
             effective_setting.update(comp_setting)
             dict_exportcpacs[f"component_{idx}"] = stl2wing_main(

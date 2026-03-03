@@ -11,7 +11,7 @@ import struct
 import matplotlib.cm as cm
 from scipy.interpolate import PchipInterpolator
 from ceasiompy.utils.exportcpacs import Export_CPACS
-from ceasiompy.stl2cpacs.stl2cpacs import export_mesh,parse_cart3d_tri
+from ceasiompy.stl2cpacs.stl2cpacs import export_mesh, parse_cart3d_tri, load_stl_auto
 from pathlib import Path
 
 # ---------------------------
@@ -670,15 +670,66 @@ def filter_and_insert(y_vals, sweep_deg, dihedral_deg, le_pts, n_insert):
     )
     
     
-    
-    
-    
+def rotate_vertical_tail(stl_file):
+    """Rotate STL 90 deg around X while keeping the lowest point fixed."""
+
+    stl_path = Path(stl_file)
+    if not stl_path.exists():
+        raise FileNotFoundError(f"STL file not found: {stl_path}")
+
+    tris = load_stl_auto(str(stl_path)).astype(float)  # (N, 3, 3)
+    if tris.size == 0:
+        return str(stl_path)
+
+
+    pts = tris.reshape(-1, 3)
+    # Use the lowest point (minimum global Z) as rotation pivot
+    # so the geometry does not drift in space after rotation.
+    pivot = pts[int(np.argmin(pts[:, 2]))].copy()
+
+    # Rx(-90deg): x' = x, y' = z, z' = -y
+    rot_x_neg_90 = np.array(
+        [
+            [1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0],
+            [0.0, -1.0, 0.0],
+        ],
+        dtype=float,
+    )
+
+    rotated_pts = (pts - pivot) @ rot_x_neg_90.T + pivot
+    rotated_tris = rotated_pts.reshape(tris.shape)
+
+    out_path = stl_path.with_name(f"{stl_path.stem}_rotated_vertical_tail.stl")
+    with open(out_path, "wb") as f:
+        header = b"CEASIOMpy rotated vertical tail"
+        f.write(header.ljust(80, b"\0"))
+        f.write(struct.pack("<I", rotated_tris.shape[0]))
+        for tri in rotated_tris:
+            v1 = tri[1] - tri[0]
+            v2 = tri[2] - tri[0]
+            n = np.cross(v1, v2)
+            n_norm = np.linalg.norm(n)
+            if n_norm > 0.0:
+                n = n / n_norm
+            else:
+                n = np.array([0.0, 0.0, 0.0], dtype=float)
+
+            f.write(struct.pack("<fff", float(n[0]), float(n[1]), float(n[2])))
+            for v in tri:
+                f.write(struct.pack("<fff", float(v[0]), float(v[1]), float(v[2])))
+            f.write(struct.pack("<H", 0))
+
+    return str(out_path)
+
 # ---------------------------
 # MAIN
 # ---------------------------
 def stl2wing_main(stl_file: str | Path, setting: dict,output_directory: str|Path,name: str):
     
     print("Start: importing wing stl file ... ")
+    if setting['vertical_tail']:
+        stl_file = rotate_vertical_tail(stl_file)
     tri_fname = export_mesh(output_directory,stl_file,name)
     pts, tris = parse_cart3d_tri(tri_fname)
 
@@ -748,8 +799,8 @@ def stl2wing_main(stl_file: str | Path, setting: dict,output_directory: str|Path
     # start to build the dictionary to create all the necessary informations to generate the corresponding CPACS file. 
     Wing_Dict["Transformation"] = {
                 "Name_type": "Wing",
-                "Name": "Wing1", # load the name of the stl
-                "X_Rot": [0, 0, 0],
+                "Name": f"{name}", # load the name of the stl
+                "X_Rot": [90, 0, 0] if setting['vertical_tail'] else [0, 0, 0],
                 "X_Trasl":le_pts[0],
                 "Symmetry": "",  
                 "abs_system": True,
@@ -835,12 +886,13 @@ def stl2wing_main(stl_file: str | Path, setting: dict,output_directory: str|Path
 
         airfoil_profiles.append(airfoil_xz)
 
-    
+    # eliminate the rotate vertical tail stl file if present 
+    if setting['vertical_tail']:
+        os.remove(stl_file)
+        
+        
     return Wing_Dict
 
-
-    exporter = Export_CPACS(Wing_Dict, "Test_STL2CPACS",'src/ceasiompy/STL2CPACS')
-    exporter.run()
     
     
     

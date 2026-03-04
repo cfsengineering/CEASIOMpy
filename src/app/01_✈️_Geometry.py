@@ -824,21 +824,31 @@ def _section_stl_to_cpacs():
 
     if st.button("Convert Geometry to CPACS", key="convert_stl_to_cpacs_button", width="stretch"):
         try:
-            cpacs_path = stl2cpacs_main(
+            cpacs_path, conversion_report = stl2cpacs_main(
                 stl_file=selected_stl_files,
                 setting=settings,
                 out_dir=wkdir,
             )
+            st.session_state["last_stl2cpacs_conversion_report"] = conversion_report
 
             st.session_state["last_converted_cpacs_path"] = str(cpacs_path)
             close_cpacs_handles(st.session_state.get("cpacs"))
             st.session_state["cpacs"] = CPACS(str(cpacs_path))
             st.success(f"CPACS generated: {cpacs_path}")
+
+            failed_components = conversion_report.get("failed", [])
+            if failed_components:
+                st.warning(
+                    f"{len(failed_components)} component(s) could not be converted and were skipped."
+                )
+                for comp in failed_components:
+                    st.caption(
+                        f"- `{Path(comp.get('path', '')).name}` "
+                        f"({comp.get('type', 'unknown')}): {comp.get('error', 'Unknown error')}"
+                    )
         except Exception as exc:
             st.error(f"STL to CPACS conversion failed: {exc}")
-    
-   
-    
+
     return st.session_state.get("cpacs")
 
 

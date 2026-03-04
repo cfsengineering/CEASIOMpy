@@ -203,7 +203,7 @@ def resample_fuselage_cpacs(
         np.vstack([y_neg[::-1], z_mid[::-1]]),      # -y side (top -> bottom)
         np.array([[y_bot], [z_bot]])                # closure
     ])
-    Airfoil = np.round(Airfoil, 2)    
+    Airfoil = np.round(Airfoil, 3)    
 
     if not hasattr(resample_fuselage_cpacs, "_debug_plot_saved"):
         plt.figure()
@@ -757,10 +757,7 @@ def insert_slices(y_vals, sweep_deg, dihedral_deg, ref_pts, n_insert):
 
         # Insert interpolated slices only at transitions.
         if has_transition and n_insert > 0:
-            print(
-                f"Inserting {n_insert} slices between x={y_vals[i]:.3f} and x={y_vals[i+1]:.3f} "
-                f"(dSweep={sweep_deg[i+1]-sweep_deg[i]:.3f}, dDih={dihedral_deg[i+1]-dihedral_deg[i]:.3f})"
-            )
+
             for k in range(1, n_insert + 1):
                 t = k / (n_insert + 1)
                 y_new = (1 - t) * y_vals[i] + t * y_vals[i + 1]
@@ -889,9 +886,9 @@ def stl2fuselage_main(stl_file: str | Path, setting: dict,output_directory: str|
     
     x_vals_base = np.linspace(x_start, x_end, N_X_SLICES, dtype=float)
     # refine in the nose and tail regions
-    # Refine first and last 5% of effective fuselage length with +10 slices each.
-    extra_slices = 10
-    refine_frac = 0.05
+    # Refine first and last 10% of effective fuselage length with +5 slices each.
+    extra_slices = 5
+    refine_frac = 0.1
     x_len = x_end - x_start
     nose_end = x_start + refine_frac * x_len
     tail_start = x_end - refine_frac * x_len

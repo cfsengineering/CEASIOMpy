@@ -627,13 +627,13 @@ def filter_and_insert(y_vals, sweep_deg, dihedral_deg, le_pts, n_insert):
     le_out = [le_pts[0]]
 
     for i in range(len(y_vals) - 1):
-        same_angle = (
+        boll_add_slice = (
             np.isclose(sweep_deg[i], sweep_deg[i + 1],atol=0.1, rtol=0.0) and
             np.isclose(dihedral_deg[i], dihedral_deg[i + 1],atol=0.1, rtol=0.0) and
-            i != len(y_vals)//2
+            (i < len(y_vals) // 2 - 1 or i > len(y_vals) // 2 + 1)
         )
 
-        if not same_angle and n_insert > 0:
+        if not boll_add_slice and n_insert > 0:
             # Interpolate transition slices with linear angle evolution.
             for k in range(1, n_insert + 1):
                 t = k / (n_insert + 1)
@@ -654,7 +654,7 @@ def filter_and_insert(y_vals, sweep_deg, dihedral_deg, le_pts, n_insert):
             np.isclose(sweep_deg[i + 1], sweep_deg[i + 2]) and
             np.isclose(dihedral_deg[i + 1], dihedral_deg[i + 2])
         )
-        keep_next = (not same_angle) or next_changes or is_last_pair
+        keep_next = (not boll_add_slice) or next_changes or is_last_pair
 
         if keep_next:
             y_out.append(y_vals[i + 1])

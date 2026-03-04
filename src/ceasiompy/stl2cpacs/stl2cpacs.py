@@ -262,8 +262,12 @@ def parse_cart3d_tri(filename):
 
 
 
-def main(stl_file: list[str | Path], setting: list[dict], out_dir: str | Path) -> Path:
-    """Convert STL components to one CPACS file and return output XML path."""
+def main(
+    stl_file: list[str | Path],
+    setting: list[dict],
+    out_dir: str | Path,
+) -> tuple[Path, dict[str, list[dict[str, str]]]]:
+    """Convert STL components to one CPACS file and return output XML path + report."""
     # Local imports although it shows errors 
     from ceasiompy.stl2cpacs.func.stl2wing import stl2wing_main
     from ceasiompy.stl2cpacs.func.stl2fuselage import stl2fuselage_main
@@ -279,38 +283,71 @@ def main(stl_file: list[str | Path], setting: list[dict], out_dir: str | Path) -
     output_dir.mkdir(parents=True, exist_ok=True)
 
     dict_exportcpacs = {}
+    conversion_report: dict[str, list[dict[str, str]]] = {
+        "converted": [],
+        "failed": [],
+    }
     for idx, (stl_path, item, comp_setting) in enumerate(
         zip(stl_file, cpacs_component, setting), start=1
     ):
         item_norm = str(item).strip().lower()
        
         comp_name = Path(stl_path).stem
-        if item_norm == "wing" or item_norm == "wing_vertical_tail":
-            effective_setting = {
-                "EXTREME_TOL_perc_start": 0.02,
-                "EXTREME_TOL_perc_end": 0.02,
-                "N_Y_SLICES": 50,
-                "N_SLICE_ADDING": 0,
-                "TE_CUT": 0.0,
-                "N_BIN": 10,
-                "vertical_tail": True if item_norm == "wing_vertical_tail" else False,
-            }
-            effective_setting.update(comp_setting)
-            dict_exportcpacs[f"component_{idx}"] = stl2wing_main(
-                stl_path, effective_setting, output_dir, comp_name
+        try:
+            if item_norm == "wing" or item_norm == "wing_vertical_tail":
+                effective_setting = {
+                    "EXTREME_TOL_perc_start": 0.02,
+                    "EXTREME_TOL_perc_end": 0.02,
+                    "N_Y_SLICES": 50,
+                    "N_SLICE_ADDING": 0,
+                    "TE_CUT": 0.0,
+                    "N_BIN": 10,
+                    "vertical_tail": True if item_norm == "wing_vertical_tail" else False,
+                }
+                effective_setting.update(comp_setting)
+                dict_exportcpacs[f"component_{idx}"] = stl2wing_main(
+                    stl_path, effective_setting, output_dir, comp_name
+                )
+                conversion_report["converted"].append(
+                    {"name": comp_name, "path": str(stl_path), "type": item_norm}
+                )
+            elif item_norm == "fuselage":
+                effective_setting = {
+                    "EXTREME_TOL_perc_start": 0.02,
+                    "EXTREME_TOL_perc_end": 0.02,
+                    "N_X_SLICES": 50,
+                    "N_SLICE_ADDING": 0,
+                }
+                effective_setting.update(comp_setting)
+                dict_exportcpacs[f"component_{idx}"] = stl2fuselage_main(
+                    stl_path, effective_setting, output_dir, comp_name
+                )
+                conversion_report["converted"].append(
+                    {"name": comp_name, "path": str(stl_path), "type": item_norm}
+                )
+            else:
+                conversion_report["failed"].append(
+                    {
+                        "name": comp_name,
+                        "path": str(stl_path),
+                        "type": item_norm,
+                        "error": f"Unsupported detected type: {item_norm}",
+                    }
+                )
+        except Exception as exc:
+            conversion_report["failed"].append(
+                {
+                    "name": comp_name,
+                    "path": str(stl_path),
+                    "type": item_norm,
+                    "error": str(exc),
+                }
             )
-        elif item_norm == "fuselage":
-            effective_setting = {
-                "EXTREME_TOL_perc_start": 0.02,
-                "EXTREME_TOL_perc_end": 0.02,
-                "N_X_SLICES": 50,
-                "N_SLICE_ADDING": 0,
-            }
-            effective_setting.update(comp_setting)
-            dict_exportcpacs[f"component_{idx}"] = stl2fuselage_main(
-                stl_path, effective_setting, output_dir, comp_name
-            )
-        
 
+    if not dict_exportcpacs:
+        raise RuntimeError(
+            "No component could be converted to CPACS. "
+            "Check detected types and STL quality."
+        )
     exporter = Export_CPACS(dict_exportcpacs, "stl2cpacs_file", output_dir)
-    return exporter.run()
+    return exporter.run(), conversion_report

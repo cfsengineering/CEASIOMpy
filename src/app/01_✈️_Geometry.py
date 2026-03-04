@@ -41,7 +41,7 @@ from openvspgui import (
     render_openvsp_panel,
     convert_vsp3_to_cpacs,
 )
-from ceasiompy.stl2cpacs.func.split_stl_into_components import split_main, split_stl_by_symmetry_plane
+from ceasiompy.stl2cpacs.func.split_stl_into_components import split_main
 from ceasiompy.stl2cpacs.stl2cpacs import main as stl2cpacs_main
 from ceasiompy.stl2cpacs.stl2cpacs import cpacs_component_detection
 
@@ -73,9 +73,11 @@ PAGE_NAME: Final[str] = "Geometry"
 
 
 # Methods
-def _show_stl_mesh(stl_path: str, key: str,show_wireframe: bool | None = None) -> None:
+def _show_stl_mesh(stl_path: str,
+                   key: str,
+                   show_wireframe: bool | None = None
+                   ) -> None:
     """Interactive STL viewer with proper wireframe toggle refresh."""
-    
 
     # --- Cache STL loading only ---
     @st.cache_data(show_spinner=False)
@@ -83,7 +85,6 @@ def _show_stl_mesh(stl_path: str, key: str,show_wireframe: bool | None = None) -
         return mesh.Mesh.from_file(path)
 
     stl_mesh = load_stl(stl_path)
-
 
     # Build unique vertices + face indices
     vertices = stl_mesh.vectors.reshape(-1, 3)
@@ -142,10 +143,12 @@ def _show_stl_mesh(stl_path: str, key: str,show_wireframe: bool | None = None) -
     dynamic_key = f"{key}_{show_wireframe}"
 
     st.plotly_chart(fig, use_container_width=True, key=dynamic_key)
-    
+
 
 def _show_split_components_mesh(
-    split_dir: str | Path, key: str, show_wireframe: bool | None = None
+    split_dir: str | Path,
+    key: str,
+    show_wireframe: bool | None = None
 ) -> None:
     """Display split STL components with one color per component."""
 
@@ -227,8 +230,8 @@ def _show_split_components_mesh(
     )
     dynamic_key = f"{key}_{show_wireframe}_{len(component_files)}"
     st.plotly_chart(fig, use_container_width=True, key=dynamic_key)
-    
-    
+
+
 def _clean_toolspecific(cpacs: CPACS) -> CPACS:
     air_name = cpacs.ac_name
 
@@ -566,6 +569,7 @@ def _section_load_cpacs() -> CPACS | None:
 
 
 def _section_stl_to_cpacs():
+
     # 1. Load the stl
     st.markdown("#### Load an STL file or multiple file")
     st.markdown("You can upload a 3D STL model (binary or ASCII) to convert it to CPACS later.")
@@ -631,10 +635,10 @@ def _section_stl_to_cpacs():
         st.session_state.pop("last_split_components_dir", None)
         st.session_state["show_split_tools"] = False
         st.session_state["show_cpacs_conversion_tools"] = False
-    
+
     # 2. visualization
     wireframe_view = st.toggle("Wireframe view", value=False, key="stl_wireframe_view")
-    
+
     # 3. split tools (hidden by default)
     if "show_split_tools" not in st.session_state:
         st.session_state["show_split_tools"] = False
@@ -671,7 +675,7 @@ def _section_stl_to_cpacs():
             except Exception as exc:
                 st.error(f"STL split failed: {exc}")
 
-        
+
     # 4. Convert to CPACS using automatic component detection
     st.markdown("#### Convert to CPACS")
 
@@ -684,7 +688,6 @@ def _section_stl_to_cpacs():
     if not candidate_paths:
         st.warning("No STL sources found in the working directory.")
         return None
-
 
     current_candidates = [str(path) for path in candidate_paths]
     selected_stl_files = current_candidates
@@ -769,7 +772,8 @@ def _section_stl_to_cpacs():
                             min_value=0.0,
                             max_value=0.5,
                             format="%.4f",
-                            help="Trailing-edge trim ratio applied on each extracted airfoil. Increase if there are oscillations on the CPACS in the TE region.",
+                            help=("Trailing-edge trim ratio applied on each extracted airfoil.",
+                                  " Increase if there are oscillations on the CPACS in the TE region."),
                             key=f"stl_component_adv_te_cut_{idx}",
                         )
                     )
@@ -779,7 +783,9 @@ def _section_stl_to_cpacs():
                             value=10,
                             min_value=3,
                             step=1,
-                            help="Bins used to split the section cloud into upper/lower surfaces. Increase if you have a very refined profile with sharp features, or if you have oscillations on the CPACS airfoil.",
+                            help=("Bins used to split the section cloud into upper/lower surfaces.",
+                                  " Increase if you have a very refined profile with sharp features,",
+                                  " or if you have oscillations on the CPACS airfoil."),
                             key=f"stl_component_adv_n_bin_{idx}",
                         )
                     )
@@ -859,7 +865,6 @@ def _section_stl_to_cpacs():
             st.error(f"STL to CPACS conversion failed: {exc}")
 
     return st.session_state.get("cpacs")
-
 
 # Functions
 

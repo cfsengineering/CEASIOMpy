@@ -7,26 +7,14 @@ This module provides a pragmatic STL splitter for CEASIOMpy workflows:
 """
 
 from __future__ import annotations
-
 from dataclasses import dataclass
 from pathlib import Path
 import struct
 from typing import Dict, List, Tuple
-
 import numpy as np
-
 
 # Quantization tolerance used to merge numerically close vertices.
 VERTEX_MERGE_TOL = 1e-6
-
-# ======================================================================================
-# VS CODE QUICK-RUN SETTINGS
-# ======================================================================================
-# Set your STL path here, then run this file directly in VS Code.
-INPUT_STL_PATH = "src/ceasiompy/STL2CPACS/SOARminSting-Shell.stl"
-
-# Set output directory for split parts. One STL per detected component.
-OUTPUT_SPLIT_DIR = "src/ceasiompy/STL2CPACS/split_output"
 
 # Connectivity tolerance used while grouping triangles into disconnected parts.
 DEFAULT_VERTEX_TOL = VERTEX_MERGE_TOL
@@ -34,11 +22,8 @@ DEFAULT_FEATURE_ANGLE_DEG = 55.0
 SIGNIFICANT_COMPONENT_MIN_TRIS = 100
 
 # ======================================================================================
-# HOW THE SPLIT WORKS (high-level)
+# HOW THE SPLIT WORKS
 # ======================================================================================
-# The splitter does NOT try to understand aircraft semantics (wing/fuselage/etc.).
-# It only uses mesh connectivity.
-#
 # 1) Read STL triangles as an array with shape (N, 3, 3)
 #    N triangles, each triangle has 3 vertices, each vertex has (x, y, z).
 #
@@ -55,7 +40,6 @@ SIGNIFICANT_COMPONENT_MIN_TRIS = 100
 # Result:
 # - A fully connected STL => one component file.
 # - A multi-part STL => one file per disconnected part.
-
 
 @dataclass
 class ComponentInfo:
@@ -79,8 +63,6 @@ def read_ascii_stl(path: str | Path) -> np.ndarray:
                 _, x, y, z = line.split()[:4]
                 tri.append([float(x), float(y), float(z)])
 
-    if len(tri) % 3 != 0:
-        raise ValueError(f"Malformed ASCII STL: {path}")
 
     return np.asarray(tri, dtype=float).reshape(-1, 3, 3)
 
@@ -96,14 +78,14 @@ def read_binary_stl(path: str | Path) -> np.ndarray:
     tri = []
     offset = 0
     for _ in range(ntri):
-        offset += 12  # normal
+        offset += 12
         v1 = struct.unpack_from("<fff", data, offset)
         offset += 12
         v2 = struct.unpack_from("<fff", data, offset)
         offset += 12
         v3 = struct.unpack_from("<fff", data, offset)
         offset += 12
-        offset += 2  # attribute byte count
+        offset += 2
         tri.append([v1, v2, v3])
 
     return np.asarray(tri, dtype=float)
@@ -125,7 +107,10 @@ def load_stl_auto(path: str | Path) -> np.ndarray:
     return read_binary_stl(path)
 
 
-def write_binary_stl(path: str | Path, triangles: np.ndarray, solid_name: str = "component") -> None:
+def write_binary_stl(path: str | Path,
+                     triangles: np.ndarray,
+                     solid_name: str = "component"
+                     ) -> None:
     """Write triangles to a binary STL file."""
 
     tris = np.asarray(triangles, dtype=np.float32).reshape(-1, 3, 3)
@@ -171,7 +156,9 @@ def _triangle_adjacency_from_shared_vertices(triangles: np.ndarray, tol: float =
     return [list(nei) for nei in adjacency]
 
 
-def _triangle_adjacency_from_shared_edges(triangles: np.ndarray, tol: float = VERTEX_MERGE_TOL) -> List[List[int]]:
+def _triangle_adjacency_from_shared_edges(triangles: np.ndarray,
+                                          tol: float = VERTEX_MERGE_TOL
+                                          ) -> List[List[int]]:
     """Build triangle adjacency from shared *manifold* edges.
 
     Used as a fallback when vertex-connectivity yields a single component.
@@ -252,7 +239,9 @@ def _triangle_normals(triangles: np.ndarray) -> np.ndarray:
 
 
 def _triangle_adjacency_from_smooth_shared_edges(
-    triangles: np.ndarray, tol: float = VERTEX_MERGE_TOL, max_dihedral_deg: float = DEFAULT_FEATURE_ANGLE_DEG
+    triangles: np.ndarray,
+    tol: float = VERTEX_MERGE_TOL,
+    max_dihedral_deg: float = DEFAULT_FEATURE_ANGLE_DEG
 ) -> List[List[int]]:
     """Build adjacency using only manifold edges with smooth dihedral angle."""
 
@@ -336,7 +325,9 @@ def _extract_components_from_adjacency(adjacency: List[List[int]]) -> List[np.nd
     return components
 
 
-def _connected_triangle_components(triangles: np.ndarray, tol: float = VERTEX_MERGE_TOL) -> List[np.ndarray]:
+def _connected_triangle_components(triangles: np.ndarray,
+                                   tol: float = VERTEX_MERGE_TOL
+                                   ) -> List[np.ndarray]:
     """Split triangles into components with robust auto-connectivity.
 
     We treat triangles as nodes of a graph:
@@ -359,7 +350,9 @@ def _connected_triangle_components(triangles: np.ndarray, tol: float = VERTEX_ME
     return _extract_components_from_adjacency(edge_adj)
 
 
-def _count_significant_components(components: List[np.ndarray], min_triangles: int = SIGNIFICANT_COMPONENT_MIN_TRIS) -> int:
+def _count_significant_components(components: List[np.ndarray],
+                                  min_triangles: int = SIGNIFICANT_COMPONENT_MIN_TRIS
+                                  ) -> int:
     """Count components with enough triangles to be meaningful geometric parts."""
 
     return int(sum(1 for c in components if len(c) >= min_triangles))
@@ -434,7 +427,9 @@ def _histogram_valley_threshold(values: np.ndarray, n_bins: int = 80) -> float |
     return float(0.5 * (edges[best_i] + edges[best_i + 1]))
 
 
-def _induced_components_from_mask(adjacency: List[List[int]], mask: np.ndarray) -> List[np.ndarray]:
+def _induced_components_from_mask(adjacency: List[List[int]],
+                                  mask: np.ndarray
+                                  ) -> List[np.ndarray]:
     """Connected components of the subgraph induced by `mask`."""
 
     mask = np.asarray(mask, dtype=bool)
@@ -458,7 +453,9 @@ def _induced_components_from_mask(adjacency: List[List[int]], mask: np.ndarray) 
 
 
 def _span_split_largest_component(
-    triangles: np.ndarray, comp_indices: List[np.ndarray], tol: float = VERTEX_MERGE_TOL
+    triangles: np.ndarray,
+    comp_indices: List[np.ndarray],
+    tol: float = VERTEX_MERGE_TOL
 ) -> List[np.ndarray]:
     """Split one dominant shell into inboard/outboard parts using |y| valley."""
 
@@ -498,7 +495,9 @@ def _span_split_largest_component(
     return remapped
 
 
-def _build_generic_components(disconnected_components: List[np.ndarray], triangles: np.ndarray) -> List[ComponentInfo]:
+def _build_generic_components(disconnected_components: List[np.ndarray],
+                              triangles: np.ndarray
+                              ) -> List[ComponentInfo]:
     """Build generic component objects from connected triangle groups.
 
     This function only packages metadata and names:
@@ -667,7 +666,6 @@ def split_aircraft_stl(
     return components
 
 
-
 def split_main(stl_path: str | Path, namefile: str, out_dir: str | Path) -> Path:
 
     vertex_tol = DEFAULT_VERTEX_TOL
@@ -683,11 +681,10 @@ def split_main(stl_path: str | Path, namefile: str, out_dir: str | Path) -> Path
     split_dir = Path(out_dir) / "STL2CPACS"
     print(f"Output dir: {split_dir}")
 
-    comps = split_aircraft_stl(stl_path, output_dir=out_dir, vertex_tol=vertex_tol,name=namefile)
+    comps = split_aircraft_stl(stl_path, output_dir=out_dir, vertex_tol=vertex_tol, name=namefile)
     if not comps:
         print("No triangles found.")
     else:
         print(f"\nWrote {len(comps)} split STL file(s) into: {split_dir}")
 
     return split_dir
-    

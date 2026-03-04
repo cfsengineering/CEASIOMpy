@@ -396,9 +396,14 @@ def Fuse_Element(doc, Parent, Name_section, Section_key, Section_parameters):
 
 
 def Fuse_positioning(doc, Parent, Name, Section_key, Section_parameters, length_before_perc):
-    # Extract section index and prefix (letters only)
-    number = int(''.join(filter(str.isdigit, Name)))
-    prefix = Name.rstrip('0123456789')
+    # Extract only the trailing section index (safe when fuselage name contains digits).
+    match = re.search(r'(.*?)(\d+)$', Name)
+    if match:
+        prefix = match.group(1)
+        number = int(match.group(2))
+    else:
+        prefix = Name
+        number = 0
     # Create <positioning> element with uID
     positioning = make(doc, 'positioning', Parent, uID=f'{Name}GenPos')
 

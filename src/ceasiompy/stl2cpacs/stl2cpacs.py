@@ -1,23 +1,23 @@
-from pathlib import Path
+
+# =================================================================================================
+#   IMPORTS
+# =================================================================================================
+
 import numpy as np
 import os
 import struct
 from ceasiompy.utils.exportcpacs import Export_CPACS
 from pathlib import Path
 
-
-
-
-
-
-
-
-
+# =================================================================================================
+#   FUNCTIONS
+# =================================================================================================
 
 def export_mesh(tri_filename, stl_filename,name):
     """
     Direct STL → TRI converter.
     """
+
     if not os.path.exists(stl_filename):
         raise FileNotFoundError(f"STL not found: {stl_filename}")
 
@@ -32,7 +32,6 @@ def export_mesh(tri_filename, stl_filename,name):
     write_cart3d_tri(tri_path, tris)
     print("Done.")
     return str(tri_path)
-
 
 
 def cpacs_component_detection(stl_file) -> list:
@@ -168,16 +167,7 @@ def cpacs_component_detection(stl_file) -> list:
             else:
                 cpacs_component.append("wing")
 
-
-
     return cpacs_component
-
-
-
-
-
-
-
 
 
 def load_stl_auto(path):
@@ -190,27 +180,29 @@ def load_stl_auto(path):
             return read_binary_stl(path)
     return read_binary_stl(path)
 
+
 def write_cart3d_tri(filename, triangles):
     """
     Saves triangles to Cart3D .tri format 
     """
+
     verts = triangles.reshape(-1, 3)
     uniq, inverse = np.unique(verts, axis=0, return_inverse=True)
-    tri_idx = inverse.reshape(-1, 3) + 1  # 1-based indices
+    tri_idx = inverse.reshape(-1, 3) + 1 # Cart3D uses 1-based indexing
 
     with open(filename, "w") as f:
-        f.write(f"{uniq.shape[0]} {tri_idx.shape[0]}\n") # first lie
+        f.write(f"{uniq.shape[0]} {tri_idx.shape[0]}\n") # first line
         for v in uniq:
-            f.write(f"{v[0]:.9g} {v[1]:.9g} {v[2]:.9g}\n") # vertices 
+            f.write(f"{v[0]:.9g} {v[1]:.9g} {v[2]:.9g}\n") # vertices
         for t in tri_idx:
-            f.write(f"{t[0]} {t[1]} {t[2]}\n") # triangle 
+            f.write(f"{t[0]} {t[1]} {t[2]}\n") # triangle
 
     return filename
 
 
-
 def read_ascii_stl(path):
     """Reads ASCII STL and returns Nx3x3 triangle array"""
+
     tri = []
     with open(path, "r") as f:
         for line in f:
@@ -219,6 +211,7 @@ def read_ascii_stl(path):
                 tri.append([float(x), float(y), float(z)])
     tri = np.array(tri).reshape(-1, 3, 3)
     return tri
+
 
 def read_binary_stl(path):
     """Reads binary STL and returns Nx3x3 triangle array"""
@@ -241,6 +234,7 @@ def read_binary_stl(path):
 
 
 def parse_cart3d_tri(filename):
+
     with open(filename, 'r') as f:
         lines = [ln.strip() for ln in f if ln.strip() and not ln.strip().startswith("#")]
     header = lines[0].split()
@@ -253,13 +247,8 @@ def parse_cart3d_tri(filename):
     start = 1 + npts
     for i in range(ntris):
         a,b,c = lines[start+i].split()[:3]
-        tris[i] = [int(a)-1, int(b)-1, int(c)-1] # TRI files use 1-based indexing so the -1 is only for python indexing 
+        tris[i] = [int(a)-1, int(b)-1, int(c)-1] # TRI files use 1-based indexing so the -1 is only for python indexing
     return pts, tris
-
-
-
-
-
 
 
 def main(
@@ -268,12 +257,13 @@ def main(
     out_dir: str | Path,
 ) -> tuple[Path, dict[str, list[dict[str, str]]]]:
     """Convert STL components to one CPACS file and return output XML path + report."""
+
     # Local imports although it shows errors 
     from ceasiompy.stl2cpacs.func.stl2wing import stl2wing_main
     from ceasiompy.stl2cpacs.func.stl2fuselage import stl2fuselage_main
-    
+
     cpacs_component = cpacs_component_detection(stl_file=stl_file)
-    
+
     if not (len(stl_file) == len(cpacs_component) == len(setting)):
         raise ValueError(
             "stl_file, cpacs_component and setting must have the same length."
@@ -291,7 +281,7 @@ def main(
         zip(stl_file, cpacs_component, setting), start=1
     ):
         item_norm = str(item).strip().lower()
-       
+
         comp_name = Path(stl_path).stem
         try:
             if item_norm == "wing" or item_norm == "wing_vertical_tail":

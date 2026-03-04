@@ -1,17 +1,13 @@
 
-
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
 
 import numpy as np
-import os
 import matplotlib.pyplot as plt
-import struct
 import matplotlib.cm as cm
 from scipy.interpolate import PchipInterpolator
-from ceasiompy.utils.exportcpacs import Export_CPACS
-from ceasiompy.stl2cpacs.stl2cpacs import export_mesh,parse_cart3d_tri
+from ceasiompy.stl2cpacs.stl2cpacs import export_mesh, parse_cart3d_tri
 from pathlib import Path
 
 # ---------------------------
@@ -20,8 +16,7 @@ from pathlib import Path
 
 INTERSECT_TOL = 1e-6
 SLAB_TOLS = [1e-5, 5e-5, 1e-4, 5e-4, 1e-3]
-DUPLICATE_YZ_TOL = 1e-8  # threshold for duplicate (y,z) removal
-
+DUPLICATE_YZ_TOL = 1e-8
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
@@ -108,8 +103,8 @@ def _save_debug_stl_and_slices_plot(
 
 
 def resample_fuselage_cpacs(
-    yr, zr,   # right side
-    yl, zl,   # left side
+    yr, zr,
+    yl, zl,
     y_bot, z_bot,
     y_top, z_top,
     n_points,
@@ -132,6 +127,7 @@ def resample_fuselage_cpacs(
         Sort by z (bottom -> top) and enforce strict increase with a tiny epsilon.
         This keeps the original side curvature, even for complex shapes.
         """
+
         z_in = np.asarray(z_in, dtype=float)
         y_in = np.asarray(y_in, dtype=float)
 
@@ -186,23 +182,22 @@ def resample_fuselage_cpacs(
     y_right = pchip_right(z_mid)
     y_left  = pchip_left(z_mid)
 
-    
     # Enforce strict side ordering at each z:
     # first branch is always +y side, second branch always -y side.
     y_pos = np.maximum(y_right, y_left)
     y_neg = np.minimum(y_right, y_left)
-    
+
     # -------------------------------------------------
     # 5) Assemble CPACS closed loop
     # -------------------------------------------------
     Airfoil = np.hstack([
-        np.array([[y_bot], [z_bot]]),               # bottom
-        np.vstack([y_pos, z_mid]),                  # +y side (bottom -> top)
-        np.array([[y_top], [z_top]]),               # top
-        np.vstack([y_neg[::-1], z_mid[::-1]]),      # -y side (top -> bottom)
-        np.array([[y_bot], [z_bot]])                # closure
+        np.array([[y_bot], [z_bot]]),
+        np.vstack([y_pos, z_mid]),
+        np.array([[y_top], [z_top]]),
+        np.vstack([y_neg[::-1], z_mid[::-1]]),
+        np.array([[y_bot], [z_bot]])
     ])
-    Airfoil = np.round(Airfoil, 3)    
+    Airfoil = np.round(Airfoil, 3)
 
     if not hasattr(resample_fuselage_cpacs, "_debug_plot_saved"):
         plt.figure()
@@ -224,6 +219,7 @@ def resample_fuselage_cpacs(
 
 def deduplicate_yz_points(y, z, tol=DUPLICATE_YZ_TOL):
     """Remove duplicate/near-duplicate points in (y, z) with a tolerance grid."""
+
     y = np.asarray(y, dtype=float)
     z = np.asarray(z, dtype=float)
     if y.size == 0:
@@ -245,6 +241,7 @@ def find_top_bottom_near_centerline(y, z, y_tol_frac=0.08, z_band_frac=0.02):
     3) If multiple points are close to those extrema (z band), average them.
     4) Return indices of original points closest to these averaged top/bottom points.
     """
+
     y = np.asarray(y, dtype=float)
     z = np.asarray(z, dtype=float)
 
@@ -304,16 +301,16 @@ def extract_airfoil_surface_local(cloud_xyz, p0, n):
     # -------------------------------------------------
     # Define local in-plane basis (Y, Z)
     # -------------------------------------------------
-    e1 = np.array([0.0, 1.0, 0.0])  # local y
-    e2 = np.array([0.0, 0.0, 1.0])  # local z
+    e1 = np.array([0.0, 1.0, 0.0])
+    e2 = np.array([0.0, 0.0, 1.0])
 
     # -------------------------------------------------
     # Project cloud into slicing plane
     # -------------------------------------------------
     local = np.array([
         [
-            np.dot(p - p0, e1),  # y_local
-            np.dot(p - p0, e2),  # z_local
+            np.dot(p - p0, e1),
+            np.dot(p - p0, e2),
         ]
         for p in cloud_xyz
     ])
@@ -328,14 +325,13 @@ def extract_airfoil_surface_local(cloud_xyz, p0, n):
     )
     z_up = z[i_up]
     z_low = z[i_low]
-    
     y_le = y[i_le]
     y_te = y[i_te]
 
     width = y_te - y_le
     height = z_up - z_low
-    
-    
+
+
     if width <= 1e-8 or height <= 1e-8:
         return np.zeros((2, 0)), 0.0
 
@@ -375,16 +371,23 @@ def extract_airfoil_surface_local(cloud_xyz, p0, n):
     )
     y_top_n, z_top_n = y[i_up], z[i_up]
     y_bot_n, z_bot_n = y[i_low], z[i_low]
-    
-    
+
     n = 10 # number of bins for camber line
     airfoil = split_fuselage_left_right_by_centerline(
         y, z, y_bot_n, z_bot_n, y_top_n, z_top_n, n
     )
-
     return airfoil, [width, height]
 
-def split_fuselage_left_right_by_centerline(y_raw, z_raw,y_bot,z_bot,y_top,z_top, n_bins):
+
+def split_fuselage_left_right_by_centerline(
+    y_raw,
+    z_raw,
+    y_bot,
+    z_bot,
+    y_top,
+    z_top,
+    n_bins
+    ):
     """
     Split fuselage cross-section into right (+y) and left (-y) sides
     using a centerline computed from max/min y per z-bin.
@@ -478,8 +481,8 @@ def split_fuselage_left_right_by_centerline(y_raw, z_raw,y_bot,z_bot,y_top,z_top
         plt.close()
         split_fuselage_left_right_by_centerline._debug_plot_saved = True
 
-    
-    N_RESAMPLE_POINTS = 60  
+
+    N_RESAMPLE_POINTS = 60
     return resample_fuselage_cpacs(
         y[right_mask], z[right_mask],
         y[left_mask],  z[left_mask],
@@ -494,30 +497,33 @@ def intersect_triangle_with_plane_point_normal(p0, n, a, b, c, tol=INTERSECT_TOL
     da = np.dot(n, a - p0); db = np.dot(n, b - p0); dc = np.dot(n, c - p0)
     pts = []
     def edge_int(p1,d1,p2,d2):
-        if abs(d1) < tol and abs(d2) < tol: #Both vertices lie on the plane
+        if abs(d1) < tol and abs(d2) < tol:
+            #Both vertices lie on the plane
             return [p1, p2]
-        if abs(d1) < tol: #One vertex on plane
+        if abs(d1) < tol:
+            #One vertex on plane
             return [p1]
-        if abs(d2) < tol: # One vertex above, one below. There is a parametric line equation P(t)=  p1 + t*(p2 - p1)
+        if abs(d2) < tol:
+            # One vertex above, one below.
+            # There is a parametric line equation P(t)=  p1 + t*(p2 - p1)
             return [p2]
         if d1 * d2 < 0:
             t = d1 / (d1 - d2)
             return [p1 + t * (p2 - p1)]
-        return [] # Edge does not intersect plane
+        # Edge does not intersect plane
+        return []
+
     pts += edge_int(a,da,b,db)
     pts += edge_int(b,db,c,dc)
     pts += edge_int(c,dc,a,da)
-    if not pts: 
+    if not pts:
         return []
     uniq = []
     for p in pts:
-        if not any(np.linalg.norm(p - q) < 1e-10 for q in uniq): #Sometimes the intersection produces duplicate points
+        if not any(np.linalg.norm(p - q) < 1e-10 for q in uniq):
+            # Sometimes the intersection produces duplicate points
             uniq.append(p)
     return uniq
-
-
-
-
 
 
 def slice_mesh_rotated_YZ(
@@ -533,13 +539,14 @@ def slice_mesh_rotated_YZ(
     Slice mesh with a plane orthogonal to local direction
     defined by dihedral.
     """
+
     # Build local direction
     a = np.deg2rad(dihedral_deg)
 
     Rx = np.array([
-        [1, 0,           0          ],
-        [0, np.cos(a),  -np.sin(a)],
-        [0, np.sin(a),   np.cos(a)]
+        [1, 0, 0],
+        [0, np.cos(a), -np.sin(a)],
+        [0, np.sin(a), np.cos(a)]
     ])
 
     RR = Rx
@@ -589,12 +596,11 @@ def slice_mesh_rotated_YZ(
     # -------------------------------------------------
     if debug:
         import matplotlib.pyplot as plt
-        from mpl_toolkits.mplot3d import Axes3D
 
         fig = plt.figure(figsize=(9, 7))
         ax = fig.add_subplot(111, projection="3d")
 
-        # Mesh 
+        # Mesh
         ax.scatter(
             pts[:, 0], pts[:, 1], pts[:, 2],
             s=1, alpha=0.1, color="gray", label="Mesh"
@@ -653,23 +659,22 @@ def slice_mesh_at_Y(pts, tris, x_plane, tol):
     """
     slicing with plane Y = y_plane
     """
+
     p0 = np.array([x_plane, 0.0, 0.0])
-    n  = np.array([1.0, 0.0, 0.0])  
+    n  = np.array([1.0, 0.0, 0.0])
     dverts = (pts - p0) @ n
     dtri = dverts[tris]
-    
-    
-    
+
     tri_min = dtri.min(axis=1)
     tri_max = dtri.max(axis=1)
-    
+
     hits = np.where((tri_min <= tol) & (tri_max >= -tol))[0]
     if hits.size == 0:
         return np.zeros((0, 3))
 
     inter = []
     for ti in hits:
-        
+
         i0, i1, i2 = tris[ti]
         ip = intersect_triangle_with_plane_point_normal(
             p0, n, pts[i0], pts[i1], pts[i2], tol
@@ -688,9 +693,6 @@ def slice_mesh_at_Y(pts, tris, x_plane, tol):
     dtype = np.dtype((np.void, key.dtype.itemsize * key.shape[1]))
     _, idx = np.unique(key.view(dtype), return_index=True)
     return arr[np.sort(idx)]
-
-
-
 
 
 def compute_local_angles_from_ref(ref_pts):
@@ -730,6 +732,7 @@ def compute_local_angles_from_ref(ref_pts):
     dihedral[-1] = dihedral[-2]
 
     return sweep, dihedral
+
 
 def insert_slices(y_vals, sweep_deg, dihedral_deg, ref_pts, n_insert):
     """
@@ -787,6 +790,7 @@ def insert_slices(y_vals, sweep_deg, dihedral_deg, ref_pts, n_insert):
 
 def compute_section_centers(clouds):
     """Return per-slice geometric centers as Nx3 array."""
+
     centers = []
     for cloud in clouds:
         if cloud.shape[0] == 0:
@@ -799,10 +803,9 @@ def compute_section_centers(clouds):
     return np.asarray(centers, dtype=float)
 
 
-
-
 def plot_profile_diagnostics(airfoil_profiles):
     """2D debug plots to identify section continuity anomalies."""
+
     if not airfoil_profiles:
         return
 
@@ -835,54 +838,47 @@ def plot_profile_diagnostics(airfoil_profiles):
 
     plt.tight_layout()
     plt.show()
+
+
 # ---------------------------
 # MAIN
 # ---------------------------
 
 
+def stl2fuselage_main(stl_file: str | Path,
+                      setting: dict,
+                      output_directory: str|Path,
+                      name: str
+                      ):
 
-
-
-
-
-
-
-
-
-
-def stl2fuselage_main(stl_file: str | Path, setting: dict,output_directory: str|Path,name: str):
-    
     tri_fname = export_mesh(output_directory,stl_file,name)
     pts, tris = parse_cart3d_tri(tri_fname)
 
-    # some initializtion 
+    # some initialization
     airfoil_profiles = []
     Fuse_Dict = {}
     per_slice_clouds = []
-    bottom_points = []   # reference point per slice (bottom point: min Z)
+    bottom_points = []
     slice_x = []
     airfoil_profiles = []
     center_prev = None
     per_slice_clouds_used = []
     base_idx = 0
-    
-    
-    # extract the setting 
+
+    # extract the setting
     EXTREME_TOL_perc_start = setting['EXTREME_TOL_perc_start']
     EXTREME_TOL_perc_end = setting['EXTREME_TOL_perc_end']
     N_X_SLICES = setting['N_X_SLICES']
     N_SLICE_ADDING = setting['N_SLICE_ADDING']
-    
+
     # build X sampling positions
     xmin, xmax = float(np.min(pts[:,0])), float(np.max(pts[:,0]))
     EXTREME_TOL_start = EXTREME_TOL_perc_start * (xmax - xmin)
     EXTREME_TOL_end = EXTREME_TOL_perc_end * (xmax - xmin)
     x_start = xmin + EXTREME_TOL_start
     x_end = xmax - EXTREME_TOL_end
-
-    
-    
     x_vals_base = np.linspace(x_start, x_end, N_X_SLICES, dtype=float)
+
     # refine in the nose and tail regions
     # Refine first and last 10% of effective fuselage length with +5 slices each.
     extra_slices = 5
@@ -897,13 +893,10 @@ def stl2fuselage_main(stl_file: str | Path, setting: dict,output_directory: str|
 
     x_vals = np.unique(np.concatenate([x_vals_base, x_nose_extra, x_tail_extra]))
 
-    
-    
-    # First slicing to get one reference point per slice (bottom point),
+    # First slicing to get one reference point per slice (bottom point)
     for i, x0 in enumerate(x_vals):
         cloud = slice_mesh_at_Y(pts, tris, x0, INTERSECT_TOL)
 
-        
         # if still empty, skip and record None
         if cloud.shape[0] == 0:
             per_slice_clouds.append(np.zeros((0,3)))
@@ -931,26 +924,19 @@ def stl2fuselage_main(stl_file: str | Path, setting: dict,output_directory: str|
         interactive=bool(setting.get("DEBUG_PLOT_INTERACTIVE", False)),
     )
 
-
-
-        
-
     # build reference-point array
     valid_idxs = [i for i, p in enumerate(bottom_points) if p is not None]
     if len(valid_idxs) < 2:
         raise RuntimeError("Too few bottom reference points found. Check mesh and N_X_SLICES.")
 
-    bottom_pts = np.vstack([bottom_points[i] for i in valid_idxs])
     per_slice_clouds_valid = [per_slice_clouds[i] for i in valid_idxs]
     center_pts = compute_section_centers(per_slice_clouds_valid)
-
-
-    # start to build the dictionary to create all the necessary informations to generate the corresponding CPACS file. 
+    # start to build the dictionary.
     Fuse_Dict["Transformation"] = {
                 "Name_type": "Fuselage",
-                "Name": name, # load the name of the stl
+                "Name": str(name),
                 "X_Rot": [0, 0, 0],
-                "Symmetry": "//", # the user must split the component and tell with a botton if he wants the symmetric part part or not 
+                "Symmetry": "//",
                 "abs_system": True,
                 "Relative_dih": 0,
                 "Relative_Twist": 0,
@@ -959,11 +945,10 @@ def stl2fuselage_main(stl_file: str | Path, setting: dict,output_directory: str|
                 "idx_engine":None,
                 "Length": xmax - xmin
             }
-    
-    # compute sweep & dihedral along section centers (per point)
+
+    # compute sweep & dihedral along section centers
     sweep_deg, dihedral_deg = compute_local_angles_from_ref(center_pts)
-    
-    # =========================================================
+
     x_vals, sweep_deg, dihedral_deg, center_pts, is_inserted = insert_slices(
         center_pts[:, 0],
         sweep_deg,
@@ -971,7 +956,6 @@ def stl2fuselage_main(stl_file: str | Path, setting: dict,output_directory: str|
         center_pts,
         N_SLICE_ADDING,
     )
-
 
     for i, x0 in enumerate(x_vals):
         center_ref = center_pts[i]
@@ -986,7 +970,6 @@ def stl2fuselage_main(stl_file: str | Path, setting: dict,output_directory: str|
             base_idx += 1
 
         per_slice_clouds_used.append(cloud)
-        
 
         # slice and rotate mesh
         cloud_rot, n_rot = slice_mesh_rotated_YZ(
@@ -1009,7 +992,7 @@ def stl2fuselage_main(stl_file: str | Path, setting: dict,output_directory: str|
         z_center = center_ref[2]
 
         # Store in Fuse_Dict
-        if i==0: 
+        if i==0:
             Fuse_Dict[f'Section{i}'] = {
                 'x_scal': 1,
                 'y_scal': round(Scaling[0], 2),
@@ -1034,7 +1017,7 @@ def stl2fuselage_main(stl_file: str | Path, setting: dict,output_directory: str|
             ]
             center_prev = (y_center, z_center)
 
-        else:            
+        else:
             Fuse_Dict[f'Section{i}'] = {
             'x_scal': 1,
             'y_scal': round(Scaling[0], 2),
@@ -1055,15 +1038,3 @@ def stl2fuselage_main(stl_file: str | Path, setting: dict,output_directory: str|
         airfoil_profiles.append(airfoil_xz)
 
     return Fuse_Dict
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    

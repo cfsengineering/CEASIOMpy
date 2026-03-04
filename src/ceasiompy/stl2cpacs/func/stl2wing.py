@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 import struct
 import matplotlib.cm as cm
 from scipy.interpolate import PchipInterpolator
-from ceasiompy.utils.exportcpacs import Export_CPACS
 from ceasiompy.stl2cpacs.stl2cpacs import export_mesh, parse_cart3d_tri, load_stl_auto
 from pathlib import Path
 
@@ -100,11 +99,10 @@ def _save_debug_stl_and_slices_plot(
 
 
 def _remove_consecutive_duplicate_points(poly, tol=1e-12):
-    
-    
     """
     Remove consecutive duplicate points in a 2xN polyline while preserving closure.
     """
+
     if poly.shape[1] <= 2:
         return poly
 
@@ -123,6 +121,7 @@ def _round_airfoil_safely(poly, pref_dec=4, max_dec=8, min_seg=1e-5):
     """
     Round airfoil coordinates for CPACS while avoiding degenerate thin geometries.
     """
+    
     base = _remove_consecutive_duplicate_points(np.asarray(poly, dtype=float), tol=1e-12)
     if base.shape[1] < 5:
         return base
@@ -200,9 +199,7 @@ def fix_airfoil_cpacs(x, z, tol_x):
     x_clean = x_clean[idx]
     z_clean = z_clean[idx]
 
-    
     return np.array(x_clean), np.array(z_clean)
-
 
 
 def resample_airfoil_cpacs(
@@ -211,7 +208,7 @@ def resample_airfoil_cpacs(
     x_te, z_te,
     x_le, z_le,
     n_points,
-    
+
 ):
     """
     Regularize an airfoil by spline-fitting upper/lower surfaces
@@ -220,12 +217,13 @@ def resample_airfoil_cpacs(
     xu, zu : array-like
         Upper surface points.
     xl, zl : array-like
-        Lower surface points .
+        Lower surface points.
     x_te, z_te : float
         Trailing edge coordinates.
     n_points : int
         Total number of points for the closed airfoil polyline.
     """
+
     use_cosine_spacing=False
     xu = np.asarray(xu)
     zu = np.asarray(zu)
@@ -235,15 +233,14 @@ def resample_airfoil_cpacs(
     # Upper: LE -> TE
     idx_u = np.argsort(xu)
     xu, zu = xu[idx_u], zu[idx_u]
-    xu[-1] = x_te  
-    zu[-1] = z_te  
-    
-    # Lower: TE -> LE 
+    xu[-1] = x_te
+    zu[-1] = z_te
+
+    # Lower: TE -> LE
     idx_l = np.argsort(xl)[::-1]
     xl, zl = xl[idx_l], zl[idx_l]
-    xl[0] = x_te   
-    zl[0] = z_te   
-
+    xl[0] = x_te
+    zl[0] = z_te
 
     # Build x-distribution on LE → TE
     n_half = n_points // 2
@@ -254,25 +251,23 @@ def resample_airfoil_cpacs(
         x_dist = np.linspace(x_le, x_te, n_half)
 
     x_dist = x_dist[1:-1]
-    # PCHIP interpolation 
+    # PCHIP interpolation
     pchip_upper = PchipInterpolator(xu, zu, extrapolate=False)
     pchip_lower = PchipInterpolator(xl[::-1], zl[::-1], extrapolate=False)
 
     z_upper = pchip_upper(x_dist)
     z_lower = pchip_lower(x_dist)
 
-    
-
-    x_u, z_u = x_dist, z_upper              # LE -> TE
-    x_l, z_l = x_dist[::-1], z_lower[::-1]  # TE -> LE
+    x_u, z_u = x_dist, z_upper
+    x_l, z_l = x_dist[::-1], z_lower[::-1]
     # CPACS order
     x_te = 1.0
     x_le = 0.0
     airfoil = np.hstack([
         np.array([[x_te], [z_te]]),
-        np.vstack([x_l, z_l]),     
+        np.vstack([x_l, z_l]),
         np.array([[x_le], [z_le]]),
-        np.vstack([x_u, z_u]),     
+        np.vstack([x_u, z_u]),
         np.array([[x_te], [z_te]])
     ])
     airfoil = _round_airfoil_safely(
@@ -300,9 +295,8 @@ def resample_airfoil_cpacs(
     return airfoil
 
 
+def extract_airfoil_surface_local(cloud_xyz, p0, n, N_BIN, TE_CUT):
 
-
-def extract_airfoil_surface_local(cloud_xyz, p0, n,N_BIN, TE_CUT):
     if cloud_xyz.shape[0] < 10:
         return np.zeros((2, 0)), 0.0
 
@@ -327,7 +321,7 @@ def extract_airfoil_surface_local(cloud_xyz, p0, n,N_BIN, TE_CUT):
     x = local[:, 0]
     z = local[:, 1]
 
-    # LE / TE detection 
+    # LE / TE detection
     i_le = np.argmin(x)
     i_te = np.argmax(x)
 
@@ -342,12 +336,11 @@ def extract_airfoil_surface_local(cloud_xyz, p0, n,N_BIN, TE_CUT):
     # Normalize ONCE
     x = (x - x_le) / chord
     z = z / chord
-    
-    
-     
-    airfoil = split_upper_lower_by_camber(x, z,N_BIN, TE_CUT)
-    
+
+    airfoil = split_upper_lower_by_camber(x, z, N_BIN, TE_CUT)
+
     return airfoil, chord
+
 
 def split_upper_lower_by_camber(x_raw, z_raw, n_bins, te_cut):
     """
@@ -374,7 +367,7 @@ def split_upper_lower_by_camber(x_raw, z_raw, n_bins, te_cut):
     x_camber = x[camber_mask]
     z_camber = z[camber_mask]
 
-    # Build coarse camber line  
+    # Build coarse camber line
     bins = np.linspace(x_le, x_te - te_cut, n_bins + 1)
 
     camber_x = [x_le]
@@ -387,26 +380,25 @@ def split_upper_lower_by_camber(x_raw, z_raw, n_bins, te_cut):
 
         x_bin = x_camber[mask]
         z_bin = z_camber[mask]
-        # inside every bin, the camber point is done using the point with the maximum z and an other one wiht the minimum z
+        # inside every bin, the camber point is done
+        # using the point with the maximum z and an other one wiht the minimum z
         i_up = np.argmax(z_bin)
         i_lo = np.argmin(z_bin)
         camber_x.append(0.5 * (x_bin[i_up] + x_bin[i_lo]))
         camber_z.append(0.5 * (z_bin[i_up] + z_bin[i_lo]))
-    
+
     camber_x = np.array(camber_x)
     camber_z = np.array(camber_z)
 
     # Interpolate camber on camber zone
     zc = np.interp(x_camber, camber_x, camber_z)
 
-    # Classification 
+    # Classification
     upper_mask = np.zeros_like(x, dtype=bool)
     lower_mask = np.zeros_like(x, dtype=bool)
 
     upper_mask[camber_mask] = z_camber > zc
     lower_mask[camber_mask] = z_camber < zc
-    
-    
 
     # Resample
     return resample_airfoil_cpacs(
@@ -420,33 +412,35 @@ def split_upper_lower_by_camber(x_raw, z_raw, n_bins, te_cut):
     )
 
 
-
 def intersect_triangle_with_plane_point_normal(p0, n, a, b, c, tol=INTERSECT_TOL):
     da = np.dot(n, a - p0); db = np.dot(n, b - p0); dc = np.dot(n, c - p0)
     pts = []
     def edge_int(p1,d1,p2,d2):
-        if abs(d1) < tol and abs(d2) < tol: #Both vertices lie on the plane
+        if abs(d1) < tol and abs(d2) < tol:
+            #Both vertices lie on the plane
             return [p1, p2]
-        if abs(d1) < tol: #One vertex on plane
+        if abs(d1) < tol:
+            #One vertex on plane
             return [p1]
-        if abs(d2) < tol: # One vertex above, one below. There is a parametric line equation P(t)=  p1 + t*(p2 - p1)
+        if abs(d2) < tol:
+            # One vertex above, one below. There is a parametric line equation P(t)=  p1 + t*(p2 - p1)
             return [p2]
         if d1 * d2 < 0:
             t = d1 / (d1 - d2)
             return [p1 + t * (p2 - p1)]
-        return [] # Edge does not intersect plane
+        # Edge does not intersect plane
+        return []
     pts += edge_int(a,da,b,db)
     pts += edge_int(b,db,c,dc)
     pts += edge_int(c,dc,a,da)
-    if not pts: 
+    if not pts:
         return []
     uniq = []
     for p in pts:
-        if not any(np.linalg.norm(p - q) < 1e-10 for q in uniq): #Sometimes the intersection produces duplicate points
+        if not any(np.linalg.norm(p - q) < 1e-10 for q in uniq):
+            # Sometimes the intersection produces duplicate points
             uniq.append(p)
     return uniq
-
-
 
 
 def slice_mesh_rotated_YZ(
@@ -456,7 +450,6 @@ def slice_mesh_rotated_YZ(
     dihedral_deg,
     sweep_deg,
     tol=INTERSECT_TOL,
-    
 ):
     """
     Slice mesh with a plane orthogonal to local span direction
@@ -465,15 +458,13 @@ def slice_mesh_rotated_YZ(
 
     # Build span direction
     a = np.deg2rad(dihedral_deg)
-    b = np.deg2rad(sweep_deg)
 
     Rx = np.array([
-        [1, 0,           0          ],
-        [0, np.cos(a),  -np.sin(a)],
-        [0, np.sin(a),   np.cos(a)]
+        [1, 0, 0],
+        [0, np.cos(a), -np.sin(a)],
+        [0, np.sin(a), np.cos(a)]
     ])
 
-    #  
     RR = Rx 
 
     e_span = RR @ np.array([0.0, 1.0, 0.0])
@@ -516,32 +507,28 @@ def slice_mesh_rotated_YZ(
     _, idx = np.unique(key.view(dtype), return_index=True)
     arr = arr[np.sort(idx)]
 
-    
-
     return arr, e_span
 
 
 def slice_mesh_at_Y(pts, tris, y_plane, tol):
     """
-    slicing with plane Y = y_plane
+    Slicing with plane Y = y_plane
     """
+    
     p0 = np.array([0.0, y_plane, 0.0])
-    n  = np.array([0.0, 1.0, 0.0])  
+    n  = np.array([0.0, 1.0, 0.0])
     dverts = (pts - p0) @ n
     dtri = dverts[tris]
-    
-    
-    
     tri_min = dtri.min(axis=1)
     tri_max = dtri.max(axis=1)
-    
+
     hits = np.where((tri_min <= tol) & (tri_max >= -tol))[0]
     if hits.size == 0:
         return np.zeros((0, 3))
 
     inter = []
     for ti in hits:
-        
+
         i0, i1, i2 = tris[ti]
         ip = intersect_triangle_with_plane_point_normal(
             p0, n, pts[i0], pts[i1], pts[i2], tol
@@ -560,9 +547,6 @@ def slice_mesh_at_Y(pts, tris, y_plane, tol):
     dtype = np.dtype((np.void, key.dtype.itemsize * key.shape[1]))
     _, idx = np.unique(key.view(dtype), return_index=True)
     return arr[np.sort(idx)]
-
-
-
 
 
 def compute_local_angles_from_le(le_pts):
@@ -589,18 +573,19 @@ def compute_local_angles_from_le(le_pts):
         if abs(dy) < 1e-12:
             sweep[i] = 0
         else:
-            sweep[i] = np.round((np.rint(np.degrees(np.arctan(dx / np.sqrt(dy**2 + dz**2))))),WING_ANGLE_DECIMALS)  
+            sweep[i] = np.round((np.rint(np.degrees(np.arctan(dx / np.sqrt(dy**2 + dz**2))))),WING_ANGLE_DECIMALS)
         # ---- DIHEDRAL: YZ projection ----
         if abs(dy) < 1e-12:
             dihedral[i] = 0
         else:
             dihedral[i] = np.round((np.rint(np.degrees(np.arctan(dz / dy)))),WING_ANGLE_DECIMALS)
 
-    # copy last value 
+    # copy last value
     sweep[-1] = sweep[-2]
     dihedral[-1] = dihedral[-2]
 
     return sweep, dihedral
+
 
 def filter_and_insert(y_vals, sweep_deg, dihedral_deg, le_pts, n_insert):
     """
@@ -667,8 +652,8 @@ def filter_and_insert(y_vals, sweep_deg, dihedral_deg, le_pts, n_insert):
         np.array(dihedral_out, dtype=float),
         np.array(le_out),
     )
-    
-    
+
+
 def rotate_vertical_tail(stl_file):
     """Rotate STL 90 deg around X while keeping the lowest point fixed."""
 
@@ -676,7 +661,7 @@ def rotate_vertical_tail(stl_file):
     if not stl_path.exists():
         raise FileNotFoundError(f"STL file not found: {stl_path}")
 
-    tris = load_stl_auto(str(stl_path)).astype(float)  # (N, 3, 3)
+    tris = load_stl_auto(str(stl_path)).astype(float)
     if tris.size == 0:
         return str(stl_path)
 
@@ -686,7 +671,6 @@ def rotate_vertical_tail(stl_file):
     # so the geometry does not drift in space after rotation.
     pivot = pts[int(np.argmin(pts[:, 2]))].copy()
 
-    # Rx(-90deg): x' = x, y' = z, z' = -y
     rot_x_neg_90 = np.array(
         [
             [1.0, 0.0, 0.0],
@@ -721,28 +705,35 @@ def rotate_vertical_tail(stl_file):
 
     return str(out_path)
 
+
 # ---------------------------
 # MAIN
 # ---------------------------
-def stl2wing_main(stl_file: str | Path, setting: dict,output_directory: str|Path,name: str):
-    
+
+
+def stl2wing_main(
+    stl_file: str | Path,
+    setting: dict,
+    output_directory: str|Path,
+    name: str):
+
     if setting['vertical_tail']:
         stl_file = rotate_vertical_tail(stl_file)
     tri_fname = export_mesh(output_directory,stl_file,name)
     pts, tris = parse_cart3d_tri(tri_fname)
 
-    # some initializtion 
+    # some initialization
     airfoil_profiles = []
     Wing_Dict = {}
     per_slice_clouds = []
     per_slice_clouds_rotate = []
-    le_points = []   
+    le_points = []
     le_y = []
     summary_rows = []
     per_slice_clouds_rotate = []
     airfoil_profiles = []
 
-    # extract the setting 
+    # extract the setting
     EXTREME_TOL_perc_start = setting['EXTREME_TOL_perc_start']
     EXTREME_TOL_perc_end = setting['EXTREME_TOL_perc_end']
     N_Y_SLICES = setting['N_Y_SLICES']
@@ -755,12 +746,10 @@ def stl2wing_main(stl_file: str | Path, setting: dict,output_directory: str|Path
     EXTREME_TOL_end = EXTREME_TOL_perc_end * (ymax - ymin)
     y_vals = np.linspace(ymin + EXTREME_TOL_start, ymax - EXTREME_TOL_end, N_Y_SLICES)
 
-    
-    # First slicing to get the LE points,
+    # First slicing to get the LE points
     for i, y0 in enumerate(y_vals):
         cloud = slice_mesh_at_Y(pts, tris, y0, INTERSECT_TOL)
 
-        
         # if still empty, skip and record None
         if cloud.shape[0] == 0:
             per_slice_clouds.append(np.zeros((0,3)))
@@ -786,20 +775,22 @@ def stl2wing_main(stl_file: str | Path, setting: dict,output_directory: str|Path
         name=name,
     )
 
-    # build LE array 
+    # build LE array
     valid_idxs = [i for i, p in enumerate(le_points) if p is not None]
     if len(valid_idxs) < 2:
         raise RuntimeError("Too few LE points found. Check mesh and N_Y_SLICES.")
 
     le_pts = np.vstack([le_points[i] for i in valid_idxs])
 
-    # start to build the dictionary to create all the necessary informations to generate the corresponding CPACS file. 
+    # start to build the dictionary to create all
+    # the necessary informations to generate the corresponding CPACS file.
+
     Wing_Dict["Transformation"] = {
                 "Name_type": "Wing",
-                "Name": f"{name}", # load the name of the stl
+                "Name": f"{name}", 
                 "X_Rot": [90, 0, 0] if setting['vertical_tail'] else [0, 0, 0],
                 "X_Trasl":le_pts[0],
-                "Symmetry": "",  
+                "Symmetry": "",
                 "abs_system": True,
                 "Relative_dih": 0,
                 "Relative_Twist": 0,
@@ -807,21 +798,16 @@ def stl2wing_main(stl_file: str | Path, setting: dict,output_directory: str|Path
                 "reference_length": 0,
                 "idx_engine":None
             }
-    
-    
-    
-    
-    
-    
+
     # compute sweep & dihedral along LE (per point)
     sweep_deg, dihedral_deg = compute_local_angles_from_le(le_pts)
 
     # =========================================================
     y_vals = le_pts[:,1].copy()
-    # filter y_vals . 
+    # filter y_vals
     y_vals,sweep_deg,dihedral_deg,le_pts = filter_and_insert(y_vals, sweep_deg, dihedral_deg,le_pts, N_SLICE_ADDING)
     # slice with plane that are rotated by the dihedral angle.
-    
+
     for i, y0 in enumerate(y_vals):
         if le_pts[i] is None:
             per_slice_clouds_rotate.append(np.zeros((0,3)))
@@ -840,7 +826,7 @@ def stl2wing_main(stl_file: str | Path, setting: dict,output_directory: str|Path
             tol=INTERSECT_TOL
         )
         per_slice_clouds_rotate.append(cloud_rot)
-        
+
         airfoil_xz, chord = extract_airfoil_surface_local(
             cloud_rot,
             p0=lep,
@@ -848,12 +834,9 @@ def stl2wing_main(stl_file: str | Path, setting: dict,output_directory: str|Path
             N_BIN = N_BIN,
             TE_CUT= TE_CUT,
         )
-        
-
- 
 
         # Store in Wing_Dict
-        if i==0: 
+        if i==0:
             Wing_Dict[f'Section{i}'] = {
                 'x_scal': round(chord, WING_CHORD_SCALE_DECIMALS),
                 'y_scal': 1,
@@ -866,30 +849,26 @@ def stl2wing_main(stl_file: str | Path, setting: dict,output_directory: str|Path
                 'Sweep_angle': round(float(sweep_deg[i]), WING_ANGLE_DECIMALS),
                 'Dihedral_angle': round(float(dihedral_deg[i]), WING_ANGLE_DECIMALS)
             }
-            
-        else:      
+
+        else:
             Wing_Dict[f'Section{i}'] = {
-            'x_scal': round(chord, WING_CHORD_SCALE_DECIMALS),
-            'y_scal': 1,
-            'z_scal': round(chord, WING_CHORD_SCALE_DECIMALS),
-            'x_trasl': 0,
-            'Span': abs((y_vals[i]-y_vals[i-1])/np.cos(np.deg2rad(dihedral_deg[i]))),
-            'Airfoil': 'Airfoil',
-            'Airfoil_coordinates': airfoil_xz,
-            'Sweep_loc': 0,
-            'Sweep_angle': round(float(sweep_deg[i]), WING_ANGLE_DECIMALS),
-            'Dihedral_angle': round(float(dihedral_deg[i]), WING_ANGLE_DECIMALS)
+                'x_scal': round(chord, WING_CHORD_SCALE_DECIMALS),
+                'y_scal': 1,
+                'z_scal': round(chord, WING_CHORD_SCALE_DECIMALS),
+                'x_trasl': 0,
+                'Span': abs((y_vals[i]-y_vals[i-1])/np.cos(np.deg2rad(dihedral_deg[i]))),
+                'Airfoil': 'Airfoil',
+                'Airfoil_coordinates': airfoil_xz,
+                'Sweep_loc': 0,
+                'Sweep_angle': round(float(sweep_deg[i]), WING_ANGLE_DECIMALS),
+                'Dihedral_angle': round(float(dihedral_deg[i]), WING_ANGLE_DECIMALS)
             }
 
         airfoil_profiles.append(airfoil_xz)
 
-    # eliminate the rotate vertical tail stl file if present 
+    # eliminate the rotate vertical tail stl file if present
     if setting['vertical_tail']:
         os.remove(stl_file)
-        
-        
+
     return Wing_Dict
 
-    
-    
-    

@@ -104,7 +104,6 @@ def _save_debug_stl_and_slices_plot(
     fig.savefig(debug_path, dpi=200)
     if interactive:
         plt.show()
-    print(f"Saved debug plot: {debug_path}")
     plt.close(fig)
 
 
@@ -853,7 +852,6 @@ def plot_profile_diagnostics(airfoil_profiles):
 
 def stl2fuselage_main(stl_file: str | Path, setting: dict,output_directory: str|Path,name: str):
     
-    print("Start: importing fuselage stl file ... ")
     tri_fname = export_mesh(output_directory,stl_file,name)
     pts, tris = parse_cart3d_tri(tri_fname)
 
@@ -908,7 +906,6 @@ def stl2fuselage_main(stl_file: str | Path, setting: dict,output_directory: str|
         
         # if still empty, skip and record None
         if cloud.shape[0] == 0:
-            print(f"Slice {i}: no points found at y={x0:.6g}")
             per_slice_clouds.append(np.zeros((0,3)))
             bottom_points.append(None)
             slice_x.append(x0)
@@ -951,7 +948,7 @@ def stl2fuselage_main(stl_file: str | Path, setting: dict,output_directory: str|
     # start to build the dictionary to create all the necessary informations to generate the corresponding CPACS file. 
     Fuse_Dict["Transformation"] = {
                 "Name_type": "Fuselage",
-                "Name": "Fuse", # load the name of the stl
+                "Name": name, # load the name of the stl
                 "X_Rot": [0, 0, 0],
                 "Symmetry": "//", # the user must split the component and tell with a botton if he wants the symmetric part part or not 
                 "abs_system": True,

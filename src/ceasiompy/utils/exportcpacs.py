@@ -563,7 +563,6 @@ def Wing_to_CPACS(
 
     # ---- keys of the dictionary( number of sections, trasformation of the main wing...) ----#
     keys = list(WingData.keys())
-    print('keys are', keys)
     Name_wing = WingData[keys[0]]['Name']
 
     # <wings>
@@ -589,7 +588,6 @@ def Wing_to_CPACS(
     sections = make(doc,'sections',wing)
 
     for Section_key in keys[1:]:
-        print('Section-----', Section_key)
         # <section>f'{Name_wing}Sec{Section_key[-1]}'
         Wing_section(
             doc, sections, Name_wing, Section_key, WingData)

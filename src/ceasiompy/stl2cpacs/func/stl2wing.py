@@ -97,7 +97,6 @@ def _save_debug_stl_and_slices_plot(
     ax.axis('equal')
     fig.savefig(debug_path, dpi=200)
     plt.close(fig)
-    print(f"Saved debug plot: {debug_path}")
 
 
 def _remove_consecutive_duplicate_points(poly, tol=1e-12):
@@ -727,7 +726,6 @@ def rotate_vertical_tail(stl_file):
 # ---------------------------
 def stl2wing_main(stl_file: str | Path, setting: dict,output_directory: str|Path,name: str):
     
-    print("Start: importing wing stl file ... ")
     if setting['vertical_tail']:
         stl_file = rotate_vertical_tail(stl_file)
     tri_fname = export_mesh(output_directory,stl_file,name)
@@ -765,7 +763,6 @@ def stl2wing_main(stl_file: str | Path, setting: dict,output_directory: str|Path
         
         # if still empty, skip and record None
         if cloud.shape[0] == 0:
-            print(f"Slice {i}: no points found at y={y0:.6g}")
             per_slice_clouds.append(np.zeros((0,3)))
             le_points.append(None)
             le_y.append(y0)

@@ -725,15 +725,17 @@ def _section_stl_to_cpacs():
                             min_value=0.0,
                             max_value=1.0,
                             format="%.4f",
+                            help="Fraction of span removed at the root side start before slicing.",
                             key=f"stl_component_adv_extreme_tol_start_{idx}",
                         )
                     )
                     setting_dict["N_Y_SLICES"] = int(
                         st.number_input(
                             "Slices",
-                            value=50,
+                            value=500,
                             min_value=2,
                             step=1,
+                            help="Number of spanwise slicing planes for wing extraction.",
                             key=f"stl_component_adv_n_y_slices_{idx}",
                         )
                     )
@@ -745,6 +747,7 @@ def _section_stl_to_cpacs():
                             min_value=0.0,
                             max_value=1.0,
                             format="%.4f",
+                            help="Fraction of span removed at the tip side end before slicing.",
                             key=f"stl_component_adv_extreme_tol_end_{idx}",
                         )
                     )
@@ -754,6 +757,7 @@ def _section_stl_to_cpacs():
                             value=0,
                             min_value=0,
                             step=1,
+                            help="Extra interpolated sections inserted where local angles change.",
                             key=f"stl_component_adv_n_slice_adding_{idx}",
                         )
                     )
@@ -765,7 +769,7 @@ def _section_stl_to_cpacs():
                             min_value=0.0,
                             max_value=0.5,
                             format="%.4f",
-                            help="Description of TE_CUT",
+                            help="Trailing-edge trim ratio applied on each extracted airfoil. Increase if there are oscillations on the CPACS in the TE region.",
                             key=f"stl_component_adv_te_cut_{idx}",
                         )
                     )
@@ -775,6 +779,7 @@ def _section_stl_to_cpacs():
                             value=10,
                             min_value=3,
                             step=1,
+                            help="Bins used to split the section cloud into upper/lower surfaces. Increase if you have a very refined profile with sharp features, or if you have oscillations on the CPACS airfoil.",
                             key=f"stl_component_adv_n_bin_{idx}",
                         )
                     )
@@ -788,15 +793,17 @@ def _section_stl_to_cpacs():
                             min_value=0.0,
                             max_value=1.0,
                             format="%.4f",
+                            help="Fraction of fuselage length removed at the nose side start before slicing.",
                             key=f"stl_component_adv_extreme_tol_start_{idx}",
                         )
                     )
                     setting_dict["N_X_SLICES"] = int(
                         st.number_input(
                             "N_X_SLICES",
-                            value=50,
+                            value=100,
                             min_value=2,
                             step=1,
+                            help="Numbers of slicing planes for fuselage extraction.",
                             key=f"stl_component_adv_n_x_slices_{idx}",
                         )
                     )
@@ -808,6 +815,7 @@ def _section_stl_to_cpacs():
                             min_value=0.0,
                             max_value=1.0,
                             format="%.4f",
+                            help="Fraction of fuselage length removed at the tail side end before slicing.",
                             key=f"stl_component_adv_extreme_tol_end_{idx}",
                         )
                     )
@@ -817,6 +825,7 @@ def _section_stl_to_cpacs():
                             value=0,
                             min_value=0,
                             step=1,
+                            help="Extra interpolated fuselage sections inserted at angle transitions.",
                             key=f"stl_component_adv_n_slice_adding_{idx}",
                         )
                     )

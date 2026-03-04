@@ -408,7 +408,12 @@ def section_3d_view(
 
     try:
         pv_mesh = pv.read(str(vtp_file))
-        surface = pv_mesh.extract_surface(algorithm="dataset_surface").triangulate().clean()
+        try:
+            surface = pv_mesh.extract_surface(algorithm="dataset_surface")
+        except TypeError:
+            # Older PyVista versions do not support the "algorithm" keyword.
+            surface = pv_mesh.extract_surface()
+        surface = surface.triangulate().clean()
         surface = surface.compute_normals()
     except Exception as exc:
         st.error(f"Failed to read generated preview mesh for 3D view: {exc}")
@@ -467,8 +472,7 @@ def section_3d_view(
         scene=dict(
             aspectmode="data",
             xaxis=dict(
-                title="X",
-                titlefont=dict(color="black"),
+                title=dict(text="X", font=dict(color="black")),
                 tickfont=dict(color="black"),
                 range=[x_min, x_max],
                 tickmode="array",
@@ -479,8 +483,7 @@ def section_3d_view(
                 backgroundcolor="white",
             ),
             yaxis=dict(
-                title="Y" if show_yaxis else "",
-                titlefont=dict(color="black"),
+                title=dict(text="Y" if show_yaxis else "", font=dict(color="black")),
                 tickfont=dict(color="black"),
                 range=[y_min, y_max] if show_yaxis else [0.0, 0.0],
                 tickmode="array",
@@ -493,8 +496,7 @@ def section_3d_view(
                 backgroundcolor="white",
             ),
             zaxis=dict(
-                title="Z",
-                titlefont=dict(color="black"),
+                title=dict(text="Z", font=dict(color="black")),
                 tickfont=dict(color="black"),
                 range=[z_min, z_max],
                 tickmode="array",

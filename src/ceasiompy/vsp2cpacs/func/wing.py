@@ -857,10 +857,15 @@ def get_coord_from_file(xsec_id, n):
     Reads upper and lower surface points from the selected x-section, merges them
     into a closed profile, and returns the coordinates along with the section name
     and chord scaling.
+<<<<<<< HEAD:src/ceasiompy/VSP2CPACS/func/wing.py
+    """
+    geom_parm = get_params_by_name(xsec_id,['Chord','ThickChord','BaseThickChord'])
+=======
 """
     geom_parm = get_params_by_name(xsec_id,['Chord','ThickChord','BaseThickChord'])
 
     # Name
+>>>>>>> origin/main:src/ceasiompy/vsp2cpacs/func/wing.py
     Name = vsp.GetXSecCurveAlias(xsec_id).replace(' ','_')
 
     # import the points
@@ -869,9 +874,14 @@ def get_coord_from_file(xsec_id, n):
     upper_coords = np.array([[p.x(), p.y(), p.z()] for p in upper_pts])
     lower_coords = np.array([[p.x(), p.y(), p.z()] for p in lower_pts])
 
+<<<<<<< HEAD:src/ceasiompy/VSP2CPACS/func/wing.py
+    x_u, y_u = upper_coords[:, 0], upper_coords[:, 1]
+    x_l, y_l = lower_coords[:, 0], lower_coords[:, 1] 
+=======
 
     x_u, y_u = upper_coords[:,0], upper_coords[:,1]
     x_l, y_l = lower_coords[:,0], lower_coords[:,1]
+>>>>>>> origin/main:src/ceasiompy/vsp2cpacs/func/wing.py
 
     x = np.concatenate((x_l[::-1], x_u), axis=0)
     y = np.concatenate((y_l[::-1], y_u), axis=0) * (geom_parm['ThickChord']/geom_parm['BaseThickChord'])
@@ -1181,10 +1191,15 @@ def Get_coordinates_profile(idx, *args, **kwargs):
     the trailing edge.
 
     """
-
+    breakpoint()
     Airfoil_name_type = vsp.GetXSecShape(idx)
+<<<<<<< HEAD:src/ceasiompy/VSP2CPACS/func/wing.py
+    print(Airfoil_name_type)
+    func = profile_mapping[Airfoil_name_type]
+=======
     func = profile_mapping()[Airfoil_name_type]
     print(f'Working with {idx}')
+>>>>>>> origin/main:src/ceasiompy/vsp2cpacs/func/wing.py
     try:
         return func(idx, *args, **kwargs)
     except TypeError:
@@ -1196,8 +1211,12 @@ def Get_coordinates_profile(idx, *args, **kwargs):
 def get_profile_section(Component,xsec_id, idx, Twist_val, Twist_loc, Rel, Twist_list):
 
     # Tess_W control how many points you need to define the shape of the profile
+<<<<<<< HEAD:src/ceasiompy/VSP2CPACS/func/wing.py
+    Tess_W = int(vsp.GetParmVal(Component, "Tess_W", "Shape"))
+=======
     Tess_W = int(vsp.GetParmVal(Component,'Tess_W','Shape'))
 
+>>>>>>> origin/main:src/ceasiompy/vsp2cpacs/func/wing.py
     # get profile
     x, y, Airfoil_name,Scaling,shift = Get_coordinates_profile(xsec_id,Tess_W)
 
@@ -1234,6 +1253,12 @@ def get_profile_section(Component,xsec_id, idx, Twist_val, Twist_loc, Rel, Twist
             Coord_rot = np.dot(RotationMatrix, Coord_shift) + Origin_shift
             x = Coord_rot[0, :]
             y = Coord_rot[1, :]
+    
+    # LE duplicates from twist part. 
+    zero_idx = np.where(np.isclose(x, 0.0, atol=1e-12))[0]
+    if len(zero_idx) > 1:
+        x = np.delete(x, zero_idx[1:])
+        y = np.delete(y, zero_idx[1:])
 
 
     zero_idx = np.where(np.isclose(x, 0.0, atol=1e-12))[0]

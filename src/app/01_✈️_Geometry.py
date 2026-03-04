@@ -652,7 +652,10 @@ def _section_stl_to_cpacs():
 
     split_dir = st.session_state.get("last_split_components_dir")
     if split_dir and Path(split_dir).exists():
-        _show_split_components_mesh(split_dir, key="stl_viewer_split", show_wireframe=wireframe_view)
+        _show_split_components_mesh(split_dir,
+                                    key="stl_viewer_split",
+                                    show_wireframe=wireframe_view
+                                    )
     else:
         _show_stl_mesh(str(uploaded_path), key="stl_viewer", show_wireframe=wireframe_view)
 
@@ -674,7 +677,6 @@ def _section_stl_to_cpacs():
                 st.rerun()
             except Exception as exc:
                 st.error(f"STL split failed: {exc}")
-
 
     # 4. Convert to CPACS using automatic component detection
     st.markdown("#### Convert to CPACS")
@@ -773,7 +775,7 @@ def _section_stl_to_cpacs():
                             max_value=0.5,
                             format="%.4f",
                             help=("Trailing-edge trim ratio applied on each extracted airfoil.",
-                                  " Increase if there are oscillations on the CPACS in the TE region."),
+                                  " Increase if there are oscillations in the TE region."),
                             key=f"stl_component_adv_te_cut_{idx}",
                         )
                     )
@@ -783,8 +785,8 @@ def _section_stl_to_cpacs():
                             value=10,
                             min_value=3,
                             step=1,
-                            help=("Bins used to split the section cloud into upper/lower surfaces.",
-                                  " Increase if you have a very refined profile with sharp features,",
+                            help=("Bins used to split the cloud into upper/lower surfaces.",
+                                  " Increase if you have a refined profile with sharp features,",
                                   " or if you have oscillations on the CPACS airfoil."),
                             key=f"stl_component_adv_n_bin_{idx}",
                         )
@@ -799,7 +801,7 @@ def _section_stl_to_cpacs():
                             min_value=0.0,
                             max_value=1.0,
                             format="%.4f",
-                            help="Fraction of fuselage length removed at the nose side start before slicing.",
+                            help="Fraction of fuselage length removed at the nose before slicing.",
                             key=f"stl_component_adv_extreme_tol_start_{idx}",
                         )
                     )
@@ -821,7 +823,7 @@ def _section_stl_to_cpacs():
                             min_value=0.0,
                             max_value=1.0,
                             format="%.4f",
-                            help="Fraction of fuselage length removed at the tail side end before slicing.",
+                            help="Fraction of fuselage length removed at the tail before slicing.",
                             key=f"stl_component_adv_extreme_tol_end_{idx}",
                         )
                     )
@@ -831,7 +833,7 @@ def _section_stl_to_cpacs():
                             value=0,
                             min_value=0,
                             step=1,
-                            help="Extra interpolated fuselage sections inserted at angle transitions.",
+                            help="Extra interpolated sections inserted at angle transitions.",
                             key=f"stl_component_adv_n_slice_adding_{idx}",
                         )
                     )
@@ -854,7 +856,7 @@ def _section_stl_to_cpacs():
             failed_components = conversion_report.get("failed", [])
             if failed_components:
                 st.warning(
-                    f"{len(failed_components)} component(s) could not be converted and were skipped."
+                    f"{len(failed_components)} component could not be converted and were skipped."
                 )
                 for comp in failed_components:
                     st.caption(
@@ -867,6 +869,7 @@ def _section_stl_to_cpacs():
     return st.session_state.get("cpacs")
 
 # Functions
+
 
 def section_select_cpacs() -> None:
     wkdir = get_wkdir()

@@ -21,6 +21,7 @@ DUPLICATE_YZ_TOL = 1e-8
 #   FUNCTIONS
 # =================================================================================================
 
+
 def _save_debug_stl_and_slices_plot(
     pts: np.ndarray,
     tris: np.ndarray,
@@ -28,7 +29,7 @@ def _save_debug_stl_and_slices_plot(
     ref_points: list[np.ndarray | None],
     output_directory: str | Path,
     name: str,
-    view_elev: float =0 ,
+    view_elev: float = 0,
     view_azim: float = 0.0,
     interactive: bool = False,
 ) -> None:
@@ -44,7 +45,7 @@ def _save_debug_stl_and_slices_plot(
     ax = fig.add_subplot(111, projection="3d")
 
     if tris.shape[0] > 0:
-        
+
         tris_plot = tris
         ax.plot_trisurf(
             pts[:, 0],
@@ -160,7 +161,7 @@ def resample_fuselage_cpacs(
     # 2) Build splines
     # -------------------------------------------------
     pchip_right = PchipInterpolator(zr_s, yr_s, extrapolate=False)
-    pchip_left  = PchipInterpolator(zl_s, yl_s, extrapolate=False)
+    pchip_left = PchipInterpolator(zl_s, yl_s, extrapolate=False)
 
     # -------------------------------------------------
     # 3) Build z distribution
@@ -180,7 +181,7 @@ def resample_fuselage_cpacs(
     # 4) Evaluate splines
     # -------------------------------------------------
     y_right = pchip_right(z_mid)
-    y_left  = pchip_left(z_mid)
+    y_left = pchip_left(z_mid)
 
     # Enforce strict side ordering at each z:
     # first branch is always +y side, second branch always -y side.
@@ -265,7 +266,6 @@ def find_top_bottom_near_centerline(y, z, y_tol_frac=0.08, z_band_frac=0.02):
     if np.count_nonzero(center_mask) < 2:
         center_mask = np.ones_like(y, dtype=bool)
 
-    yc = y[center_mask]
     zc = z[center_mask]
 
     # 2) raw top and bottom in center subset
@@ -296,7 +296,6 @@ def find_top_bottom_near_centerline(y, z, y_tol_frac=0.08, z_band_frac=0.02):
 def extract_airfoil_surface_local(cloud_xyz, p0, n):
     if cloud_xyz.shape[0] < 10:
         return np.zeros((2, 0)), 0.0
-
 
     # -------------------------------------------------
     # Define local in-plane basis (Y, Z)
@@ -330,7 +329,6 @@ def extract_airfoil_surface_local(cloud_xyz, p0, n):
 
     width = y_te - y_le
     height = z_up - z_low
-
 
     if width <= 1e-8 or height <= 1e-8:
         return np.zeros((2, 0)), 0.0
@@ -372,7 +370,7 @@ def extract_airfoil_surface_local(cloud_xyz, p0, n):
     y_top_n, z_top_n = y[i_up], z[i_up]
     y_bot_n, z_bot_n = y[i_low], z[i_low]
 
-    n = 10 # number of bins for camber line
+    n = 10  # number of bins for camber line
     airfoil = split_fuselage_left_right_by_centerline(
         y, z, y_bot_n, z_bot_n, y_top_n, z_top_n, n
     )
@@ -387,7 +385,7 @@ def split_fuselage_left_right_by_centerline(
     y_top,
     z_top,
     n_bins
-    ):
+):
     """
     Split fuselage cross-section into right (+y) and left (-y) sides
     using a centerline computed from max/min y per z-bin.
@@ -445,11 +443,11 @@ def split_fuselage_left_right_by_centerline(
 
     # --- Classification (excluding extrema) ---
     right_mask_mid = y_mid > y_center_mid
-    left_mask_mid  = y_mid < y_center_mid
+    left_mask_mid = y_mid < y_center_mid
 
     # --- Rebuild full masks ---
     right_mask = np.zeros(len(y), dtype=bool)
-    left_mask  = np.zeros(len(y), dtype=bool)
+    left_mask = np.zeros(len(y), dtype=bool)
 
     right_mask[np.where(mask_mid)[0][right_mask_mid]] = True
     left_mask[np.where(mask_mid)[0][left_mask_mid]] = True
@@ -481,7 +479,6 @@ def split_fuselage_left_right_by_centerline(
         plt.close()
         split_fuselage_left_right_by_centerline._debug_plot_saved = True
 
-
     N_RESAMPLE_POINTS = 60
     return resample_fuselage_cpacs(
         y[right_mask], z[right_mask],
@@ -494,14 +491,17 @@ def split_fuselage_left_right_by_centerline(
 
 
 def intersect_triangle_with_plane_point_normal(p0, n, a, b, c, tol=INTERSECT_TOL):
-    da = np.dot(n, a - p0); db = np.dot(n, b - p0); dc = np.dot(n, c - p0)
+    da = np.dot(n, a - p0)
+    db = np.dot(n, b - p0)
+    dc = np.dot(n, c - p0)
     pts = []
-    def edge_int(p1,d1,p2,d2):
+
+    def edge_int(p1, d1, p2, d2):
         if abs(d1) < tol and abs(d2) < tol:
-            #Both vertices lie on the plane
+            # Both vertices lie on the plane
             return [p1, p2]
         if abs(d1) < tol:
-            #One vertex on plane
+            # One vertex on plane
             return [p1]
         if abs(d2) < tol:
             # One vertex above, one below.
@@ -513,9 +513,9 @@ def intersect_triangle_with_plane_point_normal(p0, n, a, b, c, tol=INTERSECT_TOL
         # Edge does not intersect plane
         return []
 
-    pts += edge_int(a,da,b,db)
-    pts += edge_int(b,db,c,dc)
-    pts += edge_int(c,dc,a,da)
+    pts += edge_int(a, da, b, db)
+    pts += edge_int(b, db, c, dc)
+    pts += edge_int(c, dc, a, da)
     if not pts:
         return []
     uniq = []
@@ -661,7 +661,7 @@ def slice_mesh_at_Y(pts, tris, x_plane, tol):
     """
 
     p0 = np.array([x_plane, 0.0, 0.0])
-    n  = np.array([1.0, 0.0, 0.0])
+    n = np.array([1.0, 0.0, 0.0])
     dverts = (pts - p0) @ n
     dtri = dverts[tris]
 
@@ -727,7 +727,7 @@ def compute_local_angles_from_ref(ref_pts):
         else:
             dihedral[i] = int(np.rint(np.degrees(np.arctan2(dz, dx))))
 
-    # copy last value 
+    # copy last value
     sweep[-1] = sweep[-2]
     dihedral[-1] = dihedral[-2]
 
@@ -847,11 +847,11 @@ def plot_profile_diagnostics(airfoil_profiles):
 
 def stl2fuselage_main(stl_file: str | Path,
                       setting: dict,
-                      output_directory: str|Path,
+                      output_directory: str | Path,
                       name: str
                       ):
 
-    tri_fname = export_mesh(output_directory,stl_file,name)
+    tri_fname = export_mesh(output_directory, stl_file, name)
     pts, tris = parse_cart3d_tri(tri_fname)
 
     # some initialization
@@ -872,7 +872,7 @@ def stl2fuselage_main(stl_file: str | Path,
     N_SLICE_ADDING = setting['N_SLICE_ADDING']
 
     # build X sampling positions
-    xmin, xmax = float(np.min(pts[:,0])), float(np.max(pts[:,0]))
+    xmin, xmax = float(np.min(pts[:, 0])), float(np.max(pts[:, 0]))
     EXTREME_TOL_start = EXTREME_TOL_perc_start * (xmax - xmin)
     EXTREME_TOL_end = EXTREME_TOL_perc_end * (xmax - xmin)
     x_start = xmin + EXTREME_TOL_start
@@ -899,7 +899,7 @@ def stl2fuselage_main(stl_file: str | Path,
 
         # if still empty, skip and record None
         if cloud.shape[0] == 0:
-            per_slice_clouds.append(np.zeros((0,3)))
+            per_slice_clouds.append(np.zeros((0, 3)))
             bottom_points.append(None)
             slice_x.append(x0)
             continue
@@ -936,13 +936,13 @@ def stl2fuselage_main(stl_file: str | Path,
                 "Name_type": "Fuselage",
                 "Name": str(name),
                 "X_Rot": [0, 0, 0],
-                "Symmetry": "//",
+                "Symmetry": "",
                 "abs_system": True,
                 "Relative_dih": 0,
                 "Relative_Twist": 0,
                 "ParentUid": 0,
                 "reference_length": 0,
-                "idx_engine":None,
+                "idx_engine": None,
                 "Length": xmax - xmin
             }
 
@@ -992,7 +992,7 @@ def stl2fuselage_main(stl_file: str | Path,
         z_center = center_ref[2]
 
         # Store in Fuse_Dict
-        if i==0:
+        if i == 0:
             Fuse_Dict[f'Section{i}'] = {
                 'x_scal': 1,
                 'y_scal': round(Scaling[0], 2),
@@ -1019,20 +1019,20 @@ def stl2fuselage_main(stl_file: str | Path,
 
         else:
             Fuse_Dict[f'Section{i}'] = {
-            'x_scal': 1,
-            'y_scal': round(Scaling[0], 2),
-            'z_scal': round(Scaling[1], 2),
-            'x_loc': x0-x_start,
-            'y_trasl': y_center - center_prev[0],
-            'z_trasl': z_center - center_prev[1],
-            'x_rot': 0,
-            'y_rot': 0,
-            'z_rot': 0,
-            'Airfoil': 'Airfoil',
-            'Airfoil_coordinates': airfoil_xz,
-            'Sweep_loc': 0,
-            'Sweep_angle': 0,
-            'Dihedral_angle': 0
+                'x_scal': 1,
+                'y_scal': round(Scaling[0], 2),
+                'z_scal': round(Scaling[1], 2),
+                'x_loc': x0-x_start,
+                'y_trasl': y_center - center_prev[0],
+                'z_trasl': z_center - center_prev[1],
+                'x_rot': 0,
+                'y_rot': 0,
+                'z_rot': 0,
+                'Airfoil': 'Airfoil',
+                'Airfoil_coordinates': airfoil_xz,
+                'Sweep_loc': 0,
+                'Sweep_angle': 0,
+                'Dihedral_angle': 0
             }
 
         airfoil_profiles.append(airfoil_xz)

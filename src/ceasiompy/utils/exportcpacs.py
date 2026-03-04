@@ -79,7 +79,7 @@ def segment(doc, Parent, Name_wing, Name_Element, Name_Element_before, idx):
     segment.appendChild(toElement)
 
 
-def initialization(doc,data,name_file):
+def initialization(doc, data, name_file):
     cpacs = doc.createElement('cpacs')
     cpacs.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
     cpacs.setAttribute("xsi_noNamespaceSchemaLocation", "CPACS_21_Schema.xsd")
@@ -109,12 +109,11 @@ def initialization(doc,data,name_file):
 
             transformation = data[k]["Transformation"]
 
-
             # CASE 1 : Normal nacelle
             prev_trans = data[keys[i - 1]]["Transformation"]
             if prev_trans["Name_type"] != "Duct":
                 NameEngine = f"{transformation['Name']}_Engine{transformation['idx_engine']}"
-                
+
                 # ENGINES
                 engines = make(doc, 'engines', vehicles)
 
@@ -501,7 +500,7 @@ def Wing_positioning(doc, Parent, Name, Section_key, Sections_parameters, dih_li
     make(doc, 'name', positioning, f'{Name}GenPos')
 
     # First wing section
-    import re 
+    import re
     if Name.endswith("Sec0"):
         make(doc, 'length', positioning, '0')
         make(doc, 'sweepAngle', positioning, '0')
@@ -590,7 +589,7 @@ def Wing_to_CPACS(
     Name_section = {}
     Name_element = {}
     Name_airfoil = {}
-    sections = make(doc,'sections',wing)
+    sections = make(doc, 'sections', wing)
 
     for Section_key in keys[1:]:
         # <section>f'{Name_wing}Sec{Section_key[-1]}'
@@ -607,18 +606,18 @@ def Wing_to_CPACS(
             'Name': f"{Name_wing}Sec{number}Elem"
         }
         Name_airfoil[Section_key] = {
-            'Name':f"{Name_wing}Sec{number}_{WingData[Section_key]['Airfoil']}"
+            'Name': f"{Name_wing}Sec{number}_{WingData[Section_key]['Airfoil']}"
         }
 
     # <positioning>
-    positionings = make(doc,'positionings',wing)
+    positionings = make(doc, 'positionings', wing)
     dih_list = []
     for Section_key in keys[1:]:
         Wing_positioning(
             doc, positionings, Name_section[Section_key]['Name'], Section_key, WingData, dih_list)
 
     # <segments>
-    segments = make(doc,'segments',wing)
+    segments = make(doc, 'segments', wing)
     Name_element_before = None
     for Section_key in keys[1:]:
 
@@ -634,8 +633,8 @@ def Wing_to_CPACS(
         Name_element_before = Name_element[Section_key]['Name']
 
     # <profiles>
-    profiles = make(doc,'profiles',Parent_prof)
-    wingAirfoils = make(doc,'wingAirfoils',profiles)
+    profiles = make(doc, 'profiles', Parent_prof)
+    wingAirfoils = make(doc, 'wingAirfoils', profiles)
 
     for Section_key in keys[1:]:
         wingAirfoil(
@@ -657,7 +656,7 @@ def Fuselage_to_CPACS(
     keys = list(FuseData.keys())
     Fuse_name = FuseData[keys[0]]['Name']
     # <fuselages>
-    fuselages = make(doc,'fuselages',Parent_Fuse)
+    fuselages = make(doc, 'fuselages', Parent_Fuse)
 
     # <fuselage>
     fuselage = make(doc, 'fuselage', fuselages, uID=Fuse_name)
@@ -676,7 +675,7 @@ def Fuselage_to_CPACS(
     Name_section = {}
     Name_element = {}
     Name_airfoil = {}
-    sections = make(doc,'sections',fuselage)
+    sections = make(doc, 'sections', fuselage)
 
     for Section_key in keys[1:]:
         # <section>
@@ -694,11 +693,11 @@ def Fuselage_to_CPACS(
             'Name': f"{Fuse_name}Sec{number}Elem"
         }
         Name_airfoil[Section_key] = {
-            'Name':f"{Fuse_name}Sec{number}_{FuseData[Section_key]['Airfoil']}"
+            'Name': f"{Fuse_name}Sec{number}_{FuseData[Section_key]['Airfoil']}"
         }
 
     # <positioning>
-    positionings = make(doc,'positionings',fuselage)
+    positionings = make(doc, 'positionings', fuselage)
 
     Store_perc_length = []
     for Section_key in keys[1:]:
@@ -707,7 +706,7 @@ def Fuselage_to_CPACS(
             Name_section[Section_key]['Name'], Section_key, FuseData, Store_perc_length)
 
     # <segments>
-    segments = make(doc,'segments',fuselage)
+    segments = make(doc, 'segments', fuselage)
 
     Name_element_before = None
     for Section_key in keys[1:]:
@@ -728,12 +727,12 @@ def Fuselage_to_CPACS(
         Name_element_before = Name_element[Section_key]["Name"]
 
     # <profiles>
-    profiles = make(doc,'profiles',Parent_prof)
-    fuselageProfiles = make(doc,'fuselageProfiles',profiles)
+    profiles = make(doc, 'profiles', Parent_prof)
+    fuselageProfiles = make(doc, 'fuselageProfiles', profiles)
 
     for Section_key in keys[1:]:
         Fuse_Profile(
-            doc,fuselageProfiles,FuseData, Section_key,Name_airfoil[Section_key]['Name'])
+            doc, fuselageProfiles, FuseData, Section_key, Name_airfoil[Section_key]['Name'])
     return Save_CPACS_file(doc, name_file, output_dir)
 
 
@@ -746,14 +745,45 @@ def Engine_profile(doc, vehicle, data, name, i):
     if len(i) == 1:
         curveProfile = make(doc, 'curveProfile', curveProfiles, uID=f"{name}_fanCowlRotationCurve")
         pointList = make(doc, 'pointList', curveProfile)
-        make(doc, 'x', pointList, '0;0.05;0.1;0.15;0.2;0.3;0.4;0.5;0.6;0.7;0.8;0.85;0.9;0.95;1')
-        make(doc, 'y', pointList, '0;-0.006;-0.0085;-0.0102;-0.0113;-0.0125;-0.0132;-0.0135;-0.013;-0.0118;-0.0098;-0.0082;-0.0062;-0.0035;0')
+
+        make(
+            doc,
+            'x',
+            pointList,
+            '0;0.05;0.1;0.15;0.2;0.3;0.4;0.5;0.6;0.7;0.8;0.85;0.9;0.95;1'
+            )
+
+        make(
+            doc,
+            "y",
+            pointList,
+            (
+                "0;-0.006;-0.0085;-0.0102;-0.0113;"
+                "-0.0125;-0.0132;-0.0135;-0.013;"
+                "-0.0118;-0.0098;-0.0082;"
+                "-0.0062;-0.0035;0"
+            ),
+            )
+
     elif len(i) == 2:
         curveProfile = make(doc, 'curveProfile',
                             curveProfiles, uID=f"{name}_coreCowlRotationCurve")
         pointList = make(doc, 'pointList', curveProfile)
-        make(doc, 'x', pointList, '0.27108433734939763;0.2720883534136546')
-        make(doc, 'y', pointList, '-0.0252;-0.0252')
+
+        make(
+            doc,
+            'x',
+            pointList,
+            '0.27108433734939763;0.2720883534136546'
+            )
+
+        make(
+            doc,
+            'y',
+            pointList,
+            '-0.0252;-0.0252'
+            )
+
     elif len(i) == 3:
         curveProfile = make(doc, 'curveProfile',
                             curveProfiles, uID=f"{name}_centerCowlRotationCurve")
@@ -832,7 +862,7 @@ def Engine_to_CPACS(
                         EngineData['Transformation']['height']],
                        EngineData['Transformation']['X_Rot'],
                        EngineData['Transformation']['X_Trasl'])
-    
+
     # <profiles>
     Engine_profile(doc, Parent_prof, EngineData, NameEngine, i)
 
@@ -866,8 +896,8 @@ def Save_CPACS_file(Document, name_file, output_dir: Path | None = None) -> Path
     merge_elements(Document, 'vehicles', 'profiles')
     merge_elements(Document, 'profiles', 'fuselageProfiles')
     merge_elements(Document, 'profiles', 'wingAirfoils')
-    merge_elements(Document,'profiles','curveProfiles')
-    merge_elements(Document,'profiles','nacelleProfiles')
+    merge_elements(Document, 'profiles', 'curveProfiles')
+    merge_elements(Document, 'profiles', 'nacelleProfiles')
 
     xml_str = Document.toprettyxml(indent="  ")
 

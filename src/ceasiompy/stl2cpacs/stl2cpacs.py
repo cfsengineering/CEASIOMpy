@@ -13,7 +13,8 @@ from pathlib import Path
 #   FUNCTIONS
 # =================================================================================================
 
-def export_mesh(tri_filename, stl_filename,name):
+
+def export_mesh(tri_filename, stl_filename, name):
     """
     Direct STL → TRI converter.
     """
@@ -176,26 +177,26 @@ def load_stl_auto(path):
     if start[:5].lower() == b"solid":
         try:
             return read_ascii_stl(path)
-        except:
+        except ValueError:
             return read_binary_stl(path)
     return read_binary_stl(path)
 
 
 def write_cart3d_tri(filename, triangles):
     """
-    Saves triangles to Cart3D .tri format 
+    Saves triangles to Cart3D .tri format
     """
 
     verts = triangles.reshape(-1, 3)
     uniq, inverse = np.unique(verts, axis=0, return_inverse=True)
-    tri_idx = inverse.reshape(-1, 3) + 1 # Cart3D uses 1-based indexing
+    tri_idx = inverse.reshape(-1, 3) + 1  # Cart3D uses 1-based indexing
 
     with open(filename, "w") as f:
-        f.write(f"{uniq.shape[0]} {tri_idx.shape[0]}\n") # first line
+        f.write(f"{uniq.shape[0]} {tri_idx.shape[0]}\n")  # first line
         for v in uniq:
-            f.write(f"{v[0]:.9g} {v[1]:.9g} {v[2]:.9g}\n") # vertices
+            f.write(f"{v[0]:.9g} {v[1]:.9g} {v[2]:.9g}\n")  # vertices
         for t in tri_idx:
-            f.write(f"{t[0]} {t[1]} {t[2]}\n") # triangle
+            f.write(f"{t[0]} {t[1]} {t[2]}\n")  # triangle
 
     return filename
 
@@ -216,7 +217,8 @@ def read_ascii_stl(path):
 def read_binary_stl(path):
     """Reads binary STL and returns Nx3x3 triangle array"""
     with open(path, "rb") as f:
-        header = f.read(80)
+        # Binary STL has a mandatory 80-byte header; consume it to align stream.
+        _ = f.read(80)
         ntri = struct.unpack("<I", f.read(4))[0]
         data = f.read()
 
@@ -224,9 +226,12 @@ def read_binary_stl(path):
     offset = 0
     for _ in range(ntri):
         offset += 12  # skip normal
-        v1 = struct.unpack_from("<fff", data, offset); offset += 12
-        v2 = struct.unpack_from("<fff", data, offset); offset += 12
-        v3 = struct.unpack_from("<fff", data, offset); offset += 12
+        v1 = struct.unpack_from("<fff", data, offset)
+        offset += 12
+        v2 = struct.unpack_from("<fff", data, offset)
+        offset += 12
+        v3 = struct.unpack_from("<fff", data, offset)
+        offset += 12
         offset += 2   # skip attribute
         tri.append([v1, v2, v3])
 
@@ -238,16 +243,17 @@ def parse_cart3d_tri(filename):
     with open(filename, 'r') as f:
         lines = [ln.strip() for ln in f if ln.strip() and not ln.strip().startswith("#")]
     header = lines[0].split()
-    npts = int(header[0]); ntris = int(header[1])
-    pts = np.zeros((npts,3), dtype=float)
+    npts = int(header[0])
+    ntris = int(header[1])
+    pts = np.zeros((npts, 3), dtype=float)
     for i in range(npts):
         vals = lines[1+i].split()
         pts[i] = [float(vals[0]), float(vals[1]), float(vals[2])]
-    tris = np.zeros((ntris,3), dtype=int)
+    tris = np.zeros((ntris, 3), dtype=int)
     start = 1 + npts
     for i in range(ntris):
-        a,b,c = lines[start+i].split()[:3]
-        tris[i] = [int(a)-1, int(b)-1, int(c)-1] # TRI files use 1-based indexing so the -1 is only for python indexing
+        a, b, c = lines[start+i].split()[:3]
+        tris[i] = [int(a)-1, int(b)-1, int(c)-1]
     return pts, tris
 
 
@@ -258,7 +264,7 @@ def main(
 ) -> tuple[Path, dict[str, list[dict[str, str]]]]:
     """Convert STL components to one CPACS file and return output XML path + report."""
 
-    # Local imports although it shows errors 
+    # Local imports although it shows errors
     from ceasiompy.stl2cpacs.func.stl2wing import stl2wing_main
     from ceasiompy.stl2cpacs.func.stl2fuselage import stl2fuselage_main
 

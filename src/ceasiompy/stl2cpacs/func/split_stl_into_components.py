@@ -41,6 +41,7 @@ SIGNIFICANT_COMPONENT_MIN_TRIS = 100
 # - A fully connected STL => one component file.
 # - A multi-part STL => one file per disconnected part.
 
+
 @dataclass
 class ComponentInfo:
     """Container for one split component."""
@@ -62,7 +63,6 @@ def read_ascii_stl(path: str | Path) -> np.ndarray:
             if line.strip().startswith("vertex"):
                 _, x, y, z = line.split()[:4]
                 tri.append([float(x), float(y), float(z)])
-
 
     return np.asarray(tri, dtype=float).reshape(-1, 3, 3)
 
@@ -128,7 +128,9 @@ def write_binary_stl(path: str | Path,
             f.write(struct.pack("<H", 0))
 
 
-def _triangle_adjacency_from_shared_vertices(triangles: np.ndarray, tol: float = VERTEX_MERGE_TOL) -> List[List[int]]:
+def _triangle_adjacency_from_shared_vertices(triangles: np.ndarray,
+                                             tol: float = VERTEX_MERGE_TOL
+                                             ) -> List[List[int]]:
     """Build triangle adjacency list by shared quantized vertices."""
 
     tris = np.asarray(triangles, dtype=float).reshape(-1, 3, 3)
@@ -620,7 +622,7 @@ def split_stl_by_symmetry_plane(
 def split_aircraft_stl(
     stl_path: str | Path,
     output_dir: str | Path,
-    name: str ,
+    name: str,
     vertex_tol: float = VERTEX_MERGE_TOL,
 ) -> List[ComponentInfo]:
     """Split full-aircraft STL into generic connected components.

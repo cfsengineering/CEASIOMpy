@@ -62,9 +62,11 @@ def _export_preview_vtp(cpacs: CPACS, vtp_file: Path) -> bool:
 def _load_surface_from_vtp(vtp_file: Path):
     """Load cached points/faces arrays from VTP."""
     try:
+        stat = vtp_file.stat()
         return _load_surface_arrays_cached(
             vtp_path=str(vtp_file),
-            vtp_mtime=float(vtp_file.stat().st_mtime),
+            vtp_mtime_ns=int(stat.st_mtime_ns),
+            vtp_size=int(stat.st_size),
         )
     except Exception as exc:
         st.error(f"Failed to read generated preview mesh for 3D view: {exc}")
@@ -72,9 +74,13 @@ def _load_surface_from_vtp(vtp_file: Path):
 
 
 @st.cache_data(show_spinner=False)
-def _load_surface_arrays_cached(vtp_path: str, vtp_mtime: float) -> tuple[np.ndarray, np.ndarray]:
+def _load_surface_arrays_cached(
+    vtp_path: str,
+    vtp_mtime_ns: int,
+    vtp_size: int,
+) -> tuple[np.ndarray, np.ndarray]:
     """Read/triangulate a VTP preview mesh and cache result by file mtime."""
-    _ = vtp_mtime
+    _ = (vtp_mtime_ns, vtp_size)
     pv_mesh = pv.read(vtp_path)
     surface = pv_mesh.extract_surface(algorithm="dataset_surface").triangulate().clean()
     surface = surface.compute_normals()
@@ -108,10 +114,12 @@ def _build_3d_figure(
     points_local[:, 0] -= x_min
     points_local[:, 1] -= y_min
     points_local[:, 2] -= z_min
+    points_local = np.maximum(points_local, 0.0)
 
     x_max = float(np.max(points_local[:, 0]))
     y_max = float(np.max(points_local[:, 1]))
     z_max = float(np.max(points_local[:, 2]))
+    y_range_max = y_max if show_yaxis else max(1e-9, y_max)
 
     mesh_trace = go.Mesh3d(
         x=points_local[:, 0],
@@ -128,15 +136,10 @@ def _build_3d_figure(
         showscale=False,
     )
 
-    x_ticks = _axis_values(x_min, x_max, 3)
-    y_ticks = _axis_values(y_min, y_max, 3) if show_yaxis else []
-    z_ticks = _axis_values(z_min, z_max, 2)
-
     fig = go.Figure(data=[mesh_trace])
     fig.update_layout(
         margin=dict(l=10, r=10, t=10, b=10),
         font=dict(color="black"),
-        uirevision=ui_key,
         scene_uirevision=ui_key,
         scene=dict(
             aspectmode="data",
@@ -144,9 +147,9 @@ def _build_3d_figure(
                 title="X",
                 titlefont=dict(color="black"),
                 tickfont=dict(color="black"),
-                range=[x_min, x_max],
+                range=[0.0, x_max],
                 tickmode="array",
-                tickvals=x_ticks,
+                tickvals=_axis_values(0.0, x_max, 3),
                 showgrid=True,
                 gridcolor="black",
                 zeroline=False,
@@ -156,9 +159,9 @@ def _build_3d_figure(
                 title="Y" if show_yaxis else "",
                 titlefont=dict(color="black"),
                 tickfont=dict(color="black"),
-                range=[y_min, y_max] if show_yaxis else [0.0, 0.0],
+                range=[0.0, y_range_max],
                 tickmode="array",
-                tickvals=y_ticks,
+                tickvals=_axis_values(0.0, y_range_max, 3) if show_yaxis else [],
                 visible=show_yaxis,
                 gridcolor="black",
                 showgrid=show_yaxis,
@@ -170,9 +173,9 @@ def _build_3d_figure(
                 title="Z",
                 titlefont=dict(color="black"),
                 tickfont=dict(color="black"),
-                range=[z_min, z_max],
+                range=[0.0, z_max],
                 tickmode="array",
-                tickvals=z_ticks,
+                tickvals=_axis_values(0.0, z_max, 2),
                 showgrid=True,
                 gridcolor="black",
                 zeroline=False,

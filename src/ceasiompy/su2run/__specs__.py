@@ -59,20 +59,21 @@ from ceasiompy.utils.commonxpaths import (
 def gui_settings(cpacs: CPACS) -> None:
     tixi = cpacs.tixi
 
-    default_value = EULER_OR_RANS if HAS_PENTAGROW else ["EULER"]
-    list_vartype(
-        tixi=tixi,
-        default_value=default_value,
-        xpath=SU2_CONFIG_RANS_XPATH,
-        name="Euler or RANS simulation",
-        key=f"{cpacs.ac_name}_su2run_euler_or_rans",
-        help="Running Euler or RANS calculation.",
-    )
-
-    st.markdown("---")
     st.markdown("**Simulation Settings**")
-    left_col, right_col = st.columns(2)
+    left_col, mid_col, right_col = st.columns(3)
+
     with left_col:
+        default_value = EULER_OR_RANS if HAS_PENTAGROW else ["EULER"]
+        list_vartype(
+            tixi=tixi,
+            default_value=default_value,
+            xpath=SU2_CONFIG_RANS_XPATH,
+            name="Euler or RANS simulation",
+            key=f"{cpacs.ac_name}_su2run_euler_or_rans",
+            help="Running Euler or RANS calculation.",
+        )
+
+    with mid_col:
         int_vartype(
             tixi=tixi,
             xpath=SU2_MAX_ITER_XPATH,

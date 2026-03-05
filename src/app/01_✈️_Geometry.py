@@ -457,12 +457,18 @@ def section_select_cpacs() -> None:
 
     selected_tab = st.tabs(tabs, width="stretch")
     with selected_tab[0]:
-        _section_load_cpacs()
+        left_col, _ = st.columns(2)
+        with left_col:
+            _section_load_cpacs()
     with selected_tab[1]:
-        _section_generate_cpacs_airfoil()
+        left_col, _ = st.columns(2)
+        with left_col:
+            _section_generate_cpacs_airfoil()
     if show_openvsp:
         with selected_tab[2]:
-            render_openvsp_panel()
+            left_col, _ = st.columns(2)
+            with left_col:
+                render_openvsp_panel()
 
     # ALWAYS use the session CPACS
     cpacs = st.session_state.get("cpacs")
@@ -508,65 +514,67 @@ def section_select_cpacs() -> None:
     scroll_down()
     st.markdown("---")
 
-    if tixi.checkElement(AREA_XPATH):
-        ref_area = _to_float_or_default(get_value(tixi, xpath=AREA_XPATH), 0.0)
+    left_col, _ = st.columns(2)
+    with left_col:
+        if tixi.checkElement(AREA_XPATH):
+            ref_area = _to_float_or_default(get_value(tixi, xpath=AREA_XPATH), 0.0)
 
-    if tixi.checkElement(LENGTH_XPATH):
-        ref_length = _to_float_or_default(get_value(tixi, xpath=LENGTH_XPATH), 0.0)
+        if tixi.checkElement(LENGTH_XPATH):
+            ref_length = _to_float_or_default(get_value(tixi, xpath=LENGTH_XPATH), 0.0)
 
-    spec = 1 if dim_mode else 2
-    cols = st.columns(
-        spec=spec,
-    )
-    with cols[0]:
-        new_ref_length = st.number_input(
-            label="Reference Length",
-            value=ref_length,
-            min_value=0.0,
+        spec = 1 if dim_mode else 2
+        cols = st.columns(
+            spec=spec,
         )
-    new_ref_area: float | None = ref_area
-    if not dim_mode:
-        with cols[1]:
-            new_ref_area = st.number_input(
-                label="Reference Area",
-                value=ref_area if ref_area is not None else 0.0,
+        with cols[0]:
+            new_ref_length = st.number_input(
+                label="Reference Length",
+                value=ref_length,
                 min_value=0.0,
             )
+        new_ref_area: float | None = ref_area
+        if not dim_mode:
+            with cols[1]:
+                new_ref_area = st.number_input(
+                    label="Reference Area",
+                    value=ref_area if ref_area is not None else 0.0,
+                    min_value=0.0,
+                )
 
-    # 2D update
-    if (
-        dim_mode
-        and np.isfinite(ref_length) and ref_length > 0.0
-    ):
-        add_value(
-            tixi=tixi,
-            xpath=LENGTH_XPATH,
-            value=new_ref_length,
-        )
-        safe_remove(tixi, xpath=AREA_XPATH)
-        st.info(f"""Updated cpacs file with reference (length={new_ref_length})""")
+        # 2D update
+        if (
+            dim_mode
+            and np.isfinite(ref_length) and ref_length > 0.0
+        ):
+            add_value(
+                tixi=tixi,
+                xpath=LENGTH_XPATH,
+                value=new_ref_length,
+            )
+            safe_remove(tixi, xpath=AREA_XPATH)
+            st.info(f"""Updated cpacs file with reference (length={new_ref_length})""")
 
-    # 3D update
-    if (
-        not dim_mode
-        and ref_area is not None
-        and np.isfinite(ref_area) and ref_area > 0.0
-        and np.isfinite(ref_length) and ref_length > 0.0
-        and new_ref_area is not None
-    ):
-        add_value(
-            tixi=tixi,
-            xpath=AREA_XPATH,
-            value=new_ref_area,
-        )
-        add_value(
-            tixi=tixi,
-            xpath=LENGTH_XPATH,
-            value=new_ref_length,
-        )
-        st.info(f"""Updated cpacs file with reference
-             (length={new_ref_length}, area={new_ref_area})
-        """)
+        # 3D update
+        if (
+            not dim_mode
+            and ref_area is not None
+            and np.isfinite(ref_area) and ref_area > 0.0
+            and np.isfinite(ref_length) and ref_length > 0.0
+            and new_ref_area is not None
+        ):
+            add_value(
+                tixi=tixi,
+                xpath=AREA_XPATH,
+                value=new_ref_area,
+            )
+            add_value(
+                tixi=tixi,
+                xpath=LENGTH_XPATH,
+                value=new_ref_length,
+            )
+            st.info(f"""Updated cpacs file with reference
+                (length={new_ref_length}, area={new_ref_area})
+            """)
 
 
 # Main

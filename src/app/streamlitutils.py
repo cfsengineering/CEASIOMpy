@@ -177,7 +177,7 @@ def create_sidebar(how_to_text, page_title="CEASIOMpy"):
     st.set_page_config(
         page_title=page_title,
         page_icon=im,
-        layout="centered",
+        layout="wide",
     )
     st.markdown(
         """

@@ -7,6 +7,7 @@ Initialization for SMTrain module.
 """
 
 # Imports
+import hashlib
 import streamlit as st
 
 from ceasiompy.utils.plot import section_3d_view
@@ -203,34 +204,36 @@ def gui_settings(cpacs: CPACS) -> None:
     wings = sorted(set(wing_uid for (wing_uid, _) in uid_list))
 
     st.markdown("---")
-    st.markdown("**Geometry Design Space**")
 
-    geometry_space = st.container()
-    for i_wing, wing_uid in enumerate(wings):
-        with st.container(
-            border=True,
-        ):
-            default_value = True if i_wing == 0 else False
-            wing_xpath = xpath + f"/{wing_uid}"
-            wing_optimized = bool_vartype(
-                tixi=tixi,
-                xpath=wing_xpath + "/selected",
-                default_value=default_value,
-                key=f"smtrain_{wing_uid}_selected",
-                name=f"Wing {wing_uid=}",
-                help=f"Optimize wing {wing_uid=}.",
-            )
-
-            if wing_optimized:
-                _wing_settings(
+    left_col, right_col = st.columns(2)
+    with left_col:
+        st.markdown("**Geometry Design Parameters**")
+        for i_wing, wing_uid in enumerate(wings):
+            with st.container(
+                border=True,
+            ):
+                default_value = True if i_wing == 0 else False
+                wing_xpath = xpath + f"/{wing_uid}"
+                wing_optimized = bool_vartype(
                     tixi=tixi,
-                    xpath=xpath,
-                    uid_list=uid_list,
-                    wing_uid=wing_uid,
-                    wing_xpath=wing_xpath,
+                    xpath=wing_xpath + "/selected",
+                    default_value=default_value,
+                    key=f"smtrain_{wing_uid}_selected",
+                    name=f"Wing {wing_uid=}",
+                    help=f"Optimize wing {wing_uid=}.",
                 )
 
-    with geometry_space:
+                if wing_optimized:
+                    _wing_settings(
+                        tixi=tixi,
+                        xpath=xpath,
+                        uid_list=uid_list,
+                        wing_uid=wing_uid,
+                        wing_xpath=wing_xpath,
+                    )
+
+    with right_col:
+        st.markdown("**Geometry Design Space**")
         selected_params = []
         for wing_uid in wings:
             wing_xpath = xpath + f"/{wing_uid}"
@@ -296,37 +299,58 @@ def gui_settings(cpacs: CPACS) -> None:
                         }
                     )
 
+        preview_state = st.session_state.setdefault("smtrain_geom_preview_state", {})
+        base_cpacs_key = str(Path(cpacs.cpacs_file).resolve())
+        if preview_state.get("base_cpacs_key") != base_cpacs_key:
+            preview_state.clear()
+            preview_state["base_cpacs_key"] = base_cpacs_key
+
         params_to_update = {}
+        signature_items = []
         for info in selected_params:
             slider_key = (
                 f"smtrain_geom_preview_{info['wing_uid']}_{info['section_uid']}_{info['param']}"
             )
-            slider_value = st.session_state.get(slider_key, info["current_value"])
+            slider_value = float(st.session_state.get(slider_key, info["current_value"]))
             if info["param"] not in params_to_update:
                 params_to_update[info["param"]] = {"values": [], "xpath": []}
-            params_to_update[info["param"]]["values"].append(float(slider_value))
+            params_to_update[info["param"]]["values"].append(slider_value)
             params_to_update[info["param"]]["xpath"].append(info["cpacs_xpath"])
+            signature_items.append((info["cpacs_xpath"], slider_value))
 
         preview_cpacs = cpacs
+        force_preview_regenerate = False
         if params_to_update:
+            signature = tuple(sorted(signature_items, key=lambda it: it[0]))
+            cpacs_hash = hashlib.sha1(base_cpacs_key.encode("utf-8")).hexdigest()[:16]
+            preview_cpacs_path = Path(tempfile.gettempdir()) / (
+                f"ceasiompy_smtrain_preview_{cpacs_hash}.xml"
+            )
             try:
-                with tempfile.NamedTemporaryFile(
-                    prefix="ceasiompy_smtrain_preview_",
-                    suffix=".xml",
-                    delete=False,
-                ) as tmp_file:
-                    preview_cpacs_path = Path(tmp_file.name)
-                preview_cpacs = update_geometry_cpacs(
-                    cpacs_path_in=Path(cpacs.cpacs_file),
-                    cpacs_path_out=preview_cpacs_path,
-                    geom_params=params_to_update,
-                )
+                if (
+                    preview_state.get("signature") != signature
+                    or not preview_cpacs_path.exists()
+                ):
+                    preview_cpacs = update_geometry_cpacs(
+                        cpacs_path_in=Path(cpacs.cpacs_file),
+                        cpacs_path_out=preview_cpacs_path,
+                        geom_params=params_to_update,
+                    )
+                    preview_state["signature"] = signature
+                    force_preview_regenerate = True
+                else:
+                    preview_cpacs = CPACS(preview_cpacs_path)
             except Exception as exc:
                 st.warning(f"Could not update geometry preview: {exc!r}")
+                preview_cpacs = cpacs
+            preview_state["preview_cpacs_path"] = str(preview_cpacs_path)
+        else:
+            preview_state.pop("signature", None)
+            preview_state.pop("preview_cpacs_path", None)
 
         section_3d_view(
             cpacs=preview_cpacs,
-            force_regenerate=bool(params_to_update),
+            force_regenerate=force_preview_regenerate,
             plot_key="smtrain_geom_design_space_view",
         )
 
@@ -356,7 +380,6 @@ def gui_settings(cpacs: CPACS) -> None:
                         step=float(step),
                         key=slider_key,
                     )
-            st.markdown("---")
 
     # elif load_existing == "Load Geometry Exploration Simulations":
     #     st.info("Whats going on ?")

@@ -165,7 +165,7 @@ def dataframe_vartype(
         _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
 
     gen_left_col, gen_right_col = st.columns(
-        spec=[2, 3],
+        spec=[1, 3],
         vertical_alignment="bottom",
     )
 
@@ -178,7 +178,7 @@ def dataframe_vartype(
     with gen_right_col:
         # Add button to append the new value to the list
         left_col, right_col = st.columns(
-            spec=[2, 1],
+            spec=2,
             vertical_alignment="bottom",
         )
 
@@ -192,30 +192,32 @@ def dataframe_vartype(
             )
 
         with right_col:
-            if st.button(
-                label="➕ Add",
-                key=f"add_{key}",
-                width="stretch",
-                help="Add a new value to the list.",
-            ):
-                if new_value not in st.session_state[key]:
-                    st.session_state[key].append(new_value)
-                    _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
-                    st.rerun()
+            left_col, right_col = st.columns(2)
+            with left_col:
+                if st.button(
+                    label="➕ Add",
+                    key=f"add_{key}",
+                    width="stretch",
+                    help="Add a new value to the list.",
+                ):
+                    if new_value not in st.session_state[key]:
+                        st.session_state[key].append(new_value)
+                        _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
+                        st.rerun()
+            with right_col:
+                if st.button(
+                    label="❌ Remove",
+                    key=f"remove_last_{key}",
+                    width="stretch",
+                    help="Remove the last value from the list.",
+                ):
+                    if st.session_state[key]:
+                        st.session_state[key].pop()
+                        _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
+                        st.rerun()
 
-            if st.button(
-                label="❌ Remove",
-                key=f"remove_last_{key}",
-                width="stretch",
-                help="Remove the last value from the list.",
-            ):
-                if st.session_state[key]:
-                    st.session_state[key].pop()
-                    _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
-                    st.rerun()
-
-            _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
-            return st.session_state[key]
+                _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
+                return st.session_state[key]
 
 
 def int_vartype(

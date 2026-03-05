@@ -6,9 +6,9 @@ Entry point for the Streamlit UI with explicit page ordering.
 
 # Imports
 
-import asyncio
 import os
 import json
+import asyncio
 import streamlit as st
 
 from ceasiompy.utils import get_wkdir
@@ -21,7 +21,10 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
-from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH, AIRFOILS_XPATH
+from ceasiompy.utils.commonxpaths import (
+    AIRFOILS_XPATH,
+    GEOMETRY_MODE_XPATH,
+)
 
 # VTK web rendering can fail with uvloop event loops.
 # Force the stdlib asyncio policy early so spawned subprocesses inherit it.

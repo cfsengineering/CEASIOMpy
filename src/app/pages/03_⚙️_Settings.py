@@ -25,7 +25,7 @@ HOW_TO_TEXT = (
     "1. Go to *Run Workflow*\n"
 )
 
-PAGE_NAME = "Settings"
+PAGE_NAME = "Simulation Settings"
 
 
 # Functions

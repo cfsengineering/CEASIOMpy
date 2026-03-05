@@ -84,7 +84,7 @@ def section_predefined_workflow() -> None:
     Where to define the Pre-defined workflows.
     """
 
-    st.markdown("#### Predefined Workflows")
+    st.markdown("### Predefined Workflows")
 
     active_modules = set(get_module_list(only_active=True))
 
@@ -464,7 +464,9 @@ if __name__ == "__main__":
 
     st.markdown("---")
 
-    section_add_module()
+    left_col, _ = st.columns(2)
+    with left_col:
+        section_add_module()
 
     # Add last_page
     st.session_state.last_page = PAGE_NAME

@@ -832,7 +832,7 @@ def show_results() -> None:
     default_index = 0
 
     left_col, right_col = st.columns(
-        spec=[2, 1],
+        spec=[5, 2],
         vertical_alignment="bottom",
     )
     with left_col:

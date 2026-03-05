@@ -4,9 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Streamlit home page for CEASIOMpy GUI
-
-| Author: Giacomo Benedetti
-| Creation: 2026-01-26
 """
 
 # Imports
@@ -91,7 +88,7 @@ if __name__ == "__main__":
     st.markdown("---")
 
     # Information boxes
-    col1, col2 = st.columns(2)
+    col1, col2, col3, col4 = st.columns(4)
 
     with col1:
         st.info(
@@ -109,16 +106,14 @@ if __name__ == "__main__":
             "[YouTube tutorials](https://www.youtube.com/@cfs_engineering)."
         )
 
-    # Information boxes
-    col1, col2 = st.columns(2)
-    with col1:
+    with col3:
         st.warning(
             "⚠️ **Issues**\n\n"
             "Found an issue ? Open one "
             "[at](https://github.com/cfsengineering/CEASIOMpy/issues)."
         )
 
-    with col2:
+    with col4:
         st.success(
             "✉️ **Contact Us**\n\n"
             "Do you have a special request ? "

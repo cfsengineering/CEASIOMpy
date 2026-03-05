@@ -13,7 +13,6 @@ from ceasiompy.cpacs2gmsh.utility.utils import write_gmsh
 from ceasiompy.utils.progress import progress_update
 from ceasiompy.utils.ceasiompyutils import get_sane_max_cpu
 from ceasiompy.CPACS2GMSH.utility.farfield import generate_farfield
-from ceasiompy.cpacs2gmsh.utility.diagnose import diagnose_surface_mesh
 from ceasiompy.cpacs2gmsh.meshing.symmetryplane import generate_symmetry_plane
 from ceasiompy.cpacs2gmsh.utility.sanity import check_surfaces_with_open_loops
 from ceasiompy.cpacs2gmsh.utility.wingclassification import (

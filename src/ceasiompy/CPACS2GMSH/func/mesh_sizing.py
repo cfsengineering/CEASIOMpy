@@ -16,7 +16,6 @@ from ceasiompy.utils.geometryfunctions import get_positionings
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.generalclasses import Transformation
 
-from ceasiompy import log
 from ceasiompy.utils.commonxpaths import (
     WINGS_XPATH,
     FUSELAGES_XPATH,

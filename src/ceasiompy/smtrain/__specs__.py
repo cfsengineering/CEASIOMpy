@@ -7,14 +7,15 @@ Initialization for SMTrain module.
 """
 
 # Imports
-
 import streamlit as st
 
+from ceasiompy.utils.plot import section_3d_view
 from ceasiompy.utils.ceasiompyutils import safe_remove
 from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.pyavl.__specs__ import gui_settings as avl_settings
 from ceasiompy.su2run.__specs__ import gui_settings as su2_settings
 from ceasiompy.cpacs2gmsh.__specs__ import gui_settings as gmsh_settings
+from ceasiompy.smtrain.func.config import update_geometry_cpacs
 from ceasiompy.utils.geometryfunctions import (
     get_xpath_for_param,
     return_uid_wings_sections,
@@ -27,12 +28,14 @@ from ceasiompy.utils.guiobjects import (
     multiselect_vartype,
 )
 
+from pathlib import Path
+import tempfile
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
-from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
+from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
 from ceasiompy.smtrain import (
     SM_MODELS,
     LEVEL_TWO,
@@ -61,176 +64,299 @@ def gui_settings(cpacs: CPACS) -> None:
 
     # TODO: Add Number of iterations for Bayesian optimization as a parameter
 
-    with st.expander(
-        label="**Simulation Settings**",
-        expanded=True,
-    ):
-        chosen_models = multiselect_vartype(
-            tixi=tixi,
-            xpath=SMTRAIN_MODELS_XPATH,
-            default_value=SM_MODELS,
-            name="Surrogate Model Type",
-            help="Kriging (KRG) or/and Radial Basis Functions (RBF).",
-            key="smtrain_chosen_model",
-        )
-        if not chosen_models:
-            st.warning("You need to select at least 1 model.")
-            # TODO: Lock user in page if no model selected (until he selects one).
-            return None
+    st.markdown("**Simulation Settings**")
+    chosen_models = multiselect_vartype(
+        tixi=tixi,
+        xpath=SMTRAIN_MODELS_XPATH,
+        default_value=SM_MODELS,
+        name="Surrogate Model Type",
+        help="Kriging (KRG) or/and Radial Basis Functions (RBF).",
+        key="smtrain_chosen_model",
+    )
+    if not chosen_models:
+        st.warning("You need to select at least 1 model.")
+        # TODO: Lock user in page if no model selected (until he selects one).
+        return None
 
-        if "KRG" in chosen_models:
-            fidelity_level = list_vartype(
-                tixi=tixi,
-                xpath=SMTRAIN_FIDELITY_LEVEL_XPATH,
-                default_value=FIDELITY_LEVELS,  # TODO: , "Three levels" not implemented yet
-                name="Range of fidelity level(s).",
-                help="""1st-level of fidelity (low fidelity),
-                    2nd level of fidelity (low + high fidelity) on high-variance points.
-                """,
-                key="smtrain_fidelity_level",
+    if "KRG" in chosen_models:
+        fidelity_level = list_vartype(
+            tixi=tixi,
+            xpath=SMTRAIN_FIDELITY_LEVEL_XPATH,
+            default_value=FIDELITY_LEVELS,  # TODO: , "Three levels" not implemented yet
+            name="Range of fidelity level(s).",
+            help="""1st-level of fidelity (low fidelity),
+                2nd level of fidelity (low + high fidelity) on high-variance points.
+            """,
+            key="smtrain_fidelity_level",
+        )
+        with st.expander(
+            label=f"First Level (Low Fidelity, {PYAVL} Settings)",
+            expanded=False,
+        ):
+            tabs = st.tabs(
+                tabs=[PYAVL],
             )
+            with tabs[0]:
+                avl_settings(cpacs)
+
+        if fidelity_level == LEVEL_TWO:
             with st.expander(
-                label=f"First Level (Low Fidelity, {PYAVL} Settings)",
-                expanded=False,
+                label=f"Second Level (High Fidelity, {CPACS2GMSH} + {SU2RUN} Settings)",
             ):
                 tabs = st.tabs(
-                    tabs=[PYAVL],
+                    tabs=[CPACS2GMSH, SU2RUN],
                 )
                 with tabs[0]:
-                    avl_settings(cpacs)
+                    gmsh_settings(cpacs)
+                with tabs[1]:
+                    su2_settings(cpacs)
 
-            if fidelity_level == LEVEL_TWO:
-                with st.expander(
-                    label=f"Second Level (High Fidelity, {CPACS2GMSH} + {SU2RUN} Settings)",
-                ):
-                    tabs = st.tabs(
-                        tabs=[CPACS2GMSH, SU2RUN],
-                    )
-                    with tabs[0]:
-                        gmsh_settings(cpacs)
-                    with tabs[1]:
-                        su2_settings(cpacs)
+    else:
+        safe_remove(tixi, xpath=SMTRAIN_FIDELITY_LEVEL_XPATH)
 
-        else:
-            safe_remove(tixi, xpath=SMTRAIN_FIDELITY_LEVEL_XPATH)
+    # load_existing = list_vartype(
+    #     tixi=tixi,
+    #     default_value=["Run New Simulations", "Load Geometry Exploration Simulations"],
+    #     key="smtrain_load_or_explore",
+    #     name="Load Existing or Run New Simulations",
+    #     help="Load pre-computed results from files or Generate new simulations.",
+    #     xpath=SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
+    # )
 
-        # load_existing = list_vartype(
-        #     tixi=tixi,
-        #     default_value=["Run New Simulations", "Load Geometry Exploration Simulations"],
-        #     key="smtrain_load_or_explore",
-        #     name="Load Existing or Run New Simulations",
-        #     help="Load pre-computed results from files or Generate new simulations.",
-        #     xpath=SMTRAIN_UPLOAD_AVL_DATABASE_XPATH,
-        # )
+    # if load_existing == "Run New Simulations":
 
-        # if load_existing == "Run New Simulations":
-
-    with st.expander(
-        label="**Training Settings**",
-        expanded=True,
-    ):
-        left_col, right_col = st.columns(2)
-        with left_col:
-            objective_name = list_vartype(
-                tixi=tixi,
-                xpath=SMTRAIN_OBJECTIVE_XPATH,
-                help="Objective function list for the surrogate model to predict",
-                name="Objective",
-                key="smtrain_objective",
-                default_value=OBJECTIVES_LIST,
-            )
-        with right_col:
-            list_vartype(
-                tixi=tixi,
-                xpath=SMTRAIN_OBJECTIVE_DIRECTION_XPATH,
-                default_value=["Maximize", "Minimize"],
-                name=f"Maximize or Minimize {objective_name}",
-                key="smtrain_obj_direction",
-                help=f"""Choose the direction (max/min)
-                    of the selected objective {objective_name}.
-                """
-            )
-
-        left_col, right_col = st.columns(2)
-        with left_col:
-            sampling_method = list_vartype(
-                tixi=tixi,
-                xpath=SMTRAIN_SAMPLING_METHOD_XPATH,
-                default_value=["LHS", "Grid"],
-                key="smtrain_geometry_sampling_method",
-                name="Sampling Method for Geometry Parameters",
-                help="Latin Hypercube Sampling (LHS) vs Grid (Regular Grid Sampling)",
-            )
-
-        with right_col:
-            # Depending on the sampling method the sampling number is not the same
-            if sampling_method == "Grid":
-                int_vartype(
-                    tixi=tixi,
-                    xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
-                    default_value=4,
-                    key="smtrain_sample_number_grid",
-                    name="Number of samples per dimension",
-                    help="""Samples per Dimension,
-                        i.e. total number of samples = (geom_param)^n,
-                        where n is this selected number.
-                    """,
-                    min_value=2,
-                    max_value=6,
-                )
-            else:
-                int_vartype(
-                    tixi=tixi,
-                    xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
-                    default_value=10,
-                    key="smtrain_sample_number_lhs",
-                    name="Number of samples",
-                    help="""Total number of geometries as generated data.""",
-                    min_value=4,
-                )
-
-        float_vartype(
+    st.markdown("---")
+    st.markdown("**Training Settings**")
+    left_col, right_col = st.columns(2)
+    with left_col:
+        objective_name = list_vartype(
             tixi=tixi,
-            xpath=SMTRAIN_TRAIN_PERC_XPATH,
-            default_value=0.7,
-            name=r"% used of training data",
-            help="Defining the percentage of the data to use to train the model.",
-            key="smtrain_training_percentage",
-            min_value=0.0,
-            max_value=1.0,
+            xpath=SMTRAIN_OBJECTIVE_XPATH,
+            help="Objective function list for the surrogate model to predict",
+            name="Objective",
+            key="smtrain_objective",
+            default_value=OBJECTIVES_LIST,
         )
+    with right_col:
+        list_vartype(
+            tixi=tixi,
+            xpath=SMTRAIN_OBJECTIVE_DIRECTION_XPATH,
+            default_value=["Maximize", "Minimize"],
+            name=f"Maximize or Minimize {objective_name}",
+            key="smtrain_obj_direction",
+            help=f"""Choose the direction (max/min)
+                of the selected objective {objective_name}.
+            """
+        )
+
+    left_col, right_col = st.columns(2)
+    with left_col:
+        sampling_method = list_vartype(
+            tixi=tixi,
+            xpath=SMTRAIN_SAMPLING_METHOD_XPATH,
+            default_value=["LHS", "Grid"],
+            key="smtrain_geometry_sampling_method",
+            name="Sampling Method for Geometry Parameters",
+            help="Latin Hypercube Sampling (LHS) vs Grid (Regular Grid Sampling)",
+        )
+
+    with right_col:
+        # Depending on the sampling method the sampling number is not the same
+        if sampling_method == "Grid":
+            int_vartype(
+                tixi=tixi,
+                xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
+                default_value=4,
+                key="smtrain_sample_number_grid",
+                name="Number of samples per dimension",
+                help="""Samples per Dimension,
+                    i.e. total number of samples = (geom_param)^n,
+                    where n is this selected number.
+                """,
+                min_value=2,
+                max_value=6,
+            )
+        else:
+            int_vartype(
+                tixi=tixi,
+                xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
+                default_value=10,
+                key="smtrain_sample_number_lhs",
+                name="Number of samples",
+                help="""Total number of geometries as generated data.""",
+                min_value=4,
+            )
+
+    float_vartype(
+        tixi=tixi,
+        xpath=SMTRAIN_TRAIN_PERC_XPATH,
+        default_value=0.7,
+        name=r"% used of training data",
+        help="Defining the percentage of the data to use to train the model.",
+        key="smtrain_training_percentage",
+        min_value=0.0,
+        max_value=1.0,
+    )
 
     xpath = SMTRAIN_GEOM_WING_OPTIMISE
     uid_list = return_uid_wings_sections(tixi)
     wings = sorted(set(wing_uid for (wing_uid, _) in uid_list))
 
-    with st.expander(
-        label="Geometry Design hce",
-        expanded=True,
-    ):
-        for i_wing, wing_uid in enumerate(wings):
-            with st.container(
-                border=True,
-            ):
-                default_value = True if i_wing == 0 else False
-                wing_xpath = xpath + f"/{wing_uid}"
-                wing_optimized = bool_vartype(
+    st.markdown("---")
+    st.markdown("**Geometry Design Space**")
+
+    geometry_space = st.container()
+    for i_wing, wing_uid in enumerate(wings):
+        with st.container(
+            border=True,
+        ):
+            default_value = True if i_wing == 0 else False
+            wing_xpath = xpath + f"/{wing_uid}"
+            wing_optimized = bool_vartype(
+                tixi=tixi,
+                xpath=wing_xpath + "/selected",
+                default_value=default_value,
+                key=f"smtrain_{wing_uid}_selected",
+                name=f"Wing {wing_uid=}",
+                help=f"Optimize wing {wing_uid=}.",
+            )
+
+            if wing_optimized:
+                _wing_settings(
                     tixi=tixi,
-                    xpath=wing_xpath + "/selected",
-                    default_value=default_value,
-                    key=f"smtrain_{wing_uid}_selected",
-                    name=f"Wing {wing_uid=}",
-                    help=f"Optimize wing {wing_uid=}.",
+                    xpath=xpath,
+                    uid_list=uid_list,
+                    wing_uid=wing_uid,
+                    wing_xpath=wing_xpath,
                 )
 
-                if wing_optimized:
-                    _wing_settings(
+    with geometry_space:
+        selected_params = []
+        for wing_uid in wings:
+            wing_xpath = xpath + f"/{wing_uid}"
+            if not tixi.checkElement(wing_xpath + "/selected"):
+                continue
+            if not get_value_or_default(tixi, wing_xpath + "/selected", False):
+                continue
+
+            sections = [sec_uid for (wng, sec_uid) in uid_list if wng == wing_uid]
+            for section_uid in sections:
+                sec_xpath = wing_xpath + f"/sections/{section_uid}"
+                sec_selected_xpath = sec_xpath + "/selected"
+                if not tixi.checkElement(sec_selected_xpath):
+                    continue
+                if not get_value_or_default(tixi, sec_selected_xpath, False):
+                    continue
+
+                for param in WING_PARAMETERS:
+                    param_xpath = sec_xpath + f"/parameters/{param}"
+                    status_xpath = param_xpath + "/status"
+                    if not tixi.checkElement(status_xpath):
+                        continue
+                    if not get_value_or_default(tixi, status_xpath, False):
+                        continue
+
+                    cpacs_xpath = get_xpath_for_param(
                         tixi=tixi,
-                        xpath=xpath,
-                        uid_list=uid_list,
+                        param=param,
                         wing_uid=wing_uid,
-                        wing_xpath=wing_xpath,
+                        section_uid=section_uid,
                     )
+                    current_value = float(
+                        get_value_or_default(
+                            tixi=tixi,
+                            xpath=cpacs_xpath,
+                            default_value=0.0,
+                        )
+                    )
+                    min_value = float(
+                        get_value_or_default(
+                            tixi=tixi,
+                            xpath=param_xpath + "/min_value/value",
+                            default_value=current_value,
+                        )
+                    )
+                    max_value = float(
+                        get_value_or_default(
+                            tixi=tixi,
+                            xpath=param_xpath + "/max_value/value",
+                            default_value=current_value,
+                        )
+                    )
+                    lo, hi = sorted((min_value, max_value))
+                    selected_params.append(
+                        {
+                            "param": param,
+                            "wing_uid": wing_uid,
+                            "section_uid": section_uid,
+                            "cpacs_xpath": cpacs_xpath,
+                            "current_value": current_value,
+                            "lo": lo,
+                            "hi": hi,
+                        }
+                    )
+
+        params_to_update = {}
+        for info in selected_params:
+            slider_key = (
+                f"smtrain_geom_preview_{info['wing_uid']}_{info['section_uid']}_{info['param']}"
+            )
+            slider_value = st.session_state.get(slider_key, info["current_value"])
+            if info["param"] not in params_to_update:
+                params_to_update[info["param"]] = {"values": [], "xpath": []}
+            params_to_update[info["param"]]["values"].append(float(slider_value))
+            params_to_update[info["param"]]["xpath"].append(info["cpacs_xpath"])
+
+        preview_cpacs = cpacs
+        if params_to_update:
+            try:
+                with tempfile.NamedTemporaryFile(
+                    prefix="ceasiompy_smtrain_preview_",
+                    suffix=".xml",
+                    delete=False,
+                ) as tmp_file:
+                    preview_cpacs_path = Path(tmp_file.name)
+                preview_cpacs = update_geometry_cpacs(
+                    cpacs_path_in=Path(cpacs.cpacs_file),
+                    cpacs_path_out=preview_cpacs_path,
+                    geom_params=params_to_update,
+                )
+            except Exception as exc:
+                st.warning(f"Could not update geometry preview: {exc!r}")
+
+        section_3d_view(
+            cpacs=preview_cpacs,
+            force_regenerate=bool(params_to_update),
+            plot_key="smtrain_geom_design_space_view",
+        )
+
+        if selected_params:
+            st.markdown("**Geometry Preview Sliders**")
+            for info in selected_params:
+                wing_uid = info['wing_uid']
+                slider_key = (
+                    f"smtrain_geom_preview_{wing_uid}_{info['section_uid']}_{info['param']}"
+                )
+                if info["lo"] == info["hi"]:
+                    st.number_input(
+                        (
+                            f"{info['param']} ({info['section_uid']} | {info['wing_uid']})"
+                        ),
+                        value=float(info["lo"]),
+                        key=slider_key,
+                        disabled=True,
+                    )
+                else:
+                    step = (info["hi"] - info["lo"]) / 100.0
+                    st.slider(
+                        f"{info['param']} ({info['section_uid']} | {info['wing_uid']})",
+                        min_value=float(info["lo"]),
+                        max_value=float(info["hi"]),
+                        value=float(info["current_value"]),
+                        step=float(step),
+                        key=slider_key,
+                    )
+            st.markdown("---")
 
     # elif load_existing == "Load Geometry Exploration Simulations":
     #     st.info("Whats going on ?")

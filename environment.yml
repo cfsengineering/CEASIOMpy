@@ -86,9 +86,10 @@ dependencies:
 
       # Streamlit
       - streamlit>=1.54.0
+      - streamlit-float
       - streamlit_sortables
       - streamlit-flow-component>=1.6.1
-      - streamlit-float
+      - streamlit-tree-select>=0.0.5
       - pdfplumber
       - protobuf<=3.20.3
 

@@ -32,7 +32,7 @@ from ceasiompy.to3d import MODULE_NAME as TO3D
 from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
 from ceasiompy.smtrain import MODULE_NAME as SMTRAIN
-from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
+from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
 from ceasiompy.airfoil2gmsh import MODULE_NAME as AIRFOIL2GMSH
 from ceasiompy.addcontrolsurfaces import MODULE_NAME as ADDCONTROLSURFACES
 

@@ -275,9 +275,9 @@ class Avl:
         self.gain = gain
         self.control_type = control_type
 
-        self.vortex_dist: int = convert_dist_to_avl_format(get_value(tixi, AVL_DISTR_XPATH))
-        self.nchordwise: int = get_value(tixi, AVL_NCHORDWISE_XPATH)
-        self.nspanwise: int = get_value(tixi, AVL_NSPANWISE_XPATH)
+        self.vortex_dist: int = convert_dist_to_avl_format(str(get_value(tixi, AVL_DISTR_XPATH)))
+        self.nchordwise: int = int(get_value(tixi, AVL_NCHORDWISE_XPATH))
+        self.nspanwise: int = int(get_value(tixi, AVL_NSPANWISE_XPATH))
         self.add_fuselage: bool = True  # get_value(tixi, AVL_FUSELAGE_XPATH)
 
         self.area_ref: float = tixi.getDoubleElement(AREA_XPATH)
@@ -299,7 +299,7 @@ class Avl:
                 + ".avl"
             )
 
-    def initialize_avl_command_file(self) -> Path:
+    def initialize_avl_command_file(self) -> None:
         with open(self.avl_path, "w") as avl_file:
             avl_file.write(self.name_aircraft + "\n\n")
 

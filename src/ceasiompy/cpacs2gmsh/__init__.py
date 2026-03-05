@@ -21,7 +21,7 @@ from ceasiompy.utils.commonxpaths import MESH_XPATH
 SOFTWARE_NAME = "pentagrow"
 
 HAS_PENTAGROW = get_module_status(
-    default=True,
+    default=False,
     needs_soft_name=SOFTWARE_NAME,
 )
 

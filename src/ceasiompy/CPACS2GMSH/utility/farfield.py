@@ -189,7 +189,9 @@ def generate_farfield(
 
     log.info(
         "Farfield creation completed in current gmsh model: "
-        f"farfield={len(farfield_surfaces)} wall={len(wall_surface_tags)} fluid_volumes={len(fluid_volume_tags)}"
+        f"farfield={len(farfield_surfaces)} "
+        f"wall={len(wall_surface_tags)} "
+        f"fluid_volumes={len(fluid_volume_tags)}"
     )
 
     return farfield_surfaces, wall_surface_tags, fluid_volume_tags

@@ -17,11 +17,11 @@ import streamlit as st
 
 from html import escape
 from textwrap import dedent
+from ceasiompy.utils.plot import section_3d_view
 from streamlitutils import (
     scroll_down,
     create_sidebar,
     save_cpacs_file,
-    section_3d_view,
 )
 
 from pathlib import Path

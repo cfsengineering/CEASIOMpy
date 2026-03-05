@@ -17,6 +17,7 @@ import streamlit as st
 
 from ceasiompy.utils import get_wkdir
 from cpacspy.cpacsfunctions import get_value
+from ceasiompy.utils.plot import section_3d_view
 from ceasiompy.utils.guiobjects import add_value
 from gmshairfoil2d.airfoil_func import get_airfoil_points
 from ceasiompy.utils.referencevalues import (
@@ -31,7 +32,6 @@ from ceasiompy.utils.ceasiompyutils import (
 from streamlitutils import (
     scroll_down,
     create_sidebar,
-    section_3d_view,
     close_cpacs_handles,
     build_default_upload,
 )

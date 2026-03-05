@@ -29,6 +29,7 @@ from textwrap import dedent
 from time import perf_counter
 from functools import lru_cache
 from contextlib import contextmanager
+from ceasiompy.utils.plot import section_3d_view
 from ceasiompy.utils.commonpaths import get_wkdir
 from SALib.sample.sobol import sample as sobol_sample
 from SALib.analyze.sobol import analyze as sobol_analyze
@@ -47,7 +48,6 @@ from parsefunctions import (
 )
 from streamlitutils import (
     create_sidebar,
-    section_3d_view,
     highlight_stability,
 )
 

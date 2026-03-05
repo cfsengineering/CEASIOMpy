@@ -35,7 +35,6 @@ from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
 from ceasiompy.utils.ceasiompyutils import get_part_type
 from cpacspy.cpacsfunctions import create_branch
 
-from ceasiompy.CPACS2GMSH.func.mesh_sizing import wings_size
 from ceasiompy.CPACS2GMSH.func.utils import initialize_gmsh, write_gmsh, cfg_rotors
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_wing_section,
@@ -48,7 +47,7 @@ from pathlib import Path
 from ceasiompy.CPACS2GMSH.func.wingclassification import ModelPart
 from ceasiompy.utils.configfiles import ConfigFile
 from tixi3.tixi3wrapper import Tixi3
-from typing import List, Dict, Tuple, Callable, Optional
+from typing import List, Dict, Tuple, Callable
 
 from ceasiompy import log
 from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
@@ -524,7 +523,7 @@ def generate_gmsh(
 
     if len(aircraft_parts) > 1:
         for p, part in enumerate(aircraft_parts):
-            for other_part in aircraft_parts[(p + 1) :]:
+            for other_part in aircraft_parts[(p + 1):]:
                 shared_children = part.children_dimtag.intersection(other_part.children_dimtag)
 
                 if shared_children:

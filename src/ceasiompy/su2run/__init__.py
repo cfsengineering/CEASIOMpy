@@ -46,8 +46,6 @@ MODULE_TYPE = "Solver"
 
 # xPaths
 SU2_XPATH = CEASIOMPY_XPATH + "/aerodynamics/su2"
-SU2_EXTRACT_LOAD_XPATH = SU2_XPATH + "/results/extractLoads"
-SU2_UPDATE_WETTED_AREA_XPATH = SU2_XPATH + "/results/updateWettedArea"
 
 SU2_MAX_ITER_XPATH = SU2_XPATH + "/settings/maxIter"
 SU2_CFL_NB_XPATH = SU2_XPATH + "/settings/cflNumber/value"

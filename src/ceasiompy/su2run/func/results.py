@@ -56,10 +56,8 @@ from ceasiompy.utils.commonxpaths import (
     GEOMETRY_MODE_XPATH,
 )
 from ceasiompy.su2run import (
-    SU2_EXTRACT_LOAD_XPATH,
     SU2_FIXED_CL_XPATH,
     SU2_ROTATION_RATE_XPATH,
-    SU2_UPDATE_WETTED_AREA_XPATH,
     SU2_DAMPING_DER_XPATH,
     SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH,
     SU2_DYNAMICDERIVATIVES_DATA_XPATH,
@@ -196,16 +194,14 @@ def get_static_results(
         # TODO: convert when it is possible to save TED in cpacspy
         raise NotImplementedError("TED not implemented yet")
 
-    update_wetted_area = get_value(tixi, SU2_UPDATE_WETTED_AREA_XPATH)
-    if not found_wetted_area and update_wetted_area:
+    if not found_wetted_area:
         update_wetted_area_func(
             cpacs=cpacs,
             config_dir=config_dir,
         )
         found_wetted_area = True
 
-    if get_value(tixi, SU2_EXTRACT_LOAD_XPATH):
-        extract_loads(config_dir)
+    extract_loads(config_dir)
 
 
 def get_dynamic_force_files(file_path: Path) -> Path:

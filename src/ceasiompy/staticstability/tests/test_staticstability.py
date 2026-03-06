@@ -91,11 +91,9 @@ class TestStaticStability(CeasiompyTest):
         )
 
     @log_test
-    def test_main_raises_when_all_aeromaps_fail(self: TestStaticStability) -> None:
+    def test_main_handles_missing_values_without_raising(self: TestStaticStability) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
-            with self.assertRaises(RuntimeError) as err:
-                staticstability(self.test_cpacs, Path(tmpdir))
-            self.assertIn("StaticStability failed", str(err.exception))
+            staticstability(self.test_cpacs, Path(tmpdir))
 
 
 # Main

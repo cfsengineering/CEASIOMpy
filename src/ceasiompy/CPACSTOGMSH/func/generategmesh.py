@@ -31,12 +31,12 @@ import gmsh
 
 import numpy as np
 
-from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
+from ceasiompy.CPACSTOGMSH.func.wingclassification import classify_wing
 from ceasiompy.utils.ceasiompyutils import get_part_type
 from cpacspy.cpacsfunctions import create_branch
 
-from ceasiompy.CPACS2GMSH.func.utils import initialize_gmsh, write_gmsh, cfg_rotors
-from ceasiompy.CPACS2GMSH.func.advancemeshing import (
+from ceasiompy.CPACSTOGMSH.func.utils import initialize_gmsh, write_gmsh, cfg_rotors
+from ceasiompy.CPACSTOGMSH.func.advancemeshing import (
     refine_wing_section,
     set_domain_mesh,
     refine_small_surfaces,
@@ -44,15 +44,15 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
 )
 
 from pathlib import Path
-from ceasiompy.CPACS2GMSH.func.wingclassification import ModelPart
+from ceasiompy.CPACSTOGMSH.func.wingclassification import ModelPart
 from ceasiompy.utils.configfiles import ConfigFile
 from tixi3.tixi3wrapper import Tixi3
 from typing import List, Dict, Tuple, Callable
 
 from ceasiompy import log
-from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
+from ceasiompy.CPACSTOGMSH.func.utils import MESH_COLORS
 
-from ceasiompy.CPACS2GMSH import (
+from ceasiompy.CPACSTOGMSH import (
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
     GMSH_MESH_SIZE_WINGS_XPATH,
     GMSH_MESH_SIZE_CTRLSURFS_XPATH,

@@ -22,7 +22,7 @@ from ceasiompy.utils.configfiles import ConfigFile
 
 from ceasiompy import log
 
-from ceasiompy.CPACS2GMSH import (
+from ceasiompy.CPACSTOGMSH import (
     GMSH_AUTO_REFINE_XPATH,
     GMSH_EXHAUST_PERCENT_XPATH,
     GMSH_FARFIELD_SIZE_FACTOR_XPATH,

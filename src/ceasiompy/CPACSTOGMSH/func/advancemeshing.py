@@ -23,8 +23,8 @@ import numpy as np
 from itertools import combinations
 
 from ceasiompy import log
-from ceasiompy.CPACS2GMSH.func.wingclassification import ModelPart
-from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
+from ceasiompy.CPACSTOGMSH.func.wingclassification import ModelPart
+from ceasiompy.CPACSTOGMSH.func.utils import MESH_COLORS
 
 
 # Functions

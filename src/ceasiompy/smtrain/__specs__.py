@@ -37,7 +37,7 @@ from tixi3.tixi3wrapper import Tixi3
 from ceasiompy import MAIN_GAP
 from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
-from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
+from ceasiompy.CPACSTOGMSH import MODULE_NAME as CPACS2GMSH
 from ceasiompy.smtrain import (
     SM_MODELS,
     LEVEL_TWO,

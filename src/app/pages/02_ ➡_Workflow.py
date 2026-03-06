@@ -49,7 +49,7 @@ from ceasiompy.smtrain import (
     MODULE_NAME as SMTRAIN,
     DESCRIPTION as SMTRAIN_DESCRIPTION,
 )
-from ceasiompy.CPACS2GMSH import (
+from ceasiompy.CPACSTOGMSH import (
     MODULE_NAME as CPACS2GMSH,
     DESCRIPTION as CPACS2GMSH_DESCRIPTION,
 )

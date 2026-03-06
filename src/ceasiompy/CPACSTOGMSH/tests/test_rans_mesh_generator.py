@@ -19,16 +19,16 @@ from ceasiompy.utils.ceasiompyutils import (
     get_part_type,
 )
 from ceasiompy.su2run.func.utils import get_mesh_markers
-from ceasiompy.CPACS2GMSH.func.rans_mesh_generator import (
+from ceasiompy.CPACSTOGMSH.func.rans_mesh_generator import (
     generate_2d_mesh_for_pentagrow,
     sort_surfaces_and_create_physical_groups,
     choose_correct_part,
     pentagrow_3d_mesh,
 )
-from ceasiompy.CPACS2GMSH.func.generategmesh import (
+from ceasiompy.CPACSTOGMSH.func.generategmesh import (
     ModelPart,
 )
-from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
+from ceasiompy.CPACSTOGMSH.func.exportbrep import export_brep
 import gmsh
 import shutil
 from pathlib import Path

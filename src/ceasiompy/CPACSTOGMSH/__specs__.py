@@ -24,7 +24,7 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy import log
 from ceasiompy.to3d import MODULE_NAME as TO3D
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
-from ceasiompy.CPACS2GMSH import (
+from ceasiompy.CPACSTOGMSH import (
     MODULE_NAME as CPACS2GMSH,
     HAS_PENTAGROW,
     GMSH_OPEN_GUI_XPATH,

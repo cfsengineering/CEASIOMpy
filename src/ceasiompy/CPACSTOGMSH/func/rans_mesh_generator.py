@@ -21,26 +21,26 @@ import shutil
 import random
 import subprocess
 
-from ceasiompy.CPACS2GMSH.func.mesh_sizing import fuselage_size
-from ceasiompy.CPACS2GMSH import (
+from ceasiompy.CPACSTOGMSH.func.mesh_sizing import fuselage_size
+from ceasiompy.CPACSTOGMSH import (
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
     GMSH_MESH_SIZE_WINGS_XPATH,
 )
 
-from ceasiompy.CPACS2GMSH.func.mesh_sizing import wings_size
-from ceasiompy.CPACS2GMSH.func.utils import (
+from ceasiompy.CPACSTOGMSH.func.mesh_sizing import wings_size
+from ceasiompy.CPACSTOGMSH.func.utils import (
     check_path,
     initialize_gmsh,
     load_rans_cgf_params,
 )
-from ceasiompy.CPACS2GMSH.func.wingclassification import (
+from ceasiompy.CPACSTOGMSH.func.wingclassification import (
     classify_wing,
     exclude_lines,
 )
-from ceasiompy.CPACS2GMSH.func.generategmesh import (
+from ceasiompy.CPACSTOGMSH.func.generategmesh import (
     process_gmsh_log,
 )
-from ceasiompy.CPACS2GMSH.func.advancemeshing import (
+from ceasiompy.CPACSTOGMSH.func.advancemeshing import (
     refine_wing_section,
     min_fields,
     refine_small_surfaces,
@@ -59,10 +59,10 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import create_branch
 from itertools import combinations
-from ceasiompy.CPACS2GMSH.func.wingclassification import ModelPart
+from ceasiompy.CPACSTOGMSH.func.wingclassification import ModelPart
 
 from ceasiompy import log
-from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
+from ceasiompy.CPACSTOGMSH.func.utils import MESH_COLORS
 
 
 # Functions

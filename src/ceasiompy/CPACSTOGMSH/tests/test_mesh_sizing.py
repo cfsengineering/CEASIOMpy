@@ -12,7 +12,7 @@ from __future__ import annotations
 
 # Imports
 
-from ceasiompy.CPACS2GMSH.func.mesh_sizing import (
+from ceasiompy.CPACSTOGMSH.func.mesh_sizing import (
     wings_size,
     fuselage_size,
 )

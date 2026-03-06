@@ -11,11 +11,11 @@ import threading
 
 from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.utils.geometryfunctions import return_uidwings
-from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-from ceasiompy.CPACS2GMSH.func.meshvis import cgns_mesh_checker
-from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
+from ceasiompy.CPACSTOGMSH.func.exportbrep import export_brep
+from ceasiompy.CPACSTOGMSH.func.meshvis import cgns_mesh_checker
+from ceasiompy.CPACSTOGMSH.func.generategmesh import generate_gmsh
 from ceasiompy.addcontrolsurfaces.func.controlsurfaces import deflection_angle
-from ceasiompy.CPACS2GMSH.func.rans_mesh_generator import (
+from ceasiompy.CPACSTOGMSH.func.rans_mesh_generator import (
     pentagrow_3d_mesh,
     generate_2d_mesh_for_pentagrow,
 )
@@ -23,7 +23,7 @@ from cpacspy.cpacsfunctions import (
     get_value,
     create_branch,
 )
-from ceasiompy.CPACS2GMSH.func.utils import (
+from ceasiompy.CPACSTOGMSH.func.utils import (
     retrieve_rans_gui_values,
     retrieve_euler_gui_values,
     retrieve_general_gui_values,
@@ -38,7 +38,7 @@ from ceasiompy.utils.commonxpaths import (
     SU2MESH_XPATH,
     GEOMETRY_MODE_XPATH,
 )
-from ceasiompy.CPACS2GMSH import (
+from ceasiompy.CPACSTOGMSH import (
     MODULE_NAME,
     CONTROL_SURFACES_LIST,
     GMSH_CTRLSURF_ANGLE_XPATH,

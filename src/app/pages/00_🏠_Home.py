@@ -115,9 +115,8 @@ if __name__ == "__main__":
 
     with col4:
         st.success(
-            "✉️ **Contact Us**\n\n"
-            "Do you have a special request ? "
-            "Contact us [at](mailto:ceasiompy@gmail.com)."
+            "✉️ **[Contact Us](mailto:ceasiompy@gmail.com)**\n\n"
+            "Feature request ? Collaboration ?"
         )
 
     # Add last_page to session state

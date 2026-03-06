@@ -35,8 +35,7 @@ from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
 from ceasiompy.utils.ceasiompyutils import get_part_type
 from cpacspy.cpacsfunctions import create_branch
 
-from ceasiompy.CPACS2GMSH.utility.utils import write_gmsh
-from ceasiompy.CPACS2GMSH.func.utils import initialize_gmsh, cfg_rotors
+from ceasiompy.CPACS2GMSH.func.utils import initialize_gmsh, write_gmsh, cfg_rotors
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_wing_section,
     set_domain_mesh,

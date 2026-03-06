@@ -169,6 +169,12 @@ def add_disk_actuator(brep_dir: Path, config_file: ConfigFile):
             gmsh.finalize()
 
 
+def write_gmsh(results_dir: str, file: str) -> Path:
+    su2mesh_path = Path(results_dir, file)
+    gmsh.write(str(su2mesh_path))
+    return Path(su2mesh_path)
+
+
 def initialize_gmsh() -> None:
     # Reset any stale model so each run starts clean.
     # Avoid finalize() here: re-finalizing/re-initializing in embedded runtimes can be unstable.

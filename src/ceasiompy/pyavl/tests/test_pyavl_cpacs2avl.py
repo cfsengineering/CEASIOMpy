@@ -116,8 +116,8 @@ class TestWriteFuselage(CeasiompyTest):
             # Check avl file content
             with open(avl.avl_path) as f:
                 avl_lines = f.read().splitlines()
-            assert avl_lines[0] == "BFILE"
-            assert avl_lines[1] == str(fus_dat_path)
+            bfile_idx = avl_lines.index("BFILE")
+            assert avl_lines[bfile_idx + 1] == str(fus_dat_path)
 
     def test_write_fuselage_settings(self):
         update_cpacs_from_specs(

@@ -7,7 +7,6 @@ Data extraction from pyAVL for stability analysis
 """
 
 # Imports
-import numpy as np
 
 from ceasiompy.staticstability.func.plot import plot_stability
 from ceasiompy.staticstability.func.stabilitystatus import (
@@ -24,11 +23,6 @@ from cpacspy.cpacspy import (
 )
 
 from ceasiompy import log
-
-
-# Constants
-
-SCIENTIFIC_COLUMNS = ("cma", "clb", "cnb")
 
 
 # Methods
@@ -183,13 +177,6 @@ def compute_stab_table(
     csv_path = Path(results_dir, csv_name)
     try:
         export_df = stab_df.copy()
-        if not export_df.empty:
-            cols_to_format = [col for col in SCIENTIFIC_COLUMNS if col in export_df.columns]
-            if cols_to_format:
-                export_df.loc[:, cols_to_format] = np.char.mod(
-                    "%.3e",
-                    export_df.loc[:, cols_to_format].to_numpy(dtype=float, copy=False),
-                )
 
         export_df[[
             "mach",

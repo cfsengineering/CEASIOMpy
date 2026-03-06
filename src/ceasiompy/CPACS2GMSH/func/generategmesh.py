@@ -891,14 +891,30 @@ def generate_gmsh(
         control_disk_actuator_normal()
 
     if surf is None:
-        su2mesh_path = write_gmsh(results_dir, "mesh.su2")
-        write_gmsh(results_dir, "mesh.vtu")
+        su2_name = "mesh.su2"
+        vtu_name = "mesh.vtu"
     else:
         mesh_name = f"mesh_{surf}_{angle}"
-        su2mesh_path = write_gmsh(results_dir, f"{mesh_name}.su2")
-        write_gmsh(results_dir, f"{mesh_name}.vtu")
+        su2_name = f"{mesh_name}.su2"
+        vtu_name = f"{mesh_name}.vtu"
 
-    cgns_path = write_gmsh(results_dir, "mesh.cgns") if also_save_cgns else None
+    try:
+        su2mesh_path = write_gmsh(results_dir, su2_name)
+    except Exception as err:
+        log.warning(f"Could not export '{su2_name}' with gmsh ({err}); writing .msh instead.")
+        su2mesh_path = write_gmsh(results_dir, "mesh.msh")
+
+    try:
+        write_gmsh(results_dir, vtu_name)
+    except Exception as err:
+        log.warning(f"Could not export '{vtu_name}' with gmsh ({err}).")
+
+    cgns_path = None
+    if also_save_cgns:
+        try:
+            cgns_path = write_gmsh(results_dir, "mesh.cgns")
+        except Exception as err:
+            log.warning(f"Could not export 'mesh.cgns' with gmsh ({err}).")
 
     process_gmsh_log(gmsh.logger.get())
 

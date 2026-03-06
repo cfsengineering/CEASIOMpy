@@ -67,7 +67,7 @@ from constants import BLOCK_CONTAINER
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
 from ceasiompy.pyavl import (
     AVL_TABLE_FILES,
-    MODULE_NAME as PYAVL_MODULE,
+    MODULE_NAME as PYAVL,
 )
 from ceasiompy.skinfriction import (
     MODULE_NAME as SKINFRICTION_MODULE,
@@ -911,10 +911,10 @@ def show_results() -> None:
     tab_names = list(results_name)
 
     post_names = []
-    if PYAVL_MODULE in results_name and STATICSTABILITY_MODULE not in results_name:
+    if PYAVL in results_name and STATICSTABILITY_MODULE not in results_name:
         post_names.append(STATICSTABILITY_MODULE)
 
-    if PYAVL_MODULE in results_name and SKINFRICTION_MODULE not in results_name:
+    if PYAVL in results_name and SKINFRICTION_MODULE not in results_name:
         post_names.append(SKINFRICTION_MODULE)
 
     total_tabs = tab_names + post_names
@@ -931,7 +931,7 @@ def show_results() -> None:
                         ),
                     )
                 except Tixi3Exception:
-                    st.warning("No outputs from 'pyavl' found.")
+                    st.warning(f"No outputs from `{PYAVL}` found.")
                     continue
                 except Exception as e:
                     raise Exception(e)

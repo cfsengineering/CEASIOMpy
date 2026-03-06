@@ -205,6 +205,7 @@ def run_first_level_simulations(
                 idx=i,
                 results_dir=results_dir,
                 objective=training_settings.objective,
+                total=total_cases,
             )
             if result is not None:
                 final_dfs.append(result)
@@ -223,14 +224,16 @@ def run_first_level_simulations(
         return pd.concat(final_dfs, axis=0, ignore_index=True)
 
     log.info(f"Running {len(cpacs_list)} AVL simulations with {max_workers} workers.")
-    executor_cls = concurrent.futures.ProcessPoolExecutor
-    if progress_callback is not None:
-        # Local workflow callbacks are not picklable; avoid ProcessPool in this case.
-        log.info("Progress callback detected; using ThreadPoolExecutor for AVL simulations.")
-        executor_cls = concurrent.futures.ThreadPoolExecutor
+    # Always use ProcessPoolExecutor: TiGL/OpenCASCADE is not thread-safe, so
+    # ThreadPoolExecutor causes segfaults when multiple threads call CPACS() in
+    # parallel. The progress_callback is only invoked in the main process (via
+    # _emit_progress), never passed to worker processes, so picklability is not
+    # a concern here.
+    _PER_SIM_TIMEOUT = 600.0  # seconds
 
-    with executor_cls(max_workers=max_workers) as executor:
+    with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
         futures: dict[concurrent.futures.Future, int] = {}
+        submit_times: dict[concurrent.futures.Future, float] = {}
         for i, cpacs in enumerate(cpacs_list):
             future = executor.submit(
                 _run_first_level_simulation_task,
@@ -239,26 +242,57 @@ def run_first_level_simulations(
                 i,
                 results_dir,
                 training_settings.objective,
+                total_cases,
             )
             futures[future] = i + 1
+            submit_times[future] = time.monotonic()
 
-        for future in concurrent.futures.as_completed(futures):
-            sim_idx = futures[future]
-            try:
-                result, err_msg = future.result()
-            except Exception as e:
-                log.error(
-                    f"Error in parallel AVL simulation #{sim_idx}: {e=}. "
-                    "Skipping this simulation..."
-                )
-                failed_cases.append((sim_idx, f"{type(e).__name__}: {e}"))
+        # Use wait() with a short poll interval instead of as_completed() so we
+        # can enforce a per-future wall-clock timeout.  as_completed() blocks
+        # indefinitely on hanging futures and never reaches future.result().
+        pending = set(futures.keys())
+        while pending:
+            done, pending = concurrent.futures.wait(
+                pending, timeout=5.0,
+                return_when=concurrent.futures.FIRST_COMPLETED,
+            )
+
+            for future in done:
+                sim_idx = futures[future]
+                try:
+                    result, err_msg = future.result()
+                except Exception as e:
+                    log.error(
+                        f"Error in parallel AVL simulation #{sim_idx}: {e=}. "
+                        "Skipping this simulation..."
+                    )
+                    failed_cases.append((sim_idx, f"{type(e).__name__}: {e}"))
+                    _emit_progress()
+                    continue
+                if result is not None:
+                    final_dfs.append(result)
+                elif err_msg is not None:
+                    failed_cases.append((sim_idx, err_msg))
                 _emit_progress()
-                continue
-            if result is not None:
-                final_dfs.append(result)
-            elif err_msg is not None:
-                failed_cases.append((sim_idx, err_msg))
-            _emit_progress()
+
+            # Cancel futures that have exceeded the per-simulation wall-clock limit.
+            now = time.monotonic()
+            timed_out = {
+                f for f in pending
+                if now - submit_times[f] > _PER_SIM_TIMEOUT
+            }
+            for future in timed_out:
+                sim_idx = futures[future]
+                log.error(
+                    f"AVL simulation #{sim_idx} timed out after "
+                    f"{_PER_SIM_TIMEOUT:.0f}s. Skipping..."
+                )
+                failed_cases.append(
+                    (sim_idx, f"TimeoutError: simulation exceeded {_PER_SIM_TIMEOUT:.0f}s limit")
+                )
+                future.cancel()
+                _emit_progress()
+            pending -= timed_out
 
     # Check if any successful simulations
     if not final_dfs:
@@ -277,13 +311,14 @@ def _run_first_level_simulation_task(
     idx: int,
     results_dir: Path,
     objective: str,
+    total: int = 1,
 ) -> tuple[DataFrame | None, str | None]:
-    pyavl_local_dir = results_dir / f"{PYAVL}_{idx + 1}"
+    n_digits = len(str(total))
+    pyavl_local_dir = results_dir / f"{PYAVL}_{idx + 1:0{n_digits}d}"
     pyavl_local_dir.mkdir(exist_ok=True)
 
     try:
         cpacs = CPACS(cpacs_path)
-
         run_avl(
             cpacs=cpacs,
             results_dir=pyavl_local_dir,

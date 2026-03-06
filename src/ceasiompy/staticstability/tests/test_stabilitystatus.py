@@ -18,10 +18,14 @@ from ceasiompy.staticstability.func.stabilitystatus import (
 def test_check_stability_lr_handles_nan_and_exports_tangent_columns() -> None:
     df = pd.DataFrame(
         [
-            {"mach": 0.2, "alt": 1000.0, "alpha": 0.0, "beta": 0.0, "cms": 0.0, "cml": 0.0, "cmd": 0.0},
-            {"mach": 0.2, "alt": 1000.0, "alpha": 1.0, "beta": 0.0, "cms": -0.1, "cml": 0.0, "cmd": 0.0},
-            {"mach": 0.2, "alt": 1000.0, "alpha": 0.0, "beta": 1.0, "cms": np.nan, "cml": 0.1, "cmd": -0.1},
-            {"mach": 0.2, "alt": 1000.0, "alpha": 1.0, "beta": 1.0, "cms": np.nan, "cml": 0.1, "cmd": -0.1},
+            {"mach": 0.2, "alt": 1000.0, "alpha": 0.0, "beta": 0.0,
+             "cms": 0.0, "cml": 0.0, "cmd": 0.0},
+            {"mach": 0.2, "alt": 1000.0, "alpha": 1.0, "beta": 0.0,
+             "cms": -0.1, "cml": 0.0, "cmd": 0.0},
+            {"mach": 0.2, "alt": 1000.0, "alpha": 0.0, "beta": 1.0,
+             "cms": np.nan, "cml": 0.1, "cmd": -0.1},
+            {"mach": 0.2, "alt": 1000.0, "alpha": 1.0, "beta": 1.0,
+             "cms": np.nan, "cml": 0.1, "cmd": -0.1},
         ]
     )
 
@@ -40,4 +44,3 @@ def test_check_stability_tangent_nan_marks_axis_unstable() -> None:
     assert longitudinal == "Unstable"
     assert directional == "Stable"
     assert lateral == "Stable"
-

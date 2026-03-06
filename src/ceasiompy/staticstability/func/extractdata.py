@@ -10,7 +10,7 @@ Data extraction from pyAVL for stability analysis
 
 from ceasiompy.staticstability.func.plot import plot_stability
 from ceasiompy.staticstability.func.stabilitystatus import (
-    check_stability_lr,
+    # check_stability_lr,
     check_stability_tangent,
 )
 
@@ -89,9 +89,10 @@ def generate_stab_df(cpacs: CPACS, aeromap_uid: str) -> DataFrame:
     cma = _read_increment_values(tixi, increment_map_xpath, "dcms")
     cnb = _read_increment_values(tixi, increment_map_xpath, "dcml")
 
-    if not clb or not cma or not cnb:
-        log.info("Using Linear Regression to compute the stability derivatives.")
-        return check_stability_lr(df)
+    # if not clb or not cma or not cnb:
+    #     log.info(f'{clb=} {cma=} {cnb=}')
+    #     log.info("Using Linear Regression to compute the stability derivatives.")
+    #     return check_stability_lr(df)
 
     log.info("Using the direct values of the stability derivatives.")
     n_der = min(len(clb), len(cma), len(cnb))

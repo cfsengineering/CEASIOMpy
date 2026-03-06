@@ -62,6 +62,7 @@ from ceasiompy.utils.moduleinterfaces import (
     MODNAME_INIT,
     MODNAME_SPECS,
 )
+
 from ceasiompy.utils.commonxpaths import (
     SELECTED_AEROMAP_XPATH,
     AIRCRAFT_NAME_XPATH,
@@ -582,6 +583,7 @@ def run_software(
     progress_callback: Callable[..., None] | None = None,
     progress_parser: Optional[Callable[[Path], tuple]] = None,
     poll_interval: float = 0.5,
+    timeout: Optional[float] = None,
 ) -> None:
     """Run a software with the given arguments in a specific wkdir. If the software is compatible
     with MPI, 'with_mpi' can be set to True and the number of processors can be specified.
@@ -622,9 +624,16 @@ def run_software(
         if xvfb_run is None:
             log.warning("xvfb-run not found. Proceeding without it.")
         else:
-            command_line = ["xvfb-run", "--auto-servernum"] + command_line
-    else:
-        log.warning("xvfb-run not found. Proceeding without it.")
+            # Derive a unique starting display number from the current PID so
+            # that concurrent xvfb-run processes (across forked workers) don't
+            # all start searching from the same number.  --auto-servernum still
+            # searches upward from this offset if the exact slot is taken.
+            server_num = os.getpid() % 2000 + 100
+            command_line = [
+                "xvfb-run",
+                f"--server-num={server_num}",
+                "--auto-servernum",
+            ] + command_line
 
     log.info(f">>> Running {software_name} on {int(nb_cpu)} cpu(s)")
     log.info(f"Working directory: {wkdir}")
@@ -636,10 +645,24 @@ def run_software(
             logfile_path = Path(wkdir, f"logfile_{software_name}.log")
             with open(logfile_path, "w") as logfile:
                 if progress_parser is None:
-                    if stdin is None:
-                        subprocess.run(command_line, stdout=logfile, cwd=wkdir)
-                    else:
-                        subprocess.run(command_line, stdin=stdin, stdout=logfile, cwd=wkdir)
+                    try:
+                        if stdin is None:
+                            subprocess.run(
+                                command_line, stdout=logfile, cwd=wkdir, timeout=timeout
+                            )
+                        else:
+                            subprocess.run(
+                                command_line,
+                                stdin=stdin,
+                                stdout=logfile,
+                                cwd=wkdir,
+                                timeout=timeout,
+                            )
+                    except subprocess.TimeoutExpired:
+                        log.error(
+                            f"{software_name} timed out after {timeout}s and was killed."
+                        )
+                        raise
                 else:
                     proc = subprocess.Popen(
                         command_line,
@@ -647,6 +670,7 @@ def run_software(
                         stdin=stdin,
                         cwd=wkdir,
                     )
+                    deadline = time.monotonic() + timeout if timeout is not None else None
                     while True:
                         retcode = proc.poll()
                         progress, detail, log_tail = progress_parser(logfile_path)
@@ -659,13 +683,26 @@ def run_software(
                             )
                         if retcode is not None:
                             break
+                        if deadline is not None and time.monotonic() > deadline:
+                            proc.kill()
+                            proc.wait()
+                            log.error(
+                                f"{software_name} timed out after {timeout}s and was killed."
+                            )
+                            raise subprocess.TimeoutExpired(command_line, timeout)
                         time.sleep(poll_interval)
                     proc.wait()
         else:
-            if stdin is None:
-                subprocess.run(command_line, cwd=wkdir)
-            else:
-                subprocess.run(command_line, stdin=stdin, cwd=wkdir)
+            try:
+                if stdin is None:
+                    subprocess.run(command_line, cwd=wkdir, timeout=timeout)
+                else:
+                    subprocess.run(command_line, stdin=stdin, cwd=wkdir, timeout=timeout)
+            except subprocess.TimeoutExpired:
+                log.error(
+                    f"{software_name} timed out after {timeout}s and was killed."
+                )
+                raise
 
     log.info(f">>> {software_name} End")
 

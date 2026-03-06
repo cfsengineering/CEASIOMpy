@@ -293,7 +293,6 @@ def export_brep(cpacs: CPACS) -> AircraftGeometry:
     engine_surface_percent : Tuple containing the position percentage
         of the surface intake and exhaust bc for the engine
     """
-
     aircraft_config = cpacs.aircraft.configuration
     symmetry_enabled = bool(get_value(cpacs.tixi, xpath=GMSH_XZ_SYMMETRY_XPATH))
     include_mirrored = not symmetry_enabled

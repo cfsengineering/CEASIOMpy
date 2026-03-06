@@ -16,6 +16,7 @@ TODO:
 # Imports
 import pandas as pd
 
+from ceasiompy.utils.progress import progress_update
 from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.smtrain.func.utils import (
     save_model,
@@ -24,8 +25,8 @@ from ceasiompy.smtrain.func.utils import (
 from ceasiompy.smtrain.func.sampling import (
     split_data,
     sample_geom,
-    get_high_variance_points,
     get_loo_points,
+    get_high_variance_points,
 )
 from ceasiompy.smtrain.func.config import (
     get_settings,
@@ -41,6 +42,7 @@ from ceasiompy.smtrain.func.trainsurrogatemodel import (
 )
 
 from pathlib import Path
+from typing import Callable
 from pandas import DataFrame
 from cpacspy.cpacspy import CPACS
 from ceasiompy.smtrain.func.utils import DataSplit
@@ -59,19 +61,35 @@ def _geometry_exploration(
     cpacs: CPACS,
     results_dir: Path,
     training_settings: TrainingSettings,
+    progress_callback: Callable[..., None] | None = None,
 ) -> None:
 
     # 1. Generate & Prepare Data
     # Get Parameters Ranges
+    progress_update(
+        detail="Extracting Geometry Parameter Bounds.",
+        progress=0.01,
+        progress_callback=progress_callback,
+    )
     geom_bounds = get_params_to_optimise(cpacs)
 
     # LHS sampling from the Parameter Ranges
+    progress_update(
+        detail="Sampling in Geometry Bounds.",
+        progress=0.02,
+        progress_callback=progress_callback,
+    )
     sampled_geom = sample_geom(
         geom_bounds=geom_bounds,
         training_settings=training_settings,
     )
 
     # Create the list of CPACS files (in function of geometry values of lh_smapling)
+    progress_update(
+        detail=f"Creating {len(sampled_geom)} cpacs geometries.",
+        progress=0.05,
+        progress_callback=progress_callback,
+    )
     cpacs_list = create_list_cpacs_geometry(
         cpacs=cpacs,
         results_dir=results_dir,
@@ -82,12 +100,24 @@ def _geometry_exploration(
     low_fidelity_dir = results_dir / "low_fidelity"
     low_fidelity_dir.mkdir(parents=True, exist_ok=True)
 
+    progress_update(
+        detail="Starting first level simulations.",
+        progress=0.1,
+        progress_callback=progress_callback,
+    )
     # Low Fidelity First (+ Always available by default)
     level1_df: DataFrame = run_first_level_simulations(
         cpacs_list=cpacs_list,
         results_dir=low_fidelity_dir,
         sampled_geom=sampled_geom,
         training_settings=training_settings,
+        progress_callback=progress_callback,
+    )
+
+    progress_update(
+        detail="Normalizing the first-level generated dataset.",
+        progress=0.2,
+        progress_callback=progress_callback,
     )
 
     # Normalize
@@ -105,13 +135,22 @@ def _geometry_exploration(
 
     # Train Selected Surrogate Models
     if "KRG" in training_settings.sm_models:
+        progress_update(
+            detail="Starting the training of the KRG surrogate model.",
+            progress=0.3,
+            progress_callback=progress_callback,
+        )
         best_krg_model, _ = get_best_krg_model(level1_split)
 
     if "RBF" in training_settings.sm_models:
+        progress_update(
+            detail="Starting the training of the RBF surrogate model.",
+            progress=0.3,
+            progress_callback=progress_callback,
+        )
         best_rbf_model, _ = get_best_rbf_model(level1_split)
 
     # Adaptative Refinement
-    level2_split = None
     if training_settings.fidelity_level == LEVEL_TWO:
         log.info("Starting Adaptative Refinement of the Design Space.")
 
@@ -119,8 +158,19 @@ def _geometry_exploration(
         high_fidelity_dir = results_dir / "high_fidelity"
         high_fidelity_dir.mkdir(exist_ok=True)
 
+        progress_update(
+            detail="Starting Adaptative Refinement of the Design Space.",
+            progress=0.4,
+            progress_callback=progress_callback,
+        )
+
         high_var_pts = None
         if "KRG" in training_settings.sm_models:
+            progress_update(
+                detail="Extracting high-variance points from the KRG model.",
+                progress=0.5,
+                progress_callback=progress_callback,
+            )
             high_var_pts: DataFrame = get_high_variance_points(
                 model=best_krg_model,
                 level1_split=level1_split,
@@ -128,6 +178,11 @@ def _geometry_exploration(
 
         loo_pts = None
         if "RBF" in training_settings.sm_models:
+            progress_update(
+                detail="Extracting loo points from the RBF model.",
+                progress=0.5,
+                progress_callback=progress_callback,
+            )
             loo_pts: DataFrame = get_loo_points(
                 model=best_rbf_model,
                 level1_split=level1_split,
@@ -149,11 +204,23 @@ def _geometry_exploration(
         )
 
         # Run SU2 on unvalid points
+        progress_update(
+            detail="Running high-fidelity simulations.",
+            progress=0.6,
+            progress_callback=progress_callback,
+        )
+
         level2_df = run_adapt_refinement_geom(
             cpacs_list=cpacs_list,
             unvalid_pts=unvalid_pts,
             results_dir=high_fidelity_dir,
             training_settings=training_settings,
+        )
+
+        progress_update(
+            detail="Normalizing second-level data.",
+            progress=0.7,
+            progress_callback=progress_callback,
         )
 
         # Normalize
@@ -168,16 +235,32 @@ def _geometry_exploration(
         )
 
         if "KRG" in training_settings.sm_models:
+            progress_update(
+                detail="Training KRG surrogate model on second-level data.",
+                progress=0.7,
+                progress_callback=progress_callback,
+            )
             best_krg_model, _ = get_best_krg_model(
                 level1_split=level1_split,
                 level2_split=level2_split,
             )
 
         if "RBF" in training_settings.sm_models:
+            progress_update(
+                detail="Training RBF surrogate model on second-level data.",
+                progress=0.7,
+                progress_callback=progress_callback,
+            )
             best_rbf_model, _ = get_best_rbf_model(
                 level1_split=level1_split,
                 level2_split=level2_split,
             )
+
+    progress_update(
+        detail="Saving surrogate models.",
+        progress=0.95,
+        progress_callback=progress_callback,
+    )
 
     # 3. Plot, save and get results
     if "KRG" in training_settings.sm_models:
@@ -199,6 +282,12 @@ def _geometry_exploration(
             results_dir=results_dir,
             training_settings=training_settings,
         )
+
+    progress_update(
+        detail="Post-processing results.",
+        progress=0.99,
+        progress_callback=progress_callback,
+    )
 
     export_col_map = {
         "machNumber": "Mach",
@@ -251,11 +340,20 @@ def _geometry_exploration(
         sampled_geom=sampled_geom,
         training_settings=training_settings,
     )
+    progress_update(
+        detail="Finished.",
+        progress=1.0,
+        progress_callback=progress_callback,
+    )
 
 
 # Main
 
-def main(cpacs: CPACS, results_dir: Path) -> None:
+def main(
+    cpacs: CPACS,
+    results_dir: Path,
+    progress_callback: Callable[..., None] | None = None,
+) -> None:
     """
     Train a surrogate model (single-level or multi-fidelity) using aerodynamic data.
 
@@ -285,6 +383,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 cpacs=cpacs,
                 results_dir=results_dir,
                 training_settings=training_settings,
+                progress_callback=progress_callback,
             )
 
     if old_new_sim == "Load Geometry Exploration Simulations":

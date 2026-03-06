@@ -31,13 +31,12 @@ import gmsh
 
 import numpy as np
 
-from ceasiompy.cpacs2gmsh.func.wingclassification import classify_wing
+from ceasiompy.CPACSTOGMSH.func.wingclassification import classify_wing
 from ceasiompy.utils.ceasiompyutils import get_part_type
 from cpacspy.cpacsfunctions import create_branch
 
-from ceasiompy.cpacs2gmsh.func.mesh_sizing import wings_size
-from ceasiompy.cpacs2gmsh.func.utils import initialize_gmsh, write_gmsh, cfg_rotors
-from ceasiompy.cpacs2gmsh.func.advancemeshing import (
+from ceasiompy.CPACSTOGMSH.func.utils import initialize_gmsh, write_gmsh, cfg_rotors
+from ceasiompy.CPACSTOGMSH.func.advancemeshing import (
     refine_wing_section,
     set_domain_mesh,
     refine_small_surfaces,
@@ -45,15 +44,15 @@ from ceasiompy.cpacs2gmsh.func.advancemeshing import (
 )
 
 from pathlib import Path
-from ceasiompy.cpacs2gmsh.func.wingclassification import ModelPart
+from ceasiompy.CPACSTOGMSH.func.wingclassification import ModelPart
 from ceasiompy.utils.configfiles import ConfigFile
 from tixi3.tixi3wrapper import Tixi3
-from typing import List, Dict, Tuple, Callable, Optional
+from typing import List, Dict, Tuple, Callable
 
 from ceasiompy import log
-from ceasiompy.cpacs2gmsh.func.utils import MESH_COLORS
+from ceasiompy.CPACSTOGMSH.func.utils import MESH_COLORS
 
-from ceasiompy.cpacs2gmsh import (
+from ceasiompy.CPACSTOGMSH import (
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
     GMSH_MESH_SIZE_WINGS_XPATH,
     GMSH_MESH_SIZE_CTRLSURFS_XPATH,
@@ -524,7 +523,7 @@ def generate_gmsh(
 
     if len(aircraft_parts) > 1:
         for p, part in enumerate(aircraft_parts):
-            for other_part in aircraft_parts[(p + 1) :]:
+            for other_part in aircraft_parts[(p + 1):]:
                 shared_children = part.children_dimtag.intersection(other_part.children_dimtag)
 
                 if shared_children:
@@ -892,14 +891,30 @@ def generate_gmsh(
         control_disk_actuator_normal()
 
     if surf is None:
-        su2mesh_path = write_gmsh(results_dir, "mesh.su2")
-        write_gmsh(results_dir, "mesh.msh")
+        su2_name = "mesh.su2"
+        vtu_name = "mesh.vtu"
     else:
         mesh_name = f"mesh_{surf}_{angle}"
-        su2mesh_path = write_gmsh(results_dir, f"{mesh_name}.su2")
-        write_gmsh(results_dir, f"{mesh_name}.msh")
+        su2_name = f"{mesh_name}.su2"
+        vtu_name = f"{mesh_name}.vtu"
 
-    cgns_path = write_gmsh(results_dir, "mesh.cgns") if also_save_cgns else None
+    try:
+        su2mesh_path = write_gmsh(results_dir, su2_name)
+    except Exception as err:
+        log.warning(f"Could not export '{su2_name}' with gmsh ({err}); writing .msh instead.")
+        su2mesh_path = write_gmsh(results_dir, "mesh.msh")
+
+    try:
+        write_gmsh(results_dir, vtu_name)
+    except Exception as err:
+        log.warning(f"Could not export '{vtu_name}' with gmsh ({err}).")
+
+    cgns_path = None
+    if also_save_cgns:
+        try:
+            cgns_path = write_gmsh(results_dir, "mesh.cgns")
+        except Exception as err:
+            log.warning(f"Could not export 'mesh.cgns' with gmsh ({err}).")
 
     process_gmsh_log(gmsh.logger.get())
 

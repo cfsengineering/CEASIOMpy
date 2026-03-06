@@ -21,25 +21,26 @@ import shutil
 import random
 import subprocess
 
-from ceasiompy.cpacs2gmsh.func.mesh_sizing import fuselage_size
-from ceasiompy.cpacs2gmsh import (
+from ceasiompy.CPACSTOGMSH.func.mesh_sizing import fuselage_size
+from ceasiompy.CPACSTOGMSH import (
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
     GMSH_MESH_SIZE_WINGS_XPATH,
 )
-from ceasiompy.cpacs2gmsh.func.utils import (
+
+from ceasiompy.CPACSTOGMSH.func.mesh_sizing import wings_size
+from ceasiompy.CPACSTOGMSH.func.utils import (
     check_path,
     initialize_gmsh,
     load_rans_cgf_params,
 )
-from ceasiompy.cpacs2gmsh.func.wingclassification import (
+from ceasiompy.CPACSTOGMSH.func.wingclassification import (
     classify_wing,
     exclude_lines,
 )
-from ceasiompy.cpacs2gmsh.func.generategmesh import (
-    wings_size,
+from ceasiompy.CPACSTOGMSH.func.generategmesh import (
     process_gmsh_log,
 )
-from ceasiompy.cpacs2gmsh.func.advancemeshing import (
+from ceasiompy.CPACSTOGMSH.func.advancemeshing import (
     refine_wing_section,
     min_fields,
     refine_small_surfaces,
@@ -58,10 +59,10 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import create_branch
 from itertools import combinations
-from ceasiompy.cpacs2gmsh.func.wingclassification import ModelPart
+from ceasiompy.CPACSTOGMSH.func.wingclassification import ModelPart
 
 from ceasiompy import log
-from ceasiompy.cpacs2gmsh.func.utils import MESH_COLORS
+from ceasiompy.CPACSTOGMSH.func.utils import MESH_COLORS
 
 
 # Functions
@@ -938,7 +939,9 @@ def refine_le_te_end(
                     surfaces2) & set(surfaces_in_wing))
                 if len(common_points) == 2 and len(common_surfaces) == 1:
                     log.info(
-                        f"Found the end of wing in {model_part.uid}, refining lines {line1,line2}")
+                        f"Found the end of wing in {model_part.uid}, "
+                        f"refining lines {line1, line2}"
+                    )
                     refine_end_wing(
                         [line1, line2],
                         aircraft,

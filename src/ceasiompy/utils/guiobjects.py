@@ -1,7 +1,7 @@
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
-Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI objects in CEASIOMpy.
 """
@@ -23,8 +23,12 @@ from tixi3.tixi3wrapper import (
     Tixi3Exception,
 )
 
-from ceasiompy import log
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
+from ceasiompy import (
+    log,
+    MAIN_GAP,
+)
+
 
 # Constants
 UREG = UnitRegistry()
@@ -165,7 +169,7 @@ def dataframe_vartype(
         _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
 
     gen_left_col, gen_right_col = st.columns(
-        spec=[2, 3],
+        spec=[1, 3],
         vertical_alignment="bottom",
     )
 
@@ -178,7 +182,7 @@ def dataframe_vartype(
     with gen_right_col:
         # Add button to append the new value to the list
         left_col, right_col = st.columns(
-            spec=[2, 1],
+            spec=2,
             vertical_alignment="bottom",
         )
 
@@ -192,30 +196,32 @@ def dataframe_vartype(
             )
 
         with right_col:
-            if st.button(
-                label="➕ Add",
-                key=f"add_{key}",
-                width="stretch",
-                help="Add a new value to the list.",
-            ):
-                if new_value not in st.session_state[key]:
-                    st.session_state[key].append(new_value)
-                    _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
-                    st.rerun()
+            left_col, right_col = st.columns(2)
+            with left_col:
+                if st.button(
+                    label="➕ Add",
+                    key=f"add_{key}",
+                    width="stretch",
+                    help="Add a new value to the list.",
+                ):
+                    if new_value not in st.session_state[key]:
+                        st.session_state[key].append(new_value)
+                        _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
+                        st.rerun()
+            with right_col:
+                if st.button(
+                    label="❌ Remove",
+                    key=f"remove_last_{key}",
+                    width="stretch",
+                    help="Remove the last value from the list.",
+                ):
+                    if st.session_state[key]:
+                        st.session_state[key].pop()
+                        _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
+                        st.rerun()
 
-            if st.button(
-                label="❌ Remove",
-                key=f"remove_last_{key}",
-                width="stretch",
-                help="Remove the last value from the list.",
-            ):
-                if st.session_state[key]:
-                    st.session_state[key].pop()
-                    _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
-                    st.rerun()
-
-            _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
-            return st.session_state[key]
+                _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
+                return st.session_state[key]
 
 
 def int_vartype(
@@ -228,27 +234,11 @@ def int_vartype(
     min_value: int | None = None,
     max_value: int | None = None,
 ) -> int:
-    def _clamp_int(val: int) -> int:
-        if min_value is not None and val < min_value:
-            val = min_value
-        if max_value is not None and val > max_value:
-            val = max_value
-        return val
-
     raw_value = safe_get_value(tixi, xpath, default_value)
     try:
         value = int(raw_value)
     except (TypeError, ValueError):
         value = int(default_value)
-    value = _clamp_int(value)
-
-    # Streamlit validates session_state[key] against min/max before using `value=...`.
-    # Clamp persisted widget state as well to avoid StreamlitValueAboveMaxError.
-    if key in st.session_state:
-        try:
-            st.session_state[key] = _clamp_int(int(st.session_state[key]))
-        except (TypeError, ValueError):
-            st.session_state[key] = value
 
     output = st.number_input(
         label=name,
@@ -270,8 +260,10 @@ def float_vartype(
     default_value: float,
     key: str | None = None,
     unit: str | None = None,
+    step: float | None = None,
     min_value: float | None = None,
     max_value: float | None = None,
+    disabled: bool = False,
 ) -> float:
     raw_value = safe_get_value(tixi, xpath, default_value)
     try:
@@ -294,8 +286,10 @@ def float_vartype(
         label=label,
         value=default_value,
         format="%g",
+        step=step,
         min_value=min_value,
         max_value=max_value,
+        disabled=disabled
     )
     add_value(tixi, xpath, output)
     return output
@@ -347,76 +341,94 @@ def add_ctrl_surf_vartype(
 
     value = safe_get_value(tixi, ctrl_xpath, default_value[0])
     idx = default_value.index(value)
-    selected = st.radio(
-        name,
-        options=default_value,
-        index=idx,
-        key=key,
-        help=help,
-        width="stretch",
+    left_col, right_col = st.columns(
+        spec=2,
+        gap=MAIN_GAP,
     )
-    add_value(tixi, ctrl_xpath, selected)
+    with left_col:
+        selected = st.radio(
+            name,
+            options=default_value,
+            index=idx,
+            key=key,
+            help=help,
+            width="stretch",
+            horizontal=True,
+        )
+        add_value(tixi, ctrl_xpath, selected)
 
-    # if value of st.radio is npot 'none' then add float_vartype entry
-    if selected is not None and str(selected).lower() != "none":
-        left_col, mid_col, right_col = st.columns([2, 1, 1])
-        with left_col:
-            def_angle = float_vartype(
+    with right_col:
+        # if value of st.radio is npot 'none' then add float_vartype entry
+        if selected is not None and str(selected).lower() != "none":
+            left_col, mid_col, right_col = st.columns([2, 1, 1])
+            with left_col:
+                def_angle = float_vartype(
+                    tixi=tixi,
+                    xpath=angle_xpath,
+                    default_value=0.0,
+                    name="Deformation angle [deg]",
+                    key=f"{key}_deformation_angle",
+                    help="Set the deformation angle for the selected control surface.",
+                    min_value=-90.0,
+                    max_value=90.0,
+                )
+
+            # Define constants
+            if tixi.getTextElement(GEOMETRY_MODE_XPATH) != "2D":
+                with mid_col:
+                    left_trsl = float_vartype(
+                        tixi=tixi,
+                        xpath=left_trsl_xpath,
+                        default_value=0.0,
+                        name="Left Gap",
+                        key=f"{key}_left_translation",
+                        help="Set the gap (left-translation) in y.",
+                        min_value=0.0,
+                    )
+
+                with right_col:
+                    right_trsl = float_vartype(
+                        tixi=tixi,
+                        xpath=right_trsl_xpath,
+                        default_value=0.0,
+                        name="Right Gap",
+                        key=f"{key}_right_translation",
+                        help="Set the gap (right-translation) in y.",
+                        min_value=0.0,
+                    )
+                return def_angle, left_trsl, right_trsl
+
+            # In the 2D case there is no y-translation
+            add_value(
                 tixi=tixi,
-                xpath=angle_xpath,
-                default_value=0.0,
-                name="Deformation angle [deg]",
-                key=f"{key}_deformation_angle",
-                help="Set the deformation angle for the selected control surface.",
-                min_value=-90.0,
-                max_value=90.0,
+                xpath=left_trsl_xpath,
+                value=0.0,
             )
-
-        # Define constants
-        if tixi.getTextElement(GEOMETRY_MODE_XPATH) != "2D":
-            with mid_col:
-                left_trsl = float_vartype(
-                    tixi=tixi,
-                    xpath=left_trsl_xpath,
-                    default_value=0.0,
-                    name="Left Gap",
-                    key=f"{key}_left_translation",
-                    help="Set the gap (left-translation) in y.",
-                    min_value=0.0,
-                )
-
-            with right_col:
-                right_trsl = float_vartype(
-                    tixi=tixi,
-                    xpath=right_trsl_xpath,
-                    default_value=0.0,
-                    name="Right Gap",
-                    key=f"{key}_right_translation",
-                    help="Set the gap (right-translation) in y.",
-                    min_value=0.0,
-                )
-            return def_angle, left_trsl, right_trsl
-
-        # In the 2D case there is no y-translation
-        add_value(
-            tixi=tixi,
-            xpath=left_trsl_xpath,
-            value=0.0,
-        )
-        add_value(
-            tixi=tixi,
-            xpath=right_trsl_xpath,
-            value=0.0,
-        )
-        return def_angle, 0.0, 0.0
+            add_value(
+                tixi=tixi,
+                xpath=right_trsl_xpath,
+                value=0.0,
+            )
+            return def_angle, 0.0, 0.0
 
 
-def bool_vartype(tixi, xpath, default_value, name, key, help) -> bool:
+def bool_vartype(
+    tixi: Tixi3,
+    xpath: str,
+    default_value: bool,
+    name: str,
+    help: str,
+    key: str | None = None,
+    disabled: bool = False,
+) -> bool:
     raw_value = safe_get_value(tixi, xpath, default_value)
     if isinstance(raw_value, str):
         value = raw_value.strip().lower() in {"1", "true", "yes", "y"}
     else:
         value = bool(raw_value)
+
+    if key is None:
+        key = xpath.lower()
 
     output = st.checkbox(
         label=name,
@@ -424,6 +436,7 @@ def bool_vartype(tixi, xpath, default_value, name, key, help) -> bool:
         key=key,
         help=help,
         width="stretch",
+        disabled=disabled,
     )
     add_value(tixi, xpath, output)
     return output

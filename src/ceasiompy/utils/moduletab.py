@@ -1,7 +1,7 @@
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
-Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Streamlit Tabs per module function.
 """
@@ -47,10 +47,14 @@ def section_edit_aeromap() -> None:
 
     _reset_aeromap_state_if_cpacs_changed(cpacs)
 
-    st.markdown("#### Selected Aeromap")
     _ensure_custom_aeromap(cpacs)
 
-    selected_aeromap_id = _select_aeromap_id(cpacs)
+    left_col, right_col = st.columns(2)
+    with left_col:
+        st.markdown("#### Selected Aeromap")
+    with right_col:
+        selected_aeromap_id = _select_aeromap_id(cpacs)
+
     if selected_aeromap_id:
         _edit_selected_aeromap(cpacs, selected_aeromap_id)
 
@@ -150,6 +154,7 @@ def section_edit_aeromap() -> None:
         )
 
         if submit_create:
+            previous_selected_aeromap_id = st.session_state.get("selected_aeromap_id")
             date_time = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
             base_uid = f"created_{date_time}"
             aeromap_uid = base_uid
@@ -219,8 +224,21 @@ def section_edit_aeromap() -> None:
             st.session_state["created_aeromap_uid"] = aeromap_uid
             st.session_state["selected_aeromap_id"] = aeromap_uid
             st.session_state["aeromap_df"] = aeromap_df
+            st.session_state["last_selected_aeromap_id"] = None
             editor_key_version = st.session_state.get("aeromap_editor_key_version", 0)
             st.session_state["aeromap_editor_key_version"] = editor_key_version + 1
+            if previous_selected_aeromap_id and previous_selected_aeromap_id != aeromap_uid:
+                try:
+                    previous_aeromap = cpacs.get_aeromap_by_uid(previous_selected_aeromap_id)
+                    previous_df = previous_aeromap.df[PARAMS].reset_index(drop=True)
+                    aeromap_cache = st.session_state.get("aeromap_df_by_uid", {})
+                    aeromap_cache[previous_selected_aeromap_id] = previous_df
+                    st.session_state["aeromap_df_by_uid"] = aeromap_cache
+                except Exception as exc:
+                    log.warning(
+                        "Could not refresh cache of previously selected aeromap "
+                        f"'{previous_selected_aeromap_id}': {exc!r}"
+                    )
             st.rerun()
 
 
@@ -274,6 +292,8 @@ def _select_aeromap_id(cpacs: CPACS) -> str:
     if created_aeromap_uid is not None:
         if created_aeromap_uid not in aeromap_list:
             aeromap_list.append(created_aeromap_uid)
+        # This runs before the selectbox is instantiated in the rerun.
+        st.session_state["selected_aeromap"] = created_aeromap_uid
         st.session_state["selected_aeromap_id"] = created_aeromap_uid
     cached_aeromap_id = st.session_state.get("selected_aeromap_id", None)
     if cached_aeromap_id is not None and cached_aeromap_id in aeromap_list:
@@ -428,20 +448,6 @@ def checks(session_state, tabs) -> None:
 
     if "workflow_modules" in session_state and session_state.workflow_modules:
         session_state.tabs = tabs(session_state.workflow_modules)
-
-
-def add_module_tab() -> None:
-    # Show aeromap section for both 2D and 3D modes
-    section_edit_aeromap()
-
-    checks(st.session_state, st.tabs)
-
-    # Load each module iteratively
-    for _, (tab, module) in enumerate(
-        zip(st.session_state.tabs, st.session_state.workflow_modules)
-    ):
-        with tab:
-            get_settings_of(module)
 
 
 def get_settings_of(module_name: str) -> None:

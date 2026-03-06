@@ -40,7 +40,6 @@ from ceasiompy.utils.geometryfunctions import (
 from pathlib import Path
 from numpy import ndarray
 from tixi3.tixi3wrapper import Tixi3
-from scipy.interpolate import interp1d
 from typing import (
     List,
     Tuple,
@@ -53,10 +52,10 @@ from ceasiompy.utils.generalclasses import (
 from ceasiompy import log
 from ceasiompy.pyavl import (
     AVL_DISTR_XPATH,
-    AVL_FUSELAGE_XPATH,
+    # AVL_FUSELAGE_XPATH,
     AVL_NSPANWISE_XPATH,
     AVL_NCHORDWISE_XPATH,
-    AVL_FREESTREAM_MACH_XPATH,
+    # AVL_FREESTREAM_MACH_XPATH,
 )
 from ceasiompy.utils.commonxpaths import (
     AREA_XPATH,
@@ -275,10 +274,12 @@ class Avl:
         self.gain = gain
         self.control_type = control_type
 
-        self.vortex_dist: int = convert_dist_to_avl_format(get_value(tixi, AVL_DISTR_XPATH))
-        self.nchordwise: int = get_value(tixi, AVL_NCHORDWISE_XPATH)
-        self.nspanwise: int = get_value(tixi, AVL_NSPANWISE_XPATH)
-        self.add_fuselage: bool = get_value(tixi, AVL_FUSELAGE_XPATH)
+        self.vortex_dist: int = convert_dist_to_avl_format(str(get_value(tixi, AVL_DISTR_XPATH)))
+        self.nchordwise: int = int(get_value(tixi, AVL_NCHORDWISE_XPATH))
+        self.nspanwise: int = int(get_value(tixi, AVL_NSPANWISE_XPATH))
+        self.add_fuselage: bool = True  # get_value(tixi, AVL_FUSELAGE_XPATH)
+        # Keep wing geometry unchanged by default; enable only when explicit clipping is desired.
+        self.clip_wing_inside_fuselage: bool = False
 
         self.area_ref: float = tixi.getDoubleElement(AREA_XPATH)
         self.chord_ref: float = tixi.getDoubleElement(LENGTH_XPATH)
@@ -299,7 +300,7 @@ class Avl:
                 + ".avl"
             )
 
-    def initialize_avl_command_file(self) -> Path:
+    def initialize_avl_command_file(self) -> None:
         with open(self.avl_path, "w") as avl_file:
             avl_file.write(self.name_aircraft + "\n\n")
 
@@ -319,7 +320,7 @@ class Avl:
         # 1. Initialize command file .avl
         self.initialize_avl_command_file()
 
-        mach = get_value(self.tixi, AVL_FREESTREAM_MACH_XPATH)
+        mach = 0.6  # get_value(self.tixi, AVL_FREESTREAM_MACH_XPATH)
         with open(self.avl_path, "a") as avl_file:
             # Default freestream mach number
             avl_file.write("#Mach\n")
@@ -332,12 +333,13 @@ class Avl:
         self.write_ref_values()
 
         # 2. Convert fuselage (if included)
-        fus_z_profile, fus_radius_profile, body_transf = None, None, None
+        fus_x_coords, fus_z_profile, fus_radius_profile, body_transf = None, None, None, None
         if self.add_fuselage:
-            fus_z_profile, fus_radius_profile, body_transf = self.convert_fuselage()
+            fus_x_coords, fus_z_profile, fus_radius_profile, body_transf = self.convert_fuselage()
 
         # 3. Convert wings
         self.convert_wings(
+            fus_x_coords,
             fus_radius_profile,
             fus_z_profile,
             body_transf,
@@ -347,7 +349,7 @@ class Avl:
 
     def convert_fuselage(
         self: "Avl",
-    ) -> Tuple[interp1d, interp1d, Transformation]:
+    ) -> Tuple[ndarray, ndarray, ndarray, Transformation]:
         """
         Convert fuselages from CPACS to avl format.
 
@@ -360,11 +362,18 @@ class Avl:
         """
 
         fus_cnt = elements_number(self.tixi, FUSELAGES_XPATH, "fuselage")
+        # AVL's internal MAKEBODY buffer is finite (NLMAX). If many fuselages are
+        # present, a fixed high Nbody value can overflow that buffer.
+        max_total_nbody = 480
+        nbody_per_fuselage = max(20, min(100, max_total_nbody // max(1, fus_cnt)))
 
         for i_fus in reversed(range(fus_cnt)):
             fus_xpath = FUSELAGES_XPATH + "/fuselage[" + str(i_fus + 1) + "]"
             fus_uid = get_uid(self.tixi, fus_xpath)
-            fus_dat_path = str(self.results_dir) + "/" + fus_uid + ".dat"
+
+            fuselages_dir = str(self.results_dir) + "/fuselages"
+            Path(fuselages_dir).mkdir(exist_ok=True)
+            fus_dat_path = fuselages_dir + "/" + fus_uid + ".dat"
 
             fus_transf = Transformation()
             fus_transf.get_cpacs_transf(self.tixi, fus_xpath)
@@ -374,7 +383,11 @@ class Avl:
             body_transf.rotation = euler2fix(fus_transf.rotation)
 
             # 1. Write fuselage settings
-            self.write_fuselage_settings(fus_transf.scaling, body_transf.translation)
+            self.write_fuselage_settings(
+                fus_transf.scaling,
+                body_transf.translation,
+                nbody=nbody_per_fuselage,
+            )
 
             sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(
                 self.tixi, fus_xpath, "fuselage"
@@ -422,24 +435,33 @@ class Avl:
                     body_width_vec[i_sec] = body_frm_width
                     body_height_vec[i_sec] = body_frm_height
 
-                    body_transf_x = x_fuselage + body_transf.translation.x
-                    fus_z_profile = interp1d(body_transf_x, y_fuselage_top - fus_radius_vec)
-                    fus_radius_profile = interp1d(body_transf_x, fus_radius_vec)
+            body_transf_x = x_fuselage + body_transf.translation.x
+            body_fus_z = y_fuselage_top - fus_radius_vec
+            body_fus_radius = fus_radius_vec
 
-                    self.write_fuselage_coords(
-                        fus_dat_path,
-                        i_fus,
-                        x_fuselage,
-                        y_fuselage_bottom,
-                        y_fuselage_top,
-                    )
+            sort_idx = np.argsort(body_transf_x)
+            body_transf_x_sorted = body_transf_x[sort_idx]
+            body_fus_z_sorted = body_fus_z[sort_idx]
+            body_fus_radius_sorted = body_fus_radius[sort_idx]
+            fus_x_coords, unique_idx = np.unique(body_transf_x_sorted, return_index=True)
+            fus_z_profile = body_fus_z_sorted[unique_idx]
+            fus_radius_profile = body_fus_radius_sorted[unique_idx]
 
-        return fus_z_profile, fus_radius_profile, body_transf
+            self.write_fuselage_coords(
+                fus_dat_path,
+                i_fus,
+                x_fuselage,
+                y_fuselage_bottom,
+                y_fuselage_top,
+            )
+
+        return fus_x_coords, fus_z_profile, fus_radius_profile, body_transf
 
     def convert_wings(
         self: "Avl",
-        fus_radius_profile: interp1d,
-        fus_z_profile: interp1d,
+        fus_x_coords: ndarray,
+        fus_radius_profile: ndarray,
+        fus_z_profile: ndarray,
         body_transf: Transformation,
     ) -> None:
         wing_cnt = elements_number(self.tixi, WINGS_XPATH, "wing")
@@ -483,7 +505,7 @@ class Avl:
                     self.tixi, elem_xpath + "/airfoilUID"
                 )
 
-                airfoil_dir = Path(self.results_dir) / "Airfoil_files"
+                airfoil_dir = Path(self.results_dir) / "airfoils"
                 airfoil_dir.mkdir(exist_ok=True)
                 foil_dat_path = str(airfoil_dir / f"{prof_uid}.dat")
 
@@ -533,11 +555,16 @@ class Avl:
                 y_le_abs = y_le_rot + wg_sk_transf.translation.y
                 z_le_abs = z_le_rot + wg_sk_transf.translation.z
 
-                if self.add_fuselage:
+                if (
+                    self.add_fuselage
+                    and self.clip_wing_inside_fuselage
+                    and fus_x_coords is not None
+                ):
                     # Compute the radius of the fuselage and the height difference ...
                     # between fuselage center and leading edge
-                    radius_fus = fus_radius_profile(x_le_abs + wg_sec_chord / 2)
-                    fus_z_center = fus_z_profile(x_le_abs + wg_sec_chord / 2)
+                    x_query = x_le_abs + wg_sec_chord / 2
+                    radius_fus = np.interp(x_query, fus_x_coords, fus_radius_profile)
+                    fus_z_center = np.interp(x_query, fus_x_coords, fus_z_profile)
                     delta_z = np.abs(fus_z_center + body_transf.translation.z - z_le_abs)
 
                     # If the root wing section is inside the fuselage, translate it to...
@@ -636,10 +663,15 @@ class Avl:
             avl_file.write("BFILE\n")
             avl_file.write(fus_dat_path + "\n\n")
 
-    def write_fuselage_settings(self, scaling: Point, translation: Point) -> None:
+    def write_fuselage_settings(
+        self,
+        scaling: Point,
+        translation: Point,
+        nbody: int = 100,
+    ) -> None:
         with open(self.avl_path, "a") as avl_file:
             avl_file.write("#--------------------------------------------------\n")
             avl_file.write("BODY\nFuselage\n\n")
-            avl_file.write("!Nbody  Bspace\n100\t1.0\n\n")
+            avl_file.write(f"!Nbody  Bspace\n{int(nbody)}\t1.0\n\n")
             avl_file.write(f"SCALE\n{to_cpacs_format(scaling)}\n\n")
             avl_file.write(f"TRANSLATE\n{to_cpacs_format(translation)}\n\n")

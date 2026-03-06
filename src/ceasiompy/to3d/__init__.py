@@ -25,6 +25,9 @@ RES_DIR = True
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 
+DESCRIPTION = """Create a full wing from a 2D airfoil.
+"""
+
 # Name of used software
 SOFTWARE_NAME = "SU2_CFD"
 REQUIRED_VERSION = "8.1.0"

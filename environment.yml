@@ -1,3 +1,5 @@
+# For mac users: CONDA_SUBDIR=osx-64 conda env create -f environment.yml
+
 name: ceasiompy
 
 channels:
@@ -86,9 +88,10 @@ dependencies:
 
       # Streamlit
       - streamlit>=1.54.0
+      - streamlit-float
       - streamlit_sortables
       - streamlit-flow-component>=1.6.1
-      - streamlit-float
+      - streamlit-tree-select>=0.0.5
       - pdfplumber
       - protobuf<=3.20.3
 
@@ -110,9 +113,11 @@ dependencies:
 
       # Meshing
       - gmshairfoil2d>=0.2.33
-      - gmsh>=4.13.1
+      - gmsh>=4.15.1
       - meshio>=5.3.5
       - pymeshfix
+      - tetgen
+      - h5py
 
       # Surrogate Modelling
       - SALib

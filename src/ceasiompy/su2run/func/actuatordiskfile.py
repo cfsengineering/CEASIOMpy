@@ -1,7 +1,7 @@
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
-Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Functions to generate the actuator disk file for SU2.
 

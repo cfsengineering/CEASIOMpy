@@ -10,7 +10,10 @@ import unittest
 import tempfile
 import numpy as np
 
-from ceasiompy.utils.geometryfunctions import prod_points
+from ceasiompy.utils.geometryfunctions import (
+    prod_points,
+    elements_number,
+)
 from ceasiompy.pyavl.func.cpacs2avl import compute_fuselage_coords
 from ceasiompy.utils.ceasiompyutils import (
     current_workflow_dir,
@@ -25,6 +28,7 @@ from ceasiompy.utils.generalclasses import (
     Point,
     Transformation,
 )
+from ceasiompy.utils.commonxpaths import FUSELAGES_XPATH
 
 from ceasiompy.pyavl import MODULE_NAME
 
@@ -82,6 +86,15 @@ class TestWriteFuselage(CeasiompyTest):
         np.testing.assert_almost_equal(body_frm_width, expected_width)
         np.testing.assert_almost_equal(body_frm_height, expected_height)
 
+    def test_wing_clipping_disabled_by_default(self):
+        update_cpacs_from_specs(
+            self.test_cpacs,
+            MODULE_NAME,
+            True,
+        )
+        avl = Avl(self.test_cpacs.tixi, results_dir=self.results_dir)
+        assert avl.clip_wing_inside_fuselage is False
+
     def test_write_fuselage_coords(self):
         update_cpacs_from_specs(
             self.test_cpacs,
@@ -90,7 +103,7 @@ class TestWriteFuselage(CeasiompyTest):
         )
         with tempfile.TemporaryDirectory() as tmpdir:
             fus_dat_path = str(Path(tmpdir) / "fuselage.dat")
-            avl = Avl(self.test_cpacs.tixi, results_dir=self.results_dir)
+            avl = Avl(self.test_cpacs.tixi, results_dir=Path(tmpdir))
             x_fuselage = [0.0, 1.0, 2.0]
             y_fuselage_top = [0.5, 0.6, 0.7]
             y_fuselage_bottom = [-0.5, -0.6, -0.7]
@@ -112,8 +125,9 @@ class TestWriteFuselage(CeasiompyTest):
             # Check avl file content
             with open(avl.avl_path) as f:
                 avl_lines = f.read().splitlines()
-            assert avl_lines[0] == "BFILE"
-            assert avl_lines[1] == str(fus_dat_path)
+            bfile_indices = [i for i, line in enumerate(avl_lines) if line == "BFILE"]
+            assert bfile_indices
+            assert avl_lines[bfile_indices[-1] + 1] == str(fus_dat_path)
 
     def test_write_fuselage_settings(self):
         update_cpacs_from_specs(
@@ -129,6 +143,39 @@ class TestWriteFuselage(CeasiompyTest):
             content = f.read()
         assert "SCALE\n1.0\t2.0\t3.0" in content
         assert "TRANSLATE\n4.0\t5.0\t6.0" in content
+
+    def test_write_fuselage_settings_with_custom_nbody(self):
+        update_cpacs_from_specs(
+            self.test_cpacs,
+            MODULE_NAME,
+            True,
+        )
+        avl = Avl(self.test_cpacs.tixi, results_dir=self.results_dir)
+        avl.write_fuselage_settings(
+            scaling=Point(1.0, 1.0, 1.0),
+            translation=Point(0.0, 0.0, 0.0),
+            nbody=68,
+        )
+        with open(avl.avl_path) as f:
+            content = f.read()
+        assert "!Nbody  Bspace\n68\t1.0" in content
+
+    def test_convert_cpacs_to_avl_writes_bfile_once_per_fuselage(self):
+        update_cpacs_from_specs(
+            self.test_cpacs,
+            MODULE_NAME,
+            True,
+        )
+        avl = Avl(self.test_cpacs.tixi, results_dir=self.results_dir)
+        avl_path = avl.convert_cpacs_to_avl()
+
+        with open(avl_path) as f:
+            avl_lines = f.read().splitlines()
+
+        bfile_count = sum(line.strip() == "BFILE" for line in avl_lines)
+        fuselage_count = elements_number(self.test_cpacs.tixi, FUSELAGES_XPATH, "fuselage")
+
+        assert bfile_count == fuselage_count
 
 
 # =================================================================================================

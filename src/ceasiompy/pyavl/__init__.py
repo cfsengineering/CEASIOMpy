@@ -22,6 +22,12 @@ MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 MODULE_TYPE = "Solver"
 
+DESCRIPTION = f"""`{MODULE_NAME}` module is a launcher for the
+[Athena Vortex Lattice (AVL)](https://web.mit.edu/drela/Public/web/avl/) solver,
+developed by M. Drela and H. Youngren at MIT.
+It is a vortex lattice method (VLM) solver for low-fidelity aerodynamic computations.
+"""
+
 # ===== Add a Results Directory =====
 RES_DIR = True
 

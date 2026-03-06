@@ -62,7 +62,7 @@ if [[ "${ubuntu_id,,}" != "ubuntu" ]]; then
   die "This installer is for Ubuntu; detected ID='${ubuntu_id:-unknown}'."
 fi
 
-openvsp_version="3.47.0"
+openvsp_version="3.48.2"
 deb_url=""
 case "$ubuntu_version_id" in
   24.04)

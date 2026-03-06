@@ -2,13 +2,6 @@
 CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
-
-Initialization for CEASIOMpy.
-    1. Log initialization.
-
-| Author: Leon Deligny
-| Creation: 18-Mar-2025
-
 """
 
 # Imports
@@ -26,6 +19,12 @@ from pydantic import (
 )
 
 # Imports
+
+from streamlit.elements.lib.layout_utils import Gap
+
+# Constants
+
+MAIN_GAP: Gap = "xlarge"
 
 # /CEASIOMpy/src
 SRC_PATH = Path(__file__).parents[1]

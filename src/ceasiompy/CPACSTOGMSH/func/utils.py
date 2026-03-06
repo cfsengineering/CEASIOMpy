@@ -1,7 +1,7 @@
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
-Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Functions and constants for CPACS2GMSH module.
 """
@@ -22,7 +22,7 @@ from ceasiompy.utils.configfiles import ConfigFile
 
 from ceasiompy import log
 
-from ceasiompy.cpacs2gmsh import (
+from ceasiompy.CPACSTOGMSH import (
     GMSH_AUTO_REFINE_XPATH,
     GMSH_EXHAUST_PERCENT_XPATH,
     GMSH_FARFIELD_SIZE_FACTOR_XPATH,

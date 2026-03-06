@@ -54,6 +54,7 @@ def run_case(case_dir_path: Path) -> None:
         with_mpi=False,
         stdin=open(str(get_command_path(case_dir_path)), "r"),
         xvfb=True,
+        timeout=300,  # 5 min max per AVL case; kills hanging xvfb-run/avl processes
     )
     if has_display():
         convert_ps_to_pdf(case_dir_path)

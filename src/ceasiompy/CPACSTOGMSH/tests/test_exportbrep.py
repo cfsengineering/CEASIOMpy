@@ -11,14 +11,14 @@ Test functions for 'ceasiompy/CPACS2GMSH/exportbrep.py'
 import shutil
 import pytest
 
-from ceasiompy.cpacs2gmsh.func.exportbrep import export_brep
+from ceasiompy.CPACSTOGMSH.func.exportbrep import export_brep
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from unittest.mock import patch
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
-from ceasiompy.cpacs2gmsh import MODULE_NAME as CPACS2GMSH
+from ceasiompy.CPACSTOGMSH import MODULE_NAME as CPACS2GMSH
 
 # Constants
 MODULE_DIR = Path(__file__).parent

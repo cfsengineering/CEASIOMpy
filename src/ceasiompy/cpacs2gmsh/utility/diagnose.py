@@ -126,13 +126,17 @@ def _export_nonmanifold_diagnostics(mesh: Trimesh, mesh_path: Path) -> Path | No
 # Functions
 
 def diagnose_surface_mesh(
-    symmetry: bool,
     mesh_path: Path,
 ) -> None:
     """Check mesh topology and export diagnostics without repairing."""
     # For STL, duplicate vertices are common;
     # process=True merges topology needed for watertight checks.
-    loaded_mesh = trimesh.load_mesh(str(mesh_path), process=True)
+    file_type = mesh_path.suffix.lstrip(".").lower() or None
+    loaded_mesh = trimesh.load_mesh(
+        str(mesh_path),
+        file_type=file_type,
+        process=True,
+    )
     if isinstance(loaded_mesh, trimesh.Scene):
         mesh = loaded_mesh.dump(concatenate=True)
     else:

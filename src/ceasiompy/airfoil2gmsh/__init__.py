@@ -20,6 +20,10 @@ from ceasiompy.utils.commonxpaths import CEASIOMPY_XPATH
 MODULE_STATUS = True
 MODULE_TYPE = "Mesher"
 
+DESCRIPTION = """Module to generate 2D unstructured,
+hybrid and structured mesh around an airfoil with GMSH.
+"""
+
 # ===== Add a Results Directory =====
 RES_DIR = True
 

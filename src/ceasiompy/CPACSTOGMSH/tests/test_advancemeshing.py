@@ -13,7 +13,7 @@ from pathlib import Path
 
 import gmsh
 import pytest
-from ceasiompy.cpacs2gmsh.func.advancemeshing import (
+from ceasiompy.CPACSTOGMSH.func.advancemeshing import (
     compute_area,
     distance_field,
     min_fields,
@@ -21,9 +21,9 @@ from ceasiompy.cpacs2gmsh.func.advancemeshing import (
     compute_angle_surfaces,
     refine_between_parts,
 )
-from ceasiompy.cpacs2gmsh.func.wingclassification import ModelPart
-from ceasiompy.cpacs2gmsh.func.exportbrep import export_brep
-from ceasiompy.cpacs2gmsh.func.generategmesh import generate_gmsh
+from ceasiompy.CPACSTOGMSH.func.wingclassification import ModelPart
+from ceasiompy.CPACSTOGMSH.func.exportbrep import export_brep
+from ceasiompy.CPACSTOGMSH.func.generategmesh import generate_gmsh
 from ceasiompy.utils.ceasiompyutils import remove_file_type_in_dir
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from cpacspy.cpacspy import CPACS

@@ -12,7 +12,7 @@ from __future__ import annotations
 
 # Imports
 
-from ceasiompy.cpacs2gmsh.func.mesh_sizing import (
+from ceasiompy.CPACSTOGMSH.func.mesh_sizing import (
     wings_size,
     fuselage_size,
 )
@@ -34,7 +34,7 @@ class TestMeshSizing(CeasiompyTest):
             expected=(1.3953420631620659, 5e-05),
         )
 
-    def test_wing_size(self: CeasiompyTest) -> None:
+    def test_wings_size(self: CeasiompyTest) -> None:
         """
         This test takes the fuselage dimension on which the mesh size is calculated.
         """

@@ -101,7 +101,7 @@ def visualize_problems_interactive(mesh, results, name=""):
             )
 
         # Add y=0 cutting plane
-        y_plane = mesh.slice(normal=[0,1,0], origin=[0,0,0])
+        y_plane = mesh.slice(normal=[0, 1, 0], origin=[0, 0, 0])
         actors['y_plane'] = plotter.add_mesh(
             y_plane, color="orange", opacity=0.5,
             label="Y=0 Cut Plane", show_edges=True

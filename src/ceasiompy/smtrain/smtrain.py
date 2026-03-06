@@ -340,6 +340,11 @@ def _geometry_exploration(
         sampled_geom=sampled_geom,
         training_settings=training_settings,
     )
+    progress_update(
+        detail="Finished.",
+        progress=1.0,
+        progress_callback=progress_callback,
+    )
 
 
 # Main

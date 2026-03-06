@@ -32,9 +32,10 @@ from ceasiompy.pyavl import (
     # AVL_FREESTREAM_MACH_XPATH,
     AVL_CTRLSURF_ANGLES_XPATH,
 )
-from ceasiompy.utils.commonxpaths import WINGS_XPATH
+from ceasiompy.utils.commonxpaths import FUSELAGES_XPATH, WINGS_XPATH
 from ceasiompy.utils.generalclasses import Point, Transformation
 from ceasiompy.utils.geometryfunctions import (
+    convert_fuselage_profiles,
     corrects_airfoil_profile,
     elements_number,
     get_positionings,
@@ -106,6 +107,115 @@ def _append_wing_panel_grid_lines(
         z_lines.extend(panel_grid[:, i_span, 2].tolist() + [None])
 
 
+def _append_fuselage_wireframe(
+    cpacs: CPACS,
+    span_nodes: np.ndarray,
+    chord_nodes: np.ndarray,
+    x_lines: list,
+    y_lines: list,
+    z_lines: list,
+) -> None:
+    tixi = cpacs.tixi
+    fuselage_count = elements_number(tixi, FUSELAGES_XPATH, "fuselage", logg=False)
+    if fuselage_count == 0:
+        return
+
+    theta_count = max(12, min(48, int(span_nodes.size)))
+    theta = np.linspace(0.0, 2.0 * np.pi, theta_count, endpoint=False)
+    theta_closed = np.append(theta, theta[0])
+
+    for i_fus in range(fuselage_count):
+        fus_xpath = f"{FUSELAGES_XPATH}/fuselage[{i_fus + 1}]"
+        fus_transf = Transformation()
+        fus_transf.get_cpacs_transf(tixi, fus_xpath)
+
+        body_transf = Transformation()
+        body_transf.translation = fus_transf.translation
+        body_transf.rotation = euler2fix(fus_transf.rotation)
+
+        sec_count, pos_x_list, pos_y_list, pos_z_list = get_positionings(tixi, fus_xpath, "fuselage")
+        if sec_count < 2:
+            continue
+
+        x_fuselage = np.zeros(sec_count)
+        y_fuselage_top = np.zeros(sec_count)
+        y_fuselage_bottom = np.zeros(sec_count)
+
+        for i_sec in range(sec_count):
+            sec_xpath = f"{fus_xpath}/sections/section[{i_sec + 1}]"
+            sec_transf = Transformation()
+            sec_transf.get_cpacs_transf(tixi, sec_xpath)
+
+            elem_root_xpath = sec_xpath + "/elements"
+            if not tixi.checkElement(elem_root_xpath):
+                continue
+            elem_cnt = tixi.getNamedChildrenCount(elem_root_xpath, "element")
+            for i_elem in range(elem_cnt):
+                elem_transf, prof_size_y, prof_size_z, _, _ = convert_fuselage_profiles(
+                    tixi, sec_xpath, i_sec, i_elem, pos_y_list, pos_z_list
+                )
+
+                x_center = (
+                    elem_transf.translation.x + sec_transf.translation.x + pos_x_list[i_sec]
+                ) * fus_transf.scaling.x
+                z_center = (
+                    elem_transf.translation.z * sec_transf.scaling.z
+                    + sec_transf.translation.z
+                    + pos_z_list[i_sec]
+                ) * fus_transf.scaling.z
+
+                _, scale_y, scale_z = prod_points(
+                    elem_transf.scaling, sec_transf.scaling, fus_transf.scaling
+                )
+                width = 2.0 * prof_size_y * scale_y
+                height = 2.0 * prof_size_z * scale_z
+                radius = 0.25 * (width + height)
+
+                x_fuselage[i_sec] = x_center
+                y_fuselage_top[i_sec] = z_center + radius
+                y_fuselage_bottom[i_sec] = z_center - radius
+
+        radius_sec = 0.5 * (y_fuselage_top - y_fuselage_bottom)
+        z_center_sec = 0.5 * (y_fuselage_top + y_fuselage_bottom)
+        valid = radius_sec > 1e-8
+        if np.count_nonzero(valid) < 2:
+            continue
+
+        x_sec = x_fuselage[valid] + body_transf.translation.x
+        z_sec = z_center_sec[valid] + body_transf.translation.z
+        r_sec = radius_sec[valid]
+
+        sec_step = np.sqrt((x_sec[1:] - x_sec[:-1]) ** 2 + (z_sec[1:] - z_sec[:-1]) ** 2)
+        sec_pos = np.concatenate(([0.0], np.cumsum(sec_step)))
+        length = sec_pos[-1]
+        if length <= 1e-10:
+            continue
+
+        target_pos = chord_nodes * length
+        x_axis = np.interp(target_pos, sec_pos, x_sec)
+        z_axis = np.interp(target_pos, sec_pos, z_sec)
+        r_axis = np.interp(target_pos, sec_pos, r_sec)
+        y_center = body_transf.translation.y
+
+        for i_sta in range(len(x_axis)):
+            ring_x = np.full_like(theta_closed, x_axis[i_sta], dtype=float)
+            ring_y = y_center + r_axis[i_sta] * np.cos(theta_closed)
+            ring_z = z_axis[i_sta] + r_axis[i_sta] * np.sin(theta_closed)
+            x_lines.extend(ring_x.tolist() + [None])
+            y_lines.extend(ring_y.tolist() + [None])
+            z_lines.extend(ring_z.tolist() + [None])
+
+        meridian_count = min(12, theta_count)
+        meridian_idx = np.linspace(0, theta_count - 1, meridian_count, dtype=int)
+        for idx in meridian_idx:
+            mer_x = x_axis
+            mer_y = y_center + r_axis * np.cos(theta[idx])
+            mer_z = z_axis + r_axis * np.sin(theta[idx])
+            x_lines.extend(mer_x.tolist() + [None])
+            y_lines.extend(mer_y.tolist() + [None])
+            z_lines.extend(mer_z.tolist() + [None])
+
+
 def _display_panel_representation(
     cpacs: CPACS,
     spanwise_vertices: int,
@@ -114,8 +224,9 @@ def _display_panel_representation(
 ) -> None:
     tixi = cpacs.tixi
     wing_count = elements_number(tixi, WINGS_XPATH, "wing", logg=False)
-    if wing_count == 0:
-        st.info("No wing geometry found for AVL panel preview.")
+    fuselage_count = elements_number(tixi, FUSELAGES_XPATH, "fuselage", logg=False)
+    if wing_count == 0 and fuselage_count == 0:
+        st.info("No wing or fuselage geometry found for AVL panel preview.")
         return
 
     span_nodes = _distribution_nodes(panel_distribution, spanwise_vertices)
@@ -124,6 +235,15 @@ def _display_panel_representation(
     x_lines = []
     y_lines = []
     z_lines = []
+
+    _append_fuselage_wireframe(
+        cpacs=cpacs,
+        span_nodes=span_nodes,
+        chord_nodes=chord_nodes,
+        x_lines=x_lines,
+        y_lines=y_lines,
+        z_lines=z_lines,
+    )
 
     for i_wing in range(wing_count):
         wing_xpath = f"{WINGS_XPATH}/wing[{i_wing + 1}]"

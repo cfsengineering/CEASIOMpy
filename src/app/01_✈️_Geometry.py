@@ -233,8 +233,8 @@ def _section_generate_cpacs_airfoil() -> CPACS | None:
 
     with col1:
         naca_code = st.text_input(
-            label="""Enter NACA code (e.g., 0012, 2412, 4415)
-            or airfoil name (e.g., e211, dae11): """,
+            label="""Enter NACA (e.g., 0012, 2412, 4415)
+            or name (e.g., e211, dae11): """,
             value="0012",
             help="""All airfoils are available at:
             [Selig Airfoil Database](https://m-selig.ae.illinois.edu/ads/coord_database.html)

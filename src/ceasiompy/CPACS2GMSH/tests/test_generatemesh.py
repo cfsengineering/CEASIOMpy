@@ -9,7 +9,7 @@ Test functions for 'ceasiompy/CPACS2GMSH/generategmesh.py'
 # Imports
 import gmsh
 
-from ceasiompy.CPACS2GMSH.utility.wingclassification import get_entities_from_volume
+from ceasiompy.CPACS2GMSH.func.wingclassification import get_entities_from_volume
 
 
 # Functions

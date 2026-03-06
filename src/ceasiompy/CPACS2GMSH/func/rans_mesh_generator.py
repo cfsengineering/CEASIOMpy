@@ -26,6 +26,8 @@ from ceasiompy.CPACS2GMSH import (
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
     GMSH_MESH_SIZE_WINGS_XPATH,
 )
+
+from ceasiompy.CPACS2GMSH.func.mesh_sizing import wings_size
 from ceasiompy.CPACS2GMSH.func.utils import (
     check_path,
     initialize_gmsh,
@@ -36,7 +38,6 @@ from ceasiompy.CPACS2GMSH.func.wingclassification import (
     exclude_lines,
 )
 from ceasiompy.CPACS2GMSH.func.generategmesh import (
-    wings_size,
     process_gmsh_log,
 )
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (

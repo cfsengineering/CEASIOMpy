@@ -40,7 +40,6 @@ from ceasiompy.utils.geometryfunctions import (
 from pathlib import Path
 from numpy import ndarray
 from tixi3.tixi3wrapper import Tixi3
-from scipy.interpolate import interp1d
 from typing import (
     List,
     Tuple,
@@ -279,6 +278,8 @@ class Avl:
         self.nchordwise: int = int(get_value(tixi, AVL_NCHORDWISE_XPATH))
         self.nspanwise: int = int(get_value(tixi, AVL_NSPANWISE_XPATH))
         self.add_fuselage: bool = True  # get_value(tixi, AVL_FUSELAGE_XPATH)
+        # Keep wing geometry unchanged by default; enable only when explicit clipping is desired.
+        self.clip_wing_inside_fuselage: bool = False
 
         self.area_ref: float = tixi.getDoubleElement(AREA_XPATH)
         self.chord_ref: float = tixi.getDoubleElement(LENGTH_XPATH)
@@ -332,12 +333,13 @@ class Avl:
         self.write_ref_values()
 
         # 2. Convert fuselage (if included)
-        fus_z_profile, fus_radius_profile, body_transf = None, None, None
+        fus_x_coords, fus_z_profile, fus_radius_profile, body_transf = None, None, None, None
         if self.add_fuselage:
-            fus_z_profile, fus_radius_profile, body_transf = self.convert_fuselage()
+            fus_x_coords, fus_z_profile, fus_radius_profile, body_transf = self.convert_fuselage()
 
         # 3. Convert wings
         self.convert_wings(
+            fus_x_coords,
             fus_radius_profile,
             fus_z_profile,
             body_transf,
@@ -347,7 +349,7 @@ class Avl:
 
     def convert_fuselage(
         self: "Avl",
-    ) -> Tuple[interp1d, interp1d, Transformation]:
+    ) -> Tuple[ndarray, ndarray, ndarray, Transformation]:
         """
         Convert fuselages from CPACS to avl format.
 
@@ -434,8 +436,16 @@ class Avl:
                     body_height_vec[i_sec] = body_frm_height
 
             body_transf_x = x_fuselage + body_transf.translation.x
-            fus_z_profile = interp1d(body_transf_x, y_fuselage_top - fus_radius_vec)
-            fus_radius_profile = interp1d(body_transf_x, fus_radius_vec)
+            body_fus_z = y_fuselage_top - fus_radius_vec
+            body_fus_radius = fus_radius_vec
+
+            sort_idx = np.argsort(body_transf_x)
+            body_transf_x_sorted = body_transf_x[sort_idx]
+            body_fus_z_sorted = body_fus_z[sort_idx]
+            body_fus_radius_sorted = body_fus_radius[sort_idx]
+            fus_x_coords, unique_idx = np.unique(body_transf_x_sorted, return_index=True)
+            fus_z_profile = body_fus_z_sorted[unique_idx]
+            fus_radius_profile = body_fus_radius_sorted[unique_idx]
 
             self.write_fuselage_coords(
                 fus_dat_path,
@@ -445,12 +455,13 @@ class Avl:
                 y_fuselage_top,
             )
 
-        return fus_z_profile, fus_radius_profile, body_transf
+        return fus_x_coords, fus_z_profile, fus_radius_profile, body_transf
 
     def convert_wings(
         self: "Avl",
-        fus_radius_profile: interp1d,
-        fus_z_profile: interp1d,
+        fus_x_coords: ndarray,
+        fus_radius_profile: ndarray,
+        fus_z_profile: ndarray,
         body_transf: Transformation,
     ) -> None:
         wing_cnt = elements_number(self.tixi, WINGS_XPATH, "wing")
@@ -544,11 +555,16 @@ class Avl:
                 y_le_abs = y_le_rot + wg_sk_transf.translation.y
                 z_le_abs = z_le_rot + wg_sk_transf.translation.z
 
-                if self.add_fuselage:
+                if (
+                    self.add_fuselage
+                    and self.clip_wing_inside_fuselage
+                    and fus_x_coords is not None
+                ):
                     # Compute the radius of the fuselage and the height difference ...
                     # between fuselage center and leading edge
-                    radius_fus = fus_radius_profile(x_le_abs + wg_sec_chord / 2)
-                    fus_z_center = fus_z_profile(x_le_abs + wg_sec_chord / 2)
+                    x_query = x_le_abs + wg_sec_chord / 2
+                    radius_fus = np.interp(x_query, fus_x_coords, fus_radius_profile)
+                    fus_z_center = np.interp(x_query, fus_x_coords, fus_z_profile)
                     delta_z = np.abs(fus_z_center + body_transf.translation.z - z_le_abs)
 
                     # If the root wing section is inside the fuselage, translate it to...

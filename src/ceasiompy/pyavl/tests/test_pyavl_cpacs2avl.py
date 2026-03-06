@@ -86,6 +86,15 @@ class TestWriteFuselage(CeasiompyTest):
         np.testing.assert_almost_equal(body_frm_width, expected_width)
         np.testing.assert_almost_equal(body_frm_height, expected_height)
 
+    def test_wing_clipping_disabled_by_default(self):
+        update_cpacs_from_specs(
+            self.test_cpacs,
+            MODULE_NAME,
+            True,
+        )
+        avl = Avl(self.test_cpacs.tixi, results_dir=self.results_dir)
+        assert avl.clip_wing_inside_fuselage is False
+
     def test_write_fuselage_coords(self):
         update_cpacs_from_specs(
             self.test_cpacs,
@@ -94,7 +103,7 @@ class TestWriteFuselage(CeasiompyTest):
         )
         with tempfile.TemporaryDirectory() as tmpdir:
             fus_dat_path = str(Path(tmpdir) / "fuselage.dat")
-            avl = Avl(self.test_cpacs.tixi, results_dir=self.results_dir)
+            avl = Avl(self.test_cpacs.tixi, results_dir=Path(tmpdir))
             x_fuselage = [0.0, 1.0, 2.0]
             y_fuselage_top = [0.5, 0.6, 0.7]
             y_fuselage_bottom = [-0.5, -0.6, -0.7]
@@ -116,8 +125,9 @@ class TestWriteFuselage(CeasiompyTest):
             # Check avl file content
             with open(avl.avl_path) as f:
                 avl_lines = f.read().splitlines()
-            bfile_idx = avl_lines.index("BFILE")
-            assert avl_lines[bfile_idx + 1] == str(fus_dat_path)
+            bfile_indices = [i for i, line in enumerate(avl_lines) if line == "BFILE"]
+            assert bfile_indices
+            assert avl_lines[bfile_indices[-1] + 1] == str(fus_dat_path)
 
     def test_write_fuselage_settings(self):
         update_cpacs_from_specs(

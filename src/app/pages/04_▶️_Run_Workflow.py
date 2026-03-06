@@ -31,9 +31,13 @@ from typing import (
     Callable,
 )
 
-from ceasiompy import log
 from cpacspy.utils import PARAMS
 from constants import BLOCK_CONTAINER
+from ceasiompy import (
+    log,
+    MAIN_GAP,
+)
+
 
 # Constants
 
@@ -443,13 +447,8 @@ def _run_workflow(
     st.stop()
 
 
-def workflow_runner(run_enabled: bool) -> None:
+def workflow_runner() -> None:
     ensure_workflow_button_css()
-
-    st.markdown("---")
-    if not run_enabled:
-        st.info("Complete the required setup above to enable running a workflow.")
-        return None
 
     run_clicked = st.button(
         label=f"""Run: **{" → ".join(st.session_state.workflow_modules)}**""",
@@ -479,7 +478,7 @@ def display_simulation_settings() -> None:
     if cpacs is None:
         return None
 
-    left_col, right_col = st.columns(2)
+    left_col, right_col = st.columns(2, gap=MAIN_GAP)
 
     with left_col:
         st.markdown(f"CPACS: **{cpacs.ac_name}**")
@@ -567,7 +566,13 @@ if __name__ == "__main__":
         st.markdown("---")
         display_simulation_settings()
 
-    workflow_runner(run_enabled)
+    if not run_enabled:
+        st.info("Complete the required setup above to enable running a workflow.")
+    else:
+        st.markdown("---")
+        _, col, _ = st.columns(spec=[1, 2, 1])
+        with col:
+            workflow_runner()
 
     # Update last_page
     st.session_state.last_page = PAGE_NAME

@@ -45,9 +45,12 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.workflowclasses import Workflow
 
-from ceasiompy import log
 from constants import BLOCK_CONTAINER
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy import (
+    log,
+    MAIN_GAP,
+)
 from ceasiompy.utils.commonxpaths import (
     AREA_XPATH,
     LENGTH_XPATH,
@@ -457,16 +460,16 @@ def section_select_cpacs() -> None:
 
     selected_tab = st.tabs(tabs, width="stretch")
     with selected_tab[0]:
-        left_col, _ = st.columns(2)
+        left_col, _ = st.columns(2, gap=MAIN_GAP)
         with left_col:
             _section_load_cpacs()
     with selected_tab[1]:
-        left_col, _ = st.columns(2)
+        left_col, _ = st.columns(2, gap=MAIN_GAP)
         with left_col:
             _section_generate_cpacs_airfoil()
     if show_openvsp:
         with selected_tab[2]:
-            left_col, _ = st.columns(2)
+            left_col, _ = st.columns(2, gap=MAIN_GAP)
             with left_col:
                 render_openvsp_panel()
 
@@ -514,7 +517,7 @@ def section_select_cpacs() -> None:
     scroll_down()
     st.markdown("---")
 
-    left_col, _ = st.columns(2)
+    left_col, _ = st.columns(2, gap=MAIN_GAP)
     with left_col:
         if tixi.checkElement(AREA_XPATH):
             ref_area = _to_float_or_default(get_value(tixi, xpath=AREA_XPATH), 0.0)

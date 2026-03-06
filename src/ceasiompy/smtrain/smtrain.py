@@ -24,8 +24,8 @@ from ceasiompy.smtrain.func.utils import (
 from ceasiompy.smtrain.func.sampling import (
     split_data,
     sample_geom,
-    get_high_variance_points,
     get_loo_points,
+    get_high_variance_points,
 )
 from ceasiompy.smtrain.func.config import (
     get_settings,
@@ -41,6 +41,7 @@ from ceasiompy.smtrain.func.trainsurrogatemodel import (
 )
 
 from pathlib import Path
+from typing import Callable
 from pandas import DataFrame
 from cpacspy.cpacspy import CPACS
 from ceasiompy.smtrain.func.utils import DataSplit
@@ -59,6 +60,7 @@ def _geometry_exploration(
     cpacs: CPACS,
     results_dir: Path,
     training_settings: TrainingSettings,
+    progress_callback: Callable[..., None] | None = None,
 ) -> None:
 
     # 1. Generate & Prepare Data
@@ -111,7 +113,6 @@ def _geometry_exploration(
         best_rbf_model, _ = get_best_rbf_model(level1_split)
 
     # Adaptative Refinement
-    level2_split = None
     if training_settings.fidelity_level == LEVEL_TWO:
         log.info("Starting Adaptative Refinement of the Design Space.")
 
@@ -255,7 +256,11 @@ def _geometry_exploration(
 
 # Main
 
-def main(cpacs: CPACS, results_dir: Path) -> None:
+def main(
+    cpacs: CPACS,
+    results_dir: Path,
+    progress_callback: Callable[..., None] | None = None,
+) -> None:
     """
     Train a surrogate model (single-level or multi-fidelity) using aerodynamic data.
 
@@ -285,6 +290,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 cpacs=cpacs,
                 results_dir=results_dir,
                 training_settings=training_settings,
+                progress_callback=progress_callback,
             )
 
     if old_new_sim == "Load Geometry Exploration Simulations":

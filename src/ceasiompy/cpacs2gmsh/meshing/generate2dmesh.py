@@ -148,6 +148,23 @@ def _get_symmetry_box_tag(keep_positive_y: bool = False) -> int:
     return gmsh.model.occ.addBox(x, y, z, dx, dy, dz)
 
 
+def _candidate_metrics(keep_positive: bool, mapped_rows, plane_tol) -> tuple[int, int, float]:
+    kept_wing_names: set[str] = set()
+    kept_part_names: set[str] = set()
+    kept_mass = 0.0
+    for part, row in mapped_rows:
+        base_name = part.name.split("#", 1)[0]
+        for _, y_com, mass in row:
+            keep = y_com >= -plane_tol if keep_positive else y_com <= plane_tol
+            if not keep:
+                continue
+            kept_part_names.add(base_name)
+            if part.part_type == PartType.wing:
+                kept_wing_names.add(base_name)
+            kept_mass += mass
+    return (len(kept_wing_names), len(kept_part_names), kept_mass)
+
+
 def _apply_symmetry_cut(fused_parts: list[FuseEntry]) -> list[FuseEntry]:
     """Apply symmetry by fragmenting with a half-space box and filtering children."""
     if not fused_parts:
@@ -194,24 +211,8 @@ def _apply_symmetry_cut(fused_parts: list[FuseEntry]) -> list[FuseEntry]:
             row.append(((dim, tag), y_com, mass))
         mapped_rows.append((part, row))
 
-    def _candidate_metrics(keep_positive: bool) -> tuple[int, int, float]:
-        kept_wing_names: set[str] = set()
-        kept_part_names: set[str] = set()
-        kept_mass = 0.0
-        for part, row in mapped_rows:
-            base_name = part.name.split("#", 1)[0]
-            for _, y_com, mass in row:
-                keep = y_com >= -plane_tol if keep_positive else y_com <= plane_tol
-                if not keep:
-                    continue
-                kept_part_names.add(base_name)
-                if part.part_type == PartType.wing:
-                    kept_wing_names.add(base_name)
-                kept_mass += mass
-        return (len(kept_wing_names), len(kept_part_names), kept_mass)
-
-    pos_metrics = _candidate_metrics(True)
-    neg_metrics = _candidate_metrics(False)
+    pos_metrics = _candidate_metrics(True, mapped_rows=mapped_rows, plane_tol=plane_tol)
+    neg_metrics = _candidate_metrics(False, mapped_rows=mapped_rows, plane_tol=plane_tol)
     if pos_metrics != neg_metrics:
         keep_positive_y = pos_metrics > neg_metrics
     else:
@@ -1083,9 +1084,7 @@ def generate_surface_mesh(
     )
     gmsh.model.occ.synchronize()
 
-    surface_mesh_path = Path(results_dir, "surface_mesh.msh")
-    write_gmsh(surface_mesh_path)
-    return surface_mesh_path
+    return write_gmsh(str(results_dir), "surface_mesh.msh")
 
 
 def generate_volume_mesh(
@@ -1094,8 +1093,9 @@ def generate_volume_mesh(
     farfield_settings: FarfieldSettings,
     progress_callback: Callable[..., None] | None = None,
 ) -> Path:
-    log.info("Generating volume mesh.")
     """Generate 3D volume mesh from in-memory fluid domain (legacy-style Gmsh workflow)."""
+
+    log.info("Generating volume mesh.")
     fluid_volume_tags: list[int] = []
     wall_surface_tags: list[int] = []
     for _, group_tag in gmsh.model.getPhysicalGroups(dim=3):
@@ -1205,14 +1205,11 @@ def generate_volume_mesh(
     process_gmsh_log(gmsh.logger.get())
     gmsh.logger.stop()
 
-    su2mesh_path = Path(results_dir, "mesh.su2")
-    msh_path = Path(results_dir, "mesh.msh")
-    write_gmsh(su2mesh_path)
-
+    su2mesh_path = write_gmsh(str(results_dir), "mesh.su2")
     msh_version_prev = gmsh.option.getNumber("Mesh.MshFileVersion")
     gmsh.option.setNumber("Mesh.MshFileVersion", 2.2)
     try:
-        write_gmsh(msh_path)
+        msh_path = write_gmsh(str(results_dir), "mesh.msh")
     finally:
         gmsh.option.setNumber("Mesh.MshFileVersion", msh_version_prev)
 

@@ -440,8 +440,3 @@ def retrieve_rans_gui_values(tixi: Tixi3):
         max_layer_thickness=get_value(tixi, GMSH_MAX_THICKNESS_LAYER_XPATH),
         refine_factor_angled_lines=get_value(tixi, GMSH_REFINE_FACTOR_ANGLED_LINES_XPATH),
     )
-
-
-def write_gmsh(mesh_path: Path) -> None:
-    gmsh.write(str(mesh_path))
-    log.info(f"Wrote mesh at {mesh_path=}")

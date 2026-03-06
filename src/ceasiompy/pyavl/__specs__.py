@@ -133,7 +133,11 @@ def _append_fuselage_wireframe(
         body_transf.translation = fus_transf.translation
         body_transf.rotation = euler2fix(fus_transf.rotation)
 
-        sec_count, pos_x_list, pos_y_list, pos_z_list = get_positionings(tixi, fus_xpath, "fuselage")
+        sec_count, pos_x_list, pos_y_list, pos_z_list = get_positionings(
+            tixi,
+            fus_xpath,
+            "fuselage",
+        )
         if sec_count < 2:
             continue
 

@@ -201,8 +201,8 @@ def _append_fuselage_wireframe(
         r_axis = np.interp(target_pos, sec_pos, r_sec)
         y_center = body_transf.translation.y
 
-        for i_sta in range(len(x_axis)):
-            ring_x = np.full_like(theta_closed, x_axis[i_sta], dtype=float)
+        for i_sta, x_i_sta in enumerate(x_axis):
+            ring_x = np.full_like(theta_closed, x_i_sta, dtype=float)
             ring_y = y_center + r_axis[i_sta] * np.cos(theta_closed)
             ring_z = z_axis[i_sta] + r_axis[i_sta] * np.sin(theta_closed)
             x_lines.extend(ring_x.tolist() + [None])

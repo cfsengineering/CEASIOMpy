@@ -256,11 +256,8 @@ def _apply_symmetry_cut(fused_parts: list[FuseEntry]) -> list[FuseEntry]:
         gmsh.model.occ.synchronize()
 
     # Remove the helper half-space box entity if still present.
-    try:
-        gmsh.model.occ.remove([(3, sym_box_tag)], recursive=True)
-        gmsh.model.occ.synchronize()
-    except Exception:
-        pass
+    gmsh.model.occ.remove([(3, sym_box_tag)], recursive=True)
+    gmsh.model.occ.synchronize()
 
     if not updated_parts:
         raise ValueError("Symmetry cut removed all volumes; cannot continue meshing.")

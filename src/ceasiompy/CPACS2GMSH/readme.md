@@ -10,7 +10,7 @@
 
 <br />
 
-`CPACS2GMSH` is an automatic mesh generator module for a [CPACS](https://www.cpacs.de) aircraft geometry [[1]](#Alder20) using [GMSH](https://gmsh.info/) ,a finite element mesh generator.
+`CPACS2GMSH` is an automatic mesh generator module using  [GMSH](https://gmsh.info/), a finite element mesh generator.
 
 It's currently possible to choose between two options for 3D meshing of the external domain.
 Selecting the 'Euler' an unstructured mesh is automatically generated in a spherical domain surrounding the aircraft.

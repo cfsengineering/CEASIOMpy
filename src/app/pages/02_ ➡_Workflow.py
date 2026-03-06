@@ -1,10 +1,14 @@
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
-Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Streamlit page to create a CEASIOMpy workflow.
 """
+
+# Futures
+
+from __future__ import annotations
 
 # Imports
 
@@ -27,13 +31,32 @@ from streamlit_flow import (
     StreamlitFlowState,
 )
 
+from ceasiompy import MAIN_GAP
 from constants import BLOCK_CONTAINER
-from ceasiompy.to3d import MODULE_NAME as TO3D
-from ceasiompy.pyavl import MODULE_NAME as PYAVL
-from ceasiompy.su2run import MODULE_NAME as SU2RUN
-from ceasiompy.smtrain import MODULE_NAME as SMTRAIN
-from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
-from ceasiompy.airfoil2gmsh import MODULE_NAME as AIRFOIL2GMSH
+from ceasiompy.to3d import (
+    MODULE_NAME as TO3D,
+    DESCRIPTION as TO3D_DESCRIPTION,
+)
+from ceasiompy.pyavl import (
+    MODULE_NAME as PYAVL,
+    DESCRIPTION as PYAVL_DESCRIPTION,
+)
+from ceasiompy.su2run import (
+    MODULE_NAME as SU2RUN,
+    DESCRIPTION as SU2RUN_DESCRIPTION,
+)
+from ceasiompy.smtrain import (
+    MODULE_NAME as SMTRAIN,
+    DESCRIPTION as SMTRAIN_DESCRIPTION,
+)
+from ceasiompy.CPACS2GMSH import (
+    MODULE_NAME as CPACS2GMSH,
+    DESCRIPTION as CPACS2GMSH_DESCRIPTION,
+)
+from ceasiompy.airfoil2gmsh import (
+    MODULE_NAME as AIRFOIL2GMSH,
+    DESCRIPTION as AIRFOIL2GMSH_DESCRIPTION,
+)
 from ceasiompy.addcontrolsurfaces import MODULE_NAME as ADDCONTROLSURFACES
 
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
@@ -51,7 +74,7 @@ HOW_TO_TEXT = (
 )
 
 
-# Functions
+# Methods
 
 def _bootstrap_cli_modules() -> None:
     """Preload workflow modules passed from CLI once."""
@@ -79,6 +102,18 @@ def _bootstrap_cli_modules() -> None:
     st.session_state["_cli_modules_autonext"] = True
 
 
+class PredefinedWorkflow:
+    def __init__(
+        self: PredefinedWorkflow,
+        utility: str,
+        workflow: list[tuple[str, str]],
+    ) -> None:
+        self.utility = utility
+        self.workflow = workflow
+
+
+# Functions
+
 def section_predefined_workflow() -> None:
     """
     Where to define the Pre-defined workflows.
@@ -88,7 +123,7 @@ def section_predefined_workflow() -> None:
 
     active_modules = set(get_module_list(only_active=True))
 
-    predefine_workflows = []
+    predefine_workflows: list[PredefinedWorkflow] = []
 
     # Add 2D to 3D workflow if cpacs is 2D
     cpacs = st.session_state.get("cpacs", None)
@@ -99,30 +134,78 @@ def section_predefined_workflow() -> None:
                 xpath=GEOMETRY_MODE_XPATH,
             ) == "2D"
         ):
-            predefine_workflows.append(
-                [AIRFOIL2GMSH, SU2RUN]
+            airfoil_analysis = PredefinedWorkflow(
+                utility="Airfoil performance analysis",
+                workflow=[
+                    (AIRFOIL2GMSH, AIRFOIL2GMSH_DESCRIPTION),
+                    (SU2RUN, SU2RUN_DESCRIPTION)
+                ],
             )
-            predefine_workflows.append(
-                [TO3D, CPACS2GMSH, SU2RUN]
+
+            wing_analysis = PredefinedWorkflow(
+                utility="Wing performance analysis",
+                workflow=[
+                    (TO3D, TO3D_DESCRIPTION),
+                    (CPACS2GMSH, CPACS2GMSH_DESCRIPTION),
+                    (SU2RUN, SU2RUN_DESCRIPTION),
+                ],
             )
+            predefine_workflows.append(airfoil_analysis)
+            predefine_workflows.append(wing_analysis)
         else:
-            predefine_workflows.append([PYAVL])
-            predefine_workflows.append(
-                [CPACS2GMSH, SU2RUN]
+            low_fidelity_analysis = PredefinedWorkflow(
+                utility="Low fidelity (fast) analysis",
+                workflow=[
+                    (PYAVL, PYAVL_DESCRIPTION)
+                ],
             )
-            predefine_workflows.append([SMTRAIN])
 
-    for workflow in predefine_workflows:
-        available = all(module in active_modules for module in workflow)
+            high_fidelity_analysis = PredefinedWorkflow(
+                utility="High fidelity (slow) analysis",
+                workflow=[
+                    (CPACS2GMSH, CPACS2GMSH_DESCRIPTION),
+                    (SU2RUN, SU2RUN_DESCRIPTION),
+                ],
+            )
 
-        button_label = " → ".join(workflow)
+            shape_optimizaton = PredefinedWorkflow(
+                utility="Shape Optimization",
+                workflow=[
+                    (SMTRAIN, SMTRAIN_DESCRIPTION),
+                ],
+            )
+
+            predefine_workflows.append(low_fidelity_analysis)
+            predefine_workflows.append(high_fidelity_analysis)
+            predefine_workflows.append(shape_optimizaton)
+
+    for workflows in predefine_workflows:
+        available = all(module in active_modules for module, _ in workflows.workflow)
+
+        help_label = "\n".join(help for _, help in workflows.workflow)
+        workflow_names = [
+            workflow_name
+            for workflow_name, _ in workflows.workflow
+        ]
+        button_label = " → ".join(workflow_names)
         button_key = f"predefined_workflow_{button_label}"
 
-        if st.button(button_label, key=button_key, disabled=not available):
-            st.session_state.workflow_modules = workflow
-            st.session_state.pop("workflow_flow_state", None)
-            st.session_state.pop("workflow_flow_modules", None)
-            st.rerun()
+        left_col, right_col = st.columns(2)
+        with left_col:
+            st.markdown(
+                body=workflows.utility,
+            )
+        with right_col:
+            if st.button(
+                button_label,
+                key=button_key,
+                disabled=not available,
+                help=help_label,
+            ):
+                st.session_state.workflow_modules = workflow_names
+                st.session_state.pop("workflow_flow_state", None)
+                st.session_state.pop("workflow_flow_modules", None)
+                st.rerun()
 
 
 def section_add_module() -> None:
@@ -460,13 +543,14 @@ if __name__ == "__main__":
 
     st.markdown("---")
 
-    section_predefined_workflow()
-
-    st.markdown("---")
-
-    left_col, _ = st.columns(2)
+    left_col, right_col = st.columns(
+        spec=2,
+        gap=MAIN_GAP,
+    )
     with left_col:
         section_add_module()
+    with right_col:
+        section_predefined_workflow()
 
     # Add last_page
     st.session_state.last_page = PAGE_NAME

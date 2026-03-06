@@ -29,6 +29,8 @@ parse_bool() {
   esac
 }
 
+# TODO: Make sure to deactivate ceasiompy conda environment if activated
+
 su2_version="8.1.0"
 with_mpi="false"
 

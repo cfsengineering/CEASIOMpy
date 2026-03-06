@@ -25,6 +25,13 @@ RES_DIR = True
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 
+DESCRIPTION = f"""`{MODULE_NAME}` module can prepare and
+run calculations with the CFD software [SU2](https://su2code.github.io/):
+a computational analysis and design package
+that has been developed to solve multiphysics analysis
+and optimization tasks using unstructured mesh topologies.
+"""
+
 # Specific to SU2Run module
 
 # List of control surface scenarios

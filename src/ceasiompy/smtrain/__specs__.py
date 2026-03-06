@@ -8,6 +8,7 @@ Initialization for SMTrain module.
 
 # Imports
 import hashlib
+import tempfile
 import streamlit as st
 
 from ceasiompy.utils.plot import section_3d_view
@@ -30,10 +31,10 @@ from ceasiompy.utils.guiobjects import (
 )
 
 from pathlib import Path
-import tempfile
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 
+from ceasiompy import MAIN_GAP
 from ceasiompy.pyavl import MODULE_NAME as PYAVL
 from ceasiompy.su2run import MODULE_NAME as SU2RUN
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH
@@ -128,7 +129,7 @@ def gui_settings(cpacs: CPACS) -> None:
 
     st.markdown("---")
     st.markdown("**Training Settings**")
-    left_col, right_col = st.columns(2)
+    left_col, right_col = st.columns(2, gap=MAIN_GAP)
     with left_col:
         objective_name = list_vartype(
             tixi=tixi,
@@ -150,7 +151,7 @@ def gui_settings(cpacs: CPACS) -> None:
             """
         )
 
-    left_col, right_col = st.columns(2)
+    left_col, right_col = st.columns(2, gap=MAIN_GAP)
     with left_col:
         sampling_method = list_vartype(
             tixi=tixi,
@@ -162,42 +163,44 @@ def gui_settings(cpacs: CPACS) -> None:
         )
 
     with right_col:
-        # Depending on the sampling method the sampling number is not the same
-        if sampling_method == "Grid":
-            int_vartype(
-                tixi=tixi,
-                xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
-                default_value=4,
-                key="smtrain_sample_number_grid",
-                name="Number of samples per dimension",
-                help="""Samples per Dimension,
-                    i.e. total number of samples = (geom_param)^n,
-                    where n is this selected number.
-                """,
-                min_value=2,
-                max_value=6,
-            )
-        else:
-            int_vartype(
-                tixi=tixi,
-                xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
-                default_value=10,
-                key="smtrain_sample_number_lhs",
-                name="Number of samples",
-                help="""Total number of geometries as generated data.""",
-                min_value=4,
-            )
+        left_col, right_col = st.columns(2)
+        with left_col:
+            # Depending on the sampling method the sampling number is not the same
+            if sampling_method == "Grid":
+                int_vartype(
+                    tixi=tixi,
+                    xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
+                    default_value=4,
+                    key="smtrain_sample_number_grid",
+                    name="Number of samples per dimension",
+                    help="""Samples per Dimension,
+                        i.e. total number of samples = (geom_param)^n,
+                        where n is this selected number.
+                    """,
+                    min_value=2,
+                )
+            else:
+                int_vartype(
+                    tixi=tixi,
+                    xpath=SMTRAIN_NSAMPLES_GEOMETRY_XPATH,
+                    default_value=10,
+                    key="smtrain_sample_number_lhs",
+                    name="Number of samples",
+                    help="""Total number of geometries as generated data.""",
+                    min_value=4,
+                )
 
-    float_vartype(
-        tixi=tixi,
-        xpath=SMTRAIN_TRAIN_PERC_XPATH,
-        default_value=0.7,
-        name=r"% used of training data",
-        help="Defining the percentage of the data to use to train the model.",
-        key="smtrain_training_percentage",
-        min_value=0.0,
-        max_value=1.0,
-    )
+        with right_col:
+            float_vartype(
+                tixi=tixi,
+                xpath=SMTRAIN_TRAIN_PERC_XPATH,
+                default_value=0.7,
+                name=r"% used of training data",
+                help="Defining the percentage of the data to use to train the model.",
+                key="smtrain_training_percentage",
+                min_value=0.0,
+                max_value=1.0,
+            )
 
     xpath = SMTRAIN_GEOM_WING_OPTIMISE
     uid_list = return_uid_wings_sections(tixi)
@@ -205,7 +208,7 @@ def gui_settings(cpacs: CPACS) -> None:
 
     st.markdown("---")
 
-    left_col, right_col = st.columns(2)
+    left_col, right_col = st.columns(2, gap=MAIN_GAP)
     with left_col:
         st.markdown("**Geometry Design Parameters**")
         for i_wing, wing_uid in enumerate(wings):
@@ -352,6 +355,9 @@ def gui_settings(cpacs: CPACS) -> None:
             cpacs=preview_cpacs,
             force_regenerate=force_preview_regenerate,
             plot_key="smtrain_geom_design_space_view",
+            show_yaxis=True,
+            ui_revision_key="smtrain_geom_design_space_camera",
+            persist_camera=True,
         )
 
         if selected_params:
@@ -413,11 +419,11 @@ def gui_settings(cpacs: CPACS) -> None:
 
 def _wing_settings(
     tixi: Tixi3,
-    xpath,
+    xpath: str,
     uid_list,
     wing_uid,
     wing_xpath,
-):
+) -> None:
     # Sections of specific wing
     sections = [
         sec_uid

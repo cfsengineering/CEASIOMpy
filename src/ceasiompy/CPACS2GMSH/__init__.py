@@ -25,6 +25,10 @@ HAS_PENTAGROW = get_module_status(
     needs_soft_name=SOFTWARE_NAME,
 )
 
+DESCRIPTION = """`CPACS2GMSH` is an automatic mesh generator module using
+[GMSH](https://gmsh.info/), a finite element mesh generator.
+"""
+
 # ===== Module Status =====
 MODULE_STATUS = True
 MODULE_TYPE = "Mesher"

@@ -19,18 +19,22 @@ from ceasiompy.pyavl import MODULE_STATUS as PYAVL_STATUS
 #   INITIALIZATION
 # ==============================================================================
 
+# ===== Include Module's name =====
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
+
 # ===== Module Status =====
 # SMTrain is true if PyAVL is true
 MODULE_STATUS = PYAVL_STATUS
 
 MODULE_TYPE = "MetaModule"
 
+DESCRIPTION = f"""`{MODULE_NAME}` can be used to generate data from CEASIOMpy's Modules,
+and then use this data to train a surrogate model.
+"""
+
 # ===== Add a Results Directory =====
 RES_DIR = True
-
-# ===== Include Module's name =====
-MODULE_DIR = Path(__file__).parent
-MODULE_NAME = MODULE_DIR.name
 
 # ===== Level Notations =====
 LEVEL_ONE: Final[str] = "One level"

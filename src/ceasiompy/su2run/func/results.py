@@ -252,10 +252,10 @@ def compute_dynamic_coefs(
     # Scale moments accordingly
     cmx = np.copy(mx)
     cmy = np.copy(my)
-    cmx[[0, 2],] /= qsb
-    cmx[1,] /= qsc
-    cmy[[0, 2],] /= qsb
-    cmy[1,] /= qsc
+    cmx[[0, 2], ] /= qsb
+    cmx[1, ] /= qsc
+    cmy[[0, 2], ] /= qsb
+    cmy[1, ] /= qsc
     log.info(f"q {q_dyn} fx {fx} mx {mx}, cfx {cfx} cmx {cmx}")
 
     return cfx, cfy, cmx, cmy

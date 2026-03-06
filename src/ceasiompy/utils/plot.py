@@ -1,19 +1,111 @@
 # Imports
 import os
 import tempfile
-from pathlib import Path
-
 import numpy as np
-import plotly.graph_objects as go
 import pyvista as pv
 import streamlit as st
-from cpacspy.cpacspy import CPACS
+import plotly.graph_objects as go
+from streamlit.components import v2 as components_v2
+
 from cpacspy.cpacsfunctions import get_value
-from numpy import ndarray
+
 from stl import mesh
+from pathlib import Path
+from numpy import ndarray
+from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
 from ceasiompy.utils.commonxpaths import GEOMETRY_MODE_XPATH
+
+
+# Methods
+
+_camera_tracker_component = None
+_CAMERA_TRACKER_JS = """
+export default function(component) {
+    const { data, setStateValue } = component;
+    const containerClass = data?.container_class;
+    const initialCamera = data?.initial_camera ?? null;
+    const selector = containerClass
+        ? `.${containerClass} .js-plotly-plot`
+        : "div[data-testid='stPlotlyChart'] .js-plotly-plot";
+
+    let lastSent = JSON.stringify(initialCamera);
+
+    const extractCamera = (eventData) => {
+        if (!eventData || typeof eventData !== "object") return null;
+        if (eventData["scene.camera"] && typeof eventData["scene.camera"] === "object") {
+            return eventData["scene.camera"];
+        }
+
+        const camera = { eye: {}, up: {}, center: {} };
+        let hasAny = false;
+        for (const [key, value] of Object.entries(eventData)) {
+            if (!key.startsWith("scene.camera.")) continue;
+            const parts = key.split(".");
+            if (parts.length !== 4) continue;
+            const block = parts[2];
+            const axis = parts[3];
+            if (!(block in camera)) continue;
+            if (typeof value !== "number") continue;
+            camera[block][axis] = value;
+            hasAny = true;
+        }
+        return hasAny ? camera : null;
+    };
+
+    const maybeSendCamera = (camera) => {
+        if (!camera || typeof camera !== "object") return;
+        const serialized = JSON.stringify(camera);
+        if (serialized === lastSent) return;
+        lastSent = serialized;
+        setStateValue("camera", camera);
+    };
+
+    const bind = (chart) => {
+        if (!chart || typeof chart.on !== "function") return;
+        if (chart.__ceasiompyCameraTrackerBound) return;
+
+        chart.on("plotly_relayout", (eventData) => {
+            maybeSendCamera(extractCamera(eventData));
+        });
+
+        const existingCamera = chart?.layout?.scene?.camera;
+        maybeSendCamera(existingCamera);
+        chart.__ceasiompyCameraTrackerBound = true;
+    };
+
+    const tryBind = () => {
+        const chart = document.querySelector(selector);
+        if (!chart) return false;
+        bind(chart);
+        return true;
+    };
+
+    tryBind();
+    const observer = new MutationObserver(() => {
+        tryBind();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+        observer.disconnect();
+    };
+}
+"""
+
+
+def _get_camera_tracker_component():
+    global _camera_tracker_component
+    if _camera_tracker_component is not None:
+        return _camera_tracker_component
+
+    _camera_tracker_component = components_v2.component(
+        "ceasiompy_plotly_camera_tracker",
+        html="<div></div>",
+        js=_CAMERA_TRACKER_JS,
+    )
+    return _camera_tracker_component
 
 
 def _axis_values(vmin: float, vmax: float, count: int) -> list[float]:
@@ -140,8 +232,10 @@ def _build_3d_figure(
     fig.update_layout(
         margin=dict(l=10, r=10, t=10, b=10),
         font=dict(color="black"),
+        uirevision=ui_key,
         scene_uirevision=ui_key,
         scene=dict(
+            uirevision=ui_key,
             aspectmode="data",
             xaxis=dict(
                 title="X",
@@ -260,9 +354,12 @@ def get_aircraft_mesh_data(
 def section_3d_view(
     cpacs: CPACS | None = None,
     *,
-    force_regenerate: bool = False,
     height: int | None = None,
     plot_key: str | None = None,
+    show_yaxis: bool | None = None,
+    persist_camera: bool = False,
+    ui_revision_key: str | None = None,
+    force_regenerate: bool = False,
 ) -> None:
     """Shows a 3D view of the aircraft by exporting a preview mesh file."""
 
@@ -283,12 +380,47 @@ def section_3d_view(
         return None
     points, faces = surface_arrays
 
-    dim_mode = get_value(tixi=cpacs.tixi, xpath=GEOMETRY_MODE_XPATH)
-    show_yaxis = dim_mode != "2D"
+    if show_yaxis is None:
+        dim_mode = get_value(tixi=cpacs.tixi, xpath=GEOMETRY_MODE_XPATH)
+        show_yaxis = dim_mode != "2D"
 
-    ui_key = plot_key or "section_3d_view"
-    fig = _build_3d_figure(points, faces, show_yaxis, height=height, ui_key=ui_key)
+    ui_key = ui_revision_key or plot_key or "section_3d_view"
+    camera_state_key = f"plotly_camera_state_{ui_key}"
+    saved_camera = st.session_state.get(camera_state_key)
+
+    container_key = None
+    if persist_camera and plot_key:
+        container_key = f"{plot_key}_camera_container"
+        tracker_component = _get_camera_tracker_component()
+        if tracker_component is not None:
+            tracker_state = tracker_component(
+                data={
+                    "container_class": f"st-key-{container_key}",
+                    "initial_camera": saved_camera,
+                },
+                key=f"{plot_key}_camera_tracker",
+            )
+            tracker_camera = getattr(tracker_state, "camera", None)
+            if isinstance(tracker_camera, dict):
+                st.session_state[camera_state_key] = tracker_camera
+                saved_camera = tracker_camera
+
+    fig = _build_3d_figure(
+        faces=faces,
+        points=points,
+        height=height,
+        ui_key=ui_key,
+        show_yaxis=show_yaxis,
+    )
     if fig is None:
         return None
 
-    st.plotly_chart(fig, width="stretch", key=plot_key)
+    if isinstance(saved_camera, dict):
+        fig.update_layout(scene_camera=saved_camera)
+
+    with st.container(key=container_key):
+        st.plotly_chart(
+            fig,
+            width="stretch",
+            key=plot_key,
+        )

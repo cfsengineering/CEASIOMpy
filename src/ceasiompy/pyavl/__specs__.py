@@ -9,8 +9,6 @@ GUI Interface of PyAVL.
 # Imports
 import streamlit as st
 
-from cpacspy.cpacspy import CPACS
-
 from ceasiompy.utils.guiobjects import (
     int_vartype,
     list_vartype,
@@ -18,6 +16,10 @@ from ceasiompy.utils.guiobjects import (
     dataframe_vartype,
 )
 
+from typing import Literal
+from cpacspy.cpacspy import CPACS
+
+from ceasiompy import MAIN_GAP
 from ceasiompy.pyavl import (
     AVL_DISTR_XPATH,
     AVL_ROTRATES_XPATH,
@@ -29,15 +31,27 @@ from ceasiompy.pyavl import (
 )
 
 
+# Methods
+
+def _display_panel_representation(
+    cpacs: CPACS,
+    spanwise_vertices: int,
+    chordwise_vertices: int,
+    panel_distribution: Literal["cosine", "sine", "equal"],
+) -> None:
+    # TODO: Add a display of the aircraft panel geometry used in pyavl (3D), look at code and how it converts to show the correct representation
+
+
+
 # Functions
 def gui_settings(cpacs: CPACS) -> None:
     tixi = cpacs.tixi
 
     # TODO: Do vortices preview from panel settings
     st.markdown("**Panel Settings**")
-    left_col, mid_col, right_col = st.columns([2, 1, 1])
+    left_col, right_col = st.columns(2, gap=MAIN_GAP)
     with left_col:
-        list_vartype(
+        panel_distribution = list_vartype(
             tixi=tixi,
             name="Panel distribution",
             key="panel_distribution",
@@ -46,46 +60,57 @@ def gui_settings(cpacs: CPACS) -> None:
             xpath=AVL_DISTR_XPATH,
         )
 
-    with mid_col:
-        int_vartype(
-            tixi=tixi,
-            name="Chordwise vortices",
-            key="pyavl_chordwise_vortices_nb",
-            default_value=20,
-            help="Select the number of chordwise vortices.",
-            xpath=AVL_NCHORDWISE_XPATH,
-        )
+        left_col, right_col = st.columns(2)
+        with left_col:
+            chordwise_vertices = int_vartype(
+                tixi=tixi,
+                name="Chordwise vortices",
+                key="pyavl_chordwise_vortices_nb",
+                default_value=20,
+                help="Select the number of chordwise vortices.",
+                xpath=AVL_NCHORDWISE_XPATH,
+            )
 
+        with right_col:
+            spanwise_vertices = int_vartype(
+                tixi=tixi,
+                name="Spanwise vortices",
+                key="pyavl_spanwise_vortices_nb",
+                default_value=30,
+                help="Select the number of spanwise vortices.",
+                xpath=AVL_NSPANWISE_XPATH,
+            )
     with right_col:
-        int_vartype(
-            tixi=tixi,
-            name="Spanwise vortices",
-            key="pyavl_spanwise_vortices_nb",
-            default_value=30,
-            help="Select the number of spanwise vortices.",
-            xpath=AVL_NSPANWISE_XPATH,
+        _display_panel_representation(
+            cpacs=cpacs,
+            spanwise_vertices=spanwise_vertices,
+            chordwise_vertices=chordwise_vertices,
+            panel_distribution=panel_distribution,
         )
 
     st.markdown("---")
     st.markdown("**Specific Settings**")
 
-    dataframe_vartype(
-        name="Rotation rates",
-        key="rates",
-        default_value=[0.0],
-        tixi=tixi,
-        xpath=AVL_ROTRATES_XPATH,
-        help="List of p, q, r rates.",
-    )
+    left_col, _ = st.columns(2, gap=MAIN_GAP)
 
-    dataframe_vartype(
-        name="Control surface angles",
-        key="ctrl_surf_angles",
-        default_value=[0.0],
-        tixi=tixi,
-        xpath=AVL_CTRLSURF_ANGLES_XPATH,
-        help="List of Aileron, Elevator, Rudder angles.",
-    )
+    with left_col:
+        dataframe_vartype(
+            name="Rotation rates",
+            key="rates",
+            default_value=[0.0],
+            tixi=tixi,
+            xpath=AVL_ROTRATES_XPATH,
+            help="List of p, q, r rates.",
+        )
+
+        dataframe_vartype(
+            name="Control surface angles",
+            key="ctrl_surf_angles",
+            default_value=[0.0],
+            tixi=tixi,
+            xpath=AVL_CTRLSURF_ANGLES_XPATH,
+            help="List of Aileron, Elevator, Rudder angles.",
+        )
 
     # float_vartype(
     #     tixi=tixi,

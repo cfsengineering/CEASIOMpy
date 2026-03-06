@@ -1,7 +1,7 @@
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
-Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Streamlit Tabs per module function.
 """
@@ -450,27 +450,6 @@ def checks(session_state, tabs) -> None:
         session_state.tabs = tabs(session_state.workflow_modules)
 
 
-def add_module_tab() -> None:
-    left_col, right_col = st.columns(2)
-    with left_col:
-        # Show aeromap section for both 2D and 3D modes
-        section_edit_aeromap()
-
-    with right_col:
-        aeromap_df = st.session_state.get("aeromap_df", None)
-        if aeromap_df is not None:
-            _render_aeromap_stats(aeromap_df)
-
-    checks(st.session_state, st.tabs)
-
-    # Load each module iteratively
-    for _, (tab, module) in enumerate(
-        zip(st.session_state.tabs, st.session_state.workflow_modules)
-    ):
-        with tab:
-            get_settings_of(module)
-
-
 def get_settings_of(module_name: str) -> None:
     """Return gui_settings callable from ceasiompy.<module_name>.__specs__ if present."""
     try:
@@ -487,71 +466,6 @@ def get_settings_of(module_name: str) -> None:
 
     gui_settings(st.session_state.cpacs)
     return None
-
-
-def _render_aeromap_stats(aeromap_df: pd.DataFrame) -> None:
-    stats_fields = (
-        ("altitude", "Altitude"),
-        ("machNumber", "Mach"),
-        ("angleOfAttack", "α°"),
-        ("angleOfSideslip", "β°"),
-    )
-
-    available_fields = [field for field, _ in stats_fields if field in aeromap_df.columns]
-    if not available_fields:
-        return None
-
-    numeric_df = aeromap_df[available_fields].apply(pd.to_numeric, errors="coerce")
-    active_rows = numeric_df.notna().any(axis=1)
-    numeric_df = numeric_df.loc[active_rows]
-    aeromap_name = st.session_state.get("selected_aeromap_id", None)
-    if numeric_df.empty:
-        st.markdown(f"#### Aeromap {aeromap_name if aeromap_name is not None else ''} Stats")
-        st.caption("No valid aeromap points.")
-        return None
-
-    aeromap_name = st.session_state.get("selected_aeromap_id", None)
-    st.markdown(f"#### Aeromap {aeromap_name + ' ' if aeromap_name is not None else ''}Stats")
-    st.caption(f"{len(numeric_df)} valid points")
-    stat_cols = st.columns(len(stats_fields))
-
-    for idx, (field, label) in enumerate(stats_fields):
-        with stat_cols[idx]:
-            st.markdown(f"**{label}**")
-            if field not in numeric_df:
-                st.caption("Missing data")
-                continue
-
-            values = numeric_df[field].dropna().to_numpy(dtype=float, copy=False)
-            if values.size == 0:
-                st.caption("No data")
-                continue
-
-            st.caption(f"min: {values.min():.3g} | max: {values.max():.3g}")
-
-            if values.size == 1 or np.all(values == values[0]):
-                st.caption("Flat distribution")
-            else:
-                st.caption("Distribution")
-
-            chart_df = pd.DataFrame(
-                {
-                    field: values,
-                    "_group": np.zeros(values.size, dtype=np.int8),
-                },
-            )
-            st.vega_lite_chart(
-                chart_df,
-                {
-                    "mark": {"type": "boxplot", "extent": "min-max", "size": 20},
-                    "encoding": {
-                        "x": {"field": "_group", "type": "nominal", "axis": None},
-                        "y": {"field": field, "type": "quantitative", "title": None},
-                    },
-                    "height": 170,
-                },
-                use_container_width=True,
-            )
 
 
 def process_unit(name: str, unit: str) -> None:

@@ -321,7 +321,7 @@ def section_add_module() -> None:
 
             if selectable_module_list:
                 module = st.selectbox(
-                    "Module to add to the workflow:",
+                    "Module to add",
                     selectable_module_list,
                     format_func=format_module_label,
                 )

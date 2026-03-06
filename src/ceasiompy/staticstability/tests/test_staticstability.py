@@ -15,6 +15,7 @@ import tempfile
 
 from ceasiompy.utils.decorators import log_test
 from cpacspy.cpacsfunctions import create_branch
+from ceasiompy.utils.guiobjects import add_value
 from ceasiompy.utils.ceasiompyutils import (
     current_workflow_dir,
     get_results_directory,
@@ -33,10 +34,10 @@ from cpacspy.cpacspy import (
 )
 
 from ceasiompy import log
+from ceasiompy.staticstability import MODULE_NAME
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
-from ceasiompy.staticstability import (
-    MODULE_NAME,
-)
+from ceasiompy.utils.commonxpaths import SELECTED_AEROMAP_XPATH
+
 
 # =================================================================================================
 #   CLASSES
@@ -93,6 +94,11 @@ class TestStaticStability(CeasiompyTest):
     @log_test
     def test_main_handles_missing_values_without_raising(self: TestStaticStability) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
+            add_value(
+                tixi=self.test_cpacs.tixi,
+                xpath=SELECTED_AEROMAP_XPATH,
+                value="test_apm",
+            )
             staticstability(self.test_cpacs, Path(tmpdir))
 
 

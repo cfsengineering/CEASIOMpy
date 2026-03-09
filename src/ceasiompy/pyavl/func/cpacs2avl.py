@@ -359,10 +359,12 @@ class Avl:
         """
 
         fus_cnt = elements_number(self.tixi, FUSELAGES_XPATH, "fuselage")
-        # AVL's internal MAKEBODY buffer is finite (NLMAX). If many fuselages are
-        # present, a fixed high Nbody value can overflow that buffer.
+        # AVL's internal MAKEBODY buffer is finite (NLMAX ~500). The total
+        # source-line nodes across ALL bodies must stay below that limit.
+        # Fuselages with YDUPLICATE count as 2 bodies, so assume worst case.
         max_total_nbody = 480
-        nbody_per_fuselage = max(20, min(100, max_total_nbody // max(1, fus_cnt)))
+        effective_body_count = 2 * max(1, fus_cnt)
+        nbody_per_fuselage = max(20, min(100, max_total_nbody // effective_body_count))
 
         fus_x_coords = np.array([0.0])
         fus_z_profile = np.array([0.0])

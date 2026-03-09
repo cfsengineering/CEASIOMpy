@@ -21,18 +21,18 @@ from ceasiompy.utils.mathsfunctions import (
 )
 from ceasiompy.pyavl.func.utils import (
     write_control,
-    to_cpacs_format,
     get_points_ref,
+    to_cpacs_format,
     convert_dist_to_avl_format,
 )
 from ceasiompy.utils.geometryfunctions import (
     sum_points,
     prod_points,
-    get_profile_coord,
-    check_if_rotated,
     get_chord_span,
     elements_number,
     get_positionings,
+    check_if_rotated,
+    get_profile_coord,
     convert_fuselage_profiles,
     corrects_airfoil_profile,
 )
@@ -40,10 +40,6 @@ from ceasiompy.utils.geometryfunctions import (
 from pathlib import Path
 from numpy import ndarray
 from tixi3.tixi3wrapper import Tixi3
-from typing import (
-    List,
-    Tuple,
-)
 from ceasiompy.utils.generalclasses import (
     Point,
     Transformation,
@@ -73,8 +69,8 @@ def compute_fuselage_coords(
     elem_transf: Transformation,
     sec_transf: Transformation,
     fus_transf: Transformation,
-    pos_x_list: List,
-    pos_z_list: List,
+    pos_x_list: list,
+    pos_z_list: list,
     prof_size_y,
     prof_size_z,
     fus_radius_vec,
@@ -274,7 +270,7 @@ class Avl:
         self.vortex_dist: int = convert_dist_to_avl_format(str(get_value(tixi, AVL_DISTR_XPATH)))
         self.nchordwise: int = int(get_value(tixi, AVL_NCHORDWISE_XPATH))
         self.nspanwise: int = int(get_value(tixi, AVL_NSPANWISE_XPATH))
-        self.add_fuselage: bool = True  # get_value(tixi, AVL_FUSELAGE_XPATH)
+        self.add_fuselage: bool = False  # get_value(tixi, AVL_FUSELAGE_XPATH)
         # Keep wing geometry unchanged by default; enable only when explicit clipping is desired.
         self.clip_wing_inside_fuselage: bool = False
 
@@ -346,7 +342,7 @@ class Avl:
 
     def convert_fuselage(
         self: "Avl",
-    ) -> Tuple[ndarray, ndarray, ndarray, Transformation]:
+    ) -> tuple[ndarray, ndarray, ndarray, Transformation]:
         """
         Convert fuselages from CPACS to avl format.
 
@@ -359,115 +355,145 @@ class Avl:
         """
 
         fus_cnt = elements_number(self.tixi, FUSELAGES_XPATH, "fuselage")
-        # AVL's internal MAKEBODY buffer is finite (NLMAX ~500). The total
-        # source-line nodes across ALL bodies must stay below that limit.
-        # Fuselages with YDUPLICATE count as 2 bodies, so assume worst case.
-        max_total_nbody = 480
-        effective_body_count = 2 * max(1, fus_cnt)
-        nbody_per_fuselage = max(20, min(100, max_total_nbody // effective_body_count))
 
         fus_x_coords = np.array([0.0])
         fus_z_profile = np.array([0.0])
         fus_radius_profile = np.array([0.0])
         body_transf = Transformation()
 
-        for i_fus in reversed(range(fus_cnt)):
+        # Pre-scan all fuselages to find the main one (longest body).
+        # AVL's simple source-line body model breaks down with multiple
+        # overlapping bodies (e.g. nacelle inside spinner), so only include
+        # the main fuselage.
+        best_fus_idx = 0
+        best_fus_length = 0.0
+        for i_fus in range(fus_cnt):
             fus_xpath = FUSELAGES_XPATH + "/fuselage[" + str(i_fus + 1) + "]"
-            fus_uid = get_uid(self.tixi, fus_xpath)
-
-            fuselages_dir = str(self.results_dir) + "/fuselages"
-            Path(fuselages_dir).mkdir(exist_ok=True)
-            fus_dat_path = fuselages_dir + "/" + fus_uid + ".dat"
-
-            fus_transf = Transformation()
-            fus_transf.get_cpacs_transf(self.tixi, fus_xpath)
-
-            body_transf = Transformation()
-            body_transf.translation = fus_transf.translation
-            body_transf.rotation = euler2fix(fus_transf.rotation)
-
-            # 1. Write fuselage settings
-            fus_has_symmetry = (
-                self.tixi.checkAttribute(fus_xpath, "symmetry")
-                and self.tixi.getTextAttribute(fus_xpath, "symmetry") == "x-z-plane"
-            )
-            # Scaling is already applied inside compute_fuselage_coords,
-            # so pass unit scaling to avoid double-scaling by AVL's SCALE directive.
-            self.write_fuselage_settings(
-                Point(x=1.0, y=1.0, z=1.0),
-                body_transf.translation,
-                nbody=nbody_per_fuselage,
-                symmetry=fus_has_symmetry,
-            )
-
-            sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(
+            sec_cnt_tmp, pos_x_tmp, _, _ = get_positionings(
                 self.tixi, fus_xpath, "fuselage"
             )
+            fus_length = max(pos_x_tmp) - min(pos_x_tmp) if sec_cnt_tmp > 1 else 0.0
+            if fus_length > best_fus_length:
+                best_fus_length = fus_length
+                best_fus_idx = i_fus
 
-            # Initialize to null array of size [sec_cnt]
-            (
-                x_fuselage,
-                y_fuselage_top,
-                y_fuselage_bottom,
-                fus_radius_vec,
-                body_width_vec,
-                body_height_vec,
-            ) = (np.zeros(sec_cnt) for _ in range(6))
+        i_fus = best_fus_idx
+        fus_xpath = FUSELAGES_XPATH + "/fuselage[" + str(i_fus + 1) + "]"
+        fus_uid = get_uid(self.tixi, fus_xpath)
+        log.info(f"Using fuselage '{fus_uid}' for AVL body (longest of {fus_cnt}).")
 
-            for i_sec in range(sec_cnt):
-                sec_xpath = fus_xpath + "/sections/section[" + str(i_sec + 1) + "]"
-                sec_uid = self.tixi.getTextAttribute(sec_xpath, "uID")
-                sec_transf = Transformation()
-                sec_transf.get_cpacs_transf(self.tixi, sec_xpath)
-                check_if_rotated(sec_transf.rotation, sec_uid)
+        fuselages_dir = str(self.results_dir) + "/fuselages"
+        Path(fuselages_dir).mkdir(exist_ok=True)
+        fus_dat_path = fuselages_dir + "/" + fus_uid + ".dat"
 
-                elem_root_xpath = sec_xpath + "/elements"
-                if not self.tixi.checkElement(elem_root_xpath):
-                    continue
-                elem_cnt = self.tixi.getNamedChildrenCount(elem_root_xpath, "element")
+        fus_transf = Transformation()
+        fus_transf.get_cpacs_transf(self.tixi, fus_xpath)
 
-                for i_elem in range(elem_cnt):
-                    elem_transf, prof_size_y, prof_size_z, _, _ = convert_fuselage_profiles(
-                        self.tixi, sec_xpath, i_sec, i_elem, pos_y_list, pos_z_list
-                    )
+        body_transf = Transformation()
+        body_transf.translation = fus_transf.translation
+        body_transf.rotation = euler2fix(fus_transf.rotation)
 
-                    body_frm_width, body_frm_height = compute_fuselage_coords(
-                        i_sec,
-                        elem_transf,
-                        sec_transf,
-                        fus_transf,
-                        pos_x_list,
-                        pos_z_list,
-                        prof_size_y,
-                        prof_size_z,
-                        fus_radius_vec,
-                        x_fuselage,
-                        y_fuselage_top,
-                        y_fuselage_bottom,
-                    )
+        sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(
+            self.tixi, fus_xpath, "fuselage"
+        )
 
-                    body_width_vec[i_sec] = body_frm_width
-                    body_height_vec[i_sec] = body_frm_height
+        # Initialize to null array of size [sec_cnt]
+        (
+            x_fuselage,
+            y_fuselage_top,
+            y_fuselage_bottom,
+            fus_radius_vec,
+            body_width_vec,
+            body_height_vec,
+        ) = (np.zeros(sec_cnt) for _ in range(6))
 
-            body_transf_x = x_fuselage + body_transf.translation.x
-            body_fus_z = y_fuselage_top - fus_radius_vec
-            body_fus_radius = fus_radius_vec
+        for i_sec in range(sec_cnt):
+            sec_xpath = fus_xpath + "/sections/section[" + str(i_sec + 1) + "]"
+            sec_uid = self.tixi.getTextAttribute(sec_xpath, "uID")
+            sec_transf = Transformation()
+            sec_transf.get_cpacs_transf(self.tixi, sec_xpath)
+            check_if_rotated(sec_transf.rotation, sec_uid)
 
-            sort_idx = np.argsort(body_transf_x)
-            body_transf_x_sorted = body_transf_x[sort_idx]
-            body_fus_z_sorted = body_fus_z[sort_idx]
-            body_fus_radius_sorted = body_fus_radius[sort_idx]
-            fus_x_coords, unique_idx = np.unique(body_transf_x_sorted, return_index=True)
-            fus_z_profile = body_fus_z_sorted[unique_idx]
-            fus_radius_profile = body_fus_radius_sorted[unique_idx]
+            elem_root_xpath = sec_xpath + "/elements"
+            if not self.tixi.checkElement(elem_root_xpath):
+                continue
+            elem_cnt = self.tixi.getNamedChildrenCount(elem_root_xpath, "element")
 
-            self.write_fuselage_coords(
-                fus_dat_path,
-                i_fus,
-                x_fuselage,
-                y_fuselage_bottom,
-                y_fuselage_top,
-            )
+            for i_elem in range(elem_cnt):
+                elem_transf, prof_size_y, prof_size_z, _, _ = convert_fuselage_profiles(
+                    self.tixi, sec_xpath, i_sec, i_elem, pos_y_list, pos_z_list
+                )
+
+                body_frm_width, body_frm_height = compute_fuselage_coords(
+                    i_sec,
+                    elem_transf,
+                    sec_transf,
+                    fus_transf,
+                    pos_x_list,
+                    pos_z_list,
+                    prof_size_y,
+                    prof_size_z,
+                    fus_radius_vec,
+                    x_fuselage,
+                    y_fuselage_top,
+                    y_fuselage_bottom,
+                )
+
+                body_width_vec[i_sec] = body_frm_width
+                body_height_vec[i_sec] = body_frm_height
+
+        # AVL expects the body profile relative to its own axis (symmetric ±radius).
+        # Subtract the per-section centerline z so the profile is body-centered,
+        # and adjust TRANSLATE z to account for the mean centerline offset.
+        center_z = (y_fuselage_top + y_fuselage_bottom) / 2
+        mean_center_z = np.mean(center_z)
+        y_top_centered = y_fuselage_top - center_z
+        y_bottom_centered = y_fuselage_bottom - center_z
+
+        fus_has_symmetry = (
+            self.tixi.checkAttribute(fus_xpath, "symmetry")
+            and self.tixi.getTextAttribute(fus_xpath, "symmetry") == "x-z-plane"
+        )
+        adjusted_translation = Point(
+            x=body_transf.translation.x,
+            y=body_transf.translation.y,
+            z=body_transf.translation.z + mean_center_z,
+        )
+
+        # Scale Nbody to actual profile complexity; too many panels for few
+        # data points causes AVL spline issues.
+        n_profile_pts = int(np.sum(fus_radius_vec > 1e-8))
+        nbody = max(20, min(100, n_profile_pts * 10))
+
+        # Scaling is already applied inside compute_fuselage_coords,
+        # so pass unit scaling to avoid double-scaling by AVL's SCALE directive.
+        self.write_fuselage_settings(
+            Point(x=1.0, y=1.0, z=1.0),
+            adjusted_translation,
+            nbody=nbody,
+            symmetry=fus_has_symmetry,
+            name=fus_uid,
+        )
+
+        body_transf_x = x_fuselage + body_transf.translation.x
+        body_fus_z = y_fuselage_top - fus_radius_vec
+        body_fus_radius = fus_radius_vec
+
+        sort_idx = np.argsort(body_transf_x)
+        body_transf_x_sorted = body_transf_x[sort_idx]
+        body_fus_z_sorted = body_fus_z[sort_idx]
+        body_fus_radius_sorted = body_fus_radius[sort_idx]
+        fus_x_coords, unique_idx = np.unique(body_transf_x_sorted, return_index=True)
+        fus_z_profile = body_fus_z_sorted[unique_idx]
+        fus_radius_profile = body_fus_radius_sorted[unique_idx]
+
+        self.write_fuselage_coords(
+            fus_dat_path,
+            i_fus,
+            x_fuselage,
+            y_bottom_centered,
+            y_top_centered,
+        )
 
         return fus_x_coords, fus_z_profile, fus_radius_profile, body_transf
 
@@ -698,10 +724,11 @@ class Avl:
         translation: Point,
         nbody: int = 100,
         symmetry: bool = False,
+        name: str = "Fuselage",
     ) -> None:
         with open(self.avl_path, "a") as avl_file:
             avl_file.write("#--------------------------------------------------\n")
-            avl_file.write("BODY\nFuselage\n\n")
+            avl_file.write(f"BODY\n{name}\n\n")
             avl_file.write(f"!Nbody  Bspace\n{int(nbody)}\t1.0\n\n")
             if symmetry:
                 avl_file.write("YDUPLICATE\n0\n\n")

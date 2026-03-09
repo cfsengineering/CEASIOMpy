@@ -163,7 +163,11 @@ def leadingedge_coordinates(
                 # Read geometry only for known control surfaces
                 innerhinge_xsi_xpath = control_xpath + "/path/innerHingePoint/hingeXsi"
                 outerhinge_xsi_xpath = control_xpath + "/path/outerHingePoint/hingeXsi"
-                if not tixi.checkElement(innerhinge_xsi_xpath) or not tixi.checkElement(outerhinge_xsi_xpath):
+                if (
+                    not tixi.checkElement(innerhinge_xsi_xpath)
+                    or
+                    not tixi.checkElement(outerhinge_xsi_xpath)
+                ):
                     log.warning(f"Missing hinge xsi for {control_uid}, skipping.")
                     continue
                 innerhinge_xsi = float(get_value(tixi, innerhinge_xsi_xpath))
@@ -171,7 +175,11 @@ def leadingedge_coordinates(
 
                 inner_eta_xpath = control_xpath + "/outerShape/innerBorder/etaTE/eta"
                 outer_eta_xpath = control_xpath + "/outerShape/outerBorder/etaTE/eta"
-                if not tixi.checkElement(inner_eta_xpath) or not tixi.checkElement(outer_eta_xpath):
+                if (
+                    not tixi.checkElement(inner_eta_xpath)
+                    or
+                    not tixi.checkElement(outer_eta_xpath)
+                ):
                     log.warning(f"Missing eta for {control_uid}, skipping.")
                     continue
                 inner_eta = float(get_value(tixi, inner_eta_xpath))
@@ -181,7 +189,11 @@ def leadingedge_coordinates(
                 y_axis = (outer_eta - inner_eta) * s_ref
                 z_axis = 0.0
                 is_rudder = control["type"] == "rudder"
-                control["axis"] = f"{x_axis} {z_axis} {y_axis}" if is_rudder else f"{x_axis} {y_axis} {z_axis}"
+                control["axis"] = (
+                    f"{x_axis} {z_axis} {y_axis}"
+                    if is_rudder
+                    else f"{x_axis} {y_axis} {z_axis}"
+                )
                 control_type = control["type"]
                 if i_sec == control["i_sec"][0]:
                     write_control(
@@ -532,9 +544,24 @@ class Avl:
                 wg_sec_rot = euler2fix(add_rotation)
 
                 # LE position in wing-local frame: positioning + section/element translations
-                x_le_local = pos_x_list[i_sec] + sec_transf.translation.x + sec_transf.scaling.x * elem_transf.translation.x
-                y_le_local = pos_y_list[i_sec] + sec_transf.translation.y + sec_transf.scaling.y * elem_transf.translation.y
-                z_le_local = pos_z_list[i_sec] + sec_transf.translation.z + sec_transf.scaling.z * elem_transf.translation.z
+                x_le_local = (
+                    pos_x_list[i_sec]
+                    + sec_transf.translation.x
+                    + sec_transf.scaling.x
+                    * elem_transf.translation.x
+                )
+                y_le_local = (
+                    pos_y_list[i_sec]
+                    + sec_transf.translation.y
+                    + sec_transf.scaling.y
+                    * elem_transf.translation.y
+                )
+                z_le_local = (
+                    pos_z_list[i_sec]
+                    + sec_transf.translation.z
+                    + sec_transf.scaling.z
+                    * elem_transf.translation.z
+                )
 
                 # Rotate by wing-only rotation to world frame.
                 # Section/element rotations affect chord orientation, not section position.

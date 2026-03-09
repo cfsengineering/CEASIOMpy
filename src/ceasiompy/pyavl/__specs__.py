@@ -320,9 +320,24 @@ def _display_panel_representation(
             sec_rot = euler2fix(Point(x=rot_x, y=rot_y, z=rot_z))
 
             # LE position in wing-local frame: positioning + section/element translations
-            x_le_local = pos_x_list[i_sec] + sec_transf.translation.x + sec_transf.scaling.x * elem_transf.translation.x
-            y_le_local = pos_y_list[i_sec] + sec_transf.translation.y + sec_transf.scaling.y * elem_transf.translation.y
-            z_le_local = pos_z_list[i_sec] + sec_transf.translation.z + sec_transf.scaling.z * elem_transf.translation.z
+            x_le_local = (
+                pos_x_list[i_sec]
+                + sec_transf.translation.x
+                + sec_transf.scaling.x
+                * elem_transf.translation.x
+            )
+            y_le_local = (
+                pos_y_list[i_sec]
+                + sec_transf.translation.y
+                + sec_transf.scaling.y
+                * elem_transf.translation.y
+            )
+            z_le_local = (
+                pos_z_list[i_sec]
+                + sec_transf.translation.z
+                + sec_transf.scaling.z
+                * elem_transf.translation.z
+            )
 
             # Rotate by wing-only rotation to world frame.
             # Section/element rotations affect chord orientation, not section position.
@@ -609,7 +624,6 @@ def gui_settings(cpacs: CPACS) -> None:
                 xpath=AVL_CTRLSURF_ANGLES_XPATH,
                 value=0.0,
             )
-
 
     # float_vartype(
     #     tixi=tixi,

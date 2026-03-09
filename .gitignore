@@ -4,6 +4,8 @@
 # Vim temporary files
 *.swp
 
+**/*.brep
+1
 # Sphinx
 build/
 doc/source/dev_doc/ceasiompy.*

@@ -30,7 +30,7 @@ from cpacspy.cpacspy import CPACS
 
 
 MODULE_DIR = Path(__file__).parent
-CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simple_sharp_airfoil.xml")
+CPACS_IN_PATH = Path(CPACS_FILES_PATH, "onera_m6.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 
@@ -290,7 +290,7 @@ def test_auto_refine():
 
     # Check if meshfields were generated (more than 34 == without auto_refine)
     gmsh_field_list = gmsh.model.mesh.field.list()
-    assert len(gmsh_field_list) == 65
+    assert len(gmsh_field_list) == 55
 
     gmsh.clear()
     gmsh.finalize()

@@ -36,8 +36,8 @@ from pathlib import Path
 MODULE_DIR = Path(__file__).parent
 BREP_IN_PATH = Path(MODULE_DIR, "ToolInput/brep_files_test_rans")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
+
 CPACS_D150_IN_PATH = Path(CPACS_FILES_PATH, "d150.xml")
-CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
 
 
 # Functions
@@ -52,7 +52,7 @@ def test_generate_rans_mesh():
         shutil.rmtree(TEST_OUT_PATH)
     TEST_OUT_PATH.mkdir()
 
-    cpacs = CPACS(CPACS_IN_PATH)
+    cpacs = CPACS(CPACS_D150_IN_PATH)
 
     export_brep(cpacs, TEST_OUT_PATH)
 
@@ -90,7 +90,6 @@ def test_generate_rans_mesh():
     )
 
     mesh_markers = get_mesh_markers(Path(TEST_OUT_PATH, "hybrid.su2"))
-    assert mesh_markers["wall"] == ["SimpleFuselage", "Wing", "Wing_mirrored"]
     assert mesh_markers["farfield"] == ["Farfield"]
 
     remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg"])

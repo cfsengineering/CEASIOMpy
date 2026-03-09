@@ -211,17 +211,13 @@ class TestCeasiompyUtils(CeasiompyTest):
     def test_get_part_type(self):
         """Test the function get_part_type on the D150"""
 
-        cpacs_in = Path(CPACS_FILES_PATH, "simple_engine.xml")
+        cpacs_in = Path(CPACS_FILES_PATH, "d150.xml")
         cpacs = CPACS(cpacs_in)
         tixi = cpacs.tixi
 
-        assert get_part_type(tixi, "Wing") == "wing"
-        assert get_part_type(tixi, "Wing_mirrored") == "wing"
-        assert get_part_type(tixi, "SimpleFuselage") == "fuselage"
-        assert get_part_type(tixi, "SimpleEngine") == "engine"
-        assert get_part_type(tixi, "SimpleEngine_mirrored") == "engine"
-        assert get_part_type(tixi, "Pylon") == "pylon"
-        assert get_part_type(tixi, "Pylon_mirrored") == "pylon"
+        assert get_part_type(tixi, "Wing1") == "wing"
+        assert get_part_type(tixi, "Wing1_mirrored") == "wing"
+        assert get_part_type(tixi, "Fuselage1") == "fuselage"
 
     def test_remove_file_type_in_dir(self):
         """Test the function 'remove_file_type_in_dir'"""

@@ -132,8 +132,6 @@ def convert_fuselage_profiles(
     prof_vect_y -= 1 + prof_min_y
     prof_vect_z -= 1 + prof_min_z
 
-    # Could be a problem if they are less positionings than sections
-    # TODO: solve that!
     pos_y_list[i_sec] += (1 + prof_min_y) * prof_size_y * elem_transf.scaling.y
     pos_z_list[i_sec] += (1 + prof_min_z) * prof_size_z * elem_transf.scaling.z
 
@@ -493,56 +491,73 @@ def get_positionings(tixi: Tixi3, xpath: str, element: str = "") -> Tuple[int, L
     # Sections
     sec_cnt = elements_number(tixi, xpath + "/sections", "section", logg=False)
 
-    # Positionings list
-    pos_x_list, pos_y_list, pos_z_list = [], [], []
+    # Build section UID → index mapping
+    sec_uid_to_idx = {}
+    for i_sec in range(sec_cnt):
+        sec_xpath = xpath + f"/sections/section[{i_sec + 1}]"
+        if tixi.checkAttribute(sec_xpath, "uID"):
+            sec_uid = tixi.getTextAttribute(sec_xpath, "uID")
+            sec_uid_to_idx[sec_uid] = i_sec
+
+    # Initialize positions for all sections at origin
+    pos_x_list = [0.0] * sec_cnt
+    pos_y_list = [0.0] * sec_cnt
+    pos_z_list = [0.0] * sec_cnt
 
     if tixi.checkElement(xpath + f"/{positionings}"):
         pos_cnt = elements_number(tixi, xpath + f"/{positionings}", positioning, logg=False)
+
+        # First pass: compute delta translations and collect UIDs
+        delta_x, delta_y, delta_z = [], [], []
         from_sec_list, to_sec_list = [], []
 
         for i_pos in range(pos_cnt):
-            pos_xpath = xpath + f"/{positionings}/{positioning}[" + str(i_pos + 1) + "]"
+            pos_xpath = xpath + f"/{positionings}/{positioning}[{i_pos + 1}]"
 
             length = tixi.getDoubleElement(pos_xpath + "/length")
             sweep = math.radians(tixi.getDoubleElement(pos_xpath + "/sweepAngle"))
             dihedral = math.radians(tixi.getDoubleElement(pos_xpath + "/dihedralAngle"))
 
-            # Get the corresponding translation of each positioning.
-            # This is correct. But why ? TODO: Add explaination.
-            pos_x_list.append(length * math.sin(sweep))
-            pos_y_list.append(length * math.cos(dihedral) * math.cos(sweep))
-            pos_z_list.append(length * math.sin(dihedral) * math.cos(sweep))
+            delta_x.append(length * math.sin(sweep))
+            delta_y.append(length * math.cos(dihedral) * math.cos(sweep))
+            delta_z.append(length * math.sin(dihedral) * math.cos(sweep))
 
-            # Get which section are connected by the positioning
             from_sec_list.append(get_section_uid(tixi, pos_xpath, "/fromSectionUID"))
             to_sec_list.append(get_section_uid(tixi, pos_xpath, "/toSectionUID"))
 
-        # Re-loop though the positioning to re-order them
+        # Build cumulative positions per positioning, then map to section index
+        cum_x, cum_y, cum_z = [0.0] * pos_cnt, [0.0] * pos_cnt, [0.0] * pos_cnt
+
         for j_pos in range(pos_cnt):
             if from_sec_list[j_pos] == "":
-                prev_pos_x, prev_pos_y, prev_pos_z = 0, 0, 0
-
-            elif from_sec_list[j_pos] == to_sec_list[j_pos - 1]:
-                prev_pos_x = pos_x_list[j_pos - 1]
-                prev_pos_y = pos_y_list[j_pos - 1]
-                prev_pos_z = pos_z_list[j_pos - 1]
-
+                cum_x[j_pos] = delta_x[j_pos]
+                cum_y[j_pos] = delta_y[j_pos]
+                cum_z[j_pos] = delta_z[j_pos]
             else:
-                index_prev = to_sec_list.index(from_sec_list[j_pos])
-                prev_pos_x = pos_x_list[index_prev]
-                prev_pos_y = pos_y_list[index_prev]
-                prev_pos_z = pos_z_list[index_prev]
+                # Find the positioning whose toSectionUID matches our fromSectionUID
+                try:
+                    if j_pos > 0 and from_sec_list[j_pos] == to_sec_list[j_pos - 1]:
+                        idx_prev = j_pos - 1
+                    else:
+                        idx_prev = to_sec_list.index(from_sec_list[j_pos])
+                    cum_x[j_pos] = cum_x[idx_prev] + delta_x[j_pos]
+                    cum_y[j_pos] = cum_y[idx_prev] + delta_y[j_pos]
+                    cum_z[j_pos] = cum_z[idx_prev] + delta_z[j_pos]
+                except ValueError:
+                    cum_x[j_pos] = delta_x[j_pos]
+                    cum_y[j_pos] = delta_y[j_pos]
+                    cum_z[j_pos] = delta_z[j_pos]
 
-            pos_x_list[j_pos] += prev_pos_x
-            pos_y_list[j_pos] += prev_pos_y
-            pos_z_list[j_pos] += prev_pos_z
+            # Map cumulative position to the target section index
+            to_uid = to_sec_list[j_pos]
+            if to_uid in sec_uid_to_idx:
+                sec_idx = sec_uid_to_idx[to_uid]
+                pos_x_list[sec_idx] = cum_x[j_pos]
+                pos_y_list[sec_idx] = cum_y[j_pos]
+                pos_z_list[sec_idx] = cum_z[j_pos]
 
     else:
         log.warning(f'No "{positionings}" have been found in: {element}.')
-        zero_cnt = [0.0] * sec_cnt
-        pos_x_list = zero_cnt
-        pos_y_list = zero_cnt
-        pos_z_list = zero_cnt
 
     return sec_cnt, pos_x_list, pos_y_list, pos_z_list
 

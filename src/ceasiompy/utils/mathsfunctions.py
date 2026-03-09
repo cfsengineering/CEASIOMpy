@@ -112,9 +112,9 @@ def get_rotation_matrix(
 
     rotation_y = np.array(
         [
-            [cy, 0.0, -sy],
+            [cy, 0.0, sy],
             [0.0, 1.0, 0.0],
-            [sy, 0.0, cy],
+            [-sy, 0.0, cy],
         ]
     )
 
@@ -152,8 +152,10 @@ def euler2fix(rotation_euler):
         object_ = True
         rotation_euler = np.array([rotation_euler.x, rotation_euler.y, rotation_euler.z])
 
-    rotation = ScipyRotation.from_euler("zyx", rotation_euler, degrees=True)
+    # CPACS intrinsic XYZ (x, y', z'') -> scipy "XYZ" (uppercase = intrinsic)
+    rotation = ScipyRotation.from_euler("XYZ", rotation_euler, degrees=True)
 
+    # Fix angles: extrinsic xyz -> scipy "xyz" (lowercase = extrinsic)
     fix_angles = rotation.as_euler("xyz", degrees=True)
 
     if object_:
@@ -187,9 +189,11 @@ def fix2euler(rotation_fix):
         object_ = True
         rotation_fix = np.array([rotation_fix.x, rotation_fix.y, rotation_fix.z])
 
+    # Fix angles: extrinsic xyz -> scipy "xyz" (lowercase = extrinsic)
     rotation = ScipyRotation.from_euler("xyz", rotation_fix, degrees=True)
 
-    euler_angles = rotation.as_euler("zyx", degrees=True)
+    # CPACS intrinsic XYZ (x, y', z'') -> scipy "XYZ" (uppercase = intrinsic)
+    euler_angles = rotation.as_euler("XYZ", degrees=True)
 
     if object_:
         return Point(

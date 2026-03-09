@@ -188,7 +188,7 @@ def _build_3d_figure(
     *,
     height: int | None,
     ui_key: str,
-):
+) -> go.Figure | None:
     """Create plotly figure from mesh points/faces arrays."""
     if faces.size == 0:
         st.warning("No mesh faces available for 3D preview.")
@@ -294,9 +294,10 @@ def get_aircraft_mesh_data(
     """Returns (x, y, z, i, j, k), and when symmetry: only y >= 0.0"""
 
     cpacs_path = Path(cpacs.cpacs_file)
+    stl_name = cpacs_path.stem
     if symmetry:
-        cpacs_path = cpacs_path.with_name(f"{cpacs_path.stem}_symmetry{cpacs_path.suffix}")
-    stl_file = cpacs_path.with_suffix(".stl")
+        stl_name = f"{stl_name}_symmetry"
+    stl_file = Path(tempfile.gettempdir()) / f"{stl_name}.stl"
 
     if force_regenerate or not stl_file.exists():
         try:

@@ -22,7 +22,6 @@ from pathlib import Path
 
 from ceasiompy.vsp2cpacs import (
     SOFTWARE_PATH as OPENVSP_PATH,
-    MODULE_STATUS as VSP2CPACS_MODULE_STATUS,
 )
 
 # Constants
@@ -93,11 +92,7 @@ def render_openvsp_panel() -> None:
     button_disabled = True
     status_col, button_col = st.columns([3, 1], vertical_alignment="center")
     with status_col:
-        if not VSP2CPACS_MODULE_STATUS:
-            st.info(
-                "OpenVSP should be installed inside `installdir/OpenVSP`."
-            )
-        elif OPENVSP_PATH is None or not OPENVSP_PATH.exists():
+        if OPENVSP_PATH is None or not OPENVSP_PATH.exists():
             st.error("OpenVSP executable could not be located.")
             st.caption(
                 "Expected to find the `vsp` binary inside `installdir/OpenVSP`. "

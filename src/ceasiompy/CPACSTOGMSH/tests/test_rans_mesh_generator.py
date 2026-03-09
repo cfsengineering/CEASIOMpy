@@ -29,6 +29,7 @@ from ceasiompy.CPACSTOGMSH.func.generategmesh import (
     ModelPart,
 )
 from ceasiompy.CPACSTOGMSH.func.exportbrep import export_brep
+import pytest
 import shutil
 from pathlib import Path
 
@@ -41,6 +42,7 @@ CPACS_IN_PATH = Path(CPACS_FILES_PATH, "onera_m6.xml")
 
 # Functions
 
+@pytest.mark.slow
 def test_generate_rans_mesh():
     """
     This test try to generate a simple RANS mesh and test if the SU2 markers
@@ -140,6 +142,7 @@ def test_choose_correct_part():
     gmsh.finalize()
 
 
+@pytest.mark.slow
 def test_sort_surfaces_and_create_physical_groups():
     """
     This function tests if the function sort_surfaces_and_create_physical_groups

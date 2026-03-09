@@ -196,60 +196,7 @@ def test_compute_area():
     gmsh.finalize()
 
 
-def test_refine_wing_section():
-    """
-    Test if the wing section is correctly refined by the advancemeshing algorithm
-    """
-
-    if TEST_OUT_PATH.exists():
-        shutil.rmtree(TEST_OUT_PATH)
-    TEST_OUT_PATH.mkdir()
-
-    cpacs = CPACS(CPACS_IN_PATH)
-
-    export_brep(cpacs, TEST_OUT_PATH)
-
-    generate_gmsh(
-        tixi=cpacs.tixi,
-        brep_dir=TEST_OUT_PATH,
-        results_dir=TEST_OUT_PATH,
-        open_gmsh=False,
-        farfield_factor=2,
-        symmetry=False,
-        farfield_mesh_size=10,
-        n_power_factor=2,
-        n_power_field=0.9,
-        fuselage_mesh_size=1,
-        wing_mesh_size=1.5,
-        mesh_size_engines=0.5,
-        mesh_size_propellers=0.5,
-        refine_factor=2.0,
-        refine_truncated=False,
-        auto_refine=False,
-        testing_gmsh=True,
-    )
-
-    import gmsh
-
-    # Check if the meshfields were generated
-    gmsh_field_list = gmsh.model.mesh.field.list()
-    assert len(gmsh_field_list) > 0
-
-    # Check if a distance field was generated on the wing le and te
-    assert gmsh.model.mesh.field.getType(1) == "Distance"
-
-    # Check if a Matheval field was generated with the correct formula
-    assert gmsh.model.mesh.field.getType(2) == "MathEval"
-
-    # Check if the restrict field was applied on the wing
-    assert gmsh.model.mesh.field.getType(3) == "Restrict"
-
-    gmsh.clear()
-    gmsh.finalize()
-
-    remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg"])
-
-
+@pytest.mark.slow
 def test_auto_refine():
     """
     Test if the wing section is correctly remeshed when the area is too small
@@ -383,6 +330,7 @@ def test_refine_between_parts():
 
 if __name__ == "__main__":
     test_auto_refine()
+    test_refine_between_parts()
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")

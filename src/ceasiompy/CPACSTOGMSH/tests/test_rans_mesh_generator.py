@@ -142,7 +142,6 @@ def test_choose_correct_part():
     gmsh.finalize()
 
 
-@pytest.mark.slow
 def test_sort_surfaces_and_create_physical_groups():
     """
     This function tests if the function sort_surfaces_and_create_physical_groups
@@ -156,7 +155,8 @@ def test_sort_surfaces_and_create_physical_groups():
 
     brep_files = list(BREP_IN_PATH.glob("*.brep"))
     brep_files.sort()
-    cpacs = CPACS(CPACS_IN_PATH)
+    d150_cpacs = Path(CPACS_FILES_PATH, "d150.xml")
+    cpacs = CPACS(d150_cpacs)
 
     gmsh.initialize()
     gmsh.clear()
@@ -175,7 +175,6 @@ def test_sort_surfaces_and_create_physical_groups():
         part_obj.volume = part_entities[0]
         part_obj.volume_tag = part_entities[0][1]
         vols.append(part_entities[0][1])
-
         aircraft_parts.append(part_obj)
 
     model_bb = gmsh.model.get_bounding_box(*aircraft_parts[0].volume)
@@ -216,4 +215,5 @@ def test_sort_surfaces_and_create_physical_groups():
 
 # Main
 if __name__ == "__main__":
-    test_generate_rans_mesh()
+    test_choose_correct_part()
+    test_sort_surfaces_and_create_physical_groups()

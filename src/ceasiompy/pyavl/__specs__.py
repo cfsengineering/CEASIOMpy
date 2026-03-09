@@ -422,7 +422,10 @@ def _display_panel_representation(
     x_min, y_min, z_min = float(np.min(x_vals)), float(np.min(y_vals)), float(np.min(z_vals))
 
     # Also consider the 3D mesh bounds when computing the shift
-    mesh_data = get_aircraft_mesh_data(cpacs)
+    mesh_data = get_aircraft_mesh_data(
+        cpacs=cpacs,
+        force_regenerate=True,
+    )
     if mesh_data is not None:
         mx, my, mz, mi, mj, mk = mesh_data
         mx, my, mz = np.asarray(mx), np.asarray(my), np.asarray(mz)

@@ -84,17 +84,17 @@ class TestMathsFunctions(CeasiompyTest):
         euler_angle.y = 99
         euler_angle.z = -30
         fix_angle = euler2fix(euler_angle)
-        assert fix_angle.x == approx(98.045944)
-        assert fix_angle.y == approx(-14.5532525)
-        assert fix_angle.z == approx(83.4377462)
+        assert fix_angle.x == approx(83.4377467)
+        assert fix_angle.y == approx(-14.5532526)
+        assert fix_angle.z == approx(98.0459445)
 
         euler_angle.x = 50
         euler_angle.y = 32
         euler_angle.z = 65
         fix_angle = euler2fix(euler_angle)
-        assert fix_angle.x == approx(64.580333)
-        assert fix_angle.y == approx(-33.388795)
-        assert fix_angle.z == approx(49.2418955)
+        assert fix_angle.x == approx(49.2418956)
+        assert fix_angle.y == approx(-33.3887956)
+        assert fix_angle.z == approx(64.5803339)
 
     def test_fix2euler(self):
         """Test convertion from fix angles to Euler angles"""

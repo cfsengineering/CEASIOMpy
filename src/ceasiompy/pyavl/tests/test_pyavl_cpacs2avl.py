@@ -114,14 +114,14 @@ class TestWriteFuselage(CeasiompyTest):
             with open(fus_dat_path) as f:
                 lines = f.read().splitlines()
             assert lines[0] == "fuselage1"
-            # Top surface (reversed)
+            # Top surface (reversed, all sections)
             assert lines[1] == "2.000\t0.700"
             assert lines[2] == "1.000\t0.600"
-            # Nose
-            assert lines[3].startswith("0.000\t0.000")
-            # Bottom surface
-            assert lines[4] == "1.000\t-0.600"
-            assert lines[5] == "2.000\t-0.700"
+            assert lines[3] == "0.000\t0.500"
+            # Bottom surface (all sections)
+            assert lines[4] == "0.000\t-0.500"
+            assert lines[5] == "1.000\t-0.600"
+            assert lines[6] == "2.000\t-0.700"
             # Check avl file content
             with open(avl.avl_path) as f:
                 avl_lines = f.read().splitlines()

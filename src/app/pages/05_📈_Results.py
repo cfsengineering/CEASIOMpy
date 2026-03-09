@@ -1097,7 +1097,7 @@ def _display_json(path: Path) -> None:
             "Download JSON",
             data=text_data,
             file_name=path.name,
-            mime="application/json",
+            mime="application/octet-stream",
             key=f"{path}_json_download",
             width="stretch",
         )
@@ -3109,7 +3109,7 @@ def _display_xml(path: Path, specify_name: str | None = None) -> None:
         label="Download CPACS file",
         data=path.read_bytes(),
         file_name=path.name,
-        mime="application/xml",
+        mime="application/octet-stream",
         width="stretch",
         key=f"{path}_xml_download",
     )

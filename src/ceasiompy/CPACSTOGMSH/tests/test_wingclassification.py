@@ -14,7 +14,6 @@ Test functions for 'ceasiompy/CPACS2GMSH/wingclassification.py'
 
 from pathlib import Path
 
-import gmsh
 from ceasiompy.CPACSTOGMSH.func.wingclassification import (
     detect_normal_profile,
     detect_truncated_profile,
@@ -36,6 +35,8 @@ def test_detect_normal_profile():
     a trailing edge line.
     Then we check if it is correctly classified
     """
+
+    import gmsh
 
     gmsh.initialize()
 
@@ -115,6 +116,8 @@ def test_detect_truncated_profile():
     and two trailing edge line.
     Then we check if it is correctly classified
     """
+
+    import gmsh
 
     gmsh.initialize()
 

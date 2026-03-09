@@ -7,7 +7,6 @@ Test functions for 'ceasiompy/CPACS2GMSH/generategmesh.py'
 """
 
 # Imports
-import gmsh
 
 from ceasiompy.CPACSTOGMSH.func.wingclassification import get_entities_from_volume
 
@@ -18,6 +17,7 @@ def test_get_entities_from_volume():
     """
     Test on a simple cube if the lower dimensions entities are correctly found.
     """
+    import gmsh
 
     gmsh.initialize()
     test_cube = gmsh.model.occ.addBox(0, 0, 0, 1, 1, 1)

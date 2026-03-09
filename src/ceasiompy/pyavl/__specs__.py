@@ -8,32 +8,22 @@ GUI Interface of PyAVL.
 
 # Imports
 import math
-from typing import Literal
-
 import numpy as np
-import plotly.graph_objects as go
 import streamlit as st
-from cpacspy.cpacspy import CPACS
+import plotly.graph_objects as go
 
+from ceasiompy.utils.plot import get_aircraft_mesh_data
+from ceasiompy.utils.mathsfunctions import (
+    euler2fix,
+    rotate_points,
+)
 from ceasiompy.utils.guiobjects import (
+    add_value,
     int_vartype,
     list_vartype,
     # bool_vartype,
     dataframe_vartype,
 )
-
-from ceasiompy import MAIN_GAP
-from ceasiompy.pyavl import (
-    AVL_DISTR_XPATH,
-    AVL_ROTRATES_XPATH,
-    # AVL_FUSELAGE_XPATH,
-    AVL_NSPANWISE_XPATH,
-    AVL_NCHORDWISE_XPATH,
-    # AVL_FREESTREAM_MACH_XPATH,
-    AVL_CTRLSURF_ANGLES_XPATH,
-)
-from ceasiompy.utils.commonxpaths import FUSELAGES_XPATH, WINGS_XPATH
-from ceasiompy.utils.generalclasses import Point, Transformation
 from ceasiompy.utils.geometryfunctions import (
     convert_fuselage_profiles,
     corrects_airfoil_profile,
@@ -43,14 +33,40 @@ from ceasiompy.utils.geometryfunctions import (
     prod_points,
     sum_points,
 )
-from ceasiompy.utils.mathsfunctions import euler2fix, rotate_points
+
+from numpy import ndarray
+from typing import Literal
+from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.generalclasses import (
+    Point,
+    Transformation,
+)
+
+from ceasiompy import (
+    log,
+    MAIN_GAP,
+)
+from ceasiompy.utils.commonxpaths import (
+    WINGS_XPATH,
+    FUSELAGES_XPATH,
+)
+from ceasiompy.pyavl import (
+    AVL_DISTR_XPATH,
+    AVL_ROTRATES_XPATH,
+    # AVL_FUSELAGE_XPATH,
+    AVL_NSPANWISE_XPATH,
+    AVL_NCHORDWISE_XPATH,
+    # AVL_FREESTREAM_MACH_XPATH,
+    AVL_CTRLSURF_ANGLES_XPATH,
+)
 
 
 # Methods
 def _distribution_nodes(
     panel_distribution: Literal["cosine", "sine", "equal"],
     panel_count: int,
-) -> np.ndarray:
+    show_3d_geometry: bool = False,
+) -> ndarray:
     panel_count = max(1, int(panel_count))
     u = np.linspace(0.0, 1.0, panel_count + 1)
 
@@ -62,10 +78,10 @@ def _distribution_nodes(
 
 
 def _append_wing_panel_grid_lines(
-    le_points: np.ndarray,
-    te_points: np.ndarray,
-    span_nodes: np.ndarray,
-    chord_nodes: np.ndarray,
+    le_points: ndarray,
+    te_points: ndarray,
+    span_nodes: ndarray,
+    chord_nodes: ndarray,
     x_lines: list,
     y_lines: list,
     z_lines: list,
@@ -109,8 +125,8 @@ def _append_wing_panel_grid_lines(
 
 def _append_fuselage_wireframe(
     cpacs: CPACS,
-    span_nodes: np.ndarray,
-    chord_nodes: np.ndarray,
+    span_nodes: ndarray,
+    chord_nodes: ndarray,
     x_lines: list,
     y_lines: list,
     z_lines: list,
@@ -181,7 +197,12 @@ def _append_fuselage_wireframe(
 
         radius_sec = 0.5 * (y_fuselage_top - y_fuselage_bottom)
         z_center_sec = 0.5 * (y_fuselage_top + y_fuselage_bottom)
+        # Keep sections with non-zero radius, but always include first/last
+        # so the nose and tail cone tips are not cut off.
         valid = radius_sec > 1e-8
+        if sec_count > 0:
+            valid[0] = True
+            valid[-1] = True
         if np.count_nonzero(valid) < 2:
             continue
 
@@ -201,23 +222,29 @@ def _append_fuselage_wireframe(
         r_axis = np.interp(target_pos, sec_pos, r_sec)
         y_center = body_transf.translation.y
 
-        for i_sta, x_i_sta in enumerate(x_axis):
-            ring_x = np.full_like(theta_closed, x_i_sta, dtype=float)
-            ring_y = y_center + r_axis[i_sta] * np.cos(theta_closed)
-            ring_z = z_axis[i_sta] + r_axis[i_sta] * np.sin(theta_closed)
-            x_lines.extend(ring_x.tolist() + [None])
-            y_lines.extend(ring_y.tolist() + [None])
-            z_lines.extend(ring_z.tolist() + [None])
+        has_symmetry = (
+            tixi.checkAttribute(fus_xpath, "symmetry")
+            and tixi.getTextAttribute(fus_xpath, "symmetry") == "x-z-plane"
+        )
 
-        meridian_count = min(12, theta_count)
-        meridian_idx = np.linspace(0, theta_count - 1, meridian_count, dtype=int)
-        for idx in meridian_idx:
-            mer_x = x_axis
-            mer_y = y_center + r_axis * np.cos(theta[idx])
-            mer_z = z_axis + r_axis * np.sin(theta[idx])
-            x_lines.extend(mer_x.tolist() + [None])
-            y_lines.extend(mer_y.tolist() + [None])
-            z_lines.extend(mer_z.tolist() + [None])
+        for y_sign in ([1.0, -1.0] if has_symmetry else [1.0]):
+            for i_sta, x_i_sta in enumerate(x_axis):
+                ring_x = np.full_like(theta_closed, x_i_sta, dtype=float)
+                ring_y = y_sign * (y_center + r_axis[i_sta] * np.cos(theta_closed))
+                ring_z = z_axis[i_sta] + r_axis[i_sta] * np.sin(theta_closed)
+                x_lines.extend(ring_x.tolist() + [None])
+                y_lines.extend(ring_y.tolist() + [None])
+                z_lines.extend(ring_z.tolist() + [None])
+
+            meridian_count = min(12, theta_count)
+            meridian_idx = np.linspace(0, theta_count - 1, meridian_count, dtype=int)
+            for idx in meridian_idx:
+                mer_x = x_axis
+                mer_y = y_sign * (y_center + r_axis * np.cos(theta[idx]))
+                mer_z = z_axis + r_axis * np.sin(theta[idx])
+                x_lines.extend(mer_x.tolist() + [None])
+                y_lines.extend(mer_y.tolist() + [None])
+                z_lines.extend(mer_z.tolist() + [None])
 
 
 def _display_panel_representation(
@@ -262,7 +289,6 @@ def _display_panel_representation(
         if sec_count < 2:
             continue
 
-        all_pos_y_zero = all(abs(value) < 1e-6 for value in pos_y_list)
         le_points = []
         te_points = []
 
@@ -292,34 +318,50 @@ def _display_panel_representation(
                 wg_sk_transf.rotation,
             )
             sec_rot = euler2fix(Point(x=rot_x, y=rot_y, z=rot_z))
+
+            # LE position in wing-local frame: positioning + section/element translations
+            x_le_local = (
+                pos_x_list[i_sec]
+                + sec_transf.translation.x
+                + sec_transf.scaling.x
+                * elem_transf.translation.x
+            )
+            y_le_local = (
+                pos_y_list[i_sec]
+                + sec_transf.translation.y
+                + sec_transf.scaling.y
+                * elem_transf.translation.y
+            )
+            z_le_local = (
+                pos_z_list[i_sec]
+                + sec_transf.translation.z
+                + sec_transf.scaling.z
+                * elem_transf.translation.z
+            )
+
+            # Rotate by wing-only rotation to world frame.
+            # Section/element rotations affect chord orientation, not section position.
+            wg_dihed = math.radians(wg_sk_transf.rotation.x)
+            wg_twist = math.radians(wg_sk_transf.rotation.y)
+            wg_yaw = math.radians(wg_sk_transf.rotation.z)
+
+            x_le_rot, y_le_rot, z_le_rot = rotate_points(
+                x_le_local,
+                y_le_local,
+                z_le_local,
+                wg_dihed,
+                wg_twist,
+                wg_yaw,
+            )
+
+            # TE: rotate chord vector by full combined rotation (includes twist/yaw)
             sec_dihed = math.radians(sec_rot.x)
             sec_twist = math.radians(sec_rot.y)
             sec_yaw = math.radians(sec_rot.z)
-
-            if all_pos_y_zero:
-                x_le, y_le, z_le = sum_points(sec_transf.translation, elem_transf.translation)
-                x_le_rot, y_le_rot, z_le_rot = rotate_points(
-                    x_le,
-                    y_le,
-                    z_le,
-                    sec_dihed,
-                    sec_twist,
-                    sec_yaw,
-                )
-            else:
-                x_le_rot, y_le_rot, z_le_rot = rotate_points(
-                    pos_x_list[i_sec],
-                    pos_y_list[i_sec],
-                    pos_z_list[i_sec],
-                    sec_dihed,
-                    sec_twist,
-                    sec_yaw,
-                )
-
-            ainc = math.radians(sec_rot.y)
-            x_te_rot = x_le_rot + chord * math.cos(ainc)
-            y_te_rot = y_le_rot
-            z_te_rot = z_le_rot - chord * math.sin(ainc)
+            dx_te, dy_te, dz_te = rotate_points(chord, 0, 0, sec_dihed, sec_twist, sec_yaw)
+            x_te_rot = x_le_rot + dx_te
+            y_te_rot = y_le_rot + dy_te
+            z_te_rot = z_le_rot + dz_te
 
             le_points.append(
                 [
@@ -372,31 +414,138 @@ def _display_panel_representation(
         st.info("Not enough wing sections to build an AVL panel preview.")
         return
 
-    fig = go.Figure(
-        data=[
-            go.Scatter3d(
-                x=x_lines,
-                y=y_lines,
-                z=z_lines,
-                mode="lines",
-                line={"color": "#1f77b4", "width": 2},
+    # Compute bounding box from all non-None panel coordinates
+    x_vals = np.array([v for v in x_lines if v is not None])
+    y_vals = np.array([v for v in y_lines if v is not None])
+    z_vals = np.array([v for v in z_lines if v is not None])
+
+    x_min, y_min, z_min = float(np.min(x_vals)), float(np.min(y_vals)), float(np.min(z_vals))
+
+    # Also consider the 3D mesh bounds when computing the shift
+    mesh_data = get_aircraft_mesh_data(cpacs)
+    if mesh_data is not None:
+        mx, my, mz, mi, mj, mk = mesh_data
+        mx, my, mz = np.asarray(mx), np.asarray(my), np.asarray(mz)
+        x_min = min(x_min, float(np.min(mx)))
+        y_min = min(y_min, float(np.min(my)))
+        z_min = min(z_min, float(np.min(mz)))
+
+    # Shift all coordinates to positive axes [0, max]
+    x_lines = [v - x_min if v is not None else None for v in x_lines]
+    y_lines = [v - y_min if v is not None else None for v in y_lines]
+    z_lines = [v - z_min if v is not None else None for v in z_lines]
+
+    traces = []
+
+    if mesh_data is not None:
+        traces.append(
+            go.Mesh3d(
+                x=mx - x_min, y=my - y_min, z=mz - z_min,
+                i=mi, j=mj, k=mk,
+                color="#d3d3d3",
+                opacity=0.1,
+                lighting=dict(ambient=0.2, diffuse=0.2, specular=0.0),
+                flatshading=False,
+                showscale=False,
                 hoverinfo="skip",
-                name="AVL panel grid",
+                name="Aircraft geometry",
             )
-        ]
+        )
+
+    traces.append(
+        go.Scatter3d(
+            x=x_lines,
+            y=y_lines,
+            z=z_lines,
+            mode="lines",
+            line={"color": "black", "width": 2},
+            hoverinfo="skip",
+            name="AVL panel grid",
+        )
     )
+
+    # Compute shifted ranges
+    x_shifted = np.array([v for v in x_lines if v is not None])
+    y_shifted = np.array([v for v in y_lines if v is not None])
+    z_shifted = np.array([v for v in z_lines if v is not None])
+    if mesh_data is not None:
+        x_shifted = np.concatenate([x_shifted, mx - x_min])
+        y_shifted = np.concatenate([y_shifted, my - y_min])
+        z_shifted = np.concatenate([z_shifted, mz - z_min])
+
+    x_max = float(np.max(x_shifted))
+    y_max = float(np.max(y_shifted))
+    z_max = float(np.max(z_shifted))
+
+    fig = go.Figure(data=traces)
     fig.update_layout(
         height=300,
-        margin={"l": 0, "r": 0, "t": 0, "b": 0},
-        scene={
-            "xaxis_title": "X [m]",
-            "yaxis_title": "Y [m]",
-            "zaxis_title": "Z [m]",
-            "aspectmode": "data",
-        },
-        showlegend=False,
+        margin=dict(l=10, r=10, t=10, b=10),
+        font=dict(color="black"),
+        showlegend=True,
+        legend=dict(font=dict(size=9), orientation="h", y=1.0),
+        scene=dict(
+            aspectmode="data",
+            xaxis=dict(
+                title="X",
+                titlefont=dict(color="black"),
+                tickfont=dict(color="black"),
+                range=[0.0, x_max],
+                tickmode="array",
+                tickvals=[0.0, 0.5 * x_max, x_max],
+                showgrid=True,
+                gridcolor="black",
+                zeroline=False,
+                backgroundcolor="white",
+            ),
+            yaxis=dict(
+                title="Y",
+                titlefont=dict(color="black"),
+                tickfont=dict(color="black"),
+                range=[0.0, y_max],
+                tickmode="array",
+                tickvals=[0.0, 0.5 * y_max, y_max],
+                showgrid=True,
+                gridcolor="black",
+                zeroline=False,
+                backgroundcolor="white",
+            ),
+            zaxis=dict(
+                title="Z",
+                titlefont=dict(color="black"),
+                tickfont=dict(color="black"),
+                range=[0.0, z_max],
+                tickmode="array",
+                tickvals=[0.0, 0.5 * z_max, z_max],
+                showgrid=True,
+                gridcolor="black",
+                zeroline=False,
+                backgroundcolor="white",
+            ),
+        ),
     )
     st.plotly_chart(fig, width="stretch", key="pyavl_panel_geometry_preview")
+
+
+def _avl_control_surfaces_exits(cpacs: CPACS) -> bool:
+    """Returns a boolean in function of if a AVL-defined control surface exists."""
+
+    tixi = cpacs.tixi
+    if not tixi.checkElement(WINGS_XPATH):
+        log.info(f"No wing found in {cpacs.ac_name=}")
+        return False
+
+    wing_cnt = tixi.getNamedChildrenCount(WINGS_XPATH, "wing")
+
+    for i_wing in range(wing_cnt):
+        wing_xpath = WINGS_XPATH + "/wing[" + str(i_wing + 1) + "]"
+        edge_xpath = "/componentSegments/componentSegment"
+        bis_xpath = "/controlSurfaces/trailingEdgeDevices"
+        control_xpath_base = wing_xpath + edge_xpath + bis_xpath
+        # Check if the control surfaces path exists
+        if tixi.checkElement(control_xpath_base):
+            return True
+    return False
 
 
 # Functions
@@ -459,14 +608,22 @@ def gui_settings(cpacs: CPACS) -> None:
             help="List of p, q, r rates.",
         )
 
-        dataframe_vartype(
-            name="Control surface angles",
-            key="ctrl_surf_angles",
-            default_value=[0.0],
-            tixi=tixi,
-            xpath=AVL_CTRLSURF_ANGLES_XPATH,
-            help="List of Aileron, Elevator, Rudder angles.",
-        )
+        display_ctrlsurf_settings = _avl_control_surfaces_exits(cpacs)
+        if display_ctrlsurf_settings:
+            dataframe_vartype(
+                name="Control surface angles",
+                key="ctrl_surf_angles",
+                default_value=[0.0],
+                tixi=tixi,
+                xpath=AVL_CTRLSURF_ANGLES_XPATH,
+                help="List of Aileron, Elevator, Rudder angles.",
+            )
+        else:
+            add_value(
+                tixi=tixi,
+                xpath=AVL_CTRLSURF_ANGLES_XPATH,
+                value=0.0,
+            )
 
     # float_vartype(
     #     tixi=tixi,

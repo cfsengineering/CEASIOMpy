@@ -153,10 +153,15 @@ def test_sort_surfaces_and_create_physical_groups():
         shutil.rmtree(TEST_OUT_PATH)
     TEST_OUT_PATH.mkdir()
 
-    brep_files = list(BREP_IN_PATH.glob("*.brep"))
-    brep_files.sort()
     d150_cpacs = Path(CPACS_FILES_PATH, "d150.xml")
     cpacs = CPACS(d150_cpacs)
+    export_brep(
+        cpacs=cpacs,
+        brep_dir=BREP_IN_PATH,
+    )
+
+    brep_files = list(BREP_IN_PATH.glob("*.brep"))
+    brep_files.sort()
 
     gmsh.initialize()
     gmsh.clear()

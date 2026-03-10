@@ -262,7 +262,7 @@ resolve_deb_url() {
     *)     ubuntu_codename="Ubuntu-${ubuntu_version_id}" ;;
   esac
 
-  say ">>> Detecting latest OpenVSP .deb for ${ubuntu_codename}..."
+  say ">>> Detecting latest OpenVSP .deb for ${ubuntu_codename}..." >&2
 
   local download_page="https://openvsp.org/download.php"
   local page_html=""
@@ -294,7 +294,7 @@ resolve_deb_url() {
   version="$(printf '%s\n' "$deb_path" | grep -oP 'OpenVSP-\K[0-9]+\.[0-9]+\.[0-9]+')" || true
 
   local full_url="https://openvsp.org/${deb_path}"
-  say ">>> Found OpenVSP ${version:-unknown} .deb: $full_url"
+  say ">>> Found OpenVSP ${version:-unknown} .deb: $full_url" >&2
   printf '%s\n' "$full_url"
 }
 
@@ -332,7 +332,8 @@ install_prebuilt() {
   # Also check dpkg -L for the actual file list
   if [[ -z "$deb_install_dir" ]]; then
     local pkg_name=""
-    pkg_name="$(dpkg-deb --field "$tmp_deb" Package 2>/dev/null || echo "openvsp")"
+    pkg_name="$(dpkg -l 2>/dev/null | awk '/openvsp/{print $2; exit}')" || true
+    pkg_name="${pkg_name:-openvsp}"
     deb_install_dir="$(dpkg -L "$pkg_name" 2>/dev/null | grep -m1 '/vsp$' | xargs dirname)" || true
   fi
 

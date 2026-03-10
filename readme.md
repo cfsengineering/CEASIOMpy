@@ -55,7 +55,7 @@ cd CEASIOMpy
 ./scripts/install.sh
 ```
 
-For Windows users please use the online version at https://ceasiompy.com or go to the [Docker Installation page](https://github.com/cfsengineering/CEASIOMpy/blob/main/installation/docker_installation.md).
+For Windows users please use the online version at https://ceasiompy.com or go to the [Docker Installation page](https://github.com/cfsengineering/CEASIOMpy/blob/main/installation/dockerinstall.md).
 
 ### Run CEASIOMpy
 

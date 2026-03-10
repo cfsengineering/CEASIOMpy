@@ -1,4 +1,4 @@
-name: Integration tests
+name: pyavl workflow
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: VSP2CPACS
+name: vsp2cpacs
 
 on:
   push:

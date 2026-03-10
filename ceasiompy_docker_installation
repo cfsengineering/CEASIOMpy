@@ -53,8 +53,6 @@ RUN chmod +x pentagrow
 
 WORKDIR /
 
-RUN /CEASIOMpy/installation/ubuntu/openvsp.sh
-
 RUN /CEASIOMpy/installation/ubuntu/pentagrow.sh
 
 RUN /CEASIOMpy/installation/ubuntu/avl.sh
@@ -107,6 +105,9 @@ RUN conda install -n base -c conda-forge mamba -y && \
     mathjax=2.7.7 \
     --quiet && \
     conda clean -afy
+
+# Build OpenVSP from source against the ceasiompy conda env's Python/NumPy
+RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && conda activate ceasiompy && /CEASIOMpy/installation/ubuntu/openvsp.sh --skip-deps"
 
 # Automatically activate the Conda environment in new shells
 RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \

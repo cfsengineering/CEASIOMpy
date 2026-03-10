@@ -40,6 +40,7 @@ from ceasiompy.utils.geometryfunctions import (
 from pathlib import Path
 from numpy import ndarray
 from tixi3.tixi3wrapper import Tixi3
+from tigl3.tigl3wrapper import Tigl3
 from typing import (
     List,
     Tuple,
@@ -84,7 +85,10 @@ def compute_fuselage_coords(
 ):
     # Compute coordinates of the center of section
     body_frm_center_x = (
-        elem_transf.translation.x + sec_transf.translation.x + pos_x_list[i_sec]
+        elem_transf.translation.x
+        * sec_transf.scaling.x
+        + sec_transf.translation.x
+        + pos_x_list[i_sec]
     ) * fus_transf.scaling.x
 
     body_frm_center_z = (
@@ -98,17 +102,110 @@ def compute_fuselage_coords(
     body_frm_width = 2 * prof_size_y * y
     body_frm_height = 2 * prof_size_z * z
 
-    # Compute diameter of the section as the mean between height and width
-    # AVL assumes only circular cross section for fuselage
-    fus_radius = np.mean([body_frm_height, body_frm_width]) / 2
-    fus_radius_vec[i_sec] = fus_radius
+    # AVL assumes a round cross-section whose diameter equals (top - bottom).
+    # For non-circular CPACS sections, use the average of half-width and
+    # half-height as the equivalent round radius (matches the GUI wireframe).
+    equiv_radius = 0.25 * (body_frm_width + body_frm_height)
+    fus_radius_vec[i_sec] = body_frm_width / 2  # half-width for wing clipping
 
-    # Save the coordinates of the fuselage
     x_fuselage[i_sec] = body_frm_center_x
-    y_fuselage_top[i_sec] = body_frm_center_z + fus_radius
-    y_fuselage_bottom[i_sec] = body_frm_center_z - fus_radius
+    y_fuselage_top[i_sec] = body_frm_center_z + equiv_radius
+    y_fuselage_bottom[i_sec] = body_frm_center_z - equiv_radius
 
     return body_frm_width, body_frm_height
+
+
+def extract_fuselage_profile_tigl(
+    tixi: Tixi3,
+    fus_uid: str,
+    n_output: int = 80,
+    n_zeta: int = 12,
+) -> Tuple[ndarray, ndarray, ndarray, ndarray]:
+    """Extract the exact fuselage profile by slicing the TiGL geometry.
+
+    Uses ``fuselageGetPoint`` to sample the actual lofted surface at
+    multiple zeta values around the cross-section for every eta
+    station along each segment.  The y/z extents are computed from
+    the bounding box of the sampled points (robust to any
+    cross-section orientation).
+
+    The raw samples are then resampled to *n_output* evenly spaced
+    points along the fuselage arc length.
+
+    Returns:
+        x      – streamwise coordinate of each station (sorted, *n_output* points).
+        z_ctr  – vertical centre of the cross-section.
+        half_w – half-width  (y-direction) at each station.
+        half_h – half-height (z-direction) at each station.
+        Returns four empty arrays if TiGL produces a degenerate profile.
+    """
+    tigl = Tigl3()
+    tigl.open(tixi, "")
+
+    fus_idx = tigl.fuselageGetIndex(fus_uid)
+    seg_cnt = tigl.fuselageGetSegmentCount(fus_idx)
+
+    # Adapt samples per segment so the total stays reasonable
+    n_per_seg = max(4, min(15, 120 // max(1, seg_cnt)))
+
+    # Zeta values around the circumference for bounding-box estimation
+    zetas = np.linspace(0.0, 1.0, n_zeta, endpoint=False)
+
+    xs, zcs, hws, hhs = [], [], [], []
+
+    for i_seg in range(1, seg_cnt + 1):
+        is_last = i_seg == seg_cnt
+        etas = np.linspace(0.0, 1.0, n_per_seg, endpoint=is_last)
+        if not is_last:
+            etas = etas[:-1]  # avoid duplicates at segment boundaries
+
+        for eta in etas:
+            # Sample the cross-section at multiple zeta values
+            pts_x, pts_y, pts_z = [], [], []
+            for zeta in zetas:
+                px, py, pz = tigl.fuselageGetPoint(fus_idx, i_seg, eta, zeta)
+                pts_x.append(px)
+                pts_y.append(py)
+                pts_z.append(pz)
+
+            # Compute bounding box of cross-section
+            y_min, y_max = min(pts_y), max(pts_y)
+            z_min, z_max = min(pts_z), max(pts_z)
+
+            xs.append(np.mean(pts_x))
+            zcs.append(0.5 * (z_max + z_min))
+            hws.append(0.5 * (y_max - y_min))
+            hhs.append(0.5 * (z_max - z_min))
+
+    x = np.asarray(xs)
+    z_ctr = np.asarray(zcs)
+    half_w = np.asarray(hws)
+    half_h = np.asarray(hhs)
+
+    # If TiGL returned a degenerate profile (e.g. needle-thin body), bail out
+    if np.max(half_w) + np.max(half_h) < 1e-6:
+        empty = np.array([])
+        return empty, empty, empty, empty
+
+    # Sort by x
+    order = np.argsort(x)
+    x, z_ctr, half_w, half_h = x[order], z_ctr[order], half_w[order], half_h[order]
+
+    # Build arc-length parameterisation and resample to n_output points
+    ds = np.sqrt(np.diff(x) ** 2 + np.diff(z_ctr) ** 2)
+    s = np.concatenate(([0.0], np.cumsum(ds)))
+    total_len = s[-1]
+    if total_len < 1e-10:
+        empty = np.array([])
+        return empty, empty, empty, empty
+
+    target = np.linspace(0.0, total_len, n_output)
+    x_out = np.interp(target, s, x)
+    z_out = np.interp(target, s, z_ctr)
+    hw_out = np.interp(target, s, half_w)
+    hh_out = np.interp(target, s, half_h)
+
+    return x_out, z_out, hw_out, hh_out
 
 
 def leadingedge_coordinates(
@@ -362,10 +459,23 @@ class Avl:
         """
 
         fus_cnt = elements_number(self.tixi, FUSELAGES_XPATH, "fuselage")
-        # AVL's internal MAKEBODY buffer is finite (NLMAX). If many fuselages are
-        # present, a fixed high Nbody value can overflow that buffer.
+        # AVL's internal MAKEBODY buffer is finite (NLMAX, typically 500).
+        # Count effective bodies including YDUPLICATE mirrors.
         max_total_nbody = 480
-        nbody_per_fuselage = max(20, min(100, max_total_nbody // max(1, fus_cnt)))
+        effective_body_cnt = 0
+        for i in range(fus_cnt):
+            fus_xp = FUSELAGES_XPATH + "/fuselage[" + str(i + 1) + "]"
+            is_symmetric = (
+                self.tixi.checkAttribute(fus_xp, "symmetry")
+                and self.tixi.getTextAttribute(fus_xp, "symmetry") == "x-z-plane"
+            )
+            effective_body_cnt += 2 if is_symmetric else 1
+        nbody_per_fuselage = max(20, min(100, max_total_nbody // max(1, effective_body_cnt)))
+
+        fus_x_coords = np.array([])
+        fus_z_profile = np.array([])
+        fus_radius_profile = np.array([])
+        body_transf = Transformation()
 
         for i_fus in reversed(range(fus_cnt)):
             fus_xpath = FUSELAGES_XPATH + "/fuselage[" + str(i_fus + 1) + "]"
@@ -382,10 +492,23 @@ class Avl:
             body_transf.translation = fus_transf.translation
             body_transf.rotation = euler2fix(fus_transf.rotation)
 
-            # 1. Write fuselage settings
+            # Check with TiGL first whether this fuselage has a valid profile
+            x_tigl, z_ctr_tigl, hw_tigl, hh_tigl = extract_fuselage_profile_tigl(
+                self.tixi, fus_uid,
+            )
+            if len(x_tigl) < 2:
+                log.warning(
+                    f"TiGL returned a degenerate profile for fuselage '{fus_uid}'; "
+                    "skipping this body entirely."
+                )
+                continue
+
+            # 1. Write fuselage settings (only for valid bodies)
+            # TiGL output already includes fuselage scaling, so pass identity
+            # to avoid double-scaling in AVL.
             self.write_fuselage_settings(
                 fus_xpath,
-                fus_transf.scaling,
+                Point(1.0, 1.0, 1.0),
                 body_transf.translation,
                 nbody=nbody_per_fuselage,
             )
@@ -440,13 +563,10 @@ class Avl:
                     body_height_vec[i_sec] = body_frm_height
 
             # Filter out sections with near-zero radius, but always keep first/last
-            # so the nose and tail cone tips are not cut off.
             valid = fus_radius_vec > 1e-8
             if sec_cnt > 0:
                 valid[0] = True
                 valid[-1] = True
-            if np.count_nonzero(valid) < 2:
-                continue
 
             x_fuselage = x_fuselage[valid]
             y_fuselage_top = y_fuselage_top[valid]
@@ -465,12 +585,12 @@ class Avl:
             fus_z_profile = body_fus_z_sorted[unique_idx]
             fus_radius_profile = body_fus_radius_sorted[unique_idx]
 
-            self.write_fuselage_coords(
+            # Write the BFILE using the pre-computed TiGL profile
+            self.write_fuselage_coords_from_tigl(
                 fus_dat_path,
                 i_fus,
-                x_fuselage,
-                y_fuselage_bottom,
-                y_fuselage_top,
+                x_tigl, z_ctr_tigl, hw_tigl, hh_tigl,
+                body_translation=body_transf.translation,
             )
 
         return fus_x_coords, fus_z_profile, fus_radius_profile, body_transf
@@ -654,28 +774,47 @@ class Avl:
                 avl_file.write(f"{self.points_ref[i_points]:.3f}\t")
             avl_file.write("\n\n")
 
-    def write_fuselage_coords(
+    def write_fuselage_coords_from_tigl(
         self: "Avl",
-        fus_dat_path: Path,
+        fus_dat_path: str,
         i_fus: int,
-        x_fuselage,
-        y_fuselage_bottom,
-        y_fuselage_top,
+        x: ndarray,
+        z_ctr: ndarray,
+        half_w: ndarray,
+        half_h: ndarray,
+        body_translation: Point = None,
     ) -> None:
+        """Write the fuselage side-view profile (BFILE) from TiGL data.
+
+        TiGL returns global coordinates, but AVL applies its own TRANSLATE
+        on top of the BFILE data, so we subtract the body translation to
+        avoid double-counting.
+        """
+        # TiGL returns global coords; subtract body translation so AVL's
+        # TRANSLATE doesn't apply it twice.
+        if body_translation is not None:
+            x = x - body_translation.x
+            z_ctr = z_ctr - body_translation.z
+
+        # AVL assumes a round body; use the equivalent radius
+        equiv_r = 0.5 * (half_w + half_h)
+        y_top = z_ctr + equiv_r
+        y_bot = z_ctr - equiv_r
+
         with open(fus_dat_path, "w") as fus_file:
             fus_file.write("fuselage" + str(i_fus + 1) + "\n")
 
-            # Write coordinates of the top surface
-            for x_fus, y_fus in reversed(list(zip(x_fuselage[1:], y_fuselage_top[1:]))):
-                fus_file.write(f"{x_fus:.3f}\t{y_fus:.3f}\n")
+            # Top surface from tail to nose (skip the nose point)
+            for xf, yf in reversed(list(zip(x[1:], y_top[1:]))):
+                fus_file.write(f"{xf:.4f}\t{yf:.4f}\n")
 
-            # Write coordinates of the nose of the fuselage
-            y_nose = np.mean([y_fuselage_top[0], y_fuselage_bottom[0]])
-            fus_file.write(f"{x_fuselage[0]:.3f}\t{y_nose:.3f}\n")
+            # Nose point
+            y_nose = 0.5 * (y_top[0] + y_bot[0])
+            fus_file.write(f"{x[0]:.4f}\t{y_nose:.4f}\n")
 
-            # Write coordinates of the bottom surface
-            for x_fus, y_fus in zip(x_fuselage[1:], y_fuselage_bottom[1:]):
-                fus_file.write(f"{x_fus:.3f}\t{y_fus:.3f}\n")
+            # Bottom surface from nose to tail
+            for xf, yf in zip(x[1:], y_bot[1:]):
+                fus_file.write(f"{xf:.4f}\t{yf:.4f}\n")
 
         with open(self.avl_path, "a") as avl_file:
             avl_file.write("BFILE\n")

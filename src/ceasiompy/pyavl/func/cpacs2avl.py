@@ -362,10 +362,18 @@ class Avl:
         """
 
         fus_cnt = elements_number(self.tixi, FUSELAGES_XPATH, "fuselage")
-        # AVL's internal MAKEBODY buffer is finite (NLMAX). If many fuselages are
-        # present, a fixed high Nbody value can overflow that buffer.
+        # AVL's internal MAKEBODY buffer is finite (NLMAX, typically 500).
+        # Count effective bodies including YDUPLICATE mirrors.
         max_total_nbody = 480
-        nbody_per_fuselage = max(20, min(100, max_total_nbody // max(1, fus_cnt)))
+        effective_body_cnt = 0
+        for i in range(fus_cnt):
+            fus_xp = FUSELAGES_XPATH + "/fuselage[" + str(i + 1) + "]"
+            is_symmetric = (
+                self.tixi.checkAttribute(fus_xp, "symmetry")
+                and self.tixi.getTextAttribute(fus_xp, "symmetry") == "x-z-plane"
+            )
+            effective_body_cnt += 2 if is_symmetric else 1
+        nbody_per_fuselage = max(20, min(100, max_total_nbody // max(1, effective_body_cnt)))
 
         for i_fus in reversed(range(fus_cnt)):
             fus_xpath = FUSELAGES_XPATH + "/fuselage[" + str(i_fus + 1) + "]"

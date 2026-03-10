@@ -12,7 +12,7 @@ For the legacy open-source version, please refer to all [v1.x] versions.
 
 # CEASIOMpy
 
-<img align="right" width="300" height="300" src="documents/logos/CEASIOMpy_512px.png">
+<img align="right" width="300" height="300" src="documents/logos/ceasiompy.png">
 
 CEASIOMpy is an conceptual aircraft design environment which can be used to set up complex design and optimisation workflows for both conventional and unconventional aircraft configurations.
 

@@ -10,6 +10,7 @@ Streamlit utils functions for CEASIOMpy
 
 import os
 import re
+import base64
 import streamlit as st
 import plotly.graph_objects as go
 import streamlit.components.v1 as components
@@ -23,10 +24,14 @@ from cpacspy.cpacspy import CPACS
 from tigl3.tigl3wrapper import Tigl3
 from tixi3.tixi3wrapper import Tixi3
 
-from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
+from ceasiompy.utils.commonpaths import BLACKCEASIOMPY_LOGO_PATH, CEASIOMPY_LOGO_PATH
 
 
 # Functions
+
+def _svg_to_base64(path: Path) -> str:
+    return base64.b64encode(path.read_bytes()).decode()
+
 
 def save_cpacs_file() -> None:
     """Save Settings in selected_cpacs.xml"""
@@ -173,11 +178,15 @@ def build_default_upload(cpacs_path: Path):
 def create_sidebar(how_to_text, page_title="CEASIOMpy"):
     """Create side bar with a text explaining how the page should be used."""
 
-    im = Image.open(CEASIOMPY_LOGO_PATH)
+    favicon = Image.open(CEASIOMPY_LOGO_PATH)
     st.set_page_config(
         page_title=page_title,
-        page_icon=im,
+        page_icon=favicon,
         layout="wide",
+    )
+    st.logo(
+        image=str(BLACKCEASIOMPY_LOGO_PATH),
+        link="https://ceasiompy.com/",
     )
     st.markdown(
         """
@@ -191,7 +200,6 @@ def create_sidebar(how_to_text, page_title="CEASIOMpy"):
         """,
         unsafe_allow_html=True,
     )
-    st.sidebar.image(im)
     st.sidebar.markdown(how_to_text)
     contact_text = (
         "✉️ **Contact Us**\n\n"

@@ -311,14 +311,17 @@ def section_add_module() -> None:
     left_col, right_col = st.columns([0.5, 0.5])
 
     with left_col:
-        col_add_label, col_add_button = st.columns([0.4, 0.2])
+        def format_module_label(name: str) -> str:
+            module_type = module_type_map.get(name, "Other")
+            icon = module_type_icon.get(module_type, module_type_icon["Other"])
+            return f"{icon} · {name}"
+
+        col_add_label, col_add_button = st.columns(
+            spec=[2.0, 0.3],
+            vertical_alignment="bottom",
+        )
 
         with col_add_label:
-            def format_module_label(name: str) -> str:
-                module_type = module_type_map.get(name, "Other")
-                icon = module_type_icon.get(module_type, module_type_icon["Other"])
-                return f"{icon} · {name}"
-
             if selectable_module_list:
                 module = st.selectbox(
                     "Module to add",
@@ -326,17 +329,14 @@ def section_add_module() -> None:
                     format_func=format_module_label,
                 )
             else:
-                st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
                 st.info("No more modules.")
                 module = None
 
         with col_add_button:
-            # Add vertical spacing to match the label height of selectbox
-            st.markdown("<div style='margin-top: 28px;'></div>", unsafe_allow_html=True)
             if st.button(
-                "Add",
-                width="stretch",
+                "",
                 help="Add this module to the workflow",
+                icon=":material/add:",
                 disabled=module is None,
             ):
                 if module is not None:
@@ -347,7 +347,10 @@ def section_add_module() -> None:
                 st.rerun()
 
     with right_col:
-        col_remove_label, col_remove_button = st.columns([0.4, 0.2])
+        col_remove_label, col_remove_button = st.columns(
+            spec=[2.0, 0.3],
+            vertical_alignment="bottom",
+        )
         with col_remove_label:
             module_to_remove = st.selectbox(
                 "Module to remove",
@@ -355,12 +358,10 @@ def section_add_module() -> None:
                 key="workflow_remove_select",
             )
         with col_remove_button:
-            # Add vertical spacing to match the label height of selectbox
-            st.markdown("<div style='margin-top: 28px;'></div>", unsafe_allow_html=True)
             if st.button(
-                "Remove",
+                "",
                 help="Remove selected module",
-                width="stretch",
+                icon=":material/delete:",
                 disabled=st.session_state.workflow_modules == [],
             ):
                 st.session_state.workflow_modules = [

@@ -305,12 +305,13 @@ install_prebuilt() {
   say ">>> Downloading OpenVSP .deb..."
   curl -fSL "$deb_url" -o "$tmp_deb" || die "Failed to download .deb from: $deb_url"
 
+  say ">>> Installing runtime prerequisites for OpenVSP .deb..."
+  sudo apt-get update || die "Failed to update package lists."
+  sudo apt-get install -y desktop-file-utils || die "Failed to install desktop-file-utils."
+
   say ">>> Installing OpenVSP .deb (requires sudo)..."
   if ! sudo dpkg -i "$tmp_deb"; then
     say ">>> dpkg reported missing dependencies; attempting to fix..."
-    if ! sudo apt-get update; then
-      die "Failed to update package lists."
-    fi
     if ! sudo apt-get install -f -y; then
       die "Failed to resolve .deb dependencies."
     fi

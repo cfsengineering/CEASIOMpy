@@ -231,6 +231,7 @@ def main() -> None:
             page_run,
             page_results,
         ],
+        position="sidebar",
         expanded=True,
     )
     pg.run()

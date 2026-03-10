@@ -308,7 +308,7 @@ def _section_load_cpacs() -> CPACS | None:
 
     if not uploaded_file and not uploaded_default:
         if st.button(
-            label="Load a default CPACS geometry",
+            label="Load a default CPACS file",
             width="stretch",
         ):
             default_cpacs_path = Path(CPACS_FILES_PATH, "onera_m6.xml")

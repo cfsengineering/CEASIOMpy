@@ -411,7 +411,10 @@ class Avl:
                 sec_transf.get_cpacs_transf(self.tixi, sec_xpath)
                 check_if_rotated(sec_transf.rotation, sec_uid)
 
-                elem_cnt = self.tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
+                elem_root_xpath = sec_xpath + "/elements"
+                if not self.tixi.checkElement(elem_root_xpath):
+                    continue
+                elem_cnt = self.tixi.getNamedChildrenCount(elem_root_xpath, "element")
 
                 for i_elem in range(elem_cnt):
                     elem_transf, prof_size_y, prof_size_z, _, _ = convert_fuselage_profiles(
@@ -435,6 +438,20 @@ class Avl:
 
                     body_width_vec[i_sec] = body_frm_width
                     body_height_vec[i_sec] = body_frm_height
+
+            # Filter out sections with near-zero radius, but always keep first/last
+            # so the nose and tail cone tips are not cut off.
+            valid = fus_radius_vec > 1e-8
+            if sec_cnt > 0:
+                valid[0] = True
+                valid[-1] = True
+            if np.count_nonzero(valid) < 2:
+                continue
+
+            x_fuselage = x_fuselage[valid]
+            y_fuselage_top = y_fuselage_top[valid]
+            y_fuselage_bottom = y_fuselage_bottom[valid]
+            fus_radius_vec = fus_radius_vec[valid]
 
             body_transf_x = x_fuselage + body_transf.translation.x
             body_fus_z = y_fuselage_top - fus_radius_vec

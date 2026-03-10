@@ -7,7 +7,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 # Imports
 
 import unittest
-import tempfile
 import numpy as np
 
 from ceasiompy.utils.geometryfunctions import (
@@ -21,7 +20,6 @@ from ceasiompy.utils.ceasiompyutils import (
     update_cpacs_from_specs,
 )
 
-from pathlib import Path
 from ceasiompy.pyavl.func.cpacs2avl import Avl
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 from ceasiompy.utils.generalclasses import (

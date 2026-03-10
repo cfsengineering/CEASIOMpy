@@ -306,11 +306,18 @@ install_prebuilt() {
   curl -fSL "$deb_url" -o "$tmp_deb" || die "Failed to download .deb from: $deb_url"
 
   say ">>> Installing OpenVSP .deb (requires sudo)..."
-  sudo dpkg -i "$tmp_deb" || {
+  if ! sudo dpkg -i "$tmp_deb"; then
     say ">>> dpkg reported missing dependencies; attempting to fix..."
-    sudo apt-get update && sudo apt-get install -f -y || die "Failed to resolve .deb dependencies."
-    sudo dpkg -i "$tmp_deb" || die "Failed to install .deb after fixing dependencies."
-  }
+    if ! sudo apt-get update; then
+      die "Failed to update package lists."
+    fi
+    if ! sudo apt-get install -f -y; then
+      die "Failed to resolve .deb dependencies."
+    fi
+    if ! sudo dpkg -i "$tmp_deb"; then
+      die "Failed to install .deb after fixing dependencies."
+    fi
+  fi
   rm -f "$tmp_deb"
 
   # dpkg typically installs to /opt/OpenVSP or /usr/local — locate the install

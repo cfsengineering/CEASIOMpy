@@ -1,0 +1,1336 @@
+<?xml version='1.0' encoding='utf-8'?>
+<cpacs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi_noNamespaceSchemaLocation="CPACS_21_Schema.xsd">
+  <header>
+    <name>wing_pod</name>
+    <version>0.2</version>
+    <cpacsVersion>3.0</cpacsVersion>
+    <versionInfos>
+      <versionInfo version="version1">
+        <description>Geometry from openVSP</description>
+        <creator>cpacs2to3</creator>
+        <version>0.3</version>
+        <cpacsVersion>3.0</cpacsVersion>
+        <timestamp>2025-10-30T13:40:44</timestamp>
+      </versionInfo>
+    </versionInfos>
+  </header>
+  <vehicles>
+    <aircraft>
+      <model uID="CPACS_test">
+        <name>CPACS_test</name>
+        <reference>
+          <area>1</area>
+          <length>1</length>
+          <point uID="Point">
+            <x>0</x>
+            <y>0</y>
+            <z>0</z>
+          </point>
+        </reference>
+        <fuselages>
+          <fuselage uID="FuselageGeom" symmetry=" ">
+            <name>FuselageGeom</name>
+            <transformation uID="FuselageGeom_Tr">
+              <scaling uID="FuselageGeom_Tr_Scal">
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scaling>
+              <rotation uID="FuselageGeom_Tr_Rot">
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <translation uID="FuselageGeom_Tr_Transl" refType="absGlobal">
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </translation>
+            </transformation>
+            <sections>
+              <section uID="FuselageGeomSec0">
+                <name>FuselageGeomSec0</name>
+                <transformation uID="FuselageGeomSec0_Tr">
+                  <scaling uID="FuselageGeomSec0_Tr_Scal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </scaling>
+                  <rotation uID="FuselageGeomSec0_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="FuselageGeomSec0_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="FuselageGeomSec0Elem">
+                    <name>FuselageGeomSec0Elem</name>
+                    <profileUID>FuselageGeomSec0_Point</profileUID>
+                    <transformation uID="FuselageGeomSec0Elem_Tr">
+                      <scaling uID="FuselageGeomSec0Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="FuselageGeomSec0Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="FuselageGeomSec0Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="FuselageGeomSec1">
+                <name>FuselageGeomSec1</name>
+                <transformation uID="FuselageGeomSec1_Tr">
+                  <scaling uID="FuselageGeomSec1_Tr_Scal">
+                    <x>1.0</x>
+                    <y>2.5</y>
+                    <z>3.0</z>
+                  </scaling>
+                  <rotation uID="FuselageGeomSec1_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="FuselageGeomSec1_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="FuselageGeomSec1Elem">
+                    <name>FuselageGeomSec1Elem</name>
+                    <profileUID>FuselageGeomSec1_Ellipse</profileUID>
+                    <transformation uID="FuselageGeomSec1Elem_Tr">
+                      <scaling uID="FuselageGeomSec1Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="FuselageGeomSec1Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="FuselageGeomSec1Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="FuselageGeomSec2">
+                <name>FuselageGeomSec2</name>
+                <transformation uID="FuselageGeomSec2_Tr">
+                  <scaling uID="FuselageGeomSec2_Tr_Scal">
+                    <x>1.0</x>
+                    <y>2.5</y>
+                    <z>3.0</z>
+                  </scaling>
+                  <rotation uID="FuselageGeomSec2_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="FuselageGeomSec2_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="FuselageGeomSec2Elem">
+                    <name>FuselageGeomSec2Elem</name>
+                    <profileUID>FuselageGeomSec2_Ellipse</profileUID>
+                    <transformation uID="FuselageGeomSec2Elem_Tr">
+                      <scaling uID="FuselageGeomSec2Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="FuselageGeomSec2Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="FuselageGeomSec2Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="FuselageGeomSec3">
+                <name>FuselageGeomSec3</name>
+                <transformation uID="FuselageGeomSec3_Tr">
+                  <scaling uID="FuselageGeomSec3_Tr_Scal">
+                    <x>1.0</x>
+                    <y>2.5</y>
+                    <z>3.0</z>
+                  </scaling>
+                  <rotation uID="FuselageGeomSec3_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="FuselageGeomSec3_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="FuselageGeomSec3Elem">
+                    <name>FuselageGeomSec3Elem</name>
+                    <profileUID>FuselageGeomSec3_Ellipse</profileUID>
+                    <transformation uID="FuselageGeomSec3Elem_Tr">
+                      <scaling uID="FuselageGeomSec3Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="FuselageGeomSec3Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="FuselageGeomSec3Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="FuselageGeomSec4">
+                <name>FuselageGeomSec4</name>
+                <transformation uID="FuselageGeomSec4_Tr">
+                  <scaling uID="FuselageGeomSec4_Tr_Scal">
+                    <x>1.0</x>
+                    <y>2.0</y>
+                    <z>2.5</z>
+                  </scaling>
+                  <rotation uID="FuselageGeomSec4_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="FuselageGeomSec4_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="FuselageGeomSec4Elem">
+                    <name>FuselageGeomSec4Elem</name>
+                    <profileUID>FuselageGeomSec4_Ellipse</profileUID>
+                    <transformation uID="FuselageGeomSec4Elem_Tr">
+                      <scaling uID="FuselageGeomSec4Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="FuselageGeomSec4Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="FuselageGeomSec4Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="FuselageGeomSec5">
+                <name>FuselageGeomSec5</name>
+                <transformation uID="FuselageGeomSec5_Tr">
+                  <scaling uID="FuselageGeomSec5_Tr_Scal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </scaling>
+                  <rotation uID="FuselageGeomSec5_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="FuselageGeomSec5_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="FuselageGeomSec5Elem">
+                    <name>FuselageGeomSec5Elem</name>
+                    <profileUID>FuselageGeomSec5_Point</profileUID>
+                    <transformation uID="FuselageGeomSec5Elem_Tr">
+                      <scaling uID="FuselageGeomSec5Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="FuselageGeomSec5Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="FuselageGeomSec5Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+            </sections>
+            <positionings>
+              <positioning uID="FuselageGeomSec0GenPos">
+                <name>FuselageGeomSec0GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>0</length>
+                <toSectionUID>FuselageGeomSec0</toSectionUID>
+              </positioning>
+              <positioning uID="FuselageGeomSec1GenPos">
+                <name>FuselageGeomSec1GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>6.25</length>
+                <fromSectionUID>FuselageGeomSec0</fromSectionUID>
+                <toSectionUID>FuselageGeomSec1</toSectionUID>
+              </positioning>
+              <positioning uID="FuselageGeomSec2GenPos">
+                <name>FuselageGeomSec2GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>6.25</length>
+                <fromSectionUID>FuselageGeomSec1</fromSectionUID>
+                <toSectionUID>FuselageGeomSec2</toSectionUID>
+              </positioning>
+              <positioning uID="FuselageGeomSec3GenPos">
+                <name>FuselageGeomSec3GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>5.199795081967213</length>
+                <fromSectionUID>FuselageGeomSec2</fromSectionUID>
+                <toSectionUID>FuselageGeomSec3</toSectionUID>
+              </positioning>
+              <positioning uID="FuselageGeomSec4GenPos">
+                <name>FuselageGeomSec4GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>5.19979508196721</length>
+                <fromSectionUID>FuselageGeomSec3</fromSectionUID>
+                <toSectionUID>FuselageGeomSec4</toSectionUID>
+              </positioning>
+              <positioning uID="FuselageGeomSec5GenPos">
+                <name>FuselageGeomSec5GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>2.1004098360655767</length>
+                <fromSectionUID>FuselageGeomSec4</fromSectionUID>
+                <toSectionUID>FuselageGeomSec5</toSectionUID>
+              </positioning>
+            </positionings>
+            <segments>
+              <segment uID="FuselageGeomSeg1">
+                <name>FuselageGeomSeg1</name>
+                <fromElementUID>FuselageGeomSec0Elem</fromElementUID>
+                <toElementUID>FuselageGeomSec1Elem</toElementUID>
+              </segment>
+              <segment uID="FuselageGeomSeg2">
+                <name>FuselageGeomSeg2</name>
+                <fromElementUID>FuselageGeomSec1Elem</fromElementUID>
+                <toElementUID>FuselageGeomSec2Elem</toElementUID>
+              </segment>
+              <segment uID="FuselageGeomSeg3">
+                <name>FuselageGeomSeg3</name>
+                <fromElementUID>FuselageGeomSec2Elem</fromElementUID>
+                <toElementUID>FuselageGeomSec3Elem</toElementUID>
+              </segment>
+              <segment uID="FuselageGeomSeg4">
+                <name>FuselageGeomSeg4</name>
+                <fromElementUID>FuselageGeomSec3Elem</fromElementUID>
+                <toElementUID>FuselageGeomSec4Elem</toElementUID>
+              </segment>
+              <segment uID="FuselageGeomSeg5">
+                <name>FuselageGeomSeg5</name>
+                <fromElementUID>FuselageGeomSec4Elem</fromElementUID>
+                <toElementUID>FuselageGeomSec5Elem</toElementUID>
+              </segment>
+            </segments>
+          </fuselage>
+          <fuselage uID="PodGeom" symmetry="x-z-plane">
+            <name>PodGeom</name>
+            <transformation uID="PodGeom_Tr">
+              <scaling uID="PodGeom_Tr_Scal">
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scaling>
+              <rotation uID="PodGeom_Tr_Rot">
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <translation uID="PodGeom_Tr_Transl" refType="absGlobal">
+                <x>10.0</x>
+                <y>-4.782608695652174</y>
+                <z>0.0</z>
+              </translation>
+            </transformation>
+            <sections>
+              <section uID="PodGeomSec0">
+                <name>PodGeomSec0</name>
+                <transformation uID="PodGeomSec0_Tr">
+                  <scaling uID="PodGeomSec0_Tr_Scal">
+                    <x>0</x>
+                    <y>0</y>
+                    <z>0</z>
+                  </scaling>
+                  <rotation uID="PodGeomSec0_Tr_Rot">
+                    <x>0</x>
+                    <y>0</y>
+                    <z>0</z>
+                  </rotation>
+                  <translation uID="PodGeomSec0_Tr_Transl" refType="absGlobal">
+                    <x>0</x>
+                    <y>0</y>
+                    <z>0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="PodGeomSec0Elem">
+                    <name>PodGeomSec0Elem</name>
+                    <profileUID>PodGeomSec0_Point</profileUID>
+                    <transformation uID="PodGeomSec0Elem_Tr">
+                      <scaling uID="PodGeomSec0Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="PodGeomSec0Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="PodGeomSec0Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="PodGeomSec1">
+                <name>PodGeomSec1</name>
+                <transformation uID="PodGeomSec1_Tr">
+                  <scaling uID="PodGeomSec1_Tr_Scal">
+                    <x>0.0</x>
+                    <y>0.17</y>
+                    <z>0.17</z>
+                  </scaling>
+                  <rotation uID="PodGeomSec1_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="PodGeomSec1_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="PodGeomSec1Elem">
+                    <name>PodGeomSec1Elem</name>
+                    <profileUID>PodGeomSec1_Circle</profileUID>
+                    <transformation uID="PodGeomSec1Elem_Tr">
+                      <scaling uID="PodGeomSec1Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="PodGeomSec1Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="PodGeomSec1Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="PodGeomSec2">
+                <name>PodGeomSec2</name>
+                <transformation uID="PodGeomSec2_Tr">
+                  <scaling uID="PodGeomSec2_Tr_Scal">
+                    <x>0.0</x>
+                    <y>0.24</y>
+                    <z>0.24</z>
+                  </scaling>
+                  <rotation uID="PodGeomSec2_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="PodGeomSec2_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="PodGeomSec2Elem">
+                    <name>PodGeomSec2Elem</name>
+                    <profileUID>PodGeomSec2_Circle</profileUID>
+                    <transformation uID="PodGeomSec2Elem_Tr">
+                      <scaling uID="PodGeomSec2Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="PodGeomSec2Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="PodGeomSec2Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="PodGeomSec3">
+                <name>PodGeomSec3</name>
+                <transformation uID="PodGeomSec3_Tr">
+                  <scaling uID="PodGeomSec3_Tr_Scal">
+                    <x>0.0</x>
+                    <y>0.28</y>
+                    <z>0.28</z>
+                  </scaling>
+                  <rotation uID="PodGeomSec3_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="PodGeomSec3_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="PodGeomSec3Elem">
+                    <name>PodGeomSec3Elem</name>
+                    <profileUID>PodGeomSec3_Circle</profileUID>
+                    <transformation uID="PodGeomSec3Elem_Tr">
+                      <scaling uID="PodGeomSec3Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="PodGeomSec3Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="PodGeomSec3Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="PodGeomSec4">
+                <name>PodGeomSec4</name>
+                <transformation uID="PodGeomSec4_Tr">
+                  <scaling uID="PodGeomSec4_Tr_Scal">
+                    <x>0.0</x>
+                    <y>0.31</y>
+                    <z>0.31</z>
+                  </scaling>
+                  <rotation uID="PodGeomSec4_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="PodGeomSec4_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="PodGeomSec4Elem">
+                    <name>PodGeomSec4Elem</name>
+                    <profileUID>PodGeomSec4_Circle</profileUID>
+                    <transformation uID="PodGeomSec4Elem_Tr">
+                      <scaling uID="PodGeomSec4Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="PodGeomSec4Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="PodGeomSec4Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="PodGeomSec5">
+                <name>PodGeomSec5</name>
+                <transformation uID="PodGeomSec5_Tr">
+                  <scaling uID="PodGeomSec5_Tr_Scal">
+                    <x>0.0</x>
+                    <y>0.33</y>
+                    <z>0.33</z>
+                  </scaling>
+                  <rotation uID="PodGeomSec5_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="PodGeomSec5_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="PodGeomSec5Elem">
+                    <name>PodGeomSec5Elem</name>
+                    <profileUID>PodGeomSec5_Circle</profileUID>
+                    <transformation uID="PodGeomSec5Elem_Tr">
+                      <scaling uID="PodGeomSec5Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="PodGeomSec5Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="PodGeomSec5Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="PodGeomSec6">
+                <name>PodGeomSec6</name>
+                <transformation uID="PodGeomSec6_Tr">
+                  <scaling uID="PodGeomSec6_Tr_Scal">
+                    <x>0.0</x>
+                    <y>0.33</y>
+                    <z>0.33</z>
+                  </scaling>
+                  <rotation uID="PodGeomSec6_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="PodGeomSec6_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="PodGeomSec6Elem">
+                    <name>PodGeomSec6Elem</name>
+                    <profileUID>PodGeomSec6_Circle</profileUID>
+                    <transformation uID="PodGeomSec6Elem_Tr">
+                      <scaling uID="PodGeomSec6Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="PodGeomSec6Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="PodGeomSec6Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="PodGeomSec7">
+                <name>PodGeomSec7</name>
+                <transformation uID="PodGeomSec7_Tr">
+                  <scaling uID="PodGeomSec7_Tr_Scal">
+                    <x>0.0</x>
+                    <y>0.28</y>
+                    <z>0.28</z>
+                  </scaling>
+                  <rotation uID="PodGeomSec7_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="PodGeomSec7_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="PodGeomSec7Elem">
+                    <name>PodGeomSec7Elem</name>
+                    <profileUID>PodGeomSec7_Circle</profileUID>
+                    <transformation uID="PodGeomSec7Elem_Tr">
+                      <scaling uID="PodGeomSec7Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="PodGeomSec7Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="PodGeomSec7Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="PodGeomSec8">
+                <name>PodGeomSec8</name>
+                <transformation uID="PodGeomSec8_Tr">
+                  <scaling uID="PodGeomSec8_Tr_Scal">
+                    <x>0.0</x>
+                    <y>0.23</y>
+                    <z>0.23</z>
+                  </scaling>
+                  <rotation uID="PodGeomSec8_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="PodGeomSec8_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="PodGeomSec8Elem">
+                    <name>PodGeomSec8Elem</name>
+                    <profileUID>PodGeomSec8_Circle</profileUID>
+                    <transformation uID="PodGeomSec8Elem_Tr">
+                      <scaling uID="PodGeomSec8Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="PodGeomSec8Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="PodGeomSec8Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="PodGeomSec9">
+                <name>PodGeomSec9</name>
+                <transformation uID="PodGeomSec9_Tr">
+                  <scaling uID="PodGeomSec9_Tr_Scal">
+                    <x>0.0</x>
+                    <y>0.16</y>
+                    <z>0.16</z>
+                  </scaling>
+                  <rotation uID="PodGeomSec9_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="PodGeomSec9_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="PodGeomSec9Elem">
+                    <name>PodGeomSec9Elem</name>
+                    <profileUID>PodGeomSec9_Circle</profileUID>
+                    <transformation uID="PodGeomSec9Elem_Tr">
+                      <scaling uID="PodGeomSec9Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="PodGeomSec9Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="PodGeomSec9Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="PodGeomSec10">
+                <name>PodGeomSec10</name>
+                <transformation uID="PodGeomSec10_Tr">
+                  <scaling uID="PodGeomSec10_Tr_Scal">
+                    <x>0</x>
+                    <y>0</y>
+                    <z>0</z>
+                  </scaling>
+                  <rotation uID="PodGeomSec10_Tr_Rot">
+                    <x>0</x>
+                    <y>0</y>
+                    <z>0</z>
+                  </rotation>
+                  <translation uID="PodGeomSec10_Tr_Transl" refType="absGlobal">
+                    <x>0</x>
+                    <y>0</y>
+                    <z>0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="PodGeomSec10Elem">
+                    <name>PodGeomSec10Elem</name>
+                    <profileUID>PodGeomSec10_Point</profileUID>
+                    <transformation uID="PodGeomSec10Elem_Tr">
+                      <scaling uID="PodGeomSec10Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="PodGeomSec10Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="PodGeomSec10Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+            </sections>
+            <positionings>
+              <positioning uID="PodGeomSec0GenPos">
+                <name>PodGeomSec0GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>0</length>
+                <toSectionUID>PodGeomSec0</toSectionUID>
+              </positioning>
+              <positioning uID="PodGeomSec1GenPos">
+                <name>PodGeomSec1GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>0.3</length>
+                <fromSectionUID>PodGeomSec0</fromSectionUID>
+                <toSectionUID>PodGeomSec1</toSectionUID>
+              </positioning>
+              <positioning uID="PodGeomSec2GenPos">
+                <name>PodGeomSec2GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>0.3</length>
+                <fromSectionUID>PodGeomSec1</fromSectionUID>
+                <toSectionUID>PodGeomSec2</toSectionUID>
+              </positioning>
+              <positioning uID="PodGeomSec3GenPos">
+                <name>PodGeomSec3GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>0.29999999999999993</length>
+                <fromSectionUID>PodGeomSec2</fromSectionUID>
+                <toSectionUID>PodGeomSec3</toSectionUID>
+              </positioning>
+              <positioning uID="PodGeomSec4GenPos">
+                <name>PodGeomSec4GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>0.30000000000000004</length>
+                <fromSectionUID>PodGeomSec3</fromSectionUID>
+                <toSectionUID>PodGeomSec4</toSectionUID>
+              </positioning>
+              <positioning uID="PodGeomSec5GenPos">
+                <name>PodGeomSec5GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>1.05</length>
+                <fromSectionUID>PodGeomSec4</fromSectionUID>
+                <toSectionUID>PodGeomSec5</toSectionUID>
+              </positioning>
+              <positioning uID="PodGeomSec6GenPos">
+                <name>PodGeomSec6GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>0.75</length>
+                <fromSectionUID>PodGeomSec5</fromSectionUID>
+                <toSectionUID>PodGeomSec6</toSectionUID>
+              </positioning>
+              <positioning uID="PodGeomSec7GenPos">
+                <name>PodGeomSec7GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>0.5</length>
+                <fromSectionUID>PodGeomSec6</fromSectionUID>
+                <toSectionUID>PodGeomSec7</toSectionUID>
+              </positioning>
+              <positioning uID="PodGeomSec8GenPos">
+                <name>PodGeomSec8GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>0.5</length>
+                <fromSectionUID>PodGeomSec7</fromSectionUID>
+                <toSectionUID>PodGeomSec8</toSectionUID>
+              </positioning>
+              <positioning uID="PodGeomSec9GenPos">
+                <name>PodGeomSec9GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>0.5</length>
+                <fromSectionUID>PodGeomSec8</fromSectionUID>
+                <toSectionUID>PodGeomSec9</toSectionUID>
+              </positioning>
+              <positioning uID="PodGeomSec10GenPos">
+                <name>PodGeomSec10GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>0.5</length>
+                <fromSectionUID>PodGeomSec9</fromSectionUID>
+                <toSectionUID>PodGeomSec10</toSectionUID>
+              </positioning>
+            </positionings>
+            <segments>
+              <segment uID="PodGeomSeg1">
+                <name>PodGeomSeg1</name>
+                <fromElementUID>PodGeomSec0Elem</fromElementUID>
+                <toElementUID>PodGeomSec1Elem</toElementUID>
+              </segment>
+              <segment uID="PodGeomSeg2">
+                <name>PodGeomSeg2</name>
+                <fromElementUID>PodGeomSec1Elem</fromElementUID>
+                <toElementUID>PodGeomSec2Elem</toElementUID>
+              </segment>
+              <segment uID="PodGeomSeg3">
+                <name>PodGeomSeg3</name>
+                <fromElementUID>PodGeomSec2Elem</fromElementUID>
+                <toElementUID>PodGeomSec3Elem</toElementUID>
+              </segment>
+              <segment uID="PodGeomSeg4">
+                <name>PodGeomSeg4</name>
+                <fromElementUID>PodGeomSec3Elem</fromElementUID>
+                <toElementUID>PodGeomSec4Elem</toElementUID>
+              </segment>
+              <segment uID="PodGeomSeg5">
+                <name>PodGeomSeg5</name>
+                <fromElementUID>PodGeomSec4Elem</fromElementUID>
+                <toElementUID>PodGeomSec5Elem</toElementUID>
+              </segment>
+              <segment uID="PodGeomSeg6">
+                <name>PodGeomSeg6</name>
+                <fromElementUID>PodGeomSec5Elem</fromElementUID>
+                <toElementUID>PodGeomSec6Elem</toElementUID>
+              </segment>
+              <segment uID="PodGeomSeg7">
+                <name>PodGeomSeg7</name>
+                <fromElementUID>PodGeomSec6Elem</fromElementUID>
+                <toElementUID>PodGeomSec7Elem</toElementUID>
+              </segment>
+              <segment uID="PodGeomSeg8">
+                <name>PodGeomSeg8</name>
+                <fromElementUID>PodGeomSec7Elem</fromElementUID>
+                <toElementUID>PodGeomSec8Elem</toElementUID>
+              </segment>
+              <segment uID="PodGeomSeg9">
+                <name>PodGeomSeg9</name>
+                <fromElementUID>PodGeomSec8Elem</fromElementUID>
+                <toElementUID>PodGeomSec9Elem</toElementUID>
+              </segment>
+              <segment uID="PodGeomSeg10">
+                <name>PodGeomSeg10</name>
+                <fromElementUID>PodGeomSec9Elem</fromElementUID>
+                <toElementUID>PodGeomSec10Elem</toElementUID>
+              </segment>
+            </segments>
+          </fuselage>
+        </fuselages>
+        <wings>
+          <wing uID="WingGeom" symmetry="x-z-plane">
+            <name>WingGeom</name>
+            <transformation uID="WingGeom_Tr">
+              <scaling uID="WingGeom_Tr_Scal">
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scaling>
+              <rotation uID="WingGeom_Tr_Rot">
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <translation uID="WingGeom_Tr_Transl" refType="absGlobal">
+                <x>10.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </translation>
+            </transformation>
+            <sections>
+              <section uID="WingGeomSec0">
+                <name>WingGeomSec0</name>
+                <transformation uID="WingGeomSec0_Tr">
+                  <scaling uID="WingGeomSec0_Tr_Scal">
+                    <x>4.0</x>
+                    <y>1.0</y>
+                    <z>4.0</z>
+                  </scaling>
+                  <rotation uID="WingGeomSec0_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="WingGeomSec0_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="WingGeomSec0Elem">
+                    <name>WingGeomSec0Elem</name>
+                    <airfoilUID>WingGeomSec0_NACA55010</airfoilUID>
+                    <transformation uID="WingGeomSec0Elem_Tr">
+                      <scaling uID="WingGeomSec0Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="WingGeomSec0Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="WingGeomSec0Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="WingGeomSec1">
+                <name>WingGeomSec1</name>
+                <transformation uID="WingGeomSec1_Tr">
+                  <scaling uID="WingGeomSec1_Tr_Scal">
+                    <x>1.0</x>
+                    <y>1.0</y>
+                    <z>1.0</z>
+                  </scaling>
+                  <rotation uID="WingGeomSec1_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="WingGeomSec1_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="WingGeomSec1Elem">
+                    <name>WingGeomSec1Elem</name>
+                    <airfoilUID>WingGeomSec1_NACA55010</airfoilUID>
+                    <transformation uID="WingGeomSec1Elem_Tr">
+                      <scaling uID="WingGeomSec1Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="WingGeomSec1Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="WingGeomSec1Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+            </sections>
+            <positionings>
+              <positioning uID="WingGeomSec0GenPos">
+                <name>WingGeomSec0GenPos</name>
+                <length>0</length>
+                <sweepAngle>0</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <toSectionUID>WingGeomSec0</toSectionUID>
+              </positioning>
+              <positioning uID="WingGeomSec1GenPos">
+                <name>WingGeomSec1GenPos</name>
+                <length>10.392304845413262</length>
+                <sweepAngle>30.0</sweepAngle>
+                <dihedralAngle>0.0</dihedralAngle>
+                <fromSectionUID>WingGeomSec0</fromSectionUID>
+                <toSectionUID>WingGeomSec1</toSectionUID>
+              </positioning>
+            </positionings>
+            <segments>
+              <segment uID="WingGeomSeg1">
+                <name>WingGeomSeg1</name>
+                <fromElementUID>WingGeomSec0Elem</fromElementUID>
+                <toElementUID>WingGeomSec1Elem</toElementUID>
+              </segment>
+            </segments>
+          </wing>
+        </wings>
+      </model>
+    </aircraft>
+    <profiles>
+      <fuselageProfiles>
+        <fuselageProfile uID="FuselageGeomSec0_Point">
+          <name>FuselageGeomSec0_Point</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.02846916;-0.05411019;-0.13556326;-0.21366823;-0.28629459;-0.3514613;-0.40739077;-0.45255739;-0.48572913;-0.50600116;-0.51282051;-0.50600116;-0.48572913;-0.45255739;-0.40739077;-0.3514613;-0.28629459;-0.21366823;-0.13556326;-0.05411019;0.02846916;0.10992223;0.1880272;0.26065357;0.32582027;0.38174974;0.42691636;0.46008811;0.48036014;0.48717949;0.48036014;0.46008811;0.42691636;0.38174974;0.32582027;0.26065357;0.1880272;0.10992223;0.02846916</y>
+            <z mapType="vector">-4.98292247e-01;-4.98292247e-01;-4.84700133e-01;-4.57886663e-01;-4.18583239e-01;-3.67861955e-01;-3.07106356e-01;-2.37973697e-01;-1.62349735e-01;-8.22972951e-02;-5.22461384e-17;8.22972951e-02;1.62349735e-01;2.37973697e-01;3.07106356e-01;3.67861955e-01;4.18583239e-01;4.57886663e-01;4.84700133e-01;4.98292247e-01;4.98292247e-01;4.84700133e-01;4.57886663e-01;4.18583239e-01;3.67861955e-01;3.07106356e-01;2.37973697e-01;1.62349735e-01;8.22972951e-02;7.02185415e-17;-8.22972951e-02;-1.62349735e-01;-2.37973697e-01;-3.07106356e-01;-3.67861955e-01;-4.18583239e-01;-4.57886663e-01;-4.84700133e-01;-4.98292247e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="FuselageGeomSec1_Ellipse">
+          <name>FuselageGeomSec1_Ellipse</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.01738808;-0.03326109;-0.0836504;-0.13326277;-0.18158913;-0.22813358;-0.27241851;-0.3139895;-0.35241997;-0.38731557;-0.41831823;-0.44510982;-0.46741541;-0.48500614;-0.49770148;-0.50537117;-0.50793651;-0.50537117;-0.49770148;-0.48500614;-0.46741541;-0.44510982;-0.41831823;-0.38731557;-0.35241997;-0.3139895;-0.27241851;-0.22813358;-0.18158913;-0.13326277;-0.0836504;-0.03326109;0.01738808;0.06777738;0.11738976;0.16571612;0.21226057;0.2565455;0.29811648;0.33654695;0.37144255;0.40244521;0.4292368;0.4515424;0.46913312;0.48182846;0.48949815;0.49206349;0.48949815;0.48182846;0.46913312;0.4515424;0.4292368;0.40244521;0.37144255;0.33654695;0.29811648;0.2565455;0.21226057;0.16571612;0.11738976;0.06777738;0.01738808</y>
+            <z mapType="vector">-4.99358254e-01;-4.99358254e-01;-4.94234162e-01;-4.84038559e-01;-4.68876066e-01;-4.48902270e-01;-4.24322129e-01;-3.95387868e-01;-3.62396394e-01;-3.25686241e-01;-2.85634108e-01;-2.42650981e-01;-1.97177928e-01;-1.49681561e-01;-1.00649260e-01;-5.05841610e-02;-6.26316702e-17;5.05841610e-02;1.00649260e-01;1.49681561e-01;1.97177928e-01;2.42650981e-01;2.85634108e-01;3.25686241e-01;3.62396394e-01;3.95387868e-01;4.24322129e-01;4.48902270e-01;4.68876066e-01;4.84038559e-01;4.94234162e-01;4.99358254e-01;4.99358254e-01;4.94234162e-01;4.84038559e-01;4.68876066e-01;4.48902270e-01;4.24322129e-01;3.95387868e-01;3.62396394e-01;3.25686241e-01;2.85634108e-01;2.42650981e-01;1.97177928e-01;1.49681561e-01;1.00649260e-01;5.05841610e-02;5.98330097e-17;-5.05841610e-02;-1.00649260e-01;-1.49681561e-01;-1.97177928e-01;-2.42650981e-01;-2.85634108e-01;-3.25686241e-01;-3.62396394e-01;-3.95387868e-01;-4.24322129e-01;-4.48902270e-01;-4.68876066e-01;-4.84038559e-01;-4.94234162e-01;-4.99358254e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="FuselageGeomSec2_Ellipse">
+          <name>FuselageGeomSec2_Ellipse</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.01738808;-0.03326109;-0.0836504;-0.13326277;-0.18158913;-0.22813358;-0.27241851;-0.3139895;-0.35241997;-0.38731557;-0.41831823;-0.44510982;-0.46741541;-0.48500614;-0.49770148;-0.50537117;-0.50793651;-0.50537117;-0.49770148;-0.48500614;-0.46741541;-0.44510982;-0.41831823;-0.38731557;-0.35241997;-0.3139895;-0.27241851;-0.22813358;-0.18158913;-0.13326277;-0.0836504;-0.03326109;0.01738808;0.06777738;0.11738976;0.16571612;0.21226057;0.2565455;0.29811648;0.33654695;0.37144255;0.40244521;0.4292368;0.4515424;0.46913312;0.48182846;0.48949815;0.49206349;0.48949815;0.48182846;0.46913312;0.4515424;0.4292368;0.40244521;0.37144255;0.33654695;0.29811648;0.2565455;0.21226057;0.16571612;0.11738976;0.06777738;0.01738808</y>
+            <z mapType="vector">-4.99358254e-01;-4.99358254e-01;-4.94234162e-01;-4.84038559e-01;-4.68876066e-01;-4.48902270e-01;-4.24322129e-01;-3.95387868e-01;-3.62396394e-01;-3.25686241e-01;-2.85634108e-01;-2.42650981e-01;-1.97177928e-01;-1.49681561e-01;-1.00649260e-01;-5.05841610e-02;-6.26316702e-17;5.05841610e-02;1.00649260e-01;1.49681561e-01;1.97177928e-01;2.42650981e-01;2.85634108e-01;3.25686241e-01;3.62396394e-01;3.95387868e-01;4.24322129e-01;4.48902270e-01;4.68876066e-01;4.84038559e-01;4.94234162e-01;4.99358254e-01;4.99358254e-01;4.94234162e-01;4.84038559e-01;4.68876066e-01;4.48902270e-01;4.24322129e-01;3.95387868e-01;3.62396394e-01;3.25686241e-01;2.85634108e-01;2.42650981e-01;1.97177928e-01;1.49681561e-01;1.00649260e-01;5.05841610e-02;5.98330097e-17;-5.05841610e-02;-1.00649260e-01;-1.49681561e-01;-1.97177928e-01;-2.42650981e-01;-2.85634108e-01;-3.25686241e-01;-3.62396394e-01;-3.95387868e-01;-4.24322129e-01;-4.48902270e-01;-4.68876066e-01;-4.84038559e-01;-4.94234162e-01;-4.99358254e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="FuselageGeomSec3_Ellipse">
+          <name>FuselageGeomSec3_Ellipse</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.01738808;-0.03326109;-0.0836504;-0.13326277;-0.18158913;-0.22813358;-0.27241851;-0.3139895;-0.35241997;-0.38731557;-0.41831823;-0.44510982;-0.46741541;-0.48500614;-0.49770148;-0.50537117;-0.50793651;-0.50537117;-0.49770148;-0.48500614;-0.46741541;-0.44510982;-0.41831823;-0.38731557;-0.35241997;-0.3139895;-0.27241851;-0.22813358;-0.18158913;-0.13326277;-0.0836504;-0.03326109;0.01738808;0.06777738;0.11738976;0.16571612;0.21226057;0.2565455;0.29811648;0.33654695;0.37144255;0.40244521;0.4292368;0.4515424;0.46913312;0.48182846;0.48949815;0.49206349;0.48949815;0.48182846;0.46913312;0.4515424;0.4292368;0.40244521;0.37144255;0.33654695;0.29811648;0.2565455;0.21226057;0.16571612;0.11738976;0.06777738;0.01738808</y>
+            <z mapType="vector">-4.99358254e-01;-4.99358254e-01;-4.94234162e-01;-4.84038559e-01;-4.68876066e-01;-4.48902270e-01;-4.24322129e-01;-3.95387868e-01;-3.62396394e-01;-3.25686241e-01;-2.85634108e-01;-2.42650981e-01;-1.97177928e-01;-1.49681561e-01;-1.00649260e-01;-5.05841610e-02;-6.26316702e-17;5.05841610e-02;1.00649260e-01;1.49681561e-01;1.97177928e-01;2.42650981e-01;2.85634108e-01;3.25686241e-01;3.62396394e-01;3.95387868e-01;4.24322129e-01;4.48902270e-01;4.68876066e-01;4.84038559e-01;4.94234162e-01;4.99358254e-01;4.99358254e-01;4.94234162e-01;4.84038559e-01;4.68876066e-01;4.48902270e-01;4.24322129e-01;3.95387868e-01;3.62396394e-01;3.25686241e-01;2.85634108e-01;2.42650981e-01;1.97177928e-01;1.49681561e-01;1.00649260e-01;5.05841610e-02;5.98330097e-17;-5.05841610e-02;-1.00649260e-01;-1.49681561e-01;-1.97177928e-01;-2.42650981e-01;-2.85634108e-01;-3.25686241e-01;-3.62396394e-01;-3.95387868e-01;-4.24322129e-01;-4.48902270e-01;-4.68876066e-01;-4.84038559e-01;-4.94234162e-01;-4.99358254e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="FuselageGeomSec4_Ellipse">
+          <name>FuselageGeomSec4_Ellipse</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.01738808;-0.03326109;-0.0836504;-0.13326277;-0.18158913;-0.22813358;-0.27241851;-0.3139895;-0.35241997;-0.38731557;-0.41831823;-0.44510982;-0.46741541;-0.48500614;-0.49770148;-0.50537117;-0.50793651;-0.50537117;-0.49770148;-0.48500614;-0.46741541;-0.44510982;-0.41831823;-0.38731557;-0.35241997;-0.3139895;-0.27241851;-0.22813358;-0.18158913;-0.13326277;-0.0836504;-0.03326109;0.01738808;0.06777738;0.11738976;0.16571612;0.21226057;0.2565455;0.29811648;0.33654695;0.37144255;0.40244521;0.4292368;0.4515424;0.46913312;0.48182846;0.48949815;0.49206349;0.48949815;0.48182846;0.46913312;0.4515424;0.4292368;0.40244521;0.37144255;0.33654695;0.29811648;0.2565455;0.21226057;0.16571612;0.11738976;0.06777738;0.01738808</y>
+            <z mapType="vector">-4.99358254e-01;-4.99358254e-01;-4.94234162e-01;-4.84038559e-01;-4.68876066e-01;-4.48902270e-01;-4.24322129e-01;-3.95387868e-01;-3.62396394e-01;-3.25686241e-01;-2.85634108e-01;-2.42650981e-01;-1.97177928e-01;-1.49681561e-01;-1.00649260e-01;-5.05841610e-02;-6.26316702e-17;5.05841610e-02;1.00649260e-01;1.49681561e-01;1.97177928e-01;2.42650981e-01;2.85634108e-01;3.25686241e-01;3.62396394e-01;3.95387868e-01;4.24322129e-01;4.48902270e-01;4.68876066e-01;4.84038559e-01;4.94234162e-01;4.99358254e-01;4.99358254e-01;4.94234162e-01;4.84038559e-01;4.68876066e-01;4.48902270e-01;4.24322129e-01;3.95387868e-01;3.62396394e-01;3.25686241e-01;2.85634108e-01;2.42650981e-01;1.97177928e-01;1.49681561e-01;1.00649260e-01;5.05841610e-02;5.98330097e-17;-5.05841610e-02;-1.00649260e-01;-1.49681561e-01;-1.97177928e-01;-2.42650981e-01;-2.85634108e-01;-3.25686241e-01;-3.62396394e-01;-3.95387868e-01;-4.24322129e-01;-4.48902270e-01;-4.68876066e-01;-4.84038559e-01;-4.94234162e-01;-4.99358254e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="FuselageGeomSec5_Point">
+          <name>FuselageGeomSec5_Point</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.02846916;-0.05411019;-0.13556326;-0.21366823;-0.28629459;-0.3514613;-0.40739077;-0.45255739;-0.48572913;-0.50600116;-0.51282051;-0.50600116;-0.48572913;-0.45255739;-0.40739077;-0.3514613;-0.28629459;-0.21366823;-0.13556326;-0.05411019;0.02846916;0.10992223;0.1880272;0.26065357;0.32582027;0.38174974;0.42691636;0.46008811;0.48036014;0.48717949;0.48036014;0.46008811;0.42691636;0.38174974;0.32582027;0.26065357;0.1880272;0.10992223;0.02846916</y>
+            <z mapType="vector">-4.98292247e-01;-4.98292247e-01;-4.84700133e-01;-4.57886663e-01;-4.18583239e-01;-3.67861955e-01;-3.07106356e-01;-2.37973697e-01;-1.62349735e-01;-8.22972951e-02;-5.22461384e-17;8.22972951e-02;1.62349735e-01;2.37973697e-01;3.07106356e-01;3.67861955e-01;4.18583239e-01;4.57886663e-01;4.84700133e-01;4.98292247e-01;4.98292247e-01;4.84700133e-01;4.57886663e-01;4.18583239e-01;3.67861955e-01;3.07106356e-01;2.37973697e-01;1.62349735e-01;8.22972951e-02;7.02185415e-17;-8.22972951e-02;-1.62349735e-01;-2.37973697e-01;-3.07106356e-01;-3.67861955e-01;-4.18583239e-01;-4.57886663e-01;-4.84700133e-01;-4.98292247e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="PodGeomSec0_Point">
+          <name>PodGeomSec0_Point</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">1.;0.93969262;0.76604444;0.5;0.17364818;-0.17364818;-0.5;-0.76604444;-0.93969262;-1.;-1.;-0.93969262;-0.76604444;-0.5;-0.17364818;0.17364818;0.5;0.76604444;0.93969262;1.</y>
+            <z mapType="vector">1.22464680e-16;-3.42020143e-01;-6.42787610e-01;-8.66025404e-01;-9.84807753e-01;-9.84807753e-01;-8.66025404e-01;-6.42787610e-01;-3.42020143e-01;-1.22464680e-16;0.00000000e+00;3.42020143e-01;6.42787610e-01;8.66025404e-01;9.84807753e-01;9.84807753e-01;8.66025404e-01;6.42787610e-01;3.42020143e-01;1.22464680e-16</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="PodGeomSec1_Circle">
+          <name>PodGeomSec1_Circle</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">1.;0.93969262;0.76604444;0.5;0.17364818;-0.17364818;-0.5;-0.76604444;-0.93969262;-1.;-1.;-0.93969262;-0.76604444;-0.5;-0.17364818;0.17364818;0.5;0.76604444;0.93969262;1.</y>
+            <z mapType="vector">1.22464680e-16;-3.42020143e-01;-6.42787610e-01;-8.66025404e-01;-9.84807753e-01;-9.84807753e-01;-8.66025404e-01;-6.42787610e-01;-3.42020143e-01;-1.22464680e-16;0.00000000e+00;3.42020143e-01;6.42787610e-01;8.66025404e-01;9.84807753e-01;9.84807753e-01;8.66025404e-01;6.42787610e-01;3.42020143e-01;1.22464680e-16</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="PodGeomSec2_Circle">
+          <name>PodGeomSec2_Circle</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">1.;0.93969262;0.76604444;0.5;0.17364818;-0.17364818;-0.5;-0.76604444;-0.93969262;-1.;-1.;-0.93969262;-0.76604444;-0.5;-0.17364818;0.17364818;0.5;0.76604444;0.93969262;1.</y>
+            <z mapType="vector">1.22464680e-16;-3.42020143e-01;-6.42787610e-01;-8.66025404e-01;-9.84807753e-01;-9.84807753e-01;-8.66025404e-01;-6.42787610e-01;-3.42020143e-01;-1.22464680e-16;0.00000000e+00;3.42020143e-01;6.42787610e-01;8.66025404e-01;9.84807753e-01;9.84807753e-01;8.66025404e-01;6.42787610e-01;3.42020143e-01;1.22464680e-16</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="PodGeomSec3_Circle">
+          <name>PodGeomSec3_Circle</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">1.;0.93969262;0.76604444;0.5;0.17364818;-0.17364818;-0.5;-0.76604444;-0.93969262;-1.;-1.;-0.93969262;-0.76604444;-0.5;-0.17364818;0.17364818;0.5;0.76604444;0.93969262;1.</y>
+            <z mapType="vector">1.22464680e-16;-3.42020143e-01;-6.42787610e-01;-8.66025404e-01;-9.84807753e-01;-9.84807753e-01;-8.66025404e-01;-6.42787610e-01;-3.42020143e-01;-1.22464680e-16;0.00000000e+00;3.42020143e-01;6.42787610e-01;8.66025404e-01;9.84807753e-01;9.84807753e-01;8.66025404e-01;6.42787610e-01;3.42020143e-01;1.22464680e-16</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="PodGeomSec4_Circle">
+          <name>PodGeomSec4_Circle</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">1.;0.93969262;0.76604444;0.5;0.17364818;-0.17364818;-0.5;-0.76604444;-0.93969262;-1.;-1.;-0.93969262;-0.76604444;-0.5;-0.17364818;0.17364818;0.5;0.76604444;0.93969262;1.</y>
+            <z mapType="vector">1.22464680e-16;-3.42020143e-01;-6.42787610e-01;-8.66025404e-01;-9.84807753e-01;-9.84807753e-01;-8.66025404e-01;-6.42787610e-01;-3.42020143e-01;-1.22464680e-16;0.00000000e+00;3.42020143e-01;6.42787610e-01;8.66025404e-01;9.84807753e-01;9.84807753e-01;8.66025404e-01;6.42787610e-01;3.42020143e-01;1.22464680e-16</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="PodGeomSec5_Circle">
+          <name>PodGeomSec5_Circle</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">1.;0.93969262;0.76604444;0.5;0.17364818;-0.17364818;-0.5;-0.76604444;-0.93969262;-1.;-1.;-0.93969262;-0.76604444;-0.5;-0.17364818;0.17364818;0.5;0.76604444;0.93969262;1.</y>
+            <z mapType="vector">1.22464680e-16;-3.42020143e-01;-6.42787610e-01;-8.66025404e-01;-9.84807753e-01;-9.84807753e-01;-8.66025404e-01;-6.42787610e-01;-3.42020143e-01;-1.22464680e-16;0.00000000e+00;3.42020143e-01;6.42787610e-01;8.66025404e-01;9.84807753e-01;9.84807753e-01;8.66025404e-01;6.42787610e-01;3.42020143e-01;1.22464680e-16</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="PodGeomSec6_Circle">
+          <name>PodGeomSec6_Circle</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">1.;0.93969262;0.76604444;0.5;0.17364818;-0.17364818;-0.5;-0.76604444;-0.93969262;-1.;-1.;-0.93969262;-0.76604444;-0.5;-0.17364818;0.17364818;0.5;0.76604444;0.93969262;1.</y>
+            <z mapType="vector">1.22464680e-16;-3.42020143e-01;-6.42787610e-01;-8.66025404e-01;-9.84807753e-01;-9.84807753e-01;-8.66025404e-01;-6.42787610e-01;-3.42020143e-01;-1.22464680e-16;0.00000000e+00;3.42020143e-01;6.42787610e-01;8.66025404e-01;9.84807753e-01;9.84807753e-01;8.66025404e-01;6.42787610e-01;3.42020143e-01;1.22464680e-16</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="PodGeomSec7_Circle">
+          <name>PodGeomSec7_Circle</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">1.;0.93969262;0.76604444;0.5;0.17364818;-0.17364818;-0.5;-0.76604444;-0.93969262;-1.;-1.;-0.93969262;-0.76604444;-0.5;-0.17364818;0.17364818;0.5;0.76604444;0.93969262;1.</y>
+            <z mapType="vector">1.22464680e-16;-3.42020143e-01;-6.42787610e-01;-8.66025404e-01;-9.84807753e-01;-9.84807753e-01;-8.66025404e-01;-6.42787610e-01;-3.42020143e-01;-1.22464680e-16;0.00000000e+00;3.42020143e-01;6.42787610e-01;8.66025404e-01;9.84807753e-01;9.84807753e-01;8.66025404e-01;6.42787610e-01;3.42020143e-01;1.22464680e-16</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="PodGeomSec8_Circle">
+          <name>PodGeomSec8_Circle</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">1.;0.93969262;0.76604444;0.5;0.17364818;-0.17364818;-0.5;-0.76604444;-0.93969262;-1.;-1.;-0.93969262;-0.76604444;-0.5;-0.17364818;0.17364818;0.5;0.76604444;0.93969262;1.</y>
+            <z mapType="vector">1.22464680e-16;-3.42020143e-01;-6.42787610e-01;-8.66025404e-01;-9.84807753e-01;-9.84807753e-01;-8.66025404e-01;-6.42787610e-01;-3.42020143e-01;-1.22464680e-16;0.00000000e+00;3.42020143e-01;6.42787610e-01;8.66025404e-01;9.84807753e-01;9.84807753e-01;8.66025404e-01;6.42787610e-01;3.42020143e-01;1.22464680e-16</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="PodGeomSec9_Circle">
+          <name>PodGeomSec9_Circle</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">1.;0.93969262;0.76604444;0.5;0.17364818;-0.17364818;-0.5;-0.76604444;-0.93969262;-1.;-1.;-0.93969262;-0.76604444;-0.5;-0.17364818;0.17364818;0.5;0.76604444;0.93969262;1.</y>
+            <z mapType="vector">1.22464680e-16;-3.42020143e-01;-6.42787610e-01;-8.66025404e-01;-9.84807753e-01;-9.84807753e-01;-8.66025404e-01;-6.42787610e-01;-3.42020143e-01;-1.22464680e-16;0.00000000e+00;3.42020143e-01;6.42787610e-01;8.66025404e-01;9.84807753e-01;9.84807753e-01;8.66025404e-01;6.42787610e-01;3.42020143e-01;1.22464680e-16</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="PodGeomSec10_Point">
+          <name>PodGeomSec10_Point</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">1.;0.93969262;0.76604444;0.5;0.17364818;-0.17364818;-0.5;-0.76604444;-0.93969262;-1.;-1.;-0.93969262;-0.76604444;-0.5;-0.17364818;0.17364818;0.5;0.76604444;0.93969262;1.</y>
+            <z mapType="vector">1.22464680e-16;-3.42020143e-01;-6.42787610e-01;-8.66025404e-01;-9.84807753e-01;-9.84807753e-01;-8.66025404e-01;-6.42787610e-01;-3.42020143e-01;-1.22464680e-16;0.00000000e+00;3.42020143e-01;6.42787610e-01;8.66025404e-01;9.84807753e-01;9.84807753e-01;8.66025404e-01;6.42787610e-01;3.42020143e-01;1.22464680e-16</z>
+          </pointList>
+        </fuselageProfile>
+      </fuselageProfiles>
+      <wingAirfoils>
+        <wingAirfoil uID="WingGeomSec0_NACA55010">
+          <name>WingGeomSec0_NACA55010</name>
+          <pointList>
+            <x mapType="vector">1.00000000e+00;9.96018079e-01;9.84136298e-01;9.64545421e-01;9.37559534e-01;9.03610472e-01;8.63240379e-01;8.17092701e-01;7.65901843e-01;7.10481704e-01;6.51713196e-01;5.90530815e-01;5.27908269e-01;4.64843239e-01;4.02341366e-01;3.41822368e-01;2.85216436e-01;2.33171664e-01;1.85937940e-01;1.43503614e-01;1.05806686e-01;7.29584384e-02;4.53387221e-02;2.35352645e-02;8.21249553e-03;0.00000000e+00;-3.27196849e-04;7.88157434e-03;2.48847920e-02;5.07348816e-02;8.51763194e-02;1.27527759e-01;1.76638070e-01;2.31001541e-01;2.89004273e-01;3.49160637e-01;4.10277319e-01;4.72366241e-01;5.34882250e-01;5.96850500e-01;6.57303798e-01;7.15297588e-01;7.69924952e-01;8.20331288e-01;8.65728248e-01;9.05406523e-01;9.38747146e-01;9.65231065e-01;9.84446863e-01;9.96096622e-01;1.00000000e+00</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">0.00508363;0.00496432;0.00462205;0.00410164;0.00347103;0.00281301;0.00221659;0.00177025;0.00155826;0.00166075;0.00215656;0.00312737;0.00466073;0.00684997;0.00978957;0.00831242;0.011411;0.01284749;0.01212816;0.00934193;0.00503635;0.00013012;-0.00415826;-0.00644519;-0.00540167;0.;0.00986458;0.02361443;0.04034022;0.05849335;0.07610977;0.09114635;0.10190308;0.10742346;0.10771927;0.10374693;0.10226978;0.09451794;0.08593076;0.07677268;0.06730564;0.05778179;0.04844083;0.03951054;0.03120853;0.02374297;0.01731065;0.01209167;0.00824116;0.0058796;0.00508363</z>
+          </pointList>
+        </wingAirfoil>
+        <wingAirfoil uID="WingGeomSec1_NACA55010">
+          <name>WingGeomSec1_NACA55010</name>
+          <pointList>
+            <x mapType="vector">1.;0.99305556;0.98611111;0.97916667;0.97222222;0.96527778;0.95833333;0.95138889;0.94444444;0.9375;0.93055556;0.92361111;0.91666667;0.90972222;0.90277778;0.89583333;0.88888889;0.88194444;0.875;0.875;0.8;0.725;0.65;0.575;0.5;0.5;0.425;0.35;0.275;0.2;0.125;0.125;0.11805556;0.11111111;0.10416667;0.09722222;0.09027778;0.08333333;0.07638889;0.06944444;0.0625;0.05555556;0.04861111;0.04166667;0.03472222;0.02777778;0.02083333;0.01388889;0.00694444;0.;0.00694444;0.01388889;0.02083333;0.02777778;0.03472222;0.04166667;0.04861111;0.05555556;0.0625;0.06944444;0.07638889;0.08333333;0.09027778;0.09722222;0.10416667;0.11111111;0.11805556;0.125;0.125;0.2;0.275;0.35;0.425;0.5;0.5;0.575;0.65;0.725;0.8;0.875;0.875;0.88194444;0.88888889;0.89583333;0.90277778;0.90972222;0.91666667;0.92361111;0.93055556;0.9375;0.94444444;0.95138889;0.95833333;0.96527778;0.97222222;0.97916667;0.98611111;1.</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">5.08362764e-03;4.87705938e-03;4.67752186e-03;4.48491652e-03;4.29914892e-03;4.12012692e-03;3.94775956e-03;3.78196221e-03;3.62265239e-03;3.46974765e-03;3.32316784e-03;3.18284193e-03;3.04870112e-03;2.92067657e-03;2.79869948e-03;2.68270453e-03;2.57263617e-03;2.46844056e-03;2.37006386e-03;2.37006386e-03;1.66677990e-03;1.59967030e-03;2.17674650e-03;3.47396424e-03;5.40902354e-03;5.40902354e-03;9.19854283e-03;8.32477903e-03;1.19212059e-02;1.26135434e-02;7.86572223e-03;7.86572223e-03;7.07173048e-03;6.03548462e-03;4.68631854e-03;3.08020526e-03;1.52862295e-03;3.73784451e-04;-4.20973890e-05;5.81333973e-04;1.60839599e-03;1.48194049e-03;-1.39412204e-03;-8.36234244e-03;-1.56522460e-02;-1.47501887e-02;2.42110710e-03;1.83793194e-02;-1.79320652e-02;-5.06631582e-19;2.23045023e-02;3.07748734e-02;3.71313807e-02;4.25577431e-02;4.77108712e-02;5.25925244e-02;5.71634950e-02;6.13888784e-02;6.52791086e-02;6.88717906e-02;7.22048968e-02;7.53164001e-02;7.82420713e-02;8.09975024e-02;8.35874478e-02;8.60165582e-02;8.82894842e-02;9.04108764e-02;9.04108764e-02;1.04968970e-01;1.08205854e-01;1.03714604e-01;1.00998977e-01;9.06629489e-02;9.06629489e-02;8.00969335e-02;6.84730009e-02;5.61480454e-02;4.31486950e-02;2.94818979e-02;2.94818979e-02;2.81816081e-02;2.68752045e-02;2.55626287e-02;2.42438227e-02;2.29187274e-02;2.15872731e-02;2.02493820e-02;1.89049765e-02;1.75539786e-02;1.61963093e-02;1.48318804e-02;1.34605999e-02;1.20823757e-02;1.06971140e-02;9.30471312e-03;7.90506974e-03;5.08362764e-03</z>
+          </pointList>
+        </wingAirfoil>
+      </wingAirfoils>
+    </profiles>
+  </vehicles>
+</cpacs>

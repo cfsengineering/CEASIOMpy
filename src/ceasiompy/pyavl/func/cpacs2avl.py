@@ -98,15 +98,16 @@ def compute_fuselage_coords(
     body_frm_width = 2 * prof_size_y * y
     body_frm_height = 2 * prof_size_z * z
 
-    # Compute diameter of the section as the mean between height and width
-    # AVL assumes only circular cross section for fuselage
-    fus_radius = np.mean([body_frm_height, body_frm_width]) / 2
-    fus_radius_vec[i_sec] = fus_radius
+    # Use the actual half-height for the side-view profile so the .dat file
+    # reflects the true CPACS vertical extent.  Store the half-width separately
+    # for wing-clipping (wings extend in the y-direction).
+    half_height = body_frm_height / 2
+    fus_radius_vec[i_sec] = body_frm_width / 2  # half-width for wing clipping
 
-    # Save the coordinates of the fuselage
+    # Save the coordinates of the fuselage using the true half-height
     x_fuselage[i_sec] = body_frm_center_x
-    y_fuselage_top[i_sec] = body_frm_center_z + fus_radius
-    y_fuselage_bottom[i_sec] = body_frm_center_z - fus_radius
+    y_fuselage_top[i_sec] = body_frm_center_z + half_height
+    y_fuselage_bottom[i_sec] = body_frm_center_z - half_height
 
     return body_frm_width, body_frm_height
 

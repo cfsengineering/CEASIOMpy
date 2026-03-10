@@ -21,18 +21,18 @@ from ceasiompy.utils.mathsfunctions import (
 )
 from ceasiompy.pyavl.func.utils import (
     write_control,
-    get_points_ref,
     to_cpacs_format,
+    get_points_ref,
     convert_dist_to_avl_format,
 )
 from ceasiompy.utils.geometryfunctions import (
     sum_points,
     prod_points,
+    get_profile_coord,
+    check_if_rotated,
     get_chord_span,
     elements_number,
     get_positionings,
-    check_if_rotated,
-    get_profile_coord,
     convert_fuselage_profiles,
     corrects_airfoil_profile,
 )
@@ -40,6 +40,10 @@ from ceasiompy.utils.geometryfunctions import (
 from pathlib import Path
 from numpy import ndarray
 from tixi3.tixi3wrapper import Tixi3
+from typing import (
+    List,
+    Tuple,
+)
 from ceasiompy.utils.generalclasses import (
     Point,
     Transformation,
@@ -69,8 +73,8 @@ def compute_fuselage_coords(
     elem_transf: Transformation,
     sec_transf: Transformation,
     fus_transf: Transformation,
-    pos_x_list: list,
-    pos_z_list: list,
+    pos_x_list: List,
+    pos_z_list: List,
     prof_size_y,
     prof_size_z,
     fus_radius_vec,
@@ -140,56 +144,59 @@ def leadingedge_coordinates(
 
             num_devices = tixi.getNumberOfChilds(control_xpath_base)
 
-            known_controls = {
-                "InnerFlap": {"i_sec": [0, 1], "type": "flap", "bool": [1.0, 1.0]},
-                "OuterFlap": {"i_sec": [1, 2], "type": "flap", "bool": [1.0, 1.0]},
-                "Aileron": {"i_sec": [2, 3], "type": "aileron", "bool": [-1.0, -1.0]},
-                "Elevator": {"i_sec": [0, 1], "type": "elevator", "bool": [1.0, 1.0]},
-                "Rudder": {"i_sec": [0, 1], "type": "rudder", "bool": [-1.0, -1.0]},
-            }
-
             for i in range(1, num_devices + 1):
                 control_xpath = f"{control_xpath_base}/trailingEdgeDevice[{i}]"
                 control_uid = tixi.getTextAttribute(control_xpath, "uID")
-
-                control = known_controls.get(control_uid, None)
-                if control is None:
-                    continue
-
-                # Read geometry only for known control surfaces
                 innerhinge_xsi_xpath = control_xpath + "/path/innerHingePoint/hingeXsi"
                 outerhinge_xsi_xpath = control_xpath + "/path/outerHingePoint/hingeXsi"
-                if (
-                    not tixi.checkElement(innerhinge_xsi_xpath)
-                    or
-                    not tixi.checkElement(outerhinge_xsi_xpath)
-                ):
-                    log.warning(f"Missing hinge xsi for {control_uid}, skipping.")
-                    continue
                 innerhinge_xsi = float(get_value(tixi, innerhinge_xsi_xpath))
                 outerhinge_xsi = float(get_value(tixi, outerhinge_xsi_xpath))
 
                 inner_eta_xpath = control_xpath + "/outerShape/innerBorder/etaTE/eta"
                 outer_eta_xpath = control_xpath + "/outerShape/outerBorder/etaTE/eta"
-                if (
-                    not tixi.checkElement(inner_eta_xpath)
-                    or
-                    not tixi.checkElement(outer_eta_xpath)
-                ):
-                    log.warning(f"Missing eta for {control_uid}, skipping.")
-                    continue
+
                 inner_eta = float(get_value(tixi, inner_eta_xpath))
                 outer_eta = float(get_value(tixi, outer_eta_xpath))
 
                 x_axis = (outerhinge_xsi - innerhinge_xsi) * c_ref
                 y_axis = (outer_eta - inner_eta) * s_ref
                 z_axis = 0.0
-                is_rudder = control["type"] == "rudder"
-                control["axis"] = (
-                    f"{x_axis} {z_axis} {y_axis}"
-                    if is_rudder
-                    else f"{x_axis} {y_axis} {z_axis}"
-                )
+
+                control_dict = {
+                    "InnerFlap": {
+                        "i_sec": [0, 1],
+                        "type": "flap",
+                        "axis": f"{x_axis} {y_axis} {z_axis}",
+                        "bool": [1.0, 1.0],
+                    },
+                    "OuterFlap": {
+                        "i_sec": [1, 2],
+                        "type": "flap",
+                        "axis": f"{x_axis} {y_axis} {z_axis}",
+                        "bool": [1.0, 1.0],
+                    },
+                    "Aileron": {
+                        "i_sec": [2, 3],
+                        "type": "aileron",
+                        "axis": f"{x_axis} {y_axis} {z_axis}",
+                        "bool": [-1.0, -1.0],
+                    },
+                    "Elevator": {
+                        "i_sec": [0, 1],
+                        "type": "elevator",
+                        "axis": f"{x_axis} {y_axis} {z_axis}",
+                        "bool": [1.0, 1.0],
+                    },
+                    "Rudder": {
+                        "i_sec": [0, 1],
+                        "type": "rudder",
+                        "axis": f"{x_axis} {z_axis} {y_axis}",
+                        "bool": [-1.0, -1.0],
+                    },
+                }
+                control = control_dict.get(control_uid, None)
+                if control is None:
+                    continue
                 control_type = control["type"]
                 if i_sec == control["i_sec"][0]:
                     write_control(
@@ -270,7 +277,7 @@ class Avl:
         self.vortex_dist: int = convert_dist_to_avl_format(str(get_value(tixi, AVL_DISTR_XPATH)))
         self.nchordwise: int = int(get_value(tixi, AVL_NCHORDWISE_XPATH))
         self.nspanwise: int = int(get_value(tixi, AVL_NSPANWISE_XPATH))
-        self.add_fuselage: bool = False  # get_value(tixi, AVL_FUSELAGE_XPATH)
+        self.add_fuselage: bool = True  # get_value(tixi, AVL_FUSELAGE_XPATH)
         # Keep wing geometry unchanged by default; enable only when explicit clipping is desired.
         self.clip_wing_inside_fuselage: bool = False
 
@@ -342,7 +349,7 @@ class Avl:
 
     def convert_fuselage(
         self: "Avl",
-    ) -> tuple[ndarray, ndarray, ndarray, Transformation]:
+    ) -> Tuple[ndarray, ndarray, ndarray, Transformation]:
         """
         Convert fuselages from CPACS to avl format.
 
@@ -355,145 +362,99 @@ class Avl:
         """
 
         fus_cnt = elements_number(self.tixi, FUSELAGES_XPATH, "fuselage")
+        # AVL's internal MAKEBODY buffer is finite (NLMAX). If many fuselages are
+        # present, a fixed high Nbody value can overflow that buffer.
+        max_total_nbody = 480
+        nbody_per_fuselage = max(20, min(100, max_total_nbody // max(1, fus_cnt)))
 
-        fus_x_coords = np.array([0.0])
-        fus_z_profile = np.array([0.0])
-        fus_radius_profile = np.array([0.0])
-        body_transf = Transformation()
-
-        # Pre-scan all fuselages to find the main one (longest body).
-        # AVL's simple source-line body model breaks down with multiple
-        # overlapping bodies (e.g. nacelle inside spinner), so only include
-        # the main fuselage.
-        best_fus_idx = 0
-        best_fus_length = 0.0
-        for i_fus in range(fus_cnt):
+        for i_fus in reversed(range(fus_cnt)):
             fus_xpath = FUSELAGES_XPATH + "/fuselage[" + str(i_fus + 1) + "]"
-            sec_cnt_tmp, pos_x_tmp, _, _ = get_positionings(
+            fus_uid = get_uid(self.tixi, fus_xpath)
+
+            fuselages_dir = str(self.results_dir) + "/fuselages"
+            Path(fuselages_dir).mkdir(exist_ok=True)
+            fus_dat_path = fuselages_dir + "/" + fus_uid + ".dat"
+
+            fus_transf = Transformation()
+            fus_transf.get_cpacs_transf(self.tixi, fus_xpath)
+
+            body_transf = Transformation()
+            body_transf.translation = fus_transf.translation
+            body_transf.rotation = euler2fix(fus_transf.rotation)
+
+            # 1. Write fuselage settings
+            self.write_fuselage_settings(
+                fus_xpath,
+                fus_transf.scaling,
+                body_transf.translation,
+                nbody=nbody_per_fuselage,
+            )
+
+            sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(
                 self.tixi, fus_xpath, "fuselage"
             )
-            fus_length = max(pos_x_tmp) - min(pos_x_tmp) if sec_cnt_tmp > 1 else 0.0
-            if fus_length > best_fus_length:
-                best_fus_length = fus_length
-                best_fus_idx = i_fus
 
-        i_fus = best_fus_idx
-        fus_xpath = FUSELAGES_XPATH + "/fuselage[" + str(i_fus + 1) + "]"
-        fus_uid = get_uid(self.tixi, fus_xpath)
-        log.info(f"Using fuselage '{fus_uid}' for AVL body (longest of {fus_cnt}).")
+            # Initialize to null array of size [sec_cnt]
+            (
+                x_fuselage,
+                y_fuselage_top,
+                y_fuselage_bottom,
+                fus_radius_vec,
+                body_width_vec,
+                body_height_vec,
+            ) = (np.zeros(sec_cnt) for _ in range(6))
 
-        fuselages_dir = str(self.results_dir) + "/fuselages"
-        Path(fuselages_dir).mkdir(exist_ok=True)
-        fus_dat_path = fuselages_dir + "/" + fus_uid + ".dat"
+            for i_sec in range(sec_cnt):
+                sec_xpath = fus_xpath + "/sections/section[" + str(i_sec + 1) + "]"
+                sec_uid = self.tixi.getTextAttribute(sec_xpath, "uID")
+                sec_transf = Transformation()
+                sec_transf.get_cpacs_transf(self.tixi, sec_xpath)
+                check_if_rotated(sec_transf.rotation, sec_uid)
 
-        fus_transf = Transformation()
-        fus_transf.get_cpacs_transf(self.tixi, fus_xpath)
+                elem_cnt = self.tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
 
-        body_transf = Transformation()
-        body_transf.translation = fus_transf.translation
-        body_transf.rotation = euler2fix(fus_transf.rotation)
+                for i_elem in range(elem_cnt):
+                    elem_transf, prof_size_y, prof_size_z, _, _ = convert_fuselage_profiles(
+                        self.tixi, sec_xpath, i_sec, i_elem, pos_y_list, pos_z_list
+                    )
 
-        sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(
-            self.tixi, fus_xpath, "fuselage"
-        )
+                    body_frm_width, body_frm_height = compute_fuselage_coords(
+                        i_sec,
+                        elem_transf,
+                        sec_transf,
+                        fus_transf,
+                        pos_x_list,
+                        pos_z_list,
+                        prof_size_y,
+                        prof_size_z,
+                        fus_radius_vec,
+                        x_fuselage,
+                        y_fuselage_top,
+                        y_fuselage_bottom,
+                    )
 
-        # Initialize to null array of size [sec_cnt]
-        (
-            x_fuselage,
-            y_fuselage_top,
-            y_fuselage_bottom,
-            fus_radius_vec,
-            body_width_vec,
-            body_height_vec,
-        ) = (np.zeros(sec_cnt) for _ in range(6))
+                    body_width_vec[i_sec] = body_frm_width
+                    body_height_vec[i_sec] = body_frm_height
 
-        for i_sec in range(sec_cnt):
-            sec_xpath = fus_xpath + "/sections/section[" + str(i_sec + 1) + "]"
-            sec_uid = self.tixi.getTextAttribute(sec_xpath, "uID")
-            sec_transf = Transformation()
-            sec_transf.get_cpacs_transf(self.tixi, sec_xpath)
-            check_if_rotated(sec_transf.rotation, sec_uid)
+            body_transf_x = x_fuselage + body_transf.translation.x
+            body_fus_z = y_fuselage_top - fus_radius_vec
+            body_fus_radius = fus_radius_vec
 
-            elem_root_xpath = sec_xpath + "/elements"
-            if not self.tixi.checkElement(elem_root_xpath):
-                continue
-            elem_cnt = self.tixi.getNamedChildrenCount(elem_root_xpath, "element")
+            sort_idx = np.argsort(body_transf_x)
+            body_transf_x_sorted = body_transf_x[sort_idx]
+            body_fus_z_sorted = body_fus_z[sort_idx]
+            body_fus_radius_sorted = body_fus_radius[sort_idx]
+            fus_x_coords, unique_idx = np.unique(body_transf_x_sorted, return_index=True)
+            fus_z_profile = body_fus_z_sorted[unique_idx]
+            fus_radius_profile = body_fus_radius_sorted[unique_idx]
 
-            for i_elem in range(elem_cnt):
-                elem_transf, prof_size_y, prof_size_z, _, _ = convert_fuselage_profiles(
-                    self.tixi, sec_xpath, i_sec, i_elem, pos_y_list, pos_z_list
-                )
-
-                body_frm_width, body_frm_height = compute_fuselage_coords(
-                    i_sec,
-                    elem_transf,
-                    sec_transf,
-                    fus_transf,
-                    pos_x_list,
-                    pos_z_list,
-                    prof_size_y,
-                    prof_size_z,
-                    fus_radius_vec,
-                    x_fuselage,
-                    y_fuselage_top,
-                    y_fuselage_bottom,
-                )
-
-                body_width_vec[i_sec] = body_frm_width
-                body_height_vec[i_sec] = body_frm_height
-
-        # AVL expects the body profile relative to its own axis (symmetric ±radius).
-        # Subtract the per-section centerline z so the profile is body-centered,
-        # and adjust TRANSLATE z to account for the mean centerline offset.
-        center_z = (y_fuselage_top + y_fuselage_bottom) / 2
-        mean_center_z = np.mean(center_z)
-        y_top_centered = y_fuselage_top - center_z
-        y_bottom_centered = y_fuselage_bottom - center_z
-
-        fus_has_symmetry = (
-            self.tixi.checkAttribute(fus_xpath, "symmetry")
-            and self.tixi.getTextAttribute(fus_xpath, "symmetry") == "x-z-plane"
-        )
-        adjusted_translation = Point(
-            x=body_transf.translation.x,
-            y=body_transf.translation.y,
-            z=body_transf.translation.z + mean_center_z,
-        )
-
-        # Scale Nbody to actual profile complexity; too many panels for few
-        # data points causes AVL spline issues.
-        n_profile_pts = int(np.sum(fus_radius_vec > 1e-8))
-        nbody = max(20, min(100, n_profile_pts * 10))
-
-        # Scaling is already applied inside compute_fuselage_coords,
-        # so pass unit scaling to avoid double-scaling by AVL's SCALE directive.
-        self.write_fuselage_settings(
-            Point(x=1.0, y=1.0, z=1.0),
-            adjusted_translation,
-            nbody=nbody,
-            symmetry=fus_has_symmetry,
-            name=fus_uid,
-        )
-
-        body_transf_x = x_fuselage + body_transf.translation.x
-        body_fus_z = y_fuselage_top - fus_radius_vec
-        body_fus_radius = fus_radius_vec
-
-        sort_idx = np.argsort(body_transf_x)
-        body_transf_x_sorted = body_transf_x[sort_idx]
-        body_fus_z_sorted = body_fus_z[sort_idx]
-        body_fus_radius_sorted = body_fus_radius[sort_idx]
-        fus_x_coords, unique_idx = np.unique(body_transf_x_sorted, return_index=True)
-        fus_z_profile = body_fus_z_sorted[unique_idx]
-        fus_radius_profile = body_fus_radius_sorted[unique_idx]
-
-        self.write_fuselage_coords(
-            fus_dat_path,
-            i_fus,
-            x_fuselage,
-            y_bottom_centered,
-            y_top_centered,
-        )
+            self.write_fuselage_coords(
+                fus_dat_path,
+                i_fus,
+                x_fuselage,
+                y_fuselage_bottom,
+                y_fuselage_top,
+            )
 
         return fus_x_coords, fus_z_profile, fus_radius_profile, body_transf
 
@@ -568,73 +529,54 @@ class Avl:
                 )
                 add_rotation = Point(x=x, y=y, z=z)
 
-                # Get Section rotation (combined: for twist/incidence output)
+                # Get Section rotation
                 wg_sec_rot = euler2fix(add_rotation)
+                wg_sec_dihed = math.radians(wg_sec_rot.x)
+                wg_sec_twist = math.radians(wg_sec_rot.y)
+                wg_sec_yaw = math.radians(wg_sec_rot.z)
 
-                # LE position in wing-local frame: positioning + section/element translations
-                x_le_local = (
-                    pos_x_list[i_sec]
-                    + sec_transf.translation.x
-                    + sec_transf.scaling.x
-                    * elem_transf.translation.x
-                )
-                y_le_local = (
-                    pos_y_list[i_sec]
-                    + sec_transf.translation.y
-                    + sec_transf.scaling.y
-                    * elem_transf.translation.y
-                )
-                z_le_local = (
-                    pos_z_list[i_sec]
-                    + sec_transf.translation.z
-                    + sec_transf.scaling.z
-                    * elem_transf.translation.z
-                )
-
-                # Rotate by wing-only rotation to world frame.
-                # Section/element rotations affect chord orientation, not section position.
-                wg_dihed = math.radians(wg_sk_transf.rotation.x)
-                wg_twist = math.radians(wg_sk_transf.rotation.y)
-                wg_yaw = math.radians(wg_sk_transf.rotation.z)
-
-                x_le_rot, y_le_rot, z_le_rot = rotate_points(
-                    x_le_local,
-                    y_le_local,
-                    z_le_local,
-                    wg_dihed,
-                    wg_twist,
-                    wg_yaw,
-                )
+                if all(abs(value) < 1e-6 for value in pos_y_list):
+                    # Define the leading edge position from translations
+                    x_le, y_le, z_le = sum_points(sec_transf.translation, elem_transf.translation)
+                    x_le_rot, y_le_rot, z_le_rot = rotate_points(
+                        x_le, y_le, z_le, wg_sec_dihed, wg_sec_twist, wg_sec_yaw
+                    )
+                else:
+                    x_le_rot, y_le_rot, z_le_rot = rotate_points(
+                        pos_x_list[i_sec],
+                        pos_y_list[i_sec],
+                        pos_z_list[i_sec],
+                        wg_sec_dihed,
+                        wg_sec_twist,
+                        wg_sec_yaw,
+                    )
 
                 # Compute the absolute location of the leading edge
                 x_le_abs = x_le_rot + wg_sk_transf.translation.x
                 y_le_abs = y_le_rot + wg_sk_transf.translation.y
                 z_le_abs = z_le_rot + wg_sk_transf.translation.z
 
-                # Check if wing section LE is inside the fuselage
                 if (
                     self.add_fuselage
+                    and self.clip_wing_inside_fuselage
                     and fus_x_coords is not None
                 ):
+                    # Compute the radius of the fuselage and the height difference ...
+                    # between fuselage center and leading edge
                     x_query = x_le_abs + wg_sec_chord / 2
                     radius_fus = np.interp(x_query, fus_x_coords, fus_radius_profile)
                     fus_z_center = np.interp(x_query, fus_x_coords, fus_z_profile)
                     delta_z = np.abs(fus_z_center + body_transf.translation.z - z_le_abs)
-                    dist_from_axis = np.sqrt(y_le_abs**2 + delta_z**2)
 
-                    if dist_from_axis < radius_fus:
-                        log.warning(
-                            f"Wing {i_wing} section {i_sec} LE is inside the fuselage "
-                            f"(dist={dist_from_axis:.3f} < radius={radius_fus:.3f}). "
-                            f"Dihedral may be incorrect."
-                        )
-
+                    # If the root wing section is inside the fuselage, translate it to...
+                    # the fuselage border
+                    # To make sure there is no wing part inside the fuselage
                     if (
-                        self.clip_wing_inside_fuselage
-                        and dist_from_axis < radius_fus
-                        and wg_dihed < math.pi / 2
+                        np.sqrt((y_le_abs) ** 2 + (delta_z) ** 2) < radius_fus
+                        and wg_sec_dihed < math.pi / 2
                         and root_defined is False
                     ):
+
                         y_le_abs += np.sqrt(radius_fus**2 - delta_z**2) - y_le_abs
                         y_le_rot = y_le_abs - wg_sk_transf.translation.y
                         root_defined = True
@@ -706,12 +648,16 @@ class Avl:
         with open(fus_dat_path, "w") as fus_file:
             fus_file.write("fuselage" + str(i_fus + 1) + "\n")
 
-            # Write coordinates of the top surface (tail to nose)
-            for x_fus, y_fus in reversed(list(zip(x_fuselage, y_fuselage_top))):
+            # Write coordinates of the top surface
+            for x_fus, y_fus in reversed(list(zip(x_fuselage[1:], y_fuselage_top[1:]))):
                 fus_file.write(f"{x_fus:.3f}\t{y_fus:.3f}\n")
 
-            # Write coordinates of the bottom surface (nose to tail)
-            for x_fus, y_fus in zip(x_fuselage, y_fuselage_bottom):
+            # Write coordinates of the nose of the fuselage
+            y_nose = np.mean([y_fuselage_top[0], y_fuselage_bottom[0]])
+            fus_file.write(f"{x_fuselage[0]:.3f}\t{y_nose:.3f}\n")
+
+            # Write coordinates of the bottom surface
+            for x_fus, y_fus in zip(x_fuselage[1:], y_fuselage_bottom[1:]):
                 fus_file.write(f"{x_fus:.3f}\t{y_fus:.3f}\n")
 
         with open(self.avl_path, "a") as avl_file:
@@ -720,17 +666,22 @@ class Avl:
 
     def write_fuselage_settings(
         self,
+        fus_xpath: str,
         scaling: Point,
         translation: Point,
         nbody: int = 100,
-        symmetry: bool = False,
-        name: str = "Fuselage",
     ) -> None:
         with open(self.avl_path, "a") as avl_file:
             avl_file.write("#--------------------------------------------------\n")
-            avl_file.write(f"BODY\n{name}\n\n")
+            avl_file.write("BODY\nFuselage\n\n")
             avl_file.write(f"!Nbody  Bspace\n{int(nbody)}\t1.0\n\n")
-            if symmetry:
+
+            # Symmetry
+            if (
+                self.tixi.checkAttribute(fus_xpath, "symmetry")
+                and self.tixi.getTextAttribute(fus_xpath, "symmetry") == "x-z-plane"
+            ):
                 avl_file.write("YDUPLICATE\n0\n\n")
+
             avl_file.write(f"SCALE\n{to_cpacs_format(scaling)}\n\n")
             avl_file.write(f"TRANSLATE\n{to_cpacs_format(translation)}\n\n")

@@ -1,0 +1,1667 @@
+<?xml version='1.0' encoding='utf-8'?>
+<cpacs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi_noNamespaceSchemaLocation="CPACS_21_Schema.xsd">
+  <header>
+    <name>f_16</name>
+    <version>0.2</version>
+    <cpacsVersion>3.0</cpacsVersion>
+    <versionInfos>
+      <versionInfo version="version1">
+        <description>Geometry from openVSP</description>
+        <creator>cpacs2to3</creator>
+        <version>0.3</version>
+        <cpacsVersion>3.0</cpacsVersion>
+        <timestamp>2025-10-30T13:40:44</timestamp>
+      </versionInfo>
+    </versionInfos>
+  </header>
+  <vehicles>
+    <aircraft>
+      <model uID="CPACS_test">
+        <name>CPACS_test</name>
+        <reference>
+          <area>1</area>
+          <length>1</length>
+          <point uID="Point">
+            <x>0</x>
+            <y>0</y>
+            <z>0</z>
+          </point>
+        </reference>
+        <fuselages>
+          <fuselage uID="Mainbody" symmetry=" ">
+            <name>Mainbody</name>
+            <transformation uID="Mainbody_Tr">
+              <scaling uID="Mainbody_Tr_Scal">
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scaling>
+              <rotation uID="Mainbody_Tr_Rot">
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <translation uID="Mainbody_Tr_Transl" refType="absGlobal">
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </translation>
+            </transformation>
+            <sections>
+              <section uID="MainbodySec0">
+                <name>MainbodySec0</name>
+                <transformation uID="MainbodySec0_Tr">
+                  <scaling uID="MainbodySec0_Tr_Scal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </scaling>
+                  <rotation uID="MainbodySec0_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="MainbodySec0_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.495</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="MainbodySec0Elem">
+                    <name>MainbodySec0Elem</name>
+                    <profileUID>MainbodySec0_Point</profileUID>
+                    <transformation uID="MainbodySec0Elem_Tr">
+                      <scaling uID="MainbodySec0Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="MainbodySec0Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="MainbodySec0Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="MainbodySec1">
+                <name>MainbodySec1</name>
+                <transformation uID="MainbodySec1_Tr">
+                  <scaling uID="MainbodySec1_Tr_Scal">
+                    <x>1.0</x>
+                    <y>1.2103636363636365</y>
+                    <z>1.3820067148760333</z>
+                  </scaling>
+                  <rotation uID="MainbodySec1_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="MainbodySec1_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.66</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="MainbodySec1Elem">
+                    <name>MainbodySec1Elem</name>
+                    <profileUID>MainbodySec1_Ellipse</profileUID>
+                    <transformation uID="MainbodySec1Elem_Tr">
+                      <scaling uID="MainbodySec1Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="MainbodySec1Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="MainbodySec1Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="MainbodySec2">
+                <name>MainbodySec2</name>
+                <transformation uID="MainbodySec2_Tr">
+                  <scaling uID="MainbodySec2_Tr_Scal">
+                    <x>1.0</x>
+                    <y>1.3758173553719009</y>
+                    <z>1.3820067148760333</z>
+                  </scaling>
+                  <rotation uID="MainbodySec2_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="MainbodySec2_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.66</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="MainbodySec2Elem">
+                    <name>MainbodySec2Elem</name>
+                    <profileUID>MainbodySec2_Ellipse</profileUID>
+                    <transformation uID="MainbodySec2Elem_Tr">
+                      <scaling uID="MainbodySec2Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="MainbodySec2Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="MainbodySec2Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="MainbodySec3">
+                <name>MainbodySec3</name>
+                <transformation uID="MainbodySec3_Tr">
+                  <scaling uID="MainbodySec3_Tr_Scal">
+                    <x>1.0</x>
+                    <y>1.95</y>
+                    <z>1.1818181818181819</z>
+                  </scaling>
+                  <rotation uID="MainbodySec3_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="MainbodySec3_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.5380434782608683</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="MainbodySec3Elem">
+                    <name>MainbodySec3Elem</name>
+                    <profileUID>MainbodySec3_Ellipse</profileUID>
+                    <transformation uID="MainbodySec3Elem_Tr">
+                      <scaling uID="MainbodySec3Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="MainbodySec3Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="MainbodySec3Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="MainbodySec4">
+                <name>MainbodySec4</name>
+                <transformation uID="MainbodySec4_Tr">
+                  <scaling uID="MainbodySec4_Tr_Scal">
+                    <x>1.0</x>
+                    <y>1.25</y>
+                    <z>1.25</z>
+                  </scaling>
+                  <rotation uID="MainbodySec4_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="MainbodySec4_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.5380434782608683</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="MainbodySec4Elem">
+                    <name>MainbodySec4Elem</name>
+                    <profileUID>MainbodySec4_Ellipse</profileUID>
+                    <transformation uID="MainbodySec4Elem_Tr">
+                      <scaling uID="MainbodySec4Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="MainbodySec4Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="MainbodySec4Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="MainbodySec5">
+                <name>MainbodySec5</name>
+                <transformation uID="MainbodySec5_Tr">
+                  <scaling uID="MainbodySec5_Tr_Scal">
+                    <x>1.0</x>
+                    <y>0.9122289756064145</y>
+                    <z>0.9122289756064145</z>
+                  </scaling>
+                  <rotation uID="MainbodySec5_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="MainbodySec5_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.5380434782608683</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="MainbodySec5Elem">
+                    <name>MainbodySec5Elem</name>
+                    <profileUID>MainbodySec5_Circle</profileUID>
+                    <transformation uID="MainbodySec5Elem_Tr">
+                      <scaling uID="MainbodySec5Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="MainbodySec5Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="MainbodySec5Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="MainbodySec6">
+                <name>MainbodySec6</name>
+                <transformation uID="MainbodySec6_Tr">
+                  <scaling uID="MainbodySec6_Tr_Scal">
+                    <x>1.0</x>
+                    <y>0.41030534351145037</y>
+                    <z>0.41030534351145037</z>
+                  </scaling>
+                  <rotation uID="MainbodySec6_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="MainbodySec6_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.534105</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="MainbodySec6Elem">
+                    <name>MainbodySec6Elem</name>
+                    <profileUID>MainbodySec6_Circle</profileUID>
+                    <transformation uID="MainbodySec6Elem_Tr">
+                      <scaling uID="MainbodySec6Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="MainbodySec6Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="MainbodySec6Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+            </sections>
+            <positionings>
+              <positioning uID="MainbodySec0GenPos">
+                <name>MainbodySec0GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>0</length>
+                <toSectionUID>MainbodySec0</toSectionUID>
+              </positioning>
+              <positioning uID="MainbodySec1GenPos">
+                <name>MainbodySec1GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>5.0063264266304355</length>
+                <fromSectionUID>MainbodySec0</fromSectionUID>
+                <toSectionUID>MainbodySec1</toSectionUID>
+              </positioning>
+              <positioning uID="MainbodySec2GenPos">
+                <name>MainbodySec2GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>1.6218367866847814</length>
+                <fromSectionUID>MainbodySec1</fromSectionUID>
+                <toSectionUID>MainbodySec2</toSectionUID>
+              </positioning>
+              <positioning uID="MainbodySec3GenPos">
+                <name>MainbodySec3GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>3.5441718002348193</length>
+                <fromSectionUID>MainbodySec2</fromSectionUID>
+                <toSectionUID>MainbodySec3</toSectionUID>
+              </positioning>
+              <positioning uID="MainbodySec4GenPos">
+                <name>MainbodySec4GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>5.2015965483379425</length>
+                <fromSectionUID>MainbodySec3</fromSectionUID>
+                <toSectionUID>MainbodySec4</toSectionUID>
+              </positioning>
+              <positioning uID="MainbodySec5GenPos">
+                <name>MainbodySec5GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>0.6091845648802732</length>
+                <fromSectionUID>MainbodySec4</fromSectionUID>
+                <toSectionUID>MainbodySec5</toSectionUID>
+              </positioning>
+              <positioning uID="MainbodySec6GenPos">
+                <name>MainbodySec6GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>0.5168838732317482</length>
+                <fromSectionUID>MainbodySec5</fromSectionUID>
+                <toSectionUID>MainbodySec6</toSectionUID>
+              </positioning>
+            </positionings>
+            <segments>
+              <segment uID="MainbodySeg1">
+                <name>MainbodySeg1</name>
+                <fromElementUID>MainbodySec0Elem</fromElementUID>
+                <toElementUID>MainbodySec1Elem</toElementUID>
+              </segment>
+              <segment uID="MainbodySeg2">
+                <name>MainbodySeg2</name>
+                <fromElementUID>MainbodySec1Elem</fromElementUID>
+                <toElementUID>MainbodySec2Elem</toElementUID>
+              </segment>
+              <segment uID="MainbodySeg3">
+                <name>MainbodySeg3</name>
+                <fromElementUID>MainbodySec2Elem</fromElementUID>
+                <toElementUID>MainbodySec3Elem</toElementUID>
+              </segment>
+              <segment uID="MainbodySeg4">
+                <name>MainbodySeg4</name>
+                <fromElementUID>MainbodySec3Elem</fromElementUID>
+                <toElementUID>MainbodySec4Elem</toElementUID>
+              </segment>
+              <segment uID="MainbodySeg5">
+                <name>MainbodySeg5</name>
+                <fromElementUID>MainbodySec4Elem</fromElementUID>
+                <toElementUID>MainbodySec5Elem</toElementUID>
+              </segment>
+              <segment uID="MainbodySeg6">
+                <name>MainbodySeg6</name>
+                <fromElementUID>MainbodySec5Elem</fromElementUID>
+                <toElementUID>MainbodySec6Elem</toElementUID>
+              </segment>
+            </segments>
+          </fuselage>
+          <fuselage uID="External_Tank" symmetry="x-z-plane">
+            <name>External_Tank</name>
+            <transformation uID="External_Tank_Tr">
+              <scaling uID="External_Tank_Tr_Scal">
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scaling>
+              <rotation uID="External_Tank_Tr_Rot">
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <translation uID="External_Tank_Tr_Transl" refType="absGlobal">
+                <x>6.521739130434781</x>
+                <y>1.4130434782608692</y>
+                <z>-0.23333333333333392</z>
+              </translation>
+            </transformation>
+            <sections>
+              <section uID="External_TankSec0">
+                <name>External_TankSec0</name>
+                <transformation uID="External_TankSec0_Tr">
+                  <scaling uID="External_TankSec0_Tr_Scal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </scaling>
+                  <rotation uID="External_TankSec0_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="External_TankSec0_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="External_TankSec0Elem">
+                    <name>External_TankSec0Elem</name>
+                    <profileUID>External_TankSec0_Point</profileUID>
+                    <transformation uID="External_TankSec0Elem_Tr">
+                      <scaling uID="External_TankSec0Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="External_TankSec0Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="External_TankSec0Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="External_TankSec1">
+                <name>External_TankSec1</name>
+                <transformation uID="External_TankSec1_Tr">
+                  <scaling uID="External_TankSec1_Tr_Scal">
+                    <x>1.0</x>
+                    <y>0.7</y>
+                    <z>0.7</z>
+                  </scaling>
+                  <rotation uID="External_TankSec1_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="External_TankSec1_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="External_TankSec1Elem">
+                    <name>External_TankSec1Elem</name>
+                    <profileUID>External_TankSec1_Ellipse</profileUID>
+                    <transformation uID="External_TankSec1Elem_Tr">
+                      <scaling uID="External_TankSec1Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="External_TankSec1Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="External_TankSec1Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="External_TankSec2">
+                <name>External_TankSec2</name>
+                <transformation uID="External_TankSec2_Tr">
+                  <scaling uID="External_TankSec2_Tr_Scal">
+                    <x>1.0</x>
+                    <y>0.7</y>
+                    <z>0.7</z>
+                  </scaling>
+                  <rotation uID="External_TankSec2_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="External_TankSec2_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="External_TankSec2Elem">
+                    <name>External_TankSec2Elem</name>
+                    <profileUID>External_TankSec2_Ellipse</profileUID>
+                    <transformation uID="External_TankSec2Elem_Tr">
+                      <scaling uID="External_TankSec2Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="External_TankSec2Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="External_TankSec2Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="External_TankSec3">
+                <name>External_TankSec3</name>
+                <transformation uID="External_TankSec3_Tr">
+                  <scaling uID="External_TankSec3_Tr_Scal">
+                    <x>1.0</x>
+                    <y>0.7</y>
+                    <z>0.7</z>
+                  </scaling>
+                  <rotation uID="External_TankSec3_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="External_TankSec3_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="External_TankSec3Elem">
+                    <name>External_TankSec3Elem</name>
+                    <profileUID>External_TankSec3_Ellipse</profileUID>
+                    <transformation uID="External_TankSec3Elem_Tr">
+                      <scaling uID="External_TankSec3Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="External_TankSec3Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="External_TankSec3Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="External_TankSec4">
+                <name>External_TankSec4</name>
+                <transformation uID="External_TankSec4_Tr">
+                  <scaling uID="External_TankSec4_Tr_Scal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </scaling>
+                  <rotation uID="External_TankSec4_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="External_TankSec4_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="External_TankSec4Elem">
+                    <name>External_TankSec4Elem</name>
+                    <profileUID>External_TankSec4_Point</profileUID>
+                    <transformation uID="External_TankSec4Elem_Tr">
+                      <scaling uID="External_TankSec4Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="External_TankSec4Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="External_TankSec4Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+            </sections>
+            <positionings>
+              <positioning uID="External_TankSec0GenPos">
+                <name>External_TankSec0GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>0</length>
+                <toSectionUID>External_TankSec0</toSectionUID>
+              </positioning>
+              <positioning uID="External_TankSec1GenPos">
+                <name>External_TankSec1GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>1.031696971651515</length>
+                <fromSectionUID>External_TankSec0</fromSectionUID>
+                <toSectionUID>External_TankSec1</toSectionUID>
+              </positioning>
+              <positioning uID="External_TankSec2GenPos">
+                <name>External_TankSec2GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>1.031696971651515</length>
+                <fromSectionUID>External_TankSec1</fromSectionUID>
+                <toSectionUID>External_TankSec2</toSectionUID>
+              </positioning>
+              <positioning uID="External_TankSec3GenPos">
+                <name>External_TankSec3GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>1.031696971651515</length>
+                <fromSectionUID>External_TankSec2</fromSectionUID>
+                <toSectionUID>External_TankSec3</toSectionUID>
+              </positioning>
+              <positioning uID="External_TankSec4GenPos">
+                <name>External_TankSec4GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>1.031696971651515</length>
+                <fromSectionUID>External_TankSec3</fromSectionUID>
+                <toSectionUID>External_TankSec4</toSectionUID>
+              </positioning>
+            </positionings>
+            <segments>
+              <segment uID="External_TankSeg1">
+                <name>External_TankSeg1</name>
+                <fromElementUID>External_TankSec0Elem</fromElementUID>
+                <toElementUID>External_TankSec1Elem</toElementUID>
+              </segment>
+              <segment uID="External_TankSeg2">
+                <name>External_TankSeg2</name>
+                <fromElementUID>External_TankSec1Elem</fromElementUID>
+                <toElementUID>External_TankSec2Elem</toElementUID>
+              </segment>
+              <segment uID="External_TankSeg3">
+                <name>External_TankSeg3</name>
+                <fromElementUID>External_TankSec2Elem</fromElementUID>
+                <toElementUID>External_TankSec3Elem</toElementUID>
+              </segment>
+              <segment uID="External_TankSeg4">
+                <name>External_TankSeg4</name>
+                <fromElementUID>External_TankSec3Elem</fromElementUID>
+                <toElementUID>External_TankSec4Elem</toElementUID>
+              </segment>
+            </segments>
+          </fuselage>
+        </fuselages>
+        <wings>
+          <wing uID="Main_wing" symmetry="x-z-plane">
+            <name>Main_wing</name>
+            <transformation uID="Main_wing_Tr">
+              <scaling uID="Main_wing_Tr_Scal">
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scaling>
+              <rotation uID="Main_wing_Tr_Rot">
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <translation uID="Main_wing_Tr_Transl" refType="absGlobal">
+                <x>6.304347826086957</x>
+                <y>0.0</y>
+                <z>0.29</z>
+              </translation>
+            </transformation>
+            <sections>
+              <section uID="Main_wingSec0">
+                <name>Main_wingSec0</name>
+                <transformation uID="Main_wingSec0_Tr">
+                  <scaling uID="Main_wingSec0_Tr_Scal">
+                    <x>5.614583333333333</x>
+                    <y>1.0</y>
+                    <z>5.614583333333333</z>
+                  </scaling>
+                  <rotation uID="Main_wingSec0_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="Main_wingSec0_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="Main_wingSec0Elem">
+                    <name>Main_wingSec0Elem</name>
+                    <airfoilUID>Main_wingSec0_NACA0001</airfoilUID>
+                    <transformation uID="Main_wingSec0Elem_Tr">
+                      <scaling uID="Main_wingSec0Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="Main_wingSec0Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="Main_wingSec0Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="Main_wingSec1">
+                <name>Main_wingSec1</name>
+                <transformation uID="Main_wingSec1_Tr">
+                  <scaling uID="Main_wingSec1_Tr_Scal">
+                    <x>1.203125</x>
+                    <y>1.0</y>
+                    <z>1.203125</z>
+                  </scaling>
+                  <rotation uID="Main_wingSec1_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="Main_wingSec1_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="Main_wingSec1Elem">
+                    <name>Main_wingSec1Elem</name>
+                    <airfoilUID>Main_wingSec1_NACA0001</airfoilUID>
+                    <transformation uID="Main_wingSec1Elem_Tr">
+                      <scaling uID="Main_wingSec1Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="Main_wingSec1Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="Main_wingSec1Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+            </sections>
+            <positionings>
+              <positioning uID="Main_wingSec0GenPos">
+                <name>Main_wingSec0GenPos</name>
+                <length>0</length>
+                <sweepAngle>0</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <toSectionUID>Main_wingSec0</toSectionUID>
+              </positioning>
+              <positioning uID="Main_wingSec1GenPos">
+                <name>Main_wingSec1GenPos</name>
+                <length>6.691792907293316</length>
+                <sweepAngle>41.04545454545455</sweepAngle>
+                <dihedralAngle>0.0</dihedralAngle>
+                <fromSectionUID>Main_wingSec0</fromSectionUID>
+                <toSectionUID>Main_wingSec1</toSectionUID>
+              </positioning>
+            </positionings>
+            <segments>
+              <segment uID="Main_wingSeg1">
+                <name>Main_wingSeg1</name>
+                <fromElementUID>Main_wingSec0Elem</fromElementUID>
+                <toElementUID>Main_wingSec1Elem</toElementUID>
+              </segment>
+            </segments>
+          </wing>
+          <wing uID="Tail_Elevon" symmetry="x-z-plane">
+            <name>Tail_Elevon</name>
+            <transformation uID="Tail_Elevon_Tr">
+              <scaling uID="Tail_Elevon_Tr_Scal">
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scaling>
+              <rotation uID="Tail_Elevon_Tr_Rot">
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <translation uID="Tail_Elevon_Tr_Transl" refType="absGlobal">
+                <x>12.200426661953284</x>
+                <y>0.0</y>
+                <z>0.29</z>
+              </translation>
+            </transformation>
+            <sections>
+              <section uID="Tail_ElevonSec0">
+                <name>Tail_ElevonSec0</name>
+                <transformation uID="Tail_ElevonSec0_Tr">
+                  <scaling uID="Tail_ElevonSec0_Tr_Scal">
+                    <x>3.566569010416667</x>
+                    <y>1.0</y>
+                    <z>3.566569010416667</z>
+                  </scaling>
+                  <rotation uID="Tail_ElevonSec0_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="Tail_ElevonSec0_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="Tail_ElevonSec0Elem">
+                    <name>Tail_ElevonSec0Elem</name>
+                    <airfoilUID>Tail_ElevonSec0_NACA0001</airfoilUID>
+                    <transformation uID="Tail_ElevonSec0Elem_Tr">
+                      <scaling uID="Tail_ElevonSec0Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="Tail_ElevonSec0Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="Tail_ElevonSec0Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="Tail_ElevonSec1">
+                <name>Tail_ElevonSec1</name>
+                <transformation uID="Tail_ElevonSec1_Tr">
+                  <scaling uID="Tail_ElevonSec1_Tr_Scal">
+                    <x>1.296820746527778</x>
+                    <y>1.0</y>
+                    <z>1.296820746527778</z>
+                  </scaling>
+                  <rotation uID="Tail_ElevonSec1_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="Tail_ElevonSec1_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="Tail_ElevonSec1Elem">
+                    <name>Tail_ElevonSec1Elem</name>
+                    <airfoilUID>Tail_ElevonSec1_NACA0001</airfoilUID>
+                    <transformation uID="Tail_ElevonSec1Elem_Tr">
+                      <scaling uID="Tail_ElevonSec1Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="Tail_ElevonSec1Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="Tail_ElevonSec1Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+            </sections>
+            <positionings>
+              <positioning uID="Tail_ElevonSec0GenPos">
+                <name>Tail_ElevonSec0GenPos</name>
+                <length>0</length>
+                <sweepAngle>0</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <toSectionUID>Tail_ElevonSec0</toSectionUID>
+              </positioning>
+              <positioning uID="Tail_ElevonSec1GenPos">
+                <name>Tail_ElevonSec1GenPos</name>
+                <length>4.049885101970397</length>
+                <sweepAngle>41.4875</sweepAngle>
+                <dihedralAngle>0.0</dihedralAngle>
+                <fromSectionUID>Tail_ElevonSec0</fromSectionUID>
+                <toSectionUID>Tail_ElevonSec1</toSectionUID>
+              </positioning>
+            </positionings>
+            <segments>
+              <segment uID="Tail_ElevonSeg1">
+                <name>Tail_ElevonSeg1</name>
+                <fromElementUID>Tail_ElevonSec0Elem</fromElementUID>
+                <toElementUID>Tail_ElevonSec1Elem</toElementUID>
+              </segment>
+            </segments>
+          </wing>
+          <wing uID="Vertical_Stablizer" symmetry=" ">
+            <name>Vertical_Stablizer</name>
+            <transformation uID="Vertical_Stablizer_Tr">
+              <scaling uID="Vertical_Stablizer_Tr_Scal">
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scaling>
+              <rotation uID="Vertical_Stablizer_Tr_Rot">
+                <x>90.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <translation uID="Vertical_Stablizer_Tr_Transl" refType="absGlobal">
+                <x>9.782608695652172</x>
+                <y>0.0</y>
+                <z>0.85</z>
+              </translation>
+            </transformation>
+            <sections>
+              <section uID="Vertical_StablizerSec0">
+                <name>Vertical_StablizerSec0</name>
+                <transformation uID="Vertical_StablizerSec0_Tr">
+                  <scaling uID="Vertical_StablizerSec0_Tr_Scal">
+                    <x>5.833333333333335</x>
+                    <y>1.0</y>
+                    <z>5.833333333333335</z>
+                  </scaling>
+                  <rotation uID="Vertical_StablizerSec0_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="Vertical_StablizerSec0_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="Vertical_StablizerSec0Elem">
+                    <name>Vertical_StablizerSec0Elem</name>
+                    <airfoilUID>Vertical_StablizerSec0_NACA0001</airfoilUID>
+                    <transformation uID="Vertical_StablizerSec0Elem_Tr">
+                      <scaling uID="Vertical_StablizerSec0Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="Vertical_StablizerSec0Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="Vertical_StablizerSec0Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="Vertical_StablizerSec1">
+                <name>Vertical_StablizerSec1</name>
+                <transformation uID="Vertical_StablizerSec1_Tr">
+                  <scaling uID="Vertical_StablizerSec1_Tr_Scal">
+                    <x>2.881130642361112</x>
+                    <y>1.0</y>
+                    <z>2.881130642361112</z>
+                  </scaling>
+                  <rotation uID="Vertical_StablizerSec1_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="Vertical_StablizerSec1_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="Vertical_StablizerSec1Elem">
+                    <name>Vertical_StablizerSec1Elem</name>
+                    <airfoilUID>Vertical_StablizerSec1_NACA0001</airfoilUID>
+                    <transformation uID="Vertical_StablizerSec1Elem_Tr">
+                      <scaling uID="Vertical_StablizerSec1Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="Vertical_StablizerSec1Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="Vertical_StablizerSec1Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="Vertical_StablizerSec2">
+                <name>Vertical_StablizerSec2</name>
+                <transformation uID="Vertical_StablizerSec2_Tr">
+                  <scaling uID="Vertical_StablizerSec2_Tr_Scal">
+                    <x>1.2031250000000004</x>
+                    <y>1.0</y>
+                    <z>1.2031250000000004</z>
+                  </scaling>
+                  <rotation uID="Vertical_StablizerSec2_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="Vertical_StablizerSec2_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="Vertical_StablizerSec2Elem">
+                    <name>Vertical_StablizerSec2Elem</name>
+                    <airfoilUID>Vertical_StablizerSec2_NACA0001</airfoilUID>
+                    <transformation uID="Vertical_StablizerSec2Elem_Tr">
+                      <scaling uID="Vertical_StablizerSec2Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="Vertical_StablizerSec2Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="Vertical_StablizerSec2Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+            </sections>
+            <positionings>
+              <positioning uID="Vertical_StablizerSec0GenPos">
+                <name>Vertical_StablizerSec0GenPos</name>
+                <length>0</length>
+                <sweepAngle>0</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <toSectionUID>Vertical_StablizerSec0</toSectionUID>
+              </positioning>
+              <positioning uID="Vertical_StablizerSec1GenPos">
+                <name>Vertical_StablizerSec1GenPos</name>
+                <length>3.477420630570932</length>
+                <sweepAngle>75.16022727272727</sweepAngle>
+                <dihedralAngle>0.0</dihedralAngle>
+                <fromSectionUID>Vertical_StablizerSec0</fromSectionUID>
+                <toSectionUID>Vertical_StablizerSec1</toSectionUID>
+              </positioning>
+              <positioning uID="Vertical_StablizerSec2GenPos">
+                <name>Vertical_StablizerSec2GenPos</name>
+                <length>3.4702469854322335</length>
+                <sweepAngle>49.665909090909096</sweepAngle>
+                <dihedralAngle>0.0</dihedralAngle>
+                <fromSectionUID>Vertical_StablizerSec1</fromSectionUID>
+                <toSectionUID>Vertical_StablizerSec2</toSectionUID>
+              </positioning>
+            </positionings>
+            <segments>
+              <segment uID="Vertical_StablizerSeg1">
+                <name>Vertical_StablizerSeg1</name>
+                <fromElementUID>Vertical_StablizerSec0Elem</fromElementUID>
+                <toElementUID>Vertical_StablizerSec1Elem</toElementUID>
+              </segment>
+              <segment uID="Vertical_StablizerSeg2">
+                <name>Vertical_StablizerSeg2</name>
+                <fromElementUID>Vertical_StablizerSec1Elem</fromElementUID>
+                <toElementUID>Vertical_StablizerSec2Elem</toElementUID>
+              </segment>
+            </segments>
+          </wing>
+          <wing uID="Back-front" symmetry="x-z-plane">
+            <name>Back-front</name>
+            <transformation uID="Back-front_Tr">
+              <scaling uID="Back-front_Tr_Scal">
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scaling>
+              <rotation uID="Back-front_Tr_Rot">
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <translation uID="Back-front_Tr_Transl" refType="absGlobal">
+                <x>11.93322913998463</x>
+                <y>0.0</y>
+                <z>0.29</z>
+              </translation>
+            </transformation>
+            <sections>
+              <section uID="Back-frontSec0">
+                <name>Back-frontSec0</name>
+                <transformation uID="Back-frontSec0_Tr">
+                  <scaling uID="Back-frontSec0_Tr_Scal">
+                    <x>0.2526012804142382</x>
+                    <y>1.0</y>
+                    <z>0.2526012804142382</z>
+                  </scaling>
+                  <rotation uID="Back-frontSec0_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="Back-frontSec0_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="Back-frontSec0Elem">
+                    <name>Back-frontSec0Elem</name>
+                    <airfoilUID>Back-frontSec0_NACA0001</airfoilUID>
+                    <transformation uID="Back-frontSec0Elem_Tr">
+                      <scaling uID="Back-frontSec0Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="Back-frontSec0Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="Back-frontSec0Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="Back-frontSec1">
+                <name>Back-frontSec1</name>
+                <transformation uID="Back-frontSec1_Tr">
+                  <scaling uID="Back-frontSec1_Tr_Scal">
+                    <x>1.3492063492063493</x>
+                    <y>1.0</y>
+                    <z>1.3492063492063493</z>
+                  </scaling>
+                  <rotation uID="Back-frontSec1_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="Back-frontSec1_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="Back-frontSec1Elem">
+                    <name>Back-frontSec1Elem</name>
+                    <airfoilUID>Back-frontSec1_NACA0001</airfoilUID>
+                    <transformation uID="Back-frontSec1Elem_Tr">
+                      <scaling uID="Back-frontSec1Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="Back-frontSec1Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="Back-frontSec1Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+            </sections>
+            <positionings>
+              <positioning uID="Back-frontSec0GenPos">
+                <name>Back-frontSec0GenPos</name>
+                <length>0</length>
+                <sweepAngle>0</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <toSectionUID>Back-frontSec0</toSectionUID>
+              </positioning>
+              <positioning uID="Back-frontSec1GenPos">
+                <name>Back-frontSec1GenPos</name>
+                <length>1.2500148175598895</length>
+                <sweepAngle>0.2789772727272677</sweepAngle>
+                <dihedralAngle>0.0</dihedralAngle>
+                <fromSectionUID>Back-frontSec0</fromSectionUID>
+                <toSectionUID>Back-frontSec1</toSectionUID>
+              </positioning>
+            </positionings>
+            <segments>
+              <segment uID="Back-frontSeg1">
+                <name>Back-frontSeg1</name>
+                <fromElementUID>Back-frontSec0Elem</fromElementUID>
+                <toElementUID>Back-frontSec1Elem</toElementUID>
+              </segment>
+            </segments>
+          </wing>
+          <wing uID="Hardpoints" symmetry="x-z-plane">
+            <name>Hardpoints</name>
+            <transformation uID="Hardpoints_Tr">
+              <scaling uID="Hardpoints_Tr_Scal">
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scaling>
+              <rotation uID="Hardpoints_Tr_Rot">
+                <x>90.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <translation uID="Hardpoints_Tr_Transl" refType="absGlobal">
+                <x>8.15217391304348</x>
+                <y>1.4131304347826088</y>
+                <z>-0.02</z>
+              </translation>
+            </transformation>
+            <sections>
+              <section uID="HardpointsSec0">
+                <name>HardpointsSec0</name>
+                <transformation uID="HardpointsSec0_Tr">
+                  <scaling uID="HardpointsSec0_Tr_Scal">
+                    <x>1.0208333333333333</x>
+                    <y>1.0</y>
+                    <z>1.0208333333333333</z>
+                  </scaling>
+                  <rotation uID="HardpointsSec0_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="HardpointsSec0_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="HardpointsSec0Elem">
+                    <name>HardpointsSec0Elem</name>
+                    <airfoilUID>HardpointsSec0_NACA0001</airfoilUID>
+                    <transformation uID="HardpointsSec0Elem_Tr">
+                      <scaling uID="HardpointsSec0Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="HardpointsSec0Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="HardpointsSec0Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="HardpointsSec1">
+                <name>HardpointsSec1</name>
+                <transformation uID="HardpointsSec1_Tr">
+                  <scaling uID="HardpointsSec1_Tr_Scal">
+                    <x>1.0</x>
+                    <y>1.0</y>
+                    <z>1.0</z>
+                  </scaling>
+                  <rotation uID="HardpointsSec1_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="HardpointsSec1_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="HardpointsSec1Elem">
+                    <name>HardpointsSec1Elem</name>
+                    <airfoilUID>HardpointsSec1_NACA0001</airfoilUID>
+                    <transformation uID="HardpointsSec1Elem_Tr">
+                      <scaling uID="HardpointsSec1Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="HardpointsSec1Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="HardpointsSec1Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+            </sections>
+            <positionings>
+              <positioning uID="HardpointsSec0GenPos">
+                <name>HardpointsSec0GenPos</name>
+                <length>0</length>
+                <sweepAngle>0</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <toSectionUID>HardpointsSec0</toSectionUID>
+              </positioning>
+              <positioning uID="HardpointsSec1GenPos">
+                <name>HardpointsSec1GenPos</name>
+                <length>0.3428028589896827</length>
+                <sweepAngle>30.0</sweepAngle>
+                <dihedralAngle>0.0</dihedralAngle>
+                <fromSectionUID>HardpointsSec0</fromSectionUID>
+                <toSectionUID>HardpointsSec1</toSectionUID>
+              </positioning>
+            </positionings>
+            <segments>
+              <segment uID="HardpointsSeg1">
+                <name>HardpointsSeg1</name>
+                <fromElementUID>HardpointsSec0Elem</fromElementUID>
+                <toElementUID>HardpointsSec1Elem</toElementUID>
+              </segment>
+            </segments>
+          </wing>
+        </wings>
+      </model>
+    </aircraft>
+    <profiles>
+      <fuselageProfiles>
+        <fuselageProfile uID="MainbodySec0_Point">
+          <name>MainbodySec0_Point</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.02846916;-0.05411019;-0.13556326;-0.21366823;-0.28629459;-0.3514613;-0.40739077;-0.45255739;-0.48572913;-0.50600116;-0.51282051;-0.50600116;-0.48572913;-0.45255739;-0.40739077;-0.3514613;-0.28629459;-0.21366823;-0.13556326;-0.05411019;0.02846916;0.10992223;0.1880272;0.26065357;0.32582027;0.38174974;0.42691636;0.46008811;0.48036014;0.48717949;0.48036014;0.46008811;0.42691636;0.38174974;0.32582027;0.26065357;0.1880272;0.10992223;0.02846916</y>
+            <z mapType="vector">-4.98292247e-01;-4.98292247e-01;-4.84700133e-01;-4.57886663e-01;-4.18583239e-01;-3.67861955e-01;-3.07106356e-01;-2.37973697e-01;-1.62349735e-01;-8.22972951e-02;-5.22461384e-17;8.22972951e-02;1.62349735e-01;2.37973697e-01;3.07106356e-01;3.67861955e-01;4.18583239e-01;4.57886663e-01;4.84700133e-01;4.98292247e-01;4.98292247e-01;4.84700133e-01;4.57886663e-01;4.18583239e-01;3.67861955e-01;3.07106356e-01;2.37973697e-01;1.62349735e-01;8.22972951e-02;7.02185415e-17;-8.22972951e-02;-1.62349735e-01;-2.37973697e-01;-3.07106356e-01;-3.67861955e-01;-4.18583239e-01;-4.57886663e-01;-4.84700133e-01;-4.98292247e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="MainbodySec1_Ellipse">
+          <name>MainbodySec1_Ellipse</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.07792713;-0.1445938;-0.34507823;-0.48381777;-0.53333333;-0.48381777;-0.34507823;-0.1445938;0.07792713;0.27841157;0.4171511;0.46666667;0.4171511;0.27841157;0.07792713</y>
+            <z mapType="vector">-4.87463956e-01;-4.87463956e-01;-3.90915741e-01;-2.16941870e-01;-7.29273218e-17;2.16941870e-01;3.90915741e-01;4.87463956e-01;4.87463956e-01;3.90915741e-01;2.16941870e-01;4.95373582e-17;-2.16941870e-01;-3.90915741e-01;-4.87463956e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="MainbodySec2_Ellipse">
+          <name>MainbodySec2_Ellipse</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.07792713;-0.1445938;-0.34507823;-0.48381777;-0.53333333;-0.48381777;-0.34507823;-0.1445938;0.07792713;0.27841157;0.4171511;0.46666667;0.4171511;0.27841157;0.07792713</y>
+            <z mapType="vector">-4.87463956e-01;-4.87463956e-01;-3.90915741e-01;-2.16941870e-01;-7.29273218e-17;2.16941870e-01;3.90915741e-01;4.87463956e-01;4.87463956e-01;3.90915741e-01;2.16941870e-01;4.95373582e-17;-2.16941870e-01;-3.90915741e-01;-4.87463956e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="MainbodySec3_Ellipse">
+          <name>MainbodySec3_Ellipse</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.07792713;-0.1445938;-0.34507823;-0.48381777;-0.53333333;-0.48381777;-0.34507823;-0.1445938;0.07792713;0.27841157;0.4171511;0.46666667;0.4171511;0.27841157;0.07792713</y>
+            <z mapType="vector">-4.87463956e-01;-4.87463956e-01;-3.90915741e-01;-2.16941870e-01;-7.29273218e-17;2.16941870e-01;3.90915741e-01;4.87463956e-01;4.87463956e-01;3.90915741e-01;2.16941870e-01;4.95373582e-17;-2.16941870e-01;-3.90915741e-01;-4.87463956e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="MainbodySec4_Ellipse">
+          <name>MainbodySec4_Ellipse</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.07792713;-0.1445938;-0.34507823;-0.48381777;-0.53333333;-0.48381777;-0.34507823;-0.1445938;0.07792713;0.27841157;0.4171511;0.46666667;0.4171511;0.27841157;0.07792713</y>
+            <z mapType="vector">-4.87463956e-01;-4.87463956e-01;-3.90915741e-01;-2.16941870e-01;-7.29273218e-17;2.16941870e-01;3.90915741e-01;4.87463956e-01;4.87463956e-01;3.90915741e-01;2.16941870e-01;4.95373582e-17;-2.16941870e-01;-3.90915741e-01;-4.87463956e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="MainbodySec5_Circle">
+          <name>MainbodySec5_Circle</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.07792713;-0.1445938;-0.34507823;-0.48381777;-0.53333333;-0.48381777;-0.34507823;-0.1445938;0.07792713;0.27841157;0.4171511;0.46666667;0.4171511;0.27841157;0.07792713</y>
+            <z mapType="vector">-4.87463956e-01;-4.87463956e-01;-3.90915741e-01;-2.16941870e-01;-7.29273218e-17;2.16941870e-01;3.90915741e-01;4.87463956e-01;4.87463956e-01;3.90915741e-01;2.16941870e-01;4.95373582e-17;-2.16941870e-01;-3.90915741e-01;-4.87463956e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="MainbodySec6_Circle">
+          <name>MainbodySec6_Circle</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.07792713;-0.1445938;-0.34507823;-0.48381777;-0.53333333;-0.48381777;-0.34507823;-0.1445938;0.07792713;0.27841157;0.4171511;0.46666667;0.4171511;0.27841157;0.07792713</y>
+            <z mapType="vector">-4.87463956e-01;-4.87463956e-01;-3.90915741e-01;-2.16941870e-01;-7.29273218e-17;2.16941870e-01;3.90915741e-01;4.87463956e-01;4.87463956e-01;3.90915741e-01;2.16941870e-01;4.95373582e-17;-2.16941870e-01;-3.90915741e-01;-4.87463956e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="External_TankSec0_Point">
+          <name>External_TankSec0_Point</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.02846916;-0.05411019;-0.13556326;-0.21366823;-0.28629459;-0.3514613;-0.40739077;-0.45255739;-0.48572913;-0.50600116;-0.51282051;-0.50600116;-0.48572913;-0.45255739;-0.40739077;-0.3514613;-0.28629459;-0.21366823;-0.13556326;-0.05411019;0.02846916;0.10992223;0.1880272;0.26065357;0.32582027;0.38174974;0.42691636;0.46008811;0.48036014;0.48717949;0.48036014;0.46008811;0.42691636;0.38174974;0.32582027;0.26065357;0.1880272;0.10992223;0.02846916</y>
+            <z mapType="vector">-4.98292247e-01;-4.98292247e-01;-4.84700133e-01;-4.57886663e-01;-4.18583239e-01;-3.67861955e-01;-3.07106356e-01;-2.37973697e-01;-1.62349735e-01;-8.22972951e-02;-5.22461384e-17;8.22972951e-02;1.62349735e-01;2.37973697e-01;3.07106356e-01;3.67861955e-01;4.18583239e-01;4.57886663e-01;4.84700133e-01;4.98292247e-01;4.98292247e-01;4.84700133e-01;4.57886663e-01;4.18583239e-01;3.67861955e-01;3.07106356e-01;2.37973697e-01;1.62349735e-01;8.22972951e-02;7.02185415e-17;-8.22972951e-02;-1.62349735e-01;-2.37973697e-01;-3.07106356e-01;-3.67861955e-01;-4.18583239e-01;-4.57886663e-01;-4.84700133e-01;-4.98292247e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="External_TankSec1_Ellipse">
+          <name>External_TankSec1_Ellipse</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.07792713;-0.1445938;-0.34507823;-0.48381777;-0.53333333;-0.48381777;-0.34507823;-0.1445938;0.07792713;0.27841157;0.4171511;0.46666667;0.4171511;0.27841157;0.07792713</y>
+            <z mapType="vector">-4.87463956e-01;-4.87463956e-01;-3.90915741e-01;-2.16941870e-01;-7.29273218e-17;2.16941870e-01;3.90915741e-01;4.87463956e-01;4.87463956e-01;3.90915741e-01;2.16941870e-01;4.95373582e-17;-2.16941870e-01;-3.90915741e-01;-4.87463956e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="External_TankSec2_Ellipse">
+          <name>External_TankSec2_Ellipse</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.07792713;-0.1445938;-0.34507823;-0.48381777;-0.53333333;-0.48381777;-0.34507823;-0.1445938;0.07792713;0.27841157;0.4171511;0.46666667;0.4171511;0.27841157;0.07792713</y>
+            <z mapType="vector">-4.87463956e-01;-4.87463956e-01;-3.90915741e-01;-2.16941870e-01;-7.29273218e-17;2.16941870e-01;3.90915741e-01;4.87463956e-01;4.87463956e-01;3.90915741e-01;2.16941870e-01;4.95373582e-17;-2.16941870e-01;-3.90915741e-01;-4.87463956e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="External_TankSec3_Ellipse">
+          <name>External_TankSec3_Ellipse</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.07792713;-0.1445938;-0.34507823;-0.48381777;-0.53333333;-0.48381777;-0.34507823;-0.1445938;0.07792713;0.27841157;0.4171511;0.46666667;0.4171511;0.27841157;0.07792713</y>
+            <z mapType="vector">-4.87463956e-01;-4.87463956e-01;-3.90915741e-01;-2.16941870e-01;-7.29273218e-17;2.16941870e-01;3.90915741e-01;4.87463956e-01;4.87463956e-01;3.90915741e-01;2.16941870e-01;4.95373582e-17;-2.16941870e-01;-3.90915741e-01;-4.87463956e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="External_TankSec4_Point">
+          <name>External_TankSec4_Point</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.02846916;-0.05411019;-0.13556326;-0.21366823;-0.28629459;-0.3514613;-0.40739077;-0.45255739;-0.48572913;-0.50600116;-0.51282051;-0.50600116;-0.48572913;-0.45255739;-0.40739077;-0.3514613;-0.28629459;-0.21366823;-0.13556326;-0.05411019;0.02846916;0.10992223;0.1880272;0.26065357;0.32582027;0.38174974;0.42691636;0.46008811;0.48036014;0.48717949;0.48036014;0.46008811;0.42691636;0.38174974;0.32582027;0.26065357;0.1880272;0.10992223;0.02846916</y>
+            <z mapType="vector">-4.98292247e-01;-4.98292247e-01;-4.84700133e-01;-4.57886663e-01;-4.18583239e-01;-3.67861955e-01;-3.07106356e-01;-2.37973697e-01;-1.62349735e-01;-8.22972951e-02;-5.22461384e-17;8.22972951e-02;1.62349735e-01;2.37973697e-01;3.07106356e-01;3.67861955e-01;4.18583239e-01;4.57886663e-01;4.84700133e-01;4.98292247e-01;4.98292247e-01;4.84700133e-01;4.57886663e-01;4.18583239e-01;3.67861955e-01;3.07106356e-01;2.37973697e-01;1.62349735e-01;8.22972951e-02;7.02185415e-17;-8.22972951e-02;-1.62349735e-01;-2.37973697e-01;-3.07106356e-01;-3.67861955e-01;-4.18583239e-01;-4.57886663e-01;-4.84700133e-01;-4.98292247e-01</z>
+          </pointList>
+        </fuselageProfile>
+      </fuselageProfiles>
+      <wingAirfoils>
+        <wingAirfoil uID="Main_wingSec0_NACA0001">
+          <name>Main_wingSec0_NACA0001</name>
+          <pointList>
+            <x mapType="vector">1.;0.99605735;0.98429158;0.96488824;0.93815334;0.9045085;0.86448431;0.81871199;0.7679134;0.71288965;0.6545085;0.59369066;0.53139526;0.46860474;0.40630934;0.3454915;0.28711035;0.2320866;0.18128801;0.13551569;0.0954915;0.06184666;0.03511176;0.01570842;0.00394265;0.;0.00394265;0.01570842;0.03511176;0.06184666;0.0954915;0.13551569;0.18128801;0.2320866;0.28711035;0.3454915;0.40630934;0.46860474;0.53139526;0.59369066;0.6545085;0.71288965;0.7679134;0.81871199;0.86448431;0.9045085;0.93815334;0.96488824;0.98429158;0.99605735;1.</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">2.77555756e-18;-9.52666715e-05;-3.76694771e-04;-8.31641230e-04;-1.44049432e-03;-2.17849095e-03;-3.01762052e-03;-3.92819212e-03;-4.87976473e-03;-5.84134929e-03;-6.78103064e-03;-7.66536005e-03;-8.45897793e-03;-9.12490504e-03;-9.62578726e-03;-9.92612741e-03;-9.99524630e-03;-9.81046033e-03;-9.35981132e-03;-8.64368361e-03;-7.67480473e-03;-6.47642145e-03;-5.07881150e-03;-3.51465130e-03;-1.81402834e-03;-0.00000000e+00;1.81402834e-03;3.51465130e-03;5.07881150e-03;6.47642145e-03;7.67480473e-03;8.64368361e-03;9.35981132e-03;9.81046033e-03;9.99524630e-03;9.92612741e-03;9.62578726e-03;9.12490504e-03;8.45897793e-03;7.66536005e-03;6.78103064e-03;5.84134929e-03;4.87976473e-03;3.92819212e-03;3.01762052e-03;2.17849095e-03;1.44049432e-03;8.31641230e-04;3.76694771e-04;9.52666715e-05;2.77555756e-18</z>
+          </pointList>
+        </wingAirfoil>
+        <wingAirfoil uID="Main_wingSec1_NACA0001">
+          <name>Main_wingSec1_NACA0001</name>
+          <pointList>
+            <x mapType="vector">1.;0.99305556;0.98611111;0.97916667;0.97222222;0.96527778;0.95833333;0.95138889;0.94444444;0.9375;0.93055556;0.92361111;0.91666667;0.90972222;0.90277778;0.89583333;0.88888889;0.88194444;0.875;0.875;0.8;0.725;0.65;0.575;0.5;0.5;0.425;0.35;0.275;0.2;0.125;0.125;0.11805556;0.11111111;0.10416667;0.09722222;0.09027778;0.08333333;0.07638889;0.06944444;0.0625;0.05555556;0.04861111;0.04166667;0.03472222;0.02777778;0.02083333;0.01388889;0.00694444;0.;0.00694444;0.01388889;0.02083333;0.02777778;0.03472222;0.04166667;0.04861111;0.05555556;0.0625;0.06944444;0.07638889;0.08333333;0.09027778;0.09722222;0.10416667;0.11111111;0.11805556;0.125;0.125;0.2;0.275;0.35;0.425;0.5;0.5;0.575;0.65;0.725;0.8;0.875;0.875;0.88194444;0.88888889;0.89583333;0.90277778;0.90972222;0.91666667;0.92361111;0.93055556;0.9375;0.94444444;0.95138889;0.95833333;0.96527778;0.97222222;0.97916667;0.98611111;1.</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">1.38777878e-17;-8.37368808e-04;-1.66725640e-03;-2.48977055e-03;-3.30501451e-03;-4.11308911e-03;-4.91409366e-03;-5.70812025e-03;-6.49525889e-03;-7.27559955e-03;-8.04922908e-03;-8.81622490e-03;-9.57666260e-03;-1.03306178e-02;-1.10781661e-02;-1.18193774e-02;-1.25543109e-02;-1.32830242e-02;-1.40055752e-02;-1.40055752e-02;-2.14292605e-02;-2.81796282e-02;-3.42500430e-02;-3.95806172e-02;-4.40513558e-02;-4.40513558e-02;-4.74710442e-02;-4.95560265e-02;-4.98876451e-02;-4.78157595e-02;-4.21509297e-02;-4.21509297e-02;-4.13787843e-02;-4.05419817e-02;-3.96309509e-02;-3.86361207e-02;-3.75496533e-02;-3.63787570e-02;-3.51383708e-02;-3.38434970e-02;-3.25091382e-02;-3.11273986e-02;-2.95687468e-02;-2.76634192e-02;-2.52416509e-02;-2.22943680e-02;-1.93560094e-02;-1.70492572e-02;-1.31356686e-02;0.00000000e+00;1.31356686e-02;1.70492572e-02;1.93560094e-02;2.22943680e-02;2.52416509e-02;2.76634192e-02;2.95687468e-02;3.11273986e-02;3.25091382e-02;3.38434970e-02;3.51383708e-02;3.63787570e-02;3.75496533e-02;3.86361207e-02;3.96309509e-02;4.05419817e-02;4.13787843e-02;4.21509297e-02;4.21509297e-02;4.78157595e-02;4.98876451e-02;4.95560265e-02;4.74710442e-02;4.40513558e-02;4.40513558e-02;3.95806172e-02;3.42500430e-02;2.81796282e-02;2.14292605e-02;1.40055752e-02;1.40055752e-02;1.32830242e-02;1.25543109e-02;1.18193774e-02;1.10781661e-02;1.03306178e-02;9.57666260e-03;8.81622490e-03;8.04922908e-03;7.27559955e-03;6.49525889e-03;5.70812025e-03;4.91409366e-03;4.11308911e-03;3.30501451e-03;2.48977055e-03;1.66725640e-03;1.38777878e-17</z>
+          </pointList>
+        </wingAirfoil>
+        <wingAirfoil uID="Tail_ElevonSec0_NACA0001">
+          <name>Tail_ElevonSec0_NACA0001</name>
+          <pointList>
+            <x mapType="vector">1.;0.99605735;0.98429158;0.96488824;0.93815334;0.9045085;0.86448431;0.81871199;0.7679134;0.71288965;0.6545085;0.59369066;0.53139526;0.46860474;0.40630934;0.3454915;0.28711035;0.2320866;0.18128801;0.13551569;0.0954915;0.06184666;0.03511176;0.01570842;0.00394265;0.;0.00394265;0.01570842;0.03511176;0.06184666;0.0954915;0.13551569;0.18128801;0.2320866;0.28711035;0.3454915;0.40630934;0.46860474;0.53139526;0.59369066;0.6545085;0.71288965;0.7679134;0.81871199;0.86448431;0.9045085;0.93815334;0.96488824;0.98429158;0.99605735;1.</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">2.77555756e-18;-9.52666715e-05;-3.76694771e-04;-8.31641230e-04;-1.44049432e-03;-2.17849095e-03;-3.01762052e-03;-3.92819212e-03;-4.87976473e-03;-5.84134929e-03;-6.78103064e-03;-7.66536005e-03;-8.45897793e-03;-9.12490504e-03;-9.62578726e-03;-9.92612741e-03;-9.99524630e-03;-9.81046033e-03;-9.35981132e-03;-8.64368361e-03;-7.67480473e-03;-6.47642145e-03;-5.07881150e-03;-3.51465130e-03;-1.81402834e-03;-0.00000000e+00;1.81402834e-03;3.51465130e-03;5.07881150e-03;6.47642145e-03;7.67480473e-03;8.64368361e-03;9.35981132e-03;9.81046033e-03;9.99524630e-03;9.92612741e-03;9.62578726e-03;9.12490504e-03;8.45897793e-03;7.66536005e-03;6.78103064e-03;5.84134929e-03;4.87976473e-03;3.92819212e-03;3.01762052e-03;2.17849095e-03;1.44049432e-03;8.31641230e-04;3.76694771e-04;9.52666715e-05;2.77555756e-18</z>
+          </pointList>
+        </wingAirfoil>
+        <wingAirfoil uID="Tail_ElevonSec1_NACA0001">
+          <name>Tail_ElevonSec1_NACA0001</name>
+          <pointList>
+            <x mapType="vector">1.;0.99305556;0.98611111;0.97916667;0.97222222;0.96527778;0.95833333;0.95138889;0.94444444;0.9375;0.93055556;0.92361111;0.91666667;0.90972222;0.90277778;0.89583333;0.88888889;0.88194444;0.875;0.875;0.8;0.725;0.65;0.575;0.5;0.5;0.425;0.35;0.275;0.2;0.125;0.125;0.11805556;0.11111111;0.10416667;0.09722222;0.09027778;0.08333333;0.07638889;0.06944444;0.0625;0.05555556;0.04861111;0.04166667;0.03472222;0.02777778;0.02083333;0.01388889;0.00694444;0.;0.00694444;0.01388889;0.02083333;0.02777778;0.03472222;0.04166667;0.04861111;0.05555556;0.0625;0.06944444;0.07638889;0.08333333;0.09027778;0.09722222;0.10416667;0.11111111;0.11805556;0.125;0.125;0.2;0.275;0.35;0.425;0.5;0.5;0.575;0.65;0.725;0.8;0.875;0.875;0.88194444;0.88888889;0.89583333;0.90277778;0.90972222;0.91666667;0.92361111;0.93055556;0.9375;0.94444444;0.95138889;0.95833333;0.96527778;0.97222222;0.97916667;0.98611111;1.</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">1.38777878e-17;-8.37368808e-04;-1.66725640e-03;-2.48977055e-03;-3.30501451e-03;-4.11308911e-03;-4.91409366e-03;-5.70812025e-03;-6.49525889e-03;-7.27559955e-03;-8.04922908e-03;-8.81622490e-03;-9.57666260e-03;-1.03306178e-02;-1.10781661e-02;-1.18193774e-02;-1.25543109e-02;-1.32830242e-02;-1.40055752e-02;-1.40055752e-02;-2.14292605e-02;-2.81796282e-02;-3.42500430e-02;-3.95806172e-02;-4.40513558e-02;-4.40513558e-02;-4.74710442e-02;-4.95560265e-02;-4.98876451e-02;-4.78157595e-02;-4.21509297e-02;-4.21509297e-02;-4.13787843e-02;-4.05419817e-02;-3.96309509e-02;-3.86361207e-02;-3.75496533e-02;-3.63787570e-02;-3.51383708e-02;-3.38434970e-02;-3.25091382e-02;-3.11273986e-02;-2.95687468e-02;-2.76634192e-02;-2.52416509e-02;-2.22943680e-02;-1.93560094e-02;-1.70492572e-02;-1.31356686e-02;0.00000000e+00;1.31356686e-02;1.70492572e-02;1.93560094e-02;2.22943680e-02;2.52416509e-02;2.76634192e-02;2.95687468e-02;3.11273986e-02;3.25091382e-02;3.38434970e-02;3.51383708e-02;3.63787570e-02;3.75496533e-02;3.86361207e-02;3.96309509e-02;4.05419817e-02;4.13787843e-02;4.21509297e-02;4.21509297e-02;4.78157595e-02;4.98876451e-02;4.95560265e-02;4.74710442e-02;4.40513558e-02;4.40513558e-02;3.95806172e-02;3.42500430e-02;2.81796282e-02;2.14292605e-02;1.40055752e-02;1.40055752e-02;1.32830242e-02;1.25543109e-02;1.18193774e-02;1.10781661e-02;1.03306178e-02;9.57666260e-03;8.81622490e-03;8.04922908e-03;7.27559955e-03;6.49525889e-03;5.70812025e-03;4.91409366e-03;4.11308911e-03;3.30501451e-03;2.48977055e-03;1.66725640e-03;1.38777878e-17</z>
+          </pointList>
+        </wingAirfoil>
+        <wingAirfoil uID="Vertical_StablizerSec0_NACA0001">
+          <name>Vertical_StablizerSec0_NACA0001</name>
+          <pointList>
+            <x mapType="vector">1.;0.99605735;0.98429158;0.96488824;0.93815334;0.9045085;0.86448431;0.81871199;0.7679134;0.71288965;0.6545085;0.59369066;0.53139526;0.46860474;0.40630934;0.3454915;0.28711035;0.2320866;0.18128801;0.13551569;0.0954915;0.06184666;0.03511176;0.01570842;0.00394265;0.;0.00394265;0.01570842;0.03511176;0.06184666;0.0954915;0.13551569;0.18128801;0.2320866;0.28711035;0.3454915;0.40630934;0.46860474;0.53139526;0.59369066;0.6545085;0.71288965;0.7679134;0.81871199;0.86448431;0.9045085;0.93815334;0.96488824;0.98429158;0.99605735;1.</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">3.46944695e-18;-1.19083339e-04;-4.70868464e-04;-1.03955154e-03;-1.80061790e-03;-2.72311368e-03;-3.77202565e-03;-4.91024015e-03;-6.09970591e-03;-7.30168662e-03;-8.47628830e-03;-9.58170006e-03;-1.05737224e-02;-1.14061313e-02;-1.20322341e-02;-1.24076593e-02;-1.24940579e-02;-1.22630754e-02;-1.16997642e-02;-1.08046045e-02;-9.59350592e-03;-8.09552681e-03;-6.34851437e-03;-4.39331413e-03;-2.26753542e-03;-0.00000000e+00;2.26753542e-03;4.39331413e-03;6.34851437e-03;8.09552681e-03;9.59350592e-03;1.08046045e-02;1.16997642e-02;1.22630754e-02;1.24940579e-02;1.24076593e-02;1.20322341e-02;1.14061313e-02;1.05737224e-02;9.58170006e-03;8.47628830e-03;7.30168662e-03;6.09970591e-03;4.91024015e-03;3.77202565e-03;2.72311368e-03;1.80061790e-03;1.03955154e-03;4.70868464e-04;1.19083339e-04;3.46944695e-18</z>
+          </pointList>
+        </wingAirfoil>
+        <wingAirfoil uID="Vertical_StablizerSec1_NACA0001">
+          <name>Vertical_StablizerSec1_NACA0001</name>
+          <pointList>
+            <x mapType="vector">1.;0.99305556;0.98611111;0.97916667;0.97222222;0.96527778;0.95833333;0.95138889;0.94444444;0.9375;0.93055556;0.92361111;0.91666667;0.90972222;0.90277778;0.89583333;0.88888889;0.88194444;0.875;0.875;0.8;0.725;0.65;0.575;0.5;0.5;0.425;0.35;0.275;0.2;0.125;0.125;0.11805556;0.11111111;0.10416667;0.09722222;0.09027778;0.08333333;0.07638889;0.06944444;0.0625;0.05555556;0.04861111;0.04166667;0.03472222;0.02777778;0.02083333;0.01388889;0.00694444;0.;0.00694444;0.01388889;0.02083333;0.02777778;0.03472222;0.04166667;0.04861111;0.05555556;0.0625;0.06944444;0.07638889;0.08333333;0.09027778;0.09722222;0.10416667;0.11111111;0.11805556;0.125;0.125;0.2;0.275;0.35;0.425;0.5;0.5;0.575;0.65;0.725;0.8;0.875;0.875;0.88194444;0.88888889;0.89583333;0.90277778;0.90972222;0.91666667;0.92361111;0.93055556;0.9375;0.94444444;0.95138889;0.95833333;0.96527778;0.97222222;0.97916667;0.98611111;1.</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">6.93889390e-18;-4.18684404e-04;-8.33628200e-04;-1.24488528e-03;-1.65250726e-03;-2.05654456e-03;-2.45704683e-03;-2.85406013e-03;-3.24762944e-03;-3.63779977e-03;-4.02461454e-03;-4.40811245e-03;-4.78833130e-03;-5.16530891e-03;-5.53908305e-03;-5.90968872e-03;-6.27715544e-03;-6.64151209e-03;-7.00278760e-03;-7.00278760e-03;-1.07146303e-02;-1.40898141e-02;-1.71250215e-02;-1.97903086e-02;-2.20256779e-02;-2.20256779e-02;-2.37355221e-02;-2.47780132e-02;-2.49438226e-02;-2.39078798e-02;-2.10754649e-02;-2.10754649e-02;-2.06893922e-02;-2.02709909e-02;-1.98154755e-02;-1.93180604e-02;-1.87748267e-02;-1.81893785e-02;-1.75691854e-02;-1.69217485e-02;-1.62545691e-02;-1.55636993e-02;-1.47843734e-02;-1.38317096e-02;-1.26208254e-02;-1.11471840e-02;-9.67800470e-03;-8.52462860e-03;-6.56783432e-03;0.00000000e+00;6.56783432e-03;8.52462860e-03;9.67800470e-03;1.11471840e-02;1.26208254e-02;1.38317096e-02;1.47843734e-02;1.55636993e-02;1.62545691e-02;1.69217485e-02;1.75691854e-02;1.81893785e-02;1.87748267e-02;1.93180604e-02;1.98154755e-02;2.02709909e-02;2.06893922e-02;2.10754649e-02;2.10754649e-02;2.39078798e-02;2.49438226e-02;2.47780132e-02;2.37355221e-02;2.20256779e-02;2.20256779e-02;1.97903086e-02;1.71250215e-02;1.40898141e-02;1.07146303e-02;7.00278760e-03;7.00278760e-03;6.64151209e-03;6.27715544e-03;5.90968872e-03;5.53908305e-03;5.16530891e-03;4.78833130e-03;4.40811245e-03;4.02461454e-03;3.63779977e-03;3.24762944e-03;2.85406013e-03;2.45704683e-03;2.05654456e-03;1.65250726e-03;1.24488528e-03;8.33628200e-04;6.93889390e-18</z>
+          </pointList>
+        </wingAirfoil>
+        <wingAirfoil uID="Vertical_StablizerSec2_NACA0001">
+          <name>Vertical_StablizerSec2_NACA0001</name>
+          <pointList>
+            <x mapType="vector">1.;0.99305556;0.98611111;0.97916667;0.97222222;0.96527778;0.95833333;0.95138889;0.94444444;0.9375;0.93055556;0.92361111;0.91666667;0.90972222;0.90277778;0.89583333;0.88888889;0.88194444;0.875;0.875;0.8;0.725;0.65;0.575;0.5;0.5;0.425;0.35;0.275;0.2;0.125;0.125;0.11805556;0.11111111;0.10416667;0.09722222;0.09027778;0.08333333;0.07638889;0.06944444;0.0625;0.05555556;0.04861111;0.04166667;0.03472222;0.02777778;0.02083333;0.01388889;0.00694444;0.;0.00694444;0.01388889;0.02083333;0.02777778;0.03472222;0.04166667;0.04861111;0.05555556;0.0625;0.06944444;0.07638889;0.08333333;0.09027778;0.09722222;0.10416667;0.11111111;0.11805556;0.125;0.125;0.2;0.275;0.35;0.425;0.5;0.5;0.575;0.65;0.725;0.8;0.875;0.875;0.88194444;0.88888889;0.89583333;0.90277778;0.90972222;0.91666667;0.92361111;0.93055556;0.9375;0.94444444;0.95138889;0.95833333;0.96527778;0.97222222;0.97916667;0.98611111;1.</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">1.38777878e-17;-8.37368808e-04;-1.66725640e-03;-2.48977055e-03;-3.30501451e-03;-4.11308911e-03;-4.91409366e-03;-5.70812025e-03;-6.49525889e-03;-7.27559955e-03;-8.04922908e-03;-8.81622490e-03;-9.57666260e-03;-1.03306178e-02;-1.10781661e-02;-1.18193774e-02;-1.25543109e-02;-1.32830242e-02;-1.40055752e-02;-1.40055752e-02;-2.14292605e-02;-2.81796282e-02;-3.42500430e-02;-3.95806172e-02;-4.40513558e-02;-4.40513558e-02;-4.74710442e-02;-4.95560265e-02;-4.98876451e-02;-4.78157595e-02;-4.21509297e-02;-4.21509297e-02;-4.13787843e-02;-4.05419817e-02;-3.96309509e-02;-3.86361207e-02;-3.75496533e-02;-3.63787570e-02;-3.51383708e-02;-3.38434970e-02;-3.25091382e-02;-3.11273986e-02;-2.95687468e-02;-2.76634192e-02;-2.52416509e-02;-2.22943680e-02;-1.93560094e-02;-1.70492572e-02;-1.31356686e-02;0.00000000e+00;1.31356686e-02;1.70492572e-02;1.93560094e-02;2.22943680e-02;2.52416509e-02;2.76634192e-02;2.95687468e-02;3.11273986e-02;3.25091382e-02;3.38434970e-02;3.51383708e-02;3.63787570e-02;3.75496533e-02;3.86361207e-02;3.96309509e-02;4.05419817e-02;4.13787843e-02;4.21509297e-02;4.21509297e-02;4.78157595e-02;4.98876451e-02;4.95560265e-02;4.74710442e-02;4.40513558e-02;4.40513558e-02;3.95806172e-02;3.42500430e-02;2.81796282e-02;2.14292605e-02;1.40055752e-02;1.40055752e-02;1.32830242e-02;1.25543109e-02;1.18193774e-02;1.10781661e-02;1.03306178e-02;9.57666260e-03;8.81622490e-03;8.04922908e-03;7.27559955e-03;6.49525889e-03;5.70812025e-03;4.91409366e-03;4.11308911e-03;3.30501451e-03;2.48977055e-03;1.66725640e-03;1.38777878e-17</z>
+          </pointList>
+        </wingAirfoil>
+        <wingAirfoil uID="Back-frontSec0_NACA0001">
+          <name>Back-frontSec0_NACA0001</name>
+          <pointList>
+            <x mapType="vector">1.;0.9890738;0.95677273;0.9045085;0.8345653;0.75;0.6545085;0.55226423;0.44773577;0.3454915;0.25;0.1654347;0.0954915;0.04322727;0.0109262;0.;0.0109262;0.04322727;0.0954915;0.1654347;0.25;0.3454915;0.44773577;0.55226423;0.6545085;0.75;0.8345653;0.9045085;0.95677273;0.9890738;1.</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">2.77555756e-18;-2.62822352e-04;-1.01862723e-03;-2.17849095e-03;-3.61859911e-03;-5.20073174e-03;-6.78103064e-03;-8.20677629e-03;-9.31202141e-03;-9.92612741e-03;-9.90125000e-03;-9.15021548e-03;-7.67480473e-03;-5.56479486e-03;-2.96161943e-03;-0.00000000e+00;2.96161943e-03;5.56479486e-03;7.67480473e-03;9.15021548e-03;9.90125000e-03;9.92612741e-03;9.31202141e-03;8.20677629e-03;6.78103064e-03;5.20073174e-03;3.61859911e-03;2.17849095e-03;1.01862723e-03;2.62822352e-04;2.77555756e-18</z>
+          </pointList>
+        </wingAirfoil>
+        <wingAirfoil uID="Back-frontSec1_NACA0001">
+          <name>Back-frontSec1_NACA0001</name>
+          <pointList>
+            <x mapType="vector">1.;0.99615385;0.99230769;0.98846154;0.98461538;0.98076923;0.97692308;0.97307692;0.96923077;0.96538462;0.96153846;0.95769231;0.95384615;0.95;0.5;0.05;0.05;0.04615385;0.04230769;0.03846154;0.03461538;0.03076923;0.02692308;0.02307692;0.01923077;0.01538462;0.01153846;0.00769231;0.00384615;0.;0.00384615;0.00769231;0.01153846;0.01538462;0.01923077;0.02307692;0.02692308;0.03076923;0.03461538;0.03846154;0.04230769;0.04615385;0.05;0.05;0.5;0.95;0.95384615;0.95769231;0.96153846;0.96538462;0.96923077;0.97307692;0.97692308;0.98076923;0.98461538;0.98846154;0.99230769;1.</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">1.38777878e-17;-4.64702203e-04;-9.27097286e-04;-1.38720249e-03;-1.84503507e-03;-2.30061225e-03;-2.75395128e-03;-3.20506941e-03;-3.65398387e-03;-4.10071191e-03;-4.54527078e-03;-4.98767771e-03;-5.42794969e-03;-5.86610158e-03;-4.40561827e-02;-2.89084938e-02;-2.89084938e-02;-2.82675514e-02;-2.76929167e-02;-2.71564616e-02;-2.65561873e-02;-2.57812948e-02;-2.47209848e-02;-2.32644582e-02;-2.13009160e-02;-1.87195590e-02;-1.54095880e-02;-1.12602039e-02;-6.16060762e-03;0.00000000e+00;6.16060762e-03;1.12602039e-02;1.54095880e-02;1.87195590e-02;2.13009160e-02;2.32644582e-02;2.47209848e-02;2.57812948e-02;2.65561873e-02;2.71564616e-02;2.76929167e-02;2.82675514e-02;2.89084938e-02;2.89084938e-02;4.40561827e-02;5.86610158e-03;5.42794969e-03;4.98767771e-03;4.54527078e-03;4.10071191e-03;3.65398387e-03;3.20506941e-03;2.75395128e-03;2.30061225e-03;1.84503507e-03;1.38720249e-03;9.27097286e-04;1.38777878e-17</z>
+          </pointList>
+        </wingAirfoil>
+        <wingAirfoil uID="HardpointsSec0_NACA0001">
+          <name>HardpointsSec0_NACA0001</name>
+          <pointList>
+            <x mapType="vector">1.;0.9890738;0.95677273;0.9045085;0.8345653;0.75;0.6545085;0.55226423;0.44773577;0.3454915;0.25;0.1654347;0.0954915;0.04322727;0.0109262;0.;0.0109262;0.04322727;0.0954915;0.1654347;0.25;0.3454915;0.44773577;0.55226423;0.6545085;0.75;0.8345653;0.9045085;0.95677273;0.9890738;1.</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">1.38777878e-18;-1.31411176e-04;-5.09313615e-04;-1.08924547e-03;-1.80929955e-03;-2.60036587e-03;-3.39051532e-03;-4.10338814e-03;-4.65601071e-03;-4.96306371e-03;-4.95062500e-03;-4.57510774e-03;-3.83740237e-03;-2.78239743e-03;-1.48080971e-03;-0.00000000e+00;1.48080971e-03;2.78239743e-03;3.83740237e-03;4.57510774e-03;4.95062500e-03;4.96306371e-03;4.65601071e-03;4.10338814e-03;3.39051532e-03;2.60036587e-03;1.80929955e-03;1.08924547e-03;5.09313615e-04;1.31411176e-04;1.38777878e-18</z>
+          </pointList>
+        </wingAirfoil>
+        <wingAirfoil uID="HardpointsSec1_NACA0001">
+          <name>HardpointsSec1_NACA0001</name>
+          <pointList>
+            <x mapType="vector">1.;0.99615385;0.99230769;0.98846154;0.98461538;0.98076923;0.97692308;0.97307692;0.96923077;0.96538462;0.96153846;0.95769231;0.95384615;0.95;0.5;0.05;0.05;0.04615385;0.04230769;0.03846154;0.03461538;0.03076923;0.02692308;0.02307692;0.01923077;0.01538462;0.01153846;0.00769231;0.00384615;0.;0.00384615;0.00769231;0.01153846;0.01538462;0.01923077;0.02307692;0.02692308;0.03076923;0.03461538;0.03846154;0.04230769;0.04615385;0.05;0.05;0.5;0.95;0.95384615;0.95769231;0.96153846;0.96538462;0.96923077;0.97307692;0.97692308;0.98076923;0.98461538;0.98846154;0.99230769;1.</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">1.38777878e-17;-4.64702203e-04;-9.27097286e-04;-1.38720249e-03;-1.84503507e-03;-2.30061225e-03;-2.75395128e-03;-3.20506941e-03;-3.65398387e-03;-4.10071191e-03;-4.54527078e-03;-4.98767771e-03;-5.42794969e-03;-5.86610158e-03;-4.40561827e-02;-2.89084938e-02;-2.89084938e-02;-2.82675514e-02;-2.76929167e-02;-2.71564616e-02;-2.65561873e-02;-2.57812948e-02;-2.47209848e-02;-2.32644582e-02;-2.13009160e-02;-1.87195590e-02;-1.54095880e-02;-1.12602039e-02;-6.16060762e-03;0.00000000e+00;6.16060762e-03;1.12602039e-02;1.54095880e-02;1.87195590e-02;2.13009160e-02;2.32644582e-02;2.47209848e-02;2.57812948e-02;2.65561873e-02;2.71564616e-02;2.76929167e-02;2.82675514e-02;2.89084938e-02;2.89084938e-02;4.40561827e-02;5.86610158e-03;5.42794969e-03;4.98767771e-03;4.54527078e-03;4.10071191e-03;3.65398387e-03;3.20506941e-03;2.75395128e-03;2.30061225e-03;1.84503507e-03;1.38720249e-03;9.27097286e-04;1.38777878e-17</z>
+          </pointList>
+        </wingAirfoil>
+      </wingAirfoils>
+    </profiles>
+  </vehicles>
+</cpacs>

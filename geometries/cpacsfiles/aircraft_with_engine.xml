@@ -1,0 +1,808 @@
+<?xml version='1.0' encoding='utf-8'?>
+<cpacs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi_noNamespaceSchemaLocation="CPACS_21_Schema.xsd">
+  <header>
+    <name>simple_engine</name>
+    <version>0.2</version>
+    <cpacsVersion>3.0</cpacsVersion>
+    <versionInfos>
+      <versionInfo version="version1">
+        <description>Geometry from openVSP</description>
+        <creator>cpacs2to3</creator>
+        <version>0.3</version>
+        <cpacsVersion>3.0</cpacsVersion>
+        <timestamp>2025-10-30T13:40:44</timestamp>
+      </versionInfo>
+    </versionInfos>
+  </header>
+  <vehicles>
+    <engines>
+      <engine uID="Nacelle_Engine1">
+        <name>Nacelle_Engine1</name>
+        <nacelle uID="Nacelle_Engine1_Nacelle">
+          <fanCowl uID="Nacelle_Engine1_Nacelle_fanCowl">
+            <sections>
+              <section uID="Nacelle_Engine1_Nacelle_fanCowl_Sec1">
+                <profileUID>Nacelle_Engine1_Nacelle_fanCowl_NACA025</profileUID>
+                <transformation uID="Nacelle_Engine1_Nacelle_fanCowl_Sec1_Tr">
+                  <scaling uID="Nacelle_Engine1_Nacelle_fanCowl_Sec1_Tr_Scal">
+                    <x>8.0</x>
+                    <y>1.0</y>
+                    <z>4.0</z>
+                  </scaling>
+                  <rotation uID="Nacelle_Engine1_Nacelle_fanCowl_Sec1_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="Nacelle_Engine1_Nacelle_fanCowl_Sec1_Tr_Transl">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.5</z>
+                  </translation>
+                </transformation>
+              </section>
+            </sections>
+            <rotationCurve uID="Nacelle_Engine1_Nacelle_fanCowl_RotCurve">
+              <referenceSectionUID>Nacelle_Engine1_Nacelle_fanCowl_Sec1</referenceSectionUID>
+              <curveProfileUID>Nacelle_Engine1_fanCowlRotationCurve</curveProfileUID>
+              <startZeta>-0.28</startZeta>
+              <endZeta>-0.25</endZeta>
+              <startZetaBlending>-0.3</startZetaBlending>
+              <endZetaBlending>-0.23</endZetaBlending>
+            </rotationCurve>
+          </fanCowl>
+        </nacelle>
+      </engine>
+    </engines>
+    <aircraft>
+      <model uID="CPACS_test">
+        <name>CPACS_test</name>
+        <reference>
+          <area>1</area>
+          <length>1</length>
+          <point uID="Point">
+            <x>0</x>
+            <y>0</y>
+            <z>0</z>
+          </point>
+        </reference>
+        <fuselages>
+          <fuselage uID="Fuselage" symmetry=" ">
+            <name>Fuselage</name>
+            <transformation uID="Fuselage_Tr">
+              <scaling uID="Fuselage_Tr_Scal">
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scaling>
+              <rotation uID="Fuselage_Tr_Rot">
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <translation uID="Fuselage_Tr_Transl" refType="absGlobal">
+                <x>-15.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </translation>
+            </transformation>
+            <sections>
+              <section uID="FuselageSec0">
+                <name>FuselageSec0</name>
+                <transformation uID="FuselageSec0_Tr">
+                  <scaling uID="FuselageSec0_Tr_Scal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </scaling>
+                  <rotation uID="FuselageSec0_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="FuselageSec0_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>-0.3</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="FuselageSec0Elem">
+                    <name>FuselageSec0Elem</name>
+                    <profileUID>FuselageSec0_Point</profileUID>
+                    <transformation uID="FuselageSec0Elem_Tr">
+                      <scaling uID="FuselageSec0Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="FuselageSec0Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="FuselageSec0Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="FuselageSec1">
+                <name>FuselageSec1</name>
+                <transformation uID="FuselageSec1_Tr">
+                  <scaling uID="FuselageSec1_Tr_Scal">
+                    <x>1.0</x>
+                    <y>2.765815486754513</y>
+                    <z>2.3979591836734695</z>
+                  </scaling>
+                  <rotation uID="FuselageSec1_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="FuselageSec1_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>-0.06</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="FuselageSec1Elem">
+                    <name>FuselageSec1Elem</name>
+                    <profileUID>FuselageSec1_Ellipse</profileUID>
+                    <transformation uID="FuselageSec1Elem_Tr">
+                      <scaling uID="FuselageSec1Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="FuselageSec1Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="FuselageSec1Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="FuselageSec2">
+                <name>FuselageSec2</name>
+                <transformation uID="FuselageSec2_Tr">
+                  <scaling uID="FuselageSec2_Tr_Scal">
+                    <x>1.0</x>
+                    <y>5.7</y>
+                    <z>6.0</z>
+                  </scaling>
+                  <rotation uID="FuselageSec2_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="FuselageSec2_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.72</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="FuselageSec2Elem">
+                    <name>FuselageSec2Elem</name>
+                    <profileUID>FuselageSec2_Ellipse</profileUID>
+                    <transformation uID="FuselageSec2Elem_Tr">
+                      <scaling uID="FuselageSec2Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="FuselageSec2Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="FuselageSec2Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="FuselageSec3">
+                <name>FuselageSec3</name>
+                <transformation uID="FuselageSec3_Tr">
+                  <scaling uID="FuselageSec3_Tr_Scal">
+                    <x>1.0</x>
+                    <y>5.7</y>
+                    <z>6.0</z>
+                  </scaling>
+                  <rotation uID="FuselageSec3_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="FuselageSec3_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.72</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="FuselageSec3Elem">
+                    <name>FuselageSec3Elem</name>
+                    <profileUID>FuselageSec3_Ellipse</profileUID>
+                    <transformation uID="FuselageSec3Elem_Tr">
+                      <scaling uID="FuselageSec3Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="FuselageSec3Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="FuselageSec3Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="FuselageSec4">
+                <name>FuselageSec4</name>
+                <transformation uID="FuselageSec4_Tr">
+                  <scaling uID="FuselageSec4_Tr_Scal">
+                    <x>1.0</x>
+                    <y>5.7</y>
+                    <z>6.0</z>
+                  </scaling>
+                  <rotation uID="FuselageSec4_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="FuselageSec4_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.72</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="FuselageSec4Elem">
+                    <name>FuselageSec4Elem</name>
+                    <profileUID>FuselageSec4_Ellipse</profileUID>
+                    <transformation uID="FuselageSec4Elem_Tr">
+                      <scaling uID="FuselageSec4Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="FuselageSec4Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="FuselageSec4Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="FuselageSec5">
+                <name>FuselageSec5</name>
+                <transformation uID="FuselageSec5_Tr">
+                  <scaling uID="FuselageSec5_Tr_Scal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </scaling>
+                  <rotation uID="FuselageSec5_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="FuselageSec5_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>1.6819672131147545</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="FuselageSec5Elem">
+                    <name>FuselageSec5Elem</name>
+                    <profileUID>FuselageSec5_Point</profileUID>
+                    <transformation uID="FuselageSec5Elem_Tr">
+                      <scaling uID="FuselageSec5Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="FuselageSec5Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="FuselageSec5Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+            </sections>
+            <positionings>
+              <positioning uID="FuselageSec0GenPos">
+                <name>FuselageSec0GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>0</length>
+                <toSectionUID>FuselageSec0</toSectionUID>
+              </positioning>
+              <positioning uID="FuselageSec1GenPos">
+                <name>FuselageSec1GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>1.4224411210377181</length>
+                <fromSectionUID>FuselageSec0</fromSectionUID>
+                <toSectionUID>FuselageSec1</toSectionUID>
+              </positioning>
+              <positioning uID="FuselageSec2GenPos">
+                <name>FuselageSec2GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>6.649085240199566</length>
+                <fromSectionUID>FuselageSec1</fromSectionUID>
+                <toSectionUID>FuselageSec2</toSectionUID>
+              </positioning>
+              <positioning uID="FuselageSec3GenPos">
+                <name>FuselageSec3GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>21.928473638762718</length>
+                <fromSectionUID>FuselageSec2</fromSectionUID>
+                <toSectionUID>FuselageSec3</toSectionUID>
+              </positioning>
+              <positioning uID="FuselageSec4GenPos">
+                <name>FuselageSec4GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>15.983606557377051</length>
+                <fromSectionUID>FuselageSec3</fromSectionUID>
+                <toSectionUID>FuselageSec4</toSectionUID>
+              </positioning>
+              <positioning uID="FuselageSec5GenPos">
+                <name>FuselageSec5GenPos</name>
+                <sweepAngle>90</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <length>14.016393442622949</length>
+                <fromSectionUID>FuselageSec4</fromSectionUID>
+                <toSectionUID>FuselageSec5</toSectionUID>
+              </positioning>
+            </positionings>
+            <segments>
+              <segment uID="FuselageSeg1">
+                <name>FuselageSeg1</name>
+                <fromElementUID>FuselageSec0Elem</fromElementUID>
+                <toElementUID>FuselageSec1Elem</toElementUID>
+              </segment>
+              <segment uID="FuselageSeg2">
+                <name>FuselageSeg2</name>
+                <fromElementUID>FuselageSec1Elem</fromElementUID>
+                <toElementUID>FuselageSec2Elem</toElementUID>
+              </segment>
+              <segment uID="FuselageSeg3">
+                <name>FuselageSeg3</name>
+                <fromElementUID>FuselageSec2Elem</fromElementUID>
+                <toElementUID>FuselageSec3Elem</toElementUID>
+              </segment>
+              <segment uID="FuselageSeg4">
+                <name>FuselageSeg4</name>
+                <fromElementUID>FuselageSec3Elem</fromElementUID>
+                <toElementUID>FuselageSec4Elem</toElementUID>
+              </segment>
+              <segment uID="FuselageSeg5">
+                <name>FuselageSeg5</name>
+                <fromElementUID>FuselageSec4Elem</fromElementUID>
+                <toElementUID>FuselageSec5Elem</toElementUID>
+              </segment>
+            </segments>
+          </fuselage>
+        </fuselages>
+        <wings>
+          <wing uID="Wing" symmetry="x-z-plane">
+            <name>Wing</name>
+            <transformation uID="Wing_Tr">
+              <scaling uID="Wing_Tr_Scal">
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scaling>
+              <rotation uID="Wing_Tr_Rot">
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <translation uID="Wing_Tr_Transl" refType="absGlobal">
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </translation>
+            </transformation>
+            <sections>
+              <section uID="WingSec0">
+                <name>WingSec0</name>
+                <transformation uID="WingSec0_Tr">
+                  <scaling uID="WingSec0_Tr_Scal">
+                    <x>14.0</x>
+                    <y>1.0</y>
+                    <z>14.0</z>
+                  </scaling>
+                  <rotation uID="WingSec0_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="WingSec0_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="WingSec0Elem">
+                    <name>WingSec0Elem</name>
+                    <airfoilUID>WingSec0_NACA24010</airfoilUID>
+                    <transformation uID="WingSec0Elem_Tr">
+                      <scaling uID="WingSec0Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="WingSec0Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="WingSec0Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="WingSec1">
+                <name>WingSec1</name>
+                <transformation uID="WingSec1_Tr">
+                  <scaling uID="WingSec1_Tr_Scal">
+                    <x>7.0</x>
+                    <y>1.0</y>
+                    <z>7.0</z>
+                  </scaling>
+                  <rotation uID="WingSec1_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="WingSec1_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="WingSec1Elem">
+                    <name>WingSec1Elem</name>
+                    <airfoilUID>WingSec1_NACA24010</airfoilUID>
+                    <transformation uID="WingSec1Elem_Tr">
+                      <scaling uID="WingSec1Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="WingSec1Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="WingSec1Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="WingSec2">
+                <name>WingSec2</name>
+                <transformation uID="WingSec2_Tr">
+                  <scaling uID="WingSec2_Tr_Scal">
+                    <x>1.5</x>
+                    <y>1.0</y>
+                    <z>1.5</z>
+                  </scaling>
+                  <rotation uID="WingSec2_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="WingSec2_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="WingSec2Elem">
+                    <name>WingSec2Elem</name>
+                    <airfoilUID>WingSec2_NACA24010</airfoilUID>
+                    <transformation uID="WingSec2Elem_Tr">
+                      <scaling uID="WingSec2Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="WingSec2Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="WingSec2Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+              <section uID="WingSec3">
+                <name>WingSec3</name>
+                <transformation uID="WingSec3_Tr">
+                  <scaling uID="WingSec3_Tr_Scal">
+                    <x>0.5</x>
+                    <y>1.0</y>
+                    <z>0.5</z>
+                  </scaling>
+                  <rotation uID="WingSec3_Tr_Rot">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </rotation>
+                  <translation uID="WingSec3_Tr_Transl" refType="absGlobal">
+                    <x>0.0</x>
+                    <y>0.0</y>
+                    <z>0.0</z>
+                  </translation>
+                </transformation>
+                <elements>
+                  <element uID="WingSec3Elem">
+                    <name>WingSec3Elem</name>
+                    <airfoilUID>WingSec3_NACA2240</airfoilUID>
+                    <transformation uID="WingSec3Elem_Tr">
+                      <scaling uID="WingSec3Elem_Tr_Scal">
+                        <x>1.0</x>
+                        <y>1.0</y>
+                        <z>1.0</z>
+                      </scaling>
+                      <rotation uID="WingSec3Elem_Tr_Rot">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </rotation>
+                      <translation uID="WingSec3Elem_Tr_Transl" refType="absGlobal">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                      </translation>
+                    </transformation>
+                  </element>
+                </elements>
+              </section>
+            </sections>
+            <positionings>
+              <positioning uID="WingSec0GenPos">
+                <name>WingSec0GenPos</name>
+                <length>0</length>
+                <sweepAngle>0</sweepAngle>
+                <dihedralAngle>0</dihedralAngle>
+                <toSectionUID>WingSec0</toSectionUID>
+              </positioning>
+              <positioning uID="WingSec1GenPos">
+                <name>WingSec1GenPos</name>
+                <length>12.818133181995288</length>
+                <sweepAngle>35.0</sweepAngle>
+                <dihedralAngle>6.5</dihedralAngle>
+                <fromSectionUID>WingSec0</fromSectionUID>
+                <toSectionUID>WingSec1</toSectionUID>
+              </positioning>
+              <positioning uID="WingSec2GenPos">
+                <name>WingSec2GenPos</name>
+                <length>23.805104480848392</length>
+                <sweepAngle>35.0</sweepAngle>
+                <dihedralAngle>6.5</dihedralAngle>
+                <fromSectionUID>WingSec1</fromSectionUID>
+                <toSectionUID>WingSec2</toSectionUID>
+              </positioning>
+              <positioning uID="WingSec3GenPos">
+                <name>WingSec3GenPos</name>
+                <length>3.1114476537208247</length>
+                <sweepAngle>50.0</sweepAngle>
+                <dihedralAngle>40.0</dihedralAngle>
+                <fromSectionUID>WingSec2</fromSectionUID>
+                <toSectionUID>WingSec3</toSectionUID>
+              </positioning>
+            </positionings>
+            <segments>
+              <segment uID="WingSeg1">
+                <name>WingSeg1</name>
+                <fromElementUID>WingSec0Elem</fromElementUID>
+                <toElementUID>WingSec1Elem</toElementUID>
+              </segment>
+              <segment uID="WingSeg2">
+                <name>WingSeg2</name>
+                <fromElementUID>WingSec1Elem</fromElementUID>
+                <toElementUID>WingSec2Elem</toElementUID>
+              </segment>
+              <segment uID="WingSeg3">
+                <name>WingSeg3</name>
+                <fromElementUID>WingSec2Elem</fromElementUID>
+                <toElementUID>WingSec3Elem</toElementUID>
+              </segment>
+            </segments>
+          </wing>
+        </wings>
+        <engines>
+          <engine uID="Nacelle_Engine1_Positioning" symmetry="x-z-plane">
+            <parentUID>Wing</parentUID>
+            <engineUID>Nacelle_Engine1</engineUID>
+            <transformation uID="Nacelle_Engine1_Tr">
+              <scaling uID="Nacelle_Engine1_Tr_Scal">
+                <x>1.0</x>
+                <y>3.0</y>
+                <z>3.0</z>
+              </scaling>
+              <rotation uID="Nacelle_Engine1_Tr_Rot">
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <translation uID="Nacelle_Engine1_Tr_Transl">
+                <x>11.074275362318836</x>
+                <y>-10.0</y>
+                <z>-0.6594202898550723</z>
+              </translation>
+            </transformation>
+          </engine>
+        </engines>
+      </model>
+    </aircraft>
+    <profiles>
+      <fuselageProfiles>
+        <fuselageProfile uID="FuselageSec0_Point">
+          <name>FuselageSec0_Point</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.02846916;-0.05411019;-0.13556326;-0.21366823;-0.28629459;-0.3514613;-0.40739077;-0.45255739;-0.48572913;-0.50600116;-0.51282051;-0.50600116;-0.48572913;-0.45255739;-0.40739077;-0.3514613;-0.28629459;-0.21366823;-0.13556326;-0.05411019;0.02846916;0.10992223;0.1880272;0.26065357;0.32582027;0.38174974;0.42691636;0.46008811;0.48036014;0.48717949;0.48036014;0.46008811;0.42691636;0.38174974;0.32582027;0.26065357;0.1880272;0.10992223;0.02846916</y>
+            <z mapType="vector">-4.98292247e-01;-4.98292247e-01;-4.84700133e-01;-4.57886663e-01;-4.18583239e-01;-3.67861955e-01;-3.07106356e-01;-2.37973697e-01;-1.62349735e-01;-8.22972951e-02;-5.22461384e-17;8.22972951e-02;1.62349735e-01;2.37973697e-01;3.07106356e-01;3.67861955e-01;4.18583239e-01;4.57886663e-01;4.84700133e-01;4.98292247e-01;4.98292247e-01;4.84700133e-01;4.57886663e-01;4.18583239e-01;3.67861955e-01;3.07106356e-01;2.37973697e-01;1.62349735e-01;8.22972951e-02;7.02185415e-17;-8.22972951e-02;-1.62349735e-01;-2.37973697e-01;-3.07106356e-01;-3.67861955e-01;-4.18583239e-01;-4.57886663e-01;-4.84700133e-01;-4.98292247e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="FuselageSec1_Ellipse">
+          <name>FuselageSec1_Ellipse</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.01738808;-0.03326109;-0.0836504;-0.13326277;-0.18158913;-0.22813358;-0.27241851;-0.3139895;-0.35241997;-0.38731557;-0.41831823;-0.44510982;-0.46741541;-0.48500614;-0.49770148;-0.50537117;-0.50793651;-0.50537117;-0.49770148;-0.48500614;-0.46741541;-0.44510982;-0.41831823;-0.38731557;-0.35241997;-0.3139895;-0.27241851;-0.22813358;-0.18158913;-0.13326277;-0.0836504;-0.03326109;0.01738808;0.06777738;0.11738976;0.16571612;0.21226057;0.2565455;0.29811648;0.33654695;0.37144255;0.40244521;0.4292368;0.4515424;0.46913312;0.48182846;0.48949815;0.49206349;0.48949815;0.48182846;0.46913312;0.4515424;0.4292368;0.40244521;0.37144255;0.33654695;0.29811648;0.2565455;0.21226057;0.16571612;0.11738976;0.06777738;0.01738808</y>
+            <z mapType="vector">-4.99358254e-01;-4.99358254e-01;-4.94234162e-01;-4.84038559e-01;-4.68876066e-01;-4.48902270e-01;-4.24322129e-01;-3.95387868e-01;-3.62396394e-01;-3.25686241e-01;-2.85634108e-01;-2.42650981e-01;-1.97177928e-01;-1.49681561e-01;-1.00649260e-01;-5.05841610e-02;-6.26316702e-17;5.05841610e-02;1.00649260e-01;1.49681561e-01;1.97177928e-01;2.42650981e-01;2.85634108e-01;3.25686241e-01;3.62396394e-01;3.95387868e-01;4.24322129e-01;4.48902270e-01;4.68876066e-01;4.84038559e-01;4.94234162e-01;4.99358254e-01;4.99358254e-01;4.94234162e-01;4.84038559e-01;4.68876066e-01;4.48902270e-01;4.24322129e-01;3.95387868e-01;3.62396394e-01;3.25686241e-01;2.85634108e-01;2.42650981e-01;1.97177928e-01;1.49681561e-01;1.00649260e-01;5.05841610e-02;5.98330097e-17;-5.05841610e-02;-1.00649260e-01;-1.49681561e-01;-1.97177928e-01;-2.42650981e-01;-2.85634108e-01;-3.25686241e-01;-3.62396394e-01;-3.95387868e-01;-4.24322129e-01;-4.48902270e-01;-4.68876066e-01;-4.84038559e-01;-4.94234162e-01;-4.99358254e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="FuselageSec2_Ellipse">
+          <name>FuselageSec2_Ellipse</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.01738808;-0.03326109;-0.0836504;-0.13326277;-0.18158913;-0.22813358;-0.27241851;-0.3139895;-0.35241997;-0.38731557;-0.41831823;-0.44510982;-0.46741541;-0.48500614;-0.49770148;-0.50537117;-0.50793651;-0.50537117;-0.49770148;-0.48500614;-0.46741541;-0.44510982;-0.41831823;-0.38731557;-0.35241997;-0.3139895;-0.27241851;-0.22813358;-0.18158913;-0.13326277;-0.0836504;-0.03326109;0.01738808;0.06777738;0.11738976;0.16571612;0.21226057;0.2565455;0.29811648;0.33654695;0.37144255;0.40244521;0.4292368;0.4515424;0.46913312;0.48182846;0.48949815;0.49206349;0.48949815;0.48182846;0.46913312;0.4515424;0.4292368;0.40244521;0.37144255;0.33654695;0.29811648;0.2565455;0.21226057;0.16571612;0.11738976;0.06777738;0.01738808</y>
+            <z mapType="vector">-4.99358254e-01;-4.99358254e-01;-4.94234162e-01;-4.84038559e-01;-4.68876066e-01;-4.48902270e-01;-4.24322129e-01;-3.95387868e-01;-3.62396394e-01;-3.25686241e-01;-2.85634108e-01;-2.42650981e-01;-1.97177928e-01;-1.49681561e-01;-1.00649260e-01;-5.05841610e-02;-6.26316702e-17;5.05841610e-02;1.00649260e-01;1.49681561e-01;1.97177928e-01;2.42650981e-01;2.85634108e-01;3.25686241e-01;3.62396394e-01;3.95387868e-01;4.24322129e-01;4.48902270e-01;4.68876066e-01;4.84038559e-01;4.94234162e-01;4.99358254e-01;4.99358254e-01;4.94234162e-01;4.84038559e-01;4.68876066e-01;4.48902270e-01;4.24322129e-01;3.95387868e-01;3.62396394e-01;3.25686241e-01;2.85634108e-01;2.42650981e-01;1.97177928e-01;1.49681561e-01;1.00649260e-01;5.05841610e-02;5.98330097e-17;-5.05841610e-02;-1.00649260e-01;-1.49681561e-01;-1.97177928e-01;-2.42650981e-01;-2.85634108e-01;-3.25686241e-01;-3.62396394e-01;-3.95387868e-01;-4.24322129e-01;-4.48902270e-01;-4.68876066e-01;-4.84038559e-01;-4.94234162e-01;-4.99358254e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="FuselageSec3_Ellipse">
+          <name>FuselageSec3_Ellipse</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.01738808;-0.03326109;-0.0836504;-0.13326277;-0.18158913;-0.22813358;-0.27241851;-0.3139895;-0.35241997;-0.38731557;-0.41831823;-0.44510982;-0.46741541;-0.48500614;-0.49770148;-0.50537117;-0.50793651;-0.50537117;-0.49770148;-0.48500614;-0.46741541;-0.44510982;-0.41831823;-0.38731557;-0.35241997;-0.3139895;-0.27241851;-0.22813358;-0.18158913;-0.13326277;-0.0836504;-0.03326109;0.01738808;0.06777738;0.11738976;0.16571612;0.21226057;0.2565455;0.29811648;0.33654695;0.37144255;0.40244521;0.4292368;0.4515424;0.46913312;0.48182846;0.48949815;0.49206349;0.48949815;0.48182846;0.46913312;0.4515424;0.4292368;0.40244521;0.37144255;0.33654695;0.29811648;0.2565455;0.21226057;0.16571612;0.11738976;0.06777738;0.01738808</y>
+            <z mapType="vector">-4.99358254e-01;-4.99358254e-01;-4.94234162e-01;-4.84038559e-01;-4.68876066e-01;-4.48902270e-01;-4.24322129e-01;-3.95387868e-01;-3.62396394e-01;-3.25686241e-01;-2.85634108e-01;-2.42650981e-01;-1.97177928e-01;-1.49681561e-01;-1.00649260e-01;-5.05841610e-02;-6.26316702e-17;5.05841610e-02;1.00649260e-01;1.49681561e-01;1.97177928e-01;2.42650981e-01;2.85634108e-01;3.25686241e-01;3.62396394e-01;3.95387868e-01;4.24322129e-01;4.48902270e-01;4.68876066e-01;4.84038559e-01;4.94234162e-01;4.99358254e-01;4.99358254e-01;4.94234162e-01;4.84038559e-01;4.68876066e-01;4.48902270e-01;4.24322129e-01;3.95387868e-01;3.62396394e-01;3.25686241e-01;2.85634108e-01;2.42650981e-01;1.97177928e-01;1.49681561e-01;1.00649260e-01;5.05841610e-02;5.98330097e-17;-5.05841610e-02;-1.00649260e-01;-1.49681561e-01;-1.97177928e-01;-2.42650981e-01;-2.85634108e-01;-3.25686241e-01;-3.62396394e-01;-3.95387868e-01;-4.24322129e-01;-4.48902270e-01;-4.68876066e-01;-4.84038559e-01;-4.94234162e-01;-4.99358254e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="FuselageSec4_Ellipse">
+          <name>FuselageSec4_Ellipse</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.01738808;-0.03326109;-0.0836504;-0.13326277;-0.18158913;-0.22813358;-0.27241851;-0.3139895;-0.35241997;-0.38731557;-0.41831823;-0.44510982;-0.46741541;-0.48500614;-0.49770148;-0.50537117;-0.50793651;-0.50537117;-0.49770148;-0.48500614;-0.46741541;-0.44510982;-0.41831823;-0.38731557;-0.35241997;-0.3139895;-0.27241851;-0.22813358;-0.18158913;-0.13326277;-0.0836504;-0.03326109;0.01738808;0.06777738;0.11738976;0.16571612;0.21226057;0.2565455;0.29811648;0.33654695;0.37144255;0.40244521;0.4292368;0.4515424;0.46913312;0.48182846;0.48949815;0.49206349;0.48949815;0.48182846;0.46913312;0.4515424;0.4292368;0.40244521;0.37144255;0.33654695;0.29811648;0.2565455;0.21226057;0.16571612;0.11738976;0.06777738;0.01738808</y>
+            <z mapType="vector">-4.99358254e-01;-4.99358254e-01;-4.94234162e-01;-4.84038559e-01;-4.68876066e-01;-4.48902270e-01;-4.24322129e-01;-3.95387868e-01;-3.62396394e-01;-3.25686241e-01;-2.85634108e-01;-2.42650981e-01;-1.97177928e-01;-1.49681561e-01;-1.00649260e-01;-5.05841610e-02;-6.26316702e-17;5.05841610e-02;1.00649260e-01;1.49681561e-01;1.97177928e-01;2.42650981e-01;2.85634108e-01;3.25686241e-01;3.62396394e-01;3.95387868e-01;4.24322129e-01;4.48902270e-01;4.68876066e-01;4.84038559e-01;4.94234162e-01;4.99358254e-01;4.99358254e-01;4.94234162e-01;4.84038559e-01;4.68876066e-01;4.48902270e-01;4.24322129e-01;3.95387868e-01;3.62396394e-01;3.25686241e-01;2.85634108e-01;2.42650981e-01;1.97177928e-01;1.49681561e-01;1.00649260e-01;5.05841610e-02;5.98330097e-17;-5.05841610e-02;-1.00649260e-01;-1.49681561e-01;-1.97177928e-01;-2.42650981e-01;-2.85634108e-01;-3.25686241e-01;-3.62396394e-01;-3.95387868e-01;-4.24322129e-01;-4.48902270e-01;-4.68876066e-01;-4.84038559e-01;-4.94234162e-01;-4.99358254e-01</z>
+          </pointList>
+        </fuselageProfile>
+        <fuselageProfile uID="FuselageSec5_Point">
+          <name>FuselageSec5_Point</name>
+          <description>Profile from OpenVSP</description>
+          <pointList>
+            <x mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</x>
+            <y mapType="vector">0.02846916;-0.05411019;-0.13556326;-0.21366823;-0.28629459;-0.3514613;-0.40739077;-0.45255739;-0.48572913;-0.50600116;-0.51282051;-0.50600116;-0.48572913;-0.45255739;-0.40739077;-0.3514613;-0.28629459;-0.21366823;-0.13556326;-0.05411019;0.02846916;0.10992223;0.1880272;0.26065357;0.32582027;0.38174974;0.42691636;0.46008811;0.48036014;0.48717949;0.48036014;0.46008811;0.42691636;0.38174974;0.32582027;0.26065357;0.1880272;0.10992223;0.02846916</y>
+            <z mapType="vector">-4.98292247e-01;-4.98292247e-01;-4.84700133e-01;-4.57886663e-01;-4.18583239e-01;-3.67861955e-01;-3.07106356e-01;-2.37973697e-01;-1.62349735e-01;-8.22972951e-02;-5.22461384e-17;8.22972951e-02;1.62349735e-01;2.37973697e-01;3.07106356e-01;3.67861955e-01;4.18583239e-01;4.57886663e-01;4.84700133e-01;4.98292247e-01;4.98292247e-01;4.84700133e-01;4.57886663e-01;4.18583239e-01;3.67861955e-01;3.07106356e-01;2.37973697e-01;1.62349735e-01;8.22972951e-02;7.02185415e-17;-8.22972951e-02;-1.62349735e-01;-2.37973697e-01;-3.07106356e-01;-3.67861955e-01;-4.18583239e-01;-4.57886663e-01;-4.84700133e-01;-4.98292247e-01</z>
+          </pointList>
+        </fuselageProfile>
+      </fuselageProfiles>
+      <wingAirfoils>
+        <wingAirfoil uID="WingSec0_NACA24010">
+          <name>WingSec0_NACA24010</name>
+          <pointList>
+            <x mapType="vector">1.;0.99604611;0.98424714;0.96479013;0.9379834;0.90425149;0.8641283;0.81824856;0.7673377;0.7122005;0.65370849;0.59278632;0.5303973;0.46752821;0.40517372;0.34432045;0.28593236;0.23140657;0.18178914;0.13748801;0.09878848;0.06594286;0.03924618;0.01906889;0.00584036;0.;0.00204493;0.01234795;0.03097734;0.05775046;0.09219452;0.13354336;0.18078687;0.23276664;0.28828835;0.34666256;0.40744496;0.46968127;0.53239322;0.59459499;0.6553085;0.71357879;0.7684891;0.81917543;0.86484032;0.90476551;0.93832328;0.96498636;0.98433602;0.99606859;1.</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">0.00137788;0.00099474;-0.00013432;-0.00195046;-0.00436288;-0.00725776;-0.01050759;-0.01397886;-0.01753646;-0.02104438;-0.02436357;-0.02734856;-0.02984526;-0.03169199;-0.03272541;-0.03279128;-0.0331368;-0.03111133;-0.02871653;-0.02633775;-0.02400545;-0.02147278;-0.01830719;-0.01398837;-0.00801285;0.;0.00972594;0.02050955;0.03180328;0.0427712;0.05245881;0.06000903;0.06487622;0.06698385;0.06678789;0.06644236;0.06350566;0.05953166;0.05472097;0.04928369;0.04342786;0.03735285;0.0312476;0.02529212;0.01966022;0.01452109;0.01003805;0.00636364;0.00363158;0.00194714;0.00137788</z>
+          </pointList>
+        </wingAirfoil>
+        <wingAirfoil uID="WingSec1_NACA24010">
+          <name>WingSec1_NACA24010</name>
+          <pointList>
+            <x mapType="vector">9.99044264e-01;9.92074202e-01;9.85104528e-01;9.78135237e-01;9.71166323e-01;9.64197782e-01;9.57229608e-01;9.50261796e-01;9.43294342e-01;9.36327241e-01;9.29360489e-01;9.22394082e-01;9.15428015e-01;9.08462285e-01;9.01496889e-01;8.94531821e-01;8.87567080e-01;8.80602662e-01;8.73638565e-01;8.73638565e-01;7.98446065e-01;7.23288587e-01;6.48166474e-01;5.73082733e-01;4.98044464e-01;4.98044464e-01;4.23057338e-01;3.48148614e-01;2.73243300e-01;1.98518593e-01;1.23829752e-01;1.23829752e-01;1.16916034e-01;1.10003149e-01;1.03091353e-01;9.61809007e-02;8.92719294e-02;8.23643356e-02;7.54579853e-02;6.85527443e-02;6.16485695e-02;5.47475474e-02;4.78539186e-02;4.09720188e-02;3.41055275e-02;2.72500571e-02;2.03957997e-02;1.35449022e-02;6.80587618e-03;3.42616311e-04;8.31795141e-03;1.52912651e-02;2.23924655e-02;2.96148998e-02;3.68132881e-02;4.39316821e-02;5.09947638e-02;5.80301088e-02;6.50636133e-02;7.21028273e-02;7.91439995e-02;8.61832125e-02;9.32165493e-02;1.00240420e-01;1.07254344e-01;1.14259560e-01;1.21257325e-01;1.28248895e-01;1.28248895e-01;2.03524109e-01;2.78465672e-01;3.53335723e-01;4.28027688e-01;5.02656702e-01;5.02656702e-01;5.77226859e-01;6.51752499e-01;7.26239033e-01;8.00689740e-01;8.75104971e-01;8.75104971e-01;8.81993417e-01;8.88881537e-01;8.95769330e-01;9.02656791e-01;9.09543919e-01;9.16430708e-01;9.23317156e-01;9.30203258e-01;9.37089009e-01;9.43974407e-01;9.50859446e-01;9.57744122e-01;9.64628430e-01;9.71512364e-01;9.78395920e-01;9.85279093e-01;9.99044264e-01</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">-0.03787597;-0.03818294;-0.0384825;-0.03877476;-0.03905981;-0.03933776;-0.0396087;-0.03987273;-0.04012993;-0.04038039;-0.0406242;-0.04086143;-0.04109216;-0.04131646;-0.04153441;-0.04174607;-0.04195151;-0.04215078;-0.04234393;-0.04234393;-0.04405311;-0.04509403;-0.04546013;-0.04509406;-0.04386033;-0.04386033;-0.04165073;-0.03794513;-0.03417447;-0.02695763;-0.01905642;-0.01905642;-0.01828828;-0.01750424;-0.01669942;-0.01586897;-0.01501026;-0.01412526;-0.01321653;-0.01228664;-0.0113364;-0.01032601;-0.00917454;-0.00779927;-0.00612999;-0.00425042;-0.0023477;-0.00038087;0.00372059;0.01308399;0.03257271;0.03294172;0.03575095;0.04087347;0.04553716;0.04867447;0.05075636;0.052309;0.05382652;0.05545298;0.05711681;0.05874325;0.06025757;0.06159127;0.06273517;0.06371291;0.06454848;0.06526585;0.06526585;0.0685533;0.06547432;0.0610308;0.0531892;0.04414642;0.04414642;0.03398059;0.0229653;0.01120384;-0.00124122;-0.01436323;-0.01436323;-0.0156136;-0.01687017;-0.018133;-0.01940215;-0.02067767;-0.02195964;-0.02324813;-0.02454322;-0.02584499;-0.02715351;-0.02846888;-0.02979118;-0.03112051;-0.03245695;-0.03380062;-0.0351516;-0.03787597</z>
+          </pointList>
+        </wingAirfoil>
+        <wingAirfoil uID="WingSec2_NACA24010">
+          <name>WingSec2_NACA24010</name>
+          <pointList>
+            <x mapType="vector">9.99591208e-01;9.92627564e-01;9.85664180e-01;9.78701051e-01;9.71738174e-01;9.64775545e-01;9.57813160e-01;9.50851018e-01;9.43889114e-01;9.36927445e-01;9.29966009e-01;9.23004803e-01;9.16043824e-01;9.09083070e-01;9.02122538e-01;8.95162225e-01;8.88202130e-01;8.81242251e-01;8.74282585e-01;8.74282585e-01;7.99131366e-01;7.24003502e-01;6.48899220e-01;5.73820526e-01;4.98772154e-01;4.98772154e-01;4.23757886e-01;3.48795900e-01;2.73836187e-01;1.98996909e-01;1.24181549e-01;1.24181549e-01;1.17255478e-01;1.10329963e-01;1.03405173e-01;9.64812798e-02;8.95583742e-02;8.26363871e-02;7.57152292e-02;6.87948110e-02;6.18751038e-02;5.49574990e-02;4.80448242e-02;4.11399708e-02;3.42453924e-02;2.73581630e-02;2.04717425e-02;1.35875626e-02;6.77798251e-03;1.52293245e-04;7.78628862e-03;1.47521001e-02;2.18031911e-02;2.89351251e-02;3.60510245e-02;4.31135807e-02;5.01392527e-02;5.71464289e-02;6.41523778e-02;7.11621340e-02;7.81731959e-02;8.51829515e-02;9.21887885e-02;9.91883131e-02;1.06181205e-01;1.13168290e-01;1.20150406e-01;1.27128392e-01;1.27128392e-01;2.02334767e-01;2.77318652e-01;3.52254851e-01;4.27072294e-01;5.01847760e-01;5.01847760e-01;5.76583978e-01;6.51290510e-01;7.25970965e-01;8.00627530e-01;8.75260438e-01;8.75260438e-01;8.82169656e-01;8.89078658e-01;8.95987440e-01;9.02896003e-01;9.09804342e-01;9.16712456e-01;9.23620342e-01;9.30527998e-01;9.37435420e-01;9.44342606e-01;9.51249553e-01;9.58156257e-01;9.65062716e-01;9.71968926e-01;9.78874884e-01;9.85780586e-01;9.99591208e-01</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">-0.02479758;-0.02522615;-0.0256473;-0.02606114;-0.02646777;-0.0268673;-0.02725981;-0.0276454;-0.02802416;-0.02839618;-0.02876154;-0.02912031;-0.02947258;-0.02981842;-0.0301579;-0.03049108;-0.03081804;-0.03113882;-0.03145349;-0.03145349;-0.0344747;-0.03682713;-0.03850424;-0.03944862;-0.03952468;-0.03952468;-0.03862412;-0.03622642;-0.03376362;-0.027852;-0.02125549;-0.02125549;-0.02060813;-0.01994485;-0.01926079;-0.01855107;-0.01781306;-0.01704875;-0.0162607;-0.01545146;-0.01462186;-0.01373206;-0.01270108;-0.01144612;-0.00989693;-0.00813729;-0.00635449;-0.00450752;-0.0005243;0.00872487;0.02834981;0.02884047;0.03177321;0.03702099;0.0418096;0.04507067;0.04727551;0.04895069;0.05059073;0.0523398;0.05412626;0.05587531;0.05751215;0.05896822;0.06023436;0.06133421;0.06229178;0.06313106;0.06313106;0.06773174;0.06596114;0.06282496;0.05628811;0.04854916;0.04854916;0.03968631;0.02997335;0.01951365;0.00836983;-0.00345145;-0.00345145;-0.00458142;-0.00571758;-0.00686001;-0.00800876;-0.00916389;-0.01032547;-0.01149358;-0.0126683;-0.0138497;-0.01503785;-0.01623286;-0.0174348;-0.01864378;-0.01985988;-0.02108321;-0.02231386;-0.02479758</z>
+          </pointList>
+        </wingAirfoil>
+        <wingAirfoil uID="WingSec3_NACA2240">
+          <name>WingSec3_NACA2240</name>
+          <pointList>
+            <x mapType="vector">1.;0.99305556;0.98611111;0.97916667;0.97222222;0.96527778;0.95833333;0.95138889;0.94444444;0.9375;0.93055556;0.92361111;0.91666667;0.90972222;0.90277778;0.89583333;0.88888889;0.88194444;0.875;0.875;0.8;0.725;0.65;0.575;0.5;0.5;0.425;0.35;0.275;0.2;0.125;0.125;0.11805556;0.11111111;0.10416667;0.09722222;0.09027778;0.08333333;0.07638889;0.06944444;0.0625;0.05555556;0.04861111;0.04166667;0.03472222;0.02777778;0.02083333;0.01388889;0.00694444;0.;0.00694444;0.01388889;0.02083333;0.02777778;0.03472222;0.04166667;0.04861111;0.05555556;0.0625;0.06944444;0.07638889;0.08333333;0.09027778;0.09722222;0.10416667;0.11111111;0.11805556;0.125;0.125;0.2;0.275;0.35;0.425;0.5;0.5;0.575;0.65;0.725;0.8;0.875;0.875;0.88194444;0.88888889;0.89583333;0.90277778;0.90972222;0.91666667;0.92361111;0.93055556;0.9375;0.94444444;0.95138889;0.95833333;0.96527778;0.97222222;0.97916667;0.98611111;1.</x>
+            <y mapType="vector">0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.;0.</y>
+            <z mapType="vector">5.54608752e-17;-2.99141408e-03;-5.95818891e-03;-8.90066996e-03;-1.18191892e-02;-1.47140705e-02;-1.75856341e-02;-2.04341781e-02;-2.32599920e-02;-2.60633652e-02;-2.88445807e-02;-3.16038903e-02;-3.43415361e-02;-3.70577605e-02;-3.97528054e-02;-4.24269026e-02;-4.50802430e-02;-4.77130077e-02;-5.03253781e-02;-5.03253781e-02;-7.72794110e-02;-1.01987336e-01;-1.24391114e-01;-1.44225667e-01;-1.60983776e-01;-1.60983776e-01;-1.73863016e-01;-1.81683231e-01;-1.82711032e-01;-1.73958061e-01;-1.48522843e-01;-1.48522843e-01;-1.45123557e-01;-1.41565413e-01;-1.37848288e-01;-1.33888509e-01;-1.29554517e-01;-1.24714183e-01;-1.19235440e-01;-1.13105248e-01;-1.06679291e-01;-1.00384440e-01;-9.46471764e-02;-8.92157942e-02;-8.17663884e-02;-6.95806554e-02;-5.15008530e-02;-3.67959634e-02;-3.70747526e-02;-1.00288701e-18;7.95899265e-02;9.61517385e-02;1.05857627e-01;1.14646796e-01;1.23456284e-01;1.31888478e-01;1.39547697e-01;1.46225901e-01;1.52056369e-01;1.57208550e-01;1.61851894e-01;1.66155586e-01;1.70238979e-01;1.74113025e-01;1.77774437e-01;1.81219927e-01;1.84446206e-01;1.87449984e-01;1.87449984e-01;2.08478699e-01;2.16397865e-01;2.14773344e-01;2.05921667e-01;1.91459045e-01;1.91459045e-01;1.72471003e-01;1.49682250e-01;1.23540638e-01;9.42540578e-02;6.18093498e-02;6.18093498e-02;5.86391835e-02;5.54398535e-02;5.22110654e-02;4.89525246e-02;4.56639349e-02;4.23449585e-02;3.89952175e-02;3.56143328e-02;3.22019248e-02;2.87576096e-02;2.52809595e-02;2.17715243e-02;1.82288534e-02;1.46524883e-02;1.10419335e-02;7.39668298e-03;5.54608752e-17</z>
+          </pointList>
+        </wingAirfoil>
+      </wingAirfoils>
+      <curveProfiles>
+        <curveProfile uID="Nacelle_Engine1_fanCowlRotationCurve">
+          <pointList>
+            <x>0;1</x>
+            <y>-0.06;-0.06</y>
+          </pointList>
+        </curveProfile>
+      </curveProfiles>
+      <nacelleProfiles>
+        <nacelleProfile uID="Nacelle_Engine1_Nacelle_fanCowl_NACA025">
+          <name>NACA025</name>
+          <pointList>
+            <x>0.5;0.49929135;0.4971674;0.49363418;0.48870169;0.48238393;0.4746988;0.46566809;0.45531739;0.44367604;0.43077704;0.41665696;0.40135582;0.38491699;0.36738708;0.34881576;0.32925569;0.30876231;0.28739371;0.26521045;0.24227544;0.21865366;0.19441209;0.16961943;0.14434597;0.11866335;0.09264436;0.06636276;0.03989305;0.01331026;-0.01331026;-0.03989305;-0.06636276;-0.09264436;-0.11866335;-0.14434597;-0.16961943;-0.19441209;-0.21865366;-0.24227544;-0.26521045;-0.28739371;-0.30876231;-0.32925569;-0.34881576;-0.36738708;-0.38491699;-0.40135582;-0.41665696;-0.43077704;-0.44367604;-0.45531739;-0.46566809;-0.4746988;-0.48238393;-0.48870169;-0.49363418;-0.4971674;-0.49929135;-0.5;-0.5;-0.49929135;-0.4971674;-0.49363418;-0.48870169;-0.48238393;-0.4746988;-0.46566809;-0.45531739;-0.44367604;-0.43077704;-0.41665696;-0.40135582;-0.38491699;-0.36738708;-0.34881576;-0.32925569;-0.30876231;-0.28739371;-0.26521045;-0.24227544;-0.21865366;-0.19441209;-0.16961943;-0.14434597;-0.11866335;-0.09264436;-0.06636276;-0.03989305;-0.01331026;0.01331026;0.03989305;0.06636276;0.09264436;0.11866335;0.14434597;0.16961943;0.19441209;0.21865366;0.24227544;0.26521045;0.28739371;0.30876231;0.32925569;0.34881576;0.36738708;0.38491699;0.40135582;0.41665696;0.43077704;0.44367604;0.45531739;0.46566809;0.4746988;0.48238393;0.48870169;0.49363418;0.4971674;0.49929135;0.5</x>
+            <y>6.93889390e-18;-4.28979938e-05;-1.71234208e-04;-3.83942546e-04;-6.79269858e-04;-1.05481035e-03;-1.50755158e-03;-2.03392996e-03;-2.62989340e-03;-3.29096823e-03;-4.01232765e-03;-4.78885875e-03;-5.61522538e-03;-6.48592449e-03;-7.39533375e-03;-8.33774917e-03;-9.30741158e-03;-1.02985218e-02;-1.13052451e-02;-1.23217056e-02;-1.33419722e-02;-1.43600399e-02;-1.53698057e-02;-1.63650461e-02;-1.73393959e-02;-1.82863334e-02;-1.91991737e-02;-2.00710738e-02;-2.08950501e-02;-2.16640106e-02;-2.23708037e-02;-2.30082803e-02;-2.35693722e-02;-2.40471828e-02;-2.44350879e-02;-2.47268445e-02;-2.49167032e-02;-2.49995200e-02;-2.49708640e-02;-2.48271154e-02;-2.45655500e-02;-2.41844068e-02;-2.36829339e-02;-2.30614104e-02;-2.23211429e-02;-2.14644334e-02;-2.04945212e-02;-1.94154967e-02;-1.82321913e-02;-1.69500449e-02;-1.55749556e-02;-1.41131148e-02;-1.25708345e-02;-1.09543717e-02;-9.26975461e-03;-7.52261886e-03;-5.71805653e-03;-3.86048537e-03;-1.95354154e-03;0.00000000e+00;0.00000000e+00;1.95354154e-03;3.86048537e-03;5.71805653e-03;7.52261886e-03;9.26975461e-03;1.09543717e-02;1.25708345e-02;1.41131148e-02;1.55749556e-02;1.69500449e-02;1.82321913e-02;1.94154967e-02;2.04945212e-02;2.14644334e-02;2.23211429e-02;2.30614104e-02;2.36829339e-02;2.41844068e-02;2.45655500e-02;2.48271154e-02;2.49708640e-02;2.49995200e-02;2.49167032e-02;2.47268445e-02;2.44350879e-02;2.40471828e-02;2.35693722e-02;2.30082803e-02;2.23708037e-02;2.16640106e-02;2.08950501e-02;2.00710738e-02;1.91991737e-02;1.82863334e-02;1.73393959e-02;1.63650461e-02;1.53698057e-02;1.43600399e-02;1.33419722e-02;1.23217056e-02;1.13052451e-02;1.02985218e-02;9.30741158e-03;8.33774917e-03;7.39533375e-03;6.48592449e-03;5.61522538e-03;4.78885875e-03;4.01232765e-03;3.29096823e-03;2.62989340e-03;2.03392996e-03;1.50755158e-03;1.05481035e-03;6.79269858e-04;3.83942546e-04;1.71234208e-04;4.28979938e-05;6.93889390e-18</y>
+          </pointList>
+        </nacelleProfile>
+      </nacelleProfiles>
+    </profiles>
+  </vehicles>
+</cpacs>

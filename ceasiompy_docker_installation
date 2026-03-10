@@ -106,6 +106,17 @@ RUN conda install -n base -c conda-forge mamba -y && \
     --quiet && \
     conda clean -afy
 
+# Install build dependencies required by OpenVSP (so openvsp.sh can use --skip-deps)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cmake swig pkg-config patch gfortran \
+    libx11-dev libxext-dev libxrender-dev libxft-dev libxi-dev \
+    libxcursor-dev libxinerama-dev libxrandr-dev libxfixes-dev libxmu-dev \
+    libfontconfig1-dev libgl-dev libglu1-mesa-dev \
+    zlib1g-dev libbz2-dev liblzma-dev libpng-dev libjpeg-dev \
+    libfreetype-dev libexpat1-dev libssl-dev libcurl4-openssl-dev uuid-dev \
+    python3-dev && \
+    rm -rf /var/lib/apt/lists/*
+
 # Build OpenVSP from source against the ceasiompy conda env's Python/NumPy
 RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && conda activate ceasiompy && /CEASIOMpy/installation/ubuntu/openvsp.sh --skip-deps"
 

@@ -53,27 +53,28 @@ On Linux/macOS, run the installer to set up the conda environment and optional t
 git clone https://github.com/cfsengineering/CEASIOMpy
 cd CEASIOMpy
 ./scripts/install.sh
-ceasiompy_run --g
 ```
 
-For Windows users please use the online version at https://ceasiompy.com
-
-### Create Docker Container (Windows, Optional)
-A video which explains how to ![install](installation/DOCKER_INSTALLATION.md) CEASIOMpy on Docker is now available!
-[![CEASIOMpy Docker Installation](installation/docker_installation.png)](https://www.youtube.com/watch?v=KTS1-6AsReU)
+For Windows users please use the online version at https://ceasiompy.com or go to the [Docker Installation page](https://github.com/cfsengineering/CEASIOMpy/blob/main/installation/docker_installation.md).
 
 ### Run CEASIOMpy
 
-- **Run CEASIOMpy with a GUI to build the workflow**
-
-    If you run CEASIOMpy with the following command, you can build the workflow with a graphical user interface.
-
+- **Build a custom workflow**
     ```bash
     ceasiompy_run --gui
     ```
 
-- **For a list of all available commands**
+- **Specify a default geometry to load**
+    ```bash
+    ceasiompy_run --gui --geometry geometry/cpacsfiles/d150.xml
+    ```
 
+- **Specify geometry + modules**
+    ```bash
+    ceasiompy_run --gui --geometry geometry/cpacsfiles/d150.xml --modules pyavl
+    ```
+
+- **Help**
     If you want the list of all possible commands for ceasiompy:
 
     ```bash

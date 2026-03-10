@@ -40,15 +40,7 @@ jobs:
         environment-file: environment.yml
         use-mamba: true
 
-    - name: Install libGLU
-      run: sudo apt-get install -y libglu1-mesa-dev
-
-    - name: Pin NumPy ABI for OpenVSP
-      shell: bash -l {0}
-      run: |
-        conda install -y "numpy<2"
-
-    - name: Install ceasiompy and OpenVSP
+    - name: Install ceasiompy and build OpenVSP from source
       shell: bash -l {0}
       run: |
         pip install -e .

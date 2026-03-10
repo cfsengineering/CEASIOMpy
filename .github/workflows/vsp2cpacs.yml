@@ -45,7 +45,7 @@ jobs:
       run: |
         pip install -e .
         pip uninstall -y openvsp || true
-        installation/ubuntu/openvsp.sh
+        installation/ubuntu/openvsp.sh --prebuilt
 
     - name: Validate OpenVSP Python binding
       shell: bash -l {0}

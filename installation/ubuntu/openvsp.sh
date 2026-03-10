@@ -4,7 +4,7 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Install OpenVSP on Ubuntu (build from source).
+Install OpenVSP on Ubuntu (build from source or install prebuilt .deb).
 
 Supports:
   - Ubuntu 22.04 (Jammy)
@@ -14,6 +14,8 @@ Usage:
   bash installation/ubuntu/openvsp.sh [options]
 
 Options:
+  --prebuilt        Download and install prebuilt .deb from openvsp.org (skip source build)
+  --deb-url URL     Override the .deb download URL (implies --prebuilt)
   --prefix PATH     Install root that contains installdir/ (default: repo root)
   --ref REF         Git ref (tag/branch/commit) to checkout (default: OpenVSP default branch)
   --jobs N          Parallel build jobs (default: nproc)
@@ -29,7 +31,8 @@ Options:
 
 Notes:
   - This script uses apt-get and may require sudo.
-  - Building OpenVSP downloads third-party sources during the build (network required).
+  - --prebuilt auto-detects the latest version and Ubuntu codename from openvsp.org.
+  - Building from source downloads third-party sources during the build (network required).
   - The Python bindings are compiled against the ceasiompy conda environment's NumPy,
     so they are ABI-compatible with whatever NumPy version is installed there.
   - Output is installed under: <prefix>/installdir/OpenVSP
@@ -50,6 +53,8 @@ no_update=0
 skip_deps=0
 clean=0
 keep_existing=0
+use_prebuilt=0
+deb_url_override=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -107,6 +112,17 @@ while [[ $# -gt 0 ]]; do
       ;;
     --keep-existing|--no-clean)
       keep_existing=1
+      shift
+      ;;
+    --prebuilt)
+      use_prebuilt=1
+      shift
+      ;;
+    --deb-url)
+      shift
+      [[ $# -gt 0 ]] || die "--deb-url requires a URL"
+      deb_url_override="$1"
+      use_prebuilt=1
       shift
       ;;
     -h|--help)
@@ -234,7 +250,150 @@ src_dir="$openvsp_prefix/src"
 buildlibs_dir="$openvsp_prefix/buildlibs"
 build_dir="$openvsp_prefix/build"
 
-# --- Install OS dependencies ---
+# --- Prebuilt .deb install path ---
+
+resolve_deb_url() {
+  # Auto-detect the latest OpenVSP .deb URL for the current Ubuntu version.
+  # Scrapes the OpenVSP download page for the matching .deb link.
+  local ubuntu_codename=""
+  case "$ubuntu_version_id" in
+    22.04) ubuntu_codename="Ubuntu-22.04" ;;
+    24.04) ubuntu_codename="Ubuntu-24.04" ;;
+    *)     ubuntu_codename="Ubuntu-${ubuntu_version_id}" ;;
+  esac
+
+  say ">>> Detecting latest OpenVSP .deb for ${ubuntu_codename}..." >&2
+
+  local download_page="https://openvsp.org/download.php"
+  local page_html=""
+  page_html="$(curl -fsSL "$download_page" 2>/dev/null)" \
+    || die "Failed to fetch OpenVSP download page: $download_page"
+
+  # Look for .deb links matching our Ubuntu version (e.g. OpenVSP-3.48.2-Ubuntu-24.04_amd64.deb)
+  local deb_path=""
+  deb_path="$(printf '%s\n' "$page_html" \
+    | grep -oP "download\.php\?file=zips/[^\"]*${ubuntu_codename}_amd64\.deb" \
+    | head -n 1)" \
+    || true
+
+  if [[ -z "$deb_path" ]]; then
+    # Fallback: try any Ubuntu .deb
+    deb_path="$(printf '%s\n' "$page_html" \
+      | grep -oP "download\.php\?file=zips/[^\"]*Ubuntu[^\"]*_amd64\.deb" \
+      | head -n 1)" \
+      || true
+  fi
+
+  if [[ -z "$deb_path" ]]; then
+    die "Could not find an OpenVSP .deb for ${ubuntu_codename} on the download page.
+         Use --deb-url to provide the URL manually."
+  fi
+
+  # Extract version from the path for logging
+  local version=""
+  version="$(printf '%s\n' "$deb_path" | grep -oP 'OpenVSP-\K[0-9]+\.[0-9]+\.[0-9]+')" || true
+
+  local full_url="https://openvsp.org/${deb_path}"
+  say ">>> Found OpenVSP ${version:-unknown} .deb: $full_url" >&2
+  printf '%s\n' "$full_url"
+}
+
+install_prebuilt() {
+  local deb_url="$1"
+  local tmp_deb="/tmp/openvsp_latest.deb"
+
+  say ">>> Downloading OpenVSP .deb..."
+  curl -fSL "$deb_url" -o "$tmp_deb" || die "Failed to download .deb from: $deb_url"
+
+  say ">>> Installing runtime prerequisites for OpenVSP .deb..."
+  sudo apt-get update || die "Failed to update package lists."
+  sudo apt-get install -y desktop-file-utils || die "Failed to install desktop-file-utils."
+
+  say ">>> Installing OpenVSP .deb (requires sudo)..."
+  if ! sudo dpkg -i "$tmp_deb"; then
+    say ">>> dpkg reported missing dependencies; attempting to fix..."
+    if ! sudo apt-get install -f -y; then
+      die "Failed to resolve .deb dependencies."
+    fi
+    if ! sudo dpkg -i "$tmp_deb"; then
+      die "Failed to install .deb after fixing dependencies."
+    fi
+  fi
+  rm -f "$tmp_deb"
+
+  # dpkg typically installs to /opt/OpenVSP or /usr/local — locate the install
+  local deb_install_dir=""
+  for candidate in /opt/OpenVSP /usr/lib/openvsp /usr/local/OpenVSP /usr/share/openvsp; do
+    if [[ -d "$candidate" ]]; then
+      deb_install_dir="$candidate"
+      break
+    fi
+  done
+
+  # Also check dpkg -L for the actual file list
+  if [[ -z "$deb_install_dir" ]]; then
+    local pkg_name=""
+    pkg_name="$(dpkg -l 2>/dev/null | awk '/openvsp/{print $2; exit}')" || true
+    pkg_name="${pkg_name:-openvsp}"
+    deb_install_dir="$(dpkg -L "$pkg_name" 2>/dev/null | grep -m1 '/vsp$' | xargs dirname)" || true
+  fi
+
+  if [[ -z "$deb_install_dir" ]]; then
+    say ">>> Warning: could not auto-detect .deb install location. Checking common paths..."
+    deb_install_dir="$(dirname "$(command -v vsp 2>/dev/null || echo "")")"
+  fi
+
+  if [[ -n "$deb_install_dir" ]]; then
+    say ">>> OpenVSP installed to: $deb_install_dir"
+
+    # Symlink into our expected installdir layout so Python integration works
+    mkdir -p "$install_root"
+    if [[ "$deb_install_dir" != "$openvsp_prefix" ]]; then
+      ln -sfn "$deb_install_dir" "$openvsp_prefix"
+      say ">>> Symlinked $openvsp_prefix -> $deb_install_dir"
+    fi
+  else
+    say ">>> Warning: could not determine OpenVSP install location from .deb."
+    say ">>>          Python bindings integration may need manual configuration."
+  fi
+
+  # Symlink vsp into PATH if not already there
+  if ! command -v openvsp >/dev/null 2>&1; then
+    local vsp_bin=""
+    for candidate in "$deb_install_dir/vsp" "$deb_install_dir/bin/vsp"; do
+      if [[ -x "$candidate" ]]; then
+        vsp_bin="$candidate"
+        break
+      fi
+    done
+    if [[ -n "$vsp_bin" ]] && [[ -d /usr/local/bin ]]; then
+      sudo ln -sf "$vsp_bin" /usr/local/bin/openvsp || true
+    fi
+  fi
+}
+
+if [[ "$use_prebuilt" -eq 1 ]]; then
+  # Resolve the .deb URL (auto-detect or user-provided)
+  if [[ -n "$deb_url_override" ]]; then
+    prebuilt_url="$deb_url_override"
+  else
+    prebuilt_url="$(resolve_deb_url)"
+  fi
+
+  install_prebuilt "$prebuilt_url"
+
+  # Jump to Python bindings integration (skip source build entirely)
+  # The integration code below the source build still runs.
+else
+  : # Continue with source build below
+fi
+
+if [[ "$use_prebuilt" -eq 0 ]]; then
+# ============================================================
+# Source build path
+# ============================================================
+
+# --- Install OS dependencies (source build only) ---
 
 install_deps() {
   say ">>> Installing build/runtime dependencies via apt-get (requires sudo)..."
@@ -657,6 +816,8 @@ elif [[ -n "$vsp_bin" ]]; then
 else
   say ">>> Warning: could not locate a built 'vsp' executable under: $openvsp_prefix"
 fi
+
+fi  # end of source build path (use_prebuilt == 0)
 
 # --- Integrate Python bindings with ceasiompy conda env ---
 

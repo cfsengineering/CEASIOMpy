@@ -39,8 +39,10 @@ TESTCEASIOMPY_DB_PATH = Path(
     "testceasiompy.db",
 )
 
-# /CEASIOMpy/documents/logos/CEASIOMpy_main_logos.png
-CEASIOMPY_LOGO_PATH = Path(CEASIOMPY_PATH, "documents", "logos", "CEASIOMpy_512px.png")
+# /CEASIOMpy/documents/logos/ceasiompy.png
+LOGOS_PATH = Path(CEASIOMPY_PATH, "documents", "logos")
+CEASIOMPY_LOGO_PATH = Path(LOGOS_PATH, "ceasiompy.png")
+BLACKCEASIOMPY_LOGO_PATH = Path(LOGOS_PATH, "blackceasiompy.svg")
 
 # /CEASIOMpy/.ceasiompy/.runworkflow_history
 RUNWORKFLOW_HISTORY_PATH = Path(CEASIOMPY_PATH, ".ceasiompy", ".runworkflow_history")

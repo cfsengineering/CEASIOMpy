@@ -162,66 +162,35 @@ def dataframe_vartype(
     key,
     help,
 ) -> list[float]:
-    # Initialize the list in session state if it doesn't exist
     if key not in st.session_state:
-        st.session_state[key] = []
-        st.session_state[key].extend(default_value)
+        st.session_state[key] = default_value[:]
         _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
 
-    gen_left_col, gen_right_col = st.columns(
-        spec=[1, 3],
-        vertical_alignment="bottom",
+    df = pd.DataFrame(st.session_state[key], columns=[name])
+
+    edited_df = st.data_editor(
+        df,
+        num_rows="dynamic",
+        hide_index=True,
+        key=f"editor_{key}",
+        column_config={
+            name: st.column_config.NumberColumn(name, help=help),
+        },
     )
 
-    with gen_left_col:
-        # Input for new float value
-        # Display the current list of floats in a table
-        if st.session_state[key]:
-            st.table(pd.DataFrame(st.session_state[key], columns=[name]))
+    values = (
+        edited_df[name]
+        .dropna()
+        .drop_duplicates()
+        .astype(float)
+        .tolist()
+    )
 
-    with gen_right_col:
-        # Add button to append the new value to the list
-        left_col, right_col = st.columns(
-            spec=2,
-            vertical_alignment="bottom",
-        )
+    if values != st.session_state[key]:
+        st.session_state[key] = values
+        _sync_multiselect_to_cpacs(tixi, xpath, values)
 
-        with left_col:
-            # Input for new float value
-            new_value = st.number_input(
-                label=name,
-                value=0.0,
-                key=f"new_{key}",
-                help=help,
-            )
-
-        with right_col:
-            left_col, right_col = st.columns(2)
-            with left_col:
-                if st.button(
-                    label="➕ Add",
-                    key=f"add_{key}",
-                    width="stretch",
-                    help="Add a new value to the list.",
-                ):
-                    if new_value not in st.session_state[key]:
-                        st.session_state[key].append(new_value)
-                        _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
-                        st.rerun()
-            with right_col:
-                if st.button(
-                    label="❌ Remove",
-                    key=f"remove_last_{key}",
-                    width="stretch",
-                    help="Remove the last value from the list.",
-                ):
-                    if st.session_state[key]:
-                        st.session_state[key].pop()
-                        _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
-                        st.rerun()
-
-                _sync_multiselect_to_cpacs(tixi, xpath, st.session_state[key])
-                return st.session_state[key]
+    return st.session_state[key]
 
 
 def int_vartype(

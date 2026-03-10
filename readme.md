@@ -12,7 +12,7 @@ For the legacy open-source version, please refer to all [v1.x] versions.
 
 # CEASIOMpy
 
-<img align="right" width="300" height="300" src="documents/logos/CEASIOMpy_main_logos.png">
+<img align="right" width="300" height="300" src="documents/logos/ceasiompy.png">
 
 CEASIOMpy is an conceptual aircraft design environment which can be used to set up complex design and optimisation workflows for both conventional and unconventional aircraft configurations.
 
@@ -53,27 +53,28 @@ On Linux/macOS, run the installer to set up the conda environment and optional t
 git clone https://github.com/cfsengineering/CEASIOMpy
 cd CEASIOMpy
 ./scripts/install.sh
-ceasiompy_run --g
 ```
 
-For Windows users please use the online version at https://ceasiompy.com
-
-### Create Docker Container (Windows, Optional)
-A video which explains how to ![install](installation/DOCKER_INSTALLATION.md) CEASIOMpy on Docker is now available!
-[![CEASIOMpy Docker Installation](installation/docker_installation.png)](https://www.youtube.com/watch?v=KTS1-6AsReU)
+For Windows users please use the online version at https://ceasiompy.com or go to the [Docker Installation page](https://github.com/cfsengineering/CEASIOMpy/blob/main/installation/dockerinstall.md).
 
 ### Run CEASIOMpy
 
-- **Run CEASIOMpy with a GUI to build the workflow**
-
-    If you run CEASIOMpy with the following command, you can build the workflow with a graphical user interface.
-
+- **Build a custom workflow**
     ```bash
     ceasiompy_run --gui
     ```
 
-- **For a list of all available commands**
+- **Specify a default geometry to load**
+    ```bash
+    ceasiompy_run --gui --geometry geometry/cpacsfiles/d150.xml
+    ```
 
+- **Specify geometry + modules**
+    ```bash
+    ceasiompy_run --gui --geometry geometry/cpacsfiles/d150.xml --modules pyavl
+    ```
+
+- **Help**
     If you want the list of all possible commands for ceasiompy:
 
     ```bash
@@ -144,3 +145,18 @@ This respository may be cited via BibTex as:
   note = {Proprietary License - Commercial/HPC use requires authorization.}
 }
 ```
+
+## Code Developers
+We are the **CFS Engineering** team, we are a:
+
+* **Who we are:** specialized company in **Computational Fluid Dynamics (CFD)**.
+* **Where we are:** based at the **EPFL Innovation Park, Lausanne**, Switzerland.
+* **Our heritage:** active since the late '90s, we have built a massive background in aerodynamics and aerothermodynamics.
+
+We are the creators of **NSMB** (Navier-Stokes Multi-Block), our robust and widely used in-house code. If you want to dive deeper into our history, feel free to [visit our website](https://www.cfse.ch).
+
+**Best regards,**
+**The CFS Engineering Team**
+*Lausanne, Switzerland*
+
+> © 2026 CFS Engineering | EPFL Innovation Park, 1015 Lausanne.

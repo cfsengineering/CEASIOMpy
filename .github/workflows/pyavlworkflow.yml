@@ -1,4 +1,4 @@
-name: general workflows
+name: pyavl workflow
 
 on:
   push:
@@ -61,21 +61,11 @@ jobs:
       run: |
         installation/ubuntu/avl.sh
 
-    - name: Install SU2
-      shell: bash -l {0}
-      run: |
-        installation/ubuntu/su2.sh --with_mpi false
-
-    - name: Install Pentagrow
-      shell: bash -l {0}
-      run: |
-        installation/ubuntu/pentagrow.sh
-
-    - name: Run integration tests
+    - name: Run pyavl workflows
       shell: bash -l {0}
       run: |
         source ~/.bashrc
-        pytest -v ./tests --cov=ceasiompy --cov-report xml:coverage.xml -m "not gui"
+        pytest -v ./tests/test_pyavl_workflow.py --cov=ceasiompy --cov-report xml:coverage.xml -m "not gui"
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4

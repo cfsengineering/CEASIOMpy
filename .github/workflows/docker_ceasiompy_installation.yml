@@ -1,4 +1,4 @@
-name: CEASIOMpy Docker Installation Test
+name: docker setup
 
 on:
   push:

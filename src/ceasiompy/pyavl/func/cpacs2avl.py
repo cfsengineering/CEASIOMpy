@@ -85,7 +85,10 @@ def compute_fuselage_coords(
 ):
     # Compute coordinates of the center of section
     body_frm_center_x = (
-        elem_transf.translation.x * sec_transf.scaling.x + sec_transf.translation.x + pos_x_list[i_sec]
+        elem_transf.translation.x
+        * sec_transf.scaling.x
+        + sec_transf.translation.x
+        + pos_x_list[i_sec]
     ) * fus_transf.scaling.x
 
     body_frm_center_z = (

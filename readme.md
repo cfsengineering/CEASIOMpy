@@ -144,3 +144,18 @@ This respository may be cited via BibTex as:
   note = {Proprietary License - Commercial/HPC use requires authorization.}
 }
 ```
+
+## Code Developers
+We are the **CFS Engineering** team, we are a:
+
+* **Who we are:** specialized company in **Computational Fluid Dynamics (CFD)**.
+* **Where we are:** based at the **EPFL Innovation Park, Lausanne**, Switzerland.
+* **Our heritage:** active since the late '90s, we have built a massive background in aerodynamics and aerothermodynamics.
+
+We are the creators of **NSMB** (Navier-Stokes Multi-Block), our robust and widely used in-house code. If you want to dive deeper into our history, feel free to [visit our website](https://www.cfse.ch).
+
+**Best regards,**
+**The CFS Engineering Team**
+*Lausanne, Switzerland*
+
+> © 2026 CFS Engineering | EPFL Innovation Park, 1015 Lausanne.

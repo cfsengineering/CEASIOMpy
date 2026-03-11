@@ -294,14 +294,14 @@ def get_aircraft_mesh_data(
     """Returns (x, y, z, i, j, k), and when symmetry: only y >= 0.0"""
 
     cpacs_path = Path(cpacs.cpacs_file)
-    stl_name = cpacs_path.stem
+    vtp_name = cpacs_path.stem
     if symmetry:
-        stl_name = f"{stl_name}_symmetry"
-    stl_file = Path(tempfile.gettempdir()) / f"{stl_name}.stl"
+        vtp_name = f"{vtp_name}_symmetry"
+    vtp_file = Path(tempfile.gettempdir()) / f"{vtp_name}.vtp"
 
-    if force_regenerate or not stl_file.exists():
+    if force_regenerate or not vtp_file.exists():
         try:
-            with st.spinner("Meshing geometry (STL export)..."):
+            with st.spinner("Meshing geometry (VTP export)..."):
                 warning_signature = "Warning: 1 face has been skipped due to null triangulation"
                 with (
                     tempfile.TemporaryFile(mode="w+b") as stdout_capture,
@@ -312,7 +312,7 @@ def get_aircraft_mesh_data(
                     try:
                         os.dup2(stdout_capture.fileno(), 1)
                         os.dup2(stderr_capture.fileno(), 2)
-                        cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
+                        cpacs.aircraft.tigl.exportMeshedGeometryVTK(str(vtp_file), 0.01)
                     finally:
                         os.dup2(saved_stdout_fd, 1)
                         os.dup2(saved_stderr_fd, 2)
@@ -331,12 +331,12 @@ def get_aircraft_mesh_data(
             return None
 
     try:
-        your_mesh = mesh.Mesh.from_file(stl_file)
+        your_mesh = mesh.Mesh.from_file(vtp_file)
     except Exception as e:
         st.error(f"Cannot load 3D preview mesh file: {e=}.")
         return None
 
-    log.info(f"Mesh from stl at {stl_file=}")
+    log.info(f"Mesh from stl at {vtp_file=}")
 
     mesh_vectors = your_mesh.vectors
     if symmetry:

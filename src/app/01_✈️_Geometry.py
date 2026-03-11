@@ -508,12 +508,21 @@ def section_select_cpacs() -> None:
     title += ")"
     st.markdown(title)
 
-    _, col, _ = st.columns(spec=[0.1, 1.0, 0.1])
-    with col:
-        section_3d_view(
-            cpacs=cpacs,
-            force_regenerate=True,
-        )
+    section_3d_view(
+        cpacs=cpacs,
+        force_regenerate=True,
+    )
+
+    cpacs_path = Path(cpacs.cpacs_file)
+    if cpacs_path.exists():
+        with open(cpacs_path, "rb") as f:
+            st.download_button(
+                label="Download CPACS file",
+                data=f,
+                file_name=cpacs_path.name,
+                mime="application/octet-stream",
+                width="stretch",
+            )
 
     # Once 3D view of CPACS file is done scroll down
     scroll_down()

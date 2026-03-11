@@ -337,7 +337,7 @@ def get_aircraft_mesh_data(
 
     log.info(f"Mesh from vtp at {vtp_file=}")
 
-    surface = pv_mesh.extract_surface().triangulate().clean()
+    surface = pv_mesh.extract_surface(algorithm="dataset_surface").triangulate().clean()
     points = np.asarray(surface.points, dtype=float)
     faces = np.asarray(surface.faces.reshape(-1, 4), dtype=np.int64)
 

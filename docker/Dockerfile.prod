@@ -1,0 +1,92 @@
+# Production Dockerfile for CEASIOMpy
+# Clones the main branch from GitHub — no local COPY needed.
+# Build: docker build -t ceasiompy-prod -f docker/Dockerfile.prod .
+# Run:   docker run -it -p 5000:5000 ceasiompy-prod
+
+FROM ubuntu:24.04
+
+# ── System packages (single layer) ──────────────────────────────────
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    apt-utils git curl wget sudo unzip build-essential dos2unix \
+    libglu1-mesa-dev libtbbmalloc2 libtbb-dev \
+    libxrender1 libxcursor1 libxinerama1 libxft2 libxt6 \
+    libgl1 libglu1-mesa libegl1 libosmesa6 xvfb ca-certificates \
+    libglib2.0-0 libxi6 libxmu6 gnupg && \
+    echo '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d && \
+    rm -rf /var/lib/apt/lists/*
+
+# ── Miniforge / Conda ──────────────────────────────────────────────
+ENV CONDA_DIR=/opt/conda
+RUN curl -fsSL https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -o /tmp/miniforge.sh && \
+    bash /tmp/miniforge.sh -b -p $CONDA_DIR && \
+    rm /tmp/miniforge.sh
+ENV PATH=$CONDA_DIR/bin:$PATH
+
+# ── Clone CEASIOMpy main branch ────────────────────────────────────
+RUN git clone --depth 1 --branch main https://github.com/cfsengineering/CEASIOMpy.git /CEASIOMpy
+
+# ── Fix line endings & permissions for install scripts ─────────────
+RUN find /CEASIOMpy/installation -name "*.sh" -type f -exec dos2unix {} \; && \
+    chmod +x /CEASIOMpy/installation/ubuntu/*.sh
+
+# ── Pentagrow ──────────────────────────────────────────────────────
+WORKDIR /CEASIOMpy/installdir
+RUN git clone https://github.com/cfsengineering/Pentagrow.git && \
+    chmod +x Pentagrow/bin/pentagrow
+WORKDIR /
+RUN /CEASIOMpy/installation/ubuntu/pentagrow.sh
+
+# ── AVL ────────────────────────────────────────────────────────────
+RUN /CEASIOMpy/installation/ubuntu/avl.sh
+
+# ── SU2 ────────────────────────────────────────────────────────────
+RUN rm -rf /var/lib/apt/lists/* && \
+    apt-get update -o Acquire::Retries=5 -o Acquire::http::No-Cache=true -o Acquire::http::Pipeline-Depth=0
+RUN /CEASIOMpy/installation/ubuntu/su2.sh --with_mpi false
+
+# ── Display / rendering deps ──────────────────────────────────────
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    xvfb libgl1 libegl1 libosmesa6 libxt6 \
+    g++ libtbbmalloc2 libtbb-dev libxrender1 libxcursor1 libxinerama1 libxft2 \
+    libosmesa6 && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV DISPLAY=:99
+ENV LIBGL_ALWAYS_SOFTWARE=1
+ENV XDG_RUNTIME_DIR=/tmp/runtime-root
+RUN mkdir -p /tmp/runtime-root && chmod 700 /tmp/runtime-root
+
+# ── Conda environment ─────────────────────────────────────────────
+WORKDIR /CEASIOMpy
+RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && \
+    conda update -n base -c conda-forge conda -y && \
+    conda env create -f environment.yml"
+
+RUN conda install -n base -c conda-forge mamba -y && \
+    mamba install -n ceasiompy -y -c conda-forge \
+    pythonocc-core \
+    mathjax=2.7.7 \
+    --quiet && \
+    conda clean -afy
+
+# ── OpenVSP build deps & build ────────────────────────────────────
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cmake swig pkg-config patch gfortran \
+    libx11-dev libxext-dev libxrender-dev libxft-dev libxi-dev \
+    libxcursor-dev libxinerama-dev libxrandr-dev libxfixes-dev libxmu-dev \
+    libfontconfig1-dev libgl-dev libglu1-mesa-dev \
+    zlib1g-dev libbz2-dev liblzma-dev libpng-dev libjpeg-dev \
+    libfreetype-dev libexpat1-dev libssl-dev libcurl4-openssl-dev uuid-dev \
+    python3-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && conda activate ceasiompy && \
+    /CEASIOMpy/installation/ubuntu/openvsp.sh --skip-deps"
+
+# ── Shell defaults ─────────────────────────────────────────────────
+RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate ceasiompy" >> ~/.bashrc && \
+    echo "pip install -e ." >> ~/.bashrc && \
+    echo "ceasiompy_run --gui" >> ~/.bashrc
+
+CMD ["/bin/bash", "-l"]

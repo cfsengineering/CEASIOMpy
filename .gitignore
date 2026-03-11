@@ -190,7 +190,6 @@ aircraft_loads.csv
 ceasiompy.cfg
 ceasiompy.log
 history.csv
-docker
 
 /unittest_cov_html
 

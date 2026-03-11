@@ -9,7 +9,6 @@ from streamlit.components import v2 as components_v2
 
 from cpacspy.cpacsfunctions import get_value
 
-from stl import mesh
 from pathlib import Path
 from numpy import ndarray
 from cpacspy.cpacspy import CPACS
@@ -331,21 +330,25 @@ def get_aircraft_mesh_data(
             return None
 
     try:
-        your_mesh = mesh.Mesh.from_file(vtp_file)
+        pv_mesh = pv.read(str(vtp_file))
     except Exception as e:
         st.error(f"Cannot load 3D preview mesh file: {e=}.")
         return None
 
-    log.info(f"Mesh from stl at {vtp_file=}")
+    log.info(f"Mesh from vtp at {vtp_file=}")
 
-    mesh_vectors = your_mesh.vectors
+    surface = pv_mesh.extract_surface(algorithm="dataset_surface").triangulate().clean()
+    points = np.asarray(surface.points, dtype=float)
+    faces = np.asarray(surface.faces.reshape(-1, 4), dtype=np.int64)
+
     if symmetry:
-        mesh_vectors = mesh_vectors[np.all(mesh_vectors[:, :, 1] >= -1e-3, axis=1)]
+        # Keep only triangles whose vertices all have y >= -1e-3
+        tri_points = points[faces[:, 1:]]  # shape (n_faces, 3, 3)
+        mask = np.all(tri_points[:, :, 1] >= -1e-3, axis=1)
+        faces = faces[mask]
 
-    triangles = mesh_vectors.reshape(-1, 3)
-    vertices, indices = np.unique(triangles, axis=0, return_inverse=True)
-    i, j, k = indices[0::3], indices[1::3], indices[2::3]
-    x, y, z = vertices.T
+    i, j, k = faces[:, 1], faces[:, 2], faces[:, 3]
+    x, y, z = points[:, 0], points[:, 1], points[:, 2]
     return (
         x, y, z,
         i, j, k,

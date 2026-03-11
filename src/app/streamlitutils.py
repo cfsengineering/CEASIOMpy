@@ -24,7 +24,7 @@ from cpacspy.cpacspy import CPACS
 from tigl3.tigl3wrapper import Tigl3
 from tixi3.tixi3wrapper import Tixi3
 
-from ceasiompy.utils.commonpaths import BLACKCEASIOMPY_LOGO_PATH, CEASIOMPY_LOGO_PATH
+from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
 
 
 # Functions
@@ -175,6 +175,11 @@ def build_default_upload(cpacs_path: Path):
     return _DefaultUploadedFile(cpacs_path)
 
 
+@st.cache_data
+def _load_logo():
+    return CEASIOMPY_LOGO_PATH.read_bytes()
+
+
 def create_sidebar(how_to_text, page_title="CEASIOMpy"):
     """Create side bar with a text explaining how the page should be used."""
 
@@ -184,21 +189,11 @@ def create_sidebar(how_to_text, page_title="CEASIOMpy"):
         page_icon=favicon,
         layout="wide",
     )
+    logo_bytes = _load_logo()
     st.logo(
-        image=str(BLACKCEASIOMPY_LOGO_PATH),
+        size="large",
+        image=logo_bytes,
         link="https://ceasiompy.com/",
-    )
-    st.markdown(
-        """
-        <style>
-        section[data-testid="stSidebar"] {
-            min-width: 220px;
-            width: 220px;
-            padding-top: 1rem;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
     )
     st.sidebar.markdown(how_to_text)
     contact_text = (

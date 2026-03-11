@@ -508,10 +508,12 @@ def section_select_cpacs() -> None:
     title += ")"
     st.markdown(title)
 
-    section_3d_view(
-        cpacs=cpacs,
-        force_regenerate=True,
-    )
+    _, col, _ = st.columns(spec=[0.1, 1.0, 0.1])
+    with col:
+        section_3d_view(
+            cpacs=cpacs,
+            force_regenerate=True,
+        )
 
     # Once 3D view of CPACS file is done scroll down
     scroll_down()

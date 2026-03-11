@@ -1,4 +1,4 @@
-# For mac users: CONDA_SUBDIR=osx-64 conda env create -f ceasiompy.yml
+# For mac users: CONDA_SUBDIR=osx-64 conda env create -f environment.yml
 
 name: ceasiompy
 

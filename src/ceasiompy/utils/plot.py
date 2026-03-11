@@ -312,7 +312,7 @@ def get_aircraft_mesh_data(
                     try:
                         os.dup2(stdout_capture.fileno(), 1)
                         os.dup2(stderr_capture.fileno(), 2)
-                        cpacs.aircraft.tigl.exportMeshedGeometryVTK(str(stl_file), 0.01)
+                        cpacs.aircraft.tigl.exportMeshedGeometryVTK(str(vtp_file), 0.01)
                     finally:
                         os.dup2(saved_stdout_fd, 1)
                         os.dup2(saved_stderr_fd, 2)

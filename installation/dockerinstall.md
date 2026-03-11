@@ -39,7 +39,7 @@ Build the Docker image for your system's architecture:
 # Run the appropriate build command:
 
 ```bash
-docker build --platform=linux/amd64 -t ceasiompy-image -f CEASIOMpy_docker_Installation .
+docker build --platform=linux/amd64 -t ceasiompy-image -f docker/Dockerfile.dev .
 ```
 
 Start a new Docker container from ceasiompy-image:

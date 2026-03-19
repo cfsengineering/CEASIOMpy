@@ -53,7 +53,7 @@ def Import_POD(POD):
     X_pos, r_distr = POD_shape_func(Sections_information['Transformation']['Length'],Sections_information['Transformation']['FineRatio'])
 
     # For the engine
-    Sections_information['Transformation']['curveProfile'] = [(X_pos),-(r_distr)/2]
+    Sections_information['Transformation']['curveProfile'] = [(X_pos),-(r_distr)/4]
 
     for i, (x_pos, r_section) in enumerate(zip(X_pos, r_distr)):
 

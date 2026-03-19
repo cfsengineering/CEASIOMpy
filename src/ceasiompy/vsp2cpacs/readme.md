@@ -64,6 +64,13 @@ Follow the standard installation procedure described in the CEASIOMpy installati
 
 ---
 
+## Advise
+- Set different name for the components defined in OpenVSP
+- Not all the airfoils/profiles are implemented but if you design with a generic profile, once you have done you can click on one of the implemented and OpenVSP automaticlaly create a shape as close as possible. We advise rounded rectangle and ellipse. 
+- Only Monololitic design policy ofr fuselage modelling is implemented 
+- Set a LE/TE clustering with > 3.5 to have a uniform and equi spaced profile. 
+- For fuselage modeleling refine the region with ore sections to catch the exact shape. 
+- 
 ## More information
 
 - [OpenVSP website](https://openvsp.org/)

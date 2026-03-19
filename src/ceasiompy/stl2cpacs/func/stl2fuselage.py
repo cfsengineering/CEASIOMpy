@@ -9,6 +9,7 @@ import matplotlib.cm as cm
 from scipy.interpolate import PchipInterpolator
 from ceasiompy.stl2cpacs.stl2cpacs import export_mesh, parse_cart3d_tri
 from pathlib import Path
+import plotly.graph_objects as go
 
 # ---------------------------
 # CONFIG
@@ -101,7 +102,6 @@ def _save_debug_stl_and_slices_plot(
     if interactive:
         plt.show()
     plt.close(fig)
-
 
 def resample_fuselage_cpacs(
     yr, zr,

@@ -562,7 +562,7 @@ def get_coord_naca5_mod(xsec_id, n):
     x = np.concatenate((x_l[::-1], x_u[1:]))
     y = np.concatenate((y_l[::-1], y_u[1:]))
 
-    Scaling = geom_parm['Chord']
+    Scaling = [geom_parm['Chord']]
 
     return x, y, Name, Scaling,None
 
@@ -847,52 +847,45 @@ def get_coord_roundedrectangle(xsec_id, n):
 
     return Coord[:,0], Coord[:,1], Name ,Scaling, None
 
-
-
 def get_coord_from_file(xsec_id, n):
     """
     Load airfoil coordinates from an external file (OpenVSP input).
-    Suggest ot import an af file from selig database.
+    Suggest to import an af file from Selig database.
 
-    Reads upper and lower surface points from the selected x-section, merges them
-    into a closed profile, and returns the coordinates along with the section name
-    and chord scaling.
-<<<<<<< HEAD:src/ceasiompy/VSP2CPACS/func/wing.py
+    Reads upper and lower surface points from the selected x-section,
+    merges them into a closed profile, and returns the coordinates
+    along with the section name and chord scaling.
     """
-    geom_parm = get_params_by_name(xsec_id,['Chord','ThickChord','BaseThickChord'])
-=======
-"""
-    geom_parm = get_params_by_name(xsec_id,['Chord','ThickChord','BaseThickChord'])
+
+    geom_parm = get_params_by_name(
+        xsec_id, ['Chord', 'ThickChord', 'BaseThickChord']
+    )
 
     # Name
->>>>>>> origin/main:src/ceasiompy/vsp2cpacs/func/wing.py
-    Name = vsp.GetXSecCurveAlias(xsec_id).replace(' ','_')
+    Name = vsp.GetXSecCurveAlias(xsec_id).replace(' ', '_')
 
     # import the points
     upper_pts = np.array(vsp.GetAirfoilUpperPnts(xsec_id))
     lower_pts = np.array(vsp.GetAirfoilLowerPnts(xsec_id))
+
     upper_coords = np.array([[p.x(), p.y(), p.z()] for p in upper_pts])
     lower_coords = np.array([[p.x(), p.y(), p.z()] for p in lower_pts])
 
-<<<<<<< HEAD:src/ceasiompy/VSP2CPACS/func/wing.py
     x_u, y_u = upper_coords[:, 0], upper_coords[:, 1]
-    x_l, y_l = lower_coords[:, 0], lower_coords[:, 1] 
-=======
-
-    x_u, y_u = upper_coords[:,0], upper_coords[:,1]
-    x_l, y_l = lower_coords[:,0], lower_coords[:,1]
->>>>>>> origin/main:src/ceasiompy/vsp2cpacs/func/wing.py
+    x_l, y_l = lower_coords[:, 0], lower_coords[:, 1]
 
     x = np.concatenate((x_l[::-1], x_u), axis=0)
-    y = np.concatenate((y_l[::-1], y_u), axis=0) * (geom_parm['ThickChord']/geom_parm['BaseThickChord'])
+    y = np.concatenate((y_l[::-1], y_u), axis=0) * (
+        geom_parm['ThickChord'] / geom_parm['BaseThickChord']
+    )
 
-    # check if it close
+    # Close profile
     x[-1] = x[0]
     y[-1] = y[0]
 
     Scaling = [geom_parm['Chord']]
-    return x,y, Name, Scaling,None
 
+    return x, y, Name, Scaling, None
 
 def bezier_curve(ctrl_pts, n_points, s):
     n_points_per_seg = n_points//10
@@ -1191,15 +1184,8 @@ def Get_coordinates_profile(idx, *args, **kwargs):
     the trailing edge.
 
     """
-    breakpoint()
     Airfoil_name_type = vsp.GetXSecShape(idx)
-<<<<<<< HEAD:src/ceasiompy/VSP2CPACS/func/wing.py
-    print(Airfoil_name_type)
     func = profile_mapping[Airfoil_name_type]
-=======
-    func = profile_mapping()[Airfoil_name_type]
-    print(f'Working with {idx}')
->>>>>>> origin/main:src/ceasiompy/vsp2cpacs/func/wing.py
     try:
         return func(idx, *args, **kwargs)
     except TypeError:
@@ -1208,15 +1194,11 @@ def Get_coordinates_profile(idx, *args, **kwargs):
 
 
 
+
 def get_profile_section(Component,xsec_id, idx, Twist_val, Twist_loc, Rel, Twist_list):
 
     # Tess_W control how many points you need to define the shape of the profile
-<<<<<<< HEAD:src/ceasiompy/VSP2CPACS/func/wing.py
     Tess_W = int(vsp.GetParmVal(Component, "Tess_W", "Shape"))
-=======
-    Tess_W = int(vsp.GetParmVal(Component,'Tess_W','Shape'))
-
->>>>>>> origin/main:src/ceasiompy/vsp2cpacs/func/wing.py
     # get profile
     x, y, Airfoil_name,Scaling,shift = Get_coordinates_profile(xsec_id,Tess_W)
 

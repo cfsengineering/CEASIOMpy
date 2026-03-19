@@ -774,8 +774,8 @@ def _section_stl_to_cpacs():
                             min_value=0.0,
                             max_value=0.5,
                             format="%.4f",
-                            help=("Trailing-edge trim ratio applied on each extracted airfoil.",
-                                  " Increase if there are oscillations in the TE region."),
+                            help="Trailing-edge trim ratio applied on each extracted airfoil. "
+                                 "Increase if there are oscillations in the TE region.",
                             key=f"stl_component_adv_te_cut_{idx}",
                         )
                     )
@@ -785,9 +785,9 @@ def _section_stl_to_cpacs():
                             value=10,
                             min_value=3,
                             step=1,
-                            help=("Bins used to split the cloud into upper/lower surfaces.",
-                                  " Increase if you have a refined profile with sharp features,",
-                                  " or if you have oscillations on the CPACS airfoil."),
+                            help="Bins used to split the cloud into upper/lower surfaces. "
+                                 "Increase if you have a refined profile with sharp features, "
+                                 "or if you have oscillations on the CPACS airfoil.",
                             key=f"stl_component_adv_n_bin_{idx}",
                         )
                     )

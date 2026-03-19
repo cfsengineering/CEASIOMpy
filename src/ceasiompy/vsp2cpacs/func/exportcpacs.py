@@ -164,6 +164,7 @@ def initialization(doc,data,name_file):
                 prev_trans["Name_type"] == "Duct"
                 and data[k]["Transformation"]["Name_type"] == "Duct"
             ):
+                NameEngine = f"{data[k]['Transformation']['Name']}_Engine{data[k]['Transformation']['idx_engine']}"
 
                 coreCowl = make(doc, 'coreCowl', nacelle, uID=f'{NameEngine}_coreCowl')
 
@@ -741,8 +742,8 @@ def Engine_profile(doc, vehicle, data, name, i):
     if len(i) == 1:
         curveProfile = make(doc, 'curveProfile', curveProfiles, uID=f"{name}_fanCowlRotationCurve")
         pointList = make(doc, 'pointList', curveProfile)
-        make(doc, 'x', pointList, '0;1')
-        make(doc, 'y', pointList, '-0.06;-0.06')
+        make(doc, 'x', pointList, '0;0.05;0.1;0.15;0.2;0.3;0.4;0.5;0.6;0.7;0.8;0.85;0.9;0.95;1')
+        make(doc, 'y', pointList, '0;-0.006;-0.0085;-0.0102;-0.0113;-0.0125;-0.0132;-0.0135;-0.013;-0.0118;-0.0098;-0.0082;-0.0062;-0.0035;0')
     elif len(i) == 2:
         curveProfile = make(doc, 'curveProfile',
                             curveProfiles, uID=f"{name}_coreCowlRotationCurve")

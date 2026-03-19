@@ -29,74 +29,6 @@ WING_ANGLE_DECIMALS = 4
 #   FUNCTIONS
 # =================================================================================================
 
-
-def _save_debug_stl_and_slices_plot(
-    pts: np.ndarray,
-    tris: np.ndarray,
-    per_slice_clouds: list[np.ndarray],
-    le_points: list[np.ndarray | None],
-    output_directory: str | Path,
-    name: str,
-) -> None:
-    """
-    Save a debug 3D figure with STL points, first slice clouds, and LE picks.
-    """
-
-    out_dir = Path(output_directory)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    debug_path = out_dir / f"{name}_debug_stl_first_slices.png"
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
-
-    # STL as semi-transparent surface for better visibility than sparse points.
-    if tris.shape[0] > 0:
-        max_tris = 50000
-        if tris.shape[0] > max_tris:
-            tri_idx = np.linspace(0, tris.shape[0] - 1, max_tris, dtype=int)
-            tris_plot = tris[tri_idx]
-        else:
-            tris_plot = tris
-        ax.plot_trisurf(
-            pts[:, 0],
-            pts[:, 1],
-            pts[:, 2],
-            triangles=tris_plot,
-            color="#4C78A8",
-            alpha=0.24,
-            linewidth=0.0,
-            shade=False,
-        )
-        # Proxy handle so STL appears in legend.
-        ax.plot([], [], [], color="#4C78A8", lw=4, alpha=0.85, label="STL mesh")
-
-    cmap = cm.get_cmap("viridis", max(1, len(per_slice_clouds)))
-    first_slice_label = True
-    for i, cloud in enumerate(per_slice_clouds):
-        if cloud.shape[0] == 0:
-            continue
-        ax.scatter(
-            cloud[:, 0],
-            cloud[:, 1],
-            cloud[:, 2],
-            s=5,
-            color=cmap(i),
-            alpha=0.8,
-            label="Slice intersections" if first_slice_label else None,
-        )
-        first_slice_label = False
-
-    ax.set_title("Wing slicing ")
-    ax.set_xlabel("X")
-    ax.set_ylabel("Y")
-    ax.set_zlabel("Z")
-    ax.grid(True, alpha=0.3)
-    ax.legend(loc="upper right", fontsize=18)
-    ax.axis('equal')
-    fig.savefig(debug_path, dpi=200)
-    plt.close(fig)
-
-
 def _remove_consecutive_duplicate_points(poly, tol=1e-12):
     """
     Remove consecutive duplicate points in a 2xN polyline while preserving closure.
@@ -275,28 +207,6 @@ def resample_airfoil_cpacs(
         max_dec=WING_AIRFOIL_MAX_ROUND_DECIMALS,
         min_seg=WING_AIRFOIL_MIN_SEG,
     )
-
-    if not hasattr(resample_airfoil_cpacs, "_debug_plot_saved"):
-        plt.figure()
-        plt.plot(airfoil[0, :np.shape(airfoil)[1]//2], airfoil[1, :np.shape(airfoil)[1]//2],
-                 ".", color="red",
-                 label="Input upper"
-                 )
-        plt.plot(airfoil[0, np.shape(airfoil)[1]//2:-1],
-                 airfoil[1, np.shape(airfoil)[1]//2:-1],
-                 ".", color="blue",
-                 label="Input lower"
-                 )
-        plt.plot(airfoil[0, :], airfoil[1, :], "-k", linewidth=1.2, label="Resampled profile")
-        plt.xlabel("x/c")
-        plt.ylabel("z/c")
-        plt.title("Airfoil Resampling")
-        plt.legend()
-        plt.axis("equal")
-        plt.grid()
-        plt.savefig("airfoil resampling")
-        plt.close()
-        resample_airfoil_cpacs._debug_plot_saved = True
 
     return airfoil
 
@@ -780,15 +690,6 @@ def stl2wing_main(
         per_slice_clouds.append(cloud)
         le_points.append(le_pt)
         le_y.append(y0)
-
-    _save_debug_stl_and_slices_plot(
-        pts=pts,
-        tris=tris,
-        per_slice_clouds=per_slice_clouds,
-        le_points=le_points,
-        output_directory=output_directory,
-        name=name,
-    )
 
     # build LE array
     valid_idxs = [i for i, p in enumerate(le_points) if p is not None]

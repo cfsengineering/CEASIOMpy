@@ -649,8 +649,10 @@ def split_aircraft_stl(
 
     # 2) Split by disconnected triangle connectivity.
     comp_indices = _connected_triangle_components(triangles, tol=vertex_tol)
-    comp_indices = _feature_split_largest_component(triangles, comp_indices, tol=vertex_tol)
-    comp_indices = _span_split_largest_component(triangles, comp_indices, tol=vertex_tol)
+    # the following funciton need to be developed more,
+    # the idea is to split the STL using sharp feature
+    # comp_indices = _feature_split_largest_component(triangles, comp_indices, tol=vertex_tol) still need to be developed
+    # comp_indices = _span_split_largest_component(triangles, comp_indices, tol=vertex_tol) still need to be developed
 
     # 3) Convert connected groups to generic component metadata.
     components = _build_generic_components(comp_indices, triangles)

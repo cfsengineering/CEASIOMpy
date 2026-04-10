@@ -188,6 +188,7 @@ def create_sidebar(how_to_text, page_title="CEASIOMpy"):
         page_title=page_title,
         page_icon=favicon,
         layout="wide",
+        initial_sidebar_state="collapsed",
     )
     logo_bytes = _load_logo()
     st.logo(

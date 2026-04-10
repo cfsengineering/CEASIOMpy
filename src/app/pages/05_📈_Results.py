@@ -6,21 +6,18 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Streamlit page to show results of CEASIOMpy
 """
 
+from __future__ import annotations
+
 # Imports
 import os
 import json
 import base64
 import shutil
-import joblib
-import meshio
 import hashlib
 import tempfile
 import numpy as np
 import pandas as pd
-import pyvista as pv
 import streamlit as st
-import plotly.express as px
-import plotly.graph_objects as go
 import streamlit.components.v1 as components
 
 from typing import Any
@@ -31,16 +28,12 @@ from functools import lru_cache
 from contextlib import contextmanager
 from ceasiompy.utils.plot import section_3d_view
 from ceasiompy.utils.commonpaths import get_wkdir
-from SALib.sample.sobol import sample as sobol_sample
-from SALib.analyze.sobol import analyze as sobol_analyze
 from ceasiompy.smtrain.func.utils import domain_converter
 from ceasiompy.utils.ceasiompyutils import workflow_number
 from ceasiompy.smtrain.func.utils import get_model_typename
 from ceasiompy.smtrain.func.config import update_geometry_cpacs
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.geometryfunctions import get_xpath_for_param
-from ceasiompy.skinfriction.skinfriction import main as skin_friction
-from ceasiompy.staticstability.staticstability import main as static_stability
 
 from parsefunctions import (
     parse_ascii_tables,
@@ -54,13 +47,8 @@ from streamlitutils import (
 from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
-from smt.applications import MFK
 from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3Exception
-from smt.surrogate_models import (
-    KRG,
-    RBF,
-)
 
 from ceasiompy import log
 from constants import BLOCK_CONTAINER
@@ -123,6 +111,57 @@ IGNORED_RESULTS: set[str] = {
 
 # Functions
 
+
+def _pyvista():
+    import pyvista as pv
+
+    return pv
+
+
+def _plotly_express():
+    import plotly.express as px
+
+    return px
+
+
+def _plotly_go():
+    import plotly.graph_objects as go
+
+    return go
+
+
+def _meshio():
+    import meshio
+
+    return meshio
+
+
+def _joblib():
+    import joblib
+
+    return joblib
+
+
+def _sobol_tools():
+    from SALib.sample.sobol import sample as sobol_sample
+    from SALib.analyze.sobol import analyze as sobol_analyze
+
+    return sobol_sample, sobol_analyze
+
+
+def _postprocess_tools():
+    from ceasiompy.skinfriction.skinfriction import main as skin_friction
+    from ceasiompy.staticstability.staticstability import main as static_stability
+
+    return skin_friction, static_stability
+
+
+def _surrogate_model_classes():
+    from smt.applications import MFK
+    from smt.surrogate_models import KRG, RBF
+
+    return MFK, KRG, RBF
+
 @contextmanager
 def _timed(label: str):
     start = perf_counter()
@@ -146,6 +185,7 @@ def _looks_binary(data: bytes) -> bool:
 
 def _as_polydata(data_obj: object) -> pv.PolyData | None:
     """Return object as PolyData when possible, else None."""
+    pv = _pyvista()
     return data_obj if isinstance(data_obj, pv.PolyData) else None
 
 
@@ -156,6 +196,7 @@ def _render_surface_edges_interactive(
     fixed_edges: tuple[ndarray, ndarray] | None = None,
 ) -> None:
     """Render a PyVista surface with edge overlay in an interactive Plotly view."""
+    go = _plotly_go()
 
     try:
         clean_surface = _as_polydata(surface.clean())
@@ -923,6 +964,7 @@ def show_results() -> None:
         with tab:
             if tab_name == STATICSTABILITY_MODULE:
                 try:
+                    _, static_stability = _postprocess_tools()
                     static_stability(
                         cpacs=CPACS(Path(chosen_workflow, "01_pyavl", "ToolOutput.xml")),
                         results_dir=get_results_directory(
@@ -937,6 +979,7 @@ def show_results() -> None:
                     raise Exception(e)
 
             if tab_name == SKINFRICTION_MODULE:
+                skin_friction, _ = _postprocess_tools()
                 skin_friction(
                     cpacs=CPACS(Path(chosen_workflow, "selected_cpacs.xml")),
                     results_dir=get_results_directory(
@@ -1128,7 +1171,7 @@ def _display_pkl(path: Path) -> None:
         return None
 
     model = data.get("model")
-    if not isinstance(model, (KRG, RBF, MFK)):
+    if not isinstance(model, _surrogate_model_classes()):
         st.error(f"Modeltype {model=} is uncorrect.")
         return None
 
@@ -1389,6 +1432,9 @@ def _display_response_surface(
     objective: str | None,
     variable_geom_inputs: list[str],
 ) -> None:
+    px = _plotly_express()
+    go = _plotly_go()
+
     st.markdown("---")
     st.markdown(f"**Response Surface of best Surrogate Model {get_model_typename(model)}**")
 
@@ -1692,6 +1738,7 @@ def _compute_sobol_analysis(
     bounds_source: dict[str, str],
 ) -> None:
     _ = model
+    px = _plotly_express()
     sobol_params = []
     sobol_bounds: list[tuple[float, float]] = []
     for col in columns:
@@ -1754,7 +1801,7 @@ def _compute_sobol_analysis(
 
 @lru_cache(maxsize=8)
 def _load_plk_cached(path_str: str, mtime: float):
-    return joblib.load(path_str)
+    return _joblib().load(path_str)
 
 
 def _matrix_to_hashable(x_rows: np.ndarray) -> tuple[tuple[float, ...], ...]:
@@ -1771,7 +1818,7 @@ def _cached_model_prediction(
     with _timed(f"cache miss model prediction load {Path(path_str).name}"):
         data = _load_plk_cached(path_str, mtime)
         model = data.get("model")
-    if not isinstance(model, (KRG, RBF, MFK)):
+    if not isinstance(model, _surrogate_model_classes()):
         raise TypeError(f"Modeltype {model=} is uncorrect.")
     if hasattr(model, "options"):
         try:
@@ -1815,6 +1862,7 @@ def _cached_sobol_indices(
     bounds_source_items: tuple[tuple[str, str], ...],
     n_base: int,
 ) -> tuple[tuple[float, ...], tuple[float, ...]]:
+    sobol_sample, sobol_analyze = _sobol_tools()
     problem = {
         "num_vars": len(sobol_params),
         "names": list(sobol_params),
@@ -1939,6 +1987,7 @@ def _display_txt(path: Path) -> None:
 @st.cache_resource(show_spinner=False)
 def _load_su2_mesh_cached(path_str: str, mtime_ns: int) -> pv.DataSet:
     _ = mtime_ns  # cache invalidation key
+    pv = _pyvista()
     path = Path(path_str)
     temp_file_path: str | None = None
     try:
@@ -1970,6 +2019,7 @@ def _load_su2_mesh_cached(path_str: str, mtime_ns: int) -> pv.DataSet:
 
 @st.cache_resource(show_spinner=False)
 def _build_su2_surface_cached(path_str: str, mtime_ns: int) -> pv.PolyData:
+    pv = _pyvista()
     mesh = _load_su2_mesh_cached(path_str, mtime_ns)
     x_min, x_max, y_min, y_max, z_min, z_max = mesh.bounds
     is_flat_2d = min(abs(x_max - x_min), abs(y_max - y_min), abs(z_max - z_min)) <= 1e-10
@@ -2026,6 +2076,7 @@ def _build_su2_display_surface_cached(
 ) -> pv.PolyData:
     """Build SU2 display surface and optionally keep only wall markers for 3D."""
     _ = marker_filter_version  # cache key for marker filtering logic updates
+    pv = _pyvista()
 
     meshio_mesh = _load_su2_meshio_cached(path_str, mtime_ns)
     points, triangles, _, cell_data = _extract_surface_mesh(meshio_mesh)
@@ -2098,6 +2149,7 @@ def _build_su2_display_surface_cached(
 @st.cache_resource(show_spinner=False)
 def _load_su2_meshio_cached(path_str: str, mtime_ns: int) -> meshio.Mesh:
     _ = mtime_ns  # cache invalidation key
+    meshio = _meshio()
     path = Path(path_str)
     temp_file_path: str | None = None
     try:
@@ -2326,6 +2378,7 @@ def _display_su2(path: Path) -> None:
 
 
 def _display_dat(path: Path) -> None:
+    px = _plotly_express()
     if path.name == "forces_breakdown.dat":
         try:
             path_str = str(path)
@@ -2463,6 +2516,7 @@ def _parse_forces_breakdown_cached(
 @st.cache_resource(show_spinner=False)
 def _load_vtu_surface_cached(path_str: str, mtime_ns: int) -> pv.PolyData:
     _ = mtime_ns  # cache invalidation key
+    pv = _pyvista()
     mesh = pv.read(path_str)
     try:
         surface = _as_polydata(mesh.extract_surface(algorithm="dataset_surface"))
@@ -2528,6 +2582,7 @@ def _render_cached_surface_payload_interactive(
     scalar_name: str | None = None,
     su2_grid_style: bool = False,
 ) -> None:
+    go = _plotly_go()
     if not bool(payload.get("ok", False)):
         st.warning(str(payload.get("msg", "Interactive rendering payload is invalid.")))
         return
@@ -2783,6 +2838,8 @@ def _display_pdf(path: Path) -> None:
 
 
 def _display_csv(path: Path) -> None:
+    px = _plotly_express()
+    go = _plotly_go()
     if path.name == "history.csv":
         try:
             st.markdown("**Convergence History**")
@@ -3160,6 +3217,7 @@ def _get_workflow_module_order(workflow_dir: Path) -> list[str]:
 
 
 def _display_surface_flow_cp_xc(path: Path, surface: pv.PolyData) -> None:
+    px = _plotly_express()
     if path.name != "surface_flow.vtu":
         return None
 

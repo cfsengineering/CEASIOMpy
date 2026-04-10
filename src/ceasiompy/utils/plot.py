@@ -2,9 +2,7 @@
 import os
 import tempfile
 import numpy as np
-import pyvista as pv
 import streamlit as st
-import plotly.graph_objects as go
 from streamlit.components import v2 as components_v2
 
 from cpacspy.cpacsfunctions import get_value
@@ -94,6 +92,18 @@ export default function(component) {
 """
 
 
+def _pyvista():
+    import pyvista as pv
+
+    return pv
+
+
+def _plotly_go():
+    import plotly.graph_objects as go
+
+    return go
+
+
 def _get_camera_tracker_component():
     global _camera_tracker_component
     if _camera_tracker_component is not None:
@@ -172,6 +182,7 @@ def _load_surface_arrays_cached(
 ) -> tuple[np.ndarray, np.ndarray]:
     """Read/triangulate a VTP preview mesh and cache result by file mtime."""
     _ = (vtp_mtime_ns, vtp_size)
+    pv = _pyvista()
     pv_mesh = pv.read(vtp_path)
     surface = pv_mesh.extract_surface(algorithm="dataset_surface").triangulate().clean()
     surface = surface.compute_normals()
@@ -187,11 +198,13 @@ def _build_3d_figure(
     *,
     height: int | None,
     ui_key: str,
-) -> go.Figure | None:
+) -> object | None:
     """Create plotly figure from mesh points/faces arrays."""
     if faces.size == 0:
         st.warning("No mesh faces available for 3D preview.")
         return None
+
+    go = _plotly_go()
 
     points_local = np.array(points, copy=True)
     if not show_yaxis:
@@ -330,6 +343,7 @@ def get_aircraft_mesh_data(
             return None
 
     try:
+        pv = _pyvista()
         pv_mesh = pv.read(str(vtp_file))
     except Exception as e:
         st.error(f"Cannot load 3D preview mesh file: {e=}.")

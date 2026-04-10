@@ -12,7 +12,6 @@ import os
 import re
 import base64
 import streamlit as st
-import plotly.graph_objects as go
 import streamlit.components.v1 as components
 
 from streamlit_float import float_init
@@ -326,6 +325,8 @@ def plot_airfoil_2d(x_coords, y_coords, title="Airfoil Profile"):
         y_coords: Array or list of Y coordinates
         title: Plot title
     """
+    import plotly.graph_objects as go
+
     fig = go.Figure()
 
     fig.add_trace(go.Scatter(

@@ -16,6 +16,9 @@ TODO:
 # Imports
 import pandas as pd
 
+from packaging.version import Version
+
+PANDAS_VERSION = Version(pd.__version__)
 from ceasiompy.utils.progress import progress_update
 from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.smtrain.func.utils import (
@@ -328,7 +331,11 @@ def _geometry_exploration(
 
     # Save Best Geometry from training in adequate Results Directory
     training_results_df = (
-        pd.concat([level1_df, level2_df], ignore_index=True, copy=False)
+        (
+            pd.concat([level1_df, level2_df], ignore_index=True, copy=False)
+            if PANDAS_VERSION < Version("3.0")
+            else pd.concat([level1_df, level2_df], ignore_index=True)
+        )
         if "level2_df" in locals() and level2_df is not None
         else level1_df
     )
